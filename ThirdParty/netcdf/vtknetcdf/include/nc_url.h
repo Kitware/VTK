@@ -11,10 +11,10 @@
 #include "nclist.h"
 
 /*! This is an open structure meaning
-        it is ok to directly access its fields*/
+	it is ok to directly access its fields*/
 typedef struct NC_URL {
     char* url;        /* as passed by the caller */
-    char* base;       /*!< without constraints*/
+    char* base;	      /*!< without constraints*/
     char* protocol;
     char* constraint;
     char* projection; /*!< without leading '?'*/

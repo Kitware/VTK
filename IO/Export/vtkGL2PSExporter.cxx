@@ -297,14 +297,14 @@ void vtkGL2PSExporter::WriteData()
       // What sort of special prop is it?
       if (vtkActor2D *act2d = vtkActor2D::SafeDownCast(prop))
         {
-        if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
+        if (vtkTextActor *atextAct = vtkTextActor::SafeDownCast(act2d))
           {
-          this->DrawTextActor(textAct, renCol);
+          this->DrawTextActor(atextAct, renCol);
           }
-        else if (vtkMathTextActor *textAct =
+        else if (vtkMathTextActor *atextAct2 =
                  vtkMathTextActor::SafeDownCast(act2d))
           {
-          this->DrawMathTextActor(textAct, renCol);
+          this->DrawMathTextActor(atextAct2, renCol);
           }
         else if (vtkMapper2D *map2d = act2d->GetMapper())
           {
@@ -322,15 +322,15 @@ void vtkGL2PSExporter::WriteData()
           continue;
           }
         }
-      else if (vtkMathTextActor3D *textAct =
+      else if (vtkMathTextActor3D *atextAct =
                vtkMathTextActor3D::SafeDownCast(prop))
         {
-        this->DrawMathTextActor3D(textAct, renCol);
+        this->DrawMathTextActor3D(atextAct, renCol);
         }
-      else if (vtkTextActor3D *textAct =
+      else if (vtkTextActor3D *atextAct2 =
                vtkTextActor3D::SafeDownCast(prop))
         {
-        this->DrawTextActor3D(textAct, renCol);
+        this->DrawTextActor3D(atextAct2, renCol);
         }
       else // Some other prop
         {
@@ -372,7 +372,7 @@ void vtkGL2PSExporter::WriteData()
   fclose(fpObj);
 
   // Clean up.
-  for (int i = 0; i < origDepthPeeling.size(); ++i)
+  for (size_t i = 0; i < origDepthPeeling.size(); ++i)
     {
     vtkRenderer::SafeDownCast(renCol->GetItemAsObject(i))->SetUseDepthPeeling(
           origDepthPeeling[i] ? 1 : 0);

@@ -46,15 +46,15 @@ nc_urlparse(const char* url0, NC_URL** ncurlp)
 
     /* break up the url string into pieces*/
     if(*p == LBRACKET) {
-    params = p+1;
-/* find end of the clientparams*/
-    for(;*p;p++) {if(p[0] == RBRACKET && p[1] != LBRACKET) break;}
-    if(*p == 0) {
-    ncstat = NC_EINVAL; /* malformed client params*/
-    goto done;
-    }
-    *p = '\0'; /* leave off the trailing rbracket for now */
-    p++; /* move past the params*/
+	params = p+1;
+	/* find end of the clientparams*/
+        for(;*p;p++) {if(p[0] == RBRACKET && p[1] != LBRACKET) break;}
+	if(*p == 0) {
+	    ncstat = NC_EINVAL; /* malformed client params*/
+	    goto done;
+	}
+	*p = '\0'; /* leave off the trailing rbracket for now */
+	p++; /* move past the params*/
     }
 
     baseurl = p;
@@ -63,13 +63,13 @@ nc_urlparse(const char* url0, NC_URL** ncurlp)
     /* find the end of the protocol */
     p1 = strchr(p,':');
     if(p1 == NULL || p1 == p) {
-    ncstat = NC_EINVAL; /* missing protocol*/
-    goto done;
+	ncstat = NC_EINVAL; /* missing protocol*/
+        goto done;
     }
     /* Check that the : is followed by "//" */
     if(p1[1] != '/' || p1[2] != '/') {
-    ncstat = NC_EINVAL;
-    goto done;
+	ncstat = NC_EINVAL;
+	goto done;
     }
 
     /* Simulate strndup */
@@ -81,7 +81,7 @@ nc_urlparse(const char* url0, NC_URL** ncurlp)
     /* Look for '?' */
     constraint = strchr(p,'?');
     if(constraint) {
-    *constraint++ = '\0';
+	*constraint++ = '\0';
     }
 
     /* assemble the component pieces*/
@@ -98,17 +98,17 @@ nc_urlparse(const char* url0, NC_URL** ncurlp)
     if(constraint != NULL && ncurl->constraint == NULL) return NC_ENOMEM;
     nc_urlsetconstraints(ncurl,constraint);
     if(params != NULL) {
-    ncurl->params = (char*)malloc(1+2+strlen(params));
-    if(ncurl->params == NULL) return NC_ENOMEM;
-    strcpy(ncurl->params,"[");
-    strcat(ncurl->params,params);
-    strcat(ncurl->params,"]");
+        ncurl->params = (char*)malloc(1+2+strlen(params));
+	if(ncurl->params == NULL) return NC_ENOMEM;
+        strcpy(ncurl->params,"[");
+        strcat(ncurl->params,params);
+        strcat(ncurl->params,"]");
     }
     if(ncurlp) *ncurlp = ncurl;
 
 #ifdef DEBUG
-    fprintf(stderr,"urlparse: params=|%s| base=|%s| projection=|%s| selection=|%s|\n",
-            ncurl->params, ncurl->base, ncurl->projection, ncurl->selection);
+        fprintf(stderr,"urlparse: params=|%s| base=|%s| projection=|%s| selection=|%s|\n",
+		ncurl->params, ncurl->base, ncurl->projection, ncurl->selection);
 #endif
 
 done:
@@ -143,7 +143,7 @@ nc_urlsetconstraints(NC_URL* durl,const char* constraints)
 
     if(durl->projection != NULL) free(durl->projection);
     if(durl->selection != NULL) free(durl->selection);
-    durl->projection = NULL;
+    durl->projection = NULL;	
     durl->selection = NULL;
 
     if(constraints == NULL || strlen(constraints)==0) return;
@@ -153,19 +153,19 @@ nc_urlsetconstraints(NC_URL* durl,const char* constraints)
     proj = (char*) p;
     select = strchr(proj,'&');
     if(select != NULL) {
-    size_t plen = (select - proj);
-    if(plen == 0) {
-    proj = NULL;
+        size_t plen = (select - proj);
+	if(plen == 0) {
+	    proj = NULL;
+	} else {
+	    proj = (char*)malloc(plen+1);
+	    if(proj == NULL) return;
+	    memcpy((void*)proj,p,plen);
+	    proj[plen] = '\0';
+	}
+	select = nulldup(select);
     } else {
-    proj = (char*)malloc(plen+1);
-    if(proj == NULL) return;
-    memcpy((void*)proj,p,plen);
-    proj[plen] = '\0';
-    }
-    select = nulldup(select);
-    } else {
-    proj = nulldup(proj);
-    select = NULL;
+	proj = nulldup(proj);
+	select = NULL;
     }
     durl->projection = proj;
     durl->selection = select;
@@ -176,9 +176,9 @@ nc_urldecodeparams(NC_URL* ncurl)
 {
     int ok = 0;
     if(ncurl->parammap == NULL && ncurl->params != NULL) {
-    NClist* map = nc_urlparamdecode(ncurl->params);
-    ncurl->parammap = map;
-    ok = 1;
+	NClist* map = nc_urlparamdecode(ncurl->params);
+	ncurl->parammap = map;
+	ok = 1;
     }
     return ok;
 }
@@ -190,7 +190,7 @@ nc_urllookup(NC_URL* durl, const char* clientparam)
 {
     /* make sure that durl->parammap exists */
     if(durl->parammap == NULL) nc_urldecodeparams(durl);
-    return nc_urlparamlookup(durl->parammap,clientparam);
+    return nc_urlparamlookup(durl->parammap,clientparam);    
 }
 
 /* Convenience: search a list for a given string; NULL if not found */
@@ -200,9 +200,9 @@ nc_urllookupvalue(NClist* list, const char* value)
     int i;
     if(list == NULL || value == NULL) return NULL;
     for(i=0;i<nclistlength(list);i++) {
-    char* s = (char*)nclistget(list,i);
-    if(s == NULL) continue;
-    if(strcmp(value,s) == 0) return s;
+	char* s = (char*)nclistget(list,i);
+	if(s == NULL) continue;
+	if(strcmp(value,s) == 0) return s;
     }
     return NULL;
 }
@@ -239,28 +239,28 @@ nc_urlparamdecode(char* params0)
     params = strdup(params0);
     cp=params; cq = cp;
     while((c=*cp++)) {
-    if(c == ' ') cp++; else *cq++ = c;
+	if(c == ' ') cp++; else *cq++ = c;
     }
     *cq = '\0';
 
     /* Pass 2 to replace beginning '[' and ending ']' */
-    if(params[0] == '[')
-      strcpy(params,params+1);
+    if(params[0] == '[') 
+	strcpy(params,params+1);
     if(params[strlen(params)-1] == ']')
-      params[strlen(params)-1] = '\0';
+	params[strlen(params)-1] = '\0';
 
     /* Pass 3 to replace "][" pairs with ','*/
     cp=params; cq = cp;;
     while((c=*cp++)) {
-    if(c == RBRACKET && *cp == LBRACKET) {cp++; c = ',';}
-    *cq++ = c;
+	if(c == RBRACKET && *cp == LBRACKET) {cp++; c = ',';}
+	*cq++ = c;
     }
     *cq = '\0';
 
     /* Pass 4 to break string into pieces and count # of pairs */
     nparams=0;
     for(cp=params;(c=*cp);cp++) {
-    if(c == ',') {*cp = '\0'; nparams++;}
+	if(c == ',') {*cp = '\0'; nparams++;}
     }
     nparams++; /* for last one */
 
@@ -269,29 +269,29 @@ nc_urlparamdecode(char* params0)
     /* parameters of the form name name= are converted to name=""*/
     cp = params;
     for(i=0;i<nparams;i++) {
-    int j;
-    char* next = cp+strlen(cp)+1; /* save ptr to next pair*/
-    char* vp;
-    NClist* values;
-/*break up the ith param*/
-    vp = strchr(cp,'=');
-    if(vp != NULL) {*vp = '\0'; vp++;} else {vp = "";}
-/* Locate any previous name match and get/create the value list*/
-    for(values=NULL,j=0;j<nclistlength(map);j+=2) {
-    if(strcmp(cp,(char*)nclistget(map,j))==0) {
-    values = (NClist*)nclistget(map,j+1);
-    break;
-    }
-    }
-    if(values == NULL) {
-    /*add at end */
-    values = nclistnew();
-    nclistpush(map,(ncelem)nulldup(cp));
-    nclistpush(map,(ncelem)values);
-    }
-/* Add the value (may result in duplicates */
-    nclistpush(values,(ncelem)nulldup(vp));
-    cp = next;
+	int j;
+	char* next = cp+strlen(cp)+1; /* save ptr to next pair*/
+	char* vp;
+	NClist* values;
+	/*break up the ith param*/
+	vp = strchr(cp,'=');
+	if(vp != NULL) {*vp = '\0'; vp++;} else {vp = "";}
+	/* Locate any previous name match and get/create the value list*/
+        for(values=NULL,j=0;j<nclistlength(map);j+=2) {
+	    if(strcmp(cp,(char*)nclistget(map,j))==0) {
+		values = (NClist*)nclistget(map,j+1);
+		break;
+	    }	
+	}
+	if(values == NULL) {
+	    /*add at end */
+	    values = nclistnew();
+	    nclistpush(map,(ncelem)nulldup(cp));
+	    nclistpush(map,(ncelem)values);
+	}
+	/* Add the value (may result in duplicates */
+	nclistpush(values,(ncelem)nulldup(vp));
+	cp = next;
     }
     free(params);
     return map;
@@ -308,10 +308,10 @@ nc_urlparamlookup(NClist* params, const char* pname)
     int i;
     if(params == NULL || pname == NULL) return NULL;
     for(i=0;i<nclistlength(params);i+=2) {
-    char* name = (char*)nclistget(params,i);
-    if(strcmp(pname,name)==0) {
-    return (NClist*)nclistget(params,i+1);
-    }
+	char* name = (char*)nclistget(params,i);
+	if(strcmp(pname,name)==0) {
+	    return (NClist*)nclistget(params,i+1);
+	}
     }
     return NULL;
 }
@@ -322,17 +322,17 @@ static void
 nc_urlparamfree(NClist* params)
 {
     int i,j;
-	NClist* values;
+    NClist* values;
     if(params == NULL) return;
     for(i=0;i<nclistlength(params);i+=2) {
-      char* s = (char*)nclistget(params,i);
-      if(s != NULL) free((void*)s);
-      values = (NClist*)nclistget(params,i+1);
-      for(j=0;j<nclistlength(values);j++) {
-        s = (char*)nclistget(values,j);
-        if(s != NULL) free((void*)s);
-      }
-      nclistfree(values);
+	char* s = (char*)nclistget(params,i);
+	if(s != NULL) free((void*)s);
+	values = (NClist*)nclistget(params,i+1);
+	for(j=0;j<nclistlength(values);j++) {
+	    s = (char*)nclistget(values,j);	    
+	    if(s != NULL) free((void*)s);
+	}
+        nclistfree(values);
     }
     nclistfree(params);
 }
@@ -341,8 +341,8 @@ void
 nc_urlsetprotocol(NC_URL* ncurl,const char* newprotocol)
 {
     if(ncurl != NULL) {
-    if(ncurl->protocol != NULL) free(ncurl->protocol);
-    ncurl->protocol = nulldup(newprotocol);
+	if(ncurl->protocol != NULL) free(ncurl->protocol);
+	ncurl->protocol = nulldup(newprotocol);
     }
 }
 
@@ -351,7 +351,7 @@ nc_urlsetprotocol(NC_URL* ncurl,const char* newprotocol)
 /*
 Delete the entry.
 return value = 1 => found and deleted;
-0 => param not found
+               0 => param not found
 */
 static int
 nc_urlparamdelete(NClist* params, const char* clientparam)
@@ -359,12 +359,12 @@ nc_urlparamdelete(NClist* params, const char* clientparam)
     int i,found = 0;
     if(params == NULL || clientparam == NULL) return 0;
     for(i=0;i<nclistlength(params);i+=2) {
-    char* name = (char*)nclistget(params,i);
-    if(strcmp(clientparam,name)==0) {found=1; break;}
+	char* name = (char*)nclistget(params,i);
+	if(strcmp(clientparam,name)==0) {found=1; break;}
     }
     if(found) {
-    nclistremove(params,i+1); /* remove value */
-    nclistremove(params,i); /* remove name */
+	nclistremove(params,i+1); /* remove value */
+	nclistremove(params,i); /* remove name */
     }
     return found;
 }
@@ -372,7 +372,7 @@ nc_urlparamdelete(NClist* params, const char* clientparam)
 /*
 Replace new client param (name,value);
 return value = 1 => replacement performed
-0 => insertion performed
+               0 => insertion performed
 */
 static int
 nc_urlparamreplace(NClist* params, const char* clientparam, const char* value)
@@ -380,11 +380,11 @@ nc_urlparamreplace(NClist* params, const char* clientparam, const char* value)
     int i;
     if(params == NULL || clientparam == NULL) return 0;
     for(i=0;i<nclistlength(params);i+=2) {
-    char* name = (char*)nclistget(params,i);
-    if(strcmp(clientparam,name)==0) {
-    nclistinsert(params,i+1,(ncelem)nulldup(value));
-    return 1;
-    }
+	char* name = (char*)nclistget(params,i);
+	if(strcmp(clientparam,name)==0) {
+	    nclistinsert(params,i+1,(ncelem)nulldup(value));
+	    return 1;
+	}
     }
     nc_urlparaminsert(params,clientparam,value);
     return 0;
@@ -393,7 +393,7 @@ nc_urlparamreplace(NClist* params, const char* clientparam, const char* value)
 /*
 Insert new client param (name,value);
 return value = 1 => not already defined
-0 => param already defined (no change)
+               0 => param already defined (no change)
 */
 static int
 nc_urlparaminsert(NClist* params, const char* clientparam, const char* value)
@@ -401,8 +401,8 @@ nc_urlparaminsert(NClist* params, const char* clientparam, const char* value)
     int i;
     if(params == NULL || clientparam == NULL) return 0;
     for(i=0;i<nclistlength(params);i+=2) {
-    char* name = (char*)nclistget(params,i);
-    if(strcmp(clientparam,name)==0) return 0;
+	char* name = (char*)nclistget(params,i);
+	if(strcmp(clientparam,name)==0) return 0;
     }
     /* not found, append */
     nclistpush(params,(ncelem)strdup(clientparam));
@@ -411,3 +411,4 @@ nc_urlparaminsert(NClist* params, const char* clientparam, const char* value)
 }
 
 #endif
+

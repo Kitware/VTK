@@ -62,17 +62,17 @@ NC_testurl(const char* path)
 
     /* Ok, try to parse as a url */
     if(nc_urlparse(path,&tmpurl) == NC_NOERR) {
-/* Do some extra testing to make sure this really is a url */
-/* Look for a knownprotocol */
-    struct NCPROTOCOLLIST* protolist;
-    for(protolist=ncprotolist;protolist->protocol;protolist++) {
-    if(strcmp(tmpurl->protocol,protolist->protocol) == 0) {
-    isurl=1;
-    break;
-    }
-    }
-    nc_urlfree(tmpurl);
-    return isurl;
+	/* Do some extra testing to make sure this really is a url */
+        /* Look for a knownprotocol */
+        struct NCPROTOCOLLIST* protolist;
+        for(protolist=ncprotolist;protolist->protocol;protolist++) {
+	    if(strcmp(tmpurl->protocol,protolist->protocol) == 0) {
+	        isurl=1;
+		break;
+	    }		
+	}
+	nc_urlfree(tmpurl);
+	return isurl;
     }
     return 0;
 }
@@ -94,27 +94,27 @@ NC_urlmodel(const char* path)
     /* Look at any prefixed parameters */
     if(nc_urllookup(tmpurl,"netcdf4")
        || nc_urllookup(tmpurl,"netcdf-4")) {
-    model = (NC_DISPATCH_NC4|NC_DISPATCH_NCD);
+	model = (NC_DISPATCH_NC4|NC_DISPATCH_NCD);
     } else if(nc_urllookup(tmpurl,"netcdf3")
               || nc_urllookup(tmpurl,"netcdf-3")) {
-    model = (NC_DISPATCH_NC3|NC_DISPATCH_NCD);
+	model = (NC_DISPATCH_NC3|NC_DISPATCH_NCD);
     } else if(nc_urllookup(tmpurl,"cdmremote")
-              || nc_urllookup(tmpurl,"cdmr")) {
-    model = (NC_DISPATCH_NCR|NC_DISPATCH_NC4);
+	      || nc_urllookup(tmpurl,"cdmr")) {
+	model = (NC_DISPATCH_NCR|NC_DISPATCH_NC4);
     }
 
     /* Now look at the protocol */
     for(protolist=ncprotolist;protolist->protocol;protolist++) {
-    if(strcmp(tmpurl->protocol,protolist->protocol) == 0) {
-    model |= protolist->modelflags;
-    if(protolist->substitute)
-      nc_urlsetprotocol(tmpurl,protolist->substitute);
-    break;
-    }
-    }
+	if(strcmp(tmpurl->protocol,protolist->protocol) == 0) {
+	    model |= protolist->modelflags;
+	    if(protolist->substitute)
+	        nc_urlsetprotocol(tmpurl,protolist->substitute);	
+	    break;	    
+	}
+    }	
     /* Force NC_DISPATCH_NC3 if necessary */
     if((model & NC_DISPATCH_NC4) == 0)
-      model |= (NC_DISPATCH_NC3 | NC_DISPATCH_NCD);
+	model |= (NC_DISPATCH_NC3 | NC_DISPATCH_NCD);
 
 done:
     nc_urlfree(tmpurl);
@@ -137,12 +137,12 @@ void NC_set_dispatch_override(NC_Dispatch* d)
 
 /* Overlay by treating the tables as arrays of void*.
    Overlay rules are:
-   overlay    base    merge
-   -------    ----    -----
-   null     null     null
-   null      y        y
-   x       null      x
-   x        y        x
+        overlay    base    merge
+        -------    ----    -----
+          null     null     null
+          null      y        y
+           x       null      x
+           x        y        x
 */
 
 int
@@ -156,8 +156,8 @@ NC_dispatch_overlay(const NC_Dispatch* overlay, const NC_Dispatch* base, NC_Disp
     *merge = *base;
     vmerge = (void**)merge;
     for(i=0;i<count;i++) {
-    if(voverlay[i] == NULL) continue;
-    vmerge[i] = voverlay[i];
+        if(voverlay[i] == NULL) continue;
+        vmerge[i] = voverlay[i];
     }
     /* Finally, the merge model should always be the overlay model */
     merge->model = overlay->model;

@@ -38,7 +38,8 @@
 */
 
 #include "vtkParse.h"
-#include "vtkParseInternal.h"
+#include "vtkParseData.h"
+#include "vtkParseMain.h"
 #include "vtkParsePreprocess.h"
 #include <stdio.h>
 #include <string.h>
@@ -125,23 +126,26 @@ static char *append_scope_to_line(
  * Append template info
  */
 static char *append_template_to_line(
-  char *line, size_t *m, size_t *maxlen, TemplateArgs *template_args)
+  char *line, size_t *m, size_t *maxlen, TemplateInfo *template_args)
 {
-  TemplateArg *arg;
+  ValueInfo *arg;
   int j;
 
   line = append_to_line(line, "<", m, maxlen);
 
-  for (j = 0; j < template_args->NumberOfArguments; j++)
+  for (j = 0; j < template_args->NumberOfParameters; j++)
     {
-    arg = template_args->Arguments[j];
-    line = append_to_line(line, arg->Name, m, maxlen);
+    arg = template_args->Parameters[j];
+    if (arg->Name)
+      {
+      line = append_to_line(line, arg->Name, m, maxlen);
+      }
     if (arg->Value && arg->Value[0] != '\n')
       {
       line = append_to_line(line, "=", m, maxlen);
       line = append_to_line(line, arg->Value, m, maxlen);
       }
-    if (j+1 < template_args->NumberOfArguments)
+    if (j+1 < template_args->NumberOfParameters)
       {
       line = append_to_line(line, ",", m, maxlen);
       }
@@ -502,18 +506,21 @@ static char **append_namespace_contents(
       line = append_typedef_to_line(line, &m, &maxlen,
         data->Typedefs[data->Items[i].Index]);
       }
-    else
+    else if (data->Items[i].Type != VTK_NAMESPACE_INFO)
       {
       /* unhandled file element */
       continue;
       }
 
-    /* append filename and flags */
-    line = append_trailer(
-      line, &m, &maxlen, header_file, module_name, tmpflags);
+    if (data->Items[i].Type != VTK_NAMESPACE_INFO)
+      {
+      /* append filename and flags */
+      line = append_trailer(
+        line, &m, &maxlen, header_file, module_name, tmpflags);
 
-    /* append the line to the file */
-    lines = append_unique_line(lines, line, np);
+      /* append the line to the file */
+      lines = append_unique_line(lines, line, np);
+      }
 
     /* for classes, add all typed defined within the class */
     if ((data->Items[i].Type == VTK_CLASS_INFO ||
@@ -905,79 +912,34 @@ static int string_compare(const void *vp1, const void *vp2)
 
 int main(int argc, char *argv[])
 {
-  int usage_error = 0;
-  char *output_filename = 0;
-  int i, argi;
+  OptionInfo *options;
+  int i;
   size_t j, n;
   char **lines = 0;
   char **files = 0;
   char *flags;
   char *module_name;
-  char *option;
-  char *optionarg;
-  const char *optionargval;
 
   /* parse command-line options */
-  for (argi = 1; argi < argc && argv[argi][0] == '-'; argi++)
-    {
-    if (strncmp(argv[argi], "-o", 2) == 0 ||
-        strncmp(argv[argi], "-I", 2) == 0 ||
-        strncmp(argv[argi], "-D", 2) == 0 ||
-        strncmp(argv[argi], "-U", 2) == 0)
-      {
-      option = argv[argi];
-      optionarg = &argv[argi][2];
-      if (argv[argi][2] == '\0')
-        {
-        argi++;
-        if (argi >= argc || argv[argi][0] == '-')
-          {
-          usage_error = 1;
-          break;
-          }
-        optionarg = argv[argi];
-        }
-      if (strncmp(option, "-o", 2) == 0)
-        {
-        output_filename = optionarg;
-        }
-      else if (strncmp(option, "-I", 2) == 0)
-        {
-        vtkParse_IncludeDirectory(optionarg);
-        }
-      else if (strncmp(option, "-D", 2) == 0)
-        {
-        optionargval = "1";
-        j = 0;
-        while (optionarg[j] != '\0' && optionarg[j] != '=') { j++; }
-        if (optionarg[j] == '=')
-          {
-          optionargval = &optionarg[j+1];
-          }
-        vtkParse_DefineMacro(optionarg, optionargval);
-        }
-      else if (strncmp(option, "-U", 2) == 0)
-        {
-        vtkParse_UndefineMacro(optionarg);
-        }
-      }
-    }
+  vtkParse_MainMulti(argc, argv);
+  options = vtkParse_GetCommandLineOptions();
 
-  if (usage_error || !output_filename || argc - argi < 1)
+  /* make sure than an output file was given on the command line */
+  if (options->OutputFileName == NULL)
     {
-    fprintf(stderr,
-            "Usage: %s -o output_file data_file [files_to_merge]\n",
-            argv[0]);
+    fprintf(stderr, "No output file was specified\n");
     exit(1);
     }
 
   /* read the data file */
-  files = vtkWrapHierarchy_TryReadHierarchyFile(argv[argi++], files);
+  files = vtkWrapHierarchy_TryReadHierarchyFile(
+    options->InputFileName, files);
 
   /* read in all the prior files */
-  while (argi < argc)
+  for (i = 1; i < options->NumberOfFiles; i++)
     {
-    lines = vtkWrapHierarchy_TryReadHierarchyFile(argv[argi++], lines);
+    lines = vtkWrapHierarchy_TryReadHierarchyFile(
+      options->Files[i], lines);
     }
 
   /* merge the files listed in the data file */
@@ -1002,7 +964,7 @@ int main(int argc, char *argv[])
   qsort(lines, n, sizeof(char *), &string_compare);
 
   /* write the file, if it has changed */
-  vtkWrapHierarchy_TryWriteHierarchyFile(output_filename, lines);
+  vtkWrapHierarchy_TryWriteHierarchyFile(options->OutputFileName, lines);
 
   for (j = 0; j < n; j++)
     {

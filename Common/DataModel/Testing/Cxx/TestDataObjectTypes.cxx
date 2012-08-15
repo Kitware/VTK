@@ -15,7 +15,7 @@
 
 #include "vtkDataObjectTypes.h"
 
-class TestDataObjectTypes: public vtkDataObjectTypes
+class TestDataObjectTypesTester: public vtkDataObjectTypes
 {
 public:
   static int Test() { return vtkDataObjectTypes::Validate(); };
@@ -23,5 +23,5 @@ public:
 
 int TestDataObjectTypes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  return TestDataObjectTypes::Test();
+  return TestDataObjectTypesTester::Test();
 }

@@ -368,7 +368,7 @@ ssize_t utf8proc_decompose(
       if (options & UTF8PROC_NULLTERM) {
         rpos += utf8proc_iterate(str + rpos, -1, &uc);
         /* checking of return value is not neccessary,
-           as 'uc' is < 0 in case of error. */
+	   as 'uc' is < 0 in case of error. */
         if (uc < 0) return UTF8PROC_ERROR_INVALIDUTF8;
         if (rpos < 0) return UTF8PROC_ERROR_OVERFLOW;
         if (uc == 0) break;
@@ -456,7 +456,7 @@ ssize_t utf8proc_reencode(int32_t *buffer, ssize_t length, int options) {
       current_char = buffer[rpos];
       current_property = utf8proc_get_property(current_char);
       if (starter && current_property->combining_class > max_combining_class) {
-        /*        // combination perhaps possible*/
+	/*        // combination perhaps possible*/
         int32_t hangul_lindex;
         int32_t hangul_sindex;
         hangul_lindex = *starter - UTF8PROC_HANGUL_LBASE;
@@ -584,7 +584,7 @@ uint8_t *utf8proc_NFKC(const uint8_t *str) {
 
 ssize_t utf8proc_check(const uint8_t *str) {
   ssize_t result;
-  result = utf8proc_decompose(str, 0, NULL, 0,
-                              UTF8PROC_NULLTERM | UTF8PROC_STABLE);
+  result = utf8proc_decompose(str, 0, NULL, 0, 
+			      UTF8PROC_NULLTERM | UTF8PROC_STABLE);
   return result;
 }

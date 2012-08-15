@@ -261,7 +261,8 @@ void vtkIncrementalForceLayout::UpdatePositions()
     float y = tPos.Y() - sPos.Y();
     if (float l = (x * x + y * y))
       {
-      l = this->Alpha * this->Strength * ((l = sqrt(l)) - this->Distance) / l;
+      float sqrtl = sqrt(l);
+      l = this->Alpha * this->Strength * (sqrtl - this->Distance) / sqrtl;
       x *= l;
       y *= l;
       float sWeight = 1.0f;

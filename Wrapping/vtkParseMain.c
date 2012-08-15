@@ -16,35 +16,246 @@
 /*
 
 This file provides a unified front-end for the wrapper generators.
-It contains the main() function and argument parsing, and calls
-the code that parses the header file.
 
 */
 
 #include "vtkParse.h"
+#include "vtkParseData.h"
 #include "vtkParseMain.h"
-#include "vtkParseInternal.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 
 /* This is the struct that contains the options */
 OptionInfo options;
 
-/* Flags for --help and --version */
-int vtk_parse_help = 0;
-int vtk_parse_version = 0;
+/* Get the base filename */
+static const char *parse_exename(const char *cmd)
+{
+  const char *exename;
 
-/* This method provides the back-end for the generators */
-extern void vtkParseOutput(FILE *, FileInfo *);
+  /* remove directory part of exe name */
+  for (exename = cmd + strlen(cmd); exename > cmd; --exename)
+    {
+    char pc = exename[-1];
+    if (pc == ':' || pc == '/' || pc == '\\')
+      {
+      break;
+      }
+    }
 
-/* Check the options */
-static int check_options(int argc, char *argv[])
+  return exename;
+}
+
+/* Print the help */
+static void parse_print_help(FILE *fp, const char *cmd, int multi)
+{
+  fprintf(fp,
+    "Usage: %s [options] infile... \n"
+    "  --help            print this help message\n"
+    "  --version         print the VTK version\n"
+    "  -o <file>         the output file\n"
+    "  -I <dir>          add an include directory\n"
+    "  -D <macro[=def]>  define a preprocessor macro\n"
+    "  -U <macro>        undefine a preprocessor macro\n"
+    "  @<file>           read arguments from a file\n",
+    parse_exename(cmd));
+
+  /* args for describing a singe header file input */
+  if (!multi)
+    {
+    fprintf(fp,
+    "  --hints <file>    the hints file to use\n"
+    "  --types <file>    the type hierarchy file to use\n"
+    "  --concrete        force concrete class\n"
+    "  --abstract        force abstract class\n"
+    "  --vtkobject       vtkObjectBase-derived class\n"
+    "  --special         non-vtkObjectBase class\n");
+    }
+}
+
+/* append an arg to the arglist */
+static void parse_append_arg(int *argn, char ***args, char *arg)
+{
+  /* if argn is a power of two, allocate more space */
+  if (*argn > 0 && (*argn & (*argn - 1)) == 0)
+    {
+    *args = (char **)realloc(*args, 2*(*argn)*sizeof(char *));
+    }
+  /* append argument to list */
+  (*args)[*argn] = arg;
+  (*argn)++;
+}
+
+/* read options from a file, return zero on error */
+static int read_option_file(
+  StringCache *strings, const char *filename, int *argn, char ***args)
+{
+  static int option_file_stack_max = 10;
+  static int option_file_stack_size = 0;
+  static const char *option_file_stack[10];
+  FILE *fp;
+  char *line;
+  const char *ccp;
+  char *argstring;
+  char *arg;
+  size_t maxlen = 15;
+  size_t i, n;
+  int j;
+  int in_string;
+
+  line = (char *)malloc(maxlen);
+
+  fp = fopen(filename, "r");
+
+  if (fp == NULL)
+    {
+    return 0;
+    }
+
+  /* read the file line by line */
+  while (fgets(line, (int)maxlen, fp))
+    {
+    n = strlen(line);
+
+    /* if buffer not long enough, increase it */
+    while (n == maxlen-1 && line[n-1] != '\n' && !feof(fp))
+      {
+      maxlen *= 2;
+      line = (char *)realloc(line, maxlen);
+      if (!fgets(&line[n], (int)(maxlen-n), fp)) { break; }
+      n += strlen(&line[n]);
+      }
+
+    /* allocate a string to hold the parsed arguments */
+    argstring = vtkParse_NewString(strings, n);
+    arg = argstring;
+    i = 0;
+
+    /* break the line into individual options */
+    ccp = line;
+    in_string = 0;
+    while (*ccp != '\0')
+      {
+      for (;;)
+        {
+        if (*ccp == '\\')
+          {
+          ccp++;
+          }
+        else if (*ccp == '\"' || *ccp == '\'')
+          {
+          if (!in_string)
+            {
+            in_string = *ccp++;
+            continue;
+            }
+          else if (*ccp == in_string)
+            {
+            in_string = 0;
+            ccp++;
+            continue;
+            }
+          }
+        else if (!in_string && isspace(*ccp))
+          {
+          do { ccp++; } while (isspace(*ccp));
+          break;
+          }
+        if (*ccp == '\0')
+          {
+          break;
+          }
+        /* append character to argument */
+        arg[i++] = *ccp++;
+        }
+      arg[i++] = '\0';
+
+      if (arg[0] == '@')
+        {
+        /* recursively expand '@file' option */
+        if (option_file_stack_size == option_file_stack_max)
+          {
+          fprintf(stderr, "%s: @file recursion is too deep.\n",
+                  (*args)[0]);
+          exit(1);
+          }
+        /* avoid reading the same file recursively */
+        option_file_stack[option_file_stack_size++] = filename;
+        for (j = 0; j < option_file_stack_size; j++)
+          {
+          if (strcmp(&arg[1], option_file_stack[j]) == 0)
+            {
+            break;
+            }
+          }
+        if (j < option_file_stack_size)
+          {
+          parse_append_arg(argn, args, arg);
+          }
+        else if (read_option_file(strings, &arg[1], argn, args) == 0)
+          {
+          parse_append_arg(argn, args, arg);
+          }
+        option_file_stack_size--;
+        }
+      else if (arg[0] != '\0')
+        {
+        parse_append_arg(argn, args, arg);
+        }
+      /* prepare for next arg */
+      arg += i;
+      i = 0;
+      }
+    }
+
+  return 1;
+}
+
+/* expand any "@file" args that occur in the command-line args */
+static void parse_expand_args(
+  StringCache *strings, int argc, char *argv[], int *argn, char ***args)
+{
+  int i;
+
+  *argn = 0;
+  *args = (char **)malloc(sizeof(char *));
+
+  for (i = 0; i < argc; i++)
+    {
+    /* check for "@file" unless this is the command name */
+    if (i > 0 || argv[i][0] == '@')
+      {
+      /* if read_option_file returns null, add "@file" to the args */
+      /* (this mimics the way that gcc expands @file arguments) */
+      if (read_option_file(strings, &argv[i][1], argn, args) == 0)
+        {
+        parse_append_arg(argn, args, argv[i]);
+        }
+      }
+    else
+      {
+      /* append any other arg */
+      parse_append_arg(argn, args, argv[i]);
+      }
+    }
+}
+
+/* Check the options: "multi" should be zero for wrapper tools that
+ * only take one input file, or one for wrapper tools that take multiple
+ * input files.  Returns zero for "--version" or "--help", or returns -1
+ * if an error occurred.  Otherwise, it returns the number of args
+ * that were successfully parsed. */
+static int parse_check_options(int argc, char *argv[], int multi)
 {
   int i;
   size_t j;
+  char *cp;
+  char c;
 
+  options.NumberOfFiles = 0;
+  options.Files = NULL;
   options.InputFileName = NULL;
   options.OutputFileName = NULL;
   options.IsAbstract = 0;
@@ -53,27 +264,68 @@ static int check_options(int argc, char *argv[])
   options.IsSpecialObject = 0;
   options.HierarchyFileName = 0;
   options.HintFileName = 0;
-  options.IncludesFileName = 0;
 
-  for (i = 1; i < argc && argv[i][0] == '-'; i++)
+  for (i = 1; i < argc; i++)
     {
-    if (strcmp(argv[i], "--concrete") == 0)
+    if (strcmp(argv[i], "--help") == 0)
       {
-      options.IsConcrete = 1;
+      parse_print_help(stdout, argv[0], multi);
+      return 0;
       }
-    else if (strcmp(argv[i], "--abstract") == 0)
+    else if (strcmp(argv[i], "--version") == 0)
       {
-      options.IsAbstract = 1;
+      const char *ver = VTK_PARSE_VERSION;
+      fprintf(stdout, "%s %s\n", parse_exename(argv[0]), ver);
+      return 0;
       }
-    else if (strcmp(argv[i], "--vtkobject") == 0)
+    else if (argv[i][0] != '-')
       {
-      options.IsVTKObject = 1;
+      if (options.NumberOfFiles == 0)
+        {
+        options.Files = (char **)malloc(sizeof(char *));
+        }
+      else if ((options.NumberOfFiles & (options.NumberOfFiles - 1)) == 0)
+        {
+        options.Files = (char **)realloc(
+          options.Files, 2*options.NumberOfFiles*sizeof(char *));
+        }
+      options.Files[options.NumberOfFiles++] = argv[i];
       }
-    else if (strcmp(argv[i], "--special") == 0)
+    else if (argv[i][0] == '-' && isalpha(argv[i][1]))
       {
-      options.IsSpecialObject = 1;
+      c = argv[i][1];
+      cp = &argv[i][2];
+      if (*cp == '\0')
+        {
+        i++;
+        if (i >= argc || argv[i][0] == '-')
+          {
+          return -1;
+          }
+        cp = argv[i];
+        }
+
+      if (c == 'o')
+        {
+        options.OutputFileName = cp;
+        }
+      else if (c == 'I')
+        {
+        vtkParse_IncludeDirectory(cp);
+        }
+      else if (c == 'D')
+        {
+        j = 0;
+        while (*cp != '\0' && *cp != '=') { j++; }
+        if (*cp == '=') { j++; }
+        vtkParse_DefineMacro(cp, &cp[j]);
+        }
+      else if (c == 'U')
+        {
+        vtkParse_UndefineMacro(cp);
+        }
       }
-    else if (strcmp(argv[i], "--hints") == 0)
+    else if (!multi && strcmp(argv[i], "--hints") == 0)
       {
       i++;
       if (i >= argc || argv[i][0] == '-')
@@ -82,7 +334,7 @@ static int check_options(int argc, char *argv[])
         }
       options.HintFileName = argv[i];
       }
-    else if (strcmp(argv[i], "--types") == 0)
+    else if (!multi && strcmp(argv[i], "--types") == 0)
       {
       i++;
       if (i >= argc || argv[i][0] == '-')
@@ -91,70 +343,25 @@ static int check_options(int argc, char *argv[])
         }
       options.HierarchyFileName = argv[i];
       }
-    else if (strcmp(argv[i], "-I") == 0)
+    else if (!multi && strcmp(argv[i], "--concrete") == 0)
       {
-      i++;
-      if (i >= argc || argv[i][0] == '-')
-        {
-        return -1;
-        }
-      vtkParse_IncludeDirectory(argv[i]);
+      options.IsConcrete = 1;
       }
-    else if (strcmp(argv[i], "-D") == 0)
+    else if (!multi && strcmp(argv[i], "--abstract") == 0)
       {
-      i++;
-      j = 0;
-      if (i >= argc || argv[i][0] == '-')
-        {
-        return -1;
-        }
-      while (argv[i][j] != '\0' && argv[i][j] != '=') { j++; }
-      if (argv[i][j] == '=') { j++; }
-      vtkParse_DefineMacro(argv[i], &argv[i][j]);
+      options.IsAbstract = 1;
       }
-    else if (strcmp(argv[i], "-U") == 0)
+    else if (!multi && strcmp(argv[i], "--vtkobject") == 0)
       {
-      i++;
-      if (i >= argc || argv[i][0] == '-')
-        {
-        return -1;
-        }
-      vtkParse_UndefineMacro(argv[i]);
+      options.IsVTKObject = 1;
       }
-    else if (strcmp(argv[i], "--includes") == 0)
+    else if (!multi && strcmp(argv[i], "--special") == 0)
       {
-      i++;
-      if (i >= argc || argv[i][0] == '-')
-        {
-        return -1;
-        }
-      options.IncludesFileName = argv[i];
-      }
-    else if (strcmp(argv[i], "--help") == 0)
-      {
-      vtk_parse_help = 1;
-      }
-    else if (strcmp(argv[i], "--version") == 0)
-      {
-      vtk_parse_version = 1;
+      options.IsSpecialObject = 1;
       }
     }
 
   return i;
-}
-
-static void vtk_parse_includes_file(FILE* ifile)
-{
-  char line [4096];
-  while (fgets (line, sizeof line, ifile) != NULL)
-  {
-    size_t len = strlen(line);
-    if (line[len - 1] == '\n')
-    {
-      line[len - 1] = '\0';
-    }
-    vtkParse_IncludeDirectory(line);
-  }
 }
 
 /* Return a pointer to the static OptionInfo struct */
@@ -163,110 +370,89 @@ OptionInfo *vtkParse_GetCommandLineOptions()
   return &options;
 }
 
-static void vtk_parse_print_help(FILE *stream, const char *cmd)
-{
-  fprintf(stream,
-    "Usage: %s [options] input_file output_file\n"
-    "  --help            print this help message\n"
-    "  --version         print the VTK version\n"
-    "  --concrete        force concrete class\n"
-    "  --abstract        force abstract class\n"
-    "  --vtkobject       vtkObjectBase-derived class\n"
-    "  --special         non-vtkObjectBase class\n"
-    "  --hints <file>    the hints file to use\n"
-    "  --types <file>    the type hierarchy file to use\n"
-    "  --includes <file> a file listing include directories one per line\n"
-    "  -I <dir>          add an include directory\n"
-    "  -D <macro>        define a preprocessor macro\n"
-    "  -U <macro>        undefine a preprocessor macro\n",
-    cmd);
-}
-
-int main(int argc, char *argv[])
+/* Command-line argument handler for wrapper tools */
+FileInfo *vtkParse_Main(int argc, char *argv[])
 {
   int argi;
   int has_options = 0;
+  int expected_files;
   FILE *ifile;
-  FILE *ofile;
   FILE *hfile = 0;
-  FILE *incfile =0;
   const char *cp;
   char *classname;
   size_t i;
   FileInfo *data;
+  StringCache strings;
+  int argn;
+  char **args;
 
-  argi = check_options(argc, argv);
-  if (argi > 1 && argc - argi == 2)
+  /* expand any "@file" args */
+  vtkParse_InitStringCache(&strings);
+  parse_expand_args(&strings, argc, argv, &argn, &args);
+
+  /* read the args into the static OptionInfo struct */
+  argi = parse_check_options(argn, args, 0);
+
+  /* was output file already specified by the "-o" option? */
+  expected_files = (options.OutputFileName == NULL ? 2 : 1);
+
+  /* verify number of args, print usage if not valid */
+  if (argi > 0 && options.NumberOfFiles == expected_files)
     {
     has_options = 1;
     }
-  else if (argi < 0 || argc > 5 ||
-           (argc < 3 && !vtk_parse_help && !vtk_parse_version))
+  else if (argi == 0)
     {
-    vtk_parse_print_help(stderr, argv[0]);
+    free(args);
+    exit(0);
+    }
+  else if (argi < 0 || argn < 3 || argn > 5 ||
+           options.NumberOfFiles == 0)
+    {
+    parse_print_help(stderr, args[0], 0);
     exit(1);
     }
 
-  if (vtk_parse_version)
-    {
-    const char *ver = VTK_PARSE_VERSION;
-    const char *exename = argv[0];
-    /* remove directory part of exe name */
-    for (exename += strlen(exename); exename > argv[0]; --exename)
-      {
-      char pc = *(exename - 1);
-      if (pc == ':' || pc == '/' || pc == '\\')
-        {
-        break;
-        }
-      }
-    fprintf(stdout, "%s %s\n", exename, ver);
-    exit(0);
-    }
-  if (vtk_parse_help)
-    {
-    vtk_parse_print_help(stdout, argv[0]);
-    exit(0);
-    }
+  /* open the input file */
+  options.InputFileName = options.Files[0];
 
-  if(options.IncludesFileName)
+  if (!(ifile = fopen(options.InputFileName, "r")))
     {
-    incfile = fopen(options.IncludesFileName, "r");
-    if (!incfile)
-      {
-      fprintf(stderr,"Error opening include directories file %s\n", options.IncludesFileName);
-      exit(1);
-      }
-     vtk_parse_includes_file(incfile);
-     fclose(incfile);
-    }
-
-  options.InputFileName = argv[argi++];
-
-  ifile = fopen(options.InputFileName, "r");
-  if (!ifile)
-    {
-    fprintf(stderr,"Error opening input file %s\n", options.InputFileName);
+    fprintf(stderr, "Error opening input file %s\n", options.InputFileName);
     exit(1);
     }
 
+  /* deal with other files */
   if (!has_options)
     {
-    if (argc == 5)
+    /* handle ancient, obsolete calling style: */
+    /* command infile [hintsfile] concrete outfile */
+    argi = 1;
+    if (argn == 5)
       {
-      options.HintFileName = argv[argi++];
+      options.HintFileName = args[argi++];
       }
-    if (argc >= 4)
+    if (argn >= 4)
       {
-      options.IsConcrete = atoi(argv[argi++]);
+      options.IsConcrete = atoi(args[argi++]);
       options.IsAbstract = !options.IsConcrete;
       }
+    options.OutputFileName = args[argi++];
+    }
+  else if (options.OutputFileName == NULL &&
+           options.NumberOfFiles > 1)
+    {
+    /* allow outfile to be given after infile, if "-o" option not used */
+    options.OutputFileName = options.Files[1];
     }
 
+  /* free the expanded args */
+  free(args);
+
+  /* open the hint file, if given on the command line */
   if (options.HintFileName && options.HintFileName[0] != '\0')
     {
-    hfile = fopen(options.HintFileName, "r");
-    if (!hfile)
+    if (!(hfile = fopen(options.HintFileName, "r")))
       {
       fprintf(stderr, "Error opening hint file %s\n", options.HintFileName);
       fclose(ifile);
@@ -274,12 +460,10 @@ int main(int argc, char *argv[])
       }
     }
 
-  options.OutputFileName = argv[argi++];
-  ofile = fopen(options.OutputFileName, "w");
-
-  if (!ofile)
+  /* make sure than an output file was given on the command line */
+  if (options.OutputFileName == NULL)
     {
-    fprintf(stderr, "Error opening output file %s\n", options.OutputFileName);
+    fprintf(stderr, "No output file was specified\n");
     fclose(ifile);
     if (hfile)
       {
@@ -288,6 +472,7 @@ int main(int argc, char *argv[])
     exit(1);
     }
 
+  /* get the classname from the filename and mark it as "concrete" */
   if (options.IsConcrete)
     {
     cp = options.InputFileName;
@@ -303,30 +488,28 @@ int main(int argc, char *argv[])
     vtkParse_SetClassProperty(classname, "concrete");
     }
 
+  /* if a hierarchy is was given, then BTX/ETX can be ignored */
   vtkParse_SetIgnoreBTX(0);
   if (options.HierarchyFileName)
     {
     vtkParse_SetIgnoreBTX(1);
     }
 
+  /* parse the input file */
   data = vtkParse_ParseFile(options.InputFileName, ifile, stderr);
 
   if (!data)
     {
-    fclose(ifile);
-    fclose(ofile);
-    if (hfile)
-      {
-      fclose(hfile);
-      }
     exit(1);
     }
 
+  /* fill in some blanks by using the hints file */
   if (hfile)
     {
     vtkParse_ReadHints(data, hfile, stderr);
     }
 
+  /* force class to be wrapped as concrete or abstract */
   if (options.IsConcrete && data->MainClass)
     {
     data->MainClass->IsAbstract = 0;
@@ -336,11 +519,35 @@ int main(int argc, char *argv[])
     data->MainClass->IsAbstract = 1;
     }
 
-  vtkParseOutput(ofile, data);
+  return data;
+}
 
-  fclose(ofile);
+/* Command-line argument handler for wrapper tools */
+void vtkParse_MainMulti(int argc, char *argv[])
+{
+  int argi;
+  int argn;
+  char **args;
+  StringCache strings;
 
-  vtkParse_Free(data);
+  /* expand any "@file" args */
+  vtkParse_InitStringCache(&strings);
+  parse_expand_args(&strings, argc, argv, &argn, &args);
 
-  return 0;
+  /* read the args into the static OptionInfo struct */
+  argi = parse_check_options(argn, args, 1);
+  free(args);
+
+  if (argi == 0)
+    {
+    exit(0);
+    }
+  else if (argi < 0 || options.NumberOfFiles == 0)
+    {
+    parse_print_help(stderr, argv[0], 1);
+    exit(1);
+    }
+
+  /* the input file */
+  options.InputFileName = options.Files[0];
 }

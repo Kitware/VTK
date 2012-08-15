@@ -305,7 +305,7 @@ if(NOT BUILD_SHARED_LIBS)
     string(TOLOWER ${${module}_TCL_NAME} module_lc)
     string(REGEX REPLACE "^vtk" "Vtk" module_lc ${module_lc})
     file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_prototypes.h "extern \"C\" int ${module_lc}tcl_Init(Tcl_Interp *interp);\n")
-    file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_packages.h "Tcl_StaticPackage(0, \"${module}Tcl\", ${module_lc}tcl_Init, NULL);\n")
+    file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_packages.h "Tcl_StaticPackage(0, \"${${module}_TCL_NAME}Tcl\", ${module_lc}tcl_Init, NULL);\n")
   endforeach()
 endif()
 

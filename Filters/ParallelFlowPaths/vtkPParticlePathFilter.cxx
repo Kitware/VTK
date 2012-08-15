@@ -25,8 +25,9 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkPParticlePathFilter);
 
 
-vtkPParticlePathFilter::vtkPParticlePathFilter():It(this)
+vtkPParticlePathFilter::vtkPParticlePathFilter()
 {
+  this->It.Initialize(this);
 }
 
 void vtkPParticlePathFilter::ResetCache()

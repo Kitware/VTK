@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkParticleTracer - A Parallel Particle tracer for unsteady vector fields
 // .SECTION Description
-// vtkParticleTracer is a filter that integrates a vector field to generate
+// vtkParticleTracer is a filter that integrates a vector field to advect particles
 //
 //
 // .SECTION See Also

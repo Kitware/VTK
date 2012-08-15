@@ -29,9 +29,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkObjectFactoryNewMacro(vtkParticlePathFilter)
 
-ParticlePathFilterInternal::ParticlePathFilterInternal(vtkParticleTracerBase* filter)
-:Filter(filter)
+void ParticlePathFilterInternal::Initialize(vtkParticleTracerBase* filter)
 {
+  this->Filter = filter;
   this->Filter->SetForceReinjectionEveryNSteps(0);
   this->Filter->SetIgnorePipelineTime(1);
 }
@@ -95,9 +95,12 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
 
     if(path->GetNumberOfIds()>0)
       {
-      float lastAge = outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1));
-      float thisAge = outParticleAge->GetValue(outId);
-      assert(thisAge>=lastAge); //if not, we will have to sort
+      //float lastAge = outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1));
+      //float thisAge = outParticleAge->GetValue(outId);
+      assert(outParticleAge->GetValue(outId) //thisAge
+             >=
+             outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1))//lastAge
+             ); //if not, we will have to sort
       }
     path->InsertNextId(outId);
     }
@@ -119,8 +122,9 @@ void ParticlePathFilterInternal::Finalize()
     }
 }
 
-vtkParticlePathFilter::vtkParticlePathFilter():It(this)
+vtkParticlePathFilter::vtkParticlePathFilter()
 {
+  this->It.Initialize(this);
 }
 
 void vtkParticlePathFilter::ResetCache()

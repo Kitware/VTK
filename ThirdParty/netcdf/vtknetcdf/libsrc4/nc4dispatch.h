@@ -20,14 +20,14 @@ extern "C" {
 extern int
 NC4_create(const char *path, int cmode,
            size_t initialsz, int basepe, size_t *chunksizehintp,
-           int useparallel, void* parameters,
-           NC_Dispatch*, NC**);
+	   int useparallel, void* parameters,
+	   NC_Dispatch*, NC**);
 
 extern int
 NC4_open(const char *path, int mode,
-         int basepe, size_t *chunksizehintp,
-         int use_parallel, void* parameters,
-         NC_Dispatch*, NC**);
+         int basepe, size_t *chunksizehintp, 
+	 int use_parallel, void* parameters,
+	 NC_Dispatch*, NC**);
 
 extern int
 NC4_new_nc(NC**);
@@ -40,7 +40,7 @@ NC4_redef(int ncid);
 
 extern int
 NC4__enddef(int ncid, size_t h_minfree, size_t v_align,
-        size_t v_minfree, size_t r_align);
+	size_t v_minfree, size_t r_align);
 
 extern int
 NC4_sync(int ncid);
@@ -91,9 +91,9 @@ NC4_rename_dim(int ncid, int dimid, const char *name);
 
 extern int
 NC4_inq_att(int ncid, int varid, const char *name,
-            nc_type *xtypep, size_t *lenp);
+	    nc_type *xtypep, size_t *lenp);
 
-extern int
+extern int 
 NC4_inq_attid(int ncid, int varid, const char *name, int *idp);
 
 extern int
@@ -113,22 +113,22 @@ NC4_get_att(int ncid, int varid, const char *name, void *value, nc_type);
 
 extern int
 NC4_put_att(int ncid, int varid, const char *name, nc_type datatype,
-           size_t len, const void *value, nc_type);
+	   size_t len, const void *value, nc_type);
 
 /* End {put,get}_att */
 /* Begin _var */
 
 extern int
 NC4_def_var(int ncid, const char *name,
-         nc_type xtype, int ndims, const int *dimidsp, int *varidp);
+	 nc_type xtype, int ndims, const int *dimidsp, int *varidp);
 
 extern int
-NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
-               int *ndimsp, int *dimidsp, int *nattsp,
+NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep, 
+               int *ndimsp, int *dimidsp, int *nattsp, 
                int *shufflep, int *deflatep, int *deflate_levelp,
-               int *fletcher32p, int *contiguousp, size_t *chunksizesp,
-               int *no_fill, void *fill_valuep, int *endiannessp,
-               int *options_maskp, int *pixels_per_blockp);
+               int *fletcher32p, int *contiguousp, size_t *chunksizesp, 
+               int *no_fill, void *fill_valuep, int *endiannessp, 
+	       int *options_maskp, int *pixels_per_blockp);
 
 extern int
 NC4_inq_varid(int ncid, const char *name, int *varidp);
@@ -138,12 +138,12 @@ NC4_rename_var(int ncid, int varid, const char *name);
 
 extern int
 NC4_put_vara(int ncid, int varid,
-             const size_t *start, const size_t *count,
+   	     const size_t *start, const size_t *count,
              const void *value, nc_type);
 
 extern int
 NC4_get_vara(int ncid, int varid,
-             const size_t *start, const size_t *count,
+	     const size_t *start, const size_t *count,
              void *value, nc_type);
 
 /* End _var */
@@ -178,7 +178,7 @@ NC4_inq_dimids(int, int * ndims, int *, int);
 
 extern int
 NC4_inq_typeids(int, int * ntypes, int *);
-
+   
 extern int
 NC4_inq_type_equal(int, nc_type, int, nc_type, int *);
 
@@ -186,8 +186,8 @@ extern int
 NC4_def_grp(int, const char *, int *);
 
 extern int
-NC4_inq_user_type(int, nc_type, char *, size_t *, nc_type *,
-                  size_t *, int *);
+NC4_inq_user_type(int, nc_type, char *, size_t *, nc_type *, 
+		  size_t *, int *);
 
 extern int
 NC4_def_compound(int, size_t, const char *, nc_type *);
@@ -196,15 +196,15 @@ extern int
 NC4_insert_compound(int, nc_type, const char *, size_t, nc_type);
 
 extern int
-NC4_insert_array_compound(int, nc_type, const char *, size_t,
-                          nc_type, int, const int *);
+NC4_insert_array_compound(int, nc_type, const char *, size_t, 
+			  nc_type, int, const int *);
 
 extern int
 NC4_inq_typeid(int, const char *, nc_type *);
 
 extern int
-NC4_inq_compound_field(int, nc_type, int, char *, size_t *,
-                       nc_type *, int *, int *);
+NC4_inq_compound_field(int, nc_type, int, char *, size_t *, 
+		       nc_type *, int *, int *);
 
 extern int
 NC4_inq_compound_fieldindex(int, nc_type, const char *, int *);
@@ -260,7 +260,7 @@ NC4_inq_unlimdims(int, int *, int *);
 extern int
 NC4_show_metadata(int);
 
-extern int
+extern int 
 NC4_initialize(void);
 
 #if defined(__cplusplus)

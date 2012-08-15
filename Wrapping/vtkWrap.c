@@ -14,8 +14,9 @@
 =========================================================================*/
 
 #include "vtkWrap.h"
-#include "vtkParseInternal.h"
+#include "vtkParseData.h"
 #include "vtkParseExtras.h"
+#include "vtkParseString.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -340,18 +341,18 @@ int vtkWrap_IsGetVectorMethod(FunctionInfo *f)
 /* -------------------------------------------------------------------- */
 /* Argument counting */
 
-int vtkWrap_CountWrappedArgs(FunctionInfo *f)
+int vtkWrap_CountWrappedParameters(FunctionInfo *f)
 {
-  int totalArgs = f->NumberOfArguments;
+  int totalArgs = f->NumberOfParameters;
 
   if (totalArgs > 0 &&
-      (f->Arguments[0]->Type & VTK_PARSE_BASE_TYPE)
+      (f->Parameters[0]->Type & VTK_PARSE_BASE_TYPE)
        == VTK_PARSE_FUNCTION)
     {
     totalArgs = 1;
     }
   else if (totalArgs == 1 &&
-           (f->Arguments[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE)
+           (f->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE)
             == VTK_PARSE_VOID)
     {
     totalArgs = 0;
@@ -360,19 +361,19 @@ int vtkWrap_CountWrappedArgs(FunctionInfo *f)
   return totalArgs;
 }
 
-int vtkWrap_CountRequiredArgs(FunctionInfo *f)
+int vtkWrap_CountRequiredArguments(FunctionInfo *f)
 {
   int requiredArgs = 0;
   int totalArgs;
   int i;
 
-  totalArgs = vtkWrap_CountWrappedArgs(f);
+  totalArgs = vtkWrap_CountWrappedParameters(f);
 
   for (i = 0; i < totalArgs; i++)
     {
-    if (f->Arguments[i]->Value == NULL ||
-        vtkWrap_IsArray(f->Arguments[i]) ||
-        vtkWrap_IsNArray(f->Arguments[i]))
+    if (f->Parameters[i]->Value == NULL ||
+        vtkWrap_IsArray(f->Parameters[i]) ||
+        vtkWrap_IsNArray(f->Parameters[i]))
       {
       requiredArgs = i+1;
       }
@@ -524,9 +525,9 @@ int vtkWrap_HasPublicCopyConstructor(ClassInfo *data)
     func = data->Functions[i];
 
     if (vtkWrap_IsConstructor(data, func) &&
-        func->NumberOfArguments == 1 &&
-        func->Arguments[0]->Class &&
-        strcmp(func->Arguments[0]->Class, data->Name) == 0 &&
+        func->NumberOfParameters == 1 &&
+        func->Parameters[0]->Class &&
+        strcmp(func->Parameters[0]->Class, data->Name) == 0 &&
         func->Access != VTK_ACCESS_PUBLIC)
       {
       return 0;
@@ -570,7 +571,7 @@ int vtkWrap_GetTupleSize(ClassInfo *data, HierarchyInfo *hinfo)
 /* This sets the CountHint for vtkDataArray methods where the
  * tuple size is equal to GetNumberOfComponents. */
 void vtkWrap_FindCountHints(
-  ClassInfo *data, HierarchyInfo *hinfo)
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
 {
   int i;
   int count;
@@ -587,15 +588,15 @@ void vtkWrap_FindCountHints(
       theFunc = data->Functions[i];
 
       if (strcmp(theFunc->Name, "Get") == 0 &&
-          theFunc->NumberOfArguments >= 1 &&
-          theFunc->Arguments[0]->Type == VTK_PARSE_OBJECT_PTR &&
-          (strcmp(theFunc->Arguments[0]->Class,
+          theFunc->NumberOfParameters >= 1 &&
+          theFunc->Parameters[0]->Type == VTK_PARSE_OBJECT_PTR &&
+          (strcmp(theFunc->Parameters[0]->Class,
                   "vtkInformationIntegerVectorKey") == 0 ||
-           strcmp(theFunc->Arguments[0]->Class,
+           strcmp(theFunc->Parameters[0]->Class,
                   "vtkInformationDoubleVectorKey") == 0))
         {
         if (theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
-            theFunc->NumberOfArguments == 1)
+            theFunc->NumberOfParameters == 1)
           {
           theFunc->ReturnValue->CountHint = countMethod;
           }
@@ -615,8 +616,8 @@ void vtkWrap_FindCountHints(
       if ((strcmp(theFunc->Name, "GetTuple") == 0 ||
            strcmp(theFunc->Name, "GetTupleValue") == 0) &&
           theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
-          theFunc->NumberOfArguments == 1 &&
-          theFunc->Arguments[0]->Type == VTK_PARSE_ID_TYPE)
+          theFunc->NumberOfParameters == 1 &&
+          theFunc->Parameters[0]->Type == VTK_PARSE_ID_TYPE)
         {
         theFunc->ReturnValue->CountHint = countMethod;
         }
@@ -626,18 +627,18 @@ void vtkWrap_FindCountHints(
                 strcmp(theFunc->Name, "GetTupleValue") == 0 ||
                 strcmp(theFunc->Name, "InsertTuple") == 0 ||
                 strcmp(theFunc->Name, "InsertTupleValue") == 0) &&
-               theFunc->NumberOfArguments == 2 &&
-               theFunc->Arguments[0]->Type == VTK_PARSE_ID_TYPE &&
-               theFunc->Arguments[1]->Count == 0)
+               theFunc->NumberOfParameters == 2 &&
+               theFunc->Parameters[0]->Type == VTK_PARSE_ID_TYPE &&
+               theFunc->Parameters[1]->Count == 0)
         {
-        theFunc->Arguments[1]->CountHint = countMethod;
+        theFunc->Parameters[1]->CountHint = countMethod;
         }
       else if ((strcmp(theFunc->Name, "InsertNextTuple") == 0 ||
                 strcmp(theFunc->Name, "InsertNextTupleValue") == 0) &&
-               theFunc->NumberOfArguments == 1 &&
-               theFunc->Arguments[0]->Count == 0)
+               theFunc->NumberOfParameters == 1 &&
+               theFunc->Parameters[0]->Count == 0)
         {
-        theFunc->Arguments[0]->CountHint = countMethod;
+        theFunc->Parameters[0]->CountHint = countMethod;
         }
       }
     }
@@ -652,13 +653,13 @@ void vtkWrap_FindCountHints(
       theFunc = data->Functions[i];
 
       if (strcmp(theFunc->Name, "Interpolate") == 0 &&
-           theFunc->NumberOfArguments == 2 &&
-           theFunc->Arguments[0]->Type == (VTK_PARSE_DOUBLE_PTR|VTK_PARSE_CONST) &&
-           theFunc->Arguments[0]->Count == 3 &&
-           theFunc->Arguments[1]->Type == VTK_PARSE_DOUBLE_PTR &&
-           theFunc->Arguments[1]->Count == 0)
+           theFunc->NumberOfParameters == 2 &&
+           theFunc->Parameters[0]->Type == (VTK_PARSE_DOUBLE_PTR|VTK_PARSE_CONST) &&
+           theFunc->Parameters[0]->Count == 3 &&
+           theFunc->Parameters[1]->Type == VTK_PARSE_DOUBLE_PTR &&
+           theFunc->Parameters[1]->Count == 0)
         {
-        theFunc->Arguments[1]->CountHint = countMethod;
+        theFunc->Parameters[1]->CountHint = countMethod;
         }
       }
     }
@@ -669,10 +670,10 @@ void vtkWrap_FindCountHints(
 
     /* hints for constructors that take arrays */
     if (vtkWrap_IsConstructor(data, theFunc) &&
-        theFunc->NumberOfArguments == 1 &&
-        vtkWrap_IsPointer(theFunc->Arguments[0]) &&
-        vtkWrap_IsNumeric(theFunc->Arguments[0]) &&
-        theFunc->Arguments[0]->Count == 0 &&
+        theFunc->NumberOfParameters == 1 &&
+        vtkWrap_IsPointer(theFunc->Parameters[0]) &&
+        vtkWrap_IsNumeric(theFunc->Parameters[0]) &&
+        theFunc->Parameters[0]->Count == 0 &&
         hinfo)
       {
       count = vtkWrap_GetTupleSize(data, hinfo);
@@ -680,11 +681,11 @@ void vtkWrap_FindCountHints(
         {
         char counttext[24];
         sprintf(counttext, "%d", count);
-        theFunc->Arguments[0]->Count = count;
+        theFunc->Parameters[0]->Count = count;
         vtkParse_AddStringToArray(
-          &theFunc->Arguments[0]->Dimensions,
-          &theFunc->Arguments[0]->NumberOfDimensions,
-          vtkParse_DuplicateString(counttext, strlen(counttext)));
+          &theFunc->Parameters[0]->Dimensions,
+          &theFunc->Parameters[0]->NumberOfDimensions,
+          vtkParse_CacheString(finfo->Strings, counttext, strlen(counttext)));
         }
       }
 
@@ -752,7 +753,8 @@ void vtkWrap_FindNewInstanceMethods(
 
 /* -------------------------------------------------------------------- */
 /* Expand all typedef types that are used in function arguments */
-void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo)
+void vtkWrap_ExpandTypedefs(
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
 {
   int i, j, n;
   FunctionInfo *funcInfo;
@@ -766,7 +768,7 @@ void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo)
     if (newclass != data->SuperClasses[i])
       {
       data->SuperClasses[i] =
-        vtkParse_DuplicateString(newclass, strlen(newclass));
+        vtkParse_CacheString(finfo->Strings, newclass, strlen(newclass));
       free((char *)newclass);
       }
     }
@@ -777,15 +779,15 @@ void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo)
     funcInfo = data->Functions[i];
     if (funcInfo->Access == VTK_ACCESS_PUBLIC)
       {
-      for (j = 0; j < funcInfo->NumberOfArguments; j++)
+      for (j = 0; j < funcInfo->NumberOfParameters; j++)
         {
         vtkParseHierarchy_ExpandTypedefsInValue(
-          hinfo, funcInfo->Arguments[j], data->Name);
+          hinfo, funcInfo->Parameters[j], finfo->Strings, data->Name);
         }
       if (funcInfo->ReturnValue)
         {
         vtkParseHierarchy_ExpandTypedefsInValue(
-          hinfo, funcInfo->ReturnValue, data->Name);
+          hinfo, funcInfo->ReturnValue, finfo->Strings, data->Name);
         }
       }
     }

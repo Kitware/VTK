@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkParticlePathFilter - A Parallel Particle tracer for unsteady vector fields
 // .SECTION Description
-// vtkParticlePathFilter is a filter that integrates a vector field to generate
+// vtkParticlePathFilter is a filter that integrates a vector field to generate particle paths
 //
 //
 // .SECTION See Also
@@ -32,13 +32,14 @@
 class VTKFILTERSFLOWPATHS_EXPORT ParticlePathFilterInternal
 {
  public:
-  ParticlePathFilterInternal(vtkParticleTracerBase* filter);
+  ParticlePathFilterInternal():Filter(NULL){};
+  void Initialize(vtkParticleTracerBase* filter);
   virtual ~ParticlePathFilterInternal(){}
   virtual int OutputParticles(vtkPolyData* poly);
   void Finalize();
   void Reset();
 
- private:
+private:
   vtkParticleTracerBase* Filter;
   std::vector<vtkSmartPointer<vtkIdList> > Paths;
 };

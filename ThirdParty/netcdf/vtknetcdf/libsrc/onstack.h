@@ -6,17 +6,17 @@
 
 #ifndef _ONSTACK_H_
 #define _ONSTACK_H_
-/* include after ncncconfig.h */
+/* include after ncconfig.h */
 /**
  * This file provides definitions which allow us to
  * "allocate" arrays on the stack where possible.
  * (Where not possible, malloc and free are used.)
  *
- * The macro ALLOC_ONSTACK(name, type, nelems) is used to declare
+ * The macro ALLOC_ONSTACK(name, type, nelems) is used to declare 
  * an array of 'type' named 'name' which is 'nelems' long.
  * FREE_ONSTACK(name) is placed at the end of the scope of 'name'
  * to call 'free' if necessary.
- *
+ * 
  * The macro ALLOC_ONSTACK wraps a call to alloca() on most systems.
  */
 
@@ -42,7 +42,7 @@
 # endif
 
 # define ALLOC_ONSTACK(name, type, nelems) \
-        type *const name = (type *) alloca((ALLOCA_ARG_T)((nelems) * sizeof(type)))
+	type *const name = (type *) alloca((ALLOCA_ARG_T)((nelems) * sizeof(type)))
 
 # define FREE_ONSTACK(name)
 
@@ -52,7 +52,7 @@
  */
 
 # define ALLOC_ONSTACK(name, type, nelems) \
-        type name[nelems]
+	type name[nelems]
 
 # define FREE_ONSTACK(name)
 
@@ -62,11 +62,11 @@
  */
 
 # define ALLOC_ONSTACK(name, type, nelems) \
-        type *const name = (type *) malloc((nelems) * sizeof(type))
+	type *const name = (type *) malloc((nelems) * sizeof(type))
 
 # define FREE_ONSTACK(name) \
-        free(name)
+	free(name)
 
 #endif
-
+	
 #endif /* _ONSTACK_H_ */

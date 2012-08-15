@@ -921,7 +921,7 @@ void vtkPStructuredGridConnectivity::DeserializeDataArray(
       float *data       = NULL;
       bytestream.Pop( data, size );
       assert( "pre: de-serialized data array is not of the expected size" &&
-              (size == (numberOfTuples*numberOfComponents) ) );
+              (size == static_cast<unsigned int>((numberOfTuples*numberOfComponents)) ) );
 
       // STEP 1: Allocate vtkdata array
       dataArray = vtkDataArray::CreateDataArray( dataType );
@@ -948,7 +948,7 @@ void vtkPStructuredGridConnectivity::DeserializeDataArray(
       double *data      = NULL;
       bytestream.Pop(data,size);
       assert( "pre: de-serialized data array is not of the expected size" &&
-              (size==(numberOfTuples*numberOfComponents) ) );
+              (size == static_cast<unsigned int>((numberOfTuples*numberOfComponents)) ) );
 
       // STEP 1: Allocate vtkdata array
       dataArray = vtkDataArray::CreateDataArray( dataType );
@@ -975,7 +975,7 @@ void vtkPStructuredGridConnectivity::DeserializeDataArray(
       int *data         = NULL;
       bytestream.Pop(data,size);
       assert( "pre: de-serialized data array is not of the expected size" &&
-              (size==(numberOfTuples*numberOfComponents) ) );
+              (size == static_cast<unsigned int>((numberOfTuples*numberOfComponents)) ) );
 
       // STEP 1: Allocate vtkdata array
       dataArray = vtkDataArray::CreateDataArray( dataType );

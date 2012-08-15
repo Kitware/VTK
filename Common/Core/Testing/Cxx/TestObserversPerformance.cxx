@@ -123,7 +123,7 @@ double StressInvoke(const int observerCount, const int eventCount, const int inv
   vtkNew<vtkTimerLog> removeTimer;
   totalTimer->StartTimer();
   addTimer->StartTimer();
-  for (int observer = 0; observer < observerCount; observer += eventCount)
+  for (int observerIDX = 0; observerIDX < observerCount; observerIDX += eventCount)
     {
     for (int event = 0; event < eventCount; ++event)
       {
