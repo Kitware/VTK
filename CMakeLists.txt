@@ -271,7 +271,14 @@ option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
 # FIXME: This variable should not be necessary once we are done
 set(VTK_IGNORE_BTX ON CACHE INTERNAL "VTK modular always ignores BTX")
 
-find_file(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping
+# Force reset of hints file location in cache if it was moved
+if(VTK_WRAP_HINTS)
+  if(NOT EXISTS ${VTK_WRAP_HINTS})
+    set(VTK_WRAP_HINTS "VTK_WRAP_HINTS-NOTFOUND")
+  endif()
+endif()
+
+find_file(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping/Tools
   NO_CMAKE_FIND_ROOT_PATH)
 mark_as_advanced(VTK_WRAP_HINTS)
 
@@ -335,7 +342,12 @@ include(vtkModuleTop)
 
 # The wrapping must come after all other modules are processed.
 if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA OR VTK_GENERATE_WRAPTOOLS)
-  add_subdirectory(Wrapping)
+  add_subdirectory(Wrapping/Tools)
+endif()
+
+# Wrapping/Tcl is not a module yet
+if(VTK_WRAP_TCL)
+  add_subdirectory(Wrapping/Tcl)
 endif()
 
 if(BUILD_TESTING)

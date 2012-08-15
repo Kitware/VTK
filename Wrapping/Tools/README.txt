@@ -34,4 +34,3 @@ Important Note on YACC:
    platforms.  Use a recent byacc instead.  Byacc is the Berkeley LALR
    parser generator.  Red Hat Linux apparently installs byacc by
    default.
-
