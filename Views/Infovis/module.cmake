@@ -5,7 +5,6 @@ vtk_module(vtkViewsInfovis
     vtkRenderingContext2D
     vtkViewsCore
     vtkRenderingLabel
-    vtkRenderingFreeTypeOpenGL
     vtkInfovisLayout
     vtkInteractionStyle
     vtkFiltersModeling
@@ -14,4 +13,5 @@ vtk_module(vtkViewsInfovis
     vtkTestingRendering
     vtkIOInfovis
     vtkIOSQL
+    vtkRenderingFreeTypeOpenGL
   )
