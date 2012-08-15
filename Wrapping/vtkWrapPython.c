@@ -2565,6 +2565,7 @@ static void vtkWrapPython_GenerateMethods(
     /* check for wrappability */
     if (vtkWrapPython_MethodCheck(theFunc, hinfo) &&
         !theFunc->IsOperator &&
+        !theFunc->Template &&
         !vtkWrap_IsDestructor(data, theFunc) &&
         (!vtkWrap_IsConstructor(data, theFunc) == !do_constructors))
       {

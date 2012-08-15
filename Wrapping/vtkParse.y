@@ -42,9 +42,54 @@ that matches (apart from whitespace) the text that was parsed.
 
 While parsing types, the parser creates an unsigned int that describes
 the type as well as creating other data structures for arrays, function
-pointers, etc.  The parse also creates a typeId string, which is either
+pointers, etc.  The parser also creates a typeId string, which is either
 a simple id that gives the class name or type name, or is "function" for
 function pointer types, or "method" for method pointer types.
+*/
+
+/*
+Conformance Notes:
+
+This parser was designed empirically and incrementally.  It has been
+refactored to make it more similar to the ANSI C++ 1996 BNF grammar,
+but there are still many very significant differences.
+
+The most significant difference between this parser and a "standard"
+parser is that it only parses declarations in detail.  All other
+statements and expressions are parsed as arbitrary sequences of symbols,
+without any syntactic analysis.
+
+The "unqualified_id" does not directly include "operator_function_id" or
+"conversion_function_id" (e.g. ids like "operator=" or "operator int*").
+Instead, these two id types are used to allow operator functions to be
+handled by their own rules, rather than by the generic function rules.
+These ids can only be used in function declarations and using declarations.
+
+Types are handled quite differently from the ANSI BNF.  These differences
+represent a prolonged (and ultimately successful) attempt to empirically
+create a yacc parser without any shift/reduce conflicts.  The rules for
+types are organized according to the way that types are usually defined
+in working code, rather than strictly according to C++ grammar.
+
+The declaration specifiers "friend" and "typedef" can only appear at the
+beginning of a declaration sequence.  There are also restrictions on
+where class and enum specifiers can be used: you can declare a new struct
+within a variable declaration, but not within a parameter declaration.
+
+The lexer returns each of "(scope::*", "(*", "(a::b::*", etc. as single
+tokens.  The ANSI BNF, in contrast, would consider these to be a "("
+followed by a "ptr_operator".  The lexer concatenates these tokens in
+order to eliminate shift/reduce conflicts in the parser.  However, this
+means that this parser will only recognize "scope::*" as valid if it is
+preceded by "(", e.g. as part of a member function pointer specification.
+
+An odd bit of C++ ambiguity is that y(x); can be interpreted variously
+as declaration of variable "x" of type "y", as a function call if "y"
+is the name of a function, or as a constructor if "y" is the name of
+a class.  This parser always interprets this pattern as a constructor
+declaration, because function calls are ignored by the parser, and
+variable declarations of the form y(x); are exceedingly rare compared
+to the more usual form y x; without parentheses.
 */
 
 #include <stdio.h>
@@ -113,7 +158,7 @@ static unsigned int vtkParseTypeMap[] =
   };
 
 /* Define some constants to simplify references to the table lookup in
-   the type_primitive production rule code.  */
+   the primitive_type production rule code.  */
 #define VTK_PARSE_INT8 vtkParseTypeMap[VTK_TYPE_INT8]
 #define VTK_PARSE_UINT8 vtkParseTypeMap[VTK_TYPE_UINT8]
 #define VTK_PARSE_INT16 vtkParseTypeMap[VTK_TYPE_INT16]
@@ -167,6 +212,7 @@ parse_access_t access_level = VTK_ACCESS_PUBLIC;
 void print_parser_error(const char *text, const char *cp, size_t n);
 
 /* helper functions */
+const char *type_class(unsigned int type, const char *classname);
 void start_class(const char *classname, int is_struct_or_union);
 void reject_class(const char *classname, int is_struct_or_union);
 void end_class();
@@ -190,6 +236,7 @@ void add_constant(const char *name, const char *value,
                   unsigned int type, const char *typeclass, int global);
 const char *add_const_scope(const char *name);
 void prepend_scope(char *cp, const char *arg);
+unsigned int guess_id_type(const char *cp);
 unsigned int add_indirection(unsigned int tval, unsigned int ptr);
 unsigned int add_indirection_to_array(unsigned int ptr);
 void handle_complex_type(ValueInfo *val, unsigned int datatype,
@@ -507,7 +554,7 @@ void pushNamespace(const char *name)
     {
     currentNamespace = (NamespaceInfo *)malloc(sizeof(NamespaceInfo));
     vtkParse_InitNamespace(currentNamespace);
-    currentNamespace->Name = vtkstrdup(name);
+    currentNamespace->Name = name;
     vtkParse_AddNamespaceToNamespace(oldNamespace, currentNamespace);
     }
 
@@ -723,7 +770,7 @@ const char *copySig()
     {
     cp = &signature[sigMark[sigMarkDepth]];
     }
-  return cp;
+  return vtkstrdup(cp);
 }
 
 /* swap the signature text using the mark as the radix */
@@ -774,37 +821,139 @@ void chopSig(void)
 }
 
 /*----------------------------------------------------------------
- * Storage type for vars and functions
+ * Subroutines for building a type
  */
 
 /* "private" variables */
-unsigned int storageType = 0;
+unsigned int storedType;
+unsigned int typeStack[10];
+int typeDepth = 0;
 
-/* clear the storage type */
-void clearStorageType()
+/* save the type on the stack */
+void pushType()
 {
-  storageType = 0;
+  typeStack[typeDepth++] = storedType;
 }
 
-/* save the storage type */
-void setStorageType(unsigned int val)
+/* pop the type stack */
+void popType()
 {
-  storageType = val;
+  storedType = typeStack[--typeDepth];
+}
+
+/* clear the storage type */
+void clearType()
+{
+  storedType = 0;
+}
+
+/* save the type */
+void setTypeBase(unsigned int base)
+{
+  storedType &= ~(unsigned int)(VTK_PARSE_BASE_TYPE);
+  storedType |= base;
+}
+
+/* set a type modifier bit */
+void setTypeMod(unsigned int mod)
+{
+  storedType |= mod;
 }
 
 /* modify the indirection (pointers, refs) in the storage type */
-void setStorageTypeIndirection(unsigned int ind)
+void setTypePtr(unsigned int ind)
 {
-  storageType = (storageType & ~VTK_PARSE_INDIRECT);
-  ind = (ind & VTK_PARSE_INDIRECT);
-  storageType = (storageType | ind);
+  storedType &= ~(unsigned int)(VTK_PARSE_INDIRECT);
+  ind &= VTK_PARSE_INDIRECT;
+  storedType |= ind;
 }
 
 /* retrieve the storage type */
-unsigned int getStorageType()
+unsigned int getType()
 {
-  return storageType;
+  return storedType;
 }
+
+/* combine two primitive type parts, e.g. "long int" */
+unsigned int buildTypeBase(unsigned int a, unsigned int b)
+{
+  unsigned int base = (a & VTK_PARSE_BASE_TYPE);
+  unsigned int basemod = (b & VTK_PARSE_BASE_TYPE);
+
+  switch (base)
+    {
+    case 0:
+      base = basemod;
+      break;
+    case VTK_PARSE_UNSIGNED_INT:
+      base = (basemod | VTK_PARSE_UNSIGNED);
+      break;
+    case VTK_PARSE_INT:
+      base = basemod;
+      if (base == VTK_PARSE_CHAR)
+        {
+        base = VTK_PARSE_SIGNED_CHAR;
+        }
+      break;
+    case VTK_PARSE_CHAR:
+      if (basemod == VTK_PARSE_INT)
+        {
+        base = VTK_PARSE_SIGNED_CHAR;
+        }
+      else if (basemod == VTK_PARSE_UNSIGNED_INT)
+        {
+        base = VTK_PARSE_UNSIGNED_CHAR;
+        }
+      break;
+    case VTK_PARSE_SHORT:
+      if (basemod == VTK_PARSE_UNSIGNED_INT)
+        {
+        base = VTK_PARSE_UNSIGNED_SHORT;
+        }
+      break;
+    case VTK_PARSE_LONG:
+      if (basemod == VTK_PARSE_UNSIGNED_INT)
+        {
+        base = VTK_PARSE_UNSIGNED_LONG;
+        }
+      else if (basemod == VTK_PARSE_LONG)
+        {
+        base = VTK_PARSE_LONG_LONG;
+        }
+      else if (basemod == VTK_PARSE_DOUBLE)
+        {
+        base = VTK_PARSE_LONG_DOUBLE;
+        }
+      break;
+    case VTK_PARSE_UNSIGNED_LONG:
+      if (basemod == VTK_PARSE_LONG)
+        {
+        base = VTK_PARSE_UNSIGNED_LONG_LONG;
+        }
+      break;
+    case VTK_PARSE_LONG_LONG:
+      if (basemod == VTK_PARSE_UNSIGNED_INT)
+        {
+        base = VTK_PARSE_UNSIGNED_LONG_LONG;
+        }
+      break;
+    case VTK_PARSE___INT64:
+      if (basemod == VTK_PARSE_UNSIGNED_INT)
+        {
+        base = VTK_PARSE_UNSIGNED___INT64;
+        }
+      break;
+    case VTK_PARSE_DOUBLE:
+      if (basemod == VTK_PARSE_LONG)
+        {
+        base = VTK_PARSE_LONG_DOUBLE;
+        }
+      break;
+    }
+
+  return ((a & ~(unsigned int)(VTK_PARSE_BASE_TYPE)) | base);
+}
+
 
 /*----------------------------------------------------------------
  * Array information
@@ -825,7 +974,7 @@ void clearArray(void)
 void pushArraySize(const char *size)
 {
   vtkParse_AddStringToArray(&arrayDimensions, &numberOfDimensions,
-                            vtkstrdup(size));
+                            size);
 }
 
 /* add another dimension to the front */
@@ -840,7 +989,7 @@ void pushArrayFront(const char *size)
     arrayDimensions[i] = arrayDimensions[i-1];
     }
 
-  arrayDimensions[0] = vtkstrdup(size);
+  arrayDimensions[0] = size;
 }
 
 /* get the number of dimensions */
@@ -864,9 +1013,9 @@ const char **getArray()
  */
 
 /* "private" variables */
-char *currentVarName = 0;
-char *currentVarValue = 0;
-char *currentId = 0;
+const char *currentVarName = 0;
+const char *currentVarValue = 0;
+const char *currentId = 0;
 
 /* clear the var Id */
 void clearVarName(void)
@@ -877,9 +1026,7 @@ void clearVarName(void)
 /* set the var Id */
 void setVarName(const char *text)
 {
-  static char static_text[2048];
-  currentVarName = static_text;
-  strcpy(static_text, text);
+  currentVarName = text;
 }
 
 /* return the var id */
@@ -899,9 +1046,7 @@ void clearVarValue(void)
 /* set the var value */
 void setVarValue(const char *text)
 {
-  static char static_text[2048];
-  currentVarValue = static_text;
-  strcpy(static_text, text);
+  currentVarValue = text;
 }
 
 /* return the var value */
@@ -921,32 +1066,21 @@ void clearTypeId(void)
 /* set the current Id, it is sticky until cleared */
 void setTypeId(const char *text)
 {
-  static char static_text[2048];
   if (currentId == NULL)
     {
-    currentId = static_text;
-    strcpy(static_text, text);
+    currentId = text;
     }
 }
 
 /* set the signature and type together */
 void typeSig(const char *text)
 {
-  size_t n;
-
   postSig(text);
   postSig(" ");
 
   if (currentId == 0)
     {
     setTypeId(text);
-    }
-  else if ((currentId[0] == 'u' && strcmp(currentId, "unsigned") == 0) ||
-           (currentId[0] == 's' && strcmp(currentId, "signed") == 0))
-    {
-    n = strlen(currentId);
-    currentId[n] = ' ';
-    strcpy(&currentId[n+1], text);
     }
 }
 
@@ -1005,8 +1139,10 @@ void pushFunction()
     {
     startSig();
     }
-  functionVarNameStack[functionDepth] = vtkstrdup(getVarName());
-  functionTypeIdStack[functionDepth] = vtkstrdup(getTypeId());
+  functionVarNameStack[functionDepth] = getVarName();
+  functionTypeIdStack[functionDepth] = getTypeId();
+  pushType();
+  clearType();
   clearVarName();
   clearTypeId();
   functionDepth++;
@@ -1029,6 +1165,7 @@ void popFunction()
     {
     setTypeId(functionTypeIdStack[functionDepth]);
     }
+  popType();
 
   functionStack[functionDepth+1] = newFunction;
 }
@@ -1177,7 +1314,6 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token <str> ID
 %token <str> VTK_ID
 %token <str> QT_ID
-%token <str> VAR_FUNCTION
 %token <str> StdString
 %token <str> UnicodeString
 %token <str> OSTREAM
@@ -1188,7 +1324,7 @@ unsigned int add_indirection_to_array(unsigned int type)
    Without these, the rules for declaring function pointers will
    produce errors because the parser cannot unambiguously choose
    between evaluating ID tokens as names via simple_id, versus
-   evaluating ID tokens as types via type_id.  This construct forces
+   evaluating ID tokens as types via type_name.  This construct forces
    the parser to evaluate the ID as a name, not as a type. */
 %token <str> LP
 %token <str> LA
@@ -1211,6 +1347,7 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token PRIVATE
 %token PROTECTED
 %token CONST
+%token VOLATILE
 %token MUTABLE
 %token STATIC
 %token VIRTUAL
@@ -1267,20 +1404,11 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token BOOL
 %token FLOAT
 %token DOUBLE
-%token LONG_DOUBLE
 %token INT
-%token UNSIGNED_INT
 %token SHORT
-%token UNSIGNED_SHORT
 %token LONG
-%token UNSIGNED_LONG
-%token LONG_LONG
-%token UNSIGNED_LONG_LONG
 %token INT64__
-%token UNSIGNED_INT64__
 %token CHAR
-%token SIGNED_CHAR
-%token UNSIGNED_CHAR
 %token SIGNED
 %token UNSIGNED
 
@@ -1333,151 +1461,175 @@ unsigned int add_indirection_to_array(unsigned int type)
  * Here is the start of the grammar
  */
 
-strt:
-  | strt
+translation_unit:
+    opt_declaration_seq
+
+opt_declaration_seq:
+  | opt_declaration_seq
     {
       startSig();
-      clearStorageType();
+      clearType();
       clearTypeId();
       clearTemplate();
       closeComment();
     }
-    file_item;
+    declaration
 
-file_item:
-    class_forward_decl
-  | using
-  | namespace
-  | extern_section
-  | type_def
-  | variables
-  | template_variable_initialization
-  | enum_def maybe_variables ';'
-  | class_def maybe_variables ';'
-  | template class_def maybe_variables ';'
-  | function func_body { output_function(); }
-  | operator func_body { output_function(); }
-  | template function func_body { output_function(); }
-  | template operator func_body { output_function(); }
-  | scoped_operator func_body { reject_function(); }
-  | scoped_method func_body { reject_function(); }
-  | template scoped_operator func_body { reject_function(); }
-  | template scoped_method func_body { reject_function(); }
-  | macro
-  | any_id ';'
-  | ';';
+declaration:
+    using_directive
+  | using_declaration
+  | forward_declaration
+  | namespace_definition
+  | namespace_alias_definition
+  | linkage_specification
+  | typedef_declaration
+  | variable_declaration
+  | enum_definition
+  | class_definition
+  | function_definition
+  | template_declaration
+  | declaration_macro
+  | id_expression ';'
+  | ';'
 
+template_declaration:
+    template_head class_definition
+  | template_head function_definition
+  | template_head nested_variable_initialization
 
 /*
  * extern section is parsed, but "extern" is ignored
  */
 
-extern_section:
-    EXTERN STRING_LITERAL '{' strt '}';
+linkage_specification:
+    EXTERN STRING_LITERAL '{' opt_declaration_seq '}'
 
 /*
  * Namespace is pushed and its body is parsed
  */
 
-namespace:
-    NAMESPACE class_id { pushNamespace($<str>2); }
-    '{' strt '}' { popNamespace(); }
-  | NAMESPACE '{' maybe_other '}';
+namespace_definition:
+    NAMESPACE '{' ignored_items '}'
+  | NAMESPACE identifier { pushNamespace($<str>2); }
+    '{' opt_declaration_seq '}' { popNamespace(); }
+
+namespace_alias_definition:
+    NAMESPACE identifier '=' qualified_id ';'
 
 /*
  * Class definitions
  */
 
-class_forward_decl:
-    CLASS any_id ';'
-  | STRUCT any_id ';'
-  | UNION any_id ';'
-  | FRIEND CLASS any_id ';'
-  | FRIEND STRUCT any_id ';'
-  | FRIEND UNION any_id ';'
-  | template CLASS any_id ';'
-  | template STRUCT any_id ';'
-  | template UNION any_id ';'
-  | FRIEND template CLASS any_id ';'
-  | FRIEND template STRUCT any_id ';'
-  | FRIEND template UNION any_id ';';
+forward_declaration:
+    simple_forward_declaration
+  | template_head simple_forward_declaration
 
-class_def:
-    CLASS any_id { start_class($<str>2, 0); }
-    maybe_bases '{' class_def_body '}' { end_class(); }
-  | STRUCT any_id { start_class($<str>2, 1); }
-    maybe_bases '{' class_def_body '}' { end_class(); }
-  | STRUCT '{' maybe_other '}'
-  | UNION any_id { start_class($<str>2, 2); }
-    maybe_bases '{' class_def_body '}' { end_class(); }
-  | UNION '{' maybe_other '}';
+simple_forward_declaration:
+    class_key id_expression ';'
+  | decl_specifier_seq class_key id_expression ';'
 
-class_def_body:
-  | class_def_body
+class_definition:
+    class_specifier opt_decl_specifier_seq opt_declarator_list ';'
+  | decl_specifier_seq class_specifier opt_decl_specifier_seq opt_declarator_list ';'
+
+class_specifier:
+    class_head { pushType(); } '{' member_specification '}'
+    {
+      const char *name = (currentClass ? currentClass->Name : NULL);
+      popType();
+      clearTypeId();
+      if (name)
+        {
+        setTypeId(name);
+        setTypeBase(guess_id_type(name));
+        }
+      end_class();
+    }
+
+class_head:
+    class_key id_expression { start_class($<str>2, $<integer>1); }
+    opt_base_clause
+  | class_key { start_class(NULL, $<integer>1); }
+    opt_base_clause
+
+class_key:
+    CLASS { $<integer>$ = 0; }
+  | STRUCT { $<integer>$ = 1; }
+  | UNION { $<integer>$ = 2; }
+
+member_specification:
+  | member_specification
     {
       startSig();
-      clearStorageType();
+      clearType();
       clearTypeId();
       clearTemplate();
       closeComment();
     }
-    class_def_item
-  | class_def_body class_access ':';
+    member_declaration
+  | member_specification
+    member_access_specifier ':'
 
-class_access:
+member_access_specifier:
     PUBLIC { access_level = VTK_ACCESS_PUBLIC; }
   | PRIVATE { access_level = VTK_ACCESS_PRIVATE; }
-  | PROTECTED { access_level = VTK_ACCESS_PROTECTED; };
+  | PROTECTED { access_level = VTK_ACCESS_PROTECTED; }
 
-class_def_item:
-    class_forward_decl
-  | using
-  | type_def
-  | variables
-  | enum_def maybe_variables ';'
-  | class_def maybe_variables ';'
-  | template class_def maybe_variables ';'
-  | FRIEND internal_class
-  | FRIEND template_internal_class
-  | FRIEND method func_body { output_friend_function(); }
-  | method func_body { output_function(); }
-  | template method func_body { output_function(); }
-  | macro
-  | VTK_BYTE_SWAP_DECL parens
-  | any_id ';'
-  | scope OPERATOR op_token ';'
-  | ';';
+member_declaration:
+    using_declaration
+  | forward_declaration
+  | friend_declaration
+  | typedef_declaration
+  | variable_declaration
+  | enum_definition
+  | class_definition
+  | method_definition
+  | template_member_declaration
+  | declaration_macro
+  | VTK_BYTE_SWAP_DECL ignored_parentheses
+  | id_expression ';'
+  | ';'
 
-maybe_bases:
-  | ':' base_list;
+template_member_declaration:
+    template_head class_definition
+  | template_head method_definition
 
-base_list:
-    base_list_item
-  | base_list_item ',' base_list;
+friend_declaration:
+    FRIEND ignored_class
+  | FRIEND template_head ignored_class
+  | FRIEND forward_declaration
+  | FRIEND method_declaration function_body { output_friend_function(); }
 
-base_list_item:
-    any_id
+opt_base_clause:
+  | base_clause
+
+base_clause:
+    ':' base_specifier_list
+
+base_specifier_list:
+    base_specifier
+  | base_specifier_list ',' base_specifier
+
+base_specifier:
+    id_expression
     { add_base_class(currentClass, $<str>1, access_level, 0); }
-  | base_virtual base_access_opt any_id
-    { add_base_class(currentClass, $<str>3, $<integer>2, $<integer>1); }
-  | base_access base_virtual_opt any_id
-    { add_base_class(currentClass, $<str>3, $<integer>1, $<integer>2); };
+  | VIRTUAL opt_access_specifier id_expression
+    { add_base_class(currentClass, $<str>3, $<integer>2, 1); }
+  | access_specifier opt_virtual id_expression
+    { add_base_class(currentClass, $<str>3, $<integer>1, $<integer>2); }
 
-base_virtual:
-    VIRTUAL { $<integer>$ = VTK_PARSE_VIRTUAL; };
-
-base_virtual_opt:
+opt_virtual:
     { $<integer>$ = 0; }
-  | base_virtual { $<integer>$ = $<integer>1; };
+  | VIRTUAL { $<integer>$ = 1; }
 
-base_access:
+opt_access_specifier:
+    { $<integer>$ = access_level; }
+  | access_specifier
+
+access_specifier:
     PUBLIC { $<integer>$ = VTK_ACCESS_PUBLIC; }
   | PRIVATE { $<integer>$ = VTK_ACCESS_PRIVATE; }
-  | PROTECTED { $<integer>$ = VTK_ACCESS_PROTECTED; };
-
-base_access_opt:
-    { $<integer>$ = access_level; }
-  | base_access { $<integer>$ = $<integer>1; };
+  | PROTECTED { $<integer>$ = VTK_ACCESS_PROTECTED; }
 
 /*
  * Enums
@@ -1487,60 +1639,116 @@ base_access_opt:
  * as long as all IDs are properly scoped.
  */
 
-enum_def:
-    ENUM class_id { start_enum($<str>2); } '{' enum_list '}' { end_enum(); }
-  | ENUM { start_enum(NULL); } '{' enum_list '}' { end_enum(); };
+enum_definition:
+    enum_specifier opt_decl_specifier_seq opt_declarator_list ';'
+  | decl_specifier_seq enum_specifier opt_decl_specifier_seq
+    opt_declarator_list ';'
 
-enum_list:
-  | enum_item
-  | enum_item ',' enum_list;
+enum_specifier:
+    enum_head '{' { pushType(); start_enum($<str>1); } opt_enumerator_list '}'
+    {
+      popType();
+      clearTypeId();
+      if ($<str>1 != NULL)
+        {
+        setTypeId($<str>1);
+        setTypeBase(guess_id_type($<str>1));
+        }
+      end_enum();
+    }
 
-enum_item:
+enum_head:
+    ENUM id_expression { $<str>$ = $<str>2; }
+  | ENUM { $<str>$ = NULL; }
+
+opt_enumerator_list:
+  | enumerator_list
+
+enumerator_list:
+    enumerator_definition
+  | enumerator_list ','
+  | enumerator_list ',' enumerator_definition
+
+enumerator_definition:
     simple_id { add_enum($<str>1, NULL); }
   | simple_id '=' { postSig("="); markSig(); }
-    const_expr { chopSig(); add_enum($<str>1, copySig()); };
+    constant_expression { chopSig(); add_enum($<str>1, copySig()); }
 
 /*
  * currently ignored items
  */
 
-template_variable_initialization:
-    template storage_type scope simple_id '=' maybe_other_no_semi ';';
+nested_variable_initialization:
+    store_type nested_name_specifier simple_id '=' ignored_expression ';'
 
-template_internal_class:
-    template internal_class;
+ignored_class:
+    class_key id_expression ignored_class_body
+  | decl_specifier_seq class_key id_expression ignored_class_body
+  | class_key ignored_class_body
+  | decl_specifier_seq class_key ignored_class_body
 
-internal_class:
-    CLASS any_id internal_class_body
-  | STRUCT any_id internal_class_body
-  | STRUCT internal_class_body
-  | UNION any_id internal_class_body
-  | UNION internal_class_body;
+ignored_class_body:
+    '{' ignored_items '}' ignored_expression ';'
+  | ':' ignored_expression ';'
 
-internal_class_body:
-    '{' maybe_other '}' maybe_other_no_semi ';'
-  | ':' maybe_other_no_semi ';';
 
 /*
  * Typedefs
  */
 
-type_def:
-    TYPEDEF type complex_typedef_id ';'
+typedef_declaration:
+    basic_typedef_declaration
+  | decl_specifier_seq basic_typedef_declaration
+
+basic_typedef_declaration:
+    TYPEDEF store_type typedef_declarator_id typedef_declarator_list_cont ';'
+  | TYPEDEF class_specifier
+    opt_decl_specifier_seq typedef_declarator_list ';'
+  | TYPEDEF decl_specifier_seq class_specifier
+    opt_decl_specifier_seq typedef_declarator_list ';'
+  | TYPEDEF enum_specifier
+    opt_decl_specifier_seq typedef_declarator_list ';'
+  | TYPEDEF decl_specifier_seq enum_specifier
+    opt_decl_specifier_seq typedef_declarator_list ';'
+
+typedef_declarator_list:
+    typedef_declarator typedef_declarator_list_cont
+
+typedef_declarator_list_cont:
+  | typedef_declarator_list_cont ',' typedef_declarator
+
+typedef_declarator:
+    opt_ptr_operator_seq typedef_declarator_id
+
+typedef_direct_declarator:
+    direct_declarator
+  | function_direct_declarator
+
+function_direct_declarator:
+    declarator_id '(' { pushFunction(); postSig("("); }
+    parameter_declaration_clause ')' { postSig(")"); }
+    function_qualifiers { $<integer>$ = VTK_PARSE_FUNCTION; popFunction(); }
+
+typedef_declarator_id:
+    typedef_direct_declarator
     {
       ValueInfo *item = (ValueInfo *)malloc(sizeof(ValueInfo));
       vtkParse_InitValue(item);
       item->ItemType = VTK_TYPEDEF_INFO;
       item->Access = access_level;
 
-      handle_complex_type(item, $<integer>2, $<integer>3, getSig());
+      handle_complex_type(item, getType(), $<integer>1, getSig());
 
       if (getVarName())
         {
-        item->Name = vtkstrdup(getVarName());
+        item->Name = getVarName();
         }
 
-      if (currentClass)
+      if (item->Class == NULL)
+        {
+        vtkParse_FreeValue(item);
+        }
+      else if (currentClass)
         {
         vtkParse_AddTypedefToClass(currentClass, item);
         }
@@ -1549,64 +1757,71 @@ type_def:
         vtkParse_AddTypedefToNamespace(currentNamespace, item);
         }
     }
-  | TYPEDEF class_def maybe_indirect_id ';'
-  | TYPEDEF enum_def maybe_indirect_id ';'
-  | TYPEDEF VAR_FUNCTION ';';
-
-complex_typedef_id:
-    var_decl
-  | var_id '(' { pushFunction(); postSig("("); } parameter_list ')'
-    maybe_func_const
-    { $<integer>$ = VTK_PARSE_FUNCTION; postSig(")"); popFunction(); };
 
 
 /*
  * The "using" keyword
  */
 
-using:
-    USING NAMESPACE any_id ';' { add_using($<str>3, 1); }
-  | USING TYPENAME any_id ';'  { add_using($<str>3, 0); }
-  | USING any_id ';' { add_using($<str>2, 0); }
-  | USING scope OPERATOR op_token ';'
-    { add_using(vtkstrcat3($<str>2, "operator", $<str>4), 0); }
-  | USING scope_resolution scope OPERATOR op_token ';'
-    { add_using(vtkstrcat4("::", $<str>3, "operator", $<str>5), 0); };
+using_declaration:
+    USING  using_id ';' { add_using($<str>2, 0); }
 
+using_id:
+    id_expression
+  | TYPENAME id_expression { $<str>$ = $<str>2; }
+  | nested_name_specifier operator_function_id
+    { $<str>$ = vtkstrcat($<str>1, $<str>2); }
+  | nested_name_specifier conversion_function_id
+    { $<str>$ = vtkstrcat($<str>1, $<str>2); }
+  | scope_operator_sig nested_name_specifier operator_function_id
+    { $<str>$ = vtkstrcat3($<str>1, $<str>2, $<str>3); }
+  | scope_operator_sig nested_name_specifier conversion_function_id
+    { $<str>$ = vtkstrcat3($<str>1, $<str>2, $<str>3); }
+
+using_directive:
+    USING NAMESPACE id_expression ';' { add_using($<str>3, 1); }
 
 /*
  * Templates
  */
 
-template:
+template_head:
     TEMPLATE '<' '>'
     { postSig("template<> "); clearTypeId(); }
   | TEMPLATE '<'
-    { postSig("template<"); clearTypeId(); startTemplate(); }
-    template_parameters '>'
+    {
+      postSig("template<");
+      pushType();
+      clearType();
+      clearTypeId();
+      startTemplate();
+    }
+    template_parameter_list '>'
     {
       chopSig();
       if (getSig()[getSigLength()-1] == '>') { postSig(" "); }
       postSig("> ");
       clearTypeId();
-    };
+      popType();
+    }
 
-template_parameters:
+template_parameter_list:
     template_parameter
-  | template_parameter ',' { chopSig(); postSig(", "); clearTypeId(); }
-    template_parameters;
+  | template_parameter_list ','
+    { chopSig(); postSig(", "); clearType(); clearTypeId(); }
+    template_parameter
 
 template_parameter:
     { markSig(); }
-    type_simple param_decl
-    { add_template_parameter($<integer>2, $<integer>3, copySig()); }
-    maybe_template_default
+    tparam_type direct_abstract_declarator
+    { add_template_parameter(getType(), $<integer>3, copySig()); }
+    opt_template_parameter_initializer
   | { markSig(); }
-    class_or_typename param_decl
+    class_or_typename direct_abstract_declarator
     { add_template_parameter(0, $<integer>3, copySig()); }
-    maybe_template_default
+    opt_template_parameter_initializer
   | { pushTemplate(); markSig(); }
-    template param_decl
+    template_head direct_abstract_declarator
     {
       int i;
       TemplateInfo *newTemplate = currentTemplate;
@@ -1615,248 +1830,252 @@ template_parameter:
       i = currentTemplate->NumberOfParameters-1;
       currentTemplate->Parameters[i]->Template = newTemplate;
     }
-    maybe_template_default;
+    opt_template_parameter_initializer
 
 class_or_typename:
     CLASS { postSig("class "); }
-  | TYPENAME { postSig("typename "); };
+  | TYPENAME { postSig("typename "); }
 
-maybe_template_default:
-  | template_default;
+opt_template_parameter_initializer:
+  | template_parameter_initializer
 
-template_default:
+template_parameter_initializer:
     '=' { postSig("="); markSig(); }
     template_parameter_value
     {
       int i = currentTemplate->NumberOfParameters-1;
       ValueInfo *param = currentTemplate->Parameters[i];
       chopSig();
-      param->Value = vtkstrdup(copySig());
-    };
+      param->Value = copySig();
+    }
 
 template_parameter_value:
     angle_bracket_pitem
-  | template_parameter_value angle_bracket_pitem;
+  | template_parameter_value angle_bracket_pitem
 
 
 /*
  * Functions and Methods
  */
 
-function:
-    storage_type func;
+function_definition:
+    function_declaration function_body { output_function(); }
+  | operator_declaration function_body { output_function(); }
+  | nested_method_declaration function_body { reject_function(); }
+  | nested_operator_declaration function_body { reject_function(); }
 
-scoped_method:
-    storage_type scope func;
-  | scope structor
-  | storage_mods scope structor;
+function_declaration:
+    store_type function_nr
 
-method:
-    storage_type func
-  | operator
-  | structor
-  | storage_mods structor;
+nested_method_declaration:
+    store_type nested_name_specifier function_nr
+  | nested_name_specifier structor_declaration
+  | decl_specifier_seq nested_name_specifier structor_declaration
 
-scoped_operator:
-    scope typecast_op_func
-  | storage_type scope op_func;
+nested_operator_declaration:
+    nested_name_specifier conversion_function
+  | decl_specifier_seq nested_name_specifier conversion_function
+  | store_type nested_name_specifier operator_function_nr
 
-operator:
-    typecast_op_func
-  | storage_type op_func;
+method_definition:
+    method_declaration function_body { output_function(); }
+  | nested_name_specifier operator_function_id ';'
+  | decl_specifier_seq nested_name_specifier operator_function_id ';'
 
-typecast_op_func:
-    OPERATOR { postSig("operator "); } storage_type '('
+method_declaration:
+    store_type function_nr
+  | operator_declaration
+  | structor_declaration
+  | decl_specifier_seq structor_declaration
+
+operator_declaration:
+    conversion_function
+  | decl_specifier_seq conversion_function
+  | store_type operator_function_nr
+
+conversion_function:
+    conversion_function_id '('
     {
       postSig("(");
-      set_return(currentFunction, getStorageType(), getTypeId(), 0);
+      set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_list ')' { postSig(")"); } func_trailer
+    parameter_declaration_clause ')' { postSig(")"); }
+    function_trailer_clause
     {
-      $<integer>$ = $<integer>3;
-      postSig(";"); closeSig();
+      postSig(";");
+      closeSig();
       currentFunction->IsOperator = 1;
       currentFunction->Name = "operator typecast";
       currentFunction->Comment = vtkstrdup(getComment());
       vtkParseDebug("Parsed operator", "operator typecast");
-    };
+    }
 
-op_func:
-    op_sig { postSig(")"); } func_trailer
+conversion_function_id:
+    operator_sig store_type
+    { $<str>$ = copySig(); }
+
+operator_function_nr:
+    operator_function_sig { postSig(")"); } function_trailer_clause
     {
-      postSig(";"); closeSig();
-      currentFunction->Name = vtkstrcat("operator", $<str>1);
+      postSig(";");
+      closeSig();
+      currentFunction->Name = $<str>1;
       currentFunction->Comment = vtkstrdup(getComment());
       vtkParseDebug("Parsed operator", currentFunction->Name);
-    };
+    }
 
-op_sig:
-    OPERATOR { postSig("operator"); } op_token { postSig($<str>3); } '('
+operator_function_sig:
+    operator_function_id '('
     {
       postSig("(");
       currentFunction->IsOperator = 1;
-      set_return(currentFunction, getStorageType(), getTypeId(), 0);
+      set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_list ')' { $<str>$ = $<str>3; };
+    parameter_declaration_clause ')'
 
-func:
-    func_sig func_trailer
+operator_function_id:
+    operator_sig operator_id
+    { chopSig(); $<str>$ = vtkstrcat(copySig(), $<str>2); postSig($<str>2); }
+
+operator_sig:
+    OPERATOR { markSig(); postSig("operator "); }
+
+function_nr:
+    function_sig function_trailer_clause
     {
-      postSig(";"); closeSig();
-      currentFunction->Name = vtkstrdup($<str>1);
+      postSig(";");
+      closeSig();
+      currentFunction->Name = $<str>1;
       currentFunction->Comment = vtkstrdup(getComment());
       vtkParseDebug("Parsed func", currentFunction->Name);
-    };
+    }
 
-func_trailer:
-  | func_trailer throw_trailer
-  | func_trailer const_trailer
-  | func_trailer pure_trailer;
+function_trailer_clause:
+  | function_trailer_clause function_trailer
 
-throw_trailer:
-    THROW { postSig(" throw "); } parens_sig { chopSig(); };
-
-const_trailer:
-    CONST { postSig(" const"); currentFunction->IsConst = 1; };
-
-pure_trailer:
-    '=' ZERO
+function_trailer:
+    THROW { postSig(" throw "); } parentheses_sig { chopSig(); }
+  | CONST { postSig(" const"); currentFunction->IsConst = 1; }
+  | '=' ZERO
     {
       postSig(" = 0");
       currentFunction->IsPureVirtual = 1;
       if (currentClass) { currentClass->IsAbstract = 1; }
-    };
+    }
 
-func_body:
-    '{' maybe_other '}'
-  | ';';
+function_body:
+    '{' ignored_items '}'
+  | ';'
 
-func_sig:
-    func_name '('
+function_sig:
+    function_name '('
     {
       postSig("(");
-      set_return(currentFunction, getStorageType(), getTypeId(), 0);
+      set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_list ')' { postSig(")"); };
+    parameter_declaration_clause ')' { postSig(")"); }
 
-func_name:
+function_name:
     simple_id
-  | templated_id;
+  | template_id
 
 
 /*
  * Constructors and destructors are handled by the same rule
  */
 
-structor:
+structor_declaration:
     structor_sig { closeSig(); }
-    maybe_initializers { openSig(); } func_trailer
+    opt_ctor_initializer { openSig(); } function_trailer_clause
     {
-      postSig(";"); closeSig();
-      if (getStorageType() & VTK_PARSE_VIRTUAL)
+      postSig(";");
+      closeSig();
+      if (getType() & VTK_PARSE_VIRTUAL)
         {
         currentFunction->IsVirtual = 1;
         }
-      if (getStorageType() & VTK_PARSE_EXPLICIT)
+      if (getType() & VTK_PARSE_EXPLICIT)
         {
         currentFunction->IsExplicit = 1;
         }
-      currentFunction->Name = vtkstrdup($<str>1);
+      currentFunction->Name = $<str>1;
       currentFunction->Comment = vtkstrdup(getComment());
       vtkParseDebug("Parsed func", currentFunction->Name);
-    };
+    }
 
 structor_sig:
-    func_name '(' { postSig("("); } parameter_list ')' { postSig(")"); };
+    function_name '(' { pushType(); postSig("("); }
+    parameter_declaration_clause ')' { popType(); postSig(")"); }
 
-maybe_initializers:
-  | ':' initializer more_initializers;
+opt_ctor_initializer:
+  | ':' mem_initializer_list
 
-more_initializers:
-  | ',' initializer more_initializers;
+mem_initializer_list:
+    mem_initializer
+  | mem_initializer_list ',' mem_initializer
 
-initializer:
-    any_id parens;
+mem_initializer:
+    id_expression ignored_parentheses
 
 /*
  * Parameters
  */
 
+parameter_declaration_clause:
+  | { clearType(); clearTypeId(); } parameter_list
+
 parameter_list:
-  | { clearTypeId(); } more_parameters;
+    parameter_declaration { clearType(); clearTypeId(); }
+  | parameter_list ',' { clearType(); clearTypeId(); postSig(", "); }
+    parameter_declaration
+  | parameter_list ',' ELLIPSIS
+    { currentFunction->IsVariadic = 1; postSig(", ..."); }
 
-more_parameters:
-    ELLIPSIS { currentFunction->IsVariadic = 1; postSig("..."); }
-  | parameter { clearTypeId(); }
-  | parameter ',' { clearTypeId(); postSig(", "); } more_parameters;
-
-parameter:
+parameter_declaration:
     { markSig(); }
-    type param_decl
+    store_type direct_abstract_declarator
     {
       ValueInfo *param = (ValueInfo *)malloc(sizeof(ValueInfo));
       vtkParse_InitValue(param);
 
-      handle_complex_type(param, $<integer>2, $<integer>3, copySig());
+      handle_complex_type(param, getType(), $<integer>3, copySig());
       add_legacy_parameter(currentFunction, param);
 
       if (getVarName())
         {
-        param->Name = vtkstrdup(getVarName());
+        param->Name = getVarName();
         }
 
       vtkParse_AddParameterToFunction(currentFunction, param);
     }
-    maybe_assign_value
+    opt_initializer
     {
       int i = currentFunction->NumberOfParameters-1;
       if (getVarValue())
         {
-        currentFunction->Parameters[i]->Value = vtkstrdup(getVarValue());
+        currentFunction->Parameters[i]->Value = getVarValue();
         }
     }
-  | VAR_FUNCTION
-    {
-      ValueInfo *param = (ValueInfo *)malloc(sizeof(ValueInfo));
 
-      vtkParse_InitValue(param);
-
-      markSig();
-      postSig("void (*");
-      postSig($<str>1);
-      postSig(")(void *) ");
-
-      handle_function_type(param, $<str>1, copySig());
-      add_legacy_parameter(currentFunction, param);
-
-      vtkParse_AddParameterToFunction(currentFunction, param);
-    };
-
-maybe_indirect_id:
-    simple_id
-  | type_indirection simple_id;
-
-maybe_assign_value:
+opt_initializer:
     { clearVarValue(); }
-  | assign_value;
+  | initializer
 
-assign_value:
+initializer:
     '=' { postSig("="); clearVarValue(); markSig(); }
-    const_expr { chopSig(); setVarValue(copySig()); };
+    constant_expression { chopSig(); setVarValue(copySig()); }
 
 /*
  * Variables
  */
 
-variables:
-    storage_type var_id_maybe_assign_value maybe_other_variables ';'
-  | STATIC VAR_FUNCTION maybe_other_variables ';'
-  | VAR_FUNCTION maybe_other_variables ';';
+variable_declaration:
+    store_type init_declarator_id declarator_list_cont ';'
 
-var_id_maybe_assign_value:
-    var_decl maybe_assign_value
+init_declarator_id:
+    direct_declarator opt_initializer
     {
-      unsigned int type = getStorageType();
+      unsigned int type = getType();
       ValueInfo *var = (ValueInfo *)malloc(sizeof(ValueInfo));
       vtkParse_InitValue(var);
       var->ItemType = VTK_VARIABLE_INFO;
@@ -1864,20 +2083,28 @@ var_id_maybe_assign_value:
 
       handle_complex_type(var, type, $<integer>1, getSig());
 
-      var->Name = vtkstrdup(getVarName());
+      var->Name = getVarName();
 
       if (getVarValue())
         {
-        var->Value = vtkstrdup(getVarValue());
+        var->Value = getVarValue();
         }
 
-      if ((var->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_FUNCTION)
+      /* Is this a typedef? */
+      if ((type & VTK_PARSE_TYPEDEF) != 0)
         {
-        var->Type = var->Type;
+        var->ItemType = VTK_TYPEDEF_INFO;
+        if (currentClass)
+          {
+          vtkParse_AddVariableToClass(currentClass, var);
+          }
+        else
+          {
+          vtkParse_AddVariableToNamespace(currentNamespace, var);
+          }
         }
-
       /* Is this a constant? */
-      if (((type & VTK_PARSE_CONST) != 0) && var->Value != NULL &&
+      else if (((type & VTK_PARSE_CONST) != 0) && var->Value != NULL &&
           (((type & VTK_PARSE_INDIRECT) == 0) ||
            ((type & VTK_PARSE_INDIRECT) == VTK_PARSE_ARRAY)))
         {
@@ -1903,24 +2130,26 @@ var_id_maybe_assign_value:
           vtkParse_AddVariableToNamespace(currentNamespace, var);
           }
         }
-    };
+    }
 
-maybe_variables:
-  | other_variable maybe_other_variables;
+opt_declarator_list:
+  | init_declarator declarator_list_cont
 
-maybe_other_variables:
-  | maybe_other_variables ',' { postSig(", "); } other_variable;
+declarator_list_cont:
+  | declarator_list_cont ',' { postSig(", "); } init_declarator
 
-other_variable:
-    { setStorageTypeIndirection(0); } var_id_maybe_assign_value
-  | type_indirection
-    { setStorageTypeIndirection($<integer>1); } var_id_maybe_assign_value;
+init_declarator:
+    opt_ptr_operator_seq init_declarator_id
 
-/* for parameters, the var_id is optional */
-param_decl:
-    maybe_var_id maybe_array_decorator { $<integer>$ = 0; }
-  | p_or_lp_or_la maybe_indirect_param_decl ')' { postSig(")"); }
-    maybe_array_or_parameters
+opt_ptr_operator_seq:
+    { setTypePtr(0); }
+  | ptr_operator_seq { setTypePtr($<integer>1); }
+
+/* for parameters, the declarator_id is optional */
+direct_abstract_declarator:
+    opt_declarator_id opt_array_decorator_seq { $<integer>$ = 0; }
+  | p_or_lp_or_la abstract_declarator ')' { postSig(")"); }
+    opt_array_or_parameters
     {
       const char *scope = getScope();
       unsigned int parens = add_indirection($<integer>1, $<integer>2);
@@ -1934,13 +2163,13 @@ param_decl:
         {
         $<integer>$ = add_indirection_to_array(parens);
         }
-    };
+    }
 
-/* for variables, the var_id is mandatory */
-var_decl:
-    var_id maybe_array_decorator { $<integer>$ = 0; }
-  | lp_or_la maybe_indirect_var_decl ')' { postSig(")"); }
-    maybe_array_or_parameters
+/* for variables, the declarator_id is mandatory */
+direct_declarator:
+    declarator_id opt_array_decorator_seq { $<integer>$ = 0; }
+  | lp_or_la declarator ')' { postSig(")"); }
+    opt_array_or_parameters
     {
       const char *scope = getScope();
       unsigned int parens = add_indirection($<integer>1, $<integer>2);
@@ -1954,67 +2183,122 @@ var_decl:
         {
         $<integer>$ = add_indirection_to_array(parens);
         }
-    };
+    }
 
 p_or_lp_or_la:
     '(' { postSig("("); scopeSig(""); $<integer>$ = 0; }
   | LP { postSig("("); scopeSig($<str>1); postSig("*");
          $<integer>$ = VTK_PARSE_POINTER; }
   | LA { postSig("("); scopeSig($<str>1); postSig("&");
-         $<integer>$ = VTK_PARSE_REF; };
+         $<integer>$ = VTK_PARSE_REF; }
 
 lp_or_la:
     LP { postSig("("); scopeSig($<str>1); postSig("*");
          $<integer>$ = VTK_PARSE_POINTER; }
   | LA { postSig("("); scopeSig($<str>1); postSig("&");
-         $<integer>$ = VTK_PARSE_REF; };
+         $<integer>$ = VTK_PARSE_REF; }
 
-maybe_func_const:
-  | CONST { currentFunction->IsConst = 1; }
-  | THROW parens;
-
-maybe_array_or_parameters: { $<integer>$ = 0; }
-  | '(' { pushFunction(); postSig("("); } parameter_list ')' maybe_func_const
+opt_array_or_parameters: { $<integer>$ = 0; }
+  | '(' { pushFunction(); postSig("("); } parameter_declaration_clause ')'
+    { postSig(")"); } function_qualifiers
     {
       $<integer>$ = VTK_PARSE_FUNCTION;
-      postSig(")");
       popFunction();
     }
-  | array_decorator { $<integer>$ = VTK_PARSE_ARRAY; };
+  | array_decorator_seq { $<integer>$ = VTK_PARSE_ARRAY; }
 
-maybe_indirect_param_decl:
-    param_decl
-  | type_indirection param_decl
-    { $<integer>$ = add_indirection($<integer>1, $<integer>2); };
+function_qualifiers:
+  | function_qualifiers MUTABLE
+  | function_qualifiers CONST { currentFunction->IsConst = 1; }
+  | function_qualifiers THROW ignored_parentheses
 
-maybe_indirect_var_decl:
-    var_decl
-  | type_indirection var_decl
-    { $<integer>$ = add_indirection($<integer>1, $<integer>2); };
+abstract_declarator:
+    direct_abstract_declarator
+  | ptr_operator_seq direct_abstract_declarator
+    { $<integer>$ = add_indirection($<integer>1, $<integer>2); }
 
-maybe_var_id:
+declarator:
+    direct_declarator
+  | ptr_operator_seq direct_declarator
+    { $<integer>$ = add_indirection($<integer>1, $<integer>2); }
+
+opt_declarator_id:
     { clearVarName(); chopSig(); }
-  | var_id;
+  | declarator_id
 
-var_id:
-    simple_id {setVarName($<str>1);};
+declarator_id:
+    simple_id { setVarName($<str>1); }
+  | simple_id ':' bitfield_size { setVarName($<str>1); }
 
-maybe_array_decorator:
+bitfield_size:
+    OCT_LITERAL
+  | INT_LITERAL
+  | HEX_LITERAL
+
+opt_array_decorator_seq:
     { clearArray(); }
-  | array_decorator;
+  | array_decorator_seq
+
+array_decorator_seq:
+    { clearArray(); } array_decorator_seq_impl
+
+array_decorator_seq_impl:
+    array_decorator
+  | array_decorator_seq_impl array_decorator
 
 array_decorator:
-    { clearArray(); } array;
+    '[' { postSig("["); } array_size_specifier ']' { postSig("]"); }
 
-array:
-    more_array '[' { postSig("["); } array_size ']' { postSig("]"); };
-
-more_array:
-  | array;
-
-array_size:
+array_size_specifier:
     { pushArraySize(""); }
-  | { markSig(); } const_expr { chopSig(); pushArraySize(copySig()); };
+  | { markSig(); } constant_expression { chopSig(); pushArraySize(copySig()); }
+
+/*
+ * Identifiers
+ */
+
+id_expression:
+    unqualified_id
+  | qualified_id
+
+unqualified_id:
+    simple_id
+  | template_id
+
+qualified_id:
+    nested_name_specifier unqualified_id
+    { $<str>$ = vtkstrcat($<str>1, $<str>2); }
+  | scope_operator_sig unqualified_id
+    { $<str>$ = vtkstrcat($<str>1, $<str>2); }
+  | scope_operator_sig qualified_id
+    { $<str>$ = vtkstrcat($<str>1, $<str>2); }
+
+nested_name_specifier:
+    identifier_sig scope_operator_sig
+    { $<str>$ = vtkstrcat($<str>1, $<str>2); }
+  | template_id scope_operator_sig
+    { $<str>$ = vtkstrcat($<str>1, $<str>2); }
+  | nested_name_specifier identifier_sig scope_operator_sig
+    { $<str>$ = vtkstrcat3($<str>1, $<str>2, $<str>3); }
+  | nested_name_specifier template_id scope_operator_sig
+    { $<str>$ = vtkstrcat3($<str>1, $<str>2, $<str>3); }
+  | nested_name_specifier TEMPLATE { postSig("template "); }
+    template_id scope_operator_sig
+    { $<str>$ = vtkstrcat4($<str>1, "template ", $<str>4, $<str>5); }
+
+identifier_sig:
+    identifier { postSig($<str>1); }
+
+scope_operator_sig:
+    DOUBLE_COLON { $<str>$ = "::"; postSig($<str>$); }
+
+template_id:
+    identifier '<' { markSig(); postSig($<str>1); postSig("<"); }
+    angle_bracket_contents '>'
+    {
+      chopSig(); if (getSig()[getSigLength()-1] == '>') { postSig(" "); }
+      postSig(">"); $<str>$ = copySig(); clearTypeId();
+    }
 
 /*
  * simple_id evaluates to string and sigs itself, note that '~' is
@@ -2051,121 +2335,119 @@ simple_id:
   | TypeFloat32 { $<str>$ = "vtkTypeFloat32"; postSig($<str>$); }
   | TypeFloat64 { $<str>$ = "vtkTypeFloat64"; postSig($<str>$); }
   | IdType { $<str>$ = "vtkIdType"; postSig($<str>$); }
-  | FloatType { $<str>$ = "vtkFloatingPointType"; postSig($<str>$); };
+  | FloatType { $<str>$ = "vtkFloatingPointType"; postSig($<str>$); }
 
 /*
- * class_id does not have any side-effects, and is needes for some rules.
+ * An identifier with no side-effects.
  */
 
-class_id:
+identifier:
     ID
   | QT_ID
   | VTK_ID
   | ISTREAM
   | OSTREAM
   | StdString
-  | UnicodeString;
+  | UnicodeString
 
 
 /*
- * Modifiers
+ * Declaration specifiers
  */
 
-storage_mods:
-    storage_seq { setStorageType($<integer>1); };
+opt_decl_specifier_seq:
+  | opt_decl_specifier_seq decl_specifier2
 
-storage_mod:
-    MUTABLE { $<integer>$ = 0; }
-  | INLINE { $<integer>$ = 0; }
+decl_specifier2:
+    decl_specifier
+  | primitive_type
+    { setTypeBase(buildTypeBase(getType(), $<integer>1)); }
+  | TYPEDEF { setTypeMod(VTK_PARSE_TYPEDEF); }
+  | FRIEND { setTypeMod(VTK_PARSE_FRIEND); }
+
+decl_specifier_seq:
+    decl_specifier
+  | decl_specifier_seq decl_specifier
+
+decl_specifier:
+    storage_class_specifier { setTypeMod($<integer>1); }
+  | function_specifier { setTypeMod($<integer>1); }
+  | cv_qualifier { setTypeMod($<integer>1); }
+
+storage_class_specifier:
+    MUTABLE { postSig("mutable "); $<integer>$ = VTK_PARSE_MUTABLE; }
   | EXTERN { $<integer>$ = 0; }
   | EXTERN STRING_LITERAL { $<integer>$ = 0; }
-  | EXPLICIT { postSig("explicit "); $<integer>$ = VTK_PARSE_EXPLICIT; }
   | STATIC { postSig("static "); $<integer>$ = VTK_PARSE_STATIC; }
-  | VIRTUAL { postSig("virtual "); $<integer>$ = VTK_PARSE_VIRTUAL; };
 
-storage_seq:
-    storage_mod
-  | storage_seq storage_mod { $<integer>$ = ($<integer>1 | $<integer>2); };
+function_specifier:
+    INLINE { $<integer>$ = 0; }
+  | VIRTUAL { postSig("virtual "); $<integer>$ = VTK_PARSE_VIRTUAL; }
+  | EXPLICIT { postSig("explicit "); $<integer>$ = VTK_PARSE_EXPLICIT; }
+
+cv_qualifier:
+    CONST { postSig("const "); $<integer>$ = VTK_PARSE_CONST; }
+  | VOLATILE { postSig("volatile "); $<integer>$ = VTK_PARSE_VOLATILE; }
+
+cv_qualifier_seq:
+    cv_qualifier
+  | cv_qualifier_seq cv_qualifier
+    { $<integer>$ = ($<integer>1 | $<integer>2); }
 
 
 /*
  * Types
  */
 
-storage_type:
-    type { setStorageType($<integer>$); }
-  | storage_mods type
-    {
-      $<integer>$ = ($<integer>1 | $<integer>2);
-      setStorageType($<integer>$);
-    };
+store_type:
+    store_type_specifier opt_ptr_operator_seq
 
-type:
-    type_red
-  | type_red type_indirection { $<integer>$ = ($<integer>1 | $<integer>2); };
+store_type_specifier:
+    type_specifier { setTypeBase($<integer>1); }
+    opt_decl_specifier_seq
+  | decl_specifier_seq type_specifier { setTypeBase($<integer>2); }
+    opt_decl_specifier_seq
 
-type_red:
-    type_red2
-  | const_mod type_red2 { $<integer>$ = ($<integer>1 | $<integer>2); }
-  | type_red2 const_mod { $<integer>$ = ($<integer>1 | $<integer>2); };
+type_specifier:
+    simple_type_specifier
+  | TYPENAME { postSig("typename "); } id_expression
+    { postSig(" "); setTypeId($<str>3); $<integer>$ = guess_id_type($<str>3); }
+  | template_id
+    { postSig(" "); setTypeId($<str>1); $<integer>$ = guess_id_type($<str>1); }
+  | qualified_id
+    { postSig(" "); setTypeId($<str>1); $<integer>$ = guess_id_type($<str>1); }
+  | class_key id_expression
+    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
+  | ENUM id_expression
+    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
 
-type_red2:
-    type_simple
-  | templated_id
-    { postSig(" "); setTypeId($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN; }
-  | scoped_id
-    { postSig(" "); setTypeId($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN; }
-  | TYPENAME { postSig("typename "); } any_id
-    { postSig(" "); setTypeId($<str>3); $<integer>$ = VTK_PARSE_UNKNOWN; }
-  | CLASS type_id { $<integer>$ = $<integer>2; }
-  | STRUCT type_id { $<integer>$ = $<integer>2; }
-  | UNION type_id { typeSig($<str>2); $<integer>$ = VTK_PARSE_UNKNOWN; }
-  | ENUM type_id { typeSig($<str>2); $<integer>$ = VTK_PARSE_UNKNOWN; };
+tparam_type:
+    tparam_type_specifier2 opt_ptr_operator_seq
 
-const_mod:
-    CONST { postSig("const "); $<integer>$ = VTK_PARSE_CONST; };
+tparam_type_specifier2:
+    tparam_type_specifier { setTypeBase($<integer>1); }
+    opt_decl_specifier_seq
+  | decl_specifier_seq type_specifier { setTypeBase($<integer>2); }
+    opt_decl_specifier_seq
 
-templated_id:
-    class_id '<' { markSig(); postSig($<str>1); postSig("<"); }
-    angle_bracket_contents '>'
-    {
-      chopSig(); if (getSig()[getSigLength()-1] == '>') { postSig(" "); }
-      postSig(">"); $<str>$ = vtkstrdup(copySig()); clearTypeId();
-    };
+tparam_type_specifier:
+    simple_type_specifier
+  | template_id
+    { postSig(" "); setTypeId($<str>1); $<integer>$ = guess_id_type($<str>1); }
+  | qualified_id
+    { postSig(" "); setTypeId($<str>1); $<integer>$ = guess_id_type($<str>1); }
+  | STRUCT id_expression
+    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
+  | UNION id_expression
+    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
+  | ENUM id_expression
+    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
 
-any_id:
-    simple_id
-  | templated_id
-  | scoped_id;
+simple_type_specifier:
+    primitive_type { setTypeId(""); }
+  | type_name
 
-scoped_id:
-    scope simple_id { $<str>$ = vtkstrcat($<str>1, $<str>2); }
-  | scope templated_id { $<str>$ = vtkstrcat($<str>1, $<str>2); }
-  | scope_resolution any_id { $<str>$ = vtkstrcat($<str>1, $<str>2); };
-
-scope:
-    class_id_sig scope_resolution
-    { $<str>$ = vtkstrcat($<str>1, $<str>2); }
-  | templated_id scope_resolution
-    { $<str>$ = vtkstrcat($<str>1, $<str>2); }
-  | scope class_id_sig scope_resolution
-    { $<str>$ = vtkstrcat3($<str>1, $<str>2, $<str>3); }
-  | scope templated_id scope_resolution
-    { $<str>$ = vtkstrcat3($<str>1, $<str>2, $<str>3); }
-  | scope TEMPLATE { postSig("template "); } templated_id scope_resolution
-    { $<str>$ = vtkstrcat4($<str>1, "template ", $<str>4, $<str>5); };
-
-class_id_sig:
-    class_id { postSig($<str>1); };
-
-scope_resolution:
-    DOUBLE_COLON { $<str>$ = "::"; postSig($<str>$); };
-
-type_simple:
-    type_primitive
-  | type_id;
-
-type_id:
+type_name:
     StdString { typeSig($<str>1); $<integer>$ = VTK_PARSE_STRING; }
   | UnicodeString { typeSig($<str>1); $<integer>$ = VTK_PARSE_UNICODE_STRING;}
   | OSTREAM { typeSig($<str>1); $<integer>$ = VTK_PARSE_OSTREAM; }
@@ -2186,35 +2468,20 @@ type_id:
   | TypeFloat32 { typeSig("vtkTypeFloat32"); $<integer>$ = VTK_PARSE_FLOAT32; }
   | TypeFloat64 { typeSig("vtkTypeFloat64"); $<integer>$ = VTK_PARSE_FLOAT64; }
   | IdType { typeSig("vtkIdType"); $<integer>$ = VTK_PARSE_ID_TYPE; }
-  | FloatType { typeSig("double"); $<integer>$ = VTK_PARSE_DOUBLE; };
+  | FloatType { typeSig("double"); $<integer>$ = VTK_PARSE_DOUBLE; }
 
-type_primitive:
-    VOID   { typeSig("void"); $<integer>$ = VTK_PARSE_VOID;}
-  | BOOL { typeSig("bool"); $<integer>$ = VTK_PARSE_BOOL;}
-  | FLOAT  { typeSig("float"); $<integer>$ = VTK_PARSE_FLOAT; }
-  | DOUBLE { typeSig("double"); $<integer>$ = VTK_PARSE_DOUBLE; }
-  | LONG_DOUBLE { typeSig("long double"); $<integer>$ = VTK_PARSE_UNKNOWN; }
-  | CHAR   { typeSig("char"); $<integer>$ = VTK_PARSE_CHAR; }
-  | SIGNED_CHAR { typeSig("signed char"); $<integer>$ = VTK_PARSE_SIGNED_CHAR;}
-  | UNSIGNED_CHAR
-    { typeSig("unsigned char"); $<integer>$ = VTK_PARSE_UNSIGNED_CHAR; }
-  | INT    { typeSig("int"); $<integer>$ = VTK_PARSE_INT; }
-  | UNSIGNED_INT
-    { typeSig("unsigned int"); $<integer>$ = VTK_PARSE_UNSIGNED_INT; }
-  | SHORT  { typeSig("short"); $<integer>$ = VTK_PARSE_SHORT; }
-  | UNSIGNED_SHORT
-    { typeSig("unsigned short"); $<integer>$ = VTK_PARSE_UNSIGNED_SHORT; }
-  | LONG   { typeSig("long"); $<integer>$ = VTK_PARSE_LONG; }
-  | UNSIGNED_LONG
-    { typeSig("unsigned long"); $<integer>$ = VTK_PARSE_UNSIGNED_LONG; }
-  | LONG_LONG   { typeSig("long long"); $<integer>$ = VTK_PARSE_LONG_LONG; }
-  | UNSIGNED_LONG_LONG
-    {typeSig("unsigned long long");$<integer>$=VTK_PARSE_UNSIGNED_LONG_LONG; }
-  | INT64__ { typeSig("__int64"); $<integer>$ = VTK_PARSE___INT64; }
-  | UNSIGNED_INT64__
-    { typeSig("unsigned __int64"); $<integer>$ = VTK_PARSE_UNSIGNED___INT64; }
-  | SIGNED { typeSig("int"); $<integer>$ = VTK_PARSE_INT; }
-  | UNSIGNED { typeSig("unsigned int"); $<integer>$ = VTK_PARSE_UNSIGNED_INT;};
+primitive_type:
+    VOID   { postSig("void "); $<integer>$ = VTK_PARSE_VOID; }
+  | BOOL { postSig("bool "); $<integer>$ = VTK_PARSE_BOOL; }
+  | FLOAT  { postSig("float "); $<integer>$ = VTK_PARSE_FLOAT; }
+  | DOUBLE { postSig("double "); $<integer>$ = VTK_PARSE_DOUBLE; }
+  | CHAR   { postSig("char "); $<integer>$ = VTK_PARSE_CHAR; }
+  | INT    { postSig("int "); $<integer>$ = VTK_PARSE_INT; }
+  | SHORT  { postSig("short "); $<integer>$ = VTK_PARSE_SHORT; }
+  | LONG   { postSig("long "); $<integer>$ = VTK_PARSE_LONG; }
+  | INT64__ { postSig("__int64 "); $<integer>$ = VTK_PARSE___INT64; }
+  | SIGNED { postSig("signed "); $<integer>$ = VTK_PARSE_INT; }
+  | UNSIGNED { postSig("unsigned "); $<integer>$ = VTK_PARSE_UNSIGNED_INT; }
 
 
 /*
@@ -2233,16 +2500,33 @@ type_primitive:
    unless the VTK_PARSE_INDIRECT bitfield is expanded.
    */
 
-type_indirection:
-    '&' { postSig("&"); $<integer>$ = VTK_PARSE_REF;}
-  | pointers '&' { postSig("&"); $<integer>$ = ($<integer>1 | VTK_PARSE_REF);}
-  | pointers;
+ptr_operator_seq:
+    reference
+  | pointer_seq
+  | pointer_seq reference { $<integer>$ = ($<integer>1 | $<integer>2); }
+
+reference:
+    '&' { postSig("&"); $<integer>$ = VTK_PARSE_REF; }
+
+pointer:
+    '*' { postSig("*"); $<integer>$ = VTK_PARSE_POINTER; }
+  | '*' { postSig("*"); } cv_qualifier_seq
+    {
+      if (($<integer>3 & VTK_PARSE_CONST) != 0)
+        {
+        $<integer>$ = VTK_PARSE_CONST_POINTER;
+        }
+      if (($<integer>3 & VTK_PARSE_VOLATILE) != 0)
+        {
+        $<integer>$ = VTK_PARSE_BAD_INDIRECT;
+        }
+    }
 
 /* "VTK_BAD_INDIRECT" occurs when the bitfield fills up */
 
-pointers:
-    pointer_or_const_pointer
-  | pointers pointer_or_const_pointer
+pointer_seq:
+    pointer
+  | pointer_seq pointer
     {
       unsigned int n;
       n = (($<integer>1 << 2) | $<integer>2);
@@ -2250,36 +2534,33 @@ pointers:
         {
         n = VTK_PARSE_BAD_INDIRECT;
         }
-     $<integer>$ = n;
-   };
+      $<integer>$ = n;
+    }
 
-pointer_or_const_pointer:
-    '*' { postSig("*"); $<integer>$ = VTK_PARSE_POINTER; }
-  | '*' CONST { postSig("*const "); $<integer>$ = VTK_PARSE_CONST_POINTER; };
 
 /*
  * VTK Macros
  */
 
-macro:
-  SetMacro '(' simple_id ',' {preSig("void Set"); postSig("(");} type ')'
+declaration_macro:
+  SetMacro '(' simple_id ',' {preSig("void Set"); postSig("(");} store_type ')'
    {
    postSig("a);");
    currentFunction->Macro = "vtkSetMacro";
    currentFunction->Name = vtkstrcat("Set", $<str>3);
    currentFunction->Comment = vtkstrdup(getComment());
-   add_parameter(currentFunction, $<integer>6, getTypeId(), 0);
+   add_parameter(currentFunction, getType(), getTypeId(), 0);
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
    }
 | GetMacro '(' {postSig("Get");} simple_id ','
-   {markSig();} type {swapSig();} ')'
+   {markSig();} store_type {swapSig();} ')'
    {
    postSig("();");
    currentFunction->Macro = "vtkGetMacro";
    currentFunction->Name = vtkstrcat("Get", $<str>4);
    currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, $<integer>7, getTypeId(), 0);
+   set_return(currentFunction, getType(), getTypeId(), 0);
    output_function();
    }
 | SetStringMacro '(' {preSig("void Set");} simple_id ')'
@@ -2301,8 +2582,8 @@ macro:
    set_return(currentFunction, VTK_PARSE_CHAR_PTR, "char", 0);
    output_function();
    }
-| SetClampMacro '(' simple_id ',' {startSig(); markSig();} type_red {closeSig();}
-     ',' maybe_other_no_semi ')'
+| SetClampMacro '(' simple_id ',' {startSig(); markSig();} store_type {closeSig();}
+     ',' ignored_expression ')'
    {
    const char *typeText;
    chopSig();
@@ -2313,7 +2594,7 @@ macro:
    currentFunction->Signature =
      vtkstrcat5("void ", currentFunction->Name, "(", typeText, ");");
    currentFunction->Comment = vtkstrdup(getComment());
-   add_parameter(currentFunction, $<integer>6, getTypeId(), 0);
+   add_parameter(currentFunction, getType(), getTypeId(), 0);
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
 
@@ -2322,7 +2603,7 @@ macro:
    currentFunction->Signature =
      vtkstrcat4(typeText, " ", currentFunction->Name, "();");
    currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, $<integer>6, getTypeId(), 0);
+   set_return(currentFunction, getType(), getTypeId(), 0);
    output_function();
 
    currentFunction->Macro = "vtkSetClampMacro";
@@ -2330,11 +2611,11 @@ macro:
    currentFunction->Signature =
      vtkstrcat4(typeText, " ", currentFunction->Name, "();");
    currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, $<integer>6, getTypeId(), 0);
+   set_return(currentFunction, getType(), getTypeId(), 0);
    output_function();
    }
 | SetObjectMacro '(' simple_id ','
-  {preSig("void Set"); postSig("("); } type_red ')'
+  {preSig("void Set"); postSig("("); } store_type ')'
    {
    postSig("*);");
    currentFunction->Macro = "vtkSetObjectMacro";
@@ -2345,7 +2626,7 @@ macro:
    output_function();
    }
 | GetObjectMacro '(' {postSig("*Get");} simple_id ','
-   {markSig();} type_red {swapSig();} ')'
+   {markSig();} store_type {swapSig();} ')'
    {
    postSig("();");
    currentFunction->Macro = "vtkGetObjectMacro";
@@ -2354,7 +2635,7 @@ macro:
    set_return(currentFunction, VTK_PARSE_OBJECT_PTR, getTypeId(), 0);
    output_function();
    }
-| BooleanMacro '(' simple_id ',' type_red ')'
+| BooleanMacro '(' simple_id ',' store_type ')'
    {
    currentFunction->Macro = "vtkBooleanMacro";
    currentFunction->Name = vtkstrcat($<str>3, "On");
@@ -2372,48 +2653,48 @@ macro:
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
    }
-| SetVector2Macro '(' simple_id ',' {startSig(); markSig();} type_red ')'
+| SetVector2Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
    {
    chopSig();
-   outputSetVectorMacro($<str>3, $<integer>6, copySig(), 2);
+   outputSetVectorMacro($<str>3, getType(), copySig(), 2);
    }
-| GetVector2Macro '(' simple_id ',' {startSig(); markSig();} type_red ')'
+| GetVector2Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
    {
    chopSig();
-   outputGetVectorMacro($<str>3, $<integer>6, copySig(), 2);
+   outputGetVectorMacro($<str>3, getType(), copySig(), 2);
    }
-| SetVector3Macro '(' simple_id ',' {startSig(); markSig();} type_red ')'
+| SetVector3Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
    {
    chopSig();
-   outputSetVectorMacro($<str>3, $<integer>6, copySig(), 3);
+   outputSetVectorMacro($<str>3, getType(), copySig(), 3);
    }
-| GetVector3Macro  '(' simple_id ',' {startSig(); markSig();} type_red ')'
+| GetVector3Macro  '(' simple_id ',' {startSig(); markSig();} store_type ')'
    {
    chopSig();
-   outputGetVectorMacro($<str>3, $<integer>6, copySig(), 3);
+   outputGetVectorMacro($<str>3, getType(), copySig(), 3);
    }
-| SetVector4Macro '(' simple_id ',' {startSig(); markSig();} type_red ')'
+| SetVector4Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
    {
    chopSig();
-   outputSetVectorMacro($<str>3, $<integer>6, copySig(), 4);
+   outputSetVectorMacro($<str>3, getType(), copySig(), 4);
    }
-| GetVector4Macro  '(' simple_id ',' {startSig(); markSig();} type_red ')'
+| GetVector4Macro  '(' simple_id ',' {startSig(); markSig();} store_type ')'
    {
    chopSig();
-   outputGetVectorMacro($<str>3, $<integer>6, copySig(), 4);
+   outputGetVectorMacro($<str>3, getType(), copySig(), 4);
    }
-| SetVector6Macro '(' simple_id ',' {startSig(); markSig();} type_red ')'
+| SetVector6Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
    {
    chopSig();
-   outputSetVectorMacro($<str>3, $<integer>6, copySig(), 6);
+   outputSetVectorMacro($<str>3, getType(), copySig(), 6);
    }
-| GetVector6Macro  '(' simple_id ',' {startSig(); markSig();} type_red ')'
+| GetVector6Macro  '(' simple_id ',' {startSig(); markSig();} store_type ')'
    {
    chopSig();
-   outputGetVectorMacro($<str>3, $<integer>6, copySig(), 6);
+   outputGetVectorMacro($<str>3, getType(), copySig(), 6);
    }
 | SetVectorMacro  '(' simple_id ',' {startSig(); markSig();}
-     type_red ',' INT_LITERAL ')'
+     store_type ',' INT_LITERAL ')'
    {
    const char *typeText;
    chopSig();
@@ -2424,13 +2705,13 @@ macro:
      vtkstrcat7("void ", currentFunction->Name, "(", typeText,
                 " a[", $<str>8, "]);");
    currentFunction->Comment = vtkstrdup(getComment());
-   add_parameter(currentFunction, (VTK_PARSE_POINTER | $<integer>6),
+   add_parameter(currentFunction, (VTK_PARSE_POINTER | getType()),
                  getTypeId(), (int)strtol($<str>8, NULL, 0));
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
    }
 | GetVectorMacro  '(' simple_id ',' {startSig();}
-     type_red ',' INT_LITERAL ')'
+     store_type ',' INT_LITERAL ')'
    {
    chopSig();
    currentFunction->Macro = "vtkGetVectorMacro";
@@ -2439,7 +2720,7 @@ macro:
    postSig(currentFunction->Name);
    postSig("();");
    currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, (VTK_PARSE_POINTER | $<integer>6),
+   set_return(currentFunction, (VTK_PARSE_POINTER | getType()),
               getTypeId(), (int)strtol($<str>8, NULL, 0));
    output_function();
    }
@@ -2518,22 +2799,22 @@ macro:
      set_return(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 3);
      output_function();
    }
-| TypeMacro '(' simple_id ',' simple_id maybe_comma ')'
+| TypeMacro '(' simple_id ',' simple_id opt_comma ')'
    {
    int is_concrete = 0;
    int i;
 
    currentFunction->Macro = "vtkTypeMacro";
-   currentFunction->Name = vtkstrdup("GetClassName");
-   currentFunction->Signature = vtkstrdup("const char *GetClassName();");
+   currentFunction->Name = "GetClassName";
+   currentFunction->Signature = "const char *GetClassName();";
    currentFunction->Comment = vtkstrdup(getComment());
    set_return(currentFunction, (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR),
               "char", 0);
    output_function();
 
    currentFunction->Macro = "vtkTypeMacro";
-   currentFunction->Name = vtkstrdup("IsA");
-   currentFunction->Signature = vtkstrdup("int IsA(const char *name);");
+   currentFunction->Name = "IsA";
+   currentFunction->Signature = "int IsA(const char *name);";
    currentFunction->Comment = vtkstrdup(getComment());
    add_parameter(currentFunction, (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR),
                 "char", 0);
@@ -2541,7 +2822,7 @@ macro:
    output_function();
 
    currentFunction->Macro = "vtkTypeMacro";
-   currentFunction->Name = vtkstrdup("NewInstance");
+   currentFunction->Name = "NewInstance";
    currentFunction->Signature = vtkstrcat($<str>3, " *NewInstance();");
    currentFunction->Comment = vtkstrdup(getComment());
    set_return(currentFunction, VTK_PARSE_OBJECT_PTR, $<str>3, 0);
@@ -2559,7 +2840,7 @@ macro:
    if ( is_concrete )
      {
      currentFunction->Macro = "vtkTypeMacro";
-     currentFunction->Name = vtkstrdup("SafeDownCast");
+     currentFunction->Name = "SafeDownCast";
      currentFunction->Signature =
        vtkstrcat($<str>3, " *SafeDownCast(vtkObject* o);");
      currentFunction->Comment = vtkstrdup(getComment());
@@ -2569,15 +2850,15 @@ macro:
      output_function();
      }
    }
-;
 
-maybe_comma: | ',';
+opt_comma:
+  | ','
 
 /*
  * Operators
  */
 
-op_token:
+operator_id:
     '(' ')' { $<str>$ = "()"; }
   | '[' ']' { $<str>$ = "[]"; }
   | NEW '[' ']' { $<str>$ = " new[]"; }
@@ -2586,9 +2867,9 @@ op_token:
   | '>' { $<str>$ = ">"; }
   | ',' { $<str>$ = ","; }
   | '=' { $<str>$ = "="; }
-  | op_token_no_delim;
+  | operator_id_no_delim
 
-op_token_no_delim:
+operator_id_no_delim:
     '%' { $<str>$ = "%"; }
   | '*' { $<str>$ = "*"; }
   | '/' { $<str>$ = "/"; }
@@ -2623,7 +2904,7 @@ op_token_no_delim:
   | OP_LOGIC_EQ { $<str>$ = "=="; }
   | OP_LOGIC_NEQ { $<str>$ = "!="; }
   | OP_LOGIC_LEQ { $<str>$ = "<="; }
-  | OP_LOGIC_GEQ { $<str>$ = ">="; };
+  | OP_LOGIC_GEQ { $<str>$ = ">="; }
 
 keyword:
     TYPEDEF { $<str>$ = "typedef"; }
@@ -2647,7 +2928,7 @@ keyword:
   | CONST_CAST { $<str>$ = "const_cast"; }
   | DYNAMIC_CAST { $<str>$ = "dynamic_cast"; }
   | STATIC_CAST { $<str>$ = "static_cast"; }
-  | REINTERPRET_CAST { $<str>$ = "reinterpret_cast"; };
+  | REINTERPRET_CAST { $<str>$ = "reinterpret_cast"; }
 
 literal:
     OCT_LITERAL
@@ -2656,21 +2937,21 @@ literal:
   | FLOAT_LITERAL
   | CHAR_LITERAL
   | STRING_LITERAL
-  | ZERO;
+  | ZERO
 
 /*
- * Constant expressions that evaluate to values
+ * Constant expressions that evaluate to one or more values
  */
 
-const_expr:
+constant_expression:
     bracket_pitem
-  | const_expr bracket_pitem;
+  | constant_expression bracket_pitem;
 
 common_bracket_item:
     brackets_sig
-  | parens_sig
+  | parentheses_sig
   | braces_sig
-  | op_token_no_delim
+  | operator_id_no_delim
     {
       if ((($<str>1)[0] == '+' || ($<str>1)[0] == '-' ||
            ($<str>1)[0] == '*' || ($<str>1)[0] == '&') &&
@@ -2705,8 +2986,8 @@ common_bracket_item:
   | DOUBLE_COLON { chopSig(); postSig("::"); }
   | keyword { postSig($<str>1); postSig(" "); }
   | literal { postSig($<str>1); postSig(" "); }
-  | type_primitive
-  | type_id
+  | primitive_type
+  | type_name
     {
       int c1 = 0;
       size_t l;
@@ -2727,36 +3008,36 @@ common_bracket_item:
         resetSig(l);
         postSig(cp);
         }
-    };
+    }
 
 any_bracket_contents:
-  | any_bracket_contents any_bracket_item;
+  | any_bracket_contents any_bracket_item
 
 bracket_pitem: common_bracket_item
   | '<' { postSig("< "); }
-  | '>' { postSig("> "); };
+  | '>' { postSig("> "); }
 
 any_bracket_item: bracket_pitem
   | '=' { postSig("= "); }
-  | ',' { chopSig(); postSig(", "); };
+  | ',' { chopSig(); postSig(", "); }
 
 braces_item: any_bracket_item
-  | ';' { chopSig(); postSig(";"); };
+  | ';' { chopSig(); postSig(";"); }
 
 angle_bracket_contents:
-  | angle_bracket_contents angle_bracket_item;
+  | angle_bracket_contents angle_bracket_item
 
 braces_contents:
-  | braces_contents braces_item;
+  | braces_contents braces_item
 
 angle_bracket_pitem:
     angle_brackets_sig
-  | common_bracket_item;
+  | common_bracket_item
 
 angle_bracket_item:
     angle_bracket_pitem
   | '=' { postSig("= "); }
-  | ',' { chopSig(); postSig(", "); };
+  | ',' { chopSig(); postSig(", "); }
 
 angle_brackets_sig:
     '<'
@@ -2770,13 +3051,13 @@ angle_brackets_sig:
       chopSig();
       if (getSig()[getSigLength()-1] == '>') { postSig(" "); }
       postSig("> ");
-    };
+    }
 
 brackets_sig:
     '[' { postSig("["); } any_bracket_contents ']'
-    { chopSig(); postSig("] "); };
+    { chopSig(); postSig("] "); }
 
-parens_sig:
+parentheses_sig:
     '(' { postSig("("); } any_bracket_contents ')'
     { chopSig(); postSig(") "); }
   | LP { postSig("("); postSig($<str>1); postSig("*"); }
@@ -2785,42 +3066,118 @@ parens_sig:
     any_bracket_contents ')' { chopSig(); postSig(") "); }
 
 braces_sig:
-    '{' { postSig("{ "); } braces_contents '}' { postSig("} "); };
+    '{' { postSig("{ "); } braces_contents '}' { postSig("} "); }
 
 /*
  * These just eat up stuff we don't care about, like function bodies
  */
-maybe_other:
-  | maybe_other other_stuff;
+ignored_items:
+  | ignored_items ignored_item
 
-maybe_other_no_semi:
-  | maybe_other_no_semi other_stuff_no_semi;
+ignored_expression:
+  | ignored_expression ignored_item_no_semi
 
-other_stuff:
-    other_stuff_no_semi
-  | ';';
+ignored_item:
+    ignored_item_no_semi
+  | ';'
 
-other_stuff_no_semi:
-    braces | parens | brackets
-  | DOUBLE_COLON | op_token_no_delim | ':' | '.' | '<' | '>' | '=' | ','
-  | keyword | literal | type_simple | VAR_FUNCTION
-  | ELLIPSIS | OTHER;
+ignored_item_no_semi:
+    ignored_braces
+  | ignored_parentheses
+  | ignored_brackets
+  | DOUBLE_COLON
+  | ELLIPSIS
+  | operator_id_no_delim
+  | ':' | '.' | '<' | '>' | '=' | ','
+  | keyword | literal
+  | simple_type_specifier
+  | OTHER
 
-braces:
-  '{' maybe_other '}';
+ignored_braces:
+  '{' ignored_items '}'
 
-brackets:
-  '[' maybe_other ']';
+ignored_brackets:
+  '[' ignored_items ']'
 
-parens:
-  lparen maybe_other ')';
+ignored_parentheses:
+  ignored_left_parenthesis ignored_items ')'
 
-lparen:
-  '(' | LP | LA;
+ignored_left_parenthesis:
+  '(' | LP | LA
 
 %%
 #include <string.h>
 #include "lex.yy.c"
+
+/* fill in the type name if none given */
+const char *type_class(unsigned int type, const char *classname)
+{
+  if (classname)
+    {
+    if (classname[0] == '\0')
+      {
+      switch ((type & VTK_PARSE_BASE_TYPE))
+        {
+        case VTK_PARSE_VOID:
+          classname = "void";
+          break;
+        case VTK_PARSE_BOOL:
+          classname = "bool";
+          break;
+        case VTK_PARSE_FLOAT:
+          classname = "float";
+          break;
+        case VTK_PARSE_DOUBLE:
+          classname = "double";
+          break;
+        case VTK_PARSE_LONG_DOUBLE:
+          classname = "long double";
+          break;
+        case VTK_PARSE_CHAR:
+          classname = "char";
+          break;
+        case VTK_PARSE_UNSIGNED_CHAR:
+          classname = "unsigned char";
+          break;
+        case VTK_PARSE_SIGNED_CHAR:
+          classname = "signed char";
+          break;
+        case VTK_PARSE_SHORT:
+          classname = "short";
+          break;
+        case VTK_PARSE_UNSIGNED_SHORT:
+          classname = "unsigned short";
+          break;
+        case VTK_PARSE_INT:
+          classname = "int";
+          break;
+        case VTK_PARSE_UNSIGNED_INT:
+          classname = "unsigned int";
+          break;
+        case VTK_PARSE_LONG:
+          classname = "long";
+          break;
+        case VTK_PARSE_UNSIGNED_LONG:
+          classname = "unsigned long";
+          break;
+        case VTK_PARSE_LONG_LONG:
+          classname = "long long";
+          break;
+        case VTK_PARSE_UNSIGNED_LONG_LONG:
+          classname = "unsigned long long";
+          break;
+        case VTK_PARSE___INT64:
+          classname = "__int64";
+          break;
+        case VTK_PARSE_UNSIGNED___INT64:
+          classname = "unsigned __int64";
+          break;
+        }
+      }
+    }
+
+  return classname;
+}
 
 /* check whether this is the class we are looking for */
 void start_class(const char *classname, int is_struct_or_union)
@@ -2829,7 +3186,7 @@ void start_class(const char *classname, int is_struct_or_union)
   pushClass();
   currentClass = (ClassInfo *)malloc(sizeof(ClassInfo));
   vtkParse_InitClass(currentClass);
-  currentClass->Name = vtkstrdup(classname);
+  currentClass->Name = classname;
   if (is_struct_or_union == 1)
     {
     currentClass->ItemType = VTK_STRUCT_INFO;
@@ -2839,7 +3196,7 @@ void start_class(const char *classname, int is_struct_or_union)
     currentClass->ItemType = VTK_UNION_INFO;
     }
 
-  if (classname[strlen(classname)-1] != '>')
+  if (classname && classname[strlen(classname)-1] != '>')
     {
     if (outerClass)
       {
@@ -2879,7 +3236,7 @@ void reject_class(const char *classname, int is_struct_or_union)
 
   pushClass();
   currentClass = &static_class;
-  currentClass->Name = vtkstrdup(classname);
+  currentClass->Name = classname;
   vtkParse_InitClass(currentClass);
 
   access_level = VTK_ACCESS_PRIVATE;
@@ -2905,11 +3262,11 @@ void end_class()
 /* add a base class to the specified class */
 void add_base_class(ClassInfo *cls, const char *name, int al, int virt)
 {
-  if (al == VTK_ACCESS_PUBLIC && virt == 0)
+  if (cls && al == VTK_ACCESS_PUBLIC && virt == 0)
     {
     vtkParse_AddStringToArray(&cls->SuperClasses,
                               &cls->NumberOfSuperClasses,
-                              vtkstrdup(name));
+                              name);
     }
 }
 
@@ -2924,7 +3281,7 @@ void add_using(const char *name, int is_namespace)
   if (is_namespace)
     {
     item->Name = NULL;
-    item->Scope = vtkstrdup(name);
+    item->Scope = name;
     }
   else
     {
@@ -2948,18 +3305,16 @@ void add_using(const char *name, int is_namespace)
 /* start a new enum */
 void start_enum(const char *name)
 {
-  static char text[256];
   EnumInfo *item;
 
   currentEnumName = "int";
   currentEnumValue = NULL;
   if (name)
     {
-    strcpy(text, name);
-    currentEnumName = text;
+    currentEnumName = name;
     item = (EnumInfo *)malloc(sizeof(EnumInfo));
     vtkParse_InitEnum(item);
-    item->Name = vtkstrdup(name);
+    item->Name = name;
     item->Access = access_level;
     if (currentClass)
       {
@@ -2989,7 +3344,7 @@ void add_enum(const char *name, const char *value)
   if (value)
     {
     strcpy(text, value);
-    currentEnumValue = text;
+    currentEnumValue = value;
     }
   else if (currentEnumValue)
     {
@@ -3013,11 +3368,12 @@ void add_enum(const char *name, const char *value)
       i = strlen(text);
       strcpy(&text[i], " + 1");
       }
+    currentEnumValue = vtkstrdup(text);
     }
   else
     {
     strcpy(text, "0");
-    currentEnumValue = text;
+    currentEnumValue = "0";
     }
 
   add_constant(name, currentEnumValue, VTK_PARSE_INT, currentEnumName, 2);
@@ -3225,13 +3581,10 @@ void add_constant(const char *name, const char *value,
   ValueInfo *con = (ValueInfo *)malloc(sizeof(ValueInfo));
   vtkParse_InitValue(con);
   con->ItemType = VTK_CONSTANT_INFO;
-  con->Name = vtkstrdup(name);
-  con->Value = vtkstrdup(value);
+  con->Name = name;
+  con->Value = value;
   con->Type = type;
-  if (typeclass)
-    {
-    con->Class = vtkstrdup(typeclass);
-    }
+  con->Class = type_class(type, typeclass);
 
   if (flag == 2)
     {
@@ -3330,6 +3683,47 @@ const char *add_const_scope(const char *name)
   return text;
 }
 
+/* guess the type from the ID */
+unsigned int guess_id_type(const char *cp)
+{
+  unsigned int t = 0;
+
+  if (cp)
+    {
+    size_t i;
+    const char *dp;
+
+    i = strlen(cp);
+    while (i > 0 && cp[i-1] != ':') { i--; }
+    dp = &cp[i];
+
+    if (strcmp(dp, "vtkStdString") == 0 ||
+        strcmp(cp, "std::string") == 0)
+      {
+      t = VTK_PARSE_STRING;
+      }
+    else if (strcmp(dp, "vtkUnicodeString") == 0)
+      {
+      t = VTK_PARSE_UNICODE_STRING;
+      }
+    else if (strncmp(dp, "vtk", 3) == 0)
+      {
+      t = VTK_PARSE_OBJECT;
+      }
+    else if (strncmp(dp, "Q", 1) == 0 ||
+             strncmp(cp, "Qt::", 4) == 0)
+      {
+      t = VTK_PARSE_QOBJECT;
+      }
+    else
+      {
+      t = VTK_PARSE_UNKNOWN;
+      }
+    }
+
+  return t;
+}
+
 /* add a template parameter to the current template */
 void add_template_parameter(
   unsigned int datatype, unsigned int extra, const char *funcSig)
@@ -3337,7 +3731,7 @@ void add_template_parameter(
   ValueInfo *param = (ValueInfo *)malloc(sizeof(ValueInfo));
   vtkParse_InitValue(param);
   handle_complex_type(param, datatype, extra, funcSig);
-  param->Name = vtkstrdup(getVarName());
+  param->Name = getVarName();
   vtkParse_AddParameterToTemplate(currentTemplate, param);
 }
 
@@ -3350,10 +3744,7 @@ void add_parameter(FunctionInfo *func, unsigned int type,
   vtkParse_InitValue(param);
 
   param->Type = type;
-  if (typeclass)
-    {
-    param->Class = vtkstrdup(typeclass);
-    }
+  param->Class = type_class(type, typeclass);
 
   if (count)
     {
@@ -3377,10 +3768,7 @@ void set_return(FunctionInfo *func, unsigned int type,
 
   vtkParse_InitValue(val);
   val->Type = type;
-  if (typeclass)
-    {
-    val->Class = vtkstrdup(typeclass);
-    }
+  val->Class = type_class(type, typeclass);
 
   if (count)
     {
@@ -3438,6 +3826,9 @@ void handle_complex_type(
 {
   FunctionInfo *func = 0;
 
+  /* remove specifiers like "friend" and "typedef" */
+  datatype &= VTK_PARSE_QUALIFIED_TYPE;
+
   /* if "extra" was set, parentheses were involved */
   if ((extra & VTK_PARSE_BASE_TYPE) == VTK_PARSE_FUNCTION)
     {
@@ -3446,7 +3837,7 @@ void handle_complex_type(
     func->ReturnValue = (ValueInfo *)malloc(sizeof(ValueInfo));
     vtkParse_InitValue(func->ReturnValue);
     func->ReturnValue->Type = datatype;
-    func->ReturnValue->Class = vtkstrdup(getTypeId());
+    func->ReturnValue->Class = type_class(datatype, getTypeId());
     if (funcSig) { func->Signature = vtkstrdup(funcSig); }
     val->Function = func;
 
@@ -3511,7 +3902,7 @@ void handle_complex_type(
 
   /* get the data type */
   val->Type = datatype;
-  val->Class = vtkstrdup(getTypeId());
+  val->Class = type_class(datatype, getTypeId());
 
   /* copy contents of all brackets to the ArgDimensions */
   val->NumberOfDimensions = getArrayNDims();
@@ -3520,35 +3911,6 @@ void handle_complex_type(
 
   /* count is the product of the dimensions */
   val->Count = count_from_dimensions(val);
-}
-
-/* specifically handle a VAR_FUNCTION parameter */
-void handle_function_type(
-  ValueInfo *param, const char *name, const char *funcSig)
-{
-  FunctionInfo *func;
-  size_t j;
-
-  param->Type = VTK_PARSE_FUNCTION;
-  param->Class = vtkstrdup("function");
-
-  if (name && name[0] != '\0')
-    {
-    param->Name = vtkstrdup(name);
-    }
-
-  func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
-  vtkParse_InitFunction(func);
-  add_parameter(func, VTK_PARSE_VOID_PTR, "void", 0);
-  set_return(func, VTK_PARSE_VOID, "void", 0);
-  j = strlen(funcSig);
-  while (j > 0 && funcSig[j-1] == ' ')
-    {
-    j--;
-    }
-
-  func->Signature = vtkstrndup(funcSig, j);
-  param->Function = func;
 }
 
 /* add a parameter to the legacy part of the FunctionInfo struct */
@@ -3563,6 +3925,19 @@ void add_legacy_parameter(FunctionInfo *func, ValueInfo *param)
     func->ArgTypes[i] = param->Type;
     func->ArgClasses[i] = param->Class;
     func->ArgCounts[i] = param->Count;
+
+    /* legacy wrappers need VTK_PARSE_FUNCTION without POINTER */
+    if (param->Type == VTK_PARSE_FUNCTION_PTR)
+      {
+      /* check for signature "void (*func)(void *)" */
+      if (param->Function->NumberOfParameters == 1 &&
+          param->Function->Parameters[0]->Type == VTK_PARSE_VOID_PTR &&
+          param->Function->Parameters[0]->NumberOfDimensions == 0 &&
+          param->Function->ReturnValue->Type == VTK_PARSE_VOID)
+        {
+        func->ArgTypes[i] = VTK_PARSE_FUNCTION;
+        }
+      }
     }
   else
     {
@@ -3666,7 +4041,7 @@ void output_function()
       (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE) ==
        VTK_PARSE_VOID)
     {
-    currentFunction->ReturnClass = vtkstrdup("void");
+    currentFunction->ReturnClass = "void";
     }
 
   /* set legacy flags */
@@ -3681,35 +4056,38 @@ void output_function()
     currentFunction->IsProtected = 0;
     }
 
-  /* look for legacy VAR FUNCTIONS */
-  if (currentFunction->NumberOfParameters
-      && (currentFunction->Parameters[0]->Type == VTK_PARSE_FUNCTION))
-    {
-    if (currentFunction->NumberOfParameters != 2 ||
-        currentFunction->Parameters[1]->Type != VTK_PARSE_VOID_PTR)
-      {
-      currentFunction->ArrayFailure = 1;
-      }
-    }
-
   /* check for too many parameters */
   if (currentFunction->NumberOfParameters > MAX_ARGS)
     {
     currentFunction->ArrayFailure = 1;
     }
 
-  /* also legacy: tell old wrappers that multi-dimensional arrays are bad */
   for (i = 0; i < currentFunction->NumberOfParameters; i++)
     {
     ValueInfo *param = currentFunction->Parameters[i];
+    /* tell old wrappers that multi-dimensional arrays are bad */
     if ((param->Type & VTK_PARSE_POINTER_MASK) != 0)
       {
-      if (((param->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_FUNCTION) ||
-          ((param->Type & VTK_PARSE_INDIRECT) == VTK_PARSE_BAD_INDIRECT) ||
+      if (((param->Type & VTK_PARSE_INDIRECT) == VTK_PARSE_BAD_INDIRECT) ||
           ((param->Type & VTK_PARSE_POINTER_LOWMASK) != VTK_PARSE_POINTER))
-       {
-       currentFunction->ArrayFailure = 1;
-       }
+        {
+        currentFunction->ArrayFailure = 1;
+        }
+      }
+
+    /* allow only "void (*func)(void *)" as a valid function pointer */
+    if ((param->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_FUNCTION)
+      {
+      if (i != 0 || param->Type != VTK_PARSE_FUNCTION_PTR ||
+          currentFunction->NumberOfParameters != 2 ||
+          currentFunction->Parameters[1]->Type != VTK_PARSE_VOID_PTR ||
+          param->Function->NumberOfParameters != 1 ||
+          param->Function->Parameters[0]->Type != VTK_PARSE_VOID_PTR ||
+          param->Function->Parameters[0]->NumberOfDimensions != 0 ||
+          param->Function->ReturnValue->Type != VTK_PARSE_VOID)
+        {
+        currentFunction->ArrayFailure = 1;
+        }
       }
     }
 #endif /* VTK_PARSE_LEGACY_REMOVE */
@@ -3722,7 +4100,7 @@ void output_function()
       currentClass->HasDelete = 1;
       }
 
-    currentFunction->Class = vtkstrdup(currentClass->Name);
+    currentFunction->Class = currentClass->Name;
     vtkParse_AddFunctionToClass(currentClass, currentFunction);
 
     currentFunction = (FunctionInfo *)malloc(sizeof(FunctionInfo));
@@ -3821,7 +4199,7 @@ void outputSetVectorMacro(const char *var, unsigned int paramType,
   currentFunction->Macro = mnames[m];
   currentFunction->Name = vtkstrcat("Set", var);
   currentFunction->Signature =
-    vtkstrcat7("void ", currentFunction->Name, "(", getTypeId(),
+    vtkstrcat7("void ", currentFunction->Name, "(", typeText,
                " a[", ntext, "]);");
   add_parameter(currentFunction, (VTK_PARSE_POINTER | paramType),
                 getTypeId(), n);
