@@ -21,10 +21,13 @@
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkSimpleScalarTree.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkCutter.h"
 #include "vtkMergePoints.h"
@@ -41,7 +44,7 @@ vtkContourGrid::vtkContourGrid()
 {
   this->ContourValues = vtkContourValues::New();
 
-  this->ComputeNormals = 1;
+  this->ComputeNormals = 0;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
@@ -389,6 +392,23 @@ int vtkContourGrid::RequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;
+    }
+
+  if(this->ComputeNormals)
+    {
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    vtkNew<vtkPolyDataNormals> normalsFilter;
+    vtkNew<vtkPolyData> tempInput;
+    tempInput->ShallowCopy(output);
+    normalsFilter->SetInputData(tempInput.GetPointer());
+    normalsFilter->SetFeatureAngle(180.);
+    normalsFilter->SetUpdateExtent(
+      0,
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
+      info->Get(vtkStreamingDemandDrivenPipeline:: UPDATE_NUMBER_OF_PIECES()),
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    normalsFilter->Update();
+    output->ShallowCopy(normalsFilter->GetOutput());
     }
 
   return 1;
