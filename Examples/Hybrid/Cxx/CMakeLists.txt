@@ -1,30 +1,29 @@
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
 PROJECT (Hybrid)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK REQUIRED)
-IF(NOT VTK_USE_RENDERING)
-  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires VTK_USE_RENDERING.")
-ENDIF(NOT VTK_USE_RENDERING)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_SOURCE_DIR)
+  message(ERROR "Cannot build Hybrid examples without VTK_SOURCE_DIR")
+endif()
 
-INCLUDE_DIRECTORIES(
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK REQUIRED)
+  include(${VTK_USE_FILE})
+endif()
+
+include_directories(
   # ImageDataLIC2DDemo and StructuredGridLIC2DDemo include
   # TestImageDataLIC2D.h  and TestStructuredGridLIC2DSlice
   # from the dir below
-  ${VTK_SOURCE_DIR}/Hybrid/Testing/Cxx
+  ${VTK_SOURCE_DIR}/Rendering/HybridOpenGL/Testing/Cxx
 )
 
-SET(HYBRID_EXAMPLES_SRCS
+set(HYBRID_EXAMPLES_SRCS
   ImageDataLIC2DDemo
   StructuredGridLIC2DDemo
   )
 
-IF(APPLE)
-  SET(EXECUTABLE_FLAG MACOSX_BUNDLE)
-ENDIF(APPLE)
-
-FOREACH(name ${HYBRID_EXAMPLES_SRCS})
-  ADD_EXECUTABLE(${name} ${EXECUTABLE_FLAG} ${name}.cxx)
-  TARGET_LINK_LIBRARIES(${name} vtkHybrid )
-ENDFOREACH(name)
+foreach(name ${HYBRID_EXAMPLES_SRCS})
+  add_executable(${name} MACOSX_BUNDLE ${name}.cxx)
+  target_link_libraries(${name} ${VTK_LIBRARIES} )
+endforeach()

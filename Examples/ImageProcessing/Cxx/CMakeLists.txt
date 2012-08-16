@@ -1,26 +1,36 @@
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
 PROJECT(ImageProcessing)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK REQUIRED)
-IF(NOT VTK_USE_RENDERING)
-  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires VTK_USE_RENDERING.")
-ENDIF(NOT VTK_USE_RENDERING)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK COMPONENTS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMath
+    vtkIOImage
+    vtkImagingCore
+    vtkInteractionStyle
+    vtkRenderingCore
+    vtkRenderingOpenGL
+  )
+include(${VTK_USE_FILE})
+endif()
 
-ADD_EXECUTABLE(ImageSlicing ImageSlicing.cxx)
-TARGET_LINK_LIBRARIES(ImageSlicing vtkRendering vtkImaging vtkIO)
+add_executable(ImageSlicing MACOSX_BUNDLE ImageSlicing.cxx)
+target_link_libraries(ImageSlicing ${VTK_LIBRARIES})
 
+if(vtkTestingRendering_SOURCE_DIR)
 ######## Regression Testing ########
-SET(KIT ImageProcessingExamples)
-SET(MyTests TestImageSlicing.cxx)
+set(KIT ImageProcessingExamples)
+set(MyTests TestImageSlicing.cxx)
 
-INCLUDE(vtkTestingObjectFactory)
-ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
-               ${MyTests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
+include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
+add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
+target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
 
-ADD_TEST(${KIT}-ImageSlicing ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
-  TestImageSlicing ${VTK_DATA_ROOT}/Data/headsq/quarter)
-
-
+  if (VTK_DATA_ROOT)
+    add_test(NAME ${KIT}-ImageSlicing COMMAND ${KIT}CxxTests
+      TestImageSlicing ${VTK_DATA_ROOT}/Data/headsq/quarter)
+  endif()
+endif()

@@ -342,6 +342,10 @@ if(BUILD_TESTING)
   add_subdirectory(Testing/Install)
 endif()
 
+if(BUILD_EXAMPLES)
+  add_subdirectory(Examples)
+endif()
+
 # The doxygen documentation needs to be aware of all modules.
 option(BUILD_DOCUMENTATION "Build the VTK documentation" OFF)
 if(BUILD_DOCUMENTATION)

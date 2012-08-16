@@ -1,45 +1,54 @@
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
 PROJECT (VisualizationAlgorithms)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK REQUIRED)
-IF(NOT VTK_USE_RENDERING)
-  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires VTK_USE_RENDERING.")
-ENDIF(NOT VTK_USE_RENDERING)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK COMPONENTS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkFiltersCore
+    vtkFiltersModeling
+    vtkIOXML
+    vtkInteractionStyle
+    vtkRenderingCore
+    vtkRenderingOpenGL
+)
+  include(${VTK_USE_FILE})
+endif()
 
-ADD_EXECUTABLE(TubesWithVaryingRadiusAndColors TubesWithVaryingRadiusAndColors.cxx)
-ADD_EXECUTABLE(FilledContours FilledContours.cxx)
-ADD_EXECUTABLE(BandedContours BandedContours.cxx)
+add_executable(TubesWithVaryingRadiusAndColors MACOSX_BUNDLE TubesWithVaryingRadiusAndColors.cxx)
+add_executable(FilledContours MACOSX_BUNDLE FilledContours.cxx)
+add_executable(BandedContours MACOSX_BUNDLE BandedContours.cxx)
 
-TARGET_LINK_LIBRARIES(TubesWithVaryingRadiusAndColors vtkHybrid)
-TARGET_LINK_LIBRARIES(FilledContours vtkHybrid)
-TARGET_LINK_LIBRARIES(BandedContours vtkHybrid)
+target_link_libraries(TubesWithVaryingRadiusAndColors ${VTK_LIBRARIES})
+target_link_libraries(FilledContours ${VTK_LIBRARIES})
+target_link_libraries(BandedContours ${VTK_LIBRARIES})
 
+if(vtkTestingRendering_SOURCE_DIR)
 ######## Regression Testing ########
-SET(KIT VisualizationAlgorithmsExamples)
-SET(MyTests
+set(KIT VisualizationAlgorithmsExamples)
+set(MyTests
     TestFilledContours.cxx
     TestBandedContours.cxx
+    TestTubesWithVaryingRadiusAndColors.cxx
 )
 
-IF (VTK_DATA_ROOT)
-  SET(MyTests ${MyTests} TestTubesWithVaryingRadiusAndColors.cxx)
-ENDIF (VTK_DATA_ROOT)
+include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
 
-INCLUDE(vtkTestingObjectFactory)
-ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
-               ${MyTests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkHybrid)
+add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
+target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
 
-ADD_TEST(${KIT}-TubesWithVaryingRadiusAndColors
-         ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
+add_test(NAME ${KIT}-TubesWithVaryingRadiusAndColors
+         COMMAND ${KIT}CxxTests
          TestTubesWithVaryingRadiusAndColors)
-ADD_TEST(${KIT}-FilledContours
-         ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
-         TestFilledContours
-         ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
-ADD_TEST(${KIT}-BandedContours
-         ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
-         TestBandedContours
-         ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
+  if (VTK_DATA_ROOT)
+    add_test(NAME ${KIT}-FilledContours
+             COMMAND ${KIT}CxxTests
+             TestFilledContours
+               ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
+    add_test(NAME ${KIT}-BandedContours
+             COMMAND ${KIT}CxxTests
+             TestBandedContours
+               ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
+  endif()
+endif()
