@@ -1,6 +1,5 @@
 # Allow the user to customize their build with some local options
-#
-include(${VTK_SOURCE_DIR}/Wrapping/LocalUserOptions.cmake OPTIONAL)
+include(${VTK_SOURCE_DIR}/Wrapping/Tools/LocalUserOptions.cmake OPTIONAL)
 
 # vtkParse.tab.c has #line markers that break #include with double quotes.
 include_directories(
@@ -31,47 +30,58 @@ set_source_files_properties(
   HEADER_FILE_ONLY
 )
 
-# Wrapper tools must be statically linked
-vtk_add_library(vtkWrappingTools STATIC ${VTK_PARSE_SOURCES})
+# get absolute path of each header for install rules
+set(VTK_PARSE_HEADERS)
+foreach(arg ${VTK_PARSE_SOURCES})
+  get_filename_component(src "${arg}" ABSOLUTE)
+  string(REGEX REPLACE "\\.c$" ".h" hdr "${src}")
+  if("${hdr}" MATCHES "\\.h$" AND EXISTS "${hdr}")
+    list(APPEND VTK_PARSE_HEADERS "${hdr}")
+  endif()
+endforeach()
 
-# Get our lists of modules to be wrapped, create a list of uniques that need to
-# have wrap hierarchy run on them too.
-get_property(_python_modules GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
-get_property(_java_modules GLOBAL PROPERTY VTK_JAVA_WRAPPED)
+# Create a module, but the wrapper tools module is atypical so a lot of
+# customization is done here.
+set(${vtk-module}_LIBRARIES ${vtk-module})
+vtk_module_impl()
+
+# Wrapper tools must be statically linked
+vtk_add_library(${vtk-module} STATIC ${VTK_PARSE_SOURCES})
+vtk_module_export_info()
+
+if(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES ${VTK_PARSE_HEADERS}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
+    COMPONENT Development
+    )
+endif()
 
 set_property(SOURCE vtkParseMain.c PROPERTY COMPILE_DEFINITIONS
   VTK_PARSE_VERSION="${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 
 if(NOT CMAKE_CROSSCOMPILING)
-  if(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA OR VTK_GENERATE_WRAPTOOLS)
-    add_executable(vtkWrapHierarchy vtkWrapHierarchy.c)
-    target_link_libraries(vtkWrapHierarchy vtkWrappingTools)
-    vtk_compile_tools_target(vtkWrapHierarchy)
-  endif()
 
-  if(VTK_WRAP_TCL)
-    add_executable(vtkWrapTcl vtkWrapTcl.c)
-    target_link_libraries(vtkWrapTcl vtkWrappingTools)
-    add_executable(vtkWrapTclInit vtkWrapTclInit.c)
-    vtk_compile_tools_target(vtkWrapTcl)
-    vtk_compile_tools_target(vtkWrapTclInit)
-  endif()
+  add_executable(vtkWrapHierarchy vtkWrapHierarchy.c)
+  target_link_libraries(vtkWrapHierarchy vtkWrappingTools)
+  vtk_compile_tools_target(vtkWrapHierarchy)
 
-  if(VTK_WRAP_PYTHON)
-    add_executable(vtkWrapPython vtkWrapPython.c)
-    target_link_libraries(vtkWrapPython vtkWrappingTools)
-    add_executable(vtkWrapPythonInit vtkWrapPythonInit.c)
-    vtk_compile_tools_target(vtkWrapPython)
-    vtk_compile_tools_target(vtkWrapPythonInit)
-  endif()
+  add_executable(vtkWrapTcl vtkWrapTcl.c)
+  target_link_libraries(vtkWrapTcl vtkWrappingTools)
+  add_executable(vtkWrapTclInit vtkWrapTclInit.c)
+  vtk_compile_tools_target(vtkWrapTcl)
+  vtk_compile_tools_target(vtkWrapTclInit)
 
-  if(VTK_WRAP_JAVA)
-    add_executable(vtkParseJava vtkParseJava.c)
-    target_link_libraries(vtkParseJava vtkWrappingTools)
-    add_executable(vtkWrapJava vtkWrapJava.c)
-    target_link_libraries(vtkWrapJava vtkWrappingTools)
-    vtk_compile_tools_target(vtkParseJava)
-    vtk_compile_tools_target(vtkWrapJava)
-  endif()
+  add_executable(vtkWrapPython vtkWrapPython.c)
+  target_link_libraries(vtkWrapPython vtkWrappingTools)
+  add_executable(vtkWrapPythonInit vtkWrapPythonInit.c)
+  vtk_compile_tools_target(vtkWrapPython)
+  vtk_compile_tools_target(vtkWrapPythonInit)
+
+  add_executable(vtkParseJava vtkParseJava.c)
+  target_link_libraries(vtkParseJava vtkWrappingTools)
+  add_executable(vtkWrapJava vtkWrapJava.c)
+  target_link_libraries(vtkWrapJava vtkWrappingTools)
+  vtk_compile_tools_target(vtkParseJava)
+  vtk_compile_tools_target(vtkWrapJava)
 
 endif()

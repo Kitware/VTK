@@ -1,5 +1,3 @@
-# this file is used directly from VTK/CMakeLists.txt
-
 # Defined local options to add to VTK Tcl interpreter
 #
 # Example of such options are:
@@ -88,6 +86,11 @@ ENDIF (WIN32)
 
 find_package(TCL)
 
+# export the module information
+set(${vtk-module}_NO_HeaderTest 1)
+set(${vtk-module}_SYSTEM_INCLUDE_DIRS ${TCL_INCLUDE_PATH})
+vtk_module_export_info()
+
 include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -106,7 +109,6 @@ endif(VTK_USE_TK)
 
 # Create the vtk Tcl wrapper executable.
 VTK_ADD_EXECUTABLE(vtk vtkTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
-
 
 IF(VTK_USE_CARBON)
   FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
@@ -209,6 +211,12 @@ endif()
 if(NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtktcl.c"
     DESTINATION ${VTK_INSTALL_TCL_DIR}
+    COMPONENT Development)
+  install(FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtkTcl.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtkTk.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtkTclUtil.h"
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
     COMPONENT Development)
 endif()
 

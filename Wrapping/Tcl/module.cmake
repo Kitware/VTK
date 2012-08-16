@@ -1,4 +1,4 @@
-vtk_module(vtkWrappingPython
+vtk_module(vtkWrappingTcl
   DEPENDS
     vtkCommonCore
     vtksys
