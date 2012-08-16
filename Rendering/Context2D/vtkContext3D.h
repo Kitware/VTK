@@ -33,6 +33,9 @@ class vtkContextDevice3D;
 class vtkPen;
 class vtkBrush;
 class vtkTransform;
+class vtkPoints2D;
+class vtkUnicodeString;
+class vtkTextProperty;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContext3D : public vtkObject
 {
@@ -113,6 +116,74 @@ public:
   // matrix for the device when available).
   void PushMatrix();
   void PopMatrix();
+  
+  // Description:
+  // Draw some text to the screen in a bounding rectangle with the alignment
+  // of the text properties respecting the rectangle. The points should be
+  // supplied as bottom corner (x, y), width, height.
+  void DrawStringRect(vtkPoints2D *rect, const vtkStdString &string);
+  void DrawStringRect(vtkPoints2D *rect, const vtkUnicodeString &string);
+  void DrawStringRect(vtkPoints2D *rect, const char* string);
+
+  // Description:
+  // Draw some text to the screen.
+  void DrawString(vtkPoints2D *point, const vtkStdString &string);
+  void DrawString(float x, float y, const vtkStdString &string);
+  void DrawString(vtkPoints2D *point, const vtkUnicodeString &string);
+  void DrawString(float x, float y, const vtkUnicodeString &string);
+  void DrawString(vtkPoints2D *point, const char* string);
+  void DrawString(float x, float y, const char* string);
+
+  // Description:
+  // Compute the bounds of the supplied string. The bounds will be copied to the
+  // supplied bounds variable, the first two elements are the bottom corner of
+  // the string, and the second two elements are the width and height of the
+  // bounding box.
+  // NOTE: This function does not take account of the text rotation.
+  void ComputeStringBounds(const vtkStdString &string, vtkPoints2D *bounds);
+  void ComputeStringBounds(const vtkStdString &string, float bounds[4]);
+  void ComputeStringBounds(const vtkUnicodeString &string, vtkPoints2D *bounds);
+  void ComputeStringBounds(const vtkUnicodeString &string, float bounds[4]);
+  void ComputeStringBounds(const char* string, vtkPoints2D *bounds);
+  void ComputeStringBounds(const char* string, float bounds[4]);
+
+  // Description:
+  // Draw a MathText formatted equation to the screen. See
+  // http://matplotlib.sourceforge.net/users/mathtext.html for more information.
+  // MathText requires matplotlib and python, and the vtkMatplotlib module must
+  // be enabled manually during build configuration. This method will do nothing
+  // but print a warning if vtkMathTextUtilities::GetInstance() returns NULL.
+  void DrawMathTextString(vtkPoints2D *point, const vtkStdString &string);
+  void DrawMathTextString(float x, float y, const vtkStdString &string);
+  void DrawMathTextString(vtkPoints2D *point, const char *string);
+  void DrawMathTextString(float x, float y, const char *string);
+
+  // Description:
+  // Draw a MathText formatted equation to the screen. See
+  // http://matplotlib.sourceforge.net/users/mathtext.html for more information.
+  // MathText requires matplotlib and python, and the vtkMatplotlib module must
+  // be enabled manually during build configuration.
+  // If MathText is not available on the target device the non-MathText string
+  // in "fallback" is rendered using DrawString.
+  void DrawMathTextString(vtkPoints2D *point, const vtkStdString &string,
+                          const vtkStdString &fallback);
+  void DrawMathTextString(float x, float y, const vtkStdString &string,
+                          const vtkStdString &fallback);
+  void DrawMathTextString(vtkPoints2D *point, const char *string,
+                          const char *fallback);
+  void DrawMathTextString(float x, float y, const char *string,
+                          const char *fallback);
+
+
+  // Description:
+  // Return true if MathText rendering available on the current device.
+  bool MathTextIsSupported();
+  
+  // Description:
+  // Apply the supplied text property which controls how text is rendered.
+  // This makes a deep copy of the vtkTextProperty object in the vtkContext3D,
+  // it does not hold a pointer to the supplied object.
+  void ApplyTextProp(vtkTextProperty *prop);
 
 protected:
   vtkContext3D();
@@ -122,6 +193,10 @@ protected:
   vtkSmartPointer<vtkTransform> Transform;    // Current transform
 
 private:
+  // Description:
+  // Calculate position of text for rendering in a rectangle.
+  vtkVector2f CalculateTextPosition(vtkPoints2D* rect);
+
   vtkContext3D(const vtkContext3D &);   // Not implemented.
   void operator=(const vtkContext3D &); // Not implemented.
 };

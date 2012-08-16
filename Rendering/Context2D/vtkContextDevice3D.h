@@ -34,6 +34,8 @@ class vtkMatrix4x4;
 class vtkViewport;
 class vtkPen;
 class vtkBrush;
+class vtkTextProperty;
+class vtkUnicodeString;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextDevice3D : public vtkObject
 {
@@ -104,10 +106,65 @@ public:
   // Description:
   // End drawing, clean up the view.
   virtual void End() { }
+  
+  // Description:
+  // Draw some text to the screen.
+  virtual void DrawString(float *point, const vtkStdString &string) = 0;
+
+  // Description:
+  // Compute the bounds of the supplied string. The bounds will be copied to the
+  // supplied bounds variable, the first two elements are the bottom corner of
+  // the string, and the second two elements are the width and height of the
+  // bounding box.
+  // NOTE: This function does not take account of the text rotation.
+  virtual void ComputeStringBounds(const vtkStdString &string,
+                                   float bounds[4]) = 0;
+
+  // Description:
+  // Draw some text to the screen.
+  virtual void DrawString(float *point, const vtkUnicodeString &string) = 0;
+
+  // Description:
+  // Compute the bounds of the supplied string. The bounds will be copied to the
+  // supplied bounds variable, the first two elements are the bottom corner of
+  // the string, and the second two elements are the width and height of the
+  // bounding box.
+  // NOTE: This function does not take account of the text rotation.
+  virtual void ComputeStringBounds(const vtkUnicodeString &string,
+                                   float bounds[4]) = 0;
+
+  // Description:
+  // Draw text using MathText markup for mathematical equations. See
+  // http://matplotlib.sourceforge.net/users/mathtext.html for more information.
+  virtual void DrawMathTextString(float *point, const vtkStdString &string) = 0;
+
+  // Description:
+  // Return true if MathText rendering available on this device.
+  virtual bool MathTextIsSupported();
+  
+  // Description:
+  // Get the text properties object for the vtkContext2D.
+  vtkGetObjectMacro(TextProp, vtkTextProperty);
+  
+  // Description:
+  // Apply the supplied text property which controls how text is rendered.
+  // This makes a deep copy of the vtkTextProperty object in the vtkContext2D,
+  // it does not hold a pointer to the supplied object.
+  void ApplyTextProp(vtkTextProperty *prop);
+
+  enum TextureProperty {
+    Nearest = 0x01,
+    Linear  = 0x02,
+    Stretch = 0x04,
+    Repeat  = 0x08
+  };
+
 
 protected:
   vtkContextDevice3D();
   ~vtkContextDevice3D();
+  vtkTextProperty *TextProp;  // Text property
+
 
 private:
   vtkContextDevice3D(const vtkContextDevice3D &); // Not implemented.

@@ -26,7 +26,9 @@
 #include "vtkIdTypeArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkPoints2D.h"
 #include "vtkTable.h"
+#include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
@@ -146,7 +148,54 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   context->DrawLine(vtkVector3f(1, 0, 0), vtkVector3f(1, 0, 1));
   context->DrawLine(vtkVector3f(0, 1, 0), vtkVector3f(0, 1, 1));
   context->DrawLine(vtkVector3f(1, 1, 0), vtkVector3f(1, 1, 1));
+  //context->PopMatrix();
+ 
+  //just a test
+  float scale[3];
+  this->Scale->GetScale(scale);
+
+  vtkPoints2D *rect = vtkPoints2D::New();
+  rect->InsertNextPoint(0, -2);
+  rect->InsertNextPoint(1, -1);
+
+  vtkNew<vtkTextProperty> textProperties;
+  textProperties->SetJustificationToLeft();
+  textProperties->SetColor(0.0, 0.0, 0.0);
+  textProperties->SetFontFamilyToArial();
+
+  std::string xAxisLabel = "X Axis";
+  int fontSize = 12;
+  vtkVector2f bounds[2];
+  bool textFits = false;
+  while (!textFits)
+    {
+    textProperties->SetFontSize(fontSize);
+    context->ApplyTextProp(textProperties.GetPointer());
+    context->ComputeStringBounds(xAxisLabel, bounds[0].GetData()); 
+    std::cout << "string bounds: " << bounds[0] << " " << bounds[1] << std::endl;
+    if ( (bounds[1][0] - bounds[0][0] <= 1) && (bounds[1][1] - bounds[0][1] <= 1) ) 
+      {
+      textFits = true;
+      }
+    else
+      {
+      --fontSize;
+      if (fontSize < 1)
+        {
+        std::cout << "abort, too small" << std::endl;
+        break;
+        }
+      }
+    }
+
+
+  //context->DrawString(bounds[0].X() + 5 / scale[0], bounds[0].Y() + 3 / scale[1], "Title");
+  //context->DrawString(bounds[0].X() + 5, bounds[0].Y() + 3, "Title");
+  context->DrawStringRect(rect, xAxisLabel);
+  rect->Delete();
+
   context->PopMatrix();
+  //end test
 
   return true;
 }

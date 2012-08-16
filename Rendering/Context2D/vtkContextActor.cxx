@@ -163,6 +163,17 @@ void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
     {
     device->ReleaseGraphicsResources(window);
     }
+  
+  vtkContext3D *context3D = this->Context->GetContext3D();
+  if (context3D)
+    {
+    vtkOpenGLContextDevice3D *device3D =
+        vtkOpenGLContextDevice3D::SafeDownCast(context3D->GetDevice());
+    if (device3D)
+      {
+      device3D->ReleaseGraphicsResources(window);
+      }
+    }
 
   if(this->Scene.GetPointer())
     {
@@ -233,10 +244,23 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
 
   // This is the entry point for all 2D rendering.
   // First initialize the drawing device.
-  this->Context->GetDevice()->Begin(viewport);
-  this->Scene->SetGeometry(size);
-  this->Scene->Paint(this->Context.GetPointer());
-  this->Context->GetDevice()->End();
+
+  vtkContext3D *context3D = this->Context->GetContext3D();
+  if (!context3D)
+  {
+    this->Context->GetDevice()->Begin(viewport);
+    this->Scene->SetGeometry(size);
+    this->Scene->Paint(this->Context.GetPointer());
+    this->Context->GetDevice()->End();
+  }
+  else
+  {
+    context3D->GetDevice()->Begin(viewport);
+    this->Scene->SetGeometry(size);
+    this->Scene->Paint(this->Context.GetPointer());
+    context3D->GetDevice()->End();
+  }
+
   return 1;
 }
 
