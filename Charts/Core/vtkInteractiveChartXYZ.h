@@ -90,6 +90,10 @@ protected:
   vtkNew<vtkTransform> Scale;
   unsigned char *Colors;
   int NumberOfComponents;
+  
+  std::string XAxisLabel;
+  std::string YAxisLabel;
+  std::string ZAxisLabel;
 
 private:
   vtkInteractiveChartXYZ(const vtkInteractiveChartXYZ &);    // Not implemented.

@@ -615,7 +615,12 @@ void vtkOpenGLContextDevice3D::AlignText(double orientation, float width,
 void vtkOpenGLContextDevice3D::DrawString(float *point,
                                           const vtkStdString &string)
 {
-  float p[] = { std::floor(point[0]), std::floor(point[1]) };
+  GLfloat mv[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+  float xScale = mv[0];
+  float yScale = mv[5];
+
+  float p[] = { std::floor(point[0] * xScale) / xScale, std::floor(point[1] * yScale) / yScale };
  
   // Cache rendered text strings
   vtkTextureImageCache<TextPropertyKey>::CacheData cache =
@@ -632,14 +637,13 @@ void vtkOpenGLContextDevice3D::DrawString(float *point,
   vtkTexture* texture = cache.Texture;
   texture->Render(this->Renderer);
 
-  float width = static_cast<float>(image->GetOrigin()[0]);
-  float height = static_cast<float>(image->GetOrigin()[1]);
+  float width = static_cast<float>(image->GetOrigin()[0]) / xScale;
+  float height = static_cast<float>(image->GetOrigin()[1]) / yScale;
 
   float xw = static_cast<float>(image->GetSpacing()[0]);
   float xh = static_cast<float>(image->GetSpacing()[1]);
 
   this->AlignText(this->TextProp->GetOrientation(), width, height, p);
-  std::cout << p[0]  << " " << p[1]  << " " << width  << " " << height << std::endl;
 
   float points[] = { p[0]        , p[1],
                      p[0] + width, p[1],

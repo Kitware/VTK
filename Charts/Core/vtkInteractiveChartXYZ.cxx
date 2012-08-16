@@ -148,54 +148,26 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   context->DrawLine(vtkVector3f(1, 0, 0), vtkVector3f(1, 0, 1));
   context->DrawLine(vtkVector3f(0, 1, 0), vtkVector3f(0, 1, 1));
   context->DrawLine(vtkVector3f(1, 1, 0), vtkVector3f(1, 1, 1));
-  //context->PopMatrix();
- 
-  //just a test
-  float scale[3];
-  this->Scale->GetScale(scale);
 
-  vtkPoints2D *rect = vtkPoints2D::New();
-  rect->InsertNextPoint(0, -2);
-  rect->InsertNextPoint(1, -1);
-
+  // Now draw the axes labels (currently only X)
   vtkNew<vtkTextProperty> textProperties;
   textProperties->SetJustificationToLeft();
   textProperties->SetColor(0.0, 0.0, 0.0);
   textProperties->SetFontFamilyToArial();
+  textProperties->SetFontSize(12);
+  context->ApplyTextProp(textProperties.GetPointer());
 
-  std::string xAxisLabel = "X Axis";
-  int fontSize = 12;
-  vtkVector2f bounds[2];
-  bool textFits = false;
-  while (!textFits)
-    {
-    textProperties->SetFontSize(fontSize);
-    context->ApplyTextProp(textProperties.GetPointer());
-    context->ComputeStringBounds(xAxisLabel, bounds[0].GetData()); 
-    std::cout << "string bounds: " << bounds[0] << " " << bounds[1] << std::endl;
-    if ( (bounds[1][0] - bounds[0][0] <= 1) && (bounds[1][1] - bounds[0][1] <= 1) ) 
-      {
-      textFits = true;
-      }
-    else
-      {
-      --fontSize;
-      if (fontSize < 1)
-        {
-        std::cout << "abort, too small" << std::endl;
-        break;
-        }
-      }
-    }
+  float bounds[4];
+  context->ComputeStringBounds(this->XAxisLabel, bounds); 
+  
+  float scale[3];
+  this->Box->GetScale(scale);
 
-
-  //context->DrawString(bounds[0].X() + 5 / scale[0], bounds[0].Y() + 3 / scale[1], "Title");
-  //context->DrawString(bounds[0].X() + 5, bounds[0].Y() + 3, "Title");
-  context->DrawStringRect(rect, xAxisLabel);
-  rect->Delete();
+  float xPos = 0.5 - bounds[2] / (scale[0] * 2);
+  float yPos = (-bounds[3] - 5) / scale[1];
+  context->DrawString(xPos, yPos, this->XAxisLabel);
 
   context->PopMatrix();
-  //end test
 
   return true;
 }
@@ -204,6 +176,9 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName
                            const vtkStdString &yName, const vtkStdString &zName)
 {
   this->Superclass::SetInput(input, xName, yName, zName);
+  this->XAxisLabel = xName;
+  this->YAxisLabel = yName;
+  this->ZAxisLabel = zName;
 }
 
 void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
@@ -211,6 +186,9 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName
                            const vtkStdString &colorName)
 {
   this->Superclass::SetInput(input, xName, yName, zName);
+  this->XAxisLabel = xName;
+  this->YAxisLabel = yName;
+  this->ZAxisLabel = zName;
   
   vtkDataArray *colorArr =
       vtkDataArray::SafeDownCast(input->GetColumnByName(colorName.c_str()));
@@ -461,11 +439,11 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->Box->PostMultiply();
   this->Box->Translate(-0.5, -0.5, -0.5);
   this->Box->Concatenate(this->Rotation.GetPointer());
-  this->Box->Concatenate(this->Scale.GetPointer());
+  //this->Box->Concatenate(this->Scale.GetPointer());
   this->Box->Translate(0.5, 0.5, 0.5);
   this->Box->Scale(scale);
   this->Box->Translate(axes[0]->GetPosition1()[0],
                        axes[1]->GetPosition1()[1],
                        axes[2]->GetPosition1()[1]);
-  this->Box->Concatenate(this->Translation.GetPointer());
+  //this->Box->Concatenate(this->Translation.GetPointer());
 }
