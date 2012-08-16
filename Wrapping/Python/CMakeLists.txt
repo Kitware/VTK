@@ -1,6 +1,7 @@
 set(VTK_WRAP_PYTHON_FIND_LIBS ON)
 include(vtkWrapPython)
 include(GenerateExportHeader)
+include(vtkPythonWrapping)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h)
