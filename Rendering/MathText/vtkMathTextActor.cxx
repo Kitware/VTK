@@ -232,9 +232,7 @@ void vtkMathTextActor::ComputeRectangle()
   double s = sin( radians );
   double xo, yo;
   double x, y;
-  double maxHeight;
   xo = yo = 0.0;
-  maxHeight = 0;
   switch ( this->TextProperty->GetJustification() )
     {
     default:
