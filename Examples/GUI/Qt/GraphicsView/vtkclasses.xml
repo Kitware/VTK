@@ -1623,18 +1623,6 @@
             <class id="vtkCollectTable" library="Parallel">
             </class>
          </class>
-         <class id="vtkTemporalDataSetAlgorithm" library="Filtering">
-            <class id="vtkTemporalDataSetCache" library="Hybrid">
-            </class>
-            <class id="vtkTemporalInterpolator" library="Hybrid">
-            </class>
-            <class id="vtkTemporalShiftScale" library="Hybrid">
-            </class>
-            <class id="vtkTemporalSnapToTimeStep" library="Hybrid">
-            </class>
-            <class id="vtkTemporalFractal" library="Parallel">
-            </class>
-         </class>
          <class id="vtkTreeAlgorithm" library="Filtering">
             <class id="vtkBoostBreadthFirstSearchTree" library="Infovis">
             </class>
