@@ -71,19 +71,6 @@ void vtkStructuredGridWriter::WriteData()
     return;
     }
 
-  // If blanking, write that information out
-  if ( input->GetPointBlanking() )
-    {
-    if (!this->WriteBlanking(fp, input))
-      {
-      vtkErrorMacro("Ran out of disk space; deleting file: "
-                    << this->FileName);
-      this->CloseVTKFile(fp);
-      unlink(this->FileName);
-      return;
-      }
-    }
-
   if (!this->WriteCellData(fp, input))
     {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
@@ -100,15 +87,6 @@ void vtkStructuredGridWriter::WriteData()
     }
 
   this->CloseVTKFile(fp);
-}
-
-int vtkStructuredGridWriter::WriteBlanking(ostream *fp, vtkStructuredGrid *grid)
-{
-  vtkUnsignedCharArray *blanking=grid->GetPointVisibilityArray();
-
-  int numPts = grid->GetNumberOfPoints();
-  *fp << "BLANKING " << numPts;
-  return this->WriteArray(fp, VTK_UNSIGNED_CHAR, blanking, " %s\n", numPts, 1);
 }
 
 int vtkStructuredGridWriter::FillInputPortInformation(int,

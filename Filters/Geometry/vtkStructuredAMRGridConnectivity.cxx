@@ -15,7 +15,6 @@
 #include "vtkStructuredAMRGridConnectivity.h"
 
 // VTK Includes
-#include "vtkGhostArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGridConnectivity.h"
@@ -1098,20 +1097,23 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(
           vtkIdType srcIdx =
              vtkStructuredData::ComputePointIdForExtent(
                  registeredGridExtent,ijk,this->DataDescription);
-          this->GhostedPointGhostArray[ gridID ]->SetValue(
-              pntIdx, this->GridPointGhostArrays[gridID]->GetValue(srcIdx) );
+          unsigned char p = 0;
+          if(this->GridPointGhostArrays[gridID])
+            {
+            p = this->GridPointGhostArrays[gridID]->GetValue(srcIdx);
+            }
+          this->GhostedPointGhostArray[ gridID ]->SetValue(pntIdx, p);
           } // END if node within the registered extent
         else
           {
           // The node is a ghost node
-          unsigned char p = '0';
-          vtkGhostArray::Reset( p );
-          vtkGhostArray::SetProperty(p,vtkGhostArray::GHOST);
-          vtkGhostArray::SetProperty(p,vtkGhostArray::IGNORE);
-
+          unsigned char p = 0;
+          p |= vtkDataSetAttributes::DUPLICATEPOINT;
           if( this->IsNodeOnBoundaryOfExtent(i,j,k,normalizedWholeExt) )
             {
-            vtkGhostArray::SetProperty(p,vtkGhostArray::BOUNDARY);
+            // We don't have BOUNDARY now but we might add
+            // it in the future.
+            //vtkGhostArray::SetProperty(p,vtkGhostArray::BOUNDARY);
             }
 
           this->GhostedPointGhostArray[ gridID ]->SetValue(pntIdx,p);
@@ -1146,14 +1148,17 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(
           vtkIdType srcCellIdx =
               vtkStructuredData::ComputePointIdForExtent(
                   registeredCellExtent,ijk,this->DataDescription);
-          this->GhostedCellGhostArray[ gridID ]->SetValue(
-             cellIdx,this->GridCellGhostArrays[gridID]->GetValue(srcCellIdx));
+          unsigned char p = 0;
+          if(this->GridCellGhostArrays[gridID])
+            {
+            p = this->GridCellGhostArrays[gridID]->GetValue(srcCellIdx);
+            }
+          this->GhostedCellGhostArray[ gridID ]->SetValue(cellIdx, p);
           }
         else
           {
-          unsigned char p = '0';
-          vtkGhostArray::Reset(p);
-          vtkGhostArray::SetProperty(p,vtkGhostArray::DUPLICATE);
+          unsigned char p = 0;
+          p |= vtkDataSetAttributes::DUPLICATECELL;
           this->GhostedCellGhostArray[ gridID ]->SetValue(cellIdx,p);
           }
         } // END for all k
@@ -1269,9 +1274,7 @@ void vtkStructuredAMRGridConnectivity::FillCellsGhostArray(
             vtkStructuredData::ComputePointIdForExtent(
                 cellext,ijk,dataDescription);
         assert("pre: cell index is out-of-bounds!" && (idx < numCells) );
-
-        vtkGhostArray::Reset(ghostArrayPtr[idx]);
-        vtkGhostArray::SetProperty(ghostArrayPtr[idx],vtkGhostArray::INTERIOR);
+        ghostArrayPtr[idx] = 0;
         } // END for all k
       } // END for all j
     } // END for all i
@@ -1304,7 +1307,7 @@ void vtkStructuredAMRGridConnectivity::FillCellsGhostArray(
                 vtkStructuredData::ComputePointIdForExtent(
                     cellext,ijk,dataDescription);
             assert("pre: cell index is out-of-bounds!" && (idx < numCells) );
-            vtkGhostArray::SetProperty(ghostArrayPtr[idx],vtkGhostArray::BLANK);
+            ghostArrayPtr[idx] |= vtkDataSetAttributes::REFINEDCELL;
             } // END for all k
           } // END for all j
         } // END for all i
@@ -1318,27 +1321,24 @@ void vtkStructuredAMRGridConnectivity::MarkNodeProperty(
     const int gridId, const int i, const int j, const int k,
     int gridExt[6], int wholeExt[6], unsigned char &p)
 {
-  vtkGhostArray::Reset( p );
+  p = 0;
 
-  if( this->IsNodeInterior(i,j,k,gridExt) )
-    {
-    vtkGhostArray::SetProperty( p, vtkGhostArray::INTERNAL );
-    } // END if
-  else
+  if( !this->IsNodeInterior(i,j,k,gridExt) )
     {
     if( this->IsNodeOnBoundaryOfExtent(i,j,k,wholeExt))
       {
-      vtkGhostArray::SetProperty( p, vtkGhostArray::BOUNDARY );
+      //We might use BOUNDARY in the future
+      //vtkGhostArray::SetProperty( p, vtkGhostArray::BOUNDARY );
       }
 
     if( this->IsNodeOnSharedBoundary(i,j,k, gridId, gridExt) )
       {
       // NOTE: for AMR grids, all the grids own all of ther points so we don't
       // ignore any of the points.
-      vtkGhostArray::SetProperty(p,vtkGhostArray::SHARED);
+      // We might use SHARED in the future
+      //vtkGhostArray::SetProperty(p,vtkGhostArray::SHARED);
       }
-
-    } // END else
+    }
 }
 
 //-----------------------------------------------------------------------------

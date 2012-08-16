@@ -832,16 +832,11 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
 //  vtkCellArray *conn=vtkCellArray::New();
 //  conn->Allocate(numCells);
 
-  // Ghost cells
-  unsigned char updateLevel=(unsigned char)(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-
-
   unsigned char *cellGhostLevels=0;
   vtkDataArray *temp=0;
   if(cd!=0)
     {
-    temp=cd->GetArray("vtkGhostLevels");
+    temp=cd->GetArray(vtkDataSetAttributes::GhostArrayName());
     }
   if(temp!=0&&temp->GetDataType()==VTK_UNSIGNED_CHAR&&temp->GetNumberOfComponents()==1)
     {
@@ -881,7 +876,8 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
       cellId = cellIter->GetCellId();
       npts = cellIter->GetNumberOfPoints();
       pts = cellIter->GetPointIds()->GetPointer(0);
-      if((cellGhostLevels!=0 && cellGhostLevels[cellId] > updateLevel)||
+      if((cellGhostLevels!=0 &&
+          cellGhostLevels[cellId] & vtkDataSetAttributes::DUPLICATECELL)||
          (this->CellClipping && (cellId < this->CellMinimum ||
                                  cellId > this->CellMaximum)) )
         {

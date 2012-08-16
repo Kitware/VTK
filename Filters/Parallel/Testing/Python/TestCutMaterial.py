@@ -40,7 +40,7 @@ mapper2.SetInputConnection(cut.GetOutputPort())
 mapper2.SetScalarRange(0,1)
 #apper2 SetScalarModeToUseCellFieldData
 #apper2 SetColorModeToMapScalars
-#apper2 ColorByArrayComponent "vtkGhostLevels" 0
+#apper2 ColorByArrayComponent vtk.vtkDataSetAttributes.GhostArrayName() 0
 actor2 = vtk.vtkActor()
 actor2.SetMapper(mapper2)
 actor2.SetPosition(1.5,0,0)

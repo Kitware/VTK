@@ -304,10 +304,6 @@ void vtkFieldData::AllocateArrays(int num)
     {
     return;
     }
-  else
-    {
-    this->Modified();
-    }
 
   if ( num == 0 )
     {
@@ -346,6 +342,7 @@ void vtkFieldData::AllocateArrays(int num)
     this->Data = data;
     this->NumberOfArrays = num;
     }
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -372,7 +369,6 @@ void vtkFieldData::SetArray(int i, vtkAbstractArray *data)
 
   if ( this->Data[i] != data )
     {
-    this->Modified();
     if ( this->Data[i] != NULL )
       {
       this->Data[i]->UnRegister(this);
@@ -382,6 +378,7 @@ void vtkFieldData::SetArray(int i, vtkAbstractArray *data)
       {
       this->Data[i]->Register(this);
       }
+    this->Modified();
     }
 }
 
@@ -398,7 +395,7 @@ vtkDataArray *vtkFieldData::GetArray(int i)
 // if range.
 vtkAbstractArray *vtkFieldData::GetAbstractArray(int i)
 {
-  if ( i < 0 || i >= this->GetNumberOfArrays() )
+  if ( i < 0 || i >= this->GetNumberOfArrays() || this->Data == NULL)
     {
     return 0;
     }

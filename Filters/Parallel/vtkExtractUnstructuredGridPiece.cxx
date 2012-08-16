@@ -258,9 +258,9 @@ int vtkExtractUnstructuredGridPiece::RequestData(
       if (cellGhostLevels)
         {
         cellGhostLevels->InsertNextValue(
-          (unsigned char)(cellTags->GetValue(cellId)));
+          cellTags->GetValue(cellId) > 0 ?
+          vtkDataSetAttributes::DUPLICATECELL : 0);
         }
-
       if (cellType != VTK_POLYHEDRON)
         {
         for (i=0; i < numCellPts; i++)
@@ -273,7 +273,8 @@ int vtkExtractUnstructuredGridPiece::RequestData(
             if (pointGhostLevels && pointOwnership)
               {
               pointGhostLevels->InsertNextValue(
-                    cellTags->GetValue(pointOwnership->GetId(ptId)));
+                cellTags->GetValue(pointOwnership->GetId(ptId)) > 0 ?
+                vtkDataSetAttributes::DUPLICATEPOINT : 0);
               }
             pointMap->SetId(ptId,newId);
             outPD->CopyData(pd,ptId,newId);
@@ -300,7 +301,8 @@ int vtkExtractUnstructuredGridPiece::RequestData(
               if (pointGhostLevels && pointOwnership)
                 {
                 pointGhostLevels->InsertNextValue(
-                      cellTags->GetValue(pointOwnership->GetId(ptId)));
+                  cellTags->GetValue(pointOwnership->GetId(ptId)) > 0 ?
+                  vtkDataSetAttributes::DUPLICATEPOINT : 0);
                 }
               pointMap->SetId(ptId,newId);
               outPD->CopyData(pd,ptId,newId);
@@ -356,14 +358,14 @@ int vtkExtractUnstructuredGridPiece::RequestData(
 
   if (cellGhostLevels)
     {
-    cellGhostLevels->SetName("vtkGhostLevels");
+    cellGhostLevels->SetName(vtkDataSetAttributes::GhostArrayName());
     output->GetCellData()->AddArray(cellGhostLevels);
     cellGhostLevels->Delete();
     cellGhostLevels = 0;
     }
   if (pointGhostLevels)
     {
-    pointGhostLevels->SetName("vtkGhostLevels");
+    pointGhostLevels->SetName(vtkDataSetAttributes::GhostArrayName());
     output->GetPointData()->AddArray(pointGhostLevels);
     pointGhostLevels->Delete();
     pointGhostLevels = 0;

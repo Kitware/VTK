@@ -75,6 +75,23 @@ public:
   std::multimap<int, int> IntMultiMap;
 };
 
+namespace
+{
+void convertGhostLevelsToBitFields(vtkDataSetAttributes* dsa, unsigned int bit)
+{
+  vtkDataArray *da = dsa->GetArray(vtkDataSetAttributes::GhostArrayName());
+  vtkUnsignedCharArray *uca = vtkUnsignedCharArray::SafeDownCast(da);
+  unsigned char *ghosts = uca->GetPointer(0);
+  for (vtkIdType i=0; i < da->GetNumberOfTuples(); ++i)
+    {
+    if (ghosts[i] > 0)
+      {
+      ghosts[i] = bit;
+      }
+    }
+}
+};
+
 class vtkDistributedDataFilter::vtkInternals
 {
 public:
@@ -876,6 +893,11 @@ vtkUnstructuredGrid *
       this->AddGhostCellsUniqueCellAssignment(grid, &globalToLocalMap);
     }
 
+  convertGhostLevelsToBitFields(
+    expandedGrid->GetCellData(), vtkDataSetAttributes::DUPLICATECELL);
+  convertGhostLevelsToBitFields(
+    expandedGrid->GetPointData(), vtkDataSetAttributes::DUPLICATEPOINT);
+
   return expandedGrid;
 }
 
@@ -925,13 +947,13 @@ void vtkDistributedDataFilter::SingleProcessExecute(vtkDataSet *input,
 
   if (this->GhostLevel > 0)
     {
-    // Add the vtkGhostLevels arrays.  We have the whole
+    // Add the vtkGhostType arrays.  We have the whole
     // data set, so all cells are level 0.
 
     vtkDistributedDataFilter::AddConstantUnsignedCharPointArray(
-                              output, "vtkGhostLevels", 0);
+                              output, vtkDataSetAttributes::GhostArrayName(), 0);
     vtkDistributedDataFilter::AddConstantUnsignedCharCellArray(
-                              output, "vtkGhostLevels", 0);
+                              output, vtkDataSetAttributes::GhostArrayName(), 0);
     }
 }
 
@@ -2564,9 +2586,9 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MPIRedistribute(vtkDataSet *in,
   if (myNewGrid && (this->GhostLevel > 0))
     {
     vtkDistributedDataFilter::AddConstantUnsignedCharCellArray(
-                            myNewGrid, "vtkGhostLevels", 0);
+                            myNewGrid, vtkDataSetAttributes::GhostArrayName(), 0);
     vtkDistributedDataFilter::AddConstantUnsignedCharPointArray(
-                            myNewGrid, "vtkGhostLevels", 0);
+                            myNewGrid, vtkDataSetAttributes::GhostArrayName(), 0);
     }
   return myNewGrid;
 }
@@ -3583,8 +3605,7 @@ vtkIdTypeArray **vtkDistributedDataFilter::GetGhostPointIds(
   vtkIdType *gidsCell = this->GetGlobalElementIds(grid);
 
 
-  vtkDataArray *da = grid->GetPointData()->GetArray("vtkGhostLevels");
-  vtkUnsignedCharArray *uca = vtkUnsignedCharArray::SafeDownCast(da);
+  vtkUnsignedCharArray *uca = grid->GetPointGhostArray();
   unsigned char *levels = uca->GetPointer(0);
 
   unsigned char level = (unsigned char)(ghostLevel - 1);
@@ -3985,7 +4006,7 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
     this->UpdateProgress(this->NextProgressStep++ * this->ProgressIncrement);
 
     gl++;
-  }
+    }
 
   delete insidePointMap;
 
@@ -4388,11 +4409,9 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
   // grid, and we need to use the global ID map to determine if the
   // point ghost levels should be set to 0.
 
-  vtkDataArray *da = incomingGhostCells->GetCellData()->GetArray("vtkGhostLevels");
-  vtkUnsignedCharArray *cellGL = vtkUnsignedCharArray::SafeDownCast(da);
+  vtkUnsignedCharArray *cellGL = incomingGhostCells->GetCellGhostArray();
+  vtkUnsignedCharArray *ptGL  = incomingGhostCells->GetPointGhostArray();
 
-  da  = incomingGhostCells->GetPointData()->GetArray("vtkGhostLevels");
-  vtkUnsignedCharArray *ptGL = vtkUnsignedCharArray::SafeDownCast(da);
 
   unsigned char *ia = cellGL->GetPointer(0);
 
@@ -4429,8 +4448,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
 
   if (ghostLevel == 1)
     {
-    da = mergedGrid->GetPointData()->GetArray("vtkGhostLevels");
-    ptGL = vtkUnsignedCharArray::SafeDownCast(da);
+    ptGL = mergedGrid->GetPointGhostArray();
 
     vtkIdType *gidPoints = this->GetGlobalNodeIds(mergedGrid);
     int npoints = mergedGrid->GetNumberOfPoints();

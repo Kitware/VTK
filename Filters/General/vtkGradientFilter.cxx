@@ -304,27 +304,6 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
       array, fieldAssociation, input, computeVorticity, computeQCriterion, output);
     }
 
-  // If necessary, remove a layer of ghost cells.
-  int numPieces = outInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  if (numPieces > 1)
-    {
-    int ghostLevel = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-    vtkPolyData *pd = vtkPolyData::SafeDownCast(output);
-    vtkUnstructuredGrid *ug = vtkUnstructuredGrid::SafeDownCast(output);
-    // Currently the only grids that ghost cells can be removed from
-    // are unstructured grids and polydatas
-    if (pd)
-      {
-      pd->RemoveGhostCells(ghostLevel+1);
-      }
-    else if (ug)
-      {
-      ug->RemoveGhostCells(ghostLevel+1);
-      }
-    }
-
   return 1;
 }
 

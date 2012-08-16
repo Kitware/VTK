@@ -275,7 +275,7 @@ int vtkCollectGraph::RequestData(
       vtkIntArray *idArrInt = vtkIntArray::SafeDownCast(idArr);
 
       vtkIntArray *ghostLevelsArr = vtkIntArray::SafeDownCast(
-        wholePointData->GetAbstractArray("vtkGhostLevels"));
+        wholePointData->GetAbstractArray(vtkDataSetAttributes::GhostArrayName()));
 
       // Add new vertices
       localIdVec.clear();
@@ -345,7 +345,7 @@ int vtkCollectGraph::RequestData(
 
       // Add non-ghost edges
       vtkIntArray* edgeGhostLevelsArr = vtkIntArray::SafeDownCast(
-        curGraph->GetEdgeData()->GetAbstractArray("vtkGhostLevels"));
+        curGraph->GetEdgeData()->GetAbstractArray(vtkDataSetAttributes::GhostArrayName()));
       curGraph->GetEdges(edges);
       while (edges->HasNext())
         {

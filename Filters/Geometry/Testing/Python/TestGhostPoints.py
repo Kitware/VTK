@@ -18,7 +18,7 @@ class TestGhostPoints(Testing.vtkTest):
             ptIds.SetId(i, i)
 
         ghosts = vtk.vtkUnsignedCharArray()
-        ghosts.SetName("vtkGhostLevels")
+        ghosts.SetName(vtk.vtkDataSetAttributes.GhostArrayName())
         ghosts.SetNumberOfTuples(4)
         ghosts.SetValue(0, 1)
         ghosts.SetValue(1, 1)
@@ -56,7 +56,7 @@ class TestGhostPoints(Testing.vtkTest):
             ptIds.SetId(i, i)
 
         ghosts = vtk.vtkUnsignedCharArray()
-        ghosts.SetName("vtkGhostLevels")
+        ghosts.SetName(vtk.vtkDataSetAttributes.GhostArrayName())
         ghosts.SetNumberOfTuples(10)
         ghosts.SetValue(0, 1)
         ghosts.SetValue(1, 1)

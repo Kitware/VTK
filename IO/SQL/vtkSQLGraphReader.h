@@ -114,7 +114,7 @@ public:
   // Description:
   // When set, creates a graph with no parallel arcs.
   // Parallel arcs are combined into one arc.
-  // No cell fields are passed to the output, except the vtkGhostLevels array if
+  // No cell fields are passed to the output, except the vtkGhostType array if
   // it exists, but a new field "weight" is created that holds the number of
   // duplicates of that arc in the input.
   vtkSetMacro(CollapseEdges, bool);

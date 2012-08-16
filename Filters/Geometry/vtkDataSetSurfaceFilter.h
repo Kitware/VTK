@@ -131,8 +131,7 @@ public:
     }
 #endif
   virtual int UnstructuredGridExecute(vtkDataSet *input,
-                                      vtkPolyData *output,
-                                      int updateghostlevel);
+                                      vtkPolyData *output);
   virtual int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
   virtual int UniformGridExecute(
       vtkDataSet *input, vtkPolyData *output,

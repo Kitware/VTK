@@ -21,7 +21,6 @@
 #include "vtkAMRInformation.h"
 #include "vtkCell.h"
 #include "vtkDoubleArray.h"
-#include "vtkGhostArray.h"
 #include "vtkIntArray.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkStructuredAMRGridConnectivity.h"
@@ -170,56 +169,6 @@ void WriteAMR(vtkOverlappingAMR *amr, std::string prefix)
   static_cast<void>(amr);
   static_cast<void>(prefix);
 #endif
-}
-
-//------------------------------------------------------------------------------
-void AttachCellBlanking(vtkOverlappingAMR *amr)
-{
-  assert("pre: input amr dataset is NULL" && (amr != NULL) );
-
-  unsigned int levelIdx = 0;
-  for( ;levelIdx < amr->GetNumberOfLevels(); ++levelIdx )
-    {
-    unsigned int dataIdx = 0;
-    for( ;dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx)
-      {
-      vtkUniformGrid *grid = amr->GetDataSet(levelIdx,dataIdx);
-      if( grid != NULL )
-        {
-        vtkIdType numCells = grid->GetNumberOfCells();
-
-        vtkUnsignedCharArray *ghostArray = grid->GetCellVisibilityArray();
-        assert("pre: cell visibility is NULL" && (ghostArray != NULL) );
-        unsigned char *ghostptr = ghostArray->GetPointer(0);
-        assert("pre: ghostptr is NULL!" && (ghostptr != NULL) );
-
-        vtkIntArray *blanking = vtkIntArray::New();
-        blanking->SetName( "BLANKING" );
-        blanking->SetNumberOfComponents(1);
-        blanking->SetNumberOfTuples(numCells);
-
-        int *iblank = blanking->GetPointer(0);
-        assert("pre: iblank array pointer is NULL" && (iblank != NULL) );
-
-        for(vtkIdType cellIdx=0; cellIdx < numCells; ++cellIdx)
-          {
-          if(vtkGhostArray::IsPropertySet(
-              ghostptr[cellIdx],vtkGhostArray::BLANK))
-            {
-            iblank[cellIdx] = 0;
-            }
-          else
-            {
-            iblank[cellIdx] = 1;
-            }
-          } // END for all cells
-
-        grid->GetCellData()->AddArray( blanking );
-        blanking->Delete();
-        } // END if grid != NULL
-      } // END for all data
-    } // END for all levels
-
 }
 
 //------------------------------------------------------------------------------
@@ -481,8 +430,8 @@ void RegisterGrids(
         GetGridExtent(idx,dim,ratio,ext);
         gridConnectivity->RegisterGrid(
             idx,levelIdx,ext,
-            grid->GetPointVisibilityArray(),
-            grid->GetCellVisibilityArray(),
+            grid->GetPointGhostArray(),
+            grid->GetCellGhostArray(),
             grid->GetPointData(),
             grid->GetCellData(),
             NULL);
@@ -576,11 +525,7 @@ int Test2DAMR(const int ratio)
   amrGridConnectivity->ComputeNeighbors();
   amrGridConnectivity->Print( std::cout );
 
-  // STEP 3: Attach blank cell arrays
-  AttachCellBlanking(amr);
-  WriteAMR(amr,"AMR2D-BLANKED");
-
-  // STEP 4: Create ghost-layers
+  // STEP 3: Create ghost-layers
   std::cout << "Ghosting...\n";
   std::cout.flush();
   amrGridConnectivity->CreateGhostLayers( 1 );
@@ -588,12 +533,12 @@ int Test2DAMR(const int ratio)
   std::cout << "[DONE]\n";
   std::cout.flush();
 
-  // STEP 5: Get & Write ghosted grids
+  // STEP 4: Get & Write ghosted grids
   vtkOverlappingAMR *ghostedAMR = vtkOverlappingAMR::New();
   GetGhostedAMRData(amr,amrGridConnectivity,ghostedAMR);
   WriteAMR(ghostedAMR,"AMR2D-GHOSTED");
 
-  // STEP 6: De-allocate
+  // STEP 5: De-allocate
   amrGridConnectivity->Delete();
   amr->Delete();
   ghostedAMR->Delete();
@@ -625,11 +570,7 @@ int Test3DAMR(const int ratio)
   amrGridConnectivity->ComputeNeighbors();
   amrGridConnectivity->Print( std::cout );
 
-  // STEP 3: Attach blank cell arrays
-  AttachCellBlanking(amr);
-  WriteAMR(amr,"AMR3D-BLANKED");
-
-  // STEP 4: Create ghost-layers
+  // STEP 3: Create ghost-layers
   std::cout << "Ghosting...\n";
   std::cout.flush();
   amrGridConnectivity->CreateGhostLayers( 1 );
@@ -637,12 +578,12 @@ int Test3DAMR(const int ratio)
   std::cout << "[DONE]\n";
   std::cout.flush();
 
-  // STEP 5: Get & Write ghosted grids
+  // STEP 4: Get & Write ghosted grids
   vtkOverlappingAMR *ghostedAMR = vtkOverlappingAMR::New();
   GetGhostedAMRData(amr,amrGridConnectivity,ghostedAMR);
   WriteAMR(ghostedAMR,"AMR3D-GHOSTED");
 
-  // STEP 6: De-allocate
+  // STEP 5: De-allocate
   amrGridConnectivity->Delete();
   amr->Delete();
   ghostedAMR->Delete();

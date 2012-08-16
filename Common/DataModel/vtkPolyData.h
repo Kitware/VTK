@@ -384,9 +384,10 @@ public:
   void DeepCopy(vtkDataObject *src);
 
   // Description:
-  // This method will remove any cell that has a ghost level array value
-  // greater or equal to level.  It does not remove unused points (yet).
-  void RemoveGhostCells(int level);
+  // This method will remove any cell that is marked as ghost
+  // (has the vtkDataSetAttributes::DUPLICATECELL bit set).
+  // It does not remove unused points.
+  void RemoveGhostCells();
 
   //BTX
   // Description:

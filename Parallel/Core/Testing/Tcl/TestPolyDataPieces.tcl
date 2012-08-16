@@ -1,6 +1,9 @@
 package require vtk
 package require vtkinteraction
 
+
+
+
 vtkMath math
 math RandomSeed 22
 
@@ -31,6 +34,7 @@ sphere2 SetThetaResolution 32
 vtkExtractPolyDataPiece extract2
 extract2 SetInputConnection [sphere2 GetOutputPort]
 
+vtkDataSetAttributes attributes
 vtkPolyDataMapper mapper2
 mapper2 SetInputConnection [extract2 GetOutputPort]
 mapper2 SetNumberOfPieces 2
@@ -38,9 +42,8 @@ mapper2 SetPiece 1
 mapper2 SetScalarRange 0 4
 mapper2 SetScalarModeToUseCellFieldData
 mapper2 SetColorModeToMapScalars
-mapper2 ColorByArrayComponent "vtkGhostLevels" 0
+mapper2 ColorByArrayComponent [attributes GhostArrayName] 0
 mapper2 SetGhostLevel 4
-
 # check the pipeline size
 extract2 UpdateInformation
 vtkPipelineSize psize
@@ -50,6 +53,7 @@ if {[psize GetEstimatedSize extract2 0 0] > 100} {
 if {[psize GetNumberOfSubPieces 10 mapper2] != 2} {
    puts stderr "ERROR: Number of sub pieces changed"
 }
+
 
 vtkActor actor2
 actor2 SetMapper mapper2

@@ -107,11 +107,6 @@ public:
   //ETX
 
   // Description:
-  // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkDataObject *src);
-  virtual void DeepCopy(vtkDataObject *src);
-
-  // Description:
   // Methods for supporting blanking of cells. Blanking turns on or off
   // points in the structured grid, and hence the cells connected to them.
   // These methods should be called only after the dimensions of the
@@ -132,34 +127,13 @@ public:
   virtual void UnBlankCell( const int i, const int j, const int k );
 
   // Description:
-  // Get the array that defines the blanking (visibility) of each point.
-  virtual vtkUnsignedCharArray *GetPointVisibilityArray();
-
+  // Returns 1 if there is any visibility constraint on the cells,
+  // 0 otherwise.
+  virtual bool HasAnyBlankCells();
   // Description:
-  // Set an array that defines the (blanking) visibility of the points
-  // in the grid. Make sure that length of the visibility array matches
-  // the number of points in the grid.
-  virtual void SetPointVisibilityArray(vtkUnsignedCharArray *pointVisibility);
-
-  // Description:
-  // Get the array that defines the blanking (visibility) of each cell.
-  virtual vtkUnsignedCharArray *GetCellVisibilityArray();
-
-  // Description:
-  // Set an array that defines the (blanking) visibility of the cells
-  // in the grid. Make sure that length of the visibility array matches
-  // the number of points in the grid.
-  virtual void SetCellVisibilityArray(vtkUnsignedCharArray *pointVisibility);
-
-  // Description:
-  // Attaches the CellVisibility array to the Cell data.
-  // Used primarily for debugging.
-  virtual void AttachCellVisibilityToCellData( );
-
-  // Description:
-  // Attaches the PointVisibility arry to the Point data.
-  // Used primarily for debugging.
-  virtual void AttachPointVisibilityToPointData( );
+  // Returns 1 if there is any visibility constraint on the points,
+  // 0 otherwise.
+  virtual bool HasAnyBlankPoints();
 
   // Description:
   // Return non-zero value if specified point is visible.
@@ -172,16 +146,6 @@ public:
   // These methods should be called only after the dimensions of the
   // grid are set.
   virtual unsigned char IsCellVisible(vtkIdType cellId);
-
-  // Description:
-  // Returns 1 if there is any visibility constraint on the points,
-  // 0 otherwise.
-  virtual unsigned char GetPointBlanking();
-
-  // Description:
-  // Returns 1 if there is any visibility constraint on the cells,
-  // 0 otherwise.
-  virtual unsigned char GetCellBlanking();
 
   virtual vtkImageData* NewImageDataCopy();
 
@@ -204,16 +168,6 @@ protected:
   // Override this method because of blanking.
   virtual void ComputeScalarRange();
 
-  vtkStructuredVisibilityConstraint* PointVisibility;
-
-  void SetPointVisibility(vtkStructuredVisibilityConstraint *pointVisibility);
-  vtkGetObjectMacro(PointVisibility, vtkStructuredVisibilityConstraint);
-
-  vtkStructuredVisibilityConstraint* CellVisibility;
-
-  void SetCellVisibility(vtkStructuredVisibilityConstraint *cellVisibility);
-  vtkGetObjectMacro(CellVisibility, vtkStructuredVisibilityConstraint);
-
   vtkEmptyCell* GetEmptyCell();
 
 private:
@@ -221,6 +175,8 @@ private:
   void operator=(const vtkUniformGrid&);  // Not implemented.
 
   vtkEmptyCell *EmptyCell;
+
+  static unsigned char MASKED_CELL_VALUE;
 };
 
 

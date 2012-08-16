@@ -104,17 +104,14 @@ int vtkGlyph3D::RequestData(
   vtkDataSet* input = vtkDataSet::GetData(inputVector[0], 0);
   vtkPolyData* output = vtkPolyData::GetData(outputVector, 0);
 
-  int requestedGhostLevel = outputVector->GetInformationObject(0)->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  return this->Execute(input, inputVector[1], output, requestedGhostLevel)? 1 : 0;
+  return this->Execute(input, inputVector[1], output)? 1 : 0;
 }
 
 //----------------------------------------------------------------------------
 bool vtkGlyph3D::Execute(
   vtkDataSet* input,
   vtkInformationVector* sourceVector,
-  vtkPolyData* output,
-  int requestedGhostLevel)
+  vtkPolyData* output)
 {
   assert(input && output);
   if (input == NULL || output == NULL)
@@ -179,7 +176,7 @@ bool vtkGlyph3D::Execute(
   vtkDataArray* temp = 0;
   if (pd)
     {
-    temp = pd->GetArray("vtkGhostLevels");
+    temp = pd->GetArray(vtkDataSetAttributes::GhostArrayName());
     }
   if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
     || (temp->GetNumberOfComponents() != 1))
@@ -198,7 +195,7 @@ bool vtkGlyph3D::Execute(
     vtkDebugMacro(<<"No points to glyph!");
     pts->Delete();
     trans->Delete();
-    return true;
+    return 1;
     }
 
   // Check input for consistency
@@ -509,13 +506,9 @@ bool vtkGlyph3D::Execute(
 
     // Check ghost points.
     // If we are processing a piece, we do not want to duplicate
-    // glyphs on the borders.  The corrct check here is:
-    // ghostLevel > 0.  I am leaving this over glyphing here because
-    // it make a nice example (sphereGhost.tcl) to show the
-    // point ghost levels with the glyph filter.  I am not certain
-    // of the usefulness of point ghost levels over 1, but I will have
-    // to think about it.
-    if (inGhostLevels && inGhostLevels[inPtId] > requestedGhostLevel)
+    // glyphs on the borders.
+    if (inGhostLevels &&
+        inGhostLevels[inPtId] & vtkDataSetAttributes::DUPLICATEPOINT)
       {
       continue;
       }

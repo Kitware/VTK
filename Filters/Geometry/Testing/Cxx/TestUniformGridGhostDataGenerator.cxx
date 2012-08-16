@@ -38,7 +38,6 @@
 #include "vtkXMLImageDataWriter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkIntArray.h"
-#include "vtkGhostArray.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"

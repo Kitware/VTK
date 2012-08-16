@@ -451,8 +451,9 @@ int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
   vtkIdType inStartCell = 0;
   vtkIdType outStartCell = this->StartVert;
   vtkIdType numCells = this->NumberOfVerts[this->Piece];
-  if (!this->ReadArrayValues(da, outStartCell * components, outArray,
-      inStartCell * components, numCells * components))
+  if (!this->ReadArrayValues(
+        da, outStartCell * components, outArray,
+        inStartCell * components, numCells * components, CELL_DATA))
     {
     return 0;
     }
@@ -464,8 +465,9 @@ int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
   inStartCell += numCells;
   outStartCell = this->TotalNumberOfVerts + this->StartLine;
   numCells = this->NumberOfLines[this->Piece];
-  if (!this->ReadArrayValues(da, outStartCell * components, outArray,
-      inStartCell * components, numCells * components))
+  if (!this->ReadArrayValues(
+        da, outStartCell * components, outArray,
+        inStartCell * components, numCells * components, CELL_DATA))
     {
     return 0;
     }
@@ -480,7 +482,7 @@ int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
 
   numCells = this->NumberOfStrips[this->Piece];
   if (!this->ReadArrayValues(da, outStartCell * components, outArray,
-      inStartCell * components, numCells * components))
+      inStartCell * components, numCells * components, CELL_DATA))
     {
     return 0;
     }
@@ -496,7 +498,7 @@ int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
 
   numCells = this->NumberOfPolys[this->Piece];
   if (!this->ReadArrayValues(da, outStartCell * components, outArray,
-      inStartCell * components, numCells * components))
+      inStartCell * components, numCells * components, CELL_DATA))
     {
     return 0;
     }

@@ -78,7 +78,7 @@ int vtkGlyph2D::RequestData(
   vtkDataArray* temp = 0;
   if (pd)
     {
-    temp = pd->GetArray("vtkGhostLevels");
+    temp = pd->GetArray(vtkDataSetAttributes::GhostArrayName());
     }
   if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
     || (temp->GetNumberOfComponents() != 1))
@@ -355,7 +355,8 @@ int vtkGlyph2D::RequestData(
       }
 
     // Check ghost points.
-    if (inGhostLevels && inGhostLevels[inPtId] > 0)
+    if (inGhostLevels &&
+        inGhostLevels[inPtId] & vtkDataSetAttributes::DUPLICATEPOINT)
       {
       continue;
       }

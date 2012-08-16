@@ -139,8 +139,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   //special cases for performance
-  void PolyDataExecute(vtkDataSet *, vtkPolyData *, vtkInformation *);
-  void UnstructuredGridExecute(vtkDataSet *, vtkPolyData *, vtkInformation *);
+  void PolyDataExecute(vtkDataSet *, vtkPolyData *);
+  void UnstructuredGridExecute(vtkDataSet *, vtkPolyData *);
   void StructuredGridExecute(vtkDataSet *, vtkPolyData *, vtkInformation *);
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

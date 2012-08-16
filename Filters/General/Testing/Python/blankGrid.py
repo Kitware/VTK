@@ -50,7 +50,7 @@ blanking = blankImage.GetPointData().GetScalars()
 numBlanks = 57 * 33
 i = 0
 while i < numBlanks:
-    blanking.SetComponent(i, 0, 1)
+    blanking.SetComponent(i, 0, vtk.vtkDataSetAttributes.HIDDENPOINT)
     i += 1
 
 # Manually blank out areas corresponding to dilution holes

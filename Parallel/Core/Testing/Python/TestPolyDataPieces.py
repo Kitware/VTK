@@ -41,7 +41,7 @@ mapper2.SetPiece(1)
 mapper2.SetScalarRange(0, 4)
 mapper2.SetScalarModeToUseCellFieldData()
 mapper2.SetColorModeToMapScalars()
-mapper2.ColorByArrayComponent("vtkGhostLevels", 0)
+mapper2.ColorByArrayComponent(vtk.vtkDataSetAttributes.GhostArrayName(), 0)
 mapper2.SetGhostLevel(4)
 
 # check the pipeline size
@@ -50,8 +50,9 @@ psize = vtk.vtkPipelineSize()
 if (psize.GetEstimatedSize(extract2, 0, 0) > 100):
     print ("ERROR: Pipeline Size increased")
     pass
-if (psize.GetNumberOfSubPieces(10, mapper2) != 2):
-    print ("ERROR: Number of sub pieces changed")
+if (psize.GetNumberOfSubPieces(10, mapper2) != 1):
+    print ("ERROR: Number of sub pieces changed",
+           psize.GetNumberOfSubPieces(10, mapper2))
     pass
 
 actor2 = vtk.vtkActor()

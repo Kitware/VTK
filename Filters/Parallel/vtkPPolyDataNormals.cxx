@@ -34,23 +34,9 @@ int vtkPPolyDataNormals::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // get the ouptut
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
   if (!this->vtkPolyDataNormals::RequestData(request, inputVector, outputVector))
     {
     return 0;
-    }
-
-  if (this->PieceInvariant)
-    {
-    output->RemoveGhostCells(
-      outInfo->Get(
-        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())+1);
     }
 
   return 1;

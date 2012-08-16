@@ -987,12 +987,9 @@ int vtkMultiBlockPLOT3DReader::RequestData(
         nthOutput->GetPointData()->AddArray(iblank);
         iblank->Delete();
 
-        vtkUnsignedCharArray* visibility = vtkUnsignedCharArray::New();
-        visibility->SetNumberOfComponents(1);
-        visibility->SetNumberOfTuples( nthOutput->GetNumberOfCells() );
-        visibility->SetName("Visibility");
-        nthOutput->SetCellVisibilityArray(visibility);
-        nthOutput->GetCellData()->AddArray(visibility);
+        vtkUnsignedCharArray *ghosts = vtkUnsignedCharArray::New();
+        ghosts->SetNumberOfValues(nthOutput->GetNumberOfCells());
+        ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
         vtkIdList* ids = vtkIdList::New();
         ids->SetNumberOfIds(8);
         vtkIdType numCells = nthOutput->GetNumberOfCells();
@@ -1000,18 +997,20 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           {
           nthOutput->GetCellPoints(cellId, ids);
           vtkIdType numIds = ids->GetNumberOfIds();
-          char visible = 1;
+          unsigned char value = 0;
           for (vtkIdType ptIdx=0; ptIdx<numIds; ptIdx++)
             {
             if (ib[ids->GetId(ptIdx)] == 0)
               {
-              visible = 0;
+              value |= vtkDataSetAttributes::HIDDENPOINT;
               break;
               }
             }
-          visibility->SetValue(cellId, visible);
+          ghosts->SetValue(cellId, value);
           }
         ids->Delete();
+        nthOutput->GetCellData()->AddArray(ghosts);
+        ghosts->Delete();
         }
       this->SkipByteCount(xyzFp);
       }

@@ -228,9 +228,9 @@ public:
   int IsHomogeneous();
 
   // Description:
-  // This method will remove any cell that has a ghost level array value
-  // greater or equal to level.
-  void RemoveGhostCells(int level);
+  // This method will remove any cell that is marked as ghost
+  // (has the vtkDataSetAttributes::DUPLICATECELL bit set).
+  void RemoveGhostCells();
 
   //BTX
   // Description:

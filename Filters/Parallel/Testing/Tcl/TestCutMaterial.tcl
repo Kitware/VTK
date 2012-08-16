@@ -52,7 +52,7 @@ mapper2 SetInputConnection [cut GetOutputPort]
 mapper2 SetScalarRange 0 1
 #apper2 SetScalarModeToUseCellFieldData
 #apper2 SetColorModeToMapScalars
-#apper2 ColorByArrayComponent "vtkGhostLevels" 0
+#apper2 ColorByArrayComponent [vtkDataSetAttributes GhostArrayName] 0
 
 vtkActor actor2
 actor2 SetMapper mapper2

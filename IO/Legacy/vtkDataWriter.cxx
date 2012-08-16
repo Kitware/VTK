@@ -27,6 +27,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGraph.h"
 #include "vtkIntArray.h"
+#include "vtkLegacyReaderVersion.h"
 #include "vtkLongArray.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
@@ -178,7 +179,8 @@ int vtkDataWriter::WriteHeader(ostream *fp)
 {
   vtkDebugMacro(<<"Writing header...");
 
-  *fp << "# vtk DataFile Version 3.0\n";
+  *fp << "# vtk DataFile Version " << vtkLegacyReaderMajorVersion << "."
+      << vtkLegacyReaderMinorVersion << "\n";
   *fp << this->Header << "\n";
 
   if ( this->FileType == VTK_ASCII )

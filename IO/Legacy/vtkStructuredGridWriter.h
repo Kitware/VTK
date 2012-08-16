@@ -45,7 +45,6 @@ protected:
   ~vtkStructuredGridWriter() {}
 
   void WriteData();
-  int WriteBlanking(ostream *fp, vtkStructuredGrid *ds);
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 

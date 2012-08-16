@@ -186,7 +186,10 @@ namespace
             skipValue = false;
             validValues[outputIndex] = 1; // value is from a blanked entity
             }
-          else if(ghosts && ghosts->GetValue(inCounter) && validValues[outputIndex] <= 2)
+          else if(
+            ghosts &&
+            (ghosts->GetValue(inCounter) & vtkDataSetAttributes::DUPLICATECELL) &&
+            validValues[outputIndex] <= 2)
             {
             validValues[outputIndex] = 2; // value is a ghost
             skipValue = false;
@@ -252,8 +255,7 @@ int vtkStructuredGridAppend::RequestData(
         vtkDataArray *outArray;
         vtkIdType numComp;
 
-        vtkUnsignedCharArray* ghosts = vtkUnsignedCharArray::SafeDownCast(
-          input->GetPointData()->GetArray("vtkGhostLevels"));
+        vtkUnsignedCharArray* ghosts = input->GetPointGhostArray();
 
         //do point associated arrays
         for (vtkIdType ai = 0;
@@ -345,8 +347,7 @@ int vtkStructuredGridAppend::RequestData(
           {
           validValues[i] = 0;
           }
-        ghosts = vtkUnsignedCharArray::SafeDownCast(
-          input->GetCellData()->GetArray("vtkGhostLevels"));
+        ghosts = input->GetCellGhostArray();
 
         //do cell associated arrays
         for (vtkIdType ai = 0;

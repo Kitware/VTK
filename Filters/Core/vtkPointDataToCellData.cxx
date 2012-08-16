@@ -74,7 +74,7 @@ int vtkPointDataToCellData::RequestData(
   // be over-written during CopyAllocate
   output->GetCellData()->CopyGlobalIdsOff();
   output->GetCellData()->PassData(input->GetCellData());
-  output->GetCellData()->CopyFieldOff("vtkGhostLevels");
+  output->GetCellData()->CopyFieldOff(vtkDataSetAttributes::GhostArrayName());
 
   // notice that inPD and outCD are vtkPointData and vtkCellData; respectively.
   // It's weird, but it works.
@@ -106,7 +106,7 @@ int vtkPointDataToCellData::RequestData(
   if ( !this->PassPointData )
     {
     output->GetPointData()->CopyAllOff();
-    output->GetPointData()->CopyFieldOn("vtkGhostLevels");
+    output->GetPointData()->CopyFieldOn(vtkDataSetAttributes::GhostArrayName());
     }
   output->GetPointData()->PassData(input->GetPointData());
 

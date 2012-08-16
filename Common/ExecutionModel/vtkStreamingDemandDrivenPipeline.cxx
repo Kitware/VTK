@@ -976,7 +976,7 @@ vtkStreamingDemandDrivenPipeline
                                         vtkExtentTranslator::BLOCK_MODE, 0);
             et->Delete();
 
-            data->GenerateGhostLevelArray(zeroExt);
+            data->GenerateGhostArray(zeroExt);
             }
           }
         }

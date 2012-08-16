@@ -116,31 +116,14 @@ void ComputeCellCenter(
   assert("pre: cell index is out-of-bounds!" &&
          (cellIdx >= 0) && (cellIdx < grid->GetNumberOfCells()));
 
-  vtkCell *myCell = grid->GetCell( cellIdx );
-  assert( "ERROR: Cell is NULL" && (myCell != NULL) );
-
-  // Work around for blanked cells. For blanked cells GetCell returns a
-  // VTK_EMPTY_CELL! Therefore, to get the cell, we have to temporarily
-  // unblank it and then blank it again.
-  bool isCellBlanked = false;
-  if( (myCell->GetCellType() == VTK_EMPTY_CELL) &&
-      (!grid->IsCellVisible(cellIdx)) )
-    {
-    grid->UnBlankCell( cellIdx );
-    myCell = grid->GetCell(cellIdx);
-    isCellBlanked = true;
-    }
+  // We want to get all cells including blanked cells.
+  vtkCell *myCell = grid->vtkImageData::GetCell(cellIdx);
 
   double pcenter[3];
   double *weights = new double[ myCell->GetNumberOfPoints() ];
   int subId = myCell->GetParametricCenter( pcenter );
   myCell->EvaluateLocation( subId, pcenter, centroid, weights );
   delete [] weights;
-
-  if( isCellBlanked )
-    {
-    grid->BlankCell( cellIdx );
-    }
 }
 
 //------------------------------------------------------------------------------
