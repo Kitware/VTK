@@ -50,6 +50,7 @@ vtkMathTextActor::vtkMathTextActor()
   this->PositionCoordinate->SetCoordinateSystemToViewport();
 
   // Construct texture
+  this->RectanglePoints->Allocate(4);
   this->Rectangle->SetPoints(this->RectanglePoints.GetPointer());
   vtkNew<vtkCellArray> polys;
   polys->InsertNextCell(4);
@@ -231,9 +232,9 @@ void vtkMathTextActor::ComputeRectangle()
   double s = sin( radians );
   double xo, yo;
   double x, y;
-  double maxWidth, maxHeight;
+  double maxHeight;
   xo = yo = 0.0;
-  maxWidth = maxHeight = 0;
+  maxHeight = 0;
   switch ( this->TextProperty->GetJustification() )
     {
     default:

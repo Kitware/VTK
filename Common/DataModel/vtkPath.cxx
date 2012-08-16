@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkPath.h"
 
+#include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -48,6 +49,12 @@ void vtkPath::Allocate(vtkIdType size, int extSize)
 {
   this->Points->Allocate(size, extSize);
   this->PointData->Allocate(size, extSize);
+}
+
+//----------------------------------------------------------------------------
+void vtkPath::GetCell(vtkIdType, vtkGenericCell *cell)
+{
+  cell->SetCellTypeToEmptyCell();
 }
 
 //----------------------------------------------------------------------------

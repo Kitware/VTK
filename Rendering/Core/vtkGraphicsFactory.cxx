@@ -95,7 +95,6 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::DestructClass(vtkclassname);
 #endif
-  const char *rl = vtkGraphicsFactory::GetRenderLibrary();
   return 0;
 }
 

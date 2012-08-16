@@ -38,9 +38,6 @@
   lookup error occurred, and will also let the parser know
   if an #if or #else directive requires that the next block
   of code be skipped.
-
-  No checks are done for recursively-defined macros.  If they
-  occur, the preprocessor will crash.
 */
 
 #ifndef VTK_PARSE_PREPROCESS_H
@@ -65,10 +62,11 @@ typedef struct _MacroInfo
   const char    *Name;
   const char    *Definition;
   const char    *Comment; /* unused */
-  int            NumberOfArguments; /* only if IsFunction == 1 */
-  const char   **Arguments;  /* symbols for arguments */
-  int            IsFunction; /* this macro takes arguments */
+  int            NumberOfParameters; /* only if IsFunction == 1 */
+  const char   **Parameters; /* symbols for parameters */
+  int            IsFunction; /* this macro requires arguments */
   int            IsExternal; /* this macro is from an included file */
+  int            IsExcluded; /* do not expand this macro */
 } MacroInfo;
 
 /**
@@ -78,8 +76,7 @@ typedef struct _MacroInfo
 typedef struct _PreprocessInfo
 {
   const char    *FileName;         /* the file that is being parsed */
-  int            NumberOfMacros;
-  MacroInfo    **Macros;
+  MacroInfo   ***MacroHashTable;   /* hash table for macro lookup */
   int            NumberOfIncludeDirectories;
   const char   **IncludeDirectories;
   int            NumberOfIncludeFiles; /* all included files */
@@ -178,17 +175,34 @@ MacroInfo *vtkParsePreprocess_GetMacro(
   PreprocessInfo *info, const char *name);
 
 /**
- * Expand a function macro, given arguments in parentheses.
- * Returns a new string that was allocated with malloc, or
- * NULL if the wrong number of arguments were given.
+ * Expand a macro.  A function macro must be given an argstring
+ * with args in parentheses, otherwise the argstring can be NULL.
+ * returns NULL if the wrong number of arguments were given.
  */
 const char *vtkParsePreprocess_ExpandMacro(
-  MacroInfo *macro, const char *argstring);
+  PreprocessInfo *info, MacroInfo *macro, const char *argstring);
 
 /**
- * Free an expanded macro.
+ * Free an expanded macro
  */
-void vtkParsePreprocess_FreeExpandedMacro(const char *emacro);
+void vtkParsePreprocess_FreeMacroExpansion(
+  PreprocessInfo *info, MacroInfo *macro, const char *text);
+
+/**
+ * Fully process a string with the preprocessor, and
+ * return a new string or NULL if a fatal error occurred.
+ */
+const char *vtkParsePreprocess_ProcessString(
+  PreprocessInfo *info, const char *text);
+
+/**
+ * Free a processed string.  Only call this method if
+ * the string returned by ProcessString is different from
+ * the original string, because ProcessString will just
+ * return the original string if no processing was needed.
+ */
+void vtkParsePreprocess_FreeProcessedString(
+  PreprocessInfo *info, const char *text);
 
 /**
  * Add an include directory.  The directories that were added
@@ -214,9 +228,20 @@ const char *vtkParsePreprocess_FindIncludeFile(
 void vtkParsePreprocess_InitMacro(MacroInfo *symbol);
 
 /**
+ * Free a preprocessor macro struct
+ */
+void vtkParsePreprocess_FreeMacro(MacroInfo *macro);
+
+/**
  * Initialize a preprocessor struct.
  */
-void vtkParsePreprocess_InitPreprocess(PreprocessInfo *info);
+void vtkParsePreprocess_Init(
+  PreprocessInfo *info, const char *filename);
+
+/**
+ * Free a preprocessor struct and its contents;
+ */
+void vtkParsePreprocess_Free(PreprocessInfo *info);
 
 #ifdef __cplusplus
 } /* extern "C" */

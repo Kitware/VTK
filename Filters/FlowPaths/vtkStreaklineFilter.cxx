@@ -29,6 +29,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include <assert.h>
 #include <algorithm>
 
+#ifdef DEBUGSTREAKLINEFILTER
+#define Assert(a) assert(a)
+#else
+#define Assert(a)
+#endif
+
 class StreakParticle
 {
 public:
@@ -48,23 +54,14 @@ public:
 
 typedef std::vector<StreakParticle> Streak;
 
-#define AssertGe(a, b) \
-{\
-    if(a<b) \
-    {\
-      cerr<<a<<" < "<<b<<endl; \
-      assert(false);\
-    }\
-}
-
 vtkObjectFactoryNewMacro(vtkStreaklineFilter)
 
 
-StreaklineFilterInternal::StreaklineFilterInternal(vtkParticleTracerBase* filter):Filter(filter)
+void StreaklineFilterInternal::Initialize(vtkParticleTracerBase* filter)
 {
+  this->Filter = filter;
   this->Filter->ForceReinjectionEveryNSteps = 1;
   this->Filter->IgnorePipelineTime = 1;
-  this->Filter->ForceReinjectionAtTermination = true;
 }
 
 int StreaklineFilterInternal::OutputParticles(vtkPolyData* particles)
@@ -83,11 +80,11 @@ void StreaklineFilterInternal::Finalize()
     }
 
   vtkPointData* pd = this->Filter->Output->GetPointData();
-  assert(pd);
+  Assert(pd);
   vtkFloatArray* particleAge = vtkFloatArray::SafeDownCast(pd->GetArray("ParticleAge"));
-  assert(particleAge);
+  Assert(particleAge);
   vtkIntArray* seedIds = vtkIntArray::SafeDownCast(pd->GetArray("InjectedPointId"));
-  assert(seedIds);
+  Assert(seedIds);
 
   if(seedIds)
     {
@@ -115,8 +112,8 @@ void StreaklineFilterInternal::Finalize()
 
     this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
     vtkCellArray* outLines = this->Filter->Output->GetLines();
-    assert(outLines->GetNumberOfCells()==0);
-    assert(outLines);
+    Assert(outLines->GetNumberOfCells()==0);
+    Assert(outLines);
     for(unsigned int i=0; i<streaks.size();i++)
       {
       Streak& streak(streaks[i]);
@@ -124,7 +121,7 @@ void StreaklineFilterInternal::Finalize()
 
       for(unsigned int j=0; j<streak.size();j++)
         {
-        assert(j==0 || streak[j].Age <= streak[j-1].Age);
+        Assert(j==0 || streak[j].Age <= streak[j-1].Age);
         if(j==0 || streak[j].Age < streak[j-1].Age)
           {
           ids->InsertNextId(streak[j].Id);
@@ -139,8 +136,9 @@ void StreaklineFilterInternal::Finalize()
 }
 
 
-vtkStreaklineFilter::vtkStreaklineFilter(): It(this)
+vtkStreaklineFilter::vtkStreaklineFilter()
 {
+  this->It.Initialize(this);
 }
 
 int vtkStreaklineFilter::OutputParticles(vtkPolyData* particles)

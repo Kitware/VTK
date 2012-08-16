@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkParticleTracerBase - A Parallel Particle tracer for unsteady vector fields
 // .SECTION Description
-// vtkParticleTracerBase is a filter that integrates a vector field to generate
-//
+// vtkParticleTracerBase is the base class for filters that advect particles
+// in a time varying vector field
 //
 // .SECTION See Also
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
@@ -260,6 +260,12 @@ public:
   //
   virtual int ProcessInput(vtkInformationVector** inputVector);
 
+  // This is the main part of the algorithm:
+  //  * move all the particles one step
+  //  * Reinject particles (by adding them to this->ParticleHistories)
+  //    either at the beginning or at the end of each step (modulo this->ForceReinjectionEveryNSteps)
+  //  * Output a polydata representing the moved particles
+  // Note that if the starting and the ending time coincide, the polydata is still valid.
   virtual vtkPolyData* Execute(vtkInformationVector** inputVector);
 
   // the RequestData will call these methods in turn
@@ -290,7 +296,7 @@ public:
   // they belong to. This saves us retesting at every injection time
   // providing 1) The volumes are static, 2) the seed points are static
   // If either are non static, then this step is skipped.
-  virtual void AssignSeedsToProcessors(
+  virtual void AssignSeedsToProcessors(double time,
     vtkDataSet *source, int sourceID, int ptId,
     vtkParticleTracerBaseNamespace::ParticleVector &LocalSeedPoints,
     int &LocalAssignedCount);
@@ -369,8 +375,6 @@ public:
   virtual void ResetCache();
   void AddParticle(vtkParticleTracerBaseNamespace::ParticleInformation &info, double* velocity);
 
-
-
 private:
   // Description:
   // Hide this because we require a new interpolator type
@@ -393,7 +397,6 @@ private:
   bool ComputeVorticity;
   double RotationScale;
   double TerminalSpeed;
-  bool ForceReinjectionAtTermination; //whether to reinject seeds again at the termination step
 
   // Important for Caching of Cells/Ids/Weights etc
   int           AllFixedGeometry;
@@ -405,7 +408,7 @@ private:
   double TerminationTime;
   double CurrentTime;
 
-  unsigned int  StartTimeStep;
+  unsigned int  StartTimeStep; //InputTimeValues[StartTimeStep] <= StartTime <= InputTimeValues[StartTimeStep+1]
   unsigned int  CurrentTimeStep;
   unsigned int  TerminationTimeStep; //computed from start time
   bool FirstIteration;
@@ -429,7 +432,7 @@ private:
   vtkSmartPointer<vtkTemporalInterpolatedVelocityField>  Interpolator;
   vtkAbstractInterpolatedVelocityField * InterpolatorPrototype;
 
-  // The input datasets which are stored by time step 0 and 1
+  // Data for time step CurrentTimeStep-1 and CurrentTimeStep
   vtkSmartPointer<vtkMultiBlockDataSet> CachedData[2];
 
   // Cache bounds info for each dataset we will use repeatedly

@@ -61,17 +61,27 @@
 #define VTK_PARSE_INDIRECT   0x0000FF00
 
 /**
- * Storage qualifiers static and const, and hint attributes.
- * NEWINSTANCE is for returned pointers that must be freed by the caller.
+ * Qualifiers
  */
 #define VTK_PARSE_QUALIFIER   0x00FF0000
 #define VTK_PARSE_CONST       0x00010000
 #define VTK_PARSE_STATIC      0x00020000
-#define VTK_PARSE_NEWINSTANCE 0x00040000
+#define VTK_PARSE_VIRTUAL     0x00040000
+#define VTK_PARSE_EXPLICIT    0x00080000
+#define VTK_PARSE_MUTABLE     0x00100000
+#define VTK_PARSE_VOLATILE    0x00200000
+#define VTK_PARSE_NEWINSTANCE 0x00400000
 
 /**
- * Mask for removing "const", "static" qualifiers
+ * Special
  */
+#define VTK_PARSE_TYPEDEF     0x010000000
+#define VTK_PARSE_FRIEND      0x020000000
+
+/**
+ * Mask for removing qualifiers
+ */
+#define VTK_PARSE_QUALIFIED_TYPE   0x00FFFFFF
 #define VTK_PARSE_UNQUALIFIED_TYPE 0x0000FFFF
 
 /**
@@ -169,6 +179,7 @@
 #define VTK_PARSE_ISTREAM             0x24
 #define VTK_PARSE_FUNCTION            0x25
 #define VTK_PARSE_QOBJECT             0x26
+#define VTK_PARSE_LONG_DOUBLE         0x27
 
 /**
  * Basic pointer types
@@ -202,6 +213,7 @@
 #define VTK_PARSE_ISTREAM_PTR             0x224
 #define VTK_PARSE_FUNCTION_PTR            0x225
 #define VTK_PARSE_QOBJECT_PTR             0x226
+#define VTK_PARSE_LONG_DOUBLE_PTR         0x227
 
 /**
  * Basic reference types
@@ -234,6 +246,7 @@
 #define VTK_PARSE_OSTREAM_REF             0x123
 #define VTK_PARSE_ISTREAM_REF             0x124
 #define VTK_PARSE_QOBJECT_REF             0x126
+#define VTK_PARSE_LONG_DOUBLE_REF         0x127
 
 /**
  * For backwards compatibility

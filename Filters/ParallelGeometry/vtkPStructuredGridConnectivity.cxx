@@ -565,8 +565,8 @@ void vtkPStructuredGridConnectivity::PostReceives()
     assert("ERROR: grid rcv buffers must be 1-to-1 with the rcv buffer sizes" &&
       this->RcvBufferSizes[gridIdx].size()==this->RcvBuffers[gridIdx].size() );
 
-    unsigned int NumNeis = this->Neighbors[ gridIdx ].size();
-    for( unsigned int nei=0; nei < NumNeis; ++nei )
+    size_t NumNeis = this->Neighbors[ gridIdx ].size();
+    for( size_t nei=0; nei < NumNeis; ++nei )
       {
       int neiGridIdx = this->Neighbors[gridIdx][nei].NeighborID;
       assert("ERROR: Neighbor grid index is out-of-bounds!" &&
@@ -921,7 +921,7 @@ void vtkPStructuredGridConnectivity::DeserializeDataArray(
       float *data       = NULL;
       bytestream.Pop( data, size );
       assert( "pre: de-serialized data array is not of the expected size" &&
-              (size == (numberOfTuples*numberOfComponents) ) );
+              (size == static_cast<unsigned int>((numberOfTuples*numberOfComponents)) ) );
 
       // STEP 1: Allocate vtkdata array
       dataArray = vtkDataArray::CreateDataArray( dataType );
@@ -948,7 +948,7 @@ void vtkPStructuredGridConnectivity::DeserializeDataArray(
       double *data      = NULL;
       bytestream.Pop(data,size);
       assert( "pre: de-serialized data array is not of the expected size" &&
-              (size==(numberOfTuples*numberOfComponents) ) );
+              (size == static_cast<unsigned int>((numberOfTuples*numberOfComponents)) ) );
 
       // STEP 1: Allocate vtkdata array
       dataArray = vtkDataArray::CreateDataArray( dataType );
@@ -975,7 +975,7 @@ void vtkPStructuredGridConnectivity::DeserializeDataArray(
       int *data         = NULL;
       bytestream.Pop(data,size);
       assert( "pre: de-serialized data array is not of the expected size" &&
-              (size==(numberOfTuples*numberOfComponents) ) );
+              (size == static_cast<unsigned int>((numberOfTuples*numberOfComponents)) ) );
 
       // STEP 1: Allocate vtkdata array
       dataArray = vtkDataArray::CreateDataArray( dataType );

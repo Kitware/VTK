@@ -33,8 +33,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkPStreaklineFilter)
 
-vtkPStreaklineFilter::vtkPStreaklineFilter(): It(this)
+vtkPStreaklineFilter::vtkPStreaklineFilter()
 {
+  this->It.Initialize(this);
 }
 
 int vtkPStreaklineFilter::OutputParticles(vtkPolyData* particles)

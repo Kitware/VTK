@@ -64,7 +64,7 @@ vtkAMRCutPlane::vtkAMRCutPlane()
 //------------------------------------------------------------------------------
 vtkAMRCutPlane::~vtkAMRCutPlane()
 {
-  this->blocksToLoad.clear();
+  this->BlocksToLoad.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ int vtkAMRCutPlane::RequestInformation(
     vtkInformation* vtkNotUsed(rqst), vtkInformationVector** inputVector,
     vtkInformationVector* vtkNotUsed(outputVector) )
 {
-  this->blocksToLoad.clear();
+  this->BlocksToLoad.clear();
 
   vtkInformation *input = inputVector[0]->GetInformationObject(0);
   assert( "pre: input information object is NULL" && (input != NULL) );
@@ -146,7 +146,7 @@ int vtkAMRCutPlane::RequestUpdateExtent(
 
   inInfo->Set(
       vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
-      &this->blocksToLoad[0], this->blocksToLoad.size() );
+      &this->BlocksToLoad[0], static_cast<int>(this->BlocksToLoad.size()));
   return 1;
 }
 
@@ -487,12 +487,12 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(
       if( this->PlaneIntersectsAMRBox( plane, bounds ) )
         {
         unsigned int amrGridIdx = m->GetCompositeIndex(level,dataIdx);
-        this->blocksToLoad.push_back( amrGridIdx );
+        this->BlocksToLoad.push_back( amrGridIdx );
         }
       } // END for all data
     } // END for all levels
 
-  std::sort( this->blocksToLoad.begin(), this->blocksToLoad.end() );
+  std::sort( this->BlocksToLoad.begin(), this->BlocksToLoad.end() );
 }
 
 //------------------------------------------------------------------------------
