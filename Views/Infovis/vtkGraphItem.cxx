@@ -357,7 +357,8 @@ void vtkGraphItem::UpdateLayout()
 
 vtkIdType vtkGraphItem::HitVertex(const vtkVector2f &pos)
 {
-  for (vtkIdType v = 0; v < this->Internal->VertexPositions.size(); ++v)
+  vtkIdType numVert = static_cast<vtkIdType>(this->Internal->VertexPositions.size());
+  for (vtkIdType v = 0; v < numVert; ++v)
     {
     if ((pos - this->Internal->VertexPositions[v]).Norm() < this->Internal->VertexSizes[v]/this->Internal->CurrentScale[0]/2.0)
       {
@@ -410,12 +411,12 @@ bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent &event)
   return false;
 }
 
-bool vtkGraphItem::MouseEnterEvent(const vtkContextMouseEvent &event)
+bool vtkGraphItem::MouseEnterEvent(const vtkContextMouseEvent &vtkNotUsed(event))
 {
   return true;
 }
 
-bool vtkGraphItem::MouseLeaveEvent(const vtkContextMouseEvent &event)
+bool vtkGraphItem::MouseLeaveEvent(const vtkContextMouseEvent &vtkNotUsed(event))
 {
   this->Tooltip->SetVisible(false);
   return true;
@@ -454,7 +455,7 @@ bool vtkGraphItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
   return false;
 }
 
-bool vtkGraphItem::MouseWheelEvent(const vtkContextMouseEvent &event, int delta)
+bool vtkGraphItem::MouseWheelEvent(const vtkContextMouseEvent &event, int vtkNotUsed(delta))
 {
   if (this->Tooltip->GetVisible())
     {
