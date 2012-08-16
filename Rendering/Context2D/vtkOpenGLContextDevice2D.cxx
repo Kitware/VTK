@@ -126,6 +126,9 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
     glEnable(GL_POLYGON_SMOOTH);
     }
 
+  // Make sure we are on the default texture setting
+  glBindTexture(GL_TEXTURE_2D, 0);
+
   this->InRender = true;
 }
 
@@ -732,7 +735,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   float xScale = mv[0];
   float yScale = mv[5];
 
-  float p[] = { std::floor(point[0] * xScale) / xScale, std::floor(point[1] * yScale) / yScale };
+  float p[] = { std::floor(point[0] * xScale) / xScale,
+                std::floor(point[1] * yScale) / yScale };
 
   // Cache rendered text strings
   vtkTextureImageCache<TextPropertyKey>::CacheData cache =
