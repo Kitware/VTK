@@ -43,6 +43,13 @@
 
 #include <stdlib.h>
 
+// for uintptr_t
+#ifdef _MSC_VER
+#include <stddef.h>
+#else
+#include <stdint.h>
+#endif
+
 // Silent warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
 // it happens because this kind of expression: (long *)&ptr
@@ -170,16 +177,18 @@ extern "C" {
     // Find the image
 #ifdef VTK_PYTHON_BUILD
     char typeCheck[256];
-#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
-    union { void *p; unsigned long l; } u;
-    sscanf ( argv[1], "_%lx_%s", &u.l, typeCheck);
-#elif defined(VTK_TYPE_USE_LONG_LONG)
-    union { void *p; unsigned long long l; } u;
-    sscanf ( argv[1], "_%llx_%s", &u.l, typeCheck);
+#if defined(VTK_TYPE_USE_LONG_LONG)
+    unsigned long long l;
+    sscanf ( argv[1], "_%llx_%s", &l, typeCheck);
 #elif defined(VTK_TYPE_USE___INT64)
-    union { void *p; unsigned __int64 l; } u;
-    sscanf ( argv[1], "_%I64x_%s", &u.l, typeCheck);
+    unsigned __int64 l;
+    sscanf ( argv[1], "_%I64x_%s", &l, typeCheck);
+#else
+    unsigned long l;
+    sscanf ( argv[1], "_%lx_%s", &l, typeCheck);
 #endif
+    union { void *p; uintptr_t l; } u;
+    u.l = static_cast<uintptr_t>(l);
     // Various historical pointer manglings
     if ((strcmp ( "vtkAlgorithmOutput", typeCheck ) == 0 ||
          strcmp ( "vtkAlgorithmOutput_p", typeCheck ) == 0 ||
