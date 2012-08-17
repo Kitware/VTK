@@ -123,6 +123,7 @@ public:
   // Description:
   // Draw some text to the screen.
   virtual void DrawString(float *point, const vtkUnicodeString &string) = 0;
+  virtual void DrawZAxisLabel(float *point, const vtkStdString &string) = 0;
 
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the

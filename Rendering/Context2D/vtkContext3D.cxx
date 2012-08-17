@@ -226,6 +226,22 @@ void vtkContext3D::DrawString(float x, float y, const char* string)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext3D::DrawZAxisLabel(float *point,
+                                  const vtkStdString &string)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  if (string.empty())
+    {
+    return;
+    }
+  this->Device->DrawZAxisLabel(point, string);
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext3D::ComputeStringBounds(const vtkStdString &string,
                                        vtkPoints2D *bounds)
 {

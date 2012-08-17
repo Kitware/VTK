@@ -75,6 +75,12 @@ public:
   // Description:
   // Mouse wheel event. Perform pan or zoom as specified by mouse bindings.
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
+  
+  // Description:
+  // Key press event.  This allows the user to snap the chart to one of three
+  // different 2D views.  "x" changes the view so we're looking down the X axis.
+  // Similar behavior occurs for "y" or "z".
+  virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
   //ETX
 
 protected:
@@ -85,6 +91,12 @@ protected:
   bool Pan(const vtkContextMouseEvent &mouse);
   bool Zoom(const vtkContextMouseEvent &mouse);
   bool Spin(const vtkContextMouseEvent &mouse);
+  void LookDownX();
+  void LookDownY();
+  void LookDownZ();
+  void LookUpX();
+  void LookUpY();
+  void LookUpZ();
 
   vtkNew<vtkTransform> Translation;
   vtkNew<vtkTransform> Scale;

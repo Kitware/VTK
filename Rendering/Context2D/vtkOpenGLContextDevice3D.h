@@ -124,6 +124,7 @@ public:
   void DrawMathTextString(float point[2], const vtkStdString &string);
   void DrawImage(float p[2], float scale, vtkImageData *image);
   void DrawImage(const vtkRectf& pos, vtkImageData *image);
+  void DrawZAxisLabel(float *point,const vtkStdString &string);
 
 protected:
   vtkOpenGLContextDevice3D();

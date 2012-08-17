@@ -20,6 +20,7 @@
 #include "vtkCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
+#include "vtkContextKeyEvent.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkFloatArray.h"
@@ -149,12 +150,12 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   context->DrawLine(vtkVector3f(0, 1, 0), vtkVector3f(0, 1, 1));
   context->DrawLine(vtkVector3f(1, 1, 0), vtkVector3f(1, 1, 1));
 
-  // Now draw the axes labels (currently only X)
+  // Now draw the axes labels
   vtkNew<vtkTextProperty> textProperties;
   textProperties->SetJustificationToLeft();
   textProperties->SetColor(0.0, 0.0, 0.0);
   textProperties->SetFontFamilyToArial();
-  textProperties->SetFontSize(12);
+  textProperties->SetFontSize(14);
   context->ApplyTextProp(textProperties.GetPointer());
 
   float bounds[4];
@@ -163,9 +164,24 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   float scale[3];
   this->Box->GetScale(scale);
 
+  // X axis first
   float xPos = 0.5 - bounds[2] / (scale[0] * 2);
   float yPos = (-bounds[3] - 5) / scale[1];
   context->DrawString(xPos, yPos, this->XAxisLabel);
+  
+  // Y axis next
+  textProperties->SetOrientation(90);
+  context->ApplyTextProp(textProperties.GetPointer());
+  context->ComputeStringBounds(this->YAxisLabel, bounds); 
+  xPos = -5 / scale[0];
+  yPos = 0.5 - bounds[3] / (scale[1] * 2);
+  context->DrawString(xPos, yPos, this->YAxisLabel);
+
+  // Last is Z axis
+  float pos[2];
+  pos[0] = 0;
+  pos[1] = 0;
+  //context->DrawZAxisLabel(pos, this->ZAxisLabel);
 
   context->PopMatrix();
 
@@ -304,7 +320,7 @@ bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse, 
 {
   // Ten "wheels" to double/halve zoom level
   float scaling = pow(2.0f, delta/10.0f);
-  this->Scale->Scale(scaling, scaling, 0.0);
+  this->Scale->Scale(scaling, scaling, scaling);
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
@@ -361,6 +377,7 @@ bool vtkInteractiveChartXYZ::Pan(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkInteractiveChartXYZ::Zoom(const vtkContextMouseEvent &mouse)
 {
+  std::cout << "zooming the natural way" << std::endl;
   // Figure out how much the mouse has moved and scale accordingly
   vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
   vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
@@ -373,7 +390,7 @@ bool vtkInteractiveChartXYZ::Zoom(const vtkContextMouseEvent &mouse)
 
   // Dragging full screen height zooms 4x.
   float scaling = pow(4.0f, delta);
-  this->Scale->Scale(scaling, scaling, 0.0);
+  this->Scale->Scale(scaling, scaling, scaling);
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
@@ -403,6 +420,89 @@ bool vtkInteractiveChartXYZ::Spin(const vtkContextMouseEvent &mouse)
   return true;
 }
 
+//-----------------------------------------------------------------------------
+bool vtkInteractiveChartXYZ::KeyPressEvent(const vtkContextKeyEvent &key)
+{
+  switch (key.GetKeyCode())
+    {
+    // Change view to 2D, YZ chart
+    case 'x':
+      this->LookDownX();
+      break;
+    case 'X':
+      this->LookUpX();
+      break;
+    // Change view to 2D, XZ chart
+    case 'y':
+      this->LookDownY();
+      break;
+    case 'Y':
+      this->LookUpY();
+      break;
+    // Change view to 2D, XY chart
+    case 'z':
+      this->LookDownZ();
+      break;
+    case 'Z':
+      this->LookUpZ();
+      break;
+    }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkInteractiveChartXYZ::LookDownX()
+{
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Rotation->Identity();
+  this->Rotation->RotateY(90.0);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkInteractiveChartXYZ::LookDownY()
+{
+  this->Rotation->Identity();
+  this->Rotation->RotateX(90.0);
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkInteractiveChartXYZ::LookDownZ()
+{
+  this->Rotation->Identity();
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkInteractiveChartXYZ::LookUpX()
+{
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Rotation->Identity();
+  this->Rotation->RotateY(-90.0);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkInteractiveChartXYZ::LookUpY()
+{
+  this->Rotation->Identity();
+  this->Rotation->RotateX(-90.0);
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkInteractiveChartXYZ::LookUpZ()
+{
+  this->Rotation->Identity();
+  this->Rotation->RotateZ(180.0);
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Scene->SetDirty(true);
+}
 
 void vtkInteractiveChartXYZ::CalculateTransforms()
 {

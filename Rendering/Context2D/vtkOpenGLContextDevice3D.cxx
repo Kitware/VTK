@@ -28,6 +28,7 @@
 #include "vtkMathTextUtilities.h"
 #include "vtkStdString.h"
 #include "vtkFreeTypeStringToImage.h"
+#include "vtkTransform.h"
 #include "vtkTexture.h"
 #include "vtkUnicodeString.h"
 #include "vtkWindow.h"
@@ -666,6 +667,70 @@ void vtkOpenGLContextDevice3D::DrawString(float *point,
 
   texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice3D::DrawZAxisLabel(float *point,
+                                              const vtkStdString &string)
+{
+  GLfloat mv[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+  float xScale = mv[0];
+  float yScale = mv[5];
+
+  float p[] = { std::floor(point[0] * xScale) / xScale, std::floor(point[1] * yScale) / yScale };
+ 
+  // Cache rendered text strings
+  vtkTextureImageCache<TextPropertyKey>::CacheData cache =
+    this->Storage->TextTextureCache.GetCacheData(
+      TextPropertyKey(this->TextProp, string));
+  vtkImageData* image = cache.ImageData;
+  if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
+    {
+    if (!this->TextRenderer->RenderString(this->TextProp, string, image))
+      {
+      return;
+      }
+    }
+  vtkTexture* texture = cache.Texture;
+
+
+  vtkNew<vtkTransform> rotateZ;
+  rotateZ->RotateZ(90.0);
+  texture->SetTransform(rotateZ.GetPointer());
+  texture->Render(this->Renderer);
+
+  /*
+  float width = static_cast<float>(image->GetOrigin()[0]) / xScale;
+  float height = static_cast<float>(image->GetOrigin()[1]) / yScale;
+
+  float xw = static_cast<float>(image->GetSpacing()[0]);
+  float xh = static_cast<float>(image->GetSpacing()[1]);
+
+  this->AlignText(this->TextProp->GetOrientation(), width, height, p);
+
+  float points[] = { p[0]        , p[1],
+                     p[0] + width, p[1],
+                     p[0] + width, p[1] + height,
+                     p[0]        , p[1] + height };
+
+  float texCoord[] = { 0.0f, 0.0f,
+                       xw,   0.0f,
+                       xw,   xh,
+                       0.0f, xh };
+
+  glColor4ub(255, 255, 255, 255);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, points);
+  glTexCoordPointer(2, GL_FLOAT, 0, texCoord);
+  glDrawArrays(GL_QUADS, 0, 4);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  */
+
+  texture->PostRender(this->Renderer);
+  //glDisable(GL_TEXTURE_2D);
 }
 
 //-----------------------------------------------------------------------------

@@ -133,6 +133,7 @@ public:
   void DrawString(float x, float y, const vtkUnicodeString &string);
   void DrawString(vtkPoints2D *point, const char* string);
   void DrawString(float x, float y, const char* string);
+  void DrawZAxisLabel(float *point, const vtkStdString &string);
 
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the
