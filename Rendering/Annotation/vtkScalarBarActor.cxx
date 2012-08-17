@@ -809,19 +809,23 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
       // Use the nicely-provided scalar bar position to place
       // the annotated value swatches.
+      double swatchPad;
       if ( this->Orientation == VTK_ORIENT_VERTICAL )
         {
         barWidth = size[0] - 4 - labelSize[0] - 2 * barX;
         barHeight = static_cast<int>(0.86*size[1]) - barY;
         delta = static_cast<double>(barHeight) / numNotes;
+        swatchPad = delta > 16. ? 4. : ( delta / 4. );
+        this->NumberOfAnnotationLabelsBuilt =
+          this->LayoutAnnotationsVertically( barX, barY, barWidth, barHeight, delta, swatchPad );
         for ( i = 0; i < numNotes; ++ i )
           {
           x[0] = barX;
-          x[1] = barY + i * delta + 4; // 4 = swatchPad
+          x[1] = barY + i * delta + swatchPad;
           pts->SetPoint( 4 * i, x );
           x[0] = barX + barWidth;
           pts->SetPoint( 4 * i + 1, x );
-          x[1] += delta - 4 * 2;
+          x[1] += delta - swatchPad * 2;
           pts->SetPoint( 4 * i + 2, x );
           x[0] = barX;
           pts->SetPoint( 4 * i + 3, x );
@@ -832,16 +836,19 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         barWidth = size[0] - 2 * barX;
         barHeight = static_cast<int>( 0.4 * size[1] ) - barY;
         delta = static_cast<double>(barWidth) / numNotes;
+        swatchPad = delta > 16. ? 4. : ( delta / 4. );
+        this->NumberOfAnnotationLabelsBuilt =
+          this->LayoutAnnotationsHorizontally( barX, barY, barWidth, barHeight, delta, swatchPad );
         for ( i = 0; i < numNotes; ++ i )
           {
-          x[0] = barX + i * delta + 4; // 4 = swatchPad;
+          x[0] = barX + i * delta + swatchPad;
           x[1] = barY;
           pts->SetPoint( 4 * i, x );
-          x[0] += delta - 4 * 2;
+          x[0] += delta - swatchPad * 2;
           pts->SetPoint( 4 * i + 1, x );
           x[1] += barHeight;
           pts->SetPoint( 4 * i + 2, x );
-          x[0] -= delta - 4 * 2;
+          x[0] -= delta - swatchPad * 2;
           pts->SetPoint( 4 * i + 3, x );
           }
         }
@@ -876,10 +883,23 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     {
     renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
     }
-  this->ScalarBarActor->RenderOpaqueGeometry(viewport);
-  for (i=0; i<this->NumberOfLabels; i++)
+  // Draw either the scalar bar (non-indexed mode) or the annotated value boxes (indexed mode).
+  vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
+  if ( ! lkup || ( lkup && ! lkup->GetIndexedLookup() ) )
     {
-    renderedSomething += this->TextActors[i]->RenderOpaqueGeometry(viewport);
+    this->ScalarBarActor->RenderOpaqueGeometry(viewport);
+    for (i=0; i<this->NumberOfLabels; i++)
+      {
+      renderedSomething += this->TextActors[i]->RenderOpaqueGeometry(viewport);
+      }
+    }
+  else
+    {
+    this->AnnotationBoxesActor->RenderOpaqueGeometry( viewport );
+    for ( i = 0; i < this->NumberOfAnnotationLabelsBuilt; ++ i )
+      {
+      renderedSomething += this->AnnotationLabels[i]->RenderOpaqueGeometry( viewport );
+      }
     }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
@@ -1139,4 +1159,52 @@ void vtkScalarBarActor::SizeTitle(int *titleSize,
     viewport, targetWidth, targetHeight);
 
   this->TitleMapper->GetSize(viewport, titleSize);
+}
+
+int vtkScalarBarActor::AllocateAndSizeAnnotationLabels( vtkLookupTable* lkup )
+{
+  int numNotes = lkup->GetNumberOfAnnotatedValues();
+  this->AnnotationLabels = new vtkMathTextActor*[ numNotes ];
+  for ( int i = 0; i < numNotes; ++ i )
+    {
+    this->AnnotationLabels[i] = vtkMathTextActor::New();
+    this->AnnotationLabels[i]->GetTextProperty()->ShallowCopy( this->LabelTextProperty );
+    this->AnnotationLabels[i]->SetProperty( this->GetProperty() );
+    this->AnnotationLabels[i]->SetInput( lkup->GetAnnotation( i ).c_str() );
+    this->AnnotationLabels[i]->GetPositionCoordinate()->
+      SetReferenceCoordinate( this->PositionCoordinate );
+    }
+
+  return numNotes;
+}
+
+int vtkScalarBarActor::LayoutAnnotationsVertically(
+  double barX, double barY, double barWidth, double barHeight, double delta, double pad )
+{
+  vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
+  if ( ! lkup )
+    {
+    return 0;
+    }
+
+  int numNotes = this->AllocateAndSizeAnnotationLabels( lkup );
+  for ( int i = 0; i < numNotes; ++ i )
+    {
+    this->AnnotationLabels[i]->GetTextProperty()->SetJustification( VTK_TEXT_RIGHT );
+    this->AnnotationLabels[i]->GetTextProperty()->SetVerticalJustification( VTK_TEXT_CENTERED );
+    this->AnnotationLabels[i]->SetPosition( barX - pad, barY + delta * ( i + 0.5 ) );
+    }
+  return numNotes;
+}
+
+int vtkScalarBarActor::LayoutAnnotationsHorizontally(
+  double barX, double barY, double barWidth, double barHeight, double delta, double pad )
+{
+  vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
+  if ( ! lkup )
+    {
+    return 0;
+    }
+  int numNotes = this->AllocateAndSizeAnnotationLabels( lkup );
+  return numNotes;
 }

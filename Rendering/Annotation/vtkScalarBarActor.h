@@ -56,6 +56,7 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
+class vtkLookupTable;
 class vtkMathTextActor;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
@@ -263,6 +264,10 @@ protected:
   vtkActor2D          *AnnotationLeadersActor;
   vtkMathTextActor   **AnnotationLabels;
   int                  NumberOfAnnotationLabelsBuilt;
+  int AllocateAndSizeAnnotationLabels( vtkLookupTable* lkup );
+  int LayoutAnnotationsVertically( double barX, double barY, double barWidth, double barHeight, double delta, double pad );
+  int LayoutAnnotationsHorizontally( double barX, double barY, double barWidth, double barHeight, double delta, double pad );
+
 
   vtkPolyData         *TexturePolyData;
   vtkTexture          *Texture;
