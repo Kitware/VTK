@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkScalarBarActor - Create a scalar bar with labels
 // .SECTION Description
-// vtkScalarBarActor creates a scalar bar with annotation text. A scalar
+// vtkScalarBarActor creates a scalar bar with tick marks. A scalar
 // bar is a legend that indicates to the viewer the correspondence between
 // color value and data value. The legend consists of a rectangular bar
 // made of rectangular pieces each colored a constant value. Since
@@ -30,14 +30,14 @@
 //
 // Other optional capabilities include specifying the fraction of the
 // viewport size (both x and y directions) which will control the size
-// of the scalar bar and the number of annotation labels. The actual position
+// of the scalar bar and the number of tick labels. The actual position
 // of the scalar bar on the screen is controlled by using the
 // vtkActor2D::SetPosition() method (by default the scalar bar is
 // centered in the viewport).  Other features include the ability to
 // orient the scalar bar horizontally of vertically and controlling
 // the format (printf style) with which to print the labels on the
 // scalar bar. Also, the vtkScalarBarActor's property is applied to
-// the scalar bar and annotation (including layer, and
+// the scalar bar and annotations (including layer, and
 // compositing operator).
 //
 // Set the text property/attributes of the title and the labels through the
@@ -120,7 +120,7 @@ public:
   vtkGetMacro(MaximumNumberOfColors, int);
 
   // Description:
-  // Set/Get the number of annotation labels to show.
+  // Set/Get the number of tick labels to show.
   vtkSetClampMacro(NumberOfLabels, int, 0, 64);
   vtkGetMacro(NumberOfLabels, int);
 
