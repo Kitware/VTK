@@ -30,6 +30,7 @@
 #include "vtkTexture.h"
 #include "vtkImageData.h"
 #include "vtkRenderer.h"
+#include "vtkMathTextActor.h"
 #include "vtkProperty2D.h"
 
 vtkStandardNewMacro(vtkScalarBarActor);
@@ -92,6 +93,23 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->LastOrigin[1] = 0;
   this->LastSize[0] = 0;
   this->LastSize[1] = 0;
+
+  this->AnnotationBoxes = vtkPolyData::New();
+  this->AnnotationBoxesMapper = vtkPolyDataMapper2D::New();
+  this->AnnotationBoxesActor = vtkActor2D::New();
+  this->AnnotationBoxesMapper->SetInputData( this->AnnotationBoxes );
+  this->AnnotationBoxesActor->SetMapper( this->AnnotationBoxesMapper );
+  this->AnnotationBoxesActor->GetPositionCoordinate()->
+    SetReferenceCoordinate( this->PositionCoordinate );
+  this->AnnotationLeaders = vtkPolyData::New();
+  this->AnnotationLeadersMapper = vtkPolyDataMapper2D::New();
+  this->AnnotationLeadersActor = vtkActor2D::New();
+  this->AnnotationLeadersMapper->SetInputData( this->AnnotationLeaders );
+  this->AnnotationLeadersActor->SetMapper( this->AnnotationLeadersMapper );
+  this->AnnotationLeadersActor->GetPositionCoordinate()->
+    SetReferenceCoordinate( this->PositionCoordinate );
+  this->AnnotationLabels = 0; // Can't allocate until we have a lookup table.
+  this->NumberOfAnnotationLabelsBuilt = 0;
 
   // If opacity is on, a jail like texture is displayed behind it..
 
@@ -194,7 +212,16 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow *win)
       this->TextActors[i]->ReleaseGraphicsResources(win);
       }
     }
+  if ( this->AnnotationLabels != NULL )
+    {
+    for ( int i = 0; i < this->NumberOfAnnotationLabelsBuilt; ++ i )
+      {
+      this->AnnotationLabels[i]->ReleaseGraphicsResources(win);
+      }
+    }
   this->ScalarBarActor->ReleaseGraphicsResources(win);
+  this->AnnotationBoxesActor->ReleaseGraphicsResources(win);
+  this->AnnotationLeadersActor->ReleaseGraphicsResources(win);
   this->BackgroundActor->ReleaseGraphicsResources(win);
   this->FrameActor->ReleaseGraphicsResources(win);
 }
@@ -222,9 +249,26 @@ vtkScalarBarActor::~vtkScalarBarActor()
     delete [] this->TextActors;
     }
 
+  if ( this->AnnotationLabels != NULL )
+    {
+    for ( int i = 0; i < this->NumberOfAnnotationLabelsBuilt; ++ i )
+      {
+      this->AnnotationLabels[i]->Delete();
+      }
+    delete [] this->AnnotationLabels;
+    }
+
   this->ScalarBar->Delete();
   this->ScalarBarMapper->Delete();
   this->ScalarBarActor->Delete();
+
+  this->AnnotationBoxes->Delete();
+  this->AnnotationBoxesMapper->Delete();
+  this->AnnotationBoxesActor->Delete();
+
+  this->AnnotationLeaders->Delete();
+  this->AnnotationLeadersMapper->Delete();
+  this->AnnotationLeadersActor->Delete();
 
   if (this->Title)
     {
@@ -281,20 +325,41 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
     {
     renderedSomething += this->TitleActor->RenderOverlay(viewport);
     }
-  this->ScalarBarActor->RenderOverlay(viewport);
-  if( this->TextActors == NULL)
+
+  // Draw either the scalar bar (non-indexed mode) or the annotated value boxes (indexed mode).
+  vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
+  if ( ! lkup || ( lkup && ! lkup->GetIndexedLookup() ) )
     {
-     vtkWarningMacro(<<"Need a mapper to render a scalar bar");
-     return renderedSomething;
+    this->ScalarBarActor->RenderOverlay(viewport);
+
+    if( this->TextActors == NULL)
+      {
+      vtkWarningMacro(<<"Need a mapper to render a scalar bar");
+      return renderedSomething;
+      }
+
+    for (i=0; i<this->NumberOfLabels; i++)
+      {
+      renderedSomething += this->TextActors[i]->RenderOverlay(viewport);
+      }
+    }
+  else
+    {
+    this->AnnotationBoxesActor->RenderOverlay(viewport);
     }
 
-  for (i=0; i<this->NumberOfLabels; i++)
+  if ( this->AnnotationLabels == NULL && this->NumberOfAnnotationLabelsBuilt )
     {
-    renderedSomething += this->TextActors[i]->RenderOverlay(viewport);
+    vtkWarningMacro(<<"Need a mapper to render the scalar bar");
+    return renderedSomething;
+    }
+
+  for ( i = 0; i < this->NumberOfAnnotationLabelsBuilt; ++ i )
+    {
+    renderedSomething += this->AnnotationLabels[i]->RenderOverlay( viewport );
     }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
-
   return renderedSomething;
 }
 
@@ -380,9 +445,21 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       delete [] this->TextActors;
       }
 
+    if ( this->AnnotationLabels != NULL )
+      {
+      for ( i = 0; i < this->NumberOfAnnotationLabelsBuilt; ++ i )
+        {
+        this->AnnotationLabels[i]->Delete();
+        }
+      delete [] this->AnnotationLabels;
+      this->AnnotationLabels = 0;
+      }
+
     // Build scalar bar object; determine its type
-    // i.e. has scale set to log
+    // i.e. is scale set to log, is categorical or continuous?
     int isLogTable = this->LookupTable->UsingLogScale();
+    vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
+    int isCategorical = lkup && lkup->GetIndexedLookup();
 
     // we hard code how many steps to display
     vtkScalarsToColors *lut = this->LookupTable;
@@ -708,9 +785,91 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
                   barHeight / this->TextureGridWidth);
     tc->SetTuple2(3, 0.0, barHeight / this->TextureGridWidth);
 
+    if ( isCategorical )
+      {
+      // this->ScalarBar will not be drawn; instead, draw padded boxes
+      // and leaders to labels for each annotated value.
+      // Since labels are user-provided, we render with vtkMathTextActor to allow fancy-ness.
+      int numNotes = lkup->GetNumberOfAnnotatedValues();
+      int numPts = 4 * numNotes; // 2 triangles per annotation: half-opaque, half-translucent.
+      pts = vtkPoints::New();
+      pts->SetNumberOfPoints( numPts );
+      polys = vtkCellArray::New();
+      polys->Allocate( polys->EstimateSize( 2 * numNotes, 3 ) );
+      colors = vtkUnsignedCharArray::New();
+      colors->SetNumberOfComponents( 4 ); // RGBA
+      colors->SetNumberOfTuples( 2 * numNotes );
+
+      this->AnnotationBoxes->Initialize();
+      this->AnnotationBoxes->SetPoints(pts);
+      this->AnnotationBoxes->SetPolys(polys);
+      this->AnnotationBoxes->GetCellData()->SetScalars( colors );
+      //this->AnnotationBoxes->SetProperty( this->GetProperty() );
+      pts->Delete(); polys->Delete(); colors->Delete();
+
+      // Use the nicely-provided scalar bar position to place
+      // the annotated value swatches.
+      if ( this->Orientation == VTK_ORIENT_VERTICAL )
+        {
+        barWidth = size[0] - 4 - labelSize[0] - 2 * barX;
+        barHeight = static_cast<int>(0.86*size[1]) - barY;
+        delta = static_cast<double>(barHeight) / numNotes;
+        for ( i = 0; i < numNotes; ++ i )
+          {
+          x[0] = barX;
+          x[1] = barY + i * delta + 4; // 4 = swatchPad
+          pts->SetPoint( 4 * i, x );
+          x[0] = barX + barWidth;
+          pts->SetPoint( 4 * i + 1, x );
+          x[1] += delta - 4 * 2;
+          pts->SetPoint( 4 * i + 2, x );
+          x[0] = barX;
+          pts->SetPoint( 4 * i + 3, x );
+          }
+        }
+      else
+        {
+        barWidth = size[0] - 2 * barX;
+        barHeight = static_cast<int>( 0.4 * size[1] ) - barY;
+        delta = static_cast<double>(barWidth) / numNotes;
+        for ( i = 0; i < numNotes; ++ i )
+          {
+          x[0] = barX + i * delta + 4; // 4 = swatchPad;
+          x[1] = barY;
+          pts->SetPoint( 4 * i, x );
+          x[0] += delta - 4 * 2;
+          pts->SetPoint( 4 * i + 1, x );
+          x[1] += barHeight;
+          pts->SetPoint( 4 * i + 2, x );
+          x[0] -= delta - 4 * 2;
+          pts->SetPoint( 4 * i + 3, x );
+          }
+        }
+      for ( i = 0; i < numNotes; ++ i )
+        {
+        ptIds[0] = 4 * i;
+        ptIds[1] = ptIds[0] + 1;
+        ptIds[2] = ptIds[0] + 2;
+        polys->InsertNextCell( 3, ptIds );
+
+        ptIds[1] = ptIds[2];
+        ptIds[2] = ptIds[0] + 3;
+        polys->InsertNextCell( 3, ptIds );
+
+        // We could just call lkup->GetTableValue( i % lkup->GetNumberOfTableValues() ), but
+        // that would draw colors even when an annotation did not have a valid conversion to/from a double...
+        rgba = lkup->MapValue( lkup->GetAnnotatedValue( i ).ToDouble() );
+        rgb = colors->GetPointer( /* numComponents */ 4 * /* numCells/swatch */ 2 * /* swatch */ i ); //write into array directly
+        rgb[0] = rgba[0]; rgb[1] = rgba[1]; rgb[2] = rgba[2]; rgb[3] = rgba[3];
+        rgb[4] = rgba[0]; rgb[5] = rgba[1]; rgb[6] = rgba[2]; rgb[7] = 255; // second triangle is always opaque
+        }
+      //vtkIndent foo;
+      //pts->PrintSelf( cout, foo );
+      //polys->PrintSelf( cout, foo );
+      //colors->PrintSelf( cout, foo );
+      }
     this->BuildTime.Modified();
     }
-
 
   // Everything is built, just have to render
   if (this->Title != NULL)

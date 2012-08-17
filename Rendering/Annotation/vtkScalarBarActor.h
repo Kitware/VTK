@@ -56,6 +56,7 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
+class vtkMathTextActor;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkProperty2D;
@@ -253,6 +254,15 @@ protected:
   vtkPolyData         *ScalarBar;
   vtkPolyDataMapper2D *ScalarBarMapper;
   vtkActor2D          *ScalarBarActor;
+
+  vtkPolyData         *AnnotationBoxes;
+  vtkPolyDataMapper2D *AnnotationBoxesMapper;
+  vtkActor2D          *AnnotationBoxesActor;
+  vtkPolyData         *AnnotationLeaders;
+  vtkPolyDataMapper2D *AnnotationLeadersMapper;
+  vtkActor2D          *AnnotationLeadersActor;
+  vtkMathTextActor   **AnnotationLabels;
+  int                  NumberOfAnnotationLabelsBuilt;
 
   vtkPolyData         *TexturePolyData;
   vtkTexture          *Texture;
