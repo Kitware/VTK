@@ -1187,12 +1187,42 @@ int vtkScalarBarActor::LayoutAnnotationsVertically(
     return 0;
     }
 
+#define VTK_ANN_VLAYOUT(j,dir,delt) \
+    ctr = barY + delta * ( j + 0.5 ); \
+    bds = this->AnnotationLabels[j]->GetBounds(); \
+    hh = ( bds[3] - bds[2] + pad ) / 2.; /* label half-height, including padding */ \
+    if ( ( dir < 0 && ctr + hh > dnCum ) || ( dir > 0 && ctr - hh < upCum ) ) \
+      ctr = delt + dir * hh; \
+    this->AnnotationLabels[j]->GetTextProperty()->SetJustification( \
+      this->TextPosition == PrecedeScalarBar ? VTK_TEXT_LEFT : VTK_TEXT_RIGHT ); \
+    this->AnnotationLabels[j]->GetTextProperty()->SetVerticalJustification( VTK_TEXT_CENTERED ); \
+    this->AnnotationLabels[j]->SetPosition( barX - pad, ctr ); \
+    delt = ( dir <= 0 ? ctr - hh : ctr + hh );
+
   int numNotes = this->AllocateAndSizeAnnotationLabels( lkup );
-  for ( int i = 0; i < numNotes; ++ i )
+  // Start at the center and move outward (both up and down), accumulating label heights as we go.
+  int ic = numNotes / 2;
+  int dn, up;
+  double dnCum, upCum, ctr, hh;
+  double* bds;
+  if ( 2 * ic == numNotes )
     {
-    this->AnnotationLabels[i]->GetTextProperty()->SetJustification( VTK_TEXT_RIGHT );
-    this->AnnotationLabels[i]->GetTextProperty()->SetVerticalJustification( VTK_TEXT_CENTERED );
-    this->AnnotationLabels[i]->SetPosition( barX - pad, barY + delta * ( i + 0.5 ) );
+    dn = ic;
+    up = ic + 1;
+    dnCum = upCum = 0.;
+    }
+  else
+    {
+    dn = ic - 1;
+    up = ic + 1;
+    ctr = barY + delta * ( ic + 0.5 );
+    VTK_ANN_VLAYOUT(ic,0,dnCum);
+    upCum = ctr + hh;
+    }
+  for ( ; dn >= 0; -- dn, ++ up )
+    {
+    VTK_ANN_VLAYOUT(dn,-1,dnCum);
+    VTK_ANN_VLAYOUT(up,+1,upCum);
     }
   return numNotes;
 }
