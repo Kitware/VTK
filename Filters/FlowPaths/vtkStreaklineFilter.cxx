@@ -65,7 +65,6 @@ void StreaklineFilterInternal::Initialize(vtkParticleTracerBase* filter)
   this->Filter = filter;
   this->Filter->ForceReinjectionEveryNSteps = 1;
   this->Filter->IgnorePipelineTime = 1;
-  this->Filter->ForceReinjectionAtTermination = true;
 }
 
 int StreaklineFilterInternal::OutputParticles(vtkPolyData* particles)

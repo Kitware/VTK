@@ -113,7 +113,7 @@ vtkBoostBreadthFirstSearch::~vtkBoostBreadthFirstSearch()
 
 void vtkBoostBreadthFirstSearch::SetOriginSelection(vtkSelection* s)
 {
-  this->SetOriginSelection(s);
+  this->SetInputData(1, s);
 }
 
 // Description:
