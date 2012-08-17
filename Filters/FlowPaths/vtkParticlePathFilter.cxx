@@ -25,7 +25,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFloatArray.h"
 
 #include <vector>
-#include <assert.h>
 
 vtkObjectFactoryNewMacro(vtkParticlePathFilter)
 
@@ -56,9 +55,7 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
     return 0;
     }
 
-  assert(particles->GetPointData()->GetNumberOfArrays()==this->Filter->Output->GetPointData()->GetNumberOfArrays());
   vtkPointData* outPd = this->Filter->Output->GetPointData();
-  vtkFloatArray* outParticleAge = vtkFloatArray::SafeDownCast(outPd->GetArray("ParticleAge"));
   vtkPoints* outPoints = this->Filter->Output->GetPoints();
 
   //Get the input arrays
@@ -77,8 +74,6 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
     {
     outPd->CopyData(ptList,pd,0,i,j);
     }
-  assert(outPoints->GetNumberOfPoints()==outParticleAge->GetNumberOfTuples());
-
 
   //Augment the paths
   for(vtkIdType i=0; i<pts->GetNumberOfPoints(); i++)
@@ -95,12 +90,13 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
 
     if(path->GetNumberOfIds()>0)
       {
-      //float lastAge = outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1));
-      //float thisAge = outParticleAge->GetValue(outId);
-      assert(outParticleAge->GetValue(outId) //thisAge
-             >=
-             outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1))//lastAge
-             ); //if not, we will have to sort
+      vtkFloatArray* outParticleAge = vtkFloatArray::SafeDownCast(outPd->GetArray("ParticleAge"));
+      if(outParticleAge->GetValue(outId) < outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1)))
+        {
+        vtkOStrStreamWrapper vtkmsg;
+        vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__
+               << "\n" << "): " <<" new particles have wrong ages"<< "\n\n";
+        }
       }
     path->InsertNextId(outId);
     }
@@ -111,8 +107,13 @@ void ParticlePathFilterInternal::Finalize()
 {
   this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
   vtkCellArray* outLines = this->Filter->Output->GetLines();
-  assert(outLines);
-
+  if(!outLines)
+    {
+    vtkOStrStreamWrapper vtkmsg;
+    vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__
+           << "\n" << "): " <<" no lines in the output"<< "\n\n";
+    return;
+    }
   for(unsigned int i=0; i<this->Paths.size(); i++)
     {
     if(this->Paths[i]->GetNumberOfIds()>1)

@@ -112,7 +112,8 @@ public:
   // Compute the bounds of the supplied string. The bounds will be copied to the
   // supplied bounds variable, the first two elements are the bottom corner of
   // the string, and the second two elements are the width and height of the
-  // bounding box.
+  // bounding box. An empty bounding box (0, 0, 0, 0) is returned for an
+  // empty string or string with only characters that cannot be rendered.
   // NOTE: This function does not take account of the text rotation.
   virtual void ComputeStringBounds(const vtkStdString &string,
                                    float bounds[4]);
@@ -125,7 +126,8 @@ public:
   // Compute the bounds of the supplied string. The bounds will be copied to the
   // supplied bounds variable, the first two elements are the bottom corner of
   // the string, and the second two elements are the width and height of the
-  // bounding box.
+  // bounding box. An empty bounding box (0, 0, 0, 0) is returned for an
+  // empty string or string with only characters that cannot be rendered.
   // NOTE: This function does not take account of the text rotation.
   virtual void ComputeStringBounds(const vtkUnicodeString &string,
                                    float bounds[4]);

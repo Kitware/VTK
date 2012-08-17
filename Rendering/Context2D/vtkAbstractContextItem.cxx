@@ -221,7 +221,7 @@ vtkVector2f vtkAbstractContextItem::MapToScene(const vtkVector2f& point)
     }
   else
     {
-    return point;
+    return this->MapToParent(point);
     }
 }
 
@@ -236,7 +236,7 @@ vtkVector2f vtkAbstractContextItem::MapFromScene(const vtkVector2f& point)
     }
   else
     {
-    return point;
+    return this->MapFromParent(point);
     }
 }
 

@@ -505,11 +505,8 @@ int TestGhostStripping(
   return( rc );
 }
 //------------------------------------------------------------------------------
-int TestAMRGhostLayerStripping(int argc, char *argv[])
+int TestAMRGhostLayerStripping(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
-  // Get rid of compiler warnings on unused vars
-  argc = argc; argv = argv;
-
   int rc   = 0;
   int DIM0 = 2;
   int NDIM = 3;

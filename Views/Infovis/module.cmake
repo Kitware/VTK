@@ -13,4 +13,5 @@ vtk_module(vtkViewsInfovis
     vtkTestingRendering
     vtkIOInfovis
     vtkIOSQL
+    vtkRenderingFreeTypeOpenGL
   )

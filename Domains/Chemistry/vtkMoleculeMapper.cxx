@@ -492,6 +492,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   vtkVector3f delta;
   // The initial displacement when generating a multibond
   vtkVector3f initialDisp;
+  initialDisp.Set(0.0, 0.0, 0.0);
   // The geometric center of the bond
   vtkVector3f bondCenter;
   // The center of the current cylinder

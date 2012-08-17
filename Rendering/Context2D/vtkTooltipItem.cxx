@@ -20,6 +20,7 @@
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
+#include "vtkTransform2D.h"
 
 #include "vtkStdString.h"
 #include "vtksys/ios/sstream"
@@ -106,17 +107,27 @@ bool vtkTooltipItem::Paint(vtkContext2D *painter)
   // Compute the bounds, then make a few adjustments to the size we will use
   vtkVector2f bounds[2];
   painter->ComputeStringBounds(this->Text, bounds[0].GetData());
-  bounds[0] = vtkVector2f(this->PositionVector.X()-5,
-                          this->PositionVector.Y()-3);
-  bounds[1].Set(bounds[1].X()+10, bounds[1].Y()+10);
-  // Pull the tooltip back in if it will go off the edge of the screen.
-  if (int(bounds[0].X()+bounds[1].X()) >= this->Scene->GetViewWidth())
+  if (bounds[1].X() == 0.0f && bounds[1].Y() == 0.0f)
     {
-    bounds[0].SetX(this->Scene->GetViewWidth()-bounds[1].X());
+    // This signals only non-renderable characters, so return
+    return false;
+    }
+  float scale[2];
+  float position[2];
+  painter->GetTransform()->GetScale(scale);
+  painter->GetTransform()->GetPosition(position);
+  bounds[0] = vtkVector2f(this->PositionVector.X()-5/scale[0],
+                          this->PositionVector.Y()-3/scale[1]);
+  bounds[1].Set(bounds[1].X()+10/scale[0], bounds[1].Y()+10/scale[1]);
+  // Pull the tooltip back in if it will go off the edge of the screen.
+  float maxX = (this->Scene->GetViewWidth() - position[0])/scale[0];
+  if (bounds[0].X() >= maxX - bounds[1].X())
+    {
+    bounds[0].SetX(maxX - bounds[1].X());
     }
   // Draw a rectangle as background, and then center our text in there
   painter->DrawRect(bounds[0].X(), bounds[0].Y(), bounds[1].X(), bounds[1].Y());
-  painter->DrawString(bounds[0].X()+5, bounds[0].Y()+3, this->Text);
+  painter->DrawString(bounds[0].X()+5/scale[0], bounds[0].Y()+3/scale[1], this->Text);
 
   return true;
 }

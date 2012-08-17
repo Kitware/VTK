@@ -126,6 +126,9 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
     glEnable(GL_POLYGON_SMOOTH);
     }
 
+  // Make sure we are on the default texture setting
+  glBindTexture(GL_TEXTURE_2D, 0);
+
   this->InRender = true;
 }
 
@@ -727,7 +730,13 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
 void vtkOpenGLContextDevice2D::DrawString(float *point,
                                           const vtkStdString &string)
 {
-  float p[] = { std::floor(point[0]), std::floor(point[1]) };
+  GLfloat mv[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+  float xScale = mv[0];
+  float yScale = mv[5];
+
+  float p[] = { std::floor(point[0] * xScale) / xScale,
+                std::floor(point[1] * yScale) / yScale };
 
   // Cache rendered text strings
   vtkTextureImageCache<TextPropertyKey>::CacheData cache =
@@ -744,8 +753,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   vtkTexture* texture = cache.Texture;
   texture->Render(this->Renderer);
 
-  float width = static_cast<float>(image->GetOrigin()[0]);
-  float height = static_cast<float>(image->GetOrigin()[1]);
+  float width = static_cast<float>(image->GetOrigin()[0]) / xScale;
+  float height = static_cast<float>(image->GetOrigin()[1]) / yScale;
 
   float xw = static_cast<float>(image->GetSpacing()[0]);
   float xh = static_cast<float>(image->GetSpacing()[1]);
@@ -780,10 +789,24 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
                                                    float bounds[4])
 {
   vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string);
+  // Check for invalid bounding box
+  if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
+      box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)
+    {
+    bounds[0] = static_cast<float>(0);
+    bounds[1] = static_cast<float>(0);
+    bounds[2] = static_cast<float>(0);
+    bounds[3] = static_cast<float>(0);
+    return;
+    }
+  GLfloat mv[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+  float xScale = mv[0];
+  float yScale = mv[5];
   bounds[0] = static_cast<float>(0);
   bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.X());
-  bounds[3] = static_cast<float>(box.Y());
+  bounds[2] = static_cast<float>(box.X() / xScale);
+  bounds[3] = static_cast<float>(box.Y() / yScale);
 }
 
 //-----------------------------------------------------------------------------
@@ -807,10 +830,24 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &strin
                                                    float bounds[4])
 {
   vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string);
+  // Check for invalid bounding box
+  if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
+      box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)
+    {
+    bounds[0] = static_cast<float>(0);
+    bounds[1] = static_cast<float>(0);
+    bounds[2] = static_cast<float>(0);
+    bounds[3] = static_cast<float>(0);
+    return;
+    }
+  GLfloat mv[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+  float xScale = mv[0];
+  float yScale = mv[5];
   bounds[0] = static_cast<float>(0);
   bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.X());
-  bounds[3] = static_cast<float>(box.Y());
+  bounds[2] = static_cast<float>(box.X() / xScale);
+  bounds[3] = static_cast<float>(box.Y() / yScale);
 }
 
 //-----------------------------------------------------------------------------

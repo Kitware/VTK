@@ -147,102 +147,13 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
         }
     }
 
-"void"{PS}"("{PS}"*"{ID}{PS}")"{PS}"("{PS}"void"{PS}"*"{PS}")" {
-      size_t i = 0; size_t j = 0;
-      while (yytext[j] != '*') { i++; j++; }
-      i++; j++;
-      while (yytext[i] != ' ' && yytext[i] != '\t' &&
-             yytext[i] != '\n' && yytext[i] != '\r' && yytext[i] != ')') {i++;}
-      yylval.str = vtkstrndup(&yytext[j], i-j);
-      return(VAR_FUNCTION);
-    }
-
-"long"{WS}"double"                       return(LONG_DOUBLE);
-"double"                                 return(DOUBLE);
-"float"                                  return(FLOAT);
-
-"unsigned"{WS}"__int64"                  return(UNSIGNED_INT64__);
-"__int64"{WS}"unsigned"                  return(UNSIGNED_INT64__);
-
-"signed"{WS}"__int64"                    return(INT64__);
-"__int64"{WS}"signed"                    return(INT64__);
-"__int64"                                return(INT64__);
-
-"int"{WS}"unsigned"{WS}"long"{WS}"long"  return(UNSIGNED_LONG_LONG);
-"unsigned"{WS}"int"{WS}"long"{WS}"long"  return(UNSIGNED_LONG_LONG);
-"long"{WS}"long"{WS}"unsigned"{WS}"int"  return(UNSIGNED_LONG_LONG);
-"long"{WS}"long"{WS}"int"{WS}"unsigned"  return(UNSIGNED_LONG_LONG);
-"int"{WS}"long"{WS}"long"{WS}"unsigned"  return(UNSIGNED_LONG_LONG);
-"unsigned"{WS}"long"{WS}"long"{WS}"int"  return(UNSIGNED_LONG_LONG);
-"unsigned"{WS}"long"{WS}"long"           return(UNSIGNED_LONG_LONG);
-"long"{WS}"long"{WS}"unsigned"           return(UNSIGNED_LONG_LONG);
-
-"int"{WS}"signed"{WS}"long"{WS}"long"    return(LONG_LONG);
-"signed"{WS}"int"{WS}"long"{WS}"long"    return(LONG_LONG);
-"long"{WS}"long"{WS}"signed"{WS}"int"    return(LONG_LONG);
-"long"{WS}"long"{WS}"int"{WS}"signed"    return(LONG_LONG);
-"int"{WS}"long"{WS}"long"{WS}"signed"    return(LONG_LONG);
-"signed"{WS}"long"{WS}"long"{WS}"int"    return(LONG_LONG);
-"signed"{WS}"long"{WS}"long"             return(LONG_LONG);
-"long"{WS}"long"{WS}"signed"             return(LONG_LONG);
-"int"{WS}"long"{WS}"long"                return(LONG_LONG);
-"long"{WS}"long"{WS}"int"                return(LONG_LONG);
-"long"{WS}"long"                         return(LONG_LONG);
-
-"int"{WS}"unsigned"{WS}"short"           return(UNSIGNED_SHORT);
-"unsigned"{WS}"int"{WS}"short"           return(UNSIGNED_SHORT);
-"short"{WS}"unsigned"{WS}"int"           return(UNSIGNED_SHORT);
-"short"{WS}"int"{WS}"unsigned"           return(UNSIGNED_SHORT);
-"int"{WS}"short"{WS}"unsigned"           return(UNSIGNED_SHORT);
-"unsigned"{WS}"short"{WS}"int"           return(UNSIGNED_SHORT);
-"unsigned"{WS}"short"                    return(UNSIGNED_SHORT);
-"short"{WS}"unsigned"                    return(UNSIGNED_SHORT);
-
-"int"{WS}"signed"{WS}"short"             return(SHORT);
-"signed"{WS}"int"{WS}"short"             return(SHORT);
-"short"{WS}"signed"{WS}"int"             return(SHORT);
-"short"{WS}"int"{WS}"signed"             return(SHORT);
-"int"{WS}"short"{WS}"signed"             return(SHORT);
-"signed"{WS}"short"{WS}"int"             return(SHORT);
-"signed"{WS}"short"                      return(SHORT);
-"short"{WS}"signed"                      return(SHORT);
-"int"{WS}"short"                         return(SHORT);
-"short"{WS}"int"                         return(SHORT);
-"short"                                  return(SHORT);
-
-"int"{WS}"unsigned"{WS}"long"            return(UNSIGNED_LONG);
-"unsigned"{WS}"int"{WS}"long"            return(UNSIGNED_LONG);
-"long"{WS}"unsigned"{WS}"int"            return(UNSIGNED_LONG);
-"long"{WS}"int"{WS}"unsigned"            return(UNSIGNED_LONG);
-"int"{WS}"long"{WS}"unsigned"            return(UNSIGNED_LONG);
-"unsigned"{WS}"long"{WS}"int"            return(UNSIGNED_LONG);
-"unsigned"{WS}"long"                     return(UNSIGNED_LONG);
-"long"{WS}"unsigned"                     return(UNSIGNED_LONG);
-
-"int"{WS}"signed"{WS}"long"              return(LONG);
-"signed"{WS}"int"{WS}"long"              return(LONG);
-"long"{WS}"signed"{WS}"int"              return(LONG);
-"long"{WS}"int"{WS}"signed"              return(LONG);
-"int"{WS}"long"{WS}"signed"              return(LONG);
-"signed"{WS}"long"{WS}"int"              return(LONG);
-"signed"{WS}"long"                       return(LONG);
-"long"{WS}"signed"                       return(LONG);
-"int"{WS}"long"                          return(LONG);
-"long"{WS}"int"                          return(LONG);
-"long"                                   return(LONG);
-
-"unsigned"{WS}"char"                     return(UNSIGNED_CHAR);
-"char"{WS}"unsigned"                     return(UNSIGNED_CHAR);
-"char"{WS}"signed"                       return(SIGNED_CHAR);
-"signed"{WS}"char"                       return(SIGNED_CHAR);
-"char"                                   return(CHAR);
-
-"unsigned"{WS}"int"                      return(UNSIGNED_INT);
-"int"{WS}"unsigned"                      return(UNSIGNED_INT);
-
-"signed"{WS}"int"                        return(INT);
-"int"{WS}"signed"                        return(INT);
-"int"                                    return(INT);
+"double"        return(DOUBLE);
+"float"         return(FLOAT);
+"__int64"       return(INT64__);
+"short"         return(SHORT);
+"long"          return(LONG);
+"char"          return(CHAR);
+"int"           return(INT);
 
 "unsigned"      return(UNSIGNED);
 "signed"        return(SIGNED);
@@ -268,6 +179,7 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "union"         return(UNION);
 "virtual"       return(VIRTUAL);
 "const"         return(CONST);
+"volatile"      return(VOLATILE);
 "mutable"       return(MUTABLE);
 "operator"      return(OPERATOR);
 "friend"        return(FRIEND);
@@ -291,7 +203,6 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 
 "auto"          /* irrelevant to wrappers */
 "register"      /* irrelevant to wrappers */
-"volatile"      /* irrelevant to wrappers */
 
 "and"           return(OP_LOGIC_AND);
 "and_eq"        return(OP_AND_EQ);
@@ -1374,11 +1285,11 @@ void preprocessor_directive(const char *text, size_t l)
     MacroInfo *macro;
 
     macro = vtkParsePreprocess_GetMacro(preprocessor, cp);
-    if (macro && !macro->IsFunction)
+    if (macro && macro->Definition && !macro->IsFunction)
       {
       /* if macro evaluates to a constant, add it as a constant */
       macro->IsExcluded = 1;
-      if (macro->Definition && guess_constant_type(macro->Definition) == 0)
+      if (guess_constant_type(macro->Definition) == 0)
         {
         result = VTK_PARSE_MACRO_UNDEFINED;
         }
@@ -1386,7 +1297,7 @@ void preprocessor_directive(const char *text, size_t l)
       if (result < VTK_PARSE_MACRO_UNDEFINED)
         {
         add_constant(
-          macro->Name, vtkstrdup(macro->Definition), 0, NULL, 1);
+          vtkstrdup(macro->Name), vtkstrdup(macro->Definition), 0, NULL, 1);
         }
       }
     }

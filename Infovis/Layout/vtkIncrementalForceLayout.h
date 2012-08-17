@@ -48,7 +48,7 @@ public:
   // Description:
   // Set the id of the vertex that will not move during the simulation.
   // Set to -1 to allow all the vertices to move.
-  vtkSetMacro(Fixed, vtkIdType);
+  virtual void SetFixed(vtkIdType fixed);
   vtkGetMacro(Fixed, vtkIdType);
 
   // Description:

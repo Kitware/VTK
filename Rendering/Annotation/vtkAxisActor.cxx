@@ -1665,6 +1665,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
   double deltaVector[3];
   double axisLength, axisShift, rangeScale, nbIterationAsDouble;
   int nbTicks, i, nbIteration, uIndex, vIndex;
+  uIndex = vIndex = 0;
   bool hasOrthogonalVectorBase =
       (this->AxisBaseForX[0] == 1 && this->AxisBaseForX[1] == 0 && this->AxisBaseForX[2] == 0
        && this->AxisBaseForY[0] == 0 && this->AxisBaseForY[1] == 1 && this->AxisBaseForY[2] == 0
@@ -1681,7 +1682,9 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
   // axis, we will convert the absolut XYZ information to relative one
   // using a base composed as follow (axis, u, v)
   double uGridLength, vGridLength;
+  uGridLength = vGridLength = 0;
   double *axisVector, *uVector, *vVector;
+  axisVector = uVector = vVector = NULL;
   int uMult = vtkAxisActorMultiplierTable1[this->AxisPosition];
   int vMult = vtkAxisActorMultiplierTable2[this->AxisPosition];
 
