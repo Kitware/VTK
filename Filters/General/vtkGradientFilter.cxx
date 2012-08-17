@@ -123,7 +123,7 @@ namespace
       vtkCell* cell = grid->GetCell(index);
       double pcoords[3];
       int subId = cell->GetParametricCenter(pcoords);
-      std::vector<double> weights(cell->GetNumberOfPoints());
+      std::vector<double> weights(cell->GetNumberOfPoints()+1);
       cell->EvaluateLocation(subId, pcoords, coords, &weights[0]);
       }
   }
