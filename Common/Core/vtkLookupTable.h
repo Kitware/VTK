@@ -30,8 +30,8 @@
 // values are the only valid values for which entries in the color table
 // should be returned. The colors in the lookup \a Table are assigned
 // to annotated values by taking the modulus of their index in the list
-// of annotations. While \a IndexedLookup does not change the behavior of
-// \a GetIndex, it does change the way \a MapScalarsThroughTable2 behaves;
+// of annotations. \a IndexedLookup changes the behavior of \a GetIndex,
+// which in turn changes the way \a MapScalarsThroughTable2 behaves;
 // when \a IndexedLookup is true, \a MapScalarsThroughTable2 will search for
 // scalar values in \a AnnotatedValues and use the resulting index to
 // determine the color. If a scalar value is not present in \a AnnotatedValues,
@@ -299,7 +299,7 @@ public:
   virtual vtkIdType SetAnnotation( vtkVariant value, vtkStdString annotation );
 
   /// Return the annotated value at a particular index in the list of annotations.
-  vtkVariant GetNumberOfAnnotatedValues();
+  vtkIdType GetNumberOfAnnotatedValues();
 
   /// Return the annotated value at a particular index in the list of annotations.
   vtkVariant GetAnnotatedValue( vtkIdType idx );

@@ -444,6 +444,11 @@ double vtkLookupTable::ApplyLogScale(double v, const double range[2],
 // TODO: Return -1 when isnan(v) is true.
 vtkIdType vtkLookupTable::GetIndex(double v)
 {
+  if ( this->IndexedLookup )
+    {
+    return this->GetAnnotatedValueIndex( v ) % this->GetNumberOfTableValues();
+    }
+
   double maxIndex = this->NumberOfColors - 1;
   double shift, scale;
 
@@ -475,7 +480,18 @@ vtkIdType vtkLookupTable::GetIndex(double v)
       }
     }
 
-  // map to an index
+  // Map to an index:
+  //   First, check whether we have a number...
+  //     calling isnan() instead of vtkMath::IsNan() improves performance
+#ifdef VTK_HAS_ISNAN
+  if ( isnan( v ) )
+#else
+  if ( vtkMath::IsNan( v ) )
+#endif
+    {
+    return -1;
+    }
+  //  Now we know we have a valid number; find out where it lies:
   double findx = (v + shift)*scale;
   if (findx < 0)
     {
@@ -533,7 +549,7 @@ unsigned char* vtkLookupTable::GetNanColorAsUnsignedChars()
 // Given a scalar value v, return an rgba color value from lookup table.
 unsigned char* vtkLookupTable::MapValue(double v)
 {
-  int idx = this->IndexedLookup ? ( this->GetAnnotatedValueIndex( v ) % this->GetNumberOfTableValues() ) : this->GetIndex(v);
+  int idx = this->GetIndex(v);
   return idx >= 0 ? (this->Table->GetPointer(0) + 4*idx) : this->GetNanColorAsUnsignedChars();
 }
 
@@ -1283,7 +1299,7 @@ vtkIdType vtkLookupTable::SetAnnotation( vtkVariant value, vtkStdString annotati
   return i;
 }
 
-vtkVariant vtkLookupTable::GetNumberOfAnnotatedValues()
+vtkIdType vtkLookupTable::GetNumberOfAnnotatedValues()
 {
   return this->AnnotatedValues ? this->AnnotatedValues->GetNumberOfTuples() : 0;
 }
