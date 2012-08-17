@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkParseJavaBeans.c
+  Module:    vtkParseJava.c
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "vtkParse.h"
 #include "vtkParseMain.h"
 #include "vtkParseHierarchy.h"
@@ -51,18 +52,19 @@ void output_temp(FILE *fp,int i)
     {
     switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
       {
-      case VTK_PARSE_FLOAT:   fprintf(fp,"double "); break;
-      case VTK_PARSE_DOUBLE:   fprintf(fp,"double "); break;
-      case VTK_PARSE_INT:   fprintf(fp,"int "); break;
-      case VTK_PARSE_SHORT:   fprintf(fp,"int "); break;
-      case VTK_PARSE_LONG:   fprintf(fp,"int "); break;
-      case VTK_PARSE_ID_TYPE:   fprintf(fp,"int "); break;
+      case VTK_PARSE_FLOAT:       fprintf(fp,"double "); break;
+      case VTK_PARSE_DOUBLE:      fprintf(fp,"double "); break;
+      case VTK_PARSE_INT:         fprintf(fp,"int "); break;
+      case VTK_PARSE_SHORT:       fprintf(fp,"int "); break;
+      case VTK_PARSE_LONG:        fprintf(fp,"int "); break;
+      case VTK_PARSE_ID_TYPE:     fprintf(fp,"int "); break;
       case VTK_PARSE_LONG_LONG:   fprintf(fp,"int "); break;
-      case VTK_PARSE___INT64:   fprintf(fp,"int "); break;
-      case VTK_PARSE_VOID:     fprintf(fp,"void "); break;
-      case VTK_PARSE_SIGNED_CHAR:   fprintf(fp,"char "); break;
-      case VTK_PARSE_CHAR:     fprintf(fp,"char "); break;
-      case VTK_PARSE_OBJECT:     fprintf(fp,"%s ",currentFunction->ArgClasses[i]); break;
+      case VTK_PARSE___INT64:     fprintf(fp,"int "); break;
+      case VTK_PARSE_SIGNED_CHAR: fprintf(fp,"char "); break;
+      case VTK_PARSE_BOOL:        fprintf(fp,"boolean "); break;
+      case VTK_PARSE_VOID:        fprintf(fp,"void "); break;
+      case VTK_PARSE_CHAR:        fprintf(fp,"char "); break;
+      case VTK_PARSE_VTK_OBJECT:  fprintf(fp,"%s ",currentFunction->ArgClasses[i]); break;
       case VTK_PARSE_UNKNOWN: return;
       }
     }
@@ -70,7 +72,7 @@ void output_temp(FILE *fp,int i)
   fprintf(fp,"id%i",i);
   if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) &&
       (aType != VTK_PARSE_CHAR_PTR) &&
-      (aType != VTK_PARSE_OBJECT_PTR))
+      (aType != VTK_PARSE_VTK_OBJECT_PTR))
     {
     fprintf(fp,"[]");
     }
@@ -78,7 +80,10 @@ void output_temp(FILE *fp,int i)
 
 void return_result(FILE *fp)
 {
-  switch (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
+  unsigned int rType =
+    (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+
+  switch (rType)
     {
     case VTK_PARSE_FLOAT:
       fprintf(fp,"double ");
@@ -98,6 +103,7 @@ void return_result(FILE *fp)
     case VTK_PARSE_ID_TYPE:
     case VTK_PARSE_LONG_LONG:
     case VTK_PARSE___INT64:
+    case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_INT:
     case VTK_PARSE_UNSIGNED_SHORT:
@@ -107,12 +113,15 @@ void return_result(FILE *fp)
     case VTK_PARSE_UNSIGNED___INT64:
       fprintf(fp,"int ");
       break;
+    case VTK_PARSE_BOOL:
+      fprintf(fp,"boolean ");
+      break;
     case VTK_PARSE_CHAR_PTR:
     case VTK_PARSE_STRING:
     case VTK_PARSE_STRING_REF:
       fprintf(fp,"String ");
       break;
-    case VTK_PARSE_OBJECT_PTR:
+    case VTK_PARSE_VTK_OBJECT_PTR:
       fprintf(fp,"%s ",currentFunction->ReturnClass);
       break;
 
@@ -122,6 +131,9 @@ void return_result(FILE *fp)
     case VTK_PARSE_DOUBLE_PTR:
       fprintf(fp,"double[] ");
       break;
+    case VTK_PARSE_UNSIGNED_CHAR_PTR:
+      fprintf(fp,"byte[] ");
+      break;
     case VTK_PARSE_INT_PTR:
     case VTK_PARSE_SHORT_PTR:
     case VTK_PARSE_LONG_PTR:
@@ -129,14 +141,95 @@ void return_result(FILE *fp)
     case VTK_PARSE_LONG_LONG_PTR:
     case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
-    case VTK_PARSE_UNSIGNED_CHAR_PTR:
     case VTK_PARSE_UNSIGNED_INT_PTR:
     case VTK_PARSE_UNSIGNED_SHORT_PTR:
     case VTK_PARSE_UNSIGNED_LONG_PTR:
     case VTK_PARSE_UNSIGNED_ID_TYPE_PTR:
     case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
     case VTK_PARSE_UNSIGNED___INT64_PTR:
-      fprintf(fp,"int[]  "); break;
+      fprintf(fp,"int[]  ");
+      break;
+    case VTK_PARSE_BOOL_PTR:
+      fprintf(fp,"boolean[]  ");
+      break;
+    }
+}
+
+/* same as return_result except we return a long (the c++ pointer) rather than an object */
+void return_result_native(FILE *fp)
+{
+  unsigned int rType =
+    (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+
+  switch (rType)
+    {
+    case VTK_PARSE_FLOAT:
+      fprintf(fp,"double ");
+      break;
+    case VTK_PARSE_VOID:
+      fprintf(fp,"void ");
+      break;
+    case VTK_PARSE_CHAR:
+      fprintf(fp,"char ");
+      break;
+    case VTK_PARSE_DOUBLE:
+      fprintf(fp,"double ");
+      break;
+    case VTK_PARSE_INT:
+    case VTK_PARSE_SHORT:
+    case VTK_PARSE_LONG:
+    case VTK_PARSE_ID_TYPE:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE___INT64:
+    case VTK_PARSE_SIGNED_CHAR:
+    case VTK_PARSE_UNSIGNED_CHAR:
+    case VTK_PARSE_UNSIGNED_INT:
+    case VTK_PARSE_UNSIGNED_SHORT:
+    case VTK_PARSE_UNSIGNED_LONG:
+    case VTK_PARSE_UNSIGNED_ID_TYPE:
+    case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_UNSIGNED___INT64:
+      fprintf(fp,"int ");
+      break;
+    case VTK_PARSE_BOOL:
+      fprintf(fp,"boolean ");
+      break;
+    case VTK_PARSE_CHAR_PTR:
+    case VTK_PARSE_STRING:
+    case VTK_PARSE_STRING_REF:
+      fprintf(fp,"String ");
+      break;
+    case VTK_PARSE_VTK_OBJECT_PTR:
+      fprintf(fp,"long ");
+      break;
+
+      /* handle functions returning vectors */
+      /* this is done by looking them up in a hint file */
+    case VTK_PARSE_FLOAT_PTR:
+    case VTK_PARSE_DOUBLE_PTR:
+      fprintf(fp,"double[] ");
+      break;
+    case VTK_PARSE_UNSIGNED_CHAR_PTR:
+      fprintf(fp,"byte[] ");
+      break;
+    case VTK_PARSE_INT_PTR:
+    case VTK_PARSE_SHORT_PTR:
+    case VTK_PARSE_LONG_PTR:
+    case VTK_PARSE_ID_TYPE_PTR:
+    case VTK_PARSE_LONG_LONG_PTR:
+    case VTK_PARSE___INT64_PTR:
+    case VTK_PARSE_SIGNED_CHAR_PTR:
+    case VTK_PARSE_UNSIGNED_INT_PTR:
+    case VTK_PARSE_UNSIGNED_SHORT_PTR:
+    case VTK_PARSE_UNSIGNED_LONG_PTR:
+    case VTK_PARSE_UNSIGNED_ID_TYPE_PTR:
+    case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
+    case VTK_PARSE_UNSIGNED___INT64_PTR:
+      fprintf(fp,"int[]  ");
+      break;
+    case VTK_PARSE_BOOL_PTR:
+      fprintf(fp,"boolean[]  ");
+      break;
     }
 }
 
@@ -169,7 +262,7 @@ static int CheckMatch(
   if ((type1 & VTK_PARSE_UNQUALIFIED_TYPE) ==
       (type2 & VTK_PARSE_UNQUALIFIED_TYPE))
     {
-    if ((type1 & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT)
+    if ((type1 & VTK_PARSE_BASE_TYPE) == VTK_PARSE_VTK_OBJECT)
       {
       if (strcmp(c1, c2) == 0)
         {
@@ -272,6 +365,76 @@ int DoneOne()
       }
     }
   return 0;
+}
+
+void HandleDataReader(FILE *fp)
+{
+    fprintf(fp,"\n  private native void ");
+    fprintf(fp,"%s_%i(byte id0[],int id1);\n",
+            currentFunction->Name,numberOfWrappedFunctions);
+    fprintf(fp,"\n  public void ");
+    fprintf(fp,"%s(byte id0[],int id1)\n",currentFunction->Name);
+    fprintf(fp,"    { %s_%i(id0,id1); }\n",
+            currentFunction->Name,numberOfWrappedFunctions);
+}
+
+void HandleDataArray(FILE *fp, ClassInfo *data)
+{
+  const char *type = 0;
+
+  if (!strcmp("vtkCharArray",data->Name) )
+    {
+    type = "char";
+    }
+  else if (!strcmp("vtkDoubleArray",data->Name) )
+    {
+    type = "double";
+    }
+  else if (!strcmp("vtkFloatArray",data->Name) )
+    {
+    type = "float";
+    }
+  else if (!strcmp("vtkIntArray",data->Name) )
+    {
+    type = "int";
+    }
+  else if (!strcmp("vtkLongArray",data->Name) )
+    {
+    type = "long";
+    }
+  else if (!strcmp("vtkShortArray",data->Name) )
+    {
+    type = "short";
+    }
+  else if (!strcmp("vtkUnsignedCharArray",data->Name) )
+    {
+    type = "byte";
+    }
+  else if (!strcmp("vtkUnsignedIntArray",data->Name) )
+    {
+    type = "int";
+    }
+  else if (!strcmp("vtkUnsignedLongArray",data->Name) )
+    {
+    type = "long";
+    }
+  else if (!strcmp("vtkUnsignedShortArray",data->Name) )
+    {
+    type = "short";
+    }
+  else
+    {
+    return;
+    }
+
+  fprintf(fp,"\n");
+  fprintf(fp,"  private native %s[] GetJavaArray_0();\n", type);
+  fprintf(fp,"  public %s[] GetJavaArray()\n", type);
+  fprintf(fp,"    { return GetJavaArray_0(); }\n");
+  fprintf(fp,"\n");
+  fprintf(fp,"  private native void SetJavaArray_0(%s[] arr);\n", type);
+  fprintf(fp,"  public void SetJavaArray(%s[] arr)\n", type);
+  fprintf(fp,"    { SetJavaArray_0(arr); }\n");
 }
 
 static int isClassWrapped(const char *classname)
@@ -507,19 +670,24 @@ int checkFunctionSignature(ClassInfo *data)
 
 void outputFunction(FILE *fp, ClassInfo *data)
 {
+  int i;
   unsigned int rType =
     (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
-  unsigned int aType = 0;
-  unsigned int baseType;
-  int i;
-  /* beans */
-  char *beanfunc;
+  int args_ok = checkFunctionSignature(data);
 
-  /* make the first letter lowercase for set get methods */
-  beanfunc = strdup(currentFunction->Name);
-  if (isupper(beanfunc[0])) beanfunc[0] = beanfunc[0] + 32;
-
-  args_ok = checkFunctionSignature(data);
+  /* handle DataReader SetBinaryInputString as a special case */
+  if (!strcmp("SetBinaryInputString",currentFunction->Name) &&
+      (!strcmp("vtkDataReader",data->Name) ||
+       !strcmp("vtkStructuredGridReader",data->Name) ||
+       !strcmp("vtkRectilinearGridReader",data->Name) ||
+       !strcmp("vtkUnstructuredGridReader",data->Name) ||
+       !strcmp("vtkStructuredPointsReader",data->Name) ||
+       !strcmp("vtkPolyDataReader",data->Name)))
+      {
+          HandleDataReader(fp);
+          wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
+          numberOfWrappedFunctions++;
+      }
 
   if (currentFunction->IsPublic && args_ok &&
       strcmp(data->Name,currentFunction->Name) &&
@@ -529,7 +697,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
     if (!DoneOne())
       {
       fprintf(fp,"\n  private native ");
-      return_result(fp);
+      return_result_native(fp);
       fprintf(fp,"%s_%i(",currentFunction->Name,numberOfWrappedFunctions);
 
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
@@ -549,7 +717,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
       fprintf(fp,");\n");
       fprintf(fp,"  public ");
       return_result(fp);
-      fprintf(fp,"%s(",beanfunc);
+      fprintf(fp,"%s(",currentFunction->Name);
 
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
         {
@@ -565,122 +733,85 @@ void outputFunction(FILE *fp, ClassInfo *data)
           break;
           }
         }
-      /* if not void then need return otherwise none */
-      if (rType == VTK_PARSE_VOID)
+
+      /* if returning object, lookup in global hash */
+      if (rType == VTK_PARSE_VTK_OBJECT_PTR)
         {
-        fprintf(fp,")\n    { %s_%i(",currentFunction->Name,
-                numberOfWrappedFunctions);
+        fprintf(fp,") {");
+        fprintf(fp,"\n    long temp = %s_%i(",currentFunction->Name, numberOfWrappedFunctions);
+        for (i = 0; i < currentFunction->NumberOfArguments; i++)
+          {
+          if (i)
+            {
+            fprintf(fp,",");
+            }
+          fprintf(fp,"id%i",i);
+          }
+        fprintf(fp,");\n");
+        fprintf(fp,"\n    if (temp == 0) return null;");
+        fprintf(fp,"\n    return (%s)vtkObject.JAVA_OBJECT_MANAGER.getJavaObject(temp);", currentFunction->ReturnClass);
+        fprintf(fp,"\n  }\n");
         }
       else
         {
-        fprintf(fp,")\n    { return %s_%i(",currentFunction->Name,
-                numberOfWrappedFunctions);
-        }
-      for (i = 0; i < currentFunction->NumberOfArguments; i++)
-        {
-        if (i)
+        /* if not void then need return otherwise none */
+        if (rType == VTK_PARSE_VOID)
           {
-          fprintf(fp,",");
+          fprintf(fp,")\n    { %s_%i(",currentFunction->Name,
+                  numberOfWrappedFunctions);
           }
-        fprintf(fp,"id%i",i);
-
-        /* ignore args after function pointer */
-        if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
-          {
-          break;
-          }
-        }
-      if ((currentFunction->NumberOfArguments == 1) &&
-          (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)) fprintf(fp,",id1");
-
-      /* stick in secret beanie code for set methods */
-      if (rType == VTK_PARSE_VOID)
-        {
-        aType = (currentFunction->ArgTypes[0] & VTK_PARSE_UNQUALIFIED_TYPE);
-
-        /* only care about set methods and On/Off methods */
-        if (!strncmp(beanfunc,"set",3) &&
-            currentFunction->NumberOfArguments == 1 &&
-            (((aType & VTK_PARSE_INDIRECT) == 0 &&
-              (aType & VTK_PARSE_UNSIGNED) == 0)||
-             aType == VTK_PARSE_CHAR_PTR ||
-             (aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT))
-          {
-          char prop[256];
-
-          strncpy(prop,beanfunc+3,strlen(beanfunc)-3);
-          prop[strlen(beanfunc)-3] = '\0';
-          if (isupper(prop[0])) prop[0] = prop[0] + 32;
-          fprintf(fp,");\n      changes.firePropertyChange(\"%s\",null,",prop);
-
-          /* handle basic types */
-          if ((aType == VTK_PARSE_CHAR_PTR) ||
-              (aType == VTK_PARSE_STRING) ||
-              (aType == VTK_PARSE_STRING_REF))
-            {
-            fprintf(fp," id0");
-            }
-          else
-            {
-            switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
-              {
-              case VTK_PARSE_FLOAT:
-              case VTK_PARSE_DOUBLE:   fprintf(fp," new Double(id0)"); break;
-              case VTK_PARSE_INT:
-              case VTK_PARSE_SHORT:
-              case VTK_PARSE_LONG:   fprintf(fp," new Integer(id0)"); break;
-              case VTK_PARSE_OBJECT:   fprintf(fp," id0"); break;
-              case VTK_PARSE_CHAR:   /* not implemented yet */
-              default:  fprintf(fp," null");
-              }
-            }
-          }
-        /* not a set method is it an On/Off method ? */
         else
           {
-          if (!strncmp(beanfunc + strlen(beanfunc) - 2, "On",2))
-            {
-            /* OK we think this is a Boolean method so need to fire a change */
-            char prop[256];
-            strncpy(prop,beanfunc,strlen(beanfunc)-2);
-            prop[strlen(beanfunc)-2] = '\0';
-            fprintf(fp,");\n      changes.firePropertyChange(\"%s\",null,new Integer(1)",
-                    prop);
-            }
-          if (!strncmp(beanfunc + strlen(beanfunc) - 3, "Off",3))
-            {
-            /* OK we think this is a Boolean method so need to fire a change */
-            char prop[256];
-            strncpy(prop,beanfunc,strlen(beanfunc)-3);
-            prop[strlen(beanfunc)-3] = '\0';
-            fprintf(fp,");\n      changes.firePropertyChange(\"%s\",null,new Integer(0)",
-                    prop);
-            }
+          fprintf(fp,")\n    { return %s_%i(",currentFunction->Name,
+                  numberOfWrappedFunctions);
           }
+        for (i = 0; i < currentFunction->NumberOfArguments; i++)
+          {
+          if (i)
+            {
+            fprintf(fp,",");
+            }
+          fprintf(fp,"id%i",i);
+          }
+        fprintf(fp,"); }\n");
         }
-      fprintf(fp,"); }\n");
 
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
       numberOfWrappedFunctions++;
       }
     }
-  free(beanfunc);
 }
 
 /* print the parsed structures */
-void vtkParseOutput(FILE *fp, FileInfo *file_info)
+int main(int argc, char *argv[])
 {
   OptionInfo *options;
+  FileInfo *file_info;
   ClassInfo *data;
+  FILE *fp;
   int i;
 
-  if ((data = file_info->MainClass) == NULL)
-    {
-    return;
-    }
+  /* get command-line args and parse the header file */
+  file_info = vtkParse_Main(argc, argv);
 
   /* get the command-line options */
   options = vtkParse_GetCommandLineOptions();
+
+  /* get the output file */
+  fp = fopen(options->OutputFileName, "w");
+
+  if (!fp)
+    {
+    fprintf(stderr, "Error opening output file %s\n", options->OutputFileName);
+    exit(1);
+    }
+
+  /* get the main class */
+  if ((data = file_info->MainClass) == NULL)
+    {
+    fclose(fp);
+    exit(0);
+    }
 
   /* get the hierarchy info for accurate typing */
   if (options->HierarchyFileName)
@@ -691,26 +822,19 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   fprintf(fp,"// java wrapper for %s object\n//\n",data->Name);
   fprintf(fp,"\npackage vtk;\n");
 
-  /* beans */
-  if (!data->NumberOfSuperClasses)
-    {
-    fprintf(fp,"import java.beans.*;\n");
-    }
-
-if (strcmp("vtkObject",data->Name))
+  if (strcmp("vtkObjectBase",data->Name))
     {
     fprintf(fp,"import vtk.*;\n");
     }
   fprintf(fp,"\npublic class %s",data->Name);
-  if (strcmp("vtkObject",data->Name))
+  if (strcmp("vtkObjectBase",data->Name))
     {
     if (data->NumberOfSuperClasses)
+      {
       fprintf(fp," extends %s",data->SuperClasses[0]);
+      }
     }
   fprintf(fp,"\n{\n");
-
-  fprintf(fp,"  public %s getThis%s() { return this;}\n\n",
-          data->Name, data->Name+3);
 
   /* insert function handling code here */
   for (i = 0; i < data->NumberOfFunctions; i++)
@@ -719,37 +843,114 @@ if (strcmp("vtkObject",data->Name))
     outputFunction(fp, data);
     }
 
-if (!data->NumberOfSuperClasses)
-    {
-    fprintf(fp,"\n  public %s() { this.VTKInit();};\n",data->Name);
-    fprintf(fp,"  protected int vtkId = 0;\n");
+  HandleDataArray(fp, data);
 
-    /* beans */
-    fprintf(fp,"  public void addPropertyChangeListener(PropertyChangeListener l)\n    {\n");
-    fprintf(fp,"    changes.addPropertyChangeListener(l);\n    }\n");
-    fprintf(fp,"  public void removePropertyChangeListener(PropertyChangeListener l)\n    {\n");
-    fprintf(fp,"    changes.removePropertyChangeListener(l);\n    }\n");
-    fprintf(fp,"  protected PropertyChangeSupport changes = new PropertyChangeSupport(this);\n\n");
+  if (!data->NumberOfSuperClasses)
+    {
+    if (!data->IsAbstract)
+      {
+      fprintf(fp,"\n  public %s() {", data->Name);
+      fprintf(fp,"\n    this.vtkId = this.VTKInit();");
+      fprintf(fp,"\n    vtkObject.JAVA_OBJECT_MANAGER.registerJavaObject(this.vtkId, this);");
+      fprintf(fp,"\n  }\n");
+      }
+    else
+      {
+      fprintf(fp,"\n  public %s() { super(); }\n",data->Name);
+      }
+    fprintf(fp,"\n  public %s(long id) {", data->Name);
+    fprintf(fp,"\n    super();");
+    fprintf(fp,"\n    this.vtkId = id;");
+    fprintf(fp,"\n    this.VTKRegister();");
+    fprintf(fp,"\n    vtkObject.JAVA_OBJECT_MANAGER.registerJavaObject(this.vtkId, this);");
+    fprintf(fp,"\n  }\n");
+    fprintf(fp,"\n  protected long vtkId;\n");
+    fprintf(fp,"\n  public long GetVTKId() { return this.vtkId; }");
 
     /* if we are a base class and have a delete method */
     if (data->HasDelete)
       {
-      fprintf(fp,"\n  public native void VTKDelete();\n");
-      fprintf(fp,"  protected void finalize() { this.VTKDelete();};\n");
+      fprintf(fp,"\n  public static native void VTKDeleteReference(long id);");
+      fprintf(fp,"\n  public static native String VTKGetClassNameFromReference(long id);");
+      fprintf(fp,"\n  protected native void VTKDelete();");
+      fprintf(fp,"\n  protected native void VTKRegister();");
+      fprintf(fp,"\n  public void Delete() {");
+      fprintf(fp,"\n    vtkObject.JAVA_OBJECT_MANAGER.unRegisterJavaObject(this.vtkId);");
+      fprintf(fp,"\n    this.vtkId = 0;");
+      fprintf(fp,"\n  }");
       }
     }
-  if ((!data->IsAbstract)&&
-      strcmp(data->Name,"vtkDataWriter") &&
-      strcmp(data->Name,"vtkPointSet") &&
-      strcmp(data->Name,"vtkDataSetSource")
-      )
+  /* Special case for vtkObject */
+  else if ( strcmp("vtkObject",data->Name) == 0 )
     {
-    fprintf(fp,"  public native void   VTKInit();\n");
+    fprintf(fp,"\n  public static vtk.vtkJavaMemoryManager JAVA_OBJECT_MANAGER = new vtk.vtkJavaMemoryManagerImpl();");
+    fprintf(fp,"\n  public %s() {", data->Name);
+    fprintf(fp,"\n    super();");
+    fprintf(fp,"\n    this.vtkId = this.VTKInit();");
+    fprintf(fp,"\n    vtkObject.JAVA_OBJECT_MANAGER.registerJavaObject(this.vtkId, this);");
+    fprintf(fp,"\n  }\n");
+    fprintf(fp,"\n  public %s(long id) { super(id); }\n",data->Name);
     }
+  else
+    {
+    fprintf(fp,"\n  public %s() { super(); }\n",data->Name);
+    fprintf(fp,"\n  public %s(long id) { super(id); }\n",data->Name);
+    }
+
+  if (!data->IsAbstract)
+    {
+    fprintf(fp,"  public native long   VTKInit();\n");
+    }
+
+  /* fprintf(fp,"  protected native void   VTKCastInit();\n"); */
+
   if (!strcmp("vtkObject",data->Name))
     {
+    /* Add the Print method to vtkObject. */
     fprintf(fp,"  public native String Print();\n");
+#ifndef VTK_LEGACY_REMOVE
+    /* Add the PrintRevisions method to vtkObject. */
+    fprintf(fp,"  public native String PrintRevisions();\n");
+#endif
+    /* Add the default toString from java object */
+    fprintf(fp,"  public String toString() { return Print(); }\n");
     }
-  fprintf(fp,"}\n");
-}
 
+  if (!strcmp("vtkObject",data->Name))
+    {
+    fprintf(fp,"  public native int AddObserver(String id0, Object id1, String id2);\n");
+    }
+  fprintf(fp,"\n}\n");
+  {
+  size_t cc;
+  size_t len;
+  char *dir;
+  char *fname;
+  /*const */char javaDone[] = "VTKJavaWrapped";
+  FILE* tfp;
+  fname = options->OutputFileName;
+  dir = (char*)malloc(strlen(fname) + strlen(javaDone) + 2);
+  sprintf(dir, "%s", fname);
+  len = strlen(dir);
+  for ( cc = len-1; cc > 0; cc -- )
+    {
+    if ( dir[cc] == '/' || dir[cc] == '\\' )
+      {
+      dir[cc+1] = 0;
+      break;
+      }
+    }
+  strcat(dir, javaDone);
+  tfp = fopen(dir, "w");
+  if ( tfp )
+    {
+    fprintf(tfp, "File: %s\n", fname);
+    fclose(tfp);
+    }
+  free(dir);
+  }
+
+  vtkParse_Free(file_info);
+
+  return 0;
+}
