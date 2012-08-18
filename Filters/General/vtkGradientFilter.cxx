@@ -269,8 +269,8 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
     vtkWarningMacro("Input array must have exactly three components "
                     << "with ComputeVorticity or ComputeQCriterion flag turned "
                     << "on. Skipping vorticity and Q-criterion computation.");
-    computeVorticity = 0;
-    computeQCriterion = 0;
+    computeVorticity = false;
+    computeQCriterion = false;
     }
 
   int fieldAssociation;
