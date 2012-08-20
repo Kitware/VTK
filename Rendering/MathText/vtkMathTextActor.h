@@ -26,21 +26,18 @@
 #define __vtkMathTextActor_h
 
 #include "vtkRenderingMathTextModule.h" // For export macro
-#include "vtkActor2D.h"
+#include "vtkTextActor.h"
 #include "vtkNew.h" // For smart pointer stuff
 #include "vtkSmartPointer.h" // For smart pointer stuff
 #include "vtkStdString.h" // For vtkStdString
 
 class vtkTextProperty;
 class vtkImageData;
-class vtkPoints;
-class vtkPolyData;
-class vtkTexture;
 
-class VTKRENDERINGMATHTEXT_EXPORT vtkMathTextActor : public vtkActor2D
+class VTKRENDERINGMATHTEXT_EXPORT vtkMathTextActor : public vtkTextActor
 {
 public:
-  vtkTypeMacro(vtkMathTextActor,vtkActor2D);
+  vtkTypeMacro(vtkMathTextActor,vtkTextActor);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkMathTextActor *New();
 
@@ -54,19 +51,9 @@ public:
   void ShallowCopy(vtkProp *prop);
 
   // Description:
-  // Set the text string to be displayed.
-  vtkSetMacro(Input, const char *);
-  const char *GetInput();
-
-  // Description:
   // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   // in world coordinates. NULL means that the bounds are not defined.
   double *GetBounds();
-
-  // Description:
-  // Set/Get the text property.
-  virtual void SetTextProperty(vtkTextProperty *p);
-  virtual vtkTextProperty *GetTextProperty();
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -89,13 +76,6 @@ protected:
   ~vtkMathTextActor();
 
   void ComputeRectangle();
-
-  vtkSmartPointer<vtkTextProperty> TextProperty;
-  vtkNew<vtkImageData> ImageData;
-  vtkNew<vtkPolyData> Rectangle;
-  vtkNew<vtkPoints> RectanglePoints;
-  vtkNew<vtkTexture> Texture;
-  vtkStdString Input;
 
 private:
   vtkMathTextActor(const vtkMathTextActor&);  // Not implemented.
