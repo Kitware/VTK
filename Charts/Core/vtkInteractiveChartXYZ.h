@@ -29,6 +29,7 @@
 class vtkAnnotationLink;
 class vtkAxis;
 class vtkContextMouseEvent;
+class vtkPlane;
 class vtkPlot;
 class vtkTable;
 class vtkTransform;
@@ -83,6 +84,8 @@ public:
   virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
   //ETX
 
+  bool PointShouldBeClipped(vtkVector3f point);
+
 protected:
   vtkInteractiveChartXYZ();
   ~vtkInteractiveChartXYZ();
@@ -97,6 +100,7 @@ protected:
   void LookUpX();
   void LookUpY();
   void LookUpZ();
+  void UpdateClippedPoints();
 
   vtkNew<vtkTransform> Translation;
   vtkNew<vtkTransform> Scale;
@@ -106,6 +110,17 @@ protected:
   std::string XAxisLabel;
   std::string YAxisLabel;
   std::string ZAxisLabel;
+  
+  vector<vtkVector3f> clipped_points;
+  
+  vtkNew<vtkPlane> Face1;
+  vtkNew<vtkPlane> Face2;
+  vtkNew<vtkPlane> Face3;
+  vtkNew<vtkPlane> Face4;
+  vtkNew<vtkPlane> Face5;
+  vtkNew<vtkPlane> Face6;
+  
+  double MaxDistance;
 
 private:
   vtkInteractiveChartXYZ(const vtkInteractiveChartXYZ &);    // Not implemented.
