@@ -1,36 +1,66 @@
 Notes on usage of LEX and YACC to generate VTK parse files
 ----------------------------------------------------------
 
+The contents of this directory are used to generate a C library called
+vtkWrappingTools, which provides utility functions for parsing C++ header
+files.  The core of the wrapping tools is a parser that is built using
+the classic compiler-generator tools lex and yacc.  These tools are
+available on OS X and on most linux systems.
+
+
 LEX:
 ----
-1. vtkParse.l is edited as necessary
-2. LEX is run (should be flex. Last tested on flex version 2.5.4 on Cygwin,
-               but it should work on Linux or on anything that uses flex)
-3. LEX spits out lex.yy.c
-4. Remove line:
-   #include <unistd.h>
-   Suggested method is to run:
 
-   perl -ne "s/\t/   /g; next if /unistd/; print" lex.yy.c > lex.yy.c.new
-   mv lex.yy.c.new lex.yy.c
+The file vtkParse.l contains regular expressions for tokenizing a C++
+header file.  It is used to generate the file lex.yy.c, which is directly
+included (i.e. as a C file) by the main parser file, vtkParse.tab.c.
 
-   This removes the line and replaces tabs with spaces.
+To generate lex.yy.c from vtkParse.l, use the following steps:
+
+1. Get a copy of flex, version 2.5.35 or later
+2. Run flex --nodefault -olex.yy.c vtkParse.l
+3. Edit the file lex.yy.c as follows, to eliminate compiler warnings and
+   to make it pass the git commit hook tests:
+a) Convert tabs to 8 spaces, e.g. :%s/\t/        /g
+b) Remove extra whitespace from the ends of lines, e.g. :%s/  *$//
+c) Remove blank lines at the beginning and end of the file
+d) Replace "int yyl;" with "yy_size_t yyl;", e.g. :%s/int yyl;/yy_size_t yyl;/
+
+The final step removes a potential signed/unsigned comparison compiler
+warning.  It might not be necessary in later versions of flex.
+
 
 YACC:
 -----
-1. vtkParse.y is edited as necessary
-2. yacc is run: "yacc -b vtkParse vtkParse.y" and spits out vtkParse.tab.c
-   (Note: yacc was run RedHat Linux 5.2 1/14/00 by W. Schroeder)
-3. Build vtkHTML.exe, vtkWrapTcl.exe, vtkParseJava.exe,vtkWrapJava.exe,
-   vtkWrapPython.exe on the PC and check them in.
-4. Check in vtkParse.l, lex.yy.c, vtkParse.y, vtkParse.tab.c
 
+The file vtkParse.y contains the rules for parsing a C++ header file.
+Many of the rules in this file have the same names as in description
+of the grammar in the official ISO standard.  The file vtkParse.y is
+used to generate the file vtkParse.tab.c, which contains the parser.
 
-Important Note on YACC:
------------------------
+1. Get a copy of bison 2.3 or later, it has a yacc-compatible front end.
+2. Run yacc -b vtkParse vtkParse.y, it will generate vtkParse.tab.c
+3. Edit the file vtkParse.tab.c as follows, to eliminate compiler warnings
+   and to make it pass the git commit hook tests:
+a) Convert tabs to 8 spaces, e.g. :%s/\t/        /g
+b) Remove extra whitespace from the ends of lines, e.g. :%s/  *$//
+c) Remove blank lines at the beginning and end of the file
+d) Remove the "goto yyerrlab1;" that appears right before yyerrlab1:
+e) Search for the second "Tokens" listing, i.e. the set of token macro
+   constants that appear after the token enumerated constants.  Remove
+   all of them.
 
-   Do not use GNU Bison on vtkParse.y.  New versions won't even parse
-   the file and old ones will create compile problems on various
-   platforms.  Use a recent byacc instead.  Byacc is the Berkeley LALR
-   parser generator.  Red Hat Linux apparently installs byacc by
-   default.
+When yacc is run, it should not report any shift/reduce or reduce/reduce
+warnings.  If modifications to the rules cause these warnings to occur,
+you can run yacc with the --debug and --verbose options:
+ yacc --debug --verbose -b vtkParse vtkParse.y
+This will cause yacc to produce a file called "vtkParse.output" that
+will show which rules conflict with other rules.
+
+The rules in vtkParse.y avoid most of the ambiguities that are present
+in the official C++ grammar by only parsing declarative statements.
+Non-declarative statements, such the contents of function bodies, are
+simply ignored using the rule "ignore_items".  Constant expressions,
+which appear in declarative statements as default argument values or
+enum values, are parsed by the rule "constant_expression" which simply
+copies the expression into a string without attempting to evaluate it.
