@@ -821,24 +821,30 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       // Use the nicely-provided scalar bar position to place
       // the annotated value swatches.
       double swatchPad;
+      double swatchC0, swatchC1; // fixed swatch coordinates
       if ( this->Orientation == VTK_ORIENT_VERTICAL )
         {
         barWidth = size[0] - 4 - labelSize[0] - 2 * barX;
         barHeight = static_cast<int>(0.86*size[1]) - barY;
         delta = static_cast<double>(barHeight) / numNotes;
         swatchPad = delta > 16. ? 4. : ( delta / 4. );
+        swatchC0 = ( this->TextPosition == vtkScalarBarActor::PrecedeScalarBar )
+          ? ( size[0] - barWidth - barX ) : barX;
+        swatchC1 = swatchC0 + barWidth;
         this->NumberOfAnnotationLabelsBuilt =
-          this->LayoutAnnotationsVertically( barX, barY, barWidth, barHeight, delta, swatchPad );
+          this->LayoutAnnotationsVertically(
+            this->TextPosition == vtkScalarBarActor::PrecedeScalarBar ? swatchC1 : swatchC0,
+            barY, barWidth, barHeight, delta, swatchPad );
         for ( i = 0; i < numNotes; ++ i )
           {
-          x[0] = barX;
+          x[0] = swatchC0;
           x[1] = barY + i * delta + swatchPad;
           pts->SetPoint( 4 * i, x );
-          x[0] = barX + barWidth;
+          x[0] = swatchC1;
           pts->SetPoint( 4 * i + 1, x );
           x[1] += delta - swatchPad * 2;
           pts->SetPoint( 4 * i + 2, x );
-          x[0] = barX;
+          x[0] = swatchC0;
           pts->SetPoint( 4 * i + 3, x );
           }
         }
@@ -848,16 +854,22 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         barHeight = static_cast<int>( 0.4 * size[1] ) - barY;
         delta = static_cast<double>(barWidth) / numNotes;
         swatchPad = delta > 16. ? 4. : ( delta / 4. );
+        swatchC0 = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
+          ? size[1] - barY: barY + barHeight ;
+        swatchC1 = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
+          ? (size[1]-barHeight - barY) : barY;
         this->NumberOfAnnotationLabelsBuilt =
-          this->LayoutAnnotationsHorizontally( barX, barY, barWidth, barHeight, delta, swatchPad );
+          this->LayoutAnnotationsHorizontally(
+            barX, this->TextPosition == vtkScalarBarActor::PrecedeScalarBar ? swatchC0 : swatchC1,
+            barWidth, barHeight, delta, swatchPad );
         for ( i = 0; i < numNotes; ++ i )
           {
           x[0] = barX + i * delta + swatchPad;
-          x[1] = barY;
+          x[1] = swatchC0;
           pts->SetPoint( 4 * i, x );
           x[0] += delta - swatchPad * 2;
           pts->SetPoint( 4 * i + 1, x );
-          x[1] += barHeight;
+          x[1] = swatchC1;
           pts->SetPoint( 4 * i + 2, x );
           x[0] -= delta - swatchPad * 2;
           pts->SetPoint( 4 * i + 3, x );
@@ -1188,7 +1200,10 @@ int vtkScalarBarActor::AllocateAndSizeAnnotationLabels( vtkLookupTable* lkup )
     this->AnnotationLabels[i] = vtkMathTextActor::New();
     this->AnnotationLabels[i]->GetTextProperty()->ShallowCopy( this->LabelTextProperty );
     this->AnnotationLabels[i]->SetProperty( this->GetProperty() );
-    this->AnnotationLabels[i]->SetInput( lkup->GetAnnotation( i ).c_str() );
+    // NB: If passed an empty string, pass a single space to the renderer;
+    // empty strings get rendered as blobs which is Highly Undesirable.
+    vtkStdString label = lkup->GetAnnotation( i );
+    this->AnnotationLabels[i]->SetInput( label.empty() ? " " : label.c_str() );
     this->AnnotationLabels[i]->GetPositionCoordinate()->
       SetReferenceCoordinate( this->PositionCoordinate );
     }
@@ -1219,7 +1234,10 @@ int vtkScalarBarActor::LayoutAnnotationsVertically(
       barX + ( this->TextPosition == PrecedeScalarBar ? +1 : -1 ) * ( pad + this->AnnotationLeaderPadding ), \
       ctr ); \
     ll[1] = lpts->InsertNextPoint( xl1, ctr, 0. ); \
-    llines->InsertNextCell( 2, ll ); \
+    if ( ! lkup->GetAnnotation( j ).empty() ) \
+      { \
+      llines->InsertNextCell( 2, ll ); \
+      } \
     delt = ( dir <= 0 ? ctr - hh : ctr + hh );
 
   int numNotes = this->AllocateAndSizeAnnotationLabels( lkup );
@@ -1501,10 +1519,15 @@ int vtkScalarBarActor::LayoutAnnotationsHorizontally(
   this->AnnotationLabels[j]->GetTextProperty()->SetJustification( placer.Places[j].Justification ); \
   this->AnnotationLabels[j]->GetTextProperty()->SetVerticalJustification( placer.Dir > 0 ? VTK_TEXT_BOTTOM : VTK_TEXT_TOP ); \
   this->AnnotationLabels[j]->SetPosition( placer.Places[j].Anchor ); \
-  placer.AddBrokenLeader( j, lpts, llines );
+  if ( ! lkup->GetAnnotation( j ).empty() ) \
+    { \
+    placer.AddBrokenLeader( j, lpts, llines ); \
+    }
 
   int numNotes = this->AllocateAndSizeAnnotationLabels( lkup );
-  vtkScalarBarHLabelPlacer placer( numNotes, barY, -1.0, barX, barX + barWidth, delta, pad, this->AnnotationLeaderPadding );
+  vtkScalarBarHLabelPlacer placer(
+    numNotes, barY, this->TextPosition == vtkScalarBarActor::PrecedeScalarBar ? +1 : -1,
+    barX, barX + barWidth, delta, pad, this->AnnotationLeaderPadding );
 
   vtkPoints* lpts = vtkPoints::New();
   vtkCellArray* llines = vtkCellArray::New();
