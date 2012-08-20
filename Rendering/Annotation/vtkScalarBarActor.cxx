@@ -33,6 +33,9 @@
 #include "vtkMathTextActor.h"
 #include "vtkProperty2D.h"
 
+#include <vector>
+#include <set>
+
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -1227,6 +1230,168 @@ int vtkScalarBarActor::LayoutAnnotationsVertically(
   return numNotes;
 }
 
+struct vtkScalarBarHLabelInfo
+{
+  double X[2]; // padded left-right label bounds
+  double Y[2]; // padded top-bottom label bounds
+  int Justification;
+  double Anchor[2]; // x-y coordinates of anchor point
+  std::set<double> Breaks; // Potential breaks in leader line. Sorted. Always an even number, in (break-out,break-in) pairs.
+};
+
+// A non-overlapping label placer for a horizontal array of annotated swatches.
+// When space is tight, It displaces labels vertically and uses broken leader lines to relate labels back to swatches.
+struct vtkScalarBarHLabelPlacer
+{
+  std::vector<vtkScalarBarHLabelInfo> Places;
+  unsigned Ctr;
+  double Y0;
+  double XBounds[2];
+  double Delta;
+  double Pad;
+  double Dir; // displacement direction (either +1 or -1)
+
+  vtkScalarBarHLabelPlacer(
+    unsigned n, double y0, double dir, double xmin, double xmax,
+    double delta, double pad )
+    : Places( n ), Ctr( n / 2 ), Y0( y0 ), Dir( dir < 0 ? -1. : +1. ), Delta( delta ), Pad( pad )
+    {
+    this->XBounds[0] = xmin;
+    this->XBounds[1] = xmax;
+    }
+
+  void Place( unsigned i, double wd, double ht )
+    {
+    vtkScalarBarHLabelInfo& placement( this->Places[i] );
+    unsigned farMin, farMid, farMax, medNeighbor;
+    int posRelToCenter = ( i == this->Ctr && 2 * this->Ctr < this->Places.size() ) ? 0 : ( i > this->Ctr ? +1 : -1 );
+
+    if ( posRelToCenter == 0 )
+      { // center label
+      double xbar = ( this->XBounds[0] + this->XBounds[1] ) / 2.;
+      placement.Y[0] = Y0 + this->Dir * this->Pad;
+      placement.Y[1] = placement.Y[0] + this->Dir * ht; // Note un-padded bounds on distal y axis! Required below.
+      placement.X[0] = xbar - wd / 2. - this->Pad;
+      placement.X[1] = xbar + wd / 2. + this->Pad;
+      placement.Justification = VTK_TEXT_CENTERED;
+      placement.Anchor[0] = xbar;
+      placement.Anchor[1] = placement.Y[0]; // Vertical justification changes, but Y[0] is always anchor
+      }
+    else // placing *a lateral* (as opposed to *the medial*) label.
+    if ( posRelToCenter )
+      {
+      // First: Horizontal placement. Check immediate medial neighbor to see if placement can occur without more displacement.
+      double spotMax = this->XBounds[0] + i * this->Delta;
+      bool needToDisplace = false;
+      if ( posRelToCenter == +1 )
+        { // label is right-justified; placement.X[1] bounded from above by XBounds[1] or right neighbor swatch
+        farMin = 2 * this->Ctr - i;
+        farMid = this->Ctr;
+        farMax = i;
+        medNeighbor = i - 1;
+        placement.Justification = VTK_TEXT_RIGHT;
+        spotMax += this->Delta - this->Pad;
+        if ( spotMax > this->XBounds[1] ) spotMax = this->XBounds[1];
+        if ( spotMax - wd < this->Places[medNeighbor].X[1] )
+          { // We must displace; put the label where it makes sense: bounded on right by swatch edge.
+          needToDisplace = true;
+          placement.X[1] = this->XBounds[0] + ( i + 1 ) * this->Delta; // NB: Padding included
+          placement.X[0] = placement.X[1] - wd - 2 * this->Pad;
+          placement.Anchor[0] = placement.X[1] - this->Pad;
+          }
+        else
+          { // There is space for the label without vertical displacement.
+          placement.Justification = VTK_TEXT_CENTERED;
+          placement.Anchor[0] = this->XBounds[0] + ( i + 0.5 ) * this->Delta;
+          if ( placement.Anchor[0] - wd / 2. < this->Places[medNeighbor].X[1] ||
+            placement.Anchor[0] + wd / 2. > this->XBounds[1] )
+            { // We can't center on the swatch; right justify it to swatch.
+            placement.Anchor[0] += this->Delta / 2. - this->Pad;
+            placement.Justification = VTK_TEXT_RIGHT;
+            }
+          placement.X[0] = placement.Justification == VTK_TEXT_CENTERED ?
+            ( placement.Anchor[0] - wd / 2. ) : ( placement.Anchor[0] - wd );
+          }
+        }
+      else // posRelToCenter == -1
+        { // label is left-justified; placement.X[0] bounded from below by XBounds[0] or left neighbor swatch
+        farMid = 2 * this->Ctr - i;
+        medNeighbor = i + 1;
+        farMin = this->Ctr;
+        farMax = 2 * this->Ctr - i;
+        placement.Justification = VTK_TEXT_LEFT;
+        spotMax += this->Pad;
+        if ( spotMax < this->XBounds[0] ) spotMax = this->XBounds[0];
+        if ( spotMax + wd > this->Places[medNeighbor].X[0] )
+          { // we must displace; put the label where it makes sense: bounded on left by swatch edge.
+          needToDisplace = true;
+          placement.X[0] = this->XBounds[0] + i * this->Delta; // NB: Padding included
+          placement.X[1] = placement.X[0] + wd + 2 * this->Pad;
+          placement.Anchor[0] = placement.X[0] + this->Pad;
+          }
+        else
+          { // There is space for the label without vertical displacement.
+          placement.Justification = VTK_TEXT_CENTERED;
+          placement.Anchor[0] = this->XBounds[0] + ( i + 0.5 ) * this->Delta;
+          if ( placement.Anchor[0] + wd / 2. > this->Places[medNeighbor].X[0] ||
+            placement.Anchor[0] - wd / 2. < this->XBounds[0] )
+            { // We can't center on the swatch; left-justify it to swatch.
+            placement.Anchor[0] -= this->Delta / 2. - this->Pad;
+            placement.Justification = VTK_TEXT_LEFT;
+            }
+          placement.X[0] = placement.Justification == VTK_TEXT_CENTERED ?
+            ( placement.Anchor[0] - wd / 2. ) : ( placement.Anchor[0] - this->Pad );
+          }
+        }
+      // Second: Vertical placement. Displace label to avoid overlap if need be.
+      if ( ! needToDisplace )
+        {
+        placement.Y[0] = this->Places[medNeighbor].Y[0];
+        placement.Y[1] = placement.Y[0] + this->Dir * ht;
+        placement.X[1] = placement.X[0] + wd;
+        placement.Anchor[1] = placement.Y[0];
+        }
+      else
+        { // must displace... find out by how much
+        placement.Y[0] = this->Places[medNeighbor].Y[1] + this->Dir * this->Pad; // at least as much as my immediate medial neighbor
+        for ( unsigned j = farMin; j < farMid; ++ j )
+          {
+          if (
+            ( this->Dir < 0 && placement.Y[0] > this->Places[j].Y[1] ) ||
+            ( this->Dir > 0 && placement.Y[0] < this->Places[j].Y[1] ) )
+            {
+            placement.Y[0] = this->Places[j].Y[1] + this->Dir * this->Pad;
+            }
+          }
+        placement.Y[1] = placement.Y[0] + this->Dir * ht;
+        placement.Anchor[1] = placement.Y[0]; // Vertical justification changes, but Y[0] is always anchor
+        }
+      }
+    }
+};
+
+/**\brief A non-overlapping label placer for a horizontal array of annotated swatches.
+ *
+ * A set of rules are enforced during layout:
+ * <ul>
+ * <li> Any label may be wider than the entire legend.
+ * <li> The center label should be centered on the center swatch
+ * <li> No other label should extend beyond the legend's matching lateral extent (i.e., a label to the left of center
+ * should never extend beyond the left bounds of its swatch).
+ * <li> To enforce this, labels may be displaced vertically (distally) away from the legend.
+ * <li> Broken leaders should be drawn connecting each displaced label to its swatch, with breaks where
+ * long labels from the centerline or beyond obstruct it.
+ * </ul>
+ *
+ * The algorithm for performing the layout enforces these rules as follows:
+ * Labels are placed starting with the central (medial) label and moving outwards;
+ * this provides a consistent placement as the actor is resized.
+ * First the horizontal label position is determined by examining the width of the label and the extents
+ * of its medial neighbor (which will have been placed already).
+ * The vertical displacement is then computed by either copying the medial neighbor's displacement (if
+ * no interference with the neighbor was required) or incrementing the displacement beyond its immediate
+ * neighbor and checking all other relevant labels for intereference.
+ */
 int vtkScalarBarActor::LayoutAnnotationsHorizontally(
   double barX, double barY, double barWidth, double barHeight, double delta, double pad )
 {
@@ -1235,6 +1400,40 @@ int vtkScalarBarActor::LayoutAnnotationsHorizontally(
     {
     return 0;
     }
+
+#define VTK_ANN_HLAYOUT(j,placer) \
+    this->AnnotationLabels[j]->GetTextProperty()->SetJustification( placer.Places[j].Justification ); \
+    this->AnnotationLabels[j]->GetTextProperty()->SetVerticalJustification( placer.Dir > 0 ? VTK_TEXT_BOTTOM : VTK_TEXT_TOP ); \
+    this->AnnotationLabels[j]->SetPosition( placer.Places[j].Anchor );
+
   int numNotes = this->AllocateAndSizeAnnotationLabels( lkup );
+  vtkScalarBarHLabelPlacer placer( numNotes, barY, -1.0, barX, barX + barWidth, delta, pad );
+
+  // Start at the center and move outward (both up and down), accumulating label displacement as we go.
+  int ic = numNotes / 2;
+  int lf, rt;
+  double* bds;
+  if ( 2 * ic == numNotes )
+    {
+    lf = ic;
+    rt = ic + 1;
+    }
+  else
+    {
+    lf = ic - 1;
+    rt = ic + 1;
+    bds = this->AnnotationLabels[ic]->GetBounds();
+    placer.Place( ic, bds[1] - bds[0], bds[3] - bds[2] );
+    VTK_ANN_HLAYOUT(ic,placer);
+    }
+  for ( ; lf >= 0; -- lf, ++ rt )
+    {
+    bds = this->AnnotationLabels[lf]->GetBounds();
+    placer.Place( lf, bds[1] - bds[0], bds[3] - bds[2] );
+    VTK_ANN_HLAYOUT(lf,placer);
+    bds = this->AnnotationLabels[rt]->GetBounds();
+    placer.Place( rt, bds[1] - bds[0], bds[3] - bds[2] );
+    VTK_ANN_HLAYOUT(rt,placer);
+    }
   return numNotes;
 }
