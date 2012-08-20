@@ -97,6 +97,8 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->LastSize[0] = 0;
   this->LastSize[1] = 0;
 
+  this->DrawAnnotations = 1;
+  this->AnnotationLeaderPadding = 8.;
   this->AnnotationBoxes = vtkPolyData::New();
   this->AnnotationBoxesMapper = vtkPolyDataMapper2D::New();
   this->AnnotationBoxesActor = vtkActor2D::New();
@@ -357,9 +359,14 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
     return renderedSomething;
     }
 
-  for ( i = 0; i < this->NumberOfAnnotationLabelsBuilt; ++ i )
+  if ( this->DrawAnnotations )
     {
-    renderedSomething += this->AnnotationLabels[i]->RenderOverlay( viewport );
+    if ( this->NumberOfAnnotationLabelsBuilt )
+      this->AnnotationLeadersActor->RenderOverlay( viewport );
+    for ( i = 0; i < this->NumberOfAnnotationLabelsBuilt; ++ i )
+      {
+      renderedSomething += this->AnnotationLabels[i]->RenderOverlay( viewport );
+      }
     }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
@@ -456,6 +463,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         }
       delete [] this->AnnotationLabels;
       this->AnnotationLabels = 0;
+      this->NumberOfAnnotationLabelsBuilt = 0;
       }
 
     // Build scalar bar object; determine its type
@@ -873,10 +881,6 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         rgb[0] = rgba[0]; rgb[1] = rgba[1]; rgb[2] = rgba[2]; rgb[3] = rgba[3];
         rgb[4] = rgba[0]; rgb[5] = rgba[1]; rgb[6] = rgba[2]; rgb[7] = 255; // second triangle is always opaque
         }
-      //vtkIndent foo;
-      //pts->PrintSelf( cout, foo );
-      //polys->PrintSelf( cout, foo );
-      //colors->PrintSelf( cout, foo );
       }
     this->BuildTime.Modified();
     }
@@ -899,9 +903,14 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   else
     {
     this->AnnotationBoxesActor->RenderOpaqueGeometry( viewport );
-    for ( i = 0; i < this->NumberOfAnnotationLabelsBuilt; ++ i )
+    if ( this->DrawAnnotations )
       {
-      renderedSomething += this->AnnotationLabels[i]->RenderOpaqueGeometry( viewport );
+      if ( this->NumberOfAnnotationLabelsBuilt )
+        this->AnnotationLeadersActor->RenderOpaqueGeometry( viewport );
+      for ( i = 0; i < this->NumberOfAnnotationLabelsBuilt; ++ i )
+        {
+        renderedSomething += this->AnnotationLabels[i]->RenderOpaqueGeometry( viewport );
+        }
       }
     }
 
@@ -914,7 +923,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // Description:
 // Does this prop have some translucent polygonal geometry?
 int vtkScalarBarActor::HasTranslucentPolygonalGeometry()
-{
+{ // TODO: Handle case when IndexedLookup is true and any colors in the palette have an alpha value,
+  // as the color swatches drawn by this->AnnotationBoxesActor have 1 translucent triangle for each alpha-swatch.
   return 0;
 }
 
@@ -991,6 +1001,11 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumWidthInPixels << endl;
   os << indent << "MaximumHeightInPixels: "
      << this->MaximumHeightInPixels << endl;
+
+  os << indent << "DrawAnnotations: "
+    << this->DrawAnnotations << endl;
+  os << indent << "AnnotationLeaderPadding: "
+    << this->AnnotationLeaderPadding << endl;
 
   os << indent << "DrawBackground: " << this->DrawBackground << "\n";
   os << indent << "Background Property:\n";
@@ -1192,6 +1207,7 @@ int vtkScalarBarActor::LayoutAnnotationsVertically(
 
 #define VTK_ANN_VLAYOUT(j,dir,delt) \
     ctr = barY + delta * ( j + 0.5 ); \
+    ll[0] = lpts->InsertNextPoint( xl0, ctr, 0. ); \
     bds = this->AnnotationLabels[j]->GetBounds(); \
     hh = ( bds[3] - bds[2] + pad ) / 2.; /* label half-height, including padding */ \
     if ( ( dir < 0 && ctr + hh > dnCum ) || ( dir > 0 && ctr - hh < upCum ) ) \
@@ -1199,15 +1215,32 @@ int vtkScalarBarActor::LayoutAnnotationsVertically(
     this->AnnotationLabels[j]->GetTextProperty()->SetJustification( \
       this->TextPosition == PrecedeScalarBar ? VTK_TEXT_LEFT : VTK_TEXT_RIGHT ); \
     this->AnnotationLabels[j]->GetTextProperty()->SetVerticalJustification( VTK_TEXT_CENTERED ); \
-    this->AnnotationLabels[j]->SetPosition( barX - pad, ctr ); \
+    this->AnnotationLabels[j]->SetPosition( \
+      barX + ( this->TextPosition == PrecedeScalarBar ? +1 : -1 ) * ( pad + this->AnnotationLeaderPadding ), \
+      ctr ); \
+    ll[1] = lpts->InsertNextPoint( xl1, ctr, 0. ); \
+    llines->InsertNextCell( 2, ll ); \
     delt = ( dir <= 0 ? ctr - hh : ctr + hh );
 
   int numNotes = this->AllocateAndSizeAnnotationLabels( lkup );
+  vtkPoints* lpts = vtkPoints::New();
+  vtkCellArray* llines = vtkCellArray::New();
+  lpts->Allocate( 2 * numNotes );
+  llines->Allocate( llines->EstimateSize( numNotes, 2 ) );
+  this->AnnotationLeaders->Initialize();
+  this->AnnotationLeaders->SetPoints( lpts );
+  this->AnnotationLeaders->SetLines( llines );
+  lpts->Delete(); llines->Delete();
+
   // Start at the center and move outward (both up and down), accumulating label heights as we go.
   int ic = numNotes / 2;
   int dn, up;
   double dnCum, upCum, ctr, hh;
   double* bds;
+  // leader-line endpoint x-coordinates:
+  double xl0 = barX + ( this->TextPosition == PrecedeScalarBar ? +1 : -1 ) * pad / 2.;
+  double xl1 = barX + ( this->TextPosition == PrecedeScalarBar ? +1 : -1 ) * ( pad / 2. + this->AnnotationLeaderPadding );
+  vtkIdType ll[2]; // leader-line endpoint IDs
   if ( 2 * ic == numNotes )
     {
     dn = ic;
@@ -1236,7 +1269,6 @@ struct vtkScalarBarHLabelInfo
   double Y[2]; // padded top-bottom label bounds
   int Justification;
   double Anchor[2]; // x-y coordinates of anchor point
-  std::set<double> Breaks; // Potential breaks in leader line. Sorted. Always an even number, in (break-out,break-in) pairs.
 };
 
 // A non-overlapping label placer for a horizontal array of annotated swatches.
@@ -1249,12 +1281,14 @@ struct vtkScalarBarHLabelPlacer
   double XBounds[2];
   double Delta;
   double Pad;
+  double LeaderPad;
   double Dir; // displacement direction (either +1 or -1)
 
   vtkScalarBarHLabelPlacer(
     unsigned n, double y0, double dir, double xmin, double xmax,
-    double delta, double pad )
-    : Places( n ), Ctr( n / 2 ), Y0( y0 ), Dir( dir < 0 ? -1. : +1. ), Delta( delta ), Pad( pad )
+    double delta, double pad, double leaderPad )
+    : Places( n ), Ctr( n / 2 ), Y0( y0 ), Dir( dir < 0 ? -1. : +1. ),
+      Delta( delta ), Pad( pad ), LeaderPad( leaderPad )
     {
     this->XBounds[0] = xmin;
     this->XBounds[1] = xmax;
@@ -1269,7 +1303,7 @@ struct vtkScalarBarHLabelPlacer
     if ( posRelToCenter == 0 )
       { // center label
       double xbar = ( this->XBounds[0] + this->XBounds[1] ) / 2.;
-      placement.Y[0] = Y0 + this->Dir * this->Pad;
+      placement.Y[0] = Y0 + this->Dir * ( this->LeaderPad + this->Pad );
       placement.Y[1] = placement.Y[0] + this->Dir * ht; // Note un-padded bounds on distal y axis! Required below.
       placement.X[0] = xbar - wd / 2. - this->Pad;
       placement.X[1] = xbar + wd / 2. + this->Pad;
@@ -1353,7 +1387,7 @@ struct vtkScalarBarHLabelPlacer
         }
       else
         { // must displace... find out by how much
-        placement.Y[0] = this->Places[medNeighbor].Y[1] + this->Dir * this->Pad; // at least as much as my immediate medial neighbor
+        placement.Y[0] = this->Places[medNeighbor].Y[1] + this->Dir * this->Pad; // at least as much as immediate medial neighbor
         for ( unsigned j = farMin; j < farMid; ++ j )
           {
           if (
@@ -1367,6 +1401,68 @@ struct vtkScalarBarHLabelPlacer
         placement.Anchor[1] = placement.Y[0]; // Vertical justification changes, but Y[0] is always anchor
         }
       }
+    }
+
+#define VTK_ANN_HLEADER(j) \
+  { \
+    vtkScalarBarHLabelInfo& other( this->Places[j] ); \
+    if ( label.Anchor[0] > other.X[0] && label.Anchor[0] < other.X[1] ) \
+      { \
+      pt = pts->InsertNextPoint( label.Anchor[0], other.Y[0], 0. ); \
+      lines->InsertCellPoint( pt ); \
+      lines->InsertNextCell( 2 ); \
+      curY = other.Y[1]; \
+      pt = pts->InsertNextPoint( label.Anchor[0], curY, 0. ); \
+      lines->InsertCellPoint( pt ); \
+      } \
+  }
+
+  // Only called after all labels are placed
+  void AddBrokenLeader( unsigned i, vtkPoints* pts, vtkCellArray* lines )
+    {
+    vtkIdType pt;
+    vtkScalarBarHLabelInfo& label( this->Places[i] );
+    // I. Insert first vertex near swatch:
+    lines->InsertNextCell( 2 );
+    double curY = this->Y0 + this->Dir * this->Pad / 2.;
+    pt = pts->InsertNextPoint( label.Anchor[0], curY, 0. );
+    lines->InsertCellPoint( pt );
+    // II. Loop over all labels checking for interference. Where found, close current line and start new one on the other side.
+    int ic = this->Ctr;
+    int lf, rt;
+    bool done = false;
+    if ( 2 * ic == static_cast<int>( this->Places.size() ) )
+      {
+      lf = ic;
+      rt = ic + 1;
+      }
+    else
+      {
+      lf = ic - 1;
+      rt = ic + 1;
+      if ( i == ic )
+        {
+        done = true;
+        }
+      else
+        {
+        VTK_ANN_HLEADER(ic);
+        }
+      }
+    if ( ! done )
+      {
+      for ( ; lf >= 0; -- lf, ++ rt )
+        {
+        if ( lf == i ) break;
+        VTK_ANN_HLEADER(lf);
+        if ( rt == i ) break;
+        VTK_ANN_HLEADER(rt);
+        }
+      }
+
+    // III. Finally, close the open line segment with the label anchor point.
+    pt = pts->InsertNextPoint( label.Anchor[0], label.Anchor[1] - this->Dir * this->Pad / 2., 0. );
+    lines->InsertCellPoint( pt );
     }
 };
 
@@ -1402,12 +1498,22 @@ int vtkScalarBarActor::LayoutAnnotationsHorizontally(
     }
 
 #define VTK_ANN_HLAYOUT(j,placer) \
-    this->AnnotationLabels[j]->GetTextProperty()->SetJustification( placer.Places[j].Justification ); \
-    this->AnnotationLabels[j]->GetTextProperty()->SetVerticalJustification( placer.Dir > 0 ? VTK_TEXT_BOTTOM : VTK_TEXT_TOP ); \
-    this->AnnotationLabels[j]->SetPosition( placer.Places[j].Anchor );
+  this->AnnotationLabels[j]->GetTextProperty()->SetJustification( placer.Places[j].Justification ); \
+  this->AnnotationLabels[j]->GetTextProperty()->SetVerticalJustification( placer.Dir > 0 ? VTK_TEXT_BOTTOM : VTK_TEXT_TOP ); \
+  this->AnnotationLabels[j]->SetPosition( placer.Places[j].Anchor ); \
+  placer.AddBrokenLeader( j, lpts, llines );
 
   int numNotes = this->AllocateAndSizeAnnotationLabels( lkup );
-  vtkScalarBarHLabelPlacer placer( numNotes, barY, -1.0, barX, barX + barWidth, delta, pad );
+  vtkScalarBarHLabelPlacer placer( numNotes, barY, -1.0, barX, barX + barWidth, delta, pad, this->AnnotationLeaderPadding );
+
+  vtkPoints* lpts = vtkPoints::New();
+  vtkCellArray* llines = vtkCellArray::New();
+  lpts->Allocate( numNotes * numNotes ); // TODO: Improve estimates, but we don't know how many breaks there will be.
+  llines->Allocate( llines->EstimateSize( numNotes * numNotes, 2 ) );
+  this->AnnotationLeaders->Initialize();
+  this->AnnotationLeaders->SetPoints( lpts );
+  this->AnnotationLeaders->SetLines( llines );
+  lpts->Delete(); llines->Delete();
 
   // Start at the center and move outward (both up and down), accumulating label displacement as we go.
   int ic = numNotes / 2;

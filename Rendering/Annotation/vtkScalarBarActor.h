@@ -201,6 +201,21 @@ public:
   vtkGetMacro( MaximumHeightInPixels, int );
 
   // Description:
+  // Set/get the padding between the scalar bar and the text annotations.
+  // This space is used to draw leader lines.
+  // The default is 8 pixels.
+  vtkSetMacro( AnnotationLeaderPadding, double );
+  vtkGetMacro( AnnotationLeaderPadding, double );
+
+  // Description:
+  // Set/get whether text annotations should be rendered or not.
+  // Currently, this only affects rendering when \a IndexedLookup is true.
+  // The default is true.
+  vtkSetMacro( DrawAnnotations, int );
+  vtkGetMacro( DrawAnnotations, int );
+  vtkBooleanMacro( DrawAnnotations, int );
+
+  // Description:
   // Set/Get whether a background should be drawn around the scalar bar.
   // Default is off.
   vtkSetMacro( DrawBackground, int );
@@ -256,6 +271,8 @@ protected:
   vtkPolyDataMapper2D *ScalarBarMapper;
   vtkActor2D          *ScalarBarActor;
 
+  int                  DrawAnnotations;
+  double               AnnotationLeaderPadding;
   vtkPolyData         *AnnotationBoxes;
   vtkPolyDataMapper2D *AnnotationBoxesMapper;
   vtkActor2D          *AnnotationBoxesActor;
