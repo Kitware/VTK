@@ -42,7 +42,7 @@ vtkStandardNewMacro(vtkCirclePackToPolyData);
 
 vtkCirclePackToPolyData::vtkCirclePackToPolyData()
 {
-  this->SetCirclesArrayName("circle");
+  this->SetCirclesArrayName("circles");
   this->Resolution = 100;
 }
 

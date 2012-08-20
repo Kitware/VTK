@@ -111,6 +111,12 @@ public:
                      std::list<vtkIdType>::iterator circleToEndAt,
                      std::list<vtkIdType>& frontChain);
 
+  void incrListIteratorWrapAround(std::list<vtkIdType>::iterator& i,
+                                  std::list<vtkIdType>& frontChain);
+
+  void decrListIteratorWrapAround(std::list<vtkIdType>::iterator& i,
+                                  std::list<vtkIdType>& frontChain);
+
 private:
 
 };
@@ -123,13 +129,30 @@ vtkCirclePackFrontChainLayoutStrategyImplementation::~vtkCirclePackFrontChainLay
 {
 }
 
+void vtkCirclePackFrontChainLayoutStrategyImplementation::incrListIteratorWrapAround(std::list<vtkIdType>::iterator& i,
+                                                                                     std::list<vtkIdType>& frontChain)
+{
+  if(i != frontChain.end())
+    ++i;
+  else if(i == frontChain.end())
+    i = frontChain.begin();
+}
+
+void vtkCirclePackFrontChainLayoutStrategyImplementation::decrListIteratorWrapAround(std::list<vtkIdType>::iterator& i,
+                                                                                     std::list<vtkIdType>& frontChain)
+{
+  if(i == frontChain.begin())
+    i = frontChain.end();
+  else if(!frontChain.empty())
+    --i;
+}
+
 void vtkCirclePackFrontChainLayoutStrategyImplementation::createCirclePacking(vtkTree* tree,
                                                                               vtkDataArray* sizeArray,
                                                                               vtkDataArray* circlesArray,
                                                                               int height,
                                                                               int width)
 {
-
   double enclosingCircleRadius = height/2.0;
   if(width < height)
     {
@@ -311,6 +334,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(std::
     circlesArray->SetTuple(packedNodes[2],
                            c2);
 
+
     // Iterate over the remaining brother nodes to find circle packing
     std::list<vtkIdType>::iterator Cm;
     std::list<vtkIdType>::iterator Cn;
@@ -373,7 +397,8 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(std::
 
       // First case, there is no intersection so just insert Ci between Cm and Cn
       std::list<vtkIdType>::iterator ti = Cm;
-      frontChain.insert(++ti,packedNodes[i]);
+      incrListIteratorWrapAround(ti, frontChain);
+      frontChain.insert(ti,packedNodes[i]);
       this->findCn(Cm,
                    Cn,
                    frontChain);
@@ -412,7 +437,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(std::
     }
 
   double scaleFactor = enclosingCircleRadius/layoutRadius;
-
+  if (layoutRadius == 0) scaleFactor = 1;
   // Scale and translate each circle
   for(int i = 0;i < (int) packedNodes.size();i++)
     {
@@ -423,6 +448,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(std::
     circle[2] = circle[2]*scaleFactor;
     circlesArray->SetTuple(packedNodes[i],
                            circle);
+
     }
 
   // Now that each circle at this level is positioned and scaled,
@@ -458,11 +484,9 @@ bool vtkCirclePackFrontChainLayoutStrategyImplementation::validCjAfterCn(vtkIdTy
   while(CnSearchPathLength < searchPathLength)
     {
     CnSearchPathLength++;
-    --Cn;
+    decrListIteratorWrapAround(Cn, frontChain);
     if(Cn == frontChain.end())
-      {
-      --Cn;
-      }
+      decrListIteratorWrapAround(Cn, frontChain);
       if(this->circlesIntersect(Ci,
                                 *Cn,
                                 circlesArray))
@@ -490,11 +514,10 @@ bool vtkCirclePackFrontChainLayoutStrategyImplementation::validCjBeforeCm(vtkIdT
   while(CmSearchPathLength < searchPathLength)
     {
     CmSearchPathLength++;
-    ++Cm;
+    incrListIteratorWrapAround(Cm, frontChain);
     if(Cm == frontChain.end())
-      {
-      ++Cm;
-      }
+      incrListIteratorWrapAround(Cm, frontChain);
+
       if(this->circlesIntersect(Ci,
                                 *Cm,
                                 circlesArray))
@@ -532,11 +555,10 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findIntersectingCircle
   while(CnSearchPathLength < searchPathLength)
     {
     CnSearchPathLength++;
-    ++lCn;
+    incrListIteratorWrapAround(lCn, frontChain);
     if(lCn == frontChain.end())
-      {
-      ++lCn;
-      }
+      incrListIteratorWrapAround(lCn, frontChain);
+
     if(this->circlesIntersect(Ci,
                               *lCn,
                               circlesArray))
@@ -572,11 +594,10 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findIntersectingCircle
   while(CmSearchPathLength < searchPathLength)
    {
    CmSearchPathLength++;
-   --lCm;
+   decrListIteratorWrapAround(lCm, frontChain);
    if(lCm == frontChain.end())
-      {
-      --lCm;
-      }
+     decrListIteratorWrapAround(lCm, frontChain);
+
    if(this->circlesIntersect(Ci,
                              *lCm,
                              circlesArray))
@@ -678,11 +699,18 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findCm(double originX,
                                                                  std::list<vtkIdType>::iterator& Cm,
                                                                  std::list<vtkIdType>& frontChain)
 {
-  double minDistance = std::numeric_limits<double>::max();
-  std::list<vtkIdType>::iterator it;
+  std::list<vtkIdType>::iterator it = frontChain.begin();
+  Cm = it;
   double circle[3];
+  double minDistance = 0.0;
+  if(!frontChain.empty())
+    {
+    circlesArray->GetTuple(*it,circle);
+    minDistance = pow(circle[0] - originX,2) + pow(circle[1] - originY,2);
+    ++it;
+    }
 
-  for(it = frontChain.begin(); it != frontChain.end(); ++it)
+  for(; it != frontChain.end(); ++it)
     {
     circlesArray->GetTuple(*it,circle);
     double distanceSq = pow(circle[0] - originX,2) + pow(circle[1] - originY,2);
@@ -699,7 +727,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findCn(std::list<vtkId
                                                                  std::list<vtkIdType>::iterator& Cn,
                                                                  std::list<vtkIdType>& frontChain)
 {
-  ++Cm;
+  incrListIteratorWrapAround(Cm, frontChain);
   if(Cm == frontChain.end())
     {
     Cn = frontChain.begin();
@@ -737,7 +765,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::deleteSection(std::lis
                                                                         std::list<vtkIdType>::iterator circleToEndAt,
                                                                         std::list<vtkIdType>& frontChain)
 {
-  ++circleToStartAt;
+  incrListIteratorWrapAround(circleToStartAt, frontChain);
   while ( (circleToStartAt != frontChain.end())&&(circleToStartAt != circleToEndAt) )
     {
     circleToStartAt = frontChain.erase(circleToStartAt);
@@ -773,6 +801,7 @@ void vtkCirclePackFrontChainLayoutStrategy::Layout(vtkTree *inputTree,
                                                    vtkDataArray *areaArray,
                                                    vtkDataArray* sizeArray)
 {
+
     this->pimpl->createCirclePacking(inputTree,
                                      sizeArray,
                                      areaArray,
