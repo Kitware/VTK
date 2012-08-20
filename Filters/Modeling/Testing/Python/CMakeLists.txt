@@ -1,28 +1,20 @@
-if(VTK_PYTHON_EXE)
-  set(tests)
-  if(VTK_DATA_ROOT)
-    # Tests written in Python that require VTKData
-    # These tests should use vtk.test.Testing.
-    set(tests
-      ${tests}
-      TestNamedColorsIntegration
-    )
-  else()
-    # Tests written in Python that do NOT require VTKData
-    # These tests should use vtk.test.Testing.
-    set(tests
-      ${tests}
-    )
-  endif()
-  if(tests)
-    foreach(tfile ${tests})
-      add_test(NAME ${vtk-module}Python-${tfile}
-        COMMAND ${VTK_PYTHON_EXE}
-          ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.py
-          -D ${VTK_DATA_ROOT}
-          -B ${VTK_DATA_ROOT}/Baseline/Graphics)
-    endforeach()
-  endif()
-else()
-  message(FATAL_ERROR "No Python tests added!")
-endif()
+add_test_python(Hyper.py Graphics)
+add_test_python(HyperScalarBar.py Graphics)
+add_test_python(KlineBottle.py Graphics)
+add_test_python(TenEllip.py Graphics)
+add_test_python(TestBandedContourFilter.py Graphics)
+add_test_python(TestBoxFunction.py Graphics)
+add_test_python(TestImageMarchingCubes.py Graphics)
+add_test_python(TestRibbonAndTube.py Graphics)
+add_test_python(TestRuledSurface.py Graphics)
+add_test_python(TestRuledSurface2.py Graphics)
+add_test_python(TestSpherePuzzle.py Graphics)
+add_test_python(TestSpherePuzzleArrows.py Graphics)
+add_test_python(camera.py Hybrid)
+add_test_python(eleState.py Graphics)
+add_test_python(extrudeCopyCD.py Graphics)
+add_test_python(schwarz.py Graphics)
+add_test_python(smoothCyl.py Graphics)
+add_test_python(smoothCyl2.py Graphics)
+add_test_python(subDivideTetra.py Graphics)
+add_test_python(subdividePointData.py Graphics)
