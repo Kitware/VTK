@@ -23,6 +23,20 @@
 // uniform alpha blend. This is used, for example, to blend a vtkActor's
 // opacity with the lookup table values.
 //
+// Specific scalar values may be annotated with text strings that will
+// be included in color legends using \a SetAnnotations, \a SetAnnotation,
+// \a GetNumberOfAnnotatedValues, \a GetAnnotatedValue, \a GetAnnotation,
+// \a RemoveAnnotation, and \a ResetAnnotations.
+//
+// This class also has a method for indicating that the set of annotated values
+// form a categorical color map;
+// by setting \a IndexedLookup to true, you indicate that the annotated
+// values are the only valid values for which entries in the color table
+// should be returned.
+// In this mode, subclasses should then assign colors
+// to annotated values by taking the modulus of an annotated value's index in the list
+// of annotations with the number of colors in the table.
+//
 // .SECTION See Also
 // vtkLookupTable vtkColorTransferFunction
 
@@ -30,10 +44,14 @@
 #define __vtkScalarsToColors_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkVariant.h" // Set/get annotation methods require variants.
 #include "vtkObject.h"
 
 class vtkDataArray;
 class vtkUnsignedCharArray;
+class vtkAbstractArray;
+class vtkStringArray;
+
 
 class VTKCOMMONCORE_EXPORT vtkScalarsToColors : public vtkObject
 {
@@ -209,9 +227,63 @@ public:
   // Get the number of available colors for mapping to.
   virtual vtkIdType GetNumberOfAvailableColors();
 
+  // Description:
+  // Set a list of discrete values, either
+  // as a categorical set of values (when IndexedLookup is true) or
+  // as a set of annotations to add to a scalar array (when IndexedLookup is false).
+  // The two arrays must both either be NULL or of the same length or
+  // the call will be ignored.
+  virtual void SetAnnotations( vtkAbstractArray* values, vtkStringArray* annotations );
+  vtkGetObjectMacro(AnnotatedValues,vtkAbstractArray);
+  vtkGetObjectMacro(Annotations,vtkStringArray);
+
+  /**\brief Add a new entry (or change an existing entry) to the list of annotated values.
+    *
+    * Returns the index of \a value in the list of annotations.
+    */
+  virtual vtkIdType SetAnnotation( vtkVariant value, vtkStdString annotation );
+
+  /// This variant of \a SetAnnotation accepts the value as a string so ParaView can treat annotations as string vector arrays.
+  virtual vtkIdType SetAnnotation( vtkStdString value, vtkStdString annotation );
+
+  /// Return the annotated value at a particular index in the list of annotations.
+  vtkIdType GetNumberOfAnnotatedValues();
+
+  /// Return the annotated value at a particular index in the list of annotations.
+  vtkVariant GetAnnotatedValue( vtkIdType idx );
+
+  /// Return the annotation at a particular index in the list of annotations.
+  vtkStdString GetAnnotation( vtkIdType idx );
+
+  /// Return the index of the given value in the list of annotated values (or -1 if not present).
+  vtkIdType GetAnnotatedValueIndex( vtkVariant val );
+
+  /// Look up an index into the array of annotations given a value. Does no pointer checks. Returns -1 when \a val not present.
+  vtkIdType GetAnnotatedValueIndexInternal( vtkVariant& val );
+
+  /**\brief Remove an existing entry from the list of annotated values.
+    *
+    * True is returned when the entry was actually removed (i.e., it existed before the call).
+    * Otherwise, false is returned.
+    */
+  virtual bool RemoveAnnotation( vtkVariant value );
+
+  /// Remove all existing values and their annotations.
+  virtual void ResetAnnotations();
+
+  // Description:
+  // Set/get whether the lookup table is for categorical or ordinal data.
+  // The default is ordinal data and values not present in the lookup table
+  // will be assigned an interpolated color.
+  // When categorical data is present, only values in the lookup table will be
+  // considered valid; all other values will be assigned \a NanColor.
+  vtkSetMacro(IndexedLookup,int);
+  vtkGetMacro(IndexedLookup,int);
+  vtkBooleanMacro(IndexedLookup,int);
+
 protected:
   vtkScalarsToColors();
-  ~vtkScalarsToColors() {}
+  ~vtkScalarsToColors();
 
   // Description:
   // An internal method that assumes that the input already has the right
@@ -234,6 +306,18 @@ protected:
   void MapVectorsToMagnitude(void *input, double *output,
                              int inputDataType, int numberOfValues,
                              int numberOfComponents, int vectorSize);
+
+  /// Allocate annotation arrays if needed, then return the index of the given \a value or -1 if not present.
+  virtual vtkIdType CheckForAnnotatedValue( vtkVariant value );
+  /// Update the map from annotated values to indices in the array of annotations.
+  virtual void UpdateAnnotatedValueMap();
+
+  // Annotations of specific values.
+  class vtkInternalAnnotatedValueMap;
+  vtkAbstractArray* AnnotatedValues;
+  vtkStringArray* Annotations;
+  vtkInternalAnnotatedValueMap* AnnotatedValueMap;
+  int IndexedLookup;
 
   double Alpha;
 

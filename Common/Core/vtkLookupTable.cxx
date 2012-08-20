@@ -22,14 +22,7 @@
 #include "vtkStringArray.h"
 #include "vtkVariantArray.h"
 
-#include <map>
-
 #include <assert.h>
-
-// A helper map for quick lookups of annotated values.
-class vtkLookupTable::vtkInternalAnnotatedValueMap : public std::map<vtkVariant,vtkIdType>
-{
-};
 
 vtkStandardNewMacro(vtkLookupTable);
 
@@ -43,10 +36,6 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
   this->Table->Delete();
   this->Table->SetNumberOfComponents(4);
   this->Table->Allocate(4*sze,4*ext);
-  this->AnnotatedValues = 0;
-  this->Annotations = 0;
-  this->AnnotatedValueMap = new vtkInternalAnnotatedValueMap;
-  this->IndexedLookup = 0;
 
   this->HueRange[0] = 0.0;
   this->HueRange[1] = 0.66667;
@@ -80,11 +69,6 @@ vtkLookupTable::~vtkLookupTable()
 {
   this->Table->UnRegister( this );
   this->Table = NULL;
-  if ( this->AnnotatedValues )
-    this->AnnotatedValues->UnRegister( this );
-  if ( this->Annotations )
-    this->Annotations->UnRegister( this );
-  delete this->AnnotatedValueMap;
 }
 
 //----------------------------------------------------------------------------
@@ -1223,15 +1207,7 @@ void vtkLookupTable::DeepCopy(vtkScalarsToColors *obj)
   this->Ramp                = lut->Ramp;
   this->InsertTime          = lut->InsertTime;
   this->BuildTime           = lut->BuildTime;
-  this->IndexedLookup       = lut->IndexedLookup;
   this->Table->DeepCopy(lut->Table);
-  vtkAbstractArray* annValues = vtkAbstractArray::CreateArray( lut->AnnotatedValues->GetDataType() );
-  vtkStringArray* annotations = vtkStringArray::New();
-  annValues->DeepCopy( lut->AnnotatedValues );
-  annotations->DeepCopy( lut->Annotations );
-  this->SetAnnotations( annValues, annotations );
-  annValues->Delete();
-  annotations->Delete();
 
   this->Superclass::DeepCopy(obj);
 }
@@ -1240,154 +1216,4 @@ void vtkLookupTable::DeepCopy(vtkScalarsToColors *obj)
 vtkIdType vtkLookupTable::GetNumberOfAvailableColors()
 {
   return this->Table->GetNumberOfTuples();
-}
-
-//----------------------------------------------------------------------------
-void vtkLookupTable::SetAnnotations( vtkAbstractArray* values, vtkStringArray* annotations )
-{
-  if (
-    ( values && ! annotations ) ||
-    ( ! values && annotations ) ||
-    ( values == this->AnnotatedValues && annotations == this->Annotations ) )
-    return;
-
-  bool sameVals = ( values == this->AnnotatedValues );
-  bool sameText = ( annotations == this->Annotations );
-  if ( this->AnnotatedValues && ! sameVals )
-    {
-    this->AnnotatedValues->Delete();
-    this->AnnotatedValues = 0;
-    }
-  if ( this->Annotations && ! sameText )
-    {
-    this->Annotations->Delete();
-    this->Annotations = 0;
-    }
-  if ( ! values )
-    {
-    return;
-    }
-  if ( ! sameVals )
-    {
-    this->AnnotatedValues = values;
-    this->AnnotatedValues->Register( this );
-    }
-  if ( ! sameText )
-    {
-    this->Annotations = annotations;
-    this->Annotations->Register( this );
-    }
-  if ( this->AnnotatedValues )
-    {
-    this->UpdateAnnotatedValueMap();
-    }
-}
-
-vtkIdType vtkLookupTable::SetAnnotation( vtkVariant value, vtkStdString annotation )
-{
-  vtkIdType i = this->CheckForAnnotatedValue( value );
-  if ( i >= 0 )
-    {
-    this->Annotations->SetValue( i, annotation );
-    }
-  else
-    {
-    i = this->Annotations->InsertNextValue( annotation );
-    this->AnnotatedValues->InsertVariantValue( i, value );
-    }
-  this->UpdateAnnotatedValueMap();
-  return i;
-}
-
-vtkIdType vtkLookupTable::GetNumberOfAnnotatedValues()
-{
-  return this->AnnotatedValues ? this->AnnotatedValues->GetNumberOfTuples() : 0;
-}
-
-vtkVariant vtkLookupTable::GetAnnotatedValue( vtkIdType idx )
-{
-  if ( ! this->AnnotatedValues || idx < 0 || idx >= this->AnnotatedValues->GetNumberOfTuples() )
-    {
-    vtkVariant invalid;
-    return invalid;
-    }
-  return this->AnnotatedValues->GetVariantValue( idx );
-}
-
-vtkStdString vtkLookupTable::GetAnnotation( vtkIdType idx )
-{
-  if ( ! this->Annotations )
-    /* Don't check idx as Annotations->GetValue() does: || idx < 0 || idx >= this->Annotations->GetNumberOfTuples() )
-     */
-    {
-    vtkStdString empty;
-    return empty;
-    }
-  return this->Annotations->GetValue( idx );
-}
-
-vtkIdType vtkLookupTable::GetAnnotatedValueIndex( vtkVariant val )
-{
-  return ( this->AnnotatedValues ?  this->CheckForAnnotatedValue( val ) : -1 );
-}
-
-bool vtkLookupTable::RemoveAnnotation( vtkVariant value )
-{
-  vtkIdType i = this->CheckForAnnotatedValue( value );
-  bool needToRemove = ( i >= 0 );
-  if ( needToRemove )
-    {
-    vtkIdType na = this->AnnotatedValues->GetMaxId(); // Note that this is the number of values minus 1.
-    for ( ; i < na; ++ i )
-      {
-      this->AnnotatedValues->SetVariantValue( i, this->AnnotatedValues->GetVariantValue( i + 1 ) );
-      this->Annotations->SetValue( i, this->Annotations->GetValue( i + 1 ) );
-      }
-    this->AnnotatedValues->Resize( na );
-    this->Annotations->Resize( na );
-    this->UpdateAnnotatedValueMap();
-    }
-  return needToRemove;
-}
-
-void vtkLookupTable::ResetAnnotations()
-{
-  if ( ! this->Annotations )
-    {
-    vtkVariantArray* va = vtkVariantArray::New();
-    vtkStringArray* sa = vtkStringArray::New();
-    this->SetAnnotations( va, sa );
-    }
-  this->AnnotatedValues->Reset();
-  this->Annotations->Reset();
-}
-
-vtkIdType vtkLookupTable::CheckForAnnotatedValue( vtkVariant value )
-{
-  if ( ! this->Annotations )
-    {
-    vtkVariantArray* va = vtkVariantArray::New();
-    vtkStringArray* sa = vtkStringArray::New();
-    this->SetAnnotations( va, sa );
-    }
-  return this->GetAnnotatedValueIndexInternal( value );
-}
-
-// An unsafe version of vtkLookupTable::CheckForAnnotatedValue for internal use (no pointer checks performed)
-vtkIdType vtkLookupTable::GetAnnotatedValueIndexInternal( vtkVariant& value )
-{
-  vtkInternalAnnotatedValueMap::iterator it = this->AnnotatedValueMap->find( value );
-  vtkIdType i = ( it == this->AnnotatedValueMap->end() ? -1 : it->second % this->NumberOfColors );
-  return i;
-}
-
-void vtkLookupTable::UpdateAnnotatedValueMap()
-{
-  this->AnnotatedValueMap->clear();
-
-  vtkIdType na = this->AnnotatedValues->GetMaxId() + 1;
-  for ( vtkIdType i = 0; i < na; ++ i )
-    {
-    (*this->AnnotatedValueMap)[this->AnnotatedValues->GetVariantValue( i )] = i;
-    }
 }
