@@ -1742,7 +1742,8 @@ vtkIdType vtkScalarsToColors::CheckForAnnotatedValue( vtkVariant value )
 vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal( vtkVariant& value )
 {
   vtkInternalAnnotatedValueMap::iterator it = this->AnnotatedValueMap->find( value );
-  vtkIdType i = ( it == this->AnnotatedValueMap->end() ? -1 : it->second % this->GetNumberOfAvailableColors() );
+  vtkIdType nv = this->GetNumberOfAvailableColors();
+  vtkIdType i = ( it == this->AnnotatedValueMap->end() ? -1 : ( nv ? it->second % nv : it->second ) );
   return i;
 }
 
