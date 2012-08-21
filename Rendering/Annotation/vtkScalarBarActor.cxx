@@ -1212,7 +1212,7 @@ int vtkScalarBarActor::AllocateAndSizeAnnotationLabels( vtkLookupTable* lkup )
 }
 
 int vtkScalarBarActor::LayoutAnnotationsVertically(
-  double barX, double barY, double barWidth, double barHeight, double delta, double pad )
+  double barX, double barY, double vtkNotUsed(barWidth), double vtkNotUsed(barHeight), double delta, double pad )
 {
   vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
   if ( ! lkup )
@@ -1305,8 +1305,8 @@ struct vtkScalarBarHLabelPlacer
   vtkScalarBarHLabelPlacer(
     unsigned n, double y0, double dir, double xmin, double xmax,
     double delta, double pad, double leaderPad )
-    : Places( n ), Ctr( n / 2 ), Y0( y0 ), Dir( dir < 0 ? -1. : +1. ),
-      Delta( delta ), Pad( pad ), LeaderPad( leaderPad )
+    : Places( n ), Ctr( n / 2 ), Y0( y0 ), Delta( delta ),
+      Pad( pad ), LeaderPad( leaderPad ), Dir( dir < 0 ? -1. : +1. )
     {
     this->XBounds[0] = xmin;
     this->XBounds[1] = xmax;
@@ -1436,7 +1436,7 @@ struct vtkScalarBarHLabelPlacer
   }
 
   // Only called after all labels are placed
-  void AddBrokenLeader( unsigned i, vtkPoints* pts, vtkCellArray* lines )
+  void AddBrokenLeader( int i, vtkPoints* pts, vtkCellArray* lines )
     {
     vtkIdType pt;
     vtkScalarBarHLabelInfo& label( this->Places[i] );
@@ -1507,7 +1507,7 @@ struct vtkScalarBarHLabelPlacer
  * neighbor and checking all other relevant labels for intereference.
  */
 int vtkScalarBarActor::LayoutAnnotationsHorizontally(
-  double barX, double barY, double barWidth, double barHeight, double delta, double pad )
+  double barX, double barY, double barWidth, double vtkNotUsed(barHeight), double delta, double pad )
 {
   vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
   if ( ! lkup )

@@ -18,7 +18,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkUnsignedCharArray.h"
 
-int TestCategoricalColors( int argc, char* argv[] )
+int TestCategoricalColors( int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
 {
   // Create the LUT and add some annotations.
   vtkLookupTable* lut = vtkLookupTable::New();

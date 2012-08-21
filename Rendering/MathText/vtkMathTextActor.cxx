@@ -59,7 +59,7 @@ vtkMathTextActor::~vtkMathTextActor()
 // ----------------------------------------------------------------------------
 double *vtkMathTextActor::GetBounds()
 {
-  this->ComputeRectangle();
+  this->ComputeRectangle( /*viewport*/ 0 );
   return this->RectanglePoints->GetBounds();
 }
 
@@ -118,43 +118,10 @@ int vtkMathTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   //check if we need to render the string
-
   if(this->TextProperty->GetMTime() > this->ImageData->GetMTime() ||
      this->GetMTime() > this->ImageData->GetMTime())
     {
-    unsigned int dpi = 120;
-    vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
-    if (ren)
-      {
-      if (ren->GetRenderWindow())
-        {
-        dpi = static_cast<unsigned int>(ren->GetRenderWindow()->GetDPI());
-        }
-      }
-
-    vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();
-    if ( ! util )
-      { // Fall back to subclass rendering
-      if ( ! this->FreeTypeUtilities->RenderString(
-          this->ScaledTextProperty, this->Input, this->ImageData ) )
-        {
-        vtkErrorMacro(<<"Failed rendering fallback text to buffer");
-        return 0;
-        }
-      }
-    else if ( ! util->RenderString(
-        this->Input, this->ImageData,
-        this->TextProperty, dpi))
-      {
-      vtkErrorMacro(<<"Failed rendering text to buffer");
-      return 0;
-      }
-
-    this->ComputeRectangle();
-
-    this->ImageData->Modified();
-    this->Texture->SetInputData(this->ImageData);
-    this->Texture->Modified();
+    this->ComputeRectangle( viewport );
     }
 
   // Everything is built, just have to render
@@ -170,13 +137,22 @@ int vtkMathTextActor::HasTranslucentPolygonalGeometry()
 }
 
 // ----------------------------------------------------------------------------
-void vtkMathTextActor::ComputeRectangle()
+void vtkMathTextActor::ComputeRectangle( vtkViewport* viewport )
 {
   //check if we need to render the string
+
   if(this->TextProperty->GetMTime() > this->ImageData->GetMTime() ||
-    this->GetMTime() > this->ImageData->GetMTime())
+     this->GetMTime() > this->ImageData->GetMTime())
     {
     unsigned int dpi = 120;
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
+    if (ren)
+      {
+      if (ren->GetRenderWindow())
+        {
+        dpi = static_cast<unsigned int>(ren->GetRenderWindow()->GetDPI());
+        }
+      }
 
     vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();
     if ( ! util )

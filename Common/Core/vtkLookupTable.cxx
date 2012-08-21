@@ -840,10 +840,6 @@ void vtkLookupTableIndexedMapData(
   int inIncr, int outFormat )
 {
   int i = length;
-  double* range = self->GetTableRange();
-  double maxIndex = self->GetNumberOfColors() - 1;
-  double shift, scale;
-  unsigned char* table = self->GetPointer(0);
   unsigned char* cptr;
   double alpha;
 

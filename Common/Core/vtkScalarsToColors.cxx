@@ -1583,6 +1583,15 @@ void vtkScalarsToColors::SetAnnotations( vtkAbstractArray* values, vtkStringArra
     ( values == this->AnnotatedValues && annotations == this->Annotations ) )
     return;
 
+  if ( values && annotations && values->GetNumberOfTuples() != annotations->GetNumberOfTuples() )
+    {
+    vtkErrorMacro(
+      << "Values and annotations do not have the same number of tuples ("
+      << values->GetNumberOfTuples() << " and " << annotations->GetNumberOfTuples()
+      << ", respectively. Ignoring." );
+    return;
+    }
+
   bool sameVals = ( values == this->AnnotatedValues );
   bool sameText = ( annotations == this->Annotations );
   if ( this->AnnotatedValues && ! sameVals )
@@ -1613,6 +1622,7 @@ void vtkScalarsToColors::SetAnnotations( vtkAbstractArray* values, vtkStringArra
     {
     this->UpdateAnnotatedValueMap();
     }
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -1708,6 +1718,7 @@ bool vtkScalarsToColors::RemoveAnnotation( vtkVariant value )
     this->AnnotatedValues->Resize( na );
     this->Annotations->Resize( na );
     this->UpdateAnnotatedValueMap();
+    this->Modified();
     }
   return needToRemove;
 }
@@ -1723,6 +1734,7 @@ void vtkScalarsToColors::ResetAnnotations()
     }
   this->AnnotatedValues->Reset();
   this->Annotations->Reset();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -1733,6 +1745,8 @@ vtkIdType vtkScalarsToColors::CheckForAnnotatedValue( vtkVariant value )
     vtkVariantArray* va = vtkVariantArray::New();
     vtkStringArray* sa = vtkStringArray::New();
     this->SetAnnotations( va, sa );
+    va->FastDelete();
+    sa->FastDelete();
     }
   return this->GetAnnotatedValueIndexInternal( value );
 }

@@ -104,8 +104,9 @@ public:
   // When the component argument is -1, then the this object uses its
   // own selected technique to change a vector into a scalar to map.
   //
-  // When \a IndexedLookup is true, the scalar opacity function is
-  // not used regardless of \a EnableOpacityMapping.
+  // When \a IndexedLookup (inherited from vtkScalarsToColors) is true,
+  // the scalar opacity function is not used regardless of
+  // \a EnableOpacityMapping.
   virtual vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
                                    int component);
 

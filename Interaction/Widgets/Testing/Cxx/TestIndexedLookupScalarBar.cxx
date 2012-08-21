@@ -382,7 +382,7 @@ public:
     {
     return new vtkScalarKeyboardCommand;
     }
-  virtual void Execute( vtkObject *caller, unsigned long eventId, void* callData )
+  virtual void Execute( vtkObject *caller, unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData) )
     {
     vtkRenderWindowInteractor* ri = vtkRenderWindowInteractor::SafeDownCast( caller );
     if ( this->Lookup && this->RenderWindow && ri )
@@ -448,7 +448,7 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
   outline->SetInputData(pl3d_block0);
   outline->SetExtent(0,100,0,100,9,9);
 
-  vtkBandedPolyDataContourFilter* bands = vtkBandedPolyDataContourFilter::New();
+  vtkSmartPointer<vtkBandedPolyDataContourFilter> bands = vtkSmartPointer<vtkBandedPolyDataContourFilter>::New();
   bands->SetInputConnection( outline->GetOutputPort() );
   bands->SetNumberOfContours( 4 );
   bands->SetScalarModeToIndex();
@@ -504,8 +504,8 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
   recorder->ReadFromInputStringOn();
   recorder->SetInputString(TISBeventLog);
 
-  vtkScalarKeyboardCommand* cb = vtkScalarKeyboardCommand::New();
-  vtkBrewerColors* pal = vtkBrewerColors::New();
+  vtkSmartPointer<vtkScalarKeyboardCommand> cb = vtkSmartPointer<vtkScalarKeyboardCommand>::New();
+  vtkSmartPointer<vtkBrewerColors> pal = vtkSmartPointer<vtkBrewerColors>::New();
   pal->SetCurrentScheme( "Sequential Blue-Green (5)" );
   cb->Lookup = vtkLookupTable::SafeDownCast( scalarWidget->GetScalarBarActor()->GetLookupTable() );
   cb->ScalarBar = scalarWidget->GetScalarBarActor();

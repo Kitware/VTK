@@ -75,7 +75,7 @@ protected:
   vtkMathTextActor();
   ~vtkMathTextActor();
 
-  void ComputeRectangle();
+  virtual void ComputeRectangle( vtkViewport* viewport );
 
 private:
   vtkMathTextActor(const vtkMathTextActor&);  // Not implemented.
