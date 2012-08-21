@@ -135,13 +135,20 @@ void vtkScalarsToColors::DeepCopy(vtkScalarsToColors *obj)
     this->InputRange[0] = obj->InputRange[0];
     this->InputRange[1] = obj->InputRange[1];
     this->IndexedLookup = obj->IndexedLookup;
-    vtkAbstractArray* annValues = vtkAbstractArray::CreateArray( obj->AnnotatedValues->GetDataType() );
-    vtkStringArray* annotations = vtkStringArray::New();
-    annValues->DeepCopy( obj->AnnotatedValues );
-    annotations->DeepCopy( obj->Annotations );
-    this->SetAnnotations( annValues, annotations );
-    annValues->Delete();
-    annotations->Delete();
+    if ( obj->AnnotatedValues && obj->Annotations )
+      {
+      vtkAbstractArray* annValues = vtkAbstractArray::CreateArray( obj->AnnotatedValues->GetDataType() );
+      vtkStringArray* annotations = vtkStringArray::New();
+      annValues->DeepCopy( obj->AnnotatedValues );
+      annotations->DeepCopy( obj->Annotations );
+      this->SetAnnotations( annValues, annotations );
+      annValues->Delete();
+      annotations->Delete();
+      }
+    else
+      {
+      this->SetAnnotations( 0, 0 );
+      }
     }
 }
 
