@@ -116,4 +116,3 @@ void vtkTclApplicationInitTclTk(Tcl_Interp* interp,
                                 const char* const relative_dirs[]);
 
 #endif
-

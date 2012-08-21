@@ -33,6 +33,10 @@ try:
 except ImportError:
     try:
         from PySide import QtCore, QtGui
+
+        #PyQt4 signal/slot compatibility
+        QtCore.pyqtSignal = QtCore.Signal
+        QtCore.pyqtSlot = QtCore.Slot
     except ImportError as err:
         raise ImportError("Cannot load either PyQt or PySide")
 import vtk
@@ -182,6 +186,13 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         self._Iren.GetRenderWindow().AddObserver('CursorChangedEvent',
                                                  self.CursorChangedEvent)
 
+        #Create a hidden child widget and connect its destroyed signal to its
+        #parent ``Finalize`` slot. The hidden children will be destroyed before
+        #its parent thus allowing cleanup of VTK elements.
+        self._hidden = QtGui.QWidget(self)
+        self._hidden.hide()
+        self._hidden.destroyed.connect(self.Finalize)
+
     def __getattr__(self, attr):
         """Makes the object behave like a vtkGenericRenderWindowInteractor"""
         if attr == '__vtk__':
@@ -191,6 +202,13 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         else:
             raise AttributeError, self.__class__.__name__ + \
                   " has no attribute named " + attr
+
+    @QtCore.pyqtSlot()
+    def Finalize(self):
+        '''
+        Call internal cleanup method on VTK objects
+        '''
+        self._RenderWindow.Finalize()
 
     def CreateTimer(self, obj, evt):
         self._Timer.start(10)
@@ -218,6 +236,9 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         vtk_cursor = self._Iren.GetRenderWindow().GetCurrentCursor()
         qt_cursor = self._CURSOR_MAP.get(vtk_cursor, QtCore.Qt.ArrowCursor)
         self.setCursor(qt_cursor)
+
+    def closeEvent(self, evt):
+        self.Finalize()
 
     def sizeHint(self):
         return QtCore.QSize(400, 400)

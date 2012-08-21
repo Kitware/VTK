@@ -49,7 +49,6 @@
 #include "vtkTransformCoordinateSystems.h"
 #include "vtkUndirectedGraph.h"
 #include "vtkVertexGlyphFilter.h"
-#include "vtkViewTheme.h"
 
 vtkStandardNewMacro(vtkGraphMapper);
 
@@ -599,29 +598,6 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
                      this->VertexMapper->GetTimeToDraw() +
                      this->OutlineMapper->GetTimeToDraw() +
                      this->IconMapper->GetTimeToDraw();
-}
-
-void vtkGraphMapper::ApplyViewTheme(vtkViewTheme* theme)
-{
-  this->VertexActor->GetProperty()->SetColor(theme->GetPointColor());
-  this->VertexActor->GetProperty()->SetOpacity(theme->GetPointOpacity());
-  this->SetVertexPointSize(theme->GetPointSize());
-  this->OutlineActor->GetProperty()->SetColor(theme->GetOutlineColor());
-  this->OutlineActor->GetProperty()->SetOpacity(theme->GetPointOpacity());
-  this->VertexLookupTable->SetHueRange(theme->GetPointHueRange());
-  this->VertexLookupTable->SetSaturationRange(theme->GetPointSaturationRange());
-  this->VertexLookupTable->SetValueRange(theme->GetPointValueRange());
-  this->VertexLookupTable->SetAlphaRange(theme->GetPointAlphaRange());
-  this->VertexLookupTable->Build();
-
-  this->EdgeActor->GetProperty()->SetColor(theme->GetCellColor());
-  this->EdgeActor->GetProperty()->SetOpacity(theme->GetCellOpacity());
-  this->SetEdgeLineWidth(theme->GetLineWidth());
-  this->EdgeLookupTable->SetHueRange(theme->GetCellHueRange());
-  this->EdgeLookupTable->SetSaturationRange(theme->GetCellSaturationRange());
-  this->EdgeLookupTable->SetValueRange(theme->GetCellValueRange());
-  this->EdgeLookupTable->SetAlphaRange(theme->GetCellAlphaRange());
-  this->EdgeLookupTable->Build();
 }
 
 //----------------------------------------------------------------------------

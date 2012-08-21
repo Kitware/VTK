@@ -37,7 +37,20 @@ int vtkWrap_IsVoid(ValueInfo *val)
 int vtkWrap_IsVoidFunction(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
-  return (t == VTK_PARSE_FUNCTION);
+
+  if (t == VTK_PARSE_FUNCTION_PTR || t == VTK_PARSE_FUNCTION)
+    {
+    /* check for signature "void (*func)(void *)" */
+    if (val->Function->NumberOfParameters == 1 &&
+        val->Function->Parameters[0]->Type == VTK_PARSE_VOID_PTR &&
+        val->Function->Parameters[0]->NumberOfDimensions == 0 &&
+        val->Function->ReturnValue->Type == VTK_PARSE_VOID)
+      {
+      return 1;
+      }
+    }
+
+  return 0;
 }
 
 int vtkWrap_IsVoidPointer(ValueInfo *val)

@@ -1298,14 +1298,15 @@ bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
         {
         short contourEnd = outline->contours[contour];
         controlType lastTag = FIRST_POINT;
-        controlType contourStartTag;
         double contourStartVec[2];
+        contourStartVec[0] = contourStartVec[1] = 0.0;
         double lastVec[2];
+        lastVec[0] = lastVec[1] = 0.0;
         for (; point <= contourEnd; ++point)
           {
           FT_Vector ftvec = outline->points[point];
           char fttag = outline->tags[point];
-          controlType tag;
+          controlType tag = FIRST_POINT;
           if (fttag & FT_CURVE_TAG_ON)
             {
             tag = ON_POINT;
@@ -1347,7 +1348,6 @@ bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
             {
             path->InsertNextPoint(vec[0], vec[1], 0.0, vtkPath::MOVE_TO);
             lastTag = tag;
-            contourStartTag = tag;
             lastVec[0] = vec[0];
             lastVec[1] = vec[1];
             contourStartVec[0] = vec[0];

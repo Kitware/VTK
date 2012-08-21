@@ -1,34 +1,42 @@
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
 PROJECT (Widgets)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK REQUIRED)
-IF(NOT VTK_USE_RENDERING)
-  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires VTK_USE_RENDERING.")
-ENDIF(NOT VTK_USE_RENDERING)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK COMPONENTS
+    vtkCommonComputationalGeometry
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkFiltersSources
+    vtkInteractionStyle
+    vtkInteractionWidgets
+    vtkRenderingCore
+    vtkRenderingOpenGL
+    vtkRenderingFreeTypeOpenGL
+)
+  include(${VTK_USE_FILE})
+endif()
 
-ADD_EXECUTABLE(Slider Slider.cxx)
-TARGET_LINK_LIBRARIES(Slider vtkRendering vtkWidgets)
+add_executable(Slider MACOSX_BUNDLE Slider.cxx)
+target_link_libraries(Slider ${VTK_LIBRARIES})
 
-ADD_EXECUTABLE(Slider2D Slider2D.cxx)
-TARGET_LINK_LIBRARIES(Slider2D vtkRendering vtkWidgets)
+add_executable(Slider2D MACOSX_BUNDLE Slider2D.cxx)
+target_link_libraries(Slider2D ${VTK_LIBRARIES})
 
-ADD_EXECUTABLE(BalloonWidget BalloonWidget.cxx)
-TARGET_LINK_LIBRARIES(BalloonWidget vtkRendering vtkWidgets)
+add_executable(BalloonWidget MACOSX_BUNDLE BalloonWidget.cxx)
+target_link_libraries(BalloonWidget ${VTK_LIBRARIES})
 
+if(vtkTestingRendering_SOURCE_DIR)
 ######## Regression Testing ########
-SET(KIT WidgetsExamples)
-SET(MyTests TestSlider.cxx TestSlider2D.cxx TestBalloonWidget.cxx)
+  set(KIT WidgetsExamples)
+  set(MyTests TestSlider.cxx TestSlider2D.cxx TestBalloonWidget.cxx)
 
-INCLUDE(vtkTestingObjectFactory)
+  include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
 
-ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
-               ${MyTests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkWidgets)
+  add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
+  target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
 
-IF (VTK_DATA_ROOT)
-  ADD_TEST(${KIT}-Slider ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestSlider)
-  ADD_TEST(${KIT}-Slider2D ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestSlider2D)
-  ADD_TEST(${KIT}-BalloonWidget ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestBalloonWidget)
-ENDIF (VTK_DATA_ROOT)
+  add_test(NAME ${KIT}-Slider COMMAND ${KIT}CxxTests TestSlider)
+  add_test(NAME ${KIT}-Slider2D COMMAND ${KIT}CxxTests TestSlider2D)
+  add_test(NAME ${KIT}-BalloonWidget COMMAND ${KIT}CxxTests TestBalloonWidget)
+endif()

@@ -50,6 +50,7 @@ void GetParticleCoordinates(    hid_t &dataIdx,
   assert( "pre: internal reader should not be NULL" && (iReader != NULL) );
 
   hid_t theTypes[3];
+  theTypes[0] = theTypes[1] = theTypes[2] = H5I_UNINIT;
   xcoords.resize( NumParticles );
   ycoords.resize( NumParticles );
   zcoords.resize( NumParticles );

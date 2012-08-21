@@ -24,14 +24,16 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkTree.h"
 #include "vtkCirclePackLayoutStrategy.h"
+#include "vtkTreeDFSIterator.h"
 
 vtkStandardNewMacro(vtkCirclePackLayout);
 
@@ -39,7 +41,7 @@ vtkCirclePackLayout::vtkCirclePackLayout()
 {
     this->CirclesFieldName = 0;
     this->LayoutStrategy = 0;
-    this->SetCirclesFieldName("circle");
+    this->SetCirclesFieldName("circles");
     this->SetSizeArrayName("size");
 }
 
@@ -53,6 +55,38 @@ vtkCirclePackLayout::~vtkCirclePackLayout()
 }
 
 vtkCxxSetObjectMacro(vtkCirclePackLayout, LayoutStrategy, vtkCirclePackLayoutStrategy);
+
+
+void vtkCirclePackLayout::prepareSizeArray(vtkDoubleArray* mySizeArray,
+                                           vtkTree* tree)
+{
+  vtkTreeDFSIterator* dfs = vtkTreeDFSIterator::New();
+  dfs->SetMode(vtkTreeDFSIterator::FINISH);
+  dfs->SetTree(tree);
+
+  double currentLeafSize = 0.0;
+  while(dfs->HasNext())
+    {
+    vtkIdType vertex = dfs->Next();
+
+    if(tree->IsLeaf(vertex))
+      {
+      double size = mySizeArray->GetValue(vertex);
+      if(size == 0.0)
+        {
+        size = 1.0;
+        mySizeArray->SetValue(vertex, size);
+        }
+      currentLeafSize += size;
+      }
+    else
+      {
+      mySizeArray->SetValue(vertex, currentLeafSize);
+      }
+    }
+
+  dfs->Delete();
+}
 
 int vtkCirclePackLayout::RequestData(
                                   vtkInformation *vtkNotUsed(request),
@@ -79,11 +113,26 @@ int vtkCirclePackLayout::RequestData(
     vtkTree *outputTree = vtkTree::SafeDownCast(
                                                 outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+    // Check for size array on the input vtkTree.
+    vtkDataArray *sizeArray = this->GetInputArrayToProcess(0, inputTree);
+    vtkDoubleArray *mySizeArray = vtkDoubleArray::New();
+    if(sizeArray)
+      {
+      mySizeArray->DeepCopy(sizeArray);
+      }
+    else
+      {
+      mySizeArray->FillComponent(0,0.0);
+      mySizeArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
+      }
+
+    this->prepareSizeArray(mySizeArray, inputTree);
+
     // Copy the input into the output
     outputTree->ShallowCopy(inputTree);
 
     // Add the 3-tuple array that will store the Xcenter, Ycenter, and Radius
-    vtkFloatArray *coordsArray = vtkFloatArray::New();
+    vtkDoubleArray *coordsArray = vtkDoubleArray::New();
     coordsArray->SetName(this->CirclesFieldName);
     coordsArray->SetNumberOfComponents(3);
     coordsArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
@@ -91,17 +140,21 @@ int vtkCirclePackLayout::RequestData(
     data->AddArray(coordsArray);
     coordsArray->Delete();
 
-    // Check for size array on the input vtkTree.
-    vtkDataArray *sizeArray = this->GetInputArrayToProcess(0, inputTree);
-    if (!sizeArray)
-      {
-        vtkErrorMacro("Size array not found.");
-        return 0;
-      }
-
     // Find circle packing layout
-    this->LayoutStrategy->Layout(inputTree, coordsArray, sizeArray);
+    this->LayoutStrategy->Layout(inputTree, coordsArray, mySizeArray);
 
+    mySizeArray->Delete();
+
+    // Copy the coordinates from the layout into the Points field
+    vtkPoints* points = outputTree->GetPoints();
+    points->SetNumberOfPoints(coordsArray->GetNumberOfTuples());
+    for (int i = 0; i < coordsArray->GetNumberOfTuples(); ++i)
+      {
+      double where[3];
+      coordsArray->GetTuple(i, where);
+      where[2] = 0;
+      points->SetPoint(i, where);
+      }
     return 1;
 }
 
@@ -116,7 +169,7 @@ void vtkCirclePackLayout::PrintSelf(ostream& os, vtkIndent indent)
       }
 }
 
-vtkIdType vtkCirclePackLayout::FindVertex(float pnt[2], float *cinfo)
+vtkIdType vtkCirclePackLayout::FindVertex(double pnt[2], double *cinfo)
 {
     // Do we have an output?
     vtkTree* otree = this->GetOutput();
@@ -136,10 +189,10 @@ vtkIdType vtkCirclePackLayout::FindVertex(float pnt[2], float *cinfo)
       }
 
     // Check to see that we are in the dataset at all
-    float climits[3];
+    double climits[3];
 
     vtkIdType vertex = otree->GetRoot();
-    vtkFloatArray *circleInfo = vtkFloatArray::SafeDownCast(array);
+    vtkDoubleArray *circleInfo = vtkDoubleArray::SafeDownCast(array);
     // Now try to find the vertex that contains the point
     circleInfo->GetTupleValue(vertex, climits); // Get the extents of the root
     if (pow((pnt[0]- climits[0]),2) + pow((pnt[1] - climits[1]),2) > pow(climits[2],2))
@@ -184,7 +237,7 @@ vtkIdType vtkCirclePackLayout::FindVertex(float pnt[2], float *cinfo)
     return vertex;
 }
 
-void vtkCirclePackLayout::GetBoundingCircle(vtkIdType id, float *cinfo)
+void vtkCirclePackLayout::GetBoundingCircle(vtkIdType id, double *cinfo)
 {
     // Do we have an output?
     vtkTree* otree = this->GetOutput();
@@ -209,7 +262,7 @@ void vtkCirclePackLayout::GetBoundingCircle(vtkIdType id, float *cinfo)
         return;
       }
 
-    vtkFloatArray *boxInfo = vtkFloatArray::SafeDownCast(array);
+    vtkDoubleArray *boxInfo = vtkDoubleArray::SafeDownCast(array);
     boxInfo->GetTupleValue(id, cinfo);
 }
 

@@ -168,7 +168,7 @@ protected:
   vtkMultiProcessController *Controller;
 
 // BTX
-  std::vector<int> blocksToLoad;
+  std::vector<int> BlocksToLoad;
 // ETX
 
 private:

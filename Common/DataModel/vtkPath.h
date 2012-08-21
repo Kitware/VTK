@@ -74,7 +74,7 @@ public:
   //vtkPath doesn't use cells. These methods return trivial values.
   vtkIdType GetNumberOfCells() { return 0; }
   vtkCell *GetCell(vtkIdType) { return NULL; }
-  void GetCell(vtkIdType, vtkGenericCell *cell) { cell = NULL; }
+  void GetCell(vtkIdType, vtkGenericCell *);
   int GetCellType(vtkIdType) { return 0; }
 
   // Description:

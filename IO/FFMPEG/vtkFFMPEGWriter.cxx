@@ -123,7 +123,11 @@ int vtkFFMPEGWriterInternal::Start()
     }
 
   //choose avi media file format
+#ifdef VTK_FFMPEG_HAS_OLD_HEADER
   this->avOutputFormat = guess_format("avi", NULL, NULL);
+#else
+  this->avOutputFormat = av_guess_format("avi", NULL, NULL);
+#endif
   if (!this->avOutputFormat)
     {
     vtkGenericWarningMacro (<< "Could not open the avi media file format.");
@@ -150,7 +154,11 @@ int vtkFFMPEGWriterInternal::Start()
   //Set up the codec.
   AVCodecContext *c = this->avStream->codec;
   c->codec_id = (CodecID)this->avOutputFormat->video_codec;
+#ifdef VTK_FFMPEG_HAS_OLD_HEADER
   c->codec_type = CODEC_TYPE_VIDEO;
+#else
+ c->codec_type = AVMEDIA_TYPE_VIDEO;
+#endif
   c->width = this->Dim[0];
   c->height = this->Dim[1];
   c->pix_fmt = PIX_FMT_YUVJ420P;
@@ -343,7 +351,11 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
     pkt.stream_index = this->avStream->index;
     if (cc->coded_frame->key_frame) //treat keyframes well
       {
+#ifdef VTK_FFMPEG_HAS_OLD_HEADER
       pkt.flags |= PKT_FLAG_KEY;
+#else
+      pkt.flags |= AV_PKT_FLAG_KEY;
+#endif
       }
     pkt.duration = 0; //presentation duration in time_base units or 0 if NA
     pkt.pos = -1; //byte position in stream or -1 if NA

@@ -114,8 +114,8 @@ int vtkOggTheoraWriterInternal::Start()
   th_info thInfo;
   th_info_init(&thInfo);
   // frame_width and frame_height must be multiples of 16
-  thInfo.frame_width = this->Dim[0]+15&~0xF;
-  thInfo.frame_height = this->Dim[1]+15&~0xF;
+  thInfo.frame_width = (this->Dim[0]+15)&~0xF;
+  thInfo.frame_height = (this->Dim[1]+15)&~0xF;
   thInfo.pic_width = this->Dim[0];
   thInfo.pic_height = this->Dim[1];
   // force even offsets of the picture within the frame
