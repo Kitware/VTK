@@ -13,7 +13,7 @@ conditions.
 $Id: error4.c,v 1.4 2010/06/01 17:48:55 ed Exp $
 */
 
-#include <ncconfig.h>
+#include <config.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,7 +29,7 @@ extern int nc_log_level;
 /* This function prints out a message, if the severity of the message
    is lower than the global nc_log_level. To use it, do something like
    this:
-
+   
    nc_log(0, "this computer will explode in %d seconds", i);
 
    After the first arg (the severity), use the rest like a normal
@@ -37,7 +37,7 @@ extern int nc_log_level;
 
    This function is heavily based on the function in section 15.5 of
    the C FAQ. */
-void
+void 
 nc_log(int severity, const char *fmt, ...)
 {
    va_list argp;
@@ -59,16 +59,17 @@ nc_log(int severity, const char *fmt, ...)
    va_start(argp, fmt);
    vfprintf(stdout, fmt, argp);
    va_end(argp);
-
+   
    /* Put on a final linefeed. */
    fprintf(stdout, "\n");
    fflush(stdout);
 }
 
-void
+void 
 nc_log_hdf5(void)
 {
     H5Eprint(NULL);
 }
 
 #endif /* ifdef LOGGING */
+

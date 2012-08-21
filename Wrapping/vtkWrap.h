@@ -152,14 +152,15 @@ int vtkWrap_HasPublicCopyConstructor(ClassInfo *data);
  * This should be done before any wrapping is done, to make sure
  * that the wrappers see the real types.
  */
-void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo);
+void vtkWrap_ExpandTypedefs(
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
 
 /**
  * Apply any hints about array sizes, e.g. hint that the
  * GetNumberOfComponents() method gives the tuple size.
  */
 void vtkWrap_FindCountHints(
-  ClassInfo *data, HierarchyInfo *hinfo);
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
 
 /**
  * Get the size of a fixed-size tuple
@@ -200,11 +201,11 @@ int vtkWrap_IsSetVectorMethod(FunctionInfo *f);
 int vtkWrap_IsGetVectorMethod(FunctionInfo *f);
 
 /**
- * Count the number of args that are wrapped.
- * This skips the "void *" argument that follows
- * wrapped function pointer arguments.
+ * Count the number of parameters that are wrapped.
+ * This skips the "void *" parameter that follows
+ * wrapped function pointer parameters.
  */
-int vtkWrap_CountWrappedArgs(FunctionInfo *f);
+int vtkWrap_CountWrappedParameters(FunctionInfo *f);
 
 /**
  * Count the number of args that are required.
@@ -212,7 +213,7 @@ int vtkWrap_CountWrappedArgs(FunctionInfo *f);
  * have a default value.  Array args are not allowed
  * to have default values.
  */
-int vtkWrap_CountRequiredArgs(FunctionInfo *f);
+int vtkWrap_CountRequiredArguments(FunctionInfo *f);
 
 /**
  * Write a variable declaration to a file.

@@ -384,7 +384,7 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     // Resize output meta and append model table for current variable
     unsigned int nBlocks = outMeta->GetNumberOfBlocks();
     outMeta->SetNumberOfBlocks( nBlocks + 1 );
-    outMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), varName );
+    outMeta->GetMetaData( nBlocks )->Set( vtkCompositeDataSet::NAME(), varName );
     outMeta->SetBlock( nBlocks, modelTab );
 
     // Clean up
@@ -571,7 +571,7 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   inMeta->SetNumberOfBlocks( nBlocks + 1 );
 
   // Append auto-correlation FFT table at block nBlocks
-  inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), "Autocorrelation FFT" );
+  inMeta->GetMetaData( nBlocks )->Set( vtkCompositeDataSet::NAME(), "Autocorrelation FFT" );
   inMeta->SetBlock( nBlocks, outt );
 
   // Clean up

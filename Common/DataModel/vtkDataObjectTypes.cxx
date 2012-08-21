@@ -34,6 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkImageData.h"
 #include  "vtkMultiBlockDataSet.h"
 #include  "vtkMultiPieceDataSet.h"
+#include  "vtkPath.h"
 #include  "vtkPiecewiseFunction.h"
 #include  "vtkPointSet.h"
 #include  "vtkPolyData.h"
@@ -92,6 +93,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkHyperTreeGrid",
   "vtkMolecule",
   "vtkPistonDataObject",
+  "vtkPath",
   NULL
 };
 
@@ -266,6 +268,10 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkArrayData") == 0)
     {
     return vtkArrayData::New();
+    }
+  else if(strcmp(type, "vtkPath") == 0)
+    {
+    return vtkPath::New();
     }
 /*
   //I am not doing this as it would force either making Common/DataModel dependent on

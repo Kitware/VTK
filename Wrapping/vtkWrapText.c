@@ -835,7 +835,7 @@ const char *vtkWrapText_PythonSignature(
   const char **delims;
   int i, n;
 
-  n = vtkWrap_CountWrappedArgs(currentFunction);
+  n = vtkWrap_CountWrappedParameters(currentFunction);
 
   result = &staticString;
   result->len = 0;
@@ -849,7 +849,7 @@ const char *vtkWrapText_PythonSignature(
 
   for (i = 0; i < n; i++)
     {
-    arg = currentFunction->Arguments[i];
+    arg = currentFunction->Parameters[i];
 
     if (i != 0)
       {

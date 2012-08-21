@@ -7,7 +7,7 @@
  *   $Header: /upc/share/CVS/netcdf-3/cxx/ncvalues.cpp,v 1.12 2008/03/05 16:45:32 russ Exp $
  *********************************************************************/
 
-#include <ncconfig.h>
+#include <config.h>
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -22,8 +22,8 @@
 NcValues::NcValues( void ) : the_type(ncNoType), the_number(0)
 {}
 
-NcValues::NcValues(NcType type, long Num)
-        : the_type(type), the_number(Num)
+NcValues::NcValues(NcType type, long num)
+	: the_type(type), the_number(num)
 {}
 
 NcValues::~NcValues( void )
@@ -32,7 +32,7 @@ NcValues::~NcValues( void )
 long NcValues::num( void )
 {
     return the_number;
-}
+}    
 
 std::ostream& operator<< (std::ostream& os, const NcValues& vals)
 {
@@ -303,11 +303,11 @@ std::ostream& NcValues_char::print(std::ostream& os) const
     os << '"';
     long len = the_number;
     while (the_values[--len] == '\0') // don't output trailing null bytes
-        ;
+	;
     for(int i = 0; i <= len; i++)
-        os << the_values[i] ;
+	os << the_values[i] ;
     os << '"';
-
+    
     return os;
 }
 

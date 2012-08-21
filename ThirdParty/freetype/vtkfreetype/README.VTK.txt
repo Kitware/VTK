@@ -15,20 +15,6 @@ vs the original freetype code
 Added Files
 -----------
 
-builds/win32/freetype/config/ftoption.h:
-  -new file, created from include/freetype/config/ftoption.h
-  -you'll need to manually merge changes from newer freetypes.
-  -the changes from the file it's based on are marked with VTK_FREETYPE_CHANGE:
-    -conditional disabling of compiler warnings
-    -disable FT_CONFIG_OPTION_INLINE_MULFIX, FT_CONFIG_OPTION_USE_LZW, FT_CONFIG_OPTION_USE_ZLIB, FT_CONFIG_OPTION_OLD_INTERNALS
-    -additions to support DLL build for Windows
-
-builds/unix/ftconfig.h.in:
-  -new file, created from builds/unix/ftconfig.in
-  -you'll need to manually merge changes from newer freetypes.
-  -the changes from the file it's based on are marked with VTK_FREETYPE_CHANGE:
-    -use CMake variables
-
 CMakeLists.txt
   -to support CMake builds
 
@@ -51,11 +37,19 @@ include/vtkFreeTypeConfig.h.in
 
 Changed Files
 -------------
+builds/unix/ftconfig.in:
+  -use CMake variables
+
+builds/unix/ftsystem.c:
+  -include our configured ftconfig.h
+
 include/ft2build.h:
   -extensive changes, see file for comments
 
 include/freetype/config/ftoption.h:
   -disable FT_CONFIG_OPTION_INLINE_MULFIX, FT_CONFIG_OPTION_USE_LZW, FT_CONFIG_OPTION_USE_ZLIB, FT_CONFIG_OPTION_OLD_INTERNALS
+  -conditional disabling of compiler warnings
+  -additions to support DLL build for Windows
 
 src/pshinter/pshalgo.c:
   -commented out piece of code to workaround a bug, see bug 10052.

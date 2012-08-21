@@ -1,10 +1,4 @@
-vtk_module(vtkMathText
+vtk_module(vtkRenderingMathText
   DEPENDS
     vtkRenderingCore
-    vtkWrappingPython
-  TEST_DEPENDS
-    vtkTestingRendering
-    vtkInteractionImage
-    vtkRenderingOpenGL
-  EXCLUDE_FROM_WRAPPING
   )

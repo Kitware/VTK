@@ -1037,20 +1037,35 @@ void outputFunction(FILE *fp, ClassInfo *data)
 }
 
 /* print the parsed structures */
-void vtkParseOutput(FILE *fp, FileInfo *file_info)
+int main(int argc, char *argv[])
 {
   OptionInfo *options;
+  FileInfo *file_info;
   ClassInfo *data;
+  FILE *fp;
   int i,j,k;
+
+  /* get command-line args and parse the header file */
+  file_info = vtkParse_Main(argc, argv);
+
+  /* get the command-line options */
+  options = vtkParse_GetCommandLineOptions();
+
+  /* get the output file */
+  fp = fopen(options->OutputFileName, "w");
+
+  if (!fp)
+    {
+    fprintf(stderr, "Error opening output file %s\n", options->OutputFileName);
+    exit(1);
+    }
 
   /* get the main class */
   if ((data = file_info->MainClass) == NULL)
     {
-    return;
+    fclose(fp);
+    exit(0);
     }
-
-  /* get the command-line options */
-  options = vtkParse_GetCommandLineOptions();
 
   /* get the hierarchy info for accurate typing */
   if (options->HierarchyFileName)
@@ -1470,4 +1485,8 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   fprintf(fp,"    return TCL_ERROR;\n");
   fprintf(fp,"    }\n");
   fprintf(fp,"  return TCL_ERROR;\n}\n");
+
+  vtkParse_Free(file_info);
+
+  return 0;
 }

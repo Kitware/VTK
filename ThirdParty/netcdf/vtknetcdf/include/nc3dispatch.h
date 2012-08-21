@@ -1,9 +1,9 @@
 /*
  * Copyright 1993-1996 University Corporation for Atmospheric Research/Unidata
- *
- * Portions of this software were developed by the Unidata Program at the
+ * 
+ * Portions of this software were developed by the Unidata Program at the 
  * University Corporation for Atmospheric Research.
- *
+ * 
  * Access and use of this software shall impose the following obligations
  * and understandings on the user. The user is granted the right, without
  * any fee or cost, to use, copy, modify, alter, enhance and distribute
@@ -20,7 +20,7 @@
  * any support, consulting, training or assistance of any kind with regard
  * to the use, operation and performance of this software nor to provide
  * the user with any updates, revisions, new versions or "bug fixes."
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY UCAR/UNIDATA "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -67,7 +67,7 @@ extern "C" {
 EXTERNL int
 NC3_create(const char *path, int cmode,
            size_t initialsz, int basepe, size_t *chunksizehintp,
-           int useparallel, void* mpidata,
+	   int useparallel, void* mpidata,
            struct NC_Dispatch*, NC** ncp);
 
 /* WARNING: this signature differs from external nc_open API*/
@@ -85,7 +85,7 @@ NC3_redef(int ncid);
 
 EXTERNL int
 NC3__enddef(int ncid, size_t h_minfree, size_t v_align,
-        size_t v_minfree, size_t r_align);
+	size_t v_minfree, size_t r_align);
 
 EXTERNL int
 NC3_sync(int ncid);
@@ -136,9 +136,9 @@ NC3_rename_dim(int ncid, int dimid, const char *name);
 
 EXTERNL int
 NC3_inq_att(int ncid, int varid, const char *name,
-         nc_type *xtypep, size_t *lenp);
+	 nc_type *xtypep, size_t *lenp);
 
-EXTERNL int
+EXTERNL int 
 NC3_inq_attid(int ncid, int varid, const char *name, int *idp);
 
 EXTERNL int
@@ -158,18 +158,18 @@ NC3_get_att(int ncid, int varid, const char *name, void *value, nc_type);
 
 EXTERNL int
 NC3_put_att(int ncid, int varid, const char *name, nc_type datatype,
-           size_t len, const void *value, nc_type);
+	   size_t len, const void *value, nc_type);
 
 /* End {put,get}_att */
 /* Begin _var */
 
 EXTERNL int
 NC3_def_var(int ncid, const char *name,
-         nc_type xtype, int ndims, const int *dimidsp, int *varidp);
+	 nc_type xtype, int ndims, const int *dimidsp, int *varidp);
 
 EXTERNL int
 NC3_inq_var(int ncid, int varid, char *name,
-         nc_type *xtypep, int *ndimsp, int *dimidsp, int *nattsp);
+	 nc_type *xtypep, int *ndimsp, int *dimidsp, int *nattsp);
 
 EXTERNL int
 NC3_inq_varid(int ncid, const char *name, int *varidp);
@@ -180,12 +180,12 @@ NC3_rename_var(int ncid, int varid, const char *name);
 
 EXTERNL int
 NC3_put_vara(int ncid, int varid,
-             const size_t *start, const size_t *count,
+   	     const size_t *start, const size_t *count,
              const void *value, nc_type);
 
 EXTERNL int
 NC3_get_vara(int ncid, int varid,
-             const size_t *start, const size_t *count,
+	     const size_t *start, const size_t *count,
              void *value, nc_type);
 
 /* End _var */

@@ -81,7 +81,7 @@ int vtkExtractLevel::FillOutputPortInformation(
   return 1;
 }
 
-int vtkExtractLevel::RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,vtkInformationVector* )
+int vtkExtractLevel::RequestUpdateExtent(vtkInformation*,vtkInformationVector** inputVector,vtkInformationVector* )
 {
   vtkInformation* inInfo   = inputVector[0]->GetInformationObject(0);
 
@@ -111,7 +111,7 @@ int vtkExtractLevel::RequestUpdateExtent(vtkInformation* request, vtkInformation
       for(vtkExtractLevel::vtkSet::iterator iter =this->Levels->begin(); iter!= this->Levels->end(); ++iter )
         {
         unsigned int level = (*iter);
-        for(int dataIdx=0;dataIdx < metadata->GetNumberOfDataSets(level);++dataIdx )
+        for(unsigned int dataIdx=0;dataIdx < metadata->GetNumberOfDataSets(level);++dataIdx )
           {
           blocksToLoad.push_back(metadata->GetCompositeIndex(level,dataIdx));
           }

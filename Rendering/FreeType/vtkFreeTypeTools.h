@@ -27,6 +27,7 @@
 #include "vtkObject.h"
 
 class vtkImageData;
+class vtkPath;
 class vtkTextProperty;
 class vtkStdString;
 class vtkUnicodeString;
@@ -110,6 +111,14 @@ public:
                     vtkImageData *data);
 
   // Description:
+  // Given a text property and a string, this function populates the vtkPath
+  // path with the outline of the rendered string.
+  bool StringToPath(vtkTextProperty *tprop, const vtkStdString& str,
+                    vtkPath *path);
+  bool StringToPath(vtkTextProperty *tprop, const vtkUnicodeString& str,
+                    vtkPath *path);
+
+  // Description:
   // Turn a string into a hash. This is not a general purpose hash
   // function, and is only used to generate identifiers for cached fonts.
   static vtkTypeUInt16 HashString(const char *str);
@@ -138,27 +147,23 @@ public:
   // Description:
   // Force use of the fonts compiled into VTK, ignoring any FontConfig or
   // embedded fonts. Useful for generating test images consistently across
-  // platforms.
+  // platforms. This flag is on by default.
   vtkSetMacro(ForceCompiledFonts, bool);
   vtkGetMacro(ForceCompiledFonts, bool);
   vtkBooleanMacro(ForceCompiledFonts, bool);
 
   // Description:
   // Lookup and set the FreeType font face @a face best matching the text
-  // property @a tprop using FontConfig to query the installed system fonts.
-  // Returns true if the face is set, false otherwise.
-  static bool LookupFaceFontConfig(vtkTextProperty *tprop, FT_Library lib,
-                                   FT_Face *face);
-
-  // Description:
-  // Lookup and set the FreeType font face @a face best matching the text
   // property @a tprop using the compiled Arial, Times, and Courier fonts. If
   // an unrecognized font family is requested, Arial will be substituted.
   // Returns true if the face is set, false otherwise.
-  static bool LookupFaceCompiledFonts(vtkTextProperty *tprop, FT_Library lib,
-                                      FT_Face *face);
+  static bool LookupFace(vtkTextProperty *tprop, FT_Library lib, FT_Face *face);
 
 protected:
+  // Description:
+  // Create the FreeType Cache manager instance and set this->CacheManager
+  virtual FT_Error CreateFTCManager();
+
   // Description:
   // This function initializes calculates the size of the required bounding box.
   template <typename T>
@@ -178,6 +183,12 @@ protected:
   template <typename T>
   bool PopulateImageData(vtkTextProperty *tprop, const T& str,
                          int x, int y, vtkImageData *data);
+
+  // Description:
+  // Internal helper method called by StringToPath
+  template <typename T>
+  bool PopulatePath(vtkTextProperty *tprop, const T& str,
+                    int x, int y, vtkPath *path);
 
   // Description:
   // Given a text property, get the corresponding FreeType size object
@@ -238,10 +249,6 @@ protected:
   vtkFreeTypeTools();
   virtual ~vtkFreeTypeTools();
 
-private:
-  vtkFreeTypeTools(const vtkFreeTypeTools&);  // Not implemented.
-  void operator=(const vtkFreeTypeTools&);  // Not implemented.
-
   // Description:
   // Attempt to get the typeface of the specified font.
   bool GetFace(vtkTextProperty *prop, unsigned long &prop_cache_id,
@@ -252,6 +259,12 @@ private:
   FT_Bitmap* GetBitmap(FT_UInt32 c, unsigned long prop_cache_id,
                        int prop_font_size, FT_UInt &gindex,
                        FT_BitmapGlyph &bitmap_glyph);
+
+  // Description:
+  // Attempt to get the outline for the specified character.
+  FT_Outline* GetOutline(FT_UInt32 c, unsigned long prop_cache_id,
+                         int prop_font_size, FT_UInt &gindex,
+                         FT_OutlineGlyph &outline_glyph);
 
   // Description:
   // The singleton instance and the singleton cleanup instance
@@ -282,6 +295,10 @@ private:
 
   void InitializeCacheManager();
   void ReleaseCacheManager();
+
+private:
+  vtkFreeTypeTools(const vtkFreeTypeTools&);  // Not implemented.
+  void operator=(const vtkFreeTypeTools&);  // Not implemented.
 };
 
 #endif

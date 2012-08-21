@@ -64,9 +64,9 @@ public:
 
   // Description:
   //
-  vtkSetMacro(UseNativeCutter, int);
-  vtkGetMacro(UseNativeCutter, int);
-  vtkBooleanMacro(UseNativeCutter,int);
+  vtkSetMacro(UseNativeCutter, bool);
+  vtkGetMacro(UseNativeCutter, bool);
+  vtkBooleanMacro(UseNativeCutter, bool);
 
   // Description:
   // Set/Get a multiprocess controller for parallel processing.

@@ -13,10 +13,10 @@ IsSigned64Bit(int VariantType)
   return ((VariantType == VTK_LONG_LONG) ||
           (VariantType == VTK___INT64) ||
           (VariantType == VTK_TYPE_INT64));
-#elsif defined(VTK_TYPE_USE_LONG_LONG)
+#elif defined(VTK_TYPE_USE_LONG_LONG)
   return ((VariantType == VTK_LONG_LONG) ||
           (VariantType == VTK_TYPE_INT64));
-#elsif defined(VTK_TYPE_USE___INT64)
+#elif defined(VTK_TYPE_USE___INT64)
   return ((VariantType == VTK___INT64) ||
           (VariantType == VTK_TYPE_INT64));
 #else

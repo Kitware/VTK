@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkStreaklineFilter - A Parallel Particle tracer for unsteady vector fields
 // .SECTION Description
-// vtkStreaklineFilter is a filter that integrates a vector field to generate
+// vtkStreaklineFilter is a filter that integrates a vector field to generate streak lines
 //
 //
 // .SECTION See Also
@@ -30,13 +30,14 @@
 
 class VTKFILTERSFLOWPATHS_EXPORT StreaklineFilterInternal
 {
- public:
-  StreaklineFilterInternal(vtkParticleTracerBase* filter);
+public:
+  StreaklineFilterInternal():Filter(NULL){}
+  void Initialize(vtkParticleTracerBase* filter);
   virtual ~StreaklineFilterInternal(){}
   virtual int OutputParticles(vtkPolyData* poly);
   void Finalize();
   void Reset();
- private:
+private:
   vtkParticleTracerBase* Filter;
 
 };

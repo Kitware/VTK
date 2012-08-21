@@ -8,46 +8,57 @@ include(vtkWrapping)
 if(VTK_MAKE_INSTANTIATORS)
   include(vtkMakeInstantiator)
 endif()
+if(UNIX AND VTK_BUILD_FORWARDING_EXECUTABLES)
+  include(vtkForwardingExecutable)
+endif()
 
 macro(vtk_module _name)
   vtk_module_check_name(${_name})
   set(vtk-module ${_name})
   set(vtk-module-test ${_name}-Test)
   set(_doing "")
-  set(VTK_MODULE_${vtk-module}_DECLARED 1)
-  set(VTK_MODULE_${vtk-module-test}_DECLARED 1)
-  set(VTK_MODULE_${vtk-module}_DEPENDS "")
-  set(VTK_MODULE_${vtk-module}_COMPILE_DEPENDS "")
-  set(VTK_MODULE_${vtk-module-test}_DEPENDS "${vtk-module}")
-  set(VTK_MODULE_${vtk-module}_IMPLEMENTS "")
-  set(VTK_MODULE_${vtk-module}_DESCRIPTION "description")
-  set(VTK_MODULE_${vtk-module}_EXCLUDE_FROM_ALL 0)
-  set(VTK_MODULE_${vtk-module}_EXCLUDE_FROM_WRAPPING 0)
+  set(${vtk-module}_DECLARED 1)
+  set(${vtk-module-test}_DECLARED 1)
+  set(${vtk-module}_DEPENDS "")
+  set(${vtk-module}_COMPILE_DEPENDS "")
+  set(${vtk-module-test}_DEPENDS "${vtk-module}")
+  set(${vtk-module}_IMPLEMENTS "")
+  set(${vtk-module}_DESCRIPTION "description")
+  set(${vtk-module}_TCL_NAME "${vtk-module}")
+  set(${vtk-module}_EXCLUDE_FROM_ALL 0)
+  set(${vtk-module}_EXCLUDE_FROM_WRAPPING 0)
+  set(${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY 0)
   foreach(arg ${ARGN})
-  if("${arg}" MATCHES "^((|COMPILE_|TEST_|)DEPENDS|DESCRIPTION|IMPLEMENTS|DEFAULT|GROUPS)$")
+  if("${arg}" MATCHES "^((|COMPILE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|DEFAULT|GROUPS)$")
       set(_doing "${arg}")
     elseif("${arg}" MATCHES "^EXCLUDE_FROM_ALL$")
       set(_doing "")
-      set(VTK_MODULE_${vtk-module}_EXCLUDE_FROM_ALL 1)
+      set(${vtk-module}_EXCLUDE_FROM_ALL 1)
     elseif("${arg}" MATCHES "^EXCLUDE_FROM_WRAPPING$")
       set(_doing "")
-      set(VTK_MODULE_${vtk-module}_EXCLUDE_FROM_WRAPPING 1)
+      set(${vtk-module}_EXCLUDE_FROM_WRAPPING 1)
+    elseif("${arg}" MATCHES "^EXCLUDE_FROM_WRAP_HIERARCHY$")
+      set(_doing "")
+      set(${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY 1)
     elseif("${arg}" MATCHES "^[A-Z][A-Z][A-Z]$" AND
            NOT "${arg}" MATCHES "^(ON|OFF|MPI)$")
       set(_doing "")
       message(AUTHOR_WARNING "Unknown argument [${arg}]")
     elseif("${_doing}" MATCHES "^DEPENDS$")
-      list(APPEND VTK_MODULE_${vtk-module}_DEPENDS "${arg}")
+      list(APPEND ${vtk-module}_DEPENDS "${arg}")
     elseif("${_doing}" MATCHES "^TEST_DEPENDS$")
-      list(APPEND VTK_MODULE_${vtk-module-test}_DEPENDS "${arg}")
+      list(APPEND ${vtk-module-test}_DEPENDS "${arg}")
     elseif("${_doing}" MATCHES "^COMPILE_DEPENDS$")
-      list(APPEND VTK_MODULE_${vtk-module}_COMPILE_DEPENDS "${arg}")
+      list(APPEND ${vtk-module}_COMPILE_DEPENDS "${arg}")
     elseif("${_doing}" MATCHES "^DESCRIPTION$")
       set(_doing "")
-      set(VTK_MODULE_${vtk-module}_DESCRIPTION "${arg}")
+      set(${vtk-module}_DESCRIPTION "${arg}")
+    elseif("${_doing}" MATCHES "^TCL_NAME")
+      set(_doing "")
+      set(${vtk-module}_TCL_NAME "${arg}")
     elseif("${_doing}" MATCHES "^IMPLEMENTS$")
-      list(APPEND VTK_MODULE_${vtk-module}_DEPENDS "${arg}")
-      list(APPEND VTK_MODULE_${vtk-module}_IMPLEMENTS "${arg}")
+      list(APPEND ${vtk-module}_DEPENDS "${arg}")
+      list(APPEND ${vtk-module}_IMPLEMENTS "${arg}")
     elseif("${_doing}" MATCHES "^DEFAULT")
       message(FATAL_ERROR "Invalid argument [DEFAULT]")
     elseif("${_doing}" MATCHES "^GROUPS")
@@ -61,15 +72,17 @@ macro(vtk_module _name)
       message(AUTHOR_WARNING "Unknown argument [${arg}]")
     endif()
   endforeach()
-  list(SORT VTK_MODULE_${vtk-module}_DEPENDS) # Deterministic order.
-  set(VTK_MODULE_${vtk-module}_LINK_DEPENDS
-    "${VTK_MODULE_${vtk-module}_DEPENDS}")
-  list(APPEND VTK_MODULE_${vtk-module}_DEPENDS
-    ${VTK_MODULE_${vtk-module}_COMPILE_DEPENDS})
-  unset(VTK_MODULE_${vtk-module}_COMPILE_DEPENDS)
-  list(SORT VTK_MODULE_${vtk-module}_DEPENDS) # Deterministic order.
-  list(SORT VTK_MODULE_${vtk-module-test}_DEPENDS) # Deterministic order.
-  list(SORT VTK_MODULE_${vtk-module}_IMPLEMENTS) # Deterministic order.
+  list(SORT ${vtk-module}_DEPENDS) # Deterministic order.
+  set(${vtk-module}_LINK_DEPENDS "${${vtk-module}_DEPENDS}")
+  list(APPEND ${vtk-module}_DEPENDS ${${vtk-module}_COMPILE_DEPENDS})
+  unset(${vtk-module}_COMPILE_DEPENDS)
+  list(SORT ${vtk-module}_DEPENDS) # Deterministic order.
+  list(SORT ${vtk-module-test}_DEPENDS) # Deterministic order.
+  list(SORT ${vtk-module}_IMPLEMENTS) # Deterministic order.
+  if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
+      "${${vtk-module}_TCL_NAME}" MATCHES "[0-9]")
+    message(AUTHOR_WARNING "Specify a TCL_NAME with no digits.")
+  endif()
 endmacro()
 
 macro(vtk_module_check_name _name)
@@ -83,7 +96,7 @@ endmacro()
 macro(vtk_module_impl)
   include(module.cmake) # Load module meta-data
 
-  vtk_module_config(_dep ${VTK_MODULE_${vtk-module}_DEPENDS})
+  vtk_module_config(_dep ${${vtk-module}_DEPENDS})
   if(_dep_INCLUDE_DIRS)
     include_directories(${_dep_INCLUDE_DIRS})
     # This variable is used in vtkWrapping.cmake
@@ -95,7 +108,7 @@ macro(vtk_module_impl)
 
   if(NOT DEFINED ${vtk-module}_LIBRARIES)
     set(${vtk-module}_LIBRARIES "")
-    foreach(dep IN LISTS VTK_MODULE_${vtk-module}_LINK_DEPENDS)
+    foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
       list(APPEND ${vtk-module}_LIBRARIES "${${dep}_LIBRARIES}")
     endforeach()
     if(${vtk-module}_LIBRARIES)
@@ -132,16 +145,16 @@ macro(vtk_module_export_info)
   foreach(opt ${${vtk-module}_EXPORT_OPTIONS})
     set(_code "${_code}set(${opt} \"${${opt}}\")\n")
   endforeach()
-  if(VTK_MODULE_${vtk-module}_EXCLUDE_FROM_WRAPPING)
+  if(${vtk-module}_EXCLUDE_FROM_WRAPPING)
     set(_code "${_code}set(${vtk-module}_EXCLUDE_FROM_WRAPPING 1)\n")
   endif()
-  if(VTK_MODULE_${vtk-module}_IMPLEMENTS)
-    set(_code "${_code}set(${vtk-module}_IMPLEMENTS \"${VTK_MODULE_${vtk-module}_IMPLEMENTS}\")\n")
+  if(${vtk-module}_IMPLEMENTS)
+    set(_code "${_code}set(${vtk-module}_IMPLEMENTS \"${${vtk-module}_IMPLEMENTS}\")\n")
   endif()
   set(vtk-module-EXPORT_CODE-build "${_code}${${vtk-module}_EXPORT_CODE_BUILD}")
   set(vtk-module-EXPORT_CODE-install "${_code}${${vtk-module}_EXPORT_CODE_INSTALL}")
 
-  set(vtk-module-DEPENDS "${VTK_MODULE_${vtk-module}_DEPENDS}")
+  set(vtk-module-DEPENDS "${${vtk-module}_DEPENDS}")
   set(vtk-module-LIBRARIES "${${vtk-module}_LIBRARIES}")
   set(vtk-module-INCLUDE_DIRS-build "${${vtk-module}_INCLUDE_DIRS}")
   set(vtk-module-INCLUDE_DIRS-install "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_INCLUDE_DIR}")
@@ -158,8 +171,11 @@ macro(vtk_module_export_info)
   set(vtk-module-EXPORT_CODE "${vtk-module-EXPORT_CODE-install}")
   configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in
     CMakeFiles/${vtk-module}.cmake @ONLY)
-  install(FILES ${${vtk-module}_BINARY_DIR}/CMakeFiles/${vtk-module}.cmake
-    DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules)
+  if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+    install(FILES ${${vtk-module}_BINARY_DIR}/CMakeFiles/${vtk-module}.cmake
+      DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
+      COMPONENT Development)
+  endif()
 endmacro()
 
 # Export data from a module such as name, include directory and class level
@@ -205,7 +221,7 @@ macro(vtk_module_test)
   if(NOT vtk_module_test_called)
     set(vtk_module_test_called 1) # Run once in a given scope.
     include(../../module.cmake) # Load module meta-data
-    vtk_module_config(${vtk-module-test}-Cxx ${VTK_MODULE_${vtk-module-test}-Cxx_DEPENDS})
+    vtk_module_config(${vtk-module-test}-Cxx ${${vtk-module-test}-Cxx_DEPENDS})
     if(${vtk-module-test}-Cxx_DEFINITIONS)
       set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
         ${${vtk-module-test}-Cxx_DEFINITIONS})
@@ -241,22 +257,33 @@ macro(vtk_target_label _target_name)
   set_property(TARGET ${_target_name} PROPERTY LABELS ${_label})
 endmacro()
 
+# This macro does some basic checking for library naming, and also adds a suffix
+# to the output name with the VTK version by default. Setting the variable
+# VTK_CUSTOM_LIBRARY_SUFFIX will override the suffix.
 macro(vtk_target_name _name)
-  set_property(TARGET ${_name} PROPERTY VERSION 1)
-  set_property(TARGET ${_name} PROPERTY SOVERSION 1)
+  get_property(_type TARGET ${_name} PROPERTY TYPE)
+  if(NOT "${_type}" STREQUAL EXECUTABLE)
+    set_property(TARGET ${_name} PROPERTY VERSION 1)
+    set_property(TARGET ${_name} PROPERTY SOVERSION 1)
+  endif()
   if("${_name}" MATCHES "^[Vv][Tt][Kk]")
     set(_vtk "")
   else()
     set(_vtk "vtk")
     #message(AUTHOR_WARNING "Target [${_name}] does not start in 'vtk'.")
   endif()
-  set_property(TARGET ${_name} PROPERTY OUTPUT_NAME ${_vtk}${_name}-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
+  # Support custom library suffix names, for other projects wanting to inject
+  # their own version numbers etc.
+  if(DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
+    set(_lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
+  else()
+    set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+  endif()
+  set_property(TARGET ${_name} PROPERTY OUTPUT_NAME ${_vtk}${_name}${_lib_suffix})
 endmacro()
 
 macro(vtk_target_export _name)
-  if(NOT VTK_INSTALL_NO_LIBRARIES)
-    set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
-  endif()
+  set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
 endmacro()
 
 macro(vtk_target_install _name)
@@ -286,6 +313,55 @@ macro(vtk_target _name)
     vtk_target_install(${_name})
   endif()
 endmacro()
+
+#------------------------------------------------------------------------------
+# Export a target for a tool that used during the compilation process.
+# This is called by vtk_compile_tools_target().
+macro(vtk_compile_tools_target_export _name)
+  set_property(GLOBAL APPEND PROPERTY VTK_COMPILETOOLS_TARGETS ${_name})
+endmacro()
+
+#------------------------------------------------------------------------------
+macro(vtk_compile_tools_target_install _name)
+  if(NOT VTK_INSTALL_NO_DEVELOPMENT)
+    install(TARGETS ${_name}
+      EXPORT ${VTK_INSTALL_EXPORT_NAME}
+      RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
+      LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
+      ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
+      )
+  endif()
+endmacro()
+
+#------------------------------------------------------------------------------
+# vtk_compile_tools_target() is used to declare a target that builds a tool that
+# is used during the building process. This macro ensures that the target is
+# added to VTK_COMPILETOOLS_TARGETS global property. This also adds install
+# rules for the target unless NO_INSTALL argument is specified or
+# VTK_INSTALL_NO_DEVELOPMENT variable is set.
+macro(vtk_compile_tools_target _name)
+  if (CMAKE_CROSSCOMPILING)
+    message(AUTHOR_WARNING
+      "vtk_compile_tools_target is being called when CMAKE_CROSSCOMPILING is true. "
+      "This generally signifies a script issue. compile-tools are not expected "
+      "to built, but rather imported when CMAKE_CROSSCOMPILING is ON")
+  endif (CMAKE_CROSSCOMPILING)
+ set(_install 1)
+  foreach(arg ${ARGN})
+    if("${arg}" MATCHES "^(NO_INSTALL)$")
+      set(_install 0)
+    else()
+      message(FATAL_ERROR "Unknown argument [${arg}]")
+    endif()
+  endforeach()
+  vtk_target_name(${_name})
+  vtk_target_label(${_name})
+  vtk_compile_tools_target_export(${_name})
+  if(_install)
+    vtk_compile_tools_target_install(${_name})
+  endif()
+endmacro()
+#------------------------------------------------------------------------------
 
 function(vtk_add_library name)
   add_library(${name} ${ARGN} ${headers})
@@ -340,7 +416,7 @@ function(vtk_module_library name)
   vtk_module_export("${ARGN}")
 
   # The instantiators are off by default, and only work on wrapped modules.
-  if(VTK_MAKE_INSTANTIATORS AND NOT VTK_MODULE_${vtk-module}_EXCLUDE_FROM_WRAPPING)
+  if(VTK_MAKE_INSTANTIATORS AND NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING)
     string(TOUPPER "${vtk-module}_EXPORT" _export_macro)
     vtk_make_instantiator3(${vtk-module}Instantiator _instantiator_SRCS
       "${ARGN}" ${_export_macro} ${CMAKE_CURRENT_BINARY_DIR}
@@ -349,7 +425,7 @@ function(vtk_module_library name)
   endif()
 
   vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS})
-  foreach(dep IN LISTS VTK_MODULE_${vtk-module}_LINK_DEPENDS)
+  foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
     target_link_libraries(${vtk-module} ${${dep}_LIBRARIES})
   endforeach()
 
@@ -360,7 +436,7 @@ function(vtk_module_library name)
 
   # Include module headers from dependencies that need auto-init.
   set(mod_autoinit_deps "")
-  foreach(dep IN LISTS VTK_MODULE_${vtk-module}_LINK_DEPENDS)
+  foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
     get_property(dep_autoinit GLOBAL PROPERTY ${dep}_NEEDS_AUTOINIT)
     if(dep_autoinit)
       set(mod_autoinit_deps "${mod_autoinit_deps}\n#include \"${dep}Module.h\"")
@@ -373,7 +449,7 @@ function(vtk_module_library name)
   endif()
 
   # Perform auto-init if this module has or implements an interface.
-  if(${vtk-module}_IMPLEMENTED OR VTK_MODULE_${vtk-module}_IMPLEMENTS)
+  if(${vtk-module}_IMPLEMENTED OR ${vtk-module}_IMPLEMENTS)
     set_property(GLOBAL PROPERTY ${vtk-module}_NEEDS_AUTOINIT 1)
     set(${vtk-module}_EXPORT_CODE
       "${${vtk-module}_EXPORT_CODE}${sep}/* AutoInit implementations.  */
@@ -388,9 +464,15 @@ VTK_AUTOINIT(${vtk-module})
 
   # Generate the export macro header for symbol visibility/Windows DLL declspec
   generate_export_header(${vtk-module} EXPORT_FILE_NAME ${vtk-module}Module.h)
-  add_compiler_export_flags(my_abi_flags)
-  set_property(TARGET ${vtk-module} APPEND
-    PROPERTY COMPILE_FLAGS "${my_abi_flags}")
+  if (BUILD_SHARED_LIBS)
+    # export flags are only added when building shared libs, they cause
+    # mismatched visibility warnings when building statically since not all
+    # libraries that VTK builds don't set visibility flags. Until we get a
+    # time to do that, we skip visibility flags for static builds.
+    add_compiler_export_flags(my_abi_flags)
+    set_property(TARGET ${vtk-module} APPEND
+      PROPERTY COMPILE_FLAGS "${my_abi_flags}")
+  endif()
 
   if(BUILD_TESTING AND PYTHON_EXECUTABLE AND NOT ${vtk-module}_NO_HeaderTest)
     string(TOUPPER "${vtk-module}" MOD)
@@ -476,8 +558,11 @@ macro(vtk_module_third_party _pkg)
   vtk_module_export_info()
 
   configure_file(vtk_${_lower}.h.in vtk_${_lower}.h)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vtk_${_lower}.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR})
+  if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vtk_${_lower}.h
+            DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
+            COMPONENT Development)
+  endif()
 
   if(_subdir AND NOT VTK_USE_SYSTEM_${_upper})
     add_subdirectory(vtk${_lower})
@@ -498,8 +583,8 @@ macro(vtk_add_module src f bld ) # [test-langs]
         vtk_add_test_module(${_lang})
       endif()
     endforeach()
-    if(VTK_MODULE_${vtk-module}_IMPLEMENTS)
-      foreach(dep IN LISTS VTK_MODULE_${vtk-module}_IMPLEMENTS)
+    if(${vtk-module}_IMPLEMENTS)
+      foreach(dep IN LISTS ${vtk-module}_IMPLEMENTS)
         set(${dep}_IMPLEMENTED 1)
       endforeach()
     endif()
@@ -537,13 +622,13 @@ macro(vtk_add_test_module _lang)
   set(_test_module_name ${vtk-module-test}-${_lang})
 
   list(APPEND VTK_MODULES_ALL ${_test_module_name})
-  set(VTK_MODULE_${_test_module_name}_DEPENDS ${VTK_MODULE_${vtk-module-test}_DEPENDS})
+  set(${_test_module_name}_DEPENDS ${${vtk-module-test}_DEPENDS})
   set(${_test_module_name}_SOURCE_DIR ${${vtk-module}_SOURCE_DIR}/Testing/${_lang})
   set(${_test_module_name}_BINARY_DIR ${${vtk-module}_BINARY_DIR}/Testing/${_lang})
   set(${_test_module_name}_IS_TEST 1)
   list(APPEND ${vtk-module}_TESTED_BY ${_test_module_name})
   set(${_test_module_name}_TESTS_FOR ${vtk-module})
-  set(VTK_MODULE_${_test_module_name}_DECLARED 1)
+  set(${_test_module_name}_DECLARED 1)
   # Exclude test modules from wrapping
-  set(VTK_MODULE_${_test_module_name}_EXCLUDE_FROM_WRAPPING 1)
+  set(${_test_module_name}_EXCLUDE_FROM_WRAPPING 1)
 endmacro()

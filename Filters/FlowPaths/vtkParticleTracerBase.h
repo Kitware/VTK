@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkParticleTracerBase - A Parallel Particle tracer for unsteady vector fields
 // .SECTION Description
-// vtkParticleTracerBase is a filter that integrates a vector field to generate
-//
+// vtkParticleTracerBase is the base class for filters that advect particles
+// in a time varying vector field
 //
 // .SECTION See Also
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
@@ -393,6 +393,7 @@ private:
   bool ComputeVorticity;
   double RotationScale;
   double TerminalSpeed;
+  bool ForceReinjectionAtTermination; //whether to reinject seeds again at the termination step
 
   // Important for Caching of Cells/Ids/Weights etc
   int           AllFixedGeometry;

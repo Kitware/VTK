@@ -98,6 +98,7 @@
 #define VTK_HYPER_TREE_GRID                32
 #define VTK_MOLECULE                       33
 #define VTK_PISTON_DATA_OBJECT             34
+#define VTK_PATH                           35
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */

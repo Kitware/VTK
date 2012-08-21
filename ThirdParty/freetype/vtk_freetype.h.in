@@ -22,9 +22,6 @@
 # include <ft2build.h>
 #else
 # include <vtkfreetype/include/ft2build.h>
-#  if defined(VTKFREETYPE)
-#    include "vtkFreeTypeConfig.h"
-#  endif
 #endif
 
 #endif // #ifndef __vtk_freetype_h

@@ -43,6 +43,8 @@
 
 class vtkFloatArray;
 class vtkPainterDeviceAdapter;
+class vtkProp;
+class vtkPropCollection;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
 class vtkRendererCollection;
@@ -123,6 +125,20 @@ public:
   // Description:
   // Return the collection of renderers in the render window.
   vtkRendererCollection *GetRenderers() {return this->Renderers;};
+
+  // Description:
+  // The GL2PS exporter must handle certain props in a special way (e.g. text).
+  // This method performs a render and captures all "GL2PS-special" props in
+  // the returned collection.
+  vtkPropCollection *CaptureGL2PSSpecialProps();
+
+  // Description:
+  // Returns true if the render process is capturing text actors.
+  vtkGetMacro(CapturingGL2PSSpecialProps, int);
+
+  // Description:
+  // This function is called to register a vtkTextActor during capture.
+  int CaptureGL2PSSpecialProp(vtkProp *);
 
   // Description:
   // Ask each renderer owned by this RenderWindow to render its image and
@@ -605,6 +621,8 @@ protected:
   int AnaglyphColorMask[2];
   int MultiSamples;
   int StencilCapable;
+  int CapturingGL2PSSpecialProps;
+  vtkPropCollection *CapturedGL2PSSpecialProps;
 
   // Description:
   // Boolean flag telling if errors from the graphic library have to be

@@ -3,7 +3,7 @@
    copying and redistribution conditions.
  *********************************************************************/
 
-#include <ncconfig.h>
+#include <config.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -38,13 +38,13 @@ add_to_NCList(NC* ncp)
     int i;
     int new_id;
     if(nc_filelist == NULL) {
-        if (!(nc_filelist = calloc(1, sizeof(NC*)*NCFILELISTLENGTH)))
-            return NC_ENOMEM;
-        numfiles = 0;
+	if (!(nc_filelist = calloc(1, sizeof(NC*)*NCFILELISTLENGTH)))
+	    return NC_ENOMEM;
+	numfiles = 0;
     }
     new_id = 0; /* id's begin at 1 */
     for(i=1;i<0x10000;i++) {
-        if(nc_filelist[i] == NULL) {new_id = i; break;}
+	if(nc_filelist[i] == NULL) {new_id = i; break;}
     }
     if(new_id == 0) return NC_ENOMEM; /* no more slots */
     nc_filelist[new_id] = ncp;
@@ -74,6 +74,7 @@ find_in_NCList(int ext_ncid)
    NC* f = NULL;
    unsigned int ncid = ((unsigned int)ext_ncid) >> ID_SHIFT;
    if(numfiles > 0 && nc_filelist != NULL && ncid < NCFILELISTLENGTH)
-        f = nc_filelist[ncid];
+	f = nc_filelist[ncid];
    return f;
 }
+

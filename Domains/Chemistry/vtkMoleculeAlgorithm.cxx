@@ -155,7 +155,7 @@ int vtkMoleculeAlgorithm::RequestUpdateExtent(
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkMoleculeAlgorithm::RequestData(
-  vtkInformation* request,
+  vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector* vtkNotUsed(outputVector) )
 {

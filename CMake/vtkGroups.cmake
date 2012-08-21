@@ -29,7 +29,7 @@ foreach(group ${VTK_GROUPS})
   # Now iterate through the modules, and request those that are depended on.
   if(VTK_Group_${group})
     foreach(module ${VTK_GROUP_${group}_MODULES})
-      list(APPEND VTK_MODULE_${module}_REQUEST_BY VTK_Group_${group})
+      list(APPEND ${module}_REQUEST_BY VTK_Group_${group})
     endforeach()
   endif()
   # Hide the group options if building all modules.

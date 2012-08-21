@@ -11,16 +11,16 @@ static int nc_initialized = 0;
 
 static int
 NC_check_file_type(const char *path, int use_parallel, void *mpi_info,
-                   int *cdf, int *hdf)
+		   int *cdf, int *hdf)
 {
    char magic[MAGIC_NUMBER_LEN];
-
+    
    *hdf = 0; *cdf = 0;
 
    /* Get the 4-byte magic from the beginning of the file. Don't use posix
     * for parallel, use the MPI functions instead. */
 #ifdef USE_PARALLEL_MPIO
-   if (use_parallel)
+   if (use_parallel) 
    {
       MPI_File fh;
       MPI_Status status;
@@ -29,17 +29,17 @@ NC_check_file_type(const char *path, int use_parallel, void *mpi_info,
       MPI_Info info = 0;
 
       if(mpi_info != NULL) {
-      comm = ((NC_MPI_INFO*)mpi_info)->comm;
-      info = ((NC_MPI_INFO*)mpi_info)->info;
+	 comm = ((NC_MPI_INFO*)mpi_info)->comm;
+	 info = ((NC_MPI_INFO*)mpi_info)->info;
       }
-      if((retval = MPI_File_open(comm, (char *)path, MPI_MODE_RDONLY,info,
-                                 &fh)) != MPI_SUCCESS)
-        return NC_EPARINIT;
+      if((retval = MPI_File_open(comm, (char *)path, MPI_MODE_RDONLY,info, 
+				 &fh)) != MPI_SUCCESS)
+	 return NC_EPARINIT;
       if((retval = MPI_File_read(fh, magic, MAGIC_NUMBER_LEN, MPI_CHAR,
-                                 &status)) != MPI_SUCCESS)
-        return NC_EPARINIT;
+				 &status)) != MPI_SUCCESS)
+	 return NC_EPARINIT;
       if((retval = MPI_File_close(&fh)) != MPI_SUCCESS)
-        return NC_EPARINIT;
+	 return NC_EPARINIT;
    } else
 #endif /* USE_PARALLEL */
    {
@@ -47,29 +47,29 @@ NC_check_file_type(const char *path, int use_parallel, void *mpi_info,
       int i;
 
       if (!path)
-        return 0;
+	 return 0;
       if (!(fp = fopen(path, "r")))
-        return errno;
+	 return errno;
       i = fread(magic, MAGIC_NUMBER_LEN, 1, fp);
       fclose(fp);
       if(i != 1)
-        return errno;
+	 return errno;
    }
-
+    
    /* Ignore the first byte for HDF */
    if(magic[1] == 'H' && magic[2] == 'D' && magic[3] == 'F')
       *hdf = 5;
    else if(magic[0] == '\016' && magic[1] == '\003'
-           && magic[2] == '\023' && magic[3] == '\001')
+	   && magic[2] == '\023' && magic[3] == '\001')
       *hdf = 4;
-   else if(magic[0] == 'C' && magic[1] == 'D' && magic[2] == 'F')
+   else if(magic[0] == 'C' && magic[1] == 'D' && magic[2] == 'F') 
    {
-      if(magic[3] == '\001')
-        *cdf = 1;
-      else if(magic[3] == '\002')
-        *cdf = 2;
+      if(magic[3] == '\001') 
+	 *cdf = 1;
+      else if(magic[3] == '\002') 
+	 *cdf = 2;
    }
-
+    
    return NC_NOERR;
 }
 
@@ -81,19 +81,19 @@ nc_create(const char *path, int cmode, int *ncidp)
 
 int
 nc__create(const char *path, int cmode, size_t initialsz,
-           size_t *chunksizehintp, int *ncidp)
+	   size_t *chunksizehintp, int *ncidp)
 {
-   return NC_create(path, cmode, initialsz, 0,
-                    chunksizehintp, 0, NULL, ncidp);
+   return NC_create(path, cmode, initialsz, 0, 
+		    chunksizehintp, 0, NULL, ncidp);
 
 }
 
 int
-nc__create_mp(const char *path, int cmode, size_t initialsz,
-              int basepe, size_t *chunksizehintp, int *ncidp)
+nc__create_mp(const char *path, int cmode, size_t initialsz, 
+	      int basepe, size_t *chunksizehintp, int *ncidp)
 {
-   return NC_create(path, cmode, initialsz, basepe,
-                    chunksizehintp, 0, NULL, ncidp);
+   return NC_create(path, cmode, initialsz, basepe, 
+		    chunksizehintp, 0, NULL, ncidp);
 }
 
 /*
@@ -104,9 +104,9 @@ nc__create_mp(const char *path, int cmode, size_t initialsz,
   3. cmode
 */
 int
-NC_create(const char *path, int cmode, size_t initialsz,
-          int basepe, size_t *chunksizehintp, int useparallel,
-          void* mpi_info, int *ncidp)
+NC_create(const char *path, int cmode, size_t initialsz, 
+	  int basepe, size_t *chunksizehintp, int useparallel, 
+	  void* mpi_info, int *ncidp)
 {
    int stat = NC_NOERR;
    NC* ncp = NULL;
@@ -123,17 +123,17 @@ NC_create(const char *path, int cmode, size_t initialsz,
    if(!nc_initialized)
    {
       if ((stat = NC_initialize()))
-        return stat;
+	 return stat; 
       nc_initialized = 1;
    }
 
    if((isurl = NC_testurl(path)))
-     model = NC_urlmodel(path);
+	model = NC_urlmodel(path);
 
    /* Look to the incoming cmode for hints */
    if(model == 0) {
       if(cmode & NC_NETCDF4 || cmode & NC_PNETCDF)
-        model = NC_DISPATCH_NC4;
+	model = NC_DISPATCH_NC4;
    }
 
    if(model == 0) {
@@ -141,25 +141,25 @@ NC_create(const char *path, int cmode, size_t initialsz,
       int format = default_create_format;
       switch (format) {
 #ifdef USE_NETCDF4
-      case NC_FORMAT_NETCDF4:
-        xcmode |= NC_NETCDF4;
-        model = NC_DISPATCH_NC4;
-        break;
-      case NC_FORMAT_NETCDF4_CLASSIC:
-        xcmode |= NC_CLASSIC_MODEL;
-        model = NC_DISPATCH_NC4;
-        break;
+	 case NC_FORMAT_NETCDF4:
+	    xcmode |= NC_NETCDF4;
+	    model = NC_DISPATCH_NC4;
+	    break;
+	 case NC_FORMAT_NETCDF4_CLASSIC:
+	    xcmode |= NC_CLASSIC_MODEL;
+	    model = NC_DISPATCH_NC4;
+	    break;
 #endif
-      case NC_FORMAT_64BIT:
-        xcmode |= NC_64BIT_OFFSET;
-        /* fall thru */
-      case NC_FORMAT_CLASSIC:
-      default:
-        model = NC_DISPATCH_NC3;
-        break;
+	 case NC_FORMAT_64BIT:
+	    xcmode |= NC_64BIT_OFFSET;
+	    /* fall thru */
+	 case NC_FORMAT_CLASSIC:
+	 default:
+	    model = NC_DISPATCH_NC3;
+	    break;
       }
    }
-
+   
    /* Add inferred flags */
    cmode |= xcmode;
 
@@ -175,36 +175,36 @@ NC_create(const char *path, int cmode, size_t initialsz,
 #ifdef USE_NETCDF4
 #ifdef USE_CDMREMOTE
    if(model == (NC_DISPATCH_NC4 | NC_DISPATCH_NCR))
-     dispatcher = NCCR_dispatch_table;
+	dispatcher = NCCR_dispatch_table;
    else
 #endif
 #ifdef USE_DAP
    if(model == (NC_DISPATCH_NC4 | NC_DISPATCH_NCD))
-     dispatcher = NCD4_dispatch_table;
+	dispatcher = NCD4_dispatch_table;
    else
 #endif
    if(model == (NC_DISPATCH_NC4))
-     dispatcher = NC4_dispatch_table;
+	dispatcher = NC4_dispatch_table;
    else
 #endif /*USE_NETCDF4*/
 #ifdef USE_DAP
    if(model == (NC_DISPATCH_NC3 | NC_DISPATCH_NCD))
-     dispatcher = NCD3_dispatch_table;
+	dispatcher = NCD3_dispatch_table;
    else
 #endif
    if(model == (NC_DISPATCH_NC3))
-     dispatcher = NC3_dispatch_table;
+	dispatcher = NC3_dispatch_table;
    else
       return  NC_ENOTNC;
 
   havetable:
    stat = dispatcher->create(path,cmode,initialsz,basepe,chunksizehintp,
-                             useparallel,mpi_info,dispatcher,&ncp);
+			     useparallel,mpi_info,dispatcher,&ncp);
    if(stat == NC_NOERR) {
       ncp->dispatch = dispatcher;
       if(ncidp) *ncidp = ncp->ext_ncid;
       ncp->path = strdup(path);
-      if(path == NULL) stat = NC_ENOMEM;
+      if(path == NULL) stat = NC_ENOMEM;	
    }
    return stat;
 }
@@ -217,18 +217,18 @@ nc_open(const char *path, int mode, int *ncidp)
 
 int
 nc__open(const char *path, int cmode,
-         size_t *chunksizehintp, int *ncidp)
+	 size_t *chunksizehintp, int *ncidp)
 {
-   return NC_open(path, cmode, 0, chunksizehintp, 0,
-                  NULL, ncidp);
+   return NC_open(path, cmode, 0, chunksizehintp, 0, 
+		  NULL, ncidp);
 }
 
 int
-nc__open_mp(const char *path, int cmode, int basepe,
-            size_t *chunksizehintp, int *ncidp)
+nc__open_mp(const char *path, int cmode, int basepe, 
+	    size_t *chunksizehintp, int *ncidp)
 {
    return NC_open(path, cmode, basepe, chunksizehintp,
-                  0, NULL, ncidp);
+		  0, NULL, ncidp);
 }
 
 /*
@@ -243,7 +243,7 @@ nc__open_mp(const char *path, int cmode, int basepe,
 
 int
 NC_open(const char *path, int cmode,
-        int basepe, size_t *chunksizehintp,
+	int basepe, size_t *chunksizehintp,
         int useparallel, void* mpi_info,
         int *ncidp)
 {
@@ -252,7 +252,7 @@ NC_open(const char *path, int cmode,
    NC_Dispatch* dispatcher = NULL;
    /* Need two pieces of information for now */
    int model = 0;
-   int isurl = 0;
+   int isurl = 0; 
    int cdfversion = 0;
    int hdfversion = 0;
    extern int default_create_format;
@@ -267,12 +267,12 @@ NC_open(const char *path, int cmode,
       /* Look at the file if it exists */
       stat = NC_check_file_type(path,useparallel,mpi_info,&cdfversion,&hdfversion);
       if(stat == NC_NOERR) {
-      if(hdfversion != 0) {
-      model = NC_DISPATCH_NC4;
-      } else if(cdfversion != 0) {
-      model = NC_DISPATCH_NC3;
-      }
-      }
+	 if(hdfversion != 0) {
+	    model = NC_DISPATCH_NC4;
+	 } else if(cdfversion != 0) {
+	    model = NC_DISPATCH_NC3;
+	 }
+      } 
       /* else ignore the file */
    }
 
@@ -301,44 +301,44 @@ NC_open(const char *path, int cmode,
    /* Figure out what dispatcher to use */
 #if  defined(USE_CDMREMOTE)
    if(model == (NC_DISPATCH_NC4 | NC_DISPATCH_NCR))
-     dispatcher = NCCR_dispatch_table;
+	dispatcher = NCCR_dispatch_table;
    else
 #endif
 #if defined(USE_NETCDF4) && defined(USE_DAP)
    if(model == (NC_DISPATCH_NC4 | NC_DISPATCH_NCD))
-     dispatcher = NCD4_dispatch_table;
+	dispatcher = NCD4_dispatch_table;
    else
 #endif
 #if defined(USE_DAP)
    if(model == (NC_DISPATCH_NC3 | NC_DISPATCH_NCD))
-     dispatcher = NCD3_dispatch_table;
+	dispatcher = NCD3_dispatch_table;
    else
 #endif
 #if defined(USE_NETCDF4)
    if(model == (NC_DISPATCH_NC4))
-     dispatcher = NC4_dispatch_table;
+	dispatcher = NC4_dispatch_table;
    else
 #endif
    if(model == (NC_DISPATCH_NC3))
-     dispatcher = NC3_dispatch_table;
+	dispatcher = NC3_dispatch_table;
    else
       return  NC_ENOTNC;
 
   havetable:
    stat = dispatcher->open(path, cmode, basepe, chunksizehintp,
-                           useparallel, mpi_info, dispatcher, &ncp);
+			   useparallel, mpi_info, dispatcher, &ncp);
    if(stat == NC_NOERR) {
       ncp->dispatch = dispatcher;
       if(ncidp) *ncidp = ncp->ext_ncid;
       ncp->path = strdup(path);
-      if(path == NULL) stat = NC_ENOMEM;
+      if(path == NULL) stat = NC_ENOMEM;	
    }
    return stat;
 }
 
 /* This function returns the file pathname (or the opendap URL) which
  * was used to open/create the ncid's file. */
-int
+int 
 nc_inq_path(int ncid, size_t *pathlen, char *path)
 {
    NC* ncp;
@@ -346,8 +346,8 @@ nc_inq_path(int ncid, size_t *pathlen, char *path)
    if ((stat = NC_check_id(ncid, &ncp)))
       return stat;
    if(ncp->path == NULL) {
-   if(pathlen) *pathlen = 0;
-   if(path) path[0] = '\0';
+	if(pathlen) *pathlen = 0;
+	if(path) path[0] = '\0';
    } else {
        if (pathlen) *pathlen = strlen(ncp->path);
        if (path) strcpy(path, ncp->path);
@@ -378,7 +378,7 @@ nc_enddef(int ncid)
 {
    int status;
    NC *ncp;
-   status = NC_check_id(ncid, &ncp);
+   status = NC_check_id(ncid, &ncp); 
    if(status != NC_NOERR) return status;
    return ncp->dispatch->_enddef(ncid,0,1,0,1);
 }
@@ -397,7 +397,7 @@ NC_reclaim(NC* ncp)
 {
    /* reclaim the path */
    if(ncp->path != NULL) free(ncp->path);
-   ncp->path = NULL;
+   ncp->path = NULL;   
 }
 
 int
@@ -482,3 +482,5 @@ nc_inq_type(int ncid, nc_type xtype, char *name, size_t *size)
       return ncp->dispatch->inq_type(ncid,xtype,name,size);
    }
 }
+
+

@@ -131,6 +131,11 @@ public:
                                    float bounds[4]);
 
   // Description:
+  // Draw text using MathText markup for mathematical equations. See
+  // http://matplotlib.sourceforge.net/users/mathtext.html for more information.
+  virtual void DrawMathTextString(float point[2], const vtkStdString &string);
+
+  // Description:
   // Draw the supplied image at the given x, y (p[0], p[1]) (bottom corner),
   // scaled by scale (1.0 would match the image).
   virtual void DrawImage(float p[2], float scale, vtkImageData *image);

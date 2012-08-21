@@ -102,6 +102,7 @@ set(Module_SRCS
   vtkOctreePointLocatorNode.cxx
   vtkOrderedTriangulator.cxx
   vtkOutEdgeIterator.cxx
+  vtkPath.cxx
   vtkPentagonalPrism.cxx
   vtkPerlinNoise.cxx
   vtkPiecewiseFunction.cxx

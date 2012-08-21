@@ -62,9 +62,9 @@ namespace
   template<class data_type>
   void ComputeQCriterionFromGradient(data_type* gradients, data_type* qCriterion)
   {
-    data_type t1 = (gradients[7]-gradients[5])*(gradients[7]-gradients[5]) +
-      (gradients[3]-gradients[1])*(gradients[3]-gradients[1]) +
-      (gradients[2]-gradients[6])*(gradients[2]-gradients[6]);
+    data_type t1 = ( (gradients[7]-gradients[5])*(gradients[7]-gradients[5]) +
+                     (gradients[3]-gradients[1])*(gradients[3]-gradients[1]) +
+                     (gradients[2]-gradients[6])*(gradients[2]-gradients[6]) ) / 2;
     data_type t2 = gradients[0]*gradients[0]+gradients[4]*gradients[4]+
       gradients[8]*gradients[8]+ (
         (gradients[3]+gradients[1])*(gradients[3]+gradients[1]) +

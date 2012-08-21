@@ -14,12 +14,17 @@
 =========================================================================*/
 #include "vtkGraphItem.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
+#include "vtkContextScene.h"
 #include "vtkGraph.h"
 #include "vtkImageData.h"
+#include "vtkIncrementalForceLayout.h"
 #include "vtkMarkerUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkPoints.h"
+#include "vtkRenderWindowInteractor.h"
 
 #include <vector>
 
@@ -35,6 +40,12 @@ struct vtkGraphItem::Internals {
   std::vector<std::vector<vtkVector2f> > EdgePositions;
   std::vector<std::vector<vtkColor4ub> > EdgeColors;
   std::vector<float> EdgeWidths;
+
+  bool Animating;
+  bool AnimationCallbackInitialized;
+  vtkRenderWindowInteractor *Interactor;
+  vtkNew<vtkCallbackCommand> AnimationCallback;
+  int TimerId;
 };
 
 vtkGraphItem::vtkGraphItem()
@@ -42,10 +53,21 @@ vtkGraphItem::vtkGraphItem()
   this->Graph = 0;
   this->GraphBuildTime = 0;
   this->Internal = new Internals();
+  this->Internal->Animating = false;
+  this->Internal->AnimationCallbackInitialized = false;
+  this->Internal->TimerId = 0;
 }
 
 vtkGraphItem::~vtkGraphItem()
 {
+  if (this->Internal->Animating)
+    {
+    this->StopLayoutAnimation();
+    }
+  if (this->Internal->AnimationCallbackInitialized)
+    {
+    this->Internal->Interactor->RemoveObserver(this->Internal->AnimationCallback.GetPointer());
+    }
   delete this->Internal;
   if (this->Graph)
     {
@@ -53,28 +75,33 @@ vtkGraphItem::~vtkGraphItem()
     }
 }
 
-vtkColor4ub vtkGraphItem::VertexColor(vtkIdType item)
+vtkIncrementalForceLayout *vtkGraphItem::GetLayout()
+{
+  return this->Layout.GetPointer();
+}
+
+vtkColor4ub vtkGraphItem::VertexColor(vtkIdType vtkNotUsed(item))
 {
   return vtkColor4ub(128, 128, 128, 255);
 }
 
 vtkVector2f vtkGraphItem::VertexPosition(vtkIdType item)
 {
-  double *p = this->Graph->GetPoint(item);
+  double *p = this->Graph->GetPoints()->GetPoint(item);
   return vtkVector2f(static_cast<float>(p[0]), static_cast<float>(p[1]));
 }
 
-float vtkGraphItem::VertexSize(vtkIdType item)
+float vtkGraphItem::VertexSize(vtkIdType vtkNotUsed(item))
 {
   return 10.0f;
 }
 
-int vtkGraphItem::VertexMarker(vtkIdType item)
+int vtkGraphItem::VertexMarker(vtkIdType vtkNotUsed(item))
 {
   return vtkMarkerUtilities::CIRCLE;
 }
 
-vtkColor4ub vtkGraphItem::EdgeColor(vtkIdType edgeIdx, vtkIdType point)
+vtkColor4ub vtkGraphItem::EdgeColor(vtkIdType vtkNotUsed(edgeIdx), vtkIdType vtkNotUsed(point))
 {
   return vtkColor4ub(0, 0, 0, 255);
 }
@@ -84,11 +111,13 @@ vtkVector2f vtkGraphItem::EdgePosition(vtkIdType edgeIdx, vtkIdType point)
   double *p;
   if (point == 0)
     {
-    p = this->Graph->GetPoint(this->Graph->GetSourceVertex(edgeIdx));
+    vtkPoints *points = this->Graph->GetPoints();
+    p = points->GetPoint(this->Graph->GetSourceVertex(edgeIdx));
     }
   else if (point == this->NumberOfEdgePoints(edgeIdx) - 1)
     {
-    p = this->Graph->GetPoint(this->Graph->GetTargetVertex(edgeIdx));
+    vtkPoints *points = this->Graph->GetPoints();
+    p = points->GetPoint(this->Graph->GetTargetVertex(edgeIdx));
     }
   else
     {
@@ -97,7 +126,7 @@ vtkVector2f vtkGraphItem::EdgePosition(vtkIdType edgeIdx, vtkIdType point)
   return vtkVector2f(static_cast<float>(p[0]), static_cast<float>(p[1]));
 }
 
-float vtkGraphItem::EdgeWidth(vtkIdType line, vtkIdType point)
+float vtkGraphItem::EdgeWidth(vtkIdType vtkNotUsed(line), vtkIdType vtkNotUsed(point))
 {
   return 0.0f;
 }
@@ -151,7 +180,7 @@ void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
       }
     painter->GetPen()->SetWidth(this->Internal->EdgeWidths[edgeIdx]);
     painter->DrawPoly(this->Internal->EdgePositions[edgeIdx][0].GetData(),
-                      this->Internal->EdgePositions[edgeIdx].size(),
+                      static_cast<int>(this->Internal->EdgePositions[edgeIdx].size()),
                       this->Internal->EdgeColors[edgeIdx][0].GetData(), 4);
     }
 
@@ -162,7 +191,7 @@ void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
   painter->GetPen()->SetWidth(this->Internal->VertexSizes[0]);
   painter->DrawPointSprites(this->Sprite.GetPointer(),
                             this->Internal->VertexPositions[0].GetData(),
-                            this->Internal->VertexPositions.size(),
+                            static_cast<int>(this->Internal->VertexPositions.size()),
                             this->Internal->VertexColors[0].GetData(), 4);
 }
 
@@ -215,6 +244,72 @@ bool vtkGraphItem::Paint(vtkContext2D *painter)
     }
   this->PaintBuffers(painter);
   return true;
+}
+
+void vtkGraphItem::ProcessEvents(vtkObject *vtkNotUsed(caller), unsigned long event,
+                                 void *clientData, void *callerData)
+{
+  vtkGraphItem *self =
+      reinterpret_cast<vtkGraphItem *>(clientData);
+  switch (event)
+    {
+    case vtkCommand::TimerEvent:
+      {
+      // We must filter the events to ensure we actually get the timer event we
+      // created. I would love signals and slots...
+      int timerId = *static_cast<int *>(callerData);   // Seems to work.
+      if (self->Internal->Animating &&
+          timerId == static_cast<int>(self->Internal->TimerId))
+        {
+        self->UpdateLayout();
+        self->GetScene()->SetDirty(true);
+        }
+      break;
+      }
+    default:
+      break;
+    }
+}
+
+void vtkGraphItem::StartLayoutAnimation(vtkRenderWindowInteractor *interactor)
+{
+  // Start a simple repeating timer
+  if (!this->Internal->Animating && interactor)
+    {
+    if (!this->Internal->AnimationCallbackInitialized)
+      {
+      this->Internal->AnimationCallback->SetClientData(this);
+      this->Internal->AnimationCallback->SetCallback(vtkGraphItem::ProcessEvents);
+      interactor->AddObserver(vtkCommand::TimerEvent,
+                              this->Internal->AnimationCallback.GetPointer(),
+                              0);
+      this->Internal->Interactor = interactor;
+      this->Internal->AnimationCallbackInitialized = true;
+      }
+    this->Internal->Animating = true;
+    // This defines the interval at which the animation will proceed. 60Hz?
+    this->Internal->TimerId = interactor->CreateRepeatingTimer(1000 / 60);
+    vtkVector2f screenPos(this->Scene->GetSceneWidth()/2.0f, this->Scene->GetSceneHeight()/2.0f);
+    vtkVector2f pos = this->MapFromScene(screenPos);
+    this->Layout->SetGravityPoint(pos);
+    }
+}
+
+void vtkGraphItem::StopLayoutAnimation()
+{
+  this->Internal->Interactor->DestroyTimer(this->Internal->TimerId);
+  this->Internal->TimerId = 0;
+  this->Internal->Animating = false;
+}
+
+void vtkGraphItem::UpdateLayout()
+{
+  if (this->Graph)
+    {
+    this->Layout->SetGraph(this->Graph);
+    this->Layout->UpdatePositions();
+    this->Graph->Modified();
+    }
 }
 
 void vtkGraphItem::PrintSelf(ostream &os, vtkIndent indent)
