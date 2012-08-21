@@ -444,6 +444,16 @@ public:
   std::map<double, vtkStdString> TimeStepToFile;
 
   // Description:
+  // The rates at which the mode fields repeat.
+  // Only valid when FrequencyModes is true.
+  std::vector<double> Frequencies;
+
+  // Description:
+  // The phases of the modes at the current time step. Set at the beginning of
+  // RequestData. Only valid when FreqencyModes is true.
+  std::vector<double> Phases;
+
+  // Description:
   // References and shallow copies to the last output data.  We keep this
   // around in case we do not have to read everything in again.
   vtkSmartPointer<vtkPoints> PointCache;
@@ -613,7 +623,7 @@ int vtkSLACReader::RequestInformation(
   this->TimeStepModes = false;
   this->Internal->TimeStepToFile.clear();
   this->FrequencyModes = false;
-  this->Frequency = 0.0;
+  this->Internal->Frequencies.clear();
   if (!this->Internal->ModeFileNames.empty())
     {
     // Check the first mode file, assume that the rest follow.
@@ -642,21 +652,24 @@ int vtkSLACReader::RequestInformation(
       // the difference, but things happen very quickly (less than nanoseconds)
       // in simulations that write out this data.  Thus, we expect large numbers
       // to be frequency (in Hz) and small numbers to be time (in seconds).
-      if (   (nc_get_scalar_double(modeFD(), "frequency", &this->Frequency) != NC_NOERR)
-          && (nc_get_scalar_double(modeFD(), "frequencyreal", &this->Frequency) != NC_NOERR) )
+      double frequency;
+      if (   (nc_get_scalar_double(modeFD(), "frequency", &frequency) != NC_NOERR)
+          && (nc_get_scalar_double(modeFD(), "frequencyreal", &frequency) != NC_NOERR) )
         {
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
         }
-      if (this->Frequency < 100)
+      if (frequency < 100)
         {
         this->TimeStepModes = true;
-        this->Internal->TimeStepToFile[this->Frequency]
+        this->Internal->TimeStepToFile[frequency]
           = this->Internal->ModeFileNames[0];
         }
       else
         {
         this->FrequencyModes = true;
+        this->Internal->Frequencies.resize(this->GetNumberOfModeFileNames());
+        this->Internal->Frequencies[0] = frequency;
         }
 
       //vtksys::RegularExpression imaginaryVar("_imag$");
@@ -700,13 +713,14 @@ int vtkSLACReader::RequestInformation(
       vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
       if (!modeFD.Valid()) return 0;
 
-      if (   (nc_get_scalar_double(modeFD(), "frequency", &this->Frequency) != NC_NOERR)
-          && (nc_get_scalar_double(modeFD(), "frequencyreal", &this->Frequency) != NC_NOERR) )
+      double frequency;
+      if (   (nc_get_scalar_double(modeFD(), "frequency", &frequency) != NC_NOERR)
+          && (nc_get_scalar_double(modeFD(), "frequencyreal", &frequency) != NC_NOERR) )
         {
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
         }
-      this->Internal->TimeStepToFile[this->Frequency] = *fileitr;
+      this->Internal->TimeStepToFile[frequency] = *fileitr;
       }
 
     double range[2];
@@ -728,9 +742,42 @@ int vtkSLACReader::RequestInformation(
     }
   else if (this->FrequencyModes)
     {
+    // If we are in time steps modes, we need to read in the frequencies from
+    // all the files (and we have already read the first one) and record them.
+    std::vector<vtkStdString>::iterator fileitr =
+        this->Internal->ModeFileNames.begin();
+    fileitr++;
+    std::vector<double>::iterator frequencyiter =
+        this->Internal->Frequencies.begin();
+    frequencyiter++;
+    for ( ; fileitr != this->Internal->ModeFileNames.end();
+          fileitr++, frequencyiter++)
+      {
+      assert(frequencyiter != this->Internal->Frequencies.end());
+
+      vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
+      if (!modeFD.Valid()) return 0;
+
+      double frequency;
+      if (   (nc_get_scalar_double(modeFD(), "frequency", &frequency) != NC_NOERR)
+          && (nc_get_scalar_double(modeFD(), "frequencyreal", &frequency) != NC_NOERR) )
+        {
+        vtkWarningMacro(<< "Could not find frequency in mode data.");
+        return 0;
+        }
+      *frequencyiter = frequency;
+      }
+    assert(frequencyiter == this->Internal->Frequencies.end());
+
+    // When there is more than one frequency (defined in multiple mode files),
+    // the appropriate range is ill defined. Arbitrarily pick the smallest
+    // frequency (the largest range) so that all modes will cycle at least once
+    // within the range.
+    double minFrequency = *std::min_element(this->Internal->Frequencies.begin(),
+                                            this->Internal->Frequencies.end());
     double range[2];
     range[0] = 0;
-    range[1] = 1.0/this->Frequency;
+    range[1] = 1.0/minFrequency;
     surfaceOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),range,2);
     volumeOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),range,2);
     }
@@ -773,7 +820,18 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
   if (this->FrequencyModes)
     {
-    this->Phase = 2.0 * vtkMath::Pi()*(time*this->Frequency);
+    this->Internal->Phases.resize(this->Internal->Frequencies.size());
+    for (size_t modeIndex = 0;
+         modeIndex < this->Internal->Frequencies.size();
+         modeIndex++)
+      {
+      this->Internal->Phases[modeIndex] =
+          2.0 * vtkMath::Pi()*(time*this->Internal->Frequencies[modeIndex]);
+      }
+    }
+  else
+    {
+    this->Internal->Phases.clear();
     }
 
   int readMesh = !this->MeshUpToDate();
@@ -1294,7 +1352,8 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
           double mag= sqrt(mag2);
 
           double startphase = atan2(imag, real);
-          dataArray->SetComponent(i, j, mag*cos(startphase + this->Phase));
+          dataArray->SetComponent(i, j, mag*cos(startphase
+                                                + this->Internal->Phases[0]));
           phaseArray->SetComponent(i, j, startphase);
           }
         cplxMagArray->SetComponent(i, 0, sqrt(accumulated_mag));
