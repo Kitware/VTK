@@ -922,7 +922,11 @@ int vtkSLACReader::RequestData(vtkInformation *request,
     vtkSLACReaderAutoCloseNetCDF modeFD(modeFileName, NC_NOWRITE);
     if (!modeFD.Valid()) return 0;
 
-    if (!this->ReadFieldData(modeFD(), compositeOutput)) return 0;
+    // Copy file descripters to a structure ReadFieldData can accept.  The
+    // ReadFieldData interface was designed to not use implementation of
+    // private or templated objects.
+    int modeFDcopy = modeFD();
+    if (!this->ReadFieldData(&modeFDcopy, 1, compositeOutput)) return 0;
 
     this->UpdateProgress(0.875);
 
@@ -1251,17 +1255,22 @@ int vtkSLACReader::ReadCoordinates(int meshFD, vtkMultiBlockDataSet *output)
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
+int vtkSLACReader::ReadFieldData(const int *modeFDArray,
+                                 int numModeFDs,
+                                 vtkMultiBlockDataSet *output)
 {
+  // To be changed to check <= Frequencies and Phases size and >= 0.
+  assert(numModeFDs == 1);
+
   vtkPointData *pd = vtkPointData::SafeDownCast(
                     output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
 
   // Get the number of coordinates (which determines how many items are read
   // per variable).
   int ncoordDim;
-  CALL_NETCDF(nc_inq_dimid(modeFD, "ncoord", &ncoordDim));
+  CALL_NETCDF(nc_inq_dimid(modeFDArray[0], "ncoord", &ncoordDim));
   size_t numCoords;
-  CALL_NETCDF(nc_inq_dimlen(modeFD, ncoordDim, &numCoords));
+  CALL_NETCDF(nc_inq_dimlen(modeFDArray[0], ncoordDim, &numCoords));
 
   int numArrays = this->Internal->VariableArraySelection->GetNumberOfArrays();
   for (int arrayIndex = 0; arrayIndex < numArrays; arrayIndex++)
@@ -1276,13 +1285,13 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
     const char * cname
       = this->Internal->VariableArraySelection->GetArrayName(arrayIndex);
     int varId;
-    CALL_NETCDF(nc_inq_varid(modeFD, cname, &varId));
+    CALL_NETCDF(nc_inq_varid(modeFDArray[0], cname, &varId));
 
     vtkStdString name(cname);
 
     // if this variable isn't 1d or 2d array, skip it.
     int numDims;
-    CALL_NETCDF(nc_inq_varndims(modeFD, varId, &numDims));
+    CALL_NETCDF(nc_inq_varndims(modeFDArray[0], varId, &numDims));
     if (numDims < 1 || numDims > 2)
       {
       vtkWarningMacro(<< "Encountered invalid variable dimensions.")
@@ -1291,7 +1300,7 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
 
     // Read in the array data.
     vtkSmartPointer<vtkDataArray> dataArray
-      = this->ReadPointDataArray(modeFD, varId);
+        = this->ReadPointDataArray(modeFDArray[0], varId);
     if (!dataArray) continue;
 
 
@@ -1317,8 +1326,8 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
       // if this variable name has a correstponding name_imag, use that,
       // otherwise assume zeroes.
       vtkSmartPointer<vtkDataArray> imagDataArray= 0;
-      if (nc_inq_varid(modeFD, (name+"_imag").c_str(), &varId) == NC_NOERR)
-        imagDataArray = this->ReadPointDataArray(modeFD, varId);
+      if (nc_inq_varid(modeFDArray[0], (name+"_imag").c_str(), &varId) == NC_NOERR)
+        imagDataArray = this->ReadPointDataArray(modeFDArray[0], varId);
 
       // allocate space for complex magnitude data
       vtkSmartPointer<vtkDataArray> cplxMagArray;

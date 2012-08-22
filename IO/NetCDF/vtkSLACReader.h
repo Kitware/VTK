@@ -343,7 +343,9 @@ protected:
   // Description:
   // Read in the field data from the mode file.  Returns 1 on success, 0
   // on failure.
-  virtual int ReadFieldData(int modeFD, vtkMultiBlockDataSet *output);
+  virtual int ReadFieldData(const int *modeFDArray,
+                            int numModeFDs,
+                            vtkMultiBlockDataSet *output);
 
   // Description:
   // Takes the data read on the fields and interpolates data for the midpoints.
