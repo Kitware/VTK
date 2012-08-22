@@ -29,11 +29,12 @@
 class vtkAnnotationLink;
 class vtkAxis;
 class vtkContextMouseEvent;
+class vtkPen;
 class vtkPlane;
 class vtkPlot;
 class vtkTable;
 class vtkTransform;
-class vtkPen;
+class vtkUnsignedCharArray;
 
 class VTKCHARTSCORE_EXPORT vtkInteractiveChartXYZ : public vtkChartXYZ
 {
@@ -104,7 +105,8 @@ protected:
 
   vtkNew<vtkTransform> Translation;
   vtkNew<vtkTransform> Scale;
-  unsigned char *Colors;
+  vtkNew<vtkUnsignedCharArray> Colors;
+  vtkNew<vtkUnsignedCharArray> ClippedColors;
   int NumberOfComponents;
   
   std::string XAxisLabel;

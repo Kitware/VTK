@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+//temp hopefully
+#include "vtkOpenGLContextDevice3D.h"
+
 #include "vtkInteractiveChartXYZ.h"
 
 #include "vtkAnnotationLink.h"
@@ -116,7 +119,7 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
     else
       {
       context->DrawPoints(this->clipped_points[0].GetData(), this->clipped_points.size(),
-                          this->Colors, this->NumberOfComponents);
+                          this->ClippedColors->GetPointer(0), this->NumberOfComponents);
       }
 
     // Now to render the selected points.
@@ -155,29 +158,67 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   context->DrawLine(vtkVector3f(0, 1, 0), vtkVector3f(0, 1, 1));
   context->DrawLine(vtkVector3f(1, 1, 0), vtkVector3f(1, 1, 1));
 
-  // Now draw the axes labels
+
+  // Now draw the axes labels in 2D
+  float labelPos[3];
+  labelPos[0] = 0.5;
+  labelPos[1] = 0;
+  labelPos[2] = 0;
+
+  vtkNew<vtkMatrix4x4> matrix;
+  context->GetDevice()->GetMatrix(matrix.GetPointer());
+  matrix->PrintSelf(std::cout, vtkIndent());
+  vtkNew<vtkMatrix4x4> inverse;
+  vtkTransform *transform = context->GetTransform();
+  //transform->PrintSelf(std::cout, vtkIndent());
+  //this next line still causes the warning... >.<
+  transform->GetMatrix()->Invert(transform->GetMatrix(), inverse.GetPointer());
+  /*
+  std::cout << "here?" << std::endl;
+  context->GetTransform()->GetInverse()->PrintSelf(std::cout, vtkIndent());
+  std::cout << "there?" << std::endl;
+  */
+  std::cout << "1: (" << labelPos[0] << ", " << labelPos[1] << ", " << labelPos[2] << ")" << std::endl;
+  inverse->MultiplyPoint(labelPos, labelPos);
+  std::cout << "2: (" << labelPos[0] << ", " << labelPos[1] << ", " << labelPos[2] << ")" << std::endl;
+  transform->TransformPoint(labelPos, labelPos);
+  std::cout << "3: (" << labelPos[0] << ", " << labelPos[1] << ", " << labelPos[2] << ")" << std::endl;
+
+  context->PopMatrix();
+
   vtkNew<vtkTextProperty> textProperties;
   textProperties->SetJustificationToLeft();
   textProperties->SetColor(0.0, 0.0, 0.0);
   textProperties->SetFontFamilyToArial();
   textProperties->SetFontSize(14);
   context->ApplyTextProp(textProperties.GetPointer());
-
+  painter->ApplyTextProp(textProperties.GetPointer());
+  
   float bounds[4];
-  context->ComputeStringBounds(this->XAxisLabel, bounds); 
+  painter->ComputeStringBounds(this->XAxisLabel, bounds); 
   
   float scale[3];
   this->Box->GetScale(scale);
 
+  /*
+  labelPos[0] = (0.5 - bounds[2] / (scale[0] * 2));
+  labelPos[1] = ((-bounds[3] - 5) / scale[1]);
+  labelPos[2] = 1;
+  */
+
+
   // X axis first
-  float xPos = 0.5 - bounds[2] / (scale[0] * 2);
-  float yPos = (-bounds[3] - 5) / scale[1];
-  context->DrawString(xPos, yPos, this->XAxisLabel);
-  
+  painter->DrawString(labelPos[0], labelPos[1], this->XAxisLabel);
+  //painter->DrawString(0.5, -0.1, "hello");
+  //context->DrawString(xPos, yPos, this->XAxisLabel);
+/*
+
   // Y axis next
+  textProperties->SetOrientation(90);
+  context->ApplyTextProp(textProperties.GetPointer());
   context->ComputeStringBounds(this->YAxisLabel, bounds); 
-  xPos = -5 / scale[0];
-  yPos = 0.5 - bounds[3] / (scale[1] * 2);
+  float xPos = -5 / scale[0];
+  float yPos = 0.5 - bounds[3] / (scale[1] * 2);
   context->DrawString(xPos, yPos, this->YAxisLabel);
 
   // Last is Z axis
@@ -187,8 +228,9 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   pos[0] = 0;
   pos[1] = 0;
   context->DrawZAxisLabel(pos, this->ZAxisLabel);
+  */
 
-  context->PopMatrix();
+  
 
   return true;
 }
@@ -196,12 +238,21 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
 void vtkInteractiveChartXYZ::UpdateClippedPoints()
 {
   this->clipped_points.clear();
+  this->ClippedColors->Reset();
   for( size_t i = 0; i < this->points.size(); ++i )
     {
+    const unsigned char rgb[3] =
+      {
+      this->Colors->GetValue(i * this->NumberOfComponents),
+      this->Colors->GetValue(i * this->NumberOfComponents + 1),
+      this->Colors->GetValue(i * this->NumberOfComponents + 2)
+      };
     if( !this->PointShouldBeClipped(this->points[i]) )
       {
       this->clipped_points.push_back(this->points[i]);
-      //TODO: colors too
+      this->ClippedColors->InsertNextTupleValue(&rgb[0]);
+      this->ClippedColors->InsertNextTupleValue(&rgb[1]);
+      this->ClippedColors->InsertNextTupleValue(&rgb[2]);
       }
     }
 }
@@ -254,16 +305,15 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName
   lookupTable->Build();
 
   double color[3];
-  this->Colors =
-    new unsigned char[this->points.size() * this->NumberOfComponents];
 
   for (int i = 0; i < this->points.size(); ++i)
     {
     double value = colorArr->GetComponent(i, 0);
     unsigned char *rgb = lookupTable->MapValue(value);
-    this->Colors[i * this->NumberOfComponents] = rgb[0];
-    this->Colors[i * this->NumberOfComponents + 1] = rgb[1];
-    this->Colors[i * this->NumberOfComponents + 2] = rgb[2];
+    const unsigned char constRGB[3] = { rgb[0], rgb[1], rgb[2] };
+    this->Colors->InsertNextTupleValue(&constRGB[0]);
+    this->Colors->InsertNextTupleValue(&constRGB[1]);
+    this->Colors->InsertNextTupleValue(&constRGB[2]);
     }
 }
 
@@ -274,17 +324,11 @@ vtkInteractiveChartXYZ::vtkInteractiveChartXYZ()
   this->Scale->Identity();
   this->Scale->PostMultiply();
   this->Interactive = true;
-  this->Colors = NULL;
   this->NumberOfComponents = 0;
 }
 
 vtkInteractiveChartXYZ::~vtkInteractiveChartXYZ()
 {
-  if(this->Colors != NULL)
-    {
-    delete [] this->Colors;
-    this->Colors = NULL;
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -365,7 +409,7 @@ bool vtkInteractiveChartXYZ::Rotate(const vtkContextMouseEvent &mouse)
   
   this->Rotation->RotateY(-rxf);
   this->Rotation->RotateX(ryf);
-
+  
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
 
