@@ -93,6 +93,8 @@ class vtkCoordinate;
 class vtkIntArray;
 class vtkMathTextActor;
 class vtkMathTextActor3D;
+class vtkMatrix4x4;
+class vtkPath;
 class vtkPropCollection;
 class vtkProp3DCollection;
 class vtkRenderer;
@@ -302,6 +304,11 @@ protected:
                            vtkRenderer *ren);
   void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
                                vtkCoordinate *coord, vtkRenderer *ren);
+  // Description:
+  // Transform the path using the actor's matrix and current GL state, then
+  // draw it to GL2PS.
+  void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
+                  double actorBounds[4], unsigned char actorColor[3]);
 
   void DrawContextActors(vtkPropCollection *contextActs,
                          vtkRendererCollection *renCol);
