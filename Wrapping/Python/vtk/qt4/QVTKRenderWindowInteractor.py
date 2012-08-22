@@ -33,14 +33,10 @@ try:
 except ImportError:
     try:
         from PySide import QtCore, QtGui
-
-        #PyQt4 signal/slot compatibility
-        QtCore.pyqtSignal = QtCore.Signal
-        QtCore.pyqtSlot = QtCore.Slot
-    except ImportError as err:
+    except ImportError:
         raise ImportError("Cannot load either PyQt or PySide")
-import vtk
 
+import vtk
 
 class QVTKRenderWindowInteractor(QtGui.QWidget):
 
@@ -191,7 +187,7 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         #its parent thus allowing cleanup of VTK elements.
         self._hidden = QtGui.QWidget(self)
         self._hidden.hide()
-        self._hidden.destroyed.connect(self.Finalize)
+        self.connect(self._hidden, QtCore.SIGNAL('destroyed()'), self.Finalize)
 
     def __getattr__(self, attr):
         """Makes the object behave like a vtkGenericRenderWindowInteractor"""
@@ -203,7 +199,6 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
             raise AttributeError, self.__class__.__name__ + \
                   " has no attribute named " + attr
 
-    @QtCore.pyqtSlot()
     def Finalize(self):
         '''
         Call internal cleanup method on VTK objects
