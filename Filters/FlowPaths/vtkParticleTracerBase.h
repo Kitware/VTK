@@ -205,6 +205,14 @@ public:
   vtkBooleanMacro(EnableParticleWriting,int);
 
   // Description:
+  // Set/Get the flag to disable cache
+  // This is off by default and turned on in special circumstances
+  // such as in a coprocessing workflow
+  vtkSetMacro(DisableResetCache,int);
+  vtkGetMacro(DisableResetCache,int);
+  vtkBooleanMacro(DisableResetCache,int);
+
+  // Description:
   // Provide support for multiple see sources
   void AddSourceConnection(vtkAlgorithmOutput* input);
   void RemoveAllSources();
@@ -215,8 +223,11 @@ public:
   vtkIdType UniqueIdCounter;// global Id counter used to give particles a stamp
   vtkParticleTracerBaseNamespace::ParticleDataList  ParticleHistories;
   int           ReinjectionCounter;
+
   //Everything related to time
   int IgnorePipelineTime; //whether to use the pipeline time for termination
+  int DisableResetCache; //whether to enable ResetCache() method
+
 
   vtkParticleTracerBase();
   virtual ~vtkParticleTracerBase();
@@ -408,9 +419,9 @@ private:
   double TerminationTime;
   double CurrentTime;
 
-  unsigned int  StartTimeStep; //InputTimeValues[StartTimeStep] <= StartTime <= InputTimeValues[StartTimeStep+1]
-  unsigned int  CurrentTimeStep;
-  unsigned int  TerminationTimeStep; //computed from start time
+  int  StartTimeStep; //InputTimeValues[StartTimeStep] <= StartTime <= InputTimeValues[StartTimeStep+1]
+  int  CurrentTimeStep;
+  int  TerminationTimeStep; //computed from start time
   bool FirstIteration;
 
   //Innjection parameters

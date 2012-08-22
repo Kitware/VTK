@@ -92,7 +92,7 @@ void StreaklineFilterInternal::Finalize()
     for(vtkIdType i=0; i<points->GetNumberOfPoints(); i++)
       {
       int streakId = seedIds->GetValue(i);
-      for(int j=streaks.size(); j<=streakId; j++)
+      for(int j=static_cast<int>(streaks.size()); j<=streakId; j++)
         {
         streaks.push_back(Streak());
         }

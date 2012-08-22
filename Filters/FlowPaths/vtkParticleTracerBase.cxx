@@ -165,6 +165,7 @@ vtkParticleTracerBase::vtkParticleTracerBase()
 #endif
 
   this->SetIntegratorType(RUNGE_KUTTA4);
+  this->DisableResetCache = 0;
 }
 //---------------------------------------------------------------------------
 vtkParticleTracerBase::~vtkParticleTracerBase()
@@ -257,8 +258,11 @@ int vtkParticleTracerBase::RequestInformation(
       &this->InputTimeValues[0] );
     if (numberOfInputTimeSteps==1)
       {
-      vtkErrorMacro(<<"Not enough input time steps for particle integration");
-      return 0;
+      if(this->DisableResetCache==0) //warning would be skipped in coprocessing work flow
+        {
+        vtkWarningMacro(<<"Not enough input time steps for particle integration");
+        }
+      return 1;
       }
   }
   else
@@ -290,6 +294,15 @@ int vtkParticleTracerBase::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  if (this->InputTimeValues.size()<=1)
+    {
+    if(this->DisableResetCache==0) //warning would be skipped in coprocessing work flow
+      {
+      vtkWarningMacro(<<"Not enough input time steps for particle integration");
+      }
+    return 1;
+    }
+
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
@@ -300,8 +313,7 @@ int vtkParticleTracerBase::RequestUpdateExtent(
   // do this only for the first time
   if(this->FirstIteration)
     {
-    StartTimeStep = FindInterval(StartTime, InputTimeValues);
-
+    this->StartTimeStep = FindInterval(StartTime, InputTimeValues);
     if (!this->IgnorePipelineTime && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
       {
       double terminationTime = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
@@ -326,6 +338,7 @@ int vtkParticleTracerBase::RequestUpdateExtent(
         unsigned long pmt = sddp->GetPipelineMTime();
         if(pmt>this->ExecuteTime.GetMTime())
           {
+          PRINT("Reset cache of because upstream is newer")
           this->ResetCache();
           }
         }
@@ -934,13 +947,11 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->CurrentTime);
   this->ExecuteTime.Modified();
   this->HasCache = true;
-  PRINT("Output "<<output->GetNumberOfPoints()<<" particles");
+  PRINT("Output "<<output->GetNumberOfPoints()<<" particles, "<<this->ParticleHistories.size()<<" in cache");
 
   //Check post condition
-  for (ParticleListIterator it=this->ParticleHistories.begin(); it!=this->ParticleHistories.end();it++)
-    {
-    Assert( (*it).CurrentPosition.x[3] == this->CurrentTime);
-    }
+  // To do:  verify here that the particles in ParticleHistories are consistent with CurrentTime
+
   return output;
 }
 
@@ -949,6 +960,15 @@ int vtkParticleTracerBase::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  if (this->InputTimeValues.size()<=1)
+    {
+    if(this->DisableResetCache==0) //warning would be skipped in coprocessing work flow
+      {
+      vtkWarningMacro(<<"Not enough input time steps for particle integration");
+      }
+    return 1;
+    }
+
   PRINT("RD start: "<<this->CurrentTimeStep<<" "<<this->CurrentTime<<" "<<this->StartTimeStep<<" "<<this->TerminationTimeStep);
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -972,7 +992,6 @@ int vtkParticleTracerBase::RequestData(
     this->CreateProtoPD(input);
     }
 
-
   vtkSmartPointer<vtkPolyData> particles;
   particles.TakeReference(this->Execute(inputVector));
   this->OutputParticles(particles);
@@ -984,7 +1003,7 @@ int vtkParticleTracerBase::RequestData(
     }
   else //we are at the last step
     {
-    if(this->TerminationTime == this->InputTimeValues[this->CurrentTimeStep] && this->CurrentTimeStep!=this->InputTimeValues.size()-1)
+    if(this->TerminationTime == this->InputTimeValues[this->CurrentTimeStep])
       {
       this->CurrentTimeStep++;
       }
@@ -1297,17 +1316,20 @@ unsigned int vtkParticleTracerBase::NumberOfParticles()
 
 void vtkParticleTracerBase::ResetCache()
 {
-  PRINT("Reset cache");
-  this->LocalSeeds.clear();
-  this->ParticleHistories.clear();
-  this->ReinjectionCounter = 0;
-  this->UniqueIdCounter    = 0; ///check
+  if(this->DisableResetCache==0)
+    {
+    PRINT("Reset cache");
+    this->LocalSeeds.clear();
+    this->ParticleHistories.clear();
+    this->ReinjectionCounter = 0;
+    this->UniqueIdCounter    = 0; ///check
 
-  this->CachedData[0] = NULL;
-  this->CachedData[1] = NULL;
+    this->CachedData[0] = NULL;
+    this->CachedData[1] = NULL;
 
-  this->Output = NULL;
-  this->HasCache = false;
+    this->Output = NULL;
+    this->HasCache = false;
+    }
 }
 
 void vtkParticleTracerBase::SetTerminationTime(double t)

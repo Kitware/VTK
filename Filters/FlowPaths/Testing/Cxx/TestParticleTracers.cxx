@@ -56,7 +56,7 @@ public:
   }
   int GetNumberOfTimeSteps()
   {
-    return this->TimeSteps.size();
+    return static_cast<int>(this->TimeSteps.size());
   }
 
 protected:
@@ -131,7 +131,7 @@ protected:
                  range,2);
 
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                 &TimeSteps[0], TimeSteps.size());
+                 &TimeSteps[0], static_cast<int>(TimeSteps.size()));
 
 
     outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->Extent,6);
