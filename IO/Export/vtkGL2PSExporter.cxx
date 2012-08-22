@@ -128,8 +128,9 @@ void vtkGL2PSExporter::WriteData()
 
   // Turn off special props -- these will be handled separately later.
   vtkPropCollection *propCol;
-  for (specialPropCol->InitTraversal(); propCol =
-       vtkPropCollection::SafeDownCast(specialPropCol->GetNextItemAsObject());)
+  for (specialPropCol->InitTraversal();
+       (propCol = vtkPropCollection::SafeDownCast(
+          specialPropCol->GetNextItemAsObject()));)
     {
     this->SetPropVisibilities(propCol, 0);
     }
@@ -246,8 +247,9 @@ void vtkGL2PSExporter::WriteData()
     delete [] rasterImage;
     }
   // Turn the special props back on
-  for (specialPropCol->InitTraversal(); propCol =
-       vtkPropCollection::SafeDownCast(specialPropCol->GetNextItemAsObject());)
+  for (specialPropCol->InitTraversal();
+       (propCol = vtkPropCollection::SafeDownCast(
+          specialPropCol->GetNextItemAsObject()));)
     {
     this->SetPropVisibilities(propCol, 1);
     }
