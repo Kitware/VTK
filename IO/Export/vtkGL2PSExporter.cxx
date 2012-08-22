@@ -103,9 +103,10 @@ void vtkGL2PSExporter::WriteData()
   vtkRendererCollection *renCol = this->RenderWindow->GetRenderers();
 
   // Grab props that need special handling for vector output
-  vtkPropCollection *contextActorCol = this->GetVisibleContextActors(renCol);
-  vtkCollection *specialPropCol =
-      this->RenderWindow->CaptureGL2PSSpecialProps();
+  vtkNew<vtkPropCollection> contextActorCol;
+  this->GetVisibleContextActors(contextActorCol.GetPointer(), renCol);
+  vtkNew<vtkCollection> specialPropCol;
+  this->RenderWindow->CaptureGL2PSSpecialProps(specialPropCol.GetPointer());
 
   // Setup information that GL2PS will need to export the scene:
   GLint options = static_cast<GLint>(this->GetGL2PSOptions());
@@ -132,19 +133,20 @@ void vtkGL2PSExporter::WriteData()
     {
     this->SetPropVisibilities(propCol, 0);
     }
-  this->SetPropVisibilities(contextActorCol, 0);
+  this->SetPropVisibilities(contextActorCol.GetPointer(), 0);
 
   // Write out a raster image without the 2d actors before switching to feedback
   // mode
   float *rasterImage = NULL;
   // Store visibility of actors/volumes if rasterizing.
-  vtkIntArray *volVis = vtkIntArray::New();
-  vtkIntArray *actVis = vtkIntArray::New();
-  vtkIntArray *act2dVis = vtkIntArray::New();
+  vtkNew<vtkIntArray> volVis;
+  vtkNew<vtkIntArray> actVis;
+  vtkNew<vtkIntArray> act2dVis;
   if (this->Write3DPropsAsRasterImage)
     {
     vtkDebugMacro(<<"Rasterizing 3D geometry.")
-    this->SavePropVisibility(renCol, volVis, actVis, act2dVis);
+    this->SavePropVisibility(renCol, volVis.GetPointer(), actVis.GetPointer(),
+                             act2dVis.GetPointer());
     this->Turn2DPropsOff(renCol);
 
     int numpix= winsize[0]*winsize[1]*3;
@@ -208,7 +210,8 @@ void vtkGL2PSExporter::WriteData()
       glPopMatrix();
 
       // Render the 2d actors alone in a vector graphic format.
-      this->RestorePropVisibility(renCol, volVis, actVis, act2dVis);
+      this->RestorePropVisibility(renCol, volVis.GetPointer(),
+                                  actVis.GetPointer(), act2dVis.GetPointer());
       this->Turn3DPropsOff(renCol);
       this->RenderWindow->Render();
       }
@@ -218,10 +221,10 @@ void vtkGL2PSExporter::WriteData()
       }
 
     // Render props that require special handling (text, etc)
-    this->DrawSpecialProps(specialPropCol, renCol);
+    this->DrawSpecialProps(specialPropCol.GetPointer(), renCol);
 
     // Render context 2D stuff
-    this->DrawContextActors(contextActorCol, renCol);
+    this->DrawContextActors(contextActorCol.GetPointer(), renCol);
 
     state = gl2psEndPage();
     }
@@ -237,7 +240,8 @@ void vtkGL2PSExporter::WriteData()
   if (this->Write3DPropsAsRasterImage)
     {
     // Reset the visibility.
-    this->RestorePropVisibility(renCol, volVis, actVis, act2dVis);
+    this->RestorePropVisibility(renCol, volVis.GetPointer(),
+                                actVis.GetPointer(), act2dVis.GetPointer());
     // free memory
     delete [] rasterImage;
     }
@@ -248,15 +252,10 @@ void vtkGL2PSExporter::WriteData()
     this->SetPropVisibilities(propCol, 1);
     }
   // Turn context actors back on
-  this->SetPropVisibilities(contextActorCol, 1);
+  this->SetPropVisibilities(contextActorCol.GetPointer(), 1);
   // Re-render the scene to show all actors.
   this->RenderWindow->Render();
   delete[] fName;
-  volVis->Delete();
-  actVis->Delete();
-  act2dVis->Delete();
-  specialPropCol->Delete();
-  contextActorCol->Delete();
 
   vtkDebugMacro(<<"Finished writing file using GL2PS");
 }
@@ -552,13 +551,11 @@ void vtkGL2PSExporter::Turn2DPropsOff(vtkRendererCollection *renCol)
     }
 }
 
-// TODO this should return a collection of collections by renderer, like
-// special props.
-vtkPropCollection *
-vtkGL2PSExporter::GetVisibleContextActors(vtkRendererCollection *renCol)
+void vtkGL2PSExporter::GetVisibleContextActors(vtkPropCollection *result,
+                                               vtkRendererCollection *renCol)
 {
-  vtkPropCollection *result = vtkPropCollection::New();
-
+  assert("valid pointers" && result && renCol);
+  result->RemoveAllItems();
   vtkRenderer *ren;
   for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
     {
@@ -577,7 +574,6 @@ vtkGL2PSExporter::GetVisibleContextActors(vtkRendererCollection *renCol)
         }
       }
     }
-  return result;
 }
 
 void vtkGL2PSExporter::SetPropVisibilities(vtkPropCollection *col, int vis)

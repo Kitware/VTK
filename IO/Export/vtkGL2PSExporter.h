@@ -290,7 +290,8 @@ protected:
                              vtkIntArray *act2dVis);
   void Turn3DPropsOff(vtkRendererCollection *renCol);
   void Turn2DPropsOff(vtkRendererCollection *renCol);
-  vtkPropCollection *GetVisibleContextActors(vtkRendererCollection *renCol);
+  void GetVisibleContextActors(vtkPropCollection *contextActors,
+                               vtkRendererCollection *renCol);
   void SetPropVisibilities(vtkPropCollection *col, int vis);
 
   void DrawSpecialProps(vtkCollection *propCol, vtkRendererCollection *renCol);

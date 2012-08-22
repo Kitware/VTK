@@ -1361,16 +1361,22 @@ const char *vtkRenderWindow::GetRenderLibrary()
 }
 
 //----------------------------------------------------------------------------
-vtkCollection *vtkRenderWindow::CaptureGL2PSSpecialProps()
+void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
 {
+  if (result == NULL)
+    {
+    vtkErrorMacro(<<"CaptureGL2PSSpecialProps was passed a NULL pointer.");
+    return;
+    }
+
+  result->RemoveAllItems();
+
   if (this->CapturingGL2PSSpecialProps)
     {
     vtkDebugMacro(<<"Called recursively.")
-    return NULL;
+    return;
     }
   this->CapturingGL2PSSpecialProps = 1;
-
-  vtkCollection *result = vtkCollection::New();
 
   vtkRenderer *ren;
   for (Renderers->InitTraversal(); ren = Renderers->GetNextItem();)
@@ -1386,8 +1392,6 @@ vtkCollection *vtkRenderWindow::CaptureGL2PSSpecialProps()
     {
     ren->SetGL2PSSpecialPropCollection(NULL);
     }
-
-  return result;
 }
 
 // Description: Return the stereo type as a character string.

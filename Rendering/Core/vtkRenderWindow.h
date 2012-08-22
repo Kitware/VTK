@@ -129,10 +129,10 @@ public:
   // Description:
   // The GL2PS exporter must handle certain props in a special way (e.g. text).
   // This method performs a render and captures all "GL2PS-special" props in
-  // the returned collection. The returned collection contains a
+  // the specified collection. The collection will contain a
   // vtkPropCollection for each vtkRenderer in this->GetRenderers(), each
   // containing the special props rendered by the corresponding renderer.
-  vtkCollection *CaptureGL2PSSpecialProps();
+  void CaptureGL2PSSpecialProps(vtkCollection *specialProps);
 
   // Description:
   // Returns true if the render process is capturing text actors.
