@@ -17,6 +17,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkFreeTypeUtilities.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMathTextUtilities.h"
@@ -48,32 +49,6 @@ vtkMathTextActor::vtkMathTextActor()
   // position coord to Viewport, not Normalized Viewport
   // so...compute equivalent coords for initial position
   this->PositionCoordinate->SetCoordinateSystemToViewport();
-
-  // Construct texture
-  this->RectanglePoints->Allocate(4);
-  this->Rectangle->SetPoints(this->RectanglePoints.GetPointer());
-  vtkNew<vtkCellArray> polys;
-  polys->InsertNextCell(4);
-  polys->InsertCellPoint(0);
-  polys->InsertCellPoint(1);
-  polys->InsertCellPoint(2);
-  polys->InsertCellPoint(3);
-  this->Rectangle->SetPolys(polys.GetPointer());
-
-  vtkNew<vtkFloatArray> tc;
-  tc->SetNumberOfComponents(2);
-  tc->SetNumberOfTuples(4);
-  tc->InsertComponent(0,0, 0.0);  tc->InsertComponent(0,1, 0.0);
-  tc->InsertComponent(1,0, 0.0);  tc->InsertComponent(1,1, 1.0);
-  tc->InsertComponent(2,0, 1.0);  tc->InsertComponent(2,1, 1.0);
-  tc->InsertComponent(3,0, 1.0);  tc->InsertComponent(3,1, 0.0);
-  this->Rectangle->GetPointData()->SetTCoords(tc.GetPointer());
-
-  vtkNew<vtkPolyDataMapper2D> mapper;
-  this->SetMapper(mapper.GetPointer());
-  mapper->SetInputData(this->Rectangle.GetPointer());
-
-  this->TextProperty = vtkSmartPointer<vtkTextProperty>::New();
 }
 
 // ----------------------------------------------------------------------------
@@ -82,28 +57,10 @@ vtkMathTextActor::~vtkMathTextActor()
 }
 
 // ----------------------------------------------------------------------------
-const char* vtkMathTextActor::GetInput()
-{
-  return this->Input.c_str();
-}
-
-// ----------------------------------------------------------------------------
 double *vtkMathTextActor::GetBounds()
 {
-  this->ComputeRectangle();
+  this->ComputeRectangle( /*viewport*/ 0 );
   return this->RectanglePoints->GetBounds();
-}
-
-// ----------------------------------------------------------------------------
-void vtkMathTextActor::SetTextProperty(vtkTextProperty *p)
-{
-  this->TextProperty = p;
-}
-
-// ----------------------------------------------------------------------------
-vtkTextProperty *vtkMathTextActor::GetTextProperty()
-{
-  return this->TextProperty.GetPointer();
 }
 
 // ----------------------------------------------------------------------------
@@ -121,8 +78,7 @@ void vtkMathTextActor::ShallowCopy(vtkProp *prop)
 // ----------------------------------------------------------------------------
 void vtkMathTextActor::ReleaseGraphicsResources(vtkWindow *win)
 {
-  this->vtkActor2D::ReleaseGraphicsResources(win);
-  this->Texture->ReleaseGraphicsResources(win);
+  this->Superclass::ReleaseGraphicsResources(win);
 }
 
 // ----------------------------------------------------------------------------
@@ -134,7 +90,7 @@ int vtkMathTextActor::RenderOverlay(vtkViewport *viewport)
     }
 
   // render the texture
-  if (this->Texture.GetPointer() && !this->Input.empty())
+  if (this->Texture && this->Input && this->Input[0] != '\0')
     {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
     if (ren)
@@ -156,39 +112,16 @@ int vtkMathTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Make sure we have a string to render
-  if (this->Input.empty())
+  if ( ! this->Input || this->Input[0] == '\0' )
     {
     return 0;
     }
 
   //check if we need to render the string
-
   if(this->TextProperty->GetMTime() > this->ImageData->GetMTime() ||
      this->GetMTime() > this->ImageData->GetMTime())
     {
-    unsigned int dpi = 120;
-    vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
-    if (ren)
-      {
-      if (ren->GetRenderWindow())
-        {
-        dpi = static_cast<unsigned int>(ren->GetRenderWindow()->GetDPI());
-        }
-      }
-
-    if (!vtkMathTextUtilities::GetInstance()->RenderString(
-          this->Input.c_str(), this->ImageData.GetPointer(),
-          this->TextProperty.GetPointer(), dpi))
-      {
-      vtkErrorMacro(<<"Failed rendering text to buffer");
-      return 0;
-      }
-
-    this->ComputeRectangle();
-
-    this->ImageData->Modified();
-    this->Texture->SetInputData(this->ImageData.GetPointer());
-    this->Texture->Modified();
+    this->ComputeRectangle( viewport );
     }
 
   // Everything is built, just have to render
@@ -204,8 +137,46 @@ int vtkMathTextActor::HasTranslucentPolygonalGeometry()
 }
 
 // ----------------------------------------------------------------------------
-void vtkMathTextActor::ComputeRectangle()
+void vtkMathTextActor::ComputeRectangle( vtkViewport* viewport )
 {
+  //check if we need to render the string
+
+  if(this->TextProperty->GetMTime() > this->ImageData->GetMTime() ||
+     this->GetMTime() > this->ImageData->GetMTime())
+    {
+    unsigned int dpi = 120;
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
+    if (ren)
+      {
+      if (ren->GetRenderWindow())
+        {
+        dpi = static_cast<unsigned int>(ren->GetRenderWindow()->GetDPI());
+        }
+      }
+
+    vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();
+    if ( ! util )
+      { // Fall back to subclass rendering
+      if ( ! this->FreeTypeUtilities->RenderString(
+          this->ScaledTextProperty, this->Input, this->ImageData ) )
+        {
+        vtkErrorMacro(<<"Failed rendering fallback text to buffer");
+        return;
+        }
+      }
+    else if ( ! util->RenderString(
+        this->Input, this->ImageData,
+        this->TextProperty, dpi))
+      {
+      vtkErrorMacro(<<"Failed rendering text to buffer");
+      return;
+      }
+
+    this->ImageData->Modified();
+    this->Texture->SetInputData(this->ImageData);
+    this->Texture->Modified();
+    }
+
   int dims[3];
   this->RectanglePoints->Reset();
   this->ImageData->GetDimensions(dims);
@@ -277,29 +248,4 @@ void vtkMathTextActor::ComputeRectangle()
 void vtkMathTextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  if (this->TextProperty.GetPointer())
-    {
-    os << indent << "Text Property:\n";
-    this->TextProperty->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Text Property: (none)\n";
-    }
-
-  os << indent << "Image Data:\n";
-  this->ImageData->PrintSelf(os,indent.GetNextIndent());
-
-  os << indent << "Input:\n"
-     << indent.GetNextIndent() << this->Input.c_str() << "\n";
-
-  os << indent << "Rectangle:\n";
-  this->Rectangle->PrintSelf(os,indent.GetNextIndent());
-
-  os << indent << "Rectangle Points:\n";
-  this->RectanglePoints->PrintSelf(os,indent.GetNextIndent());
-
-  os << indent << "Texture:\n";
-  this->Texture->PrintSelf(os,indent.GetNextIndent());
 }

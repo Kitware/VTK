@@ -31,6 +31,7 @@ set(MyTests
   TestImplicitPlaneWidget2.cxx
   TestImplicitPlaneWidget2LockNormalToCamera.cxx
   TestImplicitPlaneWidget2b.cxx
+  TestIndexedLookupScalarBar.cxx
   TestLineWidget.cxx
   TestLineWidget2.cxx
   TestLogoWidget.cxx

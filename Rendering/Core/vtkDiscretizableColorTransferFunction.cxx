@@ -189,7 +189,7 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(vtkDataA
   // calculate alpha values
   if(colors &&
      colors->GetNumberOfComponents() == 4 &&
-     !scalars_are_mapped &&
+     !scalars_are_mapped && !this->IndexedLookup &&
      this->EnableOpacityMapping &&
      this->ScalarOpacityFunction.GetPointer())
     {
