@@ -211,9 +211,17 @@ static int NetCDFTypeToVTKType(nc_type type)
 class vtkSLACReaderAutoCloseNetCDF
 {
 public:
+  vtkSLACReaderAutoCloseNetCDF()
+  {
+    this->FileDescriptor = -1;
+    this->ReferenceCount = new int;
+    *this->ReferenceCount = 1;
+  }
+
   vtkSLACReaderAutoCloseNetCDF(const char *filename, int omode,
-                               bool quiet=false) {
-    int errorcode = nc_open(filename, omode, &this->fd);
+                               bool quiet=false)
+  {
+    int errorcode = nc_open(filename, omode, &this->FileDescriptor);
     if (errorcode != NC_NOERR)
       {
       if (!quiet)
@@ -221,23 +229,54 @@ public:
         vtkGenericWarningMacro(<< "Could not open " << filename << endl
                                << nc_strerror(errorcode));
         }
-      this->fd = -1;
+      this->FileDescriptor = -1;
       }
+
+    // Reference count is maintained regardless of validity of FileDescriptor.
+    this->ReferenceCount = new int;
+    *this->ReferenceCount = 1;
   }
-  ~vtkSLACReaderAutoCloseNetCDF() {
-    if (this->fd != -1)
-      {
-      nc_close(this->fd);
-      }
+
+  ~vtkSLACReaderAutoCloseNetCDF()
+  {
+    this->UnReference();
   }
-  int operator()() const { return this->fd; }
-  bool Valid() const { return this->fd != -1; }
+
+  vtkSLACReaderAutoCloseNetCDF(const vtkSLACReaderAutoCloseNetCDF &src)
+  {
+    this->FileDescriptor = src.FileDescriptor;
+    this->ReferenceCount = src.ReferenceCount;
+    (*this->ReferenceCount)++;
+  }
+
+  void operator=(const vtkSLACReaderAutoCloseNetCDF &src)
+  {
+    this->UnReference();
+    this->FileDescriptor = src.FileDescriptor;
+    this->ReferenceCount = src.ReferenceCount;
+    (*this->ReferenceCount)++;
+  }
+
+  operator int() const { return this->FileDescriptor; }
+
+  bool Valid() const { return this->FileDescriptor != -1; }
 protected:
-  int fd;
-private:
-  vtkSLACReaderAutoCloseNetCDF();       // Not implemented
-  vtkSLACReaderAutoCloseNetCDF(const vtkSLACReaderAutoCloseNetCDF &); // Not implemented
-  void operator=(const vtkSLACReaderAutoCloseNetCDF &); // Not implemented
+  int FileDescriptor;
+  int *ReferenceCount;
+
+  void UnReference() {
+    assert(*this->ReferenceCount > 0);
+    (*this->ReferenceCount)--;
+    if (*this->ReferenceCount < 1)
+      {
+      if (this->FileDescriptor != -1)
+        {
+        nc_close(this->FileDescriptor);
+        }
+      delete this->ReferenceCount;
+      this->ReferenceCount = NULL;
+      }
+  }
 };
 
 //=============================================================================
@@ -531,9 +570,9 @@ int vtkSLACReader::CanReadFile(const char *filename)
 
   // Check for the existence of several arrays we know should be in the file.
   int dummy;
-  if (nc_inq_varid(ncFD(), "coords", &dummy) != NC_NOERR) return 0;
-  if (nc_inq_varid(ncFD(), "tetrahedron_interior",&dummy) != NC_NOERR) return 0;
-  if (nc_inq_varid(ncFD(), "tetrahedron_exterior",&dummy) != NC_NOERR) return 0;
+  if (nc_inq_varid(ncFD, "coords", &dummy) != NC_NOERR) return 0;
+  if (nc_inq_varid(ncFD, "tetrahedron_interior",&dummy) != NC_NOERR) return 0;
+  if (nc_inq_varid(ncFD, "tetrahedron_exterior",&dummy) != NC_NOERR) return 0;
 
   return 1;
 }
@@ -632,11 +671,11 @@ int vtkSLACReader::RequestInformation(
     if (!modeFD.Valid()) return 0;
 
     int meshCoordsVarId, modeCoordsVarId;
-    CALL_NETCDF(nc_inq_varid(meshFD(), "coords", &meshCoordsVarId));
-    CALL_NETCDF(nc_inq_varid(modeFD(), "coords", &modeCoordsVarId));
+    CALL_NETCDF(nc_inq_varid(meshFD, "coords", &meshCoordsVarId));
+    CALL_NETCDF(nc_inq_varid(modeFD, "coords", &modeCoordsVarId));
 
-    if (   this->GetNumTuplesInVariable(meshFD(), meshCoordsVarId, 3)
-        != this->GetNumTuplesInVariable(modeFD(), modeCoordsVarId, 3) )
+    if (   this->GetNumTuplesInVariable(meshFD, meshCoordsVarId, 3)
+        != this->GetNumTuplesInVariable(modeFD, modeCoordsVarId, 3) )
       {
       vtkWarningMacro(<< "Mode file "
                       << this->Internal->ModeFileNames[0].c_str()
@@ -653,8 +692,8 @@ int vtkSLACReader::RequestInformation(
       // in simulations that write out this data.  Thus, we expect large numbers
       // to be frequency (in Hz) and small numbers to be time (in seconds).
       double frequency;
-      if (   (nc_get_scalar_double(modeFD(), "frequency", &frequency) != NC_NOERR)
-          && (nc_get_scalar_double(modeFD(), "frequencyreal", &frequency) != NC_NOERR) )
+      if (   (nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR)
+          && (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR) )
         {
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
@@ -675,23 +714,23 @@ int vtkSLACReader::RequestInformation(
       //vtksys::RegularExpression imaginaryVar("_imag$");
 
       int ncoordDim;
-      CALL_NETCDF(nc_inq_dimid(modeFD(), "ncoord", &ncoordDim));
+      CALL_NETCDF(nc_inq_dimid(modeFD, "ncoord", &ncoordDim));
 
       int numVariables;
-      CALL_NETCDF(nc_inq_nvars(modeFD(), &numVariables));
+      CALL_NETCDF(nc_inq_nvars(modeFD, &numVariables));
 
       for (int i = 0; i < numVariables; i++)
         {
         int numDims;
-        CALL_NETCDF(nc_inq_varndims(modeFD(), i, &numDims));
+        CALL_NETCDF(nc_inq_varndims(modeFD, i, &numDims));
         if ((numDims < 1) || (numDims > 2)) continue;
 
         int dimIds[2];
-        CALL_NETCDF(nc_inq_vardimid(modeFD(), i, dimIds));
+        CALL_NETCDF(nc_inq_vardimid(modeFD, i, dimIds));
         if (dimIds[0] != ncoordDim) continue;
 
         char name[NC_MAX_NAME+1];
-        CALL_NETCDF(nc_inq_varname(modeFD(), i, name));
+        CALL_NETCDF(nc_inq_varname(modeFD, i, name));
         if (strcmp(name, "coords") == 0) continue;
         //if (this->FrequencyModes && imaginaryVar.find(name)) continue;
 
@@ -714,8 +753,8 @@ int vtkSLACReader::RequestInformation(
       if (!modeFD.Valid()) return 0;
 
       double frequency;
-      if (   (nc_get_scalar_double(modeFD(), "frequency", &frequency) != NC_NOERR)
-          && (nc_get_scalar_double(modeFD(), "frequencyreal", &frequency) != NC_NOERR) )
+      if (   (nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR)
+          && (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR) )
         {
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
@@ -759,8 +798,8 @@ int vtkSLACReader::RequestInformation(
       if (!modeFD.Valid()) return 0;
 
       double frequency;
-      if (   (nc_get_scalar_double(modeFD(), "frequency", &frequency) != NC_NOERR)
-          && (nc_get_scalar_double(modeFD(), "frequencyreal", &frequency) != NC_NOERR) )
+      if (   (nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR)
+          && (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR) )
         {
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
@@ -851,7 +890,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
     if (!this->ReadInternalVolume && !this->ReadExternalSurface) return 1;
 
-    if (!this->ReadConnectivity(meshFD(),surfaceOutput,volumeOutput)) return 0;
+    if (!this->ReadConnectivity(meshFD,surfaceOutput,volumeOutput)) return 0;
 
     this->UpdateProgress(0.25);
 
@@ -870,7 +909,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
     compositeOutput->GetInformation()->Set(vtkSLACReader::POINTS(), points);
     compositeOutput->GetInformation()->Set(vtkSLACReader::POINT_DATA(), pd);
 
-    if (!this->ReadCoordinates(meshFD(), compositeOutput)) return 0;
+    if (!this->ReadCoordinates(meshFD, compositeOutput)) return 0;
 
     this->UpdateProgress(0.5);
 
@@ -879,9 +918,9 @@ int vtkSLACReader::RequestData(vtkInformation *request,
       {
       // if midpoints present in file
       int dummy;
-      if (nc_inq_varid(meshFD(), "surface_midpoint", &dummy) == NC_NOERR)
+      if (nc_inq_varid(meshFD, "surface_midpoint", &dummy) == NC_NOERR)
         {
-        if (!this->ReadMidpointData(meshFD(), compositeOutput,
+        if (!this->ReadMidpointData(meshFD, compositeOutput,
                                     this->Internal->MidpointIdCache))
           {
           return 0;
@@ -910,23 +949,53 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
   if (this->ReadModeData)
     {
-    vtkStdString modeFileName;
-    if (this->TimeStepModes && timeValid)
+    std::vector<vtkStdString> modeFileNames;
+    if (this->TimeStepModes)
       {
-      modeFileName = this->Internal->TimeStepToFile.lower_bound(time)->second;
+      modeFileNames.resize(1);
+      if (timeValid)
+        {
+        modeFileNames[0] =
+            this->Internal->TimeStepToFile.lower_bound(time)->second;
+        }
+      else
+        {
+        modeFileNames[0] = this->Internal->ModeFileNames[0];
+        }
       }
     else
       {
-      modeFileName = this->Internal->ModeFileNames[0];
+      modeFileNames = this->Internal->ModeFileNames;
       }
-    vtkSLACReaderAutoCloseNetCDF modeFD(modeFileName, NC_NOWRITE);
-    if (!modeFD.Valid()) return 0;
+
+    std::vector<vtkSLACReaderAutoCloseNetCDF> modeFDVector;
+    modeFDVector.reserve(modeFileNames.size());
+    for (std::vector<vtkStdString>::iterator nameIter = modeFileNames.begin();
+         nameIter != modeFileNames.end();
+         nameIter++)
+      {
+      vtkSLACReaderAutoCloseNetCDF modeFD(*nameIter, NC_NOWRITE);
+      if (modeFD.Valid())
+        {
+        modeFDVector.push_back(modeFD);
+        }
+      }
+    if (modeFDVector.size() < 1)
+      {
+      // Warning should already have been emitted.
+      return 0;
+      }
 
     // Copy file descripters to a structure ReadFieldData can accept.  The
     // ReadFieldData interface was designed to not use implementation of
     // private or templated objects.
-    int modeFDcopy = modeFD();
-    if (!this->ReadFieldData(&modeFDcopy, 1, compositeOutput)) return 0;
+    int *modeFDCopy = new int[modeFDVector.size()];
+    std::copy(modeFDVector.begin(), modeFDVector.end(), modeFDCopy);
+    if (!this->ReadFieldData(modeFDCopy, modeFDVector.size(), compositeOutput))
+      {
+      return 0;
+      }
+    delete[] modeFDCopy;
 
     this->UpdateProgress(0.875);
 
