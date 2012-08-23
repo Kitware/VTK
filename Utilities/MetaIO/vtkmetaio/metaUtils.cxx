@@ -12,6 +12,14 @@
 #ifdef _MSC_VER
 #pragma warning(disable:4702)
 #pragma warning(disable:4996)
+namespace {
+inline bool IsBlank(int c)
+{
+  return c == '\t' || c == ' ';
+}
+}
+#else
+#define IsBlank(c) isblank((c))
 #endif
 
 #include "metaUtils.h"
@@ -998,7 +1006,7 @@ bool MET_SkipToVal(METAIO_STREAM::istream &fp)
     c = fp.get();
     }
 
-  while( !fp.eof() && ( c == MET_SeperatorChar || c == ':' || isblank(c) ) )
+  while( !fp.eof() && ( c == MET_SeperatorChar || c == ':' || IsBlank(c) ) )
     {
     c = fp.get();
     }
@@ -1075,7 +1083,7 @@ bool MET_Read(METAIO_STREAM::istream &fp,
 
     // trim white space on name
     i--;
-    while(isblank(s[i]) && i>0)
+    while(IsBlank(s[i]) && i>0)
       {
       s[i--] = '\0';
       }
