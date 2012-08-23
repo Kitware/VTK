@@ -1,4 +1,6 @@
 set(Module_SRCS
+  vtkBiomTableReader.cxx
+  vtkBiomTableReader.h
   vtkChacoGraphReader.cxx
   vtkChacoGraphReader.h
   vtkDelimitedTextReader.cxx
@@ -11,6 +13,8 @@ set(Module_SRCS
   vtkFixedWidthTextReader.h
   vtkISIReader.cxx
   vtkISIReader.h
+  vtkNewickTreeReader.cxx
+  vtkNewickTreeReader.h
   vtkRISReader.cxx
   vtkRISReader.h
   vtkTulipReader.cxx

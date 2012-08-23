@@ -1,7 +1,9 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   # TestTulipReader.cxx           # todo (unsatisfied deps)
   # TestTulipReaderClusters.cxx   # todo (unsatisfied deps)
+  TestBiomTableReader.cxx
   TestTulipReaderProperties.cxx
+  TestNewickTreeReader.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )
