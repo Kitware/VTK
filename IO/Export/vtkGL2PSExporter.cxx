@@ -629,54 +629,59 @@ void vtkGL2PSExporter::DrawSpecialProps(vtkCollection *specialPropCol,
     vtkProp *prop = 0;
     for (propCol->InitTraversal(); (prop = propCol->GetNextProp());)
       {
-      // What sort of special prop is it?
-      if (vtkActor2D *act2d = vtkActor2D::SafeDownCast(prop))
-        {
-        if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
-          {
-          this->DrawTextActor(textAct, ren);
-          }
-        else if (vtkMathTextActor *mathTextAct =
-                 vtkMathTextActor::SafeDownCast(act2d))
-          {
-          this->DrawMathTextActor(mathTextAct, ren);
-          }
-        else if (vtkMapper2D *map2d = act2d->GetMapper())
-          {
-          if (vtkTextMapper *textMap = vtkTextMapper::SafeDownCast(map2d))
-            {
-            this->DrawTextMapper(textMap, act2d, ren);
-            }
-          else // Some other mapper2D
-            {
-            continue;
-            }
-          }
-        else // Some other actor2D
-          {
-          continue;
-          }
-        }
-      else if (vtkMathTextActor3D *mathTextAct3D =
-               vtkMathTextActor3D::SafeDownCast(prop))
-        {
-        this->DrawMathTextActor3D(mathTextAct3D, ren);
-        }
-      else if (vtkTextActor3D *textAct3D =
-               vtkTextActor3D::SafeDownCast(prop))
-        {
-        this->DrawTextActor3D(textAct3D, ren);
-        }
-      else // Some other prop
-        {
-        continue;
-        }
+      this->HandleSpecialProp(prop, ren);
       }
     // Pop MV matrices (This was pushed by vtkOpenGLCamera::Render earlier).
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+    }
+}
+
+void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
+{
+  // What sort of special prop is it?
+  if (vtkActor2D *act2d = vtkActor2D::SafeDownCast(prop))
+    {
+    if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
+      {
+      this->DrawTextActor(textAct, ren);
+      }
+    else if (vtkMathTextActor *mathTextAct =
+             vtkMathTextActor::SafeDownCast(act2d))
+      {
+      this->DrawMathTextActor(mathTextAct, ren);
+      }
+    else if (vtkMapper2D *map2d = act2d->GetMapper())
+      {
+      if (vtkTextMapper *textMap = vtkTextMapper::SafeDownCast(map2d))
+        {
+        this->DrawTextMapper(textMap, act2d, ren);
+        }
+      else // Some other mapper2D
+        {
+        return;
+        }
+      }
+    else // Some other actor2D
+      {
+      return;
+      }
+    }
+  else if (vtkMathTextActor3D *mathTextAct3D =
+           vtkMathTextActor3D::SafeDownCast(prop))
+    {
+    this->DrawMathTextActor3D(mathTextAct3D, ren);
+    }
+  else if (vtkTextActor3D *textAct3D =
+           vtkTextActor3D::SafeDownCast(prop))
+    {
+    this->DrawTextActor3D(textAct3D, ren);
+    }
+  else // Some other prop
+    {
+    return;
     }
 }
 

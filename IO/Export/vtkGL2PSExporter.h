@@ -95,6 +95,7 @@ class vtkMathTextActor;
 class vtkMathTextActor3D;
 class vtkMatrix4x4;
 class vtkPath;
+class vtkProp;
 class vtkPropCollection;
 class vtkProp3DCollection;
 class vtkRenderer;
@@ -295,6 +296,10 @@ protected:
   void SetPropVisibilities(vtkPropCollection *col, int vis);
 
   void DrawSpecialProps(vtkCollection *propCol, vtkRendererCollection *renCol);
+  // Description:
+  // Reimplement this to handle your own special props. Must call this function
+  // at the end of the override for default handling.
+  virtual void HandleSpecialProp(vtkProp *prop, vtkRenderer *ren);
   void DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren);
   void DrawTextActor3D(vtkTextActor3D *textAct, vtkRenderer *ren);
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
