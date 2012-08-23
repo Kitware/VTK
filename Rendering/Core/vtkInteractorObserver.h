@@ -45,11 +45,13 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+class vtkAbstractPropPicker;
+class vtkAssemblyPath;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
 class vtkCallbackCommand;
 class vtkObserverMediator;
-
+class vtkPickingManager;
 
 class VTKRENDERINGCORE_EXPORT vtkInteractorObserver : public vtkObject
 {
@@ -77,6 +79,7 @@ public:
   // window interactor are set up as a result of this method invocation.
   // The SetInteractor() method must be invoked prior to enabling the
   // vtkInteractorObserver.
+  // It automatically registers available pickers to the Picking Manager.
   virtual void SetInteractor(vtkRenderWindowInteractor* iren);
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
 
@@ -91,6 +94,13 @@ public:
   // to have the priority take effect.)
   vtkSetClampMacro(Priority,float,0.0f,1.0f);
   vtkGetMacro(Priority,float);
+
+  // Description
+  // Enable/Disable the use of a manager to process the picking.
+  // Enabled by default.
+  vtkBooleanMacro(PickingManaged, bool);
+  vtkSetMacro(PickingManaged, bool);
+  vtkGetMacro(PickingManaged, bool);
 
   // Description:
   // Enable/Disable of the use of a keypress to turn on and off the
@@ -193,6 +203,36 @@ protected:
 
   // Priority at which events are processed
   float Priority;
+
+  // This variable controls whether the picking is managed by the Picking
+  // Manager process or not. True by default.
+  bool PickingManaged;
+
+  // Description:
+  // Register internal Pickers in the Picking Manager.
+  // Must be reimplemented by concrete widgets to register
+  // their pickers.
+  virtual void RegisterPickers();
+
+  // Description:
+  // Unregister internal pickers from the Picking Manager.
+  void UnRegisterPickers();
+
+  // Description:
+  // Update the pickers registered in the Picking Manager when pickers are
+  // modified.
+  virtual void PickersModified();
+
+  // Description:
+  // Return the picking manager associated on the context on which the
+  // observer currently belong.
+  vtkPickingManager* GetPickingManager();
+
+  // Description:
+  // Proceed to a pick, whether through the PickingManager if the picking is
+  // managed or directly using the picker, and return the assembly path.
+  vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z,
+                                   vtkAbstractPropPicker* picker);
 
   // Keypress activation controls
   int KeyPressActivation;

@@ -164,6 +164,8 @@ protected:
   int                          WaitCount;
   int                          HandleVisibility;
 
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
 
   // Methods to manipulate the cursor
   virtual void Translate(double *p1, double *p2);

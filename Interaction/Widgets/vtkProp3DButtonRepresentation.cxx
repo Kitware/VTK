@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkPickingManager.h"
 #include "vtkProp3DButtonRepresentation.h"
 #include "vtkProp3D.h"
 #include "vtkPropPicker.h"
 #include "vtkProp3DFollower.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkAssemblyPath.h"
 #include "vtkInteractorObserver.h"
 #include "vtkCoordinate.h"
@@ -134,6 +136,13 @@ GetButtonProp(int i)
     }
 }
 
+//------------------------------------------------------------------------------
+void vtkProp3DButtonRepresentation::RegisterPickers()
+{
+  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
+    ->AddPicker(this->Picker, this);
+}
+
 //-------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::PlaceWidget(double bds[6])
 {
@@ -200,8 +209,8 @@ int vtkProp3DButtonRepresentation
     return this->InteractionState;
     }
   this->VisibilityOn(); //actor must be on to be picked
-  this->Picker->Pick(X,Y,0.0,this->Renderer);
-  vtkAssemblyPath *path = this->Picker->GetPath();
+
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
   if ( path != NULL )
     {

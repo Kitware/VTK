@@ -162,6 +162,9 @@ protected:
   // Support for picking
   vtkAbstractPropPicker *Picker;
 
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
+
   // The vtkProp that is being hovered over (which may be NULL)
   vtkProp *CurrentProp;
 

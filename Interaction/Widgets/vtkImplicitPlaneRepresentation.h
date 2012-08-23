@@ -338,6 +338,9 @@ protected:
   // Do the picking
   vtkCellPicker *Picker;
 
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
+
   // Transform the normal (used for rotation)
   vtkTransform *Transform;
 
