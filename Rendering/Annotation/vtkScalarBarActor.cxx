@@ -802,7 +802,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       // and leaders to labels for each annotated value.
       // Since labels are user-provided, we render with vtkMathTextActor to allow fancy-ness.
       int numNotes = lkup->GetNumberOfAnnotatedValues();
-      int numPts = 4 * numNotes; // 2 triangles per annotation: half-opaque, half-translucent.
+      numPts = 4 * numNotes; // 2 triangles per annotation: half-opaque, half-translucent.
       pts = vtkPoints::New();
       pts->SetNumberOfPoints( numPts );
       polys = vtkCellArray::New();
@@ -1315,7 +1315,7 @@ struct vtkScalarBarHLabelPlacer
   void Place( unsigned i, double wd, double ht )
     {
     vtkScalarBarHLabelInfo& placement( this->Places[i] );
-    unsigned farMin, farMid, farMax, medNeighbor;
+    unsigned farMin, farMid, medNeighbor;
     int posRelToCenter = ( i == this->Ctr && 2 * this->Ctr < this->Places.size() ) ? 0 : ( i > this->Ctr ? +1 : -1 );
 
     if ( posRelToCenter == 0 )
@@ -1339,7 +1339,6 @@ struct vtkScalarBarHLabelPlacer
         { // label is right-justified; placement.X[1] bounded from above by XBounds[1] or right neighbor swatch
         farMin = 2 * this->Ctr - i;
         farMid = this->Ctr;
-        farMax = i;
         medNeighbor = i - 1;
         placement.Justification = VTK_TEXT_RIGHT;
         spotMax += this->Delta - this->Pad;
@@ -1370,7 +1369,6 @@ struct vtkScalarBarHLabelPlacer
         farMid = 2 * this->Ctr - i;
         medNeighbor = i + 1;
         farMin = this->Ctr;
-        farMax = 2 * this->Ctr - i;
         placement.Justification = VTK_TEXT_LEFT;
         spotMax += this->Pad;
         if ( spotMax < this->XBounds[0] ) spotMax = this->XBounds[0];

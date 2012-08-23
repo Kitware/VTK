@@ -19,5 +19,4 @@ vtk_module(vtkInteractionWidgets
     vtkFiltersFlowPaths
     vtkRenderingLOD
     vtkImagingStencil
-    vtkRenderingMatplotlib
   )
