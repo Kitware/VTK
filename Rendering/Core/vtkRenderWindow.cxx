@@ -1392,6 +1392,7 @@ void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
     {
     ren->SetGL2PSSpecialPropCollection(NULL);
     }
+  this->CapturingGL2PSSpecialProps = 0;
 }
 
 // Description: Return the stereo type as a character string.
