@@ -310,6 +310,10 @@ protected:
   // draw it to GL2PS.
   void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
                   double actorBounds[4], unsigned char actorColor[3]);
+  // Description:
+  // Copy the region copyRect from the framebuffer into the gl2ps document.
+  // copyRect is in viewport coordinates [xmin, ymin, width, height].
+  void CopyPixels(int copyRect[4], vtkRenderer *ren);
 
   void DrawContextActors(vtkPropCollection *contextActs,
                          vtkRendererCollection *renCol);
@@ -332,6 +336,9 @@ protected:
   int OcclusionCull;
   int Write3DPropsAsRasterImage;
   int WriteTimeStamp;
+
+  float *PixelData;
+  int PixelDataSize[2];
 
 private:
   vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented
