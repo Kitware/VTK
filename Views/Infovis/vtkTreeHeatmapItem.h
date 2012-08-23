@@ -17,10 +17,15 @@
 //
 // .SECTION Description
 // This item draws a tree and a heatmap as a part of a vtkContextScene.
-// The input tree's vertex data must contain a vtkStringArray called 
-// "node name".  This array corresponds to the first column of the input
-// table.  The vtkNewickTreeReader automatically initializes this required
-// array in its output tree.
+// The input tree's vertex data must contain at least two arrays.
+// The first required array is a vtkStringArray called "node name". 
+// This array corresponds to the first column of the input table.
+// The second required array is a scalar array called "node weight".
+// This array is used by vtkTreeLayoutStrategy to set any particular
+// node's distance from the root of the tree.
+//
+// The vtkNewickTreeReader automatically initializes both of these
+// required arrays in its output tree.
 //
 // .SEE ALSO
 // vtkTree vtkTable vtkNewickTreeReader

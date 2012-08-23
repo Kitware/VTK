@@ -11,7 +11,5 @@ vtk_module(vtkInfovisLayout
     vtkRenderingOpenGL
     vtkTestingRendering
     vtkIOInfovis
-    vtkRenderingContext2D
-    vtkViewsInfovis
     vtkViewsContext2D
   )
