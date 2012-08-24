@@ -68,7 +68,7 @@ if ( NOT VERDICT_NO_LIBRARY_VERSION )
   )
 endif ( NOT VERDICT_NO_LIBRARY_VERSION )
 
-vtk_add_library( ${verdict_LIBRARY} ${verdict_SRCS} )
+add_library( ${verdict_LIBRARY} ${verdict_SRCS} )
 set_target_properties( ${verdict_LIBRARY} PROPERTIES DEFINE_SYMBOL verdict_EXPORTS)
 
 # Apply user-defined properties to the library targets.
@@ -92,33 +92,24 @@ if ( VERDICT_ENABLE_TESTING )
   set_tests_properties( verdict_test PROPERTIES FAIL_REGULAR_EXPRESSION "FAILED" )
 endif ( VERDICT_ENABLE_TESTING )
 
-if (VTK_INSTALL_BIN_DIR_CM24)
-  set (verdict_INSTALL_BIN_DIR ${VTK_INSTALL_BIN_DIR_CM24})
-endif(VTK_INSTALL_BIN_DIR_CM24)
-
-if(VTK_INSTALL_LIB_DIR_CM24)
-  set (verdict_INSTALL_LIB_DIR ${VTK_INSTALL_LIB_DIR_CM24})
-endif(VTK_INSTALL_LIB_DIR_CM24)
-
-if(VTK_INSTALL_INCLUDE_DIR)
-  set (verdict_INSTALL_INCLUDE_SUBDIR ${VTK_INSTALL_INCLUDE_DIR})
-endif(VTK_INSTALL_INCLUDE_DIR)
-
+if ( NOT verdict_INSTALL_EXPORT_NAME)
+  set (verdict_INSTALL_EXPORT_NAME verdict)
+endif ()
 if ( NOT verdict_INSTALL_DOC_DIR )
   set (verdict_INSTALL_DOC_DIR doc)
-endif( NOT verdict_INSTALL_DOC_DIR )
+endif ()
 if ( NOT verdict_INSTALL_INCLUDE_DIR)
   set (verdict_INSTALL_INCLUDE_DIR include)
-endif ( NOT verdict_INSTALL_INCLUDE_DIR)
-if ( NOT verdict_INSTALL_INCLUDE_SUBDIR)
-  set (verdict_INSTALL_INCLUDE_SUBDIR verdict)
-endif ( NOT verdict_INSTALL_INCLUDE_SUBDIR)
-if ( NOT verdict_INSTALL_BIN_DIR)
-  set (verdict_INSTALL_BIN_DIR bin)
-endif ( NOT verdict_INSTALL_BIN_DIR)
-if ( NOT verdict_INSTALL_LIB_DIR)
-  set (verdict_INSTALL_LIB_DIR lib)
-endif ( NOT verdict_INSTALL_LIB_DIR)
+endif ()
+if ( NOT verdict_INSTALL_RUNTIME_DIR)
+  set (verdict_INSTALL_RUNTIME_DIR bin)
+endif ()
+if ( NOT verdict_INSTALL_LIBRARY_DIR)
+  set (verdict_INSTALL_LIBRARY_DIR lib)
+endif ()
+if ( NOT verdict_INSTALL_ARCHIVE_DIR)
+  set (verdict_INSTALL_ARCHIVE_DIR lib)
+endif ()
 
 if ( VERDICT_BUILD_DOC )
   add_subdirectory( docs/VerdictUserManual2007 )
@@ -127,7 +118,7 @@ endif ( VERDICT_BUILD_DOC )
 #
 # Installation stuff
 #
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+IF(NOT verdict_INSTALL_NO_DEVELOPMENT)
   install(FILES
     README
     Verdict.htm
@@ -151,7 +142,14 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     )
   endif ( VERDICT_MANGLE )
 
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+ENDIF(NOT verdict_INSTALL_NO_DEVELOPMENT)
+
+install(TARGETS ${verdict_LIBRARY}
+      EXPORT ${verdict_INSTALL_EXPORT_NAME}
+      RUNTIME DESTINATION ${verdict_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries # .exe, .dll
+      LIBRARY DESTINATION ${verdict_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
+      ARCHIVE DESTINATION ${verdict_INSTALL_ARCHIVE_DIR} COMPONENT Development      # .a, .lib
+)
 
 #
 # Packing stuff
