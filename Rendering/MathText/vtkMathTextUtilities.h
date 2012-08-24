@@ -63,6 +63,12 @@ public:
   static void SetInstance(vtkMathTextUtilities *instance);
 
   // Description:
+  // Determine the dimensions of the image that RenderString will produce for
+  // a given str, tprop, and dpi
+  virtual bool GetBoundingBox(vtkTextProperty *tprop, const char *str,
+                              unsigned int dpi, int bbox[4]) = 0;
+
+  // Description:
   // Render the given string @a str into the vtkImageData @a data with a
   // resolution of @a dpi.
  virtual bool RenderString(const char *str, vtkImageData *data,

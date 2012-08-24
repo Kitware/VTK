@@ -2,6 +2,7 @@ vtk_module(vtkRenderingMatplotlib
   IMPLEMENTS
     vtkRenderingMathText
   DEPENDS
+    vtkImagingCore
     vtkRenderingCore
     vtkWrappingPython
   TEST_DEPENDS
