@@ -1328,8 +1328,9 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
                                  int numModeFDs,
                                  vtkMultiBlockDataSet *output)
 {
-  // To be changed to check <= Frequencies and Phases size and >= 0.
-  assert(numModeFDs == 1);
+  assert(numModeFDs > 0);
+  assert(static_cast<size_t>(numModeFDs) <= this->Internal->Frequencies.size());
+  assert(static_cast<size_t>(numModeFDs) <= this->Internal->Phases.size());
 
   vtkPointData *pd = vtkPointData::SafeDownCast(
                     output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
@@ -1367,11 +1368,6 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
       continue;
       }
 
-    // Read in the array data.
-    vtkSmartPointer<vtkDataArray> dataArray
-        = this->ReadPointDataArray(modeFDArray[0], varId);
-    if (!dataArray) continue;
-
 
     // Handle the imaginary component of mode data:
     // If simulation is purely real, all imaginary components would be zero.
@@ -1387,6 +1383,11 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
     // otherwise use zeroes.)
     if (this->FrequencyModes && (name == "efield" || name == "bfield"))
       {
+      // Read in the array data.
+      vtkSmartPointer<vtkDataArray> dataArray
+          = this->ReadPointDataArray(modeFDArray[0], varId);
+      if (!dataArray) continue;
+
       vtkIdType numTuples = dataArray->GetNumberOfTuples();
 
       // I am assuming here that the imaginary data has the same dimensions as
@@ -1437,6 +1438,10 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
         cplxMagArray->SetComponent(i, 0, sqrt(accumulated_mag));
         }
 
+      // Add the data to the point data.
+      dataArray->SetName(name);
+      pd->AddArray(dataArray);
+
       // add complex magnitude data to the point data
       vtkStdString cplxMagName= name + "_cplx_mag";
       cplxMagArray->SetName(cplxMagName);
@@ -1446,10 +1451,17 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
       phaseArray->SetName(phaseName);
       pd->AddArray(phaseArray);
       }
+    else
+      {
+      // Must be a real-only field.  No animation/blending of modes.
+      vtkSmartPointer<vtkDataArray> dataArray
+          = this->ReadPointDataArray(modeFDArray[0], varId);
+      if (!dataArray) continue;
 
-    // Add the data to the point data.
-    dataArray->SetName(name);
-    pd->AddArray(dataArray);
+      // Add the data to the point data.
+      dataArray->SetName(name);
+      pd->AddArray(dataArray);
+      }
     }
 
   return 1;
