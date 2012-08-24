@@ -56,7 +56,6 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
-class vtkLookupTable;
 class vtkMathTextActor;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
@@ -98,9 +97,10 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
-  // Set/Get the vtkLookupTable to use. The lookup table specifies the number
-  // of colors to use in the table (if not overridden), as well as the scalar
-  // range.
+  // Set/Get the lookup table to use. The lookup table specifies the number
+  // of colors to use in the table (if not overridden), the scalar range,
+  // and any annotated values.
+  // Annotated values are rendered using vtkMathTextActor.
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
 
@@ -281,7 +281,7 @@ protected:
   vtkActor2D          *AnnotationLeadersActor;
   vtkMathTextActor   **AnnotationLabels;
   int                  NumberOfAnnotationLabelsBuilt;
-  int AllocateAndSizeAnnotationLabels( vtkLookupTable* lkup );
+  int AllocateAndSizeAnnotationLabels( vtkScalarsToColors* lkup );
   int LayoutAnnotationsVertically( double barX, double barY, double barWidth, double barHeight, double delta, double pad );
   int LayoutAnnotationsHorizontally( double barX, double barY, double barWidth, double barHeight, double delta, double pad );
 

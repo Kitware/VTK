@@ -92,6 +92,8 @@ void vtkDiscretizableColorTransferFunction::Build()
 
   this->LookupTable->SetVectorMode(this->VectorMode);
   this->LookupTable->SetVectorComponent(this->VectorComponent);
+  this->LookupTable->SetIndexedLookup(this->IndexedLookup);
+  this->LookupTable->SetAnnotations( this->AnnotatedValues, this->Annotations );
 
   if (this->Discretize && (this->GetMTime() > this->BuildTime ||
     this->GetMTime() > this->BuildTime))
