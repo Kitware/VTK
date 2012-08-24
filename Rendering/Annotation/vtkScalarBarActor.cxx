@@ -24,7 +24,6 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkLookupTable.h"
 #include "vtkFloatArray.h"
 #include "vtkPointData.h"
 #include "vtkTexture.h"
@@ -332,8 +331,7 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
     }
 
   // Draw either the scalar bar (non-indexed mode) or the annotated value boxes (indexed mode).
-  vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
-  if ( ! lkup || ( lkup && ! lkup->GetIndexedLookup() ) )
+  if ( ! this->LookupTable->GetIndexedLookup() )
     {
     this->ScalarBarActor->RenderOverlay(viewport);
 
@@ -469,8 +467,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     // Build scalar bar object; determine its type
     // i.e. is scale set to log, is categorical or continuous?
     int isLogTable = this->LookupTable->UsingLogScale();
-    vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
-    int isCategorical = lkup && lkup->GetIndexedLookup();
+    int isCategorical = this->LookupTable->GetIndexedLookup();
 
     // we hard code how many steps to display
     vtkScalarsToColors *lut = this->LookupTable;
@@ -801,7 +798,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       // this->ScalarBar will not be drawn; instead, draw padded boxes
       // and leaders to labels for each annotated value.
       // Since labels are user-provided, we render with vtkMathTextActor to allow fancy-ness.
-      int numNotes = lkup->GetNumberOfAnnotatedValues();
+      int numNotes = this->LookupTable->GetNumberOfAnnotatedValues();
       numPts = 4 * numNotes; // 2 triangles per annotation: half-opaque, half-translucent.
       pts = vtkPoints::New();
       pts->SetNumberOfPoints( numPts );
@@ -886,9 +883,9 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         ptIds[2] = ptIds[0] + 3;
         polys->InsertNextCell( 3, ptIds );
 
-        // We could just call lkup->GetTableValue( i % lkup->GetNumberOfTableValues() ), but
+        // We could just call this->LookupTable->GetTableValue( i % this->LookupTable->GetNumberOfTableValues() ), but
         // that would draw colors even when an annotation did not have a valid conversion to/from a double...
-        rgba = lkup->MapValue( lkup->GetAnnotatedValue( i ).ToDouble() );
+        rgba = this->LookupTable->MapValue( this->LookupTable->GetAnnotatedValue( i ).ToDouble() );
         rgb = colors->GetPointer( /* numComponents */ 4 * /* numCells/swatch */ 2 * /* swatch */ i ); //write into array directly
         rgb[0] = rgba[0]; rgb[1] = rgba[1]; rgb[2] = rgba[2]; rgb[3] = rgba[3];
         rgb[4] = rgba[0]; rgb[5] = rgba[1]; rgb[6] = rgba[2]; rgb[7] = 255; // second triangle is always opaque
@@ -903,8 +900,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
     }
   // Draw either the scalar bar (non-indexed mode) or the annotated value boxes (indexed mode).
-  vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
-  if ( ! lkup || ( lkup && ! lkup->GetIndexedLookup() ) )
+  if ( ! this->LookupTable->GetIndexedLookup() )
     {
     this->ScalarBarActor->RenderOpaqueGeometry(viewport);
     for (i=0; i<this->NumberOfLabels; i++)
@@ -1081,8 +1077,7 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
   // created, text properties are created and shallow-assigned a font size
   // which value might be "far" from the target font size).
 
-  // is this a vtkLookupTable or a subclass of vtkLookupTable
-  // with its scale set to log
+  // Does this map have its scale set to log?
   int isLogTable = this->LookupTable->UsingLogScale();
 
   for (i=0; i < this->NumberOfLabels; i++)
@@ -1191,7 +1186,7 @@ void vtkScalarBarActor::SizeTitle(int *titleSize,
   this->TitleMapper->GetSize(viewport, titleSize);
 }
 
-int vtkScalarBarActor::AllocateAndSizeAnnotationLabels( vtkLookupTable* lkup )
+int vtkScalarBarActor::AllocateAndSizeAnnotationLabels( vtkScalarsToColors* lkup )
 {
   int numNotes = lkup->GetNumberOfAnnotatedValues();
   this->AnnotationLabels = new vtkMathTextActor*[ numNotes ];
@@ -1214,8 +1209,7 @@ int vtkScalarBarActor::AllocateAndSizeAnnotationLabels( vtkLookupTable* lkup )
 int vtkScalarBarActor::LayoutAnnotationsVertically(
   double barX, double barY, double vtkNotUsed(barWidth), double vtkNotUsed(barHeight), double delta, double pad )
 {
-  vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
-  if ( ! lkup )
+  if ( ! this->LookupTable || this->LookupTable->GetNumberOfAnnotatedValues() <= 0 )
     {
     return 0;
     }
@@ -1234,13 +1228,13 @@ int vtkScalarBarActor::LayoutAnnotationsVertically(
       barX + ( this->TextPosition == PrecedeScalarBar ? +1 : -1 ) * ( pad + this->AnnotationLeaderPadding ), \
       ctr ); \
     ll[1] = lpts->InsertNextPoint( xl1, ctr, 0. ); \
-    if ( ! lkup->GetAnnotation( j ).empty() ) \
+    if ( ! this->LookupTable->GetAnnotation( j ).empty() ) \
       { \
       llines->InsertNextCell( 2, ll ); \
       } \
     delt = ( dir <= 0 ? ctr - hh : ctr + hh );
 
-  int numNotes = this->AllocateAndSizeAnnotationLabels( lkup );
+  int numNotes = this->AllocateAndSizeAnnotationLabels( this->LookupTable );
   vtkPoints* lpts = vtkPoints::New();
   vtkCellArray* llines = vtkCellArray::New();
   lpts->Allocate( 2 * numNotes );
@@ -1507,8 +1501,7 @@ struct vtkScalarBarHLabelPlacer
 int vtkScalarBarActor::LayoutAnnotationsHorizontally(
   double barX, double barY, double barWidth, double vtkNotUsed(barHeight), double delta, double pad )
 {
-  vtkLookupTable* lkup = vtkLookupTable::SafeDownCast( this->LookupTable );
-  if ( ! lkup )
+  if ( ! this->LookupTable || this->LookupTable->GetNumberOfAnnotatedValues() <= 0 )
     {
     return 0;
     }
@@ -1517,12 +1510,12 @@ int vtkScalarBarActor::LayoutAnnotationsHorizontally(
   this->AnnotationLabels[j]->GetTextProperty()->SetJustification( placer.Places[j].Justification ); \
   this->AnnotationLabels[j]->GetTextProperty()->SetVerticalJustification( placer.Dir > 0 ? VTK_TEXT_BOTTOM : VTK_TEXT_TOP ); \
   this->AnnotationLabels[j]->SetPosition( placer.Places[j].Anchor ); \
-  if ( ! lkup->GetAnnotation( j ).empty() ) \
+  if ( ! this->LookupTable->GetAnnotation( j ).empty() ) \
     { \
     placer.AddBrokenLeader( j, lpts, llines ); \
     }
 
-  int numNotes = this->AllocateAndSizeAnnotationLabels( lkup );
+  int numNotes = this->AllocateAndSizeAnnotationLabels( this->LookupTable );
   vtkScalarBarHLabelPlacer placer(
     numNotes, barY, this->TextPosition == vtkScalarBarActor::PrecedeScalarBar ? +1 : -1,
     barX, barX + barWidth, delta, pad, this->AnnotationLeaderPadding );
