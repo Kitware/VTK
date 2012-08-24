@@ -28,6 +28,7 @@
 
 #include "vtkQtLineChart.h"
 
+#include "vtkMath.h"
 #include "vtkQtChartArea.h"
 #include "vtkQtChartAxisCornerDomain.h"
 #include "vtkQtChartAxisDomain.h"
@@ -61,15 +62,6 @@
 #include <QStyleOptionGraphicsItem>
 
 #include <math.h>
-
-//copied from vtkQtChartSeriesModelRange.cxx
-#ifndef isnan
-// This is compiler specific not platform specific: MinGW doesn't need that.
-# if defined(_MSC_VER) || defined(__BORLANDC__)
-#  include <float.h>
-#  define isnan(x) _isnan(x)
-# endif
-#endif
 
 class vtkQtLineChartSeries
 {
@@ -603,8 +595,8 @@ void vtkQtLineChart::layoutChart(const QRectF &area)
               penWidth + 1.0);
 
             //update the Drawable Lines
-            if (!isnan(last.x()) && !isnan(last.y()) &&
-                !isnan((*point).x()) && !isnan((*point).y()))
+            if (!vtkMath::IsNan(last.x()) && !vtkMath::IsNan(last.y()) &&
+                !vtkMath::IsNan((*point).x()) && !vtkMath::IsNan((*point).y()))
               {
               series->DrawableLines.append(QLineF(last,*point));
               }

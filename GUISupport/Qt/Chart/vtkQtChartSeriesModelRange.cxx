@@ -28,20 +28,13 @@
 
 #include "vtkQtChartSeriesModelRange.h"
 
+#include "vtkMath.h"
 #include "vtkQtChartSeriesModel.h"
 #include <QDate>
 #include <QDateTime>
 #include <QTime>
 
 #include <math.h>
-
-#ifndef isnan
-// This is compiler specific not platform specific: MinGW doesn't need that.
-# if defined(_MSC_VER) || defined(__BORLANDC__)
-#  include <float.h>
-#  define isnan(x) _isnan(x)
-# endif
-#endif
 
 vtkQtChartSeriesModelRange::vtkQtChartSeriesModelRange(QObject *parentObject)
   : QObject(parentObject)
@@ -174,7 +167,7 @@ QList<QVariant> vtkQtChartSeriesModelRange::computeSeriesRange(int series,
       // Check to see if the the value is invalid and we have to continue loop.
       if (value.isNull()) continue;
       if (!value.isValid()) continue;
-      if ((valueType == QVariant::Double) && isnan(value.toDouble())) continue;
+      if ((valueType == QVariant::Double) && vtkMath::IsNan(value.toDouble())) continue;
       // If we got here, we passed all the checks.  Break out.
       break;
       }
@@ -201,7 +194,7 @@ QList<QVariant> vtkQtChartSeriesModelRange::computeSeriesRange(int series,
           }
         else if(valueType == QVariant::Double)
           {
-          if (!isnan(value.toDouble()))
+          if (!vtkMath::IsNan(value.toDouble()))
             {
             range[0] = qMin<double>(value.toDouble(), range[0].toDouble());
             range[1] = qMax<double>(value.toDouble(), range[1].toDouble());
