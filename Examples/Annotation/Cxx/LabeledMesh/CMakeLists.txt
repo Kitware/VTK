@@ -1,15 +1,23 @@
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
 PROJECT (LabeledMesh)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK REQUIRED)
-IF(NOT VTK_USE_RENDERING)
-  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires VTK_USE_RENDERING.")
-ENDIF(NOT VTK_USE_RENDERING)
-INCLUDE (${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK COMPONENTS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkFiltersCore
+    vtkFiltersGeneral
+    vtkFiltersSources
+    vtkRenderingCore
+    vtkRenderingLabel
+    vtkRenderingOpenGL
+    vtkRenderingFreeTypeOpenGL
+  )
+  include (${VTK_USE_FILE})
+endif()
 
-SET(Libraries vtkRendering)
+set(Libraries ${VTK_LIBRARIES})
 
-ADD_EXECUTABLE(${PROJECT_NAME} ${PROJECT_NAME}.cxx)
-
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${Libraries})
+add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${PROJECT_NAME}.cxx)
+target_link_libraries(${PROJECT_NAME} ${Libraries})

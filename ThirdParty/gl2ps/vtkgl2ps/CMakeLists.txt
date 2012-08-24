@@ -4,12 +4,24 @@ project(VTKGL2PS)
 include_regular_expression(".*")
 
 # Depend on OpenGL
-find_package(OpenGL REQUIRED)
+if(NOT VTK_OPENGL_HAS_OSMESA)
+  find_package(OpenGL REQUIRED)
+  set(GL2PS_GL_LIBRARIES ${OPENGL_LIBRARIES})
+  set(GL2PS_GL_INCLUDE_DIR ${OPENGL_INCLUDE_DIR})
+else()
+  set(GL2PS_GL_LIBRARIES ${OSMESA_LIBRARY})
+  set(GL2PS_GL_INCLUDE_DIR ${OSMESA_INCLUDE_DIR})
+endif()
+
+# Need math on UNIX
+if(UNIX)
+  set(GL2PS_GL_LIBRARIES ${GL2PS_GL_LIBRARIES} m)
+endif()
 
 # Include paths
 include_directories(
   ${VTKGL2PS_SOURCE_DIR}/
-  ${OPENGL_INCLUDE_DIR}
+  ${GL2PS_GL_INCLUDE_DIR}
 )
 
 # Source files
@@ -28,10 +40,7 @@ if(WIN32)
 endif()
 
 # Linking
-target_link_libraries(vtkgl2ps ${OPENGL_LIBRARIES})
-if(UNIX)
-  target_link_libraries(vtkgl2ps m)
-endif()
+target_link_libraries(vtkgl2ps ${GL2PS_GL_LIBRARIES})
 
 # Install headers
 if(NOT VTK_INSTALL_NO_DEVELOPMENT)

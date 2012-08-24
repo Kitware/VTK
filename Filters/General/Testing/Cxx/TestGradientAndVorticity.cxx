@@ -294,7 +294,7 @@ namespace
       // cell stuff
       vtkDoubleArray* vorticityCellArray = vtkDoubleArray::SafeDownCast(
         vtkDataSet::SafeDownCast(
-          cellVorticity->GetOutput())->GetCellData()->GetArray(resultName));
+          cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
 
       if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
         {
@@ -304,7 +304,7 @@ namespace
       // point stuff
       vtkDoubleArray* vorticityPointArray = vtkDoubleArray::SafeDownCast(
         vtkDataSet::SafeDownCast(
-          pointVorticity->GetOutput())->GetPointData()->GetArray(resultName));
+          pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
 
       if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
         {

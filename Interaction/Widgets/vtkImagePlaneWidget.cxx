@@ -1662,16 +1662,11 @@ void vtkImagePlaneWidget::UpdatePlane()
   this->PlaneSource->GetOrigin(planeOrigin);
 
   planeOrigin[3] = 1.0;
-  double originXYZW[4];
-  this->ResliceAxes->MultiplyPoint(planeOrigin, originXYZW);
 
   this->ResliceAxes->Transpose();
-  double neworiginXYZW[4];
-  this->ResliceAxes->MultiplyPoint(originXYZW, neworiginXYZW);
-
-  this->ResliceAxes->SetElement(0,3,neworiginXYZW[0]);
-  this->ResliceAxes->SetElement(1,3,neworiginXYZW[1]);
-  this->ResliceAxes->SetElement(2,3,neworiginXYZW[2]);
+  this->ResliceAxes->SetElement(0,3,planeOrigin[0]);
+  this->ResliceAxes->SetElement(1,3,planeOrigin[1]);
+  this->ResliceAxes->SetElement(2,3,planeOrigin[2]);
 
   this->Reslice->SetResliceAxes(this->ResliceAxes);
 

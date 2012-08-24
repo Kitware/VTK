@@ -16,8 +16,8 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
   endif()
   # Need to add the Wrapping directory to the include directory
   set(_tcl_include_dirs
-    ${VTK_SOURCE_DIR}/Wrapping
-    ${VTK_BINARY_DIR}/Wrapping
+    ${VTK_SOURCE_DIR}/Wrapping/Tcl
+    ${VTK_BINARY_DIR}/Wrapping/Tcl
     ${TCL_INCLUDE_PATH})
 
   if(NOT CMAKE_HAS_TARGET_INCLUDES)
@@ -34,7 +34,7 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
 
 # FIXME: Terrible temporary hack - add in the extra source file for CommonCore
   if(${module_name} STREQUAL "vtkCommonCore")
-     set(extra_srcs ${VTK_SOURCE_DIR}/Wrapping/vtkTclUtil.cxx)
+     set(extra_srcs ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTclUtil.cxx)
      set(extra_links vtksys)
   else()
     unset(extra_srcs)

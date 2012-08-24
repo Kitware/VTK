@@ -23,30 +23,30 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
     fprintf(fp,"  Function Name: %s\n",data->Functions[i].Name ?
-	    data->Functions[i].Name : "None");
+            data->Functions[i].Name : "None");
     fprintf(fp,"  Function Signature: %s\n",data->Functions[i].Signature ?
-	    data->Functions[i].Signature : "None");
+            data->Functions[i].Signature : "None");
     fprintf(fp,"    Number Of Arguments: %i\n",
-	    data->Functions[i].NumberOfArguments);
+            data->Functions[i].NumberOfArguments);
     fprintf(fp,"    Array Failure: %s\n",
-	    data->Functions[i].ArrayFailure ? "Yes" : "No");
+            data->Functions[i].ArrayFailure ? "Yes" : "No");
     fprintf(fp,"    Pure Virtual: %s\n",
-	    data->Functions[i].IsPureVirtual ? "Yes" : "No");
+            data->Functions[i].IsPureVirtual ? "Yes" : "No");
     fprintf(fp,"    Public: %s\n",
-	    data->Functions[i].IsPublic ? "Yes" : "No");
+            data->Functions[i].IsPublic ? "Yes" : "No");
     fprintf(fp,"    Operator: %s\n",
-	    data->Functions[i].IsOperator ? "Yes" : "No");
+            data->Functions[i].IsOperator ? "Yes" : "No");
     fprintf(fp,"    Have Hint: %s\n",
-	    data->Functions[i].HaveHint ? "Yes" : "No");
+            data->Functions[i].HaveHint ? "Yes" : "No");
     fprintf(fp,"    Hint Size: %i\n",
-	    data->Functions[i].HintSize);
+            data->Functions[i].HintSize);
     fprintf(fp,"    Return Type: %i\n",
-	    data->Functions[i].ReturnType);
+            data->Functions[i].ReturnType);
     fprintf(fp,"    ReturnClass: %s\n",
-	    data->Functions[i].ReturnClass ?
-	    data->Functions[i].ReturnClass : "None");
+            data->Functions[i].ReturnClass ?
+            data->Functions[i].ReturnClass : "None");
     fprintf(fp,"    Comment: %s\n",
-	    data->Functions[i].Comment ?
-	    data->Functions[i].Comment : "None");
+            data->Functions[i].Comment ?
+            data->Functions[i].Comment : "None");
     }
 }

@@ -227,7 +227,10 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
 #endif
     package_dir += (*build_dir);
     package_dir = vtksys::SystemTools::CollapseFullPath(package_dir.c_str());
-    if(vtksys::SystemTools::FileIsDirectory(package_dir.c_str()))
+
+    // We try to locate the directory containing vtk python module files.
+    std::string vtk_module_dir = package_dir + "/vtk";
+    if(vtksys::SystemTools::FileIsDirectory(vtk_module_dir.c_str()))
       {
       // This executable is running from the build tree.  Prepend the
       // library directory and package directory to the search path.
