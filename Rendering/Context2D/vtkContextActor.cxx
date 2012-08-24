@@ -163,7 +163,7 @@ void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
     {
     device->ReleaseGraphicsResources(window);
     }
-  
+
   vtkContext3D *context3D = this->Context->GetContext3D();
   if (context3D)
     {

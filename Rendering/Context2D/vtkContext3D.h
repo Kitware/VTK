@@ -73,7 +73,7 @@ public:
   // Description:
   // Draw a sequence of points at the specified locations.
   void DrawPoints(const float *points, int n);
-  
+
   // Description:
   // Draw a sequence of points at the specified locations.  The points will be
   // colored by the colors array, which must have nc_comps components
@@ -115,7 +115,7 @@ public:
   // matrix for the device when available).
   void PushMatrix();
   void PopMatrix();
-  
+
   // Description:
   // Draw some text to the screen in a bounding rectangle with the alignment
   // of the text properties respecting the rectangle. The points should be
@@ -178,7 +178,7 @@ public:
   // Description:
   // Return true if MathText rendering available on the current device.
   bool MathTextIsSupported();
-  
+
   // Description:
   // Apply the supplied text property which controls how text is rendered.
   // This makes a deep copy of the vtkTextProperty object in the vtkContext3D,

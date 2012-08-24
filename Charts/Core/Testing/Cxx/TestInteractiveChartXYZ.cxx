@@ -75,14 +75,14 @@ int TestInteractiveChartXYZ(int , char * [])
   mouseEvent.SetInteractor(view->GetInteractor());
   vtkVector2i pos;
   vtkVector2i lastPos;
- 
+
   // rotate
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
   lastPos.Set(114, 55);
   mouseEvent.SetLastScreenPos(lastPos);
   pos.Set(174, 121);
   mouseEvent.SetScreenPos(pos);
-  
+
   vtkVector2d sP(pos.Cast<double>().GetData());
   vtkVector2d lSP(lastPos.Cast<double>().GetData());
   std::cout << "sanity 1: (" << lSP[0] << ", " << lSP[1] << ")" << std::endl;
@@ -93,7 +93,7 @@ int TestInteractiveChartXYZ(int , char * [])
   std::cout << "before: (" << lastScreenPos[0] << ", " << lastScreenPos[1] << ")" << std::endl;
   chart->MouseMoveEvent(mouseEvent);
   std::cout << "after: (" << lastScreenPos[0] << ", " << lastScreenPos[1] << ")" << std::endl;
- 
+
   // spin
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
   mouseEvent.GetInteractor()->SetShiftKey(1);
@@ -102,7 +102,7 @@ int TestInteractiveChartXYZ(int , char * [])
   pos.Set(10, 10);
   mouseEvent.SetScreenPos(pos);
   chart->MouseMoveEvent(mouseEvent);
-  
+
   // zoom
   mouseEvent.SetButton(vtkContextMouseEvent::RIGHT_BUTTON);
   mouseEvent.GetInteractor()->SetShiftKey(0);
@@ -114,7 +114,7 @@ int TestInteractiveChartXYZ(int , char * [])
 
   // mouse wheel zoom
   chart->MouseWheelEvent(mouseEvent, -1);
-  
+
   // pan
   mouseEvent.SetButton(vtkContextMouseEvent::RIGHT_BUTTON);
   mouseEvent.GetInteractor()->SetShiftKey(1);
@@ -123,7 +123,7 @@ int TestInteractiveChartXYZ(int , char * [])
   pos.Set(0, 0);
   mouseEvent.SetScreenPos(pos);
   chart->MouseMoveEvent(mouseEvent);
-  
+
   view->GetInteractor()->Start();
 
   return EXIT_SUCCESS;

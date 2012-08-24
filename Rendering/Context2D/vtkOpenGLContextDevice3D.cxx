@@ -622,7 +622,7 @@ void vtkOpenGLContextDevice3D::DrawString(float *point,
   float yScale = mv[5];
 
   float p[] = { std::floor(point[0] * xScale) / xScale, std::floor(point[1] * yScale) / yScale };
- 
+
   // Cache rendered text strings
   vtkTextureImageCache<TextPropertyKey>::CacheData cache =
     this->Storage->TextTextureCache.GetCacheData(
@@ -679,7 +679,7 @@ void vtkOpenGLContextDevice3D::DrawZAxisLabel(float *point,
   float yScale = mv[5];
 
   float p[] = { std::floor(point[0] * xScale) / xScale, std::floor(point[1] * yScale) / yScale, 1 };
- 
+
   // Cache rendered text strings
   vtkTextureImageCache<TextPropertyKey>::CacheData cache =
     this->Storage->TextTextureCache.GetCacheData(

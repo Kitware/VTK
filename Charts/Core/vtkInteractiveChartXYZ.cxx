@@ -103,7 +103,7 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   // Calculate the transforms required for the current rotation.
   this->CalculateTransforms();
 
-  // Update the points that fall inside our axes 
+  // Update the points that fall inside our axes
   this->UpdateClippedPoints();
   if (this->clipped_points.size() > 0)
     {
@@ -193,10 +193,10 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   textProperties->SetFontSize(14);
   context->ApplyTextProp(textProperties.GetPointer());
   painter->ApplyTextProp(textProperties.GetPointer());
-  
+
   float bounds[4];
-  painter->ComputeStringBounds(this->XAxisLabel, bounds); 
-  
+  painter->ComputeStringBounds(this->XAxisLabel, bounds);
+
   float scale[3];
   this->Box->GetScale(scale);
 
@@ -216,7 +216,7 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   // Y axis next
   textProperties->SetOrientation(90);
   context->ApplyTextProp(textProperties.GetPointer());
-  context->ComputeStringBounds(this->YAxisLabel, bounds); 
+  context->ComputeStringBounds(this->YAxisLabel, bounds);
   float xPos = -5 / scale[0];
   float yPos = 0.5 - bounds[3] / (scale[1] * 2);
   context->DrawString(xPos, yPos, this->YAxisLabel);
@@ -230,11 +230,11 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   context->DrawZAxisLabel(pos, this->ZAxisLabel);
   */
 
-  
+
 
   return true;
 }
-  
+
 void vtkInteractiveChartXYZ::UpdateClippedPoints()
 {
   this->clipped_points.clear();
@@ -274,7 +274,7 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName
   this->XAxisLabel = xName;
   this->YAxisLabel = yName;
   this->ZAxisLabel = zName;
-  
+
   vtkDataArray *colorArr =
       vtkDataArray::SafeDownCast(input->GetColumnByName(colorName.c_str()));
 
@@ -376,7 +376,7 @@ bool vtkInteractiveChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     }
   return false;
 }
-    
+
 //-----------------------------------------------------------------------------
 bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta)
 {
@@ -406,10 +406,10 @@ bool vtkInteractiveChartXYZ::Rotate(const vtkContextMouseEvent &mouse)
 
   double rxf = dx * delta_azimuth * 10.0;
   double ryf = dy * delta_elevation * 10.0;
-  
+
   this->Rotation->RotateY(-rxf);
   this->Rotation->RotateX(ryf);
-  
+
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
 
@@ -442,7 +442,7 @@ bool vtkInteractiveChartXYZ::Zoom(const vtkContextMouseEvent &mouse)
   // Figure out how much the mouse has moved and scale accordingly
   vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
   vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
-    
+
   float delta = 0.0f;
   if (this->Scene->GetSceneHeight() > 0)
     {
@@ -585,7 +585,7 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->ContextTransform->Concatenate(this->Scale.GetPointer());
   this->ContextTransform->Translate(mtranslation.GetData());
   this->ContextTransform->Concatenate(this->Transform.GetPointer());
-  
+
   // Next the box rotation transform.
   double scale[3] = { 300, 300, 300 };
   for (int i = 0; i < 3; ++i)
@@ -607,7 +607,7 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
                        axes[1]->GetPosition1()[1],
                        axes[2]->GetPosition1()[1]);
   //this->Box->Concatenate(this->Translation.GetPointer());
-  
+
   // setup clipping planes
   vtkVector3d cube[8];
   vtkVector3d transformedCube[8];
@@ -640,29 +640,29 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->Face1->SetOrigin(transformedCube[3].GetData());
 
   vtkMath::Cross((transformedCube[5] - transformedCube[4]).GetData(),
-                 (transformedCube[6] - transformedCube[4]).GetData(), norm2); 
+                 (transformedCube[6] - transformedCube[4]).GetData(), norm2);
   this->Face2->SetNormal(norm2);
   this->Face2->SetOrigin(transformedCube[7].GetData());
 
-  //face 0,1,4,5 opposes face 2,3,6,7 
+  //face 0,1,4,5 opposes face 2,3,6,7
   vtkMath::Cross((transformedCube[1] - transformedCube[0]).GetData(),
-                 (transformedCube[4] - transformedCube[0]).GetData(), norm3); 
+                 (transformedCube[4] - transformedCube[0]).GetData(), norm3);
   this->Face3->SetNormal(norm3);
   this->Face3->SetOrigin(transformedCube[5].GetData());
 
   vtkMath::Cross((transformedCube[3] - transformedCube[2]).GetData(),
-                 (transformedCube[6] - transformedCube[2]).GetData(), norm4); 
+                 (transformedCube[6] - transformedCube[2]).GetData(), norm4);
   this->Face4->SetNormal(norm4);
   this->Face4->SetOrigin(transformedCube[7].GetData());
-  
-  //face 0,2,4,6 opposes face 1,3,5,7 
+
+  //face 0,2,4,6 opposes face 1,3,5,7
   vtkMath::Cross((transformedCube[2] - transformedCube[0]).GetData(),
-                 (transformedCube[4] - transformedCube[0]).GetData(), norm5); 
+                 (transformedCube[4] - transformedCube[0]).GetData(), norm5);
   this->Face5->SetNormal(norm5);
   this->Face5->SetOrigin(transformedCube[6].GetData());
-  
+
   vtkMath::Cross((transformedCube[3] - transformedCube[1]).GetData(),
-                 (transformedCube[5] - transformedCube[1]).GetData(), norm6); 
+                 (transformedCube[5] - transformedCube[1]).GetData(), norm6);
   this->Face6->SetNormal(norm6);
   this->Face6->SetOrigin(transformedCube[7].GetData());
 
@@ -685,7 +685,7 @@ bool vtkInteractiveChartXYZ::PointShouldBeClipped(vtkVector3f point)
   double d4 = this->Face4->DistanceToPlane(transformedPoint);
   double d5 = this->Face5->DistanceToPlane(transformedPoint);
   double d6 = this->Face6->DistanceToPlane(transformedPoint);
-  
+
   if (d1 > this->MaxDistance || d2 > this->MaxDistance ||
       d3 > this->MaxDistance || d4 > this->MaxDistance ||
       d5 > this->MaxDistance || d6 > this->MaxDistance)

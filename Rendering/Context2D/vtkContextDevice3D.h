@@ -106,7 +106,7 @@ public:
   // Description:
   // End drawing, clean up the view.
   virtual void End() { }
-  
+
   // Description:
   // Draw some text to the screen.
   virtual void DrawString(float *point, const vtkStdString &string) = 0;
@@ -142,11 +142,11 @@ public:
   // Description:
   // Return true if MathText rendering available on this device.
   virtual bool MathTextIsSupported();
-  
+
   // Description:
   // Get the text properties object for the vtkContext2D.
   vtkGetObjectMacro(TextProp, vtkTextProperty);
-  
+
   // Description:
   // Apply the supplied text property which controls how text is rendered.
   // This makes a deep copy of the vtkTextProperty object in the vtkContext2D,

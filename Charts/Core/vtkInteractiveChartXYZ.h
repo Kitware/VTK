@@ -77,7 +77,7 @@ public:
   // Description:
   // Mouse wheel event. Perform pan or zoom as specified by mouse bindings.
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
-  
+
   // Description:
   // Key press event.  This allows the user to snap the chart to one of three
   // different 2D views.  "x" changes the view so we're looking down the X axis.
@@ -108,20 +108,20 @@ protected:
   vtkNew<vtkUnsignedCharArray> Colors;
   vtkNew<vtkUnsignedCharArray> ClippedColors;
   int NumberOfComponents;
-  
+
   std::string XAxisLabel;
   std::string YAxisLabel;
   std::string ZAxisLabel;
-  
+
   vector<vtkVector3f> clipped_points;
-  
+
   vtkNew<vtkPlane> Face1;
   vtkNew<vtkPlane> Face2;
   vtkNew<vtkPlane> Face3;
   vtkNew<vtkPlane> Face4;
   vtkNew<vtkPlane> Face5;
   vtkNew<vtkPlane> Face6;
-  
+
   double MaxDistance;
 
 private:

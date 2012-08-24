@@ -137,7 +137,7 @@ protected:
   // Description:
   // We need to store a pointer to the renderer for the text rendering
   vtkRenderer *Renderer;
-  
+
   // Description:
   // We also need a label render strategy
   vtkStringToImage *TextRenderer;
