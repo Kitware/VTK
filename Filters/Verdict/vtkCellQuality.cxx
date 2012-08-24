@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkCellQuality.h"
-#include "verdict.h"
+#include "vtk_verdict.h"
 
 #include "vtkCellData.h"
 #include "vtkCell.h"
