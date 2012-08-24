@@ -171,7 +171,7 @@ int vtkNewickTreeReader::RequestData(
     vtkErrorMacro(<<"Edges do not create a valid tree.");
     return 1;
     }
-  
+
   vtkNew<vtkDoubleArray> nodeWeights;
   nodeWeights->SetNumberOfTuples(output->GetNumberOfVertices());
 
@@ -221,7 +221,7 @@ void vtkNewickTreeReader::CountNodes(char *buffer, vtkIdType *numNodes)
   vtkIdType node;
 
   start = buffer;
-  
+
   if (*start != '(')
   {
     // Leaf node. Separate name from weight.
@@ -270,7 +270,7 @@ void vtkNewickTreeReader::CountNodes(char *buffer, vtkIdType *numNodes)
           {
             current++;
           }
-          
+
           temp = *current;
           *current = '\0';
           // Count child nodes using recursion
@@ -352,7 +352,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
   vtkIdType node;
 
   start = buffer;
-  
+
   if(parent == -1)
     {
     parent = g->AddVertex();

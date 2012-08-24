@@ -107,7 +107,7 @@ int vtkBiomTableReader::RequestData(
     }
 
   vtkDebugMacro(<<"Reading biom table...");
-  
+
   if(strcmp(this->GetFileName(), "") == 0)
     {
     vtkErrorMacro(<<"Input filename not set");
@@ -121,16 +121,16 @@ int vtkBiomTableReader::RequestData(
     return 1;
     }
 
-  ifs.seekg(0, std::ios::end);   
+  ifs.seekg(0, std::ios::end);
   this->FileContents.reserve(ifs.tellg());
   ifs.seekg(0, std::ios::beg);
 
   this->FileContents.assign((std::istreambuf_iterator<char>(ifs)),
                              std::istreambuf_iterator<char>());
-  
+
   this->ParseShape();
   this->ParseDataType();
- 
+
   vtkNew<vtkStringArray> rowNames;
   rowNames->SetName("name");
   this->GetOutput()->AddColumn(rowNames.GetPointer());
@@ -180,7 +180,7 @@ int vtkBiomTableReader::RequestData(
 
   return 1;
 }
-  
+
 void vtkBiomTableReader::ParseShape()
 {
   this->NumberOfRows = this->NumberOfColumns = -1;
@@ -200,7 +200,7 @@ void vtkBiomTableReader::ParseShape()
     vtkErrorMacro(<<"shape field not formatted properly");
     return;
     }
-  
+
   // find ,
   size_t pos3 = this->FileContents.find(",", pos2+1);
   if (pos3 == std::string::npos )
@@ -216,13 +216,13 @@ void vtkBiomTableReader::ParseShape()
     vtkErrorMacro(<<"shape field not formatted properly");
     return;
     }
-  
+
   // number of rows is between "[" and ","
-  this->NumberOfRows = 
+  this->NumberOfRows =
     atoi(this->FileContents.substr(pos2+1,pos3-pos2).c_str());
-  
+
   // number of columns is between "," and "]"
-  this->NumberOfColumns = 
+  this->NumberOfColumns =
     atoi(this->FileContents.substr(pos3+1,pos4-pos3-1).c_str());
 }
 
@@ -244,7 +244,7 @@ void vtkBiomTableReader::ParseDataType()
     vtkErrorMacro(<<"matrix_element_type field not formatted properly");
     return;
     }
-  
+
   // find first double quote
   size_t pos3 = this->FileContents.find("\"", pos2+1);
   if (pos3 == std::string::npos )
@@ -252,7 +252,7 @@ void vtkBiomTableReader::ParseDataType()
     vtkErrorMacro(<<"matrix_element_type field not formatted properly");
     return;
     }
-  
+
   // find second double quote
   size_t pos4 = this->FileContents.find("\"", pos3+1);
   if (pos4 == std::string::npos )
@@ -260,7 +260,7 @@ void vtkBiomTableReader::ParseDataType()
     vtkErrorMacro(<<"matrix_element_type field not formatted properly");
     return;
     }
-  
+
   // element type lies between these quotes
   std::string data_type = this->FileContents.substr(pos3+1,pos4-pos3-1);
   if (strcmp(data_type.c_str(), "int") == 0)
@@ -350,7 +350,7 @@ void vtkBiomTableReader::ParseSparseness()
     vtkErrorMacro(<<"matrix_type field not formatted properly");
     return;
     }
-  
+
   // We should find either 'sparse' or 'dense' between these quotes
   std::string matrix_type = this->FileContents.substr(pos2+1,pos3-pos2-1);
   if (matrix_type.compare("sparse") == 0)
@@ -418,11 +418,11 @@ void vtkBiomTableReader::ParseSparseData()
       return;
       }
     // row is between "[" and ","
-    int row = 
+    int row =
       atoi(this->FileContents.substr(pos1+1,pos2-pos1).c_str());
-    
+
     // column is between first and second comma
-    int column = 1 +  
+    int column = 1 +
       atoi(this->FileContents.substr(pos2+1,pos3-pos2-1).c_str());
 
     std::string value = this->FileContents.substr(pos3+1,pos4-pos3-1);
@@ -653,7 +653,7 @@ void vtkBiomTableReader::ParseId()
       //remove trailing whitespace in our captured name
       size_t pos_id_begin = name.find_first_not_of(" \t");
       name = name.substr(pos_id_begin);
-      //remove double quotes in the name 
+      //remove double quotes in the name
       name.erase( remove( name.begin(), name.end(), '\"' ), name.end());
       done = true;
       }

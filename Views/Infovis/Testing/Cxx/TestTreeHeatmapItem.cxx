@@ -61,7 +61,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
 
   weights->SetName("weight");
   graph->GetEdgeData()->AddArray(weights.GetPointer());
-  
+
   vtkNew<vtkStringArray> names;
   names->SetNumberOfTuples(6);
   names->SetValue(a, "a");
@@ -70,7 +70,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
 
   names->SetName("node name");
   graph->GetVertexData()->AddArray(names.GetPointer());
-  
+
   vtkNew<vtkDoubleArray> nodeWeights;
   nodeWeights->SetNumberOfTuples(6);
   nodeWeights->SetValue(root, 0.0f);
@@ -87,7 +87,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   vtkNew<vtkDoubleArray> m1;
   vtkNew<vtkDoubleArray> m2;
   vtkNew<vtkDoubleArray> m3;
-  
+
   tableNames->SetNumberOfTuples(3);
   tableNames->SetValue(0, "c");
   tableNames->SetValue(1, "b");

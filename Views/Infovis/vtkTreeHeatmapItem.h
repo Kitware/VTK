@@ -18,7 +18,7 @@
 // .SECTION Description
 // This item draws a tree and a heatmap as a part of a vtkContextScene.
 // The input tree's vertex data must contain at least two arrays.
-// The first required array is a vtkStringArray called "node name". 
+// The first required array is a vtkStringArray called "node name".
 // This array corresponds to the first column of the input table.
 // The second required array is a scalar array called "node weight".
 // This array is used by vtkTreeLayoutStrategy to set any particular
@@ -63,7 +63,7 @@ public:
   // Description:
   // Get the tree that this item draws.
   vtkGetObjectMacro(Tree, vtkTree);
-  
+
   // Description:
   // Set the table that this item draws.  The first column of the table
   // must contain the names of the rows.  These names, in turn, must correspond
@@ -77,7 +77,7 @@ public:
 protected:
   vtkTreeHeatmapItem();
   ~vtkTreeHeatmapItem();
-    
+
   // Description:
   // Generate some data needed for painting.  We cache this information as
   // it only needs to be generated when the input data changes.
@@ -123,7 +123,7 @@ private:
   vtkNew<vtkGraphLayout> Layout;
   std::vector< vtkLookupTable * > LookupTables;
   double Multiplier;
-  
+
   std::map< int, std::map< std::string, double> > StringToDoubleMaps;
 };
 

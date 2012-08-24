@@ -16,7 +16,7 @@ int TestBiomTableReader(int argc, char* argv[])
   delete[] file;
   reader->Update();
   vtkTable *table = reader->GetOutput();
-  
+
   int error_count = 0;
 
   if (table->GetNumberOfRows() != 419)

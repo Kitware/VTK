@@ -16,7 +16,7 @@ int TestNewickTreeReader(int argc, char* argv[])
   delete[] file;
   reader->Update();
   vtkTree *tree = reader->GetOutput();
-  
+
   int error_count = 0;
 
   if (tree->GetNumberOfVertices() != 837)
