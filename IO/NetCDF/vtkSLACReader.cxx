@@ -1329,8 +1329,11 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
                                  vtkMultiBlockDataSet *output)
 {
   assert(numModeFDs > 0);
-  assert(static_cast<size_t>(numModeFDs) <= this->Internal->Frequencies.size());
-  assert(static_cast<size_t>(numModeFDs) <= this->Internal->Phases.size());
+  assert(
+    !this->FrequencyModes ||
+    (static_cast<size_t>(numModeFDs) <= this->Internal->Frequencies.size()));
+  assert(!this->FrequencyModes ||
+         (static_cast<size_t>(numModeFDs) <= this->Internal->Phases.size()));
 
   vtkPointData *pd = vtkPointData::SafeDownCast(
                     output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
@@ -1383,59 +1386,103 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
     // otherwise use zeroes.)
     if (this->FrequencyModes && (name == "efield" || name == "bfield"))
       {
-      // Read in the array data.
-      vtkSmartPointer<vtkDataArray> dataArray
-          = this->ReadPointDataArray(modeFDArray[0], varId);
-      if (!dataArray) continue;
+      // An array to accumulate the data.
+      vtkSmartPointer<vtkDoubleArray> dataArray =
+          vtkSmartPointer<vtkDoubleArray>::New();
 
-      vtkIdType numTuples = dataArray->GetNumberOfTuples();
+      vtkSmartPointer<vtkDoubleArray> cplxMagArray =
+          vtkSmartPointer<vtkDoubleArray>::New();
 
-      // I am assuming here that the imaginary data has the same dimensions as
-      // the real data.
+      vtkSmartPointer<vtkDoubleArray> phaseArray =
+          vtkSmartPointer<vtkDoubleArray>::New();
 
-      // if this variable name has a correstponding name_imag, use that,
-      // otherwise assume zeroes.
-      vtkSmartPointer<vtkDataArray> imagDataArray= 0;
-      if (nc_inq_varid(modeFDArray[0], (name+"_imag").c_str(), &varId) == NC_NOERR)
-        imagDataArray = this->ReadPointDataArray(modeFDArray[0], varId);
-
-      // allocate space for complex magnitude data
-      vtkSmartPointer<vtkDataArray> cplxMagArray;
-      cplxMagArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
-      cplxMagArray->SetNumberOfComponents(1);
-      cplxMagArray->SetNumberOfTuples(numTuples);
-
-      // allocate space for phase data
-      vtkSmartPointer<vtkDataArray> phaseArray;
-      phaseArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
-      phaseArray->SetNumberOfComponents(3);
-      phaseArray->SetNumberOfTuples(numTuples);
-
-      int numComponents = dataArray->GetNumberOfComponents();
-      for (vtkIdType i = 0; i < numTuples; i++)
+      for (int modeIndex = 0; modeIndex < numModeFDs; modeIndex++)
         {
-        double accumulated_mag= 0.0;
-        for (int j = 0; j < numComponents; j++)
+        int modeFD = modeFDArray[modeIndex];
+
+        // Read in the real array data.
+        vtkSmartPointer<vtkDataArray> realDataArray
+            = this->ReadPointDataArray(modeFD, varId);
+        if (!dataArray) { return 0; }
+
+        vtkIdType numTuples = realDataArray->GetNumberOfTuples();
+        int numComponents = realDataArray->GetNumberOfComponents();
+
+        if (modeIndex == 0)
           {
-          double real = dataArray->GetComponent(i, j);
-          double imag = 0.0;
+          dataArray->SetNumberOfComponents(numComponents);
+          dataArray->SetNumberOfTuples(numTuples);
 
-          // when values are purely real, no imaginary component is saved in the
-          // data file, because all those zeroes would waste space.  So if
-          // imaginary values are provided, use them, otherwise use 0.0.
-          if (imagDataArray)
-            imag = imagDataArray->GetComponent(i, j);
+          cplxMagArray->SetNumberOfComponents(1);
+          cplxMagArray->SetNumberOfTuples(numTuples);
 
-          double mag2 = real*real + imag*imag;
-          accumulated_mag += mag2;
-          double mag= sqrt(mag2);
-
-          double startphase = atan2(imag, real);
-          dataArray->SetComponent(i, j, mag*cos(startphase
-                                                + this->Internal->Phases[0]));
-          phaseArray->SetComponent(i, j, startphase);
+          phaseArray->SetNumberOfComponents(numComponents);
+          phaseArray->SetNumberOfTuples(numTuples);
           }
-        cplxMagArray->SetComponent(i, 0, sqrt(accumulated_mag));
+
+        // I am assuming here that the imaginary data has the same dimensions as
+        // the real data.
+
+        // if this variable name has a correstponding name_imag, use that,
+        // otherwise assume zeroes.
+        vtkSmartPointer<vtkDataArray> imagDataArray = 0;
+        if (nc_inq_varid(modeFD, (name+"_imag").c_str(), &varId) == NC_NOERR)
+          {
+          imagDataArray = this->ReadPointDataArray(modeFD, varId);
+          }
+
+        for (vtkIdType tupleIndex = 0; tupleIndex < numTuples; tupleIndex++)
+        {
+          double accumulatedMag= 0.0;
+          for (int componentIndex = 0;
+               componentIndex < numComponents;
+               componentIndex++)
+            {
+            double real =
+                realDataArray->GetComponent(tupleIndex, componentIndex);
+
+            // when values are purely real, no imaginary component is saved in the
+            // data file, because all those zeroes would waste space.  So if
+            // imaginary values are provided, use them, otherwise use 0.0.
+            double imag;
+            if (imagDataArray)
+              {
+              imag = imagDataArray->GetComponent(tupleIndex, componentIndex);
+              }
+            else
+              {
+              imag = 0.0;
+              }
+
+            double mag2 = real*real + imag*imag;
+            accumulatedMag += mag2;
+            double mag = sqrt(mag2);
+
+            double startphase = atan2(imag, real);
+
+            double accumulatedMode;
+            if (modeIndex == 0)
+              {
+              accumulatedMode = 0.0;
+              }
+            else
+              {
+              accumulatedMode =
+                  dataArray->GetComponent(tupleIndex, componentIndex);
+              }
+            accumulatedMode +=
+                mag*cos(startphase + this->Internal->Phases[modeIndex]);
+            dataArray->SetComponent(tupleIndex,componentIndex,accumulatedMode);
+            if (modeIndex == 0)
+              {
+              phaseArray->SetComponent(tupleIndex, componentIndex, startphase);
+              }
+            }
+          if (modeIndex == 0)
+            {
+            cplxMagArray->SetComponent(tupleIndex, 0, sqrt(accumulatedMag));
+            }
+          }
         }
 
       // Add the data to the point data.
