@@ -88,15 +88,21 @@
 #include "vtkExporter.h"
 
 class vtkActor2D;
+class vtkCollection;
+class vtkCoordinate;
 class vtkIntArray;
 class vtkMathTextActor;
 class vtkMathTextActor3D;
+class vtkMatrix4x4;
+class vtkPath;
 class vtkPropCollection;
 class vtkProp3DCollection;
+class vtkRenderer;
 class vtkRendererCollection;
 class vtkTextActor;
 class vtkTextActor3D;
 class vtkTextMapper;
+class vtkTextProperty;
 
 class VTKIOEXPORT_EXPORT vtkGL2PSExporter : public vtkExporter
 {
@@ -271,6 +277,11 @@ protected:
 
   void WriteData();
 
+  int GetGL2PSOptions();
+  int GetGL2PSSort();
+  int GetGL2PSFormat();
+  const char *GetFileExtension();
+
   void SavePropVisibility(vtkRendererCollection *renCol,
                           vtkIntArray *volVis, vtkIntArray *actVis,
                           vtkIntArray *act2dVis);
@@ -279,17 +290,30 @@ protected:
                              vtkIntArray *act2dVis);
   void Turn3DPropsOff(vtkRendererCollection *renCol);
   void Turn2DPropsOff(vtkRendererCollection *renCol);
-  vtkPropCollection *GetVisibleContextActors(vtkRendererCollection *renCol);
+  void GetVisibleContextActors(vtkPropCollection *contextActors,
+                               vtkRendererCollection *renCol);
   void SetPropVisibilities(vtkPropCollection *col, int vis);
 
-  void DrawTextActor(vtkTextActor *textAct, vtkRendererCollection *renCol);
-  void DrawTextActor3D(vtkTextActor3D *textAct, vtkRendererCollection *renCol);
+  void DrawSpecialProps(vtkCollection *propCol, vtkRendererCollection *renCol);
+  void DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren);
+  void DrawTextActor3D(vtkTextActor3D *textAct, vtkRenderer *ren);
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
-                      vtkRendererCollection *renCol);
+                      vtkRenderer *ren);
   void DrawMathTextActor(vtkMathTextActor *textAct,
-                         vtkRendererCollection *renCol);
+                         vtkRenderer *ren);
   void DrawMathTextActor3D(vtkMathTextActor3D *textAct,
-                           vtkRendererCollection *renCol);
+                           vtkRenderer *ren);
+  void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
+                               vtkCoordinate *coord, vtkRenderer *ren);
+  // Description:
+  // Transform the path using the actor's matrix and current GL state, then
+  // draw it to GL2PS.
+  void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
+                  double actorBounds[4], unsigned char actorColor[3]);
+
+  void DrawContextActors(vtkPropCollection *contextActs,
+                         vtkRendererCollection *renCol);
+
 
   vtkProp3DCollection *RasterExclusions;
 

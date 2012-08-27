@@ -167,7 +167,7 @@ int vtkMathTextActor3D::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       if (renderWindow->GetCapturingGL2PSSpecialProps())
         {
-        renderWindow->CaptureGL2PSSpecialProp(this);
+        ren->CaptureGL2PSSpecialProp(this);
         }
       }
     }

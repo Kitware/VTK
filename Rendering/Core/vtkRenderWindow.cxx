@@ -15,8 +15,10 @@
 #include "vtkRenderWindow.h"
 
 #include "vtkCamera.h"
+#include "vtkCollection.h"
 #include "vtkCommand.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkPainterDeviceAdapter.h"
 #include "vtkPropCollection.h"
 #include "vtkRenderWindowInteractor.h"
@@ -79,7 +81,6 @@ vtkRenderWindow::vtkRenderWindow()
   this->ReportGraphicErrors=0; // false
   this->AbortCheckTime = 0.0;
   this->CapturingGL2PSSpecialProps = 0;
-  this->CapturedGL2PSSpecialProps = NULL;
 
 #ifdef VTK_USE_OFFSCREEN
   this->OffScreenRendering = 1;
@@ -1360,41 +1361,37 @@ const char *vtkRenderWindow::GetRenderLibrary()
 }
 
 //----------------------------------------------------------------------------
-vtkPropCollection *vtkRenderWindow::CaptureGL2PSSpecialProps()
+void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
 {
+  if (result == NULL)
+    {
+    vtkErrorMacro(<<"CaptureGL2PSSpecialProps was passed a NULL pointer.");
+    return;
+    }
+
+  result->RemoveAllItems();
+
   if (this->CapturingGL2PSSpecialProps)
     {
-    return NULL;
+    vtkDebugMacro(<<"Called recursively.")
+    return;
     }
   this->CapturingGL2PSSpecialProps = 1;
 
-  this->CapturedGL2PSSpecialProps = vtkPropCollection::New();
+  vtkRenderer *ren;
+  for (Renderers->InitTraversal(); (ren = Renderers->GetNextItem());)
+    {
+    vtkNew<vtkPropCollection> props;
+    result->AddItem(props.GetPointer());
+    ren->SetGL2PSSpecialPropCollection(props.GetPointer());
+    }
+
   this->Render();
 
-  vtkPropCollection *result = this->CapturedGL2PSSpecialProps;
-  this->CapturedGL2PSSpecialProps = NULL;
-  this->CapturingGL2PSSpecialProps = 0;
-
-  return result;
-}
-
-//----------------------------------------------------------------------------
-int vtkRenderWindow::CaptureGL2PSSpecialProp(vtkProp *prop)
-{
-  if (!this->CapturingGL2PSSpecialProps || !this->CapturedGL2PSSpecialProps)
+  for (Renderers->InitTraversal(); (ren = Renderers->GetNextItem());)
     {
-    return 0;
+    ren->SetGL2PSSpecialPropCollection(NULL);
     }
-
-  if (this->CapturedGL2PSSpecialProps->IsItemPresent(prop))
-    {
-    return 0;
-    }
-
-  this->CapturedGL2PSSpecialProps->AddItem(prop);
-  {
-  return 1;
-  }
 }
 
 // Description: Return the stereo type as a character string.
