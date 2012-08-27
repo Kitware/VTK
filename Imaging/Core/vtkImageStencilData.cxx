@@ -580,7 +580,7 @@ void vtkImageStencilData::InsertAndMergeExtent(int r1, int r2,
       newclist[k] = clist[k];
       }
     int n = this->NumberOfExtentEntries;
-    if (clist != &this->ExtentListLengths[n + incr])
+    if (clist != &this->ExtentListLengths[n + 2*incr])
       {
       delete [] clist;
       }
