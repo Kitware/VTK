@@ -57,6 +57,7 @@ PURPOSE.  See the above copyright notice for more information.
   #include "vtkXMLParticleWriter.h"
 #endif
 
+#define DEBUGPARTICLETRACE 1
 #include <functional>
 #include <algorithm>
 #ifdef DEBUGPARTICLETRACE
@@ -352,7 +353,14 @@ int vtkParticleTracerBase::RequestUpdateExtent(
   for (int i=0; i<numInputs; i++)
     {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(i);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->InputTimeValues[this->CurrentTimeStep]);
+    if(this->CurrentTimeStep < static_cast<int>(this->InputTimeValues.size()))
+      {
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->InputTimeValues[this->CurrentTimeStep]);
+      }
+    else
+      {
+      Assert(this->CurrentTime == this->InputTimeValues.back());
+      }
     }
 
   return 1;
@@ -904,7 +912,11 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     {
     this->ReinjectionCounter += 1;
 
-    ParticleListIterator lastParticle = --this->ParticleHistories.end();
+    ParticleListIterator lastParticle = this->ParticleHistories.end();
+    if (!this->ParticleHistories.empty())
+      {
+      lastParticle--;
+      }
     int seedPointId=0;
     this->LocalSeeds.clear();
     for (size_t i=0; i<seedSources.size(); i++)
@@ -914,9 +926,17 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     this->ParticleInjectionTime.Modified();
     this->UpdateParticleList(this->LocalSeeds);
 
-
     ParticleListIterator itr = lastParticle;
-    for(++itr; itr!=this->ParticleHistories.end(); ++itr)
+    if(itr!=this->ParticleHistories.end())
+      {
+      itr++;
+      }
+    else
+      {
+      itr = this->ParticleHistories.begin();
+      }
+
+    for(; itr!=this->ParticleHistories.end(); ++itr)
       {
       ParticleInformation& info(*lastParticle);
       this->Interpolator->TestPoint(info.CurrentPosition.x);
