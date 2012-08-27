@@ -34,8 +34,8 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-#include "vtkImageData.h"
 #include "vtkTexture.h"
+#include "vtkImageData.h"
 
 #include "vtkRenderer.h"
 #include "vtkOpenGLRenderer.h"
@@ -73,7 +73,6 @@ vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
 {
-  std::cout << "begin 2D" << std::endl;
   // Need the actual pixel size of the viewport - ask OpenGL.
   GLint vp[4];
   glGetIntegerv(GL_VIEWPORT, vp);

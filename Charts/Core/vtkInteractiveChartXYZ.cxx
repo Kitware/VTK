@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-//temp hopefully
-#include "vtkOpenGLContextDevice3D.h"
-
 #include "vtkInteractiveChartXYZ.h"
 
 #include "vtkAnnotationLink.h"
@@ -30,6 +27,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkOpenGLContextDevice3D.h"
 #include "vtkPlane.h"
 #include "vtkPoints2D.h"
 #include "vtkTable.h"
@@ -158,79 +156,39 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   context->DrawLine(vtkVector3f(0, 1, 0), vtkVector3f(0, 1, 1));
   context->DrawLine(vtkVector3f(1, 1, 0), vtkVector3f(1, 1, 1));
 
-
   // Now draw the axes labels in 2D
-  float labelPos[3];
-  labelPos[0] = 0.5;
-  labelPos[1] = 0;
-  labelPos[2] = 0;
-
-  vtkNew<vtkMatrix4x4> matrix;
-  context->GetDevice()->GetMatrix(matrix.GetPointer());
-  matrix->PrintSelf(std::cout, vtkIndent());
-  vtkNew<vtkMatrix4x4> inverse;
-  vtkTransform *transform = context->GetTransform();
-  //transform->PrintSelf(std::cout, vtkIndent());
-  //this next line still causes the warning... >.<
-  transform->GetMatrix()->Invert(transform->GetMatrix(), inverse.GetPointer());
-  /*
-  std::cout << "here?" << std::endl;
-  context->GetTransform()->GetInverse()->PrintSelf(std::cout, vtkIndent());
-  std::cout << "there?" << std::endl;
-  */
-  std::cout << "1: (" << labelPos[0] << ", " << labelPos[1] << ", " << labelPos[2] << ")" << std::endl;
-  inverse->MultiplyPoint(labelPos, labelPos);
-  std::cout << "2: (" << labelPos[0] << ", " << labelPos[1] << ", " << labelPos[2] << ")" << std::endl;
-  transform->TransformPoint(labelPos, labelPos);
-  std::cout << "3: (" << labelPos[0] << ", " << labelPos[1] << ", " << labelPos[2] << ")" << std::endl;
-
-  context->PopMatrix();
-
   vtkNew<vtkTextProperty> textProperties;
-  textProperties->SetJustificationToLeft();
+  textProperties->SetJustificationToCentered();
+  textProperties->SetVerticalJustificationToCentered();
   textProperties->SetColor(0.0, 0.0, 0.0);
   textProperties->SetFontFamilyToArial();
   textProperties->SetFontSize(14);
-  context->ApplyTextProp(textProperties.GetPointer());
   painter->ApplyTextProp(textProperties.GetPointer());
 
   float bounds[4];
+
   painter->ComputeStringBounds(this->XAxisLabel, bounds);
+  float xLabelPos[4] = { 0.5, 0 - bounds[3], 0, 1};
 
-  float scale[3];
-  this->Box->GetScale(scale);
+  painter->ComputeStringBounds(this->YAxisLabel, bounds);
+  float yLabelPos[4] = { 0 - bounds[3], 0.5, 0, 1};
+  float zLabelPos[4] = { 0, 0, 0.5, 1};
 
-  /*
-  labelPos[0] = (0.5 - bounds[2] / (scale[0] * 2));
-  labelPos[1] = ((-bounds[3] - 5) / scale[1]);
-  labelPos[2] = 1;
-  */
+  vtkNew<vtkMatrix4x4> modelview;
+  context->GetDevice()->GetMatrix(modelview.GetPointer());
+  modelview->MultiplyPoint(xLabelPos, xLabelPos);
+  modelview->MultiplyPoint(yLabelPos, yLabelPos);
+  modelview->MultiplyPoint(zLabelPos, zLabelPos);
+
+  context->PopMatrix();
 
 
-  // X axis first
-  painter->DrawString(labelPos[0], labelPos[1], this->XAxisLabel);
-  //painter->DrawString(0.5, -0.1, "hello");
-  //context->DrawString(xPos, yPos, this->XAxisLabel);
-/*
+  painter->DrawString(xLabelPos[0], xLabelPos[1], this->XAxisLabel);
+  painter->DrawString(zLabelPos[0], zLabelPos[1], this->ZAxisLabel);
 
-  // Y axis next
   textProperties->SetOrientation(90);
-  context->ApplyTextProp(textProperties.GetPointer());
-  context->ComputeStringBounds(this->YAxisLabel, bounds);
-  float xPos = -5 / scale[0];
-  float yPos = 0.5 - bounds[3] / (scale[1] * 2);
-  context->DrawString(xPos, yPos, this->YAxisLabel);
-
-  // Last is Z axis
-  textProperties->SetOrientation(0);
-  context->ApplyTextProp(textProperties.GetPointer());
-  float pos[2];
-  pos[0] = 0;
-  pos[1] = 0;
-  context->DrawZAxisLabel(pos, this->ZAxisLabel);
-  */
-
-
+  painter->ApplyTextProp(textProperties.GetPointer());
+  painter->DrawString(yLabelPos[0], yLabelPos[1], this->YAxisLabel);
 
   return true;
 }

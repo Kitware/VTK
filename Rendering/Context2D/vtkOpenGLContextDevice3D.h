@@ -25,17 +25,10 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextDevice3D.h"
 #include "vtkNew.h"             // For ivars.
-#include "vtkTextProperty.h"
 
 class vtkBrush;
-class vtkImageData;
-class vtkOpenGLRenderWindow;
 class vtkPen;
 class vtkRenderer;
-class vtkStringToImage;
-class vtkTexture;
-class vtkUnicodeString;
-class vtkWindow;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkOpenGLContextDevice3D : public vtkContextDevice3D
 {
@@ -102,45 +95,13 @@ public:
   // End drawing, clean up the view.
   virtual void End();
 
-  // Description:
-  // Get the active RenderWindow of the device. Will return null if not active.
-  vtkGetObjectMacro(RenderWindow, vtkOpenGLRenderWindow);
-
-  // Description:
-  // Set the texture for the device, it is used to fill the polygons
-  virtual void SetTexture(vtkImageData* image, int properties = 0);
-
-  // Description:
-  // Release any graphics resources that are being consumed by this device.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *window);
-
-  void AlignText(double orientation, float width, float height, float *p);
-  void DrawString(float *point, const vtkStdString &string);
-  void ComputeStringBounds(const vtkStdString &string, float bounds[4]);
-  void DrawString(float *point, const vtkUnicodeString &string);
-  void ComputeStringBounds(const vtkUnicodeString &string, float bounds[4]);
-  void DrawMathTextString(float point[2], const vtkStdString &string);
-  void DrawImage(float p[2], float scale, vtkImageData *image);
-  void DrawImage(const vtkRectf& pos, vtkImageData *image);
-  void DrawZAxisLabel(float *point,const vtkStdString &string);
-
 protected:
   vtkOpenGLContextDevice3D();
   ~vtkOpenGLContextDevice3D();
 
   // Description:
-  // The OpenGL render window being used by the device
-  vtkOpenGLRenderWindow* RenderWindow;
-
-  // Description:
   // We need to store a pointer to the renderer for the text rendering
   vtkRenderer *Renderer;
-
-  // Description:
-  // We also need a label render strategy
-  vtkStringToImage *TextRenderer;
 
   bool InRender;
 

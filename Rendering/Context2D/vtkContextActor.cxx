@@ -164,17 +164,6 @@ void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
     device->ReleaseGraphicsResources(window);
     }
 
-  vtkContext3D *context3D = this->Context->GetContext3D();
-  if (context3D)
-    {
-    vtkOpenGLContextDevice3D *device3D =
-        vtkOpenGLContextDevice3D::SafeDownCast(context3D->GetDevice());
-    if (device3D)
-      {
-      device3D->ReleaseGraphicsResources(window);
-      }
-    }
-
   if(this->Scene.GetPointer())
     {
     this->Scene->ReleaseGraphicsResources();
@@ -247,21 +236,21 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
 
   vtkContext3D *context3D = this->Context->GetContext3D();
   if (!context3D)
-  {
+    {
     this->Context->GetDevice()->Begin(viewport);
     this->Scene->SetGeometry(size);
     this->Scene->Paint(this->Context.GetPointer());
     this->Context->GetDevice()->End();
-  }
+    }
   else
-  {
+    {
     this->Context->GetDevice()->Begin(viewport);
     context3D->GetDevice()->Begin(viewport);
     this->Scene->SetGeometry(size);
     this->Scene->Paint(this->Context.GetPointer());
     context3D->GetDevice()->End();
     this->Context->GetDevice()->End();
-  }
+    }
 
   return 1;
 }

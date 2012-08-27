@@ -14,34 +14,17 @@
 =========================================================================*/
 
 #include "vtkContextDevice3D.h"
-#include "vtkMathTextUtilities.h"
-#include "vtkTextProperty.h"
 
 vtkContextDevice3D::vtkContextDevice3D()
 {
-  this->TextProp = vtkTextProperty::New();
 }
 
 vtkContextDevice3D::~vtkContextDevice3D()
 {
-  this->TextProp->Delete();
 }
 
 //-----------------------------------------------------------------------------
 void vtkContextDevice3D::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextDevice3D::MathTextIsSupported()
-{
-  return vtkMathTextUtilities::GetInstance() != NULL;
-}
-
-//-----------------------------------------------------------------------------
-void vtkContextDevice3D::ApplyTextProp(vtkTextProperty *prop)
-{
-  // This is a deep copy, but is called shallow for some reason...
-  this->TextProp->ShallowCopy(prop);
 }
