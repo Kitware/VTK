@@ -212,7 +212,7 @@ void vtkBrewerColors::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "Storage: " << this->Storage->size() << " entries\n";
-  os << indent << "CurrentScheme: " << this->CurrentScheme.c_str() << "\n";
+  os << indent << "CurrentScheme: \"" << ( this->CurrentScheme.empty() ? "(EMPTY)" : this->CurrentScheme.c_str() ) << "\"\n";
   os << indent << "CurrentColorCache: " << this->CurrentColorCache << "\n";
 }
 
@@ -242,7 +242,7 @@ const char* vtkBrewerColors::GetScheme( vtkIdType index )
 
 void vtkBrewerColors::SetCurrentScheme( const char* schemeName )
 {
-  if ( this->CurrentScheme == schemeName )
+  if ( this->CurrentScheme == schemeName || ! schemeName || schemeName[0] == '\0' )
     {
     return;
     }
