@@ -61,6 +61,11 @@ public:
   void ShallowCopy(vtkProp *prop);
 
   // Description:
+  // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  // in world coordinates. NULL means that the bounds are not defined.
+  double *GetBounds();
+
+  // Description:
   // Override the vtkPolyDataMapper2D that defines the text to be drawn.
   // One will be created by default if none is supplied
   void SetMapper(vtkPolyDataMapper2D *mapper);
@@ -217,6 +222,15 @@ protected:
   // Description:
   // Hide access methods that use superclass vtkMapper2D and not vtkImageMapper
   void SetMapper(vtkMapper2D *mapper);
+
+  // Description:
+  // Render Input to Image using the supplied font property.
+  virtual bool RenderImage(vtkTextProperty *tprop, vtkViewport *viewport);
+
+  // Description:
+  // Get the bounding box for Input using the supplied font property.
+  virtual bool GetBoundingBox(vtkTextProperty *tprop, vtkViewport *viewport,
+                              int bbox[4]);
 
    vtkTextActor();
   ~vtkTextActor();
