@@ -857,7 +857,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
           ? (size[1]-barHeight - barY) : barY;
         this->NumberOfAnnotationLabelsBuilt =
           this->LayoutAnnotationsHorizontally(
-            barX, this->TextPosition == vtkScalarBarActor::PrecedeScalarBar ? swatchC0 : swatchC1,
+            barX, swatchC0,
             barWidth, barHeight, delta, swatchPad );
         for ( i = 0; i < numNotes; ++ i )
           {
@@ -1207,7 +1207,7 @@ int vtkScalarBarActor::AllocateAndSizeAnnotationLabels( vtkScalarsToColors* lkup
 }
 
 int vtkScalarBarActor::LayoutAnnotationsVertically(
-  double barX, double barY, double vtkNotUsed(barWidth), double vtkNotUsed(barHeight), double delta, double pad )
+  double barX, double barY, double vtkNotUsed(barWidth), double barHeight, double delta, double pad )
 {
   if ( ! this->LookupTable || this->LookupTable->GetNumberOfAnnotatedValues() <= 0 )
     {
@@ -1255,9 +1255,9 @@ int vtkScalarBarActor::LayoutAnnotationsVertically(
   vtkIdType ll[2]; // leader-line endpoint IDs
   if ( 2 * ic == numNotes )
     {
-    dn = ic;
-    up = ic + 1;
-    dnCum = upCum = 0.;
+    dn = ic - 1;
+    up = ic;
+    dnCum = upCum = barY + barHeight / 2.;
     }
   else
     {
@@ -1309,13 +1309,15 @@ struct vtkScalarBarHLabelPlacer
   void Place( unsigned i, double wd, double ht )
     {
     vtkScalarBarHLabelInfo& placement( this->Places[i] );
-    unsigned farMin, farMid, medNeighbor;
-    int posRelToCenter = ( i == this->Ctr && 2 * this->Ctr < this->Places.size() ) ? 0 : ( i > this->Ctr ? +1 : -1 );
+    unsigned farMin, farMid;
+    int medNeighbor;
+    bool haveCenter = ( 2 * this->Ctr < this->Places.size() ); // Is there a label at the dead center of the bar?
+    int posRelToCenter = ( i == this->Ctr && haveCenter ) ? 0 : ( i >= this->Ctr ? +1 : -1 );
 
     if ( posRelToCenter == 0 )
       { // center label
       double xbar = ( this->XBounds[0] + this->XBounds[1] ) / 2.;
-      placement.Y[0] = Y0 + this->Dir * ( this->LeaderPad + this->Pad );
+      placement.Y[0] = this->Y0 + this->Dir * ( this->LeaderPad + this->Pad );
       placement.Y[1] = placement.Y[0] + this->Dir * ht; // Note un-padded bounds on distal y axis! Required below.
       placement.X[0] = xbar - wd / 2. - this->Pad;
       placement.X[1] = xbar + wd / 2. + this->Pad;
@@ -1324,14 +1326,13 @@ struct vtkScalarBarHLabelPlacer
       placement.Anchor[1] = placement.Y[0]; // Vertical justification changes, but Y[0] is always anchor
       }
     else // placing *a lateral* (as opposed to *the medial*) label.
-    if ( posRelToCenter )
       {
       // First: Horizontal placement. Check immediate medial neighbor to see if placement can occur without more displacement.
       double spotMax = this->XBounds[0] + i * this->Delta;
       bool needToDisplace = false;
       if ( posRelToCenter == +1 )
         { // label is right-justified; placement.X[1] bounded from above by XBounds[1] or right neighbor swatch
-        farMin = 2 * this->Ctr - i;
+        farMin = 2 * this->Ctr - i - 1;
         farMid = this->Ctr;
         medNeighbor = i - 1;
         placement.Justification = VTK_TEXT_RIGHT;
@@ -1360,13 +1361,14 @@ struct vtkScalarBarHLabelPlacer
         }
       else // posRelToCenter == -1
         { // label is left-justified; placement.X[0] bounded from below by XBounds[0] or left neighbor swatch
-        farMid = 2 * this->Ctr - i;
-        medNeighbor = i + 1;
         farMin = this->Ctr;
+        farMid = 2 * this->Ctr - i - 1;
+        medNeighbor = i + 1;
+        if ( ! haveCenter && medNeighbor >= static_cast<int>( farMid ) ) medNeighbor = -1;
         placement.Justification = VTK_TEXT_LEFT;
         spotMax += this->Pad;
         if ( spotMax < this->XBounds[0] ) spotMax = this->XBounds[0];
-        if ( spotMax + wd > this->Places[medNeighbor].X[0] )
+        if ( medNeighbor >= 0 && spotMax + wd > this->Places[medNeighbor].X[0] )
           { // we must displace; put the label where it makes sense: bounded on left by swatch edge.
           needToDisplace = true;
           placement.X[0] = this->XBounds[0] + i * this->Delta; // NB: Padding included
@@ -1377,7 +1379,7 @@ struct vtkScalarBarHLabelPlacer
           { // There is space for the label without vertical displacement.
           placement.Justification = VTK_TEXT_CENTERED;
           placement.Anchor[0] = this->XBounds[0] + ( i + 0.5 ) * this->Delta;
-          if ( placement.Anchor[0] + wd / 2. > this->Places[medNeighbor].X[0] ||
+          if ( ( medNeighbor >= 0 && placement.Anchor[0] + wd / 2. > this->Places[medNeighbor].X[0] ) ||
             placement.Anchor[0] - wd / 2. < this->XBounds[0] )
             { // We can't center on the swatch; left-justify it to swatch.
             placement.Anchor[0] -= this->Delta / 2. - this->Pad;
@@ -1390,7 +1392,9 @@ struct vtkScalarBarHLabelPlacer
       // Second: Vertical placement. Displace label to avoid overlap if need be.
       if ( ! needToDisplace )
         {
-        placement.Y[0] = this->Places[medNeighbor].Y[0];
+        placement.Y[0] = ( medNeighbor >= 0 ?
+          this->Places[medNeighbor].Y[0] :
+          this->Y0 + this->Dir * ( this->LeaderPad + this->Pad ) );
         placement.Y[1] = placement.Y[0] + this->Dir * ht;
         placement.X[1] = placement.X[0] + wd;
         placement.Anchor[1] = placement.Y[0];
@@ -1443,8 +1447,8 @@ struct vtkScalarBarHLabelPlacer
     bool done = false;
     if ( 2 * ic == static_cast<int>( this->Places.size() ) )
       {
-      lf = ic;
-      rt = ic + 1;
+      lf = ic - 1;
+      rt = ic;
       }
     else
       {
@@ -1499,7 +1503,7 @@ struct vtkScalarBarHLabelPlacer
  * neighbor and checking all other relevant labels for intereference.
  */
 int vtkScalarBarActor::LayoutAnnotationsHorizontally(
-  double barX, double barY, double barWidth, double vtkNotUsed(barHeight), double delta, double pad )
+  double barX, double barY, double barWidth, double barHeight, double delta, double pad )
 {
   if ( ! this->LookupTable || this->LookupTable->GetNumberOfAnnotatedValues() <= 0 )
     {
@@ -1516,8 +1520,9 @@ int vtkScalarBarActor::LayoutAnnotationsHorizontally(
     }
 
   int numNotes = this->AllocateAndSizeAnnotationLabels( this->LookupTable );
+  bool precede = this->TextPosition == vtkScalarBarActor::PrecedeScalarBar;
   vtkScalarBarHLabelPlacer placer(
-    numNotes, barY, this->TextPosition == vtkScalarBarActor::PrecedeScalarBar ? +1 : -1,
+    numNotes, precede ? barY : barY - barHeight, precede ? +1 : -1,
     barX, barX + barWidth, delta, pad, this->AnnotationLeaderPadding );
 
   vtkPoints* lpts = vtkPoints::New();
@@ -1535,8 +1540,8 @@ int vtkScalarBarActor::LayoutAnnotationsHorizontally(
   double* bds;
   if ( 2 * ic == numNotes )
     {
-    lf = ic;
-    rt = ic + 1;
+    lf = ic - 1;
+    rt = ic;
     }
   else
     {
