@@ -616,12 +616,15 @@ void vtkGL2PSExporter::DrawSpecialProps(vtkCollection *specialPropCol,
         {
         if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
           {
-          this->DrawTextActor(textAct, ren);
-          }
-        else if (vtkMathTextActor *mathTextAct =
-                 vtkMathTextActor::SafeDownCast(act2d))
-          {
-          this->DrawMathTextActor(mathTextAct, ren);
+          if (vtkMathTextActor *mathTextAct =
+              vtkMathTextActor::SafeDownCast(act2d))
+            {
+            this->DrawMathTextActor(mathTextAct, ren);
+            }
+          else
+            {
+            this->DrawTextActor(textAct, ren);
+            }
           }
         else if (vtkMapper2D *map2d = act2d->GetMapper())
           {
@@ -639,15 +642,18 @@ void vtkGL2PSExporter::DrawSpecialProps(vtkCollection *specialPropCol,
           continue;
           }
         }
-      else if (vtkMathTextActor3D *mathTextAct3D =
-               vtkMathTextActor3D::SafeDownCast(prop))
-        {
-        this->DrawMathTextActor3D(mathTextAct3D, ren);
-        }
       else if (vtkTextActor3D *textAct3D =
                vtkTextActor3D::SafeDownCast(prop))
         {
-        this->DrawTextActor3D(textAct3D, ren);
+        if (vtkMathTextActor3D *mathTextAct3D =
+            vtkMathTextActor3D::SafeDownCast(prop))
+          {
+          this->DrawMathTextActor3D(mathTextAct3D, ren);
+          }
+        else
+          {
+          this->DrawTextActor3D(textAct3D, ren);
+          }
         }
       else // Some other prop
         {
@@ -727,10 +733,14 @@ void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
   double winsized[2] = {static_cast<double>(winsize[0]),
                         static_cast<double>(winsize[1])};
 
-  double *actorBounds = textAct->GetBounds();
-  double rasterPos[3] = {actorBounds[1] - actorBounds[0],
-                         actorBounds[3] - actorBounds[2],
-                         actorBounds[5] - actorBounds[4]};
+  // Set the raster position at the center of the front plane. This is an
+  // overlay annotation, it shouldn't need to be clipped.
+  vtkNew<vtkCoordinate> rasterCoord;
+  rasterCoord->SetCoordinateSystemToView();
+  // Set a very small but finite depth -- otherwise the raster position will be
+  // clipped.
+  rasterCoord->SetValue(0.0, 0.0, 1e-5);
+  double *rasterPos = rasterCoord->GetComputedWorldValue(ren);
 
   int *textPos = coord->GetComputedDisplayValue(ren);
   double textPosd[2] = {static_cast<double>(textPos[0]),
