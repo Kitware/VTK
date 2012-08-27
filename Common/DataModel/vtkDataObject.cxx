@@ -64,7 +64,7 @@ vtkInformationKeyRestrictedMacro(vtkDataObject, ORIGIN, DoubleVector, 3);
 vtkInformationKeyRestrictedMacro(vtkDataObject, SPACING, DoubleVector, 3);
 vtkInformationKeyMacro(vtkDataObject, DATA_GEOMETRY_UNMODIFIED, Integer);
 vtkInformationKeyMacro(vtkDataObject, SIL, DataObject);
-
+vtkInformationKeyRestrictedMacro(vtkDataObject, BOUNDING_BOX, DoubleVector, 6);
 
 // Initialize static member that controls global data release
 // after use by filter

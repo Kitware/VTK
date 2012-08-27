@@ -20,7 +20,7 @@
 #ifndef VTKAMRBASEREADER_H_
 #define VTKAMRBASEREADER_H_
 
-#include "vtkFiltersAMRModule.h" // For export macro
+#include "vtkIOAMRModule.h" // For export macro
 #include "vtkOverlappingAMRAlgorithm.h"
 #include <vector>    // STL vector header
 #include <map>       // STL map header
@@ -36,7 +36,7 @@ class vtkAMRDataSetCache;
 class vtkUniformGrid;
 class vtkDataArray;
 
-class VTKFILTERSAMR_EXPORT vtkAMRBaseReader :
+class VTKIOAMR_EXPORT vtkAMRBaseReader :
   public vtkOverlappingAMRAlgorithm
 {
 public:
@@ -178,24 +178,6 @@ protected:
   // Description:
   // Reads all the metadata from the file. Implemented by concrete classes.
   virtual void ReadMetaData() = 0;
-
-  // Description:
-  // Generates a linear index for each block. Implemented by concrete
-  // instances.
-  //
-  // Note this method must create a block map for all blocks
-  // that are to be rendered according to the max level argument. For
-  // example, a sample implementation may look as follows:
-  //<code>
-  //  for(int i=0;i < this->Internal->NumberOfBlocks;i++ )
-  //   {
-  //    if ( this->GetBlockLevel( i ) <= this->MaxLevel  )
-  //     {
-  //      this->BlockMap.push_back( i );
-  //     }
-  //   }
-  //</code>
-  virtual void GenerateBlockMap() = 0;
 
   // Description:
   // Returns the block level for the given block

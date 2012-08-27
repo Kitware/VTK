@@ -20,11 +20,11 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
-#include "vtkAMRBox.h"
 #include "vtkUniformGridAMR.h"
 #include "vtkOverlappingAMR.h"
 
 #include <set>
+#include <vector>
 
 class vtkExtractLevel::vtkSet : public std::set<unsigned int>
 {
@@ -81,7 +81,7 @@ int vtkExtractLevel::FillOutputPortInformation(
   return 1;
 }
 
-int vtkExtractLevel::RequestUpdateExtent(vtkInformation*,vtkInformationVector** inputVector,vtkInformationVector* )
+int vtkExtractLevel::RequestUpdateExtent(vtkInformation* , vtkInformationVector** inputVector,vtkInformationVector* )
 {
   vtkInformation* inInfo   = inputVector[0]->GetInformationObject(0);
 

@@ -1,8 +1,8 @@
 ## List all test sources
 set(MyTests
     TestAMRGhostLayerStripping.cxx
-    TestFlashReader.cxx
-    TestEnzoReader.cxx
+    TestAMRBlanking.cxx
+    TestAMRIterator.cxx
     )
 
 ## Create test source list

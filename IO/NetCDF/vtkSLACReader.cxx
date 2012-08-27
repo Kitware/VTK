@@ -884,7 +884,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
   // Push points to output.
   vtkPoints *points = vtkPoints::SafeDownCast(
                compositeOutput->GetInformation()->Get(vtkSLACReader::POINTS()));
-  VTK_CREATE(vtkCompositeDataIterator, outputIter);
+  vtkSmartPointer<vtkCompositeDataIterator> outputIter;
   for (outputIter.TakeReference(compositeOutput->NewIterator());
        !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
     {
@@ -1371,7 +1371,7 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
 
   // Iterate over all of the parts in the output and visit the ones for the
   // external surface.
-  VTK_CREATE(vtkCompositeDataIterator, outputIter);
+  vtkSmartPointer<vtkCompositeDataIterator> outputIter;
   for (outputIter.TakeReference(output->NewIterator());
        !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
     {

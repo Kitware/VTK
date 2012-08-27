@@ -21,13 +21,13 @@
 #ifndef VTKAMRFLASHREADER_H_
 #define VTKAMRFLASHREADER_H_
 
-#include "vtkFiltersAMRModule.h" // For export macro
+#include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseReader.h"
 
 class vtkOverlappingAMR;
 class vtkFlashReaderInternal;
 
-class VTKFILTERSAMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
+class VTKIOAMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
 {
 public:
   static vtkAMRFlashReader* New();
@@ -53,10 +53,6 @@ protected:
   // Description:
   // See vtkAMRBaseReader::ReadMetaData
   void ReadMetaData();
-
-  // Description:
-  // See vtkAMRBaseReader::GenerateBlockMap
-  void GenerateBlockMap();
 
   // Description:
   // See vtkAMRBaseReader::GetBlockLevel
@@ -85,6 +81,7 @@ private:
   vtkAMRFlashReader( const vtkAMRFlashReader& ); // Not implemented
   void operator=(const vtkAMRFlashReader& ); // Not implemented
 
+  void ComputeStats(vtkFlashReaderInternal* internal, std::vector<int>& numBlocks, double min[3]);
   vtkFlashReaderInternal *Internal;
 };
 

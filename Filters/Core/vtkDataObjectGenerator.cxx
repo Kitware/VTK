@@ -29,6 +29,7 @@
 
 #include <vtkHierarchicalBoxDataSet.h>
 #include <vtkAMRBox.h>
+#include <vtkAMRInformation.h>
 #include <vtkMultiBlockDataSet.h>
 
 #include <vtkDoubleArray.h>
@@ -690,9 +691,19 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     vtkHierarchicalBoxDataSet *hbo =
       vtkHierarchicalBoxDataSet::SafeDownCast(outData);
 
-    hbo->SetNumberOfLevels(
-                         static_cast<unsigned int>(structure->children.size()));
+    std::vector<int> blocksPerLevel;
     std::vector<vtkInternalStructureCache *>::iterator git;
+    for (git = structure->children.begin();
+         git != structure->children.end();
+         git++)
+      {
+      vtkInternalStructureCache *gptr = *git;
+      vtkIdType nds = gptr->children.size();
+      blocksPerLevel.push_back(nds);
+      }
+
+    double origin[3] = {0,0,0};
+    hbo->Initialize(blocksPerLevel.size(), &blocksPerLevel[0], origin, VTK_XYZ_GRID);
     vtkIdType gcnt = 0;
     for (git = structure->children.begin();
          git != structure->children.end();
@@ -702,9 +713,6 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
 
       vtkInternalStructureCache *gptr = *git;
       //gptr->type should be a group
-
-      vtkIdType nds = gptr->children.size();
-      hbo->SetNumberOfDataSets(gcnt, nds);
 
       //each of the dimensions of each parent cell are broken into this
       //many pieces this must be the inverse of the spacing for the geometry
@@ -770,9 +778,17 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
           uf->GetExtent(ex);
           }
 
-        vtkAMRBox region(3,lo,hi);
-        hbo->SetDataSet(gcnt, dcnt,
-                        region, vtkUniformGrid::SafeDownCast(dobj));
+        vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(dobj);
+        if(grid)
+          {
+          hbo->SetDataSet(gcnt, dcnt,grid);
+          }
+        else
+          {
+          vtkAMRBox box(lo,hi);
+          hbo->GetAMRInfo()->SetAMRBox(gcnt, dcnt, box);
+          }
+
         if (dobj)
           {
           dobj->Delete();

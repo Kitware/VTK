@@ -6,11 +6,8 @@
 //----------------------------------------------------------------------------
 namespace
 {
-
-  bool Inside(double q[3], const vtkAMRBox& box)
+  bool Inside(double q[3], double gbounds[6])
   {
-    double gbounds[6];
-    box.GetBounds(gbounds);
     if ((q[0] < gbounds[0]) || (q[0] > gbounds[1]) ||
         (q[1] < gbounds[2]) || (q[1] > gbounds[3]) ||
         (q[2] < gbounds[4]) || (q[2] > gbounds[5]))
@@ -25,11 +22,11 @@ namespace
 
   bool FindInLevel(double q[3], vtkOverlappingAMR *amrds, int level, unsigned int& gridId)
   {
-    vtkAMRBox box;
     for(unsigned int i = 0; i < amrds->GetNumberOfDataSets(level); i++ )
       {
-      amrds->GetMetaData(level,i,box);
-      bool inside = Inside(q,box);
+      double gbounds[6];
+      amrds->GetBounds(level,i,gbounds);
+      bool inside = Inside(q,gbounds);
       if(inside)
         {
         gridId = i;
@@ -53,24 +50,24 @@ bool vtkAMRInterpolatedVelocityField::FindGrid(double q[3],vtkOverlappingAMR *am
   unsigned int maxLevels = amrds->GetNumberOfLevels();
   for(level=0; level<maxLevels;level++)
     {
-    unsigned int *children = amrds->GetChildren(level, gridId);
+    unsigned int n;
+    unsigned int *children = amrds->GetChildren(level, gridId,n);
     if (children == NULL)
       {
       break;
       }
-    int n = children[0];
-    int i;
-    for (i = 1; i <= n; i++)
+    unsigned int i;
+    for (i = 0; i < n; i++)
       {
-      vtkAMRBox box;
-      amrds->GetMetaData(level+1,children[i],box);
-      if(Inside(q,box))
+      double bb[6];
+      amrds->GetBounds(level+1, children[i],bb);
+      if(Inside(q,bb))
         {
         gridId = children[i];
         break;
         }
       }
-    if(i>n)
+    if(i>=n)
       {
       break;
       }
@@ -80,12 +77,11 @@ bool vtkAMRInterpolatedVelocityField::FindGrid(double q[3],vtkOverlappingAMR *am
 vtkStandardNewMacro(vtkAMRInterpolatedVelocityField);
 
 
-vtkAMRInterpolatedVelocityField::vtkAMRInterpolatedVelocityField():
-  LastAMRBox(3)
+vtkAMRInterpolatedVelocityField::vtkAMRInterpolatedVelocityField()
 {
   this->Weights = new double[8];
   this->AmrDataSet = NULL;
-  this->LastAMRBox.Invalidate();
+  this->LastLevel= this->LastId=-1;
 }
 
 vtkAMRInterpolatedVelocityField::~vtkAMRInterpolatedVelocityField()
@@ -116,18 +112,19 @@ int vtkAMRInterpolatedVelocityField::FunctionValues( double * x, double * f )
   //Either we do not know which data set it is, or existing LastDataSet does not contain x
   //In any case, set LastDataSet to NULL and try to find a new one
   this->LastDataSet = NULL;
-  this->LastAMRBox.Invalidate();
   this->LastCellId  = -1;
 
+  this->LastLevel = -1;
+  this->LastId  = -1;
   unsigned int level, gridId;
   if(!FindGrid(x,this->AmrDataSet,level,gridId))
     {
     return 0;
     }
+  this->LastLevel = level;
+  this->LastId = gridId;
 
-  vtkDataSet* ds = this->AmrDataSet->GetDataSet(level,gridId,this->LastAMRBox);
-  assert(!this->LastAMRBox.IsInvalid());
-
+  vtkDataSet* ds = this->AmrDataSet->GetDataSet(level,gridId);
   if(!ds)
     {
     return 0;
@@ -143,7 +140,9 @@ int vtkAMRInterpolatedVelocityField::FunctionValues( double * x, double * f )
 
 bool vtkAMRInterpolatedVelocityField::SetLastDataSet(int level, int id)
 {
-  this->LastDataSet = this->AmrDataSet->GetDataSet(level,id,this->LastAMRBox);
+  this->LastLevel = level;
+  this->LastId = id;
+  this->LastDataSet = this->AmrDataSet->GetDataSet(level,id);
   return this->LastDataSet!=NULL;
 }
 
@@ -151,4 +150,16 @@ bool vtkAMRInterpolatedVelocityField::SetLastDataSet(int level, int id)
 void vtkAMRInterpolatedVelocityField::SetLastCellId(vtkIdType, int )
 {
   vtkWarningMacro("Calling SetLastCellId has no effect")
+}
+
+bool vtkAMRInterpolatedVelocityField::GetLastDataSetLocation(unsigned int& level, unsigned int& id)
+{
+  if(this->LastLevel<0)
+    {
+    return false;
+    }
+
+  level = static_cast<unsigned int>( this->LastLevel );
+  id = static_cast<unsigned int> ( this->LastId );
+  return true;
 }

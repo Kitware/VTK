@@ -20,7 +20,6 @@
 #include "vtkDataArraySelection.h"
 #include "vtkDataArray.h"
 #include "vtkPolyData.h"
-#include "vtkAMRUtilities.h"
 #include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtksys/SystemTools.hxx"
@@ -48,6 +47,34 @@
 #include "vtkAMREnzoReaderInternal.h"
 
 vtkStandardNewMacro(vtkAMREnzoReader);
+
+#include "vtkAMRInformation.h"
+#include <limits>
+
+void vtkAMREnzoReader::ComputeStats(vtkEnzoReaderInternal* internal, std::vector<int>& numBlocks, double min[3])
+{
+  min[0] = min[1] = min[2] = std::numeric_limits<double>::max();
+  numBlocks.resize( this->Internal->NumberOfLevels, 0 );
+
+  for( int i=0; i < internal->NumberOfBlocks; ++i )
+    {
+    vtkEnzoReaderBlock &theBlock = internal->Blocks[ i+1 ];
+    double* gridMin = theBlock.MinBounds;
+    if( gridMin[0] < min[0] )
+      {
+      min[0] = gridMin[0];
+      }
+    if( gridMin[1] < min[1] )
+      {
+      min[1] = gridMin[1];
+      }
+    if( gridMin[2] < min[2] )
+      {
+      min[2] = gridMin[2];
+      }
+    numBlocks[theBlock.Level]++;
+    }
+}
 
 //-----------------------------------------------------------------------------
 vtkAMREnzoReader::vtkAMREnzoReader()
@@ -275,28 +302,6 @@ void vtkAMREnzoReader::ReadMetaData()
   this->Internal->ReadMetaData();
 }
 
-//-----------------------------------------------------------------------------
-void vtkAMREnzoReader::GenerateBlockMap()
-{
-  assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
-
-  this->BlockMap.clear();
-
-  if( !this->IsReady )
-    {
-    return;
-    }
-
-  this->Internal->ReadMetaData();
-
-  for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
-    {
-    if( this->GetBlockLevel( i ) <= this->MaxLevel )
-      {
-      this->BlockMap.push_back( i );
-      }
-    } // END for all blocks
-}
 
 //-----------------------------------------------------------------------------
 int vtkAMREnzoReader::GetBlockLevel( const int blockIdx )
@@ -349,49 +354,37 @@ int vtkAMREnzoReader::FillMetaData( )
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
   assert( "pre: metadata object is NULL" && (this->Metadata != NULL) );
-
   if( !this->IsReady )
     {
     return 0;
     }
 
   this->Internal->ReadMetaData();
-  std::vector< int > b2level;
-  b2level.resize( this->Internal->NumberOfLevels+1, 0 );
 
-  // this->Internal->Blocks includes a pseudo block -- the root as block #0
-  for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
+  double origin[3];
+  std::vector<int> blocksPerLevel;
+  this->ComputeStats(this->Internal, blocksPerLevel, origin);
+
+  this->Metadata->Initialize( static_cast<int>(blocksPerLevel.size()),
+                              &blocksPerLevel[0],
+                              origin, VTK_XYZ_GRID);
+  vtkAMRInformation* amrInfo = this->Metadata->GetAMRInfo();
+
+  std::vector< int > b2level( this->Internal->NumberOfLevels+1, 0 );
+  for( int block=0; block < this->Internal->NumberOfBlocks; ++block )
     {
-    vtkEnzoReaderBlock &theBlock = this->Internal->Blocks[ i+1 ];
+    vtkEnzoReaderBlock &theBlock = this->Internal->Blocks[ block+1 ];
     int level                    = theBlock.Level;
+    int internalIdx              = block;
     int id                       = b2level[ level ];
-    int internalIdx              = i;
-
-    double blockMin[ 3 ];
-    double blockMax[ 3 ];
-    double spacings[ 3 ];
-
-    for( int j=0; j < 3; ++j )
-      {
-      blockMin[j] = theBlock.MinBounds[j];
-      blockMax[j] = theBlock.MaxBounds[j];
-      spacings[j] = (theBlock.BlockNodeDimensions[j] > 1)?
-      (blockMax[j]-blockMin[j])/(theBlock.BlockNodeDimensions[j]-1.0):1.0;
-      }
-
-    vtkUniformGrid *ug = vtkUniformGrid::New();
-    ug->SetDimensions( theBlock.BlockNodeDimensions );
-    ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
-    ug->SetSpacing( spacings[0], spacings[1], spacings[2] );
-
-    this->Metadata->SetDataSet( level, id, ug );
-    this->Metadata->SetCompositeIndex( level, id, internalIdx );
-    ug->Delete();
+    int index = amrInfo->GetIndex(level,id);
+    amrInfo->SetAMRBox(level, id, theBlock.MinBounds, theBlock.MaxBounds, theBlock.BlockNodeDimensions);
+    amrInfo->SetAMRBlockSourceIndex(index, internalIdx);
     b2level[ level ]++;
-    } // END for all blocks
-
-  // NOTE: the controller here is null since each process loads its own metadata
-  vtkAMRUtilities::GenerateMetaData( this->Metadata, NULL );
+    }
+  amrInfo->GenerateRefinementRatio();
+  amrInfo->GenerateParentChildInformation();
+  assert(amrInfo->IsValid());
   this->Metadata->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),this->Internal->DataTime);
   return( 1 );
 }

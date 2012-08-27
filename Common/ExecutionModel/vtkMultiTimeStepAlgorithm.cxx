@@ -94,7 +94,7 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
     if(this->RequestUpdateIndex==0) //first time step
       {
       this->MDataSet = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-      this->MDataSet->SetNumberOfBlocks(this->UpdateTimeSteps.size());
+      this->MDataSet->SetNumberOfBlocks(static_cast<unsigned int>(this->UpdateTimeSteps.size()));
       }
 
     vtkSmartPointer<vtkDataObject> inDataCopy;

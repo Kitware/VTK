@@ -31,7 +31,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCharArray.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"

@@ -19,6 +19,7 @@
 #include "vtkSetGet.h"
 #include "vtkTestUtilities.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkUniformGridAMRDataIterator.h"
 
 namespace FlashReaderTest {
 
@@ -34,6 +35,23 @@ int CheckValue( std::string name, T actualValue, T expectedValue )
       return 1;
       }
     return 0;
+}
+
+int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
+{
+  vtkUniformGridAMRDataIterator* iter = vtkUniformGridAMRDataIterator::SafeDownCast(amr->NewIterator());
+  iter->SetSkipEmptyNodes(true);
+  int maxLevel(-1);
+  for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    int level = iter->GetCurrentLevel();
+    if(level>maxLevel)
+      {
+      maxLevel = level;
+      }
+    }
+  iter->Delete();
+  return maxLevel+1;
 }
 
 } // END namespace
@@ -64,7 +82,7 @@ int TestFlashReader( int argc, char *argv[] )
     if( amr != NULL )
       {
       rc+=FlashReaderTest::CheckValue(
-         "OUTPUT LEVELS",static_cast<int>(amr->GetNumberOfLevels()),level+1);
+        "OUTPUT LEVELS",static_cast<int>(FlashReaderTest::ComputeMaxNonEmptyLevel(amr)),level+1);
       rc+=FlashReaderTest::CheckValue(
          "NUMBER OF BLOCKS AT LEVEL",
          static_cast<int>(amr->GetNumberOfDataSets(level)),

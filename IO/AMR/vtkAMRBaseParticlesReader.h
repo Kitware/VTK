@@ -21,7 +21,7 @@
 #ifndef VTKAMRBASEPARTICLESREADER_H_
 #define VTKAMRBASEPARTICLESREADER_H_
 
-#include "vtkFiltersAMRModule.h" // For export macro
+#include "vtkIOAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkInformation;
@@ -32,7 +32,7 @@ class vtkPolyData;
 class vtkDataArraySelection;
 class vtkCallbackCommand;
 
-class VTKFILTERSAMR_EXPORT vtkAMRBaseParticlesReader :
+class VTKIOAMR_EXPORT vtkAMRBaseParticlesReader :
   public vtkMultiBlockDataSetAlgorithm
 {
 public:

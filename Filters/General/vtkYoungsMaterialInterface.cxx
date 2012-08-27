@@ -614,8 +614,8 @@ int vtkYoungsMaterialInterface::RequestData(
   int nmat = static_cast<int>( this->Internals->Materials.size() );
 
   // alocate composite iterator
-  vtkSmartPointer<vtkCompositeDataIterator> inputIterator = vtkSmartPointer<vtkCompositeDataIterator>::New();
-  inputIterator->SetDataSet(compositeInput);
+  vtkSmartPointer<vtkCompositeDataIterator> inputIterator;
+  inputIterator.TakeReference(compositeInput->NewIterator());
   inputIterator->VisitOnlyLeavesOn();
   inputIterator->SkipEmptyNodesOn();
   inputIterator->InitTraversal();

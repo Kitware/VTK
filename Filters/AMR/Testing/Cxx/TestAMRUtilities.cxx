@@ -302,6 +302,8 @@ void GetAMRDataSet(
   oss << "L" << level << "_" << index << ".vtk";
   WriteUniformGrid( myGrid, oss.str( ) );
 
+  std::vector<int> blocksPerLevel(1,1);
+  amrData->Initialize(blocksPerLevel, myGrid->GetOrigin(), myGrid->GetGridDescription());
   amrData->SetDataSet( level, index, myGrid );
   myGrid->Delete();
 }
@@ -320,7 +322,6 @@ bool TestGenerateMetaData( vtkMultiProcessController *myController )
 
   vtkHierarchicalBoxDataSet* myAMRData = vtkHierarchicalBoxDataSet::New();
   GetAMRDataSet( myAMRData, myController );
-  vtkAMRUtilities::GenerateMetaData( myAMRData, myController );
 
   int status    = 1;
   int statusSum = 0;

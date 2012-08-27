@@ -20,7 +20,7 @@
 #ifndef VTKAMRFLASHPARTICLESREADER_H_
 #define VTKAMRFLASHPARTICLESREADER_H_
 
-#include "vtkFiltersAMRModule.h" // For export macro
+#include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseParticlesReader.h"
 
 class vtkIndent;
@@ -29,7 +29,7 @@ class vtkPointData;
 class vtkIdList;
 class vtkFlashReaderInternal;
 
-class VTKFILTERSAMR_EXPORT vtkAMRFlashParticlesReader :
+class VTKIOAMR_EXPORT vtkAMRFlashParticlesReader :
   public vtkAMRBaseParticlesReader
 {
 public:

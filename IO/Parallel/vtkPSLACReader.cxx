@@ -587,7 +587,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
   // Iterate over all points of all cells and mark what points we encounter
   // in GlobalToLocalIds.
   this->Internal->GlobalToLocalIds.clear();
-  VTK_CREATE(vtkCompositeDataIterator, outputIter);
+  vtkSmartPointer<vtkCompositeDataIterator> outputIter;
   for (outputIter.TakeReference(compositeOutput->NewIterator());
        !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
     {

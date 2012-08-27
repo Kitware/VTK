@@ -21,7 +21,7 @@
 #ifndef VTKAMRENZOREADER_H_
 #define VTKAMRENZOREADER_H_
 
-#include "vtkFiltersAMRModule.h" // For export macro
+#include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseReader.h"
 
 #include <map>     // For STL map
@@ -29,7 +29,7 @@
 class vtkOverlappingAMR;
 class vtkEnzoReaderInternal;
 
-class VTKFILTERSAMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
+class VTKIOAMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
 {
 public:
   static vtkAMREnzoReader* New();
@@ -90,13 +90,10 @@ protected:
   void ReadMetaData();
 
   // Description:
-  // See vtkAMRBaseReader::GenerateBlockMap
-  void GenerateBlockMap();
-
-  // Description:
   // See vtkAMRBaseReader::GetBlockLevel
   int GetBlockLevel( const int blockIdx );
 
+  void ComputeStats(vtkEnzoReaderInternal* internal, std::vector<int>& blocksPerLevel, double min[3]);
 
   // Description:
   // See vtkAMRBaseReader::FillMetaData

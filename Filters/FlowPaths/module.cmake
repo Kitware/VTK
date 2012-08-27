@@ -3,10 +3,11 @@ vtk_module(vtkFiltersFlowPaths
     StandAlone
   DEPENDS
     vtkCommonExecutionModel
-    vtkFiltersAMR
     vtkFiltersGeneral
     vtkFiltersSources
+    vtkIOCore
   TEST_DEPENDS
+    vtkFiltersAMR
     vtkTestingCore
     vtkTestingRendering
     vtkRenderingOpenGL

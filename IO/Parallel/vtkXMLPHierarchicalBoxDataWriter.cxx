@@ -98,7 +98,6 @@ void vtkXMLPHierarchicalBoxDataWriter::FillDataTypes(
   // ratio informations since those are certainly consistent on all processes
   // since we expect the same composite structure on all nodes.
   assert(this->AMRBoxes != NULL);
-  assert(this->AMRBoxDims != NULL);
 
   if (myid == 0)
     {
@@ -114,8 +113,6 @@ void vtkXMLPHierarchicalBoxDataWriter::FillDataTypes(
     memset(gathered_amx_box_dims, 0, numLeafNodes*6*numProcs*sizeof(int));
     this->Controller->Gather(this->AMRBoxes, gathered_amx_box_dims,
       numLeafNodes*6, 0);
-    this->Controller->Gather(this->AMRBoxDims, gathered_amx_box_dims,
-      numLeafNodes, 0);
 
     for (int procNo=1; procNo<numProcs; procNo++)
       {
@@ -129,8 +126,6 @@ void vtkXMLPHierarchicalBoxDataWriter::FillDataTypes(
           memcpy(&this->AMRBoxes[pieceNo*6],
             &gathered_amx_box_dims[(procNo*numLeafNodes + pieceNo)*6],
             sizeof(int)*6);
-          this->AMRBoxDims[pieceNo] = gathered_amx_box_dims[
-            procNo*numLeafNodes + pieceNo];
           }
         }
       }
@@ -141,7 +136,6 @@ void vtkXMLPHierarchicalBoxDataWriter::FillDataTypes(
     {
     this->Controller->Gather(myDataTypes, NULL, numLeafNodes, 0);
     this->Controller->Gather(this->AMRBoxes, NULL, numLeafNodes*6, 0);
-    this->Controller->Gather(this->AMRBoxDims, NULL, numLeafNodes, 0);
     }
 }
 
