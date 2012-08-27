@@ -24,6 +24,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorEventRecorder.h"
+#include "vtkScalarBarRepresentation.h"
 #include "vtkScalarBarActor.h"
 #include "vtkStructuredGrid.h"
 
@@ -488,6 +489,34 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
   scalarWidget->GetScalarBarActor()->SetTitle("Temperature");
   scalarWidget->GetScalarBarActor()->SetLookupTable(outlineMapper->GetLookupTable());
 
+  vtkSmartPointer<vtkLookupTable> lutBC = vtkSmartPointer<vtkLookupTable>::New();
+  vtkSmartPointer<vtkScalarBarWidget> scalarWidgetB =
+    vtkSmartPointer<vtkScalarBarWidget>::New();
+  scalarWidgetB->SetInteractor(iren);
+  scalarWidgetB->GetScalarBarActor()->SetTitle("Density");
+  scalarWidgetB->GetScalarBarActor()->SetLookupTable( lutBC );
+  scalarWidgetB->GetScalarBarActor()->SetOrientationToHorizontal();
+  scalarWidgetB->GetScalarBarActor()->SetTextPositionToPrecedeScalarBar();
+  vtkScalarBarRepresentation* srep = vtkScalarBarRepresentation::SafeDownCast( scalarWidgetB->GetRepresentation() );
+  srep->SetPosition( 0.053495, 0.053796 );
+  srep->SetPosition2( 0.331773, 0.106455 );
+  scalarWidgetB->ProcessEventsOff();
+  scalarWidgetB->EnabledOn();
+
+  vtkSmartPointer<vtkScalarBarWidget> scalarWidgetC =
+    vtkSmartPointer<vtkScalarBarWidget>::New();
+  scalarWidgetC->SetInteractor(iren);
+  scalarWidgetC->GetScalarBarActor()->SetTitle("Destiny");
+  scalarWidgetC->GetScalarBarActor()->SetLookupTable( lutBC );
+  scalarWidgetC->GetScalarBarActor()->SetOrientationToVertical();
+  //scalarWidgetC->GetScalarBarActor()->SetTextPositionToPrecedeScalarBar();
+  srep = vtkScalarBarRepresentation::SafeDownCast( scalarWidgetC->GetRepresentation() );
+  srep->SetPosition( 0.861806, 0.0615385 );
+  srep->SetPosition2( 0.1399, 0.405351 );
+
+  scalarWidgetC->ProcessEventsOff();
+  scalarWidgetC->EnabledOn();
+
   ren1->AddActor(outlineActor);
 
   // Add the actors to the renderer, set the background and size
@@ -510,18 +539,30 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
   cb->Lookup = vtkLookupTable::SafeDownCast( scalarWidget->GetScalarBarActor()->GetLookupTable() );
   cb->ScalarBar = scalarWidget->GetScalarBarActor();
   scalarWidget->GetScalarBarActor()->SetMaximumNumberOfColors( 5 * 5 );
+  //cb->ScalarBar->SetAnnotationLeaderPadding( 8. );
   pal->CreateLookupTable( cb->Lookup );
   cb->Lookup->SetAnnotation( 5.00, "Just Wow" );
   cb->Lookup->SetAnnotation( 4.00, "Super-Special" );
   cb->Lookup->SetAnnotation( 3.00, "Amazingly Special" );
-  //cb->Lookup->SetAnnotation( 2.00, "Beyond-Special" );
   cb->Lookup->SetAnnotation( 1.00, "Special" );
-  //cb->Lookup->SetAnnotation( 0.00, "Special $\\bigcap$ This $= \\emptyset$" );
   cb->Lookup->SetAnnotation( 0.00, "Special $\\cap$ This $= \\emptyset$" );
-  //cb->Lookup->SetAnnotation( 0.25, "Not-so-Special" );
-  //cb->Lookup->SetAnnotation( 0.50, "Almost-Special" );
   cb->Lookup->SetRange( 0., 4. );
   cb->RenderWindow = renWin;
+
+  // Now make a second set of annotations with an even number of entries (10).
+  // This tests another branch of the annotation label positioning code.
+  pal->SetCurrentScheme( "Diverging Purple-Orange (10)" );
+  pal->CreateLookupTable( lutBC );
+  lutBC->SetAnnotation( 5.00, "A" );
+  lutBC->SetAnnotation( 4.00, "B" );
+  lutBC->SetAnnotation( 3.00, "C" );
+  lutBC->SetAnnotation( 2.00, "D" );
+  lutBC->SetAnnotation( 1.00, "E" );
+  lutBC->SetAnnotation( 0.00, "F" );
+  lutBC->SetAnnotation( 6.00, "G" );
+  lutBC->SetAnnotation( 7.00, "H" );
+  lutBC->SetAnnotation( 8.00, "I" );
+  lutBC->SetAnnotation( 9.00, "J" );
 
   // render the image
   iren->Initialize();
@@ -539,5 +580,13 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
 
   recorder->Off();
 
+#if 0 // Use this to get positions for statically-placed scalar bars that test an even number of annotations.
+  srep = vtkScalarBarRepresentation::SafeDownCast( scalarWidget->GetRepresentation() );
+  double* foo;
+  foo = srep->GetPosition();
+  cout << foo[0] << ", " << foo[1] << "\n";
+  foo = srep->GetPosition2();
+  cout << foo[0] << ", " << foo[1] << "\n";
+#endif
   return EXIT_SUCCESS;
 }
