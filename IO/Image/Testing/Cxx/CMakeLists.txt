@@ -5,7 +5,6 @@ if(WIN32)
 endif()
 
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-  # TestFFMPEGWriter.cxx          # fixme (deps not satisfied)
   # TestImageReader2Factory.cxx   # fixme (deps not satisfied)
   TestMetaIO.cxx
   # TestMovieWriter.cxx           # fixme (deps not satisfied)

@@ -39,7 +39,7 @@ All netCDF functions (except
 
 If this returned status value is not equal to
 \fBNC_NOERR\fR (zero), it
-indicates that an error occurred. The possible status values are defined in
+indicates that an error occurred. The possible status values are defined in 
 system include file <errno.h> and in "netcdf.h".
 .HP
 \fBconst char* nc_strerror(int \fIstatus\fP)\fR
@@ -68,10 +68,10 @@ When a netCDF dataset is created, is is opened
 \fBNC_WRITE\fR.
 The new netCDF dataset is in define mode.
 \fBNC_64BIT_OFFSET\fR.
-to create a file in the 64-bit offset format
-(as opposed to classic format, the default).
-\fBNC_TRUE\fR to create a netCDF-4/HDF5 file,
-and \fBNC_CLASSIC_MODEL\fR to guarantee that netCDF-4/HDF5 files maintain compatibility
+to create a file in the 64-bit offset format 
+(as opposed to classic format, the default). 
+\fBNC_TRUE\fR to create a netCDF-4/HDF5 file, 
+and \fBNC_CLASSIC_MODEL\fR to guarantee that netCDF-4/HDF5 files maintain compatibility 
 with the netCDF classic data model.
 .HP
 \fBint nc__create(const char \fIpath\fP[], int \fIcmode\fP, size_t \fIinitialsize\fP, size_t* \fIchunksize\fP, int* \fIncid\fP)\fR
@@ -121,7 +121,7 @@ The actual value chosen is returned by reference.
 Using the value \fBNC_SIZEHINT_DEFAULT\fR causes the library to choose a
 default.
 How the system choses the default depends on the system.
-On many systems, the "preferred I/O block size" is available from the
+On many systems, the "preferred I/O block size" is available from the 
 \fBstat()\fR system call, \fBstruct stat\fR member \fBst_blksize\fR.
 If this is available it is used. Lacking that, twice the system pagesize
 is used.
@@ -138,8 +138,8 @@ may specify a TRUE URL, but the tuning parameters are ignored.
 .sp
 (Corresponds to \fBncredef(\|)\fR in version 2)
 .sp
-Puts an open netCDF dataset into define mode,
-so dimensions, variables, and attributes can be added or renamed and
+Puts an open netCDF dataset into define mode, 
+so dimensions, variables, and attributes can be added or renamed and 
 attributes can be deleted.
 .HP
 \fBint nc_enddef(int \fIncid\fP)\fR
@@ -287,7 +287,7 @@ will not be returned; hence, no space need be allocated for it.
 .sp
 (Corresponds to \fBncdimdef(\|)\fR in version 2)
 .sp
-Adds a new dimension to an open netCDF dataset, which must be
+Adds a new dimension to an open netCDF dataset, which must be 
 in define mode.
 \fIname\fP is the dimension name.
 If \fIdimid\fP is not a \fBNULL\fR pointer then upon successful completion \fIdimid\fP will contain the dimension ID of the newly created dimension.
@@ -310,7 +310,7 @@ Define a compound type.
 Insert an element into a compound type. May not be done after type has been used, or after the type has been written by an enddef.
 .HP
 \fBint nc_insert_array_compound(int \fIncid\fP, nc_type \fI\fP, const char \fIname\fP[], size_t \fIoffset\fP, nc_type \fIfield_typeid\fP, int \fIndims\fP, const int \fIdim_sizes\fP[])\fR
-.sp
+.sp 
 Insert an array into a compound type.
 .HP
 \fBint nc_inq_type(int \fIncid\fP, nc_type \fI\fP, char \fIname\fP[], size_t* \fIsizep\fP)\fR
@@ -460,7 +460,7 @@ the dimension.
 (Corresponds to \fBncdimrename(\|)\fR in version 2)
 .sp
 Renames an existing dimension in an open netCDF dataset.
-If the new name is longer than the old name, the netCDF dataset must be in
+If the new name is longer than the old name, the netCDF dataset must be in 
 define mode.
 You cannot rename a dimension to have the same name as another dimension.
 .SH "VARIABLES"
@@ -625,7 +625,7 @@ converted to integers.
 
 .sp
 Reads an entire netCDF variable (i.e. all the values).
-The netCDF dataset must be open and in data mode.
+The netCDF dataset must be open and in data mode.  
 The data is converted from the external type of the specified variable,
 if necessary, to the type specified in the function name.  If conversion is
 not possible, an \fBNC_ERANGE\fR error is returned.
@@ -699,7 +699,7 @@ error is returned.
 
 .sp
 Gets a single data value from a variable at the position \fIindex\fP
-of an open netCDF dataset that is in data mode.
+of an open netCDF dataset that is in data mode.  
 The data is converted from the external type of the specified variable,
 if necessary, to the type specified in the function name.  If conversion is
 not possible, an \fBNC_ERANGE\fR error is returned.
@@ -853,7 +853,7 @@ vector, see COMMON ARGUMENTS DESCRIPTIONS below.
 
 .sp
 These functions are used for \fIstrided input\fP, which is like the
-array section input described above, except that
+array section input described above, except that 
 the sampling stride (the interval between accessed values) is
 specified for each dimension.
 For an explanation of the sampling stride
@@ -971,7 +971,7 @@ mapping vector, see COMMON ARGUMENTS DESCRIPTIONS below.
 .HP
 \fBint nc_get_att(int \fIncid\fP, int \fIvarid\fP, const char \fIname\fP[], void ** \fIip\fP)\fR
 .sp
-Unlike variables, attributes do not have
+Unlike variables, attributes do not have 
 separate functions for defining and writing values.
 This family of functions defines a new attribute with a value or changes
 the value of an existing attribute.
@@ -988,7 +988,7 @@ the in-memory type of the value, whereas the \fIxtype\fP argument refers to the
 external type for storing the value.  An \fBNC_ERANGE\fR
 error results if
 a conversion between these types is not possible.  In this case the value
-is represented with the appropriate fill-value for the associated
+is represented with the appropriate fill-value for the associated 
 external type.
 .HP
 \fBint nc_inq_attname(int \fIncid\fP, int \fIvarid\fP, int \fIattnum\fP, char \fIname\fP[])\fR
@@ -1038,7 +1038,7 @@ for a global attribute.
 \fIname\fP
 is the name of the attribute in the input netCDF dataset to be copied.
 \fIncid_out\fP
-is the netCDF ID of the output netCDF dataset to which the attribute will be
+is the netCDF ID of the output netCDF dataset to which the attribute will be 
 copied.
 It is permissible for the input and output netCDF ID's to be the same.  The
 output netCDF dataset should be in define mode if the attribute to be
@@ -1106,7 +1106,7 @@ them.  If you don't know how much space to reserve, call
 first to find out the length of the attribute.
 .SH "COMMON ARGUMENT DESCRIPTIONS"
 .LP
-In this section we define some common arguments which are used in the
+In this section we define some common arguments which are used in the 
 "FUNCTION DESCRIPTIONS" section.
 .TP
 int \fIncid\fP
@@ -1114,23 +1114,23 @@ is the netCDF ID returned from a previous, successful call to
 \fBnc_open(\|)\fR or \fBnc_create(\|)\fR
 .TP
 char \fIname\fP[]
-is the name of a dimension, variable, or attribute. The names of
+is the name of a dimension, variable, or attribute. The names of 
 dimensions, variables and attributes consist of arbitrary
 sequences of alphanumeric characters (as well as underscore '_',
 period '.' and hyphen '-'), beginning with a letter or
 underscore. (However names commencing with underscore are reserved for
 system use.) Case is significant in netCDF names. A zero-length name
 is not allowed.
-As an input argument,
-it shall be a pointer to a 0-terminated string; as an output argument, it
+As an input argument, 
+it shall be a pointer to a 0-terminated string; as an output argument, it 
 shall be the address of a buffer in which to hold such a string.
-The maximum allowable number of characters
+The maximum allowable number of characters 
 (excluding the terminating 0) is \fBNC_MAX_NAME\fR.
 .TP
 nc_type \fIxtype\fP
 specifies the external data type of a netCDF variable or attribute and
 is one of the following:
-\fBNC_BYTE\fR, \fBNC_CHAR\fR, \fBNC_SHORT\fR, \fBNC_INT\fR,
+\fBNC_BYTE\fR, \fBNC_CHAR\fR, \fBNC_SHORT\fR, \fBNC_INT\fR, 
 \fBNC_FLOAT\fR, or \fBNC_DOUBLE\fR.
 These are used to specify 8-bit integers,
 characters, 16-bit integers, 32-bit integers, 32-bit IEEE floating point
@@ -1155,22 +1155,22 @@ dimensions for a variable is given by the symbolic constant
 .TP
 int \fIdimid\fP
 is the ID of a netCDF dimension.
-netCDF dimension ID's are allocated sequentially from the
+netCDF dimension ID's are allocated sequentially from the 
 non-negative
 integers beginning with 0.
 .TP
 int \fIndims\fP
 is either the total number of dimensions in a netCDF dataset or the rank
 (i.e. the number of dimensions) of a netCDF variable.
-The value shall not be negative or greater than the symbolic constant
+The value shall not be negative or greater than the symbolic constant 
 \fBNC_MAX_VAR_DIMS\fR.
 .TP
 int \fIvarid\fP
-is the ID of a netCDF variable or (for the attribute-access functions)
+is the ID of a netCDF variable or (for the attribute-access functions) 
 the symbolic constant
 \fBNC_GLOBAL\fR,
 which is used to reference global attributes.
-netCDF variable ID's are allocated sequentially from the
+netCDF variable ID's are allocated sequentially from the 
 non-negative
 integers beginning with 0.
 .TP
@@ -1194,7 +1194,7 @@ variable's dimensions.
 const size_t \fIstart\fP[]
 specifies the starting point
 for accessing a netCDF variable's data values
-in terms of the indicial coordinates of
+in terms of the indicial coordinates of 
 the corner of the array section.
 The indices start at 0;
 thus, the first data
@@ -1209,7 +1209,7 @@ array section.
 Thus, to access a single value, for example, specify \fIcount\fP as
 (1, 1, ..., 1).
 Note that, for strided I/O, this argument must be adjusted
-to be compatible with the \fIstride\fP and \fIstart\fP arguments so that
+to be compatible with the \fIstride\fP and \fIstart\fP arguments so that 
 the interaction of the
 three does not attempt to access an invalid data co-ordinate.
 The elements of the
@@ -1219,7 +1219,7 @@ const size_t \fIstride\fP[]
 specifies the sampling interval along each dimension of the netCDF
 variable.   The elements of the stride vector correspond, in order,
 to the netCDF variable's dimensions (\fIstride\fP[0])
-gives the sampling interval along the most slowly
+gives the sampling interval along the most slowly 
 varying dimension of the netCDF variable).  Sampling intervals are
 specified in type-independent units of elements (a value of 1 selects
 consecutive elements of the netCDF variable along the corresponding
@@ -1242,7 +1242,7 @@ the same structure as the associated netCDF variable.
 .LP
 By default, the netCDF interface sets the values of
 all newly-defined variables of finite length (i.e. those that do not have
-an unlimited, dimension) to the type-dependent fill-value associated with each
+an unlimited, dimension) to the type-dependent fill-value associated with each 
 variable.  This is done when \fBnc_enddef(\|)\fR
 is called.  The
 fill-value for a variable may be changed from the default value by
@@ -1271,14 +1271,14 @@ For variables that
 use the unlimited dimension, this call
 may be made at any time.
 .LP
-One can obtain increased performance of the netCDF interface by using
+One can obtain increased performance of the netCDF interface by using 
 this feature, but only at the expense of requiring the application to set
 every single data value.  The performance
 enhancing behavior of this function is dependent on the particulars of
 the implementation and dataset format.
 The flag value controlled by \fBnc_set_fill(\|)\fR
 is per netCDF ID,
-not per variable or per write.
+not per variable or per write. 
 Allowing this to change affects the degree to which
 a program can be effectively parallelized.
 Given all of this, we state that the use
@@ -1290,7 +1290,7 @@ feature.
 .sp
 (Corresponds to \fBncsetfill(\|)\fR in version 2)
 .sp
-Determines whether or not variable prefilling will be done (see
+Determines whether or not variable prefilling will be done (see 
 above).
 The netCDF dataset shall be writable.
 \fIfillmode\fP is either \fBNC_FILL\fR
@@ -1349,8 +1349,8 @@ under only the most extreme cases.
 Specifies the Flexible File I/O buffers for netCDF I/O when executing
 under the UNICOS operating system (the variable is ignored on other
 operating systems).
-An appropriate specification can greatly increase the efficiency of
-netCDF I/O -- to the extent that it can actually surpass FORTRAN binary
+An appropriate specification can greatly increase the efficiency of 
+netCDF I/O -- to the extent that it can actually surpass FORTRAN binary 
 I/O.
 This environment variable has been made a little more generalized,
 such that other FFIO option specifications can now be added.

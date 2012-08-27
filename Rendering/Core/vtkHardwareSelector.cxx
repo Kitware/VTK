@@ -29,6 +29,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredExtent.h"
 
+#include <algorithm>
 #include <set>
 #include <map>
 
@@ -511,21 +512,28 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
 
   // Iterate over successively growing boxes.
   // They recursively call the base case to handle single pixels.
-  unsigned int disp_pos[2] = {in_display_position[0], in_display_position[1]};
+  int disp_pos[2] = {in_display_position[0], in_display_position[1]};
   unsigned int cur_pos[2] = {0, 0};
   PixelInformation info;
-  for (int dist = 0; dist < maxDist; ++dist)
+  info = this->GetPixelInformation(in_display_position, 0);
+  if (info.Valid)
+    {
+    return info;
+    }
+  for (int dist = 1; dist < maxDist; ++dist)
     {
     // Vertical sides of box.
-    for (unsigned int y = disp_pos[1] - dist; y <= disp_pos[1] + dist; ++y)
+    for (int y = std::max(0, disp_pos[1] - dist); y <= disp_pos[1] + dist; ++y)
       {
-      cur_pos[0] = disp_pos[0] - dist;
-      cur_pos[1] = y;
-
-      info = this->GetPixelInformation(cur_pos, 0);
-      if (info.Valid)
+      cur_pos[1] = static_cast<unsigned int>(y);
+      if (disp_pos[0] - dist >= 0)
         {
-        return info;
+        cur_pos[0] = static_cast<unsigned int>(disp_pos[0] - dist);
+        info = this->GetPixelInformation(cur_pos, 0);
+        if (info.Valid)
+          {
+          return info;
+          }
         }
       cur_pos[0] = static_cast<unsigned int>(disp_pos[0] + dist);
       info = this->GetPixelInformation(cur_pos, 0);
@@ -535,14 +543,17 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
         }
       }
     // Horizontal sides of box.
-    for (unsigned int x = disp_pos[0] - (dist-1); x <= disp_pos[0] + (dist-1); ++x)
+    for (int x = std::max(0, disp_pos[0] - (dist-1)); x <= disp_pos[0] + (dist-1); ++x)
       {
-      cur_pos[0] = x;
-      cur_pos[1] = disp_pos[1] - dist;
-      info = this->GetPixelInformation(cur_pos, 0);
-      if (info.Valid)
+      cur_pos[0] = static_cast<unsigned int>(x);
+      if (disp_pos[1] - dist >= 0)
         {
-        return info;
+        cur_pos[1] = static_cast<unsigned int>(disp_pos[1] - dist);
+        info = this->GetPixelInformation(cur_pos, 0);
+        if (info.Valid)
+          {
+          return info;
+          }
         }
       cur_pos[1] = static_cast<unsigned int>(disp_pos[1] + dist);
       info = this->GetPixelInformation(cur_pos, 0);

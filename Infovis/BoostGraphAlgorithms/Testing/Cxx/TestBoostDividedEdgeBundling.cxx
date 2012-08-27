@@ -150,7 +150,8 @@ vtkColor4ub vtkBundledGraphItem::EdgeColor(vtkIdType edgeIdx, vtkIdType pointIdx
 }
 
 //----------------------------------------------------------------------------
-float vtkBundledGraphItem::EdgeWidth(vtkIdType lineIdx, vtkIdType pointIdx)
+float vtkBundledGraphItem::EdgeWidth(vtkIdType vtkNotUsed(lineIdx),
+                                     vtkIdType vtkNotUsed(pointIdx))
 {
   return 4.0f;
 }

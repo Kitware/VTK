@@ -28,8 +28,11 @@
 // This algorithm relies on a helper class to perform the actual layout.
 // This helper class is a subclass of vtkCirclePackLayoutStrategy.
 //
-// WARNING: A size array must be in the input vtkTree that specifies the size
-// for each vertex in the vtkTree.  The default name for this array is "size".
+// An array by default called "size" can be attached to the input tree
+// that specifies the size of each leaf node in the tree.  The filter will
+// calculate the sizes of all interior nodes in the tree based on the sum
+// of the leaf node sizes.  If no "size" array is given in the input vtkTree, 
+// a size of 1 is used for all leaf nodes to find the size of the interior nodes.
 //
 // .SECTION Thanks
 // Thanks to Thomas Otahal from Sandia National Laboratories
@@ -43,6 +46,9 @@
 #include "vtkTreeAlgorithm.h"
 
 class vtkCirclePackLayoutStrategy;
+class vtkDoubleArray;
+class vtkDataArray;
+class vtkTree;
 
 class VTKINFOVISLAYOUT_EXPORT vtkCirclePackLayout : public vtkTreeAlgorithm
 {
@@ -56,6 +62,7 @@ public:
     // The field name to use for storing the circles for each vertex.
     // The rectangles are stored in a triple float array
     // (Xcenter, Ycenter, Radius).
+    // Default name is "circles"
     vtkGetStringMacro(CirclesFieldName);
     vtkSetStringMacro(CirclesFieldName);
 
@@ -75,12 +82,12 @@ public:
     // pnt[0] is x, and pnt[1] is y.
     // If cinfo[3] is provided, then (Xcenter, Ycenter, Radius) of the circle
     // containing pnt[2] will be returned.
-    vtkIdType FindVertex(float pnt[2], float *cinfo=0);
+    vtkIdType FindVertex(double pnt[2], double *cinfo=0);
 
     // Description:
     // Return the Xcenter, Ycenter, and Radius of the
     // vertex's bounding circle
-    void GetBoundingCircle(vtkIdType id, float *cinfo);
+    void GetBoundingCircle(vtkIdType id, double *cinfo);
 
     // Description:
     // Get the modification time of the layout algorithm.
@@ -99,6 +106,8 @@ private:
 
     vtkCirclePackLayout(const vtkCirclePackLayout&);  // Not implemented.
     void operator=(const vtkCirclePackLayout&);  // Not implemented.
+    void prepareSizeArray(vtkDoubleArray* mySizeArray,
+                          vtkTree* tree);
 };
 
 #endif

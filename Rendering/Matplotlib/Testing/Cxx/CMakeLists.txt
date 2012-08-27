@@ -11,6 +11,7 @@ if(VTK_DATA_ROOT)
     TestContextMathTextImage.cxx
     TestRenderString.cxx
     TestStringToPath.cxx
+    TestIndexedLookupScalarBar.cxx
     ${GL2PSTests}
     )
 endif()

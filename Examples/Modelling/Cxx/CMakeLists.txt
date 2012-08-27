@@ -1,41 +1,51 @@
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
 PROJECT (Modelling)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK REQUIRED)
-IF(NOT VTK_USE_RENDERING)
-  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires VTK_USE_RENDERING.")
-ENDIF(NOT VTK_USE_RENDERING)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK COMPONENTS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkFiltersCore
+    vtkFiltersGeneral
+    vtkIOXML
+    vtkImagingHybrid
+    vtkRenderingCore
+    vtkRenderingOpenGL
+    vtkInteractionStyle
+)
+  include(${VTK_USE_FILE})
+endif()
 
-ADD_EXECUTABLE(finance finance.cxx)
-TARGET_LINK_LIBRARIES(finance vtkRendering)
+add_executable(finance MACOSX_BUNDLE finance.cxx)
+target_link_libraries(finance ${VTK_LIBRARIES})
 
-ADD_EXECUTABLE(Delaunay3D Delaunay3D.cxx)
-TARGET_LINK_LIBRARIES(Delaunay3D vtkHybrid)
+add_executable(Delaunay3D MACOSX_BUNDLE Delaunay3D.cxx)
+target_link_libraries(Delaunay3D ${VTK_LIBRARIES})
 
-ADD_EXECUTABLE(Delaunay3DAlpha Delaunay3DAlpha.cxx)
-TARGET_LINK_LIBRARIES(Delaunay3DAlpha vtkHybrid)
+add_executable(Delaunay3DAlpha MACOSX_BUNDLE Delaunay3DAlpha.cxx)
+target_link_libraries(Delaunay3DAlpha ${VTK_LIBRARIES})
 
+if(vtkTestingRendering_SOURCE_DIR)
 ######## Regression Testing ########
-SET(KIT ModellingExamples)
-SET(MyTests TestFinance.cxx TestDelaunay3D.cxx TestDelaunay3DAlpha.cxx)
+set(KIT ModellingExamples)
+set(MyTests TestFinance.cxx TestDelaunay3D.cxx TestDelaunay3DAlpha.cxx)
 
-INCLUDE(vtkTestingObjectFactory)
+include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
 
-ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
-               ${MyTests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkWidgets)
+add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
+target_link_LIBRARIES(${KIT}CxxTests ${VTK_LIBRARIES})
 
-IF (VTK_DATA_ROOT)
-ADD_TEST(${KIT}-Finance ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
-         TestFinance ${VTK_DATA_ROOT}/Data/financial.txt)
-ADD_TEST(${KIT}-Delaunay3D ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
-         TestDelaunay3D
-           ${VTK_DATA_ROOT}/Data/cow.vtp
-           ${VTK_TEST_OUTPUT_DIR}/Delaunay3D.vtu)
-ADD_TEST(${KIT}-Delaunay3DAlpa ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
-         TestDelaunay3DAlpha
-           .5 ${VTK_DATA_ROOT}/Data/cow.vtp
-           ${VTK_TEST_OUTPUT_DIR}/Delaunay3DAlpha.vtu)
-ENDIF (VTK_DATA_ROOT)
+  if (VTK_DATA_ROOT)
+  add_test(NAME ${KIT}-Finance COMMAND ${KIT}CxxTests
+           TestFinance ${VTK_DATA_ROOT}/Data/financial.txt)
+  add_test(NAME ${KIT}-Delaunay3D COMMAND ${KIT}CxxTests
+           TestDelaunay3D
+             ${VTK_DATA_ROOT}/Data/cow.vtp
+             ${VTK_TEST_OUTPUT_DIR}/Delaunay3D.vtu)
+  add_test(NAME ${KIT}-Delaunay3DAlpa COMMAND ${KIT}CxxTests
+           TestDelaunay3DAlpha
+             .5 ${VTK_DATA_ROOT}/Data/cow.vtp
+             ${VTK_TEST_OUTPUT_DIR}/Delaunay3DAlpha.vtu)
+  endif()
+endif()

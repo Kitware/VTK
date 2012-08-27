@@ -28,7 +28,7 @@
 
 #include <cstdlib>
 
-int TestExecutionTimer( int argc, char* argv[] )
+int TestExecutionTimer( int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
 {
   vtkPoints *newPts = vtkPoints::New();
   newPts->InsertNextPoint(  1.5026018771810041,  1.5026019428618222, 0.0 );
@@ -48,7 +48,6 @@ int TestExecutionTimer( int argc, char* argv[] )
   newPts->InsertNextPoint( -12.639533085855469, -12.639534341563573, 0.0 );
   newPts->InsertNextPoint(  12.639533789072001, -12.639533638347073, 0.0 );
 
-  vtkIdType inNumPts = newPts->GetNumberOfPoints();
   vtkPolyData *pointCloud = vtkPolyData::New();
   pointCloud->SetPoints(newPts);
   newPts->Delete();

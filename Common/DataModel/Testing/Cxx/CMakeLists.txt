@@ -33,6 +33,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestPlane.cxx
   TestStructuredData.cxx
   TestDataObjectTypes.cxx
+  TestCategoricalColors.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 

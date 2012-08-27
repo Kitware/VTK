@@ -20,6 +20,19 @@
 // insertion of color values, or by specifying  hue, saturation, value, and
 // alpha range and generating a table.
 //
+// This class behaves differently depending on how \a IndexedLookup is set.
+// When true, vtkLookupTable enters a mode for representing categorical color maps.
+// By setting \a IndexedLookup to true, you indicate that the annotated
+// values are the only valid values for which entries in the color table
+// should be returned. The colors in the lookup \a Table are assigned
+// to annotated values by taking the modulus of their index in the list
+// of annotations. \a IndexedLookup changes the behavior of \a GetIndex,
+// which in turn changes the way \a MapScalarsThroughTable2 behaves;
+// when \a IndexedLookup is true, \a MapScalarsThroughTable2 will search for
+// scalar values in \a AnnotatedValues and use the resulting index to
+// determine the color. If a scalar value is not present in \a AnnotatedValues,
+// then \a NanColor will be used.
+//
 // .SECTION Caveats
 // You need to explicitly call Build() when constructing the LUT by hand.
 //
@@ -101,6 +114,8 @@ public:
   // values less than minimum range value are clamped to minimum range value.
   // Scalar values greater than maximum range value are clamped to maximum
   // range value.
+  //
+  // The \a TableRange values are only used when \a IndexedLookup is false.
   void SetTableRange(double r[2]);
   virtual void SetTableRange(double min, double max);
   vtkGetVectorMacro(TableRange,double,2);
@@ -136,8 +151,12 @@ public:
   vtkGetVector4Macro(NanColor, double);
 
   // Description:
+  // Return the \a NanColor as a pointer to 4 unsigned chars. This will overwrite any data returned by previous calls to MapValue.
+  unsigned char* GetNanColorAsUnsignedChars();
+
+  // Description:
   // Map one value through the lookup table.
-  unsigned char *MapValue(double v);
+  unsigned char* MapValue(double v);
 
   // Description:
   // Map one value through the lookup table and return the color as
@@ -151,6 +170,11 @@ public:
 
   // Description:
   // Return the table index associated with a particular value.
+  //
+  // Do not use this function when \a IndexedLookup is true:
+  // in that case, the set of values \a v may take on is exactly the integers
+  // from 0 to \a GetNumberOfTableValues() - 1;
+  // and \a v serves directly as an index into \a TableValues.
   virtual vtkIdType GetIndex(double v);
 
   // Description:
@@ -268,6 +292,7 @@ protected:
   vtkTimeStamp InsertTime;
   vtkTimeStamp BuildTime;
   double RGBA[4]; //used during conversion process
+  unsigned char NanColorChar[4];
 
   int OpaqueFlag;
   vtkTimeStamp OpaqueFlagBuildTime;

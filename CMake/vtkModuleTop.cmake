@@ -302,8 +302,31 @@ configure_file(CMake/VTKConfigVersion.cmake.in VTKConfigVersion.cmake @ONLY)
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKConfig.cmake
                 ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
-                CMake/vtkModuleAPI.cmake
+                CMake/exportheader.cmake.in
+                CMake/GenerateExportHeader.cmake
+                CMake/pythonmodules.h.in
                 CMake/UseVTK.cmake
+                CMake/vtk-forward.c.in
+                CMake/vtkForwardingExecutable.cmake
+                CMake/vtkJavaWrapping.cmake
+                CMake/vtkModuleAPI.cmake
+                CMake/vtkModuleClasses.cmake.in
+                CMake/vtkModuleInfo.cmake.in
+                CMake/vtkModuleMacros.cmake
+                CMake/vtkObjectFactory.cxx.in
+                CMake/vtkObjectFactory.h.in
+                CMake/vtkPythonWrapping.cmake
+                CMake/vtkTclWrapping.cmake
+                CMake/vtkThirdParty.cmake
+                CMake/vtkWrapHierarchy.cmake
+                CMake/vtkWrapJava.cmake
+                CMake/vtkWrapperInit.data.in
+                CMake/vtkWrapping.cmake
+                CMake/vtkWrapPython.cmake
+                CMake/vtkWrapPythonSIP.cmake
+                CMake/vtkWrapPython.sip.in
+                CMake/vtkWrapTcl.cmake
+
     DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
   get_property(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)
   if(VTK_TARGETS)

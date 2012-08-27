@@ -114,8 +114,8 @@ int vtkOggTheoraWriterInternal::Start()
   th_info thInfo;
   th_info_init(&thInfo);
   // frame_width and frame_height must be multiples of 16
-  thInfo.frame_width = this->Dim[0]+15&~0xF;
-  thInfo.frame_height = this->Dim[1]+15&~0xF;
+  thInfo.frame_width = (this->Dim[0]+15)&~0xF;
+  thInfo.frame_height = (this->Dim[1]+15)&~0xF;
   thInfo.pic_width = this->Dim[0];
   thInfo.pic_height = this->Dim[1];
   // force even offsets of the picture within the frame
@@ -297,7 +297,7 @@ int vtkOggTheoraWriterInternal::EncodeFrame(th_ycbcr_buffer, int lastFrame)
   ogg_packet oggPacket;
   ogg_page   oggPage;
   int ret;
-  while (ret=th_encode_packetout(this->thEncContext,lastFrame,&oggPacket))
+  while ((ret=th_encode_packetout(this->thEncContext,lastFrame,&oggPacket)))
     {
     if(ret<0)
       {
@@ -391,7 +391,7 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData *id,
        isYCPlane = true; // y-flipping
   // loop over rows
   size_t x, y, yC;
-  for (y = 0; y < this->Dim[1]; ++y)
+  for (y = 0; y < static_cast<size_t>(this->Dim[1]); ++y)
     {
     if (this->Writer->GetSubsampling())
       {
@@ -417,7 +417,7 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData *id,
         Cr = ycbcr[2].data + yC * strideCr + this->Off[0]/2;
       }
     // loop over columns in row y
-    for (x = 0; x < this->Dim[0]; ++x)
+    for (x = 0; x < static_cast<size_t>(this->Dim[0]); ++x)
       {
       // do the actual transformation
       *Y  = uchar((Kr * rgb[0] + Kg * rgb[1] + Kb *rgb[2]) *ExcurY ) + OffY;

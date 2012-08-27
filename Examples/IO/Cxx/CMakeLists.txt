@@ -1,34 +1,41 @@
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
 PROJECT (IO)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK REQUIRED)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK COMPONENTS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkIOGeometry
+    vtkIOXML
+    vtkRenderingOpenGL
+  )
+  include(${VTK_USE_FILE})
+endif()
 
-ADD_EXECUTABLE(DumpXMLFile DumpXMLFile.cxx)
-TARGET_LINK_LIBRARIES(DumpXMLFile vtkIO vtkGraphics)
+add_executable(DumpXMLFile MACOSX_BUNDLE DumpXMLFile.cxx)
+target_link_libraries(DumpXMLFile ${VTK_LIBRARIES})
 
-ADD_EXECUTABLE(ParticleReader ParticleReader.cxx)
-TARGET_LINK_LIBRARIES(ParticleReader vtkHybrid)
+add_executable(ParticleReader MACOSX_BUNDLE ParticleReader.cxx)
+target_link_libraries(ParticleReader ${VTK_LIBRARIES})
 
+if(vtkTestingRendering_SOURCE_DIR)
 ######## Regression Testing ########
 SET(KIT IOExamples)
 SET(MyTests TestDumpXMLFile.cxx TestParticleReader.cxx)
 
-INCLUDE(vtkTestingObjectFactory)
+include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
 
-ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
-               ${MyTests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkWidgets)
+add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
+target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
 
-IF (VTK_DATA_ROOT)
-ADD_TEST(${KIT}-ParticleReader ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
-         TestParticleReader
-           ${VTK_DATA_ROOT}/Data/golf.csv
-           ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
-ADD_TEST(${KIT}-DumpXMLFile ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
-         TestDumpXMLFile
-           ${VTK_DATA_ROOT}/Data/cow.vtp)
-ENDIF (VTK_DATA_ROOT)
-
+  if (VTK_DATA_ROOT)
+    add_test(NAME ${KIT}-ParticleReader COMMAND ${KIT}CxxTests
+             TestParticleReader
+               ${VTK_DATA_ROOT}/Data/golf.csv
+               ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
+    add_test(NAME ${KIT}-DumpXMLFile COMMAND ${KIT}CxxTests
+             TestDumpXMLFile
+               ${VTK_DATA_ROOT}/Data/cow.vtp)
+  endif()
+endif()

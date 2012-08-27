@@ -10,7 +10,7 @@
 #ifndef _NC_TESTS_H
 #define _NC_TESTS_H
 
-#include <ncconfig.h>
+#include <config.h>
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -26,8 +26,8 @@
 int total_err = 0, err = 0;
 
 /* This is handy for print statements. */
-char *format_name[] = {"", "classic", "64-bit offset", "netCDF-4",
-                       "netCDF-4 classic model"};
+char *format_name[] = {"", "classic", "64-bit offset", "netCDF-4", 
+		       "netCDF-4 classic model"};
 
 /* This macro prints an error message with line number and name of
  * test program. */
@@ -35,7 +35,7 @@ char *format_name[] = {"", "classic", "64-bit offset", "netCDF-4",
 fflush(stdout); /* Make sure our stdout is synced with stderr. */ \
 err++; \
 fprintf(stderr, "Sorry! Unexpected result, %s, line: %d\n", \
-        __FILE__, __LINE__);                                \
+	__FILE__, __LINE__);				    \
 return 2;                                                   \
 } while (0)
 
@@ -44,7 +44,7 @@ return 2;                                                   \
 #define ERR_RET do { \
 fflush(stdout); /* Make sure our stdout is synced with stderr. */ \
 fprintf(stderr, "Sorry! Unexpected result, %s, line: %d\n", \
-        __FILE__, __LINE__);                                \
+	__FILE__, __LINE__);				    \
 return 2;                                                   \
 } while (0)
 

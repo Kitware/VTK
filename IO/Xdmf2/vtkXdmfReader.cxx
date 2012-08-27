@@ -586,5 +586,9 @@ void vtkXdmfReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkGraph* vtkXdmfReader::GetSIL()
 {
-  return this->XdmfDocument->GetActiveDomain()->GetSIL();
+  if(vtkXdmfDomain* domain = this->XdmfDocument->GetActiveDomain())
+    {
+    return domain->GetSIL();
+    }
+  return 0;
 }

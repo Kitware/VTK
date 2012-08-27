@@ -386,7 +386,6 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
     }
   if(port >= -1 && port < this->Algorithm->GetNumberOfOutputPorts())
     {
-    vtkInformation *outInfo = this->GetOutputInformation(port);
     int retval = 1;
     // some streaming filters can request that the pipeline execute multiple
     // times for a single update
@@ -611,7 +610,6 @@ vtkStreamingDemandDrivenPipeline
       // there is output information with a data object.
       vtkInformation* outInfo =
         outInfoVec->GetInformationObject((outputPort >= 0)? outputPort : 0);
-      vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
       // Loop over all input ports.
       for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)

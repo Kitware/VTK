@@ -336,7 +336,7 @@ void vtkOverlappingAMR::GetGlobalAMRBoxWithSpacing(
 
 //----------------------------------------------------------------------------
 void vtkOverlappingAMR::SetCompositeIndex(
-      const unsigned int level, const unsigned int index, const int idx )
+      const unsigned int level, const unsigned int index, const unsigned int idx )
 {
   assert( "pre: level is out-of-bounds" &&
           ( level < this->GetNumberOfLevels() ) );
@@ -1013,7 +1013,7 @@ GetChildren(unsigned int level, unsigned int index)
   // If there is no level map or if the level is the max level
   // there is no children information
   if ((this->LevelMap == NULL) ||
-      (this->LevelMap->GetNumberOfTuples() == (level+1)))
+      (this->LevelMap->GetNumberOfTuples() == static_cast<vtkIdType>(level+1)))
     {
     return NULL;
     }

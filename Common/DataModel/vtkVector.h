@@ -234,7 +234,7 @@ public:
 
   // Description:
   // Return the cross product of this X other.
-  vtkVector3<T> Cross(const vtkVector3& other) const
+  vtkVector3<T> Cross(const vtkVector3<T>& other) const
   {
     vtkVector3<T> res;
     res[0] = this->Data[1] * other.Data[2] - this->Data[2] * other.Data[1];

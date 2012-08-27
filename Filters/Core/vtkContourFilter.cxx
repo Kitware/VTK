@@ -375,6 +375,10 @@ int vtkContourFilter::RequestData(
 
     cgrid = vtkContourGrid::New();
     cgrid->SetInputData(input);
+    // currently vtkContourGrid has a ComputeGradients option
+    // but this doesn't do anything and will soon be deprecated.
+    cgrid->SetComputeNormals(this->ComputeNormals);
+    cgrid->SetComputeScalars(this->ComputeScalars);
     cgrid->SetOutputPointsPrecision(this->OutputPointsPrecision);
     if ( this->Locator )
       {

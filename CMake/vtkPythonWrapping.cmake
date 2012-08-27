@@ -81,6 +81,11 @@ function(_vtk_add_python_module name)
   if (BUILD_SHARED_LIBS)
     add_library(${name} MODULE ${ARGN})
     set_property(TARGET ${name} PROPERTY PREFIX "${PYTHON_MODULE_PREFIX}")
+    if (VTK_INSTALL_PYTHON_USING_CMAKE)
+      # if setup.py is not being used to install python modules, we need to
+      # add install rules for them.
+      vtk_target_install(${name})
+    endif()
     if (WIN32 AND NOT CYGWIN)
       # when building shared on Windows, the python module files need to be
       # named as *.pyd
