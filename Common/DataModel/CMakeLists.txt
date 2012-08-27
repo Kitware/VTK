@@ -179,6 +179,10 @@ set(Module_SRCS
   vtkAbstractElectronicData.cxx
 
   # Header only classes
+  vtkDataArrayDispatcher.h
+  vtkDispatcher.h
+  vtkDispatcher_Private.h
+  vtkDoubleDispatcher.h
   vtkTuple.h
   vtkVector.h
   vtkVectorOperators.h
@@ -241,6 +245,10 @@ set_source_files_properties(
   vtkAtom
   vtkBond
   vtkBoundingBox
+  vtkDataArrayDispatcher
+  vtkDispatcher_Private
+  vtkDispatcher
+  vtkDoubleDispatcher
   vtkMarchingSquaresLineCases
   vtkMarchingCubesTriangleCases
   vtkImageIterator
