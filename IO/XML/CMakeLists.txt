@@ -2,7 +2,6 @@ set(Module_SRCS
   vtkRTXMLPolyDataReader.cxx
   vtkXMLCompositeDataReader.cxx
   vtkXMLCompositeDataWriter.cxx
-  vtkXMLDataParser.cxx
   vtkXMLDataReader.cxx
   vtkXMLDataSetWriter.cxx
   vtkXMLFileReadTester.cxx
@@ -14,13 +13,9 @@ set(Module_SRCS
   vtkXMLHyperOctreeWriter.cxx
   vtkXMLImageDataReader.cxx
   vtkXMLImageDataWriter.cxx
-  vtkXMLMaterial.cxx
-  vtkXMLMaterialParser.cxx
-  vtkXMLMaterialReader.cxx
   vtkXMLMultiBlockDataReader.cxx
   vtkXMLMultiBlockDataWriter.cxx
   vtkXMLMultiGroupDataReader.cxx
-  vtkXMLParser.cxx
   vtkXMLPDataReader.cxx
   vtkXMLPDataSetWriter.cxx
   vtkXMLPDataWriter.cxx
@@ -43,7 +38,6 @@ set(Module_SRCS
   vtkXMLReader.cxx
   vtkXMLRectilinearGridReader.cxx
   vtkXMLRectilinearGridWriter.cxx
-  vtkXMLShader.cxx
   vtkXMLStructuredDataReader.cxx
   vtkXMLStructuredDataWriter.cxx
   vtkXMLStructuredGridReader.cxx
@@ -52,7 +46,6 @@ set(Module_SRCS
   vtkXMLUnstructuredDataWriter.cxx
   vtkXMLUnstructuredGridReader.cxx
   vtkXMLUnstructuredGridWriter.cxx
-  vtkXMLUtilities.cxx
   vtkXMLWriterC.cxx
   vtkXMLWriter.cxx
   )

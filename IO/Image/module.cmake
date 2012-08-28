@@ -1,21 +1,18 @@
-if(NOT "${CMAKE_C_COMPILER_ID}" MATCHES "^XL$")
-  set(vtkIOImage_vtkoggtheora vtkoggtheora)
-endif()
 vtk_module(vtkIOImage
   GROUPS
     StandAlone
   DEPENDS
     vtkCommonDataModel
+    vtkCommonExecutionModel
     vtkCommonSystem
     vtkCommonMath
     vtkCommonMisc
     vtkCommonTransforms
-    vtkIOGeometry
+    vtkIOCore
     vtkjpeg
     vtkpng
     vtktiff
     vtkMetaIO
-    ${vtkIOImage_vtkoggtheora}
     vtkDICOMParser
   TEST_DEPENDS
     vtkTestingCore

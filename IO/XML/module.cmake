@@ -2,12 +2,8 @@ vtk_module(vtkIOXML
   GROUPS
     StandAlone
   DEPENDS
-    vtkCommonDataModel
-    vtkCommonSystem
-    vtkCommonMisc
-    vtkIOCore
+    vtkIOXMLParser
     vtkIOGeometry
-    vtkexpat
   TEST_DEPENDS
     vtkTestingCore
     vtkImagingSources

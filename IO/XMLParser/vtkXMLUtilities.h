@@ -21,12 +21,12 @@
 #ifndef __vtkXMLUtilities_h
 #define __vtkXMLUtilities_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLParserModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkXMLDataElement;
 
-class VTKIOXML_EXPORT vtkXMLUtilities : public vtkObject
+class VTKIOXMLPARSER_EXPORT vtkXMLUtilities : public vtkObject
 {
 public:
   static vtkXMLUtilities* New();

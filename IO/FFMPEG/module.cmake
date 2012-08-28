@@ -1,6 +1,6 @@
 vtk_module(vtkIOFFMPEG
   DEPENDS
-   vtkIOGeometry
+   vtkIOMovie
   TEST_DEPENDS
    vtkTestingCore
    vtkImagingSources

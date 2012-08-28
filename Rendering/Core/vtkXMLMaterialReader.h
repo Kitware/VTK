@@ -41,14 +41,14 @@
 #ifndef __vtkXMLMaterialReader_h
 #define __vtkXMLMaterialReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkXMLDataElement;
 class vtkXMLMaterial;
 class vtkXMLMaterialParser;
 
-class VTKIOXML_EXPORT vtkXMLMaterialReader : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkXMLMaterialReader : public vtkObject
 {
 public:
   vtkTypeMacro(vtkXMLMaterialReader,vtkObject);

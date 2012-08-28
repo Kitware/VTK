@@ -9,7 +9,9 @@ vtk_module(vtkRenderingCore
     vtkFiltersGeometry
     vtkFiltersExtraction
     vtkIOImage
-    vtkIOXML
+    vtkIOXMLParser
+  COMPILE_DEPENDS
+    vtkUtilitiesMaterialLibrary
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
