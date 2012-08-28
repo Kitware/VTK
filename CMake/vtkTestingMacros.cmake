@@ -169,9 +169,13 @@ macro(add_test_python)
     if(VTK_DATA_ROOT AND NOT ARGV1)
       add_test(NAME ${vtk-module}Python-${TName}
         COMMAND ${VTK_PYTHON_EXE}
+        ${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
         ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
         -D ${VTK_DATA_ROOT}
-        -B ${VTK_DATA_ROOT}/Baseline/${ARGV1})
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -V Baseline/${ARGV1}/${TName}.png
+        -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py"
+        -A "${VTK_LIBRARY_DIR}")
     else()
       add_test(NAME ${vtk-module}Python-${TName}
         COMMAND ${VTK_PYTHON_EXE}
