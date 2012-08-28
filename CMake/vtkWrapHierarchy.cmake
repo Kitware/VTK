@@ -119,7 +119,11 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   # search through the deps to find modules we depend on
   set(OTHER_HIERARCHY_FILES)
   set(OTHER_HIERARCHY_TARGETS)
-  foreach(dep ${${vtk-module}_DEPENDS})
+  # Don't use ${vtk-module}_DEPENDS. That list also includes COMPILE_DEPENDS,
+  # which aren't library dependencies, merely dependencies for generators and
+  # such. The dependecies specified under "DEPENDS" in the vtk_module(..) macro
+  # call are located under _LINK_DEPENDS.
+  foreach(dep ${${vtk-module}_LINK_DEPENDS})
     if(NOT "${vtk-module}" STREQUAL "${dep}")
       if(NOT ${dep}_EXCLUDE_FROM_WRAPPING AND DEFINED ${dep}_BINARY_DIR)
         list(APPEND OTHER_HIERARCHY_FILES
