@@ -50,7 +50,7 @@ separate_arguments(VTK_MPI_PRENUMPROC_FLAGS)
 separate_arguments(VTK_MPI_PREFLAGS)
 separate_arguments(VTK_MPI_POSTFLAGS)
 
-include(vtkTestingMacrosMPI)
+include(vtkTestingMacros)
 # ----------------------------------------------------- MPI-Testing-Support-END
 # =============================================================================
 
