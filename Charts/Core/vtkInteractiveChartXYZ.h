@@ -105,7 +105,6 @@ protected:
   void LookUpY();
   void LookUpZ();
   void UpdateClippedPoints();
-  void Rescale();
   void ScaleUpAxes();
   void ScaleDownAxes();
   void ZoomAxes(int delta);
@@ -133,12 +132,8 @@ protected:
   vtkNew<vtkMatrix4x4> Modelview;
 
   double MaxDistance;
-
   int SceneHeight;
   int SceneWidth;
-
-  bool DoneScalingUp;
-  bool DoneScalingDown;
 
 private:
   vtkInteractiveChartXYZ(const vtkInteractiveChartXYZ &);    // Not implemented.

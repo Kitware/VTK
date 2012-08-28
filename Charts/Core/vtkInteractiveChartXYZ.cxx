@@ -51,6 +51,20 @@ using std::vector;
 
 vtkStandardNewMacro(vtkInteractiveChartXYZ)
 
+vtkInteractiveChartXYZ::vtkInteractiveChartXYZ()
+{
+  this->Translation->Identity();
+  this->Translation->PostMultiply();
+  this->Scale->Identity();
+  this->Scale->PostMultiply();
+  this->Interactive = true;
+  this->NumberOfComponents = 0;
+}
+
+vtkInteractiveChartXYZ::~vtkInteractiveChartXYZ()
+{
+}
+
 void vtkInteractiveChartXYZ::PrintSelf(ostream &os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
@@ -198,8 +212,6 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
     // hack to avoid moving axes on initial render
     if (this->SceneWidth > 0)
       {
-      this->DoneScalingUp = false;
-      this->DoneScalingDown = false;
       int dx = (currentWidth - this->SceneWidth) / 2;
       int dy = (currentHeight - this->SceneHeight) / 2;
 
@@ -221,21 +233,22 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
       axes[1]->SetPoint2(axisPt);
       axisPt = axes[2]->GetPosition1();
       axisPt[0] += dx;
-      //axisPt[1] += dy;
       axes[2]->SetPoint1(axisPt);
       axisPt = axes[2]->GetPosition2();
       axisPt[0] += dx;
-      //axisPt[1] += dy;
       axes[2]->SetPoint2(axisPt);
       this->RecalculateTransform();
       }
+    if (currentWidth * currentHeight < this->SceneWidth * this->SceneHeight)
+      {
+      this->ScaleDownAxes();
+      }
+    else
+      {
+      this->ScaleUpAxes();
+      }
     this->SceneWidth = currentWidth;
     this->SceneHeight = currentHeight;
-    }
-
-  if (!this->DoneScalingUp || !this->DoneScalingDown)
-    {
-    this->Rescale();
     }
 
   return true;
@@ -328,22 +341,6 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName
     this->Colors->InsertNextTupleValue(&constRGB[1]);
     this->Colors->InsertNextTupleValue(&constRGB[2]);
     }
-}
-
-vtkInteractiveChartXYZ::vtkInteractiveChartXYZ()
-{
-  this->Translation->Identity();
-  this->Translation->PostMultiply();
-  this->Scale->Identity();
-  this->Scale->PostMultiply();
-  this->Interactive = true;
-  this->NumberOfComponents = 0;
-  this->DoneScalingUp = false;
-  this->DoneScalingDown = false;
-}
-
-vtkInteractiveChartXYZ::~vtkInteractiveChartXYZ()
-{
 }
 
 //-----------------------------------------------------------------------------
@@ -724,18 +721,6 @@ bool vtkInteractiveChartXYZ::PointShouldBeClipped(vtkVector3f point)
   return false;
 }
 
-void vtkInteractiveChartXYZ::Rescale()
-{
-  if (!this->DoneScalingUp)
-    {
-    this->ScaleUpAxes();
-    }
-  else if (!this->DoneScalingDown)
-    {
-    this->ScaleDownAxes();
-    }
-}
-
 void vtkInteractiveChartXYZ::ScaleUpAxes()
 {
   float points[8][2] =
@@ -753,28 +738,37 @@ void vtkInteractiveChartXYZ::ScaleUpAxes()
   int sceneWidth = this->Scene->GetSceneWidth();
   int sceneHeight = this->Scene->GetSceneHeight();
 
+  vtkNew<vtkTransform> sceneToScreen;
+  sceneToScreen->SetMatrix(this->Modelview.GetPointer());
+  float scaleStep = pow(2.0f, 1.0f/10.0f);
   bool shouldScaleUp = true;
-  for (int i = 0; i < 7; ++i)
+  int numSteps = 0;
+
+  while (shouldScaleUp)
     {
-    point[0] = points[i][0];
-    point[1] = points[i][1];
-    point[2] = 1;
-    point[3] = 1;
-    this->Modelview->MultiplyPoint(point, point);
-    if (point[0] < 0 || point[0] > sceneWidth ||
-        point[1] < 0 || point[1] > sceneHeight)
+    for (int i = 0; i < 7; ++i)
       {
-      shouldScaleUp = false;
+      point[0] = points[i][0];
+      point[1] = points[i][1];
+      point[2] = 1;
+      point[3] = 1;
+      sceneToScreen->TransformPoint(point, point);
+      if (point[0] < 0 || point[0] > sceneWidth ||
+          point[1] < 0 || point[1] > sceneHeight)
+        {
+        shouldScaleUp = false;
+        }
+      }
+    if (shouldScaleUp)
+      {
+      sceneToScreen->Scale(scaleStep, scaleStep, scaleStep);
+      ++numSteps;
       }
     }
-  if (shouldScaleUp)
+  if (numSteps > 1)
     {
-    this->ZoomAxes(1);
-    this->Scene->SetDirty(true);
-    }
-  else
-    {
-    this->DoneScalingUp = true;
+      this->ZoomAxes(numSteps - 1);
+      this->Scene->SetDirty(true);
     }
 }
 
@@ -795,20 +789,37 @@ void vtkInteractiveChartXYZ::ScaleDownAxes()
   int sceneWidth = this->Scene->GetSceneWidth();
   int sceneHeight = this->Scene->GetSceneHeight();
 
-  for (int i = 0; i < 7; ++i)
+  vtkNew<vtkTransform> sceneToScreen;
+  sceneToScreen->SetMatrix(this->Modelview.GetPointer());
+  float scaleStep = pow(2.0f, -1.0f/10.0f);
+  bool shouldScaleDown = true;
+  int numSteps = 0;
+
+  while (shouldScaleDown)
     {
-    point[0] = points[i][0];
-    point[1] = points[i][1];
-    point[2] = 1;
-    point[3] = 1;
-    this->Modelview->MultiplyPoint(point, point);
-    if (point[0] < 0 || point[0] > sceneWidth ||
-        point[1] < 0 || point[1] > sceneHeight)
+    shouldScaleDown = false;
+    for (int i = 0; i < 7; ++i)
       {
-      this->ZoomAxes(-1);
-      this->Scene->SetDirty(true);
-      return;
+      point[0] = points[i][0];
+      point[1] = points[i][1];
+      point[2] = 1;
+      point[3] = 1;
+      sceneToScreen->TransformPoint(point, point);
+      if (point[0] < 0 || point[0] > sceneWidth ||
+          point[1] < 0 || point[1] > sceneHeight)
+        {
+        shouldScaleDown = true;
+        }
+      }
+    if (shouldScaleDown)
+      {
+      sceneToScreen->Scale(scaleStep, scaleStep, scaleStep);
+      ++numSteps;
       }
     }
-  this->DoneScalingDown = true;
+  if (numSteps > 0)
+    {
+      this->ZoomAxes(-numSteps);
+      this->Scene->SetDirty(true);
+    }
 }
