@@ -174,11 +174,10 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   float yLabelPos[4] = { 0 - bounds[3], 0.5, 0, 1};
   float zLabelPos[4] = { 0, 0, 0.5, 1};
 
-  vtkNew<vtkMatrix4x4> modelview;
-  context->GetDevice()->GetMatrix(modelview.GetPointer());
-  modelview->MultiplyPoint(xLabelPos, xLabelPos);
-  modelview->MultiplyPoint(yLabelPos, yLabelPos);
-  modelview->MultiplyPoint(zLabelPos, zLabelPos);
+  context->GetDevice()->GetMatrix(this->Modelview.GetPointer());
+  this->Modelview->MultiplyPoint(xLabelPos, xLabelPos);
+  this->Modelview->MultiplyPoint(yLabelPos, yLabelPos);
+  this->Modelview->MultiplyPoint(zLabelPos, zLabelPos);
 
   context->PopMatrix();
 
@@ -189,6 +188,55 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   textProperties->SetOrientation(90);
   painter->ApplyTextProp(textProperties.GetPointer());
   painter->DrawString(yLabelPos[0], yLabelPos[1], this->YAxisLabel);
+
+  // Rescale axes so it fits our scene nicely
+  int currentWidth = this->Scene->GetSceneWidth();
+  int currentHeight = this->Scene->GetSceneHeight();
+  if (this->SceneWidth != currentWidth ||
+      this->SceneHeight != currentHeight)
+    {
+    // hack to avoid moving axes on initial render
+    if (this->SceneWidth > 0)
+      {
+      this->DoneScalingUp = false;
+      this->DoneScalingDown = false;
+      int dx = (currentWidth - this->SceneWidth) / 2;
+      int dy = (currentHeight - this->SceneHeight) / 2;
+
+      vtkVector2f axisPt = axes[0]->GetPosition1();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      axes[0]->SetPoint1(axisPt);
+      axisPt = axes[0]->GetPosition2();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      axes[0]->SetPoint2(axisPt);
+      axisPt = axes[1]->GetPosition1();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      axes[1]->SetPoint1(axisPt);
+      axisPt = axes[1]->GetPosition2();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      axes[1]->SetPoint2(axisPt);
+      axisPt = axes[2]->GetPosition1();
+      axisPt[0] += dx;
+      //axisPt[1] += dy;
+      axes[2]->SetPoint1(axisPt);
+      axisPt = axes[2]->GetPosition2();
+      axisPt[0] += dx;
+      //axisPt[1] += dy;
+      axes[2]->SetPoint2(axisPt);
+      this->RecalculateTransform();
+      }
+    this->SceneWidth = currentWidth;
+    this->SceneHeight = currentHeight;
+    }
+
+  if (!this->DoneScalingUp || !this->DoneScalingDown)
+    {
+    this->Rescale();
+    }
 
   return true;
 }
@@ -222,6 +270,13 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName
   this->XAxisLabel = xName;
   this->YAxisLabel = yName;
   this->ZAxisLabel = zName;
+}
+
+void vtkInteractiveChartXYZ::SetScene(vtkContextScene *scene)
+{
+  this->Superclass::SetScene(scene);
+  this->SceneWidth = this->Scene->GetSceneWidth();
+  this->SceneHeight = this->Scene->GetSceneHeight();
 }
 
 void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
@@ -283,6 +338,8 @@ vtkInteractiveChartXYZ::vtkInteractiveChartXYZ()
   this->Scale->PostMultiply();
   this->Interactive = true;
   this->NumberOfComponents = 0;
+  this->DoneScalingUp = false;
+  this->DoneScalingDown = false;
 }
 
 vtkInteractiveChartXYZ::~vtkInteractiveChartXYZ()
@@ -336,7 +393,8 @@ bool vtkInteractiveChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta)
+bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse,
+                                             int delta)
 {
   // Ten "wheels" to double/halve zoom level
   float scaling = pow(2.0f, delta/10.0f);
@@ -347,6 +405,16 @@ bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse, 
 
   this->InvokeEvent(vtkCommand::InteractionEvent);
   return true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkInteractiveChartXYZ::ZoomAxes(int delta)
+{
+  float scaling = pow(2.0f, delta/10.0f);
+  this->BoxScale->Scale(scaling, scaling, scaling);
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -525,8 +593,8 @@ void vtkInteractiveChartXYZ::LookUpZ()
 
 void vtkInteractiveChartXYZ::CalculateTransforms()
 {
-  // First the rotation transform...
-  // Calculate the correct translation vector before the rotation is applied
+  // Calculate the correct translation vector so that rotation and scale
+  // are applied about the middle of the axes box.
   vtkVector3f translation(
         (axes[0]->GetPosition2()[0] - axes[0]->GetPosition1()[0]) / 2.0
         + axes[0]->GetPosition1()[0],
@@ -540,11 +608,15 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->ContextTransform->Concatenate(this->Translation.GetPointer());
   this->ContextTransform->Translate(translation.GetData());
   this->ContextTransform->Concatenate(this->Rotation.GetPointer());
+  this->ContextTransform->Concatenate(this->BoxScale.GetPointer());
   this->ContextTransform->Concatenate(this->Scale.GetPointer());
   this->ContextTransform->Translate(mtranslation.GetData());
+  this->ContextTransform->Translate(axes[0]->GetPosition1()[0] - this->Geometry.X(),
+                                    axes[1]->GetPosition1()[1] - this->Geometry.Y(),
+                                    axes[2]->GetPosition1()[1]);
   this->ContextTransform->Concatenate(this->Transform.GetPointer());
 
-  // Next the box rotation transform.
+  // Next construct the transform for the box axes.
   double scale[3] = { 300, 300, 300 };
   for (int i = 0; i < 3; ++i)
     {
@@ -558,13 +630,12 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->Box->PostMultiply();
   this->Box->Translate(-0.5, -0.5, -0.5);
   this->Box->Concatenate(this->Rotation.GetPointer());
-  //this->Box->Concatenate(this->Scale.GetPointer());
+  this->Box->Concatenate(this->BoxScale.GetPointer());
   this->Box->Translate(0.5, 0.5, 0.5);
   this->Box->Scale(scale);
   this->Box->Translate(axes[0]->GetPosition1()[0],
                        axes[1]->GetPosition1()[1],
                        axes[2]->GetPosition1()[1]);
-  //this->Box->Concatenate(this->Translation.GetPointer());
 
   // setup clipping planes
   vtkVector3d cube[8];
@@ -651,4 +722,93 @@ bool vtkInteractiveChartXYZ::PointShouldBeClipped(vtkVector3f point)
     return true;
     }
   return false;
+}
+
+void vtkInteractiveChartXYZ::Rescale()
+{
+  if (!this->DoneScalingUp)
+    {
+    this->ScaleUpAxes();
+    }
+  else if (!this->DoneScalingDown)
+    {
+    this->ScaleDownAxes();
+    }
+}
+
+void vtkInteractiveChartXYZ::ScaleUpAxes()
+{
+  float points[8][2] =
+    {
+      {0,    0},
+      {1,    0},
+      {0,    1},
+      {1,    1},
+      {-0.5, 0.5},
+      {0.5,  -0.5},
+      {1.5,  0.5},
+      {0.5,  1.5}
+    };
+  float point[4];
+  int sceneWidth = this->Scene->GetSceneWidth();
+  int sceneHeight = this->Scene->GetSceneHeight();
+
+  bool shouldScaleUp = true;
+  for (int i = 0; i < 7; ++i)
+    {
+    point[0] = points[i][0];
+    point[1] = points[i][1];
+    point[2] = 1;
+    point[3] = 1;
+    this->Modelview->MultiplyPoint(point, point);
+    if (point[0] < 0 || point[0] > sceneWidth ||
+        point[1] < 0 || point[1] > sceneHeight)
+      {
+      shouldScaleUp = false;
+      }
+    }
+  if (shouldScaleUp)
+    {
+    this->ZoomAxes(1);
+    this->Scene->SetDirty(true);
+    }
+  else
+    {
+    this->DoneScalingUp = true;
+    }
+}
+
+void vtkInteractiveChartXYZ::ScaleDownAxes()
+{
+  float points[8][2] =
+    {
+      {0,    0},
+      {1,    0},
+      {0,    1},
+      {1,    1},
+      {-0.5, 0.5},
+      {0.5,  -0.5},
+      {1.5,  0.5},
+      {0.5,  1.5}
+    };
+  float point[4];
+  int sceneWidth = this->Scene->GetSceneWidth();
+  int sceneHeight = this->Scene->GetSceneHeight();
+
+  for (int i = 0; i < 7; ++i)
+    {
+    point[0] = points[i][0];
+    point[1] = points[i][1];
+    point[2] = 1;
+    point[3] = 1;
+    this->Modelview->MultiplyPoint(point, point);
+    if (point[0] < 0 || point[0] > sceneWidth ||
+        point[1] < 0 || point[1] > sceneHeight)
+      {
+      this->ZoomAxes(-1);
+      this->Scene->SetDirty(true);
+      return;
+      }
+    }
+  this->DoneScalingDown = true;
 }

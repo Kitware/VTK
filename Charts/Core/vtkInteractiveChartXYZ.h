@@ -29,6 +29,7 @@
 class vtkAnnotationLink;
 class vtkAxis;
 class vtkContextMouseEvent;
+class vtkMatrix4x4;
 class vtkPen;
 class vtkPlane;
 class vtkPlot;
@@ -87,6 +88,8 @@ public:
 
   bool PointShouldBeClipped(vtkVector3f point);
 
+  virtual void SetScene(vtkContextScene *scene);
+
 protected:
   vtkInteractiveChartXYZ();
   ~vtkInteractiveChartXYZ();
@@ -102,9 +105,14 @@ protected:
   void LookUpY();
   void LookUpZ();
   void UpdateClippedPoints();
+  void Rescale();
+  void ScaleUpAxes();
+  void ScaleDownAxes();
+  void ZoomAxes(int delta);
 
   vtkNew<vtkTransform> Translation;
   vtkNew<vtkTransform> Scale;
+  vtkNew<vtkTransform> BoxScale;
   vtkNew<vtkUnsignedCharArray> Colors;
   vtkNew<vtkUnsignedCharArray> ClippedColors;
   int NumberOfComponents;
@@ -122,7 +130,15 @@ protected:
   vtkNew<vtkPlane> Face5;
   vtkNew<vtkPlane> Face6;
 
+  vtkNew<vtkMatrix4x4> Modelview;
+
   double MaxDistance;
+
+  int SceneHeight;
+  int SceneWidth;
+
+  bool DoneScalingUp;
+  bool DoneScalingDown;
 
 private:
   vtkInteractiveChartXYZ(const vtkInteractiveChartXYZ &);    // Not implemented.
