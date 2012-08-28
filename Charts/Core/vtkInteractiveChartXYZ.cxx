@@ -433,8 +433,8 @@ bool vtkInteractiveChartXYZ::Rotate(const vtkContextMouseEvent &mouse)
   double rxf = dx * delta_azimuth * 10.0;
   double ryf = dy * delta_elevation * 10.0;
 
-  this->Rotation->RotateY(-rxf);
-  this->Rotation->RotateX(ryf);
+  this->Rotation->RotateY(rxf);
+  this->Rotation->RotateX(-ryf);
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
