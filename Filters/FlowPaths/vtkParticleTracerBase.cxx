@@ -255,13 +255,9 @@ int vtkParticleTracerBase::RequestInformation(
     this->InputTimeValues.resize(numberOfInputTimeSteps);
     inInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
       &this->InputTimeValues[0] );
-    if (numberOfInputTimeSteps==1)
+    if (numberOfInputTimeSteps==1 && this->DisableResetCache==0) //warning would be skipped in coprocessing work flow
       {
-      if(this->DisableResetCache==0) //warning would be skipped in coprocessing work flow
-        {
-        vtkWarningMacro(<<"Not enough input time steps for particle integration");
-        }
-      return 1;
+      vtkWarningMacro(<<"Not enough input time steps for particle integration");
       }
   }
   else
@@ -293,15 +289,6 @@ int vtkParticleTracerBase::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  if (this->InputTimeValues.size()<=1)
-    {
-    if(this->DisableResetCache==0) //warning would be skipped in coprocessing work flow
-      {
-      vtkWarningMacro(<<"Not enough input time steps for particle integration");
-      }
-    return 1;
-    }
-
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
@@ -312,7 +299,21 @@ int vtkParticleTracerBase::RequestUpdateExtent(
   // do this only for the first time
   if(this->FirstIteration)
     {
-    this->StartTimeStep = FindInterval(StartTime, InputTimeValues);
+    if(this->InputTimeValues.size()==1)
+      {
+      this->StartTimeStep = this->InputTimeValues[0]==this->StartTime? 0 : -1;
+      }
+    else
+      {
+      this->StartTimeStep = FindInterval(this->StartTime, this->InputTimeValues);
+      }
+
+    if(this->StartTimeStep<0)
+      {
+      vtkErrorMacro("Start time not in time range");
+      return 0;
+      }
+
     if (!this->IgnorePipelineTime && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
       {
       double terminationTime = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
@@ -325,7 +326,20 @@ int vtkParticleTracerBase::RequestUpdateExtent(
       this->TerminationTime = this->InputTimeValues.back();
       }
 
-    this->TerminationTimeStep = FindInterval(this->TerminationTime, this->InputTimeValues)+1;
+    if(this->InputTimeValues.size()==1)
+      {
+      this->TerminationTimeStep = this->TerminationTime == this->InputTimeValues[0]? 0 : -1;
+      }
+    else
+      {
+      this->TerminationTimeStep = FindInterval(this->TerminationTime, this->InputTimeValues)+1;
+      }
+
+    if(this->TerminationTimeStep<0)
+      {
+      vtkErrorMacro("Termination time not in time range");
+      return 0;
+      }
 
     for(int i=0; i<this->GetNumberOfInputPorts(); i++)
       {
@@ -352,7 +366,14 @@ int vtkParticleTracerBase::RequestUpdateExtent(
   for (int i=0; i<numInputs; i++)
     {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(i);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->InputTimeValues[this->CurrentTimeStep]);
+    if(this->CurrentTimeStep < static_cast<int>(this->InputTimeValues.size()))
+      {
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->InputTimeValues[this->CurrentTimeStep]);
+      }
+    else
+      {
+      Assert(this->CurrentTime == this->InputTimeValues.back());
+      }
     }
 
   return 1;
@@ -904,7 +925,11 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     {
     this->ReinjectionCounter += 1;
 
-    ParticleListIterator lastParticle = --this->ParticleHistories.end();
+    ParticleListIterator lastParticle = this->ParticleHistories.end();
+    if (!this->ParticleHistories.empty())
+      {
+      lastParticle--;
+      }
     int seedPointId=0;
     this->LocalSeeds.clear();
     for (size_t i=0; i<seedSources.size(); i++)
@@ -914,9 +939,17 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     this->ParticleInjectionTime.Modified();
     this->UpdateParticleList(this->LocalSeeds);
 
-
     ParticleListIterator itr = lastParticle;
-    for(++itr; itr!=this->ParticleHistories.end(); ++itr)
+    if(itr!=this->ParticleHistories.end())
+      {
+      itr++;
+      }
+    else
+      {
+      itr = this->ParticleHistories.begin();
+      }
+
+    for(; itr!=this->ParticleHistories.end(); ++itr)
       {
       ParticleInformation& info(*lastParticle);
       this->Interpolator->TestPoint(info.CurrentPosition.x);
@@ -959,15 +992,6 @@ int vtkParticleTracerBase::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  if (this->InputTimeValues.size()<=1)
-    {
-    if(this->DisableResetCache==0) //warning would be skipped in coprocessing work flow
-      {
-      vtkWarningMacro(<<"Not enough input time steps for particle integration");
-      }
-    return 1;
-    }
-
   PRINT("RD start: "<<this->CurrentTimeStep<<" "<<this->CurrentTime<<" "<<this->StartTimeStep<<" "<<this->TerminationTimeStep);
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);

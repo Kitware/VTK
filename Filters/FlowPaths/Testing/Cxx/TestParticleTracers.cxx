@@ -462,7 +462,9 @@ int TestParticleTracers(int, char*[])
   filter->Update();
   pipeline->SetUpdateTimeStep(0, 200.0); //make sure this doesn't crash
   filter->Update();
-
+  filter->SetIgnorePipelineTime(true);
+  filter->SetTerminationTime(9.0); //make sure this doesn't crash
+  filter->Update();
 
 
   EXPECT(TestParticlePathFilter()==EXIT_SUCCESS,"");
