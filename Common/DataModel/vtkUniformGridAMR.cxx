@@ -85,23 +85,23 @@ vtkCompositeDataIterator* vtkUniformGridAMR::NewIterator()
 //----------------------------------------------------------------------------
 void vtkUniformGridAMR::Initialize()
 {
-  vtkSmartPointer<vtkAMRInformation> amrInfo =vtkSmartPointer<vtkAMRInformation>::New();
-  this->SetAMRInfo(amrInfo);
-  this->AMRData->Initialize();
+  this->Initialize(0,NULL);
+}
 
+//----------------------------------------------------------------------------
+void vtkUniformGridAMR::Initialize(int numLevels, int * blocksPerLevel)
+{
   this->Bounds[0] = VTK_DOUBLE_MAX;
   this->Bounds[1] = VTK_DOUBLE_MIN;
   this->Bounds[2] = VTK_DOUBLE_MAX;
   this->Bounds[3] = VTK_DOUBLE_MIN;
   this->Bounds[4] = VTK_DOUBLE_MAX;
   this->Bounds[5] = VTK_DOUBLE_MIN;
-}
 
-//----------------------------------------------------------------------------
-void vtkUniformGridAMR::Initialize(int numLevels, int * blocksPerLevel)
-{
-  this->Initialize();
+  vtkSmartPointer<vtkAMRInformation> amrInfo =vtkSmartPointer<vtkAMRInformation>::New();
+  this->SetAMRInfo(amrInfo);
   this->AMRInfo->Initialize(numLevels, blocksPerLevel);
+  this->AMRData->Initialize();
 }
 
 //----------------------------------------------------------------------------
@@ -131,6 +131,11 @@ void vtkUniformGridAMR::SetDataSet(
   if(!grid)
     {
     return; //NULL gird, nothing to do
+    }
+  if(level>=this->GetNumberOfLevels() || idx >=this->GetNumberOfDataSets(level))
+    {
+    vtkErrorMacro("Invalid data set index: "<<level<<" "<<idx);
+    return;
     }
 
   this->AMRInfo->SetGridDescription(grid->GetGridDescription());

@@ -191,9 +191,9 @@ bool vtkAMRInformation::IsValid()
 
 void vtkAMRInformation::Initialize(int numLevels,  int* blocksPerLevel)
 {
-  if(numLevels<=0)
+  if(numLevels<0)
     {
-    vtkErrorMacro("Number of levels must be at least 1: "<<numLevels);
+    vtkErrorMacro("Number of levels must be at least 0: "<<numLevels);
     return;
     }
   // allocate boxes

@@ -166,7 +166,6 @@ vtkHierarchicalBoxDataSet* GetAMRDataSet()
   data->SetDataSet( level, blockId,grid3);
   grid3->Delete();
 
-  vtkAMRUtilities::GenerateMetaData( data, NULL );
   data->GenerateVisibilityArrays();
   return( data );
 }
