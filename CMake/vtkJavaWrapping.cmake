@@ -62,7 +62,7 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
     endif()
   endif()
 
-  foreach(dep ${${module_name}_DEPENDS})
+  foreach(dep ${${module_name}_LINK_DEPENDS})
     if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
       target_link_libraries(${module_name}Java ${dep}Java)
     endif()
