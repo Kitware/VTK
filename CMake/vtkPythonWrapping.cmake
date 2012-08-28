@@ -28,7 +28,7 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
   set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})
 
   # Figure out the dependent PythonXYD libraries for the module
-  foreach(dep ${${vtk-module}_DEPENDS})
+  foreach(dep ${${vtk-module}_LINK_DEPENDS})
     if(NOT "${vtk-module}" STREQUAL "${dep}")
       if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
         list(APPEND extra_links ${dep}PythonD)
