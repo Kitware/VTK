@@ -152,6 +152,7 @@ private:
 //==============================================================================
 // INLINE METHODS
 //==============================================================================
+VTKFILTERSAMR_EXPORT
 inline double vtkAMRGaussianPulseSource::ComputePulseAt(double pt[3])
 {
   double pulse = 0.0;
