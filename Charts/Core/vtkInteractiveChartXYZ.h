@@ -105,15 +105,18 @@ protected:
   void LookUpY();
   void LookUpZ();
   void UpdateClippedPoints();
+  bool CheckForSceneResize();
+  void RescaleAxes();
   void ScaleUpAxes();
   void ScaleDownAxes();
   void ZoomAxes(int delta);
-  void CheckForSceneResize();
   void InitializeSpherePoints();
+  void UpdateFutureModelview(float scaleStep);
 
   vtkNew<vtkTransform> Translation;
   vtkNew<vtkTransform> Scale;
   vtkNew<vtkTransform> BoxScale;
+  vtkNew<vtkMatrix4x4> FutureModelview;
   vtkNew<vtkUnsignedCharArray> Colors;
   vtkNew<vtkUnsignedCharArray> ClippedColors;
   int NumberOfComponents;
