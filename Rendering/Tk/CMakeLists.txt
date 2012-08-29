@@ -1,6 +1,10 @@
 vtk_module_export_info()
 
-#if(TK_FOUND AND VTK_USE_TK AND Module_vtkRenderingTk)
+# The cmake code to find the libs is in vtkWrapTcl
+set(VTK_WRAP_TCL_FIND_LIBS 1)
+include(vtkWrapTcl)
+
+if(TK_FOUND AND VTK_USE_TK)
 
   set(HAVE_LIMITS_H ${CMAKE_HAVE_LIMITS_H})
   set(HAVE_UNISTD_H ${CMAKE_HAVE_UNISTD_H})
@@ -10,7 +14,7 @@ vtk_module_export_info()
   if(NOT VTK_INSTALL_NO_DEVELOPMENT)
     install(FILES
       ${CMAKE_CURRENT_BINARY_DIR}/vtkTkInternals.h
-      DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+      DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
       COMPONENT Development
       )
   endif()
@@ -25,7 +29,7 @@ vtk_module_export_info()
     set(try_file "tkMacOSXDefault.h")
     GET_FILENAME_COMPONENT(TK_INCLUDE_PATH_PARENT "${TK_INCLUDE_PATH}" PATH)
     set(try_paths "${TK_INCLUDE_PATH_PARENT}/PrivateHeaders")
-  endif ()
+  endif()
   if(try_file)
     VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
     set(TCL_TK_VERSIOND "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
@@ -50,9 +54,9 @@ vtk_module_export_info()
     ${VTK_SOURCE_DIR}/Wrapping/Tcl
     ${VTK_BINARY_DIR}/Wrapping/Tcl)
 
-    if(VTK_USE_X)
-      include_directories(${VTK_BINARY_DIR}/Utilities/KWSys)
-    endif()
+  if(VTK_USE_X)
+    include_directories(${VTK_BINARY_DIR}/Utilities/KWSys)
+  endif()
 
   if (VTK_WRAP_TCL)
     set(Module_TCL_SRCS
@@ -79,8 +83,7 @@ vtk_module_export_info()
       set(Module_TCL_LIBS "-framework Carbon")
     endif()
 
-    add_library(vtkRenderingTclTkWidgets
-                ${Module_TCL_SRCS})
+    vtk_add_library(vtkRenderingTclTkWidgets ${Module_TCL_SRCS})
 
     set_property(TARGET vtkRenderingTclTkWidgets PROPERTY OUTPUT_NAME
             vtkRenderingTclTkWidgets-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
@@ -90,7 +93,7 @@ vtk_module_export_info()
           vtkInteractionImage
           ${Module_TCL_LIBS})
 
-  endif ()
+  endif()
 
   if (VTK_WRAP_PYTHON)
     set(Module_PYTHON_SRCS
@@ -105,6 +108,7 @@ vtk_module_export_info()
     endif()
 
     add_library(vtkRenderingPythonTkWidgets SHARED ${Module_PYTHON_SRCS})
+    vtk_target_install(vtkRenderingPythonTkWidgets)
 
     set_property(TARGET vtkRenderingPythonTkWidgets PROPERTY OUTPUT_NAME
          vtkRenderingPythonTkWidgets-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
@@ -120,9 +124,8 @@ vtk_module_export_info()
     endif()
 
     target_link_libraries(vtkRenderingPythonTkWidgets
-                          vtkRenderingCore vtkCommonDataModel vtkCommonCoreTCL
+                          vtkRenderingCore vtkCommonDataModel
                           vtkInteractionImage
                           ${Module_PYTHON_LIBS})
   endif()
-
-#endif()
+endif()

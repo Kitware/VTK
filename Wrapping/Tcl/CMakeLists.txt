@@ -16,38 +16,6 @@
 #
 #   SET(VTK_EXTRA_TCL_LIBRARIES ${VTK_EXTRA_TCL_LIBRARIES} vtkMySpecialTCL)
 
-# Set if the tcl/tk libs are static
-option(VTK_TCL_TK_STATIC "Build with static Tcl/Tk support. TCL_LIBRARY and TK_LIBRARY must point to the corresponding Tcl/Tk static libraries (example, tcl85sx.lib, tk85sx.lib)." OFF)
-mark_as_advanced(VTK_TCL_TK_STATIC)
-
-# Use Tk Toolkit with Tcl
-INCLUDE(vtkDependentOption)
-
-set(VTK_CAN_USE_TK OFF)
-set(VTK_USE_TK_DEFAULT ON)
-if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
-  if(NOT VTK_DISABLE_TK_INIT)
-    set(VTK_CAN_USE_TK ON)
-    if(APPLE)
-      if(OSX_SDK_VERSION)
-        if(${OSX_SDK_VERSION} VERSION_LESS "10.6")
-          # Until OS X 10.6, building Tk with Cocoa was not possible
-          if(VTK_USE_COCOA)
-            set(VTK_CAN_USE_TK OFF)
-          endif()
-        else()
-          # For OS X 10.6, the default system Tk is Cocoa, not Carbon
-          if(VTK_USE_CARBON)
-            set(VTK_USE_TK_DEFAULT OFF)
-          endif()
-        endif()
-      endif()
-    endif()
-  endif()
-endif()
-vtk_dependent_option(VTK_USE_TK "Build VTK with Tk support"
-                     ${VTK_USE_TK_DEFAULT} "VTK_CAN_USE_TK" OFF)
-
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h.in
   ${VTK_BINARY_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h
