@@ -130,7 +130,7 @@ protected:
   vtkNew<vtkPlane> Face4;
   vtkNew<vtkPlane> Face5;
   vtkNew<vtkPlane> Face6;
-  float SpherePoints[12][3];
+  float SpherePoints[14][3];
 
   vtkNew<vtkMatrix4x4> Modelview;
 

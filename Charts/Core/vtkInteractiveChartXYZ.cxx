@@ -367,7 +367,6 @@ bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse,
 void vtkInteractiveChartXYZ::ZoomAxes(int delta)
 {
   float scaling = pow(2.0f, delta/10.0f);
-  cout << "scaling: " << scaling << endl;
   this->BoxScale->Scale(scaling, scaling, scaling);
 
   // Mark the scene as dirty
@@ -687,21 +686,24 @@ void vtkInteractiveChartXYZ::ScaleUpAxes()
   int sceneWidth = this->Scene->GetSceneWidth();
   int sceneHeight = this->Scene->GetSceneHeight();
 
+  /*
   vtkNew<vtkTransform> sceneToScreen;
   sceneToScreen->SetMatrix(this->Modelview.GetPointer());
   float scaleStep = pow(2.0f, 1.0f/10.0f);
+  */
   bool shouldScaleUp = true;
-  int numSteps = 0;
+  //int numSteps = 0;
 
-  while (shouldScaleUp)
-    {
-    for (int i = 0; i < 12; ++i)
+  //while (shouldScaleUp)
+    //{
+    for (int i = 0; i < 14; ++i)
       {
       point[0] = this->SpherePoints[i][0];
       point[1] = this->SpherePoints[i][1];
       point[2] = this->SpherePoints[i][2];
       point[3] = 1;
-      sceneToScreen->TransformPoint(point, point);
+      this->Modelview->MultiplyPoint(point, point);
+      //sceneToScreen->TransformPoint(point, point);
       if (point[0] < 0 || point[0] > sceneWidth ||
           point[1] < 0 || point[1] > sceneHeight)
         {
@@ -710,15 +712,17 @@ void vtkInteractiveChartXYZ::ScaleUpAxes()
       }
     if (shouldScaleUp)
       {
-      sceneToScreen->Scale(scaleStep, scaleStep, scaleStep);
-      ++numSteps;
+      this->ZoomAxes(1);
+      //sceneToScreen->Scale(scaleStep, scaleStep, scaleStep);
+      //++numSteps;
       }
-    }
+    /*}
   if (numSteps > 1)
     {
       this->ZoomAxes(numSteps - 1);
       this->Scene->SetDirty(true);
     }
+    */
 }
 
 void vtkInteractiveChartXYZ::ScaleDownAxes()
@@ -727,6 +731,7 @@ void vtkInteractiveChartXYZ::ScaleDownAxes()
   int sceneWidth = this->Scene->GetSceneWidth();
   int sceneHeight = this->Scene->GetSceneHeight();
 
+/*
   vtkNew<vtkTransform> sceneToScreen;
   sceneToScreen->SetMatrix(this->Modelview.GetPointer());
   float scaleStep = pow(2.0f, -1.0f/10.0f);
@@ -736,21 +741,28 @@ void vtkInteractiveChartXYZ::ScaleDownAxes()
   while (shouldScaleDown)
     {
     shouldScaleDown = false;
-    for (int i = 0; i < 12; ++i)
+    */
+    for (int i = 0; i < 14; ++i)
       {
       point[0] = this->SpherePoints[i][0];
       point[1] = this->SpherePoints[i][1];
       point[2] = this->SpherePoints[i][2];
       point[3] = 1;
-      sceneToScreen->TransformPoint(point, point);
+      this->Modelview->MultiplyPoint(point, point);
+      //sceneToScreen->TransformPoint(point, point);
       if (point[0] < 0 || point[0] > sceneWidth ||
           point[1] < 0 || point[1] > sceneHeight)
         {
+        this->ZoomAxes(-1);
+        return;
+        /*
         std::cout << "i: " << i << " (" << point[0] << ", " << point[1] << ", " << point[2] << ")" << endl;
         shouldScaleDown = true;
         break;
+        */
         }
       }
+      /*
     if (shouldScaleDown)
       {
       sceneToScreen->Scale(scaleStep, scaleStep, scaleStep);
@@ -763,6 +775,7 @@ void vtkInteractiveChartXYZ::ScaleDownAxes()
       this->ZoomAxes(-numSteps);
       this->Scene->SetDirty(true);
     }
+    */
 }
 
 void vtkInteractiveChartXYZ::CheckForSceneResize()
@@ -817,38 +830,32 @@ void vtkInteractiveChartXYZ::CheckForSceneResize()
 
 void vtkInteractiveChartXYZ::InitializeSpherePoints()
 {
-  vtkVector3f origin(0.5, 0.5, 0.5);
-  float magnitude = sqrt(2.0f) / 2.0f;
   int currentPoint = 0;
+  for (int i = 0; i < 2; ++i)
+    {
+    for (int j = 0; j < 2; ++j)
+      {
+      for (int k = 0; k < 2; ++k)
+        {
+        this->SpherePoints[currentPoint][0] = i;
+        this->SpherePoints[currentPoint][1] = j;
+        this->SpherePoints[currentPoint][2] = k;
+        ++currentPoint;
+        }
+      }
+    }
 
   for (int i = 0; i < 3; ++i)
     {
-    vtkVector3f v(0,0,0);
-    v[i] = 1;
-    v = v * magnitude;
-    this->SpherePoints[currentPoint][0] = v.GetX();
-    this->SpherePoints[currentPoint][1] = v.GetY();
-    this->SpherePoints[currentPoint][2] = v.GetZ();
+    this->SpherePoints[currentPoint][0] = 0.5;
+    this->SpherePoints[currentPoint][1] = 0.5;
+    this->SpherePoints[currentPoint][2] = 0.5;
+    this->SpherePoints[currentPoint][i] += sqrt(0.75);
     ++currentPoint;
-
-    v = v * -1;
-    this->SpherePoints[currentPoint][0] = v.GetX();
-    this->SpherePoints[currentPoint][1] = v.GetY();
-    this->SpherePoints[currentPoint][2] = v.GetZ();
-    ++currentPoint;
-
-    v.Set(1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
-    v[i] = v[i] * -1;
-    v = v * magnitude;
-    this->SpherePoints[currentPoint][0] = v.GetX();
-    this->SpherePoints[currentPoint][1] = v.GetY();
-    this->SpherePoints[currentPoint][2] = v.GetZ();
-    ++currentPoint;
-
-    v = v * -1;
-    this->SpherePoints[currentPoint][0] = v.GetX();
-    this->SpherePoints[currentPoint][1] = v.GetY();
-    this->SpherePoints[currentPoint][2] = v.GetZ();
+    this->SpherePoints[currentPoint][0] = 0.5;
+    this->SpherePoints[currentPoint][1] = 0.5;
+    this->SpherePoints[currentPoint][2] = 0.5;
+    this->SpherePoints[currentPoint][i] -= sqrt(0.75);
     ++currentPoint;
     }
 }
