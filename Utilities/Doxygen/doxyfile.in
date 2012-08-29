@@ -177,10 +177,4 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                    static int IsTypeOf(const char *type); \
                    virtual int IsA(const char *type); \
                    static thisClass* SafeDownCast(vtkObject *o);" \
-               "vtkTypeMacro(thisClass,superclass)= \
-                   typedef superclass Superclass; \
-                   virtual const char *GetClassName(); \
-                   static int IsTypeOf(const char *type); \
-                   virtual int IsA(const char *type); \
-                   static thisClass* SafeDownCast(vtkObject *o);" \
                "VTK_LEGACY(x)= x"
