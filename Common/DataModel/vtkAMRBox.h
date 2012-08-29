@@ -206,10 +206,6 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
   bool Intersect(const vtkAMRBox &other);
 
   // Description:
-  // Returns the linear index of the given cell structured coordinates
-  int GetCellLinearIndex(const int i, const int j, const int k ) const;
-
-  // Description:
   // Test to see if a given cell index is inside this box.
   bool Contains(int i,int j,int k) const;
   bool Contains(const int I[3]) const;
@@ -230,6 +226,10 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
   // this number of bytes corresponds to the buffer size required to serialize
   // any vtkAMRBox instance.
   static vtkIdType GetBytesize(){return 6*sizeof(int); };
+
+  // Description:
+  // Returns the linear index of the given cell structured coordinates
+  static int GetCellLinearIndex(const vtkAMRBox& box, const int i, const int j, const int k, int imageDimension[3] );
 
   // Description:
   // Get the bounds of this box.

@@ -427,7 +427,10 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
           int hiCorner[3];
           memcpy(loCorner, idata->GetPointer(6*metadata_index + 1), 3*sizeof(int));
           memcpy(hiCorner, idata->GetPointer(6*metadata_index + 4), 3*sizeof(int));
-          oamr->GetAMRInfo()->SetAMRBox(level, index, loCorner,hiCorner);
+          vtkAMRBox box;
+          box.SetDimensions(loCorner,hiCorner,description);
+          vtkWarningMacro("Meta data does not contain spacing information");
+          oamr->GetAMRInfo()->SetAMRBox(level, index, box, NULL);
           }
         }
       idata->Delete();

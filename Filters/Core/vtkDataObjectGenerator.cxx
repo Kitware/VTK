@@ -755,6 +755,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
              << "HI=" << hi[0] << "," << hi[1] << "," << hi[2] << endl;
         */
         vtkDataObject *dobj = NULL;
+        double spacing = pow(0.5,static_cast<double>(gcnt+1)); //==1.0/(2*r2)
+
         //restrict HierarchicalBoxes's to contain only UniformGrids
         //until I make it read location to make sparse creation easy, put
         //dummy dataobjects in as placeholders
@@ -764,8 +766,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
           vtkUniformGrid *uf = vtkUniformGrid::SafeDownCast(dobj);
           //scale and translate the children to align with the parent the
           //blanking information
-          double spacing = pow(0.5,static_cast<double>(gcnt+1)); //==1.0/(2*r2)
-          uf->SetSpacing(spacing, spacing, spacing);
+            uf->SetSpacing(spacing, spacing, spacing);
           double spa[3];
           uf->GetSpacing(spa);
           //cerr << "SPACE=" <<spa[0] <<"," <<spa[1] <<"," <<spa[2] <<endl;
@@ -786,7 +787,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
         else
           {
           vtkAMRBox box(lo,hi);
-          hbo->GetAMRInfo()->SetAMRBox(gcnt, dcnt, box);
+          double h[3] = {spacing,spacing,spacing};
+          hbo->GetAMRInfo()->SetAMRBox(gcnt, dcnt, box, h);
           }
 
         if (dobj)

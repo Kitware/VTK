@@ -84,8 +84,7 @@ public:
 
   // Description:
   // Returns the number of datasets at the given levelx
-  unsigned int GetNumberOfDataSets(unsigned int level) const
-  { return this->NumBlocks[level+1]-this->NumBlocks[level]; }
+  unsigned int GetNumberOfDataSets(unsigned int level) const;
 
   // Description:
   // Returns total number of datasets
@@ -119,8 +118,7 @@ public:
 
   // Description:
   // Methods to set and get the AMR box at a given position
-  void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box);
-  void SetAMRBox(unsigned int level, unsigned int id, const int* lo, const int* hi);
+  void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box, double* spacing);
   void SetAMRBox(unsigned int level, unsigned int id, double* min, double* max, int* dimensions);
   void SetAMRBox(unsigned int level, unsigned int id, double* min, int* dimensions, double* h);
   const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id) const;
@@ -242,7 +240,6 @@ public:
   //parent child information
   std::vector<std::vector<std::vector<unsigned int> > > AllChildren;
   std::vector<std::vector<std::vector<unsigned int> > > AllParents;
-
 };
 
 #endif
