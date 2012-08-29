@@ -58,7 +58,9 @@ vtkInteractiveChartXYZ::vtkInteractiveChartXYZ()
   this->Scale->Identity();
   this->Scale->PostMultiply();
   this->Interactive = true;
+  this->InitialRender = true;
   this->NumberOfComponents = 0;
+  this->InitializeSpherePoints();
 }
 
 vtkInteractiveChartXYZ::~vtkInteractiveChartXYZ()
@@ -195,6 +197,8 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
 
   context->PopMatrix();
 
+  //debug
+  //this->Modelview->PrintSelf(cout, vtkIndent());
 
   painter->DrawString(xLabelPos[0], xLabelPos[1], this->XAxisLabel);
   painter->DrawString(zLabelPos[0], zLabelPos[1], this->ZAxisLabel);
@@ -204,52 +208,7 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   painter->DrawString(yLabelPos[0], yLabelPos[1], this->YAxisLabel);
 
   // Rescale axes so it fits our scene nicely
-  int currentWidth = this->Scene->GetSceneWidth();
-  int currentHeight = this->Scene->GetSceneHeight();
-  if (this->SceneWidth != currentWidth ||
-      this->SceneHeight != currentHeight)
-    {
-    // hack to avoid moving axes on initial render
-    if (this->SceneWidth > 0)
-      {
-      int dx = (currentWidth - this->SceneWidth) / 2;
-      int dy = (currentHeight - this->SceneHeight) / 2;
-
-      vtkVector2f axisPt = axes[0]->GetPosition1();
-      axisPt[0] += dx;
-      axisPt[1] += dy;
-      axes[0]->SetPoint1(axisPt);
-      axisPt = axes[0]->GetPosition2();
-      axisPt[0] += dx;
-      axisPt[1] += dy;
-      axes[0]->SetPoint2(axisPt);
-      axisPt = axes[1]->GetPosition1();
-      axisPt[0] += dx;
-      axisPt[1] += dy;
-      axes[1]->SetPoint1(axisPt);
-      axisPt = axes[1]->GetPosition2();
-      axisPt[0] += dx;
-      axisPt[1] += dy;
-      axes[1]->SetPoint2(axisPt);
-      axisPt = axes[2]->GetPosition1();
-      axisPt[0] += dx;
-      axes[2]->SetPoint1(axisPt);
-      axisPt = axes[2]->GetPosition2();
-      axisPt[0] += dx;
-      axes[2]->SetPoint2(axisPt);
-      this->RecalculateTransform();
-      }
-    if (currentWidth * currentHeight < this->SceneWidth * this->SceneHeight)
-      {
-      this->ScaleDownAxes();
-      }
-    else
-      {
-      this->ScaleUpAxes();
-      }
-    this->SceneWidth = currentWidth;
-    this->SceneHeight = currentHeight;
-    }
+  this->CheckForSceneResize();
 
   return true;
 }
@@ -408,6 +367,7 @@ bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse,
 void vtkInteractiveChartXYZ::ZoomAxes(int delta)
 {
   float scaling = pow(2.0f, delta/10.0f);
+  cout << "scaling: " << scaling << endl;
   this->BoxScale->Scale(scaling, scaling, scaling);
 
   // Mark the scene as dirty
@@ -723,17 +683,6 @@ bool vtkInteractiveChartXYZ::PointShouldBeClipped(vtkVector3f point)
 
 void vtkInteractiveChartXYZ::ScaleUpAxes()
 {
-  float points[8][2] =
-    {
-      {0,    0},
-      {1,    0},
-      {0,    1},
-      {1,    1},
-      {-0.5, 0.5},
-      {0.5,  -0.5},
-      {1.5,  0.5},
-      {0.5,  1.5}
-    };
   float point[4];
   int sceneWidth = this->Scene->GetSceneWidth();
   int sceneHeight = this->Scene->GetSceneHeight();
@@ -746,11 +695,11 @@ void vtkInteractiveChartXYZ::ScaleUpAxes()
 
   while (shouldScaleUp)
     {
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < 12; ++i)
       {
-      point[0] = points[i][0];
-      point[1] = points[i][1];
-      point[2] = 1;
+      point[0] = this->SpherePoints[i][0];
+      point[1] = this->SpherePoints[i][1];
+      point[2] = this->SpherePoints[i][2];
       point[3] = 1;
       sceneToScreen->TransformPoint(point, point);
       if (point[0] < 0 || point[0] > sceneWidth ||
@@ -774,17 +723,6 @@ void vtkInteractiveChartXYZ::ScaleUpAxes()
 
 void vtkInteractiveChartXYZ::ScaleDownAxes()
 {
-  float points[8][2] =
-    {
-      {0,    0},
-      {1,    0},
-      {0,    1},
-      {1,    1},
-      {-0.5, 0.5},
-      {0.5,  -0.5},
-      {1.5,  0.5},
-      {0.5,  1.5}
-    };
   float point[4];
   int sceneWidth = this->Scene->GetSceneWidth();
   int sceneHeight = this->Scene->GetSceneHeight();
@@ -798,17 +736,19 @@ void vtkInteractiveChartXYZ::ScaleDownAxes()
   while (shouldScaleDown)
     {
     shouldScaleDown = false;
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < 12; ++i)
       {
-      point[0] = points[i][0];
-      point[1] = points[i][1];
-      point[2] = 1;
+      point[0] = this->SpherePoints[i][0];
+      point[1] = this->SpherePoints[i][1];
+      point[2] = this->SpherePoints[i][2];
       point[3] = 1;
       sceneToScreen->TransformPoint(point, point);
       if (point[0] < 0 || point[0] > sceneWidth ||
           point[1] < 0 || point[1] > sceneHeight)
         {
+        std::cout << "i: " << i << " (" << point[0] << ", " << point[1] << ", " << point[2] << ")" << endl;
         shouldScaleDown = true;
+        break;
         }
       }
     if (shouldScaleDown)
@@ -819,7 +759,96 @@ void vtkInteractiveChartXYZ::ScaleDownAxes()
     }
   if (numSteps > 0)
     {
+      std::cout << "width: " << sceneWidth << ", height: " << sceneHeight << ", num steps down: " << numSteps << std::endl;
       this->ZoomAxes(-numSteps);
       this->Scene->SetDirty(true);
+    }
+}
+
+void vtkInteractiveChartXYZ::CheckForSceneResize()
+{
+  int currentWidth = this->Scene->GetSceneWidth();
+  int currentHeight = this->Scene->GetSceneHeight();
+  if (this->SceneWidth != currentWidth ||
+      this->SceneHeight != currentHeight)
+    {
+    // hack to avoid moving axes on initial render
+    if (this->SceneWidth > 0)
+      {
+      int dx = (currentWidth - this->SceneWidth) / 2;
+      int dy = (currentHeight - this->SceneHeight) / 2;
+
+      vtkVector2f axisPt = axes[0]->GetPosition1();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      axes[0]->SetPoint1(axisPt);
+      axisPt = axes[0]->GetPosition2();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      axes[0]->SetPoint2(axisPt);
+      axisPt = axes[1]->GetPosition1();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      axes[1]->SetPoint1(axisPt);
+      axisPt = axes[1]->GetPosition2();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      axes[1]->SetPoint2(axisPt);
+      axisPt = axes[2]->GetPosition1();
+      axisPt[0] += dx;
+      axes[2]->SetPoint1(axisPt);
+      axisPt = axes[2]->GetPosition2();
+      axisPt[0] += dx;
+      axes[2]->SetPoint2(axisPt);
+      this->RecalculateTransform();
+      }
+    if (currentWidth * currentHeight < this->SceneWidth * this->SceneHeight)
+      {
+      this->ScaleDownAxes();
+      }
+    else
+      {
+      this->ScaleUpAxes();
+      }
+    this->SceneWidth = currentWidth;
+    this->SceneHeight = currentHeight;
+    }
+}
+
+void vtkInteractiveChartXYZ::InitializeSpherePoints()
+{
+  vtkVector3f origin(0.5, 0.5, 0.5);
+  float magnitude = sqrt(2.0f) / 2.0f;
+  int currentPoint = 0;
+
+  for (int i = 0; i < 3; ++i)
+    {
+    vtkVector3f v(0,0,0);
+    v[i] = 1;
+    v = v * magnitude;
+    this->SpherePoints[currentPoint][0] = v.GetX();
+    this->SpherePoints[currentPoint][1] = v.GetY();
+    this->SpherePoints[currentPoint][2] = v.GetZ();
+    ++currentPoint;
+
+    v = v * -1;
+    this->SpherePoints[currentPoint][0] = v.GetX();
+    this->SpherePoints[currentPoint][1] = v.GetY();
+    this->SpherePoints[currentPoint][2] = v.GetZ();
+    ++currentPoint;
+
+    v.Set(1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
+    v[i] = v[i] * -1;
+    v = v * magnitude;
+    this->SpherePoints[currentPoint][0] = v.GetX();
+    this->SpherePoints[currentPoint][1] = v.GetY();
+    this->SpherePoints[currentPoint][2] = v.GetZ();
+    ++currentPoint;
+
+    v = v * -1;
+    this->SpherePoints[currentPoint][0] = v.GetX();
+    this->SpherePoints[currentPoint][1] = v.GetY();
+    this->SpherePoints[currentPoint][2] = v.GetZ();
+    ++currentPoint;
     }
 }

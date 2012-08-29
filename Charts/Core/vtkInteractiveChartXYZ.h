@@ -108,6 +108,8 @@ protected:
   void ScaleUpAxes();
   void ScaleDownAxes();
   void ZoomAxes(int delta);
+  void CheckForSceneResize();
+  void InitializeSpherePoints();
 
   vtkNew<vtkTransform> Translation;
   vtkNew<vtkTransform> Scale;
@@ -128,12 +130,14 @@ protected:
   vtkNew<vtkPlane> Face4;
   vtkNew<vtkPlane> Face5;
   vtkNew<vtkPlane> Face6;
+  float SpherePoints[12][3];
 
   vtkNew<vtkMatrix4x4> Modelview;
 
   double MaxDistance;
   int SceneHeight;
   int SceneWidth;
+  bool InitialRender;
 
 private:
   vtkInteractiveChartXYZ(const vtkInteractiveChartXYZ &);    // Not implemented.
