@@ -436,37 +436,34 @@ void vtkGL2PSExporter::SavePropVisibility(vtkRendererCollection *renCol,
   vtkVolume *vol;
   vtkActor *act;
   vtkActor2D *act2d;
-  int j;
+  int tuple;
 
   volVis->SetNumberOfComponents(nRen);
   actVis->SetNumberOfComponents(nRen);
   act2dVis->SetNumberOfComponents(nRen);
 
   renCol->InitTraversal();
-  for (int i=0; i<nRen; ++i)
+  for (int component = 0; component < nRen; ++component)
     {
     ren = renCol->GetNextItem();
     vCol = ren->GetVolumes();
     aCol = ren->GetActors();
     a2Col = ren->GetActors2D();
 
-    volVis->SetNumberOfTuples(vCol->GetNumberOfItems());
-    for (vCol->InitTraversal(), j=0; (vol = vCol->GetNextVolume()); ++j)
+    for (vCol->InitTraversal(), tuple=0; (vol = vCol->GetNextVolume()); ++tuple)
       {
-      volVis->SetComponent(i, j, vol->GetVisibility());
+      volVis->InsertComponent(tuple, component, vol->GetVisibility());
       }
 
-    actVis->SetNumberOfTuples(aCol->GetNumberOfItems());
-    for (aCol->InitTraversal(), j=0; (act = aCol->GetNextActor()); ++j)
+    for (aCol->InitTraversal(), tuple=0; (act = aCol->GetNextActor()); ++tuple)
       {
-      actVis->SetComponent(i, j, act->GetVisibility());
+      actVis->InsertComponent(tuple, component, act->GetVisibility());
       }
 
-    act2dVis->SetNumberOfTuples(a2Col->GetNumberOfItems());
-    for (a2Col->InitTraversal(), j=0; (act2d = a2Col->GetNextActor2D());
-         ++j)
+    for (a2Col->InitTraversal(), tuple=0; (act2d = a2Col->GetNextActor2D());
+         ++tuple)
       {
-      act2dVis->SetComponent(i, j, act2d->GetVisibility());
+      act2dVis->InsertComponent(tuple, component, act2d->GetVisibility());
       }
     }
 }
@@ -483,31 +480,31 @@ void vtkGL2PSExporter::RestorePropVisibility(vtkRendererCollection *renCol,
   vtkVolume *vol;
   vtkActor *act;
   vtkActor2D *act2d;
-  int j;
+  int tuple;
   int nRen = renCol->GetNumberOfItems();
 
   renCol->InitTraversal();
-  for (int i=0; i<nRen; ++i)
+  for (int component = 0; component < nRen; ++component)
     {
     ren = renCol->GetNextItem();
     vCol = ren->GetVolumes();
     aCol = ren->GetActors();
     a2Col = ren->GetActors2D();
 
-    for (vCol->InitTraversal(), j=0; (vol = vCol->GetNextVolume()); ++j)
+    for (vCol->InitTraversal(), tuple=0; (vol = vCol->GetNextVolume()); ++tuple)
       {
-      vol->SetVisibility(static_cast<int>(volVis->GetComponent(i, j)));
+      vol->SetVisibility(static_cast<int>(volVis->GetComponent(tuple, component)));
       }
 
-    for (aCol->InitTraversal(), j=0; (act = aCol->GetNextActor()); ++j)
+    for (aCol->InitTraversal(), tuple=0; (act = aCol->GetNextActor()); ++tuple)
       {
-      act->SetVisibility(static_cast<int>(actVis->GetComponent(i, j)));
+      act->SetVisibility(static_cast<int>(actVis->GetComponent(tuple, component)));
       }
 
-    for (a2Col->InitTraversal(), j=0; (act2d = a2Col->GetNextActor2D());
-         ++j)
+    for (a2Col->InitTraversal(), tuple=0; (act2d = a2Col->GetNextActor2D());
+         ++tuple)
       {
-      act2d->SetVisibility(static_cast<int>(act2dVis->GetComponent(i, j)));
+      act2d->SetVisibility(static_cast<int>(act2dVis->GetComponent(tuple, component)));
       }
     }
 }
