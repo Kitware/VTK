@@ -240,7 +240,7 @@ else()
 endif ()
 
 if (USE_NETCDF4)
-  message(STATUS "NETCDF4 support is enabled.")
+  # message(STATUS "NETCDF4 support is enabled.")
   set(NETCDF4_DEFAULT_CHUNK_SIZE 4194304 CACHE STRING "Specify default size of chunks in bytes.")
   mark_as_advanced(NETCDF4_DEFAULT_CHUNK_SIZE)
   
