@@ -22,7 +22,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
-
+#include "vtkAMRInformation.h"
 #include <limits>
 #include <cassert>
 #include <vector>
@@ -281,7 +281,8 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
         }
       else
         {
-        hbox->SetAMRBox(level,index,box);
+        vtkWarningMacro("Meta data does not contain spacing information!");
+        hbox->GetAMRInfo()->SetAMRBox(level,index,box,NULL);
         }
       dataSetIndex++;
       }

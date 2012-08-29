@@ -222,6 +222,16 @@ void vtkAMRInformation::Initialize(int numLevels, int* blocksPerLevel, double or
   this->SetGridDescription(description);
 }
 
+unsigned int vtkAMRInformation::GetNumberOfDataSets(unsigned int level) const
+{
+  if( level>= this->GetNumberOfLevels())
+    {
+    cerr<<"WARNING: No data set at this level"<<endl;
+    return 0;
+    }
+  return this->NumBlocks[level+1]-this->NumBlocks[level];
+}
+
 void vtkAMRInformation::AllocateBoxes(unsigned int n)
 {
   this->Boxes.clear();
@@ -238,11 +248,15 @@ void vtkAMRInformation::AllocateBoxes(unsigned int n)
 
 }
 
-void vtkAMRInformation::SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box)
+void vtkAMRInformation::SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box, double* spacing)
 {
   unsigned int index = this->GetIndex(level,id);
   this->Boxes[index] = box;
-  this->UpdateBounds(level,id);
+  if(spacing)
+    {
+    this->UpdateSpacing(level, spacing);
+    this->UpdateBounds(level,id);
+    }
 }
 
 void vtkAMRInformation::SetAMRBox(unsigned int level, unsigned int id, double* min, double* max, int* dimensions)
@@ -253,14 +267,6 @@ void vtkAMRInformation::SetAMRBox(unsigned int level, unsigned int id, double* m
     h[j] = (dimensions[j] > 1)? (max[j]-min[j])/(dimensions[j]-1.0):1.0;
     }
   this->SetAMRBox(level,id,min, dimensions,h);
-}
-
-void vtkAMRInformation::SetAMRBox(unsigned int level, unsigned int id, const int* lo, const int* hi)
-{
-  unsigned int index = this->GetIndex(level,id);
-  vtkAMRBox& box(this->Boxes[index]);
-  box.SetDimensions(lo,hi,this->GridDescription);
-  this->UpdateBounds(level,id);
 }
 
 void vtkAMRInformation::SetAMRBox(unsigned int level, unsigned int id, double* gridOrigin, int* dimensions, double* h)
@@ -523,7 +529,7 @@ void vtkAMRInformation::UpdateSpacing(unsigned int level, const double* h)
     {
     if(spacing[i]>0 && spacing[i]!=h[i])
       {
-      vtkErrorMacro("Inconsistent spacing");
+      vtkWarningMacro("Inconsistent spacing: "<<spacing[i]<<" != "<<h[i]);
       }
     }
   this->Spacing->SetTuple(level, h);

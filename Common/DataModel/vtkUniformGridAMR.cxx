@@ -242,6 +242,7 @@ void vtkUniformGridAMR::ShallowCopy( vtkDataObject *src )
     {
     this->SetAMRInfo(hbds->GetAMRInfo());
     this->AMRData->ShallowCopy(hbds->GetAMRData());
+    memcpy(this->Bounds, hbds->Bounds, sizeof(double)*6);
     }
 
   this->Modified();
@@ -262,6 +263,7 @@ void vtkUniformGridAMR::DeepCopy( vtkDataObject *src )
     this->SetAMRInfo(NULL);
     this->AMRInfo = vtkAMRInformation::New();
     this->AMRInfo->DeepCopy(hbds->GetAMRInfo());
+    memcpy(this->Bounds, hbds->Bounds, sizeof(double)*6);
     }
 
   this->Modified();
