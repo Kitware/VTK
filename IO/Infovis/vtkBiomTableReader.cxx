@@ -135,7 +135,7 @@ int vtkBiomTableReader::RequestData(
   vtkNew<vtkStringArray> rowNames;
   rowNames->SetName("name");
   this->GetOutput()->AddColumn(rowNames.GetPointer());
-  for ( unsigned int i = 1; i < this->NumberOfColumns + 1; ++i )
+  for ( int i = 1; i < this->NumberOfColumns + 1; ++i )
     {
     switch(this->DataType)
       {

@@ -218,7 +218,6 @@ void vtkNewickTreeReader::CountNodes(char *buffer, vtkIdType *numNodes)
   char *colon = NULL;
   char temp;
   int childCount;
-  vtkIdType node;
 
   start = buffer;
 
@@ -284,7 +283,7 @@ void vtkNewickTreeReader::CountNodes(char *buffer, vtkIdType *numNodes)
         break;
 
         case ')':
-          // End of tihs tree. Go to next part to retrieve distance
+          // End of this tree. Go to next part to retrieve distance
           childCount--;
         break;
 
@@ -437,7 +436,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
         break;
 
         case ')':
-          // End of tihs tree. Go to next part to retrieve distance
+          // End of this tree. Go to next part to retrieve distance
           childCount--;
         break;
 
