@@ -388,15 +388,6 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   out->Initialize(blocksPerLevel.size(), &blocksPerLevel[0], p->GetOrigin(), description);
   vtkTimerLog::MarkStartEvent( "AMRSlice::GetAMRSliceInPlane" );
 
-  // Store A,B,C,D from the plane equation
-  double plane[4];
-  plane[0] = p->GetNormal()[0];
-  plane[1] = p->GetNormal()[1];
-  plane[2] = p->GetNormal()[2];
-  plane[3] = p->GetNormal()[0]*p->GetOrigin()[0] +
-             p->GetNormal()[1]*p->GetOrigin()[1] +
-             p->GetNormal()[2]*p->GetOrigin()[2];
-
   unsigned int numLevels = out->GetNumberOfLevels();
   std::vector<int> dataIndices(numLevels,0);
   for(unsigned int i=0; i<this->BlocksToLoad.size();i++)
