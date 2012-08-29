@@ -1,0 +1,786 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./Verdict_files/filelist.xml">
+<title>Function Reference for Metric Calculation Library</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Clinton Stimpson</o:Author>
+  <o:LastAuthor>Clinton Stimpson</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>1</o:TotalTime>
+  <o:LastPrinted>2001-06-27T19:50:00Z</o:LastPrinted>
+  <o:Created>2001-09-25T20:11:00Z</o:Created>
+  <o:LastSaved>2001-09-25T20:11:00Z</o:LastSaved>
+  <o:Pages>3</o:Pages>
+  <o:Words>1067</o:Words>
+  <o:Characters>6085</o:Characters>
+  <o:Company>Sandia National Laboratories</o:Company>
+  <o:Lines>50</o:Lines>
+  <o:Paragraphs>12</o:Paragraphs>
+  <o:CharactersWithSpaces>7472</o:CharactersWithSpaces>
+  <o:Version>9.3821</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+@font-face
+  {font-family:Wingdings;
+  panose-1:5 0 0 0 0 0 0 0 0 0;
+  mso-font-charset:2;
+  mso-generic-font-family:auto;
+  mso-font-pitch:variable;
+  mso-font-signature:0 268435456 0 0 -2147483648 0;}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+  {mso-style-parent:"";
+  margin:0in;
+  margin-bottom:.0001pt;
+  mso-pagination:widow-orphan;
+  font-size:12.0pt;
+  font-family:"Times New Roman";
+  mso-fareast-font-family:"Times New Roman";}
+h1
+  {mso-style-next:Normal;
+  margin:0in;
+  margin-bottom:.0001pt;
+  mso-pagination:widow-orphan;
+  page-break-after:avoid;
+  mso-outline-level:1;
+  font-size:14.0pt;
+  mso-bidi-font-size:12.0pt;
+  font-family:"Times New Roman";
+  mso-font-kerning:0pt;}
+h2
+  {mso-style-next:Normal;
+  margin:0in;
+  margin-bottom:.0001pt;
+  mso-pagination:widow-orphan;
+  page-break-after:avoid;
+  mso-outline-level:2;
+  font-size:12.0pt;
+  font-family:"Times New Roman";}
+p.MsoBodyText, li.MsoBodyText, div.MsoBodyText
+  {margin:0in;
+  margin-bottom:.0001pt;
+  mso-pagination:widow-orphan;
+  font-size:10.0pt;
+  mso-bidi-font-size:12.0pt;
+  font-family:"Times New Roman";
+  mso-fareast-font-family:"Times New Roman";}
+@page Section1
+  {size:8.5in 11.0in;
+  margin:1.0in .75in 1.0in .75in;
+  mso-header-margin:.5in;
+  mso-footer-margin:.5in;
+  mso-paper-source:0;}
+div.Section1
+  {page:Section1;}
+@page Section2
+  {size:8.5in 11.0in;
+  margin:1.0in .75in 1.0in .75in;
+  mso-header-margin:.5in;
+  mso-footer-margin:.5in;
+  mso-columns:2 even .5in;
+  mso-paper-source:0;}
+div.Section2
+  {page:Section2;}
+@page Section3
+  {size:8.5in 11.0in;
+  margin:1.0in .75in 1.0in .75in;
+  mso-header-margin:.5in;
+  mso-footer-margin:.5in;
+  mso-paper-source:0;}
+div.Section3
+  {page:Section3;}
+@page Section4
+  {size:8.5in 11.0in;
+  margin:1.0in .75in 1.0in .75in;
+  mso-header-margin:.5in;
+  mso-footer-margin:.5in;
+  mso-columns:3 not-even 150.0pt .5in 132.0pt .5in 150.0pt;
+  mso-paper-source:0;}
+div.Section4
+  {page:Section4;}
+@page Section5
+  {size:8.5in 11.0in;
+  margin:1.0in .75in 1.0in .75in;
+  mso-header-margin:.5in;
+  mso-footer-margin:.5in;
+  mso-paper-source:0;}
+div.Section5
+  {page:Section5;}
+ /* List Definitions */
+@list l0
+  {mso-list-id:136148706;
+  mso-list-type:hybrid;
+  mso-list-template-ids:-108489256 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l0:level1
+  {mso-level-number-format:bullet;
+  mso-level-text:\F0B7;
+  mso-level-tab-stop:.5in;
+  mso-level-number-position:left;
+  text-indent:-.25in;
+  font-family:Symbol;}
+@list l1
+  {mso-list-id:586154770;
+  mso-list-type:hybrid;
+  mso-list-template-ids:-587683284 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l1:level1
+  {mso-level-number-format:bullet;
+  mso-level-text:\F0B7;
+  mso-level-tab-stop:.5in;
+  mso-level-number-position:left;
+  text-indent:-.25in;
+  font-family:Symbol;}
+@list l2
+  {mso-list-id:1657222095;
+  mso-list-type:hybrid;
+  mso-list-template-ids:-1434562582 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l2:level1
+  {mso-level-number-format:bullet;
+  mso-level-text:\F0B7;
+  mso-level-tab-stop:.5in;
+  mso-level-number-position:left;
+  text-indent:-.25in;
+  font-family:Symbol;}
+ol
+  {margin-bottom:0in;}
+ul
+  {margin-bottom:0in;}
+-->
+</style>
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<h1><span style='font-size:20.0pt;mso-bidi-font-size:12.0pt'>Function Reference
+for Metric Calculation Library<o:p></o:p></span></h1>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Higher order functions-</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><i>num_nodes </i>is the number of nodes, <i>coordinates</i>
+is the x,y,z data of the nodes, <i>metrics_request_flag</i> is a bitfield for
+which metrics to calculate (defined below), <i>metric_vals</i> is a struct that
+store the results.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo1;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>hex_quality( int
+     num_nodes, double coordinates[][3], int metrics_request_flag, hex_metrics*
+     metric_vals );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo1;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>tet_quality( int
+     num_nodes, double coordinates[][3], int metrics_request_flag, tet_metrics*
+     metric_vals );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo1;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>pyramid_quality( int
+     num_nodes, double coordinates[][3], int metrics_request_flag,
+     pyramid_metrics* metric_vals );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo1;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>wedge_quality( int
+     num_nodes, double coordinates[][3], int metrics_request_flag,
+     wedge_metrics* metric_vals );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo1;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>knife_quality( int
+     num_nodes, double coordinates[][3], int metrics_request_flag,
+     knife_metrics* metric_vals );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo1;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>quad_quality( int
+     num_nodes, double coordinates[][3], int metrics_request_flag,
+     quad_metrics* metric_vals );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo1;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>tri_quality( int
+     num_nodes, double coordinates[][3], int metrics_request_flag, tri_metrics*
+     metric_vals );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo1;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>edge_quality( int
+     num_nodes, double coordinates[][3], int metrics_request_flag,
+     edge_metrics* metric_vals );<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Lower order functions-</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><i>num_nodes </i>is the number of nodes, <i>coordinates</i>
+is the x,y,z data of the nodes.<span style="mso-spacerun: yes">  </span>Returns
+the value.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_aspect( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_skew( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_taper( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_volume( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_stretch( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_diagonal(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_dimension(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_oddy( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_condition(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_jacobian(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     hex_scaled_jacobian( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_shear( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double hex_shape( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     hex_relative_size( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     hex_shape_and_size( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-size:10.0pt;
+mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tet_aspect( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tet_aspect_gamma(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tet_volume( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tet_condition(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tet_jacobian(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tet_scaled_jacobian(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tet_shear( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tet_shape( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     tet_relative_size( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tet_shape_and_size(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double pyramid_volume(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double wedge_volume(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double knife_volume(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double edge_length( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_aspect( int
+     num_num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_skew( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_taper( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_warpage(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_area( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_stretch(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     quad_smallest_angle( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_largest_angle(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_oddy( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_condition(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_jacobian(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     quad_normalized_jacobian( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_shear( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double quad_shape( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     quad_relative_size( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     quad_shape_and_size( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tri_aspect( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tri_area( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     tri_smallest_angle( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     tri_largest_angle( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tri_condition(
+     int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     tri_normalized_jacobian( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tri_shear( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double tri_shape( int
+     num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     tri_relative_size( int num_nodes, double coordinates[][3] );<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo2;tab-stops:list .5in'><span
+     style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+     tri_shape_and_size( int num_nodes, double coordinates[][3] );</span></li>
+</ul>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<span style='font-size:12.0pt;font-family:"Times New Roman";mso-fareast-font-family:
+"Times New Roman";mso-ansi-language:EN-US;mso-fareast-language:EN-US;
+mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always'>
+</span>
+
+<p class=MsoNormal><b>Definitions of types<o:p></o:p></b></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Definition of metric_request_flags for each type of element:</p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+</div>
+
+<span style='font-size:10.0pt;mso-bidi-font-size:12.0pt;font-family:"Times New Roman";
+mso-fareast-font-family:"Times New Roman";mso-ansi-language:EN-US;mso-fareast-language:
+EN-US;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:auto;
+mso-break-type:section-break'>
+</span>
+
+<div class=Section2>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'>HEX_ASPECT,
+HEX_SKEW, HEX_STRETCH, HEX_TAPER, HEX_VOLUME, HEX_DIAGONAL, HEX_DIMENSION,
+HEX_ODDY, HEX_CONDITION, HEX_JACOBIAN, HEX_SCALED_JACOBIAN, HEX_SHEAR,
+HEX_SHAPE, HEX_RELATIVE_SIZE, HEX_SHAPE_AND_SIZE, HEX_ALL, HEX_TRADITIONAL,
+HEX_ROBINSON, HEX_ALGEBRAIC<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'>TET_ASPECT,
+TET_ASPECT_GAMMA, TET_VOLUME, TET_CONDITION, TET_JACOBIAN, TET_SCALED_JACOBIAN,
+TET_SHEAR, TET_SHAPE, TET_RELATIVE_SIZE, TET_SHAPE_AND_SIZE, TET_ALL,
+TET_TRADITIONAL, TET_ROBINSON, TET_ALGEBRAIC<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'>PYRAMID_VOLUME<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'>WEDGE_VOLUME<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'>KNIFE_VOLUME
+<o:p></o:p></span></p>
+
+<p class=MsoBodyText><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoBodyText><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'>QUAD_ASPECT,
+QUAD_SKEW, QUAD_TAPER, QUAD_WARPAGE, QUAD_AREA, QUAD_STRETCH,
+QUAD_SMALLEST_ANGLE, QUAD_LARGEST_ANGLE, QUAD_ODDY, QUAD_CONDITION,
+QUAD_JACOBIAN, QUAD_NORMALIZED_JACOBIAN, QUAD_SHEAR, QUAD_SHAPE,
+QUAD_RELATIVE_SIZE, QUAD_SHAPE_AND_SIZE, QUAD_ALL, QUAD_TRADITIONAL,
+QUAD_ROBINSON, QUAD_ALGEBRAIC<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoBodyText><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'>TRI_ASPECT,
+TRI_AREA, TRI_SMALLEST_ANGLE, TRI_LARGEST_ANGLE, TRI_CONDITION,
+TRI_NORMALIZED_JACOBIAN, TRI_SHEAR, TRI_SHAPE, TRI_RELATIVE_SIZE, TRI_SHAPE_AND_SIZE,
+TRI_ALL, TRI_TRADITIONAL, TRI_ROBINSON, TRI_ALGEBRAIC<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:9.0pt;mso-bidi-font-size:12.0pt'>EDGE_LENGTH</span><span
+style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><o:p></o:p></span></p>
+
+</div>
+
+<span style='font-size:10.0pt;mso-bidi-font-size:12.0pt;font-family:"Times New Roman";
+mso-fareast-font-family:"Times New Roman";mso-ansi-language:EN-US;mso-fareast-language:
+EN-US;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:auto;
+mso-break-type:section-break'>
+</span>
+
+<div class=Section3>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal>Definition of structs for holding all the metrics results</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+</div>
+
+<span style='font-size:12.0pt;font-family:"Times New Roman";mso-fareast-font-family:
+"Times New Roman";mso-ansi-language:EN-US;mso-fareast-language:EN-US;
+mso-bidi-language:AR-SA'><br clear=all style='page-break-before:auto;
+mso-break-type:section-break'>
+</span>
+
+<div class=Section4>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>struct</span></b><span
+style='font-size:10.0pt;mso-bidi-font-size:12.0pt'> hex_metrics {<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+aspect ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+condition ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+diagonal ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+dimension ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+distortion ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+jacobian ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+oddy ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+relative_size ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+scaled_jacobian ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shape ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shape_and_size ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shear ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shear_and_size ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+skew ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+stretch ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+taper ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+volume ; }<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>struct</span></b><span
+style='font-size:10.0pt;mso-bidi-font-size:12.0pt'> edge_metrics {<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+length ; }<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>struct</span></b><span
+style='font-size:10.0pt;mso-bidi-font-size:12.0pt'> knife_metrics {<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+volume ; }<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>struct</span></b><span
+style='font-size:10.0pt;mso-bidi-font-size:12.0pt'> quad_metrics {<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+aspect ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+area ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+condition ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+distortion ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+jacobian ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+largest_angle ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+oddy ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+relative_size ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+scaled_jacobian ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+skew ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+smallest_angle ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shape ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shape_and_size ; <o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shear ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shear_and_size ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+stretch ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+taper ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+warpage ; }<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>struct</span></b><span
+style='font-size:10.0pt;mso-bidi-font-size:12.0pt'> pyramid_metrics {<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+volume ; }<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>struct</span></b><span
+style='font-size:10.0pt;mso-bidi-font-size:12.0pt'> wedge_metrics {<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+volume ; }<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>struct</span></b><span
+style='font-size:10.0pt;mso-bidi-font-size:12.0pt'> tet_metrics {<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+aspect ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+aspect_gamma ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+condition ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+distortion ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+jacobian ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+relative_size ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+scaled_jacobian ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shape ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shape_and_size ; <o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shear ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+volume ; }<o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>struct</span></b><span
+style='font-size:10.0pt;mso-bidi-font-size:12.0pt'> tri_metrics {<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+area ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+aspect ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+condition ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+distortion ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+largest_angle ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+relative_size ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+scaled_jacobian ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+smallest_angle ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shape ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shape_and_size ;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>double
+shear ; }<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+</div>
+
+<span style='font-size:10.0pt;mso-bidi-font-size:12.0pt;font-family:"Times New Roman";
+mso-fareast-font-family:"Times New Roman";mso-ansi-language:EN-US;mso-fareast-language:
+EN-US;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:auto;
+mso-break-type:section-break'>
+</span>
+
+<div class=Section5>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+</div>
+
+</body>
+
+</html>
