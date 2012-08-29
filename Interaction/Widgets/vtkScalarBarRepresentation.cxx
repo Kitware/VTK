@@ -158,7 +158,19 @@ void vtkScalarBarRepresentation::WidgetInteraction(double eventPos[2])
 
     this->Modified();
     this->BuildRepresentation();
-    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+int vtkScalarBarRepresentation::GetVisibility()
+{
+  return this->ScalarBarActor->GetVisibility();
+}
+
+//-----------------------------------------------------------------------------
+void vtkScalarBarRepresentation::SetVisibility(int vis)
+{
+  this->ScalarBarActor->SetVisibility(vis);
 }
 
 //-----------------------------------------------------------------------------
