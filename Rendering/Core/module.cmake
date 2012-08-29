@@ -13,6 +13,7 @@ vtk_module(vtkRenderingCore
   COMPILE_DEPENDS
     vtkUtilitiesMaterialLibrary
   TEST_DEPENDS
+    vtkIOXML
     vtkTestingCore
     vtkTestingRendering
     vtkRenderingContext2D

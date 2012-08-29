@@ -317,10 +317,10 @@ protected:
 
   // Description:
   // Writes a uniform grid to a file. Used for debugging purposes.
-  void WriteUniformGrid( vtkUniformGrid *g, std::string prefix );
-  void WriteUniformGrid(
-      double origin[3], int dims[3], double h[3],
-      std::string prefix );
+  //void WriteUniformGrid( vtkUniformGrid *g, std::string prefix );
+  //void WriteUniformGrid(
+  //double origin[3], int dims[3], double h[3],
+  //std::string prefix );
 
   //Description:
   // Find a decendant of the specified grid that contains the point.

@@ -32,7 +32,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkCell.h"
-#include "vtkXMLImageDataWriter.h"
+//#include "vtkXMLImageDataWriter.h"
 #include "vtkExtentRCBPartitioner.h"
 #include "vtkUniformGridPartitioner.h"
 #include "vtkDataArray.h"
@@ -1317,33 +1317,33 @@ vtkUniformGrid* vtkAMRResampleFilter::GetReferenceGrid(
   return NULL;
 }
 
-//-----------------------------------------------------------------------------
-void vtkAMRResampleFilter::WriteUniformGrid(
-    double origin[3], int dims[3], double h[3],
-    std::string prefix )
-{
-  vtkUniformGrid *grd = vtkUniformGrid::New();
-  grd->SetOrigin( origin );
-  grd->SetSpacing( h );
-  grd->SetDimensions( dims );
+// //-----------------------------------------------------------------------------
+// void vtkAMRResampleFilter::WriteUniformGrid(
+//     double origin[3], int dims[3], double h[3],
+//     std::string prefix )
+// {
+//   vtkUniformGrid *grd = vtkUniformGrid::New();
+//   grd->SetOrigin( origin );
+//   grd->SetSpacing( h );
+//   grd->SetDimensions( dims );
 
-  this->WriteUniformGrid( grd, prefix );
-  grd->Delete();
-}
+//   this->WriteUniformGrid( grd, prefix );
+//   grd->Delete();
+// }
 
-//-----------------------------------------------------------------------------
-void vtkAMRResampleFilter::WriteUniformGrid(
-    vtkUniformGrid *g, std::string prefix )
-{
-  assert( "pre: Uniform grid (g) is NULL!" && (g != NULL) );
+// //-----------------------------------------------------------------------------
+// void vtkAMRResampleFilter::WriteUniformGrid(
+//     vtkUniformGrid *g, std::string prefix )
+// {
+//   assert( "pre: Uniform grid (g) is NULL!" && (g != NULL) );
 
-  vtkXMLImageDataWriter *imgWriter = vtkXMLImageDataWriter::New();
+//   vtkXMLImageDataWriter *imgWriter = vtkXMLImageDataWriter::New();
 
-  std::ostringstream oss;
-  oss << prefix << "." << imgWriter->GetDefaultFileExtension();
-  imgWriter->SetFileName( oss.str().c_str() );
-  imgWriter->SetInputData( g );
-  imgWriter->Write();
+//   std::ostringstream oss;
+//   oss << prefix << "." << imgWriter->GetDefaultFileExtension();
+//   imgWriter->SetFileName( oss.str().c_str() );
+//   imgWriter->SetInputData( g );
+//   imgWriter->Write();
 
-  imgWriter->Delete();
-}
+//   imgWriter->Delete();
+// }

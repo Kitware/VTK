@@ -21,7 +21,6 @@
 #include "vtkTransform.h"
 #include "vtkImageData.h"
 #include "vtkFreeTypeUtilities.h"
-#include "vtkXMLImageDataWriter.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"

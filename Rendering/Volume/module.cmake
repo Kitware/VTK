@@ -9,8 +9,10 @@ vtk_module(vtkRenderingVolume
     vtkTestingRendering
     vtkRenderingVolumeOpenGL
     vtkRenderingFreeType
+    vtkIOXML
     vtkImagingSources
     vtkImagingGeneral
     vtkImagingHybrid
     vtkInteractionStyle
+    vtkIOGeometry
   )

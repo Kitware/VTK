@@ -4,9 +4,9 @@ vtk_module(vtkFiltersAMR
   DEPENDS
     vtkParallelCore
     vtkFiltersGeneral
-    vtkRenderingVolume
   TEST_DEPENDS
     vtkIOAMR
+    vtkIOXML
     vtkTestingCore
     vtkTestingRendering
   )

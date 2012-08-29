@@ -5,6 +5,8 @@ vtk_module(vtkFiltersExtraction
     vtkFiltersCore
     vtkFiltersGeneral
   TEST_DEPENDS
+    vtkIOGeometry
+    vtkIOXML
     vtkRenderingOpenGL
     vtkTestingRendering
     vtkInteractionStyle
