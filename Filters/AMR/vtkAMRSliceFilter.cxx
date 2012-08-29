@@ -373,7 +373,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
     blocksPerLevel[level]++;
     }
 
-  for(int i= blocksPerLevel.size()-1; i>=0;i--)
+  for(int i= static_cast<int>(blocksPerLevel.size()-1); i>=0;i--)
     {
     if(blocksPerLevel[i]==0)
       {
@@ -385,7 +385,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
       }
     }
 
-  out->Initialize(blocksPerLevel.size(), &blocksPerLevel[0], p->GetOrigin(), description);
+  out->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0], p->GetOrigin(), description);
   vtkTimerLog::MarkStartEvent( "AMRSlice::GetAMRSliceInPlane" );
 
   unsigned int numLevels = out->GetNumberOfLevels();

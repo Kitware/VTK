@@ -221,7 +221,9 @@ vtkOverlappingAMR *GetGhostedDataSet(
   blocksPerLevel[0]=1;
   blocksPerLevel[1]=2;
 
-  ghostedAMR->Initialize(blocksPerLevel.size(), &blocksPerLevel[0], inputAMR->GetOrigin(), inputAMR->GetGridDescription());
+  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()),
+                         &blocksPerLevel[0], inputAMR->GetOrigin(),
+                         inputAMR->GetGridDescription());
 
   assert( "pre: Expected number of levels is 2" &&
           (ghostedAMR->GetNumberOfLevels()==2));
