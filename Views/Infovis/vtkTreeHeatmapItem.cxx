@@ -31,6 +31,7 @@
 #include "vtkTree.h"
 #include "vtkTreeLayoutStrategy.h"
 
+#include <algorithm>
 #include <float.h>
 #include <sstream>
 

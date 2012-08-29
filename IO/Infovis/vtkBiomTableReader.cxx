@@ -28,6 +28,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
+#include <algorithm>
 #include <sstream>
 
 vtkStandardNewMacro(vtkBiomTableReader);
