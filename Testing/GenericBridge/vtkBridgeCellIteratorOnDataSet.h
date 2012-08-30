@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkBridgeCellIteratorOnCellBoundaries.h
+  Module:    vtkBridgeCellIteratorOnDataSet.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,14 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBridgeCellIteratorOnCellBoundaries - Iterate over boundary cells of
-// a cell.
-//
+// .NAME vtkBridgeCellIteratorOnDataSet - Iterate over cells of a dataset.
 // .SECTION See Also
 // vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorStrategy
 
-#ifndef __vtkBridgeCellIteratorOnCellBoundaries_h
-#define __vtkBridgeCellIteratorOnCellBoundaries_h
+#ifndef __vtkBridgeCellIteratorOnDataSet_h
+#define __vtkBridgeCellIteratorOnDataSet_h
 
 #include "vtkBridgeCellIteratorStrategy.h"
 
@@ -28,11 +26,11 @@ class vtkBridgeDataSet;
 class vtkBridgeCell;
 class vtkIdList;
 
-class VTK_BRIDGE_EXPORT vtkBridgeCellIteratorOnCellBoundaries : public vtkBridgeCellIteratorStrategy
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeCellIteratorOnDataSet : public vtkBridgeCellIteratorStrategy
 {
 public:
-  static vtkBridgeCellIteratorOnCellBoundaries *New();
-  vtkTypeMacro(vtkBridgeCellIteratorOnCellBoundaries,
+  static vtkBridgeCellIteratorOnDataSet *New();
+  vtkTypeMacro(vtkBridgeCellIteratorOnDataSet,
                        vtkBridgeCellIteratorStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -64,28 +62,27 @@ public:
   void Next();
 
   // Description:
-  // Used internally by vtkBridgeCell.
-  // Iterate on boundary cells of a cell.
-  // \pre cell_exists: cell!=0
-  // \pre valid_dim_range: (dim==-1) || ((dim>=0)&&(dim<cell->GetDimension()))
-  void InitWithCellBoundaries(vtkBridgeCell *cell,
-                              int dim);
+  // Used internally by vtkBridgeDataSet.
+  // Iterate over cells of `ds' of some dimension `dim'.
+  // \pre ds_exists: ds!=0
+  // \pre valid_dim_range: (dim>=-1) && (dim<=3)
+  void InitWithDataSet(vtkBridgeDataSet *ds,
+                       int dim);
 
 protected:
-  vtkBridgeCellIteratorOnCellBoundaries();
-  virtual ~vtkBridgeCellIteratorOnCellBoundaries();
+  vtkBridgeCellIteratorOnDataSet();
+  virtual ~vtkBridgeCellIteratorOnDataSet();
 
   int Dim; // Dimension of cells over which to iterate (-1 to 3)
 
-  vtkBridgeCell *DataSetCell; // the structure on which the objet iterates.
+  vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
   vtkIdType Id; // the id at current position.
+  vtkIdType Size; // size of the structure.
   vtkBridgeCell *Cell; // cell at current position.
-  vtkIdType NumberOfFaces;
-  vtkIdType NumberOfEdges;
-  vtkIdType NumberOfVertices;
+
 private:
-  vtkBridgeCellIteratorOnCellBoundaries(const vtkBridgeCellIteratorOnCellBoundaries&); // Not implemented
-  void operator=(const vtkBridgeCellIteratorOnCellBoundaries&); // Not implemented
+  vtkBridgeCellIteratorOnDataSet(const vtkBridgeCellIteratorOnDataSet&); // Not implemented
+  void operator=(const vtkBridgeCellIteratorOnDataSet&); // Not implemented
 };
 
 #endif

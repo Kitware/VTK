@@ -14,6 +14,7 @@
 =========================================================================*/
 // Tests client-server rendering using the vtkClientServerCompositePass.
 
+#include "vtkObjectFactory.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCameraPass.h"

@@ -33,7 +33,7 @@ class vtkBridgeDataSet;
 class vtkBridgeCell;
 class vtkIdList;
 
-class VTK_BRIDGE_EXPORT vtkBridgeCellIteratorStrategy : public vtkGenericCellIterator
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeCellIteratorStrategy : public vtkGenericCellIterator
 {
 public:
   vtkTypeMacro(vtkBridgeCellIteratorStrategy,vtkGenericCellIterator);

@@ -1066,4 +1066,3 @@ void vtkBridgeCell::InterpolationFunctions(double pcoords[3], double *weights)
 {
   this->Cell->InterpolateFunctions(pcoords, weights);
 }
-

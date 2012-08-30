@@ -1,0 +1,6 @@
+vtk_tests(PrmMagnify.cxx)
+add_test_mpi(TestClientServerRendering.cxx)
+add_test_mpi(TestDistributedDataCompositeZPass.cxx)
+add_test_mpi(TestPCompositeZPass.cxx)
+add_test_mpi(TestPShadowMapPass.cxx)
+add_test_mpi(TestParallelRendering.cxx)

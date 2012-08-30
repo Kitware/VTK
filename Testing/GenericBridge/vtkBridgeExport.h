@@ -19,7 +19,7 @@
 
 #ifndef __vtkBridgeExport_h
 #define __vtkBridgeExport_h
-
+#include "vtkTestingGenericBridgeModule.h"
 #include "vtkSystemIncludes.h"
 
 #if 1

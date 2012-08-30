@@ -1200,4 +1200,3 @@ int ExerciseMultiProcessController(vtkMultiProcessController *controller)
 
   return args.retval;
 }
-

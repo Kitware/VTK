@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkBridgePointIteratorOnDataSet.h
+  Module:    vtkBridgePointIteratorOne.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,26 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBridgePointIteratorOnDataSet - Implementation of vtkGenericPointIterator.
-// .SECTION Description
-// It iterates over the points of a dataset (can be corner points of cells or
-// isolated points)
+// .NAME vtkBridgePointIteratorOne - Iterate over one point of a dataset.
 // .SECTION See Also
 // vtkGenericPointIterator, vtkBridgeDataSet
 
-#ifndef __vtkBridgePointIteratorOnDataSet_h
-#define __vtkBridgePointIteratorOnDataSet_h
+#ifndef __vtkBridgePointIteratorOne_h
+#define __vtkBridgePointIteratorOne_h
 
 #include "vtkBridgeExport.h"
 #include "vtkGenericPointIterator.h"
 
 class vtkBridgeDataSet;
 
-class VTK_BRIDGE_EXPORT vtkBridgePointIteratorOnDataSet : public vtkGenericPointIterator
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgePointIteratorOne : public vtkGenericPointIterator
 {
 public:
-  static vtkBridgePointIteratorOnDataSet *New();
-  vtkTypeMacro(vtkBridgePointIteratorOnDataSet,vtkGenericPointIterator);
+  static vtkBridgePointIteratorOne *New();
+  vtkTypeMacro(vtkBridgePointIteratorOne,vtkGenericPointIterator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -66,26 +63,28 @@ public:
 
   // Description:
   // Used internally by vtkBridgeDataSet.
-  // Iterate over points of `ds'.
-  // \pre ds_exists: ds!=0
-  void InitWithDataSet(vtkBridgeDataSet *ds);
+  // Iterate over one point of identifier `id' on dataset `ds'.
+  // \pre ds_can_be_null: ds!=0 || ds==0
+  // \pre valid_id: vtkImplies(ds!=0,(id>=0)&&(id<=ds->GetNumberOfCells()))
+  void InitWithOnePoint(vtkBridgeDataSet *ds,
+                        vtkIdType id);
 
 protected:
   // Description:
   // Default constructor.
-  vtkBridgePointIteratorOnDataSet();
+  vtkBridgePointIteratorOne();
 
   // Description:
   // Destructor.
-  virtual ~vtkBridgePointIteratorOnDataSet();
+  virtual ~vtkBridgePointIteratorOne();
 
   vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
   vtkIdType Id; // the id at current position.
-  int Size; // size of the structure.
+  int cIsAtEnd;
 
 private:
-  vtkBridgePointIteratorOnDataSet(const vtkBridgePointIteratorOnDataSet&); // Not implemented
-  void operator=(const vtkBridgePointIteratorOnDataSet&); // Not implemented
+  vtkBridgePointIteratorOne(const vtkBridgePointIteratorOne&); // Not implemented
+  void operator=(const vtkBridgePointIteratorOne&); // Not implemented
 };
 
 #endif

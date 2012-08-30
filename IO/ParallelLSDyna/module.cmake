@@ -3,4 +3,9 @@ vtk_module(vtkIOParallelLSDyna
    vtkParallelCore
    vtkIOLSDyna
    vtkCommonDataModel
+  TEST_DEPENDS
+   vtkParallelMPI
+   vtkRenderingParallel
+   vtkTestingRendering
+   vtkRenderingOpenGL
   )
