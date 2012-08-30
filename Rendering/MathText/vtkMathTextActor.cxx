@@ -68,7 +68,7 @@ bool vtkMathTextActor::RenderImage(vtkTextProperty *tprop,
                                    vtkViewport *viewport)
 {
   vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();
-  if ( ! util )
+  if (!util)
     { // Fall back to freetype rendering
     if (!this->FreeTypeUtilities->RenderString(
           tprop, this->FallbackText ? this->FallbackText : this->Input,
@@ -105,7 +105,7 @@ bool vtkMathTextActor::GetBoundingBox(vtkTextProperty *tprop,
                                       vtkViewport *viewport, int bbox[4])
 {
   vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();
-  if ( ! util )
+  if (!util)
     { // Fall back to freetype rendering
     if (!this->FreeTypeUtilities->GetBoundingBox(
           tprop, this->FallbackText ? this->FallbackText : this->Input,
