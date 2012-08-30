@@ -14,5 +14,4 @@ vtk_module(vtkRenderingMatplotlib
     vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL
     vtkViewsContext2D
-  EXCLUDE_FROM_WRAPPING
   )
