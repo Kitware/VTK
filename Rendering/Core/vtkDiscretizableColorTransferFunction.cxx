@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkDiscretizableColorTransferFunction.h"
 
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkLookupTable.h"
 #include "vtkPiecewiseFunction.h"
@@ -88,7 +89,22 @@ int vtkDiscretizableColorTransferFunction::IsOpaque()
 //-----------------------------------------------------------------------------
 void vtkDiscretizableColorTransferFunction::Build()
 {
-  this->Superclass::Build();
+  if ( this->IndexedLookup )
+    {
+    int nv = this->GetSize();
+    this->LookupTable->SetNumberOfTableValues( nv );
+    double nodeVal[6];
+    for ( int i = 0; i < nv; ++ i )
+      {
+      this->GetNodeValue( i, nodeVal );
+      nodeVal[4] = 1.;
+      this->LookupTable->SetTableValue( i, &nodeVal[1] );
+      }
+    }
+  else
+    {
+    this->Superclass::Build();
+    }
 
   this->LookupTable->SetVectorMode(this->VectorMode);
   this->LookupTable->SetVectorComponent(this->VectorComponent);
@@ -154,6 +170,25 @@ void vtkDiscretizableColorTransferFunction::SetNanColor(
 unsigned char* vtkDiscretizableColorTransferFunction::MapValue(double v)
 {
   this->Build();
+  if ( this->IndexedLookup )
+    {
+    vtkIdType idx = this->GetAnnotatedValueIndex( v );
+    if ( idx < 0 || this->GetSize() == 0 )
+      {
+      return this->Superclass::MapValue( vtkMath::Nan() );
+      }
+    double nodeValue[6];
+    this->GetNodeValue( idx % this->GetSize(), nodeValue );
+    this->UnsignedCharRGBAValue[0] =
+      static_cast<unsigned char>(255.0*nodeValue[1] + 0.5);
+    this->UnsignedCharRGBAValue[1] =
+      static_cast<unsigned char>(255.0*nodeValue[2] + 0.5);
+    this->UnsignedCharRGBAValue[2] =
+      static_cast<unsigned char>(255.0*nodeValue[3] + 0.5);
+    this->UnsignedCharRGBAValue[3] = 255;
+    return this->UnsignedCharRGBAValue;
+    }
+
   if (this->Discretize)
     {
     return this->LookupTable->MapValue(v);
@@ -179,6 +214,11 @@ void vtkDiscretizableColorTransferFunction::GetColor(double v, double rgb[3])
 vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(vtkDataArray *scalars,
   int colorMode, int component)
 {
+  if ( this->IndexedLookup )
+    {
+    return this->Superclass::MapScalars( scalars, colorMode, component );
+    }
+
   this->Build();
 
   bool scalars_are_mapped = !(colorMode == VTK_COLOR_MODE_DEFAULT) &&
