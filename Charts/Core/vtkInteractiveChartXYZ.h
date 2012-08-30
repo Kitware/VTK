@@ -111,12 +111,13 @@ protected:
   void ScaleDownAxes();
   void ZoomAxes(int delta);
   void InitializeSpherePoints();
-  void UpdateFutureModelview(float scaleStep);
+  void InitializeFutureBox();
 
   vtkNew<vtkTransform> Translation;
   vtkNew<vtkTransform> Scale;
   vtkNew<vtkTransform> BoxScale;
-  vtkNew<vtkMatrix4x4> FutureModelview;
+  vtkNew<vtkTransform> FutureBox;
+  vtkNew<vtkTransform> FutureBoxScale;
   vtkNew<vtkUnsignedCharArray> Colors;
   vtkNew<vtkUnsignedCharArray> ClippedColors;
   int NumberOfComponents;
@@ -143,6 +144,7 @@ protected:
   bool InitialRender;
 
 private:
+  float TranslationDebug[3];
   vtkInteractiveChartXYZ(const vtkInteractiveChartXYZ &);    // Not implemented.
   void operator=(const vtkInteractiveChartXYZ &); // Not implemented.
 };

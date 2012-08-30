@@ -192,14 +192,16 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   painter->ComputeStringBounds(this->YAxisLabel, bounds);
   float yLabelPos[4] = { 0 - bounds[3], 0.5, 0, 1};
   float zLabelPos[4] = { 0, 0, 0.5, 1};
+  this->Box->TransformPoint(xLabelPos, xLabelPos);
+  this->Box->TransformPoint(yLabelPos, yLabelPos);
+  this->Box->TransformPoint(zLabelPos, zLabelPos);
 
-  context->GetDevice()->GetMatrix(this->Modelview.GetPointer());
-  this->Modelview->MultiplyPoint(xLabelPos, xLabelPos);
-  this->Modelview->MultiplyPoint(yLabelPos, yLabelPos);
-  this->Modelview->MultiplyPoint(zLabelPos, zLabelPos);
-
+/*
+  vtkNew<vtkMatrix4x4> modelview;
   cout << "*** result ***" << endl;
-  this->Modelview->PrintSelf(cout, vtkIndent());
+  context->GetDevice()->GetMatrix(modelview.GetPointer());
+  modelview->PrintSelf(cout, vtkIndent());
+*/
 
   context->PopMatrix();
 
@@ -688,13 +690,11 @@ bool vtkInteractiveChartXYZ::PointShouldBeClipped(vtkVector3f point)
 
 void vtkInteractiveChartXYZ::ScaleUpAxes()
 {
-  float point[4];
+  float point[3];
   int sceneWidth = this->Scene->GetSceneWidth();
   int sceneHeight = this->Scene->GetSceneHeight();
-  cout << "make sure points fit within the bounds of (" << sceneWidth << ", " << sceneHeight << ")" << endl;
-
-  this->FutureModelview->DeepCopy(this->Modelview.GetPointer());
   float scaleStep = pow(2.0f, 1.0f/10.0f);
+  float stepBack = pow(2.0f, -1.0f/10.0f);
   int numSteps = 0;
   bool shouldScaleUp = true;
 
@@ -705,8 +705,7 @@ void vtkInteractiveChartXYZ::ScaleUpAxes()
       point[0] = this->SpherePoints[i][0];
       point[1] = this->SpherePoints[i][1];
       point[2] = this->SpherePoints[i][2];
-      point[3] = 1;
-      this->FutureModelview->MultiplyPoint(point, point);
+      this->FutureBox->TransformPoint(point, point);
       if (point[0] < 0 || point[0] > sceneWidth ||
           point[1] < 0 || point[1] > sceneHeight)
         {
@@ -715,13 +714,14 @@ void vtkInteractiveChartXYZ::ScaleUpAxes()
       }
     if (shouldScaleUp)
       {
-      this->UpdateFutureModelview(scaleStep);
+      this->FutureBoxScale->Scale(scaleStep, scaleStep, scaleStep);
       ++numSteps;
       }
     }
-  std::cout << "*** prediction ***" << std::endl;
-  this->UpdateFutureModelview(pow(2.0f, -1.0f/10.0f));
-  this->FutureModelview->PrintSelf(cout, vtkIndent());
+  // this while loop overshoots the mark by one step,
+  // so we take a step back afterwards.
+  this->FutureBoxScale->Scale(stepBack, stepBack, stepBack);
+
   if (numSteps > 1)
     {
       this->ZoomAxes(numSteps - 1);
@@ -731,11 +731,10 @@ void vtkInteractiveChartXYZ::ScaleUpAxes()
 
 void vtkInteractiveChartXYZ::ScaleDownAxes()
 {
-  float point[4];
+  float point[3];
   int sceneWidth = this->Scene->GetSceneWidth();
   int sceneHeight = this->Scene->GetSceneHeight();
 
-  this->FutureModelview->DeepCopy(this->Modelview.GetPointer());
   float scaleStep = pow(2.0f, -1.0f/10.0f);
   int numSteps = 0;
   bool shouldScaleDown = true;
@@ -748,8 +747,7 @@ void vtkInteractiveChartXYZ::ScaleDownAxes()
       point[0] = this->SpherePoints[i][0];
       point[1] = this->SpherePoints[i][1];
       point[2] = this->SpherePoints[i][2];
-      point[3] = 1;
-      this->FutureModelview->MultiplyPoint(point, point);
+      this->FutureBox->TransformPoint(point, point);
       if (point[0] < 0 || point[0] > sceneWidth ||
           point[1] < 0 || point[1] > sceneHeight)
         {
@@ -759,7 +757,7 @@ void vtkInteractiveChartXYZ::ScaleDownAxes()
       }
     if (shouldScaleDown)
       {
-      this->UpdateFutureModelview(scaleStep);
+      this->FutureBoxScale->Scale(scaleStep, scaleStep, scaleStep);
       ++numSteps;
       }
     }
@@ -770,35 +768,29 @@ void vtkInteractiveChartXYZ::ScaleDownAxes()
     }
 }
 
-void vtkInteractiveChartXYZ::UpdateFutureModelview(float scaleStep)
+void vtkInteractiveChartXYZ::InitializeFutureBox()
 {
-  float oldScale[3] =
+  double scale[3] = { 300, 300, 300 };
+  for (int i = 0; i < 3; ++i)
     {
-    this->FutureModelview->GetElement(0,0),
-    this->FutureModelview->GetElement(1,1),
-    this->FutureModelview->GetElement(2,2)
-    };
-  this->FutureModelview->SetElement(0, 0,
-    this->FutureModelview->GetElement(0, 0) * scaleStep);
-  this->FutureModelview->SetElement(1, 1,
-    this->FutureModelview->GetElement(1, 1) * scaleStep);
-  this->FutureModelview->SetElement(2, 2,
-    this->FutureModelview->GetElement(2, 2) * scaleStep);
-  float newScale[3] =
-    {
-    this->FutureModelview->GetElement(0,0),
-    this->FutureModelview->GetElement(1,1),
-    this->FutureModelview->GetElement(2,2)
-    };
-  float oldPosition[3] =
-    {
-    this->FutureModelview->GetElement(0,3),
-    this->FutureModelview->GetElement(1,3),
-    this->FutureModelview->GetElement(2,3)
-    };
-  this->FutureModelview->SetElement(0, 3, oldPosition[0] + (oldScale[0] - newScale[0]) / 2);
-  this->FutureModelview->SetElement(1, 3, oldPosition[1] + (oldScale[1] - newScale[1]) / 2);
-  this->FutureModelview->SetElement(2, 3, oldPosition[2] + (oldScale[2] - newScale[2]) / 2);
+    if (i == 0)
+      scale[i] = axes[i]->GetPosition2()[0] - axes[i]->GetPosition1()[0];
+    else
+      scale[i] = axes[i]->GetPosition2()[1] - axes[i]->GetPosition1()[1];
+    }
+
+  this->FutureBoxScale->DeepCopy(this->BoxScale.GetPointer());
+
+  this->FutureBox->Identity();
+  this->FutureBox->PostMultiply();
+  this->FutureBox->Translate(-0.5, -0.5, -0.5);
+  this->FutureBox->Concatenate(this->Rotation.GetPointer());
+  this->FutureBox->Concatenate(this->FutureBoxScale.GetPointer());
+  this->FutureBox->Translate(0.5, 0.5, 0.5);
+  this->FutureBox->Scale(scale);
+  this->FutureBox->Translate(axes[0]->GetPosition1()[0],
+                             axes[1]->GetPosition1()[1],
+                             axes[2]->GetPosition1()[1]);
 }
 
 bool vtkInteractiveChartXYZ::CheckForSceneResize()
@@ -808,8 +800,8 @@ bool vtkInteractiveChartXYZ::CheckForSceneResize()
   if (this->SceneWidth != currentWidth ||
       this->SceneHeight != currentHeight)
     {
-    cout << "scene size just changed from (" << this->SceneWidth << ", " << this->SceneHeight << ") to (" << currentWidth << ", " << currentHeight << ")" << endl;
-    // hack to avoid moving axes on initial render
+    // treat the initial render as a special case, as the scene size
+    // has not been recorded yet
     if (this->SceneWidth > 0)
       {
       int dx = (currentWidth - this->SceneWidth) / 2;
@@ -839,6 +831,14 @@ bool vtkInteractiveChartXYZ::CheckForSceneResize()
       axes[2]->SetPoint2(axisPt);
       this->RecalculateTransform();
       }
+    else
+      {
+      this->SceneWidth = currentWidth;
+      this->SceneHeight = currentHeight;
+      this->InitializeFutureBox();
+      this->ScaleUpAxes();
+      this->ScaleDownAxes();
+      }
     return true;
     }
   return false;
@@ -848,6 +848,7 @@ void vtkInteractiveChartXYZ::RescaleAxes()
 {
   int currentWidth = this->Scene->GetSceneWidth();
   int currentHeight = this->Scene->GetSceneHeight();
+  this->InitializeFutureBox();
   if (currentWidth * currentHeight < this->SceneWidth * this->SceneHeight)
     {
     this->ScaleDownAxes();
