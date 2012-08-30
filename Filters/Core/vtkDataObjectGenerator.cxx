@@ -703,7 +703,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       }
 
     double origin[3] = {0,0,0};
-    hbo->Initialize(blocksPerLevel.size(), &blocksPerLevel[0], origin, VTK_XYZ_GRID);
+    hbo->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0], origin, VTK_XYZ_GRID);
     vtkIdType gcnt = 0;
     for (git = structure->children.begin();
          git != structure->children.end();

@@ -104,6 +104,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredNeighbor
 //  INLINE METHODS
 //=============================================================================
 
+VTKFILTERSGEOMETRY_EXPORT
 inline vtkStructuredNeighbor& vtkStructuredNeighbor::operator=(
     const vtkStructuredNeighbor &N )
 {
