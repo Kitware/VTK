@@ -135,6 +135,10 @@ int vtkDataObjectTree::HasChildMetaData(unsigned int index)
 //----------------------------------------------------------------------------
 void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
 {
+  if(!compositeSource)
+    {
+    return;
+    }
   vtkDataObjectTree* source = vtkDataObjectTree::SafeDownCast(compositeSource);
   if (source == this)
     {
@@ -144,6 +148,19 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
   this->Internals->Children.clear();
   if (!source)
     {
+    //WARNING:
+    //If we copy the structure of from a non-tree composite data set
+    //the "structure" is just is the total number of blocks (nill or not)
+    //To do: We should probably also copy meta data as well.
+    int totalNumBlocks=0;
+    vtkCompositeDataIterator* iter = compositeSource->NewIterator();
+    iter->SkipEmptyNodesOff();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+      {
+      totalNumBlocks++;
+      }
+    this->Internals->Children.resize(totalNumBlocks);
+    iter->Delete();
     return;
     }
 
