@@ -60,7 +60,7 @@ vtkInteractiveChartXYZ::vtkInteractiveChartXYZ()
   this->Interactive = true;
   this->InitialRender = true;
   this->NumberOfComponents = 0;
-  this->InitializeSpherePoints();
+  this->InitializeAxesBoundaryPoints();
 }
 
 vtkInteractiveChartXYZ::~vtkInteractiveChartXYZ()
@@ -702,9 +702,9 @@ void vtkInteractiveChartXYZ::ScaleUpAxes()
     {
     for (int i = 0; i < 14; ++i)
       {
-      point[0] = this->SpherePoints[i][0];
-      point[1] = this->SpherePoints[i][1];
-      point[2] = this->SpherePoints[i][2];
+      point[0] = this->AxesBoundaryPoints[i][0];
+      point[1] = this->AxesBoundaryPoints[i][1];
+      point[2] = this->AxesBoundaryPoints[i][2];
       this->FutureBox->TransformPoint(point, point);
       if (point[0] < 0 || point[0] > sceneWidth ||
           point[1] < 0 || point[1] > sceneHeight)
@@ -744,9 +744,9 @@ void vtkInteractiveChartXYZ::ScaleDownAxes()
     shouldScaleDown = false;
     for (int i = 0; i < 14; ++i)
       {
-      point[0] = this->SpherePoints[i][0];
-      point[1] = this->SpherePoints[i][1];
-      point[2] = this->SpherePoints[i][2];
+      point[0] = this->AxesBoundaryPoints[i][0];
+      point[1] = this->AxesBoundaryPoints[i][1];
+      point[2] = this->AxesBoundaryPoints[i][2];
       this->FutureBox->TransformPoint(point, point);
       if (point[0] < 0 || point[0] > sceneWidth ||
           point[1] < 0 || point[1] > sceneHeight)
@@ -861,7 +861,7 @@ void vtkInteractiveChartXYZ::RescaleAxes()
   this->SceneHeight = currentHeight;
 }
 
-void vtkInteractiveChartXYZ::InitializeSpherePoints()
+void vtkInteractiveChartXYZ::InitializeAxesBoundaryPoints()
 {
   int currentPoint = 0;
   for (int i = 0; i < 2; ++i)
@@ -870,9 +870,9 @@ void vtkInteractiveChartXYZ::InitializeSpherePoints()
       {
       for (int k = 0; k < 2; ++k)
         {
-        this->SpherePoints[currentPoint][0] = i;
-        this->SpherePoints[currentPoint][1] = j;
-        this->SpherePoints[currentPoint][2] = k;
+        this->AxesBoundaryPoints[currentPoint][0] = i;
+        this->AxesBoundaryPoints[currentPoint][1] = j;
+        this->AxesBoundaryPoints[currentPoint][2] = k;
         ++currentPoint;
         }
       }
@@ -880,15 +880,15 @@ void vtkInteractiveChartXYZ::InitializeSpherePoints()
 
   for (int i = 0; i < 3; ++i)
     {
-    this->SpherePoints[currentPoint][0] = 0.5;
-    this->SpherePoints[currentPoint][1] = 0.5;
-    this->SpherePoints[currentPoint][2] = 0.5;
-    this->SpherePoints[currentPoint][i] += sqrt(0.75);
+    this->AxesBoundaryPoints[currentPoint][0] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][1] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][2] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][i] += sqrt(0.75);
     ++currentPoint;
-    this->SpherePoints[currentPoint][0] = 0.5;
-    this->SpherePoints[currentPoint][1] = 0.5;
-    this->SpherePoints[currentPoint][2] = 0.5;
-    this->SpherePoints[currentPoint][i] -= sqrt(0.75);
+    this->AxesBoundaryPoints[currentPoint][0] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][1] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][2] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][i] -= sqrt(0.75);
     ++currentPoint;
     }
 }

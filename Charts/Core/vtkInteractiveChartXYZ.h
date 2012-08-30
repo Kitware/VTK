@@ -110,7 +110,7 @@ protected:
   void ScaleUpAxes();
   void ScaleDownAxes();
   void ZoomAxes(int delta);
-  void InitializeSpherePoints();
+  void InitializeAxesBoundaryPoints();
   void InitializeFutureBox();
 
   vtkNew<vtkTransform> Translation;
@@ -134,7 +134,7 @@ protected:
   vtkNew<vtkPlane> Face4;
   vtkNew<vtkPlane> Face5;
   vtkNew<vtkPlane> Face6;
-  float SpherePoints[14][3];
+  float AxesBoundaryPoints[14][3];
 
   vtkNew<vtkMatrix4x4> Modelview;
 
