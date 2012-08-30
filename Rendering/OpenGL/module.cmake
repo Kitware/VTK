@@ -13,7 +13,7 @@ vtk_module(vtkRenderingOpenGL
     vtkInteractionStyle
     vtkTestingRendering
     vtkIOExport
-    vtkIOGeometry
+    vtkIOLegacy
     vtkIOXML
     vtkRenderingFreeTypeOpenGL
     vtkRenderingImage

@@ -7,7 +7,7 @@ vtk_module(vtkImagingCore
     vtkCommonMath
     vtkCommonExecutionModel
   TEST_DEPENDS
-    vtkIOGeometry
+    vtkIOLegacy
     vtkFiltersModeling
     vtkFiltersGeneral
     vtkFiltersHybrid

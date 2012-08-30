@@ -24,10 +24,10 @@
 #ifndef __vtkSimplePointsReader_h
 #define __vtkSimplePointsReader_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTKIOGEOMETRY_EXPORT vtkSimplePointsReader : public vtkPolyDataAlgorithm
+class VTKIOLEGACY_EXPORT vtkSimplePointsReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSimplePointsReader* New();

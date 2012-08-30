@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridReader.h
+  Module:    vtkGraphReader.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,46 +12,50 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridReader - read vtk unstructured grid data file
+// .NAME vtkGraphReader - read vtkGraph data file
 // .SECTION Description
-// vtkUnstructuredGridReader is a source object that reads ASCII or binary
-// unstructured grid data files in vtk format. (see text for format details).
-// The output of this reader is a single vtkUnstructuredGrid data object.
+// vtkGraphReader is a source object that reads ASCII or binary
+// vtkGraph data files in vtk format. (see text for format details).
+// The output of this reader is a single vtkGraph data object.
 // The superclass of this class, vtkDataReader, provides many methods for
 // controlling the reading of the data file, see vtkDataReader for more
 // information.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 // .SECTION See Also
-// vtkUnstructuredGrid vtkDataReader
+// vtkGraph vtkDataReader vtkGraphWriter
 
-#ifndef __vtkUnstructuredGridReader_h
-#define __vtkUnstructuredGridReader_h
+#ifndef __vtkGraphReader_h
+#define __vtkGraphReader_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
 
-class vtkUnstructuredGrid;
+class vtkGraph;
 
-class VTKIOGEOMETRY_EXPORT vtkUnstructuredGridReader : public vtkDataReader
+class VTKIOLEGACY_EXPORT vtkGraphReader : public vtkDataReader
 {
 public:
-  static vtkUnstructuredGridReader *New();
-  vtkTypeMacro(vtkUnstructuredGridReader,vtkDataReader);
+  static vtkGraphReader *New();
+  vtkTypeMacro(vtkGraphReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output of this reader.
-  vtkUnstructuredGrid *GetOutput();
-  vtkUnstructuredGrid *GetOutput(int idx);
-  void SetOutput(vtkUnstructuredGrid *output);
+  vtkGraph *GetOutput();
+  vtkGraph *GetOutput(int idx);
+  void SetOutput(vtkGraph *output);
 
 protected:
-  vtkUnstructuredGridReader();
-  ~vtkUnstructuredGridReader();
+  vtkGraphReader();
+  ~vtkGraphReader();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
+
+  // Override ProcessRequest to handle request data object event
+  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
+                             vtkInformationVector *);
 
   // Since the Outputs[0] has the same UpdateExtent format
   // as the generic DataObject we can copy the UpdateExtent
@@ -59,12 +63,18 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
 
+  // Create output (a directed or undirected graph).
+  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
+                                vtkInformationVector *);
+
+  // Read beginning of file to determine whether the graph is directed.
+  virtual int ReadGraphDirectedness(bool & directed);
+
+
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
-  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridReader&);  // Not implemented.
+  vtkGraphReader(const vtkGraphReader&);  // Not implemented.
+  void operator=(const vtkGraphReader&);  // Not implemented.
 };
 
 #endif
-
-

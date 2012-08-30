@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGraphReader.h
+  Module:    $RCSfile$
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,43 +12,39 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphReader - read vtkGraph data file
+// .NAME vtkCompositeDataReader - read vtkCompositeDataSet data file.
 // .SECTION Description
-// vtkGraphReader is a source object that reads ASCII or binary
-// vtkGraph data files in vtk format. (see text for format details).
-// The output of this reader is a single vtkGraph data object.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkGraph vtkDataReader vtkGraphWriter
 
-#ifndef __vtkGraphReader_h
-#define __vtkGraphReader_h
+#ifndef __vtkCompositeDataReader_h
+#define __vtkCompositeDataReader_h
 
-#include "vtkIOCoreModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
 
-class vtkGraph;
+class vtkCompositeDataSet;
+class vtkHierarchicalBoxDataSet;
+class vtkMultiBlockDataSet;
+class vtkMultiPieceDataSet;
+class vtkNonOverlappingAMR;
+class vtkOverlappingAMR;
 
-class VTKIOCORE_EXPORT vtkGraphReader : public vtkDataReader
+class VTKIOLEGACY_EXPORT vtkCompositeDataReader : public vtkDataReader
 {
 public:
-  static vtkGraphReader *New();
-  vtkTypeMacro(vtkGraphReader,vtkDataReader);
+  static vtkCompositeDataReader* New();
+  vtkTypeMacro(vtkCompositeDataReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output of this reader.
-  vtkGraph *GetOutput();
-  vtkGraph *GetOutput(int idx);
-  void SetOutput(vtkGraph *output);
+  vtkCompositeDataSet *GetOutput();
+  vtkCompositeDataSet *GetOutput(int idx);
+  void SetOutput(vtkCompositeDataSet *output);
 
+//BTX
 protected:
-  vtkGraphReader();
-  ~vtkGraphReader();
+  vtkCompositeDataReader();
+  ~vtkCompositeDataReader();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
@@ -67,16 +63,23 @@ protected:
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
                                 vtkInformationVector *);
 
-  // Read beginning of file to determine whether the graph is directed.
-  virtual int ReadGraphDirectedness(bool & directed);
-
-
   virtual int FillOutputPortInformation(int, vtkInformation*);
+
+  // Description:
+  // Read the output type information.
+  int ReadOutputType();
+
+  bool ReadCompositeData(vtkMultiPieceDataSet*);
+  bool ReadCompositeData(vtkMultiBlockDataSet*);
+  bool ReadCompositeData(vtkHierarchicalBoxDataSet*);
+  bool ReadCompositeData(vtkOverlappingAMR*);
+  bool ReadCompositeData(vtkNonOverlappingAMR*);
+  vtkDataObject* ReadChild();
+
 private:
-  vtkGraphReader(const vtkGraphReader&);  // Not implemented.
-  void operator=(const vtkGraphReader&);  // Not implemented.
+  vtkCompositeDataReader(const vtkCompositeDataReader&); // Not implemented.
+  void operator=(const vtkCompositeDataReader&); // Not implemented.
+//ETX
 };
 
 #endif
-
-

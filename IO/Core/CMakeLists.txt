@@ -7,14 +7,8 @@ SET(Module_SRCS
   vtkBase64OutputStream.cxx
   vtkBase64Utilities.cxx
   vtkDataCompressor.cxx
-  vtkDataObjectReader.cxx
-  vtkDataObjectWriter.cxx
-  vtkDataReader.cxx
-  vtkDataWriter.cxx
   vtkDelimitedTextWriter.cxx
   vtkGlobFileNames.cxx
-  vtkGraphReader.cxx
-  vtkGraphWriter.cxx
   vtkInputStream.cxx
   vtkJavaScriptDataWriter.cxx
   vtkOutputStream.cxx
@@ -25,8 +19,6 @@ SET(Module_SRCS
   vtkUTF8TextCodec.cxx
   vtkWriter.cxx
   vtkZLibDataCompressor.cxx
-  vtkTableReader.cxx
-  vtkTableWriter.cxx
   vtkArrayDataReader.cxx
   vtkArrayDataWriter.cxx
   )

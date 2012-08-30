@@ -31,7 +31,7 @@
 #ifndef __vtkDataSetReader_h
 #define __vtkDataSetReader_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
 
 class vtkDataSet;
@@ -41,7 +41,7 @@ class vtkStructuredGrid;
 class vtkStructuredPoints;
 class vtkUnstructuredGrid;
 
-class VTKIOGEOMETRY_EXPORT vtkDataSetReader : public vtkDataReader
+class VTKIOLEGACY_EXPORT vtkDataSetReader : public vtkDataReader
 {
 public:
   static vtkDataSetReader *New();
@@ -90,5 +90,3 @@ private:
 };
 
 #endif
-
-

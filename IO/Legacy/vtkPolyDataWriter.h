@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridWriter.h
+  Module:    vtkPolyDataWriter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,45 +12,44 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridWriter - write vtk unstructured grid data file
+// .NAME vtkPolyDataWriter - write vtk polygonal data
 // .SECTION Description
-// vtkUnstructuredGridWriter is a source object that writes ASCII or binary
-// unstructured grid data files in vtk format. See text for format details.
+// vtkPolyDataWriter is a source object that writes ASCII or binary
+// polygonal data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkUnstructuredGridWriter_h
-#define __vtkUnstructuredGridWriter_h
+#ifndef __vtkPolyDataWriter_h
+#define __vtkPolyDataWriter_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
-class vtkUnstructuredGrid;
 
-class VTKIOGEOMETRY_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
+class vtkPolyData;
+
+class VTKIOLEGACY_EXPORT vtkPolyDataWriter : public vtkDataWriter
 {
 public:
-  static vtkUnstructuredGridWriter *New();
-  vtkTypeMacro(vtkUnstructuredGridWriter,vtkDataWriter);
+  static vtkPolyDataWriter *New();
+  vtkTypeMacro(vtkPolyDataWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the input to this writer.
-  vtkUnstructuredGrid* GetInput();
-  vtkUnstructuredGrid* GetInput(int port);
+  vtkPolyData* GetInput();
+  vtkPolyData* GetInput(int port);
 
 protected:
-  vtkUnstructuredGridWriter() {};
-  ~vtkUnstructuredGridWriter() {};
+  vtkPolyDataWriter() {};
+  ~vtkPolyDataWriter() {};
 
   void WriteData();
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkUnstructuredGridWriter(const vtkUnstructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridWriter&);  // Not implemented.
+  vtkPolyDataWriter(const vtkPolyDataWriter&);  // Not implemented.
+  void operator=(const vtkPolyDataWriter&);  // Not implemented.
 };
 
 #endif
-
-

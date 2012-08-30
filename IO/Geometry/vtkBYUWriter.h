@@ -27,14 +27,16 @@
 #define __vtkBYUWriter_h
 
 #include "vtkIOGeometryModule.h" // For export macro
-#include "vtkPolyDataWriter.h"
+#include "vtkWriter.h"
 
-class VTKIOGEOMETRY_EXPORT vtkBYUWriter : public vtkPolyDataWriter
+class vtkPolyData;
+
+class VTKIOGEOMETRY_EXPORT vtkBYUWriter : public vtkWriter
 {
 public:
   static vtkBYUWriter *New();
 
-  vtkTypeMacro(vtkBYUWriter,vtkPolyDataWriter);
+  vtkTypeMacro(vtkBYUWriter,vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -75,6 +77,11 @@ public:
   vtkGetMacro(WriteTexture,int);
   vtkBooleanMacro(WriteTexture,int);
 
+  // Description:
+  // Get the input to this writer.
+  vtkPolyData* GetInput();
+  vtkPolyData* GetInput(int port);
+
 protected:
   vtkBYUWriter();
   ~vtkBYUWriter();
@@ -93,6 +100,9 @@ protected:
   void WriteDisplacementFile(int numPts);
   void WriteScalarFile(int numPts);
   void WriteTextureFile(int numPts);
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkBYUWriter(const vtkBYUWriter&);  // Not implemented.
   void operator=(const vtkBYUWriter&);  // Not implemented.

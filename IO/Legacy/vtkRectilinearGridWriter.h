@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPolyDataWriter.h
+  Module:    vtkRectilinearGridWriter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,46 +12,45 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyDataWriter - write vtk polygonal data
+// .NAME vtkRectilinearGridWriter - write vtk rectilinear grid data file
 // .SECTION Description
-// vtkPolyDataWriter is a source object that writes ASCII or binary
-// polygonal data files in vtk format. See text for format details.
+// vtkRectilinearGridWriter is a source object that writes ASCII or binary
+// rectilinear grid data files in vtk format. See text for format details.
+
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkPolyDataWriter_h
-#define __vtkPolyDataWriter_h
+#ifndef __vtkRectilinearGridWriter_h
+#define __vtkRectilinearGridWriter_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
 
-class vtkPolyData;
+class vtkRectilinearGrid;
 
-class VTKIOGEOMETRY_EXPORT vtkPolyDataWriter : public vtkDataWriter
+class VTKIOLEGACY_EXPORT vtkRectilinearGridWriter : public vtkDataWriter
 {
 public:
-  static vtkPolyDataWriter *New();
-  vtkTypeMacro(vtkPolyDataWriter,vtkDataWriter);
+  static vtkRectilinearGridWriter *New();
+  vtkTypeMacro(vtkRectilinearGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the input to this writer.
-  vtkPolyData* GetInput();
-  vtkPolyData* GetInput(int port);
+  vtkRectilinearGrid* GetInput();
+  vtkRectilinearGrid* GetInput(int port);
 
 protected:
-  vtkPolyDataWriter() {};
-  ~vtkPolyDataWriter() {};
+  vtkRectilinearGridWriter() {};
+  ~vtkRectilinearGridWriter() {};
 
   void WriteData();
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkPolyDataWriter(const vtkPolyDataWriter&);  // Not implemented.
-  void operator=(const vtkPolyDataWriter&);  // Not implemented.
+  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&);  // Not implemented.
+  void operator=(const vtkRectilinearGridWriter&);  // Not implemented.
 };
 
 #endif
-
-

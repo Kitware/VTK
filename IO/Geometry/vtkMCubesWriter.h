@@ -32,19 +32,34 @@
 #define __vtkMCubesWriter_h
 
 #include "vtkIOGeometryModule.h" // For export macro
-#include "vtkPolyDataWriter.h"
+#include "vtkWriter.h"
 
-class VTKIOGEOMETRY_EXPORT vtkMCubesWriter : public vtkPolyDataWriter
+class vtkCellArray;
+class vtkDataArray;
+class vtkPoints;
+class vtkPolyData;
+
+class VTKIOGEOMETRY_EXPORT vtkMCubesWriter : public vtkWriter
 {
 public:
   static vtkMCubesWriter *New();
-  vtkTypeMacro(vtkMCubesWriter,vtkPolyDataWriter);
+  vtkTypeMacro(vtkMCubesWriter,vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/get file name of marching cubes limits file.
   vtkSetStringMacro(LimitsFileName);
   vtkGetStringMacro(LimitsFileName);
+
+  // Description:
+  // Get the input to this writer.
+  vtkPolyData* GetInput();
+  vtkPolyData* GetInput(int port);
+
+  // Description:
+  // Specify file name of vtk polygon data file to write.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
 protected:
   vtkMCubesWriter();
@@ -57,6 +72,11 @@ protected:
   void WriteLimits(FILE *fp, double *bounds);
 
   char *LimitsFileName;
+
+  char *FileName;
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkMCubesWriter(const vtkMCubesWriter&);  // Not implemented.
   void operator=(const vtkMCubesWriter&);  // Not implemented.

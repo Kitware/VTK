@@ -5,6 +5,7 @@ vtk_module(vtkFiltersHyperTree
     vtkFiltersGeneral
   TEST_DEPENDS
     vtkIOXML
+    vtkIOLegacy
     vtkRenderingOpenGL
     vtkTestingRendering
     vtkInteractionStyle

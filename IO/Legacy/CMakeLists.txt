@@ -1,0 +1,32 @@
+SET(Module_SRCS
+  vtkCompositeDataReader.cxx
+  vtkCompositeDataWriter.cxx
+  vtkDataObjectReader.cxx
+  vtkDataObjectWriter.cxx
+  vtkDataReader.cxx
+  vtkDataSetReader.cxx
+  vtkDataSetWriter.cxx
+  vtkDataWriter.cxx
+  vtkGenericDataObjectReader.cxx
+  vtkGenericDataObjectWriter.cxx
+  vtkGraphReader.cxx
+  vtkGraphWriter.cxx
+  vtkPolyDataReader.cxx
+  vtkPolyDataWriter.cxx
+  vtkRectilinearGridReader.cxx
+  vtkRectilinearGridWriter.cxx
+  vtkSimplePointsReader.cxx
+  vtkSimplePointsWriter.cxx
+  vtkStructuredGridReader.cxx
+  vtkStructuredGridWriter.cxx
+  vtkStructuredPointsReader.cxx
+  vtkStructuredPointsWriter.cxx
+  vtkTableReader.cxx
+  vtkTableWriter.cxx
+  vtkTreeReader.cxx
+  vtkTreeWriter.cxx
+  vtkUnstructuredGridReader.cxx
+  vtkUnstructuredGridWriter.cxx
+  )
+
+vtk_module_library(vtkIOLegacy ${Module_SRCS})

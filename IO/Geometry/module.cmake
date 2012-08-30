@@ -9,6 +9,7 @@ vtk_module(vtkIOGeometry
     vtkzlib
   TEST_DEPENDS
     vtkIOAMR
+    vtkIOLegacy
     vtkFiltersGeometry
     vtkRenderingOpenGL
     vtkTestingRendering
