@@ -156,6 +156,14 @@ public:
   void SetImageOrientation(const double leftToRight[3],
                            const double bottomToTop[3]);
 
+  // Description:
+  // Get the current image property, which is set when StartWindowLevel
+  // is called immediately before StartWindowLevelEvent is generated.
+  // This is the image property of the topmost vtkImageSlice in the
+  // renderer or NULL if no image actors are present.
+  vtkImageProperty *GetCurrentImageProperty() {
+    return this->CurrentImageProperty; }
+
 protected:
   vtkInteractorStyleImage();
   ~vtkInteractorStyleImage();
