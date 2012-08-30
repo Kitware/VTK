@@ -1,2 +1,5 @@
 add_test_python(TestFlyTo.py Rendering)
 add_test_python(TestStyleRubberBandZoom.py Rendering)
+add_test_python(TestInteractorStyleTerrain.py Rendering)
+add_test_python(TestStyleBase.py Rendering)
+add_test_python(TestStyleBaseSpike.py Rendering)
