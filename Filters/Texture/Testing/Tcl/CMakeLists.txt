@@ -1,0 +1,5 @@
+add_test_tcl(AutomaticPlaneGeneration.tcl Graphics)
+add_test_tcl(cylMap.tcl Graphics)
+add_test_tcl(socbal.tcl Graphics)
+add_test_tcl(textureThreshold.tcl Graphics)
+add_test_tcl(triangularTCoords.tcl Graphics)
