@@ -3,6 +3,11 @@ set(Module_SRCS
   #vtkMPEG2Writer.cxx # Do we want to continue supporting?
   )
 
+set_source_files_properties(
+  vtkGenericMovieWriter
+  ABSTRACT
+  )
+
 if(vtkIOMovie_vtkoggtheora)
   list(APPEND Module_SRCS vtkOggTheoraWriter.cxx)
 endif()
