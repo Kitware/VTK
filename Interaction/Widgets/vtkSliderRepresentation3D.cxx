@@ -22,8 +22,11 @@
 #include "vtkCylinder.h"
 #include "vtkSphereSource.h"
 #include "vtkCellPicker.h"
+#include "vtkPickingManager.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkMath.h"
 #include "vtkLine.h"
 #include "vtkAssemblyPath.h"
@@ -236,6 +239,13 @@ vtkSliderRepresentation3D::~vtkSliderRepresentation3D()
 }
 
 //----------------------------------------------------------------------
+void vtkSliderRepresentation3D::RegisterPickers()
+{
+  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
+    ->AddPicker(this->Picker, this);
+}
+
+//----------------------------------------------------------------------
 void vtkSliderRepresentation3D::SetTitleText(const char* label)
 {
   this->TitleText->SetText(label);
@@ -260,8 +270,9 @@ vtkCoordinate *vtkSliderRepresentation3D::GetPoint1Coordinate()
 //----------------------------------------------------------------------
 void vtkSliderRepresentation3D::StartWidgetInteraction(double eventPos[2])
 {
-  this->Picker->Pick(static_cast<int>(eventPos[0]),static_cast<int>(eventPos[1]),0.0,this->Renderer);
-  vtkAssemblyPath *path = this->Picker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath( eventPos[0], eventPos[1], 0.,
+                                                 this->Picker);
+
   if ( path != NULL )
     {
     vtkActor *prop = static_cast<vtkActor*>(path->GetLastNode()->GetViewProp());

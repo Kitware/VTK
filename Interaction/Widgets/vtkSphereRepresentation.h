@@ -261,6 +261,9 @@ protected:
   vtkCellPicker *SpherePicker;
   double LastPickPosition[3];
 
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
+
   // Methods to manipulate the sphere widget
   void Translate(double *p1, double *p2);
   void Scale(double *p1, double *p2, int X, int Y);

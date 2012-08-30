@@ -12,13 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkAbstractPropPicker.h"
 #include "vtkWidgetRepresentation.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorObserver.h"
-
-
-
+#include "vtkPickingManager.h"
 
 //----------------------------------------------------------------------
 vtkWidgetRepresentation::vtkWidgetRepresentation()
@@ -42,21 +42,87 @@ vtkWidgetRepresentation::vtkWidgetRepresentation()
   this->InitialLength = 0.0;
 
   this->NeedToRender = 0;
+
+  this->PickingManaged = true;
 }
 
 //----------------------------------------------------------------------
 vtkWidgetRepresentation::~vtkWidgetRepresentation()
 {
+  this->UnRegisterPickers();
 }
 
 //----------------------------------------------------------------------
 void vtkWidgetRepresentation::SetRenderer(vtkRenderer *ren)
 {
-  if ( ren != this->Renderer )
+  if ( ren == this->Renderer )
     {
-    this->Renderer = ren;
-    this->Modified();
+    return;
     }
+
+  this->UnRegisterPickers();
+  this->Renderer = ren;
+  this->PickersModified();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkWidgetRepresentation::RegisterPickers()
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkWidgetRepresentation::UnRegisterPickers()
+{
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+    {
+    return;
+    }
+
+  pm->RemoveObject(this);
+}
+
+//----------------------------------------------------------------------------
+void vtkWidgetRepresentation::PickersModified()
+{
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+    {
+    return;
+    }
+
+  this->UnRegisterPickers();
+  this->RegisterPickers();
+}
+
+//----------------------------------------------------------------------------
+vtkPickingManager* vtkWidgetRepresentation::GetPickingManager()
+{
+  if (!this->Renderer ||
+      !this->Renderer->GetRenderWindow() ||
+      !this->Renderer->GetRenderWindow()->GetInteractor() ||
+      !this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager())
+    {
+    return 0;
+    }
+
+  return
+    this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager();
+}
+
+//------------------------------------------------------------------------------
+vtkAssemblyPath* vtkWidgetRepresentation::
+GetAssemblyPath(double X, double Y, double Z, vtkAbstractPropPicker* picker)
+{
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+    {
+    picker->Pick(X, Y, Z, this->Renderer);
+    return picker->GetPath();
+    }
+
+  return pm->GetAssemblyPath(X, Y, 0., picker, this->Renderer, this);
 }
 
 //----------------------------------------------------------------------

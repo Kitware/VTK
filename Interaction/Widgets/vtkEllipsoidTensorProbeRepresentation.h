@@ -63,6 +63,9 @@ protected:
   // Get the interpolated tensor at the current position
   void EvaluateTensor( double t[9] );
 
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
+
   vtkActor           * EllipsoidActor;
   vtkPolyDataMapper  * EllipsoidMapper;
   vtkPolyData        * TensorSource;

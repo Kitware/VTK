@@ -121,6 +121,7 @@ set(Module_SRCS
   vtkPicker.cxx # Needed by vtkRenderer
   vtkAbstractPropPicker.cxx # Needed by vtkAreaPicker
   vtkPropPicker.cxx # Needed by vtkRenderWindowInteractor
+  vtkPickingManager.cxx # Needed by vtkRenderWindowInteractor
   vtkLODProp3D.cxx # Needed by vtkAreaPicker
   vtkWorldPointPicker.cxx # Needed by vtkPropPicker
   vtkHardwareSelectionPolyDataPainter.cxx # Needed by vtkPainterPolyDataMapper

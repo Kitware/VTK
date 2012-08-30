@@ -252,6 +252,9 @@ protected:
   vtkActor *CurrentHandle;
   int CurrentHandleIndex;
 
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
+
   // Methods to manipulate the spline.
   void MovePoint(double *p1, double *p2);
   void Scale(double *p1, double *p2, int X, int Y);

@@ -28,6 +28,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineFilter.h"
+#include "vtkPickingManager.h"
 #include "vtkPlane.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -527,9 +528,7 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
     return;
     }
 
-  vtkAssemblyPath *path;
-  this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->Picker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
   if ( path == NULL ) //not picking this widget
     {
@@ -621,9 +620,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonDown()
     }
 
   // Okay, we can process this.
-  vtkAssemblyPath *path;
-  this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->Picker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
   if ( path == NULL ) //nothing picked
     {
@@ -683,9 +680,8 @@ void vtkImplicitPlaneWidget::OnRightButtonDown()
 
     // Okay, we can process this. Try to pick handles first;
     // if no handles picked, then pick the bounding box.
-    vtkAssemblyPath *path;
-    this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
-    path = this->Picker->GetPath();
+    vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
+
     if ( path == NULL ) //nothing picked
       {
       this->State = vtkImplicitPlaneWidget::Outside;
@@ -1002,6 +998,12 @@ void vtkImplicitPlaneWidget::CreateDefaultProperties()
   this->EdgesProperty = vtkProperty::New();
 }
 
+//------------------------------------------------------------------------------
+void vtkImplicitPlaneWidget::RegisterPickers()
+{
+  this->Interactor->GetPickingManager()->AddPicker(this->Picker, this);
+}
+
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::PlaceWidget(double bds[6])
 {
@@ -1311,4 +1313,3 @@ void vtkImplicitPlaneWidget::SizeHandles()
 
   this->EdgesTuber->SetRadius(0.25*radius);
 }
-

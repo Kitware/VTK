@@ -90,10 +90,6 @@
 // Thanks to Dean Inglis for developing and contributing this class.
 // Based on the Python SlicePlaneFactory from Atamai, Inc.
 
-// .SECTION Caveats
-// Note that handles and plane can be picked even when they are "behind" other
-// actors.  This is an intended feature and not a bug.
-
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkLineWidget  vtkPlaneWidget vtkPointWidget
 // vtkPolyDataSourceWidget vtkSphereWidget vtkImplicitPlaneWidget
@@ -546,6 +542,9 @@ protected:
 
   // Do the picking
   vtkAbstractPropPicker *PlanePicker;
+
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
 
   // for negative window values.
   void InvertTable();

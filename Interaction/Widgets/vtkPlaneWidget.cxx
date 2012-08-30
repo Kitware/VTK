@@ -27,6 +27,7 @@
 #include "vtkLineSource.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPickingManager.h"
 #include "vtkPlane.h"
 #include "vtkPlaneSource.h"
 #include "vtkPlanes.h"
@@ -347,6 +348,13 @@ void vtkPlaneWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
+//------------------------------------------------------------------------------
+void vtkPlaneWidget::RegisterPickers()
+{
+  this->Interactor->GetPickingManager()->AddPicker(this->HandlePicker, this);
+  this->Interactor->GetPickingManager()->AddPicker(this->PlanePicker, this);
+}
+
 void vtkPlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
                                    unsigned long event,
                                    void* clientdata,
@@ -588,9 +596,8 @@ void vtkPlaneWidget::OnLeftButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the plane.
-  vtkAssemblyPath *path;
-  this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->HandlePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
+
   if ( path != NULL )
     {
     this->State = vtkPlaneWidget::Moving;
@@ -598,8 +605,8 @@ void vtkPlaneWidget::OnLeftButtonDown()
     }
   else
     {
-    this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-    path = this->PlanePicker->GetPath();
+    path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
+
     if ( path != NULL )
       {
       vtkProp *prop = path->GetFirstNode()->GetViewProp();
@@ -668,9 +675,8 @@ void vtkPlaneWidget::OnMiddleButtonDown()
 
   // Okay, we can process this. If anything is picked, then we
   // can start pushing the plane.
-  vtkAssemblyPath *path;
-  this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->HandlePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
+
   if ( path != NULL )
     {
     this->State = vtkPlaneWidget::Pushing;
@@ -680,8 +686,8 @@ void vtkPlaneWidget::OnMiddleButtonDown()
     }
   else
     {
-    this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-    path = this->PlanePicker->GetPath();
+    path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
+
     if ( path == NULL ) //nothing picked
       {
       this->State = vtkPlaneWidget::Outside;
@@ -735,9 +741,8 @@ void vtkPlaneWidget::OnRightButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
-  vtkAssemblyPath *path;
-  this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->HandlePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
+
   if ( path != NULL )
     {
     this->State = vtkPlaneWidget::Scaling;
@@ -746,8 +751,8 @@ void vtkPlaneWidget::OnRightButtonDown()
     }
   else //see if we picked the plane or a normal
     {
-    this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-    path = this->PlanePicker->GetPath();
+    path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
+
     if ( path == NULL )
       {
       this->State = vtkPlaneWidget::Outside;

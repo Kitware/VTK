@@ -44,9 +44,6 @@
 // example, you can set the property of the 3D cursor in its normal and
 // selected states.
 
-// .SECTION Caveats
-// Note that widget can be picked even when it is "behind" other actors.
-// This is an intended feature and not a bug.
 //
 // The constrained translation/sliding action (i.e., when the "shift" key is
 // depressed) along the axes is based on a combination of a "hot" spot around
@@ -242,6 +239,9 @@ protected:
 
   // Do the picking
   vtkCellPicker *CursorPicker;
+
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
 
   // Methods to manipulate the cursor
   int ConstraintAxis;
