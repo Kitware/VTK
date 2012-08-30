@@ -7,6 +7,7 @@ vtk_module(vtkFiltersGeneric
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkFiltersModeling
+    vtkIOXML
     vtkRenderingLabel
     vtkTestingRendering
     vtkTestingGenericBridge)
