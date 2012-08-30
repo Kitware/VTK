@@ -388,7 +388,7 @@ enum Alignment {
   AlignAxisHCenter = 0x400,
   AlignAxisTop = 0x1000,
   AlignAxisBottom = 0x2000,
-  AlignAxisVCenter = 0x4000,
+  AlignAxisVCenter = 0x4000
 };
 //ETX
   // Description:
