@@ -26,14 +26,14 @@
 #ifndef __vtkXMLDataParser_h
 #define __vtkXMLDataParser_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLParserModule.h" // For export macro
 #include "vtkXMLParser.h"
 #include "vtkXMLDataElement.h"//For inline definition.
 
 class vtkInputStream;
 class vtkDataCompressor;
 
-class VTKIOXML_EXPORT vtkXMLDataParser : public vtkXMLParser
+class VTKIOXMLPARSER_EXPORT vtkXMLDataParser : public vtkXMLParser
 {
 public:
   vtkTypeMacro(vtkXMLDataParser,vtkXMLParser);

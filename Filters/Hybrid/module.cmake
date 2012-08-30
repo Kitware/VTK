@@ -6,6 +6,7 @@ vtk_module(vtkFiltersHybrid
     vtkFiltersGeneral
     vtkRenderingCore # For vtkCamera in vtkDepthSortPolyData
   TEST_DEPENDS
+    vtkIOXML
     vtkRenderingOpenGL
     vtkImagingCore
     vtkTestingRendering

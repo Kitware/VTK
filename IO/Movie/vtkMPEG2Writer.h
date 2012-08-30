@@ -41,14 +41,14 @@
 #ifndef __vtkMPEG2Writer_h
 #define __vtkMPEG2Writer_h
 
-#include "vtkIOImageModule.h" // For export macro
+#include "vtkIOMovieModule.h" // For export macro
 #include "vtkGenericMovieWriter.h"
 
 class vtkMPEG2WriterInternal;
 class vtkImageData;
 struct MPEG2_structure;
 
-class VTKIOIMAGE_EXPORT vtkMPEG2Writer : public vtkGenericMovieWriter
+class VTKIOMOVIE_EXPORT vtkMPEG2Writer : public vtkGenericMovieWriter
 {
 public:
   static vtkMPEG2Writer *New();

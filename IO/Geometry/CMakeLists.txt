@@ -11,11 +11,10 @@ SET(Module_SRCS
   vtkFacetWriter.cxx
   vtkFLUENTReader.cxx
   vtkGAMBITReader.cxx
+  vtkGaussianCubeReader.cxx
   vtkGenericDataObjectReader.cxx
   vtkGenericDataObjectWriter.cxx
-  vtkGenericMovieWriter.cxx
   vtkIVWriter.cxx
-  vtkMaterialLibrary.cxx
   vtkMCubesReader.cxx
   vtkMCubesWriter.cxx
   vtkMFIXReader.cxx
@@ -47,13 +46,10 @@ SET(Module_SRCS
   vtkStructuredPointsReader.cxx
   vtkStructuredPointsWriter.cxx
 
-  vtkShaderCodeLibrary.cxx
-
   vtkXYZMolReader.cxx
   )
 
 set_source_files_properties(
-  vtkGenericMovieWriter
   vtkMoleculeReaderBase
   ABSTRACT
   )

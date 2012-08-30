@@ -24,7 +24,7 @@
 #ifndef __vtkXMLParser_h
 #define __vtkXMLParser_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLParserModule.h" // For export macro
 #include "vtkObject.h"
 
 extern "C"
@@ -34,7 +34,7 @@ extern "C"
   void vtkXMLParserCharacterDataHandler(void*, const char*, int);
 }
 
-class VTKIOXML_EXPORT vtkXMLParser : public vtkObject
+class VTKIOXMLPARSER_EXPORT vtkXMLParser : public vtkObject
 {
 public:
   vtkTypeMacro(vtkXMLParser,vtkObject);

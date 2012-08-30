@@ -3,6 +3,6 @@ vtk_module(vtkRenderingVolumeAMR
     Rendering
   DEPENDS
     vtkParallelCore
-    vtkRenderingCore
+    vtkRenderingVolume
     vtkFiltersAMR
   )

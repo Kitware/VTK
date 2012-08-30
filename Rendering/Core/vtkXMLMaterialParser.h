@@ -68,13 +68,13 @@
 #ifndef __vtkXMLMaterialParser_h
 #define __vtkXMLMaterialParser_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkXMLParser.h"
 
 class vtkXMLMaterial;
 class vtkXMLMaterialParserInternals;
 
-class VTKIOXML_EXPORT vtkXMLMaterialParser : public vtkXMLParser
+class VTKRENDERINGCORE_EXPORT vtkXMLMaterialParser : public vtkXMLParser
 {
 public:
   static vtkXMLMaterialParser *New();
