@@ -3,7 +3,7 @@ set(Module_SRCS
   #vtkMPEG2Writer.cxx # Do we want to continue supporting?
   )
 
-if(vtkIOImage_vtkoggtheora)
+if(vtkIOMovie_vtkoggtheora)
   list(APPEND Module_SRCS vtkOggTheoraWriter.cxx)
 endif()
 

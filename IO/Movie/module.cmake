@@ -10,4 +10,8 @@ vtk_module(vtkIOMovie
     vtkCommonSystem
     vtkIOCore
     ${vtkIOMovie_vtkoggtheora}
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkImagingCore
+    vtkImagingSources
   )
