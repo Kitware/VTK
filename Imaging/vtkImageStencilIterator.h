@@ -29,7 +29,7 @@ class vtkImageStencilData;
 class vtkAlgorithm;
 
 template<class DType>
-class vtkImageStencilIterator
+class VTK_IMAGING_EXPORT vtkImageStencilIterator
 {
 public:
   // Description:
