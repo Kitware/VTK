@@ -540,7 +540,9 @@ public:
                 vtkSphereHandleRepresentation::SafeDownCast(
                   (*it)->GetRepresentation());
 
-            double pos[3] = {i, j, k};
+            double pos[3] = {static_cast<double>(i),
+                             static_cast<double>(j),
+                             static_cast<double>(k)};
             newHandleRep->SetWorldPosition(pos);
 
             ++it;
@@ -579,7 +581,7 @@ public:
     this->logTime->Delete();
   }
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  virtual void Execute(vtkObject* vtkNotUsed(caller), unsigned long, void*)
   {
     // vtkRenderWindowInteractor *iren =
     //   static_cast<vtkRenderWindowInteractor*>(caller);
@@ -613,7 +615,7 @@ public:
 //------------------------------------------------------------------------------
 // Test Picking Manager with a lot of seeds
 //------------------------------------------------------------------------------
-int TestPickingManagerSeedWidget( int argc, char *argv[] )
+int TestPickingManagerSeedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //

@@ -167,7 +167,7 @@ public:
 //------------------------------------------------------------------------------
 // Test Picking Manager with a several widgets
 //------------------------------------------------------------------------------
-int TestPickingManagerWidgets( int argc, char *argv[] )
+int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
