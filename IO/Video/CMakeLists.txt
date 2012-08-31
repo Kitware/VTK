@@ -3,6 +3,7 @@ set(Module_SRCS
 )
 
 if(WIN32)
+  include(vtkTestVideoForWindows)
   if(VTK_VFW_SUPPORTS_CAPTURE)
     list(APPEND Module_SRCS vtkWin32VideoSource.cxx)
   endif()
@@ -14,3 +15,8 @@ if(WIN32)
 endif()
 
 vtk_module_library(vtkIOVideo ${Module_SRCS})
+
+
+if(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
+  target_link_libraries(vtkIOVideo vfw32)
+endif()

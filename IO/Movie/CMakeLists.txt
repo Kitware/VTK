@@ -13,12 +13,12 @@ if(vtkIOMovie_vtkoggtheora)
 endif()
 
 if(WIN32)
-  # Should we force this on Windows?
+  include(vtkTestVideoForWindows)
   list(APPEND Module_SRCS vtkAVIWriter.cxx)
 endif()
 
 vtk_module_library(vtkIOMovie ${Module_SRCS})
 
-if(WIN32)
+if(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
   target_link_libraries(vtkIOMovie vfw32)
 endif()
