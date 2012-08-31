@@ -28,6 +28,7 @@
 #include <vector>
 
 // VTK includes
+#include "vtkAMRInformation.h"
 #include "vtkCell.h"
 #include "vtkDoubleArray.h"
 #include "vtkGhostArray.h"
@@ -53,6 +54,10 @@
 //  GLOBAL DATA
 //------------------------------------------------------------------------------
 const int NumPatches = 4;
+
+const int NumLevels = 2;
+
+const int BlocksPerLevel[2] = {2,2};
 
 // AMR patches are defined as a 7-tuple consisting of the following:
 // (level,imin,imax,jmin,jmax,kmin,kmax)
@@ -403,6 +408,9 @@ void Get2DAMRData(vtkOverlappingAMR* amrData, int ratio)
   assert("pre: input AMR Data is NULL" && (amrData != NULL) );
   assert("pre: input AMR Data is NULL" && (ratio >= 2) );
 
+  amrData->Initialize(NumLevels, const_cast<int*>(BlocksPerLevel),
+                      const_cast<double*> (origin), VTK_XYZ_GRID);
+
   // Root virtual block at level 0
   double h[3] = {h0,h0,h0};
   int vdim[3]  = {NDIM,NDIM,NDIM};
@@ -411,15 +419,15 @@ void Get2DAMRData(vtkOverlappingAMR* amrData, int ratio)
   assert("pre: virtual grid is NULL" && (vgrid != NULL) );
 
   vtkUniformGrid *refinedPatch = NULL;
+  int idxAtLevel[NumLevels] = {0,0};
   for( int patchIdx=0; patchIdx < NumPatches; ++patchIdx )
     {
     int patchLevel = Patches[patchIdx][0];
-    int idxAtLevel = amrData->GetNumberOfDataSets(patchLevel);
     int *patch     = &Patches[patchIdx][1];
     refinedPatch   = RefinePatch(vgrid,patchLevel,2,patch,ratio);
     assert("pre: refined grid is NULL" && (refinedPatch != NULL) );
-    amrData->SetDataSet(patchLevel,idxAtLevel,refinedPatch);
-    amrData->SetCompositeIndex(patchLevel,idxAtLevel,patchIdx);
+    amrData->SetDataSet(patchLevel,idxAtLevel[patchLevel],refinedPatch);
+    idxAtLevel[patchLevel]++;
     refinedPatch->Delete();
     refinedPatch = NULL;
     }
@@ -432,6 +440,9 @@ void Get3DAMRData(vtkOverlappingAMR* amrData, int ratio)
   assert("pre: input AMR Data is NULL" && (amrData != NULL) );
   assert("pre: input AMR Data is NULL" && (ratio >= 2) );
 
+  amrData->Initialize(NumLevels, const_cast<int*>(BlocksPerLevel),
+                      const_cast<double*> (origin), VTK_XYZ_GRID);
+
   // Root virtual block at level 0
   double h[3] = {h0,h0,h0};
   int vdim[3]  = {NDIM,NDIM,NDIM};
@@ -440,15 +451,15 @@ void Get3DAMRData(vtkOverlappingAMR* amrData, int ratio)
   assert("pre: virtual grid is NULL" && (vgrid != NULL) );
 
   vtkUniformGrid *refinedPatch = NULL;
+  int idxAtLevel[NumLevels] = {0,0};
   for( int patchIdx=0; patchIdx < NumPatches; ++patchIdx )
     {
     int patchLevel = Patches[patchIdx][0];
-    int idxAtLevel = amrData->GetNumberOfDataSets(patchLevel);
     int *patch     = &Patches[patchIdx][1];
     refinedPatch   = RefinePatch(vgrid,patchLevel,3,patch,ratio);
     assert("pre: refined grid is NULL" && (refinedPatch != NULL) );
-    amrData->SetDataSet(patchLevel,idxAtLevel,refinedPatch);
-    amrData->SetCompositeIndex(patchLevel,idxAtLevel,patchIdx);
+    amrData->SetDataSet(patchLevel,idxAtLevel[patchLevel],refinedPatch);
+    idxAtLevel[patchLevel]++;
     refinedPatch->Delete();
     refinedPatch = NULL;
     }
@@ -506,6 +517,13 @@ void GetGhostedAMRData(
   assert("pre: AMR is NULL" && (amr != NULL) );
   assert("pre: AMR grid connectivity is NULL" && (amrConnectivity != NULL) );
   assert("pre: Ghosted AMR is NULL" && (ghostedAMR != NULL) );
+  std::vector<int> blocksPerLevel;
+  for(unsigned int i=0; i<amr->GetNumberOfLevels();i++)
+    {
+    blocksPerLevel.push_back(amr->GetNumberOfDataSets(i));
+    }
+  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0],
+                         amr->GetAMRInfo()->GetOrigin(), amr->GetGridDescription());
 
   unsigned int levelIdx=0;
   for( ;levelIdx < amr->GetNumberOfLevels(); ++levelIdx)
@@ -538,13 +556,11 @@ void GetGhostedAMRData(
             amrConnectivity->GetGhostedGridCellData(linearIdx));
 
         ghostedAMR->SetDataSet(levelIdx,dataIdx,ghostedGrid);
-        ghostedAMR->SetCompositeIndex(levelIdx,dataIdx,linearIdx);
         ghostedGrid->Delete();
         } // END if grid is not null
       else
         {
         ghostedAMR->SetDataSet(levelIdx,dataIdx,NULL);
-        ghostedAMR->SetCompositeIndex(levelIdx,dataIdx,linearIdx);
         } // END else
 
       } // END for all data
