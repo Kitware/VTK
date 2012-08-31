@@ -58,6 +58,17 @@ public:
   vtkSetStringMacro(ProcessIdArrayName);
   vtkGetStringMacro(ProcessIdArrayName);
 
+  // Description:
+  // Generally, vtkCompositePainter can render the composite id when iterating
+  // over composite datasets. However in some cases (as in AMR), the rendered
+  // structure may not correspond to the input data, in which case we need
+  // to provide a cell array that can be used to render in the composite id in
+  // selection passes. Set to NULL (default) to not override the composite id
+  // color set by vtkCompositePainter if any.
+  // The array *MUST* be a cell array and of type vtkUnsignedIntArray.
+  vtkSetStringMacro(CompositeIdArrayName);
+  vtkGetStringMacro(CompositeIdArrayName);
+
 //BTX
 protected:
   vtkHardwareSelectionPolyDataPainter();
@@ -77,6 +88,8 @@ protected:
   char* PointIdArrayName;
   char* CellIdArrayName;
   char* ProcessIdArrayName;
+  char* CompositeIdArrayName;
+
 private:
   vtkHardwareSelectionPolyDataPainter(const vtkHardwareSelectionPolyDataPainter&); // Not implemented.
   void operator=(const vtkHardwareSelectionPolyDataPainter&); // Not implemented.
