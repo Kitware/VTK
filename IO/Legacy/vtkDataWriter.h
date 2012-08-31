@@ -26,7 +26,7 @@
 #ifndef __vtkDataWriter_h
 #define __vtkDataWriter_h
 
-#include "vtkIOCoreModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkWriter.h"
 
 class vtkCellArray;
@@ -37,7 +37,7 @@ class vtkGraph;
 class vtkPoints;
 class vtkTable;
 
-class VTKIOCORE_EXPORT vtkDataWriter : public vtkWriter
+class VTKIOLEGACY_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
   vtkTypeMacro(vtkDataWriter,vtkWriter);

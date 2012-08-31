@@ -63,9 +63,9 @@ vtkStandardNewMacro(vtkCMLMoleculeReader);
 
 //----------------------------------------------------------------------------
 vtkCMLMoleculeReader::vtkCMLMoleculeReader()
-  : vtkDataReader(),
-    FileName(NULL)
+  : FileName(NULL)
 {
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------

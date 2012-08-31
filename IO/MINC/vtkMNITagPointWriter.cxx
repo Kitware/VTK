@@ -94,6 +94,8 @@ vtkMNITagPointWriter::vtkMNITagPointWriter()
 
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(0);
+
+  this->FileName = 0;
 }
 
 //-------------------------------------------------------------------------
@@ -119,6 +121,8 @@ vtkMNITagPointWriter::~vtkMNITagPointWriter()
     {
     delete [] this->Comments;
     }
+
+  delete[] this->FileName;
 }
 
 //-------------------------------------------------------------------------
@@ -319,7 +323,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
     }
 
   // If we got this far, the data seems to be okay
-  ostream *outfilep = this->OpenVTKFile();
+  ostream *outfilep = this->OpenFile();
   if (!outfilep)
     {
     return;
@@ -457,7 +461,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
   outfile.flush();
 
   // Close the file
-  this->CloseVTKFile(outfilep);
+  this->CloseFile(outfilep);
 
   // Delete the file if an error occurred
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -523,4 +527,42 @@ int vtkMNITagPointWriter::RequestData(
   this->WriteTime.Modified();
 
   return 1;
+}
+
+//-------------------------------------------------------------------------
+ostream *vtkMNITagPointWriter::OpenFile()
+{
+  ostream *fptr;
+
+  if (!this->FileName )
+    {
+    vtkErrorMacro(<< "No FileName specified! Can't write!");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
+    return NULL;
+    }
+
+  vtkDebugMacro(<<"Opening file for writing...");
+
+  fptr = new ofstream(this->FileName, ios::out);
+
+  if (fptr->fail())
+    {
+    vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
+    delete fptr;
+    return NULL;
+    }
+
+  return fptr;
+}
+
+//-------------------------------------------------------------------------
+void vtkMNITagPointWriter::CloseFile(ostream *fp)
+{
+  vtkDebugMacro(<<"Closing file\n");
+
+  if ( fp != NULL )
+    {
+    delete fp;
+    }
 }

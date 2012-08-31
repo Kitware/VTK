@@ -11,6 +11,7 @@ vtk_module(vtkInteractionWidgets
     vtkImagingHybrid
     vtkInteractionStyle
   TEST_DEPENDS
+    vtkIOLegacy
     vtkIOXML
     vtkRenderingVolumeOpenGL
     vtkRenderingFreeTypeOpenGL

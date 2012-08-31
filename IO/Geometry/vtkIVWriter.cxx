@@ -15,6 +15,7 @@
 #include "vtkIVWriter.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -225,4 +226,23 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
 void vtkIVWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData* vtkIVWriter::GetInput()
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput());
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData* vtkIVWriter::GetInput(int port)
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput(port));
+}
+
+//----------------------------------------------------------------------------
+int vtkIVWriter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
 }

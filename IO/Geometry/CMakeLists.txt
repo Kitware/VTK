@@ -4,16 +4,10 @@ SET(Module_SRCS
   vtkBYUWriter.cxx
   #vtkCGMWriter.cxx # Needs vtkViewport.
   vtkChacoReader.cxx
-  vtkCompositeDataReader.cxx
-  vtkCompositeDataWriter.cxx
-  vtkDataSetReader.cxx
-  vtkDataSetWriter.cxx
   vtkFacetWriter.cxx
   vtkFLUENTReader.cxx
   vtkGAMBITReader.cxx
   vtkGaussianCubeReader.cxx
-  vtkGenericDataObjectReader.cxx
-  vtkGenericDataObjectWriter.cxx
   vtkIVWriter.cxx
   vtkMCubesReader.cxx
   vtkMCubesWriter.cxx
@@ -24,27 +18,12 @@ SET(Module_SRCS
   vtkOpenFOAMReader.cxx
   vtkParticleReader.cxx
   vtkPDBReader.cxx
-  vtkPolyDataReader.cxx
-  vtkPolyDataWriter.cxx
   vtkProStarReader.cxx
-  vtkRectilinearGridReader.cxx
-  vtkRectilinearGridWriter.cxx
   vtkSESAMEReader.cxx
-  vtkSimplePointsReader.cxx
-  vtkSimplePointsWriter.cxx
   vtkSTLReader.cxx
   vtkSTLWriter.cxx
-  vtkStructuredGridReader.cxx
-  vtkStructuredGridWriter.cxx
   vtkTecplotReader.cxx
-  vtkTreeReader.cxx
-  vtkTreeWriter.cxx
   vtkUGFacetReader.cxx
-  vtkUnstructuredGridReader.cxx
-  vtkUnstructuredGridWriter.cxx
-
-  vtkStructuredPointsReader.cxx
-  vtkStructuredPointsWriter.cxx
 
   vtkXYZMolReader.cxx
   )

@@ -28,12 +28,12 @@
 #ifndef __vtkStructuredGridReader_h
 #define __vtkStructuredGridReader_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
 
 class vtkStructuredGrid;
 
-class VTKIOGEOMETRY_EXPORT vtkStructuredGridReader : public vtkDataReader
+class VTKIOLEGACY_EXPORT vtkStructuredGridReader : public vtkDataReader
 {
 public:
   static vtkStructuredGridReader *New();
@@ -67,5 +67,3 @@ private:
 };
 
 #endif
-
-

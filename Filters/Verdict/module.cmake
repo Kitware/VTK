@@ -5,6 +5,6 @@ vtk_module(vtkFiltersVerdict
     vtkCommonExecutionModel
     vtkverdict
   TEST_DEPENDS
-    vtkIOGeometry
+    vtkIOLegacy
     vtkTestingCore
   )

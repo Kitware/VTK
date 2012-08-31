@@ -28,12 +28,12 @@
 #ifndef __vtkPolyDataReader_h
 #define __vtkPolyDataReader_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
 
 class vtkPolyData;
 
-class VTKIOGEOMETRY_EXPORT vtkPolyDataReader : public vtkDataReader
+class VTKIOLEGACY_EXPORT vtkPolyDataReader : public vtkDataReader
 {
 public:
   static vtkPolyDataReader *New();
@@ -67,5 +67,3 @@ private:
 };
 
 #endif
-
-

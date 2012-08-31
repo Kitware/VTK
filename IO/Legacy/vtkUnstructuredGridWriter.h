@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGraphWriter.h
+  Module:    vtkUnstructuredGridWriter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,44 +12,43 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphWriter - write vtkGraph data to a file
+// .NAME vtkUnstructuredGridWriter - write vtk unstructured grid data file
 // .SECTION Description
-// vtkGraphWriter is a sink object that writes ASCII or binary
-// vtkGraph data files in vtk format. See text for format details.
+// vtkUnstructuredGridWriter is a source object that writes ASCII or binary
+// unstructured grid data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkGraphWriter_h
-#define __vtkGraphWriter_h
+#ifndef __vtkUnstructuredGridWriter_h
+#define __vtkUnstructuredGridWriter_h
 
-#include "vtkIOCoreModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+class vtkUnstructuredGrid;
 
-class vtkGraph;
-
-class VTKIOCORE_EXPORT vtkGraphWriter : public vtkDataWriter
+class VTKIOLEGACY_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
 {
 public:
-  static vtkGraphWriter *New();
-  vtkTypeMacro(vtkGraphWriter,vtkDataWriter);
+  static vtkUnstructuredGridWriter *New();
+  vtkTypeMacro(vtkUnstructuredGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the input to this writer.
-  vtkGraph* GetInput();
-  vtkGraph* GetInput(int port);
+  vtkUnstructuredGrid* GetInput();
+  vtkUnstructuredGrid* GetInput(int port);
 
 protected:
-  vtkGraphWriter() {};
-  ~vtkGraphWriter() {};
+  vtkUnstructuredGridWriter() {};
+  ~vtkUnstructuredGridWriter() {};
 
   void WriteData();
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkGraphWriter(const vtkGraphWriter&);  // Not implemented.
-  void operator=(const vtkGraphWriter&);  // Not implemented.
+  vtkUnstructuredGridWriter(const vtkUnstructuredGridWriter&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridWriter&);  // Not implemented.
 };
 
 #endif

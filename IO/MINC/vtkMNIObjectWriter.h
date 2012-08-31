@@ -63,7 +63,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define __vtkMNIObjectWriter_h
 
 #include "vtkIOMINCModule.h" // For export macro
-#include "vtkPolyDataWriter.h"
+#include "vtkWriter.h"
 
 class vtkMapper;
 class vtkProperty;
@@ -73,10 +73,10 @@ class vtkFloatArray;
 class vtkIntArray;
 class vtkPoints;
 
-class VTKIOMINC_EXPORT vtkMNIObjectWriter : public vtkPolyDataWriter
+class VTKIOMINC_EXPORT vtkMNIObjectWriter : public vtkWriter
 {
 public:
-  vtkTypeMacro(vtkMNIObjectWriter,vtkPolyDataWriter);
+  vtkTypeMacro(vtkMNIObjectWriter,vtkWriter);
 
   static vtkMNIObjectWriter *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);
@@ -110,6 +110,23 @@ public:
   virtual void SetLookupTable(vtkLookupTable *table);
   virtual vtkLookupTable *GetLookupTable() { return this->LookupTable; };
 
+  // Description:
+  // Get the input to this writer.
+  vtkPolyData* GetInput();
+  vtkPolyData* GetInput(int port);
+
+  // Description:
+  // Specify file name of vtk polygon data file to write.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+
+  // Description:
+  // Specify file type (ASCII or BINARY) for vtk data file.
+  vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
+  vtkGetMacro(FileType,int);
+  void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);};
+  void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);};
+
 protected:
   vtkMNIObjectWriter();
   ~vtkMNIObjectWriter();
@@ -136,6 +153,15 @@ protected:
   int WriteLineObject(vtkPolyData *output);
 
   void WriteData();
+
+  char* FileName;
+
+  int FileType;
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
+  ostream *OpenFile();
+  void CloseFile(ostream *fp);
 
 private:
   vtkMNIObjectWriter(const vtkMNIObjectWriter&); // Not implemented

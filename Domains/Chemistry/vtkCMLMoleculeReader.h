@@ -20,15 +20,15 @@
 #define __vtkCMLMoleculeReader_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
-#include "vtkDataReader.h"
+#include "vtkMoleculeAlgorithm.h"
 
 class vtkMolecule;
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkCMLMoleculeReader : public vtkDataReader
+class VTKDOMAINSCHEMISTRY_EXPORT vtkCMLMoleculeReader : public vtkMoleculeAlgorithm
 {
 public:
   static vtkCMLMoleculeReader *New();
-  vtkTypeMacro(vtkCMLMoleculeReader,vtkDataReader);
+  vtkTypeMacro(vtkCMLMoleculeReader,vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

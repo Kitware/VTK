@@ -2,12 +2,12 @@ vtk_module(vtkRenderingHybridOpenGL
   GROUPS
     Rendering
   DEPENDS
-    vtkIOGeometry
+    vtkIOLegacy
     vtkImagingSources
     vtkImagingHybrid
     vtkRenderingOpenGL
   TEST_DEPENDS
-    vtkIOGeometry
+    vtkIOLegacy
     vtkIOXML
     vtkTestingCore
     vtkTestingRendering

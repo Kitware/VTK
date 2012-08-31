@@ -27,23 +27,55 @@
 #define __vtkSTLWriter_h
 
 #include "vtkIOGeometryModule.h" // For export macro
-#include "vtkPolyDataWriter.h"
+#include "vtkWriter.h"
 
-class VTKIOGEOMETRY_EXPORT vtkSTLWriter : public vtkPolyDataWriter
+class vtkCellArray;
+class vtkPoints;
+class vtkPolyData;
+
+class VTKIOGEOMETRY_EXPORT vtkSTLWriter : public vtkWriter
 {
 public:
   static vtkSTLWriter *New();
-  vtkTypeMacro(vtkSTLWriter,vtkPolyDataWriter);
+  vtkTypeMacro(vtkSTLWriter,vtkWriter);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Get the input to this writer.
+  vtkPolyData* GetInput();
+  vtkPolyData* GetInput(int port);
+
+  // Description:
+  // Specify file name of vtk polygon data file to write.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+
+  // Description:
+  // Specify file type (ASCII or BINARY) for vtk data file.
+  vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
+  vtkGetMacro(FileType,int);
+  void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);};
+  void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);};
 
 protected:
   vtkSTLWriter();
-  ~vtkSTLWriter() {};
+  ~vtkSTLWriter()
+    {
+    delete[] this->FileName;
+    delete[] this->Header;
+    }
 
   void WriteData();
 
   void WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys);
   void WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys);
+
+  char* FileName;
+  char *Header;
+  int FileType;
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkSTLWriter(const vtkSTLWriter&);  // Not implemented.
   void operator=(const vtkSTLWriter&);  // Not implemented.

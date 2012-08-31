@@ -22,10 +22,10 @@
 #ifndef __vtkSimplePointsWriter_h
 #define __vtkSimplePointsWriter_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataSetWriter.h"
 
-class VTKIOGEOMETRY_EXPORT vtkSimplePointsWriter : public vtkDataSetWriter
+class VTKIOLEGACY_EXPORT vtkSimplePointsWriter : public vtkDataSetWriter
 {
 public:
   static vtkSimplePointsWriter *New();
