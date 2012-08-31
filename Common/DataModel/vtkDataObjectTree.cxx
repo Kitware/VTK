@@ -269,11 +269,28 @@ void vtkDataObjectTree::SetDataSetFrom(vtkDataObjectTreeIterator* iter,
 //----------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* compositeIter)
 {
-  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(compositeIter);
-  if (!iter || iter->IsDoneWithTraversal())
+  if (!compositeIter || compositeIter->IsDoneWithTraversal())
     {
     vtkErrorMacro("Invalid iterator location.");
     return 0;
+    }
+
+  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(compositeIter);
+  if (!iter)
+    {
+    //It might be the case that the multiblock data set is a flat
+    // tree with the same number of data sets as pointed by compsiteIter.
+    //So we will try to work with it here.
+    //To do: More clear check of structures here. At least something like this->Depth()==1
+    unsigned int currentFlatIndex = compositeIter->GetCurrentFlatIndex();
+    if(currentFlatIndex < this->GetNumberOfChildren())
+      {
+      return this->GetChild(currentFlatIndex);
+      }
+    else
+      {
+      return 0;
+      }
     }
 
   vtkDataObjectTreeIndex index = iter->GetCurrentIndex();
