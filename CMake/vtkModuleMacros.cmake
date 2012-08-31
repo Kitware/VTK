@@ -482,6 +482,21 @@ VTK_AUTOINIT(${vtk-module})
       )
   endif()
 
+  if(BUILD_TESTING AND TCL_TCLSH)
+    add_test(NAME ${vtk-module}-TestSetObjectMacro
+      COMMAND ${TCL_TCLSH}
+      ${VTK_SOURCE_DIR}/Testing/Core/FindString.tcl
+      "${${vtk-module}_SOURCE_DIR}/vtk\\\\*.h"
+      # "${CMAKE_CURRENT_SOURCE_DIR}/vtk\\\\*.h"
+      "vtkSetObjectMacro"
+      ${VTK_SOURCE_DIR}/Common/Core/vtkSetGet.h
+      )
+    add_test(NAME ${vtk-module}-TestPrintSelf
+      COMMAND ${TCL_TCLSH}
+      ${VTK_SOURCE_DIR}/Testing/Core/PrintSelfCheck.tcl
+      ${${vtk-module}_SOURCE_DIR})
+  endif()
+
   # Add the module to the list of wrapped modules if necessary
   vtk_add_wrapping(${vtk-module} "${ARGN}" "${${vtk-module}_HDRS}")
 
