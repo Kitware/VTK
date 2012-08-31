@@ -391,7 +391,7 @@ void vtkBiomTableReader::ParseSparseData()
   while(1)
     {
     // find [ (beginning of triplet)
-    size_t pos1 = this->FileContents.find("[", pos_start);
+    pos1 = this->FileContents.find("[", pos_start);
     if (pos1 == std::string::npos)
       {
       vtkErrorMacro(<<"data field not formatted properly");

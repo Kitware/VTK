@@ -204,7 +204,7 @@ void vtkTreeHeatmapItem::GenerateLookupTableForStringColumn(vtkIdType column)
   // map each string to a double value based on its position
   // in alphabetical order
   std::map< std::string, double> stringToDouble;
-  for (int i = 0; i < sortedStrings.size(); ++i)
+  for (unsigned int i = 0; i < sortedStrings.size(); ++i)
     {
     stringToDouble[ sortedStrings[i] ] = (double)i;
     }
