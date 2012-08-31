@@ -135,7 +135,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
   // Check to see if the AMR box instance is invalid.
   // An AMR box is invalid iff HiCorner[ i ] < LoCorner[ i ]
   // for any i.
-  bool IsInvalid() const;
+  bool IsInvalid() const
+  {
+    return ((this->HiCorner[0] < this->LoCorner[0]) ||
+          (this->HiCorner[1] < this->LoCorner[1]) ||
+          (this->HiCorner[2] < this->LoCorner[2]));
+  }
 
   // Description:
   // Test if this box is equal with the box instance on the rhs.
@@ -328,14 +333,6 @@ void FillRegion(
 
 }
 
-
-//-----------------------------------------------------------------------------
-inline bool vtkAMRBox::IsInvalid() const
-{
-  return ((this->HiCorner[0] < this->LoCorner[0]-1) ||
-          (this->HiCorner[1] < this->LoCorner[1]-1) ||
-          (this->HiCorner[2] < this->LoCorner[2]-1));
-}
 //-----------------------------------------------------------------------------
 inline void vtkAMRBox::Invalidate()
 {
