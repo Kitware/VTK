@@ -303,7 +303,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
   // get array of node names from the tree
   vtkStringArray *nodeNames = vtkStringArray::SafeDownCast(
     this->LayoutTree->GetVertexData()->GetAbstractArray("node name"));
-  
+
   this->SetupTextProperty(painter, cellHeight);
 
   if (!this->Table)
@@ -418,7 +418,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       painter->DrawString(xStart, yStart, columnName);
     }
 }
-    
+
 void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
 {
   double cellHeight = 50;
@@ -497,7 +497,7 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
       painter->DrawString(xStart, yStart, columnName);
     }
 }
-  
+
 void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter, int cellHeight)
 {
   // set up our text property to draw row names

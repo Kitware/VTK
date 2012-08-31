@@ -111,7 +111,7 @@ protected:
   // contains only strings.  Each string will be assigned a separate color.
   // This is useful for visualizing categorical data.
   void GenerateLookupTableForStringColumn(vtkIdType column);
-    
+
   // Description:
   // Draw the heatmap when no corresponding tree is present.
   void PaintHeatmapWithoutTree(vtkContext2D *painter);
