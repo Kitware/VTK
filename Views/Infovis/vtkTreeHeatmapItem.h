@@ -120,7 +120,7 @@ protected:
   // Initialize a vtkTextProperty for drawing labels.  This involves
   // calculating an appropriate font size so that labels will fit within
   // the specified cell size.
-  void SetupTextProperty(vtkContext2D *painter, int cellHeight);
+  void SetupTextProperty(vtkContext2D *painter, double cellHeight);
 
 private:
   vtkTreeHeatmapItem(const vtkTreeHeatmapItem&); // Not implemented

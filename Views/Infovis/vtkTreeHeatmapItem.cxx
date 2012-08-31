@@ -498,7 +498,7 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
     }
 }
 
-void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter, int cellHeight)
+void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter, double cellHeight)
 {
   // set up our text property to draw row names
   painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
