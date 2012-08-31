@@ -87,7 +87,9 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->Picker->Delete();
 
   this->PickingManager = 0;
-  this->SetPickingManager(this->CreateDefaultPickingManager());
+  vtkPickingManager* pm = this->CreateDefaultPickingManager();
+  this->SetPickingManager(pm);
+  pm->Delete();
 
   this->EventPosition[0] = this->LastEventPosition[0] = 0;
   this->EventPosition[1] = this->LastEventPosition[1] = 0;
