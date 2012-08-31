@@ -23,7 +23,6 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-
 //----------------------------------------------------------------------------
 vtkDataObjectTree::vtkDataObjectTree()
 {
@@ -36,6 +35,18 @@ vtkDataObjectTree::~vtkDataObjectTree()
   delete this->Internals;
 }
 
+//----------------------------------------------------------------------------
+vtkDataObjectTree* vtkDataObjectTree::GetData(vtkInformation* info)
+{
+  return info? vtkDataObjectTree::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkDataObjectTree* vtkDataObjectTree::GetData(vtkInformationVector* v,
+                                                  int i)
+{
+  return vtkDataObjectTree::GetData(v->GetInformationObject(i));
+}
 
 //----------------------------------------------------------------------------
 void vtkDataObjectTree::SetNumberOfChildren(unsigned int num)
