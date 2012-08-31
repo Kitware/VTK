@@ -795,6 +795,9 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     if ( isCategorical )
       {
+      // Must reset the color on the leader lines since vtkTextProperty doesn't inherit vtkProperty.
+      this->AnnotationLeadersActor->GetProperty()->SetColor( this->LabelTextProperty->GetColor() );
+      this->AnnotationLeadersActor->GetProperty()->SetOpacity( this->LabelTextProperty->GetOpacity() );
       // this->ScalarBar will not be drawn; instead, draw padded boxes
       // and leaders to labels for each annotated value.
       // Since labels are user-provided, we render with vtkMathTextActor to allow fancy-ness.
