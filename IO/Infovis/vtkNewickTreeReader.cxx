@@ -215,7 +215,6 @@ void vtkNewickTreeReader::CountNodes(char *buffer, vtkIdType *numNodes)
 {
   char *current;
   char *start;
-  char *colon = NULL;
   char temp;
   int childCount;
 
@@ -228,10 +227,6 @@ void vtkNewickTreeReader::CountNodes(char *buffer, vtkIdType *numNodes)
     current = buffer;
     while (*current != '\0')
     {
-      if (*current == ':')
-      {
-        colon = current;
-      }
       current++;
     }
     ++(*numNodes);
@@ -393,7 +388,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
   {
     // Create node
     node = g->AddChild(parent);
-    vtkIdType child;
+
     // Search for all child nodes
     // Find all ',' until corresponding ')' is encountered
     childCount = 0;
@@ -427,7 +422,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
           temp = *current;
           *current = '\0';
           // Create a child node using recursion
-          child = this->BuildTree(start, g, weights, names, node);
+          this->BuildTree(start, g, weights, names, node);
           *current = temp;
           if (*current != ')')
           {
@@ -455,7 +450,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
           temp = *current;
           *current = '\0';
           // Create a child node using recursion
-          child = this->BuildTree(start, g, weights, names, node);
+          this->BuildTree(start, g, weights, names, node);
           *current = temp;
           if (*current != ')')
           {

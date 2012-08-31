@@ -112,6 +112,16 @@ protected:
   // This is useful for visualizing categorical data.
   void GenerateLookupTableForStringColumn(vtkIdType column);
 
+  // Description:
+  // Draw the heatmap when no corresponding tree is present.
+  void PaintHeatmapWithoutTree(vtkContext2D *painter);
+
+  // Description:
+  // Initialize a vtkTextProperty for drawing labels.  This involves
+  // calculating an appropriate font size so that labels will fit within
+  // the specified cell size.
+  void SetupTextProperty(vtkContext2D *painter, double cellHeight);
+
 private:
   vtkTreeHeatmapItem(const vtkTreeHeatmapItem&); // Not implemented
   void operator=(const vtkTreeHeatmapItem&); // Not implemented
