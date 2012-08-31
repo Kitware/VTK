@@ -8,6 +8,7 @@ vtk_module(vtkRenderingMatplotlib
     vtkInteractionImage
     vtkInteractionWidgets
     vtkIOExport
+    vtkIOGeometry
     vtkTestingRendering
     vtkRenderingGL2PS
     vtkRenderingOpenGL
