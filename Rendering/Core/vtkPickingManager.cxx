@@ -521,7 +521,7 @@ GetAssemblyPath(double X, double Y, double Z,
 //------------------------------------------------------------------------------
 int vtkPickingManager::GetNumberOfPickers()
 {
-  return this->Internal->Pickers.size();
+  return static_cast<int>(this->Internal->Pickers.size());
 }
 
 //------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ int vtkPickingManager::GetNumberOfObjectsLinked(vtkAbstractPicker* picker)
     return 0;
     }
 
-  return it->second.size();
+  return static_cast<int>(it->second.size());
 }
 
 //------------------------------------------------------------------------------
