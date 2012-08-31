@@ -330,14 +330,14 @@ void FillRegion(
 
 
 //-----------------------------------------------------------------------------
-VTKCOMMONDATAMODEL_EXPORT inline bool vtkAMRBox::IsInvalid() const
+inline bool vtkAMRBox::IsInvalid() const
 {
   return ((this->HiCorner[0] < this->LoCorner[0]-1) ||
           (this->HiCorner[1] < this->LoCorner[1]-1) ||
           (this->HiCorner[2] < this->LoCorner[2]-1));
 }
 //-----------------------------------------------------------------------------
-VTKCOMMONDATAMODEL_EXPORT inline void vtkAMRBox::Invalidate()
+inline void vtkAMRBox::Invalidate()
 {
   this->LoCorner[0]=this->LoCorner[1]=this->LoCorner[2]=0;
   this->HiCorner[0]=this->HiCorner[1]=this->HiCorner[2]=-2;

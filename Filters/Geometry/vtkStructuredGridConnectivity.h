@@ -499,7 +499,6 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridConnectivity :
 //=============================================================================
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline int vtkStructuredGridConnectivity::GetNeighborIndex(
     const int gridIdx, const int NeighborGridIdx )
 {
@@ -518,7 +517,6 @@ inline int vtkStructuredGridConnectivity::GetNeighborIndex(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline void vtkStructuredGridConnectivity::GetGhostedExtent(
     int *ghostedExtent, int GridExtent[6],
     const int minIdx, const int maxIdx, const int N )
@@ -539,7 +537,6 @@ inline void vtkStructuredGridConnectivity::GetGhostedExtent(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline void vtkStructuredGridConnectivity::SetGhostedGridExtent(
     const int gridID, int ext[6] )
 {
@@ -555,7 +552,6 @@ inline void vtkStructuredGridConnectivity::SetGhostedGridExtent(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline void vtkStructuredGridConnectivity::GetGridExtent(
     const int gridID, int ext[6])
 {
@@ -568,7 +564,6 @@ inline void vtkStructuredGridConnectivity::GetGridExtent(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline void vtkStructuredGridConnectivity::GetGhostedGridExtent(
     const int gridID, int ext[6])
 {
@@ -590,7 +585,6 @@ inline void vtkStructuredGridConnectivity::GetGhostedGridExtent(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
     const int i, const int j, const int k, int ext[6] )
 {
@@ -659,7 +653,6 @@ inline bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline bool vtkStructuredGridConnectivity::IsNodeInterior(
     const int i, const int j, const int k,
     int GridExtent[6] )
@@ -725,7 +718,6 @@ inline bool vtkStructuredGridConnectivity::IsNodeInterior(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline bool vtkStructuredGridConnectivity::IsNodeWithinExtent(
     const int i, const int j, const int k,
     int GridExtent[6] )
@@ -791,7 +783,6 @@ inline bool vtkStructuredGridConnectivity::IsNodeWithinExtent(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline void vtkStructuredGridConnectivity::DetermineNeighborOrientation(
     const int idx, int A[2], int B[2], int overlap[2], int orient[3] )
 {
@@ -870,7 +861,6 @@ inline void vtkStructuredGridConnectivity::DetermineNeighborOrientation(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline int vtkStructuredGridConnectivity::Get1DOrientation(
         const int idx, const int ExtentLo, const int ExtentHi,
         const int OnLo, const int OnHi, const int NotOnBoundary )
@@ -887,7 +877,6 @@ inline int vtkStructuredGridConnectivity::Get1DOrientation(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline bool vtkStructuredGridConnectivity::HasBlockConnection(
     const int gridID, const int blockDirection )
 {
@@ -907,7 +896,6 @@ inline bool vtkStructuredGridConnectivity::HasBlockConnection(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline void vtkStructuredGridConnectivity::RemoveBlockConnection(
     const int gridID, const int blockDirection )
 {
@@ -923,7 +911,6 @@ inline void vtkStructuredGridConnectivity::RemoveBlockConnection(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline void vtkStructuredGridConnectivity::AddBlockConnection(
     const int gridID, const int blockDirection )
 {
@@ -938,7 +925,6 @@ inline void vtkStructuredGridConnectivity::AddBlockConnection(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline void vtkStructuredGridConnectivity::ClearBlockConnections(
     const int gridID )
 {
@@ -954,7 +940,6 @@ inline void vtkStructuredGridConnectivity::ClearBlockConnections(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(
     const int gridID )
 {
@@ -977,7 +962,6 @@ inline int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(
 }
 
 //------------------------------------------------------------------------------
-VTKFILTERSGEOMETRY_EXPORT
 inline void vtkStructuredGridConnectivity::SetNumberOfGrids(
     const unsigned int N )
 {
