@@ -187,8 +187,8 @@ protected:
     double CameraClippingRange[2];
     double CameraViewAngle;
     double CameraParallelScale;
-    double HeadPose[16];
-    double WandPose[16];
+    double EyeTransformMatrix[16];
+    double ModelTransformMatrix[16];
 
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);
