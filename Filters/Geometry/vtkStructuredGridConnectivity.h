@@ -247,7 +247,65 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridConnectivity :
     // is within the given extent, inclusive of the extent bounds.
     bool IsNodeWithinExtent(
         const int i, const int j, const int k,
-        int Extent[6] );
+        int GridExtent[6] )
+      {
+      bool status = false;
+      switch( this->DataDescription )
+        {
+        case VTK_X_LINE:
+          if( (GridExtent[0] <= i) && (i <= GridExtent[1]) )
+            {
+            status = true;
+            }
+          break;
+        case VTK_Y_LINE:
+          if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) )
+            {
+            status = true;
+            }
+          break;
+        case VTK_Z_LINE:
+          if( (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
+            {
+            status = true;
+            }
+          break;
+        case VTK_XY_PLANE:
+          if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
+              (GridExtent[2] <= j) && (j <= GridExtent[3])  )
+            {
+            status = true;
+            }
+          break;
+        case VTK_YZ_PLANE:
+          if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) &&
+              (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
+            {
+            status = true;
+            }
+          break;
+        case VTK_XZ_PLANE:
+          if( (GridExtent[0] <= i) && (i <= GridExtent[1] ) &&
+              (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
+            {
+            status = true;
+            }
+          break;
+        case VTK_XYZ_GRID:
+          if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
+              (GridExtent[2] <= j) && (j <= GridExtent[3]) &&
+              (GridExtent[4] <= k) && (k <= GridExtent[5]) )
+            {
+            status = true;
+            }
+          break;
+        default:
+          std::cout << "Data description is: " << this->DataDescription << "\n";
+          std::cout.flush();
+          assert( "pre: Undefined data-description!" && false );
+        } // END switch
+      return status;
+      }
 
     // Description:
     // Creates a neighbor from i-to-j and from j-to-i.
@@ -704,71 +762,6 @@ inline bool vtkStructuredGridConnectivity::IsNodeInterior(
       if( (GridExtent[0] < i) && (i < GridExtent[1]) &&
           (GridExtent[2] < j) && (j < GridExtent[3]) &&
           (GridExtent[4] < k) && (k < GridExtent[5]) )
-        {
-        status = true;
-        }
-      break;
-    default:
-      std::cout << "Data description is: " << this->DataDescription << "\n";
-      std::cout.flush();
-      assert( "pre: Undefined data-description!" && false );
-    } // END switch
-
-  return( status );
-}
-
-//------------------------------------------------------------------------------
-inline bool vtkStructuredGridConnectivity::IsNodeWithinExtent(
-    const int i, const int j, const int k,
-    int GridExtent[6] )
-{
-  bool status = false;
-
-  switch( this->DataDescription )
-    {
-    case VTK_X_LINE:
-      if( (GridExtent[0] <= i) && (i <= GridExtent[1]) )
-        {
-        status = true;
-        }
-      break;
-    case VTK_Y_LINE:
-      if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) )
-        {
-        status = true;
-        }
-      break;
-    case VTK_Z_LINE:
-      if( (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
-        {
-        status = true;
-        }
-      break;
-    case VTK_XY_PLANE:
-      if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
-          (GridExtent[2] <= j) && (j <= GridExtent[3])  )
-        {
-        status = true;
-        }
-      break;
-    case VTK_YZ_PLANE:
-      if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) &&
-          (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
-        {
-        status = true;
-        }
-      break;
-    case VTK_XZ_PLANE:
-      if( (GridExtent[0] <= i) && (i <= GridExtent[1] ) &&
-          (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
-        {
-        status = true;
-        }
-      break;
-    case VTK_XYZ_GRID:
-      if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
-          (GridExtent[2] <= j) && (j <= GridExtent[3]) &&
-          (GridExtent[4] <= k) && (k <= GridExtent[5]) )
         {
         status = true;
         }
