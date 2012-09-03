@@ -228,15 +228,19 @@ OPTION(NETCDF_ENABLE_CXX "Build netcdf C++ API" ON)
 mark_as_advanced(NETCDF_ENABLE_CXX)
 SET(CXX NETCDF_ENABLE_CXX)
 
-OPTION(NETCDF_ENABLE_NETCDF4 "Build netcdf version 4 API" ON)
-if (NETCDF_ENABLE_NETCDF4 AND NOT (HDF5_BUILD_HL_LIB OR HDF5_hdf5_hl_LIBRARY))
-  message("ENABLE_NETCDF4 not allowed because NETCDF4 requires HDF5_HL.")
-  SET(NETCDF_ENABLE_NETCDF4 OFF CACHE BOOL "Build netcdf version 4 API" FORCE)
-endif (NETCDF_ENABLE_NETCDF4 AND NOT (HDF5_BUILD_HL_LIB OR HDF5_hdf5_hl_LIBRARY))
-mark_as_advanced(NETCDF_ENABLE_NETCDF4)
-SET(USE_NETCDF4 ${NETCDF_ENABLE_NETCDF4} CACHE INTERNAL "" FORCE)
+# NetCDF4 needs HDF5 HL support. Check that's available.
+set (USE_NETCDF4 OFF)
+if (NOT VTK_USE_SYSTEM_HDF5)
+  # using VTK's HDF5, we always build that with HL support.
+  set (USE_NETCDF4 ON)
+elseif(HDF5_HL_LIBRARY)
+  set (USE_NETCDF4 ON)
+else()
+  message(STATUS "Disabling NETCDF4 support since HDF5_HL is missing.")
+endif ()
 
-if (NETCDF_ENABLE_NETCDF4)
+if (USE_NETCDF4)
+  message(STATUS "NETCDF4 support is enabled.")
   set(NETCDF4_DEFAULT_CHUNK_SIZE 4194304 CACHE STRING "Specify default size of chunks in bytes.")
   mark_as_advanced(NETCDF4_DEFAULT_CHUNK_SIZE)
   
@@ -254,8 +258,7 @@ if (NETCDF_ENABLE_NETCDF4)
 
   set(NETCDF4_CHUNK_CACHE_PREEMPTION 0.75 CACHE STRING "Specify default file chunk cache preemption policy for HDF5 files (a number between 0 and 1, inclusive).")
   mark_as_advanced(NETCDF4_CHUNK_CACHE_PREEMPTION)
-
-endif (NETCDF_ENABLE_NETCDF4)
+endif (USE_NETCDF4)
   
 CONFIGURE_FILE(vtk_netcdf_config.h.in vtk_netcdf_config.h @ONLY IMMEDIATE)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
@@ -312,9 +315,9 @@ set(netcdf_src_SOURCES "" CACHE INTERNAL "" FORCE)
 ADD_SUBDIRECTORY(libsrc)
 
 set(netcdf_src4_SOURCES "" CACHE INTERNAL "" FORCE)
-IF (NETCDF_ENABLE_NETCDF4)
+IF (USE_NETCDF4)
   ADD_SUBDIRECTORY(libsrc4)
-ENDIF (NETCDF_ENABLE_NETCDF4)
+ENDIF (USE_NETCDF4)
 
 IF (NETCDF_ENABLE_CXX)
   set(netcdf_cxx_SOURCES "" CACHE INTERNAL "" FORCE)
@@ -333,14 +336,12 @@ VTK_ADD_LIBRARY(vtkNetCDF
     ${netcdf_src4_SOURCES}
     ${netcdf_dispatch_SOURCES}
     ${netcdf_liblib_SOURCES})
+target_link_libraries(vtkNetCDF ${vtkhdf5_LIBRARIES})
 
-IF (NETCDF_ENABLE_NETCDF4)
-  if (VTK_USE_SYSTEM_HDF5)
-     TARGET_LINK_LIBRARIES(vtkNetCDF ${HDF5_hdf5_LIBRARY} ${HDF5_hdf5_hl_LIBRARY})
-  else()
-     TARGET_LINK_LIBRARIES(vtkNetCDF ${vtkhdf5_LIBRARIES})
-  endif()
-ENDIF (NETCDF_ENABLE_NETCDF4)
+if (UNIX)
+  # link against the math library.
+  set_target_properties(vtkNetCDF PROPERTIES LINK_FLAGS "-lm")
+endif()
 
 VTK_ADD_LIBRARY(vtkNetCDF_cxx ${netcdf_cxx_SOURCES})
 TARGET_LINK_LIBRARIES(vtkNetCDF_cxx vtkNetCDF)
