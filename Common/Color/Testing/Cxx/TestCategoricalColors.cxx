@@ -14,7 +14,7 @@
 =========================================================================*/
 
 #include "vtkLookupTable.h"
-#include "vtkBrewerColors.h"
+#include "vtkColorSeries.h"
 #include "vtkDoubleArray.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -36,16 +36,16 @@ int TestCategoricalColors( int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   lut->SetAnnotation( 9, "Kyuu" );
   lut->RemoveAnnotation( 2. );
 
-  vtkBrewerColors* schemes = vtkBrewerColors::New();
+  vtkColorSeries* palettes = vtkColorSeries::New();
 #if 0
-  vtkIdType numSchemes = schemes->GetNumberOfSchemes();
+  vtkIdType numSchemes = palettes->GetNumberOfSchemes();
   for ( vtkIdType i = 0; i < numSchemes; ++ i )
     {
-    cout << i << ": " << schemes->GetScheme( i ) << "\n";
+    cout << i << ": " << palettes->GetScheme( i ) << "\n";
     }
 #endif
-  schemes->SetCurrentScheme( "Qualitative Accent (8)" );
-  schemes->CreateLookupTable( lut );
+  palettes->SetColorSchemeByName( "Brewer Qualitative Accent" );
+  palettes->BuildLookupTable( lut );
 
   cout.setf( std::ios_base::hex, std::ios::basefield );
   const unsigned char* rgba = lut->MapValue( 0. );
@@ -92,6 +92,6 @@ int TestCategoricalColors( int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   color->Delete();
   data->Delete();
   lut->Delete();
-  schemes->Delete();
+  palettes->Delete();
   return 0;
 }

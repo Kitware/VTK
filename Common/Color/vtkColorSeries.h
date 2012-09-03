@@ -16,17 +16,34 @@
 // .NAME vtkColorSeries - stores a list of colors.
 //
 // .SECTION Description
-// The vtkColorSeries stores a list of colors. There are several schemes
-// available and functions to control several aspects of what colors are
-// returned. In essence a color scheme is set and colors are returned based on
-// the index requested.
+// The vtkColorSeries stores palettes of colors. There are several default
+// palettes (or schemes) available and functions to control several aspects
+// of what colors are returned. In essence a color scheme is set and then
+// the number of colors and individual color values may be requested.
+//
+// It is also possible to add schemes beyond the default palettes.
+// Whenever \a SetColorScheme is called with a string for which no palette
+// already exists, a new, empty palette is created.
+// You may then use \a SetNumberOfColors and \a SetColor to populate the
+// palette.
+// You may not extend default palettes by calling functions that alter
+// a scheme; if called while a predefined palette is in use, they
+// will create a new non-default scheme and populate it with the current
+// palette before continuing.
+//
+// The "Brewer" palettes are courtesy of
+// Cynthia A. Brewer (Dept. of Geography, Pennsylvania State University)
+// and present under the Apache License. See the source code for details.
 
 #ifndef __vtkColorSeries_h
 #define __vtkColorSeries_h
 
 #include "vtkCommonColorModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkColor.h" // Needed for vtkColor3ub
+#include "vtkColor.h" // Needed for vtkColor[34]ub
+#include "vtkStdString.h" // Needed for arguments
+
+class vtkLookupTable;
 
 class VTKCOMMONCOLOR_EXPORT vtkColorSeries : public vtkObject
 {
@@ -48,21 +65,106 @@ public:
     BLUES,        ///< 7 different blues.
     WILD_FLOWER,  ///< 7 colors from blue to magenta.
     CITRUS,       ///< 6 colors from green to orange.
+    BREWER_DIVERGING_PURPLE_ORANGE_11, //!< purple-grey-orange diverging ColorBrewer scheme (11 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_10, //!< purple-grey-orange diverging ColorBrewer scheme (10 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_9, //!< purple-grey-orange diverging ColorBrewer scheme (9 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_8, //!< purple-grey-orange diverging ColorBrewer scheme (8 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_7, //!< purple-grey-orange diverging ColorBrewer scheme (7 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_6, //!< purple-grey-orange diverging ColorBrewer scheme (6 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_5, //!< purple-grey-orange diverging ColorBrewer scheme (5 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_4, //!< purple-grey-orange diverging ColorBrewer scheme (4 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_3, //!< purple-grey-orange diverging ColorBrewer scheme (3 colors)
+    BREWER_DIVERGING_SPECTRAL_11, //!< diverging spectral ColorBrewer scheme (11 colors)
+    BREWER_DIVERGING_SPECTRAL_10, //!< diverging spectral ColorBrewer scheme (10 colors)
+    BREWER_DIVERGING_SPECTRAL_9, //!< diverging spectral ColorBrewer scheme (9 colors)
+    BREWER_DIVERGING_SPECTRAL_8, //!< diverging spectral ColorBrewer scheme (8 colors)
+    BREWER_DIVERGING_SPECTRAL_7, //!< diverging spectral ColorBrewer scheme (7 colors)
+    BREWER_DIVERGING_SPECTRAL_6, //!< diverging spectral ColorBrewer scheme (6 colors)
+    BREWER_DIVERGING_SPECTRAL_5, //!< diverging spectral ColorBrewer scheme (5 colors)
+    BREWER_DIVERGING_SPECTRAL_4, //!< diverging spectral ColorBrewer scheme (4 colors)
+    BREWER_DIVERGING_SPECTRAL_3, //!< diverging spectral ColorBrewer scheme (3 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_11, //!< brown-blue-green diverging ColorBrewer scheme (11 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_10, //!< brown-blue-green diverging ColorBrewer scheme (10 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_9, //!< brown-blue-green diverging ColorBrewer scheme (9 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_8, //!< brown-blue-green diverging ColorBrewer scheme (8 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_7, //!< brown-blue-green diverging ColorBrewer scheme (7 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_6, //!< brown-blue-green diverging ColorBrewer scheme (6 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_5, //!< brown-blue-green diverging ColorBrewer scheme (5 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_4, //!< brown-blue-green diverging ColorBrewer scheme (4 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_3, //!< brown-blue-green diverging ColorBrewer scheme (3 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_9, //!< blue to green sequential ColorBrewer scheme (9 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_8, //!< blue to green sequential ColorBrewer scheme (8 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_7, //!< blue to green sequential ColorBrewer scheme (7 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_6, //!< blue to green sequential ColorBrewer scheme (6 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_5, //!< blue to green sequential ColorBrewer scheme (5 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_4, //!< blue to green sequential ColorBrewer scheme (4 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_3, //!< blue to green sequential ColorBrewer scheme (3 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_9, //!< yellow-orange-brown sequential ColorBrewer scheme (9 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_8, //!< yellow-orange-brown sequential ColorBrewer scheme (8 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_7, //!< yellow-orange-brown sequential ColorBrewer scheme (7 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_6, //!< yellow-orange-brown sequential ColorBrewer scheme (6 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_5, //!< yellow-orange-brown sequential ColorBrewer scheme (5 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_4, //!< yellow-orange-brown sequential ColorBrewer scheme (4 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_3, //!< yellow-orange-brown sequential ColorBrewer scheme (3 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_9, //!< blue to purple sequential ColorBrewer scheme (9 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_8, //!< blue to purple sequential ColorBrewer scheme (8 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_7, //!< blue to purple sequential ColorBrewer scheme (7 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_6, //!< blue to purple sequential ColorBrewer scheme (6 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_5, //!< blue to purple sequential ColorBrewer scheme (5 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_4, //!< blue to purple sequential ColorBrewer scheme (4 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_3, //!< blue to purple sequential ColorBrewer scheme (3 colors)
+    BREWER_QUALITATIVE_ACCENT, //!< qualitative ColorBrewer scheme good for accenting
+    BREWER_QUALITATIVE_DARK2, //!< a dark set of qualitative colors from ColorBrewer
+    BREWER_QUALITATIVE_SET2, //!< a qualitative ColorBrewer scheme useful for color set members
+    BREWER_QUALITATIVE_PASTEL2, //!< a qualitative ColorBrewer scheme composed of pastel colors
+    BREWER_QUALITATIVE_PASTEL1, //!< a qualitative ColorBrewer scheme composed of pastel colors
+    BREWER_QUALITATIVE_SET1, //!< a qualitative ColorBrewer scheme useful for color set members
+    BREWER_QUALITATIVE_PAIRED, //!< a qualitative ColorBrewer scheme with pairs of matching colors
+    BREWER_QUALITATIVE_SET3, //!< a qualitative ColorBrewer scheme useful for color set members
     CUSTOM        ///< User specified color scheme.
     };
+
+  /// These enumerants describe the purpose for which a palette is best suited.
+  enum Purpose {
+    DIVERGING = 0, //!< Palette is suited for illustrating diverging data with a central tendency
+    SEQUENTIAL,    //!< Palette is suited for illustrating sequential data where order is important
+    CATEGORICAL    //!< Palette is suited for illustrating categorical data where there is no clear relationship between values
+  };
 //ETX
 
   // Description:
-  // Set the color scheme that should be used from those in the enum.
-  void SetColorScheme(int scheme);
+  // Set the color scheme that should be used.
+  // The variant of this function that takes an integer should pass a
+  // number from those in the enum, or a value returned by the string variant.
+  // The variant that accepts a string returns the integer index
+  // of the resulting palette (whether it already existed or is newly-created).
+  virtual void SetColorScheme(int scheme);
+  virtual int SetColorSchemeByName( vtkStdString schemeName );
+
+  // Description:
+  // Return the number of schemes currently defined.
+  int GetNumberOfColorSchemes();
 
   // Description:
   // Get the color scheme that is currently being used.
-  vtkGetMacro(ColorScheme, int);
+  virtual vtkStdString GetColorSchemeName();
+
+  // Description:
+  // Set the name of the current color scheme
+  virtual void SetColorSchemeName(vtkStdString scheme);
+
+  // Description:
+  // Return the ID of the color scheme currently in use.
+  virtual int GetColorScheme();
 
   // Description:
   // Get the number of colors available in the current color scheme.
-  int GetNumberOfColors();
+  virtual int GetNumberOfColors();
+
+  // Description:
+  // Set the number of colors to be stored in a non-default color scheme.
+  // Calling this function on a predefined color scheme will cause the scheme to be duplicated to a new custom scheme.
+  virtual void SetNumberOfColors( int numColors );
 
 //BTX
   // Description:
@@ -78,28 +180,35 @@ public:
   // Description:
   // Set the color at the specified index. Does nothing if the index is out of
   // range.
-  void SetColor(int index, const vtkColor3ub &color);
+  virtual void SetColor(int index, const vtkColor3ub &color);
 
   // Description:
   // Adds the color to the end of the list.
-  void AddColor(const vtkColor3ub &color);
+  virtual void AddColor(const vtkColor3ub &color);
 
   // Description:
   // Inserts the color at the specified index in the list.
-  void InsertColor(int index, const vtkColor3ub &color);
+  virtual void InsertColor(int index, const vtkColor3ub &color);
 //ETX
 
   // Description:
   // Removes the color at the specified index in the list.
-  void RemoveColor(int index);
+  virtual void RemoveColor(int index);
 
   // Description:
   // Clears the list of colors.
-  void ClearColors();
+  virtual void ClearColors();
 
   // Description:
   // Make a deep copy of the supplied object.
-  void DeepCopy(vtkColorSeries *chartColors);
+  virtual void DeepCopy(vtkColorSeries *chartColors);
+
+  // Description:
+  // Populate a lookup table with all the colors in the current scheme.
+  //
+  // If \a lkup is a NULL pointer, a new vtkLookupTable will be created
+  // for you, but you are then responsible for deleting it.
+  vtkLookupTable* BuildLookupTable( vtkLookupTable* lkup );
 
 //BTX
 protected:
@@ -107,13 +216,21 @@ protected:
   ~vtkColorSeries();
 
   // Description:
+  // If the current scheme is a predefined (read-only) scheme,
+  // copy the current colors to a new scheme and modify the new scheme instead.
+  virtual void CopyOnWrite();
+
+  // Description:
   // Private data pointer of the class, stores the color list.
   class Private;
-  Private *Storage;
+  Private* Storage;
 
   // Description:
   // The color scheme being used.
   int ColorScheme;
+
+  /// The color scheme being used.
+  vtkStdString ColorSchemeName;
 
 private:
   vtkColorSeries(const vtkColorSeries &); // Not implemented.
