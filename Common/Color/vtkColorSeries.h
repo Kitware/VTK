@@ -143,11 +143,11 @@ public:
 
   // Description:
   // Return the number of schemes currently defined.
-  int GetNumberOfColorSchemes();
+  int GetNumberOfColorSchemes() const;
 
   // Description:
   // Get the color scheme that is currently being used.
-  virtual vtkStdString GetColorSchemeName();
+  virtual vtkStdString GetColorSchemeName() const;
 
   // Description:
   // Set the name of the current color scheme
@@ -155,11 +155,11 @@ public:
 
   // Description:
   // Return the ID of the color scheme currently in use.
-  virtual int GetColorScheme();
+  virtual int GetColorScheme() const;
 
   // Description:
   // Get the number of colors available in the current color scheme.
-  virtual int GetNumberOfColors();
+  virtual int GetNumberOfColors() const;
 
   // Description:
   // Set the number of colors to be stored in a non-default color scheme.

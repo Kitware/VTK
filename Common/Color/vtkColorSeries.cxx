@@ -412,13 +412,13 @@ int vtkColorSeries::SetColorSchemeByName(vtkStdString schemeName)
 }
 
 //-----------------------------------------------------------------------------
-int vtkColorSeries::GetNumberOfColorSchemes()
+int vtkColorSeries::GetNumberOfColorSchemes() const
 {
   return static_cast<int>( this->Storage->Palettes.size() );
 }
 
 //-----------------------------------------------------------------------------
-vtkStdString vtkColorSeries::GetColorSchemeName()
+vtkStdString vtkColorSeries::GetColorSchemeName() const
 {
   return this->Storage->Palettes[this->Storage->Palette].Name;
 }
@@ -435,13 +435,13 @@ void vtkColorSeries::SetColorSchemeName( vtkStdString name )
 }
 
 //-----------------------------------------------------------------------------
-int vtkColorSeries::GetColorScheme()
+int vtkColorSeries::GetColorScheme() const
 {
   return this->Storage->Palette;
 }
 
 //-----------------------------------------------------------------------------
-int vtkColorSeries::GetNumberOfColors()
+int vtkColorSeries::GetNumberOfColors() const
 {
   return static_cast<int>( this->Storage->Colors->size() );
 }
@@ -470,7 +470,7 @@ vtkColor3ub vtkColorSeries::GetColor(int index) const
 vtkColor3ub vtkColorSeries::GetColorRepeating(int index) const
 {
   vtkColor3ub color;
-  int numColors = this->Storage->Colors->size();
+  int numColors = this->GetNumberOfColors();
   // If we have an empty palette, index % numColors generates a divide-by-zero fault,
   // and if it did return a valid value, looking up the resulting color would be an
   // access violation. So, be careful here:
