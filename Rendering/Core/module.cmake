@@ -9,7 +9,12 @@ vtk_module(vtkRenderingCore
     vtkFiltersGeometry
     vtkFiltersExtraction
     vtkIOImage
-    vtkIOXML
+    vtkIOXMLParser
+  COMPILE_DEPENDS
+    vtkUtilitiesMaterialLibrary
   TEST_DEPENDS
+    vtkIOXML
     vtkTestingCore
+    vtkTestingRendering
+    vtkRenderingContext2D
   )

@@ -23,7 +23,6 @@
 #include "vtkInformationVector.h"
 #include "vtkIndent.h"
 #include "vtkPlane.h"
-#include "vtkAMRBox.h"
 #include "vtkAMRUtilities.h"
 #include "vtkUniformGrid.h"
 #include "vtkCutter.h"
@@ -431,13 +430,12 @@ vtkPlane* vtkAMRCutPlane::GetCutPlane( vtkOverlappingAMR *metadata )
 
   vtkPlane *pl = vtkPlane::New();
 
+  double bounds[6];
+  metadata->GetBounds(bounds);
+
   // Get global bounds
-  double minBounds[3];
-  double maxBounds[3];
-  vtkAMRBox root;
-  metadata->GetRootAMRBox( root );
-  root.GetMinBounds( minBounds );
-  root.GetMaxBounds( maxBounds );
+  double minBounds[3] = {bounds[0],bounds[2],bounds[4]};
+  double maxBounds[3] = {bounds[1],bounds[3],bounds[5]};
 
   this->InitializeCenter( minBounds, maxBounds );
 
@@ -475,15 +473,7 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(
     unsigned int dataIdx = 0;
     for( ; dataIdx < m->GetNumberOfDataSets( level ); ++dataIdx )
       {
-      vtkAMRBox box;
-      m->GetMetaData( level, dataIdx, box  );
-      bounds[0] = box.GetMinX();
-      bounds[1] = box.GetMaxX();
-      bounds[2] = box.GetMinY();
-      bounds[3] = box.GetMaxY();
-      bounds[4] = box.GetMinZ();
-      bounds[5] = box.GetMaxZ();
-
+      m->GetBounds( level, dataIdx, bounds);
       if( this->PlaneIntersectsAMRBox( plane, bounds ) )
         {
         unsigned int amrGridIdx = m->GetCompositeIndex(level,dataIdx);
@@ -577,10 +567,7 @@ bool vtkAMRCutPlane::IsAMRData2D( vtkOverlappingAMR *input )
 {
   assert( "pre: Input AMR dataset is NULL" && (input != NULL)  );
 
-  vtkAMRBox box;
-  input->GetMetaData( 0, 0, box );
-
-  if( box.GetDimensionality() == 2 )
+  if( input->GetGridDescription() != VTK_XYZ_GRID )
     {
     return true;
     }

@@ -12,8 +12,8 @@ set(Module_SRCS
   vtkGeoGraticule.cxx
   vtkGeoImageNode.cxx
   vtkGeoInteractorStyle.cxx
-  # vtkGeoProjection.cxx #needs vtklibproj4 which isnt working well
-  # vtkGeoProjectionSource.cxx # needs vtkGeoProjection
+  vtkGeoProjection.cxx
+  vtkGeoProjectionSource.cxx
   vtkGeoRandomGraphSource.cxx
   vtkGeoSampleArcs.cxx
   vtkGeoSource.cxx
@@ -21,7 +21,7 @@ set(Module_SRCS
   vtkGeoTerrain.cxx
   vtkGeoTerrain2D.cxx
   vtkGeoTerrainNode.cxx
-  # vtkGeoTransform.cxx #needs vtklibproj4 which isnt working well
+  vtkGeoTransform.cxx
   vtkGeoTreeNode.cxx
   vtkGeoTreeNodeCache.cxx
   vtkGlobeSource.cxx

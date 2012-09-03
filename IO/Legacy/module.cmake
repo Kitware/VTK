@@ -1,0 +1,9 @@
+vtk_module(vtkIOLegacy
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonSystem
+    vtkCommonMisc
+    vtkIOCore
+  )

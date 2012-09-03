@@ -31,14 +31,14 @@
 #define __vtkMultiPieceDataSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTree.h"
 
 class vtkDataSet;
-class VTKCOMMONDATAMODEL_EXPORT vtkMultiPieceDataSet : public vtkCompositeDataSet
+class VTKCOMMONDATAMODEL_EXPORT vtkMultiPieceDataSet : public vtkDataObjectTree
 {
 public:
   static vtkMultiPieceDataSet* New();
-  vtkTypeMacro(vtkMultiPieceDataSet, vtkCompositeDataSet);
+  vtkTypeMacro(vtkMultiPieceDataSet, vtkDataObjectTree);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -66,7 +66,8 @@ public:
   // be resized to fit the requested piece no.
   void SetPiece(unsigned int pieceno, vtkDataObject* piece);
 
-  // Description:
+
+// Description:
   // Returns true if meta-data is available for a given piece.
   int HasMetaData(unsigned int piece)
     { return this->Superclass::HasChildMetaData(piece); }

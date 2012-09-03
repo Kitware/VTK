@@ -59,10 +59,6 @@
 // selected and unselected representations of the parts of the widget. For
 // example, you can set the property for the handles, faces, and outline in
 // their normal and selected states.
-
-// .SECTION Caveats
-// Note that handles can be picked even when they are "behind" other actors.
-// This is an intended feature and not a bug.
 //
 // The box widget can be oriented by specifying a transformation matrix.
 // This transformation is applied to the initial bounding box as defined by
@@ -273,6 +269,9 @@ protected:
   vtkCellPicker *HexPicker;
   vtkActor *CurrentHandle;
   int      CurrentHexFace;
+
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
 
   // Methods to manipulate the hexahedron.
   virtual void Translate(double *p1, double *p2);

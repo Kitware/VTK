@@ -27,11 +27,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkParametricFunctionSource.h"
 #include "vtkParametricSpline.h"
+#include "vtkPickingManager.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 #include "vtkDoubleArray.h"
@@ -225,6 +228,15 @@ void vtkSplineRepresentation::SetParametricSpline(vtkParametricSpline* spline)
       this->ParametricFunctionSource->SetParametricFunction(this->ParametricSpline);
       }
     }
+}
+
+//----------------------------------------------------------------------
+void vtkSplineRepresentation::RegisterPickers()
+{
+  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
+    ->AddPicker(this->HandlePicker, this);
+  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
+    ->AddPicker(this->LinePicker, this);
 }
 
 //----------------------------------------------------------------------------
@@ -1010,11 +1022,10 @@ int vtkSplineRepresentation::ComputeInteractionState(int X, int Y,
 
   // Try and pick a handle first. This allows the picking of the handle even
   // if it is "behind" the spline.
-  vtkAssemblyPath *path;
   int handlePicked = 0;
 
-  this->HandlePicker->Pick(X,Y,0.0,this->Renderer);
-  path = this->HandlePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
+
   if ( path != NULL )
     {
     this->ValidPick = 1;
@@ -1031,8 +1042,8 @@ int vtkSplineRepresentation::ComputeInteractionState(int X, int Y,
 
   if (!handlePicked)
     {
-    this->LinePicker->Pick(X,Y,0.0,this->Renderer);
-    path = this->LinePicker->GetPath();
+    path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
+
     if ( path != NULL )
       {
       this->ValidPick = 1;

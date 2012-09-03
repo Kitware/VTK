@@ -97,6 +97,7 @@ public:
   // will not be stored in the output dataset.  If the output data
   // will be processed by filters that modify topology or geometry, it
   // may be wise to turn Normals and Gradients off.
+  // @deprecated ComputeGradients is not used so these methods don't affect anything (VTK 6.0).
   vtkSetMacro(ComputeGradients,int);
   vtkGetMacro(ComputeGradients,int);
   vtkBooleanMacro(ComputeGradients,int);

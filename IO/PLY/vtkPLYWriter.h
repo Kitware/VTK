@@ -33,7 +33,7 @@
 #define __vtkPLYWriter_h
 
 #include "vtkIOPLYModule.h" // For export macro
-#include "vtkPolyDataWriter.h"
+#include "vtkWriter.h"
 
 class vtkScalarsToColors;
 class vtkDataSetAttributes;
@@ -47,12 +47,13 @@ class vtkDataSetAttributes;
 #define VTK_COLOR_MODE_UNIFORM_COLOR 3
 #define VTK_COLOR_MODE_OFF 4
 
+class vtkPolyData;
 
-class VTKIOPLY_EXPORT vtkPLYWriter : public vtkPolyDataWriter
+class VTKIOPLY_EXPORT vtkPLYWriter : public vtkWriter
 {
 public:
   static vtkPLYWriter *New();
-  vtkTypeMacro(vtkPLYWriter,vtkPolyDataWriter);
+  vtkTypeMacro(vtkPLYWriter,vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -116,6 +117,23 @@ public:
   vtkSetVector3Macro(Color,unsigned char);
   vtkGetVector3Macro(Color,unsigned char);
 
+  // Description:
+  // Get the input to this writer.
+  vtkPolyData* GetInput();
+  vtkPolyData* GetInput(int port);
+
+  // Description:
+  // Specify file name of vtk polygon data file to write.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+
+  // Description:
+  // Specify file type (ASCII or BINARY) for vtk data file.
+  vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
+  vtkGetMacro(FileType,int);
+  void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);};
+  void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);};
+
 protected:
   vtkPLYWriter();
   ~vtkPLYWriter();
@@ -129,6 +147,12 @@ protected:
   int ColorMode;
   vtkScalarsToColors *LookupTable;
   unsigned char Color[3];
+
+  char* FileName;
+
+  int FileType;
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
   vtkPLYWriter(const vtkPLYWriter&);  // Not implemented.

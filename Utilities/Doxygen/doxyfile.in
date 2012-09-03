@@ -173,14 +173,14 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                    virtual float *Get##name();" \
                "vtkTypeMacro(thisClass,superclass)= \
                    typedef superclass Superclass; \
-                   virtual const char *GetClassName(); \
+                   private: \
+                   virtual const char* GetClassNameInternal() const; \
+                   public: \
                    static int IsTypeOf(const char *type); \
                    virtual int IsA(const char *type); \
-                   static thisClass* SafeDownCast(vtkObject *o);" \
-               "vtkTypeMacro(thisClass,superclass)= \
-                   typedef superclass Superclass; \
-                   virtual const char *GetClassName(); \
-                   static int IsTypeOf(const char *type); \
-                   virtual int IsA(const char *type); \
-                   static thisClass* SafeDownCast(vtkObject *o);" \
+                   static thisClass* SafeDownCast(vtkObjectBase *o); \
+                   protected: \
+                   virtual vtkObjectBase *NewInstanceInternal() const; \
+                   public: \
+                   thisClass *NewInstance() const;" \
                "VTK_LEGACY(x)= x"

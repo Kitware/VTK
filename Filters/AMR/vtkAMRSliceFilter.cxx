@@ -22,7 +22,6 @@
 #include "vtkCell.h"
 #include "vtkAMRUtilities.h"
 #include "vtkPlane.h"
-#include "vtkAMRBox.h"
 #include "vtkUniformGrid.h"
 #include "vtkStructuredData.h"
 #include "vtkCellData.h"
@@ -32,12 +31,15 @@
 #include "vtkMultiProcessController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataArray.h"
-
+#include "vtkAMRInformation.h"
 #include "vtkTimerLog.h"
+#include "vtkSmartPointer.h"
+#include "vtkUniformGridAMRDataIterator.h"
 
 #include <cassert>
 #include <algorithm>
 #include <sstream>
+
 
 vtkStandardNewMacro(vtkAMRSliceFilter);
 
@@ -88,10 +90,7 @@ bool vtkAMRSliceFilter::IsAMRData2D( vtkOverlappingAMR *input )
 {
   assert( "pre: Input AMR dataset is NULL" && (input != NULL)  );
 
-  vtkAMRBox box;
-  input->GetMetaData( 0, 0, box );
-
-  if( box.GetDimensionality() == 2 )
+  if( input->GetGridDescription() != VTK_XYZ_GRID )
     {
     return true;
     }
@@ -144,10 +143,8 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkOverlappingAMR *inp )
   // Get global bounds
   double minBounds[3];
   double maxBounds[3];
-  vtkAMRBox root;
-  inp->GetRootAMRBox( root );
-  root.GetMinBounds( minBounds );
-  root.GetMaxBounds( maxBounds );
+  inp->GetMin(minBounds);
+  inp->GetMax(maxBounds);
 
   double porigin[3];
   for( int i=0; i < 3; ++i )
@@ -185,18 +182,12 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkOverlappingAMR *inp )
 
 //------------------------------------------------------------------------------
 vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
-    double porigin[3], vtkUniformGrid *grid )
+  double porigin[3], int* dims, double* origin, double* spacing )
 {
-  assert( "pre: input grid is NULL" && (grid != NULL) );
-  assert( "pre: input grid must be a 3-D grid"&&(grid->GetDataDimension()==3));
-
 //  vtkTimerLog::MarkStartEvent( "AMRSlice::GetSliceForBlock" );
 
   vtkUniformGrid *slice = vtkUniformGrid::New();
 
-  // Get the 3-D Grid dimensions
-  int dims[3];
-  grid->GetDimensions( dims );
 
   // Storage for dimensions of the 2-D slice grid & its origin
   int    sliceDims[3];
@@ -211,12 +202,12 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       sliceDims[2] = dims[2];
 
       sliceOrigin[0] = porigin[0];
-      sliceOrigin[1] = grid->GetOrigin()[1];
-      sliceOrigin[2] = grid->GetOrigin()[2];
+      sliceOrigin[1] = origin[1];
+      sliceOrigin[2] = origin[2];
 
       slice->SetOrigin( sliceOrigin );
       slice->SetDimensions( sliceDims );
-      slice->SetSpacing( grid->GetSpacing() );
+      slice->SetSpacing( spacing );
       assert( slice->GetGridDescription()== VTK_YZ_PLANE );
       break;
     case 2:
@@ -225,13 +216,13 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       sliceDims[1] = 1;
       sliceDims[2] = dims[2];
 
-      sliceOrigin[0] = grid->GetOrigin()[0];
+      sliceOrigin[0] = origin[0];
       sliceOrigin[1] = porigin[1];
-      sliceOrigin[2] = grid->GetOrigin()[2];
+      sliceOrigin[2] = origin[2];
 
       slice->SetOrigin( sliceOrigin );
       slice->SetDimensions( sliceDims );
-      slice->SetSpacing( grid->GetSpacing() );
+      slice->SetSpacing( spacing );
       assert( slice->GetGridDescription() == VTK_XZ_PLANE );
       break;
     case 3:
@@ -240,13 +231,13 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       sliceDims[1] = dims[1];
       sliceDims[2] = 1;
 
-      sliceOrigin[0] = grid->GetOrigin()[0];
-      sliceOrigin[1] = grid->GetOrigin()[1];
+      sliceOrigin[0] = origin[0];
+      sliceOrigin[1] = origin[1];
       sliceOrigin[2] = porigin[2];
 
       slice->SetOrigin( sliceOrigin );
       slice->SetDimensions( sliceDims );
-      slice->SetSpacing( grid->GetSpacing() );
+      slice->SetSpacing( spacing );
       assert( slice->GetGridDescription() == VTK_XY_PLANE );
       break;
     default:
@@ -313,42 +304,26 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
              p->GetNormal()[1]*p->GetOrigin()[1] +
              p->GetNormal()[2]*p->GetOrigin()[2];
 
-  double bounds[6];
-
-  int maxLevelToLoad =
+  unsigned int maxLevelToLoad =
       (this->EnablePrefetching==1)? this->MaxResolution+1 : this->MaxResolution;
 
-  unsigned int level=0;
-  for( ; level <= static_cast<unsigned int>(maxLevelToLoad); ++level )
+  vtkSmartPointer<vtkUniformGridAMRDataIterator> iter;
+  iter.TakeReference(vtkUniformGridAMRDataIterator::SafeDownCast(metadata->NewIterator()));
+  iter->SetSkipEmptyNodes(false);
+  for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-    unsigned int dataIdx = 0;
-    for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
+    if(iter->GetCurrentLevel()<= maxLevelToLoad)
       {
-      vtkAMRBox box;
-      metadata->GetMetaData( level, dataIdx, box  );
-      bounds[0] = box.GetMinX();
-      bounds[1] = box.GetMaxX();
-      bounds[2] = box.GetMinY();
-      bounds[3] = box.GetMaxY();
-      bounds[4] = box.GetMinZ();
-      bounds[5] = box.GetMaxZ();
-
+      double* bounds = iter->GetCurrentMetaData()->Get(vtkDataObject::BOUNDING_BOX());
       if( this->PlaneIntersectsAMRBox( plane, bounds ) )
         {
-        unsigned int amrGridIdx =
-            metadata->GetCompositeIndex(level,dataIdx);
-        this->blocksToLoad.push_back( amrGridIdx );
+        unsigned int amrGridIdx = iter->GetCurrentFlatIndex();
+        this->BlocksToLoad.push_back( amrGridIdx );
         }
-      } // END for all data
-    } // END for all levels
+      }
+    }
+   std::cout << this->BlocksToLoad.size() << std::endl;
 
-    std::sort( this->blocksToLoad.begin(), this->blocksToLoad.end() );
-
-    vtkTimerLog::MarkEndEvent( "AMRSlice::ComputeAMRBlocksToLoad" );
-
-//    std::cout << "Resolution-" << this->MaxResolution << ": ";
-//    std::cout << this->blocksToLoad.size() << std::endl;
-//    std::cout.flush();
 }
 
 //------------------------------------------------------------------------------
@@ -360,70 +335,98 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   assert( "pre: output AMR dataset is NULL" && (out != NULL) );
   assert( "pre: cut plane is NULL" && (p != NULL) );
 
-  vtkTimerLog::MarkStartEvent( "AMRSlice::GetAMRSliceInPlane" );
+  int description=0;
+  switch( this->Normal )
+    {
+    case 1:
+      description = VTK_YZ_PLANE ;
+      break;
+    case 2:
+      description = VTK_XZ_PLANE;
+      break;
+    case 3:
+      description = VTK_XY_PLANE;
+      break;
+    default:
+      vtkErrorMacro( "Undefined normal" );
+    }
 
-  // Store A,B,C,D from the plane equation
-  double plane[4];
-  plane[0] = p->GetNormal()[0];
-  plane[1] = p->GetNormal()[1];
-  plane[2] = p->GetNormal()[2];
-  plane[3] = p->GetNormal()[0]*p->GetOrigin()[0] +
-             p->GetNormal()[1]*p->GetOrigin()[1] +
-             p->GetNormal()[2]*p->GetOrigin()[2];
-
-  // Storage for the AMR box bounds
-  double bounds[6];
 
   int NumLevels = inp->GetNumberOfLevels();
-  int maxLevel =
+  unsigned int maxLevel =
     (this->MaxResolution < NumLevels )?
         this->MaxResolution+1 : NumLevels;
 
-  unsigned int level=0;
-  for( ; level < static_cast<unsigned int>(maxLevel); ++level )
+  if(this->BlocksToLoad.empty())
     {
-    unsigned int dataIdx=0;
-    for( ; dataIdx < inp->GetNumberOfDataSets(level); ++dataIdx )
+    this->ComputeAMRBlocksToLoad(p,inp);
+    }
+
+  std::vector<int> blocksPerLevel(maxLevel+1,0);
+  for(unsigned int i=0; i<this->BlocksToLoad.size();i++)
+    {
+    unsigned int flatIndex = this->BlocksToLoad[i];
+    unsigned int level;
+    unsigned int dataIdx;
+    inp->GetLevelAndIndex(flatIndex,level,dataIdx);
+    assert(level<maxLevel);
+    blocksPerLevel[level]++;
+    }
+
+  for(int i= static_cast<int>(blocksPerLevel.size()-1); i>=0;i--)
+    {
+    if(blocksPerLevel[i]==0)
       {
-      vtkAMRBox box;
-      inp->GetMetaData( level, dataIdx, box );
+      blocksPerLevel.pop_back();
+      }
+    else
+      {
+      break;
+      }
+    }
 
-      vtkUniformGrid *grid = inp->GetDataSet( level, dataIdx );
-      if( grid != NULL )
-        {
-        bounds[0] = box.GetMinX();
-        bounds[1] = box.GetMaxX();
-        bounds[2] = box.GetMinY();
-        bounds[3] = box.GetMaxY();
-        bounds[4] = box.GetMinZ();
-        bounds[5] = box.GetMaxZ();
+  out->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0], p->GetOrigin(), description);
+  vtkTimerLog::MarkStartEvent( "AMRSlice::GetAMRSliceInPlane" );
 
-        if( this->PlaneIntersectsAMRBox( plane, bounds ) )
-          {
-          vtkUniformGrid *slice = this->GetSlice( p->GetOrigin(), grid );
-          assert( "Dimension of slice must be 2-D" &&
-                   (slice->GetDataDimension()==2) );
-          assert( "2-D slice is NULL" && (slice != NULL) );
-          this->GetSliceCellData( slice, grid );
-          unsigned int blockIdx =
-              out->GetNumberOfDataSets( box.GetLevel() );
-          out->SetDataSet( box.GetLevel(), blockIdx, slice );
-          slice->Delete();
-          } // END if plane intersects
-        } // END if grid is not NULL
-        else
-          {
-          // This belongs to another process
-          unsigned int blockIdx=out->GetNumberOfDataSets( box.GetLevel() );
-          out->SetDataSet( box.GetLevel(), blockIdx, NULL );
-          } // END else
-        } // END for all data
-    } // END for all levels
+  unsigned int numLevels = out->GetNumberOfLevels();
+  std::vector<int> dataIndices(numLevels,0);
+  for(unsigned int i=0; i<this->BlocksToLoad.size();i++)
+    {
+    int flatIndex = this->BlocksToLoad[i];
+    unsigned int level;
+    unsigned int dataIdx;
+    inp->GetLevelAndIndex(flatIndex,level,dataIdx);
+    vtkUniformGrid *grid = inp->GetDataSet( level, dataIdx );
+    if(grid)
+      {
+      // Get the 3-D Grid dimensions
+      int dims[3];
+      grid->GetDimensions( dims );
+      vtkUniformGrid* slice = this->GetSlice( p->GetOrigin(), dims, grid->GetOrigin(), grid->GetSpacing());
+      assert( "Dimension of slice must be 2-D" &&
+              (slice->GetDataDimension()==2) );
+      assert( "2-D slice is NULL" && (slice != NULL) );
+      this->GetSliceCellData( slice, grid );
+      out->SetDataSet(level, dataIndices[level], slice );
+      slice->Delete();
+      }
+    else
+      {
+      vtkSmartPointer<vtkUniformGrid> sliceGrid;
+      int dims[3];
+      double spacing[3];
+      double origin[3];
+      inp->GetAMRInfo()->GetAMRBox(level,dataIdx).GetNumberOfNodes(dims);
+      inp->GetAMRInfo()->GetSpacing(level,spacing);
+      inp->GetAMRInfo()->GetOrigin(level,dataIdx,origin);
+      sliceGrid.TakeReference(this->GetSlice(p->GetOrigin(),dims, origin, spacing));
+      out->SetAMRBox(level, dataIndices[level],sliceGrid->GetOrigin(),sliceGrid->GetDimensions(),sliceGrid->GetSpacing());
+      out->SetDataSet(level, dataIndices[level], NULL );
+      }
+    dataIndices[level]++;
+    }
+
   vtkTimerLog::MarkEndEvent( "AMRSlice::GetAMRSliceInPlane" );
-
-  vtkTimerLog::MarkStartEvent( "AMRSlice::GenerateMetaData" );
-  vtkAMRUtilities::GenerateMetaData( out, this->Controller );
-  vtkTimerLog::MarkEndEvent( "AMRSlice::GenerateMetaData");
 
   vtkTimerLog::MarkStartEvent( "AMRSlice::GenerateVisibility" );
   out->GenerateVisibilityArrays();
@@ -570,7 +573,7 @@ int vtkAMRSliceFilter::RequestInformation(
     vtkInformationVector **inputVector,
     vtkInformationVector* vtkNotUsed(outputVector) )
 {
-  this->blocksToLoad.clear();
+  this->BlocksToLoad.clear();
 
   if( this->ForwardUpstream == 1 )
     {
@@ -611,7 +614,7 @@ int vtkAMRSliceFilter::RequestUpdateExtent(
     // Send upstream request for higher resolution
     inInfo->Set(
      vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
-     &this->blocksToLoad[0], static_cast<int>(this->blocksToLoad.size()));
+     &this->BlocksToLoad[0], static_cast<int>(this->BlocksToLoad.size()));
     }
 
   return 1;
@@ -637,6 +640,7 @@ int vtkAMRSliceFilter::RequestData(
   vtkOverlappingAMR *inputAMR=
       vtkOverlappingAMR::SafeDownCast(
           input->Get(vtkDataObject::DATA_OBJECT() ) );
+
 
   // STEP 1: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );

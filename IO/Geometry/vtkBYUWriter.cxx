@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkErrorCode.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -425,3 +426,18 @@ void vtkBYUWriter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->TextureFileName ? this->TextureFileName : "(none)") << "\n";
 }
 
+vtkPolyData* vtkBYUWriter::GetInput()
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput());
+}
+
+vtkPolyData* vtkBYUWriter::GetInput(int port)
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput(port));
+}
+
+int vtkBYUWriter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
+}

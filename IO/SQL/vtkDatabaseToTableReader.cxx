@@ -32,12 +32,7 @@
 vtkDatabaseToTableReader::vtkDatabaseToTableReader()
 {
   this->Database = 0;
-  vtkTable *output = vtkTable::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallelism.
-  // Filters will know it is empty.
-  output->ReleaseData();
-  output->Delete();
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------

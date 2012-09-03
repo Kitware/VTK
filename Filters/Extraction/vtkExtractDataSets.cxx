@@ -19,7 +19,6 @@
 #include "vtkInformationVector.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkUniformGrid.h"
-#include "vtkAMRBox.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"

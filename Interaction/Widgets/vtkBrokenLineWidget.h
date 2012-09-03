@@ -70,10 +70,6 @@
 // .SECTION Thanks
 // Thanks to Philippe Pebay for developing and contributing this class.
 
-// .SECTION Caveats
-// Note that handles and line can be picked even when they are "behind" other
-// actors.  This is an intended feature and not a bug.
-
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkLineWidget vtkPointWidget vtkSphereWidget
 // vtkImagePlaneWidget vtkImplicitPlaneWidget vtkPlaneWidget
@@ -283,6 +279,9 @@ protected:
   vtkCellPicker *LinePicker;
   vtkActor *CurrentHandle;
   int CurrentHandleIndex;
+
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
 
   // Methods to manipulate the broken line.
   void MovePoint(double *p1, double *p2);

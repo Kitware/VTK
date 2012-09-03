@@ -25,6 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPickingManager.h"
 #include "vtkPlanes.h"
 #include "vtkPointWidget.h"
 #include "vtkPolyData.h"
@@ -342,6 +343,13 @@ void vtkLineWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
+//----------------------------------------------------------------------
+void vtkLineWidget::RegisterPickers()
+{
+  this->Interactor->GetPickingManager()->AddPicker(this->HandlePicker, this);
+  this->Interactor->GetPickingManager()->AddPicker(this->LinePicker, this);
+}
+
 //----------------------------------------------------------------------------
 void vtkLineWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
                                   unsigned long event,
@@ -612,9 +620,8 @@ void vtkLineWidget::OnLeftButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the line.
-  vtkAssemblyPath *path;
-  this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->HandlePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
+
   if ( path != NULL )
     {
     this->EventCallbackCommand->SetAbortFlag(1);
@@ -627,8 +634,8 @@ void vtkLineWidget::OnLeftButtonDown()
     }
   else
     {
-    this->LinePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-    path = this->LinePicker->GetPath();
+    path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
+
     if ( path != NULL )
       {
       this->EventCallbackCommand->SetAbortFlag(1);
@@ -697,9 +704,8 @@ void vtkLineWidget::OnMiddleButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
-  vtkAssemblyPath *path;
-  this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->HandlePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
+
   if ( path != NULL )
     {
     this->EventCallbackCommand->SetAbortFlag(1);
@@ -713,8 +719,8 @@ void vtkLineWidget::OnMiddleButtonDown()
     }
   else
     {
-    this->LinePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-    path = this->LinePicker->GetPath();
+    path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
+
     if ( path != NULL )
       {
       this->EventCallbackCommand->SetAbortFlag(1);
@@ -782,9 +788,8 @@ void vtkLineWidget::OnRightButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
-  vtkAssemblyPath *path;
-  this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->HandlePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
+
   if ( path != NULL )
     {
     this->HighlightLine(1);
@@ -793,8 +798,8 @@ void vtkLineWidget::OnRightButtonDown()
     }
   else
     {
-    this->LinePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-    path = this->LinePicker->GetPath();
+    path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
+
     if ( path != NULL )
       {
       this->HighlightHandles(1);

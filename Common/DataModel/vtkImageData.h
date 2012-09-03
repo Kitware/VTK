@@ -112,6 +112,11 @@ public:
   virtual int ComputeStructuredCoordinates(
     double x[3], int ijk[3], double pcoords[3]);
 
+  static int ComputeStructuredCoordinates( double x[3], int ijk[3], double pcoords[3],
+                                           int* extent,
+                                           double* spacing,
+                                           const double* origin,
+                                           const double* bounds);
   // Description:
   // Given structured coordinates (i,j,k) for a voxel cell, compute the eight
   // gradient values for the voxel corners. The order in which the gradient

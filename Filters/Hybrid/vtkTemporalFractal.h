@@ -27,6 +27,7 @@
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkSmartPointer.h" //for ivars
 
 class vtkCompositeDataSet;
 class vtkDataSet;
@@ -34,6 +35,7 @@ class vtkHierarchicalBoxDataSet;
 class vtkIntArray;
 class vtkRectilinearGrid;
 class vtkUniformGrid;
+class TemporalFractalOutputUtil;
 
 class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal: public vtkAlgorithm
 {
@@ -156,10 +158,6 @@ protected:
   void SetRBlockInfo(vtkRectilinearGrid *grid, int level, int* ext,
                      int onFace[6]);
 
-
-  void AddDataSet(vtkDataObject* output, unsigned int level, int extents[6],
-    vtkDataSet* dataSet);
-
   void AddVectorArray(vtkHierarchicalBoxDataSet *output);
   void AddTestArray(vtkHierarchicalBoxDataSet *output);
   void AddFractalArray(vtkCompositeDataSet* output);
@@ -213,6 +211,7 @@ protected:
   double CurrentTime;
 
   int AdaptiveSubdivision;
+  vtkSmartPointer<TemporalFractalOutputUtil> OutputUtil;
 
 private:
   vtkTemporalFractal(const vtkTemporalFractal&);  // Not implemented.

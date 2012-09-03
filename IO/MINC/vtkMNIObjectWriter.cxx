@@ -56,6 +56,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkProperty.h"
@@ -88,6 +89,8 @@ vtkMNIObjectWriter::vtkMNIObjectWriter()
   this->Mapper = 0;
   this->LookupTable = 0;
 
+  this->FileName = 0;
+
   // Whether file is binary or ASCII
   this->FileType = VTK_ASCII;
 
@@ -109,6 +112,8 @@ vtkMNIObjectWriter::~vtkMNIObjectWriter()
     {
     this->LookupTable->Delete();
     }
+
+  delete[] this->FileName;
 }
 
 //-------------------------------------------------------------------------
@@ -963,7 +968,7 @@ void vtkMNIObjectWriter::WriteData()
     }
 
   // Open the file
-  this->OutputStream = this->OpenVTKFile();
+  this->OutputStream = this->OpenFile();
 
   if (!this->OutputStream)
     {
@@ -985,7 +990,7 @@ void vtkMNIObjectWriter::WriteData()
     }
 
   // Close the file
-  this->CloseVTKFile(this->OutputStream);
+  this->CloseFile(this->OutputStream);
 
   // Delete the file if an error occurred
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -993,5 +998,74 @@ void vtkMNIObjectWriter::WriteData()
     vtkErrorMacro("Ran out of disk space; deleting file: "
                   << this->FileName);
     unlink(this->FileName);
+    }
+}
+
+
+//-------------------------------------------------------------------------
+vtkPolyData* vtkMNIObjectWriter::GetInput()
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput());
+}
+
+//-------------------------------------------------------------------------
+vtkPolyData* vtkMNIObjectWriter::GetInput(int port)
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput(port));
+}
+
+//-------------------------------------------------------------------------
+int vtkMNIObjectWriter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
+}
+
+//-------------------------------------------------------------------------
+ostream *vtkMNIObjectWriter::OpenFile()
+{
+  ostream *fptr;
+
+  if (!this->FileName )
+    {
+    vtkErrorMacro(<< "No FileName specified! Can't write!");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
+    return NULL;
+    }
+
+  vtkDebugMacro(<<"Opening file for writing...");
+
+  if ( this->FileType == VTK_ASCII )
+    {
+    fptr = new ofstream(this->FileName, ios::out);
+    }
+  else
+    {
+#ifdef _WIN32
+    fptr = new ofstream(this->FileName, ios::out | ios::binary);
+#else
+    fptr = new ofstream(this->FileName, ios::out);
+#endif
+    }
+
+  if (fptr->fail())
+    {
+    vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
+    delete fptr;
+    return NULL;
+    }
+
+  return fptr;
+}
+
+//-------------------------------------------------------------------------
+void vtkMNIObjectWriter::CloseFile(ostream *fp)
+{
+  vtkDebugMacro(<<"Closing file\n");
+
+  if ( fp != NULL )
+    {
+    delete fp;
     }
 }

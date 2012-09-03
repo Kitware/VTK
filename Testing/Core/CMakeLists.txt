@@ -10,3 +10,5 @@ if(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development
     )
 endif()
+
+include(vtkTestingMacros)

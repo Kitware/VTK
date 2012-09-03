@@ -6,10 +6,13 @@ vtk_module(vtkRenderingMatplotlib
     vtkWrappingPython
   TEST_DEPENDS
     vtkInteractionImage
+    vtkInteractionWidgets
     vtkIOExport
+    vtkIOGeometry
     vtkTestingRendering
     vtkRenderingGL2PS
     vtkRenderingOpenGL
+    vtkRenderingFreeTypeOpenGL
     vtkViewsContext2D
   EXCLUDE_FROM_WRAPPING
   )

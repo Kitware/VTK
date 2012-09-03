@@ -36,7 +36,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-#include "verdict.h"
+#include "vtk_verdict.h"
 
 vtkStandardNewMacro(vtkMeshQuality);
 

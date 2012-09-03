@@ -14,12 +14,14 @@
 =========================================================================*/
 #include "vtkInteractorObserver.h"
 
+#include "vtkAbstractPropPicker.h"
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObserverMediator.h"
+#include "vtkPickingManager.h"
 
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
@@ -44,6 +46,7 @@ vtkInteractorObserver::vtkInteractorObserver()
   this->DefaultRenderer = NULL;
 
   this->Priority = 0.0f;
+  this->PickingManaged = true;
 
   this->KeyPressActivation = 1;
   this->KeyPressActivationValue = 'i';
@@ -57,6 +60,8 @@ vtkInteractorObserver::vtkInteractorObserver()
 //----------------------------------------------------------------------------
 vtkInteractorObserver::~vtkInteractorObserver()
 {
+  this->UnRegisterPickers();
+
   this->SetEnabled(0);
   this->SetCurrentRenderer(NULL);
   this->SetDefaultRenderer(NULL);
@@ -151,9 +156,60 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
     this->DeleteObserverTag = i->AddObserver(vtkCommand::DeleteEvent,
                                              this->KeyPressCallbackCommand,
                                              this->Priority);
+
+    this->RegisterPickers();
     }
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorObserver::RegisterPickers()
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorObserver::UnRegisterPickers()
+{
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+    {
+    return;
+    }
+
+  pm->RemoveObject(this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorObserver::PickersModified()
+{
+  if (!this->GetPickingManager())
+    {
+    return;
+    }
+
+  this->UnRegisterPickers();
+  this->RegisterPickers();
+}
+
+//----------------------------------------------------------------------------
+vtkPickingManager* vtkInteractorObserver::GetPickingManager()
+{
+  return this->Interactor ? this->Interactor->GetPickingManager() : 0;
+}
+
+//------------------------------------------------------------------------------
+vtkAssemblyPath* vtkInteractorObserver::
+GetAssemblyPath(double X, double Y, double Z, vtkAbstractPropPicker* picker)
+{
+  if (!this->GetPickingManager())
+    {
+    picker->Pick(X, Y, Z, this->CurrentRenderer);
+    return picker->GetPath();
+    }
+
+  return this->GetPickingManager()->GetAssemblyPath(
+    X, Y, Z, picker, this->CurrentRenderer, this);
 }
 
 //----------------------------------------------------------------------------

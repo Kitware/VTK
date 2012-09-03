@@ -5,6 +5,7 @@ vtk_module(vtkFiltersModeling
     vtkFiltersGeneral
     vtkFiltersSources
   TEST_DEPENDS
+    vtkIOXML
     vtkRenderingOpenGL
     vtkTestingRendering
   )

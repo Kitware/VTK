@@ -17,6 +17,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkErrorCode.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
@@ -35,6 +36,8 @@ static char header[]="Visualization Toolkit generated SLA File                  
 vtkSTLWriter::vtkSTLWriter()
 {
   this->FileType = VTK_ASCII;
+  this->FileName = NULL;
+  this->Header = new char[257];
   strcpy(this->Header, header);
 }
 
@@ -280,4 +283,23 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
 void vtkSTLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData* vtkSTLWriter::GetInput()
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput());
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData* vtkSTLWriter::GetInput(int port)
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput(port));
+}
+
+//----------------------------------------------------------------------------
+int vtkSTLWriter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
 }

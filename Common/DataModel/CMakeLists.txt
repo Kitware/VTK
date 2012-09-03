@@ -13,6 +13,7 @@ set(Module_SRCS
   vtkBiQuadraticQuadraticWedge.cxx
   vtkBiQuadraticTriangle.cxx
   vtkBox.cxx
+  vtkBrewerColors.cxx
   vtkBSPCuts.cxx
   vtkBSPIntersections.cxx
   vtkCell3D.cxx
@@ -22,8 +23,8 @@ set(Module_SRCS
   vtkCellLinks.cxx
   vtkCellLocator.cxx
   vtkCellTypes.cxx
-  vtkCompositeDataIterator.cxx
   vtkCompositeDataSet.cxx
+  vtkCompositeDataIterator.cxx
   vtkCone.cxx
   vtkConvexPointSet.cxx
   vtkCubicLine.cxx
@@ -31,6 +32,8 @@ set(Module_SRCS
   vtkDataObjectCollection.cxx
   vtkDataObject.cxx
   vtkDataObjectTypes.cxx
+  vtkDataObjectTree.cxx
+  vtkDataObjectTreeIterator.cxx
   vtkDataSetAttributes.cxx
   vtkDataSetCollection.cxx
   vtkDataSet.cxx
@@ -176,6 +179,10 @@ set(Module_SRCS
   vtkAbstractElectronicData.cxx
 
   # Header only classes
+  vtkDataArrayDispatcher.h
+  vtkDispatcher.h
+  vtkDispatcher_Private.h
+  vtkDoubleDispatcher.h
   vtkTuple.h
   vtkVector.h
   vtkVectorOperators.h
@@ -185,6 +192,8 @@ set(Module_SRCS
   # New classes for AMR
   vtkNonOverlappingAMR.cxx
   vtkOverlappingAMR.cxx
+  vtkAMRInformation.cxx
+  vtkAMRDataInternals.cxx
   vtkUniformGridAMR.cxx
   vtkUniformGridAMRDataIterator.cxx
   vtkExtentTranslator.cxx # needed by vtkDataSet
@@ -201,6 +210,7 @@ set_source_files_properties(
   vtkCell3D
   vtkCompositeDataIterator
   vtkCompositeDataSet
+  vtkDataObjectTree
   vtkAbstractElectronicData
   vtkDataSet
   vtkDataSetGhostGenerator
@@ -235,6 +245,10 @@ set_source_files_properties(
   vtkAtom
   vtkBond
   vtkBoundingBox
+  vtkDataArrayDispatcher
+  vtkDispatcher_Private
+  vtkDispatcher
+  vtkDoubleDispatcher
   vtkMarchingSquaresLineCases
   vtkMarchingCubesTriangleCases
   vtkImageIterator
@@ -244,6 +258,7 @@ set_source_files_properties(
   vtkColor
   vtkRect
   vtkVectorOperators
+  vtkAMRDataInternals
   WRAP_EXCLUDE
   )
 

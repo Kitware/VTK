@@ -29,6 +29,7 @@
 
 #include <vtkHierarchicalBoxDataSet.h>
 #include <vtkAMRBox.h>
+#include <vtkAMRInformation.h>
 #include <vtkMultiBlockDataSet.h>
 
 #include <vtkDoubleArray.h>
@@ -690,9 +691,19 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     vtkHierarchicalBoxDataSet *hbo =
       vtkHierarchicalBoxDataSet::SafeDownCast(outData);
 
-    hbo->SetNumberOfLevels(
-                         static_cast<unsigned int>(structure->children.size()));
+    std::vector<int> blocksPerLevel;
     std::vector<vtkInternalStructureCache *>::iterator git;
+    for (git = structure->children.begin();
+         git != structure->children.end();
+         git++)
+      {
+      vtkInternalStructureCache *gptr = *git;
+      vtkIdType nds = gptr->children.size();
+      blocksPerLevel.push_back(nds);
+      }
+
+    double origin[3] = {0,0,0};
+    hbo->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0], origin, VTK_XYZ_GRID);
     vtkIdType gcnt = 0;
     for (git = structure->children.begin();
          git != structure->children.end();
@@ -702,9 +713,6 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
 
       vtkInternalStructureCache *gptr = *git;
       //gptr->type should be a group
-
-      vtkIdType nds = gptr->children.size();
-      hbo->SetNumberOfDataSets(gcnt, nds);
 
       //each of the dimensions of each parent cell are broken into this
       //many pieces this must be the inverse of the spacing for the geometry
@@ -747,6 +755,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
              << "HI=" << hi[0] << "," << hi[1] << "," << hi[2] << endl;
         */
         vtkDataObject *dobj = NULL;
+        double spacing = pow(0.5,static_cast<double>(gcnt+1)); //==1.0/(2*r2)
+
         //restrict HierarchicalBoxes's to contain only UniformGrids
         //until I make it read location to make sparse creation easy, put
         //dummy dataobjects in as placeholders
@@ -756,8 +766,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
           vtkUniformGrid *uf = vtkUniformGrid::SafeDownCast(dobj);
           //scale and translate the children to align with the parent the
           //blanking information
-          double spacing = pow(0.5,static_cast<double>(gcnt+1)); //==1.0/(2*r2)
-          uf->SetSpacing(spacing, spacing, spacing);
+            uf->SetSpacing(spacing, spacing, spacing);
           double spa[3];
           uf->GetSpacing(spa);
           //cerr << "SPACE=" <<spa[0] <<"," <<spa[1] <<"," <<spa[2] <<endl;
@@ -770,9 +779,18 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
           uf->GetExtent(ex);
           }
 
-        vtkAMRBox region(3,lo,hi);
-        hbo->SetDataSet(gcnt, dcnt,
-                        region, vtkUniformGrid::SafeDownCast(dobj));
+        vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(dobj);
+        if(grid)
+          {
+          hbo->SetDataSet(gcnt, dcnt,grid);
+          }
+        else
+          {
+          vtkAMRBox box(lo,hi);
+          double h[3] = {spacing,spacing,spacing};
+          hbo->GetAMRInfo()->SetAMRBox(gcnt, dcnt, box, h);
+          }
+
         if (dobj)
           {
           dobj->Delete();

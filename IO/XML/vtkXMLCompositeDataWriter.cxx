@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkXMLCompositeDataWriter.h"
 
-#include "vtkAMRBox.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
