@@ -195,7 +195,7 @@ public:
   // The variant that accepts a string returns the integer index
   // of the resulting palette (whether it already existed or is newly-created).
   virtual void SetColorScheme(int scheme);
-  virtual int SetColorSchemeByName(vtkStdString schemeName);
+  virtual int SetColorSchemeByName(const vtkStdString& schemeName);
 
   // Description:
   // Return the number of schemes currently defined.
@@ -207,7 +207,7 @@ public:
 
   // Description:
   // Set the name of the current color scheme
-  virtual void SetColorSchemeName(vtkStdString scheme);
+  virtual void SetColorSchemeName(const vtkStdString& scheme);
 
   // Description:
   // Return the ID of the color scheme currently in use.

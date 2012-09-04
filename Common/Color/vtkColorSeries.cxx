@@ -36,7 +36,7 @@ public:
   Private();
 
   void SetScheme(int idx);
-  int SetSchemeByName(vtkStdString name, bool& modified);
+  int SetSchemeByName(const vtkStdString& name, bool& modified);
 
   std::vector<vtkColorSeriesPalette> Palettes; // All palettes
   int Palette; // Currently-selected entry in Palettes
@@ -339,7 +339,8 @@ void vtkColorSeries::Private::SetScheme(int idx)
 }
 
 //-----------------------------------------------------------------------------
-int vtkColorSeries::Private::SetSchemeByName(vtkStdString name, bool& modified)
+int vtkColorSeries::Private::SetSchemeByName(
+  const vtkStdString& name, bool& modified)
 {
   modified = false;
   int idx = 0;
@@ -411,7 +412,7 @@ void vtkColorSeries::SetColorScheme(int scheme)
 }
 
 //-----------------------------------------------------------------------------
-int vtkColorSeries::SetColorSchemeByName(vtkStdString schemeName)
+int vtkColorSeries::SetColorSchemeByName(const vtkStdString& schemeName)
 {
   bool modified;
   int index = this->Storage->SetSchemeByName(schemeName, modified);
@@ -435,7 +436,7 @@ vtkStdString vtkColorSeries::GetColorSchemeName() const
 }
 
 //-----------------------------------------------------------------------------
-void vtkColorSeries::SetColorSchemeName(vtkStdString name)
+void vtkColorSeries::SetColorSchemeName(const vtkStdString& name)
 {
   this->CopyOnWrite();
   if (this->Storage->Palettes[this->Storage->Palette].Name != name)
