@@ -1738,9 +1738,12 @@ void vtkScalarsToColors::ResetAnnotations()
     vtkVariantArray* va = vtkVariantArray::New();
     vtkStringArray* sa = vtkStringArray::New();
     this->SetAnnotations( va, sa );
+    va->Delete();
+    sa->Delete();
     }
   this->AnnotatedValues->Reset();
   this->Annotations->Reset();
+  this->AnnotatedValueMap->clear();
   this->Modified();
 }
 
