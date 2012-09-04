@@ -18,6 +18,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <cstdio> // For EXIT_SUCCESS
+
 int TestCategoricalColors( int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
 {
   // Create the LUT and add some annotations.
@@ -93,5 +95,5 @@ int TestCategoricalColors( int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   data->Delete();
   lut->Delete();
   palettes->Delete();
-  return 0;
+  return EXIT_SUCCESS;
 }

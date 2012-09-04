@@ -462,7 +462,7 @@ vtkColor3ub vtkColorSeries::GetColor(int index) const
     }
   else
     {
-    return vtkColor3ub();
+    return vtkColor3ub(0,0,0);
     }
 }
 
@@ -474,10 +474,9 @@ vtkColor3ub vtkColorSeries::GetColorRepeating(int index) const
   // If we have an empty palette, index % numColors generates a divide-by-zero fault,
   // and if it did return a valid value, looking up the resulting color would be an
   // access violation. So, be careful here:
-  if ( numColors )
-    {
-    color = (*this->Storage->Colors)[index % numColors];
-    }
+  color = numColors ?
+    (*this->Storage->Colors)[index % numColors] :
+    vtkColor3ub(0,0,0);
   return color;
 }
 
