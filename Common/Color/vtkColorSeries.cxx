@@ -438,6 +438,16 @@ vtkStdString vtkColorSeries::GetColorSchemeName() const
 //-----------------------------------------------------------------------------
 void vtkColorSeries::SetColorSchemeName(const vtkStdString& name)
 {
+  // Ignore empty names
+  // TODO: Should we prohibit duplicate names? If not,
+  // how about searching backwards through palettes in
+  // SetColorSchemeByName() so users can override
+  // system defaults?
+  if ( name.empty() )
+    {
+    return;
+    }
+
   this->CopyOnWrite();
   if (this->Storage->Palettes[this->Storage->Palette].Name != name)
     {

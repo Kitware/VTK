@@ -148,6 +148,51 @@ int TestColorSeries( int argc, char* argv[] )
     valResult = vtkTesting::FAILED;
     }
 
+  palettes->SetColorSchemeName(""); // Test bad name... should have no effect.
+  palName = palettes->GetColorSchemeName();
+  if ( palName != expected )
+    {
+    vtkGenericWarningMacro(
+      << "Failure: Palette copy-on-write: name should have been "
+      << "\"" << expected.c_str() << "\" but was "
+      << "\"" << palName.c_str() << "\" instead." );
+    valResult = vtkTesting::FAILED;
+    }
+
+  // Check setting a custom palette name and non-copy-on-write
+  // behavior for custom palettes:
+  palettes->SetColorSchemeName("Unoriginal Blue-Green");
+  palettes->SetColorSchemeByName("Unoriginal Blue-Green");
+  if ( np != palettes->GetColorScheme() )
+    {
+    vtkGenericWarningMacro(
+      << "Modified palette had ID " << palettes->GetColorScheme()
+      << " not expected ID " << np
+    );
+    valResult = vtkTesting::FAILED;
+    }
+
+  palettes->SetNumberOfColors( 8 );
+  if ( palettes->GetNumberOfColors() != 8 )
+    {
+    vtkGenericWarningMacro(
+      << "Resized palette should have had 8 entries but had "
+      << palettes->GetNumberOfColors() << " instead."
+      );
+    valResult = vtkTesting::FAILED;
+    }
+
+  palettes->ClearColors();
+  if ( palettes->GetNumberOfColors() != 0 )
+    {
+    vtkGenericWarningMacro(
+      << "Cleared palette should have had 0 entries but had "
+      << palettes->GetNumberOfColors() << " instead."
+      );
+    valResult = vtkTesting::FAILED;
+    }
+
+
   // Make sure our custom scheme is still around
   palettes->SetColorScheme( pid );
   // Now test GetColor on a non-empty palette
@@ -166,7 +211,7 @@ int TestColorSeries( int argc, char* argv[] )
   wri->Write();
   */
 
-  int imgResult = t->RegressionTest( exec.GetPointer(), 15.);
+  int imgResult = t->RegressionTest( exec.GetPointer(), 0.);
   t->Delete();
   return (
     imgResult == vtkTesting::PASSED &&
