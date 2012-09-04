@@ -3214,7 +3214,6 @@ static void vtkWrapPython_CustomMethods(
             "  if (argtype)\n"
             "    {\n"
             "    vtkPythonCommand *cbc = vtkPythonCommand::New();\n"
-            "    Py_INCREF(temp1);\n"
             "    cbc->SetObject(temp1);\n"
             "    cbc->SetThreadState(PyThreadState_Get());\n"
             "\n"
@@ -3240,6 +3239,7 @@ static void vtkWrapPython_CustomMethods(
             "        tempr = op->%s::AddObserver(temp0s, cbc, temp2);\n"
             "        }\n"
             "      }\n"
+            "    PyVTKObject_AddObserver(self, tempr);\n"
             "\n",
             data->Name, data->Name);
 

@@ -35,6 +35,7 @@ vtkPythonCommand::~vtkPythonCommand()
 
 void vtkPythonCommand::SetObject(PyObject *o)
 {
+  Py_INCREF(o);
   this->obj = o;
 }
 
