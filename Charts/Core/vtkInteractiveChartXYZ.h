@@ -28,6 +28,7 @@
 
 class vtkAnnotationLink;
 class vtkAxis;
+class vtkContext3D;
 class vtkContextMouseEvent;
 class vtkMatrix4x4;
 class vtkPen;
@@ -112,6 +113,11 @@ protected:
   void ZoomAxes(int delta);
   void InitializeAxesBoundaryPoints();
   void InitializeFutureBox();
+  void ComputeDataBounds();
+  void DetermineWhichAxesToLabel();
+  void DrawTickMarks(vtkContext3D *context);
+  void DrawAxesLabels(vtkContext2D *painter);
+  void GetOffsetForAxisLabel(int axis, float *bounds, float *offset);
 
   vtkNew<vtkTransform> Translation;
   vtkNew<vtkTransform> Scale;
@@ -141,7 +147,16 @@ protected:
   double MaxDistance;
   int SceneHeight;
   int SceneWidth;
-  bool InitialRender;
+
+  // which line to label
+  int XAxisToLabel[3];
+  int YAxisToLabel[3];
+  int ZAxisToLabel[3];
+
+  //what direction the data is from each labeled axis line
+  int DirectionToData[3];
+
+  double DataBounds[4];
 
 private:
   float TranslationDebug[3];
