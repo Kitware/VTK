@@ -59,77 +59,133 @@ public:
   // Description:
   // Enum of the available color schemes
   enum {
-    SPECTRUM = 0, ///< 7 different hues.
-    WARM,         ///< 6 warm colors (red to yellow).
-    COOL,         ///< 7 cool colors (green to purple).
-    BLUES,        ///< 7 different blues.
-    WILD_FLOWER,  ///< 7 colors from blue to magenta.
-    CITRUS,       ///< 6 colors from green to orange.
-    BREWER_DIVERGING_PURPLE_ORANGE_11, //!< purple-grey-orange diverging ColorBrewer scheme (11 colors)
-    BREWER_DIVERGING_PURPLE_ORANGE_10, //!< purple-grey-orange diverging ColorBrewer scheme (10 colors)
-    BREWER_DIVERGING_PURPLE_ORANGE_9, //!< purple-grey-orange diverging ColorBrewer scheme (9 colors)
-    BREWER_DIVERGING_PURPLE_ORANGE_8, //!< purple-grey-orange diverging ColorBrewer scheme (8 colors)
-    BREWER_DIVERGING_PURPLE_ORANGE_7, //!< purple-grey-orange diverging ColorBrewer scheme (7 colors)
-    BREWER_DIVERGING_PURPLE_ORANGE_6, //!< purple-grey-orange diverging ColorBrewer scheme (6 colors)
-    BREWER_DIVERGING_PURPLE_ORANGE_5, //!< purple-grey-orange diverging ColorBrewer scheme (5 colors)
-    BREWER_DIVERGING_PURPLE_ORANGE_4, //!< purple-grey-orange diverging ColorBrewer scheme (4 colors)
-    BREWER_DIVERGING_PURPLE_ORANGE_3, //!< purple-grey-orange diverging ColorBrewer scheme (3 colors)
-    BREWER_DIVERGING_SPECTRAL_11, //!< diverging spectral ColorBrewer scheme (11 colors)
-    BREWER_DIVERGING_SPECTRAL_10, //!< diverging spectral ColorBrewer scheme (10 colors)
-    BREWER_DIVERGING_SPECTRAL_9, //!< diverging spectral ColorBrewer scheme (9 colors)
-    BREWER_DIVERGING_SPECTRAL_8, //!< diverging spectral ColorBrewer scheme (8 colors)
-    BREWER_DIVERGING_SPECTRAL_7, //!< diverging spectral ColorBrewer scheme (7 colors)
-    BREWER_DIVERGING_SPECTRAL_6, //!< diverging spectral ColorBrewer scheme (6 colors)
-    BREWER_DIVERGING_SPECTRAL_5, //!< diverging spectral ColorBrewer scheme (5 colors)
-    BREWER_DIVERGING_SPECTRAL_4, //!< diverging spectral ColorBrewer scheme (4 colors)
-    BREWER_DIVERGING_SPECTRAL_3, //!< diverging spectral ColorBrewer scheme (3 colors)
-    BREWER_DIVERGING_BROWN_BLUE_GREEN_11, //!< brown-blue-green diverging ColorBrewer scheme (11 colors)
-    BREWER_DIVERGING_BROWN_BLUE_GREEN_10, //!< brown-blue-green diverging ColorBrewer scheme (10 colors)
-    BREWER_DIVERGING_BROWN_BLUE_GREEN_9, //!< brown-blue-green diverging ColorBrewer scheme (9 colors)
-    BREWER_DIVERGING_BROWN_BLUE_GREEN_8, //!< brown-blue-green diverging ColorBrewer scheme (8 colors)
-    BREWER_DIVERGING_BROWN_BLUE_GREEN_7, //!< brown-blue-green diverging ColorBrewer scheme (7 colors)
-    BREWER_DIVERGING_BROWN_BLUE_GREEN_6, //!< brown-blue-green diverging ColorBrewer scheme (6 colors)
-    BREWER_DIVERGING_BROWN_BLUE_GREEN_5, //!< brown-blue-green diverging ColorBrewer scheme (5 colors)
-    BREWER_DIVERGING_BROWN_BLUE_GREEN_4, //!< brown-blue-green diverging ColorBrewer scheme (4 colors)
-    BREWER_DIVERGING_BROWN_BLUE_GREEN_3, //!< brown-blue-green diverging ColorBrewer scheme (3 colors)
-    BREWER_SEQUENTIAL_BLUE_GREEN_9, //!< blue to green sequential ColorBrewer scheme (9 colors)
-    BREWER_SEQUENTIAL_BLUE_GREEN_8, //!< blue to green sequential ColorBrewer scheme (8 colors)
-    BREWER_SEQUENTIAL_BLUE_GREEN_7, //!< blue to green sequential ColorBrewer scheme (7 colors)
-    BREWER_SEQUENTIAL_BLUE_GREEN_6, //!< blue to green sequential ColorBrewer scheme (6 colors)
-    BREWER_SEQUENTIAL_BLUE_GREEN_5, //!< blue to green sequential ColorBrewer scheme (5 colors)
-    BREWER_SEQUENTIAL_BLUE_GREEN_4, //!< blue to green sequential ColorBrewer scheme (4 colors)
-    BREWER_SEQUENTIAL_BLUE_GREEN_3, //!< blue to green sequential ColorBrewer scheme (3 colors)
-    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_9, //!< yellow-orange-brown sequential ColorBrewer scheme (9 colors)
-    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_8, //!< yellow-orange-brown sequential ColorBrewer scheme (8 colors)
-    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_7, //!< yellow-orange-brown sequential ColorBrewer scheme (7 colors)
-    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_6, //!< yellow-orange-brown sequential ColorBrewer scheme (6 colors)
-    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_5, //!< yellow-orange-brown sequential ColorBrewer scheme (5 colors)
-    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_4, //!< yellow-orange-brown sequential ColorBrewer scheme (4 colors)
-    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_3, //!< yellow-orange-brown sequential ColorBrewer scheme (3 colors)
-    BREWER_SEQUENTIAL_BLUE_PURPLE_9, //!< blue to purple sequential ColorBrewer scheme (9 colors)
-    BREWER_SEQUENTIAL_BLUE_PURPLE_8, //!< blue to purple sequential ColorBrewer scheme (8 colors)
-    BREWER_SEQUENTIAL_BLUE_PURPLE_7, //!< blue to purple sequential ColorBrewer scheme (7 colors)
-    BREWER_SEQUENTIAL_BLUE_PURPLE_6, //!< blue to purple sequential ColorBrewer scheme (6 colors)
-    BREWER_SEQUENTIAL_BLUE_PURPLE_5, //!< blue to purple sequential ColorBrewer scheme (5 colors)
-    BREWER_SEQUENTIAL_BLUE_PURPLE_4, //!< blue to purple sequential ColorBrewer scheme (4 colors)
-    BREWER_SEQUENTIAL_BLUE_PURPLE_3, //!< blue to purple sequential ColorBrewer scheme (3 colors)
-    BREWER_QUALITATIVE_ACCENT, //!< qualitative ColorBrewer scheme good for accenting
-    BREWER_QUALITATIVE_DARK2, //!< a dark set of qualitative colors from ColorBrewer
-    BREWER_QUALITATIVE_SET2, //!< a qualitative ColorBrewer scheme useful for color set members
-    BREWER_QUALITATIVE_PASTEL2, //!< a qualitative ColorBrewer scheme composed of pastel colors
-    BREWER_QUALITATIVE_PASTEL1, //!< a qualitative ColorBrewer scheme composed of pastel colors
-    BREWER_QUALITATIVE_SET1, //!< a qualitative ColorBrewer scheme useful for color set members
-    BREWER_QUALITATIVE_PAIRED, //!< a qualitative ColorBrewer scheme with pairs of matching colors
-    BREWER_QUALITATIVE_SET3, //!< a qualitative ColorBrewer scheme useful for color set members
-    CUSTOM        ///< User specified color scheme.
+    /// 7 different hues.
+    SPECTRUM = 0,
+    /// 6 warm colors (red to yellow).
+    WARM,
+    /// 7 cool colors (green to purple).
+    COOL,
+    /// 7 different blues.
+    BLUES,
+    /// 7 colors from blue to magenta.
+    WILD_FLOWER,
+    /// 6 colors from green to orange.
+    CITRUS,
+    /// purple-grey-orange diverging ColorBrewer scheme (11 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_11,
+    /// purple-grey-orange diverging ColorBrewer scheme (10 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_10,
+    /// purple-grey-orange diverging ColorBrewer scheme (9 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_9,
+    /// purple-grey-orange diverging ColorBrewer scheme (8 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_8,
+    /// purple-grey-orange diverging ColorBrewer scheme (7 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_7,
+    /// purple-grey-orange diverging ColorBrewer scheme (6 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_6,
+    /// purple-grey-orange diverging ColorBrewer scheme (5 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_5,
+    /// purple-grey-orange diverging ColorBrewer scheme (4 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_4,
+    /// purple-grey-orange diverging ColorBrewer scheme (3 colors)
+    BREWER_DIVERGING_PURPLE_ORANGE_3,
+    /// diverging spectral ColorBrewer scheme (11 colors)
+    BREWER_DIVERGING_SPECTRAL_11,
+    /// diverging spectral ColorBrewer scheme (10 colors)
+    BREWER_DIVERGING_SPECTRAL_10,
+    /// diverging spectral ColorBrewer scheme (9 colors)
+    BREWER_DIVERGING_SPECTRAL_9,
+    /// diverging spectral ColorBrewer scheme (8 colors)
+    BREWER_DIVERGING_SPECTRAL_8,
+    /// diverging spectral ColorBrewer scheme (7 colors)
+    BREWER_DIVERGING_SPECTRAL_7,
+    /// diverging spectral ColorBrewer scheme (6 colors)
+    BREWER_DIVERGING_SPECTRAL_6,
+    /// diverging spectral ColorBrewer scheme (5 colors)
+    BREWER_DIVERGING_SPECTRAL_5,
+    /// diverging spectral ColorBrewer scheme (4 colors)
+    BREWER_DIVERGING_SPECTRAL_4,
+    /// diverging spectral ColorBrewer scheme (3 colors)
+    BREWER_DIVERGING_SPECTRAL_3,
+    /// brown-blue-green diverging ColorBrewer scheme (11 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_11,
+    /// brown-blue-green diverging ColorBrewer scheme (10 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_10,
+    /// brown-blue-green diverging ColorBrewer scheme (9 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_9,
+    /// brown-blue-green diverging ColorBrewer scheme (8 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_8,
+    /// brown-blue-green diverging ColorBrewer scheme (7 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_7,
+    /// brown-blue-green diverging ColorBrewer scheme (6 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_6,
+    /// brown-blue-green diverging ColorBrewer scheme (5 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_5,
+    /// brown-blue-green diverging ColorBrewer scheme (4 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_4,
+    /// brown-blue-green diverging ColorBrewer scheme (3 colors)
+    BREWER_DIVERGING_BROWN_BLUE_GREEN_3,
+    /// blue to green sequential ColorBrewer scheme (9 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_9,
+    /// blue to green sequential ColorBrewer scheme (8 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_8,
+    /// blue to green sequential ColorBrewer scheme (7 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_7,
+    /// blue to green sequential ColorBrewer scheme (6 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_6,
+    /// blue to green sequential ColorBrewer scheme (5 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_5,
+    /// blue to green sequential ColorBrewer scheme (4 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_4,
+    /// blue to green sequential ColorBrewer scheme (3 colors)
+    BREWER_SEQUENTIAL_BLUE_GREEN_3,
+    /// yellow-orange-brown sequential ColorBrewer scheme (9 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_9,
+    /// yellow-orange-brown sequential ColorBrewer scheme (8 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_8,
+    /// yellow-orange-brown sequential ColorBrewer scheme (7 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_7,
+    /// yellow-orange-brown sequential ColorBrewer scheme (6 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_6,
+    /// yellow-orange-brown sequential ColorBrewer scheme (5 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_5,
+    /// yellow-orange-brown sequential ColorBrewer scheme (4 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_4,
+    /// yellow-orange-brown sequential ColorBrewer scheme (3 colors)
+    BREWER_SEQUENTIAL_YELLOW_ORANGE_BROWN_3,
+    /// blue to purple sequential ColorBrewer scheme (9 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_9,
+    /// blue to purple sequential ColorBrewer scheme (8 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_8,
+    /// blue to purple sequential ColorBrewer scheme (7 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_7,
+    /// blue to purple sequential ColorBrewer scheme (6 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_6,
+    /// blue to purple sequential ColorBrewer scheme (5 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_5,
+    /// blue to purple sequential ColorBrewer scheme (4 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_4,
+    /// blue to purple sequential ColorBrewer scheme (3 colors)
+    BREWER_SEQUENTIAL_BLUE_PURPLE_3,
+    /// qualitative ColorBrewer scheme good for accenting
+    BREWER_QUALITATIVE_ACCENT,
+    /// a dark set of qualitative colors from ColorBrewer
+    BREWER_QUALITATIVE_DARK2,
+    /// a qualitative ColorBrewer scheme useful for color set members
+    BREWER_QUALITATIVE_SET2,
+    /// a qualitative ColorBrewer scheme composed of pastel colors
+    BREWER_QUALITATIVE_PASTEL2,
+    /// a qualitative ColorBrewer scheme composed of pastel colors
+    BREWER_QUALITATIVE_PASTEL1,
+    /// a qualitative ColorBrewer scheme useful for color set members
+    BREWER_QUALITATIVE_SET1,
+    /// a qualitative ColorBrewer scheme with pairs of matching colors
+    BREWER_QUALITATIVE_PAIRED,
+    /// a qualitative ColorBrewer scheme useful for color set members
+    BREWER_QUALITATIVE_SET3,
+    /// User specified color scheme.
+    CUSTOM
     };
-
-  /// These enumerants describe the purpose for which a palette is best suited.
-  enum Purpose {
-    DIVERGING = 0, //!< Palette is suited for illustrating diverging data with a central tendency
-    SEQUENTIAL,    //!< Palette is suited for illustrating sequential data where order is important
-    CATEGORICAL    //!< Palette is suited for illustrating categorical data where there is no clear relationship between values
-  };
 //ETX
 
   // Description:
@@ -139,7 +195,7 @@ public:
   // The variant that accepts a string returns the integer index
   // of the resulting palette (whether it already existed or is newly-created).
   virtual void SetColorScheme(int scheme);
-  virtual int SetColorSchemeByName( vtkStdString schemeName );
+  virtual int SetColorSchemeByName(vtkStdString schemeName);
 
   // Description:
   // Return the number of schemes currently defined.
@@ -164,7 +220,7 @@ public:
   // Description:
   // Set the number of colors to be stored in a non-default color scheme.
   // Calling this function on a predefined color scheme will cause the scheme to be duplicated to a new custom scheme.
-  virtual void SetNumberOfColors( int numColors );
+  virtual void SetNumberOfColors(int numColors);
 
 //BTX
   // Description:
@@ -208,7 +264,7 @@ public:
   //
   // If \a lkup is a NULL pointer, a new vtkLookupTable will be created
   // for you, but you are then responsible for deleting it.
-  vtkLookupTable* BuildLookupTable( vtkLookupTable* lkup );
+  vtkLookupTable* BuildLookupTable(vtkLookupTable* lkup);
 
 //BTX
 protected:
