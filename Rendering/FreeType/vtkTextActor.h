@@ -61,11 +61,6 @@ public:
   void ShallowCopy(vtkProp *prop);
 
   // Description:
-  // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  // in world coordinates. NULL means that the bounds are not defined.
-  double *GetBounds();
-
-  // Description:
   // Override the vtkPolyDataMapper2D that defines the text to be drawn.
   // One will be created by default if none is supplied
   void SetMapper(vtkPolyDataMapper2D *mapper);

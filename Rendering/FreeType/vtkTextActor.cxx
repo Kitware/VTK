@@ -255,21 +255,6 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
 }
 
 // ----------------------------------------------------------------------------
-double *vtkTextActor::GetBounds()
-{
-  if (this->RectanglePoints->GetNumberOfPoints() == 0)
-    {
-    // Need a viewport to compute bounds if this is true:
-    if (this->TextScaleMode == TEXT_SCALE_MODE_PROP)
-      {
-      return NULL;
-      }
-    this->ComputeRectangle(NULL);
-    }
-  return this->RectanglePoints->GetBounds();
-}
-
-// ----------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
