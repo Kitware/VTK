@@ -211,7 +211,7 @@ void vtkTreeHeatmapItem::CountLeafNodes()
       {
       continue;
       }
-      ++this->NumberOfLeafNodes;
+    ++this->NumberOfLeafNodes;
     }
 }
 
