@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkCompositeCutter.h"
 
-#include "vtkAMRBox.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
@@ -104,39 +103,26 @@ int vtkCompositeCutter::RequestUpdateExtent(vtkInformation *, vtkInformationVect
   // Check if metadata are passed downstream
   if(inInfo->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
     {
-    vtkOverlappingAMR *amr = vtkOverlappingAMR::SafeDownCast(inInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()));
-
     std::vector<int> intersected;
 
-    if(amr)
+    vtkCompositeDataSet * meta= vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()));
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(meta->NewIterator());
+    iter->SetSkipEmptyNodes(false);
+    for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
-      unsigned int numLevels = amr->GetNumberOfLevels();
-      int numSets(0);
-      for(unsigned int level=0; level < numLevels; level++)
+      double* bb = iter->GetCurrentMetaData()->Get(vtkDataObject::BOUNDING_BOX());
+      for (int c=0; c < this->ContourValues->GetNumberOfContours(); c++)
         {
-        for(unsigned int dataIdx = 0; dataIdx < amr->GetNumberOfDataSets( level ); ++dataIdx )
+        if(IntersectBox(this->GetCutFunction(),bb,this->ContourValues->GetValue(c)))
           {
-          vtkAMRBox box;
-          amr->GetMetaData( level, dataIdx, box);
-          double bb[6];
-          box.GetBounds(bb);
-
-          for (int c=0; c < this->ContourValues->GetNumberOfContours(); c++)
-            {
-            if(IntersectBox(this->GetCutFunction(),bb,this->ContourValues->GetValue(c)))
-              {
-              intersected.push_back(amr->GetCompositeIndex(level,dataIdx));
-              break;
-              }
-            }
-          numSets++;
+          intersected.push_back(iter->GetCurrentFlatIndex());
+          break;
           }
         }
-      vtkDebugMacro("Got AMR meta of "<<numLevels<<" Levels; Intersection: "<<intersected.size()<<"/"<<numSets);
+      }
       inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &intersected[0], static_cast<int>(intersected.size()));
       }
-    }
-
   return 1;
 }
 
@@ -154,6 +140,7 @@ int vtkCompositeCutter::RequestData(vtkInformation *request,
 
   vtkSmartPointer<vtkCompositeDataIterator> itr;
   itr.TakeReference(inData->NewIterator());
+  itr->SetSkipEmptyNodes(true);
 
   vtkNew<vtkAppendPolyData> append;
   int numObjects(0);
@@ -161,17 +148,17 @@ int vtkCompositeCutter::RequestData(vtkInformation *request,
   while(!itr->IsDoneWithTraversal())
     {
     vtkDataSet* data = vtkDataSet::SafeDownCast(itr->GetCurrentDataObject());
-    if(data)
-      {
-      inInfo->Set(vtkDataObject::DATA_OBJECT(),data);
-      vtkNew<vtkPolyData> out;
-      outInfo->Set(vtkDataObject::DATA_OBJECT(),out.GetPointer());
-      this->Superclass::RequestData(request,inputVector,outputVector);
-      append->AddInputData(out.GetPointer());
-      numObjects++;
-      }
+    assert(data);
+    inInfo->Set(vtkDataObject::DATA_OBJECT(),data);
+    vtkNew<vtkPolyData> out;
+    outInfo->Set(vtkDataObject::DATA_OBJECT(),out.GetPointer());
+    this->Superclass::RequestData(request,inputVector,outputVector);
+    append->AddInputData(out.GetPointer());
+    numObjects++;
     itr->GoToNextItem();
     }
+  assert(!inInfo->Has(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES())
+         || numObjects==inInfo->Length(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES()));
   append->Update();
 
   vtkPolyData* appoutput = append->GetOutput();

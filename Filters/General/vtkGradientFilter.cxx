@@ -261,8 +261,8 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
   // array has 3 components. if we can't compute them because of
   // this we only mark internally the we aren't computing them
   // since we don't want to change the state of the filter.
-  bool computeVorticity = this->ComputeVorticity;
-  bool computeQCriterion = this->ComputeQCriterion;
+  bool computeVorticity = this->ComputeVorticity != 0;
+  bool computeQCriterion = this->ComputeQCriterion != 0;
   if( (this->ComputeQCriterion || this->ComputeVorticity)
       && array->GetNumberOfComponents() != 3)
     {

@@ -29,7 +29,6 @@
 #include <sstream>
 
 // VTK includes
-#include "vtkAMRBox.h"
 #include "vtkAMRGaussianPulseSource.h"
 #include "vtkAMRUtilities.h"
 #include "vtkCell.h"
@@ -37,6 +36,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkMathUtilities.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkAMRInformation.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLImageDataWriter.h"
 
@@ -217,13 +217,21 @@ vtkOverlappingAMR *GetGhostedDataSet(
     const int dimension, const int NG, vtkOverlappingAMR *inputAMR)
 {
   vtkOverlappingAMR *ghostedAMR = vtkOverlappingAMR::New();
-  ghostedAMR->SetNumberOfLevels( inputAMR->GetNumberOfLevels() );
+  std::vector<int> blocksPerLevel(2);
+  blocksPerLevel[0]=1;
+  blocksPerLevel[1]=2;
+
+  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()),
+                         &blocksPerLevel[0], inputAMR->GetOrigin(),
+                         inputAMR->GetGridDescription());
+
   assert( "pre: Expected number of levels is 2" &&
           (ghostedAMR->GetNumberOfLevels()==2));
 
   // Copy the root grid
   vtkUniformGrid *rootGrid = vtkUniformGrid::New();
   rootGrid->DeepCopy( inputAMR->GetDataSet(0,0) );
+  ghostedAMR->SetAMRBox(0,0,rootGrid->GetOrigin(), rootGrid->GetDimensions(), rootGrid->GetSpacing());
   ghostedAMR->SetDataSet(0,0,rootGrid);
   rootGrid->Delete();
 
@@ -242,6 +250,7 @@ vtkOverlappingAMR *GetGhostedDataSet(
     {
     vtkUniformGrid *grid = inputAMR->GetDataSet(1,i);
     vtkUniformGrid *ghostedGrid = GetGhostedGrid(dimension,grid,ghost[i],NG);
+    ghostedAMR->SetAMRBox(1,i,ghostedGrid->GetOrigin(), ghostedGrid->GetDimensions(), ghostedGrid->GetSpacing());
     ghostedAMR->SetDataSet(1,i,ghostedGrid);
 
 #ifdef DEBUG_ON
@@ -254,8 +263,6 @@ vtkOverlappingAMR *GetGhostedDataSet(
 
     ghostedGrid->Delete();
     } // END for all grids
-
-  vtkAMRUtilities::GenerateMetaData(ghostedAMR);
   return( ghostedAMR );
 }
 
@@ -383,6 +390,12 @@ bool AMRDataSetsAreEqual(
     return false;
     }
 
+  if (! (*computed->GetAMRInfo()==*expected->GetAMRInfo()))
+    {
+    std::cerr << "ERROR: AMR data mismatch!\n";
+    return false;
+    }
+
   unsigned int levelIdx = 0;
   for(; levelIdx < computed->GetNumberOfLevels(); ++levelIdx )
     {
@@ -395,29 +408,11 @@ bool AMRDataSetsAreEqual(
     unsigned int dataIdx = 0;
     for(;dataIdx < computed->GetNumberOfDataSets(levelIdx); ++dataIdx)
       {
-      vtkAMRBox computedBox;
-      computed->GetMetaData(levelIdx,dataIdx,computedBox);
-
-      vtkAMRBox expectedBox;
-      expected->GetMetaData(levelIdx,dataIdx,expectedBox);
-
-      if( !(computedBox == expectedBox) )
-        {
-        std::cerr << "ERROR: AMR data mismatch!\n";
-        return false;
-        }
-
       vtkUniformGrid *computedGrid = computed->GetDataSet(levelIdx,dataIdx);
       vtkUniformGrid *expectedGrid = expected->GetDataSet(levelIdx,dataIdx);
 
       for( int i=0; i < 3; ++i )
         {
-        if(computedGrid->GetDimensions()[i] !=
-            expectedGrid->GetDimensions()[i] )
-          {
-          std::cerr << "ERROR: grid dimensions mismatch!\n";
-          return false;
-          }
         if( !vtkMathUtilities::FuzzyCompare(
               computedGrid->GetOrigin()[i],
               expectedGrid->GetOrigin()[i]) )

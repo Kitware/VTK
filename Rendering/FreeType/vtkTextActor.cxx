@@ -21,7 +21,6 @@
 #include "vtkTransform.h"
 #include "vtkImageData.h"
 #include "vtkFreeTypeUtilities.h"
-#include "vtkXMLImageDataWriter.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -759,6 +758,11 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 void vtkTextActor::SpecifiedToDisplay(double *pos, vtkViewport *vport,
                                       int specified)
 {
+  if ( ! vport )
+    {
+    return;
+    }
+
   switch(specified)
   {
   case VTK_WORLD:

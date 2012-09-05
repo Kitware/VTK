@@ -4,8 +4,10 @@ vtk_module(vtkFiltersParallelFlowPaths
   DEPENDS
     vtkParallelMPI
     vtkParallelCore
-  TEST_DEPENDS
     vtkFiltersAMR
+  TEST_DEPENDS
+    vtkIOAMR
     vtkTestingRendering
     vtkRenderingParallel
+    vtkIOGeometry
   )

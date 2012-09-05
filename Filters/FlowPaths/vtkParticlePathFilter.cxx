@@ -81,7 +81,7 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
     int outId =  i+begin;
 
     int pid = particleIds->GetValue(i);
-    for(int j=this->Paths.size(); j<=pid; j++)
+    for(int j= static_cast<int>(this->Paths.size()); j<=pid; j++)
       {
       this->Paths.push_back( vtkSmartPointer<vtkIdList>::New());
       }

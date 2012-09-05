@@ -156,7 +156,7 @@ public:
 
   // Description:
   // Called by any vtkMapper or vtkProp subclass to render a composite-index.
-  // Currently indices > 0xffffff are not supported.
+  // Currently indices >= 0xffffff are not supported.
   void RenderCompositeIndex(unsigned int index);
 
   // Description:

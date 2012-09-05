@@ -11,6 +11,9 @@ if(NOT VTK_OPENGL_HAS_OSMESA)
 else()
   set(GL2PS_GL_LIBRARIES ${OSMESA_LIBRARY})
   set(GL2PS_GL_INCLUDE_DIR ${OSMESA_INCLUDE_DIR})
+  if(OPENGL_gl_LIBRARY)
+    list(APPEND GL2PS_GL_LIBRARIES ${OPENGL_gl_LIBRARY})
+  endif()
 endif()
 
 # Need math on UNIX
@@ -39,8 +42,20 @@ if(WIN32)
       COMPILE_DEFINITIONS "GL2PSDLL;GL2PSDLL_EXPORTS")
 endif()
 
+set_property(TARGET vtkgl2ps
+   APPEND PROPERTY COMPILE_DEFINITIONS
+   HAVE_ZLIB HAVE_PNG
+)
+
 # Linking
-target_link_libraries(vtkgl2ps ${GL2PS_GL_LIBRARIES})
+target_link_libraries(vtkgl2ps
+  ${GL2PS_GL_LIBRARIES}
+  ${vtkzlib_LIBRARIES}
+  ${vtkpng_LIBRARIES}
+)
+if(UNIX)
+  target_link_libraries(vtkgl2ps m)
+endif()
 
 # Install headers
 if(NOT VTK_INSTALL_NO_DEVELOPMENT)

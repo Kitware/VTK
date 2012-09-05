@@ -30,21 +30,24 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkRungeKutta2.h"
-#include <vtkMath.h>
-#include <vtkCompositeDataIterator.h>
-#include <vtkNew.h>
-#include <vtkMultiProcessStream.h>
-#include <vtkCellArray.h>
-#include <vtkMPIController.h>
-#include <vtkCharArray.h>
-#include <vtkDoubleArray.h>
-#include <vtkTimerLog.h>
+#include "vtkOverlappingAMR.h"
+#include "vtkAMRInterpolatedVelocityField.h"
+#include "vtkUniformGrid.h"
+#include "vtkAMRUtilities.h"
+#include "vtkMath.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkNew.h"
+#include "vtkMultiProcessStream.h"
+#include "vtkCellArray.h"
+#include "vtkMPIController.h"
+#include "vtkCharArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkTimerLog.h"
+
 #include <list>
 #include <vector>
 #include <assert.h>
-#include <vtkOverlappingAMR.h>
-#include <vtkAMRInterpolatedVelocityField.h>
-#include <vtkUniformGrid.h>
+
 #ifndef NDEBUG
 // #define DEBUGTRACE
 // #define LOGTRACE
@@ -596,6 +599,7 @@ public:
   virtual void Initialize(vtkPStreamTracer* tracer)
   {
     this->Tracer = tracer;
+    this->Controller = tracer->Controller;
     this->Rank = tracer->Rank;
     this->NumProcs = tracer->NumProcs;
     this->InputData = tracer->InputData;
@@ -624,7 +628,7 @@ public:
   }
 
 protected:
-  AbstractPStreamTracerUtils()
+  AbstractPStreamTracerUtils():Tracer(NULL), Controller(NULL), VecName(NULL),Input0(NULL),InputData(NULL)
   {
   }
 
@@ -678,6 +682,7 @@ protected:
   }
 
   vtkPStreamTracer* Tracer;
+  vtkMultiProcessController* Controller;
   vtkSmartPointer<PStreamTracerPoint> Proto;
   int VecType;
   char *VecName;
@@ -733,6 +738,7 @@ public:
 private:
   vtkSmartPointer<ProcessLocator> Locator;
 };
+
 vtkStandardNewMacro(PStreamTracerUtils);
 
 class AMRPStreamTracerUtils: public AbstractPStreamTracerUtils
@@ -767,12 +773,13 @@ public:
   {
     AMRPStreamTracerPoint* amrPoint = AMRPStreamTracerPoint::SafeDownCast(point);
     vtkAMRInterpolatedVelocityField* amrFunc = vtkAMRInterpolatedVelocityField::SafeDownCast(func);
-    if(!amrFunc->GetLastAMRBox().IsInvalid())
+    unsigned int level, id;
+    if(amrFunc->GetLastDataSetLocation(level,id))
       {
-      const vtkAMRBox& box = amrFunc->GetLastAMRBox();
-      amrPoint->SetLevel(box.GetLevel());
-      amrPoint->SetGridId(box.GetBlockId());
-      amrPoint->SetRank(box.GetProcessId());
+      amrPoint->SetLevel(level);
+      amrPoint->SetId(id);
+      int blockIndex = this->AMR->GetCompositeIndex(level,id);
+      amrPoint->SetRank(this->BlockProcess[blockIndex]);
       return true;
       }
     else
@@ -816,12 +823,12 @@ public:
       unsigned int level, gridId;
       if(vtkAMRInterpolatedVelocityField::FindGrid(x,this->AMR,level,gridId))
         {
-        vtkAMRBox box;
-        this->AMR->GetMetaData(level,gridId,box);
         amrp->SetLevel((int)level);
         amrp->SetGridId((int)gridId);
-        amrp->SetRank(box.GetProcessId());
-        AssertGe(box.GetProcessId(),0);
+        int blockIndex =this->AMR->GetCompositeIndex(level,gridId);
+        int process  =this->BlockProcess[blockIndex];
+        AssertGe(process,0);
+        amrp->SetRank(process);
         }
       else
         {
@@ -835,6 +842,9 @@ public:
     this->Superclass::Initialize(tracer);
     AssertNe(this->InputData,NULL);
     this->AMR = vtkOverlappingAMR::SafeDownCast(this->InputData);
+
+    vtkAMRUtilities::DistributeProcessInformation(this->AMR, this->Controller, BlockProcess);
+
     this->AMR->GenerateParentChildInformation();
     this->AMR->GenerateVisibilityArrays();
   }
@@ -845,6 +855,8 @@ protected:
     this->AMR = NULL;
   }
   vtkOverlappingAMR* AMR;
+
+  std::vector<int> BlockProcess; //stores block->process information
 };
 vtkStandardNewMacro(AMRPStreamTracerUtils);
 

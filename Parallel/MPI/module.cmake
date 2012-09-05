@@ -3,4 +3,8 @@ vtk_module(vtkParallelMPI
     MPI
   DEPENDS
     vtkParallelCore
+  TEST_DEPENDS
+    vtkTestingRendering
+    vtkRenderingParallel
+    vtkImagingSources
   )

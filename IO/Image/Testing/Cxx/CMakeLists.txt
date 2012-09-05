@@ -1,14 +1,8 @@
 set(TEST_SRC)
 
-if(WIN32)
-  list(APPEND TEST_SRC TestAVIWriter.cxx)
-endif()
-
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   # TestImageReader2Factory.cxx   # fixme (deps not satisfied)
   TestMetaIO.cxx
-  # TestMovieWriter.cxx           # fixme (deps not satisfied)
-  # TestOggTheoraWriter.cxx       # fixme (deps not satisfied)
   ${TEST_SRC}
   EXTRA_INCLUDE vtkTestDriver.h
 )

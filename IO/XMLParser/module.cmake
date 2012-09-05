@@ -1,0 +1,10 @@
+vtk_module(vtkIOXMLParser
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonSystem
+    vtkCommonMisc
+    vtkIOCore
+    vtkexpat
+  )

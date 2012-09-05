@@ -46,6 +46,7 @@ class vtkCellData;
 class vtkPointData;
 class vtkIndent;
 
+class vtkAMRBox;
 class VTKFILTERSAMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -192,13 +193,14 @@ protected:
   // the corresponding donor cell containing the point in the given grid.
   bool FoundDonor(double q[3],vtkUniformGrid *&donorGrid,int &cellIdx);
 
+
   // Description:
   // Given a query point q and a target level, this method finds a suitable
   // grid at the given level that contains the point if one exists. If a grid
   // is not found, donorGrid is set to NULL.
-  void SearchForDonorGridAtLevel(
+  bool SearchForDonorGridAtLevel(
       double q[3], vtkOverlappingAMR *amrds,
-      unsigned int level, unsigned int gridId, vtkUniformGrid *&donorGrid,
+      unsigned int level, unsigned int& gridId,
       int &donorCellIdx);
 
   // Description:
@@ -207,18 +209,17 @@ protected:
   // first. The method returns the ID of the cell w.r.t. the donorGrid that
   // contains the probe point q.
   int ProbeGridPointInAMR(
-      double q[3],vtkUniformGrid *&donorGrid, unsigned int &donorLevel,
-      vtkOverlappingAMR *amrds, unsigned int maxLevel );
+    double q[3], unsigned int &donorLevel, unsigned int& donorGridId,
+      vtkOverlappingAMR *amrds, unsigned int maxLevel, bool useCached);
 
   // Description:
   // Finds the AMR grid that contains the point q. If donorGrid points to a
   // valid AMR grid in the hierarchy, the algorithm will search this grid
   // first. The method returns the ID of the cell w.r.t. the donorGrid that
   // contains the probe point q. - Makes use of Parent/Child Info
-  int ProbeGridPointInAMRGraph(
-      double q[3],vtkUniformGrid *&donorGrid,
-      unsigned int &donorLevel, unsigned int &donorGridId,
-      vtkOverlappingAMR *amrds, unsigned int maxLevel );
+  int ProbeGridPointInAMRGraph(double q[3],
+                               unsigned int &donorLevel,  unsigned int &donorGridId,
+                               vtkOverlappingAMR *amrds, unsigned int maxLevel, bool useCached);
 
   // Description:
   // Transfers the solution from the AMR dataset to the cell-centers of
@@ -246,7 +247,7 @@ protected:
   // Description:
   // Checks if the AMR block, described by a uniform grid, is within the
   // bounds of the ROI perscribed by the user.
-  bool IsBlockWithinBounds( vtkUniformGrid *grd );
+  bool IsBlockWithinBounds( double *grd );
 
   // Description:
   // Given a user-supplied region of interest and the metadata by a module
@@ -308,7 +309,7 @@ protected:
 
   // Description:
   // Checks if two uniform grids intersect.
-  bool GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g2 );
+  bool GridsIntersect( double *g1, double *g2 );
 
   // Description:
   // Returns a reference grid from the amrdataset.
@@ -316,10 +317,10 @@ protected:
 
   // Description:
   // Writes a uniform grid to a file. Used for debugging purposes.
-  void WriteUniformGrid( vtkUniformGrid *g, std::string prefix );
-  void WriteUniformGrid(
-      double origin[3], int dims[3], double h[3],
-      std::string prefix );
+  //void WriteUniformGrid( vtkUniformGrid *g, std::string prefix );
+  //void WriteUniformGrid(
+  //double origin[3], int dims[3], double h[3],
+  //std::string prefix );
 
   //Description:
   // Find a decendant of the specified grid that contains the point.
@@ -330,20 +331,22 @@ protected:
                             unsigned int maxLevel,
                             unsigned int &level,
                             unsigned int &gridId,
-                            vtkUniformGrid *&grid,
                             int &id);
+
   //Description:
   // Find an ancestor of the specified grid that contains the point.
   // If none is found then the original grid information is returned
-  void SearchGridAncestors(double q[3],
+  bool SearchGridAncestors(double q[3],
                            vtkOverlappingAMR *amrds,
                            unsigned int &level,
                            unsigned int &gridId,
-                           vtkUniformGrid *&grid,
                            int &id);
+
+
 private:
   vtkAMRResampleFilter(const vtkAMRResampleFilter&); // Not implemented
   void operator=(const vtkAMRResampleFilter&); // Not implemented
+
 };
 
 #endif /* __vtkAMRResampleFilter_h */

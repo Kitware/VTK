@@ -25,21 +25,45 @@
 #define __vtkIVWriter_h
 
 #include "vtkIOGeometryModule.h" // For export macro
-#include "vtkPolyDataWriter.h"
+#include "vtkWriter.h"
 
-class VTKIOGEOMETRY_EXPORT vtkIVWriter : public vtkPolyDataWriter
+class vtkPolyData;
+
+class VTKIOGEOMETRY_EXPORT vtkIVWriter : public vtkWriter
 {
 public:
   static vtkIVWriter *New();
-  vtkTypeMacro(vtkIVWriter,vtkPolyDataWriter);
+  vtkTypeMacro(vtkIVWriter,vtkWriter);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Get the input to this writer.
+  vtkPolyData* GetInput();
+  vtkPolyData* GetInput(int port);
+
+  // Description:
+  // Specify file name of vtk polygon data file to write.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+
 protected:
-  vtkIVWriter() {};
-  ~vtkIVWriter() {};
+  vtkIVWriter()
+    {
+    this->FileName = NULL;
+    }
+
+  ~vtkIVWriter()
+    {
+    delete[] this->FileName;
+    }
 
   void WriteData();
   void WritePolyData(vtkPolyData *polyData, FILE *fp);
+
+  char *FileName;
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkIVWriter(const vtkIVWriter&);  // Not implemented.
   void operator=(const vtkIVWriter&);  // Not implemented.

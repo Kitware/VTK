@@ -199,13 +199,14 @@ int vtkFFMPEGWriterInternal::Start()
     {
     c->bit_rate_tolerance = this->Writer->GetBitRateTolerance();
     }
-
+#ifdef VTK_FFMPEG_HAS_OLD_HEADER
   //apply the chosen parameters
   if (av_set_parameters(this->avFormatContext, NULL) < 0)
     {
     vtkGenericWarningMacro (<< "Invalid output format parameters." );
     return 0;
     }
+#endif
 
   //manufacture a codec with the chosen parameters
   AVCodec *codec = avcodec_find_encoder(c->codec_id);
@@ -267,14 +268,22 @@ int vtkFFMPEGWriterInternal::Start()
 
 
   //Finally, open the file and start it off.
+#ifdef VTK_FFMPEG_HAS_OLD_HEADER
   if (url_fopen(&this->avFormatContext->pb, this->avFormatContext->filename, URL_WRONLY) < 0)
+#else
+  if (avio_open(&this->avFormatContext->pb, this->avFormatContext->filename, AVIO_FLAG_WRITE) < 0)
+#endif
     {
     vtkGenericWarningMacro (<< "Could not open " << this->Writer->GetFileName() << "." );
     return 0;
     }
   this->openedFile = 1;
 
+#ifdef VTK_FFMPEG_HAS_OLD_HEADER
   av_write_header(this->avFormatContext);
+#else
+  avformat_write_header(this->avFormatContext, NULL);
+#endif
   return 1;
 }
 
@@ -403,7 +412,7 @@ void vtkFFMPEGWriterInternal::End()
 #ifdef VTK_FFMPEG_OLD_URL_FCLOSE
       url_fclose(&this->avFormatContext->pb);
 #else
-      url_fclose(this->avFormatContext->pb);
+      avio_close(this->avFormatContext->pb);
 #endif
       this->openedFile = 0;
       }

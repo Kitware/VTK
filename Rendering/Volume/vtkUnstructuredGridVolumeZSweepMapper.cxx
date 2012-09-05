@@ -37,7 +37,7 @@
 
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
-#include "vtkXMLPolyDataWriter.h"
+//#include "vtkXMLPolyDataWriter.h"
 #include "vtkPointData.h"
 
 #include <assert.h>
@@ -3519,6 +3519,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::SavePixelListFrame()
   dataset->GetPointData()->SetScalars(dataArray);
   dataArray->Delete();
 
+  /*
   vtkXMLPolyDataWriter *writer=vtkXMLPolyDataWriter::New();
   writer->SetFileName("pixellistframe.vtp");
   writer->SetInputData(dataset);
@@ -3526,6 +3527,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::SavePixelListFrame()
   dataset->Delete();
   writer->Write();
   writer->Delete();
+  */
 }
 
 //-----------------------------------------------------------------------------

@@ -200,6 +200,9 @@ protected:
   double LastPickPosition[3];
   double LastEventPosition[2];
 
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
+
   // Methods to manipulate the cursor
   int  ConstraintAxis;
   void Translate(double *p1, double *p2);

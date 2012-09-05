@@ -16,6 +16,7 @@
 
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -25,11 +26,14 @@ vtkStandardNewMacro(vtkMCubesWriter);
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()
 {
+  this->FileName = 0;
   this->LimitsFileName = NULL;
 }
 
 vtkMCubesWriter::~vtkMCubesWriter()
 {
+  delete[] this->FileName;
+
   if ( this->LimitsFileName )
     {
     delete [] this->LimitsFileName;
@@ -156,3 +160,18 @@ void vtkMCubesWriter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->LimitsFileName ? this->LimitsFileName : "(none)") << "\n";
 }
 
+vtkPolyData* vtkMCubesWriter::GetInput()
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput());
+}
+
+vtkPolyData* vtkMCubesWriter::GetInput(int port)
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput(port));
+}
+
+int vtkMCubesWriter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
+}

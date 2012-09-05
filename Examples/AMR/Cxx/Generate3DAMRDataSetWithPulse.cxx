@@ -31,7 +31,6 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkAMRBox.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkXMLHierarchicalBoxDataWriter.h"
 #include "vtkAMRUtilities.h"
@@ -126,7 +125,9 @@ void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix )
 vtkHierarchicalBoxDataSet* GetAMRDataSet()
 {
   vtkHierarchicalBoxDataSet *data = vtkHierarchicalBoxDataSet::New();
-  data->Initialize();
+  int blocksPerLevel[2] = {1,3};
+  double globalOrigin[3] = {-2.0,-2.0,-2.0};
+  data->Initialize(2,blocksPerLevel,globalOrigin,VTK_XYZ_GRID);
 
   double origin[3];
   double h[3];
@@ -174,7 +175,6 @@ vtkHierarchicalBoxDataSet* GetAMRDataSet()
   data->SetDataSet( level, blockId,grid3);
   grid3->Delete();
 
-  vtkAMRUtilities::GenerateMetaData( data, NULL );
   data->GenerateVisibilityArrays();
   return( data );
 }

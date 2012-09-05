@@ -51,6 +51,7 @@ vtkHardwareSelectionPolyDataPainter::vtkHardwareSelectionPolyDataPainter()
   this->PointIdArrayName = NULL;
   this->CellIdArrayName = NULL;
   this->ProcessIdArrayName = NULL;
+  this->CompositeIdArrayName = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -59,6 +60,7 @@ vtkHardwareSelectionPolyDataPainter::~vtkHardwareSelectionPolyDataPainter()
   this->SetPointIdArrayName(NULL);
   this->SetCellIdArrayName(NULL);
   this->SetProcessIdArrayName(NULL);
+  this->SetCompositeIdArrayName(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -181,6 +183,10 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
   vtkIdTypeArray* cidArray = this->CellIdArrayName? vtkIdTypeArray::SafeDownCast(
     pd->GetCellData()->GetArray(this->CellIdArrayName)) : NULL;
 
+  vtkUnsignedIntArray* compositeIdArray = this->CompositeIdArrayName?
+    vtkUnsignedIntArray::SafeDownCast(
+      pd->GetCellData()->GetArray(this->CompositeIdArrayName)) : NULL;
+
   int pointtype = p->GetDataType();
   void* voidpoints = p->GetVoidPointer(0);
   int count = 0;
@@ -189,6 +195,10 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
   for (connectivity->InitTraversal(); connectivity->GetNextCell(npts, pts); count++)
     {
     device->BeginPrimitive(mode);
+    if (this->EnableSelection && compositeIdArray)
+      {
+      selector->RenderCompositeIndex(compositeIdArray->GetValue(cellId));
+      }
     if (attributeMode == vtkDataObject::FIELD_ASSOCIATION_CELLS &&
       this->EnableSelection)
       {
@@ -234,7 +244,10 @@ void vtkHardwareSelectionPolyDataPainter::PrintSelf(ostream& os, vtkIndent inden
   this->Superclass::PrintSelf(os, indent);
   os << indent << "EnableSelection: " << this->EnableSelection << endl;
   os << indent << "CellIdArrayName: " <<
-    (this->CellIdArrayName? this->CellIdArrayName : NULL) << endl;
+    (this->CellIdArrayName? this->CellIdArrayName :  "(none)") << endl;
   os << indent << "PointIdArrayName: " <<
-    (this->PointIdArrayName? this->PointIdArrayName: NULL) << endl;
+    (this->PointIdArrayName? this->PointIdArrayName: "(none)") << endl;
+  os << indent << "CompositeIdArrayName: "
+     << (this->CompositeIdArrayName? this->CompositeIdArrayName : "(none)")
+     << endl;
 }

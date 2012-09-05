@@ -16,11 +16,13 @@
 #include "vtkActor.h"
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
+#include "vtkPickingManager.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyData.h"
 #include "vtkCallbackCommand.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkInteractorObserver.h"
@@ -219,6 +221,15 @@ void vtkSphereRepresentation::HighlightHandle(int highlight)
     }
 }
 
+//------------------------------------------------------------------------------
+void vtkSphereRepresentation::RegisterPickers()
+{
+  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
+    ->AddPicker(this->HandlePicker, this);
+  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
+    ->AddPicker(this->SpherePicker, this);
+}
+
 //----------------------------------------------------------------------
 void vtkSphereRepresentation::Scale(double *p1, double *p2,
                                     int vtkNotUsed(X), int Y)
@@ -309,9 +320,9 @@ void vtkSphereRepresentation::WidgetInteraction(double e[2])
     }
   else if ( this->InteractionState == vtkSphereRepresentation::MovingHandle )
     {
-    this->SpherePicker->Pick(static_cast<int>(e[0]),static_cast<int>(e[1]),0.0,
-                             this->Renderer);
-    vtkAssemblyPath *path = this->SpherePicker->GetPath();
+    vtkAssemblyPath* path = this->GetAssemblyPath(e[0], e[1], 0.,
+                                                  this->SpherePicker);
+
     if ( path != NULL )
       {
       this->HandleSource->SetCenter(this->SpherePicker->GetPickPosition());
@@ -572,8 +583,8 @@ int vtkSphereRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
   int handlePicked = 0;
   if ( this->HandleVisibility || this->HandleText || this->RadialLine )
     {
-    this->HandlePicker->Pick(X,Y,0.0,this->Renderer);
-    path = this->HandlePicker->GetPath();
+    path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
+
     if ( path != NULL )
       {
       this->ValidPick = 1;
@@ -586,8 +597,8 @@ int vtkSphereRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
 
   if ( ! handlePicked )
     {
-    this->SpherePicker->Pick(X,Y,0.0,this->Renderer);
-    path = this->SpherePicker->GetPath();
+    path = this->GetAssemblyPath(X, Y, 0., this->SpherePicker);
+
     if ( path != NULL )
       {
       this->ValidPick = 1;

@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkXMLCompositeDataReader.h"
 
-#include "vtkAMRBox.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArraySelection.h"

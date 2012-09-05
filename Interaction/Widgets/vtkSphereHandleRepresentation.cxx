@@ -14,10 +14,12 @@
 =========================================================================*/
 #include "vtkSphereHandleRepresentation.h"
 #include "vtkSphereSource.h"
+#include "vtkPickingManager.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCellPicker.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 #include "vtkAssemblyPath.h"
@@ -82,6 +84,13 @@ vtkSphereHandleRepresentation::~vtkSphereHandleRepresentation()
   this->Actor->Delete();
   this->Property->Delete();
   this->SelectedProperty->Delete();
+}
+
+//----------------------------------------------------------------------
+void vtkSphereHandleRepresentation::RegisterPickers()
+{
+  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
+    ->AddPicker(this->CursorPicker, this);
 }
 
 //-------------------------------------------------------------------------
@@ -165,8 +174,9 @@ void vtkSphereHandleRepresentation::SetHandleSize(double size)
 int vtkSphereHandleRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   this->VisibilityOn(); //actor must be on to be picked
-  this->CursorPicker->Pick(X,Y,0.0,this->Renderer);
-  vtkAssemblyPath *path = this->CursorPicker->GetPath();
+
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->CursorPicker);
+
   if ( path != NULL )
     {
 //    this->InteractionState = vtkHandleRepresentation::Nearby;
@@ -243,9 +253,9 @@ void vtkSphereHandleRepresentation::StartWidgetInteraction(double startEventPos[
   this->LastEventPosition[0] = startEventPos[0];
   this->LastEventPosition[1] = startEventPos[1];
 
-  vtkAssemblyPath *path;
-  this->CursorPicker->Pick(startEventPos[0],startEventPos[1],0.0,this->Renderer);
-  path = this->CursorPicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(
+        startEventPos[0], startEventPos[1], 0., this->CursorPicker);
+
   if ( path != NULL )
     {
 //    this->InteractionState = vtkHandleRepresentation::Nearby;

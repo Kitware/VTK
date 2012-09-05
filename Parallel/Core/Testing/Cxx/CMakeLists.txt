@@ -1,0 +1,1 @@
+vtk_tests(TestFieldDataSerialization.cxx)

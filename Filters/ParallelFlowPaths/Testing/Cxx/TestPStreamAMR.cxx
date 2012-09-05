@@ -22,10 +22,9 @@
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
-
 #include "vtkAMRBox.h"
 #include "vtkAMRInterpolatedVelocityField.h"
-#include "vtkAMREnzoReader.h" 
+#include "vtkAMREnzoReader.h"
 #include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -169,11 +168,6 @@ int main( int argc, char* argv[] )
     }
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,"Data/AMR/Enzo/DD0010/moving7_0010.hierarchy");
-
-  if(Rank==0)
-    {
-    cout<<"Input File :"<<fname<<endl;
-    }
 
   bool res = true;
 

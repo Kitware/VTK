@@ -18,7 +18,9 @@
 #include "vtkActor.h"
 #include "vtkCellPicker.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
+#include "vtkPickingManager.h"
 #include "vtkProperty.h"
 #include "vtkAssemblyPath.h"
 #include "vtkMath.h"
@@ -117,6 +119,13 @@ vtkAbstractPolygonalHandleRepresentation3D
 }
 
 //----------------------------------------------------------------------
+void vtkAbstractPolygonalHandleRepresentation3D::RegisterPickers()
+{
+  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
+    ->AddPicker(this->HandlePicker, this);
+}
+
+//----------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::SetHandle( vtkPolyData * pd )
 {
   this->HandleTransformFilter->SetInputData( pd );
@@ -170,8 +179,7 @@ int vtkAbstractPolygonalHandleRepresentation3D
 ::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   this->VisibilityOn(); //actor must be on to be picked
-  this->HandlePicker->Pick(X,Y,0.0,this->Renderer);
-  vtkAssemblyPath *path = this->HandlePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
   if ( path != NULL )
     {
@@ -247,10 +255,11 @@ void vtkAbstractPolygonalHandleRepresentation3D::StartWidgetInteraction(double s
   this->LastEventPosition[0] = startEventPos[0];
   this->LastEventPosition[1] = startEventPos[1];
 
-  this->HandlePicker->Pick(startEventPos[0],startEventPos[1],0.0,this->Renderer);
+  vtkAssemblyPath* path = this->GetAssemblyPath(
+    startEventPos[0], startEventPos[1], 0., this->HandlePicker);
 
   // Did we pick the handle ?
-  if ( this->HandlePicker->GetPath() )
+  if ( path )
     {
     this->InteractionState = vtkHandleRepresentation::Nearby;
     this->ConstraintAxis = -1;

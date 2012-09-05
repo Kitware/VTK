@@ -24,6 +24,7 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
+#include "vtkObjectFactory.h"
 #include <mpi.h>
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"

@@ -72,8 +72,7 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
       {
       vtkXMLDataElement* tag = vtkXMLDataElement::New();
 
-      const char *name =
-        compositeData->GetMetaData(iter)->Get(vtkCompositeDataSet::NAME());
+      const char *name = iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
 
       if (curDO->IsA("vtkMultiPieceDataSet"))
         {

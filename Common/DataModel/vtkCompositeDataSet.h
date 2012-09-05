@@ -46,7 +46,7 @@ public:
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by user).
-  virtual vtkCompositeDataIterator* NewIterator();
+  virtual vtkCompositeDataIterator* NewIterator() =0;
 
   // Description:
   // Return class name of data type (see vtkType.h for
@@ -57,37 +57,22 @@ public:
   // Copies the tree structure from the input. All pointers to non-composite
   // data objects are intialized to NULL. This also shallow copies the meta data
   // associated with all the nodes.
-  virtual void CopyStructure(vtkCompositeDataSet* input);
+  virtual void CopyStructure(vtkCompositeDataSet* input)=0;
 
   // Description:
   // Sets the data set at the location pointed by the iterator.
   // The iterator does not need to be iterating over this dataset itself. It can
   // be any composite datasite with similar structure (achieved by using
   // CopyStructure).
-  virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj);
+  virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj)=0;
 
   // Description:
   // Returns the dataset located at the positiong pointed by the iterator.
   // The iterator does not need to be iterating over this dataset itself. It can
   // be an iterator for composite dataset with similar structure (achieved by
   // using CopyStructure).
-  virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter);
+  virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter)=0;
 
-  // Description:
-  // Returns the meta-data associated with the position pointed by the iterator.
-  // This will create a new vtkInformation object if none already exists. Use
-  // HasMetaData to avoid creating the vtkInformation object unnecessarily.
-  // The iterator does not need to be iterating over this dataset itself. It can
-  // be an iterator for composite dataset with similar structure (achieved by
-  // using CopyStructure).
-  virtual vtkInformation* GetMetaData(vtkCompositeDataIterator* iter);
-
-  // Description:
-  // Returns if any meta-data associated with the position pointed by the iterator.
-  // The iterator does not need to be iterating over this dataset itself. It can
-  // be an iterator for composite dataset with similar structure (achieved by
-  // using CopyStructure).
-  virtual int HasMetaData(vtkCompositeDataIterator* iter);
 
   // Description:
   // Return the actual size of the data in kilobytes. This number
@@ -120,60 +105,12 @@ public:
   // Key used to put node name in the meta-data associated with a node.
   static vtkInformationStringKey* NAME();
 
-  // Description:
-  // COMPOSITE_INDEX() is added to the leaf nodes of the meta-data composite
-  // dataset (COMPOSITE_DATA_META_DATA) during REQUEST_INFORMATION(). Filters
-  // downstream can use this index to request specific datasets when
-  // creating UPDATE_COMPOSITE_INDICES().
-  // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
-  static vtkInformationIntegerKey* COMPOSITE_INDEX();
-
 //BTX
-protected:
+ protected:
   vtkCompositeDataSet();
-  ~vtkCompositeDataSet();
+  virtual ~vtkCompositeDataSet();
+ private:
 
-  // Description:
-  // Set the number of children.
-  void SetNumberOfChildren(unsigned int num);
-
-  // Description:
-  // Get the number of children.
-  unsigned int GetNumberOfChildren();
-
-  // Description:
-  // Set child dataset at a given index. The number of children is adjusted to
-  // to be greater than the index specified.
-  void SetChild(unsigned int index, vtkDataObject*);
-
-  // Description:
-  // Remove the child at a given index.
-  void RemoveChild(unsigned int index);
-
-  // Description:
-  // Returns a child dataset at a given index.
-  vtkDataObject* GetChild(unsigned int num);
-
-  // Description:
-  // Returns the meta-data at a given index. If the index is valid, however, no
-  // information object is set, then a new one will created and returned.
-  // To avoid unnecessary creation, use HasMetaData().
-  vtkInformation* GetChildMetaData(unsigned int index);
-
-  // Description:
-  // Sets the meta-data at a given index.
-  void SetChildMetaData(unsigned int index, vtkInformation* info);
-
-  // Description:
-  // Returns if meta-data information is available for the given child index.
-  // Returns 1 is present, 0 otherwise.
-  int HasChildMetaData(unsigned int index);
-
-  // The internal datastructure. Subclasses need not access this directly.
-  vtkCompositeDataSetInternals* Internals;
-
-  friend class vtkCompositeDataIterator;
-private:
   vtkCompositeDataSet(const vtkCompositeDataSet&); // Not implemented.
   void operator=(const vtkCompositeDataSet&); // Not implemented.
 //ETX

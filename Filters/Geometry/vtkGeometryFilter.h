@@ -36,6 +36,11 @@
 // generate normals, which may split meshes and create duplicate
 // vertices, vtkGeometryFilter will merge these points back
 // together. Turn merging off to prevent this from occurring.
+//
+// This filter assumes that the input dataset is composed of either:
+// 0D cells OR 1D cells OR 2D and/or 3D cells. In other words,
+// the input dataset cannot be a combination of different dimensional cells
+// with the exception of 2D and 3D cells.
 
 // .SECTION See Also
 // vtkImageDataGeometryFilter vtkStructuredGridGeometryFilter

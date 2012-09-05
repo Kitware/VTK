@@ -51,6 +51,10 @@ class vtkWeakPointerBaseToObjectBaseFriendship;
 
 class VTKCOMMONCORE_EXPORT vtkObjectBase
 {
+  // Description:
+  // Return the class name as a string. This method is overridden
+  // in all subclasses of vtkObjectBase with the vtkTypeMacro found
+  // in vtkSetGet.h.
   virtual const char* GetClassNameInternal() const { return "vtkObjectBase"; }
 public:
 
@@ -61,9 +65,7 @@ public:
 #endif
 
   // Description:
-  // Return the class name as a string. This method is defined
-  // in all subclasses of vtkObjectBase with the vtkTypeMacro found
-  // in vtkSetGet.h.
+  // Return the class name as a string.
   const char* GetClassName() const;
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE

@@ -242,11 +242,6 @@ include(vtkTestBuiltins)
 # this must be after the test for the long types
 INCLUDE(vtkTestStreamsLibrary)
 
-IF(VTK_USE_RENDERING AND WIN32)
-  # Check for vfw32 support
-  INCLUDE(vtkTestVideoForWindows)
-ENDIF(VTK_USE_RENDERING AND WIN32)
-
 #-----------------------------------------------------------------------------
 # Dispatch the build into the proper subdirectories.
 SET(VTK_HAS_EXODUS 1)

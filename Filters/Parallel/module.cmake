@@ -6,4 +6,11 @@ vtk_module(vtkFiltersParallel
     vtkFiltersExtraction
     vtkRenderingCore
     vtkFiltersModeling
+  TEST_DEPENDS
+    vtkParallelMPI
+    vtkTestingRendering
+    vtkRenderingOpenGL
+    vtkRenderingParallel
+    vtkFiltersParallelMPI
+    vtkFiltersParallelImaging
   )

@@ -58,10 +58,6 @@
 // property for the handles and line. In addition there are methods to
 // constrain the line so that it is aligned along the x-y-z axes.
 
-// .SECTION Caveats
-// Note that handles and line can be picked even when they are "behind" other
-// actors.  This is an intended feature and not a bug.
-
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkPlaneWidget
 
@@ -244,6 +240,9 @@ protected:
   vtkActor *CurrentHandle;
   double LastPosition[3];
   void  SetLinePosition(double x[3]);
+
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
 
   // Methods to manipulate the hexahedron.
   void Scale(double *p1, double *p2, int X, int Y);

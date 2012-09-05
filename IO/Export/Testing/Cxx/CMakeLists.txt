@@ -1,5 +1,6 @@
 set(GL2PSTests
   TestContextGL2PS.cxx
+  TestGL2PSExporterMultipleRenderers.cxx
   TestGL2PSExporterRaster.cxx
   TestGL2PSExporterRasterExclusion.cxx
   TestGL2PSExporterVector.cxx

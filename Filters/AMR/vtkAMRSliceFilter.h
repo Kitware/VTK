@@ -113,7 +113,7 @@ protected:
   // Description:
   // Gets the slice from the given grid given the plane origin & the
   // user-supplied normal associated with this class instance.
-  vtkUniformGrid* GetSlice( double origin[3], vtkUniformGrid *grid );
+  vtkUniformGrid* GetSlice( double origin[3], int* dims, double* gorigin, double* spacing );
 
   // Description:
   // Copies the cell data for the cells in the slice from the 3-D grid.
@@ -158,7 +158,7 @@ protected:
   int ForwardUpstream;
   int EnablePrefetching;
   // BTX
-    std::vector< int > blocksToLoad;
+  std::vector< int > BlocksToLoad;
   // ETX
 
 private:

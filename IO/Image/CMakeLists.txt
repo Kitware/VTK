@@ -3,8 +3,6 @@ set(Module_SRCS
   vtkBMPWriter.cxx
   vtkDEMReader.cxx
   vtkDICOMImageReader.cxx
-  #vtkFFMPEGWriter.cxx
-  vtkGaussianCubeReader.cxx
   vtkGESignaReader.cxx
   vtkImageExport.cxx
   vtkImageImport.cxx
@@ -20,7 +18,6 @@ set(Module_SRCS
   vtkMedicalImageReader2.cxx
   vtkMetaImageReader.cxx
   vtkMetaImageWriter.cxx
-  #vtkMPEG2Writer.cxx # Do we want to continue supporting?
   vtkPNGReader.cxx
   vtkPNGWriter.cxx
   vtkPNMReader.cxx
@@ -34,22 +31,9 @@ set(Module_SRCS
   vtkNrrdReader.cxx
   )
 
-if(vtkIOImage_vtkoggtheora)
-  list(APPEND Module_SRCS vtkOggTheoraWriter.cxx)
-endif()
-
-if(WIN32)
-  # Should we force this on Windows?
-  list(APPEND Module_SRCS vtkAVIWriter.cxx)
-endif()
-
 set_source_files_properties(
   vtkVolumeReader
   ABSTRACT
   )
 
 vtk_module_library(vtkIOImage ${Module_SRCS})
-
-if(WIN32)
-  target_link_libraries(vtkIOImage vfw32)
-endif()
