@@ -293,6 +293,7 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
 
     vtkDebugMacro(<< "SetTimeStep       : requestedTimeValue "
       << requestedTimeValue << " ActualTimeStep " << this->ActualTimeStep);
+    (void) requestedTimeValue; //silence unused variable warning
     }
   else
     {
