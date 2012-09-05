@@ -26,14 +26,9 @@
 #include "vtkNew.h"          // For ivars
 #include "vtkSmartPointer.h" // For ivars
 
-class vtkAnnotationLink;
-class vtkAxis;
 class vtkContext3D;
 class vtkContextMouseEvent;
-class vtkMatrix4x4;
-class vtkPen;
 class vtkPlane;
-class vtkPlot;
 class vtkTable;
 class vtkTransform;
 class vtkUnsignedCharArray;
@@ -51,12 +46,11 @@ public:
   void Update();
 
   // Description:
-  // Paint event for the chart, called whenever the chart needs to be drawn
+  // Paint event for the chart, called whenever the chart needs to be drawn.
   virtual bool Paint(vtkContext2D *painter);
 
   // Description:
-  // Set the input for the chart, this should be done in the plot, but keeping
-  // things simple while I get everything working...
+  // Set the input for the chart.
   virtual void SetInput(vtkTable *input, const vtkStdString &x,
                         const vtkStdString &y, const vtkStdString &z);
   virtual void SetInput(vtkTable *input, const vtkStdString &x,
@@ -77,7 +71,7 @@ public:
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
-  // Mouse wheel event. Perform pan or zoom as specified by mouse bindings.
+  // Mouse wheel event.  Zooms in or out.
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
 
   // Description:
@@ -141,8 +135,6 @@ protected:
   vtkNew<vtkPlane> Face5;
   vtkNew<vtkPlane> Face6;
   float AxesBoundaryPoints[14][3];
-
-  vtkNew<vtkMatrix4x4> Modelview;
 
   double MaxDistance;
   int SceneHeight;
