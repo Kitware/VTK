@@ -75,6 +75,7 @@ vtkGL2PSExporter::vtkGL2PSExporter()
   this->OcclusionCull = 1;
   this->Write3DPropsAsRasterImage = 0;
   this->WriteTimeStamp = 1;
+  this->PixelData = NULL;
 }
 
 vtkGL2PSExporter::~vtkGL2PSExporter()
@@ -87,6 +88,10 @@ vtkGL2PSExporter::~vtkGL2PSExporter()
   if ( this->Title )
     {
     delete [] this->Title;
+    }
+  if (this->PixelData)
+    {
+    delete [] this->PixelData;
     }
 }
 
@@ -125,6 +130,17 @@ void vtkGL2PSExporter::WriteData()
     vtkErrorMacro(<< "unable to open file: " << fName);
     return;
     }
+
+  // Store the "properly" rendered image's pixel data for special actors that
+  // need to copy bitmaps into the output (e.g. paraview's scalar bar actor)
+  this->PixelDataSize[0] = viewport[2];
+  this->PixelDataSize[1] = viewport[3];
+  this->RenderWindow->Render();
+  delete this->PixelData;
+  this->PixelData =
+      new float[this->PixelDataSize[0] * this->PixelDataSize[1] * 3];
+  glReadPixels(0, 0, this->PixelDataSize[0], this->PixelDataSize[1], GL_RGB,
+               GL_FLOAT, this->PixelData);
 
   // Turn off special props -- these will be handled separately later.
   vtkPropCollection *propCol;
@@ -258,6 +274,8 @@ void vtkGL2PSExporter::WriteData()
   // Re-render the scene to show all actors.
   this->RenderWindow->Render();
   delete[] fName;
+  delete[] this->PixelData;
+  this->PixelData = NULL;
 
   vtkDebugMacro(<<"Finished writing file using GL2PS");
 }
@@ -418,37 +436,34 @@ void vtkGL2PSExporter::SavePropVisibility(vtkRendererCollection *renCol,
   vtkVolume *vol;
   vtkActor *act;
   vtkActor2D *act2d;
-  int j;
+  int tuple;
 
   volVis->SetNumberOfComponents(nRen);
   actVis->SetNumberOfComponents(nRen);
   act2dVis->SetNumberOfComponents(nRen);
 
   renCol->InitTraversal();
-  for (int i=0; i<nRen; ++i)
+  for (int component = 0; component < nRen; ++component)
     {
     ren = renCol->GetNextItem();
     vCol = ren->GetVolumes();
     aCol = ren->GetActors();
     a2Col = ren->GetActors2D();
 
-    volVis->SetNumberOfTuples(vCol->GetNumberOfItems());
-    for (vCol->InitTraversal(), j=0; (vol = vCol->GetNextVolume()); ++j)
+    for (vCol->InitTraversal(), tuple=0; (vol = vCol->GetNextVolume()); ++tuple)
       {
-      volVis->SetComponent(i, j, vol->GetVisibility());
+      volVis->InsertComponent(tuple, component, vol->GetVisibility());
       }
 
-    actVis->SetNumberOfTuples(aCol->GetNumberOfItems());
-    for (aCol->InitTraversal(), j=0; (act = aCol->GetNextActor()); ++j)
+    for (aCol->InitTraversal(), tuple=0; (act = aCol->GetNextActor()); ++tuple)
       {
-      actVis->SetComponent(i, j, act->GetVisibility());
+      actVis->InsertComponent(tuple, component, act->GetVisibility());
       }
 
-    act2dVis->SetNumberOfTuples(a2Col->GetNumberOfItems());
-    for (a2Col->InitTraversal(), j=0; (act2d = a2Col->GetNextActor2D());
-         ++j)
+    for (a2Col->InitTraversal(), tuple=0; (act2d = a2Col->GetNextActor2D());
+         ++tuple)
       {
-      act2dVis->SetComponent(i, j, act2d->GetVisibility());
+      act2dVis->InsertComponent(tuple, component, act2d->GetVisibility());
       }
     }
 }
@@ -465,31 +480,31 @@ void vtkGL2PSExporter::RestorePropVisibility(vtkRendererCollection *renCol,
   vtkVolume *vol;
   vtkActor *act;
   vtkActor2D *act2d;
-  int j;
+  int tuple;
   int nRen = renCol->GetNumberOfItems();
 
   renCol->InitTraversal();
-  for (int i=0; i<nRen; ++i)
+  for (int component = 0; component < nRen; ++component)
     {
     ren = renCol->GetNextItem();
     vCol = ren->GetVolumes();
     aCol = ren->GetActors();
     a2Col = ren->GetActors2D();
 
-    for (vCol->InitTraversal(), j=0; (vol = vCol->GetNextVolume()); ++j)
+    for (vCol->InitTraversal(), tuple=0; (vol = vCol->GetNextVolume()); ++tuple)
       {
-      vol->SetVisibility(static_cast<int>(volVis->GetComponent(i, j)));
+      vol->SetVisibility(static_cast<int>(volVis->GetComponent(tuple, component)));
       }
 
-    for (aCol->InitTraversal(), j=0; (act = aCol->GetNextActor()); ++j)
+    for (aCol->InitTraversal(), tuple=0; (act = aCol->GetNextActor()); ++tuple)
       {
-      act->SetVisibility(static_cast<int>(actVis->GetComponent(i, j)));
+      act->SetVisibility(static_cast<int>(actVis->GetComponent(tuple, component)));
       }
 
-    for (a2Col->InitTraversal(), j=0; (act2d = a2Col->GetNextActor2D());
-         ++j)
+    for (a2Col->InitTraversal(), tuple=0; (act2d = a2Col->GetNextActor2D());
+         ++tuple)
       {
-      act2d->SetVisibility(static_cast<int>(act2dVis->GetComponent(i, j)));
+      act2d->SetVisibility(static_cast<int>(act2dVis->GetComponent(tuple, component)));
       }
     }
 }
@@ -611,54 +626,59 @@ void vtkGL2PSExporter::DrawSpecialProps(vtkCollection *specialPropCol,
     vtkProp *prop = 0;
     for (propCol->InitTraversal(); (prop = propCol->GetNextProp());)
       {
-      // What sort of special prop is it?
-      if (vtkActor2D *act2d = vtkActor2D::SafeDownCast(prop))
-        {
-        if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
-          {
-          this->DrawTextActor(textAct, ren);
-          }
-        else if (vtkMathTextActor *mathTextAct =
-                 vtkMathTextActor::SafeDownCast(act2d))
-          {
-          this->DrawMathTextActor(mathTextAct, ren);
-          }
-        else if (vtkMapper2D *map2d = act2d->GetMapper())
-          {
-          if (vtkTextMapper *textMap = vtkTextMapper::SafeDownCast(map2d))
-            {
-            this->DrawTextMapper(textMap, act2d, ren);
-            }
-          else // Some other mapper2D
-            {
-            continue;
-            }
-          }
-        else // Some other actor2D
-          {
-          continue;
-          }
-        }
-      else if (vtkMathTextActor3D *mathTextAct3D =
-               vtkMathTextActor3D::SafeDownCast(prop))
-        {
-        this->DrawMathTextActor3D(mathTextAct3D, ren);
-        }
-      else if (vtkTextActor3D *textAct3D =
-               vtkTextActor3D::SafeDownCast(prop))
-        {
-        this->DrawTextActor3D(textAct3D, ren);
-        }
-      else // Some other prop
-        {
-        continue;
-        }
+      this->HandleSpecialProp(prop, ren);
       }
     // Pop MV matrices (This was pushed by vtkOpenGLCamera::Render earlier).
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+    }
+}
+
+void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
+{
+  // What sort of special prop is it?
+  if (vtkActor2D *act2d = vtkActor2D::SafeDownCast(prop))
+    {
+    if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
+      {
+      this->DrawTextActor(textAct, ren);
+      }
+    else if (vtkMathTextActor *mathTextAct =
+             vtkMathTextActor::SafeDownCast(act2d))
+      {
+      this->DrawMathTextActor(mathTextAct, ren);
+      }
+    else if (vtkMapper2D *map2d = act2d->GetMapper())
+      {
+      if (vtkTextMapper *textMap = vtkTextMapper::SafeDownCast(map2d))
+        {
+        this->DrawTextMapper(textMap, act2d, ren);
+        }
+      else // Some other mapper2D
+        {
+        return;
+        }
+      }
+    else // Some other actor2D
+      {
+      return;
+      }
+    }
+  else if (vtkMathTextActor3D *mathTextAct3D =
+           vtkMathTextActor3D::SafeDownCast(prop))
+    {
+    this->DrawMathTextActor3D(mathTextAct3D, ren);
+    }
+  else if (vtkTextActor3D *textAct3D =
+           vtkTextActor3D::SafeDownCast(prop))
+    {
+    this->DrawTextActor3D(textAct3D, ren);
+    }
+  else // Some other prop
+    {
+    return;
     }
 }
 
@@ -879,6 +899,63 @@ void vtkGL2PSExporter::Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
 
   vtkGL2PSUtilities::DrawPath(path, rasterPos, winsized, translation, scale,
                               0.0, actorColor);
+}
+
+void vtkGL2PSExporter::CopyPixels(int copyRect[4], vtkRenderer *ren)
+{
+  // Figure out the viewport information
+  int *winsize = this->RenderWindow->GetSize();
+  double *viewport = ren->GetViewport();
+  int viewportPixels[4] = {static_cast<int>(viewport[0] * winsize[0]),
+                           static_cast<int>(viewport[1] * winsize[1]),
+                           static_cast<int>(viewport[2] * winsize[0]),
+                           static_cast<int>(viewport[3] * winsize[1])};
+  int viewportSpread[2] = {viewportPixels[2] - viewportPixels[0],
+                           viewportPixels[3] - viewportPixels[1]};
+
+  // convert to NDC with z on the near plane
+  double pos[3];
+  pos[0] = (2. * copyRect[0] / static_cast<double>(viewportSpread[0])) - 1.;
+  pos[1] = (2. * copyRect[1] / static_cast<double>(viewportSpread[1])) - 1.;
+  pos[2] = -1;
+
+  // Setup the GL state to render into the viewport
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glViewport(viewportPixels[0], viewportPixels[1],
+             viewportSpread[0], viewportSpread[1]);
+
+  // Copy the relevant rectangle of pixel data memory into a new array.
+  float *dest = new float[copyRect[2] * copyRect[3] * 3];
+  int destWidth = copyRect[2] * 3;
+  int destWidthBytes = destWidth * sizeof(float);
+  int sourceWidth = this->PixelDataSize[0] * 3;
+  int sourceOffset = copyRect[0] * 3;
+
+  for (int row = 0;
+       row < copyRect[3] && // Copy until the top of the copyRect is reached,
+       row + copyRect[1] < this->PixelDataSize[1]; // or we exceed the cache
+       ++row)
+    {
+    memcpy(dest + (row * destWidth),
+           this->PixelData + ((copyRect[1] + row) * sourceWidth) + sourceOffset,
+           destWidthBytes);
+    }
+
+  // Inject the copied pixel buffer into gl2ps
+  glRasterPos3dv(pos);
+  gl2psDrawPixels(copyRect[2], copyRect[3], 0, 0, GL_RGB, GL_FLOAT, dest);
+
+  delete [] dest;
+
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
 }
 
 void vtkGL2PSExporter::DrawContextActors(vtkPropCollection *contextActs,
