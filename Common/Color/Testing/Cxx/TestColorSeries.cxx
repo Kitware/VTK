@@ -153,9 +153,8 @@ int TestColorSeries( int argc, char* argv[] )
   if ( palName != expected )
     {
     vtkGenericWarningMacro(
-      << "Failure: Palette copy-on-write: name should have been "
-      << "\"" << expected.c_str() << "\" but was "
-      << "\"" << palName.c_str() << "\" instead." );
+      << "Failure: Setting empty palette name should have no effect."
+    );
     valResult = vtkTesting::FAILED;
     }
 
