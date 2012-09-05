@@ -20,7 +20,9 @@
 #include "vtkDoubleArray.h"
 #include "vtkActor.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
+#include "vtkPickingManager.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkRenderWindow.h"
 #include "vtkTensorGlyph.h"
@@ -147,6 +149,13 @@ void vtkEllipsoidTensorProbeRepresentation
 }
 
 //----------------------------------------------------------------------
+void vtkEllipsoidTensorProbeRepresentation::RegisterPickers()
+{
+  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
+    ->AddPicker(this->CellPicker, this);
+}
+
+//----------------------------------------------------------------------
 int vtkEllipsoidTensorProbeRepresentation
 ::RenderOpaqueGeometry(vtkViewport *viewport)
 {
@@ -159,8 +168,11 @@ int vtkEllipsoidTensorProbeRepresentation
 int vtkEllipsoidTensorProbeRepresentation::SelectProbe( int pos[2] )
 {
   this->VisibilityOn(); //actor must be on to be picked
-  this->CellPicker->Pick(pos[0],pos[1],0.0,this->Renderer);
-  return this->CellPicker->GetPath() ? 1 : 0;
+
+  vtkAssemblyPath* path = this->GetAssemblyPath(pos[0], pos[1], 0.,
+                                                this->CellPicker);
+
+  return path ? 1 : 0;
 }
 
 //----------------------------------------------------------------------

@@ -2,6 +2,7 @@ vtk_module(vtkGeovisCore
   GROUPS
     Rendering
   DEPENDS
+    vtkIOXML
     vtkInteractionWidgets
     vtkInteractionStyle
     vtkInfovisLayout

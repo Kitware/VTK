@@ -338,6 +338,9 @@ protected:
   vtkCellPicker *LinePicker;
   vtkAbstractPropPicker* CurrentPicker;
 
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
+
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
   vtkProperty *HandleProperty;

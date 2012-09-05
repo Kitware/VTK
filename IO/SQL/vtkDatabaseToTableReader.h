@@ -22,15 +22,15 @@
 
 #include "vtkIOSQLModule.h" // For export macro
 #include <string> // STL Header
-#include "vtkTableReader.h"
+#include "vtkTableAlgorithm.h"
 
 class vtkSQLDatabase;
 class vtkStringArray;
 
-class VTKIOSQL_EXPORT vtkDatabaseToTableReader : public vtkTableReader
+class VTKIOSQL_EXPORT vtkDatabaseToTableReader : public vtkTableAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDatabaseToTableReader,vtkTableReader);
+  vtkTypeMacro(vtkDatabaseToTableReader,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

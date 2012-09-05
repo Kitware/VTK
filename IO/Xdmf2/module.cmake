@@ -6,7 +6,7 @@ vtk_module(vtkIOXdmf2
     vtkCommonDataModel
     vtkCommonExecutionModel
     vtkFiltersExtraction
-    vtkIOCore
+    vtkIOLegacy
     vtkIOXML
     vtkxdmf2
   TEST_DEPENDS

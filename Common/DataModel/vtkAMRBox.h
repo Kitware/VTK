@@ -67,7 +67,11 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
 
   // Description:
   // Set the box to be invalid;
-  void Invalidate();
+  void Invalidate()
+  {
+    this->LoCorner[0]=this->LoCorner[1]=this->LoCorner[2]=0;
+    this->HiCorner[0]=this->HiCorner[1]=this->HiCorner[2]=-2;
+  }
 
   // Description:
   // Whether dimension i is empty, e.g. if the data set is type VTK_XY_PLANE
@@ -133,9 +137,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
 
   // Description:
   // Check to see if the AMR box instance is invalid.
-  // An AMR box is invalid iff HiCorner[ i ] < LoCorner[ i ]
-  // for any i.
-  bool IsInvalid() const;
+  bool IsInvalid() const
+  {
+    return ((this->HiCorner[0] < this->LoCorner[0]-1) ||
+            (this->HiCorner[1] < this->LoCorner[1]-1) ||
+            (this->HiCorner[2] < this->LoCorner[2]-1));
+  }
 
   // Description:
   // Test if this box is equal with the box instance on the rhs.
@@ -206,10 +213,6 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
   bool Intersect(const vtkAMRBox &other);
 
   // Description:
-  // Returns the linear index of the given cell structured coordinates
-  int GetCellLinearIndex(const int i, const int j, const int k ) const;
-
-  // Description:
   // Test to see if a given cell index is inside this box.
   bool Contains(int i,int j,int k) const;
   bool Contains(const int I[3]) const;
@@ -230,6 +233,10 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
   // this number of bytes corresponds to the buffer size required to serialize
   // any vtkAMRBox instance.
   static vtkIdType GetBytesize(){return 6*sizeof(int); };
+
+  // Description:
+  // Returns the linear index of the given cell structured coordinates
+  static int GetCellLinearIndex(const vtkAMRBox& box, const int i, const int j, const int k, int imageDimension[3] );
 
   // Description:
   // Get the bounds of this box.
@@ -326,21 +333,6 @@ void FillRegion(
       }
     }
 
-}
-
-
-//-----------------------------------------------------------------------------
-inline bool vtkAMRBox::IsInvalid() const
-{
-  return ((this->HiCorner[0] < this->LoCorner[0]-1) ||
-          (this->HiCorner[1] < this->LoCorner[1]-1) ||
-          (this->HiCorner[2] < this->LoCorner[2]-1));
-}
-//-----------------------------------------------------------------------------
-inline void vtkAMRBox::Invalidate()
-{
-  this->LoCorner[0]=this->LoCorner[1]=this->LoCorner[2]=0;
-  this->HiCorner[0]=this->HiCorner[1]=this->HiCorner[2]=-2;
 }
 
 #endif

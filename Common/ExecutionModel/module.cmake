@@ -8,6 +8,6 @@ vtk_module(vtkCommonExecutionModel
   TEST_DEPENDS
     vtkTestingCore
     vtkIOCore
-    vtkIOGeometry
+    vtkIOLegacy
     vtkFiltersExtraction
   )

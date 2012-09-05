@@ -95,13 +95,6 @@ public:
   // is valid only after the pipeline has updated.
   virtual unsigned long GetActualMemorySize();
 
-  /* //BTX */
-  /* // Description: */
-  /* // Retrieve an instance of this class from an information object. */
-  /* static vtkCompositeDataSet* GetData(vtkInformation* info); */
-  /* static vtkCompositeDataSet* GetData(vtkInformationVector* v, int i=0); */
-  /* //ETX */
-
   // Description:
   // Restore data object to initial state,
   virtual void Initialize();
@@ -117,16 +110,12 @@ public:
   // might be expansive.
   virtual vtkIdType GetNumberOfPoints();
 
-
-//  virtual void SetSourceIndex(int i);
-
-  /* // Description: */
-  /* // COMPOSITE_INDEX() is added to the leaf nodes of the meta-data composite */
-  /* // dataset (COMPOSITE_DATA_META_DATA) during REQUEST_INFORMATION(). Filters */
-  /* // downstream can use this index to request specific datasets when */
-  /* // creating UPDATE_COMPOSITE_INDICES(). */
-  /* // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE *** */
-  /* static vtkInformationIntegerKey* COMPOSITE_INDEX(); */
+  //BTX
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkDataObjectTree* GetData(vtkInformation* info);
+  static vtkDataObjectTree* GetData(vtkInformationVector* v, int i=0);
+  //ETX
 
 //BTX
 protected:

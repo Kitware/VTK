@@ -274,6 +274,8 @@ set(VTK_CONFIG_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 set(VTK_CONFIG_TARGETS_CONDITION " AND NOT VTK_BINARY_DIR")
 set(VTK_CONFIG_TARGETS_FILE "${VTK_BINARY_DIR}/VTKTargets.cmake")
 set(VTK_CONFIG_MODULE_API_FILE "${VTK_SOURCE_DIR}/CMake/vtkModuleAPI.cmake")
+set(VTK_CONFIG_TESTING_MACROS_FILE "${VTK_SOURCE_DIR}/CMake/vtkTestingMacros.cmake")
+
 # Target used to ensure VTKConfig is load just once
 set(VTK_COMMON_TARGET vtkCommonCore)
 configure_file(CMake/VTKConfig.cmake.in VTKConfig.cmake @ONLY)

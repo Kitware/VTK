@@ -338,23 +338,22 @@ bool vtkAMRBox::Intersect(const vtkAMRBox &other)
 }
 
 
-int vtkAMRBox::GetCellLinearIndex(const int i, const int j, const int k ) const
+int vtkAMRBox::GetCellLinearIndex(const vtkAMRBox& box, const int i, const int j, const int k, int dim[3])
 {
   // Convert to local numbering
-  int I[3]={  i-this->LoCorner[0],
-              j-this->LoCorner[1],
-              k-this->LoCorner[2]};
+  int I[3]={  i-box.GetLoCorner()[0],
+              j-box.GetLoCorner()[1],
+              k-box.GetLoCorner()[2]};
 
   // Get Cell sizes
-  int N[3];
-  this->GetNumberOfCells(N);
+  int N[3] = {dim[0]-1, dim[1]-1,dim[2]-1};
 
   // Reduce the sizes and indices to those
   // that correspond to the non-null dimensions
   int nd(0);
   for(int d=0; d<3; d++)
     {
-    if(!this->EmptyDimension(d))
+    if(!box.EmptyDimension(d))
       {
       N[nd] = N[d];
       I[nd] = I[d];

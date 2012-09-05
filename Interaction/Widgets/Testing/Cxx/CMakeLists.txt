@@ -39,6 +39,8 @@ set(MyTests
   TestOrientationMarkerWidget.cxx
   # TestOrthoPlanes.cxx # todo (unsatistfied deps)
   TestParallelopipedWidget.cxx
+  TestPickingManagerWidgets.cxx
+  TestPickingManagerSeedWidget.cxx
   TestPlaneWidget.cxx
   TestPlaybackWidget.cxx
   TestPointHandleRepresentation3D.cxx

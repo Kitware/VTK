@@ -64,9 +64,6 @@
 // </pre>
 //
 
-// .SECTION Caveats
-// Note that the widget can be picked even when it is "behind"
-// other actors.  This is an intended feature and not a bug.
 //
 // This class, and vtkLineRepresentation, are next generation VTK widgets. An
 // earlier version of this functionality was defined in the class

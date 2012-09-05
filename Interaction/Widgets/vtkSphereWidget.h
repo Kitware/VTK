@@ -44,10 +44,6 @@
 // properties of the widget. You can set the properties of the selected and
 // unselected representations of the sphere.
 
-// .SECTION Caveats
-// Note that the sphere can be picked even when they are "behind" other
-// actors.  This is an intended feature and not a bug.
-
 // .SECTION See Also
 // vtk3DWidget vtkLineWidget vtkBoxWidget vtkPlaneWidget
 
@@ -248,6 +244,9 @@ protected:
 
   // Do the picking
   vtkCellPicker *Picker;
+
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
 
   // Methods to manipulate the sphere widget
   int Translation;

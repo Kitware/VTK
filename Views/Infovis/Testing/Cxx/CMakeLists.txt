@@ -1,7 +1,9 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestCoincidentGraphLayoutView.cxx
   TestConeLayoutStrategy.cxx
+  TestDendrogramOnly.cxx
   TestGraphLayoutView.cxx
+  TestHeatmapOnly.cxx
   TestHierarchicalGraphView.cxx
   TestIcicleView.cxx
   TestIconGlyphFilter.cxx
@@ -9,6 +11,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestNetworkViews.cxx
   TestRenderView.cxx
   TestSpanTreeLayoutStrategy.cxx
+  TestTreeHeatmapItem.cxx
   TestTreeMapView.cxx
   TestTreeRingView.cxx
   ${QtTests}

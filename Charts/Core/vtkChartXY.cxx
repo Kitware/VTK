@@ -1555,7 +1555,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     vtkNew<vtkIdTypeArray> oldSelection;
     for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
       {
-      size_t items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
+      int items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
                                    ->GetNumberOfItems());
       if (items)
         {
@@ -1581,7 +1581,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
           max.SetY(tmp);
           }
 
-        for (size_t j = 0; j < items; ++j)
+        for (int j = 0; j < items; ++j)
           {
           vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
                                                 PlotCorners[i]->GetItem(j));
@@ -1632,7 +1632,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     vtkNew<vtkIdTypeArray> oldSelection;
     for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
       {
-      size_t items = this->ChartPrivate->PlotCorners[i]->GetNumberOfItems();
+      int items = this->ChartPrivate->PlotCorners[i]->GetNumberOfItems();
       if (items)
         {
         vtkTransform2D *transform =
@@ -1643,7 +1643,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
         vtkContextPolygon polygon =
           this->SelectionPolygon.Transformed(inverseTransform.GetPointer());
 
-        for (size_t j = 0; j < items; ++j)
+        for (int j = 0; j < items; ++j)
           {
           vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
                                                 PlotCorners[i]->GetItem(j));

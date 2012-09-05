@@ -95,6 +95,7 @@ class vtkMathTextActor;
 class vtkMathTextActor3D;
 class vtkMatrix4x4;
 class vtkPath;
+class vtkProp;
 class vtkPropCollection;
 class vtkProp3DCollection;
 class vtkRenderer;
@@ -295,6 +296,10 @@ protected:
   void SetPropVisibilities(vtkPropCollection *col, int vis);
 
   void DrawSpecialProps(vtkCollection *propCol, vtkRendererCollection *renCol);
+  // Description:
+  // Reimplement this to handle your own special props. Must call this function
+  // at the end of the override for default handling.
+  virtual void HandleSpecialProp(vtkProp *prop, vtkRenderer *ren);
   void DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren);
   void DrawTextActor3D(vtkTextActor3D *textAct, vtkRenderer *ren);
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
@@ -310,6 +315,10 @@ protected:
   // draw it to GL2PS.
   void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
                   double actorBounds[4], unsigned char actorColor[3]);
+  // Description:
+  // Copy the region copyRect from the framebuffer into the gl2ps document.
+  // copyRect is in viewport coordinates [xmin, ymin, width, height].
+  void CopyPixels(int copyRect[4], vtkRenderer *ren);
 
   void DrawContextActors(vtkPropCollection *contextActs,
                          vtkRendererCollection *renCol);
@@ -332,6 +341,9 @@ protected:
   int OcclusionCull;
   int Write3DPropsAsRasterImage;
   int WriteTimeStamp;
+
+  float *PixelData;
+  int PixelDataSize[2];
 
 private:
   vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented

@@ -7,10 +7,9 @@ vtk_module(vtkIOGeometry
     vtkCommonMisc
     vtkIOCore
     vtkzlib
-  COMPILE_DEPENDS
-    vtkUtilitiesMaterialLibrary
   TEST_DEPENDS
     vtkIOAMR
+    vtkIOLegacy
     vtkFiltersGeometry
     vtkRenderingOpenGL
     vtkTestingRendering

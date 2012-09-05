@@ -18,6 +18,7 @@
 /*
 ** This test only builds if MPI is in use
 */
+#include "vtkObjectFactory.h"
 #include <mpi.h>
 #include "vtkMPICommunicator.h"
 

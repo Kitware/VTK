@@ -40,7 +40,7 @@ namespace
         {
         continue;
         }
-      N = box.GetNumberOfCells();
+      N = grid->GetNumberOfCells();
 
       vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
       vis->SetName("visibility");
@@ -71,7 +71,7 @@ namespace
               {
               for( int ix=loCorner[0]; ix<=hi[0]; ix++ )
                 {
-                vtkIdType id =  box.GetCellLinearIndex(ix, iy, iz );
+                vtkIdType id =  vtkAMRBox::GetCellLinearIndex(box,ix, iy, iz, grid->GetDimensions());
                 vis->SetValue(id, 0);
                 } // END for x
               } // END for y
@@ -218,15 +218,6 @@ const vtkAMRBox& vtkOverlappingAMR::GetAMRBox(unsigned int level, unsigned int i
     vtkErrorMacro("Invalid AMR box");
     }
   return box;
-}
-
-//------------------------------------------------------------------------------
-void vtkOverlappingAMR::SetAMRBox(
-  unsigned int level, unsigned int id, const int* extents)
-{
-  int lo[3] = {extents[0],extents[2],extents[4]};
-  int hi[3] = {extents[1],extents[3],extents[5]};
-  this->AMRInfo->SetAMRBox(level,id, lo,hi);
 }
 
 //------------------------------------------------------------------------------

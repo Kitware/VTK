@@ -390,7 +390,7 @@ void vtkAMRUtilities::StripGhostLayers(
     {
     blocksPerLevel[i] = ghostedAMRData->GetNumberOfDataSets(i);
     }
-  strippedAMRData->Initialize(blocksPerLevel.size(),&blocksPerLevel[0],
+  strippedAMRData->Initialize(static_cast<int>(blocksPerLevel.size()),&blocksPerLevel[0],
                               ghostedAMRData->GetOrigin(), ghostedAMRData->GetGridDescription());
   unsigned int dataIdx=0;
   for( ;dataIdx < ghostedAMRData->GetNumberOfDataSets(0); ++dataIdx)

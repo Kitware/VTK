@@ -63,7 +63,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define __vtkMNITagPointWriter_h
 
 #include "vtkIOMINCModule.h" // For export macro
-#include "vtkDataSetWriter.h"
+#include "vtkWriter.h"
 
 class vtkDataSet;
 class vtkPointSet;
@@ -72,10 +72,10 @@ class vtkDoubleArray;
 class vtkIntArray;
 class vtkPoints;
 
-class VTKIOMINC_EXPORT vtkMNITagPointWriter : public vtkDataSetWriter
+class VTKIOMINC_EXPORT vtkMNITagPointWriter : public vtkWriter
 {
 public:
-  vtkTypeMacro(vtkMNITagPointWriter,vtkDataSetWriter);
+  vtkTypeMacro(vtkMNITagPointWriter,vtkWriter);
 
   static vtkMNITagPointWriter *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);
@@ -136,6 +136,11 @@ public:
   // Get the MTime.
   virtual unsigned long GetMTime();
 
+  // Description:
+  // Specify file name of vtk polygon data file to write.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+
 protected:
   vtkMNITagPointWriter();
   ~vtkMNITagPointWriter();
@@ -154,6 +159,13 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *);
+
+  char* FileName;
+
+  int FileType;
+
+  ostream *OpenFile();
+  void CloseFile(ostream *fp);
 
 private:
   vtkMNITagPointWriter(const vtkMNITagPointWriter&); // Not implemented

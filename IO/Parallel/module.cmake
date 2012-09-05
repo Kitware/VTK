@@ -5,10 +5,11 @@ vtk_module(vtkIOParallel
     vtkParallelCore
     vtkFiltersParallel
     vtkIONetCDF
+    vtkIOXML
     vtkexodusII
   TEST_DEPENDS
+    vtkParallelMPI
+    vtkRenderingParallel
     vtkTestingCore
     vtkTestingRendering
-    vtkInteractionStyle
-    vtkRenderingOpenGL
   )

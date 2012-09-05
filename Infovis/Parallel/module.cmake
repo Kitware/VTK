@@ -6,5 +6,10 @@ vtk_module(vtkInfovisParallel
     vtkParallelMPI
     vtkFiltersParallel
     vtkIOSQL
+  TEST_DEPENDS
+    vtkViewsInfovis
+    vtkInfovisLayout
+    vtkIOMySQL
+    vtkTestingRendering
   EXCLUDE_FROM_ALL
   )

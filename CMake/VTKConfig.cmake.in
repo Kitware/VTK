@@ -37,6 +37,9 @@ endif()
 # Load module interface macros.
 include("@VTK_CONFIG_MODULE_API_FILE@")
 
+# Load testing interface macros.
+include("@VTK_CONFIG_TESTING_MACROS_FILE@")
+
 # Compute set of requested modules.
 if(VTK_FIND_COMPONENTS)
   # Specific modules requested by find_package(VTK).

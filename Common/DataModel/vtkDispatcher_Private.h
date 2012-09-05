@@ -57,6 +57,8 @@ public:
     {
     return fun_(CastLhs::Cast(lhs));
     }
+private:
+  FunctorRefDispatcherHelper& operator =(const FunctorRefDispatcherHelper& b);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +94,7 @@ class FunctorImpl{
     typedef R ResultType;
     typedef P1 Parm1;
 
+    virtual ~FunctorImpl() {};
     virtual R operator()(P1&) = 0;
     virtual FunctorImpl* DoClone() const = 0;
 
@@ -117,6 +120,7 @@ public:
   typedef typename Base::Parm1 Parm1;
 
   FunctorHandler(Fun& fun) : f_(fun) {}
+  virtual ~FunctorHandler(){}
 
   ResultType operator()(Parm1& p1)
   { return f_(p1); }
@@ -124,6 +128,7 @@ public:
 
 private:
   Fun f_;
+  FunctorHandler& operator =(const FunctorHandler& b);
 };
 
 
@@ -191,6 +196,8 @@ public:
     {
     return fun_(CastLhs::Cast(lhs), CastRhs::Cast(rhs));
     }
+private:
+  FunctorRefDispatcherHelper& operator =(const FunctorRefDispatcherHelper& b);
 };
 
 template <class BaseLhs, class BaseRhs,
@@ -210,6 +217,7 @@ public:
     {
     return fun_(CastLhs::Cast(lhs), CastRhs::Cast(rhs));
     }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -222,6 +230,7 @@ class FunctorImpl{
     typedef P1 Parm1;
     typedef P2 Parm2;
 
+    virtual ~FunctorImpl() {};
     virtual R operator()(P1&,P2&) = 0;
     virtual FunctorImpl* DoClone() const = 0;
 
@@ -248,6 +257,7 @@ public:
   typedef typename Base::Parm2 Parm2;
 
   FunctorHandler(const Fun& fun) : f_(fun) {}
+  virtual ~FunctorHandler(){}
 
   ResultType operator()(Parm1& p1,Parm2& p2)
   { return f_(p1,p2); }
@@ -256,6 +266,7 @@ public:
 
 private:
   Fun f_;
+  FunctorHandler& operator =(const FunctorHandler& b);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -400,3 +411,4 @@ inline bool operator>=(const TypeInfo& lhs, const TypeInfo& rhs)
 }
 
 #endif // __vtkDispatcherPrivate_h
+// VTK-HeaderTest-Exclude: vtkDispatcherPrivate.h

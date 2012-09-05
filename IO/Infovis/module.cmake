@@ -6,6 +6,7 @@ vtk_module(vtkIOInfovis
     vtkCommonSystem
     vtkCommonMisc
     vtkIOCore
+    vtkIOLegacy
     vtkInfovisCore
     vtklibxml2
   TEST_DEPENDS

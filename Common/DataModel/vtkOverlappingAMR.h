@@ -64,7 +64,6 @@ public:
   // Description:
   // Sets the AMRBox for a given block
   void SetAMRBox(unsigned int level, unsigned int id, double* min, int* dimensions, double* h);
-  void SetAMRBox(unsigned int level, unsigned int id, const int* extents);
 
   // Description
   // Get the AMRBox for a given block

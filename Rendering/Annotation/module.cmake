@@ -6,6 +6,7 @@ vtk_module(vtkRenderingAnnotation
     vtkRenderingMathText
     vtkImagingColor
   TEST_DEPENDS
+    vtkIOGeometry
     vtkRenderingFreeTypeOpenGL
     vtkTestingRendering
     vtkInteractionStyle
