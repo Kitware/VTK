@@ -340,7 +340,7 @@ target_link_libraries(vtkNetCDF ${vtkhdf5_LIBRARIES})
 
 if (UNIX)
   # link against the math library.
-  set_target_properties(vtkNetCDF PROPERTIES LINK_FLAGS "-lm")
+  target_link_libraries(vtkNetCDF m)
 endif()
 
 VTK_ADD_LIBRARY(vtkNetCDF_cxx ${netcdf_cxx_SOURCES})
