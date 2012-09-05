@@ -507,7 +507,7 @@ void vtkBundlingMetadata::SmoothEdges()
     for (int m = 1; m < this->MeshCount - 1; ++m)
       {
       vtkVector3f smoothed(0.0f, 0.0f, 0.0f);
-      for (int kernelIndex = 0; kernelIndex <= kernelSize * 2 + 1; kernelIndex++)
+      for (int kernelIndex = 0; kernelIndex < kernelSize * 2 + 1; kernelIndex++)
         {
         int m2 = m + kernelIndex - kernelSize;
         m2 = std::max(0, std::min(this->MeshCount - 1, m2));
