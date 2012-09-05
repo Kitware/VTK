@@ -490,6 +490,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   const float deltaLength = this->BondRadius * 2.6;
   // Vector between centers cylinders in a multibond:
   vtkVector3f delta;
+  delta.Set(0.0, 0.0, 0.0);
   // The initial displacement when generating a multibond
   vtkVector3f initialDisp;
   initialDisp.Set(0.0, 0.0, 0.0);
