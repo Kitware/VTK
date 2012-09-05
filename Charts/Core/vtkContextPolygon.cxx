@@ -116,7 +116,7 @@ vtkContextPolygon vtkContextPolygon::Transformed(vtkTransform2D *transform) cons
   transformed.d->points.resize(d->points.size());
   transform->TransformPoints(reinterpret_cast<float *>(&d->points[0]),
                              reinterpret_cast<float *>(&transformed.d->points[0]),
-                             d->points.size());
+                             static_cast<int>(d->points.size()));
   return transformed;
 }
 
