@@ -27,9 +27,6 @@
 
 #include "vtkRenderingMathTextModule.h" // For export macro
 #include "vtkTextActor.h"
-#include "vtkNew.h" // For smart pointer stuff
-#include "vtkSmartPointer.h" // For smart pointer stuff
-#include "vtkStdString.h" // For vtkStdString
 
 class vtkTextProperty;
 class vtkImageData;
@@ -47,35 +44,27 @@ public:
   bool IsSupported();
 
   // Description:
+  // If there is no MathText implementation available (e.g. IsSupported()
+  // return false), the fallback text will be rendered using the FreeType
+  // text rendering backend.
+  vtkGetStringMacro(FallbackText)
+  vtkSetStringMacro(FallbackText)
+
+  // Description:
   // Shallow copy of this actor.
   void ShallowCopy(vtkProp *prop);
-
-  // Description:
-  // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  // in world coordinates. NULL means that the bounds are not defined.
-  double *GetBounds();
-
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *);
-
-  // Description:
-  // Draw the text actor to the screen.
-  int RenderOpaqueGeometry(vtkViewport* viewport);
-  int RenderTranslucentPolygonalGeometry(vtkViewport* ) { return 0; }
-  int RenderOverlay(vtkViewport* viewport);
-
-  // Description:
-  // Does this prop have some translucent polygonal geometry?
-  int HasTranslucentPolygonalGeometry();
 
 protected:
   vtkMathTextActor();
   ~vtkMathTextActor();
 
-  virtual void ComputeRectangle( vtkViewport* viewport );
+  bool RenderImage(vtkTextProperty *tprop, vtkViewport *viewport);
+  bool GetBoundingBox(vtkTextProperty *tprop, vtkViewport *viewport,
+                      int bbox[4]);
+
+  // Description:
+  // Used when a MathText implementation is unavailable.
+  char *FallbackText;
 
 private:
   vtkMathTextActor(const vtkMathTextActor&);  // Not implemented.

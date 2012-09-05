@@ -18,6 +18,7 @@
 #include "vtkCamera.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
+#include "vtkFreeTypeUtilities.h"
 #include "vtkTransform.h"
 #include "vtkTextProperty.h"
 #include "vtkRenderer.h"
@@ -31,18 +32,13 @@ vtkStandardNewMacro(vtkMathTextActor3D)
 // ----------------------------------------------------------------------------
 vtkMathTextActor3D::vtkMathTextActor3D()
 {
-  this->Input = NULL;
-  this->ImageActor->InterpolateOn();
-  this->ImageActor->SetInputData(this->ImageData.GetPointer());
-
-  vtkNew<vtkTextProperty> tprop;
-  this->SetTextProperty(tprop.GetPointer());
+  this->FallbackText = NULL;
 }
 
 // --------------------------------------------------------------------------
 vtkMathTextActor3D::~vtkMathTextActor3D()
 {
-  this->SetInput(NULL);
+  this->SetFallbackText(NULL);
 }
 
 // --------------------------------------------------------------------------
@@ -52,173 +48,148 @@ bool vtkMathTextActor3D::IsSupported()
 }
 
 // --------------------------------------------------------------------------
+int vtkMathTextActor3D::GetBoundingBox(int bbox[])
+{
+  if (!this->TextProperty)
+    {
+    vtkErrorMacro(<<"Need valid vtkTextProperty.");
+    return 0;
+    }
+
+  if (!bbox)
+    {
+    vtkErrorMacro(<<"Need 4-element int array for bounding box.");
+    }
+
+  vtkMathTextUtilities *mtu = vtkMathTextUtilities::GetInstance();
+  if (!mtu)
+    { // Use freetype fallback
+    vtkFreeTypeUtilities *fu = vtkFreeTypeUtilities::GetInstance();
+    if (!fu)
+      {
+      vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
+      return 0;
+      }
+
+    fu->GetBoundingBox(this->TextProperty, this->FallbackText ?
+                         this->FallbackText : this->Input, bbox);
+    if (!fu->IsBoundingBoxValid(bbox))
+      {
+      vtkErrorMacro(<<"Cannot determine bounding box of fallback text.");
+      return 0;
+      }
+    }
+  else
+    {
+    // Assume a 120 DPI output device
+    if (mtu->GetBoundingBox(this->TextProperty, this->Input, 120, bbox) == 0)
+      {
+      vtkErrorMacro(<<"Cannot determine bounding box of input.");
+      return 0;
+      }
+    }
+  return 1;
+}
+
+// --------------------------------------------------------------------------
 void vtkMathTextActor3D::ShallowCopy(vtkProp *prop)
 {
   vtkMathTextActor3D *a = vtkMathTextActor3D::SafeDownCast(prop);
   if (a != NULL)
     {
-    this->SetInput(a->GetInput());
-    this->SetTextProperty(a->GetTextProperty());
+    this->SetFallbackText(a->GetFallbackText());
     }
 
   this->Superclass::ShallowCopy(prop);
 }
 
 // --------------------------------------------------------------------------
-void vtkMathTextActor3D::SetTextProperty(vtkTextProperty *p)
-{
-  this->TextProperty = p;
-}
-
-// --------------------------------------------------------------------------
-vtkTextProperty *vtkMathTextActor3D::GetTextProperty()
-{
-  return this->TextProperty.GetPointer();
-}
-
-// --------------------------------------------------------------------------
-double* vtkMathTextActor3D::GetBounds()
-{
-  // the culler could be asking our bounds, in which case it's possible
-  // that we haven't rendered yet, so we have to make sure our bounds
-  // are up to date so that we don't get culled.
-  this->UpdateImageActor();
-  return this->ImageActor->GetBounds();
-}
-
-// --------------------------------------------------------------------------
-int *vtkMathTextActor3D::GetImageDimensions()
-{
-  this->UpdateImageActor();
-  return this->ImageData->GetDimensions();
-}
-
-// --------------------------------------------------------------------------
-void vtkMathTextActor3D::GetImageDimensions(int dims[])
-{
-  this->UpdateImageActor();
-  this->ImageData->GetDimensions(dims);
-}
-
-// --------------------------------------------------------------------------
-void vtkMathTextActor3D::ReleaseGraphicsResources(vtkWindow *win)
-{
-  this->ImageActor->ReleaseGraphicsResources(win);
-  this->Superclass::ReleaseGraphicsResources(win);
-}
-
-// --------------------------------------------------------------------------
-int vtkMathTextActor3D::RenderOverlay(vtkViewport *viewport)
-{
-  int renderedSomething = 0;
-
-  if (this->UpdateImageActor())
-    {
-    renderedSomething += this->ImageActor->RenderOverlay(viewport);
-    }
-
-  return renderedSomething;
-}
-
-// ----------------------------------------------------------------------------
-int vtkMathTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
-{
-  if (!this->Visibility)
-    {
-    return 0;
-    }
-
-  int renderedSomething = 0;
-
-  if (this->UpdateImageActor())
-    {
-    renderedSomething +=
-        this->ImageActor->RenderTranslucentPolygonalGeometry(viewport);
-    }
-
-  return renderedSomething;
-}
-
-//-----------------------------------------------------------------------------
-int vtkMathTextActor3D::HasTranslucentPolygonalGeometry()
-{
-  int result = 0;
-
-  if (this->UpdateImageActor())
-    {
-    result=this->ImageActor->HasTranslucentPolygonalGeometry();
-    }
-
-  return result;
-}
-
-// --------------------------------------------------------------------------
-int vtkMathTextActor3D::RenderOpaqueGeometry(vtkViewport *viewport)
-{
-  if (!this->Visibility)
-  {
-    return 0;
-  }
-
-  // Is the viewport's RenderWindow capturing GL2PS-special props?
-  if (vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport))
-    {
-    if (vtkRenderWindow *renderWindow = ren->GetRenderWindow())
-      {
-      if (renderWindow->GetCapturingGL2PSSpecialProps())
-        {
-        ren->CaptureGL2PSSpecialProp(this);
-        }
-      }
-    }
-
-  int renderedSomething = 0;
-
-  if (this->UpdateImageActor())
-    {
-    renderedSomething +=
-      this->ImageActor->RenderOpaqueGeometry(viewport);
-    }
-
-  return renderedSomething;
-}
-
-// --------------------------------------------------------------------------
 int vtkMathTextActor3D::UpdateImageActor()
 {
-  if (this->TextProperty.GetPointer() == NULL)
+  // Need text prop
+  if (!this->TextProperty)
     {
     vtkErrorMacro(<<"Need a text property to render text actor");
     return 0;
+    }
+
+  // No input, the assign the image actor a zilch input
+  if (!this->Input || !*this->Input)
+    {
+    if (this->ImageActor)
+      {
+      this->ImageActor->SetInputData(0);
+      }
+    return 1;
     }
 
   // Do we need to (re-)render the text ?
   // Yes if:
   //  - instance has been modified since last build
   //  - text prop has been modified since last build
-  if (this->GetMTime() > this->ImageData->GetMTime() ||
-      this->TextProperty->GetMTime() > this->ImageData->GetMTime())
+  //  - ImageData ivar has not been allocated yet
+  if (this->GetMTime() > this->BuildTime ||
+      this->TextProperty->GetMTime() > this->BuildTime ||
+      !this->ImageData)
     {
+
+    this->BuildTime.Modified();
+
+    // Create the image data
+    if (!this->ImageData)
+      {
+      this->ImageData = vtkImageData::New();
+      this->ImageData->SetSpacing(1.0, 1.0, 1.0);
+      }
 
     vtkMathTextUtilities *mtu = vtkMathTextUtilities::GetInstance();
     if (!mtu)
+      { // Render fallback text
+      vtkFreeTypeUtilities *fu = vtkFreeTypeUtilities::GetInstance();
+      if (!fu)
+        {
+        vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
+        return 0;
+        }
+
+      if (!fu->RenderString(this->TextProperty, this->FallbackText ?
+                            this->FallbackText : this->Input, this->ImageData))
+        {
+        vtkErrorMacro(<<"Failed rendering fallback text to buffer");
+        return 0;
+        }
+      }
+    else
       {
-      vtkErrorMacro(<<"Failed getting a MathText utilities instance");
-      return 0;
+      if (!mtu->RenderString(this->Input, this->ImageData, this->TextProperty,
+                             120))
+        {
+        vtkErrorMacro(<<"Failed rendering text to buffer");
+        return 0;
+        }
       }
 
-    if (!mtu->RenderString(this->Input, this->ImageData.GetPointer(),
-                           this->TextProperty.GetPointer(), 120))
+    // Associate the image data (should be up to date now) to the image actor
+    if (this->ImageActor)
       {
-      vtkErrorMacro(<<"Failed rendering text to buffer");
-      return 0;
+      this->ImageActor->SetInputData(this->ImageData);
+      this->ImageActor->SetDisplayExtent(this->ImageData->GetExtent());
       }
-
-    this->ImageActor->SetDisplayExtent(this->ImageData->GetExtent());
-    this->ImageActor->SetPosition(this->GetPosition());
-    this->ImageActor->SetOrientation(this->GetOrientation());
 
     } // if (this->GetMTime() ...
+
+  // Position the actor
+  if (this->ImageActor)
+    {
+    vtkMatrix4x4 *matrix = this->ImageActor->GetUserMatrix();
+    if (!matrix)
+      {
+      matrix = vtkMatrix4x4::New();
+      this->ImageActor->SetUserMatrix(matrix);
+      matrix->Delete();
+      }
+    this->GetMatrix(matrix);
+    }
 
   return 1;
 }
@@ -228,27 +199,12 @@ void vtkMathTextActor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if (this->TextProperty.GetPointer())
+  if (this->FallbackText)
     {
-    os << indent << "Text Property:\n";
-    this->TextProperty->PrintSelf(os,indent.GetNextIndent());
+    os << indent << "FallbackText: " << this->FallbackText << "\n";
     }
   else
     {
-    os << indent << "Text Property: (none)\n";
+    os << indent << "FallbackText: (none)\n";
     }
-
-  os << indent << "Image Actor:\n";
-  this->ImageActor->PrintSelf(os,indent.GetNextIndent());
-  os << indent << "Image Data:\n";
-  this->ImageData->PrintSelf(os,indent.GetNextIndent());
-
-  if (this->Input)
-    {
-    os << indent << "Input:\n" << indent.GetNextIndent() << this->Input << "\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-  }
 }

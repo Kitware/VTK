@@ -44,105 +44,41 @@ bool vtkMathTextActor::IsSupported()
 // ----------------------------------------------------------------------------
 vtkMathTextActor::vtkMathTextActor()
 {
-  // Copied from vtkTextActor:
-  // To remain compatible with code using vtkActor2D, we must set
-  // position coord to Viewport, not Normalized Viewport
-  // so...compute equivalent coords for initial position
-  this->PositionCoordinate->SetCoordinateSystemToViewport();
+  this->FallbackText = NULL;
 }
 
 // ----------------------------------------------------------------------------
 vtkMathTextActor::~vtkMathTextActor()
 {
-}
-
-// ----------------------------------------------------------------------------
-double *vtkMathTextActor::GetBounds()
-{
-  this->ComputeRectangle( /*viewport*/ 0 );
-  return this->RectanglePoints->GetBounds();
+  this->SetFallbackText(NULL);
 }
 
 // ----------------------------------------------------------------------------
 void vtkMathTextActor::ShallowCopy(vtkProp *prop)
 {
-  vtkMathTextActor *a = vtkMathTextActor::SafeDownCast(prop);
-  if ( a != NULL )
+  if (vtkMathTextActor *actor = vtkMathTextActor::SafeDownCast(prop))
     {
-    this->SetTextProperty(a->GetTextProperty());
-    this->SetInput(a->GetInput());
+    this->SetFallbackText(actor->GetFallbackText());
     }
-  this->vtkActor2D::ShallowCopy(prop);
+  this->Superclass::ShallowCopy(prop);
 }
 
 // ----------------------------------------------------------------------------
-void vtkMathTextActor::ReleaseGraphicsResources(vtkWindow *win)
+bool vtkMathTextActor::RenderImage(vtkTextProperty *tprop,
+                                   vtkViewport *viewport)
 {
-  this->Superclass::ReleaseGraphicsResources(win);
-}
-
-// ----------------------------------------------------------------------------
-int vtkMathTextActor::RenderOverlay(vtkViewport *viewport)
-{
-  if (!this->Visibility)
-    {
-    return 0;
-    }
-
-  // render the texture
-  if (this->Texture && this->Input && this->Input[0] != '\0')
-    {
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
-    if (ren)
+  vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();
+  if (!util)
+    { // Fall back to freetype rendering
+    if (!this->FreeTypeUtilities->RenderString(
+          tprop, this->FallbackText ? this->FallbackText : this->Input,
+          this->ImageData))
       {
-      this->Texture->Render(ren);
+      vtkErrorMacro(<<"Failed rendering fallback text to buffer");
+      return false;
       }
     }
-
-  // Everything is built in RenderOpaqueGeometry, just have to render
-  return this->vtkActor2D::RenderOverlay(viewport);
-}
-
-// ----------------------------------------------------------------------------
-int vtkMathTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
-{
-  if (!this->Visibility)
-    {
-    return 0;
-    }
-
-  // Make sure we have a string to render
-  if ( ! this->Input || this->Input[0] == '\0' )
-    {
-    return 0;
-    }
-
-  //check if we need to render the string
-  if(this->TextProperty->GetMTime() > this->ImageData->GetMTime() ||
-     this->GetMTime() > this->ImageData->GetMTime())
-    {
-    this->ComputeRectangle( viewport );
-    }
-
-  // Everything is built, just have to render
-  return this->vtkActor2D::RenderOpaqueGeometry(viewport);
-}
-
-//-----------------------------------------------------------------------------
-// Description:
-// Does this prop have some translucent polygonal geometry?
-int vtkMathTextActor::HasTranslucentPolygonalGeometry()
-{
-  return 0;
-}
-
-// ----------------------------------------------------------------------------
-void vtkMathTextActor::ComputeRectangle( vtkViewport* viewport )
-{
-  //check if we need to render the string
-
-  if(this->TextProperty->GetMTime() > this->ImageData->GetMTime() ||
-     this->GetMTime() > this->ImageData->GetMTime())
+  else
     {
     unsigned int dpi = 120;
     vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
@@ -154,98 +90,64 @@ void vtkMathTextActor::ComputeRectangle( vtkViewport* viewport )
         }
       }
 
-    vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();
-    if ( ! util )
-      { // Fall back to subclass rendering
-      if ( ! this->FreeTypeUtilities->RenderString(
-          this->ScaledTextProperty, this->Input, this->ImageData ) )
-        {
-        vtkErrorMacro(<<"Failed rendering fallback text to buffer");
-        return;
-        }
-      }
-    else if ( ! util->RenderString(
-        this->Input, this->ImageData,
-        this->TextProperty, dpi))
+    if (!util->RenderString(this->Input, this->ImageData, tprop, dpi))
       {
       vtkErrorMacro(<<"Failed rendering text to buffer");
-      return;
+      return false;
+      }
+    }
+
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkMathTextActor::GetBoundingBox(vtkTextProperty *tprop,
+                                      vtkViewport *viewport, int bbox[4])
+{
+  vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();
+  if (!util)
+    { // Fall back to freetype rendering
+    if (!this->FreeTypeUtilities->GetBoundingBox(
+          tprop, this->FallbackText ? this->FallbackText : this->Input,
+          bbox) ||
+        !this->FreeTypeUtilities->IsBoundingBoxValid(bbox))
+      {
+      vtkErrorMacro(<<"Failed rendering fallback text to buffer");
+      return false;
+      }
+    }
+  else
+    {
+    unsigned int dpi = 120;
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
+    if (ren)
+      {
+      if (ren->GetRenderWindow())
+        {
+        dpi = static_cast<unsigned int>(ren->GetRenderWindow()->GetDPI());
+        }
       }
 
-    this->ImageData->Modified();
-    this->Texture->SetInputData(this->ImageData);
-    this->Texture->Modified();
+    if (!util->GetBoundingBox(tprop ,this->Input, dpi, bbox))
+      {
+      vtkErrorMacro(<<"Failed rendering text to buffer");
+      return false;
+      }
     }
-
-  int dims[3];
-  this->RectanglePoints->Reset();
-  this->ImageData->GetDimensions(dims);
-
-  // compute TCoords.
-  vtkFloatArray* tc = vtkFloatArray::SafeDownCast
-      ( this->Rectangle->GetPointData()->GetTCoords() );
-  tc->InsertComponent(0, 0, 0.0);
-  tc->InsertComponent(0, 1, 0.0);
-
-  tc->InsertComponent(1, 0, 0.0);
-  tc->InsertComponent(1, 1, 1.0);
-
-  tc->InsertComponent(2, 0, 1.0);
-  tc->InsertComponent(2, 1, 1.0);
-
-  tc->InsertComponent(3, 0, 1.0);
-  tc->InsertComponent(3, 1, 0.0);
-
-  // Rotate the rectangle
-  double radians = vtkMath::RadiansFromDegrees(
-        this->TextProperty->GetOrientation());
-  double c = cos( radians );
-  double s = sin( radians );
-  double xo, yo;
-  double x, y;
-  xo = yo = 0.0;
-  switch ( this->TextProperty->GetJustification() )
-    {
-    default:
-    case VTK_TEXT_LEFT:
-      break;
-    case VTK_TEXT_CENTERED:
-      xo = -dims[0] * 0.5;
-      break;
-    case VTK_TEXT_RIGHT:
-      xo = -dims[0];
-    }
-  switch ( this->TextProperty->GetVerticalJustification())
-    {
-    default:
-    case VTK_TEXT_BOTTOM:
-      break;
-    case VTK_TEXT_CENTERED:
-      yo = -dims[1] * 0.5;
-      break;
-    case VTK_TEXT_TOP:
-      yo = -dims[1];
-      break;
-    }
-  // handle line offset
-  yo += this->TextProperty->GetLineOffset();
-
-  x = xo;
-  y = yo;
-  this->RectanglePoints->InsertNextPoint( c*x-s*y, s*x+c*y, 0.0 );
-  x = xo;
-  y = yo + dims[1];
-  this->RectanglePoints->InsertNextPoint( c*x-s*y, s*x+c*y, 0.0 );
-  x = xo + dims[0];
-  y = yo + dims[1];
-  this->RectanglePoints->InsertNextPoint( c*x-s*y, s*x+c*y, 0.0 );
-  x = xo + dims[0];
-  y = yo;
-  this->RectanglePoints->InsertNextPoint( c*x-s*y, s*x+c*y, 0.0 );
+  return true;
 }
 
 // ----------------------------------------------------------------------------
 void vtkMathTextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  if (this->FallbackText)
+    {
+    os << indent << "FallbackText: " << this->FallbackText << endl;
+    }
+  else
+    {
+    os << indent << "FallbackText: (none)\n";
+    }
 }
