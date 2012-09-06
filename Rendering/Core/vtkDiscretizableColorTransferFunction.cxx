@@ -112,7 +112,8 @@ void vtkDiscretizableColorTransferFunction::Build()
   this->LookupTable->SetAnnotations( this->AnnotatedValues, this->Annotations );
 
   if (this->Discretize && (this->GetMTime() > this->BuildTime ||
-    this->GetMTime() > this->BuildTime))
+      (this->ScalarOpacityFunction.GetPointer() &&
+       this->ScalarOpacityFunction->GetMTime() > this->BuildTime)))
     {
     unsigned char* lut_ptr = this->LookupTable->WritePointer(0,
       this->NumberOfValues);
