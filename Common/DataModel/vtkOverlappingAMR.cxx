@@ -19,6 +19,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUniformGrid.h"
 #include "vtkInformationIdTypeKey.h"
+#include "vtkCellData.h"
 #include <vector>
 
 vtkStandardNewMacro(vtkOverlappingAMR);
@@ -28,7 +29,6 @@ vtkInformationKeyMacro(vtkOverlappingAMR,NUMBER_OF_BLANKED_POINTS,IdType);
 //----------------------------------------------------------------------------
 vtkOverlappingAMR::vtkOverlappingAMR()
 {
-  this->PadCellVisibility = false;
 }
 
 //----------------------------------------------------------------------------
@@ -37,26 +37,13 @@ vtkOverlappingAMR::~vtkOverlappingAMR()
 }
 
 //----------------------------------------------------------------------------
-void vtkOverlappingAMR::Initialize(int numLevels, int * blocksPerLevel,  double origin[3],  int gridDescription)
-{
-  Superclass::Initialize();
-  this->AMRInfo->Initialize(numLevels,blocksPerLevel,origin,gridDescription);
-}
-
-//----------------------------------------------------------------------------
 void vtkOverlappingAMR::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << "PadCellVisibility: ";
-  if( this->PadCellVisibility )
+  if(this->AMRInfo)
     {
-    os << "ON(";
+    this->AMRInfo->PrintSelf(os,indent);
     }
-  else
-    {
-    os << "OFF(";
-    }
-  os << this->PadCellVisibility << ")\n";
 }
 
 //----------------------------------------------------------------------------
@@ -100,6 +87,7 @@ void vtkOverlappingAMR::GenerateParentChildInformation()
 {
   this->AMRInfo->GenerateParentChildInformation();
 }
+
 //----------------------------------------------------------------------------
 bool vtkOverlappingAMR::
 HasChildrenInformation()
@@ -129,6 +117,12 @@ PrintParentChildInfo(unsigned int level, unsigned int index)
 }
 
 //------------------------------------------------------------------------------
+void vtkOverlappingAMR::SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box)
+{
+  this->AMRInfo->SetAMRBox(level,id,box);
+}
+
+//------------------------------------------------------------------------------
 const vtkAMRBox& vtkOverlappingAMR::GetAMRBox(unsigned int level, unsigned int id)
 {
   const vtkAMRBox& box = this->AMRInfo->GetAMRBox(level,id);
@@ -140,13 +134,13 @@ const vtkAMRBox& vtkOverlappingAMR::GetAMRBox(unsigned int level, unsigned int i
 }
 
 //------------------------------------------------------------------------------
-void vtkOverlappingAMR::SetAMRBox(unsigned int level, unsigned int id, double* min, int* dimensions, double* h)
+void vtkOverlappingAMR::SetSpacing(unsigned int level,const double spacing[3])
 {
-  this->AMRInfo->SetAMRBox(level,id,min,dimensions,h);
+  this->AMRInfo->SetSpacing(level,spacing);
 }
 
 //------------------------------------------------------------------------------
-void vtkOverlappingAMR::GetGridSpacing(unsigned int level, double spacing[3])
+void vtkOverlappingAMR::GetSpacing(unsigned int level, double spacing[3])
 {
   return this->AMRInfo->GetSpacing(level,spacing);
 }
@@ -158,7 +152,91 @@ void vtkOverlappingAMR::GetBounds(unsigned int level, unsigned int id, double* b
 }
 
 //----------------------------------------------------------------------------
+void vtkOverlappingAMR::GetOrigin(unsigned int level, unsigned int id, double origin[3])
+{
+  double bb[6];
+  this->GetBounds(level,id,bb);
+  origin[0] = bb[0];
+  origin[1] = bb[2];
+  origin[2] = bb[4];
+}
+
+
+//----------------------------------------------------------------------------
+void vtkOverlappingAMR::SetOrigin(const double* origin)
+{
+  return this->AMRInfo->SetOrigin(origin);
+}
+
+//----------------------------------------------------------------------------
 double* vtkOverlappingAMR::GetOrigin()
 {
   return this->AMRInfo->GetOrigin();
+}
+
+//----------------------------------------------------------------------------
+void vtkOverlappingAMR::SetAMRBlockSourceIndex(unsigned int level, unsigned int id, int sourceId)
+{
+  unsigned int index = this->AMRInfo->GetIndex(level,id);
+  this->AMRInfo->SetAMRBlockSourceIndex(index, sourceId);
+}
+
+//----------------------------------------------------------------------------
+int vtkOverlappingAMR::GetAMRBlockSourceIndex(unsigned int level, unsigned int id)
+{
+  unsigned int index = this->AMRInfo->GetIndex(level,id);
+  return this->AMRInfo->GetAMRBlockSourceIndex(index);
+}
+
+//----------------------------------------------------------------------------
+void vtkOverlappingAMR::Audit()
+{
+  this->AMRInfo->Audit();
+
+  int emptyDimension(-1);
+  switch (this->GetGridDescription())
+    {
+    case VTK_YZ_PLANE: emptyDimension = 0; break;
+    case VTK_XZ_PLANE: emptyDimension = 1; break;
+    case VTK_XY_PLANE: emptyDimension = 2; break;
+    }
+
+  vtkSmartPointer<vtkUniformGridAMRDataIterator> iter =vtkUniformGridAMRDataIterator::SafeDownCast(this->NewIterator());
+  iter->SetSkipEmptyNodes(1);
+  for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(iter->GetCurrentDataObject());
+    bool hasGhost  = grid->GetCellData()->GetArray("vtkGhostLevels")!=NULL;
+
+    unsigned int level = iter->GetCurrentLevel();
+    unsigned int id = iter->GetCurrentIndex();
+    const vtkAMRBox& box = this->AMRInfo->GetAMRBox(level,id);
+    int dims[3];
+    box.GetNumberOfNodes(dims);
+
+    double spacing[3];
+    this->GetSpacing(level,spacing);
+
+    double origin[3];
+    this->GetOrigin(level,id,origin);
+
+    for(int d = 0; d<3; d++)
+      {
+      if(d==emptyDimension)
+        {
+        if(grid->GetSpacing()[d]!=spacing[d])
+          {
+          vtkErrorMacro("The grid spacing does not match AMRInfo at ("<<level<<", "<<id<<")");
+          }
+        if(!hasGhost && grid->GetOrigin()[d]!=origin[d])
+          {
+          vtkErrorMacro("The grid origin does not match AMRInfo at ("<<level<<", "<<id<<")");
+          }
+        if(!hasGhost && grid->GetDimensions()[d]!=dims[d])
+          {
+          vtkErrorMacro("The grid dimensions does not match AMRInfo at ("<<level<<", "<<id<<")");
+          }
+        }
+      }
+    }
 }

@@ -950,7 +950,7 @@ void vtkAMRResampleFilter::GetDomainParameters(
   amr->GetMin(domainMin);
   amr->GetMax(domainMax);
 
-  amr->GetGridSpacing(0,h);
+  amr->GetSpacing(0,h);
 }
 
 //-----------------------------------------------------------------------------

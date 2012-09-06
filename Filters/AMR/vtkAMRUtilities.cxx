@@ -13,6 +13,7 @@
 
  =========================================================================*/
 #include "vtkAMRBox.h"
+#include "vtkAMRInformation.h"
 #include "vtkAMRUtilities.h"
 #include "vtkCellData.h"
 #include "vtkCommunicator.h"
@@ -441,6 +442,7 @@ void vtkAMRUtilities::StripGhostLayers(
 {
   assert("pre: input AMR data is NULL" && (ghostedAMRData != NULL) );
   assert("pre: outputAMR data is NULL" && (strippedAMRData != NULL) );
+  double spacing[3];
 
   if( !vtkAMRUtilities::HasPartiallyOverlappingGhostCells( ghostedAMRData ) )
     {
@@ -456,13 +458,18 @@ void vtkAMRUtilities::StripGhostLayers(
     {
     blocksPerLevel[i] = ghostedAMRData->GetNumberOfDataSets(i);
     }
-  strippedAMRData->Initialize(static_cast<int>(blocksPerLevel.size()),&blocksPerLevel[0],
-                              ghostedAMRData->GetOrigin(), ghostedAMRData->GetGridDescription());
+  strippedAMRData->Initialize(static_cast<int>(blocksPerLevel.size()),&blocksPerLevel[0]);
+  strippedAMRData->SetOrigin(ghostedAMRData->GetOrigin());
+  strippedAMRData->SetGridDescription(ghostedAMRData->GetGridDescription());
+
+  ghostedAMRData->GetSpacing(0,spacing);
+  strippedAMRData->SetSpacing(0, spacing);
   unsigned int dataIdx=0;
   for( ;dataIdx < ghostedAMRData->GetNumberOfDataSets(0); ++dataIdx)
     {
     vtkUniformGrid* grid = ghostedAMRData->GetDataSet(0,dataIdx);
-    strippedAMRData->SetAMRBox(0,dataIdx,grid->GetOrigin(), grid->GetDimensions(), grid->GetSpacing());
+    vtkAMRBox box(grid->GetOrigin(), grid->GetDimensions(), grid->GetSpacing(),strippedAMRData->GetOrigin(),grid->GetGridDescription());
+    strippedAMRData->SetAMRBox(0,dataIdx,box);
     strippedAMRData->SetDataSet(0,dataIdx,grid);
     } // END for all data at level 0
 
@@ -471,6 +478,8 @@ void vtkAMRUtilities::StripGhostLayers(
   for( ;levelIdx < ghostedAMRData->GetNumberOfLevels(); ++levelIdx )
     {
     dataIdx=0;
+    ghostedAMRData->GetSpacing(levelIdx,spacing);
+    strippedAMRData->SetSpacing(levelIdx, spacing);
     for(;dataIdx < ghostedAMRData->GetNumberOfDataSets(levelIdx); ++dataIdx)
       {
       vtkUniformGrid *grid = ghostedAMRData->GetDataSet( levelIdx, dataIdx );
@@ -481,13 +490,14 @@ void vtkAMRUtilities::StripGhostLayers(
       else
         {
         int r = ghostedAMRData->GetRefinementRatio( levelIdx );
-
-        vtkAMRBox myBox=ghostedAMRData->GetAMRInfo()->GetAMRBox(levelIdx,dataIdx);
+        vtkAMRBox myBox=ghostedAMRData->GetAMRBox(levelIdx,dataIdx);
         myBox.GetGhostVector(r, ghost);
 
         vtkUniformGrid *strippedGrid=
           vtkAMRUtilities::StripGhostLayersFromGrid(grid,ghost);
-        strippedAMRData->SetAMRBox(levelIdx,dataIdx,strippedGrid->GetOrigin(), strippedGrid->GetDimensions(), strippedGrid->GetSpacing());
+
+        vtkAMRBox box(strippedGrid->GetOrigin(), strippedGrid->GetDimensions(), strippedGrid->GetSpacing(),strippedAMRData->GetOrigin(),strippedGrid->GetGridDescription());
+        strippedAMRData->SetAMRBox(levelIdx,dataIdx,box);
         strippedAMRData->SetDataSet(levelIdx,dataIdx,strippedGrid);
         strippedGrid->Delete();
         }
@@ -506,11 +516,6 @@ void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr,  vtkMultiProcessControl
   if(!info->HasRefinementRatio())
     {
     info->GenerateRefinementRatio();
-    }
-  if(!info->IsValid())
-    {
-    cerr<<"ERROR: Invalid vtkAMRInformation object. Failed to generate visibility arrays\n";
-    return;
     }
   unsigned int numLevels =info->GetNumberOfLevels();
   if(!info->HasChildrenInformation())

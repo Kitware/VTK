@@ -22,7 +22,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
-#include "vtkAMRInformation.h"
+#include "vtkAMRBox.h"
 #include <limits>
 #include <cassert>
 #include <vector>
@@ -122,7 +122,9 @@ void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
       }
     }
 
-  hbox->Initialize(static_cast<int>(blocksPerLevel.size()),&blocksPerLevel[0],origin,description);
+  hbox->Initialize(static_cast<int>(blocksPerLevel.size()),&blocksPerLevel[0]);
+  hbox->SetOrigin(origin);
+  hbox->SetGridDescription(description);
 
   // Read refinement ratios for each level.
   for (cc=0; cc < numElems; cc++)
@@ -172,9 +174,9 @@ void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
           }
         childDS.TakeReference(vtkUniformGrid::SafeDownCast(ds));
         }
+      hbox->SetAMRBox(level,index,box);
       if(childDS)
         {
-        hbox->SetAMRBox(level,index,childDS->GetOrigin(), childDS->GetDimensions(), childDS->GetSpacing());
         hbox->SetDataSet(level, index, childDS);
         }
       }
@@ -281,8 +283,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
         }
       else
         {
-        vtkWarningMacro("Meta data does not contain spacing information!");
-        hbox->GetAMRInfo()->SetAMRBox(level,index,box,NULL);
+        hbox->SetAMRBox(level,index,box);
         }
       dataSetIndex++;
       }

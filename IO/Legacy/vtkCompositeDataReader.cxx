@@ -372,7 +372,6 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
         {
         vtkUniformGrid* grid = vtkUniformGrid::New();
         grid->ShallowCopy(child);
-        oamr->SetAMRBox(level,index,grid->GetOrigin(), grid->GetDimensions(), grid->GetSpacing());
         oamr->SetDataSet(level, index, grid);
         grid->FastDelete();
         child->Delete();
@@ -412,11 +411,20 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
         return false;
         }
 
+      int description = idata->GetValue(0);
+      oamr->SetGridDescription(description);
+
       double origin[3];
       ddata->GetTuple(0,origin);
-      int description = idata->GetValue(0);
-      oamr->GetAMRInfo()->SetGridDescription(description);
-      oamr->GetAMRInfo()->SetOrigin(origin);
+      oamr->SetOrigin(origin);
+
+      for (unsigned int level=0; level < num_levels; level++)
+        {
+        double spacing[3];
+        ddata->GetTuple(level+1,spacing);
+        oamr->SetSpacing(level,spacing);
+        }
+
       unsigned int metadata_index = 0;
       for (unsigned int level=0; level < num_levels; level++)
         {
@@ -429,8 +437,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
           memcpy(hiCorner, idata->GetPointer(6*metadata_index + 4), 3*sizeof(int));
           vtkAMRBox box;
           box.SetDimensions(loCorner,hiCorner,description);
-          vtkWarningMacro("Meta data does not contain spacing information");
-          oamr->GetAMRInfo()->SetAMRBox(level, index, box, NULL);
+          oamr->SetAMRBox(level, index, box);
           }
         }
       idata->Delete();

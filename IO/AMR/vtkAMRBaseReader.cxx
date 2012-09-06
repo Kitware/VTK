@@ -573,8 +573,6 @@ int vtkAMRBaseReader::RequestData(
      outInf->Get( vtkDataObject::DATA_OBJECT() ) );
   assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
 
-  assert(this->Metadata->GetAMRInfo()->IsValid());
-
   output->SetAMRInfo(this->Metadata->GetAMRInfo());
 
   // Setup the block request
@@ -588,6 +586,9 @@ int vtkAMRBaseReader::RequestData(
     }
   else
     {
+#ifdef DEBUGME
+    cout<<"load "<<this->BlockMap.size()<<" blocks"<<endl;
+#endif
     this->AssignAndLoadBlocks( output );
 
     vtkTimerLog::MarkStartEvent( "AMR::Generate Blanking" );

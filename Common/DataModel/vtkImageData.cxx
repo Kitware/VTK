@@ -919,9 +919,9 @@ void vtkImageData::SetDimensions(const int dim[3])
 // The voxel is specified by the array ijk[3], and the parametric coordinates
 // in the cell are specified with pcoords[3]. The function returns a 0 if the
 // point x is outside of the volume, and a 1 if inside the volume.
-int vtkImageData::ComputeStructuredCoordinates( double x[3], int ijk[3], double pcoords[3],
-                                                int* extent,
-                                                double* spacing,
+int vtkImageData::ComputeStructuredCoordinates( const double x[3], int ijk[3], double pcoords[3],
+                                                const int* extent,
+                                                const double* spacing,
                                                 const double* origin,
                                                 const double* bounds)
 {
@@ -994,7 +994,7 @@ int vtkImageData::ComputeStructuredCoordinates( double x[3], int ijk[3], double 
 }
 
 //----------------------------------------------------------------------------
-int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
+int vtkImageData::ComputeStructuredCoordinates(const double x[3], int ijk[3],
                                                double pcoords[3])
 {
   return ComputeStructuredCoordinates(x,ijk,pcoords,this->Extent, this->Spacing, this->Origin, this->GetBounds());

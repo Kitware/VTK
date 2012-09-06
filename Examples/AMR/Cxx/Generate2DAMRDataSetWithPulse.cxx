@@ -33,7 +33,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkUniformGrid.h"
-
+#include "vtkAMRBox.h"
 #include "AMRCommon.h"
 
 struct PulseAttributes {
@@ -130,8 +130,9 @@ vtkOverlappingAMR* GetAMRDataSet()
   origin[0] = origin[1] = -2.0; origin[2] = 0.0;
 
   vtkOverlappingAMR *data = vtkOverlappingAMR::New();
-  data->Initialize(NumLevels,BlocksPerLevel,origin,VTK_XY_PLANE);
-
+  data->Initialize(NumLevels,BlocksPerLevel);
+  data->SetOrigin(origin);
+  data->SetGridDescription(VTK_XY_PLANE);
 
   double h[3];
   int    ndim[3];
@@ -145,9 +146,11 @@ vtkOverlappingAMR* GetAMRDataSet()
   blockId   = 0;
   level     = 0;
   vtkUniformGrid *root = AMRCommon::GetGrid(origin, h, ndim);
+  vtkAMRBox box(origin, ndim, h, data->GetOrigin(), data->GetGridDescription());
   AttachPulseToGrid( root );
-  data->SetAMRBox(
-    level,blockId,root->GetOrigin(),root->GetDimensions(),root->GetSpacing());
+
+  data->SetSpacing(level,h);
+  data->SetAMRBox( level,blockId,box);
   data->SetDataSet(level,blockId,root);
   root->Delete();
 
@@ -158,10 +161,11 @@ vtkOverlappingAMR* GetAMRDataSet()
   blockId   = 0;
   level     = 1;
   vtkUniformGrid *grid1 = AMRCommon::GetGrid(origin, h, ndim);
+  vtkAMRBox box1(origin, ndim, h, data->GetOrigin(), data->GetGridDescription());
   AttachPulseToGrid( grid1 );
-  data->SetAMRBox(
-   level,blockId,grid1->GetOrigin(),
-   grid1->GetDimensions(),grid1->GetSpacing());
+
+  data->SetSpacing(level,h);
+  data->SetAMRBox( level,blockId,box1);
   data->SetDataSet( level, blockId,grid1);
   grid1->Delete();
 
@@ -172,13 +176,15 @@ vtkOverlappingAMR* GetAMRDataSet()
   blockId   = 1;
   level     = 1;
   vtkUniformGrid *grid3 = AMRCommon::GetGrid(origin, h, ndim);
+  vtkAMRBox box3(origin, ndim, h, data->GetOrigin(), data->GetGridDescription());
+
   AttachPulseToGrid( grid3 );
-  data->SetAMRBox(
-      level,blockId,grid3->GetOrigin(),
-      grid3->GetDimensions(),grid3->GetSpacing());
+  data->SetSpacing(level,h);
+  data->SetAMRBox(level,blockId,box3);
   data->SetDataSet( level, blockId,grid3);
   grid3->Delete();
 
   vtkAMRUtilities::BlankCells(data,NULL);
+  data->Audit();
   return( data );
 }

@@ -89,7 +89,7 @@ void vtkUniformGridAMR::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkUniformGridAMR::Initialize(int numLevels, int * blocksPerLevel)
+void vtkUniformGridAMR::Initialize(int numLevels, const int * blocksPerLevel)
 {
   this->Bounds[0] = VTK_DOUBLE_MAX;
   this->Bounds[1] = VTK_DOUBLE_MIN;
@@ -168,6 +168,12 @@ void vtkUniformGridAMR::SetDataSet(vtkCompositeDataIterator* compositeIter, vtkD
   int id = itr->GetCurrentIndex();
   this->SetDataSet(level,id,grid);
 };
+
+//----------------------------------------------------------------------------
+void vtkUniformGridAMR::SetGridDescription(int gridDescription)
+{
+  this->AMRInfo->SetGridDescription(gridDescription);
+}
 
 //----------------------------------------------------------------------------
 int vtkUniformGridAMR::GetGridDescription()

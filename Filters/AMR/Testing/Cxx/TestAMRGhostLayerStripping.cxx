@@ -221,9 +221,16 @@ vtkOverlappingAMR *GetGhostedDataSet(
   blocksPerLevel[0]=1;
   blocksPerLevel[1]=2;
 
-  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()),
-                         &blocksPerLevel[0], inputAMR->GetOrigin(),
-                         inputAMR->GetGridDescription());
+  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
+  ghostedAMR->SetGridDescription(inputAMR->GetGridDescription());
+  ghostedAMR->SetOrigin(inputAMR->GetOrigin());
+
+  for(unsigned int i=0; i<inputAMR->GetNumberOfLevels();i++)
+    {
+    double spacing[3];
+    inputAMR->GetSpacing(i,spacing);
+    ghostedAMR->SetSpacing(i,spacing);
+    }
 
   assert( "pre: Expected number of levels is 2" &&
           (ghostedAMR->GetNumberOfLevels()==2));
@@ -231,7 +238,8 @@ vtkOverlappingAMR *GetGhostedDataSet(
   // Copy the root grid
   vtkUniformGrid *rootGrid = vtkUniformGrid::New();
   rootGrid->DeepCopy( inputAMR->GetDataSet(0,0) );
-  ghostedAMR->SetAMRBox(0,0,rootGrid->GetOrigin(), rootGrid->GetDimensions(), rootGrid->GetSpacing());
+  vtkAMRBox box(rootGrid->GetOrigin(), rootGrid->GetDimensions(), rootGrid->GetSpacing(), ghostedAMR->GetOrigin(), rootGrid->GetGridDescription());
+  ghostedAMR->SetAMRBox(0,0,box);
   ghostedAMR->SetDataSet(0,0,rootGrid);
   rootGrid->Delete();
 
@@ -250,7 +258,9 @@ vtkOverlappingAMR *GetGhostedDataSet(
     {
     vtkUniformGrid *grid = inputAMR->GetDataSet(1,i);
     vtkUniformGrid *ghostedGrid = GetGhostedGrid(dimension,grid,ghost[i],NG);
-    ghostedAMR->SetAMRBox(1,i,ghostedGrid->GetOrigin(), ghostedGrid->GetDimensions(), ghostedGrid->GetSpacing());
+    box = vtkAMRBox(ghostedGrid->GetOrigin(), ghostedGrid->GetDimensions(), ghostedGrid->GetSpacing(), ghostedAMR->GetOrigin(), ghostedGrid->GetGridDescription());
+
+    ghostedAMR->SetAMRBox(1,i,box);
     ghostedAMR->SetDataSet(1,i,ghostedGrid);
 
 #ifdef DEBUG_ON
