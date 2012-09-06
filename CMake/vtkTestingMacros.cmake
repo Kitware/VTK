@@ -2,8 +2,18 @@
 # Macro vtk_tests() takes a list of cxx files which will be driven by the modules
 # test driver. This helps reduce a lot of boiler place code in each module
 macro(vtk_tests)
+  # Look for an optional baseline image directory argument
+  # to use instead of the module name
+  set (BASELINEDIR ${vtk-module})
+  set (MYARGV ${ARGV})
+  if ((${ARGC} GREATER 1) AND (${ARGV0} STREQUAL "BASELINEDIR"))
+    set (BASELINEDIR ${ARGV1})
+    list(REMOVE_AT MYARGV 0)
+    list(REMOVE_AT MYARGV 0)
+  endif()
+
   create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-    ${ARGV}
+    ${MYARGV}
     EXTRA_INCLUDE vtkTestDriver.h)
 
   vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
@@ -19,7 +29,7 @@ macro(vtk_tests)
         COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
         -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/${vtk-module}/${TName}.png)
+        -V Baseline/${BASELINEDIR}/${TName}.png)
     else()
       add_test(NAME ${vtk-module}Cxx-${TName}
         COMMAND ${vtk-module}CxxTests ${TName}
