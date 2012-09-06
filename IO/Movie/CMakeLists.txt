@@ -12,7 +12,7 @@ if(vtkIOMovie_vtkoggtheora)
   list(APPEND Module_SRCS vtkOggTheoraWriter.cxx)
 endif()
 
-if(WIN32)
+if(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
   include(vtkTestVideoForWindows)
   list(APPEND Module_SRCS vtkAVIWriter.cxx)
 endif()

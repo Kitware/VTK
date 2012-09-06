@@ -67,6 +67,8 @@ int TestExecutionTimer( int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
             << timer->GetElapsedCPUTime() << " sec (CPU), "
             << timer->GetElapsedWallClockTime() << " sec (wall clock)\n";
 
+  delaunay2D->Delete();
+
   // As long as the thing executes without crashing, the test is
   // successful.
   return EXIT_SUCCESS;
