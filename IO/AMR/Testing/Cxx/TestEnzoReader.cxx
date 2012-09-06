@@ -57,11 +57,33 @@ int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
   return maxLevel+1;
 }
 
+int ComputeNumberOfVisibileCells(vtkOverlappingAMR* amr)
+{
+  int numVisibleCells(0);
+  vtkCompositeDataIterator* iter = amr->NewIterator();
+  iter->SkipEmptyNodesOn();
+  for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(iter->GetCurrentDataObject());
+    vtkIdType num = grid->GetNumberOfCells();
+    for(vtkIdType i=0; i<num; i++)
+      {
+      if(grid->IsCellVisible(i))
+        {
+        numVisibleCells++;
+        }
+      }
+    }
+  iter->Delete();
+  return numVisibleCells;
+}
+
+
 int TestEnzoReader( int argc, char *argv[] )
 {
   int rc = 0;
   int NumBlocksPerLevel[] = { 1,3,1,1,1,1,1,1 };
-
+  int numVisibleCells[] = {4096, 6406, 13406, 20406, 23990, 25502, 26377, 27077};
   vtkAMREnzoReader *myEnzoReader = vtkAMREnzoReader::New();
   char *fileName =
     vtkTestUtilities::ExpandDataFileName(argc,argv,
@@ -88,6 +110,7 @@ int TestEnzoReader( int argc, char *argv[] )
           static_cast<int>(amr->GetNumberOfDataSets(level)),
           NumBlocksPerLevel[level]
           );
+      rc+= EnzoReaderTest::CheckValue("Number of Visible cells ",ComputeNumberOfVisibileCells(amr), numVisibleCells[level]);
       }
     else
       {

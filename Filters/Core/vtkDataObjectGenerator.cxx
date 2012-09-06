@@ -39,8 +39,8 @@
 #include <vtkPointData.h>
 
 #include <vtkStreamingDemandDrivenPipeline.h>
-
 #include <vector>
+
 
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
@@ -799,7 +799,6 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
         }
       gcnt++;
       }
-    hbo->GenerateVisibilityArrays();
     return outData;
     }
     case MBS:

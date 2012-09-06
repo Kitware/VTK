@@ -212,6 +212,9 @@ int vtkAMRFlashReader::FillMetaData( )
     b2level[ level ]++;
     } // END for all blocks
 
+
+  amrInfo->GenerateRefinementRatio();
+  amrInfo->GenerateParentChildInformation();
   assert(amrInfo->IsValid());
   return( 1 );
 }

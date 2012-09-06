@@ -114,11 +114,6 @@ public:
   // Returns the refinement ratio for the position pointed by the iterator.
   int GetRefinementRatio(vtkCompositeDataIterator* iter);
 
-  // Description:
-  // Blank lower level cells if they are overlapped by higher
-  // level ones.
-  void GenerateVisibilityArrays();
-
   //Description:
   //Return whether parent child information has been generated
   bool HasChildrenInformation();
