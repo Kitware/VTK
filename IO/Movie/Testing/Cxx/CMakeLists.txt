@@ -1,6 +1,6 @@
 set(TEST_SRC)
 
-if(WIN32)
+if(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
   list(APPEND TEST_SRC TestAVIWriter.cxx)
 endif()
 
