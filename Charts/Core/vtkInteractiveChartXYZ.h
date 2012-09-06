@@ -53,6 +53,9 @@ public:
   // Set the input for the chart.
   virtual void SetInput(vtkTable *input, const vtkStdString &x,
                         const vtkStdString &y, const vtkStdString &z);
+
+  // Description:
+  // Set the input for the chart, including a dimension for color.
   virtual void SetInput(vtkTable *input, const vtkStdString &x,
                         const vtkStdString &y, const vtkStdString &z,
                         const vtkStdString &color);
@@ -81,80 +84,244 @@ public:
   virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
   //ETX
 
-  bool PointShouldBeClipped(vtkVector3f point);
-
+  // Description:
+  // Set the vtkContextScene for the item, always set for an item in a scene.
   virtual void SetScene(vtkContextScene *scene);
 
 protected:
   vtkInteractiveChartXYZ();
   ~vtkInteractiveChartXYZ();
+
+  // Description:
+  // Calculate the transformation matrices used to draw data points and axes
+  // in the scene.  This function also sets up clipping planes that determine
+  // whether or not a data point is within range.
   virtual void CalculateTransforms();
+
+  // Description:
+  // Rotate the chart in response to a mouse movement.
   bool Rotate(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Pan the data within the chart in response to a mouse movement.
   bool Pan(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Zoom in or out on the data in response to a mouse movement.
   bool Zoom(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Spin the chart in response to a mouse movement.
   bool Spin(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Adjust the rotation of the chart so that we are looking down the X axis.
   void LookDownX();
+
+  // Description:
+  // Adjust the rotation of the chart so that we are looking down the Y axis.
   void LookDownY();
+
+  // Description:
+  // Adjust the rotation of the chart so that we are looking down the Z axis.
   void LookDownZ();
+
+  // Description:
+  // Adjust the rotation of the chart so that we are looking up the X axis.
   void LookUpX();
+
+  // Description:
+  // Adjust the rotation of the chart so that we are looking up the Y axis.
   void LookUpY();
+
+  // Description:
+  // Adjust the rotation of the chart so that we are looking up the Z axis.
   void LookUpZ();
+
+  // Description:
+  // Determine what data points fall within the bounds of the chart axes.
   void UpdateClippedPoints();
+
+  // Description:
+  // Determine whether an individual data point falls within the bounds of the
+  // chart axes.
+  bool PointShouldBeClipped(vtkVector3f point);
+
+  // Description:
+  // Check to see if the scene changed size since the last render.
   bool CheckForSceneResize();
+
+  // Description:
+  // Scale the axes up or down in response to a scene resize.
   void RescaleAxes();
+
+  // Description:
+  // Scale up the axes when the scene gets larger.
   void ScaleUpAxes();
+
+  // Description:
+  // Scale down the axes when the scene gets smaller.
   void ScaleDownAxes();
+
+  // Description:
+  // Change the scaling of the axes by a specified amount.
   void ZoomAxes(int delta);
+
+  // Description:
+  // Initialize a list of "test points".  These are used to determine whether
+  // or not the chart fits completely within the bounds of the current scene.
   void InitializeAxesBoundaryPoints();
+
+  // Description:
+  // Initialize the "future box" transform.  This transform is a duplicate of
+  // the Box transform, which dictates how the chart's axes should be drawn.
+  // In ScaleUpAxes() and ScaleDownAxes(), we incrementally change the scaling
+  // of the FutureBox transform to determine how much we need to zoom in or
+  // zoom out to fit the chart within the newly resized scene.  Using a
+  // separate transform for this process allows us to resize the Box in a
+  // single step.
   void InitializeFutureBox();
+
+  // Description:
+  // Compute a bounding box for the data that is rendered within the axes.
   void ComputeDataBounds();
+
+  // Description:
+  // For each of the XYZ dimensions, find the axis line that is furthest
+  // from the rendered data.
   void DetermineWhichAxesToLabel();
+
+  // Description:
+  // Draw tick marks and tick mark labels along the axes.
   void DrawTickMarks(vtkContext2D *painter);
+
+  // Description:
+  // Label the axes.
   void DrawAxesLabels(vtkContext2D *painter);
+
+  // Description:
+  // Compute how some text should be offset from an axis.  The parameter
+  // bounds contains the bounding box of the text to be rendered.  The
+  // result is stored in the parameter offset.
   void GetOffsetForAxisLabel(int axis, float *bounds, float *offset);
+
+  // Description:
+  // Calculate the next "nicest" numbers above and below the current minimum.
+  // \return the "nice" spacing of the numbers.
+  // This function was mostly copied from vtkAxis.
   double CalculateNiceMinMax(double &min, double &max, int axis);
+
+  // Description:
+  // Return a "nice number", often defined as 1, 2 or 5. If roundUp is true then
+  // the nice number will be rounded up, false it is rounded down. The supplied
+  // number should be between 0.0 and 9.9.
+  // This function was directly copied from vtkAxis.
   double NiceNumber(double n, bool roundUp);
 
+  // Description:
+  // This transform keeps track of how the data points have been panned within
+  // the chart.
   vtkNew<vtkTransform> Translation;
+
+  // Description:
+  // This transform keeps track of how the data points have been scaled
+  // (zoomed in or zoomed out) within the chart.
   vtkNew<vtkTransform> Scale;
+
+  // Description:
+  // This transform keeps track of how the axes have been scaled
+  // (zoomed in or zoomed out).
   vtkNew<vtkTransform> BoxScale;
+
+  // Description:
+  // This transform is initialized as a copy of Box.  It is used within
+  // ScaleUpAxes() and ScaleDownAxes() to figure out how much we need to
+  // zoom in or zoom out to fit our chart within the newly resized scene.
   vtkNew<vtkTransform> FutureBox;
+
+  // Description:
+  // This transform keeps track of the Scale of the FutureBox transform.
   vtkNew<vtkTransform> FutureBoxScale;
-  vtkNew<vtkUnsignedCharArray> Colors;
-  vtkNew<vtkUnsignedCharArray> ClippedColors;
-  int NumberOfComponents;
 
-  std::string XAxisLabel;
-  std::string YAxisLabel;
-  std::string ZAxisLabel;
-
+  // Description:
+  // The subset of our data points that fall within the axes.  These are
+  // the only data points that are rendered.
   vector<vtkVector3f> clipped_points;
 
+  // Description:
+  // This array assigns a color to each data point.
+  vtkNew<vtkUnsignedCharArray> Colors;
+
+  // Description:
+  // This array assigns a color to each data point which is currently
+  // rendered within the axes.
+  vtkNew<vtkUnsignedCharArray> ClippedColors;
+
+  // Description:
+  // Number of components in our color vectors.  This value is initialized
+  // to zero.  It's typically set to 3 or 4 if the points are to be colored.
+  int NumberOfComponents;
+
+  // Description:
+  // The label for the X Axis.
+  std::string XAxisLabel;
+
+  // Description:
+  // The label for the Y Axis.
+  std::string YAxisLabel;
+
+  // Description:
+  // The label for the Z Axis.
+  std::string ZAxisLabel;
+
+  // Description:
+  // The six planes that define the bounding cube of our 3D axes.
   vtkNew<vtkPlane> Face1;
   vtkNew<vtkPlane> Face2;
   vtkNew<vtkPlane> Face3;
   vtkNew<vtkPlane> Face4;
   vtkNew<vtkPlane> Face5;
   vtkNew<vtkPlane> Face6;
+
+  // Description:
+  // Points used to determine whether the axes will fit within the scene as
+  // currently sized, regardless of rotation.
   float AxesBoundaryPoints[14][3];
+
+  // Description:
+  // This member variable stores the size of the tick labels for each axis.
+  // It is used to determine the position of the axis labels.
   float TickLabelOffset[3][2];
 
+  // Description:
+  // Distance between two opposing planes (Faces).  Any point further away
+  // from a plane than this value is outside our bounding cube and will not
+  // be rendered.
   double MaxDistance;
+
+  // Description:
+  // The height of the scene, as of the most recent call to Paint().
   int SceneHeight;
+
+  // Description:
+  // The weight of the scene, as of the most recent call to Paint().
   int SceneWidth;
 
-  // which line to label
+  // Description:
+  // Which line to label.
   int XAxisToLabel[3];
   int YAxisToLabel[3];
   int ZAxisToLabel[3];
 
-  //what direction the data is from each labeled axis line
+  // Description:
+  // What direction the data is from each labeled axis line.
   int DirectionToData[3];
 
+  // Description:
+  // A bounding box surrounding the currently rendered data points.
   double DataBounds[4];
 
 private:
-  float TranslationDebug[3];
   vtkInteractiveChartXYZ(const vtkInteractiveChartXYZ &);    // Not implemented.
   void operator=(const vtkInteractiveChartXYZ &); // Not implemented.
 };
