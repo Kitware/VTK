@@ -1,4 +1,5 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  TestCopyAttributeData.cxx
   TestImageDataToStructuredGrid.cxx
   TestLinearSelector2D.cxx
   TestLinearSelector3D.cxx
