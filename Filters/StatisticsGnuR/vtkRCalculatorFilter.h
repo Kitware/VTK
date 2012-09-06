@@ -43,6 +43,11 @@ class vtkRInterface;
 class vtkRCalculatorFilterInternals;
 class vtkDataSet;
 class vtkDoubleArray;
+class vtkGraph;
+class vtkTree;
+class vtkTable;
+class vtkCompositeDataSet;
+class vtkArrayData;
 
 class VTKFILTERSSTATISTICSGNUR_EXPORT vtkRCalculatorFilter : public vtkDataObjectAlgorithm
 {
@@ -84,6 +89,13 @@ public:
   // a list variable in R using GetTable()
   void PutTable(const char* NameOfRvar);
   void GetTable(const char* NameOfRvar);
+
+  // Description:
+  // For vtkTree input to the filter.  An R phylo tree variable is created for the
+  // vtkTree input using PutTree().  The output of the filter can be set from
+  // a phylo tree variable in R using GetTree()
+  void PutTree(const char* NameOfRvar);
+  void GetTree(const char* NameOfRvar);
 
   // Description:
   // Script executed by R.  Can also be set from a file.
@@ -146,7 +158,25 @@ private:
 
   // Implementation details
   vtkRCalculatorFilterInternals* rcfi;
-  int ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout);
+
+  int ProcessInputDataSet(vtkDataSet* dsIn);
+  int ProcessOutputDataSet(vtkDataSet* dsOut);
+
+  int ProcessInputGraph(vtkGraph* gIn);
+  int ProcessOutputGraph(vtkGraph* gOut);
+
+  int ProcessInputArrayData(vtkArrayData * adIn);
+  int ProcessOutputArrayData(vtkArrayData * adOut);
+
+  int ProcessInputCompositeDataSet(vtkCompositeDataSet* cdsIn);
+  int ProcessOutputCompositeDataSet(vtkCompositeDataSet * cdsOut);
+
+  int ProcessInputTable(vtkTable* tOut);
+  int ProcessOutputTable(vtkTable* tOut);
+
+ int ProcessInputTree(vtkTree* tIn);
+ int ProcessOutputTree(vtkTree* tOut);
+
 
   vtkRInterface* ri;
   char* Rscript;

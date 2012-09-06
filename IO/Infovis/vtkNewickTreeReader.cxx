@@ -149,7 +149,7 @@ int vtkNewickTreeReader::RequestData(
   vtkNew<vtkDoubleArray> weights;
   weights->SetNumberOfComponents(1);
   weights->SetName("weight");
-  weights->SetNumberOfValues(numNodes);
+  weights->SetNumberOfValues(numNodes-1);//the number of edges = number of nodes -1 for a tree
 
   // Create the names array
   vtkNew<vtkStringArray> names;
