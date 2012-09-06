@@ -24,17 +24,19 @@
 #include <cassert> // For C++ assert
 #include <sstream> // For C++ string streams
 
-#include "vtkHierarchicalBoxDataSet.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkUniformGrid.h"
-#include "vtkXMLHierarchicalBoxDataWriter.h"
-#include "vtkXMLHierarchicalBoxDataReader.h"
-#include "vtkXMLMultiBlockDataWriter.h"
-#include "vtkUniformGrid.h"
 #include "vtkCell.h"
+#include "vtkCompositeDataWriter.h"
+#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkImageToStructuredGrid.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkStructuredGridWriter.h"
+#include "vtkUniformGrid.h"
+#include "vtkUniformGrid.h"
+#include "vtkXMLHierarchicalBoxDataReader.h"
+#include "vtkXMLHierarchicalBoxDataWriter.h"
 #include "vtkXMLImageDataWriter.h"
+#include "vtkXMLMultiBlockDataWriter.h"
 
 namespace AMRCommon {
 
@@ -61,22 +63,19 @@ void WriteUniformGrid( vtkUniformGrid *g, std::string prefix )
 //------------------------------------------------------------------------------
 // Description:
 // Writes the given AMR dataset to a *.vth file with the given prefix.
-void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix )
+void WriteAMRData( vtkOverlappingAMR *amrData, std::string prefix )
 {
   // Sanity check
   assert( "pre: AMR dataset is NULL!" && (amrData != NULL) );
 
-  vtkXMLHierarchicalBoxDataWriter *myAMRWriter=
-   vtkXMLHierarchicalBoxDataWriter::New();
-  assert( "pre: AMR Writer is NULL!" && (myAMRWriter != NULL) );
+  vtkCompositeDataWriter *writer = vtkCompositeDataWriter::New();
 
-   std::ostringstream oss;
-   oss << prefix << "." << myAMRWriter->GetDefaultFileExtension();
-
-   myAMRWriter->SetFileName( oss.str().c_str() );
-   myAMRWriter->SetInputData( amrData );
-   myAMRWriter->Write();
-   myAMRWriter->Delete();
+  std::ostringstream oss;
+  oss << prefix << ".vthb";
+  writer->SetFileName(oss.str().c_str());
+  writer->SetInputData(amrData);
+  writer->Write();
+  writer->Delete();
 }
 
 //------------------------------------------------------------------------------

@@ -24,16 +24,17 @@
 #include <sstream>
 #include <cassert>
 
-#include "vtkUniformGrid.h"
+#include "vtkAMRUtilities.h"
+#include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkCell.h"
-#include "vtkPoints.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkHierarchicalBoxDataSet.h"
-#include "vtkXMLHierarchicalBoxDataWriter.h"
-#include "vtkAMRUtilities.h"
+#include "vtkPoints.h"
+#include "vtkUniformGrid.h"
+
+#include "AMRCommon.h"
 
 struct PulseAttributes {
   double origin[3]; // xyz for the center of the pulse
@@ -50,27 +51,12 @@ struct PulseAttributes {
 void SetPulse();
 
 // Description:
-// Constructs a uniform grid instance given the prescribed
-// origin, grid spacing and dimensions.
-vtkUniformGrid* GetGrid( double* origin,double* h,int* ndim );
-
-// Description:
-// Computes the gaussian pulse at the cell center of the cell
-// corresponding to the given cellIdx w.r.t the given grid.
-double ComputePulseAt( vtkUniformGrid *grid, const int cellIdx );
-
-// Description:
-// Computes the cell center for the cell corresponding to cellIdx w.r.t.
-// the given grid. The cell center is stored in the supplied buffer c.
-void ComputeCellCenter( vtkUniformGrid *grid, const int cellIdx, double c[3] );
-
-// Description:
 // Constructs the vtkHierarchicalBoxDataSet.
-vtkHierarchicalBoxDataSet* GetAMRDataSet();
+vtkOverlappingAMR* GetAMRDataSet();
 
 // Description:
-// Writes the amr data set using the prescribed prefix.
-void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix );
+// Attaches the pulse to the given grid.
+void AttachPulseToGrid( vtkUniformGrid *grid );
 
 //
 // Program main
@@ -85,10 +71,10 @@ int main( int argc, char **argv )
   SetPulse();
 
   // STEP 1: Get the AMR dataset
-  vtkHierarchicalBoxDataSet *amrDataSet = GetAMRDataSet();
+  vtkOverlappingAMR *amrDataSet = GetAMRDataSet();
   assert( "pre: NULL AMR dataset" && ( amrDataSet != NULL ) );
 
-  WriteAMRData( amrDataSet, "Gaussian3D" );
+  AMRCommon::WriteAMRData( amrDataSet, "Gaussian3D" );
   amrDataSet->Delete();
   return 0;
 }
@@ -105,26 +91,39 @@ void SetPulse()
 }
 
 //------------------------------------------------------------------------------
-void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix )
+void AttachPulseToGrid( vtkUniformGrid *grid )
 {
-  assert( "pre: AMR Data is NULL!" && (amrData != NULL) );
+  assert( "pre: grid is NULL!" && (grid != NULL) );
 
-  vtkXMLHierarchicalBoxDataWriter *myAMRWriter=
-    vtkXMLHierarchicalBoxDataWriter::New();
+  vtkDoubleArray* xyz = vtkDoubleArray::New( );
+  xyz->SetName( "GaussianPulse" );
+  xyz->SetNumberOfComponents( 1 );
+  xyz->SetNumberOfTuples( grid->GetNumberOfCells() );
 
-  std::ostringstream oss;
-  oss << prefix << ".vthb";
 
-  myAMRWriter->SetFileName( oss.str().c_str() );
-  myAMRWriter->SetInputData( amrData );
-  myAMRWriter->Write();
-  myAMRWriter->Delete();
+  for(int cellIdx=0; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
+    {
+      double center[3];
+      AMRCommon::ComputeCellCenter( grid, cellIdx, center );
+
+      double r = 0.0;
+      for( int i=0; i < 3; ++i )
+       {
+         double dx = center[i]-Pulse.origin[i];
+         r += (dx*dx) / (Pulse.width[i]*Pulse.width[i]);
+       }
+      double f = Pulse.amplitude*std::exp( -r );
+
+      xyz->SetTuple1( cellIdx, f );
+    } // END for all cells
+
+  grid->GetCellData()->AddArray( xyz );
+  xyz->Delete();
 }
-
 //------------------------------------------------------------------------------
-vtkHierarchicalBoxDataSet* GetAMRDataSet()
+vtkOverlappingAMR* GetAMRDataSet()
 {
-  vtkHierarchicalBoxDataSet *data = vtkHierarchicalBoxDataSet::New();
+  vtkOverlappingAMR *data = vtkOverlappingAMR::New();
   int blocksPerLevel[2] = {1,3};
   double globalOrigin[3] = {-2.0,-2.0,-2.0};
   data->Initialize(2,blocksPerLevel,globalOrigin,VTK_XYZ_GRID);
@@ -141,7 +140,9 @@ vtkHierarchicalBoxDataSet* GetAMRDataSet()
   origin[0] = origin[1] = origin[2] = -2.0;
   blockId   = 0;
   level     = 0;
-  vtkUniformGrid *root = GetGrid(origin, h, ndim);
+  vtkUniformGrid *root = AMRCommon::GetGrid(origin,h,ndim);
+  AttachPulseToGrid( root );
+  data->SetAMRBox(level,blockId,origin,ndim,h);
   data->SetDataSet( level, blockId,root);
   root->Delete();
 
@@ -151,8 +152,10 @@ vtkHierarchicalBoxDataSet* GetAMRDataSet()
   origin[0] = origin[1] = origin[2] = -2.0;
   blockId   = 0;
   level     = 1;
-  vtkUniformGrid *grid1 = GetGrid(origin, h, ndim);
-  data->SetDataSet( level, blockId,grid1);
+  vtkUniformGrid *grid1 = AMRCommon::GetGrid(origin,h,ndim);
+  AttachPulseToGrid(grid1);
+  data->SetAMRBox(level,blockId,origin,ndim,h);
+  data->SetDataSet(level, blockId,grid1);
   grid1->Delete();
 
   // Block 2
@@ -161,8 +164,10 @@ vtkHierarchicalBoxDataSet* GetAMRDataSet()
   origin[0] = 0.0; origin[1] = origin[2] = -1.0;
   blockId   = 1;
   level     = 1;
-  vtkUniformGrid *grid2 = GetGrid(origin, h, ndim);
-  data->SetDataSet( level, blockId,grid2);
+  vtkUniformGrid *grid2 = AMRCommon::GetGrid(origin,h,ndim);
+  AttachPulseToGrid(grid2);
+  data->SetAMRBox(level,blockId,origin,ndim,h);
+  data->SetDataSet(level,blockId,grid2);
   grid2->Delete();
 
   // Block 3
@@ -171,78 +176,12 @@ vtkHierarchicalBoxDataSet* GetAMRDataSet()
   origin[0] = 2.0; origin[1] = origin[2] = -1.0;
   blockId   = 2;
   level     = 1;
-  vtkUniformGrid *grid3 = GetGrid(origin, h, ndim);
+  vtkUniformGrid *grid3 = AMRCommon::GetGrid(origin,h,ndim);
+  AttachPulseToGrid(grid3);
+  data->SetAMRBox(level,blockId,origin,ndim,h);
   data->SetDataSet( level, blockId,grid3);
   grid3->Delete();
 
   vtkAMRUtilities::BlankCells(data,NULL);
   return( data );
-}
-
-//------------------------------------------------------------------------------
-void ComputeCellCenter( vtkUniformGrid *grid, const int cellIdx, double c[3] )
-{
-  assert( "pre: grid != NULL" && (grid != NULL) );
-  assert( "pre: Null cell center buffer" && (c != NULL)  );
-  assert( "pre: cellIdx in bounds" &&
-          (cellIdx >= 0) && (cellIdx < grid->GetNumberOfCells() ) );
-
-  vtkCell *myCell = grid->GetCell( cellIdx );
-  assert( "post: cell is NULL" && (myCell != NULL) );
-
-  double pCenter[3];
-  double *weights = new double[ myCell->GetNumberOfPoints() ];
-  int subId       = myCell->GetParametricCenter( pCenter );
-  myCell->EvaluateLocation( subId,pCenter,c,weights );
-  delete [] weights;
-}
-
-//------------------------------------------------------------------------------
-double ComputePulseAt( vtkUniformGrid *grid, const int cellIdx )
-{
-  // Sanity check
-  assert( "pre: grid != NULL" && (grid != NULL) );
-  assert( "pre: cellIdx in bounds" &&
-         ( (cellIdx >= 0) && (cellIdx < grid->GetNumberOfCells()) ) );
-
-  double xyzCenter[3];
-  ComputeCellCenter( grid, cellIdx, xyzCenter );
-
-  double r = 0.0;
-  for( int i=0; i < 2; ++i )
-    {
-      double dx = xyzCenter[i]-Pulse.origin[i];
-      r += (dx*dx) / (Pulse.width[i]*Pulse.width[i]);
-    }
-  double f = Pulse.amplitude*std::exp( -r );
-  std::cout << "G(" << xyzCenter[0] << ",";
-  std::cout << xyzCenter[1] << ",";
-  std::cout << xyzCenter[2] << ") = ";
-  std::cout << f  << "\t";
-  std::cout << "r=" << r << std::endl;
-  std::cout.flush();
-  return( f );
-}
-
-//------------------------------------------------------------------------------
-vtkUniformGrid* GetGrid( double* origin,double* h,int* ndim )
-{
-  vtkUniformGrid *grd = vtkUniformGrid::New();
-  grd->Initialize();
-  grd->SetOrigin( origin );
-  grd->SetSpacing( h );
-  grd->SetDimensions( ndim );
-
-  vtkDoubleArray* xyz = vtkDoubleArray::New( );
-  xyz->SetName( "GaussianPulse" );
-  xyz->SetNumberOfComponents( 1 );
-  xyz->SetNumberOfTuples( grd->GetNumberOfCells() );
-  for( int cellIdx=0; cellIdx < grd->GetNumberOfCells(); ++cellIdx )
-    {
-      xyz->SetTuple1(cellIdx, ComputePulseAt(grd,cellIdx) );
-    } // END for all cells
-
-  grd->GetCellData()->AddArray(xyz);
-  xyz->Delete();
-  return grd;
 }
