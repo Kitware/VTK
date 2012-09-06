@@ -180,7 +180,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
       }
     dataSetIndex++;
     }
-  hbox->GenerateVisibilityArrays();
+   //Blanking should be contained int the file.
 }
 
 //----------------------------------------------------------------------------
@@ -287,8 +287,8 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
       dataSetIndex++;
       }
     }
-
-  hbox->GenerateVisibilityArrays();
+  //Blanking is not done right now.
+  //This information should be in the file.vtkAMRUtilities::BlankCells(hbox,NULL);
 }
 
 //----------------------------------------------------------------------------

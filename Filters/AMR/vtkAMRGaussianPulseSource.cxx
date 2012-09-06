@@ -337,6 +337,6 @@ int vtkAMRGaussianPulseSource::RequestData(
       vtkErrorMacro("Dimensions must be either 2 or 3!");
     }
 
-  output->GenerateVisibilityArrays();
+  vtkAMRUtilities::BlankCells(output,NULL);
   return 1;
 }

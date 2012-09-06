@@ -428,9 +428,9 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
 
   vtkTimerLog::MarkEndEvent( "AMRSlice::GetAMRSliceInPlane" );
 
-  vtkTimerLog::MarkStartEvent( "AMRSlice::GenerateVisibility" );
-  out->GenerateVisibilityArrays();
-  vtkTimerLog::MarkEndEvent( "AMRSlice::GenerateVisibility" );
+  vtkTimerLog::MarkStartEvent( "AMRSlice::Generate Blanking" );
+  vtkAMRUtilities::BlankCells(out, this->Controller);
+  vtkTimerLog::MarkEndEvent( "AMRSlice::Generate Blanking" );
 }
 
 //------------------------------------------------------------------------------

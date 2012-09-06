@@ -139,7 +139,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
      assert(
      "ERROR: Unhandled data description! Code should not reach here!" && false);
     }
-  amrDataSet->GenerateVisibilityArrays();
+  vtkAMRUtilities::BlankCells(amrDataSet,NULL);
   return( amrDataSet );
 }
 

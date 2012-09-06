@@ -25,63 +25,6 @@ vtkStandardNewMacro(vtkOverlappingAMR);
 
 vtkInformationKeyMacro(vtkOverlappingAMR,NUMBER_OF_BLANKED_POINTS,IdType);
 
-namespace
-{
-  void BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx, std::vector<std::vector<unsigned int> >& children)
-  {
-    unsigned int numDataSets = amr->GetNumberOfDataSets(levelIdx);
-    int N;
-
-    for( unsigned int dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
-      {
-      const vtkAMRBox& box = amr->GetAMRBox(levelIdx, dataSetIdx);
-      vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataSetIdx);
-      if (grid == NULL )
-        {
-        continue;
-        }
-      N = grid->GetNumberOfCells();
-
-      vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
-      vis->SetName("visibility");
-      vis->SetNumberOfTuples( N );
-      vis->FillComponent(0,static_cast<char>(1));
-      grid->SetCellVisibilityArray(vis);
-      vis->Delete();
-
-      if (children.size() <= dataSetIdx)
-        continue;
-
-      std::vector<unsigned int>& dsChildren = children[dataSetIdx];
-      std::vector<unsigned int>::iterator iter;
-
-      // For each higher res box fill in the cells that
-      // it covers
-      for (iter=dsChildren.begin(); iter!=dsChildren.end(); iter++)
-        {
-        vtkAMRBox ibox;;
-        if (amr->GetAMRInfo()->GetCoarsenedAMRBox(levelIdx+1, *iter, ibox))
-          {
-          const int *loCorner=ibox.GetLoCorner();
-          int hi[3];
-          ibox.GetValidHiCorner(hi);
-          for( int iz=loCorner[2]; iz<=hi[2]; iz++ )
-            {
-            for( int iy=loCorner[1]; iy<=hi[1]; iy++ )
-              {
-              for( int ix=loCorner[0]; ix<=hi[0]; ix++ )
-                {
-                vtkIdType id =  vtkAMRBox::GetCellLinearIndex(box,ix, iy, iz, grid->GetDimensions());
-                vis->SetValue(id, 0);
-                } // END for x
-              } // END for y
-            } // END for z
-          }
-        } // Processing all higher boxes for a specific coarse grid
-      }
-  }
-}
-
 //----------------------------------------------------------------------------
 vtkOverlappingAMR::vtkOverlappingAMR()
 {
@@ -157,30 +100,6 @@ void vtkOverlappingAMR::GenerateParentChildInformation()
 {
   this->AMRInfo->GenerateParentChildInformation();
 }
-
-//----------------------------------------------------------------------------
-void vtkOverlappingAMR::GenerateVisibilityArrays()
-{
-  if(!this->AMRInfo->HasRefinementRatio())
-    {
-    this->AMRInfo->GenerateRefinementRatio();
-    }
-  if(!this->AMRInfo->IsValid())
-    {
-    vtkErrorMacro("Invalid vtkAMRInformation object. Failed to generate visibility arrays");
-    return;
-    }
-  unsigned int numLevels = this->GetNumberOfLevels();
-  if(!this->AMRInfo->HasChildrenInformation())
-    {
-    this->AMRInfo->GenerateParentChildInformation();
-    }
-  for(unsigned int i=0; i<numLevels; i++)
-    {
-    BlankGridsAtLevel(this, i, this->AMRInfo->GetChildrenAtLevel(i));
-    }
-}
-
 //----------------------------------------------------------------------------
 bool vtkOverlappingAMR::
 HasChildrenInformation()

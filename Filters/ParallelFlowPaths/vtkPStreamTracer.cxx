@@ -844,9 +844,7 @@ public:
     this->AMR = vtkOverlappingAMR::SafeDownCast(this->InputData);
 
     vtkAMRUtilities::DistributeProcessInformation(this->AMR, this->Controller, BlockProcess);
-
     this->AMR->GenerateParentChildInformation();
-    this->AMR->GenerateVisibilityArrays();
   }
 
 protected:

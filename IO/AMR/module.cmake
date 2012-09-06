@@ -4,6 +4,7 @@ vtk_module(vtkIOAMR
   DEPENDS
     vtkParallelCore
     vtkhdf5
+    vtkFiltersAMR
   TEST_DEPENDS
     vtkIOXML
     vtkTestingCore
