@@ -411,4 +411,4 @@ inline bool operator>=(const TypeInfo& lhs, const TypeInfo& rhs)
 }
 
 #endif // __vtkDispatcherPrivate_h
-// VTK-HeaderTest-Exclude: vtkDispatcherPrivate.h
+// VTK-HeaderTest-Exclude: vtkDispatcher_Private.h
