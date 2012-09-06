@@ -38,6 +38,7 @@
 
 #include "vtkObjectFactory.h"
 
+#include <sstream>
 #include <vector>
 #include <cassert>
 
@@ -171,7 +172,9 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   context->DrawLine(vtkVector3f(1, 1, 0), vtkVector3f(1, 1, 1));
 
   this->DetermineWhichAxesToLabel();
-  this->DrawTickMarks(context);
+
+  this->DrawTickMarks(painter);
+
   this->DrawAxesLabels(painter);
 
   // If necessary, rescale the axes so they fits our scene nicely
@@ -310,8 +313,8 @@ void vtkInteractiveChartXYZ::DrawAxesLabels(vtkContext2D *painter)
     {
     painter->ComputeStringBounds(this->XAxisLabel, bounds);
     this->GetOffsetForAxisLabel(0, bounds, offset);
-    xLabelPos[0] += offset[0];
-    xLabelPos[1] += offset[1];
+    xLabelPos[0] += (offset[0] + this->TickLabelOffset[0][0]);
+    xLabelPos[1] += (offset[1] + this->TickLabelOffset[0][1]);
     painter->DrawString(xLabelPos[0], xLabelPos[1], this->XAxisLabel);
     }
 
@@ -321,8 +324,8 @@ void vtkInteractiveChartXYZ::DrawAxesLabels(vtkContext2D *painter)
     offset[0] = 0;
     offset[1] = 0;
     this->GetOffsetForAxisLabel(1, bounds, offset);
-    yLabelPos[0] += offset[0];
-    yLabelPos[1] += offset[1];
+    yLabelPos[0] += (offset[0] + this->TickLabelOffset[1][0]);
+    yLabelPos[1] += (offset[1] + this->TickLabelOffset[1][1]);
     painter->DrawString(yLabelPos[0], yLabelPos[1], this->YAxisLabel);
     }
 
@@ -332,8 +335,8 @@ void vtkInteractiveChartXYZ::DrawAxesLabels(vtkContext2D *painter)
     offset[0] = 0;
     offset[1] = 0;
     this->GetOffsetForAxisLabel(2, bounds, offset);
-    zLabelPos[0] += offset[0];
-    zLabelPos[1] += offset[1];
+    zLabelPos[0] += (offset[0] + this->TickLabelOffset[2][0]);
+    zLabelPos[1] += (offset[1] + this->TickLabelOffset[2][1]);
     painter->DrawString(zLabelPos[0], zLabelPos[1], this->ZAxisLabel);
     }
 }
@@ -399,61 +402,133 @@ void vtkInteractiveChartXYZ::GetOffsetForAxisLabel(int axis, float *bounds, floa
     }
 }
 
-void vtkInteractiveChartXYZ::DrawTickMarks(vtkContext3D *context)
+void vtkInteractiveChartXYZ::DrawTickMarks(vtkContext2D *painter)
 {
-  //for now, tick marks will be drawn as black points
+  vtkContext3D *context = painter->GetContext3D();
+  float bounds[4];
+
+  // draw points instead of lines
   context->ApplyPen(this->Pen.GetPointer());
 
   // treat each axis separately
   for (int axis = 0; axis < 3; ++axis)
     {
-    // figure out how many tick marks can fit when we use a minimum spacing of
-    // 30 pixels
-    float start[3] = { 0, 0, 0 };
-    float end[3] = { 0, 0, 0 };
-    end[axis] = 1;
-    this->Box->TransformPoint(start, start);
-    this->Box->TransformPoint(end, end);
-    float axisLength = sqrt(
-      (end[0] - start[0]) * (end[0] - start[0]) +
-      (end[1] - start[1]) * (end[1] - start[1]));
-    int numTicks = 1;
-    float currentSpacing = axisLength;
-    float minimumSpacing = 30;
-    while (currentSpacing > minimumSpacing)
-    {
-      ++numTicks;
-      currentSpacing = axisLength / numTicks;
-    }
-    --numTicks;
+    // pop matrix since we'll be drawing text in 2D before we draw the
+    // actual tick marks
+    context->PopMatrix();
+    float labelOffset[2] = { 0, 0 };
+
+    // initialize start and end of the axis to label in box coordinates
+    double startBox[3] = { 0, 0, 0 };
+    double endBox[3] = { 0, 0, 0 };
+    switch (axis)
+      {
+      case 0:
+        startBox[0] = 0;
+        endBox[0]   = 1;
+        startBox[1] = endBox[1] = this->XAxisToLabel[0];
+        startBox[2] = endBox[2] = this->XAxisToLabel[1];
+        break;
+      case 1:
+        startBox[0] = this->YAxisToLabel[0];
+        startBox[1] = 0;
+        endBox[1]   = 1;
+        startBox[2] = startBox[2] = this->YAxisToLabel[1];
+        break;
+      case 2:
+      default:
+        startBox[0] = endBox[0] = this->ZAxisToLabel[0];
+        startBox[1] = endBox[1] = this->ZAxisToLabel[1];
+        startBox[2] = 0;
+        endBox[2]   = 1;
+        break;
+      }
+
+    // convert these values to pixel coordinates
+    double start[3];
+    double end[3];
+    this->Box->TransformPoint(startBox, start);
+    this->Box->TransformPoint(endBox, end);
+
+    // ...and then into data coordinates
+    this->ContextTransform->GetInverse()->TransformPoint(start, start);
+    this->ContextTransform->GetInverse()->TransformPoint(end, end);
+
+    // get "nice" values for min, max, and spacing (again, in data coordinates)
+    double tickSpacing =
+      this->CalculateNiceMinMax(start[axis], end[axis], axis);
+
+    if (tickSpacing == -1)
+      {
+      continue;
+      }
+
+    int numTicks = (end[axis] - start[axis]) / tickSpacing;
 
     std::vector < vtkVector3f > tickPoints;
-    for (int i = 0; i <= numTicks; ++i)
+    int currentTick = 0;
+    float tickPositionAlongAxis = start[axis];
+    while (tickPositionAlongAxis < end[axis])
       {
-      float offset = (float)i / (float)numTicks;
       vtkVector3f tick;
-      switch (axis)
+      // convert tick position back into box coordinates
+      // during this process, we save the tick position in pixels for labeling
+      float tickPosition[3];
+      tickPosition[0] = start[0];
+      tickPosition[1] = start[1];
+      tickPosition[2] = start[2];
+      tickPosition[axis] = tickPositionAlongAxis;
+      float tickPositionInPixels[3];
+      this->ContextTransform->TransformPoint(tickPosition, tickPositionInPixels);
+      this->Box->GetInverse()->TransformPoint(tickPositionInPixels, tickPosition);
+
+      // determine the location of this tick mark and push it onto the vector
+      // if it falls within the bounds of the axis
+      tick[0] = startBox[0];
+      tick[1] = startBox[1];
+      tick[2] = startBox[2];
+      tick[axis] = tickPosition[axis];
+
+      if (tick[axis] >= startBox[axis] && tick[axis] <= endBox[axis])
         {
-        case 0:
-          tick[0] = offset;
-          tick[1] = this->XAxisToLabel[0];
-          tick[2] = this->XAxisToLabel[1];
-          break;
-        case 1:
-          tick[0] = this->YAxisToLabel[0];
-          tick[1] = offset;
-          tick[2] = this->YAxisToLabel[1];
-          break;
-        case 2:
-        default:
-          tick[0] = this->ZAxisToLabel[0];
-          tick[1] = this->ZAxisToLabel[1];
-          tick[2] = offset;
-          break;
+        tickPoints.push_back(tick);
+
+        // get the tick mark label
+        std::stringstream sstream;
+        sstream << std::fixed << setprecision(1) << tickPositionAlongAxis;
+        std::string tickLabel = sstream.str();
+
+        // offset the label from the axis
+        float offset[2] = {0, 0};
+        painter->ComputeStringBounds(tickLabel, bounds);
+        this->GetOffsetForAxisLabel(axis, bounds, offset);
+        tickPositionInPixels[0] += offset[0];
+        tickPositionInPixels[1] += offset[1];
+
+        // we store this offset so we know where to draw the axis label later
+        if (abs(offset[0]) > abs(labelOffset[0]))
+          {
+          labelOffset[0] = offset[0];
+          }
+        if (abs(offset[1]) > abs(labelOffset[1]))
+          {
+          labelOffset[1] = offset[1];
+          }
+
+        // draw the label for this tick mark
+        painter->DrawString(tickPositionInPixels[0], tickPositionInPixels[1],
+                            tickLabel);
         }
-      tickPoints.push_back(tick);
+      ++currentTick;
+      tickPositionAlongAxis = start[axis] + (tickSpacing * currentTick);
       }
+
+    // re-apply the Box matrix and draw the tick marks as points
+    context->PushMatrix();
+    context->AppendTransform(this->Box.GetPointer());
     context->DrawPoints(tickPoints[0].GetData(), tickPoints.size());
+    this->TickLabelOffset[axis][0] = labelOffset[0];
+    this->TickLabelOffset[axis][1] = labelOffset[1];
     }
 
   //revert from drawing points.
@@ -1314,5 +1389,121 @@ void vtkInteractiveChartXYZ::InitializeAxesBoundaryPoints()
     this->AxesBoundaryPoints[currentPoint][2] = 0.5;
     this->AxesBoundaryPoints[currentPoint][i] -= sqrt(0.75);
     ++currentPoint;
+    }
+}
+
+double vtkInteractiveChartXYZ::CalculateNiceMinMax(double &min, double &max, int axis)
+{
+  double oldmin = min;
+  double oldmax = max;
+
+  // First get the order of the range of the numbers
+  if (min == max)
+    {
+    if (fabs(min) < 1e-20 && fabs(max) < 1e-20)
+      {
+      min = -0.01;
+      max = 0.01;
+      }
+    else
+      {
+      min *= 0.95;
+      max *= 1.05;
+      }
+    }
+  else if ((max - min) < 1.0e-20)
+    {
+    min *= 0.95;
+    max *= 1.05;
+    }
+
+  double range = max - min;
+  bool isNegative = false;
+  if (range < 0.0f)
+    {
+    isNegative = true;
+    range *= -1.0f;
+    }
+
+  // Calculate an upper limit on the number of tick marks - at least 30 pixels
+  // should be between each tick mark.
+  float start[3] = { 0, 0, 0 };
+  float end[3] = { 0, 0, 0 };
+  end[axis] = 1;
+
+  this->Box->TransformPoint(start, start);
+  this->Box->TransformPoint(end, end);
+
+  float pixelRange = sqrt(
+    (end[0] - start[0]) * (end[0] - start[0]) +
+    (end[1] - start[1]) * (end[1] - start[1]));
+
+  int maxTicks = vtkContext2D::FloatToInt(pixelRange / 30.0f);
+
+  if (maxTicks == 0)
+    {
+    // The axes do not have a valid set of points - return
+    return -1.0f;
+    }
+  double tickSpacing = range / maxTicks;
+
+  int order = static_cast<int>(floor(log10(tickSpacing)));
+  double normTickSpacing = tickSpacing * pow(double(10.0), -order);
+  double niceTickSpacing = this->NiceNumber(normTickSpacing, true);
+  niceTickSpacing *= pow(double(10.0), order);
+
+  if (isNegative)
+    {
+    min = ceil(min / niceTickSpacing) * niceTickSpacing;
+    max = floor(max / niceTickSpacing) * niceTickSpacing;
+    }
+  else
+    {
+    min = floor(min / niceTickSpacing) * niceTickSpacing;
+    max = ceil(max / niceTickSpacing) * niceTickSpacing;
+    }
+
+  return niceTickSpacing;
+}
+
+double vtkInteractiveChartXYZ::NiceNumber(double n, bool roundUp)
+{
+  if (roundUp)
+    {
+    if (n <= 1.0)
+      {
+      return 1.0;
+      }
+    else if (n <= 2.0)
+      {
+      return 2.0;
+      }
+    else if (n <= 5.0)
+      {
+      return 5.0;
+      }
+    else
+      {
+      return 10.0;
+      }
+    }
+  else
+    {
+    if (n < 1.5)
+      {
+      return 1.0;
+      }
+    else if (n <= 3.0)
+      {
+      return 2.0;
+      }
+    else if (n <= 7.0)
+      {
+      return 5.0;
+      }
+    else
+      {
+      return 10.0;
+      }
     }
 }

@@ -109,9 +109,11 @@ protected:
   void InitializeFutureBox();
   void ComputeDataBounds();
   void DetermineWhichAxesToLabel();
-  void DrawTickMarks(vtkContext3D *context);
+  void DrawTickMarks(vtkContext2D *painter);
   void DrawAxesLabels(vtkContext2D *painter);
   void GetOffsetForAxisLabel(int axis, float *bounds, float *offset);
+  double CalculateNiceMinMax(double &min, double &max, int axis);
+  double NiceNumber(double n, bool roundUp);
 
   vtkNew<vtkTransform> Translation;
   vtkNew<vtkTransform> Scale;
@@ -135,6 +137,7 @@ protected:
   vtkNew<vtkPlane> Face5;
   vtkNew<vtkPlane> Face6;
   float AxesBoundaryPoints[14][3];
+  float TickLabelOffset[3][2];
 
   double MaxDistance;
   int SceneHeight;
