@@ -126,6 +126,15 @@ int TestColorSeries( int argc, char* argv[] )
       }
     }
 
+  /* Uncomment to save an updated test image.
+  VTK_CREATE(vtkPNGWriter,wri);
+  wri->SetFileName( "/tmp/TestColorSeries.png" );
+  wri->SetInputConnection( exec->GetOutputPort() );
+  wri->Write();
+  */
+
+  int imgResult = t->RegressionTest( exec.GetPointer(), 0.);
+
   palettes->SetColorScheme( vtkColorSeries::BREWER_SEQUENTIAL_BLUE_GREEN_9 );
   // Adding a color now should create a copy of the palette. Verify the name changed.
   color = vtkColor3ub( 255, 255, 255 ); palettes->AddColor( color );
@@ -203,14 +212,28 @@ int TestColorSeries( int argc, char* argv[] )
     valResult = vtkTesting::FAILED;
     }
 
-  /* Uncomment to save an updated test image.
-  VTK_CREATE(vtkPNGWriter,wri);
-  wri->SetFileName( "/tmp/TestColorSeries.png" );
-  wri->SetInputConnection( exec->GetOutputPort() );
-  wri->Write();
-  */
+  // Test DeepCopy
+  VTK_CREATE(vtkColorSeries,other);
+  other->DeepCopy(palettes);
+  if ( other->GetColorScheme() != palettes->GetColorScheme() )
+    {
+    vtkGenericWarningMacro( "Failure: DeepCopy did not preserve current scheme" );
+    valResult = vtkTesting::FAILED;
+    }
 
-  int imgResult = t->RegressionTest( exec.GetPointer(), 0.);
+  // Test SetColor
+  other->SetColorScheme( pid );
+  other->SetColor( 0, blue );
+  color = other->GetColor( 0 );
+  if ( ! blue.Compare( color, 1 ) )
+    {
+    vtkGenericWarningMacro( "Failure: SetColor on test palette" );
+    valResult = vtkTesting::FAILED;
+    }
+
+  vtkIndent indent;
+  palettes->PrintSelf(cout, indent);
+
   t->Delete();
   return (
     imgResult == vtkTesting::PASSED &&
