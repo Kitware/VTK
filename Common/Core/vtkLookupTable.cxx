@@ -292,28 +292,37 @@ void vtkLookupTableLogRange(const double range[2], double logRange[2])
   double rmin = range[0];
   double rmax = range[1];
 
-  if (rmin == 0)
+  // does the range include zero?
+  if ((rmin <= 0 && rmax >= 0) ||
+      (rmin >= 0 && rmax <= 0))
     {
-    rmin = 1.0e-6*(rmax - rmin);
-    if (rmax < 0)
+    // clamp the smaller value to 1e-6 times the larger
+    if (fabs(rmax) >= fabs(rmin))
       {
-      rmin = -rmin;
+      rmin = rmax*1e-6;
+      }
+    else
+      {
+      rmax = rmin*1e-6;
+      }
+
+    // ensure values are not zero
+    if (rmax == 0)
+      {
+      rmax = (rmin < 0 ? -VTK_DBL_MIN : VTK_DBL_MIN);
+      }
+    if (rmin == 0)
+      {
+      rmin = (rmax < 0 ? -VTK_DBL_MIN : VTK_DBL_MIN);
       }
     }
-  if (rmax == 0)
-    {
-    rmax = 1.0e-6*(rmin - rmax);
-    if (rmin < 0)
-      {
-      rmax = -rmax;
-      }
-    }
-  if (rmin < 0 && rmax < 0)
+
+  if (rmax < 0) // rmin and rmax have same sign now
     {
     logRange[0] = log10(-static_cast<double>(rmin));
     logRange[1] = log10(-static_cast<double>(rmax));
     }
-  else if (rmin > 0 && rmax > 0)
+  else
     {
     logRange[0] = log10(static_cast<double>(rmin));
     logRange[1] = log10(static_cast<double>(rmax));
