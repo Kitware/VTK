@@ -201,7 +201,8 @@ void vtkOverlappingAMR::Audit()
     case VTK_XY_PLANE: emptyDimension = 2; break;
     }
 
-  vtkSmartPointer<vtkUniformGridAMRDataIterator> iter =vtkUniformGridAMRDataIterator::SafeDownCast(this->NewIterator());
+  vtkSmartPointer<vtkUniformGridAMRDataIterator> iter;
+  iter.TakeReference(vtkUniformGridAMRDataIterator::SafeDownCast(this->NewIterator()));
   iter->SetSkipEmptyNodes(1);
   for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
