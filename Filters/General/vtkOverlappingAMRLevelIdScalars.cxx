@@ -86,11 +86,6 @@ int vtkOverlappingAMRLevelIdScalars::RequestData(
     }
 
   this->AddColorLevels(input, output);
-
-  vtkOverlappingAMR *amr = vtkOverlappingAMR::SafeDownCast(output);
-  assert( "ERROR: cannot down-cast to overlapping AMR" && (amr != NULL) );
-  amr->GenerateParentChildInformation();
-  amr->GenerateVisibilityArrays();
   return 1;
 }
 

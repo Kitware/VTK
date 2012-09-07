@@ -57,6 +57,8 @@ public:
     {
     return fun_(CastLhs::Cast(lhs));
     }
+private:
+  FunctorRefDispatcherHelper& operator =(const FunctorRefDispatcherHelper& b);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,6 +128,7 @@ public:
 
 private:
   Fun f_;
+  FunctorHandler& operator =(const FunctorHandler& b);
 };
 
 
@@ -193,6 +196,8 @@ public:
     {
     return fun_(CastLhs::Cast(lhs), CastRhs::Cast(rhs));
     }
+private:
+  FunctorRefDispatcherHelper& operator =(const FunctorRefDispatcherHelper& b);
 };
 
 template <class BaseLhs, class BaseRhs,
@@ -212,6 +217,7 @@ public:
     {
     return fun_(CastLhs::Cast(lhs), CastRhs::Cast(rhs));
     }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -260,6 +266,7 @@ public:
 
 private:
   Fun f_;
+  FunctorHandler& operator =(const FunctorHandler& b);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -404,3 +411,4 @@ inline bool operator>=(const TypeInfo& lhs, const TypeInfo& rhs)
 }
 
 #endif // __vtkDispatcherPrivate_h
+// VTK-HeaderTest-Exclude: vtkDispatcher_Private.h

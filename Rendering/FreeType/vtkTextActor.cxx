@@ -73,7 +73,6 @@ vtkTextActor::vtkTextActor()
   this->SetTexture(texture);
   texture->Delete();
 
-
   vtkPolyDataMapper2D *mapper = vtkPolyDataMapper2D::New();
   this->PDMapper = 0;
   this->SetMapper(mapper);
@@ -150,7 +149,7 @@ void vtkTextActor::SetMapper(vtkPolyDataMapper2D *mapper)
 {
   // I will not reference count this because the superclass does.
   this->PDMapper = mapper; // So what is the point of have the ivar PDMapper?
-  this->vtkActor2D::SetMapper( mapper );
+  this->Superclass::SetMapper( mapper );
 
   if (mapper)
     {
@@ -168,7 +167,24 @@ void vtkTextActor::SetMapper(vtkMapper2D *mapper)
   else
     {
     vtkErrorMacro(<<"Must use a vtkPolyDataMapper2D with this class");
-    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+bool vtkTextActor::RenderImage(vtkTextProperty *tprop, vtkViewport *)
+{
+  return this->FreeTypeUtilities->RenderString(tprop,
+                                               this->Input,
+                                               this->ImageData) != 0;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkTextActor::GetBoundingBox(vtkTextProperty *tprop, vtkViewport *,
+                                  int bbox[4])
+{
+  return
+      this->FreeTypeUtilities->GetBoundingBox(tprop, this->Input, bbox) != 0 &&
+      this->FreeTypeUtilities->IsBoundingBoxValid(bbox) != 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -232,9 +248,10 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
     this->SetMaximumLineHeight(a->GetMaximumLineHeight());
     this->SetTextScaleMode(a->GetTextScaleMode());
     this->SetTextProperty(a->GetTextProperty());
+    this->SetInput(a->GetInput());
     }
   // Now do superclass (mapper is handled by it as well).
-  this->vtkActor2D::ShallowCopy(prop);
+  this->Superclass::ShallowCopy(prop);
 }
 
 // ----------------------------------------------------------------------------
@@ -243,7 +260,7 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
 // resources to release.
 void vtkTextActor::ReleaseGraphicsResources(vtkWindow *win)
 {
-  this->vtkActor2D::ReleaseGraphicsResources(win);
+  this->Superclass::ReleaseGraphicsResources(win);
   this->Texture->ReleaseGraphicsResources(win);
 }
 
@@ -256,7 +273,7 @@ int vtkTextActor::RenderOverlay(vtkViewport *viewport)
     }
 
   // render the texture
-  if (this->Texture && this->Input)
+  if (this->Texture && this->Input && this->Input[0] != '\0')
     {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
     if (ren)
@@ -266,7 +283,7 @@ int vtkTextActor::RenderOverlay(vtkViewport *viewport)
     }
 
   // Everything is built in RenderOpaqueGeometry, just have to render
-  return this->vtkActor2D::RenderOverlay(viewport);
+  return this->Superclass::RenderOverlay(viewport);
 }
 
 // ----------------------------------------------------------------------------
@@ -278,7 +295,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   //Make sure we have a string to render
-  if(!this->Input)
+  if(!this->Input || this->Input[0] == '\0')
     {
     return 0;
     }
@@ -302,9 +319,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
   if(this->ScaledTextProperty->GetMTime() > this->BuildTime ||
     !this->InputRendered || this->GetMTime() > this->BuildTime)
     {
-    if(!this->FreeTypeUtilities->RenderString(this->ScaledTextProperty,
-                                              this->Input,
-                                              this->ImageData))
+    if(!this->RenderImage(this->ScaledTextProperty, viewport))
       {
       vtkErrorMacro(<<"Failed rendering text to buffer");
       return 0;
@@ -323,7 +338,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Everything is built, just have to render
-  return this->vtkActor2D::RenderOpaqueGeometry(viewport);
+  return this->Superclass::RenderOpaqueGeometry(viewport);
 }
 
 //-----------------------------------------------------------------------------
@@ -596,8 +611,11 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     int p2dims[3];
     this->ImageData->GetDimensions( p2dims );
     int text_bbox[4];
-    this->FreeTypeUtilities->GetBoundingBox( this->ScaledTextProperty,
-                                             this->Input, text_bbox );
+    if (!this->GetBoundingBox(this->ScaledTextProperty, viewport, text_bbox))
+      {
+      vtkErrorMacro("Cannot compute bounding box.")
+      return;
+      }
     dims[0] = ( text_bbox[1] - text_bbox[0] + 1 );
     dims[1] = ( text_bbox[3] - text_bbox[2] + 1 );
 
@@ -820,6 +838,15 @@ void vtkTextActor::DisplayToSpecified(double *pos, vtkViewport *vport,
 void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  if (this->Input)
+    {
+    os << indent << "Input: " << this->Input << endl;
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
 
   if (this->TextProperty)
     {

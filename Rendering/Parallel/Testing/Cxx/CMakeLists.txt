@@ -1,4 +1,4 @@
-vtk_tests(PrmMagnify.cxx)
+vtk_tests(BASELINEDIR Parallel PrmMagnify.cxx)
 add_test_mpi(TestClientServerRendering.cxx)
 add_test_mpi(TestDistributedDataCompositeZPass.cxx)
 add_test_mpi(TestPCompositeZPass.cxx)

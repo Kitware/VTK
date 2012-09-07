@@ -455,7 +455,6 @@ int vtkStreamTracer::RequestData(
       {
       vtkOverlappingAMR* amr =vtkOverlappingAMR::SafeDownCast(this->InputData);
       amr->GenerateParentChildInformation();
-      amr->GenerateVisibilityArrays();
       }
 
     vtkCompositeDataIterator* iter = this->InputData->NewIterator();

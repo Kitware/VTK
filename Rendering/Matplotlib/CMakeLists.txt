@@ -17,7 +17,6 @@ set(Module_SRCS
 
 set_source_files_properties(
   ${vtk-module}ObjectFactory
-  vtkMatplotlibMathTextUtilities
   WRAP_EXCLUDE
   )
 

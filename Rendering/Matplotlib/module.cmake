@@ -2,6 +2,7 @@ vtk_module(vtkRenderingMatplotlib
   IMPLEMENTS
     vtkRenderingMathText
   DEPENDS
+    vtkImagingCore
     vtkRenderingCore
     vtkWrappingPython
   TEST_DEPENDS
@@ -14,5 +15,4 @@ vtk_module(vtkRenderingMatplotlib
     vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL
     vtkViewsContext2D
-  EXCLUDE_FROM_WRAPPING
   )

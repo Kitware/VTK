@@ -147,9 +147,9 @@ void vtkBundlingMetadata::DenormalizeNodePositions()
       p[1] / 1000.0f * this->Scale + this->YRange[0],
       p[2] / 1000.0f * this->Scale + this->ZRange[0]);
     }
-  for (vtkIdType i = 0; i < this->EdgeMesh.size(); ++i)
+  for (vtkIdType i = 0; i < (int)this->EdgeMesh.size(); ++i)
     {
-    for (vtkIdType j = 0; j < this->EdgeMesh[i].size(); ++j)
+    for (vtkIdType j = 0; j < (int)this->EdgeMesh[i].size(); ++j)
       {
       vtkVector3f p = this->EdgeMesh[i][j];
       this->EdgeMesh[i][j] = vtkVector3f(
@@ -507,7 +507,7 @@ void vtkBundlingMetadata::SmoothEdges()
     for (int m = 1; m < this->MeshCount - 1; ++m)
       {
       vtkVector3f smoothed(0.0f, 0.0f, 0.0f);
-      for (int kernelIndex = 0; kernelIndex <= kernelSize * 2 + 1; kernelIndex++)
+      for (int kernelIndex = 0; kernelIndex < kernelSize * 2 + 1; kernelIndex++)
         {
         int m2 = m + kernelIndex - kernelSize;
         m2 = std::max(0, std::min(this->MeshCount - 1, m2));

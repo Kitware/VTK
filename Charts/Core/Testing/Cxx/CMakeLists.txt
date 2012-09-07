@@ -69,14 +69,14 @@
       else()
         set(_error_threshold 10)
       endif()
-      add_test(NAME Charts-${TName}
+      add_test(NAME ${vtk-module}Cxx-${TName}
         COMMAND ${vtk-module}CxxTests ${TName}
           -D ${VTK_DATA_ROOT}
           -T ${VTK_TEST_OUTPUT_DIR}
           -V Baseline/Charts/${TName}.png
           -E ${_error_threshold})
     else()
-      add_test(NAME Charts-${TName}
+      add_test(NAME ${vtk-module}Cxx-${TName}
         COMMAND ${vtk-module}CxxTests ${TName})
     endif()
   endforeach()

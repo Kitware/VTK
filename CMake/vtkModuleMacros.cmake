@@ -482,6 +482,21 @@ VTK_AUTOINIT(${vtk-module})
       )
   endif()
 
+  if(BUILD_TESTING AND TCL_TCLSH)
+    add_test(NAME ${vtk-module}-TestSetObjectMacro
+      COMMAND ${TCL_TCLSH}
+      ${VTK_SOURCE_DIR}/Testing/Core/FindString.tcl
+      "${${vtk-module}_SOURCE_DIR}/vtk\\\\*.h"
+      # "${CMAKE_CURRENT_SOURCE_DIR}/vtk\\\\*.h"
+      "vtkSetObjectMacro"
+      ${VTK_SOURCE_DIR}/Common/Core/vtkSetGet.h
+      )
+    add_test(NAME ${vtk-module}-TestPrintSelf
+      COMMAND ${TCL_TCLSH}
+      ${VTK_SOURCE_DIR}/Testing/Core/PrintSelfCheck.tcl
+      ${${vtk-module}_SOURCE_DIR})
+  endif()
+
   # Add the module to the list of wrapped modules if necessary
   vtk_add_wrapping(${vtk-module} "${ARGN}" "${${vtk-module}_HDRS}")
 
@@ -537,10 +552,16 @@ macro(vtk_module_third_party _pkg)
   if(VTK_USE_SYSTEM_${_upper})
     set(__extra_args)
     if(_components)
-      set(__extra_args ${_components})
+      list(APPEND __extra_args ${_components})
     endif()
     if (_optional_components)
-      set(__extra_args "OPTIONAL_COMPONENTS" ${_optional_components})
+      if ("${CMAKE_VERSION}" VERSION_GREATER "2.8.7")
+        list(APPEND __extra_args "OPTIONAL_COMPONENTS" ${_optional_components})
+      else ()
+        # for cmake version <= 2.8.7, since OPTIONAL_COMPONENTS is not
+        # available, we just treat them as required components.
+        list(APPEND __extra_args ${_optional_components})
+      endif()
     endif()
     find_package(${_pkg} REQUIRED ${__extra_args})
     if(NOT ${_upper}_FOUND)

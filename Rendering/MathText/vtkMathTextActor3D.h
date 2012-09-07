@@ -29,19 +29,13 @@
 #define __vtkMathTextActor3D_h
 
 #include "vtkRenderingMathTextModule.h" // For export macro
-#include "vtkNew.h" // For smart pointer
-#include "vtkSmartPointer.h" // For smart pointer
-#include "vtkProp3D.h"
+#include "vtkTextActor3D.h"
 
-class vtkImageActor;
-class vtkImageData;
-class vtkTextProperty;
-
-class VTKRENDERINGMATHTEXT_EXPORT vtkMathTextActor3D : public vtkProp3D
+class VTKRENDERINGMATHTEXT_EXPORT vtkMathTextActor3D : public vtkTextActor3D
 {
 public:
   static vtkMathTextActor3D *New();
-  vtkTypeMacro(vtkMathTextActor3D,vtkProp3D)
+  vtkTypeMacro(vtkMathTextActor3D,vtkTextActor3D)
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -50,56 +44,29 @@ public:
   bool IsSupported();
 
   // Description:
-  // Set the text string to be displayed.
-  vtkSetStringMacro(Input)
-  vtkGetStringMacro(Input)
+  // If there is no MathText implementation available (e.g. IsSupported()
+  // return false), the fallback text will be rendered using the FreeType
+  // text rendering backend.
+  vtkSetStringMacro(FallbackText)
+  vtkGetStringMacro(FallbackText)
 
   // Description:
-  // Set/Get the text property.
-  virtual void SetTextProperty(vtkTextProperty *p);
-  vtkTextProperty *GetTextProperty();
+  // Get the bounding box for the given vtkTextProperty
+  // and text string str.  Results are returned in the four element bbox int
+  // array.  This call can be used for sizing other elements.
+  int GetBoundingBox(int bbox[4]);
 
-  // Description:
   // Shallow copy of this text actor. Overloads the virtual
   // vtkProp method.
   void ShallowCopy(vtkProp *prop);
-
-  // Description:
-  // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  virtual double *GetBounds();
-
-  // Description:
-  // Get the dimensions of the underlying image:
-  virtual int *GetImageDimensions();
-  virtual void GetImageDimensions(int dims[3]);
-
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *);
-
-  // Description:
-  // Draw the text actor to the screen.
-  int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
-  int RenderOverlay(vtkViewport* viewport);
-
-  // Description:
-  // Does this prop have some translucent polygonal geometry?
-  virtual int HasTranslucentPolygonalGeometry();
 
 protected:
    vtkMathTextActor3D();
   ~vtkMathTextActor3D();
 
-  char *Input;
+  char *FallbackText;
 
-  vtkNew<vtkImageActor> ImageActor;
-  vtkNew<vtkImageData> ImageData;
-  vtkSmartPointer<vtkTextProperty> TextProperty;
-
-  virtual int UpdateImageActor();
+  int UpdateImageActor();
 
 private:
   vtkMathTextActor3D(const vtkMathTextActor3D&);  // Not implemented.

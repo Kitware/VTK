@@ -39,8 +39,14 @@ public:
   static vtkMatplotlibMathTextUtilities *New();
 
   // Description:
+  // Determine the dimensions of the image that RenderString will produce for
+  // a given str, tprop, and dpi
+  bool GetBoundingBox(vtkTextProperty *tprop, const char *str,
+                      unsigned int dpi, int bbox[4]);
+
+  // Description:
   // Render the given string @a str into the vtkImageData @a data with a
-  // resolution of @a dpi.
+  // resolution of @a dpi. The image is resized automatically.
   bool RenderString(const char *str, vtkImageData *data, vtkTextProperty *tprop,
                     unsigned int dpi);
 
@@ -70,6 +76,10 @@ protected:
   PyObject *MaskParser;
   PyObject *PathParser;
   PyObject *FontPropertiesClass;
+
+  // Rotate the 4 2D corner points by the specified angle (degrees) around the
+  // origin and calculate the bounding box
+  void RotateCorners(double angleDeg, double corners[4][2], double bbox[4]);
 
 private:
   vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.

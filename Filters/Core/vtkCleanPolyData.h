@@ -15,9 +15,9 @@
 // .NAME vtkCleanPolyData - merge duplicate points, and/or remove unused points and/or remove degenerate cells
 // .SECTION Description
 // vtkCleanPolyData is a filter that takes polygonal data as input and
-// generates polygonal data as output. vtkCleanPolyData can merge duplicate
+// generates polygonal data as output. vtkCleanPolyData will merge duplicate
 // points (within specified tolerance and if enabled), eliminate points
-// that are not used, and if enabled, transform degenerate cells into
+// that are not used in any cell, and if enabled, transform degenerate cells into
 // appropriate forms (for example, a triangle is converted into a line
 // if two points of triangle are merged).
 //
@@ -50,6 +50,10 @@
 // Subclasses should handle OperateOnBounds as well as OperateOnPoint
 // to ensure that the locator is correctly initialized (i.e. all modified
 // points must lie inside modified bounds).
+//
+// If you wish to operate on a set of coordinates
+// that has no cells, you must add a vtkPolyVertex cell with all of the points to the PolyData
+// (or use a vtkVertexGlyphFilter) before using the vtkCleanPolyData filter.
 //
 // .SECTION See Also
 // vtkQuantizePolyDataPoints

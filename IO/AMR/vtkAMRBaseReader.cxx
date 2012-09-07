@@ -32,6 +32,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkAMRInformation.h"
+#include "vtkAMRUtilities.h"
 
 #include <cassert>
 
@@ -572,8 +573,6 @@ int vtkAMRBaseReader::RequestData(
      outInf->Get( vtkDataObject::DATA_OBJECT() ) );
   assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
 
-  assert(this->Metadata->GetAMRInfo()->IsValid());
-
   output->SetAMRInfo(this->Metadata->GetAMRInfo());
 
   // Setup the block request
@@ -587,11 +586,14 @@ int vtkAMRBaseReader::RequestData(
     }
   else
     {
+#ifdef DEBUGME
+    cout<<"load "<<this->BlockMap.size()<<" blocks"<<endl;
+#endif
     this->AssignAndLoadBlocks( output );
 
-    vtkTimerLog::MarkStartEvent( "AMR::GenerateVisibilityArrays" );
-    output->GenerateVisibilityArrays();
-    vtkTimerLog::MarkEndEvent( "AMR::GenerateVisibilityArrays" );
+    vtkTimerLog::MarkStartEvent( "AMR::Generate Blanking" );
+    vtkAMRUtilities::BlankCells(output, this->Controller);
+    vtkTimerLog::MarkEndEvent( "AMR::Generate Blanking" );
     }
 
   // If this instance of the reader is not parallel, block until all processes

@@ -218,6 +218,15 @@ protected:
   // Hide access methods that use superclass vtkMapper2D and not vtkImageMapper
   void SetMapper(vtkMapper2D *mapper);
 
+  // Description:
+  // Render Input to Image using the supplied font property.
+  virtual bool RenderImage(vtkTextProperty *tprop, vtkViewport *viewport);
+
+  // Description:
+  // Get the bounding box for Input using the supplied font property.
+  virtual bool GetBoundingBox(vtkTextProperty *tprop, vtkViewport *viewport,
+                              int bbox[4]);
+
    vtkTextActor();
   ~vtkTextActor();
 

@@ -14,7 +14,7 @@ if { $argc < 2 } {
     puts ""
     puts "You provided:"
     foreach { a } $argv {
-	puts "$a"
+  puts "$a"
     }
 
     exit 1
@@ -34,19 +34,19 @@ foreach { file } $IgnoreFileListIn {
 # Find regular expression in the string
 proc FindString { InFile SearchString } {
     if [ catch { open $InFile r } inchan ] {
-	puts stderr "Cannot open $InFile"
-	return 0
+  puts stderr "Cannot open $InFile"
+  return 0
     }
     set res 0
     set lcount 1
     while { ! [eof $inchan] } {
-	gets $inchan line
-	if [ regexp $SearchString $line matches ] {
-	    puts "$InFile: Found $SearchString on line $lcount"
-	    puts "$line"
-	    set res 1
-	}
-	set lcount [ expr $lcount + 1 ]
+  gets $inchan line
+  if [ regexp $SearchString $line matches ] {
+      puts "$InFile: Found $SearchString on line $lcount"
+      puts "$line"
+      set res 1
+  }
+  set lcount [ expr $lcount + 1 ]
     }
     close $inchan
     return $res
@@ -57,8 +57,8 @@ set files ""
 if [ catch { [ set files [ glob $FileExpression ] ] } result ] {
     regsub {\\\*} $FileExpression "*" FileExpression
     if [ catch { [ set files [ glob $FileExpression ] ] } nresult ] {
-	#puts "Cannot expand the expression: \"$FileExpression\""
-	#puts "Error: $nresult"
+  #puts "Cannot expand the expression: \"$FileExpression\""
+  #puts "Error: $nresult"
         #exit 1
     }
 }
@@ -72,9 +72,9 @@ set count 0
 foreach { a } $files {
    regsub -all {\\} $a {/} b
    if { [ lsearch $IgnoreFileList $b ] >= 0 } {
-	puts "Ignoring: $b"
+  puts "Ignoring: $b"
     } else {
-	set count [ expr $count + [ FindString $a $SearchMessage ] ]
+  set count [ expr $count + [ FindString $a $SearchMessage ] ]
     }
 }
 

@@ -5,9 +5,9 @@
 #
 # Verbose Levels:
 #
-#	0:	No extra printing
-#	1:	Print basic extra information
-#	2:	Print lots of details
+# 0:  No extra printing
+# 1:  Print basic extra information
+# 2:  Print lots of details
 #
 set verbose 0
 
@@ -33,9 +33,9 @@ set pd_id 0
 #
 # class_list contains the following for each class evaluated:
 #
-#  <class>.p		   <true|false> True if printself declared
+#  <class>.p       <true|false> True if printself declared
 #  <class>.s.<super_class> <true|false> True if superclass used in printself
-#  <class>.i.<ivar>	   <true|false> True if ivar used in printself
+#  <class>.i.<ivar>    <true|false> True if ivar used in printself
 
 set class_list(null) 1
 
@@ -167,11 +167,11 @@ proc check_header_file { filename } {
 
             set class_name [string trim [string range $data $first $last]]
           }
-	  set class_list($class_name.p) 0
+    set class_list($class_name.p) 0
 
-	  if { $verbose >= 2 } {
-	      puts "    Class Name: $class_name"
-	  }
+    if { $verbose >= 2 } {
+        puts "    Class Name: $class_name"
+    }
         }
 
         if { [string compare $class_name ""] == 0 } {
@@ -300,7 +300,7 @@ proc check_printself { filename } {
         set start 0
         set end [string length $data]
 
-	#puts "Line: $data"
+  #puts "Line: $data"
 
         if { [string match "*this->Superclass::PrintSelf(*)*" $data] == 1 } {
           if { [list_contains "$class_name.s.Superclass"] == 1 } {
@@ -330,9 +330,9 @@ proc check_printself { filename } {
 
           set start $word_end
 
-	  if { $verbose >= 2 } {
-	    puts "\tNew Token: $token"
-	  }
+    if { $verbose >= 2 } {
+      puts "\tNew Token: $token"
+    }
 
           # Check for open and close curly braces
           if { [string compare "\{" $token] == 0 } {
@@ -453,7 +453,7 @@ proc check_for_defects { print } {
   global super_miss_count
 
   #
-  #		PRINTSELF CHECK
+  #   PRINTSELF CHECK
   #
 
   # Loop through list and count printself defects, if any
@@ -505,7 +505,7 @@ proc check_for_defects { print } {
   }
 
   #
-  #		SUPERCLASS CHECK
+  #   SUPERCLASS CHECK
   #
 
   # Loop through list and count superclass defects, if any
@@ -564,7 +564,7 @@ proc check_for_defects { print } {
   }
 
   #
-  #		IVAR CHECK
+  #   IVAR CHECK
   #
 
   # Loop through list and count ivar defects, if any
@@ -730,4 +730,3 @@ proc measure_vtk {kit} {
 measure_vtk [lindex $argv 0]
 
 exit $total_defects
-
