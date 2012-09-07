@@ -11,6 +11,7 @@ vtk_module(vtkIOExport
     vtkImagingCore
     vtkIOCore
   TEST_DEPENDS
+    vtkCommonColor
     vtkChartsCore
     vtkInteractionImage
     vtkTestingRendering
