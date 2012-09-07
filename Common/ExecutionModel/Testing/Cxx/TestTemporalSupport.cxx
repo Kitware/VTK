@@ -72,7 +72,8 @@ public:
       vtkInformation *outInfo = outputVector->GetInformationObject(0);
       double range[2]= {0,9};
       outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range,2);
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &TimeSteps[0], TimeSteps.size());
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &TimeSteps[0],
+                   static_cast<int>(TimeSteps.size()));
       return 1;
       }
 

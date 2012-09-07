@@ -36,6 +36,8 @@ extern "C" {
 #endif
 }
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 //---------------------------------------------------------------------------
 class vtkFFMPEGWriterInternal
 {
