@@ -84,6 +84,7 @@ namespace
           }
         if (amr->GetAMRInfo()->GetCoarsenedAMRBox(levelIdx+1, *iter, ibox))
           {
+          ibox.Intersect(box);
           const int *loCorner=ibox.GetLoCorner();
           int hi[3];
           ibox.GetValidHiCorner(hi);
@@ -468,7 +469,7 @@ void vtkAMRUtilities::StripGhostLayers(
   for( ;dataIdx < ghostedAMRData->GetNumberOfDataSets(0); ++dataIdx)
     {
     vtkUniformGrid* grid = ghostedAMRData->GetDataSet(0,dataIdx);
-    vtkAMRBox box(grid->GetOrigin(), grid->GetDimensions(), grid->GetSpacing(),strippedAMRData->GetOrigin(),grid->GetGridDescription());
+    const vtkAMRBox& box = ghostedAMRData->GetAMRBox(0,dataIdx);
     strippedAMRData->SetAMRBox(0,dataIdx,box);
     strippedAMRData->SetDataSet(0,dataIdx,grid);
     } // END for all data at level 0
@@ -483,21 +484,21 @@ void vtkAMRUtilities::StripGhostLayers(
     for(;dataIdx < ghostedAMRData->GetNumberOfDataSets(levelIdx); ++dataIdx)
       {
       vtkUniformGrid *grid = ghostedAMRData->GetDataSet( levelIdx, dataIdx );
-      if( grid == NULL )
+      int r = ghostedAMRData->GetRefinementRatio( levelIdx );
+      vtkAMRBox myBox=ghostedAMRData->GetAMRBox(levelIdx,dataIdx);
+      vtkAMRBox strippedBox = myBox;
+      strippedBox.RemoveGhosts(r);
+
+      strippedAMRData->SetAMRBox(levelIdx,dataIdx, strippedBox);
+      if( grid !=NULL )
         {
-        strippedAMRData->SetDataSet( levelIdx, dataIdx, NULL );
-        }
-      else
-        {
-        int r = ghostedAMRData->GetRefinementRatio( levelIdx );
-        vtkAMRBox myBox=ghostedAMRData->GetAMRBox(levelIdx,dataIdx);
         myBox.GetGhostVector(r, ghost);
 
         vtkUniformGrid *strippedGrid=
           vtkAMRUtilities::StripGhostLayersFromGrid(grid,ghost);
 
-        vtkAMRBox box(strippedGrid->GetOrigin(), strippedGrid->GetDimensions(), strippedGrid->GetSpacing(),strippedAMRData->GetOrigin(),strippedGrid->GetGridDescription());
-        strippedAMRData->SetAMRBox(levelIdx,dataIdx,box);
+        assert(strippedBox == vtkAMRBox(strippedGrid->GetOrigin(), strippedGrid->GetDimensions(), strippedGrid->GetSpacing(),strippedAMRData->GetOrigin(),strippedGrid->GetGridDescription()));
+        strippedAMRData->SetAMRBox(levelIdx,dataIdx,strippedBox);
         strippedAMRData->SetDataSet(levelIdx,dataIdx,strippedGrid);
         strippedGrid->Delete();
         }

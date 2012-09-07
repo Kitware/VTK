@@ -537,6 +537,39 @@ void vtkAMRBox::GetGhostVector(int r, int nghost[6]) const
     } // END for all dimensions
 }
 
+void vtkAMRBox::RemoveGhosts(int r)
+{
+  // Detecting partially overlapping boxes is based on the following:
+  // Cell location k at level L-1 holds the range [k*r,k*r+(r-1)] of
+  // level L, where r is the refinement ratio. Consequently, if the
+  // min extent of the box is greater than k*r or if the max extent
+  // of the box is less than k*r+(r-1), then the grid partially overlaps.
+  vtkAMRBox coarsenedBox = *this;
+  coarsenedBox.Coarsen(r);
+  for( int i=0; i < 3; ++i )
+    {
+    if(!this->EmptyDimension(i))
+      {
+      int minRange[2];
+      minRange[0] = coarsenedBox.LoCorner[i]*r;
+      minRange[1] = coarsenedBox.LoCorner[i]*r + (r-1);
+      if( this->LoCorner[i] > minRange[0] )
+        {
+        this->LoCorner[i]=(minRange[1]+1);
+        }
+
+      int maxRange[2];
+      maxRange[0] = coarsenedBox.HiCorner[i]*r;
+      maxRange[1] = coarsenedBox.HiCorner[i]*r + (r-1);
+      if( this->HiCorner[i] < maxRange[1] )
+        {
+        this->HiCorner[i] = (maxRange[0]-1);
+        }
+      }
+    } // END for all dimensions
+}
+
+
 int vtkAMRBox::ComputeDimension() const
 {
  int dim(3);
