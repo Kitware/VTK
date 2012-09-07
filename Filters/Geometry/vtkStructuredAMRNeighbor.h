@@ -95,3 +95,4 @@ public:
 };
 
 #endif /* VTKSTRUCTUREDAMRNEIGHBOR_H_ */
+// VTK-HeaderTest-Exclude: vtkStructuredAMRNeighbor.h
