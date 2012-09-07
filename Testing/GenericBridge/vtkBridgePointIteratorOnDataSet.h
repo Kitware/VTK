@@ -22,7 +22,7 @@
 #ifndef __vtkBridgePointIteratorOnDataSet_h
 #define __vtkBridgePointIteratorOnDataSet_h
 
-#include "vtkBridgeExport.h"
+#include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericPointIterator.h"
 
 class vtkBridgeDataSet;
