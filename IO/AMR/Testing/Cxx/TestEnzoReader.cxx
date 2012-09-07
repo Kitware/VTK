@@ -101,6 +101,7 @@ int TestEnzoReader( int argc, char *argv[] )
     rc+=EnzoReaderTest::CheckValue("BLOCKS",myEnzoReader->GetNumberOfBlocks(),10);
 
     amr = myEnzoReader->GetOutput();
+    amr->Audit();
     if( amr != NULL )
       {
       rc+=EnzoReaderTest::CheckValue(

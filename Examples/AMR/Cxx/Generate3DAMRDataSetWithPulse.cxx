@@ -33,7 +33,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkUniformGrid.h"
-
+#include "vtkAMRBox.h"
 #include "AMRCommon.h"
 
 struct PulseAttributes {
@@ -126,7 +126,9 @@ vtkOverlappingAMR* GetAMRDataSet()
   vtkOverlappingAMR *data = vtkOverlappingAMR::New();
   int blocksPerLevel[2] = {1,3};
   double globalOrigin[3] = {-2.0,-2.0,-2.0};
-  data->Initialize(2,blocksPerLevel,globalOrigin,VTK_XYZ_GRID);
+  data->Initialize(2,blocksPerLevel);
+  data->SetOrigin(globalOrigin);
+  data->SetGridDescription(VTK_XYZ_GRID);
 
   double origin[3];
   double h[3];
@@ -141,8 +143,9 @@ vtkOverlappingAMR* GetAMRDataSet()
   blockId   = 0;
   level     = 0;
   vtkUniformGrid *root = AMRCommon::GetGrid(origin,h,ndim);
+  vtkAMRBox box(origin,ndim,h,data->GetOrigin(), data->GetGridDescription());
   AttachPulseToGrid( root );
-  data->SetAMRBox(level,blockId,origin,ndim,h);
+  data->SetAMRBox(level,blockId,box);
   data->SetDataSet( level, blockId,root);
   root->Delete();
 
@@ -154,7 +157,8 @@ vtkOverlappingAMR* GetAMRDataSet()
   level     = 1;
   vtkUniformGrid *grid1 = AMRCommon::GetGrid(origin,h,ndim);
   AttachPulseToGrid(grid1);
-  data->SetAMRBox(level,blockId,origin,ndim,h);
+  vtkAMRBox box1(origin,ndim,h,data->GetOrigin(), data->GetGridDescription());
+  data->SetAMRBox(level,blockId,box1);
   data->SetDataSet(level, blockId,grid1);
   grid1->Delete();
 
@@ -166,7 +170,8 @@ vtkOverlappingAMR* GetAMRDataSet()
   level     = 1;
   vtkUniformGrid *grid2 = AMRCommon::GetGrid(origin,h,ndim);
   AttachPulseToGrid(grid2);
-  data->SetAMRBox(level,blockId,origin,ndim,h);
+  vtkAMRBox box2(origin,ndim,h,data->GetOrigin(), data->GetGridDescription());
+  data->SetAMRBox(level,blockId,box2);
   data->SetDataSet(level,blockId,grid2);
   grid2->Delete();
 
@@ -177,8 +182,9 @@ vtkOverlappingAMR* GetAMRDataSet()
   blockId   = 2;
   level     = 1;
   vtkUniformGrid *grid3 = AMRCommon::GetGrid(origin,h,ndim);
+  vtkAMRBox box3(origin,ndim,h,data->GetOrigin(), data->GetGridDescription());
   AttachPulseToGrid(grid3);
-  data->SetAMRBox(level,blockId,origin,ndim,h);
+  data->SetAMRBox(level,blockId,box3);
   data->SetDataSet( level, blockId,grid3);
   grid3->Delete();
 

@@ -19,6 +19,7 @@
 #include "vtkType.h"
 #include "vtkStructuredData.h"
 #include "vtkImageData.h"
+#include "vtkMath.h"
 
 #include <algorithm>
 #include <cstring>
@@ -33,11 +34,21 @@ vtkAMRBox::vtkAMRBox()
 }
 
 //-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(
-    int ilo,int jlo,
-    int ihi,int jhi)
+vtkAMRBox::vtkAMRBox(const double* origin, const int* dimensions, const double* spacing, const double* globalOrigin,int gridDescription)
 {
-  this->BuildAMRBox( ilo,jlo,0,ihi,jhi,-1);
+  int ndim[3];
+  for( int d=0; d<3; ++d )
+    {
+    ndim[d] = dimensions[d]-1;
+    }
+  int lo[3], hi[3];
+  for( int d=0; d<3; ++d )
+    {
+    lo[d] = vtkMath::Round( (origin[d] - globalOrigin[d])/spacing[d] );
+    hi[d] = vtkMath::Round( static_cast<double>(lo[d] + ( ndim[d]-1 )) );
+    }
+
+  this->SetDimensions( lo, hi, gridDescription);
 }
 
 //-----------------------------------------------------------------------------
@@ -178,7 +189,7 @@ void vtkAMRBox::GetValidHiCorner(int *hi) const
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::GetBoxOrigin(const vtkAMRBox& extent, double X0[3], double spacing[3],double x0[3])
+void vtkAMRBox::GetBoxOrigin(const vtkAMRBox& extent, const double X0[3], const double spacing[3],double x0[3])
 {
   assert( "pre: input array is NULL" && (x0 != NULL) );
   x0[0] = x0[1] = x0[2] = 0.0;
@@ -191,7 +202,7 @@ void vtkAMRBox::GetBoxOrigin(const vtkAMRBox& extent, double X0[3], double spaci
 
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::GetBounds(const vtkAMRBox& extent, double origin[3], double spacing[3],double bounds[6])
+void vtkAMRBox::GetBounds(const vtkAMRBox& extent, const double origin[3], const double spacing[3],  double bounds[6])
 {
   int i, j;
   for( i=0, j=0; i < 3; ++i )
@@ -202,7 +213,7 @@ void vtkAMRBox::GetBounds(const vtkAMRBox& extent, double origin[3], double spac
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRBox::HasPoint(const vtkAMRBox& box, double origin[3], double spacing[3], const double x, const double y, const double z )
+bool vtkAMRBox::HasPoint(const vtkAMRBox& box, const double origin[3], const double spacing[3],  double x, double y,  double z )
 {
   assert( "pre: AMR Box instance is invalid" && !box.IsInvalid() );
 
@@ -469,8 +480,8 @@ bool vtkAMRBox::DoesIntersect(const vtkAMRBox &other) const
   return true;
 }
 
-int vtkAMRBox::ComputeStructuredCoordinates(const vtkAMRBox& box, double dataOrigin[3],
-                                 double h[3], double x[3], int ijk[3], double pcoords[3])
+int vtkAMRBox::ComputeStructuredCoordinates(const vtkAMRBox& box, const double dataOrigin[3],
+                                 const double h[3], const double x[3], int ijk[3],  double pcoords[3])
 {
   double origin[3];
   vtkAMRBox::GetBoxOrigin(box,dataOrigin,h,origin);

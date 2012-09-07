@@ -29,7 +29,6 @@
 
 #include <vtkHierarchicalBoxDataSet.h>
 #include <vtkAMRBox.h>
-#include <vtkAMRInformation.h>
 #include <vtkMultiBlockDataSet.h>
 
 #include <vtkDoubleArray.h>
@@ -703,7 +702,9 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       }
 
     double origin[3] = {0,0,0};
-    hbo->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0], origin, VTK_XYZ_GRID);
+    hbo->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
+    hbo->SetOrigin(origin);
+    hbo->SetGridDescription(VTK_XYZ_GRID);
     vtkIdType gcnt = 0;
     for (git = structure->children.begin();
          git != structure->children.end();
@@ -788,7 +789,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
           {
           vtkAMRBox box(lo,hi);
           double h[3] = {spacing,spacing,spacing};
-          hbo->GetAMRInfo()->SetAMRBox(gcnt, dcnt, box, h);
+          hbo->SetSpacing(gcnt,h);
+          hbo->SetAMRBox(gcnt, dcnt, box);
           }
 
         if (dobj)

@@ -56,14 +56,7 @@ public:
   //Initialize the meta information
   // numLevels is the number of levels
   // blocksPerLevel[i] is the number of blocks at level i
-  // origin is the global origin
-  // gridDescription is the type of vtkUniformGrid, e.g. VTK_XYZ_GRID
-  void Initialize(int numLevels, int* numPerBlocks, double origin[3], int gridDescription);
-
-  // Description
-  // If this is used, then SetOrigin and SetGridDescription should be called
-  // laster
-  void Initialize(int numLevels, int* blocksPerLevel);
+  void Initialize(int numLevels, const int* blocksPerLevel);
 
   // Description:
   // returns the value of vtkUniformGrid::GridDescription() of any block
@@ -75,7 +68,7 @@ public:
   // The origin is essentially the minimum of all the grids.
   void GetOrigin( double origin[3] );
   double* GetOrigin();
-  void SetOrigin( double* origin);
+  void SetOrigin(const double* origin);
 
   // Description:
   // Return the number of levels
@@ -93,7 +86,7 @@ public:
 
   // Description:
   // Returns the single index from a pair of indices
-  unsigned int GetIndex(unsigned int level, unsigned int id) const
+  int GetIndex(unsigned int level, unsigned int id) const
   { return this->NumBlocks[level] + id;}
 
   // Description:
@@ -102,7 +95,7 @@ public:
 
   // Description
   // Returns the bounds of the entire domain
-  const double* GetBounds() const {return this->Bounds;}
+  const double* GetBounds();
 
   // Description
   // Returns the bounding box of a given box
@@ -116,11 +109,11 @@ public:
   //Return the spacing at the given fiven
   void GetSpacing(unsigned int level, double spacing[3]);
 
+  bool HasSpacing(unsigned int level);
+
   // Description:
   // Methods to set and get the AMR box at a given position
-  void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box, double* spacing);
-  void SetAMRBox(unsigned int level, unsigned int id, double* min, double* max, int* dimensions);
-  void SetAMRBox(unsigned int level, unsigned int id, double* min, int* dimensions, double* h);
+  void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box);
   const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id) const;
 
   // Description
@@ -158,6 +151,10 @@ public:
   // Returns the refinement of a given level.
   int GetRefinementRatio(unsigned int level) const;
 
+  // Description:
+  // Set the spacing at a given level
+  void SetSpacing(unsigned int level,const double* h);
+
   //Description:
   //Return whether parent child information has been generated
   bool HasChildrenInformation();
@@ -183,10 +180,9 @@ public:
   // before GetParents or GetChildren can be used!
   void GenerateParentChildInformation();
 
-
   // Description:
-  // Checks whether the meta data is internally consistent. Useful for testing
-  bool IsValid();
+  // Checks whether the meta data is internally consistent.
+  bool Audit();
 
   // Description:
   //Given a point q, find whether q is bounded by the data set at
@@ -211,8 +207,8 @@ public:
   void operator=(const vtkAMRInformation&); // Not implemented.
 
   bool HasValidOrigin();
+  bool HasValidBounds();
   void UpdateBounds(const int level, const int id);
-  void UpdateSpacing(unsigned int level,const double* h);
   void AllocateBoxes(unsigned int n);
   void GenerateBlockLevel();
   void CalculateParentChildRelationShip( unsigned int level,

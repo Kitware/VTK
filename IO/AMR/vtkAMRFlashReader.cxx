@@ -18,6 +18,7 @@
 #include "vtkByteSwap.h"
 #include "vtkUniformGrid.h"
 #include "vtkDataArraySelection.h"
+#include "vtkAMRBox.h"
 
 #include "vtkDataSet.h"
 #include "vtkCellData.h"
@@ -39,7 +40,6 @@
 #include "vtk_hdf5.h"
 
 #include "vtkAMRFlashReaderInternal.h"
-#include "vtkAMRInformation.h"
 
 vtkStandardNewMacro(vtkAMRFlashReader);
 
@@ -188,10 +188,9 @@ int vtkAMRFlashReader::FillMetaData( )
   std::vector<int> blocksPerLevel;
   this->ComputeStats(this->Internal, blocksPerLevel, origin);
 
-  this->Metadata->Initialize(static_cast<int>(blocksPerLevel.size()),
-                              &blocksPerLevel[0], origin, VTK_XYZ_GRID);
-
-  vtkAMRInformation* amrInfo = this->Metadata->GetAMRInfo();
+  this->Metadata->Initialize(static_cast<int>(blocksPerLevel.size()),  &blocksPerLevel[0]);
+  this->Metadata->SetGridDescription(VTK_XYZ_GRID);
+  this->Metadata->SetOrigin(origin);
 
   std::vector< int > b2level;
   b2level.resize( this->Internal->NumberOfLevels+1, 0 );
@@ -204,18 +203,25 @@ int vtkAMRFlashReader::FillMetaData( )
     int level       = this->Internal->Blocks[ i ].Level-1;
     int id          = b2level[level];
     int internalIdx = i;
-    int index = amrInfo->GetIndex(level,id);
+    int* dims = this->Internal->BlockGridDimensions;
 
-    amrInfo->SetAMRBox(level, id, theBlock.MinBounds, theBlock.MaxBounds, this->Internal->BlockGridDimensions);
-    amrInfo->SetAMRBlockSourceIndex(index, internalIdx);
+    //compute spacing
+    double spacing[3];
+    for(int d=0; d<3; ++d)
+      {
+      spacing[d] = (dims[d] > 1)?(theBlock.MaxBounds[d]-theBlock.MinBounds[d])/(dims[d]-1.0):1.0;
+      }
+
+    //compute AMRBox
+    vtkAMRBox box(theBlock.MinBounds, dims, spacing, origin,VTK_XYZ_GRID);
+
+    this->Metadata->SetSpacing(level, spacing);
+    this->Metadata->SetAMRBox(level, id, box);
+    this->Metadata->SetAMRBlockSourceIndex(level,id, internalIdx);
 
     b2level[ level ]++;
     } // END for all blocks
 
-
-  amrInfo->GenerateRefinementRatio();
-  amrInfo->GenerateParentChildInformation();
-  assert(amrInfo->IsValid());
   return( 1 );
 }
 

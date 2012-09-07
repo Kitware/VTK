@@ -16,9 +16,8 @@
 //
 // .SECTION Description
 // vtkOverlappingAMR extends vtkUniformGridAMR by exposing access to the
-// meta data
-// The class maybe used as a pure meta data object when no data set is
-// inserted.
+// amr meta data, which stores all structural information represented
+// by an vtkAMRInformation object
 //
 // .SECTION See Also
 // vtkAMRInformation
@@ -52,39 +51,28 @@ public:
   virtual vtkCompositeDataIterator* NewIterator();
 
   //Description:
-  //Initialize the overlapping AMR, the origin is global to the data set
-  //Every data set must be of type gridDescription
-  void Initialize(int numLevels, int * blocksPerLevel,  double origin[3],  int gridDescription);
-
-  // Description:
-  // Get/Set the meta AMR meta data
-  vtkAMRInformation* GetAMRInfo(){ return Superclass::GetAMRInfo();}
-  virtual void SetAMRInfo(vtkAMRInformation* info){ return Superclass::SetAMRInfo(info);}
-
-  // Description:
-  // Sets the AMRBox for a given block
-  void SetAMRBox(unsigned int level, unsigned int id, double* min, int* dimensions, double* h);
+  //Get/Set the global origin of the amr data set
+  void SetOrigin(const double*);
+  double* GetOrigin();
 
   // Description
-  // Get the AMRBox for a given block
+  // Get/Set the grid spacing at a given level
+  void SetSpacing(unsigned int level, const double spacing[3]);
+  void GetSpacing(unsigned int level, double spacing[3]);
+
+  // Description
+  // Set/Get the AMRBox for a given block
+  void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box) ;
   const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id) ;
 
   // Description
-  // Returns the bounding box of a given box
+  // Returns the bounding information of a data set.
   void GetBounds(unsigned int level, unsigned int id, double* bb);
 
-  // Description
-  // Get the global origin of the amr data set
-  double* GetOrigin();
-
-  // Description:
-  // In-line Set & Get
-  vtkSetMacro( PadCellVisibility, bool );
-  vtkGetMacro( PadCellVisibility, bool );
 
   // Description
-  // Returns the grid spacing at a given level
-  void GetGridSpacing(unsigned int level, double spacing[3]);
+  // Returns the origin of an AMR block
+  void GetOrigin(unsigned int level, unsigned int id, double origin[3]);
 
   static vtkInformationIdTypeKey* NUMBER_OF_BLANKED_POINTS();
 
@@ -109,6 +97,12 @@ public:
   // Description:
   // Returns the refinement of a given level.
   int GetRefinementRatio(unsigned int level);
+
+  // Description:
+  // Set/Get the source id of a block. The source id is produced by an
+  // AMR source, e.g. a file reader might set this to be a file block id
+  void SetAMRBlockSourceIndex(unsigned int level, unsigned int id, int sourceId);
+  int GetAMRBlockSourceIndex(unsigned int level, unsigned int id);
 
   // Description:
   // Returns the refinement ratio for the position pointed by the iterator.
@@ -139,21 +133,27 @@ public:
   // Prints the parents and children of a requested block (Debug Routine)
   void PrintParentChildInfo(unsigned int level, unsigned int index);
 
-    //Description:
   //Unhide superclass method
-  void Initialize(){ Superclass::Initialize();}
-  virtual void Initialize(int numLevels, int * blocksPerLevel) { Superclass::Initialize(numLevels,blocksPerLevel);} ;
   void GetBounds(double b[6]) { Superclass::GetBounds(b);}
 
-protected:
+
+  // Description:
+  // Get/Set the interal representation of amr meta meta data
+  vtkAMRInformation* GetAMRInfo(){ return Superclass::GetAMRInfo();}
+  virtual void SetAMRInfo(vtkAMRInformation* info){ return Superclass::SetAMRInfo(info);}
+
+  // Description
+  //Check whether the data set is internally consistent, e.g.
+  //whether the meta data and acutal data blocks match.
+  //Incorrectness will be reported as error messages
+  void Audit();
+ protected:
   vtkOverlappingAMR();
   virtual ~vtkOverlappingAMR();
 
 private:
   vtkOverlappingAMR(const vtkOverlappingAMR&);  // Not implemented.
   void operator=(const vtkOverlappingAMR&);  // Not implemented.
-
-  bool PadCellVisibility;
 };
 
 #endif

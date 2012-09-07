@@ -31,6 +31,14 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
 {
  public:
   // Description:
+  // Construct the empty box.
+  vtkAMRBox();
+
+  // Description:
+  // Copy construct this box from another.
+  vtkAMRBox(const vtkAMRBox &other);
+
+  // Description:
   // Construct a specific 3D box.
   vtkAMRBox(
       int ilo,int jlo,int klo,
@@ -42,22 +50,18 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
       int ilo,int jlo,
       int ihi,int jhi);
 
+  // Description
+  // Construct an AMR box from the description a vtkUniformGrid
+  // Note that the dimensions specify the node dimensions, rather than the cell dimensions
+  vtkAMRBox(const double* origin, const int* dimensions, const double* spacing,
+            const double* globalOrigin, int gridDescription=VTK_XYZ_GRID);
+
   // Description:
   // Construct a specific box. (ilo,jlo,klo,)(ihi,jhi,khi)
   vtkAMRBox(const int lo[3], const int hi[3]);
 
-  // Description:
-  // Construct a specific box. (ilo,ihi, jlo,jhi, klo,khi)
   vtkAMRBox(const int dims[6]);
 
-
-  // Description:
-  // Construct the empty box.
-  vtkAMRBox();
-
-  // Description:
-  // Copy construct this box from another.
-  vtkAMRBox(const vtkAMRBox &other);
 
   // Description:
   // Copy the other box to this box.
@@ -76,11 +80,6 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
   // Description:
   // Whether dimension i is empty, e.g. if the data set is type VTK_XY_PLANE
   bool EmptyDimension(int i) const{ return HiCorner[i]<=LoCorner[i]-1;}
-
-  // Description:
-  // Returns the number of ghost layes that have been extruded along
-  // each dimension.
-  void GetNumberOfGhosts( int *ng );
 
   // Description:
   // Set the dimensions of the box. ilo,jlo,klo,ihi,jhi,khi
@@ -240,22 +239,22 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
 
   // Description:
   // Get the bounds of this box.
-  static void GetBounds(const vtkAMRBox& box, double origin[3],double spacing[3],double bounds[6]) ;
+  static void GetBounds(const vtkAMRBox& box, const double origin[3], const double spacing[3],double bounds[6]) ;
 
   // Description:
   // Get the world space origin of this box. The origin is the
   // location of the lower corner cell's lower corner node,
-  static void GetBoxOrigin(const vtkAMRBox& box, double X0[3], double spacing[3],double x0[3]);
+  static void GetBoxOrigin(const vtkAMRBox& box, const double X0[3], const double spacing[3],double x0[3]);
 
   // Description:
   // Checks if the point is inside this AMRBox instance.
   // x,y,z the world point
-  static bool HasPoint(const vtkAMRBox& box, double origin[3], double spacing[3], const double x, const double y, const double z );
+  static bool HasPoint(const vtkAMRBox& box, const double origin[3], const double spacing[3], double x, double y,  double z );
 
-
-  static int ComputeStructuredCoordinates(const vtkAMRBox& box, double dataOrigin[3],
-                                          double h[3], double x[3], int ijk[3], double pcoords[3]);
-
+  // Description
+  //Compute structured coordinates
+  static int ComputeStructuredCoordinates(const vtkAMRBox& box, const double dataOrigin[3],
+                                          const double h[3], const double x[3],  int ijk[3],  double pcoords[3]);
 
  protected:
   // Description:

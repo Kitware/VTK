@@ -36,6 +36,8 @@ int TestAMRReadWrite( int argc, char *argv[] )
 
   vtkSmartPointer<vtkOverlappingAMR> amr;
   amr = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
+  amr->Audit();
+
 
   vtkNew<vtkCompositeDataWriter> writer;
   writer->SetFileName();
