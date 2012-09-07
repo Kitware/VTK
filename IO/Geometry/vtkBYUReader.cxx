@@ -106,7 +106,7 @@ int vtkBYUReader::RequestData(
   FILE *geomFp;
   int numPts;
 
-  if (this->GeometryFileName == NULL || this->GeometryFileName == '\0')
+  if (this->GeometryFileName == NULL || this->GeometryFileName[0] == '\0')
     {
     vtkErrorMacro(<< "No GeometryFileName specified!");
     return 0;

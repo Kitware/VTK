@@ -1134,7 +1134,7 @@ void vtkImageStencilRaster::PrepareForNewData(const int allocateExtent[2])
     while (i <= imax);
     }
 
-  if (allocateExtent && allocateExtent[1] >= allocateExtent[1])
+  if (allocateExtent && allocateExtent[1] >= allocateExtent[0])
     {
     this->PrepareExtent(allocateExtent[0], allocateExtent[1]);
     }
