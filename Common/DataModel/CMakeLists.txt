@@ -13,7 +13,6 @@ set(Module_SRCS
   vtkBiQuadraticQuadraticWedge.cxx
   vtkBiQuadraticTriangle.cxx
   vtkBox.cxx
-  vtkBrewerColors.cxx
   vtkBSPCuts.cxx
   vtkBSPIntersections.cxx
   vtkCell3D.cxx

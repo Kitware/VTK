@@ -6,6 +6,7 @@ vtk_module(vtkRenderingMatplotlib
     vtkRenderingCore
     vtkWrappingPython
   TEST_DEPENDS
+    vtkCommonColor
     vtkInteractionImage
     vtkInteractionWidgets
     vtkIOExport

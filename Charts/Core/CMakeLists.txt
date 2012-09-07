@@ -10,7 +10,6 @@ set(Module_SRCS
   vtkChartXY.cxx
   vtkChartXYZ.cxx
   vtkColorLegend.cxx
-  vtkColorSeries.cxx
   vtkColorTransferControlPointsItem.cxx
   vtkColorTransferFunctionItem.cxx
   vtkCompositeControlPointsItem.cxx
