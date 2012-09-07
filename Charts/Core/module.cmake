@@ -6,6 +6,7 @@ vtk_module(vtkChartsCore
     vtkRenderingContext2D
     vtkInfovisCore # Needed for plot parallel coordinates vtkStringToCategory
   TEST_DEPENDS
+    vtkCommonColor
     vtkTestingCore
     vtkTestingRendering
     vtkViewsContext2D
