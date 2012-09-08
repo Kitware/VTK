@@ -269,7 +269,7 @@ public:
 //BTX
 protected:
   vtkColorSeries();
-  ~vtkColorSeries();
+  virtual ~vtkColorSeries();
 
   // Description:
   // If the current scheme is a predefined (read-only) scheme,
