@@ -19,6 +19,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestDataArrayComponentNames.cxx
   TestGarbageCollector.cxx
   # TestInstantiator.cxx # Have not enabled instantiators.
+  TestLookupTable.cxx
   TestMath.cxx
   TestMinimalStandardRandomSequence.cxx
   TestNew.cxx
