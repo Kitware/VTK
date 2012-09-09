@@ -89,6 +89,16 @@ public:
   virtual void SetVariableArrayStatus(const char *name, int status);
 
   // Description:
+  // Sets the scale factor for each mode. Each scale factor is reset to 1.
+  virtual void ResetFrequencyScales();
+  virtual void SetFrequencyScale(int index, double scale);
+
+  // Description:
+  // Sets the phase offset for each mode. Each shift is reset to 0.
+  virtual void ResetPhaseShifts();
+  virtual void SetPhaseShift(int index, double shift);
+
+  // Description:
   // Returns true if the given file can be read by this reader.
   static int CanReadFile(const char *filename);
 

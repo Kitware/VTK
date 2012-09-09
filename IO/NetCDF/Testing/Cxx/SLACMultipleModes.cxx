@@ -78,6 +78,14 @@ int SLACMultipleModes(int argc, char *argv[])
         vtkSLACReader::SURFACE_OUTPUT)->Get(
         vtkStreamingDemandDrivenPipeline::TIME_RANGE())[1];
 
+  reader->ResetPhaseShifts();
+  reader->SetPhaseShift(1, 0.5*period);
+  reader->SetPhaseShift(2, 0.5*period);
+
+  reader->ResetFrequencyScales();
+  reader->SetFrequencyScale(0, 0.75);
+  reader->SetFrequencyScale(1, 1.5);
+
   // Extract geometry that we can render.
   vtkNew<vtkCompositeDataGeometryFilter> geometry;
   geometry->SetInputConnection(

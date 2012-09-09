@@ -493,6 +493,11 @@ public:
   std::vector<double> Phases;
 
   // Description:
+  // Scale/offset for each of themodes. Only valid when FrequencyModes is true.
+  std::vector<double> FrequencyScales;
+  std::vector<double> PhaseShifts;
+
+  // Description:
   // References and shallow copies to the last output data.  We keep this
   // around in case we do not have to read everything in again.
   vtkSmartPointer<vtkPoints> PointCache;
@@ -808,6 +813,11 @@ int vtkSLACReader::RequestInformation(
       }
     assert(frequencyiter == this->Internal->Frequencies.end());
 
+    this->Internal->FrequencyScales.resize(
+          this->Internal->Frequencies.size(), 1.0);
+    this->Internal->PhaseShifts.resize(
+          this->Internal->Frequencies.size(), 0.0);
+
     // When there is more than one frequency (defined in multiple mode files),
     // the appropriate range is ill defined. Arbitrarily pick the smallest
     // frequency (the largest range) so that all modes will cycle at least once
@@ -1075,6 +1085,46 @@ void vtkSLACReader::SetVariableArrayStatus(const char* name, int status)
     {
     this->Internal->VariableArraySelection->DisableArray(name);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSLACReader::ResetFrequencyScales()
+{
+  std::fill(this->Internal->FrequencyScales.begin(),
+            this->Internal->FrequencyScales.end(),
+            1.0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkSLACReader::SetFrequencyScale(int index, double scale)
+{
+  if ((index < 0) ||
+      (static_cast<size_t>(index) >= this->Internal->FrequencyScales.size()))
+    {
+    vtkErrorMacro(<< "Bad mode index: " << index);
+    }
+
+  this->Internal->FrequencyScales[index] = scale;
+}
+
+//-----------------------------------------------------------------------------
+void vtkSLACReader::ResetPhaseShifts()
+{
+  std::fill(this->Internal->PhaseShifts.begin(),
+            this->Internal->PhaseShifts.end(),
+            0.0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkSLACReader::SetPhaseShift(int index, double scale)
+{
+  if ((index < 0) ||
+      (static_cast<size_t>(index) >= this->Internal->PhaseShifts.size()))
+    {
+    vtkErrorMacro(<< "Bad mode index: " << index);
+    }
+
+  this->Internal->PhaseShifts[index] = scale;
 }
 
 //-----------------------------------------------------------------------------
@@ -1470,8 +1520,11 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
               accumulatedMode =
                   dataArray->GetComponent(tupleIndex, componentIndex);
               }
-            accumulatedMode +=
-                mag*cos(startphase + this->Internal->Phases[modeIndex]);
+            double modeMag = mag * this->Internal->FrequencyScales[modeIndex];
+            double modePhase =
+                startphase + this->Internal->Phases[modeIndex]
+                + this->Internal->PhaseShifts[modeIndex];
+            accumulatedMode += modeMag*cos(modePhase);
             dataArray->SetComponent(tupleIndex,componentIndex,accumulatedMode);
             if (modeIndex == 0)
               {
