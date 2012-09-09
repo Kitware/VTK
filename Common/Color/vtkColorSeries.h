@@ -261,10 +261,12 @@ public:
 
   // Description:
   // Populate a lookup table with all the colors in the current scheme.
-  //
-  // If \a lkup is a NULL pointer, a new vtkLookupTable will be created
-  // for you, but you are then responsible for deleting it.
-  vtkLookupTable* BuildLookupTable(vtkLookupTable* lkup);
+  void BuildLookupTable(vtkLookupTable* lkup);
+
+  // Description:
+  // Create a new lookup table with all the colors in the current scheme.
+  // The caller is responsible for deleting the table after use.
+  vtkLookupTable* CreateLookupTable();
 
 //BTX
 protected:
