@@ -1,5 +1,6 @@
 set(Module_SRCS
   vtkColorSeries.cxx
+  vtkNamedColors.cxx
 )
 
 #set_source_files_properties(

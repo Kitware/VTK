@@ -4,6 +4,8 @@ vtk_module(vtkCommonColor
   TEST_DEPENDS
     vtkIOImage
     vtkCommonExecutionModel
+    vtkFiltersModeling # For vtkBandedPolyDataContourFilter used in a test
+    vtkRenderingOpenGL
     vtkTestingCore
     vtkTestingRendering
 )
