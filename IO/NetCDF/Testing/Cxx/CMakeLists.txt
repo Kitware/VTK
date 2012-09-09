@@ -1,4 +1,5 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  SLACMultipleModes.cxx
   SLACParticleReader.cxx
   SLACReaderLinear.cxx
   SLACReaderQuadratic.cxx
