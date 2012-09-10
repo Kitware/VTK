@@ -2588,7 +2588,7 @@ void vtkFLUENTReader::GetNodesSinglePrecision()
 
       z = 0.0;
 
-      this->Points->InsertPoint(i-1, x, y, 0.0);
+      this->Points->InsertPoint(i-1, x, y, z);
       }
     }
 }

@@ -123,10 +123,8 @@ int vtkStrahlerMetric::RequestData(vtkInformation *vtkNotUsed(request),
   // The output model should share the data of the input.
   output->ShallowCopy(input);
 
-  vtkFloatArray *metric = vtkFloatArray::New();
-
   // Create a new array to hold the metric.
-  metric = vtkFloatArray::New();
+  vtkFloatArray *metric = vtkFloatArray::New();
   metric->SetName(this->MetricArrayName);
   metric->SetNumberOfValues(input->GetNumberOfVertices());
 
