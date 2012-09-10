@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkTestErrorObserver.h"
 #include "vtkLookupTable.h"
 #include "vtkColorSeries.h"
 #include "vtkColor.h"
@@ -220,6 +221,7 @@ int TestColorSeries( int argc, char* argv[] )
     vtkGenericWarningMacro( "Failure: DeepCopy did not preserve current scheme" );
     valResult = vtkTesting::FAILED;
     }
+  other->DeepCopy(NULL);
 
   // Test SetColor
   other->SetColorScheme( pid );
@@ -231,8 +233,27 @@ int TestColorSeries( int argc, char* argv[] )
     valResult = vtkTesting::FAILED;
     }
 
+  // Build a lookup table
+  vtkLookupTable* lut = palettes->BuildLookupTable(NULL);
+  lut->Print(std::cout);
+  lut->Delete();
+
+  // Test scheme out of range warning
+  VTK_CREATE(vtkTest::ErrorObserver, warningObserver);
+  palettes->AddObserver(vtkCommand::WarningEvent, warningObserver);
+  palettes->SetColorScheme(1000);
+  if (warningObserver->GetWarning())
+    {
+    std::cout << "Caught expected warning: "
+              << warningObserver->GetWarningMessage() << std::endl;
+    }
+  else
+    {
+    vtkGenericWarningMacro( "Failure: SetColorScheme(1000) did not produce expected warning" );
+    valResult = vtkTesting::FAILED;
+    }
   vtkIndent indent;
-  palettes->PrintSelf(cout, indent);
+  palettes->PrintSelf(std::cout, indent);
 
   t->Delete();
   return (

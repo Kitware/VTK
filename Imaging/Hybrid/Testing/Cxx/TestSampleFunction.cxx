@@ -2,13 +2,13 @@
 #include <vtkSampleFunction.h>
 #include <vtkSphere.h>
 
-#include "TestImagingHybrid.h"
+#include "vtkTestErrorObserver.h"
 
 int TestSampleFunction(int, char *[])
 {
   // First test for errors and warniongs
-  vtkSmartPointer<ErrorObserver>  errorObserver =
-    vtkSmartPointer<ErrorObserver>::New();
+  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
   vtkSmartPointer<vtkSampleFunction> sf1 =
     vtkSmartPointer<vtkSampleFunction>::New();
