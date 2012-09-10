@@ -39,7 +39,7 @@ int TestPeriodicTable(int , char * [])
     }
 
   // Check that invalid strings return zero
-  const char *nullString = {'\0'};
+  const char *nullString = "";
   if (pTab->GetAtomicNumber("I'm not an element.") != 0 ||
       pTab->GetAtomicNumber(0) != 0 ||
       pTab->GetAtomicNumber(nullString) != 0)
