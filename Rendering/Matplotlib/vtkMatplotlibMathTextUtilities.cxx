@@ -15,6 +15,13 @@
 
 #include "vtkMatplotlibMathTextUtilities.h"
 
+// Prevent redefined symbol warnings in vtkPython.h:
+#ifdef _POSIX_C_SOURCE
+#  undef _POSIX_C_SOURCE
+#endif // _POSIX_C_SOURCE
+#ifdef _XOPEN_SOURCE
+#  undef _XOPEN_SOURCE
+#endif // _XOPEN_SOURCE
 #include "vtkPython.h"
 
 #include "vtkImageData.h"
