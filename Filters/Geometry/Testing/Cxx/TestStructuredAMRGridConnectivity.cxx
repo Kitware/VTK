@@ -406,8 +406,7 @@ void Get2DAMRData(vtkOverlappingAMR* amrData, int ratio)
   assert("pre: input AMR Data is NULL" && (amrData != NULL) );
   assert("pre: input AMR Data is NULL" && (ratio >= 2) );
 
-  amrData->Initialize(NumLevels, const_cast<int*>(BlocksPerLevel),
-                      const_cast<double*> (origin), VTK_XYZ_GRID);
+  amrData->Initialize(NumLevels, const_cast<int*>(BlocksPerLevel));
 
   // Root virtual block at level 0
   double h[3] = {h0,h0,h0};
@@ -438,8 +437,7 @@ void Get3DAMRData(vtkOverlappingAMR* amrData, int ratio)
   assert("pre: input AMR Data is NULL" && (amrData != NULL) );
   assert("pre: input AMR Data is NULL" && (ratio >= 2) );
 
-  amrData->Initialize(NumLevels, const_cast<int*>(BlocksPerLevel),
-                      const_cast<double*> (origin), VTK_XYZ_GRID);
+  amrData->Initialize(NumLevels, const_cast<int*>(BlocksPerLevel));
 
   // Root virtual block at level 0
   double h[3] = {h0,h0,h0};
@@ -520,8 +518,8 @@ void GetGhostedAMRData(
     {
     blocksPerLevel.push_back(amr->GetNumberOfDataSets(i));
     }
-  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0],
-                         amr->GetAMRInfo()->GetOrigin(), amr->GetGridDescription());
+  ghostedAMR->Initialize(
+      static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
 
   unsigned int levelIdx=0;
   for( ;levelIdx < amr->GetNumberOfLevels(); ++levelIdx)
