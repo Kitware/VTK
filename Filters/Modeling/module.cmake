@@ -5,6 +5,7 @@ vtk_module(vtkFiltersModeling
     vtkFiltersGeneral
     vtkFiltersSources
   TEST_DEPENDS
+    vtkCommonColor # For vtkBandedPolyDataContourFilter used in a test
     vtkIOXML
     vtkRenderingOpenGL
     vtkTestingRendering

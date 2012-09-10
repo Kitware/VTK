@@ -100,7 +100,6 @@ class NamedColorsIntegration(vtk.test.Testing.vtkTest):
         actor.SetMapper(mapper);
 
         contourLineActor = vtk.vtkActor()
-        actor.SetMapper(mapper)
         contourLineActor.SetMapper(contourLineMapper);
         rgb = [0.0,0.0,0.0]
         namedColors.GetColorRGB("black",rgb)
@@ -120,10 +119,8 @@ class NamedColorsIntegration(vtk.test.Testing.vtkTest):
         renderWindow.Render();
 #        renderWindowInteractor.Start();
         img_file = "NamedColorsIntegration.png"
-        vtk.test.Testing.compareImage(iren.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
+        vtk.test.Testing.compareImage(renderWindowInteractor.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":
-#    ncd = NamedColorsIntegration()
-#    ncd.NamedColorsIntegration()
      vtk.test.Testing.main([(NamedColorsIntegration, 'test')])
