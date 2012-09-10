@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkDataSetTriangleFilter.h"
 
+#include <assert.h>
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkGenericCell.h"
@@ -120,7 +121,10 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
     {
     static_cast<vtkRectilinearGrid*>(input)->GetDimensions(dimensions);
     }
-
+  else
+    {
+    assert(0);
+    }
   dimensions[0] = dimensions[0] - 1;
   dimensions[1] = dimensions[1] - 1;
   dimensions[2] = dimensions[2] - 1;
