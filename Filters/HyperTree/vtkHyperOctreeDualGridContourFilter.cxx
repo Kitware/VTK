@@ -351,9 +351,8 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
 
   double points[8][3];
   double scalars[8];
-  int iter;
   double levelDim;
-  for (iter = 0; iter < 8; ++iter)
+  for (int iter = 0; iter < 8; ++iter)
     {
     // Note: we have to extent points on boundary of tree !!!
     scalars[iter] = this->InScalars->GetComponent(vertMap[iter],0);
@@ -371,9 +370,8 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
     ++xyzIds;
     }
 
-  iter=0;
   int numContours=this->ContourValues->GetNumberOfContours();
-  for (iter = 0; iter < numContours; ++iter)
+  for (int iter = 0; iter < numContours; ++iter)
     {
     double value = this->ContourValues->GetValue(iter);
 
