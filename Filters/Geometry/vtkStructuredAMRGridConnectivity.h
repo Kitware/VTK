@@ -503,7 +503,7 @@ vtkStructuredAMRGridConnectivity::GetNumberOfNeighbors(
          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert("pre: neighbors vector has not been properly allocated" &&
           (this->Neighbors.size()==this->NumberOfGrids));
-  return( this->Neighbors[gridID].size() );
+  return( static_cast<int>(this->Neighbors[gridID].size()) );
 }
 
 //------------------------------------------------------------------------------

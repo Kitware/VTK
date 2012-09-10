@@ -241,9 +241,7 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
 
   // Get the grid's point-data and cell-data data-structures
   vtkCellData  *CD = grd->GetCellData();
-  vtkPointData *PD = grd->GetPointData();
   assert( "pre: Cell data is NULL" && (CD != NULL) );
-  assert( "pre: Point data is NULL" && (PD != NULL)  );
 
   std::ostringstream oss;
 

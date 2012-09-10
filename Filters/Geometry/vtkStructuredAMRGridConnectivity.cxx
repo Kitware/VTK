@@ -734,9 +734,9 @@ vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromFinerLevel(
       NeighborExtent,NeighborCellExtent,this->DataDescription);
 
   // STEP 4: Get RcvCell extent
-  int rcvDataDescription =
-      vtkStructuredData::GetDataDescriptionFromExtent(
-                   const_cast<int*>(nei.RcvExtent));
+//  int rcvDataDescription =
+//      vtkStructuredData::GetDataDescriptionFromExtent(
+//                   const_cast<int*>(nei.RcvExtent));
 
   int RcvCellExtent[6];
   vtkStructuredData::GetCellExtentFromNodeExtent(
@@ -748,8 +748,8 @@ vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromFinerLevel(
      this->NumberOfGhostLayers,GhostedGridExtent,GridRcvExtent);
   int GridRcvDataDescription =
       vtkStructuredData::GetDataDescriptionFromExtent(GridRcvExtent);
-  assert("pre: mismatching data description" &&
-          (rcvDataDescription == GridRcvDataDescription) );
+//  assert("pre: mismatching data description" &&
+//          (rcvDataDescription == GridRcvDataDescription) );
   int GridRcvCellExtent[6];
   vtkStructuredData::GetCellExtentFromNodeExtent(
       GridRcvExtent,GridRcvCellExtent);
@@ -806,7 +806,7 @@ vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromFinerLevel(
               {
               this->AverageFieldData(
                   this->GridCellData[nei.NeighborID],&sourceIds[0],
-                  sourceIds.size(),
+                  static_cast<int>(sourceIds.size()),
                   this->GhostedGridCellData[gridID],targetIdx);
 
               this->CellCenteredDonorLevel[gridID][targetIdx]=
@@ -1277,7 +1277,7 @@ void vtkStructuredAMRGridConnectivity::FillCellsGhostArray(
 
   // STEP 3: Loop through the neighbors of this grid, and mark all cells that
   // are covered by hi-res cells.
-  int numNeis = this->Neighbors[ gridId ].size();
+  int numNeis = static_cast<int>(this->Neighbors[ gridId ].size());
   for( int nei=0; nei < numNeis; ++nei )
     {
     int rel = this->Neighbors[ gridId ][ nei ].RelationShip;
