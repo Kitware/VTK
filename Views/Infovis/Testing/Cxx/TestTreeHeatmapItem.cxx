@@ -17,7 +17,6 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
-#include "vtkGraphItem.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -140,6 +139,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   renderWindow->SetSize(400, 200);
   renderWindow->AddRenderer(renderer.GetPointer());
   renderer->AddActor(actor.GetPointer());
+  actor->GetScene()->SetRenderer(renderer.GetPointer());
 
   vtkNew<vtkContextInteractorStyle> interactorStyle;
   interactorStyle->SetScene(actor->GetScene());

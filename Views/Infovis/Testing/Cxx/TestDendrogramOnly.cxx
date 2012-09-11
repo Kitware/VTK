@@ -16,7 +16,6 @@
 #include "vtkTreeHeatmapItem.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
-#include "vtkGraphItem.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
