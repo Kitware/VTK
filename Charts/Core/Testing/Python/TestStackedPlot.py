@@ -78,6 +78,7 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
         chart.GetAxis(1).SetTickLabels(arrMonthLabels)
         chart.GetAxis(1).SetTickPositions(arrMonthPositions)
         chart.GetAxis(1).SetMaximum(11)
+        chart.GetAxis(1).SetBehavior(vtk.vtkAxis.FIXED)
 
         # Create the stacked plot
         stack = chart.AddPlot(3)
