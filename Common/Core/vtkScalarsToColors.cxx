@@ -26,7 +26,8 @@
 #include <math.h>
 
 // A helper map for quick lookups of annotated values.
-class vtkScalarsToColors::vtkInternalAnnotatedValueMap : public std::map<vtkVariant,vtkIdType>
+class vtkScalarsToColors::vtkInternalAnnotatedValueMap :
+  public std::map<vtkVariant,vtkIdType>
 {
 };
 
@@ -44,7 +45,8 @@ vtkScalarsToColors::vtkScalarsToColors()
   this->InputRange[0] = 0.0;
   this->InputRange[1] = 255.0;
 
-  // Annotated values, their annotations, and whether colors should be indexed by annotated value.
+  // Annotated values, their annotations, and whether colors
+  // should be indexed by annotated value.
   this->AnnotatedValues = 0;
   this->Annotations = 0;
   this->AnnotatedValueMap = new vtkInternalAnnotatedValueMap;
@@ -57,10 +59,14 @@ vtkScalarsToColors::vtkScalarsToColors()
 //----------------------------------------------------------------------------
 vtkScalarsToColors::~vtkScalarsToColors()
 {
-  if ( this->AnnotatedValues )
-    this->AnnotatedValues->UnRegister( this );
-  if ( this->Annotations )
-    this->Annotations->UnRegister( this );
+  if (this->AnnotatedValues)
+    {
+    this->AnnotatedValues->UnRegister(this);
+    }
+  if (this->Annotations)
+    {
+    this->Annotations->UnRegister(this);
+    }
   delete this->AnnotatedValueMap;
 }
 
@@ -135,19 +141,20 @@ void vtkScalarsToColors::DeepCopy(vtkScalarsToColors *obj)
     this->InputRange[0] = obj->InputRange[0];
     this->InputRange[1] = obj->InputRange[1];
     this->IndexedLookup = obj->IndexedLookup;
-    if ( obj->AnnotatedValues && obj->Annotations )
+    if (obj->AnnotatedValues && obj->Annotations)
       {
-      vtkAbstractArray* annValues = vtkAbstractArray::CreateArray( obj->AnnotatedValues->GetDataType() );
+      vtkAbstractArray* annValues = vtkAbstractArray::CreateArray(
+        obj->AnnotatedValues->GetDataType());
       vtkStringArray* annotations = vtkStringArray::New();
-      annValues->DeepCopy( obj->AnnotatedValues );
-      annotations->DeepCopy( obj->Annotations );
-      this->SetAnnotations( annValues, annotations );
+      annValues->DeepCopy(obj->AnnotatedValues);
+      annotations->DeepCopy(obj->Annotations);
+      this->SetAnnotations(annValues, annotations);
       annValues->Delete();
       annotations->Delete();
       }
     else
       {
-      this->SetAnnotations( 0, 0 );
+      this->SetAnnotations(0, 0);
       }
     }
 }
@@ -221,8 +228,8 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
   vtkUnsignedCharArray *colors;
 
   // map scalars through lookup table only if needed
-  if ( colorMode == VTK_COLOR_MODE_DEFAULT &&
-       (colors=vtkUnsignedCharArray::SafeDownCast(scalars)) != NULL )
+  if (colorMode == VTK_COLOR_MODE_DEFAULT &&
+       (colors=vtkUnsignedCharArray::SafeDownCast(scalars)) != NULL)
     {
     newColors = this->
       ConvertUnsignedCharToRGBA(colors, colors->GetNumberOfComponents(),
@@ -1499,7 +1506,7 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
 vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
   vtkUnsignedCharArray *colors, int numComp, int numTuples)
 {
-  if ( numComp == 4 && this->Alpha >= 1.0 )
+  if (numComp == 4 && this->Alpha >= 1.0)
     {
     colors->Register(this);
     return colors;
@@ -1569,63 +1576,67 @@ void vtkScalarsToColors::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "VectorComponent: " << this->VectorComponent << "\n";
   os << indent << "VectorSize: " << this->VectorSize << "\n";
-  os << indent << "IndexedLookup: " << ( this->IndexedLookup ? "ON" : "OFF" ) << "\n";
+  os << indent << "IndexedLookup: "
+    << (this->IndexedLookup ? "ON" : "OFF") << "\n";
   vtkIdType nv = this->GetNumberOfAnnotatedValues();
-  os << indent << "AnnotatedValues: " << nv << ( nv > 0 ? " entries:\n" : " entries.\n" );
-  vtkIndent i2( indent.GetNextIndent() );
-  for ( vtkIdType i = 0; i < nv; ++ i )
+  os << indent << "AnnotatedValues: "
+    << nv << (nv > 0 ? " entries:\n" : " entries.\n");
+  vtkIndent i2(indent.GetNextIndent());
+  for (vtkIdType i = 0; i < nv; ++ i)
     {
     os
-      << i2 << i << ": value: " << this->GetAnnotatedValue( i ).ToString()
-      << " note: \"" << this->GetAnnotation( i ) << "\"\n";
+      << i2 << i << ": value: " << this->GetAnnotatedValue(i).ToString()
+      << " note: \"" << this->GetAnnotation(i) << "\"\n";
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkScalarsToColors::SetAnnotations( vtkAbstractArray* values, vtkStringArray* annotations )
+void vtkScalarsToColors::SetAnnotations(
+  vtkAbstractArray* values, vtkStringArray* annotations)
 {
   if (
-    ( values && ! annotations ) ||
-    ( ! values && annotations ) ||
-    ( values == this->AnnotatedValues && annotations == this->Annotations ) )
+    (values && !annotations) ||
+    (!values && annotations) ||
+    (values == this->AnnotatedValues && annotations == this->Annotations))
     return;
 
-  if ( values && annotations && values->GetNumberOfTuples() != annotations->GetNumberOfTuples() )
+  if (values && annotations &&
+    values->GetNumberOfTuples() != annotations->GetNumberOfTuples())
     {
     vtkErrorMacro(
       << "Values and annotations do not have the same number of tuples ("
-      << values->GetNumberOfTuples() << " and " << annotations->GetNumberOfTuples()
-      << ", respectively. Ignoring." );
+      << values->GetNumberOfTuples() << " and "
+      << annotations->GetNumberOfTuples() << ", respectively. Ignoring.");
     return;
     }
 
-  bool sameVals = ( values == this->AnnotatedValues );
-  bool sameText = ( annotations == this->Annotations );
-  if ( this->AnnotatedValues && ! sameVals )
+  bool sameVals = (values == this->AnnotatedValues);
+  bool sameText = (annotations == this->Annotations);
+  if (this->AnnotatedValues && !sameVals)
     {
     this->AnnotatedValues->Delete();
     this->AnnotatedValues = 0;
     }
-  if ( this->Annotations && ! sameText )
+  if (this->Annotations && !sameText)
     {
     this->Annotations->Delete();
     this->Annotations = 0;
     }
-  if ( ! values )
+  if (!values)
     {
     return;
     }
-  if ( ! sameVals )
+  if (!sameVals)
     {
     this->AnnotatedValues = values;
-    this->AnnotatedValues->Register( this );
+    this->AnnotatedValues->Register(this);
     }
-  if ( ! sameText )
+  if (!sameText)
     {
     this->Annotations = annotations;
-    this->Annotations->Register( this );
+    this->Annotations->Register(this);
     }
-  if ( this->AnnotatedValues )
+  if (this->AnnotatedValues)
     {
     this->UpdateAnnotatedValueMap();
     }
@@ -1633,25 +1644,26 @@ void vtkScalarsToColors::SetAnnotations( vtkAbstractArray* values, vtkStringArra
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkScalarsToColors::SetAnnotation( vtkVariant value, vtkStdString annotation )
+vtkIdType vtkScalarsToColors::SetAnnotation(
+  vtkVariant value, vtkStdString annotation)
 {
-  vtkIdType i = this->CheckForAnnotatedValue( value );
+  vtkIdType i = this->CheckForAnnotatedValue(value);
   bool modified = false;
-  if ( i >= 0 )
+  if (i >= 0)
     {
-    if ( this->Annotations->GetValue( i ) != annotation )
+    if (this->Annotations->GetValue(i) != annotation)
       {
-      this->Annotations->SetValue( i, annotation );
+      this->Annotations->SetValue(i, annotation);
       modified = true;
       }
     }
   else
     {
-    i = this->Annotations->InsertNextValue( annotation );
-    this->AnnotatedValues->InsertVariantValue( i, value );
+    i = this->Annotations->InsertNextValue(annotation);
+    this->AnnotatedValues->InsertVariantValue(i, value);
     modified = true;
     }
-  if ( modified )
+  if (modified)
     {
     this->UpdateAnnotatedValueMap();
     this->Modified();
@@ -1660,70 +1672,76 @@ vtkIdType vtkScalarsToColors::SetAnnotation( vtkVariant value, vtkStdString anno
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkScalarsToColors::SetAnnotation( vtkStdString value, vtkStdString annotation )
+vtkIdType vtkScalarsToColors::SetAnnotation(
+  vtkStdString value, vtkStdString annotation)
 {
   bool valid;
-  vtkVariant val( value );
+  vtkVariant val(value);
   double x;
-  x = val.ToNumeric( &valid, &x );
-  if ( valid )
+  x = val.ToNumeric(&valid, &x);
+  if (valid)
     {
-    return this->SetAnnotation( x, annotation );
+    return this->SetAnnotation(x, annotation);
     }
-  return this->SetAnnotation( val, annotation );
+  return this->SetAnnotation(val, annotation);
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkScalarsToColors::GetNumberOfAnnotatedValues()
 {
-  return this->AnnotatedValues ? this->AnnotatedValues->GetNumberOfTuples() : 0;
+  return
+    this->AnnotatedValues ? this->AnnotatedValues->GetNumberOfTuples() : 0;
 }
 
 //----------------------------------------------------------------------------
-vtkVariant vtkScalarsToColors::GetAnnotatedValue( vtkIdType idx )
+vtkVariant vtkScalarsToColors::GetAnnotatedValue(vtkIdType idx)
 {
-  if ( ! this->AnnotatedValues || idx < 0 || idx >= this->AnnotatedValues->GetNumberOfTuples() )
+  if (!this->AnnotatedValues ||
+    idx < 0 || idx >= this->AnnotatedValues->GetNumberOfTuples())
     {
     vtkVariant invalid;
     return invalid;
     }
-  return this->AnnotatedValues->GetVariantValue( idx );
+  return this->AnnotatedValues->GetVariantValue(idx);
 }
 
 //----------------------------------------------------------------------------
-vtkStdString vtkScalarsToColors::GetAnnotation( vtkIdType idx )
+vtkStdString vtkScalarsToColors::GetAnnotation(vtkIdType idx)
 {
-  if ( ! this->Annotations )
-    /* Don't check idx as Annotations->GetValue() does: || idx < 0 || idx >= this->Annotations->GetNumberOfTuples() )
+  if (!this->Annotations)
+    /* Don't check idx as Annotations->GetValue() does:
+     * || idx < 0 || idx >= this->Annotations->GetNumberOfTuples())
      */
     {
     vtkStdString empty;
     return empty;
     }
-  return this->Annotations->GetValue( idx );
+  return this->Annotations->GetValue(idx);
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkScalarsToColors::GetAnnotatedValueIndex( vtkVariant val )
+vtkIdType vtkScalarsToColors::GetAnnotatedValueIndex(vtkVariant val)
 {
-  return ( this->AnnotatedValues ?  this->CheckForAnnotatedValue( val ) : -1 );
+  return (this->AnnotatedValues ? this->CheckForAnnotatedValue(val) : -1);
 }
 
 //----------------------------------------------------------------------------
-bool vtkScalarsToColors::RemoveAnnotation( vtkVariant value )
+bool vtkScalarsToColors::RemoveAnnotation(vtkVariant value)
 {
-  vtkIdType i = this->CheckForAnnotatedValue( value );
-  bool needToRemove = ( i >= 0 );
-  if ( needToRemove )
+  vtkIdType i = this->CheckForAnnotatedValue(value);
+  bool needToRemove = (i >= 0);
+  if (needToRemove)
     {
-    vtkIdType na = this->AnnotatedValues->GetMaxId(); // Note that this is the number of values minus 1.
-    for ( ; i < na; ++ i )
+    // Note that this is the number of values minus 1:
+    vtkIdType na = this->AnnotatedValues->GetMaxId();
+    for (; i < na; ++ i)
       {
-      this->AnnotatedValues->SetVariantValue( i, this->AnnotatedValues->GetVariantValue( i + 1 ) );
-      this->Annotations->SetValue( i, this->Annotations->GetValue( i + 1 ) );
+      this->AnnotatedValues->SetVariantValue(i,
+        this->AnnotatedValues->GetVariantValue(i + 1));
+      this->Annotations->SetValue(i, this->Annotations->GetValue(i + 1));
       }
-    this->AnnotatedValues->Resize( na );
-    this->Annotations->Resize( na );
+    this->AnnotatedValues->Resize(na);
+    this->Annotations->Resize(na);
     this->UpdateAnnotatedValueMap();
     this->Modified();
     }
@@ -1733,11 +1751,11 @@ bool vtkScalarsToColors::RemoveAnnotation( vtkVariant value )
 //----------------------------------------------------------------------------
 void vtkScalarsToColors::ResetAnnotations()
 {
-  if ( ! this->Annotations )
+  if (!this->Annotations)
     {
     vtkVariantArray* va = vtkVariantArray::New();
     vtkStringArray* sa = vtkStringArray::New();
-    this->SetAnnotations( va, sa );
+    this->SetAnnotations(va, sa);
     va->Delete();
     sa->Delete();
     }
@@ -1748,26 +1766,29 @@ void vtkScalarsToColors::ResetAnnotations()
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkScalarsToColors::CheckForAnnotatedValue( vtkVariant value )
+vtkIdType vtkScalarsToColors::CheckForAnnotatedValue(vtkVariant value)
 {
-  if ( ! this->Annotations )
+  if (!this->Annotations)
     {
     vtkVariantArray* va = vtkVariantArray::New();
     vtkStringArray* sa = vtkStringArray::New();
-    this->SetAnnotations( va, sa );
+    this->SetAnnotations(va, sa);
     va->FastDelete();
     sa->FastDelete();
     }
-  return this->GetAnnotatedValueIndexInternal( value );
+  return this->GetAnnotatedValueIndexInternal(value);
 }
 
 //----------------------------------------------------------------------------
-// An unsafe version of vtkScalarsToColors::CheckForAnnotatedValue for internal use (no pointer checks performed)
-vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal( vtkVariant& value )
+// An unsafe version of vtkScalarsToColors::CheckForAnnotatedValue for
+// internal use (no pointer checks performed)
+vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal(vtkVariant& value)
 {
-  vtkInternalAnnotatedValueMap::iterator it = this->AnnotatedValueMap->find( value );
+  vtkInternalAnnotatedValueMap::iterator it =
+    this->AnnotatedValueMap->find(value);
   vtkIdType nv = this->GetNumberOfAvailableColors();
-  vtkIdType i = ( it == this->AnnotatedValueMap->end() ? -1 : ( nv ? it->second % nv : it->second ) );
+  vtkIdType i = (it == this->AnnotatedValueMap->end() ?
+    -1 : (nv ? it->second % nv : it->second));
   return i;
 }
 
@@ -1777,8 +1798,8 @@ void vtkScalarsToColors::UpdateAnnotatedValueMap()
   this->AnnotatedValueMap->clear();
 
   vtkIdType na = this->AnnotatedValues->GetMaxId() + 1;
-  for ( vtkIdType i = 0; i < na; ++ i )
+  for (vtkIdType i = 0; i < na; ++ i)
     {
-    (*this->AnnotatedValueMap)[this->AnnotatedValues->GetVariantValue( i )] = i;
+    (*this->AnnotatedValueMap)[this->AnnotatedValues->GetVariantValue(i)] = i;
     }
 }
