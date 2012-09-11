@@ -34,13 +34,13 @@
 
 int TestSplitViewportStereoHorizontal(int argc, char *argv[])
 {
-  double bottomLeft[3]  = {-1.0, -1.0, -1.0};
-  double bottomRight[3] = { 1.0, -1.0, -1.0};
-  double topRight[3]    = { 1.0,  1.0, -1.0};
+  double bottomLeft[3]  = {-2.0, -1.0, -1.0};
+  double bottomRight[3] = { 2.0, -1.0, -1.0};
+  double topRight[3]    = { 2.0,  1.0, -1.0};
 
   VTK_CREATE(vtkSphereSource, sphere1);
-  sphere1->SetCenter(0.0, 0.0, 1.0);
-  sphere1->SetRadius(12.0);
+  sphere1->SetCenter(0.0, 0.0, -5.0);
+  sphere1->SetRadius(15.0);
   sphere1->SetThetaResolution(40);
   sphere1->SetPhiResolution(40);
 
@@ -54,7 +54,7 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   actor1->GetProperty()->SetColor(0.8, 0.8, 0.0);
 
   VTK_CREATE(vtkConeSource, cone1);
-  cone1->SetCenter(0.0, 0.0, -10.0);
+  cone1->SetCenter(0.0, 0.0, -5.0);
   cone1->SetResolution(100);
 
   VTK_CREATE(vtkPolyDataMapper, mapper2);
@@ -76,7 +76,7 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   scaleMatrix->SetElement(1, 1, 1);
   scaleMatrix->SetElement(2, 2, 1);
 
-  double eyePosition[3] = {0.0, 0.0, 2.0};
+  double eyePosition[3] = {0.0, 0.0, 5.0};
 
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetScreenBottomLeft(bottomLeft);
