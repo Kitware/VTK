@@ -1298,12 +1298,13 @@ struct vtkScalarBarHLabelPlacer
   double Pad;
   double LeaderPad;
   double Dir; // displacement direction (either +1 or -1)
+  bool HaveCtr; // Is there a label at the dead center? (i.e., is Places.size() odd?)
 
   vtkScalarBarHLabelPlacer(
     unsigned n, double y0, double dir, double xmin, double xmax,
     double delta, double pad, double leaderPad )
-    : Places( n ), Ctr( n / 2 ), Y0( y0 ), Delta( delta ),
-      Pad( pad ), LeaderPad( leaderPad ), Dir( dir < 0 ? -1. : +1. )
+    : Places( n ), Ctr( n % 2 ? n / 2 : n / 2 - 1 ), Y0( y0 ), Delta( delta ),
+      Pad( pad ), LeaderPad( leaderPad ), Dir( dir < 0 ? -1. : +1. ), HaveCtr( n % 2 ? true : false )
     {
     this->XBounds[0] = xmin;
     this->XBounds[1] = xmax;
@@ -1312,10 +1313,9 @@ struct vtkScalarBarHLabelPlacer
   void Place( unsigned i, double wd, double ht )
     {
     vtkScalarBarHLabelInfo& placement( this->Places[i] );
-    unsigned farMin, farMid;
+    unsigned farLo, farHi;
     int medNeighbor;
-    bool haveCenter = ( 2 * this->Ctr < this->Places.size() ); // Is there a label at the dead center of the bar?
-    int posRelToCenter = ( i == this->Ctr && haveCenter ) ? 0 : ( i >= this->Ctr ? +1 : -1 );
+    int posRelToCenter = ( i == this->Ctr && this->HaveCtr ) ? 0 : ( i > this->Ctr ? +1 : -1 );
 
     if ( posRelToCenter == 0 )
       { // center label
@@ -1335,8 +1335,8 @@ struct vtkScalarBarHLabelPlacer
       bool needToDisplace = false;
       if ( posRelToCenter == +1 )
         { // label is right-justified; placement.X[1] bounded from above by XBounds[1] or right neighbor swatch
-        farMin = 2 * this->Ctr - i - 1;
-        farMid = this->Ctr;
+        farLo = 2 * this->Ctr + (this->HaveCtr ? 0 : 1) - i; // Furthest label we have placed so far.
+        farHi = this->Ctr; // The closest label we might overlap is the center label.
         medNeighbor = i - 1;
         placement.Justification = VTK_TEXT_RIGHT;
         spotMax += this->Delta - this->Pad;
@@ -1364,10 +1364,10 @@ struct vtkScalarBarHLabelPlacer
         }
       else // posRelToCenter == -1
         { // label is left-justified; placement.X[0] bounded from below by XBounds[0] or left neighbor swatch
-        farMin = this->Ctr;
-        farMid = 2 * this->Ctr - i - 1;
+        farLo = this->Ctr + (this->HaveCtr ? 0 : 1); // The center label is the closest label we might overlap
+        farHi = 2 * this->Ctr - i - (this->HaveCtr ? 1 : 0); // The furthest label to the right we have placed so far.
         medNeighbor = i + 1;
-        if ( ! haveCenter && medNeighbor >= static_cast<int>( farMid ) ) medNeighbor = -1;
+        if ( ! this->HaveCtr && medNeighbor >= static_cast<int>( farHi ) ) medNeighbor = -1;
         placement.Justification = VTK_TEXT_LEFT;
         spotMax += this->Pad;
         if ( spotMax < this->XBounds[0] ) spotMax = this->XBounds[0];
@@ -1404,12 +1404,22 @@ struct vtkScalarBarHLabelPlacer
         }
       else
         { // must displace... find out by how much
-        placement.Y[0] = this->Places[medNeighbor].Y[1] + this->Dir * this->Pad; // at least as much as immediate medial neighbor
-        for ( unsigned j = farMin; j < farMid; ++ j )
+        // I. At least as much as immediate medial neighbor
+        placement.Y[0] = this->Places[medNeighbor].Y[1] + this->Dir * this->Pad;
+        for ( unsigned j = farLo; j <= farHi; ++ j )
           {
+          // II. Check whether label has any y overlap && any x overlap.
+          // There are 2 cases: one for labels above swatches, the other
+          // for labels below swatches.
           if (
-            ( this->Dir < 0 && placement.Y[0] > this->Places[j].Y[1] ) ||
-            ( this->Dir > 0 && placement.Y[0] < this->Places[j].Y[1] ) )
+            ( this->Dir < 0 && placement.Y[0] > this->Places[j].Y[1] &&
+              ( i > j ?
+                placement.X[0] <= this->Places[j].X[1] :
+                placement.X[1] >= this->Places[j].X[0] ) ) ||
+            ( this->Dir > 0 && placement.Y[0] < this->Places[j].Y[1] &&
+              ( i > j ?
+                placement.X[0] <= this->Places[j].X[1] :
+                placement.X[1] >= this->Places[j].X[0] ) ) )
             {
             placement.Y[0] = this->Places[j].Y[1] + this->Dir * this->Pad;
             }
