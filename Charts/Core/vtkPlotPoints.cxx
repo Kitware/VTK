@@ -266,7 +266,6 @@ void vtkPlotPoints::GeneraterMarker(int width, bool highlight)
     if (!this->HighlightMarker)
       {
       this->HighlightMarker = vtkImageData::New();
-      data = this->HighlightMarker;
       }
     else
       {
