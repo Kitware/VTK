@@ -1341,12 +1341,12 @@ void vtkRenderWindow::StereoRenderComplete(void)
             *left++ = *leftTemp++;
             *left++ = *leftTemp++;
             }
-        }      
+        }
 
       for (int y = 0; y <= (size[1] - 1); y = y + 1)
         {
           for (int x = 0; x < midX; x = x + 1)
-            {            
+            {
             left = sleft + (x + offsetX) * 3 + y * size[0] * 3;
             right = sright + (2 * x) * 3 + y * size[0] * 3;
             *left++ = *right++;
