@@ -1220,7 +1220,7 @@ int vtkScalarBarActor::LayoutAnnotationsVertically(
 #define VTK_ANN_VLAYOUT(j,dir,delt) \
     ctr = barY + delta * ( j + 0.5 ); \
     ll[0] = lpts->InsertNextPoint( xl0, ctr, 0. ); \
-    bds = this->AnnotationLabels[j]->GetBounds(); \
+    this->AnnotationLabels[j]->GetBoundingBox( bds ); \
     hh = ( bds[3] - bds[2] + pad ) / 2.; /* label half-height, including padding */ \
     if ( ( dir < 0 && ctr + hh > dnCum ) || ( dir > 0 && ctr - hh < upCum ) ) \
       ctr = delt + dir * hh; \
@@ -1251,7 +1251,7 @@ int vtkScalarBarActor::LayoutAnnotationsVertically(
   int ic = numNotes / 2;
   int dn, up;
   double dnCum, upCum, ctr, hh;
-  double* bds;
+  double bds[4];
   // leader-line endpoint x-coordinates:
   double xl0 = barX + ( this->TextPosition == PrecedeScalarBar ? +1 : -1 ) * pad / 2.;
   double xl1 = barX + ( this->TextPosition == PrecedeScalarBar ? +1 : -1 ) * ( pad / 2. + this->AnnotationLeaderPadding );
@@ -1550,7 +1550,7 @@ int vtkScalarBarActor::LayoutAnnotationsHorizontally(
   // Start at the center and move outward (both up and down), accumulating label displacement as we go.
   int ic = numNotes / 2;
   int lf, rt;
-  double* bds;
+  double bds[4];
   if ( 2 * ic == numNotes )
     {
     lf = ic - 1;
@@ -1560,16 +1560,16 @@ int vtkScalarBarActor::LayoutAnnotationsHorizontally(
     {
     lf = ic - 1;
     rt = ic + 1;
-    bds = this->AnnotationLabels[ic]->GetBounds();
+    this->AnnotationLabels[ic]->GetBoundingBox( bds );
     placer.Place( ic, bds[1] - bds[0], bds[3] - bds[2] );
     VTK_ANN_HLAYOUT(ic,placer);
     }
   for ( ; lf >= 0; -- lf, ++ rt )
     {
-    bds = this->AnnotationLabels[lf]->GetBounds();
+    this->AnnotationLabels[lf]->GetBoundingBox( bds );
     placer.Place( lf, bds[1] - bds[0], bds[3] - bds[2] );
     VTK_ANN_HLAYOUT(lf,placer);
-    bds = this->AnnotationLabels[rt]->GetBounds();
+    this->AnnotationLabels[rt]->GetBoundingBox( bds );
     placer.Place( rt, bds[1] - bds[0], bds[3] - bds[2] );
     VTK_ANN_HLAYOUT(rt,placer);
     }
