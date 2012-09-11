@@ -34,10 +34,6 @@
 
 int TestSplitViewportStereoHorizontal(int argc, char *argv[])
 {
-  double bottomLeft[3]  = {-1.0, -1.0, -1.0};
-  double bottomRight[3] = { 1.0, -1.0, -1.0};
-  double topRight[3]    = { 1.0,  1.0, -1.0};
-
   VTK_CREATE(vtkSphereSource, sphere1);
   sphere1->SetCenter(0.0, 0.0, -4.0);
   sphere1->SetThetaResolution(100);
@@ -65,8 +61,6 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   renderer->AddActor(actor1);
   renderer->AddActor(actor2);
   renderer->SetAmbient(1.0, 1.0, 1.0);
-
-  double eyePosition[3] = {0.0, 0.0, 10.0};
 
   // Introduce scale to test out calculation of clipping range
   // by vtkRenderer.
