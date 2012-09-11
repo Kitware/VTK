@@ -505,7 +505,6 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
     colPairs[idxs] = i - 1;
     }
   double* rv = col3->GetPointer( 0 ) + 1;
-  double* x = rv;
 
   // Create an output table for each request and fill it in using the col3 array (the first table in
   // outMeta and which is presumed to exist upon entry to Derive).
@@ -580,7 +579,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
       {
       (*arrIt)->SetNumberOfTuples( reqCovSize );
       (*arrIt)->FillComponent( 0, 0. );
-      x = (*arrIt)->GetPointer( 0 );
+      double* x = (*arrIt)->GetPointer( 0 );
       covPtrs.push_back( x );
       if ( *arrIt != colAvgs )
         {
