@@ -134,7 +134,6 @@ int vtkAppendCompositeDataLeaves::RequestData(
   vtkDebugMacro(<<"Appending data together");
 
   vtkCompositeDataIterator* iter = output->NewIterator();
-  iter->VisitOnlyLeavesOn();
   iter->SkipEmptyNodesOff(); // We're iterating over the output, whose leaves are all empty.
   int idx = 0;
   int i;

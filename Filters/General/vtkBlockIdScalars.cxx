@@ -15,7 +15,7 @@
 #include "vtkBlockIdScalars.h"
 
 #include "vtkCellData.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -60,7 +60,7 @@ int vtkBlockIdScalars::RequestData(
   unsigned int numBlocks = input->GetNumberOfBlocks();
   output->SetNumberOfBlocks(numBlocks);
 
-  vtkCompositeDataIterator* iter = input->NewIterator();
+  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(input->NewIterator());
   iter->TraverseSubTreeOff();
   iter->VisitOnlyLeavesOff();
 
@@ -99,7 +99,6 @@ vtkDataObject* vtkBlockIdScalars::ColorBlock(
     mbOutput->CopyStructure(mbInput);
 
     vtkCompositeDataIterator* inIter = mbInput->NewIterator();
-    inIter->VisitOnlyLeavesOn();
     for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal();
       inIter->GoToNextItem())
       {

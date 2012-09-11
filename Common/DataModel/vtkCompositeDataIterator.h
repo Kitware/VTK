@@ -79,28 +79,6 @@ public:
   virtual int HasCurrentMetaData() =0;
 
   // Description:
-  // If VisitOnlyLeaves is true, the iterator will only visit nodes
-  // (sub-datasets) that are not composite. If it encounters a composite
-  // data set, it will automatically traverse that composite dataset until
-  // it finds non-composite datasets. With this options, it is possible to
-  // visit all non-composite datasets in tree of composite datasets
-  // (composite of composite of composite for example :-) ) If
-  // VisitOnlyLeaves is false, GetCurrentDataObject() may return
-  // vtkCompositeDataSet. By default, VisitOnlyLeaves is 1.
-  vtkSetMacro(VisitOnlyLeaves, int);
-  vtkGetMacro(VisitOnlyLeaves, int);
-  vtkBooleanMacro(VisitOnlyLeaves, int);
-
-  // Description:
-  // If TraverseSubTree is set to true, the iterator will visit the entire tree
-  // structure, otherwise it only visits the first level children. Set to 1 by
-  // default.
-  vtkSetMacro(TraverseSubTree, int);
-  vtkGetMacro(TraverseSubTree, int);
-  vtkBooleanMacro(TraverseSubTree, int);
-
-
-  // Description:
   // If SkipEmptyNodes is true, then NULL datasets will be skipped. Default is
   // true.
   vtkSetMacro(SkipEmptyNodes, int);
@@ -120,9 +98,7 @@ protected:
   vtkCompositeDataIterator();
   virtual ~vtkCompositeDataIterator();
   int SkipEmptyNodes;
-  int TraverseSubTree;
   int Reverse;
-  int VisitOnlyLeaves;
   vtkCompositeDataSet* DataSet;
 
 private:

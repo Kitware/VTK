@@ -20,7 +20,7 @@
 
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkFieldData.h"
@@ -459,8 +459,12 @@ void vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *g
   geo->SetGeometryType(XDMF_GEOMETRY_NONE);
 
   vtkCompositeDataIterator* iter = dobj->NewIterator();
-  iter->VisitOnlyLeavesOff();
-  iter->TraverseSubTreeOff();
+  if(vtkDataObjectTreeIterator::SafeDownCast(iter))
+    {
+    vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
+    treeIter->VisitOnlyLeavesOff();
+    treeIter->TraverseSubTreeOff();
+    }
   iter->GoToFirstItem();
   while (!iter->IsDoneWithTraversal())
     {
