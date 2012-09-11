@@ -91,7 +91,7 @@ public:
   // Description:
   // Set the number of tick marks for this axis. Default is -1, which leads to
   // automatic calculation of nicely spaced tick marks.
-  vtkSetMacro(NumberOfTicks, int);
+  virtual void SetNumberOfTicks(int numberOfTicks);
 
   // Description:
   // Get the number of tick marks for this axis.
@@ -206,15 +206,23 @@ public:
   // Description:
   // Enumeration of the axis behaviors.
   enum {
-    AUTO = 0,
-    FIXED,
-    CUSTOM
+    AUTO = 0, //< Automatically scale the axis to view all data that is visible.
+    FIXED,    //< Use a fixed axis range and make no attempt to rescale.
+    CUSTOM    //< Deprecated, use the tick label settings instead.
   };
 
   // Description:
-  // Get/set the behavior of the axis (auto, fixed, custom). Default is 0 (auto).
+  // Get/set the behavior of the axis (auto or fixed). The default is 0 (auto).
   vtkSetMacro(Behavior, int);
   vtkGetMacro(Behavior, int);
+
+  // Description:
+  // Get/set the tick label generation for the axis. Defaults to false (the
+  // axis will generate appropriate labels). If set to true only the custom
+  // labels set will be used.
+  vtkSetMacro(CustomTickLabels, bool)
+  vtkGetMacro(CustomTickLabels, bool)
+  vtkBooleanMacro(CustomTickLabels, bool)
 
   // Description:
   // Get a pointer to the vtkPen object that controls the way this axis is drawn.
@@ -362,6 +370,10 @@ protected:
                        // are changed in the Extended Axis Labeling algorithm
 
   // Description:
+  // Are we using custom tick labels, or should the axis generate them?
+  bool CustomTickLabels;
+
+  // Description:
   // This object stores the vtkPen that controls how the axis is drawn.
   vtkPen* Pen;
 
@@ -409,6 +421,10 @@ protected:
 private:
   vtkAxis(const vtkAxis &); // Not implemented.
   void operator=(const vtkAxis &);   // Not implemented.
+
+  // Description:
+  // Return true if the value is in range, false otherwise.
+  bool InRange(double value);
 //ETX
 };
 
