@@ -23,10 +23,11 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTable.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 
-int TestInteractiveChartXYZ(int , char * [])
+int TestInteractiveChartXYZ(int argc, char **argv)
 {
   // Now the chart
   vtkNew<vtkInteractiveChartXYZ> chart;
@@ -85,14 +86,10 @@ int TestInteractiveChartXYZ(int , char * [])
 
   vtkVector2d sP(pos.Cast<double>().GetData());
   vtkVector2d lSP(lastPos.Cast<double>().GetData());
-  std::cout << "sanity 1: (" << lSP[0] << ", " << lSP[1] << ")" << std::endl;
-  std::cout << "sanity 2: (" << sP[0] << ", " << sP[1] << ")" << std::endl;
 
   vtkVector2d screenPos(mouseEvent.GetScreenPos().Cast<double>().GetData());
   vtkVector2d lastScreenPos(mouseEvent.GetLastScreenPos().Cast<double>().GetData());
-  std::cout << "before: (" << lastScreenPos[0] << ", " << lastScreenPos[1] << ")" << std::endl;
   chart->MouseMoveEvent(mouseEvent);
-  std::cout << "after: (" << lastScreenPos[0] << ", " << lastScreenPos[1] << ")" << std::endl;
 
   // spin
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
@@ -124,7 +121,11 @@ int TestInteractiveChartXYZ(int , char * [])
   mouseEvent.SetScreenPos(pos);
   chart->MouseMoveEvent(mouseEvent);
 
-  view->GetInteractor()->Start();
-
-  return EXIT_SUCCESS;
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
+  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    view->GetRenderWindow()->Render();
+    view->GetInteractor()->Start();
+    }
+  return !retVal;
 }

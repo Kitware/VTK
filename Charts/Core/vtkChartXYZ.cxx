@@ -19,6 +19,7 @@
 #include "vtkAxis.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
+#include "vtkContextScene.h"
 #include "vtkTable.h"
 #include "vtkFloatArray.h"
 #include "vtkTransform.h"
@@ -295,6 +296,7 @@ vtkAxis * vtkChartXYZ::GetAxis(int axis)
 void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)
 {
   this->Geometry = bounds;
+  this->Scene->SetGeometry((int)bounds.GetWidth(), (int)bounds.GetHeight());
 }
 
 vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), Link(NULL), angle(0),

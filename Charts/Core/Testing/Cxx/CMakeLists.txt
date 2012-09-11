@@ -1,13 +1,3 @@
-add_executable(InteractiveTest MACOSX_BUNDLE tmp.cxx)
-target_link_libraries(InteractiveTest
-    vtkRenderingContext2D
-    vtkInfovisCore
-    vtkTestingRendering
-    vtkViewsContext2D
-    vtkIOExport
-    vtkIOInfovis
-    vtkChartsCore)
-
 # if we have rendering and views add the following tests
   # add tests that do not require data
   set(MyTests
