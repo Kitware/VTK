@@ -260,7 +260,6 @@ void vtkGraph::GetOutEdges(vtkIdType v, vtkOutEdgeIterator *it)
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot retrieve the out edges for non-local vertex " << v);
-      assert(0);
       return;
       }
     }
@@ -281,7 +280,6 @@ vtkOutEdgeType vtkGraph::GetOutEdge(vtkIdType v, vtkIdType i)
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot retrieve the out edges for non-local vertex " << v);
-      assert(0);
       return vtkOutEdgeType();
       }
     index = helper->GetVertexIndex(v);
@@ -314,7 +312,6 @@ void vtkGraph::GetOutEdges(vtkIdType v, const vtkOutEdgeType *& edges, vtkIdType
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot retrieve the out edges for non-local vertex " << v);
-      assert(0);
       return;
       }
 

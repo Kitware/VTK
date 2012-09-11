@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkDataSetTriangleFilter.h"
 
-#include <assert.h>
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkGenericCell.h"
@@ -123,8 +122,15 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
     }
   else
     {
-    assert(0);
+    // Every kind of structured data is listed above, this should never happen.
+    // Report an error and produce no output.
+    vtkErrorMacro("Unrecognized data set " << input->GetClassName());
+    // Dimensions of 1x1x1 means a single point, i.e. dimensionality of zero.
+    dimensions[0] = 1;
+    dimensions[1] = 1;
+    dimensions[2] = 1;
     }
+
   dimensions[0] = dimensions[0] - 1;
   dimensions[1] = dimensions[1] - 1;
   dimensions[2] = dimensions[2] - 1;
