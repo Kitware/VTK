@@ -939,6 +939,9 @@ void vtkRenderWindow::StereoUpdate(void)
       case VTK_STEREO_CHECKERBOARD:
         this->StereoStatus = 1;
         break;
+      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
+        this->StereoStatus = 1;
+        break;
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -960,6 +963,9 @@ void vtkRenderWindow::StereoUpdate(void)
       case VTK_STEREO_CHECKERBOARD:
         this->StereoStatus = 0;
         break;
+      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
+        this->StereoStatus = 0;
+        break;
       }
     }
 }
@@ -979,7 +985,8 @@ void vtkRenderWindow::StereoMidpoint(void)
       (this->StereoType == VTK_STEREO_INTERLACED) ||
       (this->StereoType == VTK_STEREO_DRESDEN) ||
       (this->StereoType == VTK_STEREO_ANAGLYPH) ||
-      (this->StereoType == VTK_STEREO_CHECKERBOARD))
+      (this->StereoType == VTK_STEREO_CHECKERBOARD) ||
+      (this->StereoType == VTK_STEREO_SPLITVIEWPORT_HORIZONTAL))
     {
     int *size;
     // get the size
@@ -1305,9 +1312,57 @@ void vtkRenderWindow::StereoRenderComplete(void)
       this->StereoBuffer = NULL;
       delete [] sright;
     }
-      break;
+    break;
+    case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
+      {
+      unsigned char *left, *leftTemp, *right;
+      unsigned char *sleft, *sright;
+      int *size;
 
-    }
+      // get the size
+      size = this->GetSize();
+
+      // get the data
+      sleft = this->StereoBuffer;
+      sright = this->GetPixelData(0, 0, size[0] - 1, size[1] - 1,
+                                  !this->DoubleBuffer);
+
+      int midX = (size[0] - 1) / 2;
+      int offsetX = static_cast<int>((size[0] - 1) / 2.0);
+
+      // copy pixel data
+      for (int y = 0; y <= (size[1] - 1); y = y + 1)
+        {
+          for (int x = 1; x < midX; x = x + 1)
+            {
+            left = sleft + x * 3 + y * size[0] * 3;
+            leftTemp = sleft + (2 * x) * 3 + y * size[0] * 3;
+            *left++ = *leftTemp++;
+            *left++ = *leftTemp++;
+            *left++ = *leftTemp++;
+            }
+        }      
+
+      for (int y = 0; y <= (size[1] - 1); y = y + 1)
+        {
+          for (int x = 0; x < midX; x = x + 1)
+            {            
+            left = sleft + (x + offsetX) * 3 + y * size[0] * 3;
+            right = sright + (2 * x) * 3 + y * size[0] * 3;
+            *left++ = *right++;
+            *left++ = *right++;
+            *left++ = *right++;
+            }
+        }
+
+      // cleanup
+      this->ResultFrame = sleft;
+
+      this->StereoBuffer = NULL;
+      delete [] sright;
+      }
+    break;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1416,6 +1471,8 @@ const char *vtkRenderWindow::GetStereoTypeAsString()
       return "Anaglyph";
     case VTK_STEREO_CHECKERBOARD:
       return "Checkerboard";
+    case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
+      return "SplitViewportHorizontal";
     default:
       return "";
   }

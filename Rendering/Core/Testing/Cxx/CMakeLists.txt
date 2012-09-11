@@ -3,6 +3,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   # otherLookupTable.cxx             # fixme
   # otherLookupTableWithEnabling.cxx # fixme
   TestHierarchicalBoxPipeline.cxx
+  TestSplitViewportStereoHorizontal.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
