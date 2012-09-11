@@ -234,7 +234,7 @@ int TestColorSeries( int argc, char* argv[] )
     }
 
   // Build a lookup table
-  vtkLookupTable* lut = palettes->BuildLookupTable(NULL);
+  vtkLookupTable* lut = palettes->CreateLookupTable();
   lut->Print(std::cout);
   lut->Delete();
 

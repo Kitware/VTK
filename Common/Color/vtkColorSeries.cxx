@@ -568,11 +568,8 @@ void vtkColorSeries::DeepCopy(vtkColorSeries* colors)
 }
 
 //-----------------------------------------------------------------------------
-vtkLookupTable* vtkColorSeries::BuildLookupTable(vtkLookupTable* lkup)
+void vtkColorSeries::BuildLookupTable(vtkLookupTable* lkup)
 {
-  if (! lkup)
-    lkup = vtkLookupTable::New();
-
   if (lkup)
     {
     lkup->SetNumberOfTableValues(this->GetNumberOfColors());
@@ -584,6 +581,13 @@ vtkLookupTable* vtkColorSeries::BuildLookupTable(vtkLookupTable* lkup)
         i, colr.Red() / 255., colr.Green() / 255., colr.Blue() / 255., 1.);
       }
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkLookupTable* vtkColorSeries::CreateLookupTable()
+{
+  vtkLookupTable *lkup = vtkLookupTable::New();
+  this->BuildLookupTable(lkup);
   return lkup;
 }
 
