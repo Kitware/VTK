@@ -159,7 +159,7 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
     // if the function value is decreasing, do next Newton step
     // (the check on f is to ensure that we don't do too many
     // reduction steps between the Newton steps)
-    if (functionValue < lastFunctionValue || f < 0.05)
+    if (i == 0 || functionValue < lastFunctionValue || f < 0.05)
       {
       // here is the critical step in Newton's method
       vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
