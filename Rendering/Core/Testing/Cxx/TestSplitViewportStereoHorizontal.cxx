@@ -34,10 +34,15 @@
 
 int TestSplitViewportStereoHorizontal(int argc, char *argv[])
 {
+  double bottomLeft[3]  = {-1.0, -1.0, -1.0};
+  double bottomRight[3] = { 1.0, -1.0, -1.0};
+  double topRight[3]    = { 1.0,  1.0, -1.0};
+
   VTK_CREATE(vtkSphereSource, sphere1);
-  sphere1->SetCenter(0.0, 0.0, -4.0);
-  sphere1->SetThetaResolution(100);
-  sphere1->SetPhiResolution(100);
+  sphere1->SetCenter(0.0, 0.0, 1.0);
+  sphere1->SetRadius(12.0);
+  sphere1->SetThetaResolution(40);
+  sphere1->SetPhiResolution(40);
 
   VTK_CREATE(vtkPolyDataMapper, mapper1);
   mapper1->SetInputConnection(sphere1->GetOutputPort());
@@ -45,6 +50,8 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   VTK_CREATE(vtkActor, actor1);
   actor1->SetMapper(mapper1);
   actor1->GetProperty()->SetAmbient(0.1);
+  actor1->GetProperty()->SetRepresentationToWireframe();
+  actor1->GetProperty()->SetColor(0.8, 0.8, 0.0);
 
   VTK_CREATE(vtkConeSource, cone1);
   cone1->SetCenter(0.0, 0.0, -10.0);
@@ -68,6 +75,17 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   scaleMatrix->SetElement(0, 0, 1);
   scaleMatrix->SetElement(1, 1, 1);
   scaleMatrix->SetElement(2, 2, 1);
+
+  double eyePosition[3] = {0.0, 0.0, 2.0};
+
+  vtkCamera *camera = renderer->GetActiveCamera();
+  camera->SetScreenBottomLeft(bottomLeft);
+  camera->SetScreenBottomRight(bottomRight);
+  camera->SetScreenTopRight(topRight);
+  camera->SetUseOffAxisProjection(1);
+  camera->SetEyePosition(eyePosition);
+  camera->SetEyeSeparation(0.05);
+  camera->SetModelTransformMatrix(scaleMatrix);
 
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->AddRenderer(renderer);
