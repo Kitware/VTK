@@ -130,7 +130,7 @@ std::string vtkStructuredAMRNeighbor::GetRelationShipString()
       str = "COARSE_TO_FINE_SIBLING";
       break;
     case FINE_TO_COARSE_SIBLING:
-      str = "FINE_TO_COARSE_SIBLILNG";
+      str = "FINE_TO_COARSE_SIBLING";
       break;
     case UNDEFINED: /* intentional fall-through */
     default:
