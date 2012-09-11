@@ -1750,8 +1750,7 @@ int vtkHyperTreeGrid::GetCellType(vtkIdType vtkNotUsed(cellId) )
       result = VTK_LINE; // line=2 points
       break;
     default:
-      result = 0; // useless, just to avoid a warning
-      assert( "check: impossible_case" && 0 );
+      result = 0; // impossible case
       break;
     }
   assert( "post: positive_result" && result>0 );
