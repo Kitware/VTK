@@ -98,8 +98,8 @@ int TestStackedPlotGL2PS(int , char * [])
     }
 
   // Set the Month Labels
-  chart->GetAxis(1)->SetTickLabels(arrMonthLabel.GetPointer());
-  chart->GetAxis(1)->SetTickPositions(arrXTickPositions.GetPointer());
+  chart->GetAxis(1)->SetCustomTickPositions(arrXTickPositions.GetPointer(),
+                                            arrMonthLabel.GetPointer());
   chart->GetAxis(1)->SetRange(0, 11);
   chart->GetAxis(1)->SetBehavior(vtkAxis::FIXED);
 

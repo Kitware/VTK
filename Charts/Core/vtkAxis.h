@@ -217,14 +217,6 @@ public:
   vtkGetMacro(Behavior, int);
 
   // Description:
-  // Get/set the tick label generation for the axis. Defaults to false (the
-  // axis will generate appropriate labels). If set to true only the custom
-  // labels set will be used.
-  vtkSetMacro(CustomTickLabels, bool)
-  vtkGetMacro(CustomTickLabels, bool)
-  vtkBooleanMacro(CustomTickLabels, bool)
-
-  // Description:
   // Get a pointer to the vtkPen object that controls the way this axis is drawn.
   vtkGetObjectMacro(Pen, vtkPen);
 
@@ -268,10 +260,6 @@ public:
   virtual vtkDoubleArray* GetTickPositions();
 
   // Description:
-  // Set the tick positions (in plot coordinates).
-  virtual void SetTickPositions(vtkDoubleArray* positions);
-
-  // Description:
   // An array with the positions of the tick marks along the axis line.
   // The positions are specified in scene coordinates.
   virtual vtkFloatArray* GetTickScenePositions();
@@ -281,8 +269,23 @@ public:
   virtual vtkStringArray* GetTickLabels();
 
   // Description:
+  // Set the tick positions, and optionally custom tick labels. If the labels
+  // and positions are null then automatic tick labels will be assigned. If
+  // only positions are supplied then appropriate labels will be generated
+  // according to the axis settings. If positions and labels are supplied they
+  // must be of the same length. Returns true on success, false on failure.
+  virtual bool SetCustomTickPositions(vtkDoubleArray* positions,
+                                      vtkStringArray* labels = 0);
+
+  // Description:
+  // Set the tick positions (in plot coordinates).
+  // \deprecated 6.0 Use the two parameter SetTickPositions function.
+  VTK_LEGACY(virtual void SetTickPositions(vtkDoubleArray* positions));
+
+  // Description:
   // Set the tick labels for the axis.
-  virtual void SetTickLabels(vtkStringArray* labels);
+  // \deprecated 6.0 Use the two parameter SetTickPositions function.
+  VTK_LEGACY(virtual void SetTickLabels(vtkStringArray* labels));
 
   // Description:
   // Request the space the axes require to be drawn. This is returned as a

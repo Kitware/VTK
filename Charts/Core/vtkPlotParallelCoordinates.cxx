@@ -352,8 +352,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
             arr->InsertNextValue(j);
             }
           // Now we need to set the range on the string axis
-          axis->SetTickLabels(strings);
-          axis->SetTickPositions(arr);
+          axis->SetCustomTickPositions(arr, strings);
           if (strings->GetNumberOfTuples() > 1)
             {
             axis->SetRange(0.0, strings->GetNumberOfTuples()-1);

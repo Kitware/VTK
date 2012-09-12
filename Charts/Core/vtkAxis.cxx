@@ -643,19 +643,6 @@ vtkDoubleArray* vtkAxis::GetTickPositions()
 }
 
 //-----------------------------------------------------------------------------
-void vtkAxis::SetTickPositions(vtkDoubleArray* array)
-{
-  if (this->TickPositions == array)
-    {
-    return;
-    }
-  this->TickPositions = array;
-  this->CustomTickLabels = true;
-  this->TickMarksDirty = false;
-  this->Modified();
-}
-
-//-----------------------------------------------------------------------------
 vtkFloatArray* vtkAxis::GetTickScenePositions()
 {
   return this->TickScenePositions;
@@ -668,17 +655,83 @@ vtkStringArray* vtkAxis::GetTickLabels()
 }
 
 //-----------------------------------------------------------------------------
-void vtkAxis::SetTickLabels(vtkStringArray* array)
+bool vtkAxis::SetCustomTickPositions(vtkDoubleArray *positions,
+                                     vtkStringArray *labels)
 {
-  if (this->TickLabels == array)
+  if (!positions && !labels)
     {
-    return;
+    this->CustomTickLabels = false;
+    this->TickMarksDirty = true;
+    this->TickPositions->SetNumberOfTuples(0);
+    this->TickLabels->SetNumberOfTuples(0);
+    this->Modified();
+    return true;
     }
-  this->TickLabels = array;
+  else if (positions && !labels)
+    {
+    this->TickPositions->DeepCopy(positions);
+    this->TickLabels->SetNumberOfTuples(0);
+    this->CustomTickLabels = true;
+    this->TickMarksDirty = false;
+    this->Modified();
+    return true;
+    }
+  else if (positions && labels)
+    {
+    if (positions->GetNumberOfTuples() != labels->GetNumberOfTuples())
+      {
+      return false;
+      }
+    this->TickPositions->DeepCopy(positions);
+    this->TickLabels->DeepCopy(labels);
+    this->CustomTickLabels = true;
+    this->TickMarksDirty = false;
+    this->Modified();
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+#ifndef VTK_LEGACY_REMOVE
+//-----------------------------------------------------------------------------
+void vtkAxis::SetTickPositions(vtkDoubleArray* array)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAxis::SetTickPositions, "VTK 6.0",
+                           vtkAxis::SetCustomTickPositions);
+  if (!array)
+    {
+    this->TickPositions->SetNumberOfTuples(0);
+    }
+  else
+    {
+    this->TickPositions->DeepCopy(array);
+    }
   this->CustomTickLabels = true;
   this->TickMarksDirty = false;
   this->Modified();
 }
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetTickLabels(vtkStringArray* array)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAxis::SetTickLabels, "VTK 6.0",
+                           vtkAxis::SetCustomTickPositions);
+  if (!array)
+    {
+    this->TickLabels->SetNumberOfTuples(0);
+    }
+  else
+    {
+    this->TickLabels->DeepCopy(array);
+    }
+  this->CustomTickLabels = true;
+  this->TickMarksDirty = false;
+  this->Modified();
+}
+#endif // VTK_LEGACY_REMOVE
 
 //-----------------------------------------------------------------------------
 vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
