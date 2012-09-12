@@ -1,7 +1,8 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestExtractSurfaceNonLinearSubdivision.cxx
-  TestUniformGridGhostDataGenerator.cxx
   TestProjectSphereFilter.cxx
+  TestStructuredAMRNeighbor.cxx
+  TestUniformGridGhostDataGenerator.cxx
   TestUnstructuredGridGeometryFilter.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
@@ -29,6 +30,7 @@ endforeach()
 
 ## list of tests that are not included in the main driver
 set(MyTests
+  TestStructuredAMRGridConnectivity.cxx
   TestStructuredGridConnectivity.cxx
   TestStructuredGridGhostDataGenerator.cxx
   )

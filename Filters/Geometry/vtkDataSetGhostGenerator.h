@@ -40,38 +40,38 @@ class vtkMultiBlockDataSet;
 class VTKFILTERSGEOMETRY_EXPORT vtkDataSetGhostGenerator:
   public vtkMultiBlockDataSetAlgorithm
 {
-  public:
-    vtkTypeMacro(vtkDataSetGhostGenerator,vtkMultiBlockDataSetAlgorithm);
-    void PrintSelf(ostream& os, vtkIndent indent);
+public:
+  vtkTypeMacro(vtkDataSetGhostGenerator,vtkMultiBlockDataSetAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-    // Description:
-    // Set/Get for number of ghost layers to generate.
-    vtkSetMacro( NumberOfGhostLayers, int );
-    vtkGetMacro( NumberOfGhostLayers, int );
+  // Description:
+  // Set/Get for number of ghost layers to generate.
+  vtkSetMacro( NumberOfGhostLayers, int );
+  vtkGetMacro( NumberOfGhostLayers, int );
 
-    // Standard VTK pipeline routines
-    virtual int FillInputPortInformation(int port,vtkInformation *info);
-    virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  // Standard VTK pipeline routines
+  virtual int FillInputPortInformation(int port,vtkInformation *info);
+  virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
-    virtual int RequestData(
-        vtkInformation *rqst, vtkInformationVector **inputVector,
-        vtkInformationVector* outputVector );
+  virtual int RequestData(
+      vtkInformation *rqst, vtkInformationVector **inputVector,
+      vtkInformationVector* outputVector );
 
-  protected:
-    vtkDataSetGhostGenerator();
-    virtual ~vtkDataSetGhostGenerator();
+protected:
+  vtkDataSetGhostGenerator();
+  virtual ~vtkDataSetGhostGenerator();
 
-    // Description:
-    // Generate ghost layers. Implemented by concrete implementations.
-    virtual void GenerateGhostLayers(
-        vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) = 0;
+  // Description:
+  // Generate ghost layers. Implemented by concrete implementations.
+  virtual void GenerateGhostLayers(
+      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) = 0;
 
 
-    int NumberOfGhostLayers;
+  int NumberOfGhostLayers;
 
-  private:
-    vtkDataSetGhostGenerator(const vtkDataSetGhostGenerator&); // Not implemented
-    void operator=(const vtkDataSetGhostGenerator&); // Not implemented
+private:
+  vtkDataSetGhostGenerator(const vtkDataSetGhostGenerator&); // Not implemented
+  void operator=(const vtkDataSetGhostGenerator&); // Not implemented
 
 };
 

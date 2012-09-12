@@ -14,6 +14,8 @@ set(Module_SRCS
   vtkAbstractGridConnectivity.cxx
   vtkDataSetGhostGenerator.cxx
   vtkRectilinearGridPartitioner.cxx
+  vtkStructuredAMRNeighbor.cxx
+  vtkStructuredAMRGridConnectivity.cxx
   vtkStructuredGridConnectivity.cxx
   vtkStructuredGridGhostDataGenerator.cxx
   vtkStructuredGridPartitioner.cxx
@@ -28,6 +30,7 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
+  vtkStructuredAMRNeighbor
   vtkStructuredNeighbor
   WRAP_EXCLUDE
   )
