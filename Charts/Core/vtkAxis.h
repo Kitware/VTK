@@ -220,7 +220,7 @@ public:
   // Get/set the tick label generation for the axis. Defaults to false (the
   // axis will generate appropriate labels). If set to true only the custom
   // labels set will be used.
-  vtkSetMacro(CustomTickLabels, bool)
+  virtual void SetCustomTickLabels(bool customTickLabels);
   vtkGetMacro(CustomTickLabels, bool)
   vtkBooleanMacro(CustomTickLabels, bool)
 

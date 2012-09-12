@@ -527,6 +527,17 @@ void vtkAxis::SetNotation(int notation)
 }
 
 //-----------------------------------------------------------------------------
+void vtkAxis::SetCustomTickLabels(bool customTickLabels)
+{
+  if (CustomTickLabels != this->CustomTickLabels)
+    {
+    this->CustomTickLabels = customTickLabels;
+    this->TickMarksDirty = !customTickLabels;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkAxis::AutoScale()
 {
   if (this->Behavior != vtkAxis::AUTO)
@@ -645,11 +656,14 @@ vtkDoubleArray* vtkAxis::GetTickPositions()
 //-----------------------------------------------------------------------------
 void vtkAxis::SetTickPositions(vtkDoubleArray* array)
 {
-  if (this->TickPositions == array)
+  if (!array)
     {
-    return;
+    this->TickPositions->SetNumberOfTuples(0);
     }
-  this->TickPositions = array;
+  else
+    {
+    this->TickPositions->DeepCopy(array);
+    }
   this->CustomTickLabels = true;
   this->TickMarksDirty = false;
   this->Modified();
@@ -670,11 +684,14 @@ vtkStringArray* vtkAxis::GetTickLabels()
 //-----------------------------------------------------------------------------
 void vtkAxis::SetTickLabels(vtkStringArray* array)
 {
-  if (this->TickLabels == array)
+  if (!array)
     {
-    return;
+    this->TickLabels->SetNumberOfTuples(0);
     }
-  this->TickLabels = array;
+  else
+    {
+    this->TickLabels->DeepCopy(array);
+    }
   this->CustomTickLabels = true;
   this->TickMarksDirty = false;
   this->Modified();
