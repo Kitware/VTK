@@ -22,17 +22,73 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#define NUMBER_OF_SYNONYMS 20
+#define NUMBER_OF_SYNONYMS 81
 #define NUMBER_OF_COLORS 283
 #define PRINT_SELF_STRING_SIZE 8936
 
+// Forward declaration of the test functions.
+//  A test to see if black is returned if the color name is empty.
+bool TestEmptyColorName();
+// A test to see if empty vectors are returned when the color name
+// does not match a known one.
+bool TestNoSuchColor(vtkStdString const & name);
+// A test to see if returning an array matches the individual values.
+bool TestUnsignedChar(vtkStdString const & name);
+// A test to see if returning an array matches the individual values.
+bool TestDouble(vtkStdString const & name);
+// A test to see if returning an array matches the individual values.
+// Alpha is ignored.
+bool TestDoubleRGB(vtkStdString const & name);
+// A test to see if the unsigned char conversion to double
+// matches the double vector.
+bool TestUCharToDouble(vtkStdString const & name);
+//  A test to see if adding a color works.
+bool TestAddingAColor(vtkStdString name, const double dcolor[4],
+                      const unsigned char ucolor[4]);
+// Parse the color names returning a std::vector<std::string>
+// colorNames is a string formatted with each name separated
+// with a linefeed.
+std::vector<vtkStdString> ParseColorNames(const vtkStdString & colorNames);
+// Parse the synonyms returning a std::vector<std::vector<std::string> >
+// synonyms is a string of synonyms separated be a double linefeed where
+// each synonym is two or more color names separated by a linefeed
+std::vector<std::vector<vtkStdString> > ParseSynonyms(const vtkStdString & synonyms);
+//  A test to see if searching for synonyms works.
+bool TestSearchForSynonyms();
+
 //-----------------------------------------------------------------------------
-//  A test to see if empty vectors are returned when the color name
-//  does not match a known one.
+bool TestEmptyColorName()
+{
+  VTK_CREATE(vtkNamedColors, nc);
+  vtkStdString name; 
+  unsigned char *v = nc->GetColorAsUnsignedChar(name);
+  if ( v[0] != 0 || v[1] != 0 || v[2] != 0 || v[3] != 255 )
+    {
+    vtkGenericWarningMacro(
+      << "Fail: an empty color name "
+      << "returned an unsigned char color other than black."
+      );
+    return false;
+  }
+  double *vd = nc->GetColorAsDouble(name);
+  if ( vd[0] != 0 || vd[1] != 0 || vd[2] != 0 || vd[3] != 1 )
+    {
+    vtkGenericWarningMacro(
+      << "Fail: an empty color name "
+      << "returned a double color other than black."
+      );
+    return false;
+  }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 bool TestNoSuchColor(vtkStdString const & name)
 {
   VTK_CREATE(vtkNamedColors, nc);
@@ -48,12 +104,10 @@ bool TestNoSuchColor(vtkStdString const & name)
 }
 
 //-----------------------------------------------------------------------------
-//  A test to see if returning an array matches the individual values.
 bool TestUnsignedChar(vtkStdString const & name)
 {
   VTK_CREATE(vtkNamedColors, nc);
-  unsigned char *v;
-  v = nc->GetColorAsUnsignedChar(name);
+  unsigned char *v = nc->GetColorAsUnsignedChar(name);
   unsigned char cv[4];
   nc->GetColor(name,cv);
   bool sameElements = true;
@@ -89,12 +143,10 @@ bool TestUnsignedChar(vtkStdString const & name)
 }
 
 //-----------------------------------------------------------------------------
-//  A test to see if returning an array matches the individual values.
 bool TestDouble(vtkStdString const & name)
 {
   VTK_CREATE(vtkNamedColors, nc);
-  double *v;
-  v = nc->GetColorAsDouble(name);
+  double *v = nc->GetColorAsDouble(name);
   double cv[4];
   nc->GetColor(name,cv);
   bool sameElements = true;
@@ -130,13 +182,10 @@ bool TestDouble(vtkStdString const & name)
 }
 
 //-----------------------------------------------------------------------------
-//  A test to see if returning an array matches the individual values.
-// Alpha is ignored.
 bool TestDoubleRGB(vtkStdString const & name)
 {
   VTK_CREATE(vtkNamedColors, nc);
-  double *v;
-  v = nc->GetColorAsDoubleRGB(name);
+  double *v = nc->GetColorAsDoubleRGB(name);
   double cv[3];
   nc->GetColorRGB(name,cv);
   bool sameElements = true;
@@ -171,8 +220,6 @@ bool TestDoubleRGB(vtkStdString const & name)
 }
 
 //-----------------------------------------------------------------------------
-//  A test to see if the unsigned char conversion to double
-//  matches the double vector.
 bool TestUCharToDouble(vtkStdString const & name)
 {
   VTK_CREATE(vtkNamedColors, nc);
@@ -203,12 +250,34 @@ bool TestUCharToDouble(vtkStdString const & name)
 }
 
 //-----------------------------------------------------------------------------
-//  A test to see if adding a color works.
 bool TestAddingAColor(vtkStdString name, const double dcolor[4],
                       const unsigned char ucolor[4])
 {
   VTK_CREATE(vtkNamedColors, nc);
   int num1 = nc->GetNumberOfColors();
+  
+  int sz = nc->GetNumberOfColors();
+  // Test for adding empty names.
+  nc->SetColor("",dcolor);
+  nc->SetColor("",dcolor[0],dcolor[1],dcolor[2],dcolor[3]);
+  if(sz != nc->GetNumberOfColors())
+    {
+    vtkGenericWarningMacro(
+      << "Fail: Setting a double color with an empty name."
+      );
+    nc->ResetColors();
+    return false;
+    }
+  nc->SetColor("",ucolor);
+  nc->SetColor("",ucolor[0],ucolor[1],ucolor[2],ucolor[3]);
+  if(sz != nc->GetNumberOfColors())
+    {
+    vtkGenericWarningMacro(
+      << "Fail: Setting an unsigned char color with an empty name."
+      );
+    nc->ResetColors();
+    return false;
+    }
 
   nc->SetColor(name,dcolor);
   unsigned char *vu = nc->GetColorAsUnsignedChar(name);
@@ -227,6 +296,7 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
       << "Fail: Set as double get as unsigned char, colors do not match "
       << "for color: " << name
       );
+    nc->ResetColors();
     return false;
     }
 
@@ -247,6 +317,7 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
       << "Fail: Set as unsigned char get as double, colors do not match "
       << "for color: " << name
       );
+    nc->ResetColors();
     return false;
     }
 
@@ -272,7 +343,8 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
         << "colors do not match "
         << "for color: " << name
         );
-        return false;
+       nc->ResetColors();
+       return false;
       }
     }
 
@@ -287,6 +359,7 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
         << "colors do not match "
         << "for color: " << name
         );
+      nc->ResetColors();
       return false;
       }
     }
@@ -320,6 +393,7 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
     << "Fail: Set as double array get as double vector, colors do not match "
     << "for color: " << name
     );
+  nc->ResetColors();
   return false;
   }
   nc->SetColor(name,dr,dg,db,da);
@@ -339,11 +413,12 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
     << "Fail: Set as double values get as double vector, colors do not match "
     << "for color: " << name
     );
+  nc->ResetColors();
   return false;
   }
 
   nc->RemoveColor(name);
-  int sz = nc->GetNumberOfColors();
+  sz = nc->GetNumberOfColors();
   if (sz != NUMBER_OF_COLORS)
     {
     vtkGenericWarningMacro(
@@ -352,24 +427,92 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
       << NUMBER_OF_COLORS << " instead after inserting/deleting the color "
       << name
       );
+    nc->ResetColors();
     return false;
     }
   return true;
 }
 
 //-----------------------------------------------------------------------------
-//  A test to see if searching for duplicates works.
-bool SearchForDuplicateColors()
+std::vector<vtkStdString> ParseColorNames(const vtkStdString & colorNames)
+{
+  // The delimiter for a color.
+  const std::string colorDelimiter = "\n";
+  std::vector<vtkStdString> cn;
+  size_t start = 0;
+  size_t end = colorNames.find(colorDelimiter);
+  while(end != std::string::npos)
+    {
+    cn.push_back(colorNames.substr(start,end - start));
+    start = end + 1;
+    end = colorNames.find(colorDelimiter,start);
+    }
+  // Get the last color.
+  if (!colorNames.empty())
+    {
+    cn.push_back(colorNames.substr(start,colorNames.size() - start));
+    }
+  return cn;
+}
+
+//-----------------------------------------------------------------------------
+std::vector<std::vector<vtkStdString> > ParseSynonyms(const vtkStdString & synonyms)
+{
+  // The delimiter for a string of synonyms.
+  const std::string synonymDelimiter = "\n\n";
+  size_t start = 0;
+  size_t end = synonyms.find("\n\n"); // The delimiter for a string of synonyms.
+  std::vector<vtkStdString> cn;
+  std::vector<std::vector<vtkStdString> > syn;
+  vtkStdString str;
+  while(end != std::string::npos)
+    {
+    str = synonyms.substr(start,end - start);
+    cn = ParseColorNames(str);
+    syn.push_back(cn);
+    start = end + 2;
+    end = synonyms.find(synonymDelimiter,start); 
+  }
+  // Get the last set of synonyms.
+  if(!synonyms.empty())
+    {
+    str = synonyms.substr(start,end - start);
+    cn = ParseColorNames(str);
+    syn.push_back(cn);
+    }
+  // Sanity check!
+  //for(std::vector<std::vector<vtkStdString> >::const_iterator p =
+  //  syn.begin(); p != syn.end(); ++p)
+  //  {
+  //    for(std::vector<vtkStdString>::const_iterator q =
+  //      p->begin(); q != p->end(); ++q)
+  //    {
+  //      std::cout << *q << " ";
+  //    }
+  //    std::cout << std::endl;
+  //  }
+  return syn;
+}
+
+//-----------------------------------------------------------------------------
+bool TestSearchForSynonyms()
 {
   VTK_CREATE(vtkNamedColors, nc);
-  std::vector<std::vector<vtkStdString> > synonyms = nc->GetSynonyms();
+  std::vector<std::vector<vtkStdString> > synonyms = ParseSynonyms(nc->GetSynonyms());
   return synonyms.size() == NUMBER_OF_SYNONYMS;
 }
 
 int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   VTK_CREATE(vtkNamedColors, nc);
-  bool testResult = TestNoSuchColor("AliceGreen"); // This color does not exist.
+  bool testResult = TestEmptyColorName();
+  if ( !testResult )
+    {
+    vtkGenericWarningMacro(
+      << "Fail: TestNoSuchColor()"
+      );
+    }
+  testResult &= TestNoSuchColor("AliceGreen"); // This color does not exist.
   if ( !testResult )
     {
     vtkGenericWarningMacro(
@@ -378,7 +521,7 @@ int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   int counter = -1;
   const int colorsToSkip = 20;
-  std::vector<vtkStdString> cn = nc->GetColorNames();
+  std::vector<vtkStdString> cn = ParseColorNames(nc->GetColorNames());
   for ( std::vector<vtkStdString>::const_iterator
         p = cn.begin(); p != cn.end(); ++p )
     {
@@ -441,21 +584,32 @@ int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       );
     testResult &= false;
     }
-  if ( !SearchForDuplicateColors() )
+  if ( !TestSearchForSynonyms() )
     {
     vtkGenericWarningMacro(
-      << "Fail: SearchForSynonyms() - incorrect number of synonyms found, "
+      << "Fail: TestSearchForSynonyms() - incorrect number of synonyms found, "
       << "expected "
       << NUMBER_OF_SYNONYMS << " instead."
       );
     testResult &= false;
     }
+  if ( cn.size() != NUMBER_OF_COLORS )
+    {
+    vtkGenericWarningMacro(
+      << "Fail: Incorrect number of colors"
+      << "found " <<
+      cn.size() << ", expected "
+      << NUMBER_OF_COLORS << " instead."
+      );
+    testResult &= false;
+    }
+  nc->ResetColors();
   if ( nc->GetNumberOfColors() != NUMBER_OF_COLORS )
     {
     vtkGenericWarningMacro(
-      << "Fail: SearchForDuplicateColors() - incorrect number of colors"
+      << "Fail: ResetColors(), incorrect number of colors"
       << "found " <<
-      nc->GetNumberOfColors() << ", expected "
+      cn.size() << ", expected "
       << NUMBER_OF_COLORS << " instead."
       );
     testResult &= false;

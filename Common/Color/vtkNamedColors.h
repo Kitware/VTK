@@ -41,7 +41,6 @@
 #include "vtkCommonColorModule.h" // For export macro
 #include "vtkObject.h"
 #include <vtkStdString.h>
-#include <vector> // STL Header for returning/storing color values
 
 class vtkNamedColorsDataStore;
 
@@ -49,6 +48,11 @@ class VTKCOMMONCOLOR_EXPORT vtkNamedColors : public vtkObject
 {
 public:
   vtkTypeMacro(vtkNamedColors, vtkObject);
+
+  // Methods invoked by print to print information about the object
+  // including superclasses. Typically not called by the user
+  // (use Print() instead) but used in the hierarchical print
+  // process to combine the output of several classes.
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
@@ -166,6 +170,7 @@ public:
   // Set the color by name.
   // The name is treated as being case-insensitive.
   // The range of each color is 0...1.
+  // No color is set if the name is empty.
   void SetColor(const vtkStdString & name,
                 const double & r, const double & g,
                 const double & b, const double & a = 1);
@@ -181,17 +186,29 @@ public:
   // Description:
   // Remove the color by name.
   // The name is treated as being case-insensitive.
+  // Examples for parsing are provided in:
+  // TestNamedColors.cxx and TestNamedColorsIntegration.py
   void RemoveColor(const vtkStdString & name);
 
   // Description:
-  // Return a vector of color names.
-  std::vector<vtkStdString> GetColorNames();
+  // Return a string of color names with each name
+  // delimited by a line feed.
+  // This is easily parsed by the user into whatever
+  // data structure they require.
+  // Examples for parsing are provided in:
+  // TestNamedColors.cxx and TestNamedColorsIntegration.py
+  vtkStdString & GetColorNames();
 
   //  Description:
-  // Return a vector where each element of the vector is a vector of
-  // synonyms such as cyan/aqua and magenta/fuchsia
+  // Return a string of synonyms such as
+  // cyan/aqua and magenta/fuchsia.
+  // The string is formatted sudh that a single line feed delimits
+  // each color in the synonym and a double line feed delimits each
+  // synonym.
   // Warning this could take a long time for very large color maps.
-  std::vector<std::vector<vtkStdString> > GetSynonyms();
+  // This is easily parsed by the user into whatever
+  // data structure they require.
+  vtkStdString & GetSynonyms();
 
 protected:
   vtkNamedColors();

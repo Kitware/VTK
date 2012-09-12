@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <map> // STL Header for the underlying color map
+#include <vector> // STL Header for returning/storing color values
 #include <sstream> // STL Header for parsing character arrays
 #include <algorithm> // STL Header for case conversion of characters
 #include <functional> // STL Header for case conversion of characters
@@ -148,6 +149,77 @@ public:
     return this->colorMap.find(s) != this->colorMap.end();
   }
 
+//-----------------------------------------------------------------------------
+// Return a vector of color names.
+std::vector<vtkStdString> GetColorNames()
+{
+  std::vector<vtkStdString> colorNames;
+  for(std::map<vtkStdString, std::vector<unsigned char> >::const_iterator p =
+    this->GetColorMap()->begin();
+    p != this->GetColorMap()->end(); ++p )
+    {
+    colorNames.push_back(p->first);
+    }
+  return colorNames;
+}
+
+//-----------------------------------------------------------------------------
+// Return a vector where each element of the vector is a vector of
+// synonyms such as cyan/aqua and magenta/fuchsia
+// Warning this could take a long time for very large color maps.
+std::vector<std::vector<vtkStdString> > GetSynonyms()
+{
+  std::vector<vtkStdString> cn = this->GetColorNames();
+  std::map<vtkStdString,std::vector<vtkStdString> > synonyms;
+  for ( std::vector<vtkStdString>::const_iterator p =
+    cn.begin(); p != cn.end(); ++p )
+    {
+      bool foundDuplicate = false;
+      std::vector<unsigned char> vu =
+        this->GetColorAsUnsignedCharVector(*p);
+      std::vector<vtkStdString> duplicates;
+      for ( std::map<vtkStdString, std::vector<unsigned char> >::const_iterator
+        q = this->GetColorMap()->begin();
+        q != this->GetColorMap()->end(); ++q )
+      {
+        if ( *p != q->first && vu == q->second )
+          {
+          duplicates.push_back(q->first);
+          }
+      }
+      if ( !duplicates.empty() )
+        {
+          bool alreadyInMap = false;
+          for( std::vector<vtkStdString>::const_iterator r =
+            duplicates.begin(); r != duplicates.end(); ++r)
+          {
+          if( synonyms.find(*r) != synonyms.end() )
+            {
+            alreadyInMap = true;
+            }
+          }
+          if ( !alreadyInMap )
+            {
+            synonyms[*p] = duplicates;
+            }
+        }
+    }
+  std::vector<std::vector<vtkStdString> > retVec;
+  for(std::map<vtkStdString,std::vector<vtkStdString> >::const_iterator p =
+    synonyms.begin(); p != synonyms.end(); ++p)
+    {
+      std::vector<vtkStdString> vstr;
+      vstr.push_back(p->first);
+      for(std::vector<vtkStdString>::const_iterator q =
+        p->second.begin(); q!= p->second.end(); ++q)
+        {
+        vstr.push_back(*q);
+        }
+      retVec.push_back(vstr);
+    }
+  return retVec;
+}
+
 public:
   //-----------------------------------------------------------------------------
   // Initialise the color map by loading the colors from a list.
@@ -166,213 +238,213 @@ public:
     //       http://en.wikipedia.org/wiki/Web_colors.
     //       The names and values here will tale precedence over
     //       earlier names.
-  static const char *colorTable[] =
+static const char *colorTable[] =
     {
     // Name, R, G, B, A
     // These colors should be exactly the same as the ones defined in
     // colors.tcl.
     //  Whites
-    "antique_white,250,235,214,255",
+    "antique_white,250,235,215,255",
     "azure,240,255,255,255",
-    "bisque,255,227,195,255",
-    "blanched_almond,255,235,204,255",
-    "cornsilk,255,247,219,255",
-    "eggshell,252,229,201,255",
+    "bisque,255,228,196,255",
+    "blanched_almond,255,235,205,255",
+    "cornsilk,255,248,220,255",
+    "eggshell,252,230,201,255",
     "floral_white,255,250,240,255",
-    "gainsboro,219,219,219,255",
-    "ghost_white,247,247,255,255",
+    "gainsboro,220,220,220,255",
+    "ghost_white,248,248,255,255",
     "honeydew,240,255,240,255",
     "ivory,255,255,240,255",
     "lavender,230,230,250,255",
     "lavender_blush,255,240,245,255",
-    "lemon_chiffon,255,250,204,255",
+    "lemon_chiffon,255,250,205,255",
     "linen,250,240,230,255",
     "mint_cream,245,255,250,255",
-    "misty_rose,255,227,225,255",
-    "moccasin,255,227,180,255",
-    "navajo_white,255,222,172,255",
+    "misty_rose,255,228,225,255",
+    "moccasin,255,228,181,255",
+    "navajo_white,255,222,173,255",
     "old_lace,253,245,230,255",
     "papaya_whip,255,239,213,255",
-    "peach_puff,255,217,185,255",
-    "seashell,255,245,237,255",
+    "peach_puff,255,218,185,255",
+    "seashell,255,245,238,255",
     "snow,255,250,250,255",
-    "thistle,216,190,216,255",
-    "titanium_white,252,255,239,255",
+    "thistle,216,191,216,255",
+    "titanium_white,252,255,240,255",
     "wheat,245,222,179,255",
     "white,255,255,255,255",
     "white_smoke,245,245,245,255",
     "zinc_white,252,247,255,255",
     //  Greys
-    "cold_grey,127,137,135,255",
+    "cold_grey,128,138,135,255",
     "dim_grey,105,105,105,255",
-    "grey,191,191,191,255",
+    "grey,192,192,192,255",
     "light_grey,211,211,211,255",
-    "slate_grey,111,128,143,255",
-    "slate_grey_dark,46,78,78,255",
-    "slate_grey_light,119,135,153,255",
-    "warm_grey,127,127,104,255",
+    "slate_grey,112,128,144,255",
+    "slate_grey_dark,47,79,79,255",
+    "slate_grey_light,119,136,153,255",
+    "warm_grey,128,128,105,255",
     //  Blacks
     "black,0,0,0,255",
-    "ivory_black,40,35,33,255",
-    "lamp_black,45,71,58,255",
+    "ivory_black,41,36,33,255",
+    "lamp_black,46,71,59,255",
     //  Reds
-    "alizarin_crimson,226,38,53,255",
-    "brick,155,102,30,255",
-    "cadmium_red_deep,226,22,12,255",
-    "coral,255,126,79,255",
+    "alizarin_crimson,227,38,54,255",
+    "brick,156,102,31,255",
+    "cadmium_red_deep,227,23,13,255",
+    "coral,255,127,80,255",
     "coral_light,240,128,128,255",
-    "deep_pink,255,19,147,255",
-    "english_red,211,61,25,255",
-    "firebrick,177,33,33,255",
-    "geranium_lake,226,17,48,255",
+    "deep_pink,255,20,147,255",
+    "english_red,212,61,26,255",
+    "firebrick,178,34,34,255",
+    "geranium_lake,227,18,48,255",
     "hot_pink,255,105,180,255",
-    "indian_red,175,22,30,255",
-    "light_salmon,255,160,121,255",
-    "madder_lake_deep,226,45,48,255",
-    "maroon,176,47,96,255",
-    "pink,255,191,203,255",
-    "pink_light,255,181,193,255",
-    "raspberry,135,38,86,255",
+    "indian_red,176,23,31,255",
+    "light_salmon,255,160,122,255",
+    "madder_lake_deep,227,46,48,255",
+    "maroon,176,48,96,255",
+    "pink,255,192,203,255",
+    "pink_light,255,182,193,255",
+    "raspberry,135,38,87,255",
     "red,255,0,0,255",
-    "rose_madder,226,53,56,255",
+    "rose_madder,227,54,56,255",
     "salmon,250,128,114,255",
-    "tomato,255,98,70,255",
-    "venetian_red,211,25,30,255",
+    "tomato,255,99,71,255",
+    "venetian_red,212,26,31,255",
     //  Browns
-    "beige,163,147,127,255",
-    "brown,127,41,41,255",
-    "brown_madder,219,40,40,255",
-    "brown_ochre,135,66,30,255",
-    "burlywood,222,184,134,255",
-    "burnt_sienna,137,53,15,255",
-    "burnt_umber,137,51,35,255",
-    "chocolate,209,105,29,255",
-    "deep_ochre,114,61,25,255",
-    "flesh,255,124,63,255",
-    "flesh_ochre,255,86,33,255",
-    "gold_ochre,198,119,38,255",
-    "greenish_umber,255,61,12,255",
-    "khaki,240,230,139,255",
-    "khaki_dark,189,182,106,255",
-    "light_beige,245,245,219,255",
-    "peru,204,133,63,255",
+    "beige,163,148,128,255",
+    "brown,128,42,42,255",
+    "brown_madder,219,41,41,255",
+    "brown_ochre,135,66,31,255",
+    "burlywood,222,184,135,255",
+    "burnt_sienna,138,54,15,255",
+    "burnt_umber,138,51,36,255",
+    "chocolate,210,105,30,255",
+    "deep_ochre,115,61,26,255",
+    "flesh,255,125,64,255",
+    "flesh_ochre,255,87,33,255",
+    "gold_ochre,199,120,38,255",
+    "greenish_umber,255,61,13,255",
+    "khaki,240,230,140,255",
+    "khaki_dark,189,183,107,255",
+    "light_beige,245,245,220,255",
+    "peru,205,133,63,255",
     "rosy_brown,188,143,143,255",
-    "raw_sienna,198,96,20,255",
-    "raw_umber,114,73,17,255",
-    "sepia,94,38,17,255",
+    "raw_sienna,199,97,20,255",
+    "raw_umber,115,74,18,255",
+    "sepia,94,38,18,255",
     "sienna,160,82,45,255",
-    "saddle_brown,139,69,18,255",
-    "sandy_brown,244,163,96,255",
-    "tan,209,180,139,255",
+    "saddle_brown,139,69,19,255",
+    "sandy_brown,244,164,96,255",
+    "tan,210,180,140,255",
     "van_dyke_brown,94,38,5,255",
     //  Oranges
-    "cadmium_orange,255,96,2,255",
-    "cadmium_red_light,255,2,12,255",
+    "cadmium_orange,255,97,3,255",
+    "cadmium_red_light,255,3,13,255",
     "carrot,237,145,33,255",
-    "dark_orange,255,139,0,255",
-    "mars_orange,150,68,20,255",
-    "mars_yellow,226,112,25,255",
-    "orange,255,127,0,255",
+    "dark_orange,255,140,0,255",
+    "mars_orange,150,69,20,255",
+    "mars_yellow,227,112,26,255",
+    "orange,255,128,0,255",
     "orange_red,255,69,0,255",
-    "yellow_ochre,226,130,22,255",
+    "yellow_ochre,227,130,23,255",
     //  Yellows
-    "aureoline_yellow,255,168,35,255",
-    "banana,226,206,86,255",
-    "cadmium_lemon,255,226,2,255",
-    "cadmium_yellow,255,153,17,255",
-    "cadmium_yellow_light,255,175,15,255",
-    "gold,255,214,0,255",
-    "goldenrod,217,165,32,255",
-    "goldenrod_dark,184,134,10,255",
-    "goldenrod_light,250,250,209,255",
-    "goldenrod_pale,237,231,170,255",
-    "light_goldenrod,237,221,129,255",
-    "melon,226,168,104,255",
-    "naples_yellow_deep,255,168,17,255",
+    "aureoline_yellow,255,168,36,255",
+    "banana,227,207,87,255",
+    "cadmium_lemon,255,227,3,255",
+    "cadmium_yellow,255,153,18,255",
+    "cadmium_yellow_light,255,176,15,255",
+    "gold,255,215,0,255",
+    "goldenrod,218,165,32,255",
+    "goldenrod_dark,184,134,11,255",
+    "goldenrod_light,250,250,210,255",
+    "goldenrod_pale,238,232,170,255",
+    "light_goldenrod,238,221,130,255",
+    "melon,227,168,105,255",
+    "naples_yellow_deep,255,168,18,255",
     "yellow,255,255,0,255",
-    "yellow_light,255,255,223,255",
+    "yellow_light,255,255,224,255",
     //  Greens
-    "chartreuse,126,255,0,255",
-    "chrome_oxide_green,102,127,20,255",
-    "cinnabar_green,96,178,40,255",
-    "cobalt_green,61,145,63,255",
-    "emerald_green,0,201,86,255",
-    "forest_green,33,139,33,255",
+    "chartreuse,127,255,0,255",
+    "chrome_oxide_green,102,128,20,255",
+    "cinnabar_green,97,179,41,255",
+    "cobalt_green,61,145,64,255",
+    "emerald_green,0,201,87,255",
+    "forest_green,34,139,34,255",
     "green,0,255,0,255",
     "green_dark,0,100,0,255",
-    "green_pale,152,250,152,255",
-    "green_yellow,172,255,46,255",
-    "lawn_green,124,251,0,255",
-    "lime_green,50,204,50,255",
-    "mint,188,252,201,255",
-    "olive,58,94,43,255",
-    "olive_drab,106,142,35,255",
-    "olive_green_dark,84,106,46,255",
+    "green_pale,152,251,152,255",
+    "green_yellow,173,255,47,255",
+    "lawn_green,124,252,0,255",
+    "lime_green,50,205,50,255",
+    "mint,189,252,201,255",
+    "olive,59,94,43,255",
+    "olive_drab,107,142,35,255",
+    "olive_green_dark,85,107,47,255",
     "permanent_green,10,201,43,255",
-    "sap_green,48,127,20,255",
+    "sap_green,48,128,20,255",
     "sea_green,46,139,87,255",
     "sea_green_dark,143,188,143,255",
-    "sea_green_medium,60,179,112,255",
-    "sea_green_light,32,177,170,255",
-    "spring_green,0,255,126,255",
-    "spring_green_medium,0,250,153,255",
+    "sea_green_medium,60,179,113,255",
+    "sea_green_light,32,178,170,255",
+    "spring_green,0,255,127,255",
+    "spring_green_medium,0,250,154,255",
     "terre_verte,56,94,15,255",
-    "viridian_light,109,255,112,255",
-    "yellow_green,153,204,50,255",
+    "viridian_light,110,255,112,255",
+    "yellow_green,154,205,50,255",
     //  Cyans
-    "aquamarine,126,255,212,255",
-    "aquamarine_medium,102,204,170,255",
+    "aquamarine,127,255,212,255",
+    "aquamarine_medium,102,205,170,255",
     "cyan,0,255,255,255",
-    "cyan_white,223,255,255,255",
-    "turquoise,64,223,208,255",
-    "turquoise_dark,0,205,208,255",
-    "turquoise_medium,72,208,204,255",
-    "turquoise_pale,175,237,237,255",
+    "cyan_white,224,255,255,255",
+    "turquoise,64,224,208,255",
+    "turquoise_dark,0,206,209,255",
+    "turquoise_medium,72,209,204,255",
+    "turquoise_pale,175,238,238,255",
     //  Blues
-    "alice_blue,240,247,255,255",
+    "alice_blue,240,248,255,255",
     "blue,0,0,255,255",
-    "blue_light,172,216,230,255",
-    "blue_medium,0,0,204,255",
-    "cadet,94,157,160,255",
-    "cobalt,61,89,170,255",
-    "cornflower,100,148,236,255",
-    "cerulean,5,183,204,255",
-    "dodger_blue,29,143,255,255",
-    "indigo,7,45,84,255",
-    "manganese_blue,2,168,158,255",
-    "midnight_blue,24,24,111,255",
+    "blue_light,173,216,230,255",
+    "blue_medium,0,0,205,255",
+    "cadet,95,158,160,255",
+    "cobalt,61,89,171,255",
+    "cornflower,100,149,237,255",
+    "cerulean,5,184,204,255",
+    "dodger_blue,30,144,255,255",
+    "indigo,8,46,84,255",
+    "manganese_blue,3,168,158,255",
+    "midnight_blue,25,25,112,255",
     "navy,0,0,128,255",
-    "peacock,51,160,201,255",
-    "powder_blue,176,223,230,255",
-    "royal_blue,64,105,225,255",
-    "slate_blue,106,89,204,255",
-    "slate_blue_dark,72,60,139,255",
-    "slate_blue_light,131,111,255,255",
-    "slate_blue_medium,123,103,237,255",
-    "sky_blue,134,205,235,255",
-    "sky_blue_deep,0,190,255,255",
-    "sky_blue_light,134,205,250,255",
-    "steel_blue,69,129,180,255",
-    "steel_blue_light,176,195,222,255",
-    "turquoise_blue,0,198,140,255",
-    "ultramarine,17,10,142,255",
+    "peacock,51,161,201,255",
+    "powder_blue,176,224,230,255",
+    "royal_blue,65,105,225,255",
+    "slate_blue,106,90,205,255",
+    "slate_blue_dark,72,61,139,255",
+    "slate_blue_light,132,112,255,255",
+    "slate_blue_medium,123,104,238,255",
+    "sky_blue,135,206,235,255",
+    "sky_blue_deep,0,191,255,255",
+    "sky_blue_light,135,206,250,255",
+    "steel_blue,70,130,180,255",
+    "steel_blue_light,176,196,222,255",
+    "turquoise_blue,0,199,140,255",
+    "ultramarine,18,10,143,255",
     //  Magentas
-    "blue_violet,138,42,226,255",
+    "blue_violet,138,43,226,255",
     "cobalt_violet_deep,145,33,158,255",
     "magenta,255,0,255,255",
-    "orchid,217,111,213,255",
+    "orchid,218,112,214,255",
     "orchid_dark,153,50,204,255",
-    "orchid_medium,185,84,211,255",
-    "permanent_red_violet,219,38,68,255",
+    "orchid_medium,186,85,211,255",
+    "permanent_red_violet,219,38,69,255",
     "plum,221,160,221,255",
     "purple,160,32,240,255",
-    "purple_medium,147,111,218,255",
-    "ultramarine_violet,91,35,109,255",
-    "violet,142,94,153,255",
+    "purple_medium,147,112,219,255",
+    "ultramarine_violet,92,36,110,255",
+    "violet,143,94,153,255",
     "violet_dark,148,0,211,255",
-    "violet_red,208,32,143,255",
+    "violet_red,208,32,144,255",
     "violet_red_medium,199,21,133,255",
-    "violet_red_pale,218,111,147,255",
+    "violet_red_pale,219,112,147,255",
     // See: http://en.wikipedia.org/wiki/Web_colors
     // Red colors
     "IndianRed,205,92,92,255",
@@ -617,70 +689,55 @@ void vtkNamedColors::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-std::vector<vtkStdString> vtkNamedColors::GetColorNames()
+vtkStdString & vtkNamedColors::GetColorNames()
 {
-  std::vector<vtkStdString> colorNames;
-  for(std::map<vtkStdString, std::vector<unsigned char> >::const_iterator p =
-    this->colors->GetColorMap()->begin();
-    p != this->colors->GetColorMap()->end(); ++p )
+  std::vector<vtkStdString> cnv = this->colors->GetColorNames();
+  static vtkStdString colorNames; 
+  // Get the last element in the vector.
+  std::vector<vtkStdString>::iterator lastItr = cnv.end();
+  --lastItr;
+  // Now just iterate through the map getting the color names.
+  for(std::vector<vtkStdString>::const_iterator p =
+    cnv.begin(); p != cnv.end(); ++p )
     {
-    colorNames.push_back(p->first);
+    colorNames += *p;
+    if (p != lastItr)
+      {
+      colorNames += "\n";
+      }
     }
   return colorNames;
 }
 
 //-----------------------------------------------------------------------------
-std::vector<std::vector<vtkStdString> > vtkNamedColors::GetSynonyms()
+vtkStdString & vtkNamedColors::GetSynonyms()
 {
-  std::vector<vtkStdString> cn = this->GetColorNames();
-  std::map<vtkStdString,std::vector<vtkStdString> > synonyms;
-  for ( std::vector<vtkStdString>::const_iterator p =
-    cn.begin(); p != cn.end(); ++p )
+  static vtkStdString synonyms;
+  std::vector<std::vector<vtkStdString> > syn = this->colors->GetSynonyms();
+  std::vector<std::vector<vtkStdString> >::const_iterator synLast = syn.end();
+  --synLast;
+  for(std::vector<std::vector<vtkStdString> >::const_iterator p =
+    syn.begin(); p != syn.end(); ++p)
     {
-      bool foundDuplicate = false;
-      std::vector<unsigned char> vu =
-        this->colors->GetColorAsUnsignedCharVector(*p);
-      std::vector<vtkStdString> duplicates;
-      for ( std::map<vtkStdString, std::vector<unsigned char> >::const_iterator
-        q = this->colors->GetColorMap()->begin();
-        q != this->colors->GetColorMap()->end(); ++q )
-      {
-        if ( *p != q->first && vu == q->second )
-          {
-          duplicates.push_back(q->first);
-          }
-      }
-      if ( !duplicates.empty() )
-        {
-          bool alreadyInMap = false;
-          for( std::vector<vtkStdString>::const_iterator r =
-            duplicates.begin(); r != duplicates.end(); ++r)
-          {
-          if( synonyms.find(*r) != synonyms.end() )
-            {
-            alreadyInMap = true;
-            }
-          }
-          if ( !alreadyInMap )
-            {
-            synonyms[*p] = duplicates;
-            }
-        }
-    }
-  std::vector<std::vector<vtkStdString> > retVec;
-  for(std::map<vtkStdString,std::vector<vtkStdString> >::const_iterator p =
-    synonyms.begin(); p != synonyms.end(); ++p)
-    {
-      std::vector<vtkStdString> vstr;
-      vstr.push_back(p->first);
+      // Get the last element in the vector.
+      std::vector<vtkStdString>::const_iterator strLast =
+        p->end();
+      --strLast;
       for(std::vector<vtkStdString>::const_iterator q =
-        p->second.begin(); q!= p->second.end(); ++q)
+        p->begin(); q!= p->end(); ++q)
         {
-        vstr.push_back(*q);
+        synonyms += *q;
+        if(q != strLast)
+          {
+            synonyms += "\n";
+          }
         }
-      retVec.push_back(vstr);
+      if (p != synLast)
+        {
+          synonyms += "\n\n";
+        }
     }
-  return retVec;
+  return synonyms;
 }
 
 //-----------------------------------------------------------------------------

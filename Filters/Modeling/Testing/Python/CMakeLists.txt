@@ -5,7 +5,7 @@ if(VTK_PYTHON_EXE)
     # These tests should use vtk.test.Testing.
     set(tests
       ${tests}
-      TestNamedColorsIntegration.py
+      TestNamedColorsIntegration
     )
   else()
     # Tests written in Python that do NOT require VTKData

@@ -31,13 +31,32 @@ import vtk
 
 class NamedColorsIntegration(vtk.test.Testing.vtkTest):
 
-    def __init__(self):
+    def test(self):
         '''
           Create a cone, contour it using the banded contour filter and
               color it with the primary additive and subtractive colors.
         '''
         namedColors = vtk.vtkNamedColors()
-#        print namedColors
+        # Test printing of the object
+        # Uncomment if desired
+        #print namedColors
+
+        # How to get a list of colors
+        colors = namedColors.GetColorNames()
+        colors = colors.split('\n')
+        # Uncomment if desired
+        #print 'Number of colors:', len(colors)
+        #print colors
+
+        # How to get a list of a list of synonyms.
+        syn = namedColors.GetSynonyms()
+        syn = syn.split('\n\n')
+        synonyms = []
+        for ele in syn:
+            synonyms.append(ele.split('\n'))
+        # Uncomment if desired
+        #print 'Number of synonyms:', len(synonyms)
+        #print synonyms
 
         # Create a cone
         coneSource = vtk.vtkConeSource()
