@@ -9,6 +9,7 @@ set(Module_SRCS
   vtkMoleculeToPolyDataFilter.cxx
   vtkPeriodicTable.cxx
   vtkProgrammableElectronicData.cxx
+  vtkProteinRibbonFilter.cxx
   vtkSimpleBondPerceiver.cxx
   )
 
