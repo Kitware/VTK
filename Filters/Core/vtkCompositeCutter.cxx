@@ -39,6 +39,11 @@
 
 vtkStandardNewMacro(vtkCompositeCutter);
 
+#ifdef DEBUGME
+#define PRINT(x) {cout<<x<<endl;}
+#else
+#define PRINT(x)
+#endif
 namespace
 {
   inline double Sign(double a)
@@ -121,8 +126,9 @@ int vtkCompositeCutter::RequestUpdateExtent(vtkInformation *, vtkInformationVect
           }
         }
       }
-      inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &intersected[0], static_cast<int>(intersected.size()));
-      }
+    PRINT("Cutter demand "<<intersected.size()<<" blocks");
+    inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &intersected[0], static_cast<int>(intersected.size()));
+    }
   return 1;
 }
 
@@ -157,8 +163,6 @@ int vtkCompositeCutter::RequestData(vtkInformation *request,
     numObjects++;
     itr->GoToNextItem();
     }
-  assert(!inInfo->Has(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES())
-         || numObjects==inInfo->Length(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES()));
   append->Update();
 
   vtkPolyData* appoutput = append->GetOutput();
