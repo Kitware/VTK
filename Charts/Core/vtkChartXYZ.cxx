@@ -95,15 +95,15 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
 
   // First lets draw the points in 3d.
   context->ApplyPen(this->Pen.GetPointer());
-  context->DrawPoints(d->points[0].GetData(),
-                      static_cast<int>(d->points.size()));
+  context->DrawPoints(this->Points[0].GetData(),
+                      static_cast<int>(this->Points.size()));
 
   // Now to render the selected points.
   if (!this->SelectedPoints.empty())
     {
     context->ApplyPen(this->SelectedPen.GetPointer());
-    context->DrawPoints(d->selectedPoints[0].GetData(),
-                        static_cast<int>(d->selectedPoints.size()));
+    context->DrawPoints(this->SelectedPoints[0].GetData(),
+                        static_cast<int>(this->SelectedPoints.size()));
     }
 
   context->PopMatrix();

@@ -133,14 +133,14 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
     if (this->NumberOfComponents == 0)
       {
       context->DrawPoints(this->ClippedPoints[0].GetData(),
-                          this->ClippedPoints.size());
+                          static_cast<int>(this->ClippedPoints.size()));
       }
     else
       {
       context->DrawPoints(this->ClippedPoints[0].GetData(),
                           this->ClippedPoints.size(),
                           this->ClippedColors->GetPointer(0),
-                          this->NumberOfComponents);
+                          static_cast<int>(this->NumberOfComponents));
       }
 
     // Now to render the selected points.
@@ -148,7 +148,7 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
       {
       context->ApplyPen(this->SelectedPen.GetPointer());
       context->DrawPoints(this->SelectedPoints[0].GetData(),
-                          this->SelectedPoints.size());
+                          static_cast<int>(this->SelectedPoints.size()));
       }
     context->PopMatrix();
     }
@@ -541,7 +541,8 @@ void vtkInteractiveChartXYZ::DrawTickMarks(vtkContext2D *painter)
     // re-apply the Box matrix and draw the tick marks as points
     context->PushMatrix();
     context->AppendTransform(this->Box.GetPointer());
-    context->DrawPoints(tickPoints[0].GetData(), tickPoints.size());
+    context->DrawPoints(tickPoints[0].GetData(),
+                        static_cast<int>(tickPoints.size()));
     this->TickLabelOffset[axis][0] = labelOffset[0];
     this->TickLabelOffset[axis][1] = labelOffset[1];
     }
@@ -877,7 +878,7 @@ bool vtkInteractiveChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse,
+bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent&,
                                              int delta)
 {
   // Ten "wheels" to double/halve zoom level
