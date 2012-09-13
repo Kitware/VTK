@@ -41,7 +41,8 @@ public:
   void Next()
   {
     this->AdvanceIndex();
-    while(static_cast<unsigned int>(this->Index)>= this->GetNumberOfBlocks(this->Level+1))
+    //advanc the level either when we are at the right level of out of levels
+    while(this->Level < this->NumLevels && static_cast<unsigned int>(this->Index)>= this->GetNumberOfBlocks(this->Level+1))
       {
       this->Level++;
       }
@@ -57,10 +58,15 @@ protected:
   int Index;
   unsigned int NumLevels;
   const std::vector<int>* NumBlocks;
-
   virtual void AdvanceIndex() { this->Index++;}
   virtual unsigned int GetNumberOfLevels() { return static_cast<unsigned int>(this->NumBlocks->size()-1);};
-  virtual unsigned int GetNumberOfBlocks(int i)  { return (*this->NumBlocks)[i];}
+  virtual unsigned int GetNumberOfBlocks(int i)
+  {
+    assert(i< static_cast<int>(this->NumBlocks->size()));
+    return (*this->NumBlocks)[i];
+  }
+
+
 };
 vtkStandardNewMacro(AMRIndexIterator);
 
