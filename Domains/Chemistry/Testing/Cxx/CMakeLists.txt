@@ -12,6 +12,7 @@ set(MyTests
   TestMultiCylinderOff.cxx
   TestPeriodicTable.cxx
   TestProgrammableElectronicData.cxx
+  TestProteinRibbon.cxx
   TestSimpleBondPerceiver.cxx
   TestVDWSpheres.cxx
   )

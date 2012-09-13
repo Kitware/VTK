@@ -32,6 +32,7 @@ class vtkDataArray;
 class vtkIdTypeArray;
 class vtkUnsignedCharArray;
 class vtkPoints;
+class vtkStringArray;
 
 class VTKIOGEOMETRY_EXPORT vtkMoleculeReaderBase : public vtkPolyDataAlgorithm
 {
@@ -72,6 +73,7 @@ protected:
   vtkUnsignedCharArray *RGB;
   vtkFloatArray *Radii;
   vtkIdTypeArray *AtomType;
+  vtkStringArray *AtomTypeStrings;
 
   virtual void ReadSpecificMolecule(FILE* fp) = 0;
 

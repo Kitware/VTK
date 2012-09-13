@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkIdTypeArray.h"
+#include "vtkStringArray.h"
 
 vtkStandardNewMacro(vtkPDBReader);
 
@@ -40,6 +41,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   this->NumberOfAtoms = 0;
   this->Points->Allocate(500);
   this->AtomType->Allocate(500);
+  this->AtomTypeStrings->Allocate(500);
 
   vtkDebugMacro( << "PDB File (" << this->HBScale
     << ", " << this->BScale << ")");
@@ -75,6 +77,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
         this->NumberOfAtoms++;
         }
       this->AtomType->InsertNextValue(this->MakeAtomType(atype));
+      this->AtomTypeStrings->InsertNextValue(atype);
       }
     }
   this->Points->Squeeze();
