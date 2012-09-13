@@ -140,9 +140,9 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
     else
       {
       context->DrawPoints(this->ClippedPoints[0].GetData(),
-                          this->ClippedPoints.size(),
+                          static_cast<int>(this->ClippedPoints.size()),
                           this->ClippedColors->GetPointer(0),
-                          static_cast<int>(this->NumberOfComponents));
+                          this->NumberOfComponents);
       }
 
     // Now to render the selected points.

@@ -27,7 +27,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 
-int TestInteractiveChartXYZ(int argc, char *argv[])
+int TestInteractiveChartXYZ(int , char * [])
 {
   // Now the chart
   vtkNew<vtkInteractiveChartXYZ> chart;
