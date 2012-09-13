@@ -649,13 +649,13 @@ vtkStandardNewMacro(vtkNamedColors);
 //----------------------------------------------------------------------------
 vtkNamedColors::vtkNamedColors()
 {
-  this->colors = new vtkNamedColorsDataStore;
+  this->Colors = new vtkNamedColorsDataStore;
 }
 
 //----------------------------------------------------------------------------
 vtkNamedColors::~vtkNamedColors()
 {
-  delete this->colors;
+  delete this->Colors;
 }
 
 //-----------------------------------------------------------------------------
@@ -664,8 +664,8 @@ void vtkNamedColors::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   for ( std::map<vtkStdString, std::vector<unsigned char> >::const_iterator p =
-    this->colors->GetColorMap()->begin();
-    p != this->colors->GetColorMap()->end(); ++p )
+    this->Colors->GetColorMap()->begin();
+    p != this->Colors->GetColorMap()->end(); ++p )
     {
     os << indent << ": " << p->first << "(";
     if ( !p->second.empty() )
@@ -691,8 +691,8 @@ void vtkNamedColors::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 vtkStdString & vtkNamedColors::GetColorNames()
 {
-  std::vector<vtkStdString> cnv = this->colors->GetColorNames();
-  static vtkStdString colorNames; 
+  std::vector<vtkStdString> cnv = this->Colors->GetColorNames();
+  static vtkStdString colorNames;
   // Get the last element in the vector.
   std::vector<vtkStdString>::iterator lastItr = cnv.end();
   --lastItr;
@@ -713,7 +713,7 @@ vtkStdString & vtkNamedColors::GetColorNames()
 vtkStdString & vtkNamedColors::GetSynonyms()
 {
   static vtkStdString synonyms;
-  std::vector<std::vector<vtkStdString> > syn = this->colors->GetSynonyms();
+  std::vector<std::vector<vtkStdString> > syn = this->Colors->GetSynonyms();
   std::vector<std::vector<vtkStdString> >::const_iterator synLast = syn.end();
   --synLast;
   for(std::vector<std::vector<vtkStdString> >::const_iterator p =
@@ -743,20 +743,20 @@ vtkStdString & vtkNamedColors::GetSynonyms()
 //-----------------------------------------------------------------------------
 int vtkNamedColors::GetNumberOfColors()
 {
-  return static_cast<int>(this->colors->GetColorMap()->size());
+  return static_cast<int>(this->Colors->GetColorMap()->size());
 }
 
 //-----------------------------------------------------------------------------
 void vtkNamedColors::ResetColors()
 {
-  this->colors->GetColorMap()->clear();
-  this->colors->Init();
+  this->Colors->GetColorMap()->clear();
+  this->Colors->Init();
 }
 
 //-----------------------------------------------------------------------------
 bool vtkNamedColors::ColorExists(const vtkStdString & name)
 {
-  return this->colors->ColorExists(name);
+  return this->Colors->ColorExists(name);
 }
 
 //-----------------------------------------------------------------------------
@@ -769,7 +769,7 @@ unsigned char * vtkNamedColors::GetColorAsUnsignedChar(const vtkStdString & name
     }
   rgba[3] = 255;
   std::vector<unsigned char> v =
-    this->colors->GetColorAsUnsignedCharVector(name);
+    this->Colors->GetColorAsUnsignedCharVector(name);
   if ( v.size() == 4 )
   {
     for ( size_t i = 0; i < v.size(); ++i )
@@ -786,7 +786,7 @@ void vtkNamedColors::GetColor(const vtkStdString & name,
                               unsigned char & b, unsigned char & a)
 {
   std::vector<unsigned char> rgba =
-    this->colors->GetColorAsUnsignedCharVector(name);
+    this->Colors->GetColorAsUnsignedCharVector(name);
   if ( !rgba.empty() && rgba.size() == 4 )
     {
     r = rgba[0];
@@ -807,7 +807,7 @@ void vtkNamedColors::GetColor(const vtkStdString & name, unsigned char rgba[4])
   rgba[0] = rgba[1] = rgba[2] = 0;
   rgba[3] = 255;
   std::vector<unsigned char> vcolor =
-    this->colors->GetColorAsUnsignedCharVector(name);
+    this->Colors->GetColorAsUnsignedCharVector(name);
   if ( !vcolor.empty() && vcolor.size() == 4 )
   {
   for ( size_t i = 0; i < vcolor.size(); ++i )
@@ -826,7 +826,7 @@ double * vtkNamedColors::GetColorAsDouble(const vtkStdString & name)
     rgba[i] = 0;
     }
   rgba[3] = 1.0;
-  std::vector<double> v = this->colors->GetColorAsDoubleVector(name);
+  std::vector<double> v = this->Colors->GetColorAsDoubleVector(name);
   if ( v.size() == 4 )
     {
     for ( size_t i = 0; i < v.size(); ++i )
@@ -841,7 +841,7 @@ double * vtkNamedColors::GetColorAsDouble(const vtkStdString & name)
 void vtkNamedColors::GetColor(const vtkStdString & name,
                               double & r, double & g, double & b, double & a)
 {
-  std::vector<double> rgba = this->colors->GetColorAsDoubleVector(name);
+  std::vector<double> rgba = this->Colors->GetColorAsDoubleVector(name);
   if ( !rgba.empty() && rgba.size() == 4 )
   {
     r = rgba[0];
@@ -861,7 +861,7 @@ void vtkNamedColors::GetColor(const vtkStdString & name, double rgba[4])
 {
   rgba[0] = rgba[1] = rgba[2] = 0;
   rgba[3] = 1.0;
-  std::vector<double> vcolor = this->colors->GetColorAsDoubleVector(name);
+  std::vector<double> vcolor = this->Colors->GetColorAsDoubleVector(name);
   if ( !vcolor.empty() && vcolor.size() == 4 )
     {
     for ( size_t i = 0; i < vcolor.size(); ++i )
@@ -879,7 +879,7 @@ double * vtkNamedColors::GetColorAsDoubleRGB(const vtkStdString & name)
     {
     rgb[i] = 0;
     }
-  std::vector<double> rgba = this->colors->GetColorAsDoubleVector(name);
+  std::vector<double> rgba = this->Colors->GetColorAsDoubleVector(name);
   if ( rgba.size() == 4 )
     {
     for ( size_t i = 0; i < 3; ++i )
@@ -894,7 +894,7 @@ double * vtkNamedColors::GetColorAsDoubleRGB(const vtkStdString & name)
 void vtkNamedColors::GetColorRGB(const vtkStdString & name,
                                  double & r, double & g, double & b)
 {
-  std::vector<double> rgba = this->colors->GetColorAsDoubleVector(name);
+  std::vector<double> rgba = this->Colors->GetColorAsDoubleVector(name);
   if ( !rgba.empty() && rgba.size() == 4 )
   {
     r = rgba[0];
@@ -911,7 +911,7 @@ void vtkNamedColors::GetColorRGB(const vtkStdString & name,
 void vtkNamedColors::GetColorRGB(const vtkStdString & name, double rgb[3])
 {
   rgb[0] = rgb[1] = rgb[2] = 0;
-  std::vector<double> rgba = this->colors->GetColorAsDoubleVector(name);
+  std::vector<double> rgba = this->Colors->GetColorAsDoubleVector(name);
   if ( !rgba.empty() && rgba.size() == 4 )
     {
     for ( size_t i = 0; i < 3; ++i )
@@ -931,7 +931,7 @@ void vtkNamedColors::SetColor(const vtkStdString & name,
   v.push_back(g);
   v.push_back(b);
   v.push_back(a);
-  this->colors->SetColor(name,v);
+  this->Colors->SetColor(name,v);
 }
 
 //-----------------------------------------------------------------------------
@@ -943,7 +943,7 @@ void vtkNamedColors::SetColor(const vtkStdString & name,
     {
     v.push_back(rgba[i]);
     }
-  this->colors->SetColor(name,v);
+  this->Colors->SetColor(name,v);
 }
 
 //-----------------------------------------------------------------------------
@@ -956,7 +956,7 @@ void vtkNamedColors::SetColor(const vtkStdString & name,
   v.push_back(g);
   v.push_back(b);
   v.push_back(a);
-  this->colors->SetColor(name,v);
+  this->Colors->SetColor(name,v);
 }
 
 //-----------------------------------------------------------------------------
@@ -967,7 +967,7 @@ void vtkNamedColors::SetColor(const vtkStdString & name, const double rgba[4])
     {
     v.push_back(rgba[i]);
     }
-  this->colors->SetColor(name,v);
+  this->Colors->SetColor(name,v);
 }
 
 //-----------------------------------------------------------------------------
@@ -975,6 +975,6 @@ void vtkNamedColors::RemoveColor(const vtkStdString & name)
 {
   if (!name.empty())
     {
-    this->colors->RemoveColor(name);
+    this->Colors->RemoveColor(name);
     }
 }

@@ -66,9 +66,13 @@ bool TestSearchForSynonyms();
 bool TestEmptyColorName()
 {
   VTK_CREATE(vtkNamedColors, nc);
-  vtkStdString name; 
+  vtkStdString name;
+  // Reference color
+  unsigned char rr, rg, rb;
+  rr = rb = rg = 0;
+  unsigned char ra = 255;
   unsigned char *v = nc->GetColorAsUnsignedChar(name);
-  if ( v[0] != 0 || v[1] != 0 || v[2] != 0 || v[3] != 255 )
+  if ( v[0] != rr || v[1] != rg || v[2] != rb || v[3] != ra )
     {
     vtkGenericWarningMacro(
       << "Fail: an empty color name "
@@ -76,12 +80,50 @@ bool TestEmptyColorName()
       );
     return false;
   }
+  unsigned char ur, ug, ub;
+  ur = ug = ub = 0;
+  unsigned char ua = 0;
+  nc->GetColor(name,ur,ug,ub,ua);
+  if ( ur != rr || ug != rg || ub != rb || ua != ra )
+    {
+    vtkGenericWarningMacro(
+      << "Fail: an empty color name "
+      << "returned an unsigned char color other than black."
+      );
+    return false;
+  }
+
+  // Reference color
+  double rrd, rgd, rbd;
+  rrd = rgd = rbd = 0;
+  double rad = 1;
   double *vd = nc->GetColorAsDouble(name);
-  if ( vd[0] != 0 || vd[1] != 0 || vd[2] != 0 || vd[3] != 1 )
+  if ( vd[0] != rrd || vd[1] != rgd || vd[2] != rbd || vd[3] != rad )
     {
     vtkGenericWarningMacro(
       << "Fail: an empty color name "
       << "returned a double color other than black."
+      );
+    return false;
+  }
+  double dr, dg, db;
+  dr = dg = db = 1;
+  double da = 0;
+  nc->GetColor(name,dr,dg,db,da);
+  if ( dr != rrd || dg != rgd || db != rbd || da != rad )
+    {
+    vtkGenericWarningMacro(
+      << "Fail: an empty color name "
+      << "returned an double color other than black."
+      );
+    return false;
+  }
+  nc->GetColorRGB(name,dr,dg,db);
+  if ( ur != rrd || dg != rgd || db != rbd )
+    {
+    vtkGenericWarningMacro(
+      << "Fail: an empty color name "
+      << "returned an double color other than black."
       );
     return false;
   }
@@ -255,7 +297,7 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
 {
   VTK_CREATE(vtkNamedColors, nc);
   int num1 = nc->GetNumberOfColors();
-  
+
   int sz = nc->GetNumberOfColors();
   // Test for adding empty names.
   nc->SetColor("",dcolor);
@@ -471,7 +513,7 @@ std::vector<std::vector<vtkStdString> > ParseSynonyms(const vtkStdString & synon
     cn = ParseColorNames(str);
     syn.push_back(cn);
     start = end + 2;
-    end = synonyms.find(synonymDelimiter,start); 
+    end = synonyms.find(synonymDelimiter,start);
   }
   // Get the last set of synonyms.
   if(!synonyms.empty())

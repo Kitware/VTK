@@ -49,6 +49,7 @@ class VTKCOMMONCOLOR_EXPORT vtkNamedColors : public vtkObject
 public:
   vtkTypeMacro(vtkNamedColors, vtkObject);
 
+  // Description:
   // Methods invoked by print to print information about the object
   // including superclasses. Typically not called by the user
   // (use Print() instead) but used in the hierarchical print
@@ -202,7 +203,7 @@ public:
   //  Description:
   // Return a string of synonyms such as
   // cyan/aqua and magenta/fuchsia.
-  // The string is formatted sudh that a single line feed delimits
+  // The string is formatted such that a single line feed delimits
   // each color in the synonym and a double line feed delimits each
   // synonym.
   // Warning this could take a long time for very large color maps.
@@ -217,7 +218,7 @@ protected:
 private:
   // Description:
   // The implementation of the color map and other required methods.
-  vtkNamedColorsDataStore *colors;
+  vtkNamedColorsDataStore *Colors;
 
   vtkNamedColors(const vtkNamedColors&);  // Not implemented.
   void operator=(const vtkNamedColors&);  // Not implemented.
