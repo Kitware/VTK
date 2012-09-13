@@ -246,7 +246,7 @@ protected:
   // Description:
   // The subset of our data points that fall within the axes.  These are
   // the only data points that are rendered.
-  vector<vtkVector3f> clipped_points;
+  vector<vtkVector3f> ClippedPoints;
 
   // Description:
   // This array assigns a color to each data point.

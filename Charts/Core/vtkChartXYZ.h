@@ -102,25 +102,19 @@ protected:
   vtkNew<vtkPen> AxisPen;
   vtkSmartPointer<vtkAnnotationLink> Link;
 
-  vector<vtkVector3f> points;
-  vtkTimeStamp pointsBuidTime;
-  vector<vtkVector3f> selectedPoints;
-  vtkTimeStamp selectedPointsBuidTime;
+  vector<vtkVector3f> Points;
+  vtkTimeStamp PointsBuildTime;
+  vector<vtkVector3f> SelectedPoints;
+  vtkTimeStamp SelectedPointsBuildTime;
 
-  vector< vtkSmartPointer<vtkAxis> > axes;
+  vector< vtkSmartPointer<vtkAxis> > Axes;
   vtkNew<vtkTransform> Transform;
   vtkNew<vtkTransform> Translation;
   vtkNew<vtkTransform> ContextTransform;
   vtkNew<vtkTransform> Rotation;
   vtkNew<vtkTransform> Box;
-  double angle;
-
-  vtkVector3f origin;
-  vtkVector3f other;
-  vtkVector3f xyz[3];
-
-  bool isX;
-  bool init;
+  double Angle;
+  bool IsX;
 
 
 private:

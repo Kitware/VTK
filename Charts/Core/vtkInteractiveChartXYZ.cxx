@@ -75,7 +75,7 @@ void vtkInteractiveChartXYZ::Update()
   if (this->Link)
     {
     // Copy the row numbers so that we can do the highlight...
-    if (!this->points.empty())
+    if (!this->Points.empty())
       {
       vtkSelection *selection =
           vtkSelection::SafeDownCast(this->Link->GetOutputDataObject(2));
@@ -84,15 +84,15 @@ void vtkInteractiveChartXYZ::Update()
         vtkSelectionNode *node = selection->GetNode(0);
         vtkIdTypeArray *idArray =
             vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-        if (this->selectedPointsBuidTime > idArray->GetMTime() ||
-            this->GetMTime() > this->selectedPointsBuidTime)
+        if (this->SelectedPointsBuildTime > idArray->GetMTime() ||
+            this->GetMTime() > this->SelectedPointsBuildTime)
           {
-          this->selectedPoints.resize(idArray->GetNumberOfTuples());
+          this->SelectedPoints.resize(idArray->GetNumberOfTuples());
           for (vtkIdType i = 0; i < idArray->GetNumberOfTuples(); ++i)
             {
-            this->selectedPoints[i] = this->points[idArray->GetValue(i)];
+            this->SelectedPoints[i] = this->Points[idArray->GetValue(i)];
             }
-          this->selectedPointsBuidTime.Modified();
+          this->SelectedPointsBuildTime.Modified();
           }
         }
       }
@@ -102,7 +102,7 @@ void vtkInteractiveChartXYZ::Update()
 //-----------------------------------------------------------------------------
 bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
 {
-  if (!this->Visible || this->points.size() == 0)
+  if (!this->Visible || this->Points.size() == 0)
     return false;
 
   // Get the 3D context.
@@ -121,7 +121,7 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
 
   // Update the points that fall inside our axes
   this->UpdateClippedPoints();
-  if (this->clipped_points.size() > 0)
+  if (this->ClippedPoints.size() > 0)
     {
     context->PushMatrix();
     context->AppendTransform(this->ContextTransform.GetPointer());
@@ -132,20 +132,23 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
     context->ApplyPen(this->Pen.GetPointer());
     if (this->NumberOfComponents == 0)
       {
-      context->DrawPoints(this->clipped_points[0].GetData(),
-                          this->clipped_points.size());
+      context->DrawPoints(this->ClippedPoints[0].GetData(),
+                          this->ClippedPoints.size());
       }
     else
       {
-      context->DrawPoints(this->clipped_points[0].GetData(), this->clipped_points.size(),
-                          this->ClippedColors->GetPointer(0), this->NumberOfComponents);
+      context->DrawPoints(this->ClippedPoints[0].GetData(),
+                          this->ClippedPoints.size(),
+                          this->ClippedColors->GetPointer(0),
+                          this->NumberOfComponents);
       }
 
     // Now to render the selected points.
-    if (!this->selectedPoints.empty())
+    if (!this->SelectedPoints.empty())
       {
       context->ApplyPen(this->SelectedPen.GetPointer());
-      context->DrawPoints(this->selectedPoints[0].GetData(), this->selectedPoints.size());
+      context->DrawPoints(this->SelectedPoints[0].GetData(),
+                          this->SelectedPoints.size());
       }
     context->PopMatrix();
     }
@@ -195,9 +198,9 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 void vtkInteractiveChartXYZ::UpdateClippedPoints()
 {
-  this->clipped_points.clear();
+  this->ClippedPoints.clear();
   this->ClippedColors->Reset();
-  for( size_t i = 0; i < this->points.size(); ++i )
+  for( size_t i = 0; i < this->Points.size(); ++i )
     {
     const unsigned char rgb[3] =
       {
@@ -205,9 +208,9 @@ void vtkInteractiveChartXYZ::UpdateClippedPoints()
       this->Colors->GetValue(i * this->NumberOfComponents + 1),
       this->Colors->GetValue(i * this->NumberOfComponents + 2)
       };
-    if( !this->PointShouldBeClipped(this->points[i]) )
+    if( !this->PointShouldBeClipped(this->Points[i]) )
       {
-      this->clipped_points.push_back(this->points[i]);
+      this->ClippedPoints.push_back(this->Points[i]);
       this->ClippedColors->InsertNextTupleValue(&rgb[0]);
       this->ClippedColors->InsertNextTupleValue(&rgb[1]);
       this->ClippedColors->InsertNextTupleValue(&rgb[2]);
@@ -224,10 +227,10 @@ void vtkInteractiveChartXYZ::ComputeDataBounds()
   double yMax = DBL_MIN;
   float transformedPoint[3];
 
-  for (unsigned int i = 0; i < this->clipped_points.size(); ++i)
+  for (unsigned int i = 0; i < this->ClippedPoints.size(); ++i)
     {
     this->ContextTransform->TransformPoint(
-      this->clipped_points[i].GetData(), transformedPoint);
+      this->ClippedPoints[i].GetData(), transformedPoint);
 
     if (transformedPoint[0] < xMin)
       {
@@ -696,7 +699,8 @@ void vtkInteractiveChartXYZ::DetermineWhichAxesToLabel()
                   directionToData = 4;
                   }
               }
-            else if (start[1] < this->DataBounds[1] && end[1] > this->DataBounds[3])
+            else if (start[1] < this->DataBounds[1] &&
+                     end[1] > this->DataBounds[3])
               {
               // data falls within vertical range of this axis line
               // set directionToData as purely left or purely right
@@ -781,7 +785,7 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input,
       vtkDataArray::SafeDownCast(input->GetColumnByName(colorName.c_str()));
 
   assert(colorArr);
-  assert((unsigned int)colorArr->GetNumberOfTuples() == this->points.size());
+  assert((unsigned int)colorArr->GetNumberOfTuples() == this->Points.size());
 
   this->NumberOfComponents = 3;
 
@@ -789,7 +793,7 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input,
   vtkNew<vtkLookupTable> lookupTable;
   double min = DBL_MAX;
   double max = DBL_MIN;
-  for (unsigned int i = 0; i < this->points.size(); ++i)
+  for (unsigned int i = 0; i < this->Points.size(); ++i)
     {
     double value = colorArr->GetComponent(i, 0);
     if (value > max)
@@ -806,7 +810,7 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input,
   lookupTable->SetRange(min, max);
   lookupTable->Build();
 
-  for (unsigned int i = 0; i < this->points.size(); ++i)
+  for (unsigned int i = 0; i < this->Points.size(); ++i)
     {
     double value = colorArr->GetComponent(i, 0);
     unsigned char *rgb = lookupTable->MapValue(value);
@@ -1079,12 +1083,12 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   // Calculate the correct translation vector so that rotation and scale
   // are applied about the middle of the axes box.
   vtkVector3f translation(
-    (axes[0]->GetPosition2()[0] - axes[0]->GetPosition1()[0]) / 2.0
-    + axes[0]->GetPosition1()[0],
-    (axes[1]->GetPosition2()[1] - axes[1]->GetPosition1()[1]) / 2.0
-    + axes[1]->GetPosition1()[1],
-    (axes[2]->GetPosition2()[1] - axes[2]->GetPosition1()[1]) / 2.0
-    + axes[2]->GetPosition1()[1]);
+    (this->Axes[0]->GetPosition2()[0] - this->Axes[0]->GetPosition1()[0]) / 2.0
+      + this->Axes[0]->GetPosition1()[0],
+    (this->Axes[1]->GetPosition2()[1] - this->Axes[1]->GetPosition1()[1]) / 2.0
+      + this->Axes[1]->GetPosition1()[1],
+    (this->Axes[2]->GetPosition2()[1] - this->Axes[2]->GetPosition1()[1]) / 2.0
+      + this->Axes[2]->GetPosition1()[1]);
   vtkVector3f mtranslation = -1.0 * translation;
 
   this->ContextTransform->Identity();
@@ -1095,9 +1099,9 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->ContextTransform->Concatenate(this->Scale.GetPointer());
   this->ContextTransform->Translate(mtranslation.GetData());
   this->ContextTransform->Translate(
-    axes[0]->GetPosition1()[0] - this->Geometry.X(),
-    axes[1]->GetPosition1()[1] - this->Geometry.Y(),
-    axes[2]->GetPosition1()[1]);
+    this->Axes[0]->GetPosition1()[0] - this->Geometry.X(),
+    this->Axes[1]->GetPosition1()[1] - this->Geometry.Y(),
+    this->Axes[2]->GetPosition1()[1]);
   this->ContextTransform->Concatenate(this->Transform.GetPointer());
 
   // Next construct the transform for the box axes.
@@ -1105,9 +1109,11 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   for (int i = 0; i < 3; ++i)
     {
     if (i == 0)
-      scale[i] = axes[i]->GetPosition2()[0] - axes[i]->GetPosition1()[0];
+      scale[i] = this->Axes[i]->GetPosition2()[0] -
+                 this->Axes[i]->GetPosition1()[0];
     else
-      scale[i] = axes[i]->GetPosition2()[1] - axes[i]->GetPosition1()[1];
+      scale[i] = this->Axes[i]->GetPosition2()[1] -
+                 this->Axes[i]->GetPosition1()[1];
     }
 
   this->Box->Identity();
@@ -1117,9 +1123,9 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->Box->Concatenate(this->BoxScale.GetPointer());
   this->Box->Translate(0.5, 0.5, 0.5);
   this->Box->Scale(scale);
-  this->Box->Translate(axes[0]->GetPosition1()[0],
-                       axes[1]->GetPosition1()[1],
-                       axes[2]->GetPosition1()[1]);
+  this->Box->Translate(this->Axes[0]->GetPosition1()[0],
+                       this->Axes[1]->GetPosition1()[1],
+                       this->Axes[2]->GetPosition1()[1]);
 
   // setup clipping planes
   vtkVector3d cube[8];
@@ -1179,7 +1185,8 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->Face6->SetNormal(norm6);
   this->Face6->SetOrigin(transformedCube[7].GetData());
 
-  this->MaxDistance = this->Face1->DistanceToPlane(transformedCube[7].GetData());
+  this->MaxDistance =
+    this->Face1->DistanceToPlane(transformedCube[7].GetData());
 }
 
 //-----------------------------------------------------------------------------
@@ -1298,9 +1305,11 @@ void vtkInteractiveChartXYZ::InitializeFutureBox()
   for (int i = 0; i < 3; ++i)
     {
     if (i == 0)
-      scale[i] = axes[i]->GetPosition2()[0] - axes[i]->GetPosition1()[0];
+      scale[i] = this->Axes[i]->GetPosition2()[0] -
+                 this->Axes[i]->GetPosition1()[0];
     else
-      scale[i] = axes[i]->GetPosition2()[1] - axes[i]->GetPosition1()[1];
+      scale[i] = this->Axes[i]->GetPosition2()[1] -
+                 this->Axes[i]->GetPosition1()[1];
     }
 
   this->FutureBoxScale->DeepCopy(this->BoxScale.GetPointer());
@@ -1312,9 +1321,9 @@ void vtkInteractiveChartXYZ::InitializeFutureBox()
   this->FutureBox->Concatenate(this->FutureBoxScale.GetPointer());
   this->FutureBox->Translate(0.5, 0.5, 0.5);
   this->FutureBox->Scale(scale);
-  this->FutureBox->Translate(axes[0]->GetPosition1()[0],
-                             axes[1]->GetPosition1()[1],
-                             axes[2]->GetPosition1()[1]);
+  this->FutureBox->Translate(this->Axes[0]->GetPosition1()[0],
+                             this->Axes[1]->GetPosition1()[1],
+                             this->Axes[2]->GetPosition1()[1]);
 }
 
 //-----------------------------------------------------------------------------
@@ -1332,28 +1341,28 @@ bool vtkInteractiveChartXYZ::CheckForSceneResize()
       int dx = (currentWidth - this->SceneWidth) / 2;
       int dy = (currentHeight - this->SceneHeight) / 2;
 
-      vtkVector2f axisPt = axes[0]->GetPosition1();
+      vtkVector2f axisPt = this->Axes[0]->GetPosition1();
       axisPt[0] += dx;
       axisPt[1] += dy;
-      axes[0]->SetPoint1(axisPt);
-      axisPt = axes[0]->GetPosition2();
+      this->Axes[0]->SetPoint1(axisPt);
+      axisPt = this->Axes[0]->GetPosition2();
       axisPt[0] += dx;
       axisPt[1] += dy;
-      axes[0]->SetPoint2(axisPt);
-      axisPt = axes[1]->GetPosition1();
+      this->Axes[0]->SetPoint2(axisPt);
+      axisPt = this->Axes[1]->GetPosition1();
       axisPt[0] += dx;
       axisPt[1] += dy;
-      axes[1]->SetPoint1(axisPt);
-      axisPt = axes[1]->GetPosition2();
+      this->Axes[1]->SetPoint1(axisPt);
+      axisPt = this->Axes[1]->GetPosition2();
       axisPt[0] += dx;
       axisPt[1] += dy;
-      axes[1]->SetPoint2(axisPt);
-      axisPt = axes[2]->GetPosition1();
+      this->Axes[1]->SetPoint2(axisPt);
+      axisPt = this->Axes[2]->GetPosition1();
       axisPt[0] += dx;
-      axes[2]->SetPoint1(axisPt);
-      axisPt = axes[2]->GetPosition2();
+      this->Axes[2]->SetPoint1(axisPt);
+      axisPt = this->Axes[2]->GetPosition2();
       axisPt[0] += dx;
-      axes[2]->SetPoint2(axisPt);
+      this->Axes[2]->SetPoint2(axisPt);
       this->RecalculateTransform();
       }
     else
