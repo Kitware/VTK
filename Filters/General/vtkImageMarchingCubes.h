@@ -102,27 +102,27 @@ public:
   vtkFloatArray *Normals;
   vtkFloatArray *Gradients;
 
-  int GetLocatorPoint(int cellX, int cellY, int edge);
-  void AddLocatorPoint(int cellX, int cellY, int edge, int ptId);
+  vtkIdType GetLocatorPoint(int cellX, int cellY, int edge);
+  void AddLocatorPoint(int cellX, int cellY, int edge, vtkIdType ptId);
   void IncrementLocatorZ();
 
   // Description:
   // The InputMemoryLimit determines the chunk size (the number of slices
   // requested at each iteration).  The units of this limit is KiloBytes.
   // For now, only the Z axis is split.
-  vtkSetMacro(InputMemoryLimit, int);
-  vtkGetMacro(InputMemoryLimit, int);
+  vtkSetMacro(InputMemoryLimit, vtkIdType);
+  vtkGetMacro(InputMemoryLimit, vtkIdType);
 
 protected:
   vtkImageMarchingCubes();
   ~vtkImageMarchingCubes();
 
   int NumberOfSlicesPerChunk;
-  int InputMemoryLimit;
+  vtkIdType InputMemoryLimit;
 
   vtkContourValues *ContourValues;
 
-  int *LocatorPointIds;
+  vtkIdType *LocatorPointIds;
   int LocatorDimX;
   int LocatorDimY;
   int LocatorMinX;
@@ -135,7 +135,7 @@ protected:
              int numContours, double *values);
   void InitializeLocator(int min0, int max0, int min1, int max1);
   void DeleteLocator();
-  int *GetLocatorPointer(int cellX, int cellY, int edge);
+  vtkIdType *GetLocatorPointer(int cellX, int cellY, int edge);
 
 private:
   vtkImageMarchingCubes(const vtkImageMarchingCubes&);  // Not implemented.
