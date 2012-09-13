@@ -294,6 +294,12 @@ public:
   // ensure the numbers are correct, Update() should be called on the axis.
   vtkRectf GetBoundingRect(vtkContext2D* painter);
 
+  // Description:
+  // Return a "nice number", often defined as 1, 2 or 5. If roundUp is true then
+  // the nice number will be rounded up, false it is rounded down. The supplied
+  // number should be between 0.0 and 9.9.
+  static double NiceNumber(double number, bool roundUp);
+
 //BTX
 protected:
   vtkAxis();
@@ -313,12 +319,6 @@ protected:
   // Calculate the next "nicest" numbers above and below the current minimum.
   // \return the "nice" spacing of the numbers.
   double CalculateNiceMinMax(double &min, double &max);
-
-  // Description:
-  // Return a "nice number", often defined as 1, 2 or 5. If roundUp is true then
-  // the nice number will be rounded up, false it is rounded down. The supplied
-  // number should be between 0.0 and 9.9.
-  double NiceNumber(double number, bool roundUp);
 
   // Description:
   // Return a tick mark for a logarithmic axis.

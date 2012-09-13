@@ -121,11 +121,7 @@ int TestInteractiveChartXYZ(int argc, char *argv[])
   mouseEvent.SetScreenPos(pos);
   chart->MouseMoveEvent(mouseEvent);
 
-  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetRenderWindow()->Render();
-    view->GetInteractor()->Start();
-    }
-  return !retVal;
+  view->GetInteractor()->Start();
+
+  return EXIT_SUCCESS;
 }

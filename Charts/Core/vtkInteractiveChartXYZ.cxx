@@ -55,6 +55,8 @@ vtkInteractiveChartXYZ::vtkInteractiveChartXYZ()
   this->Scale->PostMultiply();
   this->Interactive = true;
   this->NumberOfComponents = 0;
+  this->SceneWidth = 0;
+  this->SceneHeight = 0;
   this->InitializeAxesBoundaryPoints();
 }
 
@@ -823,14 +825,6 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input,
 }
 
 //-----------------------------------------------------------------------------
-void vtkInteractiveChartXYZ::SetScene(vtkContextScene *scene)
-{
-  this->Superclass::SetScene(scene);
-  this->SceneWidth = this->Scene->GetSceneWidth();
-  this->SceneHeight = this->Scene->GetSceneHeight();
-}
-
-//-----------------------------------------------------------------------------
 bool vtkInteractiveChartXYZ::Hit(const vtkContextMouseEvent &vtkNotUsed(mouse))
 {
   // If we are interactive, we want to catch anything that propagates to the
@@ -1486,7 +1480,7 @@ double vtkInteractiveChartXYZ::CalculateNiceMinMax(double &min, double &max,
 
   int order = static_cast<int>(floor(log10(tickSpacing)));
   double normTickSpacing = tickSpacing * pow(double(10.0), -order);
-  double niceTickSpacing = this->NiceNumber(normTickSpacing, true);
+  double niceTickSpacing = vtkAxis::NiceNumber(normTickSpacing, true);
   niceTickSpacing *= pow(double(10.0), order);
 
   if (isNegative)
@@ -1501,47 +1495,4 @@ double vtkInteractiveChartXYZ::CalculateNiceMinMax(double &min, double &max,
     }
 
   return niceTickSpacing;
-}
-
-//-----------------------------------------------------------------------------
-double vtkInteractiveChartXYZ::NiceNumber(double n, bool roundUp)
-{
-  if (roundUp)
-    {
-    if (n <= 1.0)
-      {
-      return 1.0;
-      }
-    else if (n <= 2.0)
-      {
-      return 2.0;
-      }
-    else if (n <= 5.0)
-      {
-      return 5.0;
-      }
-    else
-      {
-      return 10.0;
-      }
-    }
-  else
-    {
-    if (n < 1.5)
-      {
-      return 1.0;
-      }
-    else if (n <= 3.0)
-      {
-      return 2.0;
-      }
-    else if (n <= 7.0)
-      {
-      return 5.0;
-      }
-    else
-      {
-      return 10.0;
-      }
-    }
 }

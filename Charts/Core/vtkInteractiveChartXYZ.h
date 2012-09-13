@@ -84,10 +84,6 @@ public:
   virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
   //ETX
 
-  // Description:
-  // Set the vtkContextScene for the item, always set for an item in a scene.
-  virtual void SetScene(vtkContextScene *scene);
-
 protected:
   vtkInteractiveChartXYZ();
   ~vtkInteractiveChartXYZ();
@@ -210,13 +206,6 @@ protected:
   // \return the "nice" spacing of the numbers.
   // This function was mostly copied from vtkAxis.
   double CalculateNiceMinMax(double &min, double &max, int axis);
-
-  // Description:
-  // Return a "nice number", often defined as 1, 2 or 5. If roundUp is true then
-  // the nice number will be rounded up, false it is rounded down. The supplied
-  // number should be between 0.0 and 9.9.
-  // This function was directly copied from vtkAxis.
-  double NiceNumber(double n, bool roundUp);
 
   // Description:
   // This transform keeps track of how the data points have been panned within
