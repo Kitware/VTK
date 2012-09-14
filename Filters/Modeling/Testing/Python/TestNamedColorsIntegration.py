@@ -136,8 +136,7 @@ class NamedColorsIntegration(vtk.test.Testing.vtkTest):
         renderer.SetBackground(rgb);
 
         renderWindow.Render();
-#        renderWindowInteractor.Start();
-        img_file = "NamedColorsIntegration.png"
+        img_file = "TestNamedColorsIntegration.png"
         vtk.test.Testing.compareImage(renderWindowInteractor.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
         vtk.test.Testing.interact()
 

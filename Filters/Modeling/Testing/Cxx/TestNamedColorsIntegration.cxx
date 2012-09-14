@@ -33,18 +33,17 @@
 
 //#include <iostream>
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 // Create a cone, contour it using the banded contour filter and
 // color it with the primary additive and subtractive colors.
 int TestNamedColorsIntegration(int argc, char* argv[])
 {
-  VTK_CREATE(vtkNamedColors, namedColors);
+  vtkSmartPointer<vtkNamedColors> namedColors =
+    vtkSmartPointer<vtkNamedColors>::New();
   //namedColors->PrintSelf(std::cout,vtkIndent(2));
 
   // Create a cone
-  VTK_CREATE(vtkConeSource, coneSource);
+  vtkSmartPointer<vtkConeSource> coneSource =
+    vtkSmartPointer<vtkConeSource>::New();
   coneSource->SetCenter(0.0, 0.0, 0.0);
   coneSource->SetRadius(5.0);
   coneSource->SetHeight(10);
@@ -54,12 +53,14 @@ int TestNamedColorsIntegration(int argc, char* argv[])
   double bounds[6];
   coneSource->GetOutput()->GetBounds(bounds);
 
-  VTK_CREATE(vtkElevationFilter, elevation);
+  vtkSmartPointer<vtkElevationFilter> elevation =
+    vtkSmartPointer<vtkElevationFilter>::New();
   elevation->SetInputConnection(coneSource->GetOutputPort());
   elevation->SetLowPoint(0,bounds[2],0);
   elevation->SetHighPoint(0,bounds[3],0);
 
-  VTK_CREATE(vtkBandedPolyDataContourFilter, bcf);
+  vtkSmartPointer<vtkBandedPolyDataContourFilter> bcf =
+    vtkSmartPointer<vtkBandedPolyDataContourFilter>::New();
   bcf->SetInputConnection(elevation->GetOutputPort());
   bcf->SetScalarModeToValue();
   bcf->GenerateContourEdgesOn();
@@ -67,7 +68,8 @@ int TestNamedColorsIntegration(int argc, char* argv[])
 
   // Build a simple lookup table of
   // primary additive and subtractive colors.
-  VTK_CREATE(vtkLookupTable, lut);
+  vtkSmartPointer<vtkLookupTable> lut =
+    vtkSmartPointer<vtkLookupTable>::New();
   lut->SetNumberOfTableValues(7);
   double rgba[4];
   // Test setting and getting colors here.
@@ -77,47 +79,53 @@ int TestNamedColorsIntegration(int argc, char* argv[])
   lut->SetTableValue(0,rgba);
   namedColors->GetColor("DarkGreen",rgba);
   lut->SetTableValue(1,rgba);
-  namedColors->GetColor("Blue",rgba);
-  lut->SetTableValue(2,rgba);
-  namedColors->GetColor("Cyan",rgba);
-  lut->SetTableValue(3,rgba);
-  namedColors->GetColor("Magenta",rgba);
-  lut->SetTableValue(4,rgba);
-  namedColors->GetColor("Yellow",rgba);
-  lut->SetTableValue(5,rgba);
-  namedColors->GetColor("White",rgba);
-  lut->SetTableValue(6,rgba);
+  // Alternatively we can use tuple methods here:
+  lut->SetTableValue(2,namedColors->GetColor4d("Blue").GetData());
+  lut->SetTableValue(3,namedColors->GetColor4d("Cyan").GetData());
+  lut->SetTableValue(4,namedColors->GetColor4d("Magenta").GetData());
+  lut->SetTableValue(5,namedColors->GetColor4d("Yellow").GetData());
+  lut->SetTableValue(6,namedColors->GetColor4d("White").GetData());
   lut->SetTableRange(elevation->GetScalarRange());
   lut->Build();
 
-  VTK_CREATE(vtkPolyDataMapper, mapper);
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(bcf->GetOutputPort());
   mapper->SetScalarRange(elevation->GetScalarRange());
   mapper->SetLookupTable(lut);
   mapper->SetScalarModeToUseCellData();
 
-  VTK_CREATE(vtkPolyDataMapper, contourLineMapper );
+  vtkSmartPointer<vtkPolyDataMapper> contourLineMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   contourLineMapper->SetInputData(bcf->GetContourEdgesOutput());
   contourLineMapper->SetScalarRange(elevation->GetScalarRange());
   contourLineMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
-  VTK_CREATE(vtkActor, actor);
+  vtkSmartPointer<vtkActor> actor =
+    vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
-  VTK_CREATE(vtkActor, contourLineActor);
+  vtkSmartPointer<vtkActor> contourLineActor =
+    vtkSmartPointer<vtkActor>::New();
   contourLineActor->SetMapper(contourLineMapper);
-  contourLineActor->GetProperty()->SetColor(namedColors->GetColorAsDoubleRGB("black"));
+  contourLineActor->GetProperty()->SetColor(
+    namedColors->GetColor3d("Black").GetData()
+    );
 
-  VTK_CREATE(vtkRenderer, renderer);
-  VTK_CREATE(vtkRenderWindow, renderWindow);
+  vtkSmartPointer<vtkRenderer> renderer =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renderWindow =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->AddRenderer(renderer);
-  VTK_CREATE(vtkRenderWindowInteractor, renderWindowInteractor);
+  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
   renderer->AddActor(actor);
   renderer->AddActor(contourLineActor);
-  renderer->SetBackground(namedColors->GetColorAsDoubleRGB("SteelBlue"));
-
+  renderer->SetBackground(
+    namedColors->GetColor3d("SteelBlue").GetData()
+    );
   renderWindow->Render();
 
   int retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
@@ -126,5 +134,5 @@ int TestNamedColorsIntegration(int argc, char* argv[])
     renderWindowInteractor->Start();
     }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }

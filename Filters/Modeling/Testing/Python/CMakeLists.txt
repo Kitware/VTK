@@ -20,7 +20,7 @@ if(VTK_PYTHON_EXE)
         COMMAND ${VTK_PYTHON_EXE}
           ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.py
           -D ${VTK_DATA_ROOT}
-          -B ${VTK_DATA_ROOT}/Baseline/Color)
+          -B ${VTK_DATA_ROOT}/Baseline/Graphics)
     endforeach()
   endif()
 else()
