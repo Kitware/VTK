@@ -3768,8 +3768,8 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         blockEntryFileOffset += binfo.Size;
         if (binfo.Name.length() == 0)
           {
-          SNPRINTF( tmpName, 255, "Unnamed block ID: %d Type: %s Size: %d",
-              ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL", binfo.Size );
+          SNPRINTF( tmpName, 255, "Unnamed block ID: %d Type: %s",
+              ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL");
           binfo.Name = tmpName;
           }
         binfo.OriginalName = binfo.Name;
@@ -3898,7 +3898,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         this->GetInitialObjectStatus(obj_types[i], &sinfo);
         if (sinfo.Name.length() == 0)
           {
-          SNPRINTF( tmpName, 255, "Unnamed set ID: %d Size: %d", ids[obj], sinfo.Size );
+          SNPRINTF( tmpName, 255, "Unnamed set ID: %d", ids[obj]);
           sinfo.Name = tmpName;
           }
         sortedObjects[sinfo.Id] = (int) this->SetInfo[obj_types[i]].size();
@@ -4544,7 +4544,7 @@ void vtkExodusIIReaderPrivate::SetInitialObjectStatus( int objectType, const cha
     {
     idx += 4;
     idlen = 0;
-    while(nm.at(idx+idlen) != ' ')
+    while(idx+idlen < nm.length() &&  nm.at(idx+idlen) != ' ' )
       {
       idlen++;
       }
@@ -6167,4 +6167,3 @@ void vtkExodusIIReader::UpdateTimeInformation()
     this->Metadata->CloseFile();
     }
 }
-

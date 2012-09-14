@@ -1,8 +1,26 @@
-#ifndef __TestImagingHybrid_h
-#define __TestImagingHybrid_h
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestErrorObserver.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#ifndef __vtkTestErrorObserver_h
+#define __vtkTestErrorObserver_h
+
 #include <vtkCommand.h>
 #include <string>
-class ErrorObserver : public vtkCommand
+
+namespace vtkTest
+{
+class ErrorObserver : public ::vtkCommand
 {
 public:
   ErrorObserver():
@@ -59,4 +77,5 @@ private:
   std::string ErrorMessage;
   std::string WarningMessage;
 };
+}
 #endif

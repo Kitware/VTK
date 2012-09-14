@@ -314,6 +314,7 @@ GetUsername()
     if ( pw == NULL )
       {
         METAIO_STREAM::cout << "getpwuid() failed " << METAIO_STREAM::endl;
+        return "";
       }
     return pw->pw_name;
 #endif // not _WIN32

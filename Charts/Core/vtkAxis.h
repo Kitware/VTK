@@ -91,7 +91,7 @@ public:
   // Description:
   // Set the number of tick marks for this axis. Default is -1, which leads to
   // automatic calculation of nicely spaced tick marks.
-  vtkSetMacro(NumberOfTicks, int);
+  virtual void SetNumberOfTicks(int numberOfTicks);
 
   // Description:
   // Get the number of tick marks for this axis.
@@ -206,13 +206,13 @@ public:
   // Description:
   // Enumeration of the axis behaviors.
   enum {
-    AUTO = 0,
-    FIXED,
-    CUSTOM
+    AUTO = 0, //< Automatically scale the axis to view all data that is visible.
+    FIXED,    //< Use a fixed axis range and make no attempt to rescale.
+    CUSTOM    //< Deprecated, use the tick label settings instead.
   };
 
   // Description:
-  // Get/set the behavior of the axis (auto, fixed, custom). Default is 0 (auto).
+  // Get/set the behavior of the axis (auto or fixed). The default is 0 (auto).
   vtkSetMacro(Behavior, int);
   vtkGetMacro(Behavior, int);
 
@@ -260,10 +260,6 @@ public:
   virtual vtkDoubleArray* GetTickPositions();
 
   // Description:
-  // Set the tick positions (in plot coordinates).
-  virtual void SetTickPositions(vtkDoubleArray* positions);
-
-  // Description:
   // An array with the positions of the tick marks along the axis line.
   // The positions are specified in scene coordinates.
   virtual vtkFloatArray* GetTickScenePositions();
@@ -273,8 +269,23 @@ public:
   virtual vtkStringArray* GetTickLabels();
 
   // Description:
+  // Set the tick positions, and optionally custom tick labels. If the labels
+  // and positions are null then automatic tick labels will be assigned. If
+  // only positions are supplied then appropriate labels will be generated
+  // according to the axis settings. If positions and labels are supplied they
+  // must be of the same length. Returns true on success, false on failure.
+  virtual bool SetCustomTickPositions(vtkDoubleArray* positions,
+                                      vtkStringArray* labels = 0);
+
+  // Description:
+  // Set the tick positions (in plot coordinates).
+  // \deprecated 6.0 Use the two parameter SetTickPositions function.
+  VTK_LEGACY(virtual void SetTickPositions(vtkDoubleArray* positions));
+
+  // Description:
   // Set the tick labels for the axis.
-  virtual void SetTickLabels(vtkStringArray* labels);
+  // \deprecated 6.0 Use the two parameter SetTickPositions function.
+  VTK_LEGACY(virtual void SetTickLabels(vtkStringArray* labels));
 
   // Description:
   // Request the space the axes require to be drawn. This is returned as a
@@ -362,6 +373,10 @@ protected:
                        // are changed in the Extended Axis Labeling algorithm
 
   // Description:
+  // Are we using custom tick labels, or should the axis generate them?
+  bool CustomTickLabels;
+
+  // Description:
   // This object stores the vtkPen that controls how the axis is drawn.
   vtkPen* Pen;
 
@@ -409,6 +424,10 @@ protected:
 private:
   vtkAxis(const vtkAxis &); // Not implemented.
   void operator=(const vtkAxis &);   // Not implemented.
+
+  // Description:
+  // Return true if the value is in range, false otherwise.
+  bool InRange(double value);
 //ETX
 };
 

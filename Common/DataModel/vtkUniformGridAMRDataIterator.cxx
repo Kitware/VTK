@@ -92,6 +92,9 @@ protected:
   virtual bool IsDone() { return static_cast<size_t>(this->InternalIdx) >=  this->DataBlocks->size();}
   const vtkAMRDataInternals::BlockList* DataBlocks;
   int InternalIdx;
+private:
+  AMRLoadedDataIndexIterator(const AMRLoadedDataIndexIterator&);  //Not implemented
+  void operator=(const AMRLoadedDataIndexIterator&);  //Not implemented
 };
 vtkStandardNewMacro(AMRLoadedDataIndexIterator);
 

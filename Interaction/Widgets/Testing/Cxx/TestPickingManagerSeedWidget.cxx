@@ -610,6 +610,10 @@ public:
 
   std::ofstream performanceReport;
   vtkTimerLog* logTime;
+
+private:
+  vtkPMSRecordPerfCallback(const vtkPMSRecordPerfCallback&);  //Not implemented
+  void operator=(const vtkPMSRecordPerfCallback&);  //Not implemented
 };
 
 //------------------------------------------------------------------------------

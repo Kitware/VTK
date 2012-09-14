@@ -121,7 +121,7 @@ void vtkProjectedTetrahedraMapperTransformPoints(const point_type *in_points,
 
   // Check to see if we need to divide by w.
   if (   (mat[0*4+3] != 0) || (mat[1*4+3] != 0)
-      || (mat[0*4+3] != 0) || (mat[1*4+3] != 1) )
+      || (mat[2*4+3] != 0) || (mat[3*4+3] != 1) )
     {
     for (i = 0, in_p = in_points, out_p = out_points; i < num_points;
          i++, in_p += 3, out_p += 3)

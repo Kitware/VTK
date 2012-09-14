@@ -134,6 +134,7 @@ vtkUniformGrid* vtkAMRGaussianPulseSource::RefinePatch(
     vtkUniformGrid* parent, int patchExtent[6] )
 {
   assert("pre: parent grid is NULL!" && (parent!=NULL) );
+  assert("dimension must be 2 or 3" && (this->Dimension<=3));
 
   int ext[6];
   parent->GetExtent(ext);

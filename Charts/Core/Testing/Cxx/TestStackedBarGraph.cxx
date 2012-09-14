@@ -174,8 +174,7 @@ int TestStackedBarGraph(int , char * [])
   strings->InsertNextValue("November");
   dates->InsertNextValue(12);
   strings->InsertNextValue("December");
-  axis->SetTickPositions(dates);
-  axis->SetTickLabels(strings);
+  axis->SetCustomTickPositions(dates, strings);
   axis->GetLabelProperties()->SetOrientation(90);
   axis->GetLabelProperties()->SetVerticalJustification(VTK_TEXT_CENTERED);
   axis->GetLabelProperties()->SetJustification(VTK_TEXT_RIGHT);

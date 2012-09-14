@@ -10,6 +10,7 @@
 
     # add tests that require data
     set(MyTests ${MyTests}
+      TestAxes.cxx
       TestBarGraph.cxx
       TestBarGraphHorizontal.cxx
       TestColorTransferFunction.cxx

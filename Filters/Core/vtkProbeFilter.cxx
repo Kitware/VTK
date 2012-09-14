@@ -158,12 +158,10 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input,
   // First, copy the input to the output as a starting point
   output->CopyStructure(input);
 
-  vtkPointData* outPD = output->GetPointData();
-
   // Allocate storage for output PointData
   // All input PD is passed to output as PD. Those arrays in input CD that are
   // not present in output PD will be passed as output PD.
-  outPD = output->GetPointData();
+  vtkPointData* outPD = output->GetPointData();
   outPD->InterpolateAllocate((*this->PointList), numPts, numPts);
 
   vtkCellData* tempCellData = vtkCellData::New();

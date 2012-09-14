@@ -168,7 +168,6 @@ int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
   double direction3[3];
   double hitPosition[3];
   double hitCellBoundsPosition[3], cellBounds[6];
-  int hitCellBounds;
   double result;
   double bounds2[6];
   int i, leafStart, prod, loop;
@@ -270,7 +269,7 @@ int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
           if (this->CellHasBeenVisited[cId] != this->QueryNumber)
             {
             this->CellHasBeenVisited[cId] = this->QueryNumber;
-            hitCellBounds = 0;
+            int hitCellBounds = 0;
 
             // check whether we intersect the cell bounds
             if (this->CacheCellBounds)

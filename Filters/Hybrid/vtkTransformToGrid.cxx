@@ -31,7 +31,7 @@ vtkTransformToGrid::vtkTransformToGrid()
 {
   this->Input = NULL;
 
-  this->GridScalarType = VTK_DOUBLE;
+  this->GridScalarType = VTK_FLOAT;
 
   for (int i = 0; i < 3; i++)
     {
@@ -180,8 +180,8 @@ void vtkTransformToGrid::UpdateShiftScale()
 {
   int gridType = this->GridScalarType;
 
-  // nothing to do for double or double
-  if (gridType == VTK_DOUBLE || gridType == VTK_DOUBLE)
+  // nothing to do for double or float
+  if (gridType == VTK_DOUBLE || gridType == VTK_FLOAT)
     {
     this->DisplacementShift = 0.0;
     this->DisplacementScale = 1.0;
@@ -269,6 +269,11 @@ inline void vtkGridRound(double val, short& rnd)
 inline void vtkGridRound(double val, unsigned short& rnd)
 {
   rnd = (unsigned short)(val+0.5f);
+}
+
+inline void vtkGridRound(double val, float& rnd)
+{
+  rnd = (float)(val);
 }
 
 inline void vtkGridRound(double val, double& rnd)
@@ -379,6 +384,10 @@ void vtkTransformToGrid::RequestData(
     {
     case VTK_DOUBLE:
       vtkTransformToGridExecute(this, grid, (double *)(gridPtr), extent,
+                                shift,scale,id);
+      break;
+    case VTK_FLOAT:
+      vtkTransformToGridExecute(this, grid, (float *)(gridPtr), extent,
                                 shift,scale,id);
       break;
     case VTK_SHORT:

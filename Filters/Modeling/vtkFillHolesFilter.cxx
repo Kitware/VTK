@@ -74,7 +74,7 @@ int vtkFillHolesFilter::RequestData(
 
   vtkPolyData *Mesh = vtkPolyData::New();
   Mesh->SetPoints(inPts);
-  vtkCellArray *newPolys, *inPolys=input->GetPolys(), *inStrips=input->GetStrips();
+  vtkCellArray *newPolys, *inPolys=input->GetPolys();
   if ( numStrips > 0 )
     {
     newPolys = vtkCellArray::New();
@@ -86,7 +86,7 @@ int vtkFillHolesFilter::RequestData(
       {
       newPolys->Allocate(newPolys->EstimateSize(numStrips,5));
       }
-    inStrips = input->GetStrips();
+    vtkCellArray *inStrips = input->GetStrips();
     for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
       {
       vtkTriangleStrip::DecomposeStrip(npts, pts, newPolys);

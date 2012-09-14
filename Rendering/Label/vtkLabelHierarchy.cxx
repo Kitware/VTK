@@ -422,7 +422,7 @@ void vtkLabelHierarchyFrustumIterator::Next()
             }
           else
             {
-            this->Path.empty();
+            this->Path.clear();
             }
           // Now see if we can visit it
           if ( this->Cursor.visit( this->Path ) )

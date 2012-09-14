@@ -673,7 +673,7 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
                      deltaP[2]*deltaP[2]);
 
     // if the function value is decreasing, do next Newton step
-    if (functionValue < lastFunctionValue)
+    if (i == 0 || functionValue < lastFunctionValue)
       {
       // here is the critical step in Newton's method
       vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);

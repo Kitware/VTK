@@ -1365,8 +1365,7 @@ int vtkHyperOctree::GetMaxCellSize()
       result=2; // line=2 points
       break;
     default:
-      result=0; // useless, just to avoid a warning
-      assert("check: impossible_case" && 0);
+      result=0; // impossible case
       break;
     }
   assert("post: positive_result" && result>0);
@@ -2284,8 +2283,7 @@ int vtkHyperOctree::GetCellType(vtkIdType vtkNotUsed(cellId))
       result=VTK_LINE; // line=2 points
       break;
     default:
-      result=0; // useless, just to avoid a warning
-      assert("check: impossible_case" && 0);
+      result=0; // impossible case
       break;
     }
   assert("post: positive_result" && result>0);
@@ -2999,20 +2997,11 @@ void vtkHyperOctree::GenerateGridNeighborhoodTraversalTable()
   int xNewChild, yNewChild, zNewChild;
   int cursor, child, newCursor, newChild;
 
-  int numCursors;
-  int xChildDim, yChildDim, zChildDim;
-  int xCursorDim, yCursorDim, zCursorDim;
-  int yChildInc, zChildInc;
-  int yCursorInc, zCursorInc;
-  xChildDim = yChildDim = zChildDim = 1;
-  xCursorDim = yCursorDim = zCursorDim = 1;
-  zChildInc = 0;
-  zCursorInc = 0;
-  yChildInc = 2;
-  yCursorInc = 3;
-  zChildInc = 4;
-  zCursorInc = 9;
-  numCursors = 1;
+  int numCursors = 1;
+  int xChildDim = 1, yChildDim = 1, zChildDim = 1;
+  int xCursorDim = 1, yCursorDim = 1, zCursorDim = 1;
+  int yChildInc = 2, zChildInc = 4;
+  int yCursorInc = 3, zCursorInc = 9;
 
   assert("Dimension cannot be 0." && this->GetDimension());
 

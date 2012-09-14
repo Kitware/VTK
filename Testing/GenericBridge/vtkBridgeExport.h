@@ -40,3 +40,5 @@
 #endif //#if 1
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkBridgeExport.h

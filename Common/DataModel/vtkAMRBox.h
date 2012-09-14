@@ -208,7 +208,9 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
   void Shift(const int I[3]);
 
   // Description:
-  // Returns whether the other box intersects this
+  // Intersect this box with another box in place.  Returns
+  // true if the boxes do intersect.  Note that the box is
+  // modified to be the intersection or is made invalid.
   bool Intersect(const vtkAMRBox &other);
 
   // Description:
@@ -225,6 +227,11 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
   // number of ghost layers in each of the 6 directions, i.e.,
   // [imin,imax,jmin,jmax,kmin,kmax]
   void GetGhostVector(int r, int nghost[6]) const;
+
+  // Description:
+  // Given an AMR box and the refinement ratio, r, this shrinks
+  // the AMRBox
+  void RemoveGhosts(int r);
 
  public:
   // Description:

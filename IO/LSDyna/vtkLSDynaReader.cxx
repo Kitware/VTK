@@ -503,9 +503,9 @@ template<int wordSize,int cellLength>
         {
         if(currentCell >= numCellsToSkip)
           {
-          for ( i=0; i<4; ++i )
+          for (int j=0; j<4; ++j )
             {
-            conn[i] = p->Fam.GetNextWordAsInt() - 1;
+            conn[j] = p->Fam.GetNextWordAsInt() - 1;
             }
           parts->InsertCell(LSDynaMetaData::ROAD_SURFACE,segId,cellType,4,conn);
           }

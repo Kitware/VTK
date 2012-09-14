@@ -442,22 +442,24 @@ void vtkAMRBaseReader::LoadRequestedBlocks( vtkOverlappingAMR *output )
 {
   assert( "pre: AMR data-structure is NULL" && (output != NULL) );
 
-  // setup the output to have fixed number of levels and  blocks irrespective of
-  // what is requested. The structure of the data generated should not change
-  // with block-request.
-  output->CopyStructure(this->Metadata);
-
-  //STEP 1: Gather all blocks loaded by each process
-  int numBlocks = static_cast< int >( this->BlockMap.size() );
-  for( int block=0; block < numBlocks; ++block )
+  // Unlike AssignAndLoadBlocks, this code doesn't have to bother about
+  // "distributing" blocks to load among processes when running in parallel.
+  // Sinks should ensure that request appropriate blocks (similar to the way
+  // requests for pieces or extents work).
+  for (size_t block=0; block < this->BlockMap.size(); ++block)
     {
+    // FIXME: this piece of code is very similar to the block in
+    // AssignAndLoadBlocks. We should consolidate the two. 
     int blockIndex =  this->BlockMap[ block ];
-
     int blockIdx = this->Metadata->GetAMRInfo()->GetAMRBlockSourceIndex(blockIndex);
 
-    int level    = this->GetBlockLevel( blockIdx );
+    unsigned int metaLevel;
+    unsigned int metaIdx;
+    this->Metadata->GetAMRInfo()->ComputeIndexPair(blockIndex, metaLevel, metaIdx);
+    unsigned int level    = this->GetBlockLevel( blockIdx );
+    assert(level==metaLevel);
 
-     // STEP 0: Get the AMR block
+    // STEP 0: Get the AMR block
     vtkTimerLog::MarkStartEvent( "GetAMRBlock" );
     vtkUniformGrid *amrBlock = this->GetAMRBlock( blockIdx );
     vtkTimerLog::MarkEndEvent( "GetAMRBlock" );
@@ -474,29 +476,9 @@ void vtkAMRBaseReader::LoadRequestedBlocks( vtkOverlappingAMR *output )
     vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::LoadCellData" );
 
     // STEP 4: Add dataset
-    unsigned int metaLevel;
-    unsigned int metaIdx;
-    this->Metadata->GetAMRInfo()->ComputeIndexPair(blockIdx,metaLevel,metaIdx);
-    assert(level==(int)metaLevel);
-
     output->SetDataSet( level,metaIdx,amrBlock );
-    amrBlock->Delete();
+    amrBlock->FastDelete();
     } // END for all blocks
-
-  assert( "pre: Metadata should not be NULL" && (this->Metadata != NULL) );
-  assert( "pre: NumLevels in output should be <= to NumLevels in metadata" &&
-           output->GetNumberOfLevels() <= this->Metadata->GetNumberOfLevels() );
-
-#ifndef NDEBUG
-  unsigned int levelIdx = 0;
-  for( ; levelIdx < output->GetNumberOfLevels(); ++levelIdx )
-    {
-    unsigned int N         = output->GetNumberOfDataSets( levelIdx );
-    unsigned int Nexpected = this->Metadata->GetNumberOfDataSets( levelIdx );
-    assert( "pre: NumData at level must correspond to the metadata" &&  N <= Nexpected );
-    }
-#endif
-
 }
 
 //------------------------------------------------------------------------------
@@ -583,6 +565,11 @@ int vtkAMRBaseReader::RequestData(
   if( outInf->Has( vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS() ) )
     {
     this->LoadRequestedBlocks( output );
+
+    // Is blanking information generated when only a subset of blocks is
+    // requested? Tricky question, since we need the blanking information when
+    // requesting a fixed set of blocks and when when requesting one block at a
+    // time in streaming fashion.
     }
   else
     {

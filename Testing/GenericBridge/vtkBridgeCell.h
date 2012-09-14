@@ -22,7 +22,7 @@
 #ifndef __vtkBridgeCell_h
 #define __vtkBridgeCell_h
 
-#include "vtkBridgeExport.h"
+#include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericAdaptorCell.h"
 
 class vtkCell;

@@ -154,7 +154,7 @@ void vtkAMRInformation::PrintSelf(ostream& os, vtkIndent indent)
      << this->GetOrigin()[1] <<", "
      << this->GetOrigin()[2] <<")\n ";
 
-  os<<"Number of blocks per level: ";
+  os<< indent << "Number of blocks per level: ";
   for(unsigned int i=1; i<this->NumBlocks.size();i++)
     {
     os<<indent<<this->NumBlocks[i]-this->NumBlocks[i-1]<<" ";
@@ -162,9 +162,30 @@ void vtkAMRInformation::PrintSelf(ostream& os, vtkIndent indent)
   os<<"\n";
 
   os<<indent<<"Refinemnt Ratio: ";
-  for(unsigned int i=0; i<this->GetNumberOfLevels();i++)
+  if(this->HasRefinementRatio())
     {
-    os<<this->GetRefinementRatio(i)<<" ";
+    for(unsigned int i=0; i<this->GetNumberOfLevels();i++)
+      {
+      os<<this->GetRefinementRatio(i)<<" ";
+      }
+    os<<"\n";
+    }
+  else
+    {
+    os<<"None\n";
+    }
+  for (unsigned int levelIdx=0; levelIdx<this->GetNumberOfLevels(); levelIdx++)
+    {
+    unsigned int numDataSets = this->GetNumberOfDataSets( levelIdx );
+    os<<indent<<"level "<<levelIdx<<"-------------------------"<<endl;
+    for( unsigned int dataIdx=0; dataIdx < numDataSets; ++dataIdx )
+      {
+      const vtkAMRBox& box = this->GetAMRBox(levelIdx,dataIdx);
+      os<<indent;
+      os<<"["<<box.GetLoCorner()[0]<<", "<<box.GetHiCorner()[0]<<"]"
+        <<"["<<box.GetLoCorner()[1]<<", "<<box.GetHiCorner()[1]<<"]"
+        <<"["<<box.GetLoCorner()[2]<<", "<<box.GetHiCorner()[2]<<"]"<<endl;
+      }
     }
   if(this->HasChildrenInformation())
     {
@@ -452,6 +473,7 @@ unsigned int *vtkAMRInformation::GetParents(unsigned int level, unsigned int ind
      index>=this->AllParents[level].size() ||
      this->AllParents[level][index].empty())
     {
+    num = 0;
     return NULL;
     }
 
@@ -468,6 +490,7 @@ GetChildren(unsigned int level, unsigned int index, unsigned int& size)
      index>=this->AllChildren[level].size() ||
      this->AllChildren[level][index].empty())
     {
+    size = 0;
     return NULL;
     }
 
@@ -479,40 +502,24 @@ GetChildren(unsigned int level, unsigned int index, unsigned int& size)
 void vtkAMRInformation::
 PrintParentChildInfo(unsigned int level, unsigned int index)
 {
-  unsigned int *ptr, i, n;
+  unsigned int *ptr, i, numParents;
   std::cerr << "Parent Child Info for block " << index
             << " of Level: " << level << endl;
-  ptr = this->GetParents(level, index, n);
-  if ((!ptr) || (ptr[0] == 0))
+  ptr = this->GetParents(level, index, numParents);
+  std::cerr << "  Parents: ";
+  for (i = 0; i < numParents; i++)
     {
-    std::cerr << "\tParents: None" << endl;
+    std::cerr << ptr[i] << " ";
     }
-  else
-    {
-    std::cerr << "\tParents: ";
-    n = ptr[0];
-    for (i = 1; i <= n; i++)
-      {
-      std::cerr << ptr[i] << " ";
-      }
-    std::cerr << endl;
-    }
+  std::cerr << endl;
+  std::cerr << "  Children: ";
   unsigned int numChildren;
   ptr = this->GetChildren(level, index,numChildren);
-  if ((!ptr) || (ptr[0] == 0))
+  for (i = 0; i <numChildren; i++)
     {
-    std::cerr << "\tChildren: None" << endl;
+    std::cerr << ptr[i] << " ";
     }
-  else
-    {
-    std::cerr << "\tChildren: ";
-    n = ptr[0];
-    for (i = 1; i <= n; i++)
-      {
-      std::cerr << ptr[i] << " ";
-      }
-    std::cerr << endl;
-    }
+  std::cerr << endl;
 }
 
 void vtkAMRInformation::GenerateParentChildInformation()
