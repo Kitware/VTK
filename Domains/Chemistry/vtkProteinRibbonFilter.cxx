@@ -23,6 +23,7 @@
 #include "vtkInformation.h"
 #include "vtkStringArray.h"
 #include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkProteinRibbonFilter)
 
