@@ -141,8 +141,8 @@ int vtkStreamingDemandDrivenPipeline
       outputPort = request->Get(FROM_OUTPUT_PORT());
       }
 
-    int N2E = 1;
-    if(outputPort>=0)
+    int N2E =  this->Superclass::NeedToExecuteData(outputPort, inInfoVec,outInfoVec);
+    if(!N2E && outputPort>=0)
       {
       vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
       vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
@@ -392,7 +392,7 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
     do
       {
       this->PropagateTime(port);
-      this->UpdateTimeDependentInformation();
+      this->UpdateTimeDependentInformation(port);
       retval = retval && this->PropagateUpdateExtent(port);
       if (retval && !this->LastPropogateUpdateExtentShortCircuited)
         {
@@ -1048,7 +1048,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateTime(int outputPort)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::UpdateTimeDependentInformation()
+int vtkStreamingDemandDrivenPipeline::UpdateTimeDependentInformation(int port)
 {
   // The algorithm should not invoke anything on the executive.
   if(!this->CheckAlgorithm("UpdateMetaInformation", 0))
@@ -1062,6 +1062,8 @@ int vtkStreamingDemandDrivenPipeline::UpdateTimeDependentInformation()
   timeRequest->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
   // Algorithms process this request after it is forwarded.
   timeRequest->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+
+  timeRequest->Set(FROM_OUTPUT_PORT(), port);
 
   // Send the request.
   return this->ProcessRequest(timeRequest,
