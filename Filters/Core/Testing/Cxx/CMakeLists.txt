@@ -11,6 +11,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestExecutionTimer.cxx
   TestGlyph3D.cxx
   TestImplicitPolyDataDistance.cxx
+  TestCutter.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h)
 

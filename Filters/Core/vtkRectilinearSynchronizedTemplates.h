@@ -128,6 +128,13 @@ public:
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
 
+ // Description:
+  // If this is enabled (by default), the output will be triangles
+  // otherwise, the output will be the intersection polygons
+  vtkSetMacro(GenerateTriangles,int);
+  vtkGetMacro(GenerateTriangles,int);
+  vtkBooleanMacro(GenerateTriangles,int);
+
   // Description:
   // Compute the spacing between this point and its 6 neighbors.  This method
   // needs to be public so it can be accessed from a templated function.
@@ -141,6 +148,8 @@ protected:
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
+  int GenerateTriangles;
+
   vtkContourValues *ContourValues;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
