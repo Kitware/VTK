@@ -5444,9 +5444,16 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, const char* objectName )
     vtkDebugMacro( "No objects of that type (" << objectType << ") to find index for given name " << objectName << "." );
     return -1;
     }
+  vtkStdString objectRealName(objectName);
+  size_t i = objectRealName.find(" Size: ");
+  if(i!= vtkStdString::npos)
+    {
+    objectRealName.erase(i);
+    }
   for ( int obj = 0; obj < nObj; ++obj )
     {
-    if ( !strcmp( objectName, this->GetObjectName( objectType, obj ) ) )
+    const char* storedObjName = this->GetObjectName( objectType, obj );
+    if(objectRealName == vtkStdString(storedObjName))
       {
       return obj;
       }
