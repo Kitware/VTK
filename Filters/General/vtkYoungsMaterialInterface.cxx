@@ -616,7 +616,6 @@ int vtkYoungsMaterialInterface::RequestData(
   // alocate composite iterator
   vtkSmartPointer<vtkCompositeDataIterator> inputIterator;
   inputIterator.TakeReference(compositeInput->NewIterator());
-  inputIterator->VisitOnlyLeavesOn();
   inputIterator->SkipEmptyNodesOn();
   inputIterator->InitTraversal();
   inputIterator->GoToFirstItem();

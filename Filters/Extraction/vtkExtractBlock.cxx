@@ -19,7 +19,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataSet.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkMultiPieceDataSet.h"
 
@@ -70,7 +70,7 @@ void vtkExtractBlock::RemoveAllIndices()
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractBlock::CopySubTree(vtkCompositeDataIterator* loc,
+void vtkExtractBlock::CopySubTree(vtkDataObjectTreeIterator* loc,
   vtkMultiBlockDataSet* output, vtkMultiBlockDataSet* input)
 {
   vtkDataObject* inputNode = input->GetDataSet(loc);
@@ -87,7 +87,11 @@ void vtkExtractBlock::CopySubTree(vtkCompositeDataIterator* loc,
     vtkCompositeDataSet* coutput = vtkCompositeDataSet::SafeDownCast(
       output->GetDataSet(loc));
     vtkCompositeDataIterator* iter = cinput->NewIterator();
-    iter->VisitOnlyLeavesOff();
+    if(vtkDataObjectTreeIterator::SafeDownCast(iter))
+      {
+      vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
+      treeIter->VisitOnlyLeavesOff();
+      }
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
       vtkDataObject* curNode = iter->GetCurrentDataObject();
@@ -124,7 +128,7 @@ int vtkExtractBlock::RequestData(
   (*this->ActiveIndices) = (*this->Indices);
 
   // Copy selected blocks over to the output.
-  vtkCompositeDataIterator* iter = input->NewIterator();
+  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(input->NewIterator());
   iter->VisitOnlyLeavesOff();
 
   for (iter->InitTraversal();
@@ -156,7 +160,7 @@ int vtkExtractBlock::RequestData(
   // processess, which is a big NO-NO. Hence, we first flag nodes based on
   // whether they are being pruned or not.
 
-  iter = output->NewIterator();
+  iter = vtkDataObjectTreeIterator::SafeDownCast(output->NewIterator());
   iter->VisitOnlyLeavesOff();
   iter->SkipEmptyNodesOff();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
