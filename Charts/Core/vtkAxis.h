@@ -300,6 +300,12 @@ public:
   // number should be between 0.0 and 9.9.
   static double NiceNumber(double number, bool roundUp);
 
+  // Description:
+  // Static function to calculate "nice" minimum, maximum, and tick spacing
+  // values.
+  static double NiceMinMax(double &min, double &max, float pixelRange,
+                           float tickPixelSpacing);
+
 //BTX
 protected:
   vtkAxis();

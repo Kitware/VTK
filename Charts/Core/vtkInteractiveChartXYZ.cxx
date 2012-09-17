@@ -1428,34 +1428,6 @@ void vtkInteractiveChartXYZ::InitializeAxesBoundaryPoints()
 double vtkInteractiveChartXYZ::CalculateNiceMinMax(double &min, double &max,
                                                    int axis)
 {
-  // First get the order of the range of the numbers
-  if (min == max)
-    {
-    if (fabs(min) < 1e-20 && fabs(max) < 1e-20)
-      {
-      min = -0.01;
-      max = 0.01;
-      }
-    else
-      {
-      min *= 0.95;
-      max *= 1.05;
-      }
-    }
-  else if ((max - min) < 1.0e-20)
-    {
-    min *= 0.95;
-    max *= 1.05;
-    }
-
-  double range = max - min;
-  bool isNegative = false;
-  if (range < 0.0f)
-    {
-    isNegative = true;
-    range *= -1.0f;
-    }
-
   // Calculate an upper limit on the number of tick marks - at least 30 pixels
   // should be between each tick mark.
   float start[3] = { 0, 0, 0 };
@@ -1469,30 +1441,5 @@ double vtkInteractiveChartXYZ::CalculateNiceMinMax(double &min, double &max,
     (end[0] - start[0]) * (end[0] - start[0]) +
     (end[1] - start[1]) * (end[1] - start[1]));
 
-  int maxTicks = vtkContext2D::FloatToInt(pixelRange / 30.0f);
-
-  if (maxTicks == 0)
-    {
-    // The axes do not have a valid set of points - return
-    return -1.0f;
-    }
-  double tickSpacing = range / maxTicks;
-
-  int order = static_cast<int>(floor(log10(tickSpacing)));
-  double normTickSpacing = tickSpacing * pow(double(10.0), -order);
-  double niceTickSpacing = vtkAxis::NiceNumber(normTickSpacing, true);
-  niceTickSpacing *= pow(double(10.0), order);
-
-  if (isNegative)
-    {
-    min = ceil(min / niceTickSpacing) * niceTickSpacing;
-    max = floor(max / niceTickSpacing) * niceTickSpacing;
-    }
-  else
-    {
-    min = floor(min / niceTickSpacing) * niceTickSpacing;
-    max = ceil(max / niceTickSpacing) * niceTickSpacing;
-    }
-
-  return niceTickSpacing;
+  return vtkAxis::NiceMinMax(min, max, pixelRange, 30.0f);
 }
