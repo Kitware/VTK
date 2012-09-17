@@ -126,11 +126,10 @@ void vtkTreeHeatmapItem::RebuildBuffers()
     this->Layout->SetInputData(this->Tree);
     this->Layout->Update();
     this->LayoutTree = vtkTree::SafeDownCast(this->Layout->GetOutput());
-    if (this->Table)
-      {
-      this->ComputeMultiplier();
-      }
+    this->CountLeafNodes();
     }
+
+  this->ComputeMultiplier();
 
   if (this->Table)
     {
@@ -164,22 +163,55 @@ void vtkTreeHeatmapItem::RebuildBuffers()
 void vtkTreeHeatmapItem::ComputeMultiplier()
 {
   double targetFontSize = 18;
-  double yMax = DBL_MIN;
+  double yMax = 1;
   double targetPoint[3];
-  for (vtkIdType edge = 0; edge < this->LayoutTree->GetNumberOfEdges(); ++edge)
+  if (this->Tree)
     {
-    vtkIdType target = this->LayoutTree->GetTargetVertex(edge);
-    this->LayoutTree->GetPoint(target, targetPoint);
-    if (targetPoint[1] > yMax)
+    for (vtkIdType edge = 0; edge < this->LayoutTree->GetNumberOfEdges(); ++edge)
       {
-      yMax = targetPoint[1];
+      vtkIdType target = this->LayoutTree->GetTargetVertex(edge);
+      this->LayoutTree->GetPoint(target, targetPoint);
+      if (targetPoint[1] > yMax)
+        {
+        yMax = targetPoint[1];
+        }
       }
     }
+
+  double numRows;
+  if (this->Table)
+    {
+    if (!this->Tree)
+      {
+      yMax = 50 * this->Table->GetNumberOfRows();
+      }
+    numRows = this->Table->GetNumberOfRows();
+    }
+  else
+    {
+    numRows = this->NumberOfLeafNodes;
+    }
+
   double currentFontSize =
-    (yMax * this->Multiplier) / this->Table->GetNumberOfRows();
+    (yMax * this->Multiplier) / numRows;
   if (currentFontSize < targetFontSize)
     {
-    this->Multiplier = (this->Table->GetNumberOfRows() * targetFontSize) / yMax;
+    this->Multiplier = (numRows * targetFontSize) / yMax;
+    }
+}
+
+void vtkTreeHeatmapItem::CountLeafNodes()
+{
+  // figure out how many leaf nodes we have.
+  this->NumberOfLeafNodes = 0;
+  for (vtkIdType vertex = 0; vertex < this->LayoutTree->GetNumberOfVertices();
+       ++vertex)
+    {
+    if (!this->LayoutTree->IsLeaf(vertex))
+      {
+      continue;
+      }
+    ++this->NumberOfLeafNodes;
     }
 }
 
@@ -304,11 +336,13 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
   vtkStringArray *nodeNames = vtkStringArray::SafeDownCast(
     this->LayoutTree->GetVertexData()->GetAbstractArray("node name"));
 
-  this->SetupTextProperty(painter, cellHeight);
-
   if (!this->Table)
     {
     // special case for tree with no table
+    cellHeight = yMax / this->NumberOfLeafNodes;
+    spacing = cellHeight / 2;
+    this->SetupTextProperty(painter, cellHeight);
+
     // draw labels for the leaf nodes
     for (vtkIdType vertex = 0; vertex < this->LayoutTree->GetNumberOfVertices();
          ++vertex)
@@ -337,6 +371,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     {
     cellWidth = cellHeight * 2;
     }
+  this->SetupTextProperty(painter, cellHeight);
 
   // leave a small amount of space between the tree, the table,
   // and the row/column labels
@@ -355,7 +390,6 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       {
       continue;
       }
-
 
     // find the row in the table that corresponds to this vertex
     double point[3];
