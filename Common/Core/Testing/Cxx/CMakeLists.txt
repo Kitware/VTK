@@ -29,6 +29,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestSortDataArray.cxx
   TestSparseArrayValidation.cxx
   TestSystemInformation.cxx
+  TestTimePointUtility.cxx
   TestUnicodeStringAPI.cxx
   TestUnicodeStringArrayAPI.cxx
   TestVariantComparison.cxx
