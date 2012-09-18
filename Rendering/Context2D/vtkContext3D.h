@@ -27,6 +27,7 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkVector.h" // For the vector coordinates.
+#include "vtkSmartPointer.h" // For SP ivars.
 
 class vtkContextDevice3D;
 class vtkPen;
@@ -117,8 +118,8 @@ protected:
   vtkContext3D();
   ~vtkContext3D();
 
-  vtkContextDevice3D *Device; // The underlying device
-  vtkTransform *Transform;    // Current transform
+  vtkSmartPointer<vtkContextDevice3D> Device; // The underlying device
+  vtkSmartPointer<vtkTransform> Transform;    // Current transform
 
 private:
   vtkContext3D(const vtkContext3D &);   // Not implemented.

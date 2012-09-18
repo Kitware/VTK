@@ -45,14 +45,12 @@ bool vtkContext3D::Begin(vtkContextDevice3D *device)
     return true;
     }
   this->Device = device;
-  this->Device->Register(this);
-  this->Modified();
   return true;
 }
 
 vtkContextDevice3D * vtkContext3D::GetDevice()
 {
-  return this->Device;
+  return this->Device.GetPointer();
 }
 
 bool vtkContext3D::End()
@@ -60,9 +58,7 @@ bool vtkContext3D::End()
   if (this->Device)
     {
     this->Device->End();
-    this->Device->Delete();
     this->Device = NULL;
-    this->Modified();
     }
   return true;
 }
@@ -143,18 +139,8 @@ void vtkContext3D::PopMatrix()
 
 vtkContext3D::vtkContext3D()
 {
-  this->Device = NULL;
-  this->Transform = vtkTransform::New();
 }
 
 vtkContext3D::~vtkContext3D()
 {
-  if (this->Device)
-    {
-    this->Device->Delete();
-    }
-  if (this->Transform)
-    {
-    this->Transform->Delete();
-    }
 }
