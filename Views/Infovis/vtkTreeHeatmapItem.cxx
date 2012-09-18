@@ -36,7 +36,6 @@
 #include "vtkTreeLayoutStrategy.h"
 
 #include <algorithm>
-#include <float.h>
 #include <sstream>
 
 vtkStandardNewMacro(vtkTreeHeatmapItem);
@@ -50,10 +49,14 @@ vtkTreeHeatmapItem::vtkTreeHeatmapItem()
   this->TreeHeatmapBuildTime = 0;
   this->Tree = 0;
   this->Table = 0;
-  this->HeatmapMinX = DBL_MAX;
-  this->HeatmapMinY = DBL_MAX;
-  this->HeatmapMaxX = -DBL_MAX;
-  this->HeatmapMaxY = -DBL_MAX;
+
+  /* initialize heatmap bounds so that the mouse cursor is never considered
+   * "inside" the heatmap */
+  this->HeatmapMinX = 1.0;
+  this->HeatmapMinY = 1.0;
+  this->HeatmapMaxX = 0.0;
+  this->HeatmapMaxY = 0.0;
+
   this->Multiplier = 100.0;
   this->CellWidth = 100.0;
   this->CellHeight = 50.0;
@@ -254,8 +257,8 @@ void vtkTreeHeatmapItem::InitializeLookupTables()
       this->GenerateLookupTableForStringColumn(column);
       continue;
       }
-    double min = DBL_MAX;
-    double max = DBL_MIN;
+    double min = VTK_DOUBLE_MAX;
+    double max = VTK_DOUBLE_MIN;
     vtkLookupTable *lookupTable = vtkLookupTable::New();
     this->LookupTables.push_back(lookupTable);
     for (vtkIdType row = 0; row < this->Table->GetNumberOfRows(); ++row)
@@ -321,8 +324,8 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     return;
     }
 
-  double xMax = -DBL_MAX;
-  double yMax = -DBL_MAX;
+  double xMax = VTK_DOUBLE_MIN;
+  double yMax = VTK_DOUBLE_MIN;
   double xStart, yStart;
   double sourcePoint[3];
   double targetPoint[3];
@@ -405,6 +408,12 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
   this->RowMap.clear();
   this->RowMap.reserve(this->Table->GetNumberOfRows());
   int currentRow = 0;
+  this->HeatmapMinX = xMax + spacing;
+  this->HeatmapMaxX = xMax + spacing +
+    this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+  this->HeatmapMinY = VTK_DOUBLE_MAX;
+  this->HeatmapMaxY = VTK_DOUBLE_MIN;
+
   for (vtkIdType vertex = 0; vertex < this->LayoutTree->GetNumberOfVertices();
        ++vertex)
     {
@@ -452,27 +461,17 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       yStart = point[1] * this->Multiplier - (this->CellHeight / 2);
       painter->DrawRect(xStart, yStart, this->CellWidth, this->CellHeight);
 
-      if (yStart + this->CellHeight > this->HeatmapMaxY)
-        {
-        this->HeatmapMaxY = yStart + this->CellHeight;
-        }
-
-
       // keep track of where the top and bottom of the table is.
       // this is used to position column labels and tool tips.
       if (yStart + this->CellHeight > this->HeatmapMaxY)
         {
         this->HeatmapMaxY = yStart + this->CellHeight;
         }
-
       if (yStart < this->HeatmapMinY)
         {
         this->HeatmapMinY = yStart;
         }
       }
-    this->HeatmapMinX = xMax + spacing;
-    this->HeatmapMaxX = xMax + spacing +
-      this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
 
     // draw the label for this row
     xStart = xMax + spacing * 2 +
@@ -508,6 +507,10 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
   this->SetupTextProperty(painter);
 
   double xStart, yStart;
+  this->HeatmapMinX = 0;
+  this->HeatmapMaxX = this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+  this->HeatmapMinY = VTK_DOUBLE_MAX;
+  this->HeatmapMaxY = VTK_DOUBLE_MIN;
 
   for (vtkIdType row = 0; row < this->Table->GetNumberOfRows();
        ++row)
@@ -554,9 +557,6 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
         }
       }
 
-    this->HeatmapMinX = 0;
-    this->HeatmapMaxX = this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
-
     // draw the label for this row
     std::string rowLabel = tableNames->GetValue(row);
     xStart = spacing * 2 + this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
@@ -587,7 +587,7 @@ void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter)
 
   // calculate an appropriate font size
   float stringBounds[4];
-  stringBounds[3] = FLT_MAX;
+  stringBounds[3] = VTK_FLOAT_MAX;
   std::string testString = "Igq"; //selected for range of height
   int currentFontSize = floor(this->CellHeight);
   painter->GetTextProp()->SetFontSize(currentFontSize);
