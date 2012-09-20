@@ -12,8 +12,12 @@
 
 =========================================================================*/
 
-#include "vtkNew.h"
 #include "vtkPeriodicTable.h"
+#include "vtkNew.h"
+#include "vtkColor.h"
+#include "vtkStdString.h"
+#include "vtkLookupTable.h"
+#include "vtkMathUtilities.h"
 
 int TestPeriodicTable(int , char * [])
 {
@@ -114,6 +118,60 @@ int TestPeriodicTable(int , char * [])
     cout << "\"Aluminum\" returns a different atomic number than \"Aluminium\", "
          << "(" << pTab->GetAtomicNumber("Aluminum") << " and "
          << pTab->GetAtomicNumber("Aluminium") << " respectively)." << endl;
+    ++errors;
+    }
+  // Test the vtkStdString variant.
+  std::string symbolString("He");
+  if (pTab->GetAtomicNumber(symbolString) != 2)
+    {
+    cout << "Failed to obtain the correct atomic number for " << symbolString
+         << ": " << pTab->GetAtomicNumber(symbolString) << endl;
+    ++errors;
+    }
+
+  // Check color API.
+  vtkColor3f color = pTab->GetDefaultRGBTuple(6);
+  vtkColor3f expectedColor(0.5, 0.5, 0.5);
+  if (color[0] != expectedColor[0] || color[1] != expectedColor[1] ||
+      color[2] != expectedColor[2])
+    {
+    ++errors;
+    cout << "Expected color for carbon was incorrect: " << color[0]
+         << ", " << color[1] << ", " << color[2] << endl;
+    }
+
+  float rgb[3];
+  float expectedRgb[3] = { 1, 0.05, 0.05 };
+  pTab->GetDefaultRGBTuple(8, rgb);
+  if (rgb[0] != expectedRgb[0] || rgb[1] != expectedRgb[1] ||
+      rgb[2] != expectedRgb[2])
+    {
+    cout << "Expected color for oxygen was incorrect: " << rgb[0]
+         << ", " << rgb[1] << ", " << rgb[2] << endl;
+    ++errors;
+    }
+
+  // Check atomic radius.
+  float radius = pTab->GetCovalentRadius(5);
+  if (!vtkMathUtilities::FuzzyCompare(radius, 0.82f, 0.01f))
+    {
+    cout << "Incorrect radius: " << setprecision(8) << radius << endl;
+    ++errors;
+    }
+  radius = pTab->GetVDWRadius(56);
+  if (!vtkMathUtilities::FuzzyCompare(radius, 2.7f, 0.01f))
+    {
+    cout << "Incorrect radius: " << setprecision(8) << radius << endl;
+    ++errors;
+    }
+
+  // Obtain a lookup table for the elemental colors.
+  vtkNew<vtkLookupTable> lookupTable;
+  pTab->GetDefaultLUT(lookupTable.GetPointer());
+  if (lookupTable->GetNumberOfColors() != 119)
+    {
+    cout << "Error, lookup table has " << lookupTable->GetNumberOfColors()
+         << " colors, expected 119." << endl;
     ++errors;
     }
 
