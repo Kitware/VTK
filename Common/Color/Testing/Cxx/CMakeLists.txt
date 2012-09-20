@@ -1,5 +1,6 @@
 set(CommonColorTests
   TestCategoricalColors.cxx
+  TestNamedColors.cxx
 )
 
 if (VTK_DATA_ROOT)
