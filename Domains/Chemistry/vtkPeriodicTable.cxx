@@ -38,12 +38,13 @@ vtkStandardNewMacro(vtkPeriodicTable);
 
 //----------------------------------------------------------------------------
 vtkPeriodicTable::vtkPeriodicTable()
-  : vtkObject()
 {
   this->BlueObeliskData->GetWriteMutex()->Lock();
 
   if (!this->BlueObeliskData->IsInitialized())
+    {
     this->BlueObeliskData->Initialize();
+    }
 
   this->BlueObeliskData->GetWriteMutex()->Unlock();
 }
