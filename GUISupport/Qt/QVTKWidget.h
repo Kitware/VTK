@@ -272,6 +272,12 @@ private:
   //! unimplemented copy
   QVTKWidget(const QVTKWidget&);
 
+  unsigned long renderEventCallbackObserverId;
+
+  // Description:
+  // Callback called on every vtkCommand::RenderEvent fired by the
+  // vtkRenderWindow.
+  void renderEventCallback();
 };
 
 #endif
