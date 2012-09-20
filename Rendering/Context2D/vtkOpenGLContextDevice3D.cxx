@@ -222,7 +222,7 @@ void vtkOpenGLContextDevice3D::GetMatrix(vtkMatrix4x4 *m)
   m->Transpose();
   double matrix[16];
   glGetDoublev(GL_MODELVIEW_MATRIX, matrix);
-  this->Storage->Transpose(M, matrix);
+  this->Storage->Transpose(matrix, M);
 }
 
 void vtkOpenGLContextDevice3D::MultiplyMatrix(vtkMatrix4x4 *m)

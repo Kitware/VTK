@@ -82,6 +82,13 @@ void vtkContext3D::DrawPoints(const float *points, int n)
   this->Device->DrawPoints(points, n);
 }
 
+void vtkContext3D::DrawPoints(const float *points, int n,
+                              unsigned char *colors, int nc_comps)
+{
+  assert(this->Device);
+  this->Device->DrawPoints(points, n, colors, nc_comps);
+}
+
 void vtkContext3D::ApplyPen(vtkPen *pen)
 {
   assert(this->Device);
@@ -104,8 +111,12 @@ void vtkContext3D::SetTransform(vtkTransform *transform)
 
 vtkTransform * vtkContext3D::GetTransform()
 {
-  this->Device->GetMatrix(this->Transform->GetMatrix());
-  return this->Transform.GetPointer();
+  if (this->Device && this->Transform)
+    {
+    this->Device->GetMatrix(this->Transform->GetMatrix());
+    return this->Transform;
+    }
+  return NULL;
 }
 
 void vtkContext3D::AppendTransform(vtkTransform *transform)
