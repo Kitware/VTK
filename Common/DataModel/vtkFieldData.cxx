@@ -273,8 +273,13 @@ void vtkFieldData::CopyStructure(vtkFieldData* r)
   for(i=0; i < r->GetNumberOfArrays(); ++i)
     {
     data = r->Data[i]->NewInstance();
-    data->SetNumberOfComponents(r->Data[i]->GetNumberOfComponents());
+    int numComponents = r->Data[i]->GetNumberOfComponents();
+    data->SetNumberOfComponents(numComponents);
     data->SetName(r->Data[i]->GetName());
+    for(vtkIdType j=0; j < numComponents; j++)
+      {
+      data->SetComponentName(j,r->Data[i]->GetComponentName(j));
+      }
     if (r->Data[i]->HasInformation())
       {
       data->CopyInformation(r->Data[i]->GetInformation(),/*deep=*/1);
