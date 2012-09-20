@@ -316,6 +316,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
         }
       }
     }
+
   // Now make a map from input column name to output column index (colNameToIdx):
   vtkIdType i = 0;
   vtkIdType m = static_cast<vtkIdType>( allColumns.size() );
@@ -331,7 +332,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
     col2->InsertNextValue( empty );
     }
 
-  // Get a list of column pairs (across all requests) for which we'll compute sums of squares.
+  // Get a list of column pairs (across all requests) for which sums of squares will be computed.
   // This keeps us from computing the same covariance entry multiple times if several requests
   // contain common pairs of columns.
   i = m;
