@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPLY.h"
 #include "vtkPolyData.h"
+#include <vtkSmartPointer.h>
 
 #include <ctype.h>
 #include <stddef.h>
@@ -45,6 +46,8 @@ vtkPLYReader::~vtkPLYReader()
 
 typedef struct _plyVertex {
   float x[3];             // the usual 3-space position of a vertex
+  float tex[2];
+  float normal[3];
   unsigned char red;
   unsigned char green;
   unsigned char blue;
@@ -77,6 +80,16 @@ int vtkPLYReader::RequestData(
     {"y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)),
      0, 0, 0, 0},
     {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)+sizeof(float)),
+     0, 0, 0, 0},
+    {"u", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,tex)),
+     0, 0, 0, 0},
+    {"v", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,tex)+sizeof(float)),
+     0, 0, 0, 0},
+    {"nx", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,normal)),
+     0, 0, 0, 0},
+    {"ny", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,normal)+sizeof(float)),
+     0, 0, 0, 0},
+    {"nz", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,normal)+2*sizeof(float)),
      0, 0, 0, 0},
     {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,red)), 0, 0, 0, 0},
     {"green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,green)), 0, 0, 0, 0},
@@ -111,6 +124,7 @@ int vtkPLYReader::RequestData(
     vtkWarningMacro(<<"Could not open PLY file");
     return 0;
     }
+  std::cout << "PLY file type = " << fileType << std::endl;
 
   // Check to make sure that we can read geometry
   PlyElement *elem;
@@ -128,8 +142,8 @@ int vtkPLYReader::RequestData(
 
   // Check for optional attribute data. We can handle intensity; and the
   // triplet red, green, blue.
-  bool intensityAvailable=false;
-  vtkUnsignedCharArray *intensity=NULL;
+  bool intensityAvailable = false;
+  vtkUnsignedCharArray *intensity = NULL;
   if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
        vtkPLY::find_property (elem, "intensity", &index) != NULL )
     {
@@ -141,23 +155,22 @@ int vtkPLYReader::RequestData(
     intensity->Delete();
     }
 
-  bool RGBCellsAvailable=false;
-  vtkUnsignedCharArray *RGBCells=NULL;
+  bool RGBCellsAvailable = false;
+  vtkSmartPointer<vtkUnsignedCharArray> RGBCells = NULL;
   if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
        vtkPLY::find_property (elem, "red", &index) != NULL &&
        vtkPLY::find_property (elem, "green", &index) != NULL &&
        vtkPLY::find_property (elem, "blue", &index) != NULL )
     {
-    RGBCells = vtkUnsignedCharArray::New();
+    RGBCells = vtkSmartPointer<vtkUnsignedCharArray>::New();
     RGBCells->SetName("RGB");
     RGBCellsAvailable = true;
     output->GetCellData()->AddArray(RGBCells);
     output->GetCellData()->SetActiveScalars("RGB");
-    RGBCells->Delete();
     }
-
-  bool RGBPointsAvailable=false;
-  vtkUnsignedCharArray *RGBPoints=NULL;
+  
+  bool RGBPointsAvailable = false;
+  vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = NULL;
   if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
        vtkPLY::find_property (elem, "red", &index) != NULL &&
        vtkPLY::find_property (elem, "green", &index) != NULL &&
@@ -166,12 +179,39 @@ int vtkPLYReader::RequestData(
     RGBPoints = vtkUnsignedCharArray::New();
     RGBPointsAvailable = true;
     RGBPoints->SetName("RGB");
+    RGBPoints->SetNumberOfComponents(3);
     output->GetPointData()->SetScalars(RGBPoints);
-    RGBPoints->Delete();
+    }
+  
+  bool NormalPointsAvailable=false;
+  vtkSmartPointer<vtkFloatArray> Normals = NULL;
+  if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
+       vtkPLY::find_property (elem, "nx", &index) != NULL &&
+       vtkPLY::find_property (elem, "ny", &index) != NULL &&
+       vtkPLY::find_property (elem, "nz", &index) != NULL )
+    {
+    Normals = vtkSmartPointer<vtkFloatArray>::New();
+    NormalPointsAvailable = true;
+    Normals->SetName("Normals");
+    Normals->SetNumberOfComponents(3);
+    output->GetPointData()->SetNormals(Normals);
+    }
+
+  bool TexCoordsPointsAvailable = false;
+  vtkSmartPointer<vtkFloatArray> TexCoordsPoints = NULL;
+  if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
+        vtkPLY::find_property (elem, "u", &index) != NULL &&
+        vtkPLY::find_property (elem, "v", &index) != NULL)
+    {
+    TexCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
+    TexCoordsPointsAvailable = true;
+    TexCoordsPoints->SetName("TCoords");
+    TexCoordsPoints->SetNumberOfComponents(2);
+    output->GetPointData()->SetTCoords(TexCoordsPoints);
     }
 
   // Okay, now we can grab the data
-  int numPts=0, numPolys=0;
+  int numPts = 0, numPolys = 0;
   for (int i = 0; i < nelems; i++)
     {
     //get the description of the first element */
@@ -192,22 +232,45 @@ int vtkPLYReader::RequestData(
       vtkPLY::ply_get_property (ply, elemName, &vertProps[1]);
       vtkPLY::ply_get_property (ply, elemName, &vertProps[2]);
 
-      if ( RGBPointsAvailable )
+      if ( TexCoordsPointsAvailable )
         {
         vtkPLY::ply_get_property (ply, elemName, &vertProps[3]);
         vtkPLY::ply_get_property (ply, elemName, &vertProps[4]);
+        TexCoordsPoints->SetNumberOfTuples(numPts);
+        }
+
+      if ( NormalPointsAvailable )
+        {
         vtkPLY::ply_get_property (ply, elemName, &vertProps[5]);
-        RGBPoints->SetNumberOfComponents(3);
+        vtkPLY::ply_get_property (ply, elemName, &vertProps[6]);
+        vtkPLY::ply_get_property (ply, elemName, &vertProps[7]);
+        Normals->SetNumberOfTuples(numPts);
+        }
+
+      if ( RGBPointsAvailable )
+        {
+        vtkPLY::ply_get_property (ply, elemName, &vertProps[8]);
+        vtkPLY::ply_get_property (ply, elemName, &vertProps[9]);
+        vtkPLY::ply_get_property (ply, elemName, &vertProps[10]);
         RGBPoints->SetNumberOfTuples(numPts);
         }
+
       plyVertex vertex;
       for (int j=0; j < numPts; j++)
         {
         vtkPLY::ply_get_element (ply, (void *) &vertex);
         pts->SetPoint (j, vertex.x);
+        if ( TexCoordsPointsAvailable )
+          {
+          TexCoordsPoints->SetTuple2(j, vertex.tex[0], vertex.tex[1]);
+          }
+        if ( NormalPointsAvailable )
+          {
+          Normals->SetTuple3(j, vertex.normal[0], vertex.normal[1], vertex.normal[2]);
+          }
         if ( RGBPointsAvailable )
           {
-          RGBPoints->SetTuple3(j,vertex.red,vertex.green,vertex.blue);
+          RGBPoints->SetTuple3(j, vertex.red, vertex.green, vertex.blue);
           }
         }
       output->SetPoints(pts);
@@ -247,7 +310,7 @@ int vtkPLYReader::RequestData(
         //grab and element from the file
         face.verts = verts;
         vtkPLY::ply_get_element (ply, (void *) &face);
-        for (int k=0; k<face.nverts; k++)
+        for (int k=0; k < face.nverts; k++)
           {
           vtkVerts[k] = face.verts[k];
           }
@@ -299,5 +362,4 @@ void vtkPLYReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
-
 }
