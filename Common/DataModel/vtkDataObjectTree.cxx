@@ -219,11 +219,17 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
 }
 
 //----------------------------------------------------------------------------
-vtkCompositeDataIterator* vtkDataObjectTree::NewIterator()
+vtkDataObjectTreeIterator* vtkDataObjectTree::NewTreeIterator()
 {
   vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::New();
   iter->SetDataSet(this);
   return iter;
+}
+
+//----------------------------------------------------------------------------
+vtkCompositeDataIterator* vtkDataObjectTree::NewIterator()
+{
+  return this->NewTreeIterator();
 }
 
 //----------------------------------------------------------------------------

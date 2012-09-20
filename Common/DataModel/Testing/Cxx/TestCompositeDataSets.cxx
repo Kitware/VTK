@@ -85,7 +85,7 @@ bool TestAMRToMultiBlock()
 
   unsigned int numBlocks = 0;
   vtkSmartPointer<vtkCompositeDataIterator> bIter;
-  bIter.TakeReference( vtkDataObjectTreeIterator::SafeDownCast(b->NewIterator()));
+  bIter.TakeReference(b->NewIterator());
   aIter->SkipEmptyNodesOff();
   for (aIter->InitTraversal(); !aIter->IsDoneWithTraversal(); aIter->GoToNextItem())
     {

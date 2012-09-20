@@ -170,7 +170,8 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
 
   // Write each input.
   vtkSmartPointer<vtkDataObjectTreeIterator> iter;
-  iter.TakeReference(vtkDataObjectTreeIterator::SafeDownCast(compositeData->NewIterator()));
+  iter.TakeReference(
+    vtkDataObjectTreeIterator::SafeDownCast(compositeData->NewIterator()));
   iter->VisitOnlyLeavesOff();
   iter->TraverseSubTreeOff();
   iter->SkipEmptyNodesOff();
