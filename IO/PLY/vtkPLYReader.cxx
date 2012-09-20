@@ -168,7 +168,7 @@ int vtkPLYReader::RequestData(
     output->GetCellData()->AddArray(RGBCells);
     output->GetCellData()->SetActiveScalars("RGB");
     }
-  
+
   bool RGBPointsAvailable = false;
   vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = NULL;
   if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
@@ -182,7 +182,7 @@ int vtkPLYReader::RequestData(
     RGBPoints->SetNumberOfComponents(3);
     output->GetPointData()->SetScalars(RGBPoints);
     }
-  
+
   bool NormalPointsAvailable=false;
   vtkSmartPointer<vtkFloatArray> Normals = NULL;
   if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
