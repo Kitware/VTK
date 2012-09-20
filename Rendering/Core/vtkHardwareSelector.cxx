@@ -685,11 +685,9 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
       child->GetProperties()->Set(vtkSelectionNode::PROCESS_ID(),
         key.ProcessID);
       }
-    if (key.CompositeID >= 0)
-      {
-      child->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(),
-        key.CompositeID);
-      }
+
+    child->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(),
+      key.CompositeID);
 
     vtkIdTypeArray* ids = vtkIdTypeArray::New();
     ids->SetName("SelectedIds");

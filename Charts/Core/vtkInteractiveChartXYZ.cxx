@@ -450,7 +450,7 @@ void vtkInteractiveChartXYZ::DrawTickMarks(vtkContext2D *painter)
         startBox[0] = this->YAxisToLabel[0];
         startBox[1] = 0;
         endBox[1]   = 1;
-        startBox[2] = startBox[2] = this->YAxisToLabel[1];
+        startBox[2] = endBox[2] = this->YAxisToLabel[1];
         break;
       case 2:
       default:

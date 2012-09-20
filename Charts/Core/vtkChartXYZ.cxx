@@ -149,9 +149,9 @@ void vtkChartXYZ::SetAngle(double angle)
   this->Angle = angle;
 }
 
-void vtkChartXYZ::SetAroundX(bool IsX)
+void vtkChartXYZ::SetAroundX(bool IsX_)
 {
-  this->IsX = IsX;
+  this->IsX = IsX_;
 }
 
 namespace
