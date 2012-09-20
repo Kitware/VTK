@@ -103,4 +103,5 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
 
 void vtkProteinRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os, indent);
 }
