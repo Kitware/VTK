@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkProteinRibbonFilter.h"
 #include "vtkPDBReader.h"
+#include "vtkInteractorStyleSwitch.h"
 
 int TestProteinRibbon(int argc, char *argv[])
 {
@@ -50,7 +51,6 @@ int TestProteinRibbon(int argc, char *argv[])
   // setup actor
   vtkNew<vtkActor> actor;
   actor->SetMapper(polyDataMapper.GetPointer());
-  actor->GetProperty()->SetColor(0.0f, 1.0f, 0.0f);
 
   // setup render window
   vtkNew<vtkRenderer> ren;
@@ -58,12 +58,18 @@ int TestProteinRibbon(int argc, char *argv[])
   win->AddRenderer(ren.GetPointer());
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(win.GetPointer());
+  vtkInteractorStyleSwitch* is = vtkInteractorStyleSwitch::SafeDownCast(iren->GetInteractorStyle());
+  if (is)
+    {
+    is->SetCurrentStyleToTrackballCamera();
+    }
   ren->AddActor(actor.GetPointer());
-  ren->SetBackground(0.0, 0.0, 0.0);
+  ren->SetBackground(0,0,0);
   win->SetSize(450, 450);
-  win->Render();
-  ren->GetActiveCamera()->Zoom(2.2);
   ren->ResetCamera();
+  ren->GetActiveCamera()->Zoom(1.5);
+  ren->ResetCameraClippingRange();
+  win->Render();
 
   // Finally render the scene and compare the image to a reference image
   win->SetMultiSamples(0);

@@ -19,6 +19,14 @@
 #include "vtkPoints.h"
 #include "vtkIdTypeArray.h"
 #include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkIntArray.h"
+#include <algorithm>
+
+inline void StdStringToUpper(std::string& s)
+{
+  std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+}
 
 vtkStandardNewMacro(vtkPDBReader);
 
@@ -33,8 +41,10 @@ vtkPDBReader::~vtkPDBReader()
 void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
 {
   char linebuf[82], dum1[8], dum2[8];
-  char    atype[4+1];
-  int hydr = 0;
+  char atype[4+1], chain;
+  char startChain, endChain;
+  int startResi, endResi;
+  int hydr = 0, resi;
   int i, j;
   float x[3];
 
@@ -43,29 +53,33 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   this->AtomType->Allocate(500);
   this->AtomTypeStrings->Allocate(500);
 
+  vtkIntArray* Sheets = vtkIntArray::New();
+  Sheets->SetNumberOfComponents(4);
+  Sheets->Allocate(500);
+
+  vtkIntArray* Helix = vtkIntArray::New();
+  Helix->SetNumberOfComponents(4);
+  Helix->Allocate(50);
+
   vtkDebugMacro( << "PDB File (" << this->HBScale
     << ", " << this->BScale << ")");
   while(fgets(linebuf, sizeof linebuf, fp) != NULL &&
     strncmp("END", linebuf, 3))
     {
-    if((0==strncmp("ATOM",linebuf,4) || 0==strncmp("atom",linebuf,4)) ||
-      (0==strncmp("HETATM",linebuf,6) || 0==strncmp("hetatm",linebuf,6)))
+    char c[7] = { 0 };
+    sscanf(&linebuf[0],"%6s", c);
+    std::string command = c;
+    StdStringToUpper(command);
+
+    if (command == "ATOM" || command == "HETATM")
       {
       sscanf(&linebuf[12],"%4s", dum1);
       sscanf(&linebuf[17],"%3s", dum2);
+      chain = linebuf[21];
+      sscanf(&linebuf[22],"%d", &resi);
       sscanf(&linebuf[30],"%8f%8f%8f", x, x+1, x+2);
-      if(hydr == 0)
-        {
-        this->Points->InsertNextPoint(x);
 
-        for(j=0, i=static_cast<int>(strspn(dum1, " ")); i < 5; i++)
-          {
-          atype[j++] = dum1[i];
-          }
-
-        this->NumberOfAtoms++;
-        }
-      else if( !(dum1[0]=='H' || dum1[0]=='h') )
+      if (hydr == 0 || (!(dum1[0]=='H' || dum1[0]=='h')))
         { /* skip hydrogen */
         this->Points->InsertNextPoint(x);
         for(j=0, i=static_cast<int>(strspn(dum1, " ")); i < 5; i++)
@@ -73,14 +87,78 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
           atype[j++] = dum1[i];
           }
 
-        //sprintf(aamin[NumberOfAtoms],"%3s", dum2);
+        this->Residue->InsertNextValue(resi);
+        this->Chain->InsertNextValue(chain);
+        this->AtomType->InsertNextValue(this->MakeAtomType(atype));
+        this->AtomTypeStrings->InsertNextValue(atype);
+        this->IsHetatm->InsertNextValue(command[0] == 'H');
+
         this->NumberOfAtoms++;
         }
-      this->AtomType->InsertNextValue(this->MakeAtomType(atype));
-      this->AtomTypeStrings->InsertNextValue(atype);
+      }
+    else if (command == "SHEET")
+      {
+      sscanf(&linebuf[21], "%c", &startChain);
+      sscanf(&linebuf[22], "%d", &startResi);
+      sscanf(&linebuf[32], "%c", &endChain);
+      sscanf(&linebuf[33], "%d", &endResi);
+      int tuple[4] = { startChain, startResi, endChain, endResi };
+      Sheets->InsertNextTupleValue(tuple);
+      }
+    else if (command == "HELIX")
+      {
+      sscanf(&linebuf[19], "%c", &startChain);
+      sscanf(&linebuf[21], "%d", &startResi);
+      sscanf(&linebuf[31], "%c", &endChain);
+      sscanf(&linebuf[33], "%d", &endResi);
+      int tuple[4] = { startChain, startResi, endChain, endResi };
+      Helix->InsertNextTupleValue(tuple);
       }
     }
+
   this->Points->Squeeze();
+  this->AtomType->Squeeze();
+  this->AtomTypeStrings->Squeeze();
+  this->Residue->Squeeze();
+  this->IsHetatm->Squeeze();
+
+  int len = this->Points->GetNumberOfPoints();
+  this->SecondaryStructures->SetNumberOfValues(len);
+  this->SecondaryStructuresBegin->SetNumberOfValues(len);
+  this->SecondaryStructuresEnd->SetNumberOfValues(len);
+
+  // Assign secondary structures
+  for (int i = 0; i < this->Points->GetNumberOfPoints(); i++)
+    {
+    this->SecondaryStructures->SetValue(i, 'c');
+    int resi = this->Residue->GetValue(i);
+
+    for (int j = 0; j < Sheets->GetNumberOfTuples(); j++)
+      {
+      int sheet[4];
+      Sheets->GetTupleValue(j, sheet);
+      if (this->Chain->GetValue(i) != sheet[0]) continue;
+      if (resi < sheet[1]) continue;
+      if (resi > sheet[3]) continue;
+      this->SecondaryStructures->SetValue(i, 's');
+      if (resi == sheet[1]) this->SecondaryStructuresBegin->SetValue(i, true);
+      if (resi == sheet[3]) this->SecondaryStructuresEnd->SetValue(i, true);
+      }
+
+    for (int j = 0; j < Helix->GetNumberOfTuples(); j++)
+      {
+      int helix[4];
+      Helix->GetTupleValue(j, helix);
+      if (this->Chain->GetValue(i) != helix[0]) continue;
+      if (resi < helix[1]) continue;
+      if (resi > helix[3]) continue;
+      this->SecondaryStructures->SetValue(i, 'h');
+      if (resi == helix[1]) this->SecondaryStructuresBegin->SetValue(i, true);
+      else if (resi == helix[3]) this->SecondaryStructuresEnd->SetValue(i, true);
+      }
+   }
+  Sheets->Delete();
+  Helix->Delete();
 }
 
 void vtkPDBReader::PrintSelf(ostream& os, vtkIndent indent)

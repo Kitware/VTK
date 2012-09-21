@@ -74,6 +74,12 @@ protected:
   vtkFloatArray *Radii;
   vtkIdTypeArray *AtomType;
   vtkStringArray *AtomTypeStrings;
+  vtkIdTypeArray *Residue;
+  vtkUnsignedCharArray *Chain;
+  vtkUnsignedCharArray *SecondaryStructures;
+  vtkUnsignedCharArray *SecondaryStructuresBegin;
+  vtkUnsignedCharArray *SecondaryStructuresEnd;
+  vtkUnsignedCharArray *IsHetatm;
 
   virtual void ReadSpecificMolecule(FILE* fp) = 0;
 
