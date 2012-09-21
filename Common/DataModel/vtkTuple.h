@@ -22,6 +22,7 @@
 #define __vtkTuple_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkIOStream.h" // For streaming operators
 #include "vtkSystemIncludes.h"
 
 #include <cassert> // For inline assert for bounds checked methods.
@@ -124,6 +125,74 @@ protected:
   // The only thing stored in memory!
   T Data[Size];
 };
+
+// Description:
+// Output the contents of a tuple, mainly useful for debugging.
+template<typename A, int Size>
+ostream& operator<<(ostream& out, const vtkTuple<A, Size>& t)
+{
+  out << "(";
+  bool first = true;
+  for (int i = 0; i < Size; ++i)
+    {
+    if (first)
+      {
+      first = false;
+      }
+    else
+      {
+      out << ", ";
+      }
+    out << t[i];
+    }
+  out << ")";
+  return out;
+}
+// Specialize for unsigned char so that we can see the numbers!
+template<int Size>
+ostream& operator<<(ostream& out, const vtkTuple<unsigned char, Size>& t)
+{
+  out << "(";
+  bool first = true;
+  for (int i = 0; i < Size; ++i)
+    {
+    if (first)
+      {
+      first = false;
+      }
+    else
+      {
+      out << ", ";
+      }
+    out << static_cast<int>(t[i]);
+    }
+  out << ")";
+  return out;
+}
+
+// Description:
+// Equality operator performs an equality check on each component.
+template<typename A, int Size>
+bool operator==(const vtkTuple<A, Size>& t1, const vtkTuple<A, Size>& t2)
+{
+  bool ret = true;
+  for (int i = 0; i < Size; ++i)
+    {
+    if (t1[i] != t2[i])
+      {
+      ret = false;
+      }
+    }
+  return ret;
+}
+
+// Description:
+// Inequality for vector type.
+template<typename A, int Size>
+bool operator!=(const vtkTuple<A, Size>& t1, const vtkTuple<A, Size>& t2)
+{
+  return !(t1 == t2);
+}
 
 #endif // __vtkTuple_h
 // VTK-HeaderTest-Exclude: vtkTuple.h

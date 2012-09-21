@@ -17,7 +17,6 @@
 
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
-#include "vtkColor.h"
 #include "vtkMathUtilities.h"
 
 //----------------------------------------------------------------------------
@@ -97,47 +96,6 @@ int TestVector(int, char*[])
     ++retVal;
   }
   cout << "castVecd[0] = " << castVecd[0] << endl;
-
-  // Now to test out one of the color classes and memory layouts of arrays
-  // Note that the memory layout of a vtkColor3ub[5] is the same as an unsigned
-  // char[15], and can be addressed as such.
-  vtkColor3ub color[3] = { vtkColor3ub(0, 0, 0), vtkColor3ub(0, 0, 0),
-        vtkColor3ub(0, 0, 0) };
-  unsigned char* colorPtr = color->GetData();
-  for (int i = 0; i < 3; ++i)
-    {
-    for (int j = 0; j < 3; ++j)
-      {
-      if (color[i][j] != 0)
-        {
-        cerr << "Initializer problem in vtkColor3ub - should be zero, but = "
-            << color[i][j] << endl;
-        ++retVal;
-        }
-      if (color[i][j] != colorPtr[i*3+j])
-        {
-        cerr << "Error: color[i][j] != colorPtr[i*3+j]" << endl
-            << "color[i][j] = " << color[i][j] << endl
-            << "colorPtr[i*3+j] = " << colorPtr[i*3+j] << endl;
-        ++retVal;
-        }
-      color[i][j] = static_cast<unsigned char>(i * 2 + i);
-      }
-    }
-
-  for (int i = 0; i < 3; ++i)
-    {
-    for (int j = 0; j < 3; ++j)
-      {
-      if (color[i][j] != colorPtr[i*3+j])
-        {
-        cerr << "Error: color[i][j] != colorPtr[i*3+j]" << endl
-            << "color[i][j] = " << color[i][j] << endl
-            << "colorPtr[i*3+j] = " << colorPtr[i*3+j] << endl;
-        ++retVal;
-        }
-      }
-    }
 
   // Test the normalize and normalized functions.
   vtkVector3d normy(1, 2, 3);
