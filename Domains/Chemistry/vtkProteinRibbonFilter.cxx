@@ -34,10 +34,29 @@
 #include "vtkVectorOperators.h"
 #include <map>
 
-
-std::map<std::string, unsigned int> ElementColors;
-
 vtkStandardNewMacro(vtkProteinRibbonFilter)
+
+namespace
+{
+// Shamelessly copied from vtkColorSeries vtkColor3ubFromHex3, should be added
+// to the vtkColor code.
+vtkColor3ub ToColor3ubFromHex3(vtkTypeUInt32 hex)
+{
+  int b = hex & 0xff;
+  hex >>= 8;
+  int g = hex & 0xff;
+  hex >>= 8;
+  int r = hex & 0xff;
+  return vtkColor3ub(r, g, b);
+}
+// Again, should be added to the vtkColor code.
+vtkColor3ub ToColor3ubFromColor3f(const vtkColor3f& color)
+{
+  return vtkColor3ub(static_cast<unsigned char>(color[0] * 255.0f),
+                     static_cast<unsigned char>(color[1] * 255.0f),
+                     static_cast<unsigned char>(color[2] * 255.0f));
+}
+} // End of anonymous namespace.
 
 vtkProteinRibbonFilter::vtkProteinRibbonFilter()
 {
@@ -46,26 +65,19 @@ vtkProteinRibbonFilter::vtkProteinRibbonFilter()
   this->SphereResolution = 60;
   this->SubdivideFactor = 20;
 
-  ElementColors["H"]  = 0xCCCCCC;
-  ElementColors["C"]  = 0xAAAAAA;
-  ElementColors["O"]  = 0xCC0000;
-  ElementColors["N"]  = 0x0000CC;
-  ElementColors["S"]  = 0xCCCC00;
-  ElementColors["P"]  = 0x6622CC;
-  ElementColors["F"]  = 0x00CC00;
-  ElementColors["CL"] = 0x00CC00;
-  ElementColors["BR"] = 0x882200;
-  ElementColors["I"]  = 0x6600AA;
-  ElementColors["FE"] = 0xCC6600;
-  ElementColors["CA"] = 0xDDDDDD;
+  this->ElementColors["H"]  = ToColor3ubFromHex3(0xCCCCCC);
+  this->ElementColors["C"]  = ToColor3ubFromHex3(0xAAAAAA);
+  this->ElementColors["O"]  = ToColor3ubFromHex3(0xCC0000);
+  this->ElementColors["N"]  = ToColor3ubFromHex3(0x0000CC);
+  this->ElementColors["S"]  = ToColor3ubFromHex3(0xCCCC00);
+  this->ElementColors["P"]  = ToColor3ubFromHex3(0x6622CC);
+  this->ElementColors["F"]  = ToColor3ubFromHex3(0x00CC00);
+  this->ElementColors["CL"] = ToColor3ubFromHex3(0x00CC00);
+  this->ElementColors["BR"] = ToColor3ubFromHex3(0x882200);
+  this->ElementColors["I"]  = ToColor3ubFromHex3(0x6600AA);
+  this->ElementColors["FE"] = ToColor3ubFromHex3(0xCC6600);
+  this->ElementColors["CA"] = ToColor3ubFromHex3(0xDDDDDD);
 }
-
-// Extract the R, G & B values from a compact unsigned int color
-#define GETRVALUE(_c_) (((_c_) & 0xFF0000) >> 16)
-#define GETGVALUE(_c_) (((_c_) & 0x00FF00) >> 8)
-#define GETBVALUE(_c_) ((_c_) & 0x0000FF)
-// Transform a RGB color from a 3 float array into a compact unsigned int
-#define F2UICOLOR(_c_) ((unsigned int(_c_[0] * 255) << 16) | (unsigned int(_c_[1] * 255) << 8) | (unsigned int(_c_[2] * 255)))
 
 vtkProteinRibbonFilter::~vtkProteinRibbonFilter()
 {
@@ -138,11 +150,13 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
   faceColors->SetNumberOfComponents(3);
 
   // Initialize colors per point/atom
-  std::vector<unsigned int> atomsColors;
-  SetColorByAtom(atomsColors, atomTypes);
-  SetColorByStructure(atomsColors, atomTypes, atom_ss);
+  std::vector<vtkColor3ub> atomsColors;
+  this->SetColorByAtom(atomsColors, atomTypes);
+  this->SetColorByStructure(atomsColors, atomTypes, atom_ss,
+                            ToColor3ubFromHex3(0xFF0080),
+                            ToColor3ubFromHex3(0xFFC800));
 
-  std::vector<unsigned int> colors;
+  std::vector<vtkColor3ub> colors;
   std::vector<std::pair<vtkVector3f, bool> > borderPoints[2];
 
    // Need this for radius / color lookups
@@ -159,10 +173,10 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
         }
 
       unsigned short atomicNum = pTab->GetAtomicNumber(type);
-      float col[4];
-      pTab->GetDefaultRGBTuple(atomicNum, col);
+      vtkColor3f color = pTab->GetDefaultRGBTuple(atomicNum);
       CreateAtomAsSphere(strand.GetPointer(), faceColors.GetPointer(),
-        input->GetPoint(i), F2UICOLOR(col), pTab->GetVDWRadius(atomicNum), 1.f);
+                         input->GetPoint(i), ToColor3ubFromColor3f(color),
+                         pTab->GetVDWRadius(atomicNum), 1.f);
       }
     else if (type == "CA")
       {
@@ -208,8 +222,9 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
     }
 
   // Create the last ribbon strip if needed
-  CreateThinStrip(strand.GetPointer(), faceColors.GetPointer(),
-    strandPoints.GetPointer(), borderPoints[0], borderPoints[1], colors);
+  this->CreateThinStrip(strand.GetPointer(), faceColors.GetPointer(),
+                        strandPoints.GetPointer(), borderPoints[0],
+                        borderPoints[1], colors);
 
   strand->GetCellData()->SetScalars(faceColors.GetPointer());
 
@@ -225,27 +240,24 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
 }
 
 
-void vtkProteinRibbonFilter::SetColorByAtom(std::vector<unsigned int>& colors, vtkStringArray* atomTypes)
+void vtkProteinRibbonFilter::SetColorByAtom(std::vector<vtkColor3ub>& colors,
+                                            vtkStringArray* atomTypes)
 {
   vtkNew<vtkPeriodicTable> pTab;
   unsigned int len = atomTypes->GetNumberOfValues();
   colors.resize(len);
   for (unsigned int i = 0; i < len; i++)
     {
-    /*unsigned short atomicNum = pTab->GetAtomicNumber(atomTypes->GetValue(i));
-    float col[4];
-    pTab->GetDefaultRGBTuple(atomicNum, col);
-    colors[i] = F2UICOLOR(col);*/
-    colors[i] = ElementColors[atomTypes->GetValue(i)];
+    colors[i] = this->ElementColors[atomTypes->GetValue(i)];
     }
 }
 
 
-void vtkProteinRibbonFilter::SetColorByStructure(std::vector<unsigned int>& colors,
+void vtkProteinRibbonFilter::SetColorByStructure(std::vector<vtkColor3ub>& colors,
                                                  vtkStringArray* atomTypes,
                                                  vtkUnsignedCharArray* ss,
-                                                 unsigned int helixColor,
-                                                 unsigned int sheetColor)
+                                                 const vtkColor3ub& helixColor,
+                                                 const vtkColor3ub& sheetColor)
 {
   unsigned int len = atomTypes->GetNumberOfValues();
   colors.resize(len);
@@ -266,7 +278,8 @@ void vtkProteinRibbonFilter::SetColorByStructure(std::vector<unsigned int>& colo
 void vtkProteinRibbonFilter::CreateAtomAsSphere(vtkPolyData* poly,
                                                 vtkUnsignedCharArray *faceColors,
                                                 double *pos,
-                                                unsigned int color, float radius, float scale)
+                                                const vtkColor3ub& color,
+                                                float radius, float scale)
 {
   // Create the sphere source at the atom size & position
   vtkNew<vtkSphereSource> sphereSource;
@@ -304,7 +317,10 @@ void vtkProteinRibbonFilter::CreateAtomAsSphere(vtkPolyData* poly,
       newCellPoints[i] = cellPoints[i] + pointOffset;
       }
     poly->InsertNextCell(VTK_TRIANGLE_STRIP, numCellPoints, newCellPoints);
-    faceColors->InsertNextTuple(vtkVector3f(GETRVALUE(color), GETGVALUE(color), GETBVALUE(color)).GetData());
+    for (int i = 0; i < 3; ++i)
+      {
+      faceColors->InsertNextValue(color[i]);
+      }
     delete [] newCellPoints;
     }
 }
@@ -315,7 +331,7 @@ void vtkProteinRibbonFilter::CreateThinStrip(vtkPolyData* poly,
                                              vtkPoints* p,
                                              std::vector<std::pair<vtkVector3f, bool> >& p1,
                                              std::vector<std::pair<vtkVector3f, bool> >& p2,
-                                             std::vector<unsigned int> &colors)
+                                             std::vector<vtkColor3ub> &colors)
 {
   if (p1.size() < 2 || p2.size() < 2)
     {
@@ -349,12 +365,15 @@ void vtkProteinRibbonFilter::CreateThinStrip(vtkPolyData* poly,
     connectivity[j + 2] = pointOffset + 2 * i + 2;
     connectivity[j + 3] = pointOffset + 2 * i + 3;
 
-    unsigned int color = colors[floor(0.5f + i / (float)this->SubdivideFactor)];
-    vtkVector3f facecolor(GETRVALUE(color), GETGVALUE(color), GETBVALUE(color));
-    faceColors->InsertNextTuple(facecolor.GetData());
-    faceColors->InsertNextTuple(facecolor.GetData());
-    faceColors->InsertNextTuple(facecolor.GetData());
-    faceColors->InsertNextTuple(facecolor.GetData());
+    vtkColor3ub color = colors[floor(0.5f + i /
+                                     static_cast<float>(this->SubdivideFactor))];
+    for (int k = 0; k < 4; ++k)
+      {
+      for (int ci = 0; ci < 3; ++ci)
+        {
+        faceColors->InsertNextValue(color[ci]);
+        }
+      }
     }
   poly->InsertNextCell(VTK_TRIANGLE_STRIP, 4 * (len - 1), connectivity);
 }
@@ -366,7 +385,7 @@ std::vector<vtkVector3f>* vtkProteinRibbonFilter::Subdivide(std::vector<std::pai
   std::vector<vtkVector3f>* ret = new std::vector<vtkVector3f>;
   std::vector<vtkVector3f> points;
 
-   // Smoothing test
+  // Smoothing test
   points.push_back(p[0].first);
   for (int i = 1, lim = p.size() - 1; i < lim; i++)
     {
