@@ -18,7 +18,7 @@
 #include "vtkTkImageViewerWidget.h"
 #include "vtkTkRenderWidget.h"
 #include "vtkImageData.h"
-
+#include "vtkVersionMacros.h"
 
 //----------------------------------------------------------------------------
 // Vtkrenderingpythontkwidgets_Init

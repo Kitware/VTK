@@ -16,38 +16,6 @@
 #
 #   SET(VTK_EXTRA_TCL_LIBRARIES ${VTK_EXTRA_TCL_LIBRARIES} vtkMySpecialTCL)
 
-# Set if the tcl/tk libs are static
-option(VTK_TCL_TK_STATIC "Build with static Tcl/Tk support. TCL_LIBRARY and TK_LIBRARY must point to the corresponding Tcl/Tk static libraries (example, tcl85sx.lib, tk85sx.lib)." OFF)
-mark_as_advanced(VTK_TCL_TK_STATIC)
-
-# Use Tk Toolkit with Tcl
-INCLUDE(vtkDependentOption)
-
-set(VTK_CAN_USE_TK OFF)
-set(VTK_USE_TK_DEFAULT ON)
-if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
-  if(NOT VTK_DISABLE_TK_INIT)
-    set(VTK_CAN_USE_TK ON)
-    if(APPLE)
-      if(OSX_SDK_VERSION)
-        if(${OSX_SDK_VERSION} VERSION_LESS "10.6")
-          # Until OS X 10.6, building Tk with Cocoa was not possible
-          if(VTK_USE_COCOA)
-            set(VTK_CAN_USE_TK OFF)
-          endif()
-        else()
-          # For OS X 10.6, the default system Tk is Cocoa, not Carbon
-          if(VTK_USE_CARBON)
-            set(VTK_USE_TK_DEFAULT OFF)
-          endif()
-        endif()
-      endif()
-    endif()
-  endif()
-endif()
-vtk_dependent_option(VTK_USE_TK "Build VTK with Tk support"
-                     ${VTK_USE_TK_DEFAULT} "VTK_CAN_USE_TK" OFF)
-
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h.in
   ${VTK_BINARY_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h
@@ -133,11 +101,14 @@ else()
   endforeach()
 endif()
 
-if(VTK_USE_TK)
+if(TK_FOUND AND VTK_USE_TK)
   target_link_libraries(vtk ${VTK_TK_LIBRARIES})
-endif(VTK_USE_TK)
+  if(Module_vtkRenderingTk)
+    target_link_libraries(vtk vtkRenderingTclTkWidgets)
+  endif()
+endif()
 
-if(VTK_INSTALL_RUNTIME AND VTK_BUILD_FORWARDING_EXECUTABLES)
+if(NOT VTK_INSTALL_NO_RUNTIME AND VTK_BUILD_FORWARDING_EXECUTABLES)
   install(TARGETS vtk
     EXPORT ${VTK_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeExecutables # .exe, .dll
@@ -150,7 +121,7 @@ if(VTK_INSTALL_RUNTIME AND VTK_BUILD_FORWARDING_EXECUTABLES)
     LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
     ARCHIVE DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT Development      # .a, .lib
     )
-elseif(VTK_INSTALL_RUNTIME)
+elseif(NOT VTK_INSTALL_NO_RUNTIME)
   install(TARGETS vtk
     EXPORT ${VTK_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeExecutables # .exe, .dll
@@ -180,6 +151,9 @@ if(vtkParallelMPI_ENABLED)
   target_link_libraries(pvtk ${PVTK_LIBRARIES})
   if(VTK_USE_TK)
     target_link_libraries(pvtk ${VTK_TK_LIBRARIES})
+    if(Module_vtkRenderingTk)
+      target_link_libraries(pvtk vtkRenderingTclTkWidgets)
+    endif()
   endif(VTK_USE_TK)
 
   # Link to TCL static libraries
@@ -192,15 +166,6 @@ if(vtkParallelMPI_ENABLED)
       target_link_libraries(pvtk ${${module}_TCL_NAME}TCL)
     endforeach()
   endif()
-
-  IF(VTK_INSTALL_RUNTIME)
-    INSTALL(TARGETS pvtk
-      EXPORT ${VTK_INSTALL_EXPORT_NAME}
-      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeExecutables # .exe, .dll
-      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
-      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
-      )
-  ENDIF()
 endif()
 
 if(NOT VTK_INSTALL_NO_DOCUMENTATION)
@@ -291,6 +256,17 @@ foreach(mod ${VTK_TCL_WRAPPED})
       COMPONENT RuntimeLibraries)
   endif()
 endforeach()
+#The Tk widgets
+if(Module_vtkRenderingTk)
+  configure_file(vtkrenderingtcltkwidgets.tcl.in
+    "${VTK_TCL_HOME}/vtkrenderingtcltkwidgets/vtkrenderingtcltkwidgets.tcl" @ONLY IMMEDIATE)
+  if(NOT VTK_INSTALL_NO_RUNTIME)
+    install(FILES
+      "${VTK_TCL_HOME}/vtkrenderingtcltkwidgets/vtkrenderingtcltkwidgets.tcl"
+      DESTINATION ${VTK_INSTALL_TCL_DIR}/${module_lc}
+      COMPONENT RuntimeLibraries)
+  endif()
+endif()
 
 # Configure the Tcl package index file for the install tree.
 SET(VTK_TCL_SCRIPT_DIR "[file dirname [info script]]")
@@ -319,6 +295,11 @@ if(NOT BUILD_SHARED_LIBS)
     file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_prototypes.h "extern \"C\" int ${module_lc}tcl_Init(Tcl_Interp *interp);\n")
     file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_packages.h "Tcl_StaticPackage(0, \"${${module}_TCL_NAME}Tcl\", ${module_lc}tcl_Init, NULL);\n")
   endforeach()
+  #The Tk widgets
+  if(Module_vtkRenderingTk)
+    file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_prototypes.h "extern \"C\" int Vtkrenderingtcltkwidgets_Init(Tcl_Interp *interp);\n")
+    file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_packages.h "Tcl_StaticPackage(0, \"vtkRenderingTclTkWidgets\", Vtkrenderingtcltkwidgets_Init, NULL);\n")
+  endif()
 endif()
 
 # Allow the user to customize their build with some local options

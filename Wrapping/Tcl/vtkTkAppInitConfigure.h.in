@@ -1,6 +1,16 @@
 #ifndef __vtkTkAppInitConfigure_h
 #define __vtkTkAppInitConfigure_h
 
+/* Whether we are linking to Tcl/Tk statically.  */
+#cmakedefine VTK_TCL_TK_STATIC
+
+/* Whether Tk widgets are NOT initialized when vtkRendering loads.  */
+#cmakedefine VTK_USE_TK
+
+/* Whether the Tcl/Tk support files are copied to the build dir */
+#cmakedefine VTK_TCL_TK_COPY_SUPPORT_LIBRARY
+
+/* Where the VTK Tcl packages can be found */
 #define VTK_INSTALL_TCL_DIR "@VTK_INSTALL_TCL_DIR@"
 
 @VTK_EXTRA_TCL_WRAPPING_CODE@

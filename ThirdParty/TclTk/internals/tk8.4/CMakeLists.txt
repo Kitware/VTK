@@ -3,7 +3,7 @@ IF(TK_INTERNAL_PATH)
     FILE(GLOB tkHeaderFiles "*.h")
     INSTALL(FILES
       ${tkHeaderFiles}
-      DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/TclTk/internals/tk8.4
+      DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/TclTk/internals/tk8.4
       COMPONENT Development
       )
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

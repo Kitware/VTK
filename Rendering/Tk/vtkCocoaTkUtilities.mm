@@ -58,4 +58,3 @@ void* vtkCocoaTkUtilities::GetDrawableView(Tk_Window window)
 
   return reinterpret_cast<void *>(result);
 }
-
