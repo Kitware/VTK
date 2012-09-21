@@ -112,7 +112,7 @@ int vtkImageMarchingCubes::RequestData(
     }
   inputExec->UpdateInformation();
   // Each data type requires a different amount of memory.
-  int temp;
+  vtkIdType temp;
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
@@ -123,13 +123,14 @@ int vtkImageMarchingCubes::RequestData(
       return 1;
     }
 
-  int extent[8];
+  int extent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   // multiply by the area of each slice
   temp *= extent[1] - extent[0] + 1;
   temp *= extent[3] - extent[2] + 1;
   // temp holds memory per image. (+1 to avoid dividing by zero)
-  this->NumberOfSlicesPerChunk = this->InputMemoryLimit * 1024 / (temp + 1);
+  this->NumberOfSlicesPerChunk =
+    static_cast<int>(this->InputMemoryLimit * 1024 / (temp + 1));
   if (this->NumberOfSlicesPerChunk < minSlicesPerChunk)
     {
     vtkWarningMacro("Execute: Need "
@@ -143,10 +144,11 @@ int vtkImageMarchingCubes::RequestData(
 
   // Create the points, scalars, normals and Cell arrays for the output.
   // estimate the number of points from the volume dimensions
-  int estimatedSize = (int) pow ((double) ((extent[1]-extent[0]+1) *
-                                           (extent[3]-extent[2]+1) *
-                                           (extent[5]-extent[4]+1)), 0.75);
-  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+  vtkIdType estimatedSize = static_cast<vtkIdType>(extent[1] - extent[0] + 1);
+  estimatedSize *= static_cast<vtkIdType>(extent[3] - extent[2] + 1);
+  estimatedSize *= static_cast<vtkIdType>(extent[5] - extent[4] + 1);
+  estimatedSize = static_cast<vtkIdType>(pow(1.0*estimatedSize, 0.75));
+  estimatedSize = (estimatedSize / 1024) * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
     estimatedSize = 1024;
@@ -677,11 +679,8 @@ void vtkImageMarchingCubes::March(vtkImageData *inData,
 // This method allocates and initializes the point array.
 // One 2d array of cubes is stored. (z dimension is ignored).
 void vtkImageMarchingCubes::InitializeLocator(int min0, int max0,
-                                                 int min1, int max1)
+                                              int min1, int max1)
 {
-  int idx;
-  int size;
-
   // Free old memory
   if (this->LocatorPointIds)
     {
@@ -693,10 +692,12 @@ void vtkImageMarchingCubes::InitializeLocator(int min0, int max0,
   this->LocatorMinX = min0;
   this->LocatorMinY = min1;
   // 5 non shared edges.
-  size = (this->LocatorDimX)*(this->LocatorDimY)*5;
-  this->LocatorPointIds = new int[size];
+  vtkIdType size = 5;
+  size *= static_cast<vtkIdType>(this->LocatorDimX);
+  size *= static_cast<vtkIdType>(this->LocatorDimY);
+  this->LocatorPointIds = new vtkIdType[size];
   // Initialize the array
-  for (idx = 0; idx < size; ++idx)
+  for (vtkIdType idx = 0; idx < size; ++idx)
     {
     this->LocatorPointIds[idx] = -1;
     }
@@ -718,13 +719,10 @@ void vtkImageMarchingCubes::DeleteLocator()
 // This method moves the Z index of the locator up one slice.
 void vtkImageMarchingCubes::IncrementLocatorZ()
 {
-  int x, y;
-  int *ptr;
-
-  ptr = this->LocatorPointIds;
-  for (y = 0; y < this->LocatorDimY; ++y)
+  vtkIdType *ptr = this->LocatorPointIds;
+  for (int y = 0; y < this->LocatorDimY; ++y)
     {
-    for (x = 0; x < this->LocatorDimX; ++x)
+    for (int x = 0; x < this->LocatorDimX; ++x)
       {
       ptr[0] = ptr[4];
       ptr[3] = ptr[1];
@@ -745,29 +743,25 @@ void vtkImageMarchingCubes::IncrementLocatorZ()
 // (0,1,0)->(0,1,1): 10, (1,1,0)->(1,1,1): 11.
 // Shared edges are computed internaly. (no error checking)
 void vtkImageMarchingCubes::AddLocatorPoint(int cellX, int cellY, int edge,
-                                               int ptId)
+                                            vtkIdType ptId)
 {
-  int *ptr;
-
   // Get the correct position in the array.
-  ptr = this->GetLocatorPointer(cellX, cellY, edge);
+  vtkIdType *ptr = this->GetLocatorPointer(cellX, cellY, edge);
   *ptr = ptId;
 }
 
 //----------------------------------------------------------------------------
 // This method gets a point from the locator.
-int vtkImageMarchingCubes::GetLocatorPoint(int cellX, int cellY, int edge)
+vtkIdType vtkImageMarchingCubes::GetLocatorPoint(int cellX, int cellY, int edge)
 {
-  int *ptr;
-
   // Get the correct position in the array.
-  ptr = this->GetLocatorPointer(cellX, cellY, edge);
+  vtkIdType *ptr = this->GetLocatorPointer(cellX, cellY, edge);
   return *ptr;
 }
 
 //----------------------------------------------------------------------------
 // This method returns a pointer to an ID from a cube and an edge.
-int *vtkImageMarchingCubes::GetLocatorPointer(int cellX,int cellY,int edge)
+vtkIdType *vtkImageMarchingCubes::GetLocatorPointer(int cellX,int cellY,int edge)
 {
   // Remove redundant edges (shared by more than one cube).
   // Take care of shared edges
@@ -799,7 +793,7 @@ int *vtkImageMarchingCubes::GetLocatorPointer(int cellX,int cellY,int edge)
 
   // return correct pointer
   return this->LocatorPointIds + edge
-    + (cellX + cellY * (this->LocatorDimX)) * 5;
+    + (cellX + cellY * static_cast<vtkIdType>(this->LocatorDimX)) * 5;
 }
 
 //----------------------------------------------------------------------------

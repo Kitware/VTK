@@ -95,7 +95,8 @@ protected:
 
   // Description:
   // Compute how to scale our data so that text labels will fit within the
-  // bounds determined by the table's cells.
+  // bounds determined by the table's cells or the spacing between the leaf
+  // nodes of the tree.
   void ComputeMultiplier();
 
   // Description:
@@ -122,6 +123,10 @@ protected:
   // the specified cell size.
   void SetupTextProperty(vtkContext2D *painter, double cellHeight);
 
+  // Description:
+  // Count the number of leaf nodes in the tree
+  void CountLeafNodes();
+
 private:
   vtkTreeHeatmapItem(const vtkTreeHeatmapItem&); // Not implemented
   void operator=(const vtkTreeHeatmapItem&); // Not implemented
@@ -133,6 +138,7 @@ private:
   vtkNew<vtkGraphLayout> Layout;
   std::vector< vtkLookupTable * > LookupTables;
   double Multiplier;
+  int NumberOfLeafNodes;
 
   std::map< int, std::map< std::string, double> > StringToDoubleMaps;
 };

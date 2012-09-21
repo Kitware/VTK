@@ -45,7 +45,7 @@
 #include "vtkXMLStructuredGridWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 #include "vtkXMLWriter.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkDataObjectTreeIterator.h"
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 #include <string>
@@ -363,8 +363,12 @@ void vtkXMLCompositeDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
 {
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(hdInput->NewIterator());
-  iter->VisitOnlyLeavesOn();
-  iter->TraverseSubTreeOn();
+  if(vtkDataObjectTreeIterator::SafeDownCast(iter))
+    {
+    vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
+    treeIter->VisitOnlyLeavesOn();
+    treeIter->TraverseSubTreeOn();
+    }
   iter->SkipEmptyNodesOff();
 
   this->Internal->DataTypes.clear();
@@ -391,8 +395,12 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
 
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(hdInput->NewIterator());
-  iter->VisitOnlyLeavesOn();
-  iter->TraverseSubTreeOn();
+  if(vtkDataObjectTreeIterator::SafeDownCast(iter))
+    {
+    vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
+    treeIter->VisitOnlyLeavesOn();
+    treeIter->TraverseSubTreeOn();
+    }
   iter->SkipEmptyNodesOff();
 
   size_t numDatasets = this->Internal->DataTypes.size();

@@ -276,6 +276,8 @@ vtkStandardNewMacro(vtkDataObjectTreeIterator);
 //----------------------------------------------------------------------------
 vtkDataObjectTreeIterator::vtkDataObjectTreeIterator()
 {
+  this->VisitOnlyLeaves = 1;
+  this->TraverseSubTree = 1;
   this->CurrentFlatIndex = 0;
   this->Internals = new vtkInternals();
   this->Internals->CompositeDataIterator = this;

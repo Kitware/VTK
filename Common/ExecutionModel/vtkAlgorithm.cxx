@@ -1747,24 +1747,46 @@ int vtkAlgorithm::GetUpdateGhostLevel(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkAlgorithm::SetInputDataInternal(int port, vtkDataObject *input)
+void vtkAlgorithm::SetInputDataObject(int port, vtkDataObject *input)
 {
-  if(input)
-    {
-    vtkTrivialProducer* tp = vtkTrivialProducer::New();
-    tp->SetOutput(input);
-    this->SetInputConnection(port, tp->GetOutputPort());
-    tp->Delete();
-    }
-  else
+  if (input == NULL)
     {
     // Setting a NULL input removes the connection.
-    this->SetInputConnection(port, 0);
+    this->SetInputConnection(port, NULL);
+    return;
     }
+
+  // We need to setup a trivial producer connection. However, we need to ensure
+  // that the input is indeed different from what's currently setup otherwise
+  // the algorithm will be modified unnecessarily. This will make it possible
+  // for users to call SetInputData(..) with the same data-output and not have
+  // the filter re-execute unless the data really changed.
+
+  if (!this->InputPortIndexInRange(port, "connect"))
+    {
+    return;
+    }
+
+  if (this->GetNumberOfInputConnections(port) == 1)
+    {
+    vtkAlgorithmOutput* current = this->GetInputConnection(port, 0);
+    vtkAlgorithm* producer = current? current->GetProducer() : NULL;
+    if (vtkTrivialProducer::SafeDownCast(producer) &&
+      producer->GetOutputDataObject(0) == input)
+      {
+      // the data object is unchanged. Nothing to do here.
+      return;
+      }
+    }
+
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(input);
+  this->SetInputConnection(port, tp->GetOutputPort());
+  tp->Delete();
 }
 
 //----------------------------------------------------------------------------
-void vtkAlgorithm::AddInputDataInternal(int port, vtkDataObject *input)
+void vtkAlgorithm::AddInputDataObject(int port, vtkDataObject *input)
 {
   if(input)
     {

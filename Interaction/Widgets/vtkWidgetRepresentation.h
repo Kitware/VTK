@@ -42,6 +42,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkProp.h"
+#include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
 
 class vtkAbstractPropPicker;
 class vtkPickingManager;
@@ -75,7 +76,7 @@ public:
   // in order to avoid reference loops.  Be sure that the representation
   // lifetime does not extend beyond the renderer lifetime.
   virtual void SetRenderer(vtkRenderer *ren);
-  vtkGetObjectMacro(Renderer,vtkRenderer);
+  virtual vtkRenderer* GetRenderer();
   virtual void BuildRepresentation() = 0;
 
   // Description:
@@ -168,7 +169,7 @@ protected:
   ~vtkWidgetRepresentation();
 
   // The renderer in which this widget is placed
-  vtkRenderer *Renderer;
+  vtkWeakPointer<vtkRenderer> Renderer;
 
   // The state of this representation based on a recent event
   int InteractionState;

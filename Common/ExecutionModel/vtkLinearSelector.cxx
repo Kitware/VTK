@@ -131,7 +131,6 @@ int vtkLinearSelector::RequestData( vtkInformation *vtkNotUsed( request ),
 
   // Now traverse the input
   vtkCompositeDataIterator* inputIterator = compositeInput->NewIterator();
-  inputIterator->VisitOnlyLeavesOn();
   inputIterator->SkipEmptyNodesOn();
   inputIterator->InitTraversal();
   inputIterator->GoToFirstItem();

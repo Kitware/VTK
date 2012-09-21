@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkStringArray.h"
 
 #include <ctype.h>
 
@@ -123,6 +124,7 @@ vtkMoleculeReaderBase::vtkMoleculeReaderBase()
   this->BScale = 1.0;
   this->HBScale = 1.0;
   this->AtomType = NULL;
+  this->AtomTypeStrings = 0;
   this->Points = NULL;
   this->RGB = NULL;
   this->Radii = NULL;
@@ -140,6 +142,10 @@ vtkMoleculeReaderBase::~vtkMoleculeReaderBase()
   if(this->AtomType)
     {
     this->AtomType->Delete();
+    }
+  if(this->AtomTypeStrings)
+    {
+    this->AtomTypeStrings->Delete();
     }
   if(this->Points)
     {
@@ -203,6 +209,17 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
     {
     this->AtomType->Reset();
     }
+
+  if(!this->AtomTypeStrings)
+    {
+    this->AtomTypeStrings = vtkStringArray::New();
+    }
+  else
+    {
+    this->AtomTypeStrings->Reset();
+    }
+  this->AtomTypeStrings->SetName("atom_types");
+  output->GetPointData()->AddArray(this->AtomTypeStrings);
 
   if ( !this->Points )
     {
