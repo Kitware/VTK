@@ -28,6 +28,10 @@
 const int NUMBER_OF_SYNONYMS = 81;
 const int NUMBER_OF_COLORS = 283;
 const int PRINT_SELF_STRING_SIZE = 9242;
+// For comparing unsigned char converted to double precision.
+const double EPS1 = 0.004; // 1/255 = 0.0039
+// For comparing two double precision numbers.
+const double EPS2 = 1.0e-9;
 
 // Forward declaration of the test functions.
 //  A test to see if black is returned if the color name is empty.
@@ -372,7 +376,7 @@ bool TestUCharToDouble(vtkStdString const & name)
   bool sameElements = true;
   for ( int i = 0; i < 4; ++i )
     {
-      if ( vd[i] != vdu[i] )
+      if ( std::abs(vd[i] -  vdu[i]) > EPS2 )
         {
         sameElements &= false;
         break;
@@ -450,11 +454,10 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
 
   nc->SetColor(name,ucolor);
   vtkColor4d vd = nc->GetColor4d(name);
-  const double eps1 = 0.004; // 1/255 = 0.0039
   sameElements = true;
   for ( int i = 0; i < 4; ++i )
     {
-    if ( std::abs(vd[i] - dcolor[i]) > eps1 )
+    if ( std::abs(vd[i] - dcolor[i]) > EPS1 )
       {
       sameElements &= false;
       }
@@ -578,10 +581,9 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
   nc->SetColor(name,d);
   vd = nc->GetColor4d(name);
   sameElements = true;
-  const double eps2 = 1.0e-9;
   for ( int i = 0; i < 4; ++i )
     {
-    if ( std::abs(vd[i] - d[i]) > eps2 )
+    if ( std::abs(vd[i] - d[i]) > EPS2 )
       {
       sameElements &= false;
       break;
@@ -602,7 +604,7 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
   sameElements = true;
   for ( int i = 0; i < 4; ++i )
     {
-    if ( std::abs(vd[i] - d[i]) > eps2 )
+    if ( std::abs(vd[i] - d[i]) > EPS2 )
       {
       sameElements &= false;
       break;
@@ -623,7 +625,7 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
   sameElements = true;
   for ( int i = 0; i < 4; ++i )
     {
-    if ( std::abs(vd[i] - d[i]) > eps2 )
+    if ( std::abs(vd[i] - d[i]) > EPS2 )
       {
       sameElements &= false;
       break;
@@ -644,7 +646,7 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
   sameElements = true;
   for ( int i = 0; i < 3; ++i )
     {
-    if ( std::abs(vd[i] - d[i]) > eps2 )
+    if ( std::abs(vd[i] - d[i]) > EPS2 )
       {
       sameElements &= false;
       break;
