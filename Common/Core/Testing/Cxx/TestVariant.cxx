@@ -175,6 +175,19 @@ int TestVariant(int, char*[])
       }
     }
 
+  vtkVariant flt(0.583f);
+  vtkVariant dbl(0.583);
+  vtkVariant str("0.583");
+  if (
+    !(flt == dbl) || flt < dbl || flt > dbl ||
+    !(str == dbl) || str < dbl || str > dbl ||
+    !(flt == str) || flt < str || flt > str
+    )
+    {
+    cerr << "Comparison of dissimilar-precision floats failed.\n";
+    errors++;
+    }
+
   return errors;
 }
 
