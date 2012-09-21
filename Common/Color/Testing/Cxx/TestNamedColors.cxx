@@ -393,7 +393,6 @@ bool TestAddingAColor(vtkStdString name, const double dcolor[4],
                       const unsigned char ucolor[4])
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
-  int num1 = nc->GetNumberOfColors();
   int sz = nc->GetNumberOfColors();
 
   vtkColor4ub ub4(ucolor);
