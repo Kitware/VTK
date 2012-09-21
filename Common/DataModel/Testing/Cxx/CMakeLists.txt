@@ -1,4 +1,5 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  TestColor.cxx
   TestVector.cxx
   TestVectorOperators.cxx
   TestAMRBox.cxx

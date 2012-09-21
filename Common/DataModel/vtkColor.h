@@ -169,7 +169,7 @@ public:
 };
 
 // Description:
-// Some derived classes for the different vectors and colors commonly used.
+// Some derived classes for the different colors commonly used.
 class vtkColor3ub : public vtkColor3<unsigned char>
 {
 public:
@@ -178,6 +178,19 @@ public:
     : vtkColor3<unsigned char>(scalar) {}
   explicit vtkColor3ub(const unsigned char* init)
     : vtkColor3<unsigned char>(init) {}
+
+  // Description:
+  // Construct a color from a hexadecimal representation such as 0x0000FF (blue).
+  explicit vtkColor3ub(int hexSigned)
+  {
+    unsigned int hex = static_cast<unsigned int>(hexSigned);
+    this->Data[2] = hex & 0xff;
+    hex >>= 8;
+    this->Data[1] = hex & 0xff;
+    hex >>= 8;
+    this->Data[0] = hex & 0xff;
+  }
+
   vtkColor3ub(unsigned char r, unsigned char g, unsigned char b)
     : vtkColor3<unsigned char>(r, g, b) {}
 };
@@ -208,6 +221,22 @@ public:
     : vtkColor4<unsigned char>(scalar) {}
   explicit vtkColor4ub(const unsigned char* init)
     : vtkColor4<unsigned char>(init) {}
+
+  // Description:
+  // Construct a color from a hexadecimal representation such as 0x0000FFAA
+  // (opaque blue).
+  explicit vtkColor4ub(int hexSigned)
+  {
+    unsigned int hex = static_cast<unsigned int>(hexSigned);
+    this->Data[3] = hex & 0xff;
+    hex >>= 8;
+    this->Data[2] = hex & 0xff;
+    hex >>= 8;
+    this->Data[1] = hex & 0xff;
+    hex >>= 8;
+    this->Data[0] = hex & 0xff;
+  }
+
   vtkColor4ub(unsigned char r, unsigned char g,
               unsigned char b, unsigned char a = 255)
                 : vtkColor4<unsigned char>(r, g, b, a) {}
