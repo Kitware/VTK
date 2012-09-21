@@ -17,16 +17,6 @@
 // .SECTION Description
 //  Serial test for structured AMR grid connectivity/nesting
 
-// C++ includes
-#include <cassert>
-#include <cmath>
-#include <iostream>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <vector>
-
 // VTK includes
 #include "vtkAMRInformation.h"
 #include "vtkCell.h"
@@ -40,6 +30,16 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLImageDataWriter.h"
+
+// C++ includes
+#include <cassert>
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <set>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #define ENABLE_IO
 
