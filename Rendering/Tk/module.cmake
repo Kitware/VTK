@@ -7,5 +7,7 @@ vtk_module(vtkRenderingTk
     vtkInteractionImage
   COMPILE_DEPENDS
     vtkTclTk
+  TEST_DEPENDS
+    vtkRenderingVolume
   EXCLUDE_FROM_WRAPPING
   )
