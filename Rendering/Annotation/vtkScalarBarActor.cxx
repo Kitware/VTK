@@ -838,11 +838,11 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         for ( i = 0; i < numNotes; ++ i )
           {
           x[0] = swatchC0;
-          x[1] = barY + i * delta + swatchPad;
+          x[1] = barY + barHeight - i * delta - swatchPad;
           pts->SetPoint( 4 * i, x );
           x[0] = swatchC1;
           pts->SetPoint( 4 * i + 1, x );
-          x[1] += delta - swatchPad * 2;
+          x[1] -= delta - swatchPad * 2;
           pts->SetPoint( 4 * i + 2, x );
           x[0] = swatchC0;
           pts->SetPoint( 4 * i + 3, x );
@@ -1220,18 +1220,18 @@ int vtkScalarBarActor::LayoutAnnotationsVertically(
 #define VTK_ANN_VLAYOUT(j,dir,delt) \
     ctr = barY + delta * ( j + 0.5 ); \
     ll[0] = lpts->InsertNextPoint( xl0, ctr, 0. ); \
-    this->AnnotationLabels[j]->GetBoundingBox( bds ); \
+    this->AnnotationLabels[numNotes - j - 1]->GetBoundingBox( bds ); \
     hh = ( bds[3] - bds[2] + pad ) / 2.; /* label half-height, including padding */ \
     if ( ( dir < 0 && ctr + hh > dnCum ) || ( dir > 0 && ctr - hh < upCum ) ) \
       ctr = delt + dir * hh; \
-    this->AnnotationLabels[j]->GetTextProperty()->SetJustification( \
+    this->AnnotationLabels[numNotes - j - 1]->GetTextProperty()->SetJustification( \
       this->TextPosition == PrecedeScalarBar ? VTK_TEXT_LEFT : VTK_TEXT_RIGHT ); \
-    this->AnnotationLabels[j]->GetTextProperty()->SetVerticalJustification( VTK_TEXT_CENTERED ); \
-    this->AnnotationLabels[j]->SetPosition( \
+    this->AnnotationLabels[numNotes - j - 1]->GetTextProperty()->SetVerticalJustification( VTK_TEXT_CENTERED ); \
+    this->AnnotationLabels[numNotes - j - 1]->SetPosition( \
       barX + ( this->TextPosition == PrecedeScalarBar ? +1 : -1 ) * ( pad + this->AnnotationLeaderPadding ), \
       ctr ); \
     ll[1] = lpts->InsertNextPoint( xl1, ctr, 0. ); \
-    if ( ! this->LookupTable->GetAnnotation( j ).empty() ) \
+    if ( ! this->LookupTable->GetAnnotation( numNotes - j - 1 ).empty() ) \
       { \
       llines->InsertNextCell( 2, ll ); \
       } \
