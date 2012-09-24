@@ -27,7 +27,8 @@ package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
     foreach kit { base @VTK_TCL_WRAPPED_MODULES@ } {
       lappend kits [string tolower "${kit}"]
     }
-    lappend kits renderingtcltkwidgets
+    # Append the vtkTkRenderWidget if it was built
+    #lappend kits renderingtcltkwidgets
   }
   package provide vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
 }
