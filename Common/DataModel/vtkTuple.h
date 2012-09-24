@@ -175,15 +175,14 @@ ostream& operator<<(ostream& out, const vtkTuple<unsigned char, Size>& t)
 template<typename A, int Size>
 bool operator==(const vtkTuple<A, Size>& t1, const vtkTuple<A, Size>& t2)
 {
-  bool ret = true;
   for (int i = 0; i < Size; ++i)
     {
     if (t1[i] != t2[i])
       {
-      ret = false;
+      return false;
       }
     }
-  return ret;
+  return true;
 }
 
 // Description:
