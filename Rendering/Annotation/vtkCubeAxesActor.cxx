@@ -1605,6 +1605,10 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
   vtkMath::Normalize(this->AxisBaseForY);
   vtkMath::Normalize(this->AxisBaseForZ);
 
+  // Manage custome grid visibility location if FLY and STATIC axis
+  int gridLocationBasedOnAxis = (this->GridLineLocation == VTK_GRID_LINES_ALL)
+      ? VTK_GRID_LINES_ALL : VTK_GRID_LINES_CLOSEST;
+
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i]->SetAxisPosition(i);
@@ -1620,11 +1624,11 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->XAxes[i]->SetGridpolysProperty(this->XAxesGridpolysProperty);
     this->XAxes[i]->SetTickLocation(this->TickLocation);
     this->XAxes[i]->SetDrawGridlines(this->DrawXGridlines);
-    this->XAxes[i]->SetDrawGridlinesLocation(this->GridLineLocation);
+    this->XAxes[i]->SetDrawGridlinesLocation(gridLocationBasedOnAxis);
     this->XAxes[i]->SetDrawInnerGridlines(this->DrawXInnerGridlines);
     this->XAxes[i]->SetDrawGridpolys(this->DrawXGridpolys);
     this->XAxes[i]->SetBounds(this->Bounds);
-    this->XAxes[i]->AxisVisibilityOn();
+    this->XAxes[i]->SetAxisVisibility(this->XAxisVisibility);
     this->XAxes[i]->SetLabelVisibility(this->XAxisLabelVisibility);
     this->XAxes[i]->SetTitleVisibility(this->XAxisLabelVisibility);
     this->XAxes[i]->SetTickVisibility(this->XAxisTickVisibility);
@@ -1643,11 +1647,11 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->YAxes[i]->SetGridpolysProperty(this->YAxesGridpolysProperty);
     this->YAxes[i]->SetTickLocation(this->TickLocation);
     this->YAxes[i]->SetDrawGridlines(this->DrawYGridlines);
-    this->YAxes[i]->SetDrawGridlinesLocation(this->GridLineLocation);
+    this->YAxes[i]->SetDrawGridlinesLocation(gridLocationBasedOnAxis);
     this->YAxes[i]->SetDrawInnerGridlines(this->DrawYInnerGridlines);
     this->YAxes[i]->SetDrawGridpolys(this->DrawYGridpolys);
     this->YAxes[i]->SetBounds(this->Bounds);
-    this->YAxes[i]->AxisVisibilityOn();
+    this->YAxes[i]->SetAxisVisibility(this->YAxisVisibility);
     this->YAxes[i]->SetLabelVisibility(this->YAxisLabelVisibility);
     this->YAxes[i]->SetTitleVisibility(this->YAxisLabelVisibility);
     this->YAxes[i]->SetTickVisibility(this->YAxisTickVisibility);
@@ -1666,11 +1670,11 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->ZAxes[i]->SetGridpolysProperty(this->ZAxesGridpolysProperty);
     this->ZAxes[i]->SetTickLocation(this->TickLocation);
     this->ZAxes[i]->SetDrawGridlines(this->DrawZGridlines);
-    this->ZAxes[i]->SetDrawGridlinesLocation(this->GridLineLocation);
+    this->ZAxes[i]->SetDrawGridlinesLocation(gridLocationBasedOnAxis);
     this->ZAxes[i]->SetDrawInnerGridlines(this->DrawZInnerGridlines);
     this->ZAxes[i]->SetDrawGridpolys(this->DrawZGridpolys);
     this->ZAxes[i]->SetBounds(this->Bounds);
-    this->ZAxes[i]->AxisVisibilityOn();
+    this->ZAxes[i]->SetAxisVisibility(this->ZAxisVisibility);
     this->ZAxes[i]->SetLabelVisibility(this->ZAxisLabelVisibility);
     this->ZAxes[i]->SetTitleVisibility(this->ZAxisLabelVisibility);
     this->ZAxes[i]->SetTickVisibility(this->ZAxisTickVisibility);
@@ -1700,229 +1704,79 @@ static int vtkCubeAxesActorConn[8][3] = {{1,2,4}, {0,3,5}, {3,0,6}, {2,1,7},
 // *************************************************************************
 void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
 {
-  double bounds[6], slope = 0.0, minSlope, num, den;
-  double pts[8][3], d2, d2Min, min, max;
-  int i = 0, idx = 0;
-  int xIdx = 0, yIdx = 0, zIdx = 0, zIdx2 = 0;
-  int xAxes = 0, yAxes = 0, zAxes = 0, xloc = 0, yloc = 0, zloc = 0;
+  double bounds[6];
+  double pts[8][3];
+  int i = 0, closestIdx = -1, furtherstIdx = -1;
+  int xloc = 0, yloc = 0, zloc = 0;
 
-  if (this->FlyMode == VTK_FLY_STATIC_EDGES)
+  // Make sure we start with only one axis by default, then we might extend it
+  this->NumberOfAxesX = this->NumberOfAxesY = this->NumberOfAxesZ = 1;
+
+  // Compute relevant axis points only if a axis/grid visibility change based
+  // on the viewpoint
+  if( !( this->GridLineLocation == VTK_GRID_LINES_ALL
+         && ( this->FlyMode == VTK_FLY_STATIC_EDGES
+              || this->FlyMode == VTK_FLY_STATIC_TRIAD)))
     {
-    for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
-      {
-      this->RenderAxesX[i] = i;
-      this->RenderAxesY[i] = i;
-      this->RenderAxesZ[i] = i;
-      }
-    this->NumberOfAxesX = this->NumberOfAxesY = this->NumberOfAxesZ = NUMBER_OF_ALIGNED_AXIS;
-    return;
+    // determine the bounds to use (input, prop, or user-defined)
+    this->GetBounds(bounds);
+    this->TransformBounds(viewport, bounds, pts);
     }
-  if (this->FlyMode == VTK_FLY_STATIC_TRIAD)
+
+  // Check closest point if needed
+  if( this->GridLineLocation == VTK_GRID_LINES_CLOSEST
+      || this->FlyMode == VTK_FLY_CLOSEST_TRIAD )
     {
-    this->RenderAxesX[0] = 0;
-    this->RenderAxesY[0] = 0;
-    this->RenderAxesZ[0] = 0;
-    if ( this->DrawXGridlines )
+    closestIdx = this->FindClosestAxisIndex(pts);
+    }
+
+  // Check furtherst point if needed
+  if( this->GridLineLocation == VTK_GRID_LINES_FURTHEST
+      || this->FlyMode == VTK_FLY_FURTHEST_TRIAD )
+    {
+    furtherstIdx = this->FindFurtherstAxisIndex(pts);
+    }
+
+  // Manage fast static axis visibility
+  if (this->FlyMode == VTK_FLY_STATIC_EDGES || this->FlyMode == VTK_FLY_STATIC_TRIAD)
+    {
+    if(this->FlyMode == VTK_FLY_STATIC_EDGES)
       {
-      this->RenderAxesX[1] = 2;
-      this->NumberOfAxesX = 2;
-      this->XAxes[RenderAxesX[1]]->SetAxisVisibility(0);
-      this->XAxes[RenderAxesX[1]]->SetTickVisibility(0);
-      this->XAxes[RenderAxesX[1]]->SetLabelVisibility(0);
-      this->XAxes[RenderAxesX[1]]->SetTitleVisibility(0);
-      this->XAxes[RenderAxesX[1]]->SetMinorTicksVisible(0);
+      this->NumberOfAxesX = this->NumberOfAxesY = this->NumberOfAxesZ
+          = NUMBER_OF_ALIGNED_AXIS;
       }
-    else
+
+    for (i = 0; i < this->NumberOfAxesX; i++)
       {
-      this->NumberOfAxesX = 1;
+      this->RenderAxesX[i] = this->RenderAxesY[i] = this->RenderAxesZ[i] = i;
       }
-    if ( this->DrawYGridlines )
-      {
-      this->RenderAxesY[1] = 2;
-      this->NumberOfAxesY = 2;
-      this->YAxes[RenderAxesY[1]]->SetAxisVisibility(0);
-      this->YAxes[RenderAxesY[1]]->SetTickVisibility(0);
-      this->YAxes[RenderAxesY[1]]->SetLabelVisibility(0);
-      this->YAxes[RenderAxesY[1]]->SetTitleVisibility(0);
-      this->YAxes[RenderAxesY[1]]->SetMinorTicksVisible(0);
-      }
-    else
-      {
-      this->NumberOfAxesY = 1;
-      }
-    if ( this->DrawZGridlines )
-      {
-      this->RenderAxesZ[1] = 2;
-      this->NumberOfAxesZ = 2;
-      this->ZAxes[RenderAxesZ[1]]->SetAxisVisibility(0);
-      this->ZAxes[RenderAxesZ[1]]->SetTickVisibility(0);
-      this->ZAxes[RenderAxesZ[1]]->SetLabelVisibility(0);
-      this->ZAxes[RenderAxesZ[1]]->SetTitleVisibility(0);
-      this->ZAxes[RenderAxesZ[1]]->SetMinorTicksVisible(0);
-      }
-    else
-      {
-      this->NumberOfAxesZ = 1;
-      }
+
+    this->UpdateGridLineVisibility(
+          (this->GridLineLocation == VTK_GRID_LINES_CLOSEST)
+          ? closestIdx : furtherstIdx);
     return;
     }
 
-  // determine the bounds to use (input, prop, or user-defined)
-  this->GetBounds(bounds);
-  this->TransformBounds(viewport, bounds, pts);
 
   // Take into account the inertia. Process only so often.
   if (this->RenderCount++ == 0 || !(this->RenderCount % this->Inertia))
     {
     if (this->FlyMode == VTK_FLY_CLOSEST_TRIAD)
       {
-      // Loop over points and find the closest point to the camera
-      min = VTK_LARGE_FLOAT;
-      for (i=0; i < 8; i++)
-        {
-        if (pts[i][2] < min)
-          {
-          idx = i;
-          min = pts[i][2];
-          }
-        }
-      xloc = vtkCubeAxesActorTriads[idx][0];
-      yloc = vtkCubeAxesActorTriads[idx][1];
-      zloc = vtkCubeAxesActorTriads[idx][2];
-
-      } // closest-triad
+      xloc = vtkCubeAxesActorTriads[closestIdx][0];
+      yloc = vtkCubeAxesActorTriads[closestIdx][1];
+      zloc = vtkCubeAxesActorTriads[closestIdx][2];
+      }
     else if (this->FlyMode == VTK_FLY_FURTHEST_TRIAD)
       {
-      // Loop over points and find the furthest point from the camera
-      max = -VTK_LARGE_FLOAT;
-      for (i=0; i < 8; i++)
-        {
-        if (pts[i][2] > max)
-          {
-          idx = i;
-          max = pts[i][2];
-          }
-        }
-      xloc = vtkCubeAxesActorTriads[idx][0];
-      yloc = vtkCubeAxesActorTriads[idx][1];
-      zloc = vtkCubeAxesActorTriads[idx][2];
-
-      } // furthest-triad
-    else
+      xloc = vtkCubeAxesActorTriads[furtherstIdx][0];
+      yloc = vtkCubeAxesActorTriads[furtherstIdx][1];
+      zloc = vtkCubeAxesActorTriads[furtherstIdx][2];
+      }
+    else // else boundary edges fly mode
       {
-      double e1[3], e2[3], e3[3];
-
-      // Find distance to origin
-      d2Min = VTK_LARGE_FLOAT;
-      for (i=0; i < 8; i++)
-        {
-        d2 = pts[i][0]*pts[i][0] + pts[i][1]*pts[i][1];
-        if (d2 < d2Min)
-          {
-          d2Min = d2;
-          idx = i;
-          }
-        }
-
-      // find minimum slope point connected to closest point and on
-      // right side (in projected coordinates). This is the first edge.
-      minSlope = VTK_LARGE_FLOAT;
-      for (xIdx=0, i=0; i<3; i++)
-        {
-        num = (pts[vtkCubeAxesActorConn[idx][i]][1] - pts[idx][1]);
-        den = (pts[vtkCubeAxesActorConn[idx][i]][0] - pts[idx][0]);
-        if (den != 0.0)
-          {
-          slope = num / den;
-          }
-        if (slope < minSlope && den > 0)
-          {
-          xIdx = vtkCubeAxesActorConn[idx][i];
-          yIdx = vtkCubeAxesActorConn[idx][(i+1)%3];
-          zIdx = vtkCubeAxesActorConn[idx][(i+2)%3];
-          xAxes = i;
-          minSlope = slope;
-          }
-        }
-
-      // find edge (connected to closest point) on opposite side
-      for ( i=0; i<3; i++)
-        {
-        e1[i] = (pts[xIdx][i] - pts[idx][i]);
-        e2[i] = (pts[yIdx][i] - pts[idx][i]);
-        e3[i] = (pts[zIdx][i] - pts[idx][i]);
-        }
-      vtkMath::Normalize(e1);
-      vtkMath::Normalize(e2);
-      vtkMath::Normalize(e3);
-
-      if (vtkMath::Dot(e1,e2) < vtkMath::Dot(e1,e3))
-        {
-        yAxes = (xAxes + 1) % 3;
-        }
-      else
-        {
-        yIdx = zIdx;
-        yAxes = (xAxes + 2) % 3;
-        }
-
-      // Find the final point by determining which global x-y-z axes have not
-      // been represented, and then determine the point closest to the viewer.
-      zAxes = (xAxes != 0 && yAxes != 0 ? 0 :
-              (xAxes != 1 && yAxes != 1 ? 1 : 2));
-      if (pts[vtkCubeAxesActorConn[xIdx][zAxes]][2] <
-          pts[vtkCubeAxesActorConn[yIdx][zAxes]][2])
-        {
-        zIdx = xIdx;
-        zIdx2 = vtkCubeAxesActorConn[xIdx][zAxes];
-        }
-      else
-        {
-        zIdx = yIdx;
-        zIdx2 = vtkCubeAxesActorConn[yIdx][zAxes];
-        }
-
-      int mini = (idx < xIdx ? idx : xIdx);
-      switch (xAxes)
-        {
-        case 0:
-          xloc = vtkCubeAxesActorTriads[mini][0];
-          break;
-        case 1:
-          yloc = vtkCubeAxesActorTriads[mini][1];
-          break;
-        case 2:
-          zloc = vtkCubeAxesActorTriads[mini][2];
-          break;
-        }
-      mini = (idx < yIdx ? idx : yIdx);
-      switch (yAxes)
-        {
-        case 0:
-          xloc = vtkCubeAxesActorTriads[mini][0];
-          break;
-        case 1:
-          yloc =vtkCubeAxesActorTriads[mini][1];
-          break;
-        case 2:
-          zloc = vtkCubeAxesActorTriads[mini][2];
-          break;
-        }
-      mini = (zIdx < zIdx2 ? zIdx : zIdx2);
-      switch (zAxes)
-        {
-        case 0:
-          xloc = vtkCubeAxesActorTriads[mini][0];
-          break;
-        case 1:
-          yloc = vtkCubeAxesActorTriads[mini][1];
-          break;
-        case 2:
-          zloc = vtkCubeAxesActorTriads[mini][2];
-          break;
-        }
-
-      } // else boundary edges fly mode
+      this->FindBoundaryEdge(xloc, yloc, zloc, pts);
+      }
 
     this->InertiaLocs[0] = xloc;
     this->InertiaLocs[1] = yloc;
@@ -1938,32 +1792,13 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
 
   // Set axes to be rendered
   this->RenderAxesX[0] = xloc % NUMBER_OF_ALIGNED_AXIS;
-  this->NumberOfAxesX = 1;
-
   this->RenderAxesY[0] = yloc % NUMBER_OF_ALIGNED_AXIS;
-  this->NumberOfAxesY = 1;
-
   this->RenderAxesZ[0] = zloc % NUMBER_OF_ALIGNED_AXIS;
-  this->NumberOfAxesZ = 1;
 
-  //  Make sure that the primary axis visibility flags are set correctly.
-  this->XAxes[RenderAxesX[0]]->SetLabelVisibility(this->XAxisLabelVisibility);
-  this->XAxes[RenderAxesX[0]]->SetTitleVisibility(this->XAxisLabelVisibility);
-  this->XAxes[RenderAxesX[0]]->SetTickVisibility(this->XAxisTickVisibility);
-  this->XAxes[RenderAxesX[0]]->SetMinorTicksVisible(
-    this->XAxisMinorTickVisibility);
-
-  this->YAxes[RenderAxesY[0]]->SetLabelVisibility(this->YAxisLabelVisibility);
-  this->YAxes[RenderAxesY[0]]->SetTitleVisibility(this->YAxisLabelVisibility);
-  this->YAxes[RenderAxesY[0]]->SetTickVisibility(this->YAxisTickVisibility);
-  this->YAxes[RenderAxesY[0]]->SetMinorTicksVisible(
-    this->YAxisMinorTickVisibility);
-
-  this->ZAxes[RenderAxesZ[0]]->SetLabelVisibility(this->ZAxisLabelVisibility);
-  this->ZAxes[RenderAxesZ[0]]->SetTitleVisibility(this->ZAxisLabelVisibility);
-  this->ZAxes[RenderAxesZ[0]]->SetTickVisibility(this->ZAxisTickVisibility);
-  this->ZAxes[RenderAxesZ[0]]->SetMinorTicksVisible(
-    this->ZAxisMinorTickVisibility);
+  // Manage grid visibility (can increase the number of axis to render)
+  this->UpdateGridLineVisibility(
+        (this->GridLineLocation == VTK_GRID_LINES_CLOSEST)
+        ? closestIdx : furtherstIdx);
 }
 
 // --------------------------------------------------------------------------
@@ -2492,6 +2327,204 @@ vtkProperty* vtkCubeAxesActor::GetZAxesGridpolysProperty()
   return this->ZAxesGridpolysProperty;
 }
 // --------------------------------------------------------------------------
+void vtkCubeAxesActor::UpdateGridLineVisibility(int idx)
+{
+  if( this->GridLineLocation != VTK_GRID_LINES_ALL &&
+      (this->DrawXGridlines || this->DrawYGridlines || this->DrawZGridlines) )
+    {
+    for(int i=0; i < NUMBER_OF_ALIGNED_AXIS; ++i)
+      {
+      this->XAxes[i]->SetDrawGridlines(0);
+      this->YAxes[i]->SetDrawGridlines(0);
+      this->ZAxes[i]->SetDrawGridlines(0);
+      this->XAxes[i]->SetDrawGridlinesOnly(0);
+      this->YAxes[i]->SetDrawGridlinesOnly(0);
+      this->ZAxes[i]->SetDrawGridlinesOnly(0);
+      }
+
+    this->XAxes[vtkCubeAxesActorTriads[idx][0]]->SetDrawGridlines(this->DrawXGridlines);
+    this->YAxes[vtkCubeAxesActorTriads[idx][1]]->SetDrawGridlines(this->DrawYGridlines);
+    this->ZAxes[vtkCubeAxesActorTriads[idx][2]]->SetDrawGridlines(this->DrawZGridlines);
+
+    // Update axis render list
+    int id = 0;
+    if(this->NumberOfAxesX == 1)
+      {
+      id = this->RenderAxesX[this->NumberOfAxesX] = vtkCubeAxesActorTriads[idx][0];
+      this->XAxes[id]->SetDrawGridlinesOnly((this->RenderAxesX[0] != id) ? 1 : 0);
+      this->NumberOfAxesX += (this->RenderAxesX[0] != id) ? 1 : 0;
+      }
+    if(this->NumberOfAxesY == 1)
+      {
+      id = this->RenderAxesY[this->NumberOfAxesY] = vtkCubeAxesActorTriads[idx][1];
+      this->YAxes[id]->SetDrawGridlinesOnly((this->RenderAxesY[0] != id) ? 1 : 0);
+      this->NumberOfAxesY += (this->RenderAxesY[0] != id) ? 1 : 0;
+      }
+    if(this->NumberOfAxesZ == 1)
+      {
+      id = this->RenderAxesZ[this->NumberOfAxesZ] = vtkCubeAxesActorTriads[idx][2];
+      this->ZAxes[id]->SetDrawGridlinesOnly((this->RenderAxesZ[0] != id) ? 1 : 0);
+      this->NumberOfAxesZ += (this->RenderAxesZ[0] != id) ? 1 : 0;
+      }
+    }
+}
+// --------------------------------------------------------------------------
+int vtkCubeAxesActor::FindClosestAxisIndex(double pts[8][3])
+{
+  // Loop over points and find the closest point to the camera
+  double min = VTK_LARGE_FLOAT;
+  int idx = 0;
+  for (int i=0; i < 8; i++)
+    {
+    if (pts[i][2] < min)
+      {
+      idx = i;
+      min = pts[i][2];
+      }
+    }
+  return idx;
+}
+
+// --------------------------------------------------------------------------
+int vtkCubeAxesActor::FindFurtherstAxisIndex(double pts[8][3])
+{
+  // Loop over points and find the furthest point from the camera
+  double max = -VTK_LARGE_FLOAT;
+  int idx = 0;
+  for (int i=0; i < 8; i++)
+    {
+    if (pts[i][2] > max)
+      {
+      idx = i;
+      max = pts[i][2];
+      }
+    }
+  return idx;
+}
+// --------------------------------------------------------------------------
+ void vtkCubeAxesActor::FindBoundaryEdge( int &xloc, int &yloc,
+                                          int &zloc, double pts[8][3])
+ {
+   // boundary edges fly mode
+   xloc = yloc = zloc = 1;
+   int i, xIdx = 0, yIdx = 0, zIdx = 0, zIdx2 = 0;
+   int xAxes = 0, yAxes = 0, zAxes = 0;
+   double slope = 0.0, minSlope, num, den, d2;
+   double e1[3], e2[3], e3[3];
+   int idx = 0;
+
+   // Find distance to origin
+   double d2Min = VTK_LARGE_FLOAT;
+   for (i=0; i < 8; i++)
+     {
+     d2 = pts[i][0]*pts[i][0] + pts[i][1]*pts[i][1];
+     if (d2 < d2Min)
+       {
+       d2Min = d2;
+       idx = i;
+       }
+     }
+
+   // find minimum slope point connected to closest point and on
+   // right side (in projected coordinates). This is the first edge.
+   minSlope = VTK_LARGE_FLOAT;
+   for (xIdx=0, i=0; i<3; i++)
+     {
+     num = (pts[vtkCubeAxesActorConn[idx][i]][1] - pts[idx][1]);
+     den = (pts[vtkCubeAxesActorConn[idx][i]][0] - pts[idx][0]);
+     if (den != 0.0)
+       {
+       slope = num / den;
+       }
+     if (slope < minSlope && den > 0)
+       {
+       xIdx = vtkCubeAxesActorConn[idx][i];
+       yIdx = vtkCubeAxesActorConn[idx][(i+1)%3];
+       zIdx = vtkCubeAxesActorConn[idx][(i+2)%3];
+       xAxes = i;
+       minSlope = slope;
+       }
+     }
+
+   // find edge (connected to closest point) on opposite side
+   for ( i=0; i<3; i++)
+     {
+     e1[i] = (pts[xIdx][i] - pts[idx][i]);
+     e2[i] = (pts[yIdx][i] - pts[idx][i]);
+     e3[i] = (pts[zIdx][i] - pts[idx][i]);
+     }
+   vtkMath::Normalize(e1);
+   vtkMath::Normalize(e2);
+   vtkMath::Normalize(e3);
+
+   if (vtkMath::Dot(e1,e2) < vtkMath::Dot(e1,e3))
+     {
+     yAxes = (xAxes + 1) % 3;
+     }
+   else
+     {
+     yIdx = zIdx;
+     yAxes = (xAxes + 2) % 3;
+     }
+
+   // Find the final point by determining which global x-y-z axes have not
+   // been represented, and then determine the point closest to the viewer.
+   zAxes = (xAxes != 0 && yAxes != 0 ? 0 :
+           (xAxes != 1 && yAxes != 1 ? 1 : 2));
+   if (pts[vtkCubeAxesActorConn[xIdx][zAxes]][2] <
+       pts[vtkCubeAxesActorConn[yIdx][zAxes]][2])
+     {
+     zIdx = xIdx;
+     zIdx2 = vtkCubeAxesActorConn[xIdx][zAxes];
+     }
+   else
+     {
+     zIdx = yIdx;
+     zIdx2 = vtkCubeAxesActorConn[yIdx][zAxes];
+     }
+
+   int mini = (idx < xIdx ? idx : xIdx);
+   switch (xAxes)
+     {
+     case 0:
+       xloc = vtkCubeAxesActorTriads[mini][0];
+       break;
+     case 1:
+       yloc = vtkCubeAxesActorTriads[mini][1];
+       break;
+     case 2:
+       zloc = vtkCubeAxesActorTriads[mini][2];
+       break;
+     }
+   mini = (idx < yIdx ? idx : yIdx);
+   switch (yAxes)
+     {
+     case 0:
+       xloc = vtkCubeAxesActorTriads[mini][0];
+       break;
+     case 1:
+       yloc =vtkCubeAxesActorTriads[mini][1];
+       break;
+     case 2:
+       zloc = vtkCubeAxesActorTriads[mini][2];
+       break;
+     }
+   mini = (zIdx < zIdx2 ? zIdx : zIdx2);
+   switch (zAxes)
+     {
+     case 0:
+       xloc = vtkCubeAxesActorTriads[mini][0];
+       break;
+     case 1:
+       yloc = vtkCubeAxesActorTriads[mini][1];
+       break;
+     case 2:
+       zloc = vtkCubeAxesActorTriads[mini][2];
+       break;
+     }
+ }
+
+// --------------------------------------------------------------------------
 int vtkCubeAxesActor::RenderGeometry(
     bool &initialRender, vtkViewport *viewport, bool checkAxisVisibility,
     int (vtkAxisActor::*renderMethod)(vtkViewport*))
@@ -2526,31 +2559,22 @@ int vtkCubeAxesActor::RenderGeometry(
     }
 
   // Render the axes
-  if (this->XAxisVisibility)
+  for (i = 0; i < this->NumberOfAxesX; i++)
     {
-    for (i = 0; i < this->NumberOfAxesX; i++)
-      {
-      renderedSomething +=
-          (this->XAxes[this->RenderAxesX[i]]->*renderMethod)(viewport);
-      }
+    renderedSomething +=
+        (this->XAxes[this->RenderAxesX[i]]->*renderMethod)(viewport);
     }
 
-  if (this->YAxisVisibility)
+  for (i = 0; i < this->NumberOfAxesY; i++)
     {
-    for (i = 0; i < this->NumberOfAxesY; i++)
-      {
-      renderedSomething +=
-          (this->YAxes[this->RenderAxesY[i]]->*renderMethod)(viewport);
-      }
+    renderedSomething +=
+        (this->YAxes[this->RenderAxesY[i]]->*renderMethod)(viewport);
     }
 
-  if (this->ZAxisVisibility)
+  for (i = 0; i < this->NumberOfAxesZ; i++)
     {
-    for (i = 0; i < this->NumberOfAxesZ; i++)
-      {
-      renderedSomething +=
-          (this->ZAxes[this->RenderAxesZ[i]]->*renderMethod)(viewport);
-      }
+    renderedSomething +=
+        (this->ZAxes[this->RenderAxesZ[i]]->*renderMethod)(viewport);
     }
   return renderedSomething;
 }
