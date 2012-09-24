@@ -59,8 +59,8 @@ protected:
   ~vtkMathTextActor();
 
   bool RenderImage(vtkTextProperty *tprop, vtkViewport *viewport);
-  bool GetBoundingBox(vtkTextProperty *tprop, vtkViewport *viewport,
-                      int bbox[4]);
+  bool GetImageBoundingBox(
+    vtkTextProperty *tprop, vtkViewport *viewport, int bbox[4]);
 
   // Description:
   // Used when a MathText implementation is unavailable.
