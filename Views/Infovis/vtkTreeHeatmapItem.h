@@ -43,6 +43,7 @@
 class vtkGraphLayout;
 class vtkLookupTable;
 class vtkTable;
+class vtkTooltipItem;
 class vtkTree;
 
 class VTKVIEWSINFOVIS_EXPORT vtkTreeHeatmapItem : public vtkContextItem
@@ -73,6 +74,16 @@ public:
   // Description:
   // Get the table that this item draws.
   vtkGetObjectMacro(Table, vtkTable);
+
+  //BTX
+  // Description:
+  // Returns true if the transform is interactive, false otherwise.
+  virtual bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Display a tooltip when the user mouses over a cell in the heatmap.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
+  //ETX
 
 protected:
   vtkTreeHeatmapItem();
@@ -121,7 +132,13 @@ protected:
   // Initialize a vtkTextProperty for drawing labels.  This involves
   // calculating an appropriate font size so that labels will fit within
   // the specified cell size.
-  void SetupTextProperty(vtkContext2D *painter, double cellHeight);
+  void SetupTextProperty(vtkContext2D *painter);
+
+  // Description:
+  // Get the value for the cell of the heatmap located at scene position (x, y)
+  // This function assumes the caller has already determined that (x, y) falls
+  // within the heatmap.
+  std::string GetTooltipText(float x, float y);
 
   // Description:
   // Count the number of leaf nodes in the tree
@@ -136,11 +153,20 @@ private:
   vtkTable *Table;
   unsigned long TreeHeatmapBuildTime;
   vtkNew<vtkGraphLayout> Layout;
+  vtkNew<vtkTooltipItem> Tooltip;
   std::vector< vtkLookupTable * > LookupTables;
+  std::vector< vtkIdType > RowMap;
   double Multiplier;
   int NumberOfLeafNodes;
+  double CellWidth;
+  double CellHeight;
 
   std::map< int, std::map< std::string, double> > StringToDoubleMaps;
+
+  double HeatmapMinX;
+  double HeatmapMinY;
+  double HeatmapMaxX;
+  double HeatmapMaxY;
 };
 
 #endif

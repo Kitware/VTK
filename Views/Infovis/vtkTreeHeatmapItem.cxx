@@ -16,6 +16,8 @@
 
 #include "vtkBrush.h"
 #include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkGraphLayout.h"
@@ -28,25 +30,41 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
+#include "vtkTooltipItem.h"
+#include "vtkTransform2D.h"
 #include "vtkTree.h"
 #include "vtkTreeLayoutStrategy.h"
 
 #include <algorithm>
-#include <float.h>
 #include <sstream>
 
 vtkStandardNewMacro(vtkTreeHeatmapItem);
 vtkCxxSetObjectMacro(vtkTreeHeatmapItem, Tree, vtkTree);
 vtkCxxSetObjectMacro(vtkTreeHeatmapItem, Table, vtkTable);
 
+//-----------------------------------------------------------------------------
 vtkTreeHeatmapItem::vtkTreeHeatmapItem()
 {
+  this->Interactive = true;
   this->TreeHeatmapBuildTime = 0;
   this->Tree = 0;
   this->Table = 0;
+
+  /* initialize heatmap bounds so that the mouse cursor is never considered
+   * "inside" the heatmap */
+  this->HeatmapMinX = 1.0;
+  this->HeatmapMinY = 1.0;
+  this->HeatmapMaxX = 0.0;
+  this->HeatmapMaxY = 0.0;
+
   this->Multiplier = 100.0;
+  this->CellWidth = 100.0;
+  this->CellHeight = 50.0;
+  this->Tooltip->SetVisible(false);
+  this->AddItem(this->Tooltip.GetPointer());
 }
 
+//-----------------------------------------------------------------------------
 vtkTreeHeatmapItem::~vtkTreeHeatmapItem()
 {
   if (this->Tree)
@@ -66,6 +84,7 @@ vtkTreeHeatmapItem::~vtkTreeHeatmapItem()
     }
 }
 
+//-----------------------------------------------------------------------------
 bool vtkTreeHeatmapItem::Paint(vtkContext2D *painter)
 {
   if (!this->Tree && !this->Table)
@@ -79,14 +98,20 @@ bool vtkTreeHeatmapItem::Paint(vtkContext2D *painter)
     }
 
   this->PaintBuffers(painter);
+  this->PaintChildren(painter);
   return true;
 }
 
+//-----------------------------------------------------------------------------
 bool vtkTreeHeatmapItem::IsDirty()
 {
   if (!this->Tree && !this->Table)
     {
     return false;
+    }
+  if (this->Tooltip->GetMTime() > this->GetMTime())
+    {
+    return true;
     }
   if (!this->Tree)
     {
@@ -113,6 +138,7 @@ bool vtkTreeHeatmapItem::IsDirty()
   return false;
 }
 
+//-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::RebuildBuffers()
 {
   if (this->Tree)
@@ -157,9 +183,7 @@ void vtkTreeHeatmapItem::RebuildBuffers()
     }
 }
 
-// Figure out the multiplier we need to use so that the table cells are large
-// enough to be labeled.  Currently, we require the boxes to be big enough so
-// an 18 pt font can be used.
+//-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::ComputeMultiplier()
 {
   double targetFontSize = 18;
@@ -215,6 +239,7 @@ void vtkTreeHeatmapItem::CountLeafNodes()
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::InitializeLookupTables()
 {
   while (!this->LookupTables.empty())
@@ -232,8 +257,8 @@ void vtkTreeHeatmapItem::InitializeLookupTables()
       this->GenerateLookupTableForStringColumn(column);
       continue;
       }
-    double min = DBL_MAX;
-    double max = DBL_MIN;
+    double min = VTK_DOUBLE_MAX;
+    double max = VTK_DOUBLE_MIN;
     vtkLookupTable *lookupTable = vtkLookupTable::New();
     this->LookupTables.push_back(lookupTable);
     for (vtkIdType row = 0; row < this->Table->GetNumberOfRows(); ++row)
@@ -254,6 +279,7 @@ void vtkTreeHeatmapItem::InitializeLookupTables()
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::GenerateLookupTableForStringColumn(vtkIdType column)
 {
   //generate a sorted vector of all the strings in this column
@@ -288,6 +314,7 @@ void vtkTreeHeatmapItem::GenerateLookupTableForStringColumn(vtkIdType column)
   this->LookupTables[column-1]->Build();
 }
 
+//-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
 {
 
@@ -297,15 +324,14 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     return;
     }
 
-  double yMax = DBL_MIN;
-  double xMax = DBL_MIN;
+  double xMax = VTK_DOUBLE_MIN;
+  double yMax = VTK_DOUBLE_MIN;
   double xStart, yStart;
   double sourcePoint[3];
   double targetPoint[3];
-  double cellHeight = 50;
-  double cellWidth = 100;
   double spacing = 25;
 
+  // draw the tree
   for (vtkIdType edge = 0; edge < this->LayoutTree->GetNumberOfEdges(); ++edge)
     {
     vtkIdType source = this->LayoutTree->GetSourceVertex(edge);
@@ -336,13 +362,27 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
   vtkStringArray *nodeNames = vtkStringArray::SafeDownCast(
     this->LayoutTree->GetVertexData()->GetAbstractArray("node name"));
 
+  // calculate how large our table cells will be when they are drawn.
+  double numLeaves = static_cast<double>(this->NumberOfLeafNodes);
+  this->CellHeight = (yMax / (numLeaves - 1.0));
+  if (this->CellHeight * 2 > 100)
+    {
+    this->CellWidth = 100;
+    }
+  else
+    {
+    this->CellWidth = this->CellHeight * 2;
+    }
+
+  // leave a small amount of space between the tree, the table,
+  // and the row/column labels
+  spacing = this->CellWidth * 0.25;
+
+  this->SetupTextProperty(painter);
+
   if (!this->Table)
     {
     // special case for tree with no table
-    cellHeight = yMax / this->NumberOfLeafNodes;
-    spacing = cellHeight / 2;
-    this->SetupTextProperty(painter, cellHeight);
-
     // draw labels for the leaf nodes
     for (vtkIdType vertex = 0; vertex < this->LayoutTree->GetNumberOfVertices();
          ++vertex)
@@ -361,27 +401,18 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     return;
     }
 
-  // calculate how large our table cells will be when they are drawn
-  cellHeight = yMax / this->Table->GetNumberOfRows();
-  if (cellHeight * 2 > 100)
-    {
-    cellWidth = 100;
-    }
-  else
-    {
-    cellWidth = cellHeight * 2;
-    }
-  this->SetupTextProperty(painter, cellHeight);
-
-  // leave a small amount of space between the tree, the table,
-  // and the row/column labels
-  spacing = cellWidth * 0.25;
-
   // get array of row names from the table.  We assume this is the first row.
   vtkStringArray *tableNames = vtkStringArray::SafeDownCast(
     this->Table->GetColumn(0));
 
-  double yMaxTable = DBL_MIN;
+  this->RowMap.clear();
+  this->RowMap.reserve(this->Table->GetNumberOfRows());
+  int currentRow = 0;
+  this->HeatmapMinX = xMax + spacing;
+  this->HeatmapMaxX = xMax + spacing +
+    this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+  this->HeatmapMinY = VTK_DOUBLE_MAX;
+  this->HeatmapMaxY = VTK_DOUBLE_MIN;
 
   for (vtkIdType vertex = 0; vertex < this->LayoutTree->GetNumberOfVertices();
        ++vertex)
@@ -396,6 +427,8 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     this->LayoutTree->GetPoint(vertex, point);
     std::string nodeName = nodeNames->GetValue(vertex);
     vtkIdType tableRow = tableNames->LookupValue(nodeName);
+    this->RowMap[currentRow] = tableRow;
+    ++currentRow;
 
     for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
          ++column)
@@ -405,10 +438,12 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       if (this->Table->GetValue(tableRow, column).IsString())
         {
         // get the string to int mapping for this column
-        std::map< std::string, double> stringToDouble = this->StringToDoubleMaps[column];
+        std::map< std::string, double> stringToDouble =
+          this->StringToDoubleMaps[column];
 
         // get the integer value for the current string
-        std::string cellStr = this->Table->GetValue(tableRow, column).ToString();
+        std::string cellStr =
+          this->Table->GetValue(tableRow, column).ToString();
         double colorKey = stringToDouble[cellStr];
 
         // now we can lookup the appropriate color for this string
@@ -422,21 +457,25 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
 
       // draw this cell of the table
-      xStart = xMax + spacing + cellWidth * (column - 1);
-      yStart = point[1] * this->Multiplier - (cellHeight / 2);
-      painter->DrawRect(xStart, yStart, cellWidth, cellHeight);
+      xStart = xMax + spacing + this->CellWidth * (column - 1);
+      yStart = point[1] * this->Multiplier - (this->CellHeight / 2);
+      painter->DrawRect(xStart, yStart, this->CellWidth, this->CellHeight);
 
-      // keep track of where the top of the table is, so we know where to
-      // draw the column labels later.
-      if (yStart + cellHeight > yMaxTable)
+      // keep track of where the top and bottom of the table is.
+      // this is used to position column labels and tool tips.
+      if (yStart + this->CellHeight > this->HeatmapMaxY)
         {
-        yMaxTable = yStart + cellHeight;
+        this->HeatmapMaxY = yStart + this->CellHeight;
+        }
+      if (yStart < this->HeatmapMinY)
+        {
+        this->HeatmapMinY = yStart;
         }
       }
 
     // draw the label for this row
     xStart = xMax + spacing * 2 +
-      cellWidth * (this->Table->GetNumberOfColumns() - 1);
+      this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
     yStart = point[1] * this->Multiplier;
     painter->DrawString(xStart, yStart, nodeName);
     }
@@ -447,31 +486,31 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
        ++column)
     {
       std::string columnName = this->Table->GetColumn(column)->GetName();
-      xStart = xMax + spacing + cellWidth * column - cellWidth / 2;
-      yStart = yMaxTable + spacing;
+      xStart = xMax + spacing + this->CellWidth * column - this->CellWidth / 2;
+      yStart = this->HeatmapMaxY + spacing;
       painter->DrawString(xStart, yStart, columnName);
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
 {
-  double cellHeight = 50;
-  double cellWidth = 100;
-  this->SetupTextProperty(painter, cellHeight);
-
   // leave a small amount of space between the tree, the table,
   // and the row/column labels
-  double spacing = cellWidth * 0.25;
+  double spacing = this->CellWidth * 0.25;
 
   // get array of row names from the table.  We assume this is the first row.
   vtkStringArray *tableNames = vtkStringArray::SafeDownCast(
     this->Table->GetColumn(0));
 
   // calculate a font size that's appropriate for this zoom level
-  this->SetupTextProperty(painter, cellHeight);
+  this->SetupTextProperty(painter);
 
   double xStart, yStart;
-  double yMaxTable = DBL_MIN;
+  this->HeatmapMinX = 0;
+  this->HeatmapMaxX = this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+  this->HeatmapMinY = VTK_DOUBLE_MAX;
+  this->HeatmapMaxY = VTK_DOUBLE_MIN;
 
   for (vtkIdType row = 0; row < this->Table->GetNumberOfRows();
        ++row)
@@ -484,7 +523,8 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
       if (this->Table->GetValue(row, column).IsString())
         {
         // get the string to int mapping for this column
-        std::map< std::string, double> stringToDouble = this->StringToDoubleMaps[column];
+        std::map< std::string, double> stringToDouble =
+          this->StringToDoubleMaps[column];
 
         // get the integer value for the current string
         std::string cellStr = this->Table->GetValue(row, column).ToString();
@@ -501,22 +541,26 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
       painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
 
       // draw this cell of the table
-      xStart = cellWidth * (column - 1);
-      yStart = cellHeight * row;
-      painter->DrawRect(xStart, yStart, cellWidth, cellHeight);
+      xStart = this->CellWidth * (column - 1);
+      yStart = this->CellHeight * row;
+      painter->DrawRect(xStart, yStart, this->CellWidth, this->CellHeight);
 
       // keep track of where the top of the table is, so we know where to
       // draw the column labels later.
-      if (yStart + cellHeight > yMaxTable)
+      if (yStart + this->CellHeight > this->HeatmapMaxY)
         {
-        yMaxTable = yStart + cellHeight;
+        this->HeatmapMaxY = yStart + this->CellHeight;
+        }
+      if (yStart < this->HeatmapMinY)
+        {
+        this->HeatmapMinY = yStart;
         }
       }
 
     // draw the label for this row
     std::string rowLabel = tableNames->GetValue(row);
-    xStart = spacing * 2 + cellWidth * (this->Table->GetNumberOfColumns() - 1);
-    yStart = cellHeight * row + cellHeight / 2;
+    xStart = spacing * 2 + this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+    yStart = this->CellHeight * row + this->CellHeight / 2;
     painter->DrawString(xStart, yStart, rowLabel);
     }
 
@@ -526,13 +570,14 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
        ++column)
     {
       std::string columnName = this->Table->GetColumn(column)->GetName();
-      xStart = cellWidth * column - cellWidth / 2;
-      yStart = yMaxTable + spacing;
+      xStart = this->CellWidth * column - this->CellWidth / 2;
+      yStart = this->HeatmapMaxY + spacing;
       painter->DrawString(xStart, yStart, columnName);
     }
 }
 
-void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter, double cellHeight)
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter)
 {
   // set up our text property to draw row names
   painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
@@ -542,14 +587,14 @@ void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter, double cellHei
 
   // calculate an appropriate font size
   float stringBounds[4];
-  stringBounds[3] = FLT_MAX;
+  stringBounds[3] = VTK_FLOAT_MAX;
   std::string testString = "Igq"; //selected for range of height
-  int currentFontSize = floor(cellHeight);
+  int currentFontSize = floor(this->CellHeight);
   painter->GetTextProp()->SetFontSize(currentFontSize);
   painter->ComputeStringBounds(testString, stringBounds);
-  if (stringBounds[3] > cellHeight)
+  if (stringBounds[3] > this->CellHeight)
     {
-    while (stringBounds[3] > cellHeight && currentFontSize > 0)
+    while (stringBounds[3] > this->CellHeight && currentFontSize > 0)
       {
       --currentFontSize;
       painter->GetTextProp()->SetFontSize(currentFontSize);
@@ -558,7 +603,7 @@ void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter, double cellHei
     }
   else
     {
-      while (stringBounds[3] < cellHeight)
+      while (stringBounds[3] < this->CellHeight)
       {
       ++currentFontSize;
       painter->GetTextProp()->SetFontSize(currentFontSize);
@@ -569,6 +614,64 @@ void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter, double cellHei
     }
 }
 
+//-----------------------------------------------------------------------------
+bool vtkTreeHeatmapItem::MouseMoveEvent(const vtkContextMouseEvent &event)
+{
+  if (event.GetButton() == vtkContextMouseEvent::NO_BUTTON)
+    {
+    float pos[3];
+    vtkNew<vtkMatrix3x3> inverse;
+    pos[0] = event.GetPos().X();
+    pos[1] = event.GetPos().Y();
+    pos[2] = 0;
+    this->GetScene()->GetTransform()->GetInverse(inverse.GetPointer());
+    inverse->MultiplyPoint(pos, pos);
+    if (pos[0] <= this->HeatmapMaxX && pos[0] >= this->HeatmapMinX &&
+        pos[1] <= this->HeatmapMaxY && pos[1] >= this->HeatmapMinY)
+      {
+      this->Tooltip->SetPosition(pos[0], pos[1]);
+
+      std::string tooltipText = this->GetTooltipText(pos[0], pos[1]);
+      this->Tooltip->SetText(tooltipText);
+
+      this->Tooltip->SetVisible(true);
+      this->Scene->SetDirty(true);
+      return true;
+      }
+    else
+      {
+      bool shouldRepaint = this->Tooltip->GetVisible();
+      this->Tooltip->SetVisible(false);
+      if (shouldRepaint)
+        {
+        this->Scene->SetDirty(true);
+        }
+      }
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+std::string vtkTreeHeatmapItem::GetTooltipText(float x, float y)
+{
+  vtkIdType column = floor((x - this->HeatmapMinX) / this->CellWidth);
+  int sceneRow = floor((y - this->HeatmapMinY) / this->CellHeight);
+  if (this->Tree)
+    {
+    return this->Table->GetValue(this->RowMap[sceneRow], column + 1).ToString();
+    }
+  return this->Table->GetValue(sceneRow, column + 1).ToString();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkTreeHeatmapItem::Hit(const vtkContextMouseEvent &vtkNotUsed(mouse))
+{
+  // If we are interactive, we want to catch anything that propagates to the
+  // background, otherwise we do not want any mouse events.
+  return this->Interactive;
+}
+
+//-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
