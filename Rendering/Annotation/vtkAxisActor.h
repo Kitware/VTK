@@ -220,6 +220,14 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkGetMacro(DrawGridlines, int);
   vtkBooleanMacro(DrawGridlines, int);
 
+  // Description:
+  // Set/Get whether ONLY the gridlines should be drawn.
+  // This will only draw GridLines and will skip any other part of the rendering
+  // such as Axis/Tick/Title/...
+  vtkSetMacro(DrawGridlinesOnly, int);
+  vtkGetMacro(DrawGridlinesOnly, int);
+  vtkBooleanMacro(DrawGridlinesOnly, int);
+
   vtkSetMacro(DrawGridlinesLocation, int);
   vtkGetMacro(DrawGridlinesLocation, int);
 
@@ -422,11 +430,13 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   int    TickLocation;
 
   int    DrawGridlines;
+  int    DrawGridlinesOnly;
   int    LastDrawGridlines;
   int    DrawGridlinesLocation; // 0: all | 1: closest | 2: farest
-  double  GridlineXLength;
-  double  GridlineYLength;
-  double  GridlineZLength;
+  int    LastDrawGridlinesLocation; // 0: all | 1: closest | 2: farest
+  double GridlineXLength;
+  double GridlineYLength;
+  double GridlineZLength;
 
   int    DrawInnerGridlines;
   int    LastDrawInnerGridlines;
