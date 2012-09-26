@@ -34,6 +34,8 @@
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
+#include <vector>
+
 vtkStandardNewMacro(vtkCompositeDataReader);
 //----------------------------------------------------------------------------
 vtkCompositeDataReader::vtkCompositeDataReader()
@@ -343,8 +345,11 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
     return false;
     }
 
-  int blocksPerLevel[num_levels];
-  double spacing[num_levels][3];
+  std::vector<int> blocksPerLevel;
+  blocksPerLevel.resize(num_levels);
+
+  std::vector<double> spacing;
+  spacing.resize(num_levels * 3);
 
   int total_blocks = 0;
   for (int cc=0; cc < num_levels; cc++)
@@ -354,8 +359,8 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
       vtkErrorMacro("Failed to read number of datasets for level " << cc);
       return false;
       }
-    if (!this->Read(&spacing[cc][0]) || !this->Read(&spacing[cc][1]) ||
-      !this->Read(&spacing[cc][2]))
+    if (!this->Read(&spacing[3*cc +0]) || !this->Read(&spacing[3*cc +1]) ||
+      !this->Read(&spacing[3*cc+2]))
       {
       vtkErrorMacro("Failed to read spacing for level " << cc);
       return false;
@@ -369,7 +374,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
   oamr->SetOrigin(origin);
   for (int cc=0; cc < num_levels; cc++)
     {
-    oamr->GetAMRInfo()->SetSpacing(cc, spacing[cc]);
+    oamr->GetAMRInfo()->SetSpacing(cc, &spacing[3*cc]);
     }
 
   //read in the amr boxes0
@@ -428,8 +433,9 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
     {
     if (!this->ReadString(line))
       {
-      vtkErrorMacro("Failed to read 'CHILD' or 'AMRBOXES' line");
-      return false;
+      // we may reach end of file sooner than total_blocks since not all blocks
+      // may be present in the data.
+      break;
       }
 
     if (strncmp(this->LowerCase(line), "child", strlen("child")) == 0)
@@ -464,7 +470,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
       }
     else
       {
-      vtkErrorMacro("Failed to read 'CHILD' or 'AMRBOXES' line");
+      vtkErrorMacro("Failed to read 'CHILD' line");
       return false;
       }
     }
