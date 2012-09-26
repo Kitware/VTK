@@ -16,18 +16,21 @@
 
 #include "vtkAppendFilter.h"
 #include "vtkAppendPolyData.h"
-#include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCell.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDataSetCollection.h"
 #include "vtkExecutive.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -37,29 +40,11 @@ vtkStandardNewMacro(vtkAppendCompositeDataLeaves);
 vtkAppendCompositeDataLeaves::vtkAppendCompositeDataLeaves()
 {
   this->AppendFieldData = 0;
-  this->AppendUG = 0;
-  this->AppendPD = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkAppendCompositeDataLeaves::~vtkAppendCompositeDataLeaves()
 {
-  if ( this->AppendUG )
-    this->AppendUG->Delete();
-  if ( this->AppendPD )
-    this->AppendPD->Delete();
-}
-
-//----------------------------------------------------------------------------
-vtkCompositeDataSet* vtkAppendCompositeDataLeaves::GetInput( int idx )
-{
-  if ( idx >= this->GetNumberOfInputConnections( 0 ) || idx < 0 )
-    {
-    return 0;
-    }
-
-  return vtkCompositeDataSet::SafeDownCast(
-    this->GetExecutive()->GetInputData( 0, idx ) );
 }
 
 //----------------------------------------------------------------------------
@@ -68,6 +53,7 @@ int vtkAppendCompositeDataLeaves::RequestDataObject(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector )
 {
+  // this filter preserves input data type.
   vtkInformation* inInfo = inputVector[0]->GetInformationObject( 0 );
   if ( ! inInfo )
     {
@@ -101,10 +87,10 @@ int vtkAppendCompositeDataLeaves::RequestDataObject(
 // Append data sets into single unstructured grid
 int vtkAppendCompositeDataLeaves::RequestData(
   vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  int numInputs = this->GetNumberOfInputConnections( 0 );
+  int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   if ( numInputs <= 0 )
     {
     // Fail silently when there are no inputs.
@@ -112,75 +98,77 @@ int vtkAppendCompositeDataLeaves::RequestData(
     }
 
   // get the output info object
-  vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
-
-  // get the ouptut
-  vtkCompositeDataSet* output = vtkCompositeDataSet::SafeDownCast(
-    outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-
-  vtkDebugMacro(<<"Copying structure to output");
-
-  vtkCompositeDataSet* anInput = vtkCompositeDataSet::SafeDownCast(
-    this->GetInput( 0 ) );
-
+  vtkCompositeDataSet* output = vtkCompositeDataSet::GetData(outputVector, 0);
+  vtkCompositeDataSet* input0 = vtkCompositeDataSet::GetData(inputVector[0], 0);
   if (numInputs == 1)
     {
-    output->ShallowCopy(anInput);
+    // trivial case.
+    output->ShallowCopy(input0);
     return 1;
     }
 
-  output->CopyStructure( anInput );
+  // since composite structure is expected to be same on all inputs, we copy the
+  // structure from the 1st input.
+  output->CopyStructure(input0);
 
   vtkDebugMacro(<<"Appending data together");
 
-  vtkCompositeDataIterator* iter = output->NewIterator();
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(output->NewIterator());
+
   iter->SkipEmptyNodesOff(); // We're iterating over the output, whose leaves are all empty.
-  int idx = 0;
-  int i;
   static bool first = true;
-  for ( iter->InitTraversal(); ! iter->IsDoneWithTraversal(); iter->GoToNextItem(), ++idx )
+  for (iter->InitTraversal(); ! iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-    // Loop over all inputs at this "spot" in the composite data.
+    // Loop over all inputs at this "spot" in the composite data tree. locate
+    // the first input that has a non-null data-object at this location, if any.
     vtkDataObject* obj = 0;
-    for ( i = 0; i < numInputs && ! obj; ++ i )
+    int inputIndex;
+    for (inputIndex = 0; inputIndex < numInputs && !obj; ++inputIndex)
       {
-      obj = this->GetInput( i )->GetDataSet( iter );
+      vtkCompositeDataSet* inputX = vtkCompositeDataSet::GetData(inputVector[0],
+        inputIndex);
+      obj = inputX? inputX->GetDataSet(iter) : NULL;
       }
-    if ( ! obj )
+
+    if (obj == NULL)
       {
       continue; // no input had a non-NULL dataset
       }
-    vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast( obj );
-    if ( ug )
+
+    if (vtkUnstructuredGrid::SafeDownCast(obj))
       {
-      this->AppendUnstructuredGrids( i - 1, numInputs, iter, output );
-      continue;
+      this->AppendUnstructuredGrids(
+        inputVector[0], inputIndex - 1, numInputs, iter, output);
       }
-    vtkPolyData* pd = vtkPolyData::SafeDownCast( obj );
-    if ( pd )
+    else if (vtkPolyData::SafeDownCast(obj))
       {
-      this->AppendPolyData( i - 1, numInputs, iter, output );
-      continue;
+      this->AppendPolyData(inputVector[0],
+        inputIndex - 1, numInputs, iter, output);
       }
-    vtkTable *table = vtkTable::SafeDownCast(obj);
-    if(table)
+    else if (vtkTable *table = vtkTable::SafeDownCast(obj))
       {
       vtkTable *newTable = vtkTable::New();
       newTable->ShallowCopy(table);
       output->SetDataSet(iter, newTable);
       newTable->Delete();
-      continue;
       }
-    if ( first )
+    else if (vtkImageData* img = vtkImageData::SafeDownCast(obj))
+      {
+      vtkImageData* clone = img->NewInstance();
+      clone->ShallowCopy(img);
+      output->SetDataSet(iter, clone);
+      clone->FastDelete();
+      }
+    else if (first)
       {
       first = false;
       vtkWarningMacro(
-        << "Input " << i << " was of type \""
+        << "Input " << inputIndex << " was of type \""
         << obj->GetClassName() << "\" which is not handled\n" );
       }
     }
   first = true;
-  iter->Delete();
   return 1;
 }
 
@@ -197,76 +185,62 @@ void vtkAppendCompositeDataLeaves::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "AppendFieldData: " << this->AppendFieldData << "\n";
-  os << indent << "AppendUG: " << this->AppendUG << "\n";
-  os << indent << "AppendPD: " << this->AppendPD << "\n";
 }
 
 //----------------------------------------------------------------------------
 void vtkAppendCompositeDataLeaves::AppendUnstructuredGrids(
+  vtkInformationVector* inputVector,
   int i, int numInputs, vtkCompositeDataIterator* iter, vtkCompositeDataSet* output )
 {
-  if ( this->AppendUG )
-    {
-    this->AppendUG->Delete();
-    }
-  this->AppendUG = vtkAppendFilter::New();
-
-  vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
-  output->SetDataSet( iter, ug );
-  ug->Delete();
+  vtkNew<vtkAppendFilter> appender;
 
   for ( int idx = i; idx < numInputs; ++ idx )
     {
-    vtkCompositeDataSet* icdset = this->GetInput( idx );
+    vtkCompositeDataSet* icdset= vtkCompositeDataSet::GetData(inputVector, idx);
     if ( icdset )
       {
       vtkUnstructuredGrid* iudset = vtkUnstructuredGrid::SafeDownCast( icdset->GetDataSet( iter ) );
       if ( iudset )
         {
-        this->AppendUG->AddInputData( iudset );
+        appender->AddInputDataObject( iudset );
         }
       }
     }
-  this->AppendUG->Update();
-  ug->ShallowCopy( this->AppendUG->GetOutput() );
-
-  this->AppendFieldDataArrays( i, numInputs, iter, ug );
+  appender->Update();
+  output->SetDataSet(iter, appender->GetOutputDataObject(0));
+  this->AppendFieldDataArrays(inputVector,
+    i, numInputs, iter, appender->GetOutput(0));
 }
 
 //----------------------------------------------------------------------------
 void vtkAppendCompositeDataLeaves::AppendPolyData(
+  vtkInformationVector* inputVector,
   int i, int numInputs, vtkCompositeDataIterator* iter, vtkCompositeDataSet* output )
 {
-  if ( this->AppendPD )
-    {
-    this->AppendPD->Delete();
-    }
-  this->AppendPD = vtkAppendPolyData::New();
-
-  vtkPolyData* pd = vtkPolyData::New();
-  output->SetDataSet( iter, pd );
-  pd->Delete();
+  vtkNew<vtkAppendPolyData> appender;
 
   for ( int idx = i; idx < numInputs; ++ idx )
     {
-    vtkCompositeDataSet* icdset = this->GetInput( idx );
+    vtkCompositeDataSet* icdset= vtkCompositeDataSet::GetData(inputVector, idx);
     if ( icdset )
       {
       vtkPolyData* ipdset = vtkPolyData::SafeDownCast( icdset->GetDataSet( iter ) );
       if ( ipdset )
         {
-        this->AppendPD->AddInputData( ipdset );
+        appender->AddInputDataObject( ipdset );
         }
       }
     }
-  this->AppendPD->Update();
-  pd->ShallowCopy( this->AppendPD->GetOutput() );
 
-  this->AppendFieldDataArrays( i, numInputs, iter, pd );
+  appender->Update();
+  output->SetDataSet(iter, appender->GetOutputDataObject(0));
+  this->AppendFieldDataArrays(inputVector,
+    i, numInputs, iter, appender->GetOutput(0));
 }
 
 //----------------------------------------------------------------------------
 void vtkAppendCompositeDataLeaves::AppendFieldDataArrays(
+  vtkInformationVector* inputVector,
   int i, int numInputs, vtkCompositeDataIterator* iter, vtkDataSet* odset )
 {
   if ( ! this->AppendFieldData )
@@ -275,7 +249,7 @@ void vtkAppendCompositeDataLeaves::AppendFieldDataArrays(
   vtkFieldData* ofd = odset->GetFieldData();
   for ( int idx = i; idx < numInputs; ++ idx )
     {
-    vtkCompositeDataSet* icdset = this->GetInput( idx );
+    vtkCompositeDataSet* icdset= vtkCompositeDataSet::GetData(inputVector, idx);
     if ( icdset )
       {
       vtkDataObject* idobj = icdset->GetDataSet( iter );
