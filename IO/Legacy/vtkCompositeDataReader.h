@@ -14,6 +14,10 @@
 =========================================================================*/
 // .NAME vtkCompositeDataReader - read vtkCompositeDataSet data file.
 // .SECTION Description
+// .SECTION CAVEATS
+// This is an experimental format. Use XML-based formats for writing composite
+// datasets. Saving composite dataset in legacy VTK format is expected to change
+// in future including changes to the file layout.
 
 #ifndef __vtkCompositeDataReader_h
 #define __vtkCompositeDataReader_h

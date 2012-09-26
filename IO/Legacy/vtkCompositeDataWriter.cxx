@@ -204,42 +204,39 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
 bool vtkCompositeDataWriter::WriteCompositeData(
   ostream* fp, vtkOverlappingAMR* oamr)
 {
+  vtkAMRInformation* amrInfo = oamr->GetAMRInfo();
+
+  *fp << "GRID_DESCRIPTION " << amrInfo->GetGridDescription() << "\n";
+
+  const double* origin = oamr->GetOrigin();
+  *fp << "ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
+
   unsigned int num_levels = oamr->GetNumberOfLevels();
-  unsigned int total_datasets = 0;
   // we'll dump out all level information and then the individual blocks.
-  *fp << "LEVELS " << num_levels;
-  for (unsigned int cc=0; cc < num_levels; cc++)
+  *fp << "LEVELS " << num_levels << "\n";
+  for (unsigned int level=0; level < num_levels; level++)
     {
-    *fp << " " << oamr->GetNumberOfDataSets(cc);
-    total_datasets += oamr->GetNumberOfDataSets(cc);
+    // <num datasets> <spacing x> <spacing y> <spacing z>
+    double spacing[3];
+    amrInfo->GetSpacing(level, spacing);
+
+    *fp << oamr->GetNumberOfDataSets(level)
+        << " " << spacing[0]
+        << " " << spacing[1]
+        << " " << spacing[2]
+        << "\n";
     }
-  *fp << "\n";
 
   // now dump the amr boxes and real data, if any.
 
   // Information about amrboxes can be "too much". So we compact it in
   // vtkDataArray subclasses to ensure that it can be written as binary data
   // with correct swapping, as needed.
-  vtkNew<vtkDoubleArray> ddata;
-  ddata->SetName("DoubleMetaData");
-  // origin and spacing
-  ddata->SetNumberOfComponents(3);
-  ddata->SetNumberOfTuples(oamr->GetNumberOfLevels()+1);
-  double* origin = oamr->GetOrigin();
-  ddata->SetTuple(0, origin);
-  for (unsigned int level=0; level < num_levels; level++)
-    {
-    double spacing[3];
-    oamr->GetAMRInfo()->GetSpacing(level,spacing);
-    ddata->SetTuple(level+1,spacing);
-    }
-
   vtkNew<vtkIntArray> idata;
   // box.LoCorner[3], box.HiCorner[3]
   idata->SetName("IntMetaData");
-  idata->SetNumberOfComponents(1);
-  idata->SetNumberOfTuples(6*total_datasets+1);
-  idata->SetValue(0, oamr->GetAMRInfo()->GetGridDescription());
+  idata->SetNumberOfComponents(6);
+  idata->SetNumberOfTuples(amrInfo->GetTotalNumberOfBlocks());
 
   unsigned int metadata_index=0;
   for (unsigned int level=0; level < num_levels; level++)
@@ -248,7 +245,9 @@ bool vtkCompositeDataWriter::WriteCompositeData(
     for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
       {
       const vtkAMRBox& box = oamr->GetAMRBox(level,index);
-      box.Serialize(idata->GetPointer(6*metadata_index + 1));
+      int tuple[6];
+      box.Serialize(tuple);
+      idata->SetTupleValue(metadata_index, tuple);
 
       vtkUniformGrid* dataset = oamr->GetDataSet(level, index);
       if (dataset)
@@ -266,14 +265,11 @@ bool vtkCompositeDataWriter::WriteCompositeData(
         }
       }
     }
-  *fp << "METADATA\n";
 
-  char format[1024];
-  sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n", "DoubleMetaData", 3, "default");
-  this->WriteArray(fp, ddata->GetDataType(), ddata.GetPointer(), format, ddata->GetNumberOfTuples(), ddata->GetNumberOfComponents());
-
-  sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n", "IntMetaData", 3, "default");
-  this->WriteArray(fp, idata->GetDataType(), idata.GetPointer(), format, idata->GetNumberOfTuples(), idata->GetNumberOfComponents());
+  *fp << "AMRBOXES "
+      << idata->GetNumberOfTuples() << " " << idata->GetNumberOfComponents() << "\n";
+  this->WriteArray(fp, idata->GetDataType(), idata.GetPointer(), 
+    "", idata->GetNumberOfTuples(), idata->GetNumberOfComponents());
   return true;
 }
 
