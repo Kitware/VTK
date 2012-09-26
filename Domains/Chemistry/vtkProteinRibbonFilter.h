@@ -61,12 +61,12 @@ protected:
                   vtkInformationVector **,
                   vtkInformationVector *);
 
-  void CreateThinStrip(vtkPolyData* poly, vtkUnsignedCharArray *faceColors,
+  void CreateThinStrip(vtkPolyData* poly, vtkUnsignedCharArray *pointsColors,
                        vtkPoints* p, std::vector<std::pair<vtkVector3f, bool> >& p1,
                        std::vector<std::pair<vtkVector3f, bool> >& p2,
                        std::vector<vtkColor3ub> &colors);
 
-  void CreateAtomAsSphere(vtkPolyData* poly, vtkUnsignedCharArray *faceColors,
+  void CreateAtomAsSphere(vtkPolyData* poly, vtkUnsignedCharArray *pointsColors,
                           double *pos, const vtkColor3ub& color, float radius,
                           float scale);
 
