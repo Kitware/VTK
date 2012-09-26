@@ -372,6 +372,58 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
     oamr->GetAMRInfo()->SetSpacing(cc, spacing[cc]);
     }
 
+  //read in the amr boxes0
+  if (!this->ReadString(line))
+    {
+    vtkErrorMacro("Failed to read AMRBOXES' line");
+    }
+  else
+    {
+    if (!strncmp(this->LowerCase(line), "amrboxes", strlen("amrboxes")) == 0)
+      {
+      vtkErrorMacro("Failed to read AMRBOXES' line");
+      }
+    else
+      {
+      // now read the amrbox information.
+      int num_tuples, num_components;
+      if (!this->Read(&num_tuples) || !this->Read(&num_components))
+        {
+        vtkErrorMacro("Failed to read values for AMRBOXES.");
+        return false;
+        }
+
+      vtkSmartPointer<vtkIntArray> idata;
+      idata.TakeReference(vtkIntArray::SafeDownCast(
+                            this->ReadArray("int", num_tuples, num_components)));
+      if (!idata || idata->GetNumberOfComponents() != 6 ||
+          idata->GetNumberOfTuples() != static_cast<vtkIdType>(oamr->GetTotalNumberOfBlocks()))
+        {
+        vtkErrorMacro("Failed to read meta-data");
+        return false;
+        }
+
+      unsigned int metadata_index = 0;
+      for (int level=0; level < num_levels; level++)
+        {
+        unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
+        for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
+          {
+          int tuple[6];
+          idata->GetTupleValue(metadata_index, tuple);
+
+          vtkAMRBox box;
+          box.SetDimensions(&tuple[0], &tuple[3], description);
+          oamr->SetAMRBox(level, index, box);
+          }
+        }
+      }
+    }
+
+
+  //read in the actual data
+
+
   for (int cc=0; cc < total_blocks; cc++)
     {
     if (!this->ReadString(line))
@@ -409,42 +461,6 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
         child->Delete();
         return false;
         }
-      }
-    else if (strncmp(this->LowerCase(line), "amrboxes", strlen("amrboxes")) == 0)
-      {
-      // now read the amrbox information.
-      int num_tuples, num_components;
-      if (!this->Read(&num_tuples) || !this->Read(&num_components))
-        {
-        vtkErrorMacro("Failed to read values for AMRBOXES.");
-        return false;
-        }
-
-      vtkSmartPointer<vtkIntArray> idata;
-      idata.TakeReference(vtkIntArray::SafeDownCast(
-        this->ReadArray("int", num_tuples, num_components)));
-      if (!idata || idata->GetNumberOfComponents() != 6 ||
-        idata->GetNumberOfTuples() != oamr->GetTotalNumberOfBlocks())
-        {
-        vtkErrorMacro("Failed to read meta-data");
-        return false;
-        }
-
-      unsigned int metadata_index = 0;
-      for (int level=0; level < num_levels; level++)
-        {
-        unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
-        for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
-          {
-          int tuple[6];
-          idata->GetTupleValue(metadata_index, tuple);
-
-          vtkAMRBox box;
-          box.SetDimensions(&tuple[0], &tuple[3], description);
-          oamr->SetAMRBox(level, index, box);
-          }
-        }
-      break;
       }
     else
       {

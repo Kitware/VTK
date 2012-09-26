@@ -39,12 +39,13 @@ int Validate(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
 
     }
 
-  //cout << "Audit Input" << endl;
-  //input->Audit();
-  //cout << "Audit Output" << endl;
-  //result->Audit();
+  cout << "Audit Input" << endl;
+  input->Audit();
+  cout << "Audit Output" << endl;
+  result->Audit();
   return TEST_SUCCESS;
 }
+
 
 int TestLegacyCompositeDataReaderWriter(int argc, char *argv[])
 {

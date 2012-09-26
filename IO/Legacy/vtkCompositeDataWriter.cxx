@@ -227,8 +227,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(
         << "\n";
     }
 
-  // now dump the amr boxes and real data, if any.
-
+  // now dump the amr boxes, if any.
   // Information about amrboxes can be "too much". So we compact it in
   // vtkDataArray subclasses to ensure that it can be written as binary data
   // with correct swapping, as needed.
@@ -237,7 +236,6 @@ bool vtkCompositeDataWriter::WriteCompositeData(
   idata->SetName("IntMetaData");
   idata->SetNumberOfComponents(6);
   idata->SetNumberOfTuples(amrInfo->GetTotalNumberOfBlocks());
-
   unsigned int metadata_index=0;
   for (unsigned int level=0; level < num_levels; level++)
     {
@@ -248,7 +246,20 @@ bool vtkCompositeDataWriter::WriteCompositeData(
       int tuple[6];
       box.Serialize(tuple);
       idata->SetTupleValue(metadata_index, tuple);
+      }
+    }
+  *fp << "AMRBOXES "
+      << idata->GetNumberOfTuples() << " " << idata->GetNumberOfComponents() << "\n";
+  this->WriteArray(fp, idata->GetDataType(), idata.GetPointer(),
+    "", idata->GetNumberOfTuples(), idata->GetNumberOfComponents());
 
+  // now dump the real data, if any.
+  metadata_index=0;
+  for (unsigned int level=0; level < num_levels; level++)
+    {
+    unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
+    for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
+      {
       vtkUniformGrid* dataset = oamr->GetDataSet(level, index);
       if (dataset)
         {
@@ -265,11 +276,6 @@ bool vtkCompositeDataWriter::WriteCompositeData(
         }
       }
     }
-
-  *fp << "AMRBOXES "
-      << idata->GetNumberOfTuples() << " " << idata->GetNumberOfComponents() << "\n";
-  this->WriteArray(fp, idata->GetDataType(), idata.GetPointer(), 
-    "", idata->GetNumberOfTuples(), idata->GetNumberOfComponents());
   return true;
 }
 
