@@ -41,6 +41,7 @@
       TestScientificPlot.cxx
       TestStackedBarGraph.cxx
       TestStackedPlot.cxx
+      TestSurfacePlot.cxx
       )
     # Set the tolerance higher for a few tests that need it
     set(TestGLSLError 12)

@@ -74,6 +74,16 @@ int TestScatterPlotMatrix(int, char * [])
   matrix->GetMainChart()->SetActionToButton(vtkChart::SELECT_POLYGON,
                                             vtkContextMouseEvent::RIGHT_BUTTON);
 
+  // Test animation by releasing a right click on subchart (1,2)
+  vtkContextMouseEvent mouseEvent;
+  mouseEvent.SetInteractor(view->GetInteractor());
+  vtkVector2f pos;
+
+  mouseEvent.SetButton(vtkContextMouseEvent::RIGHT_BUTTON);
+  pos.Set(245, 301);
+  mouseEvent.SetPos(pos);
+  matrix->MouseButtonReleaseEvent(mouseEvent);
+
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestChartXYZ.cxx
+  Module:    TestSurfacePlot.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -19,7 +19,7 @@
 #include "vtkContextScene.h"
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
-#include "vtkPlotPoints3D.h"
+#include "vtkPlotSurface.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -28,99 +28,61 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 
-int TestInteractiveChartXYZ(int , char * [])
+int TestSurfacePlot(int , char * [])
 {
-  // Now the chart
   vtkNew<vtkChartXYZ> chart;
+  vtkNew<vtkPlotSurface> plot;
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   view->GetScene()->AddItem(chart.GetPointer());
 
   chart->SetGeometry(vtkRectf(75.0, 20.0, 250, 260));
 
-  // Create a table with some points in it...
+  // Create a surface
   vtkNew<vtkTable> table;
-  vtkNew<vtkFloatArray> arrX;
-  arrX->SetName("X Axis");
-  table->AddColumn(arrX.GetPointer());
-  vtkNew<vtkFloatArray> arrC;
-  arrC->SetName("Cosine");
-  table->AddColumn(arrC.GetPointer());
-  vtkNew<vtkFloatArray> arrS;
-  arrS->SetName("Sine");
-  table->AddColumn(arrS.GetPointer());
-  vtkNew<vtkFloatArray> arrColor;
-  arrColor->SetName("Color");
-  table->AddColumn(arrColor.GetPointer());
-  // Test charting with a few more points...
-  int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
-  table->SetNumberOfRows(numPoints);
-  table->SetNumberOfRows(numPoints);
-  for (int i = 0; i < numPoints; ++i)
+  float numPoints = 70;
+  float inc = 9.424778 / (numPoints - 1);
+  for (float i = 0; i < numPoints; ++i)
     {
-    table->SetValue(i, 0, i * inc);
-    table->SetValue(i, 1, cos(i * inc) + 0.0);
-    table->SetValue(i, 2, sin(i * inc) + 0.0);
-    table->SetValue(i, 3, i);
+    vtkNew<vtkFloatArray> arr;
+    table->AddColumn(arr.GetPointer());
+    }
+  table->SetNumberOfRows(numPoints);
+  for (float i = 0; i < numPoints; ++i)
+    {
+    float x = i * inc;
+    for (float j = 0; j < numPoints; ++j)
+      {
+      float y  = j * inc;
+      table->SetValue(i, j, sin(sqrt(x*x + y*y)));
+      }
     }
 
-  // Add the dimensions we are interested in visualizing.
-  vtkNew<vtkPlotPoints3D> plot;
-  plot->SetInputData(table.GetPointer(), "X Axis", "Sine", "Cosine", "Color");
+  // Set up the surface plot we wish to visualize and add it to the chart.
+  plot->SetXRange(0, 9.424778);
+  plot->SetYRange(0, 9.424778);
+  plot->SetInputData(table.GetPointer());
   chart->AddPlot(plot.GetPointer());
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetRenderWindow()->Render();
 
+  // rotate
   vtkContextMouseEvent mouseEvent;
   mouseEvent.SetInteractor(view->GetInteractor());
   vtkVector2i pos;
   vtkVector2i lastPos;
 
-  // rotate
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
-  lastPos.Set(114, 55);
+  lastPos.Set(100, 50);
   mouseEvent.SetLastScreenPos(lastPos);
-  pos.Set(174, 121);
+  pos.Set(150, 100);
   mouseEvent.SetScreenPos(pos);
-
   vtkVector2d sP(pos.Cast<double>().GetData());
   vtkVector2d lSP(lastPos.Cast<double>().GetData());
-
   vtkVector2d screenPos(mouseEvent.GetScreenPos().Cast<double>().GetData());
   vtkVector2d lastScreenPos(mouseEvent.GetLastScreenPos().Cast<double>().GetData());
-  chart->MouseMoveEvent(mouseEvent);
-
-  // spin
-  mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
-  mouseEvent.GetInteractor()->SetShiftKey(1);
-  lastPos.Set(0, 0);
-  mouseEvent.SetLastScreenPos(lastPos);
-  pos.Set(10, 10);
-  mouseEvent.SetScreenPos(pos);
-  chart->MouseMoveEvent(mouseEvent);
-
-  // zoom
-  mouseEvent.SetButton(vtkContextMouseEvent::RIGHT_BUTTON);
-  mouseEvent.GetInteractor()->SetShiftKey(0);
-  lastPos.Set(0, 0);
-  mouseEvent.SetLastScreenPos(lastPos);
-  pos.Set(0, 10);
-  mouseEvent.SetScreenPos(pos);
-  chart->MouseMoveEvent(mouseEvent);
-
-  // mouse wheel zoom
-  chart->MouseWheelEvent(mouseEvent, -1);
-
-  // pan
-  mouseEvent.SetButton(vtkContextMouseEvent::RIGHT_BUTTON);
-  mouseEvent.GetInteractor()->SetShiftKey(1);
-  lastPos.Set(10, 10);
-  mouseEvent.SetLastScreenPos(lastPos);
-  pos.Set(0, 0);
-  mouseEvent.SetScreenPos(pos);
   chart->MouseMoveEvent(mouseEvent);
 
   view->GetInteractor()->Start();
