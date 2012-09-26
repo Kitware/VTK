@@ -15,3 +15,4 @@ pre-commit       crlf=input
 *.cmake          whitespace=tab-in-indent,-blank-at-eol
 
 /Utilities/vtksqlite/vtk_sqlite3.c hooks.MaxObjectKiB=4096
+/Utilities/vtknetcdf/libsrc/utf8proc_data.h hooks.MaxObjectKiB=2048
