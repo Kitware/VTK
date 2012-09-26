@@ -25,7 +25,7 @@
  *  File name:    utf8proc.h
  *  Version:      1.1.1
  *  Last changed: 2007-07-22
- *  Changed 2008-05-16 by rkr to add ncconfig.h and replacement for stdbool.h
+ *  Changed 2008-05-16 by rkr to add config.h and replacement for stdbool.h
  *                            for pre-C99 compilers that don't support bool.
  *  Changed 2008-06-05 by rkr to add utf8proc_check(str, options) function for
  *                            for just checking UTF-8 validity
@@ -57,7 +57,7 @@
 #define UTF8PROC_H
 
 
-#include "ncconfig.h"
+#include "config.h"
 
 #include <stdlib.h>
 #ifdef HAVE_STDBOOL_H
@@ -403,3 +403,4 @@ ssize_t utf8proc_check(const uint8_t *str);
  */
 
 #endif
+

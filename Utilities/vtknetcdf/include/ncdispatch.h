@@ -9,7 +9,7 @@
 #ifndef _DISPATCH_H
 #define _DISPATCH_H
 
-#include "ncconfig.h"
+#include "config.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -23,26 +23,26 @@
 
 extern int nc_get_vara_ubyte(int ncid, int varid,
                   const size_t* start, const size_t* count,
-                  unsigned char* value);
+		  unsigned char* value);
 extern int nc_get_vara_ushort(int ncid, int varid,
                   const size_t* start, const size_t* count,
-                  unsigned short* value);
+		  unsigned short* value);
 extern int nc_get_vara_uint(int ncid, int varid,
                   const size_t* start, const size_t* count,
-                  unsigned int* value);
+		  unsigned int* value);
 extern int nc_get_vara_ulonglong(int ncid, int varid,
                   const size_t* start, const size_t* count,
-                  unsigned long long* value);
+		  unsigned long long* value);
 
 extern int nc_put_vara_ushort(int ncid, int varid,
                   const size_t* start, const size_t* count,
-                  const unsigned short* value);
+		  const unsigned short* value);
 extern int nc_put_vara_uint(int ncid, int varid,
                   const size_t* start, const size_t* count,
-                  const unsigned int* value);
+		  const unsigned int* value);
 extern int nc_put_vara_ulonglong(int ncid, int varid,
                   const size_t* start, const size_t* count,
-                  const unsigned long long* value);
+		  const unsigned long long* value);
 
 #define X_INT_MAX	2147483647
 
@@ -87,12 +87,12 @@ extern int nc_put_vara_ulonglong(int ncid, int varid,
 /* Define a type for use when doing e.g. nc_get_vara_long, etc. */
 /* Should matche values in libsrc4/netcdf.h */
 #ifndef NC_UINT64
-#define	NC_UBYTE        7	/* unsigned 1 byte int */
-#define	NC_USHORT       8	/* unsigned 2-byte int */
-#define	NC_UINT         9	/* unsigned 4-byte int */
-#define	NC_INT64        10	/* signed 8-byte int */
-#define	NC_UINT64       11	/* unsigned 8-byte int */
-#define	NC_STRING       12	/* char* */
+#define	NC_UBYTE 	7	/* unsigned 1 byte int */
+#define	NC_USHORT 	8	/* unsigned 2-byte int */
+#define	NC_UINT 	9	/* unsigned 4-byte int */
+#define	NC_INT64 	10	/* signed 8-byte int */
+#define	NC_UINT64 	11	/* unsigned 8-byte int */
+#define	NC_STRING 	12	/* char* */
 #endif
 
 #ifndef HAVE_LONGLONG
@@ -167,19 +167,19 @@ struct NC;
 #endif
 
 int NC_create(const char *path, int cmode,
-              size_t initialsz, int basepe, size_t *chunksizehintp,
-              int useparallel,void* mpi_info,
-              int *ncidp);
+	      size_t initialsz, int basepe, size_t *chunksizehintp, 
+	      int useparallel,void* mpi_info,
+	      int *ncidp);
 int NC_open(const char *path, int cmode,
-            int basepe, size_t *chunksizehintp,
-            int useparallel, void* mpi_info,
-            int *ncidp);
+	    int basepe, size_t *chunksizehintp,
+	    int useparallel, void* mpi_info,
+	    int *ncidp);
 
 /* Expose the default vars and varm dispatch entries */
 extern int NCDEFAULT_get_vars(int, int, const size_t*,
-               const size_t*, const ptrdiff_t*, void*, nc_type);
+	       const size_t*, const ptrdiff_t*, void*, nc_type);
 extern int NCDEFAULT_put_vars(int, int, const size_t*,
-               const size_t*, const ptrdiff_t*, const void*, nc_type);
+	       const size_t*, const ptrdiff_t*, const void*, nc_type);
 extern int NCDEFAULT_get_varm(int, int, const size_t*,
                const size_t*, const ptrdiff_t*, const ptrdiff_t*,
                void*, nc_type);
@@ -196,19 +196,19 @@ struct NC_Dispatch {
 int model; /* one of the NC_DISPATCH #'s above */
 
 int (*new_nc)(struct NC**); /* Create an nc instance;free is not needed,
-                                because it can be done by close and abort*/
+				because it can be done by close and abort*/
 
 /* Warning: these two will create appropriate NC instances
    using new_nc dispatch function
 */
 int (*create)(const char *path, int cmode,
-          size_t initialsz, int basepe, size_t *chunksizehintp,
-          int use_parallel, void* parameters,
-          struct NC_Dispatch* table, NC** ncp);
+	  size_t initialsz, int basepe, size_t *chunksizehintp, 
+	  int use_parallel, void* parameters,
+	  struct NC_Dispatch* table, NC** ncp);
 int (*open)(const char *path, int mode,
-            int basepe, size_t *chunksizehintp,
-            int use_parallel, void* parameters,
-            struct NC_Dispatch* table, NC** ncp);
+	    int basepe, size_t *chunksizehintp,
+	    int use_parallel, void* parameters,
+	    struct NC_Dispatch* table, NC** ncp);
 
 int (*redef)(int);
 int (*_enddef)(int,size_t,size_t,size_t,size_t);
@@ -252,12 +252,12 @@ int (*get_varm)(int, int, const size_t*, const size_t*, const ptrdiff_t*, const 
 int (*put_varm)(int, int, const size_t*, const size_t*, const ptrdiff_t*, const ptrdiff_t*, const void*, nc_type);
 
 
-int (*inq_var_all)(int ncid, int varid, char *name, nc_type *xtypep,
-               int *ndimsp, int *dimidsp, int *nattsp,
+int (*inq_var_all)(int ncid, int varid, char *name, nc_type *xtypep, 
+               int *ndimsp, int *dimidsp, int *nattsp, 
                int *shufflep, int *deflatep, int *deflate_levelp,
-               int *fletcher32p, int *contiguousp, size_t *chunksizesp,
-               int *no_fill, void *fill_valuep, int *endiannessp,
-               int *options_maskp, int *pixels_per_blockp);
+               int *fletcher32p, int *contiguousp, size_t *chunksizesp, 
+               int *no_fill, void *fill_valuep, int *endiannessp, 
+	       int *options_maskp, int *pixels_per_blockp);
 
 /* Note the following may still be invoked by netcdf client code
    even when the file is a classic file
@@ -316,11 +316,11 @@ int(*nc_delete_mp)(const char*path,intbasepe);
 
 /* Define the common fields for NC and NC_FILE_INFO_T etc */
 typedef struct NCcommon {
-        int ext_ncid; /* uid << 16 */
-        int int_ncid; /* unspecified other id */
-        struct NC_Dispatch* dispatch;
+	int ext_ncid; /* uid << 16 */
+	int int_ncid; /* unspecified other id */
+	struct NC_Dispatch* dispatch;	
 #ifdef USE_DAP
-        struct NCDRNO* drno;
+	struct NCDRNO* drno;
 #endif
 } NCcommon;
 
@@ -333,7 +333,7 @@ extern int NC_initialize(void);
 /* Provide a dispatch table overlay facility */
 extern int NC_dispatch_overlay(const NC_Dispatch* overlay,
                                         const NC_Dispatch* base,
-                                        NC_Dispatch* merge);
+					NC_Dispatch* merge);
 
 /* Get/set the override dispatch table */
 extern NC_Dispatch* NC_get_dispatch_override(void);
@@ -361,3 +361,4 @@ extern char* nulldup(const char*);
 #define nullstring(s) (s==NULL?"(null)":s)
 
 #endif /* _DISPATCH_H */
+

@@ -1,5 +1,9 @@
 # Build kwsys
 ADD_SUBDIRECTORY(kwsys)
+set(vtknetcdf_INCLUDE_DIRS
+  ${vtknetcdf_SOURCE_DIR}/vtknetcdf/include
+  ${vtknetcdf_BINARY_DIR}/vtknetcdf
+  )
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   SET_PROPERTY(GLOBAL APPEND PROPERTY VTK_TARGETS vtksys)
 ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)

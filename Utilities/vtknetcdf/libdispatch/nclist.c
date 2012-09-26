@@ -121,7 +121,7 @@ ncelem
 nclistpop(NClist* l)
 {
   if(l == NULL || l->length == 0) return ncDATANULL;
-  l->length--;
+  l->length--;  
   return l->content[l->length];
 }
 
@@ -142,7 +142,7 @@ nclistremove(NClist* l, unsigned int i)
   elem = l->content[i];
   for(i+=1;i<len;i++) l->content[i-1] = l->content[i];
   l->length--;
-  return elem;
+  return elem;  
 }
 
 /* Duplicate and return the content (null terminate) */
@@ -160,12 +160,12 @@ nclistcontains(NClist* list, ncelem elem)
 {
     unsigned int i;
     for(i=0;i<nclistlength(list);i++) {
-    if(elem == nclistget(list,i)) return 1;
+	if(elem == nclistget(list,i)) return 1;
     }
     return 0;
 }
 
-/* Extends nclist to include a unique operator
+/* Extends nclist to include a unique operator 
    which remove duplicate values; NULL values removed
    return value is always 1.
 */
@@ -179,13 +179,13 @@ nclistunique(NClist* list)
     len = list->length;
     content = list->content;
     for(i=0;i<len;i++) {
-    for(j=i+1;j<len;j++) {
-    if(content[i] == content[j]) {
-    /* compress out jth element */
-    for(k=j+1;k<len;k++) content[k-1] = content[k];
-    len--;
-    }
-    }
+        for(j=i+1;j<len;j++) {
+	    if(content[i] == content[j]) {
+		/* compress out jth element */
+                for(k=j+1;k<len;k++) content[k-1] = content[k];	
+		len--;
+	    }
+	}
     }
     list->length = len;
     return 1;

@@ -1,13 +1,13 @@
 /*********************************************************************
  * Copyright 2006, UCAR/Unidata See COPYRIGHT file for copying and
  * redistribution conditions.
- *
+ * 
  * This runs the C++ tests for netCDF to test for failure.
- *
+ * 
  * $Id: tst_failure.cpp,v 1.2 2007/05/14 14:10:59 ed Exp $
  *********************************************************************/
 
-#include <ncconfig.h>
+#include <config.h>
 #include <iostream>
 using namespace std;
 
@@ -26,7 +26,7 @@ main( void )	// test new netCDF interface
    NcError *err = new NcError(NcError::verbose_fatal);
 
    // Create a file.
-   NcFile nc(FILE, NcFile::Replace, NULL, 0, NcFile::Classic);
+   NcFile nc(FILE, NcFile::Replace, NULL, 0, NcFile::Classic); 
 
    // Check if the file was opened successfully. But if it wasn't
    // return 0 to cause make check to fail (since make check is

@@ -28,19 +28,19 @@ void nc_log_hdf5(void);
 retval = e; \
 LOG((0, "file %s, line %d.\n%s", __FILE__, __LINE__, nc_strerror(e))); \
 nc_log_hdf5(); \
-} while (0)
+} while (0) 
 
 /* To log an error message, set retval, and jump to exit. */
 #define BAIL(e) do { \
 BAIL2(e); \
 goto exit; \
-} while (0)
+} while (0) 
 
 /* To set retval and jump to exit, without logging error message. */
 #define BAIL_QUIET(e) do { \
 retval = e; \
 goto exit; \
-} while (0)
+} while (0) 
 
 #else
 
@@ -58,3 +58,5 @@ goto exit; \
 #endif
 
 #endif /* _NCLOGGING_ */
+
+
