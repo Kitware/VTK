@@ -20,6 +20,35 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkDataObjectTreeIterator.h"
 
+bool TestEmptyAMRIterator()
+{
+  for(int init=0; init<2; init++)
+    {
+    for(int op=0; op<2; op++)
+      {
+      vtkSmartPointer<vtkUniformGridAMR> a = vtkSmartPointer<vtkUniformGridAMR>::New();
+      if(init==1)
+        {
+        a->Initialize();
+        }
+      vtkSmartPointer<vtkCompositeDataIterator> iter;
+      iter.TakeReference(a->NewIterator());
+      iter->SetSkipEmptyNodes(op);
+      int numIteration=0;
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+        {
+        numIteration++;
+        }
+      if(numIteration!=0)
+        {
+        return false;
+        }
+      }
+    }
+
+  return true;
+}
+
 //Test converting AMR to a multiblock data structure
 //and associated APIs
 bool TestAMRToMultiBlock()
@@ -75,5 +104,6 @@ int TestCompositeDataSets(int , char *[])
 {
   int errors = 0;
   errors+= !TestAMRToMultiBlock();
+  errors+= !TestEmptyAMRIterator();
   return( errors );
 }

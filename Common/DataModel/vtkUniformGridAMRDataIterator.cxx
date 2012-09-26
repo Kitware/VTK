@@ -181,16 +181,19 @@ void vtkUniformGridAMRDataIterator::GoToFirstItem()
   this->AMRInfo = this->AMR->GetAMRInfo();
   this->AMRData = this->AMR->GetAMRData();
 
-  if(this->GetSkipEmptyNodes())
+  if(this->AMRInfo)
     {
-    vtkSmartPointer<AMRLoadedDataIndexIterator> itr = vtkSmartPointer<AMRLoadedDataIndexIterator>::New();
-    itr->Initialize(&this->AMRInfo->GetNumBlocks(), &this->AMR->GetAMRData()->GetAllBlocks());
-    this->Iter = itr;
-    }
-  else
-    {
-    this->Iter = vtkSmartPointer<AMRIndexIterator>::New();
-    this->Iter->Initialize(&this->AMRInfo->GetNumBlocks());
+    if(this->GetSkipEmptyNodes())
+      {
+      vtkSmartPointer<AMRLoadedDataIndexIterator> itr = vtkSmartPointer<AMRLoadedDataIndexIterator>::New();
+      itr->Initialize(&this->AMRInfo->GetNumBlocks(), &this->AMR->GetAMRData()->GetAllBlocks());
+      this->Iter = itr;
+      }
+    else
+      {
+      this->Iter = vtkSmartPointer<AMRIndexIterator>::New();
+      this->Iter->Initialize(&this->AMRInfo->GetNumBlocks());
+      }
     }
 }
 
@@ -203,5 +206,5 @@ void vtkUniformGridAMRDataIterator::GoToNextItem()
 //----------------------------------------------------------------------------
 int vtkUniformGridAMRDataIterator::IsDoneWithTraversal()
 {
-  return this->Iter->IsDone();
+  return (!this->Iter) || this->Iter->IsDone();
 }
