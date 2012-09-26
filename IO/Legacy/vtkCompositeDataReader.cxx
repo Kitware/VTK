@@ -428,8 +428,9 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
     {
     if (!this->ReadString(line))
       {
-      vtkErrorMacro("Failed to read 'CHILD' or 'AMRBOXES' line");
-      return false;
+      // we may reach end of file sooner than total_blocks since not all blocks
+      // may be present in the data.
+      break;
       }
 
     if (strncmp(this->LowerCase(line), "child", strlen("child")) == 0)
@@ -464,7 +465,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
       }
     else
       {
-      vtkErrorMacro("Failed to read 'CHILD' or 'AMRBOXES' line");
+      vtkErrorMacro("Failed to read 'CHILD' line");
       return false;
       }
     }
