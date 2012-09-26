@@ -17,6 +17,10 @@
 // .SECTION Description
 // vtkCompositeDataWriter is a writer for writing legacy VTK files for
 // vtkCompositeDataSet and subclasses.
+// .SECTION CAVEATS
+// This is an experimental format. Use XML-based formats for writing composite
+// datasets. Saving composite dataset in legacy VTK format is expected to change
+// in future including changes to the file layout.
 
 #ifndef __vtkCompositeDataWriter_h
 #define __vtkCompositeDataWriter_h

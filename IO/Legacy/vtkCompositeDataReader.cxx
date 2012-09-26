@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkCompositeDataReader.h"
 
+#include "vtkAMRBox.h"
+#include "vtkAMRInformation.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataObjectReader.h"
@@ -26,8 +28,6 @@
 #include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkAMRBox.h"
-#include "vtkAMRInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
 
@@ -311,45 +311,124 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkHierarchicalBoxDataSet* hb)
 bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
 {
   char line[256];
-  if (!this->ReadString(line))
+
+  // read GRID_DESCRIPTION.
+  int description;
+  if (!this->ReadString(line) ||
+    strncmp(this->LowerCase(line), "grid_description", strlen("grid_description")) != 0 ||
+    !this->Read(&description))
     {
-    vtkErrorMacro("Failed to read levels");
+    vtkErrorMacro("Failed to read GRID_DESCRIPTION (or its value).");
     return false;
     }
 
-  if (strncmp(this->LowerCase(line), "levels", strlen("levels")) != 0)
+  // read ORIGIN
+  double origin[3];
+  if (!this->ReadString(line) ||
+    strncmp(this->LowerCase(line), "origin", strlen("origin")) != 0 ||
+    !this->Read(&origin[0]) || !this->Read(&origin[1]) ||
+    !this->Read(&origin[2]))
     {
-    vtkErrorMacro("Failed to read LEVELS.");
+    vtkErrorMacro("Failed to read ORIGIN (or its value).");
     return false;
     }
 
-  unsigned int num_levels = 0;
-  if (!this->Read(&num_levels))
+  // read LEVELS.
+  int num_levels;
+  if (!this->ReadString(line) ||
+    strncmp(this->LowerCase(line), "levels", strlen("levels")) != 0 ||
+    !this->Read(&num_levels))
     {
-    vtkErrorMacro("Failed to read number of levels");
+    vtkErrorMacro("Failed to read LEVELS (or its value).");
     return false;
     }
 
-  std::vector<int> blocksPerLevel;
-  unsigned int total_datasets = 0;
+  int blocksPerLevel[num_levels];
+  double spacing[num_levels][3];
 
-  for (unsigned int cc=0; cc < num_levels; cc++)
+  int total_blocks = 0;
+  for (int cc=0; cc < num_levels; cc++)
     {
-    unsigned int num_datasets = 0;
-    if (!this->Read(&num_datasets))
+    if (!this->Read(&blocksPerLevel[cc]))
       {
       vtkErrorMacro("Failed to read number of datasets for level " << cc);
       return false;
       }
-    blocksPerLevel.push_back(num_datasets);
-    total_datasets += num_datasets;
+    if (!this->Read(&spacing[cc][0]) || !this->Read(&spacing[cc][1]) ||
+      !this->Read(&spacing[cc][2]))
+      {
+      vtkErrorMacro("Failed to read spacing for level " << cc);
+      return false;
+      }
+    total_blocks += blocksPerLevel[cc];
     }
+
+  // initialize the AMR.
   oamr->Initialize(num_levels, &blocksPerLevel[0]);
-  for (unsigned int cc=0; cc <= total_datasets; cc++)
+  oamr->SetGridDescription(description);
+  oamr->SetOrigin(origin);
+  for (int cc=0; cc < num_levels; cc++)
+    {
+    oamr->GetAMRInfo()->SetSpacing(cc, spacing[cc]);
+    }
+
+  //read in the amr boxes0
+  if (!this->ReadString(line))
+    {
+    vtkErrorMacro("Failed to read AMRBOXES' line");
+    }
+  else
+    {
+    if (!strncmp(this->LowerCase(line), "amrboxes", strlen("amrboxes")) == 0)
+      {
+      vtkErrorMacro("Failed to read AMRBOXES' line");
+      }
+    else
+      {
+      // now read the amrbox information.
+      int num_tuples, num_components;
+      if (!this->Read(&num_tuples) || !this->Read(&num_components))
+        {
+        vtkErrorMacro("Failed to read values for AMRBOXES.");
+        return false;
+        }
+
+      vtkSmartPointer<vtkIntArray> idata;
+      idata.TakeReference(vtkIntArray::SafeDownCast(
+                            this->ReadArray("int", num_tuples, num_components)));
+      if (!idata || idata->GetNumberOfComponents() != 6 ||
+          idata->GetNumberOfTuples() != static_cast<vtkIdType>(oamr->GetTotalNumberOfBlocks()))
+        {
+        vtkErrorMacro("Failed to read meta-data");
+        return false;
+        }
+
+      unsigned int metadata_index = 0;
+      for (int level=0; level < num_levels; level++)
+        {
+        unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
+        for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
+          {
+          int tuple[6];
+          idata->GetTupleValue(metadata_index, tuple);
+
+          vtkAMRBox box;
+          box.SetDimensions(&tuple[0], &tuple[3], description);
+          oamr->SetAMRBox(level, index, box);
+          }
+        }
+      }
+    }
+
+
+  //read in the actual data
+
+
+  for (int cc=0; cc < total_blocks; cc++)
     {
     if (!this->ReadString(line))
       {
-      vtkErrorMacro("Failed to read 'CHILD' or 'METADATA' line");
+      vtkErrorMacro("Failed to read 'CHILD' or 'AMRBOXES' line");
       return false;
       }
 
@@ -383,70 +462,9 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
         return false;
         }
       }
-    else if (strncmp(this->LowerCase(line), "metadata", strlen("metadata")) == 0)
-      {
-      // now read the amrbox information.
-      this->ReadLine(line);
-      this->ReadLine(line);
-      this->ReadLine(line);
-      cout << "line: " << line << endl;
-
-      vtkDoubleArray* ddata = vtkDoubleArray::SafeDownCast(
-        this->ReadArray("double", num_levels+1 , 3));
-
-      this->ReadLine(line);
-      this->ReadLine(line);
-      this->ReadLine(line);
-      this->ReadLine(line);
-
-      cout << "line: " << line << endl;
-
-      vtkIntArray* idata = vtkIntArray::SafeDownCast(
-        this->ReadArray("int", 6*total_datasets+1, 1));
-      if (!ddata || !idata)
-        {
-        vtkErrorMacro("Failed to read meta-data");
-        if (ddata) {ddata->Delete();}
-        if (idata) {idata->Delete();}
-        return false;
-        }
-
-      int description = idata->GetValue(0);
-      oamr->SetGridDescription(description);
-
-      double origin[3];
-      ddata->GetTuple(0,origin);
-      oamr->SetOrigin(origin);
-
-      for (unsigned int level=0; level < num_levels; level++)
-        {
-        double spacing[3];
-        ddata->GetTuple(level+1,spacing);
-        oamr->SetSpacing(level,spacing);
-        }
-
-      unsigned int metadata_index = 0;
-      for (unsigned int level=0; level < num_levels; level++)
-        {
-        unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
-        for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
-          {
-          int loCorner[3];
-          int hiCorner[3];
-          memcpy(loCorner, idata->GetPointer(6*metadata_index + 1), 3*sizeof(int));
-          memcpy(hiCorner, idata->GetPointer(6*metadata_index + 4), 3*sizeof(int));
-          vtkAMRBox box;
-          box.SetDimensions(loCorner,hiCorner,description);
-          oamr->SetAMRBox(level, index, box);
-          }
-        }
-      idata->Delete();
-      ddata->Delete();
-      break;
-      }
     else
       {
-      vtkErrorMacro("Failed to read 'CHILD' or 'METADATA' line");
+      vtkErrorMacro("Failed to read 'CHILD' or 'AMRBOXES' line");
       return false;
       }
     }

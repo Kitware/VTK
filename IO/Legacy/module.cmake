@@ -6,4 +6,9 @@ vtk_module(vtkIOLegacy
     vtkCommonSystem
     vtkCommonMisc
     vtkIOCore
+  TEST_DEPENDS
+    vtkFiltersAMR
+    vtkInteractionStyle
+    vtkRenderingOpenGL
+    vtkTestingRendering
   )
