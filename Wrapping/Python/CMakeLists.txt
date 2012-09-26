@@ -127,7 +127,12 @@ if(APPLE)
       )
   endif()
 
-  set(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
+  if(VTK_USE_CARBON)
+    # MacOS python has a --enable-toolbox-glue option that is on by default,
+    # which adds the "-u _PyMac_Error" linker flag to force inclusion of some
+    # Carbon extension functions for Python.  It is irrelevant for Cocoa VTK.
+    set(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
+  endif()
 endif()
 
 # Link against all the kit wrappers.
