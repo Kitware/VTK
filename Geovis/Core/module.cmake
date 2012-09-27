@@ -13,5 +13,6 @@ vtk_module(vtkGeovisCore
     vtkViewsGeovis
     vtkViewsInfovis
     vtkRenderingCore
+    vtkRenderingFreeTypeOpenGL
     vtkTestingRendering
   )
