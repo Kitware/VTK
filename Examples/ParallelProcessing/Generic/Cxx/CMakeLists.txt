@@ -9,7 +9,11 @@ IF (VTK_USE_MPI)
 
   IF (VTK_USE_RENDERING)
     ADD_EXECUTABLE(ParallelIso ParallelIso.cxx)
-    TARGET_LINK_LIBRARIES(ParallelIso vtkParallel vtkHybrid ${MPI_C_LIBRARIES})
+    TARGET_LINK_LIBRARIES(ParallelIso vtkParallel vtkHybrid
+      ${MPI_C_LIBRARIES})
+    if (MPI_CXX_LIBRARIES)
+      TARGET_LINK_LIBRARIES(ParallelIso ${MPI_CXX_LIBRARIES})
+    endif()
     IF(APPLE AND VTK_USE_CARBON)
       TARGET_LINK_LIBRARIES(ParallelIso "-framework Carbon")
     ENDIF(APPLE AND VTK_USE_CARBON)
