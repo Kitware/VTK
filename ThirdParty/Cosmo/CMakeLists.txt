@@ -14,8 +14,8 @@ mark_as_advanced(VTK_COSMO_USE_MPI)
 SET(Cosmo_LIBS)
 if(VTK_COSMO_USE_MPI)
   find_package(MPI REQUIRED)
-  include_directories(${MPI_INCLUDE_PATH})
-  set(Cosmo_LIBS ${MPI_LIBRARIES})
+  include_directories(${MPI_C_INCLUDE_PATH})
+  set(Cosmo_LIBS ${MPI_C_LIBRARIES})
   add_definitions(-DMPICH_IGNORE_CXX_SEEK -DUSE_VTK_COSMO)
 else()
   add_definitions(-DUSE_SERIAL_COSMO -DUSE_VTK_COSMO)
@@ -41,7 +41,7 @@ SET(Cosmo_SOURCES
 INCLUDE_DIRECTORIES(${Cosmo_SOURCE_DIR} ${Cosmo_BINARY_DIR})
 
 VTK_ADD_LIBRARY(Cosmo ${Cosmo_SOURCES})
-TARGET_LINK_LIBRARIES(Cosmo ${vtkCommonCore_LIBRARIES} ${Cosmo_LIBS})
+TARGET_LINK_LIBRARIES(Cosmo ${vtkCommonCore_LIBRARIES} vtksys ${Cosmo_LIBS})
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES

@@ -26,7 +26,7 @@ mark_as_advanced(VTK_VPIC_USE_MPI)
 
 if(VTK_VPIC_USE_MPI)
   find_package(MPI REQUIRED)
-  include_directories(${MPI_INCLUDE_PATH})
+  include_directories(${MPI_C_INCLUDE_PATH})
   add_definitions("-DUSE_PARALLEL_VPIC -DMPICH_IGNORE_CXX_SEEK")
 endif()
 
@@ -35,7 +35,7 @@ INCLUDE_DIRECTORIES (${VPIC_SOURCE_DIR} ${VPIC_BINARY_DIR})
 VTK_ADD_LIBRARY(VPIC ${VPIC_SOURCES})
 target_link_libraries(VPIC vtksys)
 if(VTK_VPIC_USE_MPI)
-  target_link_libraries(VPIC ${MPI_LIBRARIES})
+  target_link_libraries(VPIC ${MPI_C_LIBRARIES})
 endif()
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
