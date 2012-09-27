@@ -740,14 +740,23 @@ void vtkMFIXReader::EnableAllCellArrays()
   this->CellDataArraySelection->EnableAllArrays();
 }
 
+#if !defined(VTK_LEGACY_REMOVE)
 //----------------------------------------------------------------------------
-void vtkMFIXReader::GetCellDataRange(int cellComp, int index,
+void vtkMFIXReader::GetCellDataRange(int cellComp, int /* index */,
      float *min, float *max)
 {
-  if (index >= this->VectorLength->GetValue(cellComp) || index < 0)
-    {
-    index = 0;  // if wrong index, set it to zero
-    }
+#if !defined(VTK_LEGACY_SILENT)
+  vtkGenericWarningMacro("vtkMFIXReader::GetCellDataRange with \"index\" was deprecated in VTK 6.0");
+#endif
+
+  *min = this->Minimum->GetValue(cellComp);
+  *max = this->Maximum->GetValue(cellComp);
+}
+#endif
+
+//----------------------------------------------------------------------------
+void vtkMFIXReader::GetCellDataRange(int cellComp, float *min, float *max)
+{
   *min = this->Minimum->GetValue(cellComp);
   *max = this->Maximum->GetValue(cellComp);
 }
