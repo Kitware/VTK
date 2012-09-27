@@ -1678,7 +1678,7 @@ vtkIdType vtkScalarsToColors::SetAnnotation(
   bool valid;
   vtkVariant val(value);
   double x;
-  x = val.ToNumeric(&valid, &x);
+  x = val.ToDouble(&valid);
   if (valid)
     {
     return this->SetAnnotation(x, annotation);
