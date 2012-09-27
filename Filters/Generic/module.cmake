@@ -8,6 +8,7 @@ vtk_module(vtkFiltersGeneric
     vtkIOXML
     vtkIOLegacy
     vtkRenderingOpenGL
+    vtkRenderingFreeTypeOpenGL
     vtkFiltersModeling
     vtkRenderingLabel
     vtkTestingRendering
