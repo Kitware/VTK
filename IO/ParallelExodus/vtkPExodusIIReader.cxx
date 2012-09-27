@@ -738,7 +738,7 @@ int vtkPExodusIIReader::RequestData(
     }
 
   // Append complains/barfs if you update it without any inputs
-  if (append->GetNumberOfInputConnections(0) == 0)
+  if (append->GetNumberOfInputConnections(0) != 0)
     {
     append->Update();
     output->ShallowCopy( append->GetOutput() );
