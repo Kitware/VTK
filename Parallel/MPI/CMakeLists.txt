@@ -79,3 +79,6 @@ set(${vtk-module}_EXPORT_CODE "#define VTK_USE_MPI")
 
 vtk_module_library(vtkParallelMPI ${Module_SRCS})
 target_link_libraries(vtkParallelMPI ${MPI_C_LIBRARIES})
+if (MPI_CXX_LIBRARIES)
+  target_link_libraries(vtkParallelMPI ${MPI_CXX_LIBRARIES})
+endif()
