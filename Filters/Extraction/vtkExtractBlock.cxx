@@ -87,9 +87,9 @@ void vtkExtractBlock::CopySubTree(vtkDataObjectTreeIterator* loc,
     vtkCompositeDataSet* coutput = vtkCompositeDataSet::SafeDownCast(
       output->GetDataSet(loc));
     vtkCompositeDataIterator* iter = cinput->NewIterator();
-    if(vtkDataObjectTreeIterator::SafeDownCast(iter))
+    vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
+    if(treeIter)
       {
-      vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
       treeIter->VisitOnlyLeavesOff();
       }
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
@@ -128,7 +128,7 @@ int vtkExtractBlock::RequestData(
   (*this->ActiveIndices) = (*this->Indices);
 
   // Copy selected blocks over to the output.
-  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(input->NewIterator());
+  vtkDataObjectTreeIterator* iter = input->NewTreeIterator();
   iter->VisitOnlyLeavesOff();
 
   for (iter->InitTraversal();
@@ -160,7 +160,7 @@ int vtkExtractBlock::RequestData(
   // processess, which is a big NO-NO. Hence, we first flag nodes based on
   // whether they are being pruned or not.
 
-  iter = vtkDataObjectTreeIterator::SafeDownCast(output->NewIterator());
+  iter = output->NewTreeIterator();
   iter->VisitOnlyLeavesOff();
   iter->SkipEmptyNodesOff();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())

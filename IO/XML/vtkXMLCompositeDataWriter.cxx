@@ -363,9 +363,9 @@ void vtkXMLCompositeDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
 {
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(hdInput->NewIterator());
-  if(vtkDataObjectTreeIterator::SafeDownCast(iter))
+  vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
+  if(treeIter)
     {
-    vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
     treeIter->VisitOnlyLeavesOn();
     treeIter->TraverseSubTreeOn();
     }
@@ -395,9 +395,9 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
 
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(hdInput->NewIterator());
-  if(vtkDataObjectTreeIterator::SafeDownCast(iter))
+  vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
+  if(treeIter)
     {
-    vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
     treeIter->VisitOnlyLeavesOn();
     treeIter->TraverseSubTreeOn();
     }

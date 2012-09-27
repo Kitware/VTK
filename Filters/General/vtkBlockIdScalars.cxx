@@ -60,7 +60,7 @@ int vtkBlockIdScalars::RequestData(
   unsigned int numBlocks = input->GetNumberOfBlocks();
   output->SetNumberOfBlocks(numBlocks);
 
-  vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(input->NewIterator());
+  vtkDataObjectTreeIterator* iter = input->NewTreeIterator();
   iter->TraverseSubTreeOff();
   iter->VisitOnlyLeavesOff();
 
