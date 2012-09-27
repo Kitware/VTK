@@ -1203,19 +1203,23 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
 }
 
 #if defined(VTK_HAS_ISINF)
+#ifndef __WRAP__ // Fixes bug 13443 for VTK 5.10
 //-----------------------------------------------------------------------------
 inline int vtkMath::IsInf(double x)
 {
   return (isinf(x) ? 1 : 0);
 }
 #endif
+#endif
 
 #if defined(VTK_HAS_ISNAN)
+#ifndef __WRAP__ // Fixes bug 13443 for VTK 5.10
 //-----------------------------------------------------------------------------
 inline int vtkMath::IsNan(double x)
 {
   return (isnan(x) ? 1 : 0);
 }
+#endif
 #endif
 
 #endif
