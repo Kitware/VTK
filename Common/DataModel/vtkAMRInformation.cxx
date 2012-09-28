@@ -225,7 +225,7 @@ bool vtkAMRInformation::Audit()
     }
 
   //check refinement levels
-  if(this->Refinement && static_cast<unsigned int>(this->Refinement->GetNumberOfTuples())!=this->GetNumberOfLevels())
+  if(this->HasRefinementRatio() && static_cast<unsigned int>(this->Refinement->GetNumberOfTuples())!=this->GetNumberOfLevels())
     {
     vtkErrorMacro("Refinement levels wrong "<< this->Refinement->GetNumberOfTuples());
     }
