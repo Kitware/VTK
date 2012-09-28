@@ -108,7 +108,10 @@ int TestXMLFileOutputWindow(int argc,char *argv[])
   specifiedXML[slen] = '\0';
 
   std::string def(defXML);
+  delete [] defXML;
   std::string specified(specifiedXML);
+  delete [] specifiedXML;
+
   if (def != specified)
     {
     std::cout << "The string in the default file ***********" << std::endl
