@@ -292,31 +292,40 @@ void vtkLookupTableLogRange(const double range[2], double logRange[2])
   double rmin = range[0];
   double rmax = range[1];
 
-  if (rmin == 0)
+  // does the range include zero?
+  if ((rmin <= 0 && rmax >= 0) ||
+      (rmin >= 0 && rmax <= 0))
     {
-    rmin = 1.0e-6*(rmax - rmin);
-    if (rmax < 0)
+    // clamp the smaller value to 1e-6 times the larger
+    if (fabs(rmax) >= fabs(rmin))
       {
-      rmin = -rmin;
+      rmin = rmax*1e-6;
+      }
+    else
+      {
+      rmax = rmin*1e-6;
+      }
+
+    // ensure values are not zero
+    if (rmax == 0)
+      {
+      rmax = (rmin < 0 ? -VTK_DBL_MIN : VTK_DBL_MIN);
+      }
+    if (rmin == 0)
+      {
+      rmin = (rmax < 0 ? -VTK_DBL_MIN : VTK_DBL_MIN);
       }
     }
-  if (rmax == 0)
+
+  if (rmax < 0) // rmin and rmax have same sign now
     {
-    rmax = 1.0e-6*(rmin - rmax);
-    if (rmin < 0)
-      {
-      rmax = -rmax;
-      }
+    logRange[0] = -log10(-rmin);
+    logRange[1] = -log10(-rmax);
     }
-  if (rmin < 0 && rmax < 0)
+  else
     {
-    logRange[0] = log10(-static_cast<double>(rmin));
-    logRange[1] = log10(-static_cast<double>(rmax));
-    }
-  else if (rmin > 0 && rmax > 0)
-    {
-    logRange[0] = log10(static_cast<double>(rmin));
-    logRange[1] = log10(static_cast<double>(rmax));
+    logRange[0] = log10(rmin);
+    logRange[1] = log10(rmax);
     }
 }
 
@@ -330,7 +339,7 @@ inline double vtkApplyLogScale(double v, const double range[2],
     {
     if (v < 0)
       {
-      v = log10(-static_cast<double>(v));
+      v = -log10(-v);
       }
     else if (range[0] > range[1])
       {
@@ -345,9 +354,9 @@ inline double vtkApplyLogScale(double v, const double range[2],
     {
     if (v > 0)
       {
-      v = log10(static_cast<double>(v));
+      v = log10(v);
       }
-    else if (range[0] < range[1])
+    else if (range[0] <= range[1])
       {
       v = logRange[0];
       }
@@ -425,7 +434,6 @@ double vtkLookupTable::ApplyLogScale(double v, const double range[2],
 
 //----------------------------------------------------------------------------
 // Given a scalar value v, return an index into the lookup table
-// TODO: Return -1 when isnan(v) is true.
 vtkIdType vtkLookupTable::GetIndex(double v)
 {
   if ( this->IndexedLookup )
