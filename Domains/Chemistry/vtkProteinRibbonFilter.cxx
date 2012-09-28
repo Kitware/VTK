@@ -136,8 +136,8 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
   char currentChain = 0;
   char ss = 0;
   vtkIdType currentResi = 0;
-  vtkVector3f currentCA;
-  vtkVector3f prevCO;
+  vtkVector3f currentCA(0.f);
+  vtkVector3f prevCO(0.f);
   bool hasPrevCO = false;
 
   vtkNew<vtkPoints> strandPoints;
@@ -345,7 +345,7 @@ void vtkProteinRibbonFilter::CreateThinStrip(vtkPolyData* poly,
   std::vector<vtkVector3f>* points1 = Subdivide(p1, this->SubdivideFactor);
   std::vector<vtkVector3f>* points2 = Subdivide(p2, this->SubdivideFactor);
 
-  const int len = points1->size();
+  int len = static_cast<int>(points1->size());
 
   // Insert smoothed ribbon borders points into the polydata
   for (int i = 0; i < len; i++)
