@@ -28,8 +28,9 @@ macro(vtk_module _name)
   set(${vtk-module}_EXCLUDE_FROM_ALL 0)
   set(${vtk-module}_EXCLUDE_FROM_WRAPPING 0)
   set(${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY 0)
+  set(${vtk-module}_TEST_LABELS "")
   foreach(arg ${ARGN})
-  if("${arg}" MATCHES "^((|COMPILE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|DEFAULT|GROUPS)$")
+  if("${arg}" MATCHES "^((|COMPILE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|DEFAULT|GROUPS|TEST_LABELS)$")
       set(_doing "${arg}")
     elseif("${arg}" MATCHES "^EXCLUDE_FROM_ALL$")
       set(_doing "")
@@ -46,6 +47,8 @@ macro(vtk_module _name)
       message(AUTHOR_WARNING "Unknown argument [${arg}]")
     elseif("${_doing}" MATCHES "^DEPENDS$")
       list(APPEND ${vtk-module}_DEPENDS "${arg}")
+    elseif("${_doing}" MATCHES "^TEST_LABELS$")
+      list(APPEND ${vtk-module}_TEST_LABELS "${arg}")
     elseif("${_doing}" MATCHES "^TEST_DEPENDS$")
       list(APPEND ${vtk-module-test}_DEPENDS "${arg}")
     elseif("${_doing}" MATCHES "^COMPILE_DEPENDS$")
@@ -480,6 +483,9 @@ VTK_AUTOINIT(${vtk-module})
       COMMAND ${PYTHON_EXECUTABLE} ${VTK_SOURCE_DIR}/Testing/Core/HeaderTesting.py
                                    ${CMAKE_CURRENT_SOURCE_DIR} ${MOD}_EXPORT
       )
+    set_tests_properties(${vtk-module}-HeaderTest
+      PROPERTIES LABELS "${${vtk-module}_TEST_LABELS}"
+      )
   endif()
 
   if(BUILD_TESTING AND TCL_TCLSH)
@@ -495,6 +501,12 @@ VTK_AUTOINIT(${vtk-module})
       COMMAND ${TCL_TCLSH}
       ${VTK_SOURCE_DIR}/Testing/Core/PrintSelfCheck.tcl
       ${${vtk-module}_SOURCE_DIR})
+    set_tests_properties(${vtk-module}-TestSetObjectMacro
+      PROPERTIES LABELS "${${vtk-module}_TEST_LABELS}"
+      )
+    set_tests_properties(${vtk-module}-TestPrintSelf
+      PROPERTIES LABELS "${${vtk-module}_TEST_LABELS}"
+      )
   endif()
 
   # Add the module to the list of wrapped modules if necessary

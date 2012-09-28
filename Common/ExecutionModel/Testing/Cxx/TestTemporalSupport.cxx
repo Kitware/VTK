@@ -146,7 +146,8 @@ public:
 private:
   vector<double> TimeSteps;
   bool HasTimeDependentData;
-
+  TestTimeSource(const TestTimeSource&);  // Not implemented.
+  void operator=(const TestTimeSource&);  // Not implemented.
 };
 vtkStandardNewMacro(TestTimeSource);
 
@@ -211,6 +212,8 @@ private:
   double StartTime;
   int TimeIndex;
   int TimeIterations;
+  TestTimeFilter(const TestTimeFilter&);  // Not implemented.
+  void operator=(const TestTimeFilter&);  // Not implemented.
 };
 vtkStandardNewMacro(TestTimeFilter);
 

@@ -1135,26 +1135,9 @@ void vtkAxis::GenerateLabelFormat(int notation, double n)
 }
 
 //-----------------------------------------------------------------------------
-double vtkAxis::CalculateNiceMinMax(double &min, double &max)
+double vtkAxis::NiceMinMax(double &min, double &max, float pixelRange,
+                           float tickPixelSpacing)
 {
-  double oldmin = min;
-  double oldmax = max;
-  this->LogScaleReasonable = false;
-  // We check if logaritmic scale seems reasonable.
-  if (this->LogScale)
-    {
-    this->LogScaleReasonable = ((max - min) >= log10(6.0));
-    }
-
-  // If logarithmic axis is activated and a logarithmic scale seems NOT
-  // reasonable we transform the min/max value.
-  // Thus the following code works for logarithmic axis with linear scale too.
-  if (this->LogScale && !this->LogScaleReasonable)
-    {
-    min = pow(double(10.0), double(min));
-    max = pow(double(10.0), double(max));
-    }
-
   // First get the order of the range of the numbers
   if (min == max)
     {
@@ -1185,18 +1168,7 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
 
   // Calculate an upper limit on the number of tick marks - at least 30 pixels
   // should be between each tick mark.
-  int maxTicks = 0;
-  if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::RIGHT
-      || this->Position == vtkAxis::PARALLEL)
-    {
-    float pixelRange = this->Position2.Y() - this->Position1.Y();
-    maxTicks = vtkContext2D::FloatToInt(pixelRange / 30.0f);
-    }
-  else
-    {
-    float pixelRange = this->Position2.X() - this->Position1.X();
-    maxTicks = vtkContext2D::FloatToInt(pixelRange / 45.0f);
-    }
+  int maxTicks = vtkContext2D::FloatToInt(pixelRange / tickPixelSpacing);
   if (maxTicks == 0)
     {
     // The axes do not have a valid set of points - return
@@ -1206,7 +1178,7 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
 
   int order = static_cast<int>(floor(log10(tickSpacing)));
   double normTickSpacing = tickSpacing * pow(double(10.0), -order);
-  double niceTickSpacing = this->NiceNumber(normTickSpacing, true);
+  double niceTickSpacing = vtkAxis::NiceNumber(normTickSpacing, true);
   niceTickSpacing *= pow(double(10.0), order);
 
   if (isNegative)
@@ -1219,6 +1191,47 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     min = floor(min / niceTickSpacing) * niceTickSpacing;
     max = ceil(max / niceTickSpacing) * niceTickSpacing;
     }
+
+  return niceTickSpacing;
+}
+
+//-----------------------------------------------------------------------------
+double vtkAxis::CalculateNiceMinMax(double &min, double &max)
+{
+  double oldmin = min;
+  double oldmax = max;
+  this->LogScaleReasonable = false;
+  // We check if logaritmic scale seems reasonable.
+  if (this->LogScale)
+    {
+    this->LogScaleReasonable = ((max - min) >= log10(6.0));
+    }
+
+  // If logarithmic axis is activated and a logarithmic scale seems NOT
+  // reasonable we transform the min/max value.
+  // Thus the following code works for logarithmic axis with linear scale too.
+  if (this->LogScale && !this->LogScaleReasonable)
+    {
+    min = pow(double(10.0), double(min));
+    max = pow(double(10.0), double(max));
+    }
+
+  float pixelRange = 0;
+  float tickPixelSpacing = 0;
+  if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::RIGHT
+      || this->Position == vtkAxis::PARALLEL)
+    {
+    pixelRange = this->Position2.Y() - this->Position1.Y();
+    tickPixelSpacing = 30;
+    }
+  else
+    {
+    pixelRange = this->Position2.X() - this->Position1.X();
+    tickPixelSpacing = 45;
+    }
+
+  double niceTickSpacing =
+    vtkAxis::NiceMinMax(min, max, pixelRange, tickPixelSpacing);
 
   // If logarithmic axis is activated and logarithmic scale is NOT reasonable
   // we transform the min/max and tick spacing
@@ -1243,6 +1256,7 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     // An exact number of ticks was requested, use the min/max and exact number.
     min = this->Minimum;
     max = this->Maximum;
+    double range = abs(max - min);
     return range / double(this->NumberOfTicks - 1);
     }
   else

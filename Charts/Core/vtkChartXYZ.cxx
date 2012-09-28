@@ -19,6 +19,7 @@
 #include "vtkAxis.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
+#include "vtkContextScene.h"
 #include "vtkTable.h"
 #include "vtkFloatArray.h"
 #include "vtkTransform.h"
@@ -37,92 +38,6 @@
 
 using std::vector;
 
-class vtkChartXYZ::Private
-{
-public:
-  Private() : angle(0), isX(false), init(false) {}
-
-  // Calculate the required transforms for the XYZ chart.
-  void CalculateTransforms();
-
-  vector<vtkVector3f> points;
-  vtkTimeStamp pointsBuidTime;
-  vector<vtkVector3f> selectedPoints;
-  vtkTimeStamp selectedPointsBuidTime;
-
-  vector< vtkSmartPointer<vtkAxis> > axes;
-  vtkNew<vtkTransform> Transform;
-  vtkNew<vtkTransform> Rotation;
-  vtkNew<vtkTransform> Box;
-  double angle;
-
-  vtkVector3f origin;
-  vtkVector3f other;
-  vtkVector3f xyz[3];
-
-  bool isX;
-  bool init;
-};
-
-inline void vtkChartXYZ::Private::CalculateTransforms()
-{
-  // First the rotation transform...
-  // Calculate the correct translation vector before the rotation is applied
-  vtkVector3f translation(
-        (axes[0]->GetPosition2()[0] - axes[0]->GetPosition1()[0]) / 2.0
-        + axes[0]->GetPosition1()[0],
-        (axes[1]->GetPosition2()[1] - axes[1]->GetPosition1()[1]) / 2.0
-        + axes[1]->GetPosition1()[1],
-        (axes[2]->GetPosition2()[1] - axes[2]->GetPosition1()[1]) / 2.0
-        + axes[2]->GetPosition1()[1]);
-  vtkVector3f mtranslation = -1.0 * translation;
-
-  this->Rotation->Identity();
-  this->Rotation->Translate(translation.GetData());
-  if (isX)
-    this->Rotation->RotateX(this->angle);
-  else
-    this->Rotation->RotateY(this->angle);
-
-  this->Rotation->Translate(mtranslation.GetData());
-  this->Rotation->Concatenate(this->Transform.GetPointer());
-
-
-  // Next the box rotation transform.
-  double scale[3] = { 300, 300, 300 };
-  for (int i = 0; i < 3; ++i)
-    {
-    if (i == 0)
-      scale[i] = axes[i]->GetPosition2()[0] - axes[i]->GetPosition1()[0];
-    else
-      scale[i] = axes[i]->GetPosition2()[1] - axes[i]->GetPosition1()[1];
-    }
-
-  this->Box->Identity();
-  this->Box->PostMultiply();
-  this->Box->Translate(-0.5, -0.5, -0.5);
-  if (isX)
-    this->Box->RotateX(this->angle);
-  else
-    this->Box->RotateY(this->angle);
-  this->Box->Translate(0.5, 0.5, 0.5);
-
-  this->Box->Scale(scale);
-
-  if (isX)
-    {
-    this->Box->Translate(axes[0]->GetPosition1()[0],
-                         axes[1]->GetPosition1()[1],
-                         axes[2]->GetPosition1()[1]);
-    }
-  else
-    {
-    this->Box->Translate(axes[0]->GetPosition1()[0],
-                         axes[1]->GetPosition1()[1],
-                         axes[2]->GetPosition1()[0]);
-    }
-}
-
 vtkStandardNewMacro(vtkChartXYZ)
 
 void vtkChartXYZ::PrintSelf(ostream &os, vtkIndent indent)
@@ -135,7 +50,7 @@ void vtkChartXYZ::Update()
   if (this->Link)
     {
     // Copy the row numbers so that we can do the highlight...
-    if (!d->points.empty())
+    if (!this->Points.empty())
       {
       vtkSelection *selection =
           vtkSelection::SafeDownCast(this->Link->GetOutputDataObject(2));
@@ -144,15 +59,15 @@ void vtkChartXYZ::Update()
         vtkSelectionNode *node = selection->GetNode(0);
         vtkIdTypeArray *idArray =
             vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-        if (d->selectedPointsBuidTime > idArray->GetMTime() ||
-            this->GetMTime() > d->selectedPointsBuidTime)
+        if (this->SelectedPointsBuildTime > idArray->GetMTime() ||
+            this->GetMTime() > this->SelectedPointsBuildTime)
           {
-          d->selectedPoints.resize(idArray->GetNumberOfTuples());
+          this->SelectedPoints.resize(idArray->GetNumberOfTuples());
           for (vtkIdType i = 0; i < idArray->GetNumberOfTuples(); ++i)
             {
-            d->selectedPoints[i] = d->points[idArray->GetValue(i)];
+            this->SelectedPoints[i] = this->Points[idArray->GetValue(i)];
             }
-          d->selectedPointsBuidTime.Modified();
+          this->SelectedPointsBuildTime.Modified();
           }
         }
       }
@@ -161,7 +76,7 @@ void vtkChartXYZ::Update()
 
 bool vtkChartXYZ::Paint(vtkContext2D *painter)
 {
-  if (!this->Visible || d->points.size() == 0)
+  if (!this->Visible || this->Points.size() == 0)
     return false;
 
   // Get the 3D context.
@@ -173,29 +88,29 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
   this->Update();
 
   // Calculate the transforms required for the current rotation.
-  d->CalculateTransforms();
+  this->CalculateTransforms();
 
   context->PushMatrix();
-  context->AppendTransform(d->Rotation.GetPointer());
+  context->AppendTransform(this->ContextTransform.GetPointer());
 
   // First lets draw the points in 3d.
   context->ApplyPen(this->Pen.GetPointer());
-  context->DrawPoints(d->points[0].GetData(),
-                      static_cast<int>(d->points.size()));
+  context->DrawPoints(this->Points[0].GetData(),
+                      static_cast<int>(this->Points.size()));
 
   // Now to render the selected points.
-  if (!d->selectedPoints.empty())
+  if (!this->SelectedPoints.empty())
     {
     context->ApplyPen(this->SelectedPen.GetPointer());
-    context->DrawPoints(d->selectedPoints[0].GetData(),
-                        static_cast<int>(d->selectedPoints.size()));
+    context->DrawPoints(this->SelectedPoints[0].GetData(),
+                        static_cast<int>(this->SelectedPoints.size()));
     }
 
   context->PopMatrix();
 
   // Now to draw the axes - pretty basic for now but could be extended.
   context->PushMatrix();
-  context->AppendTransform(d->Box.GetPointer());
+  context->AppendTransform(this->Box.GetPointer());
   context->ApplyPen(this->AxisPen.GetPointer());
 
   vtkVector3f box[4];
@@ -231,12 +146,12 @@ vtkPlot * vtkChartXYZ::AddPlot(int)
 
 void vtkChartXYZ::SetAngle(double angle)
 {
-  d->angle = angle;
+  this->Angle = angle;
 }
 
-void vtkChartXYZ::SetAroundX(bool isX)
+void vtkChartXYZ::SetAroundX(bool IsX_)
 {
-  d->isX = isX;
+  this->IsX = IsX_;
 }
 
 namespace
@@ -275,8 +190,8 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
          xArr->GetNumberOfTuples() == zArr->GetNumberOfTuples());
 
   size_t n = xArr->GetNumberOfTuples();
-  d->points.resize(n);
-  float *data = d->points[0].GetData();
+  this->Points.resize(n);
+  float *data = this->Points[0].GetData();
 
   switch(xArr->GetDataType())
     {
@@ -296,19 +211,19 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                                   static_cast<VTK_TT*>(zArr->GetVoidPointer(0)),
                                   2, n));
     }
-  d->pointsBuidTime.Modified();
+  this->PointsBuildTime.Modified();
 
   // Now set up the axes, and ranges...
-  d->axes.resize(3);
+  this->Axes.resize(3);
   vtkNew<vtkAxis> x;
-  d->axes[0] = x.GetPointer();
+  this->Axes[0] = x.GetPointer();
   x->SetPoint1(vtkVector2f(this->Geometry.X(),
                            this->Geometry.Y()));
   x->SetPoint2(vtkVector2f(this->Geometry.X() + this->Geometry.Width(),
                            this->Geometry.Y()));
 
   vtkNew<vtkAxis> y;
-  d->axes[1] = y.GetPointer();
+  this->Axes[1] = y.GetPointer();
   y->SetPoint1(vtkVector2f(this->Geometry.X(),
                            this->Geometry.Y()));
   y->SetPoint2(vtkVector2f(this->Geometry.X(),
@@ -316,10 +231,10 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
 
   // Z is faked, largely to get valid ranges and rounded numbers...
   vtkNew<vtkAxis> z;
-  d->axes[2] = z.GetPointer();
+  this->Axes[2] = z.GetPointer();
   z->SetPoint1(vtkVector2f(this->Geometry.X(),
                            0));
-  if (d->isX)
+  if (this->IsX)
     {
     z->SetPoint2(vtkVector2f(this->Geometry.X(),
                              this->Geometry.Height()));
@@ -333,20 +248,20 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
 
 void vtkChartXYZ::RecalculateTransform()
 {
-  this->CalculatePlotTransform(d->axes[0].GetPointer(),
-                               d->axes[1].GetPointer(),
-                               d->axes[2].GetPointer(),
-                               d->Transform.GetPointer());
+  this->CalculatePlotTransform(this->Axes[0].GetPointer(),
+                               this->Axes[1].GetPointer(),
+                               this->Axes[2].GetPointer(),
+                               this->Transform.GetPointer());
 }
 
 void vtkChartXYZ::RecalculateBounds()
 {
   // Need to calculate the bounds in three dimensions and set up the axes.
-  vector<vtkVector3f>::const_iterator it = d->points.begin();
+  vector<vtkVector3f>::const_iterator it = this->Points.begin();
   double bounds[] = { (*it).X(), (*it).X(),
                       (*it).Y(), (*it).Y(),
                       (*it).Z(), (*it).Z()};
-  for (++it; it != d->points.end(); ++it)
+  for (++it; it != this->Points.end(); ++it)
     {
     const vtkVector3f &v = *it;
     for (int i = 0; i < 3; ++i)
@@ -359,7 +274,7 @@ void vtkChartXYZ::RecalculateBounds()
     }
   for (int i = 0; i < 3; ++i)
     {
-    d->axes[i]->SetRange(&bounds[2*i]);
+    this->Axes[i]->SetRange(&bounds[2*i]);
     }
 }
 
@@ -375,28 +290,31 @@ void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *link)
 vtkAxis * vtkChartXYZ::GetAxis(int axis)
 {
   assert(axis >= 0 && axis < 3);
-  return d->axes[axis].GetPointer();
+  return this->Axes[axis].GetPointer();
 }
 
 void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)
 {
   this->Geometry = bounds;
+  this->Scene->SetGeometry(static_cast<int>(bounds.GetWidth()),
+                           static_cast<int>(bounds.GetHeight()));
 }
 
-vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), Link(NULL)
+vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), Link(NULL), Angle(0),
+  IsX(false)
 {
-  d = new Private;
   this->Pen->SetWidth(5);
   this->Pen->SetColor(0, 0, 0, 255);
   this->SelectedPen->SetWidth(6);
   this->SelectedPen->SetColor(255, 0, 0, 255);
   this->AxisPen->SetWidth(1);
   this->AxisPen->SetColor(0, 0, 0, 255);
+  this->Rotation->Identity();
+  this->Rotation->PostMultiply();
 }
 
 vtkChartXYZ::~vtkChartXYZ()
 {
-  delete d;
 }
 
 bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
@@ -439,4 +357,65 @@ bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
   transform->Translate(-x->GetMinimum(), -y->GetMinimum(), -z->GetMinimum());
 
   return true;
+}
+
+void vtkChartXYZ::CalculateTransforms()
+{
+  // First the rotation transform...
+  // Calculate the correct translation vector before the rotation is applied
+  vtkVector3f translation(
+        (Axes[0]->GetPosition2()[0] - Axes[0]->GetPosition1()[0]) / 2.0
+        + Axes[0]->GetPosition1()[0],
+        (Axes[1]->GetPosition2()[1] - Axes[1]->GetPosition1()[1]) / 2.0
+        + Axes[1]->GetPosition1()[1],
+        (Axes[2]->GetPosition2()[1] - Axes[2]->GetPosition1()[1]) / 2.0
+        + Axes[2]->GetPosition1()[1]);
+  vtkVector3f mtranslation = -1.0 * translation;
+
+  this->ContextTransform->Identity();
+  this->ContextTransform->Translate(translation.GetData());
+  this->ContextTransform->Concatenate(this->Rotation.GetPointer());
+  if (this->IsX)
+    this->ContextTransform->RotateX(this->Angle);
+  else
+    this->ContextTransform->RotateY(this->Angle);
+
+  this->ContextTransform->Translate(mtranslation.GetData());
+  this->ContextTransform->Concatenate(this->Transform.GetPointer());
+
+
+  // Next the box rotation transform.
+  double scale[3] = { 300, 300, 300 };
+  for (int i = 0; i < 3; ++i)
+    {
+    if (i == 0)
+      scale[i] = Axes[i]->GetPosition2()[0] - Axes[i]->GetPosition1()[0];
+    else
+      scale[i] = Axes[i]->GetPosition2()[1] - Axes[i]->GetPosition1()[1];
+    }
+
+  this->Box->Identity();
+  this->Box->PostMultiply();
+  this->Box->Translate(-0.5, -0.5, -0.5);
+  this->Box->Concatenate(this->Rotation.GetPointer());
+  if (this->IsX)
+    this->Box->RotateX(this->Angle);
+  else
+    this->Box->RotateY(this->Angle);
+  this->Box->Translate(0.5, 0.5, 0.5);
+
+  this->Box->Scale(scale);
+
+  if (this->IsX)
+    {
+    this->Box->Translate(Axes[0]->GetPosition1()[0],
+                         Axes[1]->GetPosition1()[1],
+                         Axes[2]->GetPosition1()[1]);
+    }
+  else
+    {
+    this->Box->Translate(Axes[0]->GetPosition1()[0],
+                         Axes[1]->GetPosition1()[1],
+                         Axes[2]->GetPosition1()[0]);
+    }
 }

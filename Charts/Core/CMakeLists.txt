@@ -16,6 +16,7 @@ set(Module_SRCS
   vtkCompositeTransferFunctionItem.cxx
   vtkContextPolygon.cxx
   vtkControlPointsItem.cxx
+  vtkInteractiveChartXYZ.cxx
   vtkLookupTableItem.cxx
   vtkPiecewiseControlPointsItem.cxx
   vtkPiecewiseFunctionItem.cxx

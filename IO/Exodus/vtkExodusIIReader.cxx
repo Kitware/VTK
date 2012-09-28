@@ -4544,7 +4544,7 @@ void vtkExodusIIReaderPrivate::SetInitialObjectStatus( int objectType, const cha
     {
     idx += 4;
     idlen = 0;
-    while(idx+idlen < nm.length() &&  nm.at(idx+idlen) != ' ' )
+    while(idx+idlen < static_cast<int>(nm.length()) &&  nm.at(idx+idlen) != ' ' )
       {
       idlen++;
       }

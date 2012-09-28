@@ -128,6 +128,12 @@ vtkMoleculeReaderBase::vtkMoleculeReaderBase()
   this->Points = NULL;
   this->RGB = NULL;
   this->Radii = NULL;
+  this->Chain = NULL;
+  this->Residue = NULL;
+  this->SecondaryStructures = NULL;
+  this->SecondaryStructuresBegin = NULL;
+  this->SecondaryStructuresEnd = NULL;
+  this->IsHetatm = NULL;
   this->NumberOfAtoms = 0;
 
   this->SetNumberOfInputPorts(0);
@@ -158,6 +164,30 @@ vtkMoleculeReaderBase::~vtkMoleculeReaderBase()
   if(this->Radii)
     {
     this->Radii->Delete();
+    }
+  if(this->Chain)
+    {
+    this->Chain->Delete();
+    }
+  if(this->Residue)
+    {
+    this->Residue->Delete();
+    }
+  if(this->SecondaryStructures)
+    {
+    this->SecondaryStructures->Delete();
+    }
+  if(this->SecondaryStructuresBegin)
+    {
+    this->SecondaryStructuresBegin->Delete();
+    }
+  if(this->SecondaryStructuresEnd)
+    {
+    this->SecondaryStructuresEnd->Delete();
+    }
+  if(this->IsHetatm)
+    {
+    this->IsHetatm->Delete();
     }
 }
 
@@ -220,6 +250,72 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
     }
   this->AtomTypeStrings->SetName("atom_types");
   output->GetPointData()->AddArray(this->AtomTypeStrings);
+
+  if(!this->Residue)
+    {
+    this->Residue = vtkIdTypeArray::New();
+    }
+  else
+    {
+    this->Residue->Reset();
+    }
+  this->Residue->SetName("residue");
+  output->GetPointData()->AddArray(this->Residue);
+
+  if(!this->Chain)
+    {
+    this->Chain = vtkUnsignedCharArray::New();
+    }
+  else
+    {
+    this->Chain->Reset();
+    }
+  this->Chain->SetName("chain");
+  output->GetPointData()->AddArray(this->Chain);
+
+  if(!this->SecondaryStructures)
+    {
+    this->SecondaryStructures = vtkUnsignedCharArray::New();
+    }
+  else
+    {
+    this->SecondaryStructures->Reset();
+    }
+  this->SecondaryStructures->SetName("secondary_structures");
+  output->GetPointData()->AddArray(this->SecondaryStructures);
+
+  if(!this->SecondaryStructuresBegin)
+    {
+    this->SecondaryStructuresBegin = vtkUnsignedCharArray::New();
+    }
+  else
+    {
+    this->SecondaryStructuresBegin->Reset();
+    }
+  this->SecondaryStructuresBegin->SetName("secondary_structures_begin");
+  output->GetPointData()->AddArray(this->SecondaryStructuresBegin);
+
+  if(!this->SecondaryStructuresEnd)
+    {
+    this->SecondaryStructuresEnd = vtkUnsignedCharArray::New();
+    }
+  else
+    {
+    this->SecondaryStructuresEnd->Reset();
+    }
+  this->SecondaryStructuresEnd->SetName("secondary_structures_end");
+  output->GetPointData()->AddArray(this->SecondaryStructuresEnd);
+
+  if(!this->IsHetatm)
+    {
+    this->IsHetatm = vtkUnsignedCharArray::New();
+    }
+  else
+    {
+    this->IsHetatm->Reset();
+    }
+  this->IsHetatm->SetName("ishetatm");
+  output->GetPointData()->AddArray(this->IsHetatm);
 
   if ( !this->Points )
     {

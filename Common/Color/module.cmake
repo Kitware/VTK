@@ -4,6 +4,7 @@ vtk_module(vtkCommonColor
   TEST_DEPENDS
     vtkIOImage
     vtkCommonExecutionModel
+    vtkRenderingOpenGL
     vtkTestingCore
     vtkTestingRendering
 )
