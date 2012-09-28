@@ -10,6 +10,19 @@ set(Module_SRCS
   vtkRungeKutta2.cxx
   vtkRungeKutta4.cxx
   vtkRungeKutta45.cxx
+
+  # Header only classes
+  vtkTuple.h
+  )
+
+set_source_files_properties(
+  vtkTuple
+  WRAP_EXCLUDE
+  )
+
+set_source_files_properties(
+  vtkTuple.h
+  PROPERTIES WRAP_SPECIAL 1
   )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
