@@ -59,6 +59,10 @@ public:
   virtual void StartLayoutAnimation(vtkRenderWindowInteractor *interactor);
   virtual void StopLayoutAnimation();
 
+  // Description:
+  // Incrementally updates the graph layout.
+  virtual void UpdateLayout();
+
 protected:
   vtkGraphItem();
   ~vtkGraphItem();
@@ -151,10 +155,6 @@ protected:
   // Returns the tooltip for each vertex. Override in a subclass to change the tooltip
   // text.
   virtual vtkStdString VertexTooltip(vtkIdType vertex);
-
-  // Description:
-  // Incrementally updates the graph layout.
-  virtual void UpdateLayout();
 
   // Description:
   // Process events and dispatch to the appropriate member functions.
