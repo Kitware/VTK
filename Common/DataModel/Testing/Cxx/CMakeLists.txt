@@ -18,6 +18,8 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
   TestPolygon.cxx
+  TestPolyhedron0.cxx
+  TestPolyhedron1.cxx
   TestSelectionSubtract.cxx
   TestTreeBFSIterator.cxx
   TestTreeDFSIterator.cxx
