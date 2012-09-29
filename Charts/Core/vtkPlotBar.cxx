@@ -95,7 +95,7 @@ struct vtkIndexedVector2f
 bool compVector3fX(const vtkIndexedVector2f& v1,
                    const vtkIndexedVector2f& v2)
 {
-  if (v1.pos.X() < v2.pos.X())
+  if (v1.pos.GetX() < v2.pos.GetX())
     {
     return true;
     }
@@ -247,7 +247,7 @@ class vtkPlotBarSegment : public vtkObject {
       vtkVector2f targetPoint(point);
       if (orientation == vtkPlotBar::HORIZONTAL)
         {
-        targetPoint.Set(point.Y(), point.X()); // Swap x and y
+        targetPoint.Set(point.GetY(), point.GetX()); // Swap x and y
         }
 
       this->CreateSortedPoints();
@@ -255,7 +255,7 @@ class vtkPlotBarSegment : public vtkObject {
       // Get the left-most bar we might hit
       vtkIndexedVector2f lowPoint;
       lowPoint.index = 0;
-      lowPoint.pos = vtkVector2f(targetPoint.X()-(offset * -1)-halfWidth, 0.0f);
+      lowPoint.pos = vtkVector2f(targetPoint.GetX()-(offset * -1)-halfWidth, 0.0f);
 
       // Set up our search array, use the STL lower_bound algorithm
       VectorPIMPL::iterator low;
@@ -265,19 +265,19 @@ class vtkPlotBarSegment : public vtkObject {
       while (low != v.end())
         {
         // Does the bar surround the point?
-        if (low->pos.X()-halfWidth-offset < targetPoint.X() &&
-            low->pos.X()+halfWidth-offset > targetPoint.X())
+        if (low->pos.GetX()-halfWidth-offset < targetPoint.GetX() &&
+            low->pos.GetX()+halfWidth-offset > targetPoint.GetX())
           {
           // Is the point within the vertical extent of the bar?
-          if ((targetPoint.Y() >= 0 && targetPoint.Y() < low->pos.Y()) ||
-              (targetPoint.Y() < 0 && targetPoint.Y() > low->pos.Y()))
+          if ((targetPoint.GetY() >= 0 && targetPoint.GetY() < low->pos.GetY()) ||
+              (targetPoint.GetY() < 0 && targetPoint.GetY() > low->pos.GetY()))
             {
             *location = low->pos;
             return low->index;
             }
           }
         // Is the left side of the bar beyond the point?
-        if (low->pos.X()-offset-halfWidth > targetPoint.X())
+        if (low->pos.GetX()-offset-halfWidth > targetPoint.GetX())
           {
           break;
           }
@@ -322,8 +322,8 @@ class vtkPlotBarSegment : public vtkObject {
       vtkVector2f targetMax(max);
       if (orientation == vtkPlotBar::HORIZONTAL)
         {
-        targetMin.Set(min.Y(), min.X());
-        targetMax.Set(max.Y(), max.X());
+        targetMin.Set(min.GetY(), min.GetX());
+        targetMax.Set(max.GetY(), max.GetX());
         }
 
       // The extent of any given bar is half a width on either
@@ -333,7 +333,7 @@ class vtkPlotBarSegment : public vtkObject {
       // Get the lowest X coordinate we might hit
       vtkIndexedVector2f lowPoint;
       lowPoint.index = 0;
-      lowPoint.pos = vtkVector2f(targetMin.X()-(offset * -1)-halfWidth, 0.0f);
+      lowPoint.pos = vtkVector2f(targetMin.GetX()-(offset * -1)-halfWidth, 0.0f);
 
       // Set up our search array, use the STL lower_bound algorithm
       VectorPIMPL::iterator low;
@@ -343,19 +343,19 @@ class vtkPlotBarSegment : public vtkObject {
       while (low != v.end())
         {
         // Is the bar's X coordinates at least partially within the box?
-        if (low->pos.X()+halfWidth-offset > targetMin.X() &&
-            low->pos.X()-halfWidth-offset < targetMax.X())
+        if (low->pos.GetX()+halfWidth-offset > targetMin.GetX() &&
+            low->pos.GetX()-halfWidth-offset < targetMax.GetX())
           {
           // Is the bar within the vertical extent of the box?
-          if ((targetMin.Y() > 0 && low->pos.Y() >= targetMin.Y()) ||
-              (targetMax.Y() < 0 && low->pos.Y() <= targetMax.Y()) ||
-              (targetMin.Y() < 0 && targetMax.Y() > 0))
+          if ((targetMin.GetY() > 0 && low->pos.GetY() >= targetMin.GetY()) ||
+              (targetMax.GetY() < 0 && low->pos.GetY() <= targetMax.GetY()) ||
+              (targetMin.GetY() < 0 && targetMax.GetY() > 0))
             {
             this->SelectionSet->insert(low->index);
             }
           }
         // Is the left side of the bar beyond the box?
-        if (low->pos.X()-offset-halfWidth > targetMax.X())
+        if (low->pos.GetX()-offset-halfWidth > targetMax.GetX())
           {
           break;
           }

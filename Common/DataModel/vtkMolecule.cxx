@@ -200,9 +200,9 @@ vtkVector3f vtkMolecule::GetAtomPosition(vtkIdType id)
 void vtkMolecule::GetAtomPosition(vtkIdType id, float pos[3])
 {
   vtkVector3f position = this->GetAtomPosition(id);
-  pos[0] = position.X();
-  pos[1] = position.Y();
-  pos[2] = position.Z();
+  pos[0] = position.GetX();
+  pos[1] = position.GetY();
+  pos[2] = position.GetZ();
 }
 
 //----------------------------------------------------------------------------

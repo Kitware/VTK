@@ -252,21 +252,21 @@ void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
   GLint vp[4] = { this->Storage->Offset.GetX(), this->Storage->Offset.GetY(),
                   this->Storage->Dim.GetX(), this->Storage->Dim.GetY()};
 
-  if (rect.X() > 0 && rect.X() < vp[2] )
+  if (rect.GetX() > 0 && rect.GetX() < vp[2] )
     {
-    vp[0] += rect.X();
+    vp[0] += rect.GetX();
     }
-  if (rect.Y() > 0 && rect.Y() < vp[3])
+  if (rect.GetY() > 0 && rect.GetY() < vp[3])
     {
-    vp[1] += rect.Y();
+    vp[1] += rect.GetY();
     }
-  if (rect.Width() > 0 && rect.Width() < vp[2])
+  if (rect.GetWidth() > 0 && rect.GetWidth() < vp[2])
     {
-    vp[2] = rect.Width();
+    vp[2] = rect.GetWidth();
     }
-  if (rect.Height() > 0 && rect.Height() < vp[3])
+  if (rect.GetHeight() > 0 && rect.GetHeight() < vp[3])
     {
-    vp[3] = rect.Height();
+    vp[3] = rect.GetHeight();
     }
 
   glScissor(vp[0], vp[1], vp[2], vp[3]);

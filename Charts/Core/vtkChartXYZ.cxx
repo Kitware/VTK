@@ -217,32 +217,32 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
   this->Axes.resize(3);
   vtkNew<vtkAxis> x;
   this->Axes[0] = x.GetPointer();
-  x->SetPoint1(vtkVector2f(this->Geometry.X(),
-                           this->Geometry.Y()));
-  x->SetPoint2(vtkVector2f(this->Geometry.X() + this->Geometry.Width(),
-                           this->Geometry.Y()));
+  x->SetPoint1(vtkVector2f(this->Geometry.GetX(),
+                           this->Geometry.GetY()));
+  x->SetPoint2(vtkVector2f(this->Geometry.GetX() + this->Geometry.GetWidth(),
+                           this->Geometry.GetY()));
 
   vtkNew<vtkAxis> y;
   this->Axes[1] = y.GetPointer();
-  y->SetPoint1(vtkVector2f(this->Geometry.X(),
-                           this->Geometry.Y()));
-  y->SetPoint2(vtkVector2f(this->Geometry.X(),
-                           this->Geometry.Y() + this->Geometry.Height()));
+  y->SetPoint1(vtkVector2f(this->Geometry.GetX(),
+                           this->Geometry.GetY()));
+  y->SetPoint2(vtkVector2f(this->Geometry.GetX(),
+                           this->Geometry.GetY() + this->Geometry.GetHeight()));
 
   // Z is faked, largely to get valid ranges and rounded numbers...
   vtkNew<vtkAxis> z;
   this->Axes[2] = z.GetPointer();
-  z->SetPoint1(vtkVector2f(this->Geometry.X(),
+  z->SetPoint1(vtkVector2f(this->Geometry.GetX(),
                            0));
   if (this->IsX)
     {
-    z->SetPoint2(vtkVector2f(this->Geometry.X(),
-                             this->Geometry.Height()));
+    z->SetPoint2(vtkVector2f(this->Geometry.GetX(),
+                             this->Geometry.GetHeight()));
     }
   else
     {
-    z->SetPoint2(vtkVector2f(this->Geometry.X(),
-                             this->Geometry.Width()));
+    z->SetPoint2(vtkVector2f(this->Geometry.GetX(),
+                             this->Geometry.GetWidth()));
     }
 }
 
@@ -258,9 +258,9 @@ void vtkChartXYZ::RecalculateBounds()
 {
   // Need to calculate the bounds in three dimensions and set up the axes.
   vector<vtkVector3f>::const_iterator it = this->Points.begin();
-  double bounds[] = { (*it).X(), (*it).X(),
-                      (*it).Y(), (*it).Y(),
-                      (*it).Z(), (*it).Z()};
+  double bounds[] = { (*it).GetX(), (*it).GetX(),
+                      (*it).GetY(), (*it).GetY(),
+                      (*it).GetZ(), (*it).GetZ()};
   for (++it; it != this->Points.end(); ++it)
     {
     const vtkVector3f &v = *it;
@@ -351,7 +351,7 @@ bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
   float zScale = (z->GetMaximum() - z->GetMinimum()) / (max[1] - min[1]);
 
   transform->Identity();
-  transform->Translate(this->Geometry.X(), this->Geometry.Y(), 0);
+  transform->Translate(this->Geometry.GetX(), this->Geometry.GetY(), 0);
   // Get the scale for the plot area from the x and y axes
   transform->Scale(1.0 / xScale, 1.0 / yScale, 1.0 / zScale);
   transform->Translate(-x->GetMinimum(), -y->GetMinimum(), -z->GetMinimum());

@@ -101,8 +101,8 @@ bool vtkChartPie::Paint(vtkContext2D *painter)
     this->SetBorders(20, 20, 20, 20);
     // Put the legend in the top corner of the chart
     vtkRectf rect = this->Legend->GetBoundingRect(painter);
-    this->Legend->SetPoint(this->Point2[0] - rect.Width(),
-                           this->Point2[1] - rect.Height());
+    this->Legend->SetPoint(this->Point2[0] - rect.GetWidth(),
+                           this->Point2[1] - rect.GetHeight());
 
     // Set the dimensions of the Plot
     if (this->Private->Plot)
@@ -269,7 +269,7 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
         {
         const char *label = this->Private->Plot->GetLabel(labelIndex);
         vtksys_ios::ostringstream ostr;
-        ostr << label << ": " << plotPos.X();
+        ostr << label << ": " << plotPos.GetX();
         this->Tooltip->SetText(ostr.str().c_str());
         this->Tooltip->SetPosition(mouse.GetScreenPos()[0] + 2,
                                    mouse.GetScreenPos()[1] + 2);
