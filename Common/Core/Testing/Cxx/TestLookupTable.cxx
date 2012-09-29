@@ -74,9 +74,9 @@ int TestLookupTable(int,char *[])
   TestAssert(table->GetIndex(hi-step) == 254);
 
   // log range test
-  lo = pow(10,lo);
-  hi = pow(10,hi);
-  step = pow(10,step);
+  lo = pow(10.0,lo);
+  hi = pow(10.0,hi);
+  step = pow(10.0,step);
   table->SetScaleToLog10();
   table->SetTableRange(lo,hi);
   TestAssert(table->GetIndex(lo) == 0);
