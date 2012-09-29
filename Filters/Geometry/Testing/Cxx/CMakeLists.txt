@@ -1,5 +1,6 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestExtractSurfaceNonLinearSubdivision.cxx
+  TestImageDataToUniformGrid.cxx
   TestProjectSphereFilter.cxx
   TestStructuredAMRNeighbor.cxx
   TestUniformGridGhostDataGenerator.cxx
