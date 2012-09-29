@@ -440,6 +440,22 @@ protected:
 
   int FlyMode;
 
+  // Expose internally closest axis index computation
+  int FindClosestAxisIndex(double pts[8][3]);
+
+  // Expose internally furthest axis index computation
+  int FindFurtherstAxisIndex(double pts[8][3]);
+
+  // Expose internally the boundary edge fly mode axis index computation
+  void FindBoundaryEdge(int &indexOfAxisX, int &indexOfAxisY, int &indexOfAxisZ,
+                        double pts[8][3]);
+
+  // Description:
+  // This will Update AxisActors with GridVisibility when those should be
+  // dynamaic regarding the viewport.
+  // GridLineLocation = [VTK_CLOSEST_GRID_LINES, VTK_FURTHEST_GRID_LINES]
+  void UpdateGridLineVisibility(int axisIndex);
+
   // VTK_ALL_GRID_LINES      0
   // VTK_CLOSEST_GRID_LINES  1
   // VTK_FURTHEST_GRID_LINES 2
