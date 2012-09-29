@@ -19,54 +19,6 @@
 // This set of operators enhance the vtkVector classes, allowing various
 // operator overloads one might expect.
 #include "vtkVector.h"
-#include "vtkIOStream.h"
-
-// Description:
-// Output the contents of a vector, mainly useful for debugging.
-template<typename A, int Size>
-ostream& operator<<(ostream& out, const vtkVector<A, Size>& v)
-{
-  out << "(";
-  bool first = true;
-  for (int i = 0; i < Size; ++i)
-    {
-    if (first)
-      {
-      first = false;
-      }
-    else
-      {
-      out << ", ";
-      }
-    out << v[i];
-    }
-  out << ")";
-  return out;
-}
-
-// Description:
-// Equality operator performs an equality check on each component.
-template<typename A, int Size>
-bool operator==(const vtkVector<A, Size>& v1, const vtkVector<A, Size>& v2)
-{
-  bool ret = true;
-  for (int i = 0; i < Size; ++i)
-    {
-    if (v1[i] != v2[i])
-      {
-      ret = false;
-      }
-    }
-  return ret;
-}
-
-// Description:
-// Inequality for vector type.
-template<typename A, int Size>
-bool operator!=(const vtkVector<A, Size>& v1, const vtkVector<A, Size>& v2)
-{
-  return !(v1 == v2);
-}
 
 // Description:
 // Performs addition of vectors of the same basic type.

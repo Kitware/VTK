@@ -89,6 +89,13 @@ int vtkDiscretizableColorTransferFunction::IsOpaque()
 //-----------------------------------------------------------------------------
 void vtkDiscretizableColorTransferFunction::Build()
 {
+  this->Superclass::Build();
+
+  this->LookupTable->SetVectorMode(this->VectorMode);
+  this->LookupTable->SetVectorComponent(this->VectorComponent);
+  this->LookupTable->SetIndexedLookup(this->IndexedLookup);
+  this->LookupTable->SetAnnotations( this->AnnotatedValues, this->Annotations );
+
   if ( this->IndexedLookup )
     {
     int nv = this->GetSize();
@@ -100,24 +107,19 @@ void vtkDiscretizableColorTransferFunction::Build()
       nodeVal[4] = 1.;
       this->LookupTable->SetTableValue( i, &nodeVal[1] );
       }
+    return;
     }
-  else
-    {
-    this->Superclass::Build();
-    }
-
-  this->LookupTable->SetVectorMode(this->VectorMode);
-  this->LookupTable->SetVectorComponent(this->VectorComponent);
-  this->LookupTable->SetIndexedLookup(this->IndexedLookup);
-  this->LookupTable->SetAnnotations( this->AnnotatedValues, this->Annotations );
 
   if (this->Discretize && (this->GetMTime() > this->BuildTime ||
       (this->ScalarOpacityFunction.GetPointer() &&
        this->ScalarOpacityFunction->GetMTime() > this->BuildTime)))
     {
+    // Do not omit the LookupTable->SetNumberOfTableValues call:
+    // WritePointer does not update the NumberOfColors ivar.
+    this->LookupTable->SetNumberOfTableValues(this->NumberOfValues);
     unsigned char* lut_ptr = this->LookupTable->WritePointer(0,
-      this->NumberOfValues);
-    double* table = new double[this->NumberOfValues*3];
+      this->NumberOfValues * 3);
+    double* table = new double[this->NumberOfValues * 3];
     double range[2];
     this->GetRange(range);
     bool logRangeValid = true;

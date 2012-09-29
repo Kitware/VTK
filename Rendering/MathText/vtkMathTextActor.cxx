@@ -101,7 +101,7 @@ bool vtkMathTextActor::RenderImage(vtkTextProperty *tprop,
 }
 
 // ----------------------------------------------------------------------------
-bool vtkMathTextActor::GetBoundingBox(vtkTextProperty *tprop,
+bool vtkMathTextActor::GetImageBoundingBox(vtkTextProperty *tprop,
                                       vtkViewport *viewport, int bbox[4])
 {
   vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();

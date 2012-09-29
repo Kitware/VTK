@@ -15,6 +15,7 @@
 #include "vtkTkImageViewerWidget.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTkInternals.h"
+#include "vtkVersionMacros.h"
 
 #ifdef _MSC_VER
  #pragma warning ( disable : 4273 )

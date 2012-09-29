@@ -226,12 +226,12 @@ IF (VTK_WRAP_TCL_FIND_LIBS)
     # The tcl library needs the math library on unix.
     SET(VTK_TCL_LIBRARIES ${VTK_TCL_LIBRARIES} m)
   ENDIF(UNIX)
-  IF(VTK_USE_TK AND TK_FOUND)
+  IF(TK_FOUND)
     SET(VTK_TK_LIBRARIES ${TK_LIBRARY} ${VTK_TCL_LIBRARIES})
     IF(TK_LIBRARY_DEBUG)
       SET(VTK_TK_LIBRARIES optimized ${TK_LIBRARY} debug ${TK_LIBRARY_DEBUG} ${VTK_TCL_LIBRARIES})
     ENDIF(TK_LIBRARY_DEBUG)
-  ENDIF(VTK_USE_TK AND TK_FOUND)
+  ENDIF(TK_FOUND)
   INCLUDE(${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake)
   # Hide useless settings provided by FindTCL.
   FOREACH(entry

@@ -10,7 +10,7 @@
 
 #include <windows.h>
 
-#include "vtkConfigure.h"
+#include "vtkTkAppInitConfigure.h"
 
 #if defined(VTK_USE_TK) && defined(VTK_TCL_TK_STATIC)
 #include "tk_base.rc"

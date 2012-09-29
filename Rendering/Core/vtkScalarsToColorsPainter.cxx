@@ -408,6 +408,16 @@ int vtkScalarsToColorsPainter::CanUseTextureMapForColoring(vtkDataObject* input)
     iter->Delete();
     }
 
+  if (
+    (this->ScalarsLookupTable &&
+     this->ScalarsLookupTable->GetIndexedLookup()) ||
+    (!this->ScalarsLookupTable &&
+     this->LookupTable &&
+     this->LookupTable->GetIndexedLookup()))
+    {
+    return 0;
+    }
+
   return 1;
 }
 

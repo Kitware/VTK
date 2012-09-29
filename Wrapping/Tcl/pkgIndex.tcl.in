@@ -27,6 +27,8 @@ package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
     foreach kit { base @VTK_TCL_WRAPPED_MODULES@ } {
       lappend kits [string tolower "${kit}"]
     }
+    # Append the vtkTkRenderWidget if it was built
+    #lappend kits renderingtcltkwidgets
   }
   package provide vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
 }
@@ -43,6 +45,17 @@ foreach kit { @VTK_TCL_WRAPPED_MODULES@ } {
     }
   "
 }
+
+package ifneeded "vtkRenderingTclTkWidgets" {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} "
+package require -exact vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
+::vtk::init::load_library_package {vtkRenderingTclTkWidgets} {@VTK_TCL_LIBRARY_DIR@}
+"
+package ifneeded "[string tolower vtkRenderingTclTkWidgets]" {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} "
+package require -exact vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
+if {\[catch {source \[file join {@VTK_TCL_SCRIPT_DIR@} {[string tolower vtkRenderingTclTkWidgets]} {[string tolower vtkRenderingTclTkWidgets].tcl}\]} errorMessage\]} {
+  puts \$errorMessage
+}
+"
 
 foreach src {vtk vtkbase vtkinteraction vtktesting} {
   package ifneeded ${src} {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} "

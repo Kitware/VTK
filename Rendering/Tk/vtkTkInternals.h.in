@@ -16,6 +16,8 @@
 #ifndef __vtkTkInternals_h
 #define __vtkTkInternals_h
 
+#include "vtkRenderingOpenGLConfigure.h" // for COCOA, CARBON, X11, WIN32
+
 #cmakedefine HAVE_LIMITS_H
 #cmakedefine HAVE_UNISTD_H
 
