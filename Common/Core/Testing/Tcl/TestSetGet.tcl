@@ -31,6 +31,9 @@ vtkScalarsToColorsPainter-GetTextureSizeLimit
 vtkStructuredGridConnectivity-GetNumberOfGrids
 vtkPStructuredGridConnectivity-GetNumberOfGrids
 vtkMesaScalarsToColorsPainter-GetTextureSizeLimit
+vtkDataObjectTreeIterator-GetCurrentDataObject
+vtkDataObjectTreeIterator-GetCurrentMetaData
+vtkDataObjectTreeIterator-GetCurrentFlatIndex
 }
 
 proc TestOne {cname} {
@@ -105,6 +108,12 @@ set classExceptions {
    vtkWin32OutputWindow
    vtkWin32ProcessOutputWindow
    vtkXMLFileOutputWindow
+   vtkHierarchicalBoxDataIterator
+   vtkHierarchicalBoxDataSet
+   vtkNonOverlappingAMR
+   vtkOverlappingAMR
+   vtkStructuredAMRGridConnectivity
+   vtkUniformGridAMRDataIterator
 }
 
 proc rtSetGetTest { fileid } {
