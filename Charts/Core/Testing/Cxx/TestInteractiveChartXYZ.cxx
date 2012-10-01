@@ -71,6 +71,7 @@ int TestInteractiveChartXYZ(int , char * [])
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
+  view->GetRenderWindow()->Render();
 
   vtkContextMouseEvent mouseEvent;
   mouseEvent.SetInteractor(view->GetInteractor());
