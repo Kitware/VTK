@@ -50,7 +50,7 @@ void vtkGL2PSContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   // Only draw the quad if custom colors are defined or alpha is non-zero.
   // Postscript can't handle transparency, and the resulting output will have
   // a border around every quad otherwise.
-  if ((colors || this->Pen->GetColorObject().Alpha() != 0) &&
+  if ((colors || this->Pen->GetColorObject().GetAlpha() != 0) &&
       this->Pen->GetLineType() != vtkPen::NO_PEN)
     {
     this->Superclass::DrawPoly(f, n, colors, nc_comps);
@@ -61,7 +61,7 @@ void vtkGL2PSContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
 void vtkGL2PSContextDevice2D::DrawPoints(float *points, int n,
                                          unsigned char *colors, int nc_comps)
 {
-  if (colors || this->Pen->GetColorObject().Alpha() != 0)
+  if (colors || this->Pen->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawPoints(points, n, colors, nc_comps);
     }
@@ -73,7 +73,7 @@ void vtkGL2PSContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                                                unsigned char *colors,
                                                int nc_comps)
 {
-  if (colors || this->Pen->GetColorObject().Alpha() != 0)
+  if (colors || this->Pen->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawPointSprites(sprite, points, n, colors, nc_comps);
     }
@@ -82,7 +82,7 @@ void vtkGL2PSContextDevice2D::DrawPointSprites(vtkImageData *sprite,
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawQuad(float *points, int n)
 {
-  if (this->Brush->GetColorObject().Alpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawQuad(points, n);
     }
@@ -91,7 +91,7 @@ void vtkGL2PSContextDevice2D::DrawQuad(float *points, int n)
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawQuadStrip(float *points, int n)
 {
-  if (this->Brush->GetColorObject().Alpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawQuadStrip(points, n);
     }
@@ -100,7 +100,7 @@ void vtkGL2PSContextDevice2D::DrawQuadStrip(float *points, int n)
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawPolygon(float *points, int n)
 {
-  if (this->Brush->GetColorObject().Alpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawPolygon(points, n);
     }
@@ -112,7 +112,7 @@ void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
                                                float inRx, float inRy,
                                                float startAngle, float stopAngle)
 {
-  if (this->Brush->GetColorObject().Alpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawEllipseWedge(x, y, outRx, outRy, inRx, inRy,
                                        startAngle, stopAngle);
@@ -124,7 +124,7 @@ void vtkGL2PSContextDevice2D::DrawEllipticArc(float x, float y,
                                               float rX, float rY,
                                               float startAngle, float stopAngle)
 {
-  if (this->Brush->GetColorObject().Alpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawEllipticArc(x, y, rX, rY, startAngle, stopAngle);
     }

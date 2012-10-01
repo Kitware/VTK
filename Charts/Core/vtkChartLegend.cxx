@@ -124,8 +124,8 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
   // Now draw a box for the legend.
   painter->ApplyPen(this->Pen.GetPointer());
   painter->ApplyBrush(this->Brush.GetPointer());
-  painter->DrawRect(this->Rect.X(), this->Rect.Y(),
-                    this->Rect.Width(), this->Rect.Height());
+  painter->DrawRect(this->Rect.GetX(), this->Rect.GetY(),
+                    this->Rect.GetWidth(), this->Rect.GetHeight());
 
   painter->ApplyTextProp(this->LabelProperties.GetPointer());
 
@@ -135,9 +135,9 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
   painter->ComputeStringBounds("The", stringBounds->GetData());
   float baseHeight = stringBounds[1].GetY();
 
-  vtkVector2f pos(this->Rect.X() + this->Padding + this->SymbolWidth,
-                  this->Rect.Y() + this->Rect.Height() - this->Padding - floor(height));
-  vtkRectf rect(this->Rect.X() + this->Padding, pos.Y(),
+  vtkVector2f pos(this->Rect.GetX() + this->Padding + this->SymbolWidth,
+                  this->Rect.GetY() + this->Rect.GetHeight() - this->Padding - floor(height));
+  vtkRectf rect(this->Rect.GetX() + this->Padding, pos.GetY(),
                this->SymbolWidth-3, ceil(height));
 
   // Draw all of the legend labels and marks
@@ -155,12 +155,12 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
       vtkStdString testString = labels->GetValue(l);
       testString += "T";
       painter->ComputeStringBounds(testString, stringBounds->GetData());
-      painter->DrawString(pos.X(), rect.Y() + (baseHeight-stringBounds[1].Y()),
+      painter->DrawString(pos.GetX(), rect.GetY() + (baseHeight-stringBounds[1].GetY()),
                           labels->GetValue(l));
 
       // Paint the legend mark and increment out y value.
       this->Storage->ActivePlots[i]->PaintLegend(painter, rect, l);
-      rect.SetY(rect.Y() - height - this->Padding);
+      rect.SetY(rect.GetY() - height - this->Padding);
       }
     }
 
@@ -191,9 +191,9 @@ vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D *painter)
       {
       painter->ComputeStringBounds(labels->GetValue(l),
                                    stringBounds->GetData());
-      if (stringBounds[1].X() > maxWidth)
+      if (stringBounds[1].GetX() > maxWidth)
         {
-        maxWidth = stringBounds[1].X();
+        maxWidth = stringBounds[1].GetX();
         }
       }
     }
@@ -206,8 +206,8 @@ vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D *painter)
     }
 
   // Default point placement is bottom left.
-  this->Rect = vtkRectf(floor(this->Storage->Point.X()),
-                        floor(this->Storage->Point.Y()),
+  this->Rect = vtkRectf(floor(this->Storage->Point.GetX()),
+                        floor(this->Storage->Point.GetY()),
                         ceil(maxWidth + 2 * this->Padding + this->SymbolWidth),
                         ceil((numLabels * (height + this->Padding)) + this->Padding));
 
@@ -281,10 +281,10 @@ vtkChart* vtkChartLegend::GetChart()
 //-----------------------------------------------------------------------------
 bool vtkChartLegend::Hit(const vtkContextMouseEvent &mouse)
 {
-  if (this->DragEnabled && mouse.GetScreenPos().X() > this->Rect.X() &&
-      mouse.GetScreenPos().X() < this->Rect.X() + this->Rect.Width() &&
-      mouse.GetScreenPos().Y() > this->Rect.Y() &&
-      mouse.GetScreenPos().Y() < this->Rect.Y() + this->Rect.Height())
+  if (this->DragEnabled && mouse.GetScreenPos().GetX() > this->Rect.GetX() &&
+      mouse.GetScreenPos().GetX() < this->Rect.GetX() + this->Rect.GetWidth() &&
+      mouse.GetScreenPos().GetY() > this->Rect.GetY() &&
+      mouse.GetScreenPos().GetY() < this->Rect.GetY() + this->Rect.GetHeight())
     {
     return true;
     }

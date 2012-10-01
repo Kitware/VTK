@@ -1094,8 +1094,8 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->ContextTransform->Concatenate(this->Scale.GetPointer());
   this->ContextTransform->Translate(mtranslation.GetData());
   this->ContextTransform->Translate(
-    this->Axes[0]->GetPosition1()[0] - this->Geometry.X(),
-    this->Axes[1]->GetPosition1()[1] - this->Geometry.Y(),
+    this->Axes[0]->GetPosition1()[0] - this->Geometry.GetX(),
+    this->Axes[1]->GetPosition1()[1] - this->Geometry.GetY(),
     this->Axes[2]->GetPosition1()[1]);
   this->ContextTransform->Concatenate(this->Transform.GetPointer());
 

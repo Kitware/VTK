@@ -92,10 +92,10 @@ vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2f &plotPos,
       switch (format[i])
         {
         case 'x':
-          tooltipLabel += this->GetNumber(plotPos.X(), this->XAxis);
+          tooltipLabel += this->GetNumber(plotPos.GetX(), this->XAxis);
           break;
         case 'y':
-          tooltipLabel += this->GetNumber(plotPos.Y(), this->YAxis);
+          tooltipLabel += this->GetNumber(plotPos.GetY(), this->YAxis);
           break;
         case 'i':
           if (this->IndexedLabels &&

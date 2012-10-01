@@ -446,7 +446,7 @@ namespace
 bool compVector3fX(const vtkIndexedVector2f& v1,
                    const vtkIndexedVector2f& v2)
 {
-  if (v1.pos.X() < v2.pos.X())
+  if (v1.pos.GetX() < v2.pos.GetX())
     {
     return true;
     }
@@ -460,8 +460,8 @@ bool compVector3fX(const vtkIndexedVector2f& v1,
 bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
              const vtkVector2f& current)
 {
-  if (current.X() > point.X() - tol.X() && current.X() < point.X() + tol.X() &&
-      current.Y() > point.Y() - tol.Y() && current.Y() < point.Y() + tol.Y())
+  if (current.GetX() > point.GetX() - tol.GetX() && current.GetX() < point.GetX() + tol.GetX() &&
+      current.GetY() > point.GetY() - tol.GetY() && current.GetY() < point.GetY() + tol.GetY())
     {
     return true;
     }
@@ -506,11 +506,11 @@ vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
   // Get the lowest point we might hit within the supplied tolerance
   vtkIndexedVector2f lowPoint;
   lowPoint.index = 0;
-  lowPoint.pos = vtkVector2f(point.X()-tol.X(), 0.0f);
+  lowPoint.pos = vtkVector2f(point.GetX()-tol.GetX(), 0.0f);
   low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
 
   // Now consider the y axis
-  float highX = point.X() + tol.X();
+  float highX = point.GetX() + tol.GetX();
   while (low != v.end())
     {
     if (inRange(point, tol, (*low).pos))
@@ -518,7 +518,7 @@ vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
       *location = (*low).pos;
       return static_cast<int>((*low).index);
       }
-    else if (low->pos.X() > highX)
+    else if (low->pos.GetX() > highX)
       {
       break;
       }
@@ -557,12 +557,12 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
   // Iterate until we are out of range in X
   while (low != v.end())
     {
-      if (low->pos.X() >= min.X() && low->pos.X() <= max.X() &&
-          low->pos.Y() >= min.Y() && low->pos.Y() <= max.Y())
+      if (low->pos.GetX() >= min.GetX() && low->pos.GetX() <= max.GetX() &&
+          low->pos.GetY() >= min.GetY() && low->pos.GetY() <= max.GetY())
         {
         selected.push_back(low->index);
         }
-      else if (low->pos.X() > max.X())
+      else if (low->pos.GetX() > max.GetX())
         {
         break;
         }
@@ -855,16 +855,16 @@ void vtkPlotPoints::CalculateBounds(double bounds[4])
   vtkVector2f* pts = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
 
   // Initialize our min/max
-  bounds[0] = bounds[1] = pts[start].X();
-  bounds[2] = bounds[3] = pts[start++].Y();
+  bounds[0] = bounds[1] = pts[start].GetX();
+  bounds[2] = bounds[3] = pts[start++].GetY();
 
   while (start < nPoints)
     {
     // Calculate the min/max in this range
     while (start < end)
       {
-      float x = pts[start].X();
-      float y = pts[start++].Y();
+      float x = pts[start].GetX();
+      float y = pts[start++].GetY();
       if (x < bounds[0])
         {
         bounds[0] = x;
