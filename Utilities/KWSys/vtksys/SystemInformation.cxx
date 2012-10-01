@@ -10,6 +10,9 @@
   See the License for more information.
 ============================================================================*/
 #ifdef _WIN32
+# if !defined(_WIN32_WINNT) && !(defined(_MSC_VER) && _MSC_VER < 1300)
+#  define _WIN32_WINNT 0x0501
+# endif
 # include <winsock.h> // WSADATA, include before sys/types.h
 #endif
 
@@ -49,60 +52,56 @@
 # include "kwsys_ios_fstream.h.in"
 #endif
 
-#ifndef WIN32
-# include <sys/utsname.h> // int uname(struct utsname *buf);
-#endif
-
 #if defined(_WIN32)
 # include <windows.h>
-# include <psapi.h>
-#if !defined(siginfo_t)
+# if defined(KWSYS_SYS_HAS_PSAPI)
+#  include <psapi.h>
+# endif
+# if !defined(siginfo_t)
 typedef int siginfo_t;
-#endif
+# endif
+#else
+# include <sys/types.h>
+# include <sys/time.h>
+# include <sys/utsname.h> // int uname(struct utsname *buf);
+# include <unistd.h>
+# include <signal.h>
+# include <fcntl.h>
+# include <errno.h> // extern int errno;
 #endif
 
 #ifdef __APPLE__
 #include <sys/sysctl.h>
-#include <sys/types.h>
 #include <mach/vm_statistics.h>
 #include <mach/host_info.h>
 #include <mach/mach.h>
 #include <mach/mach_types.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
 #include <fenv.h>
-#include <signal.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <sys/types.h>
-#include <ifaddrs.h>
 #include <netinet/in.h>
-#if defined(__GNUG__)
-#include <execinfo.h>
-#endif
+# if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__-0 >= 1050
+#  include <execinfo.h>
+#  define KWSYS_SYSTEMINFORMATION_HAVE_BACKTRACE
+# endif
 #endif
 
 #ifdef __linux
-# include <sys/types.h>
-# include <unistd.h>
-# include <fcntl.h>
-# include <ctype.h> // int isdigit(int c);
-# include <errno.h> // extern int errno;
-# include <sys/time.h>
 # include <fenv.h>
-# include <signal.h>
 # include <sys/socket.h>
 # include <netdb.h>
-# include <sys/types.h>
-# include <ifaddrs.h>
 # include <netinet/in.h>
-#if defined(__GNUG__)
-#include <execinfo.h>
-#endif
+# if defined(__GNUG__)
+#  include <execinfo.h>
+#  define KWSYS_SYSTEMINFORMATION_HAVE_BACKTRACE
+# endif
 #elif defined( __hpux )
 # include <sys/param.h>
 # include <sys/pstat.h>
+#endif
+
+#if defined(KWSYS_SYS_HAS_IFADDRS_H)
+# include <ifaddrs.h>
 #endif
 
 #ifdef __HAIKU__
@@ -113,18 +112,12 @@ typedef int siginfo_t;
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h> // int isdigit(int c);
 
 namespace KWSYS_NAMESPACE
 {
 
-// Create longlong
-#if KWSYS_USE_LONG_LONG
-  typedef long long LongLong;
-#elif KWSYS_USE___INT64
-  typedef __int64 LongLong;
-#else
-# error "No Long Long"
-#endif
+extern "C" { typedef void (*SigAction)(int,siginfo_t*,void*); }
 
 //  Define SystemInformationImplementation class
 typedef  void (*DELAY_FUNC)(unsigned int uiMS);
@@ -132,6 +125,7 @@ typedef  void (*DELAY_FUNC)(unsigned int uiMS);
 class SystemInformationImplementation
 {
 public:
+  typedef SystemInformation::LongLong LongLong;
   SystemInformationImplementation ();
   ~SystemInformationImplementation ();
 
@@ -171,11 +165,11 @@ public:
   size_t GetTotalPhysicalMemory();
   size_t GetAvailablePhysicalMemory();
 
-  long long GetProcessId();
+  LongLong GetProcessId();
 
   // Retrieve memory information in kib
-  long long GetMemoryTotal();
-  long long GetMemoryUsed();
+  LongLong GetMemoryTotal();
+  LongLong GetMemoryUsed();
 
   // enable/disable stack trace signal handler.
   static
@@ -571,17 +565,17 @@ kwsys_stl::string SystemInformation::GetMemoryDescription()
 }
 
 // Get total system RAM in units of KiB.
-long long SystemInformation::GetMemoryTotal()
+SystemInformation::LongLong SystemInformation::GetMemoryTotal()
 {
   return this->Implementation->GetMemoryTotal();
 }
 
-long long SystemInformation::GetMemoryUsed()
+SystemInformation::LongLong SystemInformation::GetMemoryUsed()
 {
   return this->Implementation->GetMemoryUsed();
 }
 
-long long SystemInformation::GetProcessId()
+SystemInformation::LongLong SystemInformation::GetProcessId()
 {
   return this->Implementation->GetProcessId();
 }
@@ -761,13 +755,17 @@ void StacktraceSignalHandler(
       kwsys_ios::cerr << "Caught SIGFPE ";
       switch (sigInfo->si_code)
         {
+# if defined(FPE_INTDIV)
         case FPE_INTDIV:
           kwsys_ios::cerr << "integer division by zero";
           break;
+# endif
 
+# if defined(FPE_INTOVF)
         case FPE_INTOVF:
           kwsys_ios::cerr << "integer overflow";
           break;
+# endif
 
         case FPE_FLTDIV:
           kwsys_ios::cerr << "floating point divide by zero";
@@ -789,9 +787,11 @@ void StacktraceSignalHandler(
           kwsys_ios::cerr << "floating point invalid operation";
           break;
 
+#if defined(FPE_FLTSUB)
         case FPE_FLTSUB:
           kwsys_ios::cerr << "floating point subscript out of range";
           break;
+#endif
 
         default:
           kwsys_ios::cerr << "code " << sigInfo->si_code;
@@ -833,13 +833,17 @@ void StacktraceSignalHandler(
           kwsys_ios::cerr << "invalid address alignment";
           break;
 
+# if defined(BUS_ADRERR)
         case BUS_ADRERR:
           kwsys_ios::cerr << "non-exestent physical address";
           break;
+# endif
 
+# if defined(BUS_OBJERR)
         case BUS_OBJERR:
           kwsys_ios::cerr << "object specific hardware error";
           break;
+# endif
 
         default:
           kwsys_ios::cerr << "code " << sigInfo->si_code;
@@ -855,13 +859,17 @@ void StacktraceSignalHandler(
           kwsys_ios::cerr << "illegal opcode";
           break;
 
+# if defined(ILL_ILLOPN)
         case ILL_ILLOPN:
           kwsys_ios::cerr << "illegal operand";
           break;
+# endif
 
+# if defined(ILL_ILLADR)
         case ILL_ILLADR:
           kwsys_ios::cerr << "illegal addressing mode.";
           break;
+# endif
 
         case ILL_ILLTRP:
           kwsys_ios::cerr << "illegal trap";
@@ -870,17 +878,23 @@ void StacktraceSignalHandler(
           kwsys_ios::cerr << "privileged opcode";
           break;
 
+# if defined(ILL_PRVREG)
         case ILL_PRVREG:
           kwsys_ios::cerr << "privileged register";
           break;
+# endif
 
+# if defined(ILL_COPROC)
         case ILL_COPROC:
           kwsys_ios::cerr << "co-processor error";
           break;
+# endif
 
+# if defined(ILL_BADSTK)
         case ILL_BADSTK:
           kwsys_ios::cerr << "internal stack error";
           break;
+# endif
 
         default:
           kwsys_ios::cerr << "code " << sigInfo->si_code;
@@ -894,7 +908,7 @@ void StacktraceSignalHandler(
     }
   kwsys_ios::cerr << kwsys_ios::endl;
 
-#if defined(__GNUG__)
+#if defined(KWSYS_SYSTEMINFORMATION_HAVE_BACKTRACE)
   kwsys_ios::cerr << "Stack:" << kwsys_ios::endl;
   void *stack[128];
   int n=backtrace(stack,128);
@@ -1040,12 +1054,11 @@ const char* SystemInformationImplementation::GetHostname()
 int SystemInformationImplementation::GetFullyQualifiedDomainName(
       kwsys_stl::string &fqdn)
 {
-  int ierr=0;
-
   // in the event of absolute failure return localhost.
   fqdn="localhost";
 
-#if defined(_WIN32) && defined(_MSC_VER)
+#if defined(_WIN32)
+  int ierr;
   // TODO - a more robust implementation for windows, see comments
   // in unix implementation.
   WSADATA wsaData;
@@ -1074,19 +1087,14 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
   WSACleanup();
   return 0;
 
-#elif defined(__CYGWIN__) || defined(__MINGW32__)
-  // TODO - an implementation for cygwin and mingw
-  return -1;
-
-#elif defined(_AIX)
-  return -1;
-#else
+#elif defined(KWSYS_SYS_HAS_IFADDRS_H)
   // gethostname typical returns an alias for loopback interface
   // we want the fully qualified domain name. Because there are
   // any number of interfaces on this system we look for the
   // first of these that contains the name returned by gethostname
   // and is longer. failing that we return gethostname.
 
+  int ierr=0;
   char base[NI_MAXHOST];
   ierr=gethostname(base,NI_MAXHOST);
   if (ierr)
@@ -1143,6 +1151,9 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
   freeifaddrs(ifas);
 
   return ierr;
+#else
+  /* TODO: Implement on more platforms.  */
+  return -1;
 #endif
 }
 
@@ -2893,21 +2904,29 @@ int SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
 /**
 Get total system RAM in units of KiB.
 */
-long long SystemInformationImplementation::GetMemoryTotal()
+SystemInformation::LongLong
+SystemInformationImplementation::GetMemoryTotal()
 {
-  long long memTotal=0;
-
-#if defined(_WIN32) && defined(_MSC_VER)
+#if defined(_WIN32)
+# if defined(_MSC_VER) && _MSC_VER < 1300
+  MEMORYSTATUS stat;
+  stat.dwLength = sizeof(stat);
+  GlobalMemoryStatus(&stat);
+  return stat.dwTotalPhys/1024;
+# else
   MEMORYSTATUSEX statex;
   statex.dwLength=sizeof(statex);
   GlobalMemoryStatusEx(&statex);
-  memTotal=statex.ullTotalPhys/1024;
+  return statex.ullTotalPhys/1024;
+# endif
 #elif defined(__linux)
+  LongLong memTotal=0;
   int ierr=GetFieldFromFile("/proc/meminfo","MemTotal:",memTotal);
   if (ierr)
     {
     return -1;
     }
+  return memTotal;
 #elif defined(__APPLE__)
   uint64_t mem;
   size_t len = sizeof(mem);
@@ -2916,21 +2935,20 @@ long long SystemInformationImplementation::GetMemoryTotal()
     {
     return -1;
     }
-  memTotal=mem/1024;
+  return mem/1024;
+#else
+  return 0;
 #endif
-
-  return memTotal;
 }
 
 /**
 Get system RAM used by the process associated with the given
 process id in units of KiB.
 */
-long long SystemInformationImplementation::GetMemoryUsed()
+SystemInformation::LongLong
+SystemInformationImplementation::GetMemoryUsed()
 {
-  long long memUsed=0;
-
-#if defined(_WIN32) && defined(_MSC_VER)
+#if defined(_WIN32) && defined(KWSYS_SYS_HAS_PSAPI)
   long pid=GetCurrentProcessId();
 
   HANDLE hProc;
@@ -2945,19 +2963,20 @@ long long SystemInformationImplementation::GetMemoryUsed()
 
   PROCESS_MEMORY_COUNTERS pmc;
   int ok=GetProcessMemoryInfo(hProc,&pmc,sizeof(pmc));
+  CloseHandle(hProc);
   if (!ok)
     {
     return -2;
     }
-  memUsed=pmc.WorkingSetSize/1024;
-
-  CloseHandle(hProc);
+  return pmc.WorkingSetSize/1024;
 #elif defined(__linux)
+  LongLong memUsed=0;
   int ierr=GetFieldFromFile("/proc/self/status","VmRSS:",memUsed);
   if (ierr)
     {
     return -1;
     }
+  return memUsed;
 #elif defined(__APPLE__)
   pid_t pid=getpid();
   kwsys_stl::ostringstream oss;
@@ -2975,26 +2994,27 @@ long long SystemInformationImplementation::GetMemoryUsed()
     }
   pclose(f);
   kwsys_stl::istringstream iss(oss.str());
+  LongLong memUsed=0;
   iss >> memUsed;
-#endif
-
   return memUsed;
+#else
+  return 0;
+#endif
 }
 
 /**
 Get the process id of the running process.
 */
-long long SystemInformationImplementation::GetProcessId()
+SystemInformation::LongLong
+SystemInformationImplementation::GetProcessId()
 {
-  long long pid=-1;
-
-#if defined(_WIN32) && defined(_MSC_VER)
-  pid=GetCurrentProcessId();
+#if defined(_WIN32)
+  return GetCurrentProcessId();
 #elif defined(__linux) || defined(__APPLE__)
-  pid=getpid();
+  return getpid();
+#else
+  return -1;
 #endif
-
-  return pid;
 }
 
 /**
@@ -3026,7 +3046,7 @@ void SystemInformationImplementation::SetStackTraceOnError(int enable)
 
     // install ours
     struct sigaction sa;
-    sa.sa_sigaction=&StacktraceSignalHandler;
+    sa.sa_sigaction=(SigAction)StacktraceSignalHandler;
     sa.sa_flags=SA_SIGINFO|SA_RESTART;
     sigemptyset(&sa.sa_mask);
 
@@ -3067,13 +3087,13 @@ int SystemInformationImplementation::QueryMemory()
 #ifdef __CYGWIN__
   return 0;
 #elif defined(_WIN32)
-#if  _MSC_VER < 1300
+# if defined(_MSC_VER) && _MSC_VER < 1300
   MEMORYSTATUS ms;
   unsigned long tv, tp, av, ap;
   ms.dwLength = sizeof(ms);
   GlobalMemoryStatus(&ms);
-  #define MEM_VAL(value) dw##value
-#else
+#  define MEM_VAL(value) dw##value
+# else
   MEMORYSTATUSEX ms;
   DWORDLONG tv, tp, av, ap;
   ms.dwLength = sizeof(ms);
@@ -3081,8 +3101,8 @@ int SystemInformationImplementation::QueryMemory()
   {
     return 0;
   }
-#define MEM_VAL(value) ull##value
-#endif
+#  define MEM_VAL(value) ull##value
+# endif
   tv = ms.MEM_VAL(TotalVirtual);
   tp = ms.MEM_VAL(TotalPhys);
   av = ms.MEM_VAL(AvailVirtual);
@@ -3264,7 +3284,8 @@ size_t SystemInformationImplementation::GetAvailablePhysicalMemory()
 }
 
 /** Get Cycle differences */
-LongLong SystemInformationImplementation::GetCyclesDifference (DELAY_FUNC DelayFunction,
+SystemInformation::LongLong
+SystemInformationImplementation::GetCyclesDifference (DELAY_FUNC DelayFunction,
                                                   unsigned int uiParameter)
 {
 #if USE_ASM_INSTRUCTIONS
