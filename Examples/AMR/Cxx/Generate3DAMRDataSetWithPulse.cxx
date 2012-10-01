@@ -19,6 +19,11 @@
 //  pulse at the center. The resulting AMR dataset is written using the
 //  vtkXMLHierarchicalBoxDataSetWriter.
 
+//disable linking warning due to inclusion of vtkXML*
+#if defined(_MSC_VER)
+#pragma comment(ignore 4089)
+#endif
+
 #include <iostream>
 #include <cmath>
 #include <sstream>
