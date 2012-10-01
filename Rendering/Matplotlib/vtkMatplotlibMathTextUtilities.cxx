@@ -562,11 +562,11 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
   Py_ssize_t numVerts;
 
   // Temp vars:
-  float origin[2];
+  float origin[2] = {0.0, 0.0};
   float vert[2];
   float delta[2] = {0.0, 0.0};
   int code;
-  bool hasOrigin;
+  bool hasOrigin = false;
 
   // Bounding box for all control points, used for justification
   float cbox[4] = {VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MIN, VTK_FLOAT_MIN};
