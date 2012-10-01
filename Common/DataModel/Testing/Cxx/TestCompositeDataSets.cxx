@@ -66,7 +66,7 @@ bool TestDataObjectTreeIterator()
         }
       }
     levelStart = levelEnd;
-    levelEnd = blocks.size();
+    levelEnd = static_cast<unsigned>(blocks.size());
     }
 
   vtkSmartPointer<vtkDataObjectTreeIterator> it;
