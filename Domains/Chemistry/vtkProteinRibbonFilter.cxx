@@ -387,7 +387,7 @@ std::vector<vtkVector3f>* vtkProteinRibbonFilter::Subdivide(std::vector<std::pai
 
   // Smoothing test
   points.push_back(p[0].first);
-  for (int i = 1, lim = p.size() - 1; i < lim; i++)
+  for (int i = 1, lim = static_cast<int>(p.size()) - 1; i < lim; i++)
     {
     vtkVector3f& p1 = p[i].first;
     vtkVector3f& p2 = p[i+1].first;
@@ -403,7 +403,7 @@ std::vector<vtkVector3f>* vtkProteinRibbonFilter::Subdivide(std::vector<std::pai
   points.push_back(p[p.size() - 1].first);
 
   // Catmull-Rom subdivision
-  for (int i = -1, size = points.size(); i <= size - 3; i++)
+  for (int i = -1, size = static_cast<int>(points.size()); i <= size - 3; i++)
     {
     vtkVector3f& p0 = points[(i == -1) ? 0 : i];
     vtkVector3f& p1 = points[i+1];
