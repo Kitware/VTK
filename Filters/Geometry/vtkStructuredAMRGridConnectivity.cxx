@@ -1103,7 +1103,7 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(
         else
           {
           // The node is a ghost node
-          unsigned char p;
+          unsigned char p = '0';
           vtkGhostArray::Reset( p );
           vtkGhostArray::SetProperty(p,vtkGhostArray::GHOST);
           vtkGhostArray::SetProperty(p,vtkGhostArray::IGNORE);
@@ -1150,7 +1150,7 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(
           }
         else
           {
-          unsigned char p;
+          unsigned char p = '0';
           vtkGhostArray::Reset(p);
           vtkGhostArray::SetProperty(p,vtkGhostArray::DUPLICATE);
           this->GhostedCellGhostArray[ gridID ]->SetValue(cellIdx,p);

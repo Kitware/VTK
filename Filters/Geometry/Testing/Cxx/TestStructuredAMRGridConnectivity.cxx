@@ -117,7 +117,10 @@ void GetGridExtent(
 
 
   // STEP 0: Initialize the extent
-  for(int i=0; i < 6; ext[i]=0,++i);
+  for(int i=0; i < 6; ++i)
+    {
+    ext[i]=0;
+    }
 
   int level      = Patches[blockIdx][0];
   int *patchBase = &Patches[blockIdx][1];
