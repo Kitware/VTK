@@ -59,6 +59,10 @@ protected:
   vtkDataObjectTypes() {};
   ~vtkDataObjectTypes() {};
 
+  // Description:
+  // Method used to validate data object types, for testing purposes
+  static int Validate();
+
 private:
   vtkDataObjectTypes(const vtkDataObjectTypes&);  // Not implemented.
   void operator=(const vtkDataObjectTypes&);  // Not implemented.

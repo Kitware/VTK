@@ -6,4 +6,8 @@ vtk_module(vtkInfovisBoostGraphAlgorithms
     vtkRenderingOpenGL
     vtkTestingRendering
     vtkIOInfovis
+    vtkViewsInfovis
+    vtkRenderingFreeTypeOpenGL
+    vtkChartsCore
+    vtkViewsContext2D
   )

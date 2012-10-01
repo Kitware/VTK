@@ -3,16 +3,16 @@ vtk_module(vtkIOImage
     StandAlone
   DEPENDS
     vtkCommonDataModel
+    vtkCommonExecutionModel
     vtkCommonSystem
     vtkCommonMath
     vtkCommonMisc
     vtkCommonTransforms
-    vtkIOGeometry
+    vtkIOCore
     vtkjpeg
     vtkpng
     vtktiff
     vtkMetaIO
-    vtkoggtheora
     vtkDICOMParser
   TEST_DEPENDS
     vtkTestingCore

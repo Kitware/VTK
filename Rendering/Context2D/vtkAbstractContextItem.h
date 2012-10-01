@@ -200,6 +200,14 @@ public:
   // Visible by default.
   vtkSetMacro(Visible, bool);
 
+  // Description:
+  // Get if the item is interactive (should respond to mouse events).
+  vtkGetMacro(Interactive, bool);
+
+  // Description:
+  // Set if the item is interactive (should respond to mouse events).
+  vtkSetMacro(Interactive, bool);
+
 //BTX
 protected:
   vtkAbstractContextItem();
@@ -219,8 +227,13 @@ protected:
   // std::vector<vtkAbstractContextItem>, defined in a private header.
   vtkContextScenePrivate* Children;
 
-  // Description: Store the visibility of the item (default is true).
+  // Description:
+  // Store the visibility of the item (default is true).
   bool Visible;
+
+  // Description:
+  // Store whether the item should respond to interactions (default is true).
+  bool Interactive;
 
 private:
   vtkAbstractContextItem(const vtkAbstractContextItem &); // Not implemented.

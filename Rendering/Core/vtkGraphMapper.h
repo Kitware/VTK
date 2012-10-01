@@ -49,7 +49,6 @@ class vtkTransformCoordinateSystems;
 class vtkTexture;
 class vtkTexturedActor2D;
 class vtkVertexGlyphFilter;
-class vtkViewTheme;
 
 
 
@@ -172,10 +171,6 @@ public:
   // Get/Set the edge line width
   vtkGetMacro(EdgeLineWidth,float);
   void SetEdgeLineWidth(float width);
-
-  // Description:
-  // Apply the theme to this view.
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.

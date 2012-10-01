@@ -42,7 +42,7 @@ vtkInformationKeyMacro(vtkDataObject, DATA_PIECE_NUMBER, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_GHOST_LEVELS, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_RESOLUTION, Double);
-vtkInformationKeyMacro(vtkDataObject, DATA_TIME_STEPS, DoubleVector);
+vtkInformationKeyMacro(vtkDataObject, DATA_TIME_STEP, Double);
 vtkInformationKeyMacro(vtkDataObject, POINT_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, CELL_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, VERTEX_DATA_VECTOR, InformationVector);
@@ -64,7 +64,7 @@ vtkInformationKeyRestrictedMacro(vtkDataObject, ORIGIN, DoubleVector, 3);
 vtkInformationKeyRestrictedMacro(vtkDataObject, SPACING, DoubleVector, 3);
 vtkInformationKeyMacro(vtkDataObject, DATA_GEOMETRY_UNMODIFIED, Integer);
 vtkInformationKeyMacro(vtkDataObject, SIL, DataObject);
-
+vtkInformationKeyRestrictedMacro(vtkDataObject, BOUNDING_BOX, DoubleVector, 6);
 
 // Initialize static member that controls global data release
 // after use by filter
@@ -159,7 +159,7 @@ void vtkDataObject::Initialize()
     this->Information->Remove(DATA_PIECE_NUMBER());
     this->Information->Remove(DATA_NUMBER_OF_PIECES());
     this->Information->Remove(DATA_NUMBER_OF_GHOST_LEVELS());
-    this->Information->Remove(DATA_TIME_STEPS());
+    this->Information->Remove(DATA_TIME_STEP());
     this->Information->Remove(DATA_RESOLUTION());
     }
 
@@ -597,9 +597,9 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
                            src->Information->Get(DATA_NUMBER_OF_GHOST_LEVELS()));
     }
   */
-  if(src->Information->Has(DATA_TIME_STEPS()))
+  if(src->Information->Has(DATA_TIME_STEP()))
     {
-    this->Information->CopyEntry(src->Information, DATA_TIME_STEPS(), 1);
+    this->Information->CopyEntry(src->Information, DATA_TIME_STEP(), 1);
     }
   if(src->Information->Has(DATA_RESOLUTION()))
     {

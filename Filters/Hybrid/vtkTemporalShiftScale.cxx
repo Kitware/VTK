@@ -13,12 +13,14 @@
 
 =========================================================================*/
 #include "vtkTemporalShiftScale.h"
-
-#include "vtkTemporalDataSet.h"
+#include "vtkDataObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkCompositeDataPipeline.h"
+
+#include <assert.h>
 
 vtkStandardNewMacro(vtkTemporalShiftScale);
 
@@ -31,6 +33,10 @@ vtkTemporalShiftScale::vtkTemporalShiftScale()
   this->Periodic               = 0;
   this->PeriodicEndCorrection  = 1;
   this->MaximumNumberOfPeriods = 1;
+
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
+
 }
 
 //----------------------------------------------------------------------------
@@ -50,6 +56,107 @@ void vtkTemporalShiftScale::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PeriodicEndCorrection: " << this->PeriodicEndCorrection << endl;
   os << indent << "MaximumNumberOfPeriods: " << this->MaximumNumberOfPeriods << endl;
 }
+
+//----------------------------------------------------------------------------
+int vtkTemporalShiftScale::ProcessRequest(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  // create the output
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
+    }
+
+  // generate the data
+  if(request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
+    {
+    int retVal = this->RequestData(request, inputVector, outputVector);
+    return retVal;
+    }
+
+  // execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    if(request->Has(vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT()))
+      {
+      int outputPort = request->Get(
+        vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT());
+      vtkInformation* info = outputVector->GetInformationObject(outputPort);
+      if (info)
+        {
+        info->Set(
+          vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+        }
+      }
+    return this->RequestInformation(request, inputVector, outputVector);
+    }
+
+  // set update extent
+  if(request->Has(
+       vtkCompositeDataPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkTemporalShiftScale::FillInputPortInformation(
+  int port,
+  vtkInformation* info)
+{
+  if (port == 0) {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  }
+  return 1;
+}
+
+int vtkTemporalShiftScale::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
+  return 1;
+}
+
+int vtkTemporalShiftScale::RequestDataObject( vtkInformation*,
+                                             vtkInformationVector** inputVector ,
+                                             vtkInformationVector* outputVector)
+{
+  if (this->GetNumberOfInputPorts() == 0 || this->GetNumberOfOutputPorts() == 0)
+    {
+    return 1;
+    }
+
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+
+  if (input)
+    {
+    // for each output
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
+
+      if (!output || !output->IsA(input->GetClassName()))
+        {
+        vtkDataObject* newOutput = input->NewInstance();
+        info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+        newOutput->Delete();
+        }
+      }
+    return 1;
+    }
+  return 0;
+}
+
 //----------------------------------------------------------------------------
 inline double vtkTemporalShiftScale::ForwardConvert(double T0)
 {
@@ -145,10 +252,8 @@ int vtkTemporalShiftScale::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  vtkTemporalDataSet *inData = vtkTemporalDataSet::SafeDownCast
-    (inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTemporalDataSet *outData = vtkTemporalDataSet::SafeDownCast
-    (outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject *inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject *outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
   // shallow copy the data
   if (inData && outData)
@@ -158,26 +263,16 @@ int vtkTemporalShiftScale::RequestData(
 
   // @TODO The time value set here is not correct if periodic is true
 
-  int inLength =
-    inData->GetInformation()->Length(vtkDataObject::DATA_TIME_STEPS());
-  double *inTimes =
-    inData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS());
-  double *outTimes = new double [inLength];
+  double inTime = inData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
 
   double range = this->PeriodicRange[1] - this->PeriodicRange[0];
 
-  int i;
-  for (i = 0; i < inLength; ++i)
+  double outTime = this->ForwardConvert(inTime);
+  if (this->Periodic)
     {
-    outTimes[i] = this->ForwardConvert(inTimes[i]);
-    if (this->Periodic)
-      {
-      outTimes[i] += this->TempMultiplier*range;
-      }
+    outTime += this->TempMultiplier*range;
     }
-  outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                 outTimes, inLength);
-  delete [] outTimes;
+  outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), outTime);
 
   return 1;
 }
@@ -193,34 +288,29 @@ int vtkTemporalShiftScale::RequestUpdateExtent (
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   // reverse translate the times
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
-    double *upTimes =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    int numTimes =
-      outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    double *inTimes = new double [numTimes];
+    double upTime =
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
 
     this->TempMultiplier = 0.0;
 
     double range = this->PeriodicRange[1] - this->PeriodicRange[0];
-    for (int i=0; i<numTimes; ++i)
+
+    double ttime = upTime;
+    if (this->Periodic)
       {
-      double ttime = upTimes[i];
-      if (this->Periodic)
-      {
-        if (ttime>this->PeriodicRange[1])
+      if (ttime>this->PeriodicRange[1])
         {
-          double m = floor((ttime - this->PeriodicRange[0])/range);
-          this->TempMultiplier = m;
-          ttime = ttime - range*m;
+        double m = floor((ttime - this->PeriodicRange[0])/range);
+        this->TempMultiplier = m;
+        ttime = ttime - range*m;
         }
       }
-      inTimes[i] = this->BackwardConvert(ttime);
-      }
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),
-                inTimes,numTimes);
-    delete [] inTimes;
+    double inTime = this->BackwardConvert(ttime);
+
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),inTime);
     }
 
   return 1;

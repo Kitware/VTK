@@ -38,7 +38,8 @@
 // Currently only cells from PolyDataMappers can be selected from. When
 // vtkRenderer::Selector is non-null vtkPainterPolyDataMapper uses the
 // vtkHardwareSelectionPolyDataPainter which make appropriate calls to
-// BeginRenderProp(), EndRenderProp(), RenderAttributeId() to render colors
+// BeginRenderProp(), EndRenderProp(), RenderProcessId(),
+// RenderAttributeId() to render colors
 // correctly. Until alternatives to vtkHardwareSelectionPolyDataPainter
 // exist that can do a similar coloration of other vtkDataSet types, only
 // polygonal data can be selected. If you need to select other data types,
@@ -114,6 +115,13 @@ public:
   vtkGetMacro(FieldAssociation, int);
 
   // Description:
+  // In some parallel rendering setups, the process id for elements must be
+  // obtained from the data itself, rather than the rendering process' id. In
+  // that case, set this flag to ON (default OFF).
+  vtkSetMacro(UseProcessIdFromData, bool);
+  vtkGetMacro(UseProcessIdFromData, bool);
+
+  // Description:
   // Perform the selection. Returns  a new instance of vtkSelection containing
   // the selection on success.
   vtkSelection* Select();
@@ -148,12 +156,17 @@ public:
 
   // Description:
   // Called by any vtkMapper or vtkProp subclass to render a composite-index.
-  // Currently indices > 0xffffff are not supported.
+  // Currently indices >= 0xffffff are not supported.
   void RenderCompositeIndex(unsigned int index);
 
   // Description:
   // Called by any vtkMapper or vtkProp subclass to render an attribute's id.
   void RenderAttributeId(vtkIdType attribid);
+
+  // Description:
+  // Called by any vtkMapper or subclass to render process id. This has any
+  // effect when this->UseProcessIdFromData is true.
+  void RenderProcessId(unsigned int processid);
 
   // Description:
   // Called by vtkRenderer to render the selection pass.
@@ -302,6 +315,7 @@ protected:
   vtkRenderer* Renderer;
   unsigned int Area[4];
   int FieldAssociation;
+  bool UseProcessIdFromData;
   vtkIdType MaxAttributeId;
 
   // At most 10 passes.

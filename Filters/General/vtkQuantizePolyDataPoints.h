@@ -28,6 +28,10 @@
 // forms. Handling of degenerate cells is controlled by switches in
 // vtkCleanPolyData.
 //
+// If you wish to operate on a set of coordinates that has no cells, you must
+// add a vtkPolyVertex cell with all of the points to the PolyData
+// (or use a vtkVertexGlyphFilter) before using the vtkCleanPolyData filter.
+//
 // .SECTION See Also
 // vtkCleanPolyData
 

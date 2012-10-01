@@ -74,14 +74,14 @@ void vtkUniformGrid::Initialize()
 }
 
 //-----------------------------------------------------------------------------
-int vtkUniformGrid::Initialize(const vtkAMRBox *def)
+int vtkUniformGrid::Initialize(const vtkAMRBox *def, double* origin, double* spacing)
 {
   if (def->Empty())
     {
     vtkWarningMacro("Can't construct a data set from an empty box.");
     return 0;
     }
-  if (def->GetDimensionality()==2)
+  if (def->ComputeDimension()==2)
     {
     // NOTE: Define it 3D, with the third dim 0. eg. (X,X,0)(X,X,0)
     vtkWarningMacro("Can't construct a 3D data set from a 2D box.");
@@ -89,15 +89,12 @@ int vtkUniformGrid::Initialize(const vtkAMRBox *def)
     }
 
   this->Initialize();
-
   int nPoints[3];
   def->GetNumberOfNodes(nPoints);
-  double x0[3];
-  def->GetBoxOrigin(x0);
 
   this->SetDimensions(nPoints);
-  this->SetSpacing(const_cast<double *>(def->GetGridSpacing()));
-  this->SetOrigin(x0);
+  this->SetSpacing(spacing);
+  this->SetOrigin(origin);
 
   return 1;
 }
@@ -105,11 +102,13 @@ int vtkUniformGrid::Initialize(const vtkAMRBox *def)
 //-----------------------------------------------------------------------------
 int vtkUniformGrid::Initialize(
         const vtkAMRBox *def,
+        double* origin,
+        double* spacing,
         int nGhostsI,
         int nGhostsJ,
         int nGhostsK)
 {
-  if (!this->Initialize(def))
+  if (!this->Initialize(def,origin,spacing))
     {
     return 0;
     }
@@ -128,10 +127,8 @@ int vtkUniformGrid::Initialize(
   if (nGhostsI || nGhostsJ || nGhostsK)
     {
     unsigned char *pG=ghosts->GetPointer(0);
-    int lo[3];
-    def->GetLoCorner(lo);
-    int hi[3];
-    def->GetHiCorner(hi);
+    const int* lo = def->GetLoCorner();
+    const int* hi = def->GetHiCorner();
     // Identify & fill ghost regions
     if (nGhostsI)
       {
@@ -159,15 +156,15 @@ int vtkUniformGrid::Initialize(
 }
 
 //-----------------------------------------------------------------------------
-int vtkUniformGrid::Initialize(const vtkAMRBox *def, const int nGhosts[3])
+int vtkUniformGrid::Initialize(const vtkAMRBox *def, double* origin, double* spacing,const int nGhosts[3])
 {
-  return this->Initialize(def, nGhosts[0],nGhosts[1],nGhosts[2]);
+  return this->Initialize(def, origin, spacing, nGhosts[0],nGhosts[1],nGhosts[2]);
 }
 
 //-----------------------------------------------------------------------------
-int vtkUniformGrid::Initialize(const vtkAMRBox *def, int nGhosts)
+int vtkUniformGrid::Initialize(const vtkAMRBox *def, double* origin, double* spacing, int nGhosts)
 {
-  return this->Initialize(def, nGhosts,nGhosts,nGhosts);
+  return this->Initialize(def, origin, spacing, nGhosts,nGhosts,nGhosts);
 }
 
 //----------------------------------------------------------------------------
@@ -300,7 +297,12 @@ vtkCell *vtkUniformGrid::GetCell(vtkIdType cellId)
       kMax = kMin + 1;
       cell = this->Voxel;
       break;
-    }
+
+    default:
+      vtkErrorMacro(<<"Invalid DataDescription.");
+      return NULL;
+      break;
+}
 
   // Extract point coordinates and point ids
   // Ids are relative to extent min.
@@ -596,7 +598,12 @@ vtkCell *vtkUniformGrid::FindAndGetCell(double x[3],
       kMax = loc[2] + 1;
       cell = this->Voxel;
       break;
-    }
+
+    default:
+      vtkErrorMacro(<<"Invalid DataDescription.");
+      return NULL;
+      break;
+}
   cell->InterpolateFunctions(pcoords,weights);
 
   npts = 0;

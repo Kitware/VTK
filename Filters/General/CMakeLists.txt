@@ -89,9 +89,6 @@ set(Module_SRCS
 
   vtkMarchingContourFilter.cxx
 
-  # Depend upon IO/Image
-  #vtkSliceCubes.cxx # Needs vtkVolumeReader
-
   # Move to FiltersGeometry
   #vtkDataSetSurfaceFilter.cxx # Needs vtkStructuredGridGeometryFilter - Geometry
 
@@ -103,10 +100,6 @@ set(Module_SRCS
   vtkBooleanOperationPolyDataFilter.cxx
   vtkDistancePolyDataFilter.cxx
 
-  # New AMR classes
-  vtkUniformGridAMRAlgorithm.cxx
-  vtkOverlappingAMRAlgorithm.cxx
-  vtkNonOverlappingAMRAlgorithm.cxx
   vtkOverlappingAMRLevelIdScalars.cxx
   vtkExtractArray.cxx
 

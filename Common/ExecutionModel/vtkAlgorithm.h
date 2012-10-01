@@ -54,6 +54,21 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Values used for setting the desired output precision for various
+  // algorithms. Currently, only a few algorithms (vtkContourFilter,
+  // vtkThreshold) support changing their output precision.
+  //
+  // SINGLE_PRECISION - Output single-precision floating-point (i.e. float)
+  // DOUBLE_PRECISION - Output double-precision floating-point (i.e. double)
+  // DEFAULT_PRECISION - Output precision should match the input precision.
+  enum DesiredOutputPrecision
+    {
+    SINGLE_PRECISION,
+    DOUBLE_PRECISION,
+    DEFAULT_PRECISION
+    };
+
+  // Description:
   // Check whether this algorithm has an assigned executive.  This
   // will NOT create a default executive.
   int HasExecutive();
@@ -329,6 +344,11 @@ public:
   vtkAlgorithmOutput* GetInputConnection(int port, int index);
 
   // Description:
+  // Returns the algorithm and the output port index of
+  // that algorithm connected to a port-index pair.
+  vtkAlgorithm* GetInputAlgorithm(int port, int index, int& algPort);
+
+  // Description:
   // Returns the algorithm connected to a port-index pair.
   vtkAlgorithm* GetInputAlgorithm(int port, int index);
 
@@ -444,45 +464,83 @@ public:
   static vtkInformationIntegerKey* MANAGES_METAINFORMATION();
 
   // Description:
-  // If the whole input extent is required to generate the requested output
-  // extent, this method can be called to set the input update extent to the
-  // whole input extent. This method assumes that the whole extent is known
-  // (that UpdateInformation has been called).
-  // This function has no effect is input connection is not established.
-  int SetUpdateExtentToWholeExtent(int port, int connection);
+  // If the whole output extent is required, this method can be called to set
+  // the output update extent to the whole extent. This method assumes that
+  // the whole extent is known (that UpdateInformation has been called).
+  int SetUpdateExtentToWholeExtent(int port);
 
   // Description:
-  // Convenience function equivalent to SetUpdateExtentToWholeExtent(0, 0)
-  // This function has no effect is input connection is not established.
+  // Convenience function equivalent to SetUpdateExtentToWholeExtent(0)
+  // This method assumes that the whole extent is known (that UpdateInformation
+  // has been called).
   int SetUpdateExtentToWholeExtent();
 
   // Description:
-  // Set the update extent in terms of piece and ghost levels.
-  // This function has no effect is input connection is not established.
-  void SetUpdateExtent(int port, int connection,
+  // Set the output update extent in terms of piece and ghost levels.
+  void SetUpdateExtent(int port,
                        int piece,int numPieces, int ghostLevel);
 
   // Description:
-  // Convenience function equivalent to SetUpdateExtent(0, 0, piece,
+  // Convenience function equivalent to SetUpdateExtent(0, piece,
   // numPieces, ghostLevel)
-  // This function has no effect is input connection is not established.
   void SetUpdateExtent(int piece,int numPieces, int ghostLevel)
   {
-    this->SetUpdateExtent(0, 0, piece, numPieces, ghostLevel);
+    this->SetUpdateExtent(0, piece, numPieces, ghostLevel);
   }
 
   // Description:
-  // Set the update extent for data objects that use 3D extents
-  // This function has no effect is input connection is not established.
-  void SetUpdateExtent(int port, int connection, int extent[6]);
+  // Set the output update extent for data objects that use 3D extents
+  void SetUpdateExtent(int port, int extent[6]);
 
   // Description:
-  // Convenience function equivalent to SetUpdateExtent(0, 0, extent)
-  // This function has no effect is input connection is not established.
+  // Convenience function equivalent to SetUpdateExtent(0, extent)
   void SetUpdateExtent(int extent[6])
   {
-    this->SetUpdateExtent(0, 0, extent);
+    this->SetUpdateExtent(0, extent);
   }
+
+  // Description:
+  // These functions return the update extent for output ports that
+  // use 3D extents. Where port is not specified, it is assumed to
+  // be 0.
+  int* GetUpdateExtent()
+  {
+    return this->GetUpdateExtent(0);
+  }
+  int* GetUpdateExtent(int port);
+  void GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
+                       int& z0, int& z1)
+  {
+    this->GetUpdateExtent(0, x0, x1, y0, y1, z0, z1);
+  }
+  void GetUpdateExtent(int port,
+                       int& x0, int& x1, int& y0, int& y1,
+                       int& z0, int& z1);
+  void GetUpdateExtent(int extent[6])
+  {
+    this->GetUpdateExtent(0, extent);
+  }
+  void GetUpdateExtent(int port, int extent[6]);
+
+  // Description:
+  // These functions return the update extent for output ports that
+  // use piece extents. Where port is not specified, it is assumed to
+  // be 0.
+  int GetUpdatePiece()
+  {
+    return this->GetUpdatePiece(0);
+  }
+  int GetUpdatePiece(int port);
+  int GetUpdateNumberOfPieces()
+  {
+    return this->GetUpdateNumberOfPieces(0);
+  }
+  int GetUpdateNumberOfPieces(int port);
+  int GetUpdateGhostLevel()
+  {
+    return this->GetUpdateGhostLevel(0);
+  }
+  int GetUpdateGhostLevel(int port);
 
 protected:
   vtkAlgorithm();

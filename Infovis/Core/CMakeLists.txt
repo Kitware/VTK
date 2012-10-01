@@ -17,6 +17,7 @@ set(Module_SRCS
   vtkMergeTables.cxx
   vtkMutableGraphHelper.cxx
   vtkNetworkHierarchy.cxx
+  vtkPipelineGraphSource.cxx
   vtkPruneTreeFilter.cxx
   vtkRandomGraphSource.cxx
   vtkRemoveIsolatedVertices.cxx

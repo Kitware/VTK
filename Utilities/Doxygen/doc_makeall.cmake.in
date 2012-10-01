@@ -1,6 +1,5 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2005-12-05 12:58:52 barre>
 # -------------------------------------------------------------------------
 
 set(DOXYGEN "@DOXYGEN@")
@@ -8,14 +7,6 @@ set(DOXYGEN_DOT_EXECUTABLE "@DOXYGEN_DOT_EXECUTABLE@")
 set(HTML_HELP_COMPILER "@HTML_HELP_COMPILER@")
 set(PERL "@PERL@")
 set(DOXYGEN_KEEP_TEMP "@DOXYGEN_KEEP_TEMP@")
-
-# These checks should really be in the CMakeLists.txt file when VTK is
-# configured with BUILD_DOCUMENTATION ON:
-#
-if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
-  message(FATAL_ERROR "error: please use CMake 2.6.2 or later to build VTK documentation")
-  # for file(DOWNLOAD capability *and* endif() without arguments...
-endif(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
 
 if(NOT DOXYGEN)
   message(FATAL_ERROR "error: cannot build VTK documentation without doxygen")
@@ -181,25 +172,7 @@ set(VTK_TAGFILE_DEST_DIR "${DOXTEMP}")
 # rushed edits...
 #
 set(SOURCE_DIRECTORIES
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Charts"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Chemistry"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Common"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Filtering"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/GenericFiltering"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/GenericFiltering/Testing/Cxx"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Geovis"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Graphics"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/GUISupport/MFC"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/GUISupport/Qt"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Hybrid"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Imaging"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Infovis"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/IO"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Parallel"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Rendering"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Views"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/VolumeRendering"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Widgets"
+@VTK_MODULE_DIRS_DOXYGEN@
 )
 
 # ----------------------------------------------------------------------------

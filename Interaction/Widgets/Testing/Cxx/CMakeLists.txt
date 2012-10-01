@@ -39,6 +39,8 @@ set(MyTests
   TestOrientationMarkerWidget.cxx
   # TestOrthoPlanes.cxx # todo (unsatistfied deps)
   TestParallelopipedWidget.cxx
+  TestPickingManagerWidgets.cxx
+  TestPickingManagerSeedWidget.cxx
   TestPlaneWidget.cxx
   TestPlaybackWidget.cxx
   TestPointHandleRepresentation3D.cxx
@@ -48,6 +50,7 @@ set(MyTests
   TestPolygonalRepresentationHandleWidget.cxx
   TestPolygonalSurfaceConstrainedDistanceWidget.cxx
   TestProgrammaticPlacement.cxx
+  TestProp3DButtonRepresentation.cxx
   TestRectilinearWipeWidget.cxx
   # TestResliceCursorWidget2.cxx # todo (unsatistfied deps)
   # TestResliceCursorWidget3.cxx # todo (unsatistfied deps)
@@ -72,6 +75,7 @@ set(MyTests
   vtkBorderWidgetTest1.cxx
   vtkCaptionRepresentationTest1.cxx
   vtkCaptionWidgetTest1.cxx
+  vtkConstrainedPointHandleRepresentationTest1.cxx
   vtkHoverWidgetTest1.cxx
   vtkLineRepresentationTest1.cxx
   vtkLineWidget2Test1.cxx

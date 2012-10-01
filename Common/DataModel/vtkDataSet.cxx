@@ -63,6 +63,7 @@ void vtkDataSet::CopyAttributes(vtkDataSet *ds)
 {
   this->GetPointData()->PassData(ds->GetPointData());
   this->GetCellData()->PassData(ds->GetCellData());
+  this->GetFieldData()->PassData(ds->GetFieldData());
 }
 
 //----------------------------------------------------------------------------

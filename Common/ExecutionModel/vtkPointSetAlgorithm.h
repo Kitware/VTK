@@ -22,11 +22,9 @@
 // simply change it with SetNumberOfInputPorts etc. See this classes
 // contstructor for the default. This class also provides a FillInputPortInfo
 // method that by default says that all inputs will be PointSet. If that
-// isn't the case then please override this method in your subclass. This
-// class breaks out the downstream requests into separate functions such as
-// RequestDataObject RequestData and ExecuteInformation. The default
-// implementation of RequestDataObject will create an output data of the
-// same type as the input.
+// isn't the case then please override this method in your subclass.
+// You should implement the subclass's algorithm into
+// RequestData( request, inputVec, outputVec).
 
 
 #ifndef __vtkPointSetAlgorithm_h

@@ -4,16 +4,6 @@
 project( libproj4 )
 
 #------------------------------------------------------------------------------
-# Output directories where libraries and executables are placed
-# during a build (not during installation)
-if ( NOT LIBRARY_OUTPUT_PATH )
-  set( LIBRARY_OUTPUT_PATH ${libproj4_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all libraries." )
-endif ( NOT LIBRARY_OUTPUT_PATH )
-if ( NOT EXECUTABLE_OUTPUT_PATH )
-  set( EXECUTABLE_OUTPUT_PATH ${libproj4_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables." )
-endif ( NOT EXECUTABLE_OUTPUT_PATH )
-
-#------------------------------------------------------------------------------
 # Platform configuration tests and options.
 
 # Shared or static library?
@@ -216,6 +206,11 @@ if ( GSL_FOUND )
   )
 endif ( GSL_FOUND )
 
+add_custom_command(TARGET lproj
+  COMMAND ${CMAKE_COMMAND} -E copy
+  ${libproj4_SOURCE_DIR}/vtk_libproj4_mangle.h
+  ${libproj4_BINARY_DIR}/vtk_libproj4_mangle.h)
+
 configure_file(
   ${libproj4_SOURCE_DIR}/proj_config.h.cmake
   ${libproj4_BINARY_DIR}/proj_config.h
@@ -227,6 +222,7 @@ configure_file(
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
     ${libproj4_SOURCE_DIR}/lib_proj.h
+    ${libproj4_SOURCE_DIR}/vtk_libproj4_mangle.h
     ${libproj4_BINARY_DIR}/proj_config.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtklibproj4
     COMPONENT Development)

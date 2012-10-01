@@ -346,7 +346,7 @@ int vtkSESAMEReader::GetTableArrayStatus(const char* name)
   numArrays = static_cast<int>(this->Internal->TableArrays.size());
   for(i=0; i<numArrays; i++)
     {
-    if(this->Internal->TableArrays[i], name)
+    if(this->Internal->TableArrays[i] == name)
       {
       return this->Internal->TableArrayStatus[i];
       }

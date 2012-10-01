@@ -28,15 +28,16 @@
 /*--------------------------------------------------------------------------*/
 /* Other Configuration Options                                              */
 
-/* Debug leaks support.  */
-#cmakedefine VTK_DEBUG_LEAKS
-
 /* Whether VTK is using vfw32 and if it supports video capture */
 #cmakedefine VTK_USE_VIDEO_FOR_WINDOWS
 #cmakedefine VTK_VFW_SUPPORTS_CAPTURE
 
 /* Whether FFMPEG is found or not  */
 #cmakedefine VTK_USE_FFMPEG_ENCODER
+
+/* Which shader support is included or not */
+#cmakedefine VTK_USE_CG_SHADERS
+#cmakedefine VTK_USE_GLSL_SHADERS
 
 /* Whether the user has linked in the MPEG2 library or not  */
 #cmakedefine VTK_USE_MPEG2_ENCODER

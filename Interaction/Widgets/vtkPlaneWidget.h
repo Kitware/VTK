@@ -65,10 +65,6 @@
 // property for the handles and plane. In addition there are methods to
 // constrain the plane so that it is perpendicular to the x-y-z axes.
 
-// .SECTION Caveats
-// Note that handles and plane can be picked even when they are "behind" other
-// actors.  This is an intended feature and not a bug.
-
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkLineWidget vtkSphereWidget
 // vtkImplicitPlaneWidget
@@ -316,6 +312,9 @@ protected:
   vtkCellPicker *HandlePicker;
   vtkCellPicker *PlanePicker;
   vtkActor *CurrentHandle;
+
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
 
   // Methods to manipulate the hexahedron.
   void MoveOrigin(double *p1, double *p2);

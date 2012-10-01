@@ -13,21 +13,12 @@
 
 =========================================================================*/
 #include "vtkRayCastImageDisplayHelper.h"
-#include "vtkVolumeRenderingFactory.h"
-
+#include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkRayCastImageDisplayHelper);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkRayCastImageDisplayHelper)
 //----------------------------------------------------------------------------
-
-vtkRayCastImageDisplayHelper* vtkRayCastImageDisplayHelper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret=vtkVolumeRenderingFactory::CreateInstance("vtkRayCastImageDisplayHelper");
-  return (vtkRayCastImageDisplayHelper*)ret;
-}
-
 
 // Construct a new vtkRayCastImageDisplayHelper with default values
 vtkRayCastImageDisplayHelper::vtkRayCastImageDisplayHelper()
@@ -50,4 +41,3 @@ void vtkRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Pixel Scale: " << this->PixelScale << endl;
 }
-

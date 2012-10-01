@@ -120,6 +120,16 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
     {
     static_cast<vtkRectilinearGrid*>(input)->GetDimensions(dimensions);
     }
+  else
+    {
+    // Every kind of structured data is listed above, this should never happen.
+    // Report an error and produce no output.
+    vtkErrorMacro("Unrecognized data set " << input->GetClassName());
+    // Dimensions of 1x1x1 means a single point, i.e. dimensionality of zero.
+    dimensions[0] = 1;
+    dimensions[1] = 1;
+    dimensions[2] = 1;
+    }
 
   dimensions[0] = dimensions[0] - 1;
   dimensions[1] = dimensions[1] - 1;

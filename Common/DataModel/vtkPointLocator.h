@@ -215,6 +215,11 @@ protected:
   double Distance2ToBucket(const double x[3], const int nei[3]);
   double Distance2ToBounds(const double x[3], const double bounds[6]);
 
+  // Description:
+  // Give the bucket index that point is located in.
+  vtkIdType GetBucketIndex(const double x[3]);
+  void GetBucketIndices(const double x[3], int ijk[3]);
+
   vtkPoints *Points; // Used for merging points
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
   int NumberOfPointsPerBucket; //Used with previous boolean to control subdivide

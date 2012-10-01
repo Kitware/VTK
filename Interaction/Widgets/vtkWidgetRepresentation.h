@@ -42,7 +42,10 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkProp.h"
+#include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
 
+class vtkAbstractPropPicker;
+class vtkPickingManager;
 class vtkRenderer;
 
 
@@ -53,6 +56,13 @@ public:
   // Standard methods for instances of this class.
   vtkTypeMacro(vtkWidgetRepresentation,vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Enable/Disable the use of a manager to process the picking.
+  // Enabled by default.
+  vtkBooleanMacro(PickingManaged, bool);
+  vtkSetMacro(PickingManaged, bool);
+  vtkGetMacro(PickingManaged, bool);
 
   // Description:
   // Subclasses of vtkWidgetRepresentation must implement these methods. This is
@@ -66,7 +76,7 @@ public:
   // in order to avoid reference loops.  Be sure that the representation
   // lifetime does not extend beyond the renderer lifetime.
   virtual void SetRenderer(vtkRenderer *ren);
-  vtkGetObjectMacro(Renderer,vtkRenderer);
+  virtual vtkRenderer* GetRenderer();
   virtual void BuildRepresentation() = 0;
 
   // Description:
@@ -159,7 +169,7 @@ protected:
   ~vtkWidgetRepresentation();
 
   // The renderer in which this widget is placed
-  vtkRenderer *Renderer;
+  vtkWeakPointer<vtkRenderer> Renderer;
 
   // The state of this representation based on a recent event
   int InteractionState;
@@ -181,6 +191,38 @@ protected:
   // sizing has to follow a different path. The following ivars help with
   // this process.
   int    ValidPick; //indicate when valid picks are made
+
+  // This variable controls whether the picking is managed by the Picking
+  // Manager or not. True by default.
+  bool PickingManaged;
+
+  // Description:
+  // Register internal Pickers in the Picking Manager.
+  // Must be reimplemented by concrete widget representations to register
+  // their pickers.
+  virtual void RegisterPickers();
+
+  // Description:
+  // Unregister internal pickers from the Picking Manager.
+  virtual void UnRegisterPickers();
+
+  // Description:
+  // Update the pickers registered in the Picking Manager when pickers are
+  // modified.
+  virtual void PickersModified();
+
+  // Description:
+  // Return the picking manager associated on the context on which the widget
+  // representation currently belong.
+  vtkPickingManager* GetPickingManager();
+
+  // Description:
+  // Proceed to a pick, whether through the PickingManager if the picking is
+  // managed or directly using the registered picker, and return the assembly
+  // path.
+  vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z,
+                                   vtkAbstractPropPicker* picker);
+
 
   // Members use to control handle size. The two methods return a "radius"
   // in world coordinates. Note that the HandleSize data member is used

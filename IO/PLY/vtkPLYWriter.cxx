@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPLY.h"
 #include "vtkPointData.h"
@@ -30,6 +31,7 @@ vtkCxxSetObjectMacro(vtkPLYWriter,LookupTable,vtkScalarsToColors);
 
 vtkPLYWriter::vtkPLYWriter()
 {
+  this->FileName = NULL;
   this->FileType = VTK_BINARY;
   this->DataByteOrder = VTK_LITTLE_ENDIAN;
   this->ArrayName = NULL;
@@ -49,6 +51,7 @@ vtkPLYWriter::~vtkPLYWriter()
     {
     delete [] this->ArrayName;
     }
+  delete[] this->FileName;
 }
 
 typedef struct _plyVertex {
@@ -358,3 +361,19 @@ void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+
+vtkPolyData* vtkPLYWriter::GetInput()
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput());
+}
+
+vtkPolyData* vtkPLYWriter::GetInput(int port)
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput(port));
+}
+
+int vtkPLYWriter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
+}

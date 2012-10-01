@@ -236,7 +236,7 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        typere = "^\s*vtkType(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*;"
+        typere = "^\s*vtkType(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*"
         typesplitre = "^\s*vtkType(Revision)*Macro\s*\("
 
         regx = re.compile(typere)
@@ -281,12 +281,12 @@ class TestVTKFiles:
             self.Print( "File: %s has legacy type-revision macro(s):" % self.FileName )
             for a in oldlines:
                 self.Print( a )
-                self.Print( "Should be:\n vtkTypeMacro(%s, %s);" %
+                self.Print( "Should be:\n vtkTypeMacro(%s, %s)" %
                             (self.ClassName, self.ParentName))
             self.Error("Legacy style type-revision macro")
         if not found:
             self.Print( "File: %s does not have type macro" % self.FileName )
-            self.Print( "Should be:\n vtkTypeMacro(%s, %s);" %
+            self.Print( "Should be:\n vtkTypeMacro(%s, %s)" %
                             (self.ClassName, self.ParentName))
             self.Error("No type macro")
         pass

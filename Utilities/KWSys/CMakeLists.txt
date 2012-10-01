@@ -1,5 +1,5 @@
 set(vtksys_LIBRARIES vtksys)
-vtk_module_impl()
+vtk_module_export_info()
 
 #-----------------------------------------------------------------------------
 # Configure KWSys to be named "vtksys".
@@ -17,10 +17,6 @@ SET(KWSYS_USE_Glob 1)
 set(KWSYS_HEADER_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 SET(KWSYS_PROPERTIES_CXX ${VTK_LIBRARY_PROPERTIES})
 SET(KWSYS_INSTALL_EXPORT_NAME ${VTK_INSTALL_EXPORT_NAME})
-
-IF(NOT VTK_USE_ANSI_STDLIB)
-  SET(KWSYS_IOS_FORCE_OLD 1)
-ENDIF(NOT VTK_USE_ANSI_STDLIB)
 
 if(NOT VTK_INSTALL_NO_LIBRARIES)
   set(KWSYS_INSTALL_BIN_DIR ${VTK_INSTALL_RUNTIME_DIR})

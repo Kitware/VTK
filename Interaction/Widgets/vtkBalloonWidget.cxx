@@ -25,8 +25,10 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 #include "vtkObjectFactory.h"
+#include "vtkPickingManager.h"
 #include "vtkCommand.h"
 #include "vtkImageData.h"
+
 #include <map>
 
 vtkStandardNewMacro(vtkBalloonWidget);
@@ -132,7 +134,8 @@ void vtkBalloonWidget::SetEnabled(int enabling)
 {
   this->Superclass::SetEnabled(enabling);
 
-  if ( this->Interactor)
+  if ( this->Interactor &&
+       this->Interactor->GetRenderWindow())
     {
     this->SetCurrentRenderer(this->Interactor->GetRenderWindow()->
                              GetRenderers()->GetFirstRenderer());
@@ -170,9 +173,16 @@ void vtkBalloonWidget::SetPicker(vtkAbstractPropPicker *picker)
   this->Picker->Delete();
   this->Picker = picker;
   this->Picker->Register(this);
+
+  this->PickersModified();
   this->Modified();
 }
 
+//----------------------------------------------------------------------
+void vtkBalloonWidget::RegisterPickers()
+{
+  this->Interactor->GetPickingManager()->AddPicker(this->Picker, this);
+}
 
 //----------------------------------------------------------------------
 void vtkBalloonWidget::CreateDefaultRepresentation()
@@ -282,14 +292,14 @@ int vtkBalloonWidget::SubclassHoverAction()
   double e[2];
   e[0] = static_cast<double>(this->Interactor->GetEventPosition()[0]);
   e[1] = static_cast<double>(this->Interactor->GetEventPosition()[1]);
-  vtkRenderer *ren = this->CurrentRenderer;
   if ( this->CurrentProp )
     {
     this->CurrentProp->UnRegister(this);
     this->CurrentProp = NULL;
     }
-  this->Picker->Pick(e[0],e[1],0.0,ren);
-  vtkAssemblyPath *path = this->Picker->GetPath();
+
+  vtkAssemblyPath* path = this->GetAssemblyPath(e[0], e[1], 0., this->Picker);
+
   if ( path != NULL )
     {
     vtkPropMapIterator iter =

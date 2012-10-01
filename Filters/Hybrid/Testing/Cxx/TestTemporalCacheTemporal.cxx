@@ -25,7 +25,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkTemporalDataSet.h"
 #include "vtkTemporalDataSetCache.h"
 #include "vtkTemporalFractal.h"
 #include "vtkTemporalInterpolator.h"
@@ -43,19 +42,8 @@ public:
     // count the number of timesteps requested
     vtkTemporalFractal *f = vtkTemporalFractal::SafeDownCast(caller);
     vtkInformation *info = f->GetExecutive()->GetOutputInformation(0);
-    int Length = info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    int Length = info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP())? 1 : 0;
     this->Count += Length;
-    if (Length>0)
-      {
-      std::vector<double> steps;
-      steps.resize(Length);
-      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), &steps[0]);
-      for (int i=0; i<Length; ++i)
-        {
-//        cout << steps[i] << " ";
-        }
-//      cout << endl;
-      }
   }
 
   unsigned int Count;
@@ -132,21 +120,21 @@ int TestTemporalCacheTemporal(int , char *[])
   renWin->AddRenderer( renderer );
   renWin->SetSize( 300, 300 );
   iren->SetRenderWindow( renWin );
-  renWin->Render();
 
   // ask for some specific data points
   vtkStreamingDemandDrivenPipeline *sdd =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(geom->GetExecutive());
-  double times[1];
-  times[0] = 0;
+  sdd->UpdateInformation();
+
+  double time = 0;
   int i;
   int j;
   for (j = 0; j < 5; ++j)
     {
     for (i = 0; i < 11; ++i)
       {
-      times[0] = i/2.0;
-      sdd->SetUpdateTimeSteps(0, times, 1);
+      time = i/2.0;
+      sdd->SetUpdateTimeStep(0, time);
       mapper->Modified();
       renderer->ResetCameraClippingRange();
       renWin->Render();

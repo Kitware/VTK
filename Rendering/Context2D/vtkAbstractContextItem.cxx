@@ -25,6 +25,7 @@ vtkAbstractContextItem::vtkAbstractContextItem()
   this->Parent = NULL;
   this->Children = new vtkContextScenePrivate(this);
   this->Visible = true;
+  this->Interactive = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -220,7 +221,7 @@ vtkVector2f vtkAbstractContextItem::MapToScene(const vtkVector2f& point)
     }
   else
     {
-    return point;
+    return this->MapToParent(point);
     }
 }
 
@@ -235,7 +236,7 @@ vtkVector2f vtkAbstractContextItem::MapFromScene(const vtkVector2f& point)
     }
   else
     {
-    return point;
+    return this->MapFromParent(point);
     }
 }
 

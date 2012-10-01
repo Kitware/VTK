@@ -1,15 +1,15 @@
 vtk_module(vtkIOParallel
   GROUPS
-    MPI
-  IMPLEMENTS
-    vtkIOImage
+    StandAlone
   DEPENDS
     vtkParallelCore
     vtkFiltersParallel
-    vtkIOParallelMPI
     vtkIONetCDF
+    vtkIOXML
     vtkexodusII
-    vtkVPIC
   TEST_DEPENDS
+    vtkParallelMPI
+    vtkRenderingParallel
     vtkTestingCore
+    vtkTestingRendering
   )

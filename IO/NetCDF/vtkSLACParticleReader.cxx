@@ -352,8 +352,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
   CALL_NETCDF(nc_inq_varid(ncFD(), "time", &timeVar));
   double timeValue;
   CALL_NETCDF(nc_get_var_double(ncFD(), timeVar, &timeValue));
-  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                &timeValue, 1);
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),  timeValue);
 
   return 1;
 }

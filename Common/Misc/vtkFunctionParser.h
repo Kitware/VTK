@@ -235,6 +235,10 @@ public:
   // Check the validity of the function expression.
   void CheckExpression(int &pos, char **error);
 
+  // Description:
+  // Allow the user to force the function to be re-parsed
+  void InvalidateFunction();
+
 protected:
   vtkFunctionParser();
   ~vtkFunctionParser();

@@ -164,7 +164,7 @@ void vtkMultiProcessStream::Reset()
 //----------------------------------------------------------------------------
 int vtkMultiProcessStream::Size()
 {
-  return( this->Internals->Data.size() );
+  return( static_cast<int>(this->Internals->Data.size()));
 }
 
 //----------------------------------------------------------------------------

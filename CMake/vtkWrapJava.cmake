@@ -8,12 +8,22 @@ MACRO(VTK_WRAP_JAVA2 TARGET SOURCE_LIST_NAME)
 ENDMACRO(VTK_WRAP_JAVA2)
 
 macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
-  IF(NOT VTK_PARSE_JAVA_EXE)
-    MESSAGE(SEND_ERROR "VTK_PARSE_JAVA_EXE not specified when calling VTK_WRAP_JAVA3")
-  ENDIF(NOT VTK_PARSE_JAVA_EXE)
-  IF(NOT VTK_WRAP_JAVA_EXE)
-    MESSAGE(SEND_ERROR "VTK_WRAP_JAVA_EXE not specified when calling VTK_WRAP_JAVA3")
-  ENDIF(NOT VTK_WRAP_JAVA_EXE)
+  if(NOT VTK_PARSE_JAVA_EXE)
+    if(TARGET vtkParseJava)
+      set(VTK_PARSE_JAVA_EXE vtkParseJava)
+    else()
+      message(SEND_ERROR
+        "VTK_PARSE_JAVA_EXE not specified when calling VTK_WRAP_JAVA3")
+    endif()
+  endif()
+  if(NOT VTK_WRAP_JAVA_EXE)
+    if(TARGET vtkWrapJava)
+      set(VTK_WRAP_JAVA_EXE vtkWrapJava)
+    else()
+      message(SEND_ERROR
+        "VTK_WRAP_JAVA_EXE not specified when calling VTK_WRAP_JAVA3")
+    endif()
+  endif()
 
   IF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
     SET(verbatim "")
@@ -30,49 +40,48 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
     SET(VTK_WRAP_JAVA_CUSTOM_LIST)
   ENDIF(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS)
 
-  GET_DIRECTORY_PROPERTY(TMP_DEF_LIST DEFINITION COMPILE_DEFINITIONS)
-  SET(TMP_DEFINITIONS)
-  FOREACH(TMP_DEF ${TMP_DEF_LIST})
-    SET(TMP_DEFINITIONS ${TMP_DEFINITIONS} -D "${quote}${TMP_DEF}${quote}")
-  ENDFOREACH(TMP_DEF ${TMP_DEF_LIST})
+  # all the include directories
+  if(VTK_WRAP_INCLUDE_DIRS)
+    set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
+  else()
+    set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
+  endif()
 
-  IF(VTK_WRAP_INCLUDE_DIRS)
-    SET(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
-  ELSE(VTK_WRAP_INCLUDE_DIRS)
-    SET(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
-  ENDIF(VTK_WRAP_INCLUDE_DIRS)
-  SET(TMP_INCLUDE)
-  FOREACH(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
-    SET(TMP_INCLUDE ${TMP_INCLUDE} -I "${quote}${INCLUDE_DIR}${quote}")
-  ENDFOREACH(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+  # collect the common wrapper-tool arguments
+  set(_common_args)
+  get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
+  foreach(TMP_DEF ${_def_list})
+    set(_common_args "${_common_args}-D${TMP_DEF}\n")
+  endforeach()
+  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+    set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
+  endforeach()
+  if(VTK_WRAP_HINTS)
+    set(_common_args "${_common_args}--hints \"${VTK_WRAP_HINTS}\"\n")
+  endif()
+  if(KIT_HIERARCHY_FILE)
+    set(_common_args "${_common_args}--types \"${KIT_HIERARCHY_FILE}\"\n")
+  endif()
 
-  IF (VTK_WRAP_HINTS)
-    SET(TMP_HINTS "--hints" "${quote}${VTK_WRAP_HINTS}${quote}")
-  ELSE (VTK_WRAP_HINTS)
-    SET(TMP_HINTS)
-  ENDIF (VTK_WRAP_HINTS)
-
-  IF (KIT_HIERARCHY_FILE)
-    SET(TMP_HIERARCHY "--types" "${quote}${KIT_HIERARCHY_FILE}${quote}")
-  ELSE (KIT_HIERARCHY_FILE)
-    SET(TMP_HIERARCHY)
-  ENDIF (KIT_HIERARCHY_FILE)
+  # write wrapper-tool arguments to a file
+  string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
+  set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.args)
+  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+                 ${_args_file} @ONLY)
 
   SET(VTK_JAVA_DEPENDENCIES)
   SET(VTK_JAVA_DEPENDENCIES_FILE)
+
   # For each class
   FOREACH(FILE ${SOURCES})
     # should we wrap the file?
     get_source_file_property(TMP_WRAP_EXCLUDE ${FILE} WRAP_EXCLUDE)
 
-    # we don't wrap the headers in Java
-    get_source_file_property(TMP_WRAP_HEADER ${FILE} WRAP_HEADER)
-
     # some wrapped files need to be compiled as objective C++
     get_source_file_property(TMP_WRAP_OBJC ${FILE} WRAP_JAVA_OBJC)
 
     # if we should wrap it
-    IF (NOT TMP_WRAP_EXCLUDE AND NOT TMP_WRAP_HEADER)
+    IF (NOT TMP_WRAP_EXCLUDE)
 
       # what is the filename without the extension
       GET_FILENAME_COMPONENT(TMP_FILENAME ${FILE} NAME_WE)
@@ -109,34 +118,28 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
       # add custom command to output
       ADD_CUSTOM_COMMAND(
         OUTPUT ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
-        DEPENDS ${VTK_PARSE_JAVA_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT}
+        DEPENDS ${VTK_PARSE_JAVA_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_args_file}
         ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_PARSE_JAVA_EXE}
         ARGS
         ${TMP_CONCRETE}
-        ${TMP_HINTS}
-        ${TMP_HIERARCHY}
-        ${TMP_DEFINITIONS}
-        ${TMP_INCLUDE}
+        "${quote}@${_args_file}${quote}"
+        "-o" "${quote}${VTK_JAVA_HOME}/${TMP_FILENAME}.java${quote}"
         "${quote}${TMP_INPUT}${quote}"
-        "${quote}${VTK_JAVA_HOME}/${TMP_FILENAME}.java${quote}"
         COMMENT "Java Wrappings - generating ${TMP_FILENAME}.java"
         )
 
       # add custom command to output
       ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
-        DEPENDS ${VTK_WRAP_JAVA_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT}
+        DEPENDS ${VTK_WRAP_JAVA_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_args_file}
         ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_JAVA_EXE}
         ARGS
         ${TMP_CONCRETE}
-        ${TMP_HINTS}
-        ${TMP_HIERARCHY}
-        ${TMP_DEFINITIONS}
-        ${TMP_INCLUDE}
+        "${quote}@${_args_file}${quote}"
+        "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}${quote}"
         "${quote}${TMP_INPUT}${quote}"
-        "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}${quote}"
         COMMENT "Java Wrappings - generating ${TMP_WRAPPED_FILENAME}"
         )
 

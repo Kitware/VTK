@@ -3,7 +3,7 @@ PROJECT (VTKFTGL)
 set(vtkftgl_THIRD_PARTY 1)
 set(vtkftgl_LIBRARIES vtkftgl)
 set(vtkftgl_INCLUDE_DIRS ${VTKFTGL_SOURCE_DIR}/src)
-vtk_module_impl()
+vtk_module_export_info()
 set(VTK_FREETYPE_LIBRARIES ${vtkfreetype_LIBRARIES})
 
 #
@@ -94,15 +94,6 @@ IF (UNIX)
     SET (VTKFTGL_HPUX_SOURCE 1)
   ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
 ENDIF (UNIX)
-
-#
-# Apple flags
-#
-IF (APPLE)
-  IF(CMAKE_COMPILER_IS_GNUCXX)
-    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -fpascal-strings")
-  ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-ENDIF (APPLE)
 
 #
 # We need OpenGL

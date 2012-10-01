@@ -1,6 +1,7 @@
 vtk_module(vtkInteractionImage
   GROUPS
     Imaging
+    Rendering
   DEPENDS
     vtkRenderingCore
     vtkRenderingFreeType

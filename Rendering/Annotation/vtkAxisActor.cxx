@@ -20,15 +20,16 @@
 #include "vtkCoordinate.h"
 #include "vtkFollower.h"
 #include "vtkFreeTypeUtilities.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
 #include "vtkStringArray.h"
-#include "vtkVectorText.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
+#include "vtkVectorText.h"
 #include "vtkViewport.h"
 
 vtkStandardNewMacro(vtkAxisActor);
@@ -190,6 +191,16 @@ vtkAxisActor::vtkAxisActor()
   this->LastMaxDisplayCoordinate[0] = 0;
   this->LastMaxDisplayCoordinate[1] = 0;
   this->LastMaxDisplayCoordinate[2] = 0;
+
+  this->DrawGridlinesLocation = 0; // All locations
+
+  // reset the base
+  for(int i=0;i<3;i++)
+    {
+    this->AxisBaseForX[i] = this->AxisBaseForY[i] = this->AxisBaseForZ[i] = 0.0;
+    }
+  this->AxisBaseForX[0] = this->AxisBaseForY[1] = this->AxisBaseForZ[2] = 1.0;
+  this->AxisOnOrigin = 0;
 }
 
 // ****************************************************************
@@ -440,22 +451,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // ****************************************************************
 int vtkAxisActor::RenderTranslucentGeometry(vtkViewport *viewport)
 {
-
-  int renderedSomething=0;
-
-  this->BuildAxis(viewport, false);
-
-  // Everything is built, just have to render
-
-  if (!this->AxisHasZeroLength)
-    {
-    if(this->DrawGridpolys)
-      {
-      renderedSomething += this->GridpolysActor->RenderTranslucentPolygonalGeometry(viewport);
-      }
-    }
-
-  return renderedSomething;
+  return this->RenderTranslucentPolygonalGeometry(viewport);
 }
 
 // ****************************************************************
@@ -510,14 +506,6 @@ int vtkAxisActor::RenderOverlay(vtkViewport *viewport)
   return renderedSomething;
 }
 
-// ****************************************************************
-// Tells whether there is translucent geometry to draw
-// ****************************************************************
-int vtkAxisActor::HasTranslucentPolygonalGeometry()
-{
-  return 1;
-}
-
 // **************************************************************************
 // Perform some initialization, determine which Axis type we are
 // **************************************************************************
@@ -561,43 +549,33 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
   // Generate the axis and tick marks.
   //
   bool ticksRebuilt;
-  if (this->AxisType == VTK_AXIS_TYPE_X)
-    {
-    ticksRebuilt = this->BuildTickPointsForXType(p1, p2, force);
-    }
-  else if (this->AxisType == VTK_AXIS_TYPE_Y)
-    {
-    ticksRebuilt = this->BuildTickPointsForYType(p1, p2, force);
-    }
-  else
-    {
-    ticksRebuilt = this->BuildTickPointsForZType(p1, p2, force);
-    }
+  ticksRebuilt = this->BuildTickPoints(p1, p2, force);
 
   bool tickVisChanged = this->TickVisibilityChanged();
 
   if (force || ticksRebuilt || tickVisChanged)
-   {
-   this->SetAxisPointsAndLines();
-   }
+    {
+    this->SetAxisPointsAndLines();
+    }
 
-  this->BuildLabels(viewport, force);
+  // If the ticks have been rebuilt it is more than likely
+  // that the labels should follow...
+  this->BuildLabels(viewport, force || ticksRebuilt);
   if (this->Use2DMode == 1)
     {
-    this->BuildLabels2D(viewport, force);
+    this->BuildLabels2D(viewport, force || ticksRebuilt);
     }
 
   if (this->Title != NULL && this->Title[0] != 0)
     {
-    this->BuildTitle(force);
+    this->BuildTitle(force || ticksRebuilt);
     if( this->Use2DMode == 1 )
       {
-      this->BuildTitle2D(viewport, force);
+      this->BuildTitle2D(viewport, force || ticksRebuilt);
       }
     }
 
   this->LastAxisPosition = this->AxisPosition;
-  this->LastTickLocation = this->TickLocation;
 
   this->LastRange[0] = this->Range[0];
   this->LastRange[1] = this->Range[1];
@@ -1194,586 +1172,6 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
 }
 
 // **************************************************************************
-// Creates points for ticks (minor, major, gridlines) in correct position
-// for X-type axsis.
-// **************************************************************************
-bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
-                                           bool force)
-{
-  if (!force && (this->AxisPosition == this->LastAxisPosition) &&
-      (this->TickLocation == this->LastTickLocation ) &&
-      (this->BoundsTime.GetMTime() < this->BuildTime.GetMTime()))
-    {
-    return false;
-    }
-
-  double xPoint1[3], xPoint2[3], yPoint[3], zPoint[3], x;
-  double gp1[3],gp2[3],gp3[3],gp4[3];
-  int numTicks;
-
-  this->MinorTickPts->Reset();
-  this->MajorTickPts->Reset();
-  this->GridlinePts->Reset();
-  this->InnerGridlinePts->Reset();
-  this->GridpolyPts->Reset();
-
-  //
-  // yMult & zMult control adjustments to tick position based
-  // upon "where" this axis is located in relation to the underlying
-  // assumed bounding box.
-  //
-  int yMult = vtkAxisActorMultiplierTable1[this->AxisPosition];
-  int zMult = vtkAxisActorMultiplierTable2[this->AxisPosition];
-
-  //
-  // Build Minor Ticks
-  //
-  if (this->TickLocation == VTK_TICKS_OUTSIDE)
-    {
-    xPoint1[1] = xPoint2[1] = zPoint[1] = p1[1];
-    xPoint1[2] = xPoint2[2] = yPoint[2] = p1[2];
-    yPoint[1] = p1[1] + yMult * this->MinorTickSize;
-    zPoint[2] = p1[2] + zMult * this->MinorTickSize;
-    }
-  else if (this->TickLocation == VTK_TICKS_INSIDE)
-    {
-    yPoint[1] = xPoint2[1] = zPoint[1] = p1[1];
-    xPoint1[2] = yPoint[2] = zPoint[2] = p1[2];
-    xPoint1[1] = p1[1] - yMult * this->MinorTickSize;
-    xPoint2[2] = p1[2] - zMult * this->MinorTickSize;
-    }
-  else // both sides
-    {
-    xPoint2[1] = zPoint[1] = p1[1];
-    xPoint1[2] = yPoint[2] = p1[2];
-    yPoint[1] = p1[1] + yMult * this->MinorTickSize;
-    zPoint[2] = p1[2] + zMult * this->MinorTickSize;
-    xPoint1[1] = p1[1] - yMult * this->MinorTickSize;
-    xPoint2[2] = p1[2] - zMult * this->MinorTickSize;
-    }
-  x = this->MinorStart;
-  numTicks = 0;
-  while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
-    {
-    xPoint1[0] = xPoint2[0] = yPoint[0] = zPoint[0] = x;
-    // xy portion
-    this->MinorTickPts->InsertNextPoint(xPoint1);
-    this->MinorTickPts->InsertNextPoint(yPoint);
-    if( this->Use2DMode == 0 )
-      {
-      // xz portion
-      this->MinorTickPts->InsertNextPoint(xPoint2);
-      this->MinorTickPts->InsertNextPoint(zPoint);
-      }
-    x+= this->DeltaMinor;
-    numTicks++;
-    }
-
-  //
-  // Gridline and inner gridline points
-  //
-  yPoint[1] = xPoint2[1] = zPoint[1] = p1[1];
-  xPoint1[1] = p1[1] - yMult * this->GridlineYLength;
-  xPoint1[2] = yPoint[2] = zPoint[2] = p1[2];
-  xPoint2[2] = p1[2] - zMult * this->GridlineZLength;
-  // Gridline
-  x = this->MajorStart[0];
-  numTicks = 0;
-  while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
-    {
-    xPoint1[0] = xPoint2[0] = yPoint[0] = zPoint[0] = x;
-    // xy portion
-    this->GridlinePts->InsertNextPoint(xPoint1);
-    this->GridlinePts->InsertNextPoint(yPoint);
-    // xz portion
-    this->GridlinePts->InsertNextPoint(xPoint2);
-    this->GridlinePts->InsertNextPoint(zPoint);
-    x += this->DeltaMajor[0];
-    numTicks++;
-    }
-  // Inner gridline
-  x = this->MajorStart[0];
-  numTicks = 0;
-  while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
-    {
-    xPoint1[0] = xPoint2[0] = yPoint[0] = zPoint[0] = x;
-    // y lines
-    double z = this->MajorStart[2];
-    while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
-      {
-      xPoint1[2]=yPoint[2]=z;
-      this->InnerGridlinePts->InsertNextPoint(xPoint1);
-      this->InnerGridlinePts->InsertNextPoint(yPoint);
-      z += this->DeltaMajor[2];
-      numTicks++;
-      }
-    // z lines
-    double y = this->MajorStart[1];
-    while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
-      {
-      xPoint2[1]=zPoint[1]=y;
-      this->InnerGridlinePts->InsertNextPoint(xPoint2);
-      this->InnerGridlinePts->InsertNextPoint(zPoint);
-      y += this->DeltaMajor[1];
-      numTicks++;
-      }
-    x += this->DeltaMajor[0];
-    }
-
-  //
-  // Gridpoly points
-  //
-  gp1[1]=p1[1];gp1[2]=p1[2];
-  gp2[1]=p1[1]- yMult * this->GridlineYLength;gp2[2]=p1[2];
-  gp3[1]=p1[1]- yMult * this->GridlineYLength;gp3[2]=p1[2]- zMult * this->GridlineZLength;
-  gp4[1]=p1[1];gp4[2]=p1[2]- zMult * this->GridlineZLength;
-  x = this->MajorStart[0];
-  numTicks = 0;
-  while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
-    {
-    gp1[0] = gp2[0] = gp3[0] = gp4[0] = x;
-    this->GridpolyPts->InsertNextPoint(gp1);
-    this->GridpolyPts->InsertNextPoint(gp2);
-    this->GridpolyPts->InsertNextPoint(gp3);
-    this->GridpolyPts->InsertNextPoint(gp4);
-    x += this->DeltaMajor[0];
-    numTicks++;
-    }
-
-  //
-  // Major ticks
-  //
-  if (this->TickLocation == VTK_TICKS_OUTSIDE)
-    {
-    xPoint1[1] = xPoint2[1] = zPoint[1] = p1[1];
-    xPoint1[2] = xPoint2[2] = yPoint[2] = p1[2];
-    yPoint[1] = p1[1] + yMult * this->MajorTickSize;
-    zPoint[2] = p1[2] + zMult * this->MajorTickSize;
-    }
-  else if (this->TickLocation == VTK_TICKS_INSIDE)
-    {
-    yPoint[1] = xPoint2[1] = zPoint[1] = p1[1];
-    xPoint1[2] = yPoint[2] = zPoint[2] = p1[2];
-    xPoint1[1] = p1[1] - yMult * this->MajorTickSize;
-    xPoint2[2] = p1[2] - zMult * this->MajorTickSize;
-    }
-  else // both sides
-    {
-    xPoint2[1] = zPoint[1] = p1[1];
-    xPoint1[2] = yPoint[2] = p1[2];
-    yPoint[1] = p1[1] + yMult * this->MajorTickSize;
-    zPoint[2] = p1[2] + zMult * this->MajorTickSize;
-    xPoint1[1] = p1[1] - yMult * this->MajorTickSize;
-    xPoint2[2] = p1[2] - zMult * this->MajorTickSize;
-    }
-  x = this->MajorStart[0];
-  numTicks = 0;
-  while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
-    {
-    xPoint1[0] = xPoint2[0] = yPoint[0] = zPoint[0] = x;
-    // xy portion
-    this->MajorTickPts->InsertNextPoint(xPoint1);
-    this->MajorTickPts->InsertNextPoint(yPoint);
-    // xz portion
-    this->MajorTickPts->InsertNextPoint(xPoint2);
-    this->MajorTickPts->InsertNextPoint(zPoint);
-    x += this->DeltaMajor[0];
-    numTicks++;
-    }
-
-  return true;
-}
-
-// **************************************************************************
-// Creates points for ticks (minor, major, gridlines) in correct position
-// for Y-type axis.
-// **************************************************************************
-bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
-                                           bool force)
-{
-  if (!force && (this->AxisPosition  == this->LastAxisPosition) &&
-      (this->TickLocation == this->LastTickLocation) &&
-      (this->BoundsTime.GetMTime() < this->BuildTime.GetMTime()))
-    {
-    return false;
-    }
-
-  double yPoint1[3], yPoint2[3], xPoint[3], zPoint[3], y;
-  double gp1[3],gp2[3],gp3[3],gp4[3];
-  int numTicks;
-
-  this->MinorTickPts->Reset();
-  this->MajorTickPts->Reset();
-  this->GridlinePts->Reset();
-  this->InnerGridlinePts->Reset();
-  this->GridpolyPts->Reset();
-
-  //
-  // xMult & zMult control adjustments to tick position based
-  // upon "where" this axis is located in relation to the underlying
-  // assumed bounding box.
-  //
-
-  int xMult = vtkAxisActorMultiplierTable1[this->AxisPosition];
-  int zMult = vtkAxisActorMultiplierTable2[this->AxisPosition];
-
-  //
-  // The ordering of the tick endpoints is important because
-  // label position is defined by them.
-  //
-
-  //
-  // Minor ticks
-  //
-  if (this->TickLocation == VTK_TICKS_INSIDE)
-    {
-    yPoint1[2] = xPoint[2] = zPoint[2] = p1[2];
-    yPoint2[0] = xPoint[0] = zPoint[0] = p1[0];
-    yPoint1[0] = p1[0] - xMult * this->MinorTickSize;
-    yPoint2[2] = p1[2] - zMult * this->MinorTickSize;
-    }
-  else if (this->TickLocation == VTK_TICKS_OUTSIDE)
-    {
-    yPoint1[0] = yPoint2[0] = zPoint[0] = p1[0];
-    yPoint1[2] = yPoint2[2] = xPoint[2] = p1[2];
-    xPoint[0] = p1[0] + xMult * this->MinorTickSize;
-    zPoint[2] = p1[2] + zMult * this->MinorTickSize;
-    }
-  else                              // both sides
-    {
-    yPoint1[2] = xPoint[2] = p1[2];
-    yPoint2[0] = zPoint[0] = p1[0];
-    yPoint1[0] = p1[0] - xMult * this->MinorTickSize;
-    yPoint2[2] = p1[2] + zMult * this->MinorTickSize;
-    xPoint[0]  = p1[0] + xMult * this->MinorTickSize;
-    zPoint[2]  = p1[2] - zMult * this->MinorTickSize;
-    }
-  y = this->MinorStart;
-  numTicks = 0;
-  while (y < p2[1] && numTicks < VTK_MAX_TICKS)
-    {
-    yPoint1[1] = xPoint[1] = yPoint2[1] = zPoint[1] = y;
-    // yx portion
-    this->MinorTickPts->InsertNextPoint(yPoint1);
-    this->MinorTickPts->InsertNextPoint(xPoint);
-    // yz portion
-    this->MinorTickPts->InsertNextPoint(yPoint2);
-    this->MinorTickPts->InsertNextPoint(zPoint);
-    y += this->DeltaMinor;
-    numTicks++;
-    }
-
-  //
-  // Gridline and inner gridline points
-  //
-  yPoint1[0] = p1[0] - xMult * this->GridlineXLength;
-  yPoint2[2] = p1[2] - zMult * this->GridlineZLength;
-  yPoint2[0] = xPoint[0] = zPoint[0]  = p1[0];
-  yPoint1[2] = xPoint[2] = zPoint[2]  = p1[2];
-  // Gridline
-  y = this->MajorStart[1];
-  numTicks = 0;
-  while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
-    {
-    yPoint1[1] = xPoint[1] = yPoint2[1] = zPoint[1] = y;
-    // yx portion
-    this->GridlinePts->InsertNextPoint(yPoint1);
-    this->GridlinePts->InsertNextPoint(xPoint);
-    if( this->Use2DMode == 0 )
-      {
-      // yz portion
-      this->GridlinePts->InsertNextPoint(yPoint2);
-      this->GridlinePts->InsertNextPoint(zPoint);
-      }
-    y += this->DeltaMajor[1];
-    numTicks++;
-    }
-  // Inner gridline
-  y = this->MajorStart[1];
-  numTicks = 0;
-  while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
-    {
-    yPoint1[1] = xPoint[1] = yPoint2[1] = zPoint[1] = y;
-    // x lines
-    double z = this->MajorStart[2];
-    while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
-      {
-      yPoint1[2]=xPoint[2]=z;
-      this->InnerGridlinePts->InsertNextPoint(yPoint1);
-      this->InnerGridlinePts->InsertNextPoint(xPoint);
-      z += this->DeltaMajor[2];
-      numTicks++;
-      }
-    // z lines
-    double x = this->MajorStart[0];
-    while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
-      {
-      yPoint2[0]=zPoint[0]=x;
-      this->InnerGridlinePts->InsertNextPoint(yPoint2);
-      this->InnerGridlinePts->InsertNextPoint(zPoint);
-      x += this->DeltaMajor[0];
-      numTicks++;
-      }
-    y += this->DeltaMajor[1];
-    }
-
-  //
-  // Gridpoly points
-  //
-  gp1[0]=p1[0];gp1[2]=p1[2];
-  gp2[0]=p1[0]- xMult * this->GridlineXLength;gp2[2]=p1[2];
-  gp3[0]=p1[0]- xMult * this->GridlineXLength;gp3[2]=p1[2]- zMult * this->GridlineZLength;
-  gp4[0]=p1[0];gp4[2]=p1[2]- zMult * this->GridlineZLength;
-  y = this->MajorStart[1];
-  numTicks = 0;
-  while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
-    {
-    gp1[1] = gp2[1] = gp3[1] = gp4[1] = y;
-    this->GridpolyPts->InsertNextPoint(gp1);
-    this->GridpolyPts->InsertNextPoint(gp2);
-    this->GridpolyPts->InsertNextPoint(gp3);
-    this->GridpolyPts->InsertNextPoint(gp4);
-    numTicks++;
-    y += this->DeltaMajor[1];
-    }
-
-  //
-  // Major ticks
-  //
-  if (this->TickLocation == VTK_TICKS_INSIDE)
-    {
-    yPoint1[2] = xPoint[2] = zPoint[2] = p1[2];
-    yPoint2[0] = xPoint[0] = zPoint[0] = p1[0];
-    yPoint1[0] = p1[0] - xMult * this->MajorTickSize;
-    yPoint2[2] = p1[2] - zMult * this->MajorTickSize;
-    }
-  else if (this->TickLocation == VTK_TICKS_OUTSIDE)
-    {
-    yPoint1[0] = yPoint2[0] = zPoint[0] = p1[0];
-    yPoint1[2] = yPoint2[2] = xPoint[2] = p1[2];
-    xPoint[0] = p1[0] + xMult * this->MajorTickSize;
-    zPoint[2] = p1[2] + zMult * this->MajorTickSize;
-    }
-  else                              // both sides
-    {
-    yPoint1[2] = xPoint[2] = p1[2];
-    yPoint2[0] = zPoint[0] = p1[0];
-    yPoint1[0] = p1[0] - xMult * this->MajorTickSize;
-    yPoint2[2] = p1[2] + zMult * this->MajorTickSize;
-    xPoint[0]  = p1[0] + xMult * this->MajorTickSize;
-    zPoint[2]  = p1[2] - zMult * this->MajorTickSize;
-    }
-  y = this->MajorStart[1];
-  numTicks = 0;
-  while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
-    {
-    yPoint1[1] = xPoint[1] = yPoint2[1] = zPoint[1] = y;
-    // yx portion
-    this->MajorTickPts->InsertNextPoint(yPoint1);
-    this->MajorTickPts->InsertNextPoint(xPoint);
-    // yz portion
-    this->MajorTickPts->InsertNextPoint(yPoint2);
-    this->MajorTickPts->InsertNextPoint(zPoint);
-    y += this->DeltaMajor[1];
-    numTicks++;
-    }
-  return true;
-}
-
-// **************************************************************************
-// Creates points for ticks (minor, major, gridlines) in correct position
-// for Z-type axis.
-// **************************************************************************
-
-bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
-                                           bool force)
-{
-  if (!force && (this->AxisPosition  == this->LastAxisPosition) &&
-      (this->TickLocation == this->LastTickLocation) &&
-      (this->BoundsTime.GetMTime() < this->BuildTime.GetMTime()))
-    {
-    return false;
-    }
-
-  this->MinorTickPts->Reset();
-  this->MajorTickPts->Reset();
-  this->GridlinePts->Reset();
-  this->InnerGridlinePts->Reset();
-  this->GridpolyPts->Reset();
-
-  //
-  // xMult & yMult control adjustments to tick position based
-  // upon "where" this axis is located in relation to the underlying
-  // assumed bounding box.
-  //
-  int xMult = vtkAxisActorMultiplierTable1[this->AxisPosition];
-  int yMult = vtkAxisActorMultiplierTable2[this->AxisPosition];
-
-  double zPoint1[3], zPoint2[3], xPoint[3], yPoint[3], z;
-  double gp1[3],gp2[3],gp3[3],gp4[3];
-  int numTicks;
-
-  //
-  // The ordering of the tick endpoints is important because
-  // label position is defined by them.
-  //
-
-  //
-  // Minor ticks
-  //
-  if (this->TickLocation == VTK_TICKS_INSIDE)
-    {
-    zPoint1[0] = p1[0] - xMult * this->MinorTickSize;
-    zPoint2[1] = p1[1] - yMult * this->MinorTickSize;
-    zPoint2[0] = xPoint[0] = yPoint[0]  = p1[0];
-    zPoint1[1] = xPoint[1] = yPoint[1]  = p1[1];
-    }
-  else if (this->TickLocation == VTK_TICKS_OUTSIDE)
-    {
-    xPoint[0]  = p1[0] + xMult * this->MinorTickSize;
-    yPoint[1]  = p1[1] +yMult * this->MinorTickSize;
-    zPoint1[0] = zPoint2[0] = yPoint[0] = p1[0];
-    zPoint1[1] = zPoint2[1] = xPoint[1] = p1[1];
-    }
-  else                              // both sides
-    {
-    zPoint1[0] = p1[0] - xMult * this->MinorTickSize;
-    xPoint[0]  = p1[0] + xMult * this->MinorTickSize;
-    zPoint2[1] = p1[1] - yMult * this->MinorTickSize;
-    yPoint[1]  = p1[1] + yMult * this->MinorTickSize;
-    zPoint1[1] = xPoint[1] = p1[1];
-    zPoint2[0] = yPoint[0] = p1[0];
-    }
-  z = this->MinorStart;
-  numTicks = 0;
-  while (z < p2[2] && numTicks < VTK_MAX_TICKS)
-    {
-    zPoint1[2] = zPoint2[2] = xPoint[2] = yPoint[2] = z;
-    // zx portion
-    this->MinorTickPts->InsertNextPoint(zPoint1);
-    this->MinorTickPts->InsertNextPoint(xPoint);
-    // zy portion
-    this->MinorTickPts->InsertNextPoint(zPoint2);
-    this->MinorTickPts->InsertNextPoint(yPoint);
-    z += this->DeltaMinor;
-    numTicks++;
-    }
-
-  //
-  // Gridline and inner gridline points
-  //
-  zPoint1[0] = p1[0] - xMult * this->GridlineXLength;
-  zPoint2[1] = p1[1] - yMult * this->GridlineYLength;
-  zPoint1[1] = xPoint[1] = yPoint[1] = p1[1];
-  zPoint2[0] = xPoint[0] = yPoint[0] = p1[0];
-  // Gridline
-  z = this->MajorStart[2];
-  numTicks = 0;
-  while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
-    {
-    zPoint1[2] = zPoint2[2] = xPoint[2] = yPoint[2] = z;
-    // zx portion
-    this->GridlinePts->InsertNextPoint(zPoint1);
-    this->GridlinePts->InsertNextPoint(xPoint);
-    // zy portion
-    this->GridlinePts->InsertNextPoint(zPoint2);
-    this->GridlinePts->InsertNextPoint(yPoint);
-    z += this->DeltaMajor[2];
-    numTicks++;
-    }
-  // Inner gridline
-  z = this->MajorStart[2];
-  numTicks = 0;
-  while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
-    {
-    zPoint1[2] = zPoint2[2] = xPoint[2] = yPoint[2] = z;
-    // x lines
-    double y = this->MajorStart[1];
-    while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
-      {
-      zPoint1[1]=xPoint[1]=y;
-      this->InnerGridlinePts->InsertNextPoint(zPoint1);
-      this->InnerGridlinePts->InsertNextPoint(xPoint);
-      y += this->DeltaMajor[1];
-      numTicks++;
-      }
-    // y lines
-    double x = this->MajorStart[0];
-    while (x <= p2[0] && numTicks < VTK_MAX_TICKS)
-      {
-      zPoint2[0]=yPoint[0]=x;
-      this->InnerGridlinePts->InsertNextPoint(zPoint2);
-      this->InnerGridlinePts->InsertNextPoint(yPoint);
-      x += this->DeltaMajor[0];
-      numTicks++;
-      }
-    z += this->DeltaMajor[2];
-    }
-
-  //
-  // Gridpoly points
-  //
-  gp1[0]=p1[0];gp1[1]=p1[1];
-  gp2[0]=p1[0]- xMult * this->GridlineXLength;gp2[1]=p1[1];
-  gp3[0]=p1[0]- xMult * this->GridlineXLength;gp3[1]=p1[1]- yMult * this->GridlineYLength;
-  gp4[0]=p1[0];gp4[1]=p1[1]- yMult * this->GridlineYLength;
-  z = this->MajorStart[2];
-  numTicks = 0;
-  while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
-    {
-    gp1[2] = gp2[2] = gp3[2] = gp4[2] = z;
-    this->GridpolyPts->InsertNextPoint(gp1);
-    this->GridpolyPts->InsertNextPoint(gp2);
-    this->GridpolyPts->InsertNextPoint(gp3);
-    this->GridpolyPts->InsertNextPoint(gp4);
-    z += this->DeltaMajor[2];
-    numTicks++;
-    }
-
-  //
-  // Major ticks
-  //
-  if (this->TickLocation == VTK_TICKS_INSIDE)
-    {
-    zPoint1[0] = p1[0] - xMult * this->MajorTickSize;
-    zPoint2[1] = p1[1] - yMult * this->MajorTickSize;
-    zPoint2[0] = xPoint[0] = yPoint[0]  = p1[0];
-    zPoint1[1] = xPoint[1] = yPoint[1]  = p1[1];
-    }
-  else if (this->TickLocation == VTK_TICKS_OUTSIDE)
-    {
-    xPoint[0]  = p1[0] + xMult * this->MajorTickSize;
-    yPoint[2]  = p1[1] + yMult * this->MajorTickSize;
-    zPoint1[0] = zPoint2[0] = yPoint[0] = p1[0];
-    zPoint1[1] = zPoint2[1] = xPoint[1] = p1[1];
-    }
-  else                              // both sides
-    {
-    zPoint1[0] = p1[0] - xMult * this->MajorTickSize;
-    xPoint[0]  = p1[0] + xMult * this->MajorTickSize;
-    zPoint2[1] = p1[1] - yMult * this->MajorTickSize;
-    yPoint[1]  = p1[1] + yMult * this->MajorTickSize;
-    zPoint1[1] = xPoint[1] = p1[1];
-    zPoint2[0] = yPoint[0] = p1[0];
-    }
-  z = this->MajorStart[2];
-  numTicks = 0;
-  while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
-    {
-    zPoint1[2] = zPoint2[2] = xPoint[2] = yPoint[2] = z;
-    // zx portion
-    this->MajorTickPts->InsertNextPoint(zPoint1);
-    this->MajorTickPts->InsertNextPoint(xPoint);
-    // zy portion
-    this->MajorTickPts->InsertNextPoint(zPoint2);
-    this->MajorTickPts->InsertNextPoint(yPoint);
-    z += this->DeltaMajor[2];
-    numTicks++;
-    }
-  return true;
-}
-
-// **************************************************************************
 // Creates Poly data (lines) from tickmarks (minor/major), gridlines, and axis.
 // **************************************************************************
 void vtkAxisActor::SetAxisPointsAndLines()
@@ -1849,10 +1247,14 @@ void vtkAxisActor::SetAxisPointsAndLines()
     lines->InsertNextCell(2, ptIds);
     }
   // create grid lines
-  if (this->DrawGridlines)
+  if (this->DrawGridlines && this->AxisOnOrigin == 0)
     {
     numGridlines = this->GridlinePts->GetNumberOfPoints()/2;
-    for (i=0; i < numGridlines; i++)
+    int start =
+        (this->DrawGridlinesLocation == 0 || this->DrawGridlinesLocation == 1)
+        ? 0 : 1;
+    int increment = (this->DrawGridlinesLocation == 0) ? 1 : 2;
+    for (i = start; i < numGridlines; i+=increment)
       {
       ptIds[0] = 2*i;
       ptIds[1] = 2*i + 1;
@@ -1861,7 +1263,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
     }
 
   // create inner grid lines
-  if (this->DrawInnerGridlines)
+  if (this->DrawInnerGridlines && this->AxisOnOrigin == 0)
     {
     numInnerGridlines = this->InnerGridlinePts->GetNumberOfPoints()/2;
     for (i=0; i < numInnerGridlines; i++)
@@ -1873,7 +1275,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
     }
 
   // create polys (grid polys)
-  if (this->DrawGridpolys)
+  if (this->DrawGridpolys && this->AxisOnOrigin == 0)
     {
     numGridpolys = this->GridpolyPts->GetNumberOfPoints()/4;
     for (i = 0; i < numGridpolys; i++)
@@ -2236,4 +1638,336 @@ double* vtkAxisActor::GetPoint1()
 double* vtkAxisActor::GetPoint2()
 {
   return this->Point2Coordinate->GetValue();
+}
+// **************************************************************************
+// Creates points for ticks (minor, major, gridlines) in correct position
+// for a generic axis.
+// **************************************************************************
+bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
+{
+  // Prevent any unwanted computation
+  if (!force && (this->AxisPosition == this->LastAxisPosition) &&
+      (this->TickLocation == this->LastTickLocation ) &&
+      (this->BoundsTime.GetMTime() < this->BuildTime.GetMTime()) &&
+      (this->Point1Coordinate->GetMTime() < this->BuildTickPointsTime.GetMTime()) &&
+      (this->Point2Coordinate->GetMTime() < this->BuildTickPointsTime.GetMTime()) &&
+      (this->Range[0] == this->LastRange[0]) &&
+      (this->Range[1] == this->LastRange[1]))
+    {
+    return false;
+    }
+
+  // Local tmp vars
+  double uPointInside[3], vPointInside[3], uPointOutside[3], vPointOutside[3];
+  double gridPointClosest[3], gridPointFarest[3], gridPointU[3], gridPointV[3];
+  double innerGridPointClosestU[3], innerGridPointClosestV[3];
+  double innerGridPointFarestU[3], innerGridPointFarestV[3];
+  double deltaVector[3];
+  double axisLength, axisShift, rangeScale, nbIterationAsDouble;
+  int nbTicks, i, nbIteration, uIndex, vIndex;
+  uIndex = vIndex = 0;
+  bool hasOrthogonalVectorBase =
+      (this->AxisBaseForX[0] == 1 && this->AxisBaseForX[1] == 0 && this->AxisBaseForX[2] == 0
+       && this->AxisBaseForY[0] == 0 && this->AxisBaseForY[1] == 1 && this->AxisBaseForY[2] == 0
+       && this->AxisBaseForZ[0] == 0 && this->AxisBaseForZ[1] == 0 && this->AxisBaseForZ[2] == 1);
+
+  // Reset previous objects
+  this->MinorTickPts->Reset();
+  this->MajorTickPts->Reset();
+  this->GridlinePts->Reset();
+  this->InnerGridlinePts->Reset();
+  this->GridpolyPts->Reset();
+
+  // As we assume that the Axis is not necessery alined to the absolute X/Y/Z
+  // axis, we will convert the absolut XYZ information to relative one
+  // using a base composed as follow (axis, u, v)
+  double uGridLength, vGridLength;
+  uGridLength = vGridLength = 0;
+  double *axisVector, *uVector, *vVector;
+  axisVector = uVector = vVector = NULL;
+  int uMult = vtkAxisActorMultiplierTable1[this->AxisPosition];
+  int vMult = vtkAxisActorMultiplierTable2[this->AxisPosition];
+
+  switch(this->AxisType)
+    {
+  case VTK_AXIS_TYPE_X:
+    uGridLength = this->GridlineYLength;
+    vGridLength = this->GridlineZLength;
+    axisVector = this->AxisBaseForX;
+    uVector = this->AxisBaseForY;
+    vVector = this->AxisBaseForZ;
+    uIndex = 1; vIndex = 2;
+    break;
+  case VTK_AXIS_TYPE_Y:
+    uGridLength = this->GridlineXLength;
+    vGridLength = this->GridlineZLength;
+    uVector = this->AxisBaseForX;
+    axisVector = this->AxisBaseForY;
+    vVector = this->AxisBaseForZ;
+    uIndex = 0; vIndex = 2;
+    break;
+  case VTK_AXIS_TYPE_Z:
+    uGridLength = this->GridlineXLength;
+    vGridLength = this->GridlineYLength;
+    uVector = this->AxisBaseForX;
+    vVector = this->AxisBaseForY;
+    axisVector = this->AxisBaseForZ;
+    uIndex = 0; vIndex = 1;
+    break;
+    }
+
+  // **************************************************************************
+  // Build Minor Ticks
+  // **************************************************************************
+  {
+  // - Initialize all points to be on the axis
+  for(i=0;i<3;i++)
+    {
+    uPointInside[i] = vPointInside[i] = uPointOutside[i] = vPointOutside[i] = p1[i];
+    deltaVector[i] = (p2[i] - p1[i]);
+    }
+  axisLength = vtkMath::Norm(deltaVector);
+  rangeScale = axisLength/(this->Range[1] - this->Range[0]);
+
+  // - Reduce the deltaVector to correspond to a tick step
+  vtkMath::Normalize(deltaVector);
+  for(i=0;i<3;i++)
+    {
+    deltaVector[i] *= this->DeltaMinor;
+    }
+
+  // - Move outside points if needed (Axis -> Outside)
+  if (this->TickLocation == VTK_TICKS_OUTSIDE || this->TickLocation == VTK_TICKS_BOTH)
+    {
+    for(i=0;i<3;i++)
+      {
+      uPointOutside[i] += uVector[i] * uMult * this->MinorTickSize;
+      vPointOutside[i] += vVector[i] * vMult * this->MinorTickSize;
+      }
+    }
+
+  // - Move inside points if needed (Axis -> Inside)
+  if (this->TickLocation == VTK_TICKS_INSIDE || this->TickLocation == VTK_TICKS_BOTH)
+    {
+    for(i=0;i<3;i++)
+      {
+      uPointInside[i] -= uVector[i] * uMult * this->MinorTickSize;
+      vPointInside[i] -= vVector[i] * vMult * this->MinorTickSize;
+      }
+    }
+
+  // - Add the initial shift if any
+  axisShift = (this->MinorRangeStart - this->Range[0])*rangeScale;
+  for(i=0;i<3;i++)
+    {
+    uPointInside[i] += axisVector[i] * axisShift;
+    vPointInside[i] += axisVector[i] * axisShift;
+    uPointOutside[i] += axisVector[i] * axisShift;
+    vPointOutside[i] += axisVector[i] * axisShift;
+    }
+
+  // - Insert tick points along the axis using the deltaVector
+  nbIterationAsDouble = axisLength / vtkMath::Norm(deltaVector);
+  nbIteration = vtkMath::Floor(nbIterationAsDouble+2*DBL_EPSILON);
+  nbIteration = (nbIteration < VTK_MAX_TICKS) ? nbIteration : VTK_MAX_TICKS;
+  for (nbTicks = 0; nbTicks < nbIteration; nbTicks++)
+    {
+    // axis/u side
+    this->MinorTickPts->InsertNextPoint(uPointInside);
+    this->MinorTickPts->InsertNextPoint(uPointOutside);
+    vtkMath::Add(deltaVector, uPointInside, uPointInside);
+    vtkMath::Add(deltaVector, uPointOutside, uPointOutside);
+    if( this->Use2DMode == 0 )
+      {
+      // axis/v side
+      this->MinorTickPts->InsertNextPoint(vPointInside);
+      this->MinorTickPts->InsertNextPoint(vPointOutside);
+      vtkMath::Add(deltaVector, vPointInside, vPointInside);
+      vtkMath::Add(deltaVector, vPointOutside, vPointOutside);
+      }
+    }
+  }
+  // **************************************************************************
+  // Build Gridline + GridPoly points + InnerGrid (Only for Orthonormal base)
+  // **************************************************************************
+  {
+  // - Initialize all points to be on the axis
+  for(i=0;i<3;i++)
+    {
+    gridPointClosest[i] = gridPointFarest[i] = gridPointU[i] = gridPointV[i] = p1[i];
+    deltaVector[i] = (p2[i] - p1[i]);
+    }
+
+  // - Reduce the deltaVector to correspond to a major tick step
+  vtkMath::Normalize(deltaVector);
+  for(i=0;i<3;i++)
+    {
+    deltaVector[i] *= this->DeltaMajor[this->AxisType];
+    }
+
+  // - Move base points
+  for(i=0;i<3;i++)
+    {
+    gridPointU[i] -= uVector[i] * uMult * uGridLength;
+    gridPointV[i] -= vVector[i] * vMult * vGridLength;
+    gridPointFarest[i] -= uVector[i] * uMult * uGridLength + vVector[i] * vMult * vGridLength;
+    }
+
+  // - Add the initial shift if any
+  axisShift = (this->MajorRangeStart - this->Range[0])*rangeScale;
+  for(i=0;i<3;i++)
+    {
+    gridPointU[i] += axisVector[i] * axisShift;
+    gridPointV[i] += axisVector[i] * axisShift;
+    gridPointFarest[i] += axisVector[i] * axisShift;
+    gridPointClosest[i] += axisVector[i] * axisShift;
+    }
+
+  // - Insert Gridlines points along the axis using the DeltaMajor vector
+  nbIterationAsDouble = (axisLength - axisShift) / vtkMath::Norm(deltaVector);
+  nbIteration = vtkMath::Floor(nbIterationAsDouble+2*DBL_EPSILON) + 1;
+  nbIteration = (nbIteration < VTK_MAX_TICKS) ? nbIteration : VTK_MAX_TICKS;
+  for (nbTicks = 0; nbTicks < nbIteration; nbTicks++)
+    {
+    // Closest U
+    this->GridlinePts->InsertNextPoint(gridPointClosest);
+    this->GridlinePts->InsertNextPoint(gridPointU);
+
+    // Farest U
+    this->GridlinePts->InsertNextPoint(gridPointFarest);
+    this->GridlinePts->InsertNextPoint(gridPointU);
+
+    // Closest V
+    this->GridlinePts->InsertNextPoint(gridPointClosest);
+    this->GridlinePts->InsertNextPoint(gridPointV);
+
+    // Farest V
+    this->GridlinePts->InsertNextPoint(gridPointFarest);
+    this->GridlinePts->InsertNextPoint(gridPointV);
+
+    // PolyPoints
+    this->GridpolyPts->InsertNextPoint(gridPointClosest);
+    this->GridpolyPts->InsertNextPoint(gridPointU);
+    this->GridpolyPts->InsertNextPoint(gridPointFarest);
+    this->GridpolyPts->InsertNextPoint(gridPointV);
+
+    // Move forward along the axis
+    for(i=0;i<3;i++)
+      {
+      gridPointClosest[i] += deltaVector[i];
+      gridPointU[i] += deltaVector[i];
+      gridPointFarest[i] += deltaVector[i];
+      gridPointV[i] += deltaVector[i];
+      }
+    }
+
+  // - Insert InnerGridLines points
+
+  // We can only handle inner grid line with orthonormal base, otherwise
+  // we would need to change the API of AxisActor which we don't want for
+  // backward compatibility.
+  if(hasOrthogonalVectorBase)
+    {
+    double axis, u, v;
+    axis = this->MajorStart[this->AxisType];
+    innerGridPointClosestU[vIndex] = this->GetBounds()[vIndex*2];
+    innerGridPointFarestU[vIndex] = this->GetBounds()[vIndex*2+1];
+    innerGridPointClosestV[uIndex] = this->GetBounds()[uIndex*2];
+    innerGridPointFarestV[uIndex] = this->GetBounds()[uIndex*2+1];
+    while (axis <= p2[this->AxisType])
+        {
+        innerGridPointClosestU[this->AxisType]
+            = innerGridPointClosestV[this->AxisType]
+            = innerGridPointFarestU[this->AxisType]
+            = innerGridPointFarestV[this->AxisType]
+            = axis;
+
+        // u lines
+        u = this->MajorStart[uIndex];
+        while (u <= p2[uIndex])
+          {
+          innerGridPointClosestU[uIndex]
+              = innerGridPointFarestU[uIndex]
+              = u;
+          this->InnerGridlinePts->InsertNextPoint(innerGridPointClosestU);
+          this->InnerGridlinePts->InsertNextPoint(innerGridPointFarestU);
+          u += this->DeltaMajor[uIndex];
+          }
+
+        // v lines
+        v = this->MajorStart[vIndex];
+        while (v <= p2[vIndex])
+          {
+          innerGridPointClosestV[vIndex]
+              = innerGridPointFarestV[vIndex]
+              = v;
+          this->InnerGridlinePts->InsertNextPoint(innerGridPointClosestV);
+          this->InnerGridlinePts->InsertNextPoint(innerGridPointFarestV);
+          v += this->DeltaMajor[vIndex];
+          }
+
+        axis += this->DeltaMajor[this->AxisType];
+        }
+    }
+  }
+  // **************************************************************************
+  // Build Major ticks
+  // **************************************************************************
+  {
+  // Delta vector is already initialized with the Major tick scale
+  // - Initialize all points to be on the axis
+  for(i=0;i<3;i++)
+    {
+    uPointInside[i] = vPointInside[i] = uPointOutside[i] = vPointOutside[i] = p1[i];
+    }
+
+  // - Move outside points if needed (Axis -> Outside)
+  if (this->TickLocation == VTK_TICKS_OUTSIDE || this->TickLocation == VTK_TICKS_BOTH)
+    {
+    for(i=0;i<3;i++)
+      {
+      uPointOutside[i] += uVector[i] * uMult * this->MajorTickSize;
+      vPointOutside[i] += vVector[i] * vMult * this->MajorTickSize;
+      }
+    }
+
+  // - Move inside points if needed (Axis -> Inside)
+  if (this->TickLocation == VTK_TICKS_INSIDE || this->TickLocation == VTK_TICKS_BOTH)
+    {
+    for(i=0;i<3;i++)
+      {
+      uPointInside[i] -= uVector[i] * uMult * this->MajorTickSize;
+      vPointInside[i] -= vVector[i] * vMult * this->MajorTickSize;
+      }
+    }
+
+  // - Add the initial shift if any
+  for(i=0;i<3;i++)
+    {
+    uPointInside[i] += axisVector[i] * axisShift;
+    vPointInside[i] += axisVector[i] * axisShift;
+    uPointOutside[i] += axisVector[i] * axisShift;
+    vPointOutside[i] += axisVector[i] * axisShift;
+    }
+
+  // - Insert tick points along the axis using the deltaVector
+  for (nbTicks = 0; nbTicks < nbIteration; nbTicks++)
+    {
+    // axis/u side
+    this->MajorTickPts->InsertNextPoint(uPointInside);
+    this->MajorTickPts->InsertNextPoint(uPointOutside);
+    vtkMath::Add(deltaVector, uPointInside, uPointInside);
+    vtkMath::Add(deltaVector, uPointOutside, uPointOutside);
+
+    // axis/v side
+    this->MajorTickPts->InsertNextPoint(vPointInside);
+    this->MajorTickPts->InsertNextPoint(vPointOutside);
+    vtkMath::Add(deltaVector, vPointInside, vPointInside);
+    vtkMath::Add(deltaVector, vPointOutside, vPointOutside);
+    }
+  }
+
+  this->BuildTickPointsTime.Modified();
+  this->LastTickLocation = this->TickLocation;
+  return true;
 }

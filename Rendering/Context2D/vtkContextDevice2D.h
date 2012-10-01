@@ -25,6 +25,8 @@
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkVector.h" // For vtkVector2i ivar
+#include "vtkRect.h"   // For vtkRecti ivar
 
 class vtkWindow;
 class vtkViewport;
@@ -127,6 +129,15 @@ public:
   // NOTE: This function does not take account of the text rotation.
   virtual void ComputeStringBounds(const vtkUnicodeString &string,
                                    float bounds[4]) = 0;
+
+  // Description:
+  // Draw text using MathText markup for mathematical equations. See
+  // http://matplotlib.sourceforge.net/users/mathtext.html for more information.
+  virtual void DrawMathTextString(float *point, const vtkStdString &string) = 0;
+
+  // Description:
+  // Return true if MathText rendering available on this device.
+  virtual bool MathTextIsSupported();
 
   // Description:
   // Draw the supplied image at the given x, y (p[0], p[1]) (bottom corner),
@@ -270,6 +281,16 @@ public:
   // \post done: !GetBufferIdMode()
   virtual void BufferIdModeEnd();
 
+  virtual void SetViewportSize(const vtkVector2i &size)
+  {
+    this->ViewportSize = size;
+  }
+
+  virtual void SetViewportRect(const vtkRecti &rect)
+  {
+    this->ViewportRect = rect;
+  }
+
 //BTX
 protected:
   vtkContextDevice2D();
@@ -278,6 +299,14 @@ protected:
   // Description:
   // Store the width and height of the device in pixels.
   int Geometry[2];
+
+  // Description:
+  // Store the size of the total viewport.
+  vtkVector2i ViewportSize;
+
+  // Description:
+  // Store our origin and size in the total viewport.
+  vtkRecti ViewportRect;
 
   vtkAbstractContextBufferId *BufferId;
 

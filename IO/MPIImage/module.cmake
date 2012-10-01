@@ -1,0 +1,14 @@
+vtk_module(vtkIOMPIImage
+ IMPLEMENTS
+    vtkIOImage
+  GROUPS
+    MPI
+  DEPENDS
+    vtkParallelMPI
+    vtkIOImage
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkInteractionStyle
+    vtkRenderingOpenGL
+  )

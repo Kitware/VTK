@@ -54,10 +54,6 @@
 // and unselected properties); the outline (selected and unselected
 // properties); and the edges. The edges may also be tubed or not.
 
-// .SECTION Caveats
-// Note that the widget can be picked even when it is "behind"
-// other actors.  This is an intended feature and not a bug.
-
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkPlaneWidget vtkLineWidget vtkPointWidget
 // vtkSphereWidget vtkImagePlaneWidget
@@ -326,6 +322,9 @@ protected:
 
   // Do the picking
   vtkCellPicker *Picker;
+
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
 
   // Transform the normal (used for rotation)
   vtkTransform *Transform;

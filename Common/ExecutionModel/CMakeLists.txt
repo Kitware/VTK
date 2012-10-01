@@ -17,7 +17,6 @@ SET(Module_SRCS
   vtkExecutiveCollection.cxx
   vtkExecutive.cxx
   vtkExtentSplitter.cxx
-  vtkExtentTranslator.cxx
   vtkFilteringInformationKeyManager.cxx
   vtkGraphAlgorithm.cxx
   vtkHierarchicalBoxDataSetAlgorithm.cxx
@@ -31,6 +30,7 @@ SET(Module_SRCS
   vtkInformationExecutivePortKey.cxx
   vtkInformationExecutivePortVectorKey.cxx
   vtkMultiBlockDataSetAlgorithm.cxx
+  vtkMultiTimeStepAlgorithm.cxx
   vtkOnePieceExtentTranslator.cxx
   vtkPassInputTypeAlgorithm.cxx
   vtkPiecewiseFunctionAlgorithm.cxx
@@ -45,7 +45,6 @@ SET(Module_SRCS
   vtkStructuredGridAlgorithm.cxx
   vtkTableAlgorithm.cxx
   vtkTableExtentTranslator.cxx
-  vtkTemporalDataSetAlgorithm.cxx
   vtkThreadedImageAlgorithm.cxx
   vtkThreadedStreamingPipeline.cxx
   vtkTreeAlgorithm.cxx
@@ -56,6 +55,10 @@ SET(Module_SRCS
   vtkLinearSelector.cxx
   vtkExtentRCBPartitioner.cxx
   vtkUniformGridPartitioner.cxx
+  # New AMR classes
+  vtkUniformGridAMRAlgorithm.cxx
+  vtkOverlappingAMRAlgorithm.cxx
+  vtkNonOverlappingAMRAlgorithm.cxx
   )
 
 set_source_files_properties(

@@ -22,7 +22,7 @@
 #include "vtkCullerCollection.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkHardwareSelector.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
@@ -43,8 +43,8 @@ vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkRenderer);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkRenderer)
 //----------------------------------------------------------------------------
 
 // Create a vtkRenderer with a black background, a white ambient light,
@@ -109,6 +109,8 @@ vtkRenderer::vtkRenderer()
   this->Erase = 1;
   this->Draw = 1;
 
+  this->GL2PSSpecialPropCollection = NULL;
+
   this->UseDepthPeeling=0;
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
@@ -160,14 +162,6 @@ vtkRenderer::~vtkRenderer()
     {
     this->BackgroundTexture->Delete();
     }
-}
-
-// return the correct type of Renderer
-vtkRenderer *vtkRenderer::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkRenderer");
-  return static_cast<vtkRenderer *>(ret);
 }
 
 // Concrete render method.
@@ -1842,3 +1836,18 @@ double vtkRenderer::GetTiledAspectRatio()
     }
   return finalAspect;
 }
+
+int vtkRenderer::CaptureGL2PSSpecialProp(vtkProp *prop)
+{
+  if (this->GL2PSSpecialPropCollection &&
+      !this->GL2PSSpecialPropCollection->IsItemPresent(prop))
+    {
+    this->GL2PSSpecialPropCollection->AddItem(prop);
+    return 1;
+    }
+
+  return 0;
+}
+
+vtkCxxSetObjectMacro(vtkRenderer, GL2PSSpecialPropCollection,
+                     vtkPropCollection)

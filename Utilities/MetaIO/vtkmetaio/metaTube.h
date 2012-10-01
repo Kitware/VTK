@@ -81,7 +81,7 @@ class METAIO_EXPORT MetaTube : public MetaObject
 
     MetaTube(unsigned int dim);
 
-    ~MetaTube(void);
+    virtual ~MetaTube(void);
 
     void PrintInfo(void) const;
 

@@ -1,6 +1,7 @@
 SET(Module_SRCS
   vtkApplyColors.cxx
   vtkApplyIcons.cxx
+  vtkGraphItem.cxx
   vtkGraphLayoutView.cxx
   vtkHierarchicalGraphPipeline.cxx
   vtkHierarchicalGraphView.cxx
@@ -10,7 +11,6 @@ SET(Module_SRCS
   vtkParallelCoordinatesHistogramRepresentation.cxx
   vtkParallelCoordinatesRepresentation.cxx
   vtkParallelCoordinatesView.cxx
-  vtkPipelineGraphSource.cxx
   vtkRenderedGraphRepresentation.cxx
   vtkRenderedHierarchyRepresentation.cxx
   vtkRenderedRepresentation.cxx
@@ -18,6 +18,7 @@ SET(Module_SRCS
   vtkRenderedTreeAreaRepresentation.cxx
   vtkRenderView.cxx
   vtkTreeAreaView.cxx
+  vtkTreeHeatmapItem.cxx
   vtkTreeMapView.cxx
   vtkTreeRingView.cxx
   vtkViewUpdater.cxx

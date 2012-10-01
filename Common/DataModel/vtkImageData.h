@@ -110,8 +110,13 @@ public:
   // in the cell are specified with pcoords[3]. The function returns a 0 if the
   // point x is outside of the volume, and a 1 if inside the volume.
   virtual int ComputeStructuredCoordinates(
-    double x[3], int ijk[3], double pcoords[3]);
+    const double x[3],  int ijk[3],  double pcoords[3]);
 
+  static int ComputeStructuredCoordinates( const double x[3], int ijk[3], double pcoords[3],
+                                           const int* extent,
+                                           const double* spacing,
+                                           const double* origin,
+                                           const double* bounds);
   // Description:
   // Given structured coordinates (i,j,k) for a voxel cell, compute the eight
   // gradient values for the voxel corners. The order in which the gradient
@@ -294,9 +299,6 @@ public:
   static int GetNumberOfScalarComponents(vtkInformation* meta_data);
   static bool HasNumberOfScalarComponents(vtkInformation* meta_data);
   int GetNumberOfScalarComponents();
-
-  // Must only be called with vtkImageData (or subclass) as input
-  virtual void CopyTypeSpecificInformation( vtkDataObject *image );
 
   // Description:
   // Override these to handle origin, spacing, scalar type, and scalar

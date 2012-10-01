@@ -37,6 +37,7 @@ class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
+class vtkInformationStringKey;
 class vtkInformationUnsignedLongKey;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkStreamingDemandDrivenPipeline : public vtkDemandDrivenPipeline
@@ -64,6 +65,14 @@ public:
   // through the pipeline.  Should be called only when information is
   // up to date.
   int PropagateUpdateExtent(int outputPort);
+
+
+  // Description:
+  // Propagate time through the pipeline. this is a special pass
+  // only necessary if there is temporal meta data that must be updated
+  int PropagateTime(int outputPort);
+  int UpdateTimeDependentInformation();
+
 
   // Description:
   // Set/Get the maximum number of pieces that can be requested from
@@ -120,9 +129,8 @@ public:
 
   // Description:
   // Get/Set the update extent for output ports that use Temporal Extents
-  int SetUpdateTimeSteps(int port, double *times, int length);
-  static int SetUpdateTimeSteps(vtkInformation *, double *times, int length);
   int SetUpdateTimeStep(int port, double time);
+  static int SetUpdateTimeStep(vtkInformation *, double time);
   //void GetUpdateTimeSteps(vtkInformation *, int extent[6]);
 
   // Description:
@@ -162,6 +170,13 @@ public:
   // Description:
   // Key defining a request to propagate the update extent upstream.
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT();
+
+  // Key defining a request to propagate the update extent upstream.
+  static vtkInformationRequestKey* REQUEST_UPDATE_TIME();
+  // Description:
+  // Key defining a request to make sure the meta information is up to date.
+  static vtkInformationRequestKey* REQUEST_TIME_DEPENDENT_INFORMATION();
+
 
   // Description:
   // Key defining a request to propagate information about the update
@@ -246,8 +261,18 @@ public:
   static vtkInformationDoubleVectorKey* TIME_RANGE();
 
   // Description:
+  // Key to store the label that should be used for labelling the time in the UI
+  static vtkInformationStringKey* TIME_LABEL_ANNOTATION();
+
+  // Description:
   // Update time steps requested by the pipeline.
-  static vtkInformationDoubleVectorKey* UPDATE_TIME_STEPS();
+  static vtkInformationDoubleKey* UPDATE_TIME_STEP();
+
+  // Description:
+  // Whether there are time dependent meta information
+  // if there is, the pipe will perform two extra passes
+  // to gather the time dependent information
+  static vtkInformationIntegerKey* TIME_DEPENDENT_INFORMATION();
 
   // Description:
   // Key that specifies from 0.0 to 1.0 the pipeline computed priority
@@ -324,7 +349,7 @@ protected:
   // be different than the request. If the same time step is
   // requested again, there is no need to re-execute the algorithm.
   // We know that it does not have this time step.
-  static vtkInformationDoubleVectorKey* PREVIOUS_UPDATE_TIME_STEPS();
+  static vtkInformationDoubleKey* PREVIOUS_UPDATE_TIME_STEP();
 
   // Keep track of the fast path keys corresponding to the
   // previous executing. If all key values are the same as their

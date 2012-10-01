@@ -2,6 +2,9 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestVector.cxx
   TestVectorOperators.cxx
   TestAMRBox.cxx
+  TestCompositeDataSets.cxx
+  TestDataArrayDispatcher.cxx
+  TestDispatchers.cxx
   TestGenericCell.cxx
   TestGraph.cxx
   TestHigherOrderCell.cxx
@@ -10,6 +13,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestImageIterator.cxx
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
+  TestPath.cxx
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
   TestPolygon.cxx
@@ -31,6 +35,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestBoundingBox.cxx
   TestPlane.cxx
   TestStructuredData.cxx
+  TestDataObjectTypes.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 

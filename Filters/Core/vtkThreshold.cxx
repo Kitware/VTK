@@ -37,7 +37,7 @@ vtkThreshold::vtkThreshold()
   this->ThresholdFunction      = &vtkThreshold::Upper;
   this->ComponentMode          = VTK_COMPONENT_MODE_USE_SELECTED;
   this->SelectedComponent      = 0;
-  this->PointsDataType         = VTK_FLOAT;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
@@ -140,7 +140,25 @@ int vtkThreshold::RequestData(
   output->Allocate(input->GetNumberOfCells());
 
   newPoints = vtkPoints::New();
-  newPoints->SetDataType( this->PointsDataType );
+
+  // set precision for the points in the output
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+    if(inputPointSet)
+      {
+      newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+
   newPoints->Allocate(numPts);
 
   pointMap = vtkIdList::New(); //maps old point ids into new
@@ -301,6 +319,43 @@ const char *vtkThreshold::GetComponentModeAsString(void)
     }
 }
 
+void vtkThreshold::SetPointsDataType(int type)
+{
+  if(type == VTK_FLOAT)
+    {
+    this->SetOutputPointsPrecision(SINGLE_PRECISION);
+    }
+  else if(type == VTK_DOUBLE)
+    {
+    this->SetOutputPointsPrecision(DOUBLE_PRECISION);
+    }
+}
+
+int vtkThreshold::GetPointsDataType()
+{
+  if(this->OutputPointsPrecision == SINGLE_PRECISION)
+    {
+    return VTK_FLOAT;
+    }
+  else if(this->OutputPointsPrecision == DOUBLE_PRECISION)
+    {
+    return VTK_DOUBLE;
+    }
+
+  return 0;
+}
+
+void vtkThreshold::SetOutputPointsPrecision(int precision)
+{
+  this->OutputPointsPrecision = precision;
+  this->Modified();
+}
+
+int vtkThreshold::GetOutputPointsPrecision() const
+{
+  return this->OutputPointsPrecision;
+}
+
 int vtkThreshold::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
@@ -333,8 +388,8 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";
-  os << indent << "DataType of the output points: "
-     << this->PointsDataType << "\n";
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }
 
 //----------------------------------------------------------------------------

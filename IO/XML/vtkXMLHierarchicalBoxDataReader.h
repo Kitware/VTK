@@ -67,10 +67,6 @@ protected:
   // The origin is subsequently used to properly construct the AMR boxes.
   void GetDataSetOrigin( vtkHierarchicalBoxDataSet *hbox, double origin[3] );
 
-  // Descritpion:
-  // This method sets the metadata for the partially build AMR dataset.
-  void SetMetaData( vtkHierarchicalBoxDataSet *hbox );
-
 private:
   vtkXMLHierarchicalBoxDataReader(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.
   void operator=(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.

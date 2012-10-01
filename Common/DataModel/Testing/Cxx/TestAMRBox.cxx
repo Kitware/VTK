@@ -19,28 +19,16 @@
 #include <string>
 
 void Construct2DAMRBox(
-    vtkAMRBox& box,double origin[3],double h[3],int lo[3],int hi[3])
+    vtkAMRBox& box,int lo[3],int hi[3])
 {
-  box.SetGridDescription( VTK_XY_PLANE );
-  box.SetDimensionality( 2 );
-  box.SetDataSetOrigin( origin );
-  box.SetGridSpacing( h );
-  box.SetDimensions( lo, hi );
-  box.SetBlockId( 0 );
-  box.SetLevel( 0 );
+  box.SetDimensions( lo, hi, VTK_XY_PLANE );
 }
 
 //------------------------------------------------------------------------------
 void Construct3DAMRBox(
-    vtkAMRBox& box,double origin[3],double h[3],int lo[3],int hi[3])
+    vtkAMRBox& box,int lo[3],int hi[3])
 {
-  box.SetGridDescription( VTK_XYZ_GRID );
-  box.SetDimensionality( 3 );
-  box.SetDataSetOrigin( origin );
-  box.SetGridSpacing( h );
-  box.SetDimensions( lo, hi );
-  box.SetBlockId( 0 );
-  box.SetLevel( 0 );
+  box.SetDimensions( lo, hi , VTK_XYZ_GRID);
 }
 
 //------------------------------------------------------------------------------
@@ -58,15 +46,15 @@ int TestAMRBoxEquality()
   h[0]  = h[1]  = h[2]  = 1.0;
   lo[0] = lo[1] = lo[2] = 8;
   hi[0] = hi[1] = hi[2] = 16;
-  Construct3DAMRBox( A, X0, h, lo, hi );
-  Construct3DAMRBox( B, X0, h, lo, hi );
-  Construct2DAMRBox( A2D, X0, h, lo, hi );
+  Construct3DAMRBox( A, lo, hi );
+  Construct3DAMRBox( B, lo, hi );
+  Construct2DAMRBox( A2D, lo, hi );
 
   X0[0] = X0[1] = X0[2] = 0.0;
   h[0]  = h[1]  = h[2]  = 1.0;
   lo[0] = lo[1] = lo[2] = 16;
   hi[0] = hi[1] = hi[2] = 32;
-  Construct3DAMRBox( C, X0, h, lo, hi );
+  Construct3DAMRBox( C, lo, hi );
 
   if( A != B )
     {
@@ -101,7 +89,7 @@ int TestAMRBoxAssignmentOperator()
   lo[0] = lo[1] = lo[2] = 8;
   hi[0] = hi[1] = hi[2] = 16;
 
-  Construct3DAMRBox( A, X0, h, lo, hi );
+  Construct3DAMRBox( A, lo, hi );
   B = A;
   if( A != B )
     {
@@ -126,14 +114,14 @@ int TestAMRBoxCoarsenRefineOperators()
   h[0]  = h[1]  = h[2]  = 1.0;
   lo[0] = lo[1] = lo[2] = 8;
   hi[0] = hi[1] = hi[2] = 16;
-  Construct3DAMRBox( A, X0, h, lo, hi);
+  Construct3DAMRBox( A, lo, hi);
 
   // Here is the refined AMR box
   X0[0] = X0[1] = X0[2] = 0.0;
   h[0]  = h[1]  = h[2]  = 0.5;
   lo[0] = lo[1] = lo[2] = 16;
   hi[0] = hi[1] = hi[2] = 33;
-  Construct3DAMRBox( Ar, X0, h, lo, hi );
+  Construct3DAMRBox( Ar, lo, hi );
 
   // Save the intial AMR box to A0
   A0 = A;
@@ -179,7 +167,7 @@ int TestAMRBoxShiftOperator()
   h[0]  = h[1]  = h[2]  = 1.0;
   lo[0] = lo[1] = lo[2] = 8;
   hi[0] = hi[1] = hi[2] = 16;
-  Construct3DAMRBox( A, X0, h, lo, hi);
+  Construct3DAMRBox( A, lo, hi);
 
   A0 = A;
 
@@ -191,7 +179,7 @@ int TestAMRBoxShiftOperator()
   h[0]  = h[1]  = h[2]  = 1.0;
   lo[0] = lo[1] = lo[2] = 11;
   hi[0] = hi[1] = hi[2] = 19;
-  Construct3DAMRBox( Ashifted, X0, h, lo, hi);
+  Construct3DAMRBox( Ashifted, lo, hi);
 
   A.Shift( shift );
   if( A != Ashifted )
@@ -231,7 +219,7 @@ int TestAMRBoxGrowShrinkOperators()
   h[0]  = h[1]  = h[2]  = 1.0;
   lo[0] = lo[1] = lo[2] = 8;
   hi[0] = hi[1] = hi[2] = 16;
-  Construct3DAMRBox( A, X0, h, lo, hi);
+  Construct3DAMRBox( A, lo, hi);
 
   A0 = A;
 
@@ -240,7 +228,7 @@ int TestAMRBoxGrowShrinkOperators()
   h[0]  = h[1]  = h[2]  = 1.0;
   lo[0] = lo[1] = lo[2] = 6;
   hi[0] = hi[1] = hi[2] = 18;
-  Construct3DAMRBox( Agrown, X0, h, lo, hi);
+  Construct3DAMRBox( Agrown,  lo, hi);
 
   A.Grow( 2 );
   if( A != Agrown )
@@ -275,7 +263,7 @@ int TestAMRBoxIntersection()
   h[0]  = h[1]  = h[2]  = 1.0;
   lo[0] = lo[1] = lo[2] = 8;
   hi[0] = hi[1] = hi[2] = 16;
-  Construct3DAMRBox( A, X0, h, lo, hi);
+  Construct3DAMRBox( A, lo, hi);
 
   // Save the initial
   A0 = A;
@@ -299,7 +287,7 @@ int TestAMRBoxIntersection()
   h[0]  = h[1]  = h[2]  = 1.0;
   lo[0] = lo[1] = lo[2] = 10;
   hi[0] = hi[1] = hi[2] = 16;
-  Construct3DAMRBox(I, X0, h, lo, hi );
+  Construct3DAMRBox(I, lo, hi );
 
   doesIntersect = A.Intersect( B );
   if( !doesIntersect || (A != I) )
@@ -336,7 +324,7 @@ int TestAMRBoxSerialization()
   h[0]  = h[1]  = h[2]  = 1.0;
   lo[0] = lo[1] = lo[2] = 8;
   hi[0] = hi[1] = hi[2] = 16;
-  Construct3DAMRBox( A, X0, h, lo, hi);
+  Construct3DAMRBox( A, lo, hi);
 
   vtkIdType bytesize    = 0;
   unsigned char *buffer = NULL;
@@ -388,6 +376,7 @@ void CheckTestStatus( int rc, std::string TestName )
     }
 }
 
+#include "assert.h"
 //------------------------------------------------------------------------------
 int TestAMRBox(int , char *[])
 {

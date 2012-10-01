@@ -10,6 +10,7 @@ set(Module_SRCS
   vtkFrustumSource.cxx
   vtkGlyphSource2D.cxx
   vtkHyperOctreeFractalSource.cxx
+  vtkHyperTreeGridSource.cxx
   vtkLineSource.cxx
   vtkOutlineCornerFilter.cxx
   vtkOutlineCornerSource.cxx

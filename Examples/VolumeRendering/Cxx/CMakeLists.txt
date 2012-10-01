@@ -1,31 +1,31 @@
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
 PROJECT (VolumeRendering)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK REQUIRED)
-IF(NOT VTK_USE_RENDERING)
-  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires VTK_USE_RENDERING.")
-ENDIF(NOT VTK_USE_RENDERING)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK COMPONENTS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkIOImage
+    vtkIOXML
+    vtkImagingCore
+    vtkInteractionWidgets
+    vtkRenderingCore
+    vtkRenderingOpenGL
+    vtkRenderingVolume
+  )
+  include(${VTK_USE_FILE})
+endif()
 
-SET(RENDERING_EXAMPLES_SRCS
+set(RENDERING_EXAMPLES_SRCS
+  GPURenderDemo
+  FixedPointVolumeRayCastMapperCT
 )
 
-IF(VTK_USE_METAIO)
-  LIST(APPEND RENDERING_EXAMPLES_SRCS
-    GPURenderDemo
-    FixedPointVolumeRayCastMapperCT
-  )
-ENDIF(VTK_USE_METAIO)
-
-IF(APPLE)
-  SET(EXECUTABLE_FLAG MACOSX_BUNDLE)
-ENDIF(APPLE)
-
-FOREACH(name ${RENDERING_EXAMPLES_SRCS})
-  ADD_EXECUTABLE(${name} ${EXECUTABLE_FLAG} ${name}.cxx)
-  TARGET_LINK_LIBRARIES(${name} vtkRendering vtkIO vtkVolumeRendering vtkWidgets )
-ENDFOREACH(name)
+foreach(name ${RENDERING_EXAMPLES_SRCS})
+  add_executable(${name} MACOSX_BUNDLE ${name}.cxx)
+  target_link_libraries(${name} ${VTK_LIBRARIES})
+endforeach()
 
 
 

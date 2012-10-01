@@ -75,18 +75,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // A mathematical constant. This version is 3.14159265358979f.
-  static float Pi() { return 3.14159265358979f; };
+  // A mathematical constant. This version is atan(1.0) * 4.0
+  static double Pi() { return 3.141592653589793; };
 
   // Description:
-  // A mathematical constant (double-precision version). This version
-  // is 6.283185307179586.
-  static double DoubleTwoPi() { return  6.283185307179586; };
+  // Deprecated.  Use vtkMath::Pi() instead.
+  VTK_LEGACY(static double DoublePi());
 
   // Description:
-  // A mathematical constant (double-precision version). This version
-  // is 3.1415926535897932384626.
-  static double DoublePi() { return 3.1415926535897932384626; };
+  // Deprecated.  Use vtkMath::TwoPi() instead.
+  VTK_LEGACY(static double DoubleTwoPi());
 
   // Description:
   // Convert degrees into radians
@@ -565,18 +563,24 @@ public:
   // Description:
   // Convert a quaternion to a 3x3 rotation matrix.  The quaternion
   // does not have to be normalized beforehand.
+  // The quaternion must be in the form [w, x, y, z].
+  // @sa Matrix3x3ToQuaternion() MultiplyQuaternion()
   static void QuaternionToMatrix3x3(const float quat[4], float A[3][3]);
   static void QuaternionToMatrix3x3(const double quat[4], double A[3][3]);
 
   // Description:
   // Convert a 3x3 matrix into a quaternion.  This will provide the
   // best possible answer even if the matrix is not a pure rotation matrix.
+  // The quaternion is in the form [w, x, y, z].
   // The method used is that of B.K.P. Horn.
+  // @sa QuaternionToMatrix3x3() MultiplyQuaternion()
   static void Matrix3x3ToQuaternion(const float A[3][3], float quat[4]);
   static void Matrix3x3ToQuaternion(const double A[3][3], double quat[4]);
 
   // Description:
-  // Multiply two quaternions. This is used to concatenate rotations
+  // Multiply two quaternions. This is used to concatenate rotations.
+  // Quaternions are in the form [w, x, y, z].
+  // @sa Matrix3x3ToQuaternion() QuaternionToMatrix3x3()
   static void MultiplyQuaternion( const float q1[4], const float q2[4],  float q[4] );
   static void MultiplyQuaternion( const double q1[4], const double q2[4],  double q[4] );
 
@@ -732,6 +736,9 @@ public:
   // Description:
   // Convert color in HSV format (Hue, Saturation, Value) to RGB
   // format (Red, Green, Blue). The input color is not modified.
+  // The input 'hsv' must be float values in the range [0,1].
+  // The elements of each component of the output 'rgb' are in
+  // the range [0, 1].
   static void HSVToRGB(const float hsv[3], float rgb[3])
     { HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2); }
   static void HSVToRGB(float h, float s, float v, float *r, float *g, float *b);

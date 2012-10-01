@@ -38,7 +38,7 @@ public:
 
   // Description:
   // Write output data of the given length.
-  int Write(const unsigned char* data, unsigned long length);
+  int Write(void const* data, size_t length);
 
   // Description:
   // Called after all desired calls to Write have been made.  After

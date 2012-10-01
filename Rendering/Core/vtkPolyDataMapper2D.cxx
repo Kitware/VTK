@@ -16,15 +16,14 @@
 
 #include "vtkCoordinate.h"
 #include "vtkExecutive.h"
-#include "vtkImagingFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
 
-
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkPolyDataMapper2D);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper2D)
 //----------------------------------------------------------------------------
 
 vtkCxxSetObjectMacro(vtkPolyDataMapper2D,TransformCoordinate,vtkCoordinate);
@@ -105,14 +104,6 @@ vtkPolyData *vtkPolyDataMapper2D::GetInput()
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
 }
-
-vtkPolyDataMapper2D *vtkPolyDataMapper2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkImagingFactory::CreateInstance("vtkPolyDataMapper2D");
-  return static_cast<vtkPolyDataMapper2D *>(ret);
-}
-
 
 // Overload standard modified time function. If lookup table is modified,
 // then this object is modified as well.

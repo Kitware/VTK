@@ -21,10 +21,13 @@
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkSimpleScalarTree.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkCutter.h"
 #include "vtkMergePoints.h"
@@ -41,7 +44,7 @@ vtkContourGrid::vtkContourGrid()
 {
   this->ContourValues = vtkContourValues::New();
 
-  this->ComputeNormals = 1;
+  this->ComputeNormals = 0;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
@@ -49,6 +52,8 @@ vtkContourGrid::vtkContourGrid()
 
   this->UseScalarTree = 0;
   this->ScalarTree = NULL;
+
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
@@ -132,6 +137,21 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
     }
 
   newPts = vtkPoints::New();
+
+  // set precision for the points in the output
+  if(self->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPts->SetDataType(grid->GetPoints()->GetDataType());
+    }
+  else if(self->GetOutputPointsPrecision() == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(self->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->Allocate(estimatedSize,estimatedSize);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize,estimatedSize);
@@ -374,6 +394,23 @@ int vtkContourGrid::RequestData(
       return 1;
     }
 
+  if(this->ComputeNormals)
+    {
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    vtkNew<vtkPolyDataNormals> normalsFilter;
+    vtkNew<vtkPolyData> tempInput;
+    tempInput->ShallowCopy(output);
+    normalsFilter->SetInputData(tempInput.GetPointer());
+    normalsFilter->SetFeatureAngle(180.);
+    normalsFilter->SetUpdateExtent(
+      0,
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
+      info->Get(vtkStreamingDemandDrivenPipeline:: UPDATE_NUMBER_OF_PIECES()),
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    normalsFilter->Update();
+    output->ShallowCopy(normalsFilter->GetOutput());
+    }
+
   return 1;
 }
 
@@ -408,6 +445,17 @@ void vtkContourGrid::CreateDefaultLocator()
     }
 }
 
+void vtkContourGrid::SetOutputPointsPrecision(int precision)
+{
+  this->OutputPointsPrecision = precision;
+  this->Modified();
+}
+
+int vtkContourGrid::GetOutputPointsPrecision() const
+{
+  return this->OutputPointsPrecision;
+}
+
 int vtkContourGrid::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
@@ -437,4 +485,7 @@ void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }

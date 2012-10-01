@@ -14,8 +14,7 @@
 =========================================================================*/
 // .NAME vtkIOStream - Include C++ iostreams as used by VTK.
 // .SECTION Description
-// VTK supports both ANSI and old-style streams.  This header includes
-// the proper streams according to VTK_USE_ANSI_STDLIB.
+// This header includes the proper streams.
 
 #ifndef __vtkIOStream_h
 #define __vtkIOStream_h
@@ -27,15 +26,13 @@
 #include "vtkWin32Header.h" // For export macros.
 #undef __VTK_SYSTEM_INCLUDES__INSIDE
 
-#ifdef VTK_USE_ANSI_STDLIB
-
 #ifdef _MSC_VER
 #pragma warning (push, 3)
 #endif
 
-# include <iostream>  // Include real ansi istream and ostream.
-# include <fstream>   // Include real ansi ifstream and ofstream.
-# include <iomanip>   // Include real ansi io manipulators.
+#include <iostream>  // Include real ansi istream and ostream.
+#include <fstream>   // Include real ansi ifstream and ofstream.
+#include <iomanip>   // Include real ansi io manipulators.
 
 // Need these in global namespace so the same code will work with ansi
 // and old-style streams.
@@ -58,14 +55,6 @@ using std::fstream;
 
 #ifdef _MSC_VER
 #pragma warning(pop)
-#endif
-
-#else
-
-// Include old-style streams.
-# include <iostream.h>   // Include old-style istream and ostream.
-# include <iomanip.h>
-# include <fstream.h>    // Include old-style ifstream and ofstream.
 #endif
 
 #if defined(VTK_IOSTREAM_NEED_OPERATORS_LL)

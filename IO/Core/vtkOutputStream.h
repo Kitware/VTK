@@ -49,8 +49,7 @@ public:
 
   // Description:
   // Write output data of the given length.
-  virtual int Write(const unsigned char* data, unsigned long length);
-  int Write(const char* data, unsigned long length);
+  virtual int Write(void const* data, size_t length);
 
   // Description:
   // Called after all desired calls to Write have been made.  After
@@ -65,6 +64,7 @@ protected:
 
   // The real output stream.
   ostream* Stream;
+  int WriteStream(const char* data, size_t length);
 
 private:
   vtkOutputStream(const vtkOutputStream&);  // Not implemented.

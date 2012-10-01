@@ -337,7 +337,9 @@ int vtkSelectionSource::RequestData(
       {
       // idx == 0 is the list for all pieces
       // idx == piece+1 is the list for the current piece
-      size_t pids[2] = {0, piece+1};
+      size_t pids[2];
+      pids[0] = 0;
+      pids[1] = static_cast<size_t>(piece+1);
       for(int i=0; i<2; i++)
         {
         size_t idx = pids[i];
@@ -396,7 +398,10 @@ int vtkSelectionSource::RequestData(
       {
       // idx == 0 is the list for all pieces
       // idx == piece+1 is the list for the current piece
-      size_t pids[2] = {0, piece+1};
+      size_t pids[2] = {
+        static_cast<size_t>(0),
+        static_cast<size_t>(piece+1)
+      };
       for(int i=0; i<2; i++)
         {
         size_t idx = pids[i];

@@ -9,11 +9,21 @@ option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
   ${VTK_USE_64BIT_IDS_DEFAULT})
 
 option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
-mark_as_advanced(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS)
+
+# This option determines the behavior of the New methods of vtkObject derived
+# classes. If this option is off then only classes specifically using the
+# vtkObjectFactoryNewMacro and vtkAbstractObjectFactoryNewMacro will allow for
+# overrides. If the method is on then vtkStandardNewMacro will use the
+# vtkObjectFactoryNewMacro's implementation body.
+option(VTK_ALL_NEW_OBJECT_FACTORY
+  "Build all vtkObject derived classes with object factory new methods." OFF)
+
+mark_as_advanced(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS VTK_ALL_NEW_OBJECT_FACTORY)
 
 set(vtkCommonCore_EXPORT_OPTIONS
   VTK_DEBUG_LEAKS
   VTK_USE_64BIT_IDS
+  VTK_ALL_NEW_OBJECT_FACTORY
   )
 
 #-----------------------------------------------------------------------------
@@ -130,13 +140,9 @@ SET(Module_SRCS
   vtkWeakPointerBase.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
-  vtkType.h
+  vtkDataArrayTemplate.h
   vtkDenseArray.h
   vtkSparseArray.h
-  vtkSystemIncludes.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   vtkTypedArray.h
   vtkTypeTemplate.h
   )
@@ -152,7 +158,6 @@ set(${vtk-module}_HDRS
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAutoInit.h
-  vtkDataArrayTemplate.h
   vtkDataArrayTemplate.txx
   vtkDataArrayTemplateImplicit.txx
   vtkDenseArray.txx
@@ -163,7 +168,9 @@ set(${vtk-module}_HDRS
   vtkSetGet.h
   vtkSmartPointer.h
   vtkSparseArray.txx
+  vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
+  vtkType.h
   vtkTypeTraits.h
   vtkTypedArray.txx
   vtkVariantCast.h
@@ -173,7 +180,10 @@ set(${vtk-module}_HDRS
   vtkWeakPointer.h
   vtkWin32Header.h
   vtkWindows.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
 
 if(vtkCommonDataModel_ENABLED)
@@ -214,18 +224,11 @@ macro(VTK_PREPARE_CMAKEDEFINE not invar outvar)
 endmacro()
 
 vtk_prepare_cmakedefine("" CMAKE_WORDS_BIGENDIAN VTK_WORDS_BIGENDIAN)
-vtk_prepare_cmakedefine("" CMAKE_USE_PTHREADS VTK_USE_PTHREADS)
-vtk_prepare_cmakedefine("" CMAKE_USE_SPROC VTK_USE_SPROC)
-vtk_prepare_cmakedefine("" CMAKE_HP_PTHREADS VTK_HP_PTHREADS)
-vtk_prepare_cmakedefine("" CMAKE_USE_WIN32_THREADS VTK_USE_WIN32_THREADS)
 vtk_prepare_cmakedefine("" CMAKE_NO_ANSI_STRING_STREAM VTK_NO_ANSI_STRING_STREAM)
-vtk_prepare_cmakedefine("" CMAKE_NO_STD_NAMESPACE VTK_NO_STD_NAMESPACE)
-vtk_prepare_cmakedefine(NOT CMAKE_ANSI_FOR_SCOPE VTK_NO_FOR_SCOPE)
 vtk_prepare_cmakedefine(NOT VTK_EXPLICIT_TEMPLATES
                   VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
 vtk_prepare_cmakedefine(NOT VTK_COMPILER_HAS_FULL_SPECIALIZATION
                         VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
-vtk_prepare_cmakedefine("" OPENGL_LIBRARY VTK_USE_OPENGL_LIBRARY)
 
 # Provide version macros through vtkConfigure.h for compatibility.
 if(VTK_LEGACY_REMOVE)
@@ -400,12 +403,6 @@ set_source_files_properties(
   vtkRandomSequence
   vtkScalarsToColors
   vtkWindow
-  # Not sure if this is the correct place for them - Tcl wrapping
-  vtkSystemIncludes
-  vtkMathConfigure
-  vtkType
-  vtkVersionMacros
-  vtkConfigure
   ABSTRACT
   )
 
@@ -437,6 +434,7 @@ set_source_files_properties(
   vtkVariant.cxx
   vtkWeakPointerBase.cxx
   vtkUnicodeString.cxx
+  vtkDataArrayTemplate.h
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h
@@ -445,6 +443,7 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
+  vtkDataArrayTemplate.h
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h
@@ -459,12 +458,12 @@ set_source_files_properties(
   vtkArrayRange.cxx
   vtkArraySort.cxx
   vtkArrayWeights.cxx
+  vtkTimeStamp.cxx
+  vtkVariant.cxx
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h
   vtkTypeTemplate.h
-  vtkTimeStamp.cxx
-  vtkVariant.cxx
   PROPERTIES WRAP_SPECIAL 1
 )
 

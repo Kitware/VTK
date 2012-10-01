@@ -2,7 +2,7 @@ vtk_module(vtkIOMINC
   GROUPS
     StandAlone
   DEPENDS
-    vtkIOImage
+    vtkIOGeometry
     vtkCommonExecutionModel
     vtkRenderingCore
     vtkFiltersHybrid

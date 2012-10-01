@@ -580,7 +580,7 @@ void vtkImageStencilData::InsertAndMergeExtent(int r1, int r2,
       newclist[k] = clist[k];
       }
     int n = this->NumberOfExtentEntries;
-    if (clist != &this->ExtentListLengths[n + incr])
+    if (clist != &this->ExtentListLengths[n + 2*incr])
       {
       delete [] clist;
       }
@@ -1134,7 +1134,7 @@ void vtkImageStencilRaster::PrepareForNewData(const int allocateExtent[2])
     while (i <= imax);
     }
 
-  if (allocateExtent && allocateExtent[1] >= allocateExtent[1])
+  if (allocateExtent && allocateExtent[1] >= allocateExtent[0])
     {
     this->PrepareExtent(allocateExtent[0], allocateExtent[1]);
     }

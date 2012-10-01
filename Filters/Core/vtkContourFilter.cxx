@@ -62,6 +62,8 @@ vtkContourFilter::vtkContourFilter()
   this->UseScalarTree = 0;
   this->ScalarTree = NULL;
 
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
+
   this->SynchronizedTemplates2D = vtkSynchronizedTemplates2D::New();
   this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
   this->GridSynchronizedTemplates = vtkGridSynchronizedTemplates3D::New();
@@ -373,6 +375,11 @@ int vtkContourFilter::RequestData(
 
     cgrid = vtkContourGrid::New();
     cgrid->SetInputData(input);
+    // currently vtkContourGrid has a ComputeGradients option
+    // but this doesn't do anything and will soon be deprecated.
+    cgrid->SetComputeNormals(this->ComputeNormals);
+    cgrid->SetComputeScalars(this->ComputeScalars);
+    cgrid->SetOutputPointsPrecision(this->OutputPointsPrecision);
     if ( this->Locator )
       {
       cgrid->SetLocator( this->Locator );
@@ -382,12 +389,11 @@ int vtkContourFilter::RequestData(
       {
       cgrid->SetValue(i, values[i]);
       }
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(
-      cgrid->GetExecutive())->SetUpdateExtent(
-        0,
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
-        info->Get(vtkStreamingDemandDrivenPipeline:: UPDATE_NUMBER_OF_PIECES()),
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    cgrid->SetUpdateExtent(
+      0,
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
+      info->Get(vtkStreamingDemandDrivenPipeline:: UPDATE_NUMBER_OF_PIECES()),
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
     cgrid->SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
     cgrid->Update();
     output->ShallowCopy(cgrid->GetOutput());
@@ -416,6 +422,23 @@ int vtkContourFilter::RequestData(
       }
 
     newPts = vtkPoints::New();
+    // set precision for the points in the output
+    if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+      {
+      vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+      if(inputPointSet)
+        {
+        newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+        }
+      }
+    else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+      {
+      newPts->SetDataType(VTK_FLOAT);
+      }
+    else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+      {
+      newPts->SetDataType(VTK_DOUBLE);
+      }
     newPts->Allocate(estimatedSize,estimatedSize);
     newVerts = vtkCellArray::New();
     newVerts->Allocate(estimatedSize,estimatedSize);
@@ -623,6 +646,17 @@ int vtkContourFilter::GetArrayComponent()
   return( this->SynchronizedTemplates2D->GetArrayComponent() );
 }
 
+void vtkContourFilter::SetOutputPointsPrecision(int precision)
+{
+  this->OutputPointsPrecision = precision;
+  this->Modified();
+}
+
+int vtkContourFilter::GetOutputPointsPrecision() const
+{
+  return this->OutputPointsPrecision;
+}
+
 //----------------------------------------------------------------------------
 int vtkContourFilter::ProcessRequest(vtkInformation* request,
                                      vtkInformationVector** inputVector,
@@ -752,6 +786,9 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }
 
 //----------------------------------------------------------------------------

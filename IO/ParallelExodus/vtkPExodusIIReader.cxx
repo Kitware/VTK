@@ -541,9 +541,9 @@ int vtkPExodusIIReader::RequestData(
       return 0;
       }
 
-    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
+    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP() ) )
       { // Get the requested time step. We only support requests of a single time step in this reader right now
-      double* requestedTimeSteps = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
+      double requestedTimeStep = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP() );
 
       // Save the time value in the output data information.
       int length = outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
@@ -557,8 +557,8 @@ int vtkPExodusIIReader::RequestData(
         for ( cnt = 0; cnt < length; ++ cnt )
           {
           double tdist =
-            ( steps[cnt] - requestedTimeSteps[0] > requestedTimeSteps[0] - steps[cnt] ) ?
-            steps[cnt] - requestedTimeSteps[0] : requestedTimeSteps[0] - steps[cnt];
+            ( steps[cnt] - requestedTimeStep > requestedTimeStep - steps[cnt] ) ?
+            steps[cnt] - requestedTimeStep : requestedTimeStep - steps[cnt];
           if ( minDist < 0 || tdist < minDist )
             {
             minDist = tdist;
@@ -567,7 +567,7 @@ int vtkPExodusIIReader::RequestData(
           }
         this->TimeStep = closestStep;
         this->ReaderList[reader_idx]->SetTimeStep( this->TimeStep );
-        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), steps + this->TimeStep, 1 );
+        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEP(), steps[this->TimeStep] );
         }
       else
         {
@@ -577,14 +577,14 @@ int vtkPExodusIIReader::RequestData(
 
         // Don't use this->SetModeShapeTime because that will cause Modified
         // to be called.
-        //this->SetModeShapeTime( requestedTimeSteps[0] );
-        double phase = requestedTimeSteps[0] - floor(requestedTimeSteps[0]);
+        //this->SetModeShapeTime( requestedTimeStep );
+        double phase = requestedTimeStep - floor(requestedTimeStep);
         this->Metadata->ModeShapeTime = phase;
 
         this->ReaderList[reader_idx]->SetTimeStep( this->TimeStep );
-        this->ReaderList[reader_idx]->SetModeShapeTime( requestedTimeSteps[0] );
-        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), requestedTimeSteps, 1 );
-        //output->GetInformation()->Remove( vtkDataObject::DATA_TIME_STEPS() );
+        this->ReaderList[reader_idx]->SetModeShapeTime( requestedTimeStep );
+        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEP(), requestedTimeStep );
+        //output->GetInformation()->Remove( vtkDataObject::DATA_TIME_STEP() );
         }
       }
     else
@@ -1118,7 +1118,8 @@ static void BroadcastXmitString( vtkMultiProcessController* ctrl, char* str )
     }
 }
 
-static bool BroadcastRecvString( vtkMultiProcessController* ctrl, std::vector<char>& str )
+static bool BroadcastRecvString( vtkMultiProcessController* ctrl,
+  std::vector<char>& str )
 {
   int len;
   ctrl->Broadcast( &len, 1, 0 );
@@ -1131,13 +1132,470 @@ static bool BroadcastRecvString( vtkMultiProcessController* ctrl, std::vector<ch
   return false;
 }
 
+static void BroadcastDoubleVector( vtkMultiProcessController* controller,
+  std::vector<double>& dvec, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( dvec.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    {
+    dvec.resize( len );
+    }
+  if ( len )
+    {
+    controller->Broadcast( &dvec[0], len, 0 );
+    }
+}
+
+static void BroadcastIntVector( vtkMultiProcessController* controller,
+  std::vector<int>& ivec, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( ivec.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    {
+    ivec.resize( len );
+    }
+  if ( len )
+    {
+    controller->Broadcast( &ivec[0], len, 0 );
+    }
+}
+
+static void BroadcastString( vtkMultiProcessController* controller,
+  vtkStdString& str, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( str.size() ) + 1;
+  controller->Broadcast( &len, 1, 0 );
+  if ( len )
+    {
+    if ( rank )
+      {
+      std::vector<char> tmp;
+      tmp.resize( len );
+      controller->Broadcast( &(tmp[0]), len, 0 );
+      str = &tmp[0];
+      }
+    else
+      {
+      const char* start = str.c_str();
+      std::vector<char> tmp( start, start + len );
+      controller->Broadcast( &tmp[0], len, 0 );
+      }
+    }
+}
+
+static void BroadcastStringVector( vtkMultiProcessController* controller,
+  std::vector<vtkStdString>& svec, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( svec.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    svec.resize( len );
+  std::vector<vtkStdString>::iterator it;
+  for ( it = svec.begin(); it != svec.end(); ++ it )
+    {
+    BroadcastString( controller, *it, rank );
+    }
+}
+
+static void BroadcastObjectInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::ObjectInfoType* oinfo, int rank )
+{
+  controller->Broadcast( &oinfo->Size, 1, 0 );
+  controller->Broadcast( &oinfo->Status, 1, 0 );
+  controller->Broadcast( &oinfo->Id, 1, 0 );
+  BroadcastString( controller, oinfo->Name, rank );
+}
+
+static void BroadcastBlockSetInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::BlockSetInfoType* bsinfo, int rank )
+{
+  BroadcastObjectInfo( controller, bsinfo, rank );
+  controller->Broadcast( &bsinfo->FileOffset, 1, 0 );
+  unsigned long len;
+  unsigned long i;
+  std::map<vtkIdType,vtkIdType>::iterator it;
+  vtkIdType item[2];
+  if ( rank == 0 )
+    {
+    len = static_cast<unsigned long>( bsinfo->PointMap.size() );
+    controller->Broadcast( &len, 1, 0 );
+    for ( it = bsinfo->PointMap.begin(); it != bsinfo->PointMap.end(); ++ it )
+      {
+      item[0] = it->first;
+      item[1] = it->second;
+      controller->Broadcast( item, 2, 0 );
+      }
+    }
+  else
+    {
+    if ( bsinfo->CachedConnectivity )
+      {
+      bsinfo->CachedConnectivity->Delete();
+      }
+    bsinfo->CachedConnectivity = 0;
+    bsinfo->PointMap.clear();
+    bsinfo->ReversePointMap.clear();
+    controller->Broadcast( &len, 1, 0 );
+    for ( i = 0; i < len; ++ i )
+      {
+      controller->Broadcast( item, 2, 0 );
+      bsinfo->PointMap[item[0]] = item[1];
+      bsinfo->ReversePointMap[item[1]] = item[0];
+      }
+    }
+  controller->Broadcast( &bsinfo->NextSqueezePoint, 1, 0 );
+}
+
+static void BroadcastBlockInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::BlockInfoType* binfo, int rank )
+{
+  BroadcastBlockSetInfo( controller, binfo, rank );
+  BroadcastString( controller, binfo->TypeName, rank );
+  controller->Broadcast( binfo->BdsPerEntry, 3, 0 );
+  controller->Broadcast( &binfo->AttributesPerEntry, 1, 0 );
+  BroadcastStringVector( controller, binfo->AttributeNames, rank );
+  BroadcastIntVector( controller, binfo->AttributeStatus, rank );
+  controller->Broadcast( &binfo->CellType, 1, 0 );
+  controller->Broadcast( &binfo->PointsPerCell, 1, 0 );
+}
+
+static void BroadcastPartInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::PartInfoType* pinfo, int rank )
+{
+  BroadcastObjectInfo( controller, pinfo, rank );
+  BroadcastIntVector( controller, pinfo->BlockIndices, rank );
+}
+
+static void BroadcastAssemblyInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::AssemblyInfoType* ainfo, int rank )
+{
+  BroadcastObjectInfo( controller, ainfo, rank );
+  BroadcastIntVector( controller, ainfo->BlockIndices, rank );
+}
+
+static void BroadcastMaterialInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::MaterialInfoType* minfo, int rank )
+{
+  BroadcastObjectInfo( controller, minfo, rank );
+  BroadcastIntVector( controller, minfo->BlockIndices, rank );
+}
+
+static void BroadcastSetInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::SetInfoType* sinfo, int rank )
+{
+  BroadcastBlockSetInfo( controller, sinfo, rank );
+  controller->Broadcast( &sinfo->DistFact, 1, 0 );
+}
+
+static void BroadcastArrayInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::ArrayInfoType* ainfo, int rank )
+{
+  if ( rank )
+    ainfo->Reset();
+
+  BroadcastString( controller, ainfo->Name, rank );
+  controller->Broadcast( &ainfo->Components, 1, 0 );
+  controller->Broadcast( &ainfo->GlomType, 1, 0 );
+  controller->Broadcast( &ainfo->StorageType, 1, 0 );
+  controller->Broadcast( &ainfo->Source, 1, 0 );
+  controller->Broadcast( &ainfo->Status, 1, 0 );
+  BroadcastStringVector( controller, ainfo->OriginalNames, rank );
+  BroadcastIntVector( controller, ainfo->OriginalIndices, rank );
+  BroadcastIntVector( controller, ainfo->ObjectTruth, rank );
+}
+
+static void BroadcastArrayInfoVector( vtkMultiProcessController* controller,
+  std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& ainfo, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( ainfo.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    ainfo.resize( len );
+  unsigned long i;
+  for ( i = 0; i < len; ++ i )
+    {
+    BroadcastArrayInfo( controller, &ainfo[i], rank );
+    }
+}
+
+static void BroadcastSortedObjectIndices( vtkMultiProcessController* controller,
+  std::map<int,std::vector<int> >& oidx, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( oidx.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank == 0 )
+    {
+    std::map<int,std::vector<int> >::iterator it;
+    int tmp;
+    for ( it = oidx.begin(); it != oidx.end(); ++ it )
+      {
+      tmp = it->first;
+      controller->Broadcast( &tmp, 1, 0 );
+      BroadcastIntVector( controller, it->second, rank );
+      }
+    }
+  else
+    {
+    unsigned long i;
+    for ( i = 0; i < len; ++ i )
+      {
+      std::vector<int> blank;
+      int key;
+      controller->Broadcast( &key, 1, 0 );
+      oidx[key] = blank;
+      BroadcastIntVector( controller, oidx[key], rank );
+      }
+    }
+}
+
+static void BroadcastArrayInfoMap(
+  vtkMultiProcessController* controller,
+  std::map<int,std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >& oidx, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( oidx.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank == 0 )
+    {
+    int tmp;
+    std::map<int,std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >::iterator it;
+    for ( it = oidx.begin(); it != oidx.end(); ++ it )
+      {
+      tmp = it->first;
+      controller->Broadcast( &tmp, 1, 0 );
+      BroadcastArrayInfoVector( controller, it->second, rank );
+      }
+    }
+  else
+    {
+    unsigned long i;
+    for ( i = 0; i < len; ++ i )
+      {
+      std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> blank;
+      int key;
+      controller->Broadcast( &key, 1, 0 );
+      oidx[key] = blank;
+      BroadcastArrayInfoVector( controller, oidx[key], rank );
+      }
+    }
+}
+
+static void BroadcastModelParameters(
+  vtkMultiProcessController* controller, ex_init_params& params, int vtkNotUsed(rank) )
+{
+  controller->Broadcast( params.title, MAX_LINE_LENGTH + 1, 0 );
+  controller->Broadcast( &params.num_dim, 1, 0 );
+  controller->Broadcast( &params.num_nodes, 1, 0 );
+  controller->Broadcast( &params.num_edge, 1, 0 );
+  controller->Broadcast( &params.num_edge_blk, 1, 0 );
+  controller->Broadcast( &params.num_face, 1, 0 );
+  controller->Broadcast( &params.num_face_blk, 1, 0 );
+  controller->Broadcast( &params.num_elem, 1, 0 );
+  controller->Broadcast( &params.num_elem_blk, 1, 0 );
+  controller->Broadcast( &params.num_node_sets, 1, 0 );
+  controller->Broadcast( &params.num_edge_sets, 1, 0 );
+  controller->Broadcast( &params.num_face_sets, 1, 0 );
+  controller->Broadcast( &params.num_side_sets, 1, 0 );
+  controller->Broadcast( &params.num_elem_sets, 1, 0 );
+  controller->Broadcast( &params.num_node_maps, 1, 0 );
+  controller->Broadcast( &params.num_edge_maps, 1, 0 );
+  controller->Broadcast( &params.num_face_maps, 1, 0 );
+  controller->Broadcast( &params.num_elem_maps, 1, 0 );
+}
+
+static void BroadcastBlockInfoVector( vtkMultiProcessController* controller,
+  std::vector<vtkExodusIIReaderPrivate::BlockInfoType>& binfo, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( binfo.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    binfo.resize( len );
+  std::vector<vtkExodusIIReaderPrivate::BlockInfoType>::iterator it;
+  for ( it = binfo.begin(); it != binfo.end(); ++ it )
+    {
+    BroadcastBlockInfo( controller, &(*it), rank );
+    }
+}
+
+static void BroadcastBlockInfoMap( vtkMultiProcessController* controller,
+  std::map<int,std::vector<vtkExodusIIReaderPrivate::BlockInfoType> >& binfo, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( binfo.size() );
+  controller->Broadcast( &len, 1, 0 );
+  int tmp;
+  if ( rank == 0 )
+    {
+    std::map<int,std::vector<vtkExodusIIReaderPrivate::BlockInfoType> >::iterator it;
+    for ( it = binfo.begin(); it != binfo.end(); ++ it )
+      {
+      tmp = it->first;
+      controller->Broadcast( &tmp, 1, 0 );
+      BroadcastBlockInfoVector( controller, it->second, rank );
+      }
+    }
+  else
+    {
+    unsigned long i;
+    std::vector<vtkExodusIIReaderPrivate::BlockInfoType> blank;
+    for ( i = 0; i < len; ++ i )
+      {
+      controller->Broadcast( &tmp, 1, 0 );
+      binfo[tmp] = blank;
+      BroadcastBlockInfoVector( controller, binfo[tmp], rank );
+      }
+    }
+}
+
+static void BroadcastSetInfoVector( vtkMultiProcessController* controller,
+  std::vector<vtkExodusIIReaderPrivate::SetInfoType>& sinfo, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( sinfo.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    sinfo.resize( len );
+  std::vector<vtkExodusIIReaderPrivate::SetInfoType>::iterator it;
+  for ( it = sinfo.begin(); it != sinfo.end(); ++ it )
+    {
+    BroadcastSetInfo( controller, &(*it), rank );
+    }
+}
+
+static void BroadcastSetInfoMap( vtkMultiProcessController* controller,
+  std::map<int,std::vector<vtkExodusIIReaderPrivate::SetInfoType> >& sinfo, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( sinfo.size() );
+  controller->Broadcast( &len, 1, 0 );
+  int tmp;
+  if ( rank == 0 )
+    {
+    std::map<int,std::vector<vtkExodusIIReaderPrivate::SetInfoType> >::iterator it;
+    for ( it = sinfo.begin(); it != sinfo.end(); ++ it )
+      {
+      tmp = it->first;
+      controller->Broadcast( &tmp, 1, 0 );
+      BroadcastSetInfoVector( controller, it->second, rank );
+      }
+    }
+  else
+    {
+    unsigned long i;
+    std::vector<vtkExodusIIReaderPrivate::SetInfoType> blank;
+    for ( i = 0; i < len; ++ i )
+      {
+      controller->Broadcast( &tmp, 1, 0 );
+      sinfo[tmp] = blank;
+      BroadcastSetInfoVector( controller, sinfo[tmp], rank );
+      }
+    }
+}
+
+static void BroadcastMapInfoVector( vtkMultiProcessController* controller,
+  std::vector<vtkExodusIIReaderPrivate::MapInfoType>& minfo, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( minfo.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    minfo.resize( len );
+  std::vector<vtkExodusIIReaderPrivate::MapInfoType>::iterator it;
+  for ( it = minfo.begin(); it != minfo.end(); ++ it )
+    {
+    BroadcastObjectInfo( controller, &(*it), rank );
+    }
+}
+
+static void BroadcastMapInfoMap( vtkMultiProcessController* controller,
+  std::map<int,std::vector<vtkExodusIIReaderPrivate::MapInfoType> >& minfo, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( minfo.size() );
+  controller->Broadcast( &len, 1, 0 );
+  int tmp;
+  if ( rank == 0 )
+    {
+    std::map<int,std::vector<vtkExodusIIReaderPrivate::MapInfoType> >::iterator it;
+    for ( it = minfo.begin(); it != minfo.end(); ++ it )
+      {
+      tmp = it->first;
+      controller->Broadcast( &tmp, 1, 0 );
+      BroadcastMapInfoVector( controller, it->second, rank );
+      }
+    }
+  else
+    {
+    unsigned long i;
+    std::vector<vtkExodusIIReaderPrivate::MapInfoType> blank;
+    for ( i = 0; i < len; ++ i )
+      {
+      controller->Broadcast( &tmp, 1, 0 );
+      minfo[tmp] = blank;
+      BroadcastMapInfoVector( controller, minfo[tmp], rank );
+      }
+    }
+}
+
+static void BroadcastPartInfoVector( vtkMultiProcessController* controller,
+  std::vector<vtkExodusIIReaderPrivate::PartInfoType>& pinfo, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( pinfo.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    pinfo.resize( len );
+  std::vector<vtkExodusIIReaderPrivate::PartInfoType>::iterator it;
+  for ( it = pinfo.begin(); it != pinfo.end(); ++ it )
+    {
+    BroadcastPartInfo( controller, &(*it), rank );
+    }
+}
+
+static void BroadcastMaterialInfoVector( vtkMultiProcessController* controller,
+  std::vector<vtkExodusIIReaderPrivate::MaterialInfoType>& minfo, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( minfo.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    minfo.resize( len );
+  std::vector<vtkExodusIIReaderPrivate::MaterialInfoType>::iterator it;
+  for ( it = minfo.begin(); it != minfo.end(); ++ it )
+    {
+    BroadcastMaterialInfo( controller, &(*it), rank );
+    }
+}
+
+static void BroadcastAssemblyInfoVector( vtkMultiProcessController* controller,
+  std::vector<vtkExodusIIReaderPrivate::AssemblyInfoType>& ainfo, int rank )
+{
+  unsigned long len = static_cast<unsigned long>( ainfo.size() );
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    ainfo.resize( len );
+  std::vector<vtkExodusIIReaderPrivate::AssemblyInfoType>::iterator it;
+  for ( it = ainfo.begin(); it != ainfo.end(); ++ it )
+    {
+    BroadcastAssemblyInfo( controller, &(*it), rank );
+    }
+}
+
 void vtkPExodusIIReader::Broadcast( vtkMultiProcessController* ctrl )
 {
   if ( ctrl )
     {
-    this->Metadata->Broadcast( ctrl );
-    ctrl->Broadcast( this->TimeStepRange, 2, 0 );
     int rank = ctrl->GetLocalProcessId();
+    BroadcastBlockInfoMap( ctrl, this->Metadata->BlockInfo, rank );
+    BroadcastSetInfoMap( ctrl, this->Metadata->SetInfo, rank );
+    BroadcastMapInfoMap( ctrl, this->Metadata->MapInfo, rank );
+    BroadcastPartInfoVector( ctrl, this->Metadata->PartInfo, rank );
+    BroadcastMaterialInfoVector( ctrl, this->Metadata->MaterialInfo, rank );
+    BroadcastAssemblyInfoVector( ctrl, this->Metadata->AssemblyInfo, rank );
+    BroadcastSortedObjectIndices( ctrl, this->Metadata->SortedObjectIndices, rank );
+    BroadcastArrayInfoMap( ctrl, this->Metadata->ArrayInfo, rank );
+    ctrl->Broadcast( &this->Metadata->AppWordSize, 1, 0 );
+    ctrl->Broadcast( &this->Metadata->DiskWordSize, 1, 0 );
+    ctrl->Broadcast( &this->Metadata->ExodusVersion, 1, 0 );
+    ctrl->Broadcast( &this->Metadata->ExodusVersion, 1, 0 );
+    BroadcastModelParameters( ctrl, this->Metadata->ModelParameters, rank );
+    BroadcastDoubleVector( ctrl, this->Metadata->Times, rank );
+
+    ctrl->Broadcast( this->TimeStepRange, 2, 0 );
     if ( rank == 0 )
       {
       BroadcastXmitString( ctrl, this->FilePattern );

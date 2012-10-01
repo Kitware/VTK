@@ -18,7 +18,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
-#include "vtkGeometryFilter.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -94,11 +94,11 @@ int vtkCompositeDataGeometryFilter::RequestCompositeData(
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (ds)
       {
-      vtkGeometryFilter* geom = vtkGeometryFilter::New();
-      geom->SetInputData(ds);
-      geom->Update();
-      append->AddInputConnection(geom->GetOutputPort());
-      geom->Delete();
+      vtkDataSetSurfaceFilter* dssf = vtkDataSetSurfaceFilter::New();
+      dssf->SetInputData(ds);
+      dssf->Update();
+      append->AddInputConnection(dssf->GetOutputPort());
+      dssf->Delete();
       added = true;
       }
     }

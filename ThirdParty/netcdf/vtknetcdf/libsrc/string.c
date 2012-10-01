@@ -4,7 +4,7 @@
  */
 /* $Id: string.c,v 1.76 2010/05/26 21:43:33 dmh Exp $ */
 
-#include "ncconfig.h"
+#include "config.h"
 #include "nc.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,17 +30,17 @@ NC_free_string()
 void
 free_NC_string(NC_string *ncstrp)
 {
-        if(ncstrp==NULL)
-                return;
-        free(ncstrp);
+	if(ncstrp==NULL)
+		return;
+	free(ncstrp);
 }
 
 
-int
+int 
 nextUTF8(const char* cp)
 {
     /*  The goal here is to recognize the length of each
-        multibyte utf8 character sequence and skip it.
+	multibyte utf8 character sequence and skip it.
         Again, we assume that every non-ascii character is legal.
         We can define three possible tests of decreasing correctness
         (in the sense that the least correct will allow some sequences that
@@ -55,25 +55,25 @@ nextUTF8(const char* cp)
                  | (\xF0[\x90-\xBF][\x80-\xBF][\x80-\xBF])        \
                  | ([\xF1-\xF3][\x80-\xBF][\x80-\xBF][\x80-\xBF]) \
                  | (\xF4[\x80-\x8F][\x80-\xBF][\x80-\xBF])        \
-
+        
         2. partially relaxed:
             UTF8 ([\xC0-\xDF][\x80-\xBF])
                  |([\xE0-\xEF][\x80-\xBF][\x80-\xBF])
                  |([\xF0-\xF7][\x80-\xBF][\x80-\xBF][\x80-\xBF])
-
+        
         3. The most relaxed version of UTF8:
             UTF8 ([\xC0-\xD6].)|([\xE0-\xEF]..)|([\xF0-\xF7]...)
-
+        
         We use #2 here.
 
-        The tests are derived from the table at
-            http://www.w3.org/2005/03/23-lex-U
+	The tests are derived from the table at
+	    http://www.w3.org/2005/03/23-lex-U
     */
 
 /* Define a test macro to test against a range */
 #define RANGE(c,lo,hi) (((uchar)c) >= lo && ((uchar)c) <= hi)
 /* Define a common RANGE */
-#define RANGE0(c) RANGE(c,0x80,0xBF)
+#define RANGE0(c) RANGE(c,0x80,0xBF) 
 
     int ch0;
 
@@ -87,63 +87,63 @@ nextUTF8(const char* cp)
     /* Do relaxed validation check */
     if(RANGE(ch0,0xC0,0XDF)) {/* 2-bytes, but check */
         if(cp[1] != 0 && RANGE0(cp[1]))
-                skip = 2; /* two bytes */
+		skip = 2; /* two bytes */
     } else if(RANGE(ch0,0xE0,0XEF)) {/* 3-bytes, but check */
         if(cp[1] != 0 && RANGE0(cp[1]) && cp[2] != 0 && RANGE0(cp[1]))
-                skip = 3; /* three bytes */
+		skip = 3; /* three bytes */
     } else if(RANGE(ch0,0xF0,0XF7)) {/* 3-bytes, but check */
         if(cp[1] != 0 && RANGE0(cp[1]) && cp[2] != 0
            && RANGE0(cp[1]) && cp[3] != 0 && RANGE0(cp[1]))
-                skip = 4; /* four bytes*/
+		skip = 4; /* four bytes*/
     }
 #elif UTF8_CHECK == 1
     /* Do exact validation check */
     if(RANGE(ch0,0xC2,0xDF)) {/* non-overlong 2-bytes */
-        int ch1 = (uchar)cp[1];
-        if(ch1 != 0 && RANGE0(ch1)) skip = 2;
+	int ch1 = (uchar)cp[1];
+	if(ch1 != 0 && RANGE0(ch1)) skip = 2;
     } else if((ch0 == 0xE0)) {/* 3-bytes, not overlong */
-        int ch1 = (uchar)cp[1];
-        if(ch1 != 0 && RANGE(ch1,0xA0,0xBF)) {
-            int ch2 = (uchar)cp[2];
-            if(ch2 != 0 && RANGE0(ch2)) skip = 3;
+	int ch1 = (uchar)cp[1];
+	if(ch1 != 0 && RANGE(ch1,0xA0,0xBF)) {
+	    int ch2 = (uchar)cp[2];
+	    if(ch2 != 0 && RANGE0(ch2)) skip = 3;
     } else if((ch0 == 0xED)) {/* 3-bytes minus surrogates */
-        int ch1 = (uchar)cp[1];
-        if(ch1 != 0 && RANGE(ch1,0x80,0x9f)) {
-            int ch2 = (uchar)cp[2];
-            if(ch2 != 0 && RANGE0(ch2)) skip = 3;
+	int ch1 = (uchar)cp[1];
+	if(ch1 != 0 && RANGE(ch1,0x80,0x9f)) {
+	    int ch2 = (uchar)cp[2];
+	    if(ch2 != 0 && RANGE0(ch2)) skip = 3;
     } else if(RANGE(ch0,0xE1,0xEC) || ch0 == 0xEE || ch0 == 0xEF)
-        int ch1 = (uchar)cp[1];
-        if(ch1 != 0 && RANGE0(ch1)) {
-            int ch2 = (uchar)cp[2];
-            if(ch2 != 0 && RANGE0(ch2)) skip = 3;
-        }
+	int ch1 = (uchar)cp[1];
+	if(ch1 != 0 && RANGE0(ch1)) {
+	    int ch2 = (uchar)cp[2];
+	    if(ch2 != 0 && RANGE0(ch2)) skip = 3;
+	}
     } else if((ch0 == 0xF0)) {/* planes 1-3 */
-        int ch1 = (uchar)cp[1];
-        if(ch1 != 0 && RANGE(ch1,0x90,0xBF) {
-            int ch2 = (uchar)cp[2];
-            if(ch2 != 0 && RANGE0(ch2)) {
-                int ch3 = (uchar)cp[3];
-                if(ch3 != 0 && RANGE0(ch3)) skip = 4;
-            }
-        }
+	int ch1 = (uchar)cp[1];
+	if(ch1 != 0 && RANGE(ch1,0x90,0xBF) {
+	    int ch2 = (uchar)cp[2];
+	    if(ch2 != 0 && RANGE0(ch2)) {
+	        int ch3 = (uchar)cp[3];
+	        if(ch3 != 0 && RANGE0(ch3)) skip = 4;
+	    }
+	}    
     } else if((ch0 == 0xF4)) {/* plane 16 */
-        int ch1 = (uchar)cp[1];
-        if(ch1 != 0 && RANGE0(ch1)) {
-            int ch2 = (uchar)cp[2];
-            if(ch2 != 0 && RANGE0(ch2)) {
-                int ch3 = (uchar)cp[3];
-                if(ch3 != 0 && RANGE0(ch3)) skip = 4;
-            }
-        }
+	int ch1 = (uchar)cp[1];
+	if(ch1 != 0 && RANGE0(ch1)) {
+	    int ch2 = (uchar)cp[2];
+	    if(ch2 != 0 && RANGE0(ch2)) {
+	        int ch3 = (uchar)cp[3];
+	        if(ch3 != 0 && RANGE0(ch3)) skip = 4;
+	    }
+	}    
     } else if(RANGE(ch0,0xF1,0xF3) { /* planes 4-15 */
-        int ch1 = (uchar)cp[1];
-        if(ch1 != 0 && RANGE0(ch1)) {
-            int ch2 = (uchar)cp[2];
-            if(ch2 != 0 && RANGE0(ch2)) {
-                int ch3 = (uchar)cp[3];
-                if(ch3 != 0 && RANGE0(ch3)) skip = 4;
-            }
-        }
+	int ch1 = (uchar)cp[1];
+	if(ch1 != 0 && RANGE0(ch1)) {
+	    int ch2 = (uchar)cp[2];
+	    if(ch2 != 0 && RANGE0(ch2)) {
+	        int ch3 = (uchar)cp[3];
+	        if(ch3 != 0 && RANGE0(ch3)) skip = 4;
+	    }
+	}
     }
 #else
 #error "Must Define UTF8_CHECK as 1 or 2"
@@ -169,54 +169,54 @@ nextUTF8(const char* cp)
 int
 NC_check_name(const char *name)
 {
-        int skip;
-        int ch;
-        const char *cp = name;
-        ssize_t utf8_stat;
+	int skip;
+	int ch;
+	const char *cp = name;
+	ssize_t utf8_stat;
 
-        assert(name != NULL);
+	assert(name != NULL);
 
-        if(*name == 0		/* empty names disallowed */
-           || strchr(cp, '/'))	/* '/' can't be in a name */
-                return NC_EBADNAME;
+	if(*name == 0		/* empty names disallowed */
+	   || strchr(cp, '/'))	/* '/' can't be in a name */
+		return NC_EBADNAME;
+	
+	/* check validity of any UTF-8 */
+	utf8_stat = utf8proc_check((const unsigned char *)name);
+	if (utf8_stat < 0)
+	    return NC_EBADNAME;
 
-        /* check validity of any UTF-8 */
-        utf8_stat = utf8proc_check((const unsigned char *)name);
-        if (utf8_stat < 0)
-            return NC_EBADNAME;
+	/* First char must be [a-z][A-Z][0-9]_ | UTF8 */
+	ch = (uchar)*cp;
+	if(ch <= 0x7f) { 
+	    if(   !('A' <= ch && ch <= 'Z') 
+	       && !('a' <= ch && ch <= 'z') 
+	       && !('0' <= ch && ch <= '9')
+	       && ch != '_' )
+		return NC_EBADNAME;
+	    cp++;
+	} else {
+	    if((skip = nextUTF8(cp)) < 0) 
+		return NC_EBADNAME;
+	    cp += skip;
+	}
 
-        /* First char must be [a-z][A-Z][0-9]_ | UTF8 */
-        ch = (uchar)*cp;
-        if(ch <= 0x7f) {
-            if(   !('A' <= ch && ch <= 'Z')
-               && !('a' <= ch && ch <= 'z')
-               && !('0' <= ch && ch <= '9')
-               && ch != '_' )
-                return NC_EBADNAME;
-            cp++;
-        } else {
-            if((skip = nextUTF8(cp)) < 0)
-                return NC_EBADNAME;
-            cp += skip;
-        }
-
-        while(*cp != 0) {
-            ch = (uchar)*cp;
-            /* handle simple 0x00-0x7f characters here */
-            if(ch <= 0x7f) {
+	while(*cp != 0) {
+	    ch = (uchar)*cp;
+	    /* handle simple 0x00-0x7f characters here */
+	    if(ch <= 0x7f) { 
                 if( ch < ' ' || ch > 0x7E) /* control char or DEL */
-                  return NC_EBADNAME;
-                cp++;
-            } else {
-                if((skip = nextUTF8(cp)) < 0) return NC_EBADNAME;
-                cp += skip;
-            }
-            if(cp - name > NC_MAX_NAME)
-                return NC_EMAXNAME;
-        }
-        if(ch <= 0x7f && isspace(ch)) /* trailing spaces disallowed */
-            return NC_EBADNAME;
-        return NC_NOERR;
+		  return NC_EBADNAME;
+		cp++;
+	    } else {
+		if((skip = nextUTF8(cp)) < 0) return NC_EBADNAME;
+		cp += skip;
+	    }
+	    if(cp - name > NC_MAX_NAME)
+		return NC_EMAXNAME;
+	}
+	if(ch <= 0x7f && isspace(ch)) /* trailing spaces disallowed */
+	    return NC_EBADNAME;
+	return NC_NOERR;
 }
 
 
@@ -229,29 +229,29 @@ NC_new_string(count, str)
 NC_string *
 new_NC_string(size_t slen, const char *str)
 {
-        NC_string *ncstrp;
-        size_t sz = M_RNDUP(sizeof(NC_string)) + slen + 1;
+	NC_string *ncstrp;
+	size_t sz = M_RNDUP(sizeof(NC_string)) + slen + 1;
 
 #if 0
-        sz = _RNDUP(sz, X_ALIGN);
+	sz = _RNDUP(sz, X_ALIGN);
 #endif
+		
+	ncstrp = (NC_string *)malloc(sz);
+	if( ncstrp == NULL )
+		return NULL;
+	(void) memset(ncstrp, 0, sz);
 
-        ncstrp = (NC_string *)malloc(sz);
-        if( ncstrp == NULL )
-                return NULL;
-        (void) memset(ncstrp, 0, sz);
+	ncstrp->nchars = sz - M_RNDUP(sizeof(NC_string)) - 1;
+	assert(ncstrp->nchars + 1 > slen);
+	ncstrp->cp = (char *)ncstrp + M_RNDUP(sizeof(NC_string));
 
-        ncstrp->nchars = sz - M_RNDUP(sizeof(NC_string)) - 1;
-        assert(ncstrp->nchars + 1 > slen);
-        ncstrp->cp = (char *)ncstrp + M_RNDUP(sizeof(NC_string));
-
-        if(str != NULL && *str != 0)
-        {
-                (void) strncpy(ncstrp->cp, str, ncstrp->nchars +1);
-                ncstrp->cp[ncstrp->nchars] = 0;
-        }
-
-        return(ncstrp);
+	if(str != NULL && *str != 0)
+	{
+		(void) strncpy(ncstrp->cp, str, ncstrp->nchars +1);
+		ncstrp->cp[ncstrp->nchars] = 0;
+	}
+	
+	return(ncstrp);
 }
 
 
@@ -264,20 +264,20 @@ NC_re_string()
 int
 set_NC_string(NC_string *ncstrp, const char *str)
 {
-        size_t slen;
+	size_t slen;
 
-        assert(str != NULL && *str != 0);
+	assert(str != NULL && *str != 0);
 
-        slen = strlen(str);
+	slen = strlen(str);
 
-        if(ncstrp->nchars < slen)
-                return NC_ENOTINDEFINE;
+	if(ncstrp->nchars < slen)
+		return NC_ENOTINDEFINE;
 
-        strncpy(ncstrp->cp, str, ncstrp->nchars);
-        /* Don't adjust ncstrp->nchars, it includes extra space in the
-         * header for potential later expansion of string. */
+	strncpy(ncstrp->cp, str, ncstrp->nchars);
+	/* Don't adjust ncstrp->nchars, it includes extra space in the
+	 * header for potential later expansion of string. */
 
-        return NC_NOERR;
+	return NC_NOERR;
 }
 
 /**************************************************/

@@ -44,11 +44,11 @@ void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input
   layout->SetLayoutStrategy(strategy);
   layout->SetInputConnection(input->GetOutputPort());
   layout->Update();
-  vtkDataArray* vda = layout->GetOutput()->GetVertexData()->GetArray("circle");
+  vtkDataArray* vda = layout->GetOutput()->GetVertexData()->GetArray("circles");
   // Test GetBoundingCircle() and FindVertex()
-  float cinfo[3];
+  double cinfo[3];
   layout->GetBoundingCircle(vda->GetNumberOfTuples() - 1, cinfo);
-  float pnt[2];
+  double pnt[2];
   pnt[0] = cinfo[0];
   pnt[1] = cinfo[1];
   if(((int) layout->FindVertex(pnt)) != (vda->GetNumberOfTuples() - 1))

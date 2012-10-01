@@ -135,19 +135,6 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
       outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                       extent, 6);
       }
-    else if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_TIME_EXTENT)
-      {
-      // The time extent is captured in TIME_STEPS and/or TIME_RANGE.
-      double time = 0.0;
-      if (dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
-        {
-        time = dataInfo->Get(vtkDataObject::DATA_TIME_STEPS())[0];
-        }
-      double timeRange[2];
-      timeRange[0] = timeRange[1] = time;
-      outputInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                      timeRange, 2);
-      }
 
     if (this->Output->IsA("vtkImageData"))
       {

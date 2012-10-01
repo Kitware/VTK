@@ -15,30 +15,12 @@
 
 #include "vtkInteractorStyleSwitchBase.h"
 
-#include "vtkGraphicsFactory.h"
-#include "vtkDebugLeaks.h"
+#include "vtkObjectFactory.h"
 
 // This is largely here to confirm the approach works, and will be replaced
 // with standard factory override logic in the modularized source tree.
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkInteractorStyleSwitchBase);
-
-//----------------------------------------------------------------------
-vtkInteractorStyleSwitchBase *vtkInteractorStyleSwitchBase::New()
-{
-  // First try to create the object from the vtkGraphicsFactory
-  vtkObject* ret =
-    vtkGraphicsFactory::CreateInstance("vtkInteractorStyleSwitchBase");
-  if (ret)
-    {
-    return static_cast<vtkInteractorStyleSwitchBase *>(ret);
-    }
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkInteractorStyleSwitchBase");
-#endif
-  return new vtkInteractorStyleSwitchBase;
-}
+vtkObjectFactoryNewMacro(vtkInteractorStyleSwitchBase)
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleSwitchBase::vtkInteractorStyleSwitchBase()

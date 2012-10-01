@@ -18,14 +18,14 @@ endif()
 # Load the module DAG.
 
 # Assess modules, and tests in the repository.
-vtk_module_glob("${VTK_SOURCE_DIR}" "${VTK_BINARY_DIR}" ${_test_languages})
+vtk_module_search(${_test_languages})
 
 # Now include the module group logic.
 include(vtkGroups)
 
 # Validate the module DAG.
 macro(vtk_module_check vtk-module _needed_by stack)
-  if(NOT VTK_MODULE_${vtk-module}_DECLARED)
+  if(NOT ${vtk-module}_DECLARED)
     message(FATAL_ERROR "No such module \"${vtk-module}\" needed by \"${_needed_by}\"")
   endif()
   if(check_started_${vtk-module} AND NOT check_finished_${vtk-module})
@@ -41,7 +41,7 @@ macro(vtk_module_check vtk-module _needed_by stack)
   elseif(NOT check_started_${vtk-module})
     # Traverse dependencies of this module.  Mark the start and finish.
     set(check_started_${vtk-module} 1)
-    foreach(dep IN LISTS VTK_MODULE_${vtk-module}_DEPENDS)
+    foreach(dep IN LISTS ${vtk-module}_DEPENDS)
       vtk_module_check(${dep} ${vtk-module} "${vtk-module};${stack}")
     endforeach()
     set(check_finished_${vtk-module} 1)
@@ -58,16 +58,22 @@ endforeach()
 option(VTK_BUILD_ALL_MODULES "Request to build all modules" OFF)
 mark_as_advanced(VTK_BUILD_ALL_MODULES)
 
+include(CMakeDependentOption)
+cmake_dependent_option(VTK_BUILD_ALL_MODULES_FOR_TESTS
+  "Enable modules as needed for testing all the enabled modules" OFF
+  "BUILD_TESTING" OFF)
+mark_as_advanced(VTK_BUILD_ALL_MODULES_FOR_TESTS)
+
 # Provide an option for each module.
 foreach(vtk-module ${VTK_MODULES_ALL})
   if(NOT ${vtk-module}_IS_TEST)
     option(Module_${vtk-module} "Request building ${vtk-module}"
-      ${VTK_MODULE_${vtk-module}_DEFAULT})
+      ${${vtk-module}_DEFAULT})
     mark_as_advanced(Module_${vtk-module})
-    if(VTK_MODULE_${vtk-module}_EXCLUDE_FROM_ALL)
-      set(VTK_MODULE_${vtk-module}_IN_ALL 0)
+    if(${vtk-module}_EXCLUDE_FROM_ALL)
+      set(${vtk-module}_IN_ALL 0)
     else()
-      set(VTK_MODULE_${vtk-module}_IN_ALL ${VTK_BUILD_ALL_MODULES})
+      set(${vtk-module}_IN_ALL ${VTK_BUILD_ALL_MODULES})
     endif()
   endif()
 endforeach()
@@ -75,25 +81,42 @@ endforeach()
 # Follow dependencies.
 macro(vtk_module_enable vtk-module _needed_by)
   if(NOT Module_${vtk-module})
-    list(APPEND VTK_MODULE_${vtk-module}_NEEDED_BY ${_needed_by})
+    list(APPEND ${vtk-module}_NEEDED_BY ${_needed_by})
   endif()
   if(NOT ${vtk-module}_ENABLED)
     set(${vtk-module}_ENABLED 1)
-    foreach(dep IN LISTS VTK_MODULE_${vtk-module}_DEPENDS)
+    foreach(dep IN LISTS ${vtk-module}_DEPENDS)
       vtk_module_enable(${dep} ${vtk-module})
     endforeach()
 
-    foreach(test IN LISTS ${vtk-module}_TESTED_BY)
+    # If VTK_BUILD_ALL_MODULES_FOR_TESTS is true, then and then
+    # alone do we include the test modules in building build the dependency
+    # graph for enabled modules (BUG #13297).
+    if (VTK_BUILD_ALL_MODULES_FOR_TESTS)
+      foreach(test IN LISTS ${vtk-module}_TESTED_BY)
         vtk_module_enable(${test} "")
-    endforeach()
+      endforeach()
+    elseif (BUILD_TESTING)
+      # identify vtkTesting<> dependencies on the test module and enable them.
+      # this ensures that core testing modules such as vtkTestingCore,
+      # vtkTestingRendering which many test modules depend on, are automatically
+      # enabled.
+      foreach(test IN LISTS ${vtk-module}_TESTED_BY)
+        foreach(test-depends IN LISTS ${test}_DEPENDS)
+          if (test-depends MATCHES "^vtkTesting.*")
+            vtk_module_enable(${test-depends} "")
+          endif()
+        endforeach()
+      endforeach()
+    endif()
   endif()
 endmacro()
 
 foreach(vtk-module ${VTK_MODULES_ALL})
-  if(Module_${vtk-module} OR VTK_MODULE_${vtk-module}_IN_ALL)
+  if(Module_${vtk-module} OR ${vtk-module}_IN_ALL)
     vtk_module_enable("${vtk-module}" "")
-  elseif(VTK_MODULE_${vtk-module}_REQUEST_BY)
-    vtk_module_enable("${vtk-module}" "${VTK_MODULE_${vtk-module}_REQUEST_BY}")
+  elseif(${vtk-module}_REQUEST_BY)
+    vtk_module_enable("${vtk-module}" "${${vtk-module}_REQUEST_BY}")
   endif()
 endforeach()
 
@@ -101,8 +124,8 @@ foreach(vtk-module ${VTK_MODULES_ALL})
   # Exclude modules that exist only to test this module
   # from the report of modules that need this one.  They
   # are enabled exactly because this module is enabled.
-  if(VTK_MODULE_${vtk-module}_NEEDED_BY AND ${vtk-module}_TESTED_BY)
-    list(REMOVE_ITEM VTK_MODULE_${vtk-module}_NEEDED_BY "${${vtk-module}_TESTED_BY}")
+  if(${vtk-module}_NEEDED_BY AND ${vtk-module}_TESTED_BY)
+    list(REMOVE_ITEM ${vtk-module}_NEEDED_BY "${${vtk-module}_TESTED_BY}")
   endif()
 endforeach()
 
@@ -116,33 +139,61 @@ foreach(vtk-module ${VTK_MODULES_ALL})
     list(APPEND VTK_MODULES_DISABLED ${vtk-module})
   endif()
 endforeach()
+
+if (NOT VTK_BUILD_ALL_MODULES_FOR_TESTS)
+  # If VTK_BUILD_ALL_MODULES_FOR_TESTS is OFF, it implies that we didn't add any
+  # test modules to the dependecy graph. We now add the test modules for all
+  # enabled modules iff the all the test dependecies are already satisfied
+  # (BUG #13297).
+  foreach(vtk-module IN LISTS VTK_MODULES_ENABLED)
+    foreach(test IN LISTS ${vtk-module}_TESTED_BY)
+      # if all test-dependencies are satisfied, enable it.
+      set (missing_dependencis)
+      foreach(test-depends IN LISTS ${test}_DEPENDS)
+        list(FIND VTK_MODULES_ENABLED ${test-depends} found)
+        if (found EQUAL -1)
+          list(APPEND missing_dependencis ${test-depends})
+        endif()
+      endforeach()
+      if (NOT missing_dependencis)
+        vtk_module_enable(${test} "")
+        list(APPEND VTK_MODULES_ENABLED ${test})
+      else()
+        message(STATUS
+        "Disable test module ${test} since required modules are not enabled: ${missing_dependencis}")
+      endif()
+    endforeach()
+  endforeach()
+endif()
+
 list(SORT VTK_MODULES_ENABLED) # Deterministic order.
 list(SORT VTK_MODULES_DISABLED) # Deterministic order.
 
 # Order list to satisfy dependencies.
 include(CMake/TopologicalSort.cmake)
-topological_sort(VTK_MODULES_ENABLED VTK_MODULE_ _DEPENDS)
+topological_sort(VTK_MODULES_ENABLED "" _DEPENDS)
+
 
 # Report what will be built.
 set(_modules_enabled_alpha "${VTK_MODULES_ENABLED}")
 list(SORT _modules_enabled_alpha)
-list(REMOVE_ITEM _modules_enabled_alpha vtkWrappingJavaCore vtkWrappingPythonCore)
+list(REMOVE_ITEM _modules_enabled_alpha vtkWrappingJava vtkWrappingPython)
 list(LENGTH _modules_enabled_alpha _length)
 message(STATUS "Enabled ${_length} modules:")
 foreach(vtk-module ${_modules_enabled_alpha})
   if(NOT ${vtk-module}_IS_TEST)
     if(Module_${vtk-module})
       set(_reason ", requested by Module_${vtk-module}.")
-    elseif(VTK_MODULE_${vtk-module}_IN_ALL)
+    elseif(${vtk-module}_IN_ALL)
       set(_reason ", requested by VTK_BUILD_ALL_MODULES.")
     else()
-      set(_needed_by "${VTK_MODULE_${vtk-module}_NEEDED_BY}")
+      set(_needed_by "${${vtk-module}_NEEDED_BY}")
       list(SORT _needed_by)
       list(LENGTH _needed_by _length)
       if(_length GREATER "1")
         set(_reason ", needed by ${_length} modules:")
         foreach(dep ${_needed_by})
-          set(_reason "${_reason}\n--      ${dep}")
+          set(_reason "${_reason}\n        ${dep}")
         endforeach()
       else()
         set(_reason ", needed by ${_needed_by}.")
@@ -155,7 +206,7 @@ endforeach()
 # Hide options for modules that will build anyway.
 foreach(vtk-module ${VTK_MODULES_ALL})
   if(NOT ${vtk-module}_IS_TEST)
-    if(VTK_MODULE_${vtk-module}_IN_ALL OR VTK_MODULE_${vtk-module}_NEEDED_BY)
+    if(${vtk-module}_IN_ALL OR ${vtk-module}_NEEDED_BY)
       set_property(CACHE Module_${vtk-module} PROPERTY TYPE INTERNAL)
     else()
       set_property(CACHE Module_${vtk-module} PROPERTY TYPE BOOL)
@@ -223,6 +274,10 @@ set(VTK_CONFIG_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 set(VTK_CONFIG_TARGETS_CONDITION " AND NOT VTK_BINARY_DIR")
 set(VTK_CONFIG_TARGETS_FILE "${VTK_BINARY_DIR}/VTKTargets.cmake")
 set(VTK_CONFIG_MODULE_API_FILE "${VTK_SOURCE_DIR}/CMake/vtkModuleAPI.cmake")
+set(VTK_CONFIG_TESTING_MACROS_FILE "${VTK_SOURCE_DIR}/CMake/vtkTestingMacros.cmake")
+
+# Target used to ensure VTKConfig is load just once
+set(VTK_COMMON_TARGET vtkCommonCore)
 configure_file(CMake/VTKConfig.cmake.in VTKConfig.cmake @ONLY)
 
 # Generate VTKConfig.cmake for the install tree.
@@ -246,18 +301,43 @@ configure_file(CMake/VTKConfig.cmake.in CMakeFiles/VTKConfig.cmake @ONLY)
 
 configure_file(CMake/VTKConfigVersion.cmake.in VTKConfigVersion.cmake @ONLY)
 
-install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKConfig.cmake
-              ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
-              CMake/vtkModuleAPI.cmake
-              CMake/UseVTK.cmake
-  DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
-get_property(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)
-if(VTK_TARGETS)
-  install(EXPORT VTKTargets DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
-else()
-  set(CMAKE_CONFIGURABLE_FILE_CONTENT "# No targets!")
-  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                 ${VTK_BINARY_DIR}/CMakeFiles/VTKTargets.cmake @ONLY)
-  install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKTargets.cmake
-          DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKConfig.cmake
+                ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
+                CMake/exportheader.cmake.in
+                CMake/GenerateExportHeader.cmake
+                CMake/pythonmodules.h.in
+                CMake/UseVTK.cmake
+                CMake/vtk-forward.c.in
+                CMake/vtkForwardingExecutable.cmake
+                CMake/vtkJavaWrapping.cmake
+                CMake/vtkModuleAPI.cmake
+                CMake/vtkModuleClasses.cmake.in
+                CMake/vtkModuleInfo.cmake.in
+                CMake/vtkModuleMacros.cmake
+                CMake/vtkObjectFactory.cxx.in
+                CMake/vtkObjectFactory.h.in
+                CMake/vtkPythonWrapping.cmake
+                CMake/vtkTclWrapping.cmake
+                CMake/vtkThirdParty.cmake
+                CMake/vtkWrapHierarchy.cmake
+                CMake/vtkWrapJava.cmake
+                CMake/vtkWrapperInit.data.in
+                CMake/vtkWrapping.cmake
+                CMake/vtkWrapPython.cmake
+                CMake/vtkWrapPythonSIP.cmake
+                CMake/vtkWrapPython.sip.in
+                CMake/vtkWrapTcl.cmake
+
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
+  get_property(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)
+  if(VTK_TARGETS)
+    install(EXPORT ${VTK_INSTALL_EXPORT_NAME}  DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
+  else()
+    set(CMAKE_CONFIGURABLE_FILE_CONTENT "# No targets!")
+    configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+                   ${VTK_BINARY_DIR}/CMakeFiles/VTKTargets.cmake @ONLY)
+    install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKTargets.cmake
+            DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
+  endif()
 endif()

@@ -30,6 +30,7 @@ vtkChart::MouseActions::MouseActions()
   this->Data[0] = vtkContextMouseEvent::LEFT_BUTTON;
   this->Data[1] = vtkContextMouseEvent::MIDDLE_BUTTON;
   this->Data[2] = vtkContextMouseEvent::RIGHT_BUTTON;
+  this->Data[3] = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -376,14 +377,5 @@ void vtkChart::SetSelectionMode(int selMode)
     return;
     }
   this->SelectionMode = selMode;
-  if(this->SelectionMode == vtkContextScene::SELECTION_NONE)
-    {
-    this->SetActionToButton(vtkChart::PAN, vtkContextMouseEvent::LEFT_BUTTON);
-    this->SetActionToButton(vtkChart::SELECT, vtkContextMouseEvent::RIGHT_BUTTON);
-    }
-  else
-    {
-    this->SetActionToButton(vtkChart::SELECT, vtkContextMouseEvent::LEFT_BUTTON);
-    }
   this->Modified();
 }

@@ -836,7 +836,7 @@ int vtkNetCDFCFReader::RequestDataObject(
           break;
         case VTK_RECTILINEAR_GRID:
           if (   (preferredDataType != VTK_IMAGE_DATA)
-              || (preferredDataType != VTK_RECTILINEAR_GRID) )
+              && (preferredDataType != VTK_RECTILINEAR_GRID) )
             {
             vtkWarningMacro("You have set the OutputType to a data type that"
                             " cannot fully represent the topology of the data."
@@ -845,8 +845,8 @@ int vtkNetCDFCFReader::RequestDataObject(
           break;
         case VTK_STRUCTURED_GRID:
           if (   (preferredDataType != VTK_IMAGE_DATA)
-              || (preferredDataType != VTK_RECTILINEAR_GRID)
-              || (preferredDataType != VTK_STRUCTURED_GRID) )
+              && (preferredDataType != VTK_RECTILINEAR_GRID)
+              && (preferredDataType != VTK_STRUCTURED_GRID) )
             {
             vtkWarningMacro("You have set the OutputType to a data type that"
                             " cannot fully represent the topology of the data."

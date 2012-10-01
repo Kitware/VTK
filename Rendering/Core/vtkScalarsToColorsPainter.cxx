@@ -22,7 +22,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
-#include "vtkGraphicsFactory.h"
 #include "vtkImageData.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformation.h"
@@ -67,8 +66,8 @@ static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
     }
 }
 
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkScalarsToColorsPainter)
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -121,13 +120,6 @@ vtkScalarsToColorsPainter::~vtkScalarsToColorsPainter()
   this->SetLookupTable(NULL);
   this->ColorTextureMap = 0;
   this->SetArrayName(0);
-}
-
-//-----------------------------------------------------------------------------
-vtkScalarsToColorsPainter* vtkScalarsToColorsPainter::New()
-{
-  vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkScalarsToColorsPainter");
-  return static_cast<vtkScalarsToColorsPainter *>(o);
 }
 
 //-----------------------------------------------------------------------------

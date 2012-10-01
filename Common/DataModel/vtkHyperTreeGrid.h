@@ -14,6 +14,7 @@
 =========================================================================*/
 // .NAME vtkHyperTreeGrid - A dataset structured as a tree where each node has
 // exactly either 2^n or 3^n children.
+//
 // .SECTION Description
 // An hypertree is a dataset where each node has either exactly 2^n or 3^n children
 // or no child at all if the node is a leaf. `n' is the dimension of the
@@ -109,10 +110,10 @@
 // .SECTION Caveats
 // It is not a spatial search object. If you are looking for this kind of
 // octree see vtkCellLocator instead.
-
 //
 // .SECTION Thanks
-// This class was written by Charles Law and Philippe Pebay, Kitware 2012
+// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGrid_h
 #define __vtkHyperTreeGrid_h
@@ -121,7 +122,9 @@
 #include "vtkDataSet.h"
 
 class vtkHyperTreeLightWeightCursor;
+//BTX
 class vtkHyperTreeSuperCursor;
+//ETX
 class vtkHyperTreeCursor;
 class vtkHyperTreeInternal;
 
@@ -373,22 +376,24 @@ public:
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
-
+//BTX
   // Description:
   // Initialize a super cursor to point to one of the root trees
-  // in the grid.  The super cursor points to a node in a tre and
-  // also keeps pointers to the nodes 26 neighbors.
+  // in the grid.  The super cursor points to a node in a tree and
+  // also keeps pointers to the 26 neighbors of said node.
   void InitializeSuperCursor(vtkHyperTreeSuperCursor* superCursor, int i, int j, int k);
+//ETX
   // Description:
   // Generate the table before calling InitializeSuperCursorChild.
   void GenerateSuperCursorTraversalTable();
+//BTX
   // Description:
-  // Initializa a cursor to point to a child of an existing super cursor.
-  // This will not work inplace.
+  // Initialize a cursor to point to a child of an existing super cursor.
+  // This will not work in place.
   void InitializeSuperCursorChild(vtkHyperTreeSuperCursor* parent,
                                   vtkHyperTreeSuperCursor* child,
                                   int childIdx);
-
+//ETX
   // Description:
   // The number of children each node can have.
   vtkGetMacro(NumberOfChildren,int);
@@ -434,7 +439,7 @@ protected:
   int UpdateCellTreeLeafIdOffsets();
 
   void DeleteInternalArrays();
-
+//BTX
   void TraverseDualRecursively( vtkHyperTreeSuperCursor*,
                                 int );
   void TraverseGridRecursively( vtkHyperTreeSuperCursor*,
@@ -444,7 +449,7 @@ protected:
                                 vtkHyperTreeSuperCursor*,
                                 unsigned char*,
                                 int* );
-
+//ETX
   // Generalizing for 27 tree.  I cannot use 3 bits to encode the child to move to.
   // Input: root in supercursor(3x3x3=27), child(3x3x3=27)
   // Output: root, child
@@ -503,20 +508,20 @@ private:
 };
 
 
-// Public structure filters use to move around the tree.
+// Public structure filters used to move around the tree.
 // The super cursor keeps neighbor cells so filters can
-// easily access neighbor to leaves.  The super cursor
+// easily access neighbor to leaves.
 // The super cursor is static.  Methods in vtkHyperTreeGrid
-// initialize and compute children for moving  toward leaves.
+// initialize and compute children for moving toward leaves.
 class vtkHyperTreeSuperCursor
 {
-  public:
+ public:
   vtkHyperTreeLightWeightCursor Cursors[27];
   int NumberOfCursors;
   int MiddleCursorId;
   double Origin[3];
   double Size[3];
-  vtkHyperTreeLightWeightCursor* GetCursor(int idx) { return this->Cursors + this->MiddleCursorId + idx;}
+  vtkHyperTreeLightWeightCursor* GetCursor( int idx ) { return this->Cursors + this->MiddleCursorId + idx; }
 };
 
 

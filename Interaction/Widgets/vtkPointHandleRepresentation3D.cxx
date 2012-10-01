@@ -17,7 +17,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCellPicker.h"
+#include "vtkPickingManager.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 #include "vtkAssemblyPath.h"
@@ -96,6 +98,13 @@ vtkPointHandleRepresentation3D::~vtkPointHandleRepresentation3D()
   this->Actor->Delete();
   this->Property->Delete();
   this->SelectedProperty->Delete();
+}
+
+//----------------------------------------------------------------------
+void vtkPointHandleRepresentation3D::RegisterPickers()
+{
+  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
+    ->AddPicker(this->CursorPicker, this);
 }
 
 //-------------------------------------------------------------------------
@@ -181,8 +190,9 @@ int vtkPointHandleRepresentation3D
 ::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   this->VisibilityOn(); //actor must be on to be picked
-  this->CursorPicker->Pick(X,Y,0.0,this->Renderer);
-  vtkAssemblyPath *path = this->CursorPicker->GetPath();
+
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->CursorPicker);
+
   double focus[3];
   this->Cursor3D->GetFocalPoint(focus);
   double d[3];
@@ -264,8 +274,9 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
   this->LastEventPosition[0] = startEventPos[0];
   this->LastEventPosition[1] = startEventPos[1];
 
-  vtkAssemblyPath *path;
-  this->CursorPicker->Pick(startEventPos[0],startEventPos[1],0.0,this->Renderer);
+  vtkAssemblyPath* path = this->GetAssemblyPath(
+    startEventPos[0], startEventPos[1], 0., this->CursorPicker);
+
   path = this->CursorPicker->GetPath();
   if ( path != NULL )
     {

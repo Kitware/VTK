@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkMath.h"
 #include "vtkScatterPlotMatrix.h"
 #include "vtkRenderWindow.h"
 #include "vtkChart.h"
@@ -22,6 +23,7 @@
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkNew.h"
 
 //----------------------------------------------------------------------------
@@ -52,7 +54,7 @@ int TestScatterPlotMatrix(int, char * [])
   table->AddColumn(tangent.GetPointer());
   // Test the chart scatter plot matrix
   int numPoints = 100;
-  float inc = 4.0 * 3.14 / (numPoints-1);
+  float inc = 4.0 * vtkMath::Pi() / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
     {
@@ -67,6 +69,10 @@ int TestScatterPlotMatrix(int, char * [])
   matrix->SetInput(table.GetPointer());
 
   matrix->SetNumberOfBins(7);
+
+  view->Render();
+  matrix->GetMainChart()->SetActionToButton(vtkChart::SELECT_POLYGON,
+                                            vtkContextMouseEvent::RIGHT_BUTTON);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

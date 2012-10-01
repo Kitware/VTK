@@ -23,6 +23,7 @@
 // To run fast redistribution: SetUseMinimalMemoryOff() (Default)
 // To run memory conserving code instead: SetUseMinimalMemoryOn()
 
+#include "vtkObjectFactory.h"
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkCompositeRenderManager.h"

@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkXMLCompositeDataReader.h"
 
-#include "vtkAMRBox.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArraySelection.h"
@@ -28,7 +27,6 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
-#include "vtkTemporalDataSet.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLImageDataReader.h"

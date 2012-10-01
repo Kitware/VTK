@@ -1,17 +1,28 @@
+find_package(Java REQUIRED)
+find_package(JNI REQUIRED)
+
+include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
+
+set(WrappingJava_SRCS
+  vtkJavaUtil.cxx
+  )
+
+vtk_module_library(vtkWrappingJava ${WrappingJava_SRCS})
+
 # javac runs out memory on Mac so increase heapsize
 if(APPLE)
   set(JAVAC_OPTIONS -J-Xmx256m)
 endif()
 
 foreach(module ${VTK_MODULES_ENABLED})
-  if(NOT VTK_MODULE_${module}_EXCLUDE_FROM_WRAPPING)
+  if(NOT ${module}_EXCLUDE_FROM_WRAPPING)
     include(${${module}_BINARY_DIR}/JavaDependencies.cmake OPTIONAL)
     list(APPEND _MODULES_TO_WRAP ${module})
   endif()
 endforeach()
 
 if(NOT VTK_JAR_PATH)
-  set(VTK_JAR_PATH "${LIBRARY_OUTPUT_PATH}")
+  set(VTK_JAR_PATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 endif()
 
 set(VTK_JAVA_SOURCE_FILES ${VTK_JAVA_DEPENDENCIES})
@@ -84,6 +95,26 @@ string(REGEX REPLACE "vtk" "" KITS "${_MODULES_TO_WRAP}")
 configure_file(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkSettings.java.in
                ${VTK_BINARY_DIR}/java/vtk/vtkSettings.java)
 
+# configure vtkNativeLibrary.java to enable loading of VTK module libraries
+set(VTK_JAVA_NATIVE_LIBRARIES)
+foreach(module ${VTK_MODULES_ALL})
+  if(NOT ${module}_EXCLUDE_FROM_WRAPPING)
+    string(TOUPPER ${module} _enum_name)
+    set(_enabled "false")
+    if(${${module}_ENABLED})
+      set(_enabled "true")
+    endif()
+    set(_enum_contr_call "    ${_enum_name}(\"${module}Java\", ${_enabled}),\n")
+    set(VTK_JAVA_NATIVE_LIBRARIES "${VTK_JAVA_NATIVE_LIBRARIES}${_enum_contr_call}")
+  endif()
+endforeach()
+
+# replace last , with ;
+string(REGEX REPLACE "^(.*),\n$" "\\1;\n" VTK_JAVA_NATIVE_LIBRARIES ${VTK_JAVA_NATIVE_LIBRARIES})
+
+configure_file(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkNativeLibrary.java.in
+               ${VTK_BINARY_DIR}/java/vtk/vtkNativeLibrary.java)
+
 # Add to class list so classes get cleaned up
 list(APPEND VTK_JAVA_CLASS_FILES ${VTK_BINARY_DIR}/java/vtk/vtkSettings.class)
 
@@ -151,7 +182,7 @@ foreach(jfile ${VTK_JAVA_DEPENDENCIES})
   set(class ${VTK_JAVA_HOME}/${jfile}.class)
   # Add to class list so classes get cleaned up
   list(APPEND VTK_JAVA_CLASS_FILES ${class})
-  if(jfile MATCHES "vtkSettings")
+  if(jfile MATCHES "vtkSettings" OR jfile MATCHES "vtkNativeLibrary")
   else()
     configure_file(${src} ${dst} COPYONLY)
   endif()
@@ -162,7 +193,7 @@ add_custom_command(
   OUTPUT ${VTK_BINARY_DIR}/java/javac_stamp.txt
   DEPENDS ${VTK_JAVA_SOURCE_FILES}
   COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS}
-    -source 5 -classpath ${VTK_JAVA_HOME}/.. -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
+    -source 1.5 -classpath ${VTK_JAVA_HOME}/.. -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
     ${VTK_BINARY_DIR}/java/vtk/*.java
   COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_stamp.txt
   COMMENT "Compiling Java Classes"
@@ -200,7 +231,7 @@ if(BUILD_TESTING)
   add_custom_command(
     OUTPUT ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt
     COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS} -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
-    -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
+    -source 1.5 -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
     -d ${VTK_BINARY_DIR}/Wrapping/Java
     ${VTK_JAVA_TESTS}
     COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt

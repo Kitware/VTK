@@ -18,6 +18,6 @@
 
 /* Set the whether we have UINTPTR_T defined in support of the GNU R interface */
 #cmakedefine HAVE_VTK_UINTPTR_T
-#define VTK_R_HOME "@VTK_R_HOME@"
+#define VTK_R_HOME "@R_HOME@"
 
 #endif

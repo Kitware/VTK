@@ -56,8 +56,19 @@ int TestControlPointsItem(int, char*[])
     return EXIT_FAILURE;
     }
 
-  vtkSmartPointer<vtkIdTypeArray> ids;
-  ids.TakeReference(controlPoints->GetControlPointsIds());
+  vtkNew<vtkIdTypeArray> ids;
+  controlPoints->GetControlPointsIds(ids.GetPointer(), true);
+
+  if (ids->GetSize() != controlPoints->GetNumberOfPoints() - 2 ||
+      ids->GetValue(0) != 1 || ids->GetValue(1) != 2)
+    {
+    std::cerr << "vtkControlPointsItem::GetControlPointsIds"
+              << "failed, bad array: " << ids->GetSize() << ", "
+              << ids->GetValue(0) << ", " << ids->GetValue(1) << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  controlPoints->GetControlPointsIds(ids.GetPointer());
 
   if (ids->GetSize() != controlPoints->GetNumberOfPoints() ||
       ids->GetValue(0) != 0 || ids->GetValue(1) != 1 ||

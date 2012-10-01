@@ -1,4 +1,6 @@
 vtk_module(vtkCommonExecutionModel
+  GROUPS
+    StandAlone
   DEPENDS
     vtkCommonDataModel
   COMPILE_DEPENDS
@@ -6,6 +8,6 @@ vtk_module(vtkCommonExecutionModel
   TEST_DEPENDS
     vtkTestingCore
     vtkIOCore
-    vtkIOGeometry
+    vtkIOLegacy
     vtkFiltersExtraction
   )

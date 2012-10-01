@@ -226,6 +226,9 @@ protected:
   int      CurrentHexFace;
   vtkCellPicker *LastPicker;
 
+  // Register internal Pickers within PickingManager
+  virtual void RegisterPickers();
+
   // Transform the hexahedral points (used for rotations)
   vtkTransform *Transform;
 

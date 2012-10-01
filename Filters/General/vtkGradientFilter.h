@@ -27,8 +27,8 @@
 // the gradient is not central differencing.  The output array has
 // 3*number of components of the input data array.  The ordering for the
 // output tuple will be {du/dx, du/dy, du/dz, dv/dx, dv/dy, dv/dz, dw/dx,
-// dw/dy, dw/dz} for an input array {u, v, w}.
-
+// dw/dy, dw/dz} for an input array {u, v, w}. There are also the options
+// to additionally compute the vorticity and Q criterion of a vector field.
 
 #ifndef __vtkGradientFilter_h
 #define __vtkGradientFilter_h
@@ -53,12 +53,26 @@ public:
   virtual void SetInputScalars(int fieldAssociation, int fieldAttributeType);
 
   // Description:
-  // Get/Set the name of the resulting array to create.  If NULL (the
+  // Get/Set the name of the gradient array to create.  If NULL (the
   // default) then the output array will be named "Gradients".
   vtkGetStringMacro(ResultArrayName);
   vtkSetStringMacro(ResultArrayName);
 
   // Description:
+  // Get/Set the name of the vorticity array to create. This is only
+  // used if ComputeVorticity is non-zero. If NULL (the
+  // default) then the output array will be named "Vorticity".
+  vtkGetStringMacro(VorticityArrayName);
+  vtkSetStringMacro(VorticityArrayName);
+
+  // Description:
+  // Get/Set the name of the Q criterion array to create. This is only
+  // used if ComputeQCriterion is non-zero. If NULL (the
+  // default) then the output array will be named "Q-criterion".
+  vtkGetStringMacro(QCriterionArrayName);
+  vtkSetStringMacro(QCriterionArrayName);
+
+ // Description:
   // When this flag is on (default is off), the gradient filter will provide a
   // less accurate (but close) algorithm that performs fewer derivative
   // calculations (and is therefore faster).  The error contains some smoothing
@@ -103,18 +117,30 @@ protected:
   // Returns non-zero if the operation was successful.
   virtual int ComputeUnstructuredGridGradient(
     vtkDataArray* Array, int fieldAssociation, vtkDataSet* input,
-    vtkDataSet* output);
+    bool computeVorticity, bool computeQCriterion, vtkDataSet* output);
 
   // Description:
   // Compute the gradients for either a vtkImageData, vtkRectilinearGrid or
   // a vtkStructuredGrid.  Computes the gradient using finite differences.
   // Returns non-zero if the operation was successful.
   virtual int ComputeRegularGridGradient(
-    vtkDataArray* Array, int fieldAssociation, vtkDataSet* output);
+    vtkDataArray* Array, int fieldAssociation, bool computeVorticity,
+    bool computeQCriterion, vtkDataSet* output);
 
   // Description:
-  // If non-null then it contains the name of the outputted gradient array
+  // If non-null then it contains the name of the outputted gradient array.
+  // By derault it is "Gradients".
   char *ResultArrayName;
+
+  // Description:
+  // If non-null then it contains the name of the outputted vorticity array.
+  // By derault it is "Vorticity".
+  char *VorticityArrayName;
+
+  // Description:
+  // If non-null then it contains the name of the outputted Q criterion array.
+  // By derault it is "Q-criterion".
+  char *QCriterionArrayName;
 
   // Description:
   // When this flag is on (default is off), the gradient filter will provide a

@@ -28,7 +28,7 @@
 #include "vtkChart.h"
 #include "vtkSmartPointer.h" // For SP ivars
 #include "vtkVector.h" // For vtkVector2f in struct
-#include "vtkContextPolygon.h"
+#include "vtkContextPolygon.h" // For vtkContextPolygon
 
 class vtkPlot;
 class vtkAxis;
@@ -307,6 +307,10 @@ private:
   // is at that mouse position.
   bool LocatePointInPlots(const vtkContextMouseEvent &mouse,
                           int invokeEvent = -1);
+
+  int LocatePointInPlot(const vtkVector2f &position,
+                        const vtkVector2f &tolerance, vtkVector2f &plotPos,
+                        vtkPlot *plot, vtkIdType &segmentIndex);
 
   // Description:
   // Remove the plot from the plot corners list.

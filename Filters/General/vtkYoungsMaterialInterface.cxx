@@ -614,8 +614,8 @@ int vtkYoungsMaterialInterface::RequestData(
   int nmat = static_cast<int>( this->Internals->Materials.size() );
 
   // alocate composite iterator
-  vtkSmartPointer<vtkCompositeDataIterator> inputIterator = vtkSmartPointer<vtkCompositeDataIterator>::New();
-  inputIterator->SetDataSet(compositeInput);
+  vtkSmartPointer<vtkCompositeDataIterator> inputIterator;
+  inputIterator.TakeReference(compositeInput->NewIterator());
   inputIterator->VisitOnlyLeavesOn();
   inputIterator->SkipEmptyNodesOn();
   inputIterator->InitTraversal();
@@ -2303,7 +2303,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI vtkMath::Pi()
 #endif
 
   /**************************************

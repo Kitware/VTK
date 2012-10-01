@@ -220,6 +220,9 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkGetMacro(DrawGridlines, int);
   vtkBooleanMacro(DrawGridlines, int);
 
+  vtkSetMacro(DrawGridlinesLocation, int);
+  vtkGetMacro(DrawGridlinesLocation, int);
+
   // Description:
   // Set/Get whether inner gridlines should be drawn.
   vtkSetMacro(DrawInnerGridlines, int);
@@ -280,7 +283,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   virtual int RenderTranslucentGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
   virtual int RenderOverlay(vtkViewport* viewport);
-  int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() { return 1; }
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -384,6 +387,27 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkSetMacro(SaveTitlePosition, int);
   vtkGetMacro(SaveTitlePosition, int);
 
+  // Description:
+  // Provide real vector for non aligned axis
+  vtkSetVector3Macro(AxisBaseForX, double);
+  vtkGetVector3Macro(AxisBaseForX, double);
+
+  // Description:
+  // Provide real vector for non aligned axis
+  vtkSetVector3Macro(AxisBaseForY, double);
+  vtkGetVector3Macro(AxisBaseForY, double);
+
+  // Description:
+  // Provide real vector for non aligned axis
+  vtkSetVector3Macro(AxisBaseForZ, double);
+  vtkGetVector3Macro(AxisBaseForZ, double);
+
+  // Description:
+  // Notify the axes that is not part of a cube anymore
+  vtkSetMacro(AxisOnOrigin,int);
+  vtkGetMacro(AxisOnOrigin,int);
+
+
  protected:
   vtkAxisActor();
   ~vtkAxisActor();
@@ -399,6 +423,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 
   int    DrawGridlines;
   int    LastDrawGridlines;
+  int    DrawGridlinesLocation; // 0: all | 1: closest | 2: farest
   double  GridlineXLength;
   double  GridlineYLength;
   double  GridlineZLength;
@@ -419,6 +444,10 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   int    AxisPosition;
   double  Bounds[6];
 
+  double AxisBaseForX[3];
+  double AxisBaseForY[3];
+  double AxisBaseForZ[3];
+
  private:
   vtkAxisActor(const vtkAxisActor&); // Not implemented
   void operator=(const vtkAxisActor&); // Not implemented
@@ -434,9 +463,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   void BuildTitle2D(vtkViewport *viewport, bool);
 
   void SetAxisPointsAndLines(void);
-  bool BuildTickPointsForXType(double p1[3], double p2[3], bool);
-  bool BuildTickPointsForYType(double p1[3], double p2[3], bool);
-  bool BuildTickPointsForZType(double p1[3], double p2[3], bool);
+  bool BuildTickPoints(double p1[3], double p2[3], bool force);
 
   bool TickVisibilityChanged(void);
   vtkProperty *NewTitleProperty();
@@ -501,9 +528,12 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 
   vtkCamera          *Camera;
   vtkTimeStamp        BuildTime;
+  vtkTimeStamp        BuildTickPointsTime;
   vtkTimeStamp        BoundsTime;
   vtkTimeStamp        LabelBuildTime;
   vtkTimeStamp        TitleTextTime;
+
+  int                 AxisOnOrigin;
 
   int                 AxisHasZeroLength;
 

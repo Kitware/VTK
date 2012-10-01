@@ -40,6 +40,13 @@
 #include <float.h>
 #include <math.h>
 
+// for uintptr_t
+#ifdef _MSC_VER
+# include <stddef.h>
+#else
+# include <stdint.h>
+#endif
+
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -1609,11 +1616,7 @@ void vtkGetCompositeFunc(
 // Check pointer memory alignment with 4-byte words
 inline int vtkImageReslicePointerAlignment(void *ptr, int n)
 {
-#if (VTK_SIZEOF_VOID_P == 8)
-  return ((reinterpret_cast<vtkTypeUInt64>(ptr) % n) == 0);
-#else
-  return ((reinterpret_cast<vtkTypeUInt32>(ptr) % n) == 0);
-#endif
+  return ((reinterpret_cast<uintptr_t>(ptr) % n) == 0);
 }
 
 //--------------------------------------------------------------------------

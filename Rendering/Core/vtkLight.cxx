@@ -16,14 +16,13 @@
 
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
-#include "vtkGraphicsFactory.h"
-
+#include "vtkObjectFactory.h"
 
 vtkCxxSetObjectMacro(vtkLight,TransformMatrix,vtkMatrix4x4);
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkLight);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkLight)
 
 // Create a light with the focal point at the origin and its position
 // set to (0,0,1). The lights color is white, intensity=1, and the light
@@ -122,15 +121,6 @@ void vtkLight::SetDirectionAngle(double elevation, double azimuth)
 
   this->SetFocalPoint( 0.0, 0.0, 0.0 );
   this->SetPositional( 0 );
-}
-
-
-// return the correct type of light
-vtkLight *vtkLight::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkLight");
-  return static_cast<vtkLight *>(ret);
 }
 
 // Preserve VTK's old way of setting light color

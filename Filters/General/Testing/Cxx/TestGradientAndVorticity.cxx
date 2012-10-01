@@ -198,7 +198,7 @@ namespace
       double* g = gradients->GetTuple(i);
       double qc = qCriterion->GetValue(i);
 
-      double t1 = .5*(
+      double t1 = .25*(
         (g[7]-g[5])*(g[7]-g[5]) +
         (g[3]-g[1])*(g[3]-g[1]) +
         (g[2]-g[6])*(g[2]-g[6]) );
@@ -294,7 +294,7 @@ namespace
       // cell stuff
       vtkDoubleArray* vorticityCellArray = vtkDoubleArray::SafeDownCast(
         vtkDataSet::SafeDownCast(
-          cellVorticity->GetOutput())->GetCellData()->GetArray(resultName));
+          cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
 
       if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
         {
@@ -304,7 +304,7 @@ namespace
       // point stuff
       vtkDoubleArray* vorticityPointArray = vtkDoubleArray::SafeDownCast(
         vtkDataSet::SafeDownCast(
-          pointVorticity->GetOutput())->GetPointData()->GetArray(resultName));
+          pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
 
       if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
         {

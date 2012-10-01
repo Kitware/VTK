@@ -1,19 +1,26 @@
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
 PROJECT (DataManipulation)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK REQUIRED)
-IF(NOT VTK_USE_RENDERING)
-  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires VTK_USE_RENDERING.")
-ENDIF(NOT VTK_USE_RENDERING)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK COMPONENTS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkFiltersCore
+    vtkFiltersGeometry
+    vtkRenderingCore
+    vtkRenderingOpenGL
+    vtkInteractionStyle
+)
+include(${VTK_USE_FILE})
+endif()
 
-ADD_EXECUTABLE(Arrays Arrays.cxx)
-ADD_EXECUTABLE(Cube Cube.cxx)
-ADD_EXECUTABLE(SGrid SGrid.cxx)
-ADD_EXECUTABLE(RGrid RGrid.cxx)
+add_executable(Arrays MACOSX_BUNDLE Arrays.cxx)
+add_executable(Cube MACOSX_BUNDLE Cube.cxx)
+add_executable(SGrid MACOSX_BUNDLE SGrid.cxx)
+add_executable(RGrid MACOSX_BUNDLE RGrid.cxx)
 
-TARGET_LINK_LIBRARIES(Arrays vtkRendering)
-TARGET_LINK_LIBRARIES(Cube vtkRendering)
-TARGET_LINK_LIBRARIES(SGrid vtkRendering)
-TARGET_LINK_LIBRARIES(RGrid vtkRendering)
+target_link_libraries(Arrays ${VTK_LIBRARIES})
+target_link_libraries(Cube ${VTK_LIBRARIES})
+target_link_libraries(SGrid ${VTK_LIBRARIES})
+target_link_libraries(RGrid ${VTK_LIBRARIES})

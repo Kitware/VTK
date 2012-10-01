@@ -8,6 +8,7 @@ set(Module_SRCS
   vtkBoostBreadthFirstSearch.cxx
   vtkBoostBreadthFirstSearchTree.cxx
   vtkBoostConnectedComponents.cxx
+  vtkBoostDividedEdgeBundling.cxx
   vtkBoostExtractLargestComponent.cxx
   vtkBoostKruskalMinimumSpanningTree.cxx
   vtkBoostLogWeighting.cxx

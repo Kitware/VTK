@@ -41,28 +41,17 @@
 #include "vtkVisibilitySort.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkVolumeRenderingFactory.h"
 
 #include <math.h>
 #include <algorithm>
 
 //-----------------------------------------------------------------------------
-
-
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
                      VisibilitySort, vtkVisibilitySort);
 
 //-----------------------------------------------------------------------------
-
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkProjectedTetrahedraMapper);
-
-vtkProjectedTetrahedraMapper *vtkProjectedTetrahedraMapper::New()
-{
-  vtkObject *ret
-    = vtkVolumeRenderingFactory::CreateInstance("vtkProjectedTetrahedraMapper");
-  return (vtkProjectedTetrahedraMapper *)ret;
-}
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkProjectedTetrahedraMapper)
 
 //-----------------------------------------------------------------------------
 
@@ -132,7 +121,7 @@ void vtkProjectedTetrahedraMapperTransformPoints(const point_type *in_points,
 
   // Check to see if we need to divide by w.
   if (   (mat[0*4+3] != 0) || (mat[1*4+3] != 0)
-      || (mat[0*4+3] != 0) || (mat[1*4+3] != 1) )
+      || (mat[2*4+3] != 0) || (mat[3*4+3] != 1) )
     {
     for (i = 0, in_p = in_points, out_p = out_points; i < num_points;
          i++, in_p += 3, out_p += 3)

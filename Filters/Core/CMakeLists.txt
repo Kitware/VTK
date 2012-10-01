@@ -21,6 +21,7 @@ set(Module_SRCS
   vtkDelaunay2D.cxx
   vtkDelaunay3D.cxx
   vtkElevationFilter.cxx
+  vtkExecutionTimer.cxx
   vtkFeatureEdges.cxx
   vtkFieldDataToAttributeDataFilter.cxx
   vtkGlyph2D.cxx
@@ -62,6 +63,7 @@ set(Module_SRCS
   vtkWindowedSincPolyDataFilter.cxx
 
   vtkCutter.cxx
+  vtkCompositeCutter.cxx
   vtkGridSynchronizedTemplates3D.cxx
   vtkRectilinearSynchronizedTemplates.cxx
   vtkEdgeSubdivisionCriterion.cxx

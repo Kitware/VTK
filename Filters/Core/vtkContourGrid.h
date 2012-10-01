@@ -97,6 +97,7 @@ public:
   // will not be stored in the output dataset.  If the output data
   // will be processed by filters that modify topology or geometry, it
   // may be wise to turn Normals and Gradients off.
+  // @deprecated ComputeGradients is not used so these methods don't affect anything (VTK 6.0).
   vtkSetMacro(ComputeGradients,int);
   vtkGetMacro(ComputeGradients,int);
   vtkBooleanMacro(ComputeGradients,int);
@@ -124,6 +125,13 @@ public:
   // specified. The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explaination of
+  // the available precision settings.
+  void SetOutputPointsPrecision(int precision);
+  int GetOutputPointsPrecision() const;
+
 protected:
   vtkContourGrid();
   ~vtkContourGrid();
@@ -137,6 +145,7 @@ protected:
   int ComputeScalars;
   vtkIncrementalPointLocator *Locator;
   int UseScalarTree;
+  int OutputPointsPrecision;
   vtkScalarTree *ScalarTree;
   vtkEdgeTable *EdgeTable;
 

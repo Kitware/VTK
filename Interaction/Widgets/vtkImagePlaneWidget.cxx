@@ -29,6 +29,7 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkPickingManager.h"
 #include "vtkPlaneSource.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -790,9 +791,7 @@ void vtkImagePlaneWidget::StartCursor()
 
   // Okay, we can process this. If anything is picked, then we
   // can start pushing the plane.
-  vtkAssemblyPath *path;
-  this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->PlanePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
   int found = 0;
   int i;
@@ -871,9 +870,7 @@ void vtkImagePlaneWidget::StartSliceMotion()
 
   // Okay, we can process this. If anything is picked, then we
   // can start pushing or check for adjusted states.
-  vtkAssemblyPath *path;
-  this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->PlanePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
   int found = 0;
   int i;
@@ -949,9 +946,7 @@ void vtkImagePlaneWidget::StartWindowLevel()
 
   // Okay, we can process this. If anything is picked, then we
   // can start window-levelling.
-  vtkAssemblyPath *path;
-  this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->PlanePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
   int found = 0;
   int i;
@@ -1662,16 +1657,11 @@ void vtkImagePlaneWidget::UpdatePlane()
   this->PlaneSource->GetOrigin(planeOrigin);
 
   planeOrigin[3] = 1.0;
-  double originXYZW[4];
-  this->ResliceAxes->MultiplyPoint(planeOrigin, originXYZW);
 
   this->ResliceAxes->Transpose();
-  double neworiginXYZW[4];
-  this->ResliceAxes->MultiplyPoint(originXYZW, neworiginXYZW);
-
-  this->ResliceAxes->SetElement(0,3,neworiginXYZW[0]);
-  this->ResliceAxes->SetElement(1,3,neworiginXYZW[1]);
-  this->ResliceAxes->SetElement(2,3,neworiginXYZW[2]);
+  this->ResliceAxes->SetElement(0,3,planeOrigin[0]);
+  this->ResliceAxes->SetElement(1,3,planeOrigin[1]);
+  this->ResliceAxes->SetElement(2,3,planeOrigin[2]);
 
   this->Reslice->SetResliceAxes(this->ResliceAxes);
 
@@ -1803,6 +1793,12 @@ void vtkImagePlaneWidget::SetPicker(vtkAbstractPropPicker* picker)
       this->PlanePicker->Delete();
       }
     }
+}
+
+//------------------------------------------------------------------------------
+void vtkImagePlaneWidget::RegisterPickers()
+{
+  this->Interactor->GetPickingManager()->AddPicker(this->PlanePicker, this);
 }
 
 //----------------------------------------------------------------------------
@@ -2094,9 +2090,8 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   // cause a segfault.
   this->Reslice->GetInputAlgorithm()->Update();
 
-  vtkAssemblyPath *path;
-  this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->PlanePicker->GetPath();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
+
   this->CurrentImageValue = VTK_DOUBLE_MAX;
 
   int found = 0;

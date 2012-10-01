@@ -20,15 +20,30 @@
 // NOTE: One must call Build() after making any changes to the points
 // in the ColorTransferFunction to ensure that the discrete and non-discrete
 // version match up.
+//
+// This class behaves differently depending on how \a IndexedLookup is set.
+// When true, vtkLookupTable enters a mode for representing categorical color maps.
+// By setting \a IndexedLookup to true, you indicate that the annotated
+// values are the only valid values for which entries in the color table
+// should be returned. The colors in the lookup \a Table are assigned
+// to annotated values by taking the modulus of their index in the list
+// of annotations. \a IndexedLookup changes the behavior of \a GetIndex,
+// which in turn changes the way \a MapScalars behaves;
+// when \a IndexedLookup is true, \a MapScalars will search for
+// scalar values in \a AnnotatedValues and use the resulting index to
+// determine the color. If a scalar value is not present in \a AnnotatedValues,
+// then \a NanColor will be used.
 
 #ifndef __vtkDiscretizableColorTransferFunction_h
 #define __vtkDiscretizableColorTransferFunction_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkColorTransferFunction.h"
+#include "vtkSmartPointer.h" // for vtkSmartPointer
 
 class vtkLookupTable;
 class vtkColorTransferFunction;
+class vtkPiecewiseFunction;
 
 class VTKRENDERINGCORE_EXPORT vtkDiscretizableColorTransferFunction : public vtkColorTransferFunction
 {
@@ -37,10 +52,12 @@ public:
   vtkTypeMacro(vtkDiscretizableColorTransferFunction, vtkColorTransferFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  int IsOpaque();
+
   // Description:
   // Generate discretized lookup table, if applicable.
   // This method must be called after changes to the ColorTransferFunction
-  // otherwise the discretized version will be inconsitent with the
+  // otherwise the discretized version will be inconsistent with the
   // non-discretized one.
   virtual void Build();
 
@@ -86,6 +103,10 @@ public:
   // which component to use to do the blending.
   // When the component argument is -1, then the this object uses its
   // own selected technique to change a vector into a scalar to map.
+  //
+  // When \a IndexedLookup (inherited from vtkScalarsToColors) is true,
+  // the scalar opacity function is not used regardless of
+  // \a EnableOpacityMapping.
   virtual vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
                                    int component);
 
@@ -122,6 +143,17 @@ public:
   // Get the number of available colors for mapping to.
   virtual vtkIdType GetNumberOfAvailableColors();
 
+  // Description:
+  // Set/get the opacity function to use.
+  virtual void SetScalarOpacityFunction(vtkPiecewiseFunction *function);
+  virtual vtkPiecewiseFunction* GetScalarOpacityFunction() const;
+
+  // Description:
+  // Enable/disable the usage of the scalar opacity function.
+  vtkSetMacro(EnableOpacityMapping, bool)
+  vtkGetMacro(EnableOpacityMapping, bool)
+  vtkBooleanMacro(EnableOpacityMapping, bool)
+
 protected:
   vtkDiscretizableColorTransferFunction();
   ~vtkDiscretizableColorTransferFunction();
@@ -133,6 +165,10 @@ protected:
   vtkLookupTable* LookupTable;
 
   vtkTimeStamp BuildTime;
+
+  bool EnableOpacityMapping;
+  vtkSmartPointer<vtkPiecewiseFunction> ScalarOpacityFunction;
+
 private:
   vtkDiscretizableColorTransferFunction(const vtkDiscretizableColorTransferFunction&); // Not implemented.
   void operator=(const vtkDiscretizableColorTransferFunction&); // Not implemented.

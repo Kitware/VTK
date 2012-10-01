@@ -14,8 +14,7 @@
 =========================================================================*/
 #include "vtkXMLHierarchicalBoxDataWriter.h"
 
-#include "vtkAMRBox.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkUniformGridAMRDataIterator.h"
 #include "vtkErrorCode.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
@@ -23,15 +22,15 @@
 #include "vtkSmartPointer.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
+#include "vtkAMRBox.h"
 
-#include "assert.h"
+#include <assert.h>
 
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataWriter);
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataWriter::vtkXMLHierarchicalBoxDataWriter()
 {
   this->AMRBoxes = NULL;
-  this->AMRBoxDims = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -39,9 +38,6 @@ vtkXMLHierarchicalBoxDataWriter::~vtkXMLHierarchicalBoxDataWriter()
 {
   delete [] this->AMRBoxes;
   this->AMRBoxes = NULL;
-
-  delete [] this->AMRBoxDims;
-  this->AMRBoxDims = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -64,16 +60,12 @@ void vtkXMLHierarchicalBoxDataWriter::FillDataTypes(vtkCompositeDataSet* cdInput
   assert("dataset must be vtkHierarchicalBoxDataSet" && hdInput != NULL);
 
   delete [] this->AMRBoxes;
-  delete [] this->AMRBoxDims;
 
   unsigned int numLeafNodes = this->GetNumberOfDataTypes();
   this->AMRBoxes = new int[numLeafNodes * 6];
   memset(this->AMRBoxes, 0, numLeafNodes*6*sizeof(int));
 
-  this->AMRBoxDims = new int[numLeafNodes];
-  memset(this->AMRBoxDims, 0, numLeafNodes*sizeof(int));
-
-  vtkCompositeDataIterator* iter = hdInput->NewIterator();
+  vtkUniformGridAMRDataIterator* iter = vtkUniformGridAMRDataIterator::SafeDownCast(hdInput->NewIterator());
   iter->SkipEmptyNodesOff();
   int leafNo =  0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
@@ -81,9 +73,8 @@ void vtkXMLHierarchicalBoxDataWriter::FillDataTypes(vtkCompositeDataSet* cdInput
     {
     if (iter->GetCurrentDataObject())
       {
-      vtkAMRBox box = hdInput->GetAMRBox(iter);
+      vtkAMRBox box = hdInput->GetAMRBox(iter->GetCurrentLevel(),iter->GetCurrentIndex());
       box.GetDimensions(&this->AMRBoxes[leafNo*6]);
-      this->AMRBoxDims[leafNo] = box.GetDimensionality();
       }
     }
   iter->Delete();
@@ -106,8 +97,7 @@ int vtkXMLHierarchicalBoxDataWriter::WriteComposite(vtkCompositeDataSet* composi
     unsigned int numDS = hboxData->GetNumberOfDataSets(level);
     for (unsigned int cc=0; cc < numDS; cc++)
       {
-      vtkAMRBox box;
-      vtkUniformGrid* ug = hboxData->GetDataSet(level, cc, box);
+      vtkUniformGrid* ug = hboxData->GetDataSet(level, cc);
       vtkSmartPointer<vtkXMLDataElement> datasetXML =
         vtkSmartPointer<vtkXMLDataElement>::New();
       datasetXML->SetName("DataSet");
@@ -115,8 +105,6 @@ int vtkXMLHierarchicalBoxDataWriter::WriteComposite(vtkCompositeDataSet* composi
       // we use the box from this->AMRBoxes since that datastructure is
       // synchronized when running in parallel.
       datasetXML->SetVectorAttribute("amr_box", 6, &this->AMRBoxes[writerIdx*6]);
-      datasetXML->SetIntAttribute("dimensionality",
-        this->AMRBoxDims[writerIdx]);
       vtkStdString fileName = this->CreatePieceFileName(writerIdx);
       if (fileName != "")
         {

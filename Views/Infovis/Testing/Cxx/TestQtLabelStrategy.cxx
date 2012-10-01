@@ -140,8 +140,8 @@ int TestQtLabelStrategy(int argc, char* argv[])
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(win);
 
-  int retVal = vtkRegressionTestImage(win);
-//  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(win,200);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Initialize();
     iren->Start();

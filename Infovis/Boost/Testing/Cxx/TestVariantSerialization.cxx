@@ -36,13 +36,21 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkSmartPointer<vtkVariantArray> sourceArray
     =  vtkSmartPointer<vtkVariantArray>::New();
   sourceArray->SetName("Values");
-  sourceArray->SetNumberOfTuples(6);
+  sourceArray->SetNumberOfTuples(7);
   sourceArray->SetValue(0, vtkVariant('V'));
   sourceArray->SetValue(1, 3.14f);
   sourceArray->SetValue(2, 2.71);
   sourceArray->SetValue(3, "Test string");
   sourceArray->SetValue(4, 17);
   sourceArray->SetValue(5, 42l);
+
+  // This is the first two words from the Iliad in Greek -- approximately 'Mnviv aeide'
+  const vtkTypeUInt16 greek_text_utf16[] = { 0x039C, 0x03B7, 0x03BD, 0x03B9, 0x03BD,
+                                             ' ',
+                                             0x03B1, 0x03B5, 0x03B9, 0x03B4, 0x03B5,
+                                             0 };
+
+  sourceArray->SetValue(6, vtkUnicodeString::from_utf16(greek_text_utf16));
 
   // Serialize the array
   std::ostringstream out_stream;

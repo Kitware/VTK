@@ -88,6 +88,10 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
   virtual void Initialize();
 
+  // Description:
+  // Return what type of dataset this is.
+  virtual int GetDataObjectType() {return VTK_MOLECULE;}
+
 //BTX
   // Description:
   // Add new atom with atomic number 0 (dummy atom) at origin. Return

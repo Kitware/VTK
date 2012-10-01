@@ -189,60 +189,6 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
   this->UnRegisterInternal(o, 0);
 }
 
-void vtkObjectBase::CollectRevisions(ostream& os)
-{
-  os << "vtkObjectBase 1.18\n";
-}
-
-void vtkObjectBase::PrintRevisions(ostream& os)
-{
-  vtksys_ios::ostringstream revisions;
-  this->CollectRevisions(revisions);
-  vtksys_stl::string s = revisions.str();
-  const char* c = s.c_str();
-  while(*c)
-    {
-    const char* beginClass = 0;
-    const char* endClass = 0;
-    const char* beginRevision = 0;
-    const char* endRevision = 0;
-    for(;*c && *c != '\n'; ++c)
-      {
-      if(!beginClass && *c != ' ')
-        {
-        beginClass = c;
-        }
-      else if(beginClass && !endClass && *c == ' ')
-        {
-        endClass = c;
-        }
-      else if(endClass && !beginRevision && (*c >= '0' && *c <= '9'))
-        {
-        beginRevision = c;
-        }
-      else if(beginRevision && !endRevision && *c == ' ')
-        {
-        endRevision = c;
-        }
-      }
-    if (beginRevision && !endRevision)
-      {
-      endRevision = c - 1;
-      }
-    if(beginClass && endClass && beginRevision && endRevision)
-      {
-      os.write(beginClass, endClass-beginClass);
-      os << " ";
-      os.write(beginRevision, endRevision-beginRevision);
-      os << "\n";
-      }
-    if(*c == '\n')
-      {
-      ++c;
-      }
-    }
-}
-
 //----------------------------------------------------------------------------
 void vtkObjectBase::RegisterInternal(vtkObjectBase*, int check)
 {

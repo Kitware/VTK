@@ -228,15 +228,19 @@ OPTION(NETCDF_ENABLE_CXX "Build netcdf C++ API" ON)
 mark_as_advanced(NETCDF_ENABLE_CXX)
 SET(CXX NETCDF_ENABLE_CXX)
 
-OPTION(NETCDF_ENABLE_NETCDF4 "Build netcdf version 4 API" ON)
-if (NETCDF_ENABLE_NETCDF4 AND NOT (HDF5_BUILD_HL_LIB OR HDF5_hdf5_hl_LIBRARY))
-  message("ENABLE_NETCDF4 not allowed because NETCDF4 requires HDF5_HL.")
-  SET(NETCDF_ENABLE_NETCDF4 OFF CACHE BOOL "Build netcdf version 4 API" FORCE)
-endif (NETCDF_ENABLE_NETCDF4 AND NOT (HDF5_BUILD_HL_LIB OR HDF5_hdf5_hl_LIBRARY))
-mark_as_advanced(NETCDF_ENABLE_NETCDF4)
-SET(USE_NETCDF4 ${NETCDF_ENABLE_NETCDF4} CACHE INTERNAL "" FORCE)
+# NetCDF4 needs HDF5 HL support. Check that's available.
+set (USE_NETCDF4 OFF)
+if (NOT VTK_USE_SYSTEM_HDF5)
+  # using VTK's HDF5, we always build that with HL support.
+  set (USE_NETCDF4 ON)
+elseif(HDF5_HL_LIBRARY)
+  set (USE_NETCDF4 ON)
+else()
+  message(STATUS "Disabling NETCDF4 support since HDF5_HL is missing.")
+endif ()
 
-if (NETCDF_ENABLE_NETCDF4)
+if (USE_NETCDF4)
+  # message(STATUS "NETCDF4 support is enabled.")
   set(NETCDF4_DEFAULT_CHUNK_SIZE 4194304 CACHE STRING "Specify default size of chunks in bytes.")
   mark_as_advanced(NETCDF4_DEFAULT_CHUNK_SIZE)
   
@@ -254,11 +258,11 @@ if (NETCDF_ENABLE_NETCDF4)
 
   set(NETCDF4_CHUNK_CACHE_PREEMPTION 0.75 CACHE STRING "Specify default file chunk cache preemption policy for HDF5 files (a number between 0 and 1, inclusive).")
   mark_as_advanced(NETCDF4_CHUNK_CACHE_PREEMPTION)
-
-endif (NETCDF_ENABLE_NETCDF4)
+endif (USE_NETCDF4)
   
+CONFIGURE_FILE(vtk_netcdf_config.h.in vtk_netcdf_config.h @ONLY IMMEDIATE)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/ncconfig.h @ONLY IMMEDIATE)
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY IMMEDIATE)
 
 #-----------------------------------------------------------------------------
 # Option to allow the user to disable compiler warnings
@@ -293,15 +297,12 @@ ENDIF (NETCDF_DISABLE_COMPILER_WARNINGS)
 # Take care of symbol export/import on Windows
 ADD_DEFINITIONS("-DNC_DLL_EXPORT")
 
-INCLUDE_DIRECTORIES(
-  
-  ${CMAKE_CURRENT_SOURCE_DIR}
+INCLUDE_DIRECTORIES(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/libdispatch
   ${CMAKE_CURRENT_SOURCE_DIR}/libsrc
   ${CMAKE_CURRENT_SOURCE_DIR}/libsrc4
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${VTK_HDF5_INCLUDE_DIR}
   )
 
 set(netcdf_liblib_SOURCES "" CACHE INTERNAL "" FORCE)
@@ -314,9 +315,9 @@ set(netcdf_src_SOURCES "" CACHE INTERNAL "" FORCE)
 ADD_SUBDIRECTORY(libsrc)
 
 set(netcdf_src4_SOURCES "" CACHE INTERNAL "" FORCE)
-IF (NETCDF_ENABLE_NETCDF4)
+IF (USE_NETCDF4)
   ADD_SUBDIRECTORY(libsrc4)
-ENDIF (NETCDF_ENABLE_NETCDF4)
+ENDIF (USE_NETCDF4)
 
 IF (NETCDF_ENABLE_CXX)
   set(netcdf_cxx_SOURCES "" CACHE INTERNAL "" FORCE)
@@ -335,14 +336,12 @@ VTK_ADD_LIBRARY(vtkNetCDF
     ${netcdf_src4_SOURCES}
     ${netcdf_dispatch_SOURCES}
     ${netcdf_liblib_SOURCES})
+target_link_libraries(vtkNetCDF ${vtkhdf5_LIBRARIES})
 
-IF (NETCDF_ENABLE_NETCDF4)
-  if (VTK_USE_SYSTEM_HDF5)
-     TARGET_LINK_LIBRARIES(vtkNetCDF ${HDF5_hdf5_LIBRARY} ${HDF5_hdf5_hl_LIBRARY})
-  else()
-     TARGET_LINK_LIBRARIES(vtkNetCDF ${vtkhdf5_LIBRARIES})
-  endif()
-ENDIF (NETCDF_ENABLE_NETCDF4)
+if (UNIX)
+  # link against the math library.
+  target_link_libraries(vtkNetCDF m)
+endif()
 
 VTK_ADD_LIBRARY(vtkNetCDF_cxx ${netcdf_cxx_SOURCES})
 TARGET_LINK_LIBRARIES(vtkNetCDF_cxx vtkNetCDF)
@@ -353,13 +352,12 @@ TARGET_LINK_LIBRARIES(vtkNetCDF_cxx vtkNetCDF)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
-    ${VTKNETCDF_BINARY_DIR}/ncconfig.h
+    ${VTKNETCDF_SOURCE_DIR}/include/netcdf.h
+    ${VTKNETCDF_SOURCE_DIR}/include/vtk_netcdf_mangle.h
+    ${VTKNETCDF_SOURCE_DIR}/cxx/netcdf.hh
     ${VTKNETCDF_SOURCE_DIR}/cxx/netcdfcpp.h
     ${VTKNETCDF_SOURCE_DIR}/cxx/ncvalues.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtknetcdf
+    ${VTKNETCDF_BINARY_DIR}/vtk_netcdf_config.h
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtknetcdf/include
     COMPONENT Development)
-  INSTALL(DIRECTORY 
-    ${VTKNETCDF_SOURCE_DIR}/include
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtknetcdf
-    FILES_MATCHING PATTERN "*.h")
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

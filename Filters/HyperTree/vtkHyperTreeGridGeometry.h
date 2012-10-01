@@ -20,7 +20,8 @@
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGrid.h" // We need this because of supercursor
+
 class vtkPoints;
 class vtkCellArray;
 

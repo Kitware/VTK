@@ -5,8 +5,6 @@ set(Module_SRCS
   vtkTextActor3D.cxx
   vtkTextActor.cxx
   vtkScaledTextActor.cxx
-  vtkTextMapper.cxx
-  vtkTextProperty.cxx
   vtkVectorText.cxx
 
   fonts/face_arial_bold.cxx

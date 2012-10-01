@@ -15,13 +15,13 @@ IF(UNIX)
   IF(APPLE)
    SET(MEX_LIBRARIES ${MATLAB_LIB_DIR}/libmx.dylib ${MATLAB_LIB_DIR}/libmex.dylib ${MATLAB_LIB_DIR}/libmat.dylib m stdc++)
    SET(MATLAB_ENGINE_LIBRARIES ${MATLAB_LIB_DIR}/libmx.dylib ${MATLAB_LIB_DIR}/libeng.dylib)
-   IF(CMAKE_SIZEOF_VOID_P EQUAL 4) # 32 bit
+   IF(CMAKE_SIZEOF_VOID_P EQUAL 4) # 32 bit Intel
     SET(MEX_CXX_FLAGS "-fno-common -no-cpp-precomp -fexceptions -arch i386")
     SET(MEX_DEFINES "MATLAB_MEX_FILE")
     SET(MEX_RPATH "")
     SET(MEX_LDFLAGS "-Wl,-exported_symbols_list,${MATLAB_ROOT_DIR}/extern/lib/${MATLAB_DIR_PREFIX}/mexFunction.map")
     SET(MEX_FILE_SUFFIX ".mexmaci")
-   ELSE(CMAKE_SIZEOF_VOID_P EQUAL 4) # 64 bit
+   ELSE(CMAKE_SIZEOF_VOID_P EQUAL 4) # 64 bit Intel
     SET(MEX_CXX_FLAGS "-fno-common -no-cpp-precomp -fexceptions -arch x86_64")
     SET(MEX_DEFINES "MATLAB_MEX_FILE")
     SET(MEX_RPATH "")

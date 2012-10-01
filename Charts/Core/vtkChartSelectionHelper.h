@@ -1,0 +1,236 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkVector.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+// .NAME vtkChartSelectionHelper - helper functions for making selections in
+// charts.
+//
+// .SECTION Description
+// This contains several inline methods intended for use inside chart
+// implementations to make chart selections easier. This is intended for
+// internal use and the API should not be considered stable.
+
+#ifndef __vtkChartSelectionHelper_h
+#define __vtkChartSelectionHelper_h
+
+#include "vtkNew.h"
+#include "vtkAnnotationLink.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkIdTypeArray.h"
+#include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
+
+#include <vector>
+#include <algorithm>
+
+namespace vtkChartSelectionHelper
+{
+
+// Description:
+// Populate the annotation link with the supplied selectionIds array, and set
+// the appropriate node properties for a standard row based chart selection.
+void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds)
+{
+  assert(link != NULL && selectionIds != NULL);
+
+  vtkNew<vtkSelection> selection;
+  vtkNew<vtkSelectionNode> node;
+  selection->AddNode(node.GetPointer());
+  node->SetContentType(vtkSelectionNode::INDICES);
+  node->SetFieldType(vtkSelectionNode::POINT);
+  node->SetSelectionList(selectionIds);
+  link->SetCurrentSelection(selection.GetPointer());
+}
+
+// Description:
+// Subtract the supplied selection from the oldSelection.
+void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
+{
+  // We rely on the selection id arrays being sorted.
+  std::vector<vtkIdType> output;
+  vtkIdType *ptrSelection =
+      static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  vtkIdType *ptrOldSelection =
+      static_cast<vtkIdType *>(oldSelection->GetVoidPointer(0));
+  vtkIdType oldSize = oldSelection->GetNumberOfTuples();
+  vtkIdType size = selection->GetNumberOfTuples();
+  vtkIdType i = 0;
+  vtkIdType iOld = 0;
+
+  while (i < size && iOld < oldSize)
+    {
+    if (ptrSelection[i] > ptrOldSelection[iOld]) // Skip the value.
+      {
+      output.push_back(ptrOldSelection[iOld++]);
+      }
+    else if (ptrSelection[i] == ptrOldSelection[iOld]) // Match - remove.
+      {
+      ++i;
+      ++iOld;
+      }
+    else if (ptrSelection[i] < ptrOldSelection[iOld]) // Add the new value.
+      {
+      ++i;
+      }
+    }
+  while (iOld < oldSize)
+    {
+    output.push_back(ptrOldSelection[iOld++]);
+    }
+  selection->SetNumberOfTuples(output.size());
+  ptrSelection = static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  for (std::vector<vtkIdType>::iterator it = output.begin();
+       it != output.end(); ++it, ++ptrSelection)
+    {
+    *ptrSelection = *it;
+    }
+}
+
+// Description:
+// Add the supplied selection from the oldSelection.
+void AddSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
+{
+  // Add all unique array indices to create a new combined array.
+  vtkIdType *ptrSelection =
+      static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  vtkIdType *ptrOldSelection =
+      static_cast<vtkIdType *>(oldSelection->GetVoidPointer(0));
+  std::vector<vtkIdType> output(selection->GetNumberOfTuples()
+                                + oldSelection->GetNumberOfTuples());
+  std::vector<vtkIdType>::iterator it;
+  it = std::set_union(ptrSelection,
+                      ptrSelection + selection->GetNumberOfTuples(),
+                      ptrOldSelection,
+                      ptrOldSelection + oldSelection->GetNumberOfTuples(),
+                      output.begin());
+  int newSize = int(it - output.begin());
+  selection->SetNumberOfTuples(newSize);
+  ptrSelection = static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  for (std::vector<vtkIdType>::iterator i = output.begin(); i != it;
+       ++i, ++ptrSelection)
+    {
+    *ptrSelection = *i;
+    }
+}
+
+// Description:
+// Toggle the supplied selection from the oldSelection.
+void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
+{
+  // We rely on the selection id arrays being sorted.
+  std::vector<vtkIdType> output;
+  vtkIdType *ptrSelection =
+      static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  vtkIdType *ptrOldSelection =
+      static_cast<vtkIdType *>(oldSelection->GetVoidPointer(0));
+  vtkIdType oldSize = oldSelection->GetNumberOfTuples();
+  vtkIdType size = selection->GetNumberOfTuples();
+  vtkIdType i = 0;
+  vtkIdType iOld = 0;
+  while (i < size && iOld < oldSize)
+    {
+    if (ptrSelection[i] > ptrOldSelection[iOld]) // Retain the value.
+      {
+      output.push_back(ptrOldSelection[iOld++]);
+      }
+    else if (ptrSelection[i] == ptrOldSelection[iOld]) // Match - toggle.
+      {
+      ++i;
+      ++iOld;
+      }
+    else if (ptrSelection[i] < ptrOldSelection[iOld]) // Add the new value.
+      {
+      output.push_back(ptrSelection[i++]);
+      }
+    }
+  while (i < size)
+    {
+    output.push_back(ptrSelection[i++]);
+    }
+  while (iOld < oldSize)
+    {
+    output.push_back(ptrOldSelection[iOld++]);
+    }
+  selection->SetNumberOfTuples(output.size());
+  ptrSelection = static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  for (std::vector<vtkIdType>::iterator it = output.begin();
+       it != output.end(); ++it, ++ptrSelection)
+    {
+    *ptrSelection = *it;
+    }
+}
+
+// Description:
+// Build a selection based on the supplied selectionMode using the new
+// plotSelection and combining it with the oldSelection. If link is not void
+// then the resulting selection will be set on the link.
+void BuildSelection(vtkAnnotationLink *link, int selectionMode,
+                    vtkIdTypeArray *plotSelection, vtkIdTypeArray *oldSelection)
+{
+  if (!plotSelection || !oldSelection)
+    {
+    return;
+    }
+
+  // Build a selection and set it on the annotation link if not null.
+  switch(selectionMode)
+    {
+    case vtkContextScene::SELECTION_ADDITION:
+      AddSelection(plotSelection, oldSelection);
+      break;
+    case vtkContextScene::SELECTION_SUBTRACTION:
+      MinusSelection(plotSelection, oldSelection);
+      break;
+    case vtkContextScene::SELECTION_TOGGLE:
+      ToggleSelection(plotSelection, oldSelection);
+      break;
+    case vtkContextScene::SELECTION_DEFAULT:
+    default:
+      // Nothing necessary - overwrite the old selection.
+      break;
+    }
+
+  if (link)
+    {
+    MakeSelection(link, plotSelection);
+    }
+}
+
+// Description:
+// Combine the SelectionMode with any mouse modifiers to get an effective
+// selection mode for this click event.
+int GetMouseSelectionMode(const vtkContextMouseEvent &mouse, int selectionMode)
+{
+  // Mouse modifiers override the current selection mode.
+  if (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER &&
+      mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER)
+    {
+    return vtkContextScene::SELECTION_TOGGLE;
+    }
+  else if (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER)
+    {
+    return vtkContextScene::SELECTION_ADDITION;
+    }
+  else if (mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER)
+    {
+    return vtkContextScene::SELECTION_SUBTRACTION;
+    }
+  return selectionMode;
+}
+
+} // End vtkChartSelectionHelper namespace
+
+#endif // __vtkChartSelectionHelper_h
+// VTK-HeaderTest-Exclude: vtkChartSelectionHelper.h

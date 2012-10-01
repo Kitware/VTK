@@ -54,13 +54,13 @@ int vtkOutputStream::EndWriting()
 }
 
 //----------------------------------------------------------------------------
-int vtkOutputStream::Write(const unsigned char* data, unsigned long length)
+int vtkOutputStream::Write(void const* data, size_t length)
 {
-  return this->Write(reinterpret_cast<const char*>(data), length);
+  return this->WriteStream(static_cast<const char*>(data), length);
 }
 
 //----------------------------------------------------------------------------
-int vtkOutputStream::Write(const char* data, unsigned long length)
+int vtkOutputStream::WriteStream(const char* data, size_t length)
 {
   return (this->Stream->write(data, length)? 1:0);
 }

@@ -3,4 +3,10 @@ vtk_module(vtkRenderingParallel
     vtkParallelCore
     vtkFiltersParallel
     vtkRenderingOpenGL
+  TEST_DEPENDS
+    vtkParallelMPI
+    vtkFiltersParallelMPI
+    vtkTestingRendering
+    vtkImagingSources
+    vtkRenderingOpenGL
   )

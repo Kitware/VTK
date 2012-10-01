@@ -30,17 +30,17 @@
 #define __vtkTemporalSnapToTimeStep_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
-#include "vtkTemporalDataSetAlgorithm.h"
+#include "vtkAlgorithm.h"
 
 //BTX
 #include <vector> // used because I am a bad boy. So there.
 //ETX
 
-class VTKFILTERSHYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkTemporalDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkAlgorithm
 {
 public:
   static vtkTemporalSnapToTimeStep *New();
-  vtkTypeMacro(vtkTemporalSnapToTimeStep, vtkTemporalDataSetAlgorithm);
+  vtkTypeMacro(vtkTemporalSnapToTimeStep, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX
@@ -59,6 +59,15 @@ public:
 protected:
   vtkTemporalSnapToTimeStep();
   ~vtkTemporalSnapToTimeStep();
+
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector** inputVector,
+                             vtkInformationVector* outputVector);
+
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
 
   virtual int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,

@@ -273,10 +273,6 @@ IF (CMAKE_BUILD_TYPE MATCHES Debug)
       -DH5I_DEBUG -DH5HL_DEBUG -DH5HG_DEBUG -DH5G_DEBUG -DH5F_DEBUG
       -DH5E_DEBUG -DH5D_DEBUG -DH5B_DEBUG -DH5AC_DEBUG -UNDEBUG
   )
-  #-- NMake Makefiles will overwhelm the console with warnings if -Wall is used.
-  IF (NOT WIN32)
-    ADD_DEFINITIONS (-Wall)
-  ENDIF (NOT WIN32)
 ELSE (CMAKE_BUILD_TYPE MATCHES Debug)
   ADD_DEFINITIONS (-UH5_DEBUG_API -DNDEBUG)
 ENDIF (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -284,7 +280,7 @@ ENDIF (CMAKE_BUILD_TYPE MATCHES Debug)
 #-----------------------------------------------------------------------------
 # Compiler specific flags : Shouldn't there be compiler tests for these
 #-----------------------------------------------------------------------------
-IF (NOT WIN32)
+IF (NOT WIN32 AND NOT "${CMAKE_C_COMPILER_ID}" MATCHES "^XL$")
   include(CheckCCompilerFlag)
   
   check_c_compiler_flag(-std=c99 HAVE_STD_C99)
@@ -306,7 +302,7 @@ IF (NOT WIN32)
   endif()
 
   SET (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} ${STD_C99} ${OMIT_FRAME_POINTER} ${INLINE_FUNCTIONS} ${NO_COMMON}")
-ENDIF (NOT WIN32)
+ENDIF ()
 
 #-----------------------------------------------------------------------------
 # Option to allow the user to disable compiler warnings
@@ -359,7 +355,7 @@ IF (HDF5_ENABLE_PARALLEL)
     # MPI checks, only do these if MPI_FOUND is true, otherwise they always fail
     # and once set, they are cached as false and not regenerated
     SET (CMAKE_REQUIRED_INCLUDES "${MPI_INCLUDE_PATH}/mpi.h" )
-    SET (CMAKE_REQUIRED_LIBRARIES "${MPI_LIBRARY}" )
+    SET (CMAKE_REQUIRED_LIBRARIES "${MPI_LIBRARIES}" )
     CHECK_FUNCTION_EXISTS (MPI_File_get_size H5_HAVE_MPI_GET_SIZE) 
     # Used by Fortran + MPI
     CHECK_SYMBOL_EXISTS (MPI_Comm_c2f "${MPI_INCLUDE_PATH}/mpi.h"  H5_HAVE_MPI_MULTI_LANG_Comm)
@@ -369,13 +365,10 @@ ENDIF (HDF5_ENABLE_PARALLEL)
 
 # Parallel IO usage requires MPI to be Linked and Included
 IF (H5_HAVE_PARALLEL)
-  SET (LINK_LIBS ${LINK_LIBS} ${MPI_LIBRARY})
+  SET (LINK_LIBS ${LINK_LIBS} ${MPI_LIBRARIES})
   IF (MPI_LINK_FLAGS)
     SET (CMAKE_EXE_LINKER_FLAGS ${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS})
   ENDIF (MPI_LINK_FLAGS)
-  IF (MPI_EXTRA_LIBRARY)
-    SET (LINK_LIBS ${LINK_LIBS} ${MPI_EXTRA_LIBRARY})
-  ENDIF (MPI_EXTRA_LIBRARY)
 ENDIF (H5_HAVE_PARALLEL)
 
 #-----------------------------------------------------------------------------
@@ -427,7 +420,7 @@ IF (HDF5_ENABLE_Z_LIB_SUPPORT)
   CONFIGURE_FILE (${HDF5_SOURCE_DIR}/Resources/hdf5_zlib.h.in ${HDF5_BINARY_DIR}/hdf5_zlib.h @ONLY)
   SET (LINK_LIBS ${LINK_LIBS} ${ZLIB_LIBRARIES})
   INCLUDE_DIRECTORIES (${ZLIB_INCLUDE_DIRS})
-  MESSAGE (STATUS "Filter ZLIB is ON")
+  # MESSAGE (STATUS "Filter ZLIB is ON")
 ENDIF (HDF5_ENABLE_Z_LIB_SUPPORT)
 
 #-----------------------------------------------------------------------------
@@ -443,9 +436,9 @@ IF (HDF5_ENABLE_SZIP_SUPPORT)
     SET (H5_HAVE_LIBSZ 1)
     SET (LINK_LIBS ${LINK_LIBS} ${SZIP_LIBRARIES})
     INCLUDE_DIRECTORIES (${SZIP_INCLUDE_DIRS})
-#      MESSAGE (STATUS "SZIP_INCLUDE_DIRS: ${SZIP_INCLUDE_DIRS}")
-#      MESSAGE (STATUS "SZIP_INCLUDE_DIR: ${SZIP_INCLUDE_DIR}")
-    MESSAGE (STATUS "Filter SZIP is ON")
+    # MESSAGE (STATUS "SZIP_INCLUDE_DIRS: ${SZIP_INCLUDE_DIRS}")
+    # MESSAGE (STATUS "SZIP_INCLUDE_DIR: ${SZIP_INCLUDE_DIR}")
+    # MESSAGE (STATUS "Filter SZIP is ON")
     OPTION (HDF5_ENABLE_SZIP_ENCODING "Use SZip Encoding" OFF)
     IF (HDF5_ENABLE_SZIP_ENCODING)
       SET (H5_HAVE_SZIP_ENCODER 1)

@@ -23,25 +23,26 @@
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
-#include "vtkInformationIntegerKey.h"
-#include "vtkInformationStringKey.h"
 #include "vtkInformationIdTypeKey.h"
 #include "vtkInformationInformationVectorKey.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationRequestKey.h"
+#include "vtkInformationStringKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
-
-#include <assert.h>
 
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, EXACT_EXTENT, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT, Request);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_TIME, Request);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_TIME_DEPENDENT_INFORMATION, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT_INFORMATION, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_MANAGE_INFORMATION, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_RESOLUTION_PROPAGATE, Request);
@@ -60,8 +61,9 @@ vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
                                  "vtkExtentTranslator");
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_BOUNDING_BOX, DoubleVector, 6);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_STEPS, DoubleVector);
-vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_STEPS, DoubleVector);
-vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_UPDATE_TIME_STEPS, DoubleVector);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_STEP, Double);
+
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_UPDATE_TIME_STEP, Double);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVector);
 
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, PIECE_BOUNDING_BOX, DoubleVector, 6);
@@ -81,6 +83,9 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_ID_T
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_AMR_LEVEL, Integer );
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, BOUNDS, DoubleVector);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_DEPENDENT_INFORMATION, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_LABEL_ANNOTATION, String);
+
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
 {
@@ -127,6 +132,66 @@ int vtkStreamingDemandDrivenPipeline
     }
 
   // Look for specially supported requests.
+  if(request->Has(REQUEST_UPDATE_TIME()))
+    {
+    int result = 1;
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    int N2E = 1;
+    if(outputPort>=0)
+      {
+      vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
+      vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
+      if (outInfo->Has(TIME_DEPENDENT_INFORMATION()))
+        {
+        N2E  = this->NeedToExecuteBasedOnTime(outInfo,dataObject);
+        }
+      else
+        {
+        N2E = 0;
+        }
+      }
+    if(N2E)
+      {
+      result = this->CallAlgorithm(request, vtkExecutive::RequestUpstream,
+                                   inInfoVec, outInfoVec);
+      // Propagate the update extent to all inputs.
+      if(result)
+        {
+        result = this->ForwardUpstream(request);
+        }
+      result = 1;
+      }
+    return result;
+    }
+
+ // Look for specially supported requests.
+  if(request->Has(REQUEST_TIME_DEPENDENT_INFORMATION()))
+    {
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+    int N2E = 1;
+    if(outputPort>=0)
+      {
+      vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
+      if(!outInfo->Has(TIME_DEPENDENT_INFORMATION()))
+        {
+        N2E = 0;
+        }
+      }
+    if(!N2E)
+      {
+      return 1;
+      }
+    }
+
   if(request->Has(REQUEST_UPDATE_EXTENT()))
     {
     // Get the output port from which the request was made.
@@ -326,6 +391,8 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
     // times for a single update
     do
       {
+      this->PropagateTime(port);
+      this->UpdateTimeDependentInformation();
       retval = retval && this->PropagateUpdateExtent(port);
       if (retval && !this->LastPropogateUpdateExtentShortCircuited)
         {
@@ -390,8 +457,7 @@ vtkStreamingDemandDrivenPipeline
         return 0;
         }
       // Set default maximum request.
-      if(data->GetExtentType() == VTK_PIECES_EXTENT ||
-         data->GetExtentType() == VTK_TIME_EXTENT)
+      if(data->GetExtentType() == VTK_PIECES_EXTENT)
         {
         if(!info->Has(MAXIMUM_NUMBER_OF_PIECES()))
           {
@@ -458,6 +524,7 @@ vtkStreamingDemandDrivenPipeline
           outInfo->CopyEntry(inInfo, TIME_RANGE());
           outInfo->CopyEntry(inInfo, vtkDataObject::ORIGIN());
           outInfo->CopyEntry(inInfo, vtkDataObject::SPACING());
+          outInfo->CopyEntry(inInfo, TIME_DEPENDENT_INFORMATION());
           if (scalarInfo)
             {
             int scalarType = VTK_DOUBLE;
@@ -492,9 +559,7 @@ vtkStreamingDemandDrivenPipeline
         }
       vtkInformation* dataInfo = dataObject->GetInformation();
       if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
-         VTK_PIECES_EXTENT ||
-         dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
-         VTK_TIME_EXTENT)
+         VTK_PIECES_EXTENT)
         {
         if (!outInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
           {
@@ -522,6 +587,45 @@ vtkStreamingDemandDrivenPipeline
           vtkExtentTranslator* translator = vtkExtentTranslator::New();
           outInfo->Set(EXTENT_TRANSLATOR(), translator);
           translator->Delete();
+          }
+        }
+      }
+    }
+
+  if(request->Has(REQUEST_UPDATE_TIME()))
+    {
+    //Copy requested resolution back
+    // Get the output port from which to copy the extent.
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    // Setup default information for the inputs.
+    if(outInfoVec->GetNumberOfInformationObjects() > 0)
+      {
+      // Copy information from the output port that made the request.
+      // Since VerifyOutputInformation has already been called we know
+      // there is output information with a data object.
+      vtkInformation* outInfo =
+        outInfoVec->GetInformationObject((outputPort >= 0)? outputPort : 0);
+
+      // Loop over all input ports.
+      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+        {
+        // Loop over all connections on this input port.
+        int numInConnections = inInfoVec[i]->GetNumberOfInformationObjects();
+        for (int j=0; j<numInConnections; j++)
+          {
+          // Get the pipeline information for this input connection.
+          vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
+
+          // Copy the time request
+          if ( outInfo->Has(UPDATE_TIME_STEP()) )
+            {
+            inInfo->CopyEntry(outInfo, UPDATE_TIME_STEP());
+            }
           }
         }
       }
@@ -557,9 +661,9 @@ vtkStreamingDemandDrivenPipeline
           vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
 
           // Copy the time request
-          if ( outInfo->Has(UPDATE_TIME_STEPS()) )
+          if ( outInfo->Has(UPDATE_TIME_STEP()) )
             {
-            inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
+            inInfo->CopyEntry(outInfo, UPDATE_TIME_STEP());
             }
 
           // Copy the fast-path-specific keys
@@ -647,17 +751,6 @@ vtkStreamingDemandDrivenPipeline
             else if(outData->GetExtentType() == VTK_3D_EXTENT)
               {
               inInfo->CopyEntry(outInfo, UPDATE_EXTENT());
-              inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
-              }
-            }
-          else if(inData->GetExtentType() == VTK_TIME_EXTENT)
-            {
-            if(outData->GetExtentType() == VTK_TIME_EXTENT)
-              {
-              inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
-              inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
-              inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
-              inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
               inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
               }
             }
@@ -865,8 +958,8 @@ vtkStreamingDemandDrivenPipeline
   info->Remove(UPDATE_EXTENT_TRANSLATED());
   info->Remove(TIME_STEPS());
   info->Remove(TIME_RANGE());
-  info->Remove(UPDATE_TIME_STEPS());
-  info->Remove(PREVIOUS_UPDATE_TIME_STEPS());
+  info->Remove(UPDATE_TIME_STEP());
+  info->Remove(PREVIOUS_UPDATE_TIME_STEP());
   info->Remove(FAST_PATH_OBJECT_ID());
   info->Remove(FAST_PATH_OBJECT_TYPE());
   info->Remove(FAST_PATH_ID_TYPE());
@@ -915,6 +1008,68 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 }
 
 //----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::PropagateTime(int outputPort)
+{
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("PropagateTime", 0))
+    {
+    return 0;
+    }
+
+  // Range check.
+  if(outputPort < -1 ||
+     outputPort >= this->Algorithm->GetNumberOfOutputPorts())
+    {
+    vtkErrorMacro("PropagateUpdateTime given output port index "
+                  << outputPort << " on an algorithm with "
+                  << this->Algorithm->GetNumberOfOutputPorts()
+                  << " output ports.");
+    return 0;
+    }
+
+  // Setup the request for update extent propagation.
+  vtkSmartPointer<vtkInformation> updateTimeRequest = vtkSmartPointer<vtkInformation>::New();
+
+  //if (!this->UpdateExtentRequest)
+    {
+    updateTimeRequest->Set(REQUEST_UPDATE_TIME());
+    // The request is forwarded upstream through the pipeline.
+    updateTimeRequest->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
+    // Algorithms process this request before it is forwarded.
+    updateTimeRequest->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
+    }
+
+  updateTimeRequest->Set(FROM_OUTPUT_PORT(), outputPort);
+
+  // Send the request.
+  return this->ProcessRequest(updateTimeRequest,
+                              this->GetInputInformation(),
+                              this->GetOutputInformation());
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::UpdateTimeDependentInformation()
+{
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("UpdateMetaInformation", 0))
+    {
+    return 0;
+    }
+  // Setup the request for information.
+  vtkSmartPointer<vtkInformation> timeRequest = vtkSmartPointer<vtkInformation>::New();
+  timeRequest->Set(REQUEST_TIME_DEPENDENT_INFORMATION());
+  // The request is forwarded upstream through the pipeline.
+  timeRequest->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
+  // Algorithms process this request after it is forwarded.
+  timeRequest->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+
+  // Send the request.
+  return this->ProcessRequest(timeRequest,
+                              this->GetInputInformation(),
+                              this->GetOutputInformation());
+}
+
+//----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
 ::VerifyOutputInformation(int outputPort,
                           vtkInformationVector** inInfoVec,
@@ -948,8 +1103,7 @@ int vtkStreamingDemandDrivenPipeline
 
   // Check extents.
   vtkInformation* dataInfo = dataObject->GetInformation();
-  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT
-     || dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_TIME_EXTENT)
+  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
     {
     // For an unstructured extent, make sure the update request
     // exists.  We do not need to check if it is valid because
@@ -1038,27 +1192,6 @@ int vtkStreamingDemandDrivenPipeline
           }
         return 0;
         }
-      }
-    }
-  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_TIME_EXTENT)
-    {
-    // For a structured extent, make sure the update request
-    // exists.
-    if(!outInfo->Has(TIME_STEPS()) && !outInfo->Has(TIME_RANGE()))
-      {
-      vtkErrorMacro("No time steps or time range been set in the "
-                    "information for output port " << outputPort
-                    << " on algorithm " << this->Algorithm->GetClassName()
-                    << "(" << this->Algorithm << ").");
-      return 0;
-      }
-    if(!outInfo->Has(UPDATE_TIME_STEPS()))
-      {
-      vtkErrorMacro("No update time steps have been set in the "
-                    "information for output port " << outputPort
-                    << " on algorithm " << this->Algorithm->GetClassName()
-                    << "(" << this->Algorithm << ").");
-      return 0;
       }
     }
 
@@ -1162,9 +1295,6 @@ vtkStreamingDemandDrivenPipeline
         // for a ghost array 2. it may be wrong
         if (outInfo->Has(UPDATE_EXTENT_TRANSLATED()))
           {
-          // For debugging, remove later.
-          assert(outInfo->Has(EXTENT_TRANSLATOR()));
-
           if (outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS()) > 0)
             {
             ds->GenerateGhostLevelArray(
@@ -1208,19 +1338,19 @@ vtkStreamingDemandDrivenPipeline
           }
         }
 
-      // In this block, we make sure that DATA_TIME_STEPS() is set if:
+      // In this block, we make sure that DATA_TIME_STEP() is set if:
       // * There was someone upstream that supports time (TIME_RANGE() key
       //   is present)
-      // * Someone downstream requested a timestep (UPDATE_TIME_STEPS())
+      // * Someone downstream requested a timestep (UPDATE_TIME_STEP())
       //
-      // A common situation in which the DATA_TIME_STEPS() would not be
+      // A common situation in which the DATA_TIME_STEP() would not be
       // present even if the two conditions above are satisfied is when
       // a filter that is not time-aware is processing a dataset produced
-      // by a time-aware source. In this case, DATA_TIME_STEPS() should
+      // by a time-aware source. In this case, DATA_TIME_STEP() should
       // be copied from input to output.
       //
-      // Check if the output has DATA_TIME_STEPS().
-      if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()) &&
+      // Check if the output has DATA_TIME_STEP().
+      if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEP()) &&
           outInfo->Has(TIME_RANGE()))
         {
         // It does not.
@@ -1231,32 +1361,28 @@ vtkStreamingDemandDrivenPipeline
           input = this->GetInputData(0, 0);
           }
           if (input &&
-              input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEPS()))
+              input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
           {
           dataInfo->CopyEntry(input->GetInformation(),
-                              vtkDataObject::DATA_TIME_STEPS(),
+                              vtkDataObject::DATA_TIME_STEP(),
                               1);
           }
         // Does the update request have it? If yes, copy it. This
         // should not normally happen.
-        else if (outInfo->Has(UPDATE_TIME_STEPS()))
+        else if (outInfo->Has(UPDATE_TIME_STEP()))
           {
-          dataInfo->Set(vtkDataObject::DATA_TIME_STEPS(),
-                        outInfo->Get(UPDATE_TIME_STEPS()),
-                        outInfo->Length(UPDATE_TIME_STEPS()));
+          dataInfo->Set(vtkDataObject::DATA_TIME_STEP(),outInfo->Get(UPDATE_TIME_STEP()));
           }
         }
 
       // We are keeping track of the previous time request.
-      if (fromInfo->Has(UPDATE_TIME_STEPS()))
+      if (fromInfo->Has(UPDATE_TIME_STEP()))
         {
-        outInfo->Set(PREVIOUS_UPDATE_TIME_STEPS(),
-                     fromInfo->Get(UPDATE_TIME_STEPS()),
-                     fromInfo->Length(UPDATE_TIME_STEPS()));
+        outInfo->Set(PREVIOUS_UPDATE_TIME_STEP(),fromInfo->Get(UPDATE_TIME_STEP()));
         }
       else
         {
-        outInfo->Remove(PREVIOUS_UPDATE_TIME_STEPS());
+        outInfo->Remove(PREVIOUS_UPDATE_TIME_STEP());
         }
 
       // We are keeping track of the previous fast-path keys.
@@ -1338,8 +1464,7 @@ int vtkStreamingDemandDrivenPipeline
       return 1;
     }
 
-  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT
-     || dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_TIME_EXTENT)
+  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
     {
     // Check the unstructured extent.  If we do not have the requested
     // piece, we need to execute.
@@ -1418,15 +1543,14 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
   vtkInformation *dataInfo = dataObject->GetInformation();
   // if we are requesting a particular update time index, check
   // if we have the desired time index.
-  if ( outInfo->Has(UPDATE_TIME_STEPS()) )
+  if ( outInfo->Has(UPDATE_TIME_STEP()) )
     {
-    if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
+    if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEP()))
       {
       return 1;
       }
 
-    double *usteps = outInfo->Get(UPDATE_TIME_STEPS());
-    int ulength = outInfo->Length(UPDATE_TIME_STEPS());
+    double ustep = outInfo->Get(UPDATE_TIME_STEP());
 
     // First check if time request is the same as previous time request.
     // If the previous update request did not correspond to an existing
@@ -1434,20 +1558,15 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
     // data time step will be different than the request. If the same time
     // step is requested again, there is no need to re-execute the
     // algorithm.  We know that it does not have this time step.
-    if ( outInfo->Has(PREVIOUS_UPDATE_TIME_STEPS()) )
+    if ( outInfo->Has(PREVIOUS_UPDATE_TIME_STEP()) )
       {
-      int plength = outInfo->Length(PREVIOUS_UPDATE_TIME_STEPS());
-      if (ulength > 0 && plength == ulength)
+      if (outInfo->Has(UPDATE_TIME_STEP()))
         {
         bool match = true;
-        double *psteps = outInfo->Get(PREVIOUS_UPDATE_TIME_STEPS());
-        for (int cnt = 0; cnt < ulength; ++cnt)
+        double pstep = outInfo->Get(PREVIOUS_UPDATE_TIME_STEP());
+        if (pstep != ustep)
           {
-          if (psteps[cnt] != usteps[cnt])
-            {
-            match = false;
-            break;
-            }
+          match = false;
           }
         if (match)
           {
@@ -1456,20 +1575,19 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
         }
       }
 
-    int dlength = dataInfo->Length(vtkDataObject::DATA_TIME_STEPS());
-    if (dlength != ulength)
+    int hasdsteps = dataInfo->Has(vtkDataObject::DATA_TIME_STEP());
+    int hasusteps = dataInfo->Has(UPDATE_TIME_STEP());
+
+    double dstep = dataInfo->Get(vtkDataObject::DATA_TIME_STEP());
+    if ( (hasdsteps && !hasusteps) || (!hasdsteps && hasusteps))
       {
       return 1;
       }
-    int cnt = 0;
-    double *dsteps = dataInfo->Get(vtkDataObject::DATA_TIME_STEPS());
-    for (;cnt < dlength; ++cnt)
+    if (dstep != ustep)
       {
-      if (dsteps[cnt] != usteps[cnt])
-        {
-        return 1;
-        }
+      return 1;
       }
+
     }
   return 0;
 }
@@ -1649,28 +1767,6 @@ int vtkStreamingDemandDrivenPipeline
       info->Get(WHOLE_EXTENT(), extent);
       modified |=
         vtkStreamingDemandDrivenPipeline::SetUpdateExtent(info, extent);
-      }
-    else if(data->GetExtentType() == VTK_TIME_EXTENT)
-      {
-      modified |=
-        vtkStreamingDemandDrivenPipeline::SetUpdatePiece(info, 0);
-      modified |=
-        vtkStreamingDemandDrivenPipeline::SetUpdateNumberOfPieces(info, 1);
-      modified |=
-        vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(info, 0);
-      if (info->Has(TIME_STEPS()))
-        {
-        double *tsteps = info->Get(TIME_STEPS());
-        modified |=
-          vtkStreamingDemandDrivenPipeline::SetUpdateTimeSteps(info, tsteps, 1);
-        }
-      else if (info->Has(TIME_RANGE()))
-        {
-        // if we have only a range, then pick the first time
-        double *range = info->Get(TIME_RANGE());
-        modified |=
-          vtkStreamingDemandDrivenPipeline::SetUpdateTimeSteps(info, range, 1);
-        }
       }
     }
   else
@@ -1863,20 +1959,11 @@ int vtkStreamingDemandDrivenPipeline
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::SetUpdateTimeStep(int port, double time)
 {
-  return this->SetUpdateTimeSteps(port, &time, 1);
+  return this->SetUpdateTimeStep(this->GetOutputInformation(port), time);
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline
-::SetUpdateTimeSteps(int port, double *times, int length)
-{
-  return this->SetUpdateTimeSteps(
-    this->GetOutputInformation(port), times, length);
-}
-
-//----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline
-::SetUpdateTimeSteps(vtkInformation *info, double *times, int length)
+int vtkStreamingDemandDrivenPipeline::SetUpdateTimeStep(vtkInformation *info, double time)
 {
   if(!info)
     {
@@ -1884,22 +1971,10 @@ int vtkStreamingDemandDrivenPipeline
     return 0;
     }
   int modified = 0;
-  if (info->Has(UPDATE_TIME_STEPS()))
+  if (info->Has(UPDATE_TIME_STEP()))
     {
-    int oldLength = info->Length(UPDATE_TIME_STEPS());
-    double *oldSteps = info->Get(UPDATE_TIME_STEPS());
-    if (length == oldLength)
-      {
-      int i;
-      for (i = 0; i < length; ++i)
-        {
-        if (oldSteps[i] != times[i])
-          {
-          modified = 1;
-          }
-        }
-      }
-    else
+    double oldStep = info->Get(UPDATE_TIME_STEP());
+    if (oldStep != time)
       {
       modified = 1;
       }
@@ -1910,7 +1985,7 @@ int vtkStreamingDemandDrivenPipeline
     }
   if (modified)
     {
-    info->Set(UPDATE_TIME_STEPS(),times,length);
+    info->Set(UPDATE_TIME_STEP(),time);
     }
   info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
   return modified;

@@ -124,11 +124,6 @@ public:
   // arrays, etc. are not included in the return value).
   virtual unsigned long GetActualMemorySize();
 
-  // Description:
-  // By default, there is no type specific information
-  virtual void CopyTypeSpecificInformation( vtkDataObject*)
-    {}
-
    // Description:
    // Copy information about this data object from the
    // pipeline information to its own Information.
@@ -306,7 +301,7 @@ public:
   static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
   static vtkInformationDoubleKey* DATA_RESOLUTION();
-  static vtkInformationDoubleVectorKey* DATA_TIME_STEPS();
+  static vtkInformationDoubleKey* DATA_TIME_STEP();
   static vtkInformationInformationVectorKey* POINT_DATA_VECTOR();
   static vtkInformationInformationVectorKey* CELL_DATA_VECTOR();
   static vtkInformationInformationVectorKey* VERTEX_DATA_VECTOR();
@@ -326,6 +321,7 @@ public:
   static vtkInformationDoubleVectorKey* ORIGIN();
   static vtkInformationDoubleVectorKey* SPACING();
   static vtkInformationIntegerKey* DATA_GEOMETRY_UNMODIFIED();
+  static vtkInformationDoubleVectorKey* BOUNDING_BOX();
 
   // Key used to put SIL information in the output information by readers.
   static vtkInformationDataObjectKey* SIL();

@@ -19,7 +19,7 @@
 #ifndef _FT_GASP_H_
 #define _FT_GASP_H_
 
-#include <ft2build.h>
+#include <vtkfreetype/include/ft2build.h>
 #include FT_FREETYPE_H
 
 #ifdef FREETYPE_H

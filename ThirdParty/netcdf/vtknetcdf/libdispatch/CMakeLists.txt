@@ -17,9 +17,9 @@ set(SOURCES
   ncbytes.h
   )
 
-if(NETCDF_ENABLE_NETCDF4)
+if(USE_NETCDF4)
   SET(SOURCES ${SOURCES} nc4.c)
-endif(NETCDF_ENABLE_NETCDF4)
+endif()
 
 foreach(file ${SOURCES})
   set(path_SOURCES ${path_SOURCES} ${PROJECT_SOURCE_DIR}/${file})

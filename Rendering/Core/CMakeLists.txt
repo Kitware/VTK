@@ -35,7 +35,7 @@ set(Module_SRCS
   vtkGPUInfo.cxx
   vtkGPUInfoList.cxx
   vtkGraphicsFactory.cxx
-  #vtkGraphMapper.cxx - vtkGraphToPolyData
+  vtkGraphMapper.cxx
   vtkGraphToGlyphs.cxx
   vtkHardwareSelector.cxx
   vtkHierarchicalPolyDataMapper.cxx
@@ -45,7 +45,6 @@ set(Module_SRCS
   vtkImageProperty.cxx
   vtkImageSlice.cxx
   vtkImageSliceMapper.cxx
-  vtkImagingFactory.cxx
   vtkInteractorEventRecorder.cxx
   vtkInteractorObserver.cxx
   vtkLightActor.cxx
@@ -60,6 +59,7 @@ set(Module_SRCS
   vtkMapper2D.cxx
   vtkMapperCollection.cxx
   vtkMapper.cxx
+  vtkMaterialLibrary.cxx
   vtkObserverMediator.cxx
   vtkPainter.cxx
   vtkPainterDeviceAdapter.cxx
@@ -89,6 +89,7 @@ set(Module_SRCS
   vtkScalarsToColorsPainter.cxx
   vtkSelectVisiblePoints.cxx
   vtkShader.cxx # vtkXMLShader
+  vtkShaderCodeLibrary.cxx
   vtkShaderDeviceAdapter.cxx
   vtkShaderDeviceAdapter2.cxx
   vtkShaderProgram.cxx # vtkXMLShaderProgram
@@ -105,6 +106,10 @@ set(Module_SRCS
   vtkVolumeCollection.cxx
   vtkVolume.cxx
   vtkVolumeProperty.cxx
+  vtkXMLMaterial.cxx
+  vtkXMLMaterialParser.cxx
+  vtkXMLMaterialReader.cxx
+  vtkXMLShader.cxx
   vtkWindowLevelLookupTable.cxx
   vtkWindowToImageFilter.cxx
 
@@ -116,6 +121,7 @@ set(Module_SRCS
   vtkPicker.cxx # Needed by vtkRenderer
   vtkAbstractPropPicker.cxx # Needed by vtkAreaPicker
   vtkPropPicker.cxx # Needed by vtkRenderWindowInteractor
+  vtkPickingManager.cxx # Needed by vtkRenderWindowInteractor
   vtkLODProp3D.cxx # Needed by vtkAreaPicker
   vtkWorldPointPicker.cxx # Needed by vtkPropPicker
   vtkHardwareSelectionPolyDataPainter.cxx # Needed by vtkPainterPolyDataMapper
@@ -135,6 +141,8 @@ set(Module_SRCS
   vtkTDxInteractorStyleSettings.cxx
 
   vtkStringToImage.cxx
+  vtkTextMapper.cxx
+  vtkTextProperty.cxx
   )
 
 set(${vtk-module}_HDRS

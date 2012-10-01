@@ -17,11 +17,10 @@
 
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
-#include "vtkGraphicsFactory.h"
 #include "vtkObjectFactory.h"
 
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkDisplayListPainter);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkDisplayListPainter);
 vtkInformationKeyMacro(vtkDisplayListPainter, IMMEDIATE_MODE_RENDERING, Integer);
 
 //----------------------------------------------------------------------------
@@ -33,13 +32,6 @@ vtkDisplayListPainter::vtkDisplayListPainter()
 //----------------------------------------------------------------------------
 vtkDisplayListPainter::~vtkDisplayListPainter()
 {
-}
-
-//----------------------------------------------------------------------------
-vtkDisplayListPainter* vtkDisplayListPainter::New()
-{
-  vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkDisplayListPainter");
-  return static_cast<vtkDisplayListPainter *>(o);
 }
 
 //----------------------------------------------------------------------------

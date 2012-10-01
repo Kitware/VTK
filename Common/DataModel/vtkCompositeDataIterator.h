@@ -31,7 +31,6 @@ class vtkInformation;
 class VTKCOMMONDATAMODEL_EXPORT vtkCompositeDataIterator : public vtkObject
 {
 public:
-  static vtkCompositeDataIterator* New();
   vtkTypeMacro(vtkCompositeDataIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -51,33 +50,33 @@ public:
 
   // Description:
   // Move the iterator to the beginning of the collection.
-  virtual void GoToFirstItem();
+  virtual void GoToFirstItem() = 0;
 
   // Description:
   // Move the iterator to the next item in the collection.
-  virtual void GoToNextItem();
+  virtual void GoToNextItem() =0;
 
   // Description:
   // Test whether the iterator is finished with the traversal.
   // Returns 1 for yes, and 0 for no.
   // It is safe to call any of the GetCurrent...() methods only when
   // IsDoneWithTraversal() returns 0.
-  virtual int IsDoneWithTraversal();
+  virtual int IsDoneWithTraversal() =0;
 
   // Description:
   // Returns the current item. Valid only when IsDoneWithTraversal() returns 0.
-  virtual vtkDataObject* GetCurrentDataObject();
+  virtual vtkDataObject* GetCurrentDataObject() = 0;
 
   // Description:
   // Returns the meta-data associated with the current item. This will allocate
   // a new vtkInformation object is none is already present. Use
   // HasCurrentMetaData to avoid unnecessary creation of vtkInformation objects.
-  virtual vtkInformation* GetCurrentMetaData();
+  virtual vtkInformation* GetCurrentMetaData() =0;
 
   // Description:
   // Returns if the a meta-data information object is present for the current
   // item. Return 1 on success, 0 otherwise.
-  virtual int HasCurrentMetaData();
+  virtual int HasCurrentMetaData() =0;
 
   // Description:
   // If VisitOnlyLeaves is true, the iterator will only visit nodes
@@ -109,10 +108,8 @@ public:
   vtkBooleanMacro(SkipEmptyNodes, int);
 
   // Description:
-  // Flat index is an index obtained by traversing the tree in preorder.
-  // This can be used to uniquely identify nodes in the tree.
-  // Not valid if IsDoneWithTraversal() returns true.
-  unsigned int GetCurrentFlatIndex();
+  // Flat index is an index to identify the data in a composite data structure
+  virtual unsigned int GetCurrentFlatIndex()=0;
 
   // Description:
   // Returns if the iteration is in reverse order.
@@ -122,44 +119,15 @@ public:
 protected:
   vtkCompositeDataIterator();
   virtual ~vtkCompositeDataIterator();
-
-  // Takes the current location to the next dataset. This traverses the tree in
-  // preorder fashion.
-  // If the current location is a composite dataset, next is its 1st child dataset.
-  // If the current is not a composite dataset, then next is the next dataset.
-  // This method gives no guarantees  whether the current dataset will be
-  // non-null or leaf.
-  void NextInternal();
-
-  // Description:
-  // Returns the index for the current data object.
-  vtkCompositeDataSetIndex GetCurrentIndex();
-
-  // Needs access to GetCurrentIndex().
-  friend class vtkCompositeDataSet;
-
-  unsigned int CurrentFlatIndex;
-
   int SkipEmptyNodes;
   int TraverseSubTree;
   int Reverse;
   int VisitOnlyLeaves;
   vtkCompositeDataSet* DataSet;
+
 private:
   vtkCompositeDataIterator(const vtkCompositeDataIterator&); // Not implemented.
   void operator=(const vtkCompositeDataIterator&); // Not implemented.
-
-  class vtkInternals;
-  vtkInternals* Internals;
-  friend class vtkInternals;
-
-  // Description:
-  // Helper method used by vtkInternals to get access to the internals of
-  // vtkCompositeDataSet.
-  vtkCompositeDataSetInternals* GetInternals(vtkCompositeDataSet*);
-
-  // Cannot be called when this->IsDoneWithTraversal() return 1.
-  void UpdateLocation();
 //ETX
 };
 

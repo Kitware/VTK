@@ -20,7 +20,7 @@ $Id: nc4dim.c,v 1.41 2010/05/25 17:54:23 dmh Exp $
 /* Netcdf-4 files might have more than one unlimited dimension, but
    return the first one anyway. */
 /* Note that this code is inconsistent with nc_inq */
-int
+int 
 NC4_inq_unlimdim(int ncid, int *unlimdimidp)
 {
    NC_FILE_INFO_T *nc;
@@ -29,7 +29,7 @@ NC4_inq_unlimdim(int ncid, int *unlimdimidp)
    NC_DIM_INFO_T *dim;
    int found = 0;
    int retval;
-
+ 
    LOG((2, "called nc_inq_unlimdim"));
 
    if ((retval = nc4_find_nc_grp_h5(ncid, &nc, &grp, &h5)))
@@ -51,12 +51,12 @@ NC4_inq_unlimdim(int ncid, int *unlimdimidp)
    {
       for (dim = g->dim; dim; dim = dim->next)
       {
-         if (dim->unlimited)
-         {
-            *unlimdimidp = dim->dimid;
-            found++;
-            break;
-         }
+	 if (dim->unlimited)
+	 {
+	    *unlimdimidp = dim->dimid;
+	    found++;
+	    break;
+	 }
       }
    }
 
@@ -75,13 +75,13 @@ NC4_def_dim(int ncid, const char *name, size_t len, int *idp)
    char norm_name[NC_MAX_NAME + 1];
    int retval = NC_NOERR;
 
-   LOG((2, "nc_def_dim: ncid 0x%x name %s len %d", ncid, name,
-        (int)len));
+   LOG((2, "nc_def_dim: ncid 0x%x name %s len %d", ncid, name, 
+	(int)len));
 
    /* Find our global metadata structure. */
    if ((retval = nc4_find_nc_grp_h5(ncid, &nc, &grp, &h5)))
       return retval;
-
+   
 #ifdef USE_PNETCDF
    /* Take care of files created/opened with parallel-netcdf library. */
    if (nc->pnetcdf_file)
@@ -102,19 +102,19 @@ NC4_def_dim(int ncid, const char *name, size_t len, int *idp)
    {
       /* Only one limited dimenson for strict nc3. */
       if (len == NC_UNLIMITED)
-         for (dim = grp->dim; dim; dim = dim->next)
-            if (dim->unlimited)
-               return NC_EUNLIMIT;
+	 for (dim = grp->dim; dim; dim = dim->next)
+	    if (dim->unlimited)
+	       return NC_EUNLIMIT;
 
       /* Must be in define mode for stict nc3. */
       if (!(h5->flags & NC_INDEF))
-         return NC_ENOTINDEFINE;
-   }
+	 return NC_ENOTINDEFINE;
+   }   
 
    /* If it's not in define mode, enter define mode. */
    if (!(h5->flags & NC_INDEF))
       if ((retval = nc_redef(ncid)))
-         return retval;
+	 return retval;
 
    /* Make sure this is a valid netcdf name. */
    if ((retval = nc4_check_name(name, norm_name)))
@@ -125,12 +125,12 @@ NC4_def_dim(int ncid, const char *name, size_t len, int *idp)
     * it has to fit in a 32-bit unsigned int. */
    if (h5->cmode & NC_CLASSIC_MODEL)
       if((unsigned long) len > X_INT_MAX) /* Backward compat */
-         return NC_EDIMSIZE;
+	 return NC_EDIMSIZE;
 
    /* Make sure the name is not already in use. */
    for (dim = grp->dim; dim; dim = dim->next)
       if (!strncmp(dim->name, norm_name, NC_MAX_NAME))
-         return NC_ENAMEINUSE;
+	 return NC_ENAMEINUSE;
 
    /* Add a dimension to the list. The ID must come from the file
     * information, since dimids are visible in more than one group. */
@@ -189,13 +189,13 @@ NC4_inq_dimid(int ncid, const char *name, int *idp)
    /* Go through each dim and check for a name match. */
    for (g = grp; g && !finished; g = g->parent)
       for (dim = g->dim; dim; dim = dim->next)
-         if (!strncmp(dim->name, norm_name, NC_MAX_NAME))
-         {
-            if (idp)
-               *idp = dim->dimid;
-            finished++;
-            return NC_NOERR;
-         }
+	 if (!strncmp(dim->name, norm_name, NC_MAX_NAME))
+	 {
+	    if (idp)
+	       *idp = dim->dimid;
+	    finished++;
+	    return NC_NOERR;
+	 }
 
    return NC_EBADDIM;
 }
@@ -217,22 +217,22 @@ NC4_inq_dim(int ncid, int dimid, char *name, size_t *lenp)
    /* Find our global metadata structure. */
    if ((ret = nc4_find_nc_grp_h5(ncid, &nc, &grp, &h5)))
       return ret;
-
+   
 #ifdef USE_PNETCDF
    /* Take care of files created/opened with parallel-netcdf library. */
    if (nc->pnetcdf_file)
    {
       MPI_Offset mpi_len;
       if ((ret = ncmpi_inq_dim(nc->int_ncid, dimid, name, &mpi_len)))
-         return ret;
+	 return ret;
       if (lenp)
-         *lenp = mpi_len;
+	 *lenp = mpi_len;
    }
 #endif /* USE_PNETCDF */
 
    /* Take care of netcdf-3 files. */
    assert(h5);
-
+   
    assert(nc && grp);
 
    /* Find the dimension and its home group. */
@@ -241,31 +241,31 @@ NC4_inq_dim(int ncid, int dimid, char *name, size_t *lenp)
    assert(dim);
 
    /* Return the dimension name, if the caller wants it. */
-   if (name && dim->name)
-      strcpy(name, dim->name);
-
+   if (name && dim->name) 
+      strcpy(name, dim->name);	    
+   
    /* Return the dimension length, if the caller wants it. */
    if (lenp)
    {
       if (dim->unlimited)
       {
-         /* Since this is an unlimited dimension, go to the file
-            and see how many records there are. Take the max number
-            of records from all the vars that share this
-            dimension. */
-         *lenp = 0;
-         if ((ret = nc4_find_dim_len(dim_grp, dimid, &lenp)))
-            return ret;
+	 /* Since this is an unlimited dimension, go to the file
+	    and see how many records there are. Take the max number
+	    of records from all the vars that share this
+	    dimension. */
+	 *lenp = 0;
+	 if ((ret = nc4_find_dim_len(dim_grp, dimid, &lenp)))
+	    return ret;
       }
       else
       {
-         if (dim->too_long)
-         {
-            ret = NC_EDIMSIZE;
-            *lenp = NC_MAX_UINT;
-         }
-         else
-            *lenp = dim->len;
+	 if (dim->too_long)
+	 {
+	    ret = NC_EDIMSIZE;
+	    *lenp = NC_MAX_UINT;
+	 }
+	 else
+	    *lenp = dim->len;
       }
    }
 
@@ -286,14 +286,14 @@ NC4_rename_dim(int ncid, int dimid, const char *name)
    if (!name)
       return NC_EINVAL;
 
-   LOG((2, "nc_rename_dim: ncid 0x%x dimid %d name %s", ncid,
-        dimid, name));
+   LOG((2, "nc_rename_dim: ncid 0x%x dimid %d name %s", ncid, 
+	dimid, name));
 
    /* Find info for this file and group, and set pointer to each. */
-   if ((retval = nc4_find_nc_grp_h5(ncid, &nc, &grp, &h5)))
+   if ((retval = nc4_find_nc_grp_h5(ncid, &nc, &grp, &h5)))      
       return retval;
    assert(nc);
-
+   
 #ifdef USE_PNETCDF
    /* Take care of files created/opened with parallel-netcdf library. */
    if (nc->pnetcdf_file)
@@ -315,12 +315,12 @@ NC4_rename_dim(int ncid, int dimid, const char *name)
    /* Make sure the new name is not already in use in this group. */
    for (dim = grp->dim; dim; dim = dim->next)
       if (!strncmp(dim->name, norm_name, NC_MAX_NAME))
-         return NC_ENAMEINUSE;
+	 return NC_ENAMEINUSE;
 
    /* Find the dim. */
    for (dim = grp->dim; dim; dim = dim->next)
       if (dim->dimid == dimid)
-         break;
+	 break;
    if (!dim)
       return NC_EBADDIM;
 
@@ -329,9 +329,9 @@ NC4_rename_dim(int ncid, int dimid, const char *name)
 /*    if (!(h5->flags & NC_INDEF) && strlen(name) > strlen(dim->name)) */
 /*    { */
 /*       if (h5->cmode & NC_CLASSIC_MODEL) */
-/*       return NC_ENOTINDEFINE; */
+/* 	 return NC_ENOTINDEFINE; */
 /*       if ((retval = nc_redef(ncid))) */
-/*       return retval; */
+/* 	 return retval; */
 /*    } */
 
    /* Save the old name, we'll need it to rename this object when we
@@ -345,7 +345,7 @@ NC4_rename_dim(int ncid, int dimid, const char *name)
    if (!dim->old_name)
    {
       if (!(dim->old_name = malloc((strlen(dim->name) + 1) * sizeof(char))))
-         return NC_ENOMEM;
+	 return NC_ENOMEM;
       strcpy(dim->old_name, dim->name);
    }
 
@@ -363,8 +363,8 @@ NC4_rename_dim(int ncid, int dimid, const char *name)
    number of unlimited dimensions by first calling this with NULL for
    the second pointer.
 */
-int
-NC4_inq_unlimdims(int ncid, int *nunlimdimsp, int *unlimdimidsp)
+int 
+NC4_inq_unlimdims(int ncid, int *nunlimdimsp, int *unlimdimidsp) 
 {
   NC_DIM_INFO_T *dim;
   NC_GRP_INFO_T *grp;
@@ -384,12 +384,12 @@ NC4_inq_unlimdims(int ncid, int *nunlimdimsp, int *unlimdimidsp)
    {
       for (dim=grp->dim; dim; dim=dim->next)
       {
-         if (dim->unlimited)
-         {
-            if (unlimdimidsp)
-               unlimdimidsp[num_unlim] = dim->dimid;
-            num_unlim++;
-         }
+	 if (dim->unlimited)
+	 {
+	    if (unlimdimidsp)
+	       unlimdimidsp[num_unlim] = dim->dimid;
+	    num_unlim++;
+	 }
       }
    }
 
@@ -399,3 +399,5 @@ NC4_inq_unlimdims(int ncid, int *nunlimdimsp, int *unlimdimidsp)
 
    return NC_NOERR;
 }
+
+

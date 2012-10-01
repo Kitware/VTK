@@ -2,8 +2,9 @@ vtk_module(vtkRenderingFreeTypeOpenGL
   GROUPS
     Rendering
   IMPLEMENTS
-    vtkRenderingFreeType
+    vtkRenderingCore
   DEPENDS
+    vtkRenderingFreeType
     vtkRenderingOpenGL
   TEST_DEPENDS
     vtkTestingCore

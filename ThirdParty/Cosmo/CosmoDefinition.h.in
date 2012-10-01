@@ -64,7 +64,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "BasicDefinition.h"
 
 #ifndef USE_SERIAL_COSMO
-#include "vtkMPI.h"
+#include <mpi.h>
 #endif
 
 #endif

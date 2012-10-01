@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeGridAxisCut - Axis aligned cut
+// .NAME vtkHyperTreeGridAxisCut - Axis aligned hyper tree grid cut
 // .SECTION Description
 // Cut along an axis aligned plane. Only works for 3D grids.
 // Produces disjoint (no point sharing) quads for now.
@@ -22,7 +22,8 @@
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGrid.h" // We need this because of supercursor
+
 class vtkPoints;
 class vtkCellArray;
 
@@ -52,8 +53,9 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   void ProcessTrees();
+//BTX
   void RecursiveProcessTree(vtkHyperTreeSuperCursor* superCursor);
-
+//ETX
   vtkHyperTreeGrid* Input;
   vtkPolyData* Output;
   vtkPoints* Points;

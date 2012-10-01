@@ -51,6 +51,10 @@ class vtkWeakPointerBaseToObjectBaseFriendship;
 
 class VTKCOMMONCORE_EXPORT vtkObjectBase
 {
+  // Description:
+  // Return the class name as a string. This method is overridden
+  // in all subclasses of vtkObjectBase with the vtkTypeMacro found
+  // in vtkSetGet.h.
   virtual const char* GetClassNameInternal() const { return "vtkObjectBase"; }
 public:
 
@@ -61,9 +65,7 @@ public:
 #endif
 
   // Description:
-  // Return the class name as a string. This method is defined
-  // in all subclasses of vtkObjectBase with the vtkTypeMacro found
-  // in vtkSetGet.h.
+  // Return the class name as a string.
   const char* GetClassName() const;
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
@@ -148,19 +150,14 @@ public:
   void SetReferenceCount(int);
 
   // Description:
-  // Prints a list of the class .cxx file CVS revisions for all
-  // classes in the object's inheritance chain.  The format of the
-  // list is "vtkObjectBase 1.4\n" with one class per line.  The list
-  // always starts with the least-derived class (vtkObjectBase), and
-  // ends with the most-derived class.  This is useful for programs
-  // wishing to do serialization of VTK objects.
-  void PrintRevisions(ostream& os);
+  // Legacy.  Do not call.
+  void PrintRevisions(ostream&) {}
 
 protected:
   vtkObjectBase();
   virtual ~vtkObjectBase();
 
-  virtual void CollectRevisions(ostream& os);
+  virtual void CollectRevisions(ostream&) {} // Legacy; do not use!
 
   int ReferenceCount;
   vtkWeakPointerBase **WeakPointers;

@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkTemporalFractal.h"
 
-#include "vtkAMRBox.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkDoubleArray.h"
@@ -29,18 +28,111 @@
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTemporalDataSet.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkSmartPointer.h"
 
 #include <assert.h>
 
+//----------------------------------------------------------------------------
+class TemporalFractalOutputUtil: public vtkObject
+{
+public:
+  static TemporalFractalOutputUtil *New();
+  vtkTypeMacro(TemporalFractalOutputUtil,vtkObject);
+
+  void AddDataSet(vtkDataObject* newData, unsigned int level)
+  {
+    assert(newData);
+    assert("Expect newData to be created by raw New()" && newData->GetReferenceCount()==1);
+
+    vtkSmartPointer<vtkDataObject> data;
+    data.TakeReference(newData);
+    this->DataSets.push_back(data);
+    this->Levels.push_back(level);
+  }
+  ~TemporalFractalOutputUtil()
+  {
+    this->DataSets.clear();
+    this->Levels.clear();
+  }
+
+  void CreateOutput(vtkMultiBlockDataSet* mbs)
+  {
+    for(size_t i=0; i<this->DataSets.size();i++)
+      {
+      vtkDataObject* dataSet = DataSets[i];
+      unsigned int level = this->Levels[i];
+      vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(
+        mbs->GetBlock(level));
+      if (!block)
+        {
+        block = vtkMultiBlockDataSet::New();
+        mbs->SetBlock(level, block);
+        block->Delete();
+        }
+      unsigned int index = block->GetNumberOfBlocks();
+      block->SetBlock(index, dataSet);
+      }
+  }
+  void CreateOutput(vtkHierarchicalBoxDataSet* hbds)
+  {
+    std::vector<int> blocksPerLevel;
+    int gridDescription(-1);
+    double origin[3] = {DBL_MAX,DBL_MAX,DBL_MAX};
+    for(size_t i=0; i<this->Levels.size();i++)
+      {
+      unsigned int level = this->Levels[i];
+      vtkUniformGrid* grid  = vtkUniformGrid::SafeDownCast(this->DataSets[i]);
+      assert(grid);
+      gridDescription = grid->GetGridDescription();
+      double* gridOrigin = grid->GetOrigin();
+      for(int d=0; d<3; d++)
+        {
+        if(gridOrigin[d]<origin[d])
+          {
+          origin[d] = gridOrigin[d];
+          }
+        }
+      for (unsigned int j= static_cast<unsigned int>(blocksPerLevel.size()); j<=level; j++)
+        {
+        blocksPerLevel.push_back(0);
+        }
+      blocksPerLevel[level]++;
+      }
+
+    std::vector<unsigned int> blockIds(blocksPerLevel.size(),0); //keep track of the id at each level
+    hbds->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
+    hbds->SetOrigin(origin);
+    hbds->SetGridDescription(gridDescription);
+    for(size_t i=0; i<this->Levels.size();i++)
+      {
+      unsigned int level = this->Levels[i];
+      unsigned int id  = blockIds[level];
+      vtkUniformGrid* grid  = vtkUniformGrid::SafeDownCast(this->DataSets[i]);
+      hbds->SetDataSet(level, id, grid);
+      blockIds[level]++;
+      }
+
+  }
+
+
+private:
+  TemporalFractalOutputUtil(){}
+  std::vector<vtkSmartPointer<vtkDataObject> > DataSets;
+  std::vector<unsigned int> Levels;
+};
+
+vtkStandardNewMacro(TemporalFractalOutputUtil);
+//----------------------------------------------------------------------------
+
 vtkStandardNewMacro(vtkTemporalFractal);
 
-//----------------------------------------------------------------------------
 vtkTemporalFractal::vtkTemporalFractal()
 {
   this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
 
   this->Dimensions = 10;
   this->FractalValue = 9.5;
@@ -71,6 +163,12 @@ vtkTemporalFractal::~vtkTemporalFractal()
 {
   this->Levels->Delete();
   this->Levels = NULL;
+}
+
+int vtkTemporalFractal::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -369,18 +467,71 @@ int vtkTemporalFractal::MandelbrotTest(double x, double y)
 
 
 //----------------------------------------------------------------------------
+int vtkTemporalFractal::ProcessRequest(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+
+  // create the output
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
+    }
+
+  // generate the data
+  if(request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
+    {
+    int retVal = this->RequestData(request, inputVector, outputVector);
+    return retVal;
+    }
+
+  // execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    if(request->Has(vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT()))
+      {
+      int outputPort = request->Get(
+        vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT());
+      vtkInformation* info = outputVector->GetInformationObject(outputPort);
+      if (info)
+        {
+        info->Set(
+          vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+        }
+      }
+    return this->RequestInformation(request, inputVector, outputVector);
+    }
+
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+int vtkTemporalFractal::RequestDataObject(vtkInformation*,
+                                                  vtkInformationVector**,
+                                                  vtkInformationVector* outputVector)
+{
+  vtkInformation* info = outputVector->GetInformationObject(0);
+
+  vtkCompositeDataSet* dset = this->GenerateRectilinearGrids?
+    static_cast<vtkCompositeDataSet*>(vtkMultiBlockDataSet::New()):
+    static_cast<vtkCompositeDataSet*>(vtkHierarchicalBoxDataSet::New());
+
+  info->Set(vtkDataObject::DATA_OBJECT(), dset);
+  dset->Delete();
+  return 1;
+
+}
+
+//----------------------------------------------------------------------------
 // Description:
 // This is called by the superclass.
 // This is the method you should override.
 int vtkTemporalFractal::RequestInformation(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
+  vtkInformation *,
+  vtkInformationVector **,
   vtkInformationVector *outputVector)
 {
-  if(!this->Superclass::RequestInformation(request,inputVector,outputVector))
-    {
-    return 0;
-    }
   vtkInformation *info=outputVector->GetInformationObject(0);
 
   if (this->DiscreteTimeSteps)
@@ -411,21 +562,12 @@ int vtkTemporalFractal::RequestData(
   vtkInformationVector *outputVector)
 {
   vtkInformation *info=outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
 
   // get how many time steps were requsted
-  int numTimeSteps =
-    info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-  double *timeSteps =
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-
-  vtkDataObject *doOutput=info->Get(vtkDataObject::DATA_OBJECT());
-  vtkTemporalDataSet *output = vtkTemporalDataSet::SafeDownCast(doOutput);
-
-  if(output==0)
-    {
-    vtkErrorMacro("The output is not a TemporalDataSet");
-    return 0;
-    }
+  double timeStep =
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
   if (!info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) ||
       !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
@@ -436,20 +578,17 @@ int vtkTemporalFractal::RequestData(
     }
 
   // now create the HierarchicalDataSet for each time step
-  int ts;
-  for (ts = 0; ts < numTimeSteps; ++ts)
-    {
-    this->CurrentTime = timeSteps[ts];
-    vtkCompositeDataSet* dset = this->GenerateRectilinearGrids?
-      static_cast<vtkCompositeDataSet*>(vtkMultiBlockDataSet::New()):
-      static_cast<vtkCompositeDataSet*>(vtkHierarchicalBoxDataSet::New());
-    int count = output->GetNumberOfTimeSteps();
-    output->SetTimeStep(count, dset);
-    this->RequestOneTimeStep(dset,request, inputVector, outputVector);
-    dset->Delete();
-    }
-  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                timeSteps, numTimeSteps);
+
+  this->CurrentTime = timeStep;
+  vtkCompositeDataSet* dset = this->GenerateRectilinearGrids?
+    static_cast<vtkCompositeDataSet*>(vtkMultiBlockDataSet::New()):
+    static_cast<vtkCompositeDataSet*>(vtkHierarchicalBoxDataSet::New());
+
+  this->RequestOneTimeStep(dset,request, inputVector, outputVector);
+  dset->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timeStep);
+
+  outInfo->Set(vtkDataObject::DATA_OBJECT(),dset);
+  dset->Delete();
 
   return 1;
 }
@@ -470,6 +609,8 @@ int vtkTemporalFractal
   int piece=info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   int numPieces =
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+
+  this->OutputUtil = vtkSmartPointer<TemporalFractalOutputUtil>::New();
 
   float ox = -1.75;
   float oy = -1.25;
@@ -520,6 +661,14 @@ int vtkTemporalFractal
   this->Traverse(blockId, 0, output, ext[0], ext[1], ext[2], ext[3], ext[4],
                  ext[5],onFace);
 
+  if(vtkHierarchicalBoxDataSet::SafeDownCast(output))
+    {
+    this->OutputUtil->CreateOutput(vtkHierarchicalBoxDataSet::SafeDownCast(output));
+    }
+  else if(vtkMultiBlockDataSet::SafeDownCast(output))
+    {
+    this->OutputUtil->CreateOutput(vtkMultiBlockDataSet::SafeDownCast(output));
+    }
 
   double bounds[6];
 
@@ -550,6 +699,8 @@ int vtkTemporalFractal
     }
   this->AddFractalArray(output);
 
+
+  this->OutputUtil = NULL;
   return 1;
 }
 
@@ -701,34 +852,6 @@ int vtkTemporalFractal::LineTest(float x0, float y0, float z0,
 }
 
 //----------------------------------------------------------------------------
-void vtkTemporalFractal::AddDataSet(vtkDataObject* output,
-  unsigned int level, int extents[6], vtkDataSet* dataSet)
-{
-  vtkHierarchicalBoxDataSet* hbds = vtkHierarchicalBoxDataSet::SafeDownCast(
-    output);
-  vtkMultiBlockDataSet* mbs = vtkMultiBlockDataSet::SafeDownCast(output);
-  if (hbds)
-    {
-    vtkAMRBox box(extents);
-    unsigned int index = hbds->GetNumberOfDataSets(level);
-    hbds->SetDataSet(level, index, box, vtkUniformGrid::SafeDownCast(dataSet));
-    }
-  else if (mbs)
-    {
-    vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(
-      mbs->GetBlock(level));
-    if (!block)
-      {
-      block = vtkMultiBlockDataSet::New();
-      mbs->SetBlock(level, block);
-      block->Delete();
-      }
-    unsigned int index = block->GetNumberOfBlocks();
-    block->SetBlock(index, dataSet);
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkTemporalFractal::Traverse(int &blockId,
                                   int level,
                                   vtkDataObject* output,
@@ -805,20 +928,20 @@ void vtkTemporalFractal::Traverse(int &blockId,
       if (this->BlockCount >= this->StartBlock
           && this->BlockCount <= this->EndBlock)
         {
+        vtkDataObject* newData(NULL);
         if(this->GenerateRectilinearGrids)
           {
           vtkRectilinearGrid *grid=vtkRectilinearGrid::New();
-          this->AddDataSet(output, level, ext, grid);
-          grid->Delete();
+          newData = grid;
           this->SetRBlockInfo(grid, level, ext,onFace);
           }
         else
           {
           vtkUniformGrid *grid=vtkUniformGrid::New();
-          this->AddDataSet(output, level, ext, grid);
-          grid->Delete();
+          newData = grid;
           this->SetBlockInfo(grid, level, ext,onFace);
           }
+        this->OutputUtil->AddDataSet(newData,level);
         this->Levels->InsertValue(blockId, level);
         ++blockId;
         }
@@ -878,20 +1001,21 @@ void vtkTemporalFractal::Traverse(int &blockId,
       if (this->BlockCount >= this->StartBlock
           && this->BlockCount <= this->EndBlock)
         {
+        vtkDataObject* newData(NULL);
         if(this->GenerateRectilinearGrids)
           {
           vtkRectilinearGrid *grid=vtkRectilinearGrid::New();
-          this->AddDataSet(output, level, ext, grid);
-          grid->Delete();
+          newData = grid;
           this->SetRBlockInfo(grid, level, ext,onFace);
           }
         else
           {
           vtkUniformGrid *grid=vtkUniformGrid::New();
-          this->AddDataSet(output, level, ext, grid);
-          grid->Delete();
+          newData = grid;
           this->SetBlockInfo(grid, level, ext,onFace);
           }
+        this->OutputUtil->AddDataSet(newData,level);
+        assert(newData->GetReferenceCount()==2);
         this->Levels->InsertValue(blockId, level);
         ++blockId;
         }
@@ -914,8 +1038,7 @@ void vtkTemporalFractal::AddTestArray(vtkHierarchicalBoxDataSet *output)
     while(block<blocks)
       {
       vtkUniformGrid *grid;
-      vtkAMRBox temp;
-      grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block, temp));
+      grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block));
       assert("check: grid_exists" && grid!=0);
 
       vtkDoubleArray* array = vtkDoubleArray::New();
@@ -978,8 +1101,7 @@ void vtkTemporalFractal::AddVectorArray(vtkHierarchicalBoxDataSet *output)
     while(block<blocks)
       {
       vtkUniformGrid *grid;
-      vtkAMRBox temp;
-      grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block, temp));
+      grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block));
       assert("check: grid_exists" && grid!=0);
 
       vtkDoubleArray* array = vtkDoubleArray::New();
@@ -1129,8 +1251,7 @@ void vtkTemporalFractal::AddBlockIdArray(vtkHierarchicalBoxDataSet *output)
     while(block<blocks)
       {
       vtkUniformGrid *grid;
-      vtkAMRBox temp;
-      grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block, temp));
+      grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block));
       assert("check: grid_exists" && grid!=0);
 
 
@@ -1167,8 +1288,7 @@ void vtkTemporalFractal::AddDepthArray(vtkHierarchicalBoxDataSet *output)
     while(block<blocks)
       {
       vtkUniformGrid *grid;
-      vtkAMRBox temp;
-      grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block, temp));
+      grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block));
       assert("check: grid_exists" && grid!=0);
 
 

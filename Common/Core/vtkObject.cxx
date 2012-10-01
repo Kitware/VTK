@@ -20,8 +20,8 @@
 #include "vtkTimeStamp.h"
 #include "vtkWeakPointer.h"
 
-#include <map>
-
+#include <algorithm>
+#include <vector>
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -477,18 +477,17 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
   int saveListModified = this->ListModified;
   this->ListModified = 0;
 
-  // We also need to save what observers we have called on the stack (least it
+  // We also need to save what observers we have called on the stack (lest it
   // get overridden in the event invocation).  Also make sure that we do not
   // invoke any new observers that were added during another observer's
   // invocation.
-  typedef std::map<unsigned long, bool> VisitedMapType;
-  VisitedMapType visited;
+  typedef std::vector<unsigned long> VisitedListType;
+  VisitedListType visited;
   vtkObserver *elem = this->Start;
-  while (elem)
-    {
-    visited.insert(std::make_pair(elem->Tag, false));
-    elem = elem->Next;
-    }
+  // If an element with a tag greater than maxTag is found, that means it has
+  // been added after InvokeEvent is called (as a side effect of calling an
+  // element command. In that case, the element is discarded and not executed.
+  const unsigned long maxTag = this->Count;
 
   // Loop two or three times, giving preference to passive observers
   // and focus holders, if any.
@@ -510,22 +509,28 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
 
   // 0. Passive observer loop
   //
-  elem = this->Start;
   vtkObserver *next;
   while (elem)
     {
     // store the next pointer because elem could disappear due to Command
     next = elem->Next;
-    VisitedMapType::iterator vIter = visited.find(elem->Tag);
-    if ((vIter != visited.end()) && (vIter->second == false) &&
-        elem->Command->GetPassiveObserver() &&
-        (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
+    if (elem->Command->GetPassiveObserver() &&
+        (elem->Event == event || elem->Event == vtkCommand::AnyEvent) &&
+        elem->Tag < maxTag)
       {
-      vIter->second = true;
-      vtkCommand* command = elem->Command;
-      command->Register(command);
-      elem->Command->Execute(self,event,callData);
-      command->UnRegister();
+      VisitedListType::iterator vIter =
+        std::lower_bound(visited.begin(), visited.end(), elem->Tag);
+      if (vIter == visited.end() || *vIter != elem->Tag)
+        {
+        // Sorted insertion by tag to speed-up future searches at limited
+        // insertion cost because it reuses the search iterator already at the
+        // correct location
+        visited.insert(vIter, elem->Tag);
+        vtkCommand* command = elem->Command;
+        command->Register(command);
+        elem->Command->Execute(self,event,callData);
+        command->UnRegister();
+        }
       }
     if (this->ListModified)
       {
@@ -548,26 +553,34 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
       {
       // store the next pointer because elem could disappear due to Command
       next = elem->Next;
-      VisitedMapType::iterator vIter = visited.find(elem->Tag);
-      if ((vIter != visited.end()) && (vIter->second == false) &&
-          ((this->Focus1 == elem->Command) || (this->Focus2 == elem->Command)) &&
-          (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
+      if (((this->Focus1 == elem->Command) || (this->Focus2 == elem->Command)) &&
+          (elem->Event == event || elem->Event == vtkCommand::AnyEvent) &&
+          elem->Tag < maxTag)
         {
-        focusHandled = 1;
-        vIter->second = true;
-        vtkCommand* command = elem->Command;
-        command->Register(command);
-        command->SetAbortFlag(0);
-        elem->Command->Execute(self,event,callData);
-        // if the command set the abort flag, then stop firing events
-        // and return
-        if(command->GetAbortFlag())
+        VisitedListType::iterator vIter =
+          std::lower_bound(visited.begin(), visited.end(), elem->Tag);
+        if (vIter == visited.end() || *vIter != elem->Tag)
           {
+          // Don't execute the remainder loop
+          focusHandled = 1;
+          // Sorted insertion by tag to speed-up future searches at limited
+          // insertion cost because it reuses the search iterator already at the
+          // correct location
+          visited.insert(vIter, elem->Tag);
+          vtkCommand* command = elem->Command;
+          command->Register(command);
+          command->SetAbortFlag(0);
+          elem->Command->Execute(self,event,callData);
+          // if the command set the abort flag, then stop firing events
+          // and return
+          if(command->GetAbortFlag())
+            {
+            command->UnRegister();
+            this->ListModified = saveListModified;
+            return 1;
+            }
           command->UnRegister();
-          this->ListModified = saveListModified;
-          return 1;
           }
-        command->UnRegister();
         }
       if (this->ListModified)
         {
@@ -590,25 +603,31 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
       {
       // store the next pointer because elem could disappear due to Command
       next = elem->Next;
-      VisitedMapType::iterator vIter = visited.find(elem->Tag);
-      if ((vIter != visited.end()) && (vIter->second == false) &&
-          !elem->Command->GetPassiveObserver() &&
-          (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
+      if ((elem->Event == event || elem->Event == vtkCommand::AnyEvent) &&
+          elem->Tag < maxTag)
         {
-        vIter->second = true;
-        vtkCommand* command = elem->Command;
-        command->Register(command);
-        command->SetAbortFlag(0);
-        elem->Command->Execute(self,event,callData);
-        // if the command set the abort flag, then stop firing events
-        // and return
-        if(command->GetAbortFlag())
+        VisitedListType::iterator vIter =
+          std::lower_bound(visited.begin(), visited.end(), elem->Tag);
+        if (vIter == visited.end() || *vIter != elem->Tag)
           {
+          // Sorted insertion by tag to speed-up future searches at limited
+          // insertion cost because it reuses the search iterator already at the
+          // correct location
+          visited.insert(vIter, elem->Tag);
+          vtkCommand* command = elem->Command;
+          command->Register(command);
+          command->SetAbortFlag(0);
+          elem->Command->Execute(self,event,callData);
+          // if the command set the abort flag, then stop firing events
+          // and return
+          if(command->GetAbortFlag())
+            {
+            command->UnRegister();
+            this->ListModified = saveListModified;
+            return 1;
+            }
           command->UnRegister();
-          this->ListModified = saveListModified;
-          return 1;
           }
-        command->UnRegister();
         }
       if (this->ListModified)
         {

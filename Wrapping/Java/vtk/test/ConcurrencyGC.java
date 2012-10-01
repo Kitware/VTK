@@ -25,7 +25,6 @@ public class ConcurrencyGC {
 
             // Setup working runnable
             Runnable workingJob = new Runnable() {
-                @Override
                 public void run() {
                     try {
                         vtkUnstructuredGrid grid = new vtkUnstructuredGrid();

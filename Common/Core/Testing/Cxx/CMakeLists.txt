@@ -12,6 +12,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestArraySize.cxx
   TestArrayUserTypes.cxx
   TestArrayVariants.cxx
+  TestCollection.cxx
   TestConditionVariable.cxx
   # TestCxxFeatures.cxx # This is in its own exe too.
   TestDataArray.cxx
@@ -23,6 +24,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestNew.cxx
   TestObjectFactory.cxx
   TestObservers.cxx
+  TestObserversPerformance.cxx
   TestSmartPointer.cxx
   TestSortDataArray.cxx
   TestSparseArrayValidation.cxx

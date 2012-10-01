@@ -276,6 +276,47 @@ public:
   // Get the column name for the supplied index.
   vtkStdString GetRowName(int row);
 
+  // Description:
+  // Set the number of animation frames in each transition. Default is 25,
+  // and 0 means to animations between axes.
+  void SetNumberOfFrames(int frames);
+
+  // Description:
+  // Get the number of animation frames in each transition. Default is 25,
+  // and 0 means to animations between axes.
+  int GetNumberOfFrames();
+
+  // Description:
+  // Clear the animation path.
+  void ClearAnimationPath();
+
+  // Description:
+  // Add a move to the animation path. Note that a move can only change i or j,
+  // not both. If the proposed move does not satisfy those criteria it will
+  // be rejected and the animation path will not be extended.
+  bool AddAnimationPath(const vtkVector2i &move);
+
+  // Description:
+  // Get the number of elements (transitions) in the animation path.
+  vtkIdType GetNumberOfAnimationPathElements();
+
+  // Description:
+  // Get the element specified from the animation path.
+  vtkVector2i GetAnimationPathElement(vtkIdType i);
+
+  // Description:
+  // Trigger the animation of the scatter plot matrix to begin.
+  bool BeginAnimationPath(vtkRenderWindowInteractor* interactor);
+
+  // Description:
+  // Advance the animation in response to the timer events. This is public to
+  // allow the animation to be manually advanced when timers are not a
+  virtual void AdvanceAnimation();
+
+  // Description:
+  // Get the main plot (the one in the top-right of the matrix.
+  virtual vtkChart * GetMainChart();
+
 protected:
   vtkScatterPlotMatrix();
   ~vtkScatterPlotMatrix();
@@ -306,10 +347,6 @@ protected:
   virtual void StartAnimation(vtkRenderWindowInteractor* interactor);
 
   // Description:
-  // Advance the animation in response to the timer events.
-  virtual void AdvanceAnimation();
-
-  // Description:
   // Process events and dispatch to the appropriate member functions.
   static void ProcessEvents(vtkObject *caller, unsigned long event,
                             void *clientData, void *callerData);
@@ -332,6 +369,9 @@ protected:
 
   // The mode when the chart is doing selection.
   int SelectionMode;
+
+  // How many frames should animations consist of, 0 means no transitions.
+  int NumberOfFrames;
 
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.

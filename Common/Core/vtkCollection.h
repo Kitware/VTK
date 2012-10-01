@@ -137,6 +137,8 @@ protected:
   vtkCollection();
   ~vtkCollection();
 
+  virtual void RemoveElement(vtkCollectionElement *element,
+                             vtkCollectionElement *previous);
   virtual void DeleteElement(vtkCollectionElement *);
   int NumberOfItems;
   vtkCollectionElement *Top;

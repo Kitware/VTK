@@ -39,6 +39,7 @@ class vtkOutputStream;
 class vtkPointData;
 class vtkPoints;
 class vtkFieldData;
+class vtkXMLDataHeader;
 //BTX
 class vtkStdString;
 class OffsetsManager;      // one per piece/per time
@@ -60,15 +61,6 @@ public:
 
   //BTX
   // Description:
-  // A type used for data sizes and offsets for stream i/o.  Using
-  // vtkIdType should satisfy most users.  This could be streamoff if
-  // it is deemed portable.  It could also be split into OffsetType
-  // (streamoff) and PositionType (streampos).
-  typedef vtkIdType OffsetType;
-  //ETX
-
-  //BTX
-  // Description:
   // Enumerate the supported data modes.
   //   Ascii = Inline ascii data.
   //   Binary = Inline binary data (base64 encoded, possibly compressed).
@@ -82,6 +74,12 @@ public:
   //   Int32 = File stores 32-bit values for vtkIdType.
   //   Int64 = File stores 64-bit values for vtkIdType.
   enum { Int32=32, Int64=64 };
+
+  // Description:
+  // Enumerate the supported binary data header bit lengths.
+  //   UInt32 = File stores 32-bit binary data header elements.
+  //   UInt64 = File stores 64-bit binary data header elements.
+  enum { UInt32=32, UInt64=64 };
   //ETX
 
   // Description:
@@ -91,6 +89,14 @@ public:
   vtkGetMacro(ByteOrder, int);
   void SetByteOrderToBigEndian();
   void SetByteOrderToLittleEndian();
+
+  // Description:
+  // Get/Set the binary data header word type.  The default is UInt32.
+  // Set to UInt64 when storing arrays requiring 64-bit indexing.
+  virtual void SetHeaderType(int);
+  vtkGetMacro(HeaderType, int);
+  void SetHeaderTypeToUInt32();
+  void SetHeaderTypeToUInt64();
 
   // Description:
   // Get/Set the size of the vtkIdType values stored in the file.  The
@@ -136,8 +142,8 @@ public:
   // controls the granularity of how much extra information must be
   // read when only part of the data are requested.  The value should
   // be a multiple of the largest scalar data type.
-  virtual void SetBlockSize(unsigned int blockSize);
-  vtkGetMacro(BlockSize, unsigned int);
+  virtual void SetBlockSize(size_t blockSize);
+  vtkGetMacro(BlockSize, size_t);
 
   // Description:
   // Get/Set the data mode used for the file's data.  The options are
@@ -223,6 +229,9 @@ protected:
   // The output byte order.
   int ByteOrder;
 
+  // The output binary header word type.
+  int HeaderType;
+
   // The output vtkIdType.
   int IdType;
 
@@ -234,25 +243,10 @@ protected:
   int EncodeAppendedData;
 
   // The stream position at which appended data starts.
-  OffsetType AppendedDataPosition;
+  vtkTypeInt64 AppendedDataPosition;
 
   // appended data offsets for field data
   OffsetsManagerGroup *FieldDataOM;  //one per array
-
-  //BTX
-  // We need a 32 bit unsigned integer type for platform-independent
-  // binary headers.  Note that this is duplicated in
-  // vtkXMLDataParser.h.
-#if VTK_SIZEOF_SHORT == 4
-  typedef unsigned short HeaderType;
-#elif VTK_SIZEOF_INT == 4
-  typedef unsigned int HeaderType;
-#elif VTK_SIZEOF_LONG == 4
-  typedef unsigned long HeaderType;
-#else
-# error "No native data type can represent an unsigned 32-bit integer."
-#endif
-  //ETX
 
   //BTX
   // We need a 32 bit signed integer type to which vtkIdType will be
@@ -277,11 +271,10 @@ protected:
 
   // Compression information.
   vtkDataCompressor* Compressor;
-  unsigned int   BlockSize;
-  OffsetType  CompressionBlockNumber;
-  HeaderType*    CompressionHeader;
-  unsigned int   CompressionHeaderLength;
-  OffsetType  CompressionHeaderPosition;
+  size_t BlockSize;
+  size_t CompressionBlockNumber;
+  vtkXMLDataHeader* CompressionHeader;
+  vtkTypeInt64 CompressionHeaderPosition;
 
   // The output stream used to write binary and appended data.  May
   // transparently encode the data.
@@ -325,18 +318,18 @@ protected:
   // a double-precision floating point value written to 13 digits of
   // precision (the other 7 come from a minus sign, decimal place, and
   // a big exponent like "e+300").
-  OffsetType ReserveAttributeSpace(const char* attr, int length=20);
+  vtkTypeInt64 ReserveAttributeSpace(const char* attr, size_t length=20);
 
-  OffsetType GetAppendedDataOffset();
-  OffsetType WriteAppendedDataOffset(OffsetType streamPos,
-                                        OffsetType &lastoffset,
-                                        const char* attr=0);
-  OffsetType ForwardAppendedDataOffset(OffsetType streamPos,
-                                         OffsetType offset,
-                                         const char* attr=0);
-  OffsetType ForwardAppendedDataDouble(OffsetType streamPos,
-                                          double value,
-                                          const char* attr);
+  vtkTypeInt64 GetAppendedDataOffset();
+  void WriteAppendedDataOffset(vtkTypeInt64 streamPos,
+                               vtkTypeInt64 &lastoffset,
+                               const char* attr=0);
+  void ForwardAppendedDataOffset(vtkTypeInt64 streamPos,
+                                 vtkTypeInt64 offset,
+                                 const char* attr=0);
+  void ForwardAppendedDataDouble(vtkTypeInt64 streamPos,
+                                 double value,
+                                 const char* attr);
 
   int WriteScalarAttribute(const char* name, int data);
   int WriteScalarAttribute(const char* name, float data);
@@ -368,9 +361,9 @@ protected:
     int timestep=0);
   int WriteAsciiData(vtkAbstractArray* a, vtkIndent indent);
   int WriteBinaryData(vtkAbstractArray* a);
-  int WriteBinaryDataInternal(vtkAbstractArray* a, OffsetType data_size);
-  void WriteArrayAppendedData(vtkAbstractArray* a, OffsetType pos,
-    OffsetType &lastoffset);
+  int WriteBinaryDataInternal(vtkAbstractArray* a);
+  void WriteArrayAppendedData(vtkAbstractArray* a, vtkTypeInt64 pos,
+                              vtkTypeInt64 &lastoffset);
 
   // Methods for writing points, point data, and cell data.
   void WriteFieldData(vtkIndent indent);
@@ -413,15 +406,14 @@ protected:
                          vtkDataArray* zc, vtkIndent indent);
 
   // Internal utility methods.
-  int WriteBinaryDataInternal(void* data, OffsetType numWords, int wordType);
-  int WriteBinaryDataBlock(unsigned char* in_data, OffsetType numWords, int wordType);
-  void PerformByteSwap(void* data, OffsetType numWords, int wordSize);
-  int CreateCompressionHeader(OffsetType size);
-  int WriteCompressionBlock(unsigned char* data, OffsetType size);
+  int WriteBinaryDataBlock(unsigned char* in_data, size_t numWords, int wordType);
+  void PerformByteSwap(void* data, size_t numWords, size_t wordSize);
+  int CreateCompressionHeader(size_t size);
+  int WriteCompressionBlock(unsigned char* data, size_t size);
   int WriteCompressionHeader();
-  OffsetType GetWordTypeSize(int dataType);
+  size_t GetWordTypeSize(int dataType);
   const char* GetWordTypeName(int dataType);
-  OffsetType GetOutputWordTypeSize(int dataType);
+  size_t GetOutputWordTypeSize(int dataType);
 
   char** CreateStringArray(int numStrings);
   void DestroyStringArray(int numStrings, char** strings);
@@ -451,7 +443,7 @@ protected:
   // when using the Start/Stop/WriteNextTime API
   int UserContinueExecuting; //can only be -1 = invalid, 0 = stop, 1 = start
 
-  unsigned long *NumberOfTimeValues; //one per piece / per timestep
+  vtkTypeInt64 *NumberOfTimeValues; //one per piece / per timestep
   //BTX
   friend class vtkXMLWriterHelper;
   //ETX

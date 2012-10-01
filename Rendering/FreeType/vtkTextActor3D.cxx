@@ -21,6 +21,7 @@
 #include "vtkTransform.h"
 #include "vtkTextProperty.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkWindow.h"
 #include "vtkFreeTypeUtilities.h"
 #include "vtkMatrix4x4.h"
@@ -143,6 +144,18 @@ void vtkTextActor3D::ReleaseGraphicsResources(vtkWindow *win)
 int vtkTextActor3D::RenderOverlay(vtkViewport *viewport)
 {
   int rendered_something = 0;
+
+  // Is the viewport's RenderWindow capturing GL2PS-special props?
+  if (vtkRenderer *renderer = vtkRenderer::SafeDownCast(viewport))
+    {
+    if (vtkRenderWindow *renderWindow = renderer->GetRenderWindow())
+      {
+      if (renderWindow->GetCapturingGL2PSSpecialProps())
+        {
+        renderer->CaptureGL2PSSpecialProp(this);
+        }
+      }
+    }
 
   if (this->UpdateImageActor() && this->ImageActor)
     {

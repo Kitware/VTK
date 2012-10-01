@@ -248,26 +248,37 @@ const char *vtkImageSincInterpolator::GetWindowFunctionAsString()
     {
     case VTK_LANCZOS_WINDOW:
       result = "Lanczos";
+      break;
     case VTK_KAISER_WINDOW:
       result = "Kaiser";
+      break;
     case VTK_COSINE_WINDOW:
       result = "Cosine";
+      break;
     case VTK_HANN_WINDOW:
       result = "Hann";
+      break;
     case VTK_HAMMING_WINDOW:
       result = "Hamming";
+      break;
     case VTK_BLACKMAN_WINDOW:
       result = "Blackman";
+      break;
     case VTK_BLACKMAN_HARRIS3:
       result = "BlackmanHarris3";
+      break;
     case VTK_BLACKMAN_HARRIS4:
       result = "BlackmanHarris4";
+      break;
     case VTK_NUTTALL_WINDOW:
       result = "Nuttall";
+      break;
     case VTK_BLACKMAN_NUTTALL3:
       result = "BlackmanNuttall3";
+      break;
     case VTK_BLACKMAN_NUTTALL4:
       result = "BlackmanNuttall4";
+      break;
     }
 
   return result;
@@ -423,7 +434,7 @@ namespace {
 // the code that uses it never evaluates it at x=0)
 inline double vtkSincPi(double x)
 {
-  x *= vtkMath::DoublePi();
+  x *= vtkMath::Pi();
 
   return sin(x)/x;
 }
@@ -465,7 +476,7 @@ double vtkSincWindow::Lanczos(double x)
 
 double vtkSincWindow::Kaiser(double x, double a)
 {
-  double api = a*vtkMath::DoublePi();
+  double api = a*vtkMath::Pi();
   double y = 1 - x*x;
   y *= (y > 0); // if less than zero, set to zero
 
@@ -474,7 +485,7 @@ double vtkSincWindow::Kaiser(double x, double a)
 
 double vtkSincWindow::Cosine(double x)
 {
-  double halfpi = 0.5*vtkMath::DoublePi();
+  double halfpi = 0.5*vtkMath::Pi();
 
   return cos(x*halfpi);
 }
@@ -484,7 +495,7 @@ double vtkSincWindow::Hamming(double x, const double *a)
 {
   double q = 0;
   double y = a[0];
-  x *= vtkMath::DoublePi();
+  x *= vtkMath::Pi();
   for (int i = 1; i < N; i++)
     {
     q += x;

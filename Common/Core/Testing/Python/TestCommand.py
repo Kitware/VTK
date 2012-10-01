@@ -10,6 +10,7 @@ Created on Mar 22, 2012 by David Gobbi
 
 import sys
 import exceptions
+import gc
 import vtk
 from vtk.test import Testing
 
@@ -90,6 +91,28 @@ class TestCommand(Testing.vtkTest):
         cb.event = None
         o.Modified()
         self.assertEqual(cb.caller, None)
+
+    def testCommandCircularRef(self):
+        """Test correct reference loop reporting for commands
+        """
+        cb = callback()
+        o = vtk.vtkObject()
+        o.AddObserver(vtk.vtkCommand.ModifiedEvent, cb)
+        cb.circular_ref = o
+        # referent to check if "o" is deleted
+        referent = vtk.vtkObject()
+        o.referent = referent
+        # make sure gc removes referer "o" from referent
+        s1 = repr(gc.get_referrers(referent))
+        del o
+        del cb
+        gc.collect()
+        s2 = repr(gc.get_referrers(referent))
+
+        self.assertNotEqual(s1, s2)
+        self.assertNotEqual(s1.count("vtkObject"),0)
+        self.assertEqual(s2.count("vtkObject"),0)
+
 
 if __name__ == "__main__":
     Testing.main([(TestCommand, 'test')])

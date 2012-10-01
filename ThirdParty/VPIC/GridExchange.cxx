@@ -43,7 +43,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #ifdef USE_PARALLEL_VPIC
-#include <vtkMPI.h>
+#include <mpi.h>
 #endif
 
 #include "GridExchange.h"

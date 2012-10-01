@@ -33,6 +33,13 @@ vtkContextPolygon::vtkContextPolygon()
 }
 
 //-----------------------------------------------------------------------------
+vtkContextPolygon::vtkContextPolygon(const vtkContextPolygon &polygon)
+  : d(new vtkContextPolygonPrivate)
+{
+  d->points = polygon.d->points;
+}
+
+//-----------------------------------------------------------------------------
 vtkContextPolygon::~vtkContextPolygon()
 {
   delete d;
@@ -69,12 +76,57 @@ void vtkContextPolygon::Clear()
 }
 
 //-----------------------------------------------------------------------------
+bool vtkContextPolygon::Contains(const vtkVector2f &point) const
+{
+  float x = point.X();
+  float y = point.Y();
+
+  // http://en.wikipedia.org/wiki/Point_in_polygon RayCasting method
+  // shooting the ray along the x axis
+  bool inside = false;
+  float xintersection;
+  for(size_t i = 0; i < d->points.size(); i++)
+    {
+    const vtkVector2f &p1 = d->points[i];
+    const vtkVector2f &p2 = d->points[(i+1) % d->points.size()];
+
+    if (y > std::min(p1.Y(), p2.Y()) &&
+        y <= std::max(p1.Y(),p2.Y()) &&
+        p1.Y() != p2.Y())
+      {
+      if (x <= std::max(p1.X(), p2.X()) )
+        {
+        xintersection = (y - p1.Y())*(p2.X() - p1.X())/(p2.Y() - p1.Y()) + p1.X();
+        if ( p1.X() == p2.X() || x <= xintersection)
+          {
+          // each time we intersect we switch if we are in side or not
+          inside = !inside;
+          }
+        }
+      }
+    }
+
+  return inside;
+}
+
+//-----------------------------------------------------------------------------
 vtkContextPolygon vtkContextPolygon::Transformed(vtkTransform2D *transform) const
 {
   vtkContextPolygon transformed;
   transformed.d->points.resize(d->points.size());
   transform->TransformPoints(reinterpret_cast<float *>(&d->points[0]),
                              reinterpret_cast<float *>(&transformed.d->points[0]),
-                             d->points.size());
+                             static_cast<int>(d->points.size()));
   return transformed;
+}
+
+//-----------------------------------------------------------------------------
+vtkContextPolygon& vtkContextPolygon::operator=(const vtkContextPolygon &other)
+{
+  if(this != &other)
+    {
+    d->points = other.d->points;
+    }
+
+  return *this;
 }

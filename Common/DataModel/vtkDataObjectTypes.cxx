@@ -34,6 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkImageData.h"
 #include  "vtkMultiBlockDataSet.h"
 #include  "vtkMultiPieceDataSet.h"
+#include  "vtkPath.h"
 #include  "vtkPiecewiseFunction.h"
 #include  "vtkPointSet.h"
 #include  "vtkPolyData.h"
@@ -43,7 +44,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkStructuredGrid.h"
 #include  "vtkStructuredPoints.h"
 #include  "vtkTable.h"
-#include  "vtkTemporalDataSet.h"
 #include  "vtkTree.h"
 #include  "vtkUndirectedGraph.h"
 #include  "vtkUniformGrid.h"
@@ -76,8 +76,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkHierarchicalBoxDataSet", // OBSOLETE
   "vtkGenericDataSet",
   "vtkHyperOctree",
-  "vtkHyperTreeGrid",
-  "vtkTemporalDataSet",
+  "vtkTemporalDataSet",//OBSOLETE
   "vtkTable",
   "vtkGraph",
   "vtkTree",
@@ -91,7 +90,10 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkUniformGridAMR",
   "vtkNonOverlappingAMR",
   "vtkOverlappingAMR",
+  "vtkHyperTreeGrid",
   "vtkMolecule",
+  "vtkPistonDataObject",
+  "vtkPath",
   NULL
 };
 
@@ -219,10 +221,6 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
     {
     return vtkHyperTreeGrid::New();
     }
-  else if(strcmp(type, "vtkTemporalDataSet") == 0)
-    {
-    return vtkTemporalDataSet::New();
-    }
   else if(strcmp(type, "vtkTable") == 0)
     {
     return vtkTable::New();
@@ -271,6 +269,20 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
     {
     return vtkArrayData::New();
     }
+  else if(strcmp(type, "vtkPath") == 0)
+    {
+    return vtkPath::New();
+    }
+/*
+  //I am not doing this as it would force either making Common/DataModel dependent on
+  //Accelerators/Piston (impossible), or moving vtkPistonDataObject and
+  //vtkPistonReference to Common/DataModel (wrong).
+  //So instead I'm leaving it up to the instantiator clause.
+  else if(strcmp(type, "vtkPistonDataObject") == 0)
+    {
+    return vtkPistonDataObject::New();
+    }
+  */
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
     {
     vtkDataObject* data = vtkDataObject::SafeDownCast(obj);
@@ -297,4 +309,39 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
 void vtkDataObjectTypes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+int vtkDataObjectTypes::Validate()
+{
+  int rc = 0;
+
+  for(int i=0; vtkDataObjectTypesStrings[i] != NULL; i++)
+    {
+    const char* cls = vtkDataObjectTypesStrings[i];
+    vtkDataObject* obj = vtkDataObjectTypes::NewDataObject(cls);
+
+    if(obj == NULL)
+      {
+      continue;
+      }
+
+    int type = obj->GetDataObjectType();
+    obj->Delete();
+
+    if(strcmp(vtkDataObjectTypesStrings[type], cls) != 0)
+      {
+      cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << endl;
+      cerr << "Type mismatch for: " << cls << endl;
+      cerr << "The value looked up in vtkDataObjectTypesStrings using ";
+      cerr << "the index returned by GetDataObjectType() does not match the object type." << endl;
+      cerr << "Value from vtkDataObjectTypesStrings[obj->GetDataObjectType()]): ";
+      cerr << vtkDataObjectTypesStrings[type] << endl;
+      cerr << "Check that the correct value is being returned by GetDataObjectType() ";
+      cerr << "for this object type. Also check that the values in vtkDataObjectTypesStrings ";
+      cerr << "are in the same order as the #define's in vtkType.h.";
+      rc = 1;
+      break;
+      }
+    }
+  return rc;
 }

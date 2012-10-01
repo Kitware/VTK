@@ -1,6 +1,6 @@
 PROJECT(MaterialLibrary)
 
-vtk_module_impl()
+vtk_module_export_info()
 
 # FIXME: Provide a reasonable default for this value in MaterialLibrary?
 set(VTK_DEFAULT_SHADERS_DIR
@@ -16,43 +16,11 @@ mark_as_advanced(VTK_MATERIALS_DIRS)
 include_directories("${VTK_SOURCE_DIR}/Common/Core"
   "${VTK_BINARY_DIR}/Common/Core")
 
-# Enable shared link forwarding support it needed.
-SET (ML_EXE_SUFFIX)
-SET (ML_EXE_INSTALL ${VTK_INSTALL_BIN_DIR})
-IF(BUILD_SHARED_LIBS AND CMAKE_SKIP_RPATH AND NOT WIN32)
-  SET (NEED_SHARED_FORWARD 1)
-  SET (ML_EXE_SUFFIX -real)
-  SET (ML_EXE_INSTALL ${VTK_INSTALL_LIB_DIR})
-  SET (ML_FORWARD_DIR_BUILD "${EXECUTABLE_OUTPUT_PATH}")
-  SET (ML_FORWARD_DIR_INSTALL "..${ML_EXE_INSTALL}")
-  SET (ML_FORWARD_PATH_BUILD "\"${ML_FORWARD_DIR_BUILD}\"")
-  SET (ML_FORWARD_PATH_INSTALL "\"${ML_FORWARD_DIR_INSTALL}\"")
-ENDIF(BUILD_SHARED_LIBS AND CMAKE_SKIP_RPATH AND NOT WIN32)
-
 IF(NOT CMAKE_CROSSCOMPILING)
-  ADD_EXECUTABLE(ProcessShader${ML_EXE_SUFFIX} ProcessShader.cxx)
-  TARGET_LINK_LIBRARIES(ProcessShader${ML_EXE_SUFFIX} vtksys)
-  EXPORT(TARGETS ProcessShader${ML_EXE_SUFFIX} FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
-  IF(COMPILE_TOOLS_TARGET)
-    ADD_DEPENDENCIES(${COMPILE_TOOLS_TARGET} ProcessShader${ML_EXE_SUFFIX})
-  ENDIF(COMPILE_TOOLS_TARGET)
-
-  # Add shared link forwarding executable if necessary.
-  IF (NEED_SHARED_FORWARD)
-    SET (ML_FORWARD_EXE ProcessShader${ML_EXE_SUFFIX})
-    CONFIGURE_FILE(
-      ${MaterialLibrary_SOURCE_DIR}/vtk-forward.c.in
-      ${MaterialLibrary_BINARY_DIR}/ProcessShader-forward.c
-      @ONLY IMMEDIATE)
-    ADD_EXECUTABLE(ProcessShader ${MaterialLibrary_BINARY_DIR}/ProcessShader-forward.c)
-    ADD_DEPENDENCIES(ProcessShader ProcessShader${ML_EXE_SUFFIX})
-    EXPORT(TARGETS ProcessShader FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
-    IF(COMPILE_TOOLS_TARGET)
-      ADD_DEPENDENCIES(${COMPILE_TOOLS_TARGET} ProcessShader)
-    ENDIF(COMPILE_TOOLS_TARGET)
-  ENDIF (NEED_SHARED_FORWARD)
+  ADD_EXECUTABLE(ProcessShader ProcessShader.cxx)
+  TARGET_LINK_LIBRARIES(ProcessShader vtksys)
+  vtk_compile_tools_target(ProcessShader)
 ENDIF(NOT CMAKE_CROSSCOMPILING)
-
 
 # Macro to obtain the relative path of a file.
 MACRO(GET_RELATIVE_PATH __path __file __result)

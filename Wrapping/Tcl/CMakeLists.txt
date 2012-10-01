@@ -1,5 +1,3 @@
-# this file is used directly from VTK/CMakeLists.txt, not from VTK/Wrapping/CMakeLists.txt
-
 # Defined local options to add to VTK Tcl interpreter
 #
 # Example of such options are:
@@ -60,12 +58,7 @@ get_property(VTK_TCL_WRAPPED GLOBAL PROPERTY VTK_TCL_WRAPPED)
 # Format the list in a way Tcl expects it
 unset(VTK_TCL_WRAPPED_MODULES)
 foreach(module ${VTK_TCL_WRAPPED})
-  string(REGEX REPLACE "^vtk" "" tcl_module ${module})
-  if("${tcl_module}" STREQUAL "RenderingContext2D")
-    set(tcl_module "RenderingContextIID")
-  elseif("${tcl_module}" STREQUAL "ViewsContext2D")
-    set(tcl_module "ViewsContextIID")
-  endif()
+  string(REGEX REPLACE "^vtk" "" tcl_module ${${module}_TCL_NAME})
   set(VTK_TCL_WRAPPED_MODULES "${VTK_TCL_WRAPPED_MODULES} ${tcl_module}")
 endforeach()
 
@@ -93,8 +86,17 @@ ENDIF (WIN32)
 
 find_package(TCL)
 
+# export the module information
+set(${vtk-module}_NO_HeaderTest 1)
+set(${vtk-module}_SYSTEM_INCLUDE_DIRS ${TCL_INCLUDE_PATH})
+vtk_module_export_info()
+
 include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${VTK_BINARY_DIR}/Common/Core
+  ${VTK_SOURCE_DIR}/Common/Core
+  ${VTK_BINARY_DIR}/Utilities/KWSys
   ${TCL_INCLUDE_PATH}
   )
 
@@ -107,7 +109,6 @@ endif(VTK_USE_TK)
 
 # Create the vtk Tcl wrapper executable.
 VTK_ADD_EXECUTABLE(vtk vtkTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
-
 
 IF(VTK_USE_CARBON)
   FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
@@ -128,12 +129,7 @@ if(BUILD_SHARED_LIBS)
   target_link_libraries(vtk vtkCommonCoreTCL)
 else()
   foreach(module ${VTK_TCL_WRAPPED})
-    if("${module}" STREQUAL "vtkRenderingContext2D")
-      set(module "vtkRenderingContextIID")
-    elseif("${module}" STREQUAL "vtkViewsContext2D")
-      set(module "vtkViewsContextIID")
-    endif()
-    target_link_libraries(vtk ${module}TCL)
+    target_link_libraries(vtk ${${module}_TCL_NAME}TCL)
   endforeach()
 endif()
 
@@ -164,59 +160,48 @@ elseif(VTK_INSTALL_RUNTIME)
 endif()
 
 # Create the pvtk Tcl wrapper executable with MPI support.
-IF (VTK_USE_PARALLEL)
-  IF (VTK_USE_MPI)
-    INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-    IF (MPI_LIBRARY)
-      SET(MPI_LIBRARIES ${MPI_LIBRARY})
-    ENDIF (MPI_LIBRARY)
-    IF (MPI_EXTRA_LIBRARY)
-      SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${MPI_EXTRA_LIBRARY}")
-    ENDIF (MPI_EXTRA_LIBRARY)
+if(vtkParallelMPI_ENABLED)
+  vtk_module_config(PVTK vtkParallelMPI)
+  include_directories(${PVTK_INCLUDE_DIRS})
 
-    VTK_ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
-    IF(VTK_USE_CARBON)
-      FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
-      IF(VTK_APPLE_RESOURCE)
-        ADD_CUSTOM_COMMAND(
-          SOURCE pvtk
-          COMMAND ${VTK_APPLE_RESOURCE}
-          ARGS Carbon.r -o ${VTK_EXECUTABLE_DIR}/pvtk
-          TARGET pvtk
-          )
-      ENDIF(VTK_APPLE_RESOURCE)
-    ENDIF(VTK_USE_CARBON)
-
-    TARGET_LINK_LIBRARIES (pvtk
-      ${MPI_LIBRARIES}
-    )
-
-    # Link to TCL static libraries
-    if(BUILD_SHARED_LIBS)
-      # vtkCommonCoreTCL is required even for shared builds
-      # to link the vtkTclUtil object - FIXME ??
-      target_link_libraries(vtk vtkCommonCoreTCL)
-    else()
-      foreach(module ${VTK_TCL_WRAPPED})
-        if("${module}" STREQUAL "vtkRenderingContext2D")
-          set(module "vtkRenderingContextIID")
-        elseif("${module}" STREQUAL "vtkViewsContext2D")
-          set(module "vtkViewsContextIID")
-        endif()
-        target_link_libraries(pvtk ${module}TCL)
-      endforeach()
-    endif()
-
-    IF(VTK_INSTALL_RUNTIME)
-      INSTALL(TARGETS pvtk
-        EXPORT ${VTK_INSTALL_EXPORT_NAME}
-        RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeExecutables # .exe, .dll
-        LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
-        ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
+  VTK_ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
+  IF(VTK_USE_CARBON)
+    FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
+    IF(VTK_APPLE_RESOURCE)
+      ADD_CUSTOM_COMMAND(
+        SOURCE pvtk
+        COMMAND ${VTK_APPLE_RESOURCE}
+        ARGS Carbon.r -o ${VTK_EXECUTABLE_DIR}/pvtk
+        TARGET pvtk
         )
-    ENDIF()
-  ENDIF (VTK_USE_MPI)
-ENDIF (VTK_USE_PARALLEL)
+    ENDIF(VTK_APPLE_RESOURCE)
+  ENDIF(VTK_USE_CARBON)
+
+  target_link_libraries(pvtk ${PVTK_LIBRARIES})
+  if(VTK_USE_TK)
+    target_link_libraries(pvtk ${VTK_TK_LIBRARIES})
+  endif(VTK_USE_TK)
+
+  # Link to TCL static libraries
+  if(BUILD_SHARED_LIBS)
+    # vtkCommonCoreTCL is required even for shared builds
+    # to link the vtkTclUtil object - FIXME ??
+    target_link_libraries(pvtk vtkCommonCoreTCL)
+  else()
+    foreach(module ${VTK_TCL_WRAPPED})
+      target_link_libraries(pvtk ${${module}_TCL_NAME}TCL)
+    endforeach()
+  endif()
+
+  IF(VTK_INSTALL_RUNTIME)
+    INSTALL(TARGETS pvtk
+      EXPORT ${VTK_INSTALL_EXPORT_NAME}
+      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeExecutables # .exe, .dll
+      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
+      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
+      )
+  ENDIF()
+endif()
 
 if(NOT VTK_INSTALL_NO_DOCUMENTATION)
   install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/README"
@@ -226,6 +211,12 @@ endif()
 if(NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtktcl.c"
     DESTINATION ${VTK_INSTALL_TCL_DIR}
+    COMPONENT Development)
+  install(FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtkTcl.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtkTk.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtkTclUtil.h"
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
     COMPONENT Development)
 endif()
 
@@ -237,13 +228,13 @@ set(VTK_TCL_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES})
 
 if(VTK_TCL_CONFIGURATION_TYPES)
   foreach(config ${VTK_TCL_CONFIGURATION_TYPES})
-    set(VTK_TCL_LIBRARY_DIR "${LIBRARY_OUTPUT_PATH}/${config}")
+    set(VTK_TCL_LIBRARY_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${config}")
     configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                    ${VTK_BINARY_DIR}/Wrapping/Tcl/${config}/pkgIndex.tcl
                    @ONLY IMMEDIATE)
   endforeach()
 else()
-  set(VTK_TCL_LIBRARY_DIR "${LIBRARY_OUTPUT_PATH}")
+  set(VTK_TCL_LIBRARY_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
   configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                  ${VTK_BINARY_DIR}/Wrapping/Tcl/pkgIndex.tcl
                  @ONLY IMMEDIATE)
@@ -288,15 +279,9 @@ if(NOT VTK_INSTALL_NO_RUNTIME)
 endif()
 
 # We must write out a file for each wrapped module to load the SO.
-foreach(module ${VTK_TCL_WRAPPED})
+foreach(mod ${VTK_TCL_WRAPPED})
+  set(module "${${mod}_TCL_NAME}")
   string(TOLOWER ${module} module_lc)
-  if(module_lc STREQUAL "vtkrenderingcontext2d")
-    set(module_lc "vtkrenderingcontextiid")
-    set(module "vtkRenderingContextIID")
-  elseif(module_lc STREQUAL "vtkviewscontext2d")
-    set(module_lc "vtkviewscontextiid")
-    set(module "vtkViewsContextIID")
-  endif()
   configure_file(vtkmodule.tcl.in
     "${VTK_TCL_HOME}/${module_lc}/${module_lc}.tcl" @ONLY IMMEDIATE)
   if(NOT VTK_INSTALL_NO_RUNTIME)
@@ -329,15 +314,10 @@ ENDIF()
 if(NOT BUILD_SHARED_LIBS)
   file(REMOVE ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_prototypes.h ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_packages.h)
   foreach(module ${VTK_TCL_WRAPPED})
-    if("${module}" STREQUAL "vtkRenderingContext2D")
-      set(module "vtkRenderingContextIID")
-    elseif("${module}" STREQUAL "vtkViewsContext2D")
-      set(module "vtkViewsContextIID")
-    endif()
-    string(TOLOWER ${module} module_lc)
+    string(TOLOWER ${${module}_TCL_NAME} module_lc)
     string(REGEX REPLACE "^vtk" "Vtk" module_lc ${module_lc})
     file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_prototypes.h "extern \"C\" int ${module_lc}tcl_Init(Tcl_Interp *interp);\n")
-    file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_packages.h "Tcl_StaticPackage(0, \"${module}Tcl\", ${module_lc}tcl_Init, NULL);\n")
+    file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_packages.h "Tcl_StaticPackage(0, \"${${module}_TCL_NAME}Tcl\", ${module_lc}tcl_Init, NULL);\n")
   endforeach()
 endif()
 

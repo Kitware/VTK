@@ -1,5 +1,62 @@
-# this file is used directly from VTK/CMakeLists.txt, not from VTK/Wrapping/CMakeLists.txt
-include_directories(${VTK_BINARY_DIR} ${VTK_BINARY_DIR}/Utilities)
+set(VTK_WRAP_PYTHON_FIND_LIBS ON)
+include(vtkWrapPython)
+include(GenerateExportHeader)
+include(vtkPythonWrapping)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h)
+
+set(WrappingPython_SRCS
+  vtkPythonArgs.cxx
+  vtkPythonCommand.cxx
+  vtkPythonOverload.cxx
+  vtkPythonUtil.cxx
+  PyVTKClass.cxx
+  PyVTKMutableObject.cxx
+  PyVTKObject.cxx
+  PyVTKSpecialObject.cxx
+  PyVTKTemplate.cxx
+  )
+
+set(WrappingPython_HDRS
+  vtkPython.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkWrappingPythonModule.h
+  )
+
+list(APPEND WrappingPython_SRCS ${WrappingPython_HDRS})
+
+set_source_files_properties(
+  ${WrappingPython_HDRS}
+  HEADER_FILE_ONLY
+  )
+
+include_directories(
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${VTK_SOURCE_DIR}/Common/Core
+  ${VTK_BINARY_DIR}/Common/Core
+  ${VTK_SOURCE_DIR}/Utilities
+  )
+
+# SIP directory will be searched before other python dirs
+SET(PYTHON_WRAPPING_INCLUDE_DIRS)
+if(VTK_WRAP_PYTHON_SIP)
+  list(APPEND PYTHON_WRAPPING_INCLUDE_DIRS "${SIP_INCLUDE_DIR}")
+endif()
+list(APPEND PYTHON_WRAPPING_INCLUDE_DIRS "${PYTHON_INCLUDE_PATH}")
+set(vtkWrappingPython_SYSTEM_INCLUDE_DIRS ${PYTHON_WRAPPING_INCLUDE_DIRS})
+
+set(${vtk-module}_NO_HeaderTest 1)
+
+set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})
+vtk_module_library(vtkWrappingPython ${WrappingPython_SRCS})
+get_property(output_name TARGET vtkWrappingPython PROPERTY OUTPUT_NAME)
+string(REPLACE "Python" "Python${XY}" output_name "${output_name}")
+set_property(TARGET vtkWrappingPython PROPERTY OUTPUT_NAME ${output_name})
+target_link_libraries(vtkWrappingPython
+  ${VTK_PYTHON_LIBRARIES})
+target_link_libraries(vtkWrappingPython
+  LINK_INTERFACE_LIBRARIES ${VTK_PYTHON_LIBRARIES})
 
 get_property(VTK_PYTHON_MODULES GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
 
@@ -34,7 +91,13 @@ if(UNIX)
   mark_as_advanced(PYTHON_UTIL_LIBRARY)
 endif()
 
-python_write_modules_header("${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h")
+# generate the header which initializes Python modules when BUILD_SHARED_LIBS is
+# OFF. py_module_dependencies will be set to the libraries we should link
+# against when we use the vtkpythonmodules.h file.
+vtk_write_python_modules_header_for_wrapped_modules(
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h"
+  py_module_dependencies)
+
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 # create the VTK/Python  executable
@@ -56,17 +119,15 @@ endif()
 
 if(APPLE)
   if(VTK_USE_CARBON AND VTK_APPLE_RESOURCE)
+    get_target_property(
+      VTKPYTHON_RUNTIME_DIR vtkpython RUNTIME_OUTPUT_DIRECTORY)
     add_custom_command(
       TARGET vtkpython POST_BUILD
-      COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o ${VTK_EXECUTABLE_DIR}/vtkpython
+      COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o ${VTKPYTHON_RUNTIME_DIR}/vtkpython
       )
   endif()
 
-  if(VTK_USE_MATLAB_MEX)
-    set(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
-  else()
-   set(VTKPYTHON_LINK_FLAGS "-flat_namespace -undefined suppress -u _PyMac_Error")
-  endif()
+  set(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
 endif()
 
 # Link against all the kit wrappers.
@@ -88,11 +149,7 @@ if(PYTHON_UTIL_LIBRARY)
   set(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${PYTHON_UTIL_LIBRARY})
 endif()
 
-# The PYTHON_ADD_MODULE macro stores the list of static modules in a global property
-get_property(PY_STATIC_MODULES_LIST GLOBAL PROPERTY PY_STATIC_MODULES_LIST)
-if(PY_STATIC_MODULES_LIST)
-  set(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${PY_STATIC_MODULES_LIST})
-endif(PY_STATIC_MODULES_LIST)
+set(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${py_module_dependencies})
 
 # Link to rt to prevent undefined symbol 'fdatasync'
 IF(CMAKE_SYSTEM MATCHES "SunOS.*" AND NOT CMAKE_COMPILER_IS_GNUCXX)
@@ -130,16 +187,9 @@ SET(PVTKPYTHON_EXECUTABLE)
 # Create the pvtkpython Python wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL AND VTK_USE_MPI)
   INCLUDE_DIRECTORIES("${MPI_INCLUDE_PATH}")
-  IF (MPI_LIBRARY)
-    SET(MPI_LIBRARIES ${MPI_LIBRARY})
-  ENDIF (MPI_LIBRARY)
-  IF (MPI_EXTRA_LIBRARY)
-    SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${MPI_EXTRA_LIBRARY}")
-  ENDIF (MPI_EXTRA_LIBRARY)
   IF (VTK_USE_PARALLEL_BGL)
     SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${Boost_LIBRARIES}")
   ENDIF (VTK_USE_PARALLEL_BGL)
-
 
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")

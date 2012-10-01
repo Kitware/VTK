@@ -18,6 +18,11 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestPieChartActor.cxx
   TestPolarAxes.cxx
   TestSpiderPlotActor.cxx
+  TestCubeAxesOrientedBoundingBox.cxx
+  TestCubeAxesIntersectionPoint.cxx
+  TestCubeAxesInnerGridAll.cxx
+  TestCubeAxesInnerGridClosest.cxx
+  TestCubeAxesInnerGridFurthest.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )

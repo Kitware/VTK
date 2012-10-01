@@ -52,19 +52,21 @@ void vtkInputStream::EndReading()
 }
 
 //----------------------------------------------------------------------------
-int vtkInputStream::Seek(unsigned long offset)
+int vtkInputStream::Seek(vtkTypeInt64 offset)
 {
-  return (this->Stream->seekg(this->StreamStartPosition+offset)? 1:0);
+  std::streamoff off =
+    static_cast<std::streamoff>(this->StreamStartPosition+offset);
+  return (this->Stream->seekg(off, std::ios::beg)? 1:0);
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkInputStream::Read(unsigned char* data, unsigned long length)
+size_t vtkInputStream::Read(void* data, size_t length)
 {
-  return this->Read(reinterpret_cast<char*>(data), length);
+  return this->ReadStream(static_cast<char*>(data), length);
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkInputStream::Read(char* data, unsigned long length)
+size_t vtkInputStream::ReadStream(char* data, size_t length)
 {
   this->Stream->read(data, length);
   return this->Stream->gcount();

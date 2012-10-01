@@ -33,10 +33,10 @@ try:
 except ImportError:
     try:
         from PySide import QtCore, QtGui
-    except ImportError as err:
+    except ImportError:
         raise ImportError("Cannot load either PyQt or PySide")
-import vtk
 
+import vtk
 
 class QVTKRenderWindowInteractor(QtGui.QWidget):
 
@@ -127,7 +127,6 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         self._ActiveButton = QtCore.Qt.NoButton
 
         # private attributes
-        self.__oldFocus = None
         self.__saveX = 0
         self.__saveY = 0
         self.__saveModifiers = QtCore.Qt.NoModifier
@@ -182,6 +181,13 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         self._Iren.GetRenderWindow().AddObserver('CursorChangedEvent',
                                                  self.CursorChangedEvent)
 
+        #Create a hidden child widget and connect its destroyed signal to its
+        #parent ``Finalize`` slot. The hidden children will be destroyed before
+        #its parent thus allowing cleanup of VTK elements.
+        self._hidden = QtGui.QWidget(self)
+        self._hidden.hide()
+        self.connect(self._hidden, QtCore.SIGNAL('destroyed()'), self.Finalize)
+
     def __getattr__(self, attr):
         """Makes the object behave like a vtkGenericRenderWindowInteractor"""
         if attr == '__vtk__':
@@ -191,6 +197,12 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         else:
             raise AttributeError, self.__class__.__name__ + \
                   " has no attribute named " + attr
+
+    def Finalize(self):
+        '''
+        Call internal cleanup method on VTK objects
+        '''
+        self._RenderWindow.Finalize()
 
     def CreateTimer(self, obj, evt):
         self._Timer.start(10)
@@ -218,6 +230,9 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         vtk_cursor = self._Iren.GetRenderWindow().GetCurrentCursor()
         qt_cursor = self._CURSOR_MAP.get(vtk_cursor, QtCore.Qt.ArrowCursor)
         self.setCursor(qt_cursor)
+
+    def closeEvent(self, evt):
+        self.Finalize()
 
     def sizeHint(self):
         return QtCore.QSize(400, 400)
@@ -253,20 +268,12 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         return ctrl, shift
 
     def enterEvent(self, ev):
-        if not self.hasFocus():
-            self.__oldFocus = self.focusWidget()
-            self.setFocus()
-
         ctrl, shift = self._GetCtrlShift(ev)
         self._Iren.SetEventInformationFlipY(self.__saveX, self.__saveY,
                                             ctrl, shift, chr(0), 0, None)
         self._Iren.EnterEvent()
 
     def leaveEvent(self, ev):
-        if self.__saveButtons == QtCore.Qt.NoButton and self.__oldFocus:
-            self.__oldFocus.setFocus()
-            self.__oldFocus = None
-
         ctrl, shift = self._GetCtrlShift(ev)
         self._Iren.SetEventInformationFlipY(self.__saveX, self.__saveY,
                                             ctrl, shift, chr(0), 0, None)

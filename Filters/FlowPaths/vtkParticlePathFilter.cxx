@@ -1,0 +1,150 @@
+/*=========================================================================
+
+Program:   Visualization Toolkit
+Module:    vtkParticlePathFilter.cxx
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#include "vtkParticlePathFilter.h"
+#include "vtkObjectFactory.h"
+#include "vtkSetGet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkCell.h"
+#include "vtkCellArray.h"
+#include "vtkPointData.h"
+#include "vtkIntArray.h"
+#include "vtkSmartPointer.h"
+#include "vtkFloatArray.h"
+
+#include <vector>
+
+vtkObjectFactoryNewMacro(vtkParticlePathFilter)
+
+void ParticlePathFilterInternal::Initialize(vtkParticleTracerBase* filter)
+{
+  this->Filter = filter;
+  this->Filter->SetForceReinjectionEveryNSteps(0);
+  this->Filter->SetIgnorePipelineTime(1);
+}
+
+void ParticlePathFilterInternal::Reset()
+{
+  this->Filter->vtkParticleTracerBase::ResetCache();
+  this->Paths.clear();
+}
+
+int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
+{
+  if(!this->Filter->Output)
+    {
+    this->Filter->Output = vtkSmartPointer<vtkPolyData>::New();
+    this->Filter->Output->SetPoints(vtkSmartPointer<vtkPoints>::New());
+    this->Filter->Output->GetPointData()->CopyAllocate(particles->GetPointData());
+    }
+  vtkPoints* pts = particles->GetPoints();
+  if(!pts || pts->GetNumberOfPoints()==0)
+    {
+    return 0;
+    }
+
+  vtkPointData* outPd = this->Filter->Output->GetPointData();
+  vtkPoints* outPoints = this->Filter->Output->GetPoints();
+
+  //Get the input arrays
+  vtkPointData* pd = particles->GetPointData();
+  vtkIntArray* particleIds = vtkIntArray::SafeDownCast(pd->GetArray("ParticleId"));
+
+  //Append the input arrays to the output arrays
+  int begin = outPoints->GetNumberOfPoints();
+  for(int i=0; i<pts->GetNumberOfPoints(); i++)
+    {
+    outPoints->InsertNextPoint(pts->GetPoint(i));
+    }
+  vtkDataSetAttributes::FieldList ptList(1);
+  ptList.InitializeFieldList(pd);
+  for(int i=0, j = begin; i<pts->GetNumberOfPoints(); i++,j++)
+    {
+    outPd->CopyData(ptList,pd,0,i,j);
+    }
+
+  //Augment the paths
+  for(vtkIdType i=0; i<pts->GetNumberOfPoints(); i++)
+    {
+    int outId =  i+begin;
+
+    int pid = particleIds->GetValue(i);
+    for(int j= static_cast<int>(this->Paths.size()); j<=pid; j++)
+      {
+      this->Paths.push_back( vtkSmartPointer<vtkIdList>::New());
+      }
+
+    vtkIdList* path = this->Paths[pid];
+
+    if(path->GetNumberOfIds()>0)
+      {
+      vtkFloatArray* outParticleAge = vtkFloatArray::SafeDownCast(outPd->GetArray("ParticleAge"));
+      if(outParticleAge->GetValue(outId) < outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1)))
+        {
+        vtkOStrStreamWrapper vtkmsg;
+        vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__
+               << "\n" << "): " <<" new particles have wrong ages"<< "\n\n";
+        }
+      }
+    path->InsertNextId(outId);
+    }
+
+  return 1;
+}
+void ParticlePathFilterInternal::Finalize()
+{
+  this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
+  vtkCellArray* outLines = this->Filter->Output->GetLines();
+  if(!outLines)
+    {
+    vtkOStrStreamWrapper vtkmsg;
+    vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__
+           << "\n" << "): " <<" no lines in the output"<< "\n\n";
+    return;
+    }
+  for(unsigned int i=0; i<this->Paths.size(); i++)
+    {
+    if(this->Paths[i]->GetNumberOfIds()>1)
+      {
+      outLines->InsertNextCell(this->Paths[i]);
+      }
+    }
+}
+
+vtkParticlePathFilter::vtkParticlePathFilter()
+{
+  this->It.Initialize(this);
+}
+
+void vtkParticlePathFilter::ResetCache()
+{
+  Superclass::ResetCache();
+  this->It.Reset();
+}
+
+void vtkParticlePathFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  Superclass::PrintSelf(os,indent);
+}
+
+int vtkParticlePathFilter::OutputParticles(vtkPolyData* particles)
+{
+  return this->It.OutputParticles(particles);
+}
+
+void vtkParticlePathFilter::Finalize()
+{
+  this->It.Finalize();
+}

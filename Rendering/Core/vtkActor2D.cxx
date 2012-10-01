@@ -18,6 +18,8 @@
 #include "vtkMapper2D.h"
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 
 vtkStandardNewMacro(vtkActor2D);
 
@@ -84,6 +86,23 @@ void vtkActor2D::ReleaseGraphicsResources(vtkWindow *win)
 int vtkActor2D::RenderOverlay(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkActor2D::RenderOverlay");
+
+  // Is the viewport's RenderWindow capturing GL2PS-special prop, and does this
+  // actor represent text or mathtext?
+  if (vtkRenderer *renderer = vtkRenderer::SafeDownCast(viewport))
+    {
+    if (vtkRenderWindow *renderWindow = renderer->GetRenderWindow())
+      {
+      if (renderWindow->GetCapturingGL2PSSpecialProps())
+        {
+        if (this->IsA("vtkTextActor") || this->IsA("vtkMathTextActor") ||
+            (this->Mapper && this->Mapper->IsA("vtkTextMapper")))
+          {
+          renderer->CaptureGL2PSSpecialProp(this);
+          }
+        }
+      }
+    }
 
   if (!this->Property)
     {

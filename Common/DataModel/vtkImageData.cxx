@@ -137,22 +137,6 @@ void vtkImageData::PrepareForNewData()
     }
 }
 
-
-//----------------------------------------------------------------------------
-
-// The input data object must be of type vtkImageData or a subclass!
-void vtkImageData::CopyTypeSpecificInformation( vtkDataObject *data )
-{
-  vtkImageData *image = static_cast<vtkImageData *>(data);
-
-  // Now do the specific stuff
-  this->SetOrigin( image->GetOrigin() );
-  this->SetSpacing( image->GetSpacing() );
-  //this->SetScalarType( image->GetScalarType() );
-  //this->SetNumberOfScalarComponents(
-  //image->GetNumberOfScalarComponents() );
-}
-
 //----------------------------------------------------------------------------
 template <class T>
 unsigned long vtkImageDataGetTypeSize(T*)
@@ -249,6 +233,11 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
       kMin = cellId / ((dims[0] - 1) * (dims[1] - 1));
       kMax = kMin + 1;
       cell = this->Voxel;
+      break;
+
+    default:
+      vtkErrorMacro("Invalid DataDescription.");
+      return NULL;
       break;
     }
 
@@ -935,17 +924,14 @@ void vtkImageData::SetDimensions(const int dim[3])
 // The voxel is specified by the array ijk[3], and the parametric coordinates
 // in the cell are specified with pcoords[3]. The function returns a 0 if the
 // point x is outside of the volume, and a 1 if inside the volume.
-int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
-                                               double pcoords[3])
+int vtkImageData::ComputeStructuredCoordinates( const double x[3], int ijk[3], double pcoords[3],
+                                                const int* extent,
+                                                const double* spacing,
+                                                const double* origin,
+                                                const double* bounds)
 {
   // tolerance is needed for 2D data (this is squared tolerance)
   const double tol2 = 1e-12;
-
-  const int* extent = this->Extent;
-  const double* spacing = this->Spacing;
-  const double* origin = this->Origin;
-  const double* bounds = NULL;
-
   //
   //  Compute the ijk location
   //
@@ -965,10 +951,6 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
     // check if data is one pixel thick
     if ( minExt == maxExt )
       {
-      if (!bounds)
-        {
-        bounds = this->GetBounds();
-        }
       double dist = x[i] - bounds[2*i];
       if (dist*dist <= spacing[i]*spacing[i]*tol2)
         {
@@ -981,10 +963,6 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
     // low boundary check
     else if ( ijk[i] < minExt)
       {
-      if (!bounds)
-        {
-        bounds = this->GetBounds();
-        }
       if ( (spacing[i] >= 0 && x[i] >= bounds[i*2]) ||
            (spacing[i] < 0 && x[i] <= bounds[i*2 + 1]) )
         {
@@ -997,10 +975,6 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
     // high boundary check
     else if ( ijk[i] >= maxExt )
       {
-      if (!bounds)
-        {
-        bounds = this->GetBounds();
-        }
       if ( (spacing[i] >= 0 && x[i] <= bounds[i*2 + 1]) ||
            (spacing[i] < 0 && x[i] >= bounds[i*2]) )
         {
@@ -1024,6 +998,12 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
   return isInBounds;
 }
 
+//----------------------------------------------------------------------------
+int vtkImageData::ComputeStructuredCoordinates(const double x[3], int ijk[3],
+                                               double pcoords[3])
+{
+  return ComputeStructuredCoordinates(x,ijk,pcoords,this->Extent, this->Spacing, this->Origin, this->GetBounds());
+}
 
 //----------------------------------------------------------------------------
 void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)

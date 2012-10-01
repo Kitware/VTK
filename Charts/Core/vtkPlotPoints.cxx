@@ -23,17 +23,13 @@
 #include "vtkContextMapper2D.h"
 #include "vtkPoints2D.h"
 #include "vtkTable.h"
-#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkLookupTable.h"
-#include "vtkDelaunay2D.h"
-#include "vtkPointSet.h"
-#include "vtkPolygon.h"
-#include "vtkTriangle.h"
 
 #include <vector>
 #include <algorithm>
@@ -63,7 +59,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotPoints);
+vtkStandardNewMacro(vtkPlotPoints)
 
 //-----------------------------------------------------------------------------
 vtkPlotPoints::vtkPlotPoints()
@@ -170,6 +166,10 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
       }
     }
 
+  float *f = vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
+  int n = static_cast<int>(this->Points->GetData()->GetNumberOfTuples());
+
+
   // If there is a marker style, then draw the marker for each point too
   if (this->MarkerStyle)
     {
@@ -183,34 +183,34 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
       }
     else
       {
-      painter->DrawPointSprites(this->Marker, this->Points);
+      painter->DrawPointSprites(this->Marker, f, n);
       }
     }
 
   // Now add some decorations for our selected points...
-  if (this->Selection)
+  if (this->Selection && this->Selection->GetNumberOfTuples())
     {
-    vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
-    for (int i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
+    if (this->Selection->GetMTime() > this->SelectedPoints->GetMTime() ||
+        this->GetMTime() > this->SelectedPoints->GetMTime())
       {
-      this->GeneraterMarker(vtkContext2D::FloatToInt(width+2.7), true);
-
-      painter->GetPen()->SetColor(255, 50, 0, 150);
-      painter->GetPen()->SetWidth(width+2.7);
-
-      vtkIdType id = 0;
-      this->Selection->GetTupleValue(i, &id);
-      if (id < this->Points->GetNumberOfPoints())
+      int nSelected(static_cast<int>(this->Selection->GetNumberOfTuples()));
+      this->SelectedPoints->SetNumberOfComponents(2);
+      this->SelectedPoints->SetNumberOfTuples(nSelected);
+      float *selectedPtr = static_cast<float *>(this->SelectedPoints->GetVoidPointer(0));
+      for (int i = 0; i < nSelected; ++i)
         {
-        double *point = this->Points->GetPoint(id);
-        float p[] = { point[0], point[1] };
-        painter->DrawPointSprites(this->HighlightMarker, p, 1);
+        *(selectedPtr++) = f[2 * this->Selection->GetValue(i)];
+        *(selectedPtr++) = f[2 * this->Selection->GetValue(i) + 1];
         }
       }
-    }
-  else
-    {
-    vtkDebugMacro("No selection set.");
+    vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
+    this->GeneraterMarker(vtkContext2D::FloatToInt(width + 2.7), true);
+    painter->GetPen()->SetColor(255, 50, 0, 150);
+    painter->GetPen()->SetWidth(width + 2.7);
+
+    painter->DrawPointSprites(this->HighlightMarker,
+                              static_cast<float *>(this->SelectedPoints->GetVoidPointer(0)),
+                              this->SelectedPoints->GetNumberOfTuples());
     }
 
   return true;
@@ -232,7 +232,7 @@ bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
 
-    float point[] = { rect[0]+0.5*rect[2], rect[1]+0.5*rect[3] };
+    float point[] = { rect[0]+ 0.5f * rect[2], rect[1] + 0.5f * rect[3] };
     painter->DrawPointSprites(this->Marker, point, 1);
     }
   return true;
@@ -266,7 +266,6 @@ void vtkPlotPoints::GeneraterMarker(int width, bool highlight)
     if (!this->HighlightMarker)
       {
       this->HighlightMarker = vtkImageData::New();
-      data = this->HighlightMarker;
       }
     else
       {
@@ -576,6 +575,7 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
     {
     ptr[i] = selected[i];
     }
+  this->Selection->Modified();
   return this->Selection->GetNumberOfTuples() > 0;
 }
 
@@ -599,24 +599,6 @@ bool vtkPlotPoints::SelectPointsInPolygon(const vtkContextPolygon &polygon)
     this->Selection->SetNumberOfValues(0);
     }
 
-  // create delaunay triangulation of the input polygon
-  vtkNew<vtkPoints> points;
-  for(vtkIdType i = 0; i < polygon.GetNumberOfPoints(); i++)
-    {
-    const vtkVector2f point = polygon.GetPoint(i);
-    points->InsertNextPoint(point[0], point[1], 0.0);
-    }
-
-  vtkNew<vtkPolyData> inputPoints;
-  inputPoints->SetPoints(points.GetPointer());
-
-  vtkNew<vtkDelaunay2D> triangulator;
-  triangulator->SetInputData(inputPoints.GetPointer());
-  triangulator->Update();
-
-  // get triangulation
-  vtkPolyData *polyData = triangulator->GetOutput();
-
   for(vtkIdType pointId = 0;
       pointId < this->Points->GetNumberOfPoints();
       pointId++)
@@ -624,27 +606,10 @@ bool vtkPlotPoints::SelectPointsInPolygon(const vtkContextPolygon &polygon)
     // get point location
     double point[3];
     this->Points->GetPoint(pointId, point);
-    point[2] = 0;
 
-    for(vtkIdType cellId = 0; cellId < polyData->GetNumberOfCells(); cellId++)
+    if (polygon.Contains(vtkVector2f(point[0], point[1])))
       {
-      vtkCell *cell = polyData->GetCell(cellId);
-      vtkTriangle *triangle = vtkTriangle::SafeDownCast(cell);
-      if(triangle)
-        {
-        // get triangle point locations
-        double p1[3], p2[3], p3[3];
-        polyData->GetPoint(triangle->GetPointId(0), p1);
-        polyData->GetPoint(triangle->GetPointId(1), p2);
-        polyData->GetPoint(triangle->GetPointId(2), p3);
-
-        // check if the triangle contains point
-        if(vtkTriangle::PointInTriangle(point, p1, p2, p3, 1e-10))
-          {
-          this->Selection->InsertNextValue(pointId);
-          break;
-          }
-        }
+      this->Selection->InsertNextValue(pointId);
       }
     }
 

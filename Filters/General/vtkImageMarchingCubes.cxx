@@ -90,9 +90,6 @@ int vtkImageMarchingCubes::RequestData(
     vtkDemandDrivenPipeline::SafeDownCast(
       vtkExecutive::PRODUCER()->GetExecutive(inInfo));
 
-  int extent[8], estimatedSize;
-  int temp, zMin, zMax, chunkMin, chunkMax;
-  int minSlicesPerChunk, chunkOverlap;
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
@@ -102,6 +99,7 @@ int vtkImageMarchingCubes::RequestData(
   this->NeedGradients = this->ComputeGradients || this->ComputeNormals;
 
   // Determine the number of slices per request from input memory limit.
+  int minSlicesPerChunk, chunkOverlap;
   if (this->NeedGradients)
     {
     minSlicesPerChunk = 4;
@@ -114,6 +112,7 @@ int vtkImageMarchingCubes::RequestData(
     }
   inputExec->UpdateInformation();
   // Each data type requires a different amount of memory.
+  int temp;
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
@@ -124,6 +123,7 @@ int vtkImageMarchingCubes::RequestData(
       return 1;
     }
 
+  int extent[8];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   // multiply by the area of each slice
   temp *= extent[1] - extent[0] + 1;
@@ -143,9 +143,9 @@ int vtkImageMarchingCubes::RequestData(
 
   // Create the points, scalars, normals and Cell arrays for the output.
   // estimate the number of points from the volume dimensions
-  estimatedSize = (int) pow ((double) ((extent[1]-extent[0]+1) *
-                                       (extent[3]-extent[2]+1) *
-                                       (extent[5]-extent[4]+1)), 0.75);
+  int estimatedSize = (int) pow ((double) ((extent[1]-extent[0]+1) *
+                                           (extent[3]-extent[2]+1) *
+                                           (extent[5]-extent[4]+1)), 0.75);
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
@@ -178,11 +178,9 @@ int vtkImageMarchingCubes::RequestData(
   this->InitializeLocator(extent[0], extent[1], extent[2], extent[3]);
 
   // Loop through the chunks running marching cubes on each one
-  zMin = extent[4];
-  zMax = extent[5];
-  // to avoid warnings
-  chunkMax = zMin + this->NumberOfSlicesPerChunk;
-  for(chunkMin = zMin; chunkMin < zMax; chunkMin = chunkMax)
+  int zMin = extent[4];
+  int zMax = extent[5];
+  for(int chunkMin = zMin, chunkMax; chunkMin < zMax; chunkMin = chunkMax)
     {
     // Get the chunk from the input
     chunkMax = chunkMin + this->NumberOfSlicesPerChunk;

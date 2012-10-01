@@ -28,7 +28,7 @@
 #include "vtkContextItem.h"
 #include "vtkStdString.h"     // Needed to hold TooltipLabelFormat ivar
 #include "vtkSmartPointer.h"  // Needed to hold SP ivars
-#include "vtkContextPolygon.h"
+#include "vtkContextPolygon.h" // For vtkContextPolygon
 
 class vtkVariant;
 class vtkTable;

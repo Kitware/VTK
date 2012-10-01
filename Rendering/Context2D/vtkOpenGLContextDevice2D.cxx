@@ -15,6 +15,7 @@
 
 #include "vtkOpenGLContextDevice2D.h"
 
+#include "vtkMathTextUtilities.h"
 #include "vtkFreeTypeStringToImage.h"
 
 #include "vtkVector.h"
@@ -125,6 +126,9 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
     glEnable(GL_POLYGON_SMOOTH);
     }
 
+  // Make sure we are on the default texture setting
+  glBindTexture(GL_TEXTURE_2D, 0);
+
   this->InRender = true;
 }
 
@@ -227,7 +231,7 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   assert("n must be greater than 0" && n > 0);
 
   this->SetLineType(this->Pen->GetLineType());
-  glLineWidth(this->Pen->GetWidth());
+  this->SetLineWidth(this->Pen->GetWidth());
 
   if (colors)
     {
@@ -254,7 +258,7 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
 {
   if (f && n > 0)
     {
-    glPointSize(this->Pen->GetWidth());
+    this->SetPointSize(this->Pen->GetWidth());
     glEnableClientState(GL_VERTEX_ARRAY);
     if (c && nc)
       {
@@ -726,7 +730,13 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
 void vtkOpenGLContextDevice2D::DrawString(float *point,
                                           const vtkStdString &string)
 {
-  float p[] = { std::floor(point[0]), std::floor(point[1]) };
+  GLfloat mv[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+  float xScale = mv[0];
+  float yScale = mv[5];
+
+  float p[] = { std::floor(point[0] * xScale) / xScale,
+                std::floor(point[1] * yScale) / yScale };
 
   // Cache rendered text strings
   vtkTextureImageCache<TextPropertyKey>::CacheData cache =
@@ -743,8 +753,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   vtkTexture* texture = cache.Texture;
   texture->Render(this->Renderer);
 
-  float width = static_cast<float>(image->GetOrigin()[0]);
-  float height = static_cast<float>(image->GetOrigin()[1]);
+  float width = static_cast<float>(image->GetOrigin()[0]) / xScale;
+  float height = static_cast<float>(image->GetOrigin()[1]) / yScale;
 
   float xw = static_cast<float>(image->GetSpacing()[0]);
   float xh = static_cast<float>(image->GetSpacing()[1]);
@@ -779,10 +789,24 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
                                                    float bounds[4])
 {
   vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string);
+  // Check for invalid bounding box
+  if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
+      box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)
+    {
+    bounds[0] = static_cast<float>(0);
+    bounds[1] = static_cast<float>(0);
+    bounds[2] = static_cast<float>(0);
+    bounds[3] = static_cast<float>(0);
+    return;
+    }
+  GLfloat mv[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+  float xScale = mv[0];
+  float yScale = mv[5];
   bounds[0] = static_cast<float>(0);
   bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.X());
-  bounds[3] = static_cast<float>(box.Y());
+  bounds[2] = static_cast<float>(box.X() / xScale);
+  bounds[3] = static_cast<float>(box.Y() / yScale);
 }
 
 //-----------------------------------------------------------------------------
@@ -806,10 +830,85 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &strin
                                                    float bounds[4])
 {
   vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string);
+  // Check for invalid bounding box
+  if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
+      box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)
+    {
+    bounds[0] = static_cast<float>(0);
+    bounds[1] = static_cast<float>(0);
+    bounds[2] = static_cast<float>(0);
+    bounds[3] = static_cast<float>(0);
+    return;
+    }
+  GLfloat mv[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+  float xScale = mv[0];
+  float yScale = mv[5];
   bounds[0] = static_cast<float>(0);
   bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.X());
-  bounds[3] = static_cast<float>(box.Y());
+  bounds[2] = static_cast<float>(box.X() / xScale);
+  bounds[3] = static_cast<float>(box.Y() / yScale);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
+                                                  const vtkStdString &string)
+{
+  vtkMathTextUtilities *mathText = vtkMathTextUtilities::GetInstance();
+  if (!mathText)
+    {
+    vtkWarningMacro(<<"MathText is not available to parse string "
+                    << string.c_str() << ". Install matplotlib and enable "
+                    "python to use MathText.");
+    return;
+    }
+
+  float p[] = { std::floor(point[0]), std::floor(point[1]) };
+
+  // Cache rendered text strings
+  vtkTextureImageCache<TextPropertyKey>::CacheData cache =
+    this->Storage->MathTextTextureCache.GetCacheData(
+      TextPropertyKey(this->TextProp, string));
+  vtkImageData* image = cache.ImageData;
+  if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
+    {
+    if (!mathText->RenderString(string.c_str(), image, this->TextProp,
+                                this->RenderWindow->GetDPI()))
+      {
+      return;
+      }
+    }
+
+  vtkTexture* texture = cache.Texture;
+  texture->Render(this->Renderer);
+
+  int *dims = image->GetDimensions();
+  float width = static_cast<float>(dims[0]);
+  float height = static_cast<float>(dims[1]);
+
+  this->AlignText(this->TextProp->GetOrientation(), width, height, p);
+
+  float points[] = { p[0]        , p[1],
+                     p[0] + width, p[1],
+                     p[0] + width, p[1] + height,
+                     p[0]        , p[1] + height };
+
+  float texCoord[] = { 0.0f, 0.0f,
+                       1.0f, 0.0f,
+                       1.0f, 1.0f,
+                       0.0f, 1.0f };
+
+  glColor4ub(255, 255, 255, 255);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, points);
+  glTexCoordPointer(2, GL_FLOAT, 0, texCoord);
+  glDrawArrays(GL_QUADS, 0, 4);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+
+  texture->PostRender(this->Renderer);
+  glDisable(GL_TEXTURE_2D);
 }
 
 //-----------------------------------------------------------------------------
@@ -1129,6 +1228,7 @@ void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
     this->Storage->SpriteTexture->ReleaseGraphicsResources(window);
     }
   this->Storage->TextTextureCache.ReleaseGraphicsResources(window);
+  this->Storage->MathTextTextureCache.ReleaseGraphicsResources(window);
 }
 
 //----------------------------------------------------------------------------

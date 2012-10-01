@@ -138,10 +138,6 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   tp->Delete();
   tp = 0;
 
-  vtkStreamingDemandDrivenPipeline* sddp =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(
-      subFilter->GetExecutive());
-
   vtkDebugMacro(<< "Preparing subfilter to extract from dataset");
   //pass all required information to the helper filter
   int piece = -1;
@@ -154,20 +150,14 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     npieces = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-    if (sddp)
-      {
-      sddp->SetUpdateExtent(0, piece, npieces, 0);
-      }
+    subFilter->SetUpdateExtent(0, piece, npieces, 0);
     }
   if (outInfo->Has(
         vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
     {
     uExtent = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-    if (sddp)
-      {
-      sddp->SetUpdateExtent(0, uExtent);
-      }
+    subFilter->SetUpdateExtent(0, uExtent);
     }
 
   subFilter->Update();

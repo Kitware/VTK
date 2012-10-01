@@ -47,7 +47,11 @@ int LS_DYNA_STAT(const char* fname, struct stat64& s)
 int LS_DYNA_STAT(const char* fname, struct __stat64& s)
 {
   //windows
+#if defined(_MSC_VER) && _MSC_VER < 1400
+  return _stat64(fname, &s);
+#else
   return __stat64(fname, &s);
+#endif
 }
 #endif
 

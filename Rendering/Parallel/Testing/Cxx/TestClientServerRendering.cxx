@@ -14,6 +14,7 @@
 =========================================================================*/
 // Tests client-server rendering using the vtkClientServerCompositePass.
 
+#include "vtkObjectFactory.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCameraPass.h"
@@ -57,7 +58,7 @@ class MyProcess : public vtkProcess
 {
 public:
   static MyProcess *New();
-  vtkTypeRevisionMacro(MyProcess, vtkProcess);
+  vtkTypeMacro(MyProcess, vtkProcess);
 
   bool IsServer;
   vtkSetMacro(ImageReductionFactor, int);
@@ -75,7 +76,6 @@ protected:
   int ImageReductionFactor;
 };
 
-vtkCxxRevisionMacro(MyProcess, "$Revision$");
 vtkStandardNewMacro(MyProcess);
 
 //-----------------------------------------------------------------------------

@@ -1,1 +1,1 @@
-vtk_module_third_party(GL2PS NO_LIBRARIES)
+vtk_module_third_party(GL2PS)

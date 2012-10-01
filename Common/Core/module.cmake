@@ -1,4 +1,6 @@
 vtk_module(vtkCommonCore
+  GROUPS
+    StandAlone
   DEPENDS
     vtksys
   TEST_DEPENDS

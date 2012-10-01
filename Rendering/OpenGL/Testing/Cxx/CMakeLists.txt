@@ -40,6 +40,7 @@ SET(RenderingTestsWithArguments
   TestImageSliceMapperOrient3D.cxx
   TestImageSliceMapperInterpolation.cxx
   TestImageStack.cxx
+  TestInteractorStyleImageProperty.cxx
   TestInteractorTimers.cxx
   TestLabelPlacer.cxx
   TestLabelPlacer2D.cxx
@@ -90,7 +91,7 @@ if(VTK_DATA_ROOT)
     TestMultiTexturing.cxx
     TestMultiTexturingTransform.cxx
     TestGlyph3DMapperArrow.cxx
-    #TestScalarBar.cxx
+    TestScalarBar.cxx
     TestScenePicker.cxx
     TestTextureRGBA.cxx
     TestTextureRGBADepthPeeling.cxx
@@ -189,6 +190,7 @@ foreach(exe
   add_executable(${exe} ${exe}.cxx)
   target_link_libraries(${exe}
     vtkRenderingOpenGL
+    vtkRenderingFreeTypeOpenGL
     vtkInteractionStyle
     vtkImagingSources
     vtkImagingGeneral

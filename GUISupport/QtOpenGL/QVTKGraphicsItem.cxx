@@ -59,6 +59,7 @@ void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 {
   if(mWin)
   {
+    mWin->SetMapped(0);
     mConnect->Disconnect(mWin, vtkCommand::StartEvent, this, SLOT(Start()));
     mConnect->Disconnect(mWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
     mConnect->Disconnect(mWin, vtkCommand::EndEvent, this, SLOT(End()));
@@ -74,6 +75,7 @@ void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 
   if(mWin)
   {
+    mWin->SetMapped(1);
     mWin->SetDoubleBuffer(0);
     mWin->SetFrontBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
     mWin->SetFrontLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
@@ -231,6 +233,8 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
   glTexCoord2i(0,0);
   glVertex2f(r.left(),r.bottom());
   glEnd();
+
+  glBindTexture(GL_TEXTURE_2D, 0);
 
 #if QT_VERSION >= 0x040600
   painter->endNativePainting();

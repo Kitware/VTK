@@ -1,33 +1,33 @@
 netcdf ref_nctst {
 dimensions:
-        lat = 4 ;
-        lon = 3 ;
-        frtime = UNLIMITED ; // (2 currently)
-        timelen = 20 ;
+	lat = 4 ;
+	lon = 3 ;
+	frtime = UNLIMITED ; // (2 currently)
+	timelen = 20 ;
 variables:
-        float P(frtime, lat, lon) ;
-                P:long_name = "pressure at maximum wind" ;
-                P:units = "hectopascals" ;
-                P:valid_range = 0.f, 1500.f ;
-                P:_FillValue = -9999.f ;
-        float lat(lat) ;
-                lat:long_name = "latitude" ;
-                lat:units = "degrees_north" ;
-        float lon(lon) ;
-                lon:long_name = "longitude" ;
-                lon:units = "degrees_east" ;
-        int frtime(frtime) ;
-                frtime:long_name = "forecast time" ;
-                frtime:units = "hours" ;
-        char reftime(timelen) ;
-                reftime:long_name = "reference time" ;
-                reftime:units = "text_time" ;
-        int scalarv ;
-                scalarv:scalar_att = 1 ;
+	float P(frtime, lat, lon) ;
+		P:long_name = "pressure at maximum wind" ;
+		P:units = "hectopascals" ;
+		P:valid_range = 0.f, 1500.f ;
+		P:_FillValue = -9999.f ;
+	float lat(lat) ;
+		lat:long_name = "latitude" ;
+		lat:units = "degrees_north" ;
+	float lon(lon) ;
+		lon:long_name = "longitude" ;
+		lon:units = "degrees_east" ;
+	int frtime(frtime) ;
+		frtime:long_name = "forecast time" ;
+		frtime:units = "hours" ;
+	char reftime(timelen) ;
+		reftime:long_name = "reference time" ;
+		reftime:units = "text_time" ;
+	int scalarv ;
+		scalarv:scalar_att = 1 ;
 
 // global attributes:
-                :history = "created by Unidata LDM from NPS broadcast" ;
-                :title = "NMC Global Product Set: Pressure at Maximum Wind" ;
+		:history = "created by Unidata LDM from NPS broadcast" ;
+		:title = "NMC Global Product Set: Pressure at Maximum Wind" ;
 data:
 
  P =

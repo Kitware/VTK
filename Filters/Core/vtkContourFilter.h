@@ -142,6 +142,13 @@ public:
                              vtkInformationVector**,
                              vtkInformationVector*);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::Precision enum for an explanation of the available
+  // precision settings.
+  void SetOutputPointsPrecision(int precision);
+  int GetOutputPointsPrecision() const;
+
 protected:
   vtkContourFilter();
   ~vtkContourFilter();
@@ -163,6 +170,7 @@ protected:
   vtkIncrementalPointLocator *Locator;
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
+  int OutputPointsPrecision;
 
   vtkSynchronizedTemplates2D *SynchronizedTemplates2D;
   vtkSynchronizedTemplates3D *SynchronizedTemplates3D;

@@ -220,9 +220,16 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
     this->Initialize(viewport);
     }
 
+  // Pass the viewport details onto the context device.
   int size[2];
   size[0] = view_viewport_pixels.width();
   size[1] = view_viewport_pixels.height();
+  vtkRecti viewportRect(actual_viewport_pixels.x() - view_viewport_pixels.x(),
+                        actual_viewport_pixels.y() - view_viewport_pixels.y(),
+                        actual_viewport_pixels.width(),
+                        actual_viewport_pixels.height());
+  this->Context->GetDevice()->SetViewportSize(vtkVector2i(size));
+  this->Context->GetDevice()->SetViewportRect(viewportRect);
 
   // This is the entry point for all 2D rendering.
   // First initialize the drawing device.
@@ -237,13 +244,12 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
 void vtkContextActor::Initialize(vtkViewport* viewport)
 {
   vtkContextDevice2D *device = NULL;
+  vtkNew<vtkOpenGLContextDevice3D> dev;
+  this->Context3D->Begin(dev.GetPointer());
   if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
     {
     vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
     device = vtkOpenGL2ContextDevice2D::New();
-    vtkContextDevice3D *dev = vtkOpenGLContextDevice3D::New();
-    this->Context3D->Begin(dev);
-    dev->Delete();
     }
   else
     {

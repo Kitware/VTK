@@ -21,7 +21,6 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-
 //----------------------------------------------------------------------------
 vtkHyperTreeGridAlgorithm::vtkHyperTreeGridAlgorithm()
 {

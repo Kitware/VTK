@@ -15,19 +15,22 @@
 #include "vtkRenderWindow.h"
 
 #include "vtkCamera.h"
+#include "vtkCollection.h"
 #include "vtkCommand.h"
-#include "vtkGraphicsFactory.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkPainterDeviceAdapter.h"
+#include "vtkPropCollection.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
-
+#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkRenderWindow);
+// Use the vtkAbstractObjectFactoryNewMacro to allow the object factory overrides.
+vtkAbstractObjectFactoryNewMacro(vtkRenderWindow)
 //----------------------------------------------------------------------------
 
 // Construct an instance of  vtkRenderWindow with its screen size
@@ -54,6 +57,9 @@ vtkRenderWindow::vtkRenderWindow()
   this->Interactor = NULL;
   this->AAFrames = 0;
   this->FDFrames = 0;
+  this->UseConstantFDOffsets = 0;
+  this->ConstantFDOffsets[0] = NULL;
+  this->ConstantFDOffsets[1] = NULL;
   this->SubFrames = 0;
   this->AccumulationBuffer = NULL;
   this->AccumulationBufferSize = 0;
@@ -74,6 +80,11 @@ vtkRenderWindow::vtkRenderWindow()
   this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
   this->ReportGraphicErrors=0; // false
   this->AbortCheckTime = 0.0;
+  this->CapturingGL2PSSpecialProps = 0;
+
+#ifdef VTK_USE_OFFSCREEN
+  this->OffScreenRendering = 1;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -93,6 +104,15 @@ vtkRenderWindow::~vtkRenderWindow()
     this->ResultFrame = NULL;
     }
 
+  for (int i = 0; i < 2; ++i)
+    {
+    if (this->ConstantFDOffsets[i])
+      {
+      delete [] this->ConstantFDOffsets[i];
+      }
+    this->ConstantFDOffsets[i] = NULL;
+    }
+
   vtkCollectionSimpleIterator rsit;
   this->Renderers->InitTraversal(rsit);
   vtkRenderer *aren;
@@ -107,19 +127,6 @@ vtkRenderWindow::~vtkRenderWindow()
   this->Renderers->Delete();
 
   this->PainterDeviceAdapter->Delete();
-}
-
-//----------------------------------------------------------------------------
-// return the correct type of RenderWindow
-vtkRenderWindow *vtkRenderWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkRenderWindow");
-  vtkRenderWindow *retWin = static_cast<vtkRenderWindow *>(ret);
-#ifdef VTK_USE_OFFSCREEN
-  retWin->SetOffScreenRendering(1);
-#endif
-  return retWin;
 }
 
 //----------------------------------------------------------------------------
@@ -157,6 +164,36 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
         this->Interactor->SetRenderWindow(this);
         }
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindow::SetFDFrames(int fdFrames)
+{
+  if (this->FDFrames != fdFrames)
+    {
+    this->FDFrames = fdFrames;
+
+    for (int i = 0; i < 2; i++)
+      {
+      if (this->ConstantFDOffsets[i])
+        {
+        delete [] this->ConstantFDOffsets[i];
+        }
+      this->ConstantFDOffsets[i] = NULL;
+      if (this->FDFrames > 0)
+        {
+        this->ConstantFDOffsets[i] = new double[this->FDFrames];
+        for (int fi = 0; fi < this->FDFrames; fi++)
+          {
+          this->ConstantFDOffsets[i][fi] = vtkMath::Random();
+          }
+        }
+      }
+
+    vtkDebugMacro(<< this->GetClassName() << " (" << this
+      << "): setting FDFrames to " << fdFrames);
+    this->Modified();
     }
 }
 
@@ -613,8 +650,16 @@ void vtkRenderWindow::DoFDRender()
       {
       int j = 0;
 
-      offsets[0] = vtkMath::Random(); // radius
-      offsets[1] = vtkMath::Random()*360.0; // angle
+      if (this->UseConstantFDOffsets)
+        {
+        offsets[0] = this->ConstantFDOffsets[0][i]; // radius
+        offsets[1] = this->ConstantFDOffsets[1][i]*360.0; // angle
+        }
+      else
+        {
+        offsets[0] = vtkMath::Random(); // radius
+        offsets[1] = vtkMath::Random()*360.0; // angle
+        }
 
       // store offsets for each renderer
       for (this->Renderers->InitTraversal(rsit);
@@ -1313,6 +1358,41 @@ void vtkRenderWindow::UnRegister(vtkObjectBase *o)
 const char *vtkRenderWindow::GetRenderLibrary()
 {
   return vtkGraphicsFactory::GetRenderLibrary();
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
+{
+  if (result == NULL)
+    {
+    vtkErrorMacro(<<"CaptureGL2PSSpecialProps was passed a NULL pointer.");
+    return;
+    }
+
+  result->RemoveAllItems();
+
+  if (this->CapturingGL2PSSpecialProps)
+    {
+    vtkDebugMacro(<<"Called recursively.")
+    return;
+    }
+  this->CapturingGL2PSSpecialProps = 1;
+
+  vtkRenderer *ren;
+  for (Renderers->InitTraversal(); (ren = Renderers->GetNextItem());)
+    {
+    vtkNew<vtkPropCollection> props;
+    result->AddItem(props.GetPointer());
+    ren->SetGL2PSSpecialPropCollection(props.GetPointer());
+    }
+
+  this->Render();
+
+  for (Renderers->InitTraversal(); (ren = Renderers->GetNextItem());)
+    {
+    ren->SetGL2PSSpecialPropCollection(NULL);
+    }
+  this->CapturingGL2PSSpecialProps = 0;
 }
 
 // Description: Return the stereo type as a character string.

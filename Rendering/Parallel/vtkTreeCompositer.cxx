@@ -48,10 +48,6 @@
 
 vtkStandardNewMacro(vtkTreeCompositer);
 
-#ifdef VTK_USE_MPI
- #include <mpi.h>
-#endif
-
 //-------------------------------------------------------------------------
 vtkTreeCompositer::vtkTreeCompositer()
 {

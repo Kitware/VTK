@@ -321,7 +321,9 @@ int vtkMaskPoints::RequestData(
   int abort = 0;
 
   // figure out how many sample points per process
-  vtkIdType localMaxPts = this->MaximumNumberOfPoints;
+  vtkIdType localMaxPts;
+  // Make sure this does not exceed the number of points in the imput array
+  localMaxPts = this->MaximumNumberOfPoints > numPts ? numPts : this->MaximumNumberOfPoints;
   if(this->ProportionalMaximumNumberOfPoints)
     {
     localMaxPts = this->GetLocalSampleSize(numPts,

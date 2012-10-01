@@ -764,16 +764,16 @@ int vtkSLACReader::RequestData(vtkInformation *request,
   bool timeValid = false;
   int fromPort = request->Get(vtkExecutive::FROM_OUTPUT_PORT());
   if (outInfo[fromPort]->Has(
-                         vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+                         vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
     time = outInfo[fromPort]->Get(
-                       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),0);
+                       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     timeValid = true;
     }
 
   if (this->FrequencyModes)
     {
-    this->Phase = vtkMath::DoubleTwoPi()*(time*this->Frequency);
+    this->Phase = 2.0 * vtkMath::Pi()*(time*this->Frequency);
     }
 
   int readMesh = !this->MeshUpToDate();
@@ -876,17 +876,15 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
     if (timeValid)
       {
-      surfaceOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                           &time, 1);
-      volumeOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                          &time, 1);
+      surfaceOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), time);
+      volumeOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), time);
       }
     }
 
   // Push points to output.
   vtkPoints *points = vtkPoints::SafeDownCast(
                compositeOutput->GetInformation()->Get(vtkSLACReader::POINTS()));
-  VTK_CREATE(vtkCompositeDataIterator, outputIter);
+  vtkSmartPointer<vtkCompositeDataIterator> outputIter;
   for (outputIter.TakeReference(compositeOutput->NewIterator());
        !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
     {
@@ -1373,7 +1371,7 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
 
   // Iterate over all of the parts in the output and visit the ones for the
   // external surface.
-  VTK_CREATE(vtkCompositeDataIterator, outputIter);
+  vtkSmartPointer<vtkCompositeDataIterator> outputIter;
   for (outputIter.TakeReference(output->NewIterator());
        !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
     {

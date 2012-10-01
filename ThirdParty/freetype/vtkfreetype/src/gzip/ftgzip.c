@@ -19,7 +19,6 @@
 /*                                                                         */
 /***************************************************************************/
 
-
 #include <ft2build.h>
 #include FT_INTERNAL_MEMORY_H
 #include FT_INTERNAL_STREAM_H
@@ -46,7 +45,9 @@
 
 #ifdef FT_CONFIG_OPTION_SYSTEM_ZLIB
 
-#include <zlib.h>
+/* VTK_FREETYPE_CHANGE use mangled zlib symbol names */
+/*#include <zlib.h>*/
+#include <vtk_zlib.h>
 
 #else /* !FT_CONFIG_OPTION_SYSTEM_ZLIB */
 

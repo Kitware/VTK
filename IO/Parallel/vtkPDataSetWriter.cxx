@@ -71,7 +71,8 @@ int vtkPDataSetWriter::Write()
 
   ostream *fptr;
   vtkDataSet *input = this->GetInput();
-  vtkAlgorithm *inputAlg = this->GetInputAlgorithm();
+  int inputAlgPort;
+  vtkAlgorithm *inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
 
   if (this->FileName == NULL)
     {
@@ -246,7 +247,8 @@ int vtkPDataSetWriter::Write()
     {
     sprintf(fileName, this->FilePattern, fileRoot, i);
     writer->SetFileName(fileName);
-    this->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
+    inputAlg->SetUpdateExtent(inputAlgPort,
+                              i, this->NumberOfPieces, this->GhostLevel);
     inputAlg->Update();
     copy = input->NewInstance();
     copy->ShallowCopy(input);
@@ -308,6 +310,8 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
   int *pi;
   double *pf;
   vtkInformation* inInfo = this->GetInputInformation();
+  int inputAlgPort;
+  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
 
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
@@ -330,8 +334,8 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
 
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    this->SetUpdateExtent(
-      i, this->NumberOfPieces, this->GhostLevel);
+    inputAlg->SetUpdateExtent(inputAlgPort,
+                              i, this->NumberOfPieces, this->GhostLevel);
     pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
     sprintf(str, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
@@ -353,6 +357,8 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
 {
   int i;
   int *pi;
+  int inputAlgPort;
+  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
 
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
@@ -368,8 +374,8 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    this->SetUpdateExtent(
-      i, this->NumberOfPieces, this->GhostLevel);
+    inputAlg->SetUpdateExtent(inputAlgPort,
+                              i, this->NumberOfPieces, this->GhostLevel);
     pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
       this->GetInputInformation());
     sprintf(str, this->FilePattern, root, i);
@@ -393,6 +399,8 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
 {
   int i;
   int *pi;
+  int inputAlgPort;
+  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
 
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
@@ -408,7 +416,8 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    this->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
+    inputAlg->SetUpdateExtent(inputAlgPort,
+                              i, this->NumberOfPieces, this->GhostLevel);
     pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
       this->GetInputInformation());
     sprintf(str, this->FilePattern, root, i);

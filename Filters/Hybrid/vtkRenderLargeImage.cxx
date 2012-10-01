@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkRenderLargeImage.h"
 
+#include "vtkMath.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -224,8 +225,8 @@ void vtkRenderLargeImage::RequestData(
   viewAngle = cam->GetViewAngle();
   parallelScale = cam->GetParallelScale();
 
-  cam->SetViewAngle(atan(tan(viewAngle*3.1415926/360.0)/this->Magnification)
-                    * 360.0 / 3.1415926);
+  cam->SetViewAngle(atan(tan(viewAngle*vtkMath::Pi()/360.0)/this->Magnification)
+                    * 360.0 / vtkMath::Pi());
   cam->SetParallelScale(parallelScale/this->Magnification);
 
   // are we double buffering?  If so, read from back buffer ....

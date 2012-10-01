@@ -54,6 +54,7 @@ vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction *cf)
   this->Value = 0.0;
   this->UseValueAsOffset = true;
   this->GenerateClipScalars = 0;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   this->GenerateClippedOutput = 0;
   this->MergeTolerance = 0.01;
@@ -131,6 +132,18 @@ unsigned long vtkClipDataSet::GetMTime()
     }
 
   return mTime;
+}
+
+//----------------------------------------------------------------------------
+void vtkClipDataSet::SetOutputPointsPrecision(int precision)
+{
+  this->OutputPointsPrecision = precision;
+}
+
+//----------------------------------------------------------------------------
+int vtkClipDataSet::GetOutputPointsPrecision() const
+{
+  return this->OutputPointsPrecision;
 }
 
 vtkUnstructuredGrid *vtkClipDataSet::GetClippedOutput()
@@ -277,6 +290,25 @@ int vtkClipDataSet::RequestData(
     locs[1]->Allocate(estimatedSize,estimatedSize/2);
     }
   newPoints = vtkPoints::New();
+
+  // set precision for the points in the output
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+    if(inputPointSet)
+      {
+      newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+
   newPoints->Allocate(numPts,numPts/2);
 
   // locator used to merge potentially duplicate points
@@ -686,6 +718,9 @@ void vtkClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "UseValueAsOffset: "
      << (this->UseValueAsOffset ? "On\n" : "Off\n");
+
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }
 
 //-----------------------------------------------------------------------

@@ -31,10 +31,10 @@ void
 free_NC_attr(NC_attr *attrp)
 {
 
-        if(attrp == NULL)
-                return;
-        free_NC_string(attrp->name);
-        free(attrp);
+	if(attrp == NULL)
+		return;
+	free_NC_string(attrp->name);
+	free(attrp);
 }
 
 
@@ -45,54 +45,54 @@ free_NC_attr(NC_attr *attrp)
 static size_t
 ncx_len_NC_attrV(nc_type type, size_t nelems)
 {
-        switch(type) {
-        case NC_BYTE:
-        case NC_CHAR:
-                return ncx_len_char(nelems);
-        case NC_SHORT:
-                return ncx_len_short(nelems);
-        case NC_INT:
-                return ncx_len_int(nelems);
-        case NC_FLOAT:
-                return ncx_len_float(nelems);
-        case NC_DOUBLE:
-                return ncx_len_double(nelems);
-        default:
-                assert("ncx_len_NC_attr bad type" == 0);
-        }
-        return 0;
+	switch(type) {
+	case NC_BYTE:
+	case NC_CHAR:
+		return ncx_len_char(nelems);
+	case NC_SHORT:
+		return ncx_len_short(nelems);
+	case NC_INT:
+		return ncx_len_int(nelems);
+	case NC_FLOAT:
+		return ncx_len_float(nelems);
+	case NC_DOUBLE:
+		return ncx_len_double(nelems);
+	default:
+	        assert("ncx_len_NC_attr bad type" == 0);
+	}
+	return 0;
 }
 
 
 NC_attr *
 new_x_NC_attr(
-        NC_string *strp,
-        nc_type type,
-        size_t nelems)
+	NC_string *strp,
+	nc_type type,
+	size_t nelems)
 {
-        NC_attr *attrp;
-        const size_t xsz = ncx_len_NC_attrV(type, nelems);
-        size_t sz = M_RNDUP(sizeof(NC_attr));
+	NC_attr *attrp;
+	const size_t xsz = ncx_len_NC_attrV(type, nelems);
+	size_t sz = M_RNDUP(sizeof(NC_attr));
 
-        assert(!(xsz == 0 && nelems != 0));
+	assert(!(xsz == 0 && nelems != 0));
 
-        sz += xsz;
+	sz += xsz;
 
-        attrp = (NC_attr *) malloc(sz);
-        if(attrp == NULL )
-                return NULL;
+	attrp = (NC_attr *) malloc(sz);
+	if(attrp == NULL )
+		return NULL;
 
-        attrp->xsz = xsz;
+	attrp->xsz = xsz;
 
-        attrp->name = strp;
-        attrp->type = type;
-        attrp->nelems = nelems;
-        if(xsz != 0)
-                attrp->xvalue = (char *)attrp + M_RNDUP(sizeof(NC_attr));
-        else
-                attrp->xvalue = NULL;
+	attrp->name = strp;
+	attrp->type = type;
+	attrp->nelems = nelems;
+	if(xsz != 0)
+		attrp->xvalue = (char *)attrp + M_RNDUP(sizeof(NC_attr));
+	else
+		attrp->xvalue = NULL;
 
-        return(attrp);
+	return(attrp);
 }
 
 
@@ -102,43 +102,43 @@ NC_new_attr(name,type,count,value)
  */
 static NC_attr *
 new_NC_attr(
-        const char *uname,
-        nc_type type,
-        size_t nelems)
+	const char *uname,
+	nc_type type,
+	size_t nelems)
 {
-        NC_string *strp;
-        NC_attr *attrp;
+	NC_string *strp;
+	NC_attr *attrp;
 
-        char *name = (char *)utf8proc_NFC((const unsigned char *)uname);
-        if(name == NULL)
-            return NULL;
-        assert(name != NULL && *name != 0);
+	char *name = (char *)utf8proc_NFC((const unsigned char *)uname);
+	if(name == NULL)
+	    return NULL;
+	assert(name != NULL && *name != 0);
 
-        strp = new_NC_string(strlen(name), name);
-        free(name);
-        if(strp == NULL)
-                return NULL;
+	strp = new_NC_string(strlen(name), name);
+	free(name);
+	if(strp == NULL)
+		return NULL;
+	
+	attrp = new_x_NC_attr(strp, type, nelems);
+	if(attrp == NULL)
+	{
+		free_NC_string(strp);
+		return NULL;
+	}
 
-        attrp = new_x_NC_attr(strp, type, nelems);
-        if(attrp == NULL)
-        {
-                free_NC_string(strp);
-                return NULL;
-        }
-
-        return(attrp);
+	return(attrp);
 }
 
 
 static NC_attr *
 dup_NC_attr(const NC_attr *rattrp)
 {
-        NC_attr *attrp = new_NC_attr(rattrp->name->cp,
-                 rattrp->type, rattrp->nelems);
-        if(attrp == NULL)
-                return NULL;
-        (void) memcpy(attrp->xvalue, rattrp->xvalue, rattrp->xsz);
-        return attrp;
+	NC_attr *attrp = new_NC_attr(rattrp->name->cp,
+		 rattrp->type, rattrp->nelems);
+	if(attrp == NULL)
+		return NULL;
+	(void) memcpy(attrp->xvalue, rattrp->xvalue, rattrp->xsz);
+	return attrp;
 }
 
 /* attrarray */
@@ -150,23 +150,23 @@ dup_NC_attr(const NC_attr *rattrp)
 void
 free_NC_attrarrayV0(NC_attrarray *ncap)
 {
-        assert(ncap != NULL);
+	assert(ncap != NULL);
 
-        if(ncap->nelems == 0)
-                return;
+	if(ncap->nelems == 0)
+		return;
 
-        assert(ncap->value != NULL);
+	assert(ncap->value != NULL);
 
-        {
-                NC_attr **app = ncap->value;
-                NC_attr *const *const end = &app[ncap->nelems];
-                for( /*NADA*/; app < end; app++)
-                {
-                        free_NC_attr(*app);
-                        *app = NULL;
-                }
-        }
-        ncap->nelems = 0;
+	{
+		NC_attr **app = ncap->value;
+		NC_attr *const *const end = &app[ncap->nelems];
+		for( /*NADA*/; app < end; app++)
+		{
+			free_NC_attr(*app);
+			*app = NULL;
+		}
+	}
+	ncap->nelems = 0;
 }
 
 
@@ -178,65 +178,65 @@ NC_free_array()
 void
 free_NC_attrarrayV(NC_attrarray *ncap)
 {
-        assert(ncap != NULL);
+	assert(ncap != NULL);
+	
+	if(ncap->nalloc == 0)
+		return;
 
-        if(ncap->nalloc == 0)
-                return;
+	assert(ncap->value != NULL);
 
-        assert(ncap->value != NULL);
+	free_NC_attrarrayV0(ncap);
 
-        free_NC_attrarrayV0(ncap);
-
-        free(ncap->value);
-        ncap->value = NULL;
-        ncap->nalloc = 0;
+	free(ncap->value);
+	ncap->value = NULL;
+	ncap->nalloc = 0;
 }
 
 
 int
 dup_NC_attrarrayV(NC_attrarray *ncap, const NC_attrarray *ref)
 {
-        int status = NC_NOERR;
+	int status = NC_NOERR;
 
-        assert(ref != NULL);
-        assert(ncap != NULL);
+	assert(ref != NULL);
+	assert(ncap != NULL);
 
-        if(ref->nelems != 0)
-        {
-                const size_t sz = ref->nelems * sizeof(NC_attr *);
-                ncap->value = (NC_attr **) malloc(sz);
-                if(ncap->value == NULL)
-                        return NC_ENOMEM;
+	if(ref->nelems != 0)
+	{
+		const size_t sz = ref->nelems * sizeof(NC_attr *);
+		ncap->value = (NC_attr **) malloc(sz);
+		if(ncap->value == NULL)
+			return NC_ENOMEM;
 
-                (void) memset(ncap->value, 0, sz);
-                ncap->nalloc = ref->nelems;
-        }
+		(void) memset(ncap->value, 0, sz);
+		ncap->nalloc = ref->nelems;
+	}
 
-        ncap->nelems = 0;
-        {
-                NC_attr **app = ncap->value;
-                const NC_attr **drpp = (const NC_attr **)ref->value;
-                NC_attr *const *const end = &app[ref->nelems];
-                for( /*NADA*/; app < end; drpp++, app++, ncap->nelems++)
-                {
-                        *app = dup_NC_attr(*drpp);
-                        if(*app == NULL)
-                        {
-                                status = NC_ENOMEM;
-                                break;
-                        }
-                }
-        }
+	ncap->nelems = 0;
+	{
+		NC_attr **app = ncap->value;
+		const NC_attr **drpp = (const NC_attr **)ref->value;
+		NC_attr *const *const end = &app[ref->nelems];
+		for( /*NADA*/; app < end; drpp++, app++, ncap->nelems++)
+		{
+			*app = dup_NC_attr(*drpp);
+			if(*app == NULL)
+			{
+				status = NC_ENOMEM;
+				break;
+			}
+		}
+	}
 
-        if(status != NC_NOERR)
-        {
-                free_NC_attrarrayV(ncap);
-                return status;
-        }
+	if(status != NC_NOERR)
+	{
+		free_NC_attrarrayV(ncap);
+		return status;
+	}
 
-        assert(ncap->nelems == ref->nelems);
+	assert(ncap->nelems == ref->nelems);
 
-        return NC_NOERR;
+	return NC_NOERR;
 }
 
 
@@ -248,51 +248,51 @@ NC_incr_array(array, tail)
 static int
 incr_NC_attrarray(NC_attrarray *ncap, NC_attr *newelemp)
 {
-        NC_attr **vp;
+	NC_attr **vp;
 
-        assert(ncap != NULL);
+	assert(ncap != NULL);
 
-        if(ncap->nalloc == 0)
-        {
-                assert(ncap->nelems == 0);
-                vp = (NC_attr **) malloc(NC_ARRAY_GROWBY * sizeof(NC_attr *));
-                if(vp == NULL)
-                        return NC_ENOMEM;
+	if(ncap->nalloc == 0)
+	{
+		assert(ncap->nelems == 0);
+		vp = (NC_attr **) malloc(NC_ARRAY_GROWBY * sizeof(NC_attr *));
+		if(vp == NULL)
+			return NC_ENOMEM;
 
-                ncap->value = vp;
-                ncap->nalloc = NC_ARRAY_GROWBY;
-        }
-        else if(ncap->nelems +1 > ncap->nalloc)
-        {
-                vp = (NC_attr **) realloc(ncap->value,
-                        (ncap->nalloc + NC_ARRAY_GROWBY) * sizeof(NC_attr *));
-                if(vp == NULL)
-                        return NC_ENOMEM;
+		ncap->value = vp;
+		ncap->nalloc = NC_ARRAY_GROWBY;
+	}
+	else if(ncap->nelems +1 > ncap->nalloc)
+	{
+		vp = (NC_attr **) realloc(ncap->value,
+			(ncap->nalloc + NC_ARRAY_GROWBY) * sizeof(NC_attr *));
+		if(vp == NULL)
+			return NC_ENOMEM;
+	
+		ncap->value = vp;
+		ncap->nalloc += NC_ARRAY_GROWBY;
+	}
 
-                ncap->value = vp;
-                ncap->nalloc += NC_ARRAY_GROWBY;
-        }
-
-        if(newelemp != NULL)
-        {
-                ncap->value[ncap->nelems] = newelemp;
-                ncap->nelems++;
-        }
-        return NC_NOERR;
+	if(newelemp != NULL)
+	{
+		ncap->value[ncap->nelems] = newelemp;
+		ncap->nelems++;
+	}
+	return NC_NOERR;
 }
 
 
 NC_attr *
 elem_NC_attrarray(const NC_attrarray *ncap, size_t elem)
 {
-        assert(ncap != NULL);
-        /* cast needed for braindead systems with signed size_t */
-        if(ncap->nelems == 0 || (unsigned long) elem >= ncap->nelems)
-                return NULL;
+	assert(ncap != NULL);
+	/* cast needed for braindead systems with signed size_t */
+	if(ncap->nelems == 0 || (unsigned long) elem >= ncap->nelems)
+		return NULL;
 
-        assert(ncap->value != NULL);
+	assert(ncap->value != NULL);
 
-        return ncap->value[elem];
+	return ncap->value[elem];
 }
 
 /* End attarray per se */
@@ -304,22 +304,22 @@ elem_NC_attrarray(const NC_attrarray *ncap, size_t elem)
 static NC_attrarray *
 NC_attrarray0( NC *ncp, int varid)
 {
-        NC_attrarray *ap;
+	NC_attrarray *ap;
 
-        if(varid == NC_GLOBAL) /* Global attribute, attach to cdf */
-        {
-                ap = &ncp->attrs;
-        }
-        else if(varid >= 0 && (size_t) varid < ncp->vars.nelems)
-        {
-                NC_var **vpp;
-                vpp = (NC_var **)ncp->vars.value;
-                vpp += varid;
-                ap = &(*vpp)->attrs;
-        } else {
-                ap = NULL;
-        }
-        return(ap);
+	if(varid == NC_GLOBAL) /* Global attribute, attach to cdf */
+	{
+		ap = &ncp->attrs;
+	}
+	else if(varid >= 0 && (size_t) varid < ncp->vars.nelems)
+	{
+		NC_var **vpp;
+		vpp = (NC_var **)ncp->vars.value;
+		vpp += varid;
+		ap = &(*vpp)->attrs;
+	} else {
+		ap = NULL;
+	}
+	return(ap);
 }
 
 
@@ -330,68 +330,68 @@ NC_attrarray0( NC *ncp, int varid)
 NC_attr **
 NC_findattr(const NC_attrarray *ncap, const char *uname)
 {
-        NC_attr **attrpp;
-        size_t attrid;
-        size_t slen;
-        char *name;
+	NC_attr **attrpp;
+	size_t attrid;
+	size_t slen;
+	char *name;
 
-        assert(ncap != NULL);
+	assert(ncap != NULL);
 
-        if(ncap->nelems == 0)
-                return NULL;
+	if(ncap->nelems == 0)
+		return NULL;
 
-        attrpp = (NC_attr **) ncap->value;
+	attrpp = (NC_attr **) ncap->value;
 
-        /* normalized version of uname */
-        name = (char *)utf8proc_NFC((const unsigned char *)uname);
-        if(name == NULL)
-            return NULL; /* TODO: need better way to indicate no memory */
-        slen = strlen(name);
+	/* normalized version of uname */
+	name = (char *)utf8proc_NFC((const unsigned char *)uname);
+	if(name == NULL)
+	    return NULL; /* TODO: need better way to indicate no memory */
+	slen = strlen(name);
 
-        for(attrid = 0; attrid < ncap->nelems; attrid++, attrpp++)
-        {
-                if(strlen((*attrpp)->name->cp) == slen &&
-                        strncmp((*attrpp)->name->cp, name, slen) == 0)
-                {
-                        free(name);
-                        return(attrpp); /* Normal return */
-                }
-        }
-        free(name);
-        return(NULL);
+	for(attrid = 0; attrid < ncap->nelems; attrid++, attrpp++)
+	{
+		if(strlen((*attrpp)->name->cp) == slen &&
+			strncmp((*attrpp)->name->cp, name, slen) == 0)
+		{
+		        free(name);
+			return(attrpp); /* Normal return */
+		}
+	}
+	free(name);
+	return(NULL);
 }
 
 
 /*
  * Look up by ncid, varid and name, return NULL if not found
  */
-static int
+static int 
 NC_lookupattr(int ncid,
-        int varid,
-        const char *name, /* attribute name */
-        NC_attr **attrpp) /* modified on return */
+	int varid,
+	const char *name, /* attribute name */
+	NC_attr **attrpp) /* modified on return */
 {
-        int status;
-        NC *ncp;
-        NC_attrarray *ncap;
-        NC_attr **tmp;
+	int status;
+	NC *ncp;
+	NC_attrarray *ncap;
+	NC_attr **tmp;
 
-        status = NC_check_id(ncid, &ncp);
-        if(status != NC_NOERR)
-                return status;
+	status = NC_check_id(ncid, &ncp);
+	if(status != NC_NOERR)
+		return status;
 
-        ncap = NC_attrarray0(ncp, varid);
-        if(ncap == NULL)
-                return NC_ENOTVAR;
+	ncap = NC_attrarray0(ncp, varid);
+	if(ncap == NULL)
+		return NC_ENOTVAR;
 
-        tmp = NC_findattr(ncap, name);
-        if(tmp == NULL)
-                return NC_ENOTATT;
+	tmp = NC_findattr(ncap, name);
+	if(tmp == NULL)
+		return NC_ENOTATT;
 
-        if(attrpp != NULL)
-                *attrpp = *tmp;
+	if(attrpp != NULL)
+		*attrpp = *tmp;
 
-        return ENOERR;
+	return ENOERR;
 }
 
 /* Public */
@@ -399,210 +399,210 @@ NC_lookupattr(int ncid,
 int
 NC3_inq_attname(int ncid, int varid, int attnum, char *name)
 {
-        int status;
-        NC *ncp;
-        NC_attrarray *ncap;
-        NC_attr *attrp;
+	int status;
+	NC *ncp;
+	NC_attrarray *ncap;
+	NC_attr *attrp;
 
-        status = NC_check_id(ncid, &ncp);
-        if(status != NC_NOERR)
-                return status;
+	status = NC_check_id(ncid, &ncp);
+	if(status != NC_NOERR)
+		return status;
 
-        ncap = NC_attrarray0(ncp, varid);
-        if(ncap == NULL)
-                return NC_ENOTVAR;
+	ncap = NC_attrarray0(ncp, varid);
+	if(ncap == NULL)
+		return NC_ENOTVAR;
 
-        attrp = elem_NC_attrarray(ncap, (size_t)attnum);
-        if(attrp == NULL)
-                return NC_ENOTATT;
+	attrp = elem_NC_attrarray(ncap, (size_t)attnum);
+	if(attrp == NULL)
+		return NC_ENOTATT;
 
-        (void) strncpy(name, attrp->name->cp, attrp->name->nchars);
-        name[attrp->name->nchars] = 0;
+	(void) strncpy(name, attrp->name->cp, attrp->name->nchars);
+	name[attrp->name->nchars] = 0;
 
-        return NC_NOERR;
+	return NC_NOERR;
 }
 
 
-int
+int 
 NC3_inq_attid(int ncid, int varid, const char *name, int *attnump)
 {
-        int status;
-        NC *ncp;
-        NC_attrarray *ncap;
-        NC_attr **attrpp;
+	int status;
+	NC *ncp;
+	NC_attrarray *ncap;
+	NC_attr **attrpp;
 
-        status = NC_check_id(ncid, &ncp);
-        if(status != NC_NOERR)
-                return status;
+	status = NC_check_id(ncid, &ncp);
+	if(status != NC_NOERR)
+		return status;
 
-        ncap = NC_attrarray0(ncp, varid);
-        if(ncap == NULL)
-                return NC_ENOTVAR;
+	ncap = NC_attrarray0(ncp, varid);
+	if(ncap == NULL)
+		return NC_ENOTVAR;
+	
 
+	attrpp = NC_findattr(ncap, name);
+	if(attrpp == NULL)
+		return NC_ENOTATT;
 
-        attrpp = NC_findattr(ncap, name);
-        if(attrpp == NULL)
-                return NC_ENOTATT;
+	if(attnump != NULL)
+		*attnump = (int)(attrpp - ncap->value);
 
-        if(attnump != NULL)
-                *attnump = (int)(attrpp - ncap->value);
-
-        return NC_NOERR;
+	return NC_NOERR;
 }
 
 int
 NC3_inq_att(int ncid,
-        int varid,
-        const char *name, /* input, attribute name */
-        nc_type *datatypep,
-        size_t *lenp)
+	int varid,
+	const char *name, /* input, attribute name */
+	nc_type *datatypep,
+	size_t *lenp)
 {
-        int status;
-        NC_attr *attrp;
+	int status;
+	NC_attr *attrp;
 
-        status = NC_lookupattr(ncid, varid, name, &attrp);
-        if(status != NC_NOERR)
-                return status;
+	status = NC_lookupattr(ncid, varid, name, &attrp);
+	if(status != NC_NOERR)
+		return status;
 
-        if(datatypep != NULL)
-                *datatypep = attrp->type;
-        if(lenp != NULL)
-                *lenp = attrp->nelems;
+	if(datatypep != NULL)
+		*datatypep = attrp->type;
+	if(lenp != NULL)
+		*lenp = attrp->nelems;
 
-        return NC_NOERR;
+	return NC_NOERR;
 }
 
 
 int
 NC3_rename_att( int ncid, int varid, const char *name, const char *unewname)
 {
-        int status;
-        NC *ncp;
-        NC_attrarray *ncap;
-        NC_attr **tmp;
-        NC_attr *attrp;
-        NC_string *newStr, *old;
-        char *newname;  /* normalized version */
+	int status;
+	NC *ncp;
+	NC_attrarray *ncap;
+	NC_attr **tmp;
+	NC_attr *attrp;
+	NC_string *newStr, *old;
+	char *newname;  /* normalized version */
 
-                        /* sortof inline clone of NC_lookupattr() */
-        status = NC_check_id(ncid, &ncp);
-        if(status != NC_NOERR)
-                return status;
+			/* sortof inline clone of NC_lookupattr() */
+	status = NC_check_id(ncid, &ncp);
+	if(status != NC_NOERR)
+		return status;
 
-        if(NC_readonly(ncp))
-                return NC_EPERM;
+	if(NC_readonly(ncp))
+		return NC_EPERM;
 
-        ncap = NC_attrarray0(ncp, varid);
-        if(ncap == NULL)
-                return NC_ENOTVAR;
+	ncap = NC_attrarray0(ncp, varid);
+	if(ncap == NULL)
+		return NC_ENOTVAR;
 
-        status = NC_check_name(unewname);
-        if(status != NC_NOERR)
-                return status;
+	status = NC_check_name(unewname);
+	if(status != NC_NOERR)
+		return status;
 
-        tmp = NC_findattr(ncap, name);
-        if(tmp == NULL)
-                return NC_ENOTATT;
-        attrp = *tmp;
-                        /* end inline clone NC_lookupattr() */
+	tmp = NC_findattr(ncap, name);
+	if(tmp == NULL)
+		return NC_ENOTATT;
+	attrp = *tmp;
+			/* end inline clone NC_lookupattr() */
 
-        if(NC_findattr(ncap, unewname) != NULL)
-        {
-                /* name in use */
-                return NC_ENAMEINUSE;
-        }
+	if(NC_findattr(ncap, unewname) != NULL)
+	{
+		/* name in use */
+		return NC_ENAMEINUSE;
+	}
 
-        old = attrp->name;
-        newname = (char *)utf8proc_NFC((const unsigned char *)unewname);
-        if(newname == NULL)
-            return NC_EBADNAME;
-        if(NC_indef(ncp))
-        {
-                newStr = new_NC_string(strlen(newname), newname);
-                free(newname);
-                if( newStr == NULL)
-                        return NC_ENOMEM;
-                attrp->name = newStr;
-                free_NC_string(old);
-                return NC_NOERR;
-        }
-        /* else */
-        status = set_NC_string(old, newname);
-        free(newname);
-        if( status != NC_NOERR)
-                return status;
+	old = attrp->name;
+	newname = (char *)utf8proc_NFC((const unsigned char *)unewname);
+	if(newname == NULL)
+	    return NC_EBADNAME;
+	if(NC_indef(ncp))
+	{
+		newStr = new_NC_string(strlen(newname), newname);
+		free(newname);
+		if( newStr == NULL)
+			return NC_ENOMEM;
+		attrp->name = newStr;
+		free_NC_string(old);
+		return NC_NOERR;
+	}
+	/* else */
+	status = set_NC_string(old, newname);
+	free(newname);
+	if( status != NC_NOERR)
+		return status;
 
-        set_NC_hdirty(ncp);
+	set_NC_hdirty(ncp);
 
-        if(NC_doHsync(ncp))
-        {
-                status = NC_sync(ncp);
-                if(status != NC_NOERR)
-                        return status;
-        }
+	if(NC_doHsync(ncp))
+	{
+		status = NC_sync(ncp);
+		if(status != NC_NOERR)
+			return status;
+	}
 
-        return NC_NOERR;
+	return NC_NOERR;
 }
 
 int
 NC3_del_att(int ncid, int varid, const char *uname)
 {
-        int status;
-        NC *ncp;
-        NC_attrarray *ncap;
-        NC_attr **attrpp;
-        NC_attr *old = NULL;
-        int attrid;
-        size_t slen;
+	int status;
+	NC *ncp;
+	NC_attrarray *ncap;
+	NC_attr **attrpp;
+	NC_attr *old = NULL;
+	int attrid;
+	size_t slen;
 
-        status = NC_check_id(ncid, &ncp);
-        if(status != NC_NOERR)
-                return status;
+	status = NC_check_id(ncid, &ncp);
+	if(status != NC_NOERR)
+		return status;
 
-        if(!NC_indef(ncp))
-                return NC_ENOTINDEFINE;
+	if(!NC_indef(ncp))
+		return NC_ENOTINDEFINE;
 
-        ncap = NC_attrarray0(ncp, varid);
-        if(ncap == NULL)
-                return NC_ENOTVAR;
+	ncap = NC_attrarray0(ncp, varid);
+	if(ncap == NULL)
+		return NC_ENOTVAR;
 
-        {
-        char *name = (char *)utf8proc_NFC((const unsigned char *)uname);
-        if(name == NULL)
-            return NC_ENOMEM;
+	{
+	char *name = (char *)utf8proc_NFC((const unsigned char *)uname);
+	if(name == NULL)
+	    return NC_ENOMEM;
+	
+			/* sortof inline NC_findattr() */
+	slen = strlen(name);
 
-                        /* sortof inline NC_findattr() */
-        slen = strlen(name);
+	attrpp = (NC_attr **) ncap->value;
+	for(attrid = 0; (size_t) attrid < ncap->nelems; attrid++, attrpp++)
+	    {
+		if( slen == (*attrpp)->name->nchars &&
+			strncmp(name, (*attrpp)->name->cp, slen) == 0)
+		{
+			old = *attrpp;
+			break;
+		}
+	    }
+	free(name);
+	}
+	if( (size_t) attrid == ncap->nelems )
+		return NC_ENOTATT;
+			/* end inline NC_findattr() */
 
-        attrpp = (NC_attr **) ncap->value;
-        for(attrid = 0; (size_t) attrid < ncap->nelems; attrid++, attrpp++)
-            {
-                if( slen == (*attrpp)->name->nchars &&
-                        strncmp(name, (*attrpp)->name->cp, slen) == 0)
-                {
-                        old = *attrpp;
-                        break;
-                }
-            }
-        free(name);
-        }
-        if( (size_t) attrid == ncap->nelems )
-                return NC_ENOTATT;
-                        /* end inline NC_findattr() */
+	/* shuffle down */
+	for(attrid++; (size_t) attrid < ncap->nelems; attrid++)
+	{
+		*attrpp = *(attrpp + 1);
+		attrpp++;
+	}
+	*attrpp = NULL;
+	/* decrement count */
+	ncap->nelems--;
 
-        /* shuffle down */
-        for(attrid++; (size_t) attrid < ncap->nelems; attrid++)
-        {
-                *attrpp = *(attrpp + 1);
-                attrpp++;
-        }
-        *attrpp = NULL;
-        /* decrement count */
-        ncap->nelems--;
+	free_NC_attr(old);
 
-        free_NC_attr(old);
-
-        return NC_NOERR;
+	return NC_NOERR;
 }
 
 dnl
@@ -613,23 +613,23 @@ define(`XNCX_PAD_PUTN',dnl
 static int
 ncx_pad_putn_I$1(void **xpp, size_t nelems, const $1 *tp, nc_type type)
 {
-        switch(type) {
-        case NC_CHAR:
-                return NC_ECHAR;
-        case NC_BYTE:
-                return ncx_pad_putn_schar_$1(xpp, nelems, tp);
-        case NC_SHORT:
-                return ncx_pad_putn_short_$1(xpp, nelems, tp);
-        case NC_INT:
-                return ncx_putn_int_$1(xpp, nelems, tp);
-        case NC_FLOAT:
-                return ncx_putn_float_$1(xpp, nelems, tp);
-        case NC_DOUBLE:
-                return ncx_putn_double_$1(xpp, nelems, tp);
-        default:
+	switch(type) {
+	case NC_CHAR:
+		return NC_ECHAR;
+	case NC_BYTE:
+		return ncx_pad_putn_schar_$1(xpp, nelems, tp);
+	case NC_SHORT:
+		return ncx_pad_putn_short_$1(xpp, nelems, tp);
+	case NC_INT:
+		return ncx_putn_int_$1(xpp, nelems, tp);
+	case NC_FLOAT:
+		return ncx_putn_float_$1(xpp, nelems, tp);
+	case NC_DOUBLE:
+		return ncx_putn_double_$1(xpp, nelems, tp);
+	default:
                 assert("ncx_pad_putn_I$1 invalid type" == 0);
-        }
-        return NC_EBADTYPE;
+	}
+	return NC_EBADTYPE;
 }
 ')dnl
 dnl
@@ -640,23 +640,23 @@ define(`XNCX_PAD_GETN',dnl
 static int
 ncx_pad_getn_I$1(const void **xpp, size_t nelems, $1 *tp, nc_type type)
 {
-        switch(type) {
-        case NC_CHAR:
-                return NC_ECHAR;
-        case NC_BYTE:
-                return ncx_pad_getn_schar_$1(xpp, nelems, tp);
-        case NC_SHORT:
-                return ncx_pad_getn_short_$1(xpp, nelems, tp);
-        case NC_INT:
-                return ncx_getn_int_$1(xpp, nelems, tp);
-        case NC_FLOAT:
-                return ncx_getn_float_$1(xpp, nelems, tp);
-        case NC_DOUBLE:
-                return ncx_getn_double_$1(xpp, nelems, tp);
-        default:
-                assert("ncx_pad_getn_I$1 invalid type" == 0);
-        }
-        return NC_EBADTYPE;
+	switch(type) {
+	case NC_CHAR:
+		return NC_ECHAR;
+	case NC_BYTE:
+		return ncx_pad_getn_schar_$1(xpp, nelems, tp);
+	case NC_SHORT:
+		return ncx_pad_getn_short_$1(xpp, nelems, tp);
+	case NC_INT:
+		return ncx_getn_int_$1(xpp, nelems, tp);
+	case NC_FLOAT:
+		return ncx_getn_float_$1(xpp, nelems, tp);
+	case NC_DOUBLE:
+		return ncx_getn_double_$1(xpp, nelems, tp);
+	default:
+	        assert("ncx_pad_getn_I$1 invalid type" == 0);
+	}
+	return NC_EBADTYPE;
 }
 ')dnl
 dnl Implement
@@ -691,7 +691,7 @@ XNCX_PAD_GETN(longlong)
 /* Common dispatcher for put cases */
 static int
 dispatchput(void **xpp, size_t nelems, const void* tp,
-            nc_type atype, nc_type memtype)
+	    nc_type atype, nc_type memtype)
 {
     switch (memtype) {
     case NC_CHAR:
@@ -720,13 +720,13 @@ dispatchput(void **xpp, size_t nelems, const void* tp,
 
 int
 NC3_put_att(
-        int ncid,
-        int varid,
-        const char *name,
-        nc_type type,
-        size_t nelems,
-        const void *value,
-        nc_type memtype)
+	int ncid,
+	int varid,
+	const char *name,
+	nc_type type,
+	size_t nelems,
+	const void *value,
+	nc_type memtype)
 {
     int status;
     NC *ncp;
@@ -737,32 +737,32 @@ NC3_put_att(
 
     status = NC_check_id(ncid, &ncp);
     if(status != NC_NOERR)
-        return status;
+	return status;
 
     if(NC_readonly(ncp))
-        return NC_EPERM;
+	return NC_EPERM;
 
     ncap = NC_attrarray0(ncp, varid);
     if(ncap == NULL)
-        return NC_ENOTVAR;
+	return NC_ENOTVAR;
 
     status = nc_cktype(type);
     if(status != NC_NOERR)
-        return status;
+	return status;
 
     if(memtype == NC_NAT) memtype = type;
 
     if(memtype != NC_CHAR && type == NC_CHAR)
-        return NC_ECHAR;
+	return NC_ECHAR;
     if(memtype == NC_CHAR && type != NC_CHAR)
-        return NC_ECHAR;
+	return NC_ECHAR;
 
     /* cast needed for braindead systems with signed size_t */
     if((unsigned long) nelems > X_INT_MAX) /* backward compat */
-        return NC_EINVAL; /* Invalid nelems */
+	return NC_EINVAL; /* Invalid nelems */
 
     if(nelems != 0 && value == NULL)
-        return NC_EINVAL; /* Null arg */
+	return NC_EINVAL; /* Null arg */
 
     attrpp = NC_findattr(ncap, name);
 
@@ -770,13 +770,13 @@ NC3_put_att(
 
     if(attrpp != NULL) { /* name in use */
         if(!NC_indef(ncp)) {
-            const size_t xsz = ncx_len_NC_attrV(type, nelems);
+	    const size_t xsz = ncx_len_NC_attrV(type, nelems);
             attrp = *attrpp; /* convenience */
-
-            if(xsz > attrp->xsz) return NC_ENOTINDEFINE;
-            /* else, we can reuse existing without redef */
-
-            attrp->xsz = xsz;
+    
+	    if(xsz > attrp->xsz) return NC_ENOTINDEFINE;
+	    /* else, we can reuse existing without redef */
+                    
+	    attrp->xsz = xsz;
             attrp->type = type;
             attrp->nelems = nelems;
 
@@ -784,11 +784,11 @@ NC3_put_att(
                 void *xp = attrp->xvalue;
                 status = dispatchput(&xp, nelems, (const void*)value, type, memtype);
             }
-
+                       
             set_NC_hdirty(ncp);
 
             if(NC_doHsync(ncp)) {
-                const int lstatus = NC_sync(ncp);
+	        const int lstatus = NC_sync(ncp);
                 /*
                  * N.B.: potentially overrides NC_ERANGE
                  * set by ncx_pad_putn_I$1
@@ -837,11 +837,11 @@ NC3_put_att(
 
 int
 NC3_get_att(
-        int ncid,
-        int varid,
-        const char *name,
-        void *value,
-        nc_type memtype)
+	int ncid,
+	int varid,
+	const char *name,
+	void *value,
+	nc_type memtype)
 {
     int status;
     NC_attr *attrp;
@@ -855,9 +855,9 @@ NC3_get_att(
     if(memtype == NC_NAT) memtype = attrp->type;
 
     if(memtype != NC_CHAR && attrp->type == NC_CHAR)
-        return NC_ECHAR;
+	return NC_ECHAR;
     if(memtype == NC_CHAR && attrp->type != NC_CHAR)
-        return NC_ECHAR;
+	return NC_ECHAR;
 
     xp = attrp->xvalue;
     switch (memtype) {
@@ -885,3 +885,4 @@ NC3_get_att(
     status =  NC_EBADTYPE;
     return status;
 }
+

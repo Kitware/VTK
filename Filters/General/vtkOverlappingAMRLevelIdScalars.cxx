@@ -44,20 +44,10 @@ void vtkOverlappingAMRLevelIdScalars::AddColorLevels(
   assert( "pre: output should not be NULL" && (output != NULL)  );
 
   unsigned int numLevels = input->GetNumberOfLevels();
-  output->SetNumberOfLevels(numLevels);
-
+  output->CopyStructure(input);
   for (unsigned int levelIdx=0; levelIdx<numLevels; levelIdx++)
     {
     unsigned int numDS = input->GetNumberOfDataSets(levelIdx);
-    output->SetNumberOfDataSets(levelIdx, numDS);
-
-    // Copy level metadata.
-    if (input->HasLevelMetaData(levelIdx))
-      {
-      output->GetLevelMetaData(levelIdx)->
-          Copy(input->GetLevelMetaData(levelIdx));
-      }
-
     for (unsigned int cc=0; cc < numDS; cc++)
       {
       vtkUniformGrid* ds = input->GetDataSet(levelIdx,cc);
@@ -66,13 +56,6 @@ void vtkOverlappingAMRLevelIdScalars::AddColorLevels(
         vtkUniformGrid* copy = this->ColorLevel(ds, levelIdx);
         output->SetDataSet(levelIdx,cc,copy);
         copy->Delete();
-        }
-
-      // Copy meta data for each dataset within a level.
-      if (input->HasMetaData(levelIdx, cc))
-        {
-        output->GetMetaData(levelIdx, cc)->
-            Copy(input->GetMetaData(levelIdx, cc));
         }
       }
     }
@@ -103,11 +86,6 @@ int vtkOverlappingAMRLevelIdScalars::RequestData(
     }
 
   this->AddColorLevels(input, output);
-
-  vtkOverlappingAMR *amr = vtkOverlappingAMR::SafeDownCast(output);
-  assert( "ERROR: cannot down-cast to overlapping AMR" && (amr != NULL) );
-  amr->GenerateParentChildInformation();
-  amr->GenerateVisibilityArrays();
   return 1;
 }
 

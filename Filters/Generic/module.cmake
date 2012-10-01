@@ -4,4 +4,11 @@ vtk_module(vtkFiltersGeneric
   DEPENDS
     vtkFiltersCore
     vtkFiltersSources
-  )
+  TEST_DEPENDS
+    vtkIOXML
+    vtkIOLegacy
+    vtkRenderingOpenGL
+    vtkFiltersModeling
+    vtkRenderingLabel
+    vtkTestingRendering
+    vtkTestingGenericBridge)

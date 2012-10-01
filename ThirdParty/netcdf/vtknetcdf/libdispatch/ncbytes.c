@@ -188,3 +188,4 @@ ncbytesnull(NCbytes* bb)
     bb->length--;
     return 1;
 }
+

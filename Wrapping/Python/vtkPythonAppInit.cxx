@@ -15,14 +15,15 @@
 
 /* Minimal main program -- everything is loaded from the library */
 
+#include "vtkPython.h"
+
 #ifdef VTK_COMPILED_USING_MPI
 # include <mpi.h>
 # include "vtkMPIController.h"
 #endif // VTK_COMPILED_USING_MPI
 
-#include "vtkPython.h"
 #include "vtkVersion.h"
-#include "Wrapping/Python/vtkPythonAppInitConfigure.h"
+#include "vtkPythonAppInitConfigure.h"
 
 #include "vtkpythonmodules.h"
 
@@ -130,7 +131,8 @@ int main(int argc, char **argv)
   strcpy(argv0, av0.c_str());
   Py_SetProgramName(argv0);
 
-  // This function is generated, and will load any static Python modules for VTK
+  // This function is generated, and will register any static Python modules for VTK
+  // This needs to be done *before* Py_Initialize().
   CMakeLoadAllPythonModules();
 
   // Initialize interpreter.
@@ -225,7 +227,10 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
 #endif
     package_dir += (*build_dir);
     package_dir = vtksys::SystemTools::CollapseFullPath(package_dir.c_str());
-    if(vtksys::SystemTools::FileIsDirectory(package_dir.c_str()))
+
+    // We try to locate the directory containing vtk python module files.
+    std::string vtk_module_dir = package_dir + "/vtk";
+    if(vtksys::SystemTools::FileIsDirectory(vtk_module_dir.c_str()))
       {
       // This executable is running from the build tree.  Prepend the
       // library directory and package directory to the search path.

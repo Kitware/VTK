@@ -226,9 +226,7 @@ int ImageDataLIC2D(int argc, char* argv[])
 
   for (int kk=0; kk < num_partitions; kk++)
     {
-    vtkStreamingDemandDrivenPipeline* sddp = vtkStreamingDemandDrivenPipeline::SafeDownCast(
-      filter->GetExecutive());
-    sddp->SetUpdateExtent(0, kk, num_partitions, 0);
+    filter->SetUpdateExtent(0, kk, num_partitions, 0);
 
     vtkTimerLog* timer = vtkTimerLog::New();
     timer->StartTimer();
@@ -237,7 +235,6 @@ int ImageDataLIC2D(int argc, char* argv[])
          filter->GetLICSuccess() == 0 )
       {
       timer->Delete();
-      sddp   = NULL;
       timer  = NULL;
       return 0;
       }

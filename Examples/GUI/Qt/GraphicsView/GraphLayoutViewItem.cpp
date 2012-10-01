@@ -19,7 +19,6 @@ GraphLayoutViewItem::GraphLayoutViewItem(QGLContext* ctx, QGraphicsItem* p)
   : QVTKGraphicsItem(ctx, p)
 {
   GraphLayoutView.TakeReference(vtkGraphLayoutView::New());
-  GraphLayoutView->SetInteractor(this->GetInteractor());
   GraphLayoutView->SetRenderWindow(this->GetRenderWindow());
 
   QFile f1(":/Data/treetest.xml");

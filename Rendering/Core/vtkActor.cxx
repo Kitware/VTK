@@ -15,7 +15,7 @@
 #include "vtkActor.h"
 
 #include "vtkDataArray.h"
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkMapper.h"
 #include "vtkMath.h"
@@ -35,8 +35,8 @@ vtkCxxSetObjectMacro(vtkActor,BackfaceProperty,vtkProperty);
 vtkCxxSetObjectMacro(vtkActor,Property,vtkProperty);
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkActor);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkActor)
 
 // Creates an actor with the following defaults: origin(0,0,0)
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
@@ -91,15 +91,6 @@ void vtkActor::ShallowCopy(vtkProp *prop)
 
   // Now do superclass
   this->vtkProp3D::ShallowCopy(prop);
-}
-
-//----------------------------------------------------------------------------
-// return the correct type of Actor
-vtkActor *vtkActor::New()
-{
-  // First try to create the object from the vtkGraphicsFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkActor");
-  return static_cast<vtkActor *>(ret);
 }
 
 //----------------------------------------------------------------------------

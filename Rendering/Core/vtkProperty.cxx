@@ -15,20 +15,16 @@
 #include "vtkProperty.h"
 
 #include "vtkActor.h"
-#include "vtkBMPReader.h"
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkImageReader2.h"
-#include "vtkJPEGReader.h"
-#include "vtkPNGReader.h"
-#include "vtkPNMReader.h"
+#include "vtkImageReader2Factory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkTexture.h"
-#include "vtkTIFFReader.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLMaterial.h"
 #include "vtkXMLMaterialParser.h"
@@ -54,8 +50,8 @@ public:
 
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkProperty);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkProperty)
 //----------------------------------------------------------------------------
 
 // Construct object with object color, ambient color, diffuse color,
@@ -168,8 +164,7 @@ static IVarEnum XMLMemberToIvar( const char* name )
     return IVarNone;
     }
 
-
-};
+}
 
 
 // specular color, and edge color white; ambient coefficient=0; diffuse
@@ -272,15 +267,6 @@ void vtkProperty::DeepCopy(vtkProperty *p)
 
     // TODO: need to pass shader variables.
     }
-}
-
-//----------------------------------------------------------------------------
-// return the correct type of Property
-vtkProperty *vtkProperty::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkProperty");
-  return static_cast<vtkProperty *>(ret);
 }
 
 //----------------------------------------------------------------------------
@@ -861,45 +847,19 @@ void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
     return;
     }
 
-  const char* format = elem->GetAttribute("format");
-  vtkStdString string_format;
 
-  if (!format)
-    {
-    // determine format from file extension.
-    string_format = vtksys::SystemTools::GetFilenameLastExtension(location);
-    format = string_format.c_str();
-    }
+  char* filename = vtkXMLShader::LocateFile(location);
 
-  vtkImageReader2* reader;
-  if (strcmp(format, "bmp") == 0)
+  vtkImageReader2* reader =
+    vtkImageReader2Factory::CreateImageReader2(filename);
+
+  if (!reader)
     {
-    reader = vtkBMPReader::New();
-    }
-  else if (strcmp(format, "jpg") == 0 || strcmp(format, "jpeg") == 0)
-    {
-    reader = vtkJPEGReader::New();
-    }
-  else if (strcmp(format, "png") == 0)
-    {
-    reader = vtkPNGReader::New();
-    }
-  else if (strcmp(format, "tiff") == 0 || strcmp(format, "tif") == 0)
-    {
-    reader = vtkTIFFReader::New();
-    }
-  else if (strcmp(format, "ppm") == 0)
-    {
-    reader = vtkPNMReader::New();
-    }
-  else
-    {
-    vtkErrorMacro("Invalid format='" << format << "' for element with name="
+    vtkErrorMacro("Invalid format for element with name="
       << name);
     return;
     }
 
-  char* filename = vtkXMLShader::LocateFile(location);
   if (filename)
     {
     reader->SetFileName(filename);

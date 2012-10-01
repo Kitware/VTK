@@ -26,7 +26,8 @@
 #define __vtkTemporalFractal_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
-#include "vtkTemporalDataSetAlgorithm.h"
+#include "vtkAlgorithm.h"
+#include "vtkSmartPointer.h" //for ivars
 
 class vtkCompositeDataSet;
 class vtkDataSet;
@@ -34,12 +35,13 @@ class vtkHierarchicalBoxDataSet;
 class vtkIntArray;
 class vtkRectilinearGrid;
 class vtkUniformGrid;
+class TemporalFractalOutputUtil;
 
-class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal : public vtkTemporalDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal: public vtkAlgorithm
 {
 public:
   static vtkTemporalFractal *New();
-  vtkTypeMacro(vtkTemporalFractal,vtkTemporalDataSetAlgorithm);
+  vtkTypeMacro(vtkTemporalFractal,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -104,9 +106,24 @@ protected:
   vtkTemporalFractal();
   ~vtkTemporalFractal();
 
+  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
+
   int StartBlock;
   int EndBlock;
   int BlockCount;
+
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector** inputVector,
+                             vtkInformationVector* outputVector);
+
+  // Description:
+  // This is called by the superclass.
+  // This is the method you should override.
+  virtual int RequestDataObject(vtkInformation*,
+                                vtkInformationVector**,
+                                vtkInformationVector*);
 
   // Description:
   // This is called by the superclass.
@@ -140,10 +157,6 @@ protected:
   void SetBlockInfo(vtkUniformGrid *grid, int level, int* ext,int onFace[6]);
   void SetRBlockInfo(vtkRectilinearGrid *grid, int level, int* ext,
                      int onFace[6]);
-
-
-  void AddDataSet(vtkDataObject* output, unsigned int level, int extents[6],
-    vtkDataSet* dataSet);
 
   void AddVectorArray(vtkHierarchicalBoxDataSet *output);
   void AddTestArray(vtkHierarchicalBoxDataSet *output);
@@ -198,6 +211,7 @@ protected:
   double CurrentTime;
 
   int AdaptiveSubdivision;
+  vtkSmartPointer<TemporalFractalOutputUtil> OutputUtil;
 
 private:
   vtkTemporalFractal(const vtkTemporalFractal&);  // Not implemented.

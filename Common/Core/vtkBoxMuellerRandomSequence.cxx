@@ -62,7 +62,7 @@ void vtkBoxMuellerRandomSequence::Next()
     y=this->UniformSequence->GetValue();
     }
 
-  this->Value=sqrt(-2.0*log(x))*cos(vtkMath::DoubleTwoPi()*y);
+  this->Value=sqrt(-2.0*log(x))*cos(2.0 * vtkMath::Pi()*y);
 }
 
 // ----------------------------------------------------------------------------

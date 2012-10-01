@@ -89,6 +89,10 @@ void vtkInteractorStyleImage::StartWindowLevel()
     return;
     }
   this->StartState(VTKIS_WINDOW_LEVEL);
+
+  // Get the last (the topmost) image
+  this->SetCurrentImageToNthImage(-1);
+
   if (this->HandleObservers &&
       this->HasObserver(vtkCommand::StartWindowLevelEvent))
     {
@@ -96,9 +100,6 @@ void vtkInteractorStyleImage::StartWindowLevel()
     }
   else
     {
-    // Get the last (the topmost) image
-    this->SetCurrentImageToNthImage(-1);
-
     if (this->CurrentImageProperty)
       {
       vtkImageProperty *property = this->CurrentImageProperty;
@@ -642,15 +643,24 @@ void vtkInteractorStyleImage::SetCurrentImageToNthImage(int i)
     int j = 0;
     for (props->InitTraversal(pit); (prop = props->GetNextProp(pit)); )
       {
+      bool foundImageProp = false;
       for (prop->InitPathTraversal(); (path = prop->GetNextPath()); )
         {
         vtkProp *tryProp = path->GetLastNode()->GetViewProp();
         if ( (imageProp = vtkImageSlice::SafeDownCast(tryProp)) != 0 )
           {
-          if (j == i) { break; }
+          if (j == i)
+            {
+            foundImageProp = true;
+            break;
+            }
           imageProp = 0;
           j++;
           }
+        }
+      if (foundImageProp)
+        {
+        break;
         }
       }
     if (i < 0)
