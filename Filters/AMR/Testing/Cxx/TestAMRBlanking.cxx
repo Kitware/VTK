@@ -21,7 +21,6 @@
 #include "vtkUniformGrid.h"
 #include "vtkAMRUtilities.h"
 #include "vtkStructuredData.h"
-#include "vtkXMLHierarchicalBoxDataWriter.h"
 #include "vtkAMRBox.h"
 
 #include <cassert>
