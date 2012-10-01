@@ -24,6 +24,7 @@
 #include "vtkImageData.h"
 #include "vtkTimerLog.h"
 #include "vtkSmartPointer.h"
+#include "vtkNew.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkImageClip.h"
@@ -390,6 +391,20 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
   rt_w2if->Update();
   int res = this->RegressionTest(rt_w2if, thresh, os);
   return res;
+}
+//-----------------------------------------------------------------------------
+int vtkTesting::RegressionTest(const std::string &pngFileName, double thresh)
+{
+  return this->RegressionTest(pngFileName, thresh, cout);
+}
+//-----------------------------------------------------------------------------
+int vtkTesting::RegressionTest(const std::string &pngFileName, double thresh,
+                               ostream &os)
+{
+  vtkNew<vtkPNGReader> inputReader;
+  inputReader->SetFileName(pngFileName.c_str());
+  inputReader->Update();
+  return this->RegressionTest(inputReader.GetPointer(), thresh, os);
 }
 //-----------------------------------------------------------------------------
 int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,

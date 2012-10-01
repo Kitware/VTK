@@ -4,4 +4,6 @@ vtk_module(vtkRenderingGL2PS
     vtkRenderingContext2D
     vtkRenderingMathText
     vtkgl2ps
+  TEST_DEPENDS
+    vtkTestingRendering
 )
