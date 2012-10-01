@@ -286,7 +286,22 @@ protected:
   //  <li> TOP    = 4 (+j direction) </li>
   //  <li> BOTTOM = 5 (-j direction) </li>
   // </ul>
-  bool HasBlockConnection(const int gridID, const int blockDirection);
+  bool HasBlockConnection(const int gridID, const int blockDirection)
+  {
+    // Sanity check
+    assert("pre: gridID is out-of-bounds" &&
+          (gridID >=0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+    assert("pre: BlockTopology has not been properly allocated" &&
+          (this->NumberOfGrids == this->BlockTopology.size()));
+    assert("pre: blockDirection is out-of-bounds" &&
+          (blockDirection >= 0) && (blockDirection < 6) );
+    bool status = false;
+    if( this->BlockTopology[ gridID ] & (1 << blockDirection) )
+      {
+      status = true;
+      }
+    return( status );
+  }
 
   // Description:
   // Removes a block connection along the given direction for the block
@@ -559,25 +574,6 @@ int vtkStructuredAMRGridConnectivity::GetNumberOfConnectingBlockFaces(
     }
   assert( "post: count must be in [0,5]" && (count >=0 && count <= 6) );
   return( count );
-}
-
-//------------------------------------------------------------------------------
-inline bool vtkStructuredAMRGridConnectivity::HasBlockConnection(
-    const int gridID, const int blockDirection )
-{
-  // Sanity check
-  assert("pre: gridID is out-of-bounds" &&
-        (gridID >=0) && (gridID < static_cast<int>(this->NumberOfGrids)));
-  assert("pre: BlockTopology has not been properly allocated" &&
-        (this->NumberOfGrids == this->BlockTopology.size()));
-  assert("pre: blockDirection is out-of-bounds" &&
-        (blockDirection >= 0) && (blockDirection < 6) );
-  bool status = false;
-  if( this->BlockTopology[ gridID ] & (1 << blockDirection) )
-    {
-    status = true;
-    }
-  return( status );
 }
 
 //------------------------------------------------------------------------------
