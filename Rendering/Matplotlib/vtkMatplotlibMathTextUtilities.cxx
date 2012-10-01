@@ -373,9 +373,9 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
   double angleDeg = tprop->GetOrientation();
   // Corners of original image
   double corners[4][2] = { {0, 0},
-                           {cols, 0},
-                           {0, rows},
-                           {cols, rows} };
+                           {static_cast<double>(cols), 0},
+                           {0, static_cast<double>(rows)},
+                           {static_cast<double>(cols), static_cast<double>(rows)} };
 
   double bboxd[4];
   this->RotateCorners(angleDeg, corners, bboxd);
