@@ -747,7 +747,7 @@ bool TestSearchForSynonyms()
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
   std::vector<std::vector<vtkStdString> > synonyms =
     ParseSynonyms(nc->GetSynonyms());
-  return synonyms.size() == NUMBER_OF_SYNONYMS;
+  return static_cast<int>(synonyms.size()) == NUMBER_OF_SYNONYMS;
 }
 
 int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -850,7 +850,7 @@ int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     testResult &= false;
     }
 
-  if ( cn.size() != NUMBER_OF_COLORS )
+  if ( static_cast<int>(cn.size()) != NUMBER_OF_COLORS )
     {
     vtkGenericWarningMacro(
       << "Fail: Incorrect number of colors"
@@ -890,7 +890,7 @@ int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   std::ostringstream os;
   nc->PrintSelf(os,vtkIndent(2));
   //std::cout << os.str() << std::endl;
-  if ( os.str().size() != PRINT_SELF_STRING_SIZE )
+  if ( static_cast<int>(os.str().size()) != PRINT_SELF_STRING_SIZE )
   {
     vtkGenericWarningMacro(
       << "Fail: PrintSelf() - a string of size " <<
