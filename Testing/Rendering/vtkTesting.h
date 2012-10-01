@@ -141,6 +141,13 @@ public:
   virtual int RegressionTest(double thresh,ostream &os);
 
   // Description:
+  // Perform the test and return result. The test image will be read from the
+  // png file at pngFileName.
+  virtual int RegressionTest(const std::string &pngFileName, double thresh);
+  virtual int RegressionTest(const std::string &pngFileName,
+                             double thresh, ostream& os);
+
+  // Description:
   // Compare the image with the valid image.
   virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh);
   virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream& os);

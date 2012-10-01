@@ -16,6 +16,7 @@
 #include "vtkMathTextActor3D.h"
 
 #include "vtkCamera.h"
+#include "vtkGL2PSExporter.h"
 #include "vtkNew.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -24,7 +25,7 @@
 #include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
-int TestMathTextActor3D(int, char *[])
+int TestGL2PSMathTextActor3D(int, char *[])
 {
 
   vtkNew<vtkMathTextActor3D> actor1;
@@ -78,11 +79,27 @@ int TestMathTextActor3D(int, char *[])
   ren->AddActor(actor5.GetPointer());
 
   ren->SetBackground(0.0, 0.0, 0.0);
-  win->SetSize(600, 600);
   ren->GetActiveCamera()->SetPosition(0, 0, 400);
   ren->GetActiveCamera()->SetFocalPoint(0, 0, 0);
   ren->GetActiveCamera()->SetViewUp(0, 1, 0);
+  win->SetSize(600, 600);
+  win->Render();
 
+  vtkNew<vtkGL2PSExporter> exp;
+  exp->SetRenderWindow(win.GetPointer());
+  exp->SetFileFormatToPS();
+  exp->CompressOff();
+  exp->SetSortToSimple();
+  exp->DrawBackgroundOn();
+
+  std::string fileprefix = vtkTestingInteractor::TempDirectory +
+      std::string("/TestGL2PSMathTextActor3D");
+
+  exp->SetFilePrefix(fileprefix.c_str());
+  exp->WriteTimeStampOff(); // Otherwise hashes won't match
+  exp->Write();
+
+  // Finally render the scene and compare the image to a reference image
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
   win->GetInteractor()->Start();

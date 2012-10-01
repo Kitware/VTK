@@ -16,6 +16,7 @@
 #include "vtkMathTextActor.h"
 
 #include "vtkCamera.h"
+#include "vtkGL2PSExporter.h"
 #include "vtkNew.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -24,7 +25,7 @@
 #include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
-int TestMathTextActor(int, char *[])
+int TestGL2PSMathTextActor(int, char *[])
 {
   vtkNew<vtkMathTextActor> actor1;
   actor1->SetInput("$\\langle\\psi_i\\mid\\psi_j\\rangle = \\delta_{ij}$");
@@ -79,7 +80,23 @@ int TestMathTextActor(int, char *[])
 
   ren->SetBackground(0.0, 0.0, 0.0);
   win->SetSize(600, 600);
+  win->Render();
 
+  vtkNew<vtkGL2PSExporter> exp;
+  exp->SetRenderWindow(win.GetPointer());
+  exp->SetFileFormatToPS();
+  exp->CompressOff();
+  exp->SetSortToSimple();
+  exp->DrawBackgroundOn();
+
+  std::string fileprefix = vtkTestingInteractor::TempDirectory +
+      std::string("/TestGL2PSMathTextActor");
+
+  exp->SetFilePrefix(fileprefix.c_str());
+  exp->WriteTimeStampOff(); // Otherwise hashes won't match
+  exp->Write();
+
+  // Finally render the scene and compare the image to a reference image
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
   win->GetInteractor()->Start();
