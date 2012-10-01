@@ -101,15 +101,15 @@ IF(_MAY_BE_INTEL_COMPILER)
 ENDIF(_MAY_BE_INTEL_COMPILER)
 
 
-IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|VCExpress)")
-# Use the highest warning level for visual studio.
+IF(MSVC)
+# Use the highest warning level for visual c++ compiler.
   SET(CMAKE_CXX_WARNING_LEVEL 4)
   IF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
     STRING(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   ELSE(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   ENDIF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-ENDIF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|VCExpress)")
+ENDIF(MSVC)
 
 # Disable deprecation warnings for standard C and STL functions in VS2005
 # and later
