@@ -66,7 +66,6 @@ int TestGL2PSMathTextOutput(int, char *[])
       std::string("/TestGL2PSMathTextOutput");
 
   exp->SetFilePrefix(fileprefix.c_str());
-  exp->WriteTimeStampOff(); // Otherwise hashes won't match
   exp->Write();
 
   return EXIT_SUCCESS;

@@ -134,7 +134,6 @@ int TestStackedPlotGL2PS(int , char * [])
       std::string("/TestStackedPlotGL2PS");
 
   exp->SetFilePrefix(fileprefix.c_str());
-  exp->WriteTimeStampOff(); // Otherwise hashes won't match
   exp->Write();
 
   //Finally render the scene and compare the image to a reference image

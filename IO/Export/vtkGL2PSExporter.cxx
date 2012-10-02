@@ -74,7 +74,6 @@ vtkGL2PSExporter::vtkGL2PSExporter()
   this->PS3Shading = 1;
   this->OcclusionCull = 1;
   this->Write3DPropsAsRasterImage = 0;
-  this->WriteTimeStamp = 1;
   this->PixelData = NULL;
 }
 
@@ -209,9 +208,6 @@ void vtkGL2PSExporter::WriteData()
     gl2psBeginPage(this->Title ? this->Title : "VTK GL2PS Export", "VTK",
                    viewport, format, sort, options, GL_RGBA, 0,
                    NULL, 0, 0, 0, buffsize, fpObj, fName);
-
-    if (!this->WriteTimeStamp)
-      gl2psDisable(GL2PS_TIMESTAMP);
 
     // Render non-specialized geometry by either passing in the raster image or
     // rendering into the feedback buffer.

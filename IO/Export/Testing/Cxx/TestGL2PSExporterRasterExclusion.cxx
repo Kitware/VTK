@@ -120,7 +120,6 @@ int TestGL2PSExporterRasterExclusion( int, char *[] )
       std::string("/TestGL2PSExporterRasterExclusion");
 
   exp->SetFilePrefix(fileprefix.c_str());
-  exp->WriteTimeStampOff(); // Otherwise hashes won't match
   exp->Write();
 
   renWin->GetInteractor()->Initialize();

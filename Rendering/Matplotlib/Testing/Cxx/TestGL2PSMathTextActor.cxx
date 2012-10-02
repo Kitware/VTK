@@ -93,7 +93,6 @@ int TestGL2PSMathTextActor(int, char *[])
       std::string("/TestGL2PSMathTextActor");
 
   exp->SetFilePrefix(fileprefix.c_str());
-  exp->WriteTimeStampOff(); // Otherwise hashes won't match
   exp->Write();
 
   // Finally render the scene and compare the image to a reference image

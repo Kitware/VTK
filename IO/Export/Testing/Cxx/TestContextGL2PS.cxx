@@ -71,7 +71,6 @@ int TestContextGL2PS( int, char *[] )
       std::string("/TestContextGL2PS");
 
   exp->SetFilePrefix(fileprefix.c_str());
-  exp->WriteTimeStampOff(); // Otherwise hashes won't match
   exp->Write();
 
   return EXIT_SUCCESS;
