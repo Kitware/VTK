@@ -12,17 +12,26 @@ set(Module_SRCS
   vtkRungeKutta45.cxx
 
   # Header only classes
+  vtkQuaternion.h
   vtkTuple.h
   )
 
 set_source_files_properties(
+  vtkQuaternion
   vtkTuple
   WRAP_EXCLUDE
   )
 
 set_source_files_properties(
+  vtkQuaternion.h
   vtkTuple.h
   PROPERTIES WRAP_SPECIAL 1
+  )
+
+set(
+  ${vtk-module}_HDRS
+  vtkQuaternion.h
+  vtkQuaternion.txx
   )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -33,6 +42,7 @@ endif()
 set_source_files_properties(
   vtkFunctionSet
   vtkInitialValueProblemSolver
+  vtkQuaternion
   ABSTRACT
   )
 
