@@ -514,6 +514,84 @@ int vtkAxisActor::RenderOverlay(vtkViewport *viewport)
 }
 
 // **************************************************************************
+int vtkAxisActor::HasTranslucentPolygonalGeometry()
+{
+  if (this->Visibility && !this->AxisHasZeroLength)
+    {
+
+    if (this->TitleVisibility)
+      {
+      if (this->Use2DMode)
+        {
+        if (this->TitleActor2D->HasTranslucentPolygonalGeometry())
+          {
+          return 1;
+          }
+        }
+      else
+        {
+        if (this->TitleActor->HasTranslucentPolygonalGeometry())
+          {
+          return 1;
+          }
+        }
+      }
+
+    if (this->LabelVisibility)
+      {
+      if (this->Use2DMode)
+        {
+        for (int i = 0; i < this->NumberOfLabelsBuilt; ++i)
+          {
+          if (this->LabelActors2D[i]->HasTranslucentPolygonalGeometry())
+            {
+            return 1;
+            } // end if
+          } // end for
+        } // end 2D
+      else
+        {
+        for (int i = 0; i < this->NumberOfLabelsBuilt; ++i)
+          {
+          if (this->LabelActors[i]->HasTranslucentPolygonalGeometry())
+            {
+            return 1;
+            } // end if
+          } // end for
+        } // end 3D
+      } // end label vis
+
+    if (this->AxisLinesActor->HasTranslucentPolygonalGeometry())
+      {
+      return 1;
+      }
+
+    if (this->DrawGridlines &&
+        this->GridlinesActor->HasTranslucentPolygonalGeometry())
+      {
+      return 1;
+      }
+
+    if (this->DrawInnerGridlines &&
+        this->InnerGridlinesActor->HasTranslucentPolygonalGeometry())
+      {
+      return 1;
+      }
+
+    if (this->DrawGridpolys &&
+        this-GridpolysActor->HasTranslucentPolygonalGeometry())
+      {
+      return 1;
+      }
+
+    return this->Superclass::HasTranslucentPolygonalGeometry();
+
+    } // end this vis
+
+  return 0;
+}
+
+// **************************************************************************
 // Perform some initialization, determine which Axis type we are
 // **************************************************************************
 void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
