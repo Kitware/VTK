@@ -266,12 +266,6 @@ public:
   void SetRasterExclusions(vtkProp3DCollection*);
   vtkGetObjectMacro(RasterExclusions, vtkProp3DCollection);
 
-  // Description:
-  // Turn on/off the timestamp in the produced output. Defaults to on.
-  vtkSetMacro(WriteTimeStamp, int);
-  vtkGetMacro(WriteTimeStamp, int);
-  vtkBooleanMacro(WriteTimeStamp, int);
-
 protected:
   vtkGL2PSExporter();
   ~vtkGL2PSExporter();
@@ -340,7 +334,6 @@ protected:
   int PS3Shading;
   int OcclusionCull;
   int Write3DPropsAsRasterImage;
-  int WriteTimeStamp;
 
   float *PixelData;
   int PixelDataSize[2];
