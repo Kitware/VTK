@@ -35,6 +35,8 @@
 vtkInformationKeyMacro(vtkPolyDataPainter, BUILD_NORMALS, Integer);
 vtkInformationKeyMacro(vtkPolyDataPainter, DATA_ARRAY_TO_VERTEX_ATTRIBUTE, ObjectBase);
 vtkInformationKeyMacro(vtkPolyDataPainter, DISABLE_SCALAR_COLOR, Integer);
+vtkInformationKeyMacro(vtkPolyDataPainter, SHADER_DEVICE_ADAPTOR, ObjectBase)
+
 //-----------------------------------------------------------------------------
 vtkPolyDataPainter::vtkPolyDataPainter()
 {

@@ -307,6 +307,14 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
     shaderDevice2 = prop->GetShaderDeviceAdapter2();
     }
 
+  if(!shaderDevice2)
+    {
+    // load the shader device adapator from the information object
+    shaderDevice2 =
+      vtkShaderDeviceAdapter2::SafeDownCast(
+        this->GetInformation()->Get(SHADER_DEVICE_ADAPTOR()));
+    }
+
   if (shaderDevice && this->GenericVertexAttributes)
     {
     idx |= VTK_PDM_GENERIC_VERTEX_ATTRIBUTES;

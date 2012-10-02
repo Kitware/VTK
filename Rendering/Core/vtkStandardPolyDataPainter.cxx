@@ -214,22 +214,32 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer,
       // Preprocess the generic vertex attributes that we need to pass to the
       // shader.
       shaderDevice = property->GetShaderProgram()->GetShaderDeviceAdapter();
-      if (shaderDevice)
-        {
-        shaderDevice->PrepareForRender();
-        }
       }
     else
       {
       // Preprocess the generic vertex attributes that we need to pass to the
       // shader.
       shaderDevice2 = property->GetShaderDeviceAdapter2();
-      if(shaderDevice2!=0)
-        {
-        shaderDevice2->PrepareForRender();
-        }
       }
     }
+
+  if(!shaderDevice2)
+    {
+    // load the shader device adapator from the information object
+    shaderDevice2 =
+      vtkShaderDeviceAdapter2::SafeDownCast(
+        this->GetInformation()->Get(SHADER_DEVICE_ADAPTOR()));
+    }
+
+  if(shaderDevice)
+    {
+    shaderDevice->PrepareForRender();
+    }
+  if(shaderDevice2)
+    {
+    shaderDevice2->PrepareForRender();
+    }
+
   this->UpdateGenericAttributesCache(shaderDevice,shaderDevice2);
 
 

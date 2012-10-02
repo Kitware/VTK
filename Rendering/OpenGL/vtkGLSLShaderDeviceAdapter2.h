@@ -60,20 +60,12 @@ public:
                              unsigned long offset=0);
 
 //BTX
-  // Description:
-  // Set the shader program which is being updated by this device adapter.
-  // The shader program is not reference counted to avoid reference loops.
-  void SetShaderProgram(vtkShaderProgram2 *program);
-  vtkGetObjectMacro(ShaderProgram, vtkShaderProgram2);
-
 protected:
   vtkGLSLShaderDeviceAdapter2();
   ~vtkGLSLShaderDeviceAdapter2();
 
   // Description:
   int GetAttributeLocation(const char* attrName);
-
-  vtkShaderProgram2 *ShaderProgram;
 
 private:
   vtkGLSLShaderDeviceAdapter2(const vtkGLSLShaderDeviceAdapter2&);
