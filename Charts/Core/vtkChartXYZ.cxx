@@ -296,8 +296,6 @@ vtkAxis * vtkChartXYZ::GetAxis(int axis)
 void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)
 {
   this->Geometry = bounds;
-  this->Scene->SetGeometry(static_cast<int>(bounds.GetWidth()),
-                           static_cast<int>(bounds.GetHeight()));
 }
 
 vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), Link(NULL), Angle(0),
