@@ -539,7 +539,7 @@ JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
   return JNU_GetStringNativeChars(env, in);
 }
 
-JNIEXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, vtkStdString &out)
+JNIEXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, std::string &out)
 {
   const char *cstring = JNU_GetStringNativeChars(env, in);
   if( cstring )
