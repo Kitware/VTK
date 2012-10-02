@@ -88,7 +88,23 @@ public:
 
   // Description:
   // Overload assignment operator
-  vtkStructuredNeighbor& operator=(const vtkStructuredNeighbor &N );
+  vtkStructuredNeighbor& operator=(const vtkStructuredNeighbor &N )
+  {
+    if( this != &N )
+      {
+      this->Orientation[ 0 ] = N.Orientation[ 0 ];
+      this->Orientation[ 1 ] = N.Orientation[ 1 ];
+      this->Orientation[ 2 ] = N.Orientation[ 2 ];
+      this->NeighborID = N.NeighborID;
+      for( int i=0; i < 6; ++i )
+        {
+        this->SendExtent[ i ]    = N.SendExtent[ i ];
+        this->RcvExtent[ i ]     = N.RcvExtent[ i ];
+        this->OverlapExtent[ i ] = N.OverlapExtent[ i ];
+        } // END for
+      } // END if
+    return *this;
+  }
 
   // Description:
   // Computes the SendExtent and the RcvExtent for this neighbor. The method
@@ -99,29 +115,6 @@ public:
       int gridRealExtent[6], int gridGhostedExtent[6], int neiRealExtent[6],
       int WholeExtent[6], const int N);
 };
-
-//=============================================================================
-//  INLINE METHODS
-//=============================================================================
-
-inline vtkStructuredNeighbor& vtkStructuredNeighbor::operator=(
-    const vtkStructuredNeighbor &N )
-{
-  if( this != &N )
-    {
-    this->Orientation[ 0 ] = N.Orientation[ 0 ];
-    this->Orientation[ 1 ] = N.Orientation[ 1 ];
-    this->Orientation[ 2 ] = N.Orientation[ 2 ];
-    this->NeighborID = N.NeighborID;
-    for( int i=0; i < 6; ++i )
-      {
-      this->SendExtent[ i ]    = N.SendExtent[ i ];
-      this->RcvExtent[ i ]     = N.RcvExtent[ i ];
-      this->OverlapExtent[ i ] = N.OverlapExtent[ i ];
-      } // END for
-    } // END if
-  return *this;
-}
 
 #endif /* VTKSTRUCTUREDNEIGHBOR_H_ */
 // VTK-HeaderTest-Exclude: vtkStructuredNeighbor.h
