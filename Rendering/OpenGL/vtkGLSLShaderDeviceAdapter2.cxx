@@ -43,7 +43,6 @@ vtkGLSLShaderDeviceAdapter2::vtkGLSLShaderDeviceAdapter2()
 {
   GLSL_SHADER_DEVICE_ADAPTER("constructor");
   this->Internal = new vtkInternal();
-  this->ShaderProgram=0;
 }
 
 //---------------------------------------------------------------------------
@@ -108,15 +107,6 @@ static inline GLenum VTK2SignedOpenGLType(int type)
 
     default:                    return GL_FALSE;
     }
-}
-
-// ----------------------------------------------------------------------------
-// Description:
-// Set the shader program which is being updated by this device adapter.
-// The shader program is not reference counted to avoid reference loops.
-void vtkGLSLShaderDeviceAdapter2::SetShaderProgram(vtkShaderProgram2 *program)
-{
-  this->ShaderProgram = program;
 }
 
 //---------------------------------------------------------------------------
@@ -293,6 +283,4 @@ void vtkGLSLShaderDeviceAdapter2::SendAttribute(const char *attrname,
 void vtkGLSLShaderDeviceAdapter2::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "ShaderProgram: " << this->ShaderProgram << endl;
 }
