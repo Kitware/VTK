@@ -332,11 +332,14 @@ int TestSpecialDates()
   vtkTypeUInt64 tp1 =
     vtkTimePointUtility::DateTimeToTimePoint(1946, 11, 8, 0, 0, 0, 0);
   vtkTypeUInt64 jd1 = tp1 / vtkTimePointUtility::MILLIS_PER_DAY;
+  const char *iso6 = vtkTimePointUtility::TimePointToISO8601(tp1, 0);
   std::cout << "Julian Day for this historic date 11/8/1946 is: "
             << jd1
             << " and its representation is "
-            << vtkTimePointUtility::TimePointToISO8601(tp1, 0)
+            << iso6
             << std::endl;
+  delete []iso6;
+
   if (jd1 != expectedJD)
     {
     std::cout << "ERROR: The computed Julian Day is " << jd1
@@ -349,11 +352,14 @@ int TestSpecialDates()
     vtkTimePointUtility::DateTimeToTimePoint(1582, 10, 4, 0, 0, 0, 0);
   vtkTypeUInt64 jd2 = tp2 / vtkTimePointUtility::MILLIS_PER_DAY;
 
+  const char *iso7 = vtkTimePointUtility::TimePointToISO8601(tp2, 0);
   std::cout << "Julian Day for this historic date 10/4/1582 is: "
             << jd2
             << " and its representation is "
-            << vtkTimePointUtility::TimePointToISO8601(tp2, 0)
+            << iso7
             << std::endl;
+  delete []iso7;
+
   if (jd2 != expectedJD)
     {
     std::cout << "ERROR: The computed Julian Day is " << jd2
@@ -366,11 +372,13 @@ int TestSpecialDates()
     vtkTimePointUtility::DateTimeToTimePoint(1582, 10, 15, 0, 0, 0, 0);
   vtkTypeUInt64 jd3 = tp3 / vtkTimePointUtility::MILLIS_PER_DAY;
 
+  const char *iso8 = vtkTimePointUtility::TimePointToISO8601(tp3, 0);
   std::cout << "Julian Day for this historic date 10/15/1582 is: "
             << jd3
             << " and its representation is "
-            << vtkTimePointUtility::TimePointToISO8601(tp3, 0)
+            << iso8
             << std::endl;
+  delete []iso8;
   if (jd3 != expectedJD)
     {
     std::cout << "ERROR: The computed Julian Day is " << jd3
