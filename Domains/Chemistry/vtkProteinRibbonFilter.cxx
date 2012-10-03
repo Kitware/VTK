@@ -42,11 +42,11 @@ namespace
 // to the vtkColor code.
 vtkColor3ub ToColor3ubFromHex3(vtkTypeUInt32 hex)
 {
-  int b = hex & 0xff;
+  unsigned char b = hex & 0xff;
   hex >>= 8;
-  int g = hex & 0xff;
+  unsigned char g = hex & 0xff;
   hex >>= 8;
-  int r = hex & 0xff;
+  unsigned char r = hex & 0xff;
   return vtkColor3ub(r, g, b);
 }
 // Again, should be added to the vtkColor code.
@@ -62,8 +62,9 @@ vtkProteinRibbonFilter::vtkProteinRibbonFilter()
 {
   this->CoilWidth = 0.3f;
   this->HelixWidth = 1.3f;
-  this->SphereResolution = 60;
+  this->SphereResolution = 20;
   this->SubdivideFactor = 20;
+  this->DrawSmallMoleculesAsSpheres = true;
 
   this->ElementColors["H"]  = ToColor3ubFromHex3(0xCCCCCC);
   this->ElementColors["C"]  = ToColor3ubFromHex3(0xAAAAAA);
@@ -103,13 +104,16 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
   vtkPolyData *output = vtkPolyData::GetData(outputVector);
 
   vtkPointData* pointData = input->GetPointData();
+
   // Extract alpha-carbon backbone from input poly data
   vtkStringArray *atomTypes =
     vtkStringArray::SafeDownCast(pointData->GetAbstractArray("atom_types"));
+  vtkIdTypeArray *atomType =
+    vtkIdTypeArray::SafeDownCast(pointData->GetAbstractArray("atom_type"));
 
-  if (!atomTypes)
+  if (!atomTypes || !atomType)
     {
-    vtkErrorMacro(<< "Atom Type String Array Required");
+    vtkErrorMacro(<< "Atom Type String & Ids Arrays Required");
     return 0;
     }
 
@@ -133,8 +137,8 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
     return 0;
     }
 
-  char currentChain = 0;
-  char ss = 0;
+  unsigned char currentChain = 0;
+  unsigned char ss = 0;
   vtkIdType currentResi = 0;
   vtkVector3f currentCA(0.f);
   vtkVector3f prevCO(0.f);
@@ -165,24 +169,23 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
   for (int i = 0; i < input->GetNumberOfPoints(); i++)
     {
     vtkStdString type = atomTypes->GetValue(i);
-    if (ishetatm->GetValue(i))
-      {
-      if (type == "O")
-        {
-        continue;
-        }
+    unsigned short atomicNum = static_cast<unsigned short>(atomType->GetValue(i) + 1);
 
-      unsigned short atomicNum = pTab->GetAtomicNumber(type);
-      vtkColor3f color = pTab->GetDefaultRGBTuple(atomicNum);
-      CreateAtomAsSphere(strand.GetPointer(), pointsColors.GetPointer(),
-                         input->GetPoint(i), ToColor3ubFromColor3f(color),
-                         pTab->GetVDWRadius(atomicNum), 1.f);
+    if (ishetatm->GetValue(i) && this->DrawSmallMoleculesAsSpheres)
+      {
+      if (type != "O")
+        {
+        CreateAtomAsSphere(strand.GetPointer(), pointsColors.GetPointer(),
+                           input->GetPoint(i),
+                           ToColor3ubFromColor3f(pTab->GetDefaultRGBTuple(atomicNum)),
+                           pTab->GetVDWRadius(atomicNum), 1.f);
+        }
       }
     else if (type == "CA")
       {
       // Create a ribbon between 2 CA atoms passing through each O atoms found in-between
       double *xyz = input->GetPoint(i);
-      char atomChain = chain->GetValue(i);
+      unsigned char atomChain = chain->GetValue(i);
       vtkIdType atomResi = resi->GetValue(i);
 
       if (currentChain != atomChain || currentResi + 1 != atomResi)
@@ -248,7 +251,14 @@ void vtkProteinRibbonFilter::SetColorByAtom(std::vector<vtkColor3ub>& colors,
   colors.resize(len);
   for (unsigned int i = 0; i < len; i++)
     {
-    colors[i] = this->ElementColors[atomTypes->GetValue(i)];
+    if(this->ElementColors.find(atomTypes->GetValue(i)) != this->ElementColors.end())
+      {
+      colors[i] = this->ElementColors[atomTypes->GetValue(i)];
+      }
+    else
+      {
+      colors[i] = vtkColor3ub(0xFFFFFF);
+      }
     }
 }
 

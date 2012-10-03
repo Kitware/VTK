@@ -261,6 +261,8 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
     {
     this->AtomType->Reset();
     }
+  this->AtomType->SetName("atom_type");
+  output->GetPointData()->AddArray(this->AtomType);
 
   if(!this->AtomTypeStrings)
     {

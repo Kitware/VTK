@@ -40,11 +40,10 @@ vtkPDBReader::~vtkPDBReader()
 
 void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
 {
-  char linebuf[82], dum1[8], dum2[8];
-  char atype[4+1], chain;
-  char startChain, endChain;
+  char linebuf[82], dum1[8], dum2[8], elem[3];
+  char chain, startChain, endChain;
   int startResi, endResi;
-  int hydr = 0, resi;
+  int resi;
   int i, j;
   float x[3];
 
@@ -73,26 +72,21 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
 
     if (command == "ATOM" || command == "HETATM")
       {
-      sscanf(&linebuf[12],"%4s", dum1);
-      sscanf(&linebuf[17],"%3s", dum2);
+      sscanf(&linebuf[12], "%4s", dum1);
+      sscanf(&linebuf[17], "%3s", dum2);
       chain = linebuf[21];
-      sscanf(&linebuf[22],"%d", &resi);
+      sscanf(&linebuf[22], "%d", &resi);
       sscanf(&linebuf[30],"%8f%8f%8f", x, x+1, x+2);
+      sscanf(&linebuf[76], "%2s", elem);
 
-      if (hydr == 0 || (!(dum1[0]=='H' || dum1[0]=='h')))
+      if (!((elem[0]=='H' || elem[0]=='h') && elem[1]=='\0'))
         { /* skip hydrogen */
         this->Points->InsertNextPoint(x);
-        for(j=0, i=static_cast<int>(strspn(dum1, " ")); i < 5; i++)
-          {
-          atype[j++] = dum1[i];
-          }
-
         this->Residue->InsertNextValue(resi);
         this->Chain->InsertNextValue(chain);
-        this->AtomType->InsertNextValue(this->MakeAtomType(atype));
-        this->AtomTypeStrings->InsertNextValue(atype);
+        this->AtomType->InsertNextValue(this->MakeAtomType(elem));
+        this->AtomTypeStrings->InsertNextValue(dum1);
         this->IsHetatm->InsertNextValue(command[0] == 'H');
-
         this->NumberOfAtoms++;
         }
       }

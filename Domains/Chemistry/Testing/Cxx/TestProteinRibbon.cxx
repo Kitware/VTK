@@ -30,7 +30,7 @@
 int TestProteinRibbon(int argc, char *argv[])
 {
   char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/3GQP.pdb");
 
   // read protein from pdb
   vtkNew<vtkPDBReader> reader;
