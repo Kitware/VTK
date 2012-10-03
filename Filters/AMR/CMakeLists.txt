@@ -5,6 +5,7 @@ set(Module_SRCS
   vtkAMRSliceFilter.cxx
   vtkAMRToMultiBlockFilter.cxx
   vtkAMRUtilities.cxx
+  vtkImageToAMR.cxx
   )
 
 set_source_files_properties(

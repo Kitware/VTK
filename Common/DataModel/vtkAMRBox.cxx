@@ -44,8 +44,8 @@ vtkAMRBox::vtkAMRBox(const double* origin, const int* dimensions, const double* 
   int lo[3], hi[3];
   for( int d=0; d<3; ++d )
     {
-    lo[d] = vtkMath::Round( (origin[d] - globalOrigin[d])/spacing[d] );
-    hi[d] = vtkMath::Round( static_cast<double>(lo[d] + ( ndim[d]-1 )) );
+    lo[d] = spacing[d]>0? vtkMath::Round( (origin[d] - globalOrigin[d])/spacing[d] ): 0;
+    hi[d] = lo[d] + ndim[d]-1;
     }
 
   this->SetDimensions( lo, hi, gridDescription);
@@ -413,7 +413,7 @@ void vtkAMRBox::Coarsen(int r)
 
 void vtkAMRBox::Refine(int r)
 {
-  assert( "pre: Input refinement ratio must be >= 2" && (r >= 2)  );
+  assert( "pre: Input refinement ratio must be >= 1" && (r >= 1)  );
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
 
   if( this->Empty() )
