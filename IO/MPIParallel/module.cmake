@@ -1,0 +1,12 @@
+vtk_module(vtkIOMPIParallel
+  IMPLEMENTS
+    vtkIOGeometry
+  GROUPS
+    MPI
+  DEPENDS
+    vtkIOGeometry
+    vtkParallelMPI
+  TEST_DEPENDS
+    vtkRenderingOpenGL
+    vtkTestingRendering
+  )

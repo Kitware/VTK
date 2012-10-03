@@ -24,7 +24,7 @@ SET(Module_SRCS
   vtkSTLWriter.cxx
   vtkTecplotReader.cxx
   vtkUGFacetReader.cxx
-
+  vtkWindBladeReader.cxx
   vtkXYZMolReader.cxx
   )
 
