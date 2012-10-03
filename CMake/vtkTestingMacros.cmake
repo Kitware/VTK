@@ -1,12 +1,9 @@
-macro(parse_optional_arguments)
-  # Look for optional baseline image directory argument to use instead of module
-  # name in which to look for correct image result
-  set (BASELINEDIR ${vtk-module})
+#-----------------------------------------------------------------------------
+# Private helper macros.
 
-  # Look for optional data directory argument that lets you choose VTK_DATA_ROOT
-  # or VTK_LARGE_DATA_ROOT or nothing.
-  #set (DATADIR ${VTK_DATA_ROOT}) #don't automatically use it, some tests
-  #don't want it specified at all
+macro(parse_optional_arguments)
+  set (BASELINEDIR ${vtk-module})
+  #set (DATADIR ${VTK_DATA_ROOT}) #don't do this: some tests don't want it
 
   set(argv ${ARGV})
   set(MYARGV)
@@ -29,9 +26,22 @@ macro(parse_optional_arguments)
   endwhile()
 endmacro(parse_optional_arguments)
 
+#-----------------------------------------------------------------------------
+# Public interface macros.
+
+
 # -----------------------------------------------------------------------------
-# Macro vtk_tests() takes a list of cxx files which will be driven by the modules
+# vtk_tests(cxxfiles [BASELINEDIR baseline_directory] [DATADIR data_directory])
+#
+# Takes a list of cxx files which will be driven by the modules
 # test driver. This helps reduce a lot of boiler place code in each module
+#
+# BASELINEDIR a baseline directory to look for correct images in. If not
+# specified it will look for a directory named for the module the test is in.
+#
+# DATADIR a data directory to look for input data to the tests in. If not
+# specified the test is assumed to not require input data.
+# Ex. ${VTK_DATA_ROOT} or ${VTK_LARGE_DATA_ROOT}
 macro(vtk_tests)
 
   parse_optional_arguments(${ARGV})
@@ -62,8 +72,12 @@ macro(vtk_tests)
 endmacro(vtk_tests)
 
 # -----------------------------------------------------------------------------
-# add_test_mpi macro take one or more files. It uses the files name for the name
-# of the test. The test will be run using MPI.
+# add_test_mpi(filenames [DATADIR data_directory)]
+# Adds one or more tests that are run under MPI.
+#
+# DATADIR a data directory to look for input data to the tests in. If not
+# specified the test is assumed to not require input data.
+# Ex. ${VTK_DATA_ROOT} or ${VTK_LARGE_DATA_ROOT}
 macro (add_test_mpi fileName)
 
   parse_optional_arguments(${ARGV})
