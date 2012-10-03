@@ -134,28 +134,89 @@ void vtkGL2PSContextDevice2D::DrawPolygon(float *points, int n)
     }
 }
 
+
+
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
                                                float outRx, float outRy,
                                                float inRx, float inRy,
                                                float startAngle, float stopAngle)
 {
-  if (this->Brush->GetColorObject().GetAlpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() == 0)
+    {
+    return;
+    }
+
+  // The path implementation can't handle start/stop angles. Defer to the
+  // superclass in this case.
+  if (fabs(startAngle) > 1e-5 || fabs(stopAngle - 360.0) > 1e-5)
     {
     this->Superclass::DrawEllipseWedge(x, y, outRx, outRy, inRx, inRy,
                                        startAngle, stopAngle);
     }
+
+  vtkNew<vtkPath> path;
+  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, outRx, outRy, false);
+  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, inRx, inRy, true);
+  this->TransformPath(path.GetPointer());
+
+  double origin[3] = {x, y, 0.f};
+  double scale[2] = {1.0, 1.0};
+  int *renWinSize = this->RenderWindow->GetSize();
+  double windowSize[2];
+  windowSize[0] = static_cast<double>(renWinSize[0]);
+  windowSize[1] = static_cast<double>(renWinSize[1]);
+  unsigned char color[4];
+  this->Brush->GetColor(color);
+  unsigned char alpha = this->Brush->GetColorObject().GetAlpha();
+
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
+                              scale, 0, color, alpha);
 }
 
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawEllipticArc(float x, float y,
-                                              float rX, float rY,
-                                              float startAngle, float stopAngle)
+                                              float rx, float ry,
+                                              float startAngle,
+                                              float stopAngle)
 {
-  if (this->Brush->GetColorObject().GetAlpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() == 0)
     {
-    this->Superclass::DrawEllipticArc(x, y, rX, rY, startAngle, stopAngle);
+    return;
     }
+
+  // The path implementation can't handle start/stop angles. Defer to the
+  // superclass in this case.
+  if (fabs(startAngle) > 1e-5 || fabs(stopAngle - 360.0) > 1e-5)
+    {
+    this->Superclass::DrawEllipticArc(x, y, rx, ry, startAngle, stopAngle);
+    }
+
+  vtkNew<vtkPath> path;
+  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, rx, ry, false);
+  this->TransformPath(path.GetPointer());
+
+  double origin[3] = {x, y, 0.f};
+  double scale[2] = {1.0, 1.0};
+  int *renWinSize = this->RenderWindow->GetSize();
+  double windowSize[2];
+  windowSize[0] = static_cast<double>(renWinSize[0]);
+  windowSize[1] = static_cast<double>(renWinSize[1]);
+  unsigned char fillColor[4];
+  this->Brush->GetColor(fillColor);
+  unsigned char fillAlpha = this->Brush->GetColorObject().GetAlpha();
+  unsigned char strokeColor[4];
+  this->Pen->GetColor(strokeColor);
+  unsigned char strokeAlpha = this->Pen->GetColorObject().GetAlpha();
+  float strokeWidth = this->Pen->GetWidth();
+
+  // Fill
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
+                              scale, 0, fillColor, fillAlpha);
+  // and stroke
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
+                              scale, 0, strokeColor, strokeAlpha,
+                              strokeWidth);
 }
 
 //-----------------------------------------------------------------------------
@@ -211,22 +272,7 @@ void vtkGL2PSContextDevice2D::DrawMathTextString(float apoint[],
   color[1] = static_cast<unsigned char>(dcolor[1]*255);
   color[2] = static_cast<unsigned char>(dcolor[2]*255);
 
-  // Transform the path with the modelview matrix:
-  float modelview[16];
-  glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
-
-  // Transform the 2D path.
-  float newPoint[3] = {0, 0, 0};
-  vtkPoints *points = path->GetPoints();
-  for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
-    {
-    double *point = points->GetPoint(i);
-    newPoint[0] = modelview[0] * point[0] + modelview[4] * point[1]
-        + modelview[12];
-    newPoint[1] = modelview[1] * point[0] + modelview[5] * point[1]
-        + modelview[13];
-    points->SetPoint(i, newPoint);
-    }
+  this->TransformPath(path.GetPointer());
 
   vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
                               scale, rotateAngle, color);
@@ -558,6 +604,79 @@ void vtkGL2PSContextDevice2D::DrawDiamondMarkers(bool /*highlight*/,
     }
 
   this->Brush->SetColor(oldColor);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::AddEllipseToPath(vtkPath *path, float x, float y,
+                                               float rx, float ry, bool reverse)
+{
+  if (rx < 1e-5 || ry < 1e-5)
+    {
+    return;
+    }
+
+  // method based on http://www.tinaja.com/glib/ellipse4.pdf
+  const static float MAGIC = (4.0/3.0) * (sqrt(2.0) - 1);
+
+  if (!reverse)
+    {
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::MOVE_TO);
+    path->InsertNextPoint(x - rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(-rx * MAGIC, y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y + ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(rx * MAGIC,  y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      y,           0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(x + rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(rx * MAGIC,  y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y - ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(-rx * MAGIC, y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::CUBIC_CURVE);
+    }
+  else
+    {
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::MOVE_TO);
+    path->InsertNextPoint(x - rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(-rx * MAGIC, y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y - ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(rx * MAGIC,  y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      y,           0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(x + rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(rx * MAGIC,  y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y + ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(-rx * MAGIC, y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::CUBIC_CURVE);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::TransformPath(vtkPath *path)
+{
+  // Transform the path with the modelview matrix:
+  float modelview[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+
+  // Transform the 2D path.
+  float newPoint[3] = {0, 0, 0};
+  vtkPoints *points = path->GetPoints();
+  for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
+    {
+    double *point = points->GetPoint(i);
+    newPoint[0] = modelview[0] * point[0] + modelview[4] * point[1]
+        + modelview[12];
+    newPoint[1] = modelview[1] * point[0] + modelview[5] * point[1]
+        + modelview[13];
+    points->SetPoint(i, newPoint);
+    }
 }
 
 //-----------------------------------------------------------------------------

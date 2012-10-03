@@ -217,6 +217,7 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
   painter->GetPen()->SetWidth(1.0);
   painter->GetBrush()->SetColor(0, 0, 100, 69);
   painter->DrawEllipse(110.0, 89.0, 20, 100);
+  painter->DrawEllipseWedge(250.0, 89.0, 100, 20, 50, 10, 0, 360);
 
   return true;
 }

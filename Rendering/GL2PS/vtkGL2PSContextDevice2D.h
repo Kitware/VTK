@@ -29,6 +29,8 @@
 #include "vtkRenderingGL2PSModule.h" // For export macro
 #include "vtkOpenGLContextDevice2D.h"
 
+class vtkPath;
+
 class VTKRENDERINGGL2PS_EXPORT vtkGL2PSContextDevice2D
     : public vtkOpenGLContextDevice2D
 {
@@ -160,6 +162,10 @@ private:
                          unsigned char *colors, int nc_comps);
   void DrawDiamondMarkers(bool highlight, float *points, int n,
                           unsigned char *colors, int nc_comps);
+  void AddEllipseToPath(vtkPath *path, float x, float y, float rx, float ry,
+                        bool reverse);
+  // Transform the path using the current modelview matrix.
+  void TransformPath(vtkPath *path);
 };
 
 #endif //__vtkGL2PSContextDevice2D_h
