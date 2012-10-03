@@ -109,7 +109,7 @@ int vtkNewickTreeReader::RequestData(
 
   vtkDebugMacro(<<"Reading Newick tree ...");
 
-  if(strcmp(this->GetFileName(), "") == 0)
+  if(this->GetFileName() == NULL || strcmp(this->GetFileName(), "") == 0)
     {
     vtkErrorMacro(<<"Input filename not set");
     return 1;
