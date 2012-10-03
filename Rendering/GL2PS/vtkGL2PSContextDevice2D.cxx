@@ -80,6 +80,34 @@ void vtkGL2PSContextDevice2D::DrawPointSprites(vtkImageData *sprite,
 }
 
 //-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawMarkers(int shape, bool highlight,
+                                          float *points, int n,
+                                          unsigned char *colors, int nc_comps)
+{
+  switch (shape)
+    {
+    case VTK_MARKER_CROSS:
+      this->DrawCrossMarkers(highlight, points, n, colors, nc_comps);
+      break;
+    default:
+      // default is here for consistency -- Superclass defaults to plus for
+      // unrecognized shapes.
+    case VTK_MARKER_PLUS:
+      this->DrawPlusMarkers(highlight, points, n, colors, nc_comps);
+      break;
+    case VTK_MARKER_SQUARE:
+      this->DrawSquareMarkers(highlight, points, n, colors, nc_comps);
+      break;
+    case VTK_MARKER_CIRCLE:
+      this->DrawCircleMarkers(highlight, points, n, colors, nc_comps);
+      break;
+    case VTK_MARKER_DIAMOND:
+      this->DrawDiamondMarkers(highlight, points, n, colors, nc_comps);
+      break;
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawQuad(float *points, int n)
 {
   if (this->Brush->GetColorObject().GetAlpha() != 0)
@@ -236,6 +264,300 @@ void vtkGL2PSContextDevice2D::SetLineType(int type)
     {
     gl2psEnable(GL2PS_LINE_STIPPLE);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawCrossMarkers(bool highlight, float *points,
+                                               int n, unsigned char *colors,
+                                               int nc_comps)
+{
+  float delta = this->GetPen()->GetWidth() * 0.475;
+
+  float oldWidth = this->Pen->GetWidth();
+  unsigned char oldColor[4];
+  this->Pen->GetColor(oldColor);
+  int oldLineType = this->Pen->GetLineType();
+
+  if (highlight)
+    {
+    this->Pen->SetWidth(1.5);
+    }
+  else
+    {
+    this->Pen->SetWidth(0.5);
+    }
+  this->Pen->SetLineType(vtkPen::SOLID_LINE);
+
+  float curLine[4];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Pen->SetColor(color);
+      }
+
+    // The first line of the cross:
+    curLine[0] = point[0] + delta;
+    curLine[1] = point[1] + delta;
+    curLine[2] = point[0] - delta;
+    curLine[3] = point[1] - delta;
+    this->DrawPoly(curLine, 2);
+
+    // And the second:
+    curLine[0] = point[0] + delta;
+    curLine[1] = point[1] - delta;
+    curLine[2] = point[0] - delta;
+    curLine[3] = point[1] + delta;
+    this->DrawPoly(curLine, 2);
+    }
+
+  this->Pen->SetWidth(oldWidth);
+  this->Pen->SetColor(oldColor);
+  this->Pen->SetLineType(oldLineType);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawPlusMarkers(bool highlight, float *points,
+                                              int n, unsigned char *colors,
+                                              int nc_comps)
+{
+  float delta = this->GetPen()->GetWidth() * 0.475;
+
+  float oldWidth = this->Pen->GetWidth();
+  unsigned char oldColor[4];
+  this->Pen->GetColor(oldColor);
+  int oldLineType = this->Pen->GetLineType();
+
+  if (highlight)
+    {
+    this->Pen->SetWidth(1.5);
+    }
+  else
+    {
+    this->Pen->SetWidth(0.5);
+    }
+  this->Pen->SetLineType(vtkPen::SOLID_LINE);
+
+  float curLine[4];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Pen->SetColor(color);
+      }
+
+    // The first line of the plus:
+    curLine[0] = point[0] - delta;
+    curLine[1] = point[1];
+    curLine[2] = point[0] + delta;
+    curLine[3] = point[1];
+    this->DrawPoly(curLine, 2);
+
+    // And the second:
+    curLine[0] = point[0];
+    curLine[1] = point[1] - delta;
+    curLine[2] = point[0];
+    curLine[3] = point[1] + delta;
+    this->DrawPoly(curLine, 2);
+    }
+
+  this->Pen->SetWidth(oldWidth);
+  this->Pen->SetColor(oldColor);
+  this->Pen->SetLineType(oldLineType);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawSquareMarkers(bool /*highlight*/,
+                                                float *points,
+                                                int n, unsigned char *colors,
+                                                int nc_comps)
+{
+  float delta = this->GetPen()->GetWidth() * 0.475;
+
+  unsigned char oldColor[4];
+  this->Brush->GetColor(oldColor);
+
+  this->Brush->SetColor(this->Pen->GetColor());
+
+  float quad[8];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Brush->SetColor(color);
+      }
+
+    quad[0] = point[0] - delta;
+    quad[1] = point[1] - delta;
+    quad[2] = point[0] + delta;
+    quad[3] = quad[1];
+    quad[4] = quad[2];
+    quad[5] = point[1] + delta;
+    quad[6] = quad[0];
+    quad[7] = quad[5];
+
+    this->DrawQuad(quad,4);
+    }
+
+  this->Brush->SetColor(oldColor);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawCircleMarkers(bool /*highlight*/,
+                                                float *points,
+                                                int n, unsigned char *colors,
+                                                int nc_comps)
+{
+  float radius = this->GetPen()->GetWidth() * 0.475;
+
+  unsigned char oldColor[4];
+  this->Brush->GetColor(oldColor);
+
+  this->Brush->SetColor(this->Pen->GetColor());
+
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Brush->SetColor(color);
+      }
+
+    this->DrawEllipseWedge(point[0], point[1], radius, radius, 0, 0,
+                           0, 360);
+    }
+
+  this->Brush->SetColor(oldColor);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawDiamondMarkers(bool /*highlight*/,
+                                                 float *points,
+                                                 int n, unsigned char *colors,
+                                                 int nc_comps)
+{
+  float delta = this->GetPen()->GetWidth() * 0.475;
+
+  unsigned char oldColor[4];
+  this->Brush->GetColor(oldColor);
+
+  this->Brush->SetColor(this->Pen->GetColor());
+
+  float quad[8];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Brush->SetColor(color);
+      }
+
+    quad[0] = point[0] - delta;
+    quad[1] = point[1];
+    quad[2] = point[0];
+    quad[3] = point[1] - delta;
+    quad[4] = point[0] + delta;
+    quad[5] = point[1];
+    quad[6] = point[0];
+    quad[7] = point[1] + delta;
+
+    this->DrawQuad(quad,4);
+    }
+
+  this->Brush->SetColor(oldColor);
 }
 
 //-----------------------------------------------------------------------------

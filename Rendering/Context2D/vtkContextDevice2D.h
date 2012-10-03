@@ -71,6 +71,19 @@ public:
                                 unsigned char *colors = 0, int nc_comps = 0) = 0;
 
   // Description:
+  // Draw a series of markers centered at the points supplied. The \a shape
+  // argument controls the marker shape, and can be one of
+  //   - VTK_MARKER_CROSS
+  //   - VTK_MARKER_PLUS
+  //   - VTK_MARKER_SQUARE
+  //   - VTK_MARKER_CIRCLE
+  //   - VTK_MARKER_DIAMOND
+  // \param colors is an optional array of colors.
+  // \param nc_comps is the number of components for the color.
+  virtual void DrawMarkers(int shape, bool highlight, float *points, int n,
+                           unsigned char *colors = 0, int nc_comps = 0);
+
+  // Description:
   // Draw a quad using the specified number of points.
   virtual void DrawQuad(float *, int) { ; }
 
