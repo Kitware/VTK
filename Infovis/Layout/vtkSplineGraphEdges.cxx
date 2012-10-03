@@ -287,8 +287,8 @@ void vtkSplineGraphEdges::GeneratePoints(vtkGraph* g, vtkIdType e)
   g->GetPoint(g->GetSourceVertex(e), points);
   g->GetPoint(g->GetTargetVertex(e), points + 3*(numInternalPoints+1));
 
-  double* xPrev = points;
-  double* x = points+3;
+  double* xPrev;
+  double* x;
   double length = 0.0;
   double* xEnd = points + 3*numPoints;
   for (xPrev = points, x = points+3; x != xEnd; xPrev += 3, x += 3)
@@ -308,8 +308,6 @@ void vtkSplineGraphEdges::GeneratePoints(vtkGraph* g, vtkIdType e)
   this->XSpline->AddPoint(0.0, points[0]);
   this->YSpline->AddPoint(0.0, points[1]);
   this->ZSpline->AddPoint(0.0, points[2]);
-  xPrev = points;
-  x = points+3;
   double len = 0.0;
   for (xPrev = points, x = points+3; x != xEnd; xPrev += 3, x += 3)
     {
