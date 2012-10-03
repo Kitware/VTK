@@ -83,15 +83,14 @@ if(TK_FOUND AND VTK_USE_TK)
       set(Module_TCL_LIBS "-framework Carbon")
     endif()
 
-    vtk_add_library(vtkRenderingTclTkWidgets ${Module_TCL_SRCS})
+    vtk_add_library(vtkRenderingTkTCL ${Module_TCL_SRCS})
 
-    set_property(TARGET vtkRenderingTclTkWidgets PROPERTY OUTPUT_NAME
-            vtkRenderingTclTkWidgets-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
-
-    target_link_libraries (vtkRenderingTclTkWidgets
+    target_link_libraries(vtkRenderingTkTCL
           vtkRenderingCore vtkCommonDataModel vtkCommonCoreTCL
           vtkInteractionImage
           ${Module_TCL_LIBS})
+
+    set_property(GLOBAL APPEND PROPERTY VTK_TCL_WRAPPED vtkRenderingTk)
 
   endif()
 

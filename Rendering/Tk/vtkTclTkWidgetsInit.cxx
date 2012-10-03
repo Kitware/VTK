@@ -23,7 +23,7 @@
 //----------------------------------------------------------------------------
 // Vtkrenderingtcltkwidgets_Init
 // Called upon system startup to create the widget commands.
-extern "C" {VTK_TK_EXPORT int Vtkrenderingtcltkwidgets_Init(Tcl_Interp *interp);}
+extern "C" {VTK_TK_EXPORT int Vtkrenderingtktcl_Init(Tcl_Interp *interp);}
 
 extern "C" {VTK_TK_EXPORT int Vtktkrenderwidget_Init(Tcl_Interp *interp);}
 extern "C" {VTK_TK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}
@@ -33,14 +33,14 @@ extern "C" {VTK_TK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}
 #define VTKTK_TO_STRING1(x) #x
 #define VTKTK_VERSION VTKTK_TO_STRING(VTK_MAJOR_VERSION) "." VTKTK_TO_STRING(VTK_MINOR_VERSION)
 
-int Vtkrenderingtcltkwidgets_Init(Tcl_Interp *interp)
+int Vtkrenderingtktcl_Init(Tcl_Interp *interp)
 {
   // Forward the call to the real init functions.
   if(Vtktkrenderwidget_Init(interp) == TCL_OK &&
      Vtktkimageviewerwidget_Init(interp) == TCL_OK)
     {
     // Report that the package is provided.
-    return Tcl_PkgProvide(interp, (char*)"vtkRenderingTclTkWidgets",
+    return Tcl_PkgProvide(interp, (char*)"vtkRenderingTkTCL",
         (char*)VTKTK_VERSION);
     }
   else
