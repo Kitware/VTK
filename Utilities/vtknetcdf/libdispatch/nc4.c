@@ -4,7 +4,7 @@
 
  This file defines the netcdf-4 functions.
 
- "$Id: nc4.c,v 1.1 2010/06/01 15:46:50 ed Exp $"
+ "$Id: nc4.c,v 1.1 2010/06/01 15:46:50 ed Exp $" 
 */
 
 #include "ncdispatch.h"
@@ -34,16 +34,16 @@ nc_free_vlen(nc_vlen_t *vl)
 }
 
 /* Free an array of vlens given the number of elements and an
- * array. */
+ * array. */ 
 int
 nc_free_vlens(size_t len, nc_vlen_t vlens[])
 {
    int ret;
    size_t i;
 
-   for(i = 0; i < len; i++)
+   for(i = 0; i < len; i++) 
       if ((ret = nc_free_vlen(&vlens[i])))
-        return ret;
+	 return ret;
 
    return NC_NOERR;
 }
@@ -137,9 +137,9 @@ nc_inq_var_chunking(int ncid, int varid, int *contiguousp, size_t *chunksizesp)
    NC *ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
-   return ncp->dispatch->inq_var_all(ncid, varid, NULL, NULL, NULL, NULL,
-                                     NULL, NULL, NULL, NULL, NULL, contiguousp,
-                                     chunksizesp, NULL, NULL, NULL, NULL, NULL);
+   return ncp->dispatch->inq_var_all(ncid, varid, NULL, NULL, NULL, NULL, 
+				     NULL, NULL, NULL, NULL, NULL, contiguousp, 
+				     chunksizesp, NULL, NULL, NULL, NULL, NULL);
 }
 
 int
@@ -236,7 +236,7 @@ nc_inq_grpname_full(int ncid, size_t *lenp, char *full_name)
 int
 nc_inq_grpname_len(int ncid, size_t *lenp)
 {
-    int stat = nc_inq_grpname_full(ncid,lenp,NULL);
+    int stat = nc_inq_grpname_full(ncid,lenp,NULL);    
     return stat;
 }
 
@@ -249,11 +249,11 @@ nc_inq_grp_parent(int ncid, int *parent_ncid)
     return ncp->dispatch->inq_grp_parent(ncid,parent_ncid);
 }
 
-/* This has same semantics as nc_inq_ncid */
+/* This has same semantics as nc_inq_ncid */ 
 int
 nc_inq_grp_ncid(int ncid, const char *grp_name, int *grp_ncid)
 {
-    return nc_inq_ncid(ncid,grp_name,grp_ncid);
+    return nc_inq_ncid(ncid,grp_name,grp_ncid);    
 }
 
 int
@@ -265,7 +265,7 @@ nc_inq_grp_full_ncid(int ncid, const char *full_name, int *grp_ncid)
     return ncp->dispatch->inq_grp_full_ncid(ncid,full_name,grp_ncid);
 }
 
-int
+int 
 nc_inq_varids(int ncid, int *nvars, int *varids)
 {
     NC* ncp;
@@ -274,7 +274,7 @@ nc_inq_varids(int ncid, int *nvars, int *varids)
     return ncp->dispatch->inq_varids(ncid,nvars,varids);
 }
 
-int
+int 
 nc_inq_dimids(int ncid, int *ndims, int *dimids, int include_parents)
 {
     NC* ncp;
@@ -283,7 +283,7 @@ nc_inq_dimids(int ncid, int *ndims, int *dimids, int include_parents)
     return ncp->dispatch->inq_dimids(ncid,ndims,dimids,include_parents);
 }
 
-int
+int 
 nc_inq_typeids(int ncid, int *ntypes, int *typeids)
 {
     NC* ncp;
@@ -293,8 +293,8 @@ nc_inq_typeids(int ncid, int *ntypes, int *typeids)
 }
 
 int
-nc_inq_type_equal(int ncid1, nc_type typeid1, int ncid2,
-                  nc_type typeid2, int *equal)
+nc_inq_type_equal(int ncid1, nc_type typeid1, int ncid2, 
+		  nc_type typeid2, int *equal)
 {
     NC* ncp1;
     int stat = NC_check_id(ncid1,&ncp1);
@@ -385,8 +385,8 @@ nc_inq_compound_field(int ncid, nc_type xtype, int fieldid, char *name, size_t *
 }
 
 int
-nc_inq_compound_fieldname(int ncid, nc_type xtype, int fieldid,
-                          char *name)
+nc_inq_compound_fieldname(int ncid, nc_type xtype, int fieldid, 
+			  char *name)
 {
     NC* ncp;
     int stat = NC_check_id(ncid,&ncp);
@@ -395,8 +395,8 @@ nc_inq_compound_fieldname(int ncid, nc_type xtype, int fieldid,
 }
 
 int
-nc_inq_compound_fieldoffset(int ncid, nc_type xtype, int fieldid,
-                            size_t *offsetp)
+nc_inq_compound_fieldoffset(int ncid, nc_type xtype, int fieldid, 
+			    size_t *offsetp)
 {
     NC* ncp;
     int stat = NC_check_id(ncid,&ncp);
@@ -405,8 +405,8 @@ nc_inq_compound_fieldoffset(int ncid, nc_type xtype, int fieldid,
 }
 
 int
-nc_inq_compound_fieldtype(int ncid, nc_type xtype, int fieldid,
-                          nc_type *field_typeidp)
+nc_inq_compound_fieldtype(int ncid, nc_type xtype, int fieldid, 
+			  nc_type *field_typeidp)
 {
     NC* ncp;
     int stat = NC_check_id(ncid,&ncp);
@@ -415,8 +415,8 @@ nc_inq_compound_fieldtype(int ncid, nc_type xtype, int fieldid,
 }
 
 int
-nc_inq_compound_fieldndims(int ncid, nc_type xtype, int fieldid,
-                           int *ndimsp)
+nc_inq_compound_fieldndims(int ncid, nc_type xtype, int fieldid, 
+			   int *ndimsp)
 {
     NC* ncp;
     int stat = NC_check_id(ncid,&ncp);
@@ -425,8 +425,8 @@ nc_inq_compound_fieldndims(int ncid, nc_type xtype, int fieldid,
 }
 
 int
-nc_inq_compound_fielddim_sizes(int ncid, nc_type xtype, int fieldid,
-                               int *dim_sizes)
+nc_inq_compound_fielddim_sizes(int ncid, nc_type xtype, int fieldid, 
+			       int *dim_sizes)
 {
     NC* ncp;
     int stat = NC_check_id(ncid,&ncp);
@@ -435,8 +435,8 @@ nc_inq_compound_fielddim_sizes(int ncid, nc_type xtype, int fieldid,
 }
 
 int
-nc_inq_compound_fieldindex(int ncid, nc_type xtype, const char *name,
-                           int *fieldidp)
+nc_inq_compound_fieldindex(int ncid, nc_type xtype, const char *name, 
+			   int *fieldidp)
 {
     NC* ncp;
     int stat = NC_check_id(ncid,&ncp);
@@ -618,7 +618,7 @@ nc_get_var_chunk_cache(int ncid, int varid, size_t *sizep, size_t *nelemsp, floa
     return ncp->dispatch->get_var_chunk_cache(ncid,varid,sizep,nelemsp,preemptionp);
 }
 
-int
+int 
 nc_inq_unlimdims(int ncid, int *nunlimdimsp, int *unlimdimidsp)
 {
     NC* ncp;
@@ -627,7 +627,7 @@ nc_inq_unlimdims(int ncid, int *nunlimdimsp, int *unlimdimidsp)
     return ncp->dispatch->inq_unlimdims(ncid,nunlimdimsp,unlimdimidsp);
 }
 
-int
+int 
 nc_show_metadata(int ncid)
 {
     NC* ncp;
@@ -635,3 +635,4 @@ nc_show_metadata(int ncid)
     if(stat != NC_NOERR) return stat;
     return ncp->dispatch->show_metadata(ncid);
 }
+

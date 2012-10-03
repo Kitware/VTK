@@ -4,21 +4,21 @@
 
  This file has the parallel I/O functions.
 
- "$Id: parallel.c,v 1.1 2010/06/01 15:46:50 ed Exp $"
+ "$Id: parallel.c,v 1.1 2010/06/01 15:46:50 ed Exp $" 
 */
 
-#include <ncconfig.h>
+#include <config.h>
 #include <netcdf_f.h>
 #include "ncdispatch.h"
 
 /* This function creates a file for use with parallel I/O. */
 int
-nc_create_par(const char *path, int cmode, MPI_Comm comm,
-              MPI_Info info, int *ncidp)
+nc_create_par(const char *path, int cmode, MPI_Comm comm, 
+	      MPI_Info info, int *ncidp)
 {
 #ifndef USE_PARALLEL
    return NC_ENOPAR;
-#else
+#else   
    NC_MPI_INFO data;
    MPI_Comm comm_c = 0;
    MPI_Info info_c = 0;
@@ -39,8 +39,8 @@ nc_create_par(const char *path, int cmode, MPI_Comm comm,
 
 /* This function opens a file for parallel I/O. */
 int
-nc_open_par(const char *path, int mode, MPI_Comm comm,
-            MPI_Info info, int *ncidp)
+nc_open_par(const char *path, int mode, MPI_Comm comm, 
+	    MPI_Info info, int *ncidp)
 {
 #ifndef USE_PARALLEL
    return NC_ENOPAR;
@@ -56,8 +56,8 @@ nc_open_par(const char *path, int mode, MPI_Comm comm,
 
 /* Fortran needs to pass MPI comm/info as integers. */
 int
-nc_open_par_fortran(const char *path, int mode, int comm,
-                    int info, int *ncidp)
+nc_open_par_fortran(const char *path, int mode, int comm, 
+		    int info, int *ncidp)
 {
 #ifndef USE_PARALLEL
    return NC_ENOPAR;
@@ -100,8 +100,8 @@ nc_var_par_access(int ncid, int varid, int par_access)
 
 /* when calling from fortran: convert MPI_Comm and MPI_Info to C */
 int
-nc_create_par_fortran(const char *path, int cmode, int comm,
-                      int info, int *ncidp)
+nc_create_par_fortran(const char *path, int cmode, int comm, 
+		      int info, int *ncidp)
 {
 #ifndef USE_PARALLEL
    return NC_ENOPAR;
@@ -120,3 +120,6 @@ nc_create_par_fortran(const char *path, int cmode, int comm,
    return nc_create_par(path, cmode, comm_c, info_c, ncidp);
 #endif
 }
+
+
+

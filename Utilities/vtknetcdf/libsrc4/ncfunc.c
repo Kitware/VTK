@@ -88,7 +88,7 @@ NC4_inq_format(int ncid, int *formatp)
     * library. */
    if (!nc->nc4_info)
       return NC3_inq_format(nc->int_ncid, formatp);
-
+   
    /* Otherwise, this is a netcdf-4 file. Check if classic NC3 rules
     * are in effect for this file. */
    if (nc->nc4_info->cmode & NC_CLASSIC_MODEL)
@@ -98,3 +98,5 @@ NC4_inq_format(int ncid, int *formatp)
 
    return NC_NOERR;
 }
+
+

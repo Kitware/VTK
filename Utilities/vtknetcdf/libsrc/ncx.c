@@ -2,22 +2,22 @@
 /*
  *	Copyright 1996, University Corporation for Atmospheric Research
  *	See netcdf/COPYRIGHT file for copying and redistribution conditions.
- *
- *      This file contains some routines derived from code
+ * 	
+ * 	This file contains some routines derived from code
  *	which is copyrighted by Sun Microsystems, Inc.
  *	The "#ifdef vax" versions of
- *               ncx_put_float_float()
- *               ncx_get_float_float()
- *               ncx_put_double_double()
- *               ncx_get_double_double()
- *               ncx_putn_float_float()
- *               ncx_getn_float_float()
- *               ncx_putn_double_double()
- *               ncx_getn_double_double()
- *      are derived from xdr_float() and xdr_double() routines
+ *		 ncx_put_float_float()
+ *		 ncx_get_float_float()
+ *		 ncx_put_double_double()
+ *		 ncx_get_double_double()
+ *		 ncx_putn_float_float()
+ *		 ncx_getn_float_float()
+ *		 ncx_putn_double_double()
+ *		 ncx_getn_double_double()
+ * 	are derived from xdr_float() and xdr_double() routines
  *	in the freely available, copyrighted Sun RPCSRC 3.9
  *	distribution, xdr_float.c.
- *      Our "value added" is that these are always memory to memory,
+ * 	Our "value added" is that these are always memory to memory,
  *	they handle IEEE subnormals properly, and their "n" versions
  *	operate speedily on arrays.
  */
@@ -100,19 +100,19 @@ static const char nada[X_ALIGN] = {0, 0, 0, 0};
  */
 
 #define SWAP2(a) ( (((a) & 0xff) << 8) | \
-                (((a) >> 8) & 0xff) )
+		(((a) >> 8) & 0xff) )
 
 #define SWAP4(a) ( ((a) << 24) | \
-                (((a) <<  8) & 0x00ff0000) | \
-                (((a) >>  8) & 0x0000ff00) | \
-                (((a) >> 24) & 0x000000ff) )
+		(((a) <<  8) & 0x00ff0000) | \
+		(((a) >>  8) & 0x0000ff00) | \
+		(((a) >> 24) & 0x000000ff) )
 
 
 static void
 swapn2b(void *dst, const void *src, size_t nn)
 {
-        char *op = dst;
-        const char *ip = src;
+	char *op = dst;
+	const char *ip = src;
 
 /* unroll the following to reduce loop overhead
  *
@@ -120,45 +120,45 @@ swapn2b(void *dst, const void *src, size_t nn)
  *	{
  *		*op++ = *(++ip);
  *		*op++ = *(ip++ -1);
- *	}
+ *	}                                       
  */
-        while(nn > 3)
-        {
-                *op++ = *(++ip);
-                *op++ = *(ip++ -1);
-                *op++ = *(++ip);
-                *op++ = *(ip++ -1);
-                *op++ = *(++ip);
-                *op++ = *(ip++ -1);
-                *op++ = *(++ip);
-                *op++ = *(ip++ -1);
-                nn -= 4;
-        }
-        while(nn-- != 0)
-        {
-                *op++ = *(++ip);
-                *op++ = *(ip++ -1);
-        }
+	while(nn > 3)
+	{
+		*op++ = *(++ip);
+		*op++ = *(ip++ -1);
+		*op++ = *(++ip);
+		*op++ = *(ip++ -1);
+		*op++ = *(++ip);
+		*op++ = *(ip++ -1);
+		*op++ = *(++ip);
+		*op++ = *(ip++ -1);
+		nn -= 4;
+	}
+	while(nn-- != 0)
+	{
+		*op++ = *(++ip);
+		*op++ = *(ip++ -1);
+	}
 }
 
 # ifndef vax
 static void
 swap4b(void *dst, const void *src)
 {
-        char *op = dst;
-        const char *ip = src;
-        op[0] = ip[3];
-        op[1] = ip[2];
-        op[2] = ip[1];
-        op[3] = ip[0];
+	char *op = dst;
+	const char *ip = src;
+	op[0] = ip[3];
+	op[1] = ip[2];
+	op[2] = ip[1];
+	op[3] = ip[0];
 }
 # endif /* !vax */
 
 static void
 swapn4b(void *dst, const void *src, size_t nn)
 {
-        char *op = dst;
-        const char *ip = src;
+	char *op = dst;
+	const char *ip = src;
 
 /* unroll the following to reduce loop overhead
  *	while(nn-- != 0)
@@ -171,63 +171,63 @@ swapn4b(void *dst, const void *src, size_t nn)
  *		ip += 4;
  *	}
  */
-        while(nn > 3)
-        {
-                op[0] = ip[3];
-                op[1] = ip[2];
-                op[2] = ip[1];
-                op[3] = ip[0];
-                op[4] = ip[7];
-                op[5] = ip[6];
-                op[6] = ip[5];
-                op[7] = ip[4];
-                op[8] = ip[11];
-                op[9] = ip[10];
-                op[10] = ip[9];
-                op[11] = ip[8];
-                op[12] = ip[15];
-                op[13] = ip[14];
-                op[14] = ip[13];
-                op[15] = ip[12];
-                op += 16;
-                ip += 16;
-                nn -= 4;
-        }
-        while(nn-- != 0)
-        {
-                op[0] = ip[3];
-                op[1] = ip[2];
-                op[2] = ip[1];
-                op[3] = ip[0];
-                op += 4;
-                ip += 4;
-        }
+	while(nn > 3)
+	{
+		op[0] = ip[3];
+		op[1] = ip[2];
+		op[2] = ip[1];
+		op[3] = ip[0];
+		op[4] = ip[7];
+		op[5] = ip[6];
+		op[6] = ip[5];
+		op[7] = ip[4];
+		op[8] = ip[11];
+		op[9] = ip[10];
+		op[10] = ip[9];
+		op[11] = ip[8];
+		op[12] = ip[15];
+		op[13] = ip[14];
+		op[14] = ip[13];
+		op[15] = ip[12];
+		op += 16;
+		ip += 16;
+		nn -= 4;
+	}
+	while(nn-- != 0)
+	{
+		op[0] = ip[3];
+		op[1] = ip[2];
+		op[2] = ip[1];
+		op[3] = ip[0];
+		op += 4;
+		ip += 4;
+	}
 }
 
 # ifndef vax
 static void
 swap8b(void *dst, const void *src)
 {
-        char *op = dst;
-        const char *ip = src;
+	char *op = dst;
+	const char *ip = src;
 #  ifndef FLOAT_WORDS_BIGENDIAN
-        op[0] = ip[7];
-        op[1] = ip[6];
-        op[2] = ip[5];
-        op[3] = ip[4];
-        op[4] = ip[3];
-        op[5] = ip[2];
-        op[6] = ip[1];
-        op[7] = ip[0];
+	op[0] = ip[7];
+	op[1] = ip[6];
+	op[2] = ip[5];
+	op[3] = ip[4];
+	op[4] = ip[3];
+	op[5] = ip[2];
+	op[6] = ip[1];
+	op[7] = ip[0];
 #  else
-        op[0] = ip[3];
-        op[1] = ip[2];
-        op[2] = ip[1];
-        op[3] = ip[0];
-        op[4] = ip[7];
-        op[5] = ip[6];
-        op[6] = ip[5];
-        op[7] = ip[4];
+	op[0] = ip[3];
+	op[1] = ip[2];
+	op[2] = ip[1];
+	op[3] = ip[0];
+	op[4] = ip[7];
+	op[5] = ip[6];
+	op[6] = ip[5];
+	op[7] = ip[4];
 #  endif
 }
 # endif /* !vax */
@@ -236,8 +236,8 @@ swap8b(void *dst, const void *src)
 static void
 swapn8b(void *dst, const void *src, size_t nn)
 {
-        char *op = dst;
-        const char *ip = src;
+	char *op = dst;
+	const char *ip = src;
 
 /* unroll the following to reduce loop overhead
  *	while(nn-- != 0)
@@ -255,55 +255,55 @@ swapn8b(void *dst, const void *src, size_t nn)
  *	}
  */
 #  ifndef FLOAT_WORDS_BIGENDIAN
-        while(nn > 1)
-        {
-                op[0] = ip[7];
-                op[1] = ip[6];
-                op[2] = ip[5];
-                op[3] = ip[4];
-                op[4] = ip[3];
-                op[5] = ip[2];
-                op[6] = ip[1];
-                op[7] = ip[0];
-                op[8] = ip[15];
-                op[9] = ip[14];
-                op[10] = ip[13];
-                op[11] = ip[12];
-                op[12] = ip[11];
-                op[13] = ip[10];
-                op[14] = ip[9];
-                op[15] = ip[8];
-                op += 16;
-                ip += 16;
-                nn -= 2;
-        }
-        while(nn-- != 0)
-        {
-                op[0] = ip[7];
-                op[1] = ip[6];
-                op[2] = ip[5];
-                op[3] = ip[4];
-                op[4] = ip[3];
-                op[5] = ip[2];
-                op[6] = ip[1];
-                op[7] = ip[0];
-                op += 8;
-                ip += 8;
-        }
+	while(nn > 1)
+	{
+		op[0] = ip[7];
+		op[1] = ip[6];
+		op[2] = ip[5];
+		op[3] = ip[4];
+		op[4] = ip[3];
+		op[5] = ip[2];
+		op[6] = ip[1];
+		op[7] = ip[0];
+		op[8] = ip[15];
+		op[9] = ip[14];
+		op[10] = ip[13];
+		op[11] = ip[12];
+		op[12] = ip[11];
+		op[13] = ip[10];
+		op[14] = ip[9];
+		op[15] = ip[8];
+		op += 16;
+		ip += 16;
+		nn -= 2;
+	}
+	while(nn-- != 0)
+	{
+		op[0] = ip[7];
+		op[1] = ip[6];
+		op[2] = ip[5];
+		op[3] = ip[4];
+		op[4] = ip[3];
+		op[5] = ip[2];
+		op[6] = ip[1];
+		op[7] = ip[0];
+		op += 8;
+		ip += 8;
+	}
 #  else
-        while(nn-- != 0)
-        {
-                op[0] = ip[3];
-                op[1] = ip[2];
-                op[2] = ip[1];
-                op[3] = ip[0];
-                op[4] = ip[7];
-                op[5] = ip[6];
-                op[6] = ip[5];
-                op[7] = ip[4];
-                op += 8;
-                ip += 8;
-        }
+	while(nn-- != 0)
+	{
+		op[0] = ip[3];
+		op[1] = ip[2];
+		op[2] = ip[1];
+		op[3] = ip[0];
+		op[4] = ip[7];
+		op[5] = ip[6];
+		op[6] = ip[5];
+		op[7] = ip[4];
+		op += 8;
+		ip += 8;
+	}
 #  endif
 }
 # endif /* !vax */
@@ -341,64 +341,64 @@ typedef long ix_short;
 static void
 get_ix_short(const void *xp, ix_short *ip)
 {
-        const uchar *cp = (const uchar *) xp;
-        *ip = *cp++ << 8;
+	const uchar *cp = (const uchar *) xp;
+	*ip = *cp++ << 8;
 #if SIZEOF_IX_SHORT > X_SIZEOF_SHORT
-        if(*ip & 0x8000)
-        {
-                /* extern is negative */
-                *ip |= (~(0xffff)); /* N.B. Assumes "twos complement" */
-        }
+	if(*ip & 0x8000)
+	{
+		/* extern is negative */
+		*ip |= (~(0xffff)); /* N.B. Assumes "twos complement" */
+	}
 #endif
-        *ip |= *cp;
+	*ip |= *cp; 
 }
 
 static void
 put_ix_short(void *xp, const ix_short *ip)
 {
-        uchar *cp = (uchar *) xp;
-        *cp++ = (*ip) >> 8;
-        *cp = (*ip) & 0xff;
+	uchar *cp = (uchar *) xp;
+	*cp++ = (*ip) >> 8;
+	*cp = (*ip) & 0xff;
 }
 
 
 int
 ncx_get_short_schar(const void *xp, schar *ip)
 {
-        ix_short xx;
-        get_ix_short(xp, &xx);
-        *ip = (schar)xx;
-        if(xx > SCHAR_MAX || xx < SCHAR_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	ix_short xx;
+	get_ix_short(xp, &xx);
+	*ip = (schar)xx;
+	if(xx > SCHAR_MAX || xx < SCHAR_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_short_uchar(const void *xp, uchar *ip)
 {
-        ix_short xx;
-        get_ix_short(xp, &xx);
-        *ip = (uchar)xx;
-        if(xx > UCHAR_MAX || xx < 0)
-                return NC_ERANGE;
-        return ENOERR;
+	ix_short xx;
+	get_ix_short(xp, &xx);
+	*ip = (uchar)xx;
+	if(xx > UCHAR_MAX || xx < 0)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_short_short(const void *xp, short *ip)
 {
 #if SIZEOF_IX_SHORT == SIZEOF_SHORT && IX_SHORT_MAX == SHORT_MAX
-        get_ix_short(xp, (ix_short *)ip);
-        return ENOERR;
+	get_ix_short(xp, (ix_short *)ip);
+	return ENOERR;
 #else
-        ix_short xx;
-        get_ix_short(xp, &xx);
-        *ip = xx;
+	ix_short xx;
+	get_ix_short(xp, &xx);
+	*ip = xx;
 #   if IX_SHORT_MAX > SHORT_MAX
-        if(xx > SHORT_MAX || xx < SHORT_MIN)
-                return NC_ERANGE;
+	if(xx > SHORT_MAX || xx < SHORT_MIN)
+		return NC_ERANGE;
 #   endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -406,17 +406,17 @@ int
 ncx_get_short_int(const void *xp, int *ip)
 {
 #if SIZEOF_IX_SHORT == SIZEOF_INT && IX_SHORT_MAX == INT_MAX
-        get_ix_short(xp, (ix_short *)ip);
-        return ENOERR;
+	get_ix_short(xp, (ix_short *)ip);
+	return ENOERR;
 #else
-        ix_short xx;
-        get_ix_short(xp, &xx);
-        *ip = xx;
+	ix_short xx;
+	get_ix_short(xp, &xx);
+	*ip = xx;
 #   if IX_SHORT_MAX > INT_MAX
-        if(xx > INT_MAX || xx < INT_MIN)
-                return NC_ERANGE;
+	if(xx > INT_MAX || xx < INT_MIN)
+		return NC_ERANGE;
 #   endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -424,17 +424,17 @@ int
 ncx_get_short_uint(const void *xp, unsigned int *ip)
 {
 #if SIZEOF_IX_SHORT == SIZEOF_INT && IX_SHORT_MAX == INT_MAX
-        get_ix_short(xp, (ix_short *)ip);
-        return ENOERR;
+	get_ix_short(xp, (ix_short *)ip);
+	return ENOERR;
 #else
-        ix_short xx;
-        get_ix_short(xp, &xx);
-        *ip = xx;
+	ix_short xx;
+	get_ix_short(xp, &xx);
+	*ip = xx;
 #   if IX_SHORT_MAX > INT_MAX
-        if(xx > INT_MAX || xx < INT_MIN)
-                return NC_ERANGE;
+	if(xx > INT_MAX || xx < INT_MIN)
+		return NC_ERANGE;
 #   endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -442,14 +442,14 @@ int
 ncx_get_short_longlong(const void *xp, long long *ip)
 {
 #if SIZEOF_IX_SHORT == SIZEOF_LONG && IX_SHORT_MAX == LONG_MAX
-        get_ix_short(xp, (ix_short *)ip);
-        return ENOERR;
+	get_ix_short(xp, (ix_short *)ip);
+	return ENOERR;
 #else
-        /* assert(LONG_MAX >= X_SHORT_MAX); */
-        ix_short xx;
-        get_ix_short(xp, &xx);
-        *ip = xx;
-        return ENOERR;
+	/* assert(LONG_MAX >= X_SHORT_MAX); */
+	ix_short xx;
+	get_ix_short(xp, &xx);
+	*ip = xx;
+	return ENOERR;
 #endif
 }
 
@@ -457,75 +457,75 @@ int
 ncx_get_short_ulonglong(const void *xp, unsigned long long *ip)
 {
 #if SIZEOF_IX_SHORT == SIZEOF_LONG && IX_SHORT_MAX == LONG_MAX
-        get_ix_short(xp, (ix_short *)ip);
-        return ENOERR;
+	get_ix_short(xp, (ix_short *)ip);
+	return ENOERR;
 #else
-        /* assert(LONG_MAX >= X_SHORT_MAX); */
-        ix_short xx;
-        get_ix_short(xp, &xx);
-        *ip = xx;
-        return ENOERR;
+	/* assert(LONG_MAX >= X_SHORT_MAX); */
+	ix_short xx;
+	get_ix_short(xp, &xx);
+	*ip = xx;
+	return ENOERR;
 #endif
 }
 
 int
 ncx_get_short_float(const void *xp, float *ip)
 {
-        ix_short xx;
-        get_ix_short(xp, &xx);
-        *ip = xx;
+	ix_short xx;
+	get_ix_short(xp, &xx);
+	*ip = xx;
 #if 0	/* TODO: determine when necessary */
-        if(xx > FLT_MAX || xx < (-FLT_MAX))
-                return NC_ERANGE;
+	if(xx > FLT_MAX || xx < (-FLT_MAX))
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_get_short_double(const void *xp, double *ip)
 {
-        /* assert(DBL_MAX >= X_SHORT_MAX); */
-        ix_short xx;
-        get_ix_short(xp, &xx);
-        *ip = xx;
-        return ENOERR;
+	/* assert(DBL_MAX >= X_SHORT_MAX); */
+	ix_short xx;
+	get_ix_short(xp, &xx);
+	*ip = xx;
+	return ENOERR;
 }
 
 int
 ncx_put_short_schar(void *xp, const schar *ip)
 {
-        uchar *cp = (uchar *) xp;
-        if(*ip & 0x80)
-                *cp++ = 0xff;
-        else
-                *cp++ = 0;
-        *cp = (uchar)*ip;
-        return ENOERR;
+	uchar *cp = (uchar *) xp;
+	if(*ip & 0x80)
+		*cp++ = 0xff;
+	else
+		*cp++ = 0;
+	*cp = (uchar)*ip;
+	return ENOERR;
 }
 
 int
 ncx_put_short_uchar(void *xp, const uchar *ip)
 {
-        uchar *cp = (uchar *) xp;
-        *cp++ = 0;
-        *cp = *ip;
-        return ENOERR;
+	uchar *cp = (uchar *) xp;
+	*cp++ = 0;
+	*cp = *ip;
+	return ENOERR;
 }
 
 int
 ncx_put_short_short(void *xp, const short *ip)
 {
 #if SIZEOF_IX_SHORT == SIZEOF_SHORT && X_SHORT_MAX == SHORT_MAX
-        put_ix_short(xp, (const ix_short *)ip);
-        return ENOERR;
+	put_ix_short(xp, (const ix_short *)ip);
+	return ENOERR;
 #else
-        ix_short xx = (ix_short)*ip;
-        put_ix_short(xp, &xx);
+	ix_short xx = (ix_short)*ip;
+	put_ix_short(xp, &xx);
 # if X_SHORT_MAX < SHORT_MAX
-        if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
+		return NC_ERANGE;
 # endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -533,16 +533,16 @@ int
 ncx_put_short_int(void *xp, const int *ip)
 {
 #if SIZEOF_IX_SHORT == SIZEOF_INT && X_SHORT_MAX == INT_MAX
-        put_ix_short(xp, (const ix_short *)ip);
-        return ENOERR;
+	put_ix_short(xp, (const ix_short *)ip);
+	return ENOERR;
 #else
-        ix_short xx = (ix_short)*ip;
-        put_ix_short(xp, &xx);
+	ix_short xx = (ix_short)*ip;
+	put_ix_short(xp, &xx);
 # if X_SHORT_MAX < INT_MAX
-        if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
+		return NC_ERANGE;
 # endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -550,16 +550,16 @@ int
 ncx_put_short_uint(void *xp, const unsigned int *ip)
 {
 #if SIZEOF_IX_SHORT == SIZEOF_INT && X_SHORT_MAX == INT_MAX
-        put_ix_short(xp, (const ix_short *)ip);
-        return ENOERR;
+	put_ix_short(xp, (const ix_short *)ip);
+	return ENOERR;
 #else
-        ix_short xx = (ix_short)*ip;
-        put_ix_short(xp, &xx);
+	ix_short xx = (ix_short)*ip;
+	put_ix_short(xp, &xx);
 # if X_SHORT_MAX < INT_MAX
-        if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
+		return NC_ERANGE;
 # endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -567,16 +567,16 @@ int
 ncx_put_short_longlong(void *xp, const long long *ip)
 {
 #if SIZEOF_IX_SHORT == SIZEOF_LONG && X_SHORT_MAX == LONG_MAX
-        put_ix_short(xp, (const ix_short *)ip);
-        return ENOERR;
+	put_ix_short(xp, (const ix_short *)ip);
+	return ENOERR;
 #else
-        ix_short xx = (ix_short)*ip;
-        put_ix_short(xp, &xx);
+	ix_short xx = (ix_short)*ip;
+	put_ix_short(xp, &xx);
 # if X_SHORT_MAX < LONG_MAX
-        if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
+		return NC_ERANGE;
 # endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -584,37 +584,37 @@ int
 ncx_put_short_ulonglong(void *xp, const unsigned long long *ip)
 {
 #if SIZEOF_IX_SHORT == SIZEOF_LONG && X_SHORT_MAX == LONG_MAX
-        put_ix_short(xp, (const ix_short *)ip);
-        return ENOERR;
+	put_ix_short(xp, (const ix_short *)ip);
+	return ENOERR;
 #else
-        ix_short xx = (ix_short)*ip;
-        put_ix_short(xp, &xx);
+	ix_short xx = (ix_short)*ip;
+	put_ix_short(xp, &xx);
 # if X_SHORT_MAX < LONG_MAX
-        if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
+		return NC_ERANGE;
 # endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
 int
 ncx_put_short_float(void *xp, const float *ip)
 {
-        ix_short xx = (ix_short)(*ip);
-        put_ix_short(xp, &xx);
-        if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	ix_short xx = (ix_short)(*ip);
+	put_ix_short(xp, &xx);
+	if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_put_short_double(void *xp, const double *ip)
 {
-        ix_short xx = (ix_short)(*ip);
-        put_ix_short(xp, &xx);
-        if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	ix_short xx = (ix_short)(*ip);
+	put_ix_short(xp, &xx);
+	if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 /* x_int */
@@ -639,70 +639,70 @@ typedef long ix_int;
 static void
 get_ix_int(const void *xp, ix_int *ip)
 {
-        const uchar *cp = (const uchar *) xp;
+	const uchar *cp = (const uchar *) xp;
 
-        *ip = *cp++ << 24;
+	*ip = *cp++ << 24;
 #if SIZEOF_IX_INT > X_SIZEOF_INT
-        if(*ip & 0x80000000)
-        {
-                /* extern is negative */
-                *ip |= (~(0xffffffff)); /* N.B. Assumes "twos complement" */
-        }
+	if(*ip & 0x80000000)
+	{
+		/* extern is negative */
+		*ip |= (~(0xffffffff)); /* N.B. Assumes "twos complement" */
+	}
 #endif
-        *ip |= (*cp++ << 16);
-        *ip |= (*cp++ << 8);
-        *ip |= *cp;
+	*ip |= (*cp++ << 16);
+	*ip |= (*cp++ << 8);
+	*ip |= *cp; 
 }
 
 static void
 put_ix_int(void *xp, const ix_int *ip)
 {
-        uchar *cp = (uchar *) xp;
+	uchar *cp = (uchar *) xp;
 
-        *cp++ = (*ip) >> 24;
-        *cp++ = ((*ip) & 0x00ff0000) >> 16;
-        *cp++ = ((*ip) & 0x0000ff00) >>  8;
-        *cp   = ((*ip) & 0x000000ff);
+	*cp++ = (*ip) >> 24;
+	*cp++ = ((*ip) & 0x00ff0000) >> 16;
+	*cp++ = ((*ip) & 0x0000ff00) >>  8;
+	*cp   = ((*ip) & 0x000000ff);
 }
 
 
 int
 ncx_get_int_schar(const void *xp, schar *ip)
 {
-        ix_int xx;
-        get_ix_int(xp, &xx);
-        *ip = xx;
-        if(xx > SCHAR_MAX || xx < SCHAR_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	ix_int xx;
+	get_ix_int(xp, &xx);
+	*ip = xx;
+	if(xx > SCHAR_MAX || xx < SCHAR_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_int_uchar(const void *xp, uchar *ip)
 {
-        ix_int xx;
-        get_ix_int(xp, &xx);
-        *ip = (uchar)xx;
-        if(xx > UCHAR_MAX || xx < 0)
-                return NC_ERANGE;
-        return ENOERR;
+	ix_int xx;
+	get_ix_int(xp, &xx);
+	*ip = (uchar)xx;
+	if(xx > UCHAR_MAX || xx < 0)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_int_short(const void *xp, short *ip)
 {
 #if SIZEOF_IX_INT == SIZEOF_SHORT && IX_INT_MAX == SHORT_MAX
-        get_ix_int(xp, (ix_int *)ip);
-        return ENOERR;
+	get_ix_int(xp, (ix_int *)ip);
+	return ENOERR;
 #else
-        ix_int xx;
-        get_ix_int(xp, &xx);
-        *ip = xx;
+	ix_int xx;
+	get_ix_int(xp, &xx);
+	*ip = xx;
 #  if IX_INT_MAX > SHORT_MAX
-        if(xx > SHORT_MAX || xx < SHORT_MIN)
-                return NC_ERANGE;
+	if(xx > SHORT_MAX || xx < SHORT_MIN)
+		return NC_ERANGE;
 #  endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -710,17 +710,17 @@ int
 ncx_get_int_int(const void *xp, int *ip)
 {
 #if SIZEOF_IX_INT == SIZEOF_INT && IX_INT_MAX == INT_MAX
-        get_ix_int(xp, (ix_int *)ip);
-        return ENOERR;
+	get_ix_int(xp, (ix_int *)ip);
+	return ENOERR;
 #else
-        ix_int xx;
-        get_ix_int(xp, &xx);
-        *ip = xx;
+	ix_int xx;
+	get_ix_int(xp, &xx);
+	*ip = xx;
 #  if IX_INT_MAX > INT_MAX
-        if(xx > INT_MAX || xx < INT_MIN)
-                return NC_ERANGE;
+	if(xx > INT_MAX || xx < INT_MIN)
+		return NC_ERANGE;
 #  endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -728,17 +728,17 @@ int
 ncx_get_int_uint(const void *xp, unsigned int *ip)
 {
 #if SIZEOF_IX_INT == SIZEOF_INT && IX_INT_MAX == INT_MAX
-        get_ix_int(xp, (ix_int *)ip);
-        return ENOERR;
+	get_ix_int(xp, (ix_int *)ip);
+	return ENOERR;
 #else
-        ix_int xx;
-        get_ix_int(xp, &xx);
-        *ip = xx;
+	ix_int xx;
+	get_ix_int(xp, &xx);
+	*ip = xx;
 #  if IX_INT_MAX > INT_MAX
-        if(xx > INT_MAX || xx < INT_MIN)
-                return NC_ERANGE;
+	if(xx > INT_MAX || xx < INT_MIN)
+		return NC_ERANGE;
 #  endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -746,17 +746,17 @@ int
 ncx_get_int_longlong(const void *xp, long long *ip)
 {
 #if SIZEOF_IX_INT == SIZEOF_LONG && IX_INT_MAX == LONG_MAX
-        get_ix_int(xp, (ix_int *)ip);
-        return ENOERR;
+	get_ix_int(xp, (ix_int *)ip);
+	return ENOERR;
 #else
-        ix_int xx;
-        get_ix_int(xp, &xx);
-        *ip = xx;
+	ix_int xx;
+	get_ix_int(xp, &xx);
+	*ip = xx;
 #  if IX_INT_MAX > LONG_MAX	/* unlikely */
-        if(xx > LONG_MAX || xx < LONG_MIN)
-                return NC_ERANGE;
+	if(xx > LONG_MAX || xx < LONG_MIN)
+		return NC_ERANGE;
 #  endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -764,88 +764,88 @@ int
 ncx_get_int_ulonglong(const void *xp, unsigned long long *ip)
 {
 #if SIZEOF_IX_INT == SIZEOF_LONG && IX_INT_MAX == LONG_MAX
-        get_ix_int(xp, (ix_int *)ip);
-        return ENOERR;
+	get_ix_int(xp, (ix_int *)ip);
+	return ENOERR;
 #else
-        ix_int xx;
-        get_ix_int(xp, &xx);
-        *ip = xx;
+	ix_int xx;
+	get_ix_int(xp, &xx);
+	*ip = xx;
 #  if IX_INT_MAX > LONG_MAX	/* unlikely */
-        if(xx > LONG_MAX || xx < LONG_MIN)
-                return NC_ERANGE;
+	if(xx > LONG_MAX || xx < LONG_MIN)
+		return NC_ERANGE;
 #  endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
 int
 ncx_get_int_float(const void *xp, float *ip)
 {
-        ix_int xx;
-        get_ix_int(xp, &xx);
-        *ip = (float)xx;
+	ix_int xx;
+	get_ix_int(xp, &xx);
+	*ip = (float)xx;
 #if 0	/* TODO: determine when necessary */
-        if(xx > FLT_MAX || xx < (-FLT_MAX))
-                return NC_ERANGE;
+	if(xx > FLT_MAX || xx < (-FLT_MAX))
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_get_int_double(const void *xp, double *ip)
 {
-        /* assert((DBL_MAX >= X_INT_MAX); */
-        ix_int xx;
-        get_ix_int(xp, &xx);
-        *ip = xx;
-        return ENOERR;
+	/* assert((DBL_MAX >= X_INT_MAX); */
+	ix_int xx;
+	get_ix_int(xp, &xx);
+	*ip = xx;
+	return ENOERR;
 }
 
 int
 ncx_put_int_schar(void *xp, const schar *ip)
 {
-        uchar *cp = (uchar *) xp;
-        if(*ip & 0x80)
-        {
-                *cp++ = 0xff;
-                *cp++ = 0xff;
-                *cp++ = 0xff;
-        }
-        else
-        {
-                *cp++ = 0x00;
-                *cp++ = 0x00;
-                *cp++ = 0x00;
-        }
-        *cp = (uchar)*ip;
-        return ENOERR;
+	uchar *cp = (uchar *) xp;
+	if(*ip & 0x80)
+	{
+		*cp++ = 0xff;
+		*cp++ = 0xff;
+		*cp++ = 0xff;
+	}
+	else
+	{
+		*cp++ = 0x00;
+		*cp++ = 0x00;
+		*cp++ = 0x00;
+	}
+	*cp = (uchar)*ip;
+	return ENOERR;
 }
 
 int
 ncx_put_int_uchar(void *xp, const uchar *ip)
 {
-        uchar *cp = (uchar *) xp;
-        *cp++ = 0x00;
-        *cp++ = 0x00;
-        *cp++ = 0x00;
-        *cp   = *ip;
-        return ENOERR;
+	uchar *cp = (uchar *) xp;
+	*cp++ = 0x00;
+	*cp++ = 0x00;
+	*cp++ = 0x00;
+	*cp   = *ip;
+	return ENOERR;
 }
 
 int
 ncx_put_int_short(void *xp, const short *ip)
 {
 #if SIZEOF_IX_INT == SIZEOF_SHORT && IX_INT_MAX == SHORT_MAX
-        put_ix_int(xp, (ix_int *)ip);
-        return ENOERR;
+	put_ix_int(xp, (ix_int *)ip);
+	return ENOERR;
 #else
-        ix_int xx = (ix_int)(*ip);
-        put_ix_int(xp, &xx);
+	ix_int xx = (ix_int)(*ip);
+	put_ix_int(xp, &xx);
 #   if IX_INT_MAX < SHORT_MAX
-        if(*ip > X_INT_MAX || *ip < X_INT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_INT_MAX || *ip < X_INT_MIN)
+		return NC_ERANGE;
 #   endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -853,16 +853,16 @@ int
 ncx_put_int_int(void *xp, const int *ip)
 {
 #if SIZEOF_IX_INT == SIZEOF_INT && IX_INT_MAX == INT_MAX
-        put_ix_int(xp, (ix_int *)ip);
-        return ENOERR;
+	put_ix_int(xp, (ix_int *)ip);
+	return ENOERR;
 #else
-        ix_int xx = (ix_int)(*ip);
-        put_ix_int(xp, &xx);
+	ix_int xx = (ix_int)(*ip);
+	put_ix_int(xp, &xx);
 #   if IX_INT_MAX < INT_MAX
-        if(*ip > X_INT_MAX || *ip < X_INT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_INT_MAX || *ip < X_INT_MIN)
+		return NC_ERANGE;
 #   endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -870,16 +870,16 @@ int
 ncx_put_int_uint(void *xp, const unsigned int *ip)
 {
 #if SIZEOF_IX_INT == SIZEOF_INT && IX_INT_MAX == INT_MAX
-        put_ix_int(xp, (ix_int *)ip);
-        return ENOERR;
+	put_ix_int(xp, (ix_int *)ip);
+	return ENOERR;
 #else
-        ix_int xx = (ix_int)(*ip);
-        put_ix_int(xp, &xx);
+	ix_int xx = (ix_int)(*ip);
+	put_ix_int(xp, &xx);
 #   if IX_INT_MAX < INT_MAX
-        if(*ip > X_INT_MAX || *ip < X_INT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_INT_MAX || *ip < X_INT_MIN)
+		return NC_ERANGE;
 #   endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -887,16 +887,16 @@ int
 ncx_put_int_longlong(void *xp, const longlong *ip)
 {
 #if SIZEOF_IX_INT == SIZEOF_LONG && IX_INT_MAX == LONG_MAX
-        put_ix_int(xp, (ix_int *)ip);
-        return ENOERR;
+	put_ix_int(xp, (ix_int *)ip);
+	return ENOERR;
 #else
-        ix_int xx = (ix_int)(*ip);
-        put_ix_int(xp, &xx);
+	ix_int xx = (ix_int)(*ip);
+	put_ix_int(xp, &xx);
 #   if IX_INT_MAX < LONG_MAX
-        if(*ip > X_INT_MAX || *ip < X_INT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_INT_MAX || *ip < X_INT_MIN)
+		return NC_ERANGE;
 #   endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
@@ -904,39 +904,39 @@ int
 ncx_put_int_ulonglong(void *xp, const unsigned long long *ip)
 {
 #if SIZEOF_IX_INT == SIZEOF_LONG && IX_INT_MAX == LONG_MAX
-        put_ix_int(xp, (ix_int *)ip);
-        return ENOERR;
+	put_ix_int(xp, (ix_int *)ip);
+	return ENOERR;
 #else
-        ix_int xx = (ix_int)(*ip);
-        put_ix_int(xp, &xx);
+	ix_int xx = (ix_int)(*ip);
+	put_ix_int(xp, &xx);
 #   if IX_INT_MAX < LONG_MAX
-        if(*ip > X_INT_MAX || *ip < X_INT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_INT_MAX || *ip < X_INT_MIN)
+		return NC_ERANGE;
 #   endif
-        return ENOERR;
+	return ENOERR;
 #endif
 }
 
 int
 ncx_put_int_float(void *xp, const float *ip)
 {
-        ix_int xx = (ix_int)(*ip);
-        put_ix_int(xp, &xx);
-        if(*ip > (double)X_INT_MAX || *ip < (double)X_INT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	ix_int xx = (ix_int)(*ip);
+	put_ix_int(xp, &xx);
+	if(*ip > (double)X_INT_MAX || *ip < (double)X_INT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_put_int_double(void *xp, const double *ip)
 {
-        ix_int xx = (ix_int)(*ip);
-        put_ix_int(xp, &xx);
-        if(*ip > X_INT_MAX || *ip < X_INT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	ix_int xx = (ix_int)(*ip);
+	put_ix_int(xp, &xx);
+	if(*ip > X_INT_MAX || *ip < X_INT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
-
+ 
 
 /* x_float */
 
@@ -946,9 +946,9 @@ static void
 get_ix_float(const void *xp, float *ip)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(ip, xp, sizeof(float));
+	(void) memcpy(ip, xp, sizeof(float));
 #else
-        swap4b(ip, xp);
+	swap4b(ip, xp);
 #endif
 }
 
@@ -956,9 +956,9 @@ static void
 put_ix_float(void *xp, const float *ip)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(xp, ip, X_SIZEOF_FLOAT);
+	(void) memcpy(xp, ip, X_SIZEOF_FLOAT);
 #else
-        swap4b(xp, ip);
+	swap4b(xp, ip);
 #endif
 }
 
@@ -966,85 +966,85 @@ put_ix_float(void *xp, const float *ip)
 
 /* What IEEE single precision floating point looks like on a Vax */
 struct	ieee_single {
-        unsigned int	exp_hi       : 7;
-        unsigned int	sign         : 1;
-        unsigned int    mant_hi      : 7;
-        unsigned int	exp_lo       : 1;
-        unsigned int	mant_lo_hi   : 8;
-        unsigned int	mant_lo_lo   : 8;
+	unsigned int	exp_hi       : 7;
+	unsigned int	sign         : 1;
+	unsigned int 	mant_hi      : 7;
+	unsigned int	exp_lo       : 1;
+	unsigned int	mant_lo_hi   : 8;
+	unsigned int	mant_lo_lo   : 8;
 };
 
 /* Vax single precision floating point */
 struct	vax_single {
-        unsigned int	mantissa1 : 7;
-        unsigned int	exp       : 8;
-        unsigned int	sign      : 1;
-        unsigned int	mantissa2 : 16;
+	unsigned int	mantissa1 : 7;
+	unsigned int	exp       : 8;
+	unsigned int	sign      : 1;
+	unsigned int	mantissa2 : 16;
 };
 
 #define VAX_SNG_BIAS	0x81
 #define IEEE_SNG_BIAS	0x7f
 
 static struct sgl_limits {
-        struct vax_single s;
-        struct ieee_single ieee;
+	struct vax_single s;
+	struct ieee_single ieee;
 } max = {
-        { 0x7f, 0xff, 0x0, 0xffff },	/* Max Vax */
-        { 0x7f, 0x0, 0x0, 0x1, 0x0, 0x0 }		/* Max IEEE */
+	{ 0x7f, 0xff, 0x0, 0xffff },	/* Max Vax */
+	{ 0x7f, 0x0, 0x0, 0x1, 0x0, 0x0 }		/* Max IEEE */
 };
 static struct sgl_limits min = {
-        { 0x0, 0x0, 0x0, 0x0 },	/* Min Vax */
-        { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }		/* Min IEEE */
+	{ 0x0, 0x0, 0x0, 0x0 },	/* Min Vax */
+	{ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }		/* Min IEEE */
 };
 
 static void
 get_ix_float(const void *xp, float *ip)
 {
-                struct vax_single *const vsp = (struct vax_single *) ip;
-                const struct ieee_single *const isp =
-                         (const struct ieee_single *) xp;
-                unsigned exp = isp->exp_hi << 1 | isp->exp_lo;
+		struct vax_single *const vsp = (struct vax_single *) ip;
+		const struct ieee_single *const isp =
+			 (const struct ieee_single *) xp;
+		unsigned exp = isp->exp_hi << 1 | isp->exp_lo;
 
-                switch(exp) {
-                case 0 :
-                        /* ieee subnormal */
-                        if(isp->mant_hi == min.ieee.mant_hi
-                                && isp->mant_lo_hi == min.ieee.mant_lo_hi
-                                && isp->mant_lo_lo == min.ieee.mant_lo_lo)
-                        {
-                                *vsp = min.s;
-                        }
-                        else
-                        {
-                                unsigned mantissa = (isp->mant_hi << 16)
-                                         | isp->mant_lo_hi << 8
-                                         | isp->mant_lo_lo;
-                                unsigned tmp = mantissa >> 20;
-                                if(tmp >= 4) {
-                                        vsp->exp = 2;
-                                } else if (tmp >= 2) {
-                                        vsp->exp = 1;
-                                } else {
-                                        *vsp = min.s;
-                                        break;
-                                } /* else */
-                                tmp = mantissa - (1 << (20 + vsp->exp ));
-                                tmp <<= 3 - vsp->exp;
-                                vsp->mantissa2 = tmp;
-                                vsp->mantissa1 = (tmp >> 16);
-                        }
-                        break;
-                case 0xfe :
-                case 0xff :
-                        *vsp = max.s;
-                        break;
-                default :
-                        vsp->exp = exp - IEEE_SNG_BIAS + VAX_SNG_BIAS;
-                        vsp->mantissa2 = isp->mant_lo_hi << 8 | isp->mant_lo_lo;
-                        vsp->mantissa1 = isp->mant_hi;
-                }
+		switch(exp) {
+		case 0 :
+			/* ieee subnormal */
+			if(isp->mant_hi == min.ieee.mant_hi
+				&& isp->mant_lo_hi == min.ieee.mant_lo_hi
+				&& isp->mant_lo_lo == min.ieee.mant_lo_lo)
+			{
+				*vsp = min.s;
+			}
+			else
+			{
+				unsigned mantissa = (isp->mant_hi << 16)
+					 | isp->mant_lo_hi << 8
+					 | isp->mant_lo_lo;
+				unsigned tmp = mantissa >> 20;
+				if(tmp >= 4) {
+					vsp->exp = 2;
+				} else if (tmp >= 2) {
+					vsp->exp = 1;
+				} else {
+					*vsp = min.s;
+					break;
+				} /* else */
+				tmp = mantissa - (1 << (20 + vsp->exp ));
+				tmp <<= 3 - vsp->exp;
+				vsp->mantissa2 = tmp;
+				vsp->mantissa1 = (tmp >> 16);
+			}
+			break;
+		case 0xfe :
+		case 0xff :
+			*vsp = max.s;
+			break;
+		default :
+			vsp->exp = exp - IEEE_SNG_BIAS + VAX_SNG_BIAS;
+			vsp->mantissa2 = isp->mant_lo_hi << 8 | isp->mant_lo_lo;
+			vsp->mantissa1 = isp->mant_hi;
+		}
 
-                vsp->sign = isp->sign;
+		vsp->sign = isp->sign;
 
 }
 
@@ -1052,54 +1052,54 @@ get_ix_float(const void *xp, float *ip)
 static void
 put_ix_float(void *xp, const float *ip)
 {
-                const struct vax_single *const vsp =
-                         (const struct vax_single *)ip;
-                struct ieee_single *const isp = (struct ieee_single *) xp;
+		const struct vax_single *const vsp =
+			 (const struct vax_single *)ip;
+		struct ieee_single *const isp = (struct ieee_single *) xp;
 
-                switch(vsp->exp){
-                case 0 :
-                        /* all vax float with zero exponent map to zero */
-                        *isp = min.ieee;
-                        break;
-                case 2 :
-                case 1 :
-                {
-                        /* These will map to subnormals */
-                        unsigned mantissa = (vsp->mantissa1 << 16)
-                                         | vsp->mantissa2;
-                        mantissa >>= 3 - vsp->exp;
-                        mantissa += (1 << (20 + vsp->exp));
-                        isp->mant_lo_lo = mantissa;
-                        isp->mant_lo_hi = mantissa >> 8;
-                        isp->mant_hi = mantissa >> 16;
-                        isp->exp_lo = 0;
-                        isp->exp_hi = 0;
-                }
-                        break;
-                case 0xff : /* max.s.exp */
-                        if( vsp->mantissa2 == max.s.mantissa2
-                                && vsp->mantissa1 == max.s.mantissa1)
-                        {
-                                /* map largest vax float to ieee infinity */
-                                *isp = max.ieee;
-                                break;
-                        } /* else, fall thru */
-                default :
-                {
-                        unsigned exp = vsp->exp - VAX_SNG_BIAS + IEEE_SNG_BIAS;
-                        isp->exp_hi = exp >> 1;
-                        isp->exp_lo = exp;
-                        isp->mant_lo_lo = vsp->mantissa2;
-                        isp->mant_lo_hi = vsp->mantissa2 >> 8;
-                        isp->mant_hi = vsp->mantissa1;
-                }
-                }
+		switch(vsp->exp){
+		case 0 :
+			/* all vax float with zero exponent map to zero */
+			*isp = min.ieee;
+			break;
+		case 2 :
+		case 1 :
+		{
+			/* These will map to subnormals */
+			unsigned mantissa = (vsp->mantissa1 << 16)
+					 | vsp->mantissa2;
+			mantissa >>= 3 - vsp->exp;
+			mantissa += (1 << (20 + vsp->exp));
+			isp->mant_lo_lo = mantissa;
+			isp->mant_lo_hi = mantissa >> 8;
+			isp->mant_hi = mantissa >> 16;
+			isp->exp_lo = 0;
+			isp->exp_hi = 0;
+		}
+			break;
+		case 0xff : /* max.s.exp */
+			if( vsp->mantissa2 == max.s.mantissa2
+				&& vsp->mantissa1 == max.s.mantissa1)
+			{
+				/* map largest vax float to ieee infinity */
+				*isp = max.ieee;
+				break;
+			} /* else, fall thru */
+		default :
+		{
+			unsigned exp = vsp->exp - VAX_SNG_BIAS + IEEE_SNG_BIAS;
+			isp->exp_hi = exp >> 1;
+			isp->exp_lo = exp;
+			isp->mant_lo_lo = vsp->mantissa2;
+			isp->mant_lo_hi = vsp->mantissa2 >> 8;
+			isp->mant_hi = vsp->mantissa1;
+		}
+		}
 
-                isp->sign = vsp->sign;
+		isp->sign = vsp->sign;
 
 }
 
-        /* vax */
+	/* vax */
 #elif defined(_CRAY) && !defined(__crayx1)
 
 /*
@@ -1111,32 +1111,32 @@ put_ix_float(void *xp, const float *ip)
 static size_t
 word_align(const void *vp)
 {
-        const size_t rem = ((size_t)vp >> (64 - 3)) & 0x7;
-        return (rem != 0);
+	const size_t rem = ((size_t)vp >> (64 - 3)) & 0x7;
+	return (rem != 0);
 }
 
 struct ieee_single_hi {
-        unsigned int	sign	: 1;
-        unsigned int     exp	: 8;
-        unsigned int	mant	:23;
-        unsigned int	pad	:32;
+	unsigned int	sign	: 1;
+	unsigned int	 exp	: 8;
+	unsigned int	mant	:23;
+	unsigned int	pad	:32;
 };
 typedef struct ieee_single_hi ieee_single_hi;
 
 struct ieee_single_lo {
-        unsigned int	pad	:32;
-        unsigned int	sign	: 1;
-        unsigned int     exp	: 8;
-        unsigned int	mant	:23;
+	unsigned int	pad	:32;
+	unsigned int	sign	: 1;
+	unsigned int	 exp	: 8;
+	unsigned int	mant	:23;
 };
 typedef struct ieee_single_lo ieee_single_lo;
 
 static const int ieee_single_bias = 0x7f;
 
 struct ieee_double {
-        unsigned int	sign	: 1;
-        unsigned int     exp	:11;
-        unsigned int	mant	:52;
+	unsigned int	sign	: 1;
+	unsigned int	 exp	:11;
+	unsigned int	mant	:52;
 };
 typedef struct ieee_double ieee_double;
 
@@ -1145,9 +1145,9 @@ static const int ieee_double_bias = 0x3ff;
 #if defined(NO_IEEE_FLOAT)
 
 struct cray_single {
-        unsigned int	sign	: 1;
-        unsigned int     exp	:15;
-        unsigned int	mant	:48;
+	unsigned int	sign	: 1;
+	unsigned int	 exp	:15;
+	unsigned int	mant	:48;
 };
 typedef struct cray_single cray_single;
 
@@ -1160,221 +1160,221 @@ static void
 get_ix_float(const void *xp, float *ip)
 {
 
-        if(word_align(xp) == 0)
-        {
-                const ieee_single_hi *isp = (const ieee_single_hi *) xp;
-                cray_single *csp = (cray_single *) ip;
+	if(word_align(xp) == 0)
+	{
+		const ieee_single_hi *isp = (const ieee_single_hi *) xp;
+		cray_single *csp = (cray_single *) ip;
 
-                if(isp->exp == 0)
-                {
-                        /* ieee subnormal */
-                        *ip = (double)isp->mant;
-                        if(isp->mant != 0)
-                        {
-                                csp->exp -= (ieee_single_bias + 22);
-                        }
-                }
-                else
-                {
-                        csp->exp  = isp->exp + cs_ieis_bias + 1;
-                        csp->mant = isp->mant << (48 - 1 - 23);
-                        csp->mant |= (1 << (48 - 1));
-                }
-                csp->sign = isp->sign;
-
-
-        }
-        else
-        {
-                const ieee_single_lo *isp = (const ieee_single_lo *) xp;
-                cray_single *csp = (cray_single *) ip;
-
-                if(isp->exp == 0)
-                {
-                        /* ieee subnormal */
-                        *ip = (double)isp->mant;
-                        if(isp->mant != 0)
-                        {
-                                csp->exp -= (ieee_single_bias + 22);
-                        }
-                }
-                else
-                {
-                        csp->exp  = isp->exp + cs_ieis_bias + 1;
-                        csp->mant = isp->mant << (48 - 1 - 23);
-                        csp->mant |= (1 << (48 - 1));
-                }
-                csp->sign = isp->sign;
+		if(isp->exp == 0)
+		{
+			/* ieee subnormal */
+			*ip = (double)isp->mant;
+			if(isp->mant != 0)
+			{
+				csp->exp -= (ieee_single_bias + 22);
+			}
+		}
+		else
+		{
+			csp->exp  = isp->exp + cs_ieis_bias + 1;
+			csp->mant = isp->mant << (48 - 1 - 23);
+			csp->mant |= (1 << (48 - 1));
+		}
+		csp->sign = isp->sign;
 
 
-        }
+	}
+	else
+	{
+		const ieee_single_lo *isp = (const ieee_single_lo *) xp;
+		cray_single *csp = (cray_single *) ip;
+
+		if(isp->exp == 0)
+		{
+			/* ieee subnormal */
+			*ip = (double)isp->mant;
+			if(isp->mant != 0)
+			{
+				csp->exp -= (ieee_single_bias + 22);
+			}
+		}
+		else
+		{
+			csp->exp  = isp->exp + cs_ieis_bias + 1;
+			csp->mant = isp->mant << (48 - 1 - 23);
+			csp->mant |= (1 << (48 - 1));
+		}
+		csp->sign = isp->sign;
+
+
+	}
 }
 
 static void
 put_ix_float(void *xp, const float *ip)
 {
-        if(word_align(xp) == 0)
-        {
-                ieee_single_hi *isp = (ieee_single_hi*)xp;
-        const cray_single *csp = (const cray_single *) ip;
-        int ieee_exp = csp->exp - cs_ieis_bias -1;
+	if(word_align(xp) == 0)
+	{
+		ieee_single_hi *isp = (ieee_single_hi*)xp;
+	const cray_single *csp = (const cray_single *) ip;
+	int ieee_exp = csp->exp - cs_ieis_bias -1;
 
-        isp->sign = csp->sign;
+	isp->sign = csp->sign;
 
-        if(ieee_exp >= 0xff)
-        {
-                /* NC_ERANGE => ieee Inf */
-                isp->exp = 0xff;
-                isp->mant = 0x0;
-        }
-        else if(ieee_exp > 0)
-        {
-                /* normal ieee representation */
-                isp->exp  = ieee_exp;
-                /* assumes cray rep is in normal form */
-                assert(csp->mant & 0x800000000000);
-                isp->mant = (((csp->mant << 1) &
-                                0xffffffffffff) >> (48 - 23));
-        }
-        else if(ieee_exp > -23)
-        {
-                /* ieee subnormal, right shift */
-                const int rshift = (48 - 23 - ieee_exp);
+	if(ieee_exp >= 0xff)
+	{
+		/* NC_ERANGE => ieee Inf */
+		isp->exp = 0xff;
+		isp->mant = 0x0;
+	}
+	else if(ieee_exp > 0)
+	{
+		/* normal ieee representation */
+		isp->exp  = ieee_exp;
+		/* assumes cray rep is in normal form */
+		assert(csp->mant & 0x800000000000);
+		isp->mant = (((csp->mant << 1) &
+				0xffffffffffff) >> (48 - 23));
+	}
+	else if(ieee_exp > -23)
+	{
+		/* ieee subnormal, right shift */
+		const int rshift = (48 - 23 - ieee_exp);
 
-                isp->mant = csp->mant >> rshift;
-
-#if 0
-                if(csp->mant & (1 << (rshift -1)))
-                {
-                        /* round up */
-                        isp->mant++;
-                }
-#endif
-
-                isp->exp  = 0;
-        }
-        else
-        {
-                /* smaller than ieee can represent */
-                isp->exp = 0;
-                isp->mant = 0;
-        }
-
-        }
-        else
-        {
-                ieee_single_lo *isp = (ieee_single_lo*)xp;
-        const cray_single *csp = (const cray_single *) ip;
-        int ieee_exp = csp->exp - cs_ieis_bias -1;
-
-        isp->sign = csp->sign;
-
-        if(ieee_exp >= 0xff)
-        {
-                /* NC_ERANGE => ieee Inf */
-                isp->exp = 0xff;
-                isp->mant = 0x0;
-        }
-        else if(ieee_exp > 0)
-        {
-                /* normal ieee representation */
-                isp->exp  = ieee_exp;
-                /* assumes cray rep is in normal form */
-                assert(csp->mant & 0x800000000000);
-                isp->mant = (((csp->mant << 1) &
-                                0xffffffffffff) >> (48 - 23));
-        }
-        else if(ieee_exp > -23)
-        {
-                /* ieee subnormal, right shift */
-                const int rshift = (48 - 23 - ieee_exp);
-
-                isp->mant = csp->mant >> rshift;
+		isp->mant = csp->mant >> rshift;
 
 #if 0
-                if(csp->mant & (1 << (rshift -1)))
-                {
-                        /* round up */
-                        isp->mant++;
-                }
+		if(csp->mant & (1 << (rshift -1)))
+		{
+			/* round up */
+			isp->mant++;
+		}
 #endif
 
-                isp->exp  = 0;
-        }
-        else
-        {
-                /* smaller than ieee can represent */
-                isp->exp = 0;
-                isp->mant = 0;
-        }
+		isp->exp  = 0;
+	}
+	else
+	{
+		/* smaller than ieee can represent */
+		isp->exp = 0;
+		isp->mant = 0;
+	}
 
-        }
+	}
+	else
+	{
+		ieee_single_lo *isp = (ieee_single_lo*)xp;
+	const cray_single *csp = (const cray_single *) ip;
+	int ieee_exp = csp->exp - cs_ieis_bias -1;
+
+	isp->sign = csp->sign;
+
+	if(ieee_exp >= 0xff)
+	{
+		/* NC_ERANGE => ieee Inf */
+		isp->exp = 0xff;
+		isp->mant = 0x0;
+	}
+	else if(ieee_exp > 0)
+	{
+		/* normal ieee representation */
+		isp->exp  = ieee_exp;
+		/* assumes cray rep is in normal form */
+		assert(csp->mant & 0x800000000000);
+		isp->mant = (((csp->mant << 1) &
+				0xffffffffffff) >> (48 - 23));
+	}
+	else if(ieee_exp > -23)
+	{
+		/* ieee subnormal, right shift */
+		const int rshift = (48 - 23 - ieee_exp);
+
+		isp->mant = csp->mant >> rshift;
+
+#if 0
+		if(csp->mant & (1 << (rshift -1)))
+		{
+			/* round up */
+			isp->mant++;
+		}
+#endif
+
+		isp->exp  = 0;
+	}
+	else
+	{
+		/* smaller than ieee can represent */
+		isp->exp = 0;
+		isp->mant = 0;
+	}
+
+	}
 }
 
 #else
-        /* IEEE Cray with only doubles */
+	/* IEEE Cray with only doubles */
 static void
 get_ix_float(const void *xp, float *ip)
 {
 
-        ieee_double *idp = (ieee_double *) ip;
+	ieee_double *idp = (ieee_double *) ip;
 
-        if(word_align(xp) == 0)
-        {
-                const ieee_single_hi *isp = (const ieee_single_hi *) xp;
-                if(isp->exp == 0 && isp->mant == 0)
-                {
-                        idp->exp = 0;
-                        idp->mant = 0;
-                }
-                else
-                {
-                        idp->exp = isp->exp + (ieee_double_bias - ieee_single_bias);
-                        idp->mant = isp->mant << (52 - 23);
-                }
-                idp->sign = isp->sign;
-        }
-        else
-        {
-                const ieee_single_lo *isp = (const ieee_single_lo *) xp;
-                if(isp->exp == 0 && isp->mant == 0)
-                {
-                        idp->exp = 0;
-                        idp->mant = 0;
-                }
-                else
-                {
-                        idp->exp = isp->exp + (ieee_double_bias - ieee_single_bias);
-                        idp->mant = isp->mant << (52 - 23);
-                }
-                idp->sign = isp->sign;
-        }
+	if(word_align(xp) == 0)
+	{
+		const ieee_single_hi *isp = (const ieee_single_hi *) xp;
+		if(isp->exp == 0 && isp->mant == 0)
+		{
+			idp->exp = 0;
+			idp->mant = 0;
+		}
+		else
+		{
+			idp->exp = isp->exp + (ieee_double_bias - ieee_single_bias);
+			idp->mant = isp->mant << (52 - 23);
+		}
+		idp->sign = isp->sign;
+	}
+	else
+	{
+		const ieee_single_lo *isp = (const ieee_single_lo *) xp;
+		if(isp->exp == 0 && isp->mant == 0)
+		{
+			idp->exp = 0;
+			idp->mant = 0;
+		}
+		else
+		{
+			idp->exp = isp->exp + (ieee_double_bias - ieee_single_bias);
+			idp->mant = isp->mant << (52 - 23);
+		}
+		idp->sign = isp->sign;
+	}
 }
 
 static void
 put_ix_float(void *xp, const float *ip)
 {
-        const ieee_double *idp = (const ieee_double *) ip;
-        if(word_align(xp) == 0)
-        {
-                ieee_single_hi *isp = (ieee_single_hi*)xp;
-                if(idp->exp > (ieee_double_bias - ieee_single_bias))
-                        isp->exp = idp->exp - (ieee_double_bias - ieee_single_bias);
-                else
-                        isp->exp = 0;
-                isp->mant = idp->mant >> (52 - 23);
-                isp->sign = idp->sign;
-        }
-        else
-        {
-                ieee_single_lo *isp = (ieee_single_lo*)xp;
-                if(idp->exp > (ieee_double_bias - ieee_single_bias))
-                        isp->exp = idp->exp - (ieee_double_bias - ieee_single_bias);
-                else
-                        isp->exp = 0;
-                isp->mant = idp->mant >> (52 - 23);
-                isp->sign = idp->sign;
-        }
+	const ieee_double *idp = (const ieee_double *) ip;
+	if(word_align(xp) == 0)
+	{
+		ieee_single_hi *isp = (ieee_single_hi*)xp;
+		if(idp->exp > (ieee_double_bias - ieee_single_bias))
+			isp->exp = idp->exp - (ieee_double_bias - ieee_single_bias);
+		else
+			isp->exp = 0;
+		isp->mant = idp->mant >> (52 - 23);
+		isp->sign = idp->sign;
+	}
+	else
+	{
+		ieee_single_lo *isp = (ieee_single_lo*)xp;
+		if(idp->exp > (ieee_double_bias - ieee_single_bias))
+			isp->exp = idp->exp - (ieee_double_bias - ieee_single_bias);
+		else
+			isp->exp = 0;
+		isp->mant = idp->mant >> (52 - 23);
+		isp->sign = idp->sign;
+	}
 }
 #endif
 
@@ -1386,194 +1386,194 @@ put_ix_float(void *xp, const float *ip)
 int
 ncx_get_float_schar(const void *xp, schar *ip)
 {
-        float xx;
-        get_ix_float(xp, &xx);
-        *ip = (schar) xx;
-        if(xx > SCHAR_MAX || xx < SCHAR_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	float xx;
+	get_ix_float(xp, &xx);
+	*ip = (schar) xx;
+	if(xx > SCHAR_MAX || xx < SCHAR_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_float_uchar(const void *xp, uchar *ip)
 {
-        float xx;
-        get_ix_float(xp, &xx);
-        *ip = (uchar) xx;
-        if(xx > UCHAR_MAX || xx < 0)
-                return NC_ERANGE;
-        return ENOERR;
+	float xx;
+	get_ix_float(xp, &xx);
+	*ip = (uchar) xx;
+	if(xx > UCHAR_MAX || xx < 0)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_float_short(const void *xp, short *ip)
 {
-        float xx;
-        get_ix_float(xp, &xx);
-        *ip = (short) xx;
-        if(xx > SHORT_MAX || xx < SHORT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	float xx;
+	get_ix_float(xp, &xx);
+	*ip = (short) xx;
+	if(xx > SHORT_MAX || xx < SHORT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_float_int(const void *xp, int *ip)
 {
-        float xx;
-        get_ix_float(xp, &xx);
-        *ip = (int) xx;
-        if(xx > (double)INT_MAX || xx < (double)INT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	float xx;
+	get_ix_float(xp, &xx);
+	*ip = (int) xx;
+	if(xx > (double)INT_MAX || xx < (double)INT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_float_uint(const void *xp, unsigned int *ip)
 {
-        float xx;
-        get_ix_float(xp, &xx);
-        *ip = (unsigned int) xx;
-        if(xx > (double)INT_MAX || xx < (double)INT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	float xx;
+	get_ix_float(xp, &xx);
+	*ip = (unsigned int) xx;
+	if(xx > (double)INT_MAX || xx < (double)INT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_float_longlong(const void *xp, longlong *ip)
 {
-        float xx;
-        get_ix_float(xp, &xx);
-        *ip = (longlong) xx;
-        if(xx > LONG_MAX || xx < LONG_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	float xx;
+	get_ix_float(xp, &xx);
+	*ip = (longlong) xx;
+	if(xx > LONG_MAX || xx < LONG_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_float_ulonglong(const void *xp, unsigned long long *ip)
 {
-        float xx;
-        get_ix_float(xp, &xx);
-        *ip = (longlong) xx;
-        if(xx > LONG_MAX || xx < LONG_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	float xx;
+	get_ix_float(xp, &xx);
+	*ip = (longlong) xx;
+	if(xx > LONG_MAX || xx < LONG_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_float_float(const void *xp, float *ip)
 {
-        /* TODO */
-        get_ix_float(xp, ip);
-        return ENOERR;
+	/* TODO */
+	get_ix_float(xp, ip);
+	return ENOERR;
 }
 
 int
 ncx_get_float_double(const void *xp, double *ip)
 {
-        /* TODO */
-        float xx;
-        get_ix_float(xp, &xx);
-        *ip = xx;
-        return ENOERR;
+	/* TODO */
+	float xx;
+	get_ix_float(xp, &xx);
+	*ip = xx;
+	return ENOERR;
 }
 
 
 int
 ncx_put_float_schar(void *xp, const schar *ip)
 {
-        float xx = (float) *ip;
-        put_ix_float(xp, &xx);
-        return ENOERR;
+	float xx = (float) *ip;
+	put_ix_float(xp, &xx);
+	return ENOERR;
 }
 
 int
 ncx_put_float_uchar(void *xp, const uchar *ip)
 {
-        float xx = (float) *ip;
-        put_ix_float(xp, &xx);
-        return ENOERR;
+	float xx = (float) *ip;
+	put_ix_float(xp, &xx);
+	return ENOERR;
 }
 
 int
 ncx_put_float_short(void *xp, const short *ip)
 {
-        float xx = (float) *ip;
-        put_ix_float(xp, &xx);
+	float xx = (float) *ip;
+	put_ix_float(xp, &xx);
 #if 0	/* TODO: figure this out */
-        if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
-                return NC_ERANGE;
+	if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_float_int(void *xp, const int *ip)
 {
-        float xx = (float) *ip;
-        put_ix_float(xp, &xx);
+	float xx = (float) *ip;
+	put_ix_float(xp, &xx);
 #if 1	/* TODO: figure this out */
-        if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
-                return NC_ERANGE;
+	if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_float_uint(void *xp, const unsigned int *ip)
 {
-        float xx = (float) *ip;
-        put_ix_float(xp, &xx);
+	float xx = (float) *ip;
+	put_ix_float(xp, &xx);
 #if 1	/* TODO: figure this out */
-        if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
-                return NC_ERANGE;
+	if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_float_longlong(void *xp, const longlong *ip)
 {
-        float xx = (float) *ip;
-        put_ix_float(xp, &xx);
+	float xx = (float) *ip;
+	put_ix_float(xp, &xx);
 #if 1	/* TODO: figure this out */
-        if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
-                return NC_ERANGE;
+	if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_float_ulonglong(void *xp, const unsigned long long *ip)
 {
-        float xx = (float) *ip;
-        put_ix_float(xp, &xx);
+	float xx = (float) *ip;
+	put_ix_float(xp, &xx);
 #if 1	/* TODO: figure this out */
-        if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
-                return NC_ERANGE;
+	if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_float_float(void *xp, const float *ip)
 {
-        put_ix_float(xp, ip);
+	put_ix_float(xp, ip);
 #ifdef NO_IEEE_FLOAT
-        if(*ip > X_FLOAT_MAX || *ip < X_FLOAT_MIN)
-                return NC_ERANGE;
+	if(*ip > X_FLOAT_MAX || *ip < X_FLOAT_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_float_double(void *xp, const double *ip)
 {
-        float xx = (float) *ip;
-        put_ix_float(xp, &xx);
-        if(*ip > X_FLOAT_MAX || *ip < X_FLOAT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	float xx = (float) *ip;
+	put_ix_float(xp, &xx);
+	if(*ip > X_FLOAT_MAX || *ip < X_FLOAT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 /* x_double */
@@ -1584,9 +1584,9 @@ static void
 get_ix_double(const void *xp, double *ip)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(ip, xp, sizeof(double));
+	(void) memcpy(ip, xp, sizeof(double));
 #else
-        swap8b(ip, xp);
+	swap8b(ip, xp);
 #endif
 }
 
@@ -1594,9 +1594,9 @@ static void
 put_ix_double(void *xp, const double *ip)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(xp, ip, X_SIZEOF_DOUBLE);
+	(void) memcpy(xp, ip, X_SIZEOF_DOUBLE);
 #else
-        swap8b(xp, ip);
+	swap8b(xp, ip);
 #endif
 }
 
@@ -1604,24 +1604,24 @@ put_ix_double(void *xp, const double *ip)
 
 /* What IEEE double precision floating point looks like on a Vax */
 struct	ieee_double {
-        unsigned int	exp_hi   : 7;
-        unsigned int	sign     : 1;
-        unsigned int    mant_6   : 4;
-        unsigned int	exp_lo   : 4;
-        unsigned int	mant_5   : 8;
-        unsigned int	mant_4   : 8;
+	unsigned int	exp_hi   : 7;
+	unsigned int	sign     : 1;
+	unsigned int 	mant_6   : 4;
+	unsigned int	exp_lo   : 4;
+	unsigned int	mant_5   : 8;
+	unsigned int	mant_4   : 8;
 
-        unsigned int	mant_lo  : 32;
+	unsigned int	mant_lo  : 32;
 };
 
 /* Vax double precision floating point */
 struct  vax_double {
-        unsigned int	mantissa1 : 7;
-        unsigned int	exp       : 8;
-        unsigned int	sign      : 1;
-        unsigned int	mantissa2 : 16;
-        unsigned int	mantissa3 : 16;
-        unsigned int	mantissa4 : 16;
+	unsigned int	mantissa1 : 7;
+	unsigned int	exp       : 8;
+	unsigned int	sign      : 1;
+	unsigned int	mantissa2 : 16;
+	unsigned int	mantissa3 : 16;
+	unsigned int	mantissa4 : 16;
 };
 
 #define VAX_DBL_BIAS	0x81
@@ -1629,60 +1629,60 @@ struct  vax_double {
 #define MASK(nbits)	((1 << nbits) - 1)
 
 static const struct dbl_limits {
-        struct	vax_double d;
-        struct	ieee_double ieee;
+	struct	vax_double d;
+	struct	ieee_double ieee;
 } dbl_limits[2] = {
-        {{ 0x7f, 0xff, 0x0, 0xffff, 0xffff, 0xffff },	/* Max Vax */
-        { 0x7f, 0x0, 0x0, 0xf, 0x0, 0x0, 0x0}}, /* Max IEEE */
-        {{ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0},		/* Min Vax */
-        { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}}, /* Min IEEE */
+	{{ 0x7f, 0xff, 0x0, 0xffff, 0xffff, 0xffff },	/* Max Vax */
+	{ 0x7f, 0x0, 0x0, 0xf, 0x0, 0x0, 0x0}}, /* Max IEEE */
+	{{ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0},		/* Min Vax */
+	{ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}}, /* Min IEEE */
 };
 
 
 static void
 get_ix_double(const void *xp, double *ip)
 {
-        struct vax_double *const vdp =
-                         (struct vax_double *)ip;
-        const struct ieee_double *const idp =
-                         (const struct ieee_double *) xp;
-        {
-                const struct dbl_limits *lim;
-                int ii;
-                for (ii = 0, lim = dbl_limits;
-                        ii < sizeof(dbl_limits)/sizeof(struct dbl_limits);
-                        ii++, lim++)
-                {
-                        if ((idp->mant_lo == lim->ieee.mant_lo)
-                                && (idp->mant_4 == lim->ieee.mant_4)
-                                && (idp->mant_5 == lim->ieee.mant_5)
-                                && (idp->mant_6 == lim->ieee.mant_6)
-                                && (idp->exp_lo == lim->ieee.exp_lo)
-                                && (idp->exp_hi == lim->ieee.exp_hi)
-                                )
-                        {
-                                *vdp = lim->d;
-                                goto doneit;
-                        }
-                }
-        }
-        {
-                unsigned exp = idp->exp_hi << 4 | idp->exp_lo;
-                vdp->exp = exp - IEEE_DBL_BIAS + VAX_DBL_BIAS;
-        }
-        {
-                unsigned mant_hi = ((idp->mant_6 << 16)
-                                 | (idp->mant_5 << 8)
-                                 | idp->mant_4);
-                unsigned mant_lo = SWAP4(idp->mant_lo);
-                vdp->mantissa1 = (mant_hi >> 13);
-                vdp->mantissa2 = ((mant_hi & MASK(13)) << 3)
-                                | (mant_lo >> 29);
-                vdp->mantissa3 = (mant_lo >> 13);
-                vdp->mantissa4 = (mant_lo << 3);
-        }
-        doneit:
-                vdp->sign = idp->sign;
+	struct vax_double *const vdp =
+			 (struct vax_double *)ip;
+	const struct ieee_double *const idp =
+			 (const struct ieee_double *) xp;
+	{
+		const struct dbl_limits *lim;
+		int ii;
+		for (ii = 0, lim = dbl_limits;
+			ii < sizeof(dbl_limits)/sizeof(struct dbl_limits);
+			ii++, lim++)
+		{
+			if ((idp->mant_lo == lim->ieee.mant_lo)
+				&& (idp->mant_4 == lim->ieee.mant_4)
+				&& (idp->mant_5 == lim->ieee.mant_5)
+				&& (idp->mant_6 == lim->ieee.mant_6)
+				&& (idp->exp_lo == lim->ieee.exp_lo)
+				&& (idp->exp_hi == lim->ieee.exp_hi)
+				)
+			{
+				*vdp = lim->d;
+				goto doneit;
+			}
+		}
+	}
+	{
+		unsigned exp = idp->exp_hi << 4 | idp->exp_lo;
+		vdp->exp = exp - IEEE_DBL_BIAS + VAX_DBL_BIAS;
+	}
+	{
+		unsigned mant_hi = ((idp->mant_6 << 16)
+				 | (idp->mant_5 << 8)
+				 | idp->mant_4);
+		unsigned mant_lo = SWAP4(idp->mant_lo);
+		vdp->mantissa1 = (mant_hi >> 13);
+		vdp->mantissa2 = ((mant_hi & MASK(13)) << 3)
+				| (mant_lo >> 29);
+		vdp->mantissa3 = (mant_lo >> 13);
+		vdp->mantissa4 = (mant_lo << 3);
+	}
+	doneit:
+		vdp->sign = idp->sign;
 
 }
 
@@ -1690,150 +1690,150 @@ get_ix_double(const void *xp, double *ip)
 static void
 put_ix_double(void *xp, const double *ip)
 {
-        const struct vax_double *const vdp =
-                        (const struct vax_double *)ip;
-        struct ieee_double *const idp =
-                         (struct ieee_double *) xp;
+	const struct vax_double *const vdp = 
+			(const struct vax_double *)ip;
+	struct ieee_double *const idp =
+			 (struct ieee_double *) xp;
 
-        if ((vdp->mantissa4 > (dbl_limits[0].d.mantissa4 - 3)) &&
-                (vdp->mantissa3 == dbl_limits[0].d.mantissa3) &&
-                (vdp->mantissa2 == dbl_limits[0].d.mantissa2) &&
-                (vdp->mantissa1 == dbl_limits[0].d.mantissa1) &&
-                (vdp->exp == dbl_limits[0].d.exp))
-        {
-                *idp = dbl_limits[0].ieee;
-                goto shipit;
-        }
-        if ((vdp->mantissa4 == dbl_limits[1].d.mantissa4) &&
-                (vdp->mantissa3 == dbl_limits[1].d.mantissa3) &&
-                (vdp->mantissa2 == dbl_limits[1].d.mantissa2) &&
-                (vdp->mantissa1 == dbl_limits[1].d.mantissa1) &&
-                (vdp->exp == dbl_limits[1].d.exp))
-        {
-                *idp = dbl_limits[1].ieee;
-                goto shipit;
-        }
+	if ((vdp->mantissa4 > (dbl_limits[0].d.mantissa4 - 3)) &&
+		(vdp->mantissa3 == dbl_limits[0].d.mantissa3) &&
+		(vdp->mantissa2 == dbl_limits[0].d.mantissa2) &&
+		(vdp->mantissa1 == dbl_limits[0].d.mantissa1) &&
+		(vdp->exp == dbl_limits[0].d.exp))
+	{
+		*idp = dbl_limits[0].ieee;
+		goto shipit;
+	}
+	if ((vdp->mantissa4 == dbl_limits[1].d.mantissa4) &&
+		(vdp->mantissa3 == dbl_limits[1].d.mantissa3) &&
+		(vdp->mantissa2 == dbl_limits[1].d.mantissa2) &&
+		(vdp->mantissa1 == dbl_limits[1].d.mantissa1) &&
+		(vdp->exp == dbl_limits[1].d.exp))
+	{
+		*idp = dbl_limits[1].ieee;
+		goto shipit;
+	}
 
-        {
-                unsigned exp = vdp->exp - VAX_DBL_BIAS + IEEE_DBL_BIAS;
+	{
+		unsigned exp = vdp->exp - VAX_DBL_BIAS + IEEE_DBL_BIAS;
 
-                unsigned mant_lo = ((vdp->mantissa2 & MASK(3)) << 29) |
-                        (vdp->mantissa3 << 13) |
-                        ((vdp->mantissa4 >> 3) & MASK(13));
+		unsigned mant_lo = ((vdp->mantissa2 & MASK(3)) << 29) |
+			(vdp->mantissa3 << 13) |
+			((vdp->mantissa4 >> 3) & MASK(13));
 
-                unsigned mant_hi = (vdp->mantissa1 << 13)
-                                 | (vdp->mantissa2 >> 3);
+		unsigned mant_hi = (vdp->mantissa1 << 13)
+				 | (vdp->mantissa2 >> 3);
 
-                if((vdp->mantissa4 & 7) > 4)
-                {
-                        /* round up */
-                        mant_lo++;
-                        if(mant_lo == 0)
-                        {
-                                mant_hi++;
-                                if(mant_hi > 0xffffff)
-                                {
-                                        mant_hi = 0;
-                                        exp++;
-                                }
-                        }
-                }
+		if((vdp->mantissa4 & 7) > 4)
+		{
+			/* round up */
+			mant_lo++;
+			if(mant_lo == 0)
+			{
+				mant_hi++;
+				if(mant_hi > 0xffffff)
+				{
+					mant_hi = 0;
+					exp++;
+				}
+			}
+		}
 
-                idp->mant_lo = SWAP4(mant_lo);
-                idp->mant_6 = mant_hi >> 16;
-                idp->mant_5 = (mant_hi & 0xff00) >> 8;
-                idp->mant_4 = mant_hi;
-                idp->exp_hi = exp >> 4;
-                idp->exp_lo = exp;
-        }
-
-        shipit:
-                idp->sign = vdp->sign;
+		idp->mant_lo = SWAP4(mant_lo);
+		idp->mant_6 = mant_hi >> 16;
+		idp->mant_5 = (mant_hi & 0xff00) >> 8;
+		idp->mant_4 = mant_hi;
+		idp->exp_hi = exp >> 4;
+		idp->exp_lo = exp;
+	}
+		
+	shipit:
+		idp->sign = vdp->sign;
 
 }
 
-        /* vax */
+	/* vax */
 #elif defined(_CRAY) && !defined(__crayx1)
 
 static void
 get_ix_double(const void *xp, double *ip)
 {
-        const ieee_double *idp = (const ieee_double *) xp;
-        cray_single *csp = (cray_single *) ip;
+	const ieee_double *idp = (const ieee_double *) xp;
+	cray_single *csp = (cray_single *) ip;
 
-        if(idp->exp == 0)
-        {
-                /* ieee subnormal */
-                *ip = (double)idp->mant;
-                if(idp->mant != 0)
-                {
-                        csp->exp -= (ieee_double_bias + 51);
-                }
-        }
-        else
-        {
-                csp->exp  = idp->exp + cs_id_bias + 1;
-                csp->mant = idp->mant >> (52 - 48 + 1);
-                csp->mant |= (1 << (48 - 1));
-        }
-        csp->sign = idp->sign;
+	if(idp->exp == 0)
+	{
+		/* ieee subnormal */
+		*ip = (double)idp->mant;
+		if(idp->mant != 0)
+		{
+			csp->exp -= (ieee_double_bias + 51);
+		}
+	}
+	else
+	{
+		csp->exp  = idp->exp + cs_id_bias + 1;
+		csp->mant = idp->mant >> (52 - 48 + 1);
+		csp->mant |= (1 << (48 - 1));
+	}
+	csp->sign = idp->sign;
 }
 
 static void
 put_ix_double(void *xp, const double *ip)
 {
-        ieee_double *idp = (ieee_double *) xp;
-        const cray_single *csp = (const cray_single *) ip;
+	ieee_double *idp = (ieee_double *) xp;
+	const cray_single *csp = (const cray_single *) ip;
 
-        int ieee_exp = csp->exp - cs_id_bias -1;
+	int ieee_exp = csp->exp - cs_id_bias -1;
 
-        idp->sign = csp->sign;
+	idp->sign = csp->sign;
 
-        if(ieee_exp >= 0x7ff)
-        {
-                /* NC_ERANGE => ieee Inf */
-                idp->exp = 0x7ff;
-                idp->mant = 0x0;
-        }
-        else if(ieee_exp > 0)
-        {
-                /* normal ieee representation */
-                idp->exp  = ieee_exp;
-                /* assumes cray rep is in normal form */
-                assert(csp->mant & 0x800000000000);
-                idp->mant = (((csp->mant << 1) &
-                                0xffffffffffff) << (52 - 48));
-        }
-        else if(ieee_exp >= (-(52 -48)))
-        {
-                /* ieee subnormal, left shift */
-                const int lshift = (52 - 48) + ieee_exp;
-                idp->mant = csp->mant << lshift;
-                idp->exp  = 0;
-        }
-        else if(ieee_exp >= -52)
-        {
-                /* ieee subnormal, right shift */
-                const int rshift = (- (52 - 48) - ieee_exp);
+	if(ieee_exp >= 0x7ff)
+	{
+		/* NC_ERANGE => ieee Inf */
+		idp->exp = 0x7ff;
+		idp->mant = 0x0;
+	}
+	else if(ieee_exp > 0)
+	{
+		/* normal ieee representation */
+		idp->exp  = ieee_exp;
+		/* assumes cray rep is in normal form */
+		assert(csp->mant & 0x800000000000);
+		idp->mant = (((csp->mant << 1) &
+				0xffffffffffff) << (52 - 48));
+	}
+	else if(ieee_exp >= (-(52 -48)))
+	{
+		/* ieee subnormal, left shift */
+		const int lshift = (52 - 48) + ieee_exp;
+		idp->mant = csp->mant << lshift;
+		idp->exp  = 0;
+	}
+	else if(ieee_exp >= -52)
+	{
+		/* ieee subnormal, right shift */
+		const int rshift = (- (52 - 48) - ieee_exp);
 
-                idp->mant = csp->mant >> rshift;
+		idp->mant = csp->mant >> rshift;
 
 #if 0
-                if(csp->mant & (1 << (rshift -1)))
-                {
-                        /* round up */
-                        idp->mant++;
-                }
+		if(csp->mant & (1 << (rshift -1)))
+		{
+			/* round up */
+			idp->mant++;
+		}
 #endif
 
-                idp->exp  = 0;
-        }
-        else
-        {
-                /* smaller than ieee can represent */
-                idp->exp = 0;
-                idp->mant = 0;
-        }
+		idp->exp  = 0;
+	}
+	else
+	{
+		/* smaller than ieee can represent */
+		idp->exp = 0;
+		idp->mant = 0;
+	}
 }
 #else
 #error "ix_double implementation"
@@ -1842,205 +1842,205 @@ put_ix_double(void *xp, const double *ip)
 int
 ncx_get_double_schar(const void *xp, schar *ip)
 {
-        double xx;
-        get_ix_double(xp, &xx);
-        *ip = (schar) xx;
-        if(xx > SCHAR_MAX || xx < SCHAR_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	double xx;
+	get_ix_double(xp, &xx);
+	*ip = (schar) xx;
+	if(xx > SCHAR_MAX || xx < SCHAR_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_double_uchar(const void *xp, uchar *ip)
 {
-        double xx;
-        get_ix_double(xp, &xx);
-        *ip = (uchar) xx;
-        if(xx > UCHAR_MAX || xx < 0)
-                return NC_ERANGE;
-        return ENOERR;
+	double xx;
+	get_ix_double(xp, &xx);
+	*ip = (uchar) xx;
+	if(xx > UCHAR_MAX || xx < 0)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_double_short(const void *xp, short *ip)
 {
-        double xx;
-        get_ix_double(xp, &xx);
-        *ip = (short) xx;
-        if(xx > SHORT_MAX || xx < SHORT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	double xx;
+	get_ix_double(xp, &xx);
+	*ip = (short) xx;
+	if(xx > SHORT_MAX || xx < SHORT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_double_int(const void *xp, int *ip)
 {
-        double xx;
-        get_ix_double(xp, &xx);
-        *ip = (int) xx;
-        if(xx > INT_MAX || xx < INT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	double xx;
+	get_ix_double(xp, &xx);
+	*ip = (int) xx;
+	if(xx > INT_MAX || xx < INT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_double_uint(const void *xp, unsigned int *ip)
 {
-        double xx;
-        get_ix_double(xp, &xx);
-        *ip = (unsigned int) xx;
-        if(xx > INT_MAX || xx < INT_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	double xx;
+	get_ix_double(xp, &xx);
+	*ip = (unsigned int) xx;
+	if(xx > INT_MAX || xx < INT_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_double_longlong(const void *xp, longlong *ip)
 {
-        double xx;
-        get_ix_double(xp, &xx);
-        *ip = (longlong) xx;
-        if(xx > LONG_MAX || xx < LONG_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	double xx;
+	get_ix_double(xp, &xx);
+	*ip = (longlong) xx;
+	if(xx > LONG_MAX || xx < LONG_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_double_ulonglong(const void *xp, unsigned long long *ip)
 {
-        double xx;
-        get_ix_double(xp, &xx);
-        *ip = (longlong) xx;
-        if(xx > LONG_MAX || xx < LONG_MIN)
-                return NC_ERANGE;
-        return ENOERR;
+	double xx;
+	get_ix_double(xp, &xx);
+	*ip = (longlong) xx;
+	if(xx > LONG_MAX || xx < LONG_MIN)
+		return NC_ERANGE;
+	return ENOERR;
 }
 
 int
 ncx_get_double_float(const void *xp, float *ip)
 {
-        double xx;
-        get_ix_double(xp, &xx);
-        if(xx > FLT_MAX || xx < (-FLT_MAX))
-        {
-                *ip = FLT_MAX;
-                return NC_ERANGE;
-        }
-        if(xx < (-FLT_MAX))
-        {
-                *ip = (-FLT_MAX);
-                return NC_ERANGE;
-        }
-        *ip = (float) xx;
-        return ENOERR;
+	double xx;
+	get_ix_double(xp, &xx);
+	if(xx > FLT_MAX || xx < (-FLT_MAX))
+	{
+		*ip = FLT_MAX;
+		return NC_ERANGE;
+	}
+	if(xx < (-FLT_MAX))
+	{
+		*ip = (-FLT_MAX);
+		return NC_ERANGE;
+	}
+	*ip = (float) xx;
+	return ENOERR;
 }
 
 int
 ncx_get_double_double(const void *xp, double *ip)
 {
-        /* TODO */
-        get_ix_double(xp, ip);
-        return ENOERR;
+	/* TODO */
+	get_ix_double(xp, ip);
+	return ENOERR;
 }
 
 
 int
 ncx_put_double_schar(void *xp, const schar *ip)
 {
-        double xx = (double) *ip;
-        put_ix_double(xp, &xx);
-        return ENOERR;
+	double xx = (double) *ip;
+	put_ix_double(xp, &xx);
+	return ENOERR;
 }
 
 int
 ncx_put_double_uchar(void *xp, const uchar *ip)
 {
-        double xx = (double) *ip;
-        put_ix_double(xp, &xx);
-        return ENOERR;
+	double xx = (double) *ip;
+	put_ix_double(xp, &xx);
+	return ENOERR;
 }
 
 int
 ncx_put_double_short(void *xp, const short *ip)
 {
-        double xx = (double) *ip;
-        put_ix_double(xp, &xx);
+	double xx = (double) *ip;
+	put_ix_double(xp, &xx);
 #if 0	/* TODO: figure this out */
-        if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
-                return NC_ERANGE;
+	if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_double_int(void *xp, const int *ip)
 {
-        double xx = (double) *ip;
-        put_ix_double(xp, &xx);
+	double xx = (double) *ip;
+	put_ix_double(xp, &xx);
 #if 0	/* TODO: figure this out */
-        if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
-                return NC_ERANGE;
+	if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_double_uint(void *xp, const unsigned int *ip)
 {
-        double xx = (double) *ip;
-        put_ix_double(xp, &xx);
+	double xx = (double) *ip;
+	put_ix_double(xp, &xx);
 #if 0	/* TODO: figure this out */
-        if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
-                return NC_ERANGE;
+	if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_double_longlong(void *xp, const longlong *ip)
 {
-        double xx = (double) *ip;
-        put_ix_double(xp, &xx);
+	double xx = (double) *ip;
+	put_ix_double(xp, &xx);
 #if 1	/* TODO: figure this out */
-        if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
-                return NC_ERANGE;
+	if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_double_ulonglong(void *xp, const unsigned long long *ip)
 {
-        double xx = (double) *ip;
-        put_ix_double(xp, &xx);
+	double xx = (double) *ip;
+	put_ix_double(xp, &xx);
 #if 1	/* TODO: figure this out */
-        if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
-                return NC_ERANGE;
+	if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_double_float(void *xp, const float *ip)
 {
-        double xx = (double) *ip;
-        put_ix_double(xp, &xx);
+	double xx = (double) *ip;
+	put_ix_double(xp, &xx);
 #if 1	/* TODO: figure this out */
-        if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
-                return NC_ERANGE;
+	if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 int
 ncx_put_double_double(void *xp, const double *ip)
 {
-        put_ix_double(xp, ip);
+	put_ix_double(xp, ip);
 #ifdef NO_IEEE_FLOAT
-        if(*ip > X_DOUBLE_MAX || *ip < X_DOUBLE_MIN)
-                return NC_ERANGE;
+	if(*ip > X_DOUBLE_MAX || *ip < X_DOUBLE_MIN)
+		return NC_ERANGE;
 #endif
-        return ENOERR;
+	return ENOERR;
 }
 
 
@@ -2054,35 +2054,35 @@ ncx_put_double_double(void *xp, const double *ip)
 int
 ncx_put_size_t(void **xpp, const size_t *ulp)
 {
-        /* similar to put_ix_int() */
-        uchar *cp = (uchar *) *xpp;
+	/* similar to put_ix_int() */
+	uchar *cp = (uchar *) *xpp;
 #if SIZEOF_SIZE_T != X_SIZEOF_INT
-        /* For borland, the following *is* always true and will generate a warning. */
-        assert(*ulp <= X_SIZE_MAX);
+	/* For borland, the following *is* always true and will generate a warning. */
+	assert(*ulp <= X_SIZE_MAX);
 #endif
 
-        *cp++ = (uchar)((*ulp) >> 24);
-        *cp++ = (uchar)(((*ulp) & 0x00ff0000) >> 16);
-        *cp++ = (uchar)(((*ulp) & 0x0000ff00) >>  8);
-        *cp   = (uchar)((*ulp) & 0x000000ff);
+	*cp++ = (uchar)((*ulp) >> 24);
+	*cp++ = (uchar)(((*ulp) & 0x00ff0000) >> 16);
+	*cp++ = (uchar)(((*ulp) & 0x0000ff00) >>  8);
+	*cp   = (uchar)((*ulp) & 0x000000ff);
 
-        *xpp = (void *)((char *)(*xpp) + X_SIZEOF_SIZE_T);
-        return ENOERR;
+	*xpp = (void *)((char *)(*xpp) + X_SIZEOF_SIZE_T);
+	return ENOERR;
 }
 
 int
 ncx_get_size_t(const void **xpp,  size_t *ulp)
 {
-        /* similar to get_ix_int */
-        const uchar *cp = (const uchar *) *xpp;
+	/* similar to get_ix_int */
+	const uchar *cp = (const uchar *) *xpp;
 
-        *ulp = (unsigned)(*cp++ << 24);
-        *ulp |= (*cp++ << 16);
-        *ulp |= (*cp++ << 8);
-        *ulp |= *cp;
+	*ulp = (unsigned)(*cp++ << 24);
+	*ulp |= (*cp++ << 16);
+	*ulp |= (*cp++ << 8);
+	*ulp |= *cp; 
 
-        *xpp = (const void *)((const char *)(*xpp) + X_SIZEOF_SIZE_T);
-        return ENOERR;
+	*xpp = (const void *)((const char *)(*xpp) + X_SIZEOF_SIZE_T);
+	return ENOERR;
 }
 
 /* x_off_t */
@@ -2090,103 +2090,103 @@ ncx_get_size_t(const void **xpp,  size_t *ulp)
 int
 ncx_put_off_t(void **xpp, const off_t *lp, size_t sizeof_off_t)
 {
-        /* similar to put_ix_int() */
-        uchar *cp = (uchar *) *xpp;
-                /* No negative offsets stored in netcdf */
-        if (*lp < 0) {
-          /* Assume this is an overflow of a 32-bit int... */
-          return ERANGE;
-        }
+	/* similar to put_ix_int() */
+	uchar *cp = (uchar *) *xpp;
+		/* No negative offsets stored in netcdf */
+	if (*lp < 0) {
+	  /* Assume this is an overflow of a 32-bit int... */
+	  return ERANGE;
+	}
+	  
+	assert(sizeof_off_t == 4 || sizeof_off_t == 8);
 
-        assert(sizeof_off_t == 4 || sizeof_off_t == 8);
-
-        if (sizeof_off_t == 4) {
-                *cp++ = (uchar) ((*lp)               >> 24);
-                *cp++ = (uchar)(((*lp) & 0x00ff0000) >> 16);
-                *cp++ = (uchar)(((*lp) & 0x0000ff00) >>  8);
-                *cp   = (uchar)( (*lp) & 0x000000ff);
-        } else {
+	if (sizeof_off_t == 4) {
+		*cp++ = (uchar) ((*lp)               >> 24);
+		*cp++ = (uchar)(((*lp) & 0x00ff0000) >> 16);
+		*cp++ = (uchar)(((*lp) & 0x0000ff00) >>  8);
+		*cp   = (uchar)( (*lp) & 0x000000ff);
+	} else {
 #if SIZEOF_OFF_T == 4
 /* Write a 64-bit offset on a system with only a 32-bit offset */
-                *cp++ = (uchar)0;
-                *cp++ = (uchar)0;
-                *cp++ = (uchar)0;
-                *cp++ = (uchar)0;
+		*cp++ = (uchar)0;
+		*cp++ = (uchar)0;
+		*cp++ = (uchar)0;
+		*cp++ = (uchar)0;
 
-                *cp++ = (uchar)(((*lp) & 0xff000000) >> 24);
-                *cp++ = (uchar)(((*lp) & 0x00ff0000) >> 16);
-                *cp++ = (uchar)(((*lp) & 0x0000ff00) >>  8);
-                *cp   = (uchar)( (*lp) & 0x000000ff);
+		*cp++ = (uchar)(((*lp) & 0xff000000) >> 24);
+		*cp++ = (uchar)(((*lp) & 0x00ff0000) >> 16);
+		*cp++ = (uchar)(((*lp) & 0x0000ff00) >>  8);
+		*cp   = (uchar)( (*lp) & 0x000000ff);
 #else
-                *cp++ = (uchar) ((*lp)                          >> 56);
-                *cp++ = (uchar)(((*lp) & 0x00ff000000000000ULL) >> 48);
-                *cp++ = (uchar)(((*lp) & 0x0000ff0000000000ULL) >> 40);
-                *cp++ = (uchar)(((*lp) & 0x000000ff00000000ULL) >> 32);
-                *cp++ = (uchar)(((*lp) & 0x00000000ff000000ULL) >> 24);
-                *cp++ = (uchar)(((*lp) & 0x0000000000ff0000ULL) >> 16);
-                *cp++ = (uchar)(((*lp) & 0x000000000000ff00ULL) >>  8);
-                *cp   = (uchar)( (*lp) & 0x00000000000000ffULL);
+		*cp++ = (uchar) ((*lp)                          >> 56);
+		*cp++ = (uchar)(((*lp) & 0x00ff000000000000ULL) >> 48);
+		*cp++ = (uchar)(((*lp) & 0x0000ff0000000000ULL) >> 40);
+		*cp++ = (uchar)(((*lp) & 0x000000ff00000000ULL) >> 32);
+		*cp++ = (uchar)(((*lp) & 0x00000000ff000000ULL) >> 24);
+		*cp++ = (uchar)(((*lp) & 0x0000000000ff0000ULL) >> 16);
+		*cp++ = (uchar)(((*lp) & 0x000000000000ff00ULL) >>  8);
+		*cp   = (uchar)( (*lp) & 0x00000000000000ffULL);
 #endif
-        }
-        *xpp = (void *)((char *)(*xpp) + sizeof_off_t);
-        return ENOERR;
+	}
+	*xpp = (void *)((char *)(*xpp) + sizeof_off_t);
+	return ENOERR;
 }
 
 int
 ncx_get_off_t(const void **xpp, off_t *lp, size_t sizeof_off_t)
 {
-        /* similar to get_ix_int() */
-        const uchar *cp = (const uchar *) *xpp;
-        assert(sizeof_off_t == 4 || sizeof_off_t == 8);
+	/* similar to get_ix_int() */
+	const uchar *cp = (const uchar *) *xpp;
+	assert(sizeof_off_t == 4 || sizeof_off_t == 8);
 
-        if (sizeof_off_t == 4) {
-                *lp = *cp++ << 24;
-                *lp |= (*cp++ << 16);
-                *lp |= (*cp++ <<  8);
-                *lp |= *cp;
-        } else {
+ 	if (sizeof_off_t == 4) {
+		*lp = *cp++ << 24;
+		*lp |= (*cp++ << 16);
+		*lp |= (*cp++ <<  8);
+		*lp |= *cp; 
+	} else {
 #if SIZEOF_OFF_T == 4
 /* Read a 64-bit offset on a system with only a 32-bit offset */
 /* If the offset overflows, set an error code and return */
-                *lp =  ((off_t)(*cp++) << 24);
-                *lp |= ((off_t)(*cp++) << 16);
-                *lp |= ((off_t)(*cp++) <<  8);
-                *lp |= ((off_t)(*cp++));
+		*lp =  ((off_t)(*cp++) << 24);
+		*lp |= ((off_t)(*cp++) << 16);
+		*lp |= ((off_t)(*cp++) <<  8);
+		*lp |= ((off_t)(*cp++));
 /*
  * lp now contains the upper 32-bits of the 64-bit offset.  if lp is
  * not zero, then the dataset is larger than can be represented
  * on this system.  Set an error code and return.
  */
-                if (*lp != 0) {
-                  return ERANGE;
-                }
+		if (*lp != 0) {
+		  return ERANGE;
+		}
 
-                *lp  = ((off_t)(*cp++) << 24);
-                *lp |= ((off_t)(*cp++) << 16);
-                *lp |= ((off_t)(*cp++) <<  8);
-                *lp |=  (off_t)*cp;
+		*lp  = ((off_t)(*cp++) << 24);
+		*lp |= ((off_t)(*cp++) << 16);
+		*lp |= ((off_t)(*cp++) <<  8);
+		*lp |=  (off_t)*cp;
 
-                if (*lp < 0) {
-                  /*
-                   * If this fails, then the offset is >2^31, but less
-                   * than 2^32 which is not allowed, but is not caught
-                   * by the previous check
-                   */
-                  return ERANGE;
-                }
+		if (*lp < 0) {
+		  /*
+		   * If this fails, then the offset is >2^31, but less
+		   * than 2^32 which is not allowed, but is not caught
+		   * by the previous check
+		   */
+		  return ERANGE;
+		}
 #else
-                *lp =  ((off_t)(*cp++) << 56);
-                *lp |= ((off_t)(*cp++) << 48);
-                *lp |= ((off_t)(*cp++) << 40);
-                *lp |= ((off_t)(*cp++) << 32);
-                *lp |= ((off_t)(*cp++) << 24);
-                *lp |= ((off_t)(*cp++) << 16);
-                *lp |= ((off_t)(*cp++) <<  8);
-                *lp |=  (off_t)*cp;
+		*lp =  ((off_t)(*cp++) << 56);
+		*lp |= ((off_t)(*cp++) << 48);
+		*lp |= ((off_t)(*cp++) << 40);
+		*lp |= ((off_t)(*cp++) << 32);
+		*lp |= ((off_t)(*cp++) << 24);
+		*lp |= ((off_t)(*cp++) << 16);
+		*lp |= ((off_t)(*cp++) <<  8);
+		*lp |=  (off_t)*cp;
 #endif
-        }
-        *xpp = (const void *)((const char *)(*xpp) + sizeof_off_t);
-        return ENOERR;
+	}
+	*xpp = (const void *)((const char *)(*xpp) + sizeof_off_t);
+	return ENOERR;
 }
 
 
@@ -2201,652 +2201,652 @@ ncx_get_off_t(const void **xpp, off_t *lp, size_t sizeof_off_t)
 int
 ncx_getn_schar_schar(const void **xpp, size_t nelems, schar *tp)
 {
-                (void) memcpy(tp, *xpp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
-        return ENOERR;
+		(void) memcpy(tp, *xpp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
+	return ENOERR;
 
 }
 int
 ncx_getn_schar_uchar(const void **xpp, size_t nelems, uchar *tp)
 {
-                (void) memcpy(tp, *xpp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
-        return ENOERR;
+		(void) memcpy(tp, *xpp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
+	return ENOERR;
 
 }
 int
 ncx_getn_schar_short(const void **xpp, size_t nelems, short *tp)
 {
-        schar *xp = (schar *)(*xpp);
+	schar *xp = (schar *)(*xpp);
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (const void *)xp;
-        return ENOERR;
+	*xpp = (const void *)xp;
+	return ENOERR;
 }
 
 int
 ncx_getn_schar_int(const void **xpp, size_t nelems, int *tp)
 {
-        schar *xp = (schar *)(*xpp);
+	schar *xp = (schar *)(*xpp);
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (const void *)xp;
-        return ENOERR;
+	*xpp = (const void *)xp;
+	return ENOERR;
 }
 
 int
 ncx_getn_schar_float(const void **xpp, size_t nelems, float *tp)
 {
-        schar *xp = (schar *)(*xpp);
+	schar *xp = (schar *)(*xpp);
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (const void *)xp;
-        return ENOERR;
+	*xpp = (const void *)xp;
+	return ENOERR;
 }
 
 int
 ncx_getn_schar_double(const void **xpp, size_t nelems, double *tp)
 {
-        schar *xp = (schar *)(*xpp);
+	schar *xp = (schar *)(*xpp);
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (const void *)xp;
-        return ENOERR;
+	*xpp = (const void *)xp;
+	return ENOERR;
 }
 
 int
-ncx_getn_schar_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_getn_schar_uint(const void **xpp, size_t nelems, uint *tp)
 {
-        schar *xp = (schar *)(*xpp);
+	schar *xp = (schar *)(*xpp);
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (const void *)xp;
-        return ENOERR;
+	*xpp = (const void *)xp;
+	return ENOERR;
 }
 
 int
 ncx_getn_schar_longlong(const void **xpp, size_t nelems, longlong *tp)
 {
-        schar *xp = (schar *)(*xpp);
+	schar *xp = (schar *)(*xpp);
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (const void *)xp;
-        return ENOERR;
+	*xpp = (const void *)xp;
+	return ENOERR;
 }
 
 int
 ncx_getn_schar_ulonglong(const void **xpp, size_t nelems, ulonglong *tp)
 {
-        schar *xp = (schar *)(*xpp);
+	schar *xp = (schar *)(*xpp);
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (const void *)xp;
-        return ENOERR;
+	*xpp = (const void *)xp;
+	return ENOERR;
 }
 
 
 int
 ncx_pad_getn_schar_schar(const void **xpp, size_t nelems, schar *tp)
 {
-                size_t rndup = nelems % X_ALIGN;
+		size_t rndup = nelems % X_ALIGN;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        (void) memcpy(tp, *xpp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems + rndup);
+	(void) memcpy(tp, *xpp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems + rndup);
 
-        return ENOERR;
+	return ENOERR;
 
 }
 int
 ncx_pad_getn_schar_uchar(const void **xpp, size_t nelems, uchar *tp)
 {
-                size_t rndup = nelems % X_ALIGN;
+		size_t rndup = nelems % X_ALIGN;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        (void) memcpy(tp, *xpp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems + rndup);
+	(void) memcpy(tp, *xpp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems + rndup);
 
-        return ENOERR;
+	return ENOERR;
 
 }
 int
 ncx_pad_getn_schar_short(const void **xpp, size_t nelems, short *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (void *)(xp + rndup);
-        return ENOERR;
+	*xpp = (void *)(xp + rndup);
+	return ENOERR;
 }
 
 int
 ncx_pad_getn_schar_int(const void **xpp, size_t nelems, int *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (void *)(xp + rndup);
-        return ENOERR;
+	*xpp = (void *)(xp + rndup);
+	return ENOERR;
 }
 
 int
 ncx_pad_getn_schar_float(const void **xpp, size_t nelems, float *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (void *)(xp + rndup);
-        return ENOERR;
+	*xpp = (void *)(xp + rndup);
+	return ENOERR;
 }
 
 int
 ncx_pad_getn_schar_double(const void **xpp, size_t nelems, double *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (void *)(xp + rndup);
-        return ENOERR;
+	*xpp = (void *)(xp + rndup);
+	return ENOERR;
 }
 
 int
-ncx_pad_getn_schar_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_pad_getn_schar_uint(const void **xpp, size_t nelems, uint *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (void *)(xp + rndup);
-        return ENOERR;
+	*xpp = (void *)(xp + rndup);
+	return ENOERR;
 }
 
 int
 ncx_pad_getn_schar_longlong(const void **xpp, size_t nelems, longlong *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (void *)(xp + rndup);
-        return ENOERR;
+	*xpp = (void *)(xp + rndup);
+	return ENOERR;
 }
 
 int
 ncx_pad_getn_schar_ulonglong(const void **xpp, size_t nelems, ulonglong *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                *tp++ = *xp++;
-        }
+	while(nelems-- != 0)
+	{
+		*tp++ = *xp++;
+	}
 
-        *xpp = (void *)(xp + rndup);
-        return ENOERR;
+	*xpp = (void *)(xp + rndup);
+	return ENOERR;
 }
 
 
 int
 ncx_putn_schar_schar(void **xpp, size_t nelems, const schar *tp)
 {
-                (void) memcpy(*xpp, tp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
+		(void) memcpy(*xpp, tp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
 
-        return ENOERR;
+	return ENOERR;
 
 }
 int
 ncx_putn_schar_uchar(void **xpp, size_t nelems, const uchar *tp)
 {
-                (void) memcpy(*xpp, tp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
+		(void) memcpy(*xpp, tp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
 
-        return ENOERR;
+	return ENOERR;
 
 }
 int
 ncx_putn_schar_short(void **xpp, size_t nelems, const short *tp)
 {
-        int status = ENOERR;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	schar *xp = (schar *) *xpp;
 
-        while(nelems-- != 0)
-        {
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_putn_schar_int(void **xpp, size_t nelems, const int *tp)
 {
-        int status = ENOERR;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	schar *xp = (schar *) *xpp;
 
-        while(nelems-- != 0)
-        {
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_putn_schar_float(void **xpp, size_t nelems, const float *tp)
 {
-        int status = ENOERR;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	schar *xp = (schar *) *xpp;
 
-        while(nelems-- != 0)
-        {
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_putn_schar_double(void **xpp, size_t nelems, const double *tp)
 {
-        int status = ENOERR;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	schar *xp = (schar *) *xpp;
 
-        while(nelems-- != 0)
-        {
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
-ncx_putn_schar_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_putn_schar_uint(void **xpp, size_t nelems, const uint *tp)
 {
-        int status = ENOERR;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	schar *xp = (schar *) *xpp;
 
-        while(nelems-- != 0)
-        {
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_putn_schar_longlong(void **xpp, size_t nelems, const longlong *tp)
 {
-        int status = ENOERR;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	schar *xp = (schar *) *xpp;
 
-        while(nelems-- != 0)
-        {
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_putn_schar_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
 {
-        int status = ENOERR;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	schar *xp = (schar *) *xpp;
 
-        while(nelems-- != 0)
-        {
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 
 int
 ncx_pad_putn_schar_schar(void **xpp, size_t nelems, const schar *tp)
 {
-                size_t rndup = nelems % X_ALIGN;
+		size_t rndup = nelems % X_ALIGN;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        (void) memcpy(*xpp, tp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
+	(void) memcpy(*xpp, tp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
 
-        if(rndup)
-        {
-                (void) memcpy(*xpp, nada, rndup);
-                *xpp = (void *)((char *)(*xpp) + rndup);
-        }
-
-        return ENOERR;
+	if(rndup)
+	{
+		(void) memcpy(*xpp, nada, rndup);
+		*xpp = (void *)((char *)(*xpp) + rndup);
+	}
+	
+	return ENOERR;
 
 }
 int
 ncx_pad_putn_schar_uchar(void **xpp, size_t nelems, const uchar *tp)
 {
-                size_t rndup = nelems % X_ALIGN;
+		size_t rndup = nelems % X_ALIGN;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        (void) memcpy(*xpp, tp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
+	(void) memcpy(*xpp, tp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
 
-        if(rndup)
-        {
-                (void) memcpy(*xpp, nada, rndup);
-                *xpp = (void *)((char *)(*xpp) + rndup);
-        }
-
-        return ENOERR;
+	if(rndup)
+	{
+		(void) memcpy(*xpp, nada, rndup);
+		*xpp = (void *)((char *)(*xpp) + rndup);
+	}
+	
+	return ENOERR;
 
 }
 int
 ncx_pad_putn_schar_short(void **xpp, size_t nelems, const short *tp)
 {
-        int status = ENOERR;
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                /* N.B. schar as signed */
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		/* N.B. schar as signed */
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
 
-        if(rndup)
-        {
-                (void) memcpy(xp, nada, rndup);
-                xp += rndup;
-        }
+	if(rndup)
+	{
+		(void) memcpy(xp, nada, rndup);
+		xp += rndup;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_schar_int(void **xpp, size_t nelems, const int *tp)
 {
-        int status = ENOERR;
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                /* N.B. schar as signed */
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		/* N.B. schar as signed */
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
 
-        if(rndup)
-        {
-                (void) memcpy(xp, nada, rndup);
-                xp += rndup;
-        }
+	if(rndup)
+	{
+		(void) memcpy(xp, nada, rndup);
+		xp += rndup;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_schar_float(void **xpp, size_t nelems, const float *tp)
 {
-        int status = ENOERR;
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                /* N.B. schar as signed */
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		/* N.B. schar as signed */
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
 
-        if(rndup)
-        {
-                (void) memcpy(xp, nada, rndup);
-                xp += rndup;
-        }
+	if(rndup)
+	{
+		(void) memcpy(xp, nada, rndup);
+		xp += rndup;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_schar_double(void **xpp, size_t nelems, const double *tp)
 {
-        int status = ENOERR;
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                /* N.B. schar as signed */
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		/* N.B. schar as signed */
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
 
-        if(rndup)
-        {
-                (void) memcpy(xp, nada, rndup);
-                xp += rndup;
-        }
+	if(rndup)
+	{
+		(void) memcpy(xp, nada, rndup);
+		xp += rndup;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
-ncx_pad_putn_schar_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_pad_putn_schar_uint(void **xpp, size_t nelems, const uint *tp)
 {
-        int status = ENOERR;
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                /* N.B. schar as signed */
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		/* N.B. schar as signed */
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
 
-        if(rndup)
-        {
-                (void) memcpy(xp, nada, rndup);
-                xp += rndup;
-        }
+	if(rndup)
+	{
+		(void) memcpy(xp, nada, rndup);
+		xp += rndup;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_schar_longlong(void **xpp, size_t nelems, const longlong *tp)
 {
-        int status = ENOERR;
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                /* N.B. schar as signed */
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		/* N.B. schar as signed */
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
 
-        if(rndup)
-        {
-                (void) memcpy(xp, nada, rndup);
-                xp += rndup;
-        }
+	if(rndup)
+	{
+		(void) memcpy(xp, nada, rndup);
+		xp += rndup;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_schar_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
 {
-        int status = ENOERR;
-        size_t rndup = nelems % X_ALIGN;
-        schar *xp = (schar *) *xpp;
+	int status = ENOERR;
+	size_t rndup = nelems % X_ALIGN;
+	schar *xp = (schar *) *xpp;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        while(nelems-- != 0)
-        {
-                /* N.B. schar as signed */
-                if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
-                        status = NC_ERANGE;
-                *xp++ = (schar) *tp++;
-        }
+	while(nelems-- != 0)
+	{
+		/* N.B. schar as signed */
+		if(*tp > X_SCHAR_MAX || *tp < X_SCHAR_MIN)
+			status = NC_ERANGE;
+		*xp++ = (schar) *tp++;
+	}
 
 
-        if(rndup)
-        {
-                (void) memcpy(xp, nada, rndup);
-                xp += rndup;
-        }
+	if(rndup)
+	{
+		(void) memcpy(xp, nada, rndup);
+		xp += rndup;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 
@@ -2902,18 +2902,18 @@ ncx_getn_short_schar(const void **xpp, size_t nelems, schar *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_schar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_schar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -2966,18 +2966,18 @@ ncx_getn_short_uchar(const void **xpp, size_t nelems, uchar *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_uchar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_uchar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -2987,12 +2987,12 @@ int
 ncx_getn_short_short(const void **xpp, size_t nelems, short *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(tp, *xpp, nelems * sizeof(short));
+	(void) memcpy(tp, *xpp, nelems * sizeof(short));
 # else
-        swapn2b(tp, *xpp, nelems);
+	swapn2b(tp, *xpp, nelems);
 # endif
-        *xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_SHORT);
-        return ENOERR;
+	*xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_SHORT);
+	return ENOERR;
 }
 #else
 int
@@ -3044,18 +3044,18 @@ ncx_getn_short_short(const void **xpp, size_t nelems, short *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_short(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_short(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -3109,18 +3109,18 @@ ncx_getn_short_int(const void **xpp, size_t nelems, int *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_int(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_int(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -3173,18 +3173,18 @@ ncx_getn_short_float(const void **xpp, size_t nelems, float *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_float(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_float(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -3237,23 +3237,23 @@ ncx_getn_short_double(const void **xpp, size_t nelems, double *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_double(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_double(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
 int
-ncx_getn_short_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_getn_short_uint(const void **xpp, size_t nelems, uint *tp)
 {
 #if _SX && \
            X_SIZEOF_SHORT == SIZEOF_SHORT
@@ -3288,7 +3288,7 @@ ncx_getn_short_uint(const void **xpp, size_t nelems, unsigned int *tp)
 #pragma cdir loopcnt=LOOPCNT
 #pragma cdir shortloop
     for (i=0; i<ni; i++) {
-      tp[i] = (unsigned int) Max( UINT_MIN, Min(UINT_MAX, (unsigned int) xp[i]));
+      tp[i] = (uint) Max( UINT_MIN, Min(UINT_MAX, (uint) xp[i]));
      /* test for range errors (not always needed but do it anyway) */
       nrange += xp[i] < UINT_MIN || xp[i] > UINT_MAX;
     }
@@ -3301,18 +3301,18 @@ ncx_getn_short_uint(const void **xpp, size_t nelems, unsigned int *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_uint(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_uint(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -3365,18 +3365,18 @@ ncx_getn_short_longlong(const void **xpp, size_t nelems, longlong *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_longlong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_longlong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -3429,18 +3429,18 @@ ncx_getn_short_ulonglong(const void **xpp, size_t nelems, ulonglong *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_ulonglong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_ulonglong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -3448,199 +3448,199 @@ ncx_getn_short_ulonglong(const void **xpp, size_t nelems, ulonglong *tp)
 int
 ncx_pad_getn_short_schar(const void **xpp, size_t nelems, schar *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_schar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_schar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-                xp += X_SIZEOF_SHORT;
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+		xp += X_SIZEOF_SHORT;
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_getn_short_uchar(const void **xpp, size_t nelems, uchar *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_uchar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_uchar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-                xp += X_SIZEOF_SHORT;
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+		xp += X_SIZEOF_SHORT;
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_getn_short_short(const void **xpp, size_t nelems, short *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_short(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_short(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-                xp += X_SIZEOF_SHORT;
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+		xp += X_SIZEOF_SHORT;
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_getn_short_int(const void **xpp, size_t nelems, int *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_int(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_int(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-                xp += X_SIZEOF_SHORT;
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+		xp += X_SIZEOF_SHORT;
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_getn_short_float(const void **xpp, size_t nelems, float *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_float(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_float(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-                xp += X_SIZEOF_SHORT;
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+		xp += X_SIZEOF_SHORT;
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_getn_short_double(const void **xpp, size_t nelems, double *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_double(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_double(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-                xp += X_SIZEOF_SHORT;
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+		xp += X_SIZEOF_SHORT;
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
-ncx_pad_getn_short_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_pad_getn_short_uint(const void **xpp, size_t nelems, uint *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_uint(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_uint(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-                xp += X_SIZEOF_SHORT;
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+		xp += X_SIZEOF_SHORT;
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_getn_short_longlong(const void **xpp, size_t nelems, longlong *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_longlong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_longlong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-                xp += X_SIZEOF_SHORT;
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+		xp += X_SIZEOF_SHORT;
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_getn_short_ulonglong(const void **xpp, size_t nelems, ulonglong *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                const int lstatus = ncx_get_short_ulonglong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		const int lstatus = ncx_get_short_ulonglong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-                xp += X_SIZEOF_SHORT;
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+		xp += X_SIZEOF_SHORT;
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 
@@ -3684,7 +3684,7 @@ ncx_putn_short_schar(void **xpp, size_t nelems, const schar *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_SHORT_MIN || tp[i] > X_SHORT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_SHORT);
       xp = (short *) *xpp;
@@ -3698,18 +3698,18 @@ ncx_putn_short_schar(void **xpp, size_t nelems, const schar *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_schar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_schar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -3753,7 +3753,7 @@ ncx_putn_short_uchar(void **xpp, size_t nelems, const uchar *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_SHORT_MIN || tp[i] > X_SHORT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_SHORT);
       xp = (short *) *xpp;
@@ -3767,18 +3767,18 @@ ncx_putn_short_uchar(void **xpp, size_t nelems, const uchar *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_uchar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_uchar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -3788,12 +3788,12 @@ int
 ncx_putn_short_short(void **xpp, size_t nelems, const short *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(*xpp, tp, nelems * X_SIZEOF_SHORT);
+	(void) memcpy(*xpp, tp, nelems * X_SIZEOF_SHORT);
 # else
-        swapn2b(*xpp, tp, nelems);
+	swapn2b(*xpp, tp, nelems);
 # endif
-        *xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_SHORT);
-        return ENOERR;
+	*xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_SHORT);
+	return ENOERR;
 }
 #else
 int
@@ -3836,7 +3836,7 @@ ncx_putn_short_short(void **xpp, size_t nelems, const short *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_SHORT_MIN || tp[i] > X_SHORT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_SHORT);
       xp = (short *) *xpp;
@@ -3850,18 +3850,18 @@ ncx_putn_short_short(void **xpp, size_t nelems, const short *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_short(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_short(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -3906,7 +3906,7 @@ ncx_putn_short_int(void **xpp, size_t nelems, const int *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_SHORT_MIN || tp[i] > X_SHORT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_SHORT);
       xp = (short *) *xpp;
@@ -3920,18 +3920,18 @@ ncx_putn_short_int(void **xpp, size_t nelems, const int *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_int(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_int(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -3975,7 +3975,7 @@ ncx_putn_short_float(void **xpp, size_t nelems, const float *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_SHORT_MIN || tp[i] > X_SHORT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_SHORT);
       xp = (short *) *xpp;
@@ -3989,18 +3989,18 @@ ncx_putn_short_float(void **xpp, size_t nelems, const float *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_float(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_float(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -4044,7 +4044,7 @@ ncx_putn_short_double(void **xpp, size_t nelems, const double *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_SHORT_MIN || tp[i] > X_SHORT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_SHORT);
       xp = (short *) *xpp;
@@ -4058,23 +4058,23 @@ ncx_putn_short_double(void **xpp, size_t nelems, const double *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_double(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_double(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
 int
-ncx_putn_short_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_putn_short_uint(void **xpp, size_t nelems, const uint *tp)
 {
 #if _SX && \
            X_SIZEOF_SHORT == SIZEOF_SHORT
@@ -4113,7 +4113,7 @@ ncx_putn_short_uint(void **xpp, size_t nelems, const unsigned int *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_SHORT_MIN || tp[i] > X_SHORT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_SHORT);
       xp = (short *) *xpp;
@@ -4127,18 +4127,18 @@ ncx_putn_short_uint(void **xpp, size_t nelems, const unsigned int *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_uint(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_uint(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -4182,7 +4182,7 @@ ncx_putn_short_longlong(void **xpp, size_t nelems, const longlong *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_SHORT_MIN || tp[i] > X_SHORT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_SHORT);
       xp = (short *) *xpp;
@@ -4196,18 +4196,18 @@ ncx_putn_short_longlong(void **xpp, size_t nelems, const longlong *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_longlong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_longlong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -4251,7 +4251,7 @@ ncx_putn_short_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_SHORT_MIN || tp[i] > X_SHORT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_SHORT);
       xp = (short *) *xpp;
@@ -4265,18 +4265,18 @@ ncx_putn_short_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_ulonglong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_ulonglong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -4284,226 +4284,226 @@ ncx_putn_short_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
 int
 ncx_pad_putn_short_schar(void **xpp, size_t nelems, const schar *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_schar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_schar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-        {
-                (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-                xp += X_SIZEOF_SHORT;
-        }
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+	{
+		(void) memcpy(xp, nada, X_SIZEOF_SHORT);
+		xp += X_SIZEOF_SHORT;	
+	}
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_short_uchar(void **xpp, size_t nelems, const uchar *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_uchar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_uchar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-        {
-                (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-                xp += X_SIZEOF_SHORT;
-        }
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+	{
+		(void) memcpy(xp, nada, X_SIZEOF_SHORT);
+		xp += X_SIZEOF_SHORT;	
+	}
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_short_short(void **xpp, size_t nelems, const short *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_short(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_short(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-        {
-                (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-                xp += X_SIZEOF_SHORT;
-        }
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+	{
+		(void) memcpy(xp, nada, X_SIZEOF_SHORT);
+		xp += X_SIZEOF_SHORT;	
+	}
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_short_int(void **xpp, size_t nelems, const int *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_int(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_int(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-        {
-                (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-                xp += X_SIZEOF_SHORT;
-        }
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+	{
+		(void) memcpy(xp, nada, X_SIZEOF_SHORT);
+		xp += X_SIZEOF_SHORT;	
+	}
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_short_float(void **xpp, size_t nelems, const float *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_float(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_float(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-        {
-                (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-                xp += X_SIZEOF_SHORT;
-        }
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+	{
+		(void) memcpy(xp, nada, X_SIZEOF_SHORT);
+		xp += X_SIZEOF_SHORT;	
+	}
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_short_double(void **xpp, size_t nelems, const double *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_double(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_double(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-        {
-                (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-                xp += X_SIZEOF_SHORT;
-        }
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+	{
+		(void) memcpy(xp, nada, X_SIZEOF_SHORT);
+		xp += X_SIZEOF_SHORT;	
+	}
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
-ncx_pad_putn_short_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_pad_putn_short_uint(void **xpp, size_t nelems, const uint *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_uint(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_uint(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-        {
-                (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-                xp += X_SIZEOF_SHORT;
-        }
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+	{
+		(void) memcpy(xp, nada, X_SIZEOF_SHORT);
+		xp += X_SIZEOF_SHORT;	
+	}
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_short_longlong(void **xpp, size_t nelems, const longlong *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_longlong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_longlong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-        {
-                (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-                xp += X_SIZEOF_SHORT;
-        }
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+	{
+		(void) memcpy(xp, nada, X_SIZEOF_SHORT);
+		xp += X_SIZEOF_SHORT;	
+	}
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 int
 ncx_pad_putn_short_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
 {
-        const size_t rndup = nelems % 2;
+	const size_t rndup = nelems % 2;
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
-        {
-                int lstatus = ncx_put_short_ulonglong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_SHORT, tp++)
+	{
+		int lstatus = ncx_put_short_ulonglong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        if(rndup != 0)
-        {
-                (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-                xp += X_SIZEOF_SHORT;
-        }
-
-        *xpp = (void *)xp;
-        return status;
+	if(rndup != 0)
+	{
+		(void) memcpy(xp, nada, X_SIZEOF_SHORT);
+		xp += X_SIZEOF_SHORT;	
+	}
+		
+	*xpp = (void *)xp;
+	return status;
 }
 
 
@@ -4559,18 +4559,18 @@ ncx_getn_int_schar(const void **xpp, size_t nelems, schar *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                const int lstatus = ncx_get_int_schar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		const int lstatus = ncx_get_int_schar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -4623,18 +4623,18 @@ ncx_getn_int_uchar(const void **xpp, size_t nelems, uchar *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                const int lstatus = ncx_get_int_uchar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		const int lstatus = ncx_get_int_uchar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -4687,18 +4687,18 @@ ncx_getn_int_short(const void **xpp, size_t nelems, short *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                const int lstatus = ncx_get_int_short(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		const int lstatus = ncx_get_int_short(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -4708,23 +4708,23 @@ int
 ncx_getn_int_int(const void **xpp, size_t nelems, int *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(tp, *xpp, nelems * sizeof(int));
+	(void) memcpy(tp, *xpp, nelems * sizeof(int));
 # else
-        swapn4b(tp, *xpp, nelems);
+	swapn4b(tp, *xpp, nelems);
 # endif
-        *xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_INT);
-        return ENOERR;
+	*xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_INT);
+	return ENOERR;
 }
 int
 ncx_getn_int_uint(const void **xpp, size_t nelems, unsigned int *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(tp, *xpp, nelems * sizeof(int));
+	(void) memcpy(tp, *xpp, nelems * sizeof(int));
 # else
-        swapn4b(tp, *xpp, nelems);
+	swapn4b(tp, *xpp, nelems);
 # endif
-        *xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_INT);
-        return ENOERR;
+	*xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_INT);
+	return ENOERR;
 }
 #else
 int
@@ -4776,23 +4776,23 @@ ncx_getn_int_int(const void **xpp, size_t nelems, int *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                const int lstatus = ncx_get_int_int(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		const int lstatus = ncx_get_int_int(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
 int
-ncx_getn_int_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_getn_int_uint(const void **xpp, size_t nelems, uint *tp)
 {
 #if _SX && \
            X_SIZEOF_INT == SIZEOF_INT
@@ -4827,7 +4827,7 @@ ncx_getn_int_uint(const void **xpp, size_t nelems, unsigned int *tp)
 #pragma cdir loopcnt=LOOPCNT
 #pragma cdir shortloop
     for (i=0; i<ni; i++) {
-      tp[i] = (unsigned int) Max( UINT_MIN, Min(UINT_MAX, (unsigned int) xp[i]));
+      tp[i] = (uint) Max( UINT_MIN, Min(UINT_MAX, (uint) xp[i]));
      /* test for range errors (not always needed but do it anyway) */
       nrange += xp[i] < UINT_MIN || xp[i] > UINT_MAX;
     }
@@ -4840,18 +4840,18 @@ ncx_getn_int_uint(const void **xpp, size_t nelems, unsigned int *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                const int lstatus = ncx_get_int_uint(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		const int lstatus = ncx_get_int_uint(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -4862,24 +4862,24 @@ int
 ncx_getn_int_longlong(const void **xpp, size_t nelems, longlong *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(tp, *xpp, nelems * sizeof(long));
+	(void) memcpy(tp, *xpp, nelems * sizeof(long));
 # else
-        swapn4b(tp, *xpp, nelems);
+	swapn4b(tp, *xpp, nelems);
 # endif
-        *xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_INT);
-        return ENOERR;
+	*xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_INT);
+	return ENOERR;
 }
 
 int
 ncx_getn_int_ulonglong(const void **xpp, size_t nelems, unsigned long long *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(tp, *xpp, nelems * sizeof(long));
+	(void) memcpy(tp, *xpp, nelems * sizeof(long));
 # else
-        swapn4b(tp, *xpp, nelems);
+	swapn4b(tp, *xpp, nelems);
 # endif
-        *xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_INT);
-        return ENOERR;
+	*xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_INT);
+	return ENOERR;
 }
 
 #else
@@ -4932,18 +4932,18 @@ ncx_getn_int_longlong(const void **xpp, size_t nelems, longlong *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                const int lstatus = ncx_get_int_longlong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		const int lstatus = ncx_get_int_longlong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -4996,18 +4996,18 @@ ncx_getn_int_ulonglong(const void **xpp, size_t nelems, ulonglong *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                const int lstatus = ncx_get_int_ulonglong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		const int lstatus = ncx_get_int_ulonglong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -5062,18 +5062,18 @@ ncx_getn_int_float(const void **xpp, size_t nelems, float *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                const int lstatus = ncx_get_int_float(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		const int lstatus = ncx_get_int_float(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -5126,18 +5126,18 @@ ncx_getn_int_double(const void **xpp, size_t nelems, double *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                const int lstatus = ncx_get_int_double(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		const int lstatus = ncx_get_int_double(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -5182,7 +5182,7 @@ ncx_putn_int_schar(void **xpp, size_t nelems, const schar *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_INT_MIN || tp[i] > X_INT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_INT);
       xp = (int *) *xpp;
@@ -5196,18 +5196,18 @@ ncx_putn_int_schar(void **xpp, size_t nelems, const schar *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                int lstatus = ncx_put_int_schar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		int lstatus = ncx_put_int_schar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -5251,7 +5251,7 @@ ncx_putn_int_uchar(void **xpp, size_t nelems, const uchar *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_INT_MIN || tp[i] > X_INT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_INT);
       xp = (int *) *xpp;
@@ -5265,18 +5265,18 @@ ncx_putn_int_uchar(void **xpp, size_t nelems, const uchar *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                int lstatus = ncx_put_int_uchar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		int lstatus = ncx_put_int_uchar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -5320,7 +5320,7 @@ ncx_putn_int_short(void **xpp, size_t nelems, const short *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_INT_MIN || tp[i] > X_INT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_INT);
       xp = (int *) *xpp;
@@ -5334,18 +5334,18 @@ ncx_putn_int_short(void **xpp, size_t nelems, const short *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                int lstatus = ncx_put_int_short(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		int lstatus = ncx_put_int_short(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -5355,23 +5355,23 @@ int
 ncx_putn_int_int(void **xpp, size_t nelems, const int *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(*xpp, tp, nelems * X_SIZEOF_INT);
+	(void) memcpy(*xpp, tp, nelems * X_SIZEOF_INT);
 # else
-        swapn4b(*xpp, tp, nelems);
+	swapn4b(*xpp, tp, nelems);
 # endif
-        *xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_INT);
-        return ENOERR;
+	*xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_INT);
+	return ENOERR;
 }
 int
 ncx_putn_int_uint(void **xpp, size_t nelems, const unsigned int *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(*xpp, tp, nelems * X_SIZEOF_INT);
+	(void) memcpy(*xpp, tp, nelems * X_SIZEOF_INT);
 # else
-        swapn4b(*xpp, tp, nelems);
+	swapn4b(*xpp, tp, nelems);
 # endif
-        *xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_INT);
-        return ENOERR;
+	*xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_INT);
+	return ENOERR;
 }
 #else
 int
@@ -5414,7 +5414,7 @@ ncx_putn_int_int(void **xpp, size_t nelems, const int *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_INT_MIN || tp[i] > X_INT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_INT);
       xp = (int *) *xpp;
@@ -5428,23 +5428,23 @@ ncx_putn_int_int(void **xpp, size_t nelems, const int *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                int lstatus = ncx_put_int_int(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		int lstatus = ncx_put_int_int(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
 int
-ncx_putn_int_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_putn_int_uint(void **xpp, size_t nelems, const uint *tp)
 {
 #if _SX && \
            X_SIZEOF_INT == SIZEOF_INT
@@ -5483,7 +5483,7 @@ ncx_putn_int_uint(void **xpp, size_t nelems, const unsigned int *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_INT_MIN || tp[i] > X_INT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_INT);
       xp = (int *) *xpp;
@@ -5497,18 +5497,18 @@ ncx_putn_int_uint(void **xpp, size_t nelems, const unsigned int *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                int lstatus = ncx_put_int_uint(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		int lstatus = ncx_put_int_uint(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -5519,24 +5519,24 @@ int
 ncx_putn_int_longlong(void **xpp, size_t nelems, const longlong *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(*xpp, tp, nelems * X_SIZEOF_INT);
+	(void) memcpy(*xpp, tp, nelems * X_SIZEOF_INT);
 # else
-        swapn4b(*xpp, tp, nelems);
+	swapn4b(*xpp, tp, nelems);
 # endif
-        *xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_INT);
-        return ENOERR;
+	*xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_INT);
+	return ENOERR;
 }
 
 int
 ncx_putn_int_ulonglong(void **xpp, size_t nelems, const unsigned long long *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(*xpp, tp, nelems * X_SIZEOF_INT);
+	(void) memcpy(*xpp, tp, nelems * X_SIZEOF_INT);
 # else
-        swapn4b(*xpp, tp, nelems);
+	swapn4b(*xpp, tp, nelems);
 # endif
-        *xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_INT);
-        return ENOERR;
+	*xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_INT);
+	return ENOERR;
 }
 #else
 int
@@ -5579,7 +5579,7 @@ ncx_putn_int_longlong(void **xpp, size_t nelems, const longlong *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_INT_MIN || tp[i] > X_INT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_INT);
       xp = (int *) *xpp;
@@ -5593,18 +5593,18 @@ ncx_putn_int_longlong(void **xpp, size_t nelems, const longlong *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                int lstatus = ncx_put_int_longlong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		int lstatus = ncx_put_int_longlong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -5648,7 +5648,7 @@ ncx_putn_int_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_INT_MIN || tp[i] > X_INT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_INT);
       xp = (int *) *xpp;
@@ -5662,18 +5662,18 @@ ncx_putn_int_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                int lstatus = ncx_put_int_ulonglong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		int lstatus = ncx_put_int_ulonglong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -5714,12 +5714,12 @@ ncx_putn_int_float(void **xpp, size_t nelems, const float *tp)
 #pragma cdir loopcnt=LOOPCNT
 #pragma cdir shortloop
     for (i=0; i<ni; i++) {
-      /* for some reason int to float, for putn, requires a special case */
+      /* for some reason int to float, for putn, requires a special case */ 
       d = tp[i];
       xp[i] = (int) Max( X_INT_MIN, Min(X_INT_MAX, (int) d));
       nrange += d < X_INT_MIN || d > X_INT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_INT);
       xp = (int *) *xpp;
@@ -5733,18 +5733,18 @@ ncx_putn_int_float(void **xpp, size_t nelems, const float *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                int lstatus = ncx_put_int_float(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		int lstatus = ncx_put_int_float(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -5788,7 +5788,7 @@ ncx_putn_int_double(void **xpp, size_t nelems, const double *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_INT_MIN || tp[i] > X_INT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_INT);
       xp = (int *) *xpp;
@@ -5802,18 +5802,18 @@ ncx_putn_int_double(void **xpp, size_t nelems, const double *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
-        {
-                int lstatus = ncx_put_int_double(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_INT, tp++)
+	{
+		int lstatus = ncx_put_int_double(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -5870,18 +5870,18 @@ ncx_getn_float_schar(const void **xpp, size_t nelems, schar *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                const int lstatus = ncx_get_float_schar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		const int lstatus = ncx_get_float_schar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -5934,18 +5934,18 @@ ncx_getn_float_uchar(const void **xpp, size_t nelems, uchar *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                const int lstatus = ncx_get_float_uchar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		const int lstatus = ncx_get_float_uchar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -5998,18 +5998,18 @@ ncx_getn_float_short(const void **xpp, size_t nelems, short *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                const int lstatus = ncx_get_float_short(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		const int lstatus = ncx_get_float_short(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -6062,18 +6062,18 @@ ncx_getn_float_int(const void **xpp, size_t nelems, int *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                const int lstatus = ncx_get_float_int(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		const int lstatus = ncx_get_float_int(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -6083,89 +6083,89 @@ int
 ncx_getn_float_float(const void **xpp, size_t nelems, float *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(tp, *xpp, nelems * sizeof(float));
+	(void) memcpy(tp, *xpp, nelems * sizeof(float));
 # else
-        swapn4b(tp, *xpp, nelems);
+	swapn4b(tp, *xpp, nelems);
 # endif
-        *xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_FLOAT);
-        return ENOERR;
+	*xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_FLOAT);
+	return ENOERR;
 }
 #elif vax
 int
 ncx_getn_float_float(const void **xpp, size_t nfloats, float *ip)
 {
-        float *const end = ip + nfloats;
+	float *const end = ip + nfloats;
 
-        while(ip < end)
-        {
-                struct vax_single *const vsp = (struct vax_single *) ip;
-                const struct ieee_single *const isp =
-                         (const struct ieee_single *) (*xpp);
-                unsigned exp = isp->exp_hi << 1 | isp->exp_lo;
+	while(ip < end)
+	{
+		struct vax_single *const vsp = (struct vax_single *) ip;
+		const struct ieee_single *const isp =
+			 (const struct ieee_single *) (*xpp);
+		unsigned exp = isp->exp_hi << 1 | isp->exp_lo;
 
-                switch(exp) {
-                case 0 :
-                        /* ieee subnormal */
-                        if(isp->mant_hi == min.ieee.mant_hi
-                                && isp->mant_lo_hi == min.ieee.mant_lo_hi
-                                && isp->mant_lo_lo == min.ieee.mant_lo_lo)
-                        {
-                                *vsp = min.s;
-                        }
-                        else
-                        {
-                                unsigned mantissa = (isp->mant_hi << 16)
-                                         | isp->mant_lo_hi << 8
-                                         | isp->mant_lo_lo;
-                                unsigned tmp = mantissa >> 20;
-                                if(tmp >= 4) {
-                                        vsp->exp = 2;
-                                } else if (tmp >= 2) {
-                                        vsp->exp = 1;
-                                } else {
-                                        *vsp = min.s;
-                                        break;
-                                } /* else */
-                                tmp = mantissa - (1 << (20 + vsp->exp ));
-                                tmp <<= 3 - vsp->exp;
-                                vsp->mantissa2 = tmp;
-                                vsp->mantissa1 = (tmp >> 16);
-                        }
-                        break;
-                case 0xfe :
-                case 0xff :
-                        *vsp = max.s;
-                        break;
-                default :
-                        vsp->exp = exp - IEEE_SNG_BIAS + VAX_SNG_BIAS;
-                        vsp->mantissa2 = isp->mant_lo_hi << 8 | isp->mant_lo_lo;
-                        vsp->mantissa1 = isp->mant_hi;
-                }
+		switch(exp) {
+		case 0 :
+			/* ieee subnormal */
+			if(isp->mant_hi == min.ieee.mant_hi
+				&& isp->mant_lo_hi == min.ieee.mant_lo_hi
+				&& isp->mant_lo_lo == min.ieee.mant_lo_lo)
+			{
+				*vsp = min.s;
+			}
+			else
+			{
+				unsigned mantissa = (isp->mant_hi << 16)
+					 | isp->mant_lo_hi << 8
+					 | isp->mant_lo_lo;
+				unsigned tmp = mantissa >> 20;
+				if(tmp >= 4) {
+					vsp->exp = 2;
+				} else if (tmp >= 2) {
+					vsp->exp = 1;
+				} else {
+					*vsp = min.s;
+					break;
+				} /* else */
+				tmp = mantissa - (1 << (20 + vsp->exp ));
+				tmp <<= 3 - vsp->exp;
+				vsp->mantissa2 = tmp;
+				vsp->mantissa1 = (tmp >> 16);
+			}
+			break;
+		case 0xfe :
+		case 0xff :
+			*vsp = max.s;
+			break;
+		default :
+			vsp->exp = exp - IEEE_SNG_BIAS + VAX_SNG_BIAS;
+			vsp->mantissa2 = isp->mant_lo_hi << 8 | isp->mant_lo_lo;
+			vsp->mantissa1 = isp->mant_hi;
+		}
 
-                vsp->sign = isp->sign;
+		vsp->sign = isp->sign;
 
 
-                ip++;
-                *xpp = (char *)(*xpp) + X_SIZEOF_FLOAT;
-        }
-        return ENOERR;
+		ip++;
+		*xpp = (char *)(*xpp) + X_SIZEOF_FLOAT;
+	}
+	return ENOERR;
 }
 #else
 int
 ncx_getn_float_float(const void **xpp, size_t nelems, float *tp)
 {
-        const char *xp = *xpp;
-        int status = ENOERR;
+	const char *xp = *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                const int lstatus = ncx_get_float_float(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		const int lstatus = ncx_get_float_float(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 }
 
 #endif
@@ -6218,23 +6218,23 @@ ncx_getn_float_double(const void **xpp, size_t nelems, double *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                const int lstatus = ncx_get_float_double(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		const int lstatus = ncx_get_float_double(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
 int
-ncx_getn_float_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_getn_float_uint(const void **xpp, size_t nelems, uint *tp)
 {
 #if _SX && \
            X_SIZEOF_FLOAT == SIZEOF_FLOAT
@@ -6269,7 +6269,7 @@ ncx_getn_float_uint(const void **xpp, size_t nelems, unsigned int *tp)
 #pragma cdir loopcnt=LOOPCNT
 #pragma cdir shortloop
     for (i=0; i<ni; i++) {
-      tp[i] = (unsigned int) Max( UINT_MIN, Min(UINT_MAX, (unsigned int) xp[i]));
+      tp[i] = (uint) Max( UINT_MIN, Min(UINT_MAX, (uint) xp[i]));
      /* test for range errors (not always needed but do it anyway) */
       nrange += xp[i] < UINT_MIN || xp[i] > UINT_MAX;
     }
@@ -6282,18 +6282,18 @@ ncx_getn_float_uint(const void **xpp, size_t nelems, unsigned int *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                const int lstatus = ncx_get_float_uint(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		const int lstatus = ncx_get_float_uint(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -6346,18 +6346,18 @@ ncx_getn_float_longlong(const void **xpp, size_t nelems, longlong *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                const int lstatus = ncx_get_float_longlong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		const int lstatus = ncx_get_float_longlong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -6410,18 +6410,18 @@ ncx_getn_float_ulonglong(const void **xpp, size_t nelems, ulonglong *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                const int lstatus = ncx_get_float_ulonglong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		const int lstatus = ncx_get_float_ulonglong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -6466,7 +6466,7 @@ ncx_putn_float_schar(void **xpp, size_t nelems, const schar *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_FLOAT_MIN || tp[i] > X_FLOAT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_FLOAT);
       xp = (float *) *xpp;
@@ -6480,18 +6480,18 @@ ncx_putn_float_schar(void **xpp, size_t nelems, const schar *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                int lstatus = ncx_put_float_schar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		int lstatus = ncx_put_float_schar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -6535,7 +6535,7 @@ ncx_putn_float_uchar(void **xpp, size_t nelems, const uchar *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_FLOAT_MIN || tp[i] > X_FLOAT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_FLOAT);
       xp = (float *) *xpp;
@@ -6549,18 +6549,18 @@ ncx_putn_float_uchar(void **xpp, size_t nelems, const uchar *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                int lstatus = ncx_put_float_uchar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		int lstatus = ncx_put_float_uchar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -6604,7 +6604,7 @@ ncx_putn_float_short(void **xpp, size_t nelems, const short *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_FLOAT_MIN || tp[i] > X_FLOAT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_FLOAT);
       xp = (float *) *xpp;
@@ -6618,18 +6618,18 @@ ncx_putn_float_short(void **xpp, size_t nelems, const short *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                int lstatus = ncx_put_float_short(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		int lstatus = ncx_put_float_short(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -6673,7 +6673,7 @@ ncx_putn_float_int(void **xpp, size_t nelems, const int *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_FLOAT_MIN || tp[i] > X_FLOAT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_FLOAT);
       xp = (float *) *xpp;
@@ -6687,18 +6687,18 @@ ncx_putn_float_int(void **xpp, size_t nelems, const int *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                int lstatus = ncx_put_float_int(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		int lstatus = ncx_put_float_int(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -6708,88 +6708,88 @@ int
 ncx_putn_float_float(void **xpp, size_t nelems, const float *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(*xpp, tp, nelems * X_SIZEOF_FLOAT);
+	(void) memcpy(*xpp, tp, nelems * X_SIZEOF_FLOAT);
 # else
-        swapn4b(*xpp, tp, nelems);
+	swapn4b(*xpp, tp, nelems);
 # endif
-        *xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_FLOAT);
-        return ENOERR;
+	*xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_FLOAT);
+	return ENOERR;
 }
 #elif vax
 int
 ncx_putn_float_float(void **xpp, size_t nfloats, const float *ip)
 {
-        const float *const end = ip + nfloats;
+	const float *const end = ip + nfloats;
 
-        while(ip < end)
-        {
-                const struct vax_single *const vsp =
-                         (const struct vax_single *)ip;
-                struct ieee_single *const isp = (struct ieee_single *) (*xpp);
+	while(ip < end)
+	{
+		const struct vax_single *const vsp =
+			 (const struct vax_single *)ip;
+		struct ieee_single *const isp = (struct ieee_single *) (*xpp);
 
-                switch(vsp->exp){
-                case 0 :
-                        /* all vax float with zero exponent map to zero */
-                        *isp = min.ieee;
-                        break;
-                case 2 :
-                case 1 :
-                {
-                        /* These will map to subnormals */
-                        unsigned mantissa = (vsp->mantissa1 << 16)
-                                         | vsp->mantissa2;
-                        mantissa >>= 3 - vsp->exp;
-                        mantissa += (1 << (20 + vsp->exp));
-                        isp->mant_lo_lo = mantissa;
-                        isp->mant_lo_hi = mantissa >> 8;
-                        isp->mant_hi = mantissa >> 16;
-                        isp->exp_lo = 0;
-                        isp->exp_hi = 0;
-                }
-                        break;
-                case 0xff : /* max.s.exp */
-                        if( vsp->mantissa2 == max.s.mantissa2
-                                && vsp->mantissa1 == max.s.mantissa1)
-                        {
-                                /* map largest vax float to ieee infinity */
-                                *isp = max.ieee;
-                                break;
-                        } /* else, fall thru */
-                default :
-                {
-                        unsigned exp = vsp->exp - VAX_SNG_BIAS + IEEE_SNG_BIAS;
-                        isp->exp_hi = exp >> 1;
-                        isp->exp_lo = exp;
-                        isp->mant_lo_lo = vsp->mantissa2;
-                        isp->mant_lo_hi = vsp->mantissa2 >> 8;
-                        isp->mant_hi = vsp->mantissa1;
-                }
-                }
+		switch(vsp->exp){
+		case 0 :
+			/* all vax float with zero exponent map to zero */
+			*isp = min.ieee;
+			break;
+		case 2 :
+		case 1 :
+		{
+			/* These will map to subnormals */
+			unsigned mantissa = (vsp->mantissa1 << 16)
+					 | vsp->mantissa2;
+			mantissa >>= 3 - vsp->exp;
+			mantissa += (1 << (20 + vsp->exp));
+			isp->mant_lo_lo = mantissa;
+			isp->mant_lo_hi = mantissa >> 8;
+			isp->mant_hi = mantissa >> 16;
+			isp->exp_lo = 0;
+			isp->exp_hi = 0;
+		}
+			break;
+		case 0xff : /* max.s.exp */
+			if( vsp->mantissa2 == max.s.mantissa2
+				&& vsp->mantissa1 == max.s.mantissa1)
+			{
+				/* map largest vax float to ieee infinity */
+				*isp = max.ieee;
+				break;
+			} /* else, fall thru */
+		default :
+		{
+			unsigned exp = vsp->exp - VAX_SNG_BIAS + IEEE_SNG_BIAS;
+			isp->exp_hi = exp >> 1;
+			isp->exp_lo = exp;
+			isp->mant_lo_lo = vsp->mantissa2;
+			isp->mant_lo_hi = vsp->mantissa2 >> 8;
+			isp->mant_hi = vsp->mantissa1;
+		}
+		}
 
-                isp->sign = vsp->sign;
+		isp->sign = vsp->sign;
 
-
-                ip++;
-                *xpp = (char *)(*xpp) + X_SIZEOF_FLOAT;
-        }
-        return ENOERR;
+	
+		ip++;
+		*xpp = (char *)(*xpp) + X_SIZEOF_FLOAT;
+	}
+	return ENOERR;
 }
 #else
 int
 ncx_putn_float_float(void **xpp, size_t nelems, const float *tp)
 {
-        char *xp = *xpp;
-        int status = ENOERR;
+	char *xp = *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                int lstatus = ncx_put_float_float(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		int lstatus = ncx_put_float_float(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 #endif
@@ -6833,7 +6833,7 @@ ncx_putn_float_double(void **xpp, size_t nelems, const double *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_FLOAT_MIN || tp[i] > X_FLOAT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_FLOAT);
       xp = (float *) *xpp;
@@ -6847,23 +6847,23 @@ ncx_putn_float_double(void **xpp, size_t nelems, const double *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                int lstatus = ncx_put_float_double(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		int lstatus = ncx_put_float_double(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
 int
-ncx_putn_float_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_putn_float_uint(void **xpp, size_t nelems, const uint *tp)
 {
 #if _SX && \
            X_SIZEOF_FLOAT == SIZEOF_FLOAT
@@ -6902,7 +6902,7 @@ ncx_putn_float_uint(void **xpp, size_t nelems, const unsigned int *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_FLOAT_MIN || tp[i] > X_FLOAT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_FLOAT);
       xp = (float *) *xpp;
@@ -6916,18 +6916,18 @@ ncx_putn_float_uint(void **xpp, size_t nelems, const unsigned int *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                int lstatus = ncx_put_float_uint(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		int lstatus = ncx_put_float_uint(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -6971,7 +6971,7 @@ ncx_putn_float_longlong(void **xpp, size_t nelems, const longlong *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_FLOAT_MIN || tp[i] > X_FLOAT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_FLOAT);
       xp = (float *) *xpp;
@@ -6985,18 +6985,18 @@ ncx_putn_float_longlong(void **xpp, size_t nelems, const longlong *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                int lstatus = ncx_put_float_longlong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		int lstatus = ncx_put_float_longlong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -7040,7 +7040,7 @@ ncx_putn_float_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_FLOAT_MIN || tp[i] > X_FLOAT_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_FLOAT);
       xp = (float *) *xpp;
@@ -7054,18 +7054,18 @@ ncx_putn_float_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
-        {
-                int lstatus = ncx_put_float_ulonglong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_FLOAT, tp++)
+	{
+		int lstatus = ncx_put_float_ulonglong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -7121,18 +7121,18 @@ ncx_getn_double_schar(const void **xpp, size_t nelems, schar *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                const int lstatus = ncx_get_double_schar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		const int lstatus = ncx_get_double_schar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -7185,18 +7185,18 @@ ncx_getn_double_uchar(const void **xpp, size_t nelems, uchar *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                const int lstatus = ncx_get_double_uchar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		const int lstatus = ncx_get_double_uchar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -7249,18 +7249,18 @@ ncx_getn_double_short(const void **xpp, size_t nelems, short *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                const int lstatus = ncx_get_double_short(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		const int lstatus = ncx_get_double_short(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -7313,18 +7313,18 @@ ncx_getn_double_int(const void **xpp, size_t nelems, int *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                const int lstatus = ncx_get_double_int(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		const int lstatus = ncx_get_double_int(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -7377,23 +7377,23 @@ ncx_getn_double_float(const void **xpp, size_t nelems, float *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                const int lstatus = ncx_get_double_float(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		const int lstatus = ncx_get_double_float(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
 int
-ncx_getn_double_uint(const void **xpp, size_t nelems, unsigned int *tp)
+ncx_getn_double_uint(const void **xpp, size_t nelems, uint *tp)
 {
 #if _SX && \
            X_SIZEOF_DOUBLE == SIZEOF_DOUBLE
@@ -7428,7 +7428,7 @@ ncx_getn_double_uint(const void **xpp, size_t nelems, unsigned int *tp)
 #pragma cdir loopcnt=LOOPCNT
 #pragma cdir shortloop
     for (i=0; i<ni; i++) {
-      tp[i] = (unsigned int) Max( UINT_MIN, Min(UINT_MAX, (unsigned int) xp[i]));
+      tp[i] = (uint) Max( UINT_MIN, Min(UINT_MAX, (uint) xp[i]));
      /* test for range errors (not always needed but do it anyway) */
       nrange += xp[i] < UINT_MIN || xp[i] > UINT_MAX;
     }
@@ -7441,18 +7441,18 @@ ncx_getn_double_uint(const void **xpp, size_t nelems, unsigned int *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                const int lstatus = ncx_get_double_uint(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		const int lstatus = ncx_get_double_uint(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -7505,18 +7505,18 @@ ncx_getn_double_longlong(const void **xpp, size_t nelems, longlong *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                const int lstatus = ncx_get_double_longlong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		const int lstatus = ncx_get_double_longlong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -7569,18 +7569,18 @@ ncx_getn_double_ulonglong(const void **xpp, size_t nelems, ulonglong *tp)
   return nrange == 0 ? ENOERR : NC_ERANGE;
 
 #else   /* not SX */
-        const char *xp = (const char *) *xpp;
-        int status = ENOERR;
+	const char *xp = (const char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                const int lstatus = ncx_get_double_ulonglong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		const int lstatus = ncx_get_double_ulonglong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 #  endif
 }
 
@@ -7590,85 +7590,85 @@ int
 ncx_getn_double_double(const void **xpp, size_t nelems, double *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(tp, *xpp, nelems * sizeof(double));
+	(void) memcpy(tp, *xpp, nelems * sizeof(double));
 # else
-        swapn8b(tp, *xpp, nelems);
+	swapn8b(tp, *xpp, nelems);
 # endif
-        *xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_DOUBLE);
-        return ENOERR;
+	*xpp = (const void *)((const char *)(*xpp) + nelems * X_SIZEOF_DOUBLE);
+	return ENOERR;
 }
 #elif vax
 int
 ncx_getn_double_double(const void **xpp, size_t ndoubles, double *ip)
 {
-        double *const end = ip + ndoubles;
+	double *const end = ip + ndoubles;
 
-        while(ip < end)
-        {
-        struct vax_double *const vdp =
-                         (struct vax_double *)ip;
-        const struct ieee_double *const idp =
-                         (const struct ieee_double *) (*xpp);
-        {
-                const struct dbl_limits *lim;
-                int ii;
-                for (ii = 0, lim = dbl_limits;
-                        ii < sizeof(dbl_limits)/sizeof(struct dbl_limits);
-                        ii++, lim++)
-                {
-                        if ((idp->mant_lo == lim->ieee.mant_lo)
-                                && (idp->mant_4 == lim->ieee.mant_4)
-                                && (idp->mant_5 == lim->ieee.mant_5)
-                                && (idp->mant_6 == lim->ieee.mant_6)
-                                && (idp->exp_lo == lim->ieee.exp_lo)
-                                && (idp->exp_hi == lim->ieee.exp_hi)
-                                )
-                        {
-                                *vdp = lim->d;
-                                goto doneit;
-                        }
-                }
-        }
-        {
-                unsigned exp = idp->exp_hi << 4 | idp->exp_lo;
-                vdp->exp = exp - IEEE_DBL_BIAS + VAX_DBL_BIAS;
-        }
-        {
-                unsigned mant_hi = ((idp->mant_6 << 16)
-                                 | (idp->mant_5 << 8)
-                                 | idp->mant_4);
-                unsigned mant_lo = SWAP4(idp->mant_lo);
-                vdp->mantissa1 = (mant_hi >> 13);
-                vdp->mantissa2 = ((mant_hi & MASK(13)) << 3)
-                                | (mant_lo >> 29);
-                vdp->mantissa3 = (mant_lo >> 13);
-                vdp->mantissa4 = (mant_lo << 3);
-        }
-        doneit:
-                vdp->sign = idp->sign;
+	while(ip < end)
+	{
+	struct vax_double *const vdp =
+			 (struct vax_double *)ip;
+	const struct ieee_double *const idp =
+			 (const struct ieee_double *) (*xpp);
+	{
+		const struct dbl_limits *lim;
+		int ii;
+		for (ii = 0, lim = dbl_limits;
+			ii < sizeof(dbl_limits)/sizeof(struct dbl_limits);
+			ii++, lim++)
+		{
+			if ((idp->mant_lo == lim->ieee.mant_lo)
+				&& (idp->mant_4 == lim->ieee.mant_4)
+				&& (idp->mant_5 == lim->ieee.mant_5)
+				&& (idp->mant_6 == lim->ieee.mant_6)
+				&& (idp->exp_lo == lim->ieee.exp_lo)
+				&& (idp->exp_hi == lim->ieee.exp_hi)
+				)
+			{
+				*vdp = lim->d;
+				goto doneit;
+			}
+		}
+	}
+	{
+		unsigned exp = idp->exp_hi << 4 | idp->exp_lo;
+		vdp->exp = exp - IEEE_DBL_BIAS + VAX_DBL_BIAS;
+	}
+	{
+		unsigned mant_hi = ((idp->mant_6 << 16)
+				 | (idp->mant_5 << 8)
+				 | idp->mant_4);
+		unsigned mant_lo = SWAP4(idp->mant_lo);
+		vdp->mantissa1 = (mant_hi >> 13);
+		vdp->mantissa2 = ((mant_hi & MASK(13)) << 3)
+				| (mant_lo >> 29);
+		vdp->mantissa3 = (mant_lo >> 13);
+		vdp->mantissa4 = (mant_lo << 3);
+	}
+	doneit:
+		vdp->sign = idp->sign;
 
-                ip++;
-                *xpp = (char *)(*xpp) + X_SIZEOF_DOUBLE;
-        }
-        return ENOERR;
+		ip++;
+		*xpp = (char *)(*xpp) + X_SIZEOF_DOUBLE;
+	}
+	return ENOERR;
 }
-        /* vax */
+	/* vax */
 #else
 int
 ncx_getn_double_double(const void **xpp, size_t nelems, double *tp)
 {
-        const char *xp = *xpp;
-        int status = ENOERR;
+	const char *xp = *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                const int lstatus = ncx_get_double_double(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		const int lstatus = ncx_get_double_double(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (const void *)xp;
-        return status;
+	*xpp = (const void *)xp;
+	return status;
 }
 
 #endif
@@ -7713,7 +7713,7 @@ ncx_putn_double_schar(void **xpp, size_t nelems, const schar *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_DOUBLE_MIN || tp[i] > X_DOUBLE_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_DOUBLE);
       xp = (double *) *xpp;
@@ -7727,18 +7727,18 @@ ncx_putn_double_schar(void **xpp, size_t nelems, const schar *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                int lstatus = ncx_put_double_schar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		int lstatus = ncx_put_double_schar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -7782,7 +7782,7 @@ ncx_putn_double_uchar(void **xpp, size_t nelems, const uchar *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_DOUBLE_MIN || tp[i] > X_DOUBLE_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_DOUBLE);
       xp = (double *) *xpp;
@@ -7796,18 +7796,18 @@ ncx_putn_double_uchar(void **xpp, size_t nelems, const uchar *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                int lstatus = ncx_put_double_uchar(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		int lstatus = ncx_put_double_uchar(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -7851,7 +7851,7 @@ ncx_putn_double_short(void **xpp, size_t nelems, const short *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_DOUBLE_MIN || tp[i] > X_DOUBLE_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_DOUBLE);
       xp = (double *) *xpp;
@@ -7865,18 +7865,18 @@ ncx_putn_double_short(void **xpp, size_t nelems, const short *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                int lstatus = ncx_put_double_short(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		int lstatus = ncx_put_double_short(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -7920,7 +7920,7 @@ ncx_putn_double_int(void **xpp, size_t nelems, const int *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_DOUBLE_MIN || tp[i] > X_DOUBLE_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_DOUBLE);
       xp = (double *) *xpp;
@@ -7934,18 +7934,18 @@ ncx_putn_double_int(void **xpp, size_t nelems, const int *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                int lstatus = ncx_put_double_int(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		int lstatus = ncx_put_double_int(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -7989,7 +7989,7 @@ ncx_putn_double_float(void **xpp, size_t nelems, const float *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_DOUBLE_MIN || tp[i] > X_DOUBLE_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_DOUBLE);
       xp = (double *) *xpp;
@@ -8003,23 +8003,23 @@ ncx_putn_double_float(void **xpp, size_t nelems, const float *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                int lstatus = ncx_put_double_float(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		int lstatus = ncx_put_double_float(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
 int
-ncx_putn_double_uint(void **xpp, size_t nelems, const unsigned int *tp)
+ncx_putn_double_uint(void **xpp, size_t nelems, const uint *tp)
 {
 #if _SX && \
            X_SIZEOF_DOUBLE == SIZEOF_DOUBLE
@@ -8058,7 +8058,7 @@ ncx_putn_double_uint(void **xpp, size_t nelems, const unsigned int *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_DOUBLE_MIN || tp[i] > X_DOUBLE_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_DOUBLE);
       xp = (double *) *xpp;
@@ -8072,18 +8072,18 @@ ncx_putn_double_uint(void **xpp, size_t nelems, const unsigned int *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                int lstatus = ncx_put_double_uint(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		int lstatus = ncx_put_double_uint(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -8127,7 +8127,7 @@ ncx_putn_double_longlong(void **xpp, size_t nelems, const longlong *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_DOUBLE_MIN || tp[i] > X_DOUBLE_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_DOUBLE);
       xp = (double *) *xpp;
@@ -8141,18 +8141,18 @@ ncx_putn_double_longlong(void **xpp, size_t nelems, const longlong *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                int lstatus = ncx_put_double_longlong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		int lstatus = ncx_put_double_longlong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -8196,7 +8196,7 @@ ncx_putn_double_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
      /* test for range errors (not always needed but do it anyway) */
       nrange += tp[i] < X_DOUBLE_MIN || tp[i] > X_DOUBLE_MAX;
     }
-   /* copy workspace back if necessary */
+   /* copy workspace back if necessary */ 
     if (realign) {
       memcpy(*xpp, tmp, ni*X_SIZEOF_DOUBLE);
       xp = (double *) *xpp;
@@ -8210,18 +8210,18 @@ ncx_putn_double_ulonglong(void **xpp, size_t nelems, const ulonglong *tp)
 
 #else   /* not SX */
 
-        char *xp = (char *) *xpp;
-        int status = ENOERR;
+	char *xp = (char *) *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                int lstatus = ncx_put_double_ulonglong(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		int lstatus = ncx_put_double_ulonglong(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 #endif
 }
 
@@ -8231,103 +8231,103 @@ int
 ncx_putn_double_double(void **xpp, size_t nelems, const double *tp)
 {
 #ifdef WORDS_BIGENDIAN
-        (void) memcpy(*xpp, tp, nelems * X_SIZEOF_DOUBLE);
+	(void) memcpy(*xpp, tp, nelems * X_SIZEOF_DOUBLE);
 # else
-        swapn8b(*xpp, tp, nelems);
+	swapn8b(*xpp, tp, nelems);
 # endif
-        *xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_DOUBLE);
-        return ENOERR;
+	*xpp = (void *)((char *)(*xpp) + nelems * X_SIZEOF_DOUBLE);
+	return ENOERR;
 }
 #elif vax
 int
 ncx_putn_double_double(void **xpp, size_t ndoubles, const double *ip)
 {
-        const double *const end = ip + ndoubles;
+	const double *const end = ip + ndoubles;
 
-        while(ip < end)
-        {
-        const struct vax_double *const vdp =
-                        (const struct vax_double *)ip;
-        struct ieee_double *const idp =
-                         (struct ieee_double *) (*xpp);
+	while(ip < end)
+	{
+	const struct vax_double *const vdp = 
+			(const struct vax_double *)ip;
+	struct ieee_double *const idp =
+			 (struct ieee_double *) (*xpp);
 
-        if ((vdp->mantissa4 > (dbl_limits[0].d.mantissa4 - 3)) &&
-                (vdp->mantissa3 == dbl_limits[0].d.mantissa3) &&
-                (vdp->mantissa2 == dbl_limits[0].d.mantissa2) &&
-                (vdp->mantissa1 == dbl_limits[0].d.mantissa1) &&
-                (vdp->exp == dbl_limits[0].d.exp))
-        {
-                *idp = dbl_limits[0].ieee;
-                goto shipit;
-        }
-        if ((vdp->mantissa4 == dbl_limits[1].d.mantissa4) &&
-                (vdp->mantissa3 == dbl_limits[1].d.mantissa3) &&
-                (vdp->mantissa2 == dbl_limits[1].d.mantissa2) &&
-                (vdp->mantissa1 == dbl_limits[1].d.mantissa1) &&
-                (vdp->exp == dbl_limits[1].d.exp))
-        {
-                *idp = dbl_limits[1].ieee;
-                goto shipit;
-        }
+	if ((vdp->mantissa4 > (dbl_limits[0].d.mantissa4 - 3)) &&
+		(vdp->mantissa3 == dbl_limits[0].d.mantissa3) &&
+		(vdp->mantissa2 == dbl_limits[0].d.mantissa2) &&
+		(vdp->mantissa1 == dbl_limits[0].d.mantissa1) &&
+		(vdp->exp == dbl_limits[0].d.exp))
+	{
+		*idp = dbl_limits[0].ieee;
+		goto shipit;
+	}
+	if ((vdp->mantissa4 == dbl_limits[1].d.mantissa4) &&
+		(vdp->mantissa3 == dbl_limits[1].d.mantissa3) &&
+		(vdp->mantissa2 == dbl_limits[1].d.mantissa2) &&
+		(vdp->mantissa1 == dbl_limits[1].d.mantissa1) &&
+		(vdp->exp == dbl_limits[1].d.exp))
+	{
+		*idp = dbl_limits[1].ieee;
+		goto shipit;
+	}
 
-        {
-                unsigned exp = vdp->exp - VAX_DBL_BIAS + IEEE_DBL_BIAS;
+	{
+		unsigned exp = vdp->exp - VAX_DBL_BIAS + IEEE_DBL_BIAS;
 
-                unsigned mant_lo = ((vdp->mantissa2 & MASK(3)) << 29) |
-                        (vdp->mantissa3 << 13) |
-                        ((vdp->mantissa4 >> 3) & MASK(13));
+		unsigned mant_lo = ((vdp->mantissa2 & MASK(3)) << 29) |
+			(vdp->mantissa3 << 13) |
+			((vdp->mantissa4 >> 3) & MASK(13));
 
-                unsigned mant_hi = (vdp->mantissa1 << 13)
-                                 | (vdp->mantissa2 >> 3);
+		unsigned mant_hi = (vdp->mantissa1 << 13)
+				 | (vdp->mantissa2 >> 3);
 
-                if((vdp->mantissa4 & 7) > 4)
-                {
-                        /* round up */
-                        mant_lo++;
-                        if(mant_lo == 0)
-                        {
-                                mant_hi++;
-                                if(mant_hi > 0xffffff)
-                                {
-                                        mant_hi = 0;
-                                        exp++;
-                                }
-                        }
-                }
+		if((vdp->mantissa4 & 7) > 4)
+		{
+			/* round up */
+			mant_lo++;
+			if(mant_lo == 0)
+			{
+				mant_hi++;
+				if(mant_hi > 0xffffff)
+				{
+					mant_hi = 0;
+					exp++;
+				}
+			}
+		}
 
-                idp->mant_lo = SWAP4(mant_lo);
-                idp->mant_6 = mant_hi >> 16;
-                idp->mant_5 = (mant_hi & 0xff00) >> 8;
-                idp->mant_4 = mant_hi;
-                idp->exp_hi = exp >> 4;
-                idp->exp_lo = exp;
-        }
+		idp->mant_lo = SWAP4(mant_lo);
+		idp->mant_6 = mant_hi >> 16;
+		idp->mant_5 = (mant_hi & 0xff00) >> 8;
+		idp->mant_4 = mant_hi;
+		idp->exp_hi = exp >> 4;
+		idp->exp_lo = exp;
+	}
+		
+	shipit:
+		idp->sign = vdp->sign;
 
-        shipit:
-                idp->sign = vdp->sign;
-
-                ip++;
-                *xpp = (char *)(*xpp) + X_SIZEOF_DOUBLE;
-        }
-        return ENOERR;
+		ip++;
+		*xpp = (char *)(*xpp) + X_SIZEOF_DOUBLE;
+	}
+	return ENOERR;
 }
-        /* vax */
+	/* vax */
 #else
 int
 ncx_putn_double_double(void **xpp, size_t nelems, const double *tp)
 {
-        char *xp = *xpp;
-        int status = ENOERR;
+	char *xp = *xpp;
+	int status = ENOERR;
 
-        for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
-        {
-                int lstatus = ncx_put_double_double(xp, tp);
-                if(lstatus != ENOERR)
-                        status = lstatus;
-        }
+	for( ; nelems != 0; nelems--, xp += X_SIZEOF_DOUBLE, tp++)
+	{
+		int lstatus = ncx_put_double_double(xp, tp);
+		if(lstatus != ENOERR)
+			status = lstatus;
+	}
 
-        *xpp = (void *)xp;
-        return status;
+	*xpp = (void *)xp;
+	return status;
 }
 
 #endif
@@ -8342,55 +8342,55 @@ ncx_putn_double_double(void **xpp, size_t nelems, const double *tp)
 int
 ncx_getn_text(const void **xpp, size_t nelems, char *tp)
 {
-        (void) memcpy(tp, *xpp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
-        return ENOERR;
+	(void) memcpy(tp, *xpp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
+	return ENOERR;
 
 }
 
 int
 ncx_pad_getn_text(const void **xpp, size_t nelems, char *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
+	size_t rndup = nelems % X_ALIGN;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        (void) memcpy(tp, *xpp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems + rndup);
+	(void) memcpy(tp, *xpp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems + rndup);
 
-        return ENOERR;
+	return ENOERR;
 
 }
 
 int
 ncx_putn_text(void **xpp, size_t nelems, const char *tp)
 {
-        (void) memcpy(*xpp, tp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
+	(void) memcpy(*xpp, tp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
 
-        return ENOERR;
+	return ENOERR;
 
 }
 
 int
 ncx_pad_putn_text(void **xpp, size_t nelems, const char *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
+	size_t rndup = nelems % X_ALIGN;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        (void) memcpy(*xpp, tp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
+	(void) memcpy(*xpp, tp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
 
-        if(rndup)
-        {
-                (void) memcpy(*xpp, nada, rndup);
-                *xpp = (void *)((char *)(*xpp) + rndup);
-        }
-
-        return ENOERR;
+	if(rndup)
+	{
+		(void) memcpy(*xpp, nada, rndup);
+		*xpp = (void *)((char *)(*xpp) + rndup);
+	}
+	
+	return ENOERR;
 
 }
 
@@ -8400,54 +8400,54 @@ ncx_pad_putn_text(void **xpp, size_t nelems, const char *tp)
 int
 ncx_getn_void(const void **xpp, size_t nelems, void *tp)
 {
-        (void) memcpy(tp, *xpp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
-        return ENOERR;
+	(void) memcpy(tp, *xpp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
+	return ENOERR;
 
 }
 
 int
 ncx_pad_getn_void(const void **xpp, size_t nelems, void *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
+	size_t rndup = nelems % X_ALIGN;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        (void) memcpy(tp, *xpp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems + rndup);
+	(void) memcpy(tp, *xpp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems + rndup);
 
-        return ENOERR;
+	return ENOERR;
 
 }
 
 int
 ncx_putn_void(void **xpp, size_t nelems, const void *tp)
 {
-        (void) memcpy(*xpp, tp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
+	(void) memcpy(*xpp, tp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
 
-        return ENOERR;
+	return ENOERR;
 
 }
 
 int
 ncx_pad_putn_void(void **xpp, size_t nelems, const void *tp)
 {
-        size_t rndup = nelems % X_ALIGN;
+	size_t rndup = nelems % X_ALIGN;
 
-        if(rndup)
-                rndup = X_ALIGN - rndup;
+	if(rndup)
+		rndup = X_ALIGN - rndup;
 
-        (void) memcpy(*xpp, tp, nelems);
-        *xpp = (void *)((char *)(*xpp) + nelems);
+	(void) memcpy(*xpp, tp, nelems);
+	*xpp = (void *)((char *)(*xpp) + nelems);
 
-        if(rndup)
-        {
-                (void) memcpy(*xpp, nada, rndup);
-                *xpp = (void *)((char *)(*xpp) + rndup);
-        }
-
-        return ENOERR;
+	if(rndup)
+	{
+		(void) memcpy(*xpp, nada, rndup);
+		*xpp = (void *)((char *)(*xpp) + rndup);
+	}
+	
+	return ENOERR;
 
 }

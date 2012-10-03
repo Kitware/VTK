@@ -5,7 +5,7 @@
    $Id: nc3dispatch.c,v 2.8 2010/05/26 11:11:26 ed Exp $
  *********************************************************************/
 
-#include "ncconfig.h"
+#include "config.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,12 +30,12 @@
 #endif
 
 
-static int NC3_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
-               int *ndimsp, int *dimidsp, int *nattsp,
+static int NC3_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep, 
+               int *ndimsp, int *dimidsp, int *nattsp, 
                int *shufflep, int *deflatep, int *deflate_levelp,
-               int *fletcher32p, int *contiguousp, size_t *chunksizesp,
-               int *no_fill, void *fill_valuep, int *endiannessp,
-               int *options_maskp, int *pixels_per_blockp);
+               int *fletcher32p, int *contiguousp, size_t *chunksizesp, 
+               int *no_fill, void *fill_valuep, int *endiannessp, 
+	       int *options_maskp, int *pixels_per_blockp);
 
 #ifdef USE_NETCDF4
 static int NC3_show_metadata(int);
@@ -175,12 +175,12 @@ NC3_initialize(void)
 }
 
 static int
-NC3_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
-               int *ndimsp, int *dimidsp, int *nattsp,
+NC3_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep, 
+               int *ndimsp, int *dimidsp, int *nattsp, 
                int *shufflep, int *deflatep, int *deflate_levelp,
-               int *fletcher32p, int *contiguousp, size_t *chunksizesp,
-               int *no_fill, void *fill_valuep, int *endiannessp,
-               int *options_maskp, int *pixels_per_blockp)
+               int *fletcher32p, int *contiguousp, size_t *chunksizesp, 
+               int *no_fill, void *fill_valuep, int *endiannessp, 
+	       int *options_maskp, int *pixels_per_blockp)
 {
     int stat = NC3_inq_var(ncid,varid,name,xtypep,ndimsp,dimidsp,nattsp);
     if(stat) return stat;
@@ -304,19 +304,19 @@ NC3_inq_type_equal(int ncid1, nc_type typeid1, int ncid2, nc_type typeid2, int* 
 {
     /* Check input. */
     if(equalp == NULL) return NC_NOERR;
-
+    
     if (typeid1 <= NC_NAT || typeid2 <= NC_NAT)
        return NC_EINVAL;
-
+    
     *equalp = 0; /* assume */
-
+    
     /* If one is atomic, and the other user-defined, the types are not equal */
     if ((typeid1 <= NC_STRING && typeid2 > NC_STRING) ||
         (typeid2 <= NC_STRING && typeid1 > NC_STRING)) {
         if (equalp) *equalp = 0;
         return NC_NOERR;
     }
-
+    
     /* If both are atomic types, the answer is easy. */
     if (typeid1 <= ATOMICTYPEMAX) {
         if (equalp) {
@@ -351,7 +351,7 @@ NC3_inq_typeids(int ncid, int *ntypes, int *typeids)
 
 static int
 NC3_inq_user_type(int ncid, nc_type typeid, char *name, size_t *size,
-                 nc_type *base_nc_typep, size_t *nfieldsp, int *classp)
+		 nc_type *base_nc_typep, size_t *nfieldsp, int *classp)
 {
     return NC_ENOTNC4;
 }
@@ -371,8 +371,8 @@ NC3_insert_compound(int ncid, nc_type typeid, const char *name, size_t offset,
 
 static int
 NC3_insert_array_compound(int ncid, nc_type typeid, const char *name,
-                         size_t offset, nc_type field_typeid,
-                         int ndims, const int *dim_sizes)
+			 size_t offset, nc_type field_typeid,
+			 int ndims, const int *dim_sizes)
 {
     return NC_ENOTNC4;
 }
@@ -380,8 +380,8 @@ NC3_insert_array_compound(int ncid, nc_type typeid, const char *name,
 
 static int
 NC3_inq_compound_field(int ncid, nc_type typeid, int fieldid, char *name,
-                      size_t *offsetp, nc_type *field_typeidp, int *ndimsp,
-                      int *dim_sizesp)
+		      size_t *offsetp, nc_type *field_typeidp, int *ndimsp, 
+		      int *dim_sizesp)
 {
     return NC_ENOTNC4;
 }
@@ -406,7 +406,7 @@ NC3_def_vlen(int ncid, const char *name, nc_type base_typeid, nc_type* xtypep)
 
 static int
 NC3_def_enum(int ncid, nc_type base_typeid, const char *name,
-            nc_type *typeidp)
+	    nc_type *typeidp)
 {
     return NC_ENOTNC4;
 }
@@ -419,28 +419,28 @@ NC3_inq_enum_ident(int ncid, nc_type xtype, long long value, char *identifier)
 
 static int
 NC3_inq_enum_member(int ncid, nc_type typeid, int idx, char *identifier,
-                   void *value)
+		   void *value)
 {
     return NC_ENOTNC4;
 }
 
 static int
 NC3_insert_enum(int ncid, nc_type typeid, const char *identifier,
-               const void *value)
+	       const void *value)
 {
     return NC_ENOTNC4;
 }
 
 static int
 NC3_put_vlen_element(int ncid, int typeid, void *vlen_element,
-                    size_t len, const void *data)
+		    size_t len, const void *data)
 {
     return NC_ENOTNC4;
 }
 
 static int
 NC3_get_vlen_element(int ncid, int typeid, const void *vlen_element,
-                    size_t *len, void *data)
+		    size_t *len, void *data)
 {
     return NC_ENOTNC4;
 }
@@ -459,7 +459,7 @@ NC3_get_var_chunk_cache(int ncid, int varid, size_t *sizep, size_t *nelemsp, flo
 
 static int
 NC3_def_var_deflate(int ncid, int varid, int shuffle, int deflate,
-                   int deflate_level)
+		   int deflate_level)
 {
     return NC_ENOTNC4;
 }
@@ -493,5 +493,6 @@ NC3_var_par_access(int ncid, int varid, int par_access)
 {
     return NC_ENOTNC4;
 }
-
+    
 #endif /*USE_NETCDF4*/
+    

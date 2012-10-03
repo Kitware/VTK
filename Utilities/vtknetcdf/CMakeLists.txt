@@ -257,8 +257,9 @@ if (NETCDF_ENABLE_NETCDF4)
 
 endif (NETCDF_ENABLE_NETCDF4)
   
+CONFIGURE_FILE(vtk_netcdf_config.h.in vtk_netcdf_config.h @ONLY IMMEDIATE)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/ncconfig.h @ONLY IMMEDIATE)
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY IMMEDIATE)
 
 #-----------------------------------------------------------------------------
 # Option to allow the user to disable compiler warnings
@@ -293,15 +294,12 @@ ENDIF (NETCDF_DISABLE_COMPILER_WARNINGS)
 # Take care of symbol export/import on Windows
 ADD_DEFINITIONS("-DNC_DLL_EXPORT")
 
-INCLUDE_DIRECTORIES(
-  
-  ${CMAKE_CURRENT_SOURCE_DIR}
+INCLUDE_DIRECTORIES(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/libdispatch
   ${CMAKE_CURRENT_SOURCE_DIR}/libsrc
   ${CMAKE_CURRENT_SOURCE_DIR}/libsrc4
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${VTK_HDF5_INCLUDE_DIR}
   )
 
 set(netcdf_liblib_SOURCES "" CACHE INTERNAL "" FORCE)
@@ -372,13 +370,12 @@ IF(NOT VTK_INSTALL_NO_LIBRARIES)
 ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
-    ${VTKNETCDF_BINARY_DIR}/ncconfig.h
+    ${VTKNETCDF_SOURCE_DIR}/include/netcdf.h
+    ${VTKNETCDF_SOURCE_DIR}/include/vtk_netcdf_mangle.h
+    ${VTKNETCDF_SOURCE_DIR}/cxx/netcdf.hh
     ${VTKNETCDF_SOURCE_DIR}/cxx/netcdfcpp.h
     ${VTKNETCDF_SOURCE_DIR}/cxx/ncvalues.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtknetcdf
+    ${VTKNETCDF_BINARY_DIR}/vtk_netcdf_config.h
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtknetcdf/include
     COMPONENT Development)
-  INSTALL(DIRECTORY 
-    ${VTKNETCDF_SOURCE_DIR}/include
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtknetcdf
-    FILES_MATCHING PATTERN "*.h")
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

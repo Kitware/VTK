@@ -15,17 +15,17 @@
  *
  * This started out as a general replacement for ONC XDR,
  * specifically, the xdrmem family of functions.
- *
+ * 
  * We eventually realized that we could write more portable
  * code if we decoupled any association between the 'C' types
  * and the external types. (XDR has this association between the 'C'
  * types and the external representations, like xdr_int() takes
- * an int argument and goes to an external int representation.)
+ * an int argument and goes to an external int representation.) 
  * So, now there is a matrix of functions.
- *
+ * 
  */
 
-#include <ncconfig.h> /* output of 'configure' */
+#include <config.h> /* output of 'configure' */
 #include "rnd.h"
 #include <stddef.h> /* size_t */
 #include <errno.h>
@@ -40,23 +40,15 @@
 typedef unsigned char uchar;
 #endif
 
+#ifndef uint
+typedef unsigned int uint;
+#endif
 #define longlong long long
 
 #if defined(_CRAY) && !defined(_CRAYIEEE) && !defined(__crayx1)
 #define CRAYFLOAT 1 /* CRAY Floating point */
 #elif defined(_SX) && defined(_FLOAT2)	/* NEC SUPER-UX in CRAY mode */
 #define CRAYFLOAT 1 /* CRAY Floating point */
-#endif
-
-#if 0
-#if defined(DLL_NETCDF) /* define when library is a DLL */
-#include <io.h>
-#if !defined(__CYGWIN__) && !defined(__MINGW32__)
-#  define lseek _lseeki64
-#  define off_t __int64
-#endif
-#define _OFF_T_DEFINED
-#endif  /* defined(DLL_NETCDF) */
 #endif
 
 /*
@@ -91,7 +83,7 @@ typedef unsigned char uchar;
  * For now, netcdf is limited to 32 bit sizes,
  * If compiled with support for "large files", then
  * netcdf will use a 64 bit off_t and it can then write a file
- * using 64 bit offsets.
+ * using 64 bit offsets. 
  *  see also X_SIZE_MAX, X_OFF_MAX below
  */
 #define X_SIZEOF_OFF_T		(sizeof(off_t))
@@ -112,7 +104,7 @@ typedef unsigned char uchar;
 #define X_INT_MIN	(-2147483647-1)
 #define X_INT_MAX	2147483647
 #define X_UINT_MAX	4294967295U
-#define X_FLOAT_MAX	((float)3.402823466e+38)
+#define X_FLOAT_MAX	3.402823466e+38f
 #define X_FLOAT_MIN	(-X_FLOAT_MAX)
 #define X_FLT_MAX	X_FLOAT_MAX	/* alias compatible with limits.h */
 #if CRAYFLOAT
@@ -120,7 +112,7 @@ typedef unsigned char uchar;
 #define X_DOUBLE_MAX    1.79769313486230e+308
 #else
 /* scalb(1. - scalb(.5 , -52), 1024) */
-#define X_DOUBLE_MAX	1.7976931348623157e+308
+#define X_DOUBLE_MAX	1.7976931348623157e+308 
 #endif
 #define X_DOUBLE_MIN	(-X_DOUBLE_MAX)
 #define X_DBL_MAX	X_DOUBLE_MAX	/* alias compatible with limits.h */
@@ -132,38 +124,38 @@ typedef unsigned char uchar;
 /* Begin ncx_len */
 
 /*
- * ncx_len_xxx() interfaces are defined as macros below,
+ * ncx_len_xxx() interfaces are defined as macros below, 
  * These give the length of an array of nelems of the type.
  * N.B. The 'char' and 'short' interfaces give the X_ALIGNED length.
  */
 #define X_ALIGN			4	/* a.k.a. BYTES_PER_XDR_UNIT */
 
 #define ncx_len_char(nelems) \
-        _RNDUP((nelems), X_ALIGN)
+	_RNDUP((nelems), X_ALIGN)
 
 #define ncx_len_short(nelems) \
-        (((nelems) + (nelems)%2)  * X_SIZEOF_SHORT)
+	(((nelems) + (nelems)%2)  * X_SIZEOF_SHORT)
 
 #define ncx_len_int(nelems) \
-        ((nelems) * X_SIZEOF_INT)
+	((nelems) * X_SIZEOF_INT)
 
 #define ncx_len_long(nelems) \
-        ((nelems) * X_SIZEOF_LONG)
+	((nelems) * X_SIZEOF_LONG)
 
 #define ncx_len_float(nelems) \
-        ((nelems) * X_SIZEOF_FLOAT)
+	((nelems) * X_SIZEOF_FLOAT)
 
 #define ncx_len_double(nelems) \
-        ((nelems) * X_SIZEOF_DOUBLE)
+	((nelems) * X_SIZEOF_DOUBLE)
 
 /* End ncx_len */
 
 #if __CHAR_UNSIGNED__
-        /* 'char' is unsigned, declare ncbyte as 'signed char' */
+	/* 'char' is unsigned, declare ncbyte as 'signed char' */
 typedef signed char schar;
 
 #else
-        /* 'char' is signed */
+	/* 'char' is signed */
 typedef signed char schar;
 
 #endif	/* __CHAR_UNSIGNED__ */
@@ -185,16 +177,16 @@ typedef signed char schar;
  *	);
  * where
  *	`external_type' and `internal_type' chosen from
-                schar
-                uchar
-                short
-                ushort
-                int
-                uint
-                long
-                ulong
-                float
-                double
+		schar
+		uchar
+		short
+		ushort
+		int
+		uint
+		long
+		ulong
+		float
+		double
  *
  * Not all combinations make sense.
  * We may not implement all combinations that make sense.
@@ -247,7 +239,7 @@ ncx_put_schar_float(void *xp, const float *ip);
 extern int
 ncx_put_schar_double(void *xp, const double *ip);
 #endif
-
+ 
 
 extern int
 ncx_get_short_schar(const void *xp, schar *ip);
@@ -278,7 +270,7 @@ extern int
 ncx_put_short_float(void *xp, const float *ip);
 extern int
 ncx_put_short_double(void *xp, const double *ip);
-
+ 
 
 extern int
 ncx_get_int_schar(const void *xp, schar *ip);
@@ -309,7 +301,7 @@ extern int
 ncx_put_int_float(void *xp, const float *ip);
 extern int
 ncx_put_int_double(void *xp, const double *ip);
-
+ 
 
 extern int
 ncx_get_float_schar(const void *xp, schar *ip);
@@ -340,7 +332,7 @@ extern int
 ncx_put_float_float(void *xp, const float *ip);
 extern int
 ncx_put_float_double(void *xp, const double *ip);
-
+ 
 
 extern int
 ncx_get_double_schar(const void *xp, schar *ip);
@@ -371,7 +363,7 @@ extern int
 ncx_put_double_float(void *xp, const float *ip);
 extern int
 ncx_put_double_double(void *xp, const double *ip);
-
+ 
 
 /*
  * Other primitive conversion functions
@@ -427,7 +419,7 @@ ncx_put_off_t(void **xpp, const off_t *lp, size_t sizeof_off_t);
  * The `ip' argument should point to an array of `nelems' of
  * internal_type.
  *
- * Range errors (NC_ERANGE) for a individual values in the array
+ * Range errors (NC_ERANGE) for a individual values in the array 
  * DO NOT terminate the array conversion. All elements are converted,
  * with some having undefined values.
  * If any range error occurs, the function returns NC_ERANGE.
@@ -496,7 +488,7 @@ extern int
 ncx_putn_schar_longlong(void **xpp, size_t nelems, const longlong *ip);
 extern int
 ncx_putn_schar_ulonglong(void **xpp, size_t nelems, const ulonglong *ip);
-
+ 
 extern int
 ncx_pad_putn_schar_schar(void **xpp, size_t nelems, const schar *ip);
 extern int
@@ -581,7 +573,7 @@ extern int
 ncx_putn_short_longlong(void **xpp, size_t nelems, const longlong *ip);
 extern int
 ncx_putn_short_ulonglong(void **xpp, size_t nelems, const ulonglong *ip);
-
+ 
 extern int
 ncx_pad_putn_short_schar(void **xpp, size_t nelems, const schar *ip);
 extern int
@@ -645,7 +637,7 @@ extern int
 ncx_putn_int_longlong(void **xpp, size_t nelems, const longlong *ip);
 extern int
 ncx_putn_int_ulonglong(void **xpp, size_t nelems, const ulonglong *ip);
-
+ 
 
 extern int
 ncx_getn_float_schar(const void **xpp, size_t nelems, schar *ip);
@@ -688,7 +680,7 @@ extern int
 ncx_putn_float_longlong(void **xpp, size_t nelems, const longlong *ip);
 extern int
 ncx_putn_float_ulonglong(void **xpp, size_t nelems, const ulonglong *ip);
-
+ 
 
 extern int
 ncx_getn_double_schar(const void **xpp, size_t nelems, schar *ip);
@@ -731,7 +723,7 @@ extern int
 ncx_putn_double_longlong(void **xpp, size_t nelems, const longlong *ip);
 extern int
 ncx_putn_double_ulonglong(void **xpp, size_t nelems, const ulonglong *ip);
-
+ 
 
 /*
  * Other aggregate conversion functions.

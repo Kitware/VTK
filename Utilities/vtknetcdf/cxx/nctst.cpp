@@ -1,13 +1,13 @@
 /*********************************************************************
  * Copyright 2005, UCAR/Unidata See COPYRIGHT file for copying and
  * redistribution conditions.
- *
+ * 
  * This runs the C++ tests for netCDF.
- *
+ * 
  * $Id: nctst.cpp,v 1.28 2007/04/02 21:01:12 ed Exp $
  *********************************************************************/
 
-#include <ncconfig.h>
+#include <config.h>
 #include <iostream>
 using namespace std;
 
@@ -64,11 +64,11 @@ static float P_data[NFRTIMES][NLATS][NLONS] = {
 
 
 // Check a string attribute to make sure it has the correct value.
-int
+int 
 check_string_att(NcAtt *att, const char *theName, const char *value)
 {
-   if (!att->is_valid() || strncmp(att->name(), theName, strlen(theName)) ||
-       att->type() != ncChar || att->num_vals() != (long)strlen(value))
+   if (!att->is_valid() || strncmp(att->name(), theName, strlen(theName)) || 
+       att->type() != ncChar || att->num_vals() != (long)strlen(value)) 
       return NC_ERR;
 
    char *value_in = att->as_string(0);
@@ -108,7 +108,7 @@ int read(const char* path, NcFile::FileFormat format)
    NcAtt *att;
 
    // open the file
-   NcFile nc(path);
+   NcFile nc(path); 
 
    if (!nc.is_valid())
       return NC_ERR;
@@ -118,8 +118,8 @@ int read(const char* path, NcFile::FileFormat format)
       return NC_ERR;
 
    // Check the numbers of things.
-   if (nc.num_dims() != 4 || nc.num_vars() != 6 ||
-       nc.num_atts() != 2)
+   if (nc.num_dims() != 4 || nc.num_vars() != 6 || 
+       nc.num_atts() != 2)  
       return NC_ERR;
 
    // Check the global attributes.
@@ -134,32 +134,32 @@ int read(const char* path, NcFile::FileFormat format)
    if (check_string_att(att, TITLE, TITLE_STR))
       return NC_ERR;
    delete att;
-
+   
    // Check the dimensions.
    NcDim *latDim, *lonDim, *frtimeDim, *timeLenDim;
 
    if (!(latDim = nc.get_dim(LAT)))
       return NC_ERR;
-   if (!latDim->is_valid() || strncmp(latDim->name(), LAT, strlen(LAT)) ||
-       latDim->size() != NLATS || latDim->is_unlimited())
+   if (!latDim->is_valid() || strncmp(latDim->name(), LAT, strlen(LAT)) || 
+       latDim->size() != NLATS || latDim->is_unlimited()) 
       return NC_ERR;
 
    if (!(lonDim = nc.get_dim(LON)))
       return NC_ERR;
-   if (!lonDim->is_valid() || strncmp(lonDim->name(), LON, strlen(LON)) ||
-       lonDim->size() != NLONS || lonDim->is_unlimited())
+   if (!lonDim->is_valid() || strncmp(lonDim->name(), LON, strlen(LON)) || 
+       lonDim->size() != NLONS || lonDim->is_unlimited()) 
       return NC_ERR;
 
    if (!(frtimeDim = nc.get_dim(FRTIME)))
       return NC_ERR;
-   if (!frtimeDim->is_valid() || strncmp(frtimeDim->name(), FRTIME, strlen(FRTIME)) ||
-       frtimeDim->size() != 2 || !frtimeDim->is_unlimited())
+   if (!frtimeDim->is_valid() || strncmp(frtimeDim->name(), FRTIME, strlen(FRTIME)) || 
+       frtimeDim->size() != 2 || !frtimeDim->is_unlimited()) 
       return NC_ERR;
 
    if (!(timeLenDim = nc.get_dim(TIMELEN1)))
       return NC_ERR;
-   if (!timeLenDim->is_valid() || strncmp(timeLenDim->name(), TIMELEN1, strlen(TIMELEN1)) ||
-       timeLenDim->size() != TIMESTRINGLEN || timeLenDim->is_unlimited())
+   if (!timeLenDim->is_valid() || strncmp(timeLenDim->name(), TIMELEN1, strlen(TIMELEN1)) || 
+       timeLenDim->size() != TIMESTRINGLEN || timeLenDim->is_unlimited()) 
       return NC_ERR;
 
    // Check the coordinate variables.
@@ -199,7 +199,7 @@ int read(const char* path, NcFile::FileFormat format)
 
    // Check the data variables.
    NcVar *pVar, *scalarVar;
-
+     
    if (!(pVar = nc.get_var(P_NAME)))
       return NC_ERR;
 
@@ -210,8 +210,8 @@ int read(const char* path, NcFile::FileFormat format)
    // Check the valid range, and check the values.
    if (!(att = pVar->get_att(VALID_RANGE)))
       return NC_ERR;
-   if (!att->is_valid() || strncmp(att->name(), VALID_RANGE, strlen(VALID_RANGE)) ||
-       att->type() != ncFloat || att->num_vals() != NRANGES)
+   if (!att->is_valid() || strncmp(att->name(), VALID_RANGE, strlen(VALID_RANGE)) || 
+       att->type() != ncFloat || att->num_vals() != NRANGES) 
       return NC_ERR;
    float range_in[NRANGES] = {att->as_float(0), att->as_float(1)};
    if (range_in[0] != range[0] || range_in[1] != range[1])
@@ -221,8 +221,8 @@ int read(const char* path, NcFile::FileFormat format)
    // Check the fill value, and check the value.
    if (!(att = pVar->get_att(FILL_VALUE)))
       return NC_ERR;
-   if (!att->is_valid() || strncmp(att->name(), FILL_VALUE, strlen(FILL_VALUE)) ||
-       att->type() != ncFloat || att->num_vals() != 1)
+   if (!att->is_valid() || strncmp(att->name(), FILL_VALUE, strlen(FILL_VALUE)) || 
+       att->type() != ncFloat || att->num_vals() != 1) 
       return NC_ERR;
    float fill_value_in = att->as_float(0);
    if (fill_value_in != fill_value)
@@ -234,9 +234,9 @@ int read(const char* path, NcFile::FileFormat format)
    pVar->get(&P_data_in[0][0][0], NFRTIMES, NLATS, NLONS);
    for (int f = 0; f < NFRTIMES; f++)
       for (int la = 0; la < NLATS; la++)
-         for (int lo = 0; lo < NLONS; lo++)
-            if (P_data_in[f][la][lo] != P_data[f][la][lo])
-               return NC_ERR;
+	 for (int lo = 0; lo < NLONS; lo++)
+	    if (P_data_in[f][la][lo] != P_data[f][la][lo])
+	       return NC_ERR;
 
    // Get the scalar variable.
    if (!(scalarVar = nc.get_var(SCALARV)))
@@ -245,8 +245,8 @@ int read(const char* path, NcFile::FileFormat format)
    // Check for the scalar attribute of the scalar variable and check its value.
    if (!(att = scalarVar->get_att(SCALAR_ATT)))
       return NC_ERR;
-   if (!att->is_valid() || strncmp(att->name(), SCALAR_ATT, strlen(SCALAR_ATT)) ||
-       att->type() != ncInt || att->num_vals() != 1)
+   if (!att->is_valid() || strncmp(att->name(), SCALAR_ATT, strlen(SCALAR_ATT)) || 
+       att->type() != ncInt || att->num_vals() != 1) 
       return NC_ERR;
    int value_in = att->as_int(0);
    if (value_in != SCALAR_VALUE)
@@ -266,15 +266,15 @@ int gen(const char* path, NcFile::FileFormat format)		// Generate a netCDF file
 
     // Check if the file was opened successfully
     if (! nc.is_valid()) {
-        cerr << "can't create netCDF file " << path << "\n";
-        return NC_ERR;
+	cerr << "can't create netCDF file " << path << "\n";
+	return NC_ERR;
     }
 
     // Create dimensions
     NcDim* latd = nc.add_dim(LAT, NLATS);
     NcDim* lond = nc.add_dim(LON, NLONS);
     NcDim* frtimed = nc.add_dim(FRTIME); // unlimited dimension
-    NcDim* timelend = nc.add_dim(TIMELEN1, TIMESTRINGLEN);
+    NcDim* timelend = nc.add_dim(TIMELEN1, TIMESTRINGLEN); 
 
     // Create variables and their attributes
     NcVar* P = nc.add_var(P_NAME, ncFloat, frtimed, latd, lond);
@@ -319,9 +319,9 @@ int gen(const char* path, NcFile::FileFormat format)		// Generate a netCDF file
     // We could write all P data at once with P->put(&P_data[0][0][0], P->edges()),
     // but instead we write one record at a time, to show use of setcur().
     long rec = 0;                                      // start at zero-th
-    const long nrecs = 1;                              // # records to write
+    const long nrecs = 1;		               // # records to write
     P->put(&P_data[0][0][0], nrecs, NLATS, NLONS);           // write zero-th record
-    P->set_cur(++rec);                                 // set to next record
+    P->set_cur(++rec);		                       // set to next record
     P->put(&P_data[1][0][0], nrecs, NLATS, NLONS); // write next record
 
     // close of nc takes place in destructor
@@ -333,19 +333,19 @@ int gen(const char* path, NcFile::FileFormat format)		// Generate a netCDF file
  * of path and stripping off any extension.  The returned string is in static
  * storage, so copy it if you need to keep it.
  */
-static char*
+static char* 
 cdl_name(const char* path)
 {
     const char* cp = path + strlen(path);
     while (*(cp-1) != '/' && cp != path) // assumes UNIX path separator
-        cp--;
+	cp--;
 
     static char np[NC_MAX_NAME];
     strncpy(&np[0], cp, NC_MAX_NAME);
 
     char* ep = np + strlen(np);
     while (*ep != '.' && ep != np)
-        ep--;
+	ep--;
     if (*ep == '.')
       *ep = '\0';
     return np;
@@ -357,7 +357,7 @@ class DumpableNcFile : public NcFile
 {
   public:
     DumpableNcFile(const char* path, NcFile::FileMode mode = ReadOnly)
-        : NcFile(path, mode) {} ;
+	: NcFile(path, mode) {} ;
     void dumpdims( void );
     void dumpvars( void );
     void dumpgatts( void );
@@ -368,13 +368,13 @@ void DumpableNcFile::dumpdims( void )
 {
 
     for (int n=0; n < num_dims(); n++) {
-        NcDim* dim = get_dim(n);
-        cout << "\t" << dim->name() << " = " ;
-        if (dim->is_unlimited())
-          cout << "UNLIMITED" << " ;\t " << "// " << dim->size() <<
-            " currently\n";
-        else
-          cout << dim->size() << " ;\n";
+	NcDim* dim = get_dim(n);
+	cout << "\t" << dim->name() << " = " ;
+	if (dim->is_unlimited())
+	  cout << "UNLIMITED" << " ;\t " << "// " << dim->size() <<
+	    " currently\n";
+	else
+	  cout << dim->size() << " ;\n";
     }
 }
 
@@ -383,11 +383,11 @@ void dumpatts(NcVar& var)
     NcToken vname = var.name();
     NcAtt* ap;
     for(int n = 0; (ap = var.get_att(n)); n++) {
-        cout << "\t\t" << vname << ":" << ap->name() << " = " ;
-        NcValues* vals = ap->values();
-        cout << *vals << " ;" << endl ;
-        delete ap;
-        delete vals;
+	cout << "\t\t" << vname << ":" << ap->name() << " = " ;
+	NcValues* vals = ap->values();
+	cout << *vals << " ;" << endl ;
+	delete ap;
+	delete vals;
     }
 }
 
@@ -399,21 +399,21 @@ void DumpableNcFile::dumpvars( void )
     NcVar* vp;
 
     for(n = 0; (vp = get_var(n)); n++) {
-        cout << "\t" << types[vp->type()] << " " << vp->name() ;
+	cout << "\t" << types[vp->type()] << " " << vp->name() ;
 
-        if (vp->num_dims() > 0) {
-            cout << "(";
-            for (int d = 0; d < vp->num_dims(); d++) {
-                NcDim* dim = vp->get_dim(d);
-                cout << dim->name();
-                if (d < vp->num_dims()-1)
-                  cout << ", ";
-            }
-            cout << ")";
-        }
-        cout << " ;\n";
-        // now dump each of this variable's attributes
-        dumpatts(*vp);
+	if (vp->num_dims() > 0) {
+	    cout << "(";
+	    for (int d = 0; d < vp->num_dims(); d++) {
+		NcDim* dim = vp->get_dim(d);
+		cout << dim->name();
+		if (d < vp->num_dims()-1)
+		  cout << ", ";		  
+	    }
+	    cout << ")";
+	}
+	cout << " ;\n";
+	// now dump each of this variable's attributes
+	dumpatts(*vp);
     }
 }
 
@@ -421,11 +421,11 @@ void DumpableNcFile::dumpgatts( void )
 {
     NcAtt* ap;
     for(int n = 0; (ap = get_att(n)); n++) {
-        cout << "\t\t" << ":" << ap->name() << " = " ;
-        NcValues* vals = ap->values();
-        cout << *vals << " ;" << endl ;
-        delete vals;
-        delete ap;
+	cout << "\t\t" << ":" << ap->name() << " = " ;
+	NcValues* vals = ap->values();
+	cout << *vals << " ;" << endl ;
+	delete vals;
+	delete ap;
     }
 }
 
@@ -433,10 +433,10 @@ void DumpableNcFile::dumpdata( )
 {
     NcVar* vp;
     for (int n = 0; (vp = get_var(n)); n++) {
-        cout << " " << vp->name() << " = ";
-        NcValues* vals = vp->values();
-        cout << *vals << " ;" << endl ;
-        delete vals;
+	cout << " " << vp->name() << " = ";
+	NcValues* vals = vp->values();
+	cout << *vals << " ;" << endl ;
+	delete vals;
     }
 }
 
@@ -445,7 +445,7 @@ void dump(const char* path)
     DumpableNcFile nc(path);	// default is open in read-only mode
 
     cout << "netcdf " << cdl_name(path) << " {" << endl <<
-            "dimensions:" << endl ;
+	    "dimensions:" << endl ;
 
     nc.dumpdims();
 
@@ -477,18 +477,18 @@ int
 main( void )	// test new netCDF interface
 {
 
-   cout << "*** Testing C++ API with " << NUM_FORMATS
-        << " different netCDF formats.\n";
+   cout << "*** Testing C++ API with " << NUM_FORMATS 
+	<< " different netCDF formats.\n";
 
    // Set up the format constants.
    NcFile::FileFormat format[NUM_FORMATS] = {NcFile::Classic, NcFile::Offset64Bits
 #ifdef USE_NETCDF4
-                                             , NcFile::Netcdf4, NcFile::Netcdf4Classic
+					     , NcFile::Netcdf4, NcFile::Netcdf4Classic
 #endif
    };
 
    // Set up the file names.
-   char file_name[NUM_FORMATS][NC_MAX_NAME] =
+   char file_name[NUM_FORMATS][NC_MAX_NAME] = 
       {"nctst_classic.nc", "nctst_64bit_offset.nc"
 #ifdef USE_NETCDF4
        , "nctst_netcdf4.nc", "nctst_netcdf4_classic.nc"
@@ -498,14 +498,14 @@ main( void )	// test new netCDF interface
    int errs = 0;
    for (int i = 0; i < NUM_FORMATS; i++)
    {
-      if (gen(file_name[i], format[i]) ||
-          read(file_name[i], format[i]))
+      if (gen(file_name[i], format[i]) || 
+	  read(file_name[i], format[i]))
       {
-         cout << "*** FAILURE with file " << file_name[i] << "\n";
-         errs++;
+	 cout << "*** FAILURE with file " << file_name[i] << "\n";
+	 errs++;
       }
       else
-         cout << "*** SUCCESS with file " << file_name[i] << "\n";
+	 cout << "*** SUCCESS with file " << file_name[i] << "\n";
    }
 
    cout << "\n*** Total number of failures: " << errs << "\n";
@@ -513,6 +513,6 @@ main( void )	// test new netCDF interface
       cout << "*** nctst FAILURE!\n";
    else
       cout << "*** nctst SUCCESS!\n";
-
+      
    return errs;
 }

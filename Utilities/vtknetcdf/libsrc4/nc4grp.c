@@ -46,18 +46,18 @@ NC4_def_grp(int parent_ncid, const char *name, int *new_ncid)
    /* If it's not in define mode, switch to define mode. */
    if (!(h5->flags & NC_INDEF))
       if ((retval = NC4_redef(parent_ncid)))
-         return retval;
+	 return retval;
 
    /* Update internal lists to reflect new group. The actual HDF5
     * group creation will be done when metadata is written by a
     * sync. */
-   if ((retval = nc4_grp_list_add(&(grp->children), h5->next_nc_grpid,
-                                  grp, grp->file, norm_name, &g)))
+   if ((retval = nc4_grp_list_add(&(grp->children), h5->next_nc_grpid, 
+				  grp, grp->file, norm_name, &g)))
       return retval;
    if (new_ncid)
       *new_ncid = grp->file->ext_ncid | h5->next_nc_grpid;
    h5->next_nc_grpid++;
-
+   
    return NC_NOERR;
 }
 
@@ -72,7 +72,7 @@ NC4_inq_ncid(int ncid, const char *name, int *grp_ncid)
    int retval;
 
    LOG((2, "nc_inq_ncid: ncid 0x%x name %s", ncid, name));
-
+   
    /* Find info for this file and group, and set pointer to each. */
    if ((retval = nc4_find_grp_h5(ncid, &grp, &h5)))
       return retval;
@@ -89,11 +89,11 @@ NC4_inq_ncid(int ncid, const char *name, int *grp_ncid)
    for (g = grp->children; g; g = g->next)
       if (!strcmp(norm_name, g->name)) /* found it! */
       {
-         if (grp_ncid)
-            *grp_ncid = grp->file->ext_ncid | g->nc_grpid;
-         return NC_NOERR;
+	 if (grp_ncid)
+	    *grp_ncid = grp->file->ext_ncid | g->nc_grpid;
+	 return NC_NOERR;
       }
-
+   
    /* If we got here, we didn't find the named group. */
    return NC_ENOGRP;
 }
@@ -118,7 +118,7 @@ NC4_inq_grps(int ncid, int *numgrps, int *ncids)
    if (!h5)
    {
       if (numgrps)
-         *numgrps = 0;
+	 *numgrps = 0;
       return NC_NOERR;
    }
 
@@ -127,15 +127,15 @@ NC4_inq_grps(int ncid, int *numgrps, int *ncids)
    {
       if (ncids)
       {
-         /* Combine the nc_grpid in a bitwise or with the ext_ncid,
-          * which allows the returned ncid to carry both file and
-          * group information. */
-         *ncids = g->nc_grpid | g->file->ext_ncid;
-         ncids++;
+	 /* Combine the nc_grpid in a bitwise or with the ext_ncid,
+	  * which allows the returned ncid to carry both file and
+	  * group information. */
+	 *ncids = g->nc_grpid | g->file->ext_ncid;
+	 ncids++;
       }
       num++;
    }
-
+   
    if (numgrps)
       *numgrps = num;
 
@@ -158,9 +158,9 @@ NC4_inq_grpname(int ncid, char *name)
    if (name)
    {
       if (!h5)
-         strcpy(name, "/");
+	 strcpy(name, "/");
       else
-         strcpy(name, grp->name);
+	 strcpy(name, grp->name);
    }
 
    return NC_NOERR;
@@ -203,10 +203,10 @@ NC4_inq_grpname_full(int ncid, size_t *lenp, char *full_name)
    for (i = g - 1; !ret && i >= 0 && !ret; i--)
    {
       if ((ret = nc_inq_grpname(gid[i], grp_name)))
-         break;
+	 break;
       strcat(name, grp_name);
       if (i)
-         strcat(name, "/");
+	 strcat(name, "/");
    }
 
    /* Give the user the length of the name, if he wants it. */
@@ -248,11 +248,11 @@ NC4_inq_grp_parent(int ncid, int *parent_ncid)
    if (grp->parent)
    {
       if (parent_ncid)
-         *parent_ncid = grp->file->ext_ncid | grp->parent->nc_grpid;
+	 *parent_ncid = grp->file->ext_ncid | grp->parent->nc_grpid;
    }
    else
       return NC_ENOGRP;
-
+   
    return NC_NOERR;
 }
 
@@ -285,11 +285,11 @@ NC4_inq_grp_full_ncid(int ncid, const char *full_name, int *grp_ncid)
       /* If "/" is passed, and this is the root group, return the root
        * group id. */
       if (!grp->parent)
-         id2 = ncid;
+	 id2 = ncid;
       else
       {
-         free(full_name_cpy);
-         return NC_ENOGRP;
+	 free(full_name_cpy);
+	 return NC_ENOGRP;
       }
    }
    else
@@ -297,12 +297,12 @@ NC4_inq_grp_full_ncid(int ncid, const char *full_name, int *grp_ncid)
       /* Keep parsing the string. */
       for (; cp; id1 = id2)
       {
-         if ((ret = nc_inq_grp_ncid(id1, cp, &id2)))
-         {
-            free(full_name_cpy);
-            return ret;
-         }
-         cp = strtok(NULL, "/");
+	 if ((ret = nc_inq_grp_ncid(id1, cp, &id2)))
+	 {
+	    free(full_name_cpy);
+	    return ret;
+	 }
+	 cp = strtok(NULL, "/");
       }
    }
 
@@ -336,10 +336,10 @@ NC4_inq_varids(int ncid, int *nvars, int *varids)
       /* If this is a netcdf-3 file, there is only one group, the root
        * group, and its vars have ids 0 thru nvars - 1. */
       if ((retval = nc_inq(ncid, NULL, &num_vars, NULL, NULL)))
-         return retval;
+	 return retval;
       if (varids)
-         for (v = 0; v < num_vars; v++)
-            varids[v] = v;
+	 for (v = 0; v < num_vars; v++)
+	    varids[v] = v;
    }
    else
    {
@@ -347,12 +347,12 @@ NC4_inq_varids(int ncid, int *nvars, int *varids)
        * 'em. The list is in correct (i.e. creation) order. */
       if (grp->var)
       {
-         for (var = grp->var; var; var = var->next)
-         {
-            if (varids)
-               varids[num_vars] = var->varid;
-            num_vars++;
-         }
+	 for (var = grp->var; var; var = var->next)
+	 {
+	    if (varids)
+	       varids[num_vars] = var->varid;
+	    num_vars++;
+	 }
       }
    }
 
@@ -368,15 +368,15 @@ NC4_inq_varids(int ncid, int *nvars, int *varids)
    comparison: returns negative if b > a and positive if a > b. */
 int int_cmp(const void *a, const void *b)
 {
-   const int *ia = (const int *)a;
+   const int *ia = (const int *)a; 
    const int *ib = (const int *)b;
-   return *ia  - *ib;
+   return *ia  - *ib; 
 }
 
 /* Find all dimids for a location. This finds all dimensions in a
  * group, with or without any of its parents, depending on last
  * parameter. */
-int
+int 
 NC4_inq_dimids(int ncid, int *ndims, int *dimids, int include_parents)
 {
    NC_GRP_INFO_T *grp, *g;
@@ -385,8 +385,8 @@ NC4_inq_dimids(int ncid, int *ndims, int *dimids, int include_parents)
    int d, num = 0;
    int retval;
 
-   LOG((2, "nc_inq_dimids: ncid 0x%x include_parents: %d", ncid,
-        include_parents));
+   LOG((2, "nc_inq_dimids: ncid 0x%x include_parents: %d", ncid, 
+	include_parents));
 
    /* Find info for this file and group, and set pointer to each. */
    if ((retval = nc4_find_grp_h5(ncid, &grp, &h5)))
@@ -397,37 +397,37 @@ NC4_inq_dimids(int ncid, int *ndims, int *dimids, int include_parents)
       /* If this is a netcdf-3 file, then the dimids are going to be 0
        * thru ndims-1, so just provide them. */
       if ((retval = nc_inq(ncid, &num, NULL, NULL, NULL)))
-         return retval;
+	 return retval;
       if (dimids)
-         for (d = 0; d < num; d++)
-            dimids[d] = d;
+	 for (d = 0; d < num; d++)
+	    dimids[d] = d;
    }
    else
    {
       /* First count them. */
       for (dim = grp->dim; dim; dim = dim->next)
-         num++;
+	 num++;
       if (include_parents)
-         for (g = grp->parent; g; g = g->parent)
-            for (dim = g->dim; dim; dim = dim->next)
-               num++;
-
+	 for (g = grp->parent; g; g = g->parent)
+	    for (dim = g->dim; dim; dim = dim->next)
+	       num++;
+      
       /* If the user wants the dimension ids, get them. */
       if (dimids)
       {
-         int n = 0;
+	 int n = 0;
 
-         /* Get dimension ids from this group. */
-         for (dim = grp->dim; dim; dim = dim->next)
-            dimids[n++] = dim->dimid;
+	 /* Get dimension ids from this group. */
+	 for (dim = grp->dim; dim; dim = dim->next)
+	    dimids[n++] = dim->dimid;
 
-         /* Get dimension ids from parent groups. */
-         if (include_parents)
-            for (g = grp->parent; g; g = g->parent)
-               for (dim = g->dim; dim; dim = dim->next)
-                  dimids[n++] = dim->dimid;
-
-         qsort(dimids, num, sizeof(int), int_cmp);
+	 /* Get dimension ids from parent groups. */
+	 if (include_parents)
+	    for (g = grp->parent; g; g = g->parent)
+	       for (dim = g->dim; dim; dim = dim->next)
+		  dimids[n++] = dim->dimid;
+	 
+	 qsort(dimids, num, sizeof(int), int_cmp);
       }
    }
 
@@ -437,3 +437,4 @@ NC4_inq_dimids(int ncid, int *ndims, int *dimids, int include_parents)
 
    return NC_NOERR;
 }
+
