@@ -168,7 +168,7 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
   // Reject meaningless parameterizations
   if ( nSegments < 1 )
     {
-    vtkWarningMacro( <<"Cannot intersect: not enough points to define a broken line.");
+    vtkWarningMacro( <<"Cannot intersect: not enough points to define a broken line." );
     return;
     }
 
@@ -188,7 +188,8 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
         vtkIdType offset = 3 * i;
         this->Points->GetPoint( i, startPoints + offset );
         this->Points->GetPoint( i + 1, endPoints + offset );
-        cerr << i - 1 << ": "
+        cerr << i - 1 
+             << ": "
              << startPoints[offset]
              << " "
              << startPoints[offset + 1]
