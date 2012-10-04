@@ -101,9 +101,9 @@ int vtkLinearSelector::FillInputPortInformation( int vtkNotUsed( port ),
 }
 
 // ----------------------------------------------------------------------
-int vtkLinearSelector::RequestData( vtkInformation *vtkNotUsed( request ),
-                                     vtkInformationVector **inputVector,
-                                     vtkInformationVector *outputVector )
+int vtkLinearSelector::RequestData( vtkInformation* vtkNotUsed( request ),
+                                     vtkInformationVector** inputVector,
+                                     vtkInformationVector* outputVector )
 {
   // Get information objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );

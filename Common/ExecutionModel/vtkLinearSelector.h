@@ -42,7 +42,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkLinearSelector: public vtkSelectionAlgor
   vtkTypeMacro(vtkLinearSelector,vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  static vtkLinearSelector *New();
+  static vtkLinearSelector* New();
 
   // Description:
   // Set/Get starting point of intersecting segment
