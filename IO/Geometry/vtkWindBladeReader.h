@@ -90,7 +90,7 @@ protected:
    static int   FLOAT;
    static int   INTEGER;
 //ETX
-  
+
   vtkWindBladeReader();
   ~vtkWindBladeReader();
 
@@ -206,10 +206,10 @@ protected:
 
   // Calculate derived variables
   virtual void CalculatePressure(int pres, int prespre, int tempg, int density);
-  virtual void CalculateVorticity(int vort, int uvw, int density);  
+  virtual void CalculateVorticity(int vort, int uvw, int density);
 
   // convenience functions shared between serial and parallel version
-  void InitFieldData(vtkInformationVector *outVector, 
+  void InitFieldData(vtkInformationVector *outVector,
                      std::ostringstream &fileName,
                      vtkStructuredGrid *field);
   void SetUpFieldVars(vtkStructuredGrid *field);
@@ -219,13 +219,13 @@ protected:
                         float *&pressureData, float *&prespreData);
   void SetUpPressureData(float* pressureData, float* prespreData,
                          float* tempgData, float* densityData);
-  void SetUpVorticityData(float* uData, float* vData, float *densityData, 
+  void SetUpVorticityData(float* uData, float* vData, float *densityData,
                           float* vortData);
-  void InitVariableData(int var, int &numberOfComponents, float *&varData, 
+  void InitVariableData(int var, int &numberOfComponents, float *&varData,
                         int &planeSize, int &rowSize);
   bool SetUpGlobalData(const std::string &fileName, std::stringstream& inStr);
   void ProcessZCoords(float *topoData, float *zValues);
-  void ReadBladeHeader(const std::string &fileName, std::stringstream &inStr, 
+  void ReadBladeHeader(const std::string &fileName, std::stringstream &inStr,
                        int &numColumns);
   void ReadBladeData(std::stringstream &inStr);
 
