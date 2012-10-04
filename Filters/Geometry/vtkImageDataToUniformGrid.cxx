@@ -58,9 +58,8 @@ int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
 
   vtkInformation* outInfo = outV->GetInformationObject(0);
 
-  if(vtkDataObjectTree* input =
-     vtkDataObjectTree::GetData(inInfo) )
-    {
+  if(vtkDataObjectTree* input = vtkDataObjectTree::GetData(inInfo) )
+    { // multiblock data sets
     vtkDataObjectTree* output = vtkDataObjectTree::GetData(outInfo);
     if (!output)
       {
@@ -72,21 +71,19 @@ int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
       }
     return VTK_OK;
     }
-  else
+  if(vtkUniformGrid* output = vtkUniformGrid::GetData(outInfo))
     {
-    vtkUniformGrid* output = vtkUniformGrid::GetData(outInfo);
-    if (!output)
-      {
-      output = vtkUniformGrid::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
-      output->Delete();
-      }
-    return 1;
+    output = vtkUniformGrid::New();
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
+    this->GetOutputPortInformation(0)->Set(
+      vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
+    output->Delete();
+
+    return VTK_OK;
     }
 
-  return VTK_OK;
+  vtkErrorMacro("Output grid problem.");
+  return VTK_ERROR;
 }
 
 //----------------------------------------------------------------------------
