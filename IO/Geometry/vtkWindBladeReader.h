@@ -81,8 +81,8 @@ protected:
 //BTX
    static float DRY_AIR_CONSTANT;
    static int   NUM_PART_SIDES;  // Blade parts rhombus
-   static int   NUM_BASE_SIDES;  // Base pyramid
-   static int   LINE_SIZE;
+   const static int   NUM_BASE_SIDES;  // Base pyramid
+   const static int   LINE_SIZE;
    static int   DIMENSION;
    static int   BYTES_PER_DATA;
    static int   SCALAR;

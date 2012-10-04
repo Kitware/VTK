@@ -51,8 +51,8 @@ vtkObjectFactoryNewMacro(vtkWindBladeReader);
 
 float vtkWindBladeReader::DRY_AIR_CONSTANT = 287.04;
 int   vtkWindBladeReader::NUM_PART_SIDES = 4;  // Blade parts rhombus
-int   vtkWindBladeReader::NUM_BASE_SIDES = 5;  // Base pyramid
-int   vtkWindBladeReader::LINE_SIZE             = 256;
+const int   vtkWindBladeReader::NUM_BASE_SIDES = 5;  // Base pyramid
+const int   vtkWindBladeReader::LINE_SIZE             = 256;
 int   vtkWindBladeReader::DIMENSION             = 3;
 int   vtkWindBladeReader::BYTES_PER_DATA = 4;
 int   vtkWindBladeReader::SCALAR  = 1;
