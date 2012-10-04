@@ -19,6 +19,15 @@ macro(parse_optional_arguments)
       list(GET argv ${iplus1} DATADIR)
       set (i ${iplus1})
       math(EXPR iplus1 "${i}+1")
+    elseif(${ARG} STREQUAL "LABELS" AND ${iplus1} LESS ${ARGC})
+      # everything after LABELS gets added as a label
+      set(LABELS)
+      while (${iplus1} LESS ${ARGC})
+        list(GET argv ${iplus1} LABEL)
+        list(APPEND LABELS ${LABEL})
+        set(i ${iplus1})
+        math(EXPR iplus1 "${i}+1")
+      endwhile()
     else()
       list(APPEND MYARGV ${ARG})
     endif()
@@ -31,7 +40,7 @@ endmacro(parse_optional_arguments)
 
 
 # -----------------------------------------------------------------------------
-# vtk_tests(cxxfiles [BASELINEDIR baseline_directory] [DATADIR data_directory])
+# vtk_tests(cxxfiles [BASELINEDIR baseline_directory] [DATADIR data_directory] [LABELS test_labels])
 #
 # Takes a list of cxx files which will be driven by the modules
 # test driver. This helps reduce a lot of boiler place code in each module
@@ -42,6 +51,10 @@ endmacro(parse_optional_arguments)
 # DATADIR a data directory to look for input data to the tests in. If not
 # specified the test is assumed to not require input data.
 # Ex. ${VTK_DATA_ROOT} or ${VTK_LARGE_DATA_ROOT}
+#
+# LABELS labels to be added to the tests. Note that the
+# [LABELS test_labels] must be at the end of the macro call since all strings
+# after LABELS will be added as labels to the tests
 macro(vtk_tests)
 
   parse_optional_arguments(${ARGV})
@@ -67,6 +80,9 @@ macro(vtk_tests)
       add_test(NAME ${vtk-module}Cxx-${TName}
         COMMAND ${vtk-module}CxxTests ${TName}
         ${${TName}_ARGS})
+    endif()
+    if(LABELS)
+      set_tests_properties(${vtk-module}Cxx-${TName} PROPERTIES LABELS "${LABELS}")
     endif()
   endforeach()
 endmacro(vtk_tests)
