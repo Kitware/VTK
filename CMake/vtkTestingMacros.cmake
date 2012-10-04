@@ -54,7 +54,9 @@ endmacro(parse_optional_arguments)
 #
 # LABELS labels to be added to the tests. Note that the
 # [LABELS test_labels] must be at the end of the macro call since all strings
-# after LABELS will be added as labels to the tests
+# after LABELS will be added as labels to the tests.
+# Ex. PARAVIEW to label that the test is for ParaView and can be run
+# with ctest -L PARAVIEW
 macro(vtk_tests)
 
   parse_optional_arguments(${ARGV})
