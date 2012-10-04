@@ -33,6 +33,9 @@
 // C++ includes
 #include <iostream>
 
+namespace
+{
+
 // returns 0 for success.
 int TestSingleGridBlanking(bool pointBlanking, int expectedNumberOfCells)
 {
@@ -122,11 +125,12 @@ int TestMultiBlockBlanking(int expectedNumberOfCells)
   return 1;
 }
 
+} // end anonymous namespace
 
 
 //------------------------------------------------------------------------------
 // Program main
-int TestImageDataToUniformGrid( int, char ** )
+int TestImageDataToUniformGrid( int, char* [] )
 {
   int rc = TestSingleGridBlanking(true, 1638);
   rc += TestSingleGridBlanking(false, 1740);

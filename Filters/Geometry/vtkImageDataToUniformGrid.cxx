@@ -181,13 +181,13 @@ int vtkImageDataToUniformGrid::Process(
   vtkImageData* input, int association,
   const char* arrayName, vtkUniformGrid* output)
 {
-  if( input->IsA("vtkUniformGrid") )
+  if(vtkUniformGrid* uniformGrid = vtkUniformGrid::SafeDownCast(input))
     {
-    output->ShallowCopy(input);
+    output->ShallowCopy(uniformGrid);
     }
   else
     {
-    output->Superclass::ShallowCopy(input);
+    output->ShallowCopy(input);
     }
 
 
