@@ -13,4 +13,5 @@ vtk_module(vtkFiltersParallel
     vtkRenderingParallel
     vtkFiltersParallelMPI
     vtkFiltersParallelImaging
+    vtkIOLegacy
   )
