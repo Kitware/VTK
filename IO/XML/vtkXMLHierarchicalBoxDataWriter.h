@@ -12,23 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLHierarchicalBoxDataWriter - writer for
-// vtkHierarchicalBoxDataSet.
+// .NAME vtkXMLHierarchicalBoxDataWriter - writer for vtkHierarchicalBoxDataSet
+// for backwards compatibility.
 // .SECTION Description
-// vtkXMLHierarchicalBoxDataWriter is a vtkXMLCompositeDataWriter subclass to
-// handle vtkHierarchicalBoxDataSet.
+// vtkXMLHierarchicalBoxDataWriter is an empty subclass of
+// vtkXMLUniformGridAMRWriter for writing vtkUniformGridAMR datasets in
+// VTK-XML format.
 
 #ifndef __vtkXMLHierarchicalBoxDataWriter_h
 #define __vtkXMLHierarchicalBoxDataWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
-#include "vtkXMLCompositeDataWriter.h"
+#include "vtkXMLUniformGridAMRWriter.h"
 
-class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataWriter : public vtkXMLCompositeDataWriter
+class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataWriter : public vtkXMLUniformGridAMRWriter
 {
 public:
   static vtkXMLHierarchicalBoxDataWriter* New();
-  vtkTypeMacro(vtkXMLHierarchicalBoxDataWriter, vtkXMLCompositeDataWriter);
+  vtkTypeMacro(vtkXMLHierarchicalBoxDataWriter, vtkXMLUniformGridAMRWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -41,17 +41,6 @@ protected:
   vtkXMLHierarchicalBoxDataWriter();
   ~vtkXMLHierarchicalBoxDataWriter();
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-
-  // Fills up this->AMRBoxes, this->AMRBoxDims with boxes for the dataset.
-  virtual void FillDataTypes(vtkCompositeDataSet*);
-
-  // Internal method called recursively to create the xml tree for the children
-  // of compositeData.
-  virtual int WriteComposite(vtkCompositeDataSet* compositeData,
-    vtkXMLDataElement* parent, int &writerIdx);
-
-  int *AMRBoxes;
 private:
   vtkXMLHierarchicalBoxDataWriter(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.
   void operator=(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.
@@ -59,5 +48,3 @@ private:
 };
 
 #endif
-
-

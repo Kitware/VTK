@@ -12,34 +12,37 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkXMLGenericDataObjectReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
-#include "vtkXMLFileReadTester.h"
-#include "vtkXMLHierarchicalBoxDataReader.h"
-#include "vtkXMLHyperOctreeReader.h"
-#include "vtkXMLPImageDataReader.h"
-#include "vtkXMLImageDataReader.h"
-#include "vtkXMLMultiBlockDataReader.h"
-#include "vtkXMLPPolyDataReader.h"
-#include "vtkXMLPolyDataReader.h"
-#include "vtkXMLPRectilinearGridReader.h"
-#include "vtkXMLRectilinearGridReader.h"
-#include "vtkXMLPStructuredGridReader.h"
-#include "vtkXMLStructuredGridReader.h"
-#include "vtkXMLPUnstructuredGridReader.h"
-#include "vtkXMLUnstructuredGridReader.h"
+
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkHyperOctree.h"
 #include "vtkImageData.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPolyData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkNonOverlappingAMR.h"
+#include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkSmartPointer.h"
+#include "vtkStructuredGrid.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkXMLFileReadTester.h"
+#include "vtkXMLHyperOctreeReader.h"
+#include "vtkXMLImageDataReader.h"
+#include "vtkXMLMultiBlockDataReader.h"
+#include "vtkXMLPImageDataReader.h"
+#include "vtkXMLPolyDataReader.h"
+#include "vtkXMLPPolyDataReader.h"
+#include "vtkXMLPRectilinearGridReader.h"
+#include "vtkXMLPStructuredGridReader.h"
+#include "vtkXMLPUnstructuredGridReader.h"
+#include "vtkXMLRectilinearGridReader.h"
+#include "vtkXMLStructuredGridReader.h"
+#include "vtkXMLUniformGridAMRReader.h"
+#include "vtkXMLUnstructuredGridReader.h"
+
 #include <cassert>
 
 vtkStandardNewMacro(vtkXMLGenericDataObjectReader);
@@ -77,9 +80,18 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(const char *name,
     if(cfileDataType!=0)
       {
       std::string fileDataType(cfileDataType);
-      if(fileDataType.compare("HierarchicalBoxDataSet")==0)
+      if(fileDataType.compare("HierarchicalBoxDataSet")==0 ||
+         fileDataType.compare("vtkHierarchicalBoxDataSet") == 0)
         {
         return VTK_HIERARCHICAL_BOX_DATA_SET;
+        }
+      if (fileDataType.compare("vtkOverlappingAMR") == 0)
+        {
+        return VTK_OVERLAPPING_AMR;
+        }
+      if (fileDataType.compare("vtkNonOverlappingAMR") == 0)
+        {
+        return VTK_NON_OVERLAPPING_AMR;
         }
       if(fileDataType.compare("HyperOctree")==0)
         {
@@ -166,8 +178,16 @@ int vtkXMLGenericDataObjectReader::RequestDataObject(
   switch(this->ReadOutputType(this->FileName,parallel))
     {
     case VTK_HIERARCHICAL_BOX_DATA_SET:
-      this->Reader=vtkXMLHierarchicalBoxDataReader::New();
+      this->Reader = vtkXMLUniformGridAMRReader::New();
       output=vtkHierarchicalBoxDataSet::New();
+      break;
+    case VTK_OVERLAPPING_AMR:
+      this->Reader = vtkXMLUniformGridAMRReader::New();
+      output = vtkOverlappingAMR::New();
+      break;
+    case VTK_NON_OVERLAPPING_AMR:
+      this->Reader = vtkXMLUniformGridAMRReader::New();
+      output = vtkNonOverlappingAMR::New();
       break;
     case VTK_HYPER_OCTREE:
       this->Reader=vtkXMLHyperOctreeReader::New();

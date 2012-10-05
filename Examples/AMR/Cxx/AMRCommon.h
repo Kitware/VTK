@@ -34,9 +34,9 @@
 #include "vtkUniformGrid.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLHierarchicalBoxDataReader.h"
-#include "vtkXMLHierarchicalBoxDataWriter.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkXMLMultiBlockDataWriter.h"
+#include "vtkXMLUniformGridAMRWriter.h"
 
 namespace AMRCommon {
 

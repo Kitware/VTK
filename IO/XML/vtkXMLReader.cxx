@@ -752,7 +752,7 @@ int vtkXMLReader::CanReadFile(const char* name)
   int result = 0;
   if(tester->TestReadFile() && tester->GetFileDataType())
     {
-    if(strcmp(tester->GetFileDataType(), this->GetDataSetName()) == 0)
+    if (this->CanReadFileWithDataType(tester->GetFileDataType()))
       {
       const char* version = tester->GetFileVersion();
       if(version)
@@ -771,6 +771,12 @@ int vtkXMLReader::CanReadFile(const char* name)
 
   tester->Delete();
   return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLReader::CanReadFileWithDataType(const char* dsname)
+{
+  return (dsname && strcmp(dsname, this->GetDataSetName()) == 0)? 1 : 0;
 }
 
 //----------------------------------------------------------------------------
