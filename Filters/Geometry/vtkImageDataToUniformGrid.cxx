@@ -71,9 +71,9 @@ int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
       }
     return VTK_OK;
     }
-  if(vtkUniformGrid* output = vtkUniformGrid::GetData(outInfo))
+  if(vtkImageData::GetData(inInfo) != NULL)
     {
-    output = vtkUniformGrid::New();
+    vtkUniformGrid* output = vtkUniformGrid::New();
     outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
     this->GetOutputPortInformation(0)->Set(
       vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
@@ -82,7 +82,8 @@ int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
     return VTK_OK;
     }
 
-  vtkErrorMacro("Output grid problem.");
+  vtkErrorMacro("Don't know how to handle input of type " <<
+                vtkDataObject::GetData(inInfo)->GetClassName());
   return VTK_ERROR;
 }
 
