@@ -982,7 +982,7 @@ int vtkIntersectionPolyDataFilter
   vtkMath::Normalize( v );
 
   int index1 = 0, index2 = 0;
-  double t1[2], t2[2];
+  double t1[3], t2[3];
   for (int i = 0; i < 3; i++)
     {
     double t, x[3];
