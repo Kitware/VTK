@@ -277,7 +277,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
       }
     else
       {
-      int r = (int)(pow((double)this->RefinementRatio,this->NumberOfLevels-1));
+      int r = (int)(pow(static_cast<double>(this->RefinementRatio),this->NumberOfLevels-1));
       if((dims[d]-1)%r!=0)
         {
         vtkErrorMacro("Image cannot be refined");
@@ -296,17 +296,17 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   std::vector<int> blocksPerLevel;
   for(size_t i=0; i<amrBoxes.size();i++)
     {
-    blocksPerLevel.push_back(amrBoxes[i].size());
+    blocksPerLevel.push_back(static_cast<int>(amrBoxes[i].size()));
     }
 
-  int numLevels = static_cast<int>(blocksPerLevel.size());
+  unsigned int numLevels = static_cast<unsigned int>(blocksPerLevel.size());
 
-  amr->Initialize(numLevels, &blocksPerLevel[0]);
+  amr->Initialize(static_cast<int>(numLevels), &blocksPerLevel[0]);
   amr->SetOrigin(inputOrigin);
   amr->SetGridDescription(gridDescription);
 
   double spacingi[3] = {spacing0[0],spacing0[1],spacing0[2]};
-  for(int i=0; i<numLevels; i++)
+  for(unsigned int i=0; i<numLevels; i++)
     {
     amr->SetSpacing(i,spacingi);
     for(int d=0;d<3;d++)
@@ -315,27 +315,27 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
 
-  for(int level = 0; level<numLevels; level++)
+  for(unsigned int level = 0; level<numLevels; level++)
     {
     const std::vector<vtkAMRBox>& boxes = amrBoxes[level];
     for(size_t i=0; i<boxes.size();i++)
       {
-      amr->SetAMRBox(static_cast<unsigned int>(level),static_cast<unsigned int>(i), boxes[i]);
+      amr->SetAMRBox(level,static_cast<unsigned int>(i), boxes[i]);
       }
     }
 
-  for(int level = 0; level<numLevels; level++)
+  for(unsigned int level = 0; level< numLevels; level++)
     {
     double spacing[3];
     amr->GetSpacing(level, spacing);
-    int coarsenRatio = (int)pow(this->RefinementRatio, numLevels-1-level);//againt the finest level
+    int coarsenRatio = (int)pow( static_cast<double>(this->RefinementRatio), static_cast<int>(numLevels- 1 - level));//againt the finest level
     for(size_t i=0; i<amr->GetNumberOfDataSets(level);i++)
       {
-      const vtkAMRBox& box = amr->GetAMRBox(level,i);
+      const vtkAMRBox& box = amr->GetAMRBox(level,static_cast<unsigned int>(i));
       double origin[3];
       vtkAMRBox::GetBoxOrigin(box,inputOrigin,spacing,origin);
       vtkUniformGrid* grid = ConstructGrid(input,box,coarsenRatio,origin,spacing);
-      amr->SetDataSet(level,i, grid);
+      amr->SetDataSet(level,static_cast<unsigned int>(i), grid);
       grid->Delete();
       }
     }
