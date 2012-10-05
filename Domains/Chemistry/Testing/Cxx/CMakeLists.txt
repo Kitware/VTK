@@ -1,5 +1,6 @@
 set(MyTests
   TestBallAndStick.cxx
+  TestPDBBallAndStick.cxx
   TestBondColorModeDiscreteByAtom.cxx
   TestBondColorModeSingleColor.cxx
   TestCompositeRender.cxx

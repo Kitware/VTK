@@ -373,9 +373,9 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
   double angleDeg = tprop->GetOrientation();
   // Corners of original image
   double corners[4][2] = { {0, 0},
-                           {cols, 0},
-                           {0, rows},
-                           {cols, rows} };
+                           {static_cast<double>(cols), 0},
+                           {0, static_cast<double>(rows)},
+                           {static_cast<double>(cols), static_cast<double>(rows)} };
 
   double bboxd[4];
   this->RotateCorners(angleDeg, corners, bboxd);
@@ -562,11 +562,11 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
   Py_ssize_t numVerts;
 
   // Temp vars:
-  float origin[2];
+  float origin[2] = {0.0, 0.0};
   float vert[2];
   float delta[2] = {0.0, 0.0};
   int code;
-  bool hasOrigin;
+  bool hasOrigin = false;
 
   // Bounding box for all control points, used for justification
   float cbox[4] = {VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MIN, VTK_FLOAT_MIN};

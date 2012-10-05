@@ -119,9 +119,9 @@ int TestColorSeries( int argc, char* argv[] )
             << "i " << i << " j " << j << " c " << c << " p " << p
             << " off " << coord << " poff " << coord/3 <<  "\n";
             */
-          pix->SetValue( coord ++, color.Red() );
-          pix->SetValue( coord ++, color.Green() );
-          pix->SetValue( coord ++, color.Blue() );
+          pix->SetValue( coord ++, color.GetRed() );
+          pix->SetValue( coord ++, color.GetGreen() );
+          pix->SetValue( coord ++, color.GetBlue() );
           }
         }
       }

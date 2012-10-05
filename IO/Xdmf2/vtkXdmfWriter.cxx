@@ -459,9 +459,10 @@ void vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *g
   geo->SetGeometryType(XDMF_GEOMETRY_NONE);
 
   vtkCompositeDataIterator* iter = dobj->NewIterator();
-  if(vtkDataObjectTreeIterator::SafeDownCast(iter))
+  vtkDataObjectTreeIterator* treeIter =
+    vtkDataObjectTreeIterator::SafeDownCast(iter);
+  if(treeIter)
     {
-    vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
     treeIter->VisitOnlyLeavesOff();
     treeIter->TraverseSubTreeOff();
     }

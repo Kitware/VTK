@@ -106,7 +106,7 @@ void vtkFieldDataSerializer::DeserializeMetaData(
   names->SetNumberOfValues(NumberOfArrays);
   datatypes->SetNumberOfValues(NumberOfArrays);
   dimensions->SetNumberOfComponents(2);
-  dimensions->SetNumberOfValues(NumberOfArrays);
+  dimensions->SetNumberOfTuples(NumberOfArrays);
 
   std::string *namesPtr = static_cast<std::string*>(names->GetVoidPointer(0));
   int *datatypesPtr     = static_cast<int*>(datatypes->GetVoidPointer(0));

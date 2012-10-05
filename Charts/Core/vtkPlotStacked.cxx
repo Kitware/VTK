@@ -46,7 +46,7 @@ namespace {
 // Compare the two vectors, in X component only
 bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
 {
-  if (v1.X() < v2.X())
+  if (v1.GetX() < v2.GetX())
     {
     return true;
     }
@@ -277,16 +277,16 @@ class vtkPlotStackedSegment : public vtkObject {
         vtkVector2f* pts = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
 
         // Initialize our min/max
-        bounds[0] = bounds[1] = pts[start].X();
-        bounds[2] = bounds[3] = pts[start++].Y();
+        bounds[0] = bounds[1] = pts[start].GetX();
+        bounds[2] = bounds[3] = pts[start++].GetY();
 
         while (start < nPoints)
           {
           // Calculate the min/max in this range
           while (start < end)
             {
-            float x = pts[start].X();
-            float y = pts[start++].Y();
+            float x = pts[start].GetX();
+            float y = pts[start++].GetY();
             if (x < bounds[0])
               {
               bounds[0] = x;
@@ -379,7 +379,7 @@ class vtkPlotStackedSegment : public vtkObject {
       // When searching, invert the behavior of the offset and
       // compensate for the half width overlap.
       std::vector<vtkVector2f>::iterator low;
-      vtkVector2f lowPoint(point.X()-tol.X(), 0.0f);
+      vtkVector2f lowPoint(point.GetX()-tol.GetX(), 0.0f);
 
       vtkVector2f* data =
           static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
@@ -392,15 +392,15 @@ class vtkPlotStackedSegment : public vtkObject {
       // first positive wins.
       while (low != v.end())
         {
-        if (low->X() - tol.X() > point.X())
+        if (low->GetX() - tol.GetX() > point.GetX())
           {
           break;
           }
-        else if (low->X()-tol.X() < point.X() &&
-                 low->X()+tol.X() > point.X())
+        else if (low->GetX()-tol.GetX() < point.GetX() &&
+                 low->GetX()+tol.GetX() > point.GetX())
           {
-          if ((point.Y() >= 0 && point.Y() < low->Y()) ||
-              (point.Y() < 0 && point.Y() > low->Y()))
+          if ((point.GetY() >= 0 && point.GetY() < low->GetY()) ||
+              (point.GetY() < 0 && point.GetY() > low->GetY()))
               {
               *location = *low;
               return true;
@@ -426,8 +426,8 @@ class vtkPlotStackedSegment : public vtkObject {
 
       for (vtkIdType i = 0; i < n; ++i)
         {
-        if (data[i].X() >= min.X() && data[i].X() <= max.X() &&
-            data[i].Y() >= min.Y() && data[i].Y() <= max.Y())
+        if (data[i].GetX() >= min.GetX() && data[i].GetX() <= max.GetX() &&
+            data[i].GetY() >= min.GetY() && data[i].GetY() <= max.GetY())
           {
           selection->InsertNextValue(i);
           }

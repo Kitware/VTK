@@ -805,8 +805,8 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
   float yScale = mv[5];
   bounds[0] = static_cast<float>(0);
   bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.X() / xScale);
-  bounds[3] = static_cast<float>(box.Y() / yScale);
+  bounds[2] = static_cast<float>(box.GetX() / xScale);
+  bounds[3] = static_cast<float>(box.GetY() / yScale);
 }
 
 //-----------------------------------------------------------------------------
@@ -846,8 +846,8 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &strin
   float yScale = mv[5];
   bounds[0] = static_cast<float>(0);
   bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.X() / xScale);
-  bounds[3] = static_cast<float>(box.Y() / yScale);
+  bounds[2] = static_cast<float>(box.GetX() / xScale);
+  bounds[3] = static_cast<float>(box.GetY() / yScale);
 }
 
 //-----------------------------------------------------------------------------
@@ -957,10 +957,10 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
     }
 //  this->SetTexture(image);
 //  this->Storage->Texture->Render(this->Renderer);
-  float points[] = { pos.X()              , pos.Y(),
-                     pos.X() + pos.Width(), pos.Y(),
-                     pos.X() + pos.Width(), pos.Y() + pos.Height(),
-                     pos.X()              , pos.Y() + pos.Height() };
+  float points[] = { pos.GetX()              , pos.GetY(),
+                     pos.GetX() + pos.GetWidth(), pos.GetY(),
+                     pos.GetX() + pos.GetWidth(), pos.GetY() + pos.GetHeight(),
+                     pos.GetX()              , pos.GetY() + pos.GetHeight() };
 
   float texCoord[] = { 0.0   , 0.0,
                        tex[0], 0.0,

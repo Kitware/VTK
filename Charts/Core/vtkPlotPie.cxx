@@ -204,8 +204,8 @@ vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
                                       const vtkVector2f&,
                                       vtkVector2f*)
 {
-  float x = point.X() - this->Private->CenterX;
-  float y = point.Y() - this->Private->CenterY;
+  float x = point.GetX() - this->Private->CenterX;
+  float y = point.GetY() - this->Private->CenterY;
 
   if (sqrt((x*x) + (y*y)) <= this->Private->Radius)
     {

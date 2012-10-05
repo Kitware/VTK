@@ -291,7 +291,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   virtual int RenderTranslucentGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
   virtual int RenderOverlay(vtkViewport* viewport);
-  int HasTranslucentPolygonalGeometry() { return 1; }
+  int HasTranslucentPolygonalGeometry();
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.

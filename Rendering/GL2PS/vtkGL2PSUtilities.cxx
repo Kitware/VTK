@@ -53,7 +53,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
   rgba[3] = tprop->GetOpacity();
 
   glRasterPos3dv(pos);
-  gl2psTextOpt(str, fontname, fontSize, align, angle, rgba);
+  gl2psTextOptColor(str, fontname, fontSize, align, angle, rgba);
 }
 
 const char *vtkGL2PSUtilities::TextPropertyToPSFontName(vtkTextProperty *tprop)

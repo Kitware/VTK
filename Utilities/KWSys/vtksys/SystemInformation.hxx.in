@@ -30,8 +30,17 @@ class SystemInformationImplementation;
 
 class @KWSYS_NAMESPACE@_EXPORT SystemInformation
 {
-
+#if @KWSYS_USE_LONG_LONG@
+  typedef long long LongLong;
+#elif @KWSYS_USE___INT64@
+  typedef __int64 LongLong;
+#else
+# error "No Long Long"
+#endif
+  friend class SystemInformationImplementation;
+  SystemInformationImplementation* Implementation;
 public:
+
   SystemInformation ();
   ~SystemInformation ();
 
@@ -79,7 +88,7 @@ public:
   bool DoesCPUSupportCPUID();
 
   // Retrieve id of the current running process
-  long long GetProcessId();
+  LongLong GetProcessId();
 
   // Retrieve memory information in megabyte.
   size_t GetTotalVirtualMemory();
@@ -92,8 +101,8 @@ public:
   kwsys_stl::string GetMemoryDescription();
 
   // Retrieve physical memory information in kib
-  long long GetMemoryTotal();
-  long long GetMemoryUsed();
+  LongLong GetMemoryTotal();
+  LongLong GetMemoryUsed();
 
   // enable/disable stack trace signal handler.
   static
@@ -103,9 +112,6 @@ public:
   void RunCPUCheck();
   void RunOSCheck();
   void RunMemoryCheck();
-private:
-  SystemInformationImplementation* Implementation;
-
 };
 } // namespace @KWSYS_NAMESPACE@
 

@@ -6,7 +6,6 @@ vtk_module(vtkFiltersAMR
     vtkFiltersGeneral
   TEST_DEPENDS
     vtkIOAMR
-    vtkIOXML
     vtkTestingCore
     vtkTestingRendering
   )

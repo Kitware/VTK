@@ -1,6 +1,6 @@
 /*
  * GL2PS, an OpenGL to PostScript Printing Library
- * Copyright (C) 1999-2011 C. Geuzaine
+ * Copyright (C) 1999-2012 C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of either:
@@ -20,8 +20,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library in the file named "COPYING.LGPL";
- * if not, write to the Free Software Foundation, Inc., 675 Mass Ave,
- * Cambridge, MA 02139, USA.
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin
+ * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * You should have received a copy of the GL2PS License with this
  * library in the file named "COPYING.GL2PS"; if not, I will be glad
@@ -225,7 +225,6 @@ typedef struct {
   FILE *stream;
   GL2PScompress *compress;
   GLboolean header;
-  GLboolean writeTimestamp;
 
   /* BSP-specific */
   GLint maxbestroot;
@@ -576,17 +575,17 @@ static int gl2psListNbr(GL2PSlist *list)
   return list->n;
 }
 
-static void *gl2psListPointer(GL2PSlist *list, GLint index)
+static void *gl2psListPointer(GL2PSlist *list, GLint idx)
 {
   if(!list){
     gl2psMsg(GL2PS_ERROR, "Cannot point into unallocated list");
     return NULL;
   }
-  if((index < 0) || (index >= list->n)){
+  if((idx < 0) || (idx >= list->n)){
     gl2psMsg(GL2PS_ERROR, "Wrong list index in gl2psListPointer");
     return NULL;
   }
-  return &list->array[index * list->size];
+  return &list->array[idx * list->size];
 }
 
 static void gl2psListSort(GL2PSlist *list,
@@ -1416,7 +1415,7 @@ static int gl2psTrianglesFirst(const void *a, const void *b)
 
 static GLint gl2psFindRoot(GL2PSlist *primitives, GL2PSprimitive **root)
 {
-  GLint i, j, count, best = 1000000, index = 0;
+  GLint i, j, count, best = 1000000, idx = 0;
   GL2PSprimitive *prim1, *prim2;
   GL2PSplane plane;
   GLint maxp;
@@ -1446,13 +1445,13 @@ static GLint gl2psFindRoot(GL2PSlist *primitives, GL2PSprimitive **root)
       }
       if(count < best){
         best = count;
-        index = i;
+        idx = i;
         *root = prim1;
-        if(!count) return index;
+        if(!count) return idx;
       }
     }
     /* if(index) gl2psMsg(GL2PS_INFO, "GL2PS_BEST_ROOT was worth it: %d", index); */
-    return index;
+    return idx;
   }
   else{
     return 0;
@@ -1532,12 +1531,12 @@ static void gl2psBuildBspTree(GL2PSbsptree *tree, GL2PSlist *primitives)
 {
   GL2PSprimitive *prim, *frontprim = NULL, *backprim = NULL;
   GL2PSlist *frontlist, *backlist;
-  GLint i, index;
+  GLint i, idx;
 
   tree->front = NULL;
   tree->back = NULL;
   tree->primitives = gl2psListCreate(1, 2, sizeof(GL2PSprimitive*));
-  index = gl2psFindRoot(primitives, &prim);
+  idx = gl2psFindRoot(primitives, &prim);
   gl2psGetPlane(prim, tree->plane);
   gl2psAddPrimitiveInList(prim, tree->primitives);
 
@@ -1545,7 +1544,7 @@ static void gl2psBuildBspTree(GL2PSbsptree *tree, GL2PSlist *primitives)
   backlist = gl2psListCreate(1, 2, sizeof(GL2PSprimitive*));
 
   for(i = 0; i < gl2psListNbr(primitives); i++){
-    if(i != index){
+    if(i != idx){
       prim = *(GL2PSprimitive**)gl2psListPointer(primitives,i);
       switch(gl2psSplitPrimitive(prim, tree->plane, &frontprim, &backprim)){
       case GL2PS_COINCIDENT:
@@ -2672,8 +2671,7 @@ static void gl2psPrintPostScriptHeader(void)
               "%%%%Pages: 1\n",
               gl2ps->title, GL2PS_MAJOR_VERSION, GL2PS_MINOR_VERSION,
               GL2PS_PATCH_VERSION, GL2PS_EXTRA_VERSION, GL2PS_COPYRIGHT,
-              gl2ps->producer,
-              gl2ps->writeTimestamp ? ctime(&now) : "(ignored)\n");
+              gl2ps->producer, ctime(&now));
 
   if(gl2ps->format == GL2PS_PS){
     gl2psPrintf("%%%%Orientation: %s\n"
@@ -3125,7 +3123,7 @@ static void gl2psPrintPostScriptFooter(void)
 
 static void gl2psPrintPostScriptBeginViewport(GLint viewport[4])
 {
-  GLint index;
+  GLint idx;
   GLfloat rgba[4];
   int x = viewport[0], y = viewport[1], w = viewport[2], h = viewport[3];
 
@@ -3144,10 +3142,10 @@ static void gl2psPrintPostScriptBeginViewport(GLint viewport[4])
       glGetFloatv(GL_COLOR_CLEAR_VALUE, rgba);
     }
     else{
-      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &index);
-      rgba[0] = gl2ps->colormap[index][0];
-      rgba[1] = gl2ps->colormap[index][1];
-      rgba[2] = gl2ps->colormap[index][2];
+      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &idx);
+      rgba[0] = gl2ps->colormap[idx][0];
+      rgba[1] = gl2ps->colormap[idx][1];
+      rgba[2] = gl2ps->colormap[idx][2];
       rgba[3] = 1.0F;
     }
     gl2psPrintf("%g %g %g C\n"
@@ -3237,7 +3235,7 @@ static void gl2psPrintTeXHeader(void)
           "%% CreationDate: %s",
           gl2ps->title, GL2PS_MAJOR_VERSION, GL2PS_MINOR_VERSION,
           GL2PS_PATCH_VERSION, GL2PS_EXTRA_VERSION, GL2PS_COPYRIGHT,
-          gl2ps->producer, gl2ps->writeTimestamp ? ctime(&now) : "(ignored)\n");
+          gl2ps->producer, ctime(&now));
 
   fprintf(gl2ps->stream,
           "\\setlength{\\unitlength}{1pt}\n"
@@ -4785,7 +4783,7 @@ static void gl2psPrintPDFFooter(void)
 static void gl2psPrintPDFBeginViewport(GLint viewport[4])
 {
   int offs = 0;
-  GLint index;
+  GLint idx;
   GLfloat rgba[4];
   int x = viewport[0], y = viewport[1], w = viewport[2], h = viewport[3];
 
@@ -4803,10 +4801,10 @@ static void gl2psPrintPDFBeginViewport(GLint viewport[4])
       glGetFloatv(GL_COLOR_CLEAR_VALUE, rgba);
     }
     else{
-      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &index);
-      rgba[0] = gl2ps->colormap[index][0];
-      rgba[1] = gl2ps->colormap[index][1];
-      rgba[2] = gl2ps->colormap[index][2];
+      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &idx);
+      rgba[0] = gl2ps->colormap[idx][0];
+      rgba[1] = gl2ps->colormap[idx][1];
+      rgba[2] = gl2ps->colormap[idx][2];
       rgba[3] = 1.0F;
     }
     offs += gl2psPrintPDFFillColor(rgba);
@@ -4917,8 +4915,7 @@ static void gl2psPrintSVGHeader(void)
               "For: %s\n"
               "CreationDate: %s",
               GL2PS_MAJOR_VERSION, GL2PS_MINOR_VERSION, GL2PS_PATCH_VERSION,
-              GL2PS_EXTRA_VERSION, GL2PS_COPYRIGHT, gl2ps->producer,
-              gl2ps->writeTimestamp ? ctime(&now) : "(ignored)\n");
+              GL2PS_EXTRA_VERSION, GL2PS_COPYRIGHT, gl2ps->producer, ctime(&now));
   gl2psPrintf("</desc>\n");
   gl2psPrintf("<defs>\n");
   gl2psPrintf("</defs>\n");
@@ -5221,7 +5218,7 @@ static void gl2psPrintSVGFooter(void)
 
 static void gl2psPrintSVGBeginViewport(GLint viewport[4])
 {
-  GLint index;
+  GLint idx;
   char col[32];
   GLfloat rgba[4];
   int x = viewport[0], y = viewport[1], w = viewport[2], h = viewport[3];
@@ -5238,10 +5235,10 @@ static void gl2psPrintSVGBeginViewport(GLint viewport[4])
       glGetFloatv(GL_COLOR_CLEAR_VALUE, rgba);
     }
     else{
-      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &index);
-      rgba[0] = gl2ps->colormap[index][0];
-      rgba[1] = gl2ps->colormap[index][1];
-      rgba[2] = gl2ps->colormap[index][2];
+      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &idx);
+      rgba[0] = gl2ps->colormap[idx][0];
+      rgba[1] = gl2ps->colormap[idx][1];
+      rgba[2] = gl2ps->colormap[idx][2];
       rgba[3] = 1.0F;
     }
     gl2psSVGGetColorString(rgba, col);
@@ -5317,7 +5314,7 @@ static void gl2psPrintPGFHeader(void)
           "%% CreationDate: %s",
           gl2ps->title, GL2PS_MAJOR_VERSION, GL2PS_MINOR_VERSION,
           GL2PS_PATCH_VERSION, GL2PS_EXTRA_VERSION, GL2PS_COPYRIGHT,
-          gl2ps->producer, gl2ps->writeTimestamp ? ctime(&now) : "(ignored)\n");
+          gl2ps->producer, ctime(&now));
 
   fprintf(gl2ps->stream, "\\begin{pgfpicture}\n");
   if(gl2ps->options & GL2PS_DRAW_BACKGROUND){
@@ -5451,7 +5448,7 @@ static void gl2psPrintPGFFooter(void)
 
 static void gl2psPrintPGFBeginViewport(GLint viewport[4])
 {
-  GLint index;
+  GLint idx;
   GLfloat rgba[4];
   int x = viewport[0], y = viewport[1], w = viewport[2], h = viewport[3];
 
@@ -5468,10 +5465,10 @@ static void gl2psPrintPGFBeginViewport(GLint viewport[4])
       glGetFloatv(GL_COLOR_CLEAR_VALUE, rgba);
     }
     else{
-      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &index);
-      rgba[0] = gl2ps->colormap[index][0];
-      rgba[1] = gl2ps->colormap[index][1];
-      rgba[2] = gl2ps->colormap[index][2];
+      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &idx);
+      rgba[0] = gl2ps->colormap[idx][0];
+      rgba[1] = gl2ps->colormap[idx][1];
+      rgba[2] = gl2ps->colormap[idx][2];
       rgba[3] = 1.0F;
     }
     gl2psPrintPGFColor(rgba);
@@ -5638,7 +5635,7 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
                                   GLint nr, GLint ng, GLint nb, GLint buffersize,
                                   FILE *stream, const char *filename)
 {
-  GLint index;
+  GLint idx;
   int i;
 
   if(gl2ps){
@@ -5687,7 +5684,6 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
   gl2ps->compress = NULL;
   gl2ps->imagemap_head = NULL;
   gl2ps->imagemap_tail = NULL;
-  gl2ps->writeTimestamp = GL_TRUE;
 
   if(gl2ps->options & GL2PS_USE_CURRENT_VIEWPORT){
     glGetIntegerv(GL_VIEWPORT, gl2ps->viewport);
@@ -5750,10 +5746,10 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
     gl2ps->colorsize = colorsize;
     gl2ps->colormap = (GL2PSrgba*)gl2psMalloc(gl2ps->colorsize * sizeof(GL2PSrgba));
     memcpy(gl2ps->colormap, colormap, gl2ps->colorsize * sizeof(GL2PSrgba));
-    glGetIntegerv(GL_INDEX_CLEAR_VALUE, &index);
-    gl2ps->bgcolor[0] = gl2ps->colormap[index][0];
-    gl2ps->bgcolor[1] = gl2ps->colormap[index][1];
-    gl2ps->bgcolor[2] = gl2ps->colormap[index][2];
+    glGetIntegerv(GL_INDEX_CLEAR_VALUE, &idx);
+    gl2ps->bgcolor[0] = gl2ps->colormap[idx][0];
+    gl2ps->bgcolor[1] = gl2ps->colormap[idx][1];
+    gl2ps->bgcolor[2] = gl2ps->colormap[idx][2];
     gl2ps->bgcolor[3] = 1.0F;
   }
   else{
@@ -5849,12 +5845,18 @@ GL2PSDLL_API GLint gl2psEndViewport(void)
   return res;
 }
 
-GL2PSDLL_API GLint gl2psTextOpt(const char *str, const char *fontname,
-                                GLshort fontsize, GLint alignment, GLfloat angle,
-                                GL2PSrgba color)
+GL2PSDLL_API GLint gl2psTextOptColor(const char *str, const char *fontname,
+                                     GLshort fontsize, GLint alignment, GLfloat angle,
+                                     GL2PSrgba color)
 {
   return gl2psAddText(GL2PS_TEXT, str, fontname, fontsize, alignment, angle,
                       color);
+}
+
+GL2PSDLL_API GLint gl2psTextOpt(const char *str, const char *fontname,
+                                GLshort fontsize, GLint alignment, GLfloat angle)
+{
+  return gl2psAddText(GL2PS_TEXT, str, fontname, fontsize, alignment, angle, NULL);
 }
 
 GL2PSDLL_API GLint gl2psText(const char *str, const char *fontname, GLshort fontsize)
@@ -6004,9 +6006,6 @@ GL2PSDLL_API GLint gl2psEnable(GLint mode)
   case GL2PS_BLEND :
     glPassThrough(GL2PS_BEGIN_BLEND_TOKEN);
     break;
-  case GL2PS_TIMESTAMP :
-    gl2ps->writeTimestamp = GL_TRUE;
-    break;
   default :
     gl2psMsg(GL2PS_WARNING, "Unknown mode in gl2psEnable: %d", mode);
     return GL2PS_WARNING;
@@ -6031,9 +6030,6 @@ GL2PSDLL_API GLint gl2psDisable(GLint mode)
     break;
   case GL2PS_BLEND :
     glPassThrough(GL2PS_END_BLEND_TOKEN);
-    break;
-  case GL2PS_TIMESTAMP :
-    gl2ps->writeTimestamp = GL_FALSE;
     break;
   default :
     gl2psMsg(GL2PS_WARNING, "Unknown mode in gl2psDisable: %d", mode);

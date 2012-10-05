@@ -26,6 +26,7 @@
 #define __vtkVector_h
 
 #include "vtkTuple.h"
+#include "vtkObject.h" // for legacy macros
 
 #include <cmath>   // For math functions
 
@@ -159,7 +160,6 @@ public:
   // Description:
   // Get the x component of the vector, i.e. element 0.
   const T& GetX() const { return this->Data[0]; }
-  const T& X() const { return this->Data[0]; }
 
   // Description:
   // Set the y component of the vector, i.e. element 1.
@@ -168,7 +168,14 @@ public:
   // Description:
   // Get the y component of the vector, i.e. element 1.
   const T& GetY() const { return this->Data[1]; }
-  const T& Y() const { return this->Data[1]; }
+
+  // Description:
+  // Legacy method for getting the x component.
+  VTK_LEGACY(const T& X() const);
+
+  // Description:
+  // Legacy method for getting the y component.
+  VTK_LEGACY(const T& Y() const);
 };
 
 // .NAME vtkVector3 - templated base type for storage of 3D vectors.
@@ -212,7 +219,6 @@ public:
   // Description:
   // Get the x component of the vector, i.e. element 0.
   const T& GetX() const { return this->Data[0]; }
-  const T& X() const { return this->Data[0]; }
 
   // Description:
   // Set the y component of the vector, i.e. element 1.
@@ -221,7 +227,6 @@ public:
   // Description:
   // Get the y component of the vector, i.e. element 1.
   const T& GetY() const { return this->Data[1]; }
-  const T& Y() const { return this->Data[1]; }
 
   // Description:
   // Set the z component of the vector, i.e. element 2.
@@ -230,7 +235,6 @@ public:
   // Description:
   // Get the z component of the vector, i.e. element 2.
   const T& GetZ() const { return this->Data[2]; }
-  const T& Z() const { return this->Data[2]; }
 
   // Description:
   // Return the cross product of this X other.
@@ -243,6 +247,17 @@ public:
     return res;
   }
 
+  // Description:
+  // Legacy method for getting the x component.
+  VTK_LEGACY(const T& X() const);
+
+  // Description:
+  // Legacy method for getting the y component.
+  VTK_LEGACY(const T& Y() const);
+
+  // Description:
+  // Legacy method for getting the z component.
+  VTK_LEGACY(const T& Z() const);
 };
 
 // Description:
@@ -326,6 +341,43 @@ public:
   vtkVectorDerivedMacro(vtkVector3d, double, 3)
   vtkVector3Cross(vtkVector3d, double)
 };
+
+#ifndef VTK_LEGACY_REMOVE
+template<typename T>
+const T& vtkVector2<T>::X() const
+{
+  VTK_LEGACY_REPLACED_BODY(vtkVector2::X, "VTK 6.0", vtkVector2::GetX);
+  return this->GetX();
+}
+
+template<typename T>
+const T& vtkVector2<T>::Y() const
+{
+  VTK_LEGACY_REPLACED_BODY(vtkVector2::Y, "VTK 6.0", vtkVector2::GetY);
+  return this->GetY();
+}
+
+template<typename T>
+const T& vtkVector3<T>::X() const
+{
+  VTK_LEGACY_REPLACED_BODY(vtkVector3::X, "VTK 6.0", vtkVector3::GetX);
+  return this->GetX();
+}
+
+template<typename T>
+const T& vtkVector3<T>::Y() const
+{
+  VTK_LEGACY_REPLACED_BODY(vtkVector3::Y, "VTK 6.0", vtkVector3::GetY);
+  return this->GetY();
+}
+
+template<typename T>
+const T& vtkVector3<T>::Z() const
+{
+  VTK_LEGACY_REPLACED_BODY(vtkVector3::Z, "VTK 6.0", vtkVector3::GetZ);
+  return this->GetZ();
+}
+#endif // VTK_LEGACY_REMOVE
 
 #endif // __vtkVector_h
 // VTK-HeaderTest-Exclude: vtkVector.h

@@ -106,8 +106,8 @@ void Quad::InsertChild(vtkVector2f& p, vtkIdType vert, float x1, float y1, float
   // Compute the split point, and the quadrant in which to insert p.
   float sx = (x1 + x2) * .5f;
   float sy = (y1 + y2) * .5f;
-  bool right = p.X() >= sx;
-  bool bottom = p.Y() >= sy;
+  bool right = p.GetX() >= sx;
+  bool bottom = p.GetY() >= sy;
   int i = (bottom << 1) + right;
 
   // Recursively insert into the child node.
@@ -140,8 +140,8 @@ void Quad::ForceAccumulate(float alpha, float charge)
         }
       c->ForceAccumulate(alpha, charge);
       this->Charge += c->Charge;
-      cx += c->Charge * c->Center.X();
-      cy += c->Charge * c->Center.Y();
+      cx += c->Charge * c->Center.GetX();
+      cy += c->Charge * c->Center.GetY();
       }
     }
   if (this->ValidPoint)
@@ -149,14 +149,14 @@ void Quad::ForceAccumulate(float alpha, float charge)
     // Jitter internal nodes that are coincident
     if (!this->Leaf)
       {
-      this->Point.SetX(this->Point.X() + static_cast<float>(vtkMath::Random()) - 0.5f);
-      this->Point.SetY(this->Point.Y() + static_cast<float>(vtkMath::Random()) - 0.5f);
+      this->Point.SetX(this->Point.GetX() + static_cast<float>(vtkMath::Random()) - 0.5f);
+      this->Point.SetY(this->Point.GetY() + static_cast<float>(vtkMath::Random()) - 0.5f);
       }
     float k = alpha * charge;
     this->PointCharge = k;
     this->Charge += this->PointCharge;
-    cx += k * this->Point.X();
-    cy += k * this->Point.Y();
+    cx += k * this->Point.GetX();
+    cy += k * this->Point.GetY();
     }
   this->Center = vtkVector2f(cx / this->Charge, cy / this->Charge);
 }
@@ -165,23 +165,23 @@ void Quad::Repulse(vtkVector2f &force, vtkVector2f &p, vtkIdType vert, float x1,
 {
   if (this->Vertex != vert)
     {
-    float dx = this->Center.X() - p.X();
-    float dy = this->Center.Y() - p.Y();
+    float dx = this->Center.GetX() - p.GetX();
+    float dy = this->Center.GetY() - p.GetY();
     float dn = 1.0f / sqrt(dx * dx + dy * dy);
 
     // Barnes-Hut criterion.
     if ((x2 - x1) * dn < theta)
       {
       float k = this->Charge * dn * dn;
-      force.SetX(force.X() - dx * k);
-      force.SetY(force.Y() - dy * k);
+      force.SetX(force.GetX() - dx * k);
+      force.SetY(force.GetY() - dy * k);
       return;
       }
     else if (this->ValidPoint && !vtkMath::IsNan(dn) && !vtkMath::IsInf(dn))
       {
       float k = this->PointCharge * dn * dn;
-      force.SetX(force.X() - dx * k);
-      force.SetY(force.Y() - dy * k);
+      force.SetX(force.GetX() - dx * k);
+      force.SetY(force.GetY() - dy * k);
       }
     }
   if (this->Charge)
@@ -257,8 +257,8 @@ void vtkIncrementalForceLayout::UpdatePositions()
     vtkIdType t = this->Graph->GetTargetVertex(e);
     vtkVector2f& sPos = this->Impl->GetPosition(s);
     vtkVector2f& tPos = this->Impl->GetPosition(t);
-    float x = tPos.X() - sPos.X();
-    float y = tPos.Y() - sPos.Y();
+    float x = tPos.GetX() - sPos.GetX();
+    float y = tPos.GetY() - sPos.GetY();
     if (float l = (x * x + y * y))
       {
       float sqrtl = sqrt(l);
@@ -270,14 +270,14 @@ void vtkIncrementalForceLayout::UpdatePositions()
       float k = sWeight / (tWeight + sWeight);
       if (t != this->Fixed)
         {
-        tPos.SetX(tPos.X() - x * k);
-        tPos.SetY(tPos.Y() - y * k);
+        tPos.SetX(tPos.GetX() - x * k);
+        tPos.SetY(tPos.GetY() - y * k);
         }
       k = 1 - k;
       if (s != this->Fixed)
         {
-        sPos.SetX(sPos.X() + x * k);
-        sPos.SetY(sPos.Y() + y * k);
+        sPos.SetX(sPos.GetX() + x * k);
+        sPos.SetY(sPos.GetY() + y * k);
         }
       }
     }
@@ -286,15 +286,15 @@ void vtkIncrementalForceLayout::UpdatePositions()
   float k = this->Alpha * this->Gravity;
   if (k)
     {
-    float x = this->GravityPoint.X();
-    float y = this->GravityPoint.Y();
+    float x = this->GravityPoint.GetX();
+    float y = this->GravityPoint.GetY();
     for (vtkIdType v = 0; v < numVerts; ++v)
       {
       vtkVector2f& vPos = this->Impl->GetPosition(v);
       if (v != this->Fixed)
         {
-        vPos.SetX(vPos.X() + (x - vPos.X()) * k);
-        vPos.SetY(vPos.Y() + (y - vPos.Y()) * k);
+        vPos.SetX(vPos.GetX() + (x - vPos.GetX()) * k);
+        vPos.SetY(vPos.GetY() + (y - vPos.GetY()) * k);
         }
       }
     }
@@ -307,10 +307,10 @@ void vtkIncrementalForceLayout::UpdatePositions()
   for (vtkIdType i = 0; i < numVerts; ++i)
     {
     vtkVector2f p = this->Impl->GetPosition(i);
-    x1 = std::min(x1, p.X());
-    x2 = std::max(x2, p.X());
-    y1 = std::min(y1, p.Y());
-    y2 = std::max(y2, p.Y());
+    x1 = std::min(x1, p.GetX());
+    x2 = std::max(x2, p.GetX());
+    y1 = std::min(y1, p.GetY());
+    y2 = std::max(y2, p.GetY());
     }
 
   // Squarify the bounds.
@@ -344,8 +344,8 @@ void vtkIncrementalForceLayout::UpdatePositions()
     vtkVector2f& vLastPos = this->Impl->LastPosition[v];
     if (v != this->Fixed)
       {
-      vPos.SetX(vPos.X() - (vLastPos.X() - vPos.X()) * this->Friction);
-      vPos.SetY(vPos.Y() - (vLastPos.Y() - vPos.Y()) * this->Friction);
+      vPos.SetX(vPos.GetX() - (vLastPos.GetX() - vPos.GetX()) * this->Friction);
+      vPos.SetY(vPos.GetY() - (vLastPos.GetY() - vPos.GetY()) * this->Friction);
       vLastPos = vPos;
       }
     }

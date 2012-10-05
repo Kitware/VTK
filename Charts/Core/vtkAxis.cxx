@@ -1221,12 +1221,12 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::RIGHT
       || this->Position == vtkAxis::PARALLEL)
     {
-    pixelRange = this->Position2.Y() - this->Position1.Y();
+    pixelRange = this->Position2.GetY() - this->Position1.GetY();
     tickPixelSpacing = 30;
     }
   else
     {
-    pixelRange = this->Position2.X() - this->Position1.X();
+    pixelRange = this->Position2.GetX() - this->Position1.GetX();
     tickPixelSpacing = 45;
     }
 

@@ -621,8 +621,8 @@ bool vtkTreeHeatmapItem::MouseMoveEvent(const vtkContextMouseEvent &event)
     {
     float pos[3];
     vtkNew<vtkMatrix3x3> inverse;
-    pos[0] = event.GetPos().X();
-    pos[1] = event.GetPos().Y();
+    pos[0] = event.GetPos().GetX();
+    pos[1] = event.GetPos().GetY();
     pos[2] = 0;
     this->GetScene()->GetTransform()->GetInverse(inverse.GetPointer());
     inverse->MultiplyPoint(pos, pos);

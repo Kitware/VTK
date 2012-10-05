@@ -78,8 +78,8 @@ void vtkContextPolygon::Clear()
 //-----------------------------------------------------------------------------
 bool vtkContextPolygon::Contains(const vtkVector2f &point) const
 {
-  float x = point.X();
-  float y = point.Y();
+  float x = point.GetX();
+  float y = point.GetY();
 
   // http://en.wikipedia.org/wiki/Point_in_polygon RayCasting method
   // shooting the ray along the x axis
@@ -90,14 +90,14 @@ bool vtkContextPolygon::Contains(const vtkVector2f &point) const
     const vtkVector2f &p1 = d->points[i];
     const vtkVector2f &p2 = d->points[(i+1) % d->points.size()];
 
-    if (y > std::min(p1.Y(), p2.Y()) &&
-        y <= std::max(p1.Y(),p2.Y()) &&
-        p1.Y() != p2.Y())
+    if (y > std::min(p1.GetY(), p2.GetY()) &&
+        y <= std::max(p1.GetY(),p2.GetY()) &&
+        p1.GetY() != p2.GetY())
       {
-      if (x <= std::max(p1.X(), p2.X()) )
+      if (x <= std::max(p1.GetX(), p2.GetX()) )
         {
-        xintersection = (y - p1.Y())*(p2.X() - p1.X())/(p2.Y() - p1.Y()) + p1.X();
-        if ( p1.X() == p2.X() || x <= xintersection)
+        xintersection = (y - p1.GetY())*(p2.GetX() - p1.GetX())/(p2.GetY() - p1.GetY()) + p1.GetX();
+        if ( p1.GetX() == p2.GetX() || x <= xintersection)
           {
           // each time we intersect we switch if we are in side or not
           inside = !inside;

@@ -620,8 +620,8 @@ bool vtkControlPointsItem::SelectPoints(const vtkVector2f& min, const vtkVector2
     {
     double point[4];
     this->GetControlPoint(i, point);
-    if (point[0] >= min.X() && point[0] <= max.X() &&
-        point[1] >= min.Y() && point[1] <= max.Y())
+    if (point[0] >= min.GetX() && point[0] <= max.GetX() &&
+        point[1] >= min.GetY() && point[1] <= max.GetY())
       {
       this->SelectPoint(i);
       atLeast1PointSelected = true;

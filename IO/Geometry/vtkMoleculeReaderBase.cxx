@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkStringArray.h"
+#include "vtkMolecule.h"
 
 #include <ctype.h>
 
@@ -123,6 +124,7 @@ vtkMoleculeReaderBase::vtkMoleculeReaderBase()
   this->FileName = NULL;
   this->BScale = 1.0;
   this->HBScale = 1.0;
+  this->Molecule = NULL;
   this->AtomType = NULL;
   this->AtomTypeStrings = 0;
   this->Points = NULL;
@@ -137,6 +139,7 @@ vtkMoleculeReaderBase::vtkMoleculeReaderBase()
   this->NumberOfAtoms = 0;
 
   this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(2);
 }
 
 vtkMoleculeReaderBase::~vtkMoleculeReaderBase()
@@ -191,6 +194,17 @@ vtkMoleculeReaderBase::~vtkMoleculeReaderBase()
     }
 }
 
+int vtkMoleculeReaderBase::FillOutputPortInformation(int port,
+                                                     vtkInformation *info)
+{
+  if (port == 1)
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMolecule");
+    return 1;
+    }
+  return this->Superclass::FillOutputPortInformation(port, info);
+}
+
 int vtkMoleculeReaderBase::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
@@ -202,6 +216,14 @@ int vtkMoleculeReaderBase::RequestData(
   // get the ouptut
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  vtkInformation *outMolInfo = outputVector->GetInformationObject(1);
+  if (outMolInfo)
+    {
+    this->Molecule = vtkMolecule::SafeDownCast(
+      outMolInfo->Get(vtkDataObject::DATA_OBJECT()));
+    }
+
 
   FILE *fp;
 
@@ -351,7 +373,6 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
     this->RGB = vtkUnsignedCharArray::New();
     }
   this->RGB->SetNumberOfComponents(3);
-//  this->RGB->SetNumberOfTuples(this->NumberOfAtoms);
   this->RGB->Allocate(3*this->NumberOfAtoms);
   this->RGB->SetName("rgb_colors");
 
@@ -372,7 +393,6 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
     this->Radii = vtkFloatArray::New();
     }
   this->Radii->SetNumberOfComponents(3);
-  //  this->Radii->SetNumberOfTuples(this->NumberOfAtoms);
   this->Radii->Allocate(3 * this->NumberOfAtoms);
   this->Radii->SetName("radius");
 
@@ -403,12 +423,23 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
   double X[3], Y[3];
   vtkIdType bond[2];
 
+  // Add atoms to the molecule first because an atom must
+  // must be declared before bonds involving it.
+  if (this->Molecule)
+    {
+    for(i = 0; i < this->NumberOfAtoms; i++)
+      {
+      newPts->GetPoint(i, X);
+      this->Molecule->AppendAtom(atype->GetValue(i) + 1, X[0], X[1], X[2]);
+      }
+    }
+
   nbonds = 0;
-  for(i = this->NumberOfAtoms - 1; i > 0; i--)
+  for (i = this->NumberOfAtoms - 1; i > 0; i--)
     {
     bond[0] = i;
     newPts->GetPoint(i, X);
-    for(j = i - 1; j >= 0 ; j--)
+    for (j = i - 1; j >= 0 ; j--)
       {
       /*
        * The outer loop index 'i' is AFTER the inner loop 'j': 'i'
@@ -466,28 +497,25 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
       bond[1] = j;
       newBonds->InsertNextCell(2, bond);
 
+      // Add bond to the molecule
+      if (this->Molecule)
+        {
+        this->Molecule->AppendBond(bond[0], bond[1]);
+        }
+
       nbonds++;
       }
     }
-  newBonds-> Squeeze();
+  newBonds->Squeeze();
   return nbonds;
 }
 
 int vtkMoleculeReaderBase::MakeAtomType(const char *atype)
 {
-  char      a, b;
-  int       anum=0;
+  int anum = 0;
+  char a = toupper(atype[0]);
+  char b = toupper(atype[1]);
 
-  a = atype[0];
-  if (islower(a))
-    {
-    a = toupper(a);
-    }
-  b = atype[1];
-  if (islower(b))
-    {
-    b = toupper(b);
-    }
   switch (a)
     {
   case 'A':

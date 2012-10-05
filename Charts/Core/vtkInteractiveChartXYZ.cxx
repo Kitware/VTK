@@ -899,6 +899,13 @@ void vtkInteractiveChartXYZ::ZoomAxes(int delta)
 //-----------------------------------------------------------------------------
 bool vtkInteractiveChartXYZ::Rotate(const vtkContextMouseEvent &mouse)
 {
+  // avoid NaNs in our transformation matrix if the scene has not yet been
+  // rendered.
+  if (this->Scene->GetSceneHeight() == 0 || this->Scene->GetSceneWidth() == 0)
+    {
+    return false;
+    }
+
   // Figure out how much the mouse has moved in plot coordinates
   vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
   vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
@@ -1094,8 +1101,8 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->ContextTransform->Concatenate(this->Scale.GetPointer());
   this->ContextTransform->Translate(mtranslation.GetData());
   this->ContextTransform->Translate(
-    this->Axes[0]->GetPosition1()[0] - this->Geometry.X(),
-    this->Axes[1]->GetPosition1()[1] - this->Geometry.Y(),
+    this->Axes[0]->GetPosition1()[0] - this->Geometry.GetX(),
+    this->Axes[1]->GetPosition1()[1] - this->Geometry.GetY(),
     this->Axes[2]->GetPosition1()[1]);
   this->ContextTransform->Concatenate(this->Transform.GetPointer());
 

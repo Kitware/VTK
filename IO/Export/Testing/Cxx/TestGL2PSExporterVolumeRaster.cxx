@@ -135,7 +135,6 @@ int TestGL2PSExporterVolumeRaster( int, char *[] )
       std::string("/TestGL2PSExporterVolumeRaster");
 
   exp->SetFilePrefix(fileprefix.c_str());
-  exp->WriteTimeStampOff(); // Otherwise hashes won't match
   exp->Write();
 
   return EXIT_SUCCESS;
