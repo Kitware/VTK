@@ -101,7 +101,7 @@ int TestXMLFileOutputWindow(int argc,char *argv[])
 
   // Get the length of the file
   sfin.seekg (0, std::ios::end);
-  const size_t slen = dfin.tellg();
+  const size_t slen = sfin.tellg();
   sfin.seekg (0, std::ios::beg);
   char * specifiedXML = new char[slen+1];
   sfin.read (specifiedXML, slen);
