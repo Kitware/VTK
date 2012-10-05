@@ -22,11 +22,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkRAdapter.h"
 #include "vtkAbstractArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkIntArray.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTree.h"
 #include "vtkArray.h"
 #include "vtkArrayExtents.h"
 #include "vtkArrayCoordinates.h"
@@ -34,10 +33,15 @@
 #include "vtkVariantArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
-#include "vtkStringArray.h"
 #include "vtkDataArrayCollection.h"
 #include "vtkArrayData.h"
 #include "vtkDataObjectCollection.h"
+#include "vtkTreeDFSIterator.h"
+#include "vtkSmartPointer.h"
+#include "vtkNew.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkMutableDirectedGraph.h"
 
 #include <map>
 
@@ -115,8 +119,9 @@ vtkDataArray* vtkRAdapter::RToVTKDataArray(SEXP variable)
   int j;
   int nr;
   int nc;
-  vtkDoubleArray* result;
-  double* data;
+  vtkDoubleArray * result;
+  double * data;
+
 
   if( Rf_isMatrix(variable) || Rf_isVector(variable) )
     {
@@ -458,6 +463,345 @@ vtkTable* vtkRAdapter::RToVTKTable(SEXP variable)
   return(result);
 
 }
+
+SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
+{
+  SEXP r_tree;
+  SEXP names;
+  SEXP edge;
+  SEXP edge_length;
+  SEXP Nnode;
+  SEXP node_label;
+  SEXP tip_label;
+  SEXP classname;
+
+
+  int nedge, nnode, ntip;
+
+  // R phylo tree is a list of 5 elements
+  PROTECT(r_tree = allocVector(VECSXP, 5));
+  PROTECT(names = allocVector(STRSXP, 5));
+
+  // traverse the tree to reorder the leaf vertices according to the
+  // phylo tree numbering rule;
+  // newNodeId is the checkup table that maps a vertexId(starting from 0)
+  // to it's corresponding R tree point id (staring from 1)
+  vtkIdType leafCount = 0;
+  vtkTreeDFSIterator* iter = vtkTreeDFSIterator::New();
+  iter->SetTree(tree);
+  int nVerts = tree->GetNumberOfVertices();
+  int newNodeId[nVerts];//including root vertex 0
+  while (iter->HasNext())
+    {// find out all the leaf nodes, and number them sequentially
+    vtkIdType vertexId = iter->Next();
+    newNodeId[vertexId] = 0;//initilize
+    if (tree->IsLeaf(vertexId))
+      {
+      leafCount++;
+      newNodeId[vertexId] = leafCount;
+      }
+    }
+
+  // second tree traverse to reorder the node vertices
+  int nodeId = leafCount;
+  iter->Restart();
+  vtkIdType vertexId = iter->Next();//skip the root (which id is zero)
+  while (iter->HasNext())
+    {
+    vertexId = iter->Next();
+    if (!tree->IsLeaf(vertexId))
+      {
+      nodeId++;
+      newNodeId[vertexId] = nodeId;
+      }
+    }
+
+  nedge = tree->GetNumberOfEdges() -1;// the first edge 0-1 does not count in R tree
+  ntip  = leafCount;
+  nnode = nedge - ntip + 1;
+
+  // fill in R variables
+  PROTECT(edge = allocMatrix(INTSXP, nedge,2));
+  PROTECT(Nnode = allocVector(INTSXP, 1));
+  PROTECT(tip_label = allocVector(STRSXP, ntip));
+  PROTECT(edge_length = allocVector(REALSXP, nedge));
+  PROTECT(node_label = allocVector(STRSXP, nnode));
+  INTEGER(Nnode)[0] = nnode;
+
+  int * e = INTEGER(edge);
+  double * e_len = REAL(edge_length);
+
+  // fill in e and e_len
+  int currentNode = ntip + 1;
+  vtkSmartPointer<vtkEdgeListIterator> edgeIterator = vtkSmartPointer<vtkEdgeListIterator>::New();
+  tree->GetEdges(edgeIterator);
+  vtkEdgeType vEdge = edgeIterator->Next();//skip the first empty edge (0,1) with weight 0
+  int i = 0;
+  vtkDoubleArray * weights = vtkDoubleArray::SafeDownCast((tree->GetEdgeData())->GetArray("weight"));
+  while(edgeIterator->HasNext())
+    {
+    vEdge = edgeIterator->Next();
+    e[i]  = newNodeId[vEdge.Source] ;
+    e[i + nedge] = newNodeId[vEdge.Target];
+
+    int eNum = tree->GetEdgeId(vEdge.Source, vEdge.Target);
+    e_len[i] = weights->GetValue(eNum);
+    i++;
+    }
+
+  // fill in  Nnode , tip_label and  node_label
+  // use GetAbstractArray() instead of GetArray()
+  vtkStringArray * labels = vtkStringArray::SafeDownCast((tree->GetVertexData())->GetAbstractArray("node name"));
+  iter->Restart();
+  vertexId = iter->Next();//skip the root
+  while (iter->HasNext())
+    {// find out all the leaf nodes, and number them sequentially
+    vertexId = iter->Next();
+    if (tree->IsLeaf(vertexId))
+      {
+      vtkStdString lab = labels->GetValue(vertexId);
+      SET_STRING_ELT(tip_label, newNodeId[vertexId]-1, mkChar(lab.c_str()));
+      }
+    else
+      {
+      vtkStdString lab = labels->GetValue(vertexId);
+      SET_STRING_ELT(node_label,newNodeId[vertexId]- ntip - 1, mkChar(lab.c_str())); //the starting id of the internal nodes is (ntip + 1)
+      }
+    }
+
+  // set all elments
+  SET_VECTOR_ELT(r_tree, 0, edge);
+  SET_VECTOR_ELT(r_tree, 1, Nnode);
+  SET_VECTOR_ELT(r_tree, 2, tip_label);
+  SET_VECTOR_ELT(r_tree, 3, edge_length);
+  SET_VECTOR_ELT(r_tree, 4, node_label);
+
+  SET_STRING_ELT(names, 0, mkChar("edge"));
+  SET_STRING_ELT(names, 1, mkChar("Nnode"));
+  SET_STRING_ELT(names, 2, mkChar("tip.label"));
+  SET_STRING_ELT(names, 3, mkChar("edge.length"));
+  SET_STRING_ELT(names, 4, mkChar("node.label"));
+
+  setAttrib(r_tree,R_NamesSymbol,names);
+
+  PROTECT(classname = allocVector(STRSXP, 1));
+  SET_STRING_ELT(classname, 0, mkChar("phylo"));
+  setAttrib(r_tree, R_ClassSymbol, classname);
+
+  UNPROTECT(8);
+  return r_tree;
+}
+
+
+
+vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
+{
+
+  int nedge, nnode, ntip;
+  vtkTree * tree = vtkTree::New();
+
+  if (isNewList(variable))
+    {
+    int nELT = length(variable);
+    if (nELT < 4)
+      {
+      vtkErrorMacro(<<"RToVTKTree():R tree list does not contain required four elements!");
+      return NULL;
+      }
+
+    //1) edge
+    int * edge;
+    SEXP r_edge = VECTOR_ELT(variable,0);
+    if (isInteger(r_edge))
+      {
+      edge = INTEGER(r_edge);
+      nedge = length(r_edge)/2;
+      }
+    else
+      {
+      vtkErrorMacro(<<"RToVTKTree(): \"edge\" array is not integer type. ");
+      return NULL;
+      }
+
+
+    //2)Nnode
+    SEXP r_nnode = VECTOR_ELT(variable, 1);
+    if (isInteger(r_nnode))
+      {
+      nnode =  INTEGER(r_nnode)[0];
+      if (length(r_nnode) != 1)
+        {
+        vtkErrorMacro(<<"RToVTKTree(): Expect a single scalar of \"Nnode\". ");
+        return NULL;
+        }
+      }
+    else
+      {
+      vtkErrorMacro(<<"RToVTKTree(): \"Nnode\" is not integer type. ");
+      return NULL;
+      }
+
+    //3) tip.label
+    SEXP r_tip_label = VECTOR_ELT(variable, 2);
+    ntip = nedge - nnode + 1;
+    vtkNew<vtkStringArray> tip_label;
+    tip_label->SetNumberOfValues(ntip);
+    if (isString(r_tip_label))
+      {
+      if (length(r_tip_label) != ntip)
+        {
+        vtkErrorMacro(<<"RToVTKTree(): \"node_label\"'s size does not match up with \"nnode\".");
+        return NULL;
+        }
+      for (int i = 0; i < ntip; i++)
+        {
+        const char * a = CHAR(STRING_ELT(r_tip_label,i));
+        tip_label->SetValue(i,a);
+        }
+      }
+
+    //4) edge.length
+    SEXP r_edge_length = VECTOR_ELT(variable, 3);
+    double * edge_length;
+    if (isReal(r_edge_length))
+      {
+      edge_length = REAL(r_edge_length);
+      if (nedge != length(r_edge_length))
+        {
+        vtkErrorMacro(<<"RToVTKTree():  \"edge_length\"'s size does not match up with \"nedge\".");
+        return NULL;
+        }
+      }
+
+    // 5) node.label (optional)
+    vtkNew<vtkStringArray> node_label;
+    node_label->SetNumberOfValues(nnode);
+    if ( nELT  == 5) //node labels provided by the r tree
+      {
+      SEXP r_node_label = VECTOR_ELT(variable, 4);
+
+      if (isString(r_node_label))
+        {
+        if (length(r_node_label) != nnode)
+          {
+          vtkErrorMacro(<<"RToVTKTree(): \"node_label\"'s size does not match up with \"nnode\". ");
+          return NULL;
+          }
+        for (int i = 0; i < nnode; i++)
+          {
+          node_label->SetValue(i,CHAR(STRING_ELT(r_node_label,i)));
+          }
+        }
+      }
+    else
+      {
+      for (int i = 0; i < nnode; i++)
+        {
+        node_label->SetValue(i,"");
+        }
+    }
+
+    //------------  Build the VTKTree -----------
+    vtkNew<vtkMutableDirectedGraph> builder;
+
+
+    // Create all of the tree vertice (number of edges +1)
+    // number of edges = nedge(in R tree)  + 1 (root edge in VTKTree)
+    int numOfEdges = nedge + 1;
+    for(int i = 0; i <= numOfEdges; i++)
+      {
+      builder->AddVertex();
+      }
+
+    builder->AddEdge(0, ntip + 1); //root edge:  0 -- first node
+    for(int i = 0; i < nedge; i++)
+      {
+      vtkIdType source = edge[i];
+      vtkIdType target = edge[i+nedge];
+      builder->AddEdge(source, target);
+      }
+
+
+    // Create the edge weight array
+    vtkNew<vtkDoubleArray> weights;
+    weights->SetNumberOfComponents(1);
+    weights->SetName("weight");
+    weights->SetNumberOfValues(numOfEdges);
+    weights->SetValue(0, 0.0);//root edge weight = 0.0
+    for (int i = 0; i < nedge; i++)
+      {
+      weights->SetValue(i+1, edge_length[i]);
+      }
+    builder->GetEdgeData()->AddArray(weights.GetPointer());
+
+
+    // Create the names array
+    // In R tree, the numeric id of the vertice is ordered such that the tips are listed first
+    // followed by the internal nodes. The order are matching up with the label arrays (tip_label and node_label).
+    vtkNew<vtkStringArray> names;
+    names->SetNumberOfComponents(1);
+    names->SetName("node name");
+    names->SetNumberOfValues(ntip + nnode + 1);
+    names->SetValue(0,""); //root name
+    for (int i = 0; i < ntip; i++)
+      {
+      names->SetValue(i + 1, tip_label->GetValue(i));
+      }
+    for (int i = 0; i < nnode; i++)
+      {
+        names->SetValue(i + ntip + 1, node_label->GetValue(i));
+      }
+    builder->GetVertexData()->AddArray(names.GetPointer());
+
+    if (!tree->CheckedShallowCopy(builder.GetPointer()))
+      {
+      vtkErrorMacro(<<"Edges do not create a valid tree.");
+      return NULL;
+      }
+
+    //Create the "node weight" array for the Vertices, in order to use vtkTreeLayoutStrategy for visulaizing the tree using vtkTreeHeatmapItem
+    double maxWeight = 0.0;
+    vtkNew<vtkDoubleArray> nodeWeights;
+    nodeWeights->SetNumberOfTuples(tree->GetNumberOfVertices());
+    for (vtkIdType vertex = 0; vertex < tree->GetNumberOfVertices(); ++vertex)
+      {
+      double weight = 0.0;
+      vtkIdType node = vertex;
+      vtkIdType parent = tree->GetParent(node);
+      while (parent != -1)
+        {
+        weight += weights->GetValue(tree->GetEdgeId(parent, node));
+        node = parent;
+        parent = tree->GetParent(node);
+        }
+
+      if (weight > maxWeight)
+        {
+        maxWeight = weight;
+        }
+      nodeWeights->SetValue(vertex, weight);
+      }
+    for (vtkIdType vertex = 0; vertex < tree->GetNumberOfVertices(); ++vertex)
+      {
+      if (tree->IsLeaf(vertex))
+        {
+        nodeWeights->SetValue(vertex, maxWeight);
+        }
+      }
+    nodeWeights->SetName("node weight");
+    tree->GetVertexData()->AddArray(nodeWeights.GetPointer());
+
+
+    return tree;
+    }
+  else
+    {
+    vtkErrorMacro(<<"RToVTKTree(): R variable is not a list. ");
+    return NULL;
+    }
+
+}
+
 
 void vtkRAdapter::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -306,6 +306,30 @@ void vtkRInterface::AssignVTKArrayToRVariable(vtkArray* da, const char* RVariabl
 
 }
 
+void vtkRInterface::AssignVTKTreeToRVariable(vtkTree* tr, const char* RVariableName)
+{
+
+  SEXP s;
+  s = this->vra->VTKTreeToR(tr);
+  defineVar(install(RVariableName), s, R_GlobalEnv);
+
+}
+
+
+vtkTree* vtkRInterface::AssignRVariableToVTKTree(const char* RVariableName)
+{
+
+  SEXP s;
+
+  s = findVar(install(RVariableName), R_GlobalEnv);
+
+  if(s != R_UnboundValue)
+    return(this->vra->RToVTKTree(s));
+  else
+    return(0);
+
+}
+
 vtkDataArray* vtkRInterface::AssignRVariableToVTKDataArray(const char* RVariableName)
 {
 
