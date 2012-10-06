@@ -36,7 +36,7 @@
 // Reference values
 vtkIdType cardCellDistanceSelection[] =
 {
-  54,
+  125,
   54,
   108,
   45,
@@ -137,20 +137,32 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   mesh->SetBlock( 0, reader->GetOutput() );
 
   // *****************************************************************************
-  // 0. Selection along inner segment with endpoints (0,0,0) and (.23, 04,.04)
+  // 0. Selection with distance of 2 from cell 7000
   // *****************************************************************************
 
-  // Create selection along one line segment
+  // Create a selection, sel0, of cell with index 7000
+  vtkSmartPointer<vtkIdTypeArray> selArr0 = vtkSmartPointer<vtkIdTypeArray>::New();
+  selArr0->InsertNextValue( 7000 );
+  vtkSmartPointer<vtkSelectionNode> selNode0 = vtkSmartPointer<vtkSelectionNode>::New();
+  selNode0->SetContentType( vtkSelectionNode::INDICES );
+  selNode0->SetFieldType( vtkSelectionNode::CELL );
+  selNode0->GetProperties()->Set( vtkSelectionNode::COMPOSITE_INDEX(), 1 );
+  selNode0->SetSelectionList( selArr0 );
+  vtkSmartPointer<vtkSelection> sel0 = vtkSmartPointer<vtkSelection>::New();
+  sel0->AddNode( selNode0 );
+
+  // Create selection up to topological distance of 2
   vtkSmartPointer<vtkCellDistanceSelector> ls0 = vtkSmartPointer<vtkCellDistanceSelector>::New();
-  ls0->SetInputData( mesh );
+  ls0->SetInputData( 0, sel0 );
+  ls0->SetInputData( 1, mesh );
+  ls0->SetDistance( 2 );
 
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es0 =  vtkSmartPointer<vtkExtractSelection>::New();
   es0->SetInputData( 0, mesh );
   es0->SetInputConnection( 1, ls0->GetOutputPort() );
   es0->Update();
-
-  testIntValue += CheckExtractedUGrid( es0, "Selection (0,0,0)-(0.23,0.04,0.04)", 0, true );
+  testIntValue += CheckExtractedUGrid( es0, "Selection d({7000})<3", 0, true );
 
   return testIntValue;
 }
