@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 // This class has been initially developed in the frame of CEA's Love visualization software development <br>
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
 // BP12, F-91297 Arpajon, France. <br>
+// Modified and integrated into VTK, Kitware SAS 2012
 // This class was implemented by Thierry Carrard, Charles Pignerol, and Philippe Pebay.
 
 #ifndef VTK_LINEAR_SELECTOR_H
