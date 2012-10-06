@@ -19,6 +19,8 @@ PURPOSE.  See the above copyright notice for more information.
 // cells (a neighbor cell is a cell that shares a vertex/edge/face), up to
 // a given topological distance to the selected neighborhood (number of times
 // we add neighbor cells).
+// This filter takes a vtkSelection and a vtkCompositeDataSet as inputs.
+// It outputs a vtkSelection identifying all the selected cells.
 //
 // .SECTION Thanks
 // This file has been initially developed in the frame of CEA's Love visualization software development <br>

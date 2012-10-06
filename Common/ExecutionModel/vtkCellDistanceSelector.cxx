@@ -62,7 +62,6 @@ int vtkCellDistanceSelector::FillInputPortInformation( int port, vtkInformation*
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet" );
       break;
     }
-  //info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 0);
   return 1;
 }
 
@@ -94,10 +93,11 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
   vtkSelection* inputSelection =
     vtkSelection::SafeDownCast( inSelectionInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
-  vtkCompositeDataSet* compositeInput = vtkCompositeDataSet::SafeDownCast( inDataObjectInfo->Get(vtkDataObject::DATA_OBJECT() ) );
+  vtkCompositeDataSet* compositeInput =
+    vtkCompositeDataSet::SafeDownCast( inDataObjectInfo->Get(vtkDataObject::DATA_OBJECT() ) );
 
-  vtkSelection* output
-    = vtkSelection::SafeDownCast(outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  vtkSelection* output =
+    vtkSelection::SafeDownCast(outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   if ( ! compositeInput )
     {
@@ -135,7 +135,7 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
     while ( selNodeIt != partSelections[composite_index].end() )
       {
       vtkSelectionNode* selectionNode = *selNodeIt;
-      ++selNodeIt;
+      ++ selNodeIt;
 
       vtkDataArray* selectionList = vtkDataArray::SafeDownCast( selectionNode->GetSelectionList() );
       vtkIdType numSeeds = selectionList->GetNumberOfTuples();
@@ -176,15 +176,16 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
             }
           else
             {
-            vtkWarningMacro(<<"Selection's cell index out of bounds ("<<cellIndex<<"/"<<numCells<<")\n");
+            vtkWarningMacro(<<"Cell index out of bounds in selection ("<<cellIndex<<"/"<<numCells<<")\n");
             }
           }
         outIndices->SetNumberOfTuples( seedCount );
 
         vtkSmartPointer<vtkIdTypeArray> finalIndices = vtkSmartPointer<vtkIdTypeArray>::New();
         vtkSmartPointer<vtkIntArray> cellDistance = vtkSmartPointer<vtkIntArray>::New();
-        cellDistance->SetName("CellDistance");
+        cellDistance->SetName("Cell Distance");
 
+        // Iterate over increasing topological distance until desired distance is met
         for ( int d = 0; d < this->Distance; ++ d )
           {
           vtkSmartPointer<vtkIdTypeArray> nextIndices = vtkSmartPointer<vtkIdTypeArray>::New();
@@ -328,7 +329,7 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
             }
 
           outIndices = nextIndices;
-          } // for d in [0,Distance[
+          } // for ( int d = 0; d < this->Distance; ++ d )
 
         if( ( ! this->Distance && this->IncludeSeed ) || ( this->Distance > 0 && this->AddIntermediate ) )
           {
@@ -350,9 +351,9 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
           outSelNode->GetSelectionData()->AddArray( cellDistance );
           output->AddNode( outSelNode );
           }
-        }
-      }
-    }
+        } // if numSeeds > 0 etc.
+      } // while selNodeIt
+    } // while inputIterator
 
   return 1;
 }
