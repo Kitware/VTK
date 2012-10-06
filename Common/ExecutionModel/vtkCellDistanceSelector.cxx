@@ -355,5 +355,8 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
       } // while selNodeIt
     } // while inputIterator
 
+  // Clean up
+  inputIterator->Delete();
+
   return 1;
 }
