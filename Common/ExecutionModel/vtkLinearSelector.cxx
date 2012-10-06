@@ -93,7 +93,7 @@ void vtkLinearSelector::PrintSelf( ostream& os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 int vtkLinearSelector::FillInputPortInformation( int vtkNotUsed( port ),
-                                                  vtkInformation *info )
+                                                 vtkInformation *info )
 {
   info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet" );
 
@@ -102,8 +102,8 @@ int vtkLinearSelector::FillInputPortInformation( int vtkNotUsed( port ),
 
 // ----------------------------------------------------------------------
 int vtkLinearSelector::RequestData( vtkInformation* vtkNotUsed( request ),
-                                     vtkInformationVector** inputVector,
-                                     vtkInformationVector* outputVector )
+                                    vtkInformationVector** inputVector,
+                                    vtkInformationVector* outputVector )
 {
   // Get information objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
