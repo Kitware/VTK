@@ -63,23 +63,24 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define USE_VTK_COSMO
 #endif
 
-#include "vtkPCosmoReader.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkCellArray.h"
+#include "vtkDataObject.h"
+#include "vtkDummyController.h"
+#include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkMultiProcessController.h"
-#include "vtkSmartPointer.h"
-#include "vtkDummyController.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkFloatArray.h"
-#include "vtkPoints.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkIntArray.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
+#include "vtkPCosmoReader.h"
 #include "vtkPointData.h"
-#include "vtkDataObject.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 #include "vtkStdString.h"
-#include "vtkCellArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <vector>
 
@@ -110,6 +111,7 @@ vtkPCosmoReader::vtkPCosmoReader()
   this->Overlap = 5;
   this->ReadMode = 1;
   this->CosmoFormat = 1;
+  this->ByteSwap = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -253,6 +255,16 @@ int vtkPCosmoReader::RequestData(
     {
     distribute.setParameters(this->FileName, this->RL, "BLOCK");
     }
+
+  if( this->ByteSwap )
+    {
+    distribute.setByteSwap(true);
+    }
+  else
+    {
+    distribute.setByteSwap(false);
+    }
+
   exchange.setParameters(this->RL, this->Overlap);
 
   distribute.initialize();
@@ -311,7 +323,7 @@ int vtkPCosmoReader::RequestData(
   vtkFloatArray* m = vtkFloatArray::New();
   m->SetName("mass");
   m->Allocate(numberOfParticles);
-  vtkIntArray* uid = vtkIntArray::New();
+  vtkIdTypeArray* uid = vtkIdTypeArray::New();
   uid->SetName("tag");
   uid->Allocate(numberOfParticles);
   vtkIntArray* owner = vtkIntArray::New();
@@ -354,7 +366,7 @@ int vtkPCosmoReader::RequestData(
     m->InsertNextValue(pt[0]);
 
     // insert tag
-    int particle = tag->back();
+    vtkTypeInt64 particle = tag->back();
     tag->pop_back();
 
     uid->InsertNextValue(particle);

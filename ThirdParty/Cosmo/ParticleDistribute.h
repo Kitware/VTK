@@ -85,6 +85,9 @@ public:
   ParticleDistribute();
   ~ParticleDistribute();
 
+  // Set whether to byte swap data on read
+  void setByteSwap(bool byteSwap){this->ByteSwap=byteSwap;};
+
   // Set parameters particle distribution
   void setParameters(
         const string& inName,   // Base file name to read from
@@ -173,9 +176,15 @@ public:
   vector<POSVEL_T>* getMass()           { return this->ms; }
   vector<ID_T>* getTag()                { return this->tag; }
 
+protected:
+
+  // Swap endian of the given buffer pointing to a memory location of Nb bytes.
+  void SwapEndian(void* Addr, const int Nb);
+
 private:
   int    myProc;                // My processor number
   int    numProc;               // Total number of processors
+  bool ByteSwap;                // Flag that indicates whether to swap endian
 
   string baseFile;              // Base name of input particle files
   int    inputType;             // BLOCK or RECORD structure
