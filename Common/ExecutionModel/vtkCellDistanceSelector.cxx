@@ -267,9 +267,9 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
             dim[2]--;
 
             int nIndices = outIndices->GetNumberOfTuples();
-            for ( int i = 0; i < nIndices; ++ i )
+            for ( int idx = 0; idx < nIndices; ++ i )
               {
-              vtkIdType cellIndex = static_cast<vtkIdType>( outIndices->GetTuple1( i ) );
+              vtkIdType cellIndex = static_cast<vtkIdType>( outIndices->GetTuple1( idx ) );
               vtkIdType cellId = cellIndex;
               vtkIdType ijk[3];
               for ( int c = 0; c < 3; c++)
@@ -290,9 +290,12 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
                   {
                   for ( int l = -1; l <= 1; ++ l )
                     {
-                    int I = ijk[0] + l, J = ijk[1] + j, K = ijk[2] + k;
-                    if ( i >= 0 && I < dim[0] && J >= 0 && J
-                        < dim[1] && K >= 0 && K < dim[2])
+                    int I = ijk[0] + l;
+                    int J = ijk[1] + j;
+                    int K = ijk[2] + k;
+                    if ( I >= 0 && I < dim[0] 
+                         && J >= 0 && J < dim[1] 
+                         && K >= 0 && K < dim[2] )
                       {
                       cellId = I + J * dim[0] + K * dim[0] * dim[1];
                       if( cellId >= 0 && cellId < numCells )
@@ -311,22 +314,22 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
                     } // l
                   } // j
                 } // k
-              }
+              } // idx
             } // else if ( sg_input )
           else
             {
             vtkErrorMacro(<<"Unsupported data type : "<<input->GetClassName()<<"\n");
             }
 
-          if( ( ! d && this->IncludeSeed ) || ( d > 0 && this->AddIntermediate ) )
+          if ( ( ! d && this->IncludeSeed ) || ( d > 0 && this->AddIntermediate ) )
             {
             int ni = outIndices->GetNumberOfTuples();
             for( int i = 0; i < ni; ++ i )
               {
               cellDistance->InsertNextTuple1( d );
               finalIndices->InsertNextTuple1( outIndices->GetTuple1( i ) );
-              }
-            }
+              } // i
+            } // if ( ( ! d && this->IncludeSeed ) || ( d > 0 && this->AddIntermediate ) )
 
           outIndices = nextIndices;
           } // for ( int d = 0; d < this->Distance; ++ d )
@@ -334,11 +337,11 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
         if( ( ! this->Distance && this->IncludeSeed ) || ( this->Distance > 0 && this->AddIntermediate ) )
           {
           int ni = outIndices->GetNumberOfTuples();
-          for( int i=0;i<ni;++ i )
+          for( int i = 0; i < ni; ++ i )
             {
             cellDistance->InsertNextTuple1( this->Distance );
             finalIndices->InsertNextTuple1( outIndices->GetTuple1( i ) );
-            }
+            } // i
           }
 
         if( finalIndices->GetNumberOfTuples() > 0 )
