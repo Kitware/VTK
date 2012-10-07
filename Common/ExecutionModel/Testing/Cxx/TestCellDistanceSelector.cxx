@@ -39,7 +39,7 @@ vtkIdType cardCellDistanceSelection[] =
   125,
   16,
   19,
-  45,
+  73,
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
     }
 
   // Verify selection cells
-  cerr << "Original cell Ids (types): ";
+  cerr << "Original cell Ids: ";
   ugrid->GetCellData()->SetActiveScalars( "vtkOriginalCellIds" );
   vtkDataArray* oCellIds = ugrid->GetCellData()->GetScalars();
   for ( vtkIdType i = 0; i < oCellIds->GetNumberOfTuples(); ++ i )
@@ -137,12 +137,12 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   mesh->SetBlock( 0, reader->GetOutput() );
 
   // *****************************************************************************
-  // 0. Selection within distance of 2 from cell 7000
+  // 0. Selection within distance of 2 from cell 7010
   // *****************************************************************************
 
-  // Create a selection, sel0, of cell with index 7000
+  // Create a selection, sel0, of cell with index 7010
   vtkSmartPointer<vtkIdTypeArray> selArr0 = vtkSmartPointer<vtkIdTypeArray>::New();
-  selArr0->InsertNextValue( 7000 );
+  selArr0->InsertNextValue( 7010 );
   vtkSmartPointer<vtkSelectionNode> selNode0 = vtkSmartPointer<vtkSelectionNode>::New();
   selNode0->SetContentType( vtkSelectionNode::INDICES );
   selNode0->SetFieldType( vtkSelectionNode::CELL );
@@ -162,7 +162,7 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   es0->SetInputData( 0, mesh );
   es0->SetInputConnection( 1, ls0->GetOutputPort() );
   es0->Update();
-  testIntValue += CheckExtractedUGrid( es0, "Selection d({7000})<3", 0, true );
+  testIntValue += CheckExtractedUGrid( es0, "Selection d({7010})<3", 0, true );
 
   // *****************************************************************************
   // 1. Selection at distance of 1 from ridge 7643-7499-7355-7211, excluding it
@@ -197,7 +197,7 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   testIntValue += CheckExtractedUGrid( es1, "Selection d({7643-7499-7355-7211})=1", 1, true );
 
   // *****************************************************************************
-  // 2. Selection at distance of exactly 2 from corner 7632
+  // 2. Selection at distance of 2 from corner 7632
   // *****************************************************************************
 
   // Create a selection, sel2, of cell with index 7632
@@ -227,8 +227,34 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   testIntValue += CheckExtractedUGrid( es2, "Selection d({7632})=2", 2, true );
 
   // *****************************************************************************
-  // 3. Selection at distance of exactly 2 from corner 7632
+  // 3. Selection within distance of 1 from cells 6413, 7268, and 7399
   // *****************************************************************************
+
+  // Create a selection, sel3, of cells with indices 6413, 7268, and 7399
+  vtkSmartPointer<vtkIdTypeArray> selArr3 = vtkSmartPointer<vtkIdTypeArray>::New();
+  selArr3->InsertNextValue( 6413 );
+  selArr3->InsertNextValue( 7268 );
+  selArr3->InsertNextValue( 7399 );
+  vtkSmartPointer<vtkSelectionNode> selNode3 = vtkSmartPointer<vtkSelectionNode>::New();
+  selNode3->SetContentType( vtkSelectionNode::INDICES );
+  selNode3->SetFieldType( vtkSelectionNode::CELL );
+  selNode3->GetProperties()->Set( vtkSelectionNode::COMPOSITE_INDEX(), 1 );
+  selNode3->SetSelectionList( selArr3 );
+  vtkSmartPointer<vtkSelection> sel3 = vtkSmartPointer<vtkSelection>::New();
+  sel3->AddNode( selNode3 );
+
+  // Create selection within distance of 1
+  vtkSmartPointer<vtkCellDistanceSelector> ls3 = vtkSmartPointer<vtkCellDistanceSelector>::New();
+  ls3->SetInputData( 0, sel3 );
+  ls3->SetInputData( 1, mesh );
+  ls3->SetDistance( 1 );
+
+  // Extract selection from mesh
+  vtkSmartPointer<vtkExtractSelection> es3 =  vtkSmartPointer<vtkExtractSelection>::New();
+  es3->SetInputData( 0, mesh );
+  es3->SetInputConnection( 1, ls3->GetOutputPort() );
+  es3->Update();
+  testIntValue += CheckExtractedUGrid( es3, "Selection d({6413,7268,7399})=1", 3, true );
 
   return testIntValue;
 }
