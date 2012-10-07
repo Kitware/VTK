@@ -3,10 +3,12 @@ set(Module_SRCS
   vtkErrorCode.cxx
   vtkFunctionParser.cxx
   vtkHeap.cxx
+  vtkPolygonBuilder.cxx
   )
 
 set_source_files_properties(
   vtkErrorCode.cxx
+  vtkPolygonBuilder
   WRAP_EXCLUDE
   )
 

@@ -3,4 +3,6 @@ vtk_module(vtkCommonMisc
     StandAlone
   DEPENDS
     vtkCommonMath
+  TEST_DEPENDS
+    vtkTestingCore
   )
