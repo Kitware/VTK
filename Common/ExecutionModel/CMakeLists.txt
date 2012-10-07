@@ -52,8 +52,6 @@ SET(Module_SRCS
   vtkUndirectedGraphAlgorithm.cxx
   vtkUnstructuredGridAlgorithm.cxx
   vtkSelectionAlgorithm.cxx
-  vtkLinearSelector.cxx
-  vtkCellDistanceSelector.cxx
   vtkExtentRCBPartitioner.cxx
   vtkUniformGridPartitioner.cxx
   # New AMR classes
