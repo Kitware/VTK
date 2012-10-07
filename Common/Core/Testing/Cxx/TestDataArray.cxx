@@ -74,7 +74,7 @@ int TestDataArray(int,char *[])
   farray->SetNumberOfComponents(3);
   for ( cc = 0; cc < 10; cc ++ )
     {
-    farray->InsertNextTuple3( cc + 0.1, cc + 0.2, cc + 0.3);
+    farray->InsertNextTuple3( cc + 0.125, cc + 0.250, cc + 0.375);
     }
   farray->RemoveFirstTuple();
   farray->RemoveTuple(3);
@@ -85,9 +85,9 @@ int TestDataArray(int,char *[])
     {
     double* fa = farray->GetTuple3(cc);
     double fc[3];
-    fc[0] = ca[cc] + .1;
-    fc[1] = ca[cc] + .2;
-    fc[2] = ca[cc] + .3;
+    fc[0] = ca[cc] + .125;
+    fc[1] = ca[cc] + .250;
+    fc[2] = ca[cc] + .375;
     for (int i = 0; i < 3; i++)
       {
       if (fa[i] != fc[i])
