@@ -811,7 +811,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
     switch (inScalars->GetDataType())
       {
       vtkTemplateMacro(
-        ContourGrid(this, exExt, static_cast<VTK_TT *>(scalars), input, output, inScalars, this->GenerateTriangles));
+        ContourGrid(this, exExt, static_cast<VTK_TT *>(scalars), input, output, inScalars, this->GenerateTriangles!=0));
       }//switch
     }
   else //multiple components - have to convert
@@ -821,7 +821,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
     image->Allocate(dataSize*image->GetNumberOfComponents());
     inScalars->GetTuples(0,dataSize,image);
     double *scalars = image->GetPointer(0);
-    ContourGrid(this, exExt, scalars, input, output, inScalars, this->GenerateTriangles);
+    ContourGrid(this, exExt, scalars, input, output, inScalars, this->GenerateTriangles!=0);
     image->Delete();
     }
 

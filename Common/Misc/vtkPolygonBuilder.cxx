@@ -35,7 +35,7 @@ bool vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
     }
 
   int i;
-  VertexRef v;
+  VertexRef v(0);
   for(i=0; i<3; i++)
     {
     if(FindEdge(abc[(i+1)%3],abc[(i+2)%3],v))

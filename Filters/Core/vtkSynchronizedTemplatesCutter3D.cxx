@@ -528,7 +528,7 @@ void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(vtkImageData *data,
 
 
   // Check data type and execute appropriate function
-  ContourImage(this, exExt, data, output, (double *)0, this->GenerateTriangles);
+  ContourImage(this, exExt, data, output, (double *)0, this->GenerateTriangles!=0);
 }
 
 //----------------------------------------------------------------------------

@@ -29,8 +29,8 @@
 #include "vtkCommonMiscModule.h" // For export macro
 #include <vector> //for private data members
 #include "vtkType.h" //for basic types
-#include <stddef.h>
-
+#include <stddef.h> //for size_t
+#include "vtkObject.h"
 class vtkIdList;
 
 class VTKCOMMONMISC_EXPORT vtkPolygonBuilder
@@ -59,3 +59,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkPolygonBuilder.h

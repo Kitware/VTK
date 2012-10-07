@@ -723,7 +723,7 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
     {
     vtkTemplateMacro(
       ContourRectilinearGrid(this, this->ExecuteExtent, data,
-                             output, (VTK_TT *)ptr, inScalars,this->GenerateTriangles));
+                             output, (VTK_TT *)ptr, inScalars,this->GenerateTriangles!=0));
     }
 
   return 1;

@@ -618,7 +618,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   vtkIdType progressInterval = numCuts/20 + 1;
   int cut=0;
 
-  ContourBuilder builder(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles);
+  ContourBuilder builder(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
   if ( this->SortBy == VTK_SORT_BY_CELL )
     {
     // Loop over all contour values.  Then for each contour value,
@@ -850,7 +850,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   cellScalars->SetNumberOfComponents(cutScalars->GetNumberOfComponents());
   cellScalars->Allocate(VTK_CELL_SIZE*cutScalars->GetNumberOfComponents());
 
-  ContourBuilder builder(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles);
+  ContourBuilder builder(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
   if ( this->SortBy == VTK_SORT_BY_CELL )
     {
     // Loop over all contour values.  Then for each contour value,
