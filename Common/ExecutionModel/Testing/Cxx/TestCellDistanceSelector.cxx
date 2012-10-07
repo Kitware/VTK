@@ -38,7 +38,7 @@ vtkIdType cardCellDistanceSelection[] =
 {
   125,
   16,
-  108,
+  19,
   45,
 };
 
@@ -168,7 +168,7 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   // 1. Selection at distance of 1 from ridge 7643-7499-7355-7211, excluding it
   // *****************************************************************************
 
-  // Create a selection, sel1, of cell with index 7643
+  // Create a selection, sel1, of cells with indices 7643-7499-7355-7211
   vtkSmartPointer<vtkIdTypeArray> selArr1 = vtkSmartPointer<vtkIdTypeArray>::New();
   selArr1->InsertNextValue( 7643 );
   selArr1->InsertNextValue( 7499 );
@@ -195,6 +195,36 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   es1->SetInputConnection( 1, ls1->GetOutputPort() );
   es1->Update();
   testIntValue += CheckExtractedUGrid( es1, "Selection d({7643-7499-7355-7211})=1", 1, true );
+
+  // *****************************************************************************
+  // 2. Selection at distance of exactly 2 from corner 7632
+  // *****************************************************************************
+
+  // Create a selection, sel2, of cell with index 7632
+  vtkSmartPointer<vtkIdTypeArray> selArr2 = vtkSmartPointer<vtkIdTypeArray>::New();
+  selArr2->InsertNextValue( 7632 );
+  vtkSmartPointer<vtkSelectionNode> selNode2 = vtkSmartPointer<vtkSelectionNode>::New();
+  selNode2->SetContentType( vtkSelectionNode::INDICES );
+  selNode2->SetFieldType( vtkSelectionNode::CELL );
+  selNode2->GetProperties()->Set( vtkSelectionNode::COMPOSITE_INDEX(), 1 );
+  selNode2->SetSelectionList( selArr2 );
+  vtkSmartPointer<vtkSelection> sel2 = vtkSmartPointer<vtkSelection>::New();
+  sel2->AddNode( selNode2 );
+
+  // Create selection at distance of 2
+  vtkSmartPointer<vtkCellDistanceSelector> ls2 = vtkSmartPointer<vtkCellDistanceSelector>::New();
+  ls2->SetInputData( 0, sel2 );
+  ls2->SetInputData( 1, mesh );
+  ls2->SetDistance( 2 );
+  ls2->IncludeSeedOff();
+  ls2->AddIntermediateOff();
+
+  // Extract selection from mesh
+  vtkSmartPointer<vtkExtractSelection> es2 =  vtkSmartPointer<vtkExtractSelection>::New();
+  es2->SetInputData( 0, mesh );
+  es2->SetInputConnection( 1, ls2->GetOutputPort() );
+  es2->Update();
+  testIntValue += CheckExtractedUGrid( es2, "Selection d({7632})=2", 2, true );
 
   return testIntValue;
 }
