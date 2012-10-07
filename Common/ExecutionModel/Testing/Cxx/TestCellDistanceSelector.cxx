@@ -226,5 +226,9 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   es2->Update();
   testIntValue += CheckExtractedUGrid( es2, "Selection d({7632})=2", 2, true );
 
+  // *****************************************************************************
+  // 3. Selection at distance of exactly 2 from corner 7632
+  // *****************************************************************************
+
   return testIntValue;
 }
