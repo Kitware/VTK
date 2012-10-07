@@ -284,13 +284,13 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
                   cellId /= dim[c];
                   }
                 }
-              for ( int k = -1; k <= 1; k++)
+              for ( int k = -1; k <= 1; ++ k )
                 {
-                for ( int j = -1; j <= 1; j++)
+                for ( int j = -1; j <= 1; ++ j )
                   {
-                  for ( int l = -1; l <= 1; ++ l )
+                  for ( int i = -1; i <= 1; ++ i )
                     {
-                    int I = ijk[0] + l;
+                    int I = ijk[0] + i;
                     int J = ijk[1] + j;
                     int K = ijk[2] + k;
                     if ( I >= 0 && I < dim[0] 
@@ -311,7 +311,7 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
                         vtkWarningMacro(<<"Selection's cell index out of bounds ("<<cellId<<"/"<<numCells<<")\n");
                         }
                       }
-                    } // l
+                    } // i
                   } // j
                 } // k
               } // idx
