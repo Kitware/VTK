@@ -243,6 +243,13 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   vtkImageData* input = vtkImageData::GetData(inputVector[0], 0);
   vtkOverlappingAMR* amr = vtkOverlappingAMR::GetData(outputVector);
 
+  if(input->GetDataDimension()<2)
+    {
+    vtkErrorMacro("Image dimension must be at least two.");
+    return 0;
+    }
+
+
   int whole_extent[6];
   inInfo->Get(vtkCompositeDataPipeline::WHOLE_EXTENT(), whole_extent);
 
