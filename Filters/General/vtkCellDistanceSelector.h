@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef VTK_CELL_DISTANCE_SELECTOR_H
 #define VTK_CELL_DISTANCE_SELECTOR_H
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include <vtkSelectionAlgorithm.h>
 #include <vtkSmartPointer.h> // For smart pointers
 
@@ -43,7 +43,7 @@ class vtkDataArray;
 
 // Description:
 // Grows a selection, selecting neighbor cells, up to a user defined topological distance
-class VTK_EXPORT vtkCellDistanceSelector : public vtkSelectionAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkCellDistanceSelector : public vtkSelectionAlgorithm
 {
  public:
   vtkTypeMacro(vtkCellDistanceSelector,vtkSelectionAlgorithm);

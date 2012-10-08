@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef VTK_LINEAR_SELECTOR_H
 #define VTK_LINEAR_SELECTOR_H
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include <vtkSelectionAlgorithm.h>
 
 class vtkAlgorithmOutput;
@@ -37,7 +37,7 @@ class vtkDoubleArray;
 class vtkIdTypeArray;
 class vtkPoints;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkLinearSelector: public vtkSelectionAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkLinearSelector : public vtkSelectionAlgorithm
 {
  public:
   vtkTypeMacro(vtkLinearSelector,vtkSelectionAlgorithm);
