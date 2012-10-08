@@ -3603,6 +3603,7 @@ bool SystemInformationImplementation::ParseSysCtl()
   if ( host_statistics(mach_host_self(), HOST_VM_INFO,
                        (host_info_t) &vmstat, &count) == KERN_SUCCESS )
     {
+    len = sizeof(value);
     err = sysctlbyname("hw.pagesize", &value, &len, NULL, 0);
     int64_t available_memory = vmstat.free_count * value;
     this->AvailablePhysicalMemory = static_cast< size_t >( available_memory / 1048576 );
@@ -3613,7 +3614,7 @@ bool SystemInformationImplementation::ParseSysCtl()
   int mib[2] = { CTL_VM, VM_SWAPUSAGE };
   size_t miblen = sizeof(mib) / sizeof(mib[0]);
   struct xsw_usage swap;
-  len = sizeof(struct xsw_usage);
+  len = sizeof(swap);
   err = sysctl(mib, miblen, &swap, &len, NULL, 0);
   if (err == 0)
     {
@@ -3628,6 +3629,7 @@ bool SystemInformationImplementation::ParseSysCtl()
 // CPU Info
   len = sizeof(this->NumberOfPhysicalCPU);
   sysctlbyname("hw.physicalcpu", &this->NumberOfPhysicalCPU, &len, NULL, 0);
+  len = sizeof(this->NumberOfLogicalCPU);
   sysctlbyname("hw.logicalcpu", &this->NumberOfLogicalCPU, &len, NULL, 0);
   this->Features.ExtendedFeatures.LogicalProcessorsPerPhysical =
     this->LogicalCPUPerPhysicalCPU();
@@ -3653,8 +3655,9 @@ bool SystemInformationImplementation::ParseSysCtl()
     if (machineBuf.find_first_of("Power") != kwsys_stl::string::npos)
       {
       this->ChipID.Vendor = "IBM";
-      len = 4;
+      len = sizeof(this->ChipID.Family);
       err = sysctlbyname("hw.cputype", &this->ChipID.Family, &len, NULL, 0);
+      len = sizeof(this->ChipID.Model);
       err = sysctlbyname("hw.cpusubtype", &this->ChipID.Model, &len, NULL, 0);
       this->FindManufacturer();
       }
@@ -3679,8 +3682,8 @@ bool SystemInformationImplementation::ParseSysCtl()
     }
 
   // brand string
-  ::memset(retBuf, 0, 128);
-  len = 128;
+  ::memset(retBuf, 0, sizeof(retBuf));
+  len = sizeof(retBuf);
   err = sysctlbyname("machdep.cpu.brand_string", retBuf, &len, NULL, 0);
   if (!err)
     {
@@ -3692,6 +3695,7 @@ bool SystemInformationImplementation::ParseSysCtl()
   len = sizeof(value);
   err = sysctlbyname("hw.l1icachesize", &value, &len, NULL, 0);
   this->Features.L1CacheSize = static_cast< int >( value );
+  len = sizeof(value);
   err = sysctlbyname("hw.l2cachesize", &value, &len, NULL, 0);
   this->Features.L2CacheSize = static_cast< int >( value );
 
