@@ -153,8 +153,8 @@ int TestCellDistanceSelector( int argc, char * argv [] )
 
   // Create selection up to topological distance of 2
   vtkSmartPointer<vtkCellDistanceSelector> ls0 = vtkSmartPointer<vtkCellDistanceSelector>::New();
-  ls0->SetInputData( 0, sel0 );
-  ls0->SetInputData( 1, mesh );
+  ls0->SetInputMesh( mesh );
+  ls0->SetInputSelection( sel0 );
   ls0->SetDistance( 2 );
 
   // Extract selection from mesh
@@ -184,8 +184,8 @@ int TestCellDistanceSelector( int argc, char * argv [] )
 
   // Create selection at distance of 1
   vtkSmartPointer<vtkCellDistanceSelector> ls1 = vtkSmartPointer<vtkCellDistanceSelector>::New();
-  ls1->SetInputData( 0, sel1 );
-  ls1->SetInputData( 1, mesh );
+  ls1->SetInputMesh( mesh );
+  ls1->SetInputSelection( sel1 );
   ls1->SetDistance( 1 );
   ls1->IncludeSeedOff();
 
@@ -213,8 +213,8 @@ int TestCellDistanceSelector( int argc, char * argv [] )
 
   // Create selection at distance of 2
   vtkSmartPointer<vtkCellDistanceSelector> ls2 = vtkSmartPointer<vtkCellDistanceSelector>::New();
-  ls2->SetInputData( 0, sel2 );
-  ls2->SetInputData( 1, mesh );
+  ls2->SetInputMesh( mesh );
+  ls2->SetInputSelection( sel2 );
   ls2->SetDistance( 2 );
   ls2->IncludeSeedOff();
   ls2->AddIntermediateOff();
@@ -245,8 +245,8 @@ int TestCellDistanceSelector( int argc, char * argv [] )
 
   // Create selection within distance of 1
   vtkSmartPointer<vtkCellDistanceSelector> ls3 = vtkSmartPointer<vtkCellDistanceSelector>::New();
-  ls3->SetInputData( 0, sel3 );
-  ls3->SetInputData( 1, mesh );
+  ls3->SetInputMesh( mesh );
+  ls3->SetInputSelection( sel3 );
   ls3->SetDistance( 1 );
 
   // Extract selection from mesh

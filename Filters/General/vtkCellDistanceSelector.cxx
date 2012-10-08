@@ -39,12 +39,6 @@ vtkCellDistanceSelector::~vtkCellDistanceSelector()
 }
 
 // ----------------------------------------------------------------------
-void vtkCellDistanceSelector::SetDataObjectConnection ( vtkAlgorithmOutput* in )
-{
-  this->SetInputConnection( 1, in );
-}
-
-// ----------------------------------------------------------------------
 void vtkCellDistanceSelector::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
@@ -55,11 +49,11 @@ int vtkCellDistanceSelector::FillInputPortInformation( int port, vtkInformation*
 {
   switch ( port )
     {
-    case 0:
-      info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection" );
-      break;
-    case 1:
+    case INPUT_MESH:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet" );
+      break;
+    case INPUT_SELECTION:
+      info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection" );
       break;
     }
   return 1;
@@ -85,17 +79,19 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
                                           vtkInformationVector** inputVector,
                                           vtkInformationVector* outputVector )
 {
-  vtkInformation* inSelectionInfo = inputVector[0]->GetInformationObject( 0 );
-  vtkInformation* inDataObjectInfo = inputVector[1]->GetInformationObject( 0 );
 
-  vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
-
-  vtkSelection* inputSelection =
-    vtkSelection::SafeDownCast( inSelectionInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-
+  // Retrieve input mesh as composite object
+  vtkInformation* inDataObjectInfo = inputVector[INPUT_MESH]->GetInformationObject( 0 );
   vtkCompositeDataSet* compositeInput =
     vtkCompositeDataSet::SafeDownCast( inDataObjectInfo->Get(vtkDataObject::DATA_OBJECT() ) );
 
+  // Retrieve input selection
+  vtkInformation* inSelectionInfo = inputVector[INPUT_SELECTION]->GetInformationObject( 0 );
+  vtkSelection* inputSelection =
+    vtkSelection::SafeDownCast( inSelectionInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+
+  // Retrieve output selection
+  vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
   vtkSelection* output =
     vtkSelection::SafeDownCast(outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 

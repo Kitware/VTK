@@ -52,8 +52,32 @@ class VTK_EXPORT vtkCellDistanceSelector : public vtkSelectionAlgorithm
   static vtkCellDistanceSelector* New();
 
   // Description:
-  // Set the data object the initial selection refers to
-  void SetDataObjectConnection(vtkAlgorithmOutput *in);
+  // enumeration values to specify input port types
+  enum InputPorts
+    {
+    INPUT_MESH = 0,         //!< Port 0 is for input mesh
+    INPUT_SELECTION = 1     //!< Port 1 is for input selection
+    };
+
+  // Description:
+  // A convenience method to set the data object input connection to the producer output
+  void SetInputMeshConnection( vtkAlgorithmOutput* in ) 
+  { this->SetInputConnection( INPUT_MESH, in ); }
+
+  // Description:
+  // A convenience method to set the input data object
+  void SetInputMesh( vtkDataObject* obj ) 
+  { this->SetInputData( INPUT_MESH, obj ); }
+
+  // Description:
+  // A convenience method to set the selection input connection to the producer output
+  void SetInputSelectionConnection( vtkAlgorithmOutput* in ) 
+  { this->SetInputConnection( INPUT_SELECTION, in ); }
+
+  // Description:
+  // A convenience method to set the input selection
+  void SetInputSelection( vtkSelection* obj ) 
+  { this->SetInputData( INPUT_SELECTION, obj ); }
 
   // Description:
   // Tells how far (in term of topological distance) away from seed cells to expand the selection
