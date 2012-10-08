@@ -12,6 +12,7 @@ set(MyTests
   TestIconGlyphFilterGravity.cxx
   TestImageDataToPointSet.cxx
   TestIntersectionPolyDataFilter.cxx
+  TestIntersectionPolyDataFilter2.cxx
   TestQuadraturePoints.cxx
   TestRectilinearGridToPointSet.cxx
   TestReflectionFilter.cxx
