@@ -110,8 +110,8 @@ class VTKFILTERSGENERAL_EXPORT vtkCellDistanceSelector : public vtkSelectionAlgo
   int AddIntermediate;
 
  private:
-  vtkCellDistanceSelector (const vtkCellDistanceSelector &); // Not implemented
-  vtkCellDistanceSelector & operator= (const vtkCellDistanceSelector &); // Not implemented
-} ;
+  vtkCellDistanceSelector(const vtkCellDistanceSelector &); // Not implemented
+  void operator= (const vtkCellDistanceSelector &); // Not implemented
+};
 
 #endif /* VTK_CELL_DISTANCE_SELECTOR_H */
