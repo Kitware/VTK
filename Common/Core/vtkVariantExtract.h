@@ -33,6 +33,8 @@
 #ifndef __vtkVariantExtract_h
 #define __vtkVariantExtract_h
 
+#include <typeinfo> // for typeid
+
 template<typename T>
 T vtkVariantExtract(const vtkVariant& value, bool& valid)
 {

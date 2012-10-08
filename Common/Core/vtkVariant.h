@@ -347,11 +347,6 @@ public:
   // Return the array, or NULL if not of that type.
   vtkAbstractArray* ToArray() const;
 
-//BTX
-  template <typename T>
-  T ToNumeric(bool *valid, T* vtkNotUsed(ignored)) const;
-//ETX
-
   // Description:
   // Determines whether two variants have the same value. They do
   // not need to be storing exactly the same type to have the same
@@ -405,6 +400,9 @@ public:
 
 private:
 //BTX
+  template <typename T>
+  T ToNumeric(bool *valid, T* vtkNotUsed(ignored)) const;
+
   union
   {
     vtkStdString* String;
