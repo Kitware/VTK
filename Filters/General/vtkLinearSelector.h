@@ -22,12 +22,13 @@ PURPOSE.  See the above copyright notice for more information.
 // This class has been initially developed in the frame of CEA's Love visualization software development <br>
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
 // BP12, F-91297 Arpajon, France. <br>
+// Modified and integrated into VTK, Kitware SAS 2012
 // This class was implemented by Thierry Carrard, Charles Pignerol, and Philippe Pebay.
 
 #ifndef VTK_LINEAR_SELECTOR_H
 #define VTK_LINEAR_SELECTOR_H
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include <vtkSelectionAlgorithm.h>
 
 class vtkAlgorithmOutput;
@@ -36,13 +37,13 @@ class vtkDoubleArray;
 class vtkIdTypeArray;
 class vtkPoints;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkLinearSelector: public vtkSelectionAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkLinearSelector : public vtkSelectionAlgorithm
 {
  public:
   vtkTypeMacro(vtkLinearSelector,vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  static vtkLinearSelector *New();
+  static vtkLinearSelector* New();
 
   // Description:
   // Set/Get starting point of intersecting segment

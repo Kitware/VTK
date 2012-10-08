@@ -93,7 +93,7 @@ void vtkLinearSelector::PrintSelf( ostream& os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 int vtkLinearSelector::FillInputPortInformation( int vtkNotUsed( port ),
-                                                  vtkInformation *info )
+                                                 vtkInformation *info )
 {
   info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet" );
 
@@ -101,9 +101,9 @@ int vtkLinearSelector::FillInputPortInformation( int vtkNotUsed( port ),
 }
 
 // ----------------------------------------------------------------------
-int vtkLinearSelector::RequestData( vtkInformation *vtkNotUsed( request ),
-                                     vtkInformationVector **inputVector,
-                                     vtkInformationVector *outputVector )
+int vtkLinearSelector::RequestData( vtkInformation* vtkNotUsed( request ),
+                                    vtkInformationVector** inputVector,
+                                    vtkInformationVector* outputVector )
 {
   // Get information objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
@@ -168,7 +168,7 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
   // Reject meaningless parameterizations
   if ( nSegments < 1 )
     {
-    vtkWarningMacro( <<"Cannot intersect: not enough points to define a broken line.");
+    vtkWarningMacro( <<"Cannot intersect: not enough points to define a broken line." );
     return;
     }
 
@@ -188,7 +188,8 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
         vtkIdType offset = 3 * i;
         this->Points->GetPoint( i, startPoints + offset );
         this->Points->GetPoint( i + 1, endPoints + offset );
-        cerr << i - 1 << ": "
+        cerr << i - 1 
+             << ": "
              << startPoints[offset]
              << " "
              << startPoints[offset + 1]
