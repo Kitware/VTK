@@ -60,7 +60,7 @@ int vtkCellDistanceSelector::FillInputPortInformation( int port, vtkInformation*
 }
 
 // ----------------------------------------------------------------------
-void vtkCellDistanceSelector::AddSelectionNode( vtkSelection* output, 
+void vtkCellDistanceSelector::AddSelectionNode( vtkSelection* output,
                                                 vtkSmartPointer<vtkDataArray> outIndices,
                                                 int composite_index, int d )
 {
@@ -69,7 +69,7 @@ void vtkCellDistanceSelector::AddSelectionNode( vtkSelection* output,
   outSelNode->SetFieldType( vtkSelectionNode::CELL );
   outSelNode->GetProperties()->Set( vtkSelectionNode::COMPOSITE_INDEX(), composite_index );
   // NB: Use HIERARCHICAL_LEVEL key to store distance to original cells
-  outSelNode->GetProperties()->Set( vtkSelectionNode::HIERARCHICAL_LEVEL(), d ); 
+  outSelNode->GetProperties()->Set( vtkSelectionNode::HIERARCHICAL_LEVEL(), d );
   outSelNode->SetSelectionList( outIndices );
   output->AddNode( outSelNode );
 }
@@ -289,8 +289,8 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
                     int I = ijk[0] + i;
                     int J = ijk[1] + j;
                     int K = ijk[2] + k;
-                    if ( I >= 0 && I < dim[0] 
-                         && J >= 0 && J < dim[1] 
+                    if ( I >= 0 && I < dim[0]
+                         && J >= 0 && J < dim[1]
                          && K >= 0 && K < dim[2] )
                       {
                       cellId = I + J * dim[0] + K * dim[0] * dim[1];

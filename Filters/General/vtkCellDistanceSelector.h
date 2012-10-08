@@ -15,7 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkCellDistanceSelector - select neighbor cells up to a distance
 //
 // .SECTION Description
-// This filter grows an input selection by iteratively selecting neighbor 
+// This filter grows an input selection by iteratively selecting neighbor
 // cells (a neighbor cell is a cell that shares a vertex/edge/face), up to
 // a given topological distance to the selected neighborhood (number of times
 // we add neighbor cells).
@@ -61,22 +61,22 @@ class VTK_EXPORT vtkCellDistanceSelector : public vtkSelectionAlgorithm
 
   // Description:
   // A convenience method to set the data object input connection to the producer output
-  void SetInputMeshConnection( vtkAlgorithmOutput* in ) 
+  void SetInputMeshConnection( vtkAlgorithmOutput* in )
   { this->SetInputConnection( INPUT_MESH, in ); }
 
   // Description:
   // A convenience method to set the input data object
-  void SetInputMesh( vtkDataObject* obj ) 
+  void SetInputMesh( vtkDataObject* obj )
   { this->SetInputData( INPUT_MESH, obj ); }
 
   // Description:
   // A convenience method to set the selection input connection to the producer output
-  void SetInputSelectionConnection( vtkAlgorithmOutput* in ) 
+  void SetInputSelectionConnection( vtkAlgorithmOutput* in )
   { this->SetInputConnection( INPUT_SELECTION, in ); }
 
   // Description:
   // A convenience method to set the input selection
-  void SetInputSelection( vtkSelection* obj ) 
+  void SetInputSelection( vtkSelection* obj )
   { this->SetInputData( INPUT_SELECTION, obj ); }
 
   // Description:
