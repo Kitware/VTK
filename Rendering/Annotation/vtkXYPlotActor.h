@@ -445,7 +445,7 @@ enum Alignment {
   virtual void SetLabelFormat (const char* _arg);
   const char* GetLabelFormat()
     {
-      return this->GetXLabelFormat();
+    return this->GetXLabelFormat();
     }
 
   // Description:
@@ -585,6 +585,67 @@ enum Alignment {
   void ReleaseGraphicsResources(vtkWindow *);
 //ETX
 
+  // Description:
+  // Overload of superclass : Always Disable exchange of the x-y axes
+  void SetExchangeAxes (int b);
+  int GetExchangeAxes ();
+  void ExchangeAxesOn();
+  void ExchangeAxesOff();
+  void RemoveAllInputs();
+
+//BTX  
+  enum YTitlePositionMode { AXIS_TOP=0, AXIS_HCENTER=1, AXIS_VCENTER=2 };
+//ETX  
+  virtual void SetYTitle( const char* ytitle );
+  virtual char* GetYTitle();
+  void SetYTitlePositionToTop();
+  void SetYTitlePositionToHCenter();
+  void SetYTitlePositionToVCenter();
+  void SetYTitlePosition( YTitlePositionMode pos );
+  int GetYTitlePosition() const;
+
+  virtual void SetPlotGlyphType(int curve, int glyph);
+
+  virtual void SetXAxisColor(double r, double g, double b); // this->XAxisActor->GetProperty()->SetColor(r,g,b)
+  virtual void SetYAxisColor(double r, double g, double b); // this->YAxisActor->GetProperty()->SetColor(r,g,b)
+  virtual void SetLegendBorder(int b); // this->LegendActor->Setborder(b)
+  virtual void SetLegendBox(int b); // this->LegendActor()->SetBox
+  virtual void SetLegendBoxColor(double r, double g, double b); //-> LegendActor->GetProperty->SetColor
+  virtual void SetLineWidth(double w); // ->GetProperty()->SetLineWidth
+
+  // recuperation des courbes
+  virtual void AddUserCurvesPoint( double c, double x, double y);
+
+  /* Title Properties */
+  virtual void SetTitleColor(double r, double g, double b);
+  virtual void SetTitleFontFamily(int x);
+  virtual void SetTitleBold(int x);
+  virtual void SetTitleItalic(int x);
+  virtual void SetTitleShadow(int x);
+  virtual void SetTitleFontSize(int x);
+  virtual void SetTitleJustification(int x);
+  virtual void SetTitleVerticalJustification(int x);
+
+  /* AxisTitle Properties */
+  virtual void SetAxisTitleColor(double r, double g, double b);
+  virtual void SetAxisTitleFontFamily(int x);
+  virtual void SetAxisTitleBold(int x);
+  virtual void SetAxisTitleItalic(int x);
+  virtual void SetAxisTitleShadow(int x);
+  virtual void SetAxisTitleFontSize(int x);
+  virtual void SetAxisTitleJustification(int x);
+  virtual void SetAxisTitleVerticalJustification(int x);
+
+  /* AxisLabel Properties */
+  virtual void SetAxisLabelColor(double r, double g, double b);
+  virtual void SetAxisLabelFontFamily(int x);
+  virtual void SetAxisLabelBold(int x);
+  virtual void SetAxisLabelItalic(int x);
+  virtual void SetAxisLabelShadow(int x);
+  virtual void SetAxisLabelFontSize(int x);
+  virtual void SetAxisLabelJustification(int x);
+  virtual void SetAxisLabelVerticalJustification(int x);
+
 protected:
   vtkXYPlotActor();
   ~vtkXYPlotActor();
@@ -698,6 +759,14 @@ protected:
   void ClipPlotData(int *pos, int *pos2, vtkPolyData *pd);
   double *TransformPoint(int pos[2], int pos2[2], double x[3], double xNew[3]);
 
+//BTX
+  vtkSmartPointer<vtkTextActor> YTitleActor;
+  vtkSmartPointer<vtkDoubleArray> ActiveCurve;
+//ETX
+  int YAxisTitleSize;
+  int ActiveCurveIndex;
+  int PlotColorIndex;
+
 private:
   vtkXYPlotActor(const vtkXYPlotActor&);  // Not implemented.
   void operator=(const vtkXYPlotActor&);  // Not implemented.
@@ -707,6 +776,22 @@ private:
   int IsInputPresent(vtkAlgorithmOutput* in,
                      const char* arrayName,
                      int component);
+
+  // Description:
+  // Estimated sizes of Y axis title 
+  int YTitleSize[2];
+
+  // Description:
+  // Estimated size of Y axis labels
+  YTitlePositionMode YTitlePosition;
+
+  // Description:
+  // Estimated size of Y axis spacing
+  int YTitleDelta;
+  
+  // Description:
+  // Used to calculate the size of a text actor
+  vtkFreeTypeUtilities* FreeTypeUtilities;
 };
 
 
