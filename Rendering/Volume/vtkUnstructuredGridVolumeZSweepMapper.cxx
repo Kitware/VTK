@@ -3238,10 +3238,6 @@ void vtkUnstructuredGridVolumeZSweepMapper::CreateAndCleanPixelList()
 //-----------------------------------------------------------------------------
 void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
 {
-  double previousZTarget=0.0;
-  double zTarget;
-  vtkIdType vertex;
-
 // used to know if the next vertex is on the same plane
   double currentZ; // than the previous one. If so, the z-target has to be
   // updated (without calling the compositing function)
@@ -3252,7 +3248,8 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
 
   // initialize the "previous z-target" to the z-coordinate of the first
   // vertex.
-  vertex=this->EventList->Peek(0,previousZTarget);
+  double previousZTarget=0.0;
+  vtkIdType vertex=this->EventList->Peek(0,previousZTarget);
 
 #ifdef BACK_TO_FRONT
   previousZTarget=-previousZTarget; // because the EventList store -z
@@ -3264,7 +3261,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
   // indirectly by using the "use set" of the first vertex (cells), and
   // by taking the vertices of all those cells.
   //
-  zTarget=previousZTarget;
+  double zTarget=previousZTarget;
   std::list<vtkFace *>::iterator it;
   std::list<vtkFace *>::iterator itEnd;
 
