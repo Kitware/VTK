@@ -105,8 +105,19 @@ class VTKFILTERSGENERAL_EXPORT vtkCellDistanceSelector : public vtkSelectionAlgo
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   virtual int RequestData(vtkInformation*,vtkInformationVector**,vtkInformationVector*);
 
+  // Description:
+  // Tological radius from seed cells to be used to select cells
+  // Default: 1
   int Distance;
+
+  // Description:
+  // Decide whether seed cells are included in selection
+  // Default: 1
   int IncludeSeed;
+
+  // Description:
+  // Decide whether at distance between 1 and Distance-1 are included in selection
+  // Default: 1
   int AddIntermediate;
 
  private:

@@ -38,7 +38,7 @@ vtkIdType cardCellDistanceSelection[] =
 {
   125,
   16,
-  19,
+  20,
   73,
 };
 
@@ -197,7 +197,7 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   testIntValue += CheckExtractedUGrid( es1, "Selection d({7643-7499-7355-7211})=1", 1, true );
 
   // *****************************************************************************
-  // 2. Selection at distance of 2 from corner 7632
+  // 2. Selection at distance of 2 from corner 7632, retaining seed
   // *****************************************************************************
 
   // Create a selection, sel2, of cell with index 7632
@@ -216,7 +216,6 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   ls2->SetInputMesh( mesh );
   ls2->SetInputSelection( sel2 );
   ls2->SetDistance( 2 );
-  ls2->IncludeSeedOff();
   ls2->AddIntermediateOff();
 
   // Extract selection from mesh
@@ -224,7 +223,7 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   es2->SetInputData( 0, mesh );
   es2->SetInputConnection( 1, ls2->GetOutputPort() );
   es2->Update();
-  testIntValue += CheckExtractedUGrid( es2, "Selection d({7632})=2", 2, true );
+  testIntValue += CheckExtractedUGrid( es2, "Selection d({7632})=0|2", 2, true );
 
   // *****************************************************************************
   // 3. Selection within distance of 1 from cells 6413, 7268, and 7399
