@@ -30,6 +30,8 @@
 #ifndef __vtkVariantCreate_h
 #define __vtkVariantCreate_h
 
+#include <typeinfo> // for warnings
+
 template<typename T>
 vtkVariant vtkVariantCreate(const T&)
 {
