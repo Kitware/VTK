@@ -99,6 +99,8 @@ class vtkDataObject;
 class vtkDataObjectCollection;
 class vtkDataSet;
 class vtkDataSetCollection;
+class vtkDoubleArray;
+class vtkFreeTypeUtilities;
 class vtkGlyph2D;
 class vtkGlyphSource2D;
 class vtkIntArray;
@@ -106,6 +108,7 @@ class vtkLegendBoxActor;
 class vtkPlanes;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
+class vtkTextActor;
 class vtkTextMapper;
 class vtkTextProperty;
 
@@ -586,19 +589,10 @@ enum Alignment {
   void ReleaseGraphicsResources(vtkWindow *);
 //ETX
 
-  // Description:
-  // Overload of superclass : Always Disable exchange of the x-y axes
-  void SetExchangeAxes (int b);
-  int GetExchangeAxes ();
-  void ExchangeAxesOn();
-  void ExchangeAxesOff();
-  void RemoveAllInputs();
-
 //BTX  
   enum YTitlePositionMode { AXIS_TOP=0, AXIS_HCENTER=1, AXIS_VCENTER=2 };
 //ETX  
-  virtual void SetYTitle( const char* ytitle );
-  virtual char* GetYTitle();
+
   void SetYTitlePositionToTop();
   void SetYTitlePositionToHCenter();
   void SetYTitlePositionToVCenter();
