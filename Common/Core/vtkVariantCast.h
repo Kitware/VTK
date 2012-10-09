@@ -35,6 +35,7 @@
 #define __vtkVariantCast_h
 
 #include <vtkUnicodeString.h>
+#include <typeinfo> // for warnings
 
 template<typename T>
 T vtkVariantCast(const vtkVariant& value, bool* valid = 0)
