@@ -595,7 +595,7 @@ enum Alignment {
   void SetYTitlePositionToHCenter();
   void SetYTitlePositionToVCenter();
   int GetYTitlePosition() const;
-//BTX  
+//BTX
   enum YTitlePositionMode
     {
       AXIS_TOP     = 0,
@@ -603,7 +603,7 @@ enum Alignment {
       AXIS_VCENTER = 2
     };
   void SetYTitlePosition( YTitlePositionMode );
-//ETX  
+//ETX
 
   virtual void SetPlotGlyphType( int, int );
 
@@ -787,7 +787,7 @@ private:
                      int component);
 
   // Description:
-  // Estimated sizes of Y axis title 
+  // Estimated sizes of Y axis title
   int YTitleSize[2];
 
   // Description:
@@ -797,7 +797,7 @@ private:
   // Description:
   // Estimated size of Y axis spacing
   int YTitleDelta;
-  
+
   // Description:
   // Used to calculate the size of a text actor
   vtkFreeTypeUtilities* FreeTypeUtilities;
