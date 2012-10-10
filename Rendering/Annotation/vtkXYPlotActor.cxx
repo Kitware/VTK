@@ -2251,6 +2251,33 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
   textMapper->SetInput(axisY->GetTitle() );
   vtkTextMapper::SetRelativeFontSize(textMapper, viewport, size, titleSizeY, 0.015*fontFactorY);
 
+  // Retrieve X axis title font
+  tprop->ShallowCopy( axisX->GetTitleTextProperty() );
+  // Calculate string length from YTitleActor,
+  //  + 1 for the case where there is only one character
+  //  + 1 for the final \0
+   int len = int( ( strlen( YTitleActor->GetInput() ) + 1 ) * .5) + 1;
+   char* tmp = new char[len];
+   switch( this->YTitlePosition )
+   {
+   case AXIS_TOP:
+     snprintf( tmp, len, "%s", YTitleActor->GetInput() );
+     textMapper->SetInput(tmp);
+     break;
+   case AXIS_HCENTER:
+     textMapper->SetInput(YTitleActor->GetInput());
+     break;
+   case AXIS_VCENTER:
+     // Create a dummy title to ensure that the added YTitleActor is visible
+     textMapper->SetInput("AABB");
+     break;
+   }
+   delete [] tmp;
+   this->YAxisTitleSize = vtkTextMapper::SetRelativeFontSize(textMapper, viewport, size, titleSizeY, 0.015*fontFactorY);
+   
+   this->YTitleSize[0] = titleSizeY[0];
+   this->YTitleSize[1] = titleSizeY[1];
+   
   // At this point the thing to do would be to actually ask the Y axis
   // actor to return the largest label.
   // In the meantime, let's try with the min and max
@@ -2273,25 +2300,31 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
   tickLengthY = axisY->GetTickLength();
 
   // Okay, estimate the size
-  pos[0] = (int)(p1[0] + titleSizeY[0] + 2.0 * tickOffsetY + tickLengthY +
-                 labelSizeY[0] + this->Border);
+  pos[0] = (int) ( p1[0] + titleSizeY[0] + 2.0 * tickOffsetY + tickLengthY +
+                   labelSizeY[0] + this->Border);
 
-  pos[1] = (int)(p1[1] + titleSizeX[1] + 2.0 * tickOffsetX + tickLengthX +
-                 labelSizeX[1] + this->Border);
+  pos[1] = (int) ( p1[1] + titleSizeX[1] + 2.0 * tickOffsetX + tickLengthX +
+                   labelSizeX[1] + this->Border);
 
-  pos2[0] = (int)(p2[0] - labelSizeY[0] / 2 - tickOffsetY - this->Border);
+  pos2[0] = (int) ( p2[0] - labelSizeY[0] / 2 - tickOffsetY - this->Border );
 
-  pos2[1] = (int)(p2[1] - labelSizeX[1] / 2 - tickOffsetX - this->Border);
+  pos2[1] = (int) ( p2[1] - labelSizeX[1] / 2 - tickOffsetX - this->Border );
 
+  // Save estimated axis size to avoid recomputing of YTitleActor displacement
+   if( this->YTitlePosition == AXIS_TOP )
+     {
+     this->YTitleDelta = (int) ( 2 * tickOffsetY + tickLengthY + this->Border );      
+     }
+   else
+     {
+     this->YTitleDelta = (int) ( 2 * tickOffsetY + tickLengthY + 1.5 * labelSizeY[0] + this->Border );
+     }
+   
   // Now specify the location of the axes
-  axisX->GetPositionCoordinate()->SetValue(
-                                           (double)pos[0], (double)pos[1] );
-  axisX->GetPosition2Coordinate()->SetValue(
-                                            (double)pos2[0], (double)pos[1] );
-  axisY->GetPositionCoordinate()->SetValue(
-                                           (double)pos[0], (double)pos2[1] );
-  axisY->GetPosition2Coordinate()->SetValue(
-                                            (double)pos[0], (double)pos[1] );
+  axisX->GetPositionCoordinate()->SetValue( (double) pos[0], (double) pos[1] );
+  axisX->GetPosition2Coordinate()->SetValue( (double) pos2[0], (double) pos[1] );
+  axisY->GetPositionCoordinate()->SetValue( (double) pos[0], (double) pos2[1] );
+  axisY->GetPosition2Coordinate()->SetValue( (double) pos[0], (double) pos[1] );
 
   textMapper->Delete();
 }
