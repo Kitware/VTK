@@ -22,4 +22,7 @@ fi
 # Load hooks configuration from source tree.
 config=".hooks-config.bash" && test -r "$config" && . "$config"
 
+# Set up the location for "this" set of hooks.
+HOOKS_DIR="${BASH_SOURCE%/*}"
+
 # vim: set filetype=sh tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab :

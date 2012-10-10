@@ -131,7 +131,7 @@ gerrit_error() {
 }
 
 gerrit_hook() {
-	"$GIT_DIR/hooks/gerrit/commit-msg" "$@" ||
+	"$HOOKS_DIR/gerrit/commit-msg" "$@" ||
 	die 'gerrit/commit-msg failed'
 }
 
@@ -145,5 +145,5 @@ esac
 
 #-----------------------------------------------------------------------------
 # Chain to project-specific hook.
-. "$GIT_DIR/hooks/hooks-chain.bash"
+. "$HOOKS_DIR/hooks-chain.bash"
 hooks_chain commit-msg "$@"

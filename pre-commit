@@ -322,7 +322,7 @@ test -z "$bad" || die "$bad"
 
 #-----------------------------------------------------------------------------
 # Chain to project-specific hook.
-. "$GIT_DIR/hooks/hooks-chain.bash"
+. "$HOOKS_DIR/hooks-chain.bash"
 hooks_chain pre-commit "$@"
 
 # vim: set filetype=sh tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab :

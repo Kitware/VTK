@@ -21,11 +21,11 @@
 # it does not run the normal commit-msg hook.
 hooks_GerritId=$(git config --get hooks.GerritId)
 case "$hooks_GerritId,$2,$3" in
-	true,merge,) "$GIT_DIR/hooks/gerrit/commit-msg" "$1" ;;
+	true,merge,) "$HOOKS_DIR/gerrit/commit-msg" "$1" ;;
 	*) ;;
 esac
 
 #-----------------------------------------------------------------------------
 # Chain to project-specific hook.
-. "$GIT_DIR/hooks/hooks-chain.bash"
+. "$HOOKS_DIR/hooks-chain.bash"
 hooks_chain prepare-commit-msg "$@"
