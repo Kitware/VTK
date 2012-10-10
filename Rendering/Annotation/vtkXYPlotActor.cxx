@@ -1276,6 +1276,10 @@ void vtkXYPlotActor::ReleaseGraphicsResources(vtkWindow *win)
     {
     this->ReferenceLinesActor->ReleaseGraphicsResources(win);
     }
+  if( this->YTitleActor )
+    {
+    this->YTitleActor->ReleaseGraphicsResources( win );
+    }
 }
 
 //----------------------------------------------------------------------------
