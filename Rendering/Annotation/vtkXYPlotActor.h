@@ -594,6 +594,7 @@ enum Alignment {
   void SetYTitlePositionToTop();
   void SetYTitlePositionToHCenter();
   void SetYTitlePositionToVCenter();
+  int GetYTitlePosition() const;
 //BTX  
   enum YTitlePositionMode
     {

@@ -36,6 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
+#include "vtkTextActor.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTrivialProducer.h"
@@ -82,6 +83,13 @@ vtkXYPlotActor::vtkXYPlotActor()
   sprintf( this->XTitle,"%s","X Axis");
   this->YTitle = new char[7];
   sprintf( this->YTitle,"%s","Y Axis");
+  this->YTitleActor = vtkSmartPointer<vtkTextActor>::New();
+  this->YTitleActor->SetInput( "" );
+  this->YTitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
+  this->YTitleActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
+
+  this->YTitlePosition = AXIS_TOP;
+  this->YTitleDelta = 0;
 
   this->XValues = VTK_XYPLOT_INDEX;
 
@@ -667,10 +675,10 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
 
 //----------------------------------------------------------------------------
 // Plot scalar data for each input dataset.
-int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
+int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
 {
   unsigned long mtime, dsMtime;
-  vtkDataObject *dobj;
+  vtkDataObject* dobj;
   int numDS, numDO, renderedSomething=0;
 
   // Initialize
@@ -793,32 +801,42 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     // each individual axis text prop would point to the same text prop.
 
     if ( this->AxisLabelTextProperty &&
-        this->AxisLabelTextProperty->GetMTime() > this->BuildTime)
+         this->AxisLabelTextProperty->GetMTime() > this->BuildTime )
       {
       if ( this->XAxis->GetLabelTextProperty() )
         {
-        this->XAxis->GetLabelTextProperty()->ShallowCopy(
-                                                         this->AxisLabelTextProperty);
+        this->XAxis->GetLabelTextProperty()
+          ->ShallowCopy( this->AxisLabelTextProperty );
         }
       if ( this->YAxis->GetLabelTextProperty() )
         {
-        this->YAxis->GetLabelTextProperty()->ShallowCopy(
-                                                         this->AxisLabelTextProperty);
+        this->YAxis->GetLabelTextProperty()
+          ->ShallowCopy( this->AxisLabelTextProperty );
+        }
+      if (this->YTitleActor->GetTextProperty())
+        {
+        this->YTitleActor->GetTextProperty()
+          ->ShallowCopy( this->AxisTitleTextProperty );
         }
       }
 
     if ( this->AxisTitleTextProperty &&
-        this->AxisTitleTextProperty->GetMTime() > this->BuildTime)
+         this->AxisTitleTextProperty->GetMTime() > this->BuildTime )
       {
       if ( this->XAxis->GetTitleTextProperty() )
         {
-        this->XAxis->GetTitleTextProperty()->ShallowCopy(
-                                                         this->AxisTitleTextProperty);
+        this->XAxis->GetTitleTextProperty()
+          ->ShallowCopy( this->AxisTitleTextProperty );
+        }
+      if (this->YTitleActor->GetTextProperty())
+        {
+        this->YTitleActor->GetTextProperty()
+          ->ShallowCopy( this->AxisTitleTextProperty );
         }
       if ( this->YAxis->GetTitleTextProperty() )
         {
-        this->YAxis->GetTitleTextProperty()->ShallowCopy(
-                                                         this->AxisTitleTextProperty);
+        this->YAxis->GetTitleTextProperty()
+          ->ShallowCopy( this->AxisTitleTextProperty );
         }
       }
 
@@ -846,8 +864,8 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     if ( this->AdjustXLabels )
       {
-      vtkAxisActor2D::ComputeRange(range, xRange, this->NumberOfXLabels,
-                                   numTicks, interval);
+      vtkAxisActor2D::ComputeRange( range, xRange, this->NumberOfXLabels,
+                                    numTicks, interval);
       }
     else
       {
@@ -861,11 +879,11 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->XComputedRange[1] = xRange[1];
       if ( this->ReverseXAxis )
         {
-        this->XAxis->SetRange(range[1],range[0] );
+        this->XAxis->SetRange( range[1], range[0] );
         }
       else
         {
-        this->XAxis->SetRange(range[0],range[1] );
+        this->XAxis->SetRange(range[0], range[1] );
         }
       }
     else
@@ -874,11 +892,11 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->XComputedRange[0] = xRange[1];
       if ( this->ReverseYAxis )
         {
-        this->XAxis->SetRange(range[0],range[1] );
+        this->XAxis->SetRange( range[0], range[1] );
         }
       else
         {
-        this->XAxis->SetRange(range[1],range[0] );
+        this->XAxis->SetRange( range[1], range[0] );
         }
       }
 
@@ -902,8 +920,8 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     if ( this->AdjustYLabels )
       {
-      vtkAxisActor2D::ComputeRange(yrange, yRange, this->NumberOfYLabels,
-                                   numTicks, interval);
+      vtkAxisActor2D::ComputeRange( yrange, yRange, this->NumberOfYLabels,
+                                    numTicks, interval);
       }
     else
       {
@@ -917,11 +935,11 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->YComputedRange[1] = yRange[1];
       if ( this->ReverseYAxis )
         {
-        this->YAxis->SetRange(yrange[0],yrange[1] );
+        this->YAxis->SetRange( yrange[0], yrange[1] );
         }
       else
         {
-        this->YAxis->SetRange(yrange[1],yrange[0] );
+        this->YAxis->SetRange( yrange[1], yrange[0] );
         }
       }
     else
@@ -930,16 +948,66 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->YComputedRange[0] = yRange[1];
       if ( this->ReverseXAxis )
         {
-        this->YAxis->SetRange(yrange[1],yrange[0] );
+        this->YAxis->SetRange( yrange[1], yrange[0] );
         }
       else
         {
-        this->YAxis->SetRange(yrange[0],yrange[1] );
+        this->YAxis->SetRange( yrange[0], yrange[1] );
         }
       }
 
-    this->PlaceAxes(viewport, size, pos, pos2);
+    this->PlaceAxes( viewport, size, pos, pos2 );
 
+    // Update y axis title position
+    // NB: Must be done after call to PlaceAxes() which calculates YTitleSize and YAxisTitleSize
+    if( strcmp( this->YTitleActor->GetInput(), "" ) )
+      {
+      this->YTitleActor->GetTextProperty()->SetFontSize( this->YAxisTitleSize );
+         
+      int* p1 = this->PositionCoordinate->GetComputedViewportValue( viewport );
+         
+      // Retrieve lower endpoint of Y axis
+      int* yaxis_p1 = this->YAxis->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+
+      // Retrieve upper endpoint of Y axis
+      int* yaxis_p2 = this->YAxis->GetPosition2Coordinate()->GetComputedViewportValue(viewport);
+
+      int yaxis = yaxis_p1[1] - yaxis_p2[1];
+      int yaxis_ymiddle = (int)( yaxis * 0.5 );
+      int ytitle_half_height = (int)( this->YTitleSize[1] * 0.5 );
+      int ytitle_width = this->YTitleSize[0];
+      int ytitlePos[2];
+      switch( this->YTitlePosition )
+        {
+        case AXIS_TOP:
+          {
+          this->YTitleActor->SetOrientation( 0. );
+          // Make sure that title does not exceed actor bounds
+          int val = yaxis_p1[0] - this->YTitleDelta - ytitle_width;
+          ytitlePos[0] = val < p1[0] ? p1[0] : val;
+          ytitlePos[1] = yaxis_p1[1] + 10;
+          break;
+          }
+        case AXIS_HCENTER:
+          {
+          this->YTitleActor->SetOrientation( 0. );
+          // YTitleActor might exceed actor bounds
+          ytitlePos[0] = yaxis_p1[0] - this->YTitleDelta - this->YTitleSize[0];
+          ytitlePos[1] = (int)( yaxis_p2[1] + yaxis_ymiddle - ytitle_half_height );
+          break;
+          }
+        case AXIS_VCENTER:
+          {
+          this->YTitleActor->SetOrientation( 90. );
+          int val = (int)( ( yaxis - ytitle_width ) * 0.4 );
+          ytitlePos[0] = yaxis_p1[0] - this->YTitleDelta;
+          ytitlePos[1] = ytitle_width > yaxis ? yaxis_p2[1] : yaxis_p2[1] + val;
+          break;
+          }
+        }
+      this->YTitleActor->GetPositionCoordinate()->SetValue( (double) ytitlePos[0], (double) ytitlePos[1] );
+      }
+      
     // manage title
     if ( this->Title != NULL && this->Title[0] )
       {
@@ -967,7 +1035,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
             titlePos[0] = pos2[0];
             break;
           case AlignHCenter:
-            titlePos[0] = pos[0] + 0.5 * (pos2[0] - pos[0] );
+            titlePos[0] = pos[0] + 0.5 * ( pos2[0] - pos[0] );
             break;
           };
         switch ( this->AdjustTitlePositionMode & (AlignAxisLeft | AlignAxisRight | AlignAxisHCenter) )
@@ -1020,8 +1088,8 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       else
         {
         this->TitleActor->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
-        this->TitleActor->GetPositionCoordinate()->SetValue(
-                                                            this->TitlePosition[0], this->TitlePosition[1] );
+        this->TitleActor->GetPositionCoordinate()
+          ->SetValue( this->TitlePosition[0], this->TitlePosition[1] );
         }
 
       this->TitleActor->SetProperty( this->GetProperty() );
@@ -1116,7 +1184,12 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
   vtkDebugMacro(<<"Rendering Axes");
   renderedSomething += this->XAxis->RenderOpaqueGeometry(viewport);
   renderedSomething += this->YAxis->RenderOpaqueGeometry(viewport);
-  for (int i=0; i < this->NumberOfInputs; i++)
+   if( this->YTitleActor )
+   {
+   vtkDebugMacro(<<"Rendering ytitleactor");
+   renderedSomething += this->YTitleActor->RenderOpaqueGeometry(viewport);
+   }
+  for ( int i = 0; i < this->NumberOfInputs; ++ i )
     {
     vtkDebugMacro(<<"Rendering plotactors");
     renderedSomething += this->PlotActor[i]->RenderOpaqueGeometry(viewport);
@@ -2668,6 +2741,24 @@ void vtkXYPlotActor::SetYTitlePositionToVCenter()
 double vtkXYPlotActor::GetYTitlePosition()
 {
   return this->YAxis->GetTitlePosition();
+}
+
+//----------------------------------------------------------------------------
+int vtkXYPlotActor::GetYTitlePosition() const
+{
+  switch( this->YTitlePosition )
+    {
+    case AXIS_TOP:
+      return 0;
+      break;
+    case AXIS_HCENTER:
+      return 1;
+      break;
+    case AXIS_VCENTER:
+      return 2;
+      break;
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
