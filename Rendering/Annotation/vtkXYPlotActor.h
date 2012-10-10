@@ -590,13 +590,18 @@ enum Alignment {
 //ETX
 
 //BTX  
-  enum YTitlePositionMode { AXIS_TOP=0, AXIS_HCENTER=1, AXIS_VCENTER=2 };
+  enum YTitlePositionMode
+    {
+      AXIS_TOP     = 0,
+      AXIS_HCENTER = 1,
+      AXIS_VCENTER = 2
+    };
 //ETX  
 
+  void SetYTitlePosition( YTitlePositionMode pos );
   void SetYTitlePositionToTop();
   void SetYTitlePositionToHCenter();
   void SetYTitlePositionToVCenter();
-  void SetYTitlePosition( YTitlePositionMode pos );
   int GetYTitlePosition() const;
 
   virtual void SetPlotGlyphType(int curve, int glyph);
@@ -608,38 +613,42 @@ enum Alignment {
   virtual void SetLegendBoxColor(double r, double g, double b); //-> LegendActor->GetProperty->SetColor
   virtual void SetLineWidth(double w); // ->GetProperty()->SetLineWidth
 
-  // recuperation des courbes
-  virtual void AddUserCurvesPoint( double c, double x, double y);
+  // Description:
+  // Retrieve curves
+  virtual void AddUserCurvesPoint( double, double, double );
 
-  /* Title Properties */
-  virtual void SetTitleColor(double r, double g, double b);
-  virtual void SetTitleFontFamily(int x);
-  virtual void SetTitleBold(int x);
-  virtual void SetTitleItalic(int x);
-  virtual void SetTitleShadow(int x);
-  virtual void SetTitleFontSize(int x);
-  virtual void SetTitleJustification(int x);
-  virtual void SetTitleVerticalJustification(int x);
+  // Description:
+  // Set title properties
+  virtual void SetTitleColor( double, double, double );
+  virtual void SetTitleFontFamily( int );
+  virtual void SetTitleBold( int );
+  virtual void SetTitleItalic( int );
+  virtual void SetTitleShadow( int );
+  virtual void SetTitleFontSize( int );
+  virtual void SetTitleJustification( int );
+  virtual void SetTitleVerticalJustification( int );
 
-  /* AxisTitle Properties */
-  virtual void SetAxisTitleColor(double r, double g, double b);
-  virtual void SetAxisTitleFontFamily(int x);
-  virtual void SetAxisTitleBold(int x);
-  virtual void SetAxisTitleItalic(int x);
-  virtual void SetAxisTitleShadow(int x);
-  virtual void SetAxisTitleFontSize(int x);
-  virtual void SetAxisTitleJustification(int x);
-  virtual void SetAxisTitleVerticalJustification(int x);
+  // Description:
+  // Set axis title properties
+  virtual void SetAxisTitleColor( double, double, double );
+  virtual void SetAxisTitleFontFamily( int );
+  virtual void SetAxisTitleBold( int );
+  virtual void SetAxisTitleItalic( int );
+  virtual void SetAxisTitleShadow( int );
+  virtual void SetAxisTitleFontSize( int );
+  virtual void SetAxisTitleJustification( int );
+  virtual void SetAxisTitleVerticalJustification( int );
 
-  /* AxisLabel Properties */
-  virtual void SetAxisLabelColor(double r, double g, double b);
-  virtual void SetAxisLabelFontFamily(int x);
-  virtual void SetAxisLabelBold(int x);
-  virtual void SetAxisLabelItalic(int x);
-  virtual void SetAxisLabelShadow(int x);
-  virtual void SetAxisLabelFontSize(int x);
-  virtual void SetAxisLabelJustification(int x);
-  virtual void SetAxisLabelVerticalJustification(int x);
+  // Description:
+  // Set axis label properties
+  virtual void SetAxisLabelColor( double, double, double );
+  virtual void SetAxisLabelFontFamily( int );
+  virtual void SetAxisLabelBold( int );
+  virtual void SetAxisLabelItalic( int );
+  virtual void SetAxisLabelShadow( int );
+  virtual void SetAxisLabelFontSize( int );
+  virtual void SetAxisLabelJustification( int );
+  virtual void SetAxisLabelVerticalJustification( int );
 
 protected:
   vtkXYPlotActor();
