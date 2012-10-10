@@ -80,7 +80,7 @@ namespace
         // sanity check.
         continue;
         }
-      if (blocks_per_level.size() <= level)
+      if (blocks_per_level.size() <= static_cast<size_t>(level))
         {
         blocks_per_level.resize(level+1, 0);
         level_spacing.resize(level+1);
@@ -117,7 +117,7 @@ namespace
           {
           blocks_per_level[level] = index+1;
           }
-        if (index >= amr_boxes[level].size())
+        if (static_cast<size_t>(index) >= amr_boxes[level].size())
           {
           amr_boxes[level].resize(index + 1);
           }
