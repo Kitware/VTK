@@ -2616,7 +2616,19 @@ double *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2],
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::SetYTitlePosition( double position )
+void vtkXYPlotActor::SetXTitlePosition(double position)
+{
+  this->XAxis->SetTitlePosition(position);
+}
+
+//----------------------------------------------------------------------------
+double vtkXYPlotActor::GetXTitlePosition()
+{
+  return this->XAxis->GetTitlePosition();
+}
+
+//----------------------------------------------------------------------------
+void vtkXYPlotActor::SetYTitlePosition( YTitlePositionMode position )
 {
   this->YAxis->SetTitlePosition( 1. - position );
 }
@@ -2637,18 +2649,6 @@ void vtkXYPlotActor::SetYTitlePositionToHCenter()
 void vtkXYPlotActor::SetYTitlePositionToVCenter()
 {
   this->SetYTitlePosition( AXIS_VCENTER );
-}
-
-//----------------------------------------------------------------------------
-void vtkXYPlotActor::SetXTitlePosition(double position)
-{
-  this->XAxis->SetTitlePosition(position);
-}
-
-//----------------------------------------------------------------------------
-double vtkXYPlotActor::GetXTitlePosition()
-{
-  return this->XAxis->GetTitlePosition();
 }
 
 //----------------------------------------------------------------------------

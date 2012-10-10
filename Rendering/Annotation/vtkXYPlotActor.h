@@ -598,23 +598,25 @@ enum Alignment {
     };
 //ETX  
 
-  void SetYTitlePosition( YTitlePositionMode pos );
+  // Description:
+  // Set/Get Y title position
+  void SetYTitlePosition( YTitlePositionMode );
   void SetYTitlePositionToTop();
   void SetYTitlePositionToHCenter();
   void SetYTitlePositionToVCenter();
   int GetYTitlePosition() const;
 
-  virtual void SetPlotGlyphType(int curve, int glyph);
+  virtual void SetPlotGlyphType( int, int );
 
-  virtual void SetXAxisColor(double r, double g, double b); // this->XAxisActor->GetProperty()->SetColor(r,g,b)
-  virtual void SetYAxisColor(double r, double g, double b); // this->YAxisActor->GetProperty()->SetColor(r,g,b)
-  virtual void SetLegendBorder(int b); // this->LegendActor->Setborder(b)
-  virtual void SetLegendBox(int b); // this->LegendActor()->SetBox
-  virtual void SetLegendBoxColor(double r, double g, double b); //-> LegendActor->GetProperty->SetColor
-  virtual void SetLineWidth(double w); // ->GetProperty()->SetLineWidth
+  virtual void SetXAxisColor( double, double, double );
+  virtual void SetYAxisColor( double, double, double );
+  virtual void SetLegendBorder( int );
+  virtual void SetLegendBox( int );
+  virtual void SetLegendBoxColor( double, double, double );
+  virtual void SetLineWidth( double );
 
   // Description:
-  // Retrieve curves
+  // Add points to curves
   virtual void AddUserCurvesPoint( double, double, double );
 
   // Description:
