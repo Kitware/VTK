@@ -13,59 +13,33 @@
 
 =========================================================================*/
 // .NAME vtkXMLHierarchicalBoxDataReader - Reader for hierarchical datasets
+// (for backwards compatibility).
+//
 // .SECTION Description
-// vtkXMLHierarchicalBoxDataReader reads the VTK XML hierarchical data file
-// format. XML hierarchical data files are meta-files that point to a list
-// of serial VTK XML files. When reading in parallel, it will distribute
-// sub-blocks among processor. If the number of sub-blocks is less than
-// the number of processors, some processors will not have any sub-blocks
-// for that level. If the number of sub-blocks is larger than the
-// number of processors, each processor will possibly have more than
-// 1 sub-block.
+// vtkXMLHierarchicalBoxDataReader is an empty subclass of
+// vtkXMLUniformGridAMRReader. This is only for backwards compatibility. Newer
+// code should simply use vtkXMLUniformGridAMRReader.
+//
+// .SECTION Caveats
+// The reader supports reading v1.1 and above. For older versions, use
+// vtkXMLHierarchicalBoxDataFileConverter.
 
 #ifndef __vtkXMLHierarchicalBoxDataReader_h
 #define __vtkXMLHierarchicalBoxDataReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
-#include "vtkXMLCompositeDataReader.h"
-
-class vtkHierarchicalBoxDataSet;
+#include "vtkXMLUniformGridAMRReader.h"
 
 class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataReader :
-  public vtkXMLCompositeDataReader
+  public vtkXMLUniformGridAMRReader
 {
 public:
   static vtkXMLHierarchicalBoxDataReader* New();
-  vtkTypeMacro(vtkXMLHierarchicalBoxDataReader,vtkXMLCompositeDataReader);
+  vtkTypeMacro(vtkXMLHierarchicalBoxDataReader,vtkXMLUniformGridAMRReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkXMLHierarchicalBoxDataReader();
   ~vtkXMLHierarchicalBoxDataReader();
-
-  // Get the name of the data set being read.
-  virtual const char* GetDataSetName();
-
-  virtual int FillOutputPortInformation(int, vtkInformation* info);
-
-  // Read the XML element for the subtree of a the composite dataset.
-  // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
-  virtual void ReadComposite(vtkXMLDataElement* element,
-    vtkCompositeDataSet* composite, const char* filePath,
-    unsigned int &dataSetIndex);
-
-  // Read the vtkDataSet (a leaf) in the composite dataset.
-  virtual vtkDataSet* ReadDataset(vtkXMLDataElement* xmlElem, const char* filePath);
-
-  // Read v0.1
-  virtual void ReadVersion0(vtkXMLDataElement* element,
-    vtkCompositeDataSet* composite, const char* filePath,
-    unsigned int &dataSetIndex);
-
-  // Description:
-  // Loops through the data in level 0 and computes the global physical origin.
-  // The origin is subsequently used to properly construct the AMR boxes.
-  void GetDataSetOrigin( vtkHierarchicalBoxDataSet *hbox, double origin[3] );
 
 private:
   vtkXMLHierarchicalBoxDataReader(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.

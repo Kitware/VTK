@@ -1,6 +1,8 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  TestAMRXMLIO.cxx
   TestDataObjectXMLIO.cxx
   TestXML.cxx
+  TestXMLHierarchicalBoxDataFileConverter.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
