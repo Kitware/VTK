@@ -669,6 +669,11 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
     {
     renderedSomething += this->LegendActor->RenderOverlay(viewport);
     }
+   if( this->YTitleActor )
+   {
+      renderedSomething+= this->YTitleActor->RenderOverlay(viewport);
+   }
+
 
   return renderedSomething;
 }
