@@ -589,6 +589,11 @@ enum Alignment {
   void ReleaseGraphicsResources(vtkWindow *);
 //ETX
 
+  // Description:
+  // Convenience Y title position methods
+  void SetYTitlePositionToTop();
+  void SetYTitlePositionToHCenter();
+  void SetYTitlePositionToVCenter();
 //BTX  
   enum YTitlePositionMode
     {
@@ -596,15 +601,8 @@ enum Alignment {
       AXIS_HCENTER = 1,
       AXIS_VCENTER = 2
     };
-//ETX  
-
-  // Description:
-  // Set/Get Y title position
   void SetYTitlePosition( YTitlePositionMode );
-  void SetYTitlePositionToTop();
-  void SetYTitlePositionToHCenter();
-  void SetYTitlePositionToVCenter();
-  int GetYTitlePosition() const;
+//ETX  
 
   virtual void SetPlotGlyphType( int, int );
 

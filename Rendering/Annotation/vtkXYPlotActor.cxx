@@ -2616,15 +2616,21 @@ double *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2],
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::SetXTitlePosition(double position)
+void vtkXYPlotActor::SetXTitlePosition( double position )
 {
-  this->XAxis->SetTitlePosition(position);
+  this->XAxis->SetTitlePosition( position );
 }
 
 //----------------------------------------------------------------------------
 double vtkXYPlotActor::GetXTitlePosition()
 {
   return this->XAxis->GetTitlePosition();
+}
+
+//----------------------------------------------------------------------------
+void vtkXYPlotActor::SetYTitlePosition( double position )
+{
+  this->YAxis->SetTitlePosition( position );
 }
 
 //----------------------------------------------------------------------------
