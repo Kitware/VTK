@@ -48,7 +48,6 @@ vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkXYPlotActor,AxisLabelTextProperty,vtkTextProperty);
-vtkCxxSetObjectMacro(vtkXYPlotActor,AxisTitleTextProperty,vtkTextProperty);
 
 class vtkXYPlotActorConnections: public vtkAlgorithm
 {
@@ -2974,18 +2973,26 @@ void vtkXYPlotActor::AddUserCurvesPoint( double c_dbl, double x, double y )
 {
    int c = static_cast<int>( c_dbl );
    if( this->ActiveCurveIndex != c )
-   {
-      vtkPolyData* dataObj = vtkPolyData::New();
-      dataObj->GetFieldData()->AddArray( this->ActiveCurve );
-      this->AddDataObjectInput( dataObj );
-      this->SetDataObjectXComponent( this->ActiveCurveIndex, 0 );
-      this->SetDataObjectYComponent( this->ActiveCurveIndex, 1 );
-      dataObj->Delete();
-      this->ActiveCurve = vtkSmartPointer<vtkDoubleArray>::New();
-      this->ActiveCurve->SetNumberOfComponents( 2 );
-      this->ActiveCurveIndex = c;
-   }
+     {
+     vtkPolyData* dataObj = vtkPolyData::New();
+     dataObj->GetFieldData()->AddArray( this->ActiveCurve );
+     this->AddDataObjectInput( dataObj );
+     this->SetDataObjectXComponent( this->ActiveCurveIndex, 0 );
+     this->SetDataObjectYComponent( this->ActiveCurveIndex, 1 );
+     dataObj->Delete();
+     this->ActiveCurve = vtkSmartPointer<vtkDoubleArray>::New();
+     this->ActiveCurve->SetNumberOfComponents( 2 );
+     this->ActiveCurveIndex = c;
+     }
    this->ActiveCurve->InsertNextTuple2( x, y );
+}
+
+//----------------------------------------------------------------------------
+void vtkXYPlotActor::RemoveAllActiveCurves()
+{
+  this->ActiveCurveIndex = 0;
+  this->ActiveCurve = vtkSmartPointer<vtkDoubleArray>::New();
+  this->ActiveCurve->SetNumberOfComponents( 2 );
 }
 
 //----------------------------------------------------------------------------
@@ -3213,9 +3220,10 @@ void vtkXYPlotActor::SetAxisLabelVerticalJustification( int x )
    this->GetAxisLabelTextProperty()->SetVerticalJustification( x );
 }
 
-
-
 //----------------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------
+void vtkXYPlotActor::SetAxisTitleTextProperty( vtkTextProperty* p )
+{
+  this->AxisTitleTextProperty = p;
+  this->YTitleActor->SetTextProperty( p );
+  this->Modified();
+}

@@ -619,6 +619,10 @@ enum Alignment {
   virtual void AddUserCurvesPoint( double, double, double );
 
   // Description:
+  // Clear all active curves
+  virtual void RemoveAllActiveCurves();
+
+  // Description:
   // Set title properties
   virtual void SetTitleColor( double, double, double );
   virtual void SetTitleFontFamily( int );
