@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDataObjectCollection.h"
 #include "vtkDataSetCollection.h"
 #include "vtkFieldData.h"
+#include "vtkFreeTypeUtilities.h"
 #include "vtkDoubleArray.h"
 #include "vtkGlyph2D.h"
 #include "vtkGlyphSource2D.h"
@@ -266,6 +267,12 @@ vtkXYPlotActor::vtkXYPlotActor()
     | vtkXYPlotActor::AlignAxisHCenter
     | vtkXYPlotActor::AlignAxisVCenter;
 
+
+  this->FreeTypeUtilities = vtkFreeTypeUtilities::GetInstance();
+  if( ! this->FreeTypeUtilities )
+    {
+    vtkErrorMacro( << "Failed getting the FreeType utilities instance" );
+    }
 }
 
 //----------------------------------------------------------------------------
