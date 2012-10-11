@@ -63,7 +63,7 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
   this->TextRenderer = vtkFreeTypeStringToImage::New();
   this->Storage = new vtkOpenGLContextDevice2D::Private;
   this->RenderWindow = NULL;
-  this->MarkerCacheSize = 20;
+  this->MaximumMarkerCacheSize = 20;
 }
 
 //-----------------------------------------------------------------------------
@@ -1350,7 +1350,8 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
     }
 
   // Check the current cache size.
-   while (this->MarkerCache.size() > this->MarkerCacheSize - 1 &&
+  while (this->MarkerCache.size() >
+         static_cast<size_t>(this->MaximumMarkerCacheSize - 1) &&
           !this->MarkerCache.empty())
      {
      this->MarkerCache.back().Value->Delete();
@@ -1498,7 +1499,8 @@ void vtkOpenGLContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-  os << indent << "MarkerCacheSize: " << this->MarkerCacheSize << endl;
+  os << indent << "MaximumMarkerCacheSize: "
+     << this->MaximumMarkerCacheSize << endl;
   os << indent << "MarkerCache: " << this->MarkerCache.size()
      << " entries." << endl;
 }
