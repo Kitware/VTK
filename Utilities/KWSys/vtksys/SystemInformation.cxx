@@ -810,24 +810,6 @@ int NameValue(
 
 // ****************************************************************************
 template<typename T>
-int GetFieldFromFile(
-      const char *fileName,
-      const char *fieldName,
-      T &value)
-{
-  const char *fieldNames[2]={fieldName,NULL};
-  T values[1]={T(0)};
-  int ierr=GetFieldsFromFile(fileName,fieldNames,values);
-  if (ierr)
-    {
-    return ierr;
-    }
-  value=values[0];
-  return 0;
-}
-
-// ****************************************************************************
-template<typename T>
 int GetFieldsFromFile(
       const char *fileName,
       const char **fieldNames,
@@ -848,6 +830,24 @@ int GetFieldsFromFile(
       }
     i+=1;
     }
+  return 0;
+}
+
+// ****************************************************************************
+template<typename T>
+int GetFieldFromFile(
+      const char *fileName,
+      const char *fieldName,
+      T &value)
+{
+  const char *fieldNames[2]={fieldName,NULL};
+  T values[1]={T(0)};
+  int ierr=GetFieldsFromFile(fileName,fieldNames,values);
+  if (ierr)
+    {
+    return ierr;
+    }
+  value=values[0];
   return 0;
 }
 
