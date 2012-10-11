@@ -150,6 +150,7 @@ set(${vtk-module}_HDRS
   vtkNoise200x200.h
   vtkPythagoreanQuadruples.h
   vtkRayCastStructures.h
+  vtkRenderingCoreEnums.h
   vtkTDxMotionEventInfo.h
   )
 

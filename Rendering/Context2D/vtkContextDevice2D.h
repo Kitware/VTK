@@ -27,6 +27,7 @@
 #include "vtkObject.h"
 #include "vtkVector.h" // For vtkVector2i ivar
 #include "vtkRect.h"   // For vtkRecti ivar
+#include "vtkRenderingCoreEnums.h" // For marker enum
 
 class vtkWindow;
 class vtkViewport;

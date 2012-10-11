@@ -95,15 +95,6 @@
 #define VTK_COLOR_MODE_DEFAULT 0
 #define VTK_COLOR_MODE_MAP_SCALARS 1
 
-// Marker shapes for plotting
-#define VTK_MARKER_NONE 0
-#define VTK_MARKER_CROSS 1
-#define VTK_MARKER_PLUS 2
-#define VTK_MARKER_SQUARE 3
-#define VTK_MARKER_CIRCLE 4
-#define VTK_MARKER_DIAMOND 5
-#define VTK_MARKER_UNKNOWN 6 // Must be last
-
 // Constants for InterpolationType
 #define VTK_NEAREST_INTERPOLATION       0
 #define VTK_LINEAR_INTERPOLATION        1

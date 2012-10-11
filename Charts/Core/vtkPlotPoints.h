@@ -32,6 +32,7 @@
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For color array name
 #include "vtkNew.h"             // For ivars
+#include "vtkRenderingCoreEnums.h" // For marker enum
 
 class vtkContext2D;
 class vtkTable;
