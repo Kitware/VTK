@@ -169,7 +169,7 @@ macro(add_test_python)
     if(VTK_DATA_ROOT AND NOT ARGV1)
       add_test(NAME ${vtk-module}Python-${TName}
         COMMAND ${VTK_PYTHON_EXE}
-        ${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
+        ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
         ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
         -D ${VTK_DATA_ROOT}
         -T ${VTK_BINARY_DIR}/Testing/Temporary

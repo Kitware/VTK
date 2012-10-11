@@ -361,6 +361,13 @@ if(BUILD_DOCUMENTATION)
   add_subdirectory(Utilities/Doxygen)
 endif()
 
+# If python wrapping and testing is enabled then add driver scripts to run
+# tests.  Note: Many pythong tests used to be automatically converted from TCL
+# scripts. Hence the name vtkTclTest2Py
+if(BUILD_TESTING AND VTK_WRAP_PYTHON)
+  add_subdirectory(Utilities/vtkTclTest2Py)
+endif()
+
 # Configure the CTestCustom.cmake file now that everything is done.
 set(memcheck_excluded_tests "  # These tests do not run any VTK code\n")
 foreach(vtk-module ${VTK_MODULES_ALL})
