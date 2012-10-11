@@ -1352,11 +1352,11 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
   // Check the current cache size.
   while (this->MarkerCache.size() >
          static_cast<size_t>(this->MaximumMarkerCacheSize - 1) &&
-          !this->MarkerCache.empty())
-     {
-     this->MarkerCache.back().Value->Delete();
-     this->MarkerCache.pop_back();
-     }
+         !this->MarkerCache.empty())
+    {
+    this->MarkerCache.back().Value->Delete();
+    this->MarkerCache.pop_back();
+    }
 
    // Add to the cache
    this->MarkerCache.push_front(result);
