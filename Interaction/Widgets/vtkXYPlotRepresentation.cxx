@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkXYPlotRepresentation.cxx
+Program:   Visualization Toolkit
+Module:    vtkXYPlotRepresentation.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
@@ -23,17 +23,17 @@
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 
-//=============================================================================
 vtkStandardNewMacro(vtkXYPlotRepresentation);
+
 //-----------------------------------------------------------------------------
 vtkXYPlotRepresentation::vtkXYPlotRepresentation()
 {
-//    this->PositionCoordinate->SetValue(0.0, 0.0);
-//    this->Position2Coordinate->SetValue(0.7, 0.65);
+//    this->PositionCoordinate->SetValue( 0.0, 0.0 );
+//    this->Position2Coordinate->SetValue( 0.7, 0.65 );
    
   this->XYPlotActor = NULL;
   vtkXYPlotActor *actor = vtkXYPlotActor::New();
-  this->SetXYPlotActor(actor);
+  this->SetXYPlotActor( actor );
   actor->Delete();
 
   this->ShowBorder = vtkBorderRepresentation::BORDER_ACTIVE;
@@ -43,23 +43,23 @@ vtkXYPlotRepresentation::vtkXYPlotRepresentation()
 //-----------------------------------------------------------------------------
 vtkXYPlotRepresentation::~vtkXYPlotRepresentation()
 {
-  this->SetXYPlotActor(NULL);
+  this->SetXYPlotActor( NULL );
 }
 
 //-----------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetXYPlotActor(vtkXYPlotActor* actor)
+void vtkXYPlotRepresentation::SetXYPlotActor( vtkXYPlotActor* actor )
 {
-  if (this->XYPlotActor != actor)
+  if ( this->XYPlotActor != actor )
     {
     vtkSmartPointer<vtkXYPlotActor> oldActor = this->XYPlotActor;
-    vtkSetObjectBodyMacro(XYPlotActor, vtkXYPlotActor, actor);
+    vtkSetObjectBodyMacro( XYPlotActor, vtkXYPlotActor, actor );
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkXYPlotRepresentation::PrintSelf(ostream &os, vtkIndent indent)
+void vtkXYPlotRepresentation::PrintSelf( ostream &os, vtkIndent indent )
 {
-  this->Superclass::PrintSelf(os, indent);
+  this->Superclass::PrintSelf( os, indent );
 
   os << indent << "XYPlotActor: " << this->XYPlotActor << endl;
 }
@@ -67,20 +67,20 @@ void vtkXYPlotRepresentation::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkXYPlotRepresentation::BuildRepresentation()
 {
-  if (this->XYPlotActor)
+  if ( this->XYPlotActor )
     {
-    this->XYPlotActor->SetPosition(this->GetPosition());
-    this->XYPlotActor->SetPosition2(this->GetPosition2());
+    this->XYPlotActor->SetPosition( this->GetPosition() );
+    this->XYPlotActor->SetPosition2( this->GetPosition2() );
     }
 
   this->Superclass::BuildRepresentation();
 }
 
 //-----------------------------------------------------------------------------
-void vtkXYPlotRepresentation::WidgetInteraction(double eventPos[2])
+void vtkXYPlotRepresentation::WidgetInteraction( double eventPos[2])
 {
   // Let superclass move things around.
-  this->Superclass::WidgetInteraction(eventPos);
+  this->Superclass::WidgetInteraction( eventPos );
 }
 
 //-----------------------------------------------------------------------------
@@ -90,61 +90,60 @@ int vtkXYPlotRepresentation::GetVisibility()
 }
 
 //-----------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetVisibility(int vis)
+void vtkXYPlotRepresentation::SetVisibility( int vis )
 {
-  this->XYPlotActor->SetVisibility(vis);
+  this->XYPlotActor->SetVisibility( vis );
 }
 
 //-----------------------------------------------------------------------------
-void vtkXYPlotRepresentation::GetActors2D(vtkPropCollection *collection)
+void vtkXYPlotRepresentation::GetActors2D( vtkPropCollection* collection )
 {
-  if (this->XYPlotActor)
+  if ( this->XYPlotActor )
     {
-    collection->AddItem(this->XYPlotActor);
+    collection->AddItem( this->XYPlotActor );
     }
-  this->Superclass::GetActors2D(collection);
+  this->Superclass::GetActors2D( collection );
 }
 
 //-----------------------------------------------------------------------------
-void vtkXYPlotRepresentation::ReleaseGraphicsResources(vtkWindow *w)
+void vtkXYPlotRepresentation::ReleaseGraphicsResources( vtkWindow* w )
 {
-  if (this->XYPlotActor)
+  if ( this->XYPlotActor )
     {
-    this->XYPlotActor->ReleaseGraphicsResources(w);
+    this->XYPlotActor->ReleaseGraphicsResources( w );
     }
-  this->Superclass::ReleaseGraphicsResources(w);
+  this->Superclass::ReleaseGraphicsResources( w );
 }
 
 //-------------------------------------------------------------------------
-int vtkXYPlotRepresentation::RenderOverlay(vtkViewport *w)
+int vtkXYPlotRepresentation::RenderOverlay( vtkViewport* w )
 {
-  int count = this->Superclass::RenderOverlay(w);
-  if (this->XYPlotActor)
+  int count = this->Superclass::RenderOverlay( w );
+  if ( this->XYPlotActor )
     {
-    count += this->XYPlotActor->RenderOverlay(w);
+    count += this->XYPlotActor->RenderOverlay( w );
     }
   return count;
 }
 
 //-------------------------------------------------------------------------
-int vtkXYPlotRepresentation::RenderOpaqueGeometry(vtkViewport *w)
+int vtkXYPlotRepresentation::RenderOpaqueGeometry( vtkViewport* w )
 {
-  int count = this->Superclass::RenderOpaqueGeometry(w);
-  if (this->XYPlotActor)
+  int count = this->Superclass::RenderOpaqueGeometry( w );
+  if ( this->XYPlotActor )
     {
-    count += this->XYPlotActor->RenderOpaqueGeometry(w);
+    count += this->XYPlotActor->RenderOpaqueGeometry( w );
     }
   return count;
 }
 
 //-------------------------------------------------------------------------
-int vtkXYPlotRepresentation::RenderTranslucentPolygonalGeometry(
-                                                                 vtkViewport *w)
+int vtkXYPlotRepresentation::RenderTranslucentPolygonalGeometry( vtkViewport* w )
 {
-  int count = this->Superclass::RenderTranslucentPolygonalGeometry(w);
-  if (this->XYPlotActor)
+  int count = this->Superclass::RenderTranslucentPolygonalGeometry( w );
+  if ( this->XYPlotActor )
     {
-    count += this->XYPlotActor->RenderTranslucentPolygonalGeometry(w);
+    count += this->XYPlotActor->RenderTranslucentPolygonalGeometry( w );
     }
   return count;
 }
@@ -153,7 +152,7 @@ int vtkXYPlotRepresentation::RenderTranslucentPolygonalGeometry(
 int vtkXYPlotRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
-  if (this->XYPlotActor)
+  if ( this->XYPlotActor )
     {
     result |= this->XYPlotActor->HasTranslucentPolygonalGeometry();
     }
@@ -161,529 +160,523 @@ int vtkXYPlotRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetBorder(int x)
+void vtkXYPlotRepresentation::SetBorder( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetBorder(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetBorder( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetTitle (const char* title)
+void vtkXYPlotRepresentation::SetTitle ( const char* title )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetTitle(title);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetTitle( title );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetXTitle (const char* title)
+void vtkXYPlotRepresentation::SetXTitle ( const char* title )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetXTitle(title);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetXTitle( title );
+    }
 }
 
 //-------------------------------------------------------------------------------
 char* vtkXYPlotRepresentation::GetXTitle ()
 {
-   if (this->XYPlotActor)
-   {
-      return this->XYPlotActor->GetXTitle();
-   }
-   return 0;
+  if ( this->XYPlotActor )
+    {
+    return this->XYPlotActor->GetXTitle();
+    }
+  return 0;
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetXRange (double xmin, double xmax)
+void vtkXYPlotRepresentation::SetXRange ( double xmin, double xmax )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetXRange(xmin, xmax);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetXRange( xmin, xmax );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetYTitle (const char* title)
+void vtkXYPlotRepresentation::SetYTitle ( const char* title )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetYTitle(title);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetYTitle( title );
+    }
 }
 
 //-------------------------------------------------------------------------------
 char* vtkXYPlotRepresentation::GetYTitle ()
 {
-   if (this->XYPlotActor)
-   {
-      return this->XYPlotActor->GetXTitle();
-   }
-   return 0;
+  if ( this->XYPlotActor )
+    {
+    return this->XYPlotActor->GetXTitle();
+    }
+  return 0;
 }
 
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetYRange (double ymin, double ymax)
+void vtkXYPlotRepresentation::SetYRange ( double ymin, double ymax )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetYRange(ymin, ymax);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetYRange( ymin, ymax );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetYTitlePosition (int pos)
+void vtkXYPlotRepresentation::SetYTitlePosition ( int pos )
 {
-   if (this->XYPlotActor)
-   {
-      switch( pos )
+  if ( this->XYPlotActor )
+    {
+    switch( pos )
       {
-         case 0:
-            this->XYPlotActor->SetYTitlePositionToTop();
-            break;
-         case 1:
-            this->XYPlotActor->SetYTitlePositionToHCenter();
-            break;
-         case 2:
-            this->XYPlotActor->SetYTitlePositionToVCenter();
-            break;
+      case 0:
+        this->XYPlotActor->SetYTitlePositionToTop();
+        break;
+      case 1:
+        this->XYPlotActor->SetYTitlePositionToHCenter();
+        break;
+      case 2:
+        this->XYPlotActor->SetYTitlePositionToVCenter();
+        break;
 
       }
-   }
+    }
 }
 
 //-------------------------------------------------------------------------------
 int vtkXYPlotRepresentation::GetYTitlePosition () const
 {
-   if (this->XYPlotActor)
-   {
-      return this->XYPlotActor->GetYTitlePosition();
-   }
-   return 0;
+  if ( this->XYPlotActor )
+    {
+    return this->XYPlotActor->GetYTitlePosition();
+    }
+  return 0;
 }
 
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetXAxisColor (double r, double g, double b)
+void vtkXYPlotRepresentation::SetXAxisColor ( double r, double g, double b )
 {
-   //cout << "vtkXYPlotRepresentation::SetXAxisColor(" << r << ", " << g << ", " << b << ")" << endl;
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetXAxisColor(r, g, b);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetXAxisColor( r, g, b );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetYAxisColor (double r, double g, double b)
+void vtkXYPlotRepresentation::SetYAxisColor ( double r, double g, double b )
 {
-   //cout << "vtkXYPlotRepresentation::SetYAxisColor(" << r << ", " << g << ", " << b << ")" << endl;
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetYAxisColor(r, g, b);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetYAxisColor( r, g, b );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetXValues (int x)
+void vtkXYPlotRepresentation::SetXValues ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetXValues(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetXValues( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetLegend (int x)
+void vtkXYPlotRepresentation::SetLegend ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetLegend(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetLegend( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetLegendBorder (int b)
+void vtkXYPlotRepresentation::SetLegendBorder ( int b )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetLegendBorder(b);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetLegendBorder( b );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetLegendBox (int b)
+void vtkXYPlotRepresentation::SetLegendBox ( int b )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetLegendBox(b);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetLegendBox( b );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetLegendBoxColor (double r, double g, double b)
+void vtkXYPlotRepresentation::SetLegendBoxColor ( double r, double g, double b )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetLegendBoxColor(r, g, b);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetLegendBoxColor( r, g, b );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetLegendPosition (double x, double y)
+void vtkXYPlotRepresentation::SetLegendPosition ( double x, double y )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetLegendPosition(x,y);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetLegendPosition( x, y );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetLegendPosition2 (double x, double y)
+void vtkXYPlotRepresentation::SetLegendPosition2 ( double x, double y )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetLegendPosition2(x,y);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetLegendPosition2( x, y );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetLineWidth (double w)
+void vtkXYPlotRepresentation::SetLineWidth ( double w )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetLineWidth(w);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetLineWidth( w );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetPlotColor (int i, int r, int g, int b)
+void vtkXYPlotRepresentation::SetPlotColor ( int i, int r, int g, int b )
 {
-   //cout << "vtkXYPlotRepresentation::SetPlotColor ";
-   if (this->XYPlotActor)
-   {
-      //cout << i << ", " << r << ", " << g << ", " << b << endl;
-      this->XYPlotActor->SetPlotColor(i, r/255.0, g/255.0, b/255.0);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetPlotColor( i, r/255.0, g/255.0, b/255.0 );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetPlotLines (int i)
+void vtkXYPlotRepresentation::SetPlotLines ( int i )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetPlotLines(i);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetPlotLines( i );
+    }
 }
 
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetPlotPoints (int i)
+void vtkXYPlotRepresentation::SetPlotPoints ( int i )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetPlotPoints(i);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetPlotPoints( i );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetPlotLabel (int i, const char* label)
+void vtkXYPlotRepresentation::SetPlotLabel ( int i, const char* label )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetPlotLabel(i, label);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetPlotLabel( i, label );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetPlotGlyphType(int curve, int glyph)
+void vtkXYPlotRepresentation::SetPlotGlyphType( int curve, int glyph )
 {
-   //cout <<"vtkXYPlotRepresentation::SetPlotGlyphType ";
-   if (this->XYPlotActor)
-   {
-      //cout << curve << " = " << glyph << endl;
-      this->XYPlotActor->SetPlotGlyphType(curve, glyph);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetPlotGlyphType( curve, glyph );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetGlyphSize(double x)
+void vtkXYPlotRepresentation::SetGlyphSize( double x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetGlyphSize(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetGlyphSize( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::AddUserCurvesPoint (double c, double x, double y)
+void vtkXYPlotRepresentation::AddUserCurvesPoint ( double c, double x, double y )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->AddUserCurvesPoint(c, x, y);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->AddUserCurvesPoint( c, x, y );
+    }
 }
 
 //-------------------------------------------------------------------------------
 void vtkXYPlotRepresentation::RemoveAllActiveCurves ()
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->RemoveAllActiveCurves();
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->RemoveAllActiveCurves();
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetTitleColor (double r, double g, double b)
+void vtkXYPlotRepresentation::SetTitleColor ( double r, double g, double b )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetTitleColor(r, g, b);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetTitleColor( r, g, b );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetTitleFontFamily (int x)
+void vtkXYPlotRepresentation::SetTitleFontFamily ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetTitleFontFamily(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetTitleFontFamily( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetTitleBold (int x)
+void vtkXYPlotRepresentation::SetTitleBold ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetTitleBold(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetTitleBold( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetTitleItalic (int x)
+void vtkXYPlotRepresentation::SetTitleItalic ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetTitleItalic(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetTitleItalic( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetTitleShadow (int x)
+void vtkXYPlotRepresentation::SetTitleShadow ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetTitleShadow(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetTitleShadow( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetTitleFontSize (int x)
+void vtkXYPlotRepresentation::SetTitleFontSize ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetTitleFontSize(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetTitleFontSize( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetTitleJustification (int x)
+void vtkXYPlotRepresentation::SetTitleJustification ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetTitleJustification(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetTitleJustification( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetTitleVerticalJustification (int x)
+void vtkXYPlotRepresentation::SetTitleVerticalJustification ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetTitleVerticalJustification(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetTitleVerticalJustification( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAdjustTitlePosition (int x)
+void vtkXYPlotRepresentation::SetAdjustTitlePosition ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAdjustTitlePosition(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAdjustTitlePosition( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetTitlePosition (double x, double y)
+void vtkXYPlotRepresentation::SetTitlePosition ( double x, double y )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetTitlePosition(x,y);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetTitlePosition( x, y );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisTitleColor (double r, double g, double b)
+void vtkXYPlotRepresentation::SetAxisTitleColor ( double r, double g, double b )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisTitleColor(r,g,b);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisTitleColor( r, g, b );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisTitleFontFamily (int x)
+void vtkXYPlotRepresentation::SetAxisTitleFontFamily ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisTitleFontFamily(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisTitleFontFamily( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisTitleBold (int x)
+void vtkXYPlotRepresentation::SetAxisTitleBold ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisTitleBold(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisTitleBold( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisTitleItalic (int x)
+void vtkXYPlotRepresentation::SetAxisTitleItalic ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisTitleItalic(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisTitleItalic( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisTitleShadow (int x)
+void vtkXYPlotRepresentation::SetAxisTitleShadow ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisTitleShadow(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisTitleShadow( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisTitleFontSize (int x)
+void vtkXYPlotRepresentation::SetAxisTitleFontSize ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisTitleFontSize(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisTitleFontSize( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisTitleJustification (int x)
+void vtkXYPlotRepresentation::SetAxisTitleJustification ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisTitleJustification(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisTitleJustification( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisTitleVerticalJustification (int x)
+void vtkXYPlotRepresentation::SetAxisTitleVerticalJustification ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisTitleVerticalJustification(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisTitleVerticalJustification( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisLabelColor (double r, double g, double b)
+void vtkXYPlotRepresentation::SetAxisLabelColor ( double r, double g, double b )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisLabelColor(r,g,b);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisLabelColor( r, g, b );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisLabelFontFamily (int x)
+void vtkXYPlotRepresentation::SetAxisLabelFontFamily ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisLabelFontFamily(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisLabelFontFamily( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisLabelBold (int x)
+void vtkXYPlotRepresentation::SetAxisLabelBold ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisLabelBold(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisLabelBold( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisLabelItalic (int x)
+void vtkXYPlotRepresentation::SetAxisLabelItalic ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisLabelItalic(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisLabelItalic( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisLabelShadow (int x)
+void vtkXYPlotRepresentation::SetAxisLabelShadow ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisLabelShadow(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisLabelShadow( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisLabelFontSize (int x)
+void vtkXYPlotRepresentation::SetAxisLabelFontSize ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisLabelFontSize(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisLabelFontSize( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisLabelJustification (int x)
+void vtkXYPlotRepresentation::SetAxisLabelJustification ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisLabelJustification(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisLabelJustification( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetAxisLabelVerticalJustification (int x)
+void vtkXYPlotRepresentation::SetAxisLabelVerticalJustification ( int x )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetAxisLabelVerticalJustification(x);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetAxisLabelVerticalJustification( x );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetXLabelFormat(const char* _arg)
+void vtkXYPlotRepresentation::SetXLabelFormat( const char* arg )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetXLabelFormat(_arg);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetXLabelFormat( arg );
+    }
 }
 
 //-------------------------------------------------------------------------------
-void vtkXYPlotRepresentation::SetYLabelFormat(const char* _arg)
+void vtkXYPlotRepresentation::SetYLabelFormat( const char* arg )
 {
-   if (this->XYPlotActor)
-   {
-      this->XYPlotActor->SetYLabelFormat(_arg);
-   }
+  if ( this->XYPlotActor )
+    {
+    this->XYPlotActor->SetYLabelFormat( arg );
+    }
 }
