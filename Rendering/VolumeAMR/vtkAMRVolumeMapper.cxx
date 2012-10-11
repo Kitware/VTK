@@ -384,21 +384,11 @@ void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *am
   // The grid may have changed
   this->GridNeedsToBeUpdated = true;
 }
+
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
                                                        vtkOverlappingAMR *amr)
 {
-  // First we need to create a bouding box that represents the visible region
-  // of the camera in World Coordinates
-
-  // In order to produce as tight of bounding box as possible we need to determine
-  // the z range in view coordinates of the data and then project that part
-  // of the view volume back into world coordinates
-
-  // We would just use the renderer's WorldToView and ViewToWorld methods but those
-  // implementations are not efficient for example ViewToWorld would do 8
-  // matrix inverse ops when all we really need to do is one
-
   double bounds[6];
   // If we have been passed a valid amr then assume this is the proper
   // meta data to use
@@ -411,10 +401,41 @@ void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
     // Make sure the bounds are up to date
     this->GetBounds(bounds);
     }
+
+  double computed_bounds[6];
+  if (vtkAMRVolumeMapper::ComputeResamplerBoundsFrustumMethod(
+    ren->GetActiveCamera(), ren, bounds, computed_bounds))
+    {
+    vtkBoundingBox bbox(computed_bounds);
+    // Now set the min/max of the resample filter
+    this->Resampler->SetMin( const_cast< double* >(bbox.GetMinPoint()) );
+    this->Resampler->SetMax( const_cast< double* >(bbox.GetMaxPoint()) );
+    this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
+    }
+}
+
+//----------------------------------------------------------------------------
+bool vtkAMRVolumeMapper::ComputeResamplerBoundsFrustumMethod(
+  vtkCamera* camera, vtkRenderer* renderer,
+  const double bounds[6], double out_bounds[6])
+{
+  vtkMath::UninitializeBounds(out_bounds);
+
+  // First we need to create a bouding box that represents the visible region
+  // of the camera in World Coordinates
+
+  // In order to produce as tight of bounding box as possible we need to determine
+  // the z range in view coordinates of the data and then project that part
+  // of the view volume back into world coordinates
+
+  // We would just use the renderer's WorldToView and ViewToWorld methods but those
+  // implementations are not efficient for example ViewToWorld would do 8
+  // matrix inverse ops when all we really need to do is one
+
+
   // Get the camera transformation
-  vtkMatrix4x4 *matrix =
-    ren->GetActiveCamera()->
-    GetCompositeProjectionTransformMatrix(ren->GetTiledAspectRatio(), 0, 1);
+  vtkMatrix4x4 *matrix = camera->GetCompositeProjectionTransformMatrix(
+    renderer->GetTiledAspectRatio(), 0, 1);
 
   int i, j, k;
   double pnt[4], tpnt[4];
@@ -437,7 +458,7 @@ void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
           }
         else
           {
-          vtkErrorMacro("UpdateResampler: Found an Ideal Point going to VC!");
+          vtkGenericWarningMacro("UpdateResampler: Found an Ideal Point going to VC!");
           }
         }
       }
@@ -494,7 +515,7 @@ void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
           }
         else
           {
-          vtkErrorMacro("UpdateResampler: Found an Ideal Point going to WC!");
+          vtkGenericWarningMacro("UpdateResampler: Found an Ideal Point going to WC!");
           }
         }
       }
@@ -503,14 +524,12 @@ void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
   // Check to see if the box is valid
   if (!bbox.IsValid())
     {
-    return; // There is nothing we can do
+    return false; // There is nothing we can do
     }
-  // Now set the min/max of the resample filter
-  this->Resampler->SetMin( const_cast< double* >(bbox.GetMinPoint()) );
-  this->Resampler->SetMax( const_cast< double* >(bbox.GetMaxPoint()) );
-
-  this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
+  bbox.GetBounds(out_bounds);
+  return true;
 }
+
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::UpdateGrid()
 {
