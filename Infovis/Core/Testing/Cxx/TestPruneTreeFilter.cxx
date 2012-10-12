@@ -20,7 +20,7 @@
 #include "vtkTree.h"
 
 //----------------------------------------------------------------------------
-int TestPruneTreeFilter(int argc, char* argv[])
+int TestPruneTreeFilter(int, char*[])
 {
   vtkNew<vtkMutableDirectedGraph> graph;
   vtkIdType root = graph->AddVertex();
