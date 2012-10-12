@@ -741,8 +741,10 @@ void SystemInformation::RunMemoryCheck()
 // initial APIC ID for the processor this code is running on.
 // Default value = 0xff if HT is not supported
 
-
+// Hide implementation details in an anonymous namespace.
+namespace {
 // *****************************************************************************
+#if defined(__linux) || defined(__APPLE__)
 int LoadLines(
       FILE *file,
       kwsys_stl::vector<kwsys_stl::string> &lines)
@@ -807,25 +809,9 @@ int NameValue(
     }
   return -1;
 }
+#endif
 
-// ****************************************************************************
-template<typename T>
-int GetFieldFromFile(
-      const char *fileName,
-      const char *fieldName,
-      T &value)
-{
-  const char *fieldNames[2]={fieldName,NULL};
-  T values[1]={T(0)};
-  int ierr=GetFieldsFromFile(fileName,fieldNames,values);
-  if (ierr)
-    {
-    return ierr;
-    }
-  value=values[0];
-  return 0;
-}
-
+#if defined(__linux)
 // ****************************************************************************
 template<typename T>
 int GetFieldsFromFile(
@@ -853,14 +839,14 @@ int GetFieldsFromFile(
 
 // ****************************************************************************
 template<typename T>
-int GetFieldFromCommand(
-      const char *command,
+int GetFieldFromFile(
+      const char *fileName,
       const char *fieldName,
       T &value)
 {
-  const char *names[2]={fieldName,NULL};
+  const char *fieldNames[2]={fieldName,NULL};
   T values[1]={T(0)};
-  int ierr=GetFieldsFromCommand(command,names,values);
+  int ierr=GetFieldsFromFile(fileName,fieldNames,values);
   if (ierr)
     {
     return ierr;
@@ -868,8 +854,10 @@ int GetFieldFromCommand(
   value=values[0];
   return 0;
 }
+#endif
 
 // ****************************************************************************
+#if defined(__APPLE__)
 template<typename T>
 int GetFieldsFromCommand(
       const char *command,
@@ -900,8 +888,10 @@ int GetFieldsFromCommand(
     }
   return 0;
 }
+#endif
 
 // ****************************************************************************
+#if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
 void StacktraceSignalHandler(
       int sigNo,
       siginfo_t *sigInfo,
@@ -1090,6 +1080,8 @@ void StacktraceSignalHandler(
   (void)sigInfo;
 #endif
 }
+#endif
+} // anonymous namespace
 
 SystemInformationImplementation::SystemInformationImplementation()
 {
