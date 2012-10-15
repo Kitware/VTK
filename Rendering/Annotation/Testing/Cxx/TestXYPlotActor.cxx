@@ -25,7 +25,7 @@ int TestXYPlotActor( int argc, char *argv[] )
 
   vtkSmartPointer<vtkVolume16Reader> v16 =
     vtkSmartPointer<vtkVolume16Reader>::New();
-  v16->SetDataDimensions( 64, 64 ;
+  v16->SetDataDimensions( 64, 64 );
   v16->SetDataByteOrderToLittleEndian();
   v16->SetImageRange( 1, 93 );
   v16->SetDataSpacing( 3.2, 3.2, 1.5 );
@@ -73,7 +73,6 @@ int TestXYPlotActor( int argc, char *argv[] )
   profile->SetTitleTextProperty(tprop);
 
   ren1->SetBackground( 0.1, 0.2, 0.4);
-  ren1->SetViewport( 0, 0, 0.5, 1);
   ren1->AddActor( profile);
 
   renWin->SetSize( 600, 300);
