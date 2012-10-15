@@ -87,9 +87,9 @@ int TestOffAxisStereo(int argc, char *argv[])
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->AddRenderer(renderer);
   renwin->SetSize(400, 400);
-  renwin->SetStereoRender(1);
   renwin->SetStereoCapableWindow(1);
   renwin->SetStereoTypeToRedBlue();
+  renwin->SetStereoRender(1);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);

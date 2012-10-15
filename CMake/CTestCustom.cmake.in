@@ -272,7 +272,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "QtDesigner/extension.*warning: unused parameter"
 
   # Strange Arch warning
-  "cc1plus: warning: assuming signed overflow does not occur when assuming that (X + c) >= X is always true [-Wstrict-overflow]"
+  "cc1plus: warning: assuming signed overflow does not occur when assuming that .* is always true"
   )
 
 IF(APPLE)
