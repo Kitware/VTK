@@ -241,7 +241,7 @@ void vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
     return;
     }
 
-  int numParticles = sParticles.size();
+  int numParticles = static_cast<int>(sParticles.size());
   std::vector<int> allNumParticles(this->NumProcs, 0);
   // Broadcast and receive size to/from all other processes.
   com->AllGather(&numParticles, &allNumParticles[0], 1);
