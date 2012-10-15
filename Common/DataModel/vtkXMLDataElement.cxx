@@ -90,15 +90,22 @@ void vtkXMLDataElement::RemoveAttribute(const char *name)
     {
     if(!strcmp(this->AttributeNames[i], name))
       {
+      // delete the contents for the attribute being removed.
+      delete [] this->AttributeNames[i];
+      delete [] this->AttributeValues[i];
+      this->AttributeValues[i] = this->AttributeNames[i] = NULL;
+
       // Shift the other attributes
       for (j = i; j < this->NumberOfAttributes - 1; ++j)
         {
         this->AttributeNames[j] = this->AttributeNames[j + 1];
         this->AttributeValues[j] = this->AttributeValues[j + 1];
         }
-      // Delete the last one
-      delete [] this->AttributeNames[this->NumberOfAttributes - 1];
-      delete [] this->AttributeValues[this->NumberOfAttributes - 1];
+
+      // set the last ones as NULL, since the pointers have been moved.
+      this->AttributeNames[this->NumberOfAttributes - 1] = NULL;
+      this->AttributeValues[this->NumberOfAttributes - 1] = NULL;
+
       --this->NumberOfAttributes;
       // this->AttributesSize is unchanged
       return;

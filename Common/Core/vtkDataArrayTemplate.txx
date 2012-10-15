@@ -25,6 +25,8 @@
 #include "vtkInformationVector.h"
 #include "vtkSortDataArray.h"
 #include "vtkTypeTraits.h"
+#include "vtkVariantCast.h"
+
 #include <new>
 #include <exception>
 #include <utility>
@@ -898,9 +900,8 @@ void vtkDataArrayTemplate<T>::InsertValue(vtkIdType id, T f)
 template <class T>
 void vtkDataArrayTemplate<T>::SetVariantValue(vtkIdType id, vtkVariant value)
 {
-  T* dummyPtr = 0;
   bool valid;
-  T toInsert = value.ToNumeric(&valid, dummyPtr);
+  T toInsert = vtkVariantCast<T>(value, &valid);
   if (valid)
     {
     this->SetValue(id, toInsert);
@@ -1045,9 +1046,8 @@ void vtkDataArrayTemplate<T>::UpdateLookup()
 template <class T>
 vtkIdType vtkDataArrayTemplate<T>::LookupValue(vtkVariant var)
 {
-  T* dummyPtr = 0;
   bool valid = true;
-  T value = var.ToNumeric(&valid, dummyPtr);
+  T value = vtkVariantCast<T>(var, &valid);
   if (valid)
     {
     return this->LookupValue(value);
@@ -1059,9 +1059,8 @@ vtkIdType vtkDataArrayTemplate<T>::LookupValue(vtkVariant var)
 template <class T>
 void vtkDataArrayTemplate<T>::LookupValue(vtkVariant var, vtkIdList* ids)
 {
-  T* dummyPtr = 0;
   bool valid = true;
-  T value = var.ToNumeric(&valid, dummyPtr);
+  T value = vtkVariantCast<T>(var, &valid);
   ids->Reset();
   if (valid)
     {
