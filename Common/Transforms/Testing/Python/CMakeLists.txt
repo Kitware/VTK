@@ -1,0 +1,5 @@
+add_test_python(MatrixToTransform.py Graphics)
+add_test_python(TestThinPlateWarp.py Hybrid)
+add_test_python(TestThinPlateWarp3D.py Hybrid)
+add_test_python(cylindrical.py Graphics)
+add_test_python(spherical.py Graphics)

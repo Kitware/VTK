@@ -1,0 +1,1 @@
+add_test_python(TestImagePlaneWidget.py Widgets)
