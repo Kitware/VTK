@@ -42,6 +42,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
+#if defined(_WIN32) && !defined(__CYGWIN__)
+# define SNPRINTF _snprintf
+#else
+# define SNPRINTF snprintf
+#endif
+
+struct  _xmlNode;
 #define VTK_MAX_PLOTS 50
 
 vtkStandardNewMacro(vtkXYPlotActor);
@@ -2260,7 +2267,7 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
    switch( this->YTitlePosition )
    {
    case AXIS_TOP:
-     snprintf( tmp, len, "%s", YTitleActor->GetInput() );
+     SNPRINTF( tmp, len, "%s", YTitleActor->GetInput() );
      textMapper->SetInput(tmp);
      break;
    case AXIS_HCENTER:
