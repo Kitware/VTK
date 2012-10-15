@@ -30,6 +30,10 @@
 #include <vtkTable.h>
 #include <vtkTableToSparseArray.h>
 #include <vtkDenseArray.h>
+#include <vtkMutableDirectedGraph.h>
+#include <vtkTree.h>
+#include <vtkNew.h>
+#include <vtkStringArray.h>
 
 #include <vtksys/ios/iostream>
 #include <vtksys/ios/sstream>
@@ -48,8 +52,16 @@ namespace
     } \
 }
 
+bool integerEquals(int left, int right) {
+  return ((left - right) == 0 );
+}
+
 bool doubleEquals(double left, double right, double epsilon) {
   return (fabs(left - right) < epsilon);
+}
+
+bool stringEquals(const char * left, const char * right) {
+  return (strcmp(left, right) == 0);
 }
 
 }
@@ -63,6 +75,7 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkRCalculatorFilter* rf = vtkRCalculatorFilter::New();
     vtkRRandomTableSource* rts = vtkRRandomTableSource::New();
     vtkRCalculatorFilter* rf2 = vtkRCalculatorFilter::New();
+    vtkRCalculatorFilter* rf3 = vtkRCalculatorFilter::New();
     vtkDataSet* ds;
     vtkPointData* pd;
     vtkDoubleArray* da;
@@ -148,10 +161,80 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       test_expression(doubleEquals(sqrt(table_val + 5.0),dense_val,0.0001));
       }
 
+    //-----  test PutTree() and GetTree()
+    // 1) construct a vtkTree
+    vtkNew<vtkMutableDirectedGraph> graph;
+    vtkIdType root = graph->AddVertex();
+    vtkIdType internalOne = graph->AddChild(root);
+    vtkIdType internalTwo = graph->AddChild(internalOne);
+    vtkIdType a = graph->AddChild(internalTwo);
+    vtkIdType b = graph->AddChild(internalTwo);
+    vtkIdType c = graph->AddChild(internalOne);
+
+    vtkNew<vtkDoubleArray> weights;
+    weights->SetNumberOfTuples(5);
+    weights->SetValue(graph->GetEdgeId(root, internalOne), 0.0f);
+    weights->SetValue(graph->GetEdgeId(internalOne, internalTwo), 2.0f);
+    weights->SetValue(graph->GetEdgeId(internalTwo, a), 1.0f);
+    weights->SetValue(graph->GetEdgeId(internalTwo, b), 1.0f);
+    weights->SetValue(graph->GetEdgeId(internalOne, c), 3.0f);
+
+    weights->SetName("weight");
+    graph->GetEdgeData()->AddArray(weights.GetPointer());
+
+    vtkNew<vtkStringArray> names;
+    names->SetNumberOfTuples(6);
+    names->SetValue(root,"");
+    names->SetValue(internalOne,"");
+    names->SetValue(internalTwo,"");
+    names->SetValue(a, "a");
+    names->SetValue(b, "b");
+    names->SetValue(c, "c");
+    names->SetName("node name");
+    graph->GetVertexData()->AddArray(names.GetPointer());
+
+    vtkSmartPointer<vtkTree> itree = vtkSmartPointer<vtkTree>::New();
+    if ( ! itree->CheckedDeepCopy(graph.GetPointer()))
+      {
+      std::cout<<"Edges do not create a valid tree."<<std::endl;
+      return 1;
+      };
+
+    rf3->AddInputData(0,itree);
+    rf3->AddInputConnection(0,source->GetOutputPort());
+    rf3->SetRoutput(0);
+    rf3->PutArray("0","a");
+    rf3->PutTree("inTree");
+    rf3->GetTree("outTree");
+    rf3->SetRscript("b<-a\noutTree<-inTree\n");
+
+    rf3->Update();
+    vtkTree* outTree = vtkTree::SafeDownCast(rf3->GetOutput());
+
+    test_expression(integerEquals(outTree->GetNumberOfEdges(),5));
+    test_expression(integerEquals(outTree->GetNumberOfVertices(),6));
+
+    //check edge data
+    double v_weights[5] = {0.0,2.0,3.0,1.0,1.0};
+    for (int i = 0; i < outTree->GetNumberOfEdges(); i++)
+      {
+      vtkDoubleArray * weights = vtkDoubleArray::SafeDownCast(outTree->GetEdgeData()->GetArray("weight"));
+      test_expression(doubleEquals(weights->GetValue(i),double( v_weights[i]), 0.001));
+      }
+
+    //check vertex data
+    const char *  t_names[] ={"","a","b","c","",""};
+    for (int i = 0; i < outTree->GetNumberOfVertices(); i++)
+      {
+      vtkStringArray * names = vtkStringArray::SafeDownCast(outTree->GetVertexData()->GetAbstractArray("node name"));
+      test_expression(stringEquals(names->GetValue(i).c_str(), t_names[i] ));
+      }
+
     cs->Delete();
     rts->Delete();
     rf->Delete();
     rf2->Delete();
+    rf3->Delete();
 
     return 0;
     }

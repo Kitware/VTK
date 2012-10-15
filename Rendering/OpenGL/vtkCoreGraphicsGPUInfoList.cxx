@@ -33,56 +33,57 @@ void vtkCoreGraphicsGPUInfoList::Probe()
     this->Probed=true;
     this->Array=new vtkGPUInfoListArray;
 
-    CGError err=CGDisplayNoErr;
-    CGDirectDisplayID *displays=NULL;
-    CGDisplayCount dspCount=0;
     // How many active displays do we have?
-    err=CGGetActiveDisplayList(0,NULL,&dspCount);
-    if(dspCount>0)
+    CGDisplayCount dspCount=0;
+    CGError err=CGGetActiveDisplayList(0,NULL,&dspCount);
+    if(!err && dspCount>0)
       {
       // Allocate enough memory to hold all the display IDs we have
-      displays=static_cast<CGDirectDisplayID *>(calloc(static_cast<size_t>(dspCount),sizeof(CGDirectDisplayID)));
+      CGDirectDisplayID *displays=static_cast<CGDirectDisplayID *>(calloc(static_cast<size_t>(dspCount),sizeof(CGDirectDisplayID)));
       // Get the list of active displays
       err=CGGetActiveDisplayList(dspCount,
                                  displays,
                                  &dspCount);
 
-      size_t c=dspCount; // there are `c' GPUS.
-      this->Array->v.resize(c);
-      size_t i=0;
-      while(i<c)
+      if (!err)
         {
-        vtkGPUInfo *info=vtkGPUInfo::New();
-        this->Array->v[i]=info;
-
-        io_service_t dspPort=CGDisplayIOServicePort(displays[i]);
-
-        // Note: the QA1168 Apple sample code is wrong as it uses
-        // kIOFBMemorySizeKey. Also it does not work in 64-bit because it
-        // used "long".
-        // Our method is to get the value of property "VRAM,totalsize"
-        // We cannot (yet) distinguish between dedicated video memory
-        // (for example 512MB for a nVidia GeForce 9600M GT) and
-        // dedicated system memory (for example 256MB for a nVidia GeForce
-        // 9400M).
-
-        // Look for property
-        CFTypeRef typeCode = IORegistryEntrySearchCFProperty(
-          dspPort,kIOServicePlane,CFSTR("VRAM,totalsize"),kCFAllocatorDefault,
-          kIORegistryIterateRecursively | kIORegistryIterateParents);
-
-        if(typeCode!=0)
+        size_t c=dspCount; // there are `c' GPUS.
+        this->Array->v.resize(c);
+        size_t i=0;
+        while(i<c)
           {
-          if(CFGetTypeID(typeCode)==CFDataGetTypeID())
+          vtkGPUInfo *info=vtkGPUInfo::New();
+          this->Array->v[i]=info;
+
+          io_service_t dspPort=CGDisplayIOServicePort(displays[i]);
+
+          // Note: the QA1168 Apple sample code is wrong as it uses
+          // kIOFBMemorySizeKey. Also it does not work in 64-bit because it
+          // used "long".
+          // Our method is to get the value of property "VRAM,totalsize"
+          // We cannot (yet) distinguish between dedicated video memory
+          // (for example 512MB for a nVidia GeForce 9600M GT) and
+          // dedicated system memory (for example 256MB for a nVidia GeForce
+          // 9400M).
+
+          // Look for property
+          CFTypeRef typeCode = IORegistryEntrySearchCFProperty(
+            dspPort,kIOServicePlane,CFSTR("VRAM,totalsize"),kCFAllocatorDefault,
+            kIORegistryIterateRecursively | kIORegistryIterateParents);
+
+          if(typeCode!=0)
             {
-            // Get the property and interpret it.
-            const UInt8 *v=CFDataGetBytePtr(static_cast<CFDataRef>(typeCode));
-            int ramSize=*(reinterpret_cast<const int *>(v));
-            info->SetDedicatedVideoMemory(ramSize);
+            if(CFGetTypeID(typeCode)==CFDataGetTypeID())
+              {
+              // Get the property and interpret it.
+              const UInt8 *v=CFDataGetBytePtr(static_cast<CFDataRef>(typeCode));
+              int ramSize=*(reinterpret_cast<const int *>(v));
+              info->SetDedicatedVideoMemory(ramSize);
+              }
+            CFRelease(typeCode);
             }
-          CFRelease(typeCode);
+          ++i;
           }
-        ++i;
         }
       free(displays);
       }

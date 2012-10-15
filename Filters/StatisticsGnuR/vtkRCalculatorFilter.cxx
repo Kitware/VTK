@@ -37,6 +37,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkDoubleArray.h"
 #include "vtkTable.h"
+#include "vtkTree.h"
 
 #include <stdlib.h>
 #include <string>
@@ -71,6 +72,8 @@ public:
   std::vector<ArrNames> GetArrNames;
   std::string PutTableName;
   std::string GetTableName;
+  std::string PutTreeName;
+  std::string GetTreeName;
 };
 
 vtkRCalculatorFilter::vtkRCalculatorFilter()
@@ -92,6 +95,7 @@ vtkRCalculatorFilter::vtkRCalculatorFilter()
   this->Routput = 1;
   this->rcfi = new vtkRCalculatorFilterInternals();
   this->OutputBuffer = new char[BUFFER_SIZE];
+  this->GetInputPortInformation(0)->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
 
 }
 
@@ -259,7 +263,7 @@ int vtkRCalculatorFilter::RequestDataObject(
 
   if (input)
     {
-    // for each output
+    //one output port, but multiple InformationObjects()
     for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
@@ -272,41 +276,24 @@ int vtkRCalculatorFilter::RequestDataObject(
         newOutput->Delete();
         }
       }
-    return 1;
+    return (1);
     }
   return 0;
 }
 
-
-
+//----------------------------------------------------------------------------
 int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
                                       vtkInformationVector **inputVector,
                                       vtkInformationVector *outputVector)
 {
 
-  int ncells;
-  int npoints;
   int result;
-  std::vector<ArrNames>::iterator VectorIterator;
-  vtkInformation* inpinfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* outinfo = outputVector->GetInformationObject(0);
-  vtkDataSetAttributes* CellinFD = 0;
-  vtkDataSetAttributes* PointinFD = 0;
-
-  vtkDataObject* input = inpinfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkDataObject* output = outinfo->Get(vtkDataObject::DATA_OBJECT());
-
-  output->ShallowCopy(input);
 
   if(!this->ri)
     {
     this->ri = vtkRInterface::New();
     }
 
-  if(this->Routput)
-    {
-
-    }
 
   if(this->ScriptFname)
     {
@@ -323,27 +310,17 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
     this->ri->OutputBuffer(this->OutputBuffer, BUFFER_SIZE);
     }
 
-  vtkDataArray* currentArray = 0;
-  vtkArray* cArray = 0;
 
-  vtkDataSetAttributes* CelloutFD = 0;
-  vtkDataSetAttributes* PointoutFD = 0;
+  vtkInformation* outinfo = outputVector->GetInformationObject(0);
+  vtkInformation* inpinfo = inputVector[0]->GetInformationObject(0);
 
-  vtkDataSet* dsinp = vtkDataSet::SafeDownCast(input);
-  vtkDataSet* dsout = vtkDataSet::SafeDownCast(output);
+  vtkDataObject* input = inpinfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* output = outinfo->Get(vtkDataObject::DATA_OBJECT());
 
-  vtkGraph* graphinp = vtkGraph::SafeDownCast(input);
-  vtkGraph* graphout = vtkGraph::SafeDownCast(output);
+  //only one output port; the ouput type is assumed to be the same as the first input data object (backward compatibility)
+  output->ShallowCopy(input);
 
-  vtkArrayData* adinp = vtkArrayData::SafeDownCast(input);
-  vtkArrayData* adout = vtkArrayData::SafeDownCast(output);
-
-  vtkCompositeDataSet* cdsinp = vtkCompositeDataSet::SafeDownCast(input);
-  vtkCompositeDataSet* cdsout = vtkCompositeDataSet::SafeDownCast(output);
-
-  vtkTable* tableinp = vtkTable::SafeDownCast(input);
-  vtkTable* tableout = vtkTable::SafeDownCast(output);
-
+  // For now: use the first input information for timing
   if(this->TimeOutput)
     {
     if ( inpinfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
@@ -351,21 +328,21 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
       int length = inpinfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
 
       if(!this->TimeSteps)
-           {
-           this->TimeSteps = vtkDoubleArray::New();
-           this->TimeSteps->SetNumberOfComponents(1);
-           this->TimeSteps->SetNumberOfTuples(length);
-           }
-         else if(this->TimeSteps->GetNumberOfTuples() != length)
-           {
-           this->TimeSteps->SetNumberOfTuples(length);
-           }
+        {
+        this->TimeSteps = vtkDoubleArray::New();
+        this->TimeSteps->SetNumberOfComponents(1);
+        this->TimeSteps->SetNumberOfTuples(length);
+        }
+      else if(this->TimeSteps->GetNumberOfTuples() != length)
+        {
+        this->TimeSteps->SetNumberOfTuples(length);
+        }
 
-         for(int i = 0; i<length; i++)
-           {
-           this->TimeSteps->InsertValue(i,
-           inpinfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() )[i] );
-           }
+      for(int i = 0; i<length; i++)
+        {
+        this->TimeSteps->InsertValue(i,
+          inpinfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() )[i] );
+        }
 
       this->ri->AssignVTKDataArrayToRVariable(this->TimeSteps, "VTK_TIME_STEPS");
       }
@@ -386,360 +363,82 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
       this->ri->AssignVTKDataArrayToRVariable(this->TimeRange, "VTK_TIME_RANGE");
       }
 
-      if ( input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()) )
+    if ( input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()) )
+      {
+      if(!this->CurrentTime)
         {
-        if(!this->CurrentTime)
-          {
-          this->CurrentTime = vtkDoubleArray::New();
-          this->CurrentTime->SetNumberOfComponents(1);
-          this->CurrentTime->SetNumberOfTuples(1);
-          }
-
-        this->CurrentTime->InsertValue(0,input->GetInformation()->Get( vtkDataObject::DATA_TIME_STEP()) );
-
-        this->ri->AssignVTKDataArrayToRVariable(this->CurrentTime, "VTK_CURRENT_TIME");
+        this->CurrentTime = vtkDoubleArray::New();
+        this->CurrentTime->SetNumberOfComponents(1);
+        this->CurrentTime->SetNumberOfTuples(1);
         }
+
+      this->CurrentTime->InsertValue(0,input->GetInformation()->Get( vtkDataObject::DATA_TIME_STEP()) );
+
+      this->ri->AssignVTKDataArrayToRVariable(this->CurrentTime, "VTK_CURRENT_TIME");
+      }
     }
 
-  if( dsinp ) /* Data Set input */
+  // assign vtk variables to R variables
+  vtkDataSet * dataSetIn = 0;
+  vtkGraph * graphIn = 0;
+  vtkTree * treeIn = 0;
+  vtkTable* tableIn = 0;
+  vtkCompositeDataSet * compositeDataSetIn = 0;
+  vtkArrayData * arrayDataIn = 0;
+  int numberOfInputs =  inputVector[0]->GetNumberOfInformationObjects();
+  for ( int i = 0; i < numberOfInputs; i++)
     {
-    this->ProcessDataSet(dsinp, dsout);
-    }
-  else if( tableinp ) /* vtkTable input */
-    {
+    inpinfo = inputVector[0]->GetInformationObject(i);
 
-    if(this->rcfi->PutTableName.size() > 0)
+    input = inpinfo->Get(vtkDataObject::DATA_OBJECT());
+
+    dataSetIn = vtkDataSet::SafeDownCast(input);
+    if (dataSetIn)
       {
-      this->ri->AssignVTKTableToRVariable(tableinp, this->rcfi->PutTableName.c_str());
+      this->ProcessInputDataSet(dataSetIn);
+      continue;
       }
 
-    if(this->Rscript)
+    treeIn = vtkTree::SafeDownCast(input);
+    if (treeIn)
       {
-      result = this->ri->EvalRscript(this->Rscript);
-
-      if(result)
-        {
-        vtkErrorMacro(<<"Failed to evaluate command string in R");
-        return(1);
-        }
-
-      if(this->Routput)
-        {
-        cout << this->OutputBuffer << endl;
-        }
+      this->ProcessInputTree(treeIn);
+      continue;
       }
 
-    if(this->RfileScript)
+    graphIn = vtkGraph::SafeDownCast(input);
+    if (graphIn)
       {
-      result = this->ri->EvalRscript(this->RfileScript);
-
-      if(result)
-        {
-        vtkErrorMacro(<<"Failed to evaluate command string in R");
-        return(1);
-        }
-
-      if(this->Routput)
-        {
-        cout << this->OutputBuffer << endl;
-        }
+      this->ProcessInputGraph(graphIn);
+      continue;
       }
 
-    if(this->rcfi->GetTableName.size() > 0)
+    arrayDataIn = vtkArrayData::SafeDownCast(input);
+    if (arrayDataIn)
       {
-      tableout->ShallowCopy(this->ri->AssignRVariableToVTKTable(this->rcfi->GetTableName.c_str()));
+      this->ProcessInputArrayData(arrayDataIn);
+      continue;
       }
 
-    }
-  else if( cdsinp ) /* Composite Data Set input */
-    {
-    vtkCompositeDataIterator* iter = cdsinp->NewIterator();
-    vtkCompositeDataIterator* oiter = cdsout->NewIterator();
-
-    if(this->BlockInfoOutput)
+    compositeDataSetIn = vtkCompositeDataSet::SafeDownCast(input);
+    if (compositeDataSetIn)
       {
-      if(!this->BlockId)
-        {
-        this->BlockId = vtkDoubleArray::New();
-        this->BlockId->SetNumberOfComponents(1);
-        this->BlockId->SetNumberOfTuples(1);
-        }
-
-      if(!this->NumBlocks)
-        {
-        this->NumBlocks = vtkDoubleArray::New();
-        this->NumBlocks->SetNumberOfComponents(1);
-        this->NumBlocks->SetNumberOfTuples(1);
-        }
-      int nb = 0;
-      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-        {
-        nb++;
-        }
-      this->NumBlocks->SetValue(0,nb);
-      this->ri->AssignVTKDataArrayToRVariable(this->NumBlocks, "VTK_NUMBER_OF_BLOCKS");
+      this->ProcessInputCompositeDataSet(compositeDataSetIn);
+      continue;
       }
 
-    oiter->InitTraversal();
-    int bid = 1;
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    tableIn = vtkTable::SafeDownCast(input);
+    if (tableIn)
       {
-      if(this->BlockInfoOutput)
-        {
-        this->BlockId->SetValue(0,bid);
-        this->ri->AssignVTKDataArrayToRVariable(this->BlockId, "VTK_BLOCK_ID");
-        }
-      vtkDataSet* inputDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-      vtkDataSet* outputDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-      this->ProcessDataSet(inputDS, outputDS);
-      oiter->GoToNextItem();
-      bid++;
+      this->ProcessInputTable(tableIn);
+      continue;
       }
 
-    iter->Delete();
-    }
-  else if( graphinp ) /* Graph input */
-    {
-    CellinFD = graphinp->GetEdgeData();
-    PointinFD = graphinp->GetVertexData();
 
-    CelloutFD = graphout->GetEdgeData();
-    PointoutFD = graphout->GetVertexData();
 
-    ncells = graphinp->GetNumberOfEdges();
-    npoints = graphinp->GetNumberOfVertices();
-
-    if( (npoints < 1) && (ncells < 1) )
-      {
-      vtkErrorMacro(<<"Empty Data Set");
-      return(1);
-      }
-
-    for(VectorIterator = this->rcfi->PutArrNames.begin();
-        VectorIterator != this->rcfi->PutArrNames.end();
-        VectorIterator++)
-      {
-      currentArray = PointinFD->GetArray(VectorIterator->VTKArrName.c_str());
-
-      if(!currentArray)
-        {
-        currentArray = CellinFD->GetArray(VectorIterator->VTKArrName.c_str());
-        }
-
-      if(currentArray)
-        {
-        this->ri->AssignVTKDataArrayToRVariable(currentArray,
-                                                VectorIterator->RarrName.c_str());
-        }
-      else
-        {
-        vtkErrorMacro(<<"Array Name not in Data Set " << VectorIterator->VTKArrName.c_str());
-        return(1);
-        }
-      }
-
-    if(this->Rscript)
-      {
-      result = this->ri->EvalRscript(this->Rscript);
-
-      if(result)
-        {
-        vtkErrorMacro(<<"Failed to evaluate command string in R");
-        return(1);
-        }
-
-      if(this->Routput)
-        {
-        cout << this->OutputBuffer << endl;
-        }
-      }
-
-    if(this->RfileScript)
-      {
-      result = this->ri->EvalRscript(this->Rscript);
-
-      if(result)
-        {
-        vtkErrorMacro(<<"Failed to evaluate command string in R");
-        return(1);
-        }
-
-      if(this->Routput)
-        {
-        cout << this->OutputBuffer << endl;
-        }
-      }
-
-      for(VectorIterator = this->rcfi->GetArrNames.begin();
-          VectorIterator != this->rcfi->GetArrNames.end();
-          VectorIterator++)
-        {
-        currentArray = this->ri->AssignRVariableToVTKDataArray(VectorIterator->RarrName.c_str());
-
-        if(!currentArray)
-          {
-          vtkErrorMacro(<<"Failed to get array from R");
-          return(1);
-          }
-
-        int ntuples = currentArray->GetNumberOfTuples();
-
-        vtkDataSetAttributes* dsa;
-
-        if(ntuples == ncells)
-          {
-          dsa = CelloutFD;
-          }
-        else if(ntuples == npoints)
-          {
-          dsa = PointoutFD;
-          }
-        else
-          {
-          vtkErrorMacro(<<"Array returned from R has wrong size");
-          currentArray->Delete();
-          return(1);
-          }
-
-        currentArray->SetName(VectorIterator->VTKArrName.c_str());
-
-        if(dsa->HasArray(VectorIterator->VTKArrName.c_str()))
-          {
-          dsa->RemoveArray(VectorIterator->VTKArrName.c_str());
-          }
-
-        dsa->AddArray(currentArray);
-        }
-    }
-  else if(adinp)
-    {
-    for(VectorIterator = this->rcfi->PutArrNames.begin();
-        VectorIterator != this->rcfi->PutArrNames.end();
-        VectorIterator++)
-      {
-      int index = atoi(VectorIterator->VTKArrName.c_str());
-
-      if( (index < 0) || (index >= adinp->GetNumberOfArrays()) )
-        {
-        vtkErrorMacro(<<"Array Index out of bounds " << index);
-        return(1);
-        }
-
-      cArray = adinp->GetArray(index);
-
-      this->ri->AssignVTKArrayToRVariable(cArray,  VectorIterator->RarrName.c_str());
-      }
-
-    if(this->Rscript)
-      {
-      result = this->ri->EvalRscript(this->Rscript);
-
-      if(result)
-        {
-        vtkErrorMacro(<<"Failed to evaluate command string in R");
-        return(1);
-        }
-
-      if(this->Routput)
-        {
-        cout << this->OutputBuffer << endl;
-        }
-      }
-
-    if(this->RfileScript)
-      {
-      result = this->ri->EvalRscript(this->RfileScript);
-
-      if(result)
-        {
-        vtkErrorMacro(<<"Failed to evaluate command string in R");
-        return(1);
-        }
-
-      if(this->Routput)
-        {
-        cout << this->OutputBuffer << endl;
-        }
-      }
-
-    for(VectorIterator = this->rcfi->GetArrNames.begin();
-        VectorIterator != this->rcfi->GetArrNames.end();
-        VectorIterator++)
-      {
-      cArray = this->ri->AssignRVariableToVTKArray(VectorIterator->RarrName.c_str());
-
-      if(!cArray)
-        {
-        vtkErrorMacro(<<"Failed to get array from R");
-        return(1);
-        }
-
-      cArray->SetName(VectorIterator->VTKArrName.c_str());
-
-      adout->AddArray(cArray);
-      }
-    }
-  else
-    {
-    vtkErrorMacro(<<"Filter does not handle input data type");
-    return(1);
     }
 
-  return(1);
-
-}
-
-int vtkRCalculatorFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
-{
-
-  int ncells;
-  int npoints;
-  int result;
-  vtkDataSetAttributes* CellinFD = 0;
-  vtkDataSetAttributes* PointinFD = 0;
-  vtkDataSetAttributes* CelloutFD = 0;
-  vtkDataSetAttributes* PointoutFD = 0;
-  std::vector<ArrNames>::iterator VectorIterator;
-  vtkDataArray* currentArray = 0;
-
-  CellinFD = dsinp->GetCellData();
-  PointinFD = dsinp->GetPointData();
-
-  CelloutFD = dsout->GetCellData();
-  PointoutFD = dsout->GetPointData();
-
-  ncells = dsinp->GetNumberOfCells();
-  npoints = dsinp->GetNumberOfPoints();
-
-  if( (ncells < 1) && (npoints < 1) )
-    {
-    vtkErrorMacro(<<"Empty Data Set");
-    return(1);
-    }
-
-  for(VectorIterator = this->rcfi->PutArrNames.begin();
-      VectorIterator != this->rcfi->PutArrNames.end();
-      VectorIterator++)
-    {
-    currentArray = PointinFD->GetArray(VectorIterator->VTKArrName.c_str());
-
-    if(!currentArray)
-      {
-      currentArray = CellinFD->GetArray(VectorIterator->VTKArrName.c_str());
-      }
-
-    if(currentArray)
-      {
-      this->ri->AssignVTKDataArrayToRVariable(currentArray,
-                                              VectorIterator->RarrName.c_str());
-      }
-    else
-      {
-      vtkErrorMacro(<<"Array Name not in Data Set " << VectorIterator->VTKArrName.c_str());
-      return(1);
-      }
-    }
-
+  //run scripts
   if(this->Rscript)
     {
     result = this->ri->EvalRscript(this->Rscript);
@@ -772,9 +471,120 @@ int vtkRCalculatorFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
       }
     }
 
+
+  // generate output
+  vtkDataSet* dataSetOut = vtkDataSet::SafeDownCast(output);
+  if (dataSetOut)
+    {
+    this->ProcessOutputDataSet(dataSetOut);
+    return (1);
+    }
+
+
+  vtkCompositeDataSet* compositeDataSetOut= vtkCompositeDataSet::SafeDownCast(output);
+  if (compositeDataSetOut)
+    {
+    this->ProcessOutputCompositeDataSet(compositeDataSetOut);
+    return (1);
+    }
+
+  vtkArrayData* arrayDataOut = vtkArrayData::SafeDownCast(output);
+  if (arrayDataOut)
+    {
+    this->ProcessOutputArrayData(arrayDataOut);
+    return (1);
+    }
+
+  vtkTable* tableOut= vtkTable::SafeDownCast(output);
+  if (tableOut)
+    {
+    this->ProcessOutputTable(tableOut);
+    return (1);
+    }
+
+  vtkTree* treeOut = vtkTree::SafeDownCast(output);
+  if (treeOut)
+    {
+    this->ProcessOutputTree(treeOut);
+    return (1);
+    }
+
+  vtkGraph* graphOut = vtkGraph::SafeDownCast(output);
+  if (graphOut)
+    {
+    int ncells = graphIn->GetNumberOfEdges();
+    int npoints = graphIn->GetNumberOfVertices();
+    this->ProcessOutputGraph(graphOut);
+    return (1);
+    }
+
+
+  vtkErrorMacro(<<"Filter does not handle output data type");
+  return(1);
+}
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessInputDataSet(vtkDataSet* dsIn)
+{
+  int ncells;
+  int npoints;
+  vtkDataSetAttributes* CellinFD = 0;
+  vtkDataSetAttributes* PointinFD = 0;
+
+  std::vector<ArrNames>::iterator VectorIterator;
+  vtkDataArray* currentArray = 0;
+
+  CellinFD = dsIn->GetCellData();
+  PointinFD = dsIn->GetPointData();
+
+  ncells = dsIn->GetNumberOfCells();
+  npoints = dsIn->GetNumberOfPoints();
+
+  if( (ncells < 1) && (npoints < 1) )
+    {
+    vtkErrorMacro(<<"Empty Data Set");
+    return(1);
+    }
+
+  for(VectorIterator = this->rcfi->PutArrNames.begin();
+    VectorIterator != this->rcfi->PutArrNames.end();
+    VectorIterator++)
+    {
+    currentArray = PointinFD->GetArray(VectorIterator->VTKArrName.c_str());
+
+    if(!currentArray)
+      {
+      currentArray = CellinFD->GetArray(VectorIterator->VTKArrName.c_str());
+      }
+
+    if(currentArray)
+      {
+      this->ri->AssignVTKDataArrayToRVariable(currentArray,
+        VectorIterator->RarrName.c_str());
+      }
+    else
+      {
+      vtkErrorMacro(<<"Array Name not in Data Set " << VectorIterator->VTKArrName.c_str());
+      return(1);
+      }
+    }
+return (1);
+}
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessOutputDataSet(vtkDataSet* dsOut)
+{
+  vtkDataArray* currentArray = 0;
+  vtkDataSetAttributes* CelloutFD = dsOut->GetCellData();
+  vtkDataSetAttributes* PointoutFD = dsOut->GetPointData();
+
+  int ncells = dsOut->GetNumberOfCells();
+  int npoints = dsOut->GetNumberOfPoints();
+
+  std::vector<ArrNames>::iterator VectorIterator;
   for(VectorIterator = this->rcfi->GetArrNames.begin();
-      VectorIterator != this->rcfi->GetArrNames.end();
-      VectorIterator++)
+    VectorIterator != this->rcfi->GetArrNames.end();
+    VectorIterator++)
     {
     currentArray = this->ri->AssignRVariableToVTKDataArray(VectorIterator->RarrName.c_str());
 
@@ -814,8 +624,273 @@ int vtkRCalculatorFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
     }
 
   return(1);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessInputGraph(vtkGraph* gIn)
+{
+  vtkDataSetAttributes* CellinFD = gIn->GetEdgeData();
+  vtkDataSetAttributes* PointinFD = gIn->GetVertexData();
+
+  int ncells = gIn->GetNumberOfEdges();
+  int npoints = gIn->GetNumberOfVertices();
+
+  if( (npoints < 1) && (ncells < 1) )
+    {
+    vtkErrorMacro(<<"Empty Data Set");
+    return(1);
+    }
+
+  std::vector<ArrNames>::iterator VectorIterator;
+  vtkDataArray* currentArray = 0;
+  for(VectorIterator = this->rcfi->PutArrNames.begin();
+    VectorIterator != this->rcfi->PutArrNames.end();
+    VectorIterator++)
+    {
+    currentArray = PointinFD->GetArray(VectorIterator->VTKArrName.c_str());
+
+    if(!currentArray)
+      {
+      currentArray = CellinFD->GetArray(VectorIterator->VTKArrName.c_str());
+      }
+
+    if(currentArray)
+      {
+      this->ri->AssignVTKDataArrayToRVariable(currentArray,
+        VectorIterator->RarrName.c_str());
+      }
+    else
+      {
+      vtkErrorMacro(<<"Array Name not in Data Set " << VectorIterator->VTKArrName.c_str());
+      return(1);
+      }
+    }
+  return (1);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessOutputGraph(vtkGraph* gOut)
+{
+  vtkDataSetAttributes * CelloutFD = gOut->GetEdgeData();
+  vtkDataSetAttributes *PointoutFD = gOut->GetVertexData();
+
+  int ncells = gOut->GetNumberOfEdges();
+  int npoints = gOut->GetNumberOfVertices();
+
+  vtkDataArray* currentArray = 0;
+  std::vector<ArrNames>::iterator VectorIterator;
+  for(VectorIterator = this->rcfi->GetArrNames.begin();
+    VectorIterator != this->rcfi->GetArrNames.end();
+    VectorIterator++)
+    {
+    currentArray = this->ri->AssignRVariableToVTKDataArray(VectorIterator->RarrName.c_str());
+
+    if(!currentArray)
+      {
+      vtkErrorMacro(<<"Failed to get array from R");
+      return(1);
+      }
+
+    int ntuples = currentArray->GetNumberOfTuples();
+
+    vtkDataSetAttributes* dsa;
+
+    if(ntuples == ncells)
+      {
+      dsa = CelloutFD;
+      }
+    else if(ntuples == npoints)
+      {
+      dsa = PointoutFD;
+      }
+    else
+      {
+      vtkErrorMacro(<<"Array returned from R has wrong size");
+      currentArray->Delete();
+      return(1);
+      }
+
+    currentArray->SetName(VectorIterator->VTKArrName.c_str());
+
+    if(dsa->HasArray(VectorIterator->VTKArrName.c_str()))
+      {
+      dsa->RemoveArray(VectorIterator->VTKArrName.c_str());
+      }
+
+    dsa->AddArray(currentArray);
+    }
+
+  return (1);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessInputArrayData(vtkArrayData * adIn)
+{
+
+  vtkArray* cArray = 0;
+  std::vector<ArrNames>::iterator VectorIterator;
+  for(VectorIterator = this->rcfi->PutArrNames.begin();
+    VectorIterator != this->rcfi->PutArrNames.end();
+    VectorIterator++)
+    {
+    int index = atoi(VectorIterator->VTKArrName.c_str());
+
+    if( (index < 0) || (index >= adIn->GetNumberOfArrays()) )
+      {
+      vtkErrorMacro(<<"Array Index out of bounds " << index);
+      return(1);
+      }
+
+    cArray = adIn->GetArray(index);
+
+    this->ri->AssignVTKArrayToRVariable(cArray,  VectorIterator->RarrName.c_str());
+    }
+  return (1);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessOutputArrayData(vtkArrayData * adOut)
+{
+  vtkArray * cArray = 0;
+  std::vector<ArrNames>::iterator VectorIterator;
+  for(VectorIterator = this->rcfi->GetArrNames.begin();
+    VectorIterator != this->rcfi->GetArrNames.end();
+    VectorIterator++)
+    {
+    cArray = this->ri->AssignRVariableToVTKArray(VectorIterator->RarrName.c_str());
+
+    if(!cArray)
+      {
+      vtkErrorMacro(<<"Failed to get array from R");
+      return(1);
+      }
+
+    cArray->SetName(VectorIterator->VTKArrName.c_str());
+
+    adOut->AddArray(cArray);
+    }
+  return (1);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessInputCompositeDataSet(vtkCompositeDataSet* cdsIn)
+{
+    vtkCompositeDataIterator* iter = cdsIn->NewIterator();
+
+    if(this->BlockInfoOutput)
+      {
+      if(!this->BlockId)
+        {
+        this->BlockId = vtkDoubleArray::New();
+        this->BlockId->SetNumberOfComponents(1);
+        this->BlockId->SetNumberOfTuples(1);
+        }
+
+      if(!this->NumBlocks)
+        {
+        this->NumBlocks = vtkDoubleArray::New();
+        this->NumBlocks->SetNumberOfComponents(1);
+        this->NumBlocks->SetNumberOfTuples(1);
+        }
+      int nb = 0;
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+        {
+        nb++;
+        }
+      this->NumBlocks->SetValue(0,nb);
+      this->ri->AssignVTKDataArrayToRVariable(this->NumBlocks, "VTK_NUMBER_OF_BLOCKS");
+      }
+
+
+    int bid = 1;
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+      {
+      if(this->BlockInfoOutput)
+        {
+        this->BlockId->SetValue(0,bid);
+        this->ri->AssignVTKDataArrayToRVariable(this->BlockId, "VTK_BLOCK_ID");
+        }
+      vtkDataSet* inputDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      this->ProcessInputDataSet(inputDS);
+      bid++;
+      }
+    iter->Delete();
+    return (1);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessOutputCompositeDataSet(vtkCompositeDataSet * cdsOut)
+{
+
+  vtkCompositeDataIterator* iter = cdsOut->NewIterator();
+  iter->InitTraversal();
+
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    vtkDataSet* outputDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    this->ProcessOutputDataSet(outputDS);
+    }
+  iter->Delete();
+  return (1);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessInputTable(vtkTable* tIn)
+{
+  if(this->rcfi->PutTableName.size() > 0)
+    {
+    this->ri->AssignVTKTableToRVariable(tIn, this->rcfi->PutTableName.c_str());
+    }
+  return (1);
 
 }
+
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessOutputTable(vtkTable* tOut)
+{
+
+  if(this->rcfi->GetTableName.size() > 0)
+    {
+    tOut->ShallowCopy(this->ri->AssignRVariableToVTKTable(this->rcfi->GetTableName.c_str()));
+    }
+
+  return (1);
+
+}
+
+
+int vtkRCalculatorFilter::ProcessInputTree(vtkTree* tIn)
+{
+
+  if(this->rcfi->PutTreeName.size() > 0)
+    {
+    this->ri->AssignVTKTreeToRVariable(tIn, this->rcfi->PutTreeName.c_str());
+    }
+  return (1);
+
+}
+
+
+int vtkRCalculatorFilter::ProcessOutputTree(vtkTree* tOut)
+{
+
+  if(this->rcfi->GetTreeName.size() > 0)
+    {
+    tOut->ShallowCopy(this->ri->AssignRVariableToVTKTree(this->rcfi->GetTreeName.c_str()));
+    }
+  return (1);
+
+}
+
+
 
 int vtkRCalculatorFilter::SetRscriptFromFile(const char* fname)
 {
@@ -873,6 +948,7 @@ int vtkRCalculatorFilter::SetRscriptFromFile(const char* fname)
 
 }
 
+
 void vtkRCalculatorFilter::PutArray(const char* NameOfVTKArray, const char* NameOfMatVar)
 {
 
@@ -883,6 +959,7 @@ void vtkRCalculatorFilter::PutArray(const char* NameOfVTKArray, const char* Name
     }
 
 }
+
 
 void vtkRCalculatorFilter::GetArray(const char* NameOfVTKArray, const char* NameOfMatVar)
 {
@@ -895,6 +972,7 @@ void vtkRCalculatorFilter::GetArray(const char* NameOfVTKArray, const char* Name
 
 }
 
+
 void vtkRCalculatorFilter::PutTable(const char* NameOfRvar)
 {
 
@@ -905,6 +983,7 @@ void vtkRCalculatorFilter::PutTable(const char* NameOfRvar)
     }
 
 }
+
 
 void vtkRCalculatorFilter::GetTable(const char* NameOfRvar)
 {
@@ -917,11 +996,37 @@ void vtkRCalculatorFilter::GetTable(const char* NameOfRvar)
 
 }
 
+
+void vtkRCalculatorFilter::PutTree(const char* NameOfRvar)
+{
+
+  if( NameOfRvar && (strlen(NameOfRvar) > 0) )
+    {
+    rcfi->PutTreeName = NameOfRvar;
+    this->Modified();
+    }
+
+}
+
+
+void vtkRCalculatorFilter::GetTree(const char* NameOfRvar)
+{
+
+  if( NameOfRvar && (strlen(NameOfRvar) > 0) )
+    {
+    rcfi->GetTreeName = NameOfRvar;
+    this->Modified();
+    }
+
+}
+
+
 void vtkRCalculatorFilter::RemoveAllPutVariables()
 {
   rcfi->PutArrNames.clear();
   this->Modified();
 }
+
 
 void vtkRCalculatorFilter::RemoveAllGetVariables()
 {

@@ -3,7 +3,6 @@
 unset(tests)
 if(VTK_DATA_ROOT)
   set(tests
-#    cursor3D  needs vtkTkImageViewerWidget
     gaussian
     TestBunykRayCastFunction
     TestFixedPointRayCasterLinearCropped

@@ -136,6 +136,9 @@ public:
   //Unhide superclass method
   void GetBounds(double b[6]) { Superclass::GetBounds(b);}
 
+  //Description
+  //Given a point q, find the highest level grid that contains it.
+  bool FindGrid(double q[3], unsigned int& level, unsigned int& gridId);
 
   // Description:
   // Get/Set the interal representation of amr meta meta data

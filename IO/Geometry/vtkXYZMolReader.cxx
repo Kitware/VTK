@@ -19,6 +19,7 @@
 #include "vtkPoints.h"
 #include "vtkIdTypeArray.h"
 #include "vtkPolyData.h"
+#include "vtkStringArray.h"
 
 #include <sys/stat.h>
 
@@ -157,6 +158,13 @@ void vtkXYZMolReader::InsertAtom(const char* atom, float *pos)
 {
   this->Points->InsertNextPoint(pos);
   this->AtomType->InsertNextValue(this->MakeAtomType(atom));
+  this->AtomTypeStrings->InsertNextValue(atom);
+  this->Residue->InsertNextValue(-1);
+  this->Chain->InsertNextValue(0);
+  this->SecondaryStructures->InsertNextValue(0);
+  this->SecondaryStructuresBegin->InsertNextValue(0);
+  this->SecondaryStructuresEnd->InsertNextValue(0);
+  this->IsHetatm->InsertNextValue(0);
 }
 
 

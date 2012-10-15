@@ -350,7 +350,7 @@ void vtkTreeLayoutStrategy::Layout()
     for (vtkIdType p = 0; p < newPoints->GetNumberOfPoints(); ++p)
       {
       newPoints->GetPoint(p, x);
-      t->MultiplyPoint(x, y);
+      t->TransformPoint(x, y);
       newPoints->SetPoint(p, y);
       }
     }

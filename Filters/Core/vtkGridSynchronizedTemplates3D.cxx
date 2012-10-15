@@ -37,7 +37,8 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
-
+#include "vtkPolygonBuilder.h"
+#include "vtkSmartPointer.h"
 #include <math.h>
 
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
@@ -52,6 +53,7 @@ vtkGridSynchronizedTemplates3D::vtkGridSynchronizedTemplates3D()
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
+  this->GenerateTriangles = 1;
 
   this->ExecuteExtent[0] = this->ExecuteExtent[1]
     = this->ExecuteExtent[2] = this->ExecuteExtent[3]
@@ -339,7 +341,7 @@ if (ComputeScalars) \
 template <class T, class PointsType>
 void ContourGrid(vtkGridSynchronizedTemplates3D *self,
                  int *exExt, T *scalars,
-                 vtkStructuredGrid *input, vtkPolyData *output, PointsType*, vtkDataArray *inScalars)
+                 vtkStructuredGrid *input, vtkPolyData *output, PointsType*, vtkDataArray *inScalars, bool outputTriangles)
 {
   int *inExt = input->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
@@ -386,6 +388,8 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   vtkFloatArray *newScalars = NULL;
   vtkFloatArray *newNormals = NULL;
   vtkFloatArray *newGradients = NULL;
+  vtkPolygonBuilder polyBuilder;
+  vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();
 
   if (ComputeScalars)
     {
@@ -679,6 +683,10 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
             // to protect data against multiple threads
             if (  input->IsCellVisible(inCellId) )
               {
+              if (!outputTriangles)
+                {
+                polyBuilder.Reset();
+                }
               while (*tablePtr != -1)
                 {
                 ptIds[0] = *(isect1Ptr + offsets[*tablePtr]);
@@ -691,7 +699,23 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
                     ptIds[0] != ptIds[2] &&
                     ptIds[1] != ptIds[2])
                   {
-                  outCellId = newPolys->InsertNextCell(3,ptIds);
+                  if(outputTriangles)
+                    {
+                    outCellId = newPolys->InsertNextCell(3,ptIds);
+                    outCD->CopyData(inCD, inCellId, outCellId);
+                    }
+                  else
+                    {
+                    polyBuilder.InsertTriangle(ptIds);
+                    }
+                  }
+                }
+              if(!outputTriangles)
+                {
+                polyBuilder.GetPolygon(poly);
+                if(poly->GetNumberOfIds()>0)
+                  {
+                  outCellId = newPolys->InsertNextCell(poly);
                   outCD->CopyData(inCD, inCellId, outCellId);
                   }
                 }
@@ -737,12 +761,12 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 template <class T>
 void ContourGrid(vtkGridSynchronizedTemplates3D *self,
                  int *exExt, T *scalars, vtkStructuredGrid *input,
-                 vtkPolyData *output, vtkDataArray *inScalars)
+                 vtkPolyData *output, vtkDataArray *inScalars, bool outputTriangles)
 {
   switch(input->GetPoints()->GetData()->GetDataType())
     {
     vtkTemplateMacro(
-                     ContourGrid(self, exExt, scalars, input, output,static_cast<VTK_TT *>(0), inScalars));
+      ContourGrid(self, exExt, scalars, input, output,static_cast<VTK_TT *>(0), inScalars, outputTriangles));
     }
 }
 
@@ -787,7 +811,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
     switch (inScalars->GetDataType())
       {
       vtkTemplateMacro(
-                       ContourGrid(this, exExt, static_cast<VTK_TT *>(scalars), input, output, inScalars));
+        ContourGrid(this, exExt, static_cast<VTK_TT *>(scalars), input, output, inScalars, this->GenerateTriangles!=0));
       }//switch
     }
   else //multiple components - have to convert
@@ -797,7 +821,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
     image->Allocate(dataSize*image->GetNumberOfComponents());
     inScalars->GetTuples(0,dataSize,image);
     double *scalars = image->GetPointer(0);
-    ContourGrid(this, exExt, scalars, input, output, inScalars);
+    ContourGrid(this, exExt, scalars, input, output, inScalars, this->GenerateTriangles!=0);
     image->Delete();
     }
 

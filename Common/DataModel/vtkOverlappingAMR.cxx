@@ -241,3 +241,9 @@ void vtkOverlappingAMR::Audit()
       }
     }
 }
+
+
+bool vtkOverlappingAMR::FindGrid(double q[3], unsigned int& level, unsigned int& gridId)
+{
+  return this->AMRInfo->FindGrid(q,level,gridId);
+}

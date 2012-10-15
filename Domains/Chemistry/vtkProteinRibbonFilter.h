@@ -39,17 +39,30 @@ public:
 
   static vtkProteinRibbonFilter* New();
 
+  // Description:
+  // Width of the ribbon coil. Default is 0.3.
   vtkGetMacro(CoilWidth, float);
   vtkSetMacro(CoilWidth, float);
 
+  // Description:
+  // Width of the helix part of the ribbon. Default is 1.3.
   vtkGetMacro(HelixWidth, float);
   vtkSetMacro(HelixWidth, float);
 
-  vtkGetMacro(SphereResolution, int);
-  vtkSetMacro(SphereResolution, int);
-
+  // Description:
+  // Smoothing factor of the ribbon. Default is 20.
   vtkGetMacro(SubdivideFactor, int);
   vtkSetMacro(SubdivideFactor, int);
+
+  // Description:
+  // If enabled, small molecules (HETATMs) are drawn as spheres. Default is true.
+  vtkGetMacro(DrawSmallMoleculesAsSpheres, bool);
+  vtkSetMacro(DrawSmallMoleculesAsSpheres, bool);
+
+  // Description:
+  // Resolution of the spheres for small molecules. Default is 20.
+  vtkGetMacro(SphereResolution, int);
+  vtkSetMacro(SphereResolution, int);
 
 protected:
   vtkProteinRibbonFilter();
@@ -73,7 +86,7 @@ protected:
   static std::vector<vtkVector3f>* Subdivide(std::vector<std::pair<vtkVector3f, bool> >& p,
                                              int div);
 
-  void SetColorByAtom( std::vector<vtkColor3ub>& colors, vtkStringArray* atomTypes);
+  void SetColorByAtom(std::vector<vtkColor3ub>& colors, vtkStringArray* atomTypes);
 
   void SetColorByStructure(std::vector<vtkColor3ub>& colors,
                            vtkStringArray* atomTypes, vtkUnsignedCharArray* ss,
@@ -86,6 +99,7 @@ protected:
   float HelixWidth;
   int SphereResolution;
   int SubdivideFactor;
+  bool DrawSmallMoleculesAsSpheres;
 
 private:
   vtkProteinRibbonFilter(const vtkProteinRibbonFilter&);  // Not implemented.
