@@ -42,6 +42,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder,
 // Karthik Krishnan, Aashish Chaudhary, Philippe Pebay, David Gobbi,
 // David Partyka, Utkarsh Ayachit David Cole, Francois Bertel, and Mark Olesen
+// Part of this work was supported by CEA/DIF - Commissariat a l'Energie Atomique, 
+// Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France.
 //
 // .SECTION See Also
 // vtkActor vtkVectorText vtkPolyDataMapper vtkAxisActor2D vtkCoordinate
