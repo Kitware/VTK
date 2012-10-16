@@ -47,6 +47,8 @@ All rights reserve
 // Eric Brugger, Daniel Aguilera, Claire Guilbaud, Nicolas Dolegieviez,
 // Aashish Chaudhary, Philippe Pebay, David Gobbi, David Partyka, Utkarsh Ayachit
 // David Cole, Francois Bertel, and Mark Olesen
+// Part of this work was supported by CEA/DIF - Commissariat a l'Energie Atomique, 
+// Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France.
 //
 // .section See Also
 // vtkActor vtkAxisActor vtkCubeAxesActor2D
