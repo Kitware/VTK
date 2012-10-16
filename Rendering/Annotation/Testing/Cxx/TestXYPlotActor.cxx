@@ -56,7 +56,7 @@ int TestXYPlotActor( int argc, char *argv[] )
   xyPlot->GetPositionCoordinate()->SetValue( 0.05, 0.05, 0 );
   xyPlot->GetPosition2Coordinate()->SetValue( 0.95, 0.95, 0 );
   xyPlot->SetXValuesToNormalizedArcLength();
-  xyPlot->SetNumberOfXLabels( 6 );
+  xyPlot->SetNumberOfXLabels( 9 );
   xyPlot->SetNumberOfYLabels( 8 );
   xyPlot->SetTitle( "XY Plot Actor Test");
   xyPlot->SetYTitlePositionToTop();

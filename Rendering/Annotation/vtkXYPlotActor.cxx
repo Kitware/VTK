@@ -381,6 +381,7 @@ void vtkXYPlotActor::InitializeEntries()
     }//if entries have been defined
 }
 
+//----------------------------------------------------------------------------
 bool vtkXYPlotActor::DoesConnectionMatch( int i, vtkAlgorithmOutput* in )
 {
   vtkAlgorithmOutput* conn =
@@ -393,9 +394,10 @@ bool vtkXYPlotActor::DoesConnectionMatch( int i, vtkAlgorithmOutput* in )
   return false;
 }
 
+//----------------------------------------------------------------------------
 int vtkXYPlotActor::IsInputPresent( vtkAlgorithmOutput* in,
-                                   const char* arrayName,
-                                   int component )
+                                    const char* arrayName,
+                                    int component )
 {
   int numConns = this->InputConnectionHolder->GetNumberOfInputConnections( 0 );
   for ( int idx=0; idx<numConns; idx++)
@@ -420,8 +422,8 @@ int vtkXYPlotActor::IsInputPresent( vtkAlgorithmOutput* in,
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::AddDataSetInput( vtkDataSet *ds,
-                                     const char *arrayName,
-                                     int component )
+                                      const char *arrayName,
+                                      int component )
 {
   vtkTrivialProducer* tp = vtkTrivialProducer::New();
   tp->SetOutput( ds );
@@ -432,8 +434,8 @@ void vtkXYPlotActor::AddDataSetInput( vtkDataSet *ds,
 //----------------------------------------------------------------------------
 // Add a dataset and array to the list of data to plot.
 void vtkXYPlotActor::AddDataSetInputConnection( vtkAlgorithmOutput *in,
-                                               const char *arrayName,
-                                               int component )
+                                                const char *arrayName,
+                                                int component )
 {
   int idx, num;
   char** newNames;
@@ -508,8 +510,8 @@ void vtkXYPlotActor::RemoveAllDataSetInputConnections()
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::RemoveDataSetInput( vtkDataSet *ds,
-                                        const char *arrayName,
-                                        int component )
+                                         const char *arrayName,
+                                         int component )
 {
   int numConns = this->InputConnectionHolder->GetNumberOfInputConnections( 0 );
   for ( int idx=0; idx<numConns; idx++)
@@ -531,8 +533,8 @@ void vtkXYPlotActor::RemoveDataSetInput( vtkDataSet *ds,
 //----------------------------------------------------------------------------
 // Remove a dataset from the list of data to plot.
 void vtkXYPlotActor::RemoveDataSetInputConnection( vtkAlgorithmOutput *in,
-                                                  const char *arrayName,
-                                                  int component )
+                                                   const char *arrayName,
+                                                   int component )
 {
   // IsInputPresent returns 0 on failure, index+1 on success.
   // Subtract 1 for the actual index.

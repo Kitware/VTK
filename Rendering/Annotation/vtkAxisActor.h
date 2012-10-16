@@ -357,7 +357,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 //ETX
 
   // Description:
-  // Get total numbe of labels built. Once built
+  // Get total number of labels built. Once built
   // this count does not change.
   vtkGetMacro(NumberOfLabelsBuilt, int);
 
