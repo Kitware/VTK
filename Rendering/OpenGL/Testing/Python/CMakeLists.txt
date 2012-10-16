@@ -1,0 +1,2 @@
+add_test_python(TestFreetypeTextMapperBigger.py Rendering)
+add_test_python(TestFreetypeTextOverlay.py Rendering)
