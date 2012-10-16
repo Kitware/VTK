@@ -75,8 +75,8 @@ vtkStandardNewMacro(vtkXYPlotActorConnections);
 vtkXYPlotActor::vtkXYPlotActor()
 {
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
-  this->PositionCoordinate->SetValue( 0.25, 0.25 );
-  this->Position2Coordinate->SetValue( 0.5, 0.5 );
+  this->PositionCoordinate->SetValue( .25, .25 );
+  this->Position2Coordinate->SetValue( .5, .5 );
 
   this->InputConnectionHolder = vtkXYPlotActorConnections::New();
   this->SelectedInputScalars = NULL;
@@ -182,10 +182,10 @@ vtkXYPlotActor::vtkXYPlotActor()
     }
 
   this->Legend = 0;
-  this->LegendPosition[0] = 0.85;
-  this->LegendPosition[1] = 0.75;
-  this->LegendPosition2[0] = 0.15;
-  this->LegendPosition2[1] = 0.20;
+  this->LegendPosition[0] = .85;
+  this->LegendPosition[1] = .75;
+  this->LegendPosition2[0] = .15;
+  this->LegendPosition2[1] = .20;
   this->LegendActor = vtkLegendBoxActor::New();
   this->LegendActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
@@ -274,9 +274,10 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->AdjustXLabels = 1;
   this->AdjustYLabels = 1;
   this->AdjustTitlePosition = 1;
-  this->TitlePosition[0] = 0.5;
-  this->TitlePosition[1] = 0.9;
-  this->AdjustTitlePositionMode = vtkXYPlotActor::AlignHCenter
+  this->TitlePosition[0] = .5;
+  this->TitlePosition[1] = .9;
+  this->AdjustTitlePositionMode =
+    vtkXYPlotActor::AlignHCenter
     | vtkXYPlotActor::AlignTop
     | vtkXYPlotActor::AlignAxisHCenter
     | vtkXYPlotActor::AlignAxisVCenter;
@@ -986,8 +987,8 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
       int* yaxis_p2 = this->YAxis->GetPosition2Coordinate()->GetComputedViewportValue( viewport );
 
       int yaxis = yaxis_p1[1] - yaxis_p2[1];
-      int yaxis_ymiddle = ( int )( yaxis * 0.5 );
-      int ytitle_half_height = ( int )( this->YTitleSize[1] * 0.5 );
+      int yaxis_ymiddle = ( int )( yaxis * .5 );
+      int ytitle_half_height = ( int )( this->YTitleSize[1] * .5 );
       int ytitle_width = this->YTitleSize[0];
       int ytitlePos[2];
       switch( this->YTitlePosition )
@@ -1048,7 +1049,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
             titlePos[0] = pos2[0];
             break;
           case AlignHCenter:
-            titlePos[0] = pos[0] + 0.5 * ( pos2[0] - pos[0] );
+            titlePos[0] = pos[0] + .5 * ( pos2[0] - pos[0] );
             break;
           };
         switch ( this->AdjustTitlePositionMode & ( AlignAxisLeft | AlignAxisRight | AlignAxisHCenter ) )
@@ -1075,7 +1076,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
             titlePos[1] = pos[1];
             break;
           case AlignVCenter:
-            titlePos[1] = pos[1] + 0.5 * ( pos2[1] - pos[1] );
+            titlePos[1] = pos[1] + .5 * ( pos2[1] - pos[1] );
           };
 
         switch ( this->AdjustTitlePositionMode & ( AlignAxisTop | AlignAxisBottom | AlignAxisVCenter ) )
@@ -1095,7 +1096,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
           };
         this->TitleActor->GetPositionCoordinate()->SetValue( titlePos[0], titlePos[1] );
         //this->TitleActor->GetPositionCoordinate()->SetValue(
-        //  pos[0] + 0.5 * ( pos2[0] - pos[0] ) - stringSize[0] / 2.0,
+        //  pos[0] + .5 * ( pos2[0] - pos[0] ) - stringSize[0] / 2.0,
         //  pos2[1] - stringSize[1] / 2.0 );
         }
       else
@@ -2772,7 +2773,7 @@ void vtkXYPlotActor::SetYTitlePosition( YTitlePositionMode position )
       this->YAxis->SetTitlePosition( 0. );
       return;
     case AXIS_HCENTER:
-      this->YAxis->SetTitlePosition( 1. );
+      this->YAxis->SetTitlePosition( .5 );
       return;
     case AXIS_VCENTER:
       this->YAxis->SetTitlePosition( .5 );

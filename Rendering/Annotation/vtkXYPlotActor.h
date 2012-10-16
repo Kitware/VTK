@@ -335,7 +335,7 @@ public:
   // Set/Get the number of annotation labels to show along the x and y axes.
   // This values is a suggestion: the number of labels may vary depending
   // on the particulars of the data. The convenience method
-  // SetNumberOfLables() sets the number of x and y labels to the same value.
+  // SetNumberOfLabels() sets the number of x and y labels to the same value.
   vtkSetClampMacro(NumberOfXLabels, int, 0, 50);
   vtkGetMacro(NumberOfXLabels, int);
   vtkSetClampMacro(NumberOfYLabels, int, 0, 50);
