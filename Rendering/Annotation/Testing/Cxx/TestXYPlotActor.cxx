@@ -57,12 +57,13 @@ int TestXYPlotActor( int argc, char *argv[] )
   xyPlot->GetPosition2Coordinate()->SetValue( 0.95, 0.95, 0 );
   xyPlot->SetXValuesToNormalizedArcLength();
   xyPlot->SetNumberOfXLabels( 6 );
+  xyPlot->SetNumberOfYLabels( 8 );
   xyPlot->SetTitle( "XY Plot Actor Test");
   xyPlot->SetYTitlePositionToTop();
-  xyPlot->SetXTitle( "s");
-  xyPlot->SetYTitle( "I( s )");
+  xyPlot->SetXTitle( "x value");
+  xyPlot->SetYTitle( "y value");
   xyPlot->SetXRange( 0, 1 );
-  xyPlot->SetYRange( range[0], range[1]);
+  xyPlot->SetYRange( range[0], range[1] );
   xyPlot->GetProperty()->SetColor( 0, 0, 0 );
   xyPlot->GetProperty()->SetLineWidth( 2 );
   xyPlot->SetLabelFormat("%g");
