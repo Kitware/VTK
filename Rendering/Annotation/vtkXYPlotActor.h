@@ -667,7 +667,7 @@ protected:
 
   vtkXYPlotActorConnections* InputConnectionHolder;
   char** SelectedInputScalars; // list of data set arrays to plot
-  vtkIntArray* SelectedInputScalarsComponent; // list of componenents
+  vtkIntArray* SelectedInputScalarsComponent; // list of components
   vtkXYPlotActorConnections *DataObjectInputConnectionHolder; //list of data objects to plot
   char  *Title;
   char  *XTitle;

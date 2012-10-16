@@ -2764,7 +2764,18 @@ void vtkXYPlotActor::SetYTitlePosition( double position )
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetYTitlePosition( YTitlePositionMode position )
 {
-  this->YAxis->SetTitlePosition( 1. - position );
+  switch ( position )
+    {
+    case AXIS_TOP:
+      this->YAxis->SetTitlePosition( 0. );
+      return;
+    case AXIS_HCENTER:
+      this->YAxis->SetTitlePosition( 1. );
+      return;
+    case AXIS_VCENTER:
+      this->YAxis->SetTitlePosition( .5 );
+      return;
+    }
 }
 
 //----------------------------------------------------------------------------

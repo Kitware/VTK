@@ -21,7 +21,7 @@
 
 int TestXYPlotActor( int argc, char *argv[] )
 {
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/headsq/quarter" );
 
   vtkSmartPointer<vtkVolume16Reader> v16 =
     vtkSmartPointer<vtkVolume16Reader>::New();
@@ -38,52 +38,53 @@ int TestXYPlotActor( int argc, char *argv[] )
   vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples( 0 );
-  renWin->AddRenderer( ren1);
+  renWin->AddRenderer( ren1 );
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow( renWin );
 
   vtkSmartPointer<vtkLineSource> line = vtkSmartPointer<vtkLineSource>::New();
 
   vtkSmartPointer<vtkProbeFilter> probe = vtkSmartPointer<vtkProbeFilter>::New();
-  probe->SetInputConnection(line->GetOutputPort());
-  probe->SetSourceConnection(v16->GetOutputPort());
+  probe->SetInputConnection( line->GetOutputPort() );
+  probe->SetSourceConnection( v16->GetOutputPort() );
 
   vtkImageData* data = v16->GetOutput();
   double* range = data->GetPointData()->GetScalars()->GetRange();
 
-  vtkSmartPointer<vtkXYPlotActor> profile = vtkSmartPointer<vtkXYPlotActor>::New();
-  profile->AddDataSetInputConnection( probe->GetOutputPort() );
-  profile->GetPositionCoordinate()->SetValue( 0.05, 0.05, 0);
-  profile->GetPosition2Coordinate()->SetValue( 0.95, 0.95, 0);
-  profile->SetXValuesToNormalizedArcLength();
-  profile->SetNumberOfXLabels( 6);
-  profile->SetTitle( "Profile Data ");
-  profile->SetXTitle( "s");
-  profile->SetYTitle( "I(s)");
-  profile->SetXRange( 0, 1);
-  profile->SetYRange( range[0], range[1]);
-  profile->GetProperty()->SetColor( 0, 0, 0);
-  profile->GetProperty()->SetLineWidth( 2);
-  profile->SetLabelFormat("%g");
-  vtkTextProperty* tprop = profile->GetTitleTextProperty();
-  tprop->SetColor(0.02,0.06,0.62);
+  vtkSmartPointer<vtkXYPlotActor> xyPlot = vtkSmartPointer<vtkXYPlotActor>::New();
+  xyPlot->AddDataSetInputConnection( probe->GetOutputPort() );
+  xyPlot->GetPositionCoordinate()->SetValue( 0.05, 0.05, 0 );
+  xyPlot->GetPosition2Coordinate()->SetValue( 0.95, 0.95, 0 );
+  xyPlot->SetXValuesToNormalizedArcLength();
+  xyPlot->SetNumberOfXLabels( 6 );
+  xyPlot->SetTitle( "XY Plot Actor Test");
+  xyPlot->SetYTitlePositionToTop();
+  xyPlot->SetXTitle( "s");
+  xyPlot->SetYTitle( "I( s )");
+  xyPlot->SetXRange( 0, 1 );
+  xyPlot->SetYRange( range[0], range[1]);
+  xyPlot->GetProperty()->SetColor( 0, 0, 0 );
+  xyPlot->GetProperty()->SetLineWidth( 2 );
+  xyPlot->SetLabelFormat("%g");
+  vtkTextProperty* tprop = xyPlot->GetTitleTextProperty();
+  tprop->SetColor( 0.02,0.06,0.62 );
   tprop->SetFontFamilyToArial();
-  profile->SetAxisTitleTextProperty(tprop);
-  profile->SetAxisLabelTextProperty(tprop);
-  profile->SetTitleTextProperty(tprop);
+  xyPlot->SetAxisTitleTextProperty( tprop );
+  xyPlot->SetAxisLabelTextProperty( tprop );
+  xyPlot->SetTitleTextProperty( tprop );
 
-  ren1->SetBackground( 0.1, 0.2, 0.4);
-  ren1->AddActor( profile);
+  ren1->SetBackground( .8, .8, .8 );
+  ren1->AddActor( xyPlot );
 
-  renWin->SetSize( 600, 300);
+  renWin->SetSize( 600, 300 );
 
   // Set up an interesting viewpoint
   vtkCamera* camera = ren1->GetActiveCamera();
-  camera->Elevation(110);
-  camera->SetViewUp(0, 0, -1);
-  camera->Azimuth(45);
-  camera->SetFocalPoint(100.8,100.8,69);
-  camera->SetPosition(560.949, 560.949, -167.853);
+  camera->Elevation( 110 );
+  camera->SetViewUp( 0, 0, -1 );
+  camera->Azimuth( 45 );
+  camera->SetFocalPoint( 100.8,100.8,69 );
+  camera->SetPosition( 560.949, 560.949, -167.853 );
   ren1->ResetCameraClippingRange();
 
   // Render the image
