@@ -71,6 +71,12 @@
 // vtkAttributeDataToFieldDataFilter and vtkFieldDataToAttributeDataFilter)
 // to convert the data into scalar data and/or points.
 
+// .SECTION Thanks
+// This class was written by:
+// Will Schroeder, Jim Miller, Charles Law, Sebastien Barre, Amy Squillacote,
+// Ken Martin, Mathieu Malaterre, Jeff Lee, Francois Finet, Julien Bertel, 
+// Claire Guilbaud, and Philippe Pebay
+
 // .SECTION See Also
 // vtkActor2D vtkTextMapper vtkScalarBarActor vtkAxisActor2D vtkCubeAxesActor2D
 // vtkAttributeDataToFieldDataFilter vtkFieldDataToAttributeDataFilter
