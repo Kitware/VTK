@@ -47,12 +47,40 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
+#include <vector>
 
 vtkObjectFactoryNewMacro(vtkStreamTracer)
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkAbstractInterpolatedVelocityField);
 
 const double vtkStreamTracer::EPSILON = 1.0E-12;
+
+namespace
+{
+  // special function to interpolate the point data from the input to the output
+  // it makes sure the array exists in the input before trying to copy it to the
+  // output. if it doesn't exist in the input but is in the output then we
+  // remove it from the output instead of having bad values there.
+  // this is meant for multiblock data sets where the grids may not have the
+  // same point data arrays or have them in different orders.
+  void InterpolatePoint(vtkDataSetAttributes* inPointData, vtkDataSetAttributes* outPointData,
+                        vtkIdType toId, vtkIdList *ids, double *weights)
+  {
+    for(int i=outPointData->GetNumberOfArrays()-1;i>=0;i--)
+      {
+      vtkAbstractArray* toArray = outPointData->GetAbstractArray(i);
+      if(vtkAbstractArray* fromArray = inPointData->GetAbstractArray(toArray->GetName()))
+        {
+        fromArray->InterpolateTuple(toId, ids, toArray, weights);
+        }
+      else
+        {
+        outPointData->RemoveArray(toArray->GetName());
+        }
+      }
+  }
+
+}
 
 vtkStreamTracer::vtkStreamTracer()
 {
@@ -775,7 +803,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
 
     // Interpolate all point attributes on first point
     func->GetLastWeights(weights);
-    outputPD->InterpolatePoint(inputPD, nextPoint, cell->PointIds, weights);
+    InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weights);
     if(vecType != vtkDataObject::POINT)
       {
       velocityVectors->InsertNextTuple(velocity);
@@ -930,7 +958,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
       speed = vtkMath::Norm(velocity);
       // Interpolate all point attributes on current point
       func->GetLastWeights(weights);
-      outputPD->InterpolatePoint(inputPD, nextPoint, cell->PointIds, weights);
+      InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weights);
       if(vecType != vtkDataObject::POINT)
         {
         velocityVectors->InsertNextTuple(velocity);
