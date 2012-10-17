@@ -774,6 +774,7 @@ int LoadLines(
   return nRead;
 }
 
+# if defined(__linux)
 // *****************************************************************************
 int LoadLines(
       const char *fileName,
@@ -788,6 +789,7 @@ int LoadLines(
   fclose(file);
   return nRead;
 }
+# endif
 
 // ****************************************************************************
 template<typename T>
