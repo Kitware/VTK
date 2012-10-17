@@ -1,8 +1,8 @@
 #include "vtkSmartPointer.h"
 
 #include "vtkActor.h"
-#include "vtkCamera.h"
 #include "vtkDoubleArray.h"
+#include "vtkLegendBoxActor.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -23,12 +23,13 @@ int TestXYPlotActor( int, char *[] )
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
   // Create containers for data
-  unsigned int nPlots = 3;
+  unsigned int nPlots = 4;
   vtkStdString names[] =
     {
       "sqrt(x)",
       "sqrt(x)*sin(x/5)",
       "sqrt(x)*cos(x/10)",
+      "-sqrt(x)",
     };
   vtkSmartPointer<vtkDoubleArray>* data = new vtkSmartPointer<vtkDoubleArray>[nPlots];
   for ( unsigned int i = 0; i < nPlots; ++ i )
@@ -41,16 +42,19 @@ int TestXYPlotActor( int, char *[] )
   // Fill in points and data
   unsigned int nSteps = 10;
   unsigned int stepSize = 50;
-  unsigned int nVals = nSteps * stepSize;
+  unsigned int nVals = nSteps * stepSize + 1;
   for ( unsigned int i = 0; i < nVals; ++ i )
     {
+    points->InsertNextPoint( i, 0., 0. );
+
     double val0 = sqrt( i );
     data[0]->InsertNextValue( val0 );
-    double val1 = val0 * sin( .2 * i );
+    double val1 = val0 * sin( .1 * i );
     data[1]->InsertNextValue( val1 );
-    double val2 = val0  * cos( .1 * i );
+    double val2 = val0  * cos( 2. * val0 );
     data[2]->InsertNextValue( val2 );
     points->InsertNextPoint( i, 0., 0. );
+    data[3]->InsertNextValue( -val0 );
     }
 
   // Determine extrema
@@ -88,14 +92,28 @@ int TestXYPlotActor( int, char *[] )
     xyPlot->AddDataSetInput( polydata[i] );
     xyPlot->SetPlotColor( i, colors[3 * i], colors[3 * i + 1], colors[3 * i + 2] );
     }
-  xyPlot->GetPositionCoordinate()->SetValue( .1, .1, .0 );
-  xyPlot->GetPosition2Coordinate()->SetValue( .9, .9, .0 );
+  xyPlot->GetPositionCoordinate()->SetValue( .05, .05, .0 );
+  xyPlot->GetPosition2Coordinate()->SetValue( .95, .95, .0 );
   xyPlot->SetLineWidth( 2 );
 
   // Title settings
+  xyPlot->SetTitleItalic( 0 );
+  xyPlot->SetTitleBold( 0 );
   xyPlot->SetTitleFontFamily( VTK_ARIAL );
   xyPlot->SetTitleColor( .9, .06, .02 );
   xyPlot->SetTitle( "XY Plot Actor Test");
+
+  // Legend settings
+  xyPlot->SetLegend( 1 );
+  xyPlot->SetLegendPosition( .11, .77 );
+  xyPlot->SetLegendPosition2( .2, .2 );
+  xyPlot->SetLegendBorder( 1 );
+  xyPlot->SetLegendBox( 1 );
+  xyPlot->SetLegendBoxColor(0., 0., 0. );//0.4667, 0.5333, 0.6000);
+  for ( unsigned int i = 0; i < nPlots; ++ i )
+    {
+    xyPlot->GetLegendActor()->SetEntryString( i, names[i] );
+    }
 
   // Axes settings
   xyPlot->SetAxisTitleFontFamily( VTK_TIMES );
@@ -104,7 +122,7 @@ int TestXYPlotActor( int, char *[] )
   xyPlot->SetXTitle( "x");
   xyPlot->SetYTitle( "f(x)");
   xyPlot->SetXValuesToIndex();
-  xyPlot->SetXRange( 0, nVals );
+  xyPlot->SetXRange( 0, nVals - 1 );
   xyPlot->SetYRange( range[0], range[1] );
   xyPlot->SetXAxisColor( 0., 0., 0. );
   xyPlot->SetYAxisColor( 0., 0., 0. );
@@ -118,31 +136,20 @@ int TestXYPlotActor( int, char *[] )
   xyPlot->SetAdjustYLabels( 0 );
   xyPlot->SetNumberOfYLabels( 3 );
 
-
   // Set up rendering contraption
   vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
-  ren1->SetBackground( .99, 1., .94); // titanium white
+  ren1->SetBackground( .99, 1., .94 ); // titanium white
   ren1->AddActor( xyPlot );
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples( 0 );
   renWin->AddRenderer( ren1 );
-  renWin->SetSize( 600, 300 );
+  renWin->SetSize( 600, 400 );
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow( renWin );
-
-  // Set up an interesting viewpoint
-  vtkCamera* camera = ren1->GetActiveCamera();
-  camera->Elevation( 110 );
-  camera->SetViewUp( 0, 0, -1 );
-  camera->Azimuth( 45 );
-  camera->SetFocalPoint( 100.8, 100.8, 69. );
-  camera->SetPosition( 560.949, 560.949, -167.853 );
-  ren1->ResetCameraClippingRange();
 
   // Render the image
   iren->Initialize();
   renWin->Render();
-
   iren->Start();
 
   // Clean up
