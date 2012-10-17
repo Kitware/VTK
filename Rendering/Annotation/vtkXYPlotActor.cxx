@@ -198,11 +198,11 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->GlyphSize = 0.020;
 
   this->ClipPlanes = vtkPlanes::New();
-  vtkPoints *pts = vtkPoints::New();
+  vtkPoints* pts = vtkPoints::New();
   pts->SetNumberOfPoints( 4 );
   this->ClipPlanes->SetPoints( pts );
   pts->Delete();
-  vtkDoubleArray *n = vtkDoubleArray::New();
+  vtkDoubleArray* n = vtkDoubleArray::New();
   n->SetNumberOfComponents( 3 );
   n->SetNumberOfTuples( 4 );
   this->ClipPlanes->SetNormals( n );
@@ -211,32 +211,36 @@ vtkXYPlotActor::vtkXYPlotActor()
   // Construct the box
   this->ChartBox = 0;
   this->ChartBoxPolyData = vtkPolyData::New();
-  vtkPoints *points = vtkPoints::New();
+  vtkPoints* points = vtkPoints::New();
   points->SetNumberOfPoints( 4 );
-  this->ChartBoxPolyData->SetPoints( points );points->Delete();
-  vtkCellArray *polys = vtkCellArray::New();
+  this->ChartBoxPolyData->SetPoints( points );
+  points->Delete();
+  vtkCellArray* polys = vtkCellArray::New();
   polys->InsertNextCell( 4 );
   polys->InsertCellPoint( 0 );
   polys->InsertCellPoint( 1 );
   polys->InsertCellPoint( 2 );
   polys->InsertCellPoint( 3 );
-  this->ChartBoxPolyData->SetPolys( polys ); polys->Delete();
+  this->ChartBoxPolyData->SetPolys( polys );
+  polys->Delete();
   this->ChartBoxMapper = vtkPolyDataMapper2D::New();
   this->ChartBoxMapper->SetInputData( this->ChartBoxPolyData );
   this->ChartBoxActor = vtkActor2D::New();
   this->ChartBoxActor->SetMapper( this->ChartBoxMapper );
+
   // Box border
   this->ChartBorder = 0;
   this->ChartBorderPolyData = vtkPolyData::New();
   this->ChartBorderPolyData->SetPoints( points );
-  vtkCellArray *lines = vtkCellArray::New();
+  vtkCellArray* lines = vtkCellArray::New();
   lines->InsertNextCell( 5 );
   lines->InsertCellPoint( 0 );
   lines->InsertCellPoint( 1 );
   lines->InsertCellPoint( 2 );
   lines->InsertCellPoint( 3 );
   lines->InsertCellPoint( 0 );
-  this->ChartBorderPolyData->SetLines( lines ); lines->Delete();
+  this->ChartBorderPolyData->SetLines( lines );
+  lines->Delete();
   this->ChartBorderMapper = vtkPolyDataMapper2D::New();
   this->ChartBorderMapper->SetInputData( this->ChartBorderPolyData );
   this->ChartBorderActor = vtkActor2D::New();
@@ -322,7 +326,6 @@ vtkXYPlotActor::~vtkXYPlotActor()
 
   this->SetTitle( 0 );
   this->SetXTitle( 0 );
-  this->SetYTitle( 0 );
   this->SetXLabelFormat( 0 );
   this->SetYLabelFormat( 0 );
 
@@ -353,9 +356,12 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->LinesOn->Delete();
   this->PointsOn->Delete();
 
-  this->SetTitleTextProperty( NULL );
-  this->SetAxisLabelTextProperty( NULL );
-  this->SetAxisTitleTextProperty( NULL );
+  this->TitleTextProperty->Delete();
+  this->TitleTextProperty = NULL;
+  this->AxisLabelTextProperty->Delete();
+  this->AxisLabelTextProperty = NULL;
+  this->AxisTitleTextProperty->Delete();
+  this->AxisTitleTextProperty = NULL;
 }
 
 //----------------------------------------------------------------------------
