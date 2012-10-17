@@ -388,7 +388,7 @@ bool vtkXYPlotActor::DoesConnectionMatch( int i, vtkAlgorithmOutput* in )
   vtkAlgorithmOutput* conn =
     this->InputConnectionHolder->GetInputConnection( 0, i );
   if ( conn->GetProducer() == in->GetProducer() &&
-      conn->GetIndex() == in->GetIndex() )
+       conn->GetIndex() == in->GetIndex() )
     {
     return true;
     }
@@ -406,13 +406,13 @@ int vtkXYPlotActor::IsInputPresent( vtkAlgorithmOutput* in,
     if ( this->DoesConnectionMatch( idx, in ) )
       {
       if ( arrayName == NULL && this->SelectedInputScalars[idx] == NULL &&
-          component == this->SelectedInputScalarsComponent->GetValue( idx ) )
+           component == this->SelectedInputScalarsComponent->GetValue( idx ) )
         {
         return idx + 1;
         }
       if ( arrayName != NULL && this->SelectedInputScalars[idx] != NULL &&
-          strcmp( arrayName, this->SelectedInputScalars[idx] ) == 0 &&
-          component == this->SelectedInputScalarsComponent->GetValue( idx ) )
+           strcmp( arrayName, this->SelectedInputScalars[idx] ) == 0 &&
+           component == this->SelectedInputScalarsComponent->GetValue( idx ) )
         {
         return idx + 1;
         }
@@ -562,7 +562,7 @@ void vtkXYPlotActor::RemoveDataSetInputConnection( vtkAlgorithmOutput *in,
     {
     this->SelectedInputScalars[idx-1] = this->SelectedInputScalars[idx];
     this->SelectedInputScalarsComponent->SetValue( idx-1,
-                                                  this->SelectedInputScalarsComponent->GetValue( idx ) );
+                                                   this->SelectedInputScalarsComponent->GetValue( idx ) );
     }
   // Reseting the last item is not really necessary,
   // but to be clean we do it anyway.
@@ -678,10 +678,10 @@ int vtkXYPlotActor::RenderOverlay( vtkViewport *viewport )
     {
     renderedSomething += this->LegendActor->RenderOverlay( viewport );
     }
-   if( this->YTitleActor )
-   {
-      renderedSomething+= this->YTitleActor->RenderOverlay( viewport );
-   }
+  if( this->YTitleActor )
+    {
+    renderedSomething+= this->YTitleActor->RenderOverlay( viewport );
+    }
 
 
   return renderedSomething;
@@ -754,14 +754,14 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
 
   int *size=viewport->GetSize();
   if ( mtime > this->BuildTime ||
-      size[0] != this->CachedSize[0] || size[1] != this->CachedSize[1] ||
-      this->GetMTime() > this->BuildTime ||
-      ( this->Title && this->Title[0] &&
-       this->TitleTextProperty->GetMTime() > this->BuildTime ) ||
-      ( this->AxisLabelTextProperty &&
-       this->AxisLabelTextProperty->GetMTime() > this->BuildTime ) ||
-      ( this->AxisTitleTextProperty &&
-       this->AxisTitleTextProperty->GetMTime() > this->BuildTime ) )
+       size[0] != this->CachedSize[0] || size[1] != this->CachedSize[1] ||
+       this->GetMTime() > this->BuildTime ||
+       ( this->Title && this->Title[0] &&
+         this->TitleTextProperty->GetMTime() > this->BuildTime ) ||
+       ( this->AxisLabelTextProperty &&
+         this->AxisLabelTextProperty->GetMTime() > this->BuildTime ) ||
+       ( this->AxisTitleTextProperty &&
+         this->AxisTitleTextProperty->GetMTime() > this->BuildTime ) )
     {
     double range[2], yrange[2], xRange[2], yRange[2], interval, *lengths=NULL;
     int pos[2], pos2[2], numTicks;
@@ -1033,7 +1033,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         }
 
       vtkTextMapper::SetRelativeFontSize( this->TitleMapper, viewport,
-                                         size, stringSize, 0.015 );
+                                          size, stringSize, 0.015 );
 
       if ( this->AdjustTitlePosition )
         {
@@ -1145,8 +1145,8 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
 
       vtkPoints *pts = this->ReferenceLinesPolyData->GetPoints();
       if ( this->ShowReferenceXLine &&
-          this->ReferenceXValue >= xRange[0] &&
-          this->ReferenceXValue < xRange[1] )
+           this->ReferenceXValue >= xRange[0] &&
+           this->ReferenceXValue < xRange[1] )
         {
         double xRefPos = doubleP1[0] + ( this->ReferenceXValue - xRange[0] ) / ( xRange[1] - xRange[0] ) * ( doubleP2[0] - doubleP1[0] );
         pts->SetPoint( 0, xRefPos, doubleP1[1], 0.0 );
@@ -1158,8 +1158,8 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         pts->SetPoint( 1, doubleP1 );
         }
       if ( this->ShowReferenceYLine &&
-          this->ReferenceYValue >= yRange[0] &&
-          this->ReferenceYValue < yRange[1] )
+           this->ReferenceYValue >= yRange[0] &&
+           this->ReferenceYValue < yRange[1] )
         {
         double yRefPos = doubleP1[1] + ( this->ReferenceYValue - yRange[0] ) / ( yRange[1] - yRange[0] )* ( doubleP2[1] - doubleP1[1] );
         pts->SetPoint( 2, doubleP1[0], yRefPos, 0.);
@@ -1198,11 +1198,11 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
   vtkDebugMacro(<<"Rendering Axes");
   renderedSomething += this->XAxis->RenderOpaqueGeometry( viewport );
   renderedSomething += this->YAxis->RenderOpaqueGeometry( viewport );
-   if( this->YTitleActor )
-   {
-   vtkDebugMacro(<<"Rendering ytitleactor");
-   renderedSomething += this->YTitleActor->RenderOpaqueGeometry( viewport );
-   }
+  if( this->YTitleActor )
+    {
+    vtkDebugMacro(<<"Rendering ytitleactor");
+    renderedSomething += this->YTitleActor->RenderOpaqueGeometry( viewport );
+    }
   for ( int i = 0; i < this->NumberOfInputs; ++ i )
     {
     vtkDebugMacro(<<"Rendering plotactors");
@@ -1628,7 +1628,7 @@ void vtkXYPlotActor::ComputeYRange( double range[2] )
 
 //----------------------------------------------------------------------------
 static inline int vtkXYPlotActorGetComponent( vtkFieldData* field,
-                                             vtkIdType tuple, int component, double* val )
+                                              vtkIdType tuple, int component, double* val )
 {
   int array_comp;
   int array_index = field->GetArrayContainingComponent( component, array_comp );
@@ -1648,7 +1648,7 @@ static inline int vtkXYPlotActorGetComponent( vtkFieldData* field,
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::ComputeDORange( double xrange[2], double yrange[2],
-                                    double *lengths )
+                                     double *lengths )
 {
   int i;
   vtkDataObject *dobj;
@@ -1697,7 +1697,7 @@ void vtkXYPlotActor::ComputeDORange( double xrange[2], double yrange[2],
       }
 
     num = ( this->DataObjectPlotMode == VTK_XYPLOT_ROW ?
-           numColumns : numRows );
+            numColumns : numRows );
 
     if ( this->XValues != VTK_XYPLOT_INDEX )
       {
@@ -1710,13 +1710,13 @@ void vtkXYPlotActor::ComputeDORange( double xrange[2], double yrange[2],
           {
           // x = field->GetComponent( this->XComponent->GetValue( doNum ), ptId );
           status = ::vtkXYPlotActorGetComponent( field,
-                                                this->XComponent->GetValue( doNum ), ptId, &x );
+                                                 this->XComponent->GetValue( doNum ), ptId, &x );
           }
         else //if ( this->DataObjectPlotMode == VTK_XYPLOT_COLUMN )
           {
           // x = field->GetComponent( ptId, this->XComponent->GetValue( doNum ) );
           status = ::vtkXYPlotActorGetComponent( field,
-                                                ptId, this->XComponent->GetValue( doNum ), &x );
+                                                 ptId, this->XComponent->GetValue( doNum ), &x );
           }
         if (!status )
           {
@@ -1781,13 +1781,13 @@ void vtkXYPlotActor::ComputeDORange( double xrange[2], double yrange[2],
         {
         //y = field->GetComponent( this->YComponent->GetValue( doNum ), ptId );
         status = ::vtkXYPlotActorGetComponent( field,
-                                              this->YComponent->GetValue( doNum ), ptId, &y );
+                                               this->YComponent->GetValue( doNum ), ptId, &y );
         }
       else //if ( this->DataObjectPlotMode == VTK_XYPLOT_COLUMN )
         {
         //y = field->GetComponent( ptId, this->YComponent->GetValue( doNum ) );
         status = ::vtkXYPlotActorGetComponent( field,
-                                              ptId, this->YComponent->GetValue( doNum ), &y );
+                                               ptId, this->YComponent->GetValue( doNum ), &y );
         }
       if (!status )
         {
@@ -1836,8 +1836,8 @@ void vtkXYPlotActor::ComputeDORange( double xrange[2], double yrange[2],
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
-                                    double yRange[2], double *lengths,
-                                    int numDS, int numDO )
+                                     double yRange[2], double *lengths,
+                                     int numDS, int numDO )
 {
   double xyz[3]; xyz[2] = 0.;
   int i, numLinePts, doNum, num;
@@ -2055,7 +2055,7 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
       lines->InsertNextCell( 0 ); //update the count later
 
       numPts = ( this->DataObjectPlotMode == VTK_XYPLOT_ROW ?
-                numColumns : numRows );
+                 numColumns : numRows );
 
       // gather the information to form a plot
       for ( numLinePts=0, length=0.0, ptId=0; ptId < numPts; ptId++ )
@@ -2066,9 +2066,9 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
           //x[0] = field->GetComponent( this->XComponent->GetValue( doNum ),ptId );
           //xyz[1] = field->GetComponent( this->YComponent->GetValue( doNum ),ptId );
           status1 = ::vtkXYPlotActorGetComponent( field,
-                                                 this->XComponent->GetValue( doNum ), ptId, &x[0] );
+                                                  this->XComponent->GetValue( doNum ), ptId, &x[0] );
           status2 = ::vtkXYPlotActorGetComponent( field,
-                                                 this->YComponent->GetValue( doNum ), ptId, &xyz[1] );
+                                                  this->YComponent->GetValue( doNum ), ptId, &xyz[1] );
           }
         else //if ( this->DataObjectPlotMode == VTK_XYPLOT_COLUMN )
           {
@@ -2076,7 +2076,7 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
           //xyz[1] = field->GetComponent( ptId, this->YComponent->GetValue( doNum ) );
 
           status1 = ::vtkXYPlotActorGetComponent( field,
-                                                 ptId, this->XComponent->GetValue( doNum ), &x[0] );
+                                                  ptId, this->XComponent->GetValue( doNum ), &x[0] );
 
           if (!status1 )
             {
@@ -2084,7 +2084,7 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
             }
 
           status2 = ::vtkXYPlotActorGetComponent( field,
-                                                 ptId, this->YComponent->GetValue( doNum ), &xyz[1] );
+                                                  ptId, this->YComponent->GetValue( doNum ), &xyz[1] );
 
           if (!status2 )
             {
@@ -2187,8 +2187,8 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
     if (!this->PlotCurvePoints )
       {
       if ( !this->PlotPoints || ( this->LegendActor->GetEntrySymbol( i ) &&
-                                 this->LegendActor->GetEntrySymbol( i ) !=
-                                 this->GlyphSource->GetOutput() ) )
+                                  this->LegendActor->GetEntrySymbol( i ) !=
+                                  this->GlyphSource->GetOutput() ) )
         {
         this->PlotData[i]->SetVerts( NULL );
         }
@@ -2197,8 +2197,8 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
       {
       if ( this->GetPlotPoints( i ) == 0 ||
            ( this->LegendActor->GetEntrySymbol( i ) &&
-            this->LegendActor->GetEntrySymbol( i ) !=
-            this->GlyphSource->GetOutput() ) )
+             this->LegendActor->GetEntrySymbol( i ) !=
+             this->GlyphSource->GetOutput() ) )
         {
         this->PlotData[i]->SetVerts( NULL );
         }
@@ -2213,7 +2213,7 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
 // to change if that class changes dramatically.
 //
 void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
-                               int pos[2], int pos2[2] )
+                                int pos[2], int pos2[2] )
 {
   int titleSizeX[2], titleSizeY[2], labelSizeX[2], labelSizeY[2];
   double labelFactorX, labelFactorY;
@@ -2265,27 +2265,27 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
   // Calculate string length from YTitleActor,
   //  + 1 for the case where there is only one character
   //  + 1 for the final \0
-   int len = int( ( strlen( YTitleActor->GetInput() ) + 1 ) * .5 ) + 1;
-   char* tmp = new char[len];
-   switch( this->YTitlePosition )
-   {
-   case AXIS_TOP:
-     SNPRINTF( tmp, len, "%s", YTitleActor->GetInput() );
-     textMapper->SetInput( tmp );
-     break;
-   case AXIS_HCENTER:
-     textMapper->SetInput( YTitleActor->GetInput() );
-     break;
-   case AXIS_VCENTER:
-     // Create a dummy title to ensure that the added YTitleActor is visible
-     textMapper->SetInput("AABB");
-     break;
-   }
-   delete [] tmp;
-   this->YAxisTitleSize = vtkTextMapper::SetRelativeFontSize( textMapper, viewport, size, titleSizeY, 0.015*fontFactorY );
+  int len = int( ( strlen( YTitleActor->GetInput() ) + 1 ) * .5 ) + 1;
+  char* tmp = new char[len];
+  switch( this->YTitlePosition )
+    {
+    case AXIS_TOP:
+      SNPRINTF( tmp, len, "%s", YTitleActor->GetInput() );
+      textMapper->SetInput( tmp );
+      break;
+    case AXIS_HCENTER:
+      textMapper->SetInput( YTitleActor->GetInput() );
+      break;
+    case AXIS_VCENTER:
+      // Create a dummy title to ensure that the added YTitleActor is visible
+      textMapper->SetInput("AABB");
+      break;
+    }
+  delete [] tmp;
+  this->YAxisTitleSize = vtkTextMapper::SetRelativeFontSize( textMapper, viewport, size, titleSizeY, 0.015*fontFactorY );
    
-   this->YTitleSize[0] = titleSizeY[0];
-   this->YTitleSize[1] = titleSizeY[1];
+  this->YTitleSize[0] = titleSizeY[0];
+  this->YTitleSize[1] = titleSizeY[1];
    
   // At this point the thing to do would be to actually ask the Y axis
   // actor to return the largest label.
@@ -2310,24 +2310,24 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
 
   // Okay, estimate the size
   pos[0] = ( int ) ( p1[0] + titleSizeY[0] + 2.0 * tickOffsetY + tickLengthY +
-                   labelSizeY[0] + this->Border );
+                     labelSizeY[0] + this->Border );
 
   pos[1] = ( int ) ( p1[1] + titleSizeX[1] + 2.0 * tickOffsetX + tickLengthX +
-                   labelSizeX[1] + this->Border );
+                     labelSizeX[1] + this->Border );
 
   pos2[0] = ( int ) ( p2[0] - labelSizeY[0] / 2 - tickOffsetY - this->Border );
 
   pos2[1] = ( int ) ( p2[1] - labelSizeX[1] / 2 - tickOffsetX - this->Border );
 
   // Save estimated axis size to avoid recomputing of YTitleActor displacement
-   if( this->YTitlePosition == AXIS_TOP )
-     {
-     this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + this->Border );      
-     }
-   else
-     {
-     this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + 1.5 * labelSizeY[0] + this->Border );
-     }
+  if( this->YTitlePosition == AXIS_TOP )
+    {
+    this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + this->Border );      
+    }
+  else
+    {
+    this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + 1.5 * labelSizeY[0] + this->Border );
+    }
    
   // Now specify the location of the axes
   axisX->GetPositionCoordinate()->SetValue( ( double ) pos[0], ( double ) pos[1] );
@@ -2358,7 +2358,7 @@ void vtkXYPlotActor::ViewportToPlotCoordinate( vtkViewport *viewport, double &u,
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::PlotToViewportCoordinate( vtkViewport *viewport,
-                                              double &u, double &v )
+                                               double &u, double &v )
 {
   int *p0, *p1, *p2;
 
@@ -2368,27 +2368,27 @@ void vtkXYPlotActor::PlotToViewportCoordinate( vtkViewport *viewport,
   p2 = this->YAxis->GetPositionCoordinate()->GetComputedViewportValue( viewport );
 
   u = ( ( ( u - this->XComputedRange[0] )
-        / ( this->XComputedRange[1] - this->XComputedRange[0] ) )
-       * ( double )( p1[0] - p0[0] ) ) + p0[0];
+          / ( this->XComputedRange[1] - this->XComputedRange[0] ) )
+        * ( double )( p1[0] - p0[0] ) ) + p0[0];
   v = ( ( ( v - this->YComputedRange[0] )
-        / ( this->YComputedRange[1] - this->YComputedRange[0] ) )
-       * ( double )( p2[1] - p0[1] ) ) + p0[1];
+          / ( this->YComputedRange[1] - this->YComputedRange[0] ) )
+        * ( double )( p2[1] - p0[1] ) ) + p0[1];
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::ViewportToPlotCoordinate( vtkViewport *viewport )
 {
   this->ViewportToPlotCoordinate( viewport,
-                                 this->ViewportCoordinate[0],
-                                 this->ViewportCoordinate[1] );
+                                  this->ViewportCoordinate[0],
+                                  this->ViewportCoordinate[1] );
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::PlotToViewportCoordinate( vtkViewport *viewport )
 {
   this->PlotToViewportCoordinate( viewport,
-                                 this->PlotCoordinate[0],
-                                 this->PlotCoordinate[1] );
+                                  this->PlotCoordinate[0],
+                                  this->PlotCoordinate[1] );
 }
 
 //----------------------------------------------------------------------------
@@ -2532,7 +2532,7 @@ double vtkXYPlotActor::ComputeGlyphScale( int i, int *pos, int *pos2 )
   //pd->Update();
   double length=pd->GetLength();
   double sf = this->GlyphSize * sqrt( ( double )( pos[0]-pos2[0] )*( pos[0]-pos2[0] ) +
-                                     ( pos[1]-pos2[1] )*( pos[1]-pos2[1] ) ) / length;
+                                      ( pos[1]-pos2[1] )*( pos[1]-pos2[1] ) ) / length;
 
   return sf;
 }
@@ -2603,7 +2603,7 @@ void vtkXYPlotActor::ClipPlotData( int *pos, int *pos2, vtkPolyData *pd )
         ;//trivial rejection
         }
       else if ( x1[0] >= p1[0] && x2[0] >= p1[0] && x1[0] <= p2[0] && x2[0] <= p2[0] &&
-               x1[1] >= p1[1] && x2[1] >= p1[1] && x1[1] <= p2[1] && x2[1] <= p2[1] )
+                x1[1] >= p1[1] && x2[1] >= p1[1] && x1[1] <= p2[1] && x2[1] <= p2[1] )
         {//trivial acceptance
         newPts[0] = pointMap[pts[i]];
         newPts[1] = pointMap[pts[i+1]];
@@ -2715,7 +2715,7 @@ int vtkXYPlotActor::GetPointComponent( int i )
 
 //----------------------------------------------------------------------------
 double *vtkXYPlotActor::TransformPoint( int pos[2], int pos2[2],
-                                       double x[3], double xNew[3] )
+                                        double x[3], double xNew[3] )
 {
   // First worry about exchanging axes
   if ( this->ExchangeAxes )
@@ -2992,20 +2992,21 @@ void vtkXYPlotActor::PrintAsCSV( ostream &os )
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::AddUserCurvesPoint( double c_dbl, double x, double y )
 {
-   int c = static_cast<int>( c_dbl );
-   if( this->ActiveCurveIndex != c )
-     {
-     vtkPolyData* dataObj = vtkPolyData::New();
-     dataObj->GetFieldData()->AddArray( this->ActiveCurve );
-     this->AddDataObjectInput( dataObj );
-     this->SetDataObjectXComponent( this->ActiveCurveIndex, 0 );
-     this->SetDataObjectYComponent( this->ActiveCurveIndex, 1 );
-     dataObj->Delete();
-     this->ActiveCurve = vtkSmartPointer<vtkDoubleArray>::New();
-     this->ActiveCurve->SetNumberOfComponents( 2 );
-     this->ActiveCurveIndex = c;
-     }
-   this->ActiveCurve->InsertNextTuple2( x, y );
+  int c = static_cast<int>( c_dbl );
+  if( this->ActiveCurveIndex != c )
+    {
+    vtkPolyData* dataObj = vtkPolyData::New();
+    dataObj->GetFieldData()->AddArray( this->ActiveCurve );
+    this->AddDataObjectInput( dataObj );
+    this->SetDataObjectXComponent( this->ActiveCurveIndex, 0 );
+    this->SetDataObjectYComponent( this->ActiveCurveIndex, 1 );
+    dataObj->Delete();
+    this->ActiveCurve = vtkSmartPointer<vtkDoubleArray>::New();
+    this->ActiveCurve->SetNumberOfComponents( 2 );
+    this->ActiveCurveIndex = c;
+    }
+  this->ActiveCurve->InsertNextTuple2( x, y );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -3014,6 +3015,7 @@ void vtkXYPlotActor::RemoveAllActiveCurves()
   this->ActiveCurveIndex = 0;
   this->ActiveCurve = vtkSmartPointer<vtkDoubleArray>::New();
   this->ActiveCurve->SetNumberOfComponents( 2 );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -3232,7 +3234,7 @@ void vtkXYPlotActor::SetAxisLabelFontFamily( int x )
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisLabelBold( int x )
 {
-   this->GetAxisLabelTextProperty()->SetBold( x );
+  this->GetAxisLabelTextProperty()->SetBold( x );
 }
 
 //----------------------------------------------------------------------------
