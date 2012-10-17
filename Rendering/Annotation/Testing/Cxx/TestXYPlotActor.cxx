@@ -1,4 +1,19 @@
-#include "vtkSmartPointer.h"
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestXYPlotActor.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .SECTION Thanks
+// This test was written by Philippe Pebay, Kitware SAS 2012
 
 #include "vtkActor.h"
 #include "vtkDoubleArray.h"
@@ -8,16 +23,18 @@
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
 #include "vtkXYPlotActor.h"
 
 #include "vtkTestUtilities.h"
 
-int TestXYPlotActor( int, char *[] )
+int TestXYPlotActor( int argc, char* argv[] )
 {
   // Create container for points
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -149,14 +166,15 @@ int TestXYPlotActor( int, char *[] )
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow( renWin );
 
-  // Render the image
-  iren->Initialize();
-  renWin->Render();
-  iren->Start();
+  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
+    {
+    iren->Start();
+    }
 
   // Clean up
   delete [] polydata;
   delete [] data;
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }
