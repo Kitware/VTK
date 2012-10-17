@@ -1012,6 +1012,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
           }
         case AXIS_VCENTER:
           {
+          cerr << "On tourne\n";
           this->YTitleActor->SetOrientation( 90. );
           int val = ( int )( ( yaxis - ytitle_width ) * 0.4 );
           ytitlePos[0] = yaxis_p1[0] - this->YTitleDelta;
@@ -3091,9 +3092,15 @@ void vtkXYPlotActor::SetLegendBox( int b )
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::SetLegendBoxColor( double r, double g, double b )
+void vtkXYPlotActor::SetLegendUseBackground( int b )
 {
-  this->LegendActor->SetUseBackground( 1 );
+  this->LegendActor->SetUseBackground( b );
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkXYPlotActor::SetLegendBackgroundColor( double r, double g, double b )
+{
   this->LegendActor->SetBackgroundColor( r, g, b );
   this->Modified();
 }

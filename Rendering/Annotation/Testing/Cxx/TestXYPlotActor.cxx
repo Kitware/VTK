@@ -27,8 +27,8 @@ int TestXYPlotActor( int, char *[] )
   vtkStdString names[] =
     {
       "sqrt(x)",
-      "sqrt(x)*sin(x/5)",
-      "sqrt(x)*cos(x/10)",
+      "sqrt(x)sin(10ln(sqrt(x)))",
+      "sqrt(x)cos(x/10)",
       "-sqrt(x)",
     };
   vtkSmartPointer<vtkDoubleArray>* data = new vtkSmartPointer<vtkDoubleArray>[nPlots];
@@ -49,7 +49,7 @@ int TestXYPlotActor( int, char *[] )
 
     double val0 = sqrt( i );
     data[0]->InsertNextValue( val0 );
-    double val1 = val0 * sin( .1 * i );
+    double val1 = val0 * sin( 10*log( val0 ) );
     data[1]->InsertNextValue( val1 );
     double val2 = val0  * cos( 2. * val0 );
     data[2]->InsertNextValue( val2 );
@@ -83,8 +83,8 @@ int TestXYPlotActor( int, char *[] )
   {
     .54, .21, .06,  // burnt sienna
     1., .38, .01,   // cadmium orange
-    .498, 1., 0.,   // chartreuse
-    0., .78, 0.55,  // turquoise blue
+    .24, .57, .25,  // cobalt green
+    0., 0., 0.502,  // navy blue
   };
   vtkSmartPointer<vtkXYPlotActor> xyPlot = vtkSmartPointer<vtkXYPlotActor>::New();
   for ( unsigned int i = 0; i < nPlots; ++ i )
@@ -95,6 +95,7 @@ int TestXYPlotActor( int, char *[] )
   xyPlot->GetPositionCoordinate()->SetValue( .05, .05, .0 );
   xyPlot->GetPosition2Coordinate()->SetValue( .95, .95, .0 );
   xyPlot->SetLineWidth( 2 );
+  xyPlot->SetBorder( 10 );
 
   // Title settings
   xyPlot->SetTitleItalic( 0 );
@@ -105,11 +106,12 @@ int TestXYPlotActor( int, char *[] )
 
   // Legend settings
   xyPlot->SetLegend( 1 );
-  xyPlot->SetLegendPosition( .11, .77 );
-  xyPlot->SetLegendPosition2( .2, .2 );
+  xyPlot->SetLegendPosition( .7, .6 );
+  xyPlot->SetLegendPosition2( .25, .2 );
   xyPlot->SetLegendBorder( 1 );
-  xyPlot->SetLegendBox( 1 );
-  xyPlot->SetLegendBoxColor(0., 0., 0. );//0.4667, 0.5333, 0.6000);
+  xyPlot->SetLegendBox( 0 );
+  xyPlot->SetLegendUseBackground( 1 );
+  xyPlot->SetLegendBackgroundColor( .86, .86, .86 );
   for ( unsigned int i = 0; i < nPlots; ++ i )
     {
     xyPlot->GetLegendActor()->SetEntryString( i, names[i] );
@@ -118,12 +120,12 @@ int TestXYPlotActor( int, char *[] )
   // Axes settings
   xyPlot->SetAxisTitleFontFamily( VTK_TIMES );
   xyPlot->SetAxisTitleColor( 0., 0., 1. );
-  xyPlot->SetYTitlePositionToTop();
+  xyPlot->SetYTitlePositionToVCenter();
   xyPlot->SetXTitle( "x");
   xyPlot->SetYTitle( "f(x)");
   xyPlot->SetXValuesToIndex();
   xyPlot->SetXRange( 0, nVals - 1 );
-  xyPlot->SetYRange( range[0], range[1] );
+  xyPlot->SetYRange( floor( range[0] ), ceil( range[1] ) );
   xyPlot->SetXAxisColor( 0., 0., 0. );
   xyPlot->SetYAxisColor( 0., 0., 0. );
 

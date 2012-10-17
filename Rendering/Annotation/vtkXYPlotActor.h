@@ -406,7 +406,7 @@ enum Alignment {
 };
 //ETX
   // Description:
-  // If AdjustTitlePosition is truem, the xyplot actor will
+  // If AdjustTitlePosition is true, the xyplot actor will
   // adjust the position of the title automatically depending on the
   // given mode, the mode is a combination of the Alignment flags.
   // by default: vtkXYPlotActor::AlignHCenter | vtkXYPlotActor::Top
@@ -622,7 +622,8 @@ enum Alignment {
   // Set legend properties
   virtual void SetLegendBorder( int );
   virtual void SetLegendBox( int );
-  virtual void SetLegendBoxColor( double, double, double );
+  virtual void SetLegendUseBackground( int );
+  virtual void SetLegendBackgroundColor( double, double, double );
 
   // Description:
   // Set title properties
