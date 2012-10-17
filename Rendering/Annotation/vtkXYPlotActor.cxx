@@ -87,14 +87,12 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->Title = NULL;
   this->XTitle = new char[7];
   sprintf( this->XTitle,"%s","X Axis");
-  this->YTitle = new char[7];
-  sprintf( this->YTitle,"%s","Y Axis");
   this->YTitleActor = vtkSmartPointer<vtkTextActor>::New();
-  this->YTitleActor->SetInput( "" );
+  this->YTitleActor->SetInput( "Y Axis" );
   this->YTitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->YTitleActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
 
-  this->YTitlePosition = AXIS_TOP;
+  this->YTitlePosition = VTK_XYPLOT_Y_AXIS_TOP;
   this->YTitleDelta = 0;
 
   this->XValues = VTK_XYPLOT_INDEX;
@@ -916,7 +914,6 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
 
     // setup y-axis
     vtkDebugMacro(<<"Rebuilding y-axis");
-    this->YAxis->SetTitle( this->YTitle );
     this->YAxis->SetNumberOfLabels( this->NumberOfYLabels );
 
     if ( this->YRange[0] >= this->YRange[1] )
@@ -993,7 +990,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
       int ytitlePos[2];
       switch( this->YTitlePosition )
         {
-        case AXIS_TOP:
+        case VTK_XYPLOT_Y_AXIS_TOP:
           {
           this->YTitleActor->SetOrientation( 0. );
           // Make sure that title does not exceed actor bounds
@@ -1002,7 +999,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
           ytitlePos[1] = yaxis_p1[1] + 10;
           break;
           }
-        case AXIS_HCENTER:
+        case VTK_XYPLOT_Y_AXIS_HCENTER:
           {
           this->YTitleActor->SetOrientation( 0. );
           // YTitleActor might exceed actor bounds
@@ -1010,11 +1007,10 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
           ytitlePos[1] = ( int )( yaxis_p2[1] + yaxis_ymiddle - ytitle_half_height );
           break;
           }
-        case AXIS_VCENTER:
+        case VTK_XYPLOT_Y_AXIS_VCENTER:
           {
-          cerr << "On tourne\n";
           this->YTitleActor->SetOrientation( 90. );
-          int val = ( int )( ( yaxis - ytitle_width ) * 0.4 );
+          int val = ( int )( ( yaxis - ytitle_width ) * .4 );
           ytitlePos[0] = yaxis_p1[0] - this->YTitleDelta;
           ytitlePos[1] = ytitle_width > yaxis ? yaxis_p2[1] : yaxis_p2[1] + val;
           break;
@@ -1381,8 +1377,6 @@ void vtkXYPlotActor::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Title: " << ( this->Title ? this->Title : "( none )") << "\n";
   os << indent << "X Title: "
      << ( this->XTitle ? this->XTitle : "( none )") << "\n";
-  os << indent << "Y Title: "
-     << ( this->YTitle ? this->YTitle : "( none )") << "\n";
 
   os << indent << "X Values: " << this->GetXValuesAsString() << endl;
   os << indent << "Log X Values: " << ( this->Logx ? "On\n" : "Off\n");
@@ -2270,14 +2264,14 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
   char* tmp = new char[len];
   switch( this->YTitlePosition )
     {
-    case AXIS_TOP:
+    case VTK_XYPLOT_Y_AXIS_TOP:
       SNPRINTF( tmp, len, "%s", YTitleActor->GetInput() );
       textMapper->SetInput( tmp );
       break;
-    case AXIS_HCENTER:
+    case VTK_XYPLOT_Y_AXIS_HCENTER:
       textMapper->SetInput( YTitleActor->GetInput() );
       break;
-    case AXIS_VCENTER:
+    case VTK_XYPLOT_Y_AXIS_VCENTER:
       // Create a dummy title to ensure that the added YTitleActor is visible
       textMapper->SetInput("AABB");
       break;
@@ -2321,7 +2315,7 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
   pos2[1] = ( int ) ( p2[1] - labelSizeX[1] / 2 - tickOffsetX - this->Border );
 
   // Save estimated axis size to avoid recomputing of YTitleActor displacement
-  if( this->YTitlePosition == AXIS_TOP )
+  if( this->YTitlePosition == VTK_XYPLOT_Y_AXIS_TOP )
     {
     this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + this->Border );      
     }
@@ -2748,80 +2742,29 @@ double *vtkXYPlotActor::TransformPoint( int pos[2], int pos2[2],
 }
 
 //----------------------------------------------------------------------------
+void vtkXYPlotActor::SetYTitle( const char* ytitle )
+{
+  this->YTitleActor->SetInput( ytitle );
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+char* vtkXYPlotActor::GetYTitle()
+{
+  return this->YTitleActor->GetInput();
+}
+
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetXTitlePosition( double position )
 {
   this->XAxis->SetTitlePosition( position );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 double vtkXYPlotActor::GetXTitlePosition()
 {
   return this->XAxis->GetTitlePosition();
-}
-
-//----------------------------------------------------------------------------
-void vtkXYPlotActor::SetYTitlePosition( double position )
-{
-  this->YAxis->SetTitlePosition( position );
-}
-
-//----------------------------------------------------------------------------
-void vtkXYPlotActor::SetYTitlePosition( YTitlePositionMode position )
-{
-  switch ( position )
-    {
-    case AXIS_TOP:
-      this->YAxis->SetTitlePosition( 0. );
-      return;
-    case AXIS_HCENTER:
-      this->YAxis->SetTitlePosition( .5 );
-      return;
-    case AXIS_VCENTER:
-      this->YAxis->SetTitlePosition( .5 );
-      return;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkXYPlotActor::SetYTitlePositionToTop()
-{
-  this->SetYTitlePosition( AXIS_TOP );
-}
-
-//----------------------------------------------------------------------------
-void vtkXYPlotActor::SetYTitlePositionToHCenter()
-{
-  this->SetYTitlePosition( AXIS_HCENTER );
-}
-
-//----------------------------------------------------------------------------
-void vtkXYPlotActor::SetYTitlePositionToVCenter()
-{
-  this->SetYTitlePosition( AXIS_VCENTER );
-}
-
-//----------------------------------------------------------------------------
-double vtkXYPlotActor::GetYTitlePosition()
-{
-  return this->YAxis->GetTitlePosition();
-}
-
-//----------------------------------------------------------------------------
-int vtkXYPlotActor::GetYTitlePosition() const
-{
-  switch( this->YTitlePosition )
-    {
-    case AXIS_TOP:
-      return 0;
-      break;
-    case AXIS_HCENTER:
-      return 1;
-      break;
-    case AXIS_VCENTER:
-      return 2;
-      break;
-    }
-  return 0;
 }
 
 //----------------------------------------------------------------------------

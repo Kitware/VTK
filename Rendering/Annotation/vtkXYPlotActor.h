@@ -93,6 +93,10 @@
 #define VTK_XYPLOT_ROW 0
 #define VTK_XYPLOT_COLUMN 1
 
+#define VTK_XYPLOT_Y_AXIS_TOP     0
+#define VTK_XYPLOT_Y_AXIS_HCENTER 1
+#define VTK_XYPLOT_Y_AXIS_VCENTER 2 // rotate by 90 degrees (y-axis aligned)
+
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 #include <vtkSmartPointer.h> // For SP
@@ -300,22 +304,31 @@ public:
   vtkGetObjectMacro(GlyphSource,vtkGlyphSource2D);
 
   // Description:
-  // Set/Get the title of the x-y plot, and the title along the
-  // x and y axes.
+  // Set/Get the title of the x-y plot.
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
+
+  // Description:
+  // Set/Get the title of the x axis
   vtkSetStringMacro(XTitle);
   vtkGetStringMacro(XTitle);
-  vtkSetStringMacro(YTitle);
-  vtkGetStringMacro(YTitle);
+
+  // Description:
+  // Set/Get the title of the y axis
+  virtual void SetYTitle( const char* );
+  char* GetYTitle();
 
   // Description:
   // Retrieve handles to the X and Y axis (so that you can set their text
   // properties for example)
   vtkAxisActor2D *GetXAxisActor2D()
-    {return this->XAxis;}
+    {
+    return this->XAxis;
+    }
   vtkAxisActor2D *GetYAxisActor2D()
-    {return this->YAxis;}
+    {
+    return this->YAxis;
+    }
 
   // Description:
   // Set the plot range (range of independent and dependent variables)
@@ -353,13 +366,6 @@ public:
   vtkGetMacro( AdjustXLabels, int );
   void SetAdjustYLabels(int adjust);
   vtkGetMacro( AdjustYLabels, int );
-
-  // Description:
-  // Set/Get the position of the title of X or Y axis.
-  void SetXTitlePosition(double position);
-  double GetXTitlePosition();
-  void SetYTitlePosition(double position);
-  double GetYTitlePosition();
 
   // Description:
   // Set/Get the number of minor ticks in X or Y.
@@ -596,20 +602,26 @@ enum Alignment {
 //ETX
 
   // Description:
-  // Convenience Y title position methods
-  void SetYTitlePositionToTop();
-  void SetYTitlePositionToHCenter();
-  void SetYTitlePositionToVCenter();
-  int GetYTitlePosition() const;
-//BTX
-  enum YTitlePositionMode
-    {
-      AXIS_TOP     = 0,
-      AXIS_HCENTER = 1,
-      AXIS_VCENTER = 2
-    };
-  void SetYTitlePosition( YTitlePositionMode );
-//ETX
+  // Set/Get the position of the title of X axis.
+  void SetXTitlePosition(double position);
+  double GetXTitlePosition();
+
+  // Description:
+  // Set/Get the position of the title of Y axis.
+  vtkSetMacro(YTitlePosition,int);
+  vtkGetMacro(YTitlePosition,int);
+  void SetYTitlePositionToTop()
+  {
+    this->SetYTitlePosition( VTK_XYPLOT_Y_AXIS_TOP );
+  }
+  void SetYTitlePositionToHCenter()
+  {
+    this->SetYTitlePosition( VTK_XYPLOT_Y_AXIS_HCENTER );
+  }
+  void SetYTitlePositionToVCenter()
+  {
+    this->SetYTitlePosition( VTK_XYPLOT_Y_AXIS_VCENTER );
+  }
 
   // Description:
   // Set plot properties
@@ -673,7 +685,6 @@ protected:
   vtkXYPlotActorConnections *DataObjectInputConnectionHolder; //list of data objects to plot
   char  *Title;
   char  *XTitle;
-  char  *YTitle;
   int   XValues;
   int   NumberOfXLabels;
   int   NumberOfYLabels;
@@ -799,8 +810,8 @@ private:
   int YTitleSize[2];
 
   // Description:
-  // Estimated size of Y axis labels
-  YTitlePositionMode YTitlePosition;
+  // Position and orientation of Y axis title
+  int YTitlePosition;
 
   // Description:
   // Estimated size of Y axis spacing
