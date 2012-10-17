@@ -35,7 +35,7 @@
 #include "vtkTestUtilities.h"
 
 //----------------------------------------------------------------------------
-int TestPolarAxes( int argc, char * argv [] )
+int TestPolarAxes( int argc, char* argv[] )
 {
   vtkNew<vtkBYUReader> reader;
   char* fname = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/teapot.g" );
