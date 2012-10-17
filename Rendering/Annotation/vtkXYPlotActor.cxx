@@ -3062,12 +3062,14 @@ void vtkXYPlotActor::SetPlotGlyphType( int curve, int i )
 void vtkXYPlotActor::SetXAxisColor( double r, double g, double b )
 {
   this->XAxis->GetProperty()->SetColor( r, g, b );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetYAxisColor( double r, double g, double b )
 {
   this->YAxis->GetProperty()->SetColor( r, g, b );
+  this->Modified();
 }
 
 
@@ -3075,6 +3077,7 @@ void vtkXYPlotActor::SetYAxisColor( double r, double g, double b )
 void vtkXYPlotActor::SetLegendBorder( int b )
 {
   this->LegendActor->SetBorder( b );
+  this->Modified();
 }
 
 
@@ -3082,12 +3085,14 @@ void vtkXYPlotActor::SetLegendBorder( int b )
 void vtkXYPlotActor::SetLegendBox( int b )
 {
   this->LegendActor->SetBox( b );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetLegendBoxColor( double r, double g, double b )
 {
-  this->GetLegendActor()->SetBackgroundColor( r, g, b );
+  this->LegendActor->SetUseBackground( 1 );
+  this->LegendActor->SetBackgroundColor( r, g, b );
   this->Modified();
 }
 
@@ -3095,114 +3100,133 @@ void vtkXYPlotActor::SetLegendBoxColor( double r, double g, double b )
 void vtkXYPlotActor::SetLineWidth( double w )
 {
   this->GetProperty()->SetLineWidth( w );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetTitleColor( double r, double g, double b )
 {
   this->GetTitleTextProperty()->SetColor( r, g, b );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetTitleFontFamily( int x )
 {
-   this->GetTitleTextProperty()->SetFontFamily( x );
+  this->GetTitleTextProperty()->SetFontFamily( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetTitleBold( int x )
 {
-   this->GetTitleTextProperty()->SetBold( x );
+  this->GetTitleTextProperty()->SetBold( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetTitleItalic( int x )
 {
-   this->GetTitleTextProperty()->SetItalic( x );
+  this->GetTitleTextProperty()->SetItalic( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetTitleShadow( int x )
 {
-   this->GetTitleTextProperty()->SetShadow( x );
+  this->GetTitleTextProperty()->SetShadow( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetTitleFontSize( int x )
 {
-   this->GetTitleTextProperty()->SetFontSize( x );
+  this->GetTitleTextProperty()->SetFontSize( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetTitleJustification( int x )
 {
-   this->GetTitleTextProperty()->SetJustification( x );
+  this->GetTitleTextProperty()->SetJustification( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetTitleVerticalJustification( int x )
 {
-   this->GetTitleTextProperty()->SetVerticalJustification( x );
+  this->GetTitleTextProperty()->SetVerticalJustification( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisTitleColor( double r, double g, double b )
 {
-   this->GetAxisTitleTextProperty()->SetColor( r, g, b );
+  this->GetAxisTitleTextProperty()->SetColor( r, g, b );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisTitleFontFamily( int x )
 {
-   this->GetAxisTitleTextProperty()->SetFontFamily( x );
+  this->GetAxisTitleTextProperty()->SetFontFamily( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisTitleBold( int x )
 {
-   this->GetAxisTitleTextProperty()->SetBold( x );
+  this->GetAxisTitleTextProperty()->SetBold( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisTitleItalic( int x )
 {
-   this->GetAxisTitleTextProperty()->SetItalic( x );
+  this->GetAxisTitleTextProperty()->SetItalic( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisTitleShadow( int x )
 {
-   this->GetAxisTitleTextProperty()->SetShadow( x );
+  this->GetAxisTitleTextProperty()->SetShadow( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisTitleFontSize( int x )
 {
-   this->GetAxisTitleTextProperty()->SetFontSize( x );
+  this->GetAxisTitleTextProperty()->SetFontSize( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisTitleJustification( int x )
 {
-   this->GetAxisTitleTextProperty()->SetJustification( x );
+  this->GetAxisTitleTextProperty()->SetJustification( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisTitleVerticalJustification( int x )
 {
-   this->GetAxisTitleTextProperty()->SetVerticalJustification( x );
+  this->GetAxisTitleTextProperty()->SetVerticalJustification( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisLabelColor( double r, double g, double b )
 {
-   this->GetAxisLabelTextProperty()->SetColor( r, g, b );
+  this->GetAxisLabelTextProperty()->SetColor( r, g, b );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisLabelFontFamily( int x )
 {
-   this->GetAxisLabelTextProperty()->SetFontFamily( x );
+  this->GetAxisLabelTextProperty()->SetFontFamily( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -3214,31 +3238,36 @@ void vtkXYPlotActor::SetAxisLabelBold( int x )
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisLabelItalic( int x )
 {
-   this->GetAxisLabelTextProperty()->SetItalic( x );
+  this->GetAxisLabelTextProperty()->SetItalic( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisLabelShadow( int x )
 {
-   this->GetAxisLabelTextProperty()->SetShadow( x );
+  this->GetAxisLabelTextProperty()->SetShadow( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisLabelFontSize( int x )
 {
-   this->GetAxisLabelTextProperty()->SetFontSize( x );
+  this->GetAxisLabelTextProperty()->SetFontSize( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisLabelJustification( int x )
 {
-   this->GetAxisLabelTextProperty()->SetJustification( x );
+  this->GetAxisLabelTextProperty()->SetJustification( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisLabelVerticalJustification( int x )
 {
-   this->GetAxisLabelTextProperty()->SetVerticalJustification( x );
+  this->GetAxisLabelTextProperty()->SetVerticalJustification( x );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------

@@ -452,7 +452,7 @@ enum Alignment {
   // Description:
   // Set/Get the format with which to print the labels . This sets both X
   // and Y label formats. GetLabelFormat() returns X label format.
-  virtual void SetLabelFormat (const char* _arg);
+  virtual void SetLabelFormat ( const char* );
   const char* GetLabelFormat()
     {
     return this->GetXLabelFormat();
@@ -460,12 +460,12 @@ enum Alignment {
 
   // Description:
   // Set/Get the format with which to print the X label.
-  virtual void SetXLabelFormat (const char* _arg);
+  virtual void SetXLabelFormat ( const char* );
   vtkGetStringMacro(XLabelFormat);
 
   // Description:
   // Set/Get the format with which to print the Y label.
-  virtual void SetYLabelFormat (const char* _arg);
+  virtual void SetYLabelFormat ( const char* );
   vtkGetStringMacro(YLabelFormat);
 
   // Description:
@@ -611,22 +611,18 @@ enum Alignment {
   void SetYTitlePosition( YTitlePositionMode );
 //ETX
 
+  // Description:
+  // Set plot properties
   virtual void SetPlotGlyphType( int, int );
+  virtual void SetLineWidth( double );
+  virtual void AddUserCurvesPoint( double, double, double );
+  virtual void RemoveAllActiveCurves();
 
-  virtual void SetXAxisColor( double, double, double );
-  virtual void SetYAxisColor( double, double, double );
+  // Description:
+  // Set legend properties
   virtual void SetLegendBorder( int );
   virtual void SetLegendBox( int );
   virtual void SetLegendBoxColor( double, double, double );
-  virtual void SetLineWidth( double );
-
-  // Description:
-  // Add points to curves
-  virtual void AddUserCurvesPoint( double, double, double );
-
-  // Description:
-  // Clear all active curves
-  virtual void RemoveAllActiveCurves();
 
   // Description:
   // Set title properties
@@ -638,6 +634,11 @@ enum Alignment {
   virtual void SetTitleFontSize( int );
   virtual void SetTitleJustification( int );
   virtual void SetTitleVerticalJustification( int );
+
+  // Description:
+  // Set axes properties
+  virtual void SetXAxisColor( double, double, double );
+  virtual void SetYAxisColor( double, double, double );
 
   // Description:
   // Set axis title properties
