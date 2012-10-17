@@ -92,10 +92,10 @@ int TestXYPlotActor( int, char *[] )
     xyPlot->AddDataSetInput( polydata[i] );
     xyPlot->SetPlotColor( i, colors[3 * i], colors[3 * i + 1], colors[3 * i + 2] );
     }
-  xyPlot->GetPositionCoordinate()->SetValue( .05, .05, .0 );
-  xyPlot->GetPosition2Coordinate()->SetValue( .95, .95, .0 );
+  xyPlot->GetPositionCoordinate()->SetValue( .01, .01, .0 );
+  xyPlot->GetPosition2Coordinate()->SetValue( .99, .99, .0 );
   xyPlot->SetLineWidth( 2 );
-  xyPlot->SetBorder( 10 );
+  xyPlot->SetBorder( 10  );
 
   // Title settings
   xyPlot->SetTitleItalic( 0 );
