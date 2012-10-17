@@ -58,7 +58,9 @@ function(vtk_add_wrapping module_name module_srcs module_hdrs)
 
       # Now to wrap the languages that are on.
       if(VTK_WRAP_PYTHON)
-        vtk_add_python_wrapping(${module_name} "${module_srcs}" "${module_hdrs}")
+        if (${module_name}_WRAP_PYTHON)
+          vtk_add_python_wrapping(${module_name} "${module_srcs}" "${module_hdrs}")
+        endif()
       endif()
       if(VTK_WRAP_TCL)
         vtk_add_tcl_wrapping(${module_name} "${module_srcs}" "${module_hdrs}")
