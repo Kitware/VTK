@@ -23,6 +23,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestCubeAxesInnerGridAll.cxx
   TestCubeAxesInnerGridClosest.cxx
   TestCubeAxesInnerGridFurthest.cxx
+  TestXYPlotActor.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )
