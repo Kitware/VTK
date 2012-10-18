@@ -226,12 +226,12 @@ int TestCellDistanceSelector2D( int argc, char * argv [] )
   testIntValue += CheckExtractedUGrid( es2, "Selection d({1140})=0|2", 2, true );
 
   // *****************************************************************************
-  // 3. Selection within distance of 1 from cells 157, 879, and 940
+  // 3. Selection within distance of 1 from cells 457, 879, and 940
   // *****************************************************************************
 
-  // Create a selection, sel3, of cells with indices 157, 879, and 940
+  // Create a selection, sel3, of cells with indices 457, 879, and 940
   vtkSmartPointer<vtkIdTypeArray> selArr3 = vtkSmartPointer<vtkIdTypeArray>::New();
-  selArr3->InsertNextValue( 157 );
+  selArr3->InsertNextValue( 457 );
   selArr3->InsertNextValue( 879 );
   selArr3->InsertNextValue( 940 );
   vtkSmartPointer<vtkSelectionNode> selNode3 = vtkSmartPointer<vtkSelectionNode>::New();
@@ -253,7 +253,7 @@ int TestCellDistanceSelector2D( int argc, char * argv [] )
   es3->SetInputData( 0, mesh );
   es3->SetInputConnection( 1, ls3->GetOutputPort() );
   es3->Update();
-  testIntValue += CheckExtractedUGrid( es3, "Selection d({157,879,940})=1", 3, true );
+  testIntValue += CheckExtractedUGrid( es3, "Selection d({457,879,940})<2", 3, true );
 
   return testIntValue;
 }

@@ -253,7 +253,7 @@ int TestCellDistanceSelector3D( int argc, char * argv [] )
   es3->SetInputData( 0, mesh );
   es3->SetInputConnection( 1, ls3->GetOutputPort() );
   es3->Update();
-  testIntValue += CheckExtractedUGrid( es3, "Selection d({6413,7268,7399})=1", 3, true );
+  testIntValue += CheckExtractedUGrid( es3, "Selection d({6413,7268,7399})<2", 3, true );
 
   return testIntValue;
 }
