@@ -17,7 +17,7 @@ set(MyTests
   TestRectilinearGridToPointSet.cxx
   TestReflectionFilter.cxx
   TestUncertaintyTubeFilter.cxx
-  TestCellDistanceSelector.cxx
+  TestCellDistanceSelector3D.cxx
   TestLinearSelector2D.cxx
   TestLinearSelector3D.cxx
   TestYoungsMaterialInterface.cxx
