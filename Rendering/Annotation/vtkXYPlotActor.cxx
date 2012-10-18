@@ -85,6 +85,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->Title = NULL;
   this->XTitle = new char[7];
   sprintf( this->XTitle,"%s","X Axis");
+
   this->YTitleActor = vtkTextActor::New();
   this->YTitleActor->SetInput( "Y Axis" );
   this->YTitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
@@ -850,14 +851,14 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         this->XAxis->GetTitleTextProperty()
           ->ShallowCopy( this->AxisTitleTextProperty );
         }
-      if ( this->YTitleActor->GetTextProperty() )
-        {
-        this->YTitleActor->GetTextProperty()
-          ->ShallowCopy( this->AxisTitleTextProperty );
-        }
       if ( this->YAxis->GetTitleTextProperty() )
         {
         this->YAxis->GetTitleTextProperty()
+          ->ShallowCopy( this->AxisTitleTextProperty );
+        }
+      if ( this->YTitleActor->GetTextProperty() )
+        {
+        this->YTitleActor->GetTextProperty()
           ->ShallowCopy( this->AxisTitleTextProperty );
         }
       }
@@ -984,9 +985,9 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
     if( strcmp( this->YTitleActor->GetInput(), "" ) )
       {
       this->YTitleActor->GetTextProperty()->SetFontSize( this->YAxisTitleSize );
-         
+
       int* p1 = this->PositionCoordinate->GetComputedViewportValue( viewport );
-         
+
       // Retrieve lower endpoint of Y axis
       int* yaxis_p1 = this->YAxis->GetPositionCoordinate()->GetComputedViewportValue( viewport );
 
@@ -1028,7 +1029,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         }
       this->YTitleActor->GetPositionCoordinate()->SetValue( ( double ) ytitlePos[0], ( double ) ytitlePos[1] );
       }
-      
+
     // manage title
     if ( this->Title != NULL && this->Title[0] )
       {
@@ -2288,10 +2289,10 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
     }
   delete [] tmp;
   this->YAxisTitleSize = vtkTextMapper::SetRelativeFontSize( textMapper, viewport, size, titleSizeY, 0.015*fontFactorY );
-   
+
   this->YTitleSize[0] = titleSizeY[0];
   this->YTitleSize[1] = titleSizeY[1];
-   
+
   // At this point the thing to do would be to actually ask the Y axis
   // actor to return the largest label.
   // In the meantime, let's try with the min and max
@@ -2327,13 +2328,13 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
   // Save estimated axis size to avoid recomputing of YTitleActor displacement
   if( this->YTitlePosition == VTK_XYPLOT_Y_AXIS_TOP )
     {
-    this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + this->Border );      
+    this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + this->Border );
     }
   else
     {
     this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + .75 * labelSizeY[0] + this->Border );
     }
-   
+
   // Now specify the location of the axes
   axisX->GetPositionCoordinate()->SetValue( ( double ) pos[0], ( double ) pos[1] );
   axisX->GetPosition2Coordinate()->SetValue( ( double ) pos2[0], ( double ) pos[1] );
@@ -2868,6 +2869,7 @@ void vtkXYPlotActor::SetYLabelFormat( const char* _arg )
 void vtkXYPlotActor::SetNumberOfXMinorTicks( int num )
 {
   this->XAxis->SetNumberOfMinorTicks( num );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -2880,6 +2882,7 @@ int vtkXYPlotActor::GetNumberOfXMinorTicks()
 void vtkXYPlotActor::SetNumberOfYMinorTicks( int num )
 {
   this->YAxis->SetNumberOfMinorTicks( num );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -2989,7 +2992,7 @@ void vtkXYPlotActor::RemoveAllActiveCurves()
 //			\li 12 : arrow
 //			\li 13 => nothing
 //			\li 14 => nothing
-//			\li 15 => 2 + fillOff 
+//			\li 15 => 2 + fillOff
 //			\li 16 => nothing
 //			\li 17 => 4 + fillOff
 //			\li 18 => 5 + fillOff
@@ -3180,8 +3183,12 @@ void vtkXYPlotActor::SetAxisTitleVerticalJustification( int x )
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisTitleTextProperty( vtkTextProperty* p )
 {
-  this->AxisTitleTextProperty = p;
-  this->YTitleActor->SetTextProperty( p );
+  // NB: Perform shallow copy here since each individual axis can be
+  // accessed through the class API ( i.e. each individual axis text prop
+  // can be changed ). Therefore, we can not just assign pointers otherwise
+  // each individual axis text prop would point to the same text prop.
+  this->AxisTitleTextProperty->ShallowCopy( p );
+  this->YTitleActor->GetTextProperty()->ShallowCopy( p );
   this->Modified();
 }
 

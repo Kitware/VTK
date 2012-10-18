@@ -135,11 +135,13 @@ int TestXYPlotActor( int argc, char* argv[] )
     }
 
   // Axes settings
+  vtkTextProperty* tprop = xyPlot->GetTitleTextProperty();
+  xyPlot->SetAxisTitleTextProperty( tprop );
   xyPlot->SetAxisTitleFontFamily( VTK_TIMES );
   xyPlot->SetAxisTitleColor( 0., 0., 1. );
   xyPlot->SetYTitlePositionToVCenter();
-  xyPlot->SetXTitle( "x");
-  xyPlot->SetYTitle( "f(x)");
+  xyPlot->SetXTitle( "x" );
+  xyPlot->SetYTitle( "f(x)" );
   xyPlot->SetXValuesToIndex();
   xyPlot->SetXRange( 0, nVals - 1 );
   xyPlot->SetYRange( floor( range[0] ), ceil( range[1] ) );
