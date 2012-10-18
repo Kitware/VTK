@@ -32,6 +32,7 @@
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For color array name
 #include "vtkNew.h"             // For ivars
+#include "vtkRenderingCoreEnums.h" // For marker enum
 
 class vtkContext2D;
 class vtkTable;
@@ -121,12 +122,12 @@ public:
   // Description:
   // Enum containing various marker styles that can be used in a plot.
   enum {
-    NONE = 0,
-    CROSS,
-    PLUS,
-    SQUARE,
-    CIRCLE,
-    DIAMOND
+    NONE = VTK_MARKER_NONE,
+    CROSS = VTK_MARKER_CROSS,
+    PLUS = VTK_MARKER_PLUS,
+    SQUARE = VTK_MARKER_SQUARE,
+    CIRCLE = VTK_MARKER_CIRCLE,
+    DIAMOND = VTK_MARKER_DIAMOND
   };
 //ETX
 
@@ -146,10 +147,6 @@ public:
 protected:
   vtkPlotPoints();
   ~vtkPlotPoints();
-
-  // Description:
-  // Generate the requested symbol for the plot
-  void GeneraterMarker(int width, bool highlight = false);
 
   // Description:
   // Update the table cache.
@@ -197,8 +194,6 @@ protected:
   // The marker style that should be used
   int MarkerStyle;
   float MarkerSize;
-  vtkImageData* Marker;
-  vtkImageData* HighlightMarker;
 
   bool LogX, LogY;
 

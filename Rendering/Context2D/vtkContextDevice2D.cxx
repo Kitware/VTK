@@ -107,3 +107,8 @@ void vtkContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Text Property: ";
   this->TextProp->PrintSelf(os, indent.GetNextIndent());
 }
+
+void vtkContextDevice2D::DrawMarkers(int, bool, float*, int, unsigned char*,
+                                     int)
+{
+}
