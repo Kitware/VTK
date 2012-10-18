@@ -1,5 +1,5 @@
 # ------------------------------------------------------------
-# Purpose: Test the paraemtric functions.
+# Purpose: Test the parametric functions.
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -199,13 +199,21 @@ vtkActor2D superEllipsoidTextActor
 # ------------------------------------------------------------
 # Create an open 1D spline
 # ------------------------------------------------------------
-vtkMath math
+set p0 "-0.981576726763  0.639953289013  -0.305071552892"
+set p1 "0.6624105478  -0.865923131754  0.429924616325"
+set p2 "-0.2569734311  -0.952456491977  0.0637393393851"
+set p3 "-0.732922955292  -0.236109588871  -0.293860152035"
+set p4 "-0.907575251492  0.382748181644  0.848688894812"
+set p5 "-0.0857448890273  0.885650117828  -0.878469658959"
+set p6 "-0.439558122977  0.346627118693  -0.238016126323"
+set p7 "-0.337035103392  -0.548982715024  -0.752491410706"
+set p8 "0.876860257181  -0.609657562156  -0.514647156705"
+set p9 "0.325237251504  0.26248602721  -0.397340677398"
+
 vtkPoints inputPoints
 for {set i 0} {$i < 10} {incr i 1} {
-    set x  [math Random -1 1]
-    set y  [math Random -1 1]
-    set z  [math Random -1 1]
-    inputPoints InsertPoint $i $x $y $z
+    set p [set p${i}]
+    inputPoints InsertPoint $i [lindex $p 0] [lindex $p 1] [lindex $p 2]
 }
 vtkParametricSpline spline
   spline SetPoints inputPoints
@@ -546,5 +554,3 @@ renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-
