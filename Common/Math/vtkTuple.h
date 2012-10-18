@@ -21,7 +21,6 @@
 #ifndef __vtkTuple_h
 #define __vtkTuple_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkIOStream.h" // For streaming operators
 #include "vtkSystemIncludes.h"
 
