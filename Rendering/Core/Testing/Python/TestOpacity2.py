@@ -68,11 +68,11 @@ camera.SetViewUp(0.05,0.96,0.24)
 camera.SetFocalPoint(0,0.25,0)
 ren1.ResetCameraClippingRange()
 renWin.Render()
-puts.ren1.GetLastRenderingUsedDepthPeeling()()
+print ren1.GetLastRenderingUsedDepthPeeling()
 if (ren1.GetLastRenderingUsedDepthPeeling()):
-    puts."depth peeling was used"()
+    print "depth peeling was used"
     pass
 else:
-    puts."depth peeling was not used (alpha blending instead)"()
+    print "depth peeling was not used (alpha blending instead)"
     pass
 # --- end of script --
