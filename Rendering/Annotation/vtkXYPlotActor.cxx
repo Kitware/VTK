@@ -10,7 +10,6 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
-
 =========================================================================*/
 #include "vtkXYPlotActor.h"
 
@@ -22,7 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDataObjectCollection.h"
 #include "vtkDataSetCollection.h"
 #include "vtkFieldData.h"
-#include "vtkFreeTypeUtilities.h"
 #include "vtkDoubleArray.h"
 #include "vtkGlyph2D.h"
 #include "vtkGlyphSource2D.h"
@@ -87,12 +85,13 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->Title = NULL;
   this->XTitle = new char[7];
   sprintf( this->XTitle,"%s","X Axis");
-  this->YTitleActor = vtkSmartPointer<vtkTextActor>::New();
+
+  this->YTitleActor = vtkTextActor::New();
   this->YTitleActor->SetInput( "Y Axis" );
   this->YTitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->YTitleActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
 
-  this->YTitlePosition = VTK_XYPLOT_Y_AXIS_TOP;
+  this->YTitlePosition = VTK_XYPLOT_Y_AXIS_HCENTER;
   this->YTitleDelta = 0;
 
   this->XValues = VTK_XYPLOT_INDEX;
@@ -107,10 +106,16 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->TitleTextProperty->SetFontFamilyToArial();
 
   this->AxisLabelTextProperty = vtkTextProperty::New();
-  this->AxisLabelTextProperty->ShallowCopy( this->TitleTextProperty );
+  this->AxisLabelTextProperty->SetBold( 0 );
+  this->AxisLabelTextProperty->SetItalic( 1 );
+  this->AxisLabelTextProperty->SetShadow( 1 );
+  this->AxisLabelTextProperty->SetFontFamilyToArial();
 
   this->AxisTitleTextProperty = vtkTextProperty::New();
-  this->AxisTitleTextProperty->ShallowCopy( this->AxisLabelTextProperty );
+  this->AxisTitleTextProperty->SetBold( 0 );
+  this->AxisTitleTextProperty->SetItalic( 1 );
+  this->AxisTitleTextProperty->SetShadow( 1 );
+  this->AxisTitleTextProperty->SetFontFamilyToArial();
 
   this->XLabelFormat = new char[8];
   sprintf( this->XLabelFormat,"%s","%-#6.3g");
@@ -283,13 +288,6 @@ vtkXYPlotActor::vtkXYPlotActor()
     | vtkXYPlotActor::AlignTop
     | vtkXYPlotActor::AlignAxisHCenter
     | vtkXYPlotActor::AlignAxisVCenter;
-
-
-  this->FreeTypeUtilities = vtkFreeTypeUtilities::GetInstance();
-  if( ! this->FreeTypeUtilities )
-    {
-    vtkErrorMacro( << "Failed getting the FreeType utilities instance" );
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -362,6 +360,9 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->AxisLabelTextProperty = NULL;
   this->AxisTitleTextProperty->Delete();
   this->AxisTitleTextProperty = NULL;
+
+  this->YTitleActor->Delete();
+  this->YTitleActor = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -377,10 +378,19 @@ void vtkXYPlotActor::InitializeEntries()
       this->PlotMapper[i]->Delete();
       this->PlotActor[i]->Delete();
       }//for all entries
-    delete [] this->PlotData; this->PlotData = NULL;
-    delete [] this->PlotGlyph; this->PlotGlyph = NULL;
-    delete [] this->PlotAppend; this->PlotAppend = NULL;
-    delete [] this->PlotMapper; this->PlotMapper = NULL;
+
+    delete [] this->PlotData;
+    this->PlotData = NULL;
+
+    delete [] this->PlotGlyph;
+    this->PlotGlyph = NULL;
+
+    delete [] this->PlotAppend;
+    this->PlotAppend = NULL;
+
+    delete [] this->PlotMapper;
+    this->PlotMapper = NULL;
+
     delete [] this->PlotActor; this->PlotActor = NULL;
     this->NumberOfInputs = 0;
     }//if entries have been defined
@@ -831,11 +841,6 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         this->YAxis->GetLabelTextProperty()
           ->ShallowCopy( this->AxisLabelTextProperty );
         }
-      if ( this->YTitleActor->GetTextProperty() )
-        {
-        this->YTitleActor->GetTextProperty()
-          ->ShallowCopy( this->AxisTitleTextProperty );
-        }
       }
 
     if ( this->AxisTitleTextProperty &&
@@ -846,14 +851,14 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         this->XAxis->GetTitleTextProperty()
           ->ShallowCopy( this->AxisTitleTextProperty );
         }
-      if ( this->YTitleActor->GetTextProperty() )
-        {
-        this->YTitleActor->GetTextProperty()
-          ->ShallowCopy( this->AxisTitleTextProperty );
-        }
       if ( this->YAxis->GetTitleTextProperty() )
         {
         this->YAxis->GetTitleTextProperty()
+          ->ShallowCopy( this->AxisTitleTextProperty );
+        }
+      if ( this->YTitleActor->GetTextProperty() )
+        {
+        this->YTitleActor->GetTextProperty()
           ->ShallowCopy( this->AxisTitleTextProperty );
         }
       }
@@ -980,9 +985,9 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
     if( strcmp( this->YTitleActor->GetInput(), "" ) )
       {
       this->YTitleActor->GetTextProperty()->SetFontSize( this->YAxisTitleSize );
-         
+
       int* p1 = this->PositionCoordinate->GetComputedViewportValue( viewport );
-         
+
       // Retrieve lower endpoint of Y axis
       int* yaxis_p1 = this->YAxis->GetPositionCoordinate()->GetComputedViewportValue( viewport );
 
@@ -1024,7 +1029,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         }
       this->YTitleActor->GetPositionCoordinate()->SetValue( ( double ) ytitlePos[0], ( double ) ytitlePos[1] );
       }
-      
+
     // manage title
     if ( this->Title != NULL && this->Title[0] )
       {
@@ -2284,10 +2289,10 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
     }
   delete [] tmp;
   this->YAxisTitleSize = vtkTextMapper::SetRelativeFontSize( textMapper, viewport, size, titleSizeY, 0.015*fontFactorY );
-   
+
   this->YTitleSize[0] = titleSizeY[0];
   this->YTitleSize[1] = titleSizeY[1];
-   
+
   // At this point the thing to do would be to actually ask the Y axis
   // actor to return the largest label.
   // In the meantime, let's try with the min and max
@@ -2323,13 +2328,13 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
   // Save estimated axis size to avoid recomputing of YTitleActor displacement
   if( this->YTitlePosition == VTK_XYPLOT_Y_AXIS_TOP )
     {
-    this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + this->Border );      
+    this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + this->Border );
     }
   else
     {
-    this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + 1.5 * labelSizeY[0] + this->Border );
+    this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + .75 * labelSizeY[0] + this->Border );
     }
-   
+
   // Now specify the location of the axes
   axisX->GetPositionCoordinate()->SetValue( ( double ) pos[0], ( double ) pos[1] );
   axisX->GetPosition2Coordinate()->SetValue( ( double ) pos2[0], ( double ) pos[1] );
@@ -2864,6 +2869,7 @@ void vtkXYPlotActor::SetYLabelFormat( const char* _arg )
 void vtkXYPlotActor::SetNumberOfXMinorTicks( int num )
 {
   this->XAxis->SetNumberOfMinorTicks( num );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -2876,6 +2882,7 @@ int vtkXYPlotActor::GetNumberOfXMinorTicks()
 void vtkXYPlotActor::SetNumberOfYMinorTicks( int num )
 {
   this->YAxis->SetNumberOfMinorTicks( num );
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -2985,7 +2992,7 @@ void vtkXYPlotActor::RemoveAllActiveCurves()
 //			\li 12 : arrow
 //			\li 13 => nothing
 //			\li 14 => nothing
-//			\li 15 => 2 + fillOff 
+//			\li 15 => 2 + fillOff
 //			\li 16 => nothing
 //			\li 17 => 4 + fillOff
 //			\li 18 => 5 + fillOff
@@ -3174,6 +3181,18 @@ void vtkXYPlotActor::SetAxisTitleVerticalJustification( int x )
 }
 
 //----------------------------------------------------------------------------
+void vtkXYPlotActor::SetAxisTitleTextProperty( vtkTextProperty* p )
+{
+  // NB: Perform shallow copy here since each individual axis can be
+  // accessed through the class API ( i.e. each individual axis text prop
+  // can be changed ). Therefore, we can not just assign pointers otherwise
+  // each individual axis text prop would point to the same text prop.
+  this->AxisTitleTextProperty->ShallowCopy( p );
+  this->YTitleActor->GetTextProperty()->ShallowCopy( p );
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisLabelColor( double r, double g, double b )
 {
   this->GetAxisLabelTextProperty()->SetColor( r, g, b );
@@ -3225,13 +3244,5 @@ void vtkXYPlotActor::SetAxisLabelJustification( int x )
 void vtkXYPlotActor::SetAxisLabelVerticalJustification( int x )
 {
   this->GetAxisLabelTextProperty()->SetVerticalJustification( x );
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkXYPlotActor::SetAxisTitleTextProperty( vtkTextProperty* p )
-{
-  this->AxisTitleTextProperty = p;
-  this->YTitleActor->SetTextProperty( p );
   this->Modified();
 }

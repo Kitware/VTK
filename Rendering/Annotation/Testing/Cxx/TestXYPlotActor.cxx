@@ -116,7 +116,7 @@ int TestXYPlotActor( int argc, char* argv[] )
 
   // Title settings
   xyPlot->SetTitleItalic( 0 );
-  xyPlot->SetTitleBold( 0 );
+  xyPlot->SetTitleBold( 1 );
   xyPlot->SetTitleFontFamily( VTK_ARIAL );
   xyPlot->SetTitleColor( .9, .06, .02 );
   xyPlot->SetTitle( "XY Plot Actor Test");
@@ -138,8 +138,8 @@ int TestXYPlotActor( int argc, char* argv[] )
   xyPlot->SetAxisTitleFontFamily( VTK_TIMES );
   xyPlot->SetAxisTitleColor( 0., 0., 1. );
   xyPlot->SetYTitlePositionToVCenter();
-  xyPlot->SetXTitle( "x");
-  xyPlot->SetYTitle( "f(x)");
+  xyPlot->SetXTitle( "x" );
+  xyPlot->SetYTitle( "f(x)" );
   xyPlot->SetXValuesToIndex();
   xyPlot->SetXRange( 0, nVals - 1 );
   xyPlot->SetYRange( floor( range[0] ), ceil( range[1] ) );
