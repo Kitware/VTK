@@ -135,8 +135,6 @@ int TestXYPlotActor( int argc, char* argv[] )
     }
 
   // Axes settings
-  vtkTextProperty* tprop = xyPlot->GetTitleTextProperty();
-  xyPlot->SetAxisTitleTextProperty( tprop );
   xyPlot->SetAxisTitleFontFamily( VTK_TIMES );
   xyPlot->SetAxisTitleColor( 0., 0., 1. );
   xyPlot->SetYTitlePositionToVCenter();
