@@ -116,7 +116,7 @@ int TestXYPlotActor( int argc, char* argv[] )
 
   // Title settings
   xyPlot->SetTitleItalic( 0 );
-  xyPlot->SetTitleBold( 0 );
+  xyPlot->SetTitleBold( 1 );
   xyPlot->SetTitleFontFamily( VTK_ARIAL );
   xyPlot->SetTitleColor( .9, .06, .02 );
   xyPlot->SetTitle( "XY Plot Actor Test");
