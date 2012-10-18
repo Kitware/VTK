@@ -92,7 +92,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->YTitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->YTitleActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
 
-  this->YTitlePosition = VTK_XYPLOT_Y_AXIS_TOP;
+  this->YTitlePosition = VTK_XYPLOT_Y_AXIS_HCENTER;
   this->YTitleDelta = 0;
 
   this->XValues = VTK_XYPLOT_INDEX;
