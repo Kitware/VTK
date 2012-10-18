@@ -107,10 +107,16 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->TitleTextProperty->SetFontFamilyToArial();
 
   this->AxisLabelTextProperty = vtkTextProperty::New();
-  this->AxisLabelTextProperty->ShallowCopy( this->TitleTextProperty );
+  this->AxisLabelTextProperty->SetBold( 0 );
+  this->AxisLabelTextProperty->SetItalic( 1 );
+  this->AxisLabelTextProperty->SetShadow( 1 );
+  this->AxisLabelTextProperty->SetFontFamilyToArial();
 
   this->AxisTitleTextProperty = vtkTextProperty::New();
-  this->AxisTitleTextProperty->ShallowCopy( this->AxisLabelTextProperty );
+  this->AxisTitleTextProperty->SetBold( 0 );
+  this->AxisTitleTextProperty->SetItalic( 1 );
+  this->AxisTitleTextProperty->SetShadow( 1 );
+  this->AxisTitleTextProperty->SetFontFamilyToArial();
 
   this->XLabelFormat = new char[8];
   sprintf( this->XLabelFormat,"%s","%-#6.3g");
@@ -2327,7 +2333,7 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
     }
   else
     {
-    this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + 1.5 * labelSizeY[0] + this->Border );
+    this->YTitleDelta = ( int ) ( 2 * tickOffsetY + tickLengthY + .75 * labelSizeY[0] + this->Border );
     }
    
   // Now specify the location of the axes
