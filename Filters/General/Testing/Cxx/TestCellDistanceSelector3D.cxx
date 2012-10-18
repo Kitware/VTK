@@ -102,7 +102,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
   if ( writeGrid )
     {
     vtksys_ios::ostringstream fileNameSS;
-    fileNameSS << "./CellDistanceExtraction-"
+    fileNameSS << "./CellDistanceExtraction3D-"
                << testIdx
                << ".vtk";
     vtkSmartPointer<vtkUnstructuredGridWriter> writer = vtkSmartPointer<vtkUnstructuredGridWriter>::New();
