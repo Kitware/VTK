@@ -110,7 +110,6 @@ class vtkDataObjectCollection;
 class vtkDataSet;
 class vtkDataSetCollection;
 class vtkDoubleArray;
-class vtkFreeTypeUtilities;
 class vtkGlyph2D;
 class vtkGlyphSource2D;
 class vtkIntArray;
@@ -683,14 +682,15 @@ protected:
   char** SelectedInputScalars; // list of data set arrays to plot
   vtkIntArray* SelectedInputScalarsComponent; // list of components
   vtkXYPlotActorConnections *DataObjectInputConnectionHolder; //list of data objects to plot
-  char  *Title;
-  char  *XTitle;
+  char*  Title;
+  char*  XTitle;
+  vtkTextActor* YTitleActor;
   int   XValues;
   int   NumberOfXLabels;
   int   NumberOfYLabels;
   int   Logx;
-  char  *XLabelFormat;
-  char  *YLabelFormat;
+  char* XLabelFormat;
+  char* YLabelFormat;
   double XRange[2];
   double YRange[2];
   double XComputedRange[2];  //range actually used by plot
@@ -709,25 +709,25 @@ protected:
   double TitlePosition[2];
   int AdjustTitlePositionMode;
 
-  vtkTextMapper   *TitleMapper;
-  vtkActor2D      *TitleActor;
-  vtkTextProperty *TitleTextProperty;
+  vtkTextMapper*   TitleMapper;
+  vtkActor2D*      TitleActor;
+  vtkTextProperty* TitleTextProperty;
 
-  vtkAxisActor2D  *XAxis;
-  vtkAxisActor2D  *YAxis;
+  vtkAxisActor2D*  XAxis;
+  vtkAxisActor2D*  YAxis;
 
-  vtkTextProperty *AxisTitleTextProperty;
-  vtkTextProperty *AxisLabelTextProperty;
+  vtkTextProperty* AxisTitleTextProperty;
+  vtkTextProperty* AxisLabelTextProperty;
 
   double ViewportCoordinate[2];
   double PlotCoordinate[2];
 
   //Handle data objects and datasets
   int DataObjectPlotMode;
-  vtkIntArray *XComponent;
-  vtkIntArray *YComponent;
-  vtkIntArray *LinesOn;
-  vtkIntArray *PointsOn;
+  vtkIntArray* XComponent;
+  vtkIntArray* YComponent;
+  vtkIntArray* LinesOn;
+  vtkIntArray* PointsOn;
 
   //The data drawn within the axes. Each curve is one polydata.
   //color is controlled by scalar data. The curves are appended
@@ -788,7 +788,6 @@ protected:
   double *TransformPoint(int pos[2], int pos2[2], double x[3], double xNew[3]);
 
 //BTX
-  vtkSmartPointer<vtkTextActor> YTitleActor;
   vtkSmartPointer<vtkDoubleArray> ActiveCurve;
 //ETX
   int YAxisTitleSize;
@@ -816,10 +815,6 @@ private:
   // Description:
   // Estimated size of Y axis spacing
   int YTitleDelta;
-
-  // Description:
-  // Used to calculate the size of a text actor
-  vtkFreeTypeUtilities* FreeTypeUtilities;
 };
 
 

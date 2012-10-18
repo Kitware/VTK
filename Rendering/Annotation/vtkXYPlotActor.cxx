@@ -10,7 +10,6 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
-
 =========================================================================*/
 #include "vtkXYPlotActor.h"
 
@@ -22,7 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDataObjectCollection.h"
 #include "vtkDataSetCollection.h"
 #include "vtkFieldData.h"
-#include "vtkFreeTypeUtilities.h"
 #include "vtkDoubleArray.h"
 #include "vtkGlyph2D.h"
 #include "vtkGlyphSource2D.h"
@@ -87,7 +85,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->Title = NULL;
   this->XTitle = new char[7];
   sprintf( this->XTitle,"%s","X Axis");
-  this->YTitleActor = vtkSmartPointer<vtkTextActor>::New();
+  this->YTitleActor = vtkTextActor::New();
   this->YTitleActor->SetInput( "Y Axis" );
   this->YTitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->YTitleActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
@@ -289,13 +287,6 @@ vtkXYPlotActor::vtkXYPlotActor()
     | vtkXYPlotActor::AlignTop
     | vtkXYPlotActor::AlignAxisHCenter
     | vtkXYPlotActor::AlignAxisVCenter;
-
-
-  this->FreeTypeUtilities = vtkFreeTypeUtilities::GetInstance();
-  if( ! this->FreeTypeUtilities )
-    {
-    vtkErrorMacro( << "Failed getting the FreeType utilities instance" );
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -368,6 +359,9 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->AxisLabelTextProperty = NULL;
   this->AxisTitleTextProperty->Delete();
   this->AxisTitleTextProperty = NULL;
+
+  this->YTitleActor->Delete();
+  this->YTitleActor = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -383,10 +377,19 @@ void vtkXYPlotActor::InitializeEntries()
       this->PlotMapper[i]->Delete();
       this->PlotActor[i]->Delete();
       }//for all entries
-    delete [] this->PlotData; this->PlotData = NULL;
-    delete [] this->PlotGlyph; this->PlotGlyph = NULL;
-    delete [] this->PlotAppend; this->PlotAppend = NULL;
-    delete [] this->PlotMapper; this->PlotMapper = NULL;
+
+    delete [] this->PlotData;
+    this->PlotData = NULL;
+
+    delete [] this->PlotGlyph;
+    this->PlotGlyph = NULL;
+
+    delete [] this->PlotAppend;
+    this->PlotAppend = NULL;
+
+    delete [] this->PlotMapper;
+    this->PlotMapper = NULL;
+
     delete [] this->PlotActor; this->PlotActor = NULL;
     this->NumberOfInputs = 0;
     }//if entries have been defined
@@ -836,11 +839,6 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         {
         this->YAxis->GetLabelTextProperty()
           ->ShallowCopy( this->AxisLabelTextProperty );
-        }
-      if ( this->YTitleActor->GetTextProperty() )
-        {
-        this->YTitleActor->GetTextProperty()
-          ->ShallowCopy( this->AxisTitleTextProperty );
         }
       }
 
@@ -3180,6 +3178,14 @@ void vtkXYPlotActor::SetAxisTitleVerticalJustification( int x )
 }
 
 //----------------------------------------------------------------------------
+void vtkXYPlotActor::SetAxisTitleTextProperty( vtkTextProperty* p )
+{
+  this->AxisTitleTextProperty = p;
+  this->YTitleActor->SetTextProperty( p );
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAxisLabelColor( double r, double g, double b )
 {
   this->GetAxisLabelTextProperty()->SetColor( r, g, b );
@@ -3231,13 +3237,5 @@ void vtkXYPlotActor::SetAxisLabelJustification( int x )
 void vtkXYPlotActor::SetAxisLabelVerticalJustification( int x )
 {
   this->GetAxisLabelTextProperty()->SetVerticalJustification( x );
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkXYPlotActor::SetAxisTitleTextProperty( vtkTextProperty* p )
-{
-  this->AxisTitleTextProperty = p;
-  this->YTitleActor->SetTextProperty( p );
   this->Modified();
 }
