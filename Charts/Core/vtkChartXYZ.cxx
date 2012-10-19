@@ -891,6 +891,7 @@ bool vtkChartXYZ::MouseWheelEvent(const vtkContextMouseEvent&,
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
+  this->CheckClipping = true;
 
   this->InvokeEvent(vtkCommand::InteractionEvent);
   return true;
@@ -1315,6 +1316,11 @@ void vtkChartXYZ::ScaleUpAxes()
       {
       this->FutureBoxScale->Scale(scaleStep, scaleStep, scaleStep);
       ++numSteps;
+      if (numSteps > 500)
+        {
+        // Break out of the loop.
+        shouldScaleUp = false;
+        }
       }
     }
   // this while loop overshoots the mark by one step,
@@ -1359,6 +1365,11 @@ void vtkChartXYZ::ScaleDownAxes()
       {
       this->FutureBoxScale->Scale(scaleStep, scaleStep, scaleStep);
       ++numSteps;
+      if (numSteps > 500)
+        {
+        // Break out of the loop.
+        shouldScaleDown = false;
+        }
       }
     }
   if (numSteps > 0)

@@ -52,9 +52,9 @@ public:
                           const unsigned char *colors = 0, int nc = 0) = 0;
 
   // Description:
-  // Draw triangles to generate the specified surface.
-  virtual void DrawSurface(const float *surface, int n,
-                   const unsigned char *colors, int nc) = 0;
+  // Draw triangles to generate the specified mesh.
+  virtual void DrawTriangleMesh(const float *mesh, int n,
+                                const unsigned char *colors, int nc) = 0;
 
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as

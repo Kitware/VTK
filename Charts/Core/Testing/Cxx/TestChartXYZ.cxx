@@ -59,6 +59,7 @@ int TestChartXYZ(int , char * [])
   view->GetRenderWindow()->SetSize(400, 300);
   view->GetScene()->AddItem(chart.GetPointer());
   vtkNew<vtkChartXYZ> chart2;
+  chart2->SetAutoRotate(true);
   chart2->SetFitToScene(false);
   chart->SetDecorateAxes(false);
   view->GetScene()->AddItem(chart2.GetPointer());

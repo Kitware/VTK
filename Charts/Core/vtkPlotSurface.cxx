@@ -94,10 +94,10 @@ bool vtkPlotSurface::Paint(vtkContext2D *painter)
   // draw the surface
   if (this->Surface.size() > 0)
     {
-    context->DrawSurface(this->Surface[0].GetData(),
-                        static_cast<int>(this->Surface.size()),
-                        this->Colors->GetPointer(0),
-                        this->ColorComponents);
+    context->DrawTriangleMesh(this->Surface[0].GetData(),
+                              static_cast<int>(this->Surface.size()),
+                              this->Colors->GetPointer(0),
+                              this->ColorComponents);
     }
 
   return true;

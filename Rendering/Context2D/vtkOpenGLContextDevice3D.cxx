@@ -197,10 +197,11 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
     }
 }
 
-void vtkOpenGLContextDevice3D::DrawSurface(const float *surface, int n,
-                                           const unsigned char *colors, int nc)
+void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
+                                                const unsigned char *colors,
+                                                int nc)
 {
-  assert("surface must be non-null" && surface != NULL);
+  assert("mesh must be non-null" && mesh != NULL);
   assert("n must be greater than 0" && n > 0);
 
   glPointSize(this->Pen->GetWidth());
@@ -214,7 +215,7 @@ void vtkOpenGLContextDevice3D::DrawSurface(const float *surface, int n,
     {
     glColor4ubv(this->Pen->GetColor());
     }
-  glVertexPointer(3, GL_FLOAT, 0, surface);
+  glVertexPointer(3, GL_FLOAT, 0, mesh);
   glDrawArrays(GL_TRIANGLES, 0, n);
   glDisableClientState(GL_VERTEX_ARRAY);
   if (colors && nc)

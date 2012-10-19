@@ -13,10 +13,10 @@
 
 =========================================================================*/
 
-// .NAME vtkPlotSurface - 3D scatter plot.
+// .NAME vtkPlotSurface - 3D surface plot.
 //
 // .SECTION Description
-// 3D scatter plot.
+// 3D surface plot.
 //
 
 #ifndef __vtkPlotSurface_h

@@ -80,9 +80,9 @@ public:
                   unsigned char *colors, int nc_comps);
 
   // Description:
-  // Draw triangles to generate the specified surface.
-  void DrawSurface(const float *surface, int n,
-                   const unsigned char *colors, int nc);
+  // Draw triangles to generate the specified mesh.
+  void DrawTriangleMesh(const float *mesh, int n,
+                        const unsigned char *colors, int nc);
 
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as
