@@ -27,8 +27,6 @@ import vtk.test.Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-import vtk
-
 class NamedColorsIntegration(vtk.test.Testing.vtkTest):
 
     def test(self):
@@ -127,8 +125,8 @@ class NamedColorsIntegration(vtk.test.Testing.vtkTest):
         renderer = vtk.vtkRenderer()
         renderWindow = vtk.vtkRenderWindow()
         renderWindow.AddRenderer(renderer);
-        renderWindowInteractor = vtk.vtkRenderWindowInteractor()
-        renderWindowInteractor.SetRenderWindow(renderWindow);
+        iRen = vtk.vtkRenderWindowInteractor()
+        iRen.SetRenderWindow(renderWindow);
 
         renderer.AddActor(actor);
         renderer.AddActor(contourLineActor);
@@ -137,7 +135,7 @@ class NamedColorsIntegration(vtk.test.Testing.vtkTest):
 
         renderWindow.Render();
         img_file = "TestNamedColorsIntegration.png"
-        vtk.test.Testing.compareImage(renderWindowInteractor.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
+        vtk.test.Testing.compareImage(iRen.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":

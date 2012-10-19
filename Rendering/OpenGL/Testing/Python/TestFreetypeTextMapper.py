@@ -27,12 +27,12 @@ import vtk.test.Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestFreetypeTextMapperBigger(vtk.test.Testing.vtkTest):
+class TestFreetypeTextMapper(vtk.test.Testing.vtkTest):
 
-    def testFreetypeTextMapperBigger(self):
+    def testFreetypeTextMapper(self):
 
-        currentFontSize = 55
-        defaultText = "MmNnKk @"
+        currentFontSize = 16
+        defaultText = "ABCDEFGHIJKLMnopqrstuvwxyz 0123456789 !@#$%()-=_+{};:,./<>?"
         textColor = [246, 255, 11]
         bgColor = [56, 56, 154]
         for i in range(0, len(textColor)):
@@ -40,22 +40,24 @@ class TestFreetypeTextMapperBigger(vtk.test.Testing.vtkTest):
             bgColor[i] /= 255.0
 
         renWin = vtk.vtkRenderWindow()
-        renWin.SetSize(790, 450)
+        renWin.SetSize(790, 351)
 
         ren = vtk.vtkRenderer()
         ren.SetBackground(bgColor)
         renWin.AddRenderer(ren)
 
         families = ["Arial", "Courier", "Times"]
-        attributes = [[0, 0], [1, 1]] # bold, italic
+        attributes = [[0, 0, 0], [0, 0, 1], [1, 0, 0], [0, 1, 0], [1, 1, 0]] # bold, italic, shadow
 
         def SetAttributesText(attrib):
-            """ Expects a list of attributes of size 2, returns a string  """
+            """ Expects a list of attributes of size 3, returns a string  """
             s = ""
             if attrib[0] != 0:
                 s += "b"
             if attrib[1] != 0:
                 s += "i"
+            if attrib[2] != 0:
+                s += "s"
             return ','.join(list(s))
 
         mapper = dict()
@@ -81,6 +83,7 @@ class TestFreetypeTextMapperBigger(vtk.test.Testing.vtkTest):
                 tprop.SetColor(textColor)
                 tprop.SetBold(attrib[0])
                 tprop.SetItalic(attrib[1])
+                tprop.SetShadow(attrib[2])
                 tprop.SetFontSize(currentFontSize)
 
                 actor.update({idx:vtk.vtkActor2D()})
@@ -89,6 +92,7 @@ class TestFreetypeTextMapperBigger(vtk.test.Testing.vtkTest):
 
                 ren.AddActor(actor[idx])
 
+
         # render and interact with data
 
         iRen = vtk.vtkRenderWindowInteractor()
@@ -96,9 +100,9 @@ class TestFreetypeTextMapperBigger(vtk.test.Testing.vtkTest):
 
         renWin.Render()
 
-        img_file = "TestFreetypeTextMapperBigger.png"
+        img_file = "TestFreetypeTextMapper.png"
         vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestFreetypeTextMapperBigger, 'test')])
+     vtk.test.Testing.main([(TestFreetypeTextMapper, 'test')])

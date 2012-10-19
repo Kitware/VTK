@@ -188,6 +188,40 @@ macro(add_test_python)
 endmacro(add_test_python)
 
 # -----------------------------------------------------------------------------
+# This macro is for tests using vtk.test.testing
+# add_test_python1() macro takes a python file and an optional base directory where the
+# corresponding test image is found and list of python files and makes them into
+# proper python tests.
+# Usage: add_test_python1(name base_dir)
+#    Where: name - the name of the test
+#                  e.g x.py
+#           base_dir - the (optional) base directory where the test image is
+#                      e.g Baseline/Graphics
+macro(add_test_python1)
+  if(VTK_PYTHON_EXE)
+    # Parse Command line args
+    get_filename_component(TName ${ARGV0} NAME_WE)
+    string (REPLACE "vtk" "" _baselinedname ${vtk-module})
+    # Check if data root and second parameter is present
+    if(VTK_DATA_ROOT AND NOT ARGV1)
+      add_test(NAME ${vtk-module}Python-${TName}
+        COMMAND ${VTK_PYTHON_EXE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
+        -D ${VTK_DATA_ROOT}
+        -B ${VTK_DATA_ROOT}/${ARGV1}
+        -T "${VTK_BINARY_DIR}/Testing/Temporary")
+    else()
+      add_test(NAME ${vtk-module}Python-${TName}
+        COMMAND ${VTK_PYTHON_EXE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
+        ${${TName}_ARGS})
+    endif()
+  else()
+    messge(FATAL "VTK_PYTHON_EXE not set")
+  endif()
+endmacro(add_test_python1)
+
+# -----------------------------------------------------------------------------
 # add_test_tcl() macro takes a tcl file and an optional base directory where the
 # corresponding test image is found and list of tcl files and makes them into
 # proper tcl tests.
