@@ -105,6 +105,7 @@ void vtkOutputWindow::DisplayText(const char* txt)
       this->PromptUser = 0;
       }
     }
+  this->InvokeEvent(vtkCommand::MessageEvent, (void*)txt);
 }
 
 void vtkOutputWindow::DisplayErrorText(const char* txt)

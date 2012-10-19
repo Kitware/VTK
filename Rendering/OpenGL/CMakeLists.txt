@@ -105,6 +105,7 @@ set(${vtk-module}_HDRS
   vtkgluPickMatrix.h
   vtkOpenGL.h
   vtkOpenGLProjectedPolyDataRayBounder.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.h
   )

@@ -40,7 +40,7 @@ vtkPDBReader::~vtkPDBReader()
 
 void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
 {
-  char linebuf[82], dum1[8], dum2[8], elem[3];
+  char linebuf[82], dum1[8], dum2[8];
   char chain, startChain, endChain;
   int startResi, endResi;
   int resi;
@@ -65,6 +65,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   while(fgets(linebuf, sizeof linebuf, fp) != NULL &&
     strncmp("END", linebuf, 3))
     {
+    char elem[3] = { 0 };
     char c[7] = { 0 };
     sscanf(&linebuf[0],"%6s", c);
     std::string command = c;
@@ -78,6 +79,11 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       sscanf(&linebuf[22], "%d", &resi);
       sscanf(&linebuf[30],"%8f%8f%8f", x, x+1, x+2);
       sscanf(&linebuf[76], "%2s", elem);
+
+      if (elem[0] == '\0')
+        {
+        strncpy(elem, dum1, 2);
+        }
 
       if (!((elem[0]=='H' || elem[0]=='h') && elem[1]=='\0'))
         { /* skip hydrogen */

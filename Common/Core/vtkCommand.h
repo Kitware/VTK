@@ -308,7 +308,8 @@
     _vtk_add_event(HighlightEvent)\
     _vtk_add_event(WindowSupportsOpenGLEvent)\
     _vtk_add_event(WindowIsDirectEvent)\
-    _vtk_add_event(UncheckedPropertyModifiedEvent)
+    _vtk_add_event(UncheckedPropertyModifiedEvent)\
+    _vtk_add_event(MessageEvent)
 
 #define vtkEventDeclarationMacro(_enum_name)\
   enum _enum_name{\
