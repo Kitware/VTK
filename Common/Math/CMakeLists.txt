@@ -30,7 +30,6 @@ set_source_files_properties(
 
 set(
   ${vtk-module}_HDRS
-  vtkQuaternion.h
   vtkQuaternion.txx
   )
 
@@ -42,7 +41,6 @@ endif()
 set_source_files_properties(
   vtkFunctionSet
   vtkInitialValueProblemSolver
-  vtkQuaternion
   ABSTRACT
   )
 
