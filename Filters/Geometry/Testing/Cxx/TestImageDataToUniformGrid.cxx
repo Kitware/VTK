@@ -37,7 +37,7 @@ namespace
 {
 
 // returns 0 for success.
-int TestSingleGridBlanking(bool pointBlanking, int expectedNumberOfCells)
+int TestSingleGridBlanking(bool pointBlanking, bool reverse, int expectedNumberOfCells)
 {
   vtkNew<vtkRTAnalyticSource> source;
   vtkNew<vtkElevationFilter> elevation;
@@ -52,6 +52,10 @@ int TestSingleGridBlanking(bool pointBlanking, int expectedNumberOfCells)
   pointDataToCellData->Update();
 
   vtkNew<vtkImageDataToUniformGrid> imageDataToUniformGrid;
+  if(reverse)
+    {
+    imageDataToUniformGrid->ReverseOn();
+    }
   imageDataToUniformGrid->SetInputConnection(pointDataToCellData->GetOutputPort());
   if(pointBlanking)
     {
@@ -64,10 +68,15 @@ int TestSingleGridBlanking(bool pointBlanking, int expectedNumberOfCells)
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "Elevation");
     }
   imageDataToUniformGrid->Update();
+
+  // the threshold filter is really meant to create an unstructured
+  // grid. The threshold is set to include the range of RTData so that
+  // the only cells that aren't outputted from the threshold filter
+  // are the blanked cells.
   vtkNew<vtkThreshold> threshold;
   threshold->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                      "RTData");
-  threshold->ThresholdBetween(50, 150);
+  threshold->ThresholdBetween(-1000, 1000);
   threshold->SetInputConnection(imageDataToUniformGrid->GetOutputPort());
   threshold->Update();
   vtkUnstructuredGrid* outputGrid = threshold->GetOutput();
@@ -132,8 +141,13 @@ int TestMultiBlockBlanking(int expectedNumberOfCells)
 // Program main
 int TestImageDataToUniformGrid( int, char* [] )
 {
-  int rc = TestSingleGridBlanking(true, 1638);
-  rc += TestSingleGridBlanking(false, 1740);
+  int rc = TestSingleGridBlanking(true, false, 4800);
+  rc += TestSingleGridBlanking(false, false, 5600);
+
+  rc += TestSingleGridBlanking(true, true, 2400);
+  // note that this and the the second call to TestSingleGridBlanking
+  // are opposites so they should add up to 8000 cells.
+  rc += TestSingleGridBlanking(false, true, 2400);
 
   rc += TestMultiBlockBlanking(1638);
 

@@ -15,7 +15,10 @@
 // .NAME vtkImageDataToUniformGrid - convert vtkImageData to vtkUniformGrid
 // .SECTION Description
 // Convert a vtkImageData to vtkUniformGrid and set blanking based on
-// specified by named arrays.
+// specified by named arrays. By default, values of 0 in the named
+// array will result in the point or cell being blanked. Set Reverse
+// to 1 to indicate that values of 0 will result in the point or
+// cell to not be blanked.
 
 #ifndef __vtkImageDataToUniformGrid_h
 #define __vtkImageDataToUniformGrid_h
@@ -36,6 +39,15 @@ class VTKFILTERSGEOMETRY_EXPORT vtkImageDataToUniformGrid
   vtkTypeMacro(vtkImageDataToUniformGrid,vtkDataObjectAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Description:
+  // By default, values of 0 (i.e. Reverse = 0) in the array will
+  // result in that point or cell to be blanked. Set Reverse to
+  // 1 to make points or cells to not be blanked for array values
+  // of 0.
+  vtkSetClampMacro(Reverse, int, 0, 1);
+  vtkGetMacro(Reverse, int);
+  vtkBooleanMacro(Reverse, int);
+
 protected:
   vtkImageDataToUniformGrid();
   ~vtkImageDataToUniformGrid();
@@ -50,14 +62,14 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
-  /* virtual int Process(vtkImageData* input, vtkInformationVector** inV, */
-  /*                     vtkUniformGrid* output); */
   virtual int Process(vtkImageData* input, int association, const char* arrayName,
                       vtkUniformGrid* output);
 
 private:
   vtkImageDataToUniformGrid(const vtkImageDataToUniformGrid&);  // Not implemented.
   void operator=(const vtkImageDataToUniformGrid&);  // Not implemented.
+
+  int Reverse;
 };
 
 #endif
