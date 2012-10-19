@@ -6,7 +6,6 @@ vtk_module(vtkRenderingContext2D
     vtkCommonDataModel
     vtkCommonMath
     vtkCommonTransforms
-    vtkRenderingMathText
     vtkRenderingCore
     vtkRenderingOpenGL
     vtkRenderingFreeType

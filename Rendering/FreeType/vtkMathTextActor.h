@@ -25,13 +25,13 @@
 #ifndef __vtkMathTextActor_h
 #define __vtkMathTextActor_h
 
-#include "vtkRenderingMathTextModule.h" // For export macro
+#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkTextActor.h"
 
 class vtkTextProperty;
 class vtkImageData;
 
-class VTKRENDERINGMATHTEXT_EXPORT vtkMathTextActor : public vtkTextActor
+class VTKRENDERINGFREETYPE_EXPORT vtkMathTextActor : public vtkTextActor
 {
 public:
   vtkTypeMacro(vtkMathTextActor,vtkTextActor);
