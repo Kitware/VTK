@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestCellDistanceSelector.cxx
+  Module:    TestCellDistanceSelector3D.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -34,7 +34,7 @@
 #include <vtksys/ios/sstream>
 
 // Reference values
-vtkIdType cardCellDistanceSelection[] =
+vtkIdType cardCellDistanceSelection3D[] =
 {
   125,
   16,
@@ -78,12 +78,12 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
        << " cells."
        << endl;
 
-  if ( nCells != cardCellDistanceSelection[testIdx] )
+  if ( nCells != cardCellDistanceSelection3D[testIdx] )
     {
     vtkGenericWarningMacro( "Incorrect cardinality: "
                            << nCells
                            << " != "
-                           << cardCellDistanceSelection[testIdx] );
+                           << cardCellDistanceSelection3D[testIdx] );
     testStatus = 1;
     }
 
@@ -102,7 +102,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
   if ( writeGrid )
     {
     vtksys_ios::ostringstream fileNameSS;
-    fileNameSS << "./CellDistanceExtraction-"
+    fileNameSS << "./CellDistanceExtraction3D-"
                << testIdx
                << ".vtk";
     vtkSmartPointer<vtkUnstructuredGridWriter> writer = vtkSmartPointer<vtkUnstructuredGridWriter>::New();
@@ -118,7 +118,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
 }
 
 //----------------------------------------------------------------------------
-int TestCellDistanceSelector( int argc, char * argv [] )
+int TestCellDistanceSelector3D( int argc, char * argv [] )
 {
   // Initialize test value
   int testIntValue = 0;
@@ -253,7 +253,7 @@ int TestCellDistanceSelector( int argc, char * argv [] )
   es3->SetInputData( 0, mesh );
   es3->SetInputConnection( 1, ls3->GetOutputPort() );
   es3->Update();
-  testIntValue += CheckExtractedUGrid( es3, "Selection d({6413,7268,7399})=1", 3, true );
+  testIntValue += CheckExtractedUGrid( es3, "Selection d({6413,7268,7399})<2", 3, true );
 
   return testIntValue;
 }
