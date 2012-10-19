@@ -96,6 +96,14 @@ public:
   vtkGetVector2Macro(TimeStepRange, int);
   vtkSetVector2Macro(TimeStepRange, int);
 
+  // Description:
+  // Returns the internal XML parser. This can be used to access
+  // the XML DOM after RequestInformation() was called.
+  vtkXMLDataParser* GetXMLParser()
+  {
+    return this->XMLParser;
+  }
+
   virtual int ProcessRequest(vtkInformation *request,
                              vtkInformationVector **inputVector,
                              vtkInformationVector *outputVector);

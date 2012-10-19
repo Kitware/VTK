@@ -130,6 +130,14 @@ public:
   // information elsewhere, so the default is to ignore it.
   virtual void CharacterDataHandler(const char* data, int length);
 
+  // Description:
+  // Returns the byte index of where appended data starts (if the
+  // file is using appended data). Valid after the XML is parsed.
+  vtkTypeInt64 GetAppendedDataPosition()
+  {
+    return this->AppendedDataPosition;
+  }
+
 protected:
   vtkXMLDataParser();
   ~vtkXMLDataParser();
