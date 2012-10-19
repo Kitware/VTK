@@ -20,8 +20,8 @@ Methods from vtkImageExport
   GetDataOrigin()
 """
 
-import umath
 import numpy
+import numpy.core.umath as umath
 
 from vtk import vtkImageExport
 from vtk import vtkStreamingDemandDrivenPipeline

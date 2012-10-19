@@ -40,7 +40,7 @@ sphereSource.SetPhiResolution(40)
 # Compute random scalars (colors) for each cell
 randomColors = vtk.vtkProgrammableAttributeDataFilter()
 randomColors.SetInputConnection(sphereSource.GetOutputPort())
-randomColors.SetExecuteMethod(colorCells)
+
 def colorCells (__vtk__temp0=0,__vtk__temp1=0):
     randomColorGenerator = vtk.vtkMath()
     input = randomColors.GetInput()
@@ -60,6 +60,7 @@ def colorCells (__vtk__temp0=0,__vtk__temp1=0):
     #reference counting - it's ok
     del randomColorGenerator
 
+randomColors.SetExecuteMethod(colorCells)
 # This does not need a hierarchical mapper, but hierarchical
 # mapper could use a test that has clipping so we use it here
 sphereMapper = vtk.vtkHierarchicalPolyDataMapper()

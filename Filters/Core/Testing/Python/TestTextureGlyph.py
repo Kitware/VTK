@@ -82,13 +82,6 @@ class TestTextureGlyph(Testing.vtkTest):
         rwi.Initialize()
         rwi.Render()
 
-        # Compare the images and test.
-        img_file = "TestTextureGlyph.png"
-        Testing.compareImage(renWin, Testing.getAbsImagePath(img_file))
-        # Interact if necessary.
-        if Testing.isInteractive():
-            rwi.Start()
-
 if __name__ == "__main__":
     Testing.main([(TestTextureGlyph, 'test')])
 
