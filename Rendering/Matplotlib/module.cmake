@@ -1,6 +1,6 @@
 vtk_module(vtkRenderingMatplotlib
   IMPLEMENTS
-    vtkRenderingMathText
+    vtkRenderingFreeType
   DEPENDS
     vtkImagingCore
     vtkRenderingCore

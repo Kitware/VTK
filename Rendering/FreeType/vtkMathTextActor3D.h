@@ -28,10 +28,10 @@
 #ifndef __vtkMathTextActor3D_h
 #define __vtkMathTextActor3D_h
 
-#include "vtkRenderingMathTextModule.h" // For export macro
+#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkTextActor3D.h"
 
-class VTKRENDERINGMATHTEXT_EXPORT vtkMathTextActor3D : public vtkTextActor3D
+class VTKRENDERINGFREETYPE_EXPORT vtkMathTextActor3D : public vtkTextActor3D
 {
 public:
   static vtkMathTextActor3D *New();
