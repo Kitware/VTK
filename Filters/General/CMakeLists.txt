@@ -106,7 +106,6 @@ set(Module_SRCS
   vtkExtractArray.cxx
 
   vtkMatricizeArray.cxx
-  vtkExtractArray.cxx
   vtkNormalizeMatrixVectors.cxx
   vtkPassArrays.cxx
   vtkSplitColumnComponents.cxx
