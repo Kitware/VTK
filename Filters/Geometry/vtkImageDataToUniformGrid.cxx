@@ -32,6 +32,7 @@ vtkStandardNewMacro(vtkImageDataToUniformGrid);
 //----------------------------------------------------------------------------
 vtkImageDataToUniformGrid::vtkImageDataToUniformGrid()
 {
+  this->Reverse = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -43,6 +44,7 @@ vtkImageDataToUniformGrid::~vtkImageDataToUniformGrid()
 void vtkImageDataToUniformGrid::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Reverse: " << this->Reverse << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -188,7 +190,6 @@ int vtkImageDataToUniformGrid::Process(
     output->ShallowCopy(input);
     }
 
-
   vtkDataArray* inScalars = NULL;
   if(association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
@@ -217,6 +218,16 @@ int vtkImageDataToUniformGrid::Process(
 
   vtkNew<vtkUnsignedCharArray> blankingArray;
   blankingArray->DeepCopy(inScalars);
+
+  if(this->Reverse)
+    {
+    for(vtkIdType i=0;i<blankingArray->GetNumberOfTuples();i++)
+      {
+      char value = blankingArray->GetValue(i) == 0 ? 1 : 0;
+      blankingArray->SetValue(i, value);
+      }
+    }
+
   if(association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
     output->SetPointVisibilityArray(blankingArray.GetPointer());

@@ -30,11 +30,12 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
-#include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
+#include "vtkTestUtilities.h"
+
 //----------------------------------------------------------------------------
-int TestPolarAxes( int argc, char * argv [] )
+int TestPolarAxes( int argc, char* argv[] )
 {
   vtkNew<vtkBYUReader> reader;
   char* fname = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/teapot.g" );
@@ -112,7 +113,7 @@ int TestPolarAxes( int argc, char * argv [] )
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     iren->Start();
     }

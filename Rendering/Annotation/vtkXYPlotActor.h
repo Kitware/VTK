@@ -71,6 +71,12 @@
 // vtkAttributeDataToFieldDataFilter and vtkFieldDataToAttributeDataFilter)
 // to convert the data into scalar data and/or points.
 
+// .SECTION Thanks
+// This class was written by:
+// Will Schroeder, Jim Miller, Charles Law, Sebastien Barre, Amy Squillacote,
+// Ken Martin, Mathieu Malaterre, Jeff Lee, Francois Finet, Julien Bertel, 
+// Claire Guilbaud, and Philippe Pebay
+
 // .SECTION See Also
 // vtkActor2D vtkTextMapper vtkScalarBarActor vtkAxisActor2D vtkCubeAxesActor2D
 // vtkAttributeDataToFieldDataFilter vtkFieldDataToAttributeDataFilter
@@ -87,8 +93,13 @@
 #define VTK_XYPLOT_ROW 0
 #define VTK_XYPLOT_COLUMN 1
 
+#define VTK_XYPLOT_Y_AXIS_TOP     0
+#define VTK_XYPLOT_Y_AXIS_HCENTER 1
+#define VTK_XYPLOT_Y_AXIS_VCENTER 2 // rotate by 90 degrees (y-axis aligned)
+
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include <vtkSmartPointer.h> // For SP
 
 class vtkXYPlotActorConnections;
 class vtkAlgorithmOutput;
@@ -98,6 +109,7 @@ class vtkDataObject;
 class vtkDataObjectCollection;
 class vtkDataSet;
 class vtkDataSetCollection;
+class vtkDoubleArray;
 class vtkGlyph2D;
 class vtkGlyphSource2D;
 class vtkIntArray;
@@ -105,6 +117,7 @@ class vtkLegendBoxActor;
 class vtkPlanes;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
+class vtkTextActor;
 class vtkTextMapper;
 class vtkTextProperty;
 
@@ -290,22 +303,31 @@ public:
   vtkGetObjectMacro(GlyphSource,vtkGlyphSource2D);
 
   // Description:
-  // Set/Get the title of the x-y plot, and the title along the
-  // x and y axes.
+  // Set/Get the title of the x-y plot.
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
+
+  // Description:
+  // Set/Get the title of the x axis
   vtkSetStringMacro(XTitle);
   vtkGetStringMacro(XTitle);
-  vtkSetStringMacro(YTitle);
-  vtkGetStringMacro(YTitle);
+
+  // Description:
+  // Set/Get the title of the y axis
+  virtual void SetYTitle( const char* );
+  char* GetYTitle();
 
   // Description:
   // Retrieve handles to the X and Y axis (so that you can set their text
   // properties for example)
   vtkAxisActor2D *GetXAxisActor2D()
-    {return this->XAxis;}
+    {
+    return this->XAxis;
+    }
   vtkAxisActor2D *GetYAxisActor2D()
-    {return this->YAxis;}
+    {
+    return this->YAxis;
+    }
 
   // Description:
   // Set the plot range (range of independent and dependent variables)
@@ -325,7 +347,7 @@ public:
   // Set/Get the number of annotation labels to show along the x and y axes.
   // This values is a suggestion: the number of labels may vary depending
   // on the particulars of the data. The convenience method
-  // SetNumberOfLables() sets the number of x and y labels to the same value.
+  // SetNumberOfLabels() sets the number of x and y labels to the same value.
   vtkSetClampMacro(NumberOfXLabels, int, 0, 50);
   vtkGetMacro(NumberOfXLabels, int);
   vtkSetClampMacro(NumberOfYLabels, int, 0, 50);
@@ -343,13 +365,6 @@ public:
   vtkGetMacro( AdjustXLabels, int );
   void SetAdjustYLabels(int adjust);
   vtkGetMacro( AdjustYLabels, int );
-
-  // Description:
-  // Set/Get the position of the title of X or Y axis.
-  void SetXTitlePosition(double position);
-  double GetXTitlePosition();
-  void SetYTitlePosition(double position);
-  double GetYTitlePosition();
 
   // Description:
   // Set/Get the number of minor ticks in X or Y.
@@ -396,7 +411,7 @@ enum Alignment {
 };
 //ETX
   // Description:
-  // If AdjustTitlePosition is truem, the xyplot actor will
+  // If AdjustTitlePosition is true, the xyplot actor will
   // adjust the position of the title automatically depending on the
   // given mode, the mode is a combination of the Alignment flags.
   // by default: vtkXYPlotActor::AlignHCenter | vtkXYPlotActor::Top
@@ -442,20 +457,20 @@ enum Alignment {
   // Description:
   // Set/Get the format with which to print the labels . This sets both X
   // and Y label formats. GetLabelFormat() returns X label format.
-  virtual void SetLabelFormat (const char* _arg);
+  virtual void SetLabelFormat ( const char* );
   const char* GetLabelFormat()
     {
-      return this->GetXLabelFormat();
+    return this->GetXLabelFormat();
     }
 
   // Description:
   // Set/Get the format with which to print the X label.
-  virtual void SetXLabelFormat (const char* _arg);
+  virtual void SetXLabelFormat ( const char* );
   vtkGetStringMacro(XLabelFormat);
 
   // Description:
   // Set/Get the format with which to print the Y label.
-  virtual void SetYLabelFormat (const char* _arg);
+  virtual void SetYLabelFormat ( const char* );
   vtkGetStringMacro(YLabelFormat);
 
   // Description:
@@ -585,23 +600,97 @@ enum Alignment {
   void ReleaseGraphicsResources(vtkWindow *);
 //ETX
 
+  // Description:
+  // Set/Get the position of the title of X axis.
+  void SetXTitlePosition(double position);
+  double GetXTitlePosition();
+
+  // Description:
+  // Set/Get the position of the title of Y axis.
+  vtkSetMacro(YTitlePosition,int);
+  vtkGetMacro(YTitlePosition,int);
+  void SetYTitlePositionToTop()
+  {
+    this->SetYTitlePosition( VTK_XYPLOT_Y_AXIS_TOP );
+  }
+  void SetYTitlePositionToHCenter()
+  {
+    this->SetYTitlePosition( VTK_XYPLOT_Y_AXIS_HCENTER );
+  }
+  void SetYTitlePositionToVCenter()
+  {
+    this->SetYTitlePosition( VTK_XYPLOT_Y_AXIS_VCENTER );
+  }
+
+  // Description:
+  // Set plot properties
+  virtual void SetPlotGlyphType( int, int );
+  virtual void SetLineWidth( double );
+  virtual void AddUserCurvesPoint( double, double, double );
+  virtual void RemoveAllActiveCurves();
+
+  // Description:
+  // Set legend properties
+  virtual void SetLegendBorder( int );
+  virtual void SetLegendBox( int );
+  virtual void SetLegendUseBackground( int );
+  virtual void SetLegendBackgroundColor( double, double, double );
+
+  // Description:
+  // Set title properties
+  virtual void SetTitleColor( double, double, double );
+  virtual void SetTitleFontFamily( int );
+  virtual void SetTitleBold( int );
+  virtual void SetTitleItalic( int );
+  virtual void SetTitleShadow( int );
+  virtual void SetTitleFontSize( int );
+  virtual void SetTitleJustification( int );
+  virtual void SetTitleVerticalJustification( int );
+
+  // Description:
+  // Set axes properties
+  virtual void SetXAxisColor( double, double, double );
+  virtual void SetYAxisColor( double, double, double );
+
+  // Description:
+  // Set axis title properties
+  virtual void SetAxisTitleColor( double, double, double );
+  virtual void SetAxisTitleFontFamily( int );
+  virtual void SetAxisTitleBold( int );
+  virtual void SetAxisTitleItalic( int );
+  virtual void SetAxisTitleShadow( int );
+  virtual void SetAxisTitleFontSize( int );
+  virtual void SetAxisTitleJustification( int );
+  virtual void SetAxisTitleVerticalJustification( int );
+
+  // Description:
+  // Set axis label properties
+  virtual void SetAxisLabelColor( double, double, double );
+  virtual void SetAxisLabelFontFamily( int );
+  virtual void SetAxisLabelBold( int );
+  virtual void SetAxisLabelItalic( int );
+  virtual void SetAxisLabelShadow( int );
+  virtual void SetAxisLabelFontSize( int );
+  virtual void SetAxisLabelJustification( int );
+  virtual void SetAxisLabelVerticalJustification( int );
+
 protected:
   vtkXYPlotActor();
   ~vtkXYPlotActor();
 
   vtkXYPlotActorConnections* InputConnectionHolder;
   char** SelectedInputScalars; // list of data set arrays to plot
-  vtkIntArray* SelectedInputScalarsComponent; // list of componenents
+  vtkIntArray* SelectedInputScalarsComponent; // list of components
   vtkXYPlotActorConnections *DataObjectInputConnectionHolder; //list of data objects to plot
-  char  *Title;
-  char  *XTitle;
-  char  *YTitle;
+  char*  Title;
+  char*  XTitle;
+  vtkTextActor* YTitleActor;
   int   XValues;
   int   NumberOfXLabels;
   int   NumberOfYLabels;
   int   Logx;
-  char  *XLabelFormat;
-  char  *YLabelFormat;
+  char* XLabelFormat;
+  char* YLabelFormat;
   double XRange[2];
   double YRange[2];
   double XComputedRange[2];  //range actually used by plot
@@ -620,25 +709,25 @@ protected:
   double TitlePosition[2];
   int AdjustTitlePositionMode;
 
-  vtkTextMapper   *TitleMapper;
-  vtkActor2D      *TitleActor;
-  vtkTextProperty *TitleTextProperty;
+  vtkTextMapper*   TitleMapper;
+  vtkActor2D*      TitleActor;
+  vtkTextProperty* TitleTextProperty;
 
-  vtkAxisActor2D  *XAxis;
-  vtkAxisActor2D  *YAxis;
+  vtkAxisActor2D*  XAxis;
+  vtkAxisActor2D*  YAxis;
 
-  vtkTextProperty *AxisTitleTextProperty;
-  vtkTextProperty *AxisLabelTextProperty;
+  vtkTextProperty* AxisTitleTextProperty;
+  vtkTextProperty* AxisLabelTextProperty;
 
   double ViewportCoordinate[2];
   double PlotCoordinate[2];
 
   //Handle data objects and datasets
   int DataObjectPlotMode;
-  vtkIntArray *XComponent;
-  vtkIntArray *YComponent;
-  vtkIntArray *LinesOn;
-  vtkIntArray *PointsOn;
+  vtkIntArray* XComponent;
+  vtkIntArray* YComponent;
+  vtkIntArray* LinesOn;
+  vtkIntArray* PointsOn;
 
   //The data drawn within the axes. Each curve is one polydata.
   //color is controlled by scalar data. The curves are appended
@@ -698,6 +787,13 @@ protected:
   void ClipPlotData(int *pos, int *pos2, vtkPolyData *pd);
   double *TransformPoint(int pos[2], int pos2[2], double x[3], double xNew[3]);
 
+//BTX
+  vtkSmartPointer<vtkDoubleArray> ActiveCurve;
+//ETX
+  int YAxisTitleSize;
+  int ActiveCurveIndex;
+  int PlotColorIndex;
+
 private:
   vtkXYPlotActor(const vtkXYPlotActor&);  // Not implemented.
   void operator=(const vtkXYPlotActor&);  // Not implemented.
@@ -707,6 +803,18 @@ private:
   int IsInputPresent(vtkAlgorithmOutput* in,
                      const char* arrayName,
                      int component);
+
+  // Description:
+  // Estimated sizes of Y axis title
+  int YTitleSize[2];
+
+  // Description:
+  // Position and orientation of Y axis title
+  int YTitlePosition;
+
+  // Description:
+  // Estimated size of Y axis spacing
+  int YTitleDelta;
 };
 
 

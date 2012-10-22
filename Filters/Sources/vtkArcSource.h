@@ -15,8 +15,17 @@
 // .NAME vtkArcSource - create an arc between two end points
 // .SECTION Description
 // vtkArcSource is a source object that creates an arc defined by two
-// endpoints and a center. The number of segments composing the polyline is
-// controlled by setting the object resolution.
+// endpoints and a center. The number of segments composing the polyline 
+// is controlled by setting the object resolution.
+// Alternatively, one can use a better API (that does not allow for 
+// inconsistent nor ambiguous inputs), using a starting point, a normal,
+// and an angle. The default API being the original one, in order to use
+// the improved API, one must switch the UseNormalAndAngle flag to TRUE.
+
+// The development of an improved, consistent API (based on point, normal,
+// and angle) was supported by CEA/DIF - Commissariat a l'Energie Atomique, 
+// Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France, and implemented
+// by Philippe Pebay, Kitware SAS 2012.
 
 #ifndef __vtkArcSource_h
 #define __vtkArcSource_h

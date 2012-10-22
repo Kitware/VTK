@@ -207,13 +207,19 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
         # ------------------------------------------------------------
         # Create an open 1D spline
         # ------------------------------------------------------------
-        math = vtk.vtkMath()
+        splinePoints = [[ -0.981576726763 , 0.639953289013 , -0.305071552892 ],
+                        [ 0.6624105478 , -0.865923131754 , 0.429924616325 ],
+                        [ -0.2569734311 , -0.952456491977 , 0.0637393393851 ],
+                        [ -0.732922955292 , -0.236109588871 , -0.293860152035 ],
+                        [ -0.907575251492 , 0.382748181644 , 0.848688894812 ],
+                        [ -0.0857448890273 , 0.885650117828 , -0.878469658959 ],
+                        [ -0.439558122977 , 0.346627118693 , -0.238016126323 ],
+                        [ -0.337035103392 , -0.548982715024 , -0.752491410706 ],
+                        [ 0.876860257181 , -0.609657562156 , -0.514647156705 ],
+                        [ 0.325237251504 , 0.26248602721 , -0.397340677398 ]]
         inputPoints = vtk.vtkPoints()
         for i in range(0, 10):
-            x = math.Random(-1, 1)
-            y = math.Random(-1, 1)
-            z = math.Random(-1, 1)
-            inputPoints.InsertPoint(i,x,y,z)
+            inputPoints.InsertPoint(i, splinePoints[i])
 
         spline = vtk.vtkParametricSpline()
         spline.SetPoints(inputPoints)
@@ -552,9 +558,9 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
 
         iren.Initialize()
         renWin.Render()
-        #iren.Start()
+
         img_file = "TestParametricFunctions.png"
-        vtk.test.Testing.compareImage(iren.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
+        vtk.test.Testing.compareImage(iren.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":

@@ -55,8 +55,8 @@ class VTKFILTERSGENERAL_EXPORT vtkCellDistanceSelector : public vtkSelectionAlgo
   // enumeration values to specify input port types
   enum InputPorts
     {
-    INPUT_MESH = 0,         //!< Port 0 is for input mesh
-    INPUT_SELECTION = 1     //!< Port 1 is for input selection
+    INPUT_MESH      = 0,  //!< Port 0 is for input mesh
+    INPUT_SELECTION = 1   //!< Port 1 is for input selection
     };
 
   // Description:

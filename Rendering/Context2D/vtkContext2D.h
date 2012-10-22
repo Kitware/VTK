@@ -166,6 +166,24 @@ public:
   void DrawPointSprites(vtkImageData *sprite, float *points, int n);
 
   // Description:
+  // Draw a series of markers centered at the points supplied. The \a shape
+  // argument controls the marker shape, and can be one of
+  //   - VTK_MARKER_CROSS
+  //   - VTK_MARKER_PLUS
+  //   - VTK_MARKER_SQUARE
+  //   - VTK_MARKER_CIRCLE
+  //   - VTK_MARKER_DIAMOND
+  // Marker size is determined by the current pen width.
+  // \param colors is an optional array of colors.
+  // \param nc_comps is the number of components for the color.
+  virtual void DrawMarkers(int shape, bool highlight, float *points, int n,
+                           unsigned char *colors, int nc_comps);
+  virtual void DrawMarkers(int shape, bool highlight, float *points, int n);
+  virtual void DrawMarkers(int shape, bool highlight, vtkPoints2D *points);
+  virtual void DrawMarkers(int shape, bool highlight, vtkPoints2D *points,
+                           vtkUnsignedCharArray *colors);
+
+  // Description:
   // Draw a rectangle with origin at x, y and width w, height h
   void DrawRect(float x, float y, float w, float h);
 
