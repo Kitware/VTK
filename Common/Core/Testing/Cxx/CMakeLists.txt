@@ -38,6 +38,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestVariantComparison.cxx
   TestWeakPointer.cxx
   TestXMLFileOutputWindow.cxx
+  UnitTestInformationKeys.cxx
   otherArrays.cxx
   otherByteSwap.cxx
   # These two need vtkLookupTableWithEnabling/vtkLogLookupTable - move
