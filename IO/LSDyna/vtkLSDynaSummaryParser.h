@@ -12,6 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME vtkLSDynaSummaryParser
+// .SECTION Description
+// This is a helper class used by vtkLSDynaReader to read XML files.
+// .SECTION See Also
+// vtkLSDynaReader
+
 #ifndef __vtkLSDynaSummaryParser_h
 #define __vtkLSDynaSummaryParser_h
 
