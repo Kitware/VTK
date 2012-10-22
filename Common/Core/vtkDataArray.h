@@ -40,7 +40,6 @@
 class vtkDoubleArray;
 class vtkIdList;
 class vtkInformationDoubleVectorKey;
-class vtkInformationInformationVectorKey;
 class vtkLookupTable;
 
 class VTKCOMMONCORE_EXPORT vtkDataArray : public vtkAbstractArray
@@ -337,18 +336,6 @@ public:
   // user.
   static vtkDataArray* CreateDataArray(int dataType);
 
-  // Description:
-  // This key is used to hold a vector of COMPONENT_RANGE keys -- one
-  // for each component of the array.  You may add additional per-component
-  // key-value pairs to information objects in this vector. However if you
-  // do so, you must be sure to either (1) set COMPONENT_RANGE to
-  // { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN } or (2) call ComputeRange( component )
-  // <b>before</b> modifying the information object.  Otherwise it is
-  // possible for modifications to the array to take place without the bounds
-  // on the component being updated since the modification time of the
-  // vtkInformation object is used to determine when the COMPONENT_RANGE
-  // values are out of date.
-  static vtkInformationInformationVectorKey* PER_COMPONENT();
   // Description:
   // This key is used to hold tight bounds on the range of
   // one component over all tuples of the array.

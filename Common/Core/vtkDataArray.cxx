@@ -34,7 +34,6 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkInformationKeyMacro(vtkDataArray, PER_COMPONENT, InformationVector);
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
 
@@ -985,23 +984,18 @@ double vtkDataArray::GetMaxNorm()
 }
 
 //----------------------------------------------------------------------------
-int vtkDataArray::CopyInformation(vtkInformation *infoFrom, int deep)
+int vtkDataArray::CopyInformation(vtkInformation* infoFrom, int deep)
 {
   // Copy everything + give base classes a chance to
-  // exclude key's which they don't want coppied.
+  // Exclude keys which they don't want copied.
   this->Superclass::CopyInformation(infoFrom,deep);
 
-  // remove any keys we own that are not to be coppied
-  // here.
+  // Remove any keys we own that are not to be copied here.
   vtkInformation *myInfo=this->GetInformation();
   // Range:
   if (myInfo->Has( L2_NORM_RANGE() ))
     {
     myInfo->Remove( L2_NORM_RANGE() );
-    }
-  if (myInfo->Has( PER_COMPONENT() ))
-    {
-    myInfo->Remove( PER_COMPONENT() );
     }
 
   return 1;

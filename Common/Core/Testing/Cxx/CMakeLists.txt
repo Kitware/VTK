@@ -10,6 +10,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestArrayLookup.cxx
   TestArrayNullValues.cxx
   TestArraySize.cxx
+  TestArrayUniqueValueDetection.cxx
   TestArrayUserTypes.cxx
   TestArrayVariants.cxx
   TestCollection.cxx
