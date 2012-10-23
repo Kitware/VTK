@@ -95,14 +95,6 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
         set(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.h)
       endif()
 
-      # is it abstract?
-      get_source_file_property(TMP_ABSTRACT ${FILE} ABSTRACT)
-      if(TMP_ABSTRACT)
-        set(TMP_CONCRETE "--abstract")
-      else()
-        set(TMP_CONCRETE "--concrete")
-      endif()
-
       # is it special?
       if(TMP_WRAP_SPECIAL)
         set(TMP_SPECIAL "--special")
@@ -125,7 +117,6 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
           ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_PYTHON_EXE}
           ARGS
-          ${TMP_CONCRETE}
           ${TMP_SPECIAL}
           "${quote}@${_args_file}${quote}"
           "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx${quote}"

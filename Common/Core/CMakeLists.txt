@@ -398,10 +398,7 @@ set_source_files_properties(
   vtkObjectBase
   vtkObjectFactory
   vtkOldStyleCallbackCommand
-  vtkOverrideInformation
-  vtkOverrideInformationCollection
   vtkRandomSequence
-  vtkScalarsToColors
   vtkWindow
   ABSTRACT
   )

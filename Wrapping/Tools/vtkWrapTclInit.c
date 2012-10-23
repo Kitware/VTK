@@ -25,7 +25,7 @@ char *Capitalized(const char *input)
 
 /* this roputine creates the init file */
 static void CreateInitFile(const char *libName,
-                           int numConcrete, char **concrete,
+                           int numClasses, char **classes,
                            int numCommands, char **commands,
                            const char *version,
                            FILE *fout)
@@ -57,10 +57,9 @@ static void CreateInitFile(const char *libName,
     "}\n"
     "\n");
 
-  for (i = 0; i < numConcrete; i++)
+  for (i = 0; i < numClasses; i++)
     {
-    fprintf(fout,"int %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",concrete[i]);
-    fprintf(fout,"ClientData %sNewCommand();\n",concrete[i]);
+    fprintf(fout,"int %s_TclCreate(Tcl_Interp *interp);\n",classes[i]);
     }
 
   if (!strcmp(kitName,"Vtkcommoncoretcl"))
@@ -152,11 +151,9 @@ static void CreateInitFile(const char *libName,
     }
   fprintf(fout,"\n");
 
-  for (i = 0; i < numConcrete; i++)
+  for (i = 0; i < numClasses; i++)
     {
-    fprintf(fout,"  vtkTclCreateNew(interp,const_cast<char *>(\"%s\"), %sNewCommand,\n",
-      concrete[i], concrete[i]);
-    fprintf(fout,"                  %sCommand);\n",concrete[i]);
+    fprintf(fout,"  %s_TclCreate(interp);\n",classes[i]);
     }
 
   fprintf(fout,"  char pkgName[]=\"%s\";\n", libName);
@@ -186,11 +183,11 @@ int main(int argc,char *argv[])
 {
   FILE *file;
   FILE *fout;
-  int numConcrete = 0;
+  int numClasses = 0;
   int numCommands = 0;
   char libName[250];
   char tmpVal[250];
-  char *concrete[4000];
+  char *classes[4000];
   char *commands[4000];
   char version[4000] = {'\0'};
 
@@ -251,14 +248,14 @@ int main(int argc,char *argv[])
       }
     else
       {
-      concrete[numConcrete] = strdup(tmpVal);
-      numConcrete++;
+      classes[numClasses] = strdup(tmpVal);
+      numClasses++;
       }
     }
   /* close the file */
   fclose(file);
 
-  CreateInitFile(libName, numConcrete, concrete, numCommands, commands, version, fout);
+  CreateInitFile(libName, numClasses, classes, numCommands, commands, version, fout);
   fclose(fout);
 
   return 0;

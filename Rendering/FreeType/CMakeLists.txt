@@ -25,11 +25,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkMathTextUtilities
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkFreeTypeTools
   vtkFreeTypeUtilities
   fonts/face_arial_bold

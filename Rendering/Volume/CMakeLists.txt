@@ -47,8 +47,6 @@ set(Module_SRCS
 set_source_files_properties(
   vtkDirectionEncoder
   vtkEncodedGradientEstimator
-  vtkFixedPointVolumeRayCastHelper
-  vtkRayCastImageDisplayHelper
   vtkVolumeMapper
   vtkVolumeRayCastFunction
   vtkVolumeTextureMapper

@@ -96,14 +96,6 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
         SET(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.h)
       ENDIF (TMP_FILEPATH)
 
-      # is it abstract?
-      GET_SOURCE_FILE_PROPERTY(TMP_ABSTRACT ${FILE} ABSTRACT)
-      IF (TMP_ABSTRACT)
-        SET(TMP_CONCRETE "--abstract")
-      ELSE (TMP_ABSTRACT)
-        SET(TMP_CONCRETE "--concrete")
-      ENDIF (TMP_ABSTRACT)
-
       # use ".mm" suffix if file must be compiled with objective C++
       IF(TMP_WRAP_OBJC)
         SET(TMP_WRAPPED_FILENAME ${TMP_FILENAME}Java.mm)
@@ -122,7 +114,6 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
         ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_PARSE_JAVA_EXE}
         ARGS
-        ${TMP_CONCRETE}
         "${quote}@${_args_file}${quote}"
         "-o" "${quote}${VTK_JAVA_HOME}/${TMP_FILENAME}.java${quote}"
         "${quote}${TMP_INPUT}${quote}"
@@ -136,7 +127,6 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
         ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_JAVA_EXE}
         ARGS
-        ${TMP_CONCRETE}
         "${quote}@${_args_file}${quote}"
         "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}${quote}"
         "${quote}${TMP_INPUT}${quote}"

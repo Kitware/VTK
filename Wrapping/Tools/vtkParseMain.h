@@ -66,8 +66,6 @@ typedef struct _OptionInfo
   char         *HierarchyFileName; /* the file preceded by "--types" */
   int           IsVTKObject;       /* set when "--vtkobject" is set */
   int           IsSpecialObject;   /* set when "--special" is set */
-  int           IsConcrete;        /* set when "--concrete" is set */
-  int           IsAbstract;        /* set when "--abstract" is set */
 } OptionInfo;
 
 #ifdef __cplusplus
