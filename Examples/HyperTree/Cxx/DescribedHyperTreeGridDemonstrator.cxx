@@ -48,9 +48,8 @@ All rights reserved.
 #include "vtksys/ios/sstream"
 
 void ReadGridDescription( const char* fileName,
-                          int& nX,
-                          int& nY,
-                          int& nZ )
+                          int& nLevels,
+                          int& nRoots )
 {
   // Open file
   ifstream ifs;
@@ -78,6 +77,7 @@ void ReadGridDescription( const char* fileName,
        << endl;
 
   // Parse input string
+  bool rootLevel = true;
   for ( int i = 0; i < length && buffer[i] != '\n'; ++ i )
     {
     vtksys_ios::ostringstream stream;
@@ -93,7 +93,23 @@ void ReadGridDescription( const char* fileName,
            << endl;
       exit( 0 );
       }
-    }
+
+    // Figure out if new level was reached
+    if ( c == "|" )
+      {
+      ++ nLevels;
+      
+      // check whether still at rool level
+      if ( rootLevel )
+        {
+        rootLevel = false;
+        }
+      } // if ( c == "|" )
+    else if ( rootLevel )
+      {
+      ++ nRoots;
+      }
+    } // i
 
   // Clean up
   delete [] buffer;
@@ -105,7 +121,8 @@ void SetInputParameters( int& dim,
                          const char* fileName,
                          int& nX,
                          int& nY,
-                         int& nZ )
+                         int& nZ,
+                         int& nLevels)
 {
   // Ensure that parsed dimensionality makes sense
   if ( dim > 3 )
@@ -150,8 +167,16 @@ void SetInputParameters( int& dim,
       nY = 1;
       }
     }
+
   // Now read grid description
-  ReadGridDescription( fileName, nX, nY, nZ );
+  int nRoots = 0;
+  ReadGridDescription( fileName, nLevels, nRoots );
+  cerr << "Found "
+       << nLevels
+       << " levels and "
+       << nRoots
+       << " root cells"
+       << endl;
 }
 
   int main( int argc, char* argv[] )
@@ -160,9 +185,9 @@ void SetInputParameters( int& dim,
   vtkStdString fileName= "";
   int dim = 3;
   int branch = 3;
-  int nX = 3;
-  int nY = 4;
-  int nZ = 2;
+  int nX = 2;
+  int nY = 3;
+  int nZ = 1;
   int nContours = 2;
   bool skipAxisCut = false;
   bool skipContour = false;
@@ -235,7 +260,8 @@ void SetInputParameters( int& dim,
     }
 
   // Verify and set input parameters
-  SetInputParameters( dim, branch, fileName, nX, nY, nZ );
+  int nLevels = 1;
+  SetInputParameters( dim, branch, fileName, nX, nY, nZ, nLevels );
 
   // Create hyper tree grid source
   vtkNew<vtkHyperTreeGridSource> fractal;
@@ -247,6 +273,7 @@ void SetInputParameters( int& dim,
   fractal->SetGridSize( nX, nY, nZ );
   fractal->SetDimension( dim );
   fractal->SetAxisBranchFactor( branch );
+  fractal->SetMaximumLevel( nLevels );
   fractal->Update();
   vtkHyperTreeGrid* htGrid = fractal->GetOutput();
   cerr << "  Number of hyper tree dual grid cells: "

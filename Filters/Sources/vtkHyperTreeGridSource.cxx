@@ -91,7 +91,7 @@ vtkHyperTreeGridSource::~vtkHyperTreeGridSource()
 // \post positive_result: result>=1
 int vtkHyperTreeGridSource::GetMaximumLevel()
 {
-  assert("post: positive_result" && this->MaximumLevel>=1);
+  assert( "post: positive_result" && this->MaximumLevel >= 1 );
   return this->MaximumLevel;
 }
 
@@ -123,8 +123,8 @@ void vtkHyperTreeGridSource::SetMaximumLevel( int levels )
     }
   this->Modified();
 
-  assert("post: is_set" && this->GetMaximumLevel()==levels);
-  assert("post: min_is_valid" && this->GetMinimumLevel()<=this->GetMaximumLevel());
+  assert( "post: is_set" && this->GetMaximumLevel() == levels );
+  assert( "post: min_is_valid" && this->GetMinimumLevel() <= this->GetMaximumLevel() );
 }
 
 
@@ -163,7 +163,7 @@ void vtkHyperTreeGridSource::SetMinimumLevel( int minLevels )
 //----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
                                                 vtkInformationVector**,
-                                                vtkInformationVector *outputVector )
+                                                vtkInformationVector* outputVector )
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -186,7 +186,7 @@ int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
 //----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::RequestData( vtkInformation*,
                                          vtkInformationVector**,
-                                         vtkInformationVector *outputVector )
+                                         vtkInformationVector* outputVector )
 {
   // Get the info objects
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
@@ -280,7 +280,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       } // j
     } // i
 
-  assert("post: dataset_and_data_size_match" && output->CheckAttributes()==0);
+  assert( "post: dataset_and_data_size_match" && output->CheckAttributes() == 0 );
 
   return 1;
 }
@@ -311,6 +311,20 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     {
     subdivide = 0;
     }
+
+  cerr << " level "
+       << level
+       << ", index: "
+       << index
+       << ", indices "
+       << idx[0] 
+       << " "
+       << idx[1] 
+       << " "
+       << idx[2]
+       << " => S= "
+       << subdivide
+       << endl;
 
   if ( subdivide )
     {
@@ -354,7 +368,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           }
         }
       }
-    }
+    } // if subdivide
   else
     {
     // Retrieve cartesian coordinates w.r.t. global grid
@@ -385,7 +399,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     // Offset cell index as needed
     vtkIdType id = offset + cursor->GetLeafId();
     output->GetLeafData()->GetScalars()->InsertTuple1( id, val );
-    }
+    } // else
 }
 
 //-----------------------------------------------------------------------------
