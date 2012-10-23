@@ -1,5 +1,6 @@
 set(MyTests
   TestBSPTree.cxx
+  TestStreamTracer
   TestAMRInterpolatedVelocityField
   TestParticleTracers
   )

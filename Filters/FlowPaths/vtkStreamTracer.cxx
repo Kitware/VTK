@@ -58,24 +58,33 @@ const double vtkStreamTracer::EPSILON = 1.0E-12;
 namespace
 {
   // special function to interpolate the point data from the input to the output
+  // if fast == true, then it just calls the usual InterpolatePoint function,
+  // otherwise,
   // it makes sure the array exists in the input before trying to copy it to the
   // output. if it doesn't exist in the input but is in the output then we
   // remove it from the output instead of having bad values there.
   // this is meant for multiblock data sets where the grids may not have the
   // same point data arrays or have them in different orders.
-  void InterpolatePoint(vtkDataSetAttributes* inPointData, vtkDataSetAttributes* outPointData,
-                        vtkIdType toId, vtkIdList *ids, double *weights)
+  void InterpolatePoint(vtkDataSetAttributes* outPointData, vtkDataSetAttributes* inPointData,
+                        vtkIdType toId, vtkIdList *ids, double *weights, bool fast)
   {
-    for(int i=outPointData->GetNumberOfArrays()-1;i>=0;i--)
+    if(fast)
       {
-      vtkAbstractArray* toArray = outPointData->GetAbstractArray(i);
-      if(vtkAbstractArray* fromArray = inPointData->GetAbstractArray(toArray->GetName()))
+      outPointData->InterpolatePoint(inPointData, toId, ids, weights);
+      }
+    else
+      {
+      for(int i=outPointData->GetNumberOfArrays()-1;i>=0;i--)
         {
-        fromArray->InterpolateTuple(toId, ids, toArray, weights);
-        }
-      else
-        {
-        outPointData->RemoveArray(toArray->GetName());
+        vtkAbstractArray* toArray = outPointData->GetAbstractArray(i);
+        if(vtkAbstractArray* fromArray = inPointData->GetAbstractArray(toArray->GetName()))
+          {
+          toArray->InterpolateTuple(toId, ids, fromArray, weights);
+          }
+        else
+          {
+          outPointData->RemoveArray(toArray->GetName());
+          }
         }
       }
   }
@@ -115,6 +124,8 @@ vtkStreamTracer::vtkStreamTracer()
   // by default process active point vectors
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::VECTORS);
+
+  this->HasMatchingPointAttributes = true;
 }
 
 vtkStreamTracer::~vtkStreamTracer()
@@ -491,9 +502,10 @@ int vtkStreamTracer::RequestData(
 
     iterP->GoToFirstItem();
     vtkDataSet* input0 = 0;
-    if (!iterP->IsDoneWithTraversal())
+    if (!iterP->IsDoneWithTraversal() && !input0)
       {
       input0 = vtkDataSet::SafeDownCast(iterP->GetCurrentDataObject());
+      iterP->GoToNextItem();
       }
     int vecType(0);
     vtkDataArray *vectors = this->GetInputArrayToProcess(0,input0,vecType);
@@ -529,19 +541,24 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
     }
 
   vtkOverlappingAMR* amrData = vtkOverlappingAMR::SafeDownCast(this->InputData);
-  vtkCompositeDataIterator* iter = this->InputData->NewIterator();
-  vtkSmartPointer<vtkCompositeDataIterator> iterP(iter);
-  iter->Delete();
 
-  iterP->GoToFirstItem();
-  if (iterP->IsDoneWithTraversal())
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(this->InputData->NewIterator());
+
+  vtkDataSet* input0 =NULL;
+  iter->GoToFirstItem();
+  while (!iter->IsDoneWithTraversal() && input0==NULL)
+    {
+    input0 = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    iter->GoToNextItem();
+    }
+  if(!input0)
     {
     return VTK_ERROR;
     }
 
   int vecType(0);
-  vtkDataArray *vectors = this->GetInputArrayToProcess(
-    0,iterP->GetCurrentDataObject(),vecType);
+  vtkDataArray *vectors = this->GetInputArrayToProcess(0,input0,vecType);
   if (!vectors)
     {
     return VTK_ERROR;
@@ -588,10 +605,10 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
     }
   else if(vtkCompositeInterpolatedVelocityField::SafeDownCast(func))
     {
-    iterP->GoToFirstItem();
-    while (!iterP->IsDoneWithTraversal())
+    iter->GoToFirstItem();
+    while (!iter->IsDoneWithTraversal())
       {
-      vtkDataSet* inp = vtkDataSet::SafeDownCast(iterP->GetCurrentDataObject());
+      vtkDataSet* inp = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       if (inp)
         {
         int cellSize = inp->GetMaxCellSize();
@@ -601,7 +618,7 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
           }
         vtkCompositeInterpolatedVelocityField::SafeDownCast(func)->AddDataSet(inp);
         }
-      iterP->GoToNextItem();
+      iter->GoToNextItem();
       }
     }
   else
@@ -611,6 +628,28 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
 
   const char *vecName = vectors->GetName();
   func->SelectVectors(vecType,vecName);
+
+  //Check if the data attributes match, warn if not
+  vtkPointData* pd0 = input0->GetPointData();
+  int numPdArrays = pd0->GetNumberOfArrays();
+  this->HasMatchingPointAttributes = true;
+  for(iter->GoToFirstItem();!iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    vtkDataSet* data = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    vtkPointData* pd = data->GetPointData();
+    if(pd->GetNumberOfArrays()!=numPdArrays)
+      {
+      this->HasMatchingPointAttributes = false;
+      }
+    for(int i=0; i<numPdArrays; i++)
+      {
+      if( !pd->GetArray(pd0->GetArrayName(i))
+        ||!pd0->GetArray(pd->GetArrayName(i)))
+        {
+        this->HasMatchingPointAttributes = false;
+        }
+      }
+    }
   return VTK_OK;
 }
 
@@ -803,7 +842,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
 
     // Interpolate all point attributes on first point
     func->GetLastWeights(weights);
-    InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weights);
+    InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weights, this->HasMatchingPointAttributes);
     if(vecType != vtkDataObject::POINT)
       {
       velocityVectors->InsertNextTuple(velocity);
@@ -958,7 +997,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
       speed = vtkMath::Norm(velocity);
       // Interpolate all point attributes on current point
       func->GetLastWeights(weights);
-      InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weights);
+      InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weights, this->HasMatchingPointAttributes);
       if(vecType != vtkDataObject::POINT)
         {
         velocityVectors->InsertNextTuple(velocity);
