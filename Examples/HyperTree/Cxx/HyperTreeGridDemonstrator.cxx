@@ -14,6 +14,7 @@ All rights reserved.
 //   --grid-size-X opt    Size of hyper tree grid in X direction
 //   --grid-size-Y opt    Size of hyper tree grid in Y direction
 //   --grid-size-Z opt    Size of hyper tree grid in Z direction
+//   --file-name          Name of file describing AMR structure
 //   --max-level opt      Maximum depth of hyper tree grid
 //   --contours           Number of iso-contours to be calculated
 //   --skip-Axis-Cut      Skip axis cut filter
@@ -39,6 +40,7 @@ All rights reserved.
 #include "vtkPointData.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkShrinkFilter.h"
+#include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
@@ -46,7 +48,8 @@ All rights reserved.
 
 int main( int argc, char* argv[] )
 {
-  // Default parameters and options
+  // Set default argument values and options
+  vtkStdString fileName= "";
   int dim = 3;
   int branch = 3;
   int max = 3;
@@ -73,6 +76,10 @@ int main( int argc, char* argv[] )
   clArgs.AddArgument( "--branch-factor",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
                       &branch, "Branching factor of hyper tree grid" );
+
+  clArgs.AddArgument("--file-name",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &fileName, "Name of input data file");
 
   clArgs.AddArgument( "--max-level",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
