@@ -25,7 +25,10 @@
 #include "vtkRenderingGL2PSModule.h" // For export macro
 
 class vtkImageData;
+class vtkMatrix4x4;
 class vtkPath;
+class vtkPoints;
+class vtkRenderWindow;
 class vtkTextProperty;
 
 class VTKRENDERINGGL2PS_EXPORT vtkGL2PSUtilities : public vtkObject
@@ -52,36 +55,46 @@ public:
   static int TextPropertyToGL2PSAlignment(vtkTextProperty *tprop);
 
   // Description:
+  // Set/Get the current RenderWindow that is being exported
+  static void SetRenderWindow(vtkRenderWindow *renWin)
+  {
+    vtkGL2PSUtilities::RenderWindow = renWin;
+  }
+  static vtkRenderWindow *GetRenderWindow()
+  {
+    return vtkGL2PSUtilities::RenderWindow;
+  }
+
+  // Description:
+  // Transform the path using the actor's matrix and current GL state, then
+  // draw it to GL2PS.
+  static void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
+                         double rasterPos[3], unsigned char actorColor[4]);
+  // Description:
   // Generate PS, EPS, or SVG markup from a vtkPath object, and then inject it
   // into the output using the gl2psSpecial command. The path is translated
-  // uniformly by translation. It is scaled by scale and rotated
-  // counter-clockwise by rotateAngle. The windowSize is used to ensure correct
-  // text placement in SVG output and ignored for PS/EPS. The rasterPos
-  // is in world coordinates and determines clipping and depth.
+  // uniformly in the scene by windowPos. It is scaled by scale and rotated
+  // counter-clockwise by rotateAngle. The rasterPos is in world coordinates
+  // and determines clipping and depth. If scale is NULL, no scaling is done.
   // If strokeWidth is positive, the path will be stroked with the indicated
   // width. If zero or negative, the path will be filled (default).
-  static void DrawPath(vtkPath *path, double rasterPos[3],
-                       double windowSize[2], double translation[2],
-                       double scale[2], double rotateAngle,
-                       unsigned char color[3], unsigned char alpha = 255,
-                       float strokeWidth = -1);
+  static void DrawPath(vtkPath *path, double rasterPos[3], double windowPos[2],
+                       unsigned char rgba[4], double scale[2] = NULL,
+                       double rotateAngle = 0.0, float strokeWidth = -1);
 
 protected:
   static void DrawPathPS(vtkPath *path, double rasterPos[3],
-                         double windowSize[2], double translation[2],
-                         double scale[2], double rotateAngle,
-                         unsigned char color[3], unsigned char alpha,
-                         float strokeWidth);
+                         double windowPos[2], unsigned char rgba[4],
+                         double scale[2] = NULL, double rotateAngle = 0.0,
+                         float strokeWidth = -1);
   static void DrawPathPDF(vtkPath *path, double rasterPos[3],
-                          double windowSize[2], double translation[2],
-                          double scale[2], double rotateAngle,
-                          unsigned char color[3], unsigned char alpha,
-                          float strokeWidth);
+                          double windowPos[2], unsigned char rgba[4],
+                          double scale[2] = NULL, double rotateAngle = 0.0,
+                          float strokeWidth = -1);
   static void DrawPathSVG(vtkPath *path, double rasterPos[3],
-                          double windowSize[2], double translation[2],
-                          double scale[2], double rotateAngle,
-                          unsigned char color[3], unsigned char alpha,
-                          float strokeWidth);
+                          double windowPos[2], unsigned char rgba[4],
+                          double scale[2] = NULL, double rotateAngle = 0.0,
+                          float strokeWidth = -1);
 
   vtkGL2PSUtilities() {}
   ~vtkGL2PSUtilities() {}
@@ -89,6 +102,16 @@ protected:
 private:
   vtkGL2PSUtilities(const vtkGL2PSUtilities &); // Not implemented
   void operator=(const vtkGL2PSUtilities&); // Not implemented
+  static vtkRenderWindow *RenderWindow;
+
+  // Description:
+  // Project the point from world coordinates into device coordinates.
+  static void ProjectPoint(double point[3], vtkMatrix4x4 *actorMatrix = NULL);
+  static void ProjectPoint(double point[4], vtkMatrix4x4 * transformMatrix,
+                           double viewportOrigin[2], double halfWidth,
+                           double halfHeight, double zfact1, double zfact2);
+  static void ProjectPoints(vtkPoints *points,
+                            vtkMatrix4x4 *actorMatrix = NULL);
 };
 
 #endif

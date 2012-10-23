@@ -304,11 +304,7 @@ protected:
                            vtkRenderer *ren);
   void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
                                vtkCoordinate *coord, vtkRenderer *ren);
-  // Description:
-  // Transform the path using the actor's matrix and current GL state, then
-  // draw it to GL2PS.
-  void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
-                  double actorBounds[4], unsigned char actorColor[3]);
+
   // Description:
   // Copy the region copyRect from the framebuffer into the gl2ps document.
   // copyRect is in viewport coordinates [xmin, ymin, width, height].
