@@ -4,6 +4,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestBiomTableReader.cxx
   TestTulipReaderProperties.cxx
   TestNewickTreeReader.cxx
+  TestMultiNewickTreeReader.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )
