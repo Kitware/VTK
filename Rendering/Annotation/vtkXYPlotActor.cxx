@@ -999,6 +999,8 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
       int ytitle_half_height = ( int )( this->YTitleSize[1] * .5 );
       int ytitle_width = this->YTitleSize[0];
       int ytitlePos[2];
+      ytitlePos[0] = 0;
+      ytitlePos[1] = 0;
       switch( this->YTitlePosition )
         {
         case VTK_XYPLOT_Y_AXIS_TOP:
