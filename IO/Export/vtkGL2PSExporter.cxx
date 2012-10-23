@@ -685,7 +685,7 @@ void vtkGL2PSExporter::DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren)
 {
   const char *string = textAct->GetInput();
   vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
-  vtkTextProperty *tprop = textAct->GetTextProperty();
+  vtkTextProperty *tprop = textAct->GetScaledTextProperty();
 
   this->DrawViewportTextOverlay(string, tprop, coord, ren);
 }
@@ -731,7 +731,7 @@ void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
 {
   const char *string = textAct->GetInput();
   vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
-  vtkTextProperty *tprop = textAct->GetTextProperty();
+  vtkTextProperty *tprop = textAct->GetScaledTextProperty();
   int *winsize = this->RenderWindow->GetSize();
 
   vtkNew<vtkPath> path;
