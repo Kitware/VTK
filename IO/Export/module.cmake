@@ -7,6 +7,7 @@ vtk_module(vtkIOExport
     vtkRenderingCore
     vtkRenderingFreeType
     vtkRenderingGL2PS
+    vtkRenderingOpenGL
     vtkImagingCore
     vtkIOCore
   TEST_DEPENDS
@@ -15,7 +16,6 @@ vtk_module(vtkIOExport
     vtkInteractionImage
     vtkTestingRendering
     vtkRenderingAnnotation
-    vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL
     vtkRenderingVolumeOpenGL
     vtkViewsContext2D
