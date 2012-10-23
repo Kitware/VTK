@@ -999,6 +999,8 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
       int ytitle_half_height = ( int )( this->YTitleSize[1] * .5 );
       int ytitle_width = this->YTitleSize[0];
       int ytitlePos[2];
+      ytitlePos[0] = 0;
+      ytitlePos[1] = 0;
       switch( this->YTitlePosition )
         {
         case VTK_XYPLOT_Y_AXIS_TOP:
@@ -2977,32 +2979,32 @@ void vtkXYPlotActor::RemoveAllActiveCurves()
 
 //----------------------------------------------------------------------------
 //  Glyph type
-//		        \li 0 : nothing
-//			\li 1 : vertex - not visible
-//			\li 2 : line
-//			\li 3 : cross
-//			\li 4 : thick cross
-//			\li 5 : triangle
-//			\li 6 : square
-//			\li 7 : circle
-//			\li 8 : diamond
-//			\li 9 : arrow
-//			\li 10 : thick arrow
-//			\li 11 : curved arrow
-//			\li 12 : arrow
-//			\li 13 => nothing
-//			\li 14 => nothing
-//			\li 15 => 2 + fillOff
-//			\li 16 => nothing
-//			\li 17 => 4 + fillOff
-//			\li 18 => 5 + fillOff
-//			\li 19 => 6 + fillOff
-//			\li 20 => 7 + fillOff
-//			\li 21 => 8 + fillOff
-//			\li 22 => nothing
-//			\li 23 => 10 + fillOff
-//			\li 24 => 11 + fillOff
-//			\li 25 => 12 + fillOff
+//  \li 0 : nothing
+//  \li 1 : vertex - not visible
+//  \li 2 : line
+//  \li 3 : cross
+//  \li 4 : thick cross
+//  \li 5 : triangle
+//  \li 6 : square
+//  \li 7 : circle
+//  \li 8 : diamond
+//  \li 9 : arrow
+//  \li 10 : thick arrow
+//  \li 11 : curved arrow
+//  \li 12 : arrow
+//  \li 13 : nothing
+//  \li 14 : nothing
+//  \li 15 : 2 + fillOff
+//  \li 16 : nothing
+//  \li 17 : 4 + fillOff
+//  \li 18 : 5 + fillOff
+//  \li 19 : 6 + fillOff
+//  \li 20 : 7 + fillOff
+//  \li 21 : 8 + fillOff
+//  \li 22 : nothing
+//  \li 23 : 10 + fillOff
+//  \li 24 : 11 + fillOff
+//  \li 25 : 12 + fillOff*
 void vtkXYPlotActor::SetPlotGlyphType( int curve, int i )
 {
   static const int good_glyph_type[26] =
