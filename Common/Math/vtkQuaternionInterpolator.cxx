@@ -12,9 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkQuaternionInterpolator.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkQuaternion.h"
+#include "vtkQuaternionInterpolator.h"
 #include <vector>
 
 #define VTKQUATERNIONINTERPOLATOR_TOLERNCE 1e-6
