@@ -45,6 +45,7 @@ All rights reserved.
 #include "vtkUnstructuredGridWriter.h"
 
 #include "vtksys/CommandLineArguments.hxx"
+#include "vtksys/ios/sstream"
 
 void ReadGridDescription( const char* fileName,
                           int& nX,
@@ -72,11 +73,85 @@ void ReadGridDescription( const char* fileName,
   char* buffer = new char [length];
   ifs.read ( buffer, length );
 
-  cerr << buffer << endl;
+  cerr << "# Input string: "
+       << buffer 
+       << endl;
+
+  // Parse input string
+  for ( int i = 0; i < length && buffer[i] != '\n'; ++ i )
+    {
+    vtksys_ios::ostringstream stream;
+    stream << buffer[i];
+    vtkStdString c = stream.str().c_str();
+    if ( c != "R" && c != "." && c != "|" )
+      {
+      cerr << "** Error: unrecognized character: "
+           << c
+           << " in file "
+           << fileName
+           << ", exiting."
+           << endl;
+      exit( 0 );
+      }
+    }
 
   // Clean up
   delete [] buffer;
   ifs.close();
+}
+
+void SetInputParameters( int& dim,
+                         int& branch,
+                         const char* fileName,
+                         int& nX,
+                         int& nY,
+                         int& nZ )
+{
+  // Ensure that parsed dimensionality makes sense
+  if ( dim > 3 )
+    {
+    dim = 3;
+    }
+  else if ( dim < 1 )
+    {
+    dim = 1;
+    }
+
+  // Ensure that parsed branch factor makes sense
+  if ( branch > 3 )
+    {
+    branch = 3;
+    }
+  else if ( branch < 2 )
+    {
+    branch = 2;
+    }
+
+  // Ensure that parsed grid sizes make sense
+  if ( nX < 1 )
+    {
+    nX = 1;
+    }
+  if ( nY < 1 )
+    {
+    nY = 1;
+    }
+  if ( nZ < 1 )
+    {
+    nZ = 1;
+    }
+
+  // Ensure that parsed grid sizes are consistent with dimensionality
+  if ( dim < 3 )
+    {
+    nZ = 1;
+    if ( dim < 2 )
+      {
+      nY = 1;
+      }
+    }
+  // Now read grid description
+  ReadGridDescription( fileName, nX, nY, nZ );
 }
 
   int main( int argc, char* argv[] )
@@ -159,49 +234,8 @@ void ReadGridDescription( const char* fileName,
     return 1;
     }
 
-  // Ensure that parsed dimensionality makes sense
-  if ( dim > 3 )
-    {
-    dim = 3;
-    }
-  else if ( dim < 1 )
-    {
-    dim = 1;
-    }
-
-  // Ensure that parsed branch factor makes sense
-  if ( branch > 3 )
-    {
-    branch = 3;
-    }
-  else if ( branch < 2 )
-    {
-    branch = 2;
-    }
-
-  // Ensure that parsed grid sizes make sense
-  if ( nX < 1 )
-    {
-    nX = 1;
-    }
-  if ( nY < 1 )
-    {
-    nY = 1;
-    }
-  if ( nZ < 1 )
-    {
-    nZ = 1;
-    }
-
-  // Ensure that parsed grid sizes are consistent with dimensionality
-  if ( dim < 3 )
-    {
-    nZ = 1;
-    if ( dim < 2 )
-      {
-      nY = 1;
-      }
-    }
+  // Verify and set input parameters
+  SetInputParameters( dim, branch, fileName, nX, nY, nZ );
 
   // Create hyper tree grid source
   vtkNew<vtkHyperTreeGridSource> fractal;
