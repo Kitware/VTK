@@ -46,13 +46,45 @@ All rights reserved.
 
 #include "vtksys/CommandLineArguments.hxx"
 
-int main( int argc, char* argv[] )
+void ReadGridDescription( const char* fileName,
+                          int& nX,
+                          int& nY,
+                          int& nZ )
+{
+  // Open file
+  ifstream ifs;
+  ifs.open( fileName, ios::in | ios::binary );
+  if ( ifs.fail() )
+    {
+    cerr << "** Error: cannot open file: "
+         << fileName
+         << ", exiting."
+         << endl;
+    exit( 0 );
+    }
+  
+  // Get length of file
+  ifs.seekg( 0, ios::end );
+  int length = ifs.tellg();
+  ifs.seekg( 0, ios::beg );
+
+  // Allocate storage for string and read data as a block
+  char* buffer = new char [length];
+  ifs.read ( buffer, length );
+
+  cerr << buffer << endl;
+
+  // Clean up
+  delete [] buffer;
+  ifs.close();
+}
+
+  int main( int argc, char* argv[] )
 {
   // Set default argument values and options
   vtkStdString fileName= "";
   int dim = 3;
   int branch = 3;
-  int max = 3;
   int nX = 3;
   int nY = 4;
   int nZ = 2;
@@ -80,10 +112,6 @@ int main( int argc, char* argv[] )
   clArgs.AddArgument("--file-name",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
                      &fileName, "Name of input data file");
-
-  clArgs.AddArgument( "--max-level",
-                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                      &max, "Maximum depth of hyper tree grid" );
 
   clArgs.AddArgument( "--grid-size-X",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
@@ -122,11 +150,13 @@ int main( int argc, char* argv[] )
                       &skipShrink, "Skip shrink filter" );
 
   // If incorrect arguments were provided, provide some help and terminate in error.
-  if ( ! clArgs.Parse() )
+  if ( ! clArgs.Parse() 
+       || ! strcmp( fileName.c_str(), "" ) )
     {
     cerr << "Usage: "
          << clArgs.GetHelp()
          << "\n";
+    return 1;
     }
 
   // Ensure that parsed dimensionality makes sense
@@ -147,12 +177,6 @@ int main( int argc, char* argv[] )
   else if ( branch < 2 )
     {
     branch = 2;
-    }
-
-  // Ensure that parsed maximum level makes sense
-  if ( max < 1 )
-    {
-    max = 1;
     }
 
   // Ensure that parsed grid sizes make sense
@@ -181,7 +205,6 @@ int main( int argc, char* argv[] )
 
   // Create hyper tree grid source
   vtkNew<vtkHyperTreeGridSource> fractal;
-  fractal->SetMaximumLevel( max );
   fractal->DualOn();
   if ( dim == 3 )
     {
