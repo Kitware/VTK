@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridSource.cxx
+Program:   Visualization Toolkit
+Module:    vtkHyperTreeGridSource.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkHyperTreeGridSource.h"
@@ -66,7 +66,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
 //----------------------------------------------------------------------------
 vtkHyperTreeGridSource::~vtkHyperTreeGridSource()
 {
- if ( this->XCoordinates )
+  if ( this->XCoordinates )
     {
     this->XCoordinates->UnRegister( this );
     this->XCoordinates = NULL;
@@ -162,8 +162,8 @@ void vtkHyperTreeGridSource::SetMinimumLevel( int minLevels )
 
 //----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
-                                                       vtkInformationVector**,
-                                                       vtkInformationVector *outputVector )
+                                                vtkInformationVector**,
+                                                vtkInformationVector *outputVector )
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -185,8 +185,8 @@ int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
 
 //----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::RequestData( vtkInformation*,
-                                                vtkInformationVector**,
-                                                vtkInformationVector *outputVector )
+                                         vtkInformationVector**,
+                                         vtkInformationVector *outputVector )
 {
   // Get the info objects
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
@@ -288,11 +288,11 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
-                                               int level,
-                                               vtkHyperTreeGrid* output,
-                                               int index,
-                                               int idx[3],
-                                               int offset )
+                                        int level,
+                                        vtkHyperTreeGrid* output,
+                                        int index,
+                                        int idx[3],
+                                        int offset )
 {
   // Determine whether to subdivide.
   int subdivide = 1;
