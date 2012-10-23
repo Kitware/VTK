@@ -20,7 +20,7 @@
 #ifndef __vtkBridgeDataSet_h
 #define __vtkBridgeDataSet_h
 
-#include "vtkBridgeExport.h"
+#include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericDataSet.h"
 
 class vtkDataSet;

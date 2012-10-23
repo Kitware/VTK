@@ -1,4 +1,5 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  TestColor.cxx
   TestVector.cxx
   TestVectorOperators.cxx
   TestAMRBox.cxx
@@ -17,6 +18,8 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
   TestPolygon.cxx
+  TestPolyhedron0.cxx
+  TestPolyhedron1.cxx
   TestSelectionSubtract.cxx
   TestTreeBFSIterator.cxx
   TestTreeDFSIterator.cxx
@@ -36,7 +39,6 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestPlane.cxx
   TestStructuredData.cxx
   TestDataObjectTypes.cxx
-  TestCategoricalColors.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 

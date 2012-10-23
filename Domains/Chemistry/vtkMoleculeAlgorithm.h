@@ -47,7 +47,7 @@ public:
   // Get the output data object for a port on this algorithm.
   vtkMolecule* GetOutput();
   vtkMolecule* GetOutput(int);
-  virtual void SetOutput(vtkDataObject* d);
+  virtual void SetOutput(vtkMolecule* d);
 
   // Description:
   // see vtkAlgorithm for details

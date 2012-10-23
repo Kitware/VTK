@@ -53,10 +53,12 @@ public:
 
   // Description:
   // Initialize the AMR.
-  virtual void Initialize(int numLevels,  int * blocksPerLevel);
+  virtual void Initialize(int numLevels, const int * blocksPerLevel);
 
   // Description:
-  // Returns the data description of this uniform grid instance.
+  // Set/Get the data description of this uniform grid instance,
+  // e.g. VTK_XYZ_GRID
+  void SetGridDescription(int gridDescription);
   int GetGridDescription();
 
   // Description:

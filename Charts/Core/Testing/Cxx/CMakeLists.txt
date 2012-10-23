@@ -7,9 +7,9 @@
     )
 
   if(VTK_DATA_ROOT)
-
     # add tests that require data
     set(MyTests ${MyTests}
+      TestAxes.cxx
       TestBarGraph.cxx
       TestBarGraphHorizontal.cxx
       TestColorTransferFunction.cxx
@@ -21,6 +21,7 @@
       TestControlPointsHandleItem.cxx
       TestDiagram.cxx
       TestHistogram2D.cxx
+      TestInteractiveChartXYZ.cxx
       TestLegendHiddenPlots.cxx
       TestLinePlot.cxx
       TestLinePlotAxisFonts.cxx
@@ -40,6 +41,7 @@
       TestScientificPlot.cxx
       TestStackedBarGraph.cxx
       TestStackedPlot.cxx
+      TestSurfacePlot.cxx
       )
     # Set the tolerance higher for a few tests that need it
     set(TestGLSLError 12)
@@ -69,14 +71,14 @@
       else()
         set(_error_threshold 10)
       endif()
-      add_test(NAME Charts-${TName}
+      add_test(NAME ${vtk-module}Cxx-${TName}
         COMMAND ${vtk-module}CxxTests ${TName}
           -D ${VTK_DATA_ROOT}
           -T ${VTK_TEST_OUTPUT_DIR}
           -V Baseline/Charts/${TName}.png
           -E ${_error_threshold})
     else()
-      add_test(NAME Charts-${TName}
+      add_test(NAME ${vtk-module}Cxx-${TName}
         COMMAND ${vtk-module}CxxTests ${TName})
     endif()
   endforeach()

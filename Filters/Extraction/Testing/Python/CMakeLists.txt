@@ -1,0 +1,6 @@
+add_test_python(ExtractEdgesQuadraticCells.py Graphics)
+add_test_python(ExtractTensors.py Graphics)
+add_test_python(extractPolyData.py Graphics)
+add_test_python(extractRectGrid.py Graphics)
+add_test_python(extractUGrid.py Graphics)
+add_test_python(extractVectors.py Graphics)

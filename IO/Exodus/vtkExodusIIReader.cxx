@@ -3768,8 +3768,8 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         blockEntryFileOffset += binfo.Size;
         if (binfo.Name.length() == 0)
           {
-          SNPRINTF( tmpName, 255, "Unnamed block ID: %d Type: %s Size: %d",
-              ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL", binfo.Size );
+          SNPRINTF( tmpName, 255, "Unnamed block ID: %d Type: %s",
+              ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL");
           binfo.Name = tmpName;
           }
         binfo.OriginalName = binfo.Name;
@@ -3898,7 +3898,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         this->GetInitialObjectStatus(obj_types[i], &sinfo);
         if (sinfo.Name.length() == 0)
           {
-          SNPRINTF( tmpName, 255, "Unnamed set ID: %d Size: %d", ids[obj], sinfo.Size );
+          SNPRINTF( tmpName, 255, "Unnamed set ID: %d", ids[obj]);
           sinfo.Name = tmpName;
           }
         sortedObjects[sinfo.Id] = (int) this->SetInfo[obj_types[i]].size();
@@ -4544,7 +4544,7 @@ void vtkExodusIIReaderPrivate::SetInitialObjectStatus( int objectType, const cha
     {
     idx += 4;
     idlen = 0;
-    while(nm.at(idx+idlen) != ' ')
+    while(idx+idlen < static_cast<int>(nm.length()) &&  nm.at(idx+idlen) != ' ' )
       {
       idlen++;
       }
@@ -5444,9 +5444,16 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, const char* objectName )
     vtkDebugMacro( "No objects of that type (" << objectType << ") to find index for given name " << objectName << "." );
     return -1;
     }
+  vtkStdString objectRealName(objectName);
+  size_t i = objectRealName.find(" Size: ");
+  if(i!= vtkStdString::npos)
+    {
+    objectRealName.erase(i);
+    }
   for ( int obj = 0; obj < nObj; ++obj )
     {
-    if ( !strcmp( objectName, this->GetObjectName( objectType, obj ) ) )
+    const char* storedObjName = this->GetObjectName( objectType, obj );
+    if(objectRealName == vtkStdString(storedObjName))
       {
       return obj;
       }
@@ -6167,4 +6174,3 @@ void vtkExodusIIReader::UpdateTimeInformation()
     this->Metadata->CloseFile();
     }
 }
-

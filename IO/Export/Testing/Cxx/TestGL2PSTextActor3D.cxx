@@ -96,7 +96,6 @@ int TestGL2PSTextActor3D(int, char *[])
       std::string("/TestGL2PSTextActor3D");
 
   exp->SetFilePrefix(fileprefix.c_str());
-  exp->WriteTimeStampOff(); // Otherwise hashes won't match
   exp->Write();
 
   // Finally render the scene and compare the image to a reference image

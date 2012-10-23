@@ -50,6 +50,8 @@
 
 #include "vtkOpenGLContextDevice2DPrivate.h"
 
+#include <algorithm>
+
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLContextDevice2D)
 
@@ -61,11 +63,18 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
   this->TextRenderer = vtkFreeTypeStringToImage::New();
   this->Storage = new vtkOpenGLContextDevice2D::Private;
   this->RenderWindow = NULL;
+  this->MaximumMarkerCacheSize = 20;
 }
 
 //-----------------------------------------------------------------------------
 vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
 {
+  while (!this->MarkerCache.empty())
+    {
+    this->MarkerCache.back().Value->Delete();
+    this->MarkerCache.pop_back();
+    }
+
   this->TextRenderer->Delete();
   delete this->Storage;
 }
@@ -372,6 +381,17 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     {
     vtkWarningMacro(<< "Points supplied without a valid image or pointer.");
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawMarkers(int shape, bool highlight,
+                                           float *points, int n,
+                                           unsigned char *colors, int nc_comps)
+{
+  // Get a point sprite for the shape
+  vtkImageData *sprite = this->GetMarker(shape, this->Pen->GetWidth(),
+                                         highlight);
+  this->DrawPointSprites(sprite, points, n, colors, nc_comps);
 }
 
 //-----------------------------------------------------------------------------
@@ -805,8 +825,8 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
   float yScale = mv[5];
   bounds[0] = static_cast<float>(0);
   bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.X() / xScale);
-  bounds[3] = static_cast<float>(box.Y() / yScale);
+  bounds[2] = static_cast<float>(box.GetX() / xScale);
+  bounds[3] = static_cast<float>(box.GetY() / yScale);
 }
 
 //-----------------------------------------------------------------------------
@@ -846,8 +866,8 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &strin
   float yScale = mv[5];
   bounds[0] = static_cast<float>(0);
   bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.X() / xScale);
-  bounds[3] = static_cast<float>(box.Y() / yScale);
+  bounds[2] = static_cast<float>(box.GetX() / xScale);
+  bounds[3] = static_cast<float>(box.GetY() / yScale);
 }
 
 //-----------------------------------------------------------------------------
@@ -957,10 +977,10 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
     }
 //  this->SetTexture(image);
 //  this->Storage->Texture->Render(this->Renderer);
-  float points[] = { pos.X()              , pos.Y(),
-                     pos.X() + pos.Width(), pos.Y(),
-                     pos.X() + pos.Width(), pos.Y() + pos.Height(),
-                     pos.X()              , pos.Y() + pos.Height() };
+  float points[] = { pos.GetX()              , pos.GetY(),
+                     pos.GetX() + pos.GetWidth(), pos.GetY(),
+                     pos.GetX() + pos.GetWidth(), pos.GetY() + pos.GetHeight(),
+                     pos.GetX()              , pos.GetY() + pos.GetHeight() };
 
   float texCoord[] = { 0.0   , 0.0,
                        tex[0], 0.0,
@@ -1286,6 +1306,176 @@ bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
 }
 
 //-----------------------------------------------------------------------------
+vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
+                                                  bool highlight)
+{
+  // Generate the cache key for this marker
+  vtkTypeUInt64 key = highlight ? (1 << 31) : 0;
+  key |= static_cast<vtkTypeUInt16>(shape);
+  key <<= 32;
+  key |= static_cast<vtkTypeUInt32>(size);
+
+  // Try to find the marker in the cache
+  std::list<vtkMarkerCacheObject>::iterator match =
+      std::find(this->MarkerCache.begin(), this->MarkerCache.end(), key);
+
+  // Was it in the cache?
+  if (match != this->MarkerCache.end())
+    {
+    // Yep -- move it to the front and return the data.
+    if (match == this->MarkerCache.begin())
+      {
+      return match->Value;
+      }
+    else
+      {
+      vtkMarkerCacheObject result = *match;
+      this->MarkerCache.erase(match);
+      this->MarkerCache.push_front(result);
+      return result.Value;
+      }
+    }
+
+  // Nope -- we'll need to generate it. Create the image data:
+  vtkMarkerCacheObject result;
+  result.Key = key;
+  result.Value = this->GenerateMarker(shape, size, highlight);
+
+  // If there was an issue generating the marker, just return NULL.
+  if (!result.Value)
+    {
+    vtkErrorMacro(<<"Error generating marker: shape,size: "
+                  << shape << "," << size)
+    return NULL;
+    }
+
+  // Check the current cache size.
+  while (this->MarkerCache.size() >
+         static_cast<size_t>(this->MaximumMarkerCacheSize - 1) &&
+         !this->MarkerCache.empty())
+    {
+    this->MarkerCache.back().Value->Delete();
+    this->MarkerCache.pop_back();
+    }
+
+   // Add to the cache
+   this->MarkerCache.push_front(result);
+   return result.Value;
+}
+
+//-----------------------------------------------------------------------------
+vtkImageData *vtkOpenGLContextDevice2D::GenerateMarker(int shape, int width,
+                                                       bool highlight)
+{
+  // Set up the image data, if highlight then the mark shape is different
+  vtkImageData *result = vtkImageData::New();
+
+  result->SetExtent(0, width - 1, 0, width - 1, 0, 0);
+  result->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
+
+  unsigned char* image =
+      static_cast<unsigned char*>(result->GetScalarPointer());
+  memset(image, 0, width * width * 4);
+
+  // Generate the marker image at the required size
+  switch (shape)
+    {
+    case VTK_MARKER_CROSS:
+      {
+      int center = (width + 1) / 2;
+      for (int i = 0; i < center; ++i)
+        {
+        int j = width - i - 1;
+        memset(image + (4 * (width * i + i)), 255, 4);
+        memset(image + (4 * (width * i + j)), 255, 4);
+        memset(image + (4 * (width * j + i)), 255, 4);
+        memset(image + (4 * (width * j + j)), 255, 4);
+        if (highlight)
+          {
+          memset(image + (4 * (width * (j-1) + (i))), 255, 4);
+          memset(image + (4 * (width * (i+1) + (i))), 255, 4);
+          memset(image + (4 * (width * (i) + (i+1))), 255, 4);
+          memset(image + (4 * (width * (i) + (j-1))), 255, 4);
+          memset(image + (4 * (width * (i+1) + (j))), 255, 4);
+          memset(image + (4 * (width * (j-1) + (j))), 255, 4);
+          memset(image + (4 * (width * (j) + (j-1))), 255, 4);
+          memset(image + (4 * (width * (j) + (i+1))), 255, 4);
+          }
+        }
+      break;
+      }
+    default: // Maintaining old behavior, which produces plus for unknown shape
+      vtkWarningMacro(<<"Invalid marker shape: " << shape);
+    case VTK_MARKER_PLUS:
+      {
+      int center = (width + 1) / 2;
+      for (int i = 0; i < center; ++i)
+        {
+        int j = width - i - 1;
+        int c = center - 1;
+        memset(image + (4 * (width * c + i)), 255, 4);
+        memset(image + (4 * (width * c + j)), 255, 4);
+        memset(image + (4 * (width * i + c)), 255, 4);
+        memset(image + (4 * (width * j + c)), 255, 4);
+        if (highlight)
+          {
+          memset(image + (4 * (width * (c - 1) + i)), 255, 4);
+          memset(image + (4 * (width * (c + 1) + i)), 255, 4);
+          memset(image + (4 * (width * (c - 1) + j)), 255, 4);
+          memset(image + (4 * (width * (c + 1) + j)), 255, 4);
+          memset(image + (4 * (width * i + (c - 1))), 255, 4);
+          memset(image + (4 * (width * i + (c + 1))), 255, 4);
+          memset(image + (4 * (width * j + (c - 1))), 255, 4);
+          memset(image + (4 * (width * j + (c + 1))), 255, 4);
+          }
+        }
+      break;
+      }
+    case VTK_MARKER_SQUARE:
+      {
+      memset(image, 255, width * width * 4);
+      break;
+      }
+    case VTK_MARKER_CIRCLE:
+      {
+      double r = width/2.0;
+      double r2 = r * r;
+      for (int i = 0; i < width; ++i)
+        {
+        double dx2 = (i - r) * (i - r);
+        for (int j = 0; j < width; ++j)
+          {
+          double dy2 = (j - r) * (j - r);
+          if ((dx2 + dy2) < r2)
+            {
+            memset(image + (4 * width * i) + (4 * j), 255, 4);
+            }
+          }
+        }
+      break;
+      }
+    case VTK_MARKER_DIAMOND:
+      {
+      int r = width/2;
+      for (int i = 0; i < width; ++i)
+        {
+        int dx = abs(i - r);
+        for (int j = 0; j < width; ++j)
+          {
+          int dy = abs(j - r);
+          if (r - dx >= dy)
+            {
+            memset(image + (4 * width * i) + (4 * j), 255, 4);
+            }
+          }
+        }
+      break;
+      }
+    }
+  return result;
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1309,4 +1499,8 @@ void vtkOpenGLContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
+  os << indent << "MaximumMarkerCacheSize: "
+     << this->MaximumMarkerCacheSize << endl;
+  os << indent << "MarkerCache: " << this->MarkerCache.size()
+     << " entries." << endl;
 }

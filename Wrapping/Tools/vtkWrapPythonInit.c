@@ -109,8 +109,13 @@ int main(int argc,char *argv[])
     }
 
   /* read the info from the file */
-  fscanf(file,"%s",libName);
-
+  if (fscanf(file,"%s",libName) != 1)
+    {
+    fprintf(stderr,"Error getting libName\n");
+    fclose(file);
+    fclose(fout);
+    return 1;
+    }
   /* read in the classes */
   while (fscanf(file,"%s",tmpVal) != EOF)
     {

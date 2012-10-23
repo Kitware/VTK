@@ -58,45 +58,45 @@ class vtkStructuredGridConnectivity;
 class VTKFILTERSGEOMETRY_EXPORT vtkUniformGridGhostDataGenerator :
   public vtkDataSetGhostGenerator
 {
-  public:
-    static vtkUniformGridGhostDataGenerator* New();
-    vtkTypeMacro(vtkUniformGridGhostDataGenerator,vtkDataSetGhostGenerator);
-    void PrintSelf(ostream& os, vtkIndent indent );
+public:
+  static vtkUniformGridGhostDataGenerator* New();
+  vtkTypeMacro(vtkUniformGridGhostDataGenerator,vtkDataSetGhostGenerator);
+  void PrintSelf(ostream& os, vtkIndent indent );
 
-  protected:
-    vtkUniformGridGhostDataGenerator();
-    virtual ~vtkUniformGridGhostDataGenerator();
+protected:
+  vtkUniformGridGhostDataGenerator();
+  virtual ~vtkUniformGridGhostDataGenerator();
 
-    // Description:
-    // Computes the global origin
-    void ComputeOrigin(vtkMultiBlockDataSet *in);
+  // Description:
+  // Computes the global origin
+  void ComputeOrigin(vtkMultiBlockDataSet *in);
 
-    // Description:
-    // Computes the global spacing vector
-    void ComputeGlobalSpacingVector(vtkMultiBlockDataSet *in);
+  // Description:
+  // Computes the global spacing vector
+  void ComputeGlobalSpacingVector(vtkMultiBlockDataSet *in);
 
-    // Description:
-    // Registers the grid associated with this instance of multi-block.
-    void RegisterGrids(vtkMultiBlockDataSet *in);
+  // Description:
+  // Registers the grid associated with this instance of multi-block.
+  void RegisterGrids(vtkMultiBlockDataSet *in);
 
-    // Description:
-    // Creates the output
-    void CreateGhostedDataSet(
-        vtkMultiBlockDataSet *in,
-        vtkMultiBlockDataSet *out );
+  // Description:
+  // Creates the output
+  void CreateGhostedDataSet(
+      vtkMultiBlockDataSet *in,
+      vtkMultiBlockDataSet *out );
 
-    // Description:
-    // Generates ghost layers.
-    void GenerateGhostLayers(
-        vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out);
+  // Description:
+  // Generates ghost layers.
+  void GenerateGhostLayers(
+      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out);
 
-    double GlobalSpacing[3];
-    double GlobalOrigin[3];
-    vtkStructuredGridConnectivity *GridConnectivity;
+  double GlobalSpacing[3];
+  double GlobalOrigin[3];
+  vtkStructuredGridConnectivity *GridConnectivity;
 
-  private:
-    vtkUniformGridGhostDataGenerator(const vtkUniformGridGhostDataGenerator&); // Not implemented
-    void operator=(const vtkUniformGridGhostDataGenerator&); // Not implemented
+private:
+  vtkUniformGridGhostDataGenerator(const vtkUniformGridGhostDataGenerator&); // Not implemented
+  void operator=(const vtkUniformGridGhostDataGenerator&); // Not implemented
 };
 
 #endif /* VTKUNIFORMGRIDGHOSTDATAGENERATOR_H_ */

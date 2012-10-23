@@ -70,6 +70,7 @@ int vtkXMLDataSetWriter::WriteInternal()
   // Create a writer based on the data set type.
   switch (this->GetInput()->GetDataObjectType())
     {
+    case VTK_UNIFORM_GRID:
     case VTK_IMAGE_DATA:
     case VTK_STRUCTURED_POINTS:
       {
@@ -113,7 +114,8 @@ int vtkXMLDataSetWriter::WriteInternal()
   if(!writer)
     {
     vtkErrorMacro("Cannot write dataset type: "
-                  << this->GetInput()->GetDataObjectType());
+                  << this->GetInput()->GetDataObjectType() << " which is a "
+                  << this->GetInput()->GetClassName());
     return 0;
     }
 

@@ -69,6 +69,8 @@ echo "    "
 
 else
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 #==========================================================================
 echo -n "Please wait while lcov deletes all .da files in . and subdirectories..."
 lcov --quiet --directory . --zerocounters
@@ -76,8 +78,12 @@ echo "Done"
 destinationdir=$1
 shift
 ctest $*
-cd $destinationdir
 echo -n "Please wait while lcov captures the coverage data..."
+#
+# Some compilers (e.g. clang) place the .gcda files in the wrong directory
+#
+${SCRIPT_DIR}/fixcoverage.py
+cd $destinationdir
 lcov --quiet --directory . --capture --output-file app.info
 echo "Done"
 echo -n "Please wait while lcov removes coverage for some files..."

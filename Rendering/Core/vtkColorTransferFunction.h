@@ -120,7 +120,9 @@ public:
   int AdjustRange(double range[2]);
 
   // Description:
-  // Fills in a table of n function values between x1 and x2
+  // Fills in a table of n function values between x1 and x2.
+  //
+  // Note that \a GetTable ignores \a IndexedLookup
   void GetTable( double x1, double x2, int n, double* table );
   void GetTable( double x1, double x2, int n, float* table );
   const unsigned char *GetTable( double x1, double x2, int n);

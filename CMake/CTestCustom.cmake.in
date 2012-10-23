@@ -266,8 +266,13 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities/mrmpi/.*warning: conversion to .* from .* may change the sign of the result"
   # gcc -Wunused-result
   "Utilities/mrmpi/.*warning: ignoring return value of .size_t fread.void.. size_t. size_t. FILE.... declared with attribute warn_unused_result"
+  "Utilities/vtklibproj4/.*warning: .* set but not used"
 
-  "Uitilties/vtklibproj4/.*warning: .* set but not used"
+  # Qt Designer related warning
+  "QtDesigner/extension.*warning: unused parameter"
+
+  # Strange Arch warning
+  "cc1plus: warning: assuming signed overflow does not occur when assuming that .* is always true"
   )
 
 IF(APPLE)
@@ -278,6 +283,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # Almost all of Carbon is deprecated, so mask deprecation warnings out
   # of dashboard results for Carbon-specific files.
   "vtkCarbonRenderWindow.*warning.*is deprecated"
+
+  # Mac OS X and Java moving to Oracle, Apple is deprecating their own Java Implementation
+  "warning: 'JAWT_GetAWT' is deprecated"
   )
 ENDIF(APPLE)
 

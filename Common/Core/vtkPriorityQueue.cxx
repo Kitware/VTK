@@ -116,7 +116,7 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location)
 // balances tree. The location == 0 is the root of the tree.
 vtkIdType vtkPriorityQueue::Pop(vtkIdType location, double &priority)
 {
-  vtkIdType id, i, j, idx;
+  vtkIdType idx;
   vtkPriorityQueue::Item temp;
 
   if ( this->MaxId < 0 )
@@ -124,7 +124,7 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location, double &priority)
     return -1;
     }
 
-  id = this->Array[location].id;
+  vtkIdType id = this->Array[location].id;
   priority = this->Array[location].priority;
 
   // move the last item to the location specified and push into the tree
@@ -141,7 +141,7 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location, double &priority)
 
   // percolate down the tree from the specified location
   int lastNodeToCheck = (this->MaxId-1)/2;
-  for ( j=0, i=location; i <= lastNodeToCheck; i=j )
+  for ( vtkIdType j=0, i=location; i <= lastNodeToCheck; i=j )
     {
     idx = 2*i + 1;
 
@@ -172,7 +172,7 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location, double &priority)
     }
 
   // percolate up the tree from the specified location
-  for ( idx=0, i=location; i > 0; i=idx )
+  for (vtkIdType i=location; i > 0; i=idx )
     {
     idx = (i-1)/2;
 

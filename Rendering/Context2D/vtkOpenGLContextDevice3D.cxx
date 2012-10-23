@@ -197,6 +197,33 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
     }
 }
 
+void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
+                                                const unsigned char *colors,
+                                                int nc)
+{
+  assert("mesh must be non-null" && mesh != NULL);
+  assert("n must be greater than 0" && n > 0);
+
+  glPointSize(this->Pen->GetWidth());
+  glEnableClientState(GL_VERTEX_ARRAY);
+  if (colors && nc)
+    {
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    }
+  else
+    {
+    glColor4ubv(this->Pen->GetColor());
+    }
+  glVertexPointer(3, GL_FLOAT, 0, mesh);
+  glDrawArrays(GL_TRIANGLES, 0, n);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  if (colors && nc)
+    {
+    glDisableClientState(GL_COLOR_ARRAY);
+    }
+}
+
 void vtkOpenGLContextDevice3D::ApplyPen(vtkPen *pen)
 {
   this->Pen->DeepCopy(pen);
@@ -222,7 +249,7 @@ void vtkOpenGLContextDevice3D::GetMatrix(vtkMatrix4x4 *m)
   m->Transpose();
   double matrix[16];
   glGetDoublev(GL_MODELVIEW_MATRIX, matrix);
-  this->Storage->Transpose(M, matrix);
+  this->Storage->Transpose(matrix, M);
 }
 
 void vtkOpenGLContextDevice3D::MultiplyMatrix(vtkMatrix4x4 *m)
@@ -252,21 +279,21 @@ void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
   GLint vp[4] = { this->Storage->Offset.GetX(), this->Storage->Offset.GetY(),
                   this->Storage->Dim.GetX(), this->Storage->Dim.GetY()};
 
-  if (rect.X() > 0 && rect.X() < vp[2] )
+  if (rect.GetX() > 0 && rect.GetX() < vp[2] )
     {
-    vp[0] += rect.X();
+    vp[0] += rect.GetX();
     }
-  if (rect.Y() > 0 && rect.Y() < vp[3])
+  if (rect.GetY() > 0 && rect.GetY() < vp[3])
     {
-    vp[1] += rect.Y();
+    vp[1] += rect.GetY();
     }
-  if (rect.Width() > 0 && rect.Width() < vp[2])
+  if (rect.GetWidth() > 0 && rect.GetWidth() < vp[2])
     {
-    vp[2] = rect.Width();
+    vp[2] = rect.GetWidth();
     }
-  if (rect.Height() > 0 && rect.Height() < vp[3])
+  if (rect.GetHeight() > 0 && rect.GetHeight() < vp[3])
     {
-    vp[3] = rect.Height();
+    vp[3] = rect.GetHeight();
     }
 
   glScissor(vp[0], vp[1], vp[2], vp[3]);
@@ -311,7 +338,7 @@ void vtkOpenGLContextDevice3D::Begin(vtkViewport* viewport)
   // Store the previous state before changing it
   this->Storage->SaveGLState();
   glDisable(GL_LIGHTING);
-  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
 
   this->Renderer = vtkRenderer::SafeDownCast(viewport);

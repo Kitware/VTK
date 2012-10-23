@@ -1,5 +1,6 @@
 set(MyTests
   TestBallAndStick.cxx
+  TestPDBBallAndStick.cxx
   TestBondColorModeDiscreteByAtom.cxx
   TestBondColorModeSingleColor.cxx
   TestCompositeRender.cxx
@@ -12,6 +13,7 @@ set(MyTests
   TestMultiCylinderOff.cxx
   TestPeriodicTable.cxx
   TestProgrammableElectronicData.cxx
+  TestProteinRibbon.cxx
   TestSimpleBondPerceiver.cxx
   TestVDWSpheres.cxx
   )

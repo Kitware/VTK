@@ -25,7 +25,7 @@
 #ifndef __vtkBridgeCellIteratorStrategy_h
 #define __vtkBridgeCellIteratorStrategy_h
 
-#include "vtkBridgeExport.h"
+#include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericCellIterator.h"
 
 class vtkBridgeCell;

@@ -29,10 +29,11 @@
 #include "vtkImageReslice.h" // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 
 class vtkAMRResampleFilter;
+class vtkCamera;
+class vtkImageData;
 class vtkOverlappingAMR;
 class vtkSmartVolumeMapper;
 class vtkUniformGrid;
-class vtkImageData;
 
 class VTKRENDERINGVOLUMEAMR_EXPORT vtkAMRVolumeMapper : public vtkVolumeMapper
 {
@@ -264,6 +265,13 @@ public:
   // such as ParaView that will turn off multiple threads by default. Default is false
   vtkSetMacro(UseDefaultThreading, bool);
   vtkGetMacro(UseDefaultThreading, bool);
+
+  // Description:
+  // Utility method used by UpdateResamplerFrustrumMethod() to compute the
+  // bounds.
+  static bool ComputeResamplerBoundsFrustumMethod(
+    vtkCamera* camera, vtkRenderer* renderer,
+    const double data_bounds[6], double out_bounds[6]);
 protected:
   vtkAMRVolumeMapper();
   ~vtkAMRVolumeMapper();

@@ -133,7 +133,7 @@ public:
   vtkBooleanMacro(SidesShareVertices, int);
 
   // Description:
-  // Turn on/off whether to cap the ends with polygons.
+  // Turn on/off whether to cap the ends with polygons. Initial value is off.
   vtkSetMacro(Capping,int);
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);

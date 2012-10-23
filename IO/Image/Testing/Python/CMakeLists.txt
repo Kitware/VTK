@@ -1,0 +1,8 @@
+add_test_python(TestBMPReader.py IO)
+add_test_python(TestImageWriters.py IO)
+add_test_python(TestJPEGReader.py IO)
+add_test_python(TestMHD.py IO)
+add_test_python(TestTIFFReader.py IO)
+add_test_python(dem.py IO)
+add_test_python(TestMetaImage2D.py IO)
+add_test_python(TestSetFileNames.py IO)

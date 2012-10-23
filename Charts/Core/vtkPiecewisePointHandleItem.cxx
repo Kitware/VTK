@@ -230,7 +230,7 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::Hit(const vtkContextMouseEvent &mouse)
 {
-  float pos[2] = { mouse.GetScenePos().X(), mouse.GetScenePos().Y() };
+  float pos[2] = { mouse.GetScenePos().GetX(), mouse.GetScenePos().GetY() };
   if (this->IsOverHandle(pos) >= 0)
     {
     return true;
@@ -282,8 +282,8 @@ bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent &mou
       {
       PointHandle* activeHandle =
         &this->Internal->PointHandles[this->MouseOverHandleIndex];
-      float deltaX = mouse.GetScenePos().X() - activeHandle->ScenePos[0];
-      float deltaY = mouse.GetScenePos().Y() - activeHandle->ScenePos[1];
+      float deltaX = mouse.GetScenePos().GetX() - activeHandle->ScenePos[0];
+      float deltaY = mouse.GetScenePos().GetY() - activeHandle->ScenePos[1];
 
       vtkControlPointsItem* parentControl = vtkControlPointsItem::SafeDownCast(
         this->GetParent());

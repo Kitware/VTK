@@ -675,8 +675,8 @@ PyObject *vtkPythonOverload::CallMethod(
     vtkPythonOverloadHelper *helperArray = helperStorage;
     vtkPythonOverloadHelper *helper;
 
-    const char *format;
-    const char *classname;
+    const char *format = 0;
+    const char *classname = 0;
     bool selfIsClass = 0;
     int sig;
 
@@ -800,9 +800,11 @@ PyMethodDef *vtkPythonOverload::FindConversionMethod(
   PyMethodDef *methods, PyObject *arg)
 {
   vtkPythonOverloadHelper helper;
-  const char *format, *classname, *dummy1, *dummy2;
-  int minPenalty = VTK_PYTHON_NEEDS_CONVERSION;
+  const char *dummy1, *dummy2;
+  const char *format = 0;
+  const char *classname = 0;
   PyMethodDef *method = 0;
+  int minPenalty = VTK_PYTHON_NEEDS_CONVERSION;
   int matchCount = 0;
 
   for (PyMethodDef *meth = methods; meth->ml_meth != NULL; meth++)

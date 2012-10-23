@@ -33,7 +33,7 @@
 #include "vtkBandedPolyDataContourFilter.h"
 #include "vtkPointData.h"
 #include "vtkDataArray.h"
-#include "vtkBrewerColors.h"
+#include "vtkColorSeries.h"
 
 #include "vtkTestUtilities.h"
 
@@ -534,13 +534,13 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
   recorder->SetInputString(TISBeventLog);
 
   vtkSmartPointer<vtkScalarKeyboardCommand> cb = vtkSmartPointer<vtkScalarKeyboardCommand>::New();
-  vtkSmartPointer<vtkBrewerColors> pal = vtkSmartPointer<vtkBrewerColors>::New();
-  pal->SetCurrentScheme( "Sequential Blue-Green (5)" );
+  vtkSmartPointer<vtkColorSeries> pal = vtkSmartPointer<vtkColorSeries>::New();
+  pal->SetColorSchemeByName( "Brewer Sequential Blue-Green (5)" );
   cb->Lookup = vtkLookupTable::SafeDownCast( scalarWidget->GetScalarBarActor()->GetLookupTable() );
   cb->ScalarBar = scalarWidget->GetScalarBarActor();
   scalarWidget->GetScalarBarActor()->SetMaximumNumberOfColors( 5 * 5 );
   //cb->ScalarBar->SetAnnotationLeaderPadding( 8. );
-  pal->CreateLookupTable( cb->Lookup );
+  pal->BuildLookupTable( cb->Lookup );
   cb->Lookup->SetAnnotation( 5.00, "Just Wow" );
   cb->Lookup->SetAnnotation( 4.00, "Super-Special" );
   cb->Lookup->SetAnnotation( 3.00, "Amazingly Special" );
@@ -551,8 +551,8 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
 
   // Now make a second set of annotations with an even number of entries (10).
   // This tests another branch of the annotation label positioning code.
-  pal->SetCurrentScheme( "Diverging Purple-Orange (10)" );
-  pal->CreateLookupTable( lutBC );
+  pal->SetColorSchemeByName( "Brewer Diverging Purple-Orange (10)" );
+  pal->BuildLookupTable( lutBC );
   lutBC->SetAnnotation( 5.00, "A" );
   lutBC->SetAnnotation( 4.00, "B" );
   lutBC->SetAnnotation( 3.00, "C" );

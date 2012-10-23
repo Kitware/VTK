@@ -118,8 +118,8 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
     // Move the block by this amount
-    this->Dimensions[0] += delta.X();
-    this->Dimensions[1] += delta.Y();
+    this->Dimensions[0] += delta.GetX();
+    this->Dimensions[1] += delta.GetY();
 
     this->GetScene()->SetDirty(true);
     return true;
@@ -127,10 +127,10 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   else if (mouse.GetButton() == mouse.MIDDLE_BUTTON)
     {
     // Resize the block by this amount
-    this->Dimensions[0] += delta.X();
-    this->Dimensions[1] += delta.Y();
-    this->Dimensions[2] -= delta.X();
-    this->Dimensions[3] -= delta.Y();
+    this->Dimensions[0] += delta.GetX();
+    this->Dimensions[1] += delta.GetY();
+    this->Dimensions[2] -= delta.GetX();
+    this->Dimensions[3] -= delta.GetY();
 
     this->GetScene()->SetDirty(true);
     return true;
@@ -138,8 +138,8 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   else if (mouse.GetButton() == mouse.RIGHT_BUTTON)
     {
     // Resize the block by this amount
-    this->Dimensions[2] += delta.X();
-    this->Dimensions[3] += delta.Y();
+    this->Dimensions[2] += delta.GetX();
+    this->Dimensions[3] += delta.GetY();
 
     this->GetScene()->SetDirty(true);
     return true;

@@ -425,12 +425,11 @@ int vtkBiQuadraticQuadraticHexahedron::IntersectWithLine(double* p1, double* p2,
   int intersection = 0;
   double tTemp;
   double pc[3], xTemp[3];
-  int faceNum, status = 0;
 
   t = VTK_DOUBLE_MAX;
-  for (faceNum=0; faceNum<6; faceNum++)
+  for (int faceNum=0; faceNum<6; faceNum++)
     {
-    status = 0;
+    int status = 0;
     //4 BiQuaduadaticQuads
     if(faceNum < 4)
       {

@@ -456,7 +456,10 @@ void vtkPickingManager::RemoveObject(vtkObject* object)
 
       if (it->second.size() == 0)
         {
-        this->Internal->Pickers.erase(it);
+        vtkPickingManager::vtkInternal::PickerObjectsType::iterator
+          toRemove = it;
+        it++;
+        this->Internal->Pickers.erase(toRemove);
         continue;
         }
       }

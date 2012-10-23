@@ -84,7 +84,8 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   this->BorderPolyData = vtkPolyData::New();
   vtkPoints *points = vtkPoints::New();
   points->SetNumberOfPoints(4);
-  this->BorderPolyData->SetPoints(points); points->Delete();
+  this->BorderPolyData->SetPoints(points);
+  points->Delete();
   vtkCellArray *lines = vtkCellArray::New();
   lines->InsertNextCell(5); //points will be updated later
   lines->InsertCellPoint(0);
@@ -92,7 +93,8 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   lines->InsertCellPoint(2);
   lines->InsertCellPoint(3);
   lines->InsertCellPoint(0);
-  this->BorderPolyData->SetLines(lines); lines->Delete();
+  this->BorderPolyData->SetLines(lines);
+  lines->Delete();
 
   this->BorderMapper = vtkPolyDataMapper2D::New();
   this->BorderMapper->SetInputData(this->BorderPolyData);
@@ -109,7 +111,8 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   polys->InsertCellPoint(1);
   polys->InsertCellPoint(2);
   polys->InsertCellPoint(3);
-  this->BoxPolyData->SetPolys(polys); polys->Delete();
+  this->BoxPolyData->SetPolys(polys);
+  polys->Delete();
 
   this->BoxMapper = vtkPolyDataMapper2D::New();
   this->BoxMapper->SetInputData(this->BoxPolyData);
@@ -777,31 +780,30 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       //adjust the border/box placement if too much whitespace
       if ( !this->LockBorder && tempi[0] < size[0] )
         {
-        p2[0] = p1[0] + 2.0*this->Padding +
-                symbolSize*(p2[0] - p1[0] - 2.0*this->Padding) + tempi[0];
+        p2[0] = p1[0] + 2. * this->Padding
+          + symbolSize * ( p2[0] - p1[0] - 2. * this->Padding ) + tempi[0];
         }
       vtkPoints *pts = this->BorderPolyData->GetPoints();
-      pts->SetPoint(0, p1);
-      pts->SetPoint(1, p2[0],p1[1],0.0);
-      pts->SetPoint(2, p2[0],p2[1],0.0);
-      pts->SetPoint(3, p1[0],p2[1],0.0);
+      pts->SetPoint( 0, p1 );
+      pts->SetPoint(1, p2[0], p1[1], 0. );
+      pts->SetPoint(2, p2[0], p2[1], 0. );
+      pts->SetPoint(3, p1[0], p2[1], 0. );
       }
 
-    if (this->UseBackground)
+    if ( this->UseBackground )
       {
-      this->Background->SetOrigin(p1[0], p1[1], 0.0);
-      this->Background->SetPoint1(p2[0], p1[1], 0.0);
-      this->Background->SetPoint2(p1[0], p2[1], 0.0);
+      this->Background->SetOrigin( p1[0], p1[1], 0. );
+      this->Background->SetPoint1( p2[0], p1[1], 0. );
+      this->Background->SetPoint2( p1[0], p2[1], 0. );
 
-      this->BackgroundMapper->SetInputConnection(
-        this->Background->GetOutputPort());
-      this->BackgroundActor->GetProperty()->SetOpacity(this->BackgroundOpacity);
-      this->BackgroundActor->GetProperty()->SetColor(this->BackgroundColor);
+      this->BackgroundMapper->SetInputConnection( this->Background->GetOutputPort() );
+      this->BackgroundActor->GetProperty()->SetOpacity( this->BackgroundOpacity );
+      this->BackgroundActor->GetProperty()->SetColor( this->BackgroundColor );
       }
 
-    if (this->Border)
+    if ( this->Border )
       {
-      this->BorderActor->SetProperty(this->GetProperty());
+      this->BorderActor->SetProperty( this->GetProperty() );
       }
 
     //Place text strings

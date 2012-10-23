@@ -1,4 +1,4 @@
-vtk_tests(
+vtk_tests(BASELINEDIR GenericFiltering DATADIR ${VTK_DATA_ROOT}
   TestGenericClip.cxx
   TestGenericContourFilter.cxx
   TestGenericCutter.cxx

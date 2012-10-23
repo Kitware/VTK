@@ -11,6 +11,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestGraphAlgorithms.cxx
   TestMergeGraphs.cxx
   TestMergeTables.cxx
+  TestPruneTreeFilter.cxx
   TestRandomGraphSource.cxx
   TestRemoveIsolatedVertices.cxx
   TestStreamGraph.cxx

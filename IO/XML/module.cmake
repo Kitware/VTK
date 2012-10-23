@@ -5,10 +5,11 @@ vtk_module(vtkIOXML
     vtkIOXMLParser
     vtkIOGeometry
   TEST_DEPENDS
+    vtkFiltersAMR
+    vtkFiltersCore
+    vtkFiltersSources
+    vtkImagingSources
+    vtkInfovisCore
     vtkIOLegacy
     vtkTestingCore
-    vtkImagingSources
-    vtkFiltersSources
-    vtkInfovisCore
-    vtkFiltersCore
   )

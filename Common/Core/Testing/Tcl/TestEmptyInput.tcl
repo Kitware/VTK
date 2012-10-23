@@ -60,6 +60,7 @@ set classExceptions {
    vtkJPEGReader
    vtkWin32VideoSource
    vtkDistributedDataFilter
+   vtkAMREnzoReader
 }
 
 proc rtTestEmptyInputTest { fileid } {

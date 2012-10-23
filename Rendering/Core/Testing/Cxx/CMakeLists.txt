@@ -2,7 +2,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestPickingManager.cxx
   # otherLookupTable.cxx             # fixme
   # otherLookupTableWithEnabling.cxx # fixme
-  TestHierarchicalBoxPipeline.cxx
+  # TestHierarchicalBoxPipeline.cxx  # legacy code
   EXTRA_INCLUDE vtkTestDriver.h
 )
 

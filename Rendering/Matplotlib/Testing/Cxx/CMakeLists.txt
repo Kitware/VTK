@@ -1,18 +1,23 @@
-set(GL2PSTests
-  TestGL2PSMathTextOutput.cxx
-  TestGL2PSMathTextScaling.cxx
-  TestMathTextActor.cxx
-  TestMathTextActor3D.cxx
-)
+if(VTK_GHOSTSCRIPT_EXECUTABLE AND VTK_DATA_ROOT)
+  set(GL2PSTests
+    TestGL2PSMathTextActor.cxx
+    TestGL2PSMathTextActor3D.cxx
+    TestGL2PSMathTextOutput.cxx
+    TestGL2PSMathTextScaling.cxx
+  )
+endif()
 
 if(VTK_DATA_ROOT)
   # add tests that require data
   set(MyTests
     TestContextMathTextImage.cxx
+    TestMathTextActor.cxx
+    TestMathTextActor3D.cxx
     TestRenderString.cxx
     TestStringToPath.cxx
     TestIndexedLookupScalarBar.cxx
     ${GL2PSTests}
+    ${MixedTests}
     )
 endif()
 
@@ -45,30 +50,41 @@ foreach(test ${TestsToRun})
 endforeach()
 
 # The GL2PS tests produce postscript output, which cannot be compared using
-# the built-in image regression framework. Instead, calculate and compare
-# md5 sums using a CMake script.
-# The file(MD5 ...) subcommand is not available in CMake < 2.8.7
-if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.8 OR
-   ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" EQUAL 2.8 AND
-    "${CMAKE_PATCH_VERSION}" GREATER 7))
-  set(CMAKE_HAS_FILE_MD5_SUBCOMMAND TRUE)
-endif()
-if(CMAKE_HAS_FILE_MD5_SUBCOMMAND AND GL2PSTests AND VTK_DATA_ROOT)
-  foreach(test ${GL2PSTests})
+# the built-in image regression framework. The tests added above will create the
+# postscript, while the following tests will convert the postscript to a PNG and
+# run the PNGCompare test target to do an image diff on the output against a
+# baseline.
+if(GL2PSTests)
+  foreach(test ${GL2PSTests} ${MixedTests})
+    # Convert ps to png
     get_filename_component(TName ${test} NAME_WE)
-    add_test(NAME ${vtk-module}Cxx-${TName}-CheckMD5sum
+    add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePNG
       COMMAND ${CMAKE_COMMAND}
-        -DTESTFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.ps
-        -DGLOBEXP=${VTK_DATA_ROOT}/Baseline/Rendering/${TName}*.ps
-        -DCLEANTESTFILE=1
-        -P ${CMAKE_CURRENT_SOURCE_DIR}/../../../../CMake/CompareFileMD5.cmake
+        -DPSFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.ps
+        -DPNGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png
+        -DGS_EXECUTABLE=${VTK_GHOSTSCRIPT_EXECUTABLE}
+        -DREMOVEPS=1
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/../../../../CMake/RasterizePostScript.cmake
     )
-    set_tests_properties("${vtk-module}Cxx-${TName}-CheckMD5sum"
+    set_tests_properties("${vtk-module}Cxx-${TName}-RasterizePNG"
       PROPERTIES
         DEPENDS "${vtk-module}Cxx-${TName}"
         REQUIRED_FILES
-          "${VTK_DATA_ROOT}/Baseline/Rendering/${TName}.ps;${VTK_TEST_OUTPUT_DIR}/${TName}.ps"
-        FAIL_REGULAR_EXPRESSION "MATCH_FAIL"
+          "${VTK_TEST_OUTPUT_DIR}/${TName}.ps"
+    )
+    # Image diff rasterized png with baseline
+    add_test(NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
+      COMMAND vtkRenderingGL2PSCxxTests PNGCompare
+        -D ${VTK_DATA_ROOT}
+        -T ${VTK_TEST_OUTPUT_DIR}
+        -V Baseline/Rendering/${TName}-rasterRef.png
+        --test-file ${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png
+    )
+    set_tests_properties("${vtk-module}Cxx-${TName}-VerifyRasterizedPNG"
+      PROPERTIES
+        DEPENDS "${vtk-module}Cxx-${TName}-RasterizePNG"
+        REQUIRED_FILES
+          "${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
     )
   endforeach()
 endif()

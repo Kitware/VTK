@@ -43,7 +43,7 @@ int CheckSetAndUnsetProperty( unsigned char &u, const int p )
 int TestGhostArray(int,char *[])
 {
   int rc = 0;
-  unsigned char propertyField;
+  unsigned char propertyField = '0';
   vtkGhostArray::Reset( propertyField );
 
   // Ensure all bits are set to 0

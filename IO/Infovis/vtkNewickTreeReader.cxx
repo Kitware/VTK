@@ -94,6 +94,77 @@ int vtkNewickTreeReader::RequestUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
+int vtkNewickTreeReader:: ReadNewickTree(  char * const buffer, vtkTree & tree)
+{
+  // Read through the input file to count the number of nodes in the tree.
+  // We start at one to account for the root node
+  vtkIdType numNodes = 1;
+  this->CountNodes(buffer, &numNodes);
+
+
+  // Create the edge weight array
+  vtkNew<vtkDoubleArray> weights;
+  weights->SetNumberOfComponents(1);
+  weights->SetName("weight");
+  weights->SetNumberOfValues(numNodes-1);//the number of edges = number of nodes -1 for a tree
+
+  // Create the names array
+  vtkNew<vtkStringArray> names;
+  names->SetNumberOfComponents(1);
+  names->SetName("node name");
+  names->SetNumberOfValues(numNodes);
+
+  //parse the input file to create the graph
+  vtkNew<vtkMutableDirectedGraph> builder;
+  this->BuildTree(buffer, builder.GetPointer(), weights.GetPointer(),
+    names.GetPointer(), -1);
+
+  builder->GetEdgeData()->AddArray(weights.GetPointer());
+  builder->GetVertexData()->AddArray(names.GetPointer());
+
+  if (!tree.CheckedShallowCopy(builder.GetPointer()))
+    {
+    vtkErrorMacro(<<"Edges do not create a valid tree.");
+    return 1;
+    }
+
+  vtkNew<vtkDoubleArray> nodeWeights;
+  nodeWeights->SetNumberOfTuples(tree.GetNumberOfVertices());
+
+  //set node weights
+  double maxWeight = 0.0;
+  for (vtkIdType vertex = 0; vertex < tree.GetNumberOfVertices(); ++vertex)
+    {
+      double weight = 0.0;
+      vtkIdType node = vertex;
+      vtkIdType parent = tree.GetParent(node);
+      while (parent != -1)
+        {
+        weight += weights->GetValue(tree.GetEdgeId(parent, node));
+        node = parent;
+        parent = tree.GetParent(node);
+        }
+
+      if (weight > maxWeight)
+        {
+        maxWeight = weight;
+        }
+      nodeWeights->SetValue(vertex, weight);
+    }
+  for (vtkIdType vertex = 0; vertex < tree.GetNumberOfVertices(); ++vertex)
+    {
+    if (tree.IsLeaf(vertex))
+      {
+      nodeWeights->SetValue(vertex, maxWeight);
+      }
+    }
+  nodeWeights->SetName("node weight");
+  tree.GetVertexData()->AddArray(nodeWeights.GetPointer());
+
+  return 1;
+
+}
+//----------------------------------------------------------------------------
 int vtkNewickTreeReader::RequestData(
   vtkInformation *,
   vtkInformationVector **,
@@ -109,7 +180,7 @@ int vtkNewickTreeReader::RequestData(
 
   vtkDebugMacro(<<"Reading Newick tree ...");
 
-  if(strcmp(this->GetFileName(), "") == 0)
+  if(this->GetFileName() == NULL || strcmp(this->GetFileName(), "") == 0)
     {
     vtkErrorMacro(<<"Input filename not set");
     return 1;
@@ -125,7 +196,7 @@ int vtkNewickTreeReader::RequestData(
   vtkTree* const output = vtkTree::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkNew<vtkMutableDirectedGraph> builder;
+
 
   // Read the input file into a char *
   int length;
@@ -135,87 +206,32 @@ int vtkNewickTreeReader::RequestData(
   char *buffer = new char[length];
   ifs.read(buffer, length);
 
-  // Read through the input file to count the number of nodes in the tree.
-  // We start at one to account for the root node
-  vtkIdType numNodes = 1;
-  this->CountNodes(buffer, &numNodes);
 
-  // Rewind input buffer
+  /*// Rewind input buffer
   ifs.seekg(0, std::ios::beg);
   ifs.read(buffer, length);
   ifs.close();
+*/
+  ifs.close();
 
-  // Create the edge weight array
-  vtkNew<vtkDoubleArray> weights;
-  weights->SetNumberOfComponents(1);
-  weights->SetName("weight");
-  weights->SetNumberOfValues(numNodes);
-
-  // Create the names array
-  vtkNew<vtkStringArray> names;
-  names->SetNumberOfComponents(1);
-  names->SetName("node name");
-  names->SetNumberOfValues(numNodes);
-
-  //parse the input file to create the graph
-  this->BuildTree(buffer, builder.GetPointer(), weights.GetPointer(),
-    names.GetPointer(), -1);
-
-  delete [] buffer;
-
-  builder->GetEdgeData()->AddArray(weights.GetPointer());
-  builder->GetVertexData()->AddArray(names.GetPointer());
-
-  if (!output->CheckedShallowCopy(builder.GetPointer()))
+  if(!ReadNewickTree(buffer, *output))
     {
-    vtkErrorMacro(<<"Edges do not create a valid tree.");
+    vtkErrorMacro(<<"Error reading the buffer into a vtkTree structure.");
     return 1;
     }
 
-  vtkNew<vtkDoubleArray> nodeWeights;
-  nodeWeights->SetNumberOfTuples(output->GetNumberOfVertices());
-
-  //set node weights
-  double maxWeight = 0.0;
-  for (vtkIdType vertex = 0; vertex < output->GetNumberOfVertices(); ++vertex)
-    {
-      double weight = 0.0;
-      vtkIdType node = vertex;
-      vtkIdType parent = output->GetParent(node);
-      while (parent != -1)
-        {
-        weight += weights->GetValue(output->GetEdgeId(parent, node));
-        node = parent;
-        parent = output->GetParent(node);
-        }
-
-      if (weight > maxWeight)
-        {
-        maxWeight = weight;
-        }
-      nodeWeights->SetValue(vertex, weight);
-    }
-  for (vtkIdType vertex = 0; vertex < output->GetNumberOfVertices(); ++vertex)
-    {
-    if (output->IsLeaf(vertex))
-      {
-      nodeWeights->SetValue(vertex, maxWeight);
-      }
-    }
-  nodeWeights->SetName("node weight");
-  output->GetVertexData()->AddArray(nodeWeights.GetPointer());
+    delete [] buffer;
 
   vtkDebugMacro(<< "Read " << output->GetNumberOfVertices() <<" vertices and "
-                << output->GetNumberOfEdges() <<" edges.\n");
+    << output->GetNumberOfEdges() <<" edges.\n");
 
   return 1;
 }
 
-void vtkNewickTreeReader::CountNodes(char *buffer, vtkIdType *numNodes)
+void vtkNewickTreeReader::CountNodes(char * const buffer, vtkIdType *numNodes)
 {
   char *current;
   char *start;
-  char *colon = NULL;
   char temp;
   int childCount;
 
@@ -228,10 +244,6 @@ void vtkNewickTreeReader::CountNodes(char *buffer, vtkIdType *numNodes)
     current = buffer;
     while (*current != '\0')
     {
-      if (*current == ':')
-      {
-        colon = current;
-      }
       current++;
     }
     ++(*numNodes);
@@ -393,7 +405,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
   {
     // Create node
     node = g->AddChild(parent);
-    vtkIdType child;
+
     // Search for all child nodes
     // Find all ',' until corresponding ')' is encountered
     childCount = 0;
@@ -427,7 +439,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
           temp = *current;
           *current = '\0';
           // Create a child node using recursion
-          child = this->BuildTree(start, g, weights, names, node);
+          this->BuildTree(start, g, weights, names, node);
           *current = temp;
           if (*current != ')')
           {
@@ -455,7 +467,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
           temp = *current;
           *current = '\0';
           // Create a child node using recursion
-          child = this->BuildTree(start, g, weights, names, node);
+          this->BuildTree(start, g, weights, names, node);
           *current = temp;
           if (*current != ')')
           {

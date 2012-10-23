@@ -45,9 +45,8 @@
 // etc.) implemented interior to this class. These may be moved to a separate
 // quaternion class at some point.
 //
-// .SECTION see also
-// vtkMath::QuaternionToMatrix3x3() vtkMath::Matrix3x3ToQuaternion()
-// vtkMath::MultiplyQuaternion()
+// .SECTION See also
+// vtkQuaternion
 
 
 #ifndef __vtkQuaternionInterpolator_h
@@ -56,9 +55,8 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
-struct vtkQuaternion;
+class vtkQuaterniond;
 class vtkQuaternionList;
-
 
 class VTKCOMMONMATH_EXPORT vtkQuaternionInterpolator : public vtkObject
 {
@@ -91,8 +89,9 @@ public:
   // Description:
   // Add another quaternion to the list of quaternions to be interpolated.
   // Note that using the same time t value more than once replaces the
-  // previous quaternion at t.  At least one quaternions must be added to
+  // previous quaternion at t. At least one quaternions must be added to
   // define an interpolation functios.
+  void AddQuaternion(double t, const vtkQuaterniond& q);
   void AddQuaternion(double t, double q[4]);
 
   // Description:
@@ -104,6 +103,7 @@ public:
   // Interpolate the list of quaternions and determine a new quaternion
   // (i.e., fill in the quaternion provided). If t is outside the range of
   // (min,max) values, then t is clamped to lie within the range.
+  void InterpolateQuaternion(double t, vtkQuaterniond& q);
   void InterpolateQuaternion(double t, double q[4]);
 
 //BTX
@@ -137,12 +137,6 @@ protected:
 
   // Internal variables for interpolation functions
   vtkQuaternionList *QuaternionList; //used for linear quaternion interpolation
-
-  // Internal method for spherical, linear interpolation
-  void Slerp(double t, double q0[4], double q1[4], double q[4]);
-
-  // Internal methods supporting spline interpolation
-  static void InnerPoint(double q0[4], double q1[4], double q2[4], double q[4]);
 
 private:
   vtkQuaternionInterpolator(const vtkQuaternionInterpolator&);  // Not implemented.

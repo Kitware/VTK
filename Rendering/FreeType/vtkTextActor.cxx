@@ -73,7 +73,6 @@ vtkTextActor::vtkTextActor()
   this->SetTexture(texture);
   texture->Delete();
 
-
   vtkPolyDataMapper2D *mapper = vtkPolyDataMapper2D::New();
   this->PDMapper = 0;
   this->SetMapper(mapper);
@@ -133,6 +132,37 @@ vtkTextActor::~vtkTextActor()
 }
 
 // ----------------------------------------------------------------------------
+void vtkTextActor::GetBoundingBox(double bbox[4])
+{
+  if ( this->UpdateRectangle(NULL) && this->RectanglePoints &&
+    this->RectanglePoints->GetNumberOfPoints() >= 4 )
+    {
+    double x[3];
+    this->RectanglePoints->GetPoint( 0, x );
+    bbox[0] = bbox[1] = x[0];
+    bbox[2] = bbox[3] = x[1];
+    for (int i = 1; i < this->RectanglePoints->GetNumberOfPoints(); ++i)
+      {
+      this->RectanglePoints->GetPoint( i, x );
+
+      if ( bbox[0] > x[0] )
+        bbox[0] = x[0];
+      else if ( bbox[1] < x[0] )
+        bbox[1] = x[0];
+
+      if ( bbox[2] > x[1] )
+        bbox[2] = x[1];
+      else if ( bbox[3] < x[1] )
+        bbox[3] = x[1];
+      }
+    }
+  else
+    {
+    vtkErrorMacro("UpdateRectangle failed to do so");
+    }
+}
+
+// ----------------------------------------------------------------------------
 void vtkTextActor::SetNonLinearFontScale(double exp, int tgt)
 {
   if (   (this->FontScaleExponent == exp)
@@ -150,7 +180,7 @@ void vtkTextActor::SetMapper(vtkPolyDataMapper2D *mapper)
 {
   // I will not reference count this because the superclass does.
   this->PDMapper = mapper; // So what is the point of have the ivar PDMapper?
-  this->vtkActor2D::SetMapper( mapper );
+  this->Superclass::SetMapper( mapper );
 
   if (mapper)
     {
@@ -168,7 +198,24 @@ void vtkTextActor::SetMapper(vtkMapper2D *mapper)
   else
     {
     vtkErrorMacro(<<"Must use a vtkPolyDataMapper2D with this class");
-    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+bool vtkTextActor::RenderImage(vtkTextProperty *tprop, vtkViewport *)
+{
+  return this->FreeTypeUtilities->RenderString(tprop,
+                                               this->Input,
+                                               this->ImageData) != 0;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkTextActor::GetImageBoundingBox(vtkTextProperty *tprop, vtkViewport *,
+                                  int bbox[4])
+{
+  return
+      this->FreeTypeUtilities->GetBoundingBox(tprop, this->Input, bbox) != 0 &&
+      this->FreeTypeUtilities->IsBoundingBoxValid(bbox) != 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -232,9 +279,10 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
     this->SetMaximumLineHeight(a->GetMaximumLineHeight());
     this->SetTextScaleMode(a->GetTextScaleMode());
     this->SetTextProperty(a->GetTextProperty());
+    this->SetInput(a->GetInput());
     }
   // Now do superclass (mapper is handled by it as well).
-  this->vtkActor2D::ShallowCopy(prop);
+  this->Superclass::ShallowCopy(prop);
 }
 
 // ----------------------------------------------------------------------------
@@ -243,7 +291,7 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
 // resources to release.
 void vtkTextActor::ReleaseGraphicsResources(vtkWindow *win)
 {
-  this->vtkActor2D::ReleaseGraphicsResources(win);
+  this->Superclass::ReleaseGraphicsResources(win);
   this->Texture->ReleaseGraphicsResources(win);
 }
 
@@ -256,7 +304,7 @@ int vtkTextActor::RenderOverlay(vtkViewport *viewport)
     }
 
   // render the texture
-  if (this->Texture && this->Input)
+  if (this->Texture && this->Input && this->Input[0] != '\0')
     {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
     if (ren)
@@ -266,7 +314,7 @@ int vtkTextActor::RenderOverlay(vtkViewport *viewport)
     }
 
   // Everything is built in RenderOpaqueGeometry, just have to render
-  return this->vtkActor2D::RenderOverlay(viewport);
+  return this->Superclass::RenderOverlay(viewport);
 }
 
 // ----------------------------------------------------------------------------
@@ -278,7 +326,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   //Make sure we have a string to render
-  if(!this->Input)
+  if(!this->Input || this->Input[0] == '\0')
     {
     return 0;
     }
@@ -297,33 +345,13 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   this->ComputeScaledFont(viewport);
-
-  //check if we need to render the string
-  if(this->ScaledTextProperty->GetMTime() > this->BuildTime ||
-    !this->InputRendered || this->GetMTime() > this->BuildTime)
+  if ( ! this->UpdateRectangle(viewport) )
     {
-    if(!this->FreeTypeUtilities->RenderString(this->ScaledTextProperty,
-                                              this->Input,
-                                              this->ImageData))
-      {
-      vtkErrorMacro(<<"Failed rendering text to buffer");
-      return 0;
-      }
-
-    // Check if we need to create a new rectangle.
-    // Need to check if angle has changed.
-    //justification and line offset are handled in ComputeRectangle
-    this->ComputeRectangle(viewport);
-
-    this->ImageData->Modified();
-    this->Texture->SetInputData(this->ImageData);
-    this->Texture->Modified();
-    this->InputRendered = true;
-    this->BuildTime.Modified();
+    return 0;
     }
 
   // Everything is built, just have to render
-  return this->vtkActor2D::RenderOpaqueGeometry(viewport);
+  return this->Superclass::RenderOpaqueGeometry(viewport);
 }
 
 //-----------------------------------------------------------------------------
@@ -596,8 +624,11 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     int p2dims[3];
     this->ImageData->GetDimensions( p2dims );
     int text_bbox[4];
-    this->FreeTypeUtilities->GetBoundingBox( this->ScaledTextProperty,
-                                             this->Input, text_bbox );
+    if (!this->GetImageBoundingBox(this->ScaledTextProperty, viewport, text_bbox))
+      {
+      vtkErrorMacro("Cannot compute bounding box.")
+      return;
+      }
     dims[0] = ( text_bbox[1] - text_bbox[0] + 1 );
     dims[1] = ( text_bbox[3] - text_bbox[2] + 1 );
 
@@ -753,6 +784,32 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
   this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
 }
 
+// ----------------------------------------------------------------------------
+int vtkTextActor::UpdateRectangle(vtkViewport* viewport)
+{
+  //check if we need to render the string
+  if(this->ScaledTextProperty->GetMTime() > this->BuildTime ||
+    !this->InputRendered || this->GetMTime() > this->BuildTime)
+    {
+    if(!this->RenderImage(this->ScaledTextProperty, viewport))
+      {
+      vtkErrorMacro(<<"Failed rendering text to buffer");
+      return 0;
+      }
+
+    // Check if we need to create a new rectangle.
+    // Need to check if angle has changed.
+    //justification and line offset are handled in ComputeRectangle
+    this->ComputeRectangle(viewport);
+
+    this->ImageData->Modified();
+    this->Texture->SetInputData(this->ImageData);
+    this->Texture->Modified();
+    this->InputRendered = true;
+    this->BuildTime.Modified();
+    }
+  return 1;
+}
 
 // ----------------------------------------------------------------------------
 void vtkTextActor::SpecifiedToDisplay(double *pos, vtkViewport *vport,
@@ -820,6 +877,15 @@ void vtkTextActor::DisplayToSpecified(double *pos, vtkViewport *vport,
 void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  if (this->Input)
+    {
+    os << indent << "Input: " << this->Input << endl;
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
 
   if (this->TextProperty)
     {

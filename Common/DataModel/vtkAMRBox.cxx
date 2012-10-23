@@ -19,6 +19,7 @@
 #include "vtkType.h"
 #include "vtkStructuredData.h"
 #include "vtkImageData.h"
+#include "vtkMath.h"
 
 #include <algorithm>
 #include <cstring>
@@ -33,11 +34,21 @@ vtkAMRBox::vtkAMRBox()
 }
 
 //-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(
-    int ilo,int jlo,
-    int ihi,int jhi)
+vtkAMRBox::vtkAMRBox(const double* origin, const int* dimensions, const double* spacing, const double* globalOrigin,int gridDescription)
 {
-  this->BuildAMRBox( ilo,jlo,0,ihi,jhi,-1);
+  int ndim[3];
+  for( int d=0; d<3; ++d )
+    {
+    ndim[d] = dimensions[d]-1;
+    }
+  int lo[3], hi[3];
+  for( int d=0; d<3; ++d )
+    {
+    lo[d] = spacing[d]>0? vtkMath::Round( (origin[d] - globalOrigin[d])/spacing[d] ): 0;
+    hi[d] = lo[d] + ndim[d]-1;
+    }
+
+  this->SetDimensions( lo, hi, gridDescription);
 }
 
 //-----------------------------------------------------------------------------
@@ -178,7 +189,7 @@ void vtkAMRBox::GetValidHiCorner(int *hi) const
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::GetBoxOrigin(const vtkAMRBox& extent, double X0[3], double spacing[3],double x0[3])
+void vtkAMRBox::GetBoxOrigin(const vtkAMRBox& extent, const double X0[3], const double spacing[3],double x0[3])
 {
   assert( "pre: input array is NULL" && (x0 != NULL) );
   x0[0] = x0[1] = x0[2] = 0.0;
@@ -191,7 +202,7 @@ void vtkAMRBox::GetBoxOrigin(const vtkAMRBox& extent, double X0[3], double spaci
 
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::GetBounds(const vtkAMRBox& extent, double origin[3], double spacing[3],double bounds[6])
+void vtkAMRBox::GetBounds(const vtkAMRBox& extent, const double origin[3], const double spacing[3],  double bounds[6])
 {
   int i, j;
   for( i=0, j=0; i < 3; ++i )
@@ -202,7 +213,7 @@ void vtkAMRBox::GetBounds(const vtkAMRBox& extent, double origin[3], double spac
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRBox::HasPoint(const vtkAMRBox& box, double origin[3], double spacing[3], const double x, const double y, const double z )
+bool vtkAMRBox::HasPoint(const vtkAMRBox& box, const double origin[3], const double spacing[3],  double x, double y,  double z )
 {
   assert( "pre: AMR Box instance is invalid" && !box.IsInvalid() );
 
@@ -402,7 +413,7 @@ void vtkAMRBox::Coarsen(int r)
 
 void vtkAMRBox::Refine(int r)
 {
-  assert( "pre: Input refinement ratio must be >= 2" && (r >= 2)  );
+  assert( "pre: Input refinement ratio must be >= 1" && (r >= 1)  );
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
 
   if( this->Empty() )
@@ -469,8 +480,8 @@ bool vtkAMRBox::DoesIntersect(const vtkAMRBox &other) const
   return true;
 }
 
-int vtkAMRBox::ComputeStructuredCoordinates(const vtkAMRBox& box, double dataOrigin[3],
-                                 double h[3], double x[3], int ijk[3], double pcoords[3])
+int vtkAMRBox::ComputeStructuredCoordinates(const vtkAMRBox& box, const double dataOrigin[3],
+                                 const double h[3], const double x[3], int ijk[3],  double pcoords[3])
 {
   double origin[3];
   vtkAMRBox::GetBoxOrigin(box,dataOrigin,h,origin);
@@ -525,6 +536,39 @@ void vtkAMRBox::GetGhostVector(int r, int nghost[6]) const
       }
     } // END for all dimensions
 }
+
+void vtkAMRBox::RemoveGhosts(int r)
+{
+  // Detecting partially overlapping boxes is based on the following:
+  // Cell location k at level L-1 holds the range [k*r,k*r+(r-1)] of
+  // level L, where r is the refinement ratio. Consequently, if the
+  // min extent of the box is greater than k*r or if the max extent
+  // of the box is less than k*r+(r-1), then the grid partially overlaps.
+  vtkAMRBox coarsenedBox = *this;
+  coarsenedBox.Coarsen(r);
+  for( int i=0; i < 3; ++i )
+    {
+    if(!this->EmptyDimension(i))
+      {
+      int minRange[2];
+      minRange[0] = coarsenedBox.LoCorner[i]*r;
+      minRange[1] = coarsenedBox.LoCorner[i]*r + (r-1);
+      if( this->LoCorner[i] > minRange[0] )
+        {
+        this->LoCorner[i]=(minRange[1]+1);
+        }
+
+      int maxRange[2];
+      maxRange[0] = coarsenedBox.HiCorner[i]*r;
+      maxRange[1] = coarsenedBox.HiCorner[i]*r + (r-1);
+      if( this->HiCorner[i] < maxRange[1] )
+        {
+        this->HiCorner[i] = (maxRange[0]-1);
+        }
+      }
+    } // END for all dimensions
+}
+
 
 int vtkAMRBox::ComputeDimension() const
 {

@@ -2819,21 +2819,31 @@ int vtkMath::GetScalarTypeFittingRange(
       { VTK_UNSIGNED_SHORT, VTK_UNSIGNED_SHORT_MIN, VTK_UNSIGNED_SHORT_MAX },
       { VTK_INT,            VTK_INT_MIN,            VTK_INT_MAX },
       { VTK_UNSIGNED_INT,   VTK_UNSIGNED_INT_MIN,   VTK_UNSIGNED_INT_MAX },
-      { VTK_LONG,           VTK_LONG_MIN,           VTK_LONG_MAX },
-      { VTK_UNSIGNED_LONG,  VTK_UNSIGNED_LONG_MIN,  VTK_UNSIGNED_LONG_MAX }
+      { VTK_LONG,
+        static_cast<double>(VTK_LONG_MIN),
+        static_cast<double>(VTK_LONG_MAX) },
+      { VTK_UNSIGNED_LONG,
+        static_cast<double>(VTK_UNSIGNED_LONG_MIN),
+        static_cast<double>(VTK_UNSIGNED_LONG_MAX) }
 #if defined(VTK_TYPE_USE_LONG_LONG)
       ,
-      { VTK_LONG_LONG,      VTK_LONG_LONG_MIN,      VTK_LONG_LONG_MAX },
+      { VTK_LONG_LONG,
+        static_cast<double>(VTK_LONG_LONG_MIN),
+        static_cast<double>(VTK_LONG_LONG_MAX) },
       { VTK_UNSIGNED_LONG_LONG,
-        VTK_UNSIGNED_LONG_LONG_MIN, VTK_UNSIGNED_LONG_LONG_MAX }
+        static_cast<double>(VTK_UNSIGNED_LONG_LONG_MIN),
+        static_cast<double>(VTK_UNSIGNED_LONG_LONG_MAX) }
 #endif
 #if defined(VTK_TYPE_USE___INT64)
       ,
-      { VTK___INT64,      VTK___INT64_MIN,      VTK___INT64_MAX }
+      { VTK___INT64,
+        static_cast<double>(VTK___INT64_MIN),
+        static_cast<double>(VTK___INT64_MAX) }
 # if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
       ,
       { VTK_UNSIGNED___INT64,
-        VTK_UNSIGNED___INT64_MIN, VTK_UNSIGNED___INT64_MAX }
+        static_cast<double>(VTK_UNSIGNED___INT64_MIN),
+        static_cast<double>(VTK_UNSIGNED___INT64_MAX) }
 # endif
 #endif
     };

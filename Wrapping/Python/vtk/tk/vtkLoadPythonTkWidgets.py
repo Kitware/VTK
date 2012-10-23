@@ -1,4 +1,5 @@
 import sys, os, string
+import vtkCommonCorePython
 
 def vtkLoadPythonTkWidgets(interp):
     """vtkLoadPythonTkWidgets(interp) -- load vtk-tk widget extensions
@@ -7,8 +8,11 @@ def vtkLoadPythonTkWidgets(interp):
     shared object file that contains the python-vtk-tk widgets.  Both
     the python path and the tcl path are searched.
     """
-    name = 'vtkRenderingPythonTkWidgets'
-    pkgname = string.capitalize(string.lower(name))
+    X = vtkCommonCorePython.vtkVersion.GetVTKMajorVersion()
+    Y = vtkCommonCorePython.vtkVersion.GetVTKMinorVersion()
+    modname = 'vtkRenderingPythonTkWidgets'
+    name = '%s-%d.%d' % (modname,X,Y)
+    pkgname = string.capitalize(string.lower(modname))
 
     # find out if the file is already loaded
     loaded = interp.call('info', 'loaded')
@@ -66,4 +70,4 @@ def vtkLoadPythonTkWidgets(interp):
             return
 
     # re-generate the error
-    interp.call('load', filename)
+    interp.call('load', filename, pkgname)

@@ -617,6 +617,24 @@ unsigned char *vtkColorTransferFunction::MapValue( double x )
 // Returns the RGB color evaluated at the specified location
 void vtkColorTransferFunction::GetColor(double x, double rgb[3])
 {
+  if ( this->IndexedLookup )
+    {
+    int numNodes = this->GetSize();
+    vtkVariant xv( x );
+    vtkIdType idx = this->GetAnnotatedValueIndexInternal( xv );
+    if ( idx < 0 || numNodes == 0 )
+      {
+      this->GetNanColor( rgb );
+      }
+    else
+      {
+      double nodeVal[6];
+      this->GetNodeValue( idx % numNodes, nodeVal );
+      for ( int i = 0; i < 3; ++ i )
+        rgb[i] = nodeVal[i + 1];
+      }
+    return;
+    }
   this->GetTable( x, x, 1, rgb );
 }
 
@@ -1441,6 +1459,163 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 }
 
 //----------------------------------------------------------------------------
+template<class T>
+void vtkColorTransferFunctionIndexedMapData(
+  vtkColorTransferFunction* self, T* input, unsigned char* output, int length,
+  int inIncr, int outFormat, long )
+{
+  int i = length;
+  double nodeVal[6];
+  double alpha;
+  int numNodes = self->GetSize();
+
+  vtkVariant vin;
+  if ( (alpha=self->GetAlpha()) >= 1.0 ) //no blending required
+    {
+    if (outFormat == VTK_RGBA)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        if ( idx < 0 || numNodes == 0 )
+          self->GetNanColor( &nodeVal[1] );
+        else
+          self->GetNodeValue( idx % numNodes, nodeVal );
+
+        output[0] = 255. * nodeVal[1];
+        output[1] = 255. * nodeVal[2];
+        output[2] = 255. * nodeVal[3];
+        output[3] = 255.; // * nodeVal[3];
+        input += inIncr;
+        output += 4;
+        }
+      }
+    else if (outFormat == VTK_RGB)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        if ( idx < 0 || numNodes == 0 )
+          self->GetNanColor( &nodeVal[1] );
+        else
+          self->GetNodeValue( idx % numNodes, nodeVal );
+
+        output[0] = 255. * nodeVal[1];
+        output[1] = 255. * nodeVal[2];
+        output[2] = 255. * nodeVal[3];
+        input += inIncr;
+        output += 3;
+        }
+      }
+    else if (outFormat == VTK_LUMINANCE_ALPHA)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        if ( idx < 0 || numNodes == 0 )
+          self->GetNanColor( &nodeVal[1] );
+        else
+          self->GetNodeValue( idx % numNodes, nodeVal );
+        output[0] = static_cast<unsigned char>(255. * nodeVal[1]*0.30 + 255. * nodeVal[2]*0.59 +
+                                               255. * nodeVal[3]*0.11 + 0.5);
+        output[1] = 255. * nodeVal[3];
+        input += inIncr;
+        output += 2;
+        }
+      }
+    else // outFormat == VTK_LUMINANCE
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        if ( idx < 0 || numNodes == 0 )
+          self->GetNanColor( &nodeVal[1] );
+        else
+          self->GetNodeValue( idx % numNodes, nodeVal );
+        *output++ = static_cast<unsigned char>(255. * nodeVal[1]*0.30 + 255. * nodeVal[2]*0.59 +
+                                               255. * nodeVal[3]*0.11 + 0.5);
+        input += inIncr;
+        }
+      }
+    } // if blending not needed
+
+  else // blend with the specified alpha
+    {
+    if (outFormat == VTK_RGBA)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        if ( idx < 0 || numNodes == 0 )
+          self->GetNanColor( &nodeVal[1] );
+        else
+          self->GetNodeValue( idx % numNodes, nodeVal );
+        output[0] = 255. * nodeVal[1];
+        output[1] = 255. * nodeVal[2];
+        output[2] = 255. * nodeVal[3];
+        output[3] = static_cast<unsigned char>(255. * /*nodeVal[3]*/alpha + 0.5);
+        input += inIncr;
+        output += 4;
+        }
+      }
+    else if (outFormat == VTK_RGB)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        if ( idx < 0 || numNodes == 0 )
+          self->GetNanColor( &nodeVal[1] );
+        else
+          self->GetNodeValue( idx % numNodes, nodeVal );
+        output[0] = 255. * nodeVal[1];
+        output[1] = 255. * nodeVal[2];
+        output[2] = 255. * nodeVal[3];
+        input += inIncr;
+        output += 3;
+        }
+      }
+    else if (outFormat == VTK_LUMINANCE_ALPHA)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        if ( idx < 0 || numNodes == 0 )
+          self->GetNanColor( &nodeVal[1] );
+        else
+          self->GetNodeValue( idx % numNodes, nodeVal );
+        output[0] = static_cast<unsigned char>(255. * nodeVal[1]*0.30 + 255. * nodeVal[2]*0.59 +
+                                               255. * nodeVal[3]*0.11 + 0.5);
+        output[1] = static_cast<unsigned char>(255. * /*nodeVal[3]*/alpha + 0.5);
+        input += inIncr;
+        output += 2;
+        }
+      }
+    else // outFormat == VTK_LUMINANCE
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        if ( idx < 0 || numNodes == 0 )
+          self->GetNanColor( &nodeVal[1] );
+        else
+          self->GetNodeValue( idx % numNodes, nodeVal );
+        *output++ = static_cast<unsigned char>(255. * nodeVal[1]*0.30 + 255. * nodeVal[2]*0.59 +
+                                               255. * nodeVal[3]*0.11 + 0.5);
+        input += inIncr;
+        }
+      }
+    } // alpha blending
+}
+
+//----------------------------------------------------------------------------
 void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
                                                        unsigned char *output,
                                                        int inputDataType,
@@ -1453,22 +1628,44 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
     vtkDebugMacro("Transfer Function Has No Points!");
     return;
     }
-  switch (inputDataType)
+  if ( this->IndexedLookup )
     {
-    vtkTemplateMacro(
-      vtkColorTransferFunctionMapData(this, static_cast<VTK_TT*>(input),
-                                      output, numberOfValues, inputIncrement,
-                                      outputFormat, 1)
-      );
-    default:
-      vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
-      return;
+    switch (inputDataType)
+      {
+      vtkTemplateMacro(
+        vtkColorTransferFunctionIndexedMapData(
+          this, static_cast<VTK_TT*>(input),
+          output, numberOfValues, inputIncrement,
+          outputFormat, 1)
+        );
+      default:
+        vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
+        return;
+      }
+    }
+  else
+    {
+    switch (inputDataType)
+      {
+      vtkTemplateMacro(
+        vtkColorTransferFunctionMapData(this, static_cast<VTK_TT*>(input),
+                                        output, numberOfValues, inputIncrement,
+                                        outputFormat, 1)
+        );
+      default:
+        vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
+        return;
+      }
     }
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkColorTransferFunction::GetNumberOfAvailableColors()
 {
+  if ( this->IndexedLookup && this->GetSize() )
+    {
+    return this->GetSize();
+    }
   if(this->Table)
     {
     // Not sure if this is correct since it is only set if

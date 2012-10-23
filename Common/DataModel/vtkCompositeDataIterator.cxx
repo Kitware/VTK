@@ -21,8 +21,6 @@
 vtkCompositeDataIterator::vtkCompositeDataIterator()
 {
   this->Reverse = 0;
-  this->VisitOnlyLeaves = 1;
-  this->TraverseSubTree = 1;
   this->SkipEmptyNodes = 1;
   this->DataSet = NULL;
 }
@@ -61,12 +59,8 @@ void vtkCompositeDataIterator::InitReverseTraversal()
 void vtkCompositeDataIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "VisitOnlyLeaves: "
-    << (this->VisitOnlyLeaves? "On" : "Off") << endl;
   os << indent << "Reverse: "
     << (this->Reverse? "On" : "Off") << endl;
-  os << indent << "TraverseSubTree: "
-    << (this->TraverseSubTree? "On" : "Off") << endl;
   os << indent << "SkipEmptyNodes: "
     << (this->SkipEmptyNodes? "On" : "Off") << endl;
 }

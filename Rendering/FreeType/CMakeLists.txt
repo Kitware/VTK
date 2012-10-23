@@ -2,6 +2,9 @@ set(Module_SRCS
   vtkFreeTypeStringToImage.cxx
   vtkFreeTypeUtilities.cxx
   vtkFreeTypeTools.cxx
+  vtkMathTextUtilities.cxx
+  vtkMathTextActor.cxx
+  vtkMathTextActor3D.cxx
   vtkTextActor3D.cxx
   vtkTextActor.cxx
   vtkScaledTextActor.cxx
@@ -19,6 +22,11 @@ set(Module_SRCS
   fonts/face_times_bold_italic.cxx
   fonts/face_times.cxx
   fonts/face_times_italic.cxx
+  )
+
+set_source_files_properties(
+  vtkMathTextUtilities
+  ABSTRACT
   )
 
 set_source_files_properties(

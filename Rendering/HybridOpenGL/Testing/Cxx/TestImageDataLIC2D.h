@@ -291,7 +291,6 @@ int ImageDataLIC2D(int argc, char* argv[])
   tp->SetOutput(output);
   int retVal = (!tester->IsValidImageSpecified() ||
     (tester->RegressionTest(tp, 10) == vtkTesting::PASSED))? /*success*/ 0 : /*failure*/ 1;
-  tp->Delete();
   return retVal;
 }
 

@@ -25,6 +25,7 @@
 #include "vtkCell.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkAMRBox.h"
 
 #include <cassert>
 
@@ -133,6 +134,7 @@ vtkUniformGrid* vtkAMRGaussianPulseSource::RefinePatch(
     vtkUniformGrid* parent, int patchExtent[6] )
 {
   assert("pre: parent grid is NULL!" && (parent!=NULL) );
+  assert("dimension must be 2 or 3" && (this->Dimension<=3));
 
   int ext[6];
   parent->GetExtent(ext);
@@ -248,8 +250,13 @@ void vtkAMRGaussianPulseSource::Generate2DDataSet( vtkOverlappingAMR *amr )
   blocksPerLevel[1]=2;
 
   vtkUniformGrid *grid = this->GetGrid(origin, h, ndim);
-  amr->Initialize(2,&blocksPerLevel[0],grid->GetOrigin(),grid->GetGridDescription());
-  amr->SetAMRBox(level,blockId,grid->GetOrigin(), grid->GetDimensions(), grid->GetSpacing());
+  vtkAMRBox box(grid->GetOrigin(), grid->GetDimensions(), grid->GetSpacing(),origin,amr->GetGridDescription());
+
+  amr->Initialize(2,&blocksPerLevel[0]);
+  amr->SetOrigin(grid->GetOrigin());
+  amr->SetGridDescription(grid->GetGridDescription());
+  amr->SetSpacing(level,grid->GetSpacing());
+  amr->SetAMRBox(level,blockId,box);
   amr->SetDataSet(level,blockId,grid);
 
   vtkUniformGrid *refinedPatch = NULL;
@@ -257,7 +264,9 @@ void vtkAMRGaussianPulseSource::Generate2DDataSet( vtkOverlappingAMR *amr )
     {
     refinedPatch = RefinePatch( grid, patches[patchIdx] );
     assert("pre: refined grid is NULL" && (refinedPatch != NULL) );
-    amr->SetAMRBox(level+1,patchIdx,refinedPatch->GetOrigin(), refinedPatch->GetDimensions(), refinedPatch->GetSpacing());
+    box = vtkAMRBox(refinedPatch->GetOrigin(), refinedPatch->GetDimensions(), refinedPatch->GetSpacing(),origin,amr->GetGridDescription());
+    amr->SetSpacing(level+1,refinedPatch->GetSpacing());
+    amr->SetAMRBox(level+1,patchIdx,box);
     amr->SetDataSet(level+1,patchIdx,refinedPatch);
     refinedPatch->Delete();
     refinedPatch = NULL;
@@ -295,8 +304,13 @@ void vtkAMRGaussianPulseSource::Generate3DDataSet( vtkOverlappingAMR *amr )
   blocksPerLevel[1]=2;
 
   vtkUniformGrid *grid = this->GetGrid(origin, h, ndim);
-  amr->Initialize(2, &blocksPerLevel[0],grid->GetOrigin(),grid->GetGridDescription());
-  amr->SetAMRBox(level,blockId,grid->GetOrigin(), grid->GetDimensions(), grid->GetSpacing());
+  vtkAMRBox box (grid->GetOrigin(), grid->GetDimensions(), grid->GetSpacing(),origin,amr->GetGridDescription());
+
+  amr->Initialize(2, &blocksPerLevel[0]);
+  amr->SetOrigin(grid->GetOrigin());
+  amr->SetGridDescription(grid->GetGridDescription());
+  amr->SetSpacing(level,grid->GetSpacing());
+  amr->SetAMRBox(level,blockId,box);
   amr->SetDataSet(level,blockId,grid);
 
   vtkUniformGrid *refinedPatch = NULL;
@@ -305,7 +319,9 @@ void vtkAMRGaussianPulseSource::Generate3DDataSet( vtkOverlappingAMR *amr )
     refinedPatch = RefinePatch( grid, patches[patchIdx] );
     assert("pre: refined grid is NULL" && (refinedPatch != NULL) );
 
-    amr->SetAMRBox(level+1,patchIdx,refinedPatch->GetOrigin(), refinedPatch->GetDimensions(), refinedPatch->GetSpacing());
+    box = vtkAMRBox(refinedPatch->GetOrigin(), refinedPatch->GetDimensions(), refinedPatch->GetSpacing(),amr->GetOrigin(),amr->GetGridDescription());;
+    amr->SetSpacing(level+1,refinedPatch->GetSpacing());
+    amr->SetAMRBox(level+1,patchIdx,box);
     amr->SetDataSet(level+1,patchIdx,refinedPatch);
     refinedPatch->Delete();
     refinedPatch = NULL;
@@ -337,6 +353,6 @@ int vtkAMRGaussianPulseSource::RequestData(
       vtkErrorMacro("Dimensions must be either 2 or 3!");
     }
 
-  output->GenerateVisibilityArrays();
+  vtkAMRUtilities::BlankCells(output,NULL);
   return 1;
 }

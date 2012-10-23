@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkNew.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
@@ -21,30 +20,15 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
+#include "vtkTestErrorObserver.h"
 #include "vtkGlyph3D.h"
 #include "vtkSmartPointer.h"
 #include "vtkDoubleArray.h"
-#include <vtkPointData.h>
-#include <vtkConeSource.h>
-#include <vtkCamera.h>
-#include <vtkCommand.h>
+#include "vtkPointData.h"
+#include "vtkConeSource.h"
+#include "vtkCamera.h"
+#include "vtkCommand.h"
 
-class ErrorObserver
-{
-  bool Error;
-public:
-  ErrorObserver():Error(false)
-  {
-  }
-  bool GetError() const
-  {
-    return this->Error;
-  }
-  void onErrorEvent()
-  {
-    this->Error  = true;
-  }
-};
 static bool TestGlyph3D_WithBadArray()
 {
   vtkSmartPointer<vtkDoubleArray> vectors =
@@ -74,11 +58,11 @@ static bool TestGlyph3D_WithBadArray()
   glyph3D->SetInputData(polydata);
   glyph3D->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Normals");
   glyph3D->SetVectorModeToUseVector();
-  ErrorObserver*  errorObserver= new ErrorObserver();
-  glyph3D->AddObserver(vtkCommand::ErrorEvent,errorObserver,&ErrorObserver::onErrorEvent);
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  glyph3D->AddObserver(vtkCommand::ErrorEvent,errorObserver);
   glyph3D->Update();
   bool res = errorObserver->GetError();
-  delete errorObserver;
   return res;
 }
 
@@ -130,18 +114,22 @@ int TestGlyph3D(int argc, char* argv[])
     vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(glyph3D->GetOutputPort());
 
-  vtkNew<vtkActor> actor;
+  vtkSmartPointer<vtkActor> actor =
+    vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper.GetPointer());
 
-  vtkNew<vtkRenderer> ren;
+  vtkSmartPointer<vtkRenderer> ren =
+    vtkSmartPointer<vtkRenderer>::New();
   ren->SetBackground(0,0,0);
   ren->AddActor(actor.GetPointer());
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.5);
 
-  vtkNew<vtkRenderWindow> renWin;
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
 
-  vtkNew<vtkRenderWindowInteractor> iren;
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin.GetPointer());
 
   renWin->AddRenderer(ren.GetPointer());

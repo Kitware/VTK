@@ -127,7 +127,7 @@ void vtkPiecewiseControlPointsItem::SetControlPoint(vtkIdType index, double* new
   double oldPos[4];
   this->PiecewiseFunction->GetNodeValue(index, oldPos);
   if (newPos[0] != oldPos[0] || newPos[1] != oldPos[1] ||
-      newPos[2] != oldPos[2] || newPos[2] != oldPos[2])
+      newPos[2] != oldPos[2])
     {
     this->PiecewiseFunction->SetNodeValue(index, newPos);
     }

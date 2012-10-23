@@ -30,6 +30,8 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextDevice2D.h"
 
+#include <list> // for std::list
+
 class vtkWindow;
 class vtkViewport;
 class vtkRenderer;
@@ -68,6 +70,25 @@ public:
   // array which has nc_comps components - this part is optional.
   virtual void DrawPointSprites(vtkImageData *sprite, float *points, int n,
                                 unsigned char* colors = 0, int nc_comps = 0);
+
+  // Description:
+  // Draw a series of markers centered at the points supplied. The \a shape
+  // argument controls the marker shape, and can be one of
+  //   - VTK_MARKER_CROSS
+  //   - VTK_MARKER_PLUS
+  //   - VTK_MARKER_SQUARE
+  //   - VTK_MARKER_CIRCLE
+  //   - VTK_MARKER_DIAMOND
+  // \param colors is an optional array of colors.
+  // \param nc_comps is the number of components for the color.
+  virtual void DrawMarkers(int shape, bool highlight, float *points, int n,
+                           unsigned char *colors = 0, int nc_comps = 0);
+
+  // Description:
+  // Adjust the size of the MarkerCache. This implementation generates point
+  // sprites for each mark size/shape and uses DrawPointSprites to render them.
+  // The number of cached markers can be accessed with this function.
+  vtkSetNGetMacro(MaximumMarkerCacheSize, int)
 
   // Description:
   // Draws a rectangle
@@ -300,6 +321,32 @@ private:
   void operator=(const vtkOpenGLContextDevice2D &);   // Not implemented.
 
   void AlignText(double orientation, float width, float height, float *p);
+
+  // Description:
+  // Retrieve a point sprite image for a given marker shape and size. The
+  // image data will be either generated or retrieved from a cache. This class
+  // manages the lifetime of returned image data. Setting \a highlight to
+  // true produces an alternate (usually thicker) version of the marker.
+  vtkImageData *GetMarker(int shape, int size, bool highlight);
+
+  class vtkMarkerCacheObject
+  {
+  public:
+    vtkTypeUInt64 Key;
+    vtkImageData *Value;
+    bool operator==(vtkTypeUInt64 key)
+    {
+      return this->Key == key;
+    }
+  };
+
+  std::list<vtkMarkerCacheObject> MarkerCache;
+  int MaximumMarkerCacheSize;
+
+  // Description:
+  // Generate the marker with the specified shape and size. This function should
+  // not be used directly -- use GetMarker, which caches results, instead.
+  vtkImageData * GenerateMarker(int shape, int size, bool highlight);
 
 //ETX
 };

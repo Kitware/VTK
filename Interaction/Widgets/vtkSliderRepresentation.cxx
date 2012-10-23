@@ -13,9 +13,10 @@
 
 =========================================================================*/
 #include "vtkSliderRepresentation.h"
+
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkRenderer.h"
 
 //----------------------------------------------------------------------
 vtkSliderRepresentation::vtkSliderRepresentation()

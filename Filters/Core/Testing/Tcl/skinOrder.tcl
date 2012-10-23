@@ -28,6 +28,13 @@ vtkMath math
 
 set orders "ap pa si is lr rl"
 
+set skinColor_ap "0.875950 0.598302 0.656878"
+set skinColor_pa "0.641134 0.536594 0.537889"
+set skinColor_si "0.804079 0.650506 0.558249"
+set skinColor_is "0.992896 0.603716 0.660385"
+set skinColor_lr "0.589101 0.513448 0.523095"
+set skinColor_rl "0.650247 0.700527 0.752458"
+
 foreach order $orders {
   vtkVolume16Reader reader$order
     eval reader$order SetDataDimensions $RESOLUTION $RESOLUTION
@@ -53,7 +60,8 @@ foreach order $orders {
 
   vtkActor actor$order
     actor$order SetMapper mapper$order
-    [actor$order GetProperty] SetDiffuseColor [math Random .5 1] [math Random .5 1] [math Random .5 1]
+    set skinColor [set skinColor_${order}]
+    [actor$order GetProperty] SetDiffuseColor [lindex $skinColor 0] [lindex $skinColor 1] [lindex $skinColor 2]
 
     ren1 AddActor actor$order
 }

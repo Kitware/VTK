@@ -13,59 +13,31 @@
 
 =========================================================================*/
 // .NAME vtkXMLPHierarchicalBoxDataWriter - parallel writer for
-// vtkHierarchicalBoxDataSet.
+// vtkHierarchicalBoxDataSet for backwards compatibility.
 // .SECTION Description
-// vtkXMLPCompositeDataWriter writes (in parallel or serially) the VTK XML
-// multi-group, multi-block hierarchical and hierarchical box files. XML
-// multi-group data files are meta-files that point to a list of serial VTK
-// XML files.
+// vtkXMLPHierarchicalBoxDataWriter is an empty subclass of
+// vtkXMLPUniformGridAMRWriter for backwards compatibility.
 
 #ifndef __vtkXMLPHierarchicalBoxDataWriter_h
 #define __vtkXMLPHierarchicalBoxDataWriter_h
 
-#include "vtkIOParallelModule.h" // For export macro
-#include "vtkXMLHierarchicalBoxDataWriter.h"
+#include "vtkXMLPUniformGridAMRWriter.h"
 
-class vtkMultiProcessController;
-
-class VTKIOPARALLEL_EXPORT vtkXMLPHierarchicalBoxDataWriter : public vtkXMLHierarchicalBoxDataWriter
+class VTKIOPARALLEL_EXPORT vtkXMLPHierarchicalBoxDataWriter :
+  public vtkXMLPUniformGridAMRWriter
 {
 public:
   static vtkXMLPHierarchicalBoxDataWriter* New();
-  vtkTypeMacro(vtkXMLPHierarchicalBoxDataWriter, vtkXMLHierarchicalBoxDataWriter);
+  vtkTypeMacro(vtkXMLPHierarchicalBoxDataWriter, vtkXMLPUniformGridAMRWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Controller used to communicate data type of blocks.
-  // By default, the global controller is used. If you want another
-  // controller to be used, set it with this.
-  // If no controller is set, only the local blocks will be written
-  // to the meta-file.
-  virtual void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller, vtkMultiProcessController);
-
-  // Description:
-  // Set whether this instance will write the meta-file. WriteMetaFile
-  // is set to flag only on process 0 and all other processes have
-  // WriteMetaFile set to 0 by default.
-  virtual void SetWriteMetaFile(int flag);
-
-//BTX
 protected:
   vtkXMLPHierarchicalBoxDataWriter();
   ~vtkXMLPHierarchicalBoxDataWriter();
 
-
-  virtual void FillDataTypes(vtkCompositeDataSet*);
-
-  vtkMultiProcessController* Controller;
-
 private:
   vtkXMLPHierarchicalBoxDataWriter(const vtkXMLPHierarchicalBoxDataWriter&); // Not implemented.
   void operator=(const vtkXMLPHierarchicalBoxDataWriter&); // Not implemented.
-//ETX
 };
 
 #endif
-
-

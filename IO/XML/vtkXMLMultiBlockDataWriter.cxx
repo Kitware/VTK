@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkXMLMultiBlockDataWriter.h"
 
-#include "vtkCompositeDataIterator.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
@@ -54,8 +54,9 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
     }
 
   // Write each input.
-  vtkSmartPointer<vtkCompositeDataIterator> iter;
-  iter.TakeReference(compositeData->NewIterator());
+  vtkSmartPointer<vtkDataObjectTreeIterator> iter;
+  iter.TakeReference(
+    vtkDataObjectTree::SafeDownCast(compositeData)->NewTreeIterator());
   iter->VisitOnlyLeavesOff();
   iter->TraverseSubTreeOff();
   iter->SkipEmptyNodesOff();

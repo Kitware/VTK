@@ -109,7 +109,7 @@ int vtkBiomTableReader::RequestData(
 
   vtkDebugMacro(<<"Reading biom table...");
 
-  if(strcmp(this->GetFileName(), "") == 0)
+  if(this->GetFileName() == NULL || strcmp(this->GetFileName(), "") == 0)
     {
     vtkErrorMacro(<<"Input filename not set");
     return 1;
@@ -391,7 +391,7 @@ void vtkBiomTableReader::ParseSparseData()
   while(1)
     {
     // find [ (beginning of triplet)
-    size_t pos1 = this->FileContents.find("[", pos_start);
+    pos1 = this->FileContents.find("[", pos_start);
     if (pos1 == std::string::npos)
       {
       vtkErrorMacro(<<"data field not formatted properly");

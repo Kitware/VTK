@@ -23,7 +23,7 @@
 #ifndef __vtkBridgeAttribute_h
 #define __vtkBridgeAttribute_h
 
-#include "vtkBridgeExport.h"
+#include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericAttribute.h"
 
 class vtkPointData;

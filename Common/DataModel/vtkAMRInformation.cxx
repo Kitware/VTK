@@ -30,6 +30,19 @@ vtkStandardNewMacro(vtkAMRInformation);
 
 namespace
 {
+  inline bool Inside(double q[3], double gbounds[6])
+  {
+    if ((q[0] < gbounds[0]) || (q[0] > gbounds[1]) ||
+        (q[1] < gbounds[2]) || (q[1] > gbounds[3]) ||
+        (q[2] < gbounds[4]) || (q[2] > gbounds[5]))
+      {
+      return false;
+      }
+    else
+      {
+      return true;
+      }
+  }
 
 // Utility class used to store bin properties
 // and contents
@@ -147,20 +160,49 @@ vtkAMRInformation::~vtkAMRInformation()
 void vtkAMRInformation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os<<"Number of blocks per level: ";
+
+  os << indent << "Grid description: " <<  this->GetGridDescription()<< "\n";
+  os << indent << "Global origin: ("
+     << this->GetOrigin()[0] <<", "
+     << this->GetOrigin()[1] <<", "
+     << this->GetOrigin()[2] <<")\n ";
+
+  os<< indent << "Number of blocks per level: ";
   for(unsigned int i=1; i<this->NumBlocks.size();i++)
     {
-    os<<this->NumBlocks[i]-this->NumBlocks[i-1]<<" ";
+    os<<indent<<this->NumBlocks[i]-this->NumBlocks[i-1]<<" ";
     }
-
   os<<"\n";
-  os<<"Refinemnt Ratio: ";
-  for(unsigned int i=0; i<this->GetNumberOfLevels();i++)
+
+  os<<indent<<"Refinemnt Ratio: ";
+  if(this->HasRefinementRatio())
     {
-    os<<this->GetRefinementRatio(i)<<" ";
+    for(unsigned int i=0; i<this->GetNumberOfLevels();i++)
+      {
+      os<<this->GetRefinementRatio(i)<<" ";
+      }
+    os<<"\n";
+    }
+  else
+    {
+    os<<"None\n";
+    }
+  for (unsigned int levelIdx=0; levelIdx<this->GetNumberOfLevels(); levelIdx++)
+    {
+    unsigned int numDataSets = this->GetNumberOfDataSets( levelIdx );
+    os<<indent<<"level "<<levelIdx<<"-------------------------"<<endl;
+    for( unsigned int dataIdx=0; dataIdx < numDataSets; ++dataIdx )
+      {
+      const vtkAMRBox& box = this->GetAMRBox(levelIdx,dataIdx);
+      os<<indent;
+      os<<"["<<box.GetLoCorner()[0]<<", "<<box.GetHiCorner()[0]<<"]"
+        <<"["<<box.GetLoCorner()[1]<<", "<<box.GetHiCorner()[1]<<"]"
+        <<"["<<box.GetLoCorner()[2]<<", "<<box.GetHiCorner()[2]<<"]"<<endl;
+      }
     }
   if(this->HasChildrenInformation())
     {
+    os<<indent<<"Parent Child information: \n";
     for (unsigned int levelIdx=0; levelIdx<this->GetNumberOfLevels(); levelIdx++)
       {
       unsigned int numDataSets = this->GetNumberOfDataSets( levelIdx );
@@ -173,23 +215,73 @@ void vtkAMRInformation::PrintSelf(ostream& os, vtkIndent indent)
   os<<"\n";
 }
 
-bool vtkAMRInformation::IsValid()
+bool vtkAMRInformation::Audit()
 {
-  if(static_cast<unsigned int>(this->Refinement->GetNumberOfTuples())!=this->GetNumberOfLevels())
+  int emptyDimension(-1);
+  switch (this->GridDescription)
     {
-    return false;
+    case VTK_YZ_PLANE: emptyDimension = 0; break;
+    case VTK_XZ_PLANE: emptyDimension = 1; break;
+    case VTK_XY_PLANE: emptyDimension = 2; break;
     }
-  for(unsigned int i=0; i<this->Boxes.size();i++)
+
+  //Check origin
+  for(int d = 0; d<3; d++)
     {
-    if(this->Boxes[i].IsInvalid())
+    if(d!=emptyDimension)
       {
-      return false;
+      if(this->Origin[d]!=this->Bounds[2*d])
+        {
+        vtkErrorMacro("Bound min does not match origin at dimension "<<d<<": "<<this->Origin[d]<<" != "<< this->Bounds[2*d]);
+        }
       }
     }
+
+  //check refinement levels
+  if(this->HasRefinementRatio() && static_cast<unsigned int>(this->Refinement->GetNumberOfTuples())!=this->GetNumberOfLevels())
+    {
+    vtkErrorMacro("Refinement levels wrong "<< this->Refinement->GetNumberOfTuples());
+    }
+
+  //check spacing
+  for(unsigned int i=0; i<this->GetNumberOfLevels(); i++)
+    {
+    double h[3];
+    this->GetSpacing(i,h);
+    for(int d=0; d<3; d++)
+      {
+      if(h[d]<0)
+        {
+        vtkErrorMacro("Invalid spacing at level "<<i<<endl);
+        }
+      }
+    }
+
+  //check amr boxes
+  for(unsigned int i=0; i<this->Boxes.size();i++)
+    {
+    const vtkAMRBox& box = this->Boxes[i];
+    if(box.IsInvalid())
+      {
+      vtkErrorMacro("Invalid AMR Box");
+      }
+    bool valid(true);
+    switch (this->GridDescription)
+      {
+      case VTK_YZ_PLANE: valid = box.EmptyDimension(0); break;
+      case VTK_XZ_PLANE: valid = box.EmptyDimension(1); break;
+      case VTK_XY_PLANE: valid = box.EmptyDimension(2); break;
+      }
+    if(!valid)
+      {
+      vtkErrorMacro("Invalid AMRBox. Wrong dimension");
+      }
+    }
+
   return true;
 }
 
-void vtkAMRInformation::Initialize(int numLevels,  int* blocksPerLevel)
+void vtkAMRInformation::Initialize(int numLevels,  const int* blocksPerLevel)
 {
   if(numLevels<0)
     {
@@ -213,13 +305,6 @@ void vtkAMRInformation::Initialize(int numLevels,  int* blocksPerLevel)
     double h[3]={-1,-1,-1};
     this->Spacing->SetTuple(i,h);
     }
-}
-
-void vtkAMRInformation::Initialize(int numLevels, int* blocksPerLevel, double origin[3], int description)
-{
-  this->Initialize(numLevels, blocksPerLevel);
-  this->SetOrigin(origin);
-  this->SetGridDescription(description);
 }
 
 unsigned int vtkAMRInformation::GetNumberOfDataSets(unsigned int level) const
@@ -248,46 +333,14 @@ void vtkAMRInformation::AllocateBoxes(unsigned int n)
 
 }
 
-void vtkAMRInformation::SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box, double* spacing)
+void vtkAMRInformation::SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box)
 {
   unsigned int index = this->GetIndex(level,id);
   this->Boxes[index] = box;
-  if(spacing)
+  if(this->HasSpacing(level)) //has valid spacing
     {
-    this->UpdateSpacing(level, spacing);
     this->UpdateBounds(level,id);
     }
-}
-
-void vtkAMRInformation::SetAMRBox(unsigned int level, unsigned int id, double* min, double* max, int* dimensions)
-{
-  double h[3];
-  for( int j=0; j < 3; ++j )
-    {
-    h[j] = (dimensions[j] > 1)? (max[j]-min[j])/(dimensions[j]-1.0):1.0;
-    }
-  this->SetAMRBox(level,id,min, dimensions,h);
-}
-
-void vtkAMRInformation::SetAMRBox(unsigned int level, unsigned int id, double* gridOrigin, int* dimensions, double* h)
-{
-  assert(dimensions[0]>=1 && dimensions[1]>=1 && dimensions[2]>=1);
-  this->UpdateSpacing(level,h);
-  unsigned int index = this->GetIndex(level,id);
-  vtkAMRBox& box(this->Boxes[index]);
-
-  int ndim[3] = {dimensions[0]-1,dimensions[1]-1,dimensions[2]-1};
-
-  int lo[3];
-  int hi[3];
-
-  for(int i=0; i < 3; ++i )
-    {
-    lo[i] = vtkMath::Round( (gridOrigin[i] - this->Origin[i])/h[i] );
-    hi[i] = vtkMath::Round( static_cast<double>(lo[i] + ( ndim[i]-1 )) );
-    }
-  box.SetDimensions( lo, hi);
-  this->UpdateBounds(level,id);
 }
 
 int vtkAMRInformation::GetAMRBlockSourceIndex(int index)
@@ -296,7 +349,7 @@ int vtkAMRInformation::GetAMRBlockSourceIndex(int index)
 }
 
 void vtkAMRInformation::SetAMRBlockSourceIndex(int index, int sourceId)
-{
+ {
   if(!this->SourceIndex)
     {
     this->SourceIndex = vtkSmartPointer<vtkIntArray>::New();
@@ -333,7 +386,7 @@ double* vtkAMRInformation::GetOrigin()
   return this->Origin;
 }
 
-void vtkAMRInformation::SetOrigin( double* origin)
+void vtkAMRInformation::SetOrigin( const double* origin)
 {
   for(int d=0; d<3; d++)
     {
@@ -408,7 +461,14 @@ void vtkAMRInformation::GenerateRefinementRatio()
 
     // Note current implementation assumes uniform spacing. The
     // refinement ratio is the same in each dimension i,j,k.
-    int ratio = vtkMath::Round(currentSpacing[0]/childSpacing[0]);
+    int nonEmptyDimension = 0;
+    switch(this->GridDescription)
+      {
+      case VTK_XY_PLANE: nonEmptyDimension = 0;break;
+      case VTK_YZ_PLANE: nonEmptyDimension = 1;break;
+      case VTK_XZ_PLANE: nonEmptyDimension = 2;break;
+      }
+    int ratio = vtkMath::Round(currentSpacing[nonEmptyDimension]/childSpacing[nonEmptyDimension]);
 
     // Set the ratio at the last level, i.e., level numLevels-1, to be the
     // same as the ratio at the previous level,since the highest level
@@ -433,6 +493,7 @@ unsigned int *vtkAMRInformation::GetParents(unsigned int level, unsigned int ind
      index>=this->AllParents[level].size() ||
      this->AllParents[level][index].empty())
     {
+    num = 0;
     return NULL;
     }
 
@@ -449,6 +510,7 @@ GetChildren(unsigned int level, unsigned int index, unsigned int& size)
      index>=this->AllChildren[level].size() ||
      this->AllChildren[level][index].empty())
     {
+    size = 0;
     return NULL;
     }
 
@@ -460,44 +522,32 @@ GetChildren(unsigned int level, unsigned int index, unsigned int& size)
 void vtkAMRInformation::
 PrintParentChildInfo(unsigned int level, unsigned int index)
 {
-  unsigned int *ptr, i, n;
+  unsigned int *ptr, i, numParents;
   std::cerr << "Parent Child Info for block " << index
             << " of Level: " << level << endl;
-  ptr = this->GetParents(level, index, n);
-  if ((!ptr) || (ptr[0] == 0))
+  ptr = this->GetParents(level, index, numParents);
+  std::cerr << "  Parents: ";
+  for (i = 0; i < numParents; i++)
     {
-    std::cerr << "\tParents: None" << endl;
+    std::cerr << ptr[i] << " ";
     }
-  else
-    {
-    std::cerr << "\tParents: ";
-    n = ptr[0];
-    for (i = 1; i <= n; i++)
-      {
-      std::cerr << ptr[i] << " ";
-      }
-    std::cerr << endl;
-    }
+  std::cerr << endl;
+  std::cerr << "  Children: ";
   unsigned int numChildren;
   ptr = this->GetChildren(level, index,numChildren);
-  if ((!ptr) || (ptr[0] == 0))
+  for (i = 0; i <numChildren; i++)
     {
-    std::cerr << "\tChildren: None" << endl;
+    std::cerr << ptr[i] << " ";
     }
-  else
-    {
-    std::cerr << "\tChildren: ";
-    n = ptr[0];
-    for (i = 1; i <= n; i++)
-      {
-      std::cerr << ptr[i] << " ";
-      }
-    std::cerr << endl;
-    }
+  std::cerr << endl;
 }
 
 void vtkAMRInformation::GenerateParentChildInformation()
 {
+  if(!this->HasRefinementRatio())
+    {
+    this->GenerateRefinementRatio();
+    }
   AllChildren.resize(this->GetNumberOfLevels());
   AllParents.resize(this->GetNumberOfLevels());
 
@@ -513,6 +563,11 @@ bool vtkAMRInformation::HasValidOrigin()
   return this->Origin[0]!=DBL_MAX && this->Origin[1]!=DBL_MAX && this->Origin[2]!=DBL_MAX;
 }
 
+bool vtkAMRInformation::HasValidBounds()
+{
+  return this->Bounds[0]!=DBL_MAX && this->Bounds[1]!=DBL_MAX && this->Bounds[2]!=DBL_MAX;
+}
+
 void vtkAMRInformation::SetGridDescription(int description)
 {
   if(this->GridDescription>=0 && description!=this->GridDescription)
@@ -522,7 +577,7 @@ void vtkAMRInformation::SetGridDescription(int description)
   this->GridDescription = description;
 }
 
-void vtkAMRInformation::UpdateSpacing(unsigned int level, const double* h)
+void vtkAMRInformation::SetSpacing(unsigned int level, const double* h)
 {
   double* spacing = this->Spacing->GetTuple(level);
   for(unsigned int i=0; i<3; i++)
@@ -645,10 +700,10 @@ void vtkAMRInformation::CalculateParentChildRelationShip(
   loExtent[1] = extents[2];
   loExtent[2] = extents[4];
   DataSetBinner binner(nbins, loExtent, binsize);
-  for(int i=0; i<3; i++)
-    {
-    cout<<nbins[i]<<" "<<loExtent[i]<<" "<<binsize[i]<<endl;
-    }
+  // for(int i=0; i<3; i++)
+  //   {
+  //   cout<<nbins[i]<<" "<<loExtent[i]<<" "<<binsize[i]<<endl;
+  //   }
 
   // Bin the blocks
   for (unsigned int i=0; i<numParentDataSets; i++)
@@ -856,4 +911,82 @@ void vtkAMRInformation::DeepCopy(vtkAMRInformation *other)
     }
   memcpy(this->Bounds, other->Bounds, sizeof(double)*6);
 
+}
+
+bool vtkAMRInformation::HasSpacing(unsigned int level)
+{
+  return   this->Spacing->GetTuple(level)[0] >=0
+        || this->Spacing->GetTuple(level)[1] >=0
+        || this->Spacing->GetTuple(level)[2] >=0;
+}
+
+const double* vtkAMRInformation::GetBounds()
+{
+  if(!HasValidBounds())
+    {
+    for(unsigned int i=0; i<this->GetNumberOfLevels();i++)
+      {
+      for(unsigned int j=0; j<this->GetNumberOfDataSets(i);j++)
+        {
+        this->UpdateBounds(i,j);
+        }
+      }
+    }
+  return this->Bounds;
+}
+
+bool vtkAMRInformation::FindGrid(double q[3], unsigned int& level, unsigned int& gridId)
+{
+  if (!this->HasChildrenInformation())
+    {
+    this->GenerateParentChildInformation();
+    }
+
+  if (!this->FindGrid(q, 0,gridId))
+    {
+    return false;
+    }
+
+  unsigned int maxLevels = this->GetNumberOfLevels();
+  for(level=0; level<maxLevels;level++)
+    {
+    unsigned int n;
+    unsigned int *children = this->GetChildren(level, gridId,n);
+    if (children == NULL)
+      {
+      break;
+      }
+    unsigned int i;
+    for (i = 0; i < n; i++)
+      {
+      double bb[6];
+      this->GetBounds(level+1, children[i],bb);
+      if(Inside(q,bb))
+        {
+        gridId = children[i];
+        break;
+        }
+      }
+    if(i>=n)
+      {
+      break;
+      }
+    }
+  return true;
+}
+
+bool vtkAMRInformation::FindGrid(double q[3], int level, unsigned int& gridId)
+{
+  for(unsigned int i = 0; i < this->GetNumberOfDataSets(level); i++ )
+    {
+    double gbounds[6];
+    this->GetBounds(level,i,gbounds);
+    bool inside = Inside(q,gbounds);
+    if(inside)
+      {
+      gridId = i;
+      return true;
+      }
+    }
+  return false;
 }

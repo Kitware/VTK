@@ -37,6 +37,8 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtkPolygonBuilder.h"
+#include "vtkSmartPointer.h"
 
 #include <math.h>
 
@@ -52,6 +54,7 @@ vtkRectilinearSynchronizedTemplates::vtkRectilinearSynchronizedTemplates()
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
+  this->GenerateTriangles = 1;
 
   this->ExecuteExtent[0] = this->ExecuteExtent[1]
     = this->ExecuteExtent[2] = this->ExecuteExtent[3]
@@ -253,7 +256,7 @@ if (ComputeScalars) \
 template <class T>
 void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exExt,
                             vtkRectilinearGrid *data, vtkPolyData *output, T *ptr,
-                            vtkDataArray *inScalars)
+                            vtkDataArray *inScalars, bool outputTriangles)
 {
   int *inExt = data->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
@@ -299,6 +302,8 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
   vtkDataArray *zCoords = data->GetZCoordinates();
   double x1, x2, y2, z2;
   double spacing[6];
+  vtkPolygonBuilder polyBuilder;
+  vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();
 
   if (ComputeScalars)
     {
@@ -587,6 +592,11 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
 
             tablePtr = VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2
               + VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[idx];
+
+            if (!outputTriangles)
+              {
+              polyBuilder.Reset();
+              }
             while (*tablePtr != -1)
               {
               ptIds[0] = *(isect1Ptr + offsets[*tablePtr]);
@@ -599,7 +609,23 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
                   ptIds[0] != ptIds[2] &&
                   ptIds[1] != ptIds[2])
                 {
-                outCellId = newPolys->InsertNextCell(3,ptIds);
+                if(outputTriangles)
+                  {
+                  outCellId = newPolys->InsertNextCell(3,ptIds);
+                  outCD->CopyData(inCD, inCellId, outCellId);
+                  }
+                else
+                  {
+                  polyBuilder.InsertTriangle(ptIds);
+                  }
+                }
+              }
+            if(!outputTriangles)
+              {
+              polyBuilder.GetPolygon(poly);
+              if(poly->GetNumberOfIds()>0)
+                {
+                outCellId = newPolys->InsertNextCell(poly);
                 outCD->CopyData(inCD, inCellId, outCellId);
                 }
               }
@@ -697,7 +723,7 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
     {
     vtkTemplateMacro(
       ContourRectilinearGrid(this, this->ExecuteExtent, data,
-                             output, (VTK_TT *)ptr, inScalars));
+                             output, (VTK_TT *)ptr, inScalars,this->GenerateTriangles!=0));
     }
 
   return 1;

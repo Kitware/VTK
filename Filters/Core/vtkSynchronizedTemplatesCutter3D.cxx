@@ -36,6 +36,9 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtkPolygonBuilder.h"
+#include "vtkIdList.h"
+#include "vtkSmartPointer.h"
 
 #include <math.h>
 
@@ -49,6 +52,7 @@ vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D,CutFunction,vtkImplicitFun
 vtkSynchronizedTemplatesCutter3D::vtkSynchronizedTemplatesCutter3D()
 {
   this->CutFunction = 0;
+  this->GenerateTriangles = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -96,7 +100,7 @@ void vtkSynchronizedTemplatesCutter3DInitializeOutput(
 //
 template <class T>
 void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
-                  vtkImageData *data, vtkPolyData *output, T *ptr)
+                  vtkImageData *data, vtkPolyData *output, T *ptr, bool outputTriangles)
 {
   int *inExt = data->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
@@ -130,6 +134,8 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   ptr += self->GetArrayComponent();
+  vtkPolygonBuilder polyBuilder;
+  vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();
 
   vtkSynchronizedTemplatesCutter3DInitializeOutput(exExt, data, output);
   newPts = output->GetPoints();
@@ -443,6 +449,11 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
 
             tablePtr = VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2
               + VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[idx];
+
+            if (!outputTriangles)
+              {
+              polyBuilder.Reset();
+              }
             while (*tablePtr != -1)
               {
               ptIds[0] = *(isect1Ptr + offsets[*tablePtr]);
@@ -455,7 +466,23 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
                   ptIds[0] != ptIds[2] &&
                   ptIds[1] != ptIds[2])
                 {
-                outCellId = newPolys->InsertNextCell(3,ptIds);
+                if(outputTriangles)
+                  {
+                  outCellId = newPolys->InsertNextCell(3,ptIds);
+                  outCD->CopyData(inCD, inCellId, outCellId);
+                  }
+                else
+                  {
+                  polyBuilder.InsertTriangle(ptIds);
+                  }
+                }
+              }
+            if(!outputTriangles)
+              {
+              polyBuilder.GetPolygon(poly);
+              if(poly->GetNumberOfIds()>0)
+                {
+                outCellId = newPolys->InsertNextCell(poly);
                 outCD->CopyData(inCD, inCellId, outCellId);
                 }
               }
@@ -501,7 +528,7 @@ void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(vtkImageData *data,
 
 
   // Check data type and execute appropriate function
-  ContourImage(this, exExt, data, output, (double *)0);
+  ContourImage(this, exExt, data, output, (double *)0, this->GenerateTriangles!=0);
 }
 
 //----------------------------------------------------------------------------

@@ -68,6 +68,10 @@ public:
   // Compute map from block indices to process ids
   static void DistributeProcessInformation(vtkOverlappingAMR* amr, vtkMultiProcessController *myController, std::vector<int>& ProcessMap);
 
+  // Description:
+  // Blank cells in overlapping AMR
+  static void BlankCells(vtkOverlappingAMR* amr,  vtkMultiProcessController *myController);
+
 protected:
   vtkAMRUtilities() {};
   ~vtkAMRUtilities() {};

@@ -32,6 +32,7 @@
 #include "vtkPythonUtil.h"
 #include "vtkObjectBase.h"
 #include "vtkDataArray.h"
+#include "vtkPythonCommand.h"
 
 #include <stddef.h>
 #include <vtksys/ios/sstream>
@@ -258,6 +259,31 @@ static int PyVTKObject_Traverse(PyObject *o, visitproc visit, void *arg)
       }
     }
 
+  if (self->vtk_observers != 0)
+    {
+    unsigned long *olist = self->vtk_observers;
+    while (err == 0 && *olist != 0)
+      {
+      vtkObject *op = static_cast<vtkObject *>(self->vtk_ptr);
+      vtkCommand *c = op->GetCommand(*olist);
+      if (c == 0)
+        {
+        // observer is gone, remove from list
+        unsigned long *tmp = olist;
+        do { tmp++; } while (*tmp != 0);
+        *olist = *--tmp;
+        *tmp = 0;
+        }
+      else
+        {
+        // visit the observer
+        vtkPythonCommand *cbc = static_cast<vtkPythonCommand *>(c);
+        err = visit(cbc->obj, arg);
+        olist++;
+        }
+      }
+    }
+
   return err;
 }
 #endif
@@ -284,6 +310,7 @@ static void PyVTKObject_Delete(PyObject *op)
 
   Py_DECREF((PyObject *)self->vtk_class);
   Py_DECREF(self->vtk_dict);
+  delete [] self->vtk_observers;
 
 #if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_Del(op);
@@ -509,6 +536,7 @@ PyObject *PyVTKObject_New(
   self->vtk_flags = 0;
   self->vtk_class = (PyVTKClass *)cls;
   self->vtk_dict = dict;
+  self->vtk_observers = 0;
 
 #if PY_VERSION_HEX >= 0x02010000
   self->vtk_weakreflist = NULL;
@@ -536,12 +564,43 @@ vtkObjectBase *PyVTKObject_GetObject(PyObject *obj)
   return ((PyVTKObject *)obj)->vtk_ptr;
 }
 
-long PyVTKObject_GetFlags(PyObject *obj)
+void PyVTKObject_AddObserver(PyObject *obj, unsigned long id)
+{
+  unsigned long *olist = ((PyVTKObject *)obj)->vtk_observers;
+  unsigned long n = 0;
+  if (olist == 0)
+    {
+    olist = new unsigned long[8];
+    ((PyVTKObject *)obj)->vtk_observers = olist;
+    }
+  else
+    {
+    // count the number of items
+    while (olist[n] != 0) { n++; }
+    // check if n+1 is a power of two (base allocation is 8)
+    unsigned long m = n+1;
+    if (m >= 8 && (n & m) == 0)
+      {
+      unsigned long *tmp = olist;
+      olist = new unsigned long[2*m];
+      for (unsigned long i = 0; i < n; i++)
+        {
+        olist[i] = tmp[i];
+        }
+      delete [] tmp;
+      ((PyVTKObject *)obj)->vtk_observers = olist;
+      }
+    }
+  olist[n++] = id;
+  olist[n] = 0;
+}
+
+unsigned int PyVTKObject_GetFlags(PyObject *obj)
 {
   return ((PyVTKObject *)obj)->vtk_flags;
 }
 
-void PyVTKObject_SetFlag(PyObject *obj, long flag, int val)
+void PyVTKObject_SetFlag(PyObject *obj, unsigned int flag, int val)
 {
   if (val)
     {

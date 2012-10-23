@@ -44,11 +44,18 @@ public:
   vtkGetMacro(ParentVertex, vtkIdType);
   vtkSetMacro(ParentVertex, vtkIdType);
 
+  // Description:
+  // Should we remove the parent vertex, or just its descendants?
+  // Default behavior is to remove the parent vertex.
+  vtkGetMacro(ShouldPruneParentVertex, bool);
+  vtkSetMacro(ShouldPruneParentVertex, bool);
+
 protected:
   vtkPruneTreeFilter();
   ~vtkPruneTreeFilter();
 
   vtkIdType ParentVertex;
+  bool ShouldPruneParentVertex;
 
   int RequestData(
     vtkInformation*,

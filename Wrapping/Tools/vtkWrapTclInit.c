@@ -210,25 +210,44 @@ int main(int argc,char *argv[])
   fout = fopen(argv[2],"w");
   if (!fout)
     {
+    fprintf(stderr,"Error opening output file\n");
     fclose(file);
     return 1;
     }
 
   /* read the info from the file */
-  fscanf(file,"%s",libName);
+  if (fscanf(file,"%s",libName) != 1)
+    {
+    fprintf(stderr,"Error getting libName\n");
+    fclose(file);
+    fclose(fout);
+    return 1;
+    }
 
   /* read in the classes and commands */
   while (fscanf(file,"%s",tmpVal) != EOF)
     {
     if (!strcmp(tmpVal,"COMMAND"))
       {
-      fscanf(file,"%s",tmpVal);
+      if (fscanf(file,"%s",tmpVal) != 1)
+        {
+        fprintf(stderr,"Error getting command\n");
+        fclose(file);
+        fclose(fout);
+        return 1;
+        }
       commands[numCommands] = strdup(tmpVal);
       numCommands++;
       }
     else if (!strcmp(tmpVal,"VERSION"))
       {
-      fscanf(file,"%s",version);
+      if (fscanf(file,"%s",version) != 1)
+        {
+        fprintf(stderr,"Error getting version\n");
+        fclose(file);
+        fclose(fout);
+        return 1;
+        }
       }
     else
       {

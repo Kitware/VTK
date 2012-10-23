@@ -348,7 +348,7 @@ void vtkChartParallelCoordinates::UpdateGeometry()
   vtkVector2i geometry(this->GetScene()->GetViewWidth(),
                        this->GetScene()->GetViewHeight());
 
-  if (geometry.X() != this->Geometry[0] || geometry.Y() != this->Geometry[1] ||
+  if (geometry.GetX() != this->Geometry[0] || geometry.GetY() != this->Geometry[1] ||
       !this->GeometryValid)
     {
     // Take up the entire window right now, this could be made configurable
@@ -443,7 +443,7 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
           this->Storage->AxesSelections[this->Storage->CurrentAxis];
 
       // Normalize the coordinates
-      float current = mouse.GetScenePos().Y();
+      float current = mouse.GetScenePos().GetY();
       current -= this->Storage->Transform->GetMatrix()->GetElement(1, 2);
       current /= this->Storage->Transform->GetMatrix()->GetElement(1, 1);
 
@@ -468,7 +468,7 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
     if (this->Storage->AxisResize == 0)
       {
       // Move the axis in x
-      float deltaX = mouse.GetScenePos().X() - mouse.GetLastScenePos().X();
+      float deltaX = mouse.GetScenePos().GetX() - mouse.GetLastScenePos().GetX();
 
       axis->SetPoint1(axis->GetPoint1()[0]+deltaX, axis->GetPoint1()[1]);
       axis->SetPoint2(axis->GetPoint2()[0]+deltaX, axis->GetPoint2()[1]);
@@ -495,7 +495,7 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
     else if (this->Storage->AxisResize == 1)
       {
       // Modify the bottom axis range...
-      float deltaY = mouse.GetScenePos().Y() - mouse.GetLastScenePos().Y();
+      float deltaY = mouse.GetScenePos().GetY() - mouse.GetLastScenePos().GetY();
       float scale = (axis->GetPoint2()[1]-axis->GetPoint1()[1]) /
                     (axis->GetMaximum() - axis->GetMinimum());
       axis->SetMinimum(axis->GetMinimum() - deltaY/scale);
@@ -516,7 +516,7 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
     else if (this->Storage->AxisResize == 2)
       {
       // Modify the bottom axis range...
-      float deltaY = mouse.GetScenePos().Y() - mouse.GetLastScenePos().Y();
+      float deltaY = mouse.GetScenePos().GetY() - mouse.GetLastScenePos().GetY();
       float scale = (axis->GetPoint2()[1]-axis->GetPoint1()[1]) /
                     (axis->GetMaximum() - axis->GetMinimum());
       axis->SetMaximum(axis->GetMaximum() - deltaY/scale);
@@ -596,14 +596,14 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(
           axis->GetPoint1()[0]+10 > mouse.GetScenePos()[0])
         {
         this->Storage->CurrentAxis = static_cast<int>(i);
-        if (mouse.GetScenePos().Y() > axis->GetPoint1()[1] &&
-            mouse.GetScenePos().Y() < axis->GetPoint1()[1] + 20)
+        if (mouse.GetScenePos().GetY() > axis->GetPoint1()[1] &&
+            mouse.GetScenePos().GetY() < axis->GetPoint1()[1] + 20)
           {
           // Resize the bottom of the axis
           this->Storage->AxisResize = 1;
           }
-        else if (mouse.GetScenePos().Y() < axis->GetPoint2()[1] &&
-                 mouse.GetScenePos().Y() > axis->GetPoint2()[1] - 20)
+        else if (mouse.GetScenePos().GetY() < axis->GetPoint2()[1] &&
+                 mouse.GetScenePos().GetY() > axis->GetPoint2()[1] - 20)
           {
           // Resize the top of the axis
           this->Storage->AxisResize = 2;

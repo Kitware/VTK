@@ -135,7 +135,7 @@ protected:
 
   // Read the top-level element from the file.  This is always the
   // VTKFile element.
-  int ReadVTKFile(vtkXMLDataElement* eVTKFile);
+  virtual int ReadVTKFile(vtkXMLDataElement* eVTKFile);
 
   // Create a vtkAbstractArray from its cooresponding XML representation.
   // Does not allocate.
@@ -152,6 +152,12 @@ protected:
   virtual void DestroyXMLParser();
   void SetupCompressor(const char* type);
   int CanReadFileVersionString(const char* version);
+
+  // Description:
+  // This method is used by CanReadFile() to check if the reader can read an XML
+  // with the primary element with the given name. Default implementation
+  // compares the name with the text returned by this->GetDataSetName().
+  virtual int CanReadFileWithDataType(const char* dsname);
 
   // Returns the major version for the file being read. -1 when invalid.
   vtkGetMacro(FileMajorVersion, int);

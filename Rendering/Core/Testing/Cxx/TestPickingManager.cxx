@@ -58,8 +58,8 @@ public:
   void PrintErrorMessage(int line, const char* errorStr);
 
 protected:
-  std::pair<vtkPicker*, vtkObject*> AddPickerObject(int pickerType,
-                                                    int objectType);
+  std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject> >
+  AddPickerObject(int pickerType, int objectType);
 
   bool AddPicker(int pickerType, int objectType,
                  int numberOfPickers, int numberOfObjectsLinked);
@@ -105,7 +105,7 @@ int TestPickingManager(int, char*[])
 //------------------------------------------------------------------------------
 bool PickingManagerTest::TestProperties()
 {
-  this->PickingManager = vtkPickingManager::New();
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
 
   bool res = true;
 
@@ -128,7 +128,7 @@ bool PickingManagerTest::TestProperties()
   res = VTK_VERIFY(this->PickingManager->GetEnabled() == 1,
                    "Error manager not does not enable:") && res;
   this->PickingManager->SetOptimizeOnInteractorEvents(false);
-  res = VTK_VERIFY(this->PickingManager->GetOptimizeOnInteractorEvents() == 1,
+  res = VTK_VERIFY(this->PickingManager->GetOptimizeOnInteractorEvents() == 0,
     "Error OptimizeOnInteractorEvents does not get disabled:")
     && res;
 
@@ -161,7 +161,7 @@ bool PickingManagerTest::TestAddPickers()
                   "Error adding same picker with valid objects:") && res;
 
   // Particular case: same picker with same valid object
-  this->PickingManager = vtkPickingManager::New();
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkNew<vtkPicker> picker;
   vtkNew<vtkObject> object;
   this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
@@ -193,7 +193,7 @@ bool PickingManagerTest::TestRemovePickers()
                    "Error adding pickers with valid objects:") && res;
 
   // Particular case same picker with same valid object
-  this->PickingManager = vtkPickingManager::New();
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkNew<vtkPicker> picker;
   vtkNew<vtkObject> object;
   this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
@@ -222,7 +222,7 @@ bool PickingManagerTest::TestRemoveObjects()
                    "Error removing object with a picker:") && res;
 
   // Particular cases same picker with same valid object
-  this->PickingManager = vtkPickingManager::New();
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkNew<vtkPicker> picker;
   vtkNew<vtkObject> object;
   this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
@@ -232,7 +232,7 @@ bool PickingManagerTest::TestRemoveObjects()
   res = VTK_VERIFY(this->CheckState(0, picker.GetPointer(), 0),
                   "Error removing an object with same picker:") && res;
 
-  this->PickingManager = vtkPickingManager::New();
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkNew<vtkObject> object2;
   this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
   this->PickingManager->AddPicker(picker.GetPointer(), object2.GetPointer());
@@ -241,7 +241,7 @@ bool PickingManagerTest::TestRemoveObjects()
   res = VTK_VERIFY(this->CheckState(1, picker.GetPointer(), 1),
                   "Error removing one of the objects with same picker:") && res;
 
-  this->PickingManager = vtkPickingManager::New();
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkNew<vtkPicker> picker2;
   this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
   this->PickingManager->AddPicker(picker2.GetPointer(), object.GetPointer());
@@ -254,15 +254,15 @@ bool PickingManagerTest::TestRemoveObjects()
 }
 
 //------------------------------------------------------------------------------
-std::pair<vtkPicker*, vtkObject*> PickingManagerTest::
+std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject> > PickingManagerTest::
 AddPickerObject(int pickerType, int objectType)
 {
-  vtkSmartPointer<vtkPicker> picker = (pickerType == 0) ? 0 : vtkPicker::New();
-  vtkSmartPointer<vtkObject> object = (objectType == 0) ? 0 : vtkObject::New();
+  vtkSmartPointer<vtkPicker> picker = (pickerType == 0) ? 0 : vtkSmartPointer<vtkPicker>::New();
+  vtkSmartPointer<vtkObject> object = (objectType == 0) ? 0 : vtkSmartPointer<vtkObject>::New();
 
   this->PickingManager->AddPicker(picker, object);
 
-  return std::pair<vtkPicker*, vtkObject*>(picker, object);
+  return std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject> >(picker, object);
 }
 
 //------------------------------------------------------------------------------
@@ -270,7 +270,7 @@ bool PickingManagerTest::AddPicker(int pickerType, int objectType,
                                    int numberOfPickers,
                                    int numberOfObjectsLinked)
 {
-  this->PickingManager = vtkPickingManager::New();
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
 
   vtkSmartPointer<vtkPicker> picker =
     this->AddPickerObject(pickerType, objectType).first;
@@ -287,12 +287,12 @@ AddPickerTwice(int pickerType0, int objectType0,
                bool samePicker, int numberOfPickers,
                int numberOfObjectsLinked0, int numberOfObjectsLinked1)
 {
-  this->PickingManager = vtkPickingManager::New();
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
 
   vtkSmartPointer<vtkPicker> picker0 =
     this->AddPickerObject(pickerType0, objectType0).first;
 
-  vtkSmartPointer<vtkPicker> picker1 = (samePicker) ? picker0.GetPointer() :
+  vtkSmartPointer<vtkPicker> picker1 = (samePicker) ? picker0 :
     this->AddPickerObject(pickerType1, objectType1).first;
 
   if (samePicker)
@@ -309,13 +309,8 @@ AddPickerTwice(int pickerType0, int objectType0,
 //------------------------------------------------------------------------------
 bool PickingManagerTest::RemovePicker(int pickerType, int numberOfPickers)
 {
-  this->PickingManager = vtkPickingManager::New();
-  vtkSmartPointer<vtkPicker> picker = 0;
-
-  if (pickerType > 0)
-    {
-    picker = this->AddPickerObject(pickerType, 0).first;
-    }
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
+  vtkSmartPointer<vtkPicker> picker = this->AddPickerObject(pickerType, 0).first;
 
   this->PickingManager->RemovePicker(picker.GetPointer());
 
@@ -329,12 +324,12 @@ RemoveOneOfPickers(int pickerType0, int objectType0,
                    bool samePicker, int numberOfPickers,
                    int numberOfObjectsLinked0, int numberOfObjectsLinked1)
 {
-  this->PickingManager = vtkPickingManager::New();
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
 
   vtkSmartPointer<vtkPicker> picker0 =
     this->AddPickerObject(pickerType0, objectType0).first;
 
-  vtkSmartPointer<vtkPicker> picker1 = (samePicker) ? picker0.GetPointer() :
+  vtkSmartPointer<vtkPicker> picker1 = (samePicker) ? picker0 :
     this->AddPickerObject(pickerType1, objectType1).first;
 
   if (samePicker)
@@ -355,15 +350,15 @@ bool PickingManagerTest::
 RemoveObject(int pickerType, int objectType,
              int numberOfPickers, int numberOfObjectsLinked1)
 {
-  this->PickingManager = vtkPickingManager::New();
+  this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
 
   std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject> >
     pickerObject = this->AddPickerObject(pickerType, objectType);
 
-  this->PickingManager->RemoveObject(pickerObject.second.GetPointer());
+  this->PickingManager->RemoveObject(pickerObject.second);
 
   return this->CheckState(numberOfPickers,
-                          pickerObject.first.GetPointer(),
+                          pickerObject.first,
                           numberOfObjectsLinked1);
 }
 

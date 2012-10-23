@@ -17,151 +17,188 @@
 
 #include "vtkAnnotationLink.h"
 #include "vtkAxis.h"
+#include "vtkCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
+#include "vtkContextKeyEvent.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
+#include "vtkLookupTable.h"
+#include "vtkMath.h"
+#include "vtkPen.h"
+#include "vtkPlane.h"
+#include "vtkPlot3D.h"
 #include "vtkTable.h"
-#include "vtkFloatArray.h"
+#include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
-#include "vtkPen.h"
-#include "vtkAnnotationLink.h"
-#include "vtkSelection.h"
-#include "vtkSelectionNode.h"
-#include "vtkIdTypeArray.h"
 
 #include "vtkObjectFactory.h"
 
-#include <vector>
-#include <cassert>
-
-using std::vector;
-
-class vtkChartXYZ::Private
-{
-public:
-  Private() : angle(0), isX(false), init(false) {}
-
-  // Calculate the required transforms for the XYZ chart.
-  void CalculateTransforms();
-
-  vector<vtkVector3f> points;
-  vtkTimeStamp pointsBuidTime;
-  vector<vtkVector3f> selectedPoints;
-  vtkTimeStamp selectedPointsBuidTime;
-
-  vector< vtkSmartPointer<vtkAxis> > axes;
-  vtkNew<vtkTransform> Transform;
-  vtkNew<vtkTransform> Rotation;
-  vtkNew<vtkTransform> Box;
-  double angle;
-
-  vtkVector3f origin;
-  vtkVector3f other;
-  vtkVector3f xyz[3];
-
-  bool isX;
-  bool init;
-};
-
-inline void vtkChartXYZ::Private::CalculateTransforms()
-{
-  // First the rotation transform...
-  // Calculate the correct translation vector before the rotation is applied
-  vtkVector3f translation(
-        (axes[0]->GetPosition2()[0] - axes[0]->GetPosition1()[0]) / 2.0
-        + axes[0]->GetPosition1()[0],
-        (axes[1]->GetPosition2()[1] - axes[1]->GetPosition1()[1]) / 2.0
-        + axes[1]->GetPosition1()[1],
-        (axes[2]->GetPosition2()[1] - axes[2]->GetPosition1()[1]) / 2.0
-        + axes[2]->GetPosition1()[1]);
-  vtkVector3f mtranslation = -1.0 * translation;
-
-  this->Rotation->Identity();
-  this->Rotation->Translate(translation.GetData());
-  if (isX)
-    this->Rotation->RotateX(this->angle);
-  else
-    this->Rotation->RotateY(this->angle);
-
-  this->Rotation->Translate(mtranslation.GetData());
-  this->Rotation->Concatenate(this->Transform.GetPointer());
-
-
-  // Next the box rotation transform.
-  double scale[3] = { 300, 300, 300 };
-  for (int i = 0; i < 3; ++i)
-    {
-    if (i == 0)
-      scale[i] = axes[i]->GetPosition2()[0] - axes[i]->GetPosition1()[0];
-    else
-      scale[i] = axes[i]->GetPosition2()[1] - axes[i]->GetPosition1()[1];
-    }
-
-  this->Box->Identity();
-  this->Box->PostMultiply();
-  this->Box->Translate(-0.5, -0.5, -0.5);
-  if (isX)
-    this->Box->RotateX(this->angle);
-  else
-    this->Box->RotateY(this->angle);
-  this->Box->Translate(0.5, 0.5, 0.5);
-
-  this->Box->Scale(scale);
-
-  if (isX)
-    {
-    this->Box->Translate(axes[0]->GetPosition1()[0],
-                         axes[1]->GetPosition1()[1],
-                         axes[2]->GetPosition1()[1]);
-    }
-  else
-    {
-    this->Box->Translate(axes[0]->GetPosition1()[0],
-                         axes[1]->GetPosition1()[1],
-                         axes[2]->GetPosition1()[0]);
-    }
-}
+#include <sstream>
 
 vtkStandardNewMacro(vtkChartXYZ)
 
+//-----------------------------------------------------------------------------
+vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), IsX(false), Angle(0)
+{
+  this->Pen->SetWidth(5);
+  this->Pen->SetColor(0, 0, 0, 255);
+  this->AxisPen->SetWidth(1);
+  this->AxisPen->SetColor(0, 0, 0, 255);
+  this->Rotation->Identity();
+  this->Rotation->PostMultiply();
+  this->Translation->Identity();
+  this->Translation->PostMultiply();
+  this->Scale->Identity();
+  this->Scale->PostMultiply();
+  this->Interactive = true;
+  this->SceneWidth = 0;
+  this->SceneHeight = 0;
+  this->InitializeAxesBoundaryPoints();
+  this->AutoRotate = false;
+  this->DrawAxesDecoration = true;
+  this->CheckClipping = true;
+  this->FitToScene = true;
+}
+
+//-----------------------------------------------------------------------------
+vtkChartXYZ::~vtkChartXYZ()
+{
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::SetAngle(double angle)
+{
+  this->Angle = angle;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::SetAroundX(bool IsX_)
+{
+  this->IsX = IsX_;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::SetAutoRotate(bool b)
+{
+  this->AutoRotate = b;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::SetDecorateAxes(bool b)
+{
+  this->DrawAxesDecoration = b;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *link)
+{
+  if (this->Link != link)
+    {
+    this->Link = link;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkAxis * vtkChartXYZ::GetAxis(int axis)
+{
+  assert(axis >= 0 && axis < 3);
+  return this->Axes[axis].GetPointer();
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)
+{
+  this->Geometry = bounds;
+
+  // initialize axes
+  this->Axes.resize(3);
+  vtkNew<vtkAxis> x;
+  this->Axes[0] = x.GetPointer();
+  x->SetPoint1(vtkVector2f(this->Geometry.GetX(),
+                           this->Geometry.GetY()));
+  x->SetPoint2(vtkVector2f(this->Geometry.GetX() + this->Geometry.GetWidth(),
+                           this->Geometry.GetY()));
+
+  vtkNew<vtkAxis> y;
+  this->Axes[1] = y.GetPointer();
+  y->SetPoint1(vtkVector2f(this->Geometry.GetX(),
+                           this->Geometry.GetY()));
+  y->SetPoint2(vtkVector2f(this->Geometry.GetX(),
+                           this->Geometry.GetY() + this->Geometry.GetHeight()));
+
+  // Z is faked, largely to get valid ranges and rounded numbers...
+  vtkNew<vtkAxis> z;
+  this->Axes[2] = z.GetPointer();
+  z->SetPoint1(vtkVector2f(this->Geometry.GetX(),
+                           0));
+  if (this->IsX)
+    {
+    z->SetPoint2(vtkVector2f(this->Geometry.GetX(),
+                             this->Geometry.GetHeight()));
+    }
+  else
+    {
+    z->SetPoint2(vtkVector2f(this->Geometry.GetX(),
+                             this->Geometry.GetWidth()));
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::RecalculateBounds()
+{
+  if (this->Plots.empty())
+    {
+    return;
+    }
+
+  vector<vtkVector3f>::const_iterator it = this->Plots[0]->GetPoints().begin();
+  double bounds[] = { (*it).GetX(), (*it).GetX(),
+                      (*it).GetY(), (*it).GetY(),
+                      (*it).GetZ(), (*it).GetZ()};
+
+  // Need to calculate the bounds in three dimensions and set up the axes.
+  for (unsigned int i = 0; i < this->Plots.size(); ++i)
+    {
+    vector<vtkVector3f> points = this->Plots[i]->GetPoints();
+    for (unsigned int j = 0; j < points.size(); ++j)
+      {
+      const vtkVector3f &v = points[j];
+      for (int i = 0; i < 3; ++i)
+        {
+        if (v[i] < bounds[2 * i])
+          {
+          bounds[2 * i] = v[i];
+          }
+        else if (v[i] > bounds[2 * i + 1])
+          {
+          bounds[2 * i + 1] = v[i];
+          }
+        }
+      }
+    }
+  for (int i = 0; i < 3; ++i)
+    {
+    this->Axes[i]->SetRange(&bounds[2*i]);
+    }
+
+  // Recalculate transform since axes' ranges were modified
+  this->RecalculateTransform();
+}
+
+//-----------------------------------------------------------------------------
 void vtkChartXYZ::PrintSelf(ostream &os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
 
-void vtkChartXYZ::Update()
-{
-  if (this->Link)
-    {
-    // Copy the row numbers so that we can do the highlight...
-    if (!d->points.empty())
-      {
-      vtkSelection *selection =
-          vtkSelection::SafeDownCast(this->Link->GetOutputDataObject(2));
-      if (selection->GetNumberOfNodes())
-        {
-        vtkSelectionNode *node = selection->GetNode(0);
-        vtkIdTypeArray *idArray =
-            vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-        if (d->selectedPointsBuidTime > idArray->GetMTime() ||
-            this->GetMTime() > d->selectedPointsBuidTime)
-          {
-          d->selectedPoints.resize(idArray->GetNumberOfTuples());
-          for (vtkIdType i = 0; i < idArray->GetNumberOfTuples(); ++i)
-            {
-            d->selectedPoints[i] = d->points[idArray->GetValue(i)];
-            }
-          d->selectedPointsBuidTime.Modified();
-          }
-        }
-      }
-    }
-}
-
+//-----------------------------------------------------------------------------
 bool vtkChartXYZ::Paint(vtkContext2D *painter)
 {
-  if (!this->Visible || d->points.size() == 0)
+  if (!this->Visible)
     return false;
 
   // Get the 3D context.
@@ -172,28 +209,51 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
 
   this->Update();
 
-  // Calculate the transforms required for the current rotation.
-  d->CalculateTransforms();
-
-  context->PushMatrix();
-  context->AppendTransform(d->Rotation.GetPointer());
-
-  // First lets draw the points in 3d.
-  context->ApplyPen(this->Pen.GetPointer());
-  context->DrawPoints(d->points[0].GetData(), d->points.size());
-
-  // Now to render the selected points.
-  if (!d->selectedPoints.empty())
+  // Check if the scene changed size
+  bool resizeHappened = false;
+  if (this->FitToScene)
     {
-    context->ApplyPen(this->SelectedPen.GetPointer());
-    context->DrawPoints(d->selectedPoints[0].GetData(), d->selectedPoints.size());
+    resizeHappened = this->CheckForSceneResize();
     }
 
+  // Calculate the transforms required for the current rotation.
+  this->CalculateTransforms();
+
+  // Draw plots
+  context->PushMatrix();
+  context->AppendTransform(this->ContextTransform.GetPointer());
+  this->PaintChildren(painter);
+
+  // Calculate the bounds of the data within the axes
+  this->ComputeDataBounds();
+
+  // Pop the ContextTransform now that we're done drawing data within the axes
   context->PopMatrix();
 
-  // Now to draw the axes - pretty basic for now but could be extended.
+  // Draw the axes, tick marks, and labels
+  this->DrawAxes(context);
+  if(this->DrawAxesDecoration)
+    {
+    this->DetermineWhichAxesToLabel();
+    this->DrawTickMarks(painter);
+    this->DrawAxesLabels(painter);
+    }
+
+  // If necessary, rescale the axes so they fits our scene nicely
+  if (resizeHappened)
+    {
+    this->RescaleAxes();
+    }
+
+  this->CheckClipping = false;
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::DrawAxes(vtkContext3D *context)
+{
   context->PushMatrix();
-  context->AppendTransform(d->Box.GetPointer());
+  context->AppendTransform(this->Box.GetPointer());
   context->ApplyPen(this->AxisPen.GetPointer());
 
   vtkVector3f box[4];
@@ -217,186 +277,1269 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
   context->DrawLine(vtkVector3f(1, 0, 0), vtkVector3f(1, 0, 1));
   context->DrawLine(vtkVector3f(0, 1, 0), vtkVector3f(0, 1, 1));
   context->DrawLine(vtkVector3f(1, 1, 0), vtkVector3f(1, 1, 1));
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::ComputeDataBounds()
+{
+  double xMin = VTK_DOUBLE_MAX;
+  double xMax = VTK_DOUBLE_MIN;
+  double yMin = VTK_DOUBLE_MAX;
+  double yMax = VTK_DOUBLE_MIN;
+  float transformedPoint[3];
+
+  for (unsigned int i = 0; i < this->Plots.size(); ++i)
+    {
+    vtkPlot3D *plot = this->Plots[i];
+
+    // examine the eight corners of this plot's bounding cube
+    for (unsigned int j = 0; j < 8; ++j)
+      {
+      float *point = plot->GetDataBounds()[j].GetData();
+      this->ContextTransform->TransformPoint(
+        point, transformedPoint);
+        //plot->GetDataBounds()[j].GetData(), transformedPoint);
+
+      if (transformedPoint[0] < xMin)
+        {
+        xMin = transformedPoint[0];
+        }
+      if (transformedPoint[0] > xMax)
+        {
+        xMax = transformedPoint[0];
+        }
+      if (transformedPoint[1] < yMin)
+        {
+        yMin = transformedPoint[1];
+        }
+      if (transformedPoint[1] > yMax)
+        {
+        yMax = transformedPoint[1];
+        }
+      }
+    }
+
+  this->DataBounds[0] = xMin;
+  this->DataBounds[1] = yMin;
+  this->DataBounds[2] = xMax;
+  this->DataBounds[3] = yMax;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::DrawAxesLabels(vtkContext2D *painter)
+{
+  vtkContext3D *context = painter->GetContext3D();
+
+  // set up text property
+  vtkNew<vtkTextProperty> textProperties;
+  textProperties->SetJustificationToCentered();
+  textProperties->SetVerticalJustificationToCentered();
+  textProperties->SetColor(0.0, 0.0, 0.0);
+  textProperties->SetFontFamilyToArial();
+  textProperties->SetFontSize(14);
+  painter->ApplyTextProp(textProperties.GetPointer());
+
+  // if we're looking directly down any dimension, we shouldn't draw the
+  // corresponding label
+  bool shouldDrawAxis[3];
+  for (int axis = 0; axis < 3; ++axis)
+    {
+    shouldDrawAxis[axis] = true;
+    float start[3] = { 0, 0, 0 };
+    float end[3] = { 0, 0, 0 };
+    end[axis] = 1;
+    this->Box->TransformPoint(start, start);
+    this->Box->TransformPoint(end, end);
+    float axisLength = sqrt(
+      (end[0] - start[0]) * (end[0] - start[0]) +
+      (end[1] - start[1]) * (end[1] - start[1]));
+    if (axisLength == 0)
+      {
+      shouldDrawAxis[axis] = false;
+      }
+    }
+
+  float bounds[4];
+  float xLabelPos[3];
+  float yLabelPos[3];
+  float zLabelPos[3];
+  float offset[2] = {0, 0};
+
+  // calculate the pixel coordinates of the lines we wish to label
+  if (shouldDrawAxis[0])
+    {
+    xLabelPos[0]  = 0.5;
+    xLabelPos[1]  = this->XAxisToLabel[0];
+    xLabelPos[2]  = this->XAxisToLabel[1];
+    this->Box->TransformPoint(xLabelPos, xLabelPos);
+    }
+  if (shouldDrawAxis[1])
+    {
+    yLabelPos[0]  = this->YAxisToLabel[0];
+    yLabelPos[1]  = 0.5;
+    yLabelPos[2]  = this->YAxisToLabel[1];
+    this->Box->TransformPoint(yLabelPos, yLabelPos);
+    }
+  if (shouldDrawAxis[2])
+    {
+    zLabelPos[0]  = this->ZAxisToLabel[0];
+    zLabelPos[1]  = this->ZAxisToLabel[1];
+    zLabelPos[2]  = 0.5;
+    this->Box->TransformPoint(zLabelPos, zLabelPos);
+    }
+
   context->PopMatrix();
+
+  if (shouldDrawAxis[0])
+    {
+    painter->ComputeStringBounds(this->XAxisLabel, bounds);
+    this->GetOffsetForAxisLabel(0, bounds, offset);
+    xLabelPos[0] += (offset[0] + this->TickLabelOffset[0][0]);
+    xLabelPos[1] += (offset[1] + this->TickLabelOffset[0][1]);
+    painter->DrawString(xLabelPos[0], xLabelPos[1], this->XAxisLabel);
+    }
+
+  if (shouldDrawAxis[1])
+    {
+    painter->ComputeStringBounds(this->YAxisLabel, bounds);
+    offset[0] = 0;
+    offset[1] = 0;
+    this->GetOffsetForAxisLabel(1, bounds, offset);
+    yLabelPos[0] += (offset[0] + this->TickLabelOffset[1][0]);
+    yLabelPos[1] += (offset[1] + this->TickLabelOffset[1][1]);
+    painter->DrawString(yLabelPos[0], yLabelPos[1], this->YAxisLabel);
+    }
+
+  if (shouldDrawAxis[2])
+    {
+    painter->ComputeStringBounds(this->ZAxisLabel, bounds);
+    offset[0] = 0;
+    offset[1] = 0;
+    this->GetOffsetForAxisLabel(2, bounds, offset);
+    zLabelPos[0] += (offset[0] + this->TickLabelOffset[2][0]);
+    zLabelPos[1] += (offset[1] + this->TickLabelOffset[2][1]);
+    painter->DrawString(zLabelPos[0], zLabelPos[1], this->ZAxisLabel);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::GetOffsetForAxisLabel(int axis, float *bounds,
+                                                   float *offset)
+{
+  offset[0] = 0;
+  offset[1] = 0;
+  switch (this->DirectionToData[axis])
+    {
+    // data is to the north
+    // offset is -y
+    case 0:
+      offset[1] = -bounds[3];
+      break;
+
+    // data is northeast
+    // offset is -x, -y
+    case 1:
+      offset[0] = -bounds[2];
+      offset[1] = -bounds[3];
+      break;
+
+    // data is east
+    // offset is -x
+    case 2:
+      offset[0] = -bounds[2];
+      break;
+
+    // data is southeast
+    // offset is -x, +y
+    case 3:
+      offset[0] = -bounds[2];
+      offset[1] = bounds[3];
+      break;
+
+    // data is south
+    // offset is +y
+    case 4:
+      offset[1] = bounds[3];
+      break;
+
+    // data is southwest
+    // offset is +x, +y
+    case 5:
+      offset[0] = bounds[2];
+      offset[1] = bounds[3];
+      break;
+
+    // data is west
+    // offset is +y
+    case 6:
+      offset[0] = bounds[2];
+      break;
+
+    // data is northwest
+    // offset is +x, -y
+    case 7:
+    default:
+      offset[0] = bounds[2];
+      offset[1] = -bounds[3];
+      break;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::DrawTickMarks(vtkContext2D *painter)
+{
+  vtkContext3D *context = painter->GetContext3D();
+  float bounds[4];
+
+  // draw points instead of lines
+  context->ApplyPen(this->Pen.GetPointer());
+
+  // treat each axis separately
+  for (int axis = 0; axis < 3; ++axis)
+    {
+    // pop matrix since we'll be drawing text in 2D before we draw the
+    // actual tick marks
+    context->PopMatrix();
+    float labelOffset[2] = { 0, 0 };
+
+    // initialize start and end of the axis to label in box coordinates
+    double startBox[3] = { 0, 0, 0 };
+    double endBox[3] = { 0, 0, 0 };
+    switch (axis)
+      {
+      case 0:
+        startBox[0] = 0;
+        endBox[0]   = 1;
+        startBox[1] = endBox[1] = this->XAxisToLabel[0];
+        startBox[2] = endBox[2] = this->XAxisToLabel[1];
+        break;
+      case 1:
+        startBox[0] = this->YAxisToLabel[0];
+        startBox[1] = 0;
+        endBox[1]   = 1;
+        startBox[2] = endBox[2] = this->YAxisToLabel[1];
+        break;
+      case 2:
+      default:
+        startBox[0] = endBox[0] = this->ZAxisToLabel[0];
+        startBox[1] = endBox[1] = this->ZAxisToLabel[1];
+        startBox[2] = 0;
+        endBox[2]   = 1;
+        break;
+      }
+
+    // convert these values to pixel coordinates
+    double start[3];
+    double end[3];
+    this->Box->TransformPoint(startBox, start);
+    this->Box->TransformPoint(endBox, end);
+
+    // ...and then into data coordinates
+    this->ContextTransform->GetInverse()->TransformPoint(start, start);
+    this->ContextTransform->GetInverse()->TransformPoint(end, end);
+
+    // get "nice" values for min, max, and spacing (again, in data coordinates)
+    double tickSpacing =
+      this->CalculateNiceMinMax(start[axis], end[axis], axis);
+
+    if (tickSpacing == -1)
+      {
+      continue;
+      }
+
+    std::vector < vtkVector3f > tickPoints;
+    int currentTick = 0;
+    float tickPositionAlongAxis = start[axis];
+    while (tickPositionAlongAxis < end[axis])
+      {
+      vtkVector3f tick;
+      // convert tick position back into box coordinates
+      // during this process, we save the tick position in pixels for labeling
+      float tickPosition[3];
+      tickPosition[0] = start[0];
+      tickPosition[1] = start[1];
+      tickPosition[2] = start[2];
+      tickPosition[axis] = tickPositionAlongAxis;
+      float tickPositionInPixels[3];
+      this->ContextTransform->TransformPoint(tickPosition,
+                                             tickPositionInPixels);
+      this->Box->GetInverse()->TransformPoint(tickPositionInPixels,
+                                              tickPosition);
+
+      // determine the location of this tick mark and push it onto the vector
+      // if it falls within the bounds of the axis
+      tick[0] = startBox[0];
+      tick[1] = startBox[1];
+      tick[2] = startBox[2];
+      tick[axis] = tickPosition[axis];
+
+      if (tick[axis] >= startBox[axis] && tick[axis] <= endBox[axis])
+        {
+        tickPoints.push_back(tick);
+
+        // get the tick mark label
+        std::stringstream sstream;
+        sstream << std::fixed << setprecision(1) << tickPositionAlongAxis;
+        std::string tickLabel = sstream.str();
+
+        // offset the label from the axis
+        float offset[2] = {0, 0};
+        painter->ComputeStringBounds(tickLabel, bounds);
+        this->GetOffsetForAxisLabel(axis, bounds, offset);
+        tickPositionInPixels[0] += offset[0];
+        tickPositionInPixels[1] += offset[1];
+
+        // we store this offset so we know where to draw the axis label later
+        if (abs(offset[0]) > abs(labelOffset[0]))
+          {
+          labelOffset[0] = offset[0];
+          }
+        if (abs(offset[1]) > abs(labelOffset[1]))
+          {
+          labelOffset[1] = offset[1];
+          }
+
+        // draw the label for this tick mark
+        painter->DrawString(tickPositionInPixels[0], tickPositionInPixels[1],
+                            tickLabel);
+        }
+      ++currentTick;
+      tickPositionAlongAxis = start[axis] + (tickSpacing * currentTick);
+      }
+
+    // re-apply the Box matrix and draw the tick marks as points
+    if (tickPoints.size() != 0)
+      {
+      context->PushMatrix();
+      context->AppendTransform(this->Box.GetPointer());
+      context->DrawPoints(tickPoints[0].GetData(),
+                          static_cast<int>(tickPoints.size()));
+      this->TickLabelOffset[axis][0] = labelOffset[0];
+      this->TickLabelOffset[axis][1] = labelOffset[1];
+      }
+    }
+
+  //revert from drawing points.
+  context->ApplyPen(this->AxisPen.GetPointer());
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::DetermineWhichAxesToLabel()
+{
+  // for each dimension (XYZ)
+  for (int axis = 0; axis < 3; ++axis)
+    {
+    double maxDistance = -1;
+    // for each of the four "axis" lines corresponding to this dimension
+    for (float i = 0; i < 2; ++i)
+      {
+      for (float j = 0; j < 2; ++j)
+        {
+        for (float k = 0; k < 2; ++k)
+          {
+          // convert this line's midpoint to screen (pixel) coordinates
+          float midpoint[3] = { i, j, k };
+          midpoint[axis] = 0.5;
+          this->Box->TransformPoint(midpoint, midpoint);
+
+          // ignore any lines whose midpoint falls within the data range.
+          // we increment the iterators so we don't evaluate the same line
+          // twice.
+          if (midpoint[0] > this->DataBounds[0] &&
+              midpoint[1] > this->DataBounds[1] &&
+              midpoint[0] < this->DataBounds[2] &&
+              midpoint[1] < this->DataBounds[3])
+            {
+            switch (axis)
+              {
+              case 0:
+                ++i;
+                break;
+              case 1:
+                ++j;
+                break;
+              case 2:
+                ++k;
+              default:
+                break;
+              }
+            continue;
+            }
+
+          // calculate the distance from this line's midpoint to the data range
+          double d = 0;
+          int directionToData = 0;
+
+          // case 1: midpoint falls within x range (but not y)
+          if (midpoint[0] > this->DataBounds[0] &&
+              midpoint[0] < this->DataBounds[2])
+            {
+            double d1 = abs(midpoint[1] - this->DataBounds[1]);
+            double d2 = abs(midpoint[1] - this->DataBounds[3]);
+            if (d1 < d2)
+              {
+              directionToData = 0;  // data is "up" from the axis
+              d = d1;
+              }
+            else
+              {
+              directionToData = 4;  // data is "down" from the axis
+              d = d2;
+              }
+            }
+
+          // case 2: midpoint falls within y range (but not x)
+          else if (midpoint[1] > this->DataBounds[1] &&
+                   midpoint[1] < this->DataBounds[3])
+            {
+            double d1 = abs(midpoint[0] - this->DataBounds[0]);
+            double d2 = abs(midpoint[0] - this->DataBounds[2]);
+            if (d1 < d2)
+              {
+              directionToData = 2;  // data is "right" from the axis
+              d = d1;
+              }
+            else
+              {
+              directionToData = 6;  // data is "left" from the axis
+              d = d2;
+              }
+            }
+
+          // case 3: compute distance to nearest corner
+          else
+            {
+            //x min, y min
+            d = sqrt( (this->DataBounds[0] - midpoint[0]) *
+                      (this->DataBounds[0] - midpoint[0]) +
+                      (this->DataBounds[1] - midpoint[1]) *
+                      (this->DataBounds[1] - midpoint[1]) );
+            directionToData = 1;  // data is to the northeast
+
+            //x min, y max
+            double d0 =
+              sqrt( (this->DataBounds[0] - midpoint[0]) *
+                    (this->DataBounds[0] - midpoint[0]) +
+                    (this->DataBounds[3] - midpoint[1]) *
+                    (this->DataBounds[3] - midpoint[1]) );
+            if (d0 < d)
+              {
+              d = d0;
+              directionToData = 3;  // data is to the southeast
+              }
+            //x max, y min
+            d0 = sqrt( (this->DataBounds[2] - midpoint[0]) *
+                       (this->DataBounds[2] - midpoint[0]) +
+                       (this->DataBounds[1] - midpoint[1]) *
+                       (this->DataBounds[1] - midpoint[1]) );
+            if (d0 < d)
+              {
+              d = d0;
+              directionToData = 7;  // data is to the northwest
+              }
+            //x max, y max
+            d0 = sqrt( (this->DataBounds[2] - midpoint[0]) *
+                       (this->DataBounds[2] - midpoint[0]) +
+                       (this->DataBounds[3] - midpoint[1]) *
+                       (this->DataBounds[3] - midpoint[1]) );
+            if (d0 < d)
+              {
+              d = d0;
+              directionToData = 5;  // data is to the southwest
+              }
+
+            // Test if the data falls within the bounds of our axis line,
+            // despite the fact that it is diagonal from the line's midpoint.
+            // This is performed to determine how the label should be offset
+            // from the line.  To do this, we transform the line's start and
+            // end point to pixel coordinates.
+            float start[3] = { i, j, k };
+            start[axis] = 0;
+            this->Box->TransformPoint(start, start);
+            float end[3] = { i, j, k };
+            end[axis] = 1;
+            this->Box->TransformPoint(end, end);
+
+            if (start[0] < this->DataBounds[0] && end[0] > this->DataBounds[2])
+              {
+                // data falls within horizontal range of this axis line
+                // set directionToData as purely up or purely down
+                if (directionToData == 1 || directionToData == 7)
+                  {
+                  directionToData = 0;
+                  }
+                else
+                  {
+                  directionToData = 4;
+                  }
+              }
+            else if (start[1] < this->DataBounds[1] &&
+                     end[1] > this->DataBounds[3])
+              {
+              // data falls within vertical range of this axis line
+              // set directionToData as purely left or purely right
+                if (directionToData == 1 || directionToData == 3)
+                  {
+                  directionToData = 2;
+                  }
+                else
+                  {
+                  directionToData = 6;
+                  }
+              }
+            }
+
+          // record this axis line if it has the greatest distance to the data
+          if (d > maxDistance)
+            {
+            this->DirectionToData[axis] = directionToData;
+            maxDistance = d;
+            switch (axis)
+              {
+              case 0:
+                this->XAxisToLabel[0] = j;
+                this->XAxisToLabel[1] = k;
+                break;
+              case 1:
+                this->YAxisToLabel[0] = i;
+                this->YAxisToLabel[1] = k;
+                break;
+              case 2:
+              default:
+                this->ZAxisToLabel[0] = i;
+                this->ZAxisToLabel[1] = j;
+                break;
+              }
+            }
+
+          // these three cases keep us from evaluating the same line twice.
+          if (axis == 2)
+            {
+            ++k;
+            }
+          }
+        if (axis == 1)
+          {
+          ++j;
+          }
+        }
+      if (axis == 0)
+        {
+        ++i;
+        }
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
+{
+  if (!this->Interactive || !this->Visible || this->AutoRotate)
+    {
+    return false;
+    }
 
   return true;
 }
 
-vtkPlot * vtkChartXYZ::AddPlot(int)
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::MouseButtonPressEvent(const vtkContextMouseEvent
+                                                   &mouse)
 {
-  return 0;
-}
-
-void vtkChartXYZ::SetAngle(double angle)
-{
-  d->angle = angle;
-}
-
-void vtkChartXYZ::SetAroundX(bool isX)
-{
-  d->isX = isX;
-}
-
-namespace
-{
-// FIXME: Put this in a central header, as it is used across several classes.
-// Copy the two arrays into the points array
-template<class A>
-void CopyToPoints(float *data, A *input, size_t offset, size_t n)
-{
-  for (size_t i = 0; i < n; ++i)
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
-    data[3 * i + offset] = *(input++);
+    return true;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+{
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    if (mouse.GetModifiers() == vtkContextMouseEvent::SHIFT_MODIFIER)
+      {
+      return this->Spin(mouse);
+      }
+    else
+      {
+      return this->Rotate(mouse);
+      }
+    }
+  if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON)
+    {
+    if (mouse.GetModifiers() == vtkContextMouseEvent::SHIFT_MODIFIER)
+      {
+      return this->Pan(mouse);
+      }
+    else
+      {
+      return this->Zoom(mouse);
+      }
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::MouseWheelEvent(const vtkContextMouseEvent&,
+                                             int delta)
+{
+  // Ten "wheels" to double/halve zoom level
+  float scaling = pow(2.0f, delta/10.0f);
+  this->Scale->Scale(scaling, scaling, scaling);
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+  this->CheckClipping = true;
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::ZoomAxes(int delta)
+{
+  float scaling = pow(2.0f, delta/10.0f);
+  this->BoxScale->Scale(scaling, scaling, scaling);
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::Rotate(const vtkContextMouseEvent &mouse)
+{
+  // avoid NaNs in our transformation matrix if the scene has not yet been
+  // rendered.
+  if (this->Scene->GetSceneHeight() == 0 || this->Scene->GetSceneWidth() == 0)
+    {
+    return false;
+    }
+
+  // Figure out how much the mouse has moved in plot coordinates
+  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+
+  double dx = screenPos[0] - lastScreenPos[0];
+  double dy = screenPos[1] - lastScreenPos[1];
+
+  double delta_elevation = -20.0 / this->Scene->GetSceneHeight();
+  double delta_azimuth = -20.0 / this->Scene->GetSceneWidth();
+
+  double rxf = -dx * delta_azimuth * 10.0;
+  double ryf = -dy * delta_elevation * 10.0;
+
+  this->Rotation->RotateY(rxf);
+  this->Rotation->RotateX(-ryf);
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::Pan(const vtkContextMouseEvent &mouse)
+{
+  // Figure out how much the mouse has moved in plot coordinates
+  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+
+  double dx = (screenPos[0] - lastScreenPos[0]);
+  double dy = (screenPos[1] - lastScreenPos[1]);
+
+  this->Translation->Translate(dx, dy, 0.0);
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->CheckClipping = true;
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::Zoom(const vtkContextMouseEvent &mouse)
+{
+  // Figure out how much the mouse has moved and scale accordingly
+  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+
+  float delta = 0.0f;
+  if (this->Scene->GetSceneHeight() > 0)
+    {
+    delta = static_cast<float>(
+      mouse.GetLastScreenPos()[1] - mouse.GetScreenPos()[1]) /
+      this->Scene->GetSceneHeight();
+    }
+
+  // Dragging full screen height zooms 4x.
+  float scaling = pow(4.0f, delta);
+  this->Scale->Scale(scaling, scaling, scaling);
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->CheckClipping = true;
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::Spin(const vtkContextMouseEvent &mouse)
+{
+  // Figure out how much the mouse has moved in plot coordinates
+  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+
+  double newAngle =
+    vtkMath::DegreesFromRadians(atan2(screenPos[1], screenPos[0]));
+  double oldAngle =
+    vtkMath::DegreesFromRadians(atan2(lastScreenPos[1], lastScreenPos[0]));
+
+  this->Rotation->RotateZ(-(newAngle - oldAngle));
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::KeyPressEvent(const vtkContextKeyEvent &key)
+{
+  switch (key.GetKeyCode())
+    {
+    // Change view to 2D, YZ chart
+    case 'x':
+      this->LookDownX();
+      break;
+    case 'X':
+      this->LookUpX();
+      break;
+    // Change view to 2D, XZ chart
+    case 'y':
+      this->LookDownY();
+      break;
+    case 'Y':
+      this->LookUpY();
+      break;
+    // Change view to 2D, XY chart
+    case 'z':
+      this->LookDownZ();
+      break;
+    case 'Z':
+      this->LookUpZ();
+      break;
+    }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::LookDownX()
+{
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Rotation->Identity();
+  this->Rotation->RotateY(-90.0);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::LookDownY()
+{
+  this->Rotation->Identity();
+  this->Rotation->RotateX(90.0);
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::LookDownZ()
+{
+  this->Rotation->Identity();
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::LookUpX()
+{
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Rotation->Identity();
+  this->Rotation->RotateY(90.0);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::LookUpY()
+{
+  this->Rotation->Identity();
+  this->Rotation->RotateX(-90.0);
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::LookUpZ()
+{
+  this->Rotation->Identity();
+  this->Rotation->RotateY(180.0);
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  this->Scene->SetDirty(true);
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::CalculateTransforms()
+{
+  // Calculate the correct translation vector so that rotation and scale
+  // are applied about the middle of the axes box.
+  vtkVector3f translation(
+    (this->Axes[0]->GetPosition2()[0] - this->Axes[0]->GetPosition1()[0]) / 2.0
+      + this->Axes[0]->GetPosition1()[0],
+    (this->Axes[1]->GetPosition2()[1] - this->Axes[1]->GetPosition1()[1]) / 2.0
+      + this->Axes[1]->GetPosition1()[1],
+    (this->Axes[2]->GetPosition2()[1] - this->Axes[2]->GetPosition1()[1]) / 2.0
+      + this->Axes[2]->GetPosition1()[1]);
+  vtkVector3f mtranslation = -1.0 * translation;
+
+  this->ContextTransform->Identity();
+  this->ContextTransform->Concatenate(this->Translation.GetPointer());
+  this->ContextTransform->Translate(translation.GetData());
+  this->ContextTransform->Concatenate(this->Rotation.GetPointer());
+  this->ContextTransform->Concatenate(this->BoxScale.GetPointer());
+  if (this->AutoRotate)
+    {
+    if (this->IsX)
+      {
+      this->ContextTransform->RotateX(this->Angle);
+      }
+    else
+      {
+      this->ContextTransform->RotateY(this->Angle);
+      }
+    }
+  this->ContextTransform->Concatenate(this->Scale.GetPointer());
+  this->ContextTransform->Translate(mtranslation.GetData());
+  this->ContextTransform->Translate(
+    this->Axes[0]->GetPosition1()[0] - this->Geometry.GetX(),
+    this->Axes[1]->GetPosition1()[1] - this->Geometry.GetY(),
+    this->Axes[2]->GetPosition1()[1]);
+  this->ContextTransform->Concatenate(this->PlotTransform.GetPointer());
+
+  // Next construct the transform for the box axes.
+  double scale[3] = { 300, 300, 300 };
+  for (int i = 0; i < 3; ++i)
+    {
+    if (i == 0)
+      {
+      scale[i] = this->Axes[i]->GetPosition2()[0] -
+                 this->Axes[i]->GetPosition1()[0];
+      }
+    else
+      {
+      scale[i] = this->Axes[i]->GetPosition2()[1] -
+                 this->Axes[i]->GetPosition1()[1];
+      }
+    }
+
+  this->Box->Identity();
+  this->Box->PostMultiply();
+  this->Box->Translate(-0.5, -0.5, -0.5);
+  this->Box->Concatenate(this->Rotation.GetPointer());
+  this->Box->Concatenate(this->BoxScale.GetPointer());
+  if (this->AutoRotate)
+    {
+    if (this->IsX)
+      {
+      this->Box->RotateX(this->Angle);
+      }
+    else
+      {
+      this->Box->RotateY(this->Angle);
+      }
+    }
+  this->Box->Translate(0.5, 0.5, 0.5);
+  this->Box->Scale(scale);
+  this->Box->Translate(Axes[0]->GetPosition1()[0],
+                       Axes[1]->GetPosition1()[1],
+                       Axes[2]->GetPosition1()[1]);
+
+  // setup clipping planes
+  vtkVector3d cube[8];
+  vtkVector3d transformedCube[8];
+
+  cube[0] = vtkVector3d(0, 0, 0);
+  cube[1] = vtkVector3d(0, 0, 1);
+  cube[2] = vtkVector3d(0, 1, 0);
+  cube[3] = vtkVector3d(0, 1, 1);
+  cube[4] = vtkVector3d(1, 0, 0);
+  cube[5] = vtkVector3d(1, 0, 1);
+  cube[6] = vtkVector3d(1, 1, 0);
+  cube[7] = vtkVector3d(1, 1, 1);
+
+  for (int i = 0; i < 8; ++i)
+    {
+    this->Box->TransformPoint(cube[i].GetData(), transformedCube[i].GetData());
+    }
+
+  double norm1[3];
+  double norm2[3];
+  double norm3[3];
+  double norm4[3];
+  double norm5[3];
+  double norm6[3];
+
+  //face 0,1,2,3 opposes face 4,5,6,7
+  vtkMath::Cross((transformedCube[1] - transformedCube[0]).GetData(),
+                 (transformedCube[2] - transformedCube[0]).GetData(), norm1);
+  vtkMath::Normalize(norm1);
+  this->Face1->SetNormal(norm1);
+  this->Face1->SetOrigin(transformedCube[3].GetData());
+
+  vtkMath::Cross((transformedCube[5] - transformedCube[4]).GetData(),
+                 (transformedCube[6] - transformedCube[4]).GetData(), norm2);
+  vtkMath::Normalize(norm2);
+  this->Face2->SetNormal(norm2);
+  this->Face2->SetOrigin(transformedCube[7].GetData());
+
+  //face 0,1,4,5 opposes face 2,3,6,7
+  vtkMath::Cross((transformedCube[1] - transformedCube[0]).GetData(),
+                 (transformedCube[4] - transformedCube[0]).GetData(), norm3);
+  vtkMath::Normalize(norm3);
+  this->Face3->SetNormal(norm3);
+  this->Face3->SetOrigin(transformedCube[5].GetData());
+
+  vtkMath::Cross((transformedCube[3] - transformedCube[2]).GetData(),
+                 (transformedCube[6] - transformedCube[2]).GetData(), norm4);
+  vtkMath::Normalize(norm4);
+  this->Face4->SetNormal(norm4);
+  this->Face4->SetOrigin(transformedCube[7].GetData());
+
+  //face 0,2,4,6 opposes face 1,3,5,7
+  vtkMath::Cross((transformedCube[2] - transformedCube[0]).GetData(),
+                 (transformedCube[4] - transformedCube[0]).GetData(), norm5);
+  vtkMath::Normalize(norm5);
+  this->Face5->SetNormal(norm5);
+  this->Face5->SetOrigin(transformedCube[6].GetData());
+
+  vtkMath::Cross((transformedCube[3] - transformedCube[1]).GetData(),
+                 (transformedCube[5] - transformedCube[1]).GetData(), norm6);
+  vtkMath::Normalize(norm6);
+  this->Face6->SetNormal(norm6);
+  this->Face6->SetOrigin(transformedCube[7].GetData());
+
+  // within 1/2 a pixel of the boundary is good enough.
+  double eps = 0.5;
+  this->MaxDistanceX = eps +
+    this->Face1->DistanceToPlane(transformedCube[7].GetData());
+  this->MaxDistanceY = eps +
+    this->Face3->DistanceToPlane(transformedCube[7].GetData());
+  this->MaxDistanceZ = eps +
+    this->Face5->DistanceToPlane(transformedCube[7].GetData());
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::PointShouldBeClipped(vtkVector3f point)
+{
+  double pointD[3];
+  pointD[0] = point.GetData()[0];
+  pointD[1] = point.GetData()[1];
+  pointD[2] = point.GetData()[2];
+
+  double transformedPoint[3];
+  this->ContextTransform->TransformPoint(pointD, transformedPoint);
+
+  double d = this->Face1->DistanceToPlane(transformedPoint);
+  if (d > this->MaxDistanceX)
+    {
+    return true;
+    }
+  d = this->Face2->DistanceToPlane(transformedPoint);
+  if (d > this->MaxDistanceX)
+    {
+    return true;
+    }
+  d = this->Face3->DistanceToPlane(transformedPoint);
+  if (d > this->MaxDistanceY)
+    {
+    return true;
+    }
+  d = this->Face4->DistanceToPlane(transformedPoint);
+  if (d > this->MaxDistanceY)
+    {
+    return true;
+    }
+  d = this->Face5->DistanceToPlane(transformedPoint);
+  if (d > this->MaxDistanceZ)
+    {
+    return true;
+    }
+  d = this->Face6->DistanceToPlane(transformedPoint);
+  if (d > this->MaxDistanceZ)
+    {
+    return true;
+    }
+
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::ScaleUpAxes()
+{
+  float point[3];
+  int sceneWidth = this->Scene->GetSceneWidth();
+  int sceneHeight = this->Scene->GetSceneHeight();
+  float scaleStep = pow(2.0f, 1.0f/10.0f);
+  float stepBack = pow(2.0f, -1.0f/10.0f);
+  int numSteps = 0;
+  bool shouldScaleUp = true;
+
+  while (shouldScaleUp)
+    {
+    for (int i = 0; i < 14; ++i)
+      {
+      point[0] = this->AxesBoundaryPoints[i][0];
+      point[1] = this->AxesBoundaryPoints[i][1];
+      point[2] = this->AxesBoundaryPoints[i][2];
+      this->FutureBox->TransformPoint(point, point);
+      if (point[0] < 0 || point[0] > sceneWidth ||
+          point[1] < 0 || point[1] > sceneHeight)
+        {
+        shouldScaleUp = false;
+        }
+      }
+    if (shouldScaleUp)
+      {
+      this->FutureBoxScale->Scale(scaleStep, scaleStep, scaleStep);
+      ++numSteps;
+      if (numSteps > 500)
+        {
+        // Break out of the loop.
+        shouldScaleUp = false;
+        }
+      }
+    }
+  // this while loop overshoots the mark by one step,
+  // so we take a step back afterwards.
+  this->FutureBoxScale->Scale(stepBack, stepBack, stepBack);
+
+  if (numSteps > 1)
+    {
+      this->ZoomAxes(numSteps - 1);
+      this->Scene->SetDirty(true);
     }
 }
 
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::ScaleDownAxes()
+{
+  float point[3];
+  int sceneWidth = this->Scene->GetSceneWidth();
+  int sceneHeight = this->Scene->GetSceneHeight();
+
+  float scaleStep = pow(2.0f, -1.0f/10.0f);
+  int numSteps = 0;
+  bool shouldScaleDown = true;
+
+  while (shouldScaleDown)
+    {
+    shouldScaleDown = false;
+    for (int i = 0; i < 14; ++i)
+      {
+      point[0] = this->AxesBoundaryPoints[i][0];
+      point[1] = this->AxesBoundaryPoints[i][1];
+      point[2] = this->AxesBoundaryPoints[i][2];
+      this->FutureBox->TransformPoint(point, point);
+      if (point[0] < 0 || point[0] > sceneWidth ||
+          point[1] < 0 || point[1] > sceneHeight)
+        {
+        shouldScaleDown = true;
+        break;
+        }
+      }
+    if (shouldScaleDown)
+      {
+      this->FutureBoxScale->Scale(scaleStep, scaleStep, scaleStep);
+      ++numSteps;
+      if (numSteps > 500)
+        {
+        // Break out of the loop.
+        shouldScaleDown = false;
+        }
+      }
+    }
+  if (numSteps > 0)
+    {
+      this->ZoomAxes(-numSteps);
+      this->Scene->SetDirty(true);
+    }
 }
 
-void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
-                           const vtkStdString &yName, const vtkStdString &zName)
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::InitializeFutureBox()
 {
-
-  //cout << "Arrays: " << xName << " -> " << yName << " -> " << zName << endl;
-  // Copy the points into our data structure for rendering - pack x, y, z...
-  vtkDataArray *xArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(xName.c_str()));
-  vtkDataArray *yArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(yName.c_str()));
-  vtkDataArray *zArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(zName.c_str()));
-
-  // Ensure that we have valid data arrays, and that they are of the same length.
-  assert(xArr);
-  assert(yArr);
-  assert(zArr);
-  assert(xArr->GetNumberOfTuples() == yArr->GetNumberOfTuples() &&
-         xArr->GetNumberOfTuples() == zArr->GetNumberOfTuples());
-
-  size_t n = xArr->GetNumberOfTuples();
-  d->points.resize(n);
-  float *data = d->points[0].GetData();
-
-  switch(xArr->GetDataType())
+  double scale[3] = { 300, 300, 300 };
+  for (int i = 0; i < 3; ++i)
     {
-    vtkTemplateMacro(CopyToPoints(data,
-                                  static_cast<VTK_TT*>(xArr->GetVoidPointer(0)),
-                                  0, n));
+    if (i == 0)
+      scale[i] = this->Axes[i]->GetPosition2()[0] -
+                 this->Axes[i]->GetPosition1()[0];
+    else
+      scale[i] = this->Axes[i]->GetPosition2()[1] -
+                 this->Axes[i]->GetPosition1()[1];
     }
-  switch(yArr->GetDataType())
+
+  this->FutureBoxScale->DeepCopy(this->BoxScale.GetPointer());
+
+  this->FutureBox->Identity();
+  this->FutureBox->PostMultiply();
+  this->FutureBox->Translate(-0.5, -0.5, -0.5);
+  this->FutureBox->Concatenate(this->Rotation.GetPointer());
+  this->FutureBox->Concatenate(this->FutureBoxScale.GetPointer());
+  this->FutureBox->Translate(0.5, 0.5, 0.5);
+  this->FutureBox->Scale(scale);
+  this->FutureBox->Translate(this->Axes[0]->GetPosition1()[0],
+                             this->Axes[1]->GetPosition1()[1],
+                             this->Axes[2]->GetPosition1()[1]);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::CheckForSceneResize()
+{
+  int currentWidth = this->Scene->GetSceneWidth();
+  int currentHeight = this->Scene->GetSceneHeight();
+  if (this->SceneWidth != currentWidth ||
+      this->SceneHeight != currentHeight)
     {
-    vtkTemplateMacro(CopyToPoints(data,
-                                  static_cast<VTK_TT*>(yArr->GetVoidPointer(0)),
-                                  1, n));
+    // treat the initial render as a special case, as the scene size
+    // has not been recorded yet
+    if (this->SceneWidth > 0)
+      {
+      int dx = (currentWidth - this->SceneWidth) / 2;
+      int dy = (currentHeight - this->SceneHeight) / 2;
+
+      vtkVector2f axisPt = this->Axes[0]->GetPosition1();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      this->Axes[0]->SetPoint1(axisPt);
+      axisPt = this->Axes[0]->GetPosition2();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      this->Axes[0]->SetPoint2(axisPt);
+      axisPt = this->Axes[1]->GetPosition1();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      this->Axes[1]->SetPoint1(axisPt);
+      axisPt = this->Axes[1]->GetPosition2();
+      axisPt[0] += dx;
+      axisPt[1] += dy;
+      this->Axes[1]->SetPoint2(axisPt);
+      axisPt = this->Axes[2]->GetPosition1();
+      axisPt[0] += dx;
+      this->Axes[2]->SetPoint1(axisPt);
+      axisPt = this->Axes[2]->GetPosition2();
+      axisPt[0] += dx;
+      this->Axes[2]->SetPoint2(axisPt);
+      this->RecalculateTransform();
+      }
+    else
+      {
+      this->SceneWidth = currentWidth;
+      this->SceneHeight = currentHeight;
+      this->InitializeFutureBox();
+      this->ScaleUpAxes();
+      this->ScaleDownAxes();
+      }
+    return true;
     }
-  switch(zArr->GetDataType())
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::RescaleAxes()
+{
+  int currentWidth = this->Scene->GetSceneWidth();
+  int currentHeight = this->Scene->GetSceneHeight();
+  this->InitializeFutureBox();
+  if (currentWidth * currentHeight < this->SceneWidth * this->SceneHeight)
     {
-    vtkTemplateMacro(CopyToPoints(data,
-                                  static_cast<VTK_TT*>(zArr->GetVoidPointer(0)),
-                                  2, n));
-    }
-  d->pointsBuidTime.Modified();
-
-  // Now set up the axes, and ranges...
-  d->axes.resize(3);
-  vtkNew<vtkAxis> x;
-  d->axes[0] = x.GetPointer();
-  x->SetPoint1(vtkVector2f(this->Geometry.X(),
-                           this->Geometry.Y()));
-  x->SetPoint2(vtkVector2f(this->Geometry.X() + this->Geometry.Width(),
-                           this->Geometry.Y()));
-
-  vtkNew<vtkAxis> y;
-  d->axes[1] = y.GetPointer();
-  y->SetPoint1(vtkVector2f(this->Geometry.X(),
-                           this->Geometry.Y()));
-  y->SetPoint2(vtkVector2f(this->Geometry.X(),
-                           this->Geometry.Y() + this->Geometry.Height()));
-
-  // Z is faked, largely to get valid ranges and rounded numbers...
-  vtkNew<vtkAxis> z;
-  d->axes[2] = z.GetPointer();
-  z->SetPoint1(vtkVector2f(this->Geometry.X(),
-                           0));
-  if (d->isX)
-    {
-    z->SetPoint2(vtkVector2f(this->Geometry.X(),
-                             this->Geometry.Height()));
+    this->ScaleDownAxes();
     }
   else
     {
-    z->SetPoint2(vtkVector2f(this->Geometry.X(),
-                             this->Geometry.Width()));
+    this->ScaleUpAxes();
     }
+  this->SceneWidth = currentWidth;
+  this->SceneHeight = currentHeight;
 }
 
-void vtkChartXYZ::RecalculateTransform()
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::InitializeAxesBoundaryPoints()
 {
-  this->CalculatePlotTransform(d->axes[0].GetPointer(),
-                               d->axes[1].GetPointer(),
-                               d->axes[2].GetPointer(),
-                               d->Transform.GetPointer());
-}
-
-void vtkChartXYZ::RecalculateBounds()
-{
-  // Need to calculate the bounds in three dimensions and set up the axes.
-  vector<vtkVector3f>::const_iterator it = d->points.begin();
-  double bounds[] = { (*it).X(), (*it).X(),
-                      (*it).Y(), (*it).Y(),
-                      (*it).Z(), (*it).Z()};
-  for (++it; it != d->points.end(); ++it)
+  int currentPoint = 0;
+  for (int i = 0; i < 2; ++i)
     {
-    const vtkVector3f &v = *it;
-    for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 2; ++j)
       {
-      if (v[i] < bounds[2 * i])
-        bounds[2 * i] = v[i];
-      else if (v[i] > bounds[2 * i + 1])
-        bounds[2 * i + 1] = v[i];
+      for (int k = 0; k < 2; ++k)
+        {
+        this->AxesBoundaryPoints[currentPoint][0] = i;
+        this->AxesBoundaryPoints[currentPoint][1] = j;
+        this->AxesBoundaryPoints[currentPoint][2] = k;
+        ++currentPoint;
+        }
       }
     }
+
   for (int i = 0; i < 3; ++i)
     {
-    d->axes[i]->SetRange(&bounds[2*i]);
+    this->AxesBoundaryPoints[currentPoint][0] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][1] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][2] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][i] += sqrt(0.75);
+    ++currentPoint;
+    this->AxesBoundaryPoints[currentPoint][0] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][1] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][2] = 0.5;
+    this->AxesBoundaryPoints[currentPoint][i] -= sqrt(0.75);
+    ++currentPoint;
     }
 }
 
-void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *link)
+//-----------------------------------------------------------------------------
+double vtkChartXYZ::CalculateNiceMinMax(double &min, double &max,
+                                                   int axis)
 {
-  if (this->Link != link)
-    {
-    this->Link = link;
-    this->Modified();
-    }
+  // Calculate an upper limit on the number of tick marks - at least 30 pixels
+  // should be between each tick mark.
+  float start[3] = { 0, 0, 0 };
+  float end[3] = { 0, 0, 0 };
+  end[axis] = 1;
+
+  this->Box->TransformPoint(start, start);
+  this->Box->TransformPoint(end, end);
+
+  float pixelRange = sqrt(
+    (end[0] - start[0]) * (end[0] - start[0]) +
+    (end[1] - start[1]) * (end[1] - start[1]));
+
+  return vtkAxis::NiceMinMax(min, max, pixelRange, 30.0f);
 }
 
-vtkAxis * vtkChartXYZ::GetAxis(int axis)
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::RecalculateTransform()
 {
-  assert(axis >= 0 && axis < 3);
-  return d->axes[axis].GetPointer();
+  this->CalculatePlotTransform(this->Axes[0].GetPointer(),
+                               this->Axes[1].GetPointer(),
+                               this->Axes[2].GetPointer(),
+                               this->PlotTransform.GetPointer());
 }
 
-void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)
-{
-  this->Geometry = bounds;
-}
-
-vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), Link(NULL)
-{
-  d = new Private;
-  this->Pen->SetWidth(5);
-  this->Pen->SetColor(0, 0, 0, 255);
-  this->SelectedPen->SetWidth(6);
-  this->SelectedPen->SetColor(255, 0, 0, 255);
-  this->AxisPen->SetWidth(1);
-  this->AxisPen->SetColor(0, 0, 0, 255);
-}
-
-vtkChartXYZ::~vtkChartXYZ()
-{
-  delete d;
-}
-
+//-----------------------------------------------------------------------------
 bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
                                          vtkTransform *transform)
 {
@@ -431,10 +1574,60 @@ bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
   float zScale = (z->GetMaximum() - z->GetMinimum()) / (max[1] - min[1]);
 
   transform->Identity();
-  transform->Translate(this->Geometry.X(), this->Geometry.Y(), 0);
+  transform->Translate(this->Geometry.GetX(), this->Geometry.GetY(), 0);
   // Get the scale for the plot area from the x and y axes
   transform->Scale(1.0 / xScale, 1.0 / yScale, 1.0 / zScale);
   transform->Translate(-x->GetMinimum(), -y->GetMinimum(), -z->GetMinimum());
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkChartXYZ::AddPlot(vtkPlot3D * plot)
+{
+  if (plot == NULL)
+    {
+    return -1;
+    }
+  this->AddItem(plot);
+  plot->SetChart(this);
+  this->Plots.push_back(plot);
+  vtkIdType plotIndex = this->Plots.size() - 1;
+
+  // the first plot added to the chart defines the names of the axes
+  if (plotIndex == 0)
+    {
+    this->XAxisLabel = plot->GetXAxisLabel();
+    this->YAxisLabel = plot->GetYAxisLabel();
+    this->ZAxisLabel = plot->GetZAxisLabel();
+    }
+
+  this->RecalculateBounds();
+
+  // Mark the scene as dirty
+  if (this->Scene)
+    {
+    this->Scene->SetDirty(true);
+    }
+  this->CheckClipping = true;
+  return plotIndex;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::ClearPlots()
+{
+  this->ClearItems();
+  this->Plots.clear();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXYZ::ShouldCheckClipping()
+{
+  return this->CheckClipping;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::SetFitToScene(bool b)
+{
+  this->FitToScene = b;
 }

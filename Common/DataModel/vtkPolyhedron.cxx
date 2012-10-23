@@ -1747,7 +1747,7 @@ int vtkPolyhedron::IntersectWithLine(double p1[3], double p2[3], double tol,
   // Loop over all the faces, intersecting them in turn.
   vtkIdType *face = this->Faces->GetPointer(0);
   vtkIdType nfaces = *face++;
-  vtkIdType npts, i, fid, hit, numHits=0;
+  vtkIdType npts, i, fid, numHits=0;
   double t=VTK_LARGE_FLOAT;
   double x[3];
 
@@ -1755,7 +1755,7 @@ int vtkPolyhedron::IntersectWithLine(double p1[3], double p2[3], double tol,
   for (fid=0; fid < nfaces; ++fid)
     {
     npts = face[0];
-    hit = 0;
+    vtkIdType hit = 0;
     switch (npts)
       {
       case 3: //triangle

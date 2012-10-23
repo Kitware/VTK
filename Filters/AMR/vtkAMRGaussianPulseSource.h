@@ -109,7 +109,20 @@ protected:
     double xyz[3]; xyz[0]=x; xyz[1]=y; xyz[2]=z;
     return( this->ComputePulseAt(xyz) );
     }
-  double ComputePulseAt( double pt[3] );
+  double ComputePulseAt( double pt[3] )
+    {
+    double pulse = 0.0;
+    double r  = 0.0;
+    for( int i=0; i < this->Dimension; ++i )
+      {
+      double d  = pt[i]-this->PulseOrigin[i];
+      double d2 = d*d;
+      double L2 = this->PulseWidth[i]*this->PulseWidth[i];
+      r += d2/L2;
+      }
+    pulse = this->PulseAmplitude*std::exp( -r );
+    return( pulse );
+    }
 
   // Description:
   // Given the cell index w.r.t. to a uniform grid, this method computes the
@@ -148,24 +161,5 @@ private:
   vtkAMRGaussianPulseSource(const vtkAMRGaussianPulseSource&); // Not implemented
   void operator=(const vtkAMRGaussianPulseSource&); // Not implemented
 };
-
-//==============================================================================
-// INLINE METHODS
-//==============================================================================
-inline double vtkAMRGaussianPulseSource::ComputePulseAt(double pt[3])
-{
-  double pulse = 0.0;
-
-  double r  = 0.0;
-  for( int i=0; i < this->Dimension; ++i )
-    {
-    double d  = pt[i]-this->PulseOrigin[i];
-    double d2 = d*d;
-    double L2 = this->PulseWidth[i]*this->PulseWidth[i];
-    r += d2/L2;
-    }
-  pulse = this->PulseAmplitude*std::exp( -r );
-  return( pulse );
-}
 
 #endif /* VTKAMRGAUSSIANPULSESOURCE_H_ */

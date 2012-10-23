@@ -15,7 +15,8 @@
 // .NAME vtkGL2PSUtilities - Helper functions for using GL2PS within VTK
 // .SECTION Description
 // vtkGL2PSUtilities implements some static helper function that simplify
-// calling GL2PS routines on VTK objects.
+// calling GL2PS routines on VTK objects. This class is meant for internal use
+// only and is subject to change.
 
 #ifndef __vtkGL2PSUtilities_h
 #define __vtkGL2PSUtilities_h
@@ -57,24 +58,30 @@ public:
   // counter-clockwise by rotateAngle. The windowSize is used to ensure correct
   // text placement in SVG output and ignored for PS/EPS. The rasterPos
   // is in world coordinates and determines clipping and depth.
+  // If strokeWidth is positive, the path will be stroked with the indicated
+  // width. If zero or negative, the path will be filled (default).
   static void DrawPath(vtkPath *path, double rasterPos[3],
                        double windowSize[2], double translation[2],
                        double scale[2], double rotateAngle,
-                       unsigned char color[3]);
+                       unsigned char color[3], unsigned char alpha = 255,
+                       float strokeWidth = -1);
 
 protected:
   static void DrawPathPS(vtkPath *path, double rasterPos[3],
                          double windowSize[2], double translation[2],
                          double scale[2], double rotateAngle,
-                         unsigned char color[3]);
+                         unsigned char color[3], unsigned char alpha,
+                         float strokeWidth);
   static void DrawPathPDF(vtkPath *path, double rasterPos[3],
                           double windowSize[2], double translation[2],
                           double scale[2], double rotateAngle,
-                          unsigned char color[3]);
+                          unsigned char color[3], unsigned char alpha,
+                          float strokeWidth);
   static void DrawPathSVG(vtkPath *path, double rasterPos[3],
                           double windowSize[2], double translation[2],
                           double scale[2], double rotateAngle,
-                          unsigned char color[3]);
+                          unsigned char color[3], unsigned char alpha,
+                          float strokeWidth);
 
   vtkGL2PSUtilities() {}
   ~vtkGL2PSUtilities() {}

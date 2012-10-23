@@ -1,10 +1,12 @@
 vtk_module(vtkRenderingMatplotlib
   IMPLEMENTS
-    vtkRenderingMathText
+    vtkRenderingFreeType
   DEPENDS
+    vtkImagingCore
     vtkRenderingCore
     vtkWrappingPython
   TEST_DEPENDS
+    vtkCommonColor
     vtkInteractionImage
     vtkInteractionWidgets
     vtkIOExport
@@ -14,5 +16,4 @@ vtk_module(vtkRenderingMatplotlib
     vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL
     vtkViewsContext2D
-  EXCLUDE_FROM_WRAPPING
   )

@@ -742,6 +742,8 @@ void vtkWrap_FindNewInstanceMethods(
       {
       if (strcmp(theFunc->Name, "NewInstance") == 0 ||
           strcmp(theFunc->Name, "CreateInstance") == 0 ||
+          (strcmp(theFunc->Name, "CreateLookupTable") == 0 &&
+           strcmp(data->Name, "vtkColorSeries") == 0) ||
           (strcmp(theFunc->Name, "CreateImageReader2") == 0 &&
            strcmp(data->Name, "vtkImageReader2Factory") == 0) ||
           (strcmp(theFunc->Name, "CreateDataArray") == 0 &&

@@ -48,6 +48,14 @@ public:
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by user).
+  virtual vtkDataObjectTreeIterator* NewTreeIterator();
+
+  // Description:
+  // Return a new iterator (the iterator has to be deleted by user).
+  //
+  // Use NewTreeIterator when you have a pointer to a vtkDataObjectTree
+  // and NewIterator when you have a pointer to a vtkCompositeDataSet;
+  // NewIterator is inherited and calls NewTreeIterator internally.
   virtual vtkCompositeDataIterator* NewIterator();
 
   // Description:

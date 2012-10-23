@@ -71,8 +71,6 @@ vtkPlotPoints::vtkPlotPoints()
   this->MarkerSize = -1.0;
   this->LogX = false;
   this->LogY = false;
-  this->Marker = NULL;
-  this->HighlightMarker = NULL;
 
   this->LookupTable = 0;
   this->Colors = 0;
@@ -92,14 +90,6 @@ vtkPlotPoints::~vtkPlotPoints()
     {
     this->BadPoints->Delete();
     this->BadPoints = NULL;
-    }
-  if (this->Marker)
-    {
-    this->Marker->Delete();
-    }
-  if (this->HighlightMarker)
-    {
-    this->HighlightMarker->Delete();
     }
   if (this->LookupTable)
     {
@@ -166,24 +156,20 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
       }
     }
 
-  float *f = vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
-  int n = static_cast<int>(this->Points->GetData()->GetNumberOfTuples());
-
-
   // If there is a marker style, then draw the marker for each point too
-  if (this->MarkerStyle)
+  if (this->MarkerStyle != VTK_MARKER_NONE)
     {
-    this->GeneraterMarker(vtkContext2D::FloatToInt(width));
     painter->ApplyPen(this->Pen);
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
     if (this->ScalarVisibility && this->Colors)
       {
-      painter->DrawPointSprites(this->Marker, this->Points, this->Colors);
+      painter->DrawMarkers(this->MarkerStyle, false,
+                           this->Points, this->Colors);
       }
     else
       {
-      painter->DrawPointSprites(this->Marker, f, n);
+      painter->DrawMarkers(this->MarkerStyle, false, this->Points);
       }
     }
 
@@ -193,6 +179,8 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     if (this->Selection->GetMTime() > this->SelectedPoints->GetMTime() ||
         this->GetMTime() > this->SelectedPoints->GetMTime())
       {
+      float *f = vtkFloatArray::SafeDownCast(
+            this->Points->GetData())->GetPointer(0);
       int nSelected(static_cast<int>(this->Selection->GetNumberOfTuples()));
       this->SelectedPoints->SetNumberOfComponents(2);
       this->SelectedPoints->SetNumberOfTuples(nSelected);
@@ -204,13 +192,23 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
         }
       }
     vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
-    this->GeneraterMarker(vtkContext2D::FloatToInt(width + 2.7), true);
     painter->GetPen()->SetColor(255, 50, 0, 150);
     painter->GetPen()->SetWidth(width + 2.7);
 
-    painter->DrawPointSprites(this->HighlightMarker,
-                              static_cast<float *>(this->SelectedPoints->GetVoidPointer(0)),
-                              this->SelectedPoints->GetNumberOfTuples());
+    if (this->MarkerStyle == VTK_MARKER_NONE)
+      {
+      painter->DrawMarkers(VTK_MARKER_PLUS, false,
+                           static_cast<float *>(
+                             this->SelectedPoints->GetVoidPointer(0)),
+                           this->SelectedPoints->GetNumberOfTuples());
+      }
+    else
+      {
+      painter->DrawMarkers(this->MarkerStyle, true,
+                           static_cast<float *>(
+                             this->SelectedPoints->GetVoidPointer(0)),
+                           this->SelectedPoints->GetNumberOfTuples());
+      }
     }
 
   return true;
@@ -227,199 +225,14 @@ bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
       {
       width = 8.0;
       }
-    this->GeneraterMarker(vtkContext2D::FloatToInt(width));
     painter->ApplyPen(this->Pen);
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
 
     float point[] = { rect[0]+ 0.5f * rect[2], rect[1] + 0.5f * rect[3] };
-    painter->DrawPointSprites(this->Marker, point, 1);
+    painter->DrawMarkers(this->MarkerStyle, false, point, 1);
     }
   return true;
-}
-
-//-----------------------------------------------------------------------------
-void vtkPlotPoints::GeneraterMarker(int width, bool highlight)
-{
-  // Set up the image data, if highlight then the mark shape is different
-  vtkImageData *data = 0;
-
-  if (!highlight)
-    {
-    if (!this->Marker)
-      {
-      this->Marker = vtkImageData::New();
-      }
-    else
-      {
-      if (this->Marker->GetMTime() >= this->GetMTime() &&
-          this->Marker->GetMTime() >= this->Pen->GetMTime())
-        {
-        // Marker already generated, no need to do this again.
-        return;
-        }
-      }
-    data = this->Marker;
-    }
-  else
-    {
-    if (!this->HighlightMarker)
-      {
-      this->HighlightMarker = vtkImageData::New();
-      data = this->HighlightMarker;
-      }
-    else
-      {
-      if (this->HighlightMarker->GetMTime() >= this->GetMTime() &&
-          this->HighlightMarker->GetMTime() >= this->Pen->GetMTime())
-        {
-        // Marker already generated, no need to do this again.
-        return;
-        }
-      }
-    data = this->HighlightMarker;
-    }
-
-  data->SetExtent(0, width-1, 0, width-1, 0, 0);
-  data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-  unsigned char* image =
-      static_cast<unsigned char*>(data->GetScalarPointer());
-
-  // Generate the marker image at the required size
-  switch (this->MarkerStyle)
-    {
-    case vtkPlotPoints::CROSS:
-      {
-      for (int i = 0; i < width; ++i)
-        {
-        for (int j = 0; j < width; ++j)
-          {
-          unsigned char color = 0;
-
-          if (highlight)
-            {
-            if ((i >= j-1 && i <= j+1) || (i >= width-j-1 && i <= width-j+1))
-              {
-              color = 255;
-              }
-            }
-          else
-            {
-            if (i == j || i == width-j)
-              {
-              color = 255;
-              }
-            }
-          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
-                                   image[4*width*i + 4*j + 2] = color;
-          image[4*width*i + 4*j + 3] = color;
-          }
-        }
-      break;
-      }
-    case vtkPlotPoints::PLUS:
-      {
-      int x = width / 2;
-      int y = width / 2;
-      for (int i = 0; i < width; ++i)
-        {
-        for (int j = 0; j < width; ++j)
-          {
-          unsigned char color = 0;
-          if (i == x || j == y)
-            {
-            color = 255;
-            }
-          if (highlight)
-            {
-            if (i == x-1 || i == x+1 || j == y-1 || j == y+1)
-              {
-              color = 255;
-              }
-            }
-          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
-                                   image[4*width*i + 4*j + 2] = color;
-          image[4*width*i + 4*j + 3] = color;
-          }
-        }
-      break;
-      }
-    case vtkPlotPoints::SQUARE:
-      {
-      for (int i = 0; i < width; ++i)
-        {
-        for (int j = 0; j < width; ++j)
-          {
-          unsigned char color = 255;
-          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
-                                   image[4*width*i + 4*j + 2] = color;
-          image[4*width*i + 4*j + 3] = color;
-          }
-        }
-      break;
-      }
-    case vtkPlotPoints::CIRCLE:
-      {
-      double c = width/2.0;
-      for (int i = 0; i < width; ++i)
-        {
-        double dx2 = (i - c)*(i-c);
-        for (int j = 0; j < width; ++j)
-          {
-          double dy2 = (j - c)*(j - c);
-          unsigned char color = 0;
-          if (sqrt(dx2 + dy2) < c)
-            {
-            color = 255;
-            }
-          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
-                                   image[4*width*i + 4*j + 2] = color;
-          image[4*width*i + 4*j + 3] = color;
-          }
-        }
-      break;
-      }
-    case vtkPlotPoints::DIAMOND:
-      {
-      int c = width/2;
-      for (int i = 0; i < width; ++i)
-        {
-        int dx = i-c > 0 ? i-c : c-i;
-        for (int j = 0; j < width; ++j)
-          {
-          int dy = j-c > 0 ? j-c : c-j;
-          unsigned char color = 0;
-          if (c-dx >= dy)
-            {
-            color = 255;
-            }
-          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
-                                   image[4*width*i + 4*j + 2] = color;
-          image[4*width*i + 4*j + 3] = color;
-          }
-        }
-      break;
-      }
-    default:
-      {
-      int x = width / 2;
-      int y = width / 2;
-      for (int i = 0; i < width; ++i)
-        {
-        for (int j = 0; j < width; ++j)
-          {
-          unsigned char color = 0;
-          if (i == x || j == y)
-            {
-            color = 255;
-            }
-          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
-                                   image[4*width*i + 4*j + 2] = color;
-          image[4*width*i + 4*j + 3] = color;
-          }
-        }
-      }
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -447,7 +260,7 @@ namespace
 bool compVector3fX(const vtkIndexedVector2f& v1,
                    const vtkIndexedVector2f& v2)
 {
-  if (v1.pos.X() < v2.pos.X())
+  if (v1.pos.GetX() < v2.pos.GetX())
     {
     return true;
     }
@@ -461,8 +274,8 @@ bool compVector3fX(const vtkIndexedVector2f& v1,
 bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
              const vtkVector2f& current)
 {
-  if (current.X() > point.X() - tol.X() && current.X() < point.X() + tol.X() &&
-      current.Y() > point.Y() - tol.Y() && current.Y() < point.Y() + tol.Y())
+  if (current.GetX() > point.GetX() - tol.GetX() && current.GetX() < point.GetX() + tol.GetX() &&
+      current.GetY() > point.GetY() - tol.GetY() && current.GetY() < point.GetY() + tol.GetY())
     {
     return true;
     }
@@ -507,11 +320,11 @@ vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
   // Get the lowest point we might hit within the supplied tolerance
   vtkIndexedVector2f lowPoint;
   lowPoint.index = 0;
-  lowPoint.pos = vtkVector2f(point.X()-tol.X(), 0.0f);
+  lowPoint.pos = vtkVector2f(point.GetX()-tol.GetX(), 0.0f);
   low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
 
   // Now consider the y axis
-  float highX = point.X() + tol.X();
+  float highX = point.GetX() + tol.GetX();
   while (low != v.end())
     {
     if (inRange(point, tol, (*low).pos))
@@ -519,7 +332,7 @@ vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
       *location = (*low).pos;
       return static_cast<int>((*low).index);
       }
-    else if (low->pos.X() > highX)
+    else if (low->pos.GetX() > highX)
       {
       break;
       }
@@ -558,12 +371,12 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
   // Iterate until we are out of range in X
   while (low != v.end())
     {
-      if (low->pos.X() >= min.X() && low->pos.X() <= max.X() &&
-          low->pos.Y() >= min.Y() && low->pos.Y() <= max.Y())
+      if (low->pos.GetX() >= min.GetX() && low->pos.GetX() <= max.GetX() &&
+          low->pos.GetY() >= min.GetY() && low->pos.GetY() <= max.GetY())
         {
         selected.push_back(low->index);
         }
-      else if (low->pos.X() > max.X())
+      else if (low->pos.GetX() > max.GetX())
         {
         break;
         }
@@ -856,16 +669,16 @@ void vtkPlotPoints::CalculateBounds(double bounds[4])
   vtkVector2f* pts = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
 
   // Initialize our min/max
-  bounds[0] = bounds[1] = pts[start].X();
-  bounds[2] = bounds[3] = pts[start++].Y();
+  bounds[0] = bounds[1] = pts[start].GetX();
+  bounds[2] = bounds[3] = pts[start++].GetY();
 
   while (start < nPoints)
     {
     // Calculate the min/max in this range
     while (start < end)
       {
-      float x = pts[start].X();
-      float y = pts[start++].Y();
+      float x = pts[start].GetX();
+      float y = pts[start++].GetY();
       if (x < bounds[0])
         {
         bounds[0] = x;

@@ -53,7 +53,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
   rgba[3] = tprop->GetOpacity();
 
   glRasterPos3dv(pos);
-  gl2psTextOpt(str, fontname, fontSize, align, angle, rgba);
+  gl2psTextOptColor(str, fontname, fontSize, align, angle, rgba);
 }
 
 const char *vtkGL2PSUtilities::TextPropertyToPSFontName(vtkTextProperty *tprop)
@@ -195,22 +195,26 @@ int vtkGL2PSUtilities::TextPropertyToGL2PSAlignment(vtkTextProperty *tprop)
 void vtkGL2PSUtilities::DrawPath(vtkPath *path, double rasterPos[3],
                                  double windowSize[2], double translation[2],
                                  double scale[2], double rotateAngle,
-                                 unsigned char color[3])
+                                 unsigned char color[3], unsigned char alpha,
+                                 float strokeWidth)
 {
   switch (gl2psGetFileFormat())
     {
     case GL2PS_PS:
     case GL2PS_EPS:
       vtkGL2PSUtilities::DrawPathPS(path, rasterPos, windowSize, translation,
-                                    scale, rotateAngle, color);
+                                    scale, rotateAngle, color, alpha,
+                                    strokeWidth);
       break;
     case GL2PS_SVG:
       vtkGL2PSUtilities::DrawPathSVG(path, rasterPos, windowSize, translation,
-                                     scale, rotateAngle, color);
+                                     scale, rotateAngle, color, alpha,
+                                     strokeWidth);
       break;
     case GL2PS_PDF:
       vtkGL2PSUtilities::DrawPathPDF(path, rasterPos, windowSize, translation,
-                                     scale, rotateAngle, color);
+                                     scale, rotateAngle, color, alpha,
+                                     strokeWidth);
       break;
     default:
       break;
@@ -220,7 +224,9 @@ void vtkGL2PSUtilities::DrawPath(vtkPath *path, double rasterPos[3],
 void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
                                    double /*windowSize*/[2],
                                    double translation[2], double scale[],
-                                   double rotateAngle, unsigned char color[3])
+                                   double rotateAngle, unsigned char color[3],
+                                   unsigned char /*alpha*/,
+                                   float strokeWidth)
 {
   vtkFloatArray *points =
       vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
@@ -332,7 +338,15 @@ void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
   out << static_cast<float>(color[0])/255.f << " " <<
          static_cast<float>(color[1])/255.f << " " <<
          static_cast<float>(color[2])/255.f << " setrgbcolor" << endl;
-  out << "fill" << endl;
+
+  if (strokeWidth > 1e-5)
+    {
+    out << strokeWidth << " setlinewidth\nstroke" << endl;
+    }
+  else
+    {
+    out << "fill" << endl;
+    }
   out << "grestore" << endl;
 
   glRasterPos3dv(rasterPos);
@@ -342,7 +356,8 @@ void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
 void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
                                     double /*windowSize*/[2],
                                     double translation[2], double scale[2],
-                                    double rotateAngle, unsigned char color[3])
+                                    double rotateAngle, unsigned char color[3],
+                                    unsigned char alpha, float strokeWidth)
 {
   vtkFloatArray *points =
       vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
@@ -381,7 +396,11 @@ void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
   // color
   out << static_cast<float>(color[0])/255.f << " " <<
          static_cast<float>(color[1])/255.f << " " <<
-         static_cast<float>(color[2])/255.f << " rg" << endl;
+         static_cast<float>(color[2])/255.f <<
+         (strokeWidth > 1e-5 ? " RG" : " rg") << endl;
+  // opacity
+  out << static_cast<float>(alpha)/255.f
+      << (strokeWidth > 1e-5 ? " CA" : " ca") << endl;
   // translate
   out << 1.f << " " << 0.f << " " << 0.f << " " << 1.f << " "
       << translation[0] << " " << translation[1] << " cm" << endl;
@@ -465,7 +484,15 @@ void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
     ++pt;
     }
 
-  out << "h f" << endl;
+  out << "h ";
+  if (strokeWidth > 1e-5)
+    {
+    out << strokeWidth << " w S" << endl;
+    }
+  else
+    {
+    out<< "f" << endl;
+    }
   out << "Q" << endl; // Pop state
 
   glRasterPos3dv(rasterPos);
@@ -475,7 +502,8 @@ void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
 void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
                                     double windowSize[2],
                                     double translation[2], double scale[],
-                                    double rotateAngle, unsigned char color[3])
+                                    double rotateAngle, unsigned char color[3],
+                                    unsigned char alpha, float strokeWidth)
 {
   vtkFloatArray *points =
       vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
@@ -512,13 +540,29 @@ void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
       << "     translate(" << translation[0] << " "
       << windowSize[1]-translation[1] << ")" << endl
       << "     scale(" << scale[0] << " " << -scale[1] << ")" << endl
-      << "     rotate(" << rotateAngle << ")\"" << endl
-      << "   fill=\"rgb(" << std::setprecision(0)
-      << static_cast<int>(color[0]) << ","
-      << static_cast<int>(color[1]) << ","
-      << static_cast<int>(color[2])
-      << std::setprecision(floatPrec) << ")\">" << endl;
-  out << "  <path d=\"" << std::right << endl;
+      << "     rotate(" << rotateAngle << ")\"" << endl;
+  if (strokeWidth > 1e-5)
+    {
+    out << "   fill=\"none\"" << endl
+        << "   stroke-width=\"" << strokeWidth << "\"" << endl
+        << "   stroke=\"rgb(" << std::setprecision(0)
+        << static_cast<int>(color[0]) << ","
+        << static_cast<int>(color[1]) << ","
+        << static_cast<int>(color[2])
+        << std::setprecision(floatPrec) << ")\"" << endl;
+    }
+  else
+    {
+    out << "   stroke=\"none\"" << endl
+        << "   fill=\"rgb(" << std::setprecision(0)
+             << static_cast<int>(color[0]) << ","
+             << static_cast<int>(color[1]) << ","
+             << static_cast<int>(color[2])
+             << std::setprecision(floatPrec) << ")\"" << endl;
+    }
+  out << "   opacity=\"" << static_cast<float>(alpha)/255.f << "\"\n"
+      << ">" << endl
+      << "  <path d=\"" << std::right << endl;
   while (code < codeEnd)
     {
     assert(pt - ptBegin == (code - codeBegin) * 3);

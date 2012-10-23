@@ -21,6 +21,8 @@
 #include "vtkImageData.h"
 #include "vtkMapper.h" //for VTK_MATERIALMODE_*
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -38,6 +40,7 @@ vtkStandardNewMacro(vtkOpenGLScalarsToColorsPainter);
 vtkOpenGLScalarsToColorsPainter::vtkOpenGLScalarsToColorsPainter()
 {
   this->InternalColorTexture = 0;
+  this->AlphaBitPlanes = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -64,8 +67,15 @@ void vtkOpenGLScalarsToColorsPainter::ReleaseGraphicsResources(vtkWindow* win)
 int vtkOpenGLScalarsToColorsPainter::GetPremultiplyColorsWithAlpha(
   vtkActor* actor)
 {
+  // Use the AlphaBitPlanes member, which should already be initialized. If
+  // not, initialize it.
   GLint alphaBits;
-  glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
+  if (this->AlphaBitPlanes < 0)
+    {
+    glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
+    this->AlphaBitPlanes = (int)alphaBits;
+    }
+  alphaBits = (GLint)this->AlphaBitPlanes;
 
   // Dealing with having a correct alpha (none square) in the framebuffer
   // is only required if there is an alpha component in the framebuffer
@@ -90,6 +100,19 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
                                                      bool forceCompileOnly)
 {
   vtkProperty* prop = actor->GetProperty();
+
+  // If we have not yet set the alpha bit planes, do it based on the
+  // render window so we're not querying GL in the middle of render.
+  if (this->AlphaBitPlanes < 0)
+    {
+    vtkOpenGLRenderer* oRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+    if (oRenderer != NULL)
+      {
+      vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
+        oRenderer->GetRenderWindow());
+      this->AlphaBitPlanes = context->GetAlphaBitPlanes();
+      }
+    }
 
   // If we are coloring by texture, then load the texture map.
   if (this->ColorTextureMap)
@@ -159,24 +182,35 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
 
   int pre_multiplied_by_alpha =  this->GetPremultiplyColorsWithAlpha(actor);
 
+  if(pre_multiplied_by_alpha || this->InterpolateScalarsBeforeMapping)
+  {
+    // save the blend function.
+    glPushAttrib(GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT);
+  }
+
   // We colors were premultiplied by alpha then we change the blending
   // function to one that will compute correct blended destination alpha
   // value, otherwise we stick with the default.
   if (pre_multiplied_by_alpha)
     {
-    // save the blend function.
-    glPushAttrib(GL_COLOR_BUFFER_BIT);
-
     // the following function is not correct with textures because there are
     // not premultiplied by alpha.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
 
+  if (this->InterpolateScalarsBeforeMapping)
+    {
+    // Turn on color sum and separate specular color so specular works
+    // with texturing.
+    glEnable(vtkgl::COLOR_SUM);
+    glLightModeli(vtkgl::LIGHT_MODEL_COLOR_CONTROL, vtkgl::SEPARATE_SPECULAR_COLOR);
+    }
+
   this->Superclass::RenderInternal(renderer, actor, typeflags,forceCompileOnly);
 
-  if (pre_multiplied_by_alpha)
+  if (pre_multiplied_by_alpha || this->InterpolateScalarsBeforeMapping)
     {
-    // restore the blend function
+    // restore the blend function & lights
     glPopAttrib();
     }
 }
@@ -185,4 +219,5 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
 void vtkOpenGLScalarsToColorsPainter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "AlphaBitPlanes: " << this->AlphaBitPlanes << endl;
 }

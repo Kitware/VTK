@@ -76,7 +76,6 @@ int TestGL2PSExporterMultipleRenderers( int, char *[] )
       std::string("/TestGL2PSExporterMultipleRenderers");
 
   exp->SetFilePrefix(fileprefix.c_str());
-  exp->WriteTimeStampOff(); // Otherwise hashes won't match
   exp->Write();
 
   renWin->SetMultiSamples(0);

@@ -57,7 +57,7 @@ vtkMolecule* vtkMoleculeAlgorithm::GetOutput(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeAlgorithm::SetOutput(vtkDataObject* d)
+void vtkMoleculeAlgorithm::SetOutput(vtkMolecule* d)
 {
   this->GetExecutive()->SetOutputData(0, d);
 }

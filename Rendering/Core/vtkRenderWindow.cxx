@@ -823,11 +823,11 @@ void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
 void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
 {
   // we are its parent
-  this->Renderers->RemoveItem(ren);
   if (ren->GetRenderWindow() == this)
     {
     ren->SetRenderWindow(NULL);
     }
+  this->Renderers->RemoveItem(ren);
 }
 
 int vtkRenderWindow::HasRenderer(vtkRenderer *ren)
@@ -1392,6 +1392,7 @@ void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
     {
     ren->SetGL2PSSpecialPropCollection(NULL);
     }
+  this->CapturingGL2PSSpecialProps = 0;
 }
 
 // Description: Return the stereo type as a character string.

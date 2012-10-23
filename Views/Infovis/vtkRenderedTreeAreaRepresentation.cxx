@@ -453,7 +453,12 @@ void vtkRenderedTreeAreaRepresentation::UpdateHoverHighlight(vtkView* view, int 
   this->Picker->Pick(x, y, 0, r);
   double pos[3];
   this->Picker->GetPickPosition(pos);
-  float posFloat[3] = {pos[0], pos[1], pos[2]};
+  float posFloat[3] =
+  {
+    static_cast<float>(pos[0]),
+    static_cast<float>(pos[1]),
+    static_cast<float>(pos[2])
+  };
   this->AreaLayout->Update();
   vtkIdType id = this->AreaLayout->FindVertex(posFloat);
   if (id >= 0)

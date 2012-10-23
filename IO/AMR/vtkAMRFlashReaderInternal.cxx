@@ -1340,8 +1340,8 @@ void vtkFlashReaderInternal::ReadParticlesComponent
   hsize_t    spaceMem = H5Screate_simple( 1, &thisSize, NULL );
   int        attrIndx = this->ParticleAttributeNamesToIds[ compName ];
 
-  hsize_t    theShift[2] = { 0, attrIndx };
-  hsize_t    numReads[2] = { this->NumberOfParticles, 1 };
+  hsize_t    theShift[2] = {0,static_cast<hsize_t>(attrIndx)};
+  hsize_t    numReads[2] = {static_cast<hsize_t>(this->NumberOfParticles),1};
   H5Sselect_hyperslab ( spaceIdx, H5S_SELECT_SET, theShift,
                         NULL,     numReads,       NULL );
   H5Dread( dataIndx, H5T_NATIVE_DOUBLE, spaceMem,

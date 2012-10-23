@@ -116,7 +116,6 @@ int TestGL2PSExporterRaster( int, char *[] )
       std::string("/TestGL2PSExporterRaster");
 
   exp->SetFilePrefix(fileprefix.c_str());
-  exp->WriteTimeStampOff(); // Otherwise hashes won't match
   exp->Write();
 
   return EXIT_SUCCESS;

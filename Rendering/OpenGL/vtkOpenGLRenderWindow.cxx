@@ -297,6 +297,10 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
   // http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
   glPixelStorei(GL_UNPACK_ALIGNMENT,1);
   glPixelStorei(GL_PACK_ALIGNMENT,1);
+  // Set the number of alpha bit planes used by the window
+  int rgba[4];
+  this->GetColorBufferSizes(rgba);
+  this->SetAlphaBitPlanes(rgba[3]);
 }
 
 void vtkOpenGLRenderWindow::OpenGLInitContext()

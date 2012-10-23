@@ -1405,11 +1405,10 @@ void vtkFunctionParser::RemoveSpaces()
 //-----------------------------------------------------------------------------
 int vtkFunctionParser::OperatorWithinVariable(int idx)
 {
-  int i;
   char *tmpString = NULL;
   int start, end;
 
-  for ( i = 0;  i < this->NumberOfScalarVariables;  i ++ )
+  for ( int i = 0;  i < this->NumberOfScalarVariables;  i ++ )
     {
     end = 0;
 
@@ -1439,7 +1438,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
       }
     }
 
-  for ( i = 0;  i < this->NumberOfVectorVariables;  i ++ )
+  for ( int i = 0;  i < this->NumberOfVectorVariables;  i ++ )
     {
     end = 0;
 
@@ -1469,7 +1468,6 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
       }
     }
 
-  tmpString = NULL;
   return  0;
 }
 

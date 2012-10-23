@@ -461,7 +461,7 @@ void DICOMAppHelper::ArrayCallback(DICOMParser *parser,
         HeaderFile << fval;
         break;
       case DICOMParser::VR_FD: // float double
-        fval = static_cast<float> (atof(reinterpret_cast<char*>(val)));
+        dval = static_cast<double> (atof(reinterpret_cast<char*>(val)));
         HeaderFile << dval;
         break;
       case DICOMParser::VR_UL: // unsigned long

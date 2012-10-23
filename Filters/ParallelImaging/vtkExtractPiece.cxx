@@ -116,7 +116,6 @@ int vtkExtractPiece::RequestData(
 
 
   vtkCompositeDataIterator* iter = input->NewIterator();
-  iter->VisitOnlyLeavesOn();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
      iter->GoToNextItem())
     {

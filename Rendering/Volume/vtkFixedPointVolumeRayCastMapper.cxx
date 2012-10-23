@@ -2188,8 +2188,8 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
        ( minY < 0 && maxY < 0 ) ||
        ( minX > imageViewportSize[0]-1 &&
          maxX > imageViewportSize[0]-1 ) ||
-       ( minX > imageViewportSize[0]-1 &&
-         maxX > imageViewportSize[0]-1 ) )
+       ( minY > imageViewportSize[1]-1 &&
+         maxY > imageViewportSize[1]-1 ) )
     {
     return 0;
     }

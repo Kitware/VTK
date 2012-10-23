@@ -69,13 +69,10 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
                                               int piece, int numPieces,
                                               vtkUnstructuredGrid *input)
 {
-  int j;
-  vtkIdType idx, numCells, ptId;
-  vtkIdType* cellPointer;
-  vtkIdType* ids;
+  vtkIdType idx, ptId;
   vtkIdType numCellPts;
 
-  numCells = input->GetNumberOfCells();
+  vtkIdType numCells = input->GetNumberOfCells();
 
   // Clear Point ownership.  This is only necessary if we
   // Are creating ghost points.
@@ -88,7 +85,7 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
     }
 
   // Brute force division.
-  cellPointer = (input->GetCells() ? input->GetCells()->GetPointer() : 0);
+  vtkIdType* cellPointer = (input->GetCells() ? input->GetCells()->GetPointer() : 0);
   for (idx = 0; idx < numCells; ++idx)
     {
     if ((idx * numPieces / numCells) == piece)
@@ -100,13 +97,13 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
       tags->SetValue(idx, -1);
       }
     // Fill in point ownership mapping.
-    if (pointOwnership)
+    if (pointOwnership && cellPointer)
       {
       numCellPts = cellPointer[0];
-      ids = cellPointer+1;
+      vtkIdType* ids = cellPointer+1;
       // Move to the next cell.
       cellPointer += (1 + numCellPts);
-      for (j = 0; j < numCellPts; ++j)
+      for (int j = 0; j < numCellPts; ++j)
         {
         ptId = ids[j];
         if (pointOwnership->GetId(ptId) == -1)

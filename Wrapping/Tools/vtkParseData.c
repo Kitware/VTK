@@ -669,7 +669,7 @@ void vtkParse_AddStringToArray(
 void vtkParse_AddItemToArray(
   ItemInfo **valueArray, int *count, parse_item_t type, int idx)
 {
-  size_t n = *count;
+  int n = *count;
   ItemInfo *values = *valueArray;
 
   values = (ItemInfo *)array_size_check(values, sizeof(ItemInfo), n);

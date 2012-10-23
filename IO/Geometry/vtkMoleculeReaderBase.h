@@ -32,6 +32,8 @@ class vtkDataArray;
 class vtkIdTypeArray;
 class vtkUnsignedCharArray;
 class vtkPoints;
+class vtkStringArray;
+class vtkMolecule;
 
 class VTKIOGEOMETRY_EXPORT vtkMoleculeReaderBase : public vtkPolyDataAlgorithm
 {
@@ -63,15 +65,25 @@ protected:
   double HBScale;
   int NumberOfAtoms;
 
+  virtual int FillOutputPortInformation(int, vtkInformation *);
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
   int ReadMolecule(FILE *fp, vtkPolyData *output);
   int MakeAtomType(const char *atype);
   int MakeBonds(vtkPoints*, vtkIdTypeArray*, vtkCellArray*);
 
+  vtkMolecule *Molecule;
   vtkPoints *Points;
   vtkUnsignedCharArray *RGB;
   vtkFloatArray *Radii;
   vtkIdTypeArray *AtomType;
+  vtkStringArray *AtomTypeStrings;
+  vtkIdTypeArray *Residue;
+  vtkUnsignedCharArray *Chain;
+  vtkUnsignedCharArray *SecondaryStructures;
+  vtkUnsignedCharArray *SecondaryStructuresBegin;
+  vtkUnsignedCharArray *SecondaryStructuresEnd;
+  vtkUnsignedCharArray *IsHetatm;
 
   virtual void ReadSpecificMolecule(FILE* fp) = 0;
 

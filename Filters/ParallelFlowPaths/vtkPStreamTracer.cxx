@@ -844,9 +844,7 @@ public:
     this->AMR = vtkOverlappingAMR::SafeDownCast(this->InputData);
 
     vtkAMRUtilities::DistributeProcessInformation(this->AMR, this->Controller, BlockProcess);
-
     this->AMR->GenerateParentChildInformation();
-    this->AMR->GenerateVisibilityArrays();
   }
 
 protected:
@@ -1084,7 +1082,7 @@ namespace
     void Initialize(bool hasData, const PStreamTracerPointArray& seeds, int MaxId)
     {
       AssertGe(MaxId,0);
-      int numSeeds  = seeds.size();
+      int numSeeds  = static_cast<int>(seeds.size());
       this->HasData.clear();
         {
         for(int i=0; i<NumProcs;i++)
@@ -1563,8 +1561,9 @@ int vtkPStreamTracer::RequestData(
   if (!vtkMPIController::SafeDownCast(this->Controller) || this->Controller->GetNumberOfProcesses() == 1)
     {
     this->GenerateNormalsInIntegrate = 1;
-    return vtkStreamTracer::RequestData(request,inputVector,outputVector);
+    int result = vtkStreamTracer::RequestData(request,inputVector,outputVector);
     this->GenerateNormalsInIntegrate = 0;
+    return result;
     }
 
   this->Rank = this->Controller->GetLocalProcessId();

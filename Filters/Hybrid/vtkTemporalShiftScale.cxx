@@ -94,8 +94,8 @@ int vtkTemporalShiftScale::ProcessRequest(
     }
 
   // set update extent
-  if(request->Has(
-       vtkCompositeDataPipeline::REQUEST_UPDATE_EXTENT()))
+  if(  request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME())
+     ||request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
     }

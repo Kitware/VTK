@@ -58,11 +58,11 @@ public:
   vtkGetVector3Macro(GridSpacing,double);
 
   // Description:
-  // Get/Set the scalar type of the grid.  The default is
-  // double.
+  // Get/Set the scalar type of the grid.  The default is float.
   vtkSetMacro(GridScalarType,int);
   vtkGetMacro(GridScalarType,int);
-  void SetGridScalarTypeToFloat(){this->SetGridScalarType(VTK_DOUBLE);};
+  void SetGridScalarTypeToDouble(){this->SetGridScalarType(VTK_DOUBLE);};
+  void SetGridScalarTypeToFloat(){this->SetGridScalarType(VTK_FLOAT);};
   void SetGridScalarTypeToShort(){this->SetGridScalarType(VTK_SHORT);};
   void SetGridScalarTypeToUnsignedShort()
     {this->SetGridScalarType(VTK_UNSIGNED_SHORT);};

@@ -24,7 +24,6 @@ unset(tests)
 if(VTK_DATA_ROOT)
   set(tests
     multiLineText
-#     TestTextActor3D needs vtkTkRenderWidget
   )
 endif()
 

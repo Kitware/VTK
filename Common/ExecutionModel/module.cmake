@@ -7,7 +7,7 @@ vtk_module(vtkCommonExecutionModel
     vtkCommonMisc
   TEST_DEPENDS
     vtkTestingCore
+    vtkFiltersCore
     vtkIOCore
     vtkIOLegacy
-    vtkFiltersExtraction
   )

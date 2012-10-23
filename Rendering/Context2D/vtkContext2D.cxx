@@ -292,6 +292,50 @@ void vtkContext2D::DrawPointSprites(vtkImageData *sprite, float *points, int n)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::DrawMarkers(int shape, bool highlight, float *points, int n,
+                               unsigned char *colors, int nc_comps)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  this->Device->DrawMarkers(shape, highlight, points, n, colors, nc_comps);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawMarkers(int shape, bool highlight, float *points, int n)
+{
+  this->DrawMarkers(shape, highlight, points, n, NULL, 0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawMarkers(int shape, bool highlight, vtkPoints2D *points)
+{
+  // Construct an array with the correct coordinate packing for OpenGL.
+  int n = static_cast<int>(points->GetNumberOfPoints());
+  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  this->DrawMarkers(shape, highlight, f, n);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawMarkers(int shape, bool highlight, vtkPoints2D *points, vtkUnsignedCharArray *colors)
+{
+  // Construct an array with the correct coordinate packing for OpenGL.
+  int n = static_cast<int>(points->GetNumberOfPoints());
+  int nc = static_cast<int>(colors->GetNumberOfTuples());
+  if (n != nc)
+    {
+    vtkErrorMacro(<< "Attempted to color points with array of wrong length");
+    return;
+    }
+  int nc_comps = static_cast<int>(colors->GetNumberOfComponents());
+  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  unsigned char *c = colors->GetPointer(0);
+  this->DrawMarkers(shape, highlight, f, n, c, nc_comps);
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::DrawRect(float x, float y, float width, float height)
 {
   if (!this->Device)

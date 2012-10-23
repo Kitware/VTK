@@ -85,29 +85,15 @@ public:
   // two template parameters passed in. When instances of the two parameters
   // are passed in on the Go method we will call the functor and pass along
   // the given parameters.
-  // Note: This method passes in a stateless functor. If you need
-  // to pass in a functor that has internal state you should
-  // the other add call
+  // Note: This copies the functor so pass stateful functors by pointer.
   //
   // \code
   // vtkDoubleDispatcher<vtkDataModel,vtkCell> dispatcher;
   // dispatcher.Add<vtkImageData,vtkVoxel>(exampleFunctor());
+  // dispatcher.Add<vtkImageData,vtkVoxel>(&exampleFunctorWithState);
   // \endcode
   template <class SomeLhs, class SomeRhs, class Functor>
-  void Add(const Functor& fun);
-
-  // Description:
-  // Add in a functor that is mapped to the combination of the
-  // two template parameters passed in. When instances of the two parameters
-  // are passed in on the Go method we will call the functor and pass along
-  // the given parameters
-  //
-  // \code
-  // vtkDoubleDispatcher<vtkDataModel,vtkCell> dispatcher;
-  // dispatcher.Add<vtkImageData,vtkVoxel>(&exampleFunctorInst);
-  // \endcode
-  template <class SomeLhs, class SomeRhs, class Functor>
-  void Add(Functor* fun);
+  void Add(Functor fun) { this->AddInternal<SomeLhs,SomeRhs>(fun, 1); }
 
   // Description:
   // Remove a functor that is bound to the given parameter types. Will
@@ -145,6 +131,11 @@ protected:
   typedef std::pair<TypeInfo,TypeInfo> KeyType;
   typedef std::map<KeyType, MappedType > MapType;
   MapType FunctorMap;
+private:
+  template <class SomeLhs, class SomeRhs, class Functor>
+  void AddInternal(const Functor& fun, long);
+  template <class SomeLhs, class SomeRhs, class Functor>
+  void AddInternal(Functor* fun, int);
 };
 
 //We are making all these method non-inline to reduce compile time overhead
@@ -153,7 +144,7 @@ template<class BaseLhs, class BaseRhs, typename ReturnType,
          template <class, class> class CastingPolicy>
 template <class SomeLhs, class SomeRhs, class Functor>
 void vtkDoubleDispatcher<BaseLhs,BaseRhs,ReturnType,CastingPolicy>
-::Add(const Functor& fun)
+::AddInternal(const Functor& fun, long)
   {
   typedef vtkDoubleDispatcherPrivate::FunctorDoubleDispatcherHelper<
       BaseLhs, BaseRhs,
@@ -172,7 +163,7 @@ template<class BaseLhs, class BaseRhs, typename ReturnType,
          template <class, class> class CastingPolicy>
 template <class SomeLhs, class SomeRhs, class Functor>
 void vtkDoubleDispatcher<BaseLhs,BaseRhs,ReturnType,CastingPolicy>
-::Add(Functor* fun)
+::AddInternal(Functor* fun, int)
   {
   typedef vtkDoubleDispatcherPrivate::FunctorRefDispatcherHelper<
       BaseLhs, BaseRhs,

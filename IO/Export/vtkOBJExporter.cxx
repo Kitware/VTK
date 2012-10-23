@@ -316,10 +316,10 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
       {
       for (i = 2; i < npts; i++)
         {
-        if (i%2)
+        if (i%2 == 0)
           {
-          i1 = i - 1;
-          i2 = i - 2;
+          i1 = i - 2;
+          i2 = i - 1;
           }
         else
           {

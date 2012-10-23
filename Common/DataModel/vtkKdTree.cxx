@@ -721,7 +721,6 @@ void vtkKdTree::ComputeCellCenter(vtkDataSet *set, int cellId, double *center)
     }
   else
     {
-    setNum = 0;
     set = this->GetDataSet();
     }
 

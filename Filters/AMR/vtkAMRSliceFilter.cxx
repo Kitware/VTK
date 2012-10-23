@@ -14,6 +14,7 @@
  =========================================================================*/
 
 #include "vtkAMRSliceFilter.h"
+#include "vtkAMRBox.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataObject.h"
 #include "vtkInformation.h"
@@ -31,7 +32,6 @@
 #include "vtkMultiProcessController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataArray.h"
-#include "vtkAMRInformation.h"
 #include "vtkTimerLog.h"
 #include "vtkSmartPointer.h"
 #include "vtkUniformGridAMRDataIterator.h"
@@ -322,8 +322,6 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
         }
       }
     }
-   std::cout << this->BlocksToLoad.size() << std::endl;
-
 }
 
 //------------------------------------------------------------------------------
@@ -385,7 +383,9 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
       }
     }
 
-  out->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0], p->GetOrigin(), description);
+  out->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
+  out->SetGridDescription(description);
+  out->SetOrigin(p->GetOrigin());
   vtkTimerLog::MarkStartEvent( "AMRSlice::GetAMRSliceInPlane" );
 
   unsigned int numLevels = out->GetNumberOfLevels();
@@ -397,40 +397,45 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
     unsigned int dataIdx;
     inp->GetLevelAndIndex(flatIndex,level,dataIdx);
     vtkUniformGrid *grid = inp->GetDataSet( level, dataIdx );
+    vtkUniformGrid* slice = NULL;
+
     if(grid)
       {
       // Get the 3-D Grid dimensions
       int dims[3];
       grid->GetDimensions( dims );
-      vtkUniformGrid* slice = this->GetSlice( p->GetOrigin(), dims, grid->GetOrigin(), grid->GetSpacing());
-      assert( "Dimension of slice must be 2-D" &&
-              (slice->GetDataDimension()==2) );
+      slice = this->GetSlice( p->GetOrigin(), dims, grid->GetOrigin(), grid->GetSpacing());
+      assert( "Dimension of slice must be 2-D" && (slice->GetDataDimension()==2) );
       assert( "2-D slice is NULL" && (slice != NULL) );
       this->GetSliceCellData( slice, grid );
-      out->SetDataSet(level, dataIndices[level], slice );
-      slice->Delete();
       }
     else
       {
-      vtkSmartPointer<vtkUniformGrid> sliceGrid;
       int dims[3];
       double spacing[3];
       double origin[3];
-      inp->GetAMRInfo()->GetAMRBox(level,dataIdx).GetNumberOfNodes(dims);
-      inp->GetAMRInfo()->GetSpacing(level,spacing);
-      inp->GetAMRInfo()->GetOrigin(level,dataIdx,origin);
-      sliceGrid.TakeReference(this->GetSlice(p->GetOrigin(),dims, origin, spacing));
-      out->SetAMRBox(level, dataIndices[level],sliceGrid->GetOrigin(),sliceGrid->GetDimensions(),sliceGrid->GetSpacing());
-      out->SetDataSet(level, dataIndices[level], NULL );
+      inp->GetSpacing(level,spacing);
+      inp->GetAMRBox(level,dataIdx).GetNumberOfNodes(dims);
+      inp->GetOrigin(level,dataIdx,origin);
+      slice = this->GetSlice(p->GetOrigin(),dims, origin, spacing);
       }
+
+    vtkAMRBox box(slice->GetOrigin(), slice->GetDimensions(), slice->GetSpacing(), out->GetOrigin(), out->GetGridDescription());
+    out->SetSpacing(level,slice->GetSpacing());
+    out->SetAMRBox(level, dataIndices[level],box);
+    if(grid)
+      {
+      out->SetDataSet(level, dataIndices[level], slice );
+      }
+    slice->Delete();
     dataIndices[level]++;
     }
 
   vtkTimerLog::MarkEndEvent( "AMRSlice::GetAMRSliceInPlane" );
 
-  vtkTimerLog::MarkStartEvent( "AMRSlice::GenerateVisibility" );
-  out->GenerateVisibilityArrays();
-  vtkTimerLog::MarkEndEvent( "AMRSlice::GenerateVisibility" );
+  vtkTimerLog::MarkStartEvent( "AMRSlice::Generate Blanking" );
+  vtkAMRUtilities::BlankCells(out, this->Controller);
+  vtkTimerLog::MarkEndEvent( "AMRSlice::Generate Blanking" );
 }
 
 //------------------------------------------------------------------------------

@@ -87,12 +87,11 @@ int vtkTemporalSnapToTimeStep::ProcessRequest(
     return retVal;
     }
 
-
-  // set update extent
-  if(request->Has(
-       vtkCompositeDataPipeline::REQUEST_UPDATE_EXTENT()))
+  //modify the time in either of these passes
+  if(  request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME())
+     ||request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    return this->RequestUpdateExtent(request, inputVector, outputVector);
+      return this->RequestUpdateExtent(request, inputVector, outputVector);
     }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);

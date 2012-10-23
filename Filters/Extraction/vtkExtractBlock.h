@@ -27,7 +27,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-class vtkCompositeDataIterator;
+class vtkDataObjectTreeIterator;
 class vtkMultiPieceDataSet;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractBlock : public vtkMultiBlockDataSetAlgorithm
@@ -80,7 +80,7 @@ protected:
 
 
   /// Extract subtree
-  void CopySubTree(vtkCompositeDataIterator* loc,
+  void CopySubTree(vtkDataObjectTreeIterator* loc,
     vtkMultiBlockDataSet* output, vtkMultiBlockDataSet* input);
   bool Prune(vtkMultiBlockDataSet* mblock);
   bool Prune(vtkMultiPieceDataSet* mblock);

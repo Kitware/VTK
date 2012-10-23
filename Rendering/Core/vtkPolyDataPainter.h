@@ -78,6 +78,10 @@ public:
   static vtkInformationObjectBaseKey* DATA_ARRAY_TO_VERTEX_ATTRIBUTE();
 
   // Description:
+  // Key to store the shader device adaptor.
+  static vtkInformationObjectBaseKey* SHADER_DEVICE_ADAPTOR();
+
+  // Description:
   // Overridden to stop the render call if input polydata is not set,
   // since PolyDataPainter cannot paint without any polydata input.
   virtual void Render(vtkRenderer* renderer, vtkActor* actor,

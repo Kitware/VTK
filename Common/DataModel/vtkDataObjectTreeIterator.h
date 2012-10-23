@@ -73,6 +73,27 @@ public:
   // Not valid if IsDoneWithTraversal() returns true.
   virtual unsigned int GetCurrentFlatIndex();
 
+  // Description:
+  // If VisitOnlyLeaves is true, the iterator will only visit nodes
+  // (sub-datasets) that are not composite. If it encounters a composite
+  // data set, it will automatically traverse that composite dataset until
+  // it finds non-composite datasets. With this options, it is possible to
+  // visit all non-composite datasets in tree of composite datasets
+  // (composite of composite of composite for example :-) ) If
+  // VisitOnlyLeaves is false, GetCurrentDataObject() may return
+  // vtkCompositeDataSet. By default, VisitOnlyLeaves is 1.
+  vtkSetMacro(VisitOnlyLeaves, int);
+  vtkGetMacro(VisitOnlyLeaves, int);
+  vtkBooleanMacro(VisitOnlyLeaves, int);
+
+  // Description:
+  // If TraverseSubTree is set to true, the iterator will visit the entire tree
+  // structure, otherwise it only visits the first level children. Set to 1 by
+  // default.
+  vtkSetMacro(TraverseSubTree, int);
+  vtkGetMacro(TraverseSubTree, int);
+  vtkBooleanMacro(TraverseSubTree, int);
+
 //BTX
 protected:
   vtkDataObjectTreeIterator();
@@ -103,6 +124,9 @@ private:
   class vtkInternals;
   vtkInternals* Internals;
   friend class vtkInternals;
+
+  int TraverseSubTree;
+  int VisitOnlyLeaves;
 
   // Description:
   // Helper method used by vtkInternals to get access to the internals of

@@ -110,11 +110,11 @@ public:
   // in the cell are specified with pcoords[3]. The function returns a 0 if the
   // point x is outside of the volume, and a 1 if inside the volume.
   virtual int ComputeStructuredCoordinates(
-    double x[3], int ijk[3], double pcoords[3]);
+    const double x[3],  int ijk[3],  double pcoords[3]);
 
-  static int ComputeStructuredCoordinates( double x[3], int ijk[3], double pcoords[3],
-                                           int* extent,
-                                           double* spacing,
+  static int ComputeStructuredCoordinates( const double x[3], int ijk[3], double pcoords[3],
+                                           const int* extent,
+                                           const double* spacing,
                                            const double* origin,
                                            const double* bounds);
   // Description:

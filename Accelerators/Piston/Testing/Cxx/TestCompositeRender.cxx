@@ -174,6 +174,9 @@ void MyProcess::Execute()
   vtkRenderWindow *renWin = prm->MakeRenderWindow();
   renWin->AddRenderer(renderer);
   renWin->DoubleBufferOn();
+  renWin->SetMultiSamples(0);
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  iren->SetRenderWindow(renWin);
   renWin->Render();
 
   // TODO: Add an argument to decide if use interop or not
@@ -187,18 +190,13 @@ void MyProcess::Execute()
     {
     prm->ResetAllCameras();
 
-    vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow(renWin);
     this->ReturnValue =
       vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
-
-
     if (this->ReturnValue == vtkRegressionTester::DO_INTERACTOR)
       {
+      renWin->Render();
       prm->StartInteractor();
       }
-
-    iren->Delete();
 
     this->Controller->TriggerBreakRMIs();
     this->Controller->Barrier();
@@ -214,6 +212,7 @@ void MyProcess::Execute()
 
   renderer->Delete();
   renWin->Delete();
+  iren->Delete();
 }
 
 

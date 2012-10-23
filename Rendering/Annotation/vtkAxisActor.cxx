@@ -116,6 +116,7 @@ vtkAxisActor::vtkAxisActor()
   this->TitleVisibility = 1;
 
   this->DrawGridlines = 0;
+  this->DrawGridlinesOnly = 0;
   this->GridlineXLength = 1.;
   this->GridlineYLength = 1.;
   this->GridlineZLength = 1.;
@@ -192,7 +193,8 @@ vtkAxisActor::vtkAxisActor()
   this->LastMaxDisplayCoordinate[1] = 0;
   this->LastMaxDisplayCoordinate[2] = 0;
 
-  this->DrawGridlinesLocation = 0; // All locations
+   // 0: All locations
+  this->DrawGridlinesLocation = this->LastDrawGridlinesLocation = 0;
 
   // reset the base
   for(int i=0;i<3;i++)
@@ -402,6 +404,11 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
   if (!this->AxisHasZeroLength)
     {
+    if(this->DrawGridlinesOnly && this->DrawGridlines)
+      {
+      // Exit !!!!
+      return this->GridlinesActor->RenderOpaqueGeometry(viewport);
+      }
     if (this->Title != NULL && this->Title[0] != 0 && this->TitleVisibility)
       {
       if (this->Use2DMode == 0)
@@ -466,7 +473,7 @@ int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 
   // Everything is built, just have to render
 
-  if (!this->AxisHasZeroLength)
+  if (!this->AxisHasZeroLength && !this->DrawGridlinesOnly)
     {
     if(this->DrawGridpolys)
       {
@@ -485,7 +492,7 @@ int vtkAxisActor::RenderOverlay(vtkViewport *viewport)
   int i, renderedSomething=0;
 
   // Everything is built, just have to render
-  if (!this->AxisHasZeroLength)
+  if (!this->AxisHasZeroLength && !this->DrawGridlinesOnly)
     {
     if( this->Use2DMode == 1 )
       {
@@ -504,6 +511,84 @@ int vtkAxisActor::RenderOverlay(vtkViewport *viewport)
     }
 
   return renderedSomething;
+}
+
+// **************************************************************************
+int vtkAxisActor::HasTranslucentPolygonalGeometry()
+{
+  if (this->Visibility && !this->AxisHasZeroLength)
+    {
+
+    if (this->TitleVisibility)
+      {
+      if (this->Use2DMode)
+        {
+        if (this->TitleActor2D->HasTranslucentPolygonalGeometry())
+          {
+          return 1;
+          }
+        }
+      else
+        {
+        if (this->TitleActor->HasTranslucentPolygonalGeometry())
+          {
+          return 1;
+          }
+        }
+      }
+
+    if (this->LabelVisibility)
+      {
+      if (this->Use2DMode)
+        {
+        for (int i = 0; i < this->NumberOfLabelsBuilt; ++i)
+          {
+          if (this->LabelActors2D[i]->HasTranslucentPolygonalGeometry())
+            {
+            return 1;
+            } // end if
+          } // end for
+        } // end 2D
+      else
+        {
+        for (int i = 0; i < this->NumberOfLabelsBuilt; ++i)
+          {
+          if (this->LabelActors[i]->HasTranslucentPolygonalGeometry())
+            {
+            return 1;
+            } // end if
+          } // end for
+        } // end 3D
+      } // end label vis
+
+    if (this->AxisLinesActor->HasTranslucentPolygonalGeometry())
+      {
+      return 1;
+      }
+
+    if (this->DrawGridlines &&
+        this->GridlinesActor->HasTranslucentPolygonalGeometry())
+      {
+      return 1;
+      }
+
+    if (this->DrawInnerGridlines &&
+        this->InnerGridlinesActor->HasTranslucentPolygonalGeometry())
+      {
+      return 1;
+      }
+
+    if (this->DrawGridpolys &&
+        this-GridpolysActor->HasTranslucentPolygonalGeometry())
+      {
+      return 1;
+      }
+
+    return this->Superclass::HasTranslucentPolygonalGeometry();
+
+    } // end this vis
+
+  return 0;
 }
 
 // **************************************************************************
@@ -553,8 +638,9 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
 
   bool tickVisChanged = this->TickVisibilityChanged();
 
-  if (force || ticksRebuilt || tickVisChanged)
+  if (force || ticksRebuilt || tickVisChanged || this->LastDrawGridlinesLocation != this->DrawGridlinesLocation)
     {
+    this->LastDrawGridlinesLocation = this->DrawGridlinesLocation;
     this->SetAxisPointsAndLines();
     }
 

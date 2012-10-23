@@ -365,10 +365,9 @@ int vtkAMREnzoReader::FillMetaData( )
   std::vector<int> blocksPerLevel;
   this->ComputeStats(this->Internal, blocksPerLevel, origin);
 
-  this->Metadata->Initialize( static_cast<int>(blocksPerLevel.size()),
-                              &blocksPerLevel[0],
-                              origin, VTK_XYZ_GRID);
-  vtkAMRInformation* amrInfo = this->Metadata->GetAMRInfo();
+  this->Metadata->Initialize( static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
+  this->Metadata->SetGridDescription(VTK_XYZ_GRID);
+  this->Metadata->SetOrigin(origin);
 
   std::vector< int > b2level( this->Internal->NumberOfLevels+1, 0 );
   for( int block=0; block < this->Internal->NumberOfBlocks; ++block )
@@ -377,14 +376,24 @@ int vtkAMREnzoReader::FillMetaData( )
     int level                    = theBlock.Level;
     int internalIdx              = block;
     int id                       = b2level[ level ];
-    int index = amrInfo->GetIndex(level,id);
-    amrInfo->SetAMRBox(level, id, theBlock.MinBounds, theBlock.MaxBounds, theBlock.BlockNodeDimensions);
-    amrInfo->SetAMRBlockSourceIndex(index, internalIdx);
+
+    //compute spacing
+    double spacing[3];
+    for(int d=0; d<3; ++d)
+      {
+      spacing[d] = (theBlock.BlockNodeDimensions[d] > 1)?
+        (theBlock.MaxBounds[d]-theBlock.MinBounds[d])/(theBlock.BlockNodeDimensions[d]-1.0):1.0;
+      }
+    //compute AMRBox
+    vtkAMRBox box(theBlock.MinBounds, theBlock.BlockNodeDimensions, spacing, origin, VTK_XYZ_GRID);
+
+    //set meta data
+    this->Metadata->SetSpacing(level,spacing);
+    this->Metadata->SetAMRBox(level, id, box);
+    this->Metadata->SetAMRBlockSourceIndex(level,id, internalIdx);
     b2level[ level ]++;
     }
-  amrInfo->GenerateRefinementRatio();
-  amrInfo->GenerateParentChildInformation();
-  assert(amrInfo->IsValid());
+  this->Metadata->GenerateParentChildInformation();
   this->Metadata->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),this->Internal->DataTime);
   return( 1 );
 }

@@ -412,8 +412,8 @@ GATHER(vtkIdType)
 int vtkSubGroup::AllReduceUniqueList(int *list, int len, int **newList)
 {
   int transferLen, myListLen, lastListLen, nextListLen;
-  int *myList, *lastList, *nextList;
 
+  int *myList = NULL;
   myListLen = vtkSubGroup::MakeSortedUnique(list, len, &myList);
 
   if (this->nmembers == 1)
@@ -422,7 +422,7 @@ int vtkSubGroup::AllReduceUniqueList(int *list, int len, int **newList)
     return myListLen;
     }
 
-  lastList = myList;
+  int *lastList = myList;
   lastListLen = myListLen;
 
   for (int i=0; i < this->nFrom; i++)
@@ -435,6 +435,7 @@ int vtkSubGroup::AllReduceUniqueList(int *list, int len, int **newList)
     this->comm->Receive(buf, transferLen,
                       this->members[this->fanInFrom[i]], this->tag+1);
 
+    int *nextList = NULL;
     nextListLen = vtkSubGroup::MergeSortedUnique(lastList, lastListLen,
                                            buf, transferLen, &nextList);
 

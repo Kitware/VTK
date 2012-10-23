@@ -71,7 +71,7 @@ public:
   // Propagate time through the pipeline. this is a special pass
   // only necessary if there is temporal meta data that must be updated
   int PropagateTime(int outputPort);
-  int UpdateTimeDependentInformation();
+  int UpdateTimeDependentInformation(int outputPort);
 
 
   // Description:

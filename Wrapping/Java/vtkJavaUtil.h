@@ -19,14 +19,15 @@
 #include "vtkSystemIncludes.h"
 #include <jni.h>
 #include "vtkCommand.h"
-#include "vtkStdString.h"
 #include "vtkWrappingJavaModule.h"
+
+#include <string>
 
 extern VTKWRAPPINGJAVA_EXPORT jlong q(JNIEnv *env,jobject obj);
 
 extern VTKWRAPPINGJAVA_EXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env,jobject obj);
 extern VTKWRAPPINGJAVA_EXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in);
-extern VTKWRAPPINGJAVA_EXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, vtkStdString &out);
+extern VTKWRAPPINGJAVA_EXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, std::string &out);
 extern VTKWRAPPINGJAVA_EXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in);
 
 extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(JNIEnv *env,

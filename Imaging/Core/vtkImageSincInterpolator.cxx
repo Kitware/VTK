@@ -248,26 +248,37 @@ const char *vtkImageSincInterpolator::GetWindowFunctionAsString()
     {
     case VTK_LANCZOS_WINDOW:
       result = "Lanczos";
+      break;
     case VTK_KAISER_WINDOW:
       result = "Kaiser";
+      break;
     case VTK_COSINE_WINDOW:
       result = "Cosine";
+      break;
     case VTK_HANN_WINDOW:
       result = "Hann";
+      break;
     case VTK_HAMMING_WINDOW:
       result = "Hamming";
+      break;
     case VTK_BLACKMAN_WINDOW:
       result = "Blackman";
+      break;
     case VTK_BLACKMAN_HARRIS3:
       result = "BlackmanHarris3";
+      break;
     case VTK_BLACKMAN_HARRIS4:
       result = "BlackmanHarris4";
+      break;
     case VTK_NUTTALL_WINDOW:
       result = "Nuttall";
+      break;
     case VTK_BLACKMAN_NUTTALL3:
       result = "BlackmanNuttall3";
+      break;
     case VTK_BLACKMAN_NUTTALL4:
       result = "BlackmanNuttall4";
+      break;
     }
 
   return result;

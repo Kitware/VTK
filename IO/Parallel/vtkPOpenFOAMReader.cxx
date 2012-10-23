@@ -359,7 +359,7 @@ int vtkPOpenFOAMReader::RequestData(vtkInformation *request,
 
     this->GatherMetaData();
 
-    if (append->GetInput() == NULL)
+    if (append->GetNumberOfInputConnections(0) == 0)
       {
       output->Initialize();
       ret = 0;

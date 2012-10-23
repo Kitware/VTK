@@ -13,7 +13,6 @@ set(Module_SRCS
   vtkBiQuadraticQuadraticWedge.cxx
   vtkBiQuadraticTriangle.cxx
   vtkBox.cxx
-  vtkBrewerColors.cxx
   vtkBSPCuts.cxx
   vtkBSPIntersections.cxx
   vtkCell3D.cxx
@@ -183,7 +182,6 @@ set(Module_SRCS
   vtkDispatcher.h
   vtkDispatcher_Private.h
   vtkDoubleDispatcher.h
-  vtkTuple.h
   vtkVector.h
   vtkVectorOperators.h
   vtkColor.h
@@ -253,7 +251,6 @@ set_source_files_properties(
   vtkMarchingCubesTriangleCases
   vtkImageIterator
   vtkImageProgressIterator
-  vtkTuple
   vtkVector
   vtkColor
   vtkRect
@@ -266,7 +263,6 @@ set_source_files_properties(
   vtkColor.h
   vtkRect.h
   vtkVector.h
-  vtkTuple.h
   PROPERTIES WRAP_SPECIAL 1
   )
 

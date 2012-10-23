@@ -106,7 +106,6 @@ int vtkCompositeDataProbeFilter::RequestData(
 
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(sourceComposite->NewIterator());
-  iter->VisitOnlyLeavesOn();
   // We do reverse traversal, so that for hierarchical datasets, we traverse the
   // higher resolution blocks first.
   int idx=0;
@@ -181,7 +180,6 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
 
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(source->NewIterator());
-  iter->VisitOnlyLeavesOn();
 
   int numDatasets = 0;
   for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal();

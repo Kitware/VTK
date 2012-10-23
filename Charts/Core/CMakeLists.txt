@@ -10,7 +10,6 @@ set(Module_SRCS
   vtkChartXY.cxx
   vtkChartXYZ.cxx
   vtkColorLegend.cxx
-  vtkColorSeries.cxx
   vtkColorTransferControlPointsItem.cxx
   vtkColorTransferFunctionItem.cxx
   vtkCompositeControlPointsItem.cxx
@@ -22,6 +21,7 @@ set(Module_SRCS
   vtkPiecewiseFunctionItem.cxx
   vtkPiecewisePointHandleItem.cxx
   vtkPlot.cxx
+  vtkPlot3D.cxx
   vtkPlotBar.cxx
   vtkPlotGrid.cxx
   vtkPlotHistogram2D.cxx
@@ -29,7 +29,9 @@ set(Module_SRCS
   vtkPlotParallelCoordinates.cxx # This adds a vtkInfovisCore dep for one class...
   vtkPlotPie.cxx
   vtkPlotPoints.cxx
+  vtkPlotPoints3D.cxx
   vtkPlotStacked.cxx
+  vtkPlotSurface.cxx
   vtkScalarsToColorsItem.cxx
   vtkScatterPlotMatrix.cxx
   )
@@ -38,6 +40,7 @@ set_source_files_properties(
   vtkChart
   vtkControlPointsItem
   vtkPlot
+  vtkPlot3D
   vtkScalarsToColorsItem
   ABSTRACT
   )

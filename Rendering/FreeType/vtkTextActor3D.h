@@ -71,7 +71,7 @@ public:
   // Get the Freetype-derived real bounding box for the given vtkTextProperty
   // and text string str.  Results are returned in the four element bbox int
   // array.  This call can be used for sizing other elements.
-  int GetBoundingBox(int bbox[4]);
+  virtual int GetBoundingBox(int bbox[4]);
 
   //BTX
   // Description:

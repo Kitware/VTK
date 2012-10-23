@@ -158,9 +158,9 @@ int vtkMNIObjectReader::CanReadFile(const char* fname)
       {
       objType = toupper(objType);
 
-      if (objType == 'P' || objType != 'L' ||
-          objType == 'M' || objType != 'F' ||
-          objType == 'X' || objType != 'Q' ||
+      if (objType == 'P' || objType == 'L' ||
+          objType == 'M' || objType == 'F' ||
+          objType == 'X' || objType == 'Q' ||
           objType == 'T')
         {
         status = 1;

@@ -183,7 +183,6 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
   vtkPointData *inPD=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
   double v, uu, vv;
-  double s, t;
   double deltaV;
   double deltaS, deltaT;
   double d0, d1, l0, l1;
@@ -251,7 +250,6 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
   deltaS = length / (double) (this->Resolution[0]);
   deltaT = length2 / (double) (this->Resolution[0]);
 
-  t = 0.0;
   d0 = d1 = 0.0;
   l0 = l1 = 0.0;
   i00 = 0;
@@ -268,8 +266,8 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
     {
     // compute the end points a rule, one point from the first polyline,
     // one point from the second line
-    s = i*deltaS;
-    t = i*deltaT;
+    double s = i*deltaS;
+    double t = i*deltaT;
 
     // find for the interval containing s
     while (s > l0 && i00 < (npts - 1))

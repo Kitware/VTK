@@ -38,40 +38,40 @@ class vtkPoints;
 class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridPartitioner :
   public vtkMultiBlockDataSetAlgorithm
 {
-  public:
-    static vtkStructuredGridPartitioner *New();
-    vtkTypeMacro(vtkStructuredGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-    void PrintSelf(ostream &oss, vtkIndent indent );
+public:
+  static vtkStructuredGridPartitioner *New();
+  vtkTypeMacro(vtkStructuredGridPartitioner, vtkMultiBlockDataSetAlgorithm);
+  void PrintSelf(ostream &oss, vtkIndent indent );
 
-    // Description:
-    // Set/Get macro for the number of subdivisions.
-    vtkGetMacro(NumberOfPartitions,int);
-    vtkSetMacro(NumberOfPartitions,int);
+  // Description:
+  // Set/Get macro for the number of subdivisions.
+  vtkGetMacro(NumberOfPartitions,int);
+  vtkSetMacro(NumberOfPartitions,int);
 
-    // Description:
-    // Set/Get macro for the number of ghost layers.
-    vtkGetMacro(NumberOfGhostLayers,int);
-    vtkSetMacro(NumberOfGhostLayers,int);
+  // Description:
+  // Set/Get macro for the number of ghost layers.
+  vtkGetMacro(NumberOfGhostLayers,int);
+  vtkSetMacro(NumberOfGhostLayers,int);
 
-  protected:
-    vtkStructuredGridPartitioner();
-    virtual ~vtkStructuredGridPartitioner();
+protected:
+  vtkStructuredGridPartitioner();
+  virtual ~vtkStructuredGridPartitioner();
 
-    // Description:
-    // Extracts the coordinates of the sub-grid from the whole grid.
-    vtkPoints* ExtractSubGridPoints(vtkStructuredGrid *wholeGrid,int subext[6]);
+  // Description:
+  // Extracts the coordinates of the sub-grid from the whole grid.
+  vtkPoints* ExtractSubGridPoints(vtkStructuredGrid *wholeGrid,int subext[6]);
 
-    // Standard Pipeline methods
-    virtual int RequestData(
-       vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-    virtual int FillInputPortInformation(int port, vtkInformation *info);
-    virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  // Standard Pipeline methods
+  virtual int RequestData(
+     vtkInformation*,vtkInformationVector**,vtkInformationVector*);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
-    int NumberOfPartitions;
-    int NumberOfGhostLayers;
-  private:
-    vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &); // Not implemented
-    void operator=(const vtkStructuredGridPartitioner &); // Not implemented
+  int NumberOfPartitions;
+  int NumberOfGhostLayers;
+private:
+  vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &); // Not implemented
+  void operator=(const vtkStructuredGridPartitioner &); // Not implemented
 };
 
 #endif /* VTKSTRUCTUREDGRIDPARTITIONER_H_ */

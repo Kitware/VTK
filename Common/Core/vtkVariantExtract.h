@@ -33,8 +33,10 @@
 #ifndef __vtkVariantExtract_h
 #define __vtkVariantExtract_h
 
+#include <typeinfo> // for typeid
+
 template<typename T>
-T vtkVariantExtract(const vtkVariant& value, bool& valid = 0)
+T vtkVariantExtract(const vtkVariant& value, bool& valid)
 {
   vtkGenericWarningMacro(
     << "Cannot convert vtkVariant containing [" << value.GetTypeAsString() << "] "

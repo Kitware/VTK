@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPythonUtil.cxx
+  Module:    PyVTKObject.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -35,7 +35,8 @@ struct PyVTKObject {
   PyVTKClass *vtk_class;
   PyObject *vtk_dict;
   vtkObjectBase *vtk_ptr;
-  long vtk_flags;
+  unsigned long *vtk_observers;
+  unsigned int vtk_flags;
 #if PY_VERSION_HEX >= 0x02010000
   PyObject *vtk_weakreflist;
 #endif
@@ -55,10 +56,13 @@ VTKWRAPPINGPYTHON_EXPORT
 vtkObjectBase *PyVTKObject_GetObject(PyObject *obj);
 
 VTKWRAPPINGPYTHON_EXPORT
-void PyVTKObject_SetFlag(PyObject *obj, long flag, int val);
+void PyVTKObject_AddObserver(PyObject *obj, unsigned long id);
 
 VTKWRAPPINGPYTHON_EXPORT
-long PyVTKObject_GetFlags(PyObject *obj);
+void PyVTKObject_SetFlag(PyObject *obj, unsigned int flag, int val);
+
+VTKWRAPPINGPYTHON_EXPORT
+unsigned int PyVTKObject_GetFlags(PyObject *obj);
 }
 
 #endif

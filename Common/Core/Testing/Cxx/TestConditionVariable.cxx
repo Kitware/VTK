@@ -93,7 +93,6 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
     {
     cout << "No thread data!\n";
     cout << "  Thread " << ( threadId + 1 ) << " of " << threadCount << " exiting.\n";
-    -- td->NumberOfWorkers;
     cout.flush();
     }
 

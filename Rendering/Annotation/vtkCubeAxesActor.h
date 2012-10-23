@@ -47,6 +47,8 @@ All rights reserve
 // Eric Brugger, Daniel Aguilera, Claire Guilbaud, Nicolas Dolegieviez,
 // Aashish Chaudhary, Philippe Pebay, David Gobbi, David Partyka, Utkarsh Ayachit
 // David Cole, Francois Bertel, and Mark Olesen
+// Part of this work was supported by CEA/DIF - Commissariat a l'Energie Atomique, 
+// Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France.
 //
 // .section See Also
 // vtkActor vtkAxisActor vtkCubeAxesActor2D
@@ -94,7 +96,7 @@ public:
   virtual int RenderTranslucentGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int RenderOverlay(vtkViewport*);
-  int HasTranslucentPolygonalGeometry() { return 1; }
+  int HasTranslucentPolygonalGeometry();
 
   // Description:
   // Gets/Sets the RebuildAxes flag
@@ -439,6 +441,22 @@ protected:
   vtkCamera *Camera;
 
   int FlyMode;
+
+  // Expose internally closest axis index computation
+  int FindClosestAxisIndex(double pts[8][3]);
+
+  // Expose internally furthest axis index computation
+  int FindFurtherstAxisIndex(double pts[8][3]);
+
+  // Expose internally the boundary edge fly mode axis index computation
+  void FindBoundaryEdge(int &indexOfAxisX, int &indexOfAxisY, int &indexOfAxisZ,
+                        double pts[8][3]);
+
+  // Description:
+  // This will Update AxisActors with GridVisibility when those should be
+  // dynamaic regarding the viewport.
+  // GridLineLocation = [VTK_CLOSEST_GRID_LINES, VTK_FURTHEST_GRID_LINES]
+  void UpdateGridLineVisibility(int axisIndex);
 
   // VTK_ALL_GRID_LINES      0
   // VTK_CLOSEST_GRID_LINES  1
