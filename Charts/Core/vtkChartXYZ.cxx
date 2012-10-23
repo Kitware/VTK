@@ -155,10 +155,10 @@ void vtkChartXYZ::RecalculateBounds()
     return;
     }
 
-  vector<vtkVector3f>::const_iterator it = this->Plots[0]->GetPoints().begin();
-  double bounds[] = { (*it).GetX(), (*it).GetX(),
-                      (*it).GetY(), (*it).GetY(),
-                      (*it).GetZ(), (*it).GetZ()};
+  vtkVector3f firstPoint = this->Plots[0]->GetPoints()[0];
+  double bounds[] = { firstPoint.GetX(), firstPoint.GetX(),
+                      firstPoint.GetY(), firstPoint.GetY(),
+                      firstPoint.GetZ(), firstPoint.GetZ()};
 
   // Need to calculate the bounds in three dimensions and set up the axes.
   for (unsigned int i = 0; i < this->Plots.size(); ++i)
@@ -167,15 +167,15 @@ void vtkChartXYZ::RecalculateBounds()
     for (unsigned int j = 0; j < points.size(); ++j)
       {
       const vtkVector3f &v = points[j];
-      for (int i = 0; i < 3; ++i)
+      for (int k = 0; k < 3; ++k)
         {
-        if (v[i] < bounds[2 * i])
+        if (v[k] < bounds[2 * k])
           {
-          bounds[2 * i] = v[i];
+          bounds[2 * k] = v[k];
           }
-        else if (v[i] > bounds[2 * i + 1])
+        else if (v[k] > bounds[2 * k + 1])
           {
-          bounds[2 * i + 1] = v[i];
+          bounds[2 * k + 1] = v[k];
           }
         }
       }
@@ -295,10 +295,8 @@ void vtkChartXYZ::ComputeDataBounds()
     // examine the eight corners of this plot's bounding cube
     for (unsigned int j = 0; j < 8; ++j)
       {
-      float *point = plot->GetDataBounds()[j].GetData();
       this->ContextTransform->TransformPoint(
-        point, transformedPoint);
-        //plot->GetDataBounds()[j].GetData(), transformedPoint);
+        plot->GetDataBounds()[j].GetData(), transformedPoint);
 
       if (transformedPoint[0] < xMin)
         {
@@ -935,6 +933,7 @@ bool vtkChartXYZ::Rotate(const vtkContextMouseEvent &mouse)
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
+  this->CheckClipping = true;
 
   this->InvokeEvent(vtkCommand::InteractionEvent);
   return true;

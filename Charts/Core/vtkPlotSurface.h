@@ -46,6 +46,20 @@ public:
   virtual void SetInputData(vtkTable *input);
 
   // Description:
+  // Set the input to the surface plot.
+  // Do not use these versions of SetInputData, as all the parameters
+  // beyond the vtkTable are ignored.
+  virtual void SetInputData(vtkTable *input, const vtkStdString &xName,
+                            const vtkStdString &yName,
+                            const vtkStdString &zName);
+  virtual void SetInputData(vtkTable *input, const vtkStdString &xName,
+                            const vtkStdString &yName,
+                            const vtkStdString &zName,
+                            const vtkStdString &colorName);
+  virtual void SetInputData(vtkTable *input, vtkIdType xColumn,
+                            vtkIdType yColumn, vtkIdType zColumn);
+
+  // Description:
   // Set the range of the input data for the X dimension.  By default it is
   // (1, NumberOfColumns).  Calling this method after SetInputData() results
   // in recomputation of the plot's data.  Therefore, it is more efficient
