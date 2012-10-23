@@ -52,6 +52,11 @@ public:
                           const unsigned char *colors = 0, int nc = 0) = 0;
 
   // Description:
+  // Draw triangles to generate the specified mesh.
+  virtual void DrawTriangleMesh(const float *mesh, int n,
+                                const unsigned char *colors, int nc) = 0;
+
+  // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as
   // lines, points and related primitives. This makes a deep copy of the vtkPen
   // object in the vtkContext2D, it does not hold a pointer to the supplied object.

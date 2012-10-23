@@ -44,7 +44,13 @@ public:
 
   // Description:
   // Draw points at the vertex positions specified.
-  void DrawPoints(const float *verts, int n, const unsigned char *colors, int nc);
+  void DrawPoints(const float *verts, int n,
+                  const unsigned char *colors, int nc);
+
+  // Description:
+  // Draw triangles to generate the specified mesh.
+  void DrawTriangleMesh(const float *mesh, int n,
+                        const unsigned char *colors, int nc);
 
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as

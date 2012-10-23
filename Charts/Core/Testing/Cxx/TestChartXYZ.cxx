@@ -17,6 +17,7 @@
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkFloatArray.h"
+#include "vtkPlotPoints3D.h"
 
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -51,10 +52,16 @@ int TestChartXYZ(int , char * [])
 {
   // Now the chart
   vtkNew<vtkChartXYZ> chart;
+  chart->SetAutoRotate(true);
+  chart->SetFitToScene(false);
+  chart->SetDecorateAxes(false);
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   view->GetScene()->AddItem(chart.GetPointer());
   vtkNew<vtkChartXYZ> chart2;
+  chart2->SetAutoRotate(true);
+  chart2->SetFitToScene(false);
+  chart->SetDecorateAxes(false);
   view->GetScene()->AddItem(chart2.GetPointer());
 
   chart->SetGeometry(vtkRectf(75.0, 20.0, 250, 260));
@@ -85,14 +92,14 @@ int TestChartXYZ(int , char * [])
 
   //chart->SetAroundX(true);
   // Add the three dimensions we are interested in visualizing.
-  chart->SetInput(table.GetPointer(), "X Axis", "Sine", "Cosine");
-  chart->RecalculateBounds();
-  chart->RecalculateTransform();
+  vtkNew<vtkPlotPoints3D> plot;
+  plot->SetInputData(table.GetPointer(), "X Axis", "Sine", "Cosine");
+  chart->AddPlot(plot.GetPointer());
 
   // We want a duplicate, that does not move.
-  chart2->SetInput(table.GetPointer(), "X Axis", "Sine", "Cosine");
-  chart2->RecalculateBounds();
-  chart2->RecalculateTransform();
+  vtkNew<vtkPlotPoints3D> plot2;
+  plot2->SetInputData(table.GetPointer(), "X Axis", "Sine", "Cosine");
+  chart2->AddPlot(plot2.GetPointer());
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
