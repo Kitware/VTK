@@ -82,6 +82,16 @@ public:
                        unsigned char rgba[4], double scale[2] = NULL,
                        double rotateAngle = 0.0, float strokeWidth = -1);
 
+  // Set/Get whether all text will be exported as paths.
+  static void SetTextAsPath(bool b)
+  {
+    vtkGL2PSUtilities::TextAsPath = b;
+  }
+  static bool GetTextAsPath()
+  {
+    return vtkGL2PSUtilities::TextAsPath;
+  }
+
 protected:
   static void DrawPathPS(vtkPath *path, double rasterPos[3],
                          double windowPos[2], unsigned char rgba[4],
@@ -102,7 +112,9 @@ protected:
 private:
   vtkGL2PSUtilities(const vtkGL2PSUtilities &); // Not implemented
   void operator=(const vtkGL2PSUtilities&); // Not implemented
+
   static vtkRenderWindow *RenderWindow;
+  static bool TextAsPath;
 
   // Description:
   // Project the point from world coordinates into device coordinates.

@@ -18,6 +18,7 @@
 #include "vtkImageData.h"
 #include "vtkIntArray.h"
 #include "vtkFloatArray.h"
+#include "vtkFreeTypeTools.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
@@ -33,31 +34,64 @@
 #include <string>
 
 vtkStandardNewMacro(vtkGL2PSUtilities)
+bool vtkGL2PSUtilities::TextAsPath = false;
 vtkRenderWindow *vtkGL2PSUtilities::RenderWindow = NULL;
 
 void vtkGL2PSUtilities::DrawString(const char *str,
                                    vtkTextProperty *tprop, double pos[])
 {
+  if (!vtkGL2PSUtilities::TextAsPath)
+    {
+    const char *fontname = vtkGL2PSUtilities::TextPropertyToPSFontName(tprop);
 
-  const char *fontname = vtkGL2PSUtilities::TextPropertyToPSFontName(tprop);
+    GLint align = static_cast<GLint>(
+          vtkGL2PSUtilities::TextPropertyToGL2PSAlignment(tprop));
 
-  GLint align = static_cast<GLint>(
-        vtkGL2PSUtilities::TextPropertyToGL2PSAlignment(tprop));
+    GLfloat angle = static_cast<GLfloat>(tprop->GetOrientation());
 
-  GLfloat angle = static_cast<GLfloat>(tprop->GetOrientation());
+    GLint fontSize = static_cast<GLint>(tprop->GetFontSize());
 
-  GLint fontSize = static_cast<GLint>(tprop->GetFontSize());
+    GL2PSrgba rgba;
+    double rgbad[3];
+    tprop->GetColor(rgbad[0], rgbad[1], rgbad[2]);
+    rgba[0] = static_cast<GLfloat>(rgbad[0]);
+    rgba[1] = static_cast<GLfloat>(rgbad[1]);
+    rgba[2] = static_cast<GLfloat>(rgbad[2]);
+    rgba[3] = tprop->GetOpacity();
 
-  GL2PSrgba rgba;
-  double rgbad[3];
-  tprop->GetColor(rgbad[0], rgbad[1], rgbad[2]);
-  rgba[0] = static_cast<GLfloat>(rgbad[0]);
-  rgba[1] = static_cast<GLfloat>(rgbad[1]);
-  rgba[2] = static_cast<GLfloat>(rgbad[2]);
-  rgba[3] = tprop->GetOpacity();
+    glRasterPos3dv(pos);
+    gl2psTextOptColor(str, fontname, fontSize, align, angle, rgba);
+    }
+  else
+    {
+    // Render the string to a path and then draw it to GL2PS:
+    vtkNew<vtkPath> path;
+    if (vtkFreeTypeTools *tools = vtkFreeTypeTools::GetInstance())
+      {
+      tools->StringToPath(tprop, str, path.GetPointer());
+      }
+    else
+      {
+      vtkNew<vtkGL2PSUtilities> dummy;
+      vtkErrorWithObjectMacro(dummy.GetPointer(), <<"Cannot access freetype "
+                              "tools!");
+      return;
+      }
+    // Get color
+    double rgbd[3];
+    tprop->GetColor(rgbd[0], rgbd[1], rgbd[2]);
+    unsigned char rgba[4] = {
+      static_cast<unsigned char>(rgbd[0]*255),
+      static_cast<unsigned char>(rgbd[1]*255),
+      static_cast<unsigned char>(rgbd[2]*255),
+      static_cast<unsigned char>(tprop->GetOpacity()*255)};
 
-  glRasterPos3dv(pos);
-  gl2psTextOptColor(str, fontname, fontSize, align, angle, rgba);
+    // Get device coordinate
+    double devicePos[3] = {pos[0], pos[1], pos[2]};
+    vtkGL2PSUtilities::ProjectPoint(devicePos);
+
+    vtkGL2PSUtilities::DrawPath(path.GetPointer(), pos, devicePos, rgba);
+    }
 }
 
 const char *vtkGL2PSUtilities::TextPropertyToPSFontName(vtkTextProperty *tprop)

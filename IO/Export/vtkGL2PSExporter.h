@@ -259,6 +259,14 @@ public:
   vtkBooleanMacro(Write3DPropsAsRasterImage, int);
 
   // Description:
+  // Turn on/off exporting text as path information, rather than character data.
+  // This is useful for the PDF backend, which does not properly
+  // support aligned text otherwise. Defaults to Off.
+  vtkSetMacro(TextAsPath, bool);
+  vtkGetMacro(TextAsPath, bool);
+  vtkBooleanMacro(TextAsPath, bool);
+
+  // Description:
   // Collection of 3D Props to exclude from rasterization. These will be
   // rendered as 2D vector primitives in the output. This setting is ignored if
   // Write3DPropsAsRasterImage is false. Behind the scenes, these props are
@@ -330,6 +338,7 @@ protected:
   int PS3Shading;
   int OcclusionCull;
   int Write3DPropsAsRasterImage;
+  bool TextAsPath;
 
   float *PixelData;
   int PixelDataSize[2];

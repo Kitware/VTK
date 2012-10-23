@@ -142,6 +142,7 @@ void vtkGL2PSExporter::WriteData()
 
   // Setup the helper class.
   vtkGL2PSUtilities::SetRenderWindow(this->RenderWindow);
+  vtkGL2PSUtilities::SetTextAsPath(this->TextAsPath != 0);
 
   // Store the "properly" rendered image's pixel data for special actors that
   // need to copy bitmaps into the output (e.g. paraview's scalar bar actor)
@@ -245,6 +246,7 @@ void vtkGL2PSExporter::WriteData()
 
   // Clean up:
   vtkGL2PSUtilities::SetRenderWindow(NULL);
+  vtkGL2PSUtilities::SetTextAsPath(false);
   // Re-enable depth peeling if needed
   for (int i = 0; i < static_cast<int>(origDepthPeeling.size()); ++i)
     {
