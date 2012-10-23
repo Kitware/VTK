@@ -1976,9 +1976,6 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
     -- iz;
     }
 
-  cerr << "Point " << x[0] << " " << x[1] << " " << x[2] << ": "
-       << ix << " " << iy << " " << iz << endl;
-
   int index = ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
   vtkHyperTreeLightWeightCursor cursor;
   vtkIdType offsets[3];
@@ -3023,7 +3020,6 @@ void vtkHyperTreeLightWeightCursor::ToRoot()
     // Root is a leaf.
     this->Index = 0;
     this->IsLeaf = 1;
-    cerr << "************** LEAF\n";
     }
   else
     {
