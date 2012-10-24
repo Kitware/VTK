@@ -14,7 +14,7 @@ All rights reserved.
 //   --grid-size-X opt    Size of hyper tree grid in X direction
 //   --grid-size-Y opt    Size of hyper tree grid in Y direction
 //   --grid-size-Z opt    Size of hyper tree grid in Z direction
-//   --file-name          Name of file describing AMR structure
+//   --descriptor         String of characters specifying tree structure
 //   --max-level opt      Maximum depth of hyper tree grid
 //   --contours           Number of iso-contours to be calculated
 //   --skip-Axis-Cut      Skip axis cut filter
@@ -47,82 +47,12 @@ All rights reserved.
 #include "vtksys/CommandLineArguments.hxx"
 #include "vtksys/ios/sstream"
 
-void ReadGridDescription( const char* fileName,
-                          int& nLevels,
-                          int& nRoots )
-{
-  // Open file
-  ifstream ifs;
-  ifs.open( fileName, ios::in | ios::binary );
-  if ( ifs.fail() )
-    {
-    cerr << "** Error: cannot open file: "
-         << fileName
-         << ", exiting."
-         << endl;
-    exit( 0 );
-    }
-  
-  // Get length of file
-  ifs.seekg( 0, ios::end );
-  int length = ifs.tellg();
-  ifs.seekg( 0, ios::beg );
-
-  // Allocate storage for string and read data as a block
-  char* buffer = new char [length];
-  ifs.read ( buffer, length );
-
-  cerr << "# Input string: "
-       << buffer 
-       << endl;
-
-  // Parse input string
-  bool rootLevel = true;
-  for ( int i = 0; i < length && buffer[i] != '\n'; ++ i )
-    {
-    vtksys_ios::ostringstream stream;
-    stream << buffer[i];
-    vtkStdString c = stream.str().c_str();
-    if ( c != "R" && c != "." && c != "|" )
-      {
-      cerr << "** Error: unrecognized character: "
-           << c
-           << " in file "
-           << fileName
-           << ", exiting."
-           << endl;
-      exit( 0 );
-      }
-
-    // Figure out if new level was reached
-    if ( c == "|" )
-      {
-      ++ nLevels;
-      
-      // check whether still at rool level
-      if ( rootLevel )
-        {
-        rootLevel = false;
-        }
-      } // if ( c == "|" )
-    else if ( rootLevel )
-      {
-      ++ nRoots;
-      }
-    } // i
-
-  // Clean up
-  delete [] buffer;
-  ifs.close();
-}
-
 void SetInputParameters( int& dim,
                          int& branch,
-                         const char* fileName,
+                         vtkStdString& descr,
                          int& nX,
                          int& nY,
-                         int& nZ,
-                         int& nLevels)
+                         int& nZ )
 {
   // Ensure that parsed dimensionality makes sense
   if ( dim > 3 )
@@ -168,9 +98,44 @@ void SetInputParameters( int& dim,
       }
     }
 
-  // Now read grid description
+  // Parse input string
   int nRoots = 0;
-  ReadGridDescription( fileName, nLevels, nRoots );
+  int nLevels = 1;
+  bool rootLevel = true;
+  for ( vtkStdString::iterator it = descr.begin(); 
+        it != descr.end(); ++ it )
+    {
+    vtksys_ios::ostringstream stream;
+    stream << *it;
+    vtkStdString c = stream.str().c_str();
+    if ( c != "R" && c != "." && c != "|" )
+      {
+      cerr << "** Error: unrecognized character: "
+           << c
+           << " in string "
+           << descr
+           << ", exiting."
+           << endl;
+      exit( 0 );
+      }
+
+    // Figure out if new level was reached
+    if ( c == "|" )
+      {
+      ++ nLevels;
+      
+      // check whether still at rool level
+      if ( rootLevel )
+        {
+        rootLevel = false;
+        }
+      } // if ( c == "|" )
+    else if ( rootLevel )
+      {
+      ++ nRoots;
+      }
+    } // i
+
   cerr << "Found "
        << nLevels
        << " levels and "
@@ -182,9 +147,10 @@ void SetInputParameters( int& dim,
   int main( int argc, char* argv[] )
 {
   // Set default argument values and options
-  vtkStdString fileName= "";
+  vtkStdString descriptor = ".RR...|R....R..|........";
   int dim = 3;
-  int branch = 3;
+  int branch = 2;
+  int max = 3;
   int nX = 2;
   int nY = 3;
   int nZ = 1;
@@ -209,9 +175,13 @@ void SetInputParameters( int& dim,
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
                       &branch, "Branching factor of hyper tree grid" );
 
-  clArgs.AddArgument("--file-name",
+  clArgs.AddArgument( "--max-level",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &max, "Maximum depth of hyper tree grid" );
+
+  clArgs.AddArgument("--descriptor",
                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &fileName, "Name of input data file");
+                     &descriptor, "String describing the hyper tree grid");
 
   clArgs.AddArgument( "--grid-size-X",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
@@ -250,8 +220,7 @@ void SetInputParameters( int& dim,
                       &skipShrink, "Skip shrink filter" );
 
   // If incorrect arguments were provided, provide some help and terminate in error.
-  if ( ! clArgs.Parse() 
-       || ! strcmp( fileName.c_str(), "" ) )
+  if ( ! clArgs.Parse() )
     {
     cerr << "Usage: "
          << clArgs.GetHelp()
@@ -260,8 +229,7 @@ void SetInputParameters( int& dim,
     }
 
   // Verify and set input parameters
-  int nLevels = 1;
-  SetInputParameters( dim, branch, fileName, nX, nY, nZ, nLevels );
+  SetInputParameters( dim, branch, descriptor, nX, nY, nZ );
 
   // Create hyper tree grid source
   vtkNew<vtkHyperTreeGridSource> fractal;
@@ -273,7 +241,8 @@ void SetInputParameters( int& dim,
   fractal->SetGridSize( nX, nY, nZ );
   fractal->SetDimension( dim );
   fractal->SetAxisBranchFactor( branch );
-  fractal->SetMaximumLevel( nLevels );
+  fractal->SetMaximumLevel( max );
+  fractal->SetDescriptor( descriptor.c_str() );
   fractal->Update();
   vtkHyperTreeGrid* htGrid = fractal->GetOutput();
   cerr << "  Number of hyper tree dual grid cells: "
