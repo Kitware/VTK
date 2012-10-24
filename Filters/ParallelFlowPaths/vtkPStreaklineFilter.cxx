@@ -69,9 +69,8 @@ void vtkPStreaklineFilter::Finalize()
       }
     append->Update();
     vtkPolyData* appoutput = append->GetOutput();
-    this->Output->CopyStructure(appoutput);
-    this->Output->GetPointData()->PassData(appoutput->GetPointData());
-    this->Output->GetCellData()->PassData(appoutput->GetCellData());
+    this->Output->Initialize();
+    this->Output->ShallowCopy(appoutput);
     assert(this->Output->GetNumberOfPoints()==totalNumPts);
     this->It.Finalize();
     }
