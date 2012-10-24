@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestDiagram.cxx
+  Module:    TestTreeHeatmapItem.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,7 +17,6 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
-#include "vtkGraphItem.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -36,6 +35,7 @@
 #include "vtkContextActor.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkNew.h"
 
 #include "vtkRegressionTestImage.h"
@@ -140,6 +140,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   renderWindow->SetSize(400, 200);
   renderWindow->AddRenderer(renderer.GetPointer());
   renderer->AddActor(actor.GetPointer());
+  actor->GetScene()->SetRenderer(renderer.GetPointer());
 
   vtkNew<vtkContextInteractorStyle> interactorStyle;
   interactorStyle->SetScene(actor->GetScene());
@@ -149,6 +150,17 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   interactor->SetRenderWindow(renderWindow.GetPointer());
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
+
+  // collapse and expand a subtree
+  vtkContextMouseEvent mouseEvent;
+  mouseEvent.SetInteractor(interactor.GetPointer());
+  vtkVector2f pos;
+  mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
+  pos.Set(75, 98);
+  mouseEvent.SetPos(pos);
+  treeItem ->MouseDoubleClickEvent(mouseEvent);
+  renderWindow->Render();
+  treeItem ->MouseDoubleClickEvent(mouseEvent);
 
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

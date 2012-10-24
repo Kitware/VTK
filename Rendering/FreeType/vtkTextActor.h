@@ -154,6 +154,12 @@ public:
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
 
   // Description:
+  // Return the bounding box coordinates of the text in viewport coordinates.
+  // The bbox array is populated with [ xmin, xmax, ymin, ymax ]
+  // values in that order.
+  virtual void GetBoundingBox(double bbox[4]);
+
+  // Description:
   // Enable non-linear scaling of font sizes. This is useful in combination
   // with scaled text. With small windows you want to use the entire scaled
   // text area. With larger windows you want to reduce the font size some so
@@ -224,8 +230,8 @@ protected:
 
   // Description:
   // Get the bounding box for Input using the supplied font property.
-  virtual bool GetBoundingBox(vtkTextProperty *tprop, vtkViewport *viewport,
-                              int bbox[4]);
+  virtual bool GetImageBoundingBox(
+    vtkTextProperty *tprop, vtkViewport *viewport, int bbox[4]);
 
    vtkTextActor();
   ~vtkTextActor();
@@ -259,6 +265,20 @@ protected:
   vtkTexture *Texture;
 
   virtual void ComputeRectangle(vtkViewport *viewport);
+
+  // Description:
+  // Ensure that \a Rectangle and \a RectanglePoints are valid and up-to-date.
+  //
+  // Unlike ComputeRectangle(), this may do nothing (if the rectangle is valid),
+  // or it may render the text to an image and recompute rectangle points by
+  // calling ComputeRectangle.
+  //
+  // Returns a non-zero value upon success or zero upon failure to
+  // render the image.
+  //
+  // This may be called with a NULL viewport when bounds are required before
+  // a rendering has occurred.
+  virtual int UpdateRectangle(vtkViewport* viewport);
 
   // Set/Get the texture object to control rendering texture maps.  This will
   // be a vtkTexture object. An actor does not need to have an associated

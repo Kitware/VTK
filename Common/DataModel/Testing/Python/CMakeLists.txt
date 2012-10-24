@@ -1,9 +1,15 @@
-if(VTK_PYTHON_EXE)
-  foreach(tfile
-    TestTemplates
-    )
-    add_test(NAME ${vtk-module}Python-${tfile}
-      COMMAND ${VTK_PYTHON_EXE}
-        ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.py)
-  endforeach()
-endif()
+add_test_python(ImplicitSum.py Filtering)
+add_test_python(LineIntersectQuadraticCells.py Graphics)
+add_test_python(PerlinNoise.py Filtering)
+add_test_python(SelectionLoop.py Filtering)
+add_test_python(TestNumericArrayImageData.py)
+add_test_python(TestQuadricClustering.py Graphics)
+add_test_python(TestStructuredGrid.py Graphics)
+add_test_python(TestTemplates.py)
+add_test_python(headBone.py Graphics)
+add_test_python(scalarColors.py Graphics)
+add_test_python(scalarConn.py Graphics)
+add_test_python(TestConvexPointSet.py Graphics)
+add_test_python1(otherDataSetAttributes.py)
+add_test_python1(quadricCut.py Baseline/Graphics)
+add_test_python1(TestICPTransform.py Baseline/Hybrid)

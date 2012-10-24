@@ -29,6 +29,8 @@
 #include "vtkRenderingGL2PSModule.h" // For export macro
 #include "vtkOpenGLContextDevice2D.h"
 
+class vtkPath;
+
 class VTKRENDERINGGL2PS_EXPORT vtkGL2PSContextDevice2D
     : public vtkOpenGLContextDevice2D
 {
@@ -94,6 +96,19 @@ public:
                                float startAngle, float stopAngle);
 
   // Description:
+  // Draw a series of markers centered at the points supplied. The \a shape
+  // argument controls the marker shape, and can be one of
+  //   - VTK_MARKER_CROSS
+  //   - VTK_MARKER_PLUS
+  //   - VTK_MARKER_SQUARE
+  //   - VTK_MARKER_CIRCLE
+  //   - VTK_MARKER_DIAMOND
+  // \param colors is an optional array of colors.
+  // \param nc_comps is the number of components for the color.
+  virtual void DrawMarkers(int shape, bool highlight, float *points, int n,
+                           unsigned char *colors = 0, int nc_comps = 0);
+
+  // Description:
   // Draws a rectangle
   virtual void DrawQuad(float *points, int n);
 
@@ -136,6 +151,21 @@ protected:
 private:
   vtkGL2PSContextDevice2D(const vtkGL2PSContextDevice2D &); // Not implemented.
   void operator=(const vtkGL2PSContextDevice2D &);   // Not implemented.
+
+  void DrawCrossMarkers(bool highlight, float *points, int n,
+                        unsigned char *colors, int nc_comps);
+  void DrawPlusMarkers(bool highlight, float *points, int n,
+                       unsigned char *colors, int nc_comps);
+  void DrawSquareMarkers(bool highlight, float *points, int n,
+                         unsigned char *colors, int nc_comps);
+  void DrawCircleMarkers(bool highlight, float *points, int n,
+                         unsigned char *colors, int nc_comps);
+  void DrawDiamondMarkers(bool highlight, float *points, int n,
+                          unsigned char *colors, int nc_comps);
+  void AddEllipseToPath(vtkPath *path, float x, float y, float rx, float ry,
+                        bool reverse);
+  // Transform the path using the current modelview matrix.
+  void TransformPath(vtkPath *path);
 };
 
 #endif //__vtkGL2PSContextDevice2D_h

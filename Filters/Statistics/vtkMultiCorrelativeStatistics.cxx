@@ -316,6 +316,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
         }
       }
     }
+
   // Now make a map from input column name to output column index (colNameToIdx):
   vtkIdType i = 0;
   vtkIdType m = static_cast<vtkIdType>( allColumns.size() );
@@ -331,7 +332,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
     col2->InsertNextValue( empty );
     }
 
-  // Get a list of column pairs (across all requests) for which we'll compute sums of squares.
+  // Get a list of column pairs (across all requests) for which sums of squares will be computed.
   // This keeps us from computing the same covariance entry multiple times if several requests
   // contain common pairs of columns.
   i = m;
@@ -505,7 +506,6 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
     colPairs[idxs] = i - 1;
     }
   double* rv = col3->GetPointer( 0 ) + 1;
-  double* x = rv;
 
   // Create an output table for each request and fill it in using the col3 array (the first table in
   // outMeta and which is presumed to exist upon entry to Derive).
@@ -580,7 +580,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
       {
       (*arrIt)->SetNumberOfTuples( reqCovSize );
       (*arrIt)->FillComponent( 0, 0. );
-      x = (*arrIt)->GetPointer( 0 );
+      double* x = (*arrIt)->GetPointer( 0 );
       covPtrs.push_back( x );
       if ( *arrIt != colAvgs )
         {

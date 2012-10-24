@@ -1,0 +1,5 @@
+add_test_python(TestImagePlaneWidget.py Widgets)
+add_test_python1(TestBoxWidget.py Baseline/Widgets)
+add_test_python1(TestInteractorEventRecorder.py Baseline/Widgets)
+add_test_python1(TestSphereWidget.py Baseline/Widgets)
+add_test_python1(TestTextWidget.py Baseline/Widgets)

@@ -236,6 +236,22 @@ macro(init_module_vars)
   set(${vtk-module}-targets-build "${VTK_BINARY_DIR}/VTKTargets.cmake")
 endmacro()
 
+# VTK_WRAP_PYTHON_MODULES can be used to explicitly control which modules
+# get Python wrapped (no automatic dependency support is provided at this
+# time). If it has been set mark the modules in the list as such.
+# Note any wrap exclude entries in the module.cmake will take precedence
+# If entry has not been set default to VTK_MODULES_ENABLED.
+if(VTK_WRAP_PYTHON)
+  if(NOT VTK_WRAP_PYTHON_MODULES)
+    set(VTK_WRAP_PYTHON_MODULES ${VTK_MODULES_ENABLED})
+  endif()
+  foreach(_wrap_module ${VTK_WRAP_PYTHON_MODULES})
+    if(NOT ${_wrap_module}_EXCLUDE_FROM_WRAPPING)
+      set(${_wrap_module}_WRAP_PYTHON ON)
+    endif()
+  endforeach()
+endif()
+
 # Build all modules.
 foreach(vtk-module ${VTK_MODULES_ENABLED})
 

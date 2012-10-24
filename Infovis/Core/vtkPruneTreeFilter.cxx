@@ -40,6 +40,7 @@ vtkStandardNewMacro(vtkPruneTreeFilter);
 vtkPruneTreeFilter::vtkPruneTreeFilter()
 {
   this->ParentVertex = 0;
+  this->ShouldPruneParentVertex = true;
 }
 
 vtkPruneTreeFilter::~vtkPruneTreeFilter()
@@ -100,12 +101,29 @@ int vtkPruneTreeFilter::RequestData(
       {
       vtkOutEdgeType tree_e = it->Next();
       vtkIdType tree_child = tree_e.Target;
-      if (tree_child != this->ParentVertex)
+      if (this->ShouldPruneParentVertex)
+        {
+        if (tree_child != this->ParentVertex)
+          {
+          vtkIdType child = builder->AddVertex();
+          vtkEdgeType e = builder->AddEdge(v, child);
+          builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
+          vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
+          }
+        }
+      else
         {
         vtkIdType child = builder->AddVertex();
         vtkEdgeType e = builder->AddEdge(v, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-        vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
+        if (tree_child != this->ParentVertex)
+          {
+          vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
+          }
+        else
+          {
+          builderVertexData->CopyData(inputVertexData, tree_child, child);
+          }
         }
       }
     }

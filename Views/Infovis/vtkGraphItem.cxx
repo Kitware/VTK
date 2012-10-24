@@ -65,6 +65,7 @@ vtkGraphItem::vtkGraphItem()
   this->Graph = 0;
   this->GraphBuildTime = 0;
   this->Internal = new Internals();
+  this->Internal->Interactor = NULL;
   this->Internal->Animating = false;
   this->Internal->AnimationCallbackInitialized = false;
   this->Internal->TimerId = 0;
@@ -348,7 +349,7 @@ void vtkGraphItem::UpdateLayout()
     this->Layout->SetAlpha(this->Layout->GetAlpha()*this->Internal->LayoutAlphaCoolDown);
     this->Layout->UpdatePositions();
     this->Graph->Modified();
-    if (this->Layout->GetAlpha() < this->Internal->LayoutAlphaStop)
+    if (this->Internal->Animating && this->Layout->GetAlpha() < this->Internal->LayoutAlphaStop)
       {
       this->StopLayoutAnimation();
       }
@@ -431,13 +432,10 @@ bool vtkGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent &event)
     this->Layout->SetFixed(hitVertex);
     if (hitVertex >= 0 && this->Internal->Interactor)
       {
-      if (!this->Internal->Animating)
+      this->Layout->SetAlpha(this->Internal->LayoutAlphaStart);
+      if (!this->Internal->Animating && this->Internal->Interactor)
         {
         this->StartLayoutAnimation(this->Internal->Interactor);
-        }
-      else
-        {
-        this->Layout->SetAlpha(this->Internal->LayoutAlphaStart);
         }
       }
     return true;

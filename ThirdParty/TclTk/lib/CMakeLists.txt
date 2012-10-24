@@ -70,7 +70,7 @@ IF (TCL_FOUND AND TK_FOUND)
           STRING (REGEX REPLACE "${VTK_TCL_SUPPORT_LIBRARY_PATH}/" "" base ${file})
           GET_FILENAME_COMPONENT(dest ${base} PATH)
           INSTALL(FILES "${file}"
-            DESTINATION "${VTK_INSTALL_TCL_DIR_CM24}/tcl${TCL_TK_VERSION}/${dest}"
+            DESTINATION "${VTK_INSTALL_TCL_DIR}/tcl${TCL_TK_VERSION}/${dest}"
             COMPONENT RuntimeLibraries
             )
         ENDFOREACH (file)
@@ -80,7 +80,7 @@ IF (TCL_FOUND AND TK_FOUND)
           STRING (REGEX REPLACE "${VTK_TK_SUPPORT_LIBRARY_PATH}/" "" base ${file})
           GET_FILENAME_COMPONENT(dest ${base} PATH)
           INSTALL(FILES "${file}"
-            DESTINATION "${VTK_INSTALL_TCL_DIR_CM24}/tk${TCL_TK_VERSION}/${dest}"
+            DESTINATION "${VTK_INSTALL_TCL_DIR}/tk${TCL_TK_VERSION}/${dest}"
             COMPONENT RuntimeLibraries
             )
         ENDFOREACH (file)

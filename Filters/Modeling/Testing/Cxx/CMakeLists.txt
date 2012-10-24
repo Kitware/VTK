@@ -1,4 +1,5 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  TestNamedColorsIntegration.cxx
   TestPolyDataPointSampler.cxx
   TestQuadRotationalExtrusion.cxx
   TestQuadRotationalExtrusionMultiBlock.cxx

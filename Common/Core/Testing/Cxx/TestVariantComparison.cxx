@@ -317,7 +317,6 @@ TestVariantComparison(int, char *[])
     cerr << errorCount << " error(s) found!\n";
     }
   overallErrorCount += errorCount;
-  errorCount = 0;
 
   if (overallErrorCount == 0)
     {

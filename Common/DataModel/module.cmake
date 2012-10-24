@@ -6,7 +6,11 @@ vtk_module(vtkCommonDataModel
     vtkCommonTransforms
   TEST_DEPENDS
     vtkTestingCore
+    vtkTestingRendering
     vtkCommonExecutionModel
     vtkIOGeometry
+    vtkIOLegacy
+    vtkIOXML
     vtkRenderingCore
+    vtkRenderingOpenGL
   )

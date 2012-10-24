@@ -19,6 +19,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestDataArrayComponentNames.cxx
   TestGarbageCollector.cxx
   # TestInstantiator.cxx # Have not enabled instantiators.
+  TestLookupTable.cxx
   TestMath.cxx
   TestMinimalStandardRandomSequence.cxx
   TestNew.cxx
@@ -29,10 +30,13 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestSortDataArray.cxx
   TestSparseArrayValidation.cxx
   TestSystemInformation.cxx
+  TestTimePointUtility.cxx
   TestUnicodeStringAPI.cxx
   TestUnicodeStringArrayAPI.cxx
+  TestVariant.cxx
   TestVariantComparison.cxx
   TestWeakPointer.cxx
+  TestXMLFileOutputWindow.cxx
   otherArrays.cxx
   otherByteSwap.cxx
   # These two need vtkLookupTableWithEnabling/vtkLogLookupTable - move
@@ -52,6 +56,9 @@ list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
 
 # Tell TestSystemInformation where to find the build trees.
 set(TestSystemInformation_ARGS ${CMAKE_BINARY_DIR})
+
+# Tell TestXMLFileOutputWindow where to write test file
+set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOutputWindow.txt)
 
 # Add all the executables
 foreach(test ${TestsToRun})

@@ -466,6 +466,7 @@ int vtkSLCReader::CanReadFile(const char* fname)
 
   if (fscanf( fp, "%d", &magic_num ) != 1)
     {
+    fclose(fp);
     return 0;
     }
   if( magic_num != 11111 )

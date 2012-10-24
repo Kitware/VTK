@@ -1,62 +1,54 @@
-/*=========================================================================
+ /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TransmitImageDataRenderPass.cxx
+   Program:   Visualization Toolkit
+   Module:    TransmitImageDataRenderPass.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+   All rights reserved.
+   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+      This software is distributed WITHOUT ANY WARRANTY; without even
+      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+      PURPOSE.  See the above copyright notice for more information.
 
-=========================================================================*/
+ =========================================================================*/
 
 // Tests vtkTransmitImageData.
 
-/*
-** This test only builds if MPI is in use
-*/
-#include "vtkObjectFactory.h"
-#include <mpi.h>
-#include "vtkMPICommunicator.h"
-
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkMPIController.h"
-
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkDataObject.h"
-#include "vtkTransmitImageDataPiece.h"
-#include "vtkContourFilter.h"
-#include "vtkDataSetSurfaceFilter.h"
-#include "vtkElevationFilter.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkCameraPass.h"
+#include "vtkCompositeRenderManager.h"
+#include "vtkContourFilter.h"
+#include "vtkDataObject.h"
+#include "vtkDataSetSurfaceFilter.h"
+#include "vtkDebugLeaks.h"
+#include "vtkDepthPeelingPass.h"
+#include "vtkElevationFilter.h"
+#include "vtkLightsPass.h"
+#include "vtkMPICommunicator.h"
+#include "vtkMPIController.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpaquePass.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOverlayPass.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPolyDataWriter.h"
+#include "vtkProcess.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderPassCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCompositeRenderManager.h"
-#include "vtkCamera.h"
-
-#include "vtkDebugLeaks.h"
-
-#include "vtkCameraPass.h"
-#include "vtkLightsPass.h"
 #include "vtkSequencePass.h"
-#include "vtkOpaquePass.h"
-#include "vtkDepthPeelingPass.h"
+#include "vtkSmartPointer.h"
+#include "vtkStructuredPoints.h"
+#include "vtkStructuredPointsReader.h"
+#include "vtkTestUtilities.h"
 #include "vtkTranslucentPass.h"
+#include "vtkTransmitImageDataPiece.h"
 #include "vtkVolumetricPass.h"
-#include "vtkOverlayPass.h"
-#include "vtkRenderPassCollection.h"
 
-#include "vtkProcess.h"
-
-
-#include "vtkPolyDataWriter.h"
+#include <mpi.h>
 
 class MyProcess : public vtkProcess
 {
@@ -99,31 +91,24 @@ void MyProcess::Execute()
 
   int i, go;
 
-  vtkCompositeRenderManager *prm = vtkCompositeRenderManager::New();
+  vtkSmartPointer<vtkCompositeRenderManager> prm =
+    vtkSmartPointer<vtkCompositeRenderManager>::New();
 
   // READER
-
-  vtkStructuredPointsReader *spr = NULL;
-  vtkStructuredPoints *sp = NULL;
-
+  vtkSmartPointer<vtkStructuredPoints> sp;
   if (me == 0)
     {
-    spr = vtkStructuredPointsReader::New();
-
+    vtkSmartPointer<vtkStructuredPointsReader> spr=
+      vtkSmartPointer<vtkStructuredPointsReader>::New();
     char* fname =
-      vtkTestUtilities::ExpandDataFileName(
-        this->Argc, this->Argv, "Data/ironProt.vtk");
-
+      vtkTestUtilities::ExpandDataFileName
+      (this->Argc, this->Argv, "Data/ironProt.vtk");
     spr->SetFileName(fname);
-
     sp = spr->GetOutput();
-
     spr->Update();
-
     delete [] fname;
 
     go = 1;
-
     if ((sp == NULL) || (sp->GetNumberOfCells() == 0))
       {
       if (sp)
@@ -133,78 +118,69 @@ void MyProcess::Execute()
       go = 0;
       }
     }
-  else
-    {
-    }
 
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
-
   comm->Broadcast(&go, 1, 0);
-
   if (!go)
     {
-    if (spr)
-      {
-      spr->Delete();
-      }
-    prm->Delete();
     return;
     }
 
   // FILTER WE ARE TRYING TO TEST
-  vtkTransmitImageDataPiece *pass = vtkTransmitImageDataPiece::New();
+  vtkSmartPointer<vtkTransmitImageDataPiece> pass =
+    vtkSmartPointer<vtkTransmitImageDataPiece>::New();
   pass->SetController(this->Controller);
   if (me == 0)
     {
     pass->SetInputData(sp);
     }
-  else
-    {
-    }
 
   // FILTERING
-  vtkContourFilter *cf = vtkContourFilter::New();
+  vtkSmartPointer<vtkContourFilter> cf =
+    vtkSmartPointer<vtkContourFilter>::New();
   cf->SetInputConnection(pass->GetOutputPort());
   cf->SetNumberOfContours(1);
   cf->SetValue(0,10.0);
   // I am not sure that this is needed.
   //(cf->GetInput())->RequestExactExtentOn();
   cf->ComputeNormalsOff();
-  vtkElevationFilter *elev = vtkElevationFilter::New();
+  vtkSmartPointer<vtkElevationFilter> elev =
+    vtkSmartPointer<vtkElevationFilter>::New();
   elev->SetInputConnection(cf->GetOutputPort());
   elev->SetScalarRange(me, me + .001);
 
   // COMPOSITE RENDER
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(elev->GetOutputPort());
   mapper->SetScalarRange(0, numProcs);
   mapper->SetPiece(me);
   mapper->SetNumberOfPieces(numProcs);
   // mapper->SetNumberOfPieces(2);
-  vtkActor *actor = vtkActor::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
   vtkRenderer *renderer = prm->MakeRenderer();
   vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
 
   // the rendering passes
-  vtkCameraPass *cameraP=vtkCameraPass::New();
-
-  vtkSequencePass *seq=vtkSequencePass::New();
-  vtkOpaquePass *opaque=vtkOpaquePass::New();
-  vtkDepthPeelingPass *peeling=vtkDepthPeelingPass::New();
+  vtkSmartPointer<vtkCameraPass> cameraP=vtkSmartPointer<vtkCameraPass>::New();
+  vtkSmartPointer<vtkSequencePass> seq=vtkSmartPointer<vtkSequencePass>::New();
+  vtkSmartPointer<vtkOpaquePass> opaque=vtkSmartPointer<vtkOpaquePass>::New();
+  vtkSmartPointer<vtkDepthPeelingPass> peeling=
+    vtkSmartPointer<vtkDepthPeelingPass>::New();
   peeling->SetMaximumNumberOfPeels(200);
   peeling->SetOcclusionRatio(0.1);
-
-  vtkTranslucentPass *translucent=vtkTranslucentPass::New();
+  vtkSmartPointer<vtkTranslucentPass> translucent=
+    vtkSmartPointer<vtkTranslucentPass>::New();
   peeling->SetTranslucentPass(translucent);
-
-  vtkVolumetricPass *volume=vtkVolumetricPass::New();
-  vtkOverlayPass *overlay=vtkOverlayPass::New();
-
-  vtkLightsPass *lights=vtkLightsPass::New();
-
-  vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
+  vtkSmartPointer<vtkVolumetricPass> volume=
+    vtkSmartPointer<vtkVolumetricPass>::New();
+  vtkSmartPointer<vtkOverlayPass> overlay=
+    vtkSmartPointer<vtkOverlayPass>::New();
+  vtkSmartPointer<vtkLightsPass> lights=vtkSmartPointer<vtkLightsPass>::New();
+  vtkSmartPointer<vtkRenderPassCollection> passes=
+    vtkSmartPointer<vtkRenderPassCollection>::New();
   passes->AddItem(lights);
   passes->AddItem(opaque);
   passes->AddItem(peeling);
@@ -213,19 +189,6 @@ void MyProcess::Execute()
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
   glrenderer->SetPass(cameraP);
-
-  opaque->Delete();
-  peeling->Delete();
-  translucent->Delete();
-  volume->Delete();
-  overlay->Delete();
-  seq->Delete();
-  passes->Delete();
-  cameraP->Delete();
-  lights->Delete();
-
-
-
 
   renderer->AddActor(actor);
   vtkRenderWindow *renWin = prm->MakeRenderWindow();
@@ -253,7 +216,8 @@ void MyProcess::Execute()
 
   if (me ==1)
     {
-    vtkPolyDataWriter* writer = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> writer =
+      vtkSmartPointer<vtkPolyDataWriter>::New();
     writer->SetInputConnection(elev->GetOutputPort());
     writer->SetFileName("contour1.vtk");
     writer->Write();
@@ -284,20 +248,8 @@ void MyProcess::Execute()
     prm->StartServices();
     this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
     }
-
-  // CLEAN UP
   renWin->Delete();
   renderer->Delete();
-  actor->Delete();
-  mapper->Delete();
-  elev->Delete();
-  cf->Delete();
-  pass->Delete();
-  if (me == 0)
-    {
-    spr->Delete();
-    }
-  prm->Delete();
 }
 
 int main(int argc, char **argv)
@@ -311,7 +263,8 @@ int main(int argc, char **argv)
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkSmartPointer<vtkMPIController> contr =
+    vtkSmartPointer<vtkMPIController>::New();
   contr->Initialize(&argc, &argv, 1);
 
   int retVal = 1;
@@ -327,7 +280,6 @@ int main(int argc, char **argv)
       {
       cout << "DistributedData test requires 2 processes" << endl;
       }
-    contr->Delete();
     return retVal;
     }
 
@@ -350,7 +302,6 @@ int main(int argc, char **argv)
   p->Delete();
 
   contr->Finalize();
-  contr->Delete();
 
   return !retVal;
 }

@@ -55,6 +55,7 @@ class vtkInformationVector;
 class vtkDataArray;
 class vtkArray;
 class vtkTable;
+class vtkTree;
 class vtkDataArrayCollection;
 class vtkArrayData;
 class vtkDataObjectCollection;
@@ -97,6 +98,14 @@ public:
   // Create a vtkTable copy of the GNU R input matrix variable (deep copy, allocates memory)
   // Input is R list of equal length vectors or a matrix.
   vtkTable* RToVTKTable(SEXP variable);
+
+  // Description:
+  // Create a GNU R phylo tree copy of the input vtkTree tree (deep copy, allocates memory)
+  SEXP VTKTreeToR(vtkTree* tree);
+
+  // Description:
+  // Create a vtkTree copy of the GNU R input phylo tree variable (deep copy, allocates memory)
+  vtkTree* RToVTKTree(SEXP variable);
 //ETX
 
 protected:

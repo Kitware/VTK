@@ -35,6 +35,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkPath.h"
 #include "vtkProp.h"
 #include "vtkProp3DCollection.h"
@@ -74,7 +75,6 @@ vtkGL2PSExporter::vtkGL2PSExporter()
   this->PS3Shading = 1;
   this->OcclusionCull = 1;
   this->Write3DPropsAsRasterImage = 0;
-  this->WriteTimeStamp = 1;
   this->PixelData = NULL;
 }
 
@@ -101,6 +101,15 @@ void vtkGL2PSExporter::WriteData()
   if (this->FilePrefix == NULL)
     {
     vtkErrorMacro(<< "Please specify a file prefix to use");
+    return;
+    }
+
+  vtkOpenGLRenderWindow *renWinGL =
+      vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow);
+  if (!renWinGL)
+    {
+    vtkErrorMacro(<< "Cannot export scene -- GL2PS export only works on OpenGL"
+                  " render windows.");
     return;
     }
 
@@ -139,6 +148,7 @@ void vtkGL2PSExporter::WriteData()
   delete this->PixelData;
   this->PixelData =
       new float[this->PixelDataSize[0] * this->PixelDataSize[1] * 3];
+  glReadBuffer(static_cast<GLenum>(renWinGL->GetFrontLeftBuffer()));
   glReadPixels(0, 0, this->PixelDataSize[0], this->PixelDataSize[1], GL_RGB,
                GL_FLOAT, this->PixelData);
 
@@ -165,26 +175,12 @@ void vtkGL2PSExporter::WriteData()
     this->SavePropVisibility(renCol, volVis.GetPointer(), actVis.GetPointer(),
                              act2dVis.GetPointer());
     this->Turn2DPropsOff(renCol);
+    this->RenderWindow->Render();
 
     int numpix= winsize[0]*winsize[1]*3;
     rasterImage = new float [numpix];
-    int offscreen = this->RenderWindow->GetOffScreenRendering();
-
-    this->RenderWindow->OffScreenRenderingOn();
-    this->RenderWindow->Render();
-    unsigned char *charpixels = this->RenderWindow->GetPixelData(
-          0, 0, winsize[0] - 1, winsize[1] - 1, 1);
-
-    for (int i=0; i<numpix; i++)
-      {
-      rasterImage[i] = (static_cast<float>(charpixels[i])/255.0);
-      }
-    delete [] charpixels;
-    this->RenderWindow->SetOffScreenRendering(offscreen);
-    // Render after switching to/from offscreen render but before initializing
-    // gl2ps, otherwise the renderwindow will switch gl contexts and switch out
-    // of feedback mode.
-    this->RenderWindow->Render();
+    glReadBuffer(static_cast<GLenum>(renWinGL->GetFrontLeftBuffer()));
+    glReadPixels(0, 0, winsize[0], winsize[1], GL_RGB, GL_FLOAT, rasterImage);
     }
 
   // Disable depth peeling. It uses textures that turn into large opaque quads
@@ -209,9 +205,6 @@ void vtkGL2PSExporter::WriteData()
     gl2psBeginPage(this->Title ? this->Title : "VTK GL2PS Export", "VTK",
                    viewport, format, sort, options, GL_RGBA, 0,
                    NULL, 0, 0, 0, buffsize, fpObj, fName);
-
-    if (!this->WriteTimeStamp)
-      gl2psDisable(GL2PS_TIMESTAMP);
 
     // Render non-specialized geometry by either passing in the raster image or
     // rendering into the feedback buffer.

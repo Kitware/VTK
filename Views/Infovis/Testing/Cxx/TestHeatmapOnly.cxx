@@ -100,6 +100,7 @@ int TestHeatmapOnly(int argc, char* argv[])
   renderWindow->SetSize(400, 200);
   renderWindow->AddRenderer(renderer.GetPointer());
   renderer->AddActor(actor.GetPointer());
+  actor->GetScene()->SetRenderer(renderer.GetPointer());
 
   vtkNew<vtkContextInteractorStyle> interactorStyle;
   interactorStyle->SetScene(actor->GetScene());

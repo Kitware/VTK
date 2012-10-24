@@ -323,6 +323,25 @@ public:
   virtual void RemoveAllInputConnections(int port);
 
   // Description:
+  // Sets the data-object as an input on the given port index. Setting the input with
+  // this method removes all other connections from the port. Internally, this
+  // method creates a vtkTrivialProducer instance and sets that as the
+  // input-connection for the given port. It is safe to call this method repeatedly
+  // with the same input data object. The MTime of the vtkAlgorithm will not
+  // change unless the data object changed.
+  virtual void SetInputDataObject(int port, vtkDataObject* data);
+  virtual void SetInputDataObject(vtkDataObject* data)
+    { this->SetInputDataObject(0, data); }
+
+  // Description:
+  // Add the data-object as an input to this given port. This will add a new
+  // input connection on the specified port without affecting any existing
+  // connections on the same input port.
+  virtual void AddInputDataObject(int port, vtkDataObject* data);
+  virtual void AddInputDataObject(vtkDataObject* data)
+    { this->AddInputDataObject(0, data); }
+
+  // Description:
   // Get a proxy object corresponding to the given output port of this
   // algorithm.  The proxy object can be passed to another algorithm's
   // SetInputConnection(), AddInputConnection(), and
@@ -706,8 +725,10 @@ protected:
   // set data objects directly as input. Internally, they create
   // a vtkTrivialProducer that has the data object as output and
   // connect it to the algorithm.
-  void SetInputDataInternal(int port, vtkDataObject *input);
-  void AddInputDataInternal(int port, vtkDataObject *input);
+  void SetInputDataInternal(int port, vtkDataObject *input)
+    { this->SetInputDataObject(port, input); }
+  void AddInputDataInternal(int port, vtkDataObject *input)
+    { this->AddInputDataObject(port, input); }
 
 private:
   vtkExecutive* Executive;

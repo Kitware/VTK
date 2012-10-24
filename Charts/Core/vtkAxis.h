@@ -217,14 +217,6 @@ public:
   vtkGetMacro(Behavior, int);
 
   // Description:
-  // Get/set the tick label generation for the axis. Defaults to false (the
-  // axis will generate appropriate labels). If set to true only the custom
-  // labels set will be used.
-  vtkSetMacro(CustomTickLabels, bool)
-  vtkGetMacro(CustomTickLabels, bool)
-  vtkBooleanMacro(CustomTickLabels, bool)
-
-  // Description:
   // Get a pointer to the vtkPen object that controls the way this axis is drawn.
   vtkGetObjectMacro(Pen, vtkPen);
 
@@ -268,10 +260,6 @@ public:
   virtual vtkDoubleArray* GetTickPositions();
 
   // Description:
-  // Set the tick positions (in plot coordinates).
-  virtual void SetTickPositions(vtkDoubleArray* positions);
-
-  // Description:
   // An array with the positions of the tick marks along the axis line.
   // The positions are specified in scene coordinates.
   virtual vtkFloatArray* GetTickScenePositions();
@@ -281,8 +269,23 @@ public:
   virtual vtkStringArray* GetTickLabels();
 
   // Description:
+  // Set the tick positions, and optionally custom tick labels. If the labels
+  // and positions are null then automatic tick labels will be assigned. If
+  // only positions are supplied then appropriate labels will be generated
+  // according to the axis settings. If positions and labels are supplied they
+  // must be of the same length. Returns true on success, false on failure.
+  virtual bool SetCustomTickPositions(vtkDoubleArray* positions,
+                                      vtkStringArray* labels = 0);
+
+  // Description:
+  // Set the tick positions (in plot coordinates).
+  // \deprecated 6.0 Use the two parameter SetTickPositions function.
+  VTK_LEGACY(virtual void SetTickPositions(vtkDoubleArray* positions));
+
+  // Description:
   // Set the tick labels for the axis.
-  virtual void SetTickLabels(vtkStringArray* labels);
+  // \deprecated 6.0 Use the two parameter SetTickPositions function.
+  VTK_LEGACY(virtual void SetTickLabels(vtkStringArray* labels));
 
   // Description:
   // Request the space the axes require to be drawn. This is returned as a
@@ -290,6 +293,18 @@ public:
   // height being the total width/height required by the axis. In order to
   // ensure the numbers are correct, Update() should be called on the axis.
   vtkRectf GetBoundingRect(vtkContext2D* painter);
+
+  // Description:
+  // Return a "nice number", often defined as 1, 2 or 5. If roundUp is true then
+  // the nice number will be rounded up, false it is rounded down. The supplied
+  // number should be between 0.0 and 9.9.
+  static double NiceNumber(double number, bool roundUp);
+
+  // Description:
+  // Static function to calculate "nice" minimum, maximum, and tick spacing
+  // values.
+  static double NiceMinMax(double &min, double &max, float pixelRange,
+                           float tickPixelSpacing);
 
 //BTX
 protected:
@@ -310,12 +325,6 @@ protected:
   // Calculate the next "nicest" numbers above and below the current minimum.
   // \return the "nice" spacing of the numbers.
   double CalculateNiceMinMax(double &min, double &max);
-
-  // Description:
-  // Return a "nice number", often defined as 1, 2 or 5. If roundUp is true then
-  // the nice number will be rounded up, false it is rounded down. The supplied
-  // number should be between 0.0 and 9.9.
-  double NiceNumber(double number, bool roundUp);
 
   // Description:
   // Return a tick mark for a logarithmic axis.

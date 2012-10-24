@@ -20,6 +20,7 @@
 #include <vtkTable.h>
 #include <vtkTree.h>
 #include <vtkUndirectedGraph.h>
+#include <vtkUniformGrid.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVariant.h>
 
@@ -82,6 +83,11 @@ bool CompareData(vtkRectilinearGrid* Output, vtkRectilinearGrid* Input)
   return true;
 }
 
+void InitializeData(vtkUniformGrid* Data)
+{
+  InitializeData(static_cast<vtkImageData*>(Data));
+}
+
 void InitializeData(vtkUnstructuredGrid* Data)
 {
   vtkCubeSource* const source = vtkCubeSource::New();
@@ -126,7 +132,43 @@ bool TestDataObjectXMLSerialization()
   reader->Update();
 
   vtkDataObject *obj = reader->GetOutput();
-  DataT* const input_data = DataT::SafeDownCast(obj);
+  DataT* input_data = DataT::SafeDownCast(obj);
+  if(!input_data)
+    {
+    reader->Delete();
+    output_data->Delete();
+    return false;
+    }
+
+  const bool result = CompareData(output_data, input_data);
+
+  reader->Delete();
+  output_data->Delete();
+
+  return result;
+}
+
+bool TestUniformGridXMLSerialization()
+{
+  vtkUniformGrid* const output_data = vtkUniformGrid::New();
+  InitializeData(output_data);
+
+  const char* const filename = output_data->GetClassName();
+
+  vtkXMLDataSetWriter* const writer =
+    vtkXMLDataSetWriter::New();
+  writer->SetInputData(output_data);
+  writer->SetFileName(filename);
+  writer->Write();
+  writer->Delete();
+
+  vtkXMLGenericDataObjectReader* const reader =
+    vtkXMLGenericDataObjectReader::New();
+  reader->SetFileName(filename);
+  reader->Update();
+
+  vtkDataObject *obj = reader->GetOutput();
+  vtkImageData* input_data = vtkImageData::SafeDownCast(obj);
   if(!input_data)
     {
     reader->Delete();
@@ -149,6 +191,14 @@ int TestDataObjectXMLIO(int /*argc*/, char* /*argv*/[])
   if(!TestDataObjectXMLSerialization<vtkImageData>())
     {
     cerr << "Error: failure serializing vtkImageData" << endl;
+    result = 1;
+    }
+  if(!TestUniformGridXMLSerialization())
+    {
+    // note that the current output from serializing a vtkUniformGrid
+    // is a vtkImageData. this is the same as writing out a
+    // vtkUniformGrid using vtkXMLImageDataWriter.
+    cerr << "Error: failure serializing vtkUniformGrid" << endl;
     result = 1;
     }
   if(!TestDataObjectXMLSerialization<vtkPolyData>())

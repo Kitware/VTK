@@ -37,6 +37,8 @@ set(Module_SRCS
   vtkInterpolateDataSetAttributes.cxx
   vtkInterpolatingSubdivisionFilter.cxx
   vtkKdTreeSelector.cxx
+  vtkLinearSelector.cxx
+  vtkCellDistanceSelector.cxx
   vtkLevelIdScalars.cxx
   vtkLinkEdgels.cxx
   vtkMergeCells.cxx
@@ -104,7 +106,6 @@ set(Module_SRCS
   vtkExtractArray.cxx
 
   vtkMatricizeArray.cxx
-  vtkExtractArray.cxx
   vtkNormalizeMatrixVectors.cxx
   vtkPassArrays.cxx
   vtkSplitColumnComponents.cxx

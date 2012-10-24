@@ -191,6 +191,14 @@ public:
   bool FindCell(double q[3],unsigned int level, unsigned int index,int &cellIdx);
 
   // Description:
+  //find the grid that contains the point q at the specified level
+  bool FindGrid(double q[3], int level, unsigned int& gridId);
+
+  //Description
+  //Given a point q, find the highest level grid that contains it.
+  bool FindGrid(double q[3], unsigned int& level, unsigned int& gridId);
+
+  // Description:
   // Returns internal arrays.
   const std::vector<int>& GetNumBlocks() const
   { return this->NumBlocks;}

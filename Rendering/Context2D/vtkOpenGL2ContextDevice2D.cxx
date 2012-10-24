@@ -172,10 +172,10 @@ void vtkOpenGL2ContextDevice2D::DrawImage(const vtkRectf& pos,
   GLuint index = this->Storage->TextureFromImage(image);
 //  this->SetTexture(image);
 //  this->Storage->Texture->Render(this->Renderer);
-  float points[] = { pos.X()              , pos.Y(),
-                     pos.X() + pos.Width(), pos.Y(),
-                     pos.X() + pos.Width(), pos.Y() + pos.Height(),
-                     pos.X()              , pos.Y() + pos.Height() };
+  float points[] = { pos.GetX()              , pos.GetY(),
+                     pos.GetX() + pos.GetWidth(), pos.GetY(),
+                     pos.GetX() + pos.GetWidth(), pos.GetY() + pos.GetHeight(),
+                     pos.GetX()              , pos.GetY() + pos.GetHeight() };
 
   float texCoord[] = { 0.0, 0.0,
                        1.0, 0.0,

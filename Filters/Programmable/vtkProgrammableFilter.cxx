@@ -200,7 +200,6 @@ int vtkProgrammableFilter::RequestData(
         {
         cdsOutput->CopyStructure(cdsInput);
         vtkCompositeDataIterator* iter = cdsInput->NewIterator();
-        iter->VisitOnlyLeavesOn();
         for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
           {
           vtkDataSet* iblock = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());

@@ -36,7 +36,7 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType() {return VTK_POLY_DATA;}
+  int GetDataObjectType() {return VTK_PATH;}
 
   // Description:
   // Enumeration of recognized control point types:

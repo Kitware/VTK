@@ -41,7 +41,8 @@ public:
   void Next()
   {
     this->AdvanceIndex();
-    while(static_cast<unsigned int>(this->Index)>= this->GetNumberOfBlocks(this->Level+1))
+    //advanc the level either when we are at the right level of out of levels
+    while(this->Level < this->NumLevels && static_cast<unsigned int>(this->Index)>= this->GetNumberOfBlocks(this->Level+1))
       {
       this->Level++;
       }
@@ -57,10 +58,15 @@ protected:
   int Index;
   unsigned int NumLevels;
   const std::vector<int>* NumBlocks;
-
   virtual void AdvanceIndex() { this->Index++;}
   virtual unsigned int GetNumberOfLevels() { return static_cast<unsigned int>(this->NumBlocks->size()-1);};
-  virtual unsigned int GetNumberOfBlocks(int i)  { return (*this->NumBlocks)[i];}
+  virtual unsigned int GetNumberOfBlocks(int i)
+  {
+    assert(i< static_cast<int>(this->NumBlocks->size()));
+    return (*this->NumBlocks)[i];
+  }
+
+
 };
 vtkStandardNewMacro(AMRIndexIterator);
 
@@ -175,16 +181,19 @@ void vtkUniformGridAMRDataIterator::GoToFirstItem()
   this->AMRInfo = this->AMR->GetAMRInfo();
   this->AMRData = this->AMR->GetAMRData();
 
-  if(this->GetSkipEmptyNodes())
+  if(this->AMRInfo)
     {
-    vtkSmartPointer<AMRLoadedDataIndexIterator> itr = vtkSmartPointer<AMRLoadedDataIndexIterator>::New();
-    itr->Initialize(&this->AMRInfo->GetNumBlocks(), &this->AMR->GetAMRData()->GetAllBlocks());
-    this->Iter = itr;
-    }
-  else
-    {
-    this->Iter = vtkSmartPointer<AMRIndexIterator>::New();
-    this->Iter->Initialize(&this->AMRInfo->GetNumBlocks());
+    if(this->GetSkipEmptyNodes())
+      {
+      vtkSmartPointer<AMRLoadedDataIndexIterator> itr = vtkSmartPointer<AMRLoadedDataIndexIterator>::New();
+      itr->Initialize(&this->AMRInfo->GetNumBlocks(), &this->AMR->GetAMRData()->GetAllBlocks());
+      this->Iter = itr;
+      }
+    else
+      {
+      this->Iter = vtkSmartPointer<AMRIndexIterator>::New();
+      this->Iter->Initialize(&this->AMRInfo->GetNumBlocks());
+      }
     }
 }
 
@@ -197,5 +206,5 @@ void vtkUniformGridAMRDataIterator::GoToNextItem()
 //----------------------------------------------------------------------------
 int vtkUniformGridAMRDataIterator::IsDoneWithTraversal()
 {
-  return this->Iter->IsDone();
+  return (!this->Iter) || this->Iter->IsDone();
 }

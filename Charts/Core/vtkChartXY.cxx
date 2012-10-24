@@ -266,12 +266,12 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     {
     geometry = vtkVector2i(this->GetScene()->GetSceneWidth(),
                            this->GetScene()->GetSceneHeight());
-    if (geometry.X() != this->Geometry[0] || geometry.Y() != this->Geometry[1])
+    if (geometry.GetX() != this->Geometry[0] || geometry.GetY() != this->Geometry[1])
       {
       recalculateTransform = true;
       this->LayoutChanged = true;
       }
-    this->SetSize(vtkRectf(0.0, 0.0, geometry.X(), geometry.Y()));
+    this->SetSize(vtkRectf(0.0, 0.0, geometry.GetX(), geometry.GetY()));
     }
 
   int visiblePlots = 0;
@@ -332,8 +332,8 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     painter->GetBrush()->SetColor(255, 255, 255, 0);
     painter->GetPen()->SetColor(0, 0, 0, 255);
     painter->GetPen()->SetWidth(1.0);
-    painter->DrawRect(this->MouseBox.X(), this->MouseBox.Y(),
-                      this->MouseBox.Width(), this->MouseBox.Height());
+    painter->DrawRect(this->MouseBox.GetX(), this->MouseBox.GetY(),
+                      this->MouseBox.GetWidth(), this->MouseBox.GetHeight());
     }
 
   // Draw the selection polygon if necessary
@@ -351,7 +351,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
       const vtkVector2f &a = polygon.GetPoint(i);
       const vtkVector2f &b = polygon.GetPoint(i+1);
 
-      painter->DrawLine(a.X(), a.Y(), b.X(), b.Y());
+      painter->DrawLine(a.GetX(), a.GetY(), b.GetX(), b.GetY());
       }
 
     // draw a line from the end to the start
@@ -360,7 +360,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
       const vtkVector2f &start = polygon.GetPoint(0);
       const vtkVector2f &end = polygon.GetPoint(polygon.GetNumberOfPoints() - 1);
 
-      painter->DrawLine(start.X(), start.Y(), end.X(), end.Y());
+      painter->DrawLine(start.GetX(), start.GetY(), end.GetX(), end.GetY());
       }
     }
 
@@ -837,35 +837,35 @@ int vtkChartXY::GetLegendBorder(vtkContext2D* painter, int axisPosition)
                               this->Legend->GetVerticalAlignment());
   this->Legend->Update();
   vtkRectf rect = this->Legend->GetBoundingRect(painter);
-  legendSize.Set(static_cast<int>(rect.Width()),
-                 static_cast<int>(rect.Height()));
+  legendSize.Set(static_cast<int>(rect.GetWidth()),
+                 static_cast<int>(rect.GetHeight()));
 
   // Figure out the correct place and alignment based on the legend layout.
   if (axisPosition == vtkAxis::LEFT &&
-      legendAlignment.X() == vtkChartLegend::LEFT)
+      legendAlignment.GetX() == vtkChartLegend::LEFT)
     {
-    return legendSize.X() + padding;
+    return legendSize.GetX() + padding;
     }
   else if (axisPosition == vtkAxis::RIGHT &&
-           legendAlignment.X() == vtkChartLegend::RIGHT)
+           legendAlignment.GetX() == vtkChartLegend::RIGHT)
     {
-    return legendSize.X() + padding;
+    return legendSize.GetX() + padding;
     }
   else if ((axisPosition == vtkAxis::TOP || axisPosition == vtkAxis::BOTTOM) &&
-           (legendAlignment.X() == vtkChartLegend::LEFT ||
-            legendAlignment.X() == vtkChartLegend::RIGHT))
+           (legendAlignment.GetX() == vtkChartLegend::LEFT ||
+            legendAlignment.GetX() == vtkChartLegend::RIGHT))
     {
     return 0;
     }
   else if (axisPosition == vtkAxis::TOP &&
-           legendAlignment.Y() == vtkChartLegend::TOP)
+           legendAlignment.GetY() == vtkChartLegend::TOP)
     {
-    return legendSize.Y() + padding;
+    return legendSize.GetY() + padding;
     }
   else if (axisPosition == vtkAxis::BOTTOM &&
-           legendAlignment.Y() == vtkChartLegend::BOTTOM)
+           legendAlignment.GetY() == vtkChartLegend::BOTTOM)
     {
-    return legendSize.Y() + padding;
+    return legendSize.GetY() + padding;
     }
   else
     {
@@ -897,20 +897,20 @@ void vtkChartXY::SetLegendPosition(const vtkRectf& rect)
         break;
       case vtkChartLegend::CENTER:
         pos.SetX(((this->Point2[0] - this->Point1[0]) / 2.0)
-                 - rect.Width() / 2.0 + this->Point1[0]);
+                 - rect.GetWidth() / 2.0 + this->Point1[0]);
         break;
       case vtkChartLegend::RIGHT:
       default:
-        pos.SetX(this->Point2[0] - rect.Width());
+        pos.SetX(this->Point2[0] - rect.GetWidth());
       }
     switch (this->Legend->GetVerticalAlignment())
       {
       case vtkChartLegend::TOP:
-        pos.SetY(this->Point2[1] - rect.Height());
+        pos.SetY(this->Point2[1] - rect.GetHeight());
         break;
       case vtkChartLegend::CENTER:
         pos.SetY((this->Point2[1] - this->Point1[1]) / 2.0
-                 - rect.Height() / 2.0 + this->Point1[1]);
+                 - rect.GetHeight() / 2.0 + this->Point1[1]);
         break;
       case vtkChartLegend::BOTTOM:
       default:
@@ -920,48 +920,48 @@ void vtkChartXY::SetLegendPosition(const vtkRectf& rect)
   else
     {
     // Non-inline legends.
-    if (legendAlignment.X() == vtkChartLegend::LEFT)
+    if (legendAlignment.GetX() == vtkChartLegend::LEFT)
       {
       pos.SetX(this->Point1[0] - this->ChartPrivate->Borders[vtkAxis::LEFT]
                + padding);
       }
-    else if (legendAlignment.X() == vtkChartLegend::RIGHT)
+    else if (legendAlignment.GetX() == vtkChartLegend::RIGHT)
       {
       pos.SetX(this->Point2[0] + this->ChartPrivate->Borders[vtkAxis::RIGHT]
-               - rect.Width() - padding);
+               - rect.GetWidth() - padding);
       }
-    else if (legendAlignment.X() == vtkChartLegend::CENTER)
+    else if (legendAlignment.GetX() == vtkChartLegend::CENTER)
       {
       pos.SetX(((this->Point2[0] - this->Point1[0]) / 2.0)
-               - (rect.Width() / 2.0) + this->Point1[0]);
+               - (rect.GetWidth() / 2.0) + this->Point1[0]);
       // Check for the special case where the legend is on the top or bottom
-      if (legendAlignment.Y() == vtkChartLegend::TOP)
+      if (legendAlignment.GetY() == vtkChartLegend::TOP)
         {
         pos.SetY(this->Point2[1] + this->ChartPrivate->Borders[vtkAxis::TOP]
-                 - rect.Height() - padding);
+                 - rect.GetHeight() - padding);
         }
-      else if (legendAlignment.Y() == vtkChartLegend::BOTTOM)
+      else if (legendAlignment.GetY() == vtkChartLegend::BOTTOM)
         {
         pos.SetY(this->Point1[1] - this->ChartPrivate->Borders[vtkAxis::BOTTOM]
                  + padding);
         }
       }
     // Vertical alignment
-    if (legendAlignment.X() != vtkChartLegend::CENTER)
+    if (legendAlignment.GetX() != vtkChartLegend::CENTER)
       {
-      if (legendAlignment.Y() == vtkChartLegend::TOP)
+      if (legendAlignment.GetY() == vtkChartLegend::TOP)
         {
-        pos.SetY(this->Point2[1] - rect.Height());
+        pos.SetY(this->Point2[1] - rect.GetHeight());
         }
-      else if (legendAlignment.Y() == vtkChartLegend::BOTTOM)
+      else if (legendAlignment.GetY() == vtkChartLegend::BOTTOM)
         {
         pos.SetY(this->Point1[1]);
         }
       }
-    if (legendAlignment.Y() == vtkChartLegend::CENTER)
+    if (legendAlignment.GetY() == vtkChartLegend::CENTER)
       {
       pos.SetY(((this->Point2[1] - this->Point1[1]) / 2.0)
-               - (rect.Height() / 2.0) + this->Point1[1]);
+               - (rect.GetHeight() / 2.0) + this->Point1[1]);
       }
     }
 
@@ -1281,8 +1281,8 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   else if (mouse.GetButton() == this->Actions.Zoom() ||
            mouse.GetButton() == this->Actions.Select())
     {
-    this->MouseBox.SetWidth(mouse.GetPos().X() - this->MouseBox.X());
-    this->MouseBox.SetHeight(mouse.GetPos().Y() - this->MouseBox.Y());
+    this->MouseBox.SetWidth(mouse.GetPos().GetX() - this->MouseBox.GetX());
+    this->MouseBox.SetHeight(mouse.GetPos().GetY() - this->MouseBox.GetY());
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     }
@@ -1466,7 +1466,7 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
   if (mouse.GetButton() == this->Actions.Pan())
     {
     // The mouse panning action.
-    this->MouseBox.Set(mouse.GetPos().X(), mouse.GetPos().Y(), 0.0, 0.0);
+    this->MouseBox.Set(mouse.GetPos().GetX(), mouse.GetPos().GetY(), 0.0, 0.0);
     this->DrawBox = false;
     return true;
     }
@@ -1474,7 +1474,7 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
            mouse.GetButton() == this->Actions.Select())
     {
     // Selection, for now at least...
-    this->MouseBox.Set(mouse.GetPos().X(), mouse.GetPos().Y(), 0.0, 0.0);
+    this->MouseBox.Set(mouse.GetPos().GetX(), mouse.GetPos().GetY(), 0.0, 0.0);
     this->DrawBox = true;
     return true;
     }
@@ -1510,9 +1510,9 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
   if (mouse.GetButton() > vtkContextMouseEvent::NO_BUTTON &&
       mouse.GetButton() <= vtkContextMouseEvent::RIGHT_BUTTON)
     {
-    this->MouseBox.SetWidth(mouse.GetPos().X() - this->MouseBox.X());
-    this->MouseBox.SetHeight(mouse.GetPos().Y() - this->MouseBox.Y());
-    if ((fabs(this->MouseBox.Width()) < 0.5 && fabs(this->MouseBox.Height()) < 0.5)
+    this->MouseBox.SetWidth(mouse.GetPos().GetX() - this->MouseBox.GetX());
+    this->MouseBox.SetHeight(mouse.GetPos().GetY() - this->MouseBox.GetY());
+    if ((fabs(this->MouseBox.GetWidth()) < 0.5 && fabs(this->MouseBox.GetHeight()) < 0.5)
         && (mouse.GetButton() == this->Actions.Select() ||
             mouse.GetButton() == this->Actions.Pan()))
       {
@@ -1543,7 +1543,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
         vtkChartSelectionHelper::GetMouseSelectionMode(mouse,
                                                        this->SelectionMode);
 
-    if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
+    if (fabs(this->MouseBox.GetWidth()) < 0.5 || fabs(this->MouseBox.GetHeight()) < 0.5)
       {
       // Invalid box size - do nothing
       this->MouseBox.SetWidth(0.0);
@@ -1568,16 +1568,16 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 
         vtkVector2f min(this->MouseBox.GetData());
         vtkVector2f max(point2);
-        if (min.X() > max.X())
+        if (min.GetX() > max.GetX())
           {
-          float tmp = min.X();
-          min.SetX(max.X());
+          float tmp = min.GetX();
+          min.SetX(max.GetX());
           max.SetX(tmp);
           }
-        if (min.Y() > max.Y())
+        if (min.GetY() > max.GetY())
           {
-          float tmp = min.Y();
-          min.SetY(max.Y());
+          float tmp = min.GetY();
+          min.SetY(max.GetY());
           max.SetY(tmp);
           }
 
@@ -1672,7 +1672,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
   else if (mouse.GetButton() == this->Actions.Zoom())
     {
     // Check whether a valid zoom box was drawn
-    if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
+    if (fabs(this->MouseBox.GetWidth()) < 0.5 || fabs(this->MouseBox.GetHeight()) < 0.5)
       {
       // Invalid box size - do nothing
       this->MouseBox.SetWidth(0.0);

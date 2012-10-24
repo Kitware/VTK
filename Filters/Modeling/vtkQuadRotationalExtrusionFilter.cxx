@@ -190,7 +190,6 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
   // allocate composite iterator
   vtkCompositeDataIterator * inputIterator = compositeInput->NewIterator();
-  inputIterator->VisitOnlyLeavesOn();
   inputIterator->SkipEmptyNodesOn();
   inputIterator->InitTraversal();
   inputIterator->GoToFirstItem();

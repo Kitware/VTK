@@ -14,7 +14,7 @@ tif_ojpeg.c tif_open.c tif_packbits.c tif_pixarlog.c tif_predict.c
 tif_print.c tif_read.c tif_strip.c tif_swab.c tif_thunder.c tif_tile.c
 tif_version.c tif_warning.c
 tif_write.c tif_zip.c tif_color.c tif_extension.c )
-  
+
 
 ADD_DEFINITIONS( -DJPEG_SUPPORT -DZIP_SUPPORT -D_HPUX_SOURCE)
 
@@ -36,21 +36,20 @@ IF(NOT UNIX)
   IF (NOT BORLAND)
     IF(NOT MINGW)
       SET(common_SRCS ${common_SRCS} vtktiff.def)
-    ENDIF(NOT MINGW) 
+    ENDIF(NOT MINGW)
   ENDIF(NOT BORLAND)
 ELSE (NOT UNIX)
   SET(common_SRCS ${common_SRCS} tif_unix.c tif_fax3sm.c)
   IF(NOT CMAKE_CROSSCOMPILING)
     ADD_EXECUTABLE(vtkmkg3states mkg3states.c)
     vtk_compile_tools_target(vtkmkg3states)
-  ENDIF(NOT CMAKE_CROSSCOMPILING)
 
-  ADD_CUSTOM_COMMAND(
-    OUTPUT ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
-    COMMAND vtkmkg3states
-    ARGS -c const ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
-    DEPENDS vtkmkg3states
-    )
+    ADD_CUSTOM_COMMAND(
+      OUTPUT ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
+      COMMAND vtkmkg3states
+      ARGS -c const ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
+      DEPENDS vtkmkg3states)
+  ENDIF(NOT CMAKE_CROSSCOMPILING)
 ENDIF (NOT UNIX)
 
 INCLUDE (${CMAKE_ROOT}/Modules/CheckIncludeFiles.cmake)

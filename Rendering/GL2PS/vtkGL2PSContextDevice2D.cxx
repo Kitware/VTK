@@ -50,7 +50,7 @@ void vtkGL2PSContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   // Only draw the quad if custom colors are defined or alpha is non-zero.
   // Postscript can't handle transparency, and the resulting output will have
   // a border around every quad otherwise.
-  if ((colors || this->Pen->GetColorObject().Alpha() != 0) &&
+  if ((colors || this->Pen->GetColorObject().GetAlpha() != 0) &&
       this->Pen->GetLineType() != vtkPen::NO_PEN)
     {
     this->Superclass::DrawPoly(f, n, colors, nc_comps);
@@ -61,7 +61,7 @@ void vtkGL2PSContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
 void vtkGL2PSContextDevice2D::DrawPoints(float *points, int n,
                                          unsigned char *colors, int nc_comps)
 {
-  if (colors || this->Pen->GetColorObject().Alpha() != 0)
+  if (colors || this->Pen->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawPoints(points, n, colors, nc_comps);
     }
@@ -73,16 +73,44 @@ void vtkGL2PSContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                                                unsigned char *colors,
                                                int nc_comps)
 {
-  if (colors || this->Pen->GetColorObject().Alpha() != 0)
+  if (colors || this->Pen->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawPointSprites(sprite, points, n, colors, nc_comps);
     }
 }
 
 //-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawMarkers(int shape, bool highlight,
+                                          float *points, int n,
+                                          unsigned char *colors, int nc_comps)
+{
+  switch (shape)
+    {
+    case VTK_MARKER_CROSS:
+      this->DrawCrossMarkers(highlight, points, n, colors, nc_comps);
+      break;
+    default:
+      // default is here for consistency -- Superclass defaults to plus for
+      // unrecognized shapes.
+    case VTK_MARKER_PLUS:
+      this->DrawPlusMarkers(highlight, points, n, colors, nc_comps);
+      break;
+    case VTK_MARKER_SQUARE:
+      this->DrawSquareMarkers(highlight, points, n, colors, nc_comps);
+      break;
+    case VTK_MARKER_CIRCLE:
+      this->DrawCircleMarkers(highlight, points, n, colors, nc_comps);
+      break;
+    case VTK_MARKER_DIAMOND:
+      this->DrawDiamondMarkers(highlight, points, n, colors, nc_comps);
+      break;
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawQuad(float *points, int n)
 {
-  if (this->Brush->GetColorObject().Alpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawQuad(points, n);
     }
@@ -91,7 +119,7 @@ void vtkGL2PSContextDevice2D::DrawQuad(float *points, int n)
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawQuadStrip(float *points, int n)
 {
-  if (this->Brush->GetColorObject().Alpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawQuadStrip(points, n);
     }
@@ -100,11 +128,13 @@ void vtkGL2PSContextDevice2D::DrawQuadStrip(float *points, int n)
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawPolygon(float *points, int n)
 {
-  if (this->Brush->GetColorObject().Alpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() != 0)
     {
     this->Superclass::DrawPolygon(points, n);
     }
 }
+
+
 
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
@@ -112,22 +142,81 @@ void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
                                                float inRx, float inRy,
                                                float startAngle, float stopAngle)
 {
-  if (this->Brush->GetColorObject().Alpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() == 0)
+    {
+    return;
+    }
+
+  // The path implementation can't handle start/stop angles. Defer to the
+  // superclass in this case.
+  if (fabs(startAngle) > 1e-5 || fabs(stopAngle - 360.0) > 1e-5)
     {
     this->Superclass::DrawEllipseWedge(x, y, outRx, outRy, inRx, inRy,
                                        startAngle, stopAngle);
     }
+
+  vtkNew<vtkPath> path;
+  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, outRx, outRy, false);
+  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, inRx, inRy, true);
+  this->TransformPath(path.GetPointer());
+
+  double origin[3] = {x, y, 0.f};
+  double scale[2] = {1.0, 1.0};
+  int *renWinSize = this->RenderWindow->GetSize();
+  double windowSize[2];
+  windowSize[0] = static_cast<double>(renWinSize[0]);
+  windowSize[1] = static_cast<double>(renWinSize[1]);
+  unsigned char color[4];
+  this->Brush->GetColor(color);
+  unsigned char alpha = this->Brush->GetColorObject().GetAlpha();
+
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
+                              scale, 0, color, alpha);
 }
 
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawEllipticArc(float x, float y,
-                                              float rX, float rY,
-                                              float startAngle, float stopAngle)
+                                              float rx, float ry,
+                                              float startAngle,
+                                              float stopAngle)
 {
-  if (this->Brush->GetColorObject().Alpha() != 0)
+  if (this->Brush->GetColorObject().GetAlpha() == 0)
     {
-    this->Superclass::DrawEllipticArc(x, y, rX, rY, startAngle, stopAngle);
+    return;
     }
+
+  // The path implementation can't handle start/stop angles. Defer to the
+  // superclass in this case.
+  if (fabs(startAngle) > 1e-5 || fabs(stopAngle - 360.0) > 1e-5)
+    {
+    this->Superclass::DrawEllipticArc(x, y, rx, ry, startAngle, stopAngle);
+    }
+
+  vtkNew<vtkPath> path;
+  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, rx, ry, false);
+  this->TransformPath(path.GetPointer());
+
+  double origin[3] = {x, y, 0.f};
+  double scale[2] = {1.0, 1.0};
+  int *renWinSize = this->RenderWindow->GetSize();
+  double windowSize[2];
+  windowSize[0] = static_cast<double>(renWinSize[0]);
+  windowSize[1] = static_cast<double>(renWinSize[1]);
+  unsigned char fillColor[4];
+  this->Brush->GetColor(fillColor);
+  unsigned char fillAlpha = this->Brush->GetColorObject().GetAlpha();
+  unsigned char strokeColor[4];
+  this->Pen->GetColor(strokeColor);
+  unsigned char strokeAlpha = this->Pen->GetColorObject().GetAlpha();
+  float strokeWidth = this->Pen->GetWidth();
+
+  // Fill
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
+                              scale, 0, fillColor, fillAlpha);
+  // and stroke
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
+                              scale, 0, strokeColor, strokeAlpha,
+                              strokeWidth);
 }
 
 //-----------------------------------------------------------------------------
@@ -183,22 +272,7 @@ void vtkGL2PSContextDevice2D::DrawMathTextString(float apoint[],
   color[1] = static_cast<unsigned char>(dcolor[1]*255);
   color[2] = static_cast<unsigned char>(dcolor[2]*255);
 
-  // Transform the path with the modelview matrix:
-  float modelview[16];
-  glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
-
-  // Transform the 2D path.
-  float newPoint[3] = {0, 0, 0};
-  vtkPoints *points = path->GetPoints();
-  for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
-    {
-    double *point = points->GetPoint(i);
-    newPoint[0] = modelview[0] * point[0] + modelview[4] * point[1]
-        + modelview[12];
-    newPoint[1] = modelview[1] * point[0] + modelview[5] * point[1]
-        + modelview[13];
-    points->SetPoint(i, newPoint);
-    }
+  this->TransformPath(path.GetPointer());
 
   vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
                               scale, rotateAngle, color);
@@ -235,6 +309,373 @@ void vtkGL2PSContextDevice2D::SetLineType(int type)
   else if (!this->StippleOn)
     {
     gl2psEnable(GL2PS_LINE_STIPPLE);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawCrossMarkers(bool highlight, float *points,
+                                               int n, unsigned char *colors,
+                                               int nc_comps)
+{
+  float delta = this->GetPen()->GetWidth() * 0.475;
+
+  float oldWidth = this->Pen->GetWidth();
+  unsigned char oldColor[4];
+  this->Pen->GetColor(oldColor);
+  int oldLineType = this->Pen->GetLineType();
+
+  if (highlight)
+    {
+    this->Pen->SetWidth(1.5);
+    }
+  else
+    {
+    this->Pen->SetWidth(0.5);
+    }
+  this->Pen->SetLineType(vtkPen::SOLID_LINE);
+
+  float curLine[4];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Pen->SetColor(color);
+      }
+
+    // The first line of the cross:
+    curLine[0] = point[0] + delta;
+    curLine[1] = point[1] + delta;
+    curLine[2] = point[0] - delta;
+    curLine[3] = point[1] - delta;
+    this->DrawPoly(curLine, 2);
+
+    // And the second:
+    curLine[0] = point[0] + delta;
+    curLine[1] = point[1] - delta;
+    curLine[2] = point[0] - delta;
+    curLine[3] = point[1] + delta;
+    this->DrawPoly(curLine, 2);
+    }
+
+  this->Pen->SetWidth(oldWidth);
+  this->Pen->SetColor(oldColor);
+  this->Pen->SetLineType(oldLineType);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawPlusMarkers(bool highlight, float *points,
+                                              int n, unsigned char *colors,
+                                              int nc_comps)
+{
+  float delta = this->GetPen()->GetWidth() * 0.475;
+
+  float oldWidth = this->Pen->GetWidth();
+  unsigned char oldColor[4];
+  this->Pen->GetColor(oldColor);
+  int oldLineType = this->Pen->GetLineType();
+
+  if (highlight)
+    {
+    this->Pen->SetWidth(1.5);
+    }
+  else
+    {
+    this->Pen->SetWidth(0.5);
+    }
+  this->Pen->SetLineType(vtkPen::SOLID_LINE);
+
+  float curLine[4];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Pen->SetColor(color);
+      }
+
+    // The first line of the plus:
+    curLine[0] = point[0] - delta;
+    curLine[1] = point[1];
+    curLine[2] = point[0] + delta;
+    curLine[3] = point[1];
+    this->DrawPoly(curLine, 2);
+
+    // And the second:
+    curLine[0] = point[0];
+    curLine[1] = point[1] - delta;
+    curLine[2] = point[0];
+    curLine[3] = point[1] + delta;
+    this->DrawPoly(curLine, 2);
+    }
+
+  this->Pen->SetWidth(oldWidth);
+  this->Pen->SetColor(oldColor);
+  this->Pen->SetLineType(oldLineType);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawSquareMarkers(bool /*highlight*/,
+                                                float *points,
+                                                int n, unsigned char *colors,
+                                                int nc_comps)
+{
+  float delta = this->GetPen()->GetWidth() * 0.475;
+
+  unsigned char oldColor[4];
+  this->Brush->GetColor(oldColor);
+
+  this->Brush->SetColor(this->Pen->GetColor());
+
+  float quad[8];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Brush->SetColor(color);
+      }
+
+    quad[0] = point[0] - delta;
+    quad[1] = point[1] - delta;
+    quad[2] = point[0] + delta;
+    quad[3] = quad[1];
+    quad[4] = quad[2];
+    quad[5] = point[1] + delta;
+    quad[6] = quad[0];
+    quad[7] = quad[5];
+
+    this->DrawQuad(quad,4);
+    }
+
+  this->Brush->SetColor(oldColor);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawCircleMarkers(bool /*highlight*/,
+                                                float *points,
+                                                int n, unsigned char *colors,
+                                                int nc_comps)
+{
+  float radius = this->GetPen()->GetWidth() * 0.475;
+
+  unsigned char oldColor[4];
+  this->Brush->GetColor(oldColor);
+
+  this->Brush->SetColor(this->Pen->GetColor());
+
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Brush->SetColor(color);
+      }
+
+    this->DrawEllipseWedge(point[0], point[1], radius, radius, 0, 0,
+                           0, 360);
+    }
+
+  this->Brush->SetColor(oldColor);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::DrawDiamondMarkers(bool /*highlight*/,
+                                                 float *points,
+                                                 int n, unsigned char *colors,
+                                                 int nc_comps)
+{
+  float delta = this->GetPen()->GetWidth() * 0.475;
+
+  unsigned char oldColor[4];
+  this->Brush->GetColor(oldColor);
+
+  this->Brush->SetColor(this->Pen->GetColor());
+
+  float quad[8];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Brush->SetColor(color);
+      }
+
+    quad[0] = point[0] - delta;
+    quad[1] = point[1];
+    quad[2] = point[0];
+    quad[3] = point[1] - delta;
+    quad[4] = point[0] + delta;
+    quad[5] = point[1];
+    quad[6] = point[0];
+    quad[7] = point[1] + delta;
+
+    this->DrawQuad(quad,4);
+    }
+
+  this->Brush->SetColor(oldColor);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::AddEllipseToPath(vtkPath *path, float x, float y,
+                                               float rx, float ry, bool reverse)
+{
+  if (rx < 1e-5 || ry < 1e-5)
+    {
+    return;
+    }
+
+  // method based on http://www.tinaja.com/glib/ellipse4.pdf
+  const static float MAGIC = (4.0/3.0) * (sqrt(2.0) - 1);
+
+  if (!reverse)
+    {
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::MOVE_TO);
+    path->InsertNextPoint(x - rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(-rx * MAGIC, y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y + ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(rx * MAGIC,  y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      y,           0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(x + rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(rx * MAGIC,  y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y - ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(-rx * MAGIC, y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::CUBIC_CURVE);
+    }
+  else
+    {
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::MOVE_TO);
+    path->InsertNextPoint(x - rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(-rx * MAGIC, y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y - ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(rx * MAGIC,  y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      y,           0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(x + rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(rx * MAGIC,  y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y + ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(-rx * MAGIC, y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::CUBIC_CURVE);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::TransformPath(vtkPath *path)
+{
+  // Transform the path with the modelview matrix:
+  float modelview[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+
+  // Transform the 2D path.
+  float newPoint[3] = {0, 0, 0};
+  vtkPoints *points = path->GetPoints();
+  for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
+    {
+    double *point = points->GetPoint(i);
+    newPoint[0] = modelview[0] * point[0] + modelview[4] * point[1]
+        + modelview[12];
+    newPoint[1] = modelview[1] * point[0] + modelview[5] * point[1]
+        + modelview[13];
+    points->SetPoint(i, newPoint);
     }
 }
 

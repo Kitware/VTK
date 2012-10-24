@@ -234,6 +234,11 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
       kMax = kMin + 1;
       cell = this->Voxel;
       break;
+
+    default:
+      vtkErrorMacro("Invalid DataDescription.");
+      return NULL;
+      break;
     }
 
   // Extract point coordinates and point ids

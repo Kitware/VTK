@@ -3,6 +3,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestFastNumericConversion.cxx
   TestMatrix3x3.cxx
   TestPolynomialSolversUnivariate.cxx
+  TestQuaternion.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 

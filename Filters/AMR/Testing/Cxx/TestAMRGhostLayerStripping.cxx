@@ -38,11 +38,12 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkAMRInformation.h"
 #include "vtkUniformGrid.h"
-#include "vtkXMLImageDataWriter.h"
-
 //#define DEBUG_ON
 
 //------------------------------------------------------------------------------
+// Debugging utilites. Must link vtkIOXML to work
+#ifdef DEBUG_ON
+#include "vtkXMLImageDataWriter.h"
 void WriteUniformGrid( vtkUniformGrid *g, std::string prefix )
 {
   assert( "pre: Uniform grid (g) is NULL!" && (g != NULL) );
@@ -57,6 +58,32 @@ void WriteUniformGrid( vtkUniformGrid *g, std::string prefix )
 
   imgWriter->Delete();
 }
+//------------------------------------------------------------------------------
+void WriteUnGhostedGrids(
+    const int dimension, vtkOverlappingAMR *amr)
+{
+  assert("pre: AMR dataset is NULL!" && (amr != NULL) );
+
+  std::ostringstream oss;
+  oss.clear();
+  unsigned int levelIdx = 0;
+  for(;levelIdx < amr->GetNumberOfLevels(); ++levelIdx )
+    {
+    unsigned dataIdx = 0;
+    for(;dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx )
+      {
+      vtkUniformGrid *grid = amr->GetDataSet(levelIdx,dataIdx);
+      if( grid != NULL )
+        {
+        oss.str("");
+        oss << dimension << "D_UNGHOSTED_GRID_" << levelIdx << "_" << dataIdx;
+        WriteUniformGrid(grid,oss.str());
+        }
+      } // END for all data-sets
+    } // END for all levels
+}
+
+#endif
 
 //------------------------------------------------------------------------------
 double ComputePulse(
@@ -288,31 +315,6 @@ vtkOverlappingAMR *GetAMRDataSet(
   myAMR->ShallowCopy( amrGPSource->GetOutput() );
   amrGPSource->Delete();
   return( myAMR );
-}
-
-//------------------------------------------------------------------------------
-void WriteUnGhostedGrids(
-    const int dimension, vtkOverlappingAMR *amr)
-{
-  assert("pre: AMR dataset is NULL!" && (amr != NULL) );
-
-  std::ostringstream oss;
-  oss.clear();
-  unsigned int levelIdx = 0;
-  for(;levelIdx < amr->GetNumberOfLevels(); ++levelIdx )
-    {
-    unsigned dataIdx = 0;
-    for(;dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx )
-      {
-      vtkUniformGrid *grid = amr->GetDataSet(levelIdx,dataIdx);
-      if( grid != NULL )
-        {
-        oss.str("");
-        oss << dimension << "D_UNGHOSTED_GRID_" << levelIdx << "_" << dataIdx;
-        WriteUniformGrid(grid,oss.str());
-        }
-      } // END for all data-sets
-    } // END for all levels
 }
 
 //------------------------------------------------------------------------------

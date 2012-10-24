@@ -449,9 +449,10 @@ bool vtkHardwareSelector::IsPropHit(int id)
 
 //----------------------------------------------------------------------------
 vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
-  unsigned int in_display_position[2], int maxDist)
+  unsigned int in_display_position[2], int maxDistance)
 {
   // Base case
+  unsigned int maxDist = (maxDistance < 0) ? 0 : static_cast<unsigned int>(maxDistance);
   if (maxDist == 0)
     {
     if (in_display_position[0] < this->Area[0] || in_display_position[0] > this->Area[2] ||
@@ -506,7 +507,7 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
 
   // Iterate over successively growing boxes.
   // They recursively call the base case to handle single pixels.
-  int disp_pos[2] = {in_display_position[0], in_display_position[1]};
+  unsigned int disp_pos[2] = {in_display_position[0], in_display_position[1]};
   unsigned int cur_pos[2] = {0, 0};
   PixelInformation info;
   info = this->GetPixelInformation(in_display_position, 0);
@@ -514,22 +515,22 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
     {
     return info;
     }
-  for (int dist = 1; dist < maxDist; ++dist)
+  for (unsigned int dist = 1; dist < maxDist; ++dist)
     {
     // Vertical sides of box.
-    for (int y = std::max(0, disp_pos[1] - dist); y <= disp_pos[1] + dist; ++y)
+    for (unsigned int y = ((disp_pos[1] > dist) ? (disp_pos[1] - dist) : 0); y <= disp_pos[1] + dist; ++y)
       {
-      cur_pos[1] = static_cast<unsigned int>(y);
-      if (disp_pos[0] - dist >= 0)
+      cur_pos[1] = y;
+      if (disp_pos[0] >= dist)
         {
-        cur_pos[0] = static_cast<unsigned int>(disp_pos[0] - dist);
+        cur_pos[0] = disp_pos[0] - dist;
         info = this->GetPixelInformation(cur_pos, 0);
         if (info.Valid)
           {
           return info;
           }
         }
-      cur_pos[0] = static_cast<unsigned int>(disp_pos[0] + dist);
+      cur_pos[0] = disp_pos[0] + dist;
       info = this->GetPixelInformation(cur_pos, 0);
       if (info.Valid)
         {
@@ -537,19 +538,19 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
         }
       }
     // Horizontal sides of box.
-    for (int x = std::max(0, disp_pos[0] - (dist-1)); x <= disp_pos[0] + (dist-1); ++x)
+    for (unsigned int x = ((disp_pos[0] >= dist) ? (disp_pos[0] - (dist-1)) : 0); x <= disp_pos[0] + (dist-1); ++x)
       {
-      cur_pos[0] = static_cast<unsigned int>(x);
-      if (disp_pos[1] - dist >= 0)
+      cur_pos[0] = x;
+      if (disp_pos[1] >= dist)
         {
-        cur_pos[1] = static_cast<unsigned int>(disp_pos[1] - dist);
+        cur_pos[1] = disp_pos[1] - dist;
         info = this->GetPixelInformation(cur_pos, 0);
         if (info.Valid)
           {
           return info;
           }
         }
-      cur_pos[1] = static_cast<unsigned int>(disp_pos[1] + dist);
+      cur_pos[1] = disp_pos[1] + dist;
       info = this->GetPixelInformation(cur_pos, 0);
       if (info.Valid)
         {
@@ -685,11 +686,9 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
       child->GetProperties()->Set(vtkSelectionNode::PROCESS_ID(),
         key.ProcessID);
       }
-    if (key.CompositeID >= 0)
-      {
-      child->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(),
-        key.CompositeID);
-      }
+
+    child->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(),
+      key.CompositeID);
 
     vtkIdTypeArray* ids = vtkIdTypeArray::New();
     ids->SetName("SelectedIds");

@@ -425,38 +425,38 @@ void vtkSynchronizedRenderers::RendererInfo::Save(vtkMultiProcessStream& stream)
          << this->CameraClippingRange[1]
          << this->CameraViewAngle
          << this->CameraParallelScale
-         << this->HeadPose[0]
-         << this->HeadPose[1]
-         << this->HeadPose[2]
-         << this->HeadPose[3]
-         << this->HeadPose[4]
-         << this->HeadPose[5]
-         << this->HeadPose[6]
-         << this->HeadPose[7]
-         << this->HeadPose[8]
-         << this->HeadPose[9]
-         << this->HeadPose[10]
-         << this->HeadPose[11]
-         << this->HeadPose[12]
-         << this->HeadPose[13]
-         << this->HeadPose[14]
-         << this->HeadPose[15]
-         << this->WandPose[0]
-         << this->WandPose[1]
-         << this->WandPose[2]
-         << this->WandPose[3]
-         << this->WandPose[4]
-         << this->WandPose[5]
-         << this->WandPose[6]
-         << this->WandPose[7]
-         << this->WandPose[8]
-         << this->WandPose[9]
-         << this->WandPose[10]
-         << this->WandPose[11]
-         << this->WandPose[12]
-         << this->WandPose[13]
-         << this->WandPose[14]
-         << this->WandPose[15];
+         << this->EyeTransformMatrix[0]
+         << this->EyeTransformMatrix[1]
+         << this->EyeTransformMatrix[2]
+         << this->EyeTransformMatrix[3]
+         << this->EyeTransformMatrix[4]
+         << this->EyeTransformMatrix[5]
+         << this->EyeTransformMatrix[6]
+         << this->EyeTransformMatrix[7]
+         << this->EyeTransformMatrix[8]
+         << this->EyeTransformMatrix[9]
+         << this->EyeTransformMatrix[10]
+         << this->EyeTransformMatrix[11]
+         << this->EyeTransformMatrix[12]
+         << this->EyeTransformMatrix[13]
+         << this->EyeTransformMatrix[14]
+         << this->EyeTransformMatrix[15]
+         << this->ModelTransformMatrix[0]
+         << this->ModelTransformMatrix[1]
+         << this->ModelTransformMatrix[2]
+         << this->ModelTransformMatrix[3]
+         << this->ModelTransformMatrix[4]
+         << this->ModelTransformMatrix[5]
+         << this->ModelTransformMatrix[6]
+         << this->ModelTransformMatrix[7]
+         << this->ModelTransformMatrix[8]
+         << this->ModelTransformMatrix[9]
+         << this->ModelTransformMatrix[10]
+         << this->ModelTransformMatrix[11]
+         << this->ModelTransformMatrix[12]
+         << this->ModelTransformMatrix[13]
+         << this->ModelTransformMatrix[14]
+         << this->ModelTransformMatrix[15];
 }
 
 //----------------------------------------------------------------------------
@@ -490,38 +490,38 @@ bool vtkSynchronizedRenderers::RendererInfo::Restore(vtkMultiProcessStream& stre
          >> this->CameraClippingRange[1]
          >> this->CameraViewAngle
          >> this->CameraParallelScale
-         >> this->HeadPose[0]
-         >> this->HeadPose[1]
-         >> this->HeadPose[2]
-         >> this->HeadPose[3]
-         >> this->HeadPose[4]
-         >> this->HeadPose[5]
-         >> this->HeadPose[6]
-         >> this->HeadPose[7]
-         >> this->HeadPose[8]
-         >> this->HeadPose[9]
-         >> this->HeadPose[10]
-         >> this->HeadPose[11]
-         >> this->HeadPose[12]
-         >> this->HeadPose[13]
-         >> this->HeadPose[14]
-         >> this->HeadPose[15]
-         >> this->WandPose[0]
-         >> this->WandPose[1]
-         >> this->WandPose[2]
-         >> this->WandPose[3]
-         >> this->WandPose[4]
-         >> this->WandPose[5]
-         >> this->WandPose[6]
-         >> this->WandPose[7]
-         >> this->WandPose[8]
-         >> this->WandPose[9]
-         >> this->WandPose[10]
-         >> this->WandPose[11]
-         >> this->WandPose[12]
-         >> this->WandPose[13]
-         >> this->WandPose[14]
-         >> this->WandPose[15];
+         >> this->EyeTransformMatrix[0]
+         >> this->EyeTransformMatrix[1]
+         >> this->EyeTransformMatrix[2]
+         >> this->EyeTransformMatrix[3]
+         >> this->EyeTransformMatrix[4]
+         >> this->EyeTransformMatrix[5]
+         >> this->EyeTransformMatrix[6]
+         >> this->EyeTransformMatrix[7]
+         >> this->EyeTransformMatrix[8]
+         >> this->EyeTransformMatrix[9]
+         >> this->EyeTransformMatrix[10]
+         >> this->EyeTransformMatrix[11]
+         >> this->EyeTransformMatrix[12]
+         >> this->EyeTransformMatrix[13]
+         >> this->EyeTransformMatrix[14]
+         >> this->EyeTransformMatrix[15]
+         >> this->ModelTransformMatrix[0]
+         >> this->ModelTransformMatrix[1]
+         >> this->ModelTransformMatrix[2]
+         >> this->ModelTransformMatrix[3]
+         >> this->ModelTransformMatrix[4]
+         >> this->ModelTransformMatrix[5]
+         >> this->ModelTransformMatrix[6]
+         >> this->ModelTransformMatrix[7]
+         >> this->ModelTransformMatrix[8]
+         >> this->ModelTransformMatrix[9]
+         >> this->ModelTransformMatrix[10]
+         >> this->ModelTransformMatrix[11]
+         >> this->ModelTransformMatrix[12]
+         >> this->ModelTransformMatrix[13]
+         >> this->ModelTransformMatrix[14]
+         >> this->ModelTransformMatrix[15];
   return true;
 }
 
@@ -540,14 +540,14 @@ void vtkSynchronizedRenderers::RendererInfo::CopyFrom(vtkRenderer* ren)
   this->CameraViewAngle = cam->GetViewAngle();
   this->CameraParallelScale = cam->GetParallelScale();
 
-  vtkMatrix4x4 *headMatrix = cam->GetEyeTransformMatrix();
-  vtkMatrix4x4 *wandMatrix = cam->GetModelTransformMatrix();
+  vtkMatrix4x4 *eyeTransformationMatrix = cam->GetEyeTransformMatrix();
+  vtkMatrix4x4 *modelTransformationMatrix = cam->GetModelTransformMatrix();
   for(int i=0; i < 4; ++i)
     {
     for(int j=0; j < 4; ++j)
       {
-       this->HeadPose[i*4 + j] = headMatrix->GetElement(i, j);
-       this->WandPose[i*4 + j] = wandMatrix->GetElement(i, j);
+       this->EyeTransformMatrix[i*4 + j] = eyeTransformationMatrix->GetElement(i, j);
+       this->ModelTransformMatrix[i*4 + j] = modelTransformationMatrix->GetElement(i, j);
       }
     }
 }
@@ -568,20 +568,20 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
   cam->SetViewAngle(this->CameraViewAngle);
   cam->SetParallelScale(this->CameraParallelScale);
 
-  vtkMatrix4x4 *headMatrix = vtkMatrix4x4::New();
-  vtkMatrix4x4 *wandMatrix = vtkMatrix4x4::New();
+  vtkMatrix4x4 *eyeTransformationMatrix = vtkMatrix4x4::New();
+  vtkMatrix4x4 *modelTransformationMatrix = vtkMatrix4x4::New();
   for(int i=0; i < 4; ++i)
     {
     for(int j=0; j < 4; ++j)
       {
-      headMatrix->SetElement(i, j, this->HeadPose[i * 4 + j]);
-      wandMatrix->SetElement(i, j, this->WandPose[i * 4 + j]);
+      eyeTransformationMatrix->SetElement(i, j, this->EyeTransformMatrix[i * 4 + j]);
+      modelTransformationMatrix->SetElement(i, j, this->ModelTransformMatrix[i * 4 + j]);
       }
     }
-  cam->SetEyeTransformMatrix(headMatrix);
-  cam->SetModelTransformMatrix(wandMatrix);
-  headMatrix->Delete();
-  wandMatrix->Delete();
+  cam->SetEyeTransformMatrix(eyeTransformationMatrix);
+  cam->SetModelTransformMatrix(modelTransformationMatrix);
+  eyeTransformationMatrix->Delete();
+  modelTransformationMatrix->Delete();
 }
 
 

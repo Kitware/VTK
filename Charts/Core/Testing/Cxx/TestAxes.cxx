@@ -70,8 +70,8 @@ int TestAxes(int , char * [])
   axesVertical[2]->SetPrecision(0);
 
   axesVertical[3]->SetTitle("Custom vertical labels");
-  axesVertical[3]->SetTickPositions(positions.GetPointer());
-  axesVertical[3]->SetTickLabels(labels.GetPointer());
+  axesVertical[3]->SetCustomTickPositions(positions.GetPointer(),
+                                          labels.GetPointer());
   axesVertical[3]->SetPoint1(vtkVector2f(3 * 69 + 80, 10));
   axesVertical[3]->SetPoint2(vtkVector2f(3 * 69 + 80, 290));
   axesVertical[3]->AutoScale();
@@ -114,8 +114,8 @@ int TestAxes(int , char * [])
   axesHorizontal[4]->SetNumberOfTicks(5);
 
   axesHorizontal[5]->SetTitle("Custom horizontal labels");
-  axesHorizontal[5]->SetTickPositions(positions.GetPointer());
-  axesHorizontal[5]->SetTickLabels(labels.GetPointer());
+  axesHorizontal[5]->SetCustomTickPositions(positions.GetPointer(),
+                                            labels.GetPointer());
   axesHorizontal[5]->SetPosition(vtkAxis::BOTTOM);
 
   for (size_t i = 0; i < axesHorizontal.size(); ++i)

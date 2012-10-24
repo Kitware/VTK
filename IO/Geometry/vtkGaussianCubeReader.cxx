@@ -23,6 +23,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkTransform.h"
 
 #include <ctype.h>
@@ -244,6 +245,13 @@ void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
     this->Transform->TransformPoint(x, x);
     this->Points->InsertNextPoint(x);
     this->AtomType->InsertNextValue(j-1);
+    this->AtomTypeStrings->InsertNextValue("Xx");
+    this->Residue->InsertNextValue(-1);
+    this->Chain->InsertNextValue(0);
+    this->SecondaryStructures->InsertNextValue(0);
+    this->SecondaryStructuresBegin->InsertNextValue(0);
+    this->SecondaryStructuresEnd->InsertNextValue(0);
+    this->IsHetatm->InsertNextValue(0);
     }
 }
 

@@ -233,19 +233,36 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
 
   // This is the entry point for all 2D rendering.
   // First initialize the drawing device.
-  this->Context->GetDevice()->Begin(viewport);
-  this->Scene->SetGeometry(size);
-  this->Scene->Paint(this->Context.GetPointer());
-  this->Context->GetDevice()->End();
+
+  vtkContext3D *context3D = this->Context->GetContext3D();
+  if (!context3D)
+    {
+    this->Context->GetDevice()->Begin(viewport);
+    this->Scene->SetGeometry(size);
+    this->Scene->Paint(this->Context.GetPointer());
+    this->Context->GetDevice()->End();
+    }
+  else
+    {
+    this->Context->GetDevice()->Begin(viewport);
+    context3D->GetDevice()->Begin(viewport);
+    this->Scene->SetGeometry(size);
+    this->Scene->Paint(this->Context.GetPointer());
+    context3D->GetDevice()->End();
+    this->Context->GetDevice()->End();
+    }
+
   return 1;
 }
 
 //----------------------------------------------------------------------------
 void vtkContextActor::Initialize(vtkViewport* viewport)
 {
+  vtkOpenGLContextDevice3D *dev = vtkOpenGLContextDevice3D::New();
+  this->Context3D->Begin(dev);
+  dev->Delete();
+
   vtkContextDevice2D *device = NULL;
-  vtkNew<vtkOpenGLContextDevice3D> dev;
-  this->Context3D->Begin(dev.GetPointer());
   if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
     {
     vtkDebugMacro("Using OpenGL 2 for 2D rendering.")

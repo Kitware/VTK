@@ -42,6 +42,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder,
 // Karthik Krishnan, Aashish Chaudhary, Philippe Pebay, David Gobbi,
 // David Partyka, Utkarsh Ayachit David Cole, Francois Bertel, and Mark Olesen
+// Part of this work was supported by CEA/DIF - Commissariat a l'Energie Atomique, 
+// Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France.
 //
 // .SECTION See Also
 // vtkActor vtkVectorText vtkPolyDataMapper vtkAxisActor2D vtkCoordinate
@@ -220,6 +222,14 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkGetMacro(DrawGridlines, int);
   vtkBooleanMacro(DrawGridlines, int);
 
+  // Description:
+  // Set/Get whether ONLY the gridlines should be drawn.
+  // This will only draw GridLines and will skip any other part of the rendering
+  // such as Axis/Tick/Title/...
+  vtkSetMacro(DrawGridlinesOnly, int);
+  vtkGetMacro(DrawGridlinesOnly, int);
+  vtkBooleanMacro(DrawGridlinesOnly, int);
+
   vtkSetMacro(DrawGridlinesLocation, int);
   vtkGetMacro(DrawGridlinesLocation, int);
 
@@ -283,7 +293,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   virtual int RenderTranslucentGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
   virtual int RenderOverlay(vtkViewport* viewport);
-  int HasTranslucentPolygonalGeometry() { return 1; }
+  int HasTranslucentPolygonalGeometry();
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -349,7 +359,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 //ETX
 
   // Description:
-  // Get total numbe of labels built. Once built
+  // Get total number of labels built. Once built
   // this count does not change.
   vtkGetMacro(NumberOfLabelsBuilt, int);
 
@@ -422,11 +432,13 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   int    TickLocation;
 
   int    DrawGridlines;
+  int    DrawGridlinesOnly;
   int    LastDrawGridlines;
   int    DrawGridlinesLocation; // 0: all | 1: closest | 2: farest
-  double  GridlineXLength;
-  double  GridlineYLength;
-  double  GridlineZLength;
+  int    LastDrawGridlinesLocation; // 0: all | 1: closest | 2: farest
+  double GridlineXLength;
+  double GridlineYLength;
+  double GridlineZLength;
 
   int    DrawInnerGridlines;
   int    LastDrawInnerGridlines;

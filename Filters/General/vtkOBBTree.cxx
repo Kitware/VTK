@@ -526,7 +526,6 @@ int vtkOBBTreeLineIntersectsTriangle(double p1[3], double p2[3],
 
     if (area < 0)
       {
-      area = -area;
       alpha = -alpha;
       beta = -beta;
       gamma = -gamma;

@@ -1,9 +1,9 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestPickingManager.cxx
+  TestSplitViewportStereoHorizontal.cxx
   # otherLookupTable.cxx             # fixme
   # otherLookupTableWithEnabling.cxx # fixme
-  TestHierarchicalBoxPipeline.cxx
-  TestSplitViewportStereoHorizontal.cxx
+  # TestHierarchicalBoxPipeline.cxx  # legacy code
   EXTRA_INCLUDE vtkTestDriver.h
 )
 

@@ -132,6 +132,37 @@ vtkTextActor::~vtkTextActor()
 }
 
 // ----------------------------------------------------------------------------
+void vtkTextActor::GetBoundingBox(double bbox[4])
+{
+  if ( this->UpdateRectangle(NULL) && this->RectanglePoints &&
+    this->RectanglePoints->GetNumberOfPoints() >= 4 )
+    {
+    double x[3];
+    this->RectanglePoints->GetPoint( 0, x );
+    bbox[0] = bbox[1] = x[0];
+    bbox[2] = bbox[3] = x[1];
+    for (int i = 1; i < this->RectanglePoints->GetNumberOfPoints(); ++i)
+      {
+      this->RectanglePoints->GetPoint( i, x );
+
+      if ( bbox[0] > x[0] )
+        bbox[0] = x[0];
+      else if ( bbox[1] < x[0] )
+        bbox[1] = x[0];
+
+      if ( bbox[2] > x[1] )
+        bbox[2] = x[1];
+      else if ( bbox[3] < x[1] )
+        bbox[3] = x[1];
+      }
+    }
+  else
+    {
+    vtkErrorMacro("UpdateRectangle failed to do so");
+    }
+}
+
+// ----------------------------------------------------------------------------
 void vtkTextActor::SetNonLinearFontScale(double exp, int tgt)
 {
   if (   (this->FontScaleExponent == exp)
@@ -179,7 +210,7 @@ bool vtkTextActor::RenderImage(vtkTextProperty *tprop, vtkViewport *)
 }
 
 // ----------------------------------------------------------------------------
-bool vtkTextActor::GetBoundingBox(vtkTextProperty *tprop, vtkViewport *,
+bool vtkTextActor::GetImageBoundingBox(vtkTextProperty *tprop, vtkViewport *,
                                   int bbox[4])
 {
   return
@@ -314,27 +345,9 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   this->ComputeScaledFont(viewport);
-
-  //check if we need to render the string
-  if(this->ScaledTextProperty->GetMTime() > this->BuildTime ||
-    !this->InputRendered || this->GetMTime() > this->BuildTime)
+  if ( ! this->UpdateRectangle(viewport) )
     {
-    if(!this->RenderImage(this->ScaledTextProperty, viewport))
-      {
-      vtkErrorMacro(<<"Failed rendering text to buffer");
-      return 0;
-      }
-
-    // Check if we need to create a new rectangle.
-    // Need to check if angle has changed.
-    //justification and line offset are handled in ComputeRectangle
-    this->ComputeRectangle(viewport);
-
-    this->ImageData->Modified();
-    this->Texture->SetInputData(this->ImageData);
-    this->Texture->Modified();
-    this->InputRendered = true;
-    this->BuildTime.Modified();
+    return 0;
     }
 
   // Everything is built, just have to render
@@ -611,7 +624,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     int p2dims[3];
     this->ImageData->GetDimensions( p2dims );
     int text_bbox[4];
-    if (!this->GetBoundingBox(this->ScaledTextProperty, viewport, text_bbox))
+    if (!this->GetImageBoundingBox(this->ScaledTextProperty, viewport, text_bbox))
       {
       vtkErrorMacro("Cannot compute bounding box.")
       return;
@@ -771,6 +784,32 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
   this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
 }
 
+// ----------------------------------------------------------------------------
+int vtkTextActor::UpdateRectangle(vtkViewport* viewport)
+{
+  //check if we need to render the string
+  if(this->ScaledTextProperty->GetMTime() > this->BuildTime ||
+    !this->InputRendered || this->GetMTime() > this->BuildTime)
+    {
+    if(!this->RenderImage(this->ScaledTextProperty, viewport))
+      {
+      vtkErrorMacro(<<"Failed rendering text to buffer");
+      return 0;
+      }
+
+    // Check if we need to create a new rectangle.
+    // Need to check if angle has changed.
+    //justification and line offset are handled in ComputeRectangle
+    this->ComputeRectangle(viewport);
+
+    this->ImageData->Modified();
+    this->Texture->SetInputData(this->ImageData);
+    this->Texture->Modified();
+    this->InputRendered = true;
+    this->BuildTime.Modified();
+    }
+  return 1;
+}
 
 // ----------------------------------------------------------------------------
 void vtkTextActor::SpecifiedToDisplay(double *pos, vtkViewport *vport,

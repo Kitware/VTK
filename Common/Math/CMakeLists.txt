@@ -10,6 +10,27 @@ set(Module_SRCS
   vtkRungeKutta2.cxx
   vtkRungeKutta4.cxx
   vtkRungeKutta45.cxx
+
+  # Header only classes
+  vtkQuaternion.h
+  vtkTuple.h
+  )
+
+set_source_files_properties(
+  vtkQuaternion
+  vtkTuple
+  WRAP_EXCLUDE
+  )
+
+set_source_files_properties(
+  vtkQuaternion.h
+  vtkTuple.h
+  PROPERTIES WRAP_SPECIAL 1
+  )
+
+set(
+  ${vtk-module}_HDRS
+  vtkQuaternion.txx
   )
 
 if(CMAKE_COMPILER_IS_GNUCXX)

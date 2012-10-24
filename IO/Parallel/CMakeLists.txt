@@ -10,6 +10,7 @@ set(Module_SRCS
   vtkWindBladeReader.cxx
   vtkXMLPHierarchicalBoxDataWriter.cxx
   vtkXMLPMultiBlockDataWriter.cxx
+  vtkXMLPUniformGridAMRWriter.cxx
   )
 
 vtk_module_library(vtkIOParallel ${Module_SRCS})

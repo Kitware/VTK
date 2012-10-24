@@ -112,8 +112,8 @@ vtkScalarsToColors * vtkColorLegend::GetTransferFunction()
 void vtkColorLegend::SetPosition(const vtkRectf& pos)
 {
   this->Position = pos;
-  this->Axis->SetPoint1(vtkVector2f(pos.X() + pos.Width(), pos.Y()));
-  this->Axis->SetPoint2(vtkVector2f(pos.X() + pos.Width(), pos.Y() + pos.Height()));
+  this->Axis->SetPoint1(vtkVector2f(pos.GetX() + pos.GetWidth(), pos.GetY()));
+  this->Axis->SetPoint2(vtkVector2f(pos.GetX() + pos.GetWidth(), pos.GetY() + pos.GetHeight()));
 }
 
 //-----------------------------------------------------------------------------
@@ -136,8 +136,8 @@ vtkRectf vtkColorLegend::GetBoundingRect(vtkContext2D *painter)
 
   // Default point placement is bottom left.
   this->Rect = vtkRectf(0.0, 0.0,
-                        this->SymbolWidth + axisRect.Width(),
-                        this->Position.Height() + axisRect.Height());
+                        this->SymbolWidth + axisRect.GetWidth(),
+                        this->Position.GetHeight() + axisRect.GetHeight());
 
   this->RectTime.Modified();
   return this->Rect;

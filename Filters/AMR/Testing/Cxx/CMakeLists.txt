@@ -3,6 +3,7 @@ set(MyTests
     TestAMRGhostLayerStripping.cxx
     TestAMRBlanking.cxx
     TestAMRIterator.cxx
+    TestImageToAMR.cxx
     )
 
 ## Create test source list

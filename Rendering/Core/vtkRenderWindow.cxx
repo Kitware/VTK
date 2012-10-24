@@ -825,11 +825,11 @@ void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
 void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
 {
   // we are its parent
-  this->Renderers->RemoveItem(ren);
   if (ren->GetRenderWindow() == this)
     {
     ren->SetRenderWindow(NULL);
     }
+  this->Renderers->RemoveItem(ren);
 }
 
 int vtkRenderWindow::HasRenderer(vtkRenderer *ren)

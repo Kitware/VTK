@@ -17,7 +17,6 @@
 
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
-#include "vtkColor.h"
 #include "vtkMathUtilities.h"
 
 //----------------------------------------------------------------------------
@@ -50,24 +49,24 @@ int TestVector(int, char*[])
 
   // Test out vtkVector3i and ensure the various access methods are the same
   vtkVector3i vec3i(0, 6, 9);
-  if (vec3i.X() != vec3i[0] || vec3i.X() != 0)
+  if (vec3i.GetX() != vec3i[0] || vec3i.GetX() != 0)
     {
-    cerr << "vec3i.X() should equal vec3i.GetData()[0] which should equal 0."
-        << "\nvec3i.X() = " << vec3i.X() << endl
+    cerr << "vec3i.GetX() should equal vec3i.GetData()[0] which should equal 0."
+        << "\nvec3i.GetX() = " << vec3i.GetX() << endl
         << "vec3i[0] = " << vec3i[0] << endl;
     ++retVal;
     }
-  if (vec3i.Y() != vec3i[1] || vec3i.Y() != 6)
+  if (vec3i.GetY() != vec3i[1] || vec3i.GetY() != 6)
     {
-    cerr << "vec3i.Y() should equal vec3i.GetData()[1] which should equal 6."
-        << "\nvec3i.Y() = " << vec3i.Y() << endl
+    cerr << "vec3i.GetY() should equal vec3i.GetData()[1] which should equal 6."
+        << "\nvec3i.GetY() = " << vec3i.GetY() << endl
         << "vec3i[1] = " << vec3i[1] << endl;
     ++retVal;
     }
-  if (vec3i.Z() != vec3i[2] || vec3i.Z() != 9)
+  if (vec3i.GetZ() != vec3i[2] || vec3i.GetZ() != 9)
     {
-    cerr << "vec3i.Z() should equal vec3i.GetData()[2] which should equal 9."
-        << "\nvec3i.Z() = " << vec3i.Z() << endl
+    cerr << "vec3i.GetZ() should equal vec3i.GetData()[2] which should equal 9."
+        << "\nvec3i.GetZ() = " << vec3i.GetZ() << endl
         << "vec3i[2] = " << vec3i[2] << endl;
     ++retVal;
     }
@@ -97,47 +96,6 @@ int TestVector(int, char*[])
     ++retVal;
   }
   cout << "castVecd[0] = " << castVecd[0] << endl;
-
-  // Now to test out one of the color classes and memory layouts of arrays
-  // Note that the memory layout of a vtkColor3ub[5] is the same as an unsigned
-  // char[15], and can be addressed as such.
-  vtkColor3ub color[3] = { vtkColor3ub(0, 0, 0), vtkColor3ub(0, 0, 0),
-        vtkColor3ub(0, 0, 0) };
-  unsigned char* colorPtr = color->GetData();
-  for (int i = 0; i < 3; ++i)
-    {
-    for (int j = 0; j < 3; ++j)
-      {
-      if (color[i][j] != 0)
-        {
-        cerr << "Initializer problem in vtkColor3ub - should be zero, but = "
-            << color[i][j] << endl;
-        ++retVal;
-        }
-      if (color[i][j] != colorPtr[i*3+j])
-        {
-        cerr << "Error: color[i][j] != colorPtr[i*3+j]" << endl
-            << "color[i][j] = " << color[i][j] << endl
-            << "colorPtr[i*3+j] = " << colorPtr[i*3+j] << endl;
-        ++retVal;
-        }
-      color[i][j] = static_cast<unsigned char>(i * 2 + i);
-      }
-    }
-
-  for (int i = 0; i < 3; ++i)
-    {
-    for (int j = 0; j < 3; ++j)
-      {
-      if (color[i][j] != colorPtr[i*3+j])
-        {
-        cerr << "Error: color[i][j] != colorPtr[i*3+j]" << endl
-            << "color[i][j] = " << color[i][j] << endl
-            << "colorPtr[i*3+j] = " << colorPtr[i*3+j] << endl;
-        ++retVal;
-        }
-      }
-    }
 
   // Test the normalize and normalized functions.
   vtkVector3d normy(1, 2, 3);

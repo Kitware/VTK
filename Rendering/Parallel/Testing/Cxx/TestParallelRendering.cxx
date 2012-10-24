@@ -91,6 +91,7 @@ vtkStandardNewMacro(MyProcess);
 
 void MyProcess::Execute()
 {
+  this->ReturnValue = 0;
   int my_id = this->Controller->GetLocalProcessId();
 
   vtkRenderWindow* renWin = vtkRenderWindow::New();
@@ -132,6 +133,7 @@ void MyProcess::Execute()
   renWin->Delete();
   syncWindows->Delete();
   syncRenderers->Delete();
+  this->ReturnValue = 1;
 }
 
 

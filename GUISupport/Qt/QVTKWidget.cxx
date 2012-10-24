@@ -70,15 +70,12 @@
 # include "vtkTDxUnixDevice.h"
 #endif
 
-// function to dirty cache when a render occurs.
-static void dirty_cache(vtkObject *, unsigned long, void *, void *);
-
 /*! constructor */
 QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
   : QWidget(p, f | Qt::MSWindowsOwnDC), mRenWin(NULL),
     cachedImageCleanFlag(false),
-    automaticImageCache(false), maxImageCacheRenderRate(1.0)
-
+    automaticImageCache(false), maxImageCacheRenderRate(1.0),
+    renderEventCallbackObserverId(0)
 {
   this->UseTDx=false;
   // no background
@@ -191,6 +188,11 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
   // unregister previous window
   if(this->mRenWin)
     {
+    if (this->renderEventCallbackObserverId)
+      {
+      this->mRenWin->RemoveObserver(this->renderEventCallbackObserverId);
+      this->renderEventCallbackObserverId = 0;
+      }
     //clean up window as one could remap it
     if(this->mRenWin->GetMapped())
       {
@@ -261,11 +263,9 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     // Add an observer to monitor when the image changes.  Should work most
     // of the time.  The application will have to call
     // markCachedImageAsDirty for any other case.
-    vtkCallbackCommand *cbc = vtkCallbackCommand::New();
-    cbc->SetClientData(this);
-    cbc->SetCallback(dirty_cache);
-    this->mRenWin->AddObserver(vtkCommand::RenderEvent, cbc);
-    cbc->Delete();
+    this->renderEventCallbackObserverId =
+      this->mRenWin->AddObserver(vtkCommand::RenderEvent,
+        this, &QVTKWidget::renderEventCallback);
     }
 
 #if defined(QVTK_USE_CARBON)
@@ -856,20 +856,15 @@ bool QVTKWidget::paintCachedImage()
 }
 
 //-----------------------------------------------------------------------------
-static void dirty_cache(vtkObject *caller, unsigned long,
-                        void *clientdata, void *)
+void QVTKWidget::renderEventCallback()
 {
-  QVTKWidget *widget = reinterpret_cast<QVTKWidget *>(clientdata);
-  widget->markCachedImageAsDirty();
-
-  vtkRenderWindow *renwin = vtkRenderWindow::SafeDownCast(caller);
-  if (renwin)
+  if (this->mRenWin)
     {
-    if (   widget->isAutomaticImageCacheEnabled()
-           && (  renwin->GetDesiredUpdateRate()
-                 < widget->maxRenderRateForImageCache() ) )
+    this->markCachedImageAsDirty();
+    if (this->isAutomaticImageCacheEnabled() &&
+      (this->mRenWin->GetDesiredUpdateRate() < this->maxRenderRateForImageCache()))
       {
-      widget->saveImageToCache();
+      this->saveImageToCache();
       }
     }
 }

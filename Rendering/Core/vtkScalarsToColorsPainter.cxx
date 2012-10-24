@@ -213,8 +213,8 @@ vtkDataObject* vtkScalarsToColorsPainter::NewClone(vtkDataObject* data)
     clone->ShallowCopy(ds);
     // scalars passed thru this filter are colors, which will be buit in
     // the pre-rendering stage.
-    clone->GetCellData()->SetScalars(0);
-    clone->GetPointData()->SetScalars(0);
+    clone->GetCellData()->SetActiveAttribute(-1, vtkDataSetAttributes::SCALARS);
+    clone->GetPointData()->SetActiveAttribute(-1, vtkDataSetAttributes::SCALARS);
     // field data is only passed when coloring
     // TriangleStrips with colors for each triangle.
     clone->GetFieldData()->Initialize();
@@ -406,6 +406,16 @@ int vtkScalarsToColorsPainter::CanUseTextureMapForColoring(vtkDataObject* input)
         }
       }
     iter->Delete();
+    }
+
+  if (
+    (this->ScalarsLookupTable &&
+     this->ScalarsLookupTable->GetIndexedLookup()) ||
+    (!this->ScalarsLookupTable &&
+     this->LookupTable &&
+     this->LookupTable->GetIndexedLookup()))
+    {
+    return 0;
     }
 
   return 1;

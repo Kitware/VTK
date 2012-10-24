@@ -44,6 +44,7 @@
 
 class vtkDataArray;
 class vtkArray;
+class vtkTree;
 class vtkTable;
 class vtkImplementationRSingleton;
 class vtkRAdapter;
@@ -79,6 +80,16 @@ public:
   // Copies vtkArray da into the R interpreter instance as a variable named RVariableName.
   // If RVariableName already exists, it will be overwritten.
   void AssignVTKArrayToRVariable(vtkArray* da, const char* RVariableName);
+
+  // Description:
+  // Copies vtkTree tr into the R interpreter instance as a variable named RVariableName.
+  // If RVariableName already exists, it will be overwritten.
+  void AssignVTKTreeToRVariable(vtkTree* tr, const char* RVariableName);
+
+  // Description:
+  // Copies the R variable RVariableName to the returned vtkDataArray.  If the operation fails,
+  // the method will return NULL.
+  vtkTree* AssignRVariableToVTKTree(const char* RVariableName);
 
   // Description:
   // Copies the R variable RVariableName to the returned vtkDataArray.  If the operation fails,

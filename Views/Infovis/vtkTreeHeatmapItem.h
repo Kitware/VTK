@@ -37,13 +37,16 @@
 #include "vtkContextItem.h"
 
 #include "vtkNew.h" // For vtkNew ivars
+#include "vtkSmartPointer.h" // For vtkSmartPointer ivars
 #include <vector>   // For lookup tables
 #include <map>      // For string lookup tables
 
 class vtkGraphLayout;
 class vtkLookupTable;
 class vtkTable;
+class vtkTooltipItem;
 class vtkTree;
+class vtkPruneTreeFilter;
 
 class VTKVIEWSINFOVIS_EXPORT vtkTreeHeatmapItem : public vtkContextItem
 {
@@ -62,7 +65,7 @@ public:
 
   // Description:
   // Get the tree that this item draws.
-  vtkGetObjectMacro(Tree, vtkTree);
+  vtkTree * GetTree();
 
   // Description:
   // Set the table that this item draws.  The first column of the table
@@ -72,7 +75,22 @@ public:
 
   // Description:
   // Get the table that this item draws.
-  vtkGetObjectMacro(Table, vtkTable);
+  vtkTable * GetTable();
+
+  //BTX
+  // Description:
+  // Returns true if the transform is interactive, false otherwise.
+  virtual bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Display a tooltip when the user mouses over a cell in the heatmap.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
+
+  // Description:
+  // Collapse or expand a subtree when the user double clicks on an
+  // internal node.
+  virtual bool MouseDoubleClickEvent( const vtkContextMouseEvent &event);
+  //ETX
 
 protected:
   vtkTreeHeatmapItem();
@@ -95,8 +113,13 @@ protected:
 
   // Description:
   // Compute how to scale our data so that text labels will fit within the
-  // bounds determined by the table's cells.
+  // bounds determined by the table's cells or the spacing between the leaf
+  // nodes of the tree.
   void ComputeMultiplier();
+
+  // Description:
+  // Compute the bounds of our tree in pixel coordinates.
+  void ComputeTreeBounds();
 
   // Description:
   // Generate a separate vtkLookupTable for each column in the table.
@@ -120,21 +143,72 @@ protected:
   // Initialize a vtkTextProperty for drawing labels.  This involves
   // calculating an appropriate font size so that labels will fit within
   // the specified cell size.
-  void SetupTextProperty(vtkContext2D *painter, double cellHeight);
+  void SetupTextProperty(vtkContext2D *painter);
+
+  // Description:
+  // Get the value for the cell of the heatmap located at scene position (x, y)
+  // This function assumes the caller has already determined that (x, y) falls
+  // within the heatmap.
+  std::string GetTooltipText(float x, float y);
+
+  // Description:
+  // Count the number of leaf nodes in the tree
+  void CountLeafNodes();
+
+  // Description:
+  // Get the tree vertex closest to the specified coordinates.
+  vtkIdType GetClosestVertex(double x, double y);
+
+  // Description:
+  // Collapse the subtree rooted at vertex.  The expanding parameter should
+  // be false, except for the case where CollapseSubTree is called from
+  // within ExpandSubTree.
+  void CollapseSubTree(vtkIdType vertex, bool expanding);
+
+  // Description:
+  // Expand the previously collapsed subtree rooted at vertex.
+  void ExpandSubTree(vtkIdType vertex);
+
+  // Description:
+  // Look up the original ID of a vertex in the pruned tree.
+  vtkIdType GetOriginalId(vtkIdType vertex);
+
+  // Description:
+  // Check if the click at (x, y) should be considered as a click on
+  // a collapsed subtree.  Returns the vtkIdType of the pruned subtree
+  // if so, -1 otherwise.
+  vtkIdType GetClickedCollapsedSubTree(double x, double y);
 
 private:
   vtkTreeHeatmapItem(const vtkTreeHeatmapItem&); // Not implemented
   void operator=(const vtkTreeHeatmapItem&); // Not implemented
 
-  vtkTree *Tree;
-  vtkTree *LayoutTree;
-  vtkTable *Table;
+  vtkSmartPointer<vtkTree> Tree;
+  vtkSmartPointer<vtkTable> Table;
+  vtkSmartPointer<vtkTree> PrunedTree;
+  vtkSmartPointer<vtkTree> LayoutTree;
   unsigned long TreeHeatmapBuildTime;
   vtkNew<vtkGraphLayout> Layout;
+  vtkNew<vtkTooltipItem> Tooltip;
+  vtkNew<vtkPruneTreeFilter> PruneFilter;
   std::vector< vtkLookupTable * > LookupTables;
+  std::vector< vtkIdType > RowMap;
   double Multiplier;
+  int NumberOfLeafNodes;
+  int NumberOfCollapsedSubTrees;
+  double CellWidth;
+  double CellHeight;
 
   std::map< int, std::map< std::string, double> > StringToDoubleMaps;
+
+  double HeatmapMinX;
+  double HeatmapMinY;
+  double HeatmapMaxX;
+  double HeatmapMaxY;
+  double TreeMinX;
+  double TreeMinY;
+  double TreeMaxX;
+  double TreeMaxY;
 };
 
 #endif

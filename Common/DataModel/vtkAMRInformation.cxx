@@ -30,6 +30,19 @@ vtkStandardNewMacro(vtkAMRInformation);
 
 namespace
 {
+  inline bool Inside(double q[3], double gbounds[6])
+  {
+    if ((q[0] < gbounds[0]) || (q[0] > gbounds[1]) ||
+        (q[1] < gbounds[2]) || (q[1] > gbounds[3]) ||
+        (q[2] < gbounds[4]) || (q[2] > gbounds[5]))
+      {
+      return false;
+      }
+    else
+      {
+      return true;
+      }
+  }
 
 // Utility class used to store bin properties
 // and contents
@@ -225,7 +238,7 @@ bool vtkAMRInformation::Audit()
     }
 
   //check refinement levels
-  if(this->Refinement && static_cast<unsigned int>(this->Refinement->GetNumberOfTuples())!=this->GetNumberOfLevels())
+  if(this->HasRefinementRatio() && static_cast<unsigned int>(this->Refinement->GetNumberOfTuples())!=this->GetNumberOfLevels())
     {
     vtkErrorMacro("Refinement levels wrong "<< this->Refinement->GetNumberOfTuples());
     }
@@ -448,7 +461,14 @@ void vtkAMRInformation::GenerateRefinementRatio()
 
     // Note current implementation assumes uniform spacing. The
     // refinement ratio is the same in each dimension i,j,k.
-    int ratio = vtkMath::Round(currentSpacing[0]/childSpacing[0]);
+    int nonEmptyDimension = 0;
+    switch(this->GridDescription)
+      {
+      case VTK_XY_PLANE: nonEmptyDimension = 0;break;
+      case VTK_YZ_PLANE: nonEmptyDimension = 1;break;
+      case VTK_XZ_PLANE: nonEmptyDimension = 2;break;
+      }
+    int ratio = vtkMath::Round(currentSpacing[nonEmptyDimension]/childSpacing[nonEmptyDimension]);
 
     // Set the ratio at the last level, i.e., level numLevels-1, to be the
     // same as the ratio at the previous level,since the highest level
@@ -913,4 +933,60 @@ const double* vtkAMRInformation::GetBounds()
       }
     }
   return this->Bounds;
+}
+
+bool vtkAMRInformation::FindGrid(double q[3], unsigned int& level, unsigned int& gridId)
+{
+  if (!this->HasChildrenInformation())
+    {
+    this->GenerateParentChildInformation();
+    }
+
+  if (!this->FindGrid(q, 0,gridId))
+    {
+    return false;
+    }
+
+  unsigned int maxLevels = this->GetNumberOfLevels();
+  for(level=0; level<maxLevels;level++)
+    {
+    unsigned int n;
+    unsigned int *children = this->GetChildren(level, gridId,n);
+    if (children == NULL)
+      {
+      break;
+      }
+    unsigned int i;
+    for (i = 0; i < n; i++)
+      {
+      double bb[6];
+      this->GetBounds(level+1, children[i],bb);
+      if(Inside(q,bb))
+        {
+        gridId = children[i];
+        break;
+        }
+      }
+    if(i>=n)
+      {
+      break;
+      }
+    }
+  return true;
+}
+
+bool vtkAMRInformation::FindGrid(double q[3], int level, unsigned int& gridId)
+{
+  for(unsigned int i = 0; i < this->GetNumberOfDataSets(level); i++ )
+    {
+    double gbounds[6];
+    this->GetBounds(level,i,gbounds);
+    bool inside = Inside(q,gbounds);
+    if(inside)
+      {
+      gridId = i;
+      return true;
+      }
+    }
+  return false;
 }

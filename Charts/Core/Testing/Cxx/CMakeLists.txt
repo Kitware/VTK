@@ -7,7 +7,6 @@
     )
 
   if(VTK_DATA_ROOT)
-
     # add tests that require data
     set(MyTests ${MyTests}
       TestAxes.cxx
@@ -22,6 +21,7 @@
       TestControlPointsHandleItem.cxx
       TestDiagram.cxx
       TestHistogram2D.cxx
+      TestInteractiveChartXYZ.cxx
       TestLegendHiddenPlots.cxx
       TestLinePlot.cxx
       TestLinePlotAxisFonts.cxx
@@ -41,6 +41,7 @@
       TestScientificPlot.cxx
       TestStackedBarGraph.cxx
       TestStackedPlot.cxx
+      TestSurfacePlot.cxx
       )
     # Set the tolerance higher for a few tests that need it
     set(TestGLSLError 12)

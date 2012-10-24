@@ -40,12 +40,122 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkIncrementalPointLocator.h"
+#include "vtkTimerLog.h"
+#include "vtkSmartPointer.h"
+#include "vtkPolygonBuilder.h"
 
 #include <math.h>
 
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkCutter,Locator,vtkIncrementalPointLocator)
+
+//Description:
+// This is a simple utility class that can be used to
+//  produce either contour triangles or polygons based on the outputTriangles parameter
+// When needed, it can be exposed to be used in other contour filters
+class ContourBuilder
+{
+public:
+  ContourBuilder(vtkIncrementalPointLocator *locator,
+                 vtkCellArray *verts,
+                 vtkCellArray *lines,
+                 vtkCellArray* polys,
+                 vtkPointData *inPd,
+                 vtkCellData *inCd,
+                 vtkPointData* outPd,
+                 vtkCellData *outCd,
+                 int estimatedSize,
+                 bool outputTriangles):
+    Locator(locator),
+    Verts(verts),
+    Lines(lines),
+    Polys(polys),
+    InPd(inPd),
+    InCd(inCd),
+    OutPd(outPd),
+    OutCd(outCd),
+    GenerateTriangles(outputTriangles)
+  {
+    this->Tris = vtkCellArray::New();
+    this->TriOutCd = vtkCellData::New();
+    if(this->GenerateTriangles)
+      {
+      this->Tris->Allocate(estimatedSize,estimatedSize/2);
+      this->TriOutCd->Initialize();
+      }
+    this->Poly = vtkIdList::New();
+  }
+
+  ~ContourBuilder()
+  {
+    this->Tris->Delete();
+    this->TriOutCd->Delete();
+    this->Poly->FastDelete();
+  }
+
+  void Contour(vtkCell* cell, double value, vtkDataArray *cellScalars, vtkIdType cellId)
+  {
+    bool mergeTriangles = (!this->GenerateTriangles) && cell->GetCellDimension()==3;
+    vtkCellData* outCD;
+    vtkCellArray* outPoly;
+    if(mergeTriangles)
+      {
+      outPoly = this->Tris;
+      outCD = this->TriOutCd;
+      }
+    else
+      {
+      outPoly = this->Polys;
+      outCD = this->OutCd;
+      }
+    cell->Contour(value,cellScalars,this->Locator,  this->Verts, this->Lines,
+                  outPoly, this->InPd,this->OutPd,this->InCd,cellId, outCD);
+    if(mergeTriangles)
+      {
+      this->PolyBuilder.Reset();
+
+      vtkIdType cellSize;
+      vtkIdType* cellVerts;
+      while(this->Tris->GetNextCell(cellSize,cellVerts))
+        {
+        if(cellSize==3)
+          {
+          this->PolyBuilder.InsertTriangle(cellVerts);
+          }
+        else //for whatever reason, the cell contouring is already outputing polys
+          {
+          vtkIdType outCellId = this->Polys->InsertNextCell(cellSize, cellVerts);
+          this->OutCd->CopyData(this->InCd, cellId, outCellId);
+          }
+        }
+
+      this->PolyBuilder.GetPolygon(this->Poly);
+      if(this->Poly->GetNumberOfIds()!=0)
+        {
+        vtkIdType outCellId = this->Polys->InsertNextCell(this->Poly);
+        this->OutCd->CopyData(this->InCd, cellId, outCellId);
+        }
+      }
+  }
+
+
+private:
+  vtkIncrementalPointLocator* Locator;
+  vtkCellArray* Verts;
+  vtkCellArray* Lines;
+  vtkCellArray* Polys;
+  vtkPointData* InPd;
+  vtkCellData* InCd;
+  vtkPointData* OutPd;
+  vtkCellData* OutCd;
+  vtkSmartPointer<vtkCellData> TriOutCd;
+
+  vtkCellArray* Tris;
+  vtkPolygonBuilder PolyBuilder;
+  vtkIdList* Poly;
+  bool GenerateTriangles;
+};
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; initial value of 0.0; and
@@ -57,6 +167,7 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
   this->CutFunction = cf;
   this->GenerateCutScalars = 0;
   this->Locator = NULL;
+  this->GenerateTriangles = 1;
 
   this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
   this->SynchronizedTemplatesCutter3D = vtkSynchronizedTemplatesCutter3D::New();
@@ -124,6 +235,7 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
     {
     this->SynchronizedTemplatesCutter3D->SetCutFunction(this->CutFunction);
     this->SynchronizedTemplatesCutter3D->SetValue(0, this->GetValue(0));
+    this->SynchronizedTemplatesCutter3D->SetGenerateTriangles(this->GetGenerateTriangles());
     this->SynchronizedTemplatesCutter3D->ProcessRequest(request,inputVector,outputVector);
     return;
     }
@@ -178,6 +290,7 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
   this->SynchronizedTemplates3D->ComputeScalarsOff();
   this->SynchronizedTemplates3D->ComputeNormalsOff();
   output = this->SynchronizedTemplates3D->GetOutput();
+  this->SynchronizedTemplatesCutter3D->SetGenerateTriangles(this->GetGenerateTriangles());
   this->SynchronizedTemplates3D->Update();
   output->Register(this);
 
@@ -238,6 +351,7 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
     }
   this->GridSynchronizedTemplates->ComputeScalarsOff();
   this->GridSynchronizedTemplates->ComputeNormalsOff();
+  this->GridSynchronizedTemplates->SetGenerateTriangles(this->GetGenerateTriangles());
   output = this->GridSynchronizedTemplates->GetOutput();
   this->GridSynchronizedTemplates->Update();
   output->Register(this);
@@ -296,6 +410,7 @@ void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
     }
   this->RectilinearSynchronizedTemplates->ComputeScalarsOff();
   this->RectilinearSynchronizedTemplates->ComputeNormalsOff();
+  this->RectilinearSynchronizedTemplates->SetGenerateTriangles(this->GenerateTriangles);
   output = this->RectilinearSynchronizedTemplates->GetOutput();
   this->RectilinearSynchronizedTemplates->Update();
   output->Register(this);
@@ -326,7 +441,6 @@ int vtkCutter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<< "Executing cutter");
-
   if (!this->CutFunction)
     {
     vtkErrorMacro("No cut function specified");
@@ -338,16 +452,20 @@ int vtkCutter::RequestData(
     return 1;
     }
 
+#ifdef TIMEME
+  vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
+  timer->StartTimer();
+#endif
+
   if (input->GetDataObjectType() == VTK_STRUCTURED_POINTS ||
       input->GetDataObjectType() == VTK_IMAGE_DATA)
     {
     if ( input->GetCell(0) && input->GetCell(0)->GetCellDimension() >= 3 )
       {
       this->StructuredPointsCutter(input, output, request, inputVector, outputVector);
-      return 1;
       }
     }
-  if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
+  else if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
     {
     if (input->GetCell(0))
       {
@@ -356,21 +474,19 @@ int vtkCutter::RequestData(
       if (dim >= 3)
         {
         this->StructuredGridCutter(input, output);
-        return 1;
         }
       }
     }
-  if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
+  else if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
     {
     int dim = static_cast<vtkRectilinearGrid *>(input)->GetDataDimension();
     if ( dim == 3 )
       {
       this->RectilinearGridCutter(input, output);
-      return 1;
       }
     }
 
-  if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+  else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     {
     vtkDebugMacro(<< "Executing Unstructured Grid Cutter");
     this->UnstructuredGridCutter(input, output);
@@ -381,6 +497,10 @@ int vtkCutter::RequestData(
     this->DataSetCutter(input, output);
     }
 
+#ifdef TIMEME
+  timer->StopTimer();
+  cout << "Sliced "<<output->GetNumberOfCells()<<" cells in "<< timer->GetElapsedTime() <<" secs "<<endl;
+#endif
   return 1;
 }
 
@@ -498,6 +618,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   vtkIdType progressInterval = numCuts/20 + 1;
   int cut=0;
 
+  ContourBuilder builder(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
   if ( this->SortBy == VTK_SORT_BY_CELL )
     {
     // Loop over all contour values.  Then for each contour value,
@@ -533,10 +654,8 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
           }
 
         value = this->ContourValues->GetValue(iter);
-        cell->Contour(value, cellScalars, this->Locator,
-                      newVerts, newLines, newPolys, inPD, outPD,
-                      inCD, cellId, outCD);
 
+        builder.Contour(cell,value, cellScalars, cellId);
         } // for all cells
       } // for all contour values
     } // sort by cell
@@ -601,10 +720,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
             abortExecute = this->GetAbortExecute();
             }
           value = this->ContourValues->GetValue(iter);
-          cell->Contour(value, cellScalars, this->Locator,
-                        newVerts, newLines, newPolys, inPD, outPD,
-                        inCD, cellId, outCD);
-
+          builder.Contour(cell,value, cellScalars, cellId);
           } // for all contour values
         } // for all cells
       } // for all dimensions.
@@ -734,6 +850,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   cellScalars->SetNumberOfComponents(cutScalars->GetNumberOfComponents());
   cellScalars->Allocate(VTK_CELL_SIZE*cutScalars->GetNumberOfComponents());
 
+  ContourBuilder builder(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
   if ( this->SortBy == VTK_SORT_BY_CELL )
     {
     // Loop over all contour values.  Then for each contour value,
@@ -798,9 +915,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
               }
             value = this->ContourValues->GetValue(iter);
 
-            cell->Contour(value, cellScalars, this->Locator,
-                          newVerts, newLines, newPolys, inPD, outPD,
-                          inCD, cellId, outCD);
+            builder.Contour(cell,value, cellScalars, cellId);
             }
           }
 
@@ -897,10 +1012,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
               abortExecute = this->GetAbortExecute();
               }
             value = this->ContourValues->GetValue(iter);
-
-            cell->Contour(value, cellScalars, this->Locator,
-                          newVerts, newLines, newPolys, inPD, outPD,
-                          inCD, cellId, outCD);
+            builder.Contour(cell,value, cellScalars, cellId);
             } // for all contour values
 
           } // if need cell

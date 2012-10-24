@@ -139,7 +139,7 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
 
       // Copy coordinates from the whole grid
       i=subext[0]; k=subext[4]; j=subext[2];
-      for( i=subext[0]; i <= subext[1]; ++i )
+      for( ; i <= subext[1]; ++i )
         {
         lidx = i-subext[0];
         assert("pre: local linear index is out-of-bounds!" &&
@@ -149,7 +149,7 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
         } // END for all i
 
       i=subext[0]; k=subext[4]; j=subext[2];
-      for( k=subext[4]; k <= subext[5]; ++k )
+      for( ; k <= subext[5]; ++k )
         {
         lidx = k-subext[4];
         assert("pre: local linear index is out-of-bounds!" &&
@@ -174,7 +174,7 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
 
       // Copy coordinates from the whole grid
       i=subext[0]; k=subext[4]; j=subext[2];
-      for( j=subext[2]; j <= subext[3]; ++j )
+      for( ; j <= subext[3]; ++j )
         {
         lidx = j-subext[2];
         assert("pre: local linear index is out-of-bounds!" &&
@@ -184,7 +184,7 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
         } // END for all j
 
       i=subext[0]; k=subext[4]; j=subext[2];
-      for( k=subext[4]; k <= subext[5]; ++k )
+      for( ; k <= subext[5]; ++k )
         {
         lidx = k-subext[4];
         assert("pre: local linear index is out-of-bounds!" &&
@@ -210,7 +210,7 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
 
       // Copy coordinates from the whole grid
       i=subext[0]; k=subext[4]; j=subext[2];
-      for( i=subext[0]; i <= subext[1]; ++i )
+      for( ; i <= subext[1]; ++i )
         {
         lidx = i-subext[0];
         assert("pre: local linear index is out-of-bounds!" &&
@@ -220,7 +220,7 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
         } // END for all i
 
       i=subext[0]; k=subext[4]; j=subext[2];
-      for( j=subext[2]; j <= subext[3]; ++j )
+      for( ; j <= subext[3]; ++j )
         {
         lidx = j-subext[2];
         assert("pre: local linear index is out-of-bounds!" &&
@@ -230,7 +230,7 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
         } // END for all j
 
       i=subext[0]; k=subext[4]; j=subext[2];
-      for( k=subext[4]; k <= subext[5]; ++k )
+      for( ; k <= subext[5]; ++k )
         {
         lidx = k-subext[4];
         assert("pre: local linear index is out-of-bounds!" &&

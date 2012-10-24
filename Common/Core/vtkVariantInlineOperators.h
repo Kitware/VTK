@@ -147,7 +147,17 @@ vtkVariant::operator==(const vtkVariant &other) const
 
 
   // Fifth: floating point dominates integer types.
-  if (IsFloatingPoint(this->Type) || IsFloatingPoint(other.Type))
+  // Demote to the lowest-floating-point precision for the comparison.
+  // This effectively makes the lower-precision number an interval
+  // corresponding to the range of double values that get rounded to
+  // that float. Otherwise, comparisons of numbers that cannot fit in
+  // the smaller mantissa exactly will never be equal to their
+  // corresponding higher-precision representations.
+  if (this->Type == VTK_FLOAT || other.Type == VTK_FLOAT)
+    {
+    return this->ToFloat() == other.ToFloat();
+    }
+  else if (this->Type == VTK_DOUBLE || other.Type == VTK_DOUBLE)
     {
     return (this->ToDouble() == other.ToDouble());
     }
@@ -216,7 +226,17 @@ vtkVariant::operator<(const vtkVariant &other) const
     }
 
   // Fourth: floating point dominates integer types.
-  if (IsFloatingPoint(this->Type) || IsFloatingPoint(other.Type))
+  // Demote to the lowest-floating-point precision for the comparison.
+  // This effectively makes the lower-precision number an interval
+  // corresponding to the range of double values that get rounded to
+  // that float. Otherwise, comparisons of numbers that cannot fit in
+  // the smaller mantissa exactly will never be equal to their
+  // corresponding higher-precision representations.
+  if (this->Type == VTK_FLOAT || other.Type == VTK_FLOAT)
+    {
+    return this->ToFloat() < other.ToFloat();
+    }
+  else if (this->Type == VTK_DOUBLE || other.Type == VTK_DOUBLE)
     {
     return (this->ToDouble() < other.ToDouble());
     }

@@ -134,6 +134,16 @@ public:
   vtkGetMacro(GenerateCutScalars,int);
   vtkBooleanMacro(GenerateCutScalars,int);
 
+ // Description:
+  // If this is enabled (by default), the output will be triangles
+  // otherwise, the output will be the intersection polygons
+  // WARNING: if the cutting function is not a plane, the output
+  // will be 3D poygons, which might be nice to look at but hard
+  // to compute with downstream.
+  vtkSetMacro(GenerateTriangles,int);
+  vtkGetMacro(GenerateTriangles,int);
+  vtkBooleanMacro(GenerateTriangles,int);
+
   // Description:
   // Specify a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
@@ -194,6 +204,7 @@ protected:
   void StructuredGridCutter(vtkDataSet *, vtkPolyData *);
   void RectilinearGridCutter(vtkDataSet *, vtkPolyData *);
   vtkImplicitFunction *CutFunction;
+  int GenerateTriangles;
 
   vtkSynchronizedTemplates3D *SynchronizedTemplates3D;
   vtkSynchronizedTemplatesCutter3D *SynchronizedTemplatesCutter3D;

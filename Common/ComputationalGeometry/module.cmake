@@ -5,4 +5,6 @@ vtk_module(vtkCommonComputationalGeometry
     vtkCommonSystem
     vtkCommonMath
     vtkCommonDataModel
+  TEST_DEPENDS
+    vtkTestingCore
   )

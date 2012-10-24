@@ -769,7 +769,23 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
     // allocate texture units.
       vtkTextureUnitManager *m=
         this->Prog->GetContext()->GetTextureUnitManager();
-      this->ShadowTexUnit=m->Allocate();
+
+      // Avoid using texture unit 0 because the glBindTexture call's
+      // below must specify unique active textures. If texture unit 0
+      // is used, the ActiveTexture TEXTURE0 and
+      // TEXTURE0+ShadowTextUnit will both select TEXTURE0. Some
+      // platforms, e.g. the Mac, may report the error:
+      // "Samplers of different types use the same texture image unit."
+      int tu;
+      tu = m->Allocate();
+      if (tu == 0)
+        {
+        this->ShadowTexUnit=m->Allocate();
+        }
+      else
+        {
+        this->ShadowTexUnit=tu;
+        }
       if(this->ShadowTexUnit==-1)
         {
         vtkErrorMacro(<<"Ought. No texture unit left!");
@@ -780,6 +796,10 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
         {
         vtkErrorMacro(<<"Ought. No texture unit left!");
         return 0;
+        }
+      if (tu != this->ShadowTexUnit)
+        {
+        m->Free(tu);
         }
       vtkUniformVariables *v=this->Shader->GetUniformVariables();
       int ivalue;

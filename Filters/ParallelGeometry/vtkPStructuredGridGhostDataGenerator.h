@@ -58,33 +58,33 @@ class vtkPStructuredGridConnectivity;
 class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPStructuredGridGhostDataGenerator:
   public vtkPDataSetGhostGenerator
 {
-  public:
-    static vtkPStructuredGridGhostDataGenerator* New();
-    vtkTypeMacro(vtkPStructuredGridGhostDataGenerator,vtkPDataSetGhostGenerator);
-    void PrintSelf(ostream& os, vtkIndent indent);
+public:
+  static vtkPStructuredGridGhostDataGenerator* New();
+  vtkTypeMacro(vtkPStructuredGridGhostDataGenerator,vtkPDataSetGhostGenerator);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  protected:
-    vtkPStructuredGridGhostDataGenerator();
-    virtual ~vtkPStructuredGridGhostDataGenerator();
+protected:
+  vtkPStructuredGridGhostDataGenerator();
+  virtual ~vtkPStructuredGridGhostDataGenerator();
 
-    // Description:
-    // Registers the grid associated with this instance of multi-block.
-    void RegisterGrids(vtkMultiBlockDataSet *in);
+  // Description:
+  // Registers the grid associated with this instance of multi-block.
+  void RegisterGrids(vtkMultiBlockDataSet *in);
 
-    // Description:
-    // Creates the output.
-    void CreateGhostedDataSet(
-        vtkMultiBlockDataSet *in,vtkMultiBlockDataSet *out );
+  // Description:
+  // Creates the output.
+  void CreateGhostedDataSet(
+      vtkMultiBlockDataSet *in,vtkMultiBlockDataSet *out );
 
-    // Description:
-    // Generates ghost layers.
-    void GenerateGhostLayers(
-        vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out);
+  // Description:
+  // Generates ghost layers.
+  void GenerateGhostLayers(
+      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out);
 
-    vtkPStructuredGridConnectivity *GridConnectivity;
-  private:
-    vtkPStructuredGridGhostDataGenerator(const vtkPStructuredGridGhostDataGenerator&); // Not implemented
-    void operator=(const vtkPStructuredGridGhostDataGenerator&); // Not implemented
+  vtkPStructuredGridConnectivity *GridConnectivity;
+private:
+  vtkPStructuredGridGhostDataGenerator(const vtkPStructuredGridGhostDataGenerator&); // Not implemented
+  void operator=(const vtkPStructuredGridGhostDataGenerator&); // Not implemented
 };
 
 #endif /* VTKPSTRUCTUREDGRIDGHOSTDATAGENERATOR_H_ */

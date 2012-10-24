@@ -578,7 +578,7 @@ void vtkColorSeries::BuildLookupTable(vtkLookupTable* lkup)
       {
       vtkColor3ub colr = this->GetColor(i);
       lkup->SetTableValue(
-        i, colr.Red() / 255., colr.Green() / 255., colr.Blue() / 255., 1.);
+        i, colr.GetRed()/255., colr.GetGreen()/255., colr.GetBlue()/255., 1.);
       }
     }
 }

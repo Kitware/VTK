@@ -23,8 +23,9 @@ All rights reserve
 // Currently the plane has to be the xy plane.
 //
 // .SECTION Thanks
-// This class was written by:
-// Philippe Pebay, Kitware SAS 2011.
+// This class was written by Philippe Pebay, Kitware SAS 2011.
+// This work was supported by CEA/DIF - Commissariat a l'Energie Atomique, 
+// Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France.
 //
 // .section See Also
 // vtkActor vtkAxisActor vtkPolarAxesActor

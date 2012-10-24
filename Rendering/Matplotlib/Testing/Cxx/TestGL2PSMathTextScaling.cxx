@@ -65,7 +65,6 @@ int TestGL2PSMathTextScaling(int, char *[])
       std::string("/TestGL2PSMathTextScaling");
 
   exp->SetFilePrefix(fileprefix.c_str());
-  exp->WriteTimeStampOff(); // Otherwise hashes won't match
   exp->Write();
 
   view->GetInteractor()->Initialize();

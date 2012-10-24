@@ -108,12 +108,43 @@ bool ContextTest::Paint(vtkContext2D *painter)
   painter->DrawPoint(10, 590);
   painter->DrawPoint(790, 590);
 
+  // Test the markers
+  float markerPoints[10*2];
+  unsigned char markerColors[10*4];
+  for (int i = 0; i < 10; ++i)
+    {
+    markerPoints[2 * i]     = 500.0 + i * 30.0;
+    markerPoints[2 * i + 1] = 20 * sin(markerPoints[2 * i]) + 375.0;
+
+    markerColors[4 * i]     = static_cast<unsigned char>(255 * i / 10.0);
+    markerColors[4 * i + 1] =
+        static_cast<unsigned char>(255 * (1.0 - i / 10.0));
+    markerColors[4 * i + 2] = static_cast<unsigned char>(255 * (0.3));
+    markerColors[4 * i + 3] =
+        static_cast<unsigned char>(255 * (1.0 - ((i / 10.0) * 0.25)));
+    }
+
+  for (int style = VTK_MARKER_NONE + 1; style < VTK_MARKER_UNKNOWN; ++style)
+    {
+    // Increment the y values:
+    for (int i = 1; i < 20; i += 2)
+      {
+      markerPoints[i] += 35.0;
+      }
+    painter->GetPen()->SetWidth(style * 5 + 5);
+    // Not highlighted:
+    painter->DrawMarkers(style, false, markerPoints, 10, markerColors, 4);
+    // Highlight the middle 4 points
+    painter->GetPen()->SetColorF(0.9, 0.8, 0.1, 0.5);
+    painter->DrawMarkers(style, true, markerPoints + 3*2, 4);
+    }
+
   // Draw some individual lines of different thicknesses.
   for (int i = 0; i < 10; ++i)
     {
     painter->GetPen()->SetColor(0,
                                 static_cast<unsigned char>(float(i)*25.0),
-                                255);
+                                255, 255);
     painter->GetPen()->SetWidth(1.0 + float(i));
     painter->DrawPoint(75, 50 + float(i)*10);
     }
@@ -160,6 +191,7 @@ bool ContextTest::Paint(vtkContext2D *painter)
   painter->GetPen()->SetWidth(1.0);
   painter->GetBrush()->SetColor(0, 0, 100, 69);
   painter->DrawEllipse(110.0, 89.0, 20, 100);
+  painter->DrawEllipseWedge(250.0, 89.0, 100, 20, 50, 10, 0, 360);
 
   return true;
 }

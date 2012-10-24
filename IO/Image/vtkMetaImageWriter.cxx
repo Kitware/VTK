@@ -111,8 +111,10 @@ void vtkMetaImageWriter::Write( )
       }
     }
 
-  double * origin = this->GetInput()->GetOrigin();
-  double * spacingDouble = this->GetInput()->GetSpacing();
+  double origin[3];
+  double spacingDouble[3];
+  this->GetInput()->GetOrigin(origin);
+  this->GetInput()->GetSpacing(spacingDouble);
 
   float spacing[3];
   spacing[0] = spacingDouble[0];

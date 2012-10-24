@@ -73,6 +73,18 @@ public:
   void DrawPoints(const float *points, int n);
 
   // Description:
+  // Draw a sequence of points at the specified locations.  The points will be
+  // colored by the colors array, which must have nc_comps components
+  // (defining a single color).
+  void DrawPoints(const float *points, int n,
+                  unsigned char *colors, int nc_comps);
+
+  // Description:
+  // Draw triangles to generate the specified mesh.
+  void DrawTriangleMesh(const float *mesh, int n,
+                        const unsigned char *colors, int nc);
+
+  // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as
   // lines, points and related primitives. This makes a deep copy of the vtkPen
   // object in the vtkContext2D, it does not hold a pointer to the supplied object.

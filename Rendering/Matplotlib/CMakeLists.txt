@@ -1,13 +1,16 @@
 # Check that matplotlib is available:
 execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import matplotlib"
-  RESULT_VARIABLE IMPORT_MATPLOTLIB_EXITCODE)
+  RESULT_VARIABLE IMPORT_MATPLOTLIB_EXITCODE
+  OUTPUT_VARIABLE IMPORT_MATPLOTLIB_OUTPUT
+  ERROR_VARIABLE IMPORT_MATPLOTLIB_ERROR
+  )
 set(MATPLOTLIB_FOUND FALSE)
 if(${IMPORT_MATPLOTLIB_EXITCODE} EQUAL 0)
   set(MATPLOTLIB_FOUND TRUE)
 endif()
 
 if(NOT MATPLOTLIB_FOUND)
-  message(FATAL_ERROR "Matplotlib not found! ('${PYTHON_EXECUTABLE} -c \"import matplotlib\"' failed.")
+  message(FATAL_ERROR "Matplotlib not found! ('${PYTHON_EXECUTABLE} -c \"import matplotlib\"' failed.)")
 endif()
 
 set(Module_SRCS

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Test template support in VTK-Python
 
 VTK-python decides which template specializations
