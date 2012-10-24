@@ -183,11 +183,42 @@ void vtkPlotSurface::SetInputData(vtkTable *input)
 }
 
 //-----------------------------------------------------------------------------
+void vtkPlotSurface::SetInputData(vtkTable *input,
+                          const vtkStdString& vtkNotUsed(xName),
+                          const vtkStdString& vtkNotUsed(yName),
+                          const vtkStdString& vtkNotUsed(zName))
+{
+  vtkWarningMacro("Warning: parameters beyond vtkTable are ignored");
+  this->SetInputData(input);
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotSurface::SetInputData(vtkTable *input,
+                          const vtkStdString& vtkNotUsed(xName),
+                          const vtkStdString& vtkNotUsed(yName),
+                          const vtkStdString& vtkNotUsed(zName),
+                          const vtkStdString& vtkNotUsed(colorName))
+{
+  vtkWarningMacro("Warning: parameters beyond vtkTable are ignored");
+  this->SetInputData(input);
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotSurface::SetInputData(vtkTable *input,
+                                  vtkIdType vtkNotUsed(xColumn),
+                                  vtkIdType vtkNotUsed(yColumn),
+                                  vtkIdType vtkNotUsed(zColumn))
+{
+  vtkWarningMacro("Warning: parameters beyond vtkTable are ignored");
+  this->SetInputData(input);
+}
+
+//-----------------------------------------------------------------------------
 void vtkPlotSurface::GenerateClippedSurface()
 {
   // clear out and initialize our surface & colors
   this->Surface.clear();
-  this->Surface.resize(this->NumberOfVertices * 3);
+  this->Surface.resize(this->NumberOfVertices);
   this->Colors->Reset();
   this->Colors->Allocate(this->NumberOfVertices * 3);
 
