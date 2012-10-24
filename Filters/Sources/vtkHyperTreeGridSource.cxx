@@ -91,9 +91,9 @@ vtkHyperTreeGridSource::~vtkHyperTreeGridSource()
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf( os, indent );
 
   os << indent << "GridSize: "
      << this->GridSize[0] <<","
@@ -121,6 +121,9 @@ void vtkHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Descriptor: " << this->Descriptor << endl;
   os << indent << "Dual: " << this->Dual << endl;
+
+  os << indent << "Output: " << endl;
+  this->Output->PrintSelf( os, indent ); 
 }
 
 //----------------------------------------------------------------------------
