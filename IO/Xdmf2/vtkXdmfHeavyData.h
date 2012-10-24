@@ -19,6 +19,7 @@
 
 #include "XdmfDataItem.h"
 #include "XdmfGrid.h" //won't compile without it
+#include "vtkIOXdmf2Module.h" // For export macro
 
 class vtkAlgorithm;
 class vtkDataArray;
@@ -34,7 +35,7 @@ class vtkXdmfDomain;
 
 // vtkXdmfHeavyData helps in reading heavy data from Xdmf and putting that into
 // vtkDataObject subclasses.
-class vtkXdmfHeavyData
+class VTKIOXDMF2_EXPORT vtkXdmfHeavyData
 {
   vtkXdmfDomain* Domain;
   XdmfDataItem DataItem;
