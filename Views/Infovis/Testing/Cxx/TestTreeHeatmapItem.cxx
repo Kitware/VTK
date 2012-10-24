@@ -156,7 +156,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   mouseEvent.SetInteractor(interactor.GetPointer());
   vtkVector2f pos;
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
-  pos.Set(75, 98);
+  pos.Set(78, 50);
   mouseEvent.SetPos(pos);
   treeItem ->MouseDoubleClickEvent(mouseEvent);
   renderWindow->Render();
