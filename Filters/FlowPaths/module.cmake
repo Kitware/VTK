@@ -8,6 +8,7 @@ vtk_module(vtkFiltersFlowPaths
     vtkIOCore
   TEST_DEPENDS
     vtkFiltersAMR
+    vtkFiltersImaging
     vtkTestingCore
     vtkTestingRendering
     vtkRenderingOpenGL
