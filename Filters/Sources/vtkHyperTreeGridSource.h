@@ -117,7 +117,8 @@ protected:
                   vtkHyperTreeGrid* output,
                   int index,
                   int idx[3],
-                  int offset );
+                  int cellIdOffset,
+                  int& blockOffset );
 
   int InitializeDescriptorParsing();
 
