@@ -59,7 +59,6 @@
 #include "vtkPriorityQueue.h"
 
 #include "vtkUnstructuredGrid.h"
-#include "vtkModelMetadata.h"
 
 #include <errno.h>
 #include <math.h>
@@ -88,8 +87,6 @@
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkEnSightWriter);
 
-vtkCxxSetObjectMacro(vtkEnSightWriter, ModelMetadata, vtkModelMetadata);
-
 //----------------------------------------------------------------------------
 // Created object with no filename and timestep 0
 vtkEnSightWriter::vtkEnSightWriter()
@@ -98,7 +95,6 @@ vtkEnSightWriter::vtkEnSightWriter()
   this->BaseName = NULL;
   this->FileName = NULL;
   this->TimeStep = 0;
-  this->ModelMetadata = NULL;
   this->Path=NULL;
   this->GhostLevelMultiplier=10000;
   this->GhostLevel = 0;
@@ -113,12 +109,6 @@ vtkEnSightWriter::vtkEnSightWriter()
 //----------------------------------------------------------------------------
 vtkEnSightWriter::~vtkEnSightWriter()
 {
-  if (this->ModelMetadata)
-    {
-    this->ModelMetadata->Delete();
-    this->ModelMetadata = NULL;
-    }
-
   this->SetBaseName(NULL);
   this->SetFileName(NULL);
   this->SetPath(NULL);
@@ -135,15 +125,6 @@ void vtkEnSightWriter::PrintSelf(ostream& os, vtkIndent indent)
     << (this->Path ? this->Path : "(none)") << "\n";
   os << indent << "BaseName: "
     << (this->BaseName ? this->BaseName : "(none)") << "\n";
-
-  if (this->ModelMetadata !=NULL)
-    {
-    this->ModelMetadata->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "ModelMetadata: (none)" << "\n";
-    }
 
   os << indent << "TimeStep: " << this->TimeStep << "\n";
   os << indent << "TransientGeometry: " << this->TransientGeometry << "\n";
@@ -229,53 +210,12 @@ void vtkEnSightWriter::WriteData()
 
   int deletemmd = 0;
 
-  if (this->ModelMetadata == NULL)
-    {
-    vtkDataSet *in = static_cast<vtkDataSet *>(input);
-    int hasMetadata = vtkModelMetadata::HasMetadata(in);
-
-    if (hasMetadata)
-      {
-      vtkModelMetadata *mmd = vtkModelMetadata::New();
-      mmd->Unpack(in, 0);
-      this->ModelMetadata = mmd;
-      deletemmd = 1;
-      }
-    }
-
   //get the BlockID Cell Array
   vtkDataArray *BlockData=input->GetCellData()->GetScalars("BlockId");
 
   if (BlockData==NULL || strcmp(BlockData->GetName(),"BlockId"))
     {
     BlockData=NULL;
-    }
-
-  if (this->ModelMetadata)
-    {
-    // Remove special ID arrays created by Exodus reader, required for
-    // interpreting metadata attached to input.
-
-    this->TmpInput = vtkUnstructuredGrid::New();
-    this->TmpInput->ShallowCopy(input);
-
-    vtkDataArray *da = this->TmpInput->GetCellData()->GetArray("GlobalElementId");
-    if (da)
-      {
-      this->TmpInput->GetCellData()->RemoveArray("GlobalElementId");
-      }
-    da = this->TmpInput->GetPointData()->GetArray("GlobalNodeId");
-    if (da)
-      {
-      this->TmpInput->GetPointData()->RemoveArray("GlobalNodeId");
-      }
-    da = this->TmpInput->GetCellData()->GetArray("BlockId");
-    if (da)
-      {
-      this->TmpInput->GetCellData()->RemoveArray("BlockId");
-      }
-
-    input = this->TmpInput;
     }
 
   this->ComputeNames();
@@ -350,14 +290,7 @@ void vtkEnSightWriter::WriteData()
     //if (this->Title)
     // this->WriteStringToFile(this->Title,fd);
     //else
-    if (this->ModelMetadata)
-      {
-      this->WriteStringToFile(this->ModelMetadata->GetTitle(),fd);
-      }
-    else
-      {
-      this->WriteStringToFile("No Title was Specified",fd);
-      }
+    this->WriteStringToFile("No Title was Specified",fd);
     //we will specify node and element ID's
     this->WriteStringToFile("node id given\n",fd);
     this->WriteStringToFile("element id given\n",fd);
@@ -401,13 +334,6 @@ void vtkEnSightWriter::WriteData()
   partNumbers.sort();
   partNumbers.unique();
 
-  //get the block names from the exodus model if they exist
-  if (this->ModelMetadata)
-    {
-    blockNames=this->ModelMetadata->GetBlockElementType();
-    elementIDs=this->ModelMetadata->GetBlockIds();
-    }
-
   //write out each part
   for (iter=partNumbers.begin();iter!=partNumbers.end();iter++)
     {
@@ -423,11 +349,6 @@ void vtkEnSightWriter::WriteData()
       this->WriteIntToFile(part,fd);
       //cout << "part is " << part << endl;
       int exodusIndex=-1;
-      if (elementIDs)
-        {
-        exodusIndex=this->GetExodusModelIndex(elementIDs,
-          (int)this->ModelMetadata->GetNumberOfBlocks(),part);
-        }
       if (exodusIndex!=-1)
         {
         sprintf(charBuffer,"Exodus-%s-%d",blockNames[exodusIndex],part);
@@ -672,13 +593,7 @@ void vtkEnSightWriter::WriteData()
   //use the block list in the exodus model if it exists, otherwise
   //use the BlockID list if that exists.
 
-  if (this->ModelMetadata)
-    {
-    blockNames=this->ModelMetadata->GetBlockElementType();
-    elementIDs=this->ModelMetadata->GetBlockIds();
-    this->NumberOfBlocks=(int)this->ModelMetadata->GetNumberOfBlocks();
-    }
-  else if (this->BlockIDs)
+  if (this->BlockIDs)
     {
     elementIDs=this->BlockIDs;
     }
@@ -752,11 +667,6 @@ void vtkEnSightWriter::WriteData()
     fclose(pointArrayFiles[ui]);
     }
 
-  if (deletemmd)
-    {
-    this->ModelMetadata->Delete();
-    this->ModelMetadata = NULL;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -933,10 +843,6 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
     for (i=0;i<TotalTimeSteps;i++)
       {
       double timestep=i;
-      if (this->ModelMetadata)
-        {
-        timestep=this->ModelMetadata->GetTimeStepValues()[i];
-        }
 
       sprintf(charBuffer,"%f ",timestep);
       this->WriteTerminatedStringToFile(charBuffer,fd);

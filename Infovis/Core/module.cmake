@@ -5,6 +5,7 @@ vtk_module(vtkInfovisCore
     vtkCommonDataModel
     vtkCommonSystem
     vtkFiltersExtraction
+    vtkFiltersGeneral
   TEST_DEPENDS
     vtkInfovisLayout
     vtkRenderingOpenGL

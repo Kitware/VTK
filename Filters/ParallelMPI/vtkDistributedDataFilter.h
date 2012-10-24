@@ -96,7 +96,6 @@ class vtkFloatArray;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkIntArray;
-class vtkModelMetadata;
 class vtkMultiProcessController;
 class vtkPKdTree;
 class vtkUnstructuredGrid;
@@ -480,11 +479,10 @@ private:
   // Description:
   // ?
   vtkUnstructuredGrid *ExtractCells(vtkIdList *list,
-                  int deleteCellLists, vtkDataSet *in, vtkModelMetadata *mmd);
+                  int deleteCellLists, vtkDataSet *in);
   vtkUnstructuredGrid *ExtractCells(vtkIdList **lists, int nlists,
-                  int deleteCellLists, vtkDataSet *in, vtkModelMetadata *mmd);
-  vtkUnstructuredGrid *ExtractZeroCellGrid(vtkDataSet *in,
-                  vtkModelMetadata *mmd);
+                  int deleteCellLists, vtkDataSet *in);
+  vtkUnstructuredGrid *ExtractZeroCellGrid(vtkDataSet *in);
 
   // Description:
   // ?
@@ -521,11 +519,6 @@ private:
                                          int deleteDataSets,
                                          int useGlobalNodeIds, float pointMergeTolerance,
                                          int useGlobalCellIds);
-
-  // Description:
-  // ?
-  void AddMetadata(vtkUnstructuredGrid *grid, vtkModelMetadata *mmd);
-  static int HasMetadata(vtkDataSet *s);
 
   vtkPKdTree *Kdtree;
   vtkMultiProcessController *Controller;
