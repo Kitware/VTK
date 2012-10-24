@@ -8,7 +8,7 @@ add_test_python(ScalarBar.py Rendering)
 add_test_python(TestCameraInterpolator.py Graphics)
 add_test_python(TestMapperLUT.py)
 add_test_python(TestOnePoint.py Rendering)
-add_test_python(TestParallelCoordinates.py Rendering)
+# add_test_python(TestParallelCoordinates.py Rendering) # disabled in TCL too
 add_test_python(TestRotate.py Graphics)
 add_test_python(TestTransformInterpolator.py Graphics)
 add_test_python(TestTriangleStripCellColor.py Rendering)
