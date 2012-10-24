@@ -28,6 +28,8 @@
 #include "vtkGraphicsFactory.h"
 #include "vtkObjectFactory.h"
 
+#include <cmath>
+
 //----------------------------------------------------------------------------
 // Use the vtkAbstractObjectFactoryNewMacro to allow the object factory overrides.
 vtkAbstractObjectFactoryNewMacro(vtkRenderWindow)
@@ -1328,7 +1330,7 @@ void vtkRenderWindow::StereoRenderComplete(void)
                                   !this->DoubleBuffer);
 
       int midX = (size[0] - 1) / 2;
-      int offsetX = static_cast<int>((size[0] - 1) / 2.0);
+      int offsetX = static_cast<int>(ceil((size[0] - 1) / 2.0));
 
       // copy pixel data
       for (int y = 0; y <= (size[1] - 1); y = y + 1)
