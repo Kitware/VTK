@@ -61,6 +61,7 @@ set classExceptions {
    vtkWin32VideoSource
    vtkDistributedDataFilter
    vtkAMREnzoReader
+   vtkMathTextUtilities
 }
 
 proc rtTestEmptyInputTest { fileid } {
