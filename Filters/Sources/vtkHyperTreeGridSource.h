@@ -17,7 +17,20 @@
 // .SECTION Description
 // This class uses input parameters, most notably a string descriptor,
 // to generate a vtkHyperTreeGrid instance representing the corresponding
-// tree-based AMR grid.
+// tree-based AMR grid. This descriptor uses the following conventions,
+// e.g., to describe a 1-D ternary subdivision with 2 root cells
+// L0    L1        L2
+// RR  | .R. ... | ...
+// For this tree:
+/*  HTG:       .         */
+/*           /   \       */
+/*  L0:     .     .      */
+/*         /|\   /|\     */
+/*  L1:   c . c c c c    */
+/*         /|\           */
+/*  L2:   c c c          */
+// The top level of the tree is not considered a grid level
+// NB: For ease of legibility, white spaces are allowed and ignored.
 //
 // .SECTION Thanks
 // This class was written by Philippe Pebay, Kitware SAS 2012

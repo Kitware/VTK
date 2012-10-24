@@ -446,8 +446,8 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
       }
 
     // Cell value: distance to center plus local index-based noise
-    double val = x[0] * x[0] + x[1] * x[1] + x[2] * x[2]
-      + idx[0] + idx[1] + idx[2];
+    double val = idx[0] + idx[1] + idx[2]
+      + x[0] * x[0] + x[1] * x[1] + x[2] * x[2];
 
     // Offset cell index as needed
     vtkIdType id = offset + cursor->GetLeafId();
@@ -458,69 +458,121 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
 //-----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::InitializeDescriptorParsing()
 {
-  // Initialize local variables
-  int nRoots = 0;
-  bool rootLevel = true;
+  // Calculate refined block size
+  int blockSize = this->AxisBranchFactor;
+  for ( int i = 1; i < this->Dimension; ++ i )
+    {
+    blockSize *= this->AxisBranchFactor;
+    }
   
   // Parse string descriptor
+  int nRefined = 0;
+  int nLeaves = 0;
+  int nNextLevel = 0;
+  bool rootLevel = true;
   vtksys_ios::ostringstream stream;
   for ( vtkStdString::iterator it = this->Descriptor.begin(); 
         it != this->Descriptor.end(); ++ it )
     {
     char c = *it;
-    if ( c != 'R' && c != '.' && c != '|' )
+    switch ( c )
       {
-      vtkErrorMacro(<<"Unrecognized character: "
-                    << c
-                    << " in string "
-                    << this->Descriptor);
-      return 0;
-      }
+      case ' ':
+        // Space is allowed as benign separator
+        continue;
+      case '|':
+        //  A level is complete
+        this->PerLevelDescriptors.push_back( stream.str().c_str() );
+        
+        // Check whether cursor is still at rool level
+        if ( rootLevel )
+          {
+          rootLevel = false;
 
-    // Figure out if new level was reached
-    if ( c == '|' )
-      {
-      // Update per level strings
-      this->PerLevelDescriptors.push_back( stream.str().c_str() );
-      stream.str( "" );
+          // Verify that total number of root cells is consistent with descriptor
+          if ( nRefined + nLeaves 
+               != this->GridSize[0] * this->GridSize[1] * this->GridSize[2] )
+            {
+            vtkErrorMacro(<<"String "
+                          << this->Descriptor
+                          << " describes "
+                          << nRefined + nLeaves
+                          << " root cells != "
+                          << this->GridSize[0] * this->GridSize[1] * this->GridSize[2]);
+            return 0;
+            }
+          } // if ( rootLevel )
+        else
+          {
+          // Verify that level descriptor cardinality matches expected value
+          if (  stream.str().size() != nNextLevel )
+            {
+            vtkErrorMacro(<<"String level descriptor "
+                          << stream.str().c_str()
+                          << " has cardinality "
+                          << stream.str().size()
+                          << " which is not a multiple of "
+                          << blockSize);
+      
+            return 0;
+            }
+          } // else
 
-      // check whether still at rool level
-      if ( rootLevel )
-        {
-        rootLevel = false;
-        }
-      } // if ( c == '|' )
-    else 
-      {
-      // Append character to per level string
-      stream << c;
-    
-      if ( rootLevel )
-        {
-        ++ nRoots;
-        }
-      } // else
+        // Predict next level descriptor cardinality
+        nNextLevel = nRefined * blockSize;
+
+        // Reset per level values
+        stream.str( "" );
+        nRefined = 0;
+        nLeaves = 0;
+
+        break;
+      case 'R':
+        // Refined cell, update branch counter
+        ++ nRefined;
+
+        // Append character to per level string
+        stream << c;
+
+        break;
+      case '.':
+        // Leaf cell, update leaf counter
+        ++ nLeaves;
+
+        // Append character to per level string
+        stream << c;
+
+        break;
+      default:
+        vtkErrorMacro(<< "Unrecognized character: "
+                      << c
+                      << " in string "
+                      << this->Descriptor);
+
+        return 0;
+      } // switch( c )
     } // i
 
-  // Verify that total number of root cells is consistent with description
-  if ( nRoots != this->GridSize[0] * this->GridSize[1] * this->GridSize[2] )
+  // Verify and append last level string
+  if (  stream.str().size() != nNextLevel )
     {
-    vtkErrorMacro(<<"String "
-                  << this->Descriptor
-                  << " describes "
-                  << nRoots
-                  << " root cells != "
-                  << this->GridSize[0] * this->GridSize[1] * this->GridSize[2]);
+    vtkErrorMacro(<<"String level descriptor "
+                  << stream.str().c_str()
+                  << " has cardinality "
+                  << stream.str().size()
+                  << " which is not a multiple of "
+                  << blockSize);
+    
     return 0;
     }
-  
-  unsigned int nLevels = this->PerLevelDescriptors.size();
+  this->PerLevelDescriptors.push_back( stream.str().c_str() );
+
   // Reset maximum depth if fewer levels are described
+  unsigned int nLevels = this->PerLevelDescriptors.size();
   if ( nLevels < this->MaximumLevel )
     {
     this->MaximumLevel = nLevels;
     }
-  cerr << "Found " << nLevels << " levels" << endl;
 
   return 1;
 }

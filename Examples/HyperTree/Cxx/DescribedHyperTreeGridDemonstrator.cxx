@@ -101,8 +101,8 @@ void SetInputParameters( int& dim,
   int main( int argc, char* argv[] )
 {
   // Set default argument values and options
-  vtkStdString descriptor = ".RR...|R....R..|........";
-  int dim = 3;
+  vtkStdString descriptor = ".RR..R|R... .R.. ....|.... ....";
+  int dim = 2;
   int branch = 2;
   int max = 3;
   int nX = 2;
