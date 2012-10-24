@@ -239,22 +239,25 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
                                          vtkInformationVector**,
                                          vtkInformationVector* outputVector )
 {
-  // Get the info objects
+  // Retrieve the output
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
-  vtkHyperTreeGrid *output 
-    = vtkHyperTreeGrid::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  this->Output = vtkHyperTreeGrid::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  if ( ! this->Output )
+    {
+    return 0;
+    }
 
   // Initialize descriptor parsing
-  if ( ! this->InitializeDescriptorParsing() )
+  if ( ! this->Initialize() )
     {
     return 0;
     }
 
   // Set grid parameters
-  output->SetGridSize( this->GridSize );
-  output->SetDimension( this->Dimension );
-  output->SetAxisBranchFactor( this->AxisBranchFactor );
-  output->SetDualGridFlag( this->Dual );
+  this->Output->SetGridSize( this->GridSize );
+  this->Output->SetDimension( this->Dimension );
+  this->Output->SetAxisBranchFactor( this->AxisBranchFactor );
+  this->Output->SetDualGridFlag( this->Dual );
 
   // Per-axis scaling
   double scale[3];
@@ -276,13 +279,13 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     switch ( i )
       {
       case 0:
-        output->SetXCoordinates( coords );
+        this->Output->SetXCoordinates( coords );
         break;
       case 1:
-        output->SetYCoordinates( coords );
+        this->Output->SetYCoordinates( coords );
         break;
       case 2:
-        output->SetZCoordinates( coords );
+        this->Output->SetZCoordinates( coords );
         break;
       }
 
@@ -302,12 +305,12 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   scalars->Allocate( fact * fact );
 
   // Set leaf (cell) data and clean up
-  output->GetLeafData()->SetScalars( scalars );
+  this->Output->GetLeafData()->SetScalars( scalars );
   scalars->UnRegister( this );
 
   // Iterate over grid of trees
   int n[3];
-  output->GetGridSize( n );
+  this->Output->GetGridSize( n );
   for ( int k = 0; k < n[2]; ++ k )
     {
     for ( int j = 0; j < n[1]; ++ j )
@@ -318,7 +321,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
         int index_g = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
 
         // Initialize cursor
-        vtkHyperTreeCursor* cursor = output->NewCellCursor( i, j, k );
+        vtkHyperTreeCursor* cursor = this->Output->NewCellCursor( i, j, k );
         cursor->ToRoot();
 
         // Initialize local cell index
@@ -328,11 +331,10 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
         // Retrieve offset into array of scalars and recurse
         this->Subdivide( cursor, 
                          0, 
-                         output, 
                          index_g,
                          0,
                          idx, 
-                         output->GetLeafData()->GetScalars()->GetNumberOfTuples(),
+                         this->Output->GetLeafData()->GetScalars()->GetNumberOfTuples(),
                          0 );
 
         // Clean up
@@ -341,128 +343,13 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       } // j
     } // k
 
-  assert( "post: dataset_and_data_size_match" && output->CheckAttributes() == 0 );
+  assert( "post: dataset_and_data_size_match" && this->Output->CheckAttributes() == 0 );
 
   return 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
-                                        int level,
-                                        vtkHyperTreeGrid* output,
-                                        int index_g,
-                                        int index_l,
-                                        int idx[3],
-                                        int cellIdOffset,
-                                        int parentPos )
-{
-  // Calculate pointer into level descriptor string
-  int pointer = level ? index_l + parentPos * this->BlockSize : index_g;
-
-  // Determine whether to subdivide or not
-  bool subdivide = this->LevelDescriptors.at( level ).at( pointer ) == 'R' ? true : false;
-
-  // Check for hard coded minimum and maximum level restrictions
-  if ( level + 1 >= this->MaximumLevel )
-    {
-    subdivide = 0;
-    }
-
-  if ( subdivide )
-    {
-    // Subdivide hyper tree grid leaf
-    output->SubdivideLeaf( cursor, index_g );
-
-    // Now traverse to children.
-    int xDim, yDim, zDim;
-    xDim = yDim = zDim = 1;
-    if ( this->Dimension == 1 )
-      {
-      xDim = this->AxisBranchFactor;
-      }
-    else if ( this->Dimension == 2 )
-      {
-      xDim = yDim = this->AxisBranchFactor;
-      }
-    else if ( this->Dimension == 3 )
-      {
-      xDim = yDim = zDim = this->AxisBranchFactor;
-      }
-    int childIdx = 0;
-    int newIdx[3];
-    for ( int z = 0; z < zDim; ++ z )
-      {
-      newIdx[2] = idx[2] * zDim + z;
-      for ( int y = 0; y < yDim; ++ y )
-        {
-        newIdx[1] = idx[1] * yDim + y;
-        for ( int x = 0; x < xDim; ++ x )
-          {
-          newIdx[0] = idx[0] * xDim + x;
-
-          // Set cursor to child
-          cursor->ToChild( childIdx );
-
-          // Calculate local index
-          int index_l = x + this->AxisBranchFactor 
-            * ( y + this->AxisBranchFactor * z );
-
-          // Recurse
-          this->Subdivide( cursor,
-                           level + 1,
-                           output,
-                           index_g,
-                           index_l,
-                           newIdx,
-                           cellIdOffset,
-                           this->LevelCounters.at( level ) );
-
-          // Reset cursor to parent
-          cursor->ToParent();
-
-          // Increment child index
-          ++ childIdx;
-          }
-        }
-      }
-
-    // Increment current level counter
-    ++ this->LevelCounters.at( level );
-    } // if ( subdivide )
-  else
-    {
-    // Retrieve cartesian coordinates w.r.t. global grid
-    int gs[3];
-    output->GetGridSize( gs );
-    div_t q1 = div( index_g, gs[0] );
-    double x[3];
-    x[0] = q1.rem;
-    x[1] = 0.;
-    x[2] = 0.;
-    if ( gs[1] )
-      {
-      div_t q2 = div( q1.quot, gs[1] );
-      x[1] = q2.rem;
-      x[2] = q2.quot;
-      }
-    
-    // Center coordinates w.r.t. global grid center
-    for ( int i = 0; i < 3; ++ i )
-      {
-      x[i] -= .5 * gs[i];
-      }
-
-    // Cell value is depth level
-    double val = level;
-
-    // Offset cell index as needed
-    vtkIdType id = cellIdOffset + cursor->GetLeafId();
-    output->GetLeafData()->GetScalars()->InsertTuple1( id, val );
-    } // else
-}
-
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridSource::InitializeDescriptorParsing()
+int vtkHyperTreeGridSource::Initialize()
 {
   // Calculate refined block size
   this->BlockSize = this->AxisBranchFactor;
@@ -588,6 +475,119 @@ int vtkHyperTreeGridSource::InitializeDescriptorParsing()
     }
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
+                                        int level,
+                                        int index_g,
+                                        int index_l,
+                                        int idx[3],
+                                        int cellIdOffset,
+                                        int parentPos )
+{
+  // Calculate pointer into level descriptor string
+  int pointer = level ? index_l + parentPos * this->BlockSize : index_g;
+
+  // Determine whether to subdivide or not
+  bool subdivide = this->LevelDescriptors.at( level ).at( pointer ) == 'R' ? true : false;
+
+  // Check for hard coded minimum and maximum level restrictions
+  if ( level + 1 >= this->MaximumLevel )
+    {
+    subdivide = 0;
+    }
+
+  if ( subdivide )
+    {
+    // Subdivide hyper tree grid leaf
+    this->Output->SubdivideLeaf( cursor, index_g );
+
+    // Now traverse to children.
+    int xDim, yDim, zDim;
+    xDim = yDim = zDim = 1;
+    if ( this->Dimension == 1 )
+      {
+      xDim = this->AxisBranchFactor;
+      }
+    else if ( this->Dimension == 2 )
+      {
+      xDim = yDim = this->AxisBranchFactor;
+      }
+    else if ( this->Dimension == 3 )
+      {
+      xDim = yDim = zDim = this->AxisBranchFactor;
+      }
+    int childIdx = 0;
+    int newIdx[3];
+    for ( int z = 0; z < zDim; ++ z )
+      {
+      newIdx[2] = idx[2] * zDim + z;
+      for ( int y = 0; y < yDim; ++ y )
+        {
+        newIdx[1] = idx[1] * yDim + y;
+        for ( int x = 0; x < xDim; ++ x )
+          {
+          newIdx[0] = idx[0] * xDim + x;
+
+          // Set cursor to child
+          cursor->ToChild( childIdx );
+
+          // Calculate local index
+          int index_l = x + this->AxisBranchFactor 
+            * ( y + this->AxisBranchFactor * z );
+
+          // Recurse
+          this->Subdivide( cursor,
+                           level + 1,
+                           index_g,
+                           index_l,
+                           newIdx,
+                           cellIdOffset,
+                           this->LevelCounters.at( level ) );
+
+          // Reset cursor to parent
+          cursor->ToParent();
+
+          // Increment child index
+          ++ childIdx;
+          }
+        }
+      }
+
+    // Increment current level counter
+    ++ this->LevelCounters.at( level );
+    } // if ( subdivide )
+  else
+    {
+    // Retrieve cartesian coordinates w.r.t. global grid
+    int gs[3];
+    this->Output->GetGridSize( gs );
+    div_t q1 = div( index_g, gs[0] );
+    double x[3];
+    x[0] = q1.rem;
+    x[1] = 0.;
+    x[2] = 0.;
+    if ( gs[1] )
+      {
+      div_t q2 = div( q1.quot, gs[1] );
+      x[1] = q2.rem;
+      x[2] = q2.quot;
+      }
+    
+    // Center coordinates w.r.t. global grid center
+    for ( int i = 0; i < 3; ++ i )
+      {
+      x[i] -= .5 * gs[i];
+      }
+
+    // Cell value is depth level
+    double val = level;
+
+    // Offset cell index as needed
+    vtkIdType id = cellIdOffset + cursor->GetLeafId();
+    this->Output->GetLeafData()->GetScalars()->InsertTuple1( id, val );
+    } // else
 }
 
 //-----------------------------------------------------------------------------

@@ -46,6 +46,7 @@
 
 class vtkDataArray;
 class vtkImplicitFunction;
+class vtkHyperTreeGrid;
 
 class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridAlgorithm
 {
@@ -112,16 +113,15 @@ protected:
                            vtkInformationVector **,
                            vtkInformationVector * );
 
+  int Initialize();
+
   void Subdivide( vtkHyperTreeCursor* cursor,
                   int level,
-                  vtkHyperTreeGrid* output,
                   int index_g,
                   int index_l,
                   int idx[3],
                   int cellIdOffset,
                   int parentPos );
-
-  int InitializeDescriptorParsing();
 
   int GridSize[3];
   int MaximumLevel;
@@ -138,6 +138,7 @@ protected:
   vtkStdString Descriptor;
   std::vector<vtkStdString> LevelDescriptors;
   std::vector<int> LevelCounters;
+  vtkHyperTreeGrid* Output;
 
 private:
   vtkHyperTreeGridSource(const vtkHyperTreeGridSource&);  // Not implemented.
