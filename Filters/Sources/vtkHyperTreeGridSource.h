@@ -27,6 +27,9 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkStdString.h" // For vtkStdString ivars
+
+#include <vector> // STL Header
 
 class vtkDataArray;
 class vtkImplicitFunction;
@@ -81,8 +84,8 @@ public:
 
   // Description:
   // Set/Get the string used to describe the grid
-  vtkSetStringMacro(Descriptor);
-  vtkGetStringMacro(Descriptor);
+  virtual void SetDescriptor( const vtkStdString& );
+  virtual vtkStdString GetDescriptor();
 
 protected:
   vtkHyperTreeGridSource();
@@ -103,7 +106,7 @@ protected:
                   int idx[3],
                   int offset );
 
-  void ParseDescriptor();
+  int InitializeDescriptorParsing();
 
   int GridSize[3];
   int MaximumLevel;
@@ -117,7 +120,8 @@ protected:
   vtkDataArray* YCoordinates;
   vtkDataArray* ZCoordinates;
 
-  char* Descriptor;
+  vtkStdString Descriptor;
+  std::vector<vtkStdString> PerLevelDescriptors;
 
 private:
   vtkHyperTreeGridSource(const vtkHyperTreeGridSource&);  // Not implemented.

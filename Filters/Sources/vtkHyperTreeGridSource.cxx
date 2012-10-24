@@ -61,8 +61,8 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->ZCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates->SetComponent( 1, 0, 1. );
 
-  // Grid descriptor
-  this->Descriptor = 0;
+  // Grid description
+  this->Descriptor = ".";
 
   // By default expose the primal grid API
   this->Dual = false;
@@ -88,8 +88,6 @@ vtkHyperTreeGridSource::~vtkHyperTreeGridSource()
     this->ZCoordinates->UnRegister( this );
     this->ZCoordinates = NULL;
     }
-
-  this->SetDescriptor( 0 );
 }
 
 //-----------------------------------------------------------------------------
@@ -102,6 +100,8 @@ void vtkHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->GridSize[0] <<","
      << this->GridSize[1] <<","
      << this->GridSize[2] << endl;
+  os << indent << "AxisBranchFactor: " <<this->AxisBranchFactor << endl;
+  os << indent << "Descriptor: " << this->Descriptor << endl;
   if ( this->XCoordinates )
     {
     this->XCoordinates->PrintSelf( os, indent.GetNextIndent() );
@@ -117,6 +117,19 @@ void vtkHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
   os << indent << "MinimumLevel: " << this->MinimumLevel << endl;
   os << indent << "Dual: " << this->Dual << endl;
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::SetDescriptor( const vtkStdString& string )
+{
+  this->Descriptor = string;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkStdString vtkHyperTreeGridSource::GetDescriptor()
+{
+  return this->Descriptor;
 }
 
 //----------------------------------------------------------------------------
@@ -227,8 +240,11 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   vtkHyperTreeGrid *output 
     = vtkHyperTreeGrid::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
 
-  // Parse descriptor
-  this->ParseDescriptor();
+  // Initialize descriptor parsing
+  if ( ! this->InitializeDescriptorParsing() )
+    {
+    return 0;
+    }
 
   // Set grid parameters
   output->SetGridSize( this->GridSize );
@@ -440,52 +456,73 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::ParseDescriptor()
+int vtkHyperTreeGridSource::InitializeDescriptorParsing()
 {
+  // Initialize local variables
   int nRoots = 0;
-  int nLevels = 1;
   bool rootLevel = true;
-  vtksys_ios::ostringstream descrstream;
-  descrstream << this->Descriptor;
-  vtkStdString descr = descrstream.str().c_str();
-
-  for ( vtkStdString::iterator it = descr.begin(); it != descr.end(); ++ it )
+  
+  // Parse string descriptor
+  vtksys_ios::ostringstream stream;
+  for ( vtkStdString::iterator it = this->Descriptor.begin(); 
+        it != this->Descriptor.end(); ++ it )
     {
-    vtksys_ios::ostringstream stream;
-    stream << *it;
-    vtkStdString c = stream.str().c_str();
-    if ( c != "R" && c != "." && c != "|" )
+    char c = *it;
+    if ( c != 'R' && c != '.' && c != '|' )
       {
       vtkErrorMacro(<<"Unrecognized character: "
                     << c
                     << " in string "
-                    << descr);
-      return;
+                    << this->Descriptor);
+      return 0;
       }
 
     // Figure out if new level was reached
-    if ( c == "|" )
+    if ( c == '|' )
       {
-      ++ nLevels;
-      
+      // Update per level strings
+      this->PerLevelDescriptors.push_back( stream.str().c_str() );
+      stream.str( "" );
+
       // check whether still at rool level
       if ( rootLevel )
         {
         rootLevel = false;
         }
-      } // if ( c == "|" )
-    else if ( rootLevel )
+      } // if ( c == '|' )
+    else 
       {
-      ++ nRoots;
-      }
+      // Append character to per level string
+      stream << c;
+    
+      if ( rootLevel )
+        {
+        ++ nRoots;
+        }
+      } // else
     } // i
 
-  cerr << "Found "
-       << nLevels
-       << " levels and "
-       << nRoots
-       << " root cells"
-       << endl;
+  // Verify that total number of root cells is consistent with description
+  if ( nRoots != this->GridSize[0] * this->GridSize[1] * this->GridSize[2] )
+    {
+    vtkErrorMacro(<<"String "
+                  << this->Descriptor
+                  << " describes "
+                  << nRoots
+                  << " root cells != "
+                  << this->GridSize[0] * this->GridSize[1] * this->GridSize[2]);
+    return 0;
+    }
+  
+  unsigned int nLevels = this->PerLevelDescriptors.size();
+  // Reset maximum depth if fewer levels are described
+  if ( nLevels < this->MaximumLevel )
+    {
+    this->MaximumLevel = nLevels;
+    }
+  cerr << "Found " << nLevels << " levels" << endl;
+
+  return 1;
 }
 
 //-----------------------------------------------------------------------------
