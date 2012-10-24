@@ -45,7 +45,6 @@ All rights reserved.
 #include "vtkUnstructuredGridWriter.h"
 
 #include "vtksys/CommandLineArguments.hxx"
-#include "vtksys/ios/sstream"
 
 void SetInputParameters( int& dim,
                          int& branch,
@@ -97,51 +96,6 @@ void SetInputParameters( int& dim,
       nY = 1;
       }
     }
-
-  // Parse input string
-  int nRoots = 0;
-  int nLevels = 1;
-  bool rootLevel = true;
-  for ( vtkStdString::iterator it = descr.begin(); 
-        it != descr.end(); ++ it )
-    {
-    vtksys_ios::ostringstream stream;
-    stream << *it;
-    vtkStdString c = stream.str().c_str();
-    if ( c != "R" && c != "." && c != "|" )
-      {
-      cerr << "** Error: unrecognized character: "
-           << c
-           << " in string "
-           << descr
-           << ", exiting."
-           << endl;
-      exit( 0 );
-      }
-
-    // Figure out if new level was reached
-    if ( c == "|" )
-      {
-      ++ nLevels;
-      
-      // check whether still at rool level
-      if ( rootLevel )
-        {
-        rootLevel = false;
-        }
-      } // if ( c == "|" )
-    else if ( rootLevel )
-      {
-      ++ nRoots;
-      }
-    } // i
-
-  cerr << "Found "
-       << nLevels
-       << " levels and "
-       << nRoots
-       << " root cells"
-       << endl;
 }
 
   int main( int argc, char* argv[] )

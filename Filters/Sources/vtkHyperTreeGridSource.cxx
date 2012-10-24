@@ -24,6 +24,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+#include <vtksys/ios/sstream>
+
 #include <assert.h>
 
 vtkStandardNewMacro(vtkHyperTreeGridSource);
@@ -88,6 +90,33 @@ vtkHyperTreeGridSource::~vtkHyperTreeGridSource()
     }
 
   this->SetDescriptor( 0 );
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Dimension: " << this->Dimension << endl;
+  os << indent << "GridSize: "
+     << this->GridSize[0] <<","
+     << this->GridSize[1] <<","
+     << this->GridSize[2] << endl;
+  if ( this->XCoordinates )
+    {
+    this->XCoordinates->PrintSelf( os, indent.GetNextIndent() );
+    }
+  if ( this->YCoordinates )
+    {
+    this->YCoordinates->PrintSelf( os, indent.GetNextIndent() );
+    }
+  if ( this->ZCoordinates )
+    {
+    this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
+    }
+  os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
+  os << indent << "MinimumLevel: " << this->MinimumLevel << endl;
+  os << indent << "Dual: " << this->Dual << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -197,6 +226,9 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
   vtkHyperTreeGrid *output 
     = vtkHyperTreeGrid::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+
+  // Parse descriptor
+  this->ParseDescriptor();
 
   // Set grid parameters
   output->SetGridSize( this->GridSize );
@@ -408,28 +440,52 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGridSource::ParseDescriptor()
 {
-  this->Superclass::PrintSelf(os,indent);
+  int nRoots = 0;
+  int nLevels = 1;
+  bool rootLevel = true;
+  vtksys_ios::ostringstream descrstream;
+  descrstream << this->Descriptor;
+  vtkStdString descr = descrstream.str().c_str();
 
-  os << indent << "Dimension: " << this->Dimension << endl;
-  os << indent << "GridSize: "
-     << this->GridSize[0] <<","
-     << this->GridSize[1] <<","
-     << this->GridSize[2] << endl;
-  if ( this->XCoordinates )
+  for ( vtkStdString::iterator it = descr.begin(); it != descr.end(); ++ it )
     {
-    this->XCoordinates->PrintSelf( os, indent.GetNextIndent() );
-    }
-  if ( this->YCoordinates )
-    {
-    this->YCoordinates->PrintSelf( os, indent.GetNextIndent() );
-    }
-  if ( this->ZCoordinates )
-    {
-    this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
-    }
-  os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
-  os << indent << "MinimumLevel: " << this->MinimumLevel << endl;
-  os << indent << "Dual: " << this->Dual << endl;
+    vtksys_ios::ostringstream stream;
+    stream << *it;
+    vtkStdString c = stream.str().c_str();
+    if ( c != "R" && c != "." && c != "|" )
+      {
+      vtkErrorMacro(<<"Unrecognized character: "
+                    << c
+                    << " in string "
+                    << descr);
+      return;
+      }
+
+    // Figure out if new level was reached
+    if ( c == "|" )
+      {
+      ++ nLevels;
+      
+      // check whether still at rool level
+      if ( rootLevel )
+        {
+        rootLevel = false;
+        }
+      } // if ( c == "|" )
+    else if ( rootLevel )
+      {
+      ++ nRoots;
+      }
+    } // i
+
+  cerr << "Found "
+       << nLevels
+       << " levels and "
+       << nRoots
+       << " root cells"
+       << endl;
 }
+
+//-----------------------------------------------------------------------------

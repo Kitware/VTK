@@ -103,6 +103,8 @@ protected:
                   int idx[3],
                   int offset );
 
+  void ParseDescriptor();
+
   int GridSize[3];
   int MaximumLevel;
   int MinimumLevel;
