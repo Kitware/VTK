@@ -95,13 +95,17 @@ void vtkHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Dimension: " << this->Dimension << endl;
   os << indent << "GridSize: "
      << this->GridSize[0] <<","
      << this->GridSize[1] <<","
      << this->GridSize[2] << endl;
+
+  os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
+  os << indent << "MinimumLevel: " << this->MinimumLevel << endl;
+  os << indent << "Dimension: " << this->Dimension << endl;
   os << indent << "AxisBranchFactor: " <<this->AxisBranchFactor << endl;
-  os << indent << "Descriptor: " << this->Descriptor << endl;
+  os << indent << "BlockSize: " <<this->BlockSize << endl;
+
   if ( this->XCoordinates )
     {
     this->XCoordinates->PrintSelf( os, indent.GetNextIndent() );
@@ -114,8 +118,8 @@ void vtkHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
     }
-  os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
-  os << indent << "MinimumLevel: " << this->MinimumLevel << endl;
+
+  os << indent << "Descriptor: " << this->Descriptor << endl;
   os << indent << "Dual: " << this->Dual << endl;
 }
 
@@ -304,7 +308,6 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   // Iterate over grid of trees
   int n[3];
   output->GetGridSize( n );
-  int blockOffset = 0;
   for ( int k = 0; k < n[2]; ++ k )
     {
     for ( int j = 0; j < n[1]; ++ j )
@@ -326,10 +329,11 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
         this->Subdivide( cursor, 
                          0, 
                          output, 
-                         index_g, 
+                         index_g,
+                         0,
                          idx, 
                          output->GetLeafData()->GetScalars()->GetNumberOfTuples(),
-                         blockOffset );
+                         0 );
 
         // Clean up
         cursor->UnRegister( this );
@@ -342,60 +346,31 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   return 1;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
                                         int level,
                                         vtkHyperTreeGrid* output,
                                         int index_g,
+                                        int index_l,
                                         int idx[3],
                                         int cellIdOffset,
-                                        int& blockOffset )
+                                        int parentPos )
 {
-  // Calculate local index
-  int index_l = idx[0] + this->AxisBranchFactor 
-    * ( idx[1] + this->AxisBranchFactor * idx[2] );
+  // Calculate pointer into level descriptor string
+  int pointer = level ? index_l + parentPos * this->BlockSize : index_g;
 
-  // Determine whether to subdivide.
-  bool subdivide = false;
-  char c;
-  if ( ! level )
-    {
-    c = this->PerLevelDescriptors.at( level ).at( index_g );
-    if ( this->PerLevelDescriptors.at( level ).at( index_g ) == 'R' )
-      {
-      subdivide = true;
-      }
-    } // if ( ! level )
-  else
-    {
-    c = this->PerLevelDescriptors.at( level ).at( index_l );
-    } // else
+  // Determine whether to subdivide or not
+  bool subdivide = this->LevelDescriptors.at( level ).at( pointer ) == 'R' ? true : false;
 
-  // Check for hard coded minimum and maximum level restrictions.
+  // Check for hard coded minimum and maximum level restrictions
   if ( level + 1 >= this->MaximumLevel )
     {
     subdivide = 0;
     }
 
-  cerr << " level "
-       << level
-       << ", index_g: "
-       << index_g
-       << ", index_l: "
-       << index_l
-       << ", blockOffset: "
-       << blockOffset
-       << " "
-       << this->PerLevelDescriptors.at( level )
-       << ",c =  "
-       << c
-       << " => S= "
-       << subdivide
-       << endl;
-
   if ( subdivide )
     {
+    // Subdivide hyper tree grid leaf
     output->SubdivideLeaf( cursor, index_g );
 
     // Now traverse to children.
@@ -428,14 +403,19 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           // Set cursor to child
           cursor->ToChild( childIdx );
 
+          // Calculate local index
+          int index_l = x + this->AxisBranchFactor 
+            * ( y + this->AxisBranchFactor * z );
+
           // Recurse
           this->Subdivide( cursor,
                            level + 1,
                            output,
                            index_g,
+                           index_l,
                            newIdx,
                            cellIdOffset,
-                           blockOffset );
+                           this->LevelCounters.at( level ) );
 
           // Reset cursor to parent
           cursor->ToParent();
@@ -445,7 +425,10 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           }
         }
       }
-    } // if subdivide
+
+    // Increment current level counter
+    ++ this->LevelCounters.at( level );
+    } // if ( subdivide )
   else
     {
     // Retrieve cartesian coordinates w.r.t. global grid
@@ -469,9 +452,8 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
       x[i] -= .5 * gs[i];
       }
 
-    // Cell value: distance to center plus local index-based noise
-    double val = idx[0] + idx[1] + idx[2]
-      + x[0] * x[0] + x[1] * x[1] + x[2] * x[2];
+    // Cell value is depth level
+    double val = level;
 
     // Offset cell index as needed
     vtkIdType id = cellIdOffset + cursor->GetLeafId();
@@ -483,20 +465,22 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
 int vtkHyperTreeGridSource::InitializeDescriptorParsing()
 {
   // Calculate refined block size
-  int blockSize = this->AxisBranchFactor;
+  this->BlockSize = this->AxisBranchFactor;
   for ( int i = 1; i < this->Dimension; ++ i )
     {
-    blockSize *= this->AxisBranchFactor;
+    this->BlockSize *= this->AxisBranchFactor;
     }
-  
+
+  // Calculate total level 0 grid size
+  unsigned int nTotal = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+
   // Parse string descriptor
   unsigned int nRefined = 0;
   unsigned int nLeaves = 0;
   unsigned int nNextLevel = 0;
   bool rootLevel = true;
   vtksys_ios::ostringstream stream;
-  for ( vtkStdString::iterator it = this->Descriptor.begin(); 
-        it != this->Descriptor.end(); ++ it )
+  for ( vtkStdString::iterator it = this->Descriptor.begin(); it != this->Descriptor.end(); ++ it )
     {
     char c = *it;
     switch ( c )
@@ -506,7 +490,7 @@ int vtkHyperTreeGridSource::InitializeDescriptorParsing()
         continue;
       case '|':
         //  A level is complete
-        this->PerLevelDescriptors.push_back( stream.str().c_str() );
+        this->LevelDescriptors.push_back( stream.str().c_str() );
         
         // Check whether cursor is still at rool level
         if ( rootLevel )
@@ -514,15 +498,14 @@ int vtkHyperTreeGridSource::InitializeDescriptorParsing()
           rootLevel = false;
 
           // Verify that total number of root cells is consistent with descriptor
-          if ( nRefined + nLeaves 
-               != this->GridSize[0] * this->GridSize[1] * this->GridSize[2] )
+          if ( nRefined + nLeaves != nTotal )
             {
             vtkErrorMacro(<<"String "
                           << this->Descriptor
                           << " describes "
                           << nRefined + nLeaves
                           << " root cells != "
-                          << this->GridSize[0] * this->GridSize[1] * this->GridSize[2]);
+                          << nTotal);
             return 0;
             }
           } // if ( rootLevel )
@@ -535,15 +518,15 @@ int vtkHyperTreeGridSource::InitializeDescriptorParsing()
                           << stream.str().c_str()
                           << " has cardinality "
                           << stream.str().size()
-                          << " which is not a multiple of "
-                          << blockSize);
+                          << " which is not expected value of "
+                          << nNextLevel);
       
             return 0;
             }
           } // else
 
         // Predict next level descriptor cardinality
-        nNextLevel = nRefined * blockSize;
+        nNextLevel = nRefined * this->BlockSize;
 
         // Reset per level values
         stream.str( "" );
@@ -584,18 +567,24 @@ int vtkHyperTreeGridSource::InitializeDescriptorParsing()
                   << stream.str().c_str()
                   << " has cardinality "
                   << stream.str().size()
-                  << " which is not a multiple of "
-                  << blockSize);
+                  << " which is not expected value of "
+                  << nNextLevel);
     
     return 0;
     }
-  this->PerLevelDescriptors.push_back( stream.str().c_str() );
+  this->LevelDescriptors.push_back( stream.str().c_str() );
 
   // Reset maximum depth if fewer levels are described
-  unsigned int nLevels = this->PerLevelDescriptors.size();
+  int nLevels = this->LevelDescriptors.size();
   if ( nLevels < this->MaximumLevel )
     {
     this->MaximumLevel = nLevels;
+    }
+
+  // Create vector of counters as long as tree depth
+  for ( int i = 0; i < nLevels; ++ i )
+    {
+    this->LevelCounters.push_back( 0 );
     }
 
   return 1;

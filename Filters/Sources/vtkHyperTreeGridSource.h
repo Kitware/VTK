@@ -115,10 +115,11 @@ protected:
   void Subdivide( vtkHyperTreeCursor* cursor,
                   int level,
                   vtkHyperTreeGrid* output,
-                  int index,
+                  int index_g,
+                  int index_l,
                   int idx[3],
                   int cellIdOffset,
-                  int& blockOffset );
+                  int parentPos );
 
   int InitializeDescriptorParsing();
 
@@ -127,7 +128,7 @@ protected:
   int MinimumLevel;
   int Dimension;
   int AxisBranchFactor;
-
+  int BlockSize;
   int Dual;
 
   vtkDataArray* XCoordinates;
@@ -135,7 +136,8 @@ protected:
   vtkDataArray* ZCoordinates;
 
   vtkStdString Descriptor;
-  std::vector<vtkStdString> PerLevelDescriptors;
+  std::vector<vtkStdString> LevelDescriptors;
+  std::vector<int> LevelCounters;
 
 private:
   vtkHyperTreeGridSource(const vtkHyperTreeGridSource&);  // Not implemented.
