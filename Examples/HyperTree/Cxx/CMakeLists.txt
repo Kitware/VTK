@@ -9,10 +9,10 @@ endif(NOT VTK_BINARY_DIR)
 
 link_directories(${VTK_LIBRARY_DIRS})
 
-# Add example showing use use of synthetic vtkHyperTreeGrid along with various filters
-add_executable(FractalHyperTreeGridDemonstrator FractalHyperTreeGridDemonstrator.cxx)
-target_link_libraries(FractalHyperTreeGridDemonstrator vtkCommonCore vtkCommonSystem vtkCommonDataModel vtkCommonExecutionModel vtkIOLegacy vtkIOGeometry vtkFiltersCore vtkFiltersSources vtkFiltersHyperTree)
+# Add 2D example showing use use of synthetic vtkHyperTreeGrid along with various filters
+add_executable(HyperTreeGridDemonstrator2D HyperTreeGridDemonstrator2D.cxx)
+target_link_libraries(HyperTreeGridDemonstrator2D vtkCommonCore vtkCommonSystem vtkCommonDataModel vtkCommonExecutionModel vtkIOLegacy vtkIOGeometry vtkFiltersCore vtkFiltersSources vtkFiltersHyperTree)
 
-# Add example showing use use of specified vtkHyperTreeGrid along with various filters
-add_executable(DescribedHyperTreeGridDemonstrator DescribedHyperTreeGridDemonstrator.cxx)
-target_link_libraries(DescribedHyperTreeGridDemonstrator vtkCommonCore vtkCommonSystem vtkCommonDataModel vtkCommonExecutionModel vtkIOLegacy vtkIOGeometry vtkFiltersCore vtkFiltersSources vtkFiltersHyperTree)
+# Add 3D example showing use use of synthetic vtkHyperTreeGrid along with various filters
+add_executable(HyperTreeGridDemonstrator3D HyperTreeGridDemonstrator3D.cxx)
+target_link_libraries(HyperTreeGridDemonstrator3D vtkCommonCore vtkCommonSystem vtkCommonDataModel vtkCommonExecutionModel vtkIOLegacy vtkIOGeometry vtkFiltersCore vtkFiltersSources vtkFiltersHyperTree)

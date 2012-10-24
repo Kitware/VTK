@@ -14,6 +14,7 @@ All rights reserved.
 //   --grid-size-X opt    Size of hyper tree grid in X direction
 //   --grid-size-Y opt    Size of hyper tree grid in Y direction
 //   --grid-size-Z opt    Size of hyper tree grid in Z direction
+//   --descriptor         String of characters specifying tree structure
 //   --max-level opt      Maximum depth of hyper tree grid
 //   --contours           Number of iso-contours to be calculated
 //   --skip-Axis-Cut      Skip axis cut filter
@@ -39,19 +40,73 @@ All rights reserved.
 #include "vtkPointData.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkShrinkFilter.h"
+#include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
 #include "vtksys/CommandLineArguments.hxx"
 
-int main( int argc, char* argv[] )
+void SetInputParameters( int& dim,
+                         int& branch,
+                         vtkStdString& descr,
+                         int& nX,
+                         int& nY,
+                         int& nZ )
+{
+  // Ensure that parsed dimensionality makes sense
+  if ( dim > 3 )
+    {
+    dim = 3;
+    }
+  else if ( dim < 1 )
+    {
+    dim = 1;
+    }
+
+  // Ensure that parsed branch factor makes sense
+  if ( branch > 3 )
+    {
+    branch = 3;
+    }
+  else if ( branch < 2 )
+    {
+    branch = 2;
+    }
+
+  // Ensure that parsed grid sizes make sense
+  if ( nX < 1 )
+    {
+    nX = 1;
+    }
+  if ( nY < 1 )
+    {
+    nY = 1;
+    }
+  if ( nZ < 1 )
+    {
+    nZ = 1;
+    }
+
+  // Ensure that parsed grid sizes are consistent with dimensionality
+  if ( dim < 3 )
+    {
+    nZ = 1;
+    if ( dim < 2 )
+      {
+      nY = 1;
+      }
+    }
+}
+
+  int main( int argc, char* argv[] )
 {
   // Set default argument values and options
+  vtkStdString descriptor = ".RR..R ..R...|R.......................... ...........R............... ........................... ...........................|........................... ...........................";
   int dim = 3;
   int branch = 3;
   int max = 3;
-  int nX = 3;
-  int nY = 4;
+  int nX = 2;
+  int nY = 3;
   int nZ = 2;
   int nContours = 2;
   bool skipAxisCut = false;
@@ -77,6 +132,10 @@ int main( int argc, char* argv[] )
   clArgs.AddArgument( "--max-level",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
                       &max, "Maximum depth of hyper tree grid" );
+
+  clArgs.AddArgument("--descriptor",
+                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                     &descriptor, "String describing the hyper tree grid");
 
   clArgs.AddArgument( "--grid-size-X",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
@@ -120,63 +179,14 @@ int main( int argc, char* argv[] )
     cerr << "Usage: "
          << clArgs.GetHelp()
          << "\n";
-
     return 1;
     }
 
-  // Ensure that parsed dimensionality makes sense
-  if ( dim > 3 )
-    {
-    dim = 3;
-    }
-  else if ( dim < 1 )
-    {
-    dim = 1;
-    }
-
-  // Ensure that parsed branch factor makes sense
-  if ( branch > 3 )
-    {
-    branch = 3;
-    }
-  else if ( branch < 2 )
-    {
-    branch = 2;
-    }
-
-  // Ensure that parsed maximum level makes sense
-  if ( max < 1 )
-    {
-    max = 1;
-    }
-
-  // Ensure that parsed grid sizes make sense
-  if ( nX < 1 )
-    {
-    nX = 1;
-    }
-  if ( nY < 1 )
-    {
-    nY = 1;
-    }
-  if ( nZ < 1 )
-    {
-    nZ = 1;
-    }
-
-  // Ensure that parsed grid sizes are consistent with dimensionality
-  if ( dim < 3 )
-    {
-    nZ = 1;
-    if ( dim < 2 )
-      {
-      nY = 1;
-      }
-    }
+  // Verify and set input parameters
+  SetInputParameters( dim, branch, descriptor, nX, nY, nZ );
 
   // Create hyper tree grid source
   vtkNew<vtkHyperTreeGridSource> fractal;
-  fractal->SetMaximumLevel( max );
   fractal->DualOn();
   if ( dim == 3 )
     {
@@ -185,6 +195,8 @@ int main( int argc, char* argv[] )
   fractal->SetGridSize( nX, nY, nZ );
   fractal->SetDimension( dim );
   fractal->SetAxisBranchFactor( branch );
+  fractal->SetMaximumLevel( max );
+  fractal->SetDescriptor( descriptor.c_str() );
   fractal->Update();
   vtkHyperTreeGrid* htGrid = fractal->GetOutput();
   cerr << "  Number of hyper tree dual grid cells: "
