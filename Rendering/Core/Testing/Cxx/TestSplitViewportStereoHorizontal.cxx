@@ -91,7 +91,6 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   renwin->AddRenderer(renderer);
   renwin->SetSize(400, 400);
   renwin->SetStereoRender(1);
-  renwin->SetStereoCapableWindow(1);
   renwin->SetStereoTypeToSplitViewportHorizontal();
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
