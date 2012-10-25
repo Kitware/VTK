@@ -465,7 +465,7 @@ int vtkHyperTreeGridSource::Initialize()
   this->LevelDescriptors.push_back( stream.str().c_str() );
 
   // Reset maximum depth if fewer levels are described
-  unsigned int nLevels = this->LevelDescriptors.size();
+  unsigned int nLevels = static_cast<unsigned int>( this->LevelDescriptors.size() );
   if ( nLevels < this->MaximumLevel )
     {
     this->MaximumLevel = nLevels;
