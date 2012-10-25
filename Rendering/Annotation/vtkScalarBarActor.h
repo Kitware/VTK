@@ -230,6 +230,13 @@ public:
   vtkBooleanMacro( DrawFrame, int );
 
   // Description:
+  // Set/Get whether the color bar should be drawn. If off, only the tickmarks
+  // and text will be drawn. Default is on.
+  vtkSetMacro( DrawColorBar, bool );
+  vtkGetMacro( DrawColorBar, bool );
+  vtkBooleanMacro( DrawColorBar, bool );
+
+  // Description:
   // Set/Get the background property.
   virtual void SetBackgroundProperty(vtkProperty2D *p);
   vtkGetObjectMacro(BackgroundProperty,vtkProperty2D);
@@ -302,6 +309,7 @@ protected:
 
   int DrawBackground; // off by default
   int DrawFrame; // off by default
+  bool DrawColorBar; // on by default
 
   vtkPolyData         *Background;
   vtkPolyDataMapper2D *BackgroundMapper;

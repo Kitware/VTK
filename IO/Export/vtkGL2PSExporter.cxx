@@ -140,6 +140,10 @@ void vtkGL2PSExporter::WriteData()
     return;
     }
 
+  // Setup the helper class.
+  vtkGL2PSUtilities::SetRenderWindow(this->RenderWindow);
+  vtkGL2PSUtilities::SetTextAsPath(this->TextAsPath != 0);
+
   // Store the "properly" rendered image's pixel data for special actors that
   // need to copy bitmaps into the output (e.g. paraview's scalar bar actor)
   this->PixelDataSize[0] = viewport[2];
@@ -241,6 +245,8 @@ void vtkGL2PSExporter::WriteData()
   fclose(fpObj);
 
   // Clean up:
+  vtkGL2PSUtilities::SetRenderWindow(NULL);
+  vtkGL2PSUtilities::SetTextAsPath(false);
   // Re-enable depth peeling if needed
   for (int i = 0; i < static_cast<int>(origDepthPeeling.size()); ++i)
     {
@@ -685,7 +691,7 @@ void vtkGL2PSExporter::DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren)
 {
   const char *string = textAct->GetInput();
   vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
-  vtkTextProperty *tprop = textAct->GetTextProperty();
+  vtkTextProperty *tprop = textAct->GetScaledTextProperty();
 
   this->DrawViewportTextOverlay(string, tprop, coord, ren);
 }
@@ -707,12 +713,18 @@ void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
   // Get actor info
   vtkMatrix4x4 *actorMatrix = textAct->GetMatrix();
   double *actorBounds = textAct->GetBounds();
+  double rasterPos[3] = {(actorBounds[1] + actorBounds[0]) * 0.5,
+                         (actorBounds[3] + actorBounds[2]) * 0.5,
+                         (actorBounds[5] + actorBounds[4]) * 0.5};
   double *dcolor = tprop->GetColor();
-  unsigned char actorColor[3] = {static_cast<unsigned char>(dcolor[0]*255),
-                                 static_cast<unsigned char>(dcolor[1]*255),
-                                 static_cast<unsigned char>(dcolor[2]*255)};
+  unsigned char actorColor[4] = {
+    static_cast<unsigned char>(dcolor[0]*255),
+    static_cast<unsigned char>(dcolor[1]*255),
+    static_cast<unsigned char>(dcolor[2]*255),
+    static_cast<unsigned char>(tprop->GetOpacity()*255)};
 
-  this->Draw3DPath(path.GetPointer(), actorMatrix, actorBounds, actorColor);
+  vtkGL2PSUtilities::Draw3DPath(path.GetPointer(), actorMatrix, rasterPos,
+                                actorColor);
 }
 
 void vtkGL2PSExporter::DrawTextMapper(vtkTextMapper *textMap,
@@ -731,20 +743,18 @@ void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
 {
   const char *string = textAct->GetInput();
   vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
-  vtkTextProperty *tprop = textAct->GetTextProperty();
-  int *winsize = this->RenderWindow->GetSize();
+  vtkTextProperty *tprop = textAct->GetScaledTextProperty();
 
   vtkNew<vtkPath> path;
-  double scale[2] = {1.0,1.0};
   vtkMathTextUtilities::GetInstance()->StringToPath(string,
                                                     path.GetPointer(),
                                                     tprop);
   double *dcolor = tprop->GetColor();
-  unsigned char color[3] = {static_cast<unsigned char>(dcolor[0]*255),
+  unsigned char color[4] = {static_cast<unsigned char>(dcolor[0]*255),
                             static_cast<unsigned char>(dcolor[1]*255),
-                            static_cast<unsigned char>(dcolor[2]*255)};
-  double winsized[2] = {static_cast<double>(winsize[0]),
-                        static_cast<double>(winsize[1])};
+                            static_cast<unsigned char>(dcolor[2]*255),
+                            static_cast<unsigned char>(tprop->GetOpacity()*255)
+                           };
 
   // Set the raster position at the center of the front plane. This is an
   // overlay annotation, it shouldn't need to be clipped.
@@ -758,9 +768,8 @@ void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
   int *textPos = coord->GetComputedDisplayValue(ren);
   double textPosd[2] = {static_cast<double>(textPos[0]),
                         static_cast<double>(textPos[1])};
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
-                              textPosd, scale, tprop->GetOrientation(),
-                              color);
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, textPosd, color,
+                              NULL, tprop->GetOrientation());
 }
 
 void vtkGL2PSExporter::DrawMathTextActor3D(vtkMathTextActor3D *textAct,
@@ -782,12 +791,18 @@ void vtkGL2PSExporter::DrawMathTextActor3D(vtkMathTextActor3D *textAct,
   // Get actor info
   vtkMatrix4x4 *actorMatrix = textAct->GetMatrix();
   double *actorBounds = textAct->GetBounds();
+  double rasterPos[3] = {(actorBounds[1] + actorBounds[0]) * 0.5,
+                         (actorBounds[3] + actorBounds[2]) * 0.5,
+                         (actorBounds[5] + actorBounds[4]) * 0.5};
   double *dcolor = tprop->GetColor();
-  unsigned char actorColor[3] = {static_cast<unsigned char>(dcolor[0]*255),
-                                 static_cast<unsigned char>(dcolor[1]*255),
-                                 static_cast<unsigned char>(dcolor[2]*255)};
+  unsigned char actorColor[4] = {
+    static_cast<unsigned char>(dcolor[0]*255),
+    static_cast<unsigned char>(dcolor[1]*255),
+    static_cast<unsigned char>(dcolor[2]*255),
+    static_cast<unsigned char>(tprop->GetOpacity()*255)};
 
-  this->Draw3DPath(path.GetPointer(), actorMatrix, actorBounds, actorColor);
+  vtkGL2PSUtilities::Draw3DPath(path.GetPointer(), actorMatrix, rasterPos,
+                                actorColor);
 }
 
 void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
@@ -832,77 +847,6 @@ void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
   glPopMatrix();
 }
 
-void vtkGL2PSExporter::Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
-                                  double actorBounds[4],
-                                  unsigned char actorColor[3])
-{
-  double scale[2] = {1.0, 1.0};
-  double translation[2] = {0.0, 0.0};
-  double rasterPos[3] = {(actorBounds[1] + actorBounds[0]) * 0.5,
-                         (actorBounds[3] + actorBounds[2]) * 0.5,
-                         (actorBounds[5] + actorBounds[4]) * 0.5};
-  int *winsize = this->RenderWindow->GetSize();
-  double winsized[2] = {static_cast<double>(winsize[0]),
-                        static_cast<double>(winsize[1])};
-
-  // Build transformation matrix
-  double glMatrix[16];
-  glGetDoublev(GL_PROJECTION_MATRIX, glMatrix);
-  vtkNew<vtkMatrix4x4> projectionMatrix;
-  projectionMatrix->DeepCopy(glMatrix);
-  projectionMatrix->Transpose();
-
-  glGetDoublev(GL_MODELVIEW_MATRIX, glMatrix);
-  vtkNew<vtkMatrix4x4> modelviewMatrix;
-  modelviewMatrix->DeepCopy(glMatrix);
-  modelviewMatrix->Transpose();
-
-  vtkNew<vtkMatrix4x4> transformMatrix;
-  vtkMatrix4x4::Multiply4x4(projectionMatrix.GetPointer(),
-                            modelviewMatrix.GetPointer(),
-                            transformMatrix.GetPointer());
-  vtkMatrix4x4::Multiply4x4(transformMatrix.GetPointer(),
-                            actorMatrix,
-                            transformMatrix.GetPointer());
-
-  double viewport[4];
-  glGetDoublev(GL_VIEWPORT, viewport);
-  double depthRange[2];
-  glGetDoublev(GL_DEPTH_RANGE, depthRange);
-
-  const double halfWidth = viewport[2] * 0.5;
-  const double halfHeight = viewport[3] * 0.5;
-  const double zFactor1 = (depthRange[1] - depthRange[0]) * 0.5;
-  const double zFactor2 = (depthRange[1] + depthRange[0]) * 0.5;
-
-  vtkSmartPointer<vtkPoints> origPoints = path->GetPoints();
-  vtkNew<vtkPoints> newPoints;
-  newPoints->DeepCopy(origPoints);
-  double point[4];
-  for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
-    {
-    newPoints->GetPoint(i, point);
-    point[3] = 1.0;
-    // Convert world to clip coordinates:
-    // <out point> = [projection] [modelview] [actor matrix] <in point>
-    transformMatrix->MultiplyPoint(point, point);
-    // Clip to NDC
-    const double invW = 1.0 / point[3];
-    point[0] *= invW;
-    point[1] *= invW;
-    point[2] *= invW;
-    // NDC to device:
-    point[0] = point[0] * halfWidth + viewport[0] + halfWidth;
-    point[1] = point[1] * halfHeight + viewport[1] + halfHeight;
-    point[2] = point[2] * zFactor1 + zFactor2;
-    newPoints->SetPoint(i, point);
-    }
-
-  path->SetPoints(newPoints.GetPointer());
-
-  vtkGL2PSUtilities::DrawPath(path, rasterPos, winsized, translation, scale,
-                              0.0, actorColor);
-}
 
 void vtkGL2PSExporter::CopyPixels(int copyRect[4], vtkRenderer *ren)
 {
