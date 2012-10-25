@@ -1329,13 +1329,13 @@ void vtkRenderWindow::StereoRenderComplete(void)
       sright = this->GetPixelData(0, 0, size[0] - 1, size[1] - 1,
                                   !this->DoubleBuffer);
 
-      int midX = (size[0] - 1) / 2;
-      int offsetX = static_cast<int>(ceil((size[0] - 1) / 2.0));
+      int midX = static_cast<int>(size[0] / 2.0);
+      int offsetX = static_cast<int>(ceil(size[0] / 2.0));
 
       // copy pixel data
-      for (int y = 0; y <= (size[1] - 1); y = y + 1)
+      for (int y = 0; y <= (size[1] - 1); y = ++y)
         {
-          for (int x = 1; x < midX; x = x + 1)
+          for (int x = 1; x <= midX; x = ++x)
             {
             left = sleft + x * 3 + y * size[0] * 3;
             leftTemp = sleft + (2 * x) * 3 + y * size[0] * 3;
@@ -1345,9 +1345,9 @@ void vtkRenderWindow::StereoRenderComplete(void)
             }
         }
 
-      for (int y = 0; y <= (size[1] - 1); y = y + 1)
+      for (int y = 0; y <= (size[1] - 1); y = ++y)
         {
-          for (int x = 0; x < midX; x = x + 1)
+          for (int x = 0; x < midX; x = ++x)
             {
             left = sleft + (x + offsetX) * 3 + y * size[0] * 3;
             right = sright + (2 * x) * 3 + y * size[0] * 3;
