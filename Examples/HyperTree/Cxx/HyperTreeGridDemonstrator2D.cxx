@@ -44,146 +44,17 @@ All rights reserved.
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
-#include "vtksys/CommandLineArguments.hxx"
-
-void SetInputParameters( int& dim,
-                         int& branch,
-                         vtkStdString& descr,
-                         int& nX,
-                         int& nY,
-                         int& nZ )
+int main( int argc, char* argv[] )
 {
-  // Ensure that parsed dimensionality makes sense
-  if ( dim > 3 )
-    {
-    dim = 3;
-    }
-  else if ( dim < 1 )
-    {
-    dim = 1;
-    }
-
-  // Ensure that parsed branch factor makes sense
-  if ( branch > 3 )
-    {
-    branch = 3;
-    }
-  else if ( branch < 2 )
-    {
-    branch = 2;
-    }
-
-  // Ensure that parsed grid sizes make sense
-  if ( nX < 1 )
-    {
-    nX = 1;
-    }
-  if ( nY < 1 )
-    {
-    nY = 1;
-    }
-  if ( nZ < 1 )
-    {
-    nZ = 1;
-    }
-
-  // Ensure that parsed grid sizes are consistent with dimensionality
-  if ( dim < 3 )
-    {
-    nZ = 1;
-    if ( dim < 2 )
-      {
-      nY = 1;
-      }
-    }
-}
-
-  int main( int argc, char* argv[] )
-{
-  // Set default argument values and options
-  vtkStdString descriptor = ".RR..R|R... .R.. ....|.... ....";
+  // Set hyper tree grid source parameters
+  vtkStdString descriptor = "RRRRR.|.... .R.. .R.R R... ....|.R.. ...R .... ....|.... ....";
   int dim = 2;
   int branch = 2;
-  int max = 3;
+  int max = 4;
   int nX = 2;
   int nY = 3;
   int nZ = 1;
   int nContours = 2;
-  bool skipAxisCut = false;
-  bool skipContour = false;
-  bool skipCut = false;
-  bool skipGeometry = false;
-  bool skipShrink = false;
-
-  // Initialize command line argument parser
-  vtksys::CommandLineArguments clArgs;
-  clArgs.Initialize( argc, argv );
-  clArgs.StoreUnusedArguments( false );
-
-  // Parse command line parameters and options
-  clArgs.AddArgument( "--dimension",
-                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                      &dim, "Dimension of hyper tree grid" );
-
-  clArgs.AddArgument( "--branch-factor",
-                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                      &branch, "Branching factor of hyper tree grid" );
-
-  clArgs.AddArgument( "--max-level",
-                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                      &max, "Maximum depth of hyper tree grid" );
-
-  clArgs.AddArgument("--descriptor",
-                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &descriptor, "String describing the hyper tree grid");
-
-  clArgs.AddArgument( "--grid-size-X",
-                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                      &nX, "Size of hyper tree grid in X direction" );
-
-  clArgs.AddArgument( "--grid-size-Y",
-                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                      &nY, "Size of hyper tree grid in Y direction" );
-
-  clArgs.AddArgument( "--grid-size-Z",
-                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                      &nZ, "Size of hyper tree grid in Z direction" );
-
-  clArgs.AddArgument( "--contours",
-                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                      &nContours, "Number of iso-contours to be calculated" );
-
-  clArgs.AddArgument( "--skip-Axis-Cut",
-                      vtksys::CommandLineArguments::NO_ARGUMENT,
-                      &skipAxisCut, "Skip axis cut filter" );
-
-  clArgs.AddArgument( "--skip-Contour",
-                      vtksys::CommandLineArguments::NO_ARGUMENT,
-                      &skipContour, "Skip contour filter" );
-
-  clArgs.AddArgument( "--skip-Cut",
-                      vtksys::CommandLineArguments::NO_ARGUMENT,
-                      &skipCut, "Skip cut filter" );
-
-  clArgs.AddArgument( "--skip-Geometry",
-                      vtksys::CommandLineArguments::NO_ARGUMENT,
-                      &skipGeometry, "Skip geometry filter" );
-
-  clArgs.AddArgument( "--skip-Shrink",
-                      vtksys::CommandLineArguments::NO_ARGUMENT,
-                      &skipShrink, "Skip shrink filter" );
-
-  // If incorrect arguments were provided, provide some help and terminate in error.
-  if ( ! clArgs.Parse() )
-    {
-    cerr << "Usage: "
-         << clArgs.GetHelp()
-         << "\n";
-    return 1;
-    }
-
-  // Verify and set input parameters
-  SetInputParameters( dim, branch, descriptor, nX, nY, nZ );
 
   // Create hyper tree grid source
   vtkNew<vtkHyperTreeGridSource> fractal;
@@ -203,107 +74,93 @@ void SetInputParameters( int& dim,
        << htGrid->GetNumberOfCells()
        << endl;
 
-  if ( ! skipGeometry )
+  cerr << "# Geometry" << endl;
+  vtkNew<vtkHyperTreeGridGeometry> geometry;
+  geometry->SetInputConnection( fractal->GetOutputPort() );
+  vtkNew<vtkPolyDataWriter> writer4;
+  writer4->SetFileName( "./hyperTreeGridGeometry2D.vtk" );
+  writer4->SetInputConnection( geometry->GetOutputPort() );
+  writer4->Write();
+  cerr << "  Number of surface cells: "
+       << geometry->GetOutput()->GetNumberOfCells()
+       << endl;
+  
+  cerr << "# Contour" << endl;
+  vtkNew<vtkContourFilter> contour;
+  contour->SetInputData( htGrid );
+  double* range = htGrid->GetPointData()->GetScalars()->GetRange();
+  cerr << "  Calculating "
+       << nContours
+       << " iso-contours across ["
+       << range[0]
+       << ", "
+       << range[1]
+       << "] range:"
+       << endl;
+  contour->SetNumberOfContours( nContours );
+  double resolution = ( range[1] - range[0] ) / ( nContours + 1. );
+  double isovalue = resolution;
+  for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
     {
-    cerr << "# Geometry" << endl;
-    vtkNew<vtkHyperTreeGridGeometry> geometry;
-    geometry->SetInputConnection( fractal->GetOutputPort() );
-    vtkNew<vtkPolyDataWriter> writer4;
-    writer4->SetFileName( "./hyperTreeGridGeometry.vtk" );
-    writer4->SetInputConnection( geometry->GetOutputPort() );
-    writer4->Write();
-    cerr << "  Number of surface cells: "
-         << geometry->GetOutput()->GetNumberOfCells()
+    cerr << "    Contour "
+         << i
+         << " at iso-value: "
+         << isovalue
+         << endl;
+    contour->SetValue( i, isovalue );
+    }
+  vtkNew<vtkPolyDataWriter> writer0;
+  writer0->SetFileName( "./hyperTreeGridContour2D.vtk" );
+  writer0->SetInputConnection( contour->GetOutputPort() );
+  writer0->Write();
+  cerr << "  Number of cells in iso-contours: "
+       << contour->GetOutput()->GetNumberOfCells()
+       << endl;
+  
+
+  cerr << "# Shrink" << endl;
+  vtkNew<vtkShrinkFilter> shrink;
+  shrink->SetInputData( htGrid );
+  shrink->SetShrinkFactor( 1. );
+  vtkNew<vtkUnstructuredGridWriter> writer1;
+  writer1->SetFileName( "./hyperTreeGridShrink2D.vtk" );
+  writer1->SetInputConnection( shrink->GetOutputPort() );
+  writer1->Write();
+  cerr << "  Number of shrunk cells: "
+       << shrink->GetOutput()->GetNumberOfCells()
+       << endl;
+
+  // Axis-aligned cut works only in 3D for now
+  if ( dim == 3 )
+    {
+    cerr << "# HyperTreeGridAxisCut" << endl;
+    vtkNew<vtkHyperTreeGridAxisCut> axisCut;
+    axisCut->SetInputConnection( fractal->GetOutputPort() );
+    axisCut->SetPlaneNormalAxis( 2 );
+    axisCut->SetPlanePosition( .1 );
+    vtkNew<vtkPolyDataWriter> writer2;
+    writer2->SetFileName( "./hyperTreeGridAxisCut2D.vtk" );
+    writer2->SetInputConnection( axisCut->GetOutputPort() );
+    writer2->Write();
+    cerr << "  Number of cells in axis cut: "
+         << axisCut->GetOutput()->GetNumberOfCells()
          << endl;
     }
 
-  if ( ! skipContour )
-    {
-    cerr << "# Contour" << endl;
-    vtkNew<vtkContourFilter> contour;
-    contour->SetInputData( htGrid );
-    double* range = htGrid->GetPointData()->GetScalars()->GetRange();
-    cerr << "  Calculating "
-         << nContours
-         << " iso-contours across ["
-         << range[0]
-         << ", "
-         << range[1]
-         << "] range:"
-         << endl;
-    contour->SetNumberOfContours( nContours );
-    double resolution = ( range[1] - range[0] ) / ( nContours + 1. );
-    double isovalue = resolution;
-    for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
-      {
-      cerr << "    Contour "
-           << i
-           << " at iso-value: "
-           << isovalue
-           << endl;
-      contour->SetValue( i, isovalue );
-      }
-    vtkNew<vtkPolyDataWriter> writer0;
-    writer0->SetFileName( "./hyperTreeGridContour.vtk" );
-    writer0->SetInputConnection( contour->GetOutputPort() );
-    writer0->Write();
-    cerr << "  Number of cells in iso-contours: "
-         << contour->GetOutput()->GetNumberOfCells()
-         << endl;
-    }
-
-  if ( ! skipShrink )
-    {
-    cerr << "# Shrink" << endl;
-    vtkNew<vtkShrinkFilter> shrink;
-    shrink->SetInputData( htGrid );
-    shrink->SetShrinkFactor( 1. );
-    vtkNew<vtkUnstructuredGridWriter> writer1;
-    writer1->SetFileName( "./hyperTreeGridShrink.vtk" );
-    writer1->SetInputConnection( shrink->GetOutputPort() );
-    writer1->Write();
-    cerr << "  Number of shrunk cells: "
-         << shrink->GetOutput()->GetNumberOfCells()
-         << endl;
-    }
-
-  if ( ! skipAxisCut )
-    {
-    // Axis-aligned cut works only in 3D for now
-    if ( dim == 3 )
-      {
-      cerr << "# HyperTreeGridAxisCut" << endl;
-      vtkNew<vtkHyperTreeGridAxisCut> axisCut;
-      axisCut->SetInputConnection( fractal->GetOutputPort() );
-      axisCut->SetPlaneNormalAxis( 2 );
-      axisCut->SetPlanePosition( .1 );
-      vtkNew<vtkPolyDataWriter> writer2;
-      writer2->SetFileName( "./hyperTreeGridAxisCut.vtk" );
-      writer2->SetInputConnection( axisCut->GetOutputPort() );
-      writer2->Write();
-      cerr << "  Number of cells in axis cut: "
-           << axisCut->GetOutput()->GetNumberOfCells()
-           << endl;
-      }
-    }
-
-  if ( ! skipCut )
-    {
-    cerr << "# Cut" << endl;
-    vtkNew<vtkCutter> cut;
-    vtkNew<vtkPlane> plane;
-    plane->SetOrigin( .5, .5, .15 );
-    plane->SetNormal( 0, 0, 1 );
-    cut->SetInputData( htGrid );
-    cut->SetCutFunction( plane.GetPointer() );
-    vtkNew<vtkPolyDataWriter> writer3;
-    writer3->SetFileName( "./hyperTreeGridCut.vtk" );
-    writer3->SetInputConnection( cut->GetOutputPort() );
-    writer3->Write();
-    cerr << "  Number of cells in generic cut: "
-         << cut->GetOutput()->GetNumberOfCells()
-         << endl;
-    }
+  cerr << "# Cut" << endl;
+  vtkNew<vtkCutter> cut;
+  vtkNew<vtkPlane> plane;
+  plane->SetOrigin( .5, .5, .15 );
+  plane->SetNormal( 0, 0, 1 );
+  cut->SetInputData( htGrid );
+  cut->SetCutFunction( plane.GetPointer() );
+  vtkNew<vtkPolyDataWriter> writer3;
+  writer3->SetFileName( "./hyperTreeGridCut2D.vtk" );
+  writer3->SetInputConnection( cut->GetOutputPort() );
+  writer3->Write();
+  cerr << "  Number of cells in generic cut: "
+       << cut->GetOutput()->GetNumberOfCells()
+       << endl;
 
   return 0;
 }
