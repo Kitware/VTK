@@ -10,4 +10,5 @@ vtk_module(vtkIOXdmf2
     vtkIOXML
     vtkxdmf2
   TEST_DEPENDS
+    vtkFiltersGeneral
   )
