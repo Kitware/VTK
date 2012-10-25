@@ -143,7 +143,7 @@ vtkStdString vtkHyperTreeGridSource::GetDescriptor()
 // Description:
 // Return the maximum number of levels of the hyperoctree.
 // \post positive_result: result>=1
-int vtkHyperTreeGridSource::GetMaximumLevel()
+unsigned int vtkHyperTreeGridSource::GetMaximumLevel()
 {
   assert( "post: positive_result" && this->MaximumLevel >= 1 );
   return this->MaximumLevel;
@@ -156,7 +156,7 @@ int vtkHyperTreeGridSource::GetMaximumLevel()
 // \pre positive_levels: levels>=1
 // \post is_set: this->GetLevels()==levels
 // \post min_is_valid: this->GetMinLevels()<this->GetLevels()
-void vtkHyperTreeGridSource::SetMaximumLevel( int levels )
+void vtkHyperTreeGridSource::SetMaximumLevel( unsigned int levels )
 {
   if ( levels < 1 )
     {
@@ -186,9 +186,9 @@ void vtkHyperTreeGridSource::SetMaximumLevel( int levels )
 // Description:
 // Return the minimal number of levels of systematic subdivision.
 // \post positive_result: result>=0
-int vtkHyperTreeGridSource::GetMinimumLevel()
+unsigned int vtkHyperTreeGridSource::GetMinimumLevel()
 {
-  assert( "post: positive_result" && this->MinimumLevel >= 0 );
+  assert( "post: positive_result" );
   return this->MinimumLevel;
 }
 
@@ -197,7 +197,7 @@ int vtkHyperTreeGridSource::GetMinimumLevel()
 // Set the minimal number of levels of systematic subdivision.
 // \pre positive_minLevels: minLevels>=0 && minLevels<this->GetLevels()
 // \post is_set: this->GetMinLevels()==minLevels
-void vtkHyperTreeGridSource::SetMinimumLevel( int minLevels )
+void vtkHyperTreeGridSource::SetMinimumLevel( unsigned int minLevels )
 {
   if ( minLevels < 1 )
     {
@@ -301,7 +301,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   scalars->SetName( "Cell Value" );
   scalars->SetNumberOfComponents( 1 );
   vtkIdType fact = 1;
-  for ( int i = 1; i < this->MaximumLevel; ++ i )
+  for ( unsigned int i = 1; i < this->MaximumLevel; ++ i )
     {
     fact *= this->AxisBranchFactor;
     }
@@ -482,7 +482,7 @@ int vtkHyperTreeGridSource::Initialize()
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
-                                        int level,
+                                        unsigned int level,
                                         int index_g,
                                         int index_l,
                                         int idx[3],

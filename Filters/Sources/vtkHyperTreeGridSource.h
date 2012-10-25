@@ -59,7 +59,7 @@ public:
   // Description:
   // Return the maximum number of levels of the hypertree.
   // \post positive_result: result>=1
-  int GetMaximumLevel();
+  unsigned int GetMaximumLevel();
 
   // Description:
   // Set the maximum number of levels of the hypertree. If
@@ -67,13 +67,13 @@ public:
   // \pre positive_levels: levels>=1
   // \post is_set: this->GetLevels()==levels
   // \post min_is_valid: this->GetMinLevels()<this->GetLevels()
-  void SetMaximumLevel( int levels );
+  void SetMaximumLevel( unsigned int levels );
 
   // Description:
   // Return the minimal number of levels of systematic subdivision.
   // \post positive_result: result>=0
-  void SetMinimumLevel( int level );
-  int GetMinimumLevel();
+  void SetMinimumLevel( unsigned int level );
+  unsigned int GetMinimumLevel();
 
   // Description:
   // Set/Get the number of root cells in each dimension of the grid
@@ -116,7 +116,7 @@ protected:
   int Initialize();
 
   void Subdivide( vtkHyperTreeCursor* cursor,
-                  int level,
+                  unsigned int level,
                   int index_g,
                   int index_l,
                   int idx[3],
@@ -124,8 +124,8 @@ protected:
                   int parentPos );
 
   int GridSize[3];
-  int MaximumLevel;
-  int MinimumLevel;
+  unsigned int MaximumLevel;
+  unsigned int MinimumLevel;
   int Dimension;
   int AxisBranchFactor;
   int BlockSize;
