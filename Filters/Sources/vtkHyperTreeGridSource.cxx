@@ -123,7 +123,7 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Dual: " << this->Dual << endl;
 
   os << indent << "Output: " << endl;
-  this->Output->PrintSelf( os, indent ); 
+  this->Output->PrintSelf( os, indent );
 }
 
 //----------------------------------------------------------------------------
@@ -332,11 +332,11 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
         idx[0] = idx[1] = idx[2] = 0;
 
         // Retrieve offset into array of scalars and recurse
-        this->Subdivide( cursor, 
-                         0, 
+        this->Subdivide( cursor,
+                         0,
                          index_g,
                          0,
-                         idx, 
+                         idx,
                          this->Output->GetLeafData()->GetScalars()->GetNumberOfTuples(),
                          0 );
 
@@ -381,7 +381,7 @@ int vtkHyperTreeGridSource::Initialize()
       case '|':
         //  A level is complete
         this->LevelDescriptors.push_back( stream.str().c_str() );
-        
+
         // Check whether cursor is still at rool level
         if ( rootLevel )
           {
@@ -410,7 +410,7 @@ int vtkHyperTreeGridSource::Initialize()
                           << stream.str().size()
                           << " which is not expected value of "
                           << nNextLevel);
-      
+
             return 0;
             }
           } // else
@@ -459,7 +459,7 @@ int vtkHyperTreeGridSource::Initialize()
                   << stream.str().size()
                   << " which is not expected value of "
                   << nNextLevel);
-    
+
     return 0;
     }
   this->LevelDescriptors.push_back( stream.str().c_str() );
@@ -537,7 +537,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           cursor->ToChild( childIdx );
 
           // Calculate local index
-          int index_l = x + this->AxisBranchFactor 
+          int index_l = x + this->AxisBranchFactor
             * ( y + this->AxisBranchFactor * z );
 
           // Recurse
@@ -577,7 +577,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
       x[1] = q2.rem;
       x[2] = q2.quot;
       }
-    
+
     // Center coordinates w.r.t. global grid center
     for ( int i = 0; i < 3; ++ i )
       {
