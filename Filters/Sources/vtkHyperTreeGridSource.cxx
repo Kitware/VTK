@@ -489,6 +489,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
                                         int cellIdOffset,
                                         int parentPos )
 {
+  cerr << "In level " << level << endl;
   // Calculate pointer into level descriptor string
   int pointer = level ? index_l + parentPos * this->BlockSize : index_g;
 
@@ -590,6 +591,8 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     // Offset cell index as needed
     vtkIdType id = cellIdOffset + cursor->GetLeafId();
     this->Output->GetLeafData()->GetScalars()->InsertTuple1( id, val );
+    cerr << "   creating cell " << id 
+         << " with val " << val << endl;
     } // else
 }
 

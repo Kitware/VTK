@@ -2416,11 +2416,11 @@ void vtkHyperTreeGrid::UpdateDualArrays()
   this->GenerateSuperCursorTraversalTable();
 
   // Iterate over all hyper trees
-  for ( int i = 0; i < this->GridSize[0]; ++ i )
+  for ( int k = 0; k < this->GridSize[2]; ++ k )
     {
     for ( int j = 0; j < this->GridSize[1]; ++ j )
       {
-      for ( int k = 0; k < this->GridSize[2]; ++ k )
+      for ( int i = 0; i < this->GridSize[0]; ++ i )
         {
         // Initialize super cursors
         vtkHyperTreeSuperCursor superCursor;
@@ -2428,9 +2428,9 @@ void vtkHyperTreeGrid::UpdateDualArrays()
 
         // Traverse and populate dual recursively
         this->TraverseDualRecursively(&superCursor, 0 );
-        } // k
+        } // i
       } // j
-    } // i
+    } // k
 
   timer->StopTimer();
   cerr << "Internal dual update : " << timer->GetElapsedTime() << endl;
@@ -2666,11 +2666,11 @@ int vtkHyperTreeGrid::UpdateCellTreeLeafIdOffsets()
 {
   // Calculate point offsets into individual trees
   int numLeaves = 0;
-  for ( int i = 0; i < this->GridSize[0]; ++ i )
+  for ( int k = 0; k < this->GridSize[2]; ++ k )
     {
     for ( int j = 0; j < this->GridSize[1]; ++ j )
       {
-      for ( int k = 0; k < this->GridSize[2]; ++ k )
+      for ( int i = 0; i < this->GridSize[0]; ++ i )
         {
         // Calculate global index of hyper tree
         int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
@@ -2680,9 +2680,9 @@ int vtkHyperTreeGrid::UpdateCellTreeLeafIdOffsets()
 
         // Update partial sum
         numLeaves += this->CellTree[index]->GetNumberOfLeaves();
-        } // k
+        } // i
       } // j
-    } // i
+    } // k
   return numLeaves;
 }
 
@@ -2723,11 +2723,11 @@ void vtkHyperTreeGrid::UpdateGridArrays()
   this->GenerateSuperCursorTraversalTable();
 
   // Iterate over all hyper trees
-  for ( int i = 0; i < this->GridSize[0]; ++ i )
+  for ( int k = 0; k < this->GridSize[2]; ++ k )
     {
     for ( int j = 0; j < this->GridSize[1]; ++ j )
       {
-      for ( int k = 0; k < this->GridSize[2]; ++ k )
+      for ( int i = 0; i < this->GridSize[0]; ++ i )
         {
         // Storage for super cursors
         vtkHyperTreeSuperCursor superCursor;
@@ -2746,9 +2746,9 @@ void vtkHyperTreeGrid::UpdateGridArrays()
         this->TraverseGridRecursively( &superCursor, leafMask);
 
         delete [] leafMask;
-        } // k
+        } // i
       } // j
-    } // i
+    } // k
 
   timer->StopTimer();
   cerr << "Internal grid update : " << timer->GetElapsedTime() << endl;
