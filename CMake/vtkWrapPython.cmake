@@ -95,13 +95,6 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
         set(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.h)
       endif()
 
-      # is it special?
-      if(TMP_WRAP_SPECIAL)
-        set(TMP_SPECIAL "--special")
-      else()
-        set(TMP_SPECIAL "--vtkobject")
-      endif()
-
       # add the info to the init file
       set(VTK_WRAPPER_INIT_DATA
         "${VTK_WRAPPER_INIT_DATA}\n${TMP_FILENAME}")
@@ -117,7 +110,6 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
           ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_PYTHON_EXE}
           ARGS
-          ${TMP_SPECIAL}
           "${quote}@${_args_file}${quote}"
           "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx${quote}"
           "${quote}${TMP_INPUT}${quote}"

@@ -70,8 +70,8 @@ static void parse_print_help(FILE *fp, const char *cmd, int multi)
     "  --types <file>    the type hierarchy file to use\n"
     "  --concrete        force concrete class (ignored, deprecated)\n"
     "  --abstract        force abstract class (ignored, deprecated)\n"
-    "  --vtkobject       vtkObjectBase-derived class\n"
-    "  --special         non-vtkObjectBase class\n");
+    "  --vtkobject       vtkObjectBase-derived class (ignored, deprecated)\n"
+    "  --special         non-vtkObjectBase class (ignored, deprecated)\n");
     }
 }
 
@@ -258,8 +258,6 @@ static int parse_check_options(int argc, char *argv[], int multi)
   options.Files = NULL;
   options.InputFileName = NULL;
   options.OutputFileName = NULL;
-  options.IsVTKObject = 0;
-  options.IsSpecialObject = 0;
   options.HierarchyFileName = 0;
   options.HintFileName = 0;
 
@@ -341,15 +339,9 @@ static int parse_check_options(int argc, char *argv[], int multi)
         }
       options.HierarchyFileName = argv[i];
       }
-    else if (!multi && strcmp(argv[i], "--vtkobject") == 0)
-      {
-      options.IsVTKObject = 1;
-      }
-    else if (!multi && strcmp(argv[i], "--special") == 0)
-      {
-      options.IsSpecialObject = 1;
-      }
-    else if (strcmp(argv[i], "--abstract") == 0 ||
+    else if (strcmp(argv[i], "--vtkobject") == 0 ||
+             strcmp(argv[i], "--special") == 0 ||
+             strcmp(argv[i], "--abstract") == 0 ||
              strcmp(argv[i], "--concrete") == 0)
       {
       fprintf(stderr, "Warning: the %s option is deprecated "
@@ -467,7 +459,7 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
     vtkParse_ReadHints(data, hfile, stderr);
     }
 
-  if (!options.IsSpecialObject && data->MainClass)
+  if (data->MainClass)
     {
     /* mark class as abstract unless it has New() method */
     int nfunc = data->MainClass->NumberOfFunctions;

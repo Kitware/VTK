@@ -25,10 +25,6 @@
  @<file>           read arguments from a file
  --help            print a help message and exit
  --version         print the VTK version number and exit
- --concrete        force concrete class
- --abstract        force abstract class
- --vtkobject       wrap a vtkObjectBase-derived class
- --special         wrap a non-vtkObjectBase class
  --hints <file>    hints file
  --types <file>    type hierarchy file
 
@@ -42,9 +38,6 @@
     is sometimes necessary to avoid overflowing the 8191-character
     command-line limit on Windows.  If the file is not found, then
     "@file" will be passed as as a command-line parameter.
-
- 3) The options "--vtkobject" and "--special" are ignored if the
-    "--types" option is used.
 */
 
 #ifndef VTK_PARSE_MAIN_H
@@ -64,8 +57,6 @@ typedef struct _OptionInfo
   char         *OutputFileName;    /* the second file, or the "-o" file */
   char         *HintFileName;      /* the file preceded by "--hints" */
   char         *HierarchyFileName; /* the file preceded by "--types" */
-  int           IsVTKObject;       /* set when "--vtkobject" is set */
-  int           IsSpecialObject;   /* set when "--special" is set */
 } OptionInfo;
 
 #ifdef __cplusplus
