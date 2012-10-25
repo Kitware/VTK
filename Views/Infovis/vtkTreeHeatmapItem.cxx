@@ -100,14 +100,9 @@ void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
   originalId->SetName("OriginalId");
   vtkIdType numVertices = this->Tree->GetNumberOfVertices();
   originalId->SetNumberOfValues(numVertices);
-  int numLeaves = 0;
   for (vtkIdType i = 0; i < numVertices; ++i)
     {
     originalId->SetValue(i, i);
-    if (this->Tree->IsLeaf(i))
-      {
-      ++numLeaves;
-      }
     }
   this->Tree->GetVertexData()->AddArray(originalId.GetPointer());
 

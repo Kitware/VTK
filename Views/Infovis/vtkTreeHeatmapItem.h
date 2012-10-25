@@ -142,7 +142,7 @@ protected:
   // Description:
   // Initialize a vtkTextProperty for drawing labels.  This involves
   // calculating an appropriate font size so that labels will fit within
-  // the specified cell size.  Returns FALSE is the text would be too
+  // the specified cell size.  Returns FALSE if the text would be too
   // small to easily read; TRUE otherwise.
   bool SetupTextProperty(vtkContext2D *painter);
 
