@@ -101,14 +101,14 @@ void SetInputParameters( int& dim,
   int main( int argc, char* argv[] )
 {
   // Set default argument values and options
-  vtkStdString descriptor = ".RR..R ..R...|R.......................... ...........R............... ........................... ...........................|........................... ...........................";
+  vtkStdString descriptor = "R.R.R. .RR..R ..R.R.|R.......................... ........................... .............R............. R.......................... .....R..................... ........................... ........................... ...........................|........................... ........................... ....R...................... ...........................| ...........................";
   int dim = 3;
   int branch = 3;
-  int max = 3;
-  int nX = 2;
+  int max = 4;
+  int nX = 3;
   int nY = 3;
   int nZ = 2;
-  int nContours = 2;
+  int nContours = 3;
   bool skipAxisCut = false;
   bool skipContour = false;
   bool skipCut = false;
