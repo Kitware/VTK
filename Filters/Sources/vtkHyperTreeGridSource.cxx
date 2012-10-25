@@ -465,14 +465,14 @@ int vtkHyperTreeGridSource::Initialize()
   this->LevelDescriptors.push_back( stream.str().c_str() );
 
   // Reset maximum depth if fewer levels are described
-  int nLevels = this->LevelDescriptors.size();
+  unsigned int nLevels = this->LevelDescriptors.size();
   if ( nLevels < this->MaximumLevel )
     {
     this->MaximumLevel = nLevels;
     }
 
   // Create vector of counters as long as tree depth
-  for ( int i = 0; i < nLevels; ++ i )
+  for ( unsigned int i = 0; i < nLevels; ++ i )
     {
     this->LevelCounters.push_back( 0 );
     }
@@ -537,7 +537,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           cursor->ToChild( childIdx );
 
           // Calculate local index
-          int index_l = x + this->AxisBranchFactor
+          index_l = x + this->AxisBranchFactor
             * ( y + this->AxisBranchFactor * z );
 
           // Recurse
