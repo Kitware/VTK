@@ -2130,13 +2130,13 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
     }
   customizedLabels = this->AxisLabels[axisIndex];
   // figure out how many labels we need:
-  if(extents == 0)
+  if(extents == 0 || vtkMath::IsNan(labelCountAsDouble))
     {
     labelCount = 0;
     }
   else
     {
-    labelCount = vtkMath::Floor(labelCountAsDouble+2*DBL_EPSILON) + 1;
+    labelCount = vtkMath::Floor(labelCountAsDouble+2*FLT_EPSILON) + 1;
     }
 
   labels->SetNumberOfValues(labelCount);
