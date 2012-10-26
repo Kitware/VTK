@@ -302,6 +302,10 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->ZAxisRange[0] = VTK_DOUBLE_MAX;
   this->ZAxisRange[1] = VTK_DOUBLE_MAX;
 
+  for (int i = 0; i < 3; ++i)
+    {
+    this->AxisLabels[i] = NULL;
+    }
   this->LabelScale = -1.0;
   this->TitleScale = -1.0;
 }
@@ -1836,6 +1840,19 @@ inline double vtkCubeAxesActor::FFix(double value)
   return ivalue;
 }
 
+inline int vtkCubeAxesActor::FRound(double value)
+{
+  return value <= 0.5 ? static_cast<int>(this->FFix(value)) : static_cast<int>(this->FFix(value) + 1);
+}
+
+inline int vtkCubeAxesActor::GetNumTicks(double range, double fxt)
+{
+  // Find the number of integral points in the interval.
+  double fnt  = range/fxt;
+  fnt  = this->FFix(fnt);
+  return this->FRound(fnt);
+}
+
 // --------------------------------------------------------------------------
 inline double vtkCubeAxesActor::FSign(double value, double sign)
 {
@@ -1861,11 +1878,12 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
     double boundsMin, double boundsMax)
 {
   double sortedRange[2], range;
-  double fxt, fnt, frac;
+  double fxt;
   double div, major, minor;
   double majorStart, minorStart;
   int numTicks;
   double *inRange = axes[0]->GetRange();
+  vtkStringArray* customizedLabels = NULL;
 
   sortedRange[0] = inRange[0] < inRange[1] ? inRange[0] : inRange[1];
   sortedRange[1] = inRange[0] > inRange[1] ? inRange[0] : inRange[1];
@@ -1890,11 +1908,7 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
 
   fxt = pow(10., this->FFix(pow10));
 
-  // Find the number of integral points in the interval.
-  fnt  = range/fxt;
-  fnt  = this->FFix(fnt);
-  frac = fnt;
-  numTicks = frac <= 0.5 ? static_cast<int>(this->FFix(fnt)) : static_cast<int>(this->FFix(fnt) + 1);
+  numTicks = this->GetNumTicks(range, fxt);
 
   div = 1.;
   if (numTicks < 5)
@@ -1913,18 +1927,57 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
     {
     major /= div;
     }
-  minor = (fxt/div) / 10.;
 
-  // Figure out the first major and minor tick locations, relative to the
+  int axis = 0;
+  switch(axes[0]->GetAxisType())
+  {
+  case VTK_AXIS_TYPE_X:
+    axis = 0;
+    break;
+  case VTK_AXIS_TYPE_Y:
+    axis = 1;
+    break;
+  case VTK_AXIS_TYPE_Z:
+    axis = 2;
+    break;
+  }
+  customizedLabels = this->AxisLabels[axis];
+
+  if (customizedLabels == NULL)
+    {
+    // Figure out the first major tick locations, relative to the
+    // start of the axis.
+    if (sortedRange[0] <= 0.)
+      {
+      majorStart = major*(this->FFix(sortedRange[0]*(1./major)) + 0.);
+      }
+    else
+      {
+      majorStart = major*(this->FFix(sortedRange[0]*(1./major)) + 1.);
+      }
+    }
+  else
+    {
+      // If we have custom labels, they are supposed to be uniformly distributed
+      // inside the values range.
+      majorStart = sortedRange[0];
+      numTicks = this->GetNumTicks(range, major);
+      int labelsCount = customizedLabels->GetNumberOfValues();
+      if (numTicks > labelsCount)
+        {
+        major = range / (labelsCount - 1.);
+        }
+    }
+
+  minor = major / 10.;
+  // Figure out the first minor tick locations, relative to the
   // start of the axis.
   if (sortedRange[0] <= 0.)
     {
-    majorStart = major*(this->FFix(sortedRange[0]*(1./major)) + 0.);
     minorStart = minor*(this->FFix(sortedRange[0]*(1./minor)) + 0.);
     }
   else
     {
-    majorStart = major*(this->FFix(sortedRange[0]*(1./major)) + 1.);
     minorStart = minor*(this->FFix(sortedRange[0]*(1./minor)) + 1.);
     }
 
@@ -2049,103 +2102,146 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
   double labelCountAsDouble = (axisLength - (val-range[0])*rangeScale) / deltaMajor;
   bool mustAdjustValue = 0;
   int lastPow = 0;
+  int axisIndex = 0;
+  vtkStringArray* customizedLabels = NULL;
 
   vtkStringArray *labels = vtkStringArray::New();
   const char *format = "%s";
   switch (axes[0]->GetAxisType())
     {
     case VTK_AXIS_TYPE_X:
+      axisIndex = 0;
       format = this->XLabelFormat;
       mustAdjustValue = this->MustAdjustXValue;
       lastPow = this->LastXPow;
       break;
     case VTK_AXIS_TYPE_Y:
+      axisIndex = 1;
       format = this->YLabelFormat;
       mustAdjustValue = this->MustAdjustYValue;
       lastPow = this->LastYPow;
       break;
     case VTK_AXIS_TYPE_Z:
+      axisIndex = 2;
       format = this->ZLabelFormat;
       mustAdjustValue = this->MustAdjustZValue;
       lastPow = this->LastZPow;
       break;
     }
-
+  customizedLabels = this->AxisLabels[axisIndex];
   // figure out how many labels we need:
-  if(range[1] == range[0])
+  if(extents == 0 || vtkMath::IsNan(labelCountAsDouble))
     {
     labelCount = 0;
     }
   else
     {
-    labelCount = vtkMath::Floor(labelCountAsDouble+2*DBL_EPSILON) + 1;
+    labelCount = vtkMath::Floor(labelCountAsDouble+2*FLT_EPSILON) + 1;
     }
+
   labels->SetNumberOfValues(labelCount);
 
-  // Convert deltaMajor from world coord to range scale
-  deltaMajor = (range[1]-range[0]) * deltaMajor/axisLength;
-
-  double scaleFactor = 1.;
-  if (lastPow != 0)
+  if (customizedLabels == NULL)
     {
-    scaleFactor = 1.0/pow(10., lastPow);
+    // Convert deltaMajor from world coord to range scale
+    deltaMajor = extents * deltaMajor/axisLength;
+
+    double scaleFactor = 1.;
+    if (lastPow != 0)
+      {
+      scaleFactor = 1.0/pow(10., lastPow);
+      }
+
+    for (i = 0; i < labelCount; i++)
+      {
+      if (fabs(val) < 0.01 && extents > 1)
+        {
+        // We just happened to fall at something near zero and the range is
+        // large, so set it to zero to avoid ugliness.
+        val = 0.;
+        }
+      if (mustAdjustValue)
+        {
+        sprintf(label, format, val*scaleFactor);
+        }
+      else
+        {
+        sprintf(label, format, val);
+        }
+      if (fabs(val) < 0.01)
+        {
+        //
+        // Ensure that -0.0 is never a label
+        // The maximum number of digits that we allow past the decimal is 5.
+        //
+        if (strcmp(label, "-0") == 0)
+          {
+          sprintf(label, "0");
+          }
+        else if (strcmp(label, "-0.0") == 0)
+          {
+          sprintf(label, "0.0");
+          }
+        else if (strcmp(label, "-0.00") == 0)
+          {
+          sprintf(label, "0.00");
+          }
+        else if (strcmp(label, "-0.000") == 0)
+          {
+          sprintf(label, "0.000");
+          }
+        else if (strcmp(label, "-0.0000") == 0)
+          {
+          sprintf(label, "0.0000");
+          }
+        else if (strcmp(label, "-0.00000") == 0)
+          {
+          sprintf(label, "0.00000");
+          }
+        }
+      labels->SetValue(i, label);
+      val += deltaMajor;
+      }
     }
-
-  for (i = 0; i < labelCount; i++)
+  else
     {
-    if (fabs(val) < 0.01 && extents > 1)
+    if (labelCount > 0)
       {
-      // We just happened to fall at something near zero and the range is
-      // large, so set it to zero to avoid ugliness.
-      val = 0.;
-      }
-    if (mustAdjustValue)
-      {
-      sprintf(label, format, val*scaleFactor);
-      }
-    else
-      {
-      sprintf(label, format, val);
-      }
-    if (fabs(val) < 0.01)
-      {
-      //
-      // Ensure that -0.0 is never a label
-      // The maximum number of digits that we allow past the decimal is 5.
-      //
-      if (strcmp(label, "-0") == 0)
+      double delta = customizedLabels->GetNumberOfValues() / labelCount;
+      for (int i = 0; i < labelCount; ++i)
         {
-        sprintf(label, "0");
-        }
-      else if (strcmp(label, "-0.0") == 0)
-        {
-        sprintf(label, "0.0");
-        }
-      else if (strcmp(label, "-0.00") == 0)
-        {
-        sprintf(label, "0.00");
-        }
-      else if (strcmp(label, "-0.000") == 0)
-        {
-        sprintf(label, "0.000");
-        }
-      else if (strcmp(label, "-0.0000") == 0)
-        {
-        sprintf(label, "0.0000");
-        }
-      else if (strcmp(label, "-0.00000") == 0)
-        {
-        sprintf(label, "0.00000");
+        labels->SetValue(i, customizedLabels->GetValue(i * delta));
         }
       }
-    labels->SetValue(i, label);
-    val += deltaMajor;
     }
   for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     axes[i]->SetLabels(labels);
     }
   labels->Delete();
+}
+
+vtkStringArray* vtkCubeAxesActor::GetAxisLabels(int axis)
+{
+  return (axis >= 0 && axis < 3) ? this->AxisLabels[axis] : NULL;
+}
+
+void vtkCubeAxesActor::SetAxisLabels(int axis, vtkStringArray* value)
+{
+  if (axis >= 0 && axis < 3 && value != this->AxisLabels[axis])
+    {
+    vtkStringArray* previous = this->AxisLabels[axis];
+    if (value != NULL)
+      {
+      value->Register(this);
+      }
+    this->AxisLabels[axis] = value;
+    if (previous != NULL)
+      {
+      previous->UnRegister(this);
+      }
+    this->Modified();
+    }
 }
 
 // ****************************************************************************

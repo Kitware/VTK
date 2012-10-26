@@ -78,6 +78,7 @@ All rights reserve
 class vtkAxisActor;
 class vtkCamera;
 class vtkTextProperty;
+class vtkStringArray;
 
 class VTKRENDERINGANNOTATION_EXPORT vtkCubeAxesActor : public vtkActor
 {
@@ -123,6 +124,12 @@ public:
   vtkSetVector2Macro( ZAxisRange, double );
   vtkGetVector2Macro( XAxisRange, double );
   vtkGetVector2Macro( YAxisRange, double );
+  // Description
+  // Explicitly specify the axis labels along an axis as an array of strings
+  // instead of using the values.
+  vtkStringArray* GetAxisLabels(int axis);
+  void SetAxisLabels(int axis, vtkStringArray* value);
+
   vtkGetVector2Macro( ZAxisRange, double );
 
   // Description:
@@ -433,6 +440,8 @@ protected:
 
   double FFix(double);
   double FSign(double, double);
+  int FRound( double fnt );
+  int GetNumTicks( double range, double fxt);
 
   void UpdateLabels(vtkAxisActor **axis, int index);
 
@@ -551,6 +560,8 @@ protected:
   double TitleScreenOffset;
 
   vtkTextProperty* TitleTextProperty[3];
+  vtkStringArray* AxisLabels[3];
+
   vtkTextProperty* LabelTextProperty[3];
 
   vtkProperty  *XAxesLinesProperty;

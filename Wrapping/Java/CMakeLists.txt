@@ -154,6 +154,7 @@ if(vtkRenderingCore_ENABLED AND vtkIOImage_ENABLED)
     SimpleVTK
     VTKCanvas
     ReleaseVtkPanel
+    rendering/annotation/LabeledCubeAxesActor
     )
 endif()
 
