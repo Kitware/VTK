@@ -54,7 +54,7 @@
 #include <vtksys/ios/sstream>
 
 class vtkXdmfDomain;
-class vtkXdmfDocument
+class VTKIOXDMF2_EXPORT vtkXdmfDocument
 {
 public:
   //---------------------------------------------------------------------------
@@ -175,7 +175,7 @@ public:
 };
 
 //***************************************************************************
-class vtkXdmfDomain
+class VTKIOXDMF2_EXPORT vtkXdmfDomain
 {
 private:
   XdmfInt64 NumberOfGrids;
