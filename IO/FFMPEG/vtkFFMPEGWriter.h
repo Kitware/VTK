@@ -57,6 +57,13 @@ public:
   vtkGetMacro(Quality, int);
 
   // Description:
+  // Turns on(the default) or off compression.
+  // Turning off compression overrides quality setting.
+  vtkSetMacro(Compression, bool);
+  vtkGetMacro(Compression, bool);
+  vtkBooleanMacro(Compression, bool);
+
+  // Description:
   // Set/Get the frame rate, in frame/s.
   vtkSetClampMacro(Rate, int , 1, 5000);
   vtkGetMacro(Rate, int);
@@ -82,6 +89,7 @@ protected:
   int Rate;
   int BitRate;
   int BitRateTolerance;
+  bool Compression;
 
 private:
   vtkFFMPEGWriter(const vtkFFMPEGWriter&); // Not implemented
