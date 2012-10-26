@@ -773,7 +773,8 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
 
     // Do we need to move to the next node?
     while ( idx < numNodes &&
-            x > this->Internal->Nodes[idx]->X )
+            ((x > this->Internal->Nodes[idx]->X && !usingLogScale ) ||
+             (logX/logEnd >= (this->Internal->Nodes[idx]->X/xEnd) && usingLogScale)))
       {
       idx++;
       // If we are at a valid point index, fill in
@@ -782,12 +783,15 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
       // idx cannot be 0 since we just incremented it.
       if ( idx < numNodes )
         {
-        x1 = this->Internal->Nodes[idx-1]->X;
-        x2 = this->Internal->Nodes[idx  ]->X;
-        if(usingLogScale)
+        if(!usingLogScale)
           {
-          x1 = log10(x1);
-          x2 = log10(x2);
+          x1 = this->Internal->Nodes[idx-1]->X;
+          x2 = this->Internal->Nodes[idx  ]->X;
+          }
+        else
+          {
+          x1 = logEnd*(this->Internal->Nodes[idx-1]->X / xEnd);
+          x2 = logEnd*(this->Internal->Nodes[idx  ]->X / xEnd);
           }
 
         rgb1[0] = this->Internal->Nodes[idx-1]->R;
