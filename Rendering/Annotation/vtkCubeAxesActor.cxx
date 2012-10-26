@@ -2088,7 +2088,7 @@ double vtkCubeAxesActor::AutoScale(vtkViewport *viewport, double screenSize,
 void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
 {
   char label[64];
-  int i, labelCount = 0;
+  int labelCount = 0;
   double deltaMajor = axes[0]->GetDeltaMajor(axes[0]->GetAxisType());
   double val = axes[0]->GetMajorRangeStart();
   double p2[3], p1[3];
@@ -2152,7 +2152,7 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
       scaleFactor = 1.0/pow(10., lastPow);
       }
 
-    for (i = 0; i < labelCount; i++)
+    for (int i = 0; i < labelCount; i++)
       {
       if (fabs(val) < 0.01 && extents > 1)
         {
@@ -2214,7 +2214,7 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
         }
       }
     }
-  for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     axes[i]->SetLabels(labels);
     }
