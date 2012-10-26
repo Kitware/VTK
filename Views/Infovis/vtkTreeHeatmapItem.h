@@ -142,8 +142,9 @@ protected:
   // Description:
   // Initialize a vtkTextProperty for drawing labels.  This involves
   // calculating an appropriate font size so that labels will fit within
-  // the specified cell size.
-  void SetupTextProperty(vtkContext2D *painter);
+  // the specified cell size.  Returns FALSE if the text would be too
+  // small to easily read; TRUE otherwise.
+  bool SetupTextProperty(vtkContext2D *painter);
 
   // Description:
   // Get the value for the cell of the heatmap located at scene position (x, y)
@@ -154,6 +155,10 @@ protected:
   // Description:
   // Count the number of leaf nodes in the tree
   void CountLeafNodes();
+
+  // Description:
+  // Count the number of leaf nodes that descend from a given vertex.
+  int CountLeafNodes(vtkIdType vertex);
 
   // Description:
   // Get the tree vertex closest to the specified coordinates.
@@ -179,6 +184,19 @@ protected:
   // if so, -1 otherwise.
   vtkIdType GetClickedCollapsedSubTree(double x, double y);
 
+  // Description:
+  // Calculate the extent of the data that is visible within the window.
+  // This information is used to ensure that we only draw details that
+  // will be seen by the user.  This improves rendering speed, particularly
+  // for larger data.
+  void UpdateVisibleSceneExtent(vtkContext2D *painter);
+
+  // Description:
+  // Returns true if any part of the line segment defined by endpoints
+  // (x0, y0), (x1, y1) falls within the extent of the currently
+  // visible scene.  Returns false otherwise.
+  bool LineIsVisible(double x0, double y0, double x1, double y1);
+
 private:
   vtkTreeHeatmapItem(const vtkTreeHeatmapItem&); // Not implemented
   void operator=(const vtkTreeHeatmapItem&); // Not implemented
@@ -191,6 +209,7 @@ private:
   vtkNew<vtkGraphLayout> Layout;
   vtkNew<vtkTooltipItem> Tooltip;
   vtkNew<vtkPruneTreeFilter> PruneFilter;
+  vtkNew<vtkLookupTable> TriangleLookupTable;
   std::vector< vtkLookupTable * > LookupTables;
   std::vector< vtkIdType > RowMap;
   double Multiplier;
@@ -209,6 +228,8 @@ private:
   double TreeMinY;
   double TreeMaxX;
   double TreeMaxY;
+  double SceneBottomLeft[3];
+  double SceneTopRight[3];
 };
 
 #endif
