@@ -15,7 +15,6 @@
 #include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkNew.h"
-#include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
