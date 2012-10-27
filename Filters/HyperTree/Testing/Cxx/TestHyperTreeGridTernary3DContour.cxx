@@ -37,7 +37,6 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
   // Outline
   vtkNew<vtkOutlineFilter> outline;
   outline->SetInputConnection( htGrid->GetOutputPort() );
-  
 
   // Contour
   vtkNew<vtkContourFilter> contour;
@@ -64,11 +63,9 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
   mapper2->ScalarVisibilityOff();
   mapper2->SetResolveCoincidentTopologyToPolygonOffset();
   mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
-   vtkNew<vtkPolyDataMapper> mapper3;
+  vtkNew<vtkPolyDataMapper> mapper3;
   mapper3->SetInputConnection( outline->GetOutputPort() );
   mapper3->ScalarVisibilityOff();
-  mapper3->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper3->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
 
   // Actors
   vtkNew<vtkActor> actor1;
@@ -79,7 +76,6 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
   actor2->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor3;
   actor3->SetMapper( mapper3.GetPointer() );
-  //actor3->GetProperty()->SetColor( .8, .2, .3 );
   actor3->GetProperty()->SetColor( .1, .1, .1 );
   actor3->GetProperty()->SetLineWidth( 1 );
 
