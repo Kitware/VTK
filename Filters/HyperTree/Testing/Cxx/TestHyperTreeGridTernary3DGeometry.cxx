@@ -14,6 +14,7 @@
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkNew.h"
+#include "vtkProperty.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -22,25 +23,43 @@
 
 int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
 {
-  vtkNew<vtkHyperTreeGridSource> fractal;
-  fractal->SetMaximumLevel( 3 );
-  fractal->SetGridSize( 3, 4, 2 );
-  fractal->SetDimension( 3 );
-  fractal->SetAxisBranchFactor( 3 );
+  // Hyper tree grid
+  vtkNew<vtkHyperTreeGridSource> htGrid;
+  int maxLevel = 5;
+  htGrid->SetMaximumLevel( maxLevel );
+  htGrid->SetGridSize( 3, 3, 2 );
+  htGrid->SetDimension( 3 );
+  htGrid->SetAxisBranchFactor( 3 );
+  htGrid->DualOn();
+  htGrid->SetDescriptor( "RRR .R. .RR ..R ..R .R.|R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ..........................." );
 
+  // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
-  geometry->SetInputConnection( fractal->GetOutputPort() );
+  geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
   vtkPolyData* pd = geometry->GetOutput();
 
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection( geometry->GetOutputPort() );
-  mapper->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
+  // Mappers
+  vtkNew<vtkPolyDataMapper> mapper1;
+  mapper1->SetInputConnection( geometry->GetOutputPort() );
+  mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
+  mapper1->SetResolveCoincidentTopologyToPolygonOffset();
+  mapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
+  vtkNew<vtkPolyDataMapper> mapper2;
+  mapper2->SetInputConnection( geometry->GetOutputPort() );
+  mapper2->ScalarVisibilityOff();
+  mapper2->SetResolveCoincidentTopologyToPolygonOffset();
+  mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
  
-  vtkNew<vtkActor> actor;
-  actor->SetMapper( mapper.GetPointer() );
+  // Actors
+  vtkNew<vtkActor> actor1;
+  actor1->SetMapper( mapper1.GetPointer() );
+  vtkNew<vtkActor> actor2;
+  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->GetProperty()->SetRepresentationToWireframe();
+  actor2->GetProperty()->SetColor( .7, .7, .7 );
 
-  // Create camera
+  // Camera
   double bd[6];
   pd->GetBounds( bd );
   vtkNew<vtkCamera> camera;
@@ -48,19 +67,20 @@ int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
   camera->SetFocalPoint( pd->GetCenter() );
   camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
 
-  // Create a renderer, add actors to it
+  // Renderer
   vtkNew<vtkRenderer> renderer;
   renderer->SetActiveCamera( camera.GetPointer() );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor.GetPointer() );
+  renderer->AddActor( actor1.GetPointer() );
+  renderer->AddActor( actor2.GetPointer() );
 
-  // Create a renderWindow
+  // Render window
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer( renderer.GetPointer() );
   renWin->SetSize( 300, 300 );
   renWin->SetMultiSamples( 0 );
 
-  // Create interactor
+  // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow( renWin.GetPointer() );
 
