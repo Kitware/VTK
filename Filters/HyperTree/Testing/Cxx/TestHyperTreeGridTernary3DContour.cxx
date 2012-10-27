@@ -8,37 +8,36 @@
 // This test was written by Philippe Pebay and Charles Law, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
-#include "vtkCellData.h"
+#include "vtkPointData.h"
 #include "vtkContourFilter.h"
 #include "vtkNew.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkOutlineFilter.h"
 #include "vtkProperty.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-int TestHyperTreeGridBinary2D( int argc, char* argv[] )
+int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 6;
+  int maxLevel = 5;
   htGrid->SetMaximumLevel( maxLevel );
-  htGrid->SetGridSize( 2, 3, 1 );
-  htGrid->SetDimension( 2 );
-  htGrid->SetAxisBranchFactor( 2 );
+  htGrid->SetGridSize( 3, 3, 2 );
+  htGrid->SetDimension( 3 );
+  htGrid->SetAxisBranchFactor( 3 );
   htGrid->DualOn();
-  htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
+  htGrid->SetDescriptor( "RRR .R. .RR ..R ..R .R.|R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ..........................." );
 
-  // Geometry
-  vtkNew<vtkHyperTreeGridGeometry> geometry;
-  geometry->SetInputConnection( htGrid->GetOutputPort() );
-  geometry->Update();
-  vtkPolyData* pd = geometry->GetOutput();
+  // Outline
+  vtkNew<vtkOutlineFilter> outline;
+  outline->SetInputConnection( htGrid->GetOutputPort() );
+  
 
   // Contour
   vtkNew<vtkContourFilter> contour;
@@ -51,20 +50,22 @@ int TestHyperTreeGridBinary2D( int argc, char* argv[] )
     {
     contour->SetValue( i, isovalue );
     }
+  contour->Update();
+  vtkPolyData* pd = contour->GetOutput();
 
   // Mappers
   vtkNew<vtkPolyDataMapper> mapper1;
-  mapper1->SetInputConnection( geometry->GetOutputPort() );
-  mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
+  mapper1->SetInputConnection( contour->GetOutputPort() );
+  mapper1->SetScalarRange( pd->GetPointData()->GetScalars()->GetRange() );
   mapper1->SetResolveCoincidentTopologyToPolygonOffset();
   mapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
   vtkNew<vtkPolyDataMapper> mapper2;
-  mapper2->SetInputConnection( geometry->GetOutputPort() );
+  mapper2->SetInputConnection( contour->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
   mapper2->SetResolveCoincidentTopologyToPolygonOffset();
   mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
-  vtkNew<vtkPolyDataMapper> mapper3;
-  mapper3->SetInputConnection( contour->GetOutputPort() );
+   vtkNew<vtkPolyDataMapper> mapper3;
+  mapper3->SetInputConnection( outline->GetOutputPort() );
   mapper3->ScalarVisibilityOff();
   mapper3->SetResolveCoincidentTopologyToPolygonOffset();
   mapper3->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
@@ -78,8 +79,9 @@ int TestHyperTreeGridBinary2D( int argc, char* argv[] )
   actor2->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor3;
   actor3->SetMapper( mapper3.GetPointer() );
-  actor3->GetProperty()->SetColor( .8, .2, .3 );
-  actor3->GetProperty()->SetLineWidth( 2 );
+  //actor3->GetProperty()->SetColor( .8, .2, .3 );
+  actor3->GetProperty()->SetColor( .1, .1, .1 );
+  actor3->GetProperty()->SetLineWidth( 1 );
 
   // Camera
   double bd[6];
@@ -87,7 +89,7 @@ int TestHyperTreeGridBinary2D( int argc, char* argv[] )
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( .5 * bd[1], .5 * bd[3], 6 );
+  camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
