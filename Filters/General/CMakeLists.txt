@@ -42,7 +42,6 @@ set(Module_SRCS
   vtkLevelIdScalars.cxx
   vtkLinkEdgels.cxx
   vtkMergeCells.cxx
-  vtkModelMetadata.cxx
   vtkMultiBlockDataGroupFilter.cxx
   vtkMultiBlockMergeFilter.cxx
   vtkMultiThreshold.cxx
@@ -106,7 +105,6 @@ set(Module_SRCS
   vtkExtractArray.cxx
 
   vtkMatricizeArray.cxx
-  vtkExtractArray.cxx
   vtkNormalizeMatrixVectors.cxx
   vtkPassArrays.cxx
   vtkSplitColumnComponents.cxx

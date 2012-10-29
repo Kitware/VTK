@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # tests the support to pass generic vertex attributes to be used in Cg shaders.
-xmlMaterial = <?xml version="1.0" encoding="UTF-8"?>
+xmlMaterial = '''<?xml version="1.0" encoding="UTF-8"?>
 <Material name="GenericAttributes1">
   <Shader
     scope="Vertex"
@@ -27,7 +27,7 @@ xmlMaterial = <?xml version="1.0" encoding="UTF-8"?>
       gl_FragColor = color;
     }
   </Shader>
-</Material>
+</Material>'''
 
 renWin = vtk.vtkRenderWindow()
 iren = vtk.vtkRenderWindowInteractor()

@@ -35,6 +35,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkPath.h"
 #include "vtkProp.h"
 #include "vtkProp3DCollection.h"
@@ -103,6 +104,15 @@ void vtkGL2PSExporter::WriteData()
     return;
     }
 
+  vtkOpenGLRenderWindow *renWinGL =
+      vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow);
+  if (!renWinGL)
+    {
+    vtkErrorMacro(<< "Cannot export scene -- GL2PS export only works on OpenGL"
+                  " render windows.");
+    return;
+    }
+
   // Get the renderers. We'll be walking through them a lot later.
   vtkRendererCollection *renCol = this->RenderWindow->GetRenderers();
 
@@ -138,6 +148,7 @@ void vtkGL2PSExporter::WriteData()
   delete this->PixelData;
   this->PixelData =
       new float[this->PixelDataSize[0] * this->PixelDataSize[1] * 3];
+  glReadBuffer(static_cast<GLenum>(renWinGL->GetFrontLeftBuffer()));
   glReadPixels(0, 0, this->PixelDataSize[0], this->PixelDataSize[1], GL_RGB,
                GL_FLOAT, this->PixelData);
 
@@ -164,26 +175,12 @@ void vtkGL2PSExporter::WriteData()
     this->SavePropVisibility(renCol, volVis.GetPointer(), actVis.GetPointer(),
                              act2dVis.GetPointer());
     this->Turn2DPropsOff(renCol);
+    this->RenderWindow->Render();
 
     int numpix= winsize[0]*winsize[1]*3;
     rasterImage = new float [numpix];
-    int offscreen = this->RenderWindow->GetOffScreenRendering();
-
-    this->RenderWindow->OffScreenRenderingOn();
-    this->RenderWindow->Render();
-    unsigned char *charpixels = this->RenderWindow->GetPixelData(
-          0, 0, winsize[0] - 1, winsize[1] - 1, 1);
-
-    for (int i=0; i<numpix; i++)
-      {
-      rasterImage[i] = (static_cast<float>(charpixels[i])/255.0);
-      }
-    delete [] charpixels;
-    this->RenderWindow->SetOffScreenRendering(offscreen);
-    // Render after switching to/from offscreen render but before initializing
-    // gl2ps, otherwise the renderwindow will switch gl contexts and switch out
-    // of feedback mode.
-    this->RenderWindow->Render();
+    glReadBuffer(static_cast<GLenum>(renWinGL->GetFrontLeftBuffer()));
+    glReadPixels(0, 0, winsize[0], winsize[1], GL_RGB, GL_FLOAT, rasterImage);
     }
 
   // Disable depth peeling. It uses textures that turn into large opaque quads

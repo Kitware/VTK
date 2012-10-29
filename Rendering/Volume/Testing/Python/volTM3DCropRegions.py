@@ -89,6 +89,5 @@ def TkCheckAbort (__vtk__temp0=0,__vtk__temp1=0):
         renWin.SetAbortRender(1)
         pass
 
-renWin.AddObserver(AbortCheckEvent,TkCheckAbort)
 iren.Initialize()
 # --- end of script --

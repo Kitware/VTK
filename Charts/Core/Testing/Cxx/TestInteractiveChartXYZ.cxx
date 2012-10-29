@@ -13,12 +13,13 @@
 
 =========================================================================*/
 
-#include "vtkInteractiveChartXYZ.h"
+#include "vtkChartXYZ.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
+#include "vtkPlotPoints3D.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -30,7 +31,7 @@
 int TestInteractiveChartXYZ(int , char * [])
 {
   // Now the chart
-  vtkNew<vtkInteractiveChartXYZ> chart;
+  vtkNew<vtkChartXYZ> chart;
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   view->GetScene()->AddItem(chart.GetPointer());
@@ -65,9 +66,9 @@ int TestInteractiveChartXYZ(int , char * [])
     }
 
   // Add the dimensions we are interested in visualizing.
-  chart->SetInput(table.GetPointer(), "X Axis", "Sine", "Cosine", "Color");
-  chart->RecalculateBounds();
-  chart->RecalculateTransform();
+  vtkNew<vtkPlotPoints3D> plot;
+  plot->SetInputData(table.GetPointer(), "X Axis", "Sine", "Cosine", "Color");
+  chart->AddPlot(plot.GetPointer());
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();

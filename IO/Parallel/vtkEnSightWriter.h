@@ -34,7 +34,6 @@
 #include "vtkWriter.h"
 
 class vtkUnstructuredGrid;
-class vtkModelMetadata;
 
 class VTKIOPARALLEL_EXPORT vtkEnSightWriter : public vtkWriter
 {
@@ -114,11 +113,6 @@ public:
   virtual void WriteCaseFile(int TotalTimeSteps);
   virtual void WriteSOSCaseFile(int NumProcs);
 
-  // Description
-  // sets and gets the metadata
-  virtual void SetModelMetadata(vtkModelMetadata* model);
-  vtkGetObjectMacro(ModelMetadata, vtkModelMetadata);
-
 protected:
   vtkEnSightWriter();
   virtual ~vtkEnSightWriter();
@@ -154,7 +148,6 @@ protected:
   bool TransientGeometry;
   int GhostLevel;
   vtkUnstructuredGrid* TmpInput;
-  vtkModelMetadata* ModelMetadata;
 
   vtkEnSightWriter(const vtkEnSightWriter&);  // Not implemented.
   void operator=(const vtkEnSightWriter&);  // Not implemented.

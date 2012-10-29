@@ -1,12 +1,18 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import vtk
+from vtk.util.misc import vtkGetDataRoot
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 # List of types and corresponding file extensions.
-types =
-    {ImageData vti}
-    {RectilinearGrid vtr}
-    {StructuredGrid vts}
-    {PolyData vtp}
-    {UnstructuredGrid vtu}
+types = [[ 'ImageData', 'vti'],
+         ['RectilinearGrid', 'vtr'],
+         ['StructuredGrid', 'vts'],
+         ['PolyData', 'vtp'],
+         ['UnstructuredGrid', 'vtu']]
 
 # We intentionally cause vtkErrorMacro calls to be made below.  Dump
 # errors to a file to prevent a window from coming up.
@@ -14,103 +20,111 @@ fow = vtk.vtkFileOutputWindow()
 fow.SetFileName("TestEmptyXMLErrors.txt")
 fow.SetFlush(0)
 fow.SetInstance(fow)
+
 # Prepare some test files.
-file.delete("-force", "junkFile.vtk")
-file.delete("-force", "emptyFile.vtk")
-f = open("emptyFile.vtk", w)
+f = open('emptyFile.vtk', 'wb')
 f.close()
-f = open("junkFile.vtk", w)
-puts.f("v9np7598mapwcawoiur-,rjpmW9MJV28nun-q38ynq-9 8ugujqvt-8n3-nv8")
+f = open('junkFile.vtk', 'wb')
+f.write("v9np7598mapwcawoiur-,rjpmW9MJV28nun-q38ynq-9.8ugujqvt-8n3-nv8")
 f.close()
+
 # Test each writer/reader.
-for pair in types.split():
-    type = lindex(pair,0)
-    ext = lindex(pair,1)
-    locals()[get_variable_name("vtk", type, "")].input()
-    locals()[get_variable_name("vtkXML", type, "Writer")].writer()
-    writer.SetFileName("empty" + str(locals()[get_variable_name("", type, ".", ext, "")]) + "")
-    puts."Attempting " + str(locals()[get_variable_name("", type, "")]) + " write with no input."()
-    catch.catch(globals(),"""writer.Write()""")
-    puts."Attempting " + str(locals()[get_variable_name("", type, "")]) + " write with empty input."()
+for t in types:
+    type = t[0]
+    ext = t[1]
+    input = eval('vtk.vtk' + type + '()')
+
+    writer = eval('vtk.vtkXML' + type + 'Writer()')
+    writer.SetFileName('empty' + type + '.' + ext)
+    sys.stdout.write('Attempting ' + type + ' write with no input.\n')
+    writer.Write()
+    sys.stdout.write('Attempting ' + type + ' write with empty input.\n')
     writer.SetInputData(input)
     writer.Write()
-    locals()[get_variable_name("vtkXML", type, "Reader")].reader()
-    reader.SetFileName("empty" + str(locals()[get_variable_name("", type, ".", ext, "")]) + "")
-    puts."Attempting read from file with empty " + str(locals()[get_variable_name("", type, ".")]) + ""()
+
+    reader = eval('vtk.vtkXML' + type + 'Reader()')
+    reader.SetFileName('empty' + type + '.' + ext)
+    sys.stdout.write('Attempting read from file with empty ' + type + '.\n')
     reader.Update()
-    locals()[get_variable_name("vtkXMLP", type, "Writer")].pwriter()
-    pwriter.SetFileName("emptyP" + str(locals()[get_variable_name("", type, ".p", ext, "")]) + "")
-    pwriter.SetNumberOfPieces(1)
-    puts."Attempting P" + str(locals()[get_variable_name("", type, "")]) + " write with no input."()
-    catch.catch(globals(),"""pwriter.Write()""")
-    puts."Attempting P" + str(locals()[get_variable_name("", type, "")]) + " write with empty input."()
+
+    pwriter = eval('vtk.vtkXMLP' + type + 'Writer()')
+    pwriter.SetFileName('emptyP' + type + '.p' + ext)
+    sys.stdout.write('Attempting P' + type + ' write with no input.\n')
+    pwriter.Write()
+    sys.stdout.write('Attempting P' + type + ' write with empty input.\n')
     pwriter.SetInputData(input)
     pwriter.Write()
-    locals()[get_variable_name("vtkXMLP", type, "Reader")].preader()
-    preader.SetFileName("emptyP" + str(locals()[get_variable_name("", type, ".p", ext, "")]) + "")
-    puts."Attempting read from file with empty P" + str(locals()[get_variable_name("", type, ".")]) + ""()
+
+    preader = eval('vtk.vtkXMLP' + type + 'Reader()')
+    preader.SetFileName('emptyP' + type + '.p' + ext)
+    sys.stdout.write('Attempting read from file with empty P' + type + '.\n')
     preader.Update()
+
     reader.SetFileName("emptyFile.vtk")
     preader.SetFileName("emptyFile.vtk")
-    puts."Attempting read " + str(locals()[get_variable_name("", type, "")]) + " from empty file."()
+
+    sys.stdout.write('Attempting read ' + type + ' from empty file.\n')
     reader.Update()
-    puts."Attempting read P" + str(locals()[get_variable_name("", type, "")]) + " from empty file."()
+    sys.stdout.write('Attempting read P' + type + ' from empty file.\n')
     preader.Update()
+
     reader.SetFileName("junkFile.vtk")
     preader.SetFileName("junkFile.vtk")
-    puts."Attempting read " + str(locals()[get_variable_name("", type, "")]) + " from junk file."()
+
+    sys.stdout.write('Attempting read ' + type + ' from junk file.\n')
     reader.Update()
-    puts."Attempting read P" + str(locals()[get_variable_name("", type, "")]) + " from junk file."()
+    sys.stdout.write('Attempting read P' + type + ' from junk file.\n')
     preader.Update()
+
     del input
     del writer
     del reader
     del pwriter
     del preader
 
-    pass
 # Test the data set writers.
-for pair in types.split():
-    type = lindex(pair,0)
-    ext = lindex(pair,1)
+for t in types:
+    type = t[0]
+    ext = t[1]
     writer = vtk.vtkXMLDataSetWriter()
     pwriter = vtk.vtkXMLPDataSetWriter()
-    locals()[get_variable_name("vtk", type, "")].input()
-    writer.SetFileName("empty" + str(locals()[get_variable_name("", type, "DataSet.", ext, "")]) + "")
-    puts."Attempting DataSet " + str(locals()[get_variable_name("", type, "")]) + " write with no input."()
-    catch.catch(globals(),"""writer.Write()""")
-    puts."Attempting DataSet " + str(locals()[get_variable_name("", type, "")]) + " write with empty input."()
+    input = eval('vtk.vtk' + type + '()')
+
+    writer.SetFileName('empty' + type + 'DataSet.' + ext)
+    sys.stdout.write('Attempting DataSet ' + type + ' write with no input.\n')
+    writer.Write()
+    sys.stdout.write('Attempting DataSet ' + type + ' write with empty input.\n')
     writer.SetInputData(input)
     writer.Write()
-    pwriter.SetFileName("emptyP" + str(locals()[get_variable_name("", type, "DataSet.p", ext, "")]) + "")
+
+    pwriter.SetFileName('emptyP' + type + 'DataSet.p' + ext)
+    sys.stdout.write('Attempting DataSet ' + type + ' write with no input.\n')
     pwriter.SetNumberOfPieces(1)
-    puts."Attempting DataSet P" + str(locals()[get_variable_name("", type, "")]) + " write with no input."()
-    catch.catch(globals(),"""pwriter.Write()""")
-    puts."Attempting DataSet P" + str(locals()[get_variable_name("", type, "")]) + " write with empty input."()
+    pwriter.Write()
+    sys.stdout.write('Attempting DataSet ' + type + ' write with empty input.\n')
     pwriter.SetInputData(input)
     pwriter.Write()
+
     del input
     del pwriter
     del writer
 
-    pass
-# Done with file output window.
+# Done with the file output window.
 fow.SetInstance(None)
 del fow
-# Delete the test files.
-for pair in types.split():
-    type = lindex(pair,0)
-    ext = lindex(pair,1)
-    file.delete("-force", "empty" + str(locals()[get_variable_name("", type, ".", ext, "")]) + "")
-    file.delete("-force", "empty" + str(locals()[get_variable_name("", type, "DataSet.", ext, "")]) + "")
-    file.delete("-force", "emptyP" + str(locals()[get_variable_name("", type, ".p", ext, "")]) + "")
-    file.delete("-force", "emptyP" + str(locals()[get_variable_name("", type, "0.", ext, "")]) + "")
-    file.delete("-force", "emptyP" + str(locals()[get_variable_name("", type, "DataSet.p", ext, "")]) + "")
-    file.delete("-force", "emptyP" + str(locals()[get_variable_name("", type, "DataSet0.", ext, "")]) + "")
 
-    pass
-file.delete("-force", "junkFile.vtk")
-file.delete("-force", "emptyFile.vtk")
-file.delete("-force", "TestEmptyXMLErrors.txt")
-exit
-# --- end of script --
+# Delete the test files.
+for t in types:
+    type = t[0]
+    ext = t[1]
+
+    os.remove('empty' + type + '.' + ext)
+    os.remove('empty' + type + 'DataSet.' + ext)
+    os.remove('emptyP' + type + '.p' + ext)
+    os.remove('emptyP' + type + '_0.' + ext)
+    os.remove('emptyP' + type + 'DataSet.p' + ext)
+    os.remove('emptyP' + type + 'DataSet_0.' + ext)
+
+os.remove('junkFile.vtk')
+os.remove('emptyFile.vtk')
+os.remove('TestEmptyXMLErrors.txt')

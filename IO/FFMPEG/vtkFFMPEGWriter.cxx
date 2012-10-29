@@ -193,11 +193,10 @@ int vtkFFMPEGWriterInternal::Start()
     c->bit_rate = this->Writer->GetBitRate();
     }
 
-  if(!this->Writer->GetBitRateTolerance())
-    {
-    c->bit_rate_tolerance = c->bit_rate/this->FrameRate;
-    }
-  else
+  // If BitRateTolerance is not set, just leave it at default value. That works
+  // just as fine. This over comes the issue reported by BUG #11923, frame rates
+  // other than 1 were not working.
+  if (this->Writer->GetBitRateTolerance())
     {
     c->bit_rate_tolerance = this->Writer->GetBitRateTolerance();
     }

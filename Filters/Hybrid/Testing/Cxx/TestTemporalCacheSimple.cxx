@@ -33,6 +33,7 @@
 #include "vtkInformationVector.h"
 #include <algorithm>
 #include <vector>
+#include <functional>
 
 //
 // This test is intended  to test the ability of the temporal pipeline

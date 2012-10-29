@@ -96,9 +96,5 @@ class TestFreetypeTextMapperBigger(vtk.test.Testing.vtkTest):
 
         renWin.Render()
 
-        img_file = "TestFreetypeTextMapperBigger.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
-
 if __name__ == "__main__":
      vtk.test.Testing.main([(TestFreetypeTextMapperBigger, 'test')])

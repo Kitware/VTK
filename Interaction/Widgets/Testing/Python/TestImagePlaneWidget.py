@@ -145,12 +145,5 @@ class TestImagePlaneWidget(Testing.vtkTest):
         iact.Initialize()
         renWin.Render()
 
-        # Compare the images and test.
-        img_file = "TestImagePlaneWidget.png"
-        Testing.compareImage(renWin, Testing.getAbsImagePath(img_file))
-        # Interact if necessary.
-        if Testing.isInteractive():
-            iact.Start()
-
 if __name__ == "__main__":
     Testing.main([(TestImagePlaneWidget, 'test')])

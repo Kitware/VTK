@@ -18,7 +18,7 @@ vtkpython TestNumericArrayImageData.py -B $VTK_DATA_ROOT/Baseline/Imaging
 # This test requires Numeric.
 import sys
 try:
-    import Numeric
+    import numpy.core.numeric as numeric
 except ImportError:
     print "This test requires Numeric Python: http://numpy.sf.net"
     sys.exit(1)

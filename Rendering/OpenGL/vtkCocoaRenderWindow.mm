@@ -470,6 +470,9 @@ void vtkCocoaRenderWindow::StereoUpdate()
       case VTK_STEREO_CHECKERBOARD:
         this->StereoStatus = 1;
         break;
+      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
+        this->StereoStatus = 1;
+        break;
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -492,6 +495,9 @@ void vtkCocoaRenderWindow::StereoUpdate()
         this->StereoStatus = 0;
         break;
       case VTK_STEREO_CHECKERBOARD:
+        this->StereoStatus = 0;
+        break;
+      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
         this->StereoStatus = 0;
         break;
       }

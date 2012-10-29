@@ -31,6 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkBrush.h"
 #include "vtkPlotPoints.h"
+#include "vtkPlotPoints3D.h"
 #include "vtkCommand.h"
 #include "vtkTextProperty.h"
 #include "vtkContextScene.h"
@@ -622,13 +623,15 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     this->Private->NextActivePlot = *this->Private->AnimationIter;
     vtkChartXYZ *chart = this->Private->BigChart3D.GetPointer();
     chart->SetVisible(false);
-    vtkRectf size = this->Private->BigChart->GetSize();
-    chart->SetGeometry(size);
+    chart->SetAutoRotate(true);
+    chart->SetDecorateAxes(false);
+    chart->SetFitToScene(false);
 
     int yColumn = this->GetSize().GetY() - this->ActivePlot.GetY() - 1;
     bool isX = false;
     int zColumn = 0;
 
+    vtkRectf size = this->Private->BigChart->GetSize();
     float zSize(size.GetWidth());
     this->Private->FinalAngle = 90.0;
     this->Private->IncAngle = this->Private->FinalAngle / this->NumberOfFrames;
@@ -666,12 +669,20 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
         }
       }
     chart->SetAroundX(isX);
+    chart->SetGeometry(size);
+
     vtkStdString names[3];
     names[0] = this->VisibleColumns->GetValue(this->ActivePlot.GetX());
     names[1] = this->VisibleColumns->GetValue(yColumn);
     names[2] = this->VisibleColumns->GetValue(zColumn);
-    this->Private->BigChart3D->SetInput(this->Input.GetPointer(),
-                                        names[0], names[1], names[2]);
+
+    // Setup the 3D chart
+    this->Private->BigChart3D->ClearPlots();
+    vtkNew<vtkPlotPoints3D> scatterPlot3D;
+    scatterPlot3D->SetInputData(
+      this->Input.GetPointer(), names[0], names[1], names[2]);
+    this->Private->BigChart3D->AddPlot(scatterPlot3D.GetPointer());
+
     // Set the z axis up so that it ends in the right orientation.
     chart->GetAxis(2)->SetPoint2(0, zSize);
     // Now set the ranges for the three axes.
@@ -685,7 +696,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     ++this->Private->AnimationPhase;
     return;
     }
-  case 1: // Make BigChart inivisible, and BigChart3D visible.
+  case 1: // Make BigChart invisible, and BigChart3D visible.
     this->Private->BigChart->SetVisible(false);
     this->AddItem(this->Private->BigChart3D.GetPointer());
     this->Private->BigChart3D->SetVisible(true);

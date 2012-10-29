@@ -21,10 +21,10 @@ renWin.SetSize(256,256)
 # render first image
 renWin.Render()
 if (0 == renWin.GetAlphaBitPlanes()):
-    puts."Failed to find a visual with alpha bit planes."()
-    exit.0()
+    print "Failed to find a visual with alpha bit planes."
+    exit(0)
 
-  puts [concat "GetAlphaBitPlanes: " [renWin GetAlphaBitPlanes]]
+    print "GetAlphaBitPlanes: " + renWin.GetAlphaBitPlanes()
     pass
 # create window to image filter, grabbing RGB and alpha
 w2i = vtk.vtkWindowToImageFilter()

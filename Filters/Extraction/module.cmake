@@ -2,8 +2,8 @@ vtk_module(vtkFiltersExtraction
   GROUPS
     StandAlone
   DEPENDS
+    vtkCommonExecutionModel
     vtkFiltersCore
-    vtkFiltersGeneral
   TEST_DEPENDS
     vtkIOLegacy
     vtkIOXML
