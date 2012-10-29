@@ -47,23 +47,22 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridAxisCut> axisCut1;
   axisCut1->SetInputConnection( htGrid->GetOutputPort() );
   axisCut1->SetPlaneNormalAxis( 0 );
-  axisCut1->SetPlanePosition( 2. );
+  axisCut1->SetPlanePosition( 1.99 );
   axisCut1->Update();
-//   vtkNew<vtkHyperTreeGridAxisCut> axisCut2;
-//   axisCut2->SetInputConnection( htGrid->GetOutputPort() );
-//   axisCut2->SetPlaneNormalAxis( 2 );
-//   axisCut2->SetPlanePosition( .35 );
-//   axisCut2->Update();
-//   vtkPolyData* pd = axisCut2->GetOutput();
-  vtkPolyData* pd = axisCut1->GetOutput();
+  vtkNew<vtkHyperTreeGridAxisCut> axisCut2;
+  axisCut2->SetInputConnection( htGrid->GetOutputPort() );
+  axisCut2->SetPlaneNormalAxis( 2 );
+  axisCut2->SetPlanePosition( .35 );
+  axisCut2->Update();
+  vtkPolyData* pd = axisCut2->GetOutput();
 
   // Shrinks
   vtkNew<vtkShrinkFilter> shrink1;
   shrink1->SetInputConnection( axisCut1->GetOutputPort() );
-  shrink1->SetShrinkFactor( .5 );
-//   vtkNew<vtkShrinkFilter> shrink2;
-//   shrink2->SetInputConnection( axisCut2->GetOutputPort() );
-//   shrink2->SetShrinkFactor( .5 );
+  shrink1->SetShrinkFactor( .8 );
+  vtkNew<vtkShrinkFilter> shrink2;
+  shrink2->SetInputConnection( axisCut2->GetOutputPort() );
+  shrink2->SetShrinkFactor( .8 );
  
   // Mappers
   vtkNew<vtkDataSetMapper> mapper1;
@@ -79,16 +78,16 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   vtkNew<vtkPolyDataMapper> mapper3;
   mapper3->SetInputConnection( outline->GetOutputPort() );
   mapper3->ScalarVisibilityOff();
-//   vtkNew<vtkDataSetMapper> mapper4;
-//   mapper4->SetInputConnection( shrink2->GetOutputPort() );
-//   mapper4->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
-//   mapper4->SetResolveCoincidentTopologyToPolygonOffset();
-//   mapper4->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
-//   vtkNew<vtkPolyDataMapper> mapper5;
-//   mapper5->SetInputConnection( axisCut2->GetOutputPort() );
-//   mapper5->ScalarVisibilityOff();
-//   mapper5->SetResolveCoincidentTopologyToPolygonOffset();
-//   mapper5->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
+  vtkNew<vtkDataSetMapper> mapper4;
+  mapper4->SetInputConnection( shrink2->GetOutputPort() );
+  mapper4->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
+  mapper4->SetResolveCoincidentTopologyToPolygonOffset();
+  mapper4->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
+  vtkNew<vtkPolyDataMapper> mapper5;
+  mapper5->SetInputConnection( axisCut2->GetOutputPort() );
+  mapper5->ScalarVisibilityOff();
+  mapper5->SetResolveCoincidentTopologyToPolygonOffset();
+  mapper5->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
  
   // Actors
   vtkNew<vtkActor> actor1;
@@ -101,12 +100,12 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   actor3->SetMapper( mapper3.GetPointer() );
   actor3->GetProperty()->SetColor( .1, .1, .1 );
   actor3->GetProperty()->SetLineWidth( 1 );
-//   vtkNew<vtkActor> actor4;
-//   actor4->SetMapper( mapper4.GetPointer() );
-//   vtkNew<vtkActor> actor5;
-//   actor5->SetMapper( mapper5.GetPointer() );
-//   actor5->GetProperty()->SetRepresentationToWireframe();
-//   actor5->GetProperty()->SetColor( .7, .7, .7 );
+  vtkNew<vtkActor> actor4;
+  actor4->SetMapper( mapper4.GetPointer() );
+  vtkNew<vtkActor> actor5;
+  actor5->SetMapper( mapper5.GetPointer() );
+  actor5->GetProperty()->SetRepresentationToWireframe();
+  actor5->GetProperty()->SetColor( .7, .7, .7 );
 
   // Camera
   vtkHyperTreeGrid* ht = htGrid->GetOutput();
@@ -124,8 +123,8 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   renderer->AddActor( actor1.GetPointer() );
   renderer->AddActor( actor2.GetPointer() );
   renderer->AddActor( actor3.GetPointer() );
-//  renderer->AddActor( actor4.GetPointer() );
-//  renderer->AddActor( actor5.GetPointer() );
+  renderer->AddActor( actor4.GetPointer() );
+  renderer->AddActor( actor5.GetPointer() );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;

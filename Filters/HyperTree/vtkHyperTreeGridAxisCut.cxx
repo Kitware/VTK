@@ -25,8 +25,6 @@
 
 vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
 
-int cptLeavesHere = 0;
-
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 {
@@ -122,11 +120,6 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeSuperCursor* sup
   // If we are at a leaf, create the outer surfaces.
   if ( superCursor->GetCursor( 0 )->GetIsLeaf() )
     {
-    cerr << superCursor->Origin[this->PlaneNormalAxis]
-         << "  "
-         << superCursor->Size[this->PlaneNormalAxis]
-         << endl;
-    ++ cptLeavesHere;
     vtkIdType inId = superCursor->GetCursor( 0 )->GetGlobalLeafIndex();
     double k = this->PlanePosition-superCursor->Origin[this->PlaneNormalAxis];
     k = k / superCursor->Size[this->PlaneNormalAxis];
@@ -205,7 +198,6 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
 
   // Cut through hyper tree grid
   this->ProcessTrees();
-  cerr << "Found " << cptLeavesHere << " leaves" << endl;
 
   // Return duality flag of input to its original state
   if ( inputDualFlagIsOn )
