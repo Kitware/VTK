@@ -48,18 +48,22 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->GridSize[2] = 1;
 
   // Grid geometry
+  this->GridScale[0] = 1.;
+  this->GridScale[1] = 1.;
+  this->GridScale[2] = 1.;
   this->XCoordinates = vtkDoubleArray::New();
   this->XCoordinates->SetNumberOfTuples( 2 );
   this->XCoordinates->SetComponent( 0, 0, 0. );
-  this->XCoordinates->SetComponent( 1, 0, 1. );
+  this->XCoordinates->SetComponent( 1, 0, this->GridScale[0] );
   this->YCoordinates = vtkDoubleArray::New();
   this->YCoordinates->SetNumberOfTuples( 2 );
   this->YCoordinates->SetComponent( 0, 0, 0. );
-  this->YCoordinates->SetComponent( 1, 0, 1. );
+  this->YCoordinates->SetComponent( 1, 0, this->GridScale[1] );
   this->ZCoordinates = vtkDoubleArray::New();
   this->ZCoordinates->SetNumberOfTuples( 2 );
   this->ZCoordinates->SetComponent( 0, 0, 0. );
-  this->ZCoordinates->SetComponent( 1, 0, 1. );
+  this->ZCoordinates->SetComponent( 1, 0, this->GridScale[2] );
+
 
   // Grid description
   this->Descriptor = ".";
@@ -99,6 +103,11 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
      << this->GridSize[0] <<","
      << this->GridSize[1] <<","
      << this->GridSize[2] << endl;
+
+  os << indent << "GridScale: "
+     << this->GridScale[0] <<","
+     << this->GridScale[1] <<","
+     << this->GridScale[2] << endl;
 
   os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
   os << indent << "MinimumLevel: " << this->MinimumLevel << endl;
@@ -262,12 +271,6 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   this->Output->SetAxisBranchFactor( this->AxisBranchFactor );
   this->Output->SetDualGridFlag( this->Dual );
 
-  // Per-axis scaling
-  double scale[3];
-  scale[0] = 1.5;
-  scale[1] = 1.;
-  scale[2] = .7;
-
   // Create geometry
   for ( int i = 0; i < 3; ++ i )
     {
@@ -276,7 +279,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     coords->SetNumberOfValues( n );
     for ( int j = 0; j < n; ++ j )
       {
-      coords->SetValue( j, scale[i] * static_cast<double>( j ) );
+      coords->SetValue( j, this->GridScale[i] * static_cast<double>( j ) );
       }
 
     switch ( i )

@@ -81,6 +81,11 @@ public:
   vtkGetVector3Macro(GridSize, int);
 
   // Description:
+  // Set/Get the scale to be applied to root cells in each dimension of the grid
+  vtkSetVector3Macro(GridScale, double);
+  vtkGetVector3Macro(GridScale, double);
+
+  // Description:
   // Set/Get the subdivision factor in the grid refinement scheme
   vtkSetClampMacro(AxisBranchFactor, int, 2, 3);
   vtkGetMacro(AxisBranchFactor, int);
@@ -124,6 +129,7 @@ protected:
                   int parentPos );
 
   int GridSize[3];
+  double GridScale[3];
   unsigned int MaximumLevel;
   unsigned int MinimumLevel;
   int Dimension;

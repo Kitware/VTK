@@ -29,6 +29,7 @@ int TestHyperTreeGridBinary2D( int argc, char* argv[] )
   int maxLevel = 6;
   htGrid->SetMaximumLevel( maxLevel );
   htGrid->SetGridSize( 2, 3, 1 );
+  htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 2 );
   htGrid->SetAxisBranchFactor( 2 );
   htGrid->DualOn();
