@@ -16,6 +16,8 @@
 // .SECTION Description
 // Cut along an axis aligned plane. Only works for 3D grids.
 // Produces disjoint (no point sharing) quads for now.
+// NB: If cut plane contains inter-cell boundaries, the output will contain
+// superimposed faces as a result.
 
 #ifndef __vtkHyperTreeGridAxisCut_h
 #define __vtkHyperTreeGridAxisCut_h
