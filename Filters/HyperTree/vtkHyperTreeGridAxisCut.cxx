@@ -25,6 +25,8 @@
 
 vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
 
+int cptLeavesHere = 0;
+
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 {
@@ -58,23 +60,23 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
         // Storage for super cursors
         vtkHyperTreeSuperCursor superCursor;
         // Initialize center cursor
-        this->Input->InitializeSuperCursor(&superCursor, i, j, k);
+        this->Input->InitializeSuperCursor(&superCursor, i, j, k );
         // Traverse and populate dual recursively
-        this->RecursiveProcessTree( &superCursor);
+        this->RecursiveProcessTree( &superCursor );
         } // i
       } // j
     } // k
 
-  if (this->Input->GetDimension() == 1)
+  if ( this->Input->GetDimension() == 1 )
     {
-    this->Output->SetLines(this->Cells);
+    this->Output->SetLines( this->Cells );
     }
   else
     {
-    this->Output->SetPolys(this->Cells);
+    this->Output->SetPolys( this->Cells );
     }
 
-  this->Output->SetPoints(this->Points);
+  this->Output->SetPoints( this->Points );
   this->Points->Delete();
   this->Points = 0;
   this->Cells->Delete();
@@ -83,8 +85,9 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
 
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::AddFace(vtkIdType inId, double* origin, double* size,
-                                      double offset0, int axis0, int axis1, int axis2)
+void vtkHyperTreeGridAxisCut::AddFace( vtkIdType inId, double* origin, 
+                                       double* size, double offset0,
+                                       int axis0, int axis1, int axis2 )
 {
   vtkIdType ids[4];
   double pt[3];
@@ -93,53 +96,61 @@ void vtkHyperTreeGridAxisCut::AddFace(vtkIdType inId, double* origin, double* si
   pt[2] = origin[2];
   pt[axis0] += size[axis0] * offset0;
 
-  ids[0] = this->Points->InsertNextPoint(pt);
+  ids[0] = this->Points->InsertNextPoint( pt );
   pt[axis1] += size[axis1];
-  ids[1] = this->Points->InsertNextPoint(pt);
+  ids[1] = this->Points->InsertNextPoint( pt );
   pt[axis2] += size[axis2];
-  ids[2] = this->Points->InsertNextPoint(pt);
+  ids[2] = this->Points->InsertNextPoint( pt );
   pt[axis1] = origin[axis1];
-  ids[3] = this->Points->InsertNextPoint(pt);
+  ids[3] = this->Points->InsertNextPoint( pt );
 
-  vtkIdType outId = this->Cells->InsertNextCell(4, ids);
-  this->Output->GetCellData()->CopyData(this->Input->GetCellData(),inId,outId);
+  vtkIdType outId = this->Cells->InsertNextCell( 4, ids );
+  this->Output->GetCellData()->CopyData( this->Input->GetCellData(), inId, outId );
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::RecursiveProcessTree(vtkHyperTreeSuperCursor* superCursor)
+void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeSuperCursor* superCursor )
 {
   // Terminate if the node does not touch the plane.
-  if (superCursor->Origin[this->PlaneNormalAxis] > this->PlanePosition ||
-      superCursor->Origin[this->PlaneNormalAxis]+superCursor->Size[this->PlaneNormalAxis]
-        < this->PlanePosition)
+  if ( superCursor->Origin[this->PlaneNormalAxis] > this->PlanePosition ||
+       superCursor->Origin[this->PlaneNormalAxis] + superCursor->Size[this->PlaneNormalAxis]
+       < this->PlanePosition )
     {
     return;
     }
 
   // If we are at a leaf, create the outer surfaces.
-  if ( superCursor->GetCursor(0)->GetIsLeaf() )
+  if ( superCursor->GetCursor( 0 )->GetIsLeaf() )
     {
-    vtkIdType inId = superCursor->GetCursor(0)->GetGlobalLeafIndex();
+    cerr << superCursor->Origin[this->PlaneNormalAxis]
+         << "  "
+         << superCursor->Size[this->PlaneNormalAxis]
+         << endl;
+    ++ cptLeavesHere;
+    vtkIdType inId = superCursor->GetCursor( 0 )->GetGlobalLeafIndex();
     double k = this->PlanePosition-superCursor->Origin[this->PlaneNormalAxis];
     k = k / superCursor->Size[this->PlaneNormalAxis];
     int axis1, axis2;
-    switch (this->PlaneNormalAxis)
+    switch ( this->PlaneNormalAxis )
       {
       case 0:
-        axis1 = 1; axis2 = 2;
+        axis1 = 1;
+        axis2 = 2;
         break;
       case 1:
-        axis1 = 0; axis2 = 2;
+        axis1 = 0;
+        axis2 = 2;
         break;
       case 2:
-        axis1 = 0; axis2 = 1;
+        axis1 = 0;
+        axis2 = 1;
         break;
       default:
-        vtkErrorMacro("Bad Axis.");
+        vtkErrorMacro( "Bad Axis." );
         return;
       }
-    this->AddFace(inId, superCursor->Origin, superCursor->Size,
-                  k, this->PlaneNormalAxis, axis1, axis2);
+    this->AddFace( inId, superCursor->Origin, 
+                   superCursor->Size, k, this->PlaneNormalAxis, axis1, axis2 );
     return;
     }
 
@@ -148,15 +159,15 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree(vtkHyperTreeSuperCursor* supe
   for ( int child = 0; child < numChildren; ++ child )
     {
     vtkHyperTreeSuperCursor newSuperCursor;
-    this->Input->InitializeSuperCursorChild(superCursor,&newSuperCursor, child);
-    this->RecursiveProcessTree( &newSuperCursor);
+    this->Input->InitializeSuperCursorChild( superCursor,&newSuperCursor, child );
+    this->RecursiveProcessTree( &newSuperCursor );
     }
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridAxisCut::FillInputPortInformation(int, vtkInformation *info)
+int vtkHyperTreeGridAxisCut::FillInputPortInformation( int, vtkInformation *info )
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
+  info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid" );
   return 1;
 }
 
@@ -166,17 +177,17 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
                                           vtkInformationVector* outputVector )
 {
   // Get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
+  vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
 
   // Retrieve input and output
-  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get(vtkDataObject::DATA_OBJECT()) );
-  this->Output= vtkPolyData::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT()) );
+  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT()) );
 
   // This filter is only for 2D slices of 3D grids
   if ( this->Input->GetDimension() != 3 )
     {
-    vtkErrorMacro("Axis cut only works with 3D trees.");
+    vtkErrorMacro( "Axis cut only works with 3D trees." );
     return 0;
     }
 
@@ -194,6 +205,7 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
 
   // Cut through hyper tree grid
   this->ProcessTrees();
+  cerr << "Found " << cptLeavesHere << " leaves" << endl;
 
   // Return duality flag of input to its original state
   if ( inputDualFlagIsOn )
@@ -211,45 +223,45 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
 
-  if(this->Input)
+  if( this->Input )
     {
     os << indent << "Input:\n";
     this->Input->PrintSelf( os, indent.GetNextIndent() );
     }
   else
     {
-    os << indent << "Input: (none)\n";
+    os << indent << "Input: ( none )\n";
     }
-  if(this->Output)
+  if( this->Output )
     {
     os << indent << "Output:\n";
     this->Output->PrintSelf( os, indent.GetNextIndent() );
     }
   else
     {
-    os << indent << "Output: (none)\n";
+    os << indent << "Output: ( none )\n";
     }
-  if(this->Points)
+  if( this->Points )
     {
     os << indent << "Points:\n";
     this->Points->PrintSelf( os, indent.GetNextIndent() );
     }
   else
     {
-    os << indent << "Points: (none)\n";
+    os << indent << "Points: ( none )\n";
     }
-  if(this->Cells)
+  if( this->Cells )
     {
     os << indent << "Cells:\n";
     this->Cells->PrintSelf( os, indent.GetNextIndent() );
     }
   else
     {
-    os << indent << "Cells: (none)\n";
+    os << indent << "Cells: ( none )\n";
     }
 
   os << indent << "Plane Normal Axis : " << this->PlaneNormalAxis << endl;

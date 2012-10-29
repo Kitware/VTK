@@ -124,7 +124,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeSuperCursor* su
   if ( superCursor->GetCursor( 0 )->GetIsLeaf() )
     {
     vtkIdType inId = superCursor->GetCursor( 0 )->GetGlobalLeafIndex();
-    if (  dim == 1 )
+    if ( dim == 1 )
       {
       // 1 dimensional trees are a special case (probably never used).
       vtkIdType ids[2];
@@ -136,34 +136,34 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeSuperCursor* su
       ids[1] = this->Points->InsertNextPoint( pt );
       this->Cells->InsertNextCell( 2, ids );
       }
-    else if (dim == 2)
+    else if ( dim == 2 )
       {
       this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2, 0, 1 );
       }
-    else if (dim == 3)
+    else if ( dim == 3 )
       {
       // Check the 6 faces of the leaf (for boundaries)
-      if ( superCursor->GetCursor(-1 )->GetTree() == 0 )
+      if ( superCursor->GetCursor( -1 )->GetTree() == 0 )
         {
         this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 0, 1, 2 );
         }
-      if ( superCursor->GetCursor(1 )->GetTree() == 0 )
+      if ( superCursor->GetCursor( 1 )->GetTree() == 0 )
         {
         this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 0, 1, 2 );
         }
-      if ( superCursor->GetCursor(-3)->GetTree() == 0 )
+      if ( superCursor->GetCursor( -3 )->GetTree() == 0 )
         {
         this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 1, 0, 2 );
         }
-      if ( superCursor->GetCursor(3)->GetTree() == 0 )
+      if ( superCursor->GetCursor( 3 )->GetTree() == 0 )
         {
         this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 1, 0, 2 );
         }
-      if ( superCursor->GetCursor(-9)->GetTree() == 0 )
+      if ( superCursor->GetCursor( -9 )->GetTree() == 0 )
         {
         this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2, 0, 1 );
         }
-      if ( superCursor->GetCursor(9)->GetTree() == 0 )
+      if ( superCursor->GetCursor( 9 )->GetTree() == 0 )
         {
         this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 2, 0, 1 );
         }
