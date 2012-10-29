@@ -136,8 +136,15 @@ int vtkFFMPEGWriterInternal::Start()
     return 0;
     }
 
-  //chosen a codec that is easily playable on windows
-  this->avOutputFormat->video_codec = CODEC_ID_MJPEG;
+  if (this->Writer->GetCompression())
+    {
+    //choose a codec that is easily playable on windows
+    this->avOutputFormat->video_codec = CODEC_ID_MJPEG;
+    }
+  else
+    {
+    this->avOutputFormat->video_codec = CODEC_ID_RAWVIDEO;
+    }
 
   //assign the format to the context
   this->avFormatContext->oformat = this->avOutputFormat;
@@ -163,7 +170,15 @@ int vtkFFMPEGWriterInternal::Start()
 #endif
   c->width = this->Dim[0];
   c->height = this->Dim[1];
-  c->pix_fmt = PIX_FMT_YUVJ420P;
+  if (this->Writer->GetCompression())
+    {
+    c->pix_fmt = PIX_FMT_YUVJ422P;
+    }
+  else
+    {
+    c->pix_fmt = PIX_FMT_BGR24;
+    }
+
   //change DIV3 to MP43 fourCC to be easily playable on windows
   //c->codec_tag = ('3'<<24) + ('4'<<16) + ('P'<<8) + 'M';
   //to do playback at actual recorded rate, this will need more work see also below
@@ -450,6 +465,7 @@ vtkFFMPEGWriter::vtkFFMPEGWriter()
 {
   this->Internals = 0;
   this->Quality = 2;
+  this->Compression = true;
   this->Rate = 25;
   this->BitRate = 0;
   this->BitRateTolerance = 0;
@@ -563,6 +579,7 @@ void vtkFFMPEGWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Quality: " << this->Quality << endl;
+  os << indent << "Compression: " << (this->Compression?"true":"false") << endl;
   os << indent << "Rate: " << this->Rate << endl;
   os << indent << "BitRate: " << this->BitRate << endl;
   os << indent << "BitRateTolerance: " << this->BitRateTolerance << endl;
