@@ -30,6 +30,7 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   int maxLevel = 5;
   htGrid->SetMaximumLevel( maxLevel );
   htGrid->SetGridSize( 3, 3, 2 );
+  htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
   htGrid->SetAxisBranchFactor( 3 );
   htGrid->DualOn();
