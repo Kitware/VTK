@@ -445,7 +445,7 @@ public:
   void SetChildIndex(int childIndex )
     {
       assert( "pre: valid_range" && childIndex>=0 && childIndex<GetNumberOfChildren() );
-      this->ChildIndex=childIndex;
+      this->ChildIndex = childIndex;
       assert( "post: is_set" && childIndex==GetChildIndex() );
     }
 
@@ -642,7 +642,7 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // Is the `i'-th child of the node a leaf ?
-  bool IsChildLeaf(int i)
+  bool IsChildLeaf( int i )
     {
     assert( "pre: valid_range" && i>=0 && i < N);
     return this->LeafFlags.GetLeafFlag( i );
@@ -651,12 +651,11 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // See GetChild().
-  void SetChild(int i,
-                int child)
+  void SetChild( int i, int child )
     {
       assert( "pre: valid_range" && i>=0 && i < N);
       assert( "pre: positive_child" && child>=0 );
-      this->Children[i]=child;
+      this->Children[i] = child;
       assert( "post: is_set" && child==this->GetChild( i ) );
     }
 
@@ -666,7 +665,7 @@ public:
   // IsChildLeaf( i ) is true, the index points to an element in the LeafParent
   // and Attribute arrays of the hyperTree class. If not, the index points to
   // an element in the Nodes array of the hyperTree class.
-  int GetChild(int i)
+  int GetChild( int i )
     {
       assert( "pre: valid_range" && i>=0 && i < N);
       assert( "post: positive_result" && this->Children[i]>=0 );
@@ -694,8 +693,7 @@ protected:
   int Children[N];
 };
 
-template<int N> class vtkCompactHyperTree
-  : public vtkHyperTreeInternal
+template<int N> class vtkCompactHyperTree : public vtkHyperTreeInternal
 {
 public:
   //---------------------------------------------------------------------------
@@ -724,21 +722,21 @@ public:
       // NB: Leaves are implicit (not node objects)
       // so why initialize a root node with one leaf?
       // Does the root always have one child?
-      this->Nodes.resize(1);
+      this->Nodes.resize( 1 );
       this->Nodes[0].SetParent( 0 );
-      int i=0;
-      while (i < N)
+      int i = 0;
+      while ( i < N )
         {
         // It is assumed that the root is a special node with only one child.
         // The other children flags are irrelavent, but set them as nodes for no good reason.
-        this->Nodes[0].SetLeafFlag(i, i==0 ); // First child is a leaf
-        this->Nodes[0].SetChild(i,0 );
+        this->Nodes[0].SetLeafFlag( i, i==0 ); // First child is a leaf
+        this->Nodes[0].SetChild( i, 0 );
         }
-      this->LeafParent.resize(1);
-      this->LeafParent[0]=0;
-      this->NumberOfLevels=1;
-      this->NumberOfLeavesPerLevel.resize(1);
-      this->NumberOfLeavesPerLevel[0]=1;
+      this->LeafParent.resize( 1 );
+      this->LeafParent[0] = 0;
+      this->NumberOfLevels = 1;
+      this->NumberOfLeavesPerLevel.resize( 1 );
+      this->NumberOfLeavesPerLevel[0] = 1;
     }
 
   //---------------------------------------------------------------------------
@@ -820,10 +818,10 @@ public:
 
       // the leaf becomes a node and is not anymore a leaf.
       cursor->SetIsLeaf( 0 ); // let the cursor knows about that change.
-      size_t nodeIndex=this->Nodes.size();
+      size_t nodeIndex = this->Nodes.size();
 
       // NB: Bad interface "SetCursor"; should rather SetIndex.
-      cursor->SetCursor(static_cast<int>( nodeIndex ) );
+      cursor->SetCursor( static_cast<int>( nodeIndex ) );
 
       // Nodes get constructed with leaf flags set to 1.
       this->Nodes.resize( nodeIndex + 1 );
@@ -834,27 +832,24 @@ public:
       vtkCompactHyperTreeNode<N> *parent=&( this->Nodes[parentNodeIdx] );
 
       // New nodes index in parents children array.
-      int i = cursor->GetChildIndex();
-      assert( "check matching_child" && parent->GetChild( i ) == leafIndex );
-      parent->SetLeafFlag(i, false);
-      parent->SetChild(i,static_cast<int>( nodeIndex ) );
+      int idx = cursor->GetChildIndex();
+      assert( "check matching_child" && parent->GetChild( idx ) == leafIndex );
+      parent->SetLeafFlag( idx, false );
+      parent->SetChild( idx, static_cast<int>( nodeIndex ) );
 
       // The first new child
       // Recycle the leaf index we are deleting because it became a node.
       // This avoids messy leaf parent array issues.
       this->Nodes[nodeIndex].SetChild( 0, leafIndex );
-      this->LeafParent[leafIndex]=static_cast<int>( nodeIndex );
+      this->LeafParent[leafIndex] = static_cast<int>( nodeIndex );
 
       // The other (N-1) new children.
-      size_t nextLeaf=this->LeafParent.size();
+      size_t nextLeaf = this->LeafParent.size();
       this->LeafParent.resize( nextLeaf + ( N - 1 ) );
-      i = 1;
-      while( i < N )
+      for( int i = 1; i < N; ++ i, ++ nextLeaf )
         {
-        this->Nodes[nodeIndex].SetChild(i,static_cast<int>( nextLeaf ) );
-        this->LeafParent[nextLeaf]=static_cast<int>( nodeIndex );
-        ++ nextLeaf;
-        ++ i;
+        this->Nodes[nodeIndex].SetChild( i, static_cast<int>( nextLeaf ) );
+        this->LeafParent[nextLeaf] = static_cast<int>( nodeIndex );
         }
 
 
@@ -887,22 +882,22 @@ public:
     {
       this->Superclass::PrintSelf(os,indent);
 
-      os << indent << "Nodes="<<this->Nodes.size()<<endl;
-      os << indent << "LeafParent="<<this->LeafParent.size()<<endl;
+      os << indent << "Nodes=" << this->Nodes.size() << endl;
+      os << indent << "LeafParent=" << this->LeafParent.size() << endl;
 
-      os << indent << "Nodes="<<this->Nodes.size()<<endl;
+      os << indent << "Nodes=" << this->Nodes.size() << endl;
       size_t i;
       os << indent;
       i=0;
-      size_t c=this->Nodes.size();
-      while(i<c)
+      size_t c = this->Nodes.size();
+      while( i < c )
         {
-        this->Nodes[i].PrintSelf(os,indent);
+        this->Nodes[i].PrintSelf( os, indent );
         ++ i;
         }
       os<<endl;
 
-      os << indent << "LeafParent="<<this->LeafParent.size()<<endl;
+      os << indent << "LeafParent="<<this->LeafParent.size() << endl;
       i=0;
       c=this->LeafParent.size();
       while(i<c)
