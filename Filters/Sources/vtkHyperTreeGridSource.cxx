@@ -582,7 +582,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
       }
 
     // Cell value is depth level
-    double val = index_g;
+    double val = level;
 
     // Offset cell index as needed
     vtkIdType id = cellIdOffset + cursor->GetLeafId();
