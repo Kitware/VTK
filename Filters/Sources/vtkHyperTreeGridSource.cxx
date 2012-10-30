@@ -64,12 +64,13 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->ZCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates->SetComponent( 1, 0, this->GridScale[2] );
 
-
   // Grid description
   this->Descriptor = ".";
 
   // By default expose the primal grid API
   this->Dual = false;
+
+  this->Output = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -135,7 +136,16 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "LevelDescriptors: " << this->LevelDescriptors.size() << endl;
   os << indent << "LevelCounters: " << this->LevelCounters.size() << endl;
 
-  this->Output->PrintSelf( os, indent );
+  os << indent
+     << "Output: ";
+  if ( this->Output )
+    {
+    this->Output->PrintSelf( os, indent );
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }
 
 //----------------------------------------------------------------------------
