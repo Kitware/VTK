@@ -37,7 +37,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationVariantVectorKey.h"
-#include <vtkNew.h>
+#include "vtkNew.h"
 #include "vtkUnicodeString.h" // for vtkSuperExtraExtendedTemplateMacro
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
@@ -486,7 +486,9 @@ void vtkAbstractArray::GetUniqueComponentValues(
   int comp, vtkVariantArray* values)
 {
   if (!values || comp < -1)
+    {
     return;
+    }
 
   values->Initialize();
   values->SetNumberOfComponents(comp < 0 ? this->NumberOfComponents : 1);
@@ -534,6 +536,8 @@ void vtkAbstractArray::GetUniqueComponentValues(
 }
 
 //--------------------------------------------------------------------------
+namespace
+{
 template<typename T>
 bool AccumulateSampleValues(
   T* array, int nc, vtkIdType begin, vtkIdType end,
@@ -581,6 +585,7 @@ bool AccumulateSampleValues(
     }
   return ndc == 0;
 }
+} // End anonymous namespace.
 
 //--------------------------------------------------------------------------
 void vtkAbstractArray::UpdateDiscreteValueSet()
