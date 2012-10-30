@@ -2535,9 +2535,8 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeSuperCursor* superCu
             }
           else if ( cursor->GetLevel() == midLevel && superCursor->MiddleCursorId < cursorIdx )
             {
-            // A level tie is broken by index
-            // The larger index wins.  We want all points set before
-            // defining the cell.
+            // A level tie is broken in favor of the largest index
+            // All points are set before defining the cell
             owner = false;
             }
           }
@@ -2548,7 +2547,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeSuperCursor* superCu
         this->CornerLeafIds->InsertNextTupleValue( leaves );
         }
       } // cornerIdx
-    // Middle cursor was a leaf,  terminate recursion
+    // Middle cursor was a leaf, terminate recursion
     return;
     }
   
