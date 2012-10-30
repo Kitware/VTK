@@ -263,24 +263,23 @@ public:
   // Description:
   // Move the cursor to the same node pointed by `other'.
   // \pre other_exists: other!=0
-  // \pre same_hyperTree: this->SameTree(other)
-  // \post equal: this->IsEqual(other)
-  virtual void ToSameNode(vtkHyperTreeCursor *other)
+  // \pre same_hyperTree: this->SameTree( other )
+  // \post equal: this->IsEqual( other )
+  virtual void ToSameNode( vtkHyperTreeCursor *other )
     {
       assert( "pre: other_exists" && other!=0 );
-      assert( "pre: same_hyperTree" && this->SameTree(other) );
+      assert( "pre: same_hyperTree" && this->SameTree( other ) );
 
-      vtkCompactHyperTreeCursor<N> *o=static_cast<vtkCompactHyperTreeCursor<N> *>(other);
+      vtkCompactHyperTreeCursor<N> *o = static_cast<vtkCompactHyperTreeCursor<N> *>( other );
 
       this->Cursor=o->Cursor;
       this->ChildIndex=o->ChildIndex;
       this->IsLeaf=o->IsLeaf;
       this->ChildHistory=o->ChildHistory; // use assignment operator
-      unsigned int i=0;
-      while( i < this->Dimension )
+      
+      for( unsigned int i = 0; i < this->Dimension; ++ i )
         {
         this->Index[i] = o->Index[i];
-        ++ i;
         }
       assert( "post: equal" && this->IsEqual(other) );
     }
@@ -290,7 +289,7 @@ public:
   // Is `this' equal to `other'?
   // \pre other_exists: other!=0
   // \pre same_hyperTree: this->SameTree(other);
-  virtual int IsEqual(vtkHyperTreeCursor *other)
+  virtual int IsEqual( vtkHyperTreeCursor* other )
     {
       assert( "pre: other_exists" && other!=0 );
       assert( "pre: same_hyperTree" && this->SameTree(other) );
@@ -300,8 +299,7 @@ public:
       int result = this->Cursor==o->Cursor && this->ChildIndex==o->ChildIndex
         && this->IsLeaf==o->IsLeaf && this->ChildHistory==o->ChildHistory;
 
-      unsigned int i=0;
-      while( result && i < this->Dimension )
+      for( unsigned int i = 0; result && i < this->Dimension; ++ i )
         {
         result = this->Index[i] == o->Index[i];
         ++ i;
@@ -316,8 +314,8 @@ public:
   // \post same_tree: result->SameTree( this )
   virtual vtkHyperTreeCursor *Clone()
     {
-      vtkCompactHyperTreeCursor<N> *result = this->NewInstance();
-      result->Tree=this->Tree;
+      vtkCompactHyperTreeCursor<N>* result = this->NewInstance();
+      result->Tree = this->Tree;
       assert( "post: results_exists" && result!=0 );
       assert( "post: same_tree" && result->SameTree( this ) );
       return result;
@@ -327,10 +325,10 @@ public:
   // Description:
   // Are `this' and `other' pointing on the same hyperTree?
   // \pre other_exists: other!=0
-  virtual int SameTree(vtkHyperTreeCursor *other)
+  virtual int SameTree( vtkHyperTreeCursor* other )
     {
       assert( "pre: other_exists" && other!=0 );
-      vtkCompactHyperTreeCursor<N> *o=vtkCompactHyperTreeCursor<N>::SafeDownCast(other);
+      vtkCompactHyperTreeCursor<N> *o=vtkCompactHyperTreeCursor<N>::SafeDownCast( other );
       int result = o!=0;
       if(result)
         {
@@ -764,7 +762,7 @@ public:
 
   //---------------------------------------------------------------------------
   // Description:
-  // Return the number of levels.
+  // Return the erenumber of levels.
   // \post result_greater_or_equal_to_one: result>=1
   virtual vtkIdType GetNumberOfLevels()
     {
@@ -1762,9 +1760,8 @@ int vtkHyperTreeGrid::GetCellType(vtkIdType vtkNotUsed(cellId) )
 // Topological inquiry to get points defining cell.
 // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
 // THE DATASET IS NOT MODIFIED
-void vtkHyperTreeGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
+void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId, vtkIdList* ptIds)
 {
-  int ii;
   int numPts = 1 << this->GetDimension();
   ptIds->Initialize();
 
@@ -1775,9 +1772,9 @@ void vtkHyperTreeGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
     assert( "Index out of bounds." &&
            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
     vtkIdType* ptr = cornerLeafIds->GetPointer( 0 ) + cellId*numPts;
-    for (ii = 0; ii < numPts; ++ ii)
+    for ( int i = 0; i < numPts; ++ i )
       {
-      ptIds->InsertId(ii, *ptr++);
+      ptIds->InsertId( i, *ptr++ );
       }
     }
   else
@@ -1786,10 +1783,10 @@ void vtkHyperTreeGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
     vtkIdTypeArray* leafCornerIds = this->GetLeafCornerIds();
     assert( "Index out of bounds." &&
            cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
-    vtkIdType* ptr = leafCornerIds->GetPointer( 0 ) + cellId*numPts;
-    for (ii = 0; ii < numPts; ++ ii)
+    vtkIdType* ptr = leafCornerIds->GetPointer( 0 ) + cellId * numPts;
+    for ( int i = 0; i < numPts; ++ i )
       {
-      ptIds->InsertId(ii, *ptr++);
+      ptIds->InsertId( i, *ptr++ );
       }
     }
 }
@@ -1827,25 +1824,21 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId,
 
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::GetPointCells( vtkIdType ptId, vtkIdList *cellIds )
+void vtkHyperTreeGrid::GetPointCells( vtkIdType ptId, vtkIdList* cellIds )
 {
-  vtkIdType *cells;
-  int numCells;
-  int i;
-
   if ( ! this->Links )
     {
     this->BuildLinks();
     }
   cellIds->Reset();
 
-  numCells = this->Links->GetNcells(ptId);
-  cells = this->Links->GetCells(ptId);
+  int numCells = this->Links->GetNcells( ptId );
+  cellIds->SetNumberOfIds( numCells );
 
-  cellIds->SetNumberOfIds(numCells);
-  for (i=0; i < numCells; i++)
+  vtkIdType* cells = this->Links->GetCells( ptId );
+  for ( int i = 0; i < numCells; ++ i )
     {
-    cellIds->SetId(i,cells[i]);
+    cellIds->SetId( i, cells[i] );
     }
 }
 
@@ -1885,7 +1878,6 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
   cellIds->Reset();
 
   //Find the point used by the fewest number of cells
-  //
   numPts = ptIds->GetNumberOfIds();
   pts = ptIds->GetPointer( 0 );
   for (minNumCells=VTK_LARGE_INTEGER,i=0; i<numPts; i++)
@@ -1905,33 +1897,39 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
     vtkErrorMacro( "input point ids empty." );
     minNumCells = 0;
   }
-  //Now for each cell, see if it contains all the points
-  //in the ptIds list.
-  for (i=0; i<minNumCells; i++)
+
+  // For all cells that contNow for each cell, see if it contains all the points
+  // in the ptIds list.
+  for ( i = 0; i < minNumCells; i ++ )
     {
-    if ( minCells[i] != cellId ) //don't include current cell
+    // Do not include current cell
+    if ( minCells[i] != cellId )
       {
       this->GetCellPoints(minCells[i],npts,cellPts);
-      for (match=1, j=0; j<numPts && match; j++) //for all pts in input cell
+      // Iterate over all points in input cell
+      for ( match = 1, j = 0; j < numPts && match; j++ )
         {
-        if ( pts[j] != minPtId ) //of course minPtId is contained by cell
+        // Skip point with index minPtId which is contained by current cell
+        if ( pts[j] != minPtId )
           {
-          for (match=k=0; k<npts; k++) //for all points in candidate cell
+          // Iterate over all points in current cell
+          for ( match = k = 0; k < npts; ++ k )
             {
             if ( pts[j] == cellPts[k] )
               {
-              match = 1; //a match was found
+              // A match was found
+              match = 1;
               break;
               }
-            }//for all points in current cell
-          }//if not guaranteed match
-        }//for all points in input cell
+            } // For all points in current cell
+          } // If not guaranteed match
+        } // For all points in input cell
       if ( match )
         {
         cellIds->InsertNextId(minCells[i]);
         }
-      }//if not the reference cell
-    }//for all candidate cells attached to point
+      } // If not the reference cell
+    } // For all candidate cells attached to point
 }
 
 
@@ -2449,15 +2447,15 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeSuperCursor* superCu
   int midLevel = superCursor->GetCursor( 0 )->GetLevel();
   if ( superCursor->GetCursor( 0 )->GetIsLeaf() )
     { 
-    // Center is a leaf. Make a dual point.
+    // Center is a leaf, create a dual point
     double pt[3];
 
-    // Start at minimum boundary of cell.
+    // Start at minimum boundary of cell
     pt[0] = superCursor->Origin[0];
     pt[1] = superCursor->Origin[1];
     pt[2] = superCursor->Origin[2];
 
-    // Adjust point so the boundary of the dataset does not shrink.
+    // Adjust point so the boundary of the dataset does not shrink
     if ( superCursor->GetCursor( -1 )->GetTree() &&
          superCursor->GetCursor( 1 )->GetTree() )
       {
@@ -2515,7 +2513,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeSuperCursor* superCu
         int cursorIdx = 0;
         switch ( this->Dimension )
           {
-          // Run through is intended
+          // Warning: Run through is intended! Do NOT add break statements
           case 3:
             cursorIdx += 9 * ( ( ( cornerIdx >> 2 ) & 1 ) + ( ( leafIdx >> 2 ) & 1 ) );
           case 2:
@@ -2525,11 +2523,10 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeSuperCursor* superCu
           }
         // Collect the leaf indexes for the dual cell.
         leaves[leafIdx] = superCursor->Cursors[cursorIdx].GetGlobalLeafIndex();
-
         // Compute if the mid leaf owns the corner.
         if ( cursorIdx != superCursor->MiddleCursorId )
           {
-          vtkHyperTreeLightWeightCursor* cursor = superCursor->Cursors+cursorIdx;
+          vtkHyperTreeLightWeightCursor* cursor = superCursor->Cursors + cursorIdx;
           if ( ! cursor->GetTree() || ! cursor->GetIsLeaf() )
             {
             // If neighbor leaf is out of bounds or has not been
@@ -2538,22 +2535,22 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeSuperCursor* superCu
             }
           else if ( cursor->GetLevel() == midLevel && superCursor->MiddleCursorId < cursorIdx )
             {
-            // A level tie is broken by index
-            // The larger index wins.  We want all points set before
-            // defining the cell.
+            // A level tie is broken in favor of the largest index
+            // All points are set before defining the cell
             owner = false;
             }
           }
-        }
+        } // leafIdx
+
       if ( owner )
         {
         this->CornerLeafIds->InsertNextTupleValue( leaves );
         }
-      }
-    // Middle cursor was a leaf,  terminate recursion
+      } // cornerIdx
+    // Middle cursor was a leaf, terminate recursion
     return;
     }
-
+  
   vtkHyperTreeSuperCursor newSuperCursor;
   int child;
   for ( child = 0; child < this->NumberOfChildren; ++ child)
@@ -2740,7 +2737,7 @@ void vtkHyperTreeGrid::UpdateGridArrays()
         unsigned char* leafMask = new unsigned char[numLeaves];
 
         // Initialize to 0
-        memset(leafMask, 0, numLeaves);
+        memset( leafMask, 0, numLeaves );
         
         // Traverse and populate dual recursively
         this->TraverseGridRecursively( &superCursor, leafMask);

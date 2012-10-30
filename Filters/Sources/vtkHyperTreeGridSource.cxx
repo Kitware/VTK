@@ -130,8 +130,8 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "Descriptor: " << this->Descriptor << endl;
   os << indent << "Dual: " << this->Dual << endl;
-
   os << indent << "Output: " << endl;
+
   this->Output->PrintSelf( os, indent );
 }
 

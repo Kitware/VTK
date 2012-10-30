@@ -53,8 +53,10 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
         {
         // Storage for super cursors
         vtkHyperTreeSuperCursor superCursor;
+
         // Initialize center cursor
         this->Input->InitializeSuperCursor( &superCursor, i, j, k );
+
         // Traverse and populate dual recursively
         this->RecursiveProcessTree( &superCursor );
         } // i
@@ -79,8 +81,9 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
 
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId, double* origin, double* size,
-                                        int offset0, int axis0, int axis1, int axis2 )
+void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId, double* origin,
+                                        double* size, int offset0,
+                                        int axis0, int axis1, int axis2 )
 {
   vtkIdType ids[4];
   double pt[3];
@@ -198,8 +201,8 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
 
   // Retrieve input and output
-  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get(vtkDataObject::DATA_OBJECT()) );
-  this->Output= vtkPolyData::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Ensure that primal grid API is used for hyper trees
   int inputDualFlagIsOn = this->Input->GetDualGridFlag();

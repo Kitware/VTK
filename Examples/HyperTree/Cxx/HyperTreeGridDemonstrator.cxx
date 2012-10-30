@@ -35,23 +35,28 @@ All rights reserved.
 #include "vtkContourFilter.h"
 #include "vtkCutter.h"
 #include "vtkDataSetWriter.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkShrinkFilter.h"
 #include "vtkStdString.h"
+#include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
 #include "vtksys/CommandLineArguments.hxx"
 
+#include <vtksys/ios/sstream>
+
 void SetInputParameters( int& dim,
                          int& branch,
-                         vtkStdString& descr,
                          int& nX,
                          int& nY,
-                         int& nZ )
+                         int& nZ,
+                         int max,
+                         vtkStdString& str )
 {
   // Ensure that parsed dimensionality makes sense
   if ( dim > 3 )
@@ -96,24 +101,106 @@ void SetInputParameters( int& dim,
       nY = 1;
       }
     }
+
+  // Ensure that maximum level makes sense
+  if ( max < 1 )
+    {
+    max = 1;
+    }
+
+  // Generate a descriptor if none was provided
+  if ( str = "" )
+    {
+    // Calculate refined block size
+    int blockSize = branch;
+    for ( int i = 1; i < dim; ++ i )
+      {
+      blockSize *= branch;
+      }
+
+    // Initialize character stream
+    vtksys_ios::ostringstream stream;
+
+    // Seed random number generator
+    vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
+
+    // Initialize per-level cardinality
+    int cardLevel = nX * nY * nZ;
+
+    // Iterate over refinement levels
+    for ( int l = 0; l < max - 1; ++ l )
+      {
+      // Initialize counters for this level
+      int nRefined = 0;
+      int nLeaves = 0;
+
+      // Insert separator if not first level
+      if ( l )
+        {
+        stream << '|';
+        }
+
+      // Iterate over entries in this level
+      for ( int i = 0; i < cardLevel; ++ i )
+        {
+        // Generate next character based on pseudo-random clause
+        double u = vtkMath::Random();
+        if ( u < .2 )
+          {
+          // Refined cell
+          stream << 'R';
+          ++ nRefined;
+          } // if ( u < .1 )
+        else
+          {
+          // Leaf cell
+          stream << '.';
+          ++ nLeaves;
+          } // else
+        } // i
+      
+      // Update cardinality for next level 
+      cardLevel = nRefined * blockSize;
+      } // l
+
+    // Last level contains only leaf cells
+    if ( max > 1 )
+      {
+      // Insert separator if not first level
+      stream << '|';
+      }
+    // Iterate over entries in this level
+    for ( int i = 0; i < cardLevel; ++ i )
+      {
+      stream << '.';
+      }
+
+    // Finally dump stream into descriptor
+    str = stream.str();
+    
+    } // if ( str = "" )
 }
 
   int main( int argc, char* argv[] )
 {
   // Set default argument values and options
-  vtkStdString descriptor = "R.R.R. .RR..R ..R.R.|R.......................... ........................... .............R............. R.......................... .....R..................... ........................... ........................... ...........................|........................... ........................... ....R...................... ...........................| ...........................";
+  vtkStdString descriptor = "";
   int dim = 3;
   int branch = 3;
-  int max = 4;
-  int nX = 3;
-  int nY = 3;
-  int nZ = 2;
-  int nContours = 3;
+  int max = 5;
+  int nX = 5;
+  int nY = 6;
+  int nZ = 4;
+  double sX = 1.5;
+  double sY = 1.;
+  double sZ = .7;
+  int nContours = 1;
   bool skipAxisCut = false;
   bool skipContour = false;
   bool skipCut = false;
   bool skipGeometry = false;
   bool skipShrink = false;
+  bool printDescriptor = false;
 
   // Initialize command line argument parser
   vtksys::CommandLineArguments clArgs;
@@ -149,6 +236,18 @@ void SetInputParameters( int& dim,
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
                       &nZ, "Size of hyper tree grid in Z direction" );
 
+  clArgs.AddArgument( "--grid-scale-X",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &sX, "Scale of hyper tree grid in X direction" );
+
+  clArgs.AddArgument( "--grid-scale-Y",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &sY, "Scale of hyper tree grid in Y direction" );
+
+  clArgs.AddArgument( "--grid-scale-Z",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &sZ, "Scale of hyper tree grid in Z direction" );
+
   clArgs.AddArgument( "--contours",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
                       &nContours, "Number of iso-contours to be calculated" );
@@ -173,6 +272,10 @@ void SetInputParameters( int& dim,
                       vtksys::CommandLineArguments::NO_ARGUMENT,
                       &skipShrink, "Skip shrink filter" );
 
+  clArgs.AddArgument( "--print-Descriptor",
+                      vtksys::CommandLineArguments::NO_ARGUMENT,
+                      &printDescriptor, "Print descriptor string" );
+
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
     {
@@ -183,22 +286,26 @@ void SetInputParameters( int& dim,
     }
 
   // Verify and set input parameters
-  SetInputParameters( dim, branch, descriptor, nX, nY, nZ );
+  SetInputParameters( dim, branch, nX, nY, nZ, max, descriptor );
+  if ( printDescriptor )
+    {
+    cerr << "# Hyper tree grid descriptor: "
+         << endl
+         << descriptor
+         << endl;
+    }
 
   // Create hyper tree grid source
-  vtkNew<vtkHyperTreeGridSource> fractal;
-  fractal->DualOn();
-  if ( dim == 3 )
-    {
-    fractal->SetGridSize( nX, nY, nZ );
-    }
-  fractal->SetGridSize( nX, nY, nZ );
-  fractal->SetDimension( dim );
-  fractal->SetAxisBranchFactor( branch );
-  fractal->SetMaximumLevel( max );
-  fractal->SetDescriptor( descriptor.c_str() );
-  fractal->Update();
-  vtkHyperTreeGrid* htGrid = fractal->GetOutput();
+  vtkNew<vtkHyperTreeGridSource> source;
+  source->DualOn();
+  source->SetGridSize( nX, nY, nZ );
+  source->SetGridScale( sX, sY, sZ );
+  source->SetDimension( dim );
+  source->SetAxisBranchFactor( branch );
+  source->SetMaximumLevel( max );
+  source->SetDescriptor( descriptor.c_str() );
+  source->Update();
+  vtkHyperTreeGrid* htGrid = source->GetOutput();
   cerr << "  Number of hyper tree dual grid cells: "
        << htGrid->GetNumberOfCells()
        << endl;
@@ -207,7 +314,7 @@ void SetInputParameters( int& dim,
     {
     cerr << "# Geometry" << endl;
     vtkNew<vtkHyperTreeGridGeometry> geometry;
-    geometry->SetInputConnection( fractal->GetOutputPort() );
+    geometry->SetInputConnection( source->GetOutputPort() );
     vtkNew<vtkPolyDataWriter> writer4;
     writer4->SetFileName( "./hyperTreeGridGeometry.vtk" );
     writer4->SetInputConnection( geometry->GetOutputPort() );
@@ -257,7 +364,7 @@ void SetInputParameters( int& dim,
     cerr << "# Shrink" << endl;
     vtkNew<vtkShrinkFilter> shrink;
     shrink->SetInputData( htGrid );
-    shrink->SetShrinkFactor( 1. );
+    shrink->SetShrinkFactor( .5 );
     vtkNew<vtkUnstructuredGridWriter> writer1;
     writer1->SetFileName( "./hyperTreeGridShrink.vtk" );
     writer1->SetInputConnection( shrink->GetOutputPort() );
@@ -274,9 +381,9 @@ void SetInputParameters( int& dim,
       {
       cerr << "# HyperTreeGridAxisCut" << endl;
       vtkNew<vtkHyperTreeGridAxisCut> axisCut;
-      axisCut->SetInputConnection( fractal->GetOutputPort() );
+      axisCut->SetInputConnection( source->GetOutputPort() );
       axisCut->SetPlaneNormalAxis( 2 );
-      axisCut->SetPlanePosition( .1 );
+      axisCut->SetPlanePosition( .499 * nZ * sZ );
       vtkNew<vtkPolyDataWriter> writer2;
       writer2->SetFileName( "./hyperTreeGridAxisCut.vtk" );
       writer2->SetInputConnection( axisCut->GetOutputPort() );
