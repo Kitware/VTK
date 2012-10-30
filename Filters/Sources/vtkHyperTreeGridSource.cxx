@@ -132,6 +132,9 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Dual: " << this->Dual << endl;
   os << indent << "Output: " << endl;
 
+  os << indent << "LevelDescriptors: " << this->LevelDescriptors.size() << endl;
+  os << indent << "LevelCounters: " << this->LevelCounters.size() << endl;
+
   this->Output->PrintSelf( os, indent );
 }
 
