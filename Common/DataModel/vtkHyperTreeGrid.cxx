@@ -399,7 +399,7 @@ public:
       tmpIndices[2] = indices[2];
       int i = 0;
       mask = 1;
-      while (++ i<level)
+      while ( ++ i < level )
         {
         mask *= this->Tree->GetBranchFactor();
         }
@@ -1021,11 +1021,10 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->GridSize[2] = 0;
 
   // Grid parameters
-  this->DualGridFlag = 1;
-  this->Dimension = 1; // invalid
-  this->NumberOfChildren = 1; // invalid set by SetDimensions
   this->AxisBranchFactor = 2;
   this->Dimension =  3;
+  this->DualGridFlag = 1;
+  this->NumberOfChildren = 1; // invalid set by SetDimensions
 
   // Grid geometry
   this->XCoordinates=vtkDoubleArray::New();
@@ -1133,18 +1132,16 @@ int vtkHyperTreeGrid::GetDataObjectType()
 
 //-----------------------------------------------------------------------------
 // Description:
-// Copy the geometric and topological structure of an input rectilinear grid
+// Copy the geometric and topological structure of a hyper tree grid
 // object.
-void vtkHyperTreeGrid::CopyStructure(vtkDataSet* ds)
+void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 {
   assert( "pre: ds_exists" && ds!=0 );
   assert( "pre: same_type" && vtkHyperTreeGrid::SafeDownCast(ds)!=0 );
 
-  vtkHyperTreeGrid* ho=vtkHyperTreeGrid::SafeDownCast(ds);
+  vtkHyperTreeGrid* ho = vtkHyperTreeGrid::SafeDownCast( ds );
 
-//  this->Superclass::CopyStructure(ho);
-
-  // What about copying celldata???
+  // FIXME: copy cell data
   if ( this->CellTree )
     {
     int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
@@ -1175,15 +1172,17 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataSet* ds)
     }
 
   this->Dimension = ho->Dimension;
+  this->AxisBranchFactor = ho->AxisBranchFactor;
+  this->DualGridFlag = ho->DualGridFlag;
 
   for ( int i = 0; i < 3; ++ i )
     {
     this->GridSize[i] = ho->GridSize[i];
     }
 
-  this->SetXCoordinates(ho->XCoordinates);
-  this->SetYCoordinates(ho->YCoordinates);
-  this->SetZCoordinates(ho->ZCoordinates);
+  this->SetXCoordinates( ho->XCoordinates );
+  this->SetYCoordinates( ho->YCoordinates );
+  this->SetZCoordinates( ho->ZCoordinates );
 
   this->Modified();
 }
