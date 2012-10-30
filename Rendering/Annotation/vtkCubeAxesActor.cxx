@@ -17,6 +17,7 @@
 
 #include "vtkAxisActor.h"
 #include "vtkAxisFollower.h"
+#include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
 #include "vtkFollower.h"
@@ -38,6 +39,10 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
+  for(int i=0; i < 6; ++i)
+    {
+    this->RenderedBounds[i] = this->Bounds[i];
+    }
 
   this->OrientedBounds[0] = -1.0; this->OrientedBounds[1] = 1.0;
   this->OrientedBounds[2] = -1.0; this->OrientedBounds[3] = 1.0;
@@ -2689,4 +2694,24 @@ int vtkCubeAxesActor::RenderGeometry(
         (this->ZAxes[this->RenderAxesZ[i]]->*renderMethod)(viewport);
     }
   return renderedSomething;
+}
+
+// --------------------------------------------------------------------------
+void vtkCubeAxesActor::GetRenderedBounds(double *b)
+{
+  vtkBoundingBox bbox(this->GetBounds()); // Data bounds
+
+  // Make a heuristic on the final bounds that embed test labels
+  // Just inflate the box based on its max length
+  bbox.Inflate(bbox.GetMaxLength());
+
+  bbox.GetBounds(b);
+}
+
+// --------------------------------------------------------------------------
+double* vtkCubeAxesActor::GetRenderedBounds()
+{
+  this->GetRenderedBounds(this->RenderedBounds);
+  // Return our data holder
+  return this->RenderedBounds;
 }

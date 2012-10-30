@@ -113,6 +113,12 @@ public:
   vtkGetVector6Macro(Bounds,double);
 
   // Description:
+  // Method used to properly return the bounds of the cube axis itself with all
+  // its labels.
+  virtual void GetRenderedBounds(double rBounds[6]);
+  virtual double* GetRenderedBounds();
+
+  // Description:
   // Explicitly specify the range of each axes that's used to define the prop.
   // The default, (if you do not use these methods) is to use the bounds
   // specified, or use the bounds of the Input Prop if one is specified. This
@@ -577,6 +583,7 @@ protected:
   vtkProperty  *YAxesGridpolysProperty;
   vtkProperty  *ZAxesGridpolysProperty;
 
+  double RenderedBounds[6];
   double OrientedBounds[6];
   int UseOrientedBounds;
 
