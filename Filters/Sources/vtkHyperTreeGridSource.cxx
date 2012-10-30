@@ -383,7 +383,7 @@ int vtkHyperTreeGridSource::Initialize()
   // Parse string descriptor
   unsigned int nRefined = 0;
   unsigned int nLeaves = 0;
-  unsigned int nNextLevel = 0;
+  unsigned int nNextLevel = nTotal;
   bool rootLevel = true;
   vtksys_ios::ostringstream stream;
   for ( vtkStdString::iterator it = this->Descriptor.begin(); it != this->Descriptor.end(); ++ it )
