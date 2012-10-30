@@ -145,7 +145,7 @@ void SetInputParameters( int& dim,
         {
         // Generate next character based on pseudo-random clause
         double u = vtkMath::Random();
-        if ( u < .2 )
+        if ( u < .3 )
           {
           // Refined cell
           stream << 'R';
@@ -187,10 +187,10 @@ void SetInputParameters( int& dim,
   vtkStdString descriptor = "";
   int dim = 3;
   int branch = 3;
-  int max = 5;
-  int nX = 5;
-  int nY = 6;
-  int nZ = 4;
+  int max = 3;
+  int nX = 2;
+  int nY = 3;
+  int nZ = 2;
   double sX = 1.5;
   double sY = 1.;
   double sZ = .7;

@@ -581,14 +581,8 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
       x[2] = q2.quot;
       }
 
-    // Center coordinates w.r.t. global grid center
-    for ( int i = 0; i < 3; ++ i )
-      {
-      x[i] -= .5 * gs[i];
-      }
-
     // Cell value is depth level
-    double val = level;
+    double val = index_g;
 
     // Offset cell index as needed
     vtkIdType id = cellIdOffset + cursor->GetLeafId();
