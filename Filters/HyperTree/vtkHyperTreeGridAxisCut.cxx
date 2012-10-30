@@ -57,8 +57,10 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
         {
         // Storage for super cursors
         vtkHyperTreeSuperCursor superCursor;
+
         // Initialize center cursor
         this->Input->InitializeSuperCursor(&superCursor, i, j, k );
+
         // Traverse and populate dual recursively
         this->RecursiveProcessTree( &superCursor );
         } // i
@@ -174,8 +176,8 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
 
   // Retrieve input and output
-  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT()) );
-  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT()) );
+  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // This filter is only for 2D slices of 3D grids
   if ( this->Input->GetDimension() != 3 )
