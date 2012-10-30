@@ -485,7 +485,7 @@ void vtkAbstractArray::InsertVariantValue(vtkIdType id, vtkVariant value)
 void vtkAbstractArray::GetUniqueComponentValues(
   int comp, vtkVariantArray* values)
 {
-  if (!values || comp < -1)
+  if (!values || comp < -1 || comp >= this->NumberOfComponents)
     return;
 
   values->Initialize();
@@ -510,7 +510,7 @@ void vtkAbstractArray::GetUniqueComponentValues(
     {
     // Recompute discrete value set when the array has been
     // modified since the information was written.
-    if (this->GetMTime() > info->GetMTime() || justCreated)
+    if (!info->Has(DISCRETE_VALUES()) || this->GetMTime() > info->GetMTime() || justCreated)
       {
       this->UpdateDiscreteValueSet();
       }
