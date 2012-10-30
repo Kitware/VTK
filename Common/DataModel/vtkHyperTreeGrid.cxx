@@ -1141,7 +1141,6 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 
   vtkHyperTreeGrid* ho = vtkHyperTreeGrid::SafeDownCast( ds );
 
-  // FIXME: copy cell data
   if ( this->CellTree )
     {
     int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
@@ -1183,6 +1182,9 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->SetXCoordinates( ho->XCoordinates );
   this->SetYCoordinates( ho->YCoordinates );
   this->SetZCoordinates( ho->ZCoordinates );
+
+  this->CellData->ShallowCopy( ho->CellData );
+  this->PointData->ShallowCopy( ho->PointData );
 
   this->Modified();
 }
