@@ -200,6 +200,8 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->FrameActor = vtkActor2D::New();
   this->FrameActor->SetMapper(this->FrameMapper);
   this->FrameActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
+
+  this->DrawColorBar = true;
 }
 
 //----------------------------------------------------------------------------
