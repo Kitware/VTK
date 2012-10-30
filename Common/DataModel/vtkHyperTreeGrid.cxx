@@ -54,7 +54,7 @@ class vtkHyperTreeInternal
 public:
   vtkTypeMacro(vtkHyperTreeInternal,vtkObject);
   virtual void Initialize()=0;
-  virtual vtkHyperTreeCursor *NewCursor() = 0;
+  virtual vtkHyperTreeCursor* NewCursor() = 0;
   virtual vtkIdType GetNumberOfLeaves() = 0;
   virtual int GetNumberOfNodes() = 0;
   virtual int GetBranchFactor() = 0;
@@ -99,7 +99,7 @@ public:
   //---------------------------------------------------------------------------
   static vtkCompactHyperTreeCursor<N> *New()
     {
-      vtkObject *ret=
+      vtkObject* ret=
         vtkObjectFactory::CreateInstance( "vtkCompactHyperTreeCursor<N>" );
 
       if( ret != 0 )
@@ -265,7 +265,7 @@ public:
   // \pre other_exists: other!=0
   // \pre same_hyperTree: this->SameTree( other )
   // \post equal: this->IsEqual( other )
-  virtual void ToSameNode( vtkHyperTreeCursor *other )
+  virtual void ToSameNode( vtkHyperTreeCursor* other )
     {
       assert( "pre: other_exists" && other!=0 );
       assert( "pre: same_hyperTree" && this->SameTree( other ) );
@@ -312,7 +312,7 @@ public:
   // Create a copy of `this'.
   // \post results_exists:result!=0
   // \post same_tree: result->SameTree( this )
-  virtual vtkHyperTreeCursor *Clone()
+  virtual vtkHyperTreeCursor* Clone()
     {
       vtkCompactHyperTreeCursor<N>* result = this->NewInstance();
       result->Tree = this->Tree;
@@ -380,7 +380,7 @@ public:
   // \pre indices_exists: indices!=0
   // \pre valid_size: sizeof(indices)==GetDimension()
   // \pre valid_level: level>=0
-  virtual void MoveToNode(int *indices,
+  virtual void MoveToNode(int* indices,
                           int level)
     {
       assert( "pre: indices_exists" && indices!=0 );
@@ -413,7 +413,7 @@ public:
           {
           int digit = tmpIndices[i] / mask;
           tmpIndices[i] -= digit*mask;
-          child *= child*this->Tree->GetBranchFactor() + digit;
+          child *= child * this->Tree->GetBranchFactor() + digit;
           --i;
           }
         this->ToChild( child );
@@ -699,7 +699,7 @@ public:
   //---------------------------------------------------------------------------
   static vtkCompactHyperTree<N> *New()
     {
-      vtkObject *ret=
+      vtkObject* ret=
         vtkObjectFactory::CreateInstance( "vtkCompactHyperTree<N>" );
 
       if( ret != 0 )
@@ -740,7 +740,7 @@ public:
     }
 
   //---------------------------------------------------------------------------
-  virtual vtkHyperTreeCursor *NewCursor()
+  virtual vtkHyperTreeCursor* NewCursor()
     {
       vtkCompactHyperTreeCursor<N> *result = vtkCompactHyperTreeCursor<N>::New();
       result->Init( this );
@@ -806,7 +806,7 @@ public:
   // At the end, cursor points on the node that used to be leaf.
   // \pre leaf_exists: leaf!=0
   // \pre is_a_leaf: leaf->CurrentIsLeaf()
-  void SubdivideLeaf(vtkHyperTreeCursor *leafCursor)
+  void SubdivideLeaf(vtkHyperTreeCursor* leafCursor)
     {
       assert( "pre: leaf_exists" && leafCursor!=0 );
       assert( "pre: is_a_leaf" && leafCursor->CurrentIsLeaf() );
@@ -1135,12 +1135,12 @@ int vtkHyperTreeGrid::GetDataObjectType()
 // Description:
 // Copy the geometric and topological structure of an input rectilinear grid
 // object.
-void vtkHyperTreeGrid::CopyStructure(vtkDataSet *ds)
+void vtkHyperTreeGrid::CopyStructure(vtkDataSet* ds)
 {
   assert( "pre: ds_exists" && ds!=0 );
   assert( "pre: same_type" && vtkHyperTreeGrid::SafeDownCast(ds)!=0 );
 
-  vtkHyperTreeGrid *ho=vtkHyperTreeGrid::SafeDownCast(ds);
+  vtkHyperTreeGrid* ho=vtkHyperTreeGrid::SafeDownCast(ds);
 
 //  this->Superclass::CopyStructure(ho);
 
@@ -1392,10 +1392,10 @@ int vtkHyperTreeGrid::GetNumberOfLevels( int i )
 // Description:
 // Create a new cursor: an object that can traverse
 // hyperTree cells.
-vtkHyperTreeCursor *vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
+vtkHyperTreeCursor* vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
 {
   int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
-  vtkHyperTreeCursor *result = this->CellTree[index]->NewCursor();
+  vtkHyperTreeCursor* result = this->CellTree[index]->NewCursor();
 
   assert( "post: result_exists" && result!=0 );
 
@@ -1408,7 +1408,7 @@ vtkHyperTreeCursor *vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
 // At the end, cursor points on the node that used to be leaf.
 // \pre leaf_exists: leaf!=0
 // \pre is_a_leaf: leaf->CurrentIsLeaf()
-void vtkHyperTreeGrid::SubdivideLeaf(vtkHyperTreeCursor *leaf,vtkIdType i)
+void vtkHyperTreeGrid::SubdivideLeaf(vtkHyperTreeCursor* leaf,vtkIdType i)
 {
   assert( "pre: leaf_exists" && leaf!=0 );
   assert( "pre: is_a_leaf" && leaf->CurrentIsLeaf() );
@@ -1464,7 +1464,7 @@ int vtkHyperTreeGrid::GetMaxCellSize()
 //-----------------------------------------------------------------------------
 // Description:
 // Shallow and Deep copy.
-void vtkHyperTreeGrid::ShallowCopy(vtkDataObject *src)
+void vtkHyperTreeGrid::ShallowCopy(vtkDataObject* src)
 {
   assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast(src)!=0 );
   this->Superclass::ShallowCopy(src);
@@ -1472,11 +1472,11 @@ void vtkHyperTreeGrid::ShallowCopy(vtkDataObject *src)
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::DeepCopy(vtkDataObject *src)
+void vtkHyperTreeGrid::DeepCopy( vtkDataObject* src )
 {
   assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast(src)!=0 );
-  this->Superclass::DeepCopy(src);
-  this->CopyStructure(vtkHyperTreeGrid::SafeDownCast(src) );
+  this->Superclass::DeepCopy( src );
+  this->CopyStructure( vtkHyperTreeGrid::SafeDownCast( src ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -1555,7 +1555,7 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfPoints()
 // Description:
 // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
 // THIS METHOD IS NOT THREAD SAFE.
-double *vtkHyperTreeGrid::GetPoint(vtkIdType ptId)
+double* vtkHyperTreeGrid::GetPoint(vtkIdType ptId)
 {
   if ( this->DualGridFlag )
     {
@@ -1605,9 +1605,9 @@ void vtkHyperTreeGrid::GetPoint(vtkIdType id, double x[3])
 // Description:
 // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
 // THIS METHOD IS NOT THREAD SAFE.
-vtkCell *vtkHyperTreeGrid::GetCell(vtkIdType cellId)
+vtkCell* vtkHyperTreeGrid::GetCell(vtkIdType cellId)
 {
-  vtkCell *cell = NULL;
+  vtkCell* cell = NULL;
   int numPts = 1<<this->GetDimension();
   int ptIdx;
   double x[3];
@@ -1652,9 +1652,9 @@ vtkCell *vtkHyperTreeGrid::GetCell(vtkIdType cellId)
     vtkIdType* ptr = leafCornerIds->GetPointer( 0 ) + cellId*numPts;
     for (ptIdx = 0; ptIdx < numPts; ++ptIdx )
       {
-      cell->PointIds->SetId(ptIdx, *ptr);
-      cornerPoints->GetPoint(*ptr, x );
-      cell->Points->SetPoint(ptIdx,x );
+      cell->PointIds->SetId( ptIdx, *ptr );
+      cornerPoints->GetPoint( *ptr, x );
+      cell->Points->SetPoint( ptIdx, x );
       ++ptr;
       }
     }
@@ -1669,7 +1669,7 @@ vtkCell *vtkHyperTreeGrid::GetCell(vtkIdType cellId)
 // method.
 // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
 // THE DATASET IS NOT MODIFIED
-void vtkHyperTreeGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
+void vtkHyperTreeGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 {
   int numPts = 1<<this->GetDimension();
   int ptIdx;
@@ -2028,14 +2028,14 @@ vtkIdType vtkHyperTreeGrid::RecursiveFindPoint( double x[3],
 // No need for a starting cell.  Just use the point.
 // Tree is efficient enough.
 vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell,
-                                vtkGenericCell *gencell, vtkIdType cellId,
+                                vtkGenericCell* gencell, vtkIdType cellId,
                                 double tol2, int& subId, double pcoords[3],
-                                double *weights)
+                                double* weights)
 {
   vtkIdType       ptId;
   double          closestPoint[3];
   double          dist2;
-  vtkIdList       *cellIds;
+  vtkIdList      * cellIds;
 
   ptId = this->FindPoint( x );
   if ( ptId < 0 )
@@ -2091,9 +2091,9 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell,
 
 
 //----------------------------------------------------------------------------
-vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
+vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell, vtkIdType cellId,
                                      double tol2, int& subId,double pcoords[3],
-                                     double *weights)
+                                     double* weights)
 {
   return
     this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
