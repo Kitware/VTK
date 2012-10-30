@@ -6,6 +6,7 @@ set(Module_SRCS
   vtkDIMACSGraphWriter.cxx
   vtkFixedWidthTextReader.cxx
   vtkISIReader.cxx
+  vtkMultiNewickTreeReader.cxx
   vtkNewickTreeReader.cxx
   vtkRISReader.cxx
   vtkTulipReader.cxx

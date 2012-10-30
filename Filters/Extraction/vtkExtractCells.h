@@ -33,7 +33,6 @@
 
 class vtkIdList;
 class vtkExtractCellsSTLCloak;
-class vtkModelMetadata;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractCells : public vtkUnstructuredGridAlgorithm
 {
@@ -75,8 +74,6 @@ private:
   void Copy(vtkDataSet *input, vtkUnstructuredGrid *output);
   static vtkIdType findInSortedList(vtkIdList *idList, vtkIdType id);
   vtkIdList *reMapPointIds(vtkDataSet *grid);
-
-  vtkModelMetadata *ExtractMetadata(vtkDataSet *input);
 
   void CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
                         vtkUnstructuredGrid *output);

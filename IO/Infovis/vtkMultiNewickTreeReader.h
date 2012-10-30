@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkNewickTreeReader.h
+  Module:    vtkMultiNewickTreeReader.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,47 +12,41 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkNewickTreeReader - read vtkTree from Newick formatted file
+// .NAME vtkMultiNewickTreeReader - read multiple vtkTrees from Newick formatted file
 // .SECTION Description
-// vtkNewickTreeReader is a source object that reads Newick tree format
+// vtkMultiNewickTreeReader is a source object that reads Newick tree format
 // files.
-// The output of this reader is a single vtkTree data object.
+// The output of this reader is a single vtkMultiPieceDataSet that contains multiple vtkTree objects.
 // The superclass of this class, vtkDataReader, provides many methods for
 // controlling the reading of the data file, see vtkDataReader for more
 // information.
-// .SECTION Thanks
-// This class is adapted from code originally written by Yu-Wei Wu.
 // .SECTION See Also
 // vtkTree vtkDataReader
 
-#ifndef __vtkNewickTreeReader_h
-#define __vtkNewickTreeReader_h
+#ifndef __vtkMultiNewickTreeReader_h
+#define __vtkMultiNewickTreeReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkDataReader.h"
 
-class vtkDoubleArray;
-class vtkMutableDirectedGraph;
-class vtkStringArray;
-class vtkTree;
-
-class VTKIOINFOVIS_EXPORT vtkNewickTreeReader : public vtkDataReader
+class vtkMultiPieceDataSet;
+class vtkNewickTreeReader;
+class VTKIOINFOVIS_EXPORT vtkMultiNewickTreeReader : public vtkDataReader
 {
 public:
-  static vtkNewickTreeReader *New();
-  vtkTypeMacro(vtkNewickTreeReader,vtkDataReader);
+  static vtkMultiNewickTreeReader *New();
+  vtkTypeMacro(vtkMultiNewickTreeReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output of this reader.
-  vtkTree *GetOutput();
-  vtkTree *GetOutput(int idx);
-  void SetOutput(vtkTree *output);
-  int ReadNewickTree(char * const buffer, vtkTree & tree);
+  vtkMultiPieceDataSet *GetOutput();
+  vtkMultiPieceDataSet *GetOutput(int idx);
+  void SetOutput(vtkMultiPieceDataSet *output);
 
 protected:
-  vtkNewickTreeReader();
-  ~vtkNewickTreeReader();
+  vtkMultiNewickTreeReader();
+  ~vtkMultiNewickTreeReader();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
@@ -64,12 +58,9 @@ protected:
                                   vtkInformationVector *);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  void CountNodes(char * const buffer, vtkIdType *numNodes);
-  vtkIdType BuildTree(char *buffer, vtkMutableDirectedGraph *g,
-    vtkDoubleArray *weights, vtkStringArray *names, vtkIdType parent);
 private:
-  vtkNewickTreeReader(const vtkNewickTreeReader&);  // Not implemented.
-  void operator=(const vtkNewickTreeReader&);  // Not implemented.
+  vtkMultiNewickTreeReader(const vtkMultiNewickTreeReader&);  // Not implemented.
+  void operator=(const vtkMultiNewickTreeReader&);  // Not implemented.
 };
 
 #endif

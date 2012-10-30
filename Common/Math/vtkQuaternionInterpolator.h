@@ -54,8 +54,8 @@
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkQuaternion.h"
 
+class vtkQuaterniond;
 class vtkQuaternionList;
 
 class VTKCOMMONMATH_EXPORT vtkQuaternionInterpolator : public vtkObject

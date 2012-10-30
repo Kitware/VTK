@@ -40,6 +40,7 @@ set_source_files_properties(
   vtkChart
   vtkControlPointsItem
   vtkPlot
+  vtkPlot3D
   vtkScalarsToColorsItem
   ABSTRACT
   )

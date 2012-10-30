@@ -385,6 +385,7 @@ protected:
   vtkAbstractInterpolatedVelocityField * InterpolatorPrototype;
 
   vtkCompositeDataSet* InputData;
+  bool HasMatchingPointAttributes; //does the point data in the multiblocks have the same attributes?
 
   friend class PStreamTracerUtils;
 

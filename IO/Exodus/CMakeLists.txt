@@ -5,6 +5,7 @@ set(Module_SRCS
   vtkExodusIIReaderVariableCheck.cxx
   vtkExodusModel.cxx
   vtkExodusIIWriter.cxx
+  vtkModelMetadata.cxx
   )
 
 set_source_files_properties(

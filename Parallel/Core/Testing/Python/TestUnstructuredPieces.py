@@ -2,8 +2,7 @@
 
 math = vtk.vtkMath()
 math.RandomSeed(22)
-pf = vtk.vtkParallelFactory()
-pf.RegisterFactory(pf)
+
 pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
 pl3d.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")

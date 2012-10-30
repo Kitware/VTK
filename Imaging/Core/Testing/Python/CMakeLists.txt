@@ -77,7 +77,7 @@ add_test_python(voxelModel.py Imaging)
 add_test_python(TestBlendStencil.py Imaging)
 add_test_python(TestExtractVOI.py Parallel)
 add_test_python(TestImageWeightedSum.py Imaging)
-add_test_python(WindowLevelInterface.py Imaging)
+# add_test_python(WindowLevelInterface.py Imaging) # TCL test not being made as well !!!
 add_test_python1(imageMCAll Baseline/Graphics)
 add_test_python1(TestAllBlends Baseline/Imaging)
 add_test_python1(TestAllBlendsFloat Baseline/Imaging)

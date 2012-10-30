@@ -39,7 +39,6 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMergeCells.h"
-#include "vtkModelMetadata.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
@@ -600,12 +599,6 @@ int vtkDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
 
   this->UpdateProgress(this->NextProgressStep++ * this->ProgressIncrement);
   this->SetProgressText("Compute spatial partitioning");
-
-  if (this->ClipCells && vtkDistributedDataFilter::HasMetadata(splitInput))
-    {
-    // Clipping cells invalidates metadata that is cell based
-    // Here we should remove the metadata and display a warning
-    }
 
   // Stage (1) - use vtkPKdTree to...
   //   Create a load balanced spatial decomposition in parallel.
@@ -1810,16 +1803,6 @@ vtkUnstructuredGrid *
   vtkDataSet *tmpGrid = myGrid->NewInstance();
   tmpGrid->ShallowCopy(myGrid);
 
-  vtkModelMetadata *mmd = NULL;
-
-  if (vtkDistributedDataFilter::HasMetadata(myGrid) && !ghostCellFlag)
-    {
-    // Pull metadata out of grid
-
-    mmd = vtkModelMetadata::New();
-    mmd->Unpack(tmpGrid, DeleteYes);
-    }
-
   vtkDataSet **grids = new vtkDataSet * [nprocs];
 
   if (numLists[iam] > 0)
@@ -1834,7 +1817,7 @@ vtkUnstructuredGrid *
     if (numCells > 0)
       {
       grids[numReceivedGrids++] =
-        this->ExtractCells(cellIds[iam], numLists[iam], deleteCellIds, tmpGrid, mmd);
+        this->ExtractCells(cellIds[iam], numLists[iam], deleteCellIds, tmpGrid);
       }
     else if (deleteCellIds)
       {
@@ -1865,7 +1848,7 @@ vtkUnstructuredGrid *
         {
         vtkUnstructuredGrid *sendGrid =
           this->ExtractCells(cellIds[target], numLists[target],
-                                               deleteCellIds, tmpGrid, mmd);
+                                               deleteCellIds, tmpGrid);
 
         packedGridSend = this->MarshallDataSet(sendGrid, packedGridSendSize);
         sendGrid->Delete();
@@ -1950,12 +1933,7 @@ vtkUnstructuredGrid *
     }
   else
     {
-    mergedGrid = this->ExtractZeroCellGrid(myGrid, mmd);
-    }
-
-  if (mmd)
-    {
-    mmd->Delete();
+    mergedGrid = this->ExtractZeroCellGrid(myGrid);
     }
 
   if (deleteMyGrid)
@@ -2353,16 +2331,6 @@ vtkUnstructuredGrid *
   vtkDataSet *tmpGrid = myGrid->NewInstance();
   tmpGrid->ShallowCopy(myGrid);
 
-  vtkModelMetadata *mmd = NULL;
-
-  if (vtkDistributedDataFilter::HasMetadata(tmpGrid)  && !ghostCellFlag)
-    {
-    // Pull metadata out of grid
-
-    mmd = vtkModelMetadata::New();
-    mmd->Unpack(tmpGrid, DeleteYes);
-    }
-
   for (proc=0; proc < nprocs; proc++)
     {
     recvSize[proc] = sendSize[proc] = 0;
@@ -2378,7 +2346,7 @@ vtkUnstructuredGrid *
         {
         grids[proc] =
           vtkDistributedDataFilter::ExtractCells(cellIds[proc], numLists[proc],
-                                          deleteCellIds, tmpGrid, mmd);
+                                          deleteCellIds, tmpGrid);
 
         if (proc != iam)
           {
@@ -2533,12 +2501,7 @@ vtkUnstructuredGrid *
     }
   else
     {
-    mergedGrid = this->ExtractZeroCellGrid(myGrid, mmd);
-    }
-
-  if (mmd)
-    {
-    mmd->Delete();
+    mergedGrid = this->ExtractZeroCellGrid(myGrid);
     }
 
   if (deleteMyGrid)
@@ -2549,24 +2512,6 @@ vtkUnstructuredGrid *
   delete [] ds;
 
   return mergedGrid;
-}
-
-//-------------------------------------------------------------------------
-void vtkDistributedDataFilter::AddMetadata(vtkUnstructuredGrid *grid,
-                                           vtkModelMetadata *mmd)
-{
-  vtkIdTypeArray* ia = this->GetGlobalElementIdArray(grid);
-
-  // Extract the metadata for all cells in this grid
-
-  vtkModelMetadata *submmd =
-    mmd->ExtractModelMetadata(ia,     // extract metadata for these cells
-                              grid);  // in this grid
-
-  // Pack that metadata into field arrays of the grid
-
-  submmd->Pack(grid);
-  submmd->Delete();
 }
 
 //-------------------------------------------------------------------------
@@ -2701,7 +2646,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::UnMarshallDataSet(char *buf, int 
 //-------------------------------------------------------------------------
 vtkUnstructuredGrid
   *vtkDistributedDataFilter::ExtractCells(vtkIdList *cells, int deleteCellLists,
-                                vtkDataSet *in, vtkModelMetadata *mmd)
+                                vtkDataSet *in)
 {
   vtkIdList *tempCellList = NULL;
 
@@ -2716,7 +2661,7 @@ vtkUnstructuredGrid
     }
 
   vtkUnstructuredGrid *subGrid = vtkDistributedDataFilter::ExtractCells(
-    &tempCellList, 1, deleteCellLists, in, mmd);
+    &tempCellList, 1, deleteCellLists, in);
 
   if (tempCellList != cells)
     {
@@ -2729,7 +2674,7 @@ vtkUnstructuredGrid
 //-------------------------------------------------------------------------
 vtkUnstructuredGrid
   *vtkDistributedDataFilter::ExtractCells(vtkIdList **cells, int nlists,
-                 int deleteCellLists, vtkDataSet *in, vtkModelMetadata *mmd)
+                 int deleteCellLists, vtkDataSet *in)
 {
   vtkDataSet* tmpInput = in->NewInstance();
   tmpInput->ShallowCopy(in);
@@ -2763,18 +2708,12 @@ vtkUnstructuredGrid
 
   tmpInput->Delete();
 
-  if (mmd)
-    {
-    this->AddMetadata(keepGrid, mmd);
-    }
-
   return keepGrid;
 }
 
 //-------------------------------------------------------------------------
 vtkUnstructuredGrid
-  *vtkDistributedDataFilter::ExtractZeroCellGrid(vtkDataSet *in,
-    vtkModelMetadata *mmd)
+  *vtkDistributedDataFilter::ExtractZeroCellGrid(vtkDataSet *in)
 {
   vtkDataSet* tmpInput = in->NewInstance();
   tmpInput->ShallowCopy(in);
@@ -2791,11 +2730,6 @@ vtkUnstructuredGrid
   extCells->Delete();
 
   tmpInput->Delete();
-
-  if (mmd)
-    {
-    this->AddMetadata(keepGrid, mmd);
-    }
 
   return keepGrid;
 }
@@ -4539,34 +4473,6 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
     return NULL;
     }
 
-  vtkModelMetadata *mmd = NULL;
-
-  for (i=0; i<nsets; i++)
-    {
-    // It's possible we're merging regular cells (with metadata) with
-    // ghost cells (no metadata) so check each dataset for metadata.
-
-    int inputHasMetadata = vtkDistributedDataFilter::HasMetadata(sets[i]);
-
-    if (!inputHasMetadata)
-      {
-      continue;
-      }
-
-    vtkModelMetadata *submmd = vtkModelMetadata::New();
-    submmd->Unpack(sets[i], DeleteYes);
-
-    if (mmd)
-      {
-      mmd->MergeModelMetadata(submmd);
-      submmd->Delete();
-      }
-    else
-      {
-      mmd = submmd;
-      }
-    }
-
   vtkUnstructuredGrid *newGrid = vtkUnstructuredGrid::New();
   // Any global ids should be consistent, so make sure they are passed.
   newGrid->GetPointData()->CopyGlobalIdsOn();
@@ -4614,21 +4520,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
   mc->Finish();
   mc->Delete();
 
-  if (mmd)
-    {
-    // Pack the metadata onto the new grid and delete it.
-
-    mmd->Pack(newGrid);
-    mmd->Delete();
-    }
-
   return newGrid;
-}
-
-//-----------------------------------------------------------------------
-int vtkDistributedDataFilter::HasMetadata(vtkDataSet *s)
-{
-  return vtkModelMetadata::HasMetadata(vtkUnstructuredGrid::SafeDownCast(s));
 }
 
 //-------------------------------------------------------------------------
