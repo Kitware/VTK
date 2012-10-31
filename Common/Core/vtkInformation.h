@@ -59,7 +59,10 @@ class vtkInformationRequestKey;
 class vtkInformationStringKey;
 class vtkInformationStringVectorKey;
 class vtkInformationUnsignedLongKey;
+class vtkInformationVariantKey;
+class vtkInformationVariantVectorKey;
 class vtkInformationVector;
+class vtkVariant;
 
 #if defined(_WIN32)
 # define VTK_INFORMATION_EXPORT
@@ -112,6 +115,8 @@ public:
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int deep=0);
+  VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationVariantKey* key, int deep=0);
+  VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationVariantVectorKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep=0);
@@ -162,6 +167,13 @@ public:
   VTKCOMMONCORE_EXPORT double Get(vtkInformationDoubleKey* key);
   VTKCOMMONCORE_EXPORT void Remove(vtkInformationDoubleKey* key);
   VTKCOMMONCORE_EXPORT int Has(vtkInformationDoubleKey* key);
+
+  // Description:
+  // Get/Set an variant-valued entry.
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationVariantKey* key, const vtkVariant& value);
+  VTKCOMMONCORE_EXPORT const vtkVariant& Get(vtkInformationVariantKey* key);
+  VTKCOMMONCORE_EXPORT void Remove(vtkInformationVariantKey* key);
+  VTKCOMMONCORE_EXPORT int Has(vtkInformationVariantKey* key);
 
   // Description:
   // Get/Set an integer-vector-valued entry.
@@ -219,6 +231,22 @@ public:
   VTKCOMMONCORE_EXPORT int Length(vtkInformationDoubleVectorKey* key);
   VTKCOMMONCORE_EXPORT void Remove(vtkInformationDoubleVectorKey* key);
   VTKCOMMONCORE_EXPORT int Has(vtkInformationDoubleVectorKey* key);
+
+  // Description:
+  // Get/Set an variant-vector-valued entry.
+  VTKCOMMONCORE_EXPORT void Append(vtkInformationVariantVectorKey* key, const vtkVariant& value);
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationVariantVectorKey* key, const vtkVariant* value, int length);
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationVariantVectorKey* key, const vtkVariant& value1,
+           const vtkVariant& value2, const vtkVariant& value3);
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationVariantVectorKey* key,
+           const vtkVariant& value1, const vtkVariant& value2, const vtkVariant& value3,
+           const vtkVariant& value4, const vtkVariant& value5, const vtkVariant& value6);
+  VTKCOMMONCORE_EXPORT const vtkVariant* Get(vtkInformationVariantVectorKey* key);
+  VTKCOMMONCORE_EXPORT const vtkVariant& Get(vtkInformationVariantVectorKey* key, int idx);
+  VTKCOMMONCORE_EXPORT void Get(vtkInformationVariantVectorKey* key, vtkVariant* value);
+  VTKCOMMONCORE_EXPORT int Length(vtkInformationVariantVectorKey* key);
+  VTKCOMMONCORE_EXPORT void Remove(vtkInformationVariantVectorKey* key);
+  VTKCOMMONCORE_EXPORT int Has(vtkInformationVariantVectorKey* key);
 
   // Description:
   // Get/Set an InformationKey-vector-valued entry.
@@ -333,6 +361,8 @@ public:
   VTKCOMMONCORE_EXPORT static vtkInformationKey* GetKey(vtkInformationStringVectorKey* key);
   VTKCOMMONCORE_EXPORT static vtkInformationKey* GetKey(vtkInformationKey* key);
   VTKCOMMONCORE_EXPORT static vtkInformationKey* GetKey(vtkInformationUnsignedLongKey* key);
+  VTKCOMMONCORE_EXPORT static vtkInformationKey* GetKey(vtkInformationVariantKey* key);
+  VTKCOMMONCORE_EXPORT static vtkInformationKey* GetKey(vtkInformationVariantVectorKey* key);
 
   // Description:
   // Initiate garbage collection when a reference is removed.
@@ -350,7 +380,10 @@ protected:
 
   // Get/Set a map entry directly through the vtkObjectBase instance
   // representing the value.  Used internally to manage the map.
-  VTKCOMMONCORE_EXPORT void SetAsObjectBase(vtkInformationKey* key, vtkObjectBase* value);
+  VTKCOMMONCORE_EXPORT void SetAsObjectBase(
+    vtkInformationKey* key, vtkObjectBase* value);
+  VTKCOMMONCORE_EXPORT const vtkObjectBase* GetAsObjectBase(
+    const vtkInformationKey* key) const;
   VTKCOMMONCORE_EXPORT vtkObjectBase* GetAsObjectBase(vtkInformationKey* key);
 
   // Internal implementation details.

@@ -51,6 +51,9 @@ class vtkIdList;
 class vtkIdTypeArray;
 class vtkInformation;
 class vtkInformationIntegerKey;
+class vtkInformationInformationVectorKey;
+class vtkInformationVariantVectorKey;
+class vtkVariantArray;
 
 class VTKCOMMONCORE_EXPORT vtkAbstractArray : public vtkObject
 {
@@ -314,6 +317,22 @@ public:
   // function.
   virtual void ClearLookup() = 0;
 
+  // Description:
+  // Populate the given vtkVariantArray with a set of unique values taken on
+  // by the requested component (or, when passed -1, by the tuples as a whole).
+  // If the set of unique values has more than 32 entries, then the array
+  // is assumed to be continuous in nature and no values are returned.
+  //
+  // The first time this is called, the array is examined and unique values
+  // are stored in the vtkInformation object associated with the array.
+  // The list of unique values will be updated on subsequent calls only if
+  // the array's MTime is newer than the associated vtkInformation object.
+  //
+  // Note that this set of returned values may not be complete; in order to
+  // perform interactively, a subsample of the array is used to determine the
+  // set of values.
+  virtual void GetUniqueComponentValues(int comp, vtkVariantArray* values);
+
   // TODO: Implement these lookup functions also.
   //virtual void LookupRange(vtkVariant min, vtkVariant max, vtkIdList* ids,
   //  bool includeMin = true, bool includeMax = true) = 0;
@@ -348,16 +367,51 @@ public:
   // is internal and should not be shown to the end user.
   static vtkInformationIntegerKey* GUI_HIDE();
 
+  // Description:
+  // This key is used to hold a vector of COMPONENT_VALUES (and, for
+  // vtkDataArray subclasses, COMPONENT_RANGE) keys -- one
+  // for each component of the array.  You may add additional per-component
+  // key-value pairs to information objects in this vector. However if you
+  // do so, you must be sure to either (1) set COMPONENT_VALUES to
+  // an invalid variant and set COMPONENT_RANGE to
+  // {VTK_DOUBLE_MAX, VTK_DOUBLE_MIN} or (2) call ComputeUniqueValues(component)
+  // and ComputeRange(component) <b>before</b> modifying the information object.
+  // Otherwise it is possible for modifications to the array to take place
+  // without the bounds on the component being updated since the modification
+  // time of the vtkInformation object is used to determine when the
+  // COMPONENT_RANGE values are out of date.
+  static vtkInformationInformationVectorKey* PER_COMPONENT();
+
+  // Description:
+  // A key used to hold discrete values taken on either by the tuples of the
+  static vtkInformationVariantVectorKey* DISCRETE_VALUES();
+
+  enum {
+    MAX_DISCRETE_VALUES = 32
+  };
+
 protected:
+  // Construct object with default tuple dimension (number of components) of 1.
+  vtkAbstractArray(vtkIdType numComp=1);
+  ~vtkAbstractArray();
+
   // Description:
   // Set an information object that can be used to annotate the array.
   // Use this with caution as array instances depend on persistence of
   // information keys. See CopyInformation.
   virtual void SetInformation( vtkInformation* );
 
-  // Construct object with default tuple dimension (number of components) of 1.
-  vtkAbstractArray(vtkIdType numComp=1);
-  ~vtkAbstractArray();
+  // Description:
+  // Obtain the set of unique values taken on by each component of the array,
+  // as well as by the tuples of the array.
+  //
+  // The results are stored in the PER_COMPONENT() vtkInformation objects
+  // using the DISCRETE_VALUES() key.
+  // If the key is present but stores 0 values, the array either has no
+  // entries or does not behave as a discrete set.
+  // If the key is not present, the array has not been examined for
+  // distinct values or has been modified since the last examination.
+  virtual void UpdateDiscreteValueSet();
 
   vtkIdType Size;         // allocated size of data
   vtkIdType MaxId;        // maximum index inserted thus far

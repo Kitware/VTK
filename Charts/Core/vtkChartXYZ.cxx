@@ -61,6 +61,12 @@ vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), IsX(false), Angle(0)
   this->DrawAxesDecoration = true;
   this->CheckClipping = true;
   this->FitToScene = true;
+  this->Axes.resize(3);
+  for(unsigned int i = 0; i < 3; ++i)
+    {
+    vtkNew<vtkAxis> axis;
+    this->Axes[i] = axis.GetPointer();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -114,35 +120,27 @@ void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)
 {
   this->Geometry = bounds;
 
-  // initialize axes
-  this->Axes.resize(3);
-  vtkNew<vtkAxis> x;
-  this->Axes[0] = x.GetPointer();
-  x->SetPoint1(vtkVector2f(this->Geometry.GetX(),
+  this->Axes[0]->SetPoint1(vtkVector2f(this->Geometry.GetX(),
                            this->Geometry.GetY()));
-  x->SetPoint2(vtkVector2f(this->Geometry.GetX() + this->Geometry.GetWidth(),
+  this->Axes[0]->SetPoint2(vtkVector2f(this->Geometry.GetX() + this->Geometry.GetWidth(),
                            this->Geometry.GetY()));
 
-  vtkNew<vtkAxis> y;
-  this->Axes[1] = y.GetPointer();
-  y->SetPoint1(vtkVector2f(this->Geometry.GetX(),
+  this->Axes[1]->SetPoint1(vtkVector2f(this->Geometry.GetX(),
                            this->Geometry.GetY()));
-  y->SetPoint2(vtkVector2f(this->Geometry.GetX(),
+  this->Axes[1]->SetPoint2(vtkVector2f(this->Geometry.GetX(),
                            this->Geometry.GetY() + this->Geometry.GetHeight()));
 
   // Z is faked, largely to get valid ranges and rounded numbers...
-  vtkNew<vtkAxis> z;
-  this->Axes[2] = z.GetPointer();
-  z->SetPoint1(vtkVector2f(this->Geometry.GetX(),
+  this->Axes[2]->SetPoint1(vtkVector2f(this->Geometry.GetX(),
                            0));
   if (this->IsX)
     {
-    z->SetPoint2(vtkVector2f(this->Geometry.GetX(),
+    this->Axes[2]->SetPoint2(vtkVector2f(this->Geometry.GetX(),
                              this->Geometry.GetHeight()));
     }
   else
     {
-    z->SetPoint2(vtkVector2f(this->Geometry.GetX(),
+    this->Axes[2]->SetPoint2(vtkVector2f(this->Geometry.GetX(),
                              this->Geometry.GetWidth()));
     }
 }

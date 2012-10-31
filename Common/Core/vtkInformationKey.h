@@ -103,6 +103,7 @@ protected:
   // Set/Get the value associated with this key instance in the given
   // information object.
   void SetAsObjectBase(vtkInformation* info, vtkObjectBase* value);
+  const vtkObjectBase* GetAsObjectBase(vtkInformation* info) const;
   vtkObjectBase* GetAsObjectBase(vtkInformation* info);
 
   // Report the object associated with this key instance in the given
