@@ -51,13 +51,13 @@
 #ifndef __vtkAppendCompositeDataLeaves_h
 #define __vtkAppendCompositeDataLeaves_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkCompositeDataSetAlgorithm.h"
 
 class vtkCompositeDataIterator;
 class vtkDataSet;
 
-class VTKFILTERSGENERAL_EXPORT vtkAppendCompositeDataLeaves : public vtkCompositeDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkAppendCompositeDataLeaves : public vtkCompositeDataSetAlgorithm
 {
 public:
   static vtkAppendCompositeDataLeaves* New();

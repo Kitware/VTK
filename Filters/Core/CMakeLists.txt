@@ -73,6 +73,8 @@ set(Module_SRCS
   vtkCenterOfMass.cxx
 
   vtkGhostArray.cxx
+  vtkImageAppend.cxx
+  vtkAppendCompositeDataLeaves.cxx
   )
 
 set_source_files_properties(
