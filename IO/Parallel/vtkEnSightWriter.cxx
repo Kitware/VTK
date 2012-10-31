@@ -208,8 +208,6 @@ void vtkEnSightWriter::WriteData()
     this->GetInputAlgorithm()->Update();
     }
 
-  int deletemmd = 0;
-
   //get the BlockID Cell Array
   vtkDataArray *BlockData=input->GetCellData()->GetScalars("BlockId");
 
