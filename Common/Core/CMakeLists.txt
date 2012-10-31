@@ -92,6 +92,8 @@ SET(Module_SRCS
   vtkInformationStringKey.cxx
   vtkInformationStringVectorKey.cxx
   vtkInformationUnsignedLongKey.cxx
+  vtkInformationVariantKey.cxx
+  vtkInformationVariantVectorKey.cxx
   vtkInformationVector.cxx
   vtkInstantiator.cxx
   vtkIntArray.cxx
@@ -395,6 +397,8 @@ set_source_files_properties(
   vtkInformationStringKey
   vtkInformationStringVectorKey
   vtkInformationUnsignedLongKey
+  vtkInformationVariantKey
+  vtkInformationVariantVectorKey
   vtkObjectBase
   vtkObjectFactory
   vtkOldStyleCallbackCommand

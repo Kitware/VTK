@@ -13,8 +13,10 @@
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
+#include "vtkContourFilter.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -22,45 +24,87 @@
 
 int TestHyperTreeGridBinary2D( int argc, char* argv[] )
 {
-  vtkNew<vtkHyperTreeGridSource> fractal;
-  fractal->SetMaximumLevel( 3 );
-  fractal->SetGridSize( 4, 3, 1 );
-  fractal->SetDimension( 2 );
-  fractal->SetAxisBranchFactor( 2 );
+  // Hyper tree grid
+  vtkNew<vtkHyperTreeGridSource> htGrid;
+  int maxLevel = 6;
+  htGrid->SetMaximumLevel( maxLevel );
+  htGrid->SetGridSize( 2, 3, 1 );
+  htGrid->SetGridScale( 1.5, 1., .7 );
+  htGrid->SetDimension( 2 );
+  htGrid->SetAxisBranchFactor( 2 );
+  htGrid->DualOn();
+  htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
 
+  // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
-  geometry->SetInputConnection( fractal->GetOutputPort() );
+  geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
   vtkPolyData* pd = geometry->GetOutput();
 
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection( geometry->GetOutputPort() );
-  mapper->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
- 
-  vtkNew<vtkActor> actor;
-  actor->SetMapper( mapper.GetPointer() );
+  // Contour
+  vtkNew<vtkContourFilter> contour;
+  int nContours = 3;
+  contour->SetNumberOfContours( nContours );
+  contour->SetInputConnection( htGrid->GetOutputPort() );
+  double resolution = ( maxLevel - 1 ) / ( nContours + 1. );
+  double isovalue = resolution;
+  for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
+    {
+    contour->SetValue( i, isovalue );
+    }
 
-  // Create camera
+  // Mappers
+  vtkNew<vtkPolyDataMapper> mapper1;
+  mapper1->SetInputConnection( geometry->GetOutputPort() );
+  mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
+  mapper1->SetResolveCoincidentTopologyToPolygonOffset();
+  mapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
+  vtkNew<vtkPolyDataMapper> mapper2;
+  mapper2->SetInputConnection( geometry->GetOutputPort() );
+  mapper2->ScalarVisibilityOff();
+  mapper2->SetResolveCoincidentTopologyToPolygonOffset();
+  mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
+  vtkNew<vtkPolyDataMapper> mapper3;
+  mapper3->SetInputConnection( contour->GetOutputPort() );
+  mapper3->ScalarVisibilityOff();
+  mapper3->SetResolveCoincidentTopologyToPolygonOffset();
+  mapper3->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
+
+  // Actors
+  vtkNew<vtkActor> actor1;
+  actor1->SetMapper( mapper1.GetPointer() );
+  vtkNew<vtkActor> actor2;
+  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->GetProperty()->SetRepresentationToWireframe();
+  actor2->GetProperty()->SetColor( .7, .7, .7 );
+  vtkNew<vtkActor> actor3;
+  actor3->SetMapper( mapper3.GetPointer() );
+  actor3->GetProperty()->SetColor( .8, .2, .3 );
+  actor3->GetProperty()->SetLineWidth( 2 );
+
+  // Camera
   double bd[6];
   pd->GetBounds( bd );
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( .5 * bd[1], .5 * bd[3], 13 );
+  camera->SetPosition( .5 * bd[1], .5 * bd[3], 6 );
 
-  // Create a renderer, add actors to it
+  // Renderer
   vtkNew<vtkRenderer> renderer;
   renderer->SetActiveCamera( camera.GetPointer() );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor.GetPointer() );
+  renderer->AddActor( actor1.GetPointer() );
+  renderer->AddActor( actor2.GetPointer() );
+  renderer->AddActor( actor3.GetPointer() );
 
-  // Create a renderWindow
+  // Render window
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer( renderer.GetPointer() );
   renWin->SetSize( 300, 300 );
   renWin->SetMultiSamples( 0 );
 
-  // Create interactor
+  // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow( renWin.GetPointer() );
 

@@ -78,6 +78,7 @@ All rights reserve
 class vtkAxisActor;
 class vtkCamera;
 class vtkTextProperty;
+class vtkStringArray;
 
 class VTKRENDERINGANNOTATION_EXPORT vtkCubeAxesActor : public vtkActor
 {
@@ -112,6 +113,12 @@ public:
   vtkGetVector6Macro(Bounds,double);
 
   // Description:
+  // Method used to properly return the bounds of the cube axis itself with all
+  // its labels.
+  virtual void GetRenderedBounds(double rBounds[6]);
+  virtual double* GetRenderedBounds();
+
+  // Description:
   // Explicitly specify the range of each axes that's used to define the prop.
   // The default, (if you do not use these methods) is to use the bounds
   // specified, or use the bounds of the Input Prop if one is specified. This
@@ -123,6 +130,12 @@ public:
   vtkSetVector2Macro( ZAxisRange, double );
   vtkGetVector2Macro( XAxisRange, double );
   vtkGetVector2Macro( YAxisRange, double );
+  // Description
+  // Explicitly specify the axis labels along an axis as an array of strings
+  // instead of using the values.
+  vtkStringArray* GetAxisLabels(int axis);
+  void SetAxisLabels(int axis, vtkStringArray* value);
+
   vtkGetVector2Macro( ZAxisRange, double );
 
   // Description:
@@ -433,6 +446,8 @@ protected:
 
   double FFix(double);
   double FSign(double, double);
+  int FRound( double fnt );
+  int GetNumTicks( double range, double fxt);
 
   void UpdateLabels(vtkAxisActor **axis, int index);
 
@@ -551,6 +566,8 @@ protected:
   double TitleScreenOffset;
 
   vtkTextProperty* TitleTextProperty[3];
+  vtkStringArray* AxisLabels[3];
+
   vtkTextProperty* LabelTextProperty[3];
 
   vtkProperty  *XAxesLinesProperty;
@@ -566,6 +583,7 @@ protected:
   vtkProperty  *YAxesGridpolysProperty;
   vtkProperty  *ZAxesGridpolysProperty;
 
+  double RenderedBounds[6];
   double OrientedBounds[6];
   int UseOrientedBounds;
 

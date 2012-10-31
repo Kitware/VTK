@@ -1911,7 +1911,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
 
   // - Insert Gridlines points along the axis using the DeltaMajor vector
   nbIterationAsDouble = (axisLength - axisShift) / vtkMath::Norm(deltaVector);
-  nbIteration = vtkMath::Floor(nbIterationAsDouble+2*DBL_EPSILON) + 1;
+  nbIteration = vtkMath::Floor(nbIterationAsDouble+2*FLT_EPSILON) + 1;
   nbIteration = (nbIteration < VTK_MAX_TICKS) ? nbIteration : VTK_MAX_TICKS;
   for (nbTicks = 0; nbTicks < nbIteration; nbTicks++)
     {
@@ -1970,7 +1970,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
 
         // u lines
         u = this->MajorStart[uIndex];
-        while (u <= p2[uIndex])
+        while (u <= p2[uIndex] && this->DeltaMajor[uIndex] > 0)
           {
           innerGridPointClosestU[uIndex]
               = innerGridPointFarestU[uIndex]
@@ -1982,7 +1982,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
 
         // v lines
         v = this->MajorStart[vIndex];
-        while (v <= p2[vIndex])
+        while (v <= p2[vIndex] && this->DeltaMajor[vIndex] > 0)
           {
           innerGridPointClosestV[vIndex]
               = innerGridPointFarestV[vIndex]

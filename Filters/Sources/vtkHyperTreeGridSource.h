@@ -15,9 +15,22 @@
 // .NAME vtkHyperTreeGridSource - Create a synthetic grid of hypertrees.
 //
 // .SECTION Description
-//
-// .SECTION See Also
-// vtkHyperTreeGridSampleFunction
+// This class uses input parameters, most notably a string descriptor,
+// to generate a vtkHyperTreeGrid instance representing the corresponding
+// tree-based AMR grid. This descriptor uses the following conventions,
+// e.g., to describe a 1-D ternary subdivision with 2 root cells
+// L0    L1        L2
+// RR  | .R. ... | ...
+// For this tree:
+/*  HTG:       .         */
+/*           /   \       */
+/*  L0:     .     .      */
+/*         /|\   /|\     */
+/*  L1:   c . c c c c    */
+/*         /|\           */
+/*  L2:   c c c          */
+// The top level of the tree is not considered a grid level
+// NB: For ease of legibility, white spaces are allowed and ignored.
 //
 // .SECTION Thanks
 // This class was written by Philippe Pebay, Kitware SAS 2012
@@ -27,9 +40,13 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkStdString.h" // For vtkStdString ivars
+
+#include <vector> // STL Header
 
 class vtkDataArray;
 class vtkImplicitFunction;
+class vtkHyperTreeGrid;
 
 class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridAlgorithm
 {
@@ -40,68 +57,94 @@ public:
   static vtkHyperTreeGridSource *New();
 
   // Description:
-  // Return the maximum number of levels of the hyperoctree.
+  // Return the maximum number of levels of the hypertree.
   // \post positive_result: result>=1
-  int GetMaximumLevel();
+  unsigned int GetMaximumLevel();
 
   // Description:
-  // Set the maximum number of levels of the hyperoctree. If
+  // Set the maximum number of levels of the hypertree. If
   // GetMinLevels()>=levels, GetMinLevels() is changed to levels-1.
   // \pre positive_levels: levels>=1
   // \post is_set: this->GetLevels()==levels
   // \post min_is_valid: this->GetMinLevels()<this->GetLevels()
-  void SetMaximumLevel(int levels);
+  void SetMaximumLevel( unsigned int levels );
 
   // Description:
   // Return the minimal number of levels of systematic subdivision.
   // \post positive_result: result>=0
-  void SetMinimumLevel(int level);
-  int GetMinimumLevel();
+  void SetMinimumLevel( unsigned int level );
+  unsigned int GetMinimumLevel();
 
+  // Description:
+  // Set/Get the number of root cells in each dimension of the grid
   vtkSetVector3Macro(GridSize, int);
   vtkGetVector3Macro(GridSize, int);
 
-  vtkSetMacro(AxisBranchFactor, int);
+  // Description:
+  // Set/Get the scale to be applied to root cells in each dimension of the grid
+  vtkSetVector3Macro(GridScale, double);
+  vtkGetVector3Macro(GridScale, double);
+
+  // Description:
+  // Set/Get the subdivision factor in the grid refinement scheme
+  vtkSetClampMacro(AxisBranchFactor, int, 2, 3);
   vtkGetMacro(AxisBranchFactor, int);
 
+  // Description:
+  // Set/Get whether the dual grid interface is the default one
   vtkSetMacro(Dual, int);
   vtkGetMacro(Dual, int);
   vtkBooleanMacro(Dual, int);
 
   // Description:
-  // Create a 2D or 3D fractal
+  // Set/Get the dimensionality of the grid
   vtkSetClampMacro(Dimension, int, 2, 3);
   vtkGetMacro(Dimension, int);
+
+  // Description:
+  // Set/Get the string used to describe the grid
+  virtual void SetDescriptor( const vtkStdString& );
+  virtual vtkStdString GetDescriptor();
 
 protected:
   vtkHyperTreeGridSource();
   ~vtkHyperTreeGridSource();
 
-  int RequestInformation (vtkInformation * vtkNotUsed(request),
-                          vtkInformationVector ** vtkNotUsed( inputVector ),
-                          vtkInformationVector *outputVector);
+  int RequestInformation ( vtkInformation*,
+                           vtkInformationVector**,
+                           vtkInformationVector* );
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  virtual int RequestData( vtkInformation *,
+                           vtkInformationVector **,
+                           vtkInformationVector * );
+
+  int Initialize();
 
   void Subdivide( vtkHyperTreeCursor* cursor,
-                  int level,
-                  vtkHyperTreeGrid* output,
-                  int index,
+                  unsigned int level,
+                  int index_g,
+                  int index_l,
                   int idx[3],
-                  int offset );
+                  int cellIdOffset,
+                  int parentPos );
 
   int GridSize[3];
-  int MaximumLevel;
-  int MinimumLevel;
+  double GridScale[3];
+  unsigned int MaximumLevel;
+  unsigned int MinimumLevel;
   int Dimension;
   int AxisBranchFactor;
-
+  int BlockSize;
   int Dual;
 
-  vtkDataArray *XCoordinates;
-  vtkDataArray *YCoordinates;
-  vtkDataArray *ZCoordinates;
+  vtkDataArray* XCoordinates;
+  vtkDataArray* YCoordinates;
+  vtkDataArray* ZCoordinates;
+
+  vtkStdString Descriptor;
+  std::vector<vtkStdString> LevelDescriptors;
+  std::vector<int> LevelCounters;
+  vtkHyperTreeGrid* Output;
 
 private:
   vtkHyperTreeGridSource(const vtkHyperTreeGridSource&);  // Not implemented.

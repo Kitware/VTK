@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(HyperTreeGridDemonstrator)
+project(HyperTreeGridExamples)
 
 if(NOT VTK_BINARY_DIR)
   find_package(VTK REQUIRED)
@@ -9,6 +9,6 @@ endif(NOT VTK_BINARY_DIR)
 
 link_directories(${VTK_LIBRARY_DIRS})
 
-# Add example showing use use of vtkHyperTreeGrid along with various filters
+# Add example showing use use of synthetic vtkHyperTreeGrid along with various filters
 add_executable(HyperTreeGridDemonstrator HyperTreeGridDemonstrator.cxx)
-target_link_libraries(HyperTreeGridDemonstrator vtkCommonCore vtkCommonSystem vtkCommonDataModel vtkCommonExecutionModel vtkIOGeometry vtkFiltersCore vtkFiltersSources vtkFiltersHyperTree)
+target_link_libraries(HyperTreeGridDemonstrator vtkCommonCore vtkCommonSystem vtkCommonDataModel vtkCommonExecutionModel vtkIOLegacy vtkIOGeometry vtkFiltersCore vtkFiltersSources vtkFiltersHyperTree)

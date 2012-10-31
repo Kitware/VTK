@@ -26,6 +26,11 @@ public:
     {
     info->SetAsObjectBase(key, value);
     }
+  static const vtkObjectBase* GetAsObjectBase(const vtkInformation* info,
+                                        const vtkInformationKey* key)
+    {
+    return info->GetAsObjectBase(key);
+    }
   static vtkObjectBase* GetAsObjectBase(vtkInformation* info,
                                         vtkInformationKey* key)
     {
@@ -89,6 +94,13 @@ void vtkInformationKey::SetAsObjectBase(vtkInformation* info,
 
 //----------------------------------------------------------------------------
 vtkObjectBase* vtkInformationKey::GetAsObjectBase(vtkInformation* info)
+{
+  return vtkInformationKeyToInformationFriendship::GetAsObjectBase(info, this);
+}
+
+//----------------------------------------------------------------------------
+const vtkObjectBase* vtkInformationKey::GetAsObjectBase(
+  vtkInformation* info) const
 {
   return vtkInformationKeyToInformationFriendship::GetAsObjectBase(info, this);
 }

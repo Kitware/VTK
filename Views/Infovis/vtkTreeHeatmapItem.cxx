@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkTreeHeatmapItem.h"
 
-#include "vtkBitArray.h"
 #include "vtkBrush.h"
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
@@ -34,6 +33,7 @@
 #include "vtkTransform2D.h"
 #include "vtkTree.h"
 #include "vtkTreeLayoutStrategy.h"
+#include "vtkUnsignedIntArray.h"
 
 #include <algorithm>
 #include <sstream>
@@ -87,7 +87,7 @@ void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
   this->Tree = tree;
 
   // initialize some additional arrays for the tree's vertex data
-  vtkNew<vtkBitArray> vertexIsPruned;
+  vtkNew<vtkUnsignedIntArray> vertexIsPruned;
   vertexIsPruned->SetNumberOfComponents(1);
   vertexIsPruned->SetName("VertexIsPruned");
   vertexIsPruned->SetNumberOfValues(
@@ -108,6 +108,31 @@ void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
 
   // make a copy of the full tree for later pruning
   this->PrunedTree->DeepCopy(this->Tree);
+
+  // setup the lookup table that's used to color the triangles representing
+  // collapsed subtrees.  First we find maximum possible value.
+  vtkIdType root = this->Tree->GetRoot();
+  if (this->Tree->GetNumberOfChildren(root) == 1)
+    {
+    root = this->Tree->GetChild(root, 0);
+    }
+  int numLeavesInBiggestSubTree = 0;
+  for (vtkIdType child = 0; child < this->Tree->GetNumberOfChildren(root);
+       ++child)
+    {
+    vtkIdType childVertex = this->Tree->GetChild(root, child);
+    int numLeaves = this->CountLeafNodes(childVertex);
+    if (numLeaves > numLeavesInBiggestSubTree)
+      {
+      numLeavesInBiggestSubTree = numLeaves;
+      }
+    }
+
+  this->TriangleLookupTable->SetNumberOfTableValues(256);
+  this->TriangleLookupTable->SetHueRange(0.5, 0.045);
+  this->TriangleLookupTable->SetRange(
+    2.0, static_cast<double>(numLeavesInBiggestSubTree));
+  this->TriangleLookupTable->Build();
 }
 
 //-----------------------------------------------------------------------------
@@ -154,10 +179,6 @@ bool vtkTreeHeatmapItem::IsDirty()
       this->Table->GetNumberOfRows() == 0)
     {
     return false;
-    }
-  if (this->Tooltip->GetMTime() > this->GetMTime())
-    {
-    return true;
     }
   if (this->PrunedTree->GetMTime() > this->TreeHeatmapBuildTime)
     {
@@ -206,9 +227,23 @@ void vtkTreeHeatmapItem::RebuildBuffers()
     }
 
   this->ComputeMultiplier();
+
   if (this->Tree->GetNumberOfVertices() > 0)
     {
     this->ComputeTreeBounds();
+
+    // calculate how large our table cells will be when they are drawn.
+    // These values are also used when representing collapsed subtrees.
+    double numLeaves = static_cast<double>(this->NumberOfLeafNodes);
+    if (numLeaves == 1)
+      {
+      this->CellHeight = 50.0;
+      }
+    else
+      {
+      this->CellHeight = (this->TreeMaxY / (numLeaves - 1.0));
+      }
+    this->CellWidth = this->CellHeight * 2;
     }
 
   if (this->Table->GetNumberOfRows() > 0)
@@ -222,7 +257,14 @@ void vtkTreeHeatmapItem::RebuildBuffers()
     }
   else if (this->Table->GetNumberOfRows() == 0)
     {
-    this->TreeHeatmapBuildTime = this->Tree->GetMTime();
+    if( this->PrunedTree->GetMTime() > this->Tree->GetMTime())
+      {
+      this->TreeHeatmapBuildTime = this->PrunedTree->GetMTime();
+      }
+    else if(this->Tree->GetMTime() > this->Table->GetMTime())
+      {
+      this->TreeHeatmapBuildTime = this->Tree->GetMTime();
+      }
     }
   else
     {
@@ -357,6 +399,27 @@ void vtkTreeHeatmapItem::CountLeafNodes()
 }
 
 //-----------------------------------------------------------------------------
+int vtkTreeHeatmapItem::CountLeafNodes(vtkIdType vertex)
+{
+  // figure out how many leaf nodes descend from vertex.
+  int numLeaves = 0;
+  for (vtkIdType child = 0; child < this->Tree->GetNumberOfChildren(vertex);
+       ++child)
+    {
+    vtkIdType childVertex = this->Tree->GetChild(vertex, child);
+    if (this->Tree->IsLeaf(childVertex))
+      {
+      ++numLeaves;
+      }
+    else
+      {
+      numLeaves += this->CountLeafNodes(childVertex);
+      }
+    }
+  return numLeaves;
+}
+
+//-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::InitializeLookupTables()
 {
   while (!this->LookupTables.empty())
@@ -445,8 +508,11 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
   double targetPoint[3];
   double spacing = 25;
 
-  vtkBitArray *vertexIsPruned = vtkBitArray::SafeDownCast(
+  vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
+
+  // Calculate the extent of the data that is visible within the window.
+  this->UpdateVisibleSceneExtent(painter);
 
   // draw the tree
   for (vtkIdType edge = 0; edge < this->LayoutTree->GetNumberOfEdges(); ++edge)
@@ -466,7 +532,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     bool alreadyDrewCollapsedSubTree = false;
     vtkIdType originalId = this->GetOriginalId(target);
 
-    if (vertexIsPruned->GetValue(originalId) == 1)
+    if (vertexIsPruned->GetValue(originalId) > 0)
       {
       float trianglePoints[6];
       trianglePoints[0] = sourcePoint[0] * this->Multiplier;
@@ -475,16 +541,33 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       trianglePoints[3] = targetPoint[1]  * this->Multiplier - this->CellHeight / 2;
       trianglePoints[4] = this->TreeMaxX;
       trianglePoints[5] = targetPoint[1] * this->Multiplier + this->CellHeight / 2;
-
-      painter->GetBrush()->SetColor(191, 191, 191, 255);
-      painter->DrawPolygon(trianglePoints, 3);
+      if (this->LineIsVisible(trianglePoints[0], trianglePoints[1],
+                              trianglePoints[2], trianglePoints[3]) ||
+          this->LineIsVisible(trianglePoints[0], trianglePoints[1],
+                              trianglePoints[4], trianglePoints[5]) ||
+          this->LineIsVisible(trianglePoints[2], trianglePoints[3],
+                              trianglePoints[4], trianglePoints[5]))
+        {
+        double color[3];
+        double colorKey =
+          static_cast<double>(vertexIsPruned->GetValue(originalId));
+        this->TriangleLookupTable->GetColor(colorKey, color);
+        painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
+        painter->DrawPolygon(trianglePoints, 3);
+        }
       alreadyDrewCollapsedSubTree = true;
       }
 
-    painter->DrawLine (x0, y0, x0, y1);
+    if (this->LineIsVisible(x0, y0, x0, y1))
+      {
+      painter->DrawLine (x0, y0, x0, y1);
+      }
     if (!alreadyDrewCollapsedSubTree)
       {
-      painter->DrawLine (x0, y1, x1, y1);
+      if (this->LineIsVisible(x0, y1, x1, y1))
+        {
+        painter->DrawLine (x0, y1, x1, y1);
+        }
       }
     }
 
@@ -498,28 +581,24 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
   vtkStringArray *nodeNames = vtkStringArray::SafeDownCast(
     this->LayoutTree->GetVertexData()->GetAbstractArray("node name"));
 
-  // calculate how large our table cells will be when they are drawn.
-  double numLeaves = static_cast<double>(this->NumberOfLeafNodes);
-  this->CellHeight = (this->TreeMaxY / (numLeaves - 1.0));
-  if (this->CellHeight * 2 > 100)
-    {
-    this->CellWidth = 100;
-    }
-  else
-    {
-    this->CellWidth = this->CellHeight * 2;
-    }
-
   // leave a small amount of space between the tree, the table,
   // and the row/column labels
   spacing = this->CellWidth * 0.25;
 
-  this->SetupTextProperty(painter);
+  bool canDrawText = this->SetupTextProperty(painter);
 
   if (this->Table->GetNumberOfRows() == 0)
     {
     // special case for tree with no table
     // draw labels for the leaf nodes
+    xStart = this->TreeMaxX + spacing;
+
+    if (!canDrawText || this->SceneBottomLeft[0] > xStart ||
+        this->SceneTopRight[0] < xStart)
+      {
+      return;
+      }
+
     for (vtkIdType vertex = 0; vertex < this->LayoutTree->GetNumberOfVertices();
          ++vertex)
       {
@@ -530,9 +609,11 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       double point[3];
       this->LayoutTree->GetPoint(vertex, point);
       std::string nodeName = nodeNames->GetValue(vertex);
-      xStart = this->TreeMaxX + spacing;
       yStart = point[1] * this->Multiplier;
-      painter->DrawString(xStart, yStart, nodeName);
+      if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
+        {
+        painter->DrawString(xStart, yStart, nodeName);
+        }
       }
     return;
     }
@@ -548,6 +629,13 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
   this->HeatmapMinY = VTK_DOUBLE_MAX;
   this->HeatmapMaxY = VTK_DOUBLE_MIN;
+  xStart = this->TreeMaxX + spacing * 2 +
+    this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+  bool drawRowLabels = canDrawText;
+  if (this->SceneBottomLeft[0] > xStart || this->SceneTopRight[0] < xStart)
+    {
+    drawRowLabels = false;
+    }
 
   for (vtkIdType vertex = 0; vertex < this->LayoutTree->GetNumberOfVertices();
        ++vertex)
@@ -559,7 +647,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
 
     // For now, we don't draw a heatmap row for a pruned branch.
     vtkIdType originalId = this->GetOriginalId(vertex);
-    if (vertexIsPruned->GetValue(originalId) == 1)
+    if (vertexIsPruned->GetValue(originalId) > 0)
       {
       continue;
       }
@@ -604,7 +692,13 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       // draw this cell of the table
       xStart = this->HeatmapMinX + this->CellWidth * (column - 1);
       yStart = point[1] * this->Multiplier - (this->CellHeight / 2);
-      painter->DrawRect(xStart, yStart, this->CellWidth, this->CellHeight);
+      if (this->LineIsVisible(xStart, yStart, xStart + this->CellWidth,
+                              yStart + this->CellHeight) ||
+          this->LineIsVisible(xStart, yStart + this->CellHeight,
+                              xStart + this->CellWidth, yStart))
+        {
+        painter->DrawRect(xStart, yStart, this->CellWidth, this->CellHeight);
+        }
 
       // keep track of where the top and bottom of the table is.
       // this is used to position column labels and tool tips.
@@ -619,10 +713,16 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       }
 
     // draw the label for this row
-    xStart = this->TreeMaxX + spacing * 2 +
-      this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
-    yStart = point[1] * this->Multiplier;
-    painter->DrawString(xStart, yStart, nodeName);
+    if (drawRowLabels)
+      {
+      xStart = this->TreeMaxX + spacing * 2 +
+        this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+      yStart = point[1] * this->Multiplier;
+      if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
+        {
+        painter->DrawString(xStart, yStart, nodeName);
+        }
+      }
     }
 
   // special case for when we've collapsed away the top row of the heatmap
@@ -632,14 +732,22 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     }
 
   // draw column labels
-  painter->GetTextProp()->SetOrientation(90);
-  for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
-       ++column)
+  yStart = this->HeatmapMaxY + spacing;
+  if (canDrawText && this->SceneBottomLeft[1] < yStart &&
+      this->SceneTopRight[1] > yStart)
     {
+    painter->GetTextProp()->SetOrientation(90);
+    for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
+         ++column)
+      {
       std::string columnName = this->Table->GetColumn(column)->GetName();
-      xStart = this->HeatmapMinX + this->CellWidth * column - this->CellWidth / 2;
-      yStart = this->HeatmapMaxY + spacing;
-      painter->DrawString(xStart, yStart, columnName);
+      xStart =
+        this->HeatmapMinX + this->CellWidth * column - this->CellWidth / 2;
+      if (this->SceneBottomLeft[0] < xStart && this->SceneTopRight[0] > xStart)
+        {
+        painter->DrawString(xStart, yStart, columnName);
+        }
+      }
     }
 }
 
@@ -728,7 +836,91 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter)
+void vtkTreeHeatmapItem::UpdateVisibleSceneExtent(vtkContext2D *painter)
+{
+  float position[2];
+  painter->GetTransform()->GetPosition(position);
+  this->SceneBottomLeft[0] = -position[0];
+  this->SceneBottomLeft[1] = -position[1];
+  this->SceneBottomLeft[2] = 0.0;
+
+  this->SceneTopRight[0] =
+    static_cast<double>(this->GetScene()->GetSceneWidth() - position[0]);
+  this->SceneTopRight[1] =
+    static_cast<double>(this->GetScene()->GetSceneHeight() - position[1]);
+  this->SceneTopRight[2] = 0.0;
+  vtkNew<vtkMatrix3x3> inverse;
+  painter->GetTransform()->GetInverse(inverse.GetPointer());
+  inverse->MultiplyPoint(this->SceneBottomLeft, this->SceneBottomLeft);
+  inverse->MultiplyPoint(this->SceneTopRight, this->SceneTopRight);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkTreeHeatmapItem::LineIsVisible(double x0, double y0,
+                                        double x1, double y1)
+{
+  // use local variables to improve readibility
+  double xMinScene = this->SceneBottomLeft[0];
+  double yMinScene = this->SceneBottomLeft[1];
+  double xMaxScene = this->SceneTopRight[0];
+  double yMaxScene = this->SceneTopRight[1];
+
+  // if either end point of the line segment falls within the screen,
+  // then the line segment is visible.
+  if ( (xMinScene <= x0 && xMaxScene >= x0 &&
+        yMinScene <= y0 && yMaxScene >= y0) ||
+       (xMinScene <= x1 && xMaxScene >= x1 &&
+        yMinScene <= y1 && yMaxScene >= y1) )
+    {
+    return true;
+    }
+
+  // figure out which end point is "greater" than the other in both dimensions
+  double xMinLine, xMaxLine, yMinLine, yMaxLine;
+  if (x0 < x1)
+    {
+    xMinLine = x0;
+    xMaxLine = x1;
+    }
+  else
+    {
+    xMinLine = x1;
+    xMaxLine = x0;
+    }
+  if (y0 < y1)
+    {
+    yMinLine = y0;
+    yMaxLine = y1;
+    }
+  else
+    {
+    yMinLine = y1;
+    yMaxLine = y0;
+    }
+
+  // case where the Y range of the line falls within the visible scene
+  // and the X range of the line contains the entire visible scene
+  if (yMinScene <= yMinLine && yMaxScene >= yMinLine &&
+      yMinScene <= yMaxLine && yMaxScene >= yMaxLine &&
+      xMinLine <= xMinScene && xMaxLine >= xMaxScene)
+    {
+    return true;
+    }
+
+  // case where the X range of the line falls within the visible scene
+  // and the Y range of the line contains the entire visible scene
+  if (xMinScene <= xMinLine && xMaxScene >= xMinLine &&
+      xMinScene <= xMaxLine && xMaxScene >= xMaxLine &&
+      yMinLine <= yMinScene && yMaxLine >= yMaxScene)
+    {
+    return true;
+    }
+
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter)
 {
   // set up our text property to draw row names
   painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
@@ -741,6 +933,10 @@ void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter)
   stringBounds[3] = VTK_FLOAT_MAX;
   std::string testString = "Igq"; //selected for range of height
   int currentFontSize = floor(this->CellHeight);
+  if (currentFontSize > 500)
+    {
+    currentFontSize = 500;
+    }
   painter->GetTextProp()->SetFontSize(currentFontSize);
   painter->ComputeStringBounds(testString, stringBounds);
   if (stringBounds[3] > this->CellWidth || stringBounds[3] > this->CellHeight)
@@ -750,6 +946,10 @@ void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter)
              stringBounds[3] > this->CellHeight))
       {
       --currentFontSize;
+      if (currentFontSize < 8)
+      {
+        return false;
+      }
       painter->GetTextProp()->SetFontSize(currentFontSize);
       painter->ComputeStringBounds(testString, stringBounds);
       }
@@ -757,7 +957,7 @@ void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter)
   else
     {
       while (stringBounds[3] < this->CellWidth &&
-             stringBounds[3] < this->CellHeight)
+             stringBounds[3] < this->CellHeight && currentFontSize < 500)
       {
       ++currentFontSize;
       painter->GetTextProp()->SetFontSize(currentFontSize);
@@ -766,6 +966,7 @@ void vtkTreeHeatmapItem::SetupTextProperty(vtkContext2D *painter)
     --currentFontSize;
     painter->GetTextProp()->SetFontSize(currentFontSize);
     }
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -869,14 +1070,14 @@ vtkIdType vtkTreeHeatmapItem::GetClickedCollapsedSubTree(double x, double y)
 {
   // iterate over all the collapsed subtrees to see if this click refers
   // to one of them.
-  vtkBitArray *vertexIsPruned = vtkBitArray::SafeDownCast(
+  vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
   vtkIdTypeArray *originalIdArray = vtkIdTypeArray::SafeDownCast(
     this->PrunedTree->GetVertexData()->GetArray("OriginalId"));
   for (vtkIdType originalId = 0;
        originalId < vertexIsPruned->GetNumberOfTuples(); ++originalId)
     {
-    if (vertexIsPruned->GetValue(originalId) == 1)
+    if (vertexIsPruned->GetValue(originalId) > 0)
       {
       // Find PrunedTree's vertex that corresponds to this originalId.
       for (vtkIdType prunedId = 0;
@@ -952,10 +1153,17 @@ void vtkTreeHeatmapItem::CollapseSubTree(vtkIdType vertex, bool expanding)
   vtkIdType originalId = originalIdArray->GetValue(vertex);
 
   // use this value as the index to the original (un-reindexed) tree's
-  // "VertexIsPruned" array.  Mark that vertex as pruned.
-  vtkBitArray *vertexIsPruned = vtkBitArray::SafeDownCast(
+  // "VertexIsPruned" array.  Mark that vertex as pruned by recording
+  // how many collapsed leaf nodes exist beneath it.
+  int numLeavesCollapsed = this->CountLeafNodes(originalId);
+  // no collapsing of leaf nodes
+  if (numLeavesCollapsed == 0)
+    {
+    return;
+    }
+  vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
-  vertexIsPruned->SetValue(originalId, 1);
+  vertexIsPruned->SetValue(originalId, numLeavesCollapsed);
 
   vtkNew<vtkTree> prunedTreeCopy;
   prunedTreeCopy->ShallowCopy(this->PrunedTree);
@@ -974,7 +1182,7 @@ void vtkTreeHeatmapItem::CollapseSubTree(vtkIdType vertex, bool expanding)
 void vtkTreeHeatmapItem::ExpandSubTree(vtkIdType vertex)
 {
   // mark this vertex as "not pruned"
-  vtkBitArray *vertexIsPruned = vtkBitArray::SafeDownCast(
+  vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
   vtkIdType vertexOriginalId = this->GetOriginalId(vertex);
   vertexIsPruned->SetValue(vertexOriginalId, 0);
@@ -987,7 +1195,7 @@ void vtkTreeHeatmapItem::ExpandSubTree(vtkIdType vertex)
   for (vtkIdType originalId = 0;
        originalId < vertexIsPruned->GetNumberOfTuples(); ++originalId)
     {
-    if (vertexIsPruned->GetValue(originalId) == 1)
+    if (vertexIsPruned->GetValue(originalId) > 0)
       {
       // Find PrunedTree's vertex that corresponds to this originalId.
       // Use this to re-collapse the subtrees that were not just expanded.

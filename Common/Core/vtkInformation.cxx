@@ -32,8 +32,11 @@
 #include "vtkInformationStringKey.h"
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationUnsignedLongKey.h"
+#include "vtkInformationVariantKey.h"
+#include "vtkInformationVariantVectorKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkVariant.h"
 
 #include <algorithm>
 #include <utility>
@@ -155,6 +158,22 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
     newvalue->Register(0);
     }
   this->Modified(key);
+}
+
+//----------------------------------------------------------------------------
+const vtkObjectBase* vtkInformation::GetAsObjectBase(
+  const vtkInformationKey* key) const
+{
+  if(key)
+    {
+    typedef vtkInformationInternals::MapType MapType;
+    MapType::const_iterator i = this->Internal->Map.find(const_cast<vtkInformationKey*>(key));
+    if(i != this->Internal->Map.end())
+      {
+      return i->second;
+      }
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -310,6 +329,34 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 
 //----------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from,
+                               vtkInformationVariantKey* key, int deep)
+{
+  if (!deep)
+    {
+    key->ShallowCopy(from, this);
+    }
+  else
+    {
+    key->DeepCopy(from, this);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from,
+                               vtkInformationVariantVectorKey* key, int deep)
+{
+  if (!deep)
+    {
+    key->ShallowCopy(from, this);
+    }
+  else
+    {
+    key->DeepCopy(from, this);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationStringKey* key, int deep)
 {
   if (!deep)
@@ -416,6 +463,7 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(DataObject, vtkDataObject*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Information, vtkInformation*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(InformationVector, vtkInformationVector*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(ObjectBase, vtkObjectBase*);
+VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Variant, const vtkVariant&);
 #undef VTK_INFORMATION_DEFINE_SCALAR_PROPERTY
 
 //----------------------------------------------------------------------------
@@ -458,6 +506,44 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(ObjectBase, vtkObjectBase*);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Double, double);
 
+// Variant vector key is slightly different to accommodate efficient
+// pass-by-reference instead of pass-by-value calls.
+void vtkInformation::Append(vtkInformationVariantVectorKey* key,
+  const vtkVariant& value)
+{
+  key->Append(this, value);
+}
+void vtkInformation::Set(vtkInformationVariantVectorKey* key,
+  const vtkVariant* value, int length)
+{
+  key->Set(this, value, length);
+}
+const vtkVariant* vtkInformation::Get(vtkInformationVariantVectorKey* key)
+{
+  return key->Get(this);
+}
+const vtkVariant& vtkInformation::Get(vtkInformationVariantVectorKey* key, int idx)
+{
+  return key->Get(this, idx);
+}
+void vtkInformation::Get(vtkInformationVariantVectorKey* key,
+  vtkVariant* value)
+{
+  key->Get(this, value);
+}
+int vtkInformation::Length(vtkInformationVariantVectorKey* key)
+{
+  return key->Length(this);
+}
+void vtkInformation::Remove(vtkInformationVariantVectorKey* key)
+{
+  key->vtkInformationVariantVectorKey::Remove(this);
+}
+int vtkInformation::Has(vtkInformationVariantVectorKey* key)
+{
+  return key->vtkInformationVariantVectorKey::Has(this);
+}
+
 // String vector key is slightly different to make it backwards compatible with
 // the scalar string key.
 void vtkInformation::Append(vtkInformationStringVectorKey* key,
@@ -488,10 +574,10 @@ int vtkInformation::Has(vtkInformationStringVectorKey* key)
   }
 
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
-#define VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(name, type)            \
+#define VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(name, type, atype)    \
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
-                           type value1, type value2, type value3,           \
-                           type value4, type value5, type value6)           \
+                           atype value1, atype value2, atype value3,        \
+                           atype value4, atype value5, atype value6)        \
     {                                                                       \
     type value[6];                                                          \
     value[0] = value1;                                                      \
@@ -503,7 +589,7 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
     key->Set(this, value, 6);                                               \
     }                                                                       \
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
-                           type value1, type value2, type value3)           \
+                           atype value1, atype value2, atype value3)        \
     {                                                                       \
     type value[3];                                                          \
     value[0] = value1;                                                      \
@@ -511,8 +597,11 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
     value[2] = value3;                                                      \
     key->Set(this, value, 3);                                               \
     }
+#define VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(name, type)            \
+        VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(name, type, type)
 VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Double, double);
+VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(Variant, vtkVariant, const vtkVariant&);
 #undef VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY
 
 #undef VTK_INFORMATION_DEFINE_VECTOR_PROPERTY
@@ -777,13 +866,25 @@ vtkInformationKey* vtkInformation::GetKey(vtkInformationStringKey* key)
 }
 
 //----------------------------------------------------------------------------
+vtkInformationKey* vtkInformation::GetKey(vtkInformationStringVectorKey* key)
+{
+  return key;
+}
+
+//----------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationUnsignedLongKey* key)
 {
   return key;
 }
 
 //----------------------------------------------------------------------------
-vtkInformationKey* vtkInformation::GetKey(vtkInformationStringVectorKey* key)
+vtkInformationKey* vtkInformation::GetKey(vtkInformationVariantKey* key)
+{
+  return key;
+}
+
+//----------------------------------------------------------------------------
+vtkInformationKey* vtkInformation::GetKey(vtkInformationVariantVectorKey* key)
 {
   return key;
 }
