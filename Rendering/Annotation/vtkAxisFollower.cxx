@@ -16,6 +16,7 @@
 #include "vtkAxisFollower.h"
 
 #include "vtkAxisActor.h"
+#include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
 #include "vtkMath.h"
@@ -444,6 +445,12 @@ int vtkAxisFollower::TestDistanceVisibility()
 
     if(dist > maxVisibleDistanceFromCamera)
       {
+      // Need to make sure we are not looking at a flat axis and therefore should enable it anyway
+      if(this->Axis)
+        {
+        vtkBoundingBox bbox(this->Axis->GetBounds());
+        return (bbox.GetDiagonalLength() > (cameraClippingRange[1] - cameraClippingRange[0])) ? 1 : 0;
+        }
       return 0;
       }
     else
