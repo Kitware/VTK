@@ -161,17 +161,10 @@ void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
   this->TransformPath(path.GetPointer());
 
   double origin[3] = {x, y, 0.f};
-  double scale[2] = {1.0, 1.0};
-  int *renWinSize = this->RenderWindow->GetSize();
-  double windowSize[2];
-  windowSize[0] = static_cast<double>(renWinSize[0]);
-  windowSize[1] = static_cast<double>(renWinSize[1]);
   unsigned char color[4];
   this->Brush->GetColor(color);
-  unsigned char alpha = this->Brush->GetColorObject().GetAlpha();
 
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
-                              scale, 0, color, alpha);
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, color);
 }
 
 //-----------------------------------------------------------------------------
@@ -197,26 +190,18 @@ void vtkGL2PSContextDevice2D::DrawEllipticArc(float x, float y,
   this->TransformPath(path.GetPointer());
 
   double origin[3] = {x, y, 0.f};
-  double scale[2] = {1.0, 1.0};
-  int *renWinSize = this->RenderWindow->GetSize();
-  double windowSize[2];
-  windowSize[0] = static_cast<double>(renWinSize[0]);
-  windowSize[1] = static_cast<double>(renWinSize[1]);
-  unsigned char fillColor[4];
-  this->Brush->GetColor(fillColor);
-  unsigned char fillAlpha = this->Brush->GetColorObject().GetAlpha();
-  unsigned char strokeColor[4];
-  this->Pen->GetColor(strokeColor);
-  unsigned char strokeAlpha = this->Pen->GetColorObject().GetAlpha();
-  float strokeWidth = this->Pen->GetWidth();
 
   // Fill
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
-                              scale, 0, fillColor, fillAlpha);
+  unsigned char fillColor[4];
+  this->Brush->GetColor(fillColor);
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, fillColor);
+
   // and stroke
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
-                              scale, 0, strokeColor, strokeAlpha,
-                              strokeWidth);
+  unsigned char strokeColor[4];
+  this->Pen->GetColor(strokeColor);
+  float strokeWidth = this->Pen->GetWidth();
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, strokeColor,
+                              NULL, 0.0, strokeWidth);
 }
 
 //-----------------------------------------------------------------------------
@@ -259,23 +244,19 @@ void vtkGL2PSContextDevice2D::DrawMathTextString(float apoint[],
     }
 
   double origin[3] = {apoint[0], apoint[1], 0.f};
-  double scale[2] = {1.0, 1.0};
   double rotateAngle = this->TextProp->GetOrientation();
-  int *renWinSize = this->RenderWindow->GetSize();
-  double windowSize[2];
-  windowSize[0] = static_cast<double>(renWinSize[0]);
-  windowSize[1] = static_cast<double>(renWinSize[1]);
   double dcolor[3];
   this->TextProp->GetColor(dcolor);
-  unsigned char color[3];
+  unsigned char color[4];
   color[0] = static_cast<unsigned char>(dcolor[0]*255);
   color[1] = static_cast<unsigned char>(dcolor[1]*255);
   color[2] = static_cast<unsigned char>(dcolor[2]*255);
+  color[3] = static_cast<unsigned char>(this->TextProp->GetOpacity()*255);
 
   this->TransformPath(path.GetPointer());
 
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, windowSize, origin,
-                              scale, rotateAngle, color);
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, color, NULL,
+                              rotateAngle);
 }
 
 //-----------------------------------------------------------------------------

@@ -200,6 +200,8 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->FrameActor = vtkActor2D::New();
   this->FrameActor->SetMapper(this->FrameMapper);
   this->FrameActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
+
+  this->DrawColorBar = true;
 }
 
 //----------------------------------------------------------------------------
@@ -318,7 +320,7 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
     renderedSomething += this->FrameActor->RenderOverlay(viewport);
     }
 
-  if (this->UseOpacity)
+  if (this->UseOpacity && this->DrawColorBar)
     {
     this->Texture->Render(vtkRenderer::SafeDownCast(viewport));
     renderedSomething += this->TextureActor->RenderOverlay(viewport);
@@ -333,7 +335,10 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
   // Draw either the scalar bar (non-indexed mode) or the annotated value boxes (indexed mode).
   if ( ! this->LookupTable->GetIndexedLookup() )
     {
-    this->ScalarBarActor->RenderOverlay(viewport);
+    if (this->DrawColorBar)
+      {
+      this->ScalarBarActor->RenderOverlay(viewport);
+      }
 
     if( this->TextActors == NULL)
       {
@@ -346,7 +351,7 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
       renderedSomething += this->TextActors[i]->RenderOverlay(viewport);
       }
     }
-  else
+  else if (this->DrawColorBar)
     {
     this->AnnotationBoxesActor->RenderOverlay(viewport);
     }
@@ -905,7 +910,10 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   // Draw either the scalar bar (non-indexed mode) or the annotated value boxes (indexed mode).
   if ( ! this->LookupTable->GetIndexedLookup() )
     {
-    this->ScalarBarActor->RenderOpaqueGeometry(viewport);
+    if (this->DrawColorBar)
+      {
+      this->ScalarBarActor->RenderOpaqueGeometry(viewport);
+      }
     for (i=0; i<this->NumberOfLabels; i++)
       {
       renderedSomething += this->TextActors[i]->RenderOpaqueGeometry(viewport);
@@ -913,7 +921,10 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
   else
     {
-    this->AnnotationBoxesActor->RenderOpaqueGeometry( viewport );
+    if (this->DrawColorBar)
+      {
+      this->AnnotationBoxesActor->RenderOpaqueGeometry( viewport );
+      }
     if ( this->DrawAnnotations )
       {
       if ( this->NumberOfAnnotationLabelsBuilt )

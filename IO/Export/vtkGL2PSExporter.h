@@ -259,6 +259,14 @@ public:
   vtkBooleanMacro(Write3DPropsAsRasterImage, int);
 
   // Description:
+  // Turn on/off exporting text as path information, rather than character data.
+  // This is useful for the PDF backend, which does not properly
+  // support aligned text otherwise. Defaults to Off.
+  vtkSetMacro(TextAsPath, bool);
+  vtkGetMacro(TextAsPath, bool);
+  vtkBooleanMacro(TextAsPath, bool);
+
+  // Description:
   // Collection of 3D Props to exclude from rasterization. These will be
   // rendered as 2D vector primitives in the output. This setting is ignored if
   // Write3DPropsAsRasterImage is false. Behind the scenes, these props are
@@ -304,11 +312,7 @@ protected:
                            vtkRenderer *ren);
   void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
                                vtkCoordinate *coord, vtkRenderer *ren);
-  // Description:
-  // Transform the path using the actor's matrix and current GL state, then
-  // draw it to GL2PS.
-  void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
-                  double actorBounds[4], unsigned char actorColor[3]);
+
   // Description:
   // Copy the region copyRect from the framebuffer into the gl2ps document.
   // copyRect is in viewport coordinates [xmin, ymin, width, height].
@@ -334,6 +338,7 @@ protected:
   int PS3Shading;
   int OcclusionCull;
   int Write3DPropsAsRasterImage;
+  bool TextAsPath;
 
   float *PixelData;
   int PixelDataSize[2];
