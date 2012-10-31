@@ -68,7 +68,7 @@ void vtkBoundingBox::AddBox(const vtkBoundingBox &bbox)
 }
 
 // ---------------------------------------------------------------------------
-void vtkBoundingBox::AddBounds(double bounds[6])
+void vtkBoundingBox::AddBounds(const double bounds[6])
 {
   bool this_valid = (this->IsValid() != 0);
   bool other_valid = (vtkBoundingBox::IsValid(bounds) != 0);

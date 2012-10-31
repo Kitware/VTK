@@ -24,6 +24,7 @@
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkPOutlineFilterInternals.h"
 
 vtkStandardNewMacro(vtkPOutlineFilter);
 vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);
@@ -32,6 +33,7 @@ vtkPOutlineFilter::vtkPOutlineFilter ()
 {
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
+
   this->OutlineSource = vtkOutlineSource::New();
 }
 
@@ -46,99 +48,15 @@ vtkPOutlineFilter::~vtkPOutlineFilter ()
 }
 
 int vtkPOutlineFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
+  vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkPOutlineFilterInternals internals;
+  internals.SetIsCornerSource(false);
+  internals.SetController(this->Controller);
 
-  // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  double bds[6];
-  int procid = 0;
-  int numProcs = 1;
-
-  if (this->Controller )
-    {
-    procid = this->Controller->GetLocalProcessId();
-    numProcs = this->Controller->GetNumberOfProcesses();
-    }
-
-  int doCommunicate = 1;
-
-  // If there is a composite dataset in the input, the request is
-  // coming from a vtkCompositeDataPipeline and interprocess communication
-  // is not necessary (simple datasets are not broken into pieces)
-  vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (cds)
-    {
-    doCommunicate = 0;
-    }
-
-  input->GetBounds(bds);
-
-  if (doCommunicate)
-    {
-    if ( procid )
-      {
-      // Satellite node
-      this->Controller->Send(bds, 6, 0, 792390);
-      }
-    else
-      {
-      int idx;
-      double tmp[6];
-
-      for (idx = 1; idx < numProcs; ++idx)
-        {
-        this->Controller->Receive(tmp, 6, idx, 792390);
-        if (tmp[0] < bds[0])
-          {
-          bds[0] = tmp[0];
-          }
-        if (tmp[1] > bds[1])
-          {
-          bds[1] = tmp[1];
-          }
-        if (tmp[2] < bds[2])
-          {
-          bds[2] = tmp[2];
-          }
-        if (tmp[3] > bds[3])
-          {
-          bds[3] = tmp[3];
-          }
-        if (tmp[4] < bds[4])
-          {
-          bds[4] = tmp[4];
-          }
-        if (tmp[5] > bds[5])
-          {
-          bds[5] = tmp[5];
-          }
-        }
-      }
-    }
-
-  if (!doCommunicate || procid == 0)
-    {
-    if (vtkMath::AreBoundsInitialized(bds))
-      {
-      // only output in process 0.
-      this->OutlineSource->SetBounds(bds);
-      this->OutlineSource->Update();
-      output->CopyStructure(this->OutlineSource->GetOutput());
-      }
-    }
-
-  return 1;
+  return internals.RequestData(request,inputVector,outputVector);
 }
 
 int vtkPOutlineFilter::RequestInformation(
@@ -157,6 +75,7 @@ int vtkPOutlineFilter::RequestInformation(
 int vtkPOutlineFilter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 

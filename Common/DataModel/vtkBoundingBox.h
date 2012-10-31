@@ -54,7 +54,7 @@ public:
   // Description:
   // Set the bounds explicitly of the box (vtk Style)
   // Returns 1 if the box was changed else 0
-  void SetBounds(double bounds[6]);
+  void SetBounds(const double bounds[6]);
   void SetBounds(double xMin, double xMax,
                  double yMin, double yMax,
                  double zMin, double zMax);
@@ -84,7 +84,7 @@ public:
 
   // Description:
   // Change the bounding box so it includes bounds (defined by vtk standard)
-  void AddBounds(double bounds[6]);
+  void AddBounds(const double bounds[]);
 
   // Desciption:
   // Intersect this box with bbox. The method returns 1 if
@@ -165,7 +165,7 @@ public:
   // Returns 1 if the bounds have been set and 0 if the box is in its
   // initialized state which is an inverted state
   int IsValid() const;
-  static int IsValid(double bounds[6]);
+  static int IsValid(const double bounds[6]);
 
   // Description:
   // Returns the box to its initialized state
@@ -228,7 +228,7 @@ inline int vtkBoundingBox::IsValid() const
           (this->MinPnt[2] <= this->MaxPnt[2]));
 }
 
-inline int vtkBoundingBox::IsValid(double bounds[6])
+inline int vtkBoundingBox::IsValid(const double bounds[6])
 {
   return (bounds[0] <= bounds[1] &&
     bounds[2] <= bounds[3] &&
@@ -254,7 +254,7 @@ inline void vtkBoundingBox::GetCenter(double center[3]) const
   center[2] = 0.5 * (this->MaxPnt[2] + this->MinPnt[2]);
 }
 
-inline void vtkBoundingBox::SetBounds(double bounds[6])
+inline void vtkBoundingBox::SetBounds(const double bounds[6])
 {
   this->SetBounds(bounds[0], bounds[1], bounds[2],
                   bounds[3], bounds[4], bounds[5]);

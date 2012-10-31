@@ -22,9 +22,22 @@
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkOutlineSource.h"
 #include "vtkOutlineCornerSource.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkDataObjectTree.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkDataObjectTreeIterator.h"
+#include "vtkSmartPointer.h"
+#include "vtkAppendPolyData.h"
+#include "vtkBoundingBox.h"
+#include "vtkUniformGrid.h"
+#include "vtkAMRInformation.h"
+#include "vtkNew.h"
+#include "vtkPOutlineFilterInternals.h"
+#include <vector>
 
 vtkStandardNewMacro(vtkPOutlineCornerFilter);
 vtkCxxSetObjectMacro(vtkPOutlineCornerFilter, Controller, vtkMultiProcessController);
@@ -34,119 +47,50 @@ vtkPOutlineCornerFilter::vtkPOutlineCornerFilter ()
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->CornerFactor = 0.2;
-  this->OutlineCornerSource = vtkOutlineCornerSource::New();
+  this->Internals = new vtkPOutlineFilterInternals;
+  this->Internals->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 vtkPOutlineCornerFilter::~vtkPOutlineCornerFilter ()
 {
   this->SetController(0);
-  if (this->OutlineCornerSource != NULL)
+  this->Internals->SetController(0);
+  delete this->Internals;
+}
+
+// ----------------------------------------------------------------------------
+void vtkPOutlineCornerFilter::SetCornerFactor(double cornerFactor)
+{
+  vtkDebugMacro(<< this->GetClassName()
+                << " ("
+                << this
+                << "): setting "
+                << "CornerFactor to "
+                << CornerFactor );
+  double tempCornerFactor =  (cornerFactor < 0.001
+                              ? 0.001
+                              : (cornerFactor > 0.5
+                                 ? 0.5
+                                 : cornerFactor));
+
+  if ( this->CornerFactor != tempCornerFactor)
     {
-    this->OutlineCornerSource->Delete ();
-    this->OutlineCornerSource = NULL;
+    std::cerr << "CornerFactor: " << tempCornerFactor
+              << std::endl;
+    this->CornerFactor = tempCornerFactor;
+    this->Internals->SetCornerFactor(tempCornerFactor);
+    this->Modified();
     }
 }
 
+// ----------------------------------------------------------------------------
 int vtkPOutlineCornerFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
+  vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  double bds[6];
-
-  if ( !this->Controller )
-    {
-    vtkErrorMacro("Controller not set");
-    return 0;
-    }
-
-  int doCommunicate = 1;
-
-  // If there is a composite dataset in the input, the request is
-  // coming from a vtkCompositeDataPipeline and interprocess communication
-  // is not necessary (simple datasets are not broken into pieces)
-  vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (cds)
-    {
-    doCommunicate = 0;
-    }
-
-  input->GetBounds(bds);
-  //cerr << "Bounds: " << bds[0] << ", " << bds[1] << ", "
-  //<< bds[2] << ", " << bds[3] << ", "
-  //<< bds[4] << ", " << bds[5] << endl;
-
-  int procid = this->Controller->GetLocalProcessId();
-
-  if (doCommunicate)
-    {
-    if ( procid )
-      {
-      // Satellite node
-      this->Controller->Send(bds, 6, 0, 792390);
-      }
-    else
-      {
-      int numProcs = this->Controller->GetNumberOfProcesses();
-      int idx;
-      double tmp[6];
-
-      for (idx = 1; idx < numProcs; ++idx)
-        {
-        this->Controller->Receive(tmp, 6, idx, 792390);
-
-        if (tmp[0] < bds[0])
-          {
-          bds[0] = tmp[0];
-          }
-        if (tmp[1] > bds[1])
-          {
-          bds[1] = tmp[1];
-          }
-        if (tmp[2] < bds[2])
-          {
-          bds[2] = tmp[2];
-          }
-        if (tmp[3] > bds[3])
-          {
-          bds[3] = tmp[3];
-          }
-        if (tmp[4] < bds[4])
-          {
-          bds[4] = tmp[4];
-          }
-        if (tmp[5] > bds[5])
-          {
-          bds[5] = tmp[5];
-          }
-        }
-      }
-    }
-
-  if (!doCommunicate || procid == 0)
-    {
-    if (vtkMath::AreBoundsInitialized(bds))
-      {
-      // only output in process 0.
-      this->OutlineCornerSource->SetBounds(bds);
-      this->OutlineCornerSource->SetCornerFactor(this->GetCornerFactor());
-      this->OutlineCornerSource->Update();
-      output->CopyStructure(this->OutlineCornerSource->GetOutput());
-      }
-    }
-
-  return 1;
+  this->Internals->SetIsCornerSource(true);
+  return this->Internals->RequestData(request,inputVector,outputVector);
 }
 
 int vtkPOutlineCornerFilter::RequestInformation(
@@ -165,6 +109,7 @@ int vtkPOutlineCornerFilter::RequestInformation(
 int vtkPOutlineCornerFilter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
