@@ -1024,16 +1024,16 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->AxisBranchFactor = 2;
   this->Dimension =  3;
   this->DualGridFlag = 1;
-  this->NumberOfChildren = 1; // invalid set by SetDimensions
+  this->NumberOfChildren = 1; // Invalid, correct value set by UpdateTree
 
   // Grid geometry
-  this->XCoordinates=vtkDoubleArray::New();
+  this->XCoordinates = vtkDoubleArray::New();
   this->XCoordinates->SetNumberOfTuples( 1 );
   this->XCoordinates->SetComponent( 0, 0, 0. );
-  this->YCoordinates=vtkDoubleArray::New();
+  this->YCoordinates = vtkDoubleArray::New();
   this->YCoordinates->SetNumberOfTuples( 1 );
   this->YCoordinates->SetComponent( 0, 0, 0. );
-  this->ZCoordinates=vtkDoubleArray::New();
+  this->ZCoordinates = vtkDoubleArray::New();
   this->ZCoordinates->SetNumberOfTuples( 1 );
   this->ZCoordinates->SetComponent( 0, 0, 0. );
 
@@ -1055,10 +1055,11 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
       if ( this->CellTree[i] )
         {
         this->CellTree[i]->UnRegister( this );
+        this->CellTree[i] = 0;
         }
       }
     delete [] this->CellTree;
-    delete [] this->CellTreeLeafIdOffsets;
+    this->CellTree = 0;
     }
 
   if ( this->XCoordinates )
@@ -1138,12 +1139,19 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 {
   assert( "pre: ds_exists" && ds!=0 );
   assert( "pre: same_type" && vtkHyperTreeGrid::SafeDownCast(ds)!=0 );
+  assert( "pre: cell_tree" && vtkHyperTreeGrid::SafeDownCast(ds)->CellTree!=0 );
 
   vtkHyperTreeGrid* ho = vtkHyperTreeGrid::SafeDownCast( ds );
 
+  this->Dimension = ho->Dimension;
+  this->AxisBranchFactor = ho->AxisBranchFactor;
+  this->DualGridFlag = ho->DualGridFlag;
+  this->NumberOfChildren = ho->NumberOfChildren;
+  memcpy( this->GridSize, ho->GetGridSize(), 3 * sizeof( int ) );
+
+  int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
   if ( this->CellTree )
     {
-    int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
     for ( int i = 0; i < nCells; ++ i )
       {
       if ( this->CellTree[i] )
@@ -1152,32 +1160,28 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
         }
       }
     delete [] this->CellTree;
-    delete [] this->CellTreeLeafIdOffsets;
     }
 
-  this->CellTree=ho->CellTree;
-  this->CellTreeLeafIdOffsets=ho->CellTreeLeafIdOffsets;
+  this->CellTree = ho->CellTree;
 
   if ( this->CellTree )
     {
-    int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
     for ( int i = 0; i < nCells; ++ i )
       {
-      if ( this->CellTree[i] )
-        {
-        this->CellTree[i]->Register( this );
-        }
+      this->CellTree[i] = ho->CellTree[i];
+       if ( this->CellTree[i] )
+         {
+         this->CellTree[i]->Register( this );
+         }
       }
     }
 
-  this->Dimension = ho->Dimension;
-  this->AxisBranchFactor = ho->AxisBranchFactor;
-  this->DualGridFlag = ho->DualGridFlag;
-
-  for ( int i = 0; i < 3; ++ i )
+  if ( this->CellTreeLeafIdOffsets )
     {
-    this->GridSize[i] = ho->GridSize[i];
+    delete [] this->CellTreeLeafIdOffsets;
+    this->CellTreeLeafIdOffsets = 0;
     }
+  this->CellTreeLeafIdOffsets = ho->CellTreeLeafIdOffsets;
 
   this->SetXCoordinates( ho->XCoordinates );
   this->SetYCoordinates( ho->YCoordinates );
@@ -1222,7 +1226,7 @@ int vtkHyperTreeGrid::GetDimension()
 void vtkHyperTreeGrid::SetDimension( int dim )
 {
   assert( "pre: valid_dim" && dim >= 1 && dim <= 3 );
-  if( this->Dimension == dim)
+  if( this->Dimension == dim )
     {
     return;
     }
@@ -1237,11 +1241,11 @@ void vtkHyperTreeGrid::SetDimension( int dim )
 void vtkHyperTreeGrid::SetAxisBranchFactor( int factor )
 {
   assert( "pre: valid_factor" && factor>=2 && factor<=3 );
-  if( this->AxisBranchFactor==factor)
+  if( this->AxisBranchFactor == factor )
     {
     return;
     }
-  this->AxisBranchFactor=factor;
+  this->AxisBranchFactor = factor;
   this->Modified();
   this->UpdateTree();
 }
@@ -1258,14 +1262,17 @@ void vtkHyperTreeGrid::UpdateTree()
       if ( this->CellTree[i] )
         {
         this->CellTree[i]->UnRegister( this );
+        this->CellTree[i] = 0;
         }
       }
     delete [] this->CellTree;
-    delete [] this->CellTreeLeafIdOffsets;
+    this->CellTree = 0;
     }
-
   this->CellTree = new vtkHyperTreeInternal*[nCells];
-  this->CellTreeLeafIdOffsets = new vtkIdType[nCells];
+  for ( int i = 0; i < nCells; ++ i )
+    {
+    this->CellTree[i] = 0;
+    }
 
   if ( this->AxisBranchFactor == 2 )
     {
@@ -1275,21 +1282,21 @@ void vtkHyperTreeGrid::UpdateTree()
         this->NumberOfChildren = 8;
         for ( int i = 0; i < nCells; ++ i )
           {
-          this->CellTree[i]=vtkCompactHyperTree<8>::New();
+          this->CellTree[i] = vtkCompactHyperTree<8>::New();
           }
         break;
       case 2:
         this->NumberOfChildren = 4;
          for ( int i = 0; i < nCells; ++ i )
           {
-          this->CellTree[i]=vtkCompactHyperTree<4>::New();
+          this->CellTree[i] = vtkCompactHyperTree<4>::New();
           }
        break;
       case 1:
         this->NumberOfChildren = 2;
         for ( int i = 0; i < nCells; ++ i )
           {
-          this->CellTree[i]=vtkCompactHyperTree<2>::New();
+          this->CellTree[i] = vtkCompactHyperTree<2>::New();
           }
         break;
       default:
@@ -1305,21 +1312,21 @@ void vtkHyperTreeGrid::UpdateTree()
         this->NumberOfChildren = 27;
          for ( int i = 0; i < nCells; ++ i )
           {
-          this->CellTree[i]=vtkCompactHyperTree<27>::New();
+          this->CellTree[i] = vtkCompactHyperTree<27>::New();
           }
        break;
       case 2:
         this->NumberOfChildren = 9;
         for ( int i = 0; i < nCells; ++ i )
           {
-          this->CellTree[i]=vtkCompactHyperTree<9>::New();
+          this->CellTree[i] = vtkCompactHyperTree<9>::New();
           }
         break;
       case 1:
         this->NumberOfChildren = 3;
         for ( int i = 0; i < nCells; ++ i )
           {
-          this->CellTree[i]=vtkCompactHyperTree<3>::New();
+          this->CellTree[i] = vtkCompactHyperTree<3>::New();
           }
         break;
       default:
@@ -1391,8 +1398,7 @@ int vtkHyperTreeGrid::GetNumberOfLevels( int i )
 
 //-----------------------------------------------------------------------------
 // Description:
-// Create a new cursor: an object that can traverse
-// hyperTree cells.
+// Create a new cursor: an object that can traverse hyperTree cells
 vtkHyperTreeCursor* vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
 {
   int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
@@ -2368,7 +2374,6 @@ void vtkHyperTreeGrid::InitializeSuperCursorChild(vtkHyperTreeSuperCursor* paren
     }
 }
 
-
 //-----------------------------------------------------------------------------
 // Traverse tree with 3x3x3 super cursor.  Center cursor generates dual point
 // Smallest leaf (highest level) owns corners/dual cell.  Ties are given to
@@ -2418,7 +2423,7 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         {
         // Initialize super cursors
         vtkHyperTreeSuperCursor superCursor;
-        this->InitializeSuperCursor(&superCursor, i, j, k);
+        this->InitializeSuperCursor( &superCursor, i, j, k );
 
         // Traverse and populate dual recursively
         this->TraverseDualRecursively(&superCursor, 0 );
@@ -2657,6 +2662,14 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetLeafCornerIds()
 //-----------------------------------------------------------------------------
 int vtkHyperTreeGrid::UpdateCellTreeLeafIdOffsets()
 {
+  if ( this->CellTreeLeafIdOffsets )
+    {
+    delete [] this->CellTreeLeafIdOffsets;
+    this->CellTreeLeafIdOffsets = 0;
+    }
+  int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+  this->CellTreeLeafIdOffsets = new vtkIdType[nCells];
+
   // Calculate point offsets into individual trees
   int numLeaves = 0;
   for ( int k = 0; k < this->GridSize[2]; ++ k )
@@ -2903,21 +2916,30 @@ void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::DeleteInternalArrays()
 {
+  if ( this->CellTreeLeafIdOffsets )
+    {
+    delete [] this->CellTreeLeafIdOffsets;
+    this->CellTreeLeafIdOffsets = 0;
+    }
+
   if ( this->LeafCenters )
     {
     this->LeafCenters->Delete();
     this->LeafCenters = 0;
     }
+
   if ( this->CornerLeafIds )
     {
     this->CornerLeafIds->Delete();
     this->CornerLeafIds = 0;
     }
+
   if ( this->CornerPoints )
     {
     this->CornerPoints->Delete();
     this->CornerPoints = 0;
     }
+
   if ( this->LeafCornerIds )
     {
     this->LeafCornerIds->Delete();

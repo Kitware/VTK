@@ -407,6 +407,14 @@ protected:
   void ComputeBounds();
   void UpdateTree();
 
+  void UpdateGridArrays();
+  vtkPoints* GetCornerPoints();
+  vtkIdTypeArray* GetLeafCornerIds();
+
+  void UpdateDualArrays();
+  vtkPoints* GetLeafCenters();
+  vtkIdTypeArray* GetCornerLeafIds();
+
   int Dimension;    // 1, 2 or 3.
   int GridSize[3];
   int AxisBranchFactor;
@@ -423,16 +431,9 @@ protected:
   friend class vtkHyperTreeLightWeightCursor;
   //ETX
 
-  // Initialize the arrays if necessary, then return it.
-  void UpdateDualArrays();
-  vtkPoints* GetLeafCenters();
-  vtkIdTypeArray* GetCornerLeafIds();
-  vtkPoints *LeafCenters;
-  vtkIdTypeArray *CornerLeafIds;
+  vtkPoints* LeafCenters;
+  vtkIdTypeArray* CornerLeafIds;
 
-  void UpdateGridArrays();
-  vtkPoints* GetCornerPoints();
-  vtkIdTypeArray* GetLeafCornerIds();
   vtkPoints* CornerPoints;
   vtkIdTypeArray* LeafCornerIds;
 
