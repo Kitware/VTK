@@ -257,7 +257,9 @@ static bool CheckUniques(vtkAbstractArray* arr, int* uniqueSizeBds)
 {
   bool ok = true;
   if (!arr)
+    {
     return ok;
+    }
 
   cout << arr->GetName() << endl;
 

@@ -1,6 +1,5 @@
 set(Module_SRCS
   vtkAnnotationLink.cxx
-  vtkAppendCompositeDataLeaves.cxx
   vtkAppendPoints.cxx
   vtkApproximatingSubdivisionFilter.cxx
   vtkAreaContourSpectrumFilter.cxx

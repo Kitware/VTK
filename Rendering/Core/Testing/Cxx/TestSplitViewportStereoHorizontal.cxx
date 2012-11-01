@@ -69,12 +69,14 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   renderer->AddActor(actor2);
   renderer->SetAmbient(1.0, 1.0, 1.0);
 
-  // Introduce scale to test out calculation of clipping range
-  // by vtkRenderer.
-  VTK_CREATE(vtkMatrix4x4, scaleMatrix);
-  scaleMatrix->SetElement(0, 0, 1);
-  scaleMatrix->SetElement(1, 1, 1);
-  scaleMatrix->SetElement(2, 2, 1);
+  VTK_CREATE(vtkRenderWindow, renwin);
+  renwin->AddRenderer(renderer);
+  renwin->SetSize(400, 400);
+  renwin->SetStereoRender(1);
+  renwin->SetStereoTypeToSplitViewportHorizontal();
+
+  VTK_CREATE(vtkRenderWindowInteractor, iren);
+  iren->SetRenderWindow(renwin);
 
   double eyePosition[3] = {0.0, 0.0, 5.0};
 
@@ -85,16 +87,11 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   camera->SetUseOffAxisProjection(1);
   camera->SetEyePosition(eyePosition);
   camera->SetEyeSeparation(0.05);
-  camera->SetModelTransformMatrix(scaleMatrix);
+  camera->SetPosition(0.0, 0.0, 0.0);
+  camera->SetFocalPoint(0.0, 0.0, -1.0);
+  camera->SetViewUp(0.0, 1.0, 0.0);
+  camera->SetViewAngle(30.0);
 
-  VTK_CREATE(vtkRenderWindow, renwin);
-  renwin->AddRenderer(renderer);
-  renwin->SetSize(400, 400);
-  renwin->SetStereoRender(1);
-  renwin->SetStereoTypeToSplitViewportHorizontal();
-
-  VTK_CREATE(vtkRenderWindowInteractor, iren);
-  iren->SetRenderWindow(renwin);
   renwin->Render();
 
   int retVal = vtkRegressionTestImage(renwin);

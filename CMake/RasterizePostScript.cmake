@@ -45,7 +45,7 @@ if(NOT ${EXITCODE} EQUAL 0)
   message(FATAL_ERROR "GhostScript exited with status ${EXITCODE}:\n${BBOXOUT}")
 endif()
 
-string(REGEX MATCH "^%%BoundingBox:[ ]+[0-9-]+[ ]+[0-9-]+[ ]+[0-9]+[ ]+[0-9]+"
+string(REGEX MATCH "%%BoundingBox:[ ]+[0-9-]+[ ]+[0-9-]+[ ]+[0-9]+[ ]+[0-9]+"
   BBOX ${BBOXOUT})
 
 string(REGEX REPLACE
