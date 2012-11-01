@@ -207,40 +207,6 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot3D::UpdateClippedPoints()
-{
-  if (this->Chart == NULL)
-    {
-    return;
-    }
-
-  this->PointsThatSurviveClipping.clear();
-  if (this->NumberOfComponents > 0)
-    {
-    this->ClippedColors->Reset();
-    }
-  for( size_t i = 0; i < this->Points.size(); ++i )
-    {
-    if( !this->Chart->PointShouldBeClipped(this->Points[i]) )
-      {
-      this->PointsThatSurviveClipping.push_back(this->Points[i]);
-      if (this->NumberOfComponents > 0)
-        {
-        const unsigned char rgb[3] =
-          {
-          this->Colors->GetValue(i * this->NumberOfComponents),
-          this->Colors->GetValue(i * this->NumberOfComponents + 1),
-          this->Colors->GetValue(i * this->NumberOfComponents + 2)
-          };
-        this->ClippedColors->InsertNextTupleValue(&rgb[0]);
-        this->ClippedColors->InsertNextTupleValue(&rgb[1]);
-        this->ClippedColors->InsertNextTupleValue(&rgb[2]);
-        }
-      }
-    }
-}
-
-//-----------------------------------------------------------------------------
 void vtkPlot3D::ComputeDataBounds()
 {
   double xMin = VTK_DOUBLE_MAX;
@@ -352,10 +318,4 @@ std::string vtkPlot3D::GetZAxisLabel()
 vector<vtkVector3f> vtkPlot3D::GetPoints()
 {
   return this->Points;
-}
-
-// ----------------------------------------------------------------------------
-vector<vtkVector3f> vtkPlot3D::GetPointsThatSurviveClipping()
-{
-  return this->PointsThatSurviveClipping;
 }

@@ -103,6 +103,11 @@ public:
   virtual void EnableClipping(bool enable) = 0;
 
   // Description:
+  // Enable/Disable the specified clipping plane.
+  virtual void EnableClippingPlane(int i, double *planeEquation) = 0;
+  virtual void DisableClippingPlane(int i) = 0;
+
+  // Description:
   // Begin drawing, pass in the viewport to set up the view.
   virtual void Begin(vtkViewport*) { }
 

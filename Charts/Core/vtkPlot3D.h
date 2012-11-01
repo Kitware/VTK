@@ -66,11 +66,6 @@ public:
   vector<vtkVector3f> GetPoints();
 
   // Description:
-  // Get the data points from this plot that currently fall within the axes
-  // of the chart.
-  vector<vtkVector3f> GetPointsThatSurviveClipping();
-
-  // Description:
   // Get/set the chart for this plot.
   vtkGetObjectMacro(Chart, vtkChartXYZ);
   virtual void SetChart(vtkChartXYZ* chart);
@@ -97,10 +92,6 @@ protected:
   ~vtkPlot3D();
 
   // Description:
-  // Determine what data points fall within the bounds of the chart axes.
-  virtual void UpdateClippedPoints();
-
-  // Description:
   // Generate a bounding cube for our data.
   virtual void ComputeDataBounds();
 
@@ -111,11 +102,6 @@ protected:
   // Description:
   // This array assigns a color to each datum in the plot.
   vtkNew<vtkUnsignedCharArray> Colors;
-
-  // Description:
-  // This array assigns a color to each data point which is currently
-  // rendered within the axes.
-  vtkNew<vtkUnsignedCharArray> ClippedColors;
 
   // Description:
   // Number of components in our color vectors.  This value is initialized
@@ -137,11 +123,6 @@ protected:
   // Description:
   // The data points read in during SetInputData().
   vector<vtkVector3f> Points;
-
-  // Description:
-  // The subset of our data points that fall within the axes.  These are
-  // the only data points that are rendered.
-  vector<vtkVector3f> PointsThatSurviveClipping;
 
   // Description:
   // When the points were last built.

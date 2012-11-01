@@ -311,6 +311,19 @@ void vtkOpenGLContextDevice3D::EnableClipping(bool enable)
     }
 }
 
+void vtkOpenGLContextDevice3D::EnableClippingPlane(int i, double *planeEquation)
+{
+  GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
+  glEnable(clipPlaneId);
+  glClipPlane(clipPlaneId, planeEquation);
+}
+
+void vtkOpenGLContextDevice3D::DisableClippingPlane(int i)
+{
+  GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
+  glDisable(clipPlaneId);
+}
+
 void vtkOpenGLContextDevice3D::Begin(vtkViewport* viewport)
 {
   // Need the actual pixel size of the viewport - ask OpenGL.
