@@ -592,15 +592,21 @@ void vtkAbstractArray::UpdateDiscreteValueSet()
   // M is chosen based on the number of bytes per tuple to maximize use of a cache
   // line (assuming a 64-byte cache line until kwsys::SystemInformation or the like
   // can provide a platform-independent way to query it).
-  // N is chosen to satisfy M*N = max(ceil(log(T)),min(2*MAX_DISCRETE_VALUES,T))
+  // N is chosen to satisfy M*N = max(ceil(K*log(T)),min(2*MAX_DISCRETE_VALUES,T))
+  // where K is VTK_SAMPLE_FACTOR that indicates the constant big-O factor by
+  // which log2(T) bounds the number of samples we should evaluate.
 #define VTK_CACHE_LINE_SIZE 64
+#define VTK_SAMPLE_FACTOR 32
   int nc = this->NumberOfComponents;
   int blockSize = VTK_CACHE_LINE_SIZE / (this->GetDataTypeSize() * nc);
   if (!blockSize) blockSize = 4;
   int ln2 = 0;
   vtkIdType nt = this->GetNumberOfTuples();
-  if (this->MaxId > 0) frexp(static_cast<double>(nt), &ln2);
-  vtkIdType numberOfSampleTuples = (ln2 <= 0 ? 1 : ln2);
+  if (this->MaxId > 0)
+    {
+    frexp(static_cast<double>(nt), &ln2);
+    }
+  vtkIdType numberOfSampleTuples = VTK_SAMPLE_FACTOR * (ln2 <= 0 ? 1 : ln2);
   vtkIdType numberOfBlocks =
     numberOfSampleTuples / blockSize +
     (numberOfSampleTuples % blockSize ? 1 : 0);

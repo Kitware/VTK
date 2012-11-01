@@ -101,13 +101,108 @@ static int numUniqueInt2[] = {
 static vtkStdString testTuplesString[] = {
   /*
    To test the log(N) sampling strategy, we must
-   have more than 64 entries in the array.
+   have more than 589 entries in the array.
    In practice, we need even more as the "cache line"
    optimization searches blocks of 8 strings at a time.
-   This array has 230 values and we should test
-   max(ceil(log2(230)),min(230,2*32)) = 64 tuples.
+   This array has 645 values and we should test
+   max(ceil(32*log2(645)),min(645,2*32)) = 299 tuples.
+   Because of the cache line size, we actually test 320
+   tuples. For arrays with fewer than twice as many
+   tuples as we are set to test, we simply test the whole
+   array, so *more* than 640 entries are required.
+
+   The 4 words marked "not detected" below are placed
+   so as to avoid the random choice of blocks to test
+   on at least one platform.
+   The vtkObject ModificationTime counter is used as a
+   seed for the random number generator and its count
+   will vary across platforms and compile-time options,
+   so we accept anywhere from 4 to 8 values being detected.
    */
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
   "Skeenie", "Beeny", "Piny", "Po", "Po", // not detected.
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
+  "Eeny", "Meeny", "Miny", "Mo", "Miny",
   "Eeny", "Meeny", "Miny", "Mo", "Miny",
   "Eeny", "Meeny", "Miny", "Mo", "Miny",
   "Eeny", "Meeny", "Miny", "Mo", "Miny",
