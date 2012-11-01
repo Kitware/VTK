@@ -241,6 +241,36 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
              strcmp(gl_version,"2.0 ATI-1.4.58")==0 &&
              strcmp(gl_vendor,"ATI Technologies Inc.")==0);
     }
+
+  // Workaround for a bug in Mesa 7.7 with separate specular color. The
+  // GL_EXT_separate_specular_color extension does not work properly with
+  // Mesa prior to version 7.10. If the user is requesting the separate
+  // specular color extension and the renderer is mesa and the mesa version
+  // is less than 7.10 we report that the platform does not support it.
+  if (result && strcmp(name, "GL_EXT_separate_specular_color") == 0)
+    {
+    const char* gl_version =
+      reinterpret_cast<const char *>(glGetString(GL_VERSION));
+
+    if(const char *mesa_version = strstr(gl_version, "Mesa"))
+      {
+      int mesa_major = 0;
+      int mesa_minor = 0;
+      int mesa_patch = 0;
+      if(sscanf(mesa_version,
+                "Mesa %d.%d.%d",
+                &mesa_major,
+                &mesa_minor,
+                &mesa_patch) >= 2)
+        {
+        if(mesa_major < 7 || (mesa_major == 7 && mesa_minor < 10))
+          {
+          result = 0;
+          }
+        }
+      }
+    }
+
   return result;
 }
 
