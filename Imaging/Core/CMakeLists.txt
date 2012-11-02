@@ -2,7 +2,6 @@ set(Module_SRCS
   vtkImageStencilIterator.cxx
   vtkExtractVOI.cxx
   vtkImageAppendComponents.cxx
-  vtkImageAppend.cxx
   vtkImageBlend.cxx
   vtkImageCacheFilter.cxx
   vtkImageCast.cxx

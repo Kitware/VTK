@@ -92,8 +92,8 @@ SET(Module_SRCS
   vtkInformationStringKey.cxx
   vtkInformationStringVectorKey.cxx
   vtkInformationUnsignedLongKey.cxx
-  vtkInformationVariantKey
-  vtkInformationVariantVectorKey
+  vtkInformationVariantKey.cxx
+  vtkInformationVariantVectorKey.cxx
   vtkInformationVector.cxx
   vtkInstantiator.cxx
   vtkIntArray.cxx
