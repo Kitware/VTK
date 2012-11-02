@@ -179,8 +179,6 @@ int vtkFFMPEGWriterInternal::Start()
     c->pix_fmt = PIX_FMT_BGR24;
     }
 
-  //change DIV3 to MP43 fourCC to be easily playable on windows
-  //c->codec_tag = ('3'<<24) + ('4'<<16) + ('P'<<8) + 'M';
   //to do playback at actual recorded rate, this will need more work see also below
   c->time_base.den = this->FrameRate;
   c->time_base.num = 1;
@@ -208,13 +206,15 @@ int vtkFFMPEGWriterInternal::Start()
     c->bit_rate = this->Writer->GetBitRate();
     }
 
-  // If BitRateTolerance is not set, just leave it at default value. That works
-  // just as fine. This over comes the issue reported by BUG #11923, frame rates
-  // other than 1 were not working.
-  if (this->Writer->GetBitRateTolerance())
+  if(!this->Writer->GetBitRateTolerance())
+    {
+    c->bit_rate_tolerance = c->bit_rate; //ffmpeg won't create a codec if brt<br
+    }
+  else
     {
     c->bit_rate_tolerance = this->Writer->GetBitRateTolerance();
     }
+
 #if LIBAVFORMAT_VERSION_MAJOR < 54
   //apply the chosen parameters
   if (av_set_parameters(this->avFormatContext, NULL) < 0)
