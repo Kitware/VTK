@@ -722,16 +722,16 @@ vtkPoints pentaPoints
 
 vtkFloatArray pentaScalars
   pentaScalars SetNumberOfTuples 10
-  pentaScalars InsertValue 0 0
-  pentaScalars InsertValue 1 0
-  pentaScalars InsertValue 2 0
-  pentaScalars InsertValue 3 0
-  pentaScalars InsertValue 4 0
-  pentaScalars InsertValue 5 1
-  pentaScalars InsertValue 6 1
-  pentaScalars InsertValue 7 1
-  pentaScalars InsertValue 8 1
-  pentaScalars InsertValue 9 1
+  pentaScalars InsertValue 0 1
+  pentaScalars InsertValue 1 1
+  pentaScalars InsertValue 2 1
+  pentaScalars InsertValue 3 1
+  pentaScalars InsertValue 4 1
+  pentaScalars InsertValue 5 0
+  pentaScalars InsertValue 6 0
+  pentaScalars InsertValue 7 0
+  pentaScalars InsertValue 8 0
+  pentaScalars InsertValue 9 0
 
 vtkPentagonalPrism aPenta
   [aPenta GetPointIds] SetId 0 0
@@ -793,18 +793,18 @@ vtkPoints hexaPoints
 
 vtkFloatArray hexaScalars
   hexaScalars SetNumberOfTuples 12
-  hexaScalars InsertValue 0 0
-  hexaScalars InsertValue 1 0
-  hexaScalars InsertValue 2 0
-  hexaScalars InsertValue 3 0
-  hexaScalars InsertValue 4 0
-  hexaScalars InsertValue 5 0
-  hexaScalars InsertValue 6 1
-  hexaScalars InsertValue 7 1
-  hexaScalars InsertValue 8 1
-  hexaScalars InsertValue 9 1
-  hexaScalars InsertValue 10 1
-  hexaScalars InsertValue 11 1
+  hexaScalars InsertValue 0 1
+  hexaScalars InsertValue 1 1
+  hexaScalars InsertValue 2 1
+  hexaScalars InsertValue 3 1
+  hexaScalars InsertValue 4 1
+  hexaScalars InsertValue 5 1
+  hexaScalars InsertValue 6 0
+  hexaScalars InsertValue 7 0
+  hexaScalars InsertValue 8 0
+  hexaScalars InsertValue 9 0
+  hexaScalars InsertValue 10 0
+  hexaScalars InsertValue 11 0
 
 vtkHexagonalPrism aHexa
   [aHexa GetPointIds] SetId 0 0
