@@ -259,6 +259,17 @@ int vtkParticleTracerBase::RequestInformation(
       {
       vtkWarningMacro(<<"Not enough input time steps for particle integration");
       }
+
+    //clamp the default start time to be within the data time range
+    if(this->StartTime < this->InputTimeValues[0])
+      {
+      this->SetStartTime(this->InputTimeValues[0]);
+      }
+    else if (this->StartTime > this->InputTimeValues.back())
+      {
+      this->SetStartTime(this->InputTimeValues.back());
+      }
+
   }
   else
     {
@@ -730,8 +741,6 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     this->CurrentTimeStep==this->StartTimeStep? StartTime:
     (this->CurrentTimeStep==this->TerminationTimeStep? this->TerminationTime : this->GetCacheDataTime(1));
 
-  this->PreviousOutputPointData = this->OutputPointData;
-
   //set up the output
   vtkPolyData *output = vtkPolyData::New();
     //
@@ -769,7 +778,6 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   this->OutputPointData->Initialize();
   vtkDebugMacro(<< "About to Interpolate allocate space");
   this->OutputPointData->InterpolateAllocate(this->DataReferenceT[0]->GetPointData());
-  //
   this->ParticleAge->SetName("ParticleAge");
   this->ParticleIds->SetName("ParticleId");
   this->ParticleSourceIds->SetName("ParticleSourceId");
@@ -973,6 +981,9 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     this->OutputPointData->AddArray(this->ParticleAngularVel);
     }
 
+  this->ParticlePointData = vtkSmartPointer<vtkPointData>::New();
+  this->ParticlePointData->ShallowCopy(this->OutputPointData);
+
   // save some locator building, by re-using them as time progresses
   this->Interpolator->AdvanceOneTimeStep();
 
@@ -993,6 +1004,10 @@ int vtkParticleTracerBase::RequestData(
   vtkInformationVector *outputVector)
 {
   PRINT("RD start: "<<this->CurrentTimeStep<<" "<<this->CurrentTime<<" "<<this->StartTimeStep<<" "<<this->TerminationTimeStep);
+  if(this->StartTimeStep<0)
+    {
+    return 0;
+    }
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkInformation    *inInfo = inputVector[0]->GetInformationObject(0);
@@ -1120,8 +1135,14 @@ void vtkParticleTracerBase::IntegrateParticle(
 
         if (!this->RetryWithPush(info, point1, delT, substeps))
           {
-          Assert(previous.PointId>=0); //the particle must have already been added;
-          this->SendParticleToAnotherProcess(info,previous, this->PreviousOutputPointData);
+          if(previous.PointId <0)
+            {
+            vtkWarningMacro("the particle should have been added");
+            }
+          else
+            {
+            this->SendParticleToAnotherProcess(info,previous, this->ParticlePointData);
+            }
           this->ParticleHistories.erase(it);
           particle_good = false;
           break;
@@ -1367,7 +1388,7 @@ void vtkParticleTracerBase::SetTerminationTime(double t)
     this->ResetCache();
     }
 
-  if( t <= this->StartTime)
+  if( t < this->StartTime)
     {
     vtkWarningMacro("Can't go backward");
     t = this->StartTime;
@@ -1592,6 +1613,16 @@ vtkFloatArray*  vtkParticleTracerBase::GetParticleAngularVel(vtkPointData* pd)
  return vtkFloatArray::SafeDownCast(pd->GetArray("AngularVelocity"));
 }
 
+void vtkParticleTracerBase::PrintParticleHistories()
+{
+  cout<<"Particle id, ages: "<<endl;
+  for(ParticleListIterator itr = this->ParticleHistories.begin();  itr!=this->ParticleHistories.end();itr++)
+    {
+    ParticleInformation& info(*itr);
+    cout<<info.InjectedPointId<<" "<<info.age<<" "<<endl;
+    }
+  cout<<endl;
+}
 
 
 
