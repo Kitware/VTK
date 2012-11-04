@@ -45,7 +45,4 @@
 /* Whether the user wants to use the Ogg/Theora encoder or not */
 #cmakedefine VTK_USE_OGGTHEORA_ENCODER
 
-/* Whether the user has built the MetaIO library or not  */
-#cmakedefine VTK_USE_METAIO
-
 #endif
