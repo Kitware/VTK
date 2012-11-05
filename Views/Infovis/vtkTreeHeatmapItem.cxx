@@ -61,7 +61,6 @@ vtkTreeHeatmapItem::vtkTreeHeatmapItem()
   this->TreeMaxY = 0.0;
 
   this->NumberOfLeafNodes = 0;
-  this->NumberOfCollapsedSubTrees = 0;
   this->Multiplier = 100.0;
   this->CellWidth = 100.0;
   this->CellHeight = 50.0;
@@ -507,6 +506,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
   double sourcePoint[3];
   double targetPoint[3];
   double spacing = 25;
+  int numberOfCollapsedSubTrees = 0;
 
   vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
@@ -534,6 +534,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
 
     if (vertexIsPruned->GetValue(originalId) > 0)
       {
+      ++numberOfCollapsedSubTrees;
       float trianglePoints[6];
       trianglePoints[0] = sourcePoint[0] * this->Multiplier;
       trianglePoints[1] = targetPoint[1] * this->Multiplier;
@@ -572,7 +573,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     }
 
   // special case: all the true leaf nodes have been collapsed
-  if (this->NumberOfLeafNodes <= this->NumberOfCollapsedSubTrees)
+  if (this->NumberOfLeafNodes <= numberOfCollapsedSubTrees)
     {
     return;
     }
@@ -1055,7 +1056,7 @@ bool vtkTreeHeatmapItem::MouseDoubleClickEvent(
       vtkIdType closestVertex =
         this->GetClosestVertex(pos[0] / this->Multiplier,
                                pos[1] / this->Multiplier);
-      this->CollapseSubTree(closestVertex, false);
+      this->CollapseSubTree(closestVertex);
       }
 
     this->Scene->SetDirty(true);
@@ -1138,7 +1139,7 @@ vtkIdType vtkTreeHeatmapItem::GetClosestVertex(double x, double y)
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::CollapseSubTree(vtkIdType vertex, bool expanding)
+void vtkTreeHeatmapItem::CollapseSubTree(vtkIdType vertex)
 {
 
   // no removing the root of the tree
@@ -1172,10 +1173,6 @@ void vtkTreeHeatmapItem::CollapseSubTree(vtkIdType vertex, bool expanding)
   this->PruneFilter->SetParentVertex(vertex);
   this->PruneFilter->Update();
   this->PrunedTree = this->PruneFilter->GetOutput();
-  if (!expanding)
-    {
-    this->NumberOfCollapsedSubTrees++;
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1206,13 +1203,12 @@ void vtkTreeHeatmapItem::ExpandSubTree(vtkIdType vertex)
         {
         if (originalIdArray->GetValue(prunedId) == originalId)
           {
-          this->CollapseSubTree(prunedId, true);
+          this->CollapseSubTree(prunedId);
           break;
           }
         }
       }
     }
-  this->NumberOfCollapsedSubTrees--;
 }
 
 //-----------------------------------------------------------------------------
