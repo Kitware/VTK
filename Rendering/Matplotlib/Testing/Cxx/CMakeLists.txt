@@ -1,24 +1,40 @@
-if(VTK_GHOSTSCRIPT_EXECUTABLE AND VTK_DATA_ROOT)
-  set(GL2PSTests
-    TestGL2PSMathTextActor.cxx
-    TestGL2PSMathTextActor3D.cxx
-    TestGL2PSMathTextOutput.cxx
-    TestGL2PSMathTextScaling.cxx
+# Check that matplotlib is available:
+execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import matplotlib"
+  RESULT_VARIABLE IMPORT_MATPLOTLIB_EXITCODE
+  OUTPUT_VARIABLE IMPORT_MATPLOTLIB_OUTPUT
+  ERROR_VARIABLE IMPORT_MATPLOTLIB_ERROR
   )
+set(MATPLOTLIB_FOUND FALSE)
+if(${IMPORT_MATPLOTLIB_EXITCODE} EQUAL 0)
+  set(MATPLOTLIB_FOUND TRUE)
 endif()
 
-if(VTK_DATA_ROOT)
-  # add tests that require data
-  set(MyTests
-    TestContextMathTextImage.cxx
-    TestMathTextActor.cxx
-    TestMathTextActor3D.cxx
-    TestRenderString.cxx
-    TestStringToPath.cxx
-    TestIndexedLookupScalarBar.cxx
-    ${GL2PSTests}
-    ${MixedTests}
+if(NOT MATPLOTLIB_FOUND)
+  message("Matplotlib not found! MathText rendering will not be available until it is installed. Disabling tests.")
+endif()
+
+if(MATPLOTLIB_FOUND)
+  if(VTK_GHOSTSCRIPT_EXECUTABLE AND VTK_DATA_ROOT)
+    set(GL2PSTests
+      TestGL2PSMathTextActor.cxx
+      TestGL2PSMathTextActor3D.cxx
+      TestGL2PSMathTextOutput.cxx
+      TestGL2PSMathTextScaling.cxx
     )
+  endif()
+
+  if(VTK_DATA_ROOT)
+    # add tests that require data
+    set(MyTests
+      TestContextMathTextImage.cxx
+      TestMathTextActor.cxx
+      TestMathTextActor3D.cxx
+      TestRenderString.cxx
+      TestStringToPath.cxx
+      TestIndexedLookupScalarBar.cxx
+      ${GL2PSTests}
+      )
+  endif()
 endif()
 
 # Use the testing object factory, to reduce boilerplate code in tests.

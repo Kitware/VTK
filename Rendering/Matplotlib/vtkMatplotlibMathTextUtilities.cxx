@@ -64,12 +64,46 @@ public:
 };
 
 //----------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkMatplotlibMathTextUtilities)
+vtkMatplotlibMathTextUtilities::Availablity
+vtkMatplotlibMathTextUtilities::MPLMathTextAvailable =
+    vtkMatplotlibMathTextUtilities::NOT_TESTED;
+
+//----------------------------------------------------------------------------
+vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
+{
+  // Attempt to import matplotlib to check for availability
+  switch (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable)
+    {
+    default:
+    case vtkMatplotlibMathTextUtilities::UNAVAILABLE:
+      return NULL;
+    case vtkMatplotlibMathTextUtilities::AVAILABLE:
+      break;
+    case vtkMatplotlibMathTextUtilities::NOT_TESTED:
+      Py_Initialize();
+      if (PyErr_Occurred() ||
+          !PyImport_ImportModule("matplotlib") ||
+          PyErr_Occurred())
+        {
+        vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
+        }
+      else
+        {
+        vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = AVAILABLE;
+        }
+      if (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable == UNAVAILABLE)
+        {
+        return NULL;
+        }
+      break;
+    }
+  VTK_OBJECT_FACTORY_NEW_BODY(vtkMatplotlibMathTextUtilities)
+}
+vtkInstantiatorNewMacro(vtkMatplotlibMathTextUtilities)
 
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
-  : Superclass(), PythonIsInitialized(false), MaskParser(NULL),
-    PathParser(NULL), FontPropertiesClass(NULL)
+  : Superclass(), MaskParser(NULL), PathParser(NULL), FontPropertiesClass(NULL)
 {
 }
 
@@ -79,32 +113,12 @@ vtkMatplotlibMathTextUtilities::~vtkMatplotlibMathTextUtilities()
   Py_XDECREF(this->MaskParser);
   Py_XDECREF(this->PathParser);
   Py_XDECREF(this->FontPropertiesClass);
-  if (this->PythonIsInitialized)
-    {
-    Py_Finalize();
-    }
-}
-
-//----------------------------------------------------------------------------
-bool vtkMatplotlibMathTextUtilities::InitializePython()
-{
-  if (this->PythonIsInitialized)
-    {
-    return true;
-    }
-  Py_Initialize();
-  this->PythonIsInitialized = !this->CheckForError();
-  return this->PythonIsInitialized;
+  Py_Finalize();
 }
 
 //----------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 {
-  if (!this->InitializePython())
-    {
-    return false;
-    }
-
   SmartPyObject mplMathTextLib(PyImport_ImportModule("matplotlib.mathtext"));
   if (this->CheckForError(mplMathTextLib.GetPointer()))
     {
@@ -133,11 +147,6 @@ bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 //----------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 {
-  if (!this->InitializePython())
-    {
-    return false;
-    }
-
   SmartPyObject mplTextPathLib(PyImport_ImportModule("matplotlib.textpath"));
   if (this->CheckForError(mplTextPathLib.GetPointer()))
     {
@@ -164,11 +173,6 @@ bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 //----------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializeFontPropertiesClass()
 {
-  if (!this->InitializePython())
-    {
-    return false;
-    }
-
   SmartPyObject mplFontManagerLib(
         PyImport_ImportModule("matplotlib.font_manager"));
   if (this->CheckForError(mplFontManagerLib.GetPointer()))
@@ -779,7 +783,6 @@ void vtkMatplotlibMathTextUtilities::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "PythonIsInitialized: " << this->PythonIsInitialized << endl;
   os << indent << "MaskParser: " << this->MaskParser << endl;
   os << indent << "PathParser: " << this->PathParser << endl;
   os << indent << "FontPropertiesClass: " << this->FontPropertiesClass << endl;
