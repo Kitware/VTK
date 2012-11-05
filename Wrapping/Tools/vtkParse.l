@@ -130,20 +130,24 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 
 {ID}"_EXPORT"  /* ignore EXPORT macros */
 
-{ID}"NotUsed"([ \t]*"("[^)]*")")? {
-      size_t i; size_t j = 0;
-      yylval.str = "";
-      if (yytext[yyleng-1] == ')')
+"vtkNotUsed" { /* let the wrappers see the parameter */
+      const char *args = NULL;
+      const char *cp;
+      size_t l = 0;
+      args = get_macro_arguments();
+      if (args)
         {
-        while (yytext[j]!='(') { j++; }
-        while (yytext[j]==' ' || yytext[j]=='\t') { j++; }
-        j++; i = j;
-        while (yytext[j] != ')' && yytext[j] != ' ' && yytext[j] != '\t')
+        cp = args;
+        if (*cp == '(') { cp++; }
+        while (*cp == ' ' || *cp == '\t') { cp++; }
+        l = vtkidlen(cp);
+        if (l)
           {
-          j++;
+          yylval.str = vtkstrndup(cp, l);
+          free((char *)args);
+          return(ID);
           }
-        yylval.str = vtkstrndup(&yytext[i], j-i);
-        return(ID);
+        free((char *)args);
         }
     }
 
@@ -757,26 +761,29 @@ int skip_trailing_comment(const char *text, size_t l)
  */
 int skip_to_next_directive()
 {
+  /* state == 0 at the start of a line */
   int state = 0;
   int c;
 
-  do
-    {
-    c = input();
-    if (c == 0)
-      {
-      break;
-      }
+  c = input();
 
-    /* newline changes state */
-    if (c == '\n')
+  while (c != 0)
+    {
+    /* whitespace */
+    if (c == ' ' || c == '\t')
+      {
+      c = input();
+      }
+    /* newline renews the start-of-line state */
+    else if (c == '\n')
       {
       state = 0;
       c = input();
       }
     /* skip comments */
-    if (c == '/')
+    else if (c == '/')
       {
+      state = 1;
       if ( (c = input()) == '*')
         {
         if (skip_comment() == 0)
@@ -786,30 +793,33 @@ int skip_to_next_directive()
         c = input();
         }
       }
-    /* skip escaped newlines */
-    if (c == '\\')
+    /* skip escaped characters */
+    else if (c == '\\')
       {
+      state = 1;
       if ( (c = input()) == '\r')
         {
-        c = input();
+        if ( (c = input()) == '\n')
+          {
+          c = input();
+          }
         }
-      if (c == '\n')
+      else if (c != 0)
         {
         c = input();
         }
       }
-    /* skip allowed whitespace */
-    while (c == ' ' || c == '\t')
+    /* any other chars except '#' at start of line */
+    else if (c != '#' || state != 0)
       {
+      state = 1;
       c = input();
       }
-    /* look for the directive */
-    if (state == 0 && c == '#')
+    else
       {
       break;
       }
     }
-  while (c != 0);
 
   return c;
 }

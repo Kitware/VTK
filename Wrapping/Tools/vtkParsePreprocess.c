@@ -2261,7 +2261,7 @@ static int preproc_include_file(
           line[j++] = tbuf[i++];
           in_quote = 0;
           }
-        else if (tbuf[i] == '\\' && tbuf[i+1] == '\"')
+        else if (tbuf[i] == '\\' && tbuf[i+1] != '\0')
           {
           line[j++] = tbuf[i++];
           line[j++] = tbuf[i++];

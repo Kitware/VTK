@@ -316,8 +316,8 @@ static int parse_check_options(int argc, char *argv[], int multi)
       else if (c == 'D')
         {
         j = 0;
-        while (*cp != '\0' && *cp != '=') { j++; }
-        if (*cp == '=') { j++; }
+        while (cp[j] != '\0' && cp[j] != '=') { j++; }
+        if (cp[j] == '=') { j++; }
         vtkParse_DefineMacro(cp, &cp[j]);
         }
       else if (c == 'U')
