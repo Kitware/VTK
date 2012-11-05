@@ -34,7 +34,6 @@ vtkPlotSurface::vtkPlotSurface()
   this->NumberOfColumns = 0;
   this->NumberOfVertices = 0;
   this->ColorComponents = 0;
-  this->PointIsClipped = NULL;
   this->XAxisLabel = "X";
   this->YAxisLabel = "Y";
   this->ZAxisLabel = "Z";
@@ -45,14 +44,6 @@ vtkPlotSurface::vtkPlotSurface()
 //-----------------------------------------------------------------------------
 vtkPlotSurface::~vtkPlotSurface()
 {
-  if (this->PointIsClipped != NULL)
-    {
-    for (int i = 0; i < this->NumberOfRows; ++i)
-      {
-      delete [] this->PointIsClipped[i];
-      }
-      delete [] this->PointIsClipped;
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -84,13 +75,6 @@ bool vtkPlotSurface::Paint(vtkContext2D *painter)
 
   context->ApplyPen(this->Pen.GetPointer());
 
-  // Update the points that fall inside our axes
-  // Update the points that fall inside our axes
-  if (this->Chart->ShouldCheckClipping())
-    {
-    this->UpdateClippedPoints();
-    }
-
   // draw the surface
   if (this->Surface.size() > 0)
     {
@@ -112,8 +96,6 @@ void vtkPlotSurface::SetInputData(vtkTable *input)
   this->NumberOfVertices =
     (this->NumberOfRows - 1) * (this->NumberOfColumns - 1) * 6;
 
-  this->PointIsClipped = new bool*[this->NumberOfRows];
-
   // initialize data ranges to row and column indices if they are not
   // already set.
   if (this->XMinimum == 0 && this->XMaximum == 0)
@@ -133,8 +115,6 @@ void vtkPlotSurface::SetInputData(vtkTable *input)
   float surfaceMax = VTK_FLOAT_MIN;
   for (int i = 0; i < this->NumberOfRows; ++i)
     {
-    this->PointIsClipped[i] = new bool[this->NumberOfColumns];
-
     for (int j = 0; j < this->NumberOfColumns; ++j)
       {
       // X (columns)
@@ -149,9 +129,6 @@ void vtkPlotSurface::SetInputData(vtkTable *input)
       float k = input->GetValue(i, j).ToFloat();
       data[pos] = k;
       ++pos;
-
-      // set PointIsClipped to true so the surface will be (re)generated.
-      this->PointIsClipped[i][j] = true;
 
       if (k < surfaceMin)
         {
@@ -177,7 +154,7 @@ void vtkPlotSurface::SetInputData(vtkTable *input)
   this->ColorComponents = 3;
 
   // generate the surface that is used for rendering
-  this->UpdateClippedPoints();
+  this->GenerateSurface();
 
   this->DataHasBeenRescaled = true;
 }
@@ -214,7 +191,7 @@ void vtkPlotSurface::SetInputData(vtkTable *input,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotSurface::GenerateClippedSurface()
+void vtkPlotSurface::GenerateSurface()
 {
   // clear out and initialize our surface & colors
   this->Surface.clear();
@@ -222,92 +199,28 @@ void vtkPlotSurface::GenerateClippedSurface()
   this->Colors->Reset();
   this->Colors->Allocate(this->NumberOfVertices * 3);
 
-  // collect vertices of unclipped triangles
+  // collect vertices of triangles
   float *data = this->Surface[0].GetData();
   int pos = 0;
   for (int i = 0; i < this->NumberOfRows - 1; ++i)
     {
     for (int j = 0; j < this->NumberOfColumns - 1; ++j)
       {
-      // we need these two points to draw either triangle
-      if (this->PointIsClipped[i][j] || this->PointIsClipped[i + 1][j + 1])
-        {
-        continue;
-        }
-
-      bool drawBottomRightTriangle = true;
-      if (this->PointIsClipped[i][j + 1])
-        {
-        drawBottomRightTriangle = false;
-        }
-
-      bool drawUpperLeftTriangle = true;
-      if (this->PointIsClipped[i + 1][j])
-        {
-        drawUpperLeftTriangle = false;
-        }
-
-      if (!drawBottomRightTriangle && !drawUpperLeftTriangle)
-        {
-        continue;
-        }
-
       float value1 = this->InputTable->GetValue(i, j).ToFloat();
+      float value2 = this->InputTable->GetValue(i, j + 1).ToFloat();
       float value3 = this->InputTable->GetValue(i + 1, j + 1).ToFloat();
+      float value4 = this->InputTable->GetValue(i + 1, j).ToFloat();
 
-      if (drawBottomRightTriangle)
-        {
-        float value2 = this->InputTable->GetValue(i, j + 1).ToFloat();
-        this->InsertSurfaceVertex(data, value1, i, j, pos);
-        this->InsertSurfaceVertex(data, value2, i, j + 1, pos);
-        this->InsertSurfaceVertex(data, value3, i + 1, j + 1, pos);
-        }
+      // bottom right triangle
+      this->InsertSurfaceVertex(data, value1, i, j, pos);
+      this->InsertSurfaceVertex(data, value2, i, j + 1, pos);
+      this->InsertSurfaceVertex(data, value3, i + 1, j + 1, pos);
 
-      if (drawUpperLeftTriangle)
-        {
-        float value4 = this->InputTable->GetValue(i + 1, j).ToFloat();
-        this->InsertSurfaceVertex(data, value1, i, j, pos);
-        this->InsertSurfaceVertex(data, value3, i + 1, j + 1, pos);
-        this->InsertSurfaceVertex(data, value4, i + 1, j, pos);
-        }
+      // upper left triangle
+      this->InsertSurfaceVertex(data, value1, i, j, pos);
+      this->InsertSurfaceVertex(data, value3, i + 1, j + 1, pos);
+      this->InsertSurfaceVertex(data, value4, i + 1, j, pos);
       }
-    }
-  this->Colors->Squeeze();
-}
-
-//-----------------------------------------------------------------------------
-void vtkPlotSurface::UpdateClippedPoints()
-{
-  if (this->Chart == NULL)
-    {
-    return;
-    }
-
-  vtkIdType row, col;
-  bool clippingChanged = false;
-  bool priorValue;
-
-  for( size_t i = 0; i < this->Points.size(); ++i )
-    {
-    row = i / this->NumberOfColumns;
-    col = i % this->NumberOfColumns;
-    priorValue = this->PointIsClipped[row][col];
-    if( this->Chart->PointShouldBeClipped(this->Points[i]) )
-      {
-      this->PointIsClipped[row][col] = true;
-      }
-    else
-      {
-      this->PointIsClipped[row][col] = false;
-      }
-    if (!clippingChanged && priorValue != this->PointIsClipped[row][col])
-      {
-      clippingChanged = true;
-      }
-    }
-  if (clippingChanged)
-    {
-    this->GenerateClippedSurface();
     }
 }
 
@@ -370,10 +283,6 @@ void vtkPlotSurface::RescaleData()
     }
   this->Chart->RecalculateBounds();
   this->ComputeDataBounds();
-
-  // rescale the surface that is used for actual rendering
-  this->UpdateClippedPoints();
-
   this->DataHasBeenRescaled = true;
 }
 

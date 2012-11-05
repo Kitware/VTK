@@ -79,15 +79,11 @@ protected:
   ~vtkPlotSurface();
 
   // Description:
-  // Determine what data points fall within the bounds of the chart axes.
-  void UpdateClippedPoints();
+  // Generate a surface (for OpenGL) from our list of points.
+  void GenerateSurface();
 
   // Description:
-  // Generate a surface (for OpenGL) from a list of unclipped points.
-  void GenerateClippedSurface();
-
-  // Description:
-  // Helper function used to setup a clipped, colored surface.
+  // Helper function used to setup a colored surface.
   void InsertSurfaceVertex(float *data, float value, int i, int j, int &pos);
 
   // Description:
@@ -133,10 +129,6 @@ protected:
   // Description:
   // The lookup table used to color the surface by height (Z dimension).
   vtkNew<vtkLookupTable> LookupTable;
-
-  // Description:
-  // 2D array indicating points that fall outside our cube axes.
-  bool **PointIsClipped;
 
   // Description:
   // user-defined data ranges

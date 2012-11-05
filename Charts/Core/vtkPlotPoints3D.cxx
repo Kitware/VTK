@@ -57,13 +57,7 @@ bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
 
   this->Update();
 
-  // Update the points that fall inside our axes
-  if (this->Chart->ShouldCheckClipping())
-    {
-    this->UpdateClippedPoints();
-    }
-
-  if (this->PointsThatSurviveClipping.size() > 0)
+  if (this->Points.size() > 0)
     {
 
     // Draw the points in 3d.
@@ -71,15 +65,14 @@ bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
     if (this->NumberOfComponents == 0)
       {
       context->DrawPoints(
-        this->PointsThatSurviveClipping[0].GetData(),
-        static_cast<int>(this->PointsThatSurviveClipping.size()));
+        this->Points[0].GetData(), static_cast<int>(this->Points.size()));
       }
     else
       {
       context->DrawPoints(
-        this->PointsThatSurviveClipping[0].GetData(),
-        static_cast<int>(this->PointsThatSurviveClipping.size()),
-        this->ClippedColors->GetPointer(0), this->NumberOfComponents);
+        this->Points[0].GetData(),
+        static_cast<int>(this->Points.size()),
+        this->Colors->GetPointer(0), this->NumberOfComponents);
       }
 
     }

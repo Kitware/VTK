@@ -119,6 +119,15 @@ public:
   void PushMatrix();
   void PopMatrix();
 
+  // Description:
+  // Enable/Disable the specified clipping plane.
+  // i is the index of the clipping plane being enabled or disabled (0 - 5).
+  // planeEquation points to the four coefficients of the equation for the
+  // clipping plane: Ax + By + Cz + D = 0.  This is the equation format
+  // expected by glClipPlane.
+  void EnableClippingPlane(int i, double *planeEquation);
+  void DisableClippingPlane(int i);
+
 protected:
   vtkContext3D();
   ~vtkContext3D();

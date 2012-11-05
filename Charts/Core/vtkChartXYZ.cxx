@@ -27,6 +27,7 @@
 #include "vtkMath.h"
 #include "vtkPen.h"
 #include "vtkPlane.h"
+#include "vtkPlaneCollection.h"
 #include "vtkPlot3D.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
@@ -59,7 +60,6 @@ vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), IsX(false), Angle(0)
   this->InitializeAxesBoundaryPoints();
   this->AutoRotate = false;
   this->DrawAxesDecoration = true;
-  this->CheckClipping = true;
   this->FitToScene = true;
   this->Axes.resize(3);
   for(unsigned int i = 0; i < 3; ++i)
@@ -217,10 +217,24 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
   // Calculate the transforms required for the current rotation.
   this->CalculateTransforms();
 
+  // Set up clipping planes
+  for (int i = 0; i < 6; i++)
+    {
+    double planeEquation[4];
+    this->GetClippingPlaneEquation(i, planeEquation);
+    context->EnableClippingPlane(i, planeEquation);
+    }
+
   // Draw plots
   context->PushMatrix();
   context->AppendTransform(this->ContextTransform.GetPointer());
   this->PaintChildren(painter);
+
+  // Remove clipping planes
+  for (int i = 0; i < 6; i++)
+    {
+    context->DisableClippingPlane(i);
+    }
 
   // Calculate the bounds of the data within the axes
   this->ComputeDataBounds();
@@ -243,7 +257,6 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
     this->RescaleAxes();
     }
 
-  this->CheckClipping = false;
   return true;
 }
 
@@ -887,7 +900,6 @@ bool vtkChartXYZ::MouseWheelEvent(const vtkContextMouseEvent&,
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
-  this->CheckClipping = true;
 
   this->InvokeEvent(vtkCommand::InteractionEvent);
   return true;
@@ -931,7 +943,6 @@ bool vtkChartXYZ::Rotate(const vtkContextMouseEvent &mouse)
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
-  this->CheckClipping = true;
 
   this->InvokeEvent(vtkCommand::InteractionEvent);
   return true;
@@ -953,7 +964,6 @@ bool vtkChartXYZ::Pan(const vtkContextMouseEvent &mouse)
   this->Scene->SetDirty(true);
 
   this->InvokeEvent(vtkCommand::InteractionEvent);
-  this->CheckClipping = true;
   return true;
 }
 
@@ -980,7 +990,6 @@ bool vtkChartXYZ::Zoom(const vtkContextMouseEvent &mouse)
   this->Scene->SetDirty(true);
 
   this->InvokeEvent(vtkCommand::InteractionEvent);
-  this->CheckClipping = true;
   return true;
 }
 
@@ -1166,6 +1175,7 @@ void vtkChartXYZ::CalculateTransforms()
                        Axes[2]->GetPosition1()[1]);
 
   // setup clipping planes
+  this->BoundingCube->RemoveAllItems();
   vtkVector3d cube[8];
   vtkVector3d transformedCube[8];
 
@@ -1191,97 +1201,55 @@ void vtkChartXYZ::CalculateTransforms()
   double norm6[3];
 
   //face 0,1,2,3 opposes face 4,5,6,7
-  vtkMath::Cross((transformedCube[1] - transformedCube[0]).GetData(),
-                 (transformedCube[2] - transformedCube[0]).GetData(), norm1);
+  vtkNew<vtkPlane> face1;
+  vtkMath::Cross((transformedCube[2] - transformedCube[0]).GetData(),
+                 (transformedCube[1] - transformedCube[0]).GetData(), norm1);
   vtkMath::Normalize(norm1);
-  this->Face1->SetNormal(norm1);
-  this->Face1->SetOrigin(transformedCube[3].GetData());
+  face1->SetNormal(norm1);
+  face1->SetOrigin(transformedCube[3].GetData());
+  this->BoundingCube->AddItem(face1.GetPointer());
 
+  vtkNew<vtkPlane> face2;
   vtkMath::Cross((transformedCube[5] - transformedCube[4]).GetData(),
                  (transformedCube[6] - transformedCube[4]).GetData(), norm2);
   vtkMath::Normalize(norm2);
-  this->Face2->SetNormal(norm2);
-  this->Face2->SetOrigin(transformedCube[7].GetData());
+  face2->SetNormal(norm2);
+  face2->SetOrigin(transformedCube[7].GetData());
+  this->BoundingCube->AddItem(face2.GetPointer());
 
   //face 0,1,4,5 opposes face 2,3,6,7
+  vtkNew<vtkPlane> face3;
   vtkMath::Cross((transformedCube[1] - transformedCube[0]).GetData(),
                  (transformedCube[4] - transformedCube[0]).GetData(), norm3);
   vtkMath::Normalize(norm3);
-  this->Face3->SetNormal(norm3);
-  this->Face3->SetOrigin(transformedCube[5].GetData());
+  face3->SetNormal(norm3);
+  face3->SetOrigin(transformedCube[5].GetData());
+  this->BoundingCube->AddItem(face3.GetPointer());
 
-  vtkMath::Cross((transformedCube[3] - transformedCube[2]).GetData(),
-                 (transformedCube[6] - transformedCube[2]).GetData(), norm4);
+  vtkNew<vtkPlane> face4;
+  vtkMath::Cross((transformedCube[6] - transformedCube[2]).GetData(),
+                 (transformedCube[3] - transformedCube[2]).GetData(), norm4);
   vtkMath::Normalize(norm4);
-  this->Face4->SetNormal(norm4);
-  this->Face4->SetOrigin(transformedCube[7].GetData());
+  face4->SetNormal(norm4);
+  face4->SetOrigin(transformedCube[7].GetData());
+  this->BoundingCube->AddItem(face4.GetPointer());
 
   //face 0,2,4,6 opposes face 1,3,5,7
-  vtkMath::Cross((transformedCube[2] - transformedCube[0]).GetData(),
-                 (transformedCube[4] - transformedCube[0]).GetData(), norm5);
+  vtkNew<vtkPlane> face5;
+  vtkMath::Cross((transformedCube[4] - transformedCube[0]).GetData(),
+                 (transformedCube[2] - transformedCube[0]).GetData(), norm5);
   vtkMath::Normalize(norm5);
-  this->Face5->SetNormal(norm5);
-  this->Face5->SetOrigin(transformedCube[6].GetData());
+  face5->SetNormal(norm5);
+  face5->SetOrigin(transformedCube[6].GetData());
+  this->BoundingCube->AddItem(face5.GetPointer());
 
+  vtkNew<vtkPlane> face6;
   vtkMath::Cross((transformedCube[3] - transformedCube[1]).GetData(),
                  (transformedCube[5] - transformedCube[1]).GetData(), norm6);
   vtkMath::Normalize(norm6);
-  this->Face6->SetNormal(norm6);
-  this->Face6->SetOrigin(transformedCube[7].GetData());
-
-  // within 1/2 a pixel of the boundary is good enough.
-  double eps = 0.5;
-  this->MaxDistanceX = eps +
-    this->Face1->DistanceToPlane(transformedCube[7].GetData());
-  this->MaxDistanceY = eps +
-    this->Face3->DistanceToPlane(transformedCube[7].GetData());
-  this->MaxDistanceZ = eps +
-    this->Face5->DistanceToPlane(transformedCube[7].GetData());
-}
-
-//-----------------------------------------------------------------------------
-bool vtkChartXYZ::PointShouldBeClipped(vtkVector3f point)
-{
-  double pointD[3];
-  pointD[0] = point.GetData()[0];
-  pointD[1] = point.GetData()[1];
-  pointD[2] = point.GetData()[2];
-
-  double transformedPoint[3];
-  this->ContextTransform->TransformPoint(pointD, transformedPoint);
-
-  double d = this->Face1->DistanceToPlane(transformedPoint);
-  if (d > this->MaxDistanceX)
-    {
-    return true;
-    }
-  d = this->Face2->DistanceToPlane(transformedPoint);
-  if (d > this->MaxDistanceX)
-    {
-    return true;
-    }
-  d = this->Face3->DistanceToPlane(transformedPoint);
-  if (d > this->MaxDistanceY)
-    {
-    return true;
-    }
-  d = this->Face4->DistanceToPlane(transformedPoint);
-  if (d > this->MaxDistanceY)
-    {
-    return true;
-    }
-  d = this->Face5->DistanceToPlane(transformedPoint);
-  if (d > this->MaxDistanceZ)
-    {
-    return true;
-    }
-  d = this->Face6->DistanceToPlane(transformedPoint);
-  if (d > this->MaxDistanceZ)
-    {
-    return true;
-    }
-
-  return false;
+  face6->SetNormal(norm6);
+  face6->SetOrigin(transformedCube[7].GetData());
+  this->BoundingCube->AddItem(face6.GetPointer());
 }
 
 //-----------------------------------------------------------------------------
@@ -1606,7 +1574,6 @@ vtkIdType vtkChartXYZ::AddPlot(vtkPlot3D * plot)
     {
     this->Scene->SetDirty(true);
     }
-  this->CheckClipping = true;
   return plotIndex;
 }
 
@@ -1618,13 +1585,28 @@ void vtkChartXYZ::ClearPlots()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXYZ::ShouldCheckClipping()
-{
-  return this->CheckClipping;
-}
-
-//-----------------------------------------------------------------------------
 void vtkChartXYZ::SetFitToScene(bool b)
 {
   this->FitToScene = b;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXYZ::GetClippingPlaneEquation(int i, double *planeEquation)
+{
+  int n = this->BoundingCube->GetNumberOfItems();
+  if (i >= 0 && i < n)
+    {
+    // Get the plane
+    vtkPlane *plane = this->BoundingCube->GetItem(i);
+    double *normal = plane->GetNormal();
+    double *origin = plane->GetOrigin();
+
+    // Compute the plane equation
+    planeEquation[0] = normal[0];
+    planeEquation[1] = normal[1];
+    planeEquation[2] = normal[2];
+    planeEquation[3] = -(normal[0] * origin[0] +
+                         normal[1] * origin[1] +
+                         normal[2] * origin[2]);
+    }
 }
