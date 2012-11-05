@@ -1,6 +1,7 @@
 #include "vtkIncrementalForceLayout.h"
 
 #include "vtkCommand.h"
+#include "vtkDirectedGraph.h"
 #include "vtkFloatArray.h"
 #include "vtkGraph.h"
 #include "vtkMath.h"
@@ -23,7 +24,8 @@ public:
   void Insert(vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2);
   void InsertChild(vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2);
   void ForceAccumulate(float alpha, float charge);
-  void Repulse(vtkVector2f &force, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta);
+  bool Repulse(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta);
+  void Visit(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta);
 
   bool Leaf;
   bool ValidPoint;
@@ -74,6 +76,10 @@ Quad::~Quad()
 }
 
 void Quad::Insert(vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2) {
+  if (vtkMath::IsNan(p.GetX()) || vtkMath::IsNan(p.GetY()))
+    {
+    return;
+    }
   if (this->Leaf)
     {
     if (this->ValidPoint) {
@@ -161,7 +167,7 @@ void Quad::ForceAccumulate(float alpha, float charge)
   this->Center = vtkVector2f(cx / this->Charge, cy / this->Charge);
 }
 
-void Quad::Repulse(vtkVector2f &force, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta)
+bool Quad::Repulse(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta)
 {
   if (this->Vertex != vert)
     {
@@ -173,25 +179,30 @@ void Quad::Repulse(vtkVector2f &force, vtkVector2f &p, vtkIdType vert, float x1,
     if ((x2 - x1) * dn < theta)
       {
       float k = this->Charge * dn * dn;
-      force.SetX(force.GetX() - dx * k);
-      force.SetY(force.GetY() - dy * k);
-      return;
+      prev.SetX(prev.GetX() - dx * k);
+      prev.SetY(prev.GetY() - dy * k);
+      return true;
       }
     else if (this->ValidPoint && !vtkMath::IsNan(dn) && !vtkMath::IsInf(dn))
       {
       float k = this->PointCharge * dn * dn;
-      force.SetX(force.GetX() - dx * k);
-      force.SetY(force.GetY() - dy * k);
+      prev.SetX(prev.GetX() - dx * k);
+      prev.SetY(prev.GetY() - dy * k);
       }
     }
-  if (this->Charge)
+  return !this->Charge;
+}
+
+void Quad::Visit(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta)
+{
+  if (!this->Repulse(prev, p, vert, x1, y1, x2, y2, theta))
     {
     float sx = (x1 + x2) * .5;
     float sy = (y1 + y2) * .5;
-    if (this->Nodes[0]) this->Nodes[0]->Repulse(force, p, vert, x1, y1, sx, sy, theta);
-    if (this->Nodes[1]) this->Nodes[1]->Repulse(force, p, vert, sx, y1, x2, sy, theta);
-    if (this->Nodes[2]) this->Nodes[2]->Repulse(force, p, vert, x1, sy, sx, y2, theta);
-    if (this->Nodes[3]) this->Nodes[3]->Repulse(force, p, vert, sx, sy, x2, y2, theta);
+    if (this->Nodes[0]) this->Nodes[0]->Visit(prev, p, vert, x1, y1, sx, sy, theta);
+    if (this->Nodes[1]) this->Nodes[1]->Visit(prev, p, vert, sx, y1, x2, sy, theta);
+    if (this->Nodes[2]) this->Nodes[2]->Visit(prev, p, vert, x1, sy, sx, y2, theta);
+    if (this->Nodes[3]) this->Nodes[3]->Visit(prev, p, vert, sx, sy, x2, y2, theta);
     }
 }
 
@@ -223,10 +234,10 @@ vtkIncrementalForceLayout::vtkIncrementalForceLayout()
   this->Alpha = 0.1f;
   this->Theta = 0.8f;
   this->Charge = -50.0f;
-  this->Strength = 2.0f;
+  this->Strength = 1.0f;
   this->Distance = 20.0f;
-  this->Gravity = 0.05f;
-  this->Friction = 1.0f;
+  this->Gravity = 0.1f;
+  this->Friction = 0.9f;
 }
 
 vtkIncrementalForceLayout::~vtkIncrementalForceLayout()
@@ -250,7 +261,17 @@ void vtkIncrementalForceLayout::UpdatePositions()
     this->Impl->LastPosition.push_back(vtkVector2f(0.0f, 0.0f));
     }
 
+  // Swap pos and lastpos for fixed node
+  if (this->Fixed >= 0 && this->Fixed < numVerts)
+    {
+    vtkVector2f &pos = this->Impl->GetPosition(this->Fixed);
+    vtkVector2f temp = pos;
+    pos = this->Impl->LastPosition[this->Fixed];
+    this->Impl->LastPosition[this->Fixed] = temp;
+    }
+
   // Gauss-Seidel relaxation for links
+  bool directed = vtkDirectedGraph::SafeDownCast(this->Graph);
   for (vtkIdType e = 0; e < numEdges; ++e)
     {
     vtkIdType s = this->Graph->GetSourceVertex(e);
@@ -259,14 +280,26 @@ void vtkIncrementalForceLayout::UpdatePositions()
     vtkVector2f& tPos = this->Impl->GetPosition(t);
     float x = tPos.GetX() - sPos.GetX();
     float y = tPos.GetY() - sPos.GetY();
+    vtkIdType degreeS;
+    vtkIdType degreeT;
+    if (directed)
+      {
+      degreeS = this->Graph->GetOutDegree(s) + this->Graph->GetInDegree(s);
+      degreeT = this->Graph->GetOutDegree(t) + this->Graph->GetInDegree(t);
+      }
+    else
+      {
+      degreeS = this->Graph->GetOutDegree(s);
+      degreeT = this->Graph->GetOutDegree(t);
+      }
     if (float l = (x * x + y * y))
       {
       float sqrtl = sqrt(l);
       l = this->Alpha * this->Strength * (sqrtl - this->Distance) / sqrtl;
       x *= l;
       y *= l;
-      float sWeight = 1.0f;
-      float tWeight = 1.0f;
+      float sWeight = degreeS;
+      float tWeight = degreeT;
       float k = sWeight / (tWeight + sWeight);
       if (t != this->Fixed)
         {
@@ -332,7 +365,7 @@ void vtkIncrementalForceLayout::UpdatePositions()
     {
     if (v != this->Fixed)
       {
-      tree->Repulse(this->Impl->LastPosition[v], this->Impl->GetPosition(v), v, x1, y1, x2, y2, this->Theta);
+      tree->Visit(this->Impl->LastPosition[v], this->Impl->GetPosition(v), v, x1, y1, x2, y2, this->Theta);
       }
     }
   delete tree;
@@ -347,6 +380,10 @@ void vtkIncrementalForceLayout::UpdatePositions()
       vPos.SetX(vPos.GetX() - (vLastPos.GetX() - vPos.GetX()) * this->Friction);
       vPos.SetY(vPos.GetY() - (vLastPos.GetY() - vPos.GetY()) * this->Friction);
       vLastPos = vPos;
+      }
+    else
+      {
+      vPos = vLastPos;
       }
     }
 }
