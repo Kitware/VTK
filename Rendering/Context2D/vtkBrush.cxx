@@ -28,7 +28,7 @@ vtkBrush::vtkBrush() : BrushColor(0, 0, 0, 255)
 {
   this->Color = this->BrushColor.GetData();
   this->Texture = 0;
-  this->TextureProperties = vtkBrush::Linear | vtkBrush::Stretch;
+  this->TextureProperties = vtkBrush::Nearest | vtkBrush::Stretch;
 }
 
 //-----------------------------------------------------------------------------
