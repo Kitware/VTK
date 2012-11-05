@@ -333,7 +333,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
          this->Internals->VariableMap[i]) != 0)
       {
       // varidp is probably i in which case nc_inq_varid isn't needed
-      int varidp;
+      int varidp = VKT_INT_MIN;
       if (IsReaderRank())
         {
         nc_inq_varid(this->NCDFFD,
