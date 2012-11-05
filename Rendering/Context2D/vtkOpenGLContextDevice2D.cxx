@@ -300,16 +300,17 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
 {
   if (points && n > 0)
     {
-    // glColor4ubv(this->Pen->GetColor());
     glPointSize(this->Pen->GetWidth());
     if (sprite)
       {
       if (!this->Storage->SpriteTexture)
         {
         this->Storage->SpriteTexture = vtkTexture::New();
-        this->Storage->SpriteTexture->SetRepeat(false);
         }
+      int properties = this->Brush->GetTextureProperties();
       this->Storage->SpriteTexture->SetInputData(sprite);
+      this->Storage->SpriteTexture->SetRepeat(properties & vtkContextDevice2D::Repeat);
+      this->Storage->SpriteTexture->SetInterpolate(properties & vtkContextDevice2D::Linear);
       this->Storage->SpriteTexture->Render(this->Renderer);
       }
 
