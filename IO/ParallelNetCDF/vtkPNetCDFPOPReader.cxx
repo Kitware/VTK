@@ -252,7 +252,7 @@ int vtkPNetCDFPOPReader::RequestInformation(
       }
 
     // Send out the variable map data
-    int numVariables = this->Internals->VariableMap.size();
+    int numVariables = static_cast<int>(this->Internals->VariableMap.size());
     this->Controller->Broadcast( &numVariables, 1,
                                  this->Internals->ReaderRanks[0]);
     this->Controller->Broadcast( &this->Internals->VariableMap[0], numVariables,
@@ -333,7 +333,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
          this->Internals->VariableMap[i]) != 0)
       {
       // varidp is probably i in which case nc_inq_varid isn't needed
-      int varidp = VKT_INT_MIN;
+      int varidp = VTK_INT_MIN;
       if (IsReaderRank())
         {
         nc_inq_varid(this->NCDFFD,
@@ -699,7 +699,7 @@ int vtkPNetCDFPOPReader::ReaderForDepth( unsigned depth)
   // NOTE: This is a very simple algorithm - each rank in readerRanks will
   // read single depth in a round-robbin fashion.  There might be a more
   // efficient way to do this...
-  int numReaders = this->Internals->ReaderRanks.size();
+  size_t numReaders = this->Internals->ReaderRanks.size();
   return this->Internals->ReaderRanks[(depth % numReaders)];
 }
 
@@ -708,10 +708,13 @@ int vtkPNetCDFPOPReader::ReaderForDepth( unsigned depth)
 bool vtkPNetCDFPOPReader::IsReaderRank()
 {
   int rank = this->Controller->GetLocalProcessId();
-  for (unsigned i = 0; i < this->Internals->ReaderRanks.size(); i++)
+  for (size_t i = 0; i < this->Internals->ReaderRanks.size(); i++)
     {
-    if (rank == this->Internals->ReaderRanks[i])
+    int ii = static_cast<int>(i);
+    if (rank == this->Internals->ReaderRanks[ii])
+      {
       return true;
+      }
     }
   return false;
 }
