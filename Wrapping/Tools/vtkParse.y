@@ -2799,9 +2799,6 @@ declaration_macro:
    }
 | TypeMacro '(' simple_id ',' simple_id opt_comma ')'
    {
-   int is_concrete = 0;
-   int i;
-
    currentFunction->Macro = "vtkTypeMacro";
    currentFunction->Name = "GetClassName";
    currentFunction->Signature = "const char *GetClassName();";
