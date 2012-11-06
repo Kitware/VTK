@@ -127,16 +127,9 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
         SET(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.h)
       ENDIF (TMP_FILEPATH)
 
-      # is it abstract?
-      GET_SOURCE_FILE_PROPERTY(TMP_ABSTRACT ${FILE} ABSTRACT)
-      IF (TMP_ABSTRACT)
-        SET(TMP_CONCRETE "--abstract")
-      ELSE (TMP_ABSTRACT)
-        SET(TMP_CONCRETE "--concrete")
-        # add the info to the init file
-        SET(VTK_WRAPPER_INIT_DATA
-          "${VTK_WRAPPER_INIT_DATA}\n${TMP_FILENAME}")
-      ENDIF (TMP_ABSTRACT)
+      # add the info to the init file
+      SET(VTK_WRAPPER_INIT_DATA
+        "${VTK_WRAPPER_INIT_DATA}\n${TMP_FILENAME}")
 
       # new source file is nameTcl.cxx, add to resulting list
       SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}}
@@ -150,7 +143,6 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
         MAIN_DEPENDENCY "${TMP_INPUT}"
         COMMAND ${VTK_WRAP_TCL_EXE}
         ARGS
-        ${TMP_CONCRETE}
         ${TMP_HINTS}
         "${quote}@${_args_file}${quote}"
         "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx${quote}"

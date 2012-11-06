@@ -1086,7 +1086,7 @@ int main(int argc, char *argv[])
   fprintf(fp,"#include \"vtkStdString.h\"\n");
   fprintf(fp,"#include <stdexcept>\n");
   fprintf(fp,"#include <vtksys/ios/sstream>\n");
-  if (!data->IsAbstract)
+  if (!data->IsAbstract && strcmp(data->Name, "vtkObjectBase") != 0)
     {
     if (strcmp(data->Name, "vtkRenderWindowInteractor") == 0)
       {
@@ -1118,11 +1118,22 @@ int main(int argc, char *argv[])
     fprintf(fp,"int %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",data->SuperClasses[i],data->SuperClasses[i]);
     }
   fprintf(fp,"int VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",data->Name,data->Name);
-  fprintf(fp,"\nint VTKTCL_EXPORT %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->Name);
+  fprintf(fp,"\nint %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->Name);
   fprintf(fp,"  if ((argc == 2)&&(!strcmp(\"Delete\",argv[1]))&& !vtkTclInDelete(interp))\n    {\n");
   fprintf(fp,"    Tcl_DeleteCommand(interp,argv[0]);\n");
   fprintf(fp,"    return TCL_OK;\n    }\n");
   fprintf(fp,"   return %sCppCommand(static_cast<%s *>(static_cast<vtkTclCommandArgStruct *>(cd)->Pointer),interp, argc, argv);\n}\n",data->Name,data->Name);
+
+  fprintf(fp,"\nint VTKTCL_EXPORT %s_TclCreate(Tcl_Interp *interp)\n{\n",data->Name);
+  if (!data->IsAbstract && strcmp(data->Name, "vtkObjectBase") != 0)
+    {
+    fprintf(fp,"  vtkTclCreateNew(interp,const_cast<char *>(\"%s\"),%sNewCommand,%sCommand);\n",data->Name,data->Name,data->Name);
+    }
+  else
+    {
+    fprintf(fp,"  (void)interp;\n");
+    }
+  fprintf(fp,"  return 0;\n}\n");
 
   fprintf(fp,"\nint VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->Name,data->Name);
   fprintf(fp,"  int    tempi = 0;      (void)tempi;\n");

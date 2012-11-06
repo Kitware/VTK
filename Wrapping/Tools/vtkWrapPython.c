@@ -4834,6 +4834,7 @@ void vtkWrapPython_AddConstant(
 int main(int argc, char *argv[])
 {
   ClassInfo *wrappedClasses[MAX_WRAPPED_CLASSES];
+  unsigned char wrapAsVTKObject[MAX_WRAPPED_CLASSES];
   ClassInfo *data = NULL;
   NamespaceInfo *contents;
   OptionInfo *options;
@@ -4945,17 +4946,42 @@ int main(int argc, char *argv[])
           "#endif\n",
           name, name);
 
-  /* Wrap all of the classes in the file */
+  /* Check for all special classes before any classes are wrapped */
   for (i = 0; i < contents->NumberOfClasses; i++)
     {
     data = contents->Classes[i];
 
-    /* second-guess whether type is a vtkobject */
-    is_vtkobject = (data == file_info->MainClass ? options->IsVTKObject : 0);
+    /* guess whether type is a vtkobject */
+    is_vtkobject = (data == file_info->MainClass ? 1 : 0);
     if (hinfo)
       {
       is_vtkobject = vtkWrap_IsTypeOf(hinfo, data->Name, "vtkObjectBase");
       }
+
+    if (!is_vtkobject)
+      {
+      /* mark class as abstract only if it has pure virtual methods */
+      /* (does not check for inherited pure virtual methods) */
+      data->IsAbstract = 0;
+      for (j = 0; j < data->NumberOfFunctions; j++)
+        {
+        FunctionInfo *func = data->Functions[j];
+        if (func && func->IsPureVirtual)
+          {
+          data->IsAbstract = 1;
+          break;
+          }
+        }
+      }
+
+    wrapAsVTKObject[i] = (is_vtkobject ? 1 : 0);
+    }
+
+  /* Wrap all of the classes in the file */
+  for (i = 0; i < contents->NumberOfClasses; i++)
+    {
+    data = contents->Classes[i];
+    is_vtkobject = wrapAsVTKObject[i];
 
     /* if "hinfo" is present, wrap everything, else just the main class */
     if (hinfo || data == file_info->MainClass)
@@ -4963,6 +4989,8 @@ int main(int argc, char *argv[])
       if (vtkWrapPython_WrapOneClass(
             fp, data->Name, data, file_info, hinfo, is_vtkobject))
         {
+        /* re-index wrapAsVTKObject for wrapped classes */
+        wrapAsVTKObject[numberOfWrappedClasses] = (is_vtkobject ? 1 : 0);
         wrappedClasses[numberOfWrappedClasses++] = data;
         }
       }
@@ -4984,6 +5012,7 @@ int main(int argc, char *argv[])
   for (i = 0; i < numberOfWrappedClasses; i++)
     {
     data = wrappedClasses[i];
+    is_vtkobject = wrapAsVTKObject[i];
 
     if (data->Template)
       {
@@ -5024,7 +5053,7 @@ int main(int argc, char *argv[])
              "    }\n"
              "\n");
       }
-    else if (data == file_info->MainClass && options->IsVTKObject)
+    else if (is_vtkobject)
       {
       /* Class is derived from vtkObjectBase */
       fprintf(fp,

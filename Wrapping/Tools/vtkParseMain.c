@@ -68,10 +68,10 @@ static void parse_print_help(FILE *fp, const char *cmd, int multi)
     fprintf(fp,
     "  --hints <file>    the hints file to use\n"
     "  --types <file>    the type hierarchy file to use\n"
-    "  --concrete        force concrete class\n"
-    "  --abstract        force abstract class\n"
-    "  --vtkobject       vtkObjectBase-derived class\n"
-    "  --special         non-vtkObjectBase class\n");
+    "  --concrete        force concrete class (ignored, deprecated)\n"
+    "  --abstract        force abstract class (ignored, deprecated)\n"
+    "  --vtkobject       vtkObjectBase-derived class (ignored, deprecated)\n"
+    "  --special         non-vtkObjectBase class (ignored, deprecated)\n");
     }
 }
 
@@ -258,10 +258,6 @@ static int parse_check_options(int argc, char *argv[], int multi)
   options.Files = NULL;
   options.InputFileName = NULL;
   options.OutputFileName = NULL;
-  options.IsAbstract = 0;
-  options.IsConcrete = 0;
-  options.IsVTKObject = 0;
-  options.IsSpecialObject = 0;
   options.HierarchyFileName = 0;
   options.HintFileName = 0;
 
@@ -343,21 +339,13 @@ static int parse_check_options(int argc, char *argv[], int multi)
         }
       options.HierarchyFileName = argv[i];
       }
-    else if (!multi && strcmp(argv[i], "--concrete") == 0)
+    else if (strcmp(argv[i], "--vtkobject") == 0 ||
+             strcmp(argv[i], "--special") == 0 ||
+             strcmp(argv[i], "--abstract") == 0 ||
+             strcmp(argv[i], "--concrete") == 0)
       {
-      options.IsConcrete = 1;
-      }
-    else if (!multi && strcmp(argv[i], "--abstract") == 0)
-      {
-      options.IsAbstract = 1;
-      }
-    else if (!multi && strcmp(argv[i], "--vtkobject") == 0)
-      {
-      options.IsVTKObject = 1;
-      }
-    else if (!multi && strcmp(argv[i], "--special") == 0)
-      {
-      options.IsSpecialObject = 1;
+      fprintf(stderr, "Warning: the %s option is deprecated "
+              "and will be ignored.\n");
       }
     }
 
@@ -374,7 +362,6 @@ OptionInfo *vtkParse_GetCommandLineOptions()
 FileInfo *vtkParse_Main(int argc, char *argv[])
 {
   int argi;
-  int has_options = 0;
   int expected_files;
   FILE *ifile;
   FILE *hfile = 0;
@@ -397,17 +384,12 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   expected_files = (options.OutputFileName == NULL ? 2 : 1);
 
   /* verify number of args, print usage if not valid */
-  if (argi > 0 && options.NumberOfFiles == expected_files)
-    {
-    has_options = 1;
-    }
-  else if (argi == 0)
+  if (argi == 0)
     {
     free(args);
     exit(0);
     }
-  else if (argi < 0 || argn < 3 || argn > 5 ||
-           options.NumberOfFiles == 0)
+  else if (argi < 0 || options.NumberOfFiles != expected_files)
     {
     parse_print_help(stderr, args[0], 0);
     exit(1);
@@ -422,28 +404,12 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
     exit(1);
     }
 
-  /* deal with other files */
-  if (!has_options)
-    {
-    /* handle ancient, obsolete calling style: */
-    /* command infile [hintsfile] concrete outfile */
-    argi = 1;
-    if (argn == 5)
-      {
-      options.HintFileName = args[argi++];
-      }
-    if (argn >= 4)
-      {
-      options.IsConcrete = atoi(args[argi++]);
-      options.IsAbstract = !options.IsConcrete;
-      }
-    options.OutputFileName = args[argi++];
-    }
-  else if (options.OutputFileName == NULL &&
-           options.NumberOfFiles > 1)
+  if (options.OutputFileName == NULL &&
+      options.NumberOfFiles > 1)
     {
     /* allow outfile to be given after infile, if "-o" option not used */
     options.OutputFileName = options.Files[1];
+    fprintf(stderr, "Deprecated: specify output file with \"-o\".\n");
     }
 
   /* free the expanded args */
@@ -472,22 +438,6 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
     exit(1);
     }
 
-  /* get the classname from the filename and mark it as "concrete" */
-  if (options.IsConcrete)
-    {
-    cp = options.InputFileName;
-    i = strlen(cp);
-    classname = (char *)malloc(i+1);
-    while (i > 0 &&
-           cp[i-1] != '/' && cp[i-1] != '\\' && cp[i-1] != ':') { i--; }
-    strcpy(classname, &cp[i]);
-    i = 0;
-    while (classname[i] != '\0' && classname[i] != '.') { i++; }
-    classname[i] = '\0';
-
-    vtkParse_SetClassProperty(classname, "concrete");
-    }
-
   /* if a hierarchy is was given, then BTX/ETX can be ignored */
   vtkParse_SetIgnoreBTX(0);
   if (options.HierarchyFileName)
@@ -509,14 +459,22 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
     vtkParse_ReadHints(data, hfile, stderr);
     }
 
-  /* force class to be wrapped as concrete or abstract */
-  if (options.IsConcrete && data->MainClass)
+  if (data->MainClass)
     {
-    data->MainClass->IsAbstract = 0;
-    }
-  else if (options.IsAbstract && data->MainClass)
-    {
-    data->MainClass->IsAbstract = 1;
+    /* mark class as abstract unless it has New() method */
+    int nfunc = data->MainClass->NumberOfFunctions;
+    int ifunc;
+    for (ifunc = 0; ifunc < nfunc; ifunc++)
+      {
+      FunctionInfo *func = data->MainClass->Functions[ifunc];
+      if (func && func->Access == VTK_ACCESS_PUBLIC &&
+          func->Name && strcmp(func->Name, "New") == 0 &&
+          func->NumberOfParameters == 0)
+        {
+        break;
+        }
+      }
+    data->MainClass->IsAbstract = ((ifunc == nfunc) ? 1 : 0);
     }
 
   return data;

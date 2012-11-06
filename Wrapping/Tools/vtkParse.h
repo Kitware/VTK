@@ -30,14 +30,6 @@ extern "C" {
 #endif
 
 /**
- * Add a hint about a class that will be parsed.  The only
- * acknowledged hint is "concrete", which if set to "true"
- * is a promise that the class is instantiable.
- */
-void vtkParse_SetClassProperty(
-  const char *classname, const char *property);
-
-/**
  * Define a preprocessor macro. Function macros are not supported.
  */
 void vtkParse_DefineMacro(const char *name, const char *definition);

@@ -483,6 +483,16 @@ PyObject *PyVTKObject_New(
     if(vtkclass->vtk_new)
       {
       ptr = vtkclass->vtk_new();
+      if (!ptr)
+        {
+        // The vtk_new() method returns null when a factory class has no
+        // implementation (i.e. cannot provide a concrete class instance.)
+        // NotImplementedError indicates a pure virtual method call.
+        PyErr_SetString(
+          PyExc_NotImplementedError,
+          (char*)"no concrete implementation exists for this class");
+        return 0;
+        }
       haveRef = true;
       }
     else
