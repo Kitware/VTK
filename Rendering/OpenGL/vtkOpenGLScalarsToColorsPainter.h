@@ -54,6 +54,8 @@ protected:
 
   vtkOpenGLTexture* InternalColorTexture;
   int AlphaBitPlanes;
+  bool AcquiredGraphicsResources;
+  bool SupportsSeparateSpecularColor;
 
   // Description:
   // Generates rendering primitives of appropriate type(s). Multiple types
