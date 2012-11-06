@@ -345,7 +345,7 @@ static int parse_check_options(int argc, char *argv[], int multi)
              strcmp(argv[i], "--concrete") == 0)
       {
       fprintf(stderr, "Warning: the %s option is deprecated "
-              "and will be ignored.\n");
+              "and will be ignored.\n", argv[i]);
       }
     }
 
@@ -365,9 +365,6 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   int expected_files;
   FILE *ifile;
   FILE *hfile = 0;
-  const char *cp;
-  char *classname;
-  size_t i;
   FileInfo *data;
   StringCache strings;
   int argn;
