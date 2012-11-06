@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkGraphItem.h"
 
+#include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
@@ -216,6 +217,7 @@ void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
     return;
     }
   painter->GetPen()->SetWidth(this->Internal->VertexSizes[0]);
+  painter->GetBrush()->SetTextureProperties(vtkBrush::Linear);
   painter->DrawPointSprites(this->Sprite.GetPointer(),
                             this->Internal->VertexPositions[0].GetData(),
                             static_cast<int>(this->Internal->VertexPositions.size()),
