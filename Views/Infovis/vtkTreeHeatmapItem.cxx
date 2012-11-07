@@ -19,6 +19,7 @@
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkGraphLayout.h"
 #include "vtkIdTypeArray.h"
 #include "vtkLookupTable.h"
@@ -36,6 +37,7 @@
 #include "vtkUnsignedIntArray.h"
 
 #include <algorithm>
+#include <queue>
 #include <sstream>
 
 vtkStandardNewMacro(vtkTreeHeatmapItem);
@@ -1141,7 +1143,6 @@ vtkIdType vtkTreeHeatmapItem::GetClosestVertex(double x, double y)
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::CollapseSubTree(vtkIdType vertex)
 {
-
   // no removing the root of the tree
   if (vertex == this->PrunedTree->GetRoot())
     {
@@ -1217,6 +1218,126 @@ vtkIdType vtkTreeHeatmapItem::GetOriginalId(vtkIdType vertex)
   vtkIdTypeArray *originalIdArray = vtkIdTypeArray::SafeDownCast(
     this->PrunedTree->GetVertexData()->GetArray("OriginalId"));
   return originalIdArray->GetValue(vertex);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkTreeHeatmapItem::GetPrunedIdForOriginalId(vtkIdType originalId)
+{
+  vtkIdTypeArray *originalIdArray = vtkIdTypeArray::SafeDownCast(
+    this->PrunedTree->GetVertexData()->GetArray("OriginalId"));
+  for (vtkIdType i = 0; i < originalIdArray->GetNumberOfTuples(); ++i)
+    {
+    if (originalIdArray->GetValue(i) == originalId)
+      {
+      return i;
+      }
+    }
+  return -1;
+}
+
+// this struct & class allow us to generate a priority queue of vertices.
+struct WeightedVertex
+{
+  vtkIdType ID;
+  double weight;
+};
+class CompareWeightedVertices
+{
+  public:
+  // Returns true if v2 is higher priority than v1
+  bool operator()(WeightedVertex& v1, WeightedVertex& v2)
+  {
+  if (v1.weight < v2.weight)
+    {
+    return false;
+    }
+   return true;
+  }
+};
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::CollapseToNumberOfLeafNodes(unsigned int n)
+{
+  // check that the number requested is actually smaller than the number of
+  // leaf nodes in the tree.
+  unsigned int numLeaves = this->CountLeafNodes(this->Tree->GetRoot());
+  if (n >= numLeaves)
+    {
+    vtkWarningMacro( << "n >= total leaf nodes" );
+    return;
+    }
+
+  // reset pruned tree to contain the entire input tree
+  this->PrunedTree->DeepCopy(this->Tree);
+
+  // Initialize a priority queue of vertices based on their weight.
+  // Vertices with lower weight (closer to the root) have a higher priority.
+  std::priority_queue<WeightedVertex, std::vector<WeightedVertex>,
+                      CompareWeightedVertices> queue;
+  std::vector<vtkIdType> verticesToCollapse;
+  vtkDoubleArray *nodeWeights = vtkDoubleArray::SafeDownCast(
+    this->Tree->GetVertexData()->GetAbstractArray("true node weight"));
+  if (nodeWeights == NULL)
+    {
+    nodeWeights = vtkDoubleArray::SafeDownCast(
+      this->Tree->GetVertexData()->GetAbstractArray("node weight"));
+    }
+
+  // initially, the priority queue contains the children of the root node.
+  vtkIdType root = this->Tree->GetRoot();
+  for (vtkIdType child = 0; child < this->Tree->GetNumberOfChildren(root);
+       ++child)
+    {
+    vtkIdType childVertex = this->Tree->GetChild(root, child);
+    WeightedVertex v = {childVertex, nodeWeights->GetValue(childVertex)};
+    queue.push(v);
+    }
+
+  // use the priority queue to find the vertices that we should collapse.
+  unsigned int numberOfLeafNodesFound = 0;
+  while (queue.size() + numberOfLeafNodesFound < n)
+    {
+    WeightedVertex v = queue.top();
+    queue.pop();
+    if (this->Tree->GetNumberOfChildren(v.ID) == 0)
+      {
+      verticesToCollapse.push_back(v.ID);
+      ++numberOfLeafNodesFound;
+      continue;
+      }
+
+    for (vtkIdType child = 0; child < this->Tree->GetNumberOfChildren(v.ID);
+         ++child)
+      {
+      vtkIdType childVertex = this->Tree->GetChild(v.ID, child);
+      WeightedVertex v = {childVertex, nodeWeights->GetValue(childVertex)};
+      queue.push(v);
+      }
+    }
+
+  // collapse the vertices that we found.
+  for (unsigned int i = 0; i < verticesToCollapse.size(); ++i)
+    {
+    vtkIdType prunedId = this->GetPrunedIdForOriginalId(verticesToCollapse[i]);
+    if (prunedId == -1)
+      {
+      vtkErrorMacro("prunedId is -1");
+      continue;
+      }
+    this->CollapseSubTree(prunedId);
+    }
+  while (!queue.empty())
+    {
+    WeightedVertex v = queue.top();
+    queue.pop();
+    vtkIdType prunedId = this->GetPrunedIdForOriginalId(v.ID);
+    if (prunedId == -1)
+      {
+      vtkErrorMacro("prunedId is -1");
+      continue;
+      }
+    this->CollapseSubTree(prunedId);
+    }
 }
 
 //-----------------------------------------------------------------------------

@@ -77,6 +77,11 @@ public:
   // Get the table that this item draws.
   vtkTable * GetTable();
 
+  // Description:
+  // Collapse the n subtrees closest to the root.  Any subtrees that were
+  // collapsed prior to this function being called may be re-expanded.
+  void CollapseToNumberOfLeafNodes(unsigned int n);
+
   //BTX
   // Description:
   // Returns true if the transform is interactive, false otherwise.
@@ -175,6 +180,11 @@ protected:
   // Description:
   // Look up the original ID of a vertex in the pruned tree.
   vtkIdType GetOriginalId(vtkIdType vertex);
+
+  // Description:
+  // Look up the ID of a vertex in the pruned tree from a vertex ID
+  // of the input tree.
+  vtkIdType GetPrunedIdForOriginalId(vtkIdType originalId);
 
   // Description:
   // Check if the click at (x, y) should be considered as a click on
