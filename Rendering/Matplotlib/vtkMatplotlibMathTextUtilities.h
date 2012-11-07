@@ -59,7 +59,6 @@ protected:
   vtkMatplotlibMathTextUtilities();
   virtual ~vtkMatplotlibMathTextUtilities();
 
-  bool InitializePython();
   bool InitializeMaskParser();
   bool InitializePathParser();
   bool InitializeFontPropertiesClass();
@@ -72,7 +71,6 @@ protected:
   // the vtkTextProperty tprop.
   PyObject * GetFontProperties(vtkTextProperty *tprop);
 
-  bool PythonIsInitialized;
   PyObject *MaskParser;
   PyObject *PathParser;
   PyObject *FontPropertiesClass;
@@ -80,6 +78,16 @@ protected:
   // Rotate the 4 2D corner points by the specified angle (degrees) around the
   // origin and calculate the bounding box
   void RotateCorners(double angleDeg, double corners[4][2], double bbox[4]);
+
+  // Description:
+  // Used for runtime checking of matplotlib's mathtext availability.
+  enum Availablity
+    {
+    NOT_TESTED = 0,
+    AVAILABLE,
+    UNAVAILABLE
+    };
+  static Availablity MPLMathTextAvailable;
 
 private:
   vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.
