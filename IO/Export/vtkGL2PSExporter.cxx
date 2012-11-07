@@ -131,8 +131,9 @@ void vtkGL2PSExporter::WriteData()
                        static_cast<GLint>(winsize[1])};
 
   // Create the file.
-  char *fName = new char [strlen(this->FilePrefix) + 5];
-  sprintf(fName, "%s.%s", this->FilePrefix, this->GetFileExtension());
+  char *fName = new char [strlen(this->FilePrefix) + 8];
+  sprintf(fName, "%s.%s%s", this->FilePrefix, this->GetFileExtension(),
+          this->Compress ? ".gz" : "");
   FILE *fpObj = fopen(fName, "wb");
   if (!fpObj)
     {
