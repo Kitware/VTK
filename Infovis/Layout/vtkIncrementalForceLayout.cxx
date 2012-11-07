@@ -24,7 +24,7 @@ public:
   void Insert(vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2);
   void InsertChild(vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2);
   void ForceAccumulate(float alpha, float charge);
-  bool Repulse(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta);
+  bool Repulse(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float x2, float theta);
   void Visit(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta);
 
   bool Leaf;
@@ -167,7 +167,7 @@ void Quad::ForceAccumulate(float alpha, float charge)
   this->Center = vtkVector2f(cx / this->Charge, cy / this->Charge);
 }
 
-bool Quad::Repulse(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta)
+bool Quad::Repulse(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float x2, float theta)
 {
   if (this->Vertex != vert)
     {
@@ -195,7 +195,7 @@ bool Quad::Repulse(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, 
 
 void Quad::Visit(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta)
 {
-  if (!this->Repulse(prev, p, vert, x1, y1, x2, y2, theta))
+  if (!this->Repulse(prev, p, vert, x1, x2, theta))
     {
     float sx = (x1 + x2) * .5;
     float sy = (y1 + y2) * .5;
@@ -271,7 +271,7 @@ void vtkIncrementalForceLayout::UpdatePositions()
     }
 
   // Gauss-Seidel relaxation for links
-  bool directed = vtkDirectedGraph::SafeDownCast(this->Graph);
+  bool directed = (vtkDirectedGraph::SafeDownCast(this->Graph) != NULL);
   for (vtkIdType e = 0; e < numEdges; ++e)
     {
     vtkIdType s = this->Graph->GetSourceVertex(e);
