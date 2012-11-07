@@ -83,6 +83,12 @@ vtkTreeHeatmapItem::~vtkTreeHeatmapItem()
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
 {
+  if (tree == NULL || tree->GetNumberOfVertices() == 0)
+    {
+    vtkWarningMacro( << "Warning: empty input tree");
+    return;
+    }
+
   this->Tree = tree;
 
   // initialize some additional arrays for the tree's vertex data
