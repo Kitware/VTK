@@ -165,10 +165,8 @@ protected:
   vtkIdType GetClosestVertex(double x, double y);
 
   // Description:
-  // Collapse the subtree rooted at vertex.  The expanding parameter should
-  // be false, except for the case where CollapseSubTree is called from
-  // within ExpandSubTree.
-  void CollapseSubTree(vtkIdType vertex, bool expanding);
+  // Collapse the subtree rooted at vertex.
+  void CollapseSubTree(vtkIdType vertex);
 
   // Description:
   // Expand the previously collapsed subtree rooted at vertex.
@@ -214,7 +212,6 @@ private:
   std::vector< vtkIdType > RowMap;
   double Multiplier;
   int NumberOfLeafNodes;
-  int NumberOfCollapsedSubTrees;
   double CellWidth;
   double CellHeight;
 
