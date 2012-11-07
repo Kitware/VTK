@@ -95,6 +95,8 @@ int TestChartXYZ(int , char * [])
   vtkNew<vtkPlotPoints3D> plot;
   plot->SetInputData(table.GetPointer(), "X Axis", "Sine", "Cosine");
   chart->AddPlot(plot.GetPointer());
+  const vtkColor4ub axisColor(20, 200, 30);
+  chart->SetAxisColor(axisColor);
 
   // We want a duplicate, that does not move.
   vtkNew<vtkPlotPoints3D> plot2;
