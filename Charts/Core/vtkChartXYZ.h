@@ -26,7 +26,6 @@
 #include "vtkNew.h"          // For ivars
 #include "vtkSmartPointer.h" // For ivars
 #include <vector>            // For ivars
-using std::vector;
 
 class vtkAnnotationLink;
 class vtkAxis;
@@ -268,7 +267,7 @@ protected:
 
   // Description:
   // The 3 axes of this chart.
-  vector< vtkSmartPointer<vtkAxis> > Axes;
+  std::vector< vtkSmartPointer<vtkAxis> > Axes;
 
   // Description:
   // This boolean indicates whether or not we're using this chart to rotate
@@ -352,7 +351,7 @@ protected:
 
   // Description:
   // The plots that are drawn within this chart.
-  vector<vtkPlot3D *> Plots;
+  std::vector<vtkPlot3D *> Plots;
 
   // Description:
   // The label for the X Axis.
