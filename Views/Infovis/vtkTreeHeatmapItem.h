@@ -78,8 +78,10 @@ public:
   vtkTable * GetTable();
 
   // Description:
-  // Collapse the n subtrees closest to the root.  Any subtrees that were
-  // collapsed prior to this function being called may be re-expanded.
+  // Collapse subtrees until there are only n leaf nodes left in the tree.
+  // The leaf nodes that remain are those that are closest to the root.
+  // Any subtrees that were collapsed prior to this function being called
+  // may be re-expanded.
   void CollapseToNumberOfLeafNodes(unsigned int n);
 
   //BTX
