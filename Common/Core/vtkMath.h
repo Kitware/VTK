@@ -84,7 +84,7 @@ public:
   VTK_LEGACY(static double DoublePi());
 
   // Description:
-  // Deprecated.  Use vtkMath::TwoPi() instead.
+  // Deprecated.  Use 2.0 * vtkMath::Pi() instead.
   VTK_LEGACY(static double DoubleTwoPi());
 
   // Description:
