@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestDiagram.cxx
+  Module:    TestHeatmapOnly.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -14,20 +14,15 @@
 =========================================================================*/
 
 #include "vtkTreeHeatmapItem.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkNew.h"
-#include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkViewTheme.h"
 
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkContext2D.h"
 #include "vtkContextInteractorStyle.h"
-#include "vtkContextItem.h"
 #include "vtkContextActor.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
