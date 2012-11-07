@@ -167,7 +167,6 @@ protected:
   ~vtkThreadedStreamingPipeline();
 
   virtual int ForwardUpstream(vtkInformation* request);
-  virtual int ForwardUpstream(int i, int j, vtkInformation* request);
 
 private:
   vtkThreadedStreamingPipeline(const vtkThreadedStreamingPipeline&);  // Not implemented.

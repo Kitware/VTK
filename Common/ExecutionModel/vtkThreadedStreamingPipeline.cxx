@@ -398,9 +398,3 @@ int vtkThreadedStreamingPipeline::ForwardUpstream(vtkInformation* request)
     return this->Superclass::ForwardUpstream(request);
     }
 }
-
-//----------------------------------------------------------------------------
-int vtkThreadedStreamingPipeline::ForwardUpstream(int i, int j, vtkInformation* request)
-{
-  return this->Superclass::ForwardUpstream(i, j, request);
-}

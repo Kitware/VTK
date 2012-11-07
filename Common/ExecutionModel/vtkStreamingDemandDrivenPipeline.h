@@ -131,7 +131,6 @@ public:
   // Get/Set the update extent for output ports that use Temporal Extents
   int SetUpdateTimeStep(int port, double time);
   static int SetUpdateTimeStep(vtkInformation *, double time);
-  //void GetUpdateTimeSteps(vtkInformation *, int extent[6]);
 
   // Description:
   // This request flag indicates whether the requester can handle more

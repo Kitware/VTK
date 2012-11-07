@@ -131,121 +131,6 @@ vtkCompositeDataPipeline::~vtkCompositeDataPipeline()
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
-{
-  vtkDebugMacro(<< "ForwardUpstream");
-
-  // Do not forward upstream if the input is shared with another
-  // executive.
-  if(this->SharedInputInformation)
-    {
-    return 1;
-    }
-
-  if (!this->Algorithm->ModifyRequest(request, BeforeForward))
-    {
-    return 0;
-    }
-  int port = request->Get(FROM_OUTPUT_PORT());
-
-  // Forward the request upstream through all input connections.
-  int result = 1;
-  for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
-    {
-    int nic = this->Algorithm->GetNumberOfInputConnections(i);
-    vtkInformationVector* inVector = this->GetInputInformation()[i];
-    for(int j=0; j < nic; ++j)
-      {
-      vtkInformation* info = inVector->GetInformationObject(j);
-      // Get the executive producing this input.  If there is none, then
-      // it is a NULL input.
-      vtkExecutive* e;
-      int producerPort;
-      vtkExecutive::PRODUCER()->Get(info, e, producerPort);
-      if(e)
-        {
-        request->Set(FROM_OUTPUT_PORT(), producerPort);
-        if(!e->ProcessRequest(request,
-                              e->GetInputInformation(),
-                              e->GetOutputInformation()))
-          {
-          result = 0;
-          }
-        request->Set(FROM_OUTPUT_PORT(), port);
-        }
-      }
-    }
-
-  if (!this->Algorithm->ModifyRequest(request, AfterForward))
-    {
-    return 0;
-    }
-
-  return result;
-}
-
-//----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
-                                             vtkInformationVector** inInfoVec,
-                                             vtkInformationVector* outInfoVec)
-{
-  if(this->Algorithm && request->Has(REQUEST_DATA_OBJECT()))
-    {
-    vtkDebugMacro(<< "REQUEST_DATA_OBJECT()");
-    // if we are up to date then short circuit
-    if (this->PipelineMTime < this->DataObjectTime.GetMTime()
-        && ! request->Has(REQUEST_REGENERATE_INFORMATION()))
-      {
-      return 1;
-      }
-
-    // request Update inputs first if they are out of date
-    if(!this->ForwardUpstream(request))
-      {
-      return 0;
-      }
-
-    // Make sure our output data type is up-to-date.
-    int result = 1;
-    if(this->PipelineMTime > this->DataObjectTime.GetMTime()
-        || request->Has(REQUEST_REGENERATE_INFORMATION()))
-      {
-      // Request data type from the algorithm.
-      result = this->ExecuteDataObject(request,inInfoVec,outInfoVec);
-
-      // Make sure the data object exists for all output ports.
-      for(int i=0;
-          result && i < outInfoVec->GetNumberOfInformationObjects(); ++i)
-        {
-        vtkInformation* info = outInfoVec->GetInformationObject(i);
-        if(!info->Get(vtkDataObject::DATA_OBJECT()))
-          {
-          result = 0;
-          }
-        }
-
-      if(result)
-        {
-        // Data object is now up to date.
-        this->DataObjectTime.Modified();
-        }
-      }
-
-    return result;
-    }
-
-  if(this->Algorithm && request->Has(REQUEST_INFORMATION()))
-    {
-    vtkDebugMacro(<< "REQUEST_INFORMATION()");
-    return this->Superclass::ProcessRequest(request, inInfoVec,outInfoVec);
-    }
-
-  // Let the superclass handle other requests.
-  return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
-}
-
-//----------------------------------------------------------------------------
-// Handle REQUEST_DATA_OBJECT
 int vtkCompositeDataPipeline::ExecuteDataObject(
   vtkInformation* request,
   vtkInformationVector** inInfoVec,
@@ -467,13 +352,6 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     vtkCompositeDataSet::SafeDownCast(
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // do we have a request for multiple time steps?
-  double time(0);
-  if (outInfo->Has(UPDATE_TIME_STEP()))
-    {
-    time = outInfo->Get(UPDATE_TIME_STEP());
-    }
-
   if (input && compositeOutput)
     {
     compositeOutput->PrepareForNewData();
@@ -509,11 +387,6 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
       iter->GoToNextItem())
       {
-      // if it is a temporal input, set the time for each piece
-      if (outInfo->Has(UPDATE_TIME_STEP()))
-        {
-        outInfo->Set(UPDATE_TIME_STEP(), time);
-        }
       vtkDataObject* dobj = iter->GetCurrentDataObject();
       if (dobj)
         {
@@ -544,12 +417,6 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     // MAXIMUM_NUMBER_OF_PIECES to -1 anyway (and handle
     // piece requests properly).
     this->PopInformation(inInfo);
-    if (outInfo->Has(UPDATE_TIME_STEP()))
-      {
-      outInfo->Set(UPDATE_TIME_STEP(), time);
-      compositeOutput->GetInformation()->Set(
-        vtkDataObject::DATA_TIME_STEP(), time);
-      }
     r->Set(REQUEST_INFORMATION());
     this->CopyDefaultInformation(r, vtkExecutive::RequestDownstream,
                                  this->GetInputInformation(),
@@ -586,13 +453,6 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
     vtkErrorMacro("ExecuteSimpleAlgorithmForBlock cannot be called "
       "for a vtkCompositeDataSet");
     return 0;
-    }
-
-  double time = 0;
-  int hasTime = outInfo->Has(UPDATE_TIME_STEP());
-  if (hasTime)
-    {
-    time = outInfo->Get(UPDATE_TIME_STEP());
     }
 
   // There must be a bug somehwere. If this Remove()
@@ -657,12 +517,6 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
       info->Set(
         vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
       }
-    }
-
-  // if there was a time make sure that gets set in the RUE
-  if (hasTime)
-    {
-    outInfo->Set(UPDATE_TIME_STEP(),time);
     }
 
   request->Set(REQUEST_UPDATE_EXTENT());
@@ -784,20 +638,6 @@ int vtkCompositeDataPipeline::NeedToExecuteData(
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::NeedToExecuteBasedOnTime(
-                                                      vtkInformation* outInfo,
-                                                      vtkDataObject* dataObject)
-{
-  if (this->Superclass::NeedToExecuteBasedOnTime(outInfo, dataObject))
-    {
-    vtkDebugMacro(<<"NeedToExecuteBasedOnTime returns 1");
-    return 1;
-    }
-
-  return 0;
-}
-
-//----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::NeedToExecuteBasedOnCompositeIndices(vtkInformation* outInfo)
 {
   if (outInfo->Has(UPDATE_COMPOSITE_INDICES()))
@@ -848,44 +688,6 @@ int vtkCompositeDataPipeline::NeedToExecuteBasedOnCompositeIndices(vtkInformatio
       }
     }
   return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::ForwardUpstream(
-  int i, int j, vtkInformation* request)
-{
-  // Do not forward upstream if input information is shared.
-  if(this->SharedInputInformation)
-    {
-    return 1;
-    }
-
-  if (!this->Algorithm->ModifyRequest(request, BeforeForward))
-    {
-    return 0;
-    }
-
-  int result = 1;
-  if(vtkExecutive* e = this->GetInputExecutive(i, j))
-    {
-    vtkAlgorithmOutput* input = this->Algorithm->GetInputConnection(i, j);
-    int port = request->Get(FROM_OUTPUT_PORT());
-    request->Set(FROM_OUTPUT_PORT(), input->GetIndex());
-    if(!e->ProcessRequest(request,
-                          e->GetInputInformation(),
-                          e->GetOutputInformation()))
-      {
-      result = 0;
-      }
-    request->Set(FROM_OUTPUT_PORT(), port);
-    }
-
-  if (!this->Algorithm->ModifyRequest(request, AfterForward))
-    {
-    return 0;
-    }
-
-  return result;
 }
 
 //----------------------------------------------------------------------------
