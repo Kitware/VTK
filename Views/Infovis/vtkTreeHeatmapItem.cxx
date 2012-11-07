@@ -1310,8 +1310,8 @@ void vtkTreeHeatmapItem::CollapseToNumberOfLeafNodes(unsigned int n)
          ++child)
       {
       vtkIdType childVertex = this->Tree->GetChild(v.ID, child);
-      WeightedVertex v = {childVertex, nodeWeights->GetValue(childVertex)};
-      queue.push(v);
+      WeightedVertex v2 = {childVertex, nodeWeights->GetValue(childVertex)};
+      queue.push(v2);
       }
     }
 
