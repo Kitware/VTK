@@ -129,7 +129,7 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
       oglRenderWindow->GetExtensionManager();
 
     this->SupportsSeparateSpecularColor =
-      oglExtensionManager->ExtensionSupported("GL_EXT_separate_specular_color");
+      static_cast<bool>(oglExtensionManager->ExtensionSupported("GL_EXT_separate_specular_color"));
 
     this->AcquiredGraphicsResources = true;
     }

@@ -249,9 +249,6 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   // is less than 7.10 we report that the platform does not support it.
   if (result && strcmp(name, "GL_EXT_separate_specular_color") == 0)
     {
-    const char* gl_version =
-      reinterpret_cast<const char *>(glGetString(GL_VERSION));
-
     if(const char *mesa_version = strstr(gl_version, "Mesa"))
       {
       int mesa_major = 0;
