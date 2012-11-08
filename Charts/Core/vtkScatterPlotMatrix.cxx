@@ -484,6 +484,13 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
           {
           xy->SetPlotCorner(plot, 2);
           }
+
+        // set labels array
+        if(this->Private->IndexedLabelsArray)
+          {
+          plot->SetIndexedLabels(this->Private->IndexedLabelsArray);
+          plot->SetTooltipLabelFormat("%i");
+          }
         }
       plot->SetInputData(this->Input.GetPointer(), column, row);
       plot->SetPen(this->Private->ChartSettings[ACTIVEPLOT]
