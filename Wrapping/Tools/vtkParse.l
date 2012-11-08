@@ -220,7 +220,6 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "bitor"         return('|');
 "compl"         return('~');
 
-"vtkFloatingPointType" return(FloatType);
 "vtkIdType"            return(IdType);
 "vtkSetMacro"          return(SetMacro);
 "vtkGetMacro"          return(GetMacro);
