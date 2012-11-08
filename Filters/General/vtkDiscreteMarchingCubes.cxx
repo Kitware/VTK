@@ -38,10 +38,6 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#ifndef vtkFloatingPointType
-#define vtkFloatingPointType float
-#endif
-
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:
@@ -65,13 +61,13 @@ vtkDiscreteMarchingCubes::~vtkDiscreteMarchingCubes()
 template <class T>
 void vtkDiscreteMarchingCubesComputeGradient(
   vtkDiscreteMarchingCubes *self,T *scalars, int dims[3],
-  vtkFloatingPointType origin[3], vtkFloatingPointType Spacing[3],
+  double origin[3], double Spacing[3],
   vtkIncrementalPointLocator *locator,
   vtkDataArray *newCellScalars,
-  vtkCellArray *newPolys, vtkFloatingPointType *values,
+  vtkCellArray *newPolys, double *values,
   int numValues)
 {
-  vtkFloatingPointType s[8], value;
+  double s[8], value;
   int i, j, k, sliceSize;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   vtkMarchingCubesTriangleCases *triCase, *triCases;
@@ -80,8 +76,8 @@ void vtkDiscreteMarchingCubesComputeGradient(
   vtkIdType ptIds[3];
   int extent[6];
   int ComputeScalars = newCellScalars != NULL;
-  vtkFloatingPointType t, *x1, *x2, x[3], min, max;
-  vtkFloatingPointType pts[8][3], xp, yp, zp;
+  double t, *x1, *x2, x[3], min, max;
+  double pts[8][3], xp, yp, zp;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
@@ -116,7 +112,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
   sliceSize = dims[0] * dims[1];
   for ( k=0; k < (dims[2]-1); k++)
     {
-    self->UpdateProgress (static_cast<vtkFloatingPointType>(k)/(dims[2] - 1));
+    self->UpdateProgress (static_cast<double>(k)/(dims[2] - 1));
     if (self->GetAbortExecute())
       {
       break;
@@ -262,12 +258,12 @@ int vtkDiscreteMarchingCubes::RequestData(
   vtkDataArray *inScalars;
   int dims[3], extent[6];
   int estimatedSize;
-  vtkFloatingPointType Spacing[3], origin[3];
-  vtkFloatingPointType bounds[6];
+  double Spacing[3], origin[3];
+  double bounds[6];
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int numContours=this->ContourValues->GetNumberOfContours();
-  vtkFloatingPointType *values=this->ContourValues->GetValues();
+  double *values=this->ContourValues->GetValues();
 
   vtkDebugMacro(<< "Executing marching cubes");
 
@@ -300,7 +296,7 @@ int vtkDiscreteMarchingCubes::RequestData(
 
   // estimate the number of points from the volume dimensions
   estimatedSize = static_cast<int>(
-    pow (static_cast<vtkFloatingPointType>(dims[0] * dims[1] * dims[2]), .75));
+    pow (static_cast<double>(dims[0] * dims[1] * dims[2]), .75));
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
