@@ -267,12 +267,12 @@ public:
   vtkBooleanMacro(TextAsPath, bool);
 
   // Description:
-  // Collection of 3D Props to exclude from rasterization. These will be
+  // Collection of props to exclude from rasterization. These will be
   // rendered as 2D vector primitives in the output. This setting is ignored if
   // Write3DPropsAsRasterImage is false. Behind the scenes, these props are
   // treated as 2D props during the vector output generation.
-  void SetRasterExclusions(vtkProp3DCollection*);
-  vtkGetObjectMacro(RasterExclusions, vtkProp3DCollection);
+  void SetRasterExclusions(vtkPropCollection*);
+  vtkGetObjectMacro(RasterExclusions, vtkPropCollection);
 
 protected:
   vtkGL2PSExporter();
@@ -322,7 +322,7 @@ protected:
                          vtkRendererCollection *renCol);
 
 
-  vtkProp3DCollection *RasterExclusions;
+  vtkPropCollection *RasterExclusions;
 
   char *FilePrefix;
   char *Title;
