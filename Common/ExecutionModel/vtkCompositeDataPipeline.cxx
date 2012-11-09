@@ -690,6 +690,98 @@ int vtkCompositeDataPipeline::NeedToExecuteBasedOnCompositeIndices(vtkInformatio
   return 0;
 }
 
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
+{
+  vtkDebugMacro(<< "ForwardUpstream");
+
+  // Do not forward upstream if the input is shared with another
+  // executive.
+  if(this->SharedInputInformation)
+    {
+    return 1;
+    }
+
+  if (!this->Algorithm->ModifyRequest(request, BeforeForward))
+    {
+    return 0;
+    }
+  int port = request->Get(FROM_OUTPUT_PORT());
+
+  // Forward the request upstream through all input connections.
+  int result = 1;
+  for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
+    {
+    int nic = this->Algorithm->GetNumberOfInputConnections(i);
+    vtkInformationVector* inVector = this->GetInputInformation()[i];
+    for(int j=0; j < nic; ++j)
+      {
+      vtkInformation* info = inVector->GetInformationObject(j);
+      // Get the executive producing this input.  If there is none, then
+      // it is a NULL input.
+      vtkExecutive* e;
+      int producerPort;
+      vtkExecutive::PRODUCER()->Get(info, e, producerPort);
+      if(e)
+        {
+        request->Set(FROM_OUTPUT_PORT(), producerPort);
+        if(!e->ProcessRequest(request,
+                              e->GetInputInformation(),
+                              e->GetOutputInformation()))
+          {
+          result = 0;
+          }
+        request->Set(FROM_OUTPUT_PORT(), port);
+        }
+      }
+    }
+
+  if (!this->Algorithm->ModifyRequest(request, AfterForward))
+    {
+    return 0;
+    }
+
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataPipeline::ForwardUpstream(
+  int i, int j, vtkInformation* request)
+{
+  // Do not forward upstream if input information is shared.
+  if(this->SharedInputInformation)
+    {
+    return 1;
+    }
+
+  if (!this->Algorithm->ModifyRequest(request, BeforeForward))
+    {
+    return 0;
+    }
+
+  int result = 1;
+  if(vtkExecutive* e = this->GetInputExecutive(i, j))
+    {
+    vtkAlgorithmOutput* input = this->Algorithm->GetInputConnection(i, j);
+    int port = request->Get(FROM_OUTPUT_PORT());
+    request->Set(FROM_OUTPUT_PORT(), input->GetIndex());
+    if(!e->ProcessRequest(request,
+                          e->GetInputInformation(),
+                          e->GetOutputInformation()))
+      {
+      result = 0;
+      }
+    request->Set(FROM_OUTPUT_PORT(), port);
+    }
+
+  if (!this->Algorithm->ModifyRequest(request, AfterForward))
+    {
+    return 0;
+    }
+
+  return result;
+}
 //----------------------------------------------------------------------------
 void vtkCompositeDataPipeline::CopyDefaultInformation(
   vtkInformation* request, int direction,
