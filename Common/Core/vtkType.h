@@ -269,8 +269,9 @@ typedef int vtkIdType;
 /* Define the type of floating point interface used for old and new
    versions of VTK.  VTK 4.2 and older use float and VTK 4.4 and newer
    use double for most of the API calls.  */
-#define vtkFloatingPointType vtkFloatingPointType
-typedef double vtkFloatingPointType;
+#if !defined(VTK_LEGACY_REMOVE)
+#  define vtkFloatingPointType double
+#endif
 
 #endif
 // VTK-HeaderTest-Exclude: vtkType.h
