@@ -6,6 +6,7 @@ vtk_module(vtkFiltersGeneral
     vtkFiltersCore
   TEST_DEPENDS
     vtkIOLegacy
+    vtkIOXML
     vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL
     vtkRenderingAnnotation
