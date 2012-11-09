@@ -1,4 +1,4 @@
-vtk_module(vtkFiltersGeneral
+vtk_module(vtkFiltersSelection
   GROUPS
     StandAlone
   DEPENDS
