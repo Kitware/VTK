@@ -5,7 +5,9 @@ vtk_module(vtkFiltersGeneral
     vtkCommonComputationalGeometry
     vtkFiltersCore
   TEST_DEPENDS
+    vtkFiltersExtraction
     vtkIOLegacy
+    vtkIOXML
     vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL
     vtkRenderingAnnotation
