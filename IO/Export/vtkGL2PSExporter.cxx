@@ -56,7 +56,7 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkGL2PSExporter)
-vtkCxxSetObjectMacro(vtkGL2PSExporter, RasterExclusions, vtkProp3DCollection)
+vtkCxxSetObjectMacro(vtkGL2PSExporter, RasterExclusions, vtkPropCollection)
 
 vtkGL2PSExporter::vtkGL2PSExporter()
 {
@@ -559,9 +559,9 @@ void vtkGL2PSExporter::Turn2DPropsOff(vtkRendererCollection *renCol)
     }
   if (this->Write3DPropsAsRasterImage && this->RasterExclusions)
     {
-    vtkProp3D *prop;
+    vtkProp *prop;
     for (this->RasterExclusions->InitTraversal();
-         (prop = this->RasterExclusions->GetNextProp3D());)
+         (prop = this->RasterExclusions->GetNextProp());)
       {
       prop->SetVisibility(0);
       }
