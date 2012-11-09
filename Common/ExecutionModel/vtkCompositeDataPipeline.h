@@ -109,6 +109,9 @@ protected:
   vtkCompositeDataPipeline();
   ~vtkCompositeDataPipeline();
 
+  virtual int ForwardUpstream(vtkInformation* request);
+  virtual int ForwardUpstream(int i, int j, vtkInformation* request);
+
   // Copy information for the given request.
   virtual void CopyDefaultInformation(vtkInformation* request, int direction,
                                       vtkInformationVector** inInfoVec,
