@@ -161,7 +161,6 @@ set_source_files_properties(
   vtkAbstractPicker
   vtkAbstractPropPicker
   vtkCuller
-  vtkGPUInfoList
   vtkImageMapper3D
   vtkInteractorObserver
   vtkMapper

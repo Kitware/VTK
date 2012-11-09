@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkImageReader2Factory.h"
 
-#include "vtkToolkits.h" // VTK_USE_METAIO
 #include "vtkBMPReader.h"
 #include "vtkGESignaReader.h"
 #include "vtkImageReader2.h"
@@ -26,9 +25,7 @@
 #include "vtkPNMReader.h"
 #include "vtkSLCReader.h"
 #include "vtkTIFFReader.h"
-#ifdef VTK_USE_METAIO
 #include "vtkMetaImageReader.h"
-#endif
 
 // Destroying the prototype readers requires information keys.
 // Include the manager here to make sure the keys are not destroyed
@@ -153,13 +150,10 @@ void vtkImageReader2Factory::InitializeReaders()
   vtkImageReader2Factory::AvailableReaders->
     AddItem((reader = vtkGESignaReader::New()));
   reader->Delete();
-#ifdef VTK_USE_METAIO
   vtkImageReader2Factory::AvailableReaders->
     AddItem((reader = vtkMetaImageReader::New()));
   reader->Delete();
-#endif
 }
-
 
 void vtkImageReader2Factory::GetRegisteredReaders(vtkImageReader2Collection* collection)
 {

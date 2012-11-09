@@ -191,10 +191,6 @@ const char   **IncludeDirectories;
 int            NumberOfDefinitions = 0;
 const char   **Definitions;
 
-/* names of classes marked as "concrete" */
-int            NumberOfConcreteClasses = 0;
-const char   **ConcreteClasses;
-
 /* options that can be set by the programs that use the parser */
 int            IgnoreBTX = 0;
 int            Recursive = 0;
@@ -2803,9 +2799,6 @@ declaration_macro:
    }
 | TypeMacro '(' simple_id ',' simple_id opt_comma ')'
    {
-   int is_concrete = 0;
-   int i;
-
    currentFunction->Macro = "vtkTypeMacro";
    currentFunction->Name = "GetClassName";
    currentFunction->Signature = "const char *GetClassName();";
@@ -2830,27 +2823,15 @@ declaration_macro:
    set_return(currentFunction, VTK_PARSE_OBJECT_PTR, $<str>3, 0);
    output_function();
 
-   for (i = 0; i < NumberOfConcreteClasses; i++)
-     {
-     if (strcmp(currentClass->Name, ConcreteClasses[i]) == 0)
-       {
-       is_concrete = 1;
-       break;
-       }
-     }
-
-   if ( is_concrete )
-     {
-     currentFunction->Macro = "vtkTypeMacro";
-     currentFunction->Name = "SafeDownCast";
-     currentFunction->Signature =
-       vtkstrcat($<str>3, " *SafeDownCast(vtkObject* o);");
-     currentFunction->Comment = vtkstrdup(getComment());
-     add_parameter(currentFunction, VTK_PARSE_OBJECT_PTR, "vtkObject", 0);
-     set_return(currentFunction, (VTK_PARSE_STATIC | VTK_PARSE_OBJECT_PTR),
-                $<str>3, 0);
-     output_function();
-     }
+   currentFunction->Macro = "vtkTypeMacro";
+   currentFunction->Name = "SafeDownCast";
+   currentFunction->Signature =
+     vtkstrcat($<str>3, " *SafeDownCast(vtkObject* o);");
+   currentFunction->Comment = vtkstrdup(getComment());
+   add_parameter(currentFunction, VTK_PARSE_OBJECT_PTR, "vtkObject", 0);
+   set_return(currentFunction, (VTK_PARSE_STATIC | VTK_PARSE_OBJECT_PTR),
+              $<str>3, 0);
+   output_function();
    }
 
 opt_comma:
@@ -4498,24 +4479,6 @@ void vtkParse_Free(FileInfo *file_info)
   vtkParse_FreeStringCache(file_info->Strings);
   free(file_info->Strings);
   free(file_info);
-}
-
-/* Set a property before parsing */
-void vtkParse_SetClassProperty(
-  const char *classname, const char *property)
-{
-   /* the only property recognized */
-   if (strcmp(property, "concrete") == 0 ||
-       strcmp(property, "CONCRETE") == 0 ||
-       strcmp(property, "Concrete") == 0)
-     {
-     char *cp = (char *)malloc(strlen(classname) + 1);
-     strcpy(cp, classname);
-
-     vtkParse_AddStringToArray(&ConcreteClasses,
-                               &NumberOfConcreteClasses,
-                               cp);
-     }
 }
 
 /** Define a preprocessor macro. Function macros are not supported.  */

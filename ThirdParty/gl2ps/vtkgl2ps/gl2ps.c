@@ -426,15 +426,31 @@ static int gl2psPrintf(const char* fmt, ...)
   va_list args;
 
 #if defined(GL2PS_HAVE_ZLIB)
+  GLboolean freeBuffer = GL_FALSE;
+  size_t bufferSize = 1024;
   unsigned int oldsize = 0;
-  static char buf[1000];
+  /* Try writing the string to a 1024 byte buffer. If it is too small to fit,
+     keep trying larger sizes until it does. */
+  static char buf[1024];
+  char *bufPtr = buf;
   if(gl2ps->options & GL2PS_COMPRESS){
     va_start(args, fmt);
-    ret = vsprintf(buf, fmt, args);
+    ret = vsnprintf(bufPtr, bufferSize, fmt, args);
     va_end(args);
+    while(ret >= (bufferSize - 1) || ret < 0){
+      /* Too big. Allocate a new buffer. */
+      bufferSize *= 2;
+      if(freeBuffer == GL_TRUE) gl2psFree(bufPtr);
+      bufPtr = (const char *)gl2psMalloc(bufferSize);
+      freeBuffer = GL_TRUE;
+      va_start(args, fmt);
+      ret = vsnprintf(bufPtr, bufferSize, fmt, args);
+      va_end(args);
+    }
     oldsize = gl2ps->compress->srcLen;
     gl2ps->compress->start = (Bytef*)gl2psReallocCompress(oldsize + ret);
-    memcpy(gl2ps->compress->start+oldsize, buf, ret);
+    memcpy(gl2ps->compress->start+oldsize, bufPtr, ret);
+    if(freeBuffer == GL_TRUE) gl2psFree(bufPtr);
     ret = 0;
   }
   else{

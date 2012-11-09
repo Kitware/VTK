@@ -1238,7 +1238,7 @@ int main(int argc, char *argv[])
 
   fprintf(fp,"// java wrapper for %s object\n//\n",data->Name);
   fprintf(fp,"#define VTK_WRAPPING_CXX\n");
-  if (strcmp("vtkObject",data->Name) != 0)
+  if (strcmp("vtkObjectBase",data->Name) != 0)
     {
     /* Block inclusion of full streams.  */
     fprintf(fp,"#define VTK_STREAMS_FWD_ONLY\n");

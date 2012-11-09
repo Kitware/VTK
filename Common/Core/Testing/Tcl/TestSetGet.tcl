@@ -114,6 +114,7 @@ set classExceptions {
    vtkOverlappingAMR
    vtkStructuredAMRGridConnectivity
    vtkUniformGridAMRDataIterator
+   vtkMathTextUtilities
 }
 
 proc rtSetGetTest { fileid } {

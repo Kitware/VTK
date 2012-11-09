@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkXMLHierarchicalBoxDataFileConverter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -32,29 +32,6 @@
 #include <map>
 #include <vector>
 #include <cassert>
-
-namespace
-{
-  // Data type used to store a 3-tuple of doubles.
-  template <class T, int N> class vtkTuple
-    {
-  public:
-    T Data[N];
-    vtkTuple()
-      {
-      for (int cc=0; cc < N; cc++)
-        {
-        Data[N] = 0;
-        }
-      }
-    operator T* ()
-      {
-      return this->Data;
-      }
-    };
-
-  class vtkSpacingType : vtkTuple<double, 3> {};
-}
 
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataFileConverter);
 //----------------------------------------------------------------------------

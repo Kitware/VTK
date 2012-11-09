@@ -613,6 +613,15 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
 
   temp = cs->NewCommand();
 
+  if (!temp)
+    {
+    Tcl_SetResult(interp, argv[0], TCL_VOLATILE);
+    Tcl_AppendResult(interp,
+                     ": no implementation exists for this class.",
+                     NULL);
+    return TCL_ERROR;
+    }
+
   entry = Tcl_CreateHashEntry(&is->InstanceLookup,argv[1],&is_new);
   Tcl_SetHashValue(entry,temp);
   sprintf(temps,"%p",static_cast<void *>(temp));

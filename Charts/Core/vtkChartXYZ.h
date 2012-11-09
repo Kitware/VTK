@@ -33,7 +33,7 @@ class vtkAxis;
 class vtkContext3D;
 class vtkContextMouseEvent;
 class vtkPen;
-class vtkPlane;
+class vtkPlaneCollection;
 class vtkPlot3D;
 class vtkTable;
 class vtkTransform;
@@ -96,15 +96,6 @@ public:
   // Description:
   // Remove all the plots from this chart.
   void ClearPlots();
-
-  // Description:
-  // Returns true if we should recalculate what points have been clipped.
-  bool ShouldCheckClipping();
-
-  // Description:
-  // Determine whether an individual data point falls within the bounds of the
-  // chart axes.
-  bool PointShouldBeClipped(vtkVector3f point);
 
   // Description:
   // Determine the XYZ bounds of the plots within this chart.
@@ -268,6 +259,10 @@ protected:
   double CalculateNiceMinMax(double &min, double &max, int axis);
 
   // Description:
+  // Get the equation for the ith face of our bounding cube.
+  void GetClippingPlaneEquation(int i, double *planeEquation);
+
+  // Description:
   // The size and position of this chart.
   vtkRectf Geometry;
 
@@ -294,11 +289,6 @@ protected:
   // This boolean indicates whether or not we should draw tick marks
   // and axes labels.
   bool DrawAxesDecoration;
-
-  // Description:
-  // This boolean is used internally to keep track of when clipping might have
-  // changed.
-  bool CheckClipping;
 
   // Description:
   // This boolean indicates whether or not we should automatically resize the
@@ -378,12 +368,7 @@ protected:
 
   // Description:
   // The six planes that define the bounding cube of our 3D axes.
-  vtkNew<vtkPlane> Face1;
-  vtkNew<vtkPlane> Face2;
-  vtkNew<vtkPlane> Face3;
-  vtkNew<vtkPlane> Face4;
-  vtkNew<vtkPlane> Face5;
-  vtkNew<vtkPlane> Face6;
+  vtkNew<vtkPlaneCollection> BoundingCube;
 
   // Description:
   // Points used to determine whether the axes will fit within the scene as
@@ -394,14 +379,6 @@ protected:
   // This member variable stores the size of the tick labels for each axis.
   // It is used to determine the position of the axis labels.
   float TickLabelOffset[3][2];
-
-  // Description:
-  // Distance between two opposing planes (Faces).  Any point further away
-  // from a plane than this value is outside our bounding cube and will not
-  // be rendered.
-  double MaxDistanceX;
-  double MaxDistanceY;
-  double MaxDistanceZ;
 
   // Description:
   // The height of the scene, as of the most recent call to Paint().

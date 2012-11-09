@@ -234,7 +234,6 @@ set_source_files_properties(
   vtkSpline
   vtkStructuredData
   vtkTreeIterator
-  vtkUniformGridAMR
   ABSTRACT
   )
 

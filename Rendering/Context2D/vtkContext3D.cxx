@@ -144,6 +144,18 @@ void vtkContext3D::PopMatrix()
   this->Device->PopMatrix();
 }
 
+void vtkContext3D::EnableClippingPlane(int i, double *planeEquation)
+{
+  assert(this->Device);
+  this->Device->EnableClippingPlane(i, planeEquation);
+}
+
+void vtkContext3D::DisableClippingPlane(int i)
+{
+  assert(this->Device);
+  this->Device->DisableClippingPlane(i);
+}
+
 vtkContext3D::vtkContext3D()
 {
 }

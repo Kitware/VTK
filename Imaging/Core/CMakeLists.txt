@@ -49,7 +49,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkImageDecomposeFilter
   vtkImageFourierFilter
   vtkImageIterateFilter
-  vtkImagePadFilter
   vtkImageSpatialAlgorithm
   ABSTRACT
 )

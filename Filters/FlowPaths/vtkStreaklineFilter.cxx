@@ -29,6 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <assert.h>
 #include <algorithm>
 
+#define DEBUGSTREAKLINEFILTER 1
 #ifdef DEBUGSTREAKLINEFILTER
 #define Assert(a) assert(a)
 #else
@@ -48,7 +49,7 @@ public:
 
   bool operator<(const StreakParticle& other) const
   {
-    return this->Age >= other.Age;
+    return this->Age > other.Age;
   }
 };
 
@@ -99,7 +100,6 @@ void StreaklineFilterInternal::Finalize()
       Streak& streak = streaks[streakId];
       float age = particleAge->GetValue(i);
       streak.push_back(StreakParticle(i,age));
-
       }
 
     //sort streaks based on age
@@ -109,14 +109,13 @@ void StreaklineFilterInternal::Finalize()
       std::sort(streak.begin(),streak.end());
       }
 
-
     this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
     vtkCellArray* outLines = this->Filter->Output->GetLines();
     Assert(outLines->GetNumberOfCells()==0);
     Assert(outLines);
     for(unsigned int i=0; i<streaks.size();i++)
       {
-      Streak& streak(streaks[i]);
+      const Streak& streak(streaks[i]);
       vtkNew<vtkIdList> ids;
 
       for(unsigned int j=0; j<streak.size();j++)

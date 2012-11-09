@@ -102,6 +102,7 @@ public:
 
   vtkTypeMacro(vtkParticleTracerBase,vtkPolyDataAlgorithm)
   void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintParticleHistories();
 
   // Description
   // Turn on/off vorticity computation at streamline points
@@ -222,6 +223,8 @@ public:
   vtkSmartPointer<vtkPointData> ProtoPD;
   vtkIdType UniqueIdCounter;// global Id counter used to give particles a stamp
   vtkParticleTracerBaseNamespace::ParticleDataList  ParticleHistories;
+  vtkSmartPointer<vtkPointData>     ParticlePointData; //the current particle point data consistent
+                                                       //with particle history
   int           ReinjectionCounter;
 
   //Everything related to time
@@ -466,8 +469,7 @@ private:
   vtkSmartPointer<vtkFloatArray>    ParticleAngularVel;
   vtkSmartPointer<vtkDoubleArray>   CellVectors;
   vtkSmartPointer<vtkPointData>     OutputPointData;
-  vtkSmartPointer<vtkPointData>     PreviousOutputPointData;
-  vtkSmartPointer<vtkDataSet>           DataReferenceT[2];
+  vtkSmartPointer<vtkDataSet>       DataReferenceT[2];
   vtkSmartPointer<vtkCellArray>     ParticleCells;
 
   vtkParticleTracerBase(const vtkParticleTracerBase&);  // Not implemented.

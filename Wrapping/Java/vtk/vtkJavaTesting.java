@@ -81,7 +81,7 @@ public class vtkJavaTesting {
     public static void Exit(int retVal) {
         vtkJavaTesting.Tester = null;
         System.gc();
-        vtkObject.JAVA_OBJECT_MANAGER.gc(true);
+        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(true);
 
         if (retVal == vtkJavaTesting.FAILED || retVal == vtkJavaTesting.NOT_RUN) {
             System.out.println("Test failed or was not run");
@@ -112,7 +112,7 @@ public class vtkJavaTesting {
     }
 
     public static vtkJavaGarbageCollector StartGCInEDT(long time, TimeUnit unit) {
-        vtkJavaGarbageCollector gc = vtkObject.JAVA_OBJECT_MANAGER.getAutoGarbageCollector();
+        vtkJavaGarbageCollector gc = vtkObjectBase.JAVA_OBJECT_MANAGER.getAutoGarbageCollector();
         gc.SetScheduleTime(time, unit);
         gc.SetAutoGarbageCollection(true);
         return gc;

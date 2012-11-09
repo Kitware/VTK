@@ -24,6 +24,7 @@
 #include "vtkStringArray.h"
 #include "vtkNewickTreeReader.h"
 #include "vtkMultiPieceDataSet.h"
+#include "vtkSmartPointer.h"
 
 #include <iostream>
 #include <fstream>
@@ -122,48 +123,53 @@ int vtkMultiNewickTreeReader::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Read the input file into a char *
-  int length;
+  int fileSize;
   ifs.seekg(0, std::ios::end);
-  length = ifs.tellg();
+  fileSize = ifs.tellg();
   ifs.seekg(0, std::ios::beg);
-  char *buffer = new char[length];
-  ifs.read(buffer, length);
+  char * buffer = new char[fileSize];
+  ifs.read(buffer, fileSize);
+  ifs.close();
 
   //use the separator ";" to decide how many trees are contained in the file
-  ifs.seekg(0, std::ios::beg);
   char * current = buffer;
   unsigned int NumOfTrees = 0;
   while ( *current != '\0')
     {
-    unsigned int singleTreeLength = 0;
-    while ( *current != ';')
-     {
-       singleTreeLength++;
-       current++;
-     }
-
-     char * singleTreeBuffer = new char[singleTreeLength];
-     ifs.read(singleTreeBuffer, singleTreeLength);
-
-     current ++;            //skip ';'
-     char tmp[1];
-     ifs.read(tmp, 1);
-     if (*current == '\n' )
-      {//skip \n
+    while (*current == '\n' || *current == ' ')
+      {//ignor extra \n and spacings
       current ++;
-      ifs.read(tmp, 1);
       }
 
-     vtkNew<vtkNewickTreeReader> treeReader;
-     vtkTree *  tree = vtkTree::New();
-     treeReader->ReadNewickTree(singleTreeBuffer, *tree);
+    char * currentTreeStart = current; //record the starting char of the tree
+    unsigned int singleTreeLength = 0;
+    while ( *current != ';' &&  *current != '\0')
+      {
+      singleTreeLength++;
+      current++;
+      }
 
-     output->SetPiece(NumOfTrees,tree);
+    if (*current == ';')  // each newick tree string ends with ";"
+      {
+      char * singleTreeBuffer = new char[singleTreeLength+1];
+      for (unsigned int i = 0; i < singleTreeLength; i++)
+         {
+         singleTreeBuffer[i] = * (currentTreeStart +i);
+         }
+      singleTreeBuffer[singleTreeLength] = '\0';
+      current ++;//skip ';'
 
-     NumOfTrees++;
-     }
+      vtkNew<vtkNewickTreeReader> treeReader;
+      vtkSmartPointer<vtkTree> tree = vtkSmartPointer<vtkTree>::New();
+      treeReader->ReadNewickTree(singleTreeBuffer, *tree);
 
-  ifs.close();
+      output->SetPiece(NumOfTrees,tree);
+      NumOfTrees++;
+
+      delete [] singleTreeBuffer;
+      }
+    }
+
   return 1;
 }
 

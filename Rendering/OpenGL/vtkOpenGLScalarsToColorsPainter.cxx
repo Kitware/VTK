@@ -31,6 +31,7 @@
 #include "vtkRenderWindow.h"
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLExtensionManager.h"
 
 #include "vtkgl.h" // vtkgl namespace
 
@@ -41,6 +42,8 @@ vtkOpenGLScalarsToColorsPainter::vtkOpenGLScalarsToColorsPainter()
 {
   this->InternalColorTexture = 0;
   this->AlphaBitPlanes = -1;
+  this->AcquiredGraphicsResources = false;
+  this->SupportsSeparateSpecularColor = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -60,6 +63,7 @@ void vtkOpenGLScalarsToColorsPainter::ReleaseGraphicsResources(vtkWindow* win)
     {
     this->InternalColorTexture->ReleaseGraphicsResources(win);
     }
+  this->AcquiredGraphicsResources = false;
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
@@ -112,6 +116,22 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
         oRenderer->GetRenderWindow());
       this->AlphaBitPlanes = context->GetAlphaBitPlanes();
       }
+    }
+
+  // check for separate specular color support
+  if(!this->AcquiredGraphicsResources)
+    {
+    vtkOpenGLRenderer *oglRenderer =
+      vtkOpenGLRenderer::SafeDownCast(renderer);
+    vtkOpenGLRenderWindow *oglRenderWindow =
+      vtkOpenGLRenderWindow::SafeDownCast(oglRenderer->GetRenderWindow());
+    vtkOpenGLExtensionManager *oglExtensionManager =
+      oglRenderWindow->GetExtensionManager();
+
+    this->SupportsSeparateSpecularColor =
+      static_cast<bool>(oglExtensionManager->ExtensionSupported("GL_EXT_separate_specular_color"));
+
+    this->AcquiredGraphicsResources = true;
     }
 
   // If we are coloring by texture, then load the texture map.
@@ -198,7 +218,7 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
 
-  if (this->InterpolateScalarsBeforeMapping)
+  if (this->InterpolateScalarsBeforeMapping && this->SupportsSeparateSpecularColor)
     {
     // Turn on color sum and separate specular color so specular works
     // with texturing.

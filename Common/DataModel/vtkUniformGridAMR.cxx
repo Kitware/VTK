@@ -107,19 +107,34 @@ void vtkUniformGridAMR::Initialize(int numLevels, const int * blocksPerLevel)
 //----------------------------------------------------------------------------
 unsigned int vtkUniformGridAMR::GetNumberOfLevels()
 {
-  return this->AMRInfo->GetNumberOfLevels();
+  unsigned int nlev = 0;
+  if (this->AMRInfo)
+    {
+    nlev = this->AMRInfo->GetNumberOfLevels();
+    }
+  return nlev;
 }
 
 //----------------------------------------------------------------------------
 unsigned int vtkUniformGridAMR::GetTotalNumberOfBlocks()
 {
-  return this->AMRInfo->GetTotalNumberOfBlocks();
+  unsigned int nblocks = 0;
+  if (this->AMRInfo)
+    {
+    nblocks = this->AMRInfo->GetTotalNumberOfBlocks();
+    }
+  return nblocks;
 }
 
 //----------------------------------------------------------------------------
 unsigned int vtkUniformGridAMR::GetNumberOfDataSets(const unsigned int level)
 {
-  return this->AMRInfo->GetNumberOfDataSets(level);
+  unsigned int ndata = 0;
+  if (this->AMRInfo)
+    {
+    ndata = this->AMRInfo->GetNumberOfDataSets(level);
+    }
+  return ndata;
 }
 
 //----------------------------------------------------------------------------
@@ -172,13 +187,21 @@ void vtkUniformGridAMR::SetDataSet(vtkCompositeDataIterator* compositeIter, vtkD
 //----------------------------------------------------------------------------
 void vtkUniformGridAMR::SetGridDescription(int gridDescription)
 {
-  this->AMRInfo->SetGridDescription(gridDescription);
+  if (this->AMRInfo)
+    {
+    this->AMRInfo->SetGridDescription(gridDescription);
+    }
 }
 
 //----------------------------------------------------------------------------
 int vtkUniformGridAMR::GetGridDescription()
 {
-  return this->AMRInfo->GetGridDescription();
+  int desc = 0;
+  if (this->AMRInfo)
+    {
+    desc = this->AMRInfo->GetGridDescription();
+    }
+  return desc;
 }
 
 //------------------------------------------------------------------------------
