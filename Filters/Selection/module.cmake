@@ -1,10 +1,11 @@
-vtk_module(vtkFiltersGeneral
+vtk_module(vtkFiltersSelection
   GROUPS
     StandAlone
   DEPENDS
     vtkCommonComputationalGeometry
     vtkFiltersCore
   TEST_DEPENDS
+    vtkFiltersExtraction
     vtkIOLegacy
     vtkIOXML
     vtkRenderingOpenGL
