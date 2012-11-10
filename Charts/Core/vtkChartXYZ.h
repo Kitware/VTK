@@ -22,11 +22,11 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkColor.h"
 #include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkNew.h"          // For ivars
 #include "vtkSmartPointer.h" // For ivars
 #include <vector>            // For ivars
-using std::vector;
 
 class vtkAnnotationLink;
 class vtkAxis;
@@ -69,6 +69,11 @@ public:
   // Description:
   // Get the x (0), y (1) or z (2) axis.
   vtkAxis * GetAxis(int axis);
+
+  // Description:
+  // Set the color for the axes.
+  void SetAxisColor(const vtkColor4ub& color);
+  vtkColor4ub GetAxisColor();
 
   // Description:
   // Set whether or not we're using this chart to rotate on a timer.
@@ -268,7 +273,7 @@ protected:
 
   // Description:
   // The 3 axes of this chart.
-  vector< vtkSmartPointer<vtkAxis> > Axes;
+  std::vector< vtkSmartPointer<vtkAxis> > Axes;
 
   // Description:
   // This boolean indicates whether or not we're using this chart to rotate
@@ -352,7 +357,7 @@ protected:
 
   // Description:
   // The plots that are drawn within this chart.
-  vector<vtkPlot3D *> Plots;
+  std::vector<vtkPlot3D *> Plots;
 
   // Description:
   // The label for the X Axis.
