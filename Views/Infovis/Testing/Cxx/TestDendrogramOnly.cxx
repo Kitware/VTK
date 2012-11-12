@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestDiagram.cxx
+  Module:    TestDendrogramOnly.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,7 +18,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
-#include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
 
@@ -26,7 +25,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkContextInteractorStyle.h"
-#include "vtkContextItem.h"
 #include "vtkContextActor.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
