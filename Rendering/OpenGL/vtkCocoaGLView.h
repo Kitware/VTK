@@ -57,9 +57,9 @@
 @interface vtkCocoaGLView : NSView
 {
   @private
-  vtkCocoaRenderWindowRef myVTKRenderWindow;
-  NSTrackingRectTag rolloverTrackingRectTag;
-  BOOL rolloverTrackingRectSet;
+  vtkCocoaRenderWindowRef _myVTKRenderWindow;
+  NSTrackingRectTag _rolloverTrackingRectTag;
+  BOOL _rolloverTrackingRectSet;
 }
 
 - (vtkCocoaRenderWindowRef)getVTKRenderWindow;

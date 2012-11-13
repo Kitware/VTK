@@ -39,9 +39,9 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 //----------------------------------------------------------------------------
 // As vtk is both crossplatform and a library, we don't know if it is being
 // used in a 'regular Cocoa application' or as a 'pure vtk application'.
-// By the former I mean a regular Cocoa application that happens to have
-// a vtkCocoaGLView, by the latter I mean an application that only uses
-// vtk APIs (which happen to use Cocoa as an implementation detail).
+// By the former we mean a regular Cocoa application that happens to have
+// a vtkCocoaGLView, by the latter we mean an application that only uses
+// VTK APIs (which happen to use Cocoa as an implementation detail).
 // Specifically, we can't know if NSApplicationMain() was ever called
 // (which is usually done in main()), nor whether the NSApplication exists.
 //
@@ -54,7 +54,7 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 // called at the start of main() and so we know a pool will be in place before
 // any vtk code is used.  But in a 'pure vtk application' the event loop does
 // not start until [NSApp run] is called by this class's Start() method. The
-// problem thus is that other vtk code may be called before Start() and that
+// problem thus is that other VTK code may be called before Start() and that
 // code may call Cocoa and thus autorelease objects with no autorelease pool
 // in place.  The (ugly) solution is to create a 'pool of last resort' so
 // that we know a pool is always in place.
@@ -62,9 +62,9 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 //
 // With garbage collection (GC), autorelease pools are a thing of the past,
 // and this hack is not needed.  However, Obj-C code can be compiled in
-// 1 of 3 memory management modes: GC unsupported (classic retain/release),
-// GC supported, or GC required.  Library code like VTK should work with all 3.
-// Until VTK can require 'GC required' this hack is still needed.
+// 1 of 4 memory management modes: Manual Retain Release (MRR), GC supported,
+// GC required, or Automatic Reference Counting (ARC).  Library code like
+// VTK should work with all 4; currently all are supported except ARC.
 class vtkEarlyCocoaSetup
   {
     public:
@@ -105,9 +105,10 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 //----------------------------------------------------------------------------
 @interface vtkCocoaTimer : NSObject
 {
-  NSTimer *timer;
-  vtkCocoaRenderWindowInteractor *interactor;
-  int timerId;
+  @private
+  NSTimer *_timer;
+  vtkCocoaRenderWindowInteractor *_interactor;
+  int _timerId;
 }
 
 - (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor timerId:(int)myTimerId;
@@ -126,8 +127,8 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   self = [super init];
   if (self)
     {
-    interactor = myInteractor;
-    timerId = myTimerId;
+    _interactor = myInteractor;
+    _timerId = myTimerId;
     }
   return self;
 }
@@ -136,27 +137,27 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 - (void)timerFired:(NSTimer *)myTimer
 {
   (void)myTimer;
-  interactor->InvokeEvent(vtkCommand::TimerEvent, &timerId);
+  _interactor->InvokeEvent(vtkCommand::TimerEvent, &_timerId);
 }
 
 //----------------------------------------------------------------------------
 - (void)startTimerWithInterval:(NSTimeInterval)interval repeating:(BOOL)repeating
 {
-  timer = [[NSTimer timerWithTimeInterval:interval
-    target:self
-    selector:@selector(timerFired:)
-    userInfo:nil
-    repeats:repeating] retain];
-  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
-  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSEventTrackingRunLoopMode];
+  _timer = [[NSTimer timerWithTimeInterval:interval
+                                    target:self
+                                  selector:@selector(timerFired:)
+                                  userInfo:nil
+                                   repeats:repeating] retain];
+  [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSDefaultRunLoopMode];
+  [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSEventTrackingRunLoopMode];
 }
 
 //----------------------------------------------------------------------------
 - (void)stopTimer
 {
-  [timer invalidate];
-  [timer release];
-  timer = nil;
+  [_timer invalidate];
+  [_timer release];
+  _timer = nil;
 }
 
 @end
@@ -167,7 +168,8 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 //----------------------------------------------------------------------------
 @interface vtkCocoaServer : NSObject
 {
-  vtkCocoaRenderWindow* renWin;
+  @private
+  vtkCocoaRenderWindow* _renWin;
 }
 
 + (id)cocoaServerWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow;
@@ -186,7 +188,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   self = [super init];
   if (self)
     {
-    renWin = inRenderWindow;
+    _renWin = inRenderWindow;
     }
   return self;
 }
@@ -205,9 +207,9 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 {
   // Retrieve the NSWindow.
   NSWindow *win = nil;
-  if (renWin != NULL)
+  if (_renWin != NULL)
     {
-    win = reinterpret_cast<NSWindow *>(renWin->GetRootWindow());
+    win = reinterpret_cast<NSWindow *>(_renWin->GetRootWindow());
 
     // We don't want to be informed of every window closing, so check for nil.
     if (win != nil)
@@ -230,10 +232,10 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 - (void)stop
 {
   // Retrieve the NSWindow.
-  NSWindow  *win = nil;
-  if (renWin != NULL)
+  NSWindow *win = nil;
+  if (_renWin != NULL)
     {
-    win = reinterpret_cast<NSWindow *>(renWin->GetRootWindow());
+    win = reinterpret_cast<NSWindow *>(_renWin->GetRootWindow());
     }
 
   // Close the window, removing it from the screen and releasing it
@@ -248,9 +250,9 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc removeObserver:self name:NSWindowWillCloseNotification object:nil];
 
-  if (renWin)
+  if (_renWin)
     {
-    int windowCreated = renWin->GetWindowCreated();
+    int windowCreated = _renWin->GetWindowCreated();
     if (windowCreated)
       {
       // Stop the current run loop. Do not terminate as it will not return to
@@ -260,7 +262,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
       [application stop:application];
 
       NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
-                                          location:NSMakePoint(0.0,0.0)
+                                          location:NSZeroPoint
                                      modifierFlags:0
                                          timestamp:0
                                       windowNumber:-1
@@ -271,7 +273,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
       [application postEvent:event atStart:YES];
 
       // The NSWindow is closing, so prevent anyone from accidentally using it
-      renWin->SetRootWindow(NULL);
+      _renWin->SetRootWindow(NULL);
       }
     }
 }
@@ -344,9 +346,6 @@ void vtkCocoaRenderWindowInteractor::Start()
 // Begin processing keyboard strokes.
 void vtkCocoaRenderWindowInteractor::Initialize()
 {
-  vtkCocoaRenderWindow *renWin;
-  int *size;
-
   // make sure we have a RenderWindow and camera
   if ( !this->RenderWindow )
     {
@@ -359,9 +358,9 @@ void vtkCocoaRenderWindowInteractor::Initialize()
     }
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
-  renWin = (vtkCocoaRenderWindow *)(this->RenderWindow);
+  vtkCocoaRenderWindow *renWin = (vtkCocoaRenderWindow *)(this->RenderWindow);
   renWin->Start();
-  size = renWin->GetSize();
+  int *size = renWin->GetSize();
 
   renWin->GetPosition(); // update values of this->Position[2]
 
@@ -405,7 +404,7 @@ void vtkCocoaRenderWindowInteractor::Disable()
 #ifdef VTK_USE_TDX
   if(this->Device->GetInitialized())
     {
-      this->Device->Close();
+    this->Device->Close();
     }
 #endif
 
@@ -463,12 +462,12 @@ int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int timerId,
   // Create a vtkCocoaTimer and add it to a dictionary using the timerId
   // as key, this will let us find the vtkCocoaTimer later by timerId
   vtkCocoaTimer *cocoaTimer = [[vtkCocoaTimer alloc] initWithInteractor:this
-    timerId:timerId];
+                                                                timerId:timerId];
   NSString *timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
   NSMutableDictionary *timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
   [timerDict setObject:cocoaTimer forKey:timerIdAsStr];
   [cocoaTimer startTimerWithInterval:((NSTimeInterval)duration/1000.0)
-    repeating:repeating];
+                           repeating:repeating];
 
   // In this implementation, timerId and platformTimerId are the same
   int platformTimerId = timerId;
