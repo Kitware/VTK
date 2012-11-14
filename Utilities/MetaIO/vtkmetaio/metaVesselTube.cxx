@@ -948,7 +948,7 @@ M_Read(void)
     if(objectType.empty())
       {
       char c = ' ';
-      while( (c!='\n') && (!m_ReadStream->good()))
+      while( (c!='\n') && (m_ReadStream->good()))
         {
         c = m_ReadStream->get();// to avoid unrecognized characters
         }
