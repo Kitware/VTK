@@ -77,7 +77,7 @@ vtkAxisFollower::vtkAxisFollower() : vtkFollower()
 
   this->Axis                      = NULL;
 
-  this->AxisPointingLeft          = -1;
+  this->TextUpsideDown          = -1;
   this->VisibleAtCurrentViewAngle = -1;
 
   this->InternalMatrix = vtkMatrix4x4::New();
@@ -177,12 +177,10 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
   b[1] = viewCoordinatePt2[1];
   b[2] = viewCoordinatePt2[2];
 
-  // If the axis second point pointing towards left we would like to have a 180
-  // rotation around the vertical axis so that text would still be readable and drawn
-  // left to right.
-  if(b[0] < a[0])
+  // If the text is upside down, we make a 180 rotation to keep it readable.
+  if(this->IsTextUpsideDown(a, b))
     {
-    this->AxisPointingLeft = 1;
+    this->TextUpsideDown = 1;
     rX[0] = -rX[0];
     rX[1] = -rX[1];
     rX[2] = -rX[2];
@@ -192,7 +190,7 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
     }
   else
     {
-    this->AxisPointingLeft = 0;
+    this->TextUpsideDown = 0;
     }
 }
 
@@ -402,7 +400,7 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
   // Offset by half of width.
   double halfWidth  = (bounds[1] - bounds[0]) * 0.5 * this->Scale[0];
 
-  if(this->AxisPointingLeft == 1)
+  if(this->TextUpsideDown == 1)
     {
     halfWidth  = -halfWidth;
     }
@@ -613,4 +611,10 @@ void vtkAxisFollower::ShallowCopy(vtkProp *prop)
 
   // Now do superclass
   this->Superclass::ShallowCopy(prop);
+}
+
+bool vtkAxisFollower::IsTextUpsideDown( double* a, double* b )
+{
+  double angle = vtkMath::RadiansFromDegrees(this->Orientation[2]);
+  return (b[0] - a[0]) * cos(angle) - (b[1] - a[1]) * sin(angle) < 0;
 }
