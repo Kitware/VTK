@@ -8,6 +8,7 @@ vtk_module(vtkRenderingFreeType
     vtkfreetype
     vtkftgl
   TEST_DEPENDS
+    vtkRenderingMatplotlib
     vtkTestingRendering
     vtkViewsContext2D
   )

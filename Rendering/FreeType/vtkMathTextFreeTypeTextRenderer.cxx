@@ -122,7 +122,7 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
       if (this->HasMathText)
         {
         if (this->MathTextUtilities->RenderString(str.c_str(), data, tprop,
-                                                  textDims, dpi))
+                                                  dpi, textDims))
           {
           return true;
           }

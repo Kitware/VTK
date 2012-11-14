@@ -38,7 +38,7 @@
 class vtkTextProperty;
 class vtkPolyDataMapper2D;
 class vtkImageData;
-class vtkFreeTypeUtilities;
+class vtkTextRenderer;
 class vtkTransform;
 class vtkPolyData;
 class vtkPoints;
@@ -248,7 +248,7 @@ protected:
   // This used to be "Mapper" but I changed it to PDMapper because
   // Mapper is an ivar in Actor2D (bad form).
   vtkPolyDataMapper2D *PDMapper;
-  vtkFreeTypeUtilities *FreeTypeUtilities;
+  vtkTextRenderer *TextRenderer;
   vtkTimeStamp  BuildTime;
   vtkTransform *Transform;
   int LastSize[2];

@@ -1,11 +1,33 @@
+# Check that matplotlib is available:
+execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import matplotlib"
+  RESULT_VARIABLE IMPORT_MATPLOTLIB_EXITCODE
+  OUTPUT_VARIABLE IMPORT_MATPLOTLIB_OUTPUT
+  ERROR_VARIABLE IMPORT_MATPLOTLIB_ERROR
+  )
+set(MATPLOTLIB_FOUND FALSE)
+if(${IMPORT_MATPLOTLIB_EXITCODE} EQUAL 0)
+  set(MATPLOTLIB_FOUND TRUE)
+endif()
+
+if(NOT MATPLOTLIB_FOUND)
+  message("Matplotlib not found! MathText rendering will not be available until it is installed. Disabling tests.")
+endif()
+
 # add tests that do not require data or produce vector output
 set(MyTests
+  TestMathTextFreeTypeTextRendererNoMath.cxx
   )
 
 if(VTK_DATA_ROOT)
   # add tests that require data
   set(MyTests ${MyTests}
     TestFTStringToPath.cxx
+    )
+endif()
+
+if(MATPLOTLIB_FOUND)
+  set(MyTests ${MyTests}
+    TestMathTextFreeTypeTextRenderer.cxx
     )
 endif()
 
