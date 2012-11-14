@@ -50,6 +50,7 @@ class vtkDataArray;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkInformation;
+class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationInformationVectorKey;
 class vtkInformationVariantVectorKey;
@@ -318,20 +319,58 @@ public:
   virtual void ClearLookup() = 0;
 
   // Description:
-  // Populate the given vtkVariantArray with a set of unique values taken on
+  // Populate the given vtkVariantArray with a set of distinct values taken on
   // by the requested component (or, when passed -1, by the tuples as a whole).
-  // If the set of unique values has more than 32 entries, then the array
+  // If the set of prominent values has more than 32 entries, then the array
   // is assumed to be continuous in nature and no values are returned.
+  //
+  // This method takes 2 parameters: \a uncertainty and \a minimumProminence.
+  // Note that this set of returned values may not be complete if
+  // \a uncertainty and \a minimumProminence are both larger than 0.0;
+  // in order to perform interactively, a subsample of the array is
+  // used to determine the set of values.
+  //
+  // The first parameter (\a uncertainty, U) is the maximum acceptable
+  // probability that a prominent value will not be detected.
+  // Setting this to 0 will cause every value in the array to be examined.
+  //
+  // The second parameter (\a minimumProminence, P) specifies the smallest
+  // relative frequency (in [0,1]) with which a value in the array may
+  // occur and still be considered prominent. Setting this to 0
+  // will force every value in the array to be traversed.
+  // Using numbers close to 0 for this parameter quickly causes
+  // the number of samples required to obtain the given uncertainty to
+  // subsume the entire array, as rare occurrences require frequent
+  // sampling to detect.
+  //
+  // For an array with T tuples and given uncertainty U and mininumum
+  // prominence P, we sample N values, with N = f(T; P, U).
+  // We want f to be sublinear in T in order to interactively handle large
+  // arrays; in practice, we can make f independent of T:
+  // \f$ N >= \frac{5}{P}\mathrm{ln}\left(\frac{1}{PU}) \f$,
+  // but note that small values of P are costly to achieve.
+  // The default parameters will locate prominent values that occur at least
+  // 1 out of every 1000 samples with a confidence of 0.999999 (= 1 - 1e6).
+  // Thanks to Seshadri Comandur (Sandia National Laboratories) for the
+  // bounds on the number of samples.
   //
   // The first time this is called, the array is examined and unique values
   // are stored in the vtkInformation object associated with the array.
   // The list of unique values will be updated on subsequent calls only if
-  // the array's MTime is newer than the associated vtkInformation object.
+  // the array's MTime is newer than the associated vtkInformation object or
+  // if better sampling (lower \a uncertainty or \a minimumProminence) is
+  // requested.
+  // The DISCRETE_VALUE_SAMPLE_PARAMETERS() information key is used to
+  // store the numbers which produced any current set of prominent values.
   //
-  // Note that this set of returned values may not be complete; in order to
-  // perform interactively, a subsample of the array is used to determine the
-  // set of values.
-  virtual void GetUniqueComponentValues(int comp, vtkVariantArray* values);
+  // Also, note that every value encountered is reported and counts toward
+  // the maximum of 32 distinct values, regardless of the value's frequency.
+  // This is required for an efficient implementation.
+  // Use the vtkOrderStatistics filter if you wish to threshold the set of
+  // distinct values to eliminate "unprominent" (infrequently-occurring)
+  // values.
+  virtual void GetProminentComponentValues(int comp, vtkVariantArray* values,
+    double uncertainty = 1.e-6, double minimumProminence = 1.e-3);
 
   // TODO: Implement these lookup functions also.
   //virtual void LookupRange(vtkVariant min, vtkVariant max, vtkIdList* ids,
@@ -384,7 +423,17 @@ public:
 
   // Description:
   // A key used to hold discrete values taken on either by the tuples of the
+  // array (when present in this->GetInformation()) or individual components
+  // (when present in one entry of the PER_COMPONENT() information vector).
   static vtkInformationVariantVectorKey* DISCRETE_VALUES();
+
+  // Description:
+  // A key used to hold conditions under which cached discrete values were generated;
+  // the value is a 2-vector of doubles.
+  // The first entry corresponds to the maximum uncertainty that prominent values
+  // exist but have not been detected. The second entry corresponds to the smallest
+  // relative frequency a value is allowed to have and still appear on the list.
+  static vtkInformationDoubleVectorKey* DISCRETE_VALUE_SAMPLE_PARAMETERS();
 
   enum {
     MAX_DISCRETE_VALUES = 32
@@ -411,7 +460,7 @@ protected:
   // entries or does not behave as a discrete set.
   // If the key is not present, the array has not been examined for
   // distinct values or has been modified since the last examination.
-  virtual void UpdateDiscreteValueSet();
+  virtual void UpdateDiscreteValueSet(double uncertainty, double minProminence);
 
   vtkIdType Size;         // allocated size of data
   vtkIdType MaxId;        // maximum index inserted thus far

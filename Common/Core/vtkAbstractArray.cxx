@@ -23,6 +23,7 @@
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
+#include "vtkMath.h"
 #include "vtkMinimalStandardRandomSequence.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
@@ -34,6 +35,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
 #include "vtkInformationVector.h"
+#include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationVariantVectorKey.h"
@@ -58,6 +60,7 @@
 vtkInformationKeyMacro(vtkAbstractArray, GUI_HIDE, Integer);
 vtkInformationKeyMacro(vtkAbstractArray, PER_COMPONENT, InformationVector);
 vtkInformationKeyMacro(vtkAbstractArray, DISCRETE_VALUES, VariantVector);
+vtkInformationKeyRestrictedMacro(vtkAbstractArray, DISCRETE_VALUE_SAMPLE_PARAMETERS, DoubleVector, 2);
 
 namespace
 {
@@ -482,8 +485,9 @@ void vtkAbstractArray::InsertVariantValue(vtkIdType id, vtkVariant value)
 }
 
 //--------------------------------------------------------------------------
-void vtkAbstractArray::GetUniqueComponentValues(
-  int comp, vtkVariantArray* values)
+void vtkAbstractArray::GetProminentComponentValues(
+  int comp, vtkVariantArray* values,
+  double uncertainty, double minimumProminence)
 {
   if (!values || comp < -1 || comp >= this->NumberOfComponents)
     {
@@ -495,6 +499,9 @@ void vtkAbstractArray::GetUniqueComponentValues(
 
   bool justCreated = false;
   vtkInformation* info = this->GetInformation();
+  const double* lastParams = info ?
+    (info->Has(DISCRETE_VALUE_SAMPLE_PARAMETERS()) ?
+     info->Get(DISCRETE_VALUE_SAMPLE_PARAMETERS()) : 0) : 0;
   if (comp >= 0 && info)
     {
     vtkInformationVector* infoVec = info->Get(PER_COMPONENT());
@@ -510,11 +517,32 @@ void vtkAbstractArray::GetUniqueComponentValues(
     }
   if (info)
     {
+    // Any insane parameter values map to
+    // deterministic, exhaustive enumeration of all
+    // distinct values:
+    if (uncertainty < 0. || uncertainty > 1.)
+      {
+      uncertainty = 0.;
+      }
+    if (minimumProminence < 0. || minimumProminence > 1.)
+      {
+      minimumProminence = 0.;
+      }
+    // Are parameter values requesting more certainty in reporting or
+    // that less-prominent values be reported? If so, recompute.
+    bool tighterParams = lastParams ?
+      (lastParams[0] > uncertainty ||
+       lastParams[1] > minimumProminence ?
+       true :
+       false)
+      : true;
     // Recompute discrete value set when the array has been
     // modified since the information was written.
-    if (!info->Has(DISCRETE_VALUES()) || this->GetMTime() > info->GetMTime() || justCreated)
+    if (
+      !info->Has(DISCRETE_VALUES()) || tighterParams ||
+      this->GetMTime() > info->GetMTime() || justCreated)
       {
-      this->UpdateDiscreteValueSet();
+      this->UpdateDiscreteValueSet(uncertainty, minimumProminence);
       }
     }
   else
@@ -540,7 +568,7 @@ namespace
 {
 template<typename T>
 bool AccumulateSampleValues(
-  T* array, int nc, vtkIdType begin, vtkIdType end,
+  T* array, int nc, vtkIdType begin, vtkIdType end, vtkIdType vtkNotUsed(minFreq),
   std::vector<std::set<vtkVariant> >& uniques)
 {
   // number of discrete components remaining (tracked during iteration):
@@ -559,7 +587,6 @@ bool AccumulateSampleValues(
       if (uniques[j].size() > vtkAbstractArray::MAX_DISCRETE_VALUES)
         continue;
       result = uniques[j].insert(array[i * nc + j]);
-      //cout << i << " " << j << ": " << array[i*nc+j] << " " << (result.second ? "t" : "f") << endl;
       if (result.second)
         {
         if (uniques[j].size() == vtkAbstractArray::MAX_DISCRETE_VALUES + 1)
@@ -588,30 +615,46 @@ bool AccumulateSampleValues(
 } // End anonymous namespace.
 
 //--------------------------------------------------------------------------
-void vtkAbstractArray::UpdateDiscreteValueSet()
+void vtkAbstractArray::UpdateDiscreteValueSet(
+  double uncertainty, double minimumProminence)
 {
-  // For an array with T tuples, we sample N blocks of M tuples each, with
-  // M*N = f(T) and f some sublinear function of T.
+  // For an array with T tuples and given uncertainty U and mininumum
+  // prominence P, we sample N blocks of M tuples each, with
+  // M*N = f(T; P, U) and f some sublinear function of T.
   // If every component plus all components taken together each have more than
   // MAX_DISCRETE_VALUES distinct values, then we exit early.
   // M is chosen based on the number of bytes per tuple to maximize use of a cache
   // line (assuming a 64-byte cache line until kwsys::SystemInformation or the like
   // can provide a platform-independent way to query it).
-  // N is chosen to satisfy M*N = max(ceil(K*log(T)),min(2*MAX_DISCRETE_VALUES,T))
-  // where K is VTK_SAMPLE_FACTOR that indicates the constant big-O factor by
-  // which log2(T) bounds the number of samples we should evaluate.
+  //
+  // N is chosen to satisfy the requested uncertainty and prominence criteria specified.
 #define VTK_CACHE_LINE_SIZE 64
-#define VTK_SAMPLE_FACTOR 32
+#define VTK_SAMPLE_FACTOR 3.46573590279972654 /* = 5/log2(e) */
+  int numberOfComponentsWithProminentValues = 0;
   int nc = this->NumberOfComponents;
   int blockSize = VTK_CACHE_LINE_SIZE / (this->GetDataTypeSize() * nc);
   if (!blockSize) blockSize = 4;
-  int ln2 = 0;
+  double logfac = 1.;
   vtkIdType nt = this->GetNumberOfTuples();
   if (this->MaxId > 0)
     {
-    frexp(static_cast<double>(nt), &ln2);
+    logfac = -log2(uncertainty * minimumProminence) / minimumProminence;
+    if (logfac < 0)
+      {
+      logfac = -logfac;
+      }
     }
-  vtkIdType numberOfSampleTuples = VTK_SAMPLE_FACTOR * (ln2 <= 0 ? 1 : ln2);
+  vtkIdType numberOfSampleTuples;
+  if (vtkMath::IsInf(logfac))
+    {
+    numberOfSampleTuples = nt;
+    }
+  else
+    {
+    numberOfSampleTuples = VTK_SAMPLE_FACTOR * logfac;
+    }
+  vtkIdType minFreq = static_cast<vtkIdType>(
+    numberOfSampleTuples * minimumProminence / 2);
   vtkIdType numberOfBlocks =
     numberOfSampleTuples / blockSize +
     (numberOfSampleTuples % blockSize ? 1 : 0);
@@ -621,7 +664,6 @@ void vtkAbstractArray::UpdateDiscreteValueSet()
       2 * MAX_DISCRETE_VALUES / blockSize +
       (2 * MAX_DISCRETE_VALUES % blockSize ? 1 : 0);
     }
-  //std::vector<vtkNew<vtkVariantArray> > uniques(nc + 1);
   std::vector<std::set<vtkVariant> > uniques(nc > 1 ? nc + 1 : nc);
   if (numberOfBlocks * blockSize > this->MaxId / 2)
     { // Awwww, just do the whole array already!
@@ -630,7 +672,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet()
       vtkSuperExtraExtendedTemplateMacro(
         AccumulateSampleValues(
           static_cast<VTK_TT*>(this->GetVoidPointer(0)),
-          nc, 0, nt, uniques));
+          nc, 0, nt, minFreq, uniques));
     default:
       vtkErrorMacro("Array type " << this->GetClassName() << " not supported.");
       break;
@@ -656,9 +698,10 @@ void vtkAbstractArray::UpdateDiscreteValueSet()
         vtkSuperExtraExtendedTemplateMacro(
           endEarly = AccumulateSampleValues(
             static_cast<VTK_TT*>(this->GetVoidPointer(0)),
-            nc, startTuple, endTuple, uniques));
+            nc, startTuple, endTuple, minFreq, uniques));
       default:
-        vtkErrorMacro("Array type " << this->GetClassName() << " not supported.");
+        vtkErrorMacro(
+          "Array type " << this->GetClassName() << " not supported.");
         endEarly = true;
         break;
         }
@@ -671,11 +714,11 @@ void vtkAbstractArray::UpdateDiscreteValueSet()
     {
     if (uniques[c].size() <= MAX_DISCRETE_VALUES)
       {
+      ++ numberOfComponentsWithProminentValues;
       std::vector<vtkVariant> compUniques;
       std::set<vtkVariant>::iterator sit;
       for (sit = uniques[c].begin(); sit != uniques[c].end(); ++sit)
         {
-        //cout << " " << *sit << endl;
         compUniques.push_back(*sit);
         }
       this->GetInformation()->Get(
@@ -696,7 +739,6 @@ void vtkAbstractArray::UpdateDiscreteValueSet()
     std::set<vtkVariant>::iterator sit;
     for (sit = uniques[nc].begin(); sit != uniques[nc].end(); ++sit)
       {
-      //cout << " " << *sit << endl;
       vtkAbstractArray* tuple = sit->ToArray();
       if (tuple)
         {
@@ -706,6 +748,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet()
           }
         }
       }
+    ++ numberOfComponentsWithProminentValues;
     this->GetInformation()->Set(
       DISCRETE_VALUES(), &compUniques[0],
       static_cast<int>(compUniques.size()));
@@ -713,5 +756,17 @@ void vtkAbstractArray::UpdateDiscreteValueSet()
   else
     { // Remove the key
     this->GetInformation()->Remove(DISCRETE_VALUES());
+    }
+  if (numberOfComponentsWithProminentValues > 0)
+    {
+    double params[2];
+    params[0] = uncertainty;
+    params[1] = minimumProminence;
+    this->GetInformation()->Set(
+      DISCRETE_VALUE_SAMPLE_PARAMETERS(), params, 2);
+    }
+  else
+    { // Remove the parameter-value key
+    this->GetInformation()->Remove(DISCRETE_VALUE_SAMPLE_PARAMETERS());
     }
 }

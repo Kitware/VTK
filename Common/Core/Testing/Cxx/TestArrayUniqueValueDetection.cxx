@@ -6,7 +6,8 @@
 #include "vtkVariantArray.h"
 
 static double testTuplesDouble[] = {
-  // A simple test where every component *and* the tuples as a whole behave discretely.
+  // A simple test where every component *and* the
+  // tuples as a whole behave discretely.
   0., 0., 1.,
   1., 0., 3.,
   0., 2., 7.,
@@ -15,7 +16,8 @@ static double testTuplesDouble[] = {
   0., 2., 8.,
 };
 // Bounds on the number of unique values that should be identified.
-// For larger data, the number may not be precise as we sample subsets of the data.
+// For larger data, the number may not be precise
+// as we sample subsets of the data.
 static int numUniqueDouble[] = {
   2, 2,
   2, 2,
@@ -101,23 +103,16 @@ static int numUniqueInt2[] = {
 static vtkStdString testTuplesString[] = {
   /*
    To test the log(N) sampling strategy, we must
-   have more than 589 entries in the array.
-   In practice, we need even more as the "cache line"
-   optimization searches blocks of 8 strings at a time.
-   This array has 645 values and we should test
-   max(ceil(32*log2(645)),min(645,2*32)) = 299 tuples.
-   Because of the cache line size, we actually test 320
-   tuples. For arrays with fewer than twice as many
-   tuples as we are set to test, we simply test the whole
-   array, so *more* than 640 entries are required.
+   have a large number of entries in the array.
 
-   The 4 words marked "not detected" below are placed
-   so as to avoid the random choice of blocks to test
-   on at least one platform.
+   The 4 words marked "not detected" below are placed to leave them
+   intentionally undetected on at least one platform.
    The vtkObject ModificationTime counter is used as a
    seed for the random number generator and its count
    will vary across platforms and compile-time options,
-   so we accept anywhere from 4 to 8 values being detected.
+   so we accept anywhere from 4 to 8 values being detected
+   when subsampling. This data is used twice: once forcing all
+   tuples to be sampled and once using subsampling.
    */
   "Eeny", "Meeny", "Miny", "Mo", "Miny",
   "Eeny", "Meeny", "Miny", "Mo", "Miny",
@@ -249,11 +244,16 @@ static vtkStdString testTuplesString[] = {
   "Eeny", "Meeny", "Miny", "Mo", "Miny",
   "Eeny", "Meeny", "Miny", "Mo", "Miny",
 };
-static int numUniqueString[2] = {
+static int numUniqueStringComplete[2] = {
+  8, 8,
+};
+static int numUniqueStringSubset[2] = {
   4, 8,
 };
 
-static bool CheckUniques(vtkAbstractArray* arr, int* uniqueSizeBds)
+static bool CheckUniques(
+  vtkAbstractArray* arr, int* uniqueSizeBds,
+  double uncertainty, double minProminence)
 {
   bool ok = true;
   if (!arr)
@@ -267,15 +267,20 @@ static bool CheckUniques(vtkAbstractArray* arr, int* uniqueSizeBds)
   vtkNew<vtkVariantArray> uniques;
   for (int c = 0; c < nc; ++c)
     {
-    arr->GetUniqueComponentValues(c, uniques.GetPointer());
+    arr->GetProminentComponentValues(
+      c, uniques.GetPointer(), uncertainty, minProminence);
     int numUniques = static_cast<int>(uniques->GetNumberOfTuples());
     cout << "  comp " << c << " (" << numUniques << "): ";
     for (int n = 0; n <= uniques->GetMaxId(); ++n)
       {
-      cout << (n > 0 ? ", " : " ") << uniques->GetVariantValue(n).ToString().c_str();
+      cout
+        << (n > 0 ? ", " : " ")
+        << uniques->GetVariantValue(n).ToString().c_str();
       }
     cout << endl;
-    if (uniqueSizeBds[2 * c] > numUniques || uniqueSizeBds[2 * c + 1] < numUniques)
+    if (
+      uniqueSizeBds[2 * c] > numUniques ||
+      uniqueSizeBds[2 * c + 1] < numUniques)
       {
       cout
         << "    ** ERROR: Expected between " << uniqueSizeBds[2 * c]
@@ -285,15 +290,20 @@ static bool CheckUniques(vtkAbstractArray* arr, int* uniqueSizeBds)
     }
   if (nc > 1)
     {
-    arr->GetUniqueComponentValues(-1, uniques.GetPointer());
+    arr->GetProminentComponentValues(
+      -1, uniques.GetPointer(), uncertainty, minProminence);
     int numUniques = static_cast<int>(uniques->GetNumberOfTuples());
     cout << "  tuples (" << numUniques << "): ";
     for (int n = 0; n <= uniques->GetMaxId(); ++n)
       {
-      cout << (n > 0 && n % nc == 0 ? ", " : " ") << uniques->GetVariantValue(n).ToString().c_str();
+      cout
+        << (n > 0 && n % nc == 0 ? ", " : " ")
+        << uniques->GetVariantValue(n).ToString().c_str();
       }
     cout << endl;
-    if (uniqueSizeBds[2 * nc] > numUniques || uniqueSizeBds[2 * nc + 1] < numUniques)
+    if (
+      uniqueSizeBds[2 * nc] > numUniques ||
+      uniqueSizeBds[2 * nc + 1] < numUniques)
       {
       cout
         << "    ** ERROR: Expected between " << uniqueSizeBds[2 * nc]
@@ -312,25 +322,33 @@ int TestArrayUniqueValueDetection(int vtkNotUsed(argc), char* vtkNotUsed(argv)[]
   vtkNew<vtkStringArray> sarr;
 
   darr->SetNumberOfComponents(3);
-  darr->SetArray(testTuplesDouble, sizeof(testTuplesDouble)/sizeof(testTuplesDouble[0]), 1);
-  darr->SetName("Some3DPoints");
-  ok &= CheckUniques(darr.GetPointer(), numUniqueDouble);
+  darr->SetArray(testTuplesDouble,
+    sizeof(testTuplesDouble)/sizeof(testTuplesDouble[0]), 1);
+  darr->SetName("Some3DPoints - Show off distinct tuple detection");
+  ok &= CheckUniques(darr.GetPointer(), numUniqueDouble, 0., 0.);
 
   iarr->SetNumberOfComponents(2);
-  iarr->SetArray(testTuplesInt, sizeof(testTuplesInt)/sizeof(testTuplesInt[0]), 1);
-  iarr->SetName("Some2DPoints");
-  ok &= CheckUniques(iarr.GetPointer(), numUniqueInt);
+  iarr->SetArray(testTuplesInt,
+    sizeof(testTuplesInt)/sizeof(testTuplesInt[0]), 1);
+  iarr->SetName("Some2DPoints - Show off tuple non-detection");
+  ok &= CheckUniques(iarr.GetPointer(), numUniqueInt, 0., 0.);
 
   iarr->SetNumberOfComponents(1);
-  iarr->SetArray(testTuplesInt2, sizeof(testTuplesInt2)/sizeof(testTuplesInt2[0]), 1);
+  iarr->SetArray(testTuplesInt2,
+    sizeof(testTuplesInt2)/sizeof(testTuplesInt2[0]), 1);
   //iarr->Modified(); // required since we have changed the tuples?
-  iarr->SetName("Some1DPoints");
-  ok &= CheckUniques(iarr.GetPointer(), numUniqueInt2);
+  iarr->SetName("Some1DPoints - Show off component non-detection");
+  ok &= CheckUniques(iarr.GetPointer(), numUniqueInt2, 0., 0.);
 
   sarr->SetNumberOfComponents(1);
-  sarr->SetArray(testTuplesString, sizeof(testTuplesString)/sizeof(testTuplesString[0]), 1);
-  sarr->SetName("SomeNonWords");
-  ok &= CheckUniques(sarr.GetPointer(), numUniqueString);
+  sarr->SetArray(testTuplesString,
+    sizeof(testTuplesString)/sizeof(testTuplesString[0]), 1);
+  sarr->SetName("SomeNonWords - Show off string value detection");
+  ok &= CheckUniques(sarr.GetPointer(), numUniqueStringComplete, 0.0, 0.0);
+
+  sarr->Modified(); // Verify that modifying the array causes a re-compute
+  sarr->SetName("SomeNonWords - Show off non-exhaustive search");
+  ok &= CheckUniques(sarr.GetPointer(), numUniqueStringSubset, 0.5, 0.1);
 
   return ok ? 0 : 1;
 }
