@@ -123,13 +123,22 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
     {
     vtkOpenGLRenderer *oglRenderer =
       vtkOpenGLRenderer::SafeDownCast(renderer);
-    vtkOpenGLRenderWindow *oglRenderWindow =
-      vtkOpenGLRenderWindow::SafeDownCast(oglRenderer->GetRenderWindow());
-    vtkOpenGLExtensionManager *oglExtensionManager =
-      oglRenderWindow->GetExtensionManager();
+    if(oglRenderer)
+      {
+      vtkOpenGLRenderWindow *oglRenderWindow =
+        vtkOpenGLRenderWindow::SafeDownCast(oglRenderer->GetRenderWindow());
+      if(oglRenderWindow)
+        {
+        vtkOpenGLExtensionManager *oglExtensionManager =
+          oglRenderWindow->GetExtensionManager();
 
-    this->SupportsSeparateSpecularColor =
-      static_cast<bool>(oglExtensionManager->ExtensionSupported("GL_EXT_separate_specular_color"));
+        if(oglExtensionManager)
+          {
+          this->SupportsSeparateSpecularColor =
+            (oglExtensionManager->ExtensionSupported("GL_EXT_separate_specular_color") != 0);
+          }
+        }
+      }
 
     this->AcquiredGraphicsResources = true;
     }
