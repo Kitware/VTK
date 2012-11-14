@@ -71,7 +71,7 @@ vtkInformationKeyRestrictedMacro(vtkDataObject, BOUNDING_BOX, DoubleVector, 6);
 static int vtkDataObjectGlobalReleaseDataFlag = 0;
 
 const char vtkDataObject
-::AssociationNames[vtkDataObject::NUMBER_OF_ASSOCIATIONS][55] =
+::AssociationNames[2 * vtkDataObject::NUMBER_OF_ASSOCIATIONS][55] =
 {
   "vtkDataObject::FIELD_ASSOCIATION_POINTS",
   "vtkDataObject::FIELD_ASSOCIATION_CELLS",
@@ -79,7 +79,14 @@ const char vtkDataObject
   "vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS",
   "vtkDataObject::FIELD_ASSOCIATION_VERTICES",
   "vtkDataObject::FIELD_ASSOCIATION_EDGES",
-  "vtkDataObject::FIELD_ASSOCIATION_ROWS"
+  "vtkDataObject::FIELD_ASSOCIATION_ROWS",
+  "vtkDataObject::POINT",
+  "vtkDataObject::CELL",
+  "vtkDataObject::FIELD",
+  "vtkDataObject::POINT_THEN_CELL",
+  "vtkDataObject::VERTEX",
+  "vtkDataObject::EDGE",
+  "vtkDataObject::ROW"
 };
 
 //----------------------------------------------------------------------------
@@ -649,6 +656,29 @@ const char* vtkDataObject::GetAssociationTypeAsString(int associationType)
     return NULL;
     }
   return vtkDataObject::AssociationNames[associationType];
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObject::GetAssociationTypeFromString(const char* associationName)
+{
+  if (!associationName)
+    {
+    vtkGenericWarningMacro("NULL association name.");
+    return -1;
+    }
+
+  for (int i = 0; i < NUMBER_OF_ASSOCIATIONS; ++i)
+    {
+    if (
+      !strcmp(associationName, vtkDataObject::AssociationNames[i]) ||
+      !strcmp(associationName, vtkDataObject::AssociationNames[2 * i]))
+      {
+      return i;
+      }
+    }
+
+  vtkGenericWarningMacro("Bad association name \"" << associationName << "\".");
+  return -1;
 }
 
 //----------------------------------------------------------------------------

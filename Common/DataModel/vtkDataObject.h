@@ -293,6 +293,11 @@ public:
   // for the attribute (i.e. type = 0: returns "Points").
   static const char* GetAssociationTypeAsString(int associationType);
 
+  // Description:
+  // Given an integer association type, this static method returns a string type
+  // for the attribute (i.e. type = 0: returns "Points").
+  static int GetAssociationTypeFromString(const char* associationType);
+
   static vtkInformationStringKey* DATA_TYPE_NAME();
   static vtkInformationDataObjectKey* DATA_OBJECT();
   static vtkInformationIntegerKey* DATA_EXTENT_TYPE();
@@ -352,7 +357,7 @@ protected:
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;
 
-  static const char AssociationNames[NUMBER_OF_ASSOCIATIONS][55];
+  static const char AssociationNames[2 * NUMBER_OF_ASSOCIATIONS][55];
 
 private:
   // Helper method for the ShallowCopy and DeepCopy methods.
