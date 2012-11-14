@@ -122,6 +122,13 @@ int TestInteractiveChartXYZ(int , char * [])
   mouseEvent.SetScreenPos(pos);
   chart->MouseMoveEvent(mouseEvent);
 
+  // remove colors
+  plot->SetInputData(table.GetPointer(), "X Axis", "Sine", "Cosine");
+  view->GetRenderWindow()->Render();
+
+  // add them back in
+  plot->SetColors(arrColor.GetPointer());
+
   view->GetInteractor()->Start();
 
   return EXIT_SUCCESS;

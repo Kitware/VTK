@@ -151,6 +151,10 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
     }
   this->PointsBuildTime.Modified();
 
+  // This removes the colors from our points.
+  // They will be (re-)added by SetColors if necessary.
+  this->NumberOfComponents = 0;
+
   this->XAxisLabel = xName;
   this->YAxisLabel = yName;
   this->ZAxisLabel = zName;
