@@ -39,7 +39,7 @@
   if (self)
     {
     // The tracking rect is not set yet.
-    rolloverTrackingRectSet = NO;
+    _rolloverTrackingRectSet = NO;
 
     // Force Cocoa into "multi threaded mode" because VTK spawns pthreads.
     // Apple's docs say: "If you intend to use Cocoa calls, you must force
@@ -60,21 +60,21 @@
 //----------------------------------------------------------------------------
 - (vtkCocoaRenderWindow *)getVTKRenderWindow
 {
-  return myVTKRenderWindow;
+  return _myVTKRenderWindow;
 }
 
 //----------------------------------------------------------------------------
 - (void)setVTKRenderWindow:(vtkCocoaRenderWindow *)theVTKRenderWindow
 {
-  myVTKRenderWindow = theVTKRenderWindow;
+  _myVTKRenderWindow = theVTKRenderWindow;
 }
 
 //----------------------------------------------------------------------------
 - (vtkCocoaRenderWindowInteractor *)getInteractor
 {
-  if (myVTKRenderWindow)
+  if (_myVTKRenderWindow)
     {
-    return (vtkCocoaRenderWindowInteractor*)myVTKRenderWindow->GetInteractor();
+    return (vtkCocoaRenderWindowInteractor*)_myVTKRenderWindow->GetInteractor();
     }
   else
     {
@@ -88,9 +88,9 @@
 {
   (void)theRect;
 
-  if ( myVTKRenderWindow && myVTKRenderWindow->GetMapped() )
+  if (_myVTKRenderWindow && _myVTKRenderWindow->GetMapped())
     {
-    myVTKRenderWindow->Render();
+    _myVTKRenderWindow->Render();
     }
 }
 
@@ -98,10 +98,10 @@
 - (void)clearTrackingRect
 {
   // remove any tracking rect we have
-  if (rolloverTrackingRectSet)
+  if (_rolloverTrackingRectSet)
     {
-    [self removeTrackingRect:rolloverTrackingRectTag];
-    rolloverTrackingRectSet = NO;
+    [self removeTrackingRect:_rolloverTrackingRectTag];
+    _rolloverTrackingRectSet = NO;
     }
 }
 
@@ -112,11 +112,11 @@
   [self clearTrackingRect];
 
   //create a new tracking rect
-  rolloverTrackingRectTag = [self addTrackingRect:[self visibleRect]
-                                            owner:self
-                                         userData:NULL
-                                     assumeInside:NO];
-  rolloverTrackingRectSet = YES;
+  _rolloverTrackingRectTag = [self addTrackingRect:[self visibleRect]
+                                             owner:self
+                                          userData:NULL
+                                      assumeInside:NO];
+  _rolloverTrackingRectSet = YES;
 }
 
 //----------------------------------------------------------------------------

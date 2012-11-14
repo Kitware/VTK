@@ -21,7 +21,7 @@
 
 // IMPORTANT: This header must be in C++ only because it is included by .cxx files.
 // That means no Objective C may be used. That's why some instance variables are
-// void* instead of what they really should be.  Pitty.
+// void* instead of what they really should be.
 
 #ifndef __vtkCocoaRenderWindowInteractor_h
 #define __vtkCocoaRenderWindowInteractor_h
