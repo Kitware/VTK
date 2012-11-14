@@ -629,7 +629,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
   //
   // N is chosen to satisfy the requested uncertainty and prominence criteria specified.
 #define VTK_CACHE_LINE_SIZE 64
-#define VTK_SAMPLE_FACTOR 3.46573590279972654 /* = 5/log2(e) */
+#define VTK_SAMPLE_FACTOR 5
   int numberOfComponentsWithProminentValues = 0;
   int nc = this->NumberOfComponents;
   int blockSize = VTK_CACHE_LINE_SIZE / (this->GetDataTypeSize() * nc);
@@ -638,7 +638,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
   vtkIdType nt = this->GetNumberOfTuples();
   if (this->MaxId > 0)
     {
-    logfac = -log2(uncertainty * minimumProminence) / minimumProminence;
+    logfac = -log(uncertainty * minimumProminence) / minimumProminence;
     if (logfac < 0)
       {
       logfac = -logfac;
