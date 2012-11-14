@@ -43,7 +43,7 @@ public:
   //-----------------------------------------------------------------------------
   // Return a pointer to the internal color map.
   // Use with caution.
-  // Likley uses could be for searching for colors that have the same
+  // Likely uses could be for searching for colors that have the same
   // value but different names e.g. aqua and cyan.
   std::map<vtkStdString, vtkColor4ub> * GetColorMap()
   {
