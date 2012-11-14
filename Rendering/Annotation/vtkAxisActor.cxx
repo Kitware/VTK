@@ -683,6 +683,7 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
     this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
+    this->LabelActors[i]->SetOrientation(0., 0., this->LabelTextProperty->GetOrientation());
 
     if(!this->GetCalculateLabelOffset())
       {
@@ -1461,10 +1462,11 @@ void vtkAxisActor::GetBounds(double b[6])
 // *********************************************************************
 double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
 {
-  double length, maxLength = 0.;
   double bounds[6];
   double xsize, ysize;
   vtkProperty *newProp = this->NewLabelProperty();
+  double maxXSize = 0;
+  double maxYSize = 0;
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
@@ -1473,11 +1475,11 @@ double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
     this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
     xsize = bounds[1] - bounds[0];
     ysize = bounds[3] - bounds[2];
-    length = sqrt(xsize*xsize + ysize*ysize);
-    maxLength = (length > maxLength ? length : maxLength);
+    maxXSize = (xsize > maxXSize ? xsize : maxXSize);
+    maxYSize = (ysize > maxYSize ? ysize : maxYSize);
     }
   newProp->Delete();
-  return maxLength;
+  return sqrt(maxXSize*maxXSize + maxYSize*maxYSize);
 }
 
 // *********************************************************************

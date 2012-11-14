@@ -136,6 +136,8 @@ protected:
  int  TestDistanceVisibility();
  void ExecuteViewAngleVisibility(double normal[3]);
 
+ bool IsTextUpsideDown(double* a, double* b);
+
  int          AutoCenter;
 
  int          EnableDistanceLOD;
@@ -151,7 +153,7 @@ protected:
 
 private:
 
- int AxisPointingLeft;
+ int TextUpsideDown;
  int VisibleAtCurrentViewAngle;
 
  vtkAxisFollower(const vtkAxisFollower&);  // Not implemented.
