@@ -80,6 +80,16 @@ public:
   virtual bool StringToPath(const char *str, vtkPath *path,
                             vtkTextProperty *tprop) = 0;
 
+  // Description:
+  // This function returns the font size (in points) required to fit the string
+  // in the target rectangle. The font size of tprop is updated to the computed
+  // value as well. If an error occurs (e.g. an improperly formatted MathText
+  // string), -1 is returned.
+  virtual int GetConstrainedFontSize(const char *str,
+                                     vtkTextProperty *tprop,
+                                     int targetWidth, int targetHeight,
+                                     unsigned int dpi);
+
 protected:
   vtkMathTextUtilities();
   virtual ~vtkMathTextUtilities();

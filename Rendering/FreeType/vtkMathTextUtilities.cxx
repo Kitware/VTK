@@ -15,7 +15,9 @@
 
 #include "vtkMathTextUtilities.h"
 
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkTextProperty.h"
 
 #ifdef VTK_DEBUG_LEAKS
 #include "vtkDebugLeaks.h"
@@ -83,6 +85,71 @@ void vtkMathTextUtilities::SetInstance(vtkMathTextUtilities* instance)
     {
     instance->Register(NULL);
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkMathTextUtilities::GetConstrainedFontSize(const char *str,
+                                                 vtkTextProperty *tprop,
+                                                 int targetWidth,
+                                                 int targetHeight,
+                                                 unsigned int dpi)
+{
+  if (str == NULL || str[0] == '\0' || targetWidth == 0 || targetHeight == 0 ||
+      tprop == NULL)
+    {
+    return 0;
+    }
+
+  // Use the current font size as a first guess
+  int bbox[4];
+  int fontSize = tprop->GetFontSize();
+  if (!this->GetBoundingBox(tprop, str, dpi, bbox))
+    {
+    return -1;
+    }
+  int width  = bbox[1] - bbox[0];
+  int height = bbox[3] - bbox[2];
+
+  // Bad assumption but better than nothing -- assume the bbox grows linearly
+  // with the font size:
+  if (width != 0 && height != 0)
+    {
+    fontSize *= std::min(
+          static_cast<double>(targetWidth)  / static_cast<double>(width),
+          static_cast<double>(targetHeight) / static_cast<double>(height));
+    tprop->SetFontSize(fontSize);
+    if (!this->GetBoundingBox(tprop, str, dpi, bbox))
+      {
+      return -1;
+      }
+    width  = bbox[1] - bbox[0];
+    height = bbox[3] - bbox[2];
+    }
+
+  // Now just step up/down until the bbox matches the target.
+  while ((width < targetWidth || height < targetHeight) && fontSize < 200)
+    {
+    tprop->SetFontSize(++fontSize);
+    if (!this->GetBoundingBox(tprop, str, dpi, bbox))
+      {
+      return -1;
+      }
+    width  = bbox[1] - bbox[0];
+    height = bbox[3] - bbox[2];
+    }
+
+  while ((width > targetWidth || height > targetHeight) && fontSize > 0)
+    {
+    tprop->SetFontSize(--fontSize);
+    if (!this->GetBoundingBox(tprop, str, dpi, bbox))
+      {
+      return -1;
+      }
+    width  = bbox[1] - bbox[0];
+    height = bbox[3] - bbox[2];
+    }
+
+  return fontSize;
 }
 
 //----------------------------------------------------------------------------

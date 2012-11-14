@@ -383,10 +383,10 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
 
   double bboxd[4];
   this->RotateCorners(angleDeg, corners, bboxd);
-  bbox[0] = vtkMath::Round(bboxd[0]);
-  bbox[1] = vtkMath::Round(bboxd[1]);
-  bbox[2] = vtkMath::Round(bboxd[2]);
-  bbox[3] = vtkMath::Round(bboxd[3]);
+  bbox[0] = vtkMath::Ceil(bboxd[0]);
+  bbox[1] = vtkMath::Ceil(bboxd[1]);
+  bbox[2] = vtkMath::Ceil(bboxd[2]);
+  bbox[3] = vtkMath::Ceil(bboxd[3]);
 
   return true;
 }

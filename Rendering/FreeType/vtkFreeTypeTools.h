@@ -119,6 +119,16 @@ public:
                     vtkPath *path);
 
   // Description:
+  // This function returns the font size (in points) required to fit the string
+  // in the target rectangle. The font size of tprop is updated to the computed
+  // value as well. If an error occurs, -1 is returned.
+  int GetConstrainedFontSize(const vtkStdString &str, vtkTextProperty *tprop,
+                             int targetWidth, int targetHeight);
+  int GetConstrainedFontSize(const vtkUnicodeString &str,
+                             vtkTextProperty *tprop,
+                             int targetWidth, int targetHeight);
+
+  // Description:
   // Turn a string into a hash. This is not a general purpose hash
   // function, and is only used to generate identifiers for cached fonts.
   static vtkTypeUInt16 HashString(const char *str);
@@ -189,6 +199,14 @@ protected:
   template <typename T>
   bool PopulatePath(vtkTextProperty *tprop, const T& str,
                     int x, int y, vtkPath *path);
+
+  // Description:
+  // Internal helper method called by GetConstrainedFontSize. Returns the
+  // fontsize (in points) that will fit the return string @a str into the @a
+  // targetWidth and @a targetHeight.
+  template <typename T>
+  int FitStringToBBox(const T &str, vtkTextProperty *tprop, int targetWidth,
+                      int targetHeight);
 
   // Description:
   // Given a text property, get the corresponding FreeType size object

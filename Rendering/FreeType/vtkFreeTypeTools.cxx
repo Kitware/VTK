@@ -464,6 +464,24 @@ bool vtkFreeTypeTools::StringToPath(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
+int vtkFreeTypeTools::GetConstrainedFontSize(const vtkStdString &str,
+                                             vtkTextProperty *tprop,
+                                             int targetWidth, int targetHeight)
+{
+  return this->FitStringToBBox<vtkStdString>(str, tprop, targetWidth,
+                                             targetHeight);
+}
+
+//----------------------------------------------------------------------------
+int vtkFreeTypeTools::GetConstrainedFontSize(const vtkUnicodeString &str,
+                                             vtkTextProperty *tprop,
+                                             int targetWidth, int targetHeight)
+{
+  return this->FitStringToBBox<vtkUnicodeString>(str, tprop, targetWidth,
+                                                 targetHeight);
+}
+
+//----------------------------------------------------------------------------
 vtkTypeUInt16 vtkFreeTypeTools::HashString(const char *str)
 {
   if (str == NULL)
@@ -1520,6 +1538,84 @@ bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
   return true;
 }
 
+//----------------------------------------------------------------------------
+// Similar to implementations in vtkFreeTypeUtilities and vtkTextMapper.
+template <typename T>
+int vtkFreeTypeTools::FitStringToBBox(const T &str, vtkTextProperty *tprop,
+                                      int targetWidth, int targetHeight)
+{
+  if (str.empty() || targetWidth == 0 || targetHeight == 0 || tprop == NULL)
+    {
+    return 0;
+    }
+
+  // sin, cos of orientation
+  double angle = vtkMath::RadiansFromDegrees(tprop->GetOrientation());
+  double c = cos(angle);
+  double s = sin(angle);
+
+  // Use the current font size as a first guess
+  int bbox[4];
+  int size[2];
+  int fontSize = tprop->GetFontSize();
+  if (!this->CalculateBoundingBox(tprop, str, bbox))
+    {
+    return -1;
+    }
+  int width  = bbox[1] - bbox[0];
+  int height = bbox[3] - bbox[2];
+  size[0] = vtkMath::Floor(c * width - s * height + 0.5);
+  size[1] = vtkMath::Floor(s * width + c * height + 0.5);
+
+  // Bad assumption but better than nothing -- assume the bbox grows linearly
+  // with the font size:
+  if (size[0] != 0 && size[1] != 0)
+    {
+    fontSize *= std::min(
+          static_cast<double>(targetWidth)  / static_cast<double>(size[0]),
+          static_cast<double>(targetHeight) / static_cast<double>(size[1]));
+    tprop->SetFontSize(fontSize);
+    if (!this->CalculateBoundingBox(tprop, str, bbox))
+      {
+      return -1;
+      }
+    width  = bbox[1] - bbox[0];
+    height = bbox[3] - bbox[2];
+    size[0] = vtkMath::Floor(c * width - s * height + 0.5);
+    size[1] = vtkMath::Floor(s * width + c * height + 0.5);
+    }
+
+  // Now just step up/down until the bbox matches the target.
+  while ((size[0] < targetWidth || size[1] < targetHeight) && fontSize < 200)
+    {
+    tprop->SetFontSize(++fontSize);
+    if (!this->CalculateBoundingBox(tprop, str, bbox))
+      {
+      return -1;
+      }
+    width  = bbox[1] - bbox[0];
+    height = bbox[3] - bbox[2];
+    size[0] = vtkMath::Floor(c * width - s * height + 0.5);
+    size[1] = vtkMath::Floor(s * width + c * height + 0.5);
+    }
+
+  while ((size[0] > targetWidth || size[1] > targetHeight) && fontSize > 0)
+    {
+    tprop->SetFontSize(--fontSize);
+    if (!this->CalculateBoundingBox(tprop, str, bbox))
+      {
+      return -1;
+      }
+    width  = bbox[1] - bbox[0];
+    height = bbox[3] - bbox[2];
+    size[0] = vtkMath::Floor(c * width - s * height + 0.5);
+    size[1] = vtkMath::Floor(s * width + c * height + 0.5);
+    }
+
+  return fontSize;
+}
+
+//----------------------------------------------------------------------------
 inline bool vtkFreeTypeTools::GetFace(vtkTextProperty *prop,
                                       unsigned long &prop_cache_id,
                                       FT_Face &face, bool &face_has_kerning)
