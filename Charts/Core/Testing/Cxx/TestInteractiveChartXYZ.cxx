@@ -56,7 +56,6 @@ int TestInteractiveChartXYZ(int , char * [])
   int numPoints = 69;
   float inc = 7.5 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
-  table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
     {
     table->SetValue(i, 0, i * inc);
