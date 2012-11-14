@@ -33,6 +33,7 @@
 using std::vector;
 
 class vtkChartXYZ;
+class vtkDataArray;
 class vtkTable;
 class vtkUnsignedCharArray;
 class vtkPen;
@@ -60,6 +61,12 @@ public:
                             const vtkStdString &colorName);
   virtual void SetInputData(vtkTable *input, vtkIdType xColumn,
                             vtkIdType yColumn, vtkIdType zColumn);
+
+  // Description:
+  // Set the color of each point in the plot.  The input is a single component
+  // scalar array.  The values of this array will be passed through a lookup
+  // table to generate the color for each data point in the plot.
+  virtual void SetColors(vtkDataArray *colorArr);
 
   // Description:
   // Get all the data points within this plot.
