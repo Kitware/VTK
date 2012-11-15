@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPlotPoints3D.cxx
+  Module:    vtkPlotLine.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,39 +13,33 @@
 
 =========================================================================*/
 
-#include "vtkChartXYZ.h"
+#include "vtkPlotLine3D.h"
+
+#include "vtkPen.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
+
 #include "vtkObjectFactory.h"
-#include "vtkNew.h"
-#include "vtkPen.h"
-#include "vtkPlotPoints3D.h"
-#include "vtkUnsignedCharArray.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotPoints3D)
+vtkStandardNewMacro(vtkPlotLine3D);
 
 //-----------------------------------------------------------------------------
-vtkPlotPoints3D::vtkPlotPoints3D()
-{
-  this->Pen->SetWidth(5);
-  this->Pen->SetColor(0, 0, 0, 255);
-}
-
-//-----------------------------------------------------------------------------
-vtkPlotPoints3D::~vtkPlotPoints3D()
+vtkPlotLine3D::vtkPlotLine3D()
 {
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotPoints3D::PrintSelf(ostream &os, vtkIndent indent)
+vtkPlotLine3D::~vtkPlotLine3D()
 {
-  this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
+bool vtkPlotLine3D::Paint(vtkContext2D *painter)
 {
+  // This is where everything should be drawn, or dispatched to other methods.
+  vtkDebugMacro(<< "Paint event called in vtkPlotLine3D.");
+
   if (!this->Visible || this->Points.size() == 0)
     {
     return false;
@@ -53,33 +47,20 @@ bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
 
   // Get the 3D context.
   vtkContext3D *context = painter->GetContext3D();
-
-  if (!context)
+  if(context == false)
     {
     return false;
     }
 
-  this->Update();
+  // Draw the line between the points
+  context->ApplyPen(this->Pen);
+  context->DrawPoly(this->Points[0].GetData(), static_cast< int >(this->Points.size()));
 
-  if (this->Points.size() > 0)
-    {
+  return this->vtkPlotPoints3D::Paint(painter);
+}
 
-    // Draw the points in 3d.
-    context->ApplyPen(this->Pen.GetPointer());
-    if (this->NumberOfComponents == 0)
-      {
-      context->DrawPoints(
-        this->Points[0].GetData(), static_cast<int>(this->Points.size()));
-      }
-    else
-      {
-      context->DrawPoints(
-        this->Points[0].GetData(),
-        static_cast<int>(this->Points.size()),
-        this->Colors->GetPointer(0), this->NumberOfComponents);
-      }
-
-    }
-
-  return true;
+//-----------------------------------------------------------------------------
+void vtkPlotLine3D::PrintSelf(ostream &os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
 }
