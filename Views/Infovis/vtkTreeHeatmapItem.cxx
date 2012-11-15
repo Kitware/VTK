@@ -314,7 +314,8 @@ void vtkTreeHeatmapItem::ComputeMultipliers()
   double numRows;
   if (this->Tree->GetNumberOfVertices() == 0)
     {
-    yMax = this->CellHeight * this->Table->GetNumberOfRows();
+    numRows = this->Table->GetNumberOfRows();
+    yMax = this->CellHeight * numRows;
     }
   else
     {
