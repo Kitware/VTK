@@ -45,6 +45,7 @@ vtkStandardNewMacro(vtkTreeHeatmapItem);
 vtkTreeHeatmapItem::vtkTreeHeatmapItem()
 {
   this->Interactive = true;
+  this->JustCollapsedOrExpanded = false;
   this->TreeHeatmapBuildTime = 0;
   this->Tree = vtkSmartPointer<vtkTree>::New();
   this->PrunedTree = vtkSmartPointer<vtkTree>::New();
@@ -63,7 +64,8 @@ vtkTreeHeatmapItem::vtkTreeHeatmapItem()
   this->TreeMaxY = 0.0;
 
   this->NumberOfLeafNodes = 0;
-  this->Multiplier = 100.0;
+  this->MultiplierX = 100.0;
+  this->MultiplierY = 100.0;
   this->CellWidth = 100.0;
   this->CellHeight = 50.0;
 
@@ -233,7 +235,7 @@ void vtkTreeHeatmapItem::RebuildBuffers()
     this->CountLeafNodes();
     }
 
-  this->ComputeMultiplier();
+  this->ComputeMultipliers();
 
   if (this->Tree->GetNumberOfVertices() > 0)
     {
@@ -291,7 +293,7 @@ void vtkTreeHeatmapItem::RebuildBuffers()
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::ComputeMultiplier()
+void vtkTreeHeatmapItem::ComputeMultipliers()
 {
   double targetFontSize = 18;
   double yMax = 1;
@@ -310,13 +312,9 @@ void vtkTreeHeatmapItem::ComputeMultiplier()
     }
 
   double numRows;
-  if (this->Table->GetNumberOfRows() > 0)
+  if (this->Tree->GetNumberOfVertices() == 0)
     {
-    if (this->Tree->GetNumberOfVertices() == 0)
-      {
-      yMax = 50 * this->Table->GetNumberOfRows();
-      }
-    numRows = this->Table->GetNumberOfRows();
+    yMax = this->CellHeight * this->Table->GetNumberOfRows();
     }
   else
     {
@@ -324,10 +322,16 @@ void vtkTreeHeatmapItem::ComputeMultiplier()
     }
 
   double currentFontSize =
-    (yMax * this->Multiplier) / numRows;
+    (yMax * this->MultiplierX) / numRows;
   if (currentFontSize < targetFontSize)
     {
-    this->Multiplier = (numRows * targetFontSize) / yMax;
+    this->MultiplierX = (numRows * targetFontSize) / yMax;
+    this->MultiplierY = this->MultiplierX;
+    }
+  if (this->JustCollapsedOrExpanded)
+    {
+    this->MultiplierY = (this->CellHeight * (numRows - 1)) / yMax;
+    this->JustCollapsedOrExpanded = false;
     }
 }
 
@@ -346,13 +350,13 @@ void vtkTreeHeatmapItem::ComputeTreeBounds()
     {
     vtkIdType source = this->LayoutTree->GetSourceVertex(edge);
     this->LayoutTree->GetPoint(source, sourcePoint);
-    double x0 = sourcePoint[0] * this->Multiplier;
-    double y0 = sourcePoint[1] * this->Multiplier;
+    double x0 = sourcePoint[0] * this->MultiplierX;
+    double y0 = sourcePoint[1] * this->MultiplierY;
 
     vtkIdType target = this->LayoutTree->GetTargetVertex(edge);
     this->LayoutTree->GetPoint(target, targetPoint);
-    double x1 = targetPoint[0] * this->Multiplier;
-    double y1 = targetPoint[1] * this->Multiplier;
+    double x1 = targetPoint[0] * this->MultiplierX;
+    double y1 = targetPoint[1] * this->MultiplierY;
 
     if (x0 < this->TreeMinX)
       {
@@ -531,10 +535,10 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     this->LayoutTree->GetPoint(source, sourcePoint);
     this->LayoutTree->GetPoint(target, targetPoint);
 
-    double x0 = sourcePoint[0] * this->Multiplier;
-    double y0 = sourcePoint[1] * this->Multiplier;
-    double x1 = targetPoint[0] * this->Multiplier;
-    double y1 = targetPoint[1] * this->Multiplier;
+    double x0 = sourcePoint[0] * this->MultiplierX;
+    double y0 = sourcePoint[1] * this->MultiplierY;
+    double x1 = targetPoint[0] * this->MultiplierX;
+    double y1 = targetPoint[1] * this->MultiplierY;
 
     // check if the target vertex is the root of a collapsed tree
     bool alreadyDrewCollapsedSubTree = false;
@@ -544,12 +548,12 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       {
       ++numberOfCollapsedSubTrees;
       float trianglePoints[6];
-      trianglePoints[0] = sourcePoint[0] * this->Multiplier;
-      trianglePoints[1] = targetPoint[1] * this->Multiplier;
+      trianglePoints[0] = sourcePoint[0] * this->MultiplierX;
+      trianglePoints[1] = targetPoint[1] * this->MultiplierY;
       trianglePoints[2] = this->TreeMaxX;
-      trianglePoints[3] = targetPoint[1]  * this->Multiplier - this->CellHeight / 2;
+      trianglePoints[3] = targetPoint[1]  * this->MultiplierY - this->CellHeight / 2;
       trianglePoints[4] = this->TreeMaxX;
-      trianglePoints[5] = targetPoint[1] * this->Multiplier + this->CellHeight / 2;
+      trianglePoints[5] = targetPoint[1] * this->MultiplierY + this->CellHeight / 2;
       if (this->LineIsVisible(trianglePoints[0], trianglePoints[1],
                               trianglePoints[2], trianglePoints[3]) ||
           this->LineIsVisible(trianglePoints[0], trianglePoints[1],
@@ -618,7 +622,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       double point[3];
       this->LayoutTree->GetPoint(vertex, point);
       std::string nodeName = nodeNames->GetValue(vertex);
-      yStart = point[1] * this->Multiplier;
+      yStart = point[1] * this->MultiplierY;
       if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
         {
         painter->DrawString(xStart, yStart, nodeName);
@@ -664,7 +668,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     // determine which row we're drawing
     double point[3];
     this->LayoutTree->GetPoint(vertex, point);
-    int currentRow = floor(point[1] * this->Multiplier / this->CellHeight + 0.5);
+    int currentRow = floor(point[1] * this->MultiplierY / this->CellHeight + 0.5);
 
     // find the row in the table that corresponds to this vertex
     std::string nodeName = nodeNames->GetValue(vertex);
@@ -700,7 +704,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
 
       // draw this cell of the table
       xStart = this->HeatmapMinX + this->CellWidth * (column - 1);
-      yStart = point[1] * this->Multiplier - (this->CellHeight / 2);
+      yStart = point[1] * this->MultiplierY - (this->CellHeight / 2);
       if (this->LineIsVisible(xStart, yStart, xStart + this->CellWidth,
                               yStart + this->CellHeight) ||
           this->LineIsVisible(xStart, yStart + this->CellHeight,
@@ -726,7 +730,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       {
       xStart = this->TreeMaxX + spacing * 2 +
         this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
-      yStart = point[1] * this->Multiplier;
+      yStart = point[1] * this->MultiplierY;
       if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
         {
         painter->DrawString(xStart, yStart, nodeName);
@@ -1062,8 +1066,8 @@ bool vtkTreeHeatmapItem::MouseDoubleClickEvent(
       {
       // collapse the subtree rooted at this vertex
       vtkIdType closestVertex =
-        this->GetClosestVertex(pos[0] / this->Multiplier,
-                               pos[1] / this->Multiplier);
+        this->GetClosestVertex(pos[0] / this->MultiplierX,
+                               pos[1] / this->MultiplierY);
       this->CollapseSubTree(closestVertex);
       }
 
@@ -1105,8 +1109,8 @@ vtkIdType vtkTreeHeatmapItem::GetClickedCollapsedSubTree(double x, double y)
 
           // proper height (Y) range: within +/- CellHeight of the vertex's
           // Y value.
-          float yMin = point[1] * this->Multiplier - this->CellHeight / 2;
-          float yMax = point[1] * this->Multiplier + this->CellHeight / 2;
+          float yMin = point[1] * this->MultiplierY - this->CellHeight / 2;
+          float yMax = point[1] * this->MultiplierY + this->CellHeight / 2;
           if (y >= yMin && y <= yMax)
             {
             //proper width (X) range: >= parent's X value.
@@ -1180,6 +1184,7 @@ void vtkTreeHeatmapItem::CollapseSubTree(vtkIdType vertex)
   this->PruneFilter->SetParentVertex(vertex);
   this->PruneFilter->Update();
   this->PrunedTree = this->PruneFilter->GetOutput();
+  this->JustCollapsedOrExpanded = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1216,6 +1221,7 @@ void vtkTreeHeatmapItem::ExpandSubTree(vtkIdType vertex)
         }
       }
     }
+  this->JustCollapsedOrExpanded = true;
 }
 
 //-----------------------------------------------------------------------------
