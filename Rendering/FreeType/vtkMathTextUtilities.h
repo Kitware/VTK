@@ -70,9 +70,13 @@ public:
 
   // Description:
   // Render the given string @a str into the vtkImageData @a data with a
-  // resolution of @a dpi.
+  // resolution of @a dpi. textDims, will be overwritten by the pixel width and
+  // height of the rendered string. This is useful when ScaleToPowerOfTwo is
+  // set to true, and the image dimensions may not match the dimensions of the
+  // rendered text.
  virtual bool RenderString(const char *str, vtkImageData *data,
-                           vtkTextProperty *tprop, unsigned int dpi) = 0;
+                           vtkTextProperty *tprop,
+                           unsigned int dpi, int textDims[2] = NULL) = 0;
 
   // Description:
   // Parse the MathText expression in str and fill path with a contour of the
@@ -89,6 +93,13 @@ public:
                                      vtkTextProperty *tprop,
                                      int targetWidth, int targetHeight,
                                      unsigned int dpi);
+
+  // Description:
+  // Set to true if the graphics implmentation requires texture image dimensions
+  // to be a power of two. Default is true, but this member will be set
+  // appropriately when GL is inited.
+  virtual bool GetScaleToPowerOfTwo() = 0;
+  virtual void SetScaleToPowerOfTwo(bool scale) = 0;
 
 protected:
   vtkMathTextUtilities();

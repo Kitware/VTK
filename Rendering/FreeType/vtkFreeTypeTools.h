@@ -104,11 +104,14 @@ public:
 
   // Description:
   // Given a text property and a string, this function initializes the
-  // vtkImageData *data and renders it in a vtkImageData.
+  // vtkImageData *data and renders it in a vtkImageData. textDims, if provided,
+  // will be overwritten by the pixel width and height of the rendered string.
+  // This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
+  // not match the dimensions of the rendered text.
   bool RenderString(vtkTextProperty *tprop, const vtkStdString& str,
-                    vtkImageData *data);
+                    vtkImageData *data, int textDims[2] = NULL);
   bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString& str,
-                    vtkImageData *data);
+                    vtkImageData *data, int textDims[2] = NULL);
 
   // Description:
   // Given a text property and a string, this function populates the vtkPath
@@ -175,37 +178,71 @@ protected:
   virtual FT_Error CreateFTCManager();
 
   // Description:
-  // This function initializes calculates the size of the required bounding box.
+  // Used to store state about a particular rendering and cache constant values
+  class MetaData;
+  class ImageMetaData;
+  bool PrepareMetaData(vtkTextProperty *tprop, MetaData &metaData);
+  bool PrepareImageMetaData(vtkTextProperty *tprop, vtkImageData *image,
+                            ImageMetaData &metaData);
+
+  // Description:
+  // Internal helper called by RenderString methods
+  template <typename StringType>
+  bool RenderStringInternal(vtkTextProperty *tprop, const StringType &str,
+                            vtkImageData *data, int textDims[2]);
+
+  // Description:
+  // Internal helper method called by StringToPath methods
+  template <typename StringType>
+  bool StringToPathInternal(vtkTextProperty *tprop, const StringType &str,
+                            vtkPath *path);
+
+  // Description:
+  // This function initializes calculates the size of the required bounding box
+  // and stores it in the MetaData provided. Both the rotated and unrotated
+  // bounding boxes are set, along with the lineWidths.
   template <typename T>
-  bool CalculateBoundingBox(vtkTextProperty *tprop, const T& str, int bbox[4]);
+  bool CalculateBoundingBox(const T& str, MetaData &metaData);
 
   // Description:
   // This function initializes the extent of the ImageData to eventually
   // receive the text stored in str
-  template <typename T>
-  void PrepareImageData(vtkImageData *data,
-                        vtkTextProperty *tprop,
-                        const T& str,
-                        int *x, int *y);
+  void PrepareImageData(vtkImageData *data, int bbox[4]);
 
   // Description:
-  // Internal helper method called by RenderString
-  template <typename T>
-  bool PopulateImageData(vtkTextProperty *tprop, const T& str,
-                         int x, int y, vtkImageData *data);
+  // Internal helper method called by RenderString.
+  // metaData is passed through the the character renderer and caches properties
+  // about data (e.g. range, dimensions, increments, etc).
+  template <typename StringType, typename DataType>
+  bool PopulateData(const StringType& str, DataType data, MetaData &metaData);
+
+  // Description:
+  // Renders a single line of text (between begin and end) to the image data.
+  template <typename IteratorType, typename DataType>
+  bool RenderLine(IteratorType begin, IteratorType end, int lineIndex,
+                  DataType data, MetaData &metaData);
+
+  // Description:
+  // Implementations for rendering a single character to a specific target.
+  template <typename CharType>
+  bool RenderCharacter(CharType character, int &x, int &y,
+                       FT_UInt &previousGlyphIndex, vtkImageData *image,
+                       MetaData &metaData);
+  template <typename CharType>
+  bool RenderCharacter(CharType character, int &x, int &y,
+                       FT_UInt &previousGlyphIndex, vtkPath *path,
+                       MetaData &metaData);
 
   // Description:
   // Internal helper method called by StringToPath
-  template <typename T>
-  bool PopulatePath(vtkTextProperty *tprop, const T& str,
-                    int x, int y, vtkPath *path);
+  void JustifyPath(vtkPath *path, MetaData &metaData);
 
   // Description:
   // Internal helper method called by GetConstrainedFontSize. Returns the
   // fontsize (in points) that will fit the return string @a str into the @a
   // targetWidth and @a targetHeight.
   template <typename T>
-  int FitStringToBBox(const T &str, vtkTextProperty *tprop, int targetWidth,
+  int FitStringToBBox(const T &str, MetaData &metaData, int targetWidth,
                       int targetHeight);
 
   // Description:
@@ -283,6 +320,16 @@ protected:
   FT_Outline* GetOutline(FT_UInt32 c, unsigned long prop_cache_id,
                          int prop_font_size, FT_UInt &gindex,
                          FT_OutlineGlyph &outline_glyph);
+
+  // Description:
+  // Get the width of the rendered string between iterators
+  // begin and end. Width is calculated as the sum of advances and kernings
+  // along the baseline (i.e. rotations are ignored), while bbox is the
+  // is a tight fitting bbox around the rendering string, assuming (0, 0)
+  // is the pen origin.
+  template<typename T>
+  void GetLineMetrics(T begin, T end, MetaData &metaData, int &width,
+                      int bbox[4]);
 
   // Description:
   // The singleton instance and the singleton cleanup instance
