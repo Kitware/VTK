@@ -415,8 +415,8 @@ bool vtkFreeTypeTools::GetBoundingBox(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 bool vtkFreeTypeTools::GetBoundingBox(vtkTextProperty *tprop,
-                                     const vtkUnicodeString& str,
-                                     int bbox[4])
+                                      const vtkUnicodeString& str,
+                                      int bbox[4])
 {
   // We need the tprop and bbox
   if (!tprop || !bbox)
@@ -536,8 +536,6 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   int bits = 1;
 
   // The font family is hashed into 16 bits (= 17 bits so far)
-  // (2 would be enough right now, but who knows, it might grow)
-  // Avoid unknown as this can cause segfaluts - this should be fixed...
   *id |= vtkFreeTypeTools::HashString(tprop->GetFontFamilyAsString()) << bits;
   bits += 16;
 
@@ -743,10 +741,10 @@ bool vtkFreeTypeTools::GetGlyphIndex(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 bool vtkFreeTypeTools::GetGlyph(unsigned long tprop_cache_id,
-                               int font_size,
-                               FT_UInt gindex,
-                               FT_Glyph *glyph,
-                               int request)
+                                int font_size,
+                                FT_UInt gindex,
+                                FT_Glyph *glyph,
+                                int request)
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeTools::GetGlyph()\n");
@@ -790,6 +788,7 @@ bool vtkFreeTypeTools::GetGlyph(unsigned long tprop_cache_id,
   return error ? false : true;
 }
 
+//----------------------------------------------------------------------------
 bool vtkFreeTypeTools::LookupFace(vtkTextProperty *tprop, FT_Library lib,
                                   FT_Face *face)
 {
@@ -870,8 +869,6 @@ bool vtkFreeTypeTools::LookupFace(vtkTextProperty *tprop, FT_Library lib,
     [family][tprop->GetBold()][tprop->GetItalic()].ptr;
 
   // Create a new face from the embedded fonts if possible
-
-  // If the font face is of type unknown, attempt to load it from disk
   FT_Error error = FT_New_Memory_Face(lib, ptr, length, 0, face);
 
   if (error)
@@ -1799,6 +1796,7 @@ inline bool vtkFreeTypeTools::GetFace(vtkTextProperty *prop,
   return true;
 }
 
+//----------------------------------------------------------------------------
 inline FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c,
                                               unsigned long prop_cache_id,
                                               int prop_font_size,
@@ -1833,6 +1831,7 @@ inline FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c,
   return bitmap;
 }
 
+//----------------------------------------------------------------------------
 inline FT_Outline *vtkFreeTypeTools::GetOutline(FT_UInt32 c,
                                                 unsigned long prop_cache_id,
                                                 int prop_font_size,
