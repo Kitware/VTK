@@ -107,6 +107,7 @@ int vtkNewickTreeReader:: ReadNewickTree(  char * const buffer, vtkTree & tree)
   weights->SetNumberOfComponents(1);
   weights->SetName("weight");
   weights->SetNumberOfValues(numNodes-1);//the number of edges = number of nodes -1 for a tree
+  weights->FillComponent(0, 0.0);
 
   // Create the names array
   vtkNew<vtkStringArray> names;
