@@ -30,7 +30,6 @@
 #include "vtkSmartPointer.h"     // Needed to hold SP ivars
 #include "vtkVector.h"           // For Points ivar
 #include <vector>                // For ivars
-using std::vector;
 
 class vtkChartXYZ;
 class vtkDataArray;
@@ -70,7 +69,7 @@ public:
 
   // Description:
   // Get all the data points within this plot.
-  vector<vtkVector3f> GetPoints();
+  std::vector<vtkVector3f> GetPoints();
 
   // Description:
   // Get/set the chart for this plot.
@@ -91,7 +90,7 @@ public:
 
   // Description:
   // Get the bounding cube surrounding the currently rendered data points.
-  vector<vtkVector3f> GetDataBounds() { return this->DataBounds; }
+  std::vector<vtkVector3f> GetDataBounds() { return this->DataBounds; }
 
 //BTX
 protected:
@@ -129,7 +128,7 @@ protected:
 
   // Description:
   // The data points read in during SetInputData().
-  vector<vtkVector3f> Points;
+  std::vector<vtkVector3f> Points;
 
   // Description:
   // When the points were last built.
@@ -141,7 +140,7 @@ protected:
 
   // Description:
   // A bounding cube surrounding the currently rendered data points.
-  vector<vtkVector3f> DataBounds;
+  std::vector<vtkVector3f> DataBounds;
 
 private:
   vtkPlot3D(const vtkPlot3D &); // Not implemented.

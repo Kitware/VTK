@@ -36,7 +36,7 @@ public:
   static vtkPlotLine *New();
 
   // Description:
-  // Paint event for the XY plot, called whenever the chart needs to be drawn
+  // Paint event for the XY plot, called whenever the chart needs to be drawn.
   virtual bool Paint(vtkContext2D *painter);
 
   // Description:
