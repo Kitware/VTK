@@ -151,6 +151,10 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
     }
   this->PointsBuildTime.Modified();
 
+  // This removes the colors from our points.
+  // They will be (re-)added by SetColors if necessary.
+  this->NumberOfComponents = 0;
+
   this->XAxisLabel = xName;
   this->YAxisLabel = yName;
   this->ZAxisLabel = zName;
@@ -167,7 +171,12 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
 
   vtkDataArray *colorArr =
       vtkDataArray::SafeDownCast(input->GetColumnByName(colorName.c_str()));
+  this->SetColors(colorArr);
+}
 
+//-----------------------------------------------------------------------------
+void vtkPlot3D::SetColors(vtkDataArray *colorArr)
+{
   assert(colorArr);
   assert((unsigned int)colorArr->GetNumberOfTuples() == this->Points.size());
 
@@ -194,6 +203,7 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
   lookupTable->SetNumberOfTableValues(256);
   lookupTable->SetRange(min, max);
   lookupTable->Build();
+  this->Colors->Reset();
 
   for (unsigned int i = 0; i < this->Points.size(); ++i)
     {
@@ -204,6 +214,8 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
     this->Colors->InsertNextTupleValue(&constRGB[1]);
     this->Colors->InsertNextTupleValue(&constRGB[2]);
     }
+
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------

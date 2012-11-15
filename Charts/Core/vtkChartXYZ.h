@@ -22,7 +22,7 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkColor.h"
+#include "vtkColor.h"        // For vtkColor4ub
 #include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkNew.h"          // For ivars
 #include "vtkSmartPointer.h" // For ivars
