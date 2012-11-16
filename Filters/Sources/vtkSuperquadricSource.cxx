@@ -305,10 +305,6 @@ int vtkSuperquadricSource::RequestData(
               nv[2] = tmp;
               nv[0] = -nv[0];
               break;
-            case 2:
-            default:
-              // Default case is managed above
-              break;
           }
 
           if((len = vtkMath::Norm(nv)) == 0.0)
@@ -338,7 +334,6 @@ int vtkSuperquadricSource::RequestData(
                 break;
 
               case 2:
-              default:
                 // z-axis
                 pt[0] = pt[1] = 0.0;
                 break;
