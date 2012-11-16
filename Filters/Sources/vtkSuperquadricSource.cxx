@@ -294,16 +294,9 @@ int vtkSuperquadricSource::RequestData(
               nv[1] = -nv[1];
               break;
             case 1:
-              // y-axis
-              tmp   = pt[1];
-              pt[1] = pt[2];
-              pt[2] = tmp;
-              pt[0] = -pt[0];
+              //y-axis
+              //PENDING
 
-              tmp   = nv[1];
-              nv[1] = nv[2];
-              nv[2] = tmp;
-              nv[0] = -nv[0];
               break;
           }
 
@@ -326,11 +319,6 @@ int vtkSuperquadricSource::RequestData(
               case 0:
                 // x-axis
                 pt[1] = pt[2] = 0.0;
-                break;
-
-              case 1:
-                // y-axis
-                pt[0] = pt[2] = 0.0;
                 break;
 
               case 2:
