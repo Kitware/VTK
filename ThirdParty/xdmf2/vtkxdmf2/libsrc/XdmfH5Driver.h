@@ -27,7 +27,7 @@
 #include "XdmfDsmBuffer.h"
 
 #include "H5Ipublic.h"
-#include "H5pubconf.h"
+#include "H5public.h"
 
 #include "XdmfExport.h"
 
