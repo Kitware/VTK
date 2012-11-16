@@ -95,28 +95,28 @@ template<int N> class vtkCompactHyperTreeCursor : public vtkHyperTreeCursor
 public:
   //---------------------------------------------------------------------------
   static vtkCompactHyperTreeCursor<N> *New()
-    {
-      vtkObject* ret=
-        vtkObjectFactory::CreateInstance( "vtkCompactHyperTreeCursor<N>" );
+  {
+    vtkObject* ret=
+      vtkObjectFactory::CreateInstance( "vtkCompactHyperTreeCursor<N>" );
 
-      if( ret != 0 )
-        {
-        return static_cast<vtkCompactHyperTreeCursor<N> *>( ret );
-        }
-      else
-        {
-        return new vtkCompactHyperTreeCursor<N>;
-        }
-    }
+    if( ret != 0 )
+      {
+      return static_cast<vtkCompactHyperTreeCursor<N> *>( ret );
+      }
+    else
+      {
+      return new vtkCompactHyperTreeCursor<N>;
+      }
+  }
 
   vtkTypeMacro(vtkCompactHyperTreeCursor<N>,vtkHyperTreeCursor);
 
   //---------------------------------------------------------------------------
   // Initialization
   virtual void Init(vtkCompactHyperTree<N> *tree)
-    {
-      this->Tree=tree;
-    }
+  {
+    this->Tree=tree;
+  }
 
   //---------------------------------------------------------------------------
   // Access
@@ -124,32 +124,32 @@ public:
   // access to the data.
   // \pre is_leaf: CurrentIsLeaf()
   int GetLeafId()
-    {
-      assert( "pre: is_leaf" && CurrentIsLeaf() );
-      return this->Cursor;
-    }
+  {
+    assert( "pre: is_leaf" && CurrentIsLeaf() );
+    return this->Cursor;
+  }
 
   // Status
   virtual int CurrentIsLeaf()
-    {
-      return this->IsLeaf;
-    }
+  {
+    return this->IsLeaf;
+  }
 
   virtual int CurrentIsRoot()
-    {
-      return ( this->IsLeaf && this->Cursor==0 && this->Tree->GetLeafParentSize()==1 ) || (!this->IsLeaf && this->Cursor==1);
-    }
+  {
+    return ( this->IsLeaf && this->Cursor==0 && this->Tree->GetLeafParentSize()==1 ) || (!this->IsLeaf && this->Cursor==1);
+  }
 
   //---------------------------------------------------------------------------
   // Description:
   // Return the level of the node pointed by the cursor.
   // \post positive_result: result>=0
   virtual int GetCurrentLevel()
-    {
-      int result = this->GetChildHistorySize();
-      assert( "post: positive_result" && result>=0 );
-      return result;
-    }
+  {
+    int result = this->GetChildHistorySize();
+    assert( "post: positive_result" && result>=0 );
+    return result;
+  }
 
   //---------------------------------------------------------------------------
   // Description:
@@ -157,104 +157,104 @@ public:
   // \pre not_root: !CurrentIsRoot().
   // \post valid_range: result>=0 && result<GetNumberOfChildren()
   virtual int GetChildIndex()
-    {
-      assert( "post: valid_range" && this->ChildIndex>=0 && this->ChildIndex<GetNumberOfChildren() );
-      return this->ChildIndex;
-    }
+  {
+    assert( "post: valid_range" && this->ChildIndex>=0 && this->ChildIndex<GetNumberOfChildren() );
+    return this->ChildIndex;
+  }
 
   //---------------------------------------------------------------------------
   // Are the children of the current node all leaves?
   // This query can be called also on a leaf node.
   // \post compatible: result implies !CurrentIsLeaf()
   virtual int CurrentIsTerminalNode()
-    {
-      int result = !this->IsLeaf;
-      if(result)
-        {
-        vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Cursor);
-        result = node->IsTerminalNode();
-        }
-      // A=>B: notA or B
-      assert( "post: compatible" && (!result || !this->IsLeaf) );
-      return result;
-    }
+  {
+    int result = !this->IsLeaf;
+    if(result)
+      {
+      vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Cursor);
+      result = node->IsTerminalNode();
+      }
+    // A=>B: notA or B
+    assert( "post: compatible" && (!result || !this->IsLeaf) );
+    return result;
+  }
 
   //---------------------------------------------------------------------------
   // Cursor movement.
   // \pre can be root
   // \post is_root: CurrentIsRoot()
   virtual void ToRoot()
-    {
-      this->ChildHistory.clear();
-      this->IsLeaf=( this->Tree->GetLeafParentSize() == 1 );
-      if( this->IsLeaf )
-        {
-        this->Cursor=0;
-        }
-      else
-        {
-        this->Cursor=1;
-        }
-      this->ChildIndex=0;
-      unsigned int i=0;
-      while( i < this->Dimension )
-        {
-        this->Index[i]=0;
-        ++ i;
-        }
-    }
+  {
+    this->ChildHistory.clear();
+    this->IsLeaf=( this->Tree->GetLeafParentSize() == 1 );
+    if( this->IsLeaf )
+      {
+      this->Cursor=0;
+      }
+    else
+      {
+      this->Cursor=1;
+      }
+    this->ChildIndex=0;
+    unsigned int i=0;
+    while( i < this->Dimension )
+      {
+      this->Index[i]=0;
+      ++ i;
+      }
+  }
 
   //---------------------------------------------------------------------------
   // \pre not_root: !CurrentIsRoot()
   virtual void ToParent()
-    {
-      assert( "pre: not_root" && !CurrentIsRoot() );
-      if( this->IsLeaf)
-        {
-        this->Cursor=this->Tree->GetLeafParent( this->Cursor);
-        }
-      else
-        {
-        this->Cursor=this->Tree->GetNode( this->Cursor)->GetParent();
-        }
-      this->IsLeaf=0;
-      this->ChildIndex=this->ChildHistory.back(); // top()
-      this->ChildHistory.pop_back();
+  {
+    assert( "pre: not_root" && !CurrentIsRoot() );
+    if( this->IsLeaf)
+      {
+      this->Cursor=this->Tree->GetLeafParent( this->Cursor);
+      }
+    else
+      {
+      this->Cursor=this->Tree->GetNode( this->Cursor)->GetParent();
+      }
+    this->IsLeaf=0;
+    this->ChildIndex=this->ChildHistory.back(); // top()
+    this->ChildHistory.pop_back();
 
-      for ( unsigned int i=0; i < this->Dimension;  ++ i )
-        {
-        this->Index[i]=( this->Index[i] ) / this->Tree->GetBranchFactor();
-        }
-    }
+    for ( unsigned int i=0; i < this->Dimension;  ++ i )
+      {
+      this->Index[i]=( this->Index[i] ) / this->Tree->GetBranchFactor();
+      }
+  }
 
   //---------------------------------------------------------------------------
   // \pre not_leaf: !CurrentIsLeaf()
   // \pre valid_child: child>=0 && child<this->GetNumberOfChildren()
   virtual void ToChild(int child)
-    {
-      assert( "pre: not_leaf" && !CurrentIsLeaf() );
-      assert( "pre: valid_child" && child>=0 && child<this->GetNumberOfChildren() );
+  {
+    assert( "pre: not_leaf" && !CurrentIsLeaf() );
+    assert( "pre: valid_child" && child>=0 && child<this->GetNumberOfChildren() );
 
-      vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Cursor);
-      this->ChildHistory.push_back( this->ChildIndex );
-      this->ChildIndex=child;
-      this->Cursor=node->GetChild( child );
-      this->IsLeaf=node->IsChildLeaf( child );
-      unsigned int i=0;
+    vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Cursor);
+    this->ChildHistory.push_back( this->ChildIndex );
+    this->ChildIndex=child;
+    this->Cursor=node->GetChild( child );
+    this->IsLeaf=node->IsChildLeaf( child );
+    unsigned int i=0;
 
-      int tmpChild = child;
-      int tmp;
-      int branchFactor = this->Tree->GetBranchFactor();
-      while( i < this->Dimension )
-        { // Effectively converting child to base 2/3 (branch factor)
-        tmp = tmpChild;
-        tmpChild /= branchFactor;
-        int index=tmp-(branchFactor*tmpChild); // Remainder (mod)
-        assert( "check: mod 3 value" && index>=0 && index<branchFactor);
-        this->Index[i]=(( this->Index[i])*branchFactor)+index;
-        ++ i;
-        }
-    }
+    int tmpChild = child;
+    int tmp;
+    int branchFactor = this->Tree->GetBranchFactor();
+    while( i < this->Dimension )
+      { // Effectively converting child to base 2/3 (branch factor)
+      tmp = tmpChild;
+      tmpChild /= branchFactor;
+      int index=tmp-(branchFactor*tmpChild); // Remainder (mod)
+      assert( "check: mod 3 value" && index>=0 && index<branchFactor);
+      this->Index[i]=(( this->Index[i])*branchFactor)+index;
+      ++ i;
+      }
+  }
 
   //---------------------------------------------------------------------------
   // Description:
@@ -263,23 +263,23 @@ public:
   // \pre same_hyperTree: this->SameTree( other )
   // \post equal: this->IsEqual( other )
   virtual void ToSameNode( vtkHyperTreeCursor* other )
-    {
-      assert( "pre: other_exists" && other!=0 );
-      assert( "pre: same_hyperTree" && this->SameTree( other ) );
+  {
+    assert( "pre: other_exists" && other!=0 );
+    assert( "pre: same_hyperTree" && this->SameTree( other ) );
 
-      vtkCompactHyperTreeCursor<N> *o = static_cast<vtkCompactHyperTreeCursor<N> *>( other );
+    vtkCompactHyperTreeCursor<N> *o = static_cast<vtkCompactHyperTreeCursor<N> *>( other );
 
-      this->Cursor=o->Cursor;
-      this->ChildIndex=o->ChildIndex;
-      this->IsLeaf=o->IsLeaf;
-      this->ChildHistory=o->ChildHistory; // use assignment operator
+    this->Cursor=o->Cursor;
+    this->ChildIndex=o->ChildIndex;
+    this->IsLeaf=o->IsLeaf;
+    this->ChildHistory=o->ChildHistory; // use assignment operator
       
-      for( unsigned int i = 0; i < this->Dimension; ++ i )
-        {
-        this->Index[i] = o->Index[i];
-        }
-      assert( "post: equal" && this->IsEqual(other) );
-    }
+    for( unsigned int i = 0; i < this->Dimension; ++ i )
+      {
+      this->Index[i] = o->Index[i];
+      }
+    assert( "post: equal" && this->IsEqual(other) );
+  }
 
   //--------------------------------------------------------------------------
   // Description:
@@ -287,22 +287,22 @@ public:
   // \pre other_exists: other!=0
   // \pre same_hyperTree: this->SameTree(other);
   virtual int IsEqual( vtkHyperTreeCursor* other )
-    {
-      assert( "pre: other_exists" && other!=0 );
-      assert( "pre: same_hyperTree" && this->SameTree(other) );
+  {
+    assert( "pre: other_exists" && other!=0 );
+    assert( "pre: same_hyperTree" && this->SameTree(other) );
 
-      vtkCompactHyperTreeCursor<N> *o=static_cast<vtkCompactHyperTreeCursor<N> *>(other);
+    vtkCompactHyperTreeCursor<N> *o=static_cast<vtkCompactHyperTreeCursor<N> *>(other);
 
-      int result = this->Cursor==o->Cursor && this->ChildIndex==o->ChildIndex
-        && this->IsLeaf==o->IsLeaf && this->ChildHistory==o->ChildHistory;
+    int result = this->Cursor==o->Cursor && this->ChildIndex==o->ChildIndex
+      && this->IsLeaf==o->IsLeaf && this->ChildHistory==o->ChildHistory;
 
-      for( unsigned int i = 0; result && i < this->Dimension; ++ i )
-        {
-        result = this->Index[i] == o->Index[i];
-        ++ i;
-        }
-      return result;
-    }
+    for( unsigned int i = 0; result && i < this->Dimension; ++ i )
+      {
+      result = this->Index[i] == o->Index[i];
+      ++ i;
+      }
+    return result;
+  }
 
   //--------------------------------------------------------------------------
   // Description:
@@ -310,29 +310,29 @@ public:
   // \post results_exists:result!=0
   // \post same_tree: result->SameTree( this )
   virtual vtkHyperTreeCursor* Clone()
-    {
-      vtkCompactHyperTreeCursor<N>* result = this->NewInstance();
-      result->Tree = this->Tree;
-      assert( "post: results_exists" && result!=0 );
-      assert( "post: same_tree" && result->SameTree( this ) );
-      return result;
-    }
+  {
+    vtkCompactHyperTreeCursor<N>* result = this->NewInstance();
+    result->Tree = this->Tree;
+    assert( "post: results_exists" && result!=0 );
+    assert( "post: same_tree" && result->SameTree( this ) );
+    return result;
+  }
 
   //---------------------------------------------------------------------------
   // Description:
   // Are `this' and `other' pointing on the same hyperTree?
   // \pre other_exists: other!=0
   virtual int SameTree( vtkHyperTreeCursor* other )
-    {
-      assert( "pre: other_exists" && other!=0 );
-      vtkCompactHyperTreeCursor<N> *o=vtkCompactHyperTreeCursor<N>::SafeDownCast( other );
-      int result = o!=0;
-      if(result)
-        {
-        result = this->Tree==o->Tree;
-        }
-      return result;
-    }
+  {
+    assert( "pre: other_exists" && other!=0 );
+    vtkCompactHyperTreeCursor<N> *o=vtkCompactHyperTreeCursor<N>::SafeDownCast( other );
+    int result = o!=0;
+    if(result)
+      {
+      result = this->Tree==o->Tree;
+      }
+    return result;
+  }
 
   //---------------------------------------------------------------------------
   // Description:
@@ -341,31 +341,31 @@ public:
   // \pre valid_range: d>=0 && d<GetDimension()
   // \post valid_result: result>=0 && result<(1<<GetCurrentLevel() )
   virtual int GetIndex(int d)
-    {
-      assert( "pre: valid_range" &&  d>=0 && d<this->Dimension );
-      int result = this->Index[d];
-      return result;
-    }
+  {
+    assert( "pre: valid_range" &&  d>=0 && d<this->Dimension );
+    int result = this->Index[d];
+    return result;
+  }
 
   //---------------------------------------------------------------------------
   // Description:
   // Return the number of children for each node of the tree.
   // \post positive_number: result>0
   virtual int GetNumberOfChildren()
-    {
-      return N;
-    }
+  {
+    return N;
+  }
 
   //---------------------------------------------------------------------------
   // Description:
   // Return the dimension of the tree.
   // \post positive_result: result>=0
   virtual int GetDimension()
-    {
-      assert( "post: positive_result " && this->Dimension>0 );
-      assert( "post: up_to_3 " && this->Dimension<=3 ); // and then
-      return this->Dimension;
-    }
+  {
+    assert( "post: positive_result " && this->Dimension>0 );
+    assert( "post: up_to_3 " && this->Dimension<=3 ); // and then
+    return this->Dimension;
+  }
 
   //---------------------------------------------------------------------------
   // Description:
@@ -379,129 +379,129 @@ public:
   // \pre valid_level: level>=0
   virtual void MoveToNode(int* indices,
                           int level)
-    {
-      assert( "pre: indices_exists" && indices!=0 );
-      assert( "pre: valid_level" && level>=0 );
+  {
+    assert( "pre: indices_exists" && indices!=0 );
+    assert( "pre: valid_level" && level>=0 );
 
-      this->ToRoot();
-      int currentLevel=0;
+    this->ToRoot();
+    int currentLevel=0;
 
-      int child;
-      int tmpIndices[3];
+    int child;
+    int tmpIndices[3];
 
-      // Convert to base 2 / 3 starting with most significant digit.
-      int mask;
-      tmpIndices[0] = indices[0];
-      tmpIndices[1] = indices[1];
-      tmpIndices[2] = indices[2];
-      int i = 0;
-      mask = 1;
-      while ( ++ i < level )
+    // Convert to base 2 / 3 starting with most significant digit.
+    int mask;
+    tmpIndices[0] = indices[0];
+    tmpIndices[1] = indices[1];
+    tmpIndices[2] = indices[2];
+    int i = 0;
+    mask = 1;
+    while ( ++ i < level )
+      {
+      mask *= this->Tree->GetBranchFactor();
+      }
+
+    while(!this->CurrentIsLeaf() && currentLevel<level)
+      {
+      // compute the child index.
+      i=this->Dimension-1;
+      child=0;
+      while(i>=0 )
         {
-        mask *= this->Tree->GetBranchFactor();
+        int digit = tmpIndices[i] / mask;
+        tmpIndices[i] -= digit*mask;
+        child *= child * this->Tree->GetBranchFactor() + digit;
+        --i;
         }
-
-      while(!this->CurrentIsLeaf() && currentLevel<level)
-        {
-        // compute the child index.
-        i=this->Dimension-1;
-        child=0;
-        while(i>=0 )
-          {
-          int digit = tmpIndices[i] / mask;
-          tmpIndices[i] -= digit*mask;
-          child *= child * this->Tree->GetBranchFactor() + digit;
-          --i;
-          }
-        this->ToChild( child );
-        ++currentLevel;
-        mask /= this->Tree->GetBranchFactor();
-        }
-      this->IsFound=currentLevel==level;
-    }
+      this->ToChild( child );
+      ++currentLevel;
+      mask /= this->Tree->GetBranchFactor();
+      }
+    this->IsFound=currentLevel==level;
+  }
 
   //---------------------------------------------------------------------------
   // Description
   // Did the last call to MoveToNode succeed?
   virtual int Found()
-    {
-      return this->IsFound;
-    }
+  {
+    return this->IsFound;
+  }
 
   //---------------------------------------------------------------------------
   // Description:
   // Public only for vtkCompactHyperTree.
   void SetIsLeaf(int value)
-    {
-      this->IsLeaf=value;
-    }
+  {
+    this->IsLeaf=value;
+  }
 
   //---------------------------------------------------------------------------
   // Description:
   // Public only for vtkCompactHyperTree.
   void SetChildIndex(int childIndex )
-    {
-      assert( "pre: valid_range" && childIndex>=0 && childIndex<GetNumberOfChildren() );
-      this->ChildIndex = childIndex;
-      assert( "post: is_set" && childIndex==GetChildIndex() );
-    }
+  {
+    assert( "pre: valid_range" && childIndex>=0 && childIndex<GetNumberOfChildren() );
+    this->ChildIndex = childIndex;
+    assert( "post: is_set" && childIndex==GetChildIndex() );
+  }
 
   //---------------------------------------------------------------------------
   // Description:
   // Public only for vtkCompactHyperTree.
   void SetCursor(int cursor)
-    {
-      assert( "pre: positive_cursor" && cursor>=0 );
-      this->Cursor=cursor;
-    }
+  {
+    assert( "pre: positive_cursor" && cursor>=0 );
+    this->Cursor=cursor;
+  }
 
   //---------------------------------------------------------------------------
   // Description:
   // Public only for vtkCompactHyperTree.
   vtkIdType GetChildHistorySize()
-    {
-      return this->ChildHistory.size();
-    }
+  {
+    return this->ChildHistory.size();
+  }
 
 protected:
   //---------------------------------------------------------------------------
   vtkCompactHyperTreeCursor()
-    {
-      this->Dimension = 0;
-      switch (N)
-        {
-        case 2:
-          this->Dimension = 1;
-          break;
-        case 3:
-          this->Dimension = 1;
-          break;
-        case 4:
-          this->Dimension = 2;
-          break;
-        case 9:
-          this->Dimension = 2;
-          break;
-        case 8:
-          this->Dimension = 3;
-          break;
-        case 27:
-          this->Dimension = 3;
-          break;
-        default:
-          assert( "Bad number of children" && this->Dimension == 0 );
-        }
-      this->Tree=0;
-      this->Cursor=0;
-      this->IsLeaf=0;
-      this->ChildIndex=0;
-      unsigned int i=0;
-      while(i<this->Dimension )
-        {
-        this->Index[i]=0;
-        ++ i;
-        }
-    }
+  {
+    this->Dimension = 0;
+    switch (N)
+      {
+      case 2:
+        this->Dimension = 1;
+        break;
+      case 3:
+        this->Dimension = 1;
+        break;
+      case 4:
+        this->Dimension = 2;
+        break;
+      case 9:
+        this->Dimension = 2;
+        break;
+      case 8:
+        this->Dimension = 3;
+        break;
+      case 27:
+        this->Dimension = 3;
+        break;
+      default:
+        assert( "Bad number of children" && this->Dimension == 0 );
+      }
+    this->Tree=0;
+    this->Cursor=0;
+    this->IsLeaf=0;
+    this->ChildIndex=0;
+    unsigned int i=0;
+    while(i<this->Dimension )
+      {
+      this->Index[i]=0;
+      ++ i;
+      }
+  }
 
   vtkCompactHyperTree<N> *Tree;
   unsigned char Dimension;
@@ -714,9 +714,6 @@ public:
   // Restore the initial state: only one node and one leaf: the root.
   virtual void Initialize()
   {
-    // NB: Leaves are implicit (not node objects)
-    // so why initialize a root node with one leaf?
-    // Does the root always have one child?
     this->Nodes.resize( 1 );
     this->Nodes[0].SetParent( 0 );
     for ( int i = 0; i < N; ++ i )
@@ -954,21 +951,20 @@ protected:
       }
 
     // The root.
-    this->Nodes.resize(1);
+    this->Nodes.resize( 1 );
     this->Nodes[0].SetParent( 0 );
 
     // Nodes default to have all children leaf flags equal true.
-    int i=0;
-    while( i < N )
+    for ( int i = 0 ; i < N ; ++ i )
       {
-      this->Nodes[0].SetChild(i,0 );
-      ++ i;
+      this->Nodes[0].SetLeafFlag( i, i == 0 ); // First child is a leaf
+      this->Nodes[0].SetChild( i, 0 );
       }
-    this->LeafParent.resize(1);
-    this->LeafParent[0]=0;
-    this->NumberOfLevels=1;
-    this->NumberOfLeavesPerLevel.resize(1);
-    this->NumberOfLeavesPerLevel[0]=1;
+    this->LeafParent.resize( 1 );
+    this->LeafParent[0] = 0;
+    this->NumberOfLevels = 1;
+    this->NumberOfLeavesPerLevel.resize( 1 );
+    this->NumberOfLeavesPerLevel[0] = 1;
   }
 
   std::vector<int> NumberOfLeavesPerLevel; // number of leaves in each level
