@@ -14,9 +14,10 @@
 =========================================================================*/
 #include "vtkPMaskPoints.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkMultiProcessController.h"
 #include "vtkDummyController.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkPMaskPoints);
 
@@ -24,16 +25,18 @@ vtkStandardNewMacro(vtkPMaskPoints);
 vtkPMaskPoints::vtkPMaskPoints()
 {
   this->Controller = 0;
-  this->SetController(vtkMultiProcessController::GetGlobalController());
-  if(!this->Controller)
+
+  vtkSmartPointer<vtkMultiProcessController> controller =
+    vtkMultiProcessController::GetGlobalController();
+  if (!controller)
     {
-      this->SetController(vtkDummyController::New());
+    controller = vtkSmartPointer<vtkDummyController>::New();
     }
+  this->SetController(controller.GetPointer());
 }
 
 vtkPMaskPoints::~vtkPMaskPoints()
 {
-  this->Controller->Delete();
   this->SetController(NULL);
 }
 
