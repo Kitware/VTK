@@ -39,10 +39,10 @@
 // (0,255,0), the web color standard defines it as (0,128,0).
 //
 // For a web page of VTK Named Colors and their RGB values, see:
-// http://www.vtk.org/Wiki/VTK/Examples/Python/Visualization/VTKNamedColorPatches_html.
+// http://www.vtk.org/Wiki/VTK/Examples/Python/Visualization/VTKNamedColorPatches_html .
 //
 // The code used to generate this table is available from:
-// http://www.vtk.org/Wiki/VTK/Examples/Python/Visualization/NamedColorPatches,
+// http://www.vtk.org/Wiki/VTK/Examples/Python/Visualization/NamedColorPatches ,
 // this is useful if you wish to generate your own table.
 //
 // The SetColor methods will overwrite existing colors if the name of the
