@@ -15,9 +15,10 @@
 // .NAME vtkSuperquadricSource - create a polygonal superquadric centered
 // at the origin
 // .SECTION Description
-// vtkSuperquadricSource creates a superquadric (represented by polygons)
-// of specified
-// size centered at the origin. The resolution (polygonal discretization)
+// vtkSuperquadricSource creates a superquadric (represented by polygons) of
+// specified size centered at the origin. The alignment of the axis of the
+// superquadric along one of the global axes can be specified. The resolution
+// (polygonal discretization)
 // in both the latitude (phi) and longitude (theta) directions can be
 // specified. Roundness parameters (PhiRoundness and ThetaRoundness) control
 // the shape of the superquadric.  The Toroidal boolean controls whether
@@ -109,6 +110,11 @@ public:
   // Set/Get Superquadric isotropic size. Initial value is 0.5;
   vtkSetMacro(Size,double);
   vtkGetMacro(Size,double);
+
+  // Description:
+  // Set/Get axis of symmetry for superquadric (x axis: 0, y axis: 1, z axis: 2). Initial value is 2.
+  vtkSetMacro(AxisOfSymmetry,int);
+  vtkGetMacro(AxisOfSymmetry,int);
 
   // Description:
   // Set/Get whether or not the superquadric is toroidal (1) or ellipsoidal (0).
