@@ -138,8 +138,6 @@ class vtkPixel;
 class vtkVoxel;
 class vtkCellLinks;
 
-
-
 // Used to advance the super cursor; One Entry per cursor node.
 // Private.
 class vtkSuperCursorEntry

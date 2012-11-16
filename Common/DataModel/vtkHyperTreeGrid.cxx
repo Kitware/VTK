@@ -45,15 +45,13 @@ vtkInformationKeyMacro(vtkHyperTreeGrid, DIMENSION, Integer);
 vtkInformationKeyRestrictedMacro(vtkHyperTreeGrid, SIZES, DoubleVector, 3 );
 
 //===================================================
-// This internal class is used as a supperclass
-// by the templated Compact class. All methods are pure virtual.
-// I assume this is done to hide templates.
-class vtkHyperTreeInternal
-  : public vtkObject
+// This internal class is used as a superclass by the templated Compact class. 
+// All methods are pure virtual. This is done to hide templates.
+class vtkHyperTreeInternal : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperTreeInternal,vtkObject);
-  virtual void Initialize()=0;
+  virtual void Initialize() = 0;
   virtual vtkHyperTreeCursor* NewCursor() = 0;
   virtual vtkIdType GetNumberOfLeaves() = 0;
   virtual int GetNumberOfNodes() = 0;
@@ -92,8 +90,7 @@ private:
 // ternary trees.
 template<int N> class vtkCompactHyperTree;
 template<int N> class vtkCompactHyperTreeNode;
-template<int N> class vtkCompactHyperTreeCursor
-  :public vtkHyperTreeCursor
+template<int N> class vtkCompactHyperTreeCursor : public vtkHyperTreeCursor
 {
 public:
   //---------------------------------------------------------------------------
@@ -596,7 +593,6 @@ private:
   unsigned char Flags[4];
 };
 
-
 // Description:
 // A node of the Tree which is not a leaf.
 // Expected template values: 4, 8, 9, 27.
@@ -696,87 +692,85 @@ protected:
 template<int N> class vtkCompactHyperTree : public vtkHyperTreeInternal
 {
 public:
-  //---------------------------------------------------------------------------
-  static vtkCompactHyperTree<N> *New()
-    {
-      vtkObject* ret=
-        vtkObjectFactory::CreateInstance( "vtkCompactHyperTree<N>" );
-
-      if( ret != 0 )
-        {
-        return static_cast<vtkCompactHyperTree<N> *>( ret );
-        }
-      else
-        {
-        return new vtkCompactHyperTree<N>;
-        }
-    }
-
   vtkTypeMacro(vtkCompactHyperTree<N>,vtkHyperTreeInternal);
+
+  //---------------------------------------------------------------------------
+  static vtkCompactHyperTree<N>* New()
+  {
+    vtkObject* ret = vtkObjectFactory::CreateInstance( "vtkCompactHyperTree<N>" );
+    
+    if( ret )
+      {
+      return static_cast<vtkCompactHyperTree<N> *>( ret );
+      }
+    else
+      {
+      return new vtkCompactHyperTree<N>;
+      }
+  }
 
   //---------------------------------------------------------------------------
   // Description:
   // Restore the initial state: only one node and one leaf: the root.
   virtual void Initialize()
-    {
-      // NB: Leaves are implicit (not node objects)
-      // so why initialize a root node with one leaf?
-      // Does the root always have one child?
-      this->Nodes.resize( 1 );
-      this->Nodes[0].SetParent( 0 );
-      int i = 0;
-      while ( i < N )
-        {
-        // It is assumed that the root is a special node with only one child.
-        // The other children flags are irrelavent, but set them as nodes for no good reason.
-        this->Nodes[0].SetLeafFlag( i, i==0 ); // First child is a leaf
-        this->Nodes[0].SetChild( i, 0 );
-        }
-      this->LeafParent.resize( 1 );
-      this->LeafParent[0] = 0;
-      this->NumberOfLevels = 1;
-      this->NumberOfLeavesPerLevel.resize( 1 );
-      this->NumberOfLeavesPerLevel[0] = 1;
-    }
+  {
+    // NB: Leaves are implicit (not node objects)
+    // so why initialize a root node with one leaf?
+    // Does the root always have one child?
+    this->Nodes.resize( 1 );
+    this->Nodes[0].SetParent( 0 );
+    for ( int i = 0; i < N; ++ i )
+      {
+      // It is assumed that the root is a special node with only one child.
+      // The other children flags are irrelevant, but set them as nodes for no good reason.
+      this->Nodes[0].SetLeafFlag( i, i == 0 ); // First child is a leaf
+      this->Nodes[0].SetChild( i, 0 );
+      }
+    this->LeafParent.resize( 1 );
+    this->LeafParent[0] = 0;
+    this->NumberOfLevels = 1;
+    this->NumberOfLeavesPerLevel.resize( 1 );
+    this->NumberOfLeavesPerLevel[0] = 1;
+  }
 
   //---------------------------------------------------------------------------
   virtual vtkHyperTreeCursor* NewCursor()
-    {
-      vtkCompactHyperTreeCursor<N> *result = vtkCompactHyperTreeCursor<N>::New();
-      result->Init( this );
-      return result;
-    }
-
+  {
+    vtkCompactHyperTreeCursor<N> *result = vtkCompactHyperTreeCursor<N>::New();
+    result->Init( this );
+    return result;
+  }
+  
   //---------------------------------------------------------------------------
   virtual ~vtkCompactHyperTree()
-    {
-    }
-
+  {
+  }
+  
   //---------------------------------------------------------------------------
   virtual vtkIdType GetNumberOfLeaves()
-    {
-      return this->LeafParent.size();
-    }
-
+  {
+    return this->LeafParent.size();
+  }
+  
   //---------------------------------------------------------------------------
   // Description:
   // Return the erenumber of levels.
   // \post result_greater_or_equal_to_one: result>=1
   virtual vtkIdType GetNumberOfLevels()
-    {
-      assert( "post: result_greater_or_equal_to_one" && this->NumberOfLevels>=1);
-      return this->NumberOfLevels;
-    }
-
+  {
+    assert( "post: result_greater_or_equal_to_one" && this->NumberOfLevels>=1);
+    return this->NumberOfLevels;
+  }
+  
   //---------------------------------------------------------------------------
   // Description:
   // Public only for the vtkCompactHyperTreeCursor.
   vtkCompactHyperTreeNode<N> *GetNode(int nodeIdx )
-    {
-      assert( "pre: valid_range" && nodeIdx>=0 && nodeIdx<GetNumberOfNodes() );
-      return &this->Nodes[nodeIdx];
-    }
-
+  {
+    assert( "pre: valid_range" && nodeIdx>=0 && nodeIdx<GetNumberOfNodes() );
+    return &this->Nodes[nodeIdx];
+  }
+  
   //---------------------------------------------------------------------------
   // Description:
   // Public only for the vtkCompactHyperTreeCursor.
@@ -785,21 +779,21 @@ public:
   // I am changing the name for clarity.
   // This really returns the nodeIdx of the leafs parent.
   int GetLeafParent(int leafIdx )
-    {
-      assert( "pre: valid_range" && leafIdx>=0 && leafIdx<this->GetNumberOfLeaves() );
-      assert( "post: valid_result" && this->LeafParent[leafIdx]>=0 && this->LeafParent[leafIdx]<this->GetNumberOfNodes() );
-      return this->LeafParent[leafIdx];
-    }
-
+  {
+    assert( "pre: valid_range" && leafIdx>=0 && leafIdx<this->GetNumberOfLeaves() );
+    assert( "post: valid_result" && this->LeafParent[leafIdx]>=0 && this->LeafParent[leafIdx]<this->GetNumberOfNodes() );
+    return this->LeafParent[leafIdx];
+  }
+  
   //---------------------------------------------------------------------------
   // Description:
   // Public only for the vtkCompactHyperTreeCursor.
   virtual int GetNumberOfNodes()
-    {
-      assert( "post: not_empty" && this->Nodes.size()>0 );
-      return static_cast<int>( this->Nodes.size() );
-    }
-
+  {
+    assert( "post: not_empty" && this->Nodes.size()>0 );
+    return static_cast<int>( this->Nodes.size() );
+  }
+  
   //---------------------------------------------------------------------------
   // Description:
   // Subdivide node pointed by cursor, only if its a leaf.
@@ -807,106 +801,106 @@ public:
   // \pre leaf_exists: leaf!=0
   // \pre is_a_leaf: leaf->CurrentIsLeaf()
   void SubdivideLeaf(vtkHyperTreeCursor* leafCursor)
-    {
-      assert( "pre: leaf_exists" && leafCursor!=0 );
-      assert( "pre: is_a_leaf" && leafCursor->CurrentIsLeaf() );
+  {
+    assert( "pre: leaf_exists" && leafCursor!=0 );
+    assert( "pre: is_a_leaf" && leafCursor->CurrentIsLeaf() );
 
-      // We are using a vtkCompactHyperTreeCursor.
-      // We know that GetLeafId() return Cursor.
-      int leafIndex = leafCursor->GetLeafId();
-      vtkCompactHyperTreeCursor<N> *cursor=static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
+    // We are using a vtkCompactHyperTreeCursor.
+    // We know that GetLeafId() return Cursor.
+    int leafIndex = leafCursor->GetLeafId();
+    vtkCompactHyperTreeCursor<N> *cursor=static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
 
-      // the leaf becomes a node and is not anymore a leaf.
-      cursor->SetIsLeaf( 0 ); // let the cursor knows about that change.
-      size_t nodeIndex = this->Nodes.size();
+    // the leaf becomes a node and is not anymore a leaf.
+    cursor->SetIsLeaf( 0 ); // let the cursor knows about that change.
+    size_t nodeIndex = this->Nodes.size();
 
-      // NB: Bad interface "SetCursor"; should rather SetIndex.
-      cursor->SetCursor( static_cast<int>( nodeIndex ) );
+    // NB: Bad interface "SetCursor"; should rather SetIndex.
+    cursor->SetCursor( static_cast<int>( nodeIndex ) );
 
-      // Nodes get constructed with leaf flags set to 1.
-      this->Nodes.resize( nodeIndex + 1 );
-      int parentNodeIdx = this->LeafParent[leafIndex];
-      this->Nodes[nodeIndex].SetParent( parentNodeIdx );
+    // Nodes get constructed with leaf flags set to 1.
+    this->Nodes.resize( nodeIndex + 1 );
+    int parentNodeIdx = this->LeafParent[leafIndex];
+    this->Nodes[nodeIndex].SetParent( parentNodeIdx );
 
-      // Change the parent: it has one less child as a leaf
-      vtkCompactHyperTreeNode<N> *parent=&( this->Nodes[parentNodeIdx] );
+    // Change the parent: it has one less child as a leaf
+    vtkCompactHyperTreeNode<N> *parent=&( this->Nodes[parentNodeIdx] );
 
-      // New nodes index in parents children array.
-      int idx = cursor->GetChildIndex();
-      assert( "check matching_child" && parent->GetChild( idx ) == leafIndex );
-      parent->SetLeafFlag( idx, false );
-      parent->SetChild( idx, static_cast<int>( nodeIndex ) );
+    // New nodes index in parents children array.
+    int idx = cursor->GetChildIndex();
+    assert( "check matching_child" && parent->GetChild( idx ) == leafIndex );
+    parent->SetLeafFlag( idx, false );
+    parent->SetChild( idx, static_cast<int>( nodeIndex ) );
 
-      // The first new child
-      // Recycle the leaf index we are deleting because it became a node.
-      // This avoids messy leaf parent array issues.
-      this->Nodes[nodeIndex].SetChild( 0, leafIndex );
-      this->LeafParent[leafIndex] = static_cast<int>( nodeIndex );
+    // The first new child
+    // Recycle the leaf index we are deleting because it became a node.
+    // This avoids messy leaf parent array issues.
+    this->Nodes[nodeIndex].SetChild( 0, leafIndex );
+    this->LeafParent[leafIndex] = static_cast<int>( nodeIndex );
 
-      // The other (N-1) new children.
-      size_t nextLeaf = this->LeafParent.size();
-      this->LeafParent.resize( nextLeaf + ( N - 1 ) );
-      for( int i = 1; i < N; ++ i, ++ nextLeaf )
-        {
-        this->Nodes[nodeIndex].SetChild( i, static_cast<int>( nextLeaf ) );
-        this->LeafParent[nextLeaf] = static_cast<int>( nodeIndex );
-        }
+    // The other (N-1) new children.
+    size_t nextLeaf = this->LeafParent.size();
+    this->LeafParent.resize( nextLeaf + ( N - 1 ) );
+    for( int i = 1; i < N; ++ i, ++ nextLeaf )
+      {
+      this->Nodes[nodeIndex].SetChild( i, static_cast<int>( nextLeaf ) );
+      this->LeafParent[nextLeaf] = static_cast<int>( nodeIndex );
+      }
 
 
-      // Update the number of leaves per level.
+    // Update the number of leaves per level.
 
-      int level=cursor->GetChildHistorySize();
+    int level=cursor->GetChildHistorySize();
 
-      // remove the subdivided leaf from the number of leaves at its level.
-      -- this->NumberOfLeavesPerLevel[level];
+    // remove the subdivided leaf from the number of leaves at its level.
+    -- this->NumberOfLeavesPerLevel[level];
 
-      // add the new leaves to the number of leaves at the next level.
-      if( level + 1 == this->NumberOfLevels ) // >=
-        {
-        // we have a new level.
-        ++this->NumberOfLevels;
-        this->NumberOfLeavesPerLevel.resize( this->NumberOfLevels );
-        }
-      this->NumberOfLeavesPerLevel[level + 1] += N;
-    }
+    // add the new leaves to the number of leaves at the next level.
+    if( level + 1 == this->NumberOfLevels ) // >=
+      {
+      // we have a new level.
+      ++this->NumberOfLevels;
+      this->NumberOfLeavesPerLevel.resize( this->NumberOfLevels );
+      }
+    this->NumberOfLeavesPerLevel[level + 1] += N;
+  }
 
   //---------------------------------------------------------------------------
   // NB: Bad interface: This is really GetNumberOfLeaves.
   int GetLeafParentSize()
-    {
-      return static_cast<int>( this->LeafParent.size() );
-    }
+  {
+    return static_cast<int>( this->LeafParent.size() );
+  }
 
   //---------------------------------------------------------------------------
   void PrintSelf(ostream& os, vtkIndent indent)
-    {
-      this->Superclass::PrintSelf(os,indent);
+  {
+    this->Superclass::PrintSelf(os,indent);
 
-      os << indent << "Nodes=" << this->Nodes.size() << endl;
-      os << indent << "LeafParent=" << this->LeafParent.size() << endl;
+    os << indent << "Nodes=" << this->Nodes.size() << endl;
+    os << indent << "LeafParent=" << this->LeafParent.size() << endl;
 
-      os << indent << "Nodes=" << this->Nodes.size() << endl;
-      size_t i;
-      os << indent;
-      i=0;
-      size_t c = this->Nodes.size();
-      while( i < c )
-        {
-        this->Nodes[i].PrintSelf( os, indent );
-        ++ i;
-        }
-      os<<endl;
+    os << indent << "Nodes=" << this->Nodes.size() << endl;
+    size_t i;
+    os << indent;
+    i=0;
+    size_t c = this->Nodes.size();
+    while( i < c )
+      {
+      this->Nodes[i].PrintSelf( os, indent );
+      ++ i;
+      }
+    os<<endl;
 
-      os << indent << "LeafParent="<<this->LeafParent.size() << endl;
-      i=0;
-      c=this->LeafParent.size();
-      while(i<c)
-        {
-        os << this->LeafParent[i]<<" ";
-        ++ i;
-        }
-      os<<endl;
-    }
+    os << indent << "LeafParent="<<this->LeafParent.size() << endl;
+    i=0;
+    c=this->LeafParent.size();
+    while(i<c)
+      {
+      os << this->LeafParent[i]<<" ";
+      ++ i;
+      }
+    os<<endl;
+  }
 
   //---------------------------------------------------------------------------
   // Description:
@@ -921,14 +915,14 @@ public:
   }
 
   int GetBranchFactor()
-    {
+  {
     return this->BranchFactor;
-    }
+  }
 
   int GetDimension()
-    {
+  {
     return this->Dimension;
-    }
+  }
 
 protected:
   //---------------------------------------------------------------------------
@@ -936,46 +930,46 @@ protected:
   // Default constructor.
   // The tree as only one node and one leaf: the root.
   vtkCompactHyperTree()
-    {
-      if ( N == 2 || N == 4 || N == 8 )
-        {
-        this->BranchFactor = 2;
-        }
-      if ( N == 3 || N == 9 || N == 27 )
-        {
-        this->BranchFactor = 3;
-        }
+  {
+    if ( N == 2 || N == 4 || N == 8 )
+      {
+      this->BranchFactor = 2;
+      }
+    if ( N == 3 || N == 9 || N == 27 )
+      {
+      this->BranchFactor = 3;
+      }
 
-      if ( N == 2 || N == 3 )
-        {
-        this->Dimension = 1;
-        }
-      if ( N == 4 || N == 9 )
-        {
-        this->Dimension = 2;
-        }
-      if ( N == 8 || N == 27 )
-        {
-        this->Dimension = 3;
-        }
+    if ( N == 2 || N == 3 )
+      {
+      this->Dimension = 1;
+      }
+    if ( N == 4 || N == 9 )
+      {
+      this->Dimension = 2;
+      }
+    if ( N == 8 || N == 27 )
+      {
+      this->Dimension = 3;
+      }
 
-      // The root.
-      this->Nodes.resize(1);
-      this->Nodes[0].SetParent( 0 );
+    // The root.
+    this->Nodes.resize(1);
+    this->Nodes[0].SetParent( 0 );
 
-      // Nodes default to have all children leaf flags equal true.
-      int i=0;
-      while( i < N )
-        {
-        this->Nodes[0].SetChild(i,0 );
-        ++ i;
-        }
-      this->LeafParent.resize(1);
-      this->LeafParent[0]=0;
-      this->NumberOfLevels=1;
-      this->NumberOfLeavesPerLevel.resize(1);
-      this->NumberOfLeavesPerLevel[0]=1;
-    }
+    // Nodes default to have all children leaf flags equal true.
+    int i=0;
+    while( i < N )
+      {
+      this->Nodes[0].SetChild(i,0 );
+      ++ i;
+      }
+    this->LeafParent.resize(1);
+    this->LeafParent[0]=0;
+    this->NumberOfLevels=1;
+    this->NumberOfLeavesPerLevel.resize(1);
+    this->NumberOfLeavesPerLevel[0]=1;
+  }
 
   std::vector<int> NumberOfLeavesPerLevel; // number of leaves in each level
   // its size is NumberOfLevels;
@@ -989,7 +983,6 @@ private:
   vtkCompactHyperTree(const vtkCompactHyperTree<N> &);  // Not implemented.
   void operator=(const vtkCompactHyperTree<N> &);    // Not implemented.
 };
-
 
 vtkStandardNewMacro(vtkHyperTreeGrid);
 
