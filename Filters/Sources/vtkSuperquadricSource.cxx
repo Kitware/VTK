@@ -274,7 +274,7 @@ int vtkSuperquadricSource::RequestData(
             thetaOffset =  0.0;
             }
 
-          // This gives a superquadric with axis of symmetry: z
+          //This give you superquadric with axis of symmetry: z
           evalSuperquadric(theta, phi,
                            thetaOffset, phiOffset,
                            this->ThetaRoundness, this->PhiRoundness,
@@ -282,16 +282,16 @@ int vtkSuperquadricSource::RequestData(
           switch (this->AxisOfSymmetry)
             {
             case 0:
-              // x-axis
-              tmp   = pt[0];
+              //x-axis
+              tmp = pt[0];
               pt[0] = pt[2];
               pt[2] = tmp;
               pt[1] = -pt[1];
 
-              tmp   = nv[0];
-              nv[0] = nv[2];
-              nv[2] = tmp;
-              nv[1] = -nv[1];
+              tmp = nv[0];
+              nv[0]=nv[2];
+              nv[2]=tmp;
+              nv[1]=-nv[1];
               break;
             case 1:
               //y-axis
@@ -314,19 +314,9 @@ int vtkSuperquadricSource::RequestData(
             // make sure the pole is at the same location for all evals
             // (the superquadric evaluation is numerically unstable
             // at the poles)
-            switch (this->AxisOfSymmetry)
-              {
-              case 0:
-                // x-axis
-                pt[1] = pt[2] = 0.0;
-                break;
 
-              case 2:
-                // z-axis
-                pt[0] = pt[1] = 0.0;
-                break;
-              }
-            }
+            pt[0] = pt[2] = 0.0;
+          }
 
           pt[0] += this->Center[0];
           pt[1] += this->Center[1];
@@ -440,18 +430,16 @@ static void evalSuperquadric(double theta, double phi,  // parametric coords
                              double xyz[3],      // output coords
                              double nrm[3])      // output normals
 {
-  // axis of symmetry: z
-
   double cf1, cf2;
 
   cf1 = cf(phi, rphi, alpha);
-  xyz[0] =  dims[0] * cf1 * cf(theta, rtheta);
-  xyz[1] =  dims[1] * cf1 * sf(theta, rtheta);
-  xyz[2] =  dims[2]       * sf(phi, rphi);
+  xyz[0] = dims[0] * cf1 * sf(theta, rtheta);
+  xyz[1] = dims[1]       * sf(phi, rphi);
+  xyz[2] = dims[2] * cf1 * cf(theta, rtheta);
 
   cf2 = cf(phi+dphi, 2.0-rphi);
-  nrm[0] = 1.0/dims[0] * cf2 * cf(theta+dtheta, 2.0-rtheta);
-  nrm[1] = 1.0/dims[1] * cf2 * sf(theta+dtheta, 2.0-rtheta);
-  nrm[2] = 1.0/dims[2]       * sf(phi+dphi, 2.0-rphi);
+  nrm[0] = 1.0/dims[0] * cf2 * sf(theta+dtheta, 2.0-rtheta);
+  nrm[1] = 1.0/dims[1]       * sf(phi+dphi, 2.0-rphi);
+  nrm[2] = 1.0/dims[2] * cf2 * cf(theta+dtheta, 2.0-rtheta);
 }
 
