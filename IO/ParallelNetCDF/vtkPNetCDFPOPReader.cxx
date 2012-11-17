@@ -320,8 +320,9 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
   vtkRectilinearGrid *rgrid = vtkRectilinearGrid::SafeDownCast(output);
   rgrid->SetExtent(subext);
 
-  size_t count[]= { subext[5]-subext[4]+1, subext[3]-subext[2]+1,
-                    subext[1]-subext[0]+1};
+  size_t count[]= { static_cast<size_t>(subext[5]-subext[4]+1),
+                    static_cast<size_t>(subext[3]-subext[2]+1),
+                    static_cast<size_t>(subext[1]-subext[0]+1) };
 
 
   //initialize memory (raw data space, x y z axis space) and rectilinear grid
@@ -348,7 +349,9 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
         // does the read and broadcasts to everyone
 
         //set up start and stride values for this process's data (count is already set)
-        size_t start[]= { subext[4], subext[2], subext[0] };
+        size_t start[]= { static_cast<size_t>(subext[4]),
+                          static_cast<size_t>(subext[2]),
+                          static_cast<size_t>(subext[0]) };
 
         ptrdiff_t rStride[3] = { (ptrdiff_t)this->Stride[2],
                                  (ptrdiff_t)this->Stride[1],
@@ -360,13 +363,13 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
         // of the header file).  We want the arrays below to reflect the on-disk layout, which
         // is why the array indexes don't match up
 
-        size_t wholeCount[3] = { wholeExtent[5] - wholeExtent[4] + 1,
-                                 wholeExtent[3] - wholeExtent[2] + 1,
-                                 wholeExtent[1] - wholeExtent[0] + 1};
+        size_t wholeCount[3] = { static_cast<size_t>(wholeExtent[5] - wholeExtent[4] + 1),
+                                 static_cast<size_t>(wholeExtent[3] - wholeExtent[2] + 1),
+                                 static_cast<size_t>(wholeExtent[1] - wholeExtent[0] + 1) };
 
-        size_t wholeStart[3]= { wholeExtent[4]*this->Stride[2],
-                                wholeExtent[2]*this->Stride[1],
-                                wholeExtent[0]*this->Stride[0]};
+        size_t wholeStart[3]= { static_cast<size_t>(wholeExtent[4]*this->Stride[2]),
+                                static_cast<size_t>(wholeExtent[2]*this->Stride[1]),
+                                static_cast<size_t>(wholeExtent[0]*this->Stride[0]) };
 
         std::vector<float> buffer(wholeCount[0] + wholeCount[1] + wholeCount[2]);
         if (this->IsFirstReaderRank())
@@ -567,8 +570,12 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
     {
     if (ReaderForDepth( curDepth) == rank)
       {
-      size_t start[3] = { curDepth*rStride[0], wholeExtent[2], wholeExtent[4] };
-      size_t count[3] = { 1, wholeExtent[3] - wholeExtent[2] + 1, wholeExtent[5] - wholeExtent[4] + 1 };
+      size_t start[3] = { static_cast<size_t>(curDepth*rStride[0]),
+                          static_cast<size_t>(wholeExtent[2]),
+                          static_cast<size_t>(wholeExtent[4]) };
+      size_t count[3] = { 1,
+                          static_cast<size_t>(wholeExtent[3] - wholeExtent[2] + 1),
+                          static_cast<size_t>(wholeExtent[5] - wholeExtent[4] + 1) };
 
       float* buffer = new float[count[1]*count[2]];
       this->Internals->SendBufs.push_back( buffer );
