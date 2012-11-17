@@ -129,6 +129,8 @@ public:
     {
     for(const_iterator it = this->begin(); it != this->end(); ++it)
       {
+      (*it)->SetParent(NULL);
+      (*it)->SetScene(NULL);
       (*it)->Delete();
       }
     this->clear();
