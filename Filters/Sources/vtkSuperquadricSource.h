@@ -112,7 +112,7 @@ public:
   vtkGetMacro(Size,double);
 
   // Description:
-  // Set/Get axis of symmetry for superquadric (x axis: 0, y axis: 1, z axis: 2). Initial value is 2.
+  // Set/Get axis of symmetry for superquadric (x axis: 0, y axis: 1, z axis: 2). Initial value is 1.
   vtkSetMacro(AxisOfSymmetry,int);
   vtkGetMacro(AxisOfSymmetry,int);
   void SetXAxisOfSymmetry() { this->SetAxisOfSymmetry(0); }

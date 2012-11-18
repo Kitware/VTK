@@ -47,7 +47,7 @@ vtkSuperquadricSource::vtkSuperquadricSource(int res)
 {
   res = res < 4 ? 4 : res;
 
-  this->AxisOfSymmetry = 2; //z-axis symmetry
+  this->AxisOfSymmetry = 1; // y-axis symmetry
   this->Toroidal = 0;
   this->Thickness = 0.3333;
   this->PhiRoundness = 0.0;
@@ -462,13 +462,13 @@ static void evalSuperquadric(double theta, double phi,  // parametric coords
   double cf1, cf2;
 
   cf1 = cf(phi, rphi, alpha);
-  xyz[0] =  dims[0] * cf1 * cf(theta, rtheta);
-  xyz[1] =  dims[1] * cf1 * sf(theta, rtheta);
+  xyz[0] = -dims[0] * cf1 * sf(theta, rtheta);
+  xyz[1] =  dims[1] * cf1 * cf(theta, rtheta);
   xyz[2] =  dims[2]       * sf(phi, rphi);
-
+ 
   cf2 = cf(phi+dphi, 2.0-rphi);
-  nrm[0] = 1.0/dims[0] * cf2 * cf(theta+dtheta, 2.0-rtheta);
-  nrm[1] = 1.0/dims[1] * cf2 * sf(theta+dtheta, 2.0-rtheta);
-  nrm[2] = 1.0/dims[2]       * sf(phi+dphi, 2.0-rphi);
+  nrm[0] = -1.0/dims[0] * cf2 * sf(theta+dtheta, 2.0-rtheta);
+  nrm[1] =  1.0/dims[1] * cf2 * cf(theta+dtheta, 2.0-rtheta);
+  nrm[2] =  1.0/dims[2]       * sf(phi+dphi, 2.0-rphi);
 }
 
