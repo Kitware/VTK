@@ -122,7 +122,7 @@ protected:
   // Compute how to scale our data so that text labels will fit within the
   // bounds determined by the table's cells or the spacing between the leaf
   // nodes of the tree.
-  void ComputeMultiplier();
+  void ComputeMultipliers();
 
   // Description:
   // Compute the bounds of our tree in pixel coordinates.
@@ -222,7 +222,8 @@ private:
   vtkNew<vtkLookupTable> TriangleLookupTable;
   std::vector< vtkLookupTable * > LookupTables;
   std::vector< vtkIdType > RowMap;
-  double Multiplier;
+  double MultiplierX;
+  double MultiplierY;
   int NumberOfLeafNodes;
   double CellWidth;
   double CellHeight;
@@ -239,6 +240,7 @@ private:
   double TreeMaxY;
   double SceneBottomLeft[3];
   double SceneTopRight[3];
+  bool JustCollapsedOrExpanded;
 };
 
 #endif
