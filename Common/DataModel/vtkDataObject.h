@@ -357,8 +357,6 @@ protected:
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;
 
-  static const char AssociationNames[2 * NUMBER_OF_ASSOCIATIONS][55];
-
 private:
   // Helper method for the ShallowCopy and DeepCopy methods.
   void InternalDataObjectCopy(vtkDataObject *src);

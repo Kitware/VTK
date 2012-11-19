@@ -5,6 +5,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestAMRBox.cxx
   TestCompositeDataSets.cxx
   TestDataArrayDispatcher.cxx
+  TestDataObject.cxx
   TestDispatchers.cxx
   TestGenericCell.cxx
   TestGraph.cxx
