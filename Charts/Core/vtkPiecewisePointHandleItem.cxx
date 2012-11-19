@@ -384,7 +384,10 @@ void vtkPiecewisePointHandleItem::SetPiecewiseFunction(
 //-----------------------------------------------------------------------------
 void vtkPiecewisePointHandleItem::Redraw()
 {
-  this->Scene->SetDirty(true);
+  if (this->Scene)
+    {
+    this->Scene->SetDirty(true);
+    }
 }
 //-----------------------------------------------------------------------------
 void vtkPiecewisePointHandleItem::CallRedraw(
