@@ -432,7 +432,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
 
       // Number of values stored for each depth
       //unsigned long oneDepthSize = (subext[3]-subext[2]+1) * (subext[5]-subext[4]+1);
-      unsigned long oneDepthSize = (count[1])*(count[2]);  // should be the same value as the line above...
+      unsigned long oneDepthSize = static_cast<unsigned long>(count[1]*count[2]);  // should be the same value as the line above...
 
       for (int curDepth = subext[4]; curDepth <= subext[5]; curDepth++)
         {
@@ -462,7 +462,8 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
       // Wait for all the sends to complete
       if (this->Internals->SendReqs.size() > 0)
         {
-        MPI_Waitall( this->Internals->SendReqs.size(), &this->Internals->SendReqs[0], MPI_STATUSES_IGNORE);
+        MPI_Waitall( static_cast<int>(this->Internals->SendReqs.size()),
+                     &this->Internals->SendReqs[0], MPI_STATUSES_IGNORE);
 
         // Now that all the sends are complete, it's safe to free the buffers
         for (size_t j= 0; j < this->Internals->SendBufs.size(); j++)
@@ -473,7 +474,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
         this->Internals->SendReqs.clear();
         }
 
-      MPI_Waitall( recvReqs.size(), &recvReqs[0], MPI_STATUSES_IGNORE);
+      MPI_Waitall( static_cast<int>(recvReqs.size()), &recvReqs[0], MPI_STATUSES_IGNORE);
       recvReqs.clear();
 
 
@@ -629,7 +630,8 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
         // except call it in a loop.
         do
           {
-          MPI_Testany( this->Internals->SendReqs.size(), &this->Internals->SendReqs[0],
+          MPI_Testany( static_cast<int>(this->Internals->SendReqs.size()),
+                       &this->Internals->SendReqs[0],
                        &reqIndex, &foundOne, &status);
           } while (foundOne && reqIndex != MPI_UNDEFINED);
         }
