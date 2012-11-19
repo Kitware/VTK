@@ -175,6 +175,26 @@ void vtkCocoaRenderWindow::SetWindowName( const char * _arg )
 }
 
 //----------------------------------------------------------------------------
+bool vtkCocoaRenderWindow::InitializeFromCurrentContext()
+{
+  NSOpenGLContext *currentContext = [NSOpenGLContext currentContext];
+  if (currentContext != NULL)
+    {
+    NSView *currentView = [currentContext view];
+    if (currentView != NULL)
+      {
+      NSWindow *window = [currentView window];
+      this->SetWindowId(currentView);
+      this->SetRootWindow(window);
+      this->SetContextId((void*)currentContext);
+      this->OpenGLInit();
+      return true;
+      }
+    }
+  return false;
+}
+
+//----------------------------------------------------------------------------
 int vtkCocoaRenderWindow::GetEventPending()
 {
   return 0;

@@ -120,11 +120,16 @@ public:
   // Description:
   // Get the window id.
   virtual HWND  GetWindowId();
-  void  SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
 
   // Description:
   // Set the window id to a pre-existing window.
   virtual void  SetWindowId(HWND);
+  void  SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
+
+  // Description:
+  // Initialize the render window from the information associated
+  // with the currently activated OpenGL context.
+  virtual bool InitializeFromCurrentContext();
 
   // Description:
   // Set the window's parent id to a pre-existing window.
