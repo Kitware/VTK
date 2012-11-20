@@ -1043,7 +1043,7 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
       {
       if ( this->CellTree[i] )
         {
-        this->CellTree[i]->UnRegister( this );
+        this->CellTree[i]->Delete();
         this->CellTree[i] = 0;
         }
       }
@@ -1145,7 +1145,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
       {
       if ( this->CellTree[i] )
         {
-        this->CellTree[i]->UnRegister( this );
+        this->CellTree[i]->Delete();
         }
       }
     delete [] this->CellTree;
@@ -1250,7 +1250,7 @@ void vtkHyperTreeGrid::UpdateTree()
       {
       if ( this->CellTree[i] )
         {
-        this->CellTree[i]->UnRegister( this );
+        this->CellTree[i]->Delete();
         this->CellTree[i] = 0;
         }
       }
