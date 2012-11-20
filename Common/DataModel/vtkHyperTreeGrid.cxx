@@ -1042,7 +1042,7 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
       {
       if ( this->CellTree[i] )
         {
-        this->CellTree[i]->Delete();
+        this->CellTree[i]->UnRegister( this );
         this->CellTree[i] = 0;
         }
       }
@@ -1053,19 +1053,19 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
   if ( this->XCoordinates )
     {
     this->XCoordinates->UnRegister( this );
-    this->XCoordinates = NULL;
+    this->XCoordinates = 0;
     }
 
   if ( this->YCoordinates )
     {
     this->YCoordinates->UnRegister( this );
-    this->YCoordinates = NULL;
+    this->YCoordinates = 0;
     }
 
   if ( this->ZCoordinates )
     {
     this->ZCoordinates->UnRegister( this );
-    this->ZCoordinates = NULL;
+    this->ZCoordinates = 0;
     }
 
   if ( this->Voxel )
@@ -1146,7 +1146,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
       {
       if ( this->CellTree[i] )
         {
-        this->CellTree[i]->Delete();
+        this->CellTree[i]->UnRegister( this );
         }
       }
     delete [] this->CellTree;
@@ -1337,32 +1337,29 @@ void vtkHyperTreeGrid::ComputeBounds()
 {
   double tmp;
 
-  if (this->XCoordinates == NULL || this->YCoordinates == NULL ||
-      this->ZCoordinates == NULL)
+  if ( ! this->XCoordinates || ! this->YCoordinates || ! this->ZCoordinates )
     {
     vtkMath::UninitializeBounds(this->Bounds);
     return;
     }
 
-  if ( this->XCoordinates->GetNumberOfTuples() == 0 ||
-       this->YCoordinates->GetNumberOfTuples() == 0 ||
-       this->ZCoordinates->GetNumberOfTuples() == 0 )
+  if ( ! this->XCoordinates->GetNumberOfTuples() ||
+       ! this->YCoordinates->GetNumberOfTuples() ||
+       ! this->ZCoordinates->GetNumberOfTuples() )
     {
-    vtkMath::UninitializeBounds(this->Bounds);
+    vtkMath::UninitializeBounds( this->Bounds );
     return;
     }
 
-  this->Bounds[0] = this->XCoordinates->GetComponent(0, 0 );
-  this->Bounds[2] = this->YCoordinates->GetComponent(0, 0 );
-  this->Bounds[4] = this->ZCoordinates->GetComponent(0, 0 );
+  this->Bounds[0] = this->XCoordinates->GetComponent( 0, 0 );
+  this->Bounds[2] = this->YCoordinates->GetComponent( 0, 0 );
+  this->Bounds[4] = this->ZCoordinates->GetComponent( 0, 0 );
 
-  this->Bounds[1] = this->XCoordinates->GetComponent(
-                                                     this->XCoordinates->GetNumberOfTuples()-1, 0 );
-  this->Bounds[3] = this->YCoordinates->GetComponent(
-                                                     this->YCoordinates->GetNumberOfTuples()-1, 0 );
-  this->Bounds[5] = this->ZCoordinates->GetComponent(
-                                                     this->ZCoordinates->GetNumberOfTuples()-1, 0 );
-  // ensure that the bounds are increasing
+  this->Bounds[1] = this->XCoordinates->GetComponent( this->XCoordinates->GetNumberOfTuples() - 1, 0 );
+  this->Bounds[3] = this->YCoordinates->GetComponent( this->YCoordinates->GetNumberOfTuples() - 1, 0 );
+  this->Bounds[5] = this->ZCoordinates->GetComponent( this->ZCoordinates->GetNumberOfTuples() - 1, 0 );
+
+  // Ensure that the bounds are increasing
   for (int i = 0; i < 5; i += 2)
     {
     if (this->Bounds[i + 1] < this->Bounds[i])
@@ -2109,7 +2106,8 @@ void vtkHyperTreeGrid::SetDualGridFlag( int flag )
     flag = 1;
     }
   if ( ( this->DualGridFlag && ! flag ) || ( ! this->DualGridFlag && flag ) )
-    { // Swap point and cell data.
+    {
+    // Swap point and cell data.
     vtkDataSetAttributes* attr = vtkDataSetAttributes::New();
     attr->ShallowCopy( this->CellData );
     this->CellData->ShallowCopy( this->PointData );
@@ -2189,7 +2187,7 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetCornerLeafIds()
 void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeSuperCursor* superCursor,
                                               int i, int j, int k )
 {
-  // TODO:  This only needs to be done once.  Use MTime ...
+  // TODO:  This only needs to be done once.  Use MTime instead
   this->UpdateCellTreeLeafIdOffsets();
 
   // Calculate global index of hyper tree
