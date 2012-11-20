@@ -1140,17 +1140,8 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
 
   this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-  if ( this->CellTree )
-    {
-    for ( int i = 0; i < this->NumberOfRoots; ++ i )
-      {
-      if ( this->CellTree[i] )
-        {
-        this->CellTree[i]->UnRegister( this );
-        }
-      }
-    delete [] this->CellTree;
-    }
+
+  this->UpdateTree();
 
   this->CellTree = htg->CellTree;
 
@@ -1176,11 +1167,6 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->SetXCoordinates( htg->XCoordinates );
   this->SetYCoordinates( htg->YCoordinates );
   this->SetZCoordinates( htg->ZCoordinates );
-
-  this->CellData->ShallowCopy( htg->CellData );
-  this->PointData->ShallowCopy( htg->PointData );
-
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -1458,17 +1444,21 @@ int vtkHyperTreeGrid::GetMaxCellSize()
 // Shallow and Deep copy.
 void vtkHyperTreeGrid::ShallowCopy(vtkDataObject* src)
 {
-  assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast(src)!=0 );
-  this->Superclass::ShallowCopy(src);
-  this->CopyStructure(vtkHyperTreeGrid::SafeDownCast(src) );
+  assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast( src ) );
+  this->CopyStructure(vtkHyperTreeGrid::SafeDownCast( src ) );
+
+  // Do superclass
+  this->Superclass::ShallowCopy( src );
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::DeepCopy( vtkDataObject* src )
 {
-  assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast(src)!=0 );
-  this->Superclass::DeepCopy( src );
+  assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast( src ) );
   this->CopyStructure( vtkHyperTreeGrid::SafeDownCast( src ) );
+
+  // Do superclass
+  this->Superclass::DeepCopy( src );
 }
 
 //-----------------------------------------------------------------------------
