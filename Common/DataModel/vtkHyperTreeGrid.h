@@ -175,6 +175,10 @@ public:
   vtkGetVector3Macro(GridSize,int);
 
   // Description:
+  // Set/Get number of root cells
+  vtkGetMacro(NumberOfRoots,int);
+
+  // Description:
   // Return the dimension of the tree (1D:binary tree(2 children), 2D:quadtree(4 children),
   // 3D:octree (8 children))
   // \post valid_result: result>=1 && result<=3
@@ -415,6 +419,7 @@ protected:
 
   int Dimension;    // 1, 2 or 3.
   int GridSize[3];
+  int NumberOfRoots;
   int AxisBranchFactor;
   int NumberOfChildren;
 
@@ -456,9 +461,9 @@ protected:
   vtkSuperCursorEntry SuperCursorTraversalTable[729]; // 27*27
 
   // for the GetCell method
-  vtkLine *Line;
-  vtkPixel *Pixel;
-  vtkVoxel *Voxel;
+  vtkLine* Line;
+  vtkPixel* Pixel;
+  vtkVoxel* Voxel;
 
   // I would like to get rid of this.
   // Is it a part of the vtkDataSet API?
