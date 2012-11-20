@@ -1776,7 +1776,7 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId,
     // Casting of 1 is necessary to remove 64bit Compiler warning C4334 on
     // Visual Studio 2005.
     npts = static_cast<vtkIdType>( 1 ) << this->GetDimension();
-    pts = cornerLeafIds->GetPointer( 0 ) + cellId*npts;
+    pts = cornerLeafIds->GetPointer( 0 ) + cellId * npts;
     }
   else
     {
@@ -1787,7 +1787,7 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId,
     // Casting of 1 is necessary to remove 64bit Compiler warning C4334 on
     // Visual Studio 2005.
     npts = static_cast<vtkIdType>( 1 ) << this->GetDimension();
-    pts = leafCornerIds->GetPointer( 0 ) + cellId*npts;
+    pts = leafCornerIds->GetPointer( 0 ) + cellId * npts;
     }
 }
 
