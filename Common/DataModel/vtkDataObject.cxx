@@ -70,9 +70,8 @@ vtkInformationKeyRestrictedMacro(vtkDataObject, BOUNDING_BOX, DoubleVector, 6);
 // after use by filter
 static int vtkDataObjectGlobalReleaseDataFlag = 0;
 
-const char vtkDataObject
-::AssociationNames[vtkDataObject::NUMBER_OF_ASSOCIATIONS][55] =
-{
+// this list must be kept in-sync with the FieldAssociations enum
+static const char *FieldAssociationsNames[] = {
   "vtkDataObject::FIELD_ASSOCIATION_POINTS",
   "vtkDataObject::FIELD_ASSOCIATION_CELLS",
   "vtkDataObject::FIELD_ASSOCIATION_NONE",
@@ -80,6 +79,17 @@ const char vtkDataObject
   "vtkDataObject::FIELD_ASSOCIATION_VERTICES",
   "vtkDataObject::FIELD_ASSOCIATION_EDGES",
   "vtkDataObject::FIELD_ASSOCIATION_ROWS"
+};
+
+// this list must be kept in-sync with the AttributeTypes enum
+static const char *AttributeTypesNames[] = {
+  "vtkDataObject::POINT",
+  "vtkDataObject::CELL",
+  "vtkDataObject::FIELD",
+  "vtkDataObject::POINT_THEN_CELL",
+  "vtkDataObject::VERTEX",
+  "vtkDataObject::EDGE",
+  "vtkDataObject::ROW"
 };
 
 //----------------------------------------------------------------------------
@@ -648,7 +658,38 @@ const char* vtkDataObject::GetAssociationTypeAsString(int associationType)
     vtkGenericWarningMacro("Bad association type.");
     return NULL;
     }
-  return vtkDataObject::AssociationNames[associationType];
+  return FieldAssociationsNames[associationType];
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObject::GetAssociationTypeFromString(const char* associationName)
+{
+  if (!associationName)
+    {
+    vtkGenericWarningMacro("NULL association name.");
+    return -1;
+    }
+
+  // check for the name in the FieldAssociations enum
+  for(int i = 0; i < NUMBER_OF_ASSOCIATIONS; i++)
+    {
+    if(!strcmp(associationName, FieldAssociationsNames[i]))
+      {
+      return i;
+      }
+    }
+
+  // check for the name in the AttributeTypes enum
+  for(int i = 0; i < NUMBER_OF_ATTRIBUTE_TYPES; i++)
+    {
+    if(!strcmp(associationName, AttributeTypesNames[i]))
+      {
+      return i;
+      }
+    }
+
+  vtkGenericWarningMacro("Bad association name \"" << associationName << "\".");
+  return -1;
 }
 
 //----------------------------------------------------------------------------

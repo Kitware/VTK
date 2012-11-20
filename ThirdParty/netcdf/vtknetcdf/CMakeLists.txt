@@ -233,10 +233,10 @@ set (USE_NETCDF4 OFF)
 if (NOT VTK_USE_SYSTEM_HDF5)
   # using VTK's HDF5, we always build that with HL support.
   set (USE_NETCDF4 ON)
-elseif(HDF5_HL_LIBRARY)
+elseif(HDF5_HL_LIBRARY OR HDF5_hdf5_hl_LIBRARY)
   set (USE_NETCDF4 ON)
 else()
-  message(STATUS "Disabling NETCDF4 support since HDF5_HL is missing.")
+  message(STATUS "Disabling NETCDF4 support since HDF5_HL or HDF5_hdf5_hl is missing.")
 endif ()
 
 if (USE_NETCDF4)

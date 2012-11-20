@@ -121,10 +121,6 @@ int TestTreeHeatmapAutoCollapse(int argc, char* argv[])
   treeItem->SetTree(tree.GetPointer());
   treeItem->SetTable(table.GetPointer());
 
-  // automatically collapse down to the two leaf nodes that are closest
-  // to the root.
-  treeItem->CollapseToNumberOfLeafNodes(2);
-
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
   trans->AddItem(treeItem.GetPointer());
@@ -147,6 +143,10 @@ int TestTreeHeatmapAutoCollapse(int argc, char* argv[])
   interactor->SetRenderWindow(renderWindow.GetPointer());
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
+
+  // automatically collapse down to the two leaf nodes that are closest
+  // to the root.
+  treeItem->CollapseToNumberOfLeafNodes(2);
 
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
