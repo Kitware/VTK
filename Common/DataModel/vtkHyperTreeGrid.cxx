@@ -2082,8 +2082,7 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell, vtkIdType cellI
                                      double tol2, int& subId,double pcoords[3],
                                      double* weights)
 {
-  return
-    this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
+  return this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
 }
 
 
