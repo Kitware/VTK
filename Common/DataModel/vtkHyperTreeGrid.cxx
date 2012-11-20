@@ -1131,13 +1131,13 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   assert( "pre: same_type" && vtkHyperTreeGrid::SafeDownCast(ds)!=0 );
   assert( "pre: cell_tree" && vtkHyperTreeGrid::SafeDownCast(ds)->CellTree!=0 );
 
-  vtkHyperTreeGrid* ho = vtkHyperTreeGrid::SafeDownCast( ds );
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast( ds );
 
-  this->Dimension = ho->Dimension;
-  this->AxisBranchFactor = ho->AxisBranchFactor;
-  this->DualGridFlag = ho->DualGridFlag;
-  this->NumberOfChildren = ho->NumberOfChildren;
-  memcpy( this->GridSize, ho->GetGridSize(), 3 * sizeof( int ) );
+  this->Dimension = htg->Dimension;
+  this->AxisBranchFactor = htg->AxisBranchFactor;
+  this->DualGridFlag = htg->DualGridFlag;
+  this->NumberOfChildren = htg->NumberOfChildren;
+  memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
 
   this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
   if ( this->CellTree )
@@ -1152,13 +1152,13 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
     delete [] this->CellTree;
     }
 
-  this->CellTree = ho->CellTree;
+  this->CellTree = htg->CellTree;
 
   if ( this->CellTree )
     {
     for ( int i = 0; i < this->NumberOfRoots; ++ i )
       {
-      this->CellTree[i] = ho->CellTree[i];
+      this->CellTree[i] = htg->CellTree[i];
       if ( this->CellTree[i] )
         {
         this->CellTree[i]->Register( this );
@@ -1171,14 +1171,14 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
     delete [] this->CellTreeLeafIdOffsets;
     this->CellTreeLeafIdOffsets = 0;
     }
-  this->CellTreeLeafIdOffsets = ho->CellTreeLeafIdOffsets;
+  this->CellTreeLeafIdOffsets = htg->CellTreeLeafIdOffsets;
 
-  this->SetXCoordinates( ho->XCoordinates );
-  this->SetYCoordinates( ho->YCoordinates );
-  this->SetZCoordinates( ho->ZCoordinates );
+  this->SetXCoordinates( htg->XCoordinates );
+  this->SetYCoordinates( htg->YCoordinates );
+  this->SetZCoordinates( htg->ZCoordinates );
 
-  this->CellData->ShallowCopy( ho->CellData );
-  this->PointData->ShallowCopy( ho->PointData );
+  this->CellData->ShallowCopy( htg->CellData );
+  this->PointData->ShallowCopy( htg->PointData );
 
   this->Modified();
 }
