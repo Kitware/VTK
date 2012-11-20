@@ -47,6 +47,11 @@
 #define M_PI		3.14159265358979323846
 #endif
 
+// not defined until VC8 (VS2005)
+#if _MSC_VER && _MSC_VER < 1400 && !defined(vsnprintf)
+#define vsnprintf _vsnprintf
+#endif
+
 #if defined(GL2PS_HAVE_ZLIB)
 #include <vtk_zlib.h>
 #endif

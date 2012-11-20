@@ -299,4 +299,3 @@ int vtkKdTreeSelector::FillInputPortInformation(
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   return 1;
 }
-

@@ -1,23 +1,8 @@
 set(MyTests
-  TestGraphWeightEuclideanDistanceFilter.cxx
-  BoxClipPolyData.cxx
-  BoxClipTetrahedra.cxx
-  BoxClipTriangulate.cxx
-  BoxClipTriangulateAndInterpolate.cxx
-  TestBooleanOperationPolyDataFilter.cxx
-  TestBooleanOperationPolyDataFilter2.cxx
-  TestDensifyPolyData.cxx
-  TestDistancePolyDataFilter.cxx
-  TestGradientAndVorticity.cxx
-  TestIconGlyphFilterGravity.cxx
-  TestImageDataToPointSet.cxx
-  TestIntersectionPolyDataFilter.cxx
-  TestIntersectionPolyDataFilter2.cxx
-  TestQuadraturePoints.cxx
-  TestRectilinearGridToPointSet.cxx
-  TestReflectionFilter.cxx
-  TestUncertaintyTubeFilter.cxx
-  TestYoungsMaterialInterface.cxx
+  TestCellDistanceSelector2D.cxx
+  TestCellDistanceSelector3D.cxx
+  TestLinearSelector2D.cxx
+  TestLinearSelector3D.cxx
 )
 
 # Use the testing object factory, to reduce boilerplate code in tests.

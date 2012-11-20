@@ -1051,9 +1051,30 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
 
   if (AutoLabelScaling)
     {
-    xPow = this->LabelExponent(xRange[0], xRange[1]);
-    yPow = this->LabelExponent(yRange[0], yRange[1]);
-    zPow = this->LabelExponent(zRange[0], zRange[1]);
+    if (this->AxisLabels[0] == NULL)
+      {
+      xPow = this->LabelExponent(xRange[0], xRange[1]);
+      }
+    else
+      {
+      xPow = 0;
+      }
+    if (this->AxisLabels[1] == NULL)
+      {
+      yPow = this->LabelExponent(yRange[0], yRange[1]);
+      }
+    else
+      {
+      yPow = 0;
+      }
+    if (this->AxisLabels[2] == NULL)
+      {
+      zPow = this->LabelExponent(zRange[0], zRange[1]);
+      }
+    else
+      {
+      zPow = 0;
+      }
     }
   else
     {

@@ -15,22 +15,41 @@
 // .NAME vtkNamedColors - A class holding colors and their names.
 // .SECTION Description
 // vtkNamedColors is class that holds colors and their associated names.
-// The colors and names are those in
-// http://en.wikipedia.org/wiki/Web_colors
+//
+// Color names are case insensitive and are stored as lower-case names
+// along with a 4-element array whose elements are red, green, blue and alpha,
+// in that order, corresponding to the RGBA value of the color.
+//
+// It is assumed that if the RGBA values are unsigned char then each element
+// lies in the range 0...255 and if the RGBA values are double then each
+// element lies in the range 0...1.
+//
+// The colors and names are those in http://en.wikipedia.org/wiki/Web_colors
 // that are derived from the CSS3 specification:
 // http://www.w3.org/TR/css3-color/#svg-color
 // In this table common synonyms such as cyan/aqua and
 // magenta/fuchsia are also included.
 //
-// The color names are case insensitive and the colors are treated as
-// a 4-element array whose elements are red, green, blue and alpha in that
-// order.
+// Also included in this class are names and colors taken from
+// Wrapping/Tcl/vtktesting/colors.tcl and Wrapping/Python/vtk/util/colors.py.
 //
-// If the array is an usnsigned char then each element
-// lies in the range 0...255.
-// If the array is double then each element lies in the range 0...1.
+// Web colors and names in http://en.wikipedia.org/wiki/Web_colors take
+// precedence over those in colors.tcl and colors.py. One consequence of this
+// is that while colors.py and colors.tcl specify green as equivalent to
+// (0,255,0), the web color standard defines it as (0,128,0).
 //
-// In the case of the get methods returning doubles, alternative versions,
+// For a web page of VTK Named Colors and their RGB values, see:
+// http://www.vtk.org/Wiki/VTK/Examples/Python/Visualization/VTKNamedColorPatches_html .
+//
+// The code used to generate this table is available from:
+// http://www.vtk.org/Wiki/VTK/Examples/Python/Visualization/NamedColorPatches ,
+// this is useful if you wish to generate your own table.
+//
+// The SetColor methods will overwrite existing colors if the name of the
+// color being set matches an existing color. Note that ColorExists() can be
+// used to test for existence of the color being set.
+//
+// In the case of the GetColor methods returning doubles, alternative versions,
 // identified by the letters RGB in the names, are provided.
 // These get functions return just the red, green and blue components of
 // a color.
@@ -263,7 +282,7 @@ public:
   vtkStdString GetColorNames();
 
   // Description:
-  // Return a string arrray of color names.
+  // Return a string array of color names.
   void GetColorNames(vtkStringArray * colorNames);
 
   //  Description:

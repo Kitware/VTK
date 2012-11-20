@@ -61,13 +61,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Generalized interface for asking the executive to fulfill update
-  // requests.
-  virtual int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo);
-
-  // Description:
   // Returns the data object stored with the DATA_OBJECT() in the
   // output port
   vtkDataObject* GetCompositeOutputData(int port);
@@ -145,10 +138,6 @@ protected:
   virtual int NeedToExecuteData(int outputPort,
                                 vtkInformationVector** inInfoVec,
                                 vtkInformationVector* outInfoVec);
-
-  // Override this check to account for iterating over temporal data.
-  virtual int NeedToExecuteBasedOnTime(vtkInformation *outInfo,
-                                       vtkDataObject *dataObject);
 
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.

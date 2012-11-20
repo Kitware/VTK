@@ -35,9 +35,6 @@ set(Module_SRCS
   vtkImageMarchingCubes.cxx
   vtkInterpolateDataSetAttributes.cxx
   vtkInterpolatingSubdivisionFilter.cxx
-  vtkKdTreeSelector.cxx
-  vtkLinearSelector.cxx
-  vtkCellDistanceSelector.cxx
   vtkLevelIdScalars.cxx
   vtkLinkEdgels.cxx
   vtkMergeCells.cxx

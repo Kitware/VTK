@@ -1414,7 +1414,6 @@ unsigned int add_indirection_to_array(unsigned int type)
 
 /* VTK typedef types */
 %token IdType
-%token FloatType
 %token TypeInt8
 %token TypeUInt8
 %token TypeInt16
@@ -2333,7 +2332,6 @@ simple_id:
   | TypeFloat32 { $<str>$ = "vtkTypeFloat32"; postSig($<str>$); }
   | TypeFloat64 { $<str>$ = "vtkTypeFloat64"; postSig($<str>$); }
   | IdType { $<str>$ = "vtkIdType"; postSig($<str>$); }
-  | FloatType { $<str>$ = "vtkFloatingPointType"; postSig($<str>$); }
 
 /*
  * An identifier with no side-effects.
@@ -2466,7 +2464,6 @@ type_name:
   | TypeFloat32 { typeSig("vtkTypeFloat32"); $<integer>$ = VTK_PARSE_FLOAT32; }
   | TypeFloat64 { typeSig("vtkTypeFloat64"); $<integer>$ = VTK_PARSE_FLOAT64; }
   | IdType { typeSig("vtkIdType"); $<integer>$ = VTK_PARSE_ID_TYPE; }
-  | FloatType { typeSig("double"); $<integer>$ = VTK_PARSE_DOUBLE; }
 
 primitive_type:
     VOID   { postSig("void "); $<integer>$ = VTK_PARSE_VOID; }

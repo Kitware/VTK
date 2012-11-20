@@ -83,11 +83,8 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     ren->SetRenderWindow(NULL);
     }
 
-  if (this->Capabilities)
-    {
-    delete[] this->Capabilities;
-    this->Capabilities = 0;
-    }
+  delete[] this->Capabilities;
+  this->Capabilities = 0;
 
   // Release the cocoa object manager.
   this->SetCocoaManager(NULL);
@@ -170,9 +167,8 @@ void vtkCocoaRenderWindow::SetWindowName( const char * _arg )
   vtkWindow::SetWindowName(_arg);
   if (this->GetRootWindow())
     {
-    NSString* winTitleStr;
-
-    winTitleStr = [NSString stringWithCString:_arg encoding:NSASCIIStringEncoding];
+    NSString* winTitleStr = [NSString stringWithCString:_arg
+                                               encoding:NSASCIIStringEncoding];
 
     [(NSWindow*)this->GetRootWindow() setTitle:winTitleStr];
     }
@@ -252,7 +248,7 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
   // pertinent settings.
   NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->GetPixelFormat();
   strm << "PixelFormat Descriptor:" << endl;
-  GLint pfd;
+  GLint pfd = 0;
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAColorSize forVirtualScreen: currentScreen];
   strm  << "  colorSize:  " << pfd << endl;
 
@@ -302,7 +298,7 @@ int vtkCocoaRenderWindow::SupportsOpenGL()
   GLint currentScreen = [context currentVirtualScreen];
 
   NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->GetPixelFormat();
-  GLint pfd;
+  GLint pfd = 0;
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFACompliant forVirtualScreen: currentScreen];
 
   int supportsOpenGL = (pfd == 0) ? 0 : 1;
@@ -601,12 +597,12 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
       theWindow = [[[NSWindow alloc]
                     initWithContentRect:ctRect
-                    styleMask:NSTitledWindowMask |
-                              NSClosableWindowMask |
-                              NSMiniaturizableWindowMask |
-                              NSResizableWindowMask
-                    backing:NSBackingStoreBuffered
-                    defer:NO] autorelease];
+                              styleMask:NSTitledWindowMask |
+                                        NSClosableWindowMask |
+                                        NSMiniaturizableWindowMask |
+                                        NSResizableWindowMask
+                                backing:NSBackingStoreBuffered
+                                  defer:NO] autorelease];
       }
 
     if (!theWindow)
@@ -730,7 +726,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
                                       initWithAttributes:attribs] autorelease];
   NSOpenGLContext* context = [[[NSOpenGLContext alloc]
                               initWithFormat:pixelFormat
-                              shareContext:nil] autorelease];
+                                shareContext:nil] autorelease];
 
   // This syncs the OpenGL context to the VBL to prevent tearing
   GLint one = 1;
@@ -840,7 +836,7 @@ int *vtkCocoaRenderWindow::GetScreenSize()
   NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
   GLint currentScreen = [context currentVirtualScreen];
 
-  NSScreen* screen = [[NSScreen screens] objectAtIndex: currentScreen];
+  NSScreen* screen = [[NSScreen screens] objectAtIndex:currentScreen];
   NSRect screenRect = [screen frame];
 
   // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
@@ -976,26 +972,24 @@ void vtkCocoaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "MultiSamples: " << this->MultiSamples << "\n";
-  os << indent << "ScaleFactor: " << this->GetScaleFactor() << "\n";
-  os << indent << "CocoaManager: " << this->GetCocoaManager() << "\n";
-  os << indent << "RootWindow (NSWindow): " << this->GetRootWindow() << "\n";
-  os << indent << "WindowId (NSView): " << this->GetWindowId() << "\n";
-  os << indent << "ParentId: " << this->GetParentId() << "\n";
-  os << indent << "ContextId: " << this->GetContextId() << "\n";
-  os << indent << "PixelFormat: " << this->GetPixelFormat() << "\n";
-  os << indent << "WindowCreated: " << (this->WindowCreated ? "Yes" : "No") << "\n";
-  os << indent << "ViewCreated: " << (this->ViewCreated ? "Yes" : "No") << "\n";
+  os << indent << "MultiSamples: " << this->MultiSamples << endl;
+  os << indent << "ScaleFactor: " << this->GetScaleFactor() << endl;
+  os << indent << "CocoaManager: " << this->GetCocoaManager() << endl;
+  os << indent << "RootWindow (NSWindow): " << this->GetRootWindow() << endl;
+  os << indent << "WindowId (NSView): " << this->GetWindowId() << endl;
+  os << indent << "ParentId: " << this->GetParentId() << endl;
+  os << indent << "ContextId: " << this->GetContextId() << endl;
+  os << indent << "PixelFormat: " << this->GetPixelFormat() << endl;
+  os << indent << "WindowCreated: " << (this->WindowCreated ? "Yes" : "No") << endl;
+  os << indent << "ViewCreated: " << (this->ViewCreated ? "Yes" : "No") << endl;
 }
 
 //----------------------------------------------------------------------------
 int vtkCocoaRenderWindow::GetDepthBufferSize()
 {
-  GLint size;
-
   if ( this->Mapped )
     {
-    size = 0;
+    GLint size = 0;
     glGetIntegerv( GL_DEPTH_BITS, &size );
     return (int) size;
     }
@@ -1252,9 +1246,7 @@ void vtkCocoaRenderWindow::SetCursorPosition(int x, int y)
   if (view)
     {
     NSPoint screenPoint = [view convertPoint:newViewPoint toView:nil];
-
-    // Convert NSPoint->CGPoint (NSPointToCGPoint() would require the 10.5 SDK).
-    CGPoint newCursorPosition = {screenPoint.x, screenPoint.y};
+    CGPoint newCursorPosition = NSPointToCGPoint(screenPoint);
 
     // Move the cursor there.
     (void)CGWarpMouseCursorPosition (newCursorPosition);
@@ -1290,7 +1282,7 @@ void vtkCocoaRenderWindow::SetCurrentCursor(int shape)
       break;
 
     // NSCursor does not have cursors for these.
-  case VTK_CURSOR_SIZENE:
+    case VTK_CURSOR_SIZENE:
     case VTK_CURSOR_SIZESW:
     case VTK_CURSOR_SIZENW:
     case VTK_CURSOR_SIZESE:

@@ -116,6 +116,19 @@ vtkAxis * vtkChartXYZ::GetAxis(int axis)
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXYZ::SetAxisColor(const vtkColor4ub& color)
+{
+  this->AxisPen->SetColor(color);
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkColor4ub vtkChartXYZ::GetAxisColor()
+{
+  return this->AxisPen->GetColorObject();
+}
+
+//-----------------------------------------------------------------------------
 void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)
 {
   this->Geometry = bounds;

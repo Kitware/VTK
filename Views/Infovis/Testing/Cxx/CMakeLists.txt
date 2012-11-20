@@ -11,6 +11,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestNetworkViews.cxx
   TestRenderView.cxx
   TestSpanTreeLayoutStrategy.cxx
+  TestTreeHeatmapAutoCollapse.cxx
   TestTreeHeatmapItem.cxx
   TestTreeMapView.cxx
   TestTreeRingView.cxx
