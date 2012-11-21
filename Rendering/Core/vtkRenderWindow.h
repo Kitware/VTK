@@ -503,6 +503,11 @@ public:
   virtual void SetParentInfo(char *) = 0;
 
   // Description:
+  // Initialize the render window from the information associated
+  // with the currently activated OpenGL context.
+  virtual bool InitializeFromCurrentContext() { return false; };
+
+  // Description:
   // Attempt to make this window the current graphics context for the calling
   // thread.
   virtual void MakeCurrent() = 0;

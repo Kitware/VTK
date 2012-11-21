@@ -212,6 +212,21 @@ int vtkWin32OpenGLRenderWindow::GetEventPending()
 }
 
 // ----------------------------------------------------------------------------
+bool vtkWin32OpenGLRenderWindow::InitializeFromCurrentContext()
+{
+  HGLRC currentContext = wglGetCurrentContext();
+  if (currentContext != NULL)
+    {
+    this->SetWindowId(WindowFromDC(wglGetCurrentDC()));
+    this->SetDeviceContext(wglGetCurrentDC());
+    this->SetContextId(currentContext);
+    this->OpenGLInit();
+    return true;
+    }
+  return false;
+}
+
+// ----------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::MakeCurrent()
 {
   // Try to avoid doing anything (for performance).

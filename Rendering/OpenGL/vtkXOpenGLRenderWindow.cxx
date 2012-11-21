@@ -449,6 +449,20 @@ void vtkXOpenGLRenderWindow::Frame()
     }
 }
 
+bool vtkXOpenGLRenderWindow::InitializeFromCurrentContext()
+{
+  GLXContext currentContext = glXGetCurrentContext();
+  if (currentContext != NULL)
+    {
+    this->SetDisplayId((void*)glXGetCurrentDisplay());
+    this->SetWindowId((void*)glXGetCurrentDrawable());
+    this->Internal->ContextId = currentContext;
+    this->OpenGLInit();
+    return true;
+    }
+  return false;
+}
+
 //
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.

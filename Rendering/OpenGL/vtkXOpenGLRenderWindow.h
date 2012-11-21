@@ -187,6 +187,11 @@ public:
   void     SetWindowName(const char *);
 
   // Description:
+  // Initialize the render window from the information associated
+  // with the currently activated OpenGL context.
+  virtual bool InitializeFromCurrentContext();
+
+  // Description:
   // Move the window to a new position on the display.
   void     SetPosition(int,int);
   void     SetPosition(int a[2]) {this->SetPosition(a[0], a[1]);};

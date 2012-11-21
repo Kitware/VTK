@@ -149,6 +149,10 @@ public:
       vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
     }
 
+  // Description:
+  // Initialize the render window from the information associated
+  // with the currently activated OpenGL context.
+  virtual bool InitializeFromCurrentContext();
 
   // Description:
   // Update system if needed due to stereo rendering.
