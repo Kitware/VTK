@@ -1136,12 +1136,14 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 
   this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
-  this->UpdateTree();
-
-  if ( htg->CellTree )
+  if ( this->CellTree )
     {
-    this->CellTree = htg->CellTree;
-    htg->CellTree->Register( this );
+    this->CellTree->UnRegister( this );
+    }
+  this->CellTree = htg->CellTree;
+  if ( this->CellTree )
+    {
+    this->CellTree->Register( this );
 
     vtkCollectionSimpleIterator it1;
     this->CellTree->InitTraversal( it1 );
