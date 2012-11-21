@@ -1046,45 +1046,37 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
       if ( obj )
         {
         obj->UnRegister( this );
-        obj = 0;
         }
       }
     this->CellTree->UnRegister( this );
-    this->CellTree = 0;
     }
 
   if ( this->XCoordinates )
     {
     this->XCoordinates->UnRegister( this );
-    this->XCoordinates = 0;
     }
 
   if ( this->YCoordinates )
     {
     this->YCoordinates->UnRegister( this );
-    this->YCoordinates = 0;
     }
 
   if ( this->ZCoordinates )
     {
     this->ZCoordinates->UnRegister( this );
-    this->ZCoordinates = 0;
     }
 
   if ( this->Voxel )
     {
-    this->Voxel->Delete();
-    this->Voxel = 0;
+    this->Voxel->UnRegister( this );
     }
   if ( this->Pixel )
     {
-    this->Pixel->Delete();
-    this->Pixel = 0;
+    this->Pixel->UnRegister( this );
     }
   if ( this->Line )
     {
-    this->Line->Delete();
-    this->Line = 0;
+    this->Line->UnRegister( this );
     }
 
   this->DeleteInternalArrays();
@@ -1146,9 +1138,9 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 
   this->UpdateTree();
 
-  this->CellTree = htg->CellTree;
-  if ( this->CellTree )
+  if ( htg->CellTree )
     {
+    this->CellTree = htg->CellTree;
     htg->CellTree->Register( this );
 
     vtkCollectionSimpleIterator it1;
@@ -1247,8 +1239,7 @@ void vtkHyperTreeGrid::UpdateTree()
       {
       if ( obj )
         {
-        obj->Delete();
-        obj = 0;
+        obj->UnRegister( this );
         }
       }
     this->CellTree->RemoveAllItems();//UnRegister( this );
@@ -1858,7 +1849,7 @@ void vtkHyperTreeGrid::BuildLinks()
   this->Links->Allocate( this->GetNumberOfPoints() );
   this->Links->Register( this );
   this->Links->BuildLinks( this );
-  this->Links->Delete();
+  this->Links->UnRegister( this );
 }
 
 
@@ -2058,7 +2049,7 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell,
   this->GetPointCells(ptId, cellIds);
   if ( cellIds->GetNumberOfIds() <= 0 )
     {
-    cellIds->Delete();
+    cellIds->UnRegister( this );
     return -1;
     }
 
@@ -2089,7 +2080,7 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell,
                                   pcoords, dist2,weights) == 1
            && dist2 <= tol2 ) )
       {
-      cellIds->Delete();
+      cellIds->UnRegister( this );
       return cellId;
       }
     }
@@ -2138,7 +2129,7 @@ void vtkHyperTreeGrid::SetDualGridFlag( int flag )
     attr->ShallowCopy( this->CellData );
     this->CellData->ShallowCopy( this->PointData );
     this->PointData->ShallowCopy( attr );
-    attr->Delete();
+    attr->UnRegister( this );
     }
   this->DeleteInternalArrays();
   this->DualGridFlag = flag;
@@ -2401,9 +2392,9 @@ void vtkHyperTreeGrid::UpdateDualArrays()
       {
       return;
       }
-    this->LeafCenters->Delete();
+    this->LeafCenters->UnRegister( this );
     this->LeafCenters = 0;
-    this->CornerLeafIds->Delete();
+    this->CornerLeafIds->UnRegister( this );
     this->CornerLeafIds = 0;
     }
 
@@ -2444,7 +2435,7 @@ void vtkHyperTreeGrid::UpdateDualArrays()
 
   timer->StopTimer();
   cerr << "Internal dual update : " << timer->GetElapsedTime() << endl;
-  timer->Delete();
+  timer->UnRegister( this );
 }
 
 //-----------------------------------------------------------------------------
@@ -2716,9 +2707,9 @@ void vtkHyperTreeGrid::UpdateGridArrays()
       {
       return;
       }
-    this->LeafCornerIds->Delete();
+    this->LeafCornerIds->UnRegister( this );
     this->LeafCornerIds = 0;
-    this->CornerPoints->Delete();
+    this->CornerPoints->UnRegister( this );
     this->CornerPoints = 0;
     }
 
@@ -2770,7 +2761,7 @@ void vtkHyperTreeGrid::UpdateGridArrays()
 
   timer->StopTimer();
   cerr << "Internal grid update : " << timer->GetElapsedTime() << endl;
-  timer->Delete();
+  timer->UnRegister( this );
 }
 
 // I may be able to merge the two methods.
@@ -2936,31 +2927,31 @@ void vtkHyperTreeGrid::DeleteInternalArrays()
 
   if ( this->LeafCenters )
     {
-    this->LeafCenters->Delete();
+    this->LeafCenters->UnRegister( this );
     this->LeafCenters = 0;
     }
 
   if ( this->CornerLeafIds )
     {
-    this->CornerLeafIds->Delete();
+    this->CornerLeafIds->UnRegister( this );
     this->CornerLeafIds = 0;
     }
 
   if ( this->CornerPoints )
     {
-    this->CornerPoints->Delete();
+    this->CornerPoints->UnRegister( this );
     this->CornerPoints = 0;
     }
 
   if ( this->LeafCornerIds )
     {
-    this->LeafCornerIds->Delete();
+    this->LeafCornerIds->UnRegister( this );
     this->LeafCornerIds = 0;
     }
 
   if ( this->Links )
     {
-    this->Links->Delete();
+    this->Links->UnRegister( this );
     this->Links = 0;
     }
 }
