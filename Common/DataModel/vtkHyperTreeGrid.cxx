@@ -17,6 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCellData.h"
 #include "vtkCellLinks.h"
 #include "vtkCellType.h"
+#include "vtkCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkGenericCell.h"
@@ -989,9 +990,9 @@ vtkCxxSetObjectMacro(vtkHyperTreeGrid,ZCoordinates,vtkDataArray);
 vtkHyperTreeGrid::vtkHyperTreeGrid()
 {
   // Grid of hyper trees
-  this->CellTree = 0;
+  this->CellTree = 0; // NB: collection will be newed by UpdateTree()
   this->CellTreeLeafIdOffsets = 0;
-  
+
   // Primal grid
   this->CornerPoints = 0;
   this->LeafCornerIds = 0;
@@ -1038,15 +1039,17 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
 {
   if ( this->CellTree )
     {
-    for ( int i = 0; i < this->NumberOfRoots; ++ i )
+    vtkCollectionSimpleIterator it;
+    for ( this->CellTree->InitTraversal( it );
+          vtkObject* obj = this->CellTree->GetNextItemAsObject( it ) ; )
       {
-      if ( this->CellTree[i] )
+      if ( obj )
         {
-        this->CellTree[i]->UnRegister( this );
-        this->CellTree[i] = 0;
+        obj->UnRegister( this );
+        obj = 0;
         }
       }
-    delete [] this->CellTree;
+    this->CellTree->UnRegister( this );
     this->CellTree = 0;
     }
 
@@ -1144,15 +1147,20 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->UpdateTree();
 
   this->CellTree = htg->CellTree;
-
   if ( this->CellTree )
     {
-    for ( int i = 0; i < this->NumberOfRoots; ++ i )
+    htg->CellTree->Register( this );
+
+    vtkCollectionSimpleIterator it1;
+    this->CellTree->InitTraversal( it1 );
+    vtkCollectionSimpleIterator it2;
+    htg->CellTree->InitTraversal( it2 );
+    while ( vtkObject* obj = this->CellTree->GetNextItemAsObject( it1 ) )
       {
-      this->CellTree[i] = htg->CellTree[i];
-      if ( this->CellTree[i] )
+      obj = htg->CellTree->GetNextItemAsObject( it2 );
+      if ( obj )
         {
-        this->CellTree[i]->Register( this );
+        obj->Register( this );
         }
       }
     }
@@ -1233,22 +1241,19 @@ void vtkHyperTreeGrid::UpdateTree()
 {
   if ( this->CellTree )
     {
-    for ( int i = 0; i < this->NumberOfRoots; ++ i )
+    vtkCollectionSimpleIterator it;
+    for ( this->CellTree->InitTraversal( it );
+          vtkObject* obj = this->CellTree->GetNextItemAsObject( it ) ; )
       {
-      if ( this->CellTree[i] )
+      if ( obj )
         {
-        this->CellTree[i]->Delete();
-        this->CellTree[i] = 0;
+        obj->Delete();
+        obj = 0;
         }
       }
-    delete [] this->CellTree;
-    this->CellTree = 0;
+    this->CellTree->UnRegister( this );
     }
-  this->CellTree = new vtkHyperTreeInternal*[this->NumberOfRoots];
-//   for ( int i = 0; i < this->NumberOfRoots; ++ i )
-//     {
-//     this->CellTree[i] = 0;
-//     }
+  this->CellTree = vtkCollection::New();
 
   if ( this->AxisBranchFactor == 2 )
     {
@@ -1258,21 +1263,24 @@ void vtkHyperTreeGrid::UpdateTree()
         this->NumberOfChildren = 8;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          this->CellTree[i] = vtkCompactHyperTree<8>::New();
+          vtkCompactHyperTree<8>* tree = vtkCompactHyperTree<8>::New();
+          this->CellTree->AddItem( tree );
           }
         break;
       case 2:
         this->NumberOfChildren = 4;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          this->CellTree[i] = vtkCompactHyperTree<4>::New();
+          vtkCompactHyperTree<4>* tree = vtkCompactHyperTree<4>::New();
+          this->CellTree->AddItem( tree );
           }
         break;
       case 1:
         this->NumberOfChildren = 2;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          this->CellTree[i] = vtkCompactHyperTree<2>::New();
+          vtkCompactHyperTree<2>* tree = vtkCompactHyperTree<2>::New();
+          this->CellTree->AddItem( tree );
           }
         break;
       default:
@@ -1288,21 +1296,24 @@ void vtkHyperTreeGrid::UpdateTree()
         this->NumberOfChildren = 27;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          this->CellTree[i] = vtkCompactHyperTree<27>::New();
+          vtkCompactHyperTree<27>* tree = vtkCompactHyperTree<27>::New();
+          this->CellTree->AddItem( tree );
           }
         break;
       case 2:
         this->NumberOfChildren = 9;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          this->CellTree[i] = vtkCompactHyperTree<9>::New();
+          vtkCompactHyperTree<9>* tree = vtkCompactHyperTree<9>::New();
+          this->CellTree->AddItem( tree );
           }
         break;
       case 1:
         this->NumberOfChildren = 3;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          this->CellTree[i] = vtkCompactHyperTree<3>::New();
+          vtkCompactHyperTree<3>* tree = vtkCompactHyperTree<3>::New();
+          this->CellTree->AddItem( tree );
           }
         break;
       default:
@@ -1363,9 +1374,17 @@ void vtkHyperTreeGrid::ComputeBounds()
 // \post result_greater_or_equal_to_one: result>=1
 int vtkHyperTreeGrid::GetNumberOfLevels( int i )
 {
-  int result = this->CellTree[i]->GetNumberOfLevels();
-  assert( "post: result_greater_or_equal_to_one" && result>=1);
-  return result;
+  vtkObject* obj = this->CellTree->GetItemAsObject( i );
+  if ( obj )
+    {
+    vtkHyperTreeInternal* tree = vtkHyperTreeInternal::SafeDownCast( obj );
+    if ( tree )
+      {
+      return tree->GetNumberOfLevels();
+      }
+    }
+
+  return 0;
 }
 
 
@@ -1374,12 +1393,18 @@ int vtkHyperTreeGrid::GetNumberOfLevels( int i )
 // Create a new cursor: an object that can traverse hyperTree cells
 vtkHyperTreeCursor* vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
 {
-  int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
-  vtkHyperTreeCursor* result = this->CellTree[index]->NewCursor();
+  int idx = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
+  vtkObject* obj = this->CellTree->GetItemAsObject( idx );
+  if ( obj )
+    {
+    vtkHyperTreeInternal* tree = vtkHyperTreeInternal::SafeDownCast( obj );
+    if ( tree )
+      {
+      return tree->NewCursor();
+      }
+    }
 
-  assert( "post: result_exists" && result!=0 );
-
-  return result;
+  return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -1388,12 +1413,22 @@ vtkHyperTreeCursor* vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
 // At the end, cursor points on the node that used to be leaf.
 // \pre leaf_exists: leaf!=0
 // \pre is_a_leaf: leaf->CurrentIsLeaf()
-void vtkHyperTreeGrid::SubdivideLeaf(vtkHyperTreeCursor* leaf,vtkIdType i)
+void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType i )
 {
   assert( "pre: leaf_exists" && leaf!=0 );
   assert( "pre: is_a_leaf" && leaf->CurrentIsLeaf() );
-  this->CellTree[i]->SubdivideLeaf(leaf);
-  this->DeleteInternalArrays();
+  vtkObject* obj = this->CellTree->GetItemAsObject( i );
+  if ( obj )
+    {
+    vtkHyperTreeInternal* tree = vtkHyperTreeInternal::SafeDownCast( obj );
+    if ( tree )
+      {
+      tree->SubdivideLeaf(leaf);
+      this->DeleteInternalArrays();
+      }
+    }
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -1402,9 +1437,19 @@ void vtkHyperTreeGrid::SubdivideLeaf(vtkHyperTreeCursor* leaf,vtkIdType i)
 // THIS METHOD IS NOT THREAD SAFE.
 void vtkHyperTreeGrid::Initialize()
 {
-  for ( int i = 0; i < this->NumberOfRoots; ++ i )
+  if ( this->CellTree )
     {
-    this->CellTree[i]->Initialize();
+    vtkCollectionSimpleIterator it;
+    for ( this->CellTree->InitTraversal( it );
+          vtkObject* obj = this->CellTree->GetNextItemAsObject( it ) ; )
+      if ( obj )
+        {
+        vtkHyperTreeInternal* tree = vtkHyperTreeInternal::SafeDownCast( obj );
+        if ( tree )
+          {
+          tree->Initialize();
+          }
+        }
     }
 
   this->DeleteInternalArrays();
@@ -1465,9 +1510,18 @@ void vtkHyperTreeGrid::DeepCopy( vtkDataObject* src )
 int vtkHyperTreeGrid::GetNumberOfLeaves()
 {
   int nLeaves = 0;
-  for ( int i = 0; i < this->NumberOfRoots; ++ i )
+  vtkCollectionSimpleIterator it;
+    for ( this->CellTree->InitTraversal( it );
+          vtkObject* obj = this->CellTree->GetNextItemAsObject( it ) ; )
     {
-    nLeaves += this->CellTree[i]->GetNumberOfLeaves();
+    if ( obj )
+      {
+      vtkHyperTreeInternal* tree = vtkHyperTreeInternal::SafeDownCast( obj );
+      if ( tree )
+        {
+        nLeaves += tree->GetNumberOfLeaves();
+        }
+      }
     }
 
   return nLeaves;
@@ -1490,13 +1544,7 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
     }
   else
     {
-    int nLeaves = 0;
-    for ( int i = 0; i < this->NumberOfRoots; ++ i )
-      {
-      nLeaves += this->CellTree[i]->GetNumberOfLeaves();
-      }
-
-    return nLeaves;
+    return this->GetNumberOfLeaves();
     }
 }
 
@@ -1508,13 +1556,7 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfPoints()
 {
   if ( this->DualGridFlag )
     {
-    vtkIdType nLeaves = 0;
-    for ( vtkIdType i = 0; i < this->NumberOfRoots; ++ i )
-      {
-      nLeaves += this->CellTree[i]->GetNumberOfLeaves();
-      }
-
-    return nLeaves;
+    return this->GetNumberOfLeaves();
     }
   else
     {
@@ -2114,9 +2156,18 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySize()
 {
   unsigned long size = this->vtkDataSet::GetActualMemorySize();
   
-  for ( int i = 0; i < this->NumberOfRoots; ++ i )
+  vtkCollectionSimpleIterator it;
+  for ( this->CellTree->InitTraversal( it );
+        vtkObject* obj = this->CellTree->GetNextItemAsObject( it ) ; )
     {
-    size += this->CellTree[i]->GetActualMemorySize();
+    if ( obj )
+      {
+      vtkHyperTreeInternal* tree = vtkHyperTreeInternal::SafeDownCast( obj );
+      if ( tree )
+        {
+        size += tree->GetActualMemorySize();
+        }
+      }
     }
 
   if ( this->XCoordinates ) 
@@ -2637,23 +2688,25 @@ int vtkHyperTreeGrid::UpdateCellTreeLeafIdOffsets()
 
   // Calculate point offsets into individual trees
   int numLeaves = 0;
-  for ( int k = 0; k < this->GridSize[2]; ++ k )
+  int idx = 0;
+  vtkCollectionSimpleIterator it;
+  for ( this->CellTree->InitTraversal( it );
+        vtkObject* obj = this->CellTree->GetNextItemAsObject( it ) ; ++ idx )
     {
-    for ( int j = 0; j < this->GridSize[1]; ++ j )
+    if ( obj )
       {
-      for ( int i = 0; i < this->GridSize[0]; ++ i )
+      vtkHyperTreeInternal* tree = vtkHyperTreeInternal::SafeDownCast( obj );
+      if ( tree )
         {
-        // Calculate global index of hyper tree
-        int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
-
         // Partial sum is current offset
-        this->CellTreeLeafIdOffsets[index] = numLeaves;
+        this->CellTreeLeafIdOffsets[idx] = numLeaves;
 
         // Update partial sum
-        numLeaves += this->CellTree[index]->GetNumberOfLeaves();
-        } // i
-      } // j
-    } // k
+        numLeaves += tree->GetNumberOfLeaves();
+        }
+      }
+    }
+
   return numLeaves;
 }
 
@@ -2967,8 +3020,16 @@ void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
   int globalIndex = index + a + b * n[0] + c * n[0] * n[1];
 
   this->Offset = offsets[globalIndex];
-  this->Tree = grid->CellTree[globalIndex];
-  if ( ! grid->CellTree[globalIndex] )
+  vtkObject* obj = grid->CellTree->GetItemAsObject( globalIndex );
+  if ( obj )
+    {
+    vtkHyperTreeInternal* tree = vtkHyperTreeInternal::SafeDownCast( obj );
+    if ( tree )
+        {
+        this->Tree = tree;
+        }
+    }
+  else
     {
     return;
     }

@@ -128,15 +128,15 @@ class vtkHyperTreeSuperCursor;
 class vtkHyperTreeCursor;
 class vtkHyperTreeInternal;
 
+class vtkCellLinks;
+class vtkCollection;
 class vtkDataArray;
-class vtkIdTypeArray;
-class vtkPoints;
 class vtkDataSetAttributes;
-
+class vtkIdTypeArray;
 class vtkLine;
 class vtkPixel;
+class vtkPoints;
 class vtkVoxel;
-class vtkCellLinks;
 
 // Used to advance the super cursor; One Entry per cursor node.
 // Private.
@@ -423,11 +423,11 @@ protected:
   int AxisBranchFactor;
   int NumberOfChildren;
 
-  vtkDataArray *XCoordinates;
-  vtkDataArray *YCoordinates;
-  vtkDataArray *ZCoordinates;
+  vtkDataArray* XCoordinates;
+  vtkDataArray* YCoordinates;
+  vtkDataArray* ZCoordinates;
 
-  vtkHyperTreeInternal** CellTree;
+  vtkCollection* CellTree;
   vtkIdType* CellTreeLeafIdOffsets;
 
   //BTX
