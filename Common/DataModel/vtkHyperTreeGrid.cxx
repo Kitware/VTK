@@ -990,7 +990,7 @@ vtkCxxSetObjectMacro(vtkHyperTreeGrid,ZCoordinates,vtkDataArray);
 vtkHyperTreeGrid::vtkHyperTreeGrid()
 {
   // Grid of hyper trees
-  this->CellTree = 0; // NB: collection will be newed by UpdateTree()
+  this->CellTree = vtkCollection::New();//= 0; // NB: collection will be newed by UpdateTree()
   this->CellTreeLeafIdOffsets = 0;
 
   // Primal grid
@@ -1251,9 +1251,9 @@ void vtkHyperTreeGrid::UpdateTree()
         obj = 0;
         }
       }
-    this->CellTree->UnRegister( this );
+    this->CellTree->RemoveAllItems();//UnRegister( this );
     }
-  this->CellTree = vtkCollection::New();
+//  this->CellTree = vtkCollection::New();
 
   if ( this->AxisBranchFactor == 2 )
     {
@@ -1263,24 +1263,21 @@ void vtkHyperTreeGrid::UpdateTree()
         this->NumberOfChildren = 8;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          vtkCompactHyperTree<8>* tree = vtkCompactHyperTree<8>::New();
-          this->CellTree->AddItem( tree );
+          this->CellTree->AddItem( vtkCompactHyperTree<8>::New() );
           }
         break;
       case 2:
         this->NumberOfChildren = 4;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          vtkCompactHyperTree<4>* tree = vtkCompactHyperTree<4>::New();
-          this->CellTree->AddItem( tree );
+          this->CellTree->AddItem( vtkCompactHyperTree<4>::New() );
           }
         break;
       case 1:
         this->NumberOfChildren = 2;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          vtkCompactHyperTree<2>* tree = vtkCompactHyperTree<2>::New();
-          this->CellTree->AddItem( tree );
+          this->CellTree->AddItem( vtkCompactHyperTree<2>::New() );
           }
         break;
       default:
@@ -1296,24 +1293,21 @@ void vtkHyperTreeGrid::UpdateTree()
         this->NumberOfChildren = 27;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          vtkCompactHyperTree<27>* tree = vtkCompactHyperTree<27>::New();
-          this->CellTree->AddItem( tree );
+          this->CellTree->AddItem( vtkCompactHyperTree<27>::New() );
           }
         break;
       case 2:
         this->NumberOfChildren = 9;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          vtkCompactHyperTree<9>* tree = vtkCompactHyperTree<9>::New();
-          this->CellTree->AddItem( tree );
+          this->CellTree->AddItem( vtkCompactHyperTree<9>::New() );
           }
         break;
       case 1:
         this->NumberOfChildren = 3;
         for ( int i = 0; i < this->NumberOfRoots; ++ i )
           {
-          vtkCompactHyperTree<3>* tree = vtkCompactHyperTree<3>::New();
-          this->CellTree->AddItem( tree );
+          this->CellTree->AddItem( vtkCompactHyperTree<3>::New() );
           }
         break;
       default:
