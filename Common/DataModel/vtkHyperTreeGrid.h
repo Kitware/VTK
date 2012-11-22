@@ -427,8 +427,8 @@ protected:
   vtkDataArray* YCoordinates;
   vtkDataArray* ZCoordinates;
 
-  vtkCollection* CellTree;
-  vtkIdType* CellTreeLeafIdOffsets;
+  vtkCollection* HyperTrees;
+  vtkIdType* HyperTreesLeafIdOffsets;
 
   //BTX
   friend class vtkHyperTreeLightWeightCursor;
@@ -440,7 +440,7 @@ protected:
   vtkPoints* CornerPoints;
   vtkIdTypeArray* LeafCornerIds;
 
-  int UpdateCellTreeLeafIdOffsets();
+  int UpdateHyperTreesLeafIdOffsets();
 
   void DeleteInternalArrays();
 //BTX
