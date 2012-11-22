@@ -1423,7 +1423,7 @@ void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType i )
     vtkHyperTreeInternal* tree = vtkHyperTreeInternal::SafeDownCast( obj );
     if ( tree )
       {
-      tree->SubdivideLeaf(leaf);
+      tree->SubdivideLeaf( leaf );
       this->DeleteInternalArrays();
       }
     }
