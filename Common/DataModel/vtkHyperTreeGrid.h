@@ -12,107 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeGrid - A dataset structured as a tree where each node has
-// exactly either 2^n or 3^n children.
+// .NAME vtkHyperTreeGrid - A dataset containing a grid of vtkHyperTree instances
+// arranged as a rectilinear grid.
 //
 // .SECTION Description
-// An hypertree is a dataset where each node has either exactly 2^n or 3^n children
-// or no child at all if the node is a leaf. `n' is the dimension of the
-// dataset (1 (binary tree), 2 (quadtree) or 3 (octree) ).
-// The class name comes from the following paper:
-//
-// \verbatim
-// @ARTICLE{yau-srihari-1983,
-//  author={Mann-May Yau and Sargur N. Srihari},
-//  title={A Hierarchical Data Structure for Multidimensional Digital Images},
-//  journal={Communications of the ACM},
-//  month={July},
-//  year={1983},
-//  volume={26},
-//  number={7},
-//  pages={504--515}
-//  }
-// \endverbatim
-//
-// Each node is a cell. Attributes are associated with cells, not with points.
-// The geometry is implicitly given by the size of the root node on each axis
-// and position of the center and the orientation. (TODO: review center
-// position and orientation). The geometry is then not limited to an hybercube
-// but can have a rectangular shape.
-// Attributes are associated with leaves. For LOD (Level-Of-Detail) purpose,
-// attributes can be computed on none-leaf nodes by computing the average
-// values from its children (which can be leaves or not).
-//
-// By construction, an hypertree is efficient in memory usage when the
-// geometry is sparse. The LOD feature allows to cull quickly part of the
-// dataset.
-//
+// An hypertree grid is a dataset containing a rectilinear grid of root nodes,
+// each of which can be refined as a vtkHyperTree grid. This organization of the
+// root nodes allows for the definition of tree-based AMR grids that do not have
+// uniform geometry.
 // Some filters can be applied on this dataset: contour, outline, geometry.
-//
-// .SECTION Case with 2^n children
-// * 3D case (octree)
-// for each node, each child index (from 0 to 7) is encoded in the following
-// orientation. It is easy to access each child as a cell of a grid.
-// Note also that the binary representation is relevant, each bit code a
-// side: bit 0 encodes -x side (0) or +x side (1)
-// bit 1 encodes -y side (0) or +y side (1)
-// bit 2 encodes -z side (0) or +z side (2)
-// - the -z side first
-// - 0: -y -x sides
-// - 1: -y +x sides
-// - 2: +y -x sides
-// - 3: +y +x sides
-// \verbatim
-//              +y
-// +-+-+        ^
-// |2|3|        |
-// +-+-+  O +z  +-> +x
-// |0|1|
-// +-+-+
-// \endverbatim
-//
-// - then the +z side, in counter-clockwise
-// - 4: -y -x sides
-// - 5: -y +x sides
-// - 6: +y -x sides
-// - 7: +y +x sides
-// \verbatim
-//              +y
-// +-+-+        ^
-// |6|7|        |
-// +-+-+  O +z  +-> +x
-// |4|5|
-// +-+-+
-// \endverbatim
-//
-// The cases with fewer dimensions are consistent with the octree case:
-//
-// * Quadtree:
-// in counter-clockwise
-// - 0: -y -x edges
-// - 1: -y +x edges
-// - 2: +y -x edges
-// - 3: +y +x edges
-// \verbatim
-//         +y
-// +-+-+   ^
-// |2|3|   |
-// +-+-+  O+-> +x
-// |0|1|
-// +-+-+
-// \endverbatim
-//
-// * Binary tree:
-// \verbatim
-// +0+1+  O+-> +x
-// \endverbatim
 //
 // .SECTION Caveats
 // It is not a spatial search object. If you are looking for this kind of
 // octree see vtkCellLocator instead.
 //
+// .SECTION See Also
+// vtkHyperTree vtkRectilinearGrid
+//
 // .SECTION Thanks
-// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This class was written by Philippe Pebay and Charles Law, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGrid_h
@@ -126,7 +44,7 @@ class vtkHyperTreeLightWeightCursor;
 class vtkHyperTreeSuperCursor;
 //ETX
 class vtkHyperTreeCursor;
-class vtkHyperTreeInternal;
+class vtkHyperTree;
 
 class vtkCellLinks;
 class vtkCollection;
@@ -192,8 +110,8 @@ public:
 
   // Description:
   // Branch factor can be 2 or 3. (Octree, quadtree) or (nontree or 27tree)
-  vtkGetMacro(AxisBranchFactor,int);
-  void SetAxisBranchFactor(int factor);
+  vtkGetMacro(BranchFactor,int);
+  void SetBranchFactor(int factor);
 
   // Description:
   // Return the number of cells in the dual grid or grid.
@@ -420,7 +338,7 @@ protected:
   int Dimension;    // 1, 2 or 3.
   int GridSize[3];
   int NumberOfRoots;
-  int AxisBranchFactor;
+  int BranchFactor;
   int NumberOfChildren;
 
   vtkDataArray* XCoordinates;
@@ -497,14 +415,14 @@ public:
   void ToRoot();
   void ToChild( int );
   unsigned short GetIsLeaf();
-  vtkHyperTreeInternal* GetTree() { return this->Tree; }
+  vtkHyperTree* GetTree() { return this->Tree; }
   int GetLeafIndex() { return this->Index; } // Only valid for leaves.
 
   int GetGlobalLeafIndex() { return this->Offset + this->Index; }
   vtkIdType GetOffset() { return this->Offset; }
   unsigned short GetLevel() { return this->Level; }
 private:
-  vtkHyperTreeInternal* Tree;
+  vtkHyperTree* Tree;
   int Index;
   vtkIdType Offset;
   unsigned short IsLeaf;

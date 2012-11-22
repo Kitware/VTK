@@ -37,7 +37,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->SetNumberOfInputPorts( 0 );
 
   // Grid parameters
-  this->AxisBranchFactor = 2;
+  this->BranchFactor = 2;
   this->MinimumLevel = 1;
   this->MaximumLevel = 1;
 
@@ -113,7 +113,7 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
   os << indent << "MinimumLevel: " << this->MinimumLevel << endl;
   os << indent << "Dimension: " << this->Dimension << endl;
-  os << indent << "AxisBranchFactor: " <<this->AxisBranchFactor << endl;
+  os << indent << "BranchFactor: " <<this->BranchFactor << endl;
   os << indent << "BlockSize: " <<this->BlockSize << endl;
 
   if ( this->XCoordinates )
@@ -281,7 +281,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   // Set grid parameters
   this->Output->SetGridSize( this->GridSize );
   this->Output->SetDimension( this->Dimension );
-  this->Output->SetAxisBranchFactor( this->AxisBranchFactor );
+  this->Output->SetBranchFactor( this->BranchFactor );
   this->Output->SetDualGridFlag( this->Dual );
 
   // Create geometry
@@ -319,7 +319,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   vtkIdType fact = 1;
   for ( unsigned int i = 1; i < this->MaximumLevel; ++ i )
     {
-    fact *= this->AxisBranchFactor;
+    fact *= this->BranchFactor;
     }
   scalars->Allocate( fact * fact );
 
@@ -371,10 +371,10 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
 int vtkHyperTreeGridSource::Initialize()
 {
   // Calculate refined block size
-  this->BlockSize = this->AxisBranchFactor;
+  this->BlockSize = this->BranchFactor;
   for ( int i = 1; i < this->Dimension; ++ i )
     {
-    this->BlockSize *= this->AxisBranchFactor;
+    this->BlockSize *= this->BranchFactor;
     }
 
   // Calculate total level 0 grid size
@@ -527,15 +527,15 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     xDim = yDim = zDim = 1;
     if ( this->Dimension == 1 )
       {
-      xDim = this->AxisBranchFactor;
+      xDim = this->BranchFactor;
       }
     else if ( this->Dimension == 2 )
       {
-      xDim = yDim = this->AxisBranchFactor;
+      xDim = yDim = this->BranchFactor;
       }
     else if ( this->Dimension == 3 )
       {
-      xDim = yDim = zDim = this->AxisBranchFactor;
+      xDim = yDim = zDim = this->BranchFactor;
       }
     int childIdx = 0;
     int newIdx[3];
@@ -553,8 +553,8 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           cursor->ToChild( childIdx );
 
           // Calculate local index
-          index_l = x + this->AxisBranchFactor
-            * ( y + this->AxisBranchFactor * z );
+          index_l = x + this->BranchFactor
+            * ( y + this->BranchFactor * z );
 
           // Recurse
           this->Subdivide( cursor,
