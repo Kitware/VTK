@@ -1128,18 +1128,30 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast( ds );
 
+  // Copy grid parameters
   this->Dimension = htg->Dimension;
   this->AxisBranchFactor = htg->AxisBranchFactor;
   this->DualGridFlag = htg->DualGridFlag;
   this->NumberOfChildren = htg->NumberOfChildren;
   memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
-
   this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
+  // Un-register existing tree
   if ( this->CellTree )
     {
+    vtkCollectionSimpleIterator it;
+    for ( this->CellTree->InitTraversal( it );
+          vtkObject* obj = this->CellTree->GetNextItemAsObject( it ) ; )
+      {
+      if ( obj )
+        {
+        obj->UnRegister( this );
+        }
+      }
     this->CellTree->UnRegister( this );
     }
+  
+  // Shallow copy and register new tree
   this->CellTree = htg->CellTree;
   if ( this->CellTree )
     {
@@ -1159,6 +1171,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
       }
     }
 
+  // Shallow copy cell tree leaf ID offsets
   if ( this->CellTreeLeafIdOffsets )
     {
     delete [] this->CellTreeLeafIdOffsets;
@@ -1166,6 +1179,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
     }
   this->CellTreeLeafIdOffsets = htg->CellTreeLeafIdOffsets;
 
+  // Shallow copy coordinates
   this->SetXCoordinates( htg->XCoordinates );
   this->SetYCoordinates( htg->YCoordinates );
   this->SetZCoordinates( htg->ZCoordinates );
