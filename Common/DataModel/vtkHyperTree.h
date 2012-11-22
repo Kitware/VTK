@@ -156,10 +156,10 @@ public:
   // Return an instance of a templated hypertree for given branch 
   // factor and dimension. 
   // This is done to hide templates.
-  static vtkHyperTree* Instantiator( int factor, int dimension );
+  static vtkHyperTree* CreateInstance( int factor, int dimension );
 
   // Description:
-  // Find the Index and IsLeaf parameters of a child for given type of hypertree
+  // Find the Index and IsLeaf parameters of a child for hypertree.
   // This is done to hide templates.
   virtual void FindChildParameters( int, int&, unsigned short& );
 

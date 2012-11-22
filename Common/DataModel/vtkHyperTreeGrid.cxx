@@ -335,7 +335,7 @@ void vtkHyperTreeGrid::UpdateTree()
   // Generate concrete instance of hyper tree and append it to list of roots
   for ( int i = 0; i < this->NumberOfRoots; ++ i )
     {
-    vtkHyperTree* tree = vtkHyperTree::Instantiator( this->BranchFactor, this->Dimension );
+    vtkHyperTree* tree = vtkHyperTree::CreateInstance( this->BranchFactor, this->Dimension );
     this->HyperTrees->AddItem( tree );
     }
 

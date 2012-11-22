@@ -918,7 +918,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-vtkHyperTree* vtkHyperTree::Instantiator( int factor, int dimension )
+vtkHyperTree* vtkHyperTree::CreateInstance( int factor, int dimension )
 {
   if ( factor == 2 )
     {
