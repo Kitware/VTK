@@ -128,17 +128,15 @@ class vtkHyperTreeSuperCursor;
 class vtkHyperTreeCursor;
 class vtkHyperTreeInternal;
 
+class vtkCellLinks;
+class vtkCollection;
 class vtkDataArray;
-class vtkIdTypeArray;
-class vtkPoints;
 class vtkDataSetAttributes;
-
+class vtkIdTypeArray;
 class vtkLine;
 class vtkPixel;
+class vtkPoints;
 class vtkVoxel;
-class vtkCellLinks;
-
-
 
 // Used to advance the super cursor; One Entry per cursor node.
 // Private.
@@ -175,6 +173,10 @@ public:
   // Set/Get sizes of this rectilinear grid dataset
   void SetGridSize( int[3] );
   vtkGetVector3Macro(GridSize,int);
+
+  // Description:
+  // Set/Get number of root cells
+  vtkGetMacro(NumberOfRoots,int);
 
   // Description:
   // Return the dimension of the tree (1D:binary tree(2 children), 2D:quadtree(4 children),
@@ -417,14 +419,15 @@ protected:
 
   int Dimension;    // 1, 2 or 3.
   int GridSize[3];
+  int NumberOfRoots;
   int AxisBranchFactor;
   int NumberOfChildren;
 
-  vtkDataArray *XCoordinates;
-  vtkDataArray *YCoordinates;
-  vtkDataArray *ZCoordinates;
+  vtkDataArray* XCoordinates;
+  vtkDataArray* YCoordinates;
+  vtkDataArray* ZCoordinates;
 
-  vtkHyperTreeInternal** CellTree;
+  vtkCollection* CellTree;
   vtkIdType* CellTreeLeafIdOffsets;
 
   //BTX
@@ -458,9 +461,9 @@ protected:
   vtkSuperCursorEntry SuperCursorTraversalTable[729]; // 27*27
 
   // for the GetCell method
-  vtkLine *Line;
-  vtkPixel *Pixel;
-  vtkVoxel *Voxel;
+  vtkLine* Line;
+  vtkPixel* Pixel;
+  vtkVoxel* Voxel;
 
   // I would like to get rid of this.
   // Is it a part of the vtkDataSet API?
