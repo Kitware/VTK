@@ -390,7 +390,7 @@ protected:
 
   vtkIdType RecursiveFindPoint(double x[3],
     vtkHyperTreeLightWeightCursor* cursor,
-    double *origin, double *size);
+    double* origin, double* size);
 
   // This toggles the data set API between the leaf cells and
   // the dual grid (leaves are points, corners are cells). 
