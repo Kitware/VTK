@@ -442,8 +442,8 @@ protected:
   vtkCompactHyperTree<N> *Tree;
   unsigned char Dimension;
   int Cursor; // index either in the Nodes or Parents (if leaf)
-  int ChildIndex; // the current node is
-  // child number ChildIndex (in [0,1<<D-1]) for its parent node (comment specific for oct/quad trees)
+  int ChildIndex; // the current node is child number ChildIndex
+  // (in [0,1<<D-1]) for its parent node (comment specific for oct/quad trees)
 
   int IsFound;
   int IsLeaf;
@@ -451,7 +451,7 @@ protected:
   std::deque<int> ChildHistory; // a stack, but stack does not have clear()
   // I have to default to three dimensions and not use the third for quad/9 trees
   int Index[3]; // index in each dimension of the current node, as if the
-  // tree at the current level was a uniform grid.
+  // tree at the current level were a uniform grid.
 private:
   vtkCompactHyperTreeCursor(const vtkCompactHyperTreeCursor<N> &);  // Not implemented.
   void operator=(const vtkCompactHyperTreeCursor<N> &);    // Not implemented.
@@ -864,33 +864,39 @@ protected:
   // The tree as only one node and one leaf: the root.
   vtkCompactHyperTree()
   {
-    if ( N == 2 || N == 4 || N == 8 )
+    switch ( N )
       {
-      this->BranchFactor = 2;
-      }
-    if ( N == 3 || N == 9 || N == 27 )
-      {
-      this->BranchFactor = 3;
-      }
+      case 2:
+        this->BranchFactor = 2;
+        this->Dimension = 1;
+        break;
+      case 3:
+        this->BranchFactor = 3;
+        this->Dimension = 1;
+        break;
+      case 4:
+        this->BranchFactor = 2;
+        this->Dimension = 2;
+        break;
+      case 8:
+        this->BranchFactor = 2;
+        this->Dimension = 3;
+        break;
+      case 9:
+        this->BranchFactor = 3;
+        this->Dimension = 2;
+        break;
+      case 27:
+        this->BranchFactor = 3;
+        this->Dimension = 3;
+        break;
+      } // switch ( N )
 
-    if ( N == 2 || N == 3 )
-      {
-      this->Dimension = 1;
-      }
-    if ( N == 4 || N == 9 )
-      {
-      this->Dimension = 2;
-      }
-    if ( N == 8 || N == 27 )
-      {
-      this->Dimension = 3;
-      }
-
-    // The root.
+    // Set root node
     this->Nodes.resize( 1 );
     this->Nodes[0].SetParent( 0 );
 
-    // Nodes default to have all children leaf flags equal true.
+    // Nodes default to have all children leaf flags equal true
     for ( int i = 0 ; i < N ; ++ i )
       {
       this->Nodes[0].SetLeafFlag( i, i == 0 ); // First child is a leaf
@@ -903,14 +909,16 @@ protected:
     this->NumberOfLeavesPerLevel[0] = 1;
   }
 
-  std::vector<int> NumberOfLeavesPerLevel; // number of leaves in each level
-  // its size is NumberOfLevels;
-
-  vtkIdType NumberOfLevels;
   int BranchFactor;
   int Dimension;
+  vtkIdType NumberOfLevels;
   std::vector<vtkCompactHyperTreeNode<N> > Nodes;
-  std::vector<int> LeafParent; // record the parent of each leaf
+
+  // Storage for number of leaves in each level
+  std::vector<int> NumberOfLeavesPerLevel;
+
+  // Storage to record the parent of each leaf
+  std::vector<int> LeafParent;
 
 private:
   vtkCompactHyperTree(const vtkCompactHyperTree<N> &);  // Not implemented.
@@ -920,45 +928,36 @@ private:
 //-----------------------------------------------------------------------------
 vtkHyperTree* vtkHyperTree::CreateInstance( int factor, int dimension )
 {
-  if ( factor == 2 )
+  switch ( factor )
     {
-    switch( dimension )
-      {
-      case 3:
-        return vtkCompactHyperTree<8>::New();
-        break;
-      case 2:
-        return vtkCompactHyperTree<4>::New();
-        break;
-      case 1:
-        return vtkCompactHyperTree<2>::New();
-        break;
-      default:
-        assert( "check: impossible case" && 0 );
-        break;
-      }
-    }
-  else if ( factor == 3 )
-    {
-    switch( dimension )
-      {
-      case 3:
-        return vtkCompactHyperTree<27>::New();
-        break;
-      case 2:
-        return vtkCompactHyperTree<9>::New();
-        break;
-      case 1:
-        return vtkCompactHyperTree<3>::New();
-        break;
-      default:
-        assert( "check: impossible case" && 0 );
-        break;
-      }
-    }
-  else
-    {
-    vtkGenericWarningMacro( "Bad branching factor " << factor);
+    case 2:
+      switch( dimension )
+        {
+        case 3:
+          return vtkCompactHyperTree<8>::New();
+        case 2:
+          return vtkCompactHyperTree<4>::New();
+        case 1:
+          return vtkCompactHyperTree<2>::New();
+        default:
+          vtkGenericWarningMacro( "Bad dimension " << dimension );
+          return NULL;
+        }
+    case 3:
+      switch( dimension )
+        {
+        case 3:
+          return vtkCompactHyperTree<27>::New();
+        case 2:
+          return vtkCompactHyperTree<9>::New();
+        case 1:
+          return vtkCompactHyperTree<3>::New();
+        default:
+          vtkGenericWarningMacro( "Bad dimension " << dimension );
+          return NULL;
+        }
+    default:
+      vtkGenericWarningMacro( "Bad branching factor " << factor);
     }
 
   return NULL;
@@ -967,83 +966,86 @@ vtkHyperTree* vtkHyperTree::CreateInstance( int factor, int dimension )
 //-----------------------------------------------------------------------------
 void vtkHyperTree::FindChildParameters( int child, int &index, unsigned short& isLeaf )
 {
-  if ( this->GetDimension() == 3 )
+  
+  switch ( this->GetDimension() )
     {
-    switch ( this->GetBranchFactor() )
-      {
-      case 2:
-        {
-        vtkCompactHyperTree<8>* tree;
-        tree = static_cast<vtkCompactHyperTree<8>*>( this );
-        vtkCompactHyperTreeNode<8>* node = tree->GetNode( index );
-        index = node->GetChild( child );
-        isLeaf = node->IsChildLeaf( child );
-        break;
-        }
-      case 3:
-        {
-        vtkCompactHyperTree<27>* tree;
-        tree = static_cast<vtkCompactHyperTree<27>*>( this );
-        vtkCompactHyperTreeNode<27>* node = tree->GetNode( index );
-        index = node->GetChild( child );
-        isLeaf = node->IsChildLeaf( child );
-        break;
-        }
-      default:
-        assert( "Bad branch factor " && 0 );
-      }
-    }
-  else if ( this->GetDimension() == 2 )
-    {
+    case 3:
       switch ( this->GetBranchFactor() )
-      {
-      case 2:
         {
-        vtkCompactHyperTree<4>* tree;
-        tree = static_cast<vtkCompactHyperTree<4>*>( this );
-        vtkCompactHyperTreeNode<4>* node = tree->GetNode( index );
-        index = node->GetChild( child );
-        isLeaf = node->IsChildLeaf( child );
-        break;
-        }
-      case 3:
-        {
-        vtkCompactHyperTree<9>* tree;
-        tree = static_cast<vtkCompactHyperTree<9>*>( this );
-        vtkCompactHyperTreeNode<9>* node = tree->GetNode( index );
-        index = node->GetChild( child );
-        isLeaf = node->IsChildLeaf( child );
-        break;
-        }
-      default:
-        vtkGenericWarningMacro( "Bad branch factor" );
-      }
-    }
-  else if ( this->GetDimension() == 1 )
-    {
+        case 2:
+          {
+          vtkCompactHyperTree<8>* tree;
+          tree = static_cast<vtkCompactHyperTree<8>*>( this );
+          vtkCompactHyperTreeNode<8>* node = tree->GetNode( index );
+          index = node->GetChild( child );
+          isLeaf = node->IsChildLeaf( child );
+          break;
+          }
+        case 3:
+          {
+          vtkCompactHyperTree<27>* tree;
+          tree = static_cast<vtkCompactHyperTree<27>*>( this );
+          vtkCompactHyperTreeNode<27>* node = tree->GetNode( index );
+          index = node->GetChild( child );
+          isLeaf = node->IsChildLeaf( child );
+          break;
+          }
+        default:
+          vtkGenericWarningMacro( "Bad branching factor " << this->GetBranchFactor() );
+          return;
+        } // case 3
+      break;
+    case 2:
       switch ( this->GetBranchFactor() )
-      {
-      case 2:
         {
-        vtkCompactHyperTree<2>* tree;
-        tree = static_cast<vtkCompactHyperTree<2>*>( this );
-        vtkCompactHyperTreeNode<2>* node = tree->GetNode( index );
-        index = node->GetChild( child );
-        isLeaf = node->IsChildLeaf( child );
-        break;
-        }
-      case 3:
+        case 2:
+          {
+          vtkCompactHyperTree<4>* tree;
+          tree = static_cast<vtkCompactHyperTree<4>*>( this );
+          vtkCompactHyperTreeNode<4>* node = tree->GetNode( index );
+          index = node->GetChild( child );
+          isLeaf = node->IsChildLeaf( child );
+          break;
+          }
+        case 3:
+          {
+          vtkCompactHyperTree<9>* tree;
+          tree = static_cast<vtkCompactHyperTree<9>*>( this );
+          vtkCompactHyperTreeNode<9>* node = tree->GetNode( index );
+          index = node->GetChild( child );
+          isLeaf = node->IsChildLeaf( child );
+          break;
+          }
+        default:
+          vtkGenericWarningMacro( "Bad branching factor " << this->GetBranchFactor() );
+          return;
+        } // case 2
+      break;
+    case 1:
+      switch ( this->GetBranchFactor() )
         {
-        vtkCompactHyperTree<3>* tree;
-        tree = static_cast<vtkCompactHyperTree<3>*>( this );
-        vtkCompactHyperTreeNode<3>* node = tree->GetNode( index );
-        index = node->GetChild( child );
-        isLeaf = node->IsChildLeaf( child );
-        break;
-        }
-      default:
-        vtkGenericWarningMacro( "Bad branch factor" );
-      }
+        case 2:
+          {
+          vtkCompactHyperTree<2>* tree;
+          tree = static_cast<vtkCompactHyperTree<2>*>( this );
+          vtkCompactHyperTreeNode<2>* node = tree->GetNode( index );
+          index = node->GetChild( child );
+          isLeaf = node->IsChildLeaf( child );
+          break;
+          }
+        case 3:
+          {
+          vtkCompactHyperTree<3>* tree;
+          tree = static_cast<vtkCompactHyperTree<3>*>( this );
+          vtkCompactHyperTreeNode<3>* node = tree->GetNode( index );
+          index = node->GetChild( child );
+          isLeaf = node->IsChildLeaf( child );
+          break;
+          }
+        default:
+          vtkGenericWarningMacro( "Bad branching factor " << this->GetBranchFactor() );
+          return;
+        } // case 1
+      break;
     }
-  return;
 }

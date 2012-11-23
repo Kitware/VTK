@@ -1792,9 +1792,8 @@ void vtkHyperTreeGrid::UpdateGridArrays()
   timer->UnRegister( this );
 }
 
-// I may be able to merge the two methods.
-// Non dual create the corner points on the boundaries of the tree.
-// Dual does not.
+// NB: Primal method creates the corner points on the boundaries of the tree.
+// Dual method does not.
 //----------------------------------------------------------------------------
 // The purpose of traversing the supercursor / cells is to visit
 // every corner and have the leaves connected to that corner.
