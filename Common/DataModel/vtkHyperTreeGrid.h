@@ -73,7 +73,7 @@ public:
   static vtkInformationIntegerKey* LEVELS();
   static vtkInformationIntegerKey* DIMENSION();
   static vtkInformationDoubleVectorKey* SIZES();
-  static vtkHyperTreeGrid *New();
+  static vtkHyperTreeGrid* New();
 
   vtkTypeMacro(vtkHyperTreeGrid,vtkDataSet);
   void PrintSelf( ostream& os, vtkIndent indent );
@@ -83,9 +83,9 @@ public:
   int GetDataObjectType();
 
   // Description:
-  // Copy the geometric and topological structure of an input rectilinear grid
-  // object.
-  void CopyStructure(vtkDataSet *ds);
+  // Copy the internal geometric and topological structure of a
+  // vtkHyperTreeGrid object.
+  void CopyStructure(vtkDataSet* ds);
 
   // Description:
   // Set/Get sizes of this rectilinear grid dataset
@@ -156,14 +156,14 @@ public:
   // Create a new cursor: an object that can traverse
   // the cells of an individual hyper tree.
   // \post result_exists: result!=0
-  vtkHyperTreeCursor *NewCellCursor( int, int, int );
+  vtkHyperTreeCursor* NewCellCursor( int, int, int );
 
   // Description:
   // Subdivide node pointed by cursor, only if its a leaf.
   // At the end, cursor points on the node that used to be leaf.
   // \pre leaf_exists: leaf!=0
   // \pre is_a_leaf: leaf->CurrentIsLeaf()
-  void SubdivideLeaf(vtkHyperTreeCursor *leaf, vtkIdType);
+  void SubdivideLeaf(vtkHyperTreeCursor* leaf, vtkIdType);
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -445,9 +445,6 @@ class vtkHyperTreeSuperCursor
   double Size[3];
   vtkHyperTreeLightWeightCursor* GetCursor( int idx ) { return this->Cursors + this->MiddleCursorId + idx; }
 };
-
-
-
 
 //ETX
 

@@ -404,7 +404,7 @@ int vtkHyperTreeGrid::GetNumberOfLevels( int i )
 
 //-----------------------------------------------------------------------------
 // Description:
-// Create a new cursor: an object that can traverse hyperTree cells
+// Create a new cursor: an object that can traverse vtkHyperTree cells
 vtkHyperTreeCursor* vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
 {
   int idx = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
@@ -2054,7 +2054,7 @@ void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
 //-----------------------------------------------------------------------------
 unsigned short vtkHyperTreeLightWeightCursor::GetIsLeaf()
 {
-  // I want enpty cursors to appear like a leaf so recursion stops.
+  // Empty cursors appear like a leaf so that recursion stop.
   if ( this->Tree == 0 )
     {
     return 1;
