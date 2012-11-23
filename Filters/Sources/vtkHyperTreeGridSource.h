@@ -87,8 +87,8 @@ public:
 
   // Description:
   // Set/Get the subdivision factor in the grid refinement scheme
-  vtkSetClampMacro(AxisBranchFactor, int, 2, 3);
-  vtkGetMacro(AxisBranchFactor, int);
+  vtkSetClampMacro(BranchFactor, int, 2, 3);
+  vtkGetMacro(BranchFactor, int);
 
   // Description:
   // Set/Get whether the dual grid interface is the default one
@@ -133,7 +133,7 @@ protected:
   unsigned int MaximumLevel;
   unsigned int MinimumLevel;
   int Dimension;
-  int AxisBranchFactor;
+  int BranchFactor;
   int BlockSize;
   int Dual;
 
