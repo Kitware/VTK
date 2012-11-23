@@ -89,29 +89,24 @@ public:
 
   // Description:
   // Set/Get sizes of this rectilinear grid dataset
-  void SetGridSize( int[3] );
-  vtkGetVector3Macro(GridSize,int);
+  void SetGridSize( unsigned int[3] );
+  vtkGetVector3Macro(GridSize,unsigned int);
 
   // Description:
-  // Set/Get number of root cells
-  vtkGetMacro(NumberOfRoots,int);
+  // Set/Get the subdivision factor in the grid refinement scheme
+  // NB: Can only be 2 or 3
+  void SetBranchFactor( unsigned int );
+  vtkGetMacro(BranchFactor, unsigned int);
 
   // Description:
-  // Return the dimension of the tree (1D:binary tree(2 children), 2D:quadtree(4 children),
-  // 3D:octree (8 children))
-  // \post valid_result: result>=1 && result<=3
-  int GetDimension();
+  // Set/Get the dimensionality of the grid
+  // NB: Can only be 1, 2 or 3
+  void SetDimension( unsigned int );
+  vtkGetMacro(Dimension, unsigned int);
 
   // Description:
-  // Set the dimension of the tree with `dim'. See GetDimension() for details.
-  // \pre valid_dim: dim>=1 && dim<=3
-  // \post dimension_is_set: GetDimension()==dim
-  void SetDimension(int);
-
-  // Description:
-  // Branch factor can be 2 or 3. (Octree, quadtree) or (nontree or 27tree)
-  vtkGetMacro(BranchFactor,int);
-  void SetBranchFactor(int factor);
+  // Get number of root cells
+  vtkGetMacro(NumberOfRoots,unsigned int);
 
   // Description:
   // Return the number of cells in the dual grid or grid.
@@ -134,7 +129,7 @@ public:
   // Description:
   // Return the number of levels.
   // \post result_greater_or_equal_to_one: result>=1
-  int GetNumberOfLevels( int );
+  int GetNumberOfLevels( unsigned int );
 
   // Description:
   // Specify the grid coordinates in the x-direction.
@@ -301,7 +296,10 @@ public:
   // Initialize a super cursor to point to one of the root trees
   // in the grid.  The super cursor points to a node in a tree and
   // also keeps pointers to the 26 neighbors of said node.
-  void InitializeSuperCursor(vtkHyperTreeSuperCursor* superCursor, int i, int j, int k);
+  void InitializeSuperCursor(vtkHyperTreeSuperCursor*,
+                             unsigned int,
+                             unsigned int,
+                             unsigned int );
 //ETX
   // Description:
   // Generate the table before calling InitializeSuperCursorChild.
@@ -335,11 +333,11 @@ protected:
   vtkPoints* GetLeafCenters();
   vtkIdTypeArray* GetCornerLeafIds();
 
-  int Dimension;    // 1, 2 or 3.
-  int GridSize[3];
-  int NumberOfRoots;
-  int BranchFactor;
-  int NumberOfChildren;
+  unsigned int Dimension;    // 1, 2 or 3.
+  unsigned int GridSize[3];
+  unsigned int NumberOfRoots;
+  unsigned int BranchFactor;
+  unsigned int NumberOfChildren;
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;

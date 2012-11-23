@@ -68,30 +68,30 @@ public:
   void SetMaximumLevel( unsigned int levels );
 
   // Description:
-  // Set/Get the number of root cells in each dimension of the grid
-  vtkSetVector3Macro(GridSize, int);
-  vtkGetVector3Macro(GridSize, int);
-
-  // Description:
   // Set/Get the scale to be applied to root cells in each dimension of the grid
   vtkSetVector3Macro(GridScale, double);
   vtkGetVector3Macro(GridScale, double);
 
   // Description:
-  // Set/Get the subdivision factor in the grid refinement scheme
-  vtkSetClampMacro(BranchFactor, int, 2, 3);
-  vtkGetMacro(BranchFactor, int);
+  // Set/Get the number of root cells in each dimension of the grid
+  vtkSetVector3Macro(GridSize, unsigned int);
+  vtkGetVector3Macro(GridSize, unsigned int);
 
   // Description:
-  // Set/Get whether the dual grid interface is the default one
-  vtkSetMacro(Dual, int);
-  vtkGetMacro(Dual, int);
-  vtkBooleanMacro(Dual, int);
+  // Set/Get the subdivision factor in the grid refinement scheme
+  vtkSetClampMacro(BranchFactor, unsigned int, 2, 3);
+  vtkGetMacro(BranchFactor, unsigned int);
 
   // Description:
   // Set/Get the dimensionality of the grid
-  vtkSetClampMacro(Dimension, int, 2, 3);
-  vtkGetMacro(Dimension, int);
+  vtkSetClampMacro(Dimension, unsigned int, 2, 3);
+  vtkGetMacro(Dimension, unsigned int);
+
+  // Description:
+  // Set/Get whether the dual grid interface is the default one
+  vtkSetMacro(Dual, bool);
+  vtkGetMacro(Dual, bool);
+  vtkBooleanMacro(Dual, bool);
 
   // Description:
   // Set/Get the string used to describe the grid
@@ -106,9 +106,9 @@ protected:
                            vtkInformationVector**,
                            vtkInformationVector* );
 
-  virtual int RequestData( vtkInformation *,
-                           vtkInformationVector **,
-                           vtkInformationVector * );
+  virtual int RequestData( vtkInformation*,
+                           vtkInformationVector**,
+                           vtkInformationVector* );
 
   int Initialize();
 
@@ -120,13 +120,13 @@ protected:
                   int cellIdOffset,
                   int parentPos );
 
-  int GridSize[3];
   double GridScale[3];
+  unsigned int GridSize[3];
   unsigned int MaximumLevel;
-  int Dimension;
-  int BranchFactor;
-  int BlockSize;
-  int Dual;
+  unsigned int Dimension;
+  unsigned int BranchFactor;
+  unsigned int BlockSize;
+  bool Dual;
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;

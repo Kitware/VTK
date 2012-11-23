@@ -287,13 +287,13 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   scalars->UnRegister( this );
 
   // Iterate over grid of trees
-  int n[3];
+  unsigned int n[3];
   this->Output->GetGridSize( n );
-  for ( int k = 0; k < n[2]; ++ k )
+  for ( unsigned int k = 0; k < n[2]; ++ k )
     {
-    for ( int j = 0; j < n[1]; ++ j )
+    for ( unsigned int j = 0; j < n[1]; ++ j )
       {
-      for ( int i = 0; i < n[0]; ++ i )
+      for ( unsigned int i = 0; i < n[0]; ++ i )
         {
         // Calculate global index
         int index_g = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
@@ -331,7 +331,7 @@ int vtkHyperTreeGridSource::Initialize()
 {
   // Calculate refined block size
   this->BlockSize = this->BranchFactor;
-  for ( int i = 1; i < this->Dimension; ++ i )
+  for ( unsigned int i = 1; i < this->Dimension; ++ i )
     {
     this->BlockSize *= this->BranchFactor;
     }

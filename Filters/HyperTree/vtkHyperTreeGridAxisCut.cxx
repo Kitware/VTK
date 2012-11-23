@@ -48,12 +48,12 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
   this->Cells = vtkCellArray::New();
 
   // Iterate over all hyper trees
-  int* gridSize = this->Input->GetGridSize();
-  for ( int k = 0; k < gridSize[2]; ++ k )
+  unsigned int* gridSize = this->Input->GetGridSize();
+  for ( unsigned int k = 0; k < gridSize[2]; ++ k )
     {
-    for ( int j = 0; j < gridSize[1]; ++ j )
+    for ( unsigned int j = 0; j < gridSize[1]; ++ j )
       {
-        for ( int i = 0; i < gridSize[0]; ++ i )
+        for ( unsigned int i = 0; i < gridSize[0]; ++ i )
         {
         // Storage for super cursors
         vtkHyperTreeSuperCursor superCursor;
