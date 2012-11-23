@@ -38,7 +38,6 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
 
   // Grid parameters
   this->BranchFactor = 2;
-  this->MinimumLevel = 1;
   this->MaximumLevel = 1;
 
   // Grid topology
@@ -111,7 +110,6 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
      << this->GridScale[2] << endl;
 
   os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
-  os << indent << "MinimumLevel: " << this->MinimumLevel << endl;
   os << indent << "Dimension: " << this->Dimension << endl;
   os << indent << "BranchFactor: " <<this->BranchFactor << endl;
   os << indent << "BlockSize: " <<this->BlockSize << endl;
@@ -191,50 +189,11 @@ void vtkHyperTreeGridSource::SetMaximumLevel( unsigned int levels )
     }
 
   this->MaximumLevel = levels;
-
-  // Update minimum level as well if needed
-  if( this->MinimumLevel > levels )
-    {
-    this->MinimumLevel = levels;
-    }
   this->Modified();
 
   assert( "post: is_set" && this->GetMaximumLevel() == levels );
-  assert( "post: min_is_valid" && this->GetMinimumLevel() <= this->GetMaximumLevel() );
 }
 
-
-//----------------------------------------------------------------------------
-// Description:
-// Return the minimal number of levels of systematic subdivision.
-// \post positive_result: result>=0
-unsigned int vtkHyperTreeGridSource::GetMinimumLevel()
-{
-  assert( "post: positive_result" );
-  return this->MinimumLevel;
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// Set the minimal number of levels of systematic subdivision.
-// \pre positive_minLevels: minLevels>=0 && minLevels<this->GetLevels()
-// \post is_set: this->GetMinLevels()==minLevels
-void vtkHyperTreeGridSource::SetMinimumLevel( unsigned int minLevels )
-{
-  if ( minLevels < 1 )
-    {
-    minLevels = 1;
-    }
-
-  if ( this->MinimumLevel == minLevels )
-    {
-    return;
-    }
-
-  this->Modified();
-  this->MinimumLevel = minLevels;
-  assert( "post: is_set" && this->GetMinimumLevel() == minLevels );
-}
 
 //----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,

@@ -54,7 +54,7 @@ public:
   vtkTypeMacro(vtkHyperTreeGridSource,vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  static vtkHyperTreeGridSource *New();
+  static vtkHyperTreeGridSource* New();
 
   // Description:
   // Return the maximum number of levels of the hypertree.
@@ -62,18 +62,10 @@ public:
   unsigned int GetMaximumLevel();
 
   // Description:
-  // Set the maximum number of levels of the hypertree. If
-  // GetMinLevels()>=levels, GetMinLevels() is changed to levels-1.
+  // Set the maximum number of levels of the hypertree.
   // \pre positive_levels: levels>=1
   // \post is_set: this->GetLevels()==levels
-  // \post min_is_valid: this->GetMinLevels()<this->GetLevels()
   void SetMaximumLevel( unsigned int levels );
-
-  // Description:
-  // Return the minimal number of levels of systematic subdivision.
-  // \post positive_result: result>=0
-  void SetMinimumLevel( unsigned int level );
-  unsigned int GetMinimumLevel();
 
   // Description:
   // Set/Get the number of root cells in each dimension of the grid
@@ -131,7 +123,6 @@ protected:
   int GridSize[3];
   double GridScale[3];
   unsigned int MaximumLevel;
-  unsigned int MinimumLevel;
   int Dimension;
   int BranchFactor;
   int BlockSize;
