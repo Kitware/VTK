@@ -280,8 +280,14 @@ public:
 
   // Description:
   // Switch between returning leaves as cells, or the dual grid.
-  void SetDualGridFlag(int flag);
+  void SetDualGridFlag( int );
   vtkGetMacro(DualGridFlag,int);
+
+ // Description:
+  // Set/get whether the material mask should be used.
+  // The default is that it should not.
+  void SetUseMaterialMask( int );
+  vtkGetMacro(UseMaterialMask,int);
 
   // Description:
   // Return the actual size of the data in kilobytes. This number
@@ -296,10 +302,10 @@ public:
   // Initialize a super cursor to point to one of the root trees
   // in the grid.  The super cursor points to a node in a tree and
   // also keeps pointers to the 26 neighbors of said node.
-  void InitializeSuperCursor(vtkHyperTreeSuperCursor*,
-                             unsigned int,
-                             unsigned int,
-                             unsigned int );
+  void InitializeSuperCursor( vtkHyperTreeSuperCursor*,
+                              unsigned int,
+                              unsigned int,
+                              unsigned int );
 //ETX
   // Description:
   // Generate the table before calling InitializeSuperCursorChild.
@@ -308,14 +314,13 @@ public:
   // Description:
   // Initialize a cursor to point to a child of an existing super cursor.
   // This will not work in place.
-  void InitializeSuperCursorChild(vtkHyperTreeSuperCursor* parent,
-                                  vtkHyperTreeSuperCursor* child,
-                                  int childIdx);
+  void InitializeSuperCursorChild( vtkHyperTreeSuperCursor* parent,
+                                   vtkHyperTreeSuperCursor* child,
+                                   int childIdx );
 //ETX
   // Description:
   // The number of children each node can have.
   vtkGetMacro(NumberOfChildren,int);
-
 
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -386,14 +391,17 @@ protected:
   vtkCellLinks* Links;
   void BuildLinks();
 
-  vtkIdType RecursiveFindPoint(double x[3],
-    vtkHyperTreeLightWeightCursor* cursor,
-    double* origin, double* size);
+  vtkIdType RecursiveFindPoint( double x[3],
+                                vtkHyperTreeLightWeightCursor* cursor,
+                                double* origin, double* size);
 
   // This toggles the data set API between the leaf cells and
   // the dual grid (leaves are points, corners are cells). 
   int DualGridFlag;
 
+  // Decide whether material mask must be taken into account
+  int UseMaterialMask;
+ 
 private:
   vtkHyperTreeGrid(const vtkHyperTreeGrid&);  // Not implemented.
   void operator=(const vtkHyperTreeGrid&);    // Not implemented.

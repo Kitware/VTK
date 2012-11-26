@@ -76,8 +76,9 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   // Grid parameters
   this->BranchFactor = 2;
   this->Dimension =  1;
-  this->DualGridFlag = 1;
   this->NumberOfChildren = 2;
+  this->DualGridFlag = 1;
+  this->UseMaterialMask = 0;
 
   // Grid geometry
   this->XCoordinates = vtkDoubleArray::New();
@@ -169,6 +170,7 @@ void vtkHyperTreeGrid::PrintSelf( ostream& os, vtkIndent indent )
     this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
     }
   os << indent << "DualGridFlag: " << this->DualGridFlag << endl;
+  os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -194,10 +196,11 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   // Copy grid parameters
   this->Dimension = htg->Dimension;
   this->BranchFactor = htg->BranchFactor;
-  this->DualGridFlag = htg->DualGridFlag;
   this->NumberOfChildren = htg->NumberOfChildren;
   memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
   this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+  this->DualGridFlag = htg->DualGridFlag;
+  this->UseMaterialMask = htg->UseMaterialMask;
 
   // Un-register existing tree
   if ( this->HyperTrees )
@@ -310,6 +313,47 @@ void vtkHyperTreeGrid::SetBranchFactor( unsigned int factor )
 
   this->Modified();
   this->UpdateTree();
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGrid::SetDualGridFlag( int flag )
+{
+  if ( flag )
+    {
+    flag = 1;
+    }
+  if ( this->DualGridFlag == flag )
+    {
+    return;
+    }
+  if ( ( this->DualGridFlag && ! flag ) || ( ! this->DualGridFlag && flag ) )
+    {
+    // Swap point and cell data.
+    vtkDataSetAttributes* attr = vtkDataSetAttributes::New();
+    attr->ShallowCopy( this->CellData );
+    this->CellData->ShallowCopy( this->PointData );
+    this->PointData->ShallowCopy( attr );
+    attr->UnRegister( this );
+    }
+  this->DeleteInternalArrays();
+  this->DualGridFlag = flag;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGrid::SetUseMaterialMask( int mask )
+{
+  if ( mask )
+    {
+    mask = 1;
+    }
+  if ( this->UseMaterialMask == mask )
+    {
+    return;
+    }
+  this->DeleteInternalArrays();
+  this->UseMaterialMask = mask;
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -1140,27 +1184,6 @@ vtkDataSetAttributes* vtkHyperTreeGrid::GetLeafData()
     {
     return this->CellData;
     }
-}
-
-//-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::SetDualGridFlag( int flag )
-{
-  if ( flag )
-    {
-    flag = 1;
-    }
-  if ( ( this->DualGridFlag && ! flag ) || ( ! this->DualGridFlag && flag ) )
-    {
-    // Swap point and cell data.
-    vtkDataSetAttributes* attr = vtkDataSetAttributes::New();
-    attr->ShallowCopy( this->CellData );
-    this->CellData->ShallowCopy( this->PointData );
-    this->PointData->ShallowCopy( attr );
-    attr->UnRegister( this );
-    }
-  this->DeleteInternalArrays();
-  this->DualGridFlag = flag;
-  this->Modified();
 }
 
 //----------------------------------------------------------------------------
