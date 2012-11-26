@@ -158,14 +158,14 @@ public:
   // At the end, cursor points on the node that used to be leaf.
   // \pre leaf_exists: leaf!=0
   // \pre is_a_leaf: leaf->CurrentIsLeaf()
-  void SubdivideLeaf(vtkHyperTreeCursor* leaf, vtkIdType);
+  void SubdivideLeaf( vtkHyperTreeCursor*, vtkIdType);
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
   // Random access to points requires that arrays are created explicitly.
   // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual double *GetPoint(vtkIdType ptId);
+  virtual double *GetPoint( vtkIdType );
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -174,14 +174,14 @@ public:
   // point id.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetPoint(vtkIdType id, double x[3]);
+  virtual void GetPoint( vtkIdType, double[3] );
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
   // Random access to cells requires that connectivity arrays are created explicitly.
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual vtkCell *GetCell(vtkIdType cellId);
+  virtual vtkCell* GetCell( vtkIdType );
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -191,14 +191,14 @@ public:
   // method.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCell(vtkIdType cellId, vtkGenericCell *cell);
+  virtual void GetCell( vtkIdType, vtkGenericCell* );
 
   // Description:
   // All cell types are 2: quadrilaters,3d: hexahedrons.  They may be degenerate though.
   // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual int GetCellType(vtkIdType cellId);
+  virtual int GetCellType( vtkIdType );
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -206,9 +206,8 @@ public:
   // Topological inquiry to get points defining cell.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
-  virtual void GetCellPoints(vtkIdType cellId, vtkIdType& npts,
-                             vtkIdType* &pts);
+  virtual void GetCellPoints( vtkIdType, vtkIdList* );
+  virtual void GetCellPoints( vtkIdType, vtkIdType&, vtkIdType*& );
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -216,7 +215,7 @@ public:
   // Topological inquiry to get cells using point.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetPointCells(vtkIdType ptId, vtkIdList *cellIds);
+  virtual void GetPointCells( vtkIdType, vtkIdList* );
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -226,12 +225,11 @@ public:
   // cells that use ALL the points provided.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds, 
-                                vtkIdList *cellIds);
+  virtual void GetCellNeighbors( vtkIdType, vtkIdList*, vtkIdList* );
 
-  virtual vtkIdType FindPoint(double x[3]);
+  virtual vtkIdType FindPoint( double x[3] );
 
-  // Description:
+   // Description:
   // Locate cell based on global coordinate x and tolerance
   // squared. If cell and cellId is non-NULL, then search starts from
   // this cell and looks at immediate neighbors.  Returns cellId >= 0
@@ -270,8 +268,8 @@ public:
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);
-  void DeepCopy(vtkDataObject *src);
+  void ShallowCopy( vtkDataObject* );
+  void DeepCopy( vtkDataObject* );
 
   // Description:
   // A generic way to set the leaf data attributes.
