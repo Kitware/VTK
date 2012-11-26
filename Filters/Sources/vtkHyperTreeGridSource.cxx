@@ -241,7 +241,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   this->Output->SetGridSize( this->GridSize );
   this->Output->SetDimension( this->Dimension );
   this->Output->SetBranchFactor( this->BranchFactor );
-  this->Output->SetDualGridFlag( this->Dual );
+  this->Output->SetUseDualGrid( this->Dual );
 
   // Create geometry
   for ( int i = 0; i < 3; ++ i )

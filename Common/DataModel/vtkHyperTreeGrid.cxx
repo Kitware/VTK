@@ -77,7 +77,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->BranchFactor = 2;
   this->Dimension =  1;
   this->NumberOfChildren = 2;
-  this->DualGridFlag = 1;
+  this->UseDualGrid = 1;
   this->UseMaterialMask = 0;
 
   // Grid geometry
@@ -169,7 +169,7 @@ void vtkHyperTreeGrid::PrintSelf( ostream& os, vtkIndent indent )
     {
     this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
     }
-  os << indent << "DualGridFlag: " << this->DualGridFlag << endl;
+  os << indent << "UseDualGrid: " << this->UseDualGrid << endl;
   os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
 }
 
@@ -199,7 +199,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->NumberOfChildren = htg->NumberOfChildren;
   memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
   this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-  this->DualGridFlag = htg->DualGridFlag;
+  this->UseDualGrid = htg->UseDualGrid;
   this->UseMaterialMask = htg->UseMaterialMask;
 
   // Un-register existing tree
@@ -316,17 +316,17 @@ void vtkHyperTreeGrid::SetBranchFactor( unsigned int factor )
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::SetDualGridFlag( int flag )
+void vtkHyperTreeGrid::SetUseDualGrid( int dual )
 {
-  if ( flag )
+  if ( dual )
     {
-    flag = 1;
+    dual = 1;
     }
-  if ( this->DualGridFlag == flag )
+  if ( this->UseDualGrid == dual )
     {
     return;
     }
-  if ( ( this->DualGridFlag && ! flag ) || ( ! this->DualGridFlag && flag ) )
+  if ( ( this->UseDualGrid && ! dual ) || ( ! this->UseDualGrid && dual ) )
     {
     // Swap point and cell data.
     vtkDataSetAttributes* attr = vtkDataSetAttributes::New();
@@ -336,7 +336,7 @@ void vtkHyperTreeGrid::SetDualGridFlag( int flag )
     attr->UnRegister( this );
     }
   this->DeleteInternalArrays();
-  this->DualGridFlag = flag;
+  this->UseDualGrid = dual;
   this->Modified();
 }
 
@@ -592,7 +592,7 @@ int vtkHyperTreeGrid::GetNumberOfLeaves()
 // \post positive_result: result>=0
 vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
@@ -610,7 +610,7 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
 // \post positive_result: result>=0
 vtkIdType vtkHyperTreeGrid::GetNumberOfPoints()
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     return this->GetNumberOfLeaves();
     }
@@ -629,7 +629,7 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfPoints()
 // THIS METHOD IS NOT THREAD SAFE.
 double* vtkHyperTreeGrid::GetPoint(vtkIdType ptId)
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkPoints* leafCenters = this->GetLeafCenters();
@@ -655,7 +655,7 @@ double* vtkHyperTreeGrid::GetPoint(vtkIdType ptId)
 // THE DATASET IS NOT MODIFIED
 void vtkHyperTreeGrid::GetPoint(vtkIdType id, double x[3])
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkPoints* leafCenters = this->GetLeafCenters();
@@ -698,7 +698,7 @@ vtkCell* vtkHyperTreeGrid::GetCell(vtkIdType cellId)
       break;
     }
 
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
@@ -760,7 +760,7 @@ void vtkHyperTreeGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
       break;
     }
 
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
@@ -832,7 +832,7 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId, vtkIdList* ptIds)
   int numPts = 1 << this->GetDimension();
   ptIds->Initialize();
 
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
@@ -865,7 +865,7 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId,
                                       vtkIdType& npts,
                                       vtkIdType* &pts )
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
@@ -1176,7 +1176,7 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell, vtkIdType cellI
 // Generic way to set the leaf data attributes.
 vtkDataSetAttributes* vtkHyperTreeGrid::GetLeafData()
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     return this->PointData;
     }

@@ -278,8 +278,8 @@ public:
 
   // Description:
   // Switch between returning leaves as cells, or the dual grid.
-  void SetDualGridFlag( int );
-  vtkGetMacro(DualGridFlag,int);
+  void SetUseDualGrid( int );
+  vtkGetMacro(UseDualGrid,int);
 
  // Description:
   // Set/get whether the material mask should be used.
@@ -395,7 +395,7 @@ protected:
 
   // This toggles the data set API between the leaf cells and
   // the dual grid (leaves are points, corners are cells). 
-  int DualGridFlag;
+  int UseDualGrid;
 
   // Decide whether material mask must be taken into account
   int UseMaterialMask;
