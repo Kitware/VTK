@@ -698,7 +698,7 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // Public only for the vtkCompactHyperTreeCursor.
-  vtkCompactHyperTreeNode<N> *GetNode(int nodeIdx )
+  vtkCompactHyperTreeNode<N>* GetNode( int nodeIdx )
   {
     assert( "pre: valid_range" && nodeIdx>=0 && nodeIdx<GetNumberOfNodes() );
     return &this->Nodes[nodeIdx];
@@ -711,7 +711,7 @@ public:
   // Different arrays => overlapping indexes.
   // I am changing the name for clarity.
   // This really returns the nodeIdx of the leafs parent.
-  int GetLeafParent(int leafIdx )
+  int GetLeafParent( int leafIdx )
   {
     assert( "pre: valid_range" && leafIdx>=0 && leafIdx<this->GetNumberOfLeaves() );
     assert( "post: valid_result" && this->LeafParent[leafIdx]>=0 && this->LeafParent[leafIdx]<this->GetNumberOfNodes() );
@@ -741,7 +741,7 @@ public:
     // We are using a vtkCompactHyperTreeCursor.
     // We know that GetLeafId() return Cursor.
     int leafIndex = leafCursor->GetLeafId();
-    vtkCompactHyperTreeCursor<N> *cursor=static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
+    vtkCompactHyperTreeCursor<N>* cursor=static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
 
     // the leaf becomes a node and is not anymore a leaf.
     cursor->SetIsLeaf( 0 ); // let the cursor knows about that change.
@@ -779,19 +779,17 @@ public:
       this->LeafParent[nextLeaf] = static_cast<int>( nodeIndex );
       }
 
-
     // Update the number of leaves per level.
-
     int level=cursor->GetChildHistorySize();
 
-    // remove the subdivided leaf from the number of leaves at its level.
+    // Remove the subdivided leaf from the number of leaves at its level.
     -- this->NumberOfLeavesPerLevel[level];
 
-    // add the new leaves to the number of leaves at the next level.
+    // Add the new leaves to the number of leaves at the next level.
     if( level + 1 == this->NumberOfLevels ) // >=
       {
-      // we have a new level.
-      ++this->NumberOfLevels;
+      // We have a new level.
+      ++ this->NumberOfLevels;
       this->NumberOfLeavesPerLevel.resize( this->NumberOfLevels );
       }
     this->NumberOfLeavesPerLevel[level + 1] += N;
