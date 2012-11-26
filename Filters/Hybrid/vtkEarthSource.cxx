@@ -70,9 +70,8 @@ void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 //
 // the curves are sampled at a (roughly) 20 mile resolution.
 
-// Source: on the Internet somewhere, originator unknown.
-// Someone obviously put work into this. Wish the author was known
-// to give proper credit...
+// Special thanks to Tom Johnson at Johnson Scientific International who 
+// developed and contributed this class based on the data of John B. Allison.
 
 short vtkEarthData[] = {
 /* 0 */
