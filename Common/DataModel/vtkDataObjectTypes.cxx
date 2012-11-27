@@ -111,7 +111,7 @@ const char* vtkDataObjectTypes::GetClassNameFromTypeId(int type)
       }
     }
 
-  if (type < numClasses)
+  if (type >=0 && type < numClasses)
     {
     return vtkDataObjectTypesStrings[type];
     }
