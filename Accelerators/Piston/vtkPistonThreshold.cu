@@ -25,8 +25,8 @@ void ExecutePistonThreshold(vtkPistonDataObject *inData,
     //type mismatch, don't bother trying
     return;
     }
-  vtk_image3d<int, float, SPACE>*gpuData = (vtk_image3d<int, float, SPACE>*)ti->data;
-  threshold_geometry<vtk_image3d<int, float, SPACE> > pistonFunctor(*gpuData, minvalue, maxvalue);
+  vtk_image3d<SPACE>*gpuData = (vtk_image3d<SPACE>*)ti->data;
+  threshold_geometry<vtk_image3d<SPACE> > pistonFunctor(*gpuData, minvalue, maxvalue);
 
   // execute the PISTON filter
   pistonFunctor();
@@ -42,8 +42,8 @@ void ExecutePistonThreshold(vtkPistonDataObject *inData,
   newD->vertsPer = 4; //this piston filter produces quads
   newD->points = new thrust::device_vector<float>(newD->nPoints*3);
   thrust::device_vector<float3> *tmp = (thrust::device_vector<float3> *)newD->points;
-  thrust::copy(thrust::make_transform_iterator(pistonFunctor.vertices_begin(), tuple2float3()),
-               thrust::make_transform_iterator(pistonFunctor.vertices_end(), tuple2float3()),
+  thrust::copy(thrust::make_transform_iterator(pistonFunctor.vertices_begin(), float4tofloat3()),
+               thrust::make_transform_iterator(pistonFunctor.vertices_end(), float4tofloat3()),
                tmp->begin());
   //attributes
   newD->scalars = new thrust::device_vector<float>(newD->nPoints);

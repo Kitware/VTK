@@ -21,7 +21,7 @@ void ExecutePistonSort(vtkPistonDataObject *inData, vtkPistonDataObject *outData
     //type mismatch, don't bother trying
     return;
     }
-  vtk_image3d<int, float, SPACE>*gpuData = (vtk_image3d<int, float, SPACE>*)ti->data;
+  vtk_image3d</*int, float,*/ SPACE>*gpuData = (vtk_image3d</*int, float,*/ SPACE>*)ti->data;
 
   thrust::device_vector<float>*scalars = new thrust::device_vector<float>(gpuData->NPoints);
   thrust::copy(gpuData->point_data_begin(), gpuData->point_data_end(), scalars->begin());
@@ -37,11 +37,11 @@ void ExecutePistonSort(vtkPistonDataObject *inData, vtkPistonDataObject *outData
   DeleteData(tr);
   tr->type = VTK_IMAGE_DATA;
   int dims[3];
-  dims[0] = gpuData->xdim;
-  dims[1] = gpuData->ydim;
-  dims[2] = gpuData->zdim;
-  vtk_image3d<int, float, SPACE> *newD =
-    new vtk_image3d<int, float, SPACE>(dims, gpuData->origin,
+  dims[0] = gpuData->dim0;
+  dims[1] = gpuData->dim1;
+  dims[2] = gpuData->dim2;
+  vtk_image3d<SPACE> *newD =
+    new vtk_image3d<SPACE>(dims, gpuData->origin,
                                        gpuData->spacing,
                                        gpuData->extents, *scalars);
 
