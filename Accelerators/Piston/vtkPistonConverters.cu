@@ -33,8 +33,8 @@ void DeleteData(vtkPistonReference *tr)
   {
   case VTK_IMAGE_DATA:
     {
-    vtk_image3d<int, float, SPACE>*oldD =
-      (vtk_image3d<int, float, SPACE>*)tr->data;
+    vtk_image3d<SPACE>*oldD =
+      (vtk_image3d<SPACE>*)tr->data;
     delete oldD;
     }
     break;
@@ -83,15 +83,15 @@ void DeepCopy(vtkPistonReference *tr, vtkPistonReference *other)
   {
   case VTK_IMAGE_DATA:
     {
-    vtk_image3d<int, float, SPACE>*oldD =
-      (vtk_image3d<int, float, SPACE>*)other->data;
+    vtk_image3d<SPACE>*oldD =
+      (vtk_image3d<SPACE>*)other->data;
     thrust::device_vector<float>*scalars = new thrust::device_vector<float>(oldD->NPoints);
     thrust::copy(oldD->point_data_begin(), oldD->point_data_end(), scalars->begin());
     int dims[3];
-    dims[0] = oldD->xdim;
-    dims[1] = oldD->ydim;
-    dims[2] = oldD->zdim;
-    vtk_image3d<int, float, SPACE> *newD = new vtk_image3d<int, float, SPACE>(
+    dims[0] = oldD->dim0;
+    dims[1] = oldD->dim1;
+    dims[2] = oldD->dim2;
+    vtk_image3d<SPACE> *newD = new vtk_image3d<SPACE>(
       dims, oldD->origin, oldD->spacing, oldD->extents, *scalars);
     tr->data = (void*)newD;
     }
@@ -195,8 +195,8 @@ void CopyToGPU(vtkImageData *id, vtkPistonDataObject *od)
   if (CheckDirty(id, tr))
     {
     DeleteData(tr);
-    vtk_image3d<int, float, SPACE> *newD =
-      new vtk_image3d<int, float, SPACE>(id);
+    vtk_image3d<SPACE> *newD =
+      new vtk_image3d<SPACE>(id);
     tr->data = (void*)newD;
     if(id->GetPointData() && id->GetPointData()->GetScalars())
       {
@@ -304,11 +304,11 @@ void CopyFromGPU(vtkPistonDataObject *id, vtkImageData *od)
     //it hasn't changed, don't recompute
     return;
     }
-  vtk_image3d<int, float, SPACE>*oldD =
-    (vtk_image3d<int, float, SPACE>*)tr->data;
+  vtk_image3d<SPACE>*oldD =
+    (vtk_image3d<SPACE>*)tr->data;
 
   //geometry/topology
-  od->SetExtent(0, oldD->xdim-1, 0, oldD->ydim-1, 0, oldD->zdim-1);
+  od->SetExtent(0, oldD->dim0-1, 0, oldD->dim1-1, 0, oldD->dim2-1);
   od->SetOrigin(id->GetOrigin());
   od->SetSpacing(id->GetSpacing());
 
