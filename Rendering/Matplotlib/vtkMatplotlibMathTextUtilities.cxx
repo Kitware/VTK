@@ -31,8 +31,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPath.h"
 #include "vtkPoints.h"
+#include "vtkStdString.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
+
+#include <vtksys/SystemTools.hxx>
 
 #include <vector>
 
@@ -80,7 +83,20 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
     case vtkMatplotlibMathTextUtilities::AVAILABLE:
       break;
     case vtkMatplotlibMathTextUtilities::NOT_TESTED:
-      Py_Initialize();
+      // Initialize the python interpretor if needed
+      if (!Py_IsInitialized())
+        {
+        // Check for a specified interpreter in the system environment.
+        vtkStdString mplPyInterp;
+        if (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_PYTHONINTERP",
+                                        mplPyInterp) &&
+            mplPyInterp.size() != 0)
+          {
+          Py_SetProgramName(const_cast<char*>(mplPyInterp.c_str()));
+          }
+        Py_Initialize();
+        }
+
       if (PyErr_Occurred() ||
           !PyImport_ImportModule("matplotlib") ||
           PyErr_Occurred())

@@ -16,6 +16,10 @@
 // .SECTION Description
 // vtkMatplotlibMathTextUtilities provides access to the MatPlotLib MathText
 // implementation.
+//
+// The python interpretor used by this class can be specified by setting the
+// VTK_MATPLOTLIB_PYTHONINTERP environment variable. This will be passed to
+// Py_SetProgramName prior to calling Py_Initialize.
 
 #ifndef __vtkMatplotlibMathTextUtilities_h
 #define __vtkMatplotlibMathTextUtilities_h
