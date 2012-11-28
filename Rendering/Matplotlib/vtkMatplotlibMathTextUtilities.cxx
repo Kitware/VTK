@@ -22,6 +22,9 @@
 #ifdef _XOPEN_SOURCE
 #  undef _XOPEN_SOURCE
 #endif // _XOPEN_SOURCE
+#ifdef _LARGEFILE_SOURCE
+#  undef _LARGEFILE_SOURCE
+#endif // _LARGEFILE_SOURCE
 #include "vtkPython.h"
 
 #include "vtkImageData.h"
