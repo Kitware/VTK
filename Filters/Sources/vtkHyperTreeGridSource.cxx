@@ -139,6 +139,7 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Descriptor: " << this->Descriptor << endl;
   os << indent << "MaterialMask: " << this->Descriptor << endl;
   os << indent << "LevelDescriptors: " << this->LevelDescriptors.size() << endl;
+  os << indent << "LevelMaterialMasks: " << this->LevelMaterialMasks.size() << endl;
   os << indent << "LevelCounters: " << this->LevelCounters.size() << endl;
 
   os << indent
@@ -349,7 +350,20 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
 //-----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::Initialize()
 {
-  // Calculate refined block size
+  // Verify that grid and material specifications are consistent
+  if (  this->UseMaterialMask
+        && this->MaterialMask.size() != this->Descriptor.size() )
+    {
+    vtkErrorMacro(<<"Material mask is used but has length "
+                  << this->MaterialMask.size()
+                  << " != "
+                  << this->Descriptor.size()
+                  << " which is the length of the grid descriptor.");
+
+    return 0;
+    }
+
+   // Calculate refined block size
   this->BlockSize = this->BranchFactor;
   for ( unsigned int i = 1; i < this->Dimension; ++ i )
     {
@@ -359,23 +373,50 @@ int vtkHyperTreeGridSource::Initialize()
   // Calculate total level 0 grid size
   unsigned int nTotal = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
-  // Parse string descriptor
+  // Initialize material mask iterator only if needed
+  vtkStdString::iterator mit;
+  if ( this->UseMaterialMask )
+    {
+    mit = this->MaterialMask.begin();
+    }
+
+  // Parse string descriptor and material mask if used
   unsigned int nRefined = 0;
   unsigned int nLeaves = 0;
   unsigned int nNextLevel = nTotal;
   bool rootLevel = true;
-  vtksys_ios::ostringstream stream;
-  for ( vtkStdString::iterator it = this->Descriptor.begin(); it != this->Descriptor.end(); ++ it )
+  vtksys_ios::ostringstream descriptor;
+  vtksys_ios::ostringstream mask;
+  for ( vtkStdString::iterator dit = this->Descriptor.begin(); dit != this->Descriptor.end();  ++ dit )
     {
-    char c = *it;
-    switch ( c )
+    switch ( *dit )
       {
       case ' ':
-        // Space is allowed as benign separator
-        continue;
+        // Space is allowed as separator, verify mask consistenty if needed
+        if ( this->UseMaterialMask && *mit != ' ' )
+          {
+          vtkErrorMacro(<<"Space separators do not match between descriptor and material mask.");
+          return 0;
+          }
+
+        // Advance material mask iterator only if needed
+        if ( this->UseMaterialMask )
+          {
+          ++ mit;
+          }
+
+        continue; // case ' '
       case '|':
-        //  A level is complete
-        this->LevelDescriptors.push_back( stream.str().c_str() );
+        //  A level is complete, verify mask consistenty if needed
+        if ( this->UseMaterialMask && *mit != '|' )
+          {
+          vtkErrorMacro(<<"Level separators do not match between descriptor and material mask.");
+          return 0;
+          }
+
+        // Store descriptor and material mask for current level
+        this->LevelDescriptors.push_back( descriptor.str().c_str() );
+        this->LevelMaterialMasks.push_back( mask.str().c_str() );
 
         // Check whether cursor is still at rool level
         if ( rootLevel )
@@ -397,12 +438,12 @@ int vtkHyperTreeGridSource::Initialize()
         else
           {
           // Verify that level descriptor cardinality matches expected value
-          if (  stream.str().size() != nNextLevel )
+          if (  descriptor.str().size() != nNextLevel )
             {
             vtkErrorMacro(<<"String level descriptor "
-                          << stream.str().c_str()
+                          << descriptor.str().c_str()
                           << " has cardinality "
-                          << stream.str().size()
+                          << descriptor.str().size()
                           << " which is not expected value of "
                           << nNextLevel);
 
@@ -414,50 +455,76 @@ int vtkHyperTreeGridSource::Initialize()
         nNextLevel = nRefined * this->BlockSize;
 
         // Reset per level values
-        stream.str( "" );
+        descriptor.str( "" );
         nRefined = 0;
         nLeaves = 0;
 
-        break;
+        break; // case '|'
       case 'R':
+        //  Refined cell, verify mask consistenty if needed
+        if ( this->UseMaterialMask && *mit == '0' )
+          {
+          vtkErrorMacro(<<"A refined branch must contain material.");
+          return 0;
+          }
         // Refined cell, update branch counter
         ++ nRefined;
 
-        // Append character to per level string
-        stream << c;
+        // Append characters to per level descriptor and material mask if used
+        descriptor << *dit;
+        if ( this->UseMaterialMask )
+          {
+          mask << *mit;
+          }
 
-        break;
+        break; // case 'R'
       case '.':
         // Leaf cell, update leaf counter
         ++ nLeaves;
 
-        // Append character to per level string
-        stream << c;
+        // Append characters to per level descriptor and material mask if used
+        descriptor << *dit;
+        if ( this->UseMaterialMask )
+          {
+          mask << *mit;
+          }
 
-        break;
+        break; // case '.'
       default:
         vtkErrorMacro(<< "Unrecognized character: "
-                      << c
+                      << *dit
                       << " in string "
                       << this->Descriptor);
 
-        return 0;
-      } // switch( c )
-    } // i
+        return 0; // default
+      } // switch( *dit )
+
+    // Advance material mask iterator only if needed
+    if ( this->UseMaterialMask )
+      {
+      ++ mit;
+      }
+    } // dit
 
   // Verify and append last level string
-  if (  stream.str().size() != nNextLevel )
+  if (  descriptor.str().size() != nNextLevel )
     {
     vtkErrorMacro(<<"String level descriptor "
-                  << stream.str().c_str()
+                  << descriptor.str().c_str()
                   << " has cardinality "
-                  << stream.str().size()
+                  << descriptor.str().size()
                   << " which is not expected value of "
                   << nNextLevel);
 
     return 0;
     }
-  this->LevelDescriptors.push_back( stream.str().c_str() );
+
+  // Push per-level descriptor and material mask if used
+  this->LevelDescriptors.push_back( descriptor.str().c_str() );
+  if ( this->UseMaterialMask )
+    {
+    this->LevelMaterialMasks.push_back( mask.str().c_str() );
+    }
 
   // Reset maximum depth if fewer levels are described
   unsigned int nLevels = static_cast<unsigned int>( this->LevelDescriptors.size() );
