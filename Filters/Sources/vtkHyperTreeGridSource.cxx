@@ -372,23 +372,36 @@ int vtkHyperTreeGridSource::Initialize()
   // Calculate total level 0 grid size
   unsigned int nTotal = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
-  // Parse string descriptor
+  // Initialize material mask iterator only if needed
+  vtkStdString::iterator mit;
+  if ( this->UseMaterialMask )
+    {
+    mit = this->Descriptor.begin();
+    }
+
+  // Parse string descriptor and material mask if it used
   unsigned int nRefined = 0;
   unsigned int nLeaves = 0;
   unsigned int nNextLevel = nTotal;
   bool rootLevel = true;
-  vtksys_ios::ostringstream stream;
-  for ( vtkStdString::iterator it = this->Descriptor.begin(); it != this->Descriptor.end(); ++ it )
+  vtksys_ios::ostringstream descriptor;
+  vtksys_ios::ostringstream mask;
+  char m = 0;
+  for ( vtkStdString::iterator dit = this->Descriptor.begin(); dit != this->Descriptor.end(); ++ dit )
     {
-    char c = *it;
-    switch ( c )
+    switch ( *dit )
       {
       case ' ':
-        // Space is allowed as benign separator
+        // Space is allowed as separator, verify mask consistenty if needed
+        if ( this->UseMaterialMask && *mit != ' ' )
+          {
+          vtkErrorMacro(<<"Space separators do not match between descriptor and material mask.");
+          return 0;
+          }
         continue;
       case '|':
         //  A level is complete
-        this->LevelDescriptors.push_back( stream.str().c_str() );
+        this->LevelDescriptors.push_back( descriptor.str().c_str() );
 
         // Check whether cursor is still at rool level
         if ( rootLevel )
@@ -410,12 +423,12 @@ int vtkHyperTreeGridSource::Initialize()
         else
           {
           // Verify that level descriptor cardinality matches expected value
-          if (  stream.str().size() != nNextLevel )
+          if (  descriptor.str().size() != nNextLevel )
             {
             vtkErrorMacro(<<"String level descriptor "
-                          << stream.str().c_str()
+                          << descriptor.str().c_str()
                           << " has cardinality "
-                          << stream.str().size()
+                          << descriptor.str().size()
                           << " which is not expected value of "
                           << nNextLevel);
 
@@ -427,7 +440,7 @@ int vtkHyperTreeGridSource::Initialize()
         nNextLevel = nRefined * this->BlockSize;
 
         // Reset per level values
-        stream.str( "" );
+        descriptor.str( "" );
         nRefined = 0;
         nLeaves = 0;
 
@@ -437,7 +450,7 @@ int vtkHyperTreeGridSource::Initialize()
         ++ nRefined;
 
         // Append character to per level string
-        stream << c;
+        descriptor << *dit;
 
         break;
       case '.':
@@ -445,32 +458,38 @@ int vtkHyperTreeGridSource::Initialize()
         ++ nLeaves;
 
         // Append character to per level string
-        stream << c;
+        descriptor << *dit;
 
         break;
       default:
         vtkErrorMacro(<< "Unrecognized character: "
-                      << c
+                      << *dit
                       << " in string "
                       << this->Descriptor);
 
         return 0;
-      } // switch( c )
-    } // i
+      } // switch( *dit )
+
+    // Advance material mask iterator only if needed
+    if ( this->UseMaterialMask )
+      {
+      ++ mit;
+      }
+    } // dit
 
   // Verify and append last level string
-  if (  stream.str().size() != nNextLevel )
+  if (  descriptor.str().size() != nNextLevel )
     {
     vtkErrorMacro(<<"String level descriptor "
-                  << stream.str().c_str()
+                  << descriptor.str().c_str()
                   << " has cardinality "
-                  << stream.str().size()
+                  << descriptor.str().size()
                   << " which is not expected value of "
                   << nNextLevel);
 
     return 0;
     }
-  this->LevelDescriptors.push_back( stream.str().c_str() );
+  this->LevelDescriptors.push_back( descriptor.str().c_str() );
 
   // Reset maximum depth if fewer levels are described
   unsigned int nLevels = static_cast<unsigned int>( this->LevelDescriptors.size() );
