@@ -349,7 +349,20 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
 //-----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::Initialize()
 {
-  // Calculate refined block size
+  // Verify that grid and material specifications are consistent
+  if (  this->UseMaterialMask
+        && this->MaterialMask.size() != this->Descriptor.size() )
+    {
+    vtkErrorMacro(<<"Material mask is used but has length "
+                  << this->MaterialMask.size()
+                  << " != "
+                  << this->Descriptor.size()
+                  << " which is the length of the grid descriptor.");
+
+    return 0;
+    }
+
+   // Calculate refined block size
   this->BlockSize = this->BranchFactor;
   for ( unsigned int i = 1; i < this->Dimension; ++ i )
     {
