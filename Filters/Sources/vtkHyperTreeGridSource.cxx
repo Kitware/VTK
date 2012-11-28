@@ -389,7 +389,6 @@ int vtkHyperTreeGridSource::Initialize()
   vtksys_ios::ostringstream mask;
   for ( vtkStdString::iterator dit = this->Descriptor.begin(); dit != this->Descriptor.end();  ++ dit )
     {
-    cerr << *dit << "  " << *mit << endl;
     switch ( *dit )
       {
       case ' ':
@@ -462,6 +461,12 @@ int vtkHyperTreeGridSource::Initialize()
 
         break; // case '|'
       case 'R':
+        //  Refined cell, verify mask consistenty if needed
+        if ( this->UseMaterialMask && *mit == '0' )
+          {
+          vtkErrorMacro(<<"A refined branch must contain material.");
+          return 0;
+          }
         // Refined cell, update branch counter
         ++ nRefined;
 
