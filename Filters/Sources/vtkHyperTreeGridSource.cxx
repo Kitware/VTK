@@ -625,23 +625,8 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     } // if ( subdivide )
   else
     {
-    // Retrieve cartesian coordinates w.r.t. global grid
-//     int gs[3];
-//     this->Output->GetGridSize( gs );
-//     div_t q1 = div( index_g, gs[0] );
-//     double x[3];
-//     x[0] = q1.rem;
-//     x[1] = 0.;
-//     x[2] = 0.;
-//     if ( gs[1] )
-//       {
-//       div_t q2 = div( q1.quot, gs[1] );
-//       x[1] = q2.rem;
-//       x[2] = q2.quot;
-//       }
-
-    // Cell value is depth level
-    double val = level;
+    // Cell value is depth level or material presence if used
+    double val = this->UseMaterialMask ? this->LevelMaterialMasks.at( level ).at( pointer ) : level;
 
     // Offset cell index as needed
     vtkIdType id = cellIdOffset + cursor->GetLeafId();
