@@ -38,7 +38,6 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
 
   // Grid parameters
   this->BranchFactor = 2;
-  this->MinimumLevel = 1;
   this->MaximumLevel = 1;
 
   // Grid topology
@@ -64,11 +63,17 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->ZCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates->SetComponent( 1, 0, this->GridScale[2] );
 
+  // By default expose the primal grid API
+  this->Dual = false;
+
+  // By default do not use the material mask
+  this->UseMaterialMask = false;
+
   // Grid description
   this->Descriptor = ".";
 
-  // By default expose the primal grid API
-  this->Dual = false;
+  // Material mask
+  this->MaterialMask = "1";
 
   this->Output = NULL;
 }
@@ -111,7 +116,6 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
      << this->GridScale[2] << endl;
 
   os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
-  os << indent << "MinimumLevel: " << this->MinimumLevel << endl;
   os << indent << "Dimension: " << this->Dimension << endl;
   os << indent << "BranchFactor: " <<this->BranchFactor << endl;
   os << indent << "BlockSize: " <<this->BlockSize << endl;
@@ -129,10 +133,11 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
     this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
     }
 
-  os << indent << "Descriptor: " << this->Descriptor << endl;
   os << indent << "Dual: " << this->Dual << endl;
-  os << indent << "Output: " << endl;
+  os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
 
+  os << indent << "Descriptor: " << this->Descriptor << endl;
+  os << indent << "MaterialMask: " << this->Descriptor << endl;
   os << indent << "LevelDescriptors: " << this->LevelDescriptors.size() << endl;
   os << indent << "LevelCounters: " << this->LevelCounters.size() << endl;
 
@@ -159,6 +164,19 @@ void vtkHyperTreeGridSource::SetDescriptor( const vtkStdString& string )
 vtkStdString vtkHyperTreeGridSource::GetDescriptor()
 {
   return this->Descriptor;
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::SetMaterialMask( const vtkStdString& string )
+{
+  this->MaterialMask = string;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkStdString vtkHyperTreeGridSource::GetMaterialMask()
+{
+  return this->MaterialMask;
 }
 
 //----------------------------------------------------------------------------
@@ -191,50 +209,11 @@ void vtkHyperTreeGridSource::SetMaximumLevel( unsigned int levels )
     }
 
   this->MaximumLevel = levels;
-
-  // Update minimum level as well if needed
-  if( this->MinimumLevel > levels )
-    {
-    this->MinimumLevel = levels;
-    }
   this->Modified();
 
   assert( "post: is_set" && this->GetMaximumLevel() == levels );
-  assert( "post: min_is_valid" && this->GetMinimumLevel() <= this->GetMaximumLevel() );
 }
 
-
-//----------------------------------------------------------------------------
-// Description:
-// Return the minimal number of levels of systematic subdivision.
-// \post positive_result: result>=0
-unsigned int vtkHyperTreeGridSource::GetMinimumLevel()
-{
-  assert( "post: positive_result" );
-  return this->MinimumLevel;
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// Set the minimal number of levels of systematic subdivision.
-// \pre positive_minLevels: minLevels>=0 && minLevels<this->GetLevels()
-// \post is_set: this->GetMinLevels()==minLevels
-void vtkHyperTreeGridSource::SetMinimumLevel( unsigned int minLevels )
-{
-  if ( minLevels < 1 )
-    {
-    minLevels = 1;
-    }
-
-  if ( this->MinimumLevel == minLevels )
-    {
-    return;
-    }
-
-  this->Modified();
-  this->MinimumLevel = minLevels;
-  assert( "post: is_set" && this->GetMinimumLevel() == minLevels );
-}
 
 //----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
@@ -282,7 +261,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   this->Output->SetGridSize( this->GridSize );
   this->Output->SetDimension( this->Dimension );
   this->Output->SetBranchFactor( this->BranchFactor );
-  this->Output->SetDualGridFlag( this->Dual );
+  this->Output->SetUseDualGrid( this->Dual );
 
   // Create geometry
   for ( int i = 0; i < 3; ++ i )
@@ -328,13 +307,13 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   scalars->UnRegister( this );
 
   // Iterate over grid of trees
-  int n[3];
+  unsigned int n[3];
   this->Output->GetGridSize( n );
-  for ( int k = 0; k < n[2]; ++ k )
+  for ( unsigned int k = 0; k < n[2]; ++ k )
     {
-    for ( int j = 0; j < n[1]; ++ j )
+    for ( unsigned int j = 0; j < n[1]; ++ j )
       {
-      for ( int i = 0; i < n[0]; ++ i )
+      for ( unsigned int i = 0; i < n[0]; ++ i )
         {
         // Calculate global index
         int index_g = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
@@ -372,7 +351,7 @@ int vtkHyperTreeGridSource::Initialize()
 {
   // Calculate refined block size
   this->BlockSize = this->BranchFactor;
-  for ( int i = 1; i < this->Dimension; ++ i )
+  for ( unsigned int i = 1; i < this->Dimension; ++ i )
     {
     this->BlockSize *= this->BranchFactor;
     }

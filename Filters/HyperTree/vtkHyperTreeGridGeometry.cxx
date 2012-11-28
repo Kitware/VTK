@@ -44,12 +44,12 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
   this->Cells = vtkCellArray::New();
 
   // Iterate over all hyper trees
-  int* gridSize = this->Input->GetGridSize();
-  for ( int k = 0; k < gridSize[2]; ++ k )
+  unsigned int* gridSize = this->Input->GetGridSize();
+  for ( unsigned int k = 0; k < gridSize[2]; ++ k )
     {
-    for ( int j = 0; j < gridSize[1]; ++ j )
+    for ( unsigned int j = 0; j < gridSize[1]; ++ j )
       {
-        for ( int i = 0; i < gridSize[0]; ++ i )
+        for ( unsigned int i = 0; i < gridSize[0]; ++ i )
         {
         // Storage for super cursors
         vtkHyperTreeSuperCursor superCursor;
@@ -205,10 +205,10 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Ensure that primal grid API is used for hyper trees
-  int inputDualFlagIsOn = this->Input->GetDualGridFlag();
+  int inputDualFlagIsOn = this->Input->GetUseDualGrid();
   if ( inputDualFlagIsOn )
     {
-    this->Input->SetDualGridFlag( 0 );
+    this->Input->SetUseDualGrid( 0 );
     }
 
   // Initialize output cell data
@@ -222,7 +222,7 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   // Return duality flag of input to its original state
   if ( inputDualFlagIsOn )
     {
-    this->Input->SetDualGridFlag( 1 );
+    this->Input->SetUseDualGrid( 1 );
     }
 
   // Clean up
