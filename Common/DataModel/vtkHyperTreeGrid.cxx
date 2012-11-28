@@ -78,7 +78,6 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->Dimension =  1;
   this->NumberOfChildren = 2;
   this->UseDualGrid = 1;
-  this->UseMaterialMask = 0;
 
   // Grid geometry
   this->XCoordinates = vtkDoubleArray::New();
@@ -170,7 +169,6 @@ void vtkHyperTreeGrid::PrintSelf( ostream& os, vtkIndent indent )
     this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
     }
   os << indent << "UseDualGrid: " << this->UseDualGrid << endl;
-  os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -200,7 +198,6 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
   this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
   this->UseDualGrid = htg->UseDualGrid;
-  this->UseMaterialMask = htg->UseMaterialMask;
 
   // Un-register existing tree
   if ( this->HyperTrees )
@@ -337,22 +334,6 @@ void vtkHyperTreeGrid::SetUseDualGrid( int dual )
     }
   this->DeleteInternalArrays();
   this->UseDualGrid = dual;
-  this->Modified();
-}
-
-//-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::SetUseMaterialMask( int mask )
-{
-  if ( mask )
-    {
-    mask = 1;
-    }
-  if ( this->UseMaterialMask == mask )
-    {
-    return;
-    }
-  this->DeleteInternalArrays();
-  this->UseMaterialMask = mask;
   this->Modified();
 }
 

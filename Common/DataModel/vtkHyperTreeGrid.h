@@ -281,12 +281,6 @@ public:
   void SetUseDualGrid( int );
   vtkGetMacro(UseDualGrid,int);
 
- // Description:
-  // Set/get whether the material mask should be used.
-  // The default is that it should not.
-  void SetUseMaterialMask( int );
-  vtkGetMacro(UseMaterialMask,int);
-
   // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
@@ -397,9 +391,6 @@ protected:
   // the dual grid (leaves are points, corners are cells). 
   int UseDualGrid;
 
-  // Decide whether material mask must be taken into account
-  int UseMaterialMask;
- 
 private:
   vtkHyperTreeGrid(const vtkHyperTreeGrid&);  // Not implemented.
   void operator=(const vtkHyperTreeGrid&);    // Not implemented.

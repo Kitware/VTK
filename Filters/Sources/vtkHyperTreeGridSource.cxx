@@ -63,11 +63,17 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->ZCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates->SetComponent( 1, 0, this->GridScale[2] );
 
+  // By default expose the primal grid API
+  this->Dual = false;
+
+  // By default do not use the material mask
+  this->UseMaterialMask = false;
+
   // Grid description
   this->Descriptor = ".";
 
-  // By default expose the primal grid API
-  this->Dual = false;
+  // Material mask
+  this->MaterialMask = "1";
 
   this->Output = NULL;
 }
@@ -127,10 +133,11 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
     this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
     }
 
-  os << indent << "Descriptor: " << this->Descriptor << endl;
   os << indent << "Dual: " << this->Dual << endl;
-  os << indent << "Output: " << endl;
+  os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
 
+  os << indent << "Descriptor: " << this->Descriptor << endl;
+  os << indent << "MaterialMask: " << this->Descriptor << endl;
   os << indent << "LevelDescriptors: " << this->LevelDescriptors.size() << endl;
   os << indent << "LevelCounters: " << this->LevelCounters.size() << endl;
 
@@ -157,6 +164,19 @@ void vtkHyperTreeGridSource::SetDescriptor( const vtkStdString& string )
 vtkStdString vtkHyperTreeGridSource::GetDescriptor()
 {
   return this->Descriptor;
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::SetMaterialMask( const vtkStdString& string )
+{
+  this->MaterialMask = string;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkStdString vtkHyperTreeGridSource::GetMaterialMask()
+{
+  return this->MaterialMask;
 }
 
 //----------------------------------------------------------------------------
