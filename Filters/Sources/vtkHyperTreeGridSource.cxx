@@ -139,6 +139,7 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Descriptor: " << this->Descriptor << endl;
   os << indent << "MaterialMask: " << this->Descriptor << endl;
   os << indent << "LevelDescriptors: " << this->LevelDescriptors.size() << endl;
+  os << indent << "LevelMaterialMasks: " << this->LevelMaterialMasks.size() << endl;
   os << indent << "LevelCounters: " << this->LevelCounters.size() << endl;
 
   os << indent
@@ -376,19 +377,19 @@ int vtkHyperTreeGridSource::Initialize()
   vtkStdString::iterator mit;
   if ( this->UseMaterialMask )
     {
-    mit = this->Descriptor.begin();
+    mit = this->MaterialMask.begin();
     }
 
-  // Parse string descriptor and material mask if it used
+  // Parse string descriptor and material mask if used
   unsigned int nRefined = 0;
   unsigned int nLeaves = 0;
   unsigned int nNextLevel = nTotal;
   bool rootLevel = true;
   vtksys_ios::ostringstream descriptor;
   vtksys_ios::ostringstream mask;
-  char m = 0;
-  for ( vtkStdString::iterator dit = this->Descriptor.begin(); dit != this->Descriptor.end(); ++ dit )
+  for ( vtkStdString::iterator dit = this->Descriptor.begin(); dit != this->Descriptor.end();  ++ dit )
     {
+    cerr << *dit << "  " << *mit << endl;
     switch ( *dit )
       {
       case ' ':
@@ -398,10 +399,25 @@ int vtkHyperTreeGridSource::Initialize()
           vtkErrorMacro(<<"Space separators do not match between descriptor and material mask.");
           return 0;
           }
-        continue;
+
+        // Advance material mask iterator only if needed
+        if ( this->UseMaterialMask )
+          {
+          ++ mit;
+          }
+
+        continue; // case ' '
       case '|':
-        //  A level is complete
+        //  A level is complete, verify mask consistenty if needed
+        if ( this->UseMaterialMask && *mit != '|' )
+          {
+          vtkErrorMacro(<<"Level separators do not match between descriptor and material mask.");
+          return 0;
+          }
+
+        // Store descriptor and material mask for current level
         this->LevelDescriptors.push_back( descriptor.str().c_str() );
+        this->LevelMaterialMasks.push_back( mask.str().c_str() );
 
         // Check whether cursor is still at rool level
         if ( rootLevel )
@@ -444,30 +460,38 @@ int vtkHyperTreeGridSource::Initialize()
         nRefined = 0;
         nLeaves = 0;
 
-        break;
+        break; // case '|'
       case 'R':
         // Refined cell, update branch counter
         ++ nRefined;
 
-        // Append character to per level string
+        // Append characters to per level descriptor and material mask if used
         descriptor << *dit;
+        if ( this->UseMaterialMask )
+          {
+          mask << *mit;
+          }
 
-        break;
+        break; // case 'R'
       case '.':
         // Leaf cell, update leaf counter
         ++ nLeaves;
 
-        // Append character to per level string
+        // Append characters to per level descriptor and material mask if used
         descriptor << *dit;
+        if ( this->UseMaterialMask )
+          {
+          mask << *mit;
+          }
 
-        break;
+        break; // case '.'
       default:
         vtkErrorMacro(<< "Unrecognized character: "
                       << *dit
                       << " in string "
                       << this->Descriptor);
 
-        return 0;
+        return 0; // default
       } // switch( *dit )
 
     // Advance material mask iterator only if needed
@@ -489,7 +513,13 @@ int vtkHyperTreeGridSource::Initialize()
 
     return 0;
     }
+
+  // Push per-level descriptor and material mask if used
   this->LevelDescriptors.push_back( descriptor.str().c_str() );
+  if ( this->UseMaterialMask )
+    {
+    this->LevelMaterialMasks.push_back( mask.str().c_str() );
+    }
 
   // Reset maximum depth if fewer levels are described
   unsigned int nLevels = static_cast<unsigned int>( this->LevelDescriptors.size() );

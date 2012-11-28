@@ -150,6 +150,7 @@ protected:
   vtkStdString Descriptor;
   vtkStdString MaterialMask;
   std::vector<vtkStdString> LevelDescriptors;
+  std::vector<vtkStdString> LevelMaterialMasks;
   std::vector<int> LevelCounters;
   vtkHyperTreeGrid* Output;
 
