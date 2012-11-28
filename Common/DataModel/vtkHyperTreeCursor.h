@@ -81,7 +81,7 @@ public:
   virtual int CurrentIsTerminalNode() = 0;
   
   // Description:
-  // Move the cursor the root node.
+  // Move the cursor to the root node.
   // \pre can be root
   // \post is_root: CurrentIsRoot()
   virtual void ToRoot() = 0;
