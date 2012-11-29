@@ -55,31 +55,26 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  // Access
-  // Return the id of the current leaf in order to
-  // access to the data.
-  // \pre is_leaf: CurrentIsLeaf()
   int GetLeafId()
   {
-    assert( "pre: is_leaf" && CurrentIsLeaf() );
+    assert( "pre: is_leaf" && IsLeaf() );
     return this->Index;
   }
 
-  // Status
-  virtual int CurrentIsLeaf()
+  //---------------------------------------------------------------------------
+  virtual int IsLeaf()
   {
-    return this->IsLeaf;
-  }
-
-  virtual int CurrentIsRoot()
-  {
-    return ( this->IsLeaf && ! this->Index && this->Tree->GetLeafParentSize()==1 ) || (!this->IsLeaf && this->Index==1);
+    return this->Leaf;
   }
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Return the level of the node pointed by the cursor.
-  // \post positive_result: result >= 0
+  virtual int IsRoot()
+  {
+    return ( ! this->Leaf && this->Index == 1 )
+      || ( this->Leaf && ! this->Index && this->Tree->GetLeafParentSize() == 1 );
+  }
+
+  //---------------------------------------------------------------------------
   virtual int GetCurrentLevel()
   {
     int result = this->GetChildHistorySize();
@@ -90,7 +85,7 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // Return the child number of the current node relative to its parent.
-  // \pre not_root: !CurrentIsRoot().
+  // \pre not_root: !IsRoot().
   // \post valid_range: result >= 0 && result<GetNumberOfChildren()
   virtual int GetChildIndex()
   {
@@ -101,29 +96,29 @@ public:
   //---------------------------------------------------------------------------
   // Are the children of the current node all leaves?
   // This query can be called also on a leaf node.
-  // \post compatible: result implies !CurrentIsLeaf()
-  virtual int CurrentIsTerminalNode()
+  // \post compatible: result implies !IsLeaf()
+  virtual int IsTerminalNode()
   {
-    int result = !this->IsLeaf;
+    int result = !this->Leaf;
     if(result)
       {
       vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Index);
       result = node->IsTerminalNode();
       }
     // A=>B: notA or B
-    assert( "post: compatible" && (!result || !this->IsLeaf) );
+    assert( "post: compatible" && (!result || !this->Leaf) );
     return result;
   }
 
   //---------------------------------------------------------------------------
   // Cursor movement.
   // \pre can be root
-  // \post is_root: CurrentIsRoot()
+  // \post is_root: IsRoot()
   virtual void ToRoot()
   {
     this->ChildHistory.clear();
-    this->IsLeaf = ( this->Tree->GetLeafParentSize() == 1 );
-    if ( this->IsLeaf )
+    this->Leaf = ( this->Tree->GetLeafParentSize() == 1 );
+    if ( this->Leaf )
       {
       this->Index = 0;
       }
@@ -140,11 +135,11 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  // \pre not_root: !CurrentIsRoot()
+  // \pre not_root: !IsRoot()
   virtual void ToParent()
   {
-    assert( "pre: not_root" && !CurrentIsRoot() );
-    if( this->IsLeaf)
+    assert( "pre: not_root" && !IsRoot() );
+    if( this->Leaf)
       {
       this->Index = this->Tree->GetLeafParent( this->Index);
       }
@@ -152,7 +147,7 @@ public:
       {
       this->Index = this->Tree->GetNode( this->Index)->GetParent();
       }
-    this->IsLeaf = 0;
+    this->Leaf = 0;
     this->ChildIndex=this->ChildHistory.back(); // top()
     this->ChildHistory.pop_back();
 
@@ -163,18 +158,18 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  // \pre not_leaf: !CurrentIsLeaf()
+  // \pre not_leaf: !IsLeaf()
   // \pre valid_child: child >= 0 && child<this->GetNumberOfChildren()
   virtual void ToChild(int child)
   {
-    assert( "pre: not_leaf" && !CurrentIsLeaf() );
+    assert( "pre: not_leaf" && !IsLeaf() );
     assert( "pre: valid_child" && child >= 0 && child<this->GetNumberOfChildren() );
 
     vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Index);
     this->ChildHistory.push_back( this->ChildIndex );
     this->ChildIndex=child;
     this->Index=node->GetChild( child );
-    this->IsLeaf=node->IsChildLeaf( child );
+    this->Leaf=node->IsChildLeaf( child );
 
     int tmpChild = child;
     int tmp;
@@ -205,7 +200,7 @@ public:
 
     this->Index = o->Index;
     this->ChildIndex = o->ChildIndex;
-    this->IsLeaf = o->IsLeaf;
+    this->Leaf = o->Leaf;
     this->ChildHistory = o->ChildHistory; // use assignment operator
       
     for( unsigned int i = 0; i < this->Dimension; ++ i )
@@ -228,7 +223,7 @@ public:
     vtkCompactHyperTreeCursor<N> *o=static_cast<vtkCompactHyperTreeCursor<N> *>(other);
 
     int result = this->Index==o->Index && this->ChildIndex==o->ChildIndex
-      && this->IsLeaf==o->IsLeaf && this->ChildHistory==o->ChildHistory;
+      && this->Leaf==o->Leaf && this->ChildHistory==o->ChildHistory;
 
     for( unsigned int i = 0; result && i < this->Dimension; ++ i )
       {
@@ -335,7 +330,7 @@ public:
       mask *= this->Tree->GetBranchFactor();
       }
 
-    while( !this->CurrentIsLeaf() && currentLevel < level )
+    while( !this->IsLeaf() && currentLevel < level )
       {
       // Compute the child index
       i = this->Dimension - 1;
@@ -367,7 +362,7 @@ public:
   // Public only for vtkCompactHyperTree.
   void SetIsLeaf(int value)
   {
-    this->IsLeaf = value;
+    this->Leaf = value;
   }
 
   //---------------------------------------------------------------------------
@@ -427,7 +422,7 @@ protected:
       }
     this->Tree = 0;
     this->Index = 0;
-    this->IsLeaf = 0;
+    this->Leaf = 0;
     this->ChildIndex = 0;
 
     for ( unsigned int i = 0; i < this->Dimension; ++ i )
@@ -446,7 +441,7 @@ protected:
   int ChildIndex;
 
   int IsFound;
-  int IsLeaf;
+  int Leaf;
 
   // A stack, but stack does not have clear()
   std::deque<int> ChildHistory;
@@ -734,11 +729,11 @@ public:
   // Subdivide node pointed by cursor, only if its a leaf.
   // At the end, cursor points on the node that used to be leaf.
   // \pre leaf_exists: leaf != 0
-  // \pre is_a_leaf: leaf->CurrentIsLeaf()
+  // \pre is_a_leaf: leaf->IsLeaf()
   void SubdivideLeaf( vtkHyperTreeCursor* leafCursor )
   {
     assert( "pre: leaf_exists" && leafCursor != 0 );
-    assert( "pre: is_a_leaf" && leafCursor->CurrentIsLeaf() );
+    assert( "pre: is_a_leaf" && leafCursor->IsLeaf() );
 
     // We are using a vtkCompactHyperTreeCursor.
     // We know that GetLeafId() return Cursor.

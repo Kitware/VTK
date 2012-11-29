@@ -445,11 +445,11 @@ vtkHyperTreeCursor* vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
 // Subdivide node pointed by cursor, only if its a leaf.
 // At the end, cursor points on the node that used to be leaf.
 // \pre leaf_exists: leaf!=0
-// \pre is_a_leaf: leaf->CurrentIsLeaf()
+// \pre is_a_leaf: leaf->IsLeaf()
 void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType i )
 {
-  assert( "pre: leaf_exists" && leaf!=0 );
-  assert( "pre: is_a_leaf" && leaf->CurrentIsLeaf() );
+  assert( "pre: leaf_exists" && leaf );
+  assert( "pre: is_a_leaf" && leaf->IsLeaf() );
   vtkObject* obj = this->HyperTrees->GetItemAsObject( i );
   if ( obj )
     {
