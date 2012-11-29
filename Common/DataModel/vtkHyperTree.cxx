@@ -363,14 +363,14 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  // NB: public only vtkHyperTree
+  // NB: Public only for the vtkCompactHyperTreeCursor.
   void SetIsLeaf( bool value )
   {
     this->Leaf = value;
   }
 
   //---------------------------------------------------------------------------
-  // NB: public only vtkHyperTree
+  // NB: Public only for the vtkCompactHyperTreeCursor.
   void SetIsBlank( bool value )
   {
     this->Blank = value;
@@ -727,8 +727,7 @@ public:
   }
   
   //---------------------------------------------------------------------------
-  // Description:
-  // Public only for the vtkCompactHyperTreeCursor.
+  // NB: Public only for the vtkCompactHyperTreeCursor.
   virtual int GetNumberOfNodes()
   {
     assert( "post: not_empty" && this->Nodes.size()>0 );
@@ -736,11 +735,6 @@ public:
   }
   
   //---------------------------------------------------------------------------
-  // Description:
-  // Subdivide node pointed by cursor, only if its a leaf.
-  // At the end, cursor points on the node that used to be leaf.
-  // \pre leaf_exists: leaf != 0
-  // \pre is_a_leaf: leaf->IsLeaf()
   void SubdivideLeaf( vtkHyperTreeCursor* leafCursor )
   {
     assert( "pre: leaf_exists" && leafCursor != 0 );
@@ -799,6 +793,20 @@ public:
       this->NumberOfLeavesPerLevel.resize( this->NumberOfLevels );
       }
     this->NumberOfLeavesPerLevel[level + 1] += N;
+  }
+
+  //---------------------------------------------------------------------------
+  void BlankLeaf( vtkHyperTreeCursor* leafCursor )
+  {
+    assert( "pre: leaf_exists" && leafCursor != 0 );
+    assert( "pre: is_a_leaf" && leafCursor->IsLeaf() );
+
+    // We are using a vtkCompactHyperTreeCursor.
+    // We know that GetLeafId() return Cursor.
+    vtkCompactHyperTreeCursor<N>* cursor = static_cast<vtkCompactHyperTreeCursor<N> *>( leafCursor );
+
+    // The is blanked, let the cursor know about that change.
+    cursor->SetIsBlank( true );
   }
 
   //---------------------------------------------------------------------------
@@ -909,6 +917,8 @@ protected:
   int BranchFactor;
   int Dimension;
   vtkIdType NumberOfLevels;
+
+  // Storage for non-leaf tree nodes
   std::vector<vtkCompactHyperTreeNode<N> > Nodes;
 
   // Storage for number of leaves in each level
