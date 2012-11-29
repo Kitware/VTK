@@ -409,7 +409,8 @@ public:
   void Initialize( vtkHyperTreeGrid*, vtkIdType*, int, int, int, int );
   void ToRoot();
   void ToChild( int );
-  unsigned short GetIsLeaf();
+  bool IsBlank()  { return this->Blank; };
+  bool IsLeaf();
   vtkHyperTree* GetTree() { return this->Tree; }
   int GetLeafIndex() { return this->Index; } // Only valid for leaves.
 
@@ -420,7 +421,8 @@ private:
   vtkHyperTree* Tree;
   int Index;
   vtkIdType Offset;
-  unsigned short IsLeaf;
+  bool Blank;
+  bool Leaf;
   unsigned short Level;
 };
 

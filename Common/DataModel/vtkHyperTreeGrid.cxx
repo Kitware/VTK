@@ -1051,7 +1051,7 @@ vtkIdType vtkHyperTreeGrid::RecursiveFindPoint( double x[3],
                                                 double* origin, 
                                                 double* size )
 {
-  if ( cursor->GetIsLeaf() )
+  if ( cursor->IsLeaf() )
     {
     return cursor->GetLeafIndex();
     }
@@ -1392,7 +1392,7 @@ void vtkHyperTreeGrid::InitializeSuperCursorChild(vtkHyperTreeGridSuperCursor* p
       // No node for this cursor.
       child->Cursors[cursorIdx] = parent->Cursors[tParent];
       }
-    else if ( parent->Cursors[tParent].GetIsLeaf() )
+    else if ( parent->Cursors[tParent].IsLeaf() )
       {
       // Parent is a leaf.  Can't traverse anymore.
       // equal operator should work for this class.
@@ -1480,7 +1480,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
 {
   // Level of the middle cursor.
   int midLevel = superCursor->GetCursor( 0 )->GetLevel();
-  if ( superCursor->GetCursor( 0 )->GetIsLeaf() )
+  if ( superCursor->GetCursor( 0 )->IsLeaf() )
     { 
     // Center is a leaf, create a dual point
     double pt[3];
@@ -1562,7 +1562,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
         if ( cursorIdx != superCursor->MiddleCursorId )
           {
           vtkHyperTreeGridCursor* cursor = superCursor->Cursors + cursorIdx;
-          if ( ! cursor->GetTree() || ! cursor->GetIsLeaf() )
+          if ( ! cursor->GetTree() || ! cursor->IsLeaf() )
             {
             // If neighbor leaf is out of bounds or has not been
             // refined to a leaf, this leaf does not own the corner.
@@ -1612,7 +1612,7 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner( int level,
     // All corners must be leaves
     // Note: this test also makes sure all are initialized.
     if ( superCursor->Cursors[cornerCursorIds[leaf]].GetTree() &&
-         !superCursor->Cursors[cornerCursorIds[leaf]].GetIsLeaf() )
+         !superCursor->Cursors[cornerCursorIds[leaf]].IsLeaf() )
       {
       return -1;
       }
@@ -1809,7 +1809,7 @@ void vtkHyperTreeGrid::TraverseGridRecursively( vtkHyperTreeGridSuperCursor* sup
   int cornerId;
   int cornerIds[8];
   int level = superCursor->GetCursor( 0 )->GetLevel();
-  if ( superCursor->GetCursor( 0 )->GetIsLeaf() )
+  if ( superCursor->GetCursor( 0 )->IsLeaf() )
     {
     // Center is a leaf.
     // Evaluate each corner to see if we should process it now.
@@ -1997,7 +1997,8 @@ vtkHyperTreeGridCursor::vtkHyperTreeGridCursor()
   this->Tree = 0;
   this->Index = 0;
   this->Offset = 0;
-  this->IsLeaf = 0;
+  this->Blank = false;
+  this->Leaf = false;
   this->Level = 0;
 }
 
@@ -2017,7 +2018,8 @@ void vtkHyperTreeGridCursor::Clear()
   this->Tree = 0;
   this->Index = 0;
   this->Offset = 0;
-  this->IsLeaf = 0;
+  this->Blank = false;
+  this->Leaf = false;
   this->Level = 0;
 }
 
@@ -2053,35 +2055,39 @@ void vtkHyperTreeGridCursor::Initialize( vtkHyperTreeGrid* grid,
 }
 
 //-----------------------------------------------------------------------------
-unsigned short vtkHyperTreeGridCursor::GetIsLeaf()
+bool vtkHyperTreeGridCursor::IsLeaf()
 {
   // Empty cursors appear like a leaf so that recursion stop.
-  if ( this->Tree == 0 )
+  if ( ! this->Tree )
     {
-    return 1;
+    return true;
     }
-  return this->IsLeaf;
+
+  return this->Leaf;
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridCursor::ToRoot()
 {
-  if ( this->Tree == 0 )
+  if ( ! this->Tree )
     {
     return;
     }
+
+  // Return to root level
   this->Level = 0;
+
   if ( this->Tree->GetNumberOfLeaves() == 1 )
     {
     // Root is a leaf.
     this->Index = 0;
-    this->IsLeaf = 1;
+    this->Leaf = true;
     }
   else
     {
     // Root is a node.
     this->Index = 1; // First node ( 0 ) is a special empty node.
-    this->IsLeaf = 0;
+    this->Leaf = false;
     }
 }
 
@@ -2092,18 +2098,18 @@ void vtkHyperTreeGridCursor::ToChild( int child )
     {
     return;
     }
-  if ( this->IsLeaf )
+  if ( this->Leaf )
     {
     // Leaves do not have children.
     return;
     }
 
-  this->Tree->FindChildParameters( child, this->Index, this->IsLeaf );
+  this->Tree->FindChildParameters( child, this->Index, this->Leaf );
 
   ++ this->Level;
 
   assert( "Bad index" && this->Index >= 0 );
-  if ( this->IsLeaf )
+  if ( this->Leaf )
     {
     assert( "Bad leaf index" && this->Index < this->Tree->GetNumberOfLeaves() );
     }

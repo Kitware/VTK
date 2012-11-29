@@ -962,7 +962,7 @@ vtkHyperTree* vtkHyperTree::CreateInstance( int factor, int dimension )
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTree::FindChildParameters( int child, int &index, unsigned short& isLeaf )
+void vtkHyperTree::FindChildParameters( int child, int &index, bool& isLeaf )
 {
   
   switch ( this->GetDimension() )

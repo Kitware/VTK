@@ -212,7 +212,20 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId, double* origin,
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
 {
-  // Terminate if the middle cell is not on the boundary.
+  // If node is not a leaf, recurse to all children
+  if ( ! superCursor->GetCursor( 0 )->IsLeaf() )
+    {
+    int numChildren = this->Input->GetNumberOfChildren();
+    for ( int child = 0; child < numChildren; ++ child )
+      {
+      vtkHyperTreeGridSuperCursor newSuperCursor;
+      this->Input->InitializeSuperCursorChild( superCursor, &newSuperCursor, child );
+      this->RecursiveProcessTree( &newSuperCursor );
+      }
+    return;
+    }
+
+  // In 3D case, terminate if the middle cell is not on the boundary.
   int dim = this->Input->GetDimension();
   if ( dim == 3 &&
        superCursor->GetCursor( -1 )->GetTree() &&
@@ -225,24 +238,11 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
     return;
     }
   
-  // If node is not a leaf, recurse to all children
-  if ( ! superCursor->GetCursor( 0 )->GetIsLeaf() )
-    {
-    int numChildren = this->Input->GetNumberOfChildren();
-    for ( int child = 0; child < numChildren; ++ child )
-      {
-      vtkHyperTreeGridSuperCursor newSuperCursor;
-      this->Input->InitializeSuperCursorChild( superCursor, &newSuperCursor, child );
-      this->RecursiveProcessTree( &newSuperCursor );
-      }
-    return;
-    }
-
   // Node is a leaf, create the outer surfaces.
   vtkIdType inId = superCursor->GetCursor( 0 )->GetGlobalLeafIndex();
   if ( dim == 1 )
     {
-    // 1 dimensional trees are a special case (probably never used).
+    // 1D trees are a special case (probably never used).
     vtkIdType ids[2];
     ids[0] = this->Points->InsertNextPoint( superCursor->Origin );
     double pt[3];
@@ -258,7 +258,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
     }
   else if ( dim == 3 )
     {
-    // 3d cells have internal faces to skip, check the 6 faces for boundaries
+    // 3D cells have internal faces to skip, check the 6 faces for boundaries
     if ( superCursor->GetCursor( -1 )->GetTree() == 0 )
       {
       this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 0, 1, 2 );

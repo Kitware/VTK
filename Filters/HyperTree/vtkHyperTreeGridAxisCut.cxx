@@ -233,7 +233,7 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeGridSuperCursor*
     }
 
   // If we are at a leaf, create the outer surfaces.
-  if ( superCursor->GetCursor( 0 )->GetIsLeaf() )
+  if ( superCursor->GetCursor( 0 )->IsLeaf() )
     {
     vtkIdType inId = superCursor->GetCursor( 0 )->GetGlobalLeafIndex();
     double k = this->PlanePosition-superCursor->Origin[this->PlaneNormalAxis];
