@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 // Description:
 // The template value N describes the number of children to binary and
 // ternary trees.
-template<int N> class vtkCompactHyperTree;
+template<int N> class vtkCompactHyperTree; // : public vtkHyperTree
 template<int N> class vtkCompactHyperTreeNode;
 template<int N> class vtkCompactHyperTreeCursor : public vtkHyperTreeCursor
 {
@@ -49,7 +49,7 @@ public:
 
   //---------------------------------------------------------------------------
   // Initialization
-  virtual void Init(vtkCompactHyperTree<N>* tree)
+  virtual void SetTree( vtkCompactHyperTree<N>* tree )
   {
     this->Tree = tree;
   }
@@ -671,8 +671,8 @@ public:
   //---------------------------------------------------------------------------
   virtual vtkHyperTreeCursor* NewCursor()
   {
-    vtkCompactHyperTreeCursor<N> *result = vtkCompactHyperTreeCursor<N>::New();
-    result->Init( this );
+    vtkCompactHyperTreeCursor<N>* result = vtkCompactHyperTreeCursor<N>::New();
+    result->SetTree( this );
     return result;
   }
   
@@ -743,10 +743,10 @@ public:
     // We are using a vtkCompactHyperTreeCursor.
     // We know that GetLeafId() return Cursor.
     int leafIndex = leafCursor->GetLeafId();
-    vtkCompactHyperTreeCursor<N>* cursor=static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
+    vtkCompactHyperTreeCursor<N>* cursor = static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
 
-    // The leaf becomes a node and is not anymore a leaf.
-    cursor->SetIsLeaf( 0 ); // let the cursor knows about that change.
+    // The leaf becomes a node and is not anymore a leaf
+    cursor->SetIsLeaf( 0 ); // let the cursor know about that change.
     size_t nodeIndex = this->Nodes.size();
     cursor->SetIndex( static_cast<int>( nodeIndex ) );
 
@@ -756,7 +756,7 @@ public:
     this->Nodes[nodeIndex].SetParent( parentNodeIdx );
 
     // Change the parent: it has one less child as a leaf
-    vtkCompactHyperTreeNode<N> *parent=&( this->Nodes[parentNodeIdx] );
+    vtkCompactHyperTreeNode<N>* parent = &( this->Nodes[parentNodeIdx] );
 
     // New nodes index in parents children array.
     int idx = cursor->GetChildIndex();
@@ -780,7 +780,7 @@ public:
       }
 
     // Update the number of leaves per level.
-    int level=cursor->GetChildHistorySize();
+    int level = cursor->GetChildHistorySize();
 
     // Remove the subdivided leaf from the number of leaves at its level.
     -- this->NumberOfLeavesPerLevel[level];
