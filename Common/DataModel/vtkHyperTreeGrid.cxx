@@ -453,12 +453,9 @@ void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType i )
   vtkObject* obj = this->HyperTrees->GetItemAsObject( i );
   if ( obj )
     {
-    vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
-    if ( tree )
-      {
-      tree->SubdivideLeaf( leaf );
-      this->DeleteInternalArrays();
-      }
+    vtkHyperTree* tree = static_cast<vtkHyperTree*>( obj );
+    tree->SubdivideLeaf( leaf );
+    this->DeleteInternalArrays();
     }
 
   return;
