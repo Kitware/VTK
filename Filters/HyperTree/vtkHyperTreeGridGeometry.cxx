@@ -33,8 +33,23 @@ vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
   this->Output = 0;
 }
 
+//-----------------------------------------------------------------------------
+vtkHyperTreeGridGeometry::~vtkHyperTreeGridGeometry()
+{
+  if ( this->Points )
+    {
+    this->Points->Delete();
+    this->Points = 0;
+    }
+  if ( this->Cells )
+    {
+    this->Cells->Delete();
+    this->Cells = 0;
+    }
+}
+
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGridGeometry::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
 
@@ -165,10 +180,6 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
     }
 
   this->Output->SetPoints( this->Points );
-  this->Points->Delete();
-  this->Points = 0;
-  this->Cells->Delete();
-  this->Cells = 0;
 }
 
 
@@ -205,12 +216,12 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
   // Only 3d cells have internal faces to skip.
   int dim = this->Input->GetDimension();
   if ( dim == 3 &&
-      superCursor->GetCursor( -1 )->GetTree() &&
-      superCursor->GetCursor( 1 )->GetTree() &&
-      superCursor->GetCursor( -3 )->GetTree() &&
-      superCursor->GetCursor( 3 )->GetTree() &&
-      superCursor->GetCursor( -9 )->GetTree() &&
-      superCursor->GetCursor( 9 )->GetTree() )
+       superCursor->GetCursor( -1 )->GetTree() &&
+       superCursor->GetCursor( 1 )->GetTree() &&
+       superCursor->GetCursor( -3 )->GetTree() &&
+       superCursor->GetCursor( 3 )->GetTree() &&
+       superCursor->GetCursor( -9 )->GetTree() &&
+       superCursor->GetCursor( 9 )->GetTree() )
     {
     return;
     }

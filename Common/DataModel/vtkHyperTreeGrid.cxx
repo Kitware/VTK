@@ -48,8 +48,8 @@ vtkStandardNewMacro(vtkHyperTreeGrid);
 vtkCxxSetObjectMacro(vtkHyperTreeGrid,XCoordinates,vtkDataArray);
 vtkCxxSetObjectMacro(vtkHyperTreeGrid,YCoordinates,vtkDataArray);
 vtkCxxSetObjectMacro(vtkHyperTreeGrid,ZCoordinates,vtkDataArray);
+
 //-----------------------------------------------------------------------------
-// Default constructor.
 vtkHyperTreeGrid::vtkHyperTreeGrid()
 {
   // Grid of hyper trees
@@ -97,7 +97,6 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
 }
 
 //-----------------------------------------------------------------------------
-// Destructor.
 vtkHyperTreeGrid::~vtkHyperTreeGrid()
 {
   if ( this->HyperTrees )

@@ -16,11 +16,10 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkCellData.h"
-#include "vtkHyperTreeGrid.h"
 #include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
@@ -35,6 +34,21 @@ vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 
   this->PlanePosition = 0.0;
   this->PlaneNormalAxis = 0;
+}
+
+//-----------------------------------------------------------------------------
+vtkHyperTreeGridAxisCut::~vtkHyperTreeGridAxisCut()
+{
+  if ( this->Points )
+    {
+    this->Points->Delete();
+    this->Points = 0;
+    }
+  if ( this->Cells )
+    {
+    this->Cells->Delete();
+    this->Cells = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -180,10 +194,6 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
     }
 
   this->Output->SetPoints( this->Points );
-  this->Points->Delete();
-  this->Points = 0;
-  this->Cells->Delete();
-  this->Cells = 0;
 }
 
 

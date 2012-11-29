@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkHyperTreeGridAxisCut();
-  ~vtkHyperTreeGridAxisCut() {};
+  ~vtkHyperTreeGridAxisCut();
 
   int PlaneNormalAxis;
   double PlanePosition;

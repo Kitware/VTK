@@ -34,7 +34,7 @@ public:
 
 protected:
   vtkHyperTreeGridGeometry();
-  ~vtkHyperTreeGridGeometry() {};
+  ~vtkHyperTreeGridGeometry();
 
   virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
   virtual int FillInputPortInformation( int, vtkInformation* );
