@@ -241,10 +241,6 @@ public:
   }
 
   //--------------------------------------------------------------------------
-  // Description:
-  // Create a copy of `this'.
-  // \post results_exists:result != 0
-  // \post same_tree: result->SameTree( this )
   virtual vtkHyperTreeCursor* Clone()
   {
     vtkCompactHyperTreeCursor<N>* result = this->NewInstance();
@@ -255,17 +251,14 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Are `this' and `other' pointing on the same hyperTree?
-  // \pre other_exists: other != 0
   virtual int SameTree( vtkHyperTreeCursor* other )
   {
     assert( "pre: other_exists" && other != 0 );
     vtkCompactHyperTreeCursor<N> *o=vtkCompactHyperTreeCursor<N>::SafeDownCast( other );
-    int result = o != 0;
-    if(result)
+    int result = ( o != 0 );
+    if( result )
       {
-      result = this->Tree==o->Tree;
+      result = this->Tree == o->Tree;
       }
     return result;
   }
