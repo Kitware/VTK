@@ -142,16 +142,16 @@ public:
   virtual void ToParent()
   {
     assert( "pre: not_root" && !IsRoot() );
-    if( this->Leaf)
+    if( this->Leaf )
       {
-      this->Index = this->Tree->GetLeafParent( this->Index);
+      this->Index = this->Tree->GetLeafParent( this->Index );
       }
     else
       {
       this->Index = this->Tree->GetNode( this->Index)->GetParent();
       }
     this->Leaf = false;
-    this->ChildIndex=this->ChildHistory.back(); // top()
+    this->ChildIndex = this->ChildHistory.back(); // top()
     this->ChildHistory.pop_back();
 
     for ( unsigned int i = 0; i < this->Dimension;  ++ i )
@@ -204,6 +204,7 @@ public:
     this->Index = o->Index;
     this->ChildIndex = o->ChildIndex;
     this->Leaf = o->Leaf;
+    this->Blank = o->Blank;
     this->ChildHistory = o->ChildHistory; // use assignment operator
       
     for( unsigned int i = 0; i < this->Dimension; ++ i )
@@ -228,6 +229,7 @@ public:
     int result = this->Index == o->Index
       && this->ChildIndex == o->ChildIndex
       && this->Leaf == o->Leaf
+      && this->Blank == o->Blank
       && this->ChildHistory == o->ChildHistory;
 
     for( unsigned int i = 0; result && i < this->Dimension; ++ i )
@@ -750,7 +752,7 @@ public:
     vtkCompactHyperTreeCursor<N>* cursor = static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
 
     // The leaf becomes a node and is not anymore a leaf
-    cursor->SetIsLeaf( 0 ); // let the cursor know about that change.
+    cursor->SetIsLeaf( false ); // let the cursor know about that change.
     size_t nodeIndex = this->Nodes.size();
     cursor->SetIndex( static_cast<int>( nodeIndex ) );
 
