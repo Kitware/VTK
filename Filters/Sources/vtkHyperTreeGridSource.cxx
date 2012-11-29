@@ -570,20 +570,20 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     this->Output->SubdivideLeaf( cursor, treeIdx );
 
     // Now traverse to children.
-    int xDim, yDim, zDim;
-    xDim = yDim = zDim = 1;
-    if ( this->Dimension == 1 )
+    int xDim = 1;
+    int yDim = 1;
+    int zDim = 1;
+    switch ( this->Dimension )
       {
-      xDim = this->BranchFactor;
+      // Warning: Run through is intended! Do NOT add break statements
+      case 3:
+        zDim = this->BranchFactor;
+      case 2:
+        yDim = this->BranchFactor;
+      case 1:
+        xDim = this->BranchFactor;
       }
-    else if ( this->Dimension == 2 )
-      {
-      xDim = yDim = this->BranchFactor;
-      }
-    else if ( this->Dimension == 3 )
-      {
-      xDim = yDim = zDim = this->BranchFactor;
-      }
+
     int newChildIdx = 0;
     int newIdx[3];
     for ( int z = 0; z < zDim; ++ z )
