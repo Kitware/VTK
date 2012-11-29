@@ -56,7 +56,7 @@ protected:
 
   void ProcessTrees();
 //BTX
-  void RecursiveProcessTree(vtkHyperTreeSuperCursor* superCursor);
+  void RecursiveProcessTree(vtkHyperTreeGridSuperCursor* superCursor);
 //ETX
   vtkHyperTreeGrid* Input;
   vtkPolyData* Output;

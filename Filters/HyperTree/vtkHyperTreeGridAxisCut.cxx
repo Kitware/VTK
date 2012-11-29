@@ -56,7 +56,7 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
         for ( unsigned int i = 0; i < gridSize[0]; ++ i )
         {
         // Storage for super cursors
-        vtkHyperTreeSuperCursor superCursor;
+        vtkHyperTreeGridSuperCursor superCursor;
 
         // Initialize center cursor
         this->Input->InitializeSuperCursor(&superCursor, i, j, k );
@@ -109,7 +109,7 @@ void vtkHyperTreeGridAxisCut::AddFace( vtkIdType inId, double* origin,
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeSuperCursor* superCursor )
+void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
 {
   // Terminate if the node does not touch the plane.
   if ( superCursor->Origin[this->PlaneNormalAxis] > this->PlanePosition ||
@@ -153,7 +153,7 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeSuperCursor* sup
   int numChildren = this->Input->GetNumberOfChildren();
   for ( int child = 0; child < numChildren; ++ child )
     {
-    vtkHyperTreeSuperCursor newSuperCursor;
+    vtkHyperTreeGridSuperCursor newSuperCursor;
     this->Input->InitializeSuperCursorChild( superCursor,&newSuperCursor, child );
     this->RecursiveProcessTree( &newSuperCursor );
     }

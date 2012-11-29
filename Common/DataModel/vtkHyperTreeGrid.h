@@ -39,9 +39,9 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
 
-class vtkHyperTreeLightWeightCursor;
+class vtkHyperTreeGridCursor;
 //BTX
-class vtkHyperTreeSuperCursor;
+class vtkHyperTreeGridSuperCursor;
 //ETX
 class vtkHyperTreeCursor;
 class vtkHyperTree;
@@ -294,7 +294,7 @@ public:
   // Initialize a super cursor to point to one of the root trees
   // in the grid.  The super cursor points to a node in a tree and
   // also keeps pointers to the 26 neighbors of said node.
-  void InitializeSuperCursor( vtkHyperTreeSuperCursor*,
+  void InitializeSuperCursor( vtkHyperTreeGridSuperCursor*,
                               unsigned int,
                               unsigned int,
                               unsigned int );
@@ -306,8 +306,8 @@ public:
   // Description:
   // Initialize a cursor to point to a child of an existing super cursor.
   // This will not work in place.
-  void InitializeSuperCursorChild( vtkHyperTreeSuperCursor* parent,
-                                   vtkHyperTreeSuperCursor* child,
+  void InitializeSuperCursorChild( vtkHyperTreeGridSuperCursor* parent,
+                                   vtkHyperTreeGridSuperCursor* child,
                                    int childIdx );
 //ETX
   // Description:
@@ -344,7 +344,7 @@ protected:
   vtkIdType* HyperTreesLeafIdOffsets;
 
   //BTX
-  friend class vtkHyperTreeLightWeightCursor;
+  friend class vtkHyperTreeGridCursor;
   //ETX
 
   vtkPoints* LeafCenters;
@@ -357,13 +357,13 @@ protected:
 
   void DeleteInternalArrays();
 //BTX
-  void TraverseDualRecursively( vtkHyperTreeSuperCursor*,
+  void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*,
                                 int );
-  void TraverseGridRecursively( vtkHyperTreeSuperCursor*,
+  void TraverseGridRecursively( vtkHyperTreeGridSuperCursor*,
                                 unsigned char*);
-  void EvaluateDualCorner( vtkHyperTreeLightWeightCursor* );
+  void EvaluateDualCorner( vtkHyperTreeGridCursor* );
   vtkIdType EvaluateGridCorner( int,
-                                vtkHyperTreeSuperCursor*,
+                                vtkHyperTreeGridSuperCursor*,
                                 unsigned char*,
                                 int* );
 //ETX
@@ -384,7 +384,7 @@ protected:
   void BuildLinks();
 
   vtkIdType RecursiveFindPoint( double x[3],
-                                vtkHyperTreeLightWeightCursor* cursor,
+                                vtkHyperTreeGridCursor* cursor,
                                 double* origin, double* size);
 
   // This toggles the data set API between the leaf cells and
@@ -399,11 +399,11 @@ private:
 
 //BTX
 
-class VTK_EXPORT vtkHyperTreeLightWeightCursor
+class VTK_EXPORT vtkHyperTreeGridCursor
 {
 public:
-  vtkHyperTreeLightWeightCursor();
-  ~vtkHyperTreeLightWeightCursor();
+  vtkHyperTreeGridCursor();
+  ~vtkHyperTreeGridCursor();
 
   void Clear();
   void Initialize( vtkHyperTreeGrid*, vtkIdType*, int, int, int, int );
@@ -430,15 +430,15 @@ private:
 // easily access neighbor to leaves.
 // The super cursor is static.  Methods in vtkHyperTreeGrid
 // initialize and compute children for moving toward leaves.
-class vtkHyperTreeSuperCursor
+class vtkHyperTreeGridSuperCursor
 {
  public:
-  vtkHyperTreeLightWeightCursor Cursors[27];
+  vtkHyperTreeGridCursor Cursors[27];
   int NumberOfCursors;
   int MiddleCursorId;
   double Origin[3];
   double Size[3];
-  vtkHyperTreeLightWeightCursor* GetCursor( int idx ) { return this->Cursors + this->MiddleCursorId + idx; }
+  vtkHyperTreeGridCursor* GetCursor( int idx ) { return this->Cursors + this->MiddleCursorId + idx; }
 };
 
 //ETX

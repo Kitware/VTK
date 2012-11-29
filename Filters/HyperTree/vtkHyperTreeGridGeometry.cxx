@@ -52,7 +52,7 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
         for ( unsigned int i = 0; i < gridSize[0]; ++ i )
         {
         // Storage for super cursors
-        vtkHyperTreeSuperCursor superCursor;
+        vtkHyperTreeGridSuperCursor superCursor;
 
         // Initialize center cursor
         this->Input->InitializeSuperCursor( &superCursor, i, j, k );
@@ -107,7 +107,7 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId, double* origin,
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeSuperCursor* superCursor )
+void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
 {
   // Terminate if the middle cell is not on the boundary.
   // Only 3d cells have internal faces to skip.
@@ -178,7 +178,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeSuperCursor* su
   int numChildren = this->Input->GetNumberOfChildren();
   for ( int child = 0; child < numChildren; ++ child )
     {
-    vtkHyperTreeSuperCursor newSuperCursor;
+    vtkHyperTreeGridSuperCursor newSuperCursor;
     this->Input->InitializeSuperCursorChild( superCursor,&newSuperCursor, child );
     this->RecursiveProcessTree( &newSuperCursor );
     }

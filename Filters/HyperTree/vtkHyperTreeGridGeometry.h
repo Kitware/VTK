@@ -40,7 +40,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   void ProcessTrees();
-  void RecursiveProcessTree(vtkHyperTreeSuperCursor* superCursor);
+  void RecursiveProcessTree(vtkHyperTreeGridSuperCursor* superCursor);
 
   vtkHyperTreeGrid* Input;
   vtkPolyData* Output;
