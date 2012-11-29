@@ -212,8 +212,17 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId, double* origin,
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
 {
+  // Get node at super cursor center
+  vtkHyperTreeGridCursor* node = superCursor->GetCursor( 0 );
+
+  // Terminate recursion if node is blanked
+  if ( node->IsBlank() )
+    {
+    return;
+    }
+
   // If node is not a leaf, recurse to all children
-  if ( ! superCursor->GetCursor( 0 )->IsLeaf() )
+  if ( ! node->IsLeaf() )
     {
     int numChildren = this->Input->GetNumberOfChildren();
     for ( int child = 0; child < numChildren; ++ child )
@@ -239,7 +248,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
     }
   
   // Node is a leaf, create the outer surfaces.
-  vtkIdType inId = superCursor->GetCursor( 0 )->GetGlobalLeafIndex();
+  vtkIdType inId = node->GetGlobalLeafIndex();
   if ( dim == 1 )
     {
     // 1D trees are a special case (probably never used).

@@ -127,8 +127,8 @@ protected:
 
   void Subdivide( vtkHyperTreeCursor* cursor,
                   unsigned int level,
-                  int index_g,
-                  int index_l,
+                  int treeIdx,
+                  int childIdx,
                   int idx[3],
                   int cellIdOffset,
                   int parentPos );

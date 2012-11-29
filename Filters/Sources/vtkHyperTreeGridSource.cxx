@@ -316,8 +316,8 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       {
       for ( unsigned int i = 0; i < n[0]; ++ i )
         {
-        // Calculate global index
-        int index_g = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
+        // Calculate tree index
+        int treeIdx = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
 
         // Initialize cursor
         vtkHyperTreeCursor* cursor = this->Output->NewCellCursor( i, j, k );
@@ -330,7 +330,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
         // Retrieve offset into array of scalars and recurse
         this->Subdivide( cursor,
                          0,
-                         index_g,
+                         treeIdx,
                          0,
                          idx,
                          this->Output->GetLeafData()->GetScalars()->GetNumberOfTuples(),
@@ -456,6 +456,7 @@ int vtkHyperTreeGridSource::Initialize()
 
         // Reset per level values
         descriptor.str( "" );
+        mask.str( "" );
         nRefined = 0;
         nLeaves = 0;
 
@@ -545,14 +546,14 @@ int vtkHyperTreeGridSource::Initialize()
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
                                         unsigned int level,
-                                        int index_g,
-                                        int index_l,
+                                        int treeIdx,
+                                        int childIdx,
                                         int idx[3],
                                         int cellIdOffset,
                                         int parentPos )
 {
   // Calculate pointer into level descriptor string
-  int pointer = level ? index_l + parentPos * this->BlockSize : index_g;
+  int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
 
   // Determine whether to subdivide or not
   bool subdivide = this->LevelDescriptors.at( level ).at( pointer ) == 'R' ? true : false;
@@ -566,7 +567,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
   if ( subdivide )
     {
     // Subdivide hyper tree grid leaf
-    this->Output->SubdivideLeaf( cursor, index_g );
+    this->Output->SubdivideLeaf( cursor, treeIdx );
 
     // Now traverse to children.
     int xDim, yDim, zDim;
@@ -598,15 +599,11 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           // Set cursor to child
           cursor->ToChild( childIdx );
 
-          // Calculate local index
-          index_l = x + this->BranchFactor
-            * ( y + this->BranchFactor * z );
-
           // Recurse
           this->Subdivide( cursor,
                            level + 1,
-                           index_g,
-                           index_l,
+                           treeIdx,
+                           childIdx,
                            newIdx,
                            cellIdOffset,
                            this->LevelCounters.at( level ) );
@@ -625,12 +622,16 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     } // if ( subdivide )
   else
     {
-    // Cell value is depth level or material presence if used
-    double val = this->UseMaterialMask ? this->LevelMaterialMasks.at( level ).at( pointer ) : level;
+    // Blank leaf if needed
+    if ( this->UseMaterialMask
+         && this->LevelMaterialMasks.at( level ).at( pointer ) == '0' )
+      {
+      cerr << "# Level: " << level << " pointer: " << pointer << " is blank\n"; 
+      }
 
-    // Offset cell index as needed
+    // Cell value is depth level for now
     vtkIdType id = cellIdOffset + cursor->GetLeafId();
-    this->Output->GetLeafData()->GetScalars()->InsertTuple1( id, val );
+    this->Output->GetLeafData()->GetScalars()->InsertTuple1( id, level );
     } // else
 }
 
