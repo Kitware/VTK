@@ -33,6 +33,98 @@ vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
   this->Output = 0;
 }
 
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridGeometry::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf( os, indent );
+
+  if(this->Input)
+    {
+    os << indent << "Input:\n";
+    this->Input->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
+  if(this->Output)
+    {
+    os << indent << "Output:\n";
+    this->Output->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Output: (none)\n";
+    }
+  if(this->Points)
+    {
+    os << indent << "Points:\n";
+    this->Points->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Points: (none)\n";
+    }
+  if(this->Cells)
+    {
+    os << indent << "Cells:\n";
+    this->Cells->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Cells: (none)\n";
+    }
+}
+
+//-----------------------------------------------------------------------------
+int vtkHyperTreeGridGeometry::FillInputPortInformation( int, vtkInformation *info )
+{
+  info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid" );
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
+                                           vtkInformationVector** inputVector,
+                                           vtkInformationVector* outputVector )
+{
+  // Get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
+  vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
+
+  // Retrieve input and output
+  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+
+  // Ensure that primal grid API is used for hyper trees
+  int inputDualFlagIsOn = this->Input->GetUseDualGrid();
+  if ( inputDualFlagIsOn )
+    {
+    this->Input->SetUseDualGrid( 0 );
+    }
+
+  // Initialize output cell data
+  vtkCellData* inCD = this->Input->GetCellData();
+  vtkCellData* outCD = this->Output->GetCellData();
+  outCD->CopyAllocate( inCD );
+
+  // Extract geometry from hyper tree grid
+  this->ProcessTrees();
+
+  // Return duality flag of input to its original state
+  if ( inputDualFlagIsOn )
+    {
+    this->Input->SetUseDualGrid( 1 );
+    }
+
+  // Clean up
+  this->Input = 0;
+  this->Output = 0;
+
+  this->UpdateProgress ( 1. );
+  return 1;
+}
+
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::ProcessTrees()
 {
@@ -181,97 +273,5 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
     vtkHyperTreeGridSuperCursor newSuperCursor;
     this->Input->InitializeSuperCursorChild( superCursor,&newSuperCursor, child );
     this->RecursiveProcessTree( &newSuperCursor );
-    }
-}
-
-//-----------------------------------------------------------------------------
-int vtkHyperTreeGridGeometry::FillInputPortInformation( int, vtkInformation *info )
-{
-  info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid" );
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
-                                           vtkInformationVector** inputVector,
-                                           vtkInformationVector* outputVector )
-{
-  // Get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
-  vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
-
-  // Retrieve input and output
-  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-
-  // Ensure that primal grid API is used for hyper trees
-  int inputDualFlagIsOn = this->Input->GetUseDualGrid();
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 0 );
-    }
-
-  // Initialize output cell data
-  vtkCellData* inCD = this->Input->GetCellData();
-  vtkCellData* outCD = this->Output->GetCellData();
-  outCD->CopyAllocate( inCD );
-
-  // Extract geometry from hyper tree grid
-  this->ProcessTrees();
-
-  // Return duality flag of input to its original state
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 1 );
-    }
-
-  // Clean up
-  this->Input = 0;
-  this->Output = 0;
-
-  this->UpdateProgress ( 1. );
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf( os, indent );
-
-  if(this->Input)
-    {
-    os << indent << "Input:\n";
-    this->Input->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
-  if(this->Output)
-    {
-    os << indent << "Output:\n";
-    this->Output->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Output: (none)\n";
-    }
-  if(this->Points)
-    {
-    os << indent << "Points:\n";
-    this->Points->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Points: (none)\n";
-    }
-  if(this->Cells)
-    {
-    os << indent << "Cells:\n";
-    this->Cells->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Cells: (none)\n";
     }
 }

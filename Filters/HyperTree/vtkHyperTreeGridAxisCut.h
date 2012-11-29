@@ -32,7 +32,7 @@ class vtkCellArray;
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkHyperTreeGridAxisCut *New();
+  static vtkHyperTreeGridAxisCut* New();
   vtkTypeMacro(vtkHyperTreeGridAxisCut,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -51,19 +51,18 @@ protected:
   int PlaneNormalAxis;
   double PlanePosition;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  virtual int FillInputPortInformation( int, vtkInformation* );
 
   void ProcessTrees();
-//BTX
   void RecursiveProcessTree(vtkHyperTreeGridSuperCursor* superCursor);
-//ETX
+  void AddFace( vtkIdType inId, double* origin, double* size,
+                double offset0, int axis0, int axis1, int axis2 );
+
   vtkHyperTreeGrid* Input;
   vtkPolyData* Output;
   vtkPoints* Points;
   vtkCellArray* Cells;
-  void AddFace(vtkIdType inId, double* origin, double* size,
-               double offset0, int axis0, int axis1, int axis2);
 
 private:
   vtkHyperTreeGridAxisCut(const vtkHyperTreeGridAxisCut&);  // Not implemented.

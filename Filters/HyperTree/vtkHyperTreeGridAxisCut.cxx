@@ -37,6 +37,109 @@ vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
   this->PlaneNormalAxis = 0;
 }
 
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
+{
+  this->Superclass::PrintSelf( os, indent );
+
+  if( this->Input )
+    {
+    os << indent << "Input:\n";
+    this->Input->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Input: ( none )\n";
+    }
+  if( this->Output )
+    {
+    os << indent << "Output:\n";
+    this->Output->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Output: ( none )\n";
+    }
+  if( this->Points )
+    {
+    os << indent << "Points:\n";
+    this->Points->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Points: ( none )\n";
+    }
+  if( this->Cells )
+    {
+    os << indent << "Cells:\n";
+    this->Cells->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Cells: ( none )\n";
+    }
+
+  os << indent << "Plane Normal Axis : " << this->PlaneNormalAxis << endl;
+  os << indent << "Plane Position : " << this->PlanePosition << endl;
+}
+
+//-----------------------------------------------------------------------------
+int vtkHyperTreeGridAxisCut::FillInputPortInformation( int, vtkInformation *info )
+{
+  info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid" );
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
+                                          vtkInformationVector** inputVector,
+                                          vtkInformationVector* outputVector )
+{
+  // Get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
+  vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
+
+  // Retrieve input and output
+  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+
+  // This filter is only for 2D slices of 3D grids
+  if ( this->Input->GetDimension() != 3 )
+    {
+    vtkErrorMacro( "Axis cut only works with 3D trees." );
+    return 0;
+    }
+
+  // Ensure that primal grid API is used for hyper trees
+  int inputDualFlagIsOn = this->Input->GetUseDualGrid();
+  if ( inputDualFlagIsOn )
+    {
+    this->Input->SetUseDualGrid( 0 );
+    }
+
+  // Initialize output cell data
+  vtkCellData *outCD = this->Output->GetCellData();
+  vtkCellData *inCD = this->Input->GetCellData();
+  outCD->CopyAllocate( inCD );
+
+  // Cut through hyper tree grid
+  this->ProcessTrees();
+
+  // Return duality flag of input to its original state
+  if ( inputDualFlagIsOn )
+    {
+    this->Input->SetUseDualGrid( 1 );
+    }
+
+  // Clean up
+  this->Input = 0;
+  this->Output = 0;
+
+  this->UpdateProgress ( 1. );
+
+  return 1;
+}
+
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridAxisCut::ProcessTrees()
 {
@@ -157,107 +260,4 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeGridSuperCursor*
     this->Input->InitializeSuperCursorChild( superCursor,&newSuperCursor, child );
     this->RecursiveProcessTree( &newSuperCursor );
     }
-}
-
-//-----------------------------------------------------------------------------
-int vtkHyperTreeGridAxisCut::FillInputPortInformation( int, vtkInformation *info )
-{
-  info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid" );
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
-                                          vtkInformationVector** inputVector,
-                                          vtkInformationVector* outputVector )
-{
-  // Get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
-  vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
-
-  // Retrieve input and output
-  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-
-  // This filter is only for 2D slices of 3D grids
-  if ( this->Input->GetDimension() != 3 )
-    {
-    vtkErrorMacro( "Axis cut only works with 3D trees." );
-    return 0;
-    }
-
-  // Ensure that primal grid API is used for hyper trees
-  int inputDualFlagIsOn = this->Input->GetUseDualGrid();
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 0 );
-    }
-
-  // Initialize output cell data
-  vtkCellData *outCD = this->Output->GetCellData();
-  vtkCellData *inCD = this->Input->GetCellData();
-  outCD->CopyAllocate( inCD );
-
-  // Cut through hyper tree grid
-  this->ProcessTrees();
-
-  // Return duality flag of input to its original state
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 1 );
-    }
-
-  // Clean up
-  this->Input = 0;
-  this->Output = 0;
-
-  this->UpdateProgress ( 1. );
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
-{
-  this->Superclass::PrintSelf( os, indent );
-
-  if( this->Input )
-    {
-    os << indent << "Input:\n";
-    this->Input->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Input: ( none )\n";
-    }
-  if( this->Output )
-    {
-    os << indent << "Output:\n";
-    this->Output->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Output: ( none )\n";
-    }
-  if( this->Points )
-    {
-    os << indent << "Points:\n";
-    this->Points->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Points: ( none )\n";
-    }
-  if( this->Cells )
-    {
-    os << indent << "Cells:\n";
-    this->Cells->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Cells: ( none )\n";
-    }
-
-  os << indent << "Plane Normal Axis : " << this->PlaneNormalAxis << endl;
-  os << indent << "Plane Position : " << this->PlanePosition << endl;
 }

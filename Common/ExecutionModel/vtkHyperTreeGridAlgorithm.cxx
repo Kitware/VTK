@@ -107,17 +107,16 @@ int vtkHyperTreeGridAlgorithm::ProcessRequest(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAlgorithm::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkHyperTreeGridAlgorithm::FillOutputPortInformation( int vtkNotUsed(port), 
+                                                          vtkInformation* info )
 {
-  // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAlgorithm::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkHyperTreeGridAlgorithm::FillInputPortInformation( int vtkNotUsed(port),
+                                                         vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   return 1;

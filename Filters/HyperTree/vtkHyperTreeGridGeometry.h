@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeGridGeometry - Outer surface of HyperTreeGrid
+// .NAME vtkHyperTreeGridGeometry - Hyper tree grid outer surface
 // .SECTION Description
 
 #ifndef __vtkHyperTreeGridGeometry_h
@@ -28,7 +28,7 @@ class vtkCellArray;
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkHyperTreeGridGeometry *New();
+  static vtkHyperTreeGridGeometry* New();
   vtkTypeMacro(vtkHyperTreeGridGeometry,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -36,18 +36,18 @@ protected:
   vtkHyperTreeGridGeometry();
   ~vtkHyperTreeGridGeometry() {};
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  virtual int FillInputPortInformation( int, vtkInformation* );
 
   void ProcessTrees();
-  void RecursiveProcessTree(vtkHyperTreeGridSuperCursor* superCursor);
+  void RecursiveProcessTree( vtkHyperTreeGridSuperCursor* );
+  void AddFace( vtkIdType inId, double* origin, double* size,
+                int offset0, int axis0, int axis1, int axis2 );
 
   vtkHyperTreeGrid* Input;
   vtkPolyData* Output;
   vtkPoints* Points;
   vtkCellArray* Cells;
-  void AddFace(vtkIdType inId, double* origin, double* size,
-               int offset0, int axis0, int axis1, int axis2);
 
 private:
   vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&);  // Not implemented.
