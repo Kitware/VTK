@@ -148,6 +148,12 @@ public:
   virtual void SubdivideLeaf( vtkHyperTreeCursor* leaf ) = 0;
 
   // Description:
+  // Subdivide node pointed by cursor, only if its a leaf.
+  // \pre leaf_exists: leaf!=0
+  // \pre is_a_leaf: leaf->CurrentIsLeaf()
+  virtual void BlankLeaf( vtkHyperTreeCursor* leaf ) = 0;
+
+  // Description:
   // Return the actual memory size in kilobytes.
   // NB: Ignores the attribute array.
   virtual unsigned int GetActualMemorySize() = 0;

@@ -158,7 +158,13 @@ public:
   // At the end, cursor points on the node that used to be leaf.
   // \pre leaf_exists: leaf!=0
   // \pre is_a_leaf: leaf->CurrentIsLeaf()
-  void SubdivideLeaf( vtkHyperTreeCursor*, vtkIdType);
+  void SubdivideLeaf( vtkHyperTreeCursor*, vtkIdType );
+
+  // Description:
+  // Blank node pointed by cursor, only if its a leaf.
+  // \pre leaf_exists: leaf!=0
+  // \pre is_a_leaf: leaf->CurrentIsLeaf()
+  void BlankLeaf( vtkHyperTreeCursor*, vtkIdType );
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
