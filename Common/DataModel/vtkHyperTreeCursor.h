@@ -58,11 +58,16 @@ public:
   
   // Description:
   // Is the node pointed by the cursor a leaf?
-  virtual int IsLeaf() = 0;
+  virtual bool IsLeaf() = 0;
+  
+  // Are the children of the current node all leaves?
+  // This query can be called also on a leaf node.
+  // \post compatible: result implies !IsLeaf()
+  virtual bool IsTerminalNode() = 0;
   
   // Description:
   // Is the node pointed by the cursor the root?
-  virtual int IsRoot() = 0;
+  virtual bool IsRoot() = 0;
   
   // Description:
   // Return the level of the node pointed by the cursor.
@@ -74,11 +79,6 @@ public:
   // \pre not_root: !IsRoot().
   // \post valid_range: result>=0 && result<GetNumberOfChildren()
   virtual int GetChildIndex() = 0;
-  
-  // Are the children of the current node all leaves?
-  // This query can be called also on a leaf node.
-  // \post compatible: result implies !IsLeaf()
-  virtual int IsTerminalNode() = 0;
   
   // Description:
   // Move the cursor to the root node.

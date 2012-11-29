@@ -62,13 +62,27 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  virtual int IsLeaf()
+  virtual bool IsLeaf()
   {
     return this->Leaf;
   }
 
   //---------------------------------------------------------------------------
-  virtual int IsRoot()
+  virtual bool IsTerminalNode()
+  {
+    bool result = ! this->Leaf;
+    if( result )
+      {
+      vtkCompactHyperTreeNode<N>* node = this->Tree->GetNode( this->Index );
+      result = node->IsTerminalNode();
+      }
+    // A=>B: notA or B
+    assert( "post: compatible" && ( ! result || ! this->Leaf) );
+    return result;
+  }
+
+  //---------------------------------------------------------------------------
+  virtual bool IsRoot()
   {
     return ( ! this->Leaf && this->Index == 1 )
       || ( this->Leaf && ! this->Index && this->Tree->GetLeafParentSize() == 1 );
@@ -91,23 +105,6 @@ public:
   {
     assert( "post: valid_range" && this->ChildIndex >= 0 && this->ChildIndex<GetNumberOfChildren() );
     return this->ChildIndex;
-  }
-
-  //---------------------------------------------------------------------------
-  // Are the children of the current node all leaves?
-  // This query can be called also on a leaf node.
-  // \post compatible: result implies !IsLeaf()
-  virtual int IsTerminalNode()
-  {
-    int result = !this->Leaf;
-    if(result)
-      {
-      vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Index);
-      result = node->IsTerminalNode();
-      }
-    // A=>B: notA or B
-    assert( "post: compatible" && (!result || !this->Leaf) );
-    return result;
   }
 
   //---------------------------------------------------------------------------
@@ -360,7 +357,7 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // Public only for vtkCompactHyperTree.
-  void SetIsLeaf(int value)
+  void SetIsLeaf( bool value )
   {
     this->Leaf = value;
   }
@@ -441,7 +438,7 @@ protected:
   int ChildIndex;
 
   int IsFound;
-  int Leaf;
+  bool Leaf;
 
   // A stack, but stack does not have clear()
   std::deque<int> ChildHistory;
