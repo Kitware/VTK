@@ -1987,7 +1987,7 @@ void vtkHyperTreeGrid::DeleteInternalArrays()
 }
 
 //=============================================================================
-// Lightweight cursor
+// Hyper tree grid cursor
 // Implemented here because it needs access to the internal classes.
 
 //-----------------------------------------------------------------------------

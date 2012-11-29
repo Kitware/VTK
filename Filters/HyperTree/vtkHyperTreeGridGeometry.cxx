@@ -213,7 +213,6 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId, double* origin,
 void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
 {
   // Terminate if the middle cell is not on the boundary.
-  // Only 3d cells have internal faces to skip.
   int dim = this->Input->GetDimension();
   if ( dim == 3 &&
        superCursor->GetCursor( -1 )->GetTree() &&
@@ -225,64 +224,64 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
     {
     return;
     }
-
-  // If we are at a leaf, create the outer surfaces.
-  if ( superCursor->GetCursor( 0 )->GetIsLeaf() )
+  
+  // If node is not a leaf, recurse to all children
+  if ( ! superCursor->GetCursor( 0 )->GetIsLeaf() )
     {
-    vtkIdType inId = superCursor->GetCursor( 0 )->GetGlobalLeafIndex();
-    if ( dim == 1 )
+    int numChildren = this->Input->GetNumberOfChildren();
+    for ( int child = 0; child < numChildren; ++ child )
       {
-      // 1 dimensional trees are a special case (probably never used).
-      vtkIdType ids[2];
-      ids[0] = this->Points->InsertNextPoint( superCursor->Origin );
-      double pt[3];
-      pt[0] = superCursor->Origin[0] + superCursor->Size[0];
-      pt[1] = superCursor->Origin[1];
-      pt[2] = superCursor->Origin[2];
-      ids[1] = this->Points->InsertNextPoint( pt );
-      this->Cells->InsertNextCell( 2, ids );
-      }
-    else if ( dim == 2 )
-      {
-      this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2, 0, 1 );
-      }
-    else if ( dim == 3 )
-      {
-      // Check the 6 faces of the leaf (for boundaries)
-      if ( superCursor->GetCursor( -1 )->GetTree() == 0 )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 0, 1, 2 );
-        }
-      if ( superCursor->GetCursor( 1 )->GetTree() == 0 )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 0, 1, 2 );
-        }
-      if ( superCursor->GetCursor( -3 )->GetTree() == 0 )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 1, 0, 2 );
-        }
-      if ( superCursor->GetCursor( 3 )->GetTree() == 0 )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 1, 0, 2 );
-        }
-      if ( superCursor->GetCursor( -9 )->GetTree() == 0 )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2, 0, 1 );
-        }
-      if ( superCursor->GetCursor( 9 )->GetTree() == 0 )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 2, 0, 1 );
-        }
+      vtkHyperTreeGridSuperCursor newSuperCursor;
+      this->Input->InitializeSuperCursorChild( superCursor, &newSuperCursor, child );
+      this->RecursiveProcessTree( &newSuperCursor );
       }
     return;
     }
 
-  // Not a leaf.  Recurse children to leaves.
-  int numChildren = this->Input->GetNumberOfChildren();
-  for ( int child = 0; child < numChildren; ++ child )
+  // Node is a leaf, create the outer surfaces.
+  vtkIdType inId = superCursor->GetCursor( 0 )->GetGlobalLeafIndex();
+  if ( dim == 1 )
     {
-    vtkHyperTreeGridSuperCursor newSuperCursor;
-    this->Input->InitializeSuperCursorChild( superCursor,&newSuperCursor, child );
-    this->RecursiveProcessTree( &newSuperCursor );
+    // 1 dimensional trees are a special case (probably never used).
+    vtkIdType ids[2];
+    ids[0] = this->Points->InsertNextPoint( superCursor->Origin );
+    double pt[3];
+    pt[0] = superCursor->Origin[0] + superCursor->Size[0];
+    pt[1] = superCursor->Origin[1];
+    pt[2] = superCursor->Origin[2];
+    ids[1] = this->Points->InsertNextPoint( pt );
+    this->Cells->InsertNextCell( 2, ids );
+    }
+  else if ( dim == 2 )
+    {
+    this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2, 0, 1 );
+    }
+  else if ( dim == 3 )
+    {
+    // 3d cells have internal faces to skip, check the 6 faces for boundaries
+    if ( superCursor->GetCursor( -1 )->GetTree() == 0 )
+      {
+      this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 0, 1, 2 );
+      }
+    if ( superCursor->GetCursor( 1 )->GetTree() == 0 )
+      {
+      this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 0, 1, 2 );
+      }
+    if ( superCursor->GetCursor( -3 )->GetTree() == 0 )
+      {
+      this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 1, 0, 2 );
+      }
+    if ( superCursor->GetCursor( 3 )->GetTree() == 0 )
+      {
+      this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 1, 0, 2 );
+      }
+    if ( superCursor->GetCursor( -9 )->GetTree() == 0 )
+      {
+      this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2, 0, 1 );
+      }
+    if ( superCursor->GetCursor( 9 )->GetTree() == 0 )
+      {
+      this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 2, 0, 1 );
+      }
     }
 }
