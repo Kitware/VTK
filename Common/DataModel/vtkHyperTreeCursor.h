@@ -60,6 +60,10 @@ public:
   // Is the node pointed by the cursor a leaf?
   virtual bool IsLeaf() = 0;
   
+  // Description:
+  // Is the node pointed by the cursor a leaf?
+  virtual bool IsBlank() = 0;
+  
   // Are the children of the current node all leaves?
   // This query can be called also on a leaf node.
   // \post compatible: result implies !IsLeaf()

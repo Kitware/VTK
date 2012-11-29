@@ -68,6 +68,12 @@ public:
   }
 
   //---------------------------------------------------------------------------
+  virtual bool IsBlank()
+  {
+    return this->Blank;
+  }
+
+  //---------------------------------------------------------------------------
   virtual bool IsTerminalNode()
   {
     bool result = ! this->Leaf;
@@ -144,7 +150,7 @@ public:
       {
       this->Index = this->Tree->GetNode( this->Index)->GetParent();
       }
-    this->Leaf = 0;
+    this->Leaf = false;
     this->ChildIndex=this->ChildHistory.back(); // top()
     this->ChildHistory.pop_back();
 
@@ -162,11 +168,11 @@ public:
     assert( "pre: not_leaf" && !IsLeaf() );
     assert( "pre: valid_child" && child >= 0 && child<this->GetNumberOfChildren() );
 
-    vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Index);
+    vtkCompactHyperTreeNode<N>* node = this->Tree->GetNode( this->Index);
     this->ChildHistory.push_back( this->ChildIndex );
-    this->ChildIndex=child;
-    this->Index=node->GetChild( child );
-    this->Leaf=node->IsChildLeaf( child );
+    this->ChildIndex = child;
+    this->Index = node->GetChild( child );
+    this->Leaf = node->IsChildLeaf( child );
 
     int tmpChild = child;
     int tmp;
@@ -349,24 +355,26 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  // Description
-  // Did the last call to MoveToNode succeed?
   virtual int Found()
   {
     return this->IsFound;
   }
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Public only for vtkCompactHyperTree.
+  // NB: public only vtkHyperTree
   void SetIsLeaf( bool value )
   {
     this->Leaf = value;
   }
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Public only for vtkCompactHyperTree.
+  // NB: public only vtkHyperTree
+  void SetIsBlank( bool value )
+  {
+    this->Blank = value;
+  }
+
+  //---------------------------------------------------------------------------
   void SetChildIndex(int childIndex )
   {
     assert( "pre: valid_range" && childIndex >= 0 && childIndex<GetNumberOfChildren() );
@@ -421,7 +429,8 @@ protected:
       }
     this->Tree = 0;
     this->Index = 0;
-    this->Leaf = 0;
+    this->Leaf = false;
+    this->Blank = false;
     this->ChildIndex = 0;
 
     for ( unsigned int i = 0; i < this->Dimension; ++ i )
@@ -441,6 +450,7 @@ protected:
 
   int IsFound;
   bool Leaf;
+  bool Blank;
 
   // A stack, but stack does not have clear()
   std::deque<int> ChildHistory;
