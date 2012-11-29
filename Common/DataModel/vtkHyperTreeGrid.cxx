@@ -433,11 +433,8 @@ vtkHyperTreeCursor* vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
   vtkObject* obj = this->HyperTrees->GetItemAsObject( idx );
   if ( obj )
     {
-    vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
-    if ( tree )
-      {
-      return tree->NewCursor();
-      }
+    vtkHyperTree* tree = static_cast<vtkHyperTree*>( obj );
+    return tree->NewCursor();
     }
 
   return NULL;
@@ -2012,7 +2009,7 @@ vtkHyperTreeGridCursor::~vtkHyperTreeGridCursor()
 
 
 //-----------------------------------------------------------------------------
-// Set the state back to the initial contructed state.
+// Set the state back to the initial contructed state
 void vtkHyperTreeGridCursor::Clear()
 {
   this->Tree = 0;
@@ -2025,11 +2022,11 @@ void vtkHyperTreeGridCursor::Clear()
 
 //-----------------------------------------------------------------------------²
 void vtkHyperTreeGridCursor::Initialize( vtkHyperTreeGrid* grid,
-                                                vtkIdType* offsets,
-                                                int index,
-                                                int a,
-                                                int b,
-                                                int c )
+                                         vtkIdType* offsets,
+                                         int index,
+                                         int a,
+                                         int b,
+                                         int c )
 { 
   // Convert local index into global one
   unsigned int n[3];
@@ -2057,7 +2054,7 @@ void vtkHyperTreeGridCursor::Initialize( vtkHyperTreeGrid* grid,
 //-----------------------------------------------------------------------------
 bool vtkHyperTreeGridCursor::IsLeaf()
 {
-  // Empty cursors appear like a leaf so that recursion stop.
+  // Empty cursors appear like a leaf so that recursion stop
   if ( ! this->Tree )
     {
     return true;
