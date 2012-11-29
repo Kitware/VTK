@@ -584,7 +584,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
       {
       xDim = yDim = zDim = this->BranchFactor;
       }
-    int childIdx = 0;
+    int newChildIdx = 0;
     int newIdx[3];
     for ( int z = 0; z < zDim; ++ z )
       {
@@ -597,13 +597,13 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           newIdx[0] = idx[0] * xDim + x;
 
           // Set cursor to child
-          cursor->ToChild( childIdx );
+          cursor->ToChild( newChildIdx );
 
           // Recurse
           this->Subdivide( cursor,
                            level + 1,
                            treeIdx,
-                           childIdx,
+                           newChildIdx,
                            newIdx,
                            cellIdOffset,
                            this->LevelCounters.at( level ) );
@@ -612,7 +612,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           cursor->ToParent();
 
           // Increment child index
-          ++ childIdx;
+          ++ newChildIdx;
           }
         }
       }
@@ -626,7 +626,10 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     if ( this->UseMaterialMask
          && this->LevelMaterialMasks.at( level ).at( pointer ) == '0' )
       {
-      cerr << "# Level: " << level << " pointer: " << pointer << " is blank\n"; 
+      // Blank leaf in underlying hyper tree
+      int a = 0;
+      ++ a;
+      //this->Output->BlankLeaf( cursor, treeIdx );
       }
 
     // Cell value is depth level for now
