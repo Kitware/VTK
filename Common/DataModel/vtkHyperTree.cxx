@@ -212,15 +212,17 @@ public:
   // Is `this' equal to `other'?
   // \pre other_exists: other != 0
   // \pre same_hyperTree: this->SameTree(other);
-  virtual int IsEqual( vtkHyperTreeCursor* other )
+  virtual bool IsEqual( vtkHyperTreeCursor* other )
   {
     assert( "pre: other_exists" && other != 0 );
     assert( "pre: same_hyperTree" && this->SameTree(other) );
 
-    vtkCompactHyperTreeCursor<N> *o=static_cast<vtkCompactHyperTreeCursor<N> *>(other);
+    vtkCompactHyperTreeCursor<N>* o = static_cast<vtkCompactHyperTreeCursor<N> *>( other );
 
-    int result = this->Index==o->Index && this->ChildIndex==o->ChildIndex
-      && this->Leaf==o->Leaf && this->ChildHistory==o->ChildHistory;
+    int result = this->Index == o->Index
+      && this->ChildIndex == o->ChildIndex
+      && this->Leaf == o->Leaf
+      && this->ChildHistory == o->ChildHistory;
 
     for( unsigned int i = 0; result && i < this->Dimension; ++ i )
       {

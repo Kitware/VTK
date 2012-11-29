@@ -95,20 +95,20 @@ public:
   // Move the cursor to child `child' of the current node.
   // \pre not_leaf: !IsLeaf()
   // \pre valid_child: child>=0 && child<this->GetNumberOfChildren()
-  virtual void ToChild(int child) = 0;
+  virtual void ToChild( int child ) = 0;
   
   // Description:
   // Move the cursor to the same node pointed by `other'.
   // \pre other_exists: other!=0
   // \pre same_hyper3TREE: this->SameTree(other);
   // \post equal: this->IsEqual(other)
-  virtual void ToSameNode(vtkHyperTreeCursor *other) = 0;
+  virtual void ToSameNode( vtkHyperTreeCursor* other ) = 0;
  
   // Description:
   // Is `this' equal to `other'?
   // \pre other_exists: other!=0
   // \pre same_hyper3TREE: this->SameTree(other);
-  virtual int IsEqual(vtkHyperTreeCursor *other) = 0;
+  virtual bool IsEqual( vtkHyperTreeCursor* other ) = 0;
   
   // Description:
   // Create a copy of `this'.
