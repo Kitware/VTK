@@ -251,7 +251,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
     }
   this->HyperTreesLeafIdOffsets = htg->HyperTreesLeafIdOffsets;
 
-  // Shallow copy blanked leaf IDs
+  // Shallow copy masked leaf IDs
   this->SetMaskedLeafIds( htg->MaskedLeafIds );
 
   // Shallow copy coordinates
