@@ -437,7 +437,10 @@ int vtkXMLPDataReader::CanReadPiece(int index)
 char* vtkXMLPDataReader::CreatePieceFileName(const char* fileName)
 {
   vtksys_ios::ostringstream fn_with_warning_C4701;
-  if(this->PathName)
+
+  // only prepend the path if the given file name is not
+  // absolute (i.e. doesn't start with '/')
+  if(this->PathName && fileName && fileName[0] != '/')
     {
     fn_with_warning_C4701 << this->PathName;
     }
