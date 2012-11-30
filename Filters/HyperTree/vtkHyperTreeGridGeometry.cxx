@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkHyperTreeGridGeometry.h"
 
+#include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkHyperTreeGrid.h"
@@ -212,17 +213,11 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId, double* origin,
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
 {
-  // Get node at super cursor center
-  vtkHyperTreeGridCursor* node = superCursor->GetCursor( 0 );
+  // Get cursor at super cursor center
+  vtkHyperTreeGridCursor* cursor = superCursor->GetCursor( 0 );
 
-  // Terminate recursion if node is blanked
-  if ( node->IsBlank() )
-    {
-    return;
-    }
-
-  // If node is not a leaf, recurse to all children
-  if ( ! node->IsLeaf() )
+  // If cursor is not at leaf, recurse to all children
+  if ( ! cursor->IsLeaf() )
     {
     int numChildren = this->Input->GetNumberOfChildren();
     for ( int child = 0; child < numChildren; ++ child )
@@ -231,6 +226,15 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
       this->Input->InitializeSuperCursorChild( superCursor, &newSuperCursor, child );
       this->RecursiveProcessTree( &newSuperCursor );
       }
+    return;
+    }
+
+  // Cursor is a leaf, retrieve its global index
+  vtkIdType inId = cursor->GetGlobalLeafIndex();
+
+  // If leaf is masked, skip it //FIXME: we need to do better than this
+  if ( ! this->Input->GetMaskedLeafIds()->GetTuple1( inId ) )
+    {
     return;
     }
 
@@ -247,8 +251,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
     return;
     }
   
-  // Node is a leaf, create the outer surfaces.
-  vtkIdType inId = node->GetGlobalLeafIndex();
+  // Create the outer surfaces.
   if ( dim == 1 )
     {
     // 1D trees are a special case (probably never used).

@@ -68,12 +68,6 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  virtual bool IsBlank()
-  {
-    return this->Blank;
-  }
-
-  //---------------------------------------------------------------------------
   virtual bool IsTerminalNode()
   {
     bool result = ! this->Leaf;
@@ -204,7 +198,6 @@ public:
     this->Index = o->Index;
     this->ChildIndex = o->ChildIndex;
     this->Leaf = o->Leaf;
-    this->Blank = o->Blank;
     this->ChildHistory = o->ChildHistory; // use assignment operator
       
     for( unsigned int i = 0; i < this->Dimension; ++ i )
@@ -229,7 +222,6 @@ public:
     int result = this->Index == o->Index
       && this->ChildIndex == o->ChildIndex
       && this->Leaf == o->Leaf
-      && this->Blank == o->Blank
       && this->ChildHistory == o->ChildHistory;
 
     for( unsigned int i = 0; result && i < this->Dimension; ++ i )
@@ -363,13 +355,6 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  // NB: Public only for the vtkCompactHyperTreeCursor.
-  void SetIsBlank( bool value )
-  {
-    this->Blank = value;
-  }
-
-  //---------------------------------------------------------------------------
   void SetChildIndex(int childIndex )
   {
     assert( "pre: valid_range" && childIndex >= 0 && childIndex<GetNumberOfChildren() );
@@ -425,7 +410,6 @@ protected:
     this->Tree = 0;
     this->Index = 0;
     this->Leaf = false;
-    this->Blank = false;
     this->ChildIndex = 0;
 
     for ( unsigned int i = 0; i < this->Dimension; ++ i )
@@ -445,7 +429,6 @@ protected:
 
   int IsFound;
   bool Leaf;
-  bool Blank;
 
   // A stack, but stack does not have clear()
   std::deque<int> ChildHistory;
@@ -477,10 +460,10 @@ public:
   {
     assert( "Valid child idx" && idx >= 0 && idx < 32);
     int i = 0;
-    while (idx >= 8)
+    while ( idx >= 8 )
       {
       ++ i;
-      idx-=8;
+      idx -= 8;
       }
     unsigned char mask = 1<<idx;
     if ( val )
@@ -499,7 +482,7 @@ public:
     while ( idx >= 8 )
       {
       ++ i;
-      idx-=8;
+      idx -= 8;
       }
     unsigned char mask = 1<<idx;
     return (mask & this->Flags[i]) == mask;
@@ -786,20 +769,6 @@ public:
       this->NumberOfLeavesPerLevel.resize( this->NumberOfLevels );
       }
     this->NumberOfLeavesPerLevel[level + 1] += N;
-  }
-
-  //---------------------------------------------------------------------------
-  void BlankLeaf( vtkHyperTreeCursor* leafCursor )
-  {
-    assert( "pre: leaf_exists" && leafCursor != 0 );
-    assert( "pre: is_a_leaf" && leafCursor->IsLeaf() );
-
-    // We are using a vtkCompactHyperTreeCursor.
-    // We know that GetLeafId() return Cursor.
-    vtkCompactHyperTreeCursor<N>* cursor = static_cast<vtkCompactHyperTreeCursor<N> *>( leafCursor );
-
-    // The is blanked, let the cursor know about that change.
-    cursor->SetIsBlank( true );
   }
 
   //---------------------------------------------------------------------------

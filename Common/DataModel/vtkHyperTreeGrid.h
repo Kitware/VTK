@@ -46,6 +46,7 @@ class vtkHyperTreeGridSuperCursor;
 class vtkHyperTreeCursor;
 class vtkHyperTree;
 
+class vtkBitArray;
 class vtkCellLinks;
 class vtkCollection;
 class vtkDataArray;
@@ -142,16 +143,20 @@ public:
   vtkGetObjectMacro(YCoordinates,vtkDataArray);
 
   // Description:
+  // Specify the blanking mask of primal leaf cells
+  virtual void SetMaskedLeafIds( vtkBitArray* );
+  vtkGetObjectMacro(MaskedLeafIds,vtkBitArray);
+
+  // Description:
   // Specify the grid coordinates in the z-direction.
   virtual void SetZCoordinates( vtkDataArray* );
   vtkGetObjectMacro(ZCoordinates,vtkDataArray);
 
   // Description:
-  // Law: I feel this is internal and should not be exposed in the API.
   // Create a new cursor: an object that can traverse
   // the cells of an individual hyper tree.
   // \post result_exists: result!=0
-  vtkHyperTreeCursor* NewCellCursor( int, int, int );
+  vtkHyperTreeCursor* NewCursor( int );
 
   // Description:
   // Subdivide node pointed by cursor, only if its a leaf.
@@ -159,12 +164,6 @@ public:
   // \pre leaf_exists: leaf!=0
   // \pre is_a_leaf: leaf->CurrentIsLeaf()
   void SubdivideLeaf( vtkHyperTreeCursor*, vtkIdType );
-
-  // Description:
-  // Blank node pointed by cursor, only if its a leaf.
-  // \pre leaf_exists: leaf!=0
-  // \pre is_a_leaf: leaf->CurrentIsLeaf()
-  void BlankLeaf( vtkHyperTreeCursor*, vtkIdType );
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -334,13 +333,15 @@ protected:
 
   void UpdateDualArrays();
   vtkPoints* GetLeafCenters();
-  vtkIdTypeArray* GetCornerLeafIds();
+  vtkIdTypeArray* GetLeafCenterIds();
 
   unsigned int Dimension;    // 1, 2 or 3.
   unsigned int GridSize[3];
   unsigned int NumberOfRoots;
   unsigned int BranchFactor;
   unsigned int NumberOfChildren;
+
+  vtkBitArray* MaskedLeafIds;
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;
@@ -354,7 +355,7 @@ protected:
   //ETX
 
   vtkPoints* LeafCenters;
-  vtkIdTypeArray* CornerLeafIds;
+  vtkIdTypeArray* LeafCenterIds;
 
   vtkPoints* CornerPoints;
   vtkIdTypeArray* LeafCornerIds;
@@ -365,15 +366,19 @@ protected:
 //BTX
   void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*,
                                 int );
+
   void TraverseGridRecursively( vtkHyperTreeGridSuperCursor*,
                                 unsigned char*);
+
   void EvaluateDualCorner( vtkHyperTreeGridCursor* );
+
   vtkIdType EvaluateGridCorner( int,
                                 vtkHyperTreeGridSuperCursor*,
                                 unsigned char*,
                                 int* );
 //ETX
-  // Generalizing for 27 tree.  I cannot use 3 bits to encode the child to move to.
+
+  // Generalizing for 27 tree. Cannot use 3 bits to encode the child to move to.
   // Input: root in supercursor(3x3x3=27), child(3x3x3=27)
   // Output: root, child
   // It is easier to abstract dimensions when we use a single array.
@@ -415,7 +420,6 @@ public:
   void Initialize( vtkHyperTreeGrid*, vtkIdType*, int, int, int, int );
   void ToRoot();
   void ToChild( int );
-  bool IsBlank()  { return this->Blank; };
   bool IsLeaf();
   vtkHyperTree* GetTree() { return this->Tree; }
   int GetLeafIndex() { return this->Index; } // Only valid for leaves.
@@ -427,7 +431,6 @@ private:
   vtkHyperTree* Tree;
   int Index;
   vtkIdType Offset;
-  bool Blank;
   bool Leaf;
   unsigned short Level;
 };

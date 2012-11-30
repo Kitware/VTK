@@ -14,6 +14,7 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkHyperTreeGridSource.h"
 
+#include "vtkBitArray.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkHyperTreeGrid.h"
@@ -320,7 +321,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
         int treeIdx = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
 
         // Initialize cursor
-        vtkHyperTreeCursor* cursor = this->Output->NewCellCursor( i, j, k );
+        vtkHyperTreeCursor* cursor = this->Output->NewCursor( treeIdx );
         cursor->ToRoot();
 
         // Initialize local cell index
@@ -620,20 +621,25 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     // Increment current level counter
     ++ this->LevelCounters.at( level );
     } // if ( subdivide )
-  else
+  else 
     {
+    // We are at a leaf cell, calculate its global index
+    vtkIdType id = cellIdOffset + cursor->GetLeafId();
+
     // Blank leaf if needed
     if ( this->UseMaterialMask
          && this->LevelMaterialMasks.at( level ).at( pointer ) == '0' )
       {
       // Blank leaf in underlying hyper tree
-      int a = 0;
-      ++ a;
-      //this->Output->BlankLeaf( cursor, treeIdx );
+      this->Output->GetMaskedLeafIds()->InsertTuple1( id, 0 );
+      }
+    else
+      {
+      // Do not blank leaf in underlying hyper tree
+      this->Output->GetMaskedLeafIds()->InsertTuple1( id, 1 );
       }
 
     // Cell value is depth level for now
-    vtkIdType id = cellIdOffset + cursor->GetLeafId();
     this->Output->GetLeafData()->GetScalars()->InsertTuple1( id, level );
     } // else
 }
