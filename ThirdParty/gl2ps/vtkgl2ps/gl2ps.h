@@ -76,6 +76,10 @@
 #  endif
 #endif
 
+#if defined(HAVE_NO_VSNPRINTF)
+#  define GL2PS_HAVE_NO_VSNPRINTF
+#endif
+
 /* Version number */
 
 #define GL2PS_MAJOR_VERSION 1
