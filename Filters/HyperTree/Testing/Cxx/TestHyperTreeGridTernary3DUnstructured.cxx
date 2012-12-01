@@ -52,7 +52,7 @@ int TestHyperTreeGridTernary3DUnstructured( int argc, char* argv[] )
   vtkNew<vtkShrinkFilter> shrink;
   shrink->SetInputConnection( htg2ug->GetOutputPort() );
   shrink->SetShrinkFactor( .8 );
- 
+
   // Mappers
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection( shrink->GetOutputPort() );
@@ -64,7 +64,7 @@ int TestHyperTreeGridTernary3DUnstructured( int argc, char* argv[] )
   mapper2->ScalarVisibilityOff();
   mapper2->SetResolveCoincidentTopologyToPolygonOffset();
   mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
- 
+
   // Actors
   vtkNew<vtkActor> actor1;
   actor1->SetMapper( mapper1.GetPointer() );
@@ -101,7 +101,7 @@ int TestHyperTreeGridTernary3DUnstructured( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
