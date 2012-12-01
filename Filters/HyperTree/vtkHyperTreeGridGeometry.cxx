@@ -171,6 +171,8 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
       } // j
     } // k
 
+  // Set output geometry and topology
+  this->Output->SetPoints( this->Points );
   if ( this->Input->GetDimension() == 1  )
     {
     this->Output->SetLines( this->Cells );
@@ -179,8 +181,6 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
     {
     this->Output->SetPolys( this->Cells );
     }
-
-  this->Output->SetPoints( this->Points );
 }
 
 
