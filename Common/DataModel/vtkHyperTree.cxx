@@ -219,7 +219,7 @@ public:
 
     vtkCompactHyperTreeCursor<N>* o = static_cast<vtkCompactHyperTreeCursor<N> *>( other );
 
-    int result = this->Index == o->Index
+    bool result = this->Index == o->Index
       && this->ChildIndex == o->ChildIndex
       && this->Leaf == o->Leaf
       && this->ChildHistory == o->ChildHistory;
