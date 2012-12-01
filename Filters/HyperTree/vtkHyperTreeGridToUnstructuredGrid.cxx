@@ -174,7 +174,7 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
                      << "." );
       return 0;
     }
-  
+
 
   // Ensure that primal grid API is used for hyper trees
   int inputDualFlagIsOn = this->Input->GetUseDualGrid();
@@ -254,8 +254,8 @@ void vtkHyperTreeGridToUnstructuredGrid::ProcessTrees()
 
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridToUnstructuredGrid::AddCell( vtkIdType inId, 
-                                                  double* origin, 
+void vtkHyperTreeGridToUnstructuredGrid::AddCell( vtkIdType inId,
+                                                  double* origin,
                                                   double* size )
 {
   // Storage for cell IDs
