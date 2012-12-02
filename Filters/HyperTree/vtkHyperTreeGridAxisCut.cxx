@@ -177,7 +177,7 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
         vtkHyperTreeGridSuperCursor superCursor;
 
         // Initialize center cursor
-        this->Input->InitializeSuperCursor(&superCursor, i, j, k );
+        this->Input->InitializeSuperCursor( &superCursor, i, j, k );
 
         // Traverse and populate dual recursively
         this->RecursiveProcessTree( &superCursor );
@@ -220,7 +220,7 @@ void vtkHyperTreeGridAxisCut::AddFace( vtkIdType inId, double* origin,
 void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
 {
   // Get cursor at super cursor center
-  vtkHyperTreeGridCursor* cursor = superCursor->GetCursor( 0 );
+  vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( 0 );
 
   // If cursor is not at leaf, recurse to all children
   if ( ! cursor->IsLeaf() )

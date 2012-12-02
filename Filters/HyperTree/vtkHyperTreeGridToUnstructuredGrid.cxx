@@ -151,9 +151,9 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
       this->Coefficients = new unsigned int[8];
       for ( unsigned int i = 0; i < 4; ++ i )
         {
-        div_t r = div( i, 2 );
-        this->Coefficients[2 * i] = r.rem;
-        this->Coefficients[2 * i + 1] = r.quot;
+        div_t d = div( i, 2 );
+        this->Coefficients[2 * i] = d.rem;
+        this->Coefficients[2 * i + 1] = d.quot;
         }
       break;
     case 3 :
@@ -161,11 +161,11 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
       this->Coefficients = new unsigned int[24];
       for ( unsigned int i = 0; i < 8; ++ i )
         {
-        div_t r1 = div( i, 2 );
-        div_t r2 = div( r1.quot, 2 );
-        this->Coefficients[3 * i] = r1.rem;
-        this->Coefficients[3 * i + 1] = r2.quot;
-        this->Coefficients[3 * i + 2] = r2.rem;
+        div_t d1 = div( i, 2 );
+        div_t d2 = div( d1.quot, 2 );
+        this->Coefficients[3 * i] = d1.rem;
+        this->Coefficients[3 * i + 1] = d2.quot;
+        this->Coefficients[3 * i + 2] = d2.rem;
         }
       break;
     default:
@@ -228,7 +228,7 @@ void vtkHyperTreeGridToUnstructuredGrid::ProcessTrees()
         vtkHyperTreeGridSuperCursor superCursor;
 
         // Initialize center cursor
-        this->Input->InitializeSuperCursor(&superCursor, i, j, k );
+        this->Input->InitializeSuperCursor( &superCursor, i, j, k );
 
         // Traverse and populate dual recursively
         this->RecursiveProcessTree( &superCursor );
@@ -284,7 +284,7 @@ void vtkHyperTreeGridToUnstructuredGrid::AddCell( vtkIdType inId,
 void vtkHyperTreeGridToUnstructuredGrid::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
 {
   // Get cursor at super cursor center
-  vtkHyperTreeGridCursor* cursor = superCursor->GetCursor( 0 );
+  vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( 0 );
 
   // If cursor is not at leaf, recurse to all children
   if ( ! cursor->IsLeaf() )

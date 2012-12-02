@@ -39,7 +39,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
 
-class vtkHyperTreeGridCursor;
+class vtkHyperTreeSimpleCursor;
 //BTX
 class vtkHyperTreeGridSuperCursor;
 //ETX
@@ -351,7 +351,7 @@ protected:
   vtkIdType* HyperTreesLeafIdOffsets;
 
   //BTX
-  friend class vtkHyperTreeGridCursor;
+  friend class vtkHyperTreeSimpleCursor;
   //ETX
 
   vtkPoints* LeafCenters;
@@ -370,7 +370,7 @@ protected:
   void TraverseGridRecursively( vtkHyperTreeGridSuperCursor*,
                                 unsigned char*);
 
-  void EvaluateDualCorner( vtkHyperTreeGridCursor* );
+  void EvaluateDualCorner( vtkHyperTreeSimpleCursor* );
 
   vtkIdType EvaluateGridCorner( int,
                                 vtkHyperTreeGridSuperCursor*,
@@ -395,7 +395,7 @@ protected:
   void BuildLinks();
 
   vtkIdType RecursiveFindPoint( double x[3],
-                                vtkHyperTreeGridCursor* cursor,
+                                vtkHyperTreeSimpleCursor* cursor,
                                 double* origin, double* size);
 
   // This toggles the data set API between the leaf cells and
@@ -410,11 +410,13 @@ private:
 
 //BTX
 
-class VTK_EXPORT vtkHyperTreeGridCursor
+// A simplified hyper tree cursor, to be used by the hyper tree
+// grid supercursor.
+class VTK_EXPORT vtkHyperTreeSimpleCursor
 {
 public:
-  vtkHyperTreeGridCursor();
-  ~vtkHyperTreeGridCursor();
+  vtkHyperTreeSimpleCursor();
+  ~vtkHyperTreeSimpleCursor();
 
   void Clear();
   void Initialize( vtkHyperTreeGrid*, vtkIdType*, int, int[3] );
@@ -444,12 +446,12 @@ private:
 class vtkHyperTreeGridSuperCursor
 {
  public:
-  vtkHyperTreeGridCursor Cursors[27];
+  vtkHyperTreeSimpleCursor Cursors[27];
   int NumberOfCursors;
   int MiddleCursorId;
   double Origin[3];
   double Size[3];
-  vtkHyperTreeGridCursor* GetCursor( int idx ) { return this->Cursors + this->MiddleCursorId + idx; }
+  vtkHyperTreeSimpleCursor* GetCursor( int idx ) { return this->Cursors + this->MiddleCursorId + idx; }
 };
 
 //ETX

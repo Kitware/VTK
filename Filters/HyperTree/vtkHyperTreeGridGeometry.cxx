@@ -214,7 +214,7 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId, double* origin,
 void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
 {
   // Get cursor at super cursor center
-  vtkHyperTreeGridCursor* cursor = superCursor->GetCursor( 0 );
+  vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( 0 );
 
   // If cursor is not at leaf, recurse to all children
   if ( ! cursor->IsLeaf() )
@@ -271,27 +271,27 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
   else if ( dim == 3 )
     {
     // 3D cells have internal faces to skip, check the 6 faces for boundaries
-    if ( superCursor->GetCursor( -1 )->GetTree() == 0 )
+    if ( ! superCursor->GetCursor( -1 )->GetTree() )
       {
       this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 0, 1, 2 );
       }
-    if ( superCursor->GetCursor( 1 )->GetTree() == 0 )
+    if ( ! superCursor->GetCursor( 1 )->GetTree() )
       {
       this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 0, 1, 2 );
       }
-    if ( superCursor->GetCursor( -3 )->GetTree() == 0 )
+    if ( ! superCursor->GetCursor( -3 )->GetTree() )
       {
       this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 1, 0, 2 );
       }
-    if ( superCursor->GetCursor( 3 )->GetTree() == 0 )
+    if ( ! superCursor->GetCursor( 3 )->GetTree() )
       {
       this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 1, 0, 2 );
       }
-    if ( superCursor->GetCursor( -9 )->GetTree() == 0 )
+    if ( ! superCursor->GetCursor( -9 )->GetTree() )
       {
       this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2, 0, 1 );
       }
-    if ( superCursor->GetCursor( 9 )->GetTree() == 0 )
+    if ( ! superCursor->GetCursor( 9 )->GetTree() )
       {
       this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 2, 0, 1 );
       }
