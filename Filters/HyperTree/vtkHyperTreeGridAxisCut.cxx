@@ -239,7 +239,7 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeGridSuperCursor*
   vtkIdType inId = cursor->GetGlobalLeafIndex();
 
   // If leaf is masked, skip it
-  if ( ! this->Input->GetMaskedLeafIds()->GetTuple1( inId ) )
+  if ( ! this->Input->GetLeafMaterialMask()->GetTuple1( inId ) )
     {
     return;
     }

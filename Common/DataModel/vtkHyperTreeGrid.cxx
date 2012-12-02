@@ -46,7 +46,7 @@ vtkInformationKeyRestrictedMacro(vtkHyperTreeGrid, SIZES, DoubleVector, 3 );
 
 vtkStandardNewMacro(vtkHyperTreeGrid);
 
-vtkCxxSetObjectMacro(vtkHyperTreeGrid,MaskedLeafIds,vtkBitArray);
+vtkCxxSetObjectMacro(vtkHyperTreeGrid,LeafMaterialMask,vtkBitArray);
 vtkCxxSetObjectMacro(vtkHyperTreeGrid,XCoordinates,vtkDataArray);
 vtkCxxSetObjectMacro(vtkHyperTreeGrid,YCoordinates,vtkDataArray);
 vtkCxxSetObjectMacro(vtkHyperTreeGrid,ZCoordinates,vtkDataArray);
@@ -82,7 +82,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->UseDualGrid = 1;
 
   // Masked primal leaves
-  this->MaskedLeafIds = vtkBitArray::New();
+  this->LeafMaterialMask = vtkBitArray::New();
 
   // Grid geometry
   this->XCoordinates = vtkDoubleArray::New();
@@ -118,9 +118,9 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
     this->HyperTrees->UnRegister( this );
     }
 
-  if ( this->MaskedLeafIds )
+  if ( this->LeafMaterialMask )
     {
-    this->MaskedLeafIds->UnRegister( this );
+    this->LeafMaterialMask->UnRegister( this );
     }
 
   if ( this->XCoordinates )
@@ -252,7 +252,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->HyperTreesLeafIdOffsets = htg->HyperTreesLeafIdOffsets;
 
   // Shallow copy masked leaf IDs
-  this->SetMaskedLeafIds( htg->MaskedLeafIds );
+  this->SetLeafMaterialMask( htg->LeafMaterialMask );
 
   // Shallow copy coordinates
   this->SetXCoordinates( htg->XCoordinates );
@@ -1214,9 +1214,9 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySize()
     {
     size += this->LeafCornerIds->GetActualMemorySize();
     }
-  if ( this->MaskedLeafIds)
+  if ( this->LeafMaterialMask)
     {
-    size += this->MaskedLeafIds->GetActualMemorySize();
+    size += this->LeafMaterialMask->GetActualMemorySize();
     }
 
   return size;
