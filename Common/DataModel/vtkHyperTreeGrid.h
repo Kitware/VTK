@@ -417,7 +417,7 @@ public:
   ~vtkHyperTreeGridCursor();
 
   void Clear();
-  void Initialize( vtkHyperTreeGrid*, vtkIdType*, int, int, int, int );
+  void Initialize( vtkHyperTreeGrid*, vtkIdType*, int, int[3] );
   void ToRoot();
   void ToChild( int );
   bool IsLeaf();

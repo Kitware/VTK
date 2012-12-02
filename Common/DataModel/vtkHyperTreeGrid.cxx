@@ -1022,7 +1022,8 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
   int index = ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
   vtkHyperTreeGridCursor cursor;
   vtkIdType offsets[3];
-  cursor.Initialize( this, offsets, index, 0, 0, 0 );
+  int pos[] = { 0, 0, 0 };
+  cursor.Initialize( this, offsets, index, pos );
 
   // Geometry of the cell
   double origin[3];
@@ -1271,7 +1272,7 @@ void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* super
   superCursor->Origin[1] = origin[1];
   superCursor->Origin[2] = origin[2];
 
-  // 3x3x3 has nothing to do with octree or 27tree
+  // 3x3x3 has nothing to do with whether subdivision is binary or ternary
   int dim = this->GetDimension();
   if ( dim == 1 )
     {
@@ -1290,10 +1291,11 @@ void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* super
     }
 
   // Now initialize all connectivity cursors by generating all possible cases
-  for ( int c = -1; c < 2; ++ c )
+  int pos[3];
+  for ( pos[2] = -1; pos[2] < 2; ++ pos[2] )
     {
     bool tk = true;
-    switch ( c )
+    switch ( pos[2] )
       {
       case -1:
         tk = ( k > 0 );
@@ -1301,13 +1303,12 @@ void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* super
       case 1:
         tk = ( k + 1 < this->GridSize[2] );
         break;
-      } // switch( c )
+      } // switch( pos[2] )
 
-    // Copy the grid neighborhhood into the cursors.
-    for ( int b = -1; b < 2; ++ b )
+    for ( pos[1] = -1; pos[1] < 2; ++ pos[1] )
       {
       bool tj = true;
-      switch ( b )
+      switch ( pos[1] )
         {
         case -1:
           tj = ( j > 0 );
@@ -1315,12 +1316,12 @@ void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* super
         case 1:
           tj = ( j + 1 < this->GridSize[1] );
           break;
-        } // switch( b )
+        } // switch( pos[1] )
 
-      for ( int a = -1; a < 2; ++ a )
+      for ( pos[0] = -1; pos[0] < 2; ++ pos[0] )
         {
         bool ti = true;
-        switch ( a )
+        switch ( pos[0] )
           {
           case -1:
             ti = ( i > 0 );
@@ -1328,19 +1329,19 @@ void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* super
           case 1:
             ti = ( i + 1 < this->GridSize[0] );
             break;
-          } // switch( a )
+          } // switch( pos[0] )
 
         // Initialize cursor if connectivity conditions are satisfied
-        int d = a + 3 * b + 9 * c;
+        int d = pos[0] + 3 * pos[1] + 9 * pos[2];
         if ( ti && tj && tk )
           {
           superCursor->GetCursor( d )->Initialize( this,
                                                    this->HyperTreesLeafIdOffsets,
-                                                   index, a, b, c );
+                                                   index, pos );
           } // if ( ti && tj && tk )
         else
           {
-          if ( this->Dimension < 3 && ! c )
+          if ( this->Dimension < 3 && ! pos[2] )
             {
             superCursor->GetCursor( d )->Clear();
             }
@@ -2027,14 +2028,12 @@ void vtkHyperTreeGridCursor::Clear()
 void vtkHyperTreeGridCursor::Initialize( vtkHyperTreeGrid* grid,
                                          vtkIdType* offsets,
                                          int index,
-                                         int a,
-                                         int b,
-                                         int c )
+                                         int pos[3] )
 { 
   // Convert local index into global one
   unsigned int n[3];
   grid->GetGridSize( n );
-  int globalIndex = index + a + b * n[0] + c * n[0] * n[1];
+  int globalIndex = index + pos[0] + pos[1] * n[0] + pos[2] * n[0] * n[1];
 
   this->Offset = offsets[globalIndex];
   vtkObject* obj = grid->HyperTrees->GetItemAsObject( globalIndex );
