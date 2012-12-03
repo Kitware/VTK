@@ -1100,16 +1100,16 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell,
     }
 
   int num = cellIds->GetNumberOfIds();
-  for ( int ii = 0; ii < num; ++ ii )
+  for ( int i = 0; i < num; ++ i )
     {
-    cellId = cellIds->GetId(ii);
+    cellId = cellIds->GetId( i );
     if ( gencell )
       {
-      this->GetCell(cellId, gencell);
+      this->GetCell( cellId, gencell );
       }
     else
       {
-      cell = this->GetCell(cellId);
+      cell = this->GetCell( cellId );
       }
 
     // See whether this cell contains the point
@@ -1118,12 +1118,12 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell,
     dx[1] = x[1];
     dx[2] = x[2];
     if ( ( gencell &&
-           gencell->EvaluatePosition(dx,closestPoint,subId,
-                                     pcoords, dist2,weights) == 1
+           gencell->EvaluatePosition( dx, closestPoint, subId,
+                                      pcoords, dist2, weights ) == 1
            && dist2 <= tol2 )  ||
          ( !gencell &&
-           cell->EvaluatePosition(dx,closestPoint,subId,
-                                  pcoords, dist2,weights) == 1
+           cell->EvaluatePosition( dx, closestPoint, subId,
+                                   pcoords, dist2, weights ) == 1
            && dist2 <= tol2 ) )
       {
       cellIds->UnRegister( this );
@@ -1286,7 +1286,7 @@ void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* super
     superCursor->NumberOfCursors = 27;
     }
 
-  // Now initialize all connectivity cursors by generating all possible cases
+  // Initialize all connectivity cursors by generating all possible cases
   int pos[3];
   for ( pos[2] = -1; pos[2] < 2; ++ pos[2] )
     {
@@ -1348,12 +1348,11 @@ void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* super
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::InitializeSuperCursorChild(vtkHyperTreeGridSuperCursor* parent, 
-                                                  vtkHyperTreeGridSuperCursor* child,
-                                                  int childIdx)
+void vtkHyperTreeGrid::InitializeSuperCursorChild( vtkHyperTreeGridSuperCursor* parent, 
+                                                   vtkHyperTreeGridSuperCursor* child,
+                                                   int childIdx )
 {
-  vtkSuperCursorEntry* cursorPtr = this->SuperCursorTraversalTable + ( childIdx * 27 );
-
+  // Retrieve child's paramaters that are identical to parent's ones
   child->NumberOfCursors = parent->NumberOfCursors;
   child->MiddleCursorId = parent->MiddleCursorId;
 
@@ -1382,6 +1381,7 @@ void vtkHyperTreeGrid::InitializeSuperCursorChild(vtkHyperTreeGridSuperCursor* p
   child->Origin[2] = parent->Origin[2] + ( z * child->Size[2] );
 
   // Move each cursor in the superCursor down to a child
+  vtkSuperCursorEntry* cursorPtr = this->SuperCursorTraversalTable + ( childIdx * 27 );
   for ( int cursorIdx = 0; cursorIdx < child->NumberOfCursors; ++ cursorIdx )
     {
     // Extract the parent and child of the new node from the traversal table
@@ -1555,8 +1555,10 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
           case 1:
             cursorIdx += ( cornerIdx& 1) + ( leafIdx& 1);
           }
+
         // Collect the leaf indexes for the dual cell
         leaves[leafIdx] = superCursor->Cursors[cursorIdx].GetGlobalLeafIndex();
+
         // Compute if the mid leaf owns the corner.
         if ( cursorIdx != superCursor->MiddleCursorId )
           {
@@ -1711,15 +1713,12 @@ int vtkHyperTreeGrid::UpdateHyperTreesLeafIdOffsets()
     {
     if ( obj )
       {
-      vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
-      if ( tree )
-        {
-        // Partial sum is current offset
-        this->HyperTreesLeafIdOffsets[idx] = numLeaves;
+      vtkHyperTree* tree = static_cast<vtkHyperTree*>( obj );
+      // Partial sum is current offset
+      this->HyperTreesLeafIdOffsets[idx] = numLeaves;
 
-        // Update partial sum
-        numLeaves += tree->GetNumberOfLeaves();
-        }
+      // Update partial sum
+      numLeaves += tree->GetNumberOfLeaves();
       }
     }
 
@@ -1773,7 +1772,7 @@ void vtkHyperTreeGrid::UpdateGridArrays()
         vtkHyperTreeGridSuperCursor superCursor;
 
         // Initialize center cursor
-        this->InitializeSuperCursor(&superCursor, i, j, k);
+        this->InitializeSuperCursor( &superCursor, i, j, k );
 
         // Create a mask array to keep a record of which leaves have already
         // generated their corner cell entries
@@ -2030,7 +2029,6 @@ void vtkHyperTreeSimpleCursor::Initialize( vtkHyperTreeGrid* grid,
   unsigned int n[3];
   grid->GetGridSize( n );
   int globalIndex = index + pos[0] + pos[1] * n[0] + pos[2] * n[0] * n[1];
-
   // Assign leaf ID offset to this cursor
   this->Offset = offsets[globalIndex];
 
@@ -2089,7 +2087,7 @@ void vtkHyperTreeSimpleCursor::ToRoot()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeSimpleCursor::ToChild( int child )
 {
-  if ( this->Tree == 0 )
+  if ( ! this->Tree )
     {
     return;
     }

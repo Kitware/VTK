@@ -227,7 +227,6 @@ public:
     for( unsigned int i = 0; result && i < this->Dimension; ++ i )
       {
       result = this->Indices[i] == o->Indices[i];
-      ++ i;
       }
     return result;
   }
