@@ -41,6 +41,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkIncrementalPointLocator.h"
+#include "vtkContourHelper.h"
 
 #include <math.h>
 
@@ -63,6 +64,8 @@ vtkContourFilter::vtkContourFilter()
   this->ScalarTree = NULL;
 
   this->OutputPointsPrecision = DEFAULT_PRECISION;
+
+  this->GenerateTriangles = 1;
 
   this->SynchronizedTemplates2D = vtkSynchronizedTemplates2D::New();
   this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
@@ -179,6 +182,7 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
       this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
       this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
       this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);
+      this->SynchronizedTemplates3D->SetGenerateTriangles(this->GenerateTriangles);
       return this->SynchronizedTemplates3D->
         ProcessRequest(request,inputVector,outputVector);
       }
@@ -199,6 +203,7 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
       this->RectilinearSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
       this->RectilinearSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
       this->RectilinearSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
+      this->RectilinearSynchronizedTemplates->SetGenerateTriangles(this->GenerateTriangles);
       return this->RectilinearSynchronizedTemplates->
         ProcessRequest(request,inputVector,outputVector);
       }
@@ -219,6 +224,7 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
       this->GridSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
       this->GridSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
       this->GridSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
+      this->GridSynchronizedTemplates->SetGenerateTriangles(this->GenerateTriangles);
       return this->GridSynchronizedTemplates->
         ProcessRequest(request,inputVector,outputVector);
       }
@@ -298,6 +304,7 @@ int vtkContourFilter::RequestData(
       this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
       this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
       this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);
+      this->SynchronizedTemplates3D->SetGenerateTriangles(this->GenerateTriangles);
       this->SynchronizedTemplates3D->
         SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
 
@@ -320,6 +327,7 @@ int vtkContourFilter::RequestData(
       this->RectilinearSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
       this->RectilinearSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
       this->RectilinearSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
+      this->RectilinearSynchronizedTemplates->SetGenerateTriangles(this->GenerateTriangles);
       this->RectilinearSynchronizedTemplates->
         SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
       return this->RectilinearSynchronizedTemplates->
@@ -342,6 +350,7 @@ int vtkContourFilter::RequestData(
       this->GridSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
       this->GridSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
       this->GridSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
+      this->GridSynchronizedTemplates->SetGenerateTriangles(this->GenerateTriangles);
       this->GridSynchronizedTemplates->
         SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
       return this->GridSynchronizedTemplates->
@@ -380,6 +389,7 @@ int vtkContourFilter::RequestData(
     cgrid->SetComputeNormals(this->ComputeNormals);
     cgrid->SetComputeScalars(this->ComputeScalars);
     cgrid->SetOutputPointsPrecision(this->OutputPointsPrecision);
+    cgrid->SetGenerateTriangles(this->GenerateTriangles);
     if ( this->Locator )
       {
       cgrid->SetLocator( this->Locator );
@@ -467,6 +477,7 @@ int vtkContourFilter::RequestData(
     outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
     outCd->CopyAllocate(inCd,estimatedSize,estimatedSize);
 
+    vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys,inPd, inCd, outPd,outCd, estimatedSize, this->GenerateTriangles!=0);
     // If enabled, build a scalar tree to accelerate search
     //
     if ( !this->UseScalarTree )
@@ -527,10 +538,7 @@ int vtkContourFilter::RequestData(
 
           for (i=0; i < numContours; i++)
             {
-            cell->Contour(values[i], cellScalars, this->Locator,
-                          newVerts, newLines, newPolys, inPd, outPd,
-                          inCd, cellId, outCd);
-
+            helper.Contour(cell,values[i],cellScalars,cellId);
             } // for all contour values
           } // for all cells
         } // for all dimensions
@@ -557,10 +565,7 @@ int vtkContourFilter::RequestData(
         for ( this->ScalarTree->InitTraversal(values[i]);
               (cell=this->ScalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
           {
-          cell->Contour(values[i], cellScalars, this->Locator,
-                        newVerts, newLines, newPolys, inPd, outPd,
-                        inCd, cellId, outCd);
-
+          helper.Contour(cell,values[i],cellScalars,cellId);
           } //for all cells
         } //for all contour values
       } //using scalar tree

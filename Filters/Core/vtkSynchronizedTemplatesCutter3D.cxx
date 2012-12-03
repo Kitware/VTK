@@ -52,7 +52,6 @@ vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D,CutFunction,vtkImplicitFun
 vtkSynchronizedTemplatesCutter3D::vtkSynchronizedTemplatesCutter3D()
 {
   this->CutFunction = 0;
-  this->GenerateTriangles = 1;
 }
 
 //----------------------------------------------------------------------------

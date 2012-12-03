@@ -48,19 +48,11 @@ public:
   virtual void SetCutFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
 
- // Description:
-  // If this is enabled (by default), the output will be triangles
-  // otherwise, the output will be the intersection polygons
-  vtkSetMacro(GenerateTriangles,int);
-  vtkGetMacro(GenerateTriangles,int);
-  vtkBooleanMacro(GenerateTriangles,int);
-
 protected:
   vtkSynchronizedTemplatesCutter3D();
   ~vtkSynchronizedTemplatesCutter3D();
 
   vtkImplicitFunction *CutFunction;
-  int GenerateTriangles;
 
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,

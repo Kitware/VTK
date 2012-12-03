@@ -72,6 +72,13 @@ public:
   vtkGetMacro(ComputeScalars,int);
   vtkBooleanMacro(ComputeScalars,int);
 
+ // Description:
+  // If this is enabled (by default), the output will be triangles
+  // otherwise, the output will be the intersection polygons
+  vtkSetMacro(GenerateTriangles,int);
+  vtkGetMacro(GenerateTriangles,int);
+  vtkBooleanMacro(GenerateTriangles,int);
+
   // Description:
   // Set a particular contour value at contour number i. The index i ranges
   // between 0<=i<NumberOfContours.
@@ -153,6 +160,7 @@ protected:
 
   int ArrayComponent;
 
+  int GenerateTriangles;
 private:
   vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&);  // Not implemented.
   void operator=(const vtkSynchronizedTemplates3D&);  // Not implemented.
