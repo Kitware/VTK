@@ -1,3 +1,13 @@
+# Check that python is both found and version >= 2.6
+if(NOT PYTHON_EXECUTABLE)
+  message(FATAL_ERROR "Cannot build RenderingMatplotlib: PYTHON_EXECUTABLE not set.")
+endif()
+
+if(${PYTHON_VERSION_STRING} VERSION_LESS "2.6")
+  message(FATAL_ERROR "Cannot build RenderingMatplotlib: Python is too old. "
+    "Required: >= 2.6, Found: ${PYTHON_VERSION_STRING}")
+endif()
+
 set(Module_SRCS
   vtkMatplotlibMathTextUtilities.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
