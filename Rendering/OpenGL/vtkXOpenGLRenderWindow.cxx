@@ -458,6 +458,7 @@ bool vtkXOpenGLRenderWindow::InitializeFromCurrentContext()
     this->SetWindowId((void*)glXGetCurrentDrawable());
     this->Internal->ContextId = currentContext;
     this->OpenGLInit();
+    this->OwnContext = 0;
     return true;
     }
   return false;
@@ -717,57 +718,53 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
   this->XCSizeSW =  0;
   this->XCHand   =  0;
 
-  this->MakeCurrent();
-
-  // tell each of the renderers that this render window/graphics context
-  // is being removed (the RendererCollection is removed by vtkRenderWindow's
-  // destructor)
-  vtkRenderer* ren;
-  this->Renderers->InitTraversal();
-  for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
-        ren != NULL;
-        ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
+  if (this->OwnContext && this->Internal->ContextId)
     {
-    ren->SetRenderWindow(NULL);
-    ren->SetRenderWindow(this);
-    }
-
-
-  if(this->Internal->ContextId)
-    {
-
-
-    /* first delete all the old lights */
-    for (short cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
+      this->MakeCurrent();
+    // tell each of the renderers that this render window/graphics context
+    // is being removed (the RendererCollection is removed by vtkRenderWindow's
+    // destructor)
+    vtkRenderer* ren;
+    this->Renderers->InitTraversal();
+    for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
+          ren != NULL;
+          ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
       {
-      glDisable(static_cast<GLenum>(cur_light));
+      ren->SetRenderWindow(NULL);
+      ren->SetRenderWindow(this);
       }
 
-    /* now delete all textures */
-    glDisable(GL_TEXTURE_2D);
-    for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
+    if (this->Internal->ContextId)
       {
-      GLuint txId = static_cast<GLuint>(this->TextureResourceIds->GetId(i));
+      /* first delete all the old lights */
+      for (short cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
+        {
+        glDisable(static_cast<GLenum>(cur_light));
+        }
+
+      /* now delete all textures */
+      glDisable(GL_TEXTURE_2D);
+      for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
+        {
+        GLuint txId = static_cast<GLuint>(this->TextureResourceIds->GetId(i));
 #ifdef GL_VERSION_1_1
-      if (glIsTexture(txId))
-        {
-        glDeleteTextures(1, &txId);
-        }
+        if (glIsTexture(txId))
+          {
+          glDeleteTextures(1, &txId);
+          }
 #else
-      if (glIsList(txId))
-        {
-        glDeleteLists(txId,1);
-        }
+        if (glIsList(txId))
+          {
+          glDeleteLists(txId,1);
+          }
 #endif
+        }
+
+      glFinish();
+      glXDestroyContext(this->DisplayId, this->Internal->ContextId);
       }
-
-    glFinish();
-
-
-    glXDestroyContext(this->DisplayId, this->Internal->ContextId);
-    this->Internal->ContextId = NULL;
-
     }
+    this->Internal->ContextId = NULL;
 
   // then close the old window if we own it
   if (this->OwnWindow && this->DisplayId && this->WindowId)

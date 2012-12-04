@@ -111,7 +111,7 @@ void vtkCocoaRenderWindow::DestroyWindow()
   GLuint txId;
 
   // finish OpenGL rendering
-  if (this->GetContextId())
+  if (this->OwnContext && this->GetContextId())
     {
     this->MakeCurrent();
 
@@ -144,10 +144,9 @@ void vtkCocoaRenderWindow::DestroyWindow()
       ren->SetRenderWindow(NULL);
       ren->SetRenderWindow(this);
       }
-
-    this->SetContextId(NULL);
-    this->SetPixelFormat(NULL);
   }
+  this->SetContextId(NULL);
+  this->SetPixelFormat(NULL);
 
   if (this->WindowCreated)
     {
@@ -188,6 +187,7 @@ bool vtkCocoaRenderWindow::InitializeFromCurrentContext()
       this->SetRootWindow(window);
       this->SetContextId((void*)currentContext);
       this->OpenGLInit();
+      this->OwnContext = 0;
       return true;
       }
     }

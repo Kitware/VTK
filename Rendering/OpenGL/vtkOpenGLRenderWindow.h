@@ -262,6 +262,10 @@ protected:
   // Actual type is GLenum. Last value returned by glGetError().
   unsigned int LastGraphicError;
 
+  // Description:
+  // Flag telling if the context has been created here or was inherited.
+  int OwnContext;
+
   vtkTimeStamp ContextCreationTime;
 
   vtkTextureUnitManager *TextureUnitManager;
