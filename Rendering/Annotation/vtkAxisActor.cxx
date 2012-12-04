@@ -1130,7 +1130,10 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
       ;
     }
 
-  os << indent << "DeltaMajor: " << this->DeltaMajor << endl;
+  os << indent << "DeltaMajor: "
+     << this->DeltaMajor[0] << ","
+     << this->DeltaMajor[1] << ","
+     << this->DeltaMajor[2] << endl;
   os << indent << "DeltaMinor: " << this->DeltaMinor << endl;
   os << indent << "DeltaRangeMajor: " << this->DeltaRangeMajor << endl;
   os << indent << "DeltaRangeMinor: " << this->DeltaRangeMinor << endl;
@@ -1164,8 +1167,10 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "DrawGridlines: " << this->DrawGridlines << endl;
 
-  os << indent << "MajorStart: " << this->MajorStart << endl;
-  os << indent << "MinorStart: " << this->MinorStart << endl;
+  os << indent << "MajorStart: "
+     << this->MajorStart[0] << ","
+     << this->MajorStart[1] << ","
+     << this->MajorStart[2] << endl;
 
   os << indent << "AxisPosition: " << this->AxisPosition << endl;
 
