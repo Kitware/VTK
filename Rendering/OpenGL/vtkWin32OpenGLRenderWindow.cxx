@@ -85,11 +85,11 @@ void vtkWin32OpenGLRenderWindow::Clean()
   GLuint id;
 
   /* finish OpenGL rendering */
-  if (this->ContextId)
+  if (this->OwnContext && this->ContextId)
     {
     this->MakeCurrent();
 
-    /* first delete all the old lights */
+     /* first delete all the old lights */
     for (short cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+VTK_MAX_LIGHTS; cur_light++)
       {
       glDisable((GLenum)cur_light);
@@ -127,8 +127,9 @@ void vtkWin32OpenGLRenderWindow::Clean()
       {
       vtkErrorMacro("wglDeleteContext failed in Clean(), error: " << GetLastError());
       }
-    this->ContextId = NULL;
     }
+  this->ContextId = NULL;
+
   if (this->Palette)
     {
     SelectPalette(this->DeviceContext, this->OldPalette, FALSE); // SVA delete the old palette
@@ -221,6 +222,7 @@ bool vtkWin32OpenGLRenderWindow::InitializeFromCurrentContext()
     this->SetDeviceContext(wglGetCurrentDC());
     this->SetContextId(currentContext);
     this->OpenGLInit();
+    this->OwnContext = 0;
     return true;
     }
   return false;
