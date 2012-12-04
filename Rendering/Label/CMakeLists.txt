@@ -20,5 +20,7 @@ set_source_files_properties(
   ABSTRACT
   )
 
+include_directories(${OPENGL_INCLUDE_DIR})
+
 include_directories(${VTK_SOURCE_DIR}/Utilities) # octree
 vtk_module_library(vtkRenderingLabel ${Module_SRCS})
