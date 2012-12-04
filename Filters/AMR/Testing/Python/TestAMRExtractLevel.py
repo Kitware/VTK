@@ -29,4 +29,4 @@ class TestAMRExtractLevel(Testing.vtkTest):
     self.assertEqual(out.GetNumberOfBlocks(), amr.GetNumberOfDataSets(level))
 
 if __name__ == "__main__":
-	Testing.main([(TestAMRExtractLevel, 'test')])
+    Testing.main([(TestAMRExtractLevel, 'test')])

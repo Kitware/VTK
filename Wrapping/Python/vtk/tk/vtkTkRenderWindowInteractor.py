@@ -54,9 +54,9 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
 
         try:  # was a stereo rendering context requested?
             if kw['stereo']:
-	       renderWindow.StereoCapableWindowOn()
+               renderWindow.StereoCapableWindowOn()
                del kw['stereo']
-	except KeyError:
+        except KeyError:
             pass
 
         # check if focus should follow mouse

@@ -24,6 +24,6 @@ a.Update()
 mesh = a.GetOutput().GetFieldData().GetScalars()
 
 for i in range(mesh.GetNumberOfTuples()):
-	print mesh.GetTuple2(i)
+    print mesh.GetTuple2(i)
 
 sys.exit(0)

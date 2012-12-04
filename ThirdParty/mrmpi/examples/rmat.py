@@ -7,7 +7,7 @@
 #
 #   Copyright (2009) Sandia Corporation.  Under the terms of Contract
 #   DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-#   certain rights in this software.  This software is distributed under 
+#   certain rights in this software.  This software is distributed under
 #   the modified Berkeley Software Distribution (BSD) License.
 #
 #   See the README file in the top-level MapReduce directory.
@@ -37,30 +37,30 @@ def generate(itask,mr):
     delta = order / 2
     a1 = a; b1 = b; c1 = c; d1 = d
     i = j = 0
-    
+
     for ilevel in xrange(nlevels):
       rn = random.random()
       if rn < a1:
         pass
       elif rn < a1+b1:
-	j += delta
+        j += delta
       elif rn < a1+b1+c1:
-	i += delta
+        i += delta
       else:
-	i += delta
-	j += delta
-      
+        i += delta
+        j += delta
+
       delta /= 2
       if fraction > 0.0:
-	a1 += a1*fraction * (drand48() - 0.5)
-	b1 += b1*fraction * (drand48() - 0.5)
-	c1 += c1*fraction * (drand48() - 0.5)
-	d1 += d1*fraction * (drand48() - 0.5)
-	total = a1+b1+c1+d1
-	a1 /= total
-	b1 /= total
-	c1 /= total
-	d1 /= total
+        a1 += a1*fraction * (drand48() - 0.5)
+        b1 += b1*fraction * (drand48() - 0.5)
+        c1 += c1*fraction * (drand48() - 0.5)
+        d1 += d1*fraction * (drand48() - 0.5)
+        total = a1+b1+c1+d1
+        a1 /= total
+        b1 /= total
+        c1 /= total
+        d1 /= total
 
     mr.add((i,j),None)
 
@@ -201,5 +201,5 @@ if me == 0:
         (tstop-tstart,nprocs,niterate)
 
 mr.destroy()
-  
+
 pypar.finalize()
