@@ -257,56 +257,6 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
   // Cursor is a leaf, retrieve its global index
   vtkIdType inId = cursor->GetGlobalLeafIndex();
 
-  // Retrive dimension, as 3D has extra complications
-  int dim = this->Input->GetDimension();
-
-  // If leaf is masked, its void will have to be patched
-  if ( this->Input->GetLeafMaterialMask()->GetTuple1( inId ) )
-    {
-    if ( dim == 3 )
-      {
-      for ( int f = 0; f < 6; ++ f )
-        {
-        cursor = superCursor->GetCursor( vtkSuperCursorFaceIndices[f] );
-        if ( cursor->GetTree() )
-          {
-          if ( cursor->IsLeaf() )
-            {
-            int id = cursor->GetGlobalLeafIndex();
-            if ( ! this->Input->GetLeafMaterialMask()->GetTuple1( id ) )
-              {
-              char mask = this->Filling->GetTuple1( inId );
-              this->Filling->InsertTuple1( inId, mask + ( 1 << f ) );
-              this->AddFace( id, superCursor->Origin, superCursor->Size, 
-                             vtkHTGo[f],
-                             vtkHTG0[f],
-                             vtkHTG1[f],
-                             vtkHTG2[f] );
-              }
-            } // if ( cursor->IsLeaf() )
-          else
-            {
-            cerr << "Cell " << inId << " face " << f << " cannot fill !\n";
-            } // else
-          } // if ( cursor->GetTree() )
-        } // i
-      } // if ( dim == 3 )
-
-    return;
-    } // if ( this->Input->GetLeafMaterialMask()->GetTuple1( inId ) )
-
-  // In 3D case, terminate if the middle cell is not on the boundary.
-  if ( dim == 3
-       && superCursor->GetCursor( -1 )->GetTree()
-       && superCursor->GetCursor( 1 )->GetTree()
-       && superCursor->GetCursor( -3 )->GetTree()
-       && superCursor->GetCursor( 3 )->GetTree()
-       && superCursor->GetCursor( -9 )->GetTree()
-       && superCursor->GetCursor( 9 )->GetTree() )
-    {
-    return;
-    }
-  
   // Create the outer geometry, depending on the dimension of the grid
   switch (  this->Input->GetDimension() )
     {
@@ -326,6 +276,49 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
       this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2, 0, 1 );
       break;
     case 3:
+      // If leaf is masked, its void will have to be patched
+      if ( this->Input->GetLeafMaterialMask()->GetTuple1( inId ) )
+        {
+        for ( int f = 0; f < 6; ++ f )
+          {
+          cursor = superCursor->GetCursor( vtkSuperCursorFaceIndices[f] );
+          if ( cursor->GetTree() )
+            {
+            if ( cursor->IsLeaf() )
+              {
+              int id = cursor->GetGlobalLeafIndex();
+              if ( ! this->Input->GetLeafMaterialMask()->GetTuple1( id ) )
+                {
+                char mask = this->Filling->GetTuple1( inId );
+                this->Filling->InsertTuple1( inId, mask + ( 1 << f ) );
+                this->AddFace( id, superCursor->Origin, superCursor->Size, 
+                               vtkHTGo[f],
+                               vtkHTG0[f],
+                               vtkHTG1[f],
+                               vtkHTG2[f] );
+                }
+              } // if ( cursor->IsLeaf() )
+            else
+              {
+              cerr << "Cell " << inId << " face " << f << " cannot fill !\n";
+              } // else
+            } // if ( cursor->GetTree() )
+          } // i
+        
+        return;
+        } // if ( this->Input->GetLeafMaterialMask()->GetTuple1( inId ) )
+
+      // In 3D case, terminate if the middle cell is not on the boundary.
+      if ( superCursor->GetCursor( -1 )->GetTree()
+           && superCursor->GetCursor( 1 )->GetTree()
+           && superCursor->GetCursor( -3 )->GetTree()
+           && superCursor->GetCursor( 3 )->GetTree()
+           && superCursor->GetCursor( -9 )->GetTree()
+           && superCursor->GetCursor( 9 )->GetTree() )
+        {
+        return;
+        }
+  
       // 3D cells have internal faces to skip, check the 6 faces for boundaries
       if ( ! superCursor->GetCursor( -1 )->GetTree() )
         {
