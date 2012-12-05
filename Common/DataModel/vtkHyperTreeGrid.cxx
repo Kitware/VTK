@@ -547,11 +547,8 @@ int vtkHyperTreeGrid::GetNumberOfLeaves()
     {
     if ( obj )
       {
-      vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
-      if ( tree )
-        {
-        nLeaves += tree->GetNumberOfLeaves();
-        }
+      vtkHyperTree* tree = static_cast<vtkHyperTree*>( obj );
+      nLeaves += tree->GetNumberOfLeaves();
       }
     }
 
@@ -1802,7 +1799,7 @@ void vtkHyperTreeGrid::UpdateGridArrays()
 void vtkHyperTreeGrid::TraverseGridRecursively( vtkHyperTreeGridSuperCursor* superCursor,
                                                 unsigned char* visited)
 {
-  // This is the number of corners that a leaf has (valid for octrees and 27 trees)
+  // This is the number of corners that a leaf has (valid for all hypertrees)
   int numCorners = 1 << this->Dimension;
 
   int cornerId;
@@ -1832,9 +1829,9 @@ void vtkHyperTreeGrid::TraverseGridRecursively( vtkHyperTreeGridSuperCursor* sup
                                            cornerIds );
       if ( cornerId >= 0 )
         {
-        // A bit funny inserting the point here, but we need the
-        // to determine the id for the corner leaves in EvaluateGridCorner,
-        // and I do not want to compute the point unless absolutely necessary.
+        // A bit funny inserting the point here, but we need to determine
+        // the id for the corner leaves in EvaluateGridCorner, and we
+        // do not want to compute the point unless absolutely necessary.
         double pt[3];
 
         // Create the corner point.

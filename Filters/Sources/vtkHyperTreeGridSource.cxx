@@ -74,7 +74,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->Descriptor = ".";
 
   // Material mask
-  this->MaterialMask = "1";
+  this->MaterialMask = "0";
 
   this->Output = NULL;
 }
@@ -631,12 +631,12 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
          && this->LevelMaterialMasks.at( level ).at( pointer ) == '0' )
       {
       // Blank leaf in underlying hyper tree
-      this->Output->GetLeafMaterialMask()->InsertTuple1( id, 0 );
+      this->Output->GetLeafMaterialMask()->InsertTuple1( id, 1 );
       }
     else
       {
       // Do not blank leaf in underlying hyper tree
-      this->Output->GetLeafMaterialMask()->InsertTuple1( id, 1 );
+      this->Output->GetLeafMaterialMask()->InsertTuple1( id, 0 );
       }
 
     // Cell value is depth level for now
