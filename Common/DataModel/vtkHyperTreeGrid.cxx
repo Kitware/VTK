@@ -1860,8 +1860,7 @@ void vtkHyperTreeGrid::TraverseGridRecursively( vtkHyperTreeGridSuperCursor* sup
     } // if ( superCursor->GetCursor( 0 )->IsLeaf() )
 
   // Center is not a leaf, continue recursion
-  vtkSuperCursorEntry* cursorPtr = this->SuperCursorTraversalTable;
-  for ( unsigned int child = 0; child < this->NumberOfChildren; ++ child, cursorPtr += 27 )
+  for ( unsigned int child = 0; child < this->NumberOfChildren; ++ child )
     {
     vtkHyperTreeGridSuperCursor newSuperCursor;
     this->InitializeSuperCursorChild( superCursor,&newSuperCursor, child );
