@@ -287,7 +287,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
         // Cell is masked, check if any of the face neighbors are unmasked
         for ( int f = 0; f < 6; ++ f )
           {
-          // Retrieve face neighbor cursor
+          // Retrieve face neighbor cursor and break ties at same level
           cursor = superCursor->GetCursor( vtkSuperCursorFaceIndices[f] );
           if ( cursor->GetTree() 
                && cursor->IsLeaf()

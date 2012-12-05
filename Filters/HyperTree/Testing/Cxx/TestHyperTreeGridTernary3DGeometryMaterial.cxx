@@ -85,7 +85,7 @@ int TestHyperTreeGridTernary3DMaterialGeometry( int argc, char* argv[] )
   // Render window
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer( renderer.GetPointer() );
-  renWin->SetSize( 300, 300 );
+  renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
