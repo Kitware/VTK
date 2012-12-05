@@ -275,10 +275,12 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
       pt[2] = superCursor->Origin[2];
       ids[1] = this->Points->InsertNextPoint( pt );
       this->Cells->InsertNextCell( 2, ids );
+
       break; // case 1
     case 2:
       // In 2D all faces are generated
       this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2 );
+
       break; // case 2
     case 3:
       // In 3D masked and unmasked cells are handles differently
@@ -305,7 +307,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
                              superCursor->Origin, superCursor->Size,
                              d.rem, d.quot );
               }
-            } // if ( cursor )
+            }
           } // f
         return;
         } //  if ( this->Input->GetMaterialMask()->GetTuple1( inId ) )
@@ -327,8 +329,9 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
                          superCursor->Origin, superCursor->Size,
                          d.rem, d.quot );
 
-          } // if ( cursor )
+          }
         } // f
+
       break; // case 3
     } // switch (  this->Input->GetDimension() )
 }
