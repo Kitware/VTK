@@ -320,30 +320,17 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
         }
   
       // 3D cells have internal faces to skip, check the 6 faces for boundaries
-      if ( ! superCursor->GetCursor( -1 )->GetTree() )
+      for ( int f = 0; f < 6; ++ f )
         {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 0, 1, 2 );
-        }
-      if ( ! superCursor->GetCursor( 1 )->GetTree() )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 0, 1, 2 );
-        }
-      if ( ! superCursor->GetCursor( -3 )->GetTree() )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 1, 0, 2 );
-        }
-      if ( ! superCursor->GetCursor( 3 )->GetTree() )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 1, 0, 2 );
-        }
-      if ( ! superCursor->GetCursor( -9 )->GetTree() )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2, 0, 1 );
-        }
-      if ( ! superCursor->GetCursor( 9 )->GetTree() )
-        {
-        this->AddFace( inId, superCursor->Origin, superCursor->Size, 1, 2, 0, 1 );
-        }
+        if ( ! superCursor->GetCursor( vtkSuperCursorFaceIndices[f] )->GetTree() )
+          {
+          this->AddFace( inId, superCursor->Origin, superCursor->Size, 
+                         vtkHTGo[f],
+                         vtkHTG0[f],
+                         vtkHTG1[f],
+                         vtkHTG2[f] );
+          }
+        } // f
       break;
     } // switch (  this->Input->GetDimension() )
 }
