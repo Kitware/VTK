@@ -23,7 +23,6 @@
 #include "vtkHyperTreeGrid.h" // We need this because of supercursor
 
 class vtkCellArray;
-class vtkCharArray;
 class vtkPoints;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkPolyDataAlgorithm
@@ -49,7 +48,6 @@ protected:
   vtkPolyData* Output;
   vtkPoints* Points;
   vtkCellArray* Cells;
-  vtkCharArray* Filling;
   
 private:
   vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&);  // Not implemented.

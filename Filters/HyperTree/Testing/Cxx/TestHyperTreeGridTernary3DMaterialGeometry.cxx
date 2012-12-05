@@ -13,6 +13,7 @@
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
+#include "vtkDataSetMapper.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkPolyDataMapper.h"
@@ -20,6 +21,8 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+
+#include "vtkShrinkFilter.h"
 
 int TestHyperTreeGridTernary3DMaterialGeometry( int argc, char* argv[] )
 {
@@ -47,6 +50,11 @@ int TestHyperTreeGridTernary3DMaterialGeometry( int argc, char* argv[] )
   geometry->Update();
   vtkPolyData* pd = geometry->GetOutput();
 
+  // Shrink
+  vtkNew<vtkShrinkFilter> shrink;
+  shrink->SetInputConnection( geometry->GetOutputPort() );
+  shrink->SetShrinkFactor( .8 );
+
   // Mappers
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
@@ -58,6 +66,11 @@ int TestHyperTreeGridTernary3DMaterialGeometry( int argc, char* argv[] )
   mapper2->ScalarVisibilityOff();
   mapper2->SetResolveCoincidentTopologyToPolygonOffset();
   mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
+  vtkNew<vtkDataSetMapper> mapper3;
+  mapper3->SetInputConnection( shrink->GetOutputPort() );
+  mapper3->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
+  mapper3->SetResolveCoincidentTopologyToPolygonOffset();
+  mapper3->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
  
   // Actors
   vtkNew<vtkActor> actor1;
@@ -66,6 +79,8 @@ int TestHyperTreeGridTernary3DMaterialGeometry( int argc, char* argv[] )
   actor2->SetMapper( mapper2.GetPointer() );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
+  vtkNew<vtkActor> actor3;
+  actor3->SetMapper( mapper3.GetPointer() );
 
   // Camera
   double bd[6];
@@ -81,6 +96,7 @@ int TestHyperTreeGridTernary3DMaterialGeometry( int argc, char* argv[] )
   renderer->SetBackground( 1., 1., 1. );
   renderer->AddActor( actor1.GetPointer() );
   renderer->AddActor( actor2.GetPointer() );
+  //renderer->AddActor( actor3.GetPointer() );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;

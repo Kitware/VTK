@@ -14,6 +14,7 @@
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
+#include "vtkDataSetMapper.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkProperty.h"
@@ -22,8 +23,6 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-
-#include "vtkDataSetMapper.h"
 #include "vtkShrinkFilter.h"
 
 int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
