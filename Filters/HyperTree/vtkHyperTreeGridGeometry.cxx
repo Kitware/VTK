@@ -27,10 +27,6 @@ vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 
 static int vtkSuperCursorFaceIndices[] = { -1, 1, -3, 3, -9, 9 };
 
-static int vtkHTGo[] = { 0, 1, 0, 1, 0, 1 };
-static int vtkHTG0[] = { 0, 0, 1, 1, 2, 2 };
-static int vtkHTG1[] = { 1, 1, 0, 0, 0, 0 };
-static int vtkHTG2[] = { 2, 2, 2, 2, 1, 1 };
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
 {
@@ -191,20 +187,45 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
 
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId, double* origin,
-                                        double* size, int offset0,
-                                        int axis0, int axis1, int axis2 )
+void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
+                                        double* origin, double* size,
+                                        int offset, int orientation )
 {
-  vtkIdType ids[4];
+  // Initialize points
   double pt[3];
-  pt[0] = origin[0];
-  pt[1] = origin[1];
-  pt[2] = origin[2];
-  if ( offset0 )
+  for ( int i = 0; i < 3; ++ i )
     {
-    pt[axis0] += size[axis0];
+    pt[i] = origin[i];
     }
+  if ( offset )
+    {
+    pt[orientation] += size[orientation];
+    }
+
+  // Storage for face vertices
+  vtkIdType ids[4];
+
+  // Create origin vertex
   ids[0] = this->Points->InsertNextPoint( pt );
+
+  // Create other face vertices depending on orientation
+  int axis1 = 0;
+  int axis2 = 0;
+  switch ( orientation )
+    {
+    case 0:
+      axis1 = 1;
+      axis2 = 2;
+      break;
+    case 1:
+      axis1 = 0;
+      axis2 = 2;
+      break;
+    case 2:
+      axis1 = 0;
+      axis2 = 1;
+      break;
+    }
   pt[axis1] += size[axis1];
   ids[1] = this->Points->InsertNextPoint( pt );
   pt[axis2] += size[axis2];
@@ -212,7 +233,10 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId, double* origin,
   pt[axis1] = origin[axis1];
   ids[3] = this->Points->InsertNextPoint( pt );
 
+  // Insert face
   vtkIdType outId = this->Cells->InsertNextCell( 4, ids );
+
+  // Copy face data from that of the cell from which it comes
   this->Output->GetCellData()->CopyData( this->Input->GetCellData(), inId, outId );
 }
 
@@ -254,13 +278,13 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
       break; // case 1
     case 2:
       // In 2D all faces are generated
-      this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2, 0, 1 );
+      this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2 );
       break; // case 2
     case 3:
-      // Handle boundaries of masked cells
+      // In 3D masked and unmasked cells are handles differently
       if ( this->Input->GetLeafMaterialMask()->GetTuple1( inId ) )
         {
-        // Check if any of the 6-connectivity neighbors (by face) are unmasked
+        // Cell is masked, check if any of the face neighbors are unmasked
         for ( int f = 0; f < 6; ++ f )
           {
           // Retrieve face neighbor cursor
@@ -275,11 +299,10 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
               if ( ! this->Input->GetLeafMaterialMask()->GetTuple1( id ) )
                 {
                 // Neighbor cell is masked, generate boundary face
-                this->AddFace( id, superCursor->Origin, superCursor->Size, 
-                               vtkHTGo[f],
-                               vtkHTG0[f],
-                               vtkHTG1[f],
-                               vtkHTG2[f] );
+                div_t d = div( f, 2 );
+                this->AddFace( id, 
+                               superCursor->Origin, superCursor->Size, 
+                               d.rem, d.quot );
                 }
               } // if ( cursor->IsLeaf() )
             } // if ( cursor->GetTree() )
@@ -287,38 +310,24 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
         return;
         } //  if ( this->Input->GetLeafMaterialMask()->GetTuple1( inId ) )
 
-      // Check if any of the 6-connectivity neighbors (by face) are masked
+      // Cell is not masked, handle its boundary faces as needed
       for ( int f = 0; f < 6; ++ f )
         {
         // Retrieve face neighbor cursor
         cursor = superCursor->GetCursor( vtkSuperCursorFaceIndices[f] );
 
-        // If face is at boundary, create it
-        if ( ! cursor->GetTree() )
+        // Boundary faces, or faces shared by a mask cell, must be created
+        if ( ! cursor->GetTree()
+             ||
+             ( cursor->IsLeaf()
+               && this->Input->GetLeafMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
           {
-          this->AddFace( inId, superCursor->Origin, superCursor->Size, 
-                         vtkHTGo[f],
-                         vtkHTG0[f],
-                         vtkHTG1[f],
-                         vtkHTG2[f] );
+          div_t d = div( f, 2 );
+          this->AddFace( inId, 
+                         superCursor->Origin, superCursor->Size, 
+                         d.rem, d.quot );
           
-          continue;
-          } // if ( ! cursor->GetTree() )
-
-        // Face is internal, check if it is shared by masked neighbor leaf
-        if ( cursor->IsLeaf() )
-          {
-          // Check if this correspond to a masked cell
-          if ( this->Input->GetLeafMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) )
-            {
-            // Neighbor cell is masked, generate boundary face
-            this->AddFace( inId, superCursor->Origin, superCursor->Size, 
-                           vtkHTGo[f],
-                           vtkHTG0[f],
-                           vtkHTG1[f],
-                           vtkHTG2[f] );
-            }
-          } // if ( cursor->IsLeaf() )
+          } // if ( cursor )
         } // f
       break; // case 3
     } // switch (  this->Input->GetDimension() )

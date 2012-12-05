@@ -42,7 +42,7 @@ protected:
   void ProcessTrees();
   void RecursiveProcessTree( vtkHyperTreeGridSuperCursor* );
   void AddFace( vtkIdType inId, double* origin, double* size,
-                int offset0, int axis0, int axis1, int axis2 );
+                int offset, int orientation );
 
   vtkHyperTreeGrid* Input;
   vtkPolyData* Output;
