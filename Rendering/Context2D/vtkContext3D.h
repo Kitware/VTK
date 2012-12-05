@@ -65,6 +65,10 @@ public:
   void DrawLine(const vtkVector3f &start, const vtkVector3f &end);
 
   // Description:
+  // Draw a poly line between the specified points.
+  void DrawPoly(const float *points, int n);
+
+  // Description:
   // Draw a point at the point in 3D space.
   void DrawPoint(const vtkVector3f &point);
 

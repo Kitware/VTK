@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPlotPoints3D.h
+  Module:    vtkPlotLine3D.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,45 +13,48 @@
 
 =========================================================================*/
 
-// .NAME vtkPlotPoints3D - 3D scatter plot.
+// .NAME vtkPlotLine3D - Class for drawing an XYZ line plot given three columns from
+// a vtkTable.
 //
 // .SECTION Description
-// 3D scatter plot.
+// This class draws points with a line between them given three column from a
+// vtkTable in a vtkChartXYZ.
 //
 // .SECTION See Also
-// vtkPlotLine3D
-// vtkPlotPoints
+// vtkPlotPoints3D
+// vtkPlotLine
 //
 
-#ifndef __vtkPlotPoints3D_h
-#define __vtkPlotPoints3D_h
+#ifndef __vtkPlotLine3D_h
+#define __vtkPlotLine3D_h
 
 #include "vtkChartsCoreModule.h" // For export macro
-#include "vtkPlot3D.h"
+#include "vtkPlotPoints3D.h"
 
-class vtkContext2D;
-
-class VTKCHARTSCORE_EXPORT vtkPlotPoints3D : public vtkPlot3D
+class VTKCHARTSCORE_EXPORT vtkPlotLine3D : public vtkPlotPoints3D
 {
 public:
-  vtkTypeMacro(vtkPlotPoints3D, vtkPlot3D);
+  vtkTypeMacro(vtkPlotLine3D, vtkPlotPoints3D);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
-  static vtkPlotPoints3D * New();
 
   // Description:
-  // Paint event for the XY plot, called whenever the chart needs to be drawn
+  // Creates a 3D Chart object.
+  static vtkPlotLine3D *New();
+
+  // Description:
+  // Paint event for the XYZ plot, called whenever the chart needs to be drawn.
   virtual bool Paint(vtkContext2D *painter);
 
 //BTX
 protected:
-  vtkPlotPoints3D();
-  ~vtkPlotPoints3D();
+  vtkPlotLine3D();
+  ~vtkPlotLine3D();
 
 private:
-  vtkPlotPoints3D(const vtkPlotPoints3D &); // Not implemented.
-  void operator=(const vtkPlotPoints3D &); // Not implemented.
-//ETX
+  vtkPlotLine3D(const vtkPlotLine3D &); // Not implemented.
+  void operator=(const vtkPlotLine3D &); // Not implemented.
 
+//ETX
 };
 
-#endif //__vtkPlotPoints3D_h
+#endif //__vtkPlotLine3D_h
