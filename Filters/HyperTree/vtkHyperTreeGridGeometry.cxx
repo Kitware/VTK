@@ -300,8 +300,8 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
                 {
                 // Neighbor cell is masked, generate boundary face
                 div_t d = div( f, 2 );
-                this->AddFace( id, 
-                               superCursor->Origin, superCursor->Size, 
+                this->AddFace( id,
+                               superCursor->Origin, superCursor->Size,
                                d.rem, d.quot );
                 }
               } // if ( cursor->IsLeaf() )
@@ -323,10 +323,10 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
                && this->Input->GetLeafMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
           {
           div_t d = div( f, 2 );
-          this->AddFace( inId, 
-                         superCursor->Origin, superCursor->Size, 
+          this->AddFace( inId,
+                         superCursor->Origin, superCursor->Size,
                          d.rem, d.quot );
-          
+
           } // if ( cursor )
         } // f
       break; // case 3
