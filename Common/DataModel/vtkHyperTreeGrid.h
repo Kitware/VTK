@@ -144,8 +144,8 @@ public:
 
   // Description:
   // Specify the blanking mask of primal leaf cells
-  virtual void SetLeafMaterialMask( vtkBitArray* );
-  vtkGetObjectMacro(LeafMaterialMask,vtkBitArray);
+  virtual void SetMaterialMask( vtkBitArray* );
+  vtkGetObjectMacro(MaterialMask,vtkBitArray);
 
   // Description:
   // Specify the grid coordinates in the z-direction.
@@ -341,7 +341,7 @@ protected:
   unsigned int BranchFactor;
   unsigned int NumberOfChildren;
 
-  vtkBitArray* LeafMaterialMask;
+  vtkBitArray* MaterialMask;
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;

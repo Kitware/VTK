@@ -282,33 +282,31 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
       break; // case 2
     case 3:
       // In 3D masked and unmasked cells are handles differently
-      if ( this->Input->GetLeafMaterialMask()->GetTuple1( inId ) )
+      if ( this->Input->GetMaterialMask()->GetTuple1( inId ) )
         {
         // Cell is masked, check if any of the face neighbors are unmasked
         for ( int f = 0; f < 6; ++ f )
           {
           // Retrieve face neighbor cursor
           cursor = superCursor->GetCursor( vtkSuperCursorFaceIndices[f] );
-          if ( cursor->GetTree() )
+          if ( cursor->GetTree() && cursor->IsLeaf() )
             {
-            // Neighbor cursor has tree, check if it is a leaf
-            if ( cursor->IsLeaf() )
+            // Retrive neighbor leaf which exists
+            int id = cursor->GetGlobalLeafIndex();
+
+            // Check if this correspond to an umasked cell
+            if ( ! this->Input->GetMaterialMask()->GetTuple1( id ) )
               {
-              // Check if this correspond to an umasked cell
-              int id = cursor->GetGlobalLeafIndex();
-              if ( ! this->Input->GetLeafMaterialMask()->GetTuple1( id ) )
-                {
-                // Neighbor cell is masked, generate boundary face
-                div_t d = div( f, 2 );
-                this->AddFace( id,
-                               superCursor->Origin, superCursor->Size,
-                               d.rem, d.quot );
-                }
-              } // if ( cursor->IsLeaf() )
-            } // if ( cursor->GetTree() )
+              // Neighbor cell is masked, generate boundary face
+              div_t d = div( f, 2 );
+              this->AddFace( id,
+                             superCursor->Origin, superCursor->Size,
+                             d.rem, d.quot );
+              }
+            } // if ( cursor )
           } // f
         return;
-        } //  if ( this->Input->GetLeafMaterialMask()->GetTuple1( inId ) )
+        } //  if ( this->Input->GetMaterialMask()->GetTuple1( inId ) )
 
       // Cell is not masked, handle its boundary faces as needed
       for ( int f = 0; f < 6; ++ f )
@@ -316,11 +314,11 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
         // Retrieve face neighbor cursor
         cursor = superCursor->GetCursor( vtkSuperCursorFaceIndices[f] );
 
-        // Boundary faces, or faces shared by a mask cell, must be created
+        // Boundary faces, or faces shared by a masked cell, must be created
         if ( ! cursor->GetTree()
              ||
              ( cursor->IsLeaf()
-               && this->Input->GetLeafMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+               && this->Input->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
           {
           div_t d = div( f, 2 );
           this->AddFace( inId,

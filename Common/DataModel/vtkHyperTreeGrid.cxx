@@ -46,7 +46,7 @@ vtkInformationKeyRestrictedMacro(vtkHyperTreeGrid, SIZES, DoubleVector, 3 );
 
 vtkStandardNewMacro(vtkHyperTreeGrid);
 
-vtkCxxSetObjectMacro(vtkHyperTreeGrid,LeafMaterialMask,vtkBitArray);
+vtkCxxSetObjectMacro(vtkHyperTreeGrid,MaterialMask,vtkBitArray);
 vtkCxxSetObjectMacro(vtkHyperTreeGrid,XCoordinates,vtkDataArray);
 vtkCxxSetObjectMacro(vtkHyperTreeGrid,YCoordinates,vtkDataArray);
 vtkCxxSetObjectMacro(vtkHyperTreeGrid,ZCoordinates,vtkDataArray);
@@ -82,7 +82,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->UseDualGrid = 1;
 
   // Masked primal leaves
-  this->LeafMaterialMask = vtkBitArray::New();
+  this->MaterialMask = vtkBitArray::New();
 
   // Grid geometry
   this->XCoordinates = vtkDoubleArray::New();
@@ -118,9 +118,9 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
     this->HyperTrees->UnRegister( this );
     }
 
-  if ( this->LeafMaterialMask )
+  if ( this->MaterialMask )
     {
-    this->LeafMaterialMask->UnRegister( this );
+    this->MaterialMask->UnRegister( this );
     }
 
   if ( this->XCoordinates )
@@ -252,7 +252,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->HyperTreesLeafIdOffsets = htg->HyperTreesLeafIdOffsets;
 
   // Shallow copy masked leaf IDs
-  this->SetLeafMaterialMask( htg->LeafMaterialMask );
+  this->SetMaterialMask( htg->MaterialMask );
 
   // Shallow copy coordinates
   this->SetXCoordinates( htg->XCoordinates );
@@ -1208,9 +1208,9 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySize()
     {
     size += this->LeafCornerIds->GetActualMemorySize();
     }
-  if ( this->LeafMaterialMask)
+  if ( this->MaterialMask)
     {
-    size += this->LeafMaterialMask->GetActualMemorySize();
+    size += this->MaterialMask->GetActualMemorySize();
     }
 
   return size;
@@ -1349,7 +1349,7 @@ void vtkHyperTreeGrid::InitializeSuperCursorChild( vtkHyperTreeGridSuperCursor* 
                                                    vtkHyperTreeGridSuperCursor* child,
                                                    int childIdx )
 {
-  // Retrieve child's paramaters that are identical to parent's ones
+  // Retrieve child's parameters that are identical to parent's ones
   child->NumberOfCursors = parent->NumberOfCursors;
   child->MiddleCursorId = parent->MiddleCursorId;
 
