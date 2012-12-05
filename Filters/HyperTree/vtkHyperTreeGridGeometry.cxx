@@ -289,9 +289,11 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
           {
           // Retrieve face neighbor cursor
           cursor = superCursor->GetCursor( vtkSuperCursorFaceIndices[f] );
-          if ( cursor->GetTree() && cursor->IsLeaf() )
+          if ( cursor->GetTree() 
+               && cursor->IsLeaf()
+               && cursor->GetLevel() < superCursor->GetCursor( 0 )->GetLevel() )
             {
-            // Retrive neighbor leaf which exists
+            // Retrieve neighbor leaf which exists
             int id = cursor->GetGlobalLeafIndex();
 
             // Check if this correspond to an umasked cell
