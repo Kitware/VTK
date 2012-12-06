@@ -68,11 +68,13 @@ void vtkDiscreteMarchingCubesComputeGradient(
   int numValues)
 {
   double s[8], value;
-  int i, j, k, sliceSize;
+  int i, j, k;
+  vtkIdType sliceSize, rowSize;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   vtkMarchingCubesTriangleCases *triCase, *triCases;
   EDGE_LIST  *edge;
-  int contNum, jOffset, kOffset, idx, ii, index, *vert;
+  int contNum, ii, index, *vert;
+  vtkIdType jOffset, kOffset, idx;
   vtkIdType ptIds[3];
   int extent[6];
   int ComputeScalars = newCellScalars != NULL;
@@ -109,7 +111,8 @@ void vtkDiscreteMarchingCubesComputeGradient(
 // Traverse all voxel cells, generating triangles
 // using marching cubes algorithm.
 //
-  sliceSize = dims[0] * dims[1];
+  rowSize = dims[0];
+  sliceSize = rowSize*dims[1];
   for ( k=0; k < (dims[2]-1); k++)
     {
     self->UpdateProgress(static_cast<double>(k)/(dims[2] - 1));
@@ -122,7 +125,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
     zp = pts[0][2] + spacing[2];
     for ( j=0; j < (dims[1]-1); j++)
       {
-      jOffset = j*dims[0];
+      jOffset = j*rowSize;
       pts[0][1] = origin[1] + (j+extent[2])*spacing[1];
       yp = pts[0][1] + spacing[1];
       for ( i=0; i < (dims[0]-1); i++)
@@ -257,7 +260,7 @@ int vtkDiscreteMarchingCubes::RequestData(
   vtkPointData *pd;
   vtkDataArray *inScalars;
   int dims[3], extent[6];
-  int estimatedSize;
+  vtkIdType estimatedSize;
   double spacing[3], origin[3];
   double bounds[6];
   vtkPolyData *output = vtkPolyData::SafeDownCast(
@@ -267,9 +270,7 @@ int vtkDiscreteMarchingCubes::RequestData(
 
   vtkDebugMacro(<< "Executing marching cubes");
 
-//
-// Initialize and check input
-//
+  // initialize and check input
   pd=input->GetPointData();
   if (pd ==NULL)
     {
@@ -295,15 +296,20 @@ int vtkDiscreteMarchingCubes::RequestData(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
   // estimate the number of points from the volume dimensions
-  estimatedSize = static_cast<int>(
-    pow(static_cast<double>(dims[0] * dims[1] * dims[2]), .75));
+  estimatedSize = dims[0];
+  estimatedSize *= dims[1]; // The "*=" ensures coercion to vtkIdType,
+  estimatedSize *= dims[2]; // which might be wider than "int"
+  estimatedSize = static_cast<vtkIdType>(
+    pow(static_cast<double>(estimatedSize), .75));
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
     estimatedSize = 1024;
     }
   vtkDebugMacro(<< "Estimated allocation size is " << estimatedSize);
-  newPts = vtkPoints::New(); newPts->Allocate(estimatedSize,estimatedSize/2);
+  newPts = vtkPoints::New();
+  newPts->Allocate(estimatedSize,estimatedSize/2);
+
   // compute bounds for merging points
   for ( int i=0; i<3; i++)
     {
@@ -346,7 +352,9 @@ int vtkDiscreteMarchingCubes::RequestData(
 
   else //multiple components - have to convert
     {
-    int dataSize = dims[0] * dims[1] * dims[2];
+    vtkIdType dataSize = dims[0];
+    dataSize *= dims[1]; // The "*=" ensures coercion to vtkIdType,
+    dataSize *= dims[2]; // which might be wider than "int".
     vtkDoubleArray *image=vtkDoubleArray::New();
     image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     image->SetNumberOfTuples(image->GetNumberOfComponents()*dataSize);
