@@ -65,6 +65,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
 # include "vtkTDxUnixDevice.h"
@@ -860,6 +862,23 @@ void QVTKWidget::renderEventCallback()
 {
   if (this->mRenWin)
     {
+    // prevent capturing the selection buffer as the cached image. to do this
+    // we iterate through each renderer in the view and check if they have an
+    // active selector object. if so we return without saving the image
+    vtkRendererCollection *renderers = this->mRenWin->GetRenderers();
+    if(renderers)
+      {
+      renderers->InitTraversal();
+
+      while(vtkRenderer *renderer = renderers->GetNextItem())
+        {
+        if(renderer->GetSelector() != NULL)
+          {
+          return;
+          }
+        }
+      }
+
     this->markCachedImageAsDirty();
     if (this->isAutomaticImageCacheEnabled() &&
       (this->mRenWin->GetDesiredUpdateRate() < this->maxRenderRateForImageCache()))
