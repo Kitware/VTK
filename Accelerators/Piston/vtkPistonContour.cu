@@ -25,8 +25,8 @@ void ExecutePistonContour(vtkPistonDataObject *inData,
     //type mismatch, don't bother trying
     return;
     }
-  vtk_image3d<int, float, SPACE>*gpuData = (vtk_image3d<int, float, SPACE>*)ti->data;
-  marching_cube<vtk_image3d<int, float, SPACE>, vtk_image3d<int, float, SPACE> >
+  vtk_image3d<SPACE>*gpuData = (vtk_image3d<SPACE>*)ti->data;
+  marching_cube<vtk_image3d<SPACE>, vtk_image3d<SPACE> >
     pistonFunctor(*gpuData, *gpuData, isovalue);
 
   // Execute the piston filter

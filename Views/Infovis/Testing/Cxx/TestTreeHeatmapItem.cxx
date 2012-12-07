@@ -152,9 +152,11 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
   pos.Set(78, 50);
   mouseEvent.SetPos(pos);
-  treeItem ->MouseDoubleClickEvent(mouseEvent);
+  treeItem->MouseDoubleClickEvent(mouseEvent);
   renderWindow->Render();
-  treeItem ->MouseDoubleClickEvent(mouseEvent);
+  pos.Set(43, 4);
+  mouseEvent.SetPos(pos);
+  treeItem->MouseDoubleClickEvent(mouseEvent);
 
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

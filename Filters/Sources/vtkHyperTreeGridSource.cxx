@@ -37,8 +37,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->SetNumberOfInputPorts( 0 );
 
   // Grid parameters
-  this->AxisBranchFactor = 2;
-  this->MinimumLevel = 1;
+  this->BranchFactor = 2;
   this->MaximumLevel = 1;
 
   // Grid topology
@@ -64,11 +63,17 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->ZCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates->SetComponent( 1, 0, this->GridScale[2] );
 
+  // By default expose the primal grid API
+  this->Dual = false;
+
+  // By default do not use the material mask
+  this->UseMaterialMask = false;
+
   // Grid description
   this->Descriptor = ".";
 
-  // By default expose the primal grid API
-  this->Dual = false;
+  // Material mask
+  this->MaterialMask = "1";
 
   this->Output = NULL;
 }
@@ -111,9 +116,8 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
      << this->GridScale[2] << endl;
 
   os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
-  os << indent << "MinimumLevel: " << this->MinimumLevel << endl;
   os << indent << "Dimension: " << this->Dimension << endl;
-  os << indent << "AxisBranchFactor: " <<this->AxisBranchFactor << endl;
+  os << indent << "BranchFactor: " <<this->BranchFactor << endl;
   os << indent << "BlockSize: " <<this->BlockSize << endl;
 
   if ( this->XCoordinates )
@@ -129,11 +133,13 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
     this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
     }
 
-  os << indent << "Descriptor: " << this->Descriptor << endl;
   os << indent << "Dual: " << this->Dual << endl;
-  os << indent << "Output: " << endl;
+  os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
 
+  os << indent << "Descriptor: " << this->Descriptor << endl;
+  os << indent << "MaterialMask: " << this->Descriptor << endl;
   os << indent << "LevelDescriptors: " << this->LevelDescriptors.size() << endl;
+  os << indent << "LevelMaterialMasks: " << this->LevelMaterialMasks.size() << endl;
   os << indent << "LevelCounters: " << this->LevelCounters.size() << endl;
 
   os << indent
@@ -159,6 +165,19 @@ void vtkHyperTreeGridSource::SetDescriptor( const vtkStdString& string )
 vtkStdString vtkHyperTreeGridSource::GetDescriptor()
 {
   return this->Descriptor;
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::SetMaterialMask( const vtkStdString& string )
+{
+  this->MaterialMask = string;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkStdString vtkHyperTreeGridSource::GetMaterialMask()
+{
+  return this->MaterialMask;
 }
 
 //----------------------------------------------------------------------------
@@ -191,50 +210,11 @@ void vtkHyperTreeGridSource::SetMaximumLevel( unsigned int levels )
     }
 
   this->MaximumLevel = levels;
-
-  // Update minimum level as well if needed
-  if( this->MinimumLevel > levels )
-    {
-    this->MinimumLevel = levels;
-    }
   this->Modified();
 
   assert( "post: is_set" && this->GetMaximumLevel() == levels );
-  assert( "post: min_is_valid" && this->GetMinimumLevel() <= this->GetMaximumLevel() );
 }
 
-
-//----------------------------------------------------------------------------
-// Description:
-// Return the minimal number of levels of systematic subdivision.
-// \post positive_result: result>=0
-unsigned int vtkHyperTreeGridSource::GetMinimumLevel()
-{
-  assert( "post: positive_result" );
-  return this->MinimumLevel;
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// Set the minimal number of levels of systematic subdivision.
-// \pre positive_minLevels: minLevels>=0 && minLevels<this->GetLevels()
-// \post is_set: this->GetMinLevels()==minLevels
-void vtkHyperTreeGridSource::SetMinimumLevel( unsigned int minLevels )
-{
-  if ( minLevels < 1 )
-    {
-    minLevels = 1;
-    }
-
-  if ( this->MinimumLevel == minLevels )
-    {
-    return;
-    }
-
-  this->Modified();
-  this->MinimumLevel = minLevels;
-  assert( "post: is_set" && this->GetMinimumLevel() == minLevels );
-}
 
 //----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
@@ -281,8 +261,8 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   // Set grid parameters
   this->Output->SetGridSize( this->GridSize );
   this->Output->SetDimension( this->Dimension );
-  this->Output->SetAxisBranchFactor( this->AxisBranchFactor );
-  this->Output->SetDualGridFlag( this->Dual );
+  this->Output->SetBranchFactor( this->BranchFactor );
+  this->Output->SetUseDualGrid( this->Dual );
 
   // Create geometry
   for ( int i = 0; i < 3; ++ i )
@@ -319,7 +299,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   vtkIdType fact = 1;
   for ( unsigned int i = 1; i < this->MaximumLevel; ++ i )
     {
-    fact *= this->AxisBranchFactor;
+    fact *= this->BranchFactor;
     }
   scalars->Allocate( fact * fact );
 
@@ -328,13 +308,13 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   scalars->UnRegister( this );
 
   // Iterate over grid of trees
-  int n[3];
+  unsigned int n[3];
   this->Output->GetGridSize( n );
-  for ( int k = 0; k < n[2]; ++ k )
+  for ( unsigned int k = 0; k < n[2]; ++ k )
     {
-    for ( int j = 0; j < n[1]; ++ j )
+    for ( unsigned int j = 0; j < n[1]; ++ j )
       {
-      for ( int i = 0; i < n[0]; ++ i )
+      for ( unsigned int i = 0; i < n[0]; ++ i )
         {
         // Calculate global index
         int index_g = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
@@ -370,33 +350,73 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
 //-----------------------------------------------------------------------------
 int vtkHyperTreeGridSource::Initialize()
 {
-  // Calculate refined block size
-  this->BlockSize = this->AxisBranchFactor;
-  for ( int i = 1; i < this->Dimension; ++ i )
+  // Verify that grid and material specifications are consistent
+  if (  this->UseMaterialMask
+        && this->MaterialMask.size() != this->Descriptor.size() )
     {
-    this->BlockSize *= this->AxisBranchFactor;
+    vtkErrorMacro(<<"Material mask is used but has length "
+                  << this->MaterialMask.size()
+                  << " != "
+                  << this->Descriptor.size()
+                  << " which is the length of the grid descriptor.");
+
+    return 0;
+    }
+
+   // Calculate refined block size
+  this->BlockSize = this->BranchFactor;
+  for ( unsigned int i = 1; i < this->Dimension; ++ i )
+    {
+    this->BlockSize *= this->BranchFactor;
     }
 
   // Calculate total level 0 grid size
   unsigned int nTotal = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
-  // Parse string descriptor
+  // Initialize material mask iterator only if needed
+  vtkStdString::iterator mit;
+  if ( this->UseMaterialMask )
+    {
+    mit = this->MaterialMask.begin();
+    }
+
+  // Parse string descriptor and material mask if used
   unsigned int nRefined = 0;
   unsigned int nLeaves = 0;
   unsigned int nNextLevel = nTotal;
   bool rootLevel = true;
-  vtksys_ios::ostringstream stream;
-  for ( vtkStdString::iterator it = this->Descriptor.begin(); it != this->Descriptor.end(); ++ it )
+  vtksys_ios::ostringstream descriptor;
+  vtksys_ios::ostringstream mask;
+  for ( vtkStdString::iterator dit = this->Descriptor.begin(); dit != this->Descriptor.end();  ++ dit )
     {
-    char c = *it;
-    switch ( c )
+    switch ( *dit )
       {
       case ' ':
-        // Space is allowed as benign separator
-        continue;
+        // Space is allowed as separator, verify mask consistenty if needed
+        if ( this->UseMaterialMask && *mit != ' ' )
+          {
+          vtkErrorMacro(<<"Space separators do not match between descriptor and material mask.");
+          return 0;
+          }
+
+        // Advance material mask iterator only if needed
+        if ( this->UseMaterialMask )
+          {
+          ++ mit;
+          }
+
+        continue; // case ' '
       case '|':
-        //  A level is complete
-        this->LevelDescriptors.push_back( stream.str().c_str() );
+        //  A level is complete, verify mask consistenty if needed
+        if ( this->UseMaterialMask && *mit != '|' )
+          {
+          vtkErrorMacro(<<"Level separators do not match between descriptor and material mask.");
+          return 0;
+          }
+
+        // Store descriptor and material mask for current level
+        this->LevelDescriptors.push_back( descriptor.str().c_str() );
+        this->LevelMaterialMasks.push_back( mask.str().c_str() );
 
         // Check whether cursor is still at rool level
         if ( rootLevel )
@@ -418,12 +438,12 @@ int vtkHyperTreeGridSource::Initialize()
         else
           {
           // Verify that level descriptor cardinality matches expected value
-          if (  stream.str().size() != nNextLevel )
+          if (  descriptor.str().size() != nNextLevel )
             {
             vtkErrorMacro(<<"String level descriptor "
-                          << stream.str().c_str()
+                          << descriptor.str().c_str()
                           << " has cardinality "
-                          << stream.str().size()
+                          << descriptor.str().size()
                           << " which is not expected value of "
                           << nNextLevel);
 
@@ -435,50 +455,76 @@ int vtkHyperTreeGridSource::Initialize()
         nNextLevel = nRefined * this->BlockSize;
 
         // Reset per level values
-        stream.str( "" );
+        descriptor.str( "" );
         nRefined = 0;
         nLeaves = 0;
 
-        break;
+        break; // case '|'
       case 'R':
+        //  Refined cell, verify mask consistenty if needed
+        if ( this->UseMaterialMask && *mit == '0' )
+          {
+          vtkErrorMacro(<<"A refined branch must contain material.");
+          return 0;
+          }
         // Refined cell, update branch counter
         ++ nRefined;
 
-        // Append character to per level string
-        stream << c;
+        // Append characters to per level descriptor and material mask if used
+        descriptor << *dit;
+        if ( this->UseMaterialMask )
+          {
+          mask << *mit;
+          }
 
-        break;
+        break; // case 'R'
       case '.':
         // Leaf cell, update leaf counter
         ++ nLeaves;
 
-        // Append character to per level string
-        stream << c;
+        // Append characters to per level descriptor and material mask if used
+        descriptor << *dit;
+        if ( this->UseMaterialMask )
+          {
+          mask << *mit;
+          }
 
-        break;
+        break; // case '.'
       default:
         vtkErrorMacro(<< "Unrecognized character: "
-                      << c
+                      << *dit
                       << " in string "
                       << this->Descriptor);
 
-        return 0;
-      } // switch( c )
-    } // i
+        return 0; // default
+      } // switch( *dit )
+
+    // Advance material mask iterator only if needed
+    if ( this->UseMaterialMask )
+      {
+      ++ mit;
+      }
+    } // dit
 
   // Verify and append last level string
-  if (  stream.str().size() != nNextLevel )
+  if (  descriptor.str().size() != nNextLevel )
     {
     vtkErrorMacro(<<"String level descriptor "
-                  << stream.str().c_str()
+                  << descriptor.str().c_str()
                   << " has cardinality "
-                  << stream.str().size()
+                  << descriptor.str().size()
                   << " which is not expected value of "
                   << nNextLevel);
 
     return 0;
     }
-  this->LevelDescriptors.push_back( stream.str().c_str() );
+
+  // Push per-level descriptor and material mask if used
+  this->LevelDescriptors.push_back( descriptor.str().c_str() );
+  if ( this->UseMaterialMask )
+    {
+    this->LevelMaterialMasks.push_back( mask.str().c_str() );
+    }
 
   // Reset maximum depth if fewer levels are described
   unsigned int nLevels = static_cast<unsigned int>( this->LevelDescriptors.size() );
@@ -527,15 +573,15 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     xDim = yDim = zDim = 1;
     if ( this->Dimension == 1 )
       {
-      xDim = this->AxisBranchFactor;
+      xDim = this->BranchFactor;
       }
     else if ( this->Dimension == 2 )
       {
-      xDim = yDim = this->AxisBranchFactor;
+      xDim = yDim = this->BranchFactor;
       }
     else if ( this->Dimension == 3 )
       {
-      xDim = yDim = zDim = this->AxisBranchFactor;
+      xDim = yDim = zDim = this->BranchFactor;
       }
     int childIdx = 0;
     int newIdx[3];
@@ -553,8 +599,8 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           cursor->ToChild( childIdx );
 
           // Calculate local index
-          index_l = x + this->AxisBranchFactor
-            * ( y + this->AxisBranchFactor * z );
+          index_l = x + this->BranchFactor
+            * ( y + this->BranchFactor * z );
 
           // Recurse
           this->Subdivide( cursor,

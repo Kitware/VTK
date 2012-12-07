@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGrid.cxx
+Program:   Visualization Toolkit
+Module:    vtkHyperTreeGrid.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkHyperTreeGrid.h"
@@ -17,9 +17,11 @@
 #include "vtkCellData.h"
 #include "vtkCellLinks.h"
 #include "vtkCellType.h"
+#include "vtkCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkGenericCell.h"
+#include "vtkHyperTree.h"
 #include "vtkHyperTreeCursor.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -35,961 +37,11 @@
 #include "vtkTimerLog.h"
 #include "vtkVoxel.h"
 
-#include <deque>
-#include <vector>
-
 #include <assert.h>
 
 vtkInformationKeyMacro(vtkHyperTreeGrid, LEVELS, Integer);
 vtkInformationKeyMacro(vtkHyperTreeGrid, DIMENSION, Integer);
 vtkInformationKeyRestrictedMacro(vtkHyperTreeGrid, SIZES, DoubleVector, 3 );
-
-//===================================================
-// This internal class is used as a supperclass
-// by the templated Compact class. All methods are pure virtual.
-// I assume this is done to hide templates.
-class vtkHyperTreeInternal
-  : public vtkObject
-{
-public:
-  vtkTypeMacro(vtkHyperTreeInternal,vtkObject);
-  virtual void Initialize()=0;
-  virtual vtkHyperTreeCursor* NewCursor() = 0;
-  virtual vtkIdType GetNumberOfLeaves() = 0;
-  virtual int GetNumberOfNodes() = 0;
-  virtual int GetBranchFactor() = 0;
-  virtual int GetDimension() = 0;
-
-  // Description:
-  // Return the number of levels.
-  // \post result_greater_or_equal_to_one: result>=1
-  virtual vtkIdType GetNumberOfLevels() = 0;
-
-  // Description:
-  // Subdivide node pointed by cursor, only if its a leaf.
-  // At the end, cursor points on the node that used to be leaf.
-  // \pre leaf_exists: leaf!=0
-  // \pre is_a_leaf: leaf->CurrentIsLeaf()
-  virtual void SubdivideLeaf( vtkHyperTreeCursor* leaf ) = 0;
-
-  // Description:
-  // Returns the actual memory size in kilobytes.
-  // Ignores the attribute array.
-  virtual unsigned int GetActualMemorySize() = 0;
-
-protected:
-  vtkHyperTreeInternal()
-    {
-    }
-
-private:
-  vtkHyperTreeInternal(const vtkHyperTreeInternal &);  // Not implemented.
-  void operator=(const vtkHyperTreeInternal &);    // Not implemented.
-};
-
-// Description:
-// The template value N describes the number of children to binary and
-// ternary trees.
-template<int N> class vtkCompactHyperTree;
-template<int N> class vtkCompactHyperTreeNode;
-template<int N> class vtkCompactHyperTreeCursor
-  :public vtkHyperTreeCursor
-{
-public:
-  //---------------------------------------------------------------------------
-  static vtkCompactHyperTreeCursor<N> *New()
-    {
-      vtkObject* ret=
-        vtkObjectFactory::CreateInstance( "vtkCompactHyperTreeCursor<N>" );
-
-      if( ret != 0 )
-        {
-        return static_cast<vtkCompactHyperTreeCursor<N> *>( ret );
-        }
-      else
-        {
-        return new vtkCompactHyperTreeCursor<N>;
-        }
-    }
-
-  vtkTypeMacro(vtkCompactHyperTreeCursor<N>,vtkHyperTreeCursor);
-
-  //---------------------------------------------------------------------------
-  // Initialization
-  virtual void Init(vtkCompactHyperTree<N> *tree)
-    {
-      this->Tree=tree;
-    }
-
-  //---------------------------------------------------------------------------
-  // Access
-  // Return the id of the current leaf in order to
-  // access to the data.
-  // \pre is_leaf: CurrentIsLeaf()
-  int GetLeafId()
-    {
-      assert( "pre: is_leaf" && CurrentIsLeaf() );
-      return this->Cursor;
-    }
-
-  // Status
-  virtual int CurrentIsLeaf()
-    {
-      return this->IsLeaf;
-    }
-
-  virtual int CurrentIsRoot()
-    {
-      return ( this->IsLeaf && this->Cursor==0 && this->Tree->GetLeafParentSize()==1 ) || (!this->IsLeaf && this->Cursor==1);
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Return the level of the node pointed by the cursor.
-  // \post positive_result: result>=0
-  virtual int GetCurrentLevel()
-    {
-      int result = this->GetChildHistorySize();
-      assert( "post: positive_result" && result>=0 );
-      return result;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Return the child number of the current node relative to its parent.
-  // \pre not_root: !CurrentIsRoot().
-  // \post valid_range: result>=0 && result<GetNumberOfChildren()
-  virtual int GetChildIndex()
-    {
-      assert( "post: valid_range" && this->ChildIndex>=0 && this->ChildIndex<GetNumberOfChildren() );
-      return this->ChildIndex;
-    }
-
-  //---------------------------------------------------------------------------
-  // Are the children of the current node all leaves?
-  // This query can be called also on a leaf node.
-  // \post compatible: result implies !CurrentIsLeaf()
-  virtual int CurrentIsTerminalNode()
-    {
-      int result = !this->IsLeaf;
-      if(result)
-        {
-        vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Cursor);
-        result = node->IsTerminalNode();
-        }
-      // A=>B: notA or B
-      assert( "post: compatible" && (!result || !this->IsLeaf) );
-      return result;
-    }
-
-  //---------------------------------------------------------------------------
-  // Cursor movement.
-  // \pre can be root
-  // \post is_root: CurrentIsRoot()
-  virtual void ToRoot()
-    {
-      this->ChildHistory.clear();
-      this->IsLeaf=( this->Tree->GetLeafParentSize() == 1 );
-      if( this->IsLeaf )
-        {
-        this->Cursor=0;
-        }
-      else
-        {
-        this->Cursor=1;
-        }
-      this->ChildIndex=0;
-      unsigned int i=0;
-      while( i < this->Dimension )
-        {
-        this->Index[i]=0;
-        ++ i;
-        }
-    }
-
-  //---------------------------------------------------------------------------
-  // \pre not_root: !CurrentIsRoot()
-  virtual void ToParent()
-    {
-      assert( "pre: not_root" && !CurrentIsRoot() );
-      if( this->IsLeaf)
-        {
-        this->Cursor=this->Tree->GetLeafParent( this->Cursor);
-        }
-      else
-        {
-        this->Cursor=this->Tree->GetNode( this->Cursor)->GetParent();
-        }
-      this->IsLeaf=0;
-      this->ChildIndex=this->ChildHistory.back(); // top()
-      this->ChildHistory.pop_back();
-
-      for ( unsigned int i=0; i < this->Dimension;  ++ i )
-        {
-        this->Index[i]=( this->Index[i] ) / this->Tree->GetBranchFactor();
-        }
-    }
-
-  //---------------------------------------------------------------------------
-  // \pre not_leaf: !CurrentIsLeaf()
-  // \pre valid_child: child>=0 && child<this->GetNumberOfChildren()
-  virtual void ToChild(int child)
-    {
-      assert( "pre: not_leaf" && !CurrentIsLeaf() );
-      assert( "pre: valid_child" && child>=0 && child<this->GetNumberOfChildren() );
-
-      vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Cursor);
-      this->ChildHistory.push_back( this->ChildIndex );
-      this->ChildIndex=child;
-      this->Cursor=node->GetChild( child );
-      this->IsLeaf=node->IsChildLeaf( child );
-      unsigned int i=0;
-
-      int tmpChild = child;
-      int tmp;
-      int branchFactor = this->Tree->GetBranchFactor();
-      while( i < this->Dimension )
-        { // Effectively converting child to base 2/3 (branch factor)
-        tmp = tmpChild;
-        tmpChild /= branchFactor;
-        int index=tmp-(branchFactor*tmpChild); // Remainder (mod)
-        assert( "check: mod 3 value" && index>=0 && index<branchFactor);
-        this->Index[i]=(( this->Index[i])*branchFactor)+index;
-        ++ i;
-        }
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Move the cursor to the same node pointed by `other'.
-  // \pre other_exists: other!=0
-  // \pre same_hyperTree: this->SameTree( other )
-  // \post equal: this->IsEqual( other )
-  virtual void ToSameNode( vtkHyperTreeCursor* other )
-    {
-      assert( "pre: other_exists" && other!=0 );
-      assert( "pre: same_hyperTree" && this->SameTree( other ) );
-
-      vtkCompactHyperTreeCursor<N> *o = static_cast<vtkCompactHyperTreeCursor<N> *>( other );
-
-      this->Cursor=o->Cursor;
-      this->ChildIndex=o->ChildIndex;
-      this->IsLeaf=o->IsLeaf;
-      this->ChildHistory=o->ChildHistory; // use assignment operator
-      
-      for( unsigned int i = 0; i < this->Dimension; ++ i )
-        {
-        this->Index[i] = o->Index[i];
-        }
-      assert( "post: equal" && this->IsEqual(other) );
-    }
-
-  //--------------------------------------------------------------------------
-  // Description:
-  // Is `this' equal to `other'?
-  // \pre other_exists: other!=0
-  // \pre same_hyperTree: this->SameTree(other);
-  virtual int IsEqual( vtkHyperTreeCursor* other )
-    {
-      assert( "pre: other_exists" && other!=0 );
-      assert( "pre: same_hyperTree" && this->SameTree(other) );
-
-      vtkCompactHyperTreeCursor<N> *o=static_cast<vtkCompactHyperTreeCursor<N> *>(other);
-
-      int result = this->Cursor==o->Cursor && this->ChildIndex==o->ChildIndex
-        && this->IsLeaf==o->IsLeaf && this->ChildHistory==o->ChildHistory;
-
-      for( unsigned int i = 0; result && i < this->Dimension; ++ i )
-        {
-        result = this->Index[i] == o->Index[i];
-        ++ i;
-        }
-      return result;
-    }
-
-  //--------------------------------------------------------------------------
-  // Description:
-  // Create a copy of `this'.
-  // \post results_exists:result!=0
-  // \post same_tree: result->SameTree( this )
-  virtual vtkHyperTreeCursor* Clone()
-    {
-      vtkCompactHyperTreeCursor<N>* result = this->NewInstance();
-      result->Tree = this->Tree;
-      assert( "post: results_exists" && result!=0 );
-      assert( "post: same_tree" && result->SameTree( this ) );
-      return result;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Are `this' and `other' pointing on the same hyperTree?
-  // \pre other_exists: other!=0
-  virtual int SameTree( vtkHyperTreeCursor* other )
-    {
-      assert( "pre: other_exists" && other!=0 );
-      vtkCompactHyperTreeCursor<N> *o=vtkCompactHyperTreeCursor<N>::SafeDownCast( other );
-      int result = o!=0;
-      if(result)
-        {
-        result = this->Tree==o->Tree;
-        }
-      return result;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Return the index in dimension `d', as if the node was a cell of a
-  // uniform grid of 1<<GetCurrentLevel() cells in each dimension.
-  // \pre valid_range: d>=0 && d<GetDimension()
-  // \post valid_result: result>=0 && result<(1<<GetCurrentLevel() )
-  virtual int GetIndex(int d)
-    {
-      assert( "pre: valid_range" &&  d>=0 && d<this->Dimension );
-      int result = this->Index[d];
-      return result;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Return the number of children for each node of the tree.
-  // \post positive_number: result>0
-  virtual int GetNumberOfChildren()
-    {
-      return N;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Return the dimension of the tree.
-  // \post positive_result: result>=0
-  virtual int GetDimension()
-    {
-      assert( "post: positive_result " && this->Dimension>0 );
-      assert( "post: up_to_3 " && this->Dimension<=3 ); // and then
-      return this->Dimension;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Move to the node described by its indices in each dimension and
-  // at a given level. If there is actually a node or a leaf at this
-  // location, Found() returns true. Otherwise, Found() returns false and the
-  // cursor moves to the closest parent of the query. It can be the root in the
-  // worst case.
-  // \pre indices_exists: indices!=0
-  // \pre valid_size: sizeof(indices)==GetDimension()
-  // \pre valid_level: level>=0
-  virtual void MoveToNode(int* indices,
-                          int level)
-    {
-      assert( "pre: indices_exists" && indices!=0 );
-      assert( "pre: valid_level" && level>=0 );
-
-      this->ToRoot();
-      int currentLevel=0;
-
-      int child;
-      int tmpIndices[3];
-
-      // Convert to base 2 / 3 starting with most significant digit.
-      int mask;
-      tmpIndices[0] = indices[0];
-      tmpIndices[1] = indices[1];
-      tmpIndices[2] = indices[2];
-      int i = 0;
-      mask = 1;
-      while ( ++ i < level )
-        {
-        mask *= this->Tree->GetBranchFactor();
-        }
-
-      while(!this->CurrentIsLeaf() && currentLevel<level)
-        {
-        // compute the child index.
-        i=this->Dimension-1;
-        child=0;
-        while(i>=0 )
-          {
-          int digit = tmpIndices[i] / mask;
-          tmpIndices[i] -= digit*mask;
-          child *= child * this->Tree->GetBranchFactor() + digit;
-          --i;
-          }
-        this->ToChild( child );
-        ++currentLevel;
-        mask /= this->Tree->GetBranchFactor();
-        }
-      this->IsFound=currentLevel==level;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description
-  // Did the last call to MoveToNode succeed?
-  virtual int Found()
-    {
-      return this->IsFound;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Public only for vtkCompactHyperTree.
-  void SetIsLeaf(int value)
-    {
-      this->IsLeaf=value;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Public only for vtkCompactHyperTree.
-  void SetChildIndex(int childIndex )
-    {
-      assert( "pre: valid_range" && childIndex>=0 && childIndex<GetNumberOfChildren() );
-      this->ChildIndex = childIndex;
-      assert( "post: is_set" && childIndex==GetChildIndex() );
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Public only for vtkCompactHyperTree.
-  void SetCursor(int cursor)
-    {
-      assert( "pre: positive_cursor" && cursor>=0 );
-      this->Cursor=cursor;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Public only for vtkCompactHyperTree.
-  vtkIdType GetChildHistorySize()
-    {
-      return this->ChildHistory.size();
-    }
-
-protected:
-  //---------------------------------------------------------------------------
-  vtkCompactHyperTreeCursor()
-    {
-      this->Dimension = 0;
-      switch (N)
-        {
-        case 2:
-          this->Dimension = 1;
-          break;
-        case 3:
-          this->Dimension = 1;
-          break;
-        case 4:
-          this->Dimension = 2;
-          break;
-        case 9:
-          this->Dimension = 2;
-          break;
-        case 8:
-          this->Dimension = 3;
-          break;
-        case 27:
-          this->Dimension = 3;
-          break;
-        default:
-          assert( "Bad number of children" && this->Dimension == 0 );
-        }
-      this->Tree=0;
-      this->Cursor=0;
-      this->IsLeaf=0;
-      this->ChildIndex=0;
-      unsigned int i=0;
-      while(i<this->Dimension )
-        {
-        this->Index[i]=0;
-        ++ i;
-        }
-    }
-
-  vtkCompactHyperTree<N> *Tree;
-  unsigned char Dimension;
-  int Cursor; // index either in the Nodes or Parents (if leaf)
-  int ChildIndex; // the current node is
-  // child number ChildIndex (in [0,1<<D-1]) for its parent node (comment specific for oct/quad trees)
-
-  int IsFound;
-  int IsLeaf;
-
-  std::deque<int> ChildHistory; // a stack, but stack does not have clear()
-  // I have to default to three dimensions and not use the third for quad/9 trees
-  int Index[3]; // index in each dimension of the current node, as if the
-  // tree at the current level was a uniform grid.
-private:
-  vtkCompactHyperTreeCursor(const vtkCompactHyperTreeCursor<N> &);  // Not implemented.
-  void operator=(const vtkCompactHyperTreeCursor<N> &);    // Not implemented.
-};
-
-// We could use a 4 byte int, but the internals are completely hidden.
-class vtkHyperTreeLeafFlags
-{
-public:
-  vtkHyperTreeLeafFlags()
-    { // Unused bits are set to 1.
-    this->Flags[0] = this->Flags[1] = this->Flags[2] = this->Flags[3] = 255;
-    }
-  // True if all chilren are leaves.
-  bool IsTerminal()
-    {
-    // Unused bits are set to 1.
-    return ( this->Flags[0] == 255) && ( this->Flags[1] == 255) && ( this->Flags[2] == 255);
-    }
-  void SetLeafFlag(int idx, bool val)
-    {
-    assert( "Valid child idx" && idx >= 0 && idx < 32);
-    int i = 0;
-    while (idx >= 8)
-      {
-      ++ i;
-      idx-=8;
-      }
-    unsigned char mask = 1<<idx;
-    if (val)
-      {
-      this->Flags[i] = this->Flags[i] | mask;
-      }
-    else
-      {
-      this->Flags[i] = this->Flags[i] & (mask^255);
-      }
-    }
-  bool GetLeafFlag(int idx )
-    {
-    assert( "Valid child idx" && idx >= 0 && idx < 32);
-    int i = 0;
-    while (idx >= 8)
-      {
-      ++ i;
-      idx-=8;
-      }
-    unsigned char mask = 1<<idx;
-    return (mask & this->Flags[i]) == mask;
-    }
-  void PrintSelf(ostream& os, int numChildren)
-    {
-    assert( "Number of children" && numChildren >= 0 && numChildren < 32);
-    int childIdx=0;
-    int byteIdx = 0;
-    unsigned char mask = 1;
-    while (childIdx < numChildren)
-      {
-      os << ((( this->Flags[byteIdx])&mask)==mask);
-      ++childIdx;
-      if (mask == 128)
-        {
-        mask = 1;
-        ++byteIdx;
-        }
-      else
-        {
-        mask<<=1;
-        }
-      }
-    os<<endl;
-    }
-
-private:
-  unsigned char Flags[4];
-};
-
-
-// Description:
-// A node of the Tree which is not a leaf.
-// Expected template values: 4, 8, 9, 27.
-template<int N> class vtkCompactHyperTreeNode
-{
-public:
-  //---------------------------------------------------------------------------
-  // Description:
-  // See GetParent().
-  void SetParent(int parent)
-    {
-      assert( "pre: positive_parent" && parent>=0 );
-      this->Parent=parent;
-      assert( "post: is_set" && parent==this->GetParent() );
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Return the index of the parent node of the current node in the
-  // nodes array of the hyperTree.
-  int GetParent()
-    {
-      assert( "post: positive_result" && this->Parent>=0 );
-      return this->Parent;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // See GetLeafFlags()
-  void SetLeafFlag(int childIdx, bool flag)
-    {
-      this->LeafFlags.SetLeafFlag(childIdx, flag);
-    }
-
-  //---------------------------------------------------------------------------
-  // Description
-  // Are children all leaves?
-  bool IsTerminalNode()
-    {
-      return this->LeafFlags.IsTerminal();
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Is the `i'-th child of the node a leaf ?
-  bool IsChildLeaf( int i )
-    {
-    assert( "pre: valid_range" && i>=0 && i < N);
-    return this->LeafFlags.GetLeafFlag( i );
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // See GetChild().
-  void SetChild( int i, int child )
-    {
-      assert( "pre: valid_range" && i>=0 && i < N);
-      assert( "pre: positive_child" && child>=0 );
-      this->Children[i] = child;
-      assert( "post: is_set" && child==this->GetChild( i ) );
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Return the index of of the 'i'-th child. If the result of
-  // IsChildLeaf( i ) is true, the index points to an element in the LeafParent
-  // and Attribute arrays of the hyperTree class. If not, the index points to
-  // an element in the Nodes array of the hyperTree class.
-  int GetChild( int i )
-    {
-      assert( "pre: valid_range" && i>=0 && i < N);
-      assert( "post: positive_result" && this->Children[i]>=0 );
-      return this->Children[i];
-    }
-
-  //---------------------------------------------------------------------------
-  void PrintSelf(ostream& os, vtkIndent indent)
-    {
-      os << indent << "Parent=" << this->Parent<<endl;
-      os << indent << "LeafFlags= ";
-      this->LeafFlags.PrintSelf(os, N);
-      int i=0;
-      while(i < N)
-        {
-        os<<indent<<this->Children[i]<<endl;
-        ++ i;
-        }
-    }
-
-protected:
-  //---------------------------------------------------------------------------
-  int Parent; // index
-  vtkHyperTreeLeafFlags LeafFlags;
-  int Children[N];
-};
-
-template<int N> class vtkCompactHyperTree : public vtkHyperTreeInternal
-{
-public:
-  //---------------------------------------------------------------------------
-  static vtkCompactHyperTree<N> *New()
-    {
-      vtkObject* ret=
-        vtkObjectFactory::CreateInstance( "vtkCompactHyperTree<N>" );
-
-      if( ret != 0 )
-        {
-        return static_cast<vtkCompactHyperTree<N> *>( ret );
-        }
-      else
-        {
-        return new vtkCompactHyperTree<N>;
-        }
-    }
-
-  vtkTypeMacro(vtkCompactHyperTree<N>,vtkHyperTreeInternal);
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Restore the initial state: only one node and one leaf: the root.
-  virtual void Initialize()
-    {
-      // NB: Leaves are implicit (not node objects)
-      // so why initialize a root node with one leaf?
-      // Does the root always have one child?
-      this->Nodes.resize( 1 );
-      this->Nodes[0].SetParent( 0 );
-      int i = 0;
-      while ( i < N )
-        {
-        // It is assumed that the root is a special node with only one child.
-        // The other children flags are irrelavent, but set them as nodes for no good reason.
-        this->Nodes[0].SetLeafFlag( i, i==0 ); // First child is a leaf
-        this->Nodes[0].SetChild( i, 0 );
-        }
-      this->LeafParent.resize( 1 );
-      this->LeafParent[0] = 0;
-      this->NumberOfLevels = 1;
-      this->NumberOfLeavesPerLevel.resize( 1 );
-      this->NumberOfLeavesPerLevel[0] = 1;
-    }
-
-  //---------------------------------------------------------------------------
-  virtual vtkHyperTreeCursor* NewCursor()
-    {
-      vtkCompactHyperTreeCursor<N> *result = vtkCompactHyperTreeCursor<N>::New();
-      result->Init( this );
-      return result;
-    }
-
-  //---------------------------------------------------------------------------
-  virtual ~vtkCompactHyperTree()
-    {
-    }
-
-  //---------------------------------------------------------------------------
-  virtual vtkIdType GetNumberOfLeaves()
-    {
-      return this->LeafParent.size();
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Return the erenumber of levels.
-  // \post result_greater_or_equal_to_one: result>=1
-  virtual vtkIdType GetNumberOfLevels()
-    {
-      assert( "post: result_greater_or_equal_to_one" && this->NumberOfLevels>=1);
-      return this->NumberOfLevels;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Public only for the vtkCompactHyperTreeCursor.
-  vtkCompactHyperTreeNode<N> *GetNode(int nodeIdx )
-    {
-      assert( "pre: valid_range" && nodeIdx>=0 && nodeIdx<GetNumberOfNodes() );
-      return &this->Nodes[nodeIdx];
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Public only for the vtkCompactHyperTreeCursor.
-  // NB: Cursor (index ) appears to be different between nodes and leaves.
-  // Different arrays => overlapping indexes.
-  // I am changing the name for clarity.
-  // This really returns the nodeIdx of the leafs parent.
-  int GetLeafParent(int leafIdx )
-    {
-      assert( "pre: valid_range" && leafIdx>=0 && leafIdx<this->GetNumberOfLeaves() );
-      assert( "post: valid_result" && this->LeafParent[leafIdx]>=0 && this->LeafParent[leafIdx]<this->GetNumberOfNodes() );
-      return this->LeafParent[leafIdx];
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Public only for the vtkCompactHyperTreeCursor.
-  virtual int GetNumberOfNodes()
-    {
-      assert( "post: not_empty" && this->Nodes.size()>0 );
-      return static_cast<int>( this->Nodes.size() );
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Subdivide node pointed by cursor, only if its a leaf.
-  // At the end, cursor points on the node that used to be leaf.
-  // \pre leaf_exists: leaf!=0
-  // \pre is_a_leaf: leaf->CurrentIsLeaf()
-  void SubdivideLeaf(vtkHyperTreeCursor* leafCursor)
-    {
-      assert( "pre: leaf_exists" && leafCursor!=0 );
-      assert( "pre: is_a_leaf" && leafCursor->CurrentIsLeaf() );
-
-      // We are using a vtkCompactHyperTreeCursor.
-      // We know that GetLeafId() return Cursor.
-      int leafIndex = leafCursor->GetLeafId();
-      vtkCompactHyperTreeCursor<N> *cursor=static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
-
-      // the leaf becomes a node and is not anymore a leaf.
-      cursor->SetIsLeaf( 0 ); // let the cursor knows about that change.
-      size_t nodeIndex = this->Nodes.size();
-
-      // NB: Bad interface "SetCursor"; should rather SetIndex.
-      cursor->SetCursor( static_cast<int>( nodeIndex ) );
-
-      // Nodes get constructed with leaf flags set to 1.
-      this->Nodes.resize( nodeIndex + 1 );
-      int parentNodeIdx = this->LeafParent[leafIndex];
-      this->Nodes[nodeIndex].SetParent( parentNodeIdx );
-
-      // Change the parent: it has one less child as a leaf
-      vtkCompactHyperTreeNode<N> *parent=&( this->Nodes[parentNodeIdx] );
-
-      // New nodes index in parents children array.
-      int idx = cursor->GetChildIndex();
-      assert( "check matching_child" && parent->GetChild( idx ) == leafIndex );
-      parent->SetLeafFlag( idx, false );
-      parent->SetChild( idx, static_cast<int>( nodeIndex ) );
-
-      // The first new child
-      // Recycle the leaf index we are deleting because it became a node.
-      // This avoids messy leaf parent array issues.
-      this->Nodes[nodeIndex].SetChild( 0, leafIndex );
-      this->LeafParent[leafIndex] = static_cast<int>( nodeIndex );
-
-      // The other (N-1) new children.
-      size_t nextLeaf = this->LeafParent.size();
-      this->LeafParent.resize( nextLeaf + ( N - 1 ) );
-      for( int i = 1; i < N; ++ i, ++ nextLeaf )
-        {
-        this->Nodes[nodeIndex].SetChild( i, static_cast<int>( nextLeaf ) );
-        this->LeafParent[nextLeaf] = static_cast<int>( nodeIndex );
-        }
-
-
-      // Update the number of leaves per level.
-
-      int level=cursor->GetChildHistorySize();
-
-      // remove the subdivided leaf from the number of leaves at its level.
-      -- this->NumberOfLeavesPerLevel[level];
-
-      // add the new leaves to the number of leaves at the next level.
-      if( level + 1 == this->NumberOfLevels ) // >=
-        {
-        // we have a new level.
-        ++this->NumberOfLevels;
-        this->NumberOfLeavesPerLevel.resize( this->NumberOfLevels );
-        }
-      this->NumberOfLeavesPerLevel[level + 1] += N;
-    }
-
-  //---------------------------------------------------------------------------
-  // NB: Bad interface: This is really GetNumberOfLeaves.
-  int GetLeafParentSize()
-    {
-      return static_cast<int>( this->LeafParent.size() );
-    }
-
-  //---------------------------------------------------------------------------
-  void PrintSelf(ostream& os, vtkIndent indent)
-    {
-      this->Superclass::PrintSelf(os,indent);
-
-      os << indent << "Nodes=" << this->Nodes.size() << endl;
-      os << indent << "LeafParent=" << this->LeafParent.size() << endl;
-
-      os << indent << "Nodes=" << this->Nodes.size() << endl;
-      size_t i;
-      os << indent;
-      i=0;
-      size_t c = this->Nodes.size();
-      while( i < c )
-        {
-        this->Nodes[i].PrintSelf( os, indent );
-        ++ i;
-        }
-      os<<endl;
-
-      os << indent << "LeafParent="<<this->LeafParent.size() << endl;
-      i=0;
-      c=this->LeafParent.size();
-      while(i<c)
-        {
-        os << this->LeafParent[i]<<" ";
-        ++ i;
-        }
-      os<<endl;
-    }
-
-  //---------------------------------------------------------------------------
-  // Description:
-  // Return memory used in kilobytes.
-  // Ignore the attribute array because its size is added by the data set.
-  unsigned int GetActualMemorySize()
-  {
-    size_t size;
-    size = sizeof(int) * this->GetNumberOfLeaves();
-    size += sizeof(vtkCompactHyperTreeNode<N>) * this->Nodes.size();
-    return static_cast<unsigned int>(size / 1024);
-  }
-
-  int GetBranchFactor()
-    {
-    return this->BranchFactor;
-    }
-
-  int GetDimension()
-    {
-    return this->Dimension;
-    }
-
-protected:
-  //---------------------------------------------------------------------------
-  // Description:
-  // Default constructor.
-  // The tree as only one node and one leaf: the root.
-  vtkCompactHyperTree()
-    {
-      if ( N == 2 || N == 4 || N == 8 )
-        {
-        this->BranchFactor = 2;
-        }
-      if ( N == 3 || N == 9 || N == 27 )
-        {
-        this->BranchFactor = 3;
-        }
-
-      if ( N == 2 || N == 3 )
-        {
-        this->Dimension = 1;
-        }
-      if ( N == 4 || N == 9 )
-        {
-        this->Dimension = 2;
-        }
-      if ( N == 8 || N == 27 )
-        {
-        this->Dimension = 3;
-        }
-
-      // The root.
-      this->Nodes.resize(1);
-      this->Nodes[0].SetParent( 0 );
-
-      // Nodes default to have all children leaf flags equal true.
-      int i=0;
-      while( i < N )
-        {
-        this->Nodes[0].SetChild(i,0 );
-        ++ i;
-        }
-      this->LeafParent.resize(1);
-      this->LeafParent[0]=0;
-      this->NumberOfLevels=1;
-      this->NumberOfLeavesPerLevel.resize(1);
-      this->NumberOfLeavesPerLevel[0]=1;
-    }
-
-  std::vector<int> NumberOfLeavesPerLevel; // number of leaves in each level
-  // its size is NumberOfLevels;
-
-  vtkIdType NumberOfLevels;
-  int BranchFactor;
-  int Dimension;
-  std::vector<vtkCompactHyperTreeNode<N> > Nodes;
-  std::vector<int> LeafParent; // record the parent of each leaf
-private:
-  vtkCompactHyperTree(const vtkCompactHyperTree<N> &);  // Not implemented.
-  void operator=(const vtkCompactHyperTree<N> &);    // Not implemented.
-};
-
 
 vtkStandardNewMacro(vtkHyperTreeGrid);
 
@@ -1001,9 +53,9 @@ vtkCxxSetObjectMacro(vtkHyperTreeGrid,ZCoordinates,vtkDataArray);
 vtkHyperTreeGrid::vtkHyperTreeGrid()
 {
   // Grid of hyper trees
-  this->CellTree = 0;
-  this->CellTreeLeafIdOffsets = 0;
-  
+  this->HyperTrees = vtkCollection::New();
+  this->HyperTreesLeafIdOffsets = 0;
+
   // Primal grid
   this->CornerPoints = 0;
   this->LeafCornerIds = 0;
@@ -1019,12 +71,13 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->GridSize[0] = 0;
   this->GridSize[1] = 0;
   this->GridSize[2] = 0;
+  this->NumberOfRoots = 0;
 
   // Grid parameters
-  this->AxisBranchFactor = 2;
-  this->Dimension =  3;
-  this->DualGridFlag = 1;
-  this->NumberOfChildren = 1; // Invalid, correct value set by UpdateTree
+  this->BranchFactor = 2;
+  this->Dimension =  1;
+  this->NumberOfChildren = 2;
+  this->UseDualGrid = 1;
 
   // Grid geometry
   this->XCoordinates = vtkDoubleArray::New();
@@ -1047,53 +100,46 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
 // Destructor.
 vtkHyperTreeGrid::~vtkHyperTreeGrid()
 {
-  if ( this->CellTree )
+  if ( this->HyperTrees )
     {
-    int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-    for ( int i = 0; i < nCells; ++ i )
+    vtkCollectionSimpleIterator it;
+    for ( this->HyperTrees->InitTraversal( it );
+          vtkObject* obj = this->HyperTrees->GetNextItemAsObject( it ) ; )
       {
-      if ( this->CellTree[i] )
+      if ( obj )
         {
-        this->CellTree[i]->UnRegister( this );
-        this->CellTree[i] = 0;
+        obj->UnRegister( this );
         }
       }
-    delete [] this->CellTree;
-    this->CellTree = 0;
+    this->HyperTrees->UnRegister( this );
     }
 
   if ( this->XCoordinates )
     {
     this->XCoordinates->UnRegister( this );
-    this->XCoordinates = NULL;
     }
 
   if ( this->YCoordinates )
     {
     this->YCoordinates->UnRegister( this );
-    this->YCoordinates = NULL;
     }
 
   if ( this->ZCoordinates )
     {
     this->ZCoordinates->UnRegister( this );
-    this->ZCoordinates = NULL;
     }
 
   if ( this->Voxel )
     {
-    this->Voxel->Delete();
-    this->Voxel = 0;
+    this->Voxel->UnRegister( this );
     }
   if ( this->Pixel )
     {
-    this->Pixel->Delete();
-    this->Pixel = 0;
+    this->Pixel->UnRegister( this );
     }
   if ( this->Line )
     {
-    this->Line->Delete();
-    this->Line = 0;
+    this->Line->UnRegister( this );
     }
 
   this->DeleteInternalArrays();
@@ -1103,11 +149,13 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
 void vtkHyperTreeGrid::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "Dimension: " << this->Dimension<< endl;
+  os << indent << "Dimension: " << this->Dimension << endl;
   os << indent << "GridSize: " 
      << this->GridSize[0] <<","
      << this->GridSize[1] <<","
      << this->GridSize[2] << endl;
+  os << indent << "NumberOfRoots: " << this->NumberOfRoots << endl;
+
   if ( this->XCoordinates )
     {
     this->XCoordinates->PrintSelf( os, indent.GetNextIndent() );
@@ -1120,7 +168,7 @@ void vtkHyperTreeGrid::PrintSelf( ostream& os, vtkIndent indent )
     {
     this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
     }
-  os << indent << "DualGridFlag: " << this->DualGridFlag << endl;
+  os << indent << "UseDualGrid: " << this->UseDualGrid << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -1139,63 +187,70 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 {
   assert( "pre: ds_exists" && ds!=0 );
   assert( "pre: same_type" && vtkHyperTreeGrid::SafeDownCast(ds)!=0 );
-  assert( "pre: cell_tree" && vtkHyperTreeGrid::SafeDownCast(ds)->CellTree!=0 );
+  assert( "pre: cell_tree" && vtkHyperTreeGrid::SafeDownCast(ds)->HyperTrees!=0 );
 
-  vtkHyperTreeGrid* ho = vtkHyperTreeGrid::SafeDownCast( ds );
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast( ds );
 
-  this->Dimension = ho->Dimension;
-  this->AxisBranchFactor = ho->AxisBranchFactor;
-  this->DualGridFlag = ho->DualGridFlag;
-  this->NumberOfChildren = ho->NumberOfChildren;
-  memcpy( this->GridSize, ho->GetGridSize(), 3 * sizeof( int ) );
+  // Copy grid parameters
+  this->Dimension = htg->Dimension;
+  this->BranchFactor = htg->BranchFactor;
+  this->NumberOfChildren = htg->NumberOfChildren;
+  memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
+  this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+  this->UseDualGrid = htg->UseDualGrid;
 
-  int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-  if ( this->CellTree )
+  // Un-register existing tree
+  if ( this->HyperTrees )
     {
-    for ( int i = 0; i < nCells; ++ i )
+    vtkCollectionSimpleIterator it;
+    for ( this->HyperTrees->InitTraversal( it );
+          vtkObject* obj = this->HyperTrees->GetNextItemAsObject( it ) ; )
       {
-      if ( this->CellTree[i] )
+      if ( obj )
         {
-        this->CellTree[i]->UnRegister( this );
+        obj->UnRegister( this );
         }
       }
-    delete [] this->CellTree;
+    this->HyperTrees->UnRegister( this );
     }
-
-  this->CellTree = ho->CellTree;
-
-  if ( this->CellTree )
+  
+  // Shallow copy and register new tree
+  this->HyperTrees = htg->HyperTrees;
+  if ( this->HyperTrees )
     {
-    for ( int i = 0; i < nCells; ++ i )
+    this->HyperTrees->Register( this );
+
+    vtkCollectionSimpleIterator it1;
+    this->HyperTrees->InitTraversal( it1 );
+    vtkCollectionSimpleIterator it2;
+    htg->HyperTrees->InitTraversal( it2 );
+    while ( vtkObject* obj = this->HyperTrees->GetNextItemAsObject( it1 ) )
       {
-      this->CellTree[i] = ho->CellTree[i];
-       if ( this->CellTree[i] )
-         {
-         this->CellTree[i]->Register( this );
-         }
+      obj = htg->HyperTrees->GetNextItemAsObject( it2 );
+      if ( obj )
+        {
+        obj->Register( this );
+        }
       }
     }
 
-  if ( this->CellTreeLeafIdOffsets )
+  // Shallow copy cell tree leaf ID offsets
+  if ( this->HyperTreesLeafIdOffsets )
     {
-    delete [] this->CellTreeLeafIdOffsets;
-    this->CellTreeLeafIdOffsets = 0;
+    delete [] this->HyperTreesLeafIdOffsets;
+    this->HyperTreesLeafIdOffsets = 0;
     }
-  this->CellTreeLeafIdOffsets = ho->CellTreeLeafIdOffsets;
+  this->HyperTreesLeafIdOffsets = htg->HyperTreesLeafIdOffsets;
 
-  this->SetXCoordinates( ho->XCoordinates );
-  this->SetYCoordinates( ho->YCoordinates );
-  this->SetZCoordinates( ho->ZCoordinates );
-
-  this->CellData->ShallowCopy( ho->CellData );
-  this->PointData->ShallowCopy( ho->PointData );
-
-  this->Modified();
+  // Shallow copy coordinates
+  this->SetXCoordinates( htg->XCoordinates );
+  this->SetYCoordinates( htg->YCoordinates );
+  this->SetZCoordinates( htg->ZCoordinates );
 }
 
 //-----------------------------------------------------------------------------
 // Set the number of root cells of the tree.
-void vtkHyperTreeGrid::SetGridSize( int n[3] )
+void vtkHyperTreeGrid::SetGridSize( unsigned int n[3] )
 {
   if( this->GridSize[0] == n[0] && this->GridSize[1] == n[1] && this->GridSize[2] == n[2] )
     {
@@ -1204,26 +259,17 @@ void vtkHyperTreeGrid::SetGridSize( int n[3] )
   this->GridSize[0] = n[0];
   this->GridSize[1] = n[1];
   this->GridSize[2] = n[2];
+  this->NumberOfRoots = n[0] * n[1] * n[2];
+
   this->Modified();
   this->UpdateTree();
-}
-
-//-----------------------------------------------------------------------------
-// Description:
-// Return the dimension of the tree (1D:binary tree(2 children), 2D:quadtree
-// (4 children), 3D:Tree (8 children) )
-// \post valid_result: result>=1 && result<=3
-int vtkHyperTreeGrid::GetDimension()
-{
-  assert( "post: valid_result" && this->Dimension >= 1 && this->Dimension <= 3 );
-  return this->Dimension;
 }
 
 //-----------------------------------------------------------------------------
 // Set the dimension of the tree with `dim'. See GetDimension() for details.
 // \pre valid_dim: dim>=1 && dim<=3
 // \post dimension_is_set: GetDimension()==dim
-void vtkHyperTreeGrid::SetDimension( int dim )
+void vtkHyperTreeGrid::SetDimension( unsigned int dim )
 {
   assert( "pre: valid_dim" && dim >= 1 && dim <= 3 );
   if( this->Dimension == dim )
@@ -1231,113 +277,91 @@ void vtkHyperTreeGrid::SetDimension( int dim )
     return;
     }
   this->Dimension = dim;
+
+  // Number of children is factor^dimension
+  this->NumberOfChildren = this->BranchFactor;
+  for ( unsigned int i = 1; i < this->Dimension; ++ i )
+    {
+    this->NumberOfChildren *= this->BranchFactor;
+    }
+
   this->Modified();
   this->UpdateTree();
 }
 
 //-----------------------------------------------------------------------------
 // \pre valid_dim: factor == 2 or factor == 3;
-// \post dimension_is_set: GetAxisBranchFactor()==dim
-void vtkHyperTreeGrid::SetAxisBranchFactor( int factor )
+// \post dimension_is_set: GetBranchFactor()==dim
+void vtkHyperTreeGrid::SetBranchFactor( unsigned int factor )
 {
   assert( "pre: valid_factor" && factor>=2 && factor<=3 );
-  if( this->AxisBranchFactor == factor )
+  if( this->BranchFactor == factor )
     {
     return;
     }
-  this->AxisBranchFactor = factor;
+  this->BranchFactor = factor;
+
+  // Number of children is factor^dimension
+  this->NumberOfChildren = this->BranchFactor;
+  for ( unsigned int i = 1; i < this->Dimension; ++ i )
+    {
+    this->NumberOfChildren *= this->BranchFactor;
+    }
+
   this->Modified();
   this->UpdateTree();
 }
 
 //-----------------------------------------------------------------------------
+void vtkHyperTreeGrid::SetUseDualGrid( int dual )
+{
+  if ( dual )
+    {
+    dual = 1;
+    }
+  if ( this->UseDualGrid == dual )
+    {
+    return;
+    }
+  if ( ( this->UseDualGrid && ! dual ) || ( ! this->UseDualGrid && dual ) )
+    {
+    // Swap point and cell data.
+    vtkDataSetAttributes* attr = vtkDataSetAttributes::New();
+    attr->ShallowCopy( this->CellData );
+    this->CellData->ShallowCopy( this->PointData );
+    this->PointData->ShallowCopy( attr );
+    attr->UnRegister( this );
+    }
+  this->DeleteInternalArrays();
+  this->UseDualGrid = dual;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::UpdateTree()
 {
-  int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-  
-  if ( this->CellTree )
+  // Clean up existing trees
+  if ( this->HyperTrees )
     {
-    for ( int i = 0; i < nCells; ++ i )
+    vtkCollectionSimpleIterator it;
+    for ( this->HyperTrees->InitTraversal( it );
+          vtkObject* obj = this->HyperTrees->GetNextItemAsObject( it ) ; )
       {
-      if ( this->CellTree[i] )
+      if ( obj )
         {
-        this->CellTree[i]->UnRegister( this );
-        this->CellTree[i] = 0;
+        obj->UnRegister( this );
         }
       }
-    delete [] this->CellTree;
-    this->CellTree = 0;
-    }
-  this->CellTree = new vtkHyperTreeInternal*[nCells];
-  for ( int i = 0; i < nCells; ++ i )
-    {
-    this->CellTree[i] = 0;
+    this->HyperTrees->RemoveAllItems();
     }
 
-  if ( this->AxisBranchFactor == 2 )
+  // Generate concrete instance of hyper tree and append it to list of roots
+  for ( unsigned int i = 0; i < this->NumberOfRoots; ++ i )
     {
-    switch( this->Dimension )
-      {
-      case 3:
-        this->NumberOfChildren = 8;
-        for ( int i = 0; i < nCells; ++ i )
-          {
-          this->CellTree[i] = vtkCompactHyperTree<8>::New();
-          }
-        break;
-      case 2:
-        this->NumberOfChildren = 4;
-         for ( int i = 0; i < nCells; ++ i )
-          {
-          this->CellTree[i] = vtkCompactHyperTree<4>::New();
-          }
-       break;
-      case 1:
-        this->NumberOfChildren = 2;
-        for ( int i = 0; i < nCells; ++ i )
-          {
-          this->CellTree[i] = vtkCompactHyperTree<2>::New();
-          }
-        break;
-      default:
-        assert( "check: impossible case" && 0 );
-        break;
-      }
+    vtkHyperTree* tree = vtkHyperTree::CreateInstance( this->BranchFactor, this->Dimension );
+    this->HyperTrees->AddItem( tree );
     }
-  else if ( this->AxisBranchFactor == 3 )
-    {
-    switch( this->Dimension )
-      {
-      case 3:
-        this->NumberOfChildren = 27;
-         for ( int i = 0; i < nCells; ++ i )
-          {
-          this->CellTree[i] = vtkCompactHyperTree<27>::New();
-          }
-       break;
-      case 2:
-        this->NumberOfChildren = 9;
-        for ( int i = 0; i < nCells; ++ i )
-          {
-          this->CellTree[i] = vtkCompactHyperTree<9>::New();
-          }
-        break;
-      case 1:
-        this->NumberOfChildren = 3;
-        for ( int i = 0; i < nCells; ++ i )
-          {
-          this->CellTree[i] = vtkCompactHyperTree<3>::New();
-          }
-        break;
-      default:
-        assert( "check: impossible case" && 0 );
-        break;
-      }
-    }
-  else
-    {
-    vtkErrorMacro( "Bad branching factor " << this->AxisBranchFactor);
-    }
+
   this->Modified();
   this->DeleteInternalArrays();
 }
@@ -1347,32 +371,29 @@ void vtkHyperTreeGrid::ComputeBounds()
 {
   double tmp;
 
-  if (this->XCoordinates == NULL || this->YCoordinates == NULL ||
-      this->ZCoordinates == NULL)
+  if ( ! this->XCoordinates || ! this->YCoordinates || ! this->ZCoordinates )
     {
     vtkMath::UninitializeBounds(this->Bounds);
     return;
     }
 
-  if ( this->XCoordinates->GetNumberOfTuples() == 0 ||
-       this->YCoordinates->GetNumberOfTuples() == 0 ||
-       this->ZCoordinates->GetNumberOfTuples() == 0 )
+  if ( ! this->XCoordinates->GetNumberOfTuples() ||
+       ! this->YCoordinates->GetNumberOfTuples() ||
+       ! this->ZCoordinates->GetNumberOfTuples() )
     {
-    vtkMath::UninitializeBounds(this->Bounds);
+    vtkMath::UninitializeBounds( this->Bounds );
     return;
     }
 
-  this->Bounds[0] = this->XCoordinates->GetComponent(0, 0 );
-  this->Bounds[2] = this->YCoordinates->GetComponent(0, 0 );
-  this->Bounds[4] = this->ZCoordinates->GetComponent(0, 0 );
+  this->Bounds[0] = this->XCoordinates->GetComponent( 0, 0 );
+  this->Bounds[2] = this->YCoordinates->GetComponent( 0, 0 );
+  this->Bounds[4] = this->ZCoordinates->GetComponent( 0, 0 );
 
-  this->Bounds[1] = this->XCoordinates->GetComponent(
-                        this->XCoordinates->GetNumberOfTuples()-1, 0 );
-  this->Bounds[3] = this->YCoordinates->GetComponent(
-                        this->YCoordinates->GetNumberOfTuples()-1, 0 );
-  this->Bounds[5] = this->ZCoordinates->GetComponent(
-                        this->ZCoordinates->GetNumberOfTuples()-1, 0 );
-  // ensure that the bounds are increasing
+  this->Bounds[1] = this->XCoordinates->GetComponent( this->XCoordinates->GetNumberOfTuples() - 1, 0 );
+  this->Bounds[3] = this->YCoordinates->GetComponent( this->YCoordinates->GetNumberOfTuples() - 1, 0 );
+  this->Bounds[5] = this->ZCoordinates->GetComponent( this->ZCoordinates->GetNumberOfTuples() - 1, 0 );
+
+  // Ensure that the bounds are increasing
   for (int i = 0; i < 5; i += 2)
     {
     if (this->Bounds[i + 1] < this->Bounds[i])
@@ -1388,25 +409,39 @@ void vtkHyperTreeGrid::ComputeBounds()
 // Description:
 // Return the number of levels.
 // \post result_greater_or_equal_to_one: result>=1
-int vtkHyperTreeGrid::GetNumberOfLevels( int i )
+int vtkHyperTreeGrid::GetNumberOfLevels( unsigned int i )
 {
-  int result = this->CellTree[i]->GetNumberOfLevels();
-  assert( "post: result_greater_or_equal_to_one" && result>=1);
-  return result;
+  vtkObject* obj = this->HyperTrees->GetItemAsObject( i );
+  if ( obj )
+    {
+    vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
+    if ( tree )
+      {
+      return tree->GetNumberOfLevels();
+      }
+    }
+
+  return 0;
 }
 
 
 //-----------------------------------------------------------------------------
 // Description:
-// Create a new cursor: an object that can traverse hyperTree cells
+// Create a new cursor: an object that can traverse vtkHyperTree cells
 vtkHyperTreeCursor* vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
 {
-  int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
-  vtkHyperTreeCursor* result = this->CellTree[index]->NewCursor();
+  int idx = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
+  vtkObject* obj = this->HyperTrees->GetItemAsObject( idx );
+  if ( obj )
+    {
+    vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
+    if ( tree )
+      {
+      return tree->NewCursor();
+      }
+    }
 
-  assert( "post: result_exists" && result!=0 );
-
-  return result;
+  return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -1415,12 +450,22 @@ vtkHyperTreeCursor* vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
 // At the end, cursor points on the node that used to be leaf.
 // \pre leaf_exists: leaf!=0
 // \pre is_a_leaf: leaf->CurrentIsLeaf()
-void vtkHyperTreeGrid::SubdivideLeaf(vtkHyperTreeCursor* leaf,vtkIdType i)
+void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType i )
 {
   assert( "pre: leaf_exists" && leaf!=0 );
   assert( "pre: is_a_leaf" && leaf->CurrentIsLeaf() );
-  this->CellTree[i]->SubdivideLeaf(leaf);
-  this->DeleteInternalArrays();
+  vtkObject* obj = this->HyperTrees->GetItemAsObject( i );
+  if ( obj )
+    {
+    vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
+    if ( tree )
+      {
+      tree->SubdivideLeaf( leaf );
+      this->DeleteInternalArrays();
+      }
+    }
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -1429,11 +474,19 @@ void vtkHyperTreeGrid::SubdivideLeaf(vtkHyperTreeCursor* leaf,vtkIdType i)
 // THIS METHOD IS NOT THREAD SAFE.
 void vtkHyperTreeGrid::Initialize()
 {
-  int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-  
-  for ( int i = 0; i < nCells; ++ i )
+  if ( this->HyperTrees )
     {
-    this->CellTree[i]->Initialize();
+    vtkCollectionSimpleIterator it;
+    for ( this->HyperTrees->InitTraversal( it );
+          vtkObject* obj = this->HyperTrees->GetNextItemAsObject( it ) ; )
+      if ( obj )
+        {
+        vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
+        if ( tree )
+          {
+          tree->Initialize();
+          }
+        }
     }
 
   this->DeleteInternalArrays();
@@ -1473,28 +526,39 @@ int vtkHyperTreeGrid::GetMaxCellSize()
 // Shallow and Deep copy.
 void vtkHyperTreeGrid::ShallowCopy(vtkDataObject* src)
 {
-  assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast(src)!=0 );
-  this->Superclass::ShallowCopy(src);
-  this->CopyStructure(vtkHyperTreeGrid::SafeDownCast(src) );
+  assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast( src ) );
+  this->CopyStructure(vtkHyperTreeGrid::SafeDownCast( src ) );
+
+  // Do superclass
+  this->Superclass::ShallowCopy( src );
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::DeepCopy( vtkDataObject* src )
 {
-  assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast(src)!=0 );
-  this->Superclass::DeepCopy( src );
+  assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast( src ) );
   this->CopyStructure( vtkHyperTreeGrid::SafeDownCast( src ) );
+
+  // Do superclass
+  this->Superclass::DeepCopy( src );
 }
 
 //-----------------------------------------------------------------------------
 int vtkHyperTreeGrid::GetNumberOfLeaves()
 {
-  int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-
   int nLeaves = 0;
-  for ( int i = 0; i < nCells; ++ i )
+  vtkCollectionSimpleIterator it;
+    for ( this->HyperTrees->InitTraversal( it );
+          vtkObject* obj = this->HyperTrees->GetNextItemAsObject( it ) ; )
     {
-    nLeaves += this->CellTree[i]->GetNumberOfLeaves();
+    if ( obj )
+      {
+      vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
+      if ( tree )
+        {
+        nLeaves += tree->GetNumberOfLeaves();
+        }
+      }
     }
 
   return nLeaves;
@@ -1509,7 +573,7 @@ int vtkHyperTreeGrid::GetNumberOfLeaves()
 // \post positive_result: result>=0
 vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
@@ -1517,15 +581,7 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
     }
   else
     {
-    int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-    
-    int nLeaves = 0;
-    for ( int i = 0; i < nCells; ++ i )
-      {
-      nLeaves += this->CellTree[i]->GetNumberOfLeaves();
-      }
-
-    return nLeaves;
+    return this->GetNumberOfLeaves();
     }
 }
 
@@ -1535,19 +591,9 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
 // \post positive_result: result>=0
 vtkIdType vtkHyperTreeGrid::GetNumberOfPoints()
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
-    vtkIdType nCells = this->GridSize[0]
-      * this->GridSize[1]
-      * this->GridSize[2];
-    
-    vtkIdType nLeaves = 0;
-    for ( vtkIdType i = 0; i < nCells; ++ i )
-      {
-      nLeaves += this->CellTree[i]->GetNumberOfLeaves();
-      }
-
-    return nLeaves;
+    return this->GetNumberOfLeaves();
     }
   else
     {
@@ -1564,12 +610,12 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfPoints()
 // THIS METHOD IS NOT THREAD SAFE.
 double* vtkHyperTreeGrid::GetPoint(vtkIdType ptId)
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkPoints* leafCenters = this->GetLeafCenters();
     assert( "Index out of bounds." &&
-           ptId >= 0 && ptId < leafCenters->GetNumberOfPoints() );
+            ptId >= 0 && ptId < leafCenters->GetNumberOfPoints() );
     return leafCenters->GetPoint(ptId);
     }
   else
@@ -1577,7 +623,7 @@ double* vtkHyperTreeGrid::GetPoint(vtkIdType ptId)
     this->UpdateGridArrays();
     vtkPoints* cornerPoints = this->GetCornerPoints();
     assert( "Index out of bounds." &&
-           ptId >= 0 && ptId < cornerPoints->GetNumberOfPoints() );
+            ptId >= 0 && ptId < cornerPoints->GetNumberOfPoints() );
     return cornerPoints->GetPoint(ptId);
     }
 }
@@ -1590,12 +636,12 @@ double* vtkHyperTreeGrid::GetPoint(vtkIdType ptId)
 // THE DATASET IS NOT MODIFIED
 void vtkHyperTreeGrid::GetPoint(vtkIdType id, double x[3])
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkPoints* leafCenters = this->GetLeafCenters();
     assert( "Index out of bounds." &&
-           id >= 0 && id < leafCenters->GetNumberOfPoints() );
+            id >= 0 && id < leafCenters->GetNumberOfPoints() );
     leafCenters->GetPoint(id, x );
     }
   else
@@ -1603,7 +649,7 @@ void vtkHyperTreeGrid::GetPoint(vtkIdType id, double x[3])
     this->UpdateGridArrays();
     vtkPoints* cornerPoints = this->GetCornerPoints();
     assert( "Index out of bounds." &&
-           id >= 0 && id < cornerPoints->GetNumberOfPoints() );
+            id >= 0 && id < cornerPoints->GetNumberOfPoints() );
     cornerPoints->GetPoint(id, x );
     }
 }
@@ -1633,12 +679,12 @@ vtkCell* vtkHyperTreeGrid::GetCell(vtkIdType cellId)
       break;
     }
 
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
     assert( "Index out of bounds." &&
-           cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
+            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
     vtkPoints* leafCenters = this->GetLeafCenters();
     vtkIdType* ptr = cornerLeafIds->GetPointer( 0 ) + cellId*numPts;
     for (ptIdx = 0; ptIdx < numPts; ++ptIdx )
@@ -1654,7 +700,7 @@ vtkCell* vtkHyperTreeGrid::GetCell(vtkIdType cellId)
     this->UpdateGridArrays();
     vtkIdTypeArray* leafCornerIds = this->GetLeafCornerIds();
     assert( "Index out of bounds." &&
-           cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
+            cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
     vtkPoints* cornerPoints = this->GetCornerPoints();
     vtkIdType* ptr = leafCornerIds->GetPointer( 0 ) + cellId*numPts;
     for (ptIdx = 0; ptIdx < numPts; ++ptIdx )
@@ -1695,12 +741,12 @@ void vtkHyperTreeGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
       break;
     }
 
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
     assert( "Index out of bounds." &&
-           cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
+            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
     vtkPoints* leafCenters = this->GetLeafCenters();
     vtkIdType* ptr = cornerLeafIds->GetPointer( 0 ) + cellId*numPts;
     for (ptIdx = 0; ptIdx < numPts; ++ptIdx )
@@ -1716,7 +762,7 @@ void vtkHyperTreeGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
     this->UpdateGridArrays();
     vtkIdTypeArray* leafCornerIds = this->GetLeafCornerIds();
     assert( "Index out of bounds." &&
-           cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
+            cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
     vtkPoints* cornerPoints = this->GetCornerPoints();
     vtkIdType* ptr = leafCornerIds->GetPointer( 0 ) + cellId*numPts;
     for (ptIdx = 0; ptIdx < numPts; ++ptIdx )
@@ -1767,12 +813,12 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId, vtkIdList* ptIds)
   int numPts = 1 << this->GetDimension();
   ptIds->Initialize();
 
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
     assert( "Index out of bounds." &&
-           cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
+            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
     vtkIdType* ptr = cornerLeafIds->GetPointer( 0 ) + cellId*numPts;
     for ( int i = 0; i < numPts; ++ i )
       {
@@ -1784,7 +830,7 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId, vtkIdList* ptIds)
     this->UpdateGridArrays();
     vtkIdTypeArray* leafCornerIds = this->GetLeafCornerIds();
     assert( "Index out of bounds." &&
-           cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
+            cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
     vtkIdType* ptr = leafCornerIds->GetPointer( 0 ) + cellId * numPts;
     for ( int i = 0; i < numPts; ++ i )
       {
@@ -1800,27 +846,27 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId,
                                       vtkIdType& npts,
                                       vtkIdType* &pts )
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     this->UpdateDualArrays();
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
     assert( "Index out of bounds." &&
-           cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
+            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
     // Casting of 1 is necessary to remove 64bit Compiler warning C4334 on
     // Visual Studio 2005.
     npts = static_cast<vtkIdType>( 1 ) << this->GetDimension();
-    pts = cornerLeafIds->GetPointer( 0 ) + cellId*npts;
+    pts = cornerLeafIds->GetPointer( 0 ) + cellId * npts;
     }
   else
     {
     this->UpdateGridArrays();
     vtkIdTypeArray* leafCornerIds = this->GetLeafCornerIds();
     assert( "Index out of bounds." &&
-           cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
+            cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
     // Casting of 1 is necessary to remove 64bit Compiler warning C4334 on
     // Visual Studio 2005.
     npts = static_cast<vtkIdType>( 1 ) << this->GetDimension();
-    pts = leafCornerIds->GetPointer( 0 ) + cellId*npts;
+    pts = leafCornerIds->GetPointer( 0 ) + cellId * npts;
     }
 }
 
@@ -1855,7 +901,7 @@ void vtkHyperTreeGrid::BuildLinks()
   this->Links->Allocate( this->GetNumberOfPoints() );
   this->Links->Register( this );
   this->Links->BuildLinks( this );
-  this->Links->Delete();
+  this->Links->UnRegister( this );
 }
 
 
@@ -1896,8 +942,8 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
     }
 
   if (minNumCells == VTK_LARGE_INTEGER && numPts == 0 ) {
-    vtkErrorMacro( "input point ids empty." );
-    minNumCells = 0;
+  vtkErrorMacro( "input point ids empty." );
+  minNumCells = 0;
   }
 
   // For all cells that contNow for each cell, see if it contains all the points
@@ -1928,7 +974,7 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
         } // For all points in input cell
       if ( match )
         {
-        cellIds->InsertNextId(minCells[i]);
+        cellIds->InsertNextId( minCells[i] );
         }
       } // If not the reference cell
     } // For all candidate cells attached to point
@@ -2035,9 +1081,9 @@ vtkIdType vtkHyperTreeGrid::RecursiveFindPoint( double x[3],
 // No need for a starting cell.  Just use the point.
 // Tree is efficient enough.
 vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell,
-                                vtkGenericCell* gencell, vtkIdType cellId,
-                                double tol2, int& subId, double pcoords[3],
-                                double* weights)
+                                     vtkGenericCell* gencell, vtkIdType cellId,
+                                     double tol2, int& subId, double pcoords[3],
+                                     double* weights)
 {
   vtkIdType       ptId;
   double          closestPoint[3];
@@ -2055,7 +1101,7 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell,
   this->GetPointCells(ptId, cellIds);
   if ( cellIds->GetNumberOfIds() <= 0 )
     {
-    cellIds->Delete();
+    cellIds->UnRegister( this );
     return -1;
     }
 
@@ -2086,7 +1132,7 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell,
                                   pcoords, dist2,weights) == 1
            && dist2 <= tol2 ) )
       {
-      cellIds->Delete();
+      cellIds->UnRegister( this );
       return cellId;
       }
     }
@@ -2102,8 +1148,7 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell, vtkIdType cellI
                                      double tol2, int& subId,double pcoords[3],
                                      double* weights)
 {
-  return
-    this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
+  return this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
 }
 
 
@@ -2112,7 +1157,7 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell, vtkIdType cellI
 // Generic way to set the leaf data attributes.
 vtkDataSetAttributes* vtkHyperTreeGrid::GetLeafData()
 {
-  if ( this->DualGridFlag )
+  if ( this->UseDualGrid )
     {
     return this->PointData;
     }
@@ -2122,35 +1167,23 @@ vtkDataSetAttributes* vtkHyperTreeGrid::GetLeafData()
     }
 }
 
-//-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::SetDualGridFlag( int flag )
-{
-  if ( flag )
-    {
-    flag = 1;
-    }
-  if ( ( this->DualGridFlag && ! flag ) || ( ! this->DualGridFlag && flag ) )
-    { // Swap point and cell data.
-    vtkDataSetAttributes* attr = vtkDataSetAttributes::New();
-    attr->ShallowCopy( this->CellData );
-    this->CellData->ShallowCopy( this->PointData );
-    this->PointData->ShallowCopy( attr );
-    attr->Delete();
-    }
-  this->DeleteInternalArrays();
-  this->DualGridFlag = flag;
-  this->Modified();
-}
-
 //----------------------------------------------------------------------------
 unsigned long vtkHyperTreeGrid::GetActualMemorySize()
 {
-  unsigned long size=this->vtkDataSet::GetActualMemorySize();
-  int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+  unsigned long size = this->vtkDataSet::GetActualMemorySize();
   
-  for ( int i = 0; i < nCells; ++ i )
+  vtkCollectionSimpleIterator it;
+  for ( this->HyperTrees->InitTraversal( it );
+        vtkObject* obj = this->HyperTrees->GetNextItemAsObject( it ) ; )
     {
-    size += this->CellTree[i]->GetActualMemorySize();
+    if ( obj )
+      {
+      vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
+      if ( tree )
+        {
+        size += tree->GetActualMemorySize();
+        }
+      }
     }
 
   if ( this->XCoordinates ) 
@@ -2209,10 +1242,12 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetCornerLeafIds()
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeSuperCursor* superCursor,
-                                              int i, int j, int k )
+                                              unsigned int i,
+                                              unsigned int j,
+                                              unsigned int k )
 {
-  // TODO:  This only needs to be done once.  Use MTime ...
-  this->UpdateCellTreeLeafIdOffsets();
+  // TODO:  This only needs to be done once.  Use MTime instead
+  this->UpdateHyperTreesLeafIdOffsets();
 
   // Calculate global index of hyper tree
   int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
@@ -2299,7 +1334,7 @@ void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeSuperCursor* superCurs
         if ( ti && tj && tk )
           {
           superCursor->GetCursor( d )->Initialize( this,
-                                                   this->CellTreeLeafIdOffsets,
+                                                   this->HyperTreesLeafIdOffsets,
                                                    index, a, b, c );
           } // if ( ti && tj && tk )
         else
@@ -2325,11 +1360,11 @@ void vtkHyperTreeGrid::InitializeSuperCursorChild(vtkHyperTreeSuperCursor* paren
   child->MiddleCursorId = parent->MiddleCursorId;
 
   // Compute new origin and size.
-  child->Size[0] = parent->Size[0] / double( this->AxisBranchFactor );
-  child->Size[1] = parent->Size[1] / double( this->AxisBranchFactor );
-  child->Size[2] = parent->Size[2] / double( this->AxisBranchFactor );
+  child->Size[0] = parent->Size[0] / double( this->BranchFactor );
+  child->Size[1] = parent->Size[1] / double( this->BranchFactor );
+  child->Size[2] = parent->Size[2] / double( this->BranchFactor );
   int x,y,z;
-  if ( this->AxisBranchFactor == 2 )
+  if ( this->BranchFactor == 2 )
     {
     x = childIdx&1;
     y = (childIdx&2)>>1;
@@ -2381,7 +1416,7 @@ void vtkHyperTreeGrid::InitializeSuperCursorChild(vtkHyperTreeSuperCursor* paren
 // post: Generate LeafCenters and CornerLeafIds.
 void vtkHyperTreeGrid::UpdateDualArrays()
 {
-  int numLeaves = this->UpdateCellTreeLeafIdOffsets();
+  int numLeaves = this->UpdateHyperTreesLeafIdOffsets();
 
   // Check if we can break out early
   if ( this->LeafCenters )
@@ -2390,9 +1425,9 @@ void vtkHyperTreeGrid::UpdateDualArrays()
       {
       return;
       }
-    this->LeafCenters->Delete();
+    this->LeafCenters->UnRegister( this );
     this->LeafCenters = 0;
-    this->CornerLeafIds->Delete();
+    this->CornerLeafIds->UnRegister( this );
     this->CornerLeafIds = 0;
     }
 
@@ -2415,11 +1450,11 @@ void vtkHyperTreeGrid::UpdateDualArrays()
   this->GenerateSuperCursorTraversalTable();
 
   // Iterate over all hyper trees
-  for ( int k = 0; k < this->GridSize[2]; ++ k )
+  for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
     {
-    for ( int j = 0; j < this->GridSize[1]; ++ j )
+    for ( unsigned int j = 0; j < this->GridSize[1]; ++ j )
       {
-      for ( int i = 0; i < this->GridSize[0]; ++ i )
+      for ( unsigned int i = 0; i < this->GridSize[0]; ++ i )
         {
         // Initialize super cursors
         vtkHyperTreeSuperCursor superCursor;
@@ -2433,7 +1468,7 @@ void vtkHyperTreeGrid::UpdateDualArrays()
 
   timer->StopTimer();
   cerr << "Internal dual update : " << timer->GetElapsedTime() << endl;
-  timer->Delete();
+  timer->UnRegister( this );
 }
 
 //-----------------------------------------------------------------------------
@@ -2553,8 +1588,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeSuperCursor* superCu
     }
   
   vtkHyperTreeSuperCursor newSuperCursor;
-  int child;
-  for ( child = 0; child < this->NumberOfChildren; ++ child)
+  for ( unsigned int child = 0; child < this->NumberOfChildren; ++ child)
     {
 
     this->InitializeSuperCursorChild(superCursor, &newSuperCursor, child);
@@ -2579,13 +1613,13 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner( int level,
     // All corners must be leaves
     // Note: this test also makes sure all are initialized.
     if ( superCursor->Cursors[cornerCursorIds[leaf]].GetTree() &&
-        !superCursor->Cursors[cornerCursorIds[leaf]].GetIsLeaf() )
+         !superCursor->Cursors[cornerCursorIds[leaf]].GetIsLeaf() )
       {
       return -1;
       }
     // If any cursor on the same level has already generated this point ...
     if ( superCursor->Cursors[cornerCursorIds[leaf]].GetLevel() == level &&
-        visited[superCursor->Cursors[cornerCursorIds[leaf]].GetLeafIndex()])
+         visited[superCursor->Cursors[cornerCursorIds[leaf]].GetLeafIndex()])
       {
       return -1;
       }
@@ -2604,7 +1638,7 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner( int level,
       int leafId = superCursor->Cursors[cornerCursorIds[leaf]].GetLeafIndex();
       int sideLeaf = leaf^1;
       if ( superCursor->Cursors[cornerCursorIds[sideLeaf]].GetTree() &&
-          leafId == superCursor->Cursors[cornerCursorIds[sideLeaf]].GetLeafIndex() )
+           leafId == superCursor->Cursors[cornerCursorIds[sideLeaf]].GetLeafIndex() )
         {
         // Two cursors are the same.
         // We are not inserting face or edge points.
@@ -2614,7 +1648,7 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner( int level,
         {
         sideLeaf = leaf^2;
         if ( superCursor->Cursors[cornerCursorIds[sideLeaf]].GetTree() &&
-            leafId == superCursor->Cursors[cornerCursorIds[sideLeaf]].GetLeafIndex() )
+             leafId == superCursor->Cursors[cornerCursorIds[sideLeaf]].GetLeafIndex() )
           {
           // Two cursors are the same.
           // We are not inserting face or edge points.
@@ -2625,7 +1659,7 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner( int level,
         {
         sideLeaf = leaf^4;
         if ( superCursor->Cursors[cornerCursorIds[sideLeaf]].GetTree() &&
-            leafId == superCursor->Cursors[cornerCursorIds[sideLeaf]].GetLeafIndex() )
+             leafId == superCursor->Cursors[cornerCursorIds[sideLeaf]].GetLeafIndex() )
           {
           // Two cursors are the same.
           // We are not inserting face or edge points.
@@ -2660,42 +1694,43 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetLeafCornerIds()
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGrid::UpdateCellTreeLeafIdOffsets()
+int vtkHyperTreeGrid::UpdateHyperTreesLeafIdOffsets()
 {
-  if ( this->CellTreeLeafIdOffsets )
+  if ( this->HyperTreesLeafIdOffsets )
     {
-    delete [] this->CellTreeLeafIdOffsets;
-    this->CellTreeLeafIdOffsets = 0;
+    delete [] this->HyperTreesLeafIdOffsets;
+    this->HyperTreesLeafIdOffsets = 0;
     }
-  int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-  this->CellTreeLeafIdOffsets = new vtkIdType[nCells];
+  this->HyperTreesLeafIdOffsets = new vtkIdType[this->NumberOfRoots];
 
   // Calculate point offsets into individual trees
   int numLeaves = 0;
-  for ( int k = 0; k < this->GridSize[2]; ++ k )
+  int idx = 0;
+  vtkCollectionSimpleIterator it;
+  for ( this->HyperTrees->InitTraversal( it );
+        vtkObject* obj = this->HyperTrees->GetNextItemAsObject( it ) ; ++ idx )
     {
-    for ( int j = 0; j < this->GridSize[1]; ++ j )
+    if ( obj )
       {
-      for ( int i = 0; i < this->GridSize[0]; ++ i )
+      vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
+      if ( tree )
         {
-        // Calculate global index of hyper tree
-        int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
-
         // Partial sum is current offset
-        this->CellTreeLeafIdOffsets[index] = numLeaves;
+        this->HyperTreesLeafIdOffsets[idx] = numLeaves;
 
         // Update partial sum
-        numLeaves += this->CellTree[index]->GetNumberOfLeaves();
-        } // i
-      } // j
-    } // k
+        numLeaves += tree->GetNumberOfLeaves();
+        }
+      }
+    }
+
   return numLeaves;
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::UpdateGridArrays()
 {
-  int numLeaves = this->UpdateCellTreeLeafIdOffsets();
+  int numLeaves = this->UpdateHyperTreesLeafIdOffsets();
 
   // Check if we can break out early
   if ( this->LeafCornerIds )
@@ -2704,9 +1739,9 @@ void vtkHyperTreeGrid::UpdateGridArrays()
       {
       return;
       }
-    this->LeafCornerIds->Delete();
+    this->LeafCornerIds->UnRegister( this );
     this->LeafCornerIds = 0;
-    this->CornerPoints->Delete();
+    this->CornerPoints->UnRegister( this );
     this->CornerPoints = 0;
     }
 
@@ -2729,11 +1764,11 @@ void vtkHyperTreeGrid::UpdateGridArrays()
   this->GenerateSuperCursorTraversalTable();
 
   // Iterate over all hyper trees
-  for ( int k = 0; k < this->GridSize[2]; ++ k )
+  for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
     {
-    for ( int j = 0; j < this->GridSize[1]; ++ j )
+    for ( unsigned int j = 0; j < this->GridSize[1]; ++ j )
       {
-      for ( int i = 0; i < this->GridSize[0]; ++ i )
+      for ( unsigned int i = 0; i < this->GridSize[0]; ++ i )
         {
         // Storage for super cursors
         vtkHyperTreeSuperCursor superCursor;
@@ -2758,12 +1793,11 @@ void vtkHyperTreeGrid::UpdateGridArrays()
 
   timer->StopTimer();
   cerr << "Internal grid update : " << timer->GetElapsedTime() << endl;
-  timer->Delete();
+  timer->UnRegister( this );
 }
 
-// I may be able to merge the two methods.
-// Non dual create the corner points on the boundaries of the tree.
-// Dual does not.
+// NB: Primal method creates the corner points on the boundaries of the tree.
+// Dual method does not.
 //----------------------------------------------------------------------------
 // The purpose of traversing the supercursor / cells is to visit
 // every corner and have the leaves connected to that corner.
@@ -2832,7 +1866,7 @@ void vtkHyperTreeGrid::TraverseGridRecursively( vtkHyperTreeSuperCursor* superCu
 
   // Now recurse.
   vtkSuperCursorEntry* cursorPtr = this->SuperCursorTraversalTable;
-  for ( int child = 0; child < this->NumberOfChildren; ++ child, cursorPtr += 27 )
+  for ( unsigned int child = 0; child < this->NumberOfChildren; ++ child, cursorPtr += 27 )
     {
     vtkHyperTreeSuperCursor newSuperCursor;
     this->InitializeSuperCursorChild(superCursor,&newSuperCursor, child);
@@ -2857,20 +1891,20 @@ void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
   switch ( this->GetDimension() )
     {
     case 1:
-      xChildDim = this->AxisBranchFactor;
+      xChildDim = this->BranchFactor;
       xCursorDim = 3;
       break;
     case 2:
-      xChildDim = yChildDim = this->AxisBranchFactor;
+      xChildDim = yChildDim = this->BranchFactor;
       xCursorDim = yCursorDim = 3;
       break;
     case 3:
-      xChildDim = yChildDim = zChildDim = this->AxisBranchFactor;
+      xChildDim = yChildDim = zChildDim = this->BranchFactor;
       xCursorDim = yCursorDim = zCursorDim = 3;
       break;
     }
 
-  int fac = this->AxisBranchFactor;
+  int fac = this->BranchFactor;
   int childIdx = 0;
   for ( int zChild = 0; zChild < zChildDim; ++ zChild )
     {
@@ -2895,9 +1929,9 @@ void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
               int xNewCursor = xNeighbor / fac;
               int yNewCursor = yNeighbor / fac;
               int zNewCursor = zNeighbor / fac;
-              int xNewChild = xNeighbor - xNewCursor*fac;
-              int yNewChild = yNeighbor - yNewCursor*fac;
-              int zNewChild = zNeighbor - zNewCursor*fac;
+              int xNewChild = xNeighbor - xNewCursor * fac;
+              int yNewChild = yNeighbor - yNewCursor * fac;
+              int zNewChild = zNeighbor - zNewCursor * fac;
               int tableIdx = childIdx * 27 + cursorIdx;
               this->SuperCursorTraversalTable[tableIdx].Parent
                 = xNewCursor + 3 * ( yNewCursor + 3 * zNewCursor );
@@ -2916,39 +1950,39 @@ void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::DeleteInternalArrays()
 {
-  if ( this->CellTreeLeafIdOffsets )
+  if ( this->HyperTreesLeafIdOffsets )
     {
-    delete [] this->CellTreeLeafIdOffsets;
-    this->CellTreeLeafIdOffsets = 0;
+    delete [] this->HyperTreesLeafIdOffsets;
+    this->HyperTreesLeafIdOffsets = 0;
     }
 
   if ( this->LeafCenters )
     {
-    this->LeafCenters->Delete();
+    this->LeafCenters->UnRegister( this );
     this->LeafCenters = 0;
     }
 
   if ( this->CornerLeafIds )
     {
-    this->CornerLeafIds->Delete();
+    this->CornerLeafIds->UnRegister( this );
     this->CornerLeafIds = 0;
     }
 
   if ( this->CornerPoints )
     {
-    this->CornerPoints->Delete();
+    this->CornerPoints->UnRegister( this );
     this->CornerPoints = 0;
     }
 
   if ( this->LeafCornerIds )
     {
-    this->LeafCornerIds->Delete();
+    this->LeafCornerIds->UnRegister( this );
     this->LeafCornerIds = 0;
     }
 
   if ( this->Links )
     {
-    this->Links->Delete();
+    this->Links->UnRegister( this );
     this->Links = 0;
     }
 }
@@ -2997,13 +2031,21 @@ void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
                                                 int c )
 { 
   // Convert local index into global one
-  int n[3];
+  unsigned int n[3];
   grid->GetGridSize( n );
   int globalIndex = index + a + b * n[0] + c * n[0] * n[1];
 
   this->Offset = offsets[globalIndex];
-  this->Tree = grid->CellTree[globalIndex];
-  if ( ! grid->CellTree[globalIndex] )
+  vtkObject* obj = grid->HyperTrees->GetItemAsObject( globalIndex );
+  if ( obj )
+    {
+    vtkHyperTree* tree = vtkHyperTree::SafeDownCast( obj );
+    if ( tree )
+        {
+        this->Tree = tree;
+        }
+    }
+  else
     {
     return;
     }
@@ -3014,7 +2056,7 @@ void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
 //-----------------------------------------------------------------------------
 unsigned short vtkHyperTreeLightWeightCursor::GetIsLeaf()
 {
-  // I want enpty cursors to appear like a leaf so recursion stops.
+  // Empty cursors appear like a leaf so that recursion stop.
   if ( this->Tree == 0 )
     {
     return 1;
@@ -3057,96 +2099,17 @@ void vtkHyperTreeLightWeightCursor::ToChild( int child )
     return;
     }
 
-  if ( this->Tree->GetDimension() == 3 )
-    {
-    switch ( this->Tree->GetBranchFactor() )
-      {
-      case 2:
-        {
-        vtkCompactHyperTree<8>* tree3;
-        tree3 = static_cast<vtkCompactHyperTree<8>*>( this->Tree );
-        vtkCompactHyperTreeNode<8> *node=tree3->GetNode( this->Index );
-        this->Index=node->GetChild( child );
-        this->IsLeaf=node->IsChildLeaf( child );
-        break;
-        }
-      case 3:
-        {
-        vtkCompactHyperTree<27>* tree3;
-        tree3 = static_cast<vtkCompactHyperTree<27>*>( this->Tree );
-        vtkCompactHyperTreeNode<27> *node=tree3->GetNode( this->Index );
-        this->Index=node->GetChild( child );
-        this->IsLeaf=node->IsChildLeaf( child );
-        break;
-        }
-      default:
-        assert( "Bad branch factor " && 0 );
-      }
+  this->Tree->FindChildParameters( child, this->Index, this->IsLeaf );
 
-    this->Level += 1;
-    assert( "Bad index" && this->Index >= 0 );
-    if ( this->IsLeaf)
-      {
-      assert( "Bad leaf index" && this->Index < this->Tree->GetNumberOfLeaves() );
-      }
-    else
-      {
-      assert( "Bad node index" && this->Index < this->Tree->GetNumberOfNodes() );
-      }
-    }
-  else if ( this->Tree->GetDimension() == 2 )
+  ++ this->Level;
+
+  assert( "Bad index" && this->Index >= 0 );
+  if ( this->IsLeaf )
     {
-      switch ( this->Tree->GetBranchFactor() )
-      {
-      case 2:
-        {
-        vtkCompactHyperTree<4>* tree2;
-        tree2 = static_cast<vtkCompactHyperTree<4>*>( this->Tree );
-        vtkCompactHyperTreeNode<4> *node=tree2->GetNode( this->Index );
-        this->Index=node->GetChild( child );
-        this->IsLeaf=node->IsChildLeaf( child );
-        break;
-        }
-      case 3:
-        {
-        vtkCompactHyperTree<9>* tree2;
-        tree2 = static_cast<vtkCompactHyperTree<9>*>( this->Tree );
-        vtkCompactHyperTreeNode<9> *node=tree2->GetNode( this->Index );
-        this->Index=node->GetChild( child );
-        this->IsLeaf=node->IsChildLeaf( child );
-        break;
-        }
-      default:
-        vtkGenericWarningMacro( "Bad branch factor" );
-      }
-    this->Level += 1;
+    assert( "Bad leaf index" && this->Index < this->Tree->GetNumberOfLeaves() );
     }
-  else if ( this->Tree->GetDimension() == 1 )
+  else
     {
-      switch ( this->Tree->GetBranchFactor() )
-      {
-      case 2:
-        {
-        vtkCompactHyperTree<2>* tree1;
-        tree1 = static_cast<vtkCompactHyperTree<2>*>( this->Tree );
-        vtkCompactHyperTreeNode<2> *node=tree1->GetNode( this->Index );
-        this->Index=node->GetChild( child );
-        this->IsLeaf=node->IsChildLeaf( child );
-        break;
-        }
-      case 3:
-        {
-        vtkCompactHyperTree<3>* tree1;
-        tree1 = static_cast<vtkCompactHyperTree<3>*>( this->Tree );
-        vtkCompactHyperTreeNode<3> *node=tree1->GetNode( this->Index );
-        this->Index=node->GetChild( child );
-        this->IsLeaf=node->IsChildLeaf( child );
-        break;
-        }
-      default:
-        vtkGenericWarningMacro( "Bad branch factor" );
-      }
-    this->Level += 1;
+    assert( "Bad node index" && this->Index < this->Tree->GetNumberOfNodes() );
     }
-  return;
 }

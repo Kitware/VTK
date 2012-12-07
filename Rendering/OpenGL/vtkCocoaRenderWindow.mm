@@ -111,7 +111,7 @@ void vtkCocoaRenderWindow::DestroyWindow()
   GLuint txId;
 
   // finish OpenGL rendering
-  if (this->GetContextId())
+  if (this->OwnContext && this->GetContextId())
     {
     this->MakeCurrent();
 
@@ -144,10 +144,9 @@ void vtkCocoaRenderWindow::DestroyWindow()
       ren->SetRenderWindow(NULL);
       ren->SetRenderWindow(this);
       }
-
-    this->SetContextId(NULL);
-    this->SetPixelFormat(NULL);
   }
+  this->SetContextId(NULL);
+  this->SetPixelFormat(NULL);
 
   if (this->WindowCreated)
     {
@@ -172,6 +171,27 @@ void vtkCocoaRenderWindow::SetWindowName( const char * _arg )
 
     [(NSWindow*)this->GetRootWindow() setTitle:winTitleStr];
     }
+}
+
+//----------------------------------------------------------------------------
+bool vtkCocoaRenderWindow::InitializeFromCurrentContext()
+{
+  NSOpenGLContext *currentContext = [NSOpenGLContext currentContext];
+  if (currentContext != NULL)
+    {
+    NSView *currentView = [currentContext view];
+    if (currentView != NULL)
+      {
+      NSWindow *window = [currentView window];
+      this->SetWindowId(currentView);
+      this->SetRootWindow(window);
+      this->SetContextId((void*)currentContext);
+      this->OpenGLInit();
+      this->OwnContext = 0;
+      return true;
+      }
+    }
+  return false;
 }
 
 //----------------------------------------------------------------------------

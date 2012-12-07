@@ -54,7 +54,7 @@ public:
   vtkTypeMacro(vtkHyperTreeGridSource,vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  static vtkHyperTreeGridSource *New();
+  static vtkHyperTreeGridSource* New();
 
   // Description:
   // Return the maximum number of levels of the hypertree.
@@ -62,23 +62,10 @@ public:
   unsigned int GetMaximumLevel();
 
   // Description:
-  // Set the maximum number of levels of the hypertree. If
-  // GetMinLevels()>=levels, GetMinLevels() is changed to levels-1.
+  // Set the maximum number of levels of the hypertree.
   // \pre positive_levels: levels>=1
   // \post is_set: this->GetLevels()==levels
-  // \post min_is_valid: this->GetMinLevels()<this->GetLevels()
   void SetMaximumLevel( unsigned int levels );
-
-  // Description:
-  // Return the minimal number of levels of systematic subdivision.
-  // \post positive_result: result>=0
-  void SetMinimumLevel( unsigned int level );
-  unsigned int GetMinimumLevel();
-
-  // Description:
-  // Set/Get the number of root cells in each dimension of the grid
-  vtkSetVector3Macro(GridSize, int);
-  vtkGetVector3Macro(GridSize, int);
 
   // Description:
   // Set/Get the scale to be applied to root cells in each dimension of the grid
@@ -86,25 +73,43 @@ public:
   vtkGetVector3Macro(GridScale, double);
 
   // Description:
-  // Set/Get the subdivision factor in the grid refinement scheme
-  vtkSetClampMacro(AxisBranchFactor, int, 2, 3);
-  vtkGetMacro(AxisBranchFactor, int);
+  // Set/Get the number of root cells in each dimension of the grid
+  vtkSetVector3Macro(GridSize, unsigned int);
+  vtkGetVector3Macro(GridSize, unsigned int);
 
   // Description:
-  // Set/Get whether the dual grid interface is the default one
-  vtkSetMacro(Dual, int);
-  vtkGetMacro(Dual, int);
-  vtkBooleanMacro(Dual, int);
+  // Set/Get the subdivision factor in the grid refinement scheme
+  vtkSetClampMacro(BranchFactor, unsigned int, 2, 3);
+  vtkGetMacro(BranchFactor, unsigned int);
 
   // Description:
   // Set/Get the dimensionality of the grid
-  vtkSetClampMacro(Dimension, int, 2, 3);
-  vtkGetMacro(Dimension, int);
+  vtkSetClampMacro(Dimension, unsigned int, 2, 3);
+  vtkGetMacro(Dimension, unsigned int);
+
+  // Description:
+  // Set/Get whether the dual grid interface is the default one
+  // Default: false
+  vtkSetMacro(Dual, bool);
+  vtkGetMacro(Dual, bool);
+  vtkBooleanMacro(Dual, bool);
+
+ // Description:
+  // Set/get whether the material mask should be used.
+  // Default: false
+  vtkSetMacro(UseMaterialMask, bool);
+  vtkGetMacro(UseMaterialMask, bool);
+  vtkBooleanMacro(UseMaterialMask, bool);
 
   // Description:
   // Set/Get the string used to describe the grid
   virtual void SetDescriptor( const vtkStdString& );
   virtual vtkStdString GetDescriptor();
+
+  // Description:
+  // Set/Get the string used to as a material mask
+  virtual void SetMaterialMask( const vtkStdString& );
+  virtual vtkStdString GetMaterialMask();
 
 protected:
   vtkHyperTreeGridSource();
@@ -114,9 +119,9 @@ protected:
                            vtkInformationVector**,
                            vtkInformationVector* );
 
-  virtual int RequestData( vtkInformation *,
-                           vtkInformationVector **,
-                           vtkInformationVector * );
+  virtual int RequestData( vtkInformation*,
+                           vtkInformationVector**,
+                           vtkInformationVector* );
 
   int Initialize();
 
@@ -128,21 +133,24 @@ protected:
                   int cellIdOffset,
                   int parentPos );
 
-  int GridSize[3];
   double GridScale[3];
+  unsigned int GridSize[3];
   unsigned int MaximumLevel;
-  unsigned int MinimumLevel;
-  int Dimension;
-  int AxisBranchFactor;
-  int BlockSize;
-  int Dual;
+  unsigned int Dimension;
+  unsigned int BranchFactor;
+  unsigned int BlockSize;
+  bool Dual;
+  bool UseMaterialMask;
+ 
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;
   vtkDataArray* ZCoordinates;
 
   vtkStdString Descriptor;
+  vtkStdString MaterialMask;
   std::vector<vtkStdString> LevelDescriptors;
+  std::vector<vtkStdString> LevelMaterialMasks;
   std::vector<int> LevelCounters;
   vtkHyperTreeGrid* Output;
 

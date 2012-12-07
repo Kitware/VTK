@@ -327,7 +327,7 @@ std::string vtkPlot3D::GetZAxisLabel()
 }
 
 // ----------------------------------------------------------------------------
-vector<vtkVector3f> vtkPlot3D::GetPoints()
+std::vector<vtkVector3f> vtkPlot3D::GetPoints()
 {
   return this->Points;
 }

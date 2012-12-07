@@ -26,6 +26,7 @@ set(Module_SRCS
   vtkPlotGrid.cxx
   vtkPlotHistogram2D.cxx
   vtkPlotLine.cxx
+  vtkPlotLine3D.cxx
   vtkPlotParallelCoordinates.cxx # This adds a vtkInfovisCore dep for one class...
   vtkPlotPie.cxx
   vtkPlotPoints.cxx

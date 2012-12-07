@@ -26,8 +26,8 @@ void ExecutePistonSlice(vtkPistonDataObject *inData,
     // type mismatch, don't bother trying
     return;
     }
-  vtk_image3d<int, float, SPACE>*gpuData =
-      (vtk_image3d<int, float, SPACE>*)ti->data;
+  vtk_image3d<SPACE>*gpuData =
+      (vtk_image3d<SPACE>*)ti->data;
 
   float dataOrigin[3];
   dataOrigin[0] = static_cast<float>(gpuData->origin[0]);
@@ -40,16 +40,16 @@ void ExecutePistonSlice(vtkPistonDataObject *inData,
   dataSpacing[2] = static_cast<float>(gpuData->spacing[2]);
 
   int dims[3];
-  dims[0] = gpuData->xdim;
-  dims[1] = gpuData->ydim;
-  dims[2] = gpuData->zdim;
+  dims[0] = gpuData->dim0;
+  dims[1] = gpuData->dim1;
+  dims[2] = gpuData->dim2;
 
   vtk_plane_field<int, float, SPACE > *plane =
     new vtk_plane_field<int, float, SPACE >(
       dataOrigin, normal, dims, dataSpacing, gpuData->extents);
 
   marching_cube<vtk_plane_field<int, float, SPACE>,
-    vtk_image3d<int, float, SPACE> > pistonFunctor(*plane, *gpuData, offset);
+    vtk_image3d<SPACE> > pistonFunctor(*plane, *gpuData, offset);
 
   // Execute the piston filter
   pistonFunctor();

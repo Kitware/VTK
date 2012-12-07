@@ -73,6 +73,8 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
 
   this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
+
+  this->OwnContext=1;
 }
 
 // free up memory & close the window

@@ -24,6 +24,7 @@
       TestInteractiveChartXYZ.cxx
       TestLegendHiddenPlots.cxx
       TestLinePlot.cxx
+      TestLinePlot3D.cxx
       TestLinePlotAxisFonts.cxx
       TestLinePlot2.cxx
       TestLinePlotInteraction.cxx

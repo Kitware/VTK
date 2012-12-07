@@ -578,8 +578,18 @@ void vtkXdmfWriter::CreateTopology(vtkDataSet *ds, XdmfGrid *grid, vtkIdType PDi
     break;
   case VTK_STRUCTURED_GRID:
     {
-    t->SetTopologyType(XDMF_3DSMESH);
     vtkStructuredGrid *sgrid = vtkStructuredGrid::SafeDownCast(ds);
+    int rank = CRank = PRank = sgrid->GetDataDimension();
+    if( rank == 3 ){
+        t->SetTopologyType(XDMF_3DSMESH);
+    }
+    else if( rank == 2){
+        t->SetTopologyType(XDMF_2DSMESH);
+    }
+    else{
+        XdmfErrorMessage("Structured Grid Dimensions can be 2 or 3: "<< rank << " found");
+    }
+
     int wExtent[6];
     sgrid->GetExtent(wExtent);
     XdmfInt64 Dims[3];
@@ -587,7 +597,7 @@ void vtkXdmfWriter::CreateTopology(vtkDataSet *ds, XdmfGrid *grid, vtkIdType PDi
     Dims[1] = wExtent[3] - wExtent[2] + 1;
     Dims[0] = wExtent[5] - wExtent[4] + 1;
     XdmfDataDesc *dd = t->GetShapeDesc();
-    dd->SetShape(3, Dims);
+    dd->SetShape(rank, Dims);
     //TODO: verify row/column major ordering
 
     PDims[0] = Dims[0];

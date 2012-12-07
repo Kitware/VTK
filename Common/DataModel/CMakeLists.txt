@@ -66,6 +66,7 @@ set(Module_SRCS
   vtkHyperOctreeCursor.cxx
   vtkHyperOctree.cxx
   vtkHyperOctreePointsGrabber.cxx
+  vtkHyperTree.cxx
   vtkHyperTreeCursor.cxx
   vtkHyperTreeGrid.cxx
   vtkImageData.cxx
@@ -224,6 +225,7 @@ set_source_files_properties(
   vtkGraph
   vtkHyperOctreeCursor
   vtkHyperOctreePointsGrabber
+  vtkHyperTree
   vtkHyperTreeCursor
   vtkImplicitFunction
   vtkIncrementalPointLocator

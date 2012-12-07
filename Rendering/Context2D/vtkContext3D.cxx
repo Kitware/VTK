@@ -70,6 +70,12 @@ void vtkContext3D::DrawLine(const vtkVector3f &start, const vtkVector3f &end)
   this->Device->DrawPoly(line[0].GetData(), 2);
 }
 
+void vtkContext3D::DrawPoly(const float *points, int n)
+{
+  assert(this->Device);
+  this->Device->DrawPoly(points, n);
+}
+
 void vtkContext3D::DrawPoint(const vtkVector3f &point)
 {
   assert(this->Device);

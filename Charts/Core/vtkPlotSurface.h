@@ -100,7 +100,7 @@ protected:
 
   // Description:
   // Surface to render.
-  vector<vtkVector3f> Surface;
+  std::vector<vtkVector3f> Surface;
 
   // Description:
   // The number of rows in the input table.
