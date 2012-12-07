@@ -6,7 +6,7 @@
 IF("VTK_EXPLICIT_TEMPLATES" MATCHES "^VTK_EXPLICIT_TEMPLATES")
   MESSAGE(STATUS "Checking support for C++ explicit template instantiation")
 
-  MAKE_DIRECTORY(${VTK_BINARY_DIR}/CMakeTmp/TestExplicitInstantiation)
+  FILE(MAKE_DIRECTORY ${VTK_BINARY_DIR}/CMakeTmp/TestExplicitInstantiation)
   STRING(ASCII 35 POUND)
   FILE(WRITE
     ${VTK_BINARY_DIR}/CMakeTmp/TestExplicitInstantiation/CMakeLists.txt
