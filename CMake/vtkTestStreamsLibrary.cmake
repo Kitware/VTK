@@ -29,17 +29,17 @@ IF(VTK_SIZEOF_LONG_LONG)
     IF(VTK_OSTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if ostream supports long long -- yes")
       SET(VTK_OSTREAM_SUPPORTS_LONG_LONG 1 CACHE INTERNAL "Whether ostream supports long long")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+      FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Determining if ostream supports long long "
         "passed with the following output:\n"
-        "${OUTPUT}\n" APPEND)
+        "${OUTPUT}\n")
     ELSE(VTK_OSTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if ostream supports long long -- no")
       SET(VTK_OSTREAM_SUPPORTS_LONG_LONG 0 CACHE INTERNAL "Whether ostream supports long long")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
+      FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Determining if ostream supports long long "
         "failed with the following output:\n"
-        "${OUTPUT}\n" APPEND)
+        "${OUTPUT}\n")
     ENDIF(VTK_OSTREAM_SUPPORTS_LONG_LONG)
   ENDIF("VTK_OSTREAM_SUPPORTS_LONG_LONG" MATCHES "^VTK_OSTREAM_SUPPORTS_LONG_LONG$")
   IF("VTK_ISTREAM_SUPPORTS_LONG_LONG" MATCHES "^VTK_ISTREAM_SUPPORTS_LONG_LONG$")
@@ -52,17 +52,17 @@ IF(VTK_SIZEOF_LONG_LONG)
     IF(VTK_ISTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if istream supports long long -- yes")
       SET(VTK_ISTREAM_SUPPORTS_LONG_LONG 1 CACHE INTERNAL "Whether istream supports long long")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+      FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Determining if istream supports long long "
         "passed with the following output:\n"
-        "${OUTPUT}\n" APPEND)
+        "${OUTPUT}\n")
     ELSE(VTK_ISTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if istream supports long long -- no")
       SET(VTK_ISTREAM_SUPPORTS_LONG_LONG 0 CACHE INTERNAL "Whether istream supports long long")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
+      FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Determining if istream supports long long "
         "failed with the following output:\n"
-        "${OUTPUT}\n" APPEND)
+        "${OUTPUT}\n")
     ENDIF(VTK_ISTREAM_SUPPORTS_LONG_LONG)
   ENDIF("VTK_ISTREAM_SUPPORTS_LONG_LONG" MATCHES "^VTK_ISTREAM_SUPPORTS_LONG_LONG$")
 ENDIF(VTK_SIZEOF_LONG_LONG)
