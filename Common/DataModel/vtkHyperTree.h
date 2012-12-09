@@ -159,9 +159,9 @@ public:
   static vtkHyperTree* CreateInstance( int factor, int dimension );
 
   // Description:
-  // Find the Index and IsLeaf parameters of a child for hypertree.
+  // Find the Index and IsLeaf() parameters of a child for hypertree.
   // This is done to hide templates.
-  virtual void FindChildParameters( int, int&, unsigned short& );
+  virtual void FindChildParameters( int, int&, bool& );
 
 protected:
   vtkHyperTree()
