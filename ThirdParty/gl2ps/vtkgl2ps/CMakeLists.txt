@@ -27,6 +27,9 @@ include_directories(
   ${GL2PS_GL_INCLUDE_DIR}
 )
 
+
+include_directories(${OPENGL_INCLUDE_DIR})
+
 # Source files
 set(GL2PS_srcs
   gl2ps.c

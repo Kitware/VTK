@@ -332,7 +332,9 @@ void vtkResliceCursorActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  vtkPrintMemberObjectMacro( CursorCenterlineActor, os, indent );
+  vtkPrintMemberObjectMacro( CursorCenterlineActor[0], os, indent );
+  vtkPrintMemberObjectMacro( CursorCenterlineActor[1], os, indent );
+  vtkPrintMemberObjectMacro( CursorCenterlineActor[2], os, indent );
   vtkPrintMemberObjectMacro( CursorAlgorithm, os, indent );
 
   // this->CursorCenterlineMapper[3];
