@@ -243,10 +243,6 @@ ENDIF(APPLE)
 VTK_ADD_LIBRARY(vtkexoIIc ${cbind_SRCS})
 TARGET_LINK_LIBRARIES(vtkexoIIc vtkNetCDF)
 
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-#  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/vtkexodus2 .h
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
 #INCLUDE (${CMAKE_ROOT}/Modules/Dart.cmake)
 
 # Turned off until ExoIICTests.cxx problem is fixed.

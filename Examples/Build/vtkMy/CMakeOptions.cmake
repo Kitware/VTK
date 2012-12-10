@@ -131,7 +131,7 @@ IF (VTK_WRAP_JAVA)
 
     # Tell the java wrappers where to go.
     SET(VTK_JAVA_HOME ${VTKMY_BINARY_DIR}/java/vtkmy)
-    MAKE_DIRECTORY(${VTK_JAVA_HOME})
+    FILE(MAKE_DIRECTORY ${VTK_JAVA_HOME})
   ENDIF (VTKMY_WRAP_JAVA)
 
 ELSE (VTK_WRAP_JAVA)
