@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkMath.h"
 
 vtkStandardNewMacro(vtkThreshold);
 
@@ -45,6 +46,7 @@ vtkThreshold::vtkThreshold()
 
   this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
   this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
+  this->UseContinuousCellRange = 0;
 }
 
 vtkThreshold::~vtkThreshold()
@@ -193,11 +195,18 @@ int vtkThreshold::RequestData(
         }
       else
         {
-        keepCell = 0;
-        for ( i=0; (!keepCell) && (i < numCellPts); i++)
+        if(!this->UseContinuousCellRange)
           {
-          ptId = cellPts->GetId(i);
-          keepCell = this->EvaluateComponents( inScalars, ptId );
+          keepCell = 0;
+          for ( i=0; (!keepCell) && (i < numCellPts); i++)
+            {
+            ptId = cellPts->GetId(i);
+            keepCell = this->EvaluateComponents( inScalars, ptId );
+            }
+          }
+        else
+          {
+          keepCell = this->EvaluateCell(inScalars, cellPts, numCellPts);
           }
         }
       }
@@ -252,6 +261,49 @@ int vtkThreshold::RequestData(
   return 1;
 }
 
+int vtkThreshold::EvaluateCell( vtkDataArray *scalars,vtkIdList* cellPts, int numCellPts )
+{
+  int c(0);
+  int numComp = scalars->GetNumberOfComponents();
+  int keepCell(0);
+  switch (this->ComponentMode)
+    {
+    case VTK_COMPONENT_MODE_USE_SELECTED:
+      c  =   (this->SelectedComponent < numComp)?(this->SelectedComponent):(0);
+      keepCell = EvaluateCell(scalars,c,cellPts,numCellPts);
+    case VTK_COMPONENT_MODE_USE_ANY:
+      keepCell = 0;
+      for ( c = 0; (!keepCell) && (c < numComp); c++ )
+        {
+        keepCell =EvaluateCell(scalars,c,cellPts,numCellPts);
+        }
+      break;
+    case VTK_COMPONENT_MODE_USE_ALL:
+      keepCell = 1;
+      for ( c = 0; keepCell && (c < numComp); c++ )
+        {
+        keepCell =EvaluateCell(scalars,c,cellPts,numCellPts);
+        }
+      break;
+    }
+  return keepCell;
+}
+
+int vtkThreshold::EvaluateCell( vtkDataArray *scalars, int c, vtkIdList* cellPts, int numCellPts )
+{
+  double minScalar=DBL_MAX, maxScalar=DBL_MIN;
+  for (int i=0; i < numCellPts; i++)
+    {
+    int ptId = cellPts->GetId(i);
+    double s = scalars->GetComponent(ptId,c);
+    minScalar = std::min(s,minScalar);
+    maxScalar = std::max(s,maxScalar);
+    }
+
+  int keepCell =  !(this->LowerThreshold > maxScalar || this->UpperThreshold < minScalar);
+  return keepCell;
+}
+
 int vtkThreshold::EvaluateComponents( vtkDataArray *scalars, vtkIdType id )
 {
   int keepCell = 0;
@@ -284,6 +336,7 @@ int vtkThreshold::EvaluateComponents( vtkDataArray *scalars, vtkIdType id )
     }
   return keepCell;
 }
+
 
 // Return the method for manipulating scalar data as a string.
 const char *vtkThreshold::GetAttributeModeAsString(void)
@@ -390,6 +443,7 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";
   os << indent << "Precision of the output points: "
      << this->OutputPointsPrecision << "\n";
+  os << indent << "Use Continuous Cell Range: "<<this->UseContinuousCellRange<<endl;
 }
 
 //----------------------------------------------------------------------------
