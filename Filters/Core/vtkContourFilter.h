@@ -136,6 +136,17 @@ public:
   void SetArrayComponent( int );
   int  GetArrayComponent();
 
+
+  // Description:
+  // If this is enabled (by default), the output will be triangles
+  // otherwise, the output will be the intersection polygon
+  // WARNING: if the contour surface is not planar, the output
+  // polygon will not be planar, which might be nice to look at but hard
+  // to compute with downstream.
+  vtkSetMacro(GenerateTriangles,int);
+  vtkGetMacro(GenerateTriangles,int);
+  vtkBooleanMacro(GenerateTriangles,int);
+
   // Description:
   // see vtkAlgorithm for details
   virtual int ProcessRequest(vtkInformation*,
@@ -171,6 +182,7 @@ protected:
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
   int OutputPointsPrecision;
+  int GenerateTriangles;
 
   vtkSynchronizedTemplates2D *SynchronizedTemplates2D;
   vtkSynchronizedTemplates3D *SynchronizedTemplates3D;
