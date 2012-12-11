@@ -1,4 +1,6 @@
 vtk_module(vtkRenderingFreeType
+  IMPLEMENTS
+    vtkRenderingCore
   GROUPS
     Rendering
   DEPENDS
