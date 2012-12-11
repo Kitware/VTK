@@ -26,21 +26,6 @@ using namespace std;
 Mesh * Mesh::_instance = 0;
 
 /*-------------------------------------------------------------------------
-  service     : Constructeur
-  description :
-
-  parametres  :
-  xnode (int) :
-  ynode (int) :
-  znode (int) :
-  n1 (Node*) :
-  n2 (Node*) :
-  n3 (Node*) :
-  n4 (Node*) :
-  n5 (Node*) :
-  n6 (Node*) :
-  n7 (Node*) :
-  n8 (Node*) :
   -----------------------------------------------------------------------*/
 Mesh::Mesh (int xnode, int ynode, int znode, Node* n1, Node* n2, Node* n3, Node* n4, Node* n5, Node* n6, Node* n7, Node* n8)
 {
@@ -58,10 +43,6 @@ Mesh::Mesh (int xnode, int ynode, int znode, Node* n1, Node* n2, Node* n3, Node*
 }
 
 /*-------------------------------------------------------------------------
-  service     : Destructeur
-  description :
-
-  parametres  : Aucun
   -----------------------------------------------------------------------*/
 Mesh::~Mesh()
 {
@@ -69,13 +50,6 @@ Mesh::~Mesh()
 }
 
 /*-------------------------------------------------------------------------
-  service     : addCell
-  description :
-
-  retour      : aucun
-
-  parametres  :
-  c (Cell *) :
   -----------------------------------------------------------------------*/
 void Mesh::addCell (Cell * c)
 {
@@ -83,13 +57,6 @@ void Mesh::addCell (Cell * c)
 }
 
 /*-------------------------------------------------------------------------
-  service     : addNode
-  description :
-
-  retour      : aucun
-
-  parametres  :
-  n (Node *) :
   -----------------------------------------------------------------------*/
 void Mesh::addNode (Node * n)
 {
@@ -98,12 +65,6 @@ void Mesh::addNode (Node * n)
 
 
 /*-------------------------------------------------------------------------
-  service     : getDataSet
-  description :
-
-  retour (vtkDataSet *) :
-
-  parametres  : aucun
   -----------------------------------------------------------------------*/
 vtkDataSet * Mesh::getDataSet()
 {
@@ -144,12 +105,6 @@ vtkDataSet * Mesh::getDataSet()
 }
 
 /*-------------------------------------------------------------------------
-  service     : getNextNodeId
-  description :
-
-  retour (int) :
-
-  parametres  : aucun
   -----------------------------------------------------------------------*/
 int Mesh::getNextNodeId()
 {
@@ -157,12 +112,6 @@ int Mesh::getNextNodeId()
 }
 
 /*-------------------------------------------------------------------------
-  service     : getNextCellId
-  description :
-
-  retour (int) :
-
-  parametres  : aucun
   -----------------------------------------------------------------------*/
 int Mesh::getNextCellId()
 {
@@ -171,23 +120,6 @@ int Mesh::getNextCellId()
 
 
 /*-------------------------------------------------------------------------
-  service     : createCells
-  description :
-
-  retour (vector<Cell*> &) :
-
-  parametres  :
-  xnode (int) :
-  ynode (int) :
-  znode (int) :
-  n1 (Node*) :
-  n2 (Node*) :
-  n3 (Node*) :
-  n4 (Node*) :
-  n5 (Node*) :
-  n6 (Node*) :
-  n7 (Node*) :
-  n8 (Node*) :
   -----------------------------------------------------------------------*/
 vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
                                    Node* n1, Node* n2, Node* n3, Node* n4, Node* n5, Node* n6, Node* n7, Node* n8,
@@ -276,13 +208,6 @@ vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
 }
 
 /*-------------------------------------------------------------------------
-  service     : setRefine
-  description :
-
-  retour      : aucun
-
-  parametres  :
-  refine (int) :
   -----------------------------------------------------------------------*/
 void Mesh::setRefine (int refine)
 {
@@ -290,12 +215,6 @@ void Mesh::setRefine (int refine)
   Cell::setRefine (_refineNumber);
 }
 /*-------------------------------------------------------------------------
-  service     : refine
-  description :
-
-  retour      : aucun
-
-  parametres  : aucun
   -----------------------------------------------------------------------*/
 void Mesh::refine()
 {
@@ -313,12 +232,6 @@ void Mesh::refine()
 }
 
 /*-------------------------------------------------------------------------
-  service     : mergePoints
-  description :
-
-  retour      : aucun
-
-  parametres  : aucun
   -----------------------------------------------------------------------*/
 void Mesh::mergePoints ()
 {

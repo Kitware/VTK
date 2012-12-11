@@ -25,12 +25,6 @@ int Cell::_refineNumber = 0;
 double Cell::_R = 10.0;
 
 /*-------------------------------------------------------------------------
-  service     : Constructeur
-  description :
-
-  parametres  :
-  id (int) :
-  nodes (vector<Node*>) :
   -----------------------------------------------------------------------*/
 Cell::Cell (int id, vector<Node*> nodes)
 {
@@ -48,10 +42,6 @@ Cell::Cell (int id, vector<Node*> nodes)
 }
 
 /*-------------------------------------------------------------------------
-  service     : Destructeur
-  description :
-
-  parametres  : Aucun
   -----------------------------------------------------------------------*/
 Cell::~Cell()
 {
@@ -63,12 +53,6 @@ Cell::~Cell()
 }
 
 /*-------------------------------------------------------------------------
-  service     : refineIfNeeded
-  description :
-
-  retour      : aucun
-
-  parametres  : aucun
   -----------------------------------------------------------------------*/
 void Cell::refineIfNeeded()
 {
@@ -87,12 +71,6 @@ void Cell::refineIfNeeded()
 }
 
 /*-------------------------------------------------------------------------
-  service     : refine
-  description :
-
-  retour      : aucun
-
-  parametres  : aucun
   -----------------------------------------------------------------------*/
 void Cell::refine ()
 {
@@ -114,13 +92,6 @@ void Cell::refine ()
 }
 
 /*-------------------------------------------------------------------------
-  service     : computeValue
-  description :
-
-  retour (double) :
-
-  parametres  :
-  n (Node *) :
   -----------------------------------------------------------------------*/
 double Cell::computeValue (Node * n)
 {
@@ -134,12 +105,6 @@ double Cell::computeValue (Node * n)
 
 
 /*-------------------------------------------------------------------------
-  service     : getNodeIds
-  description :
-
-  retour (vtkIdType *) :
-
-  parametres  : aucun
   -----------------------------------------------------------------------*/
 vtkIdType * Cell::getNodeIds()
 {
@@ -155,14 +120,6 @@ vtkIdType * Cell::getNodeIds()
 }
 
 /*-------------------------------------------------------------------------
-  service     : replaceNode
-  description : remplace
-
-  retour      : aucun
-
-  parametres  :
-  oldNode (Node *) :
-  newNode (Node *) :
   -----------------------------------------------------------------------*/
 void Cell::replaceNode (Node* oldNode, Node* newNode)
 {
