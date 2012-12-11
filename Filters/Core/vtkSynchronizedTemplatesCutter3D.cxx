@@ -109,7 +109,8 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   T *inPtrX, *inPtrY, *inPtrZ;
   T *s0, *s1, *s2, *s3;
   int xMin, xMax, yMin, yMax, zMin, zMax;
-  int xInc, yInc, zInc, scalarZInc;
+  int xInc, yInc, zInc;
+  int xIncFunc, yIncFunc, zIncFunc, scalarZIncFunc;
   double *origin = data->GetOrigin();
   double *spacing = data->GetSpacing();
   int *isect1Ptr, *isect2Ptr;
@@ -140,7 +141,6 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
 
-  // this is an exploded execute extent.
   xMin = exExt[0];
   xMax = exExt[1];
   yMin = exExt[2];
@@ -154,11 +154,16 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
     return;
     }
 
-  // implicit functions are 1 component
   xInc = 1;
   yInc = xInc*(inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
-  scalarZInc = zInc;
+
+  // Note that the implicit functions are specified 
+  //over exExt so we need to compute the steps differently
+  xIncFunc = 1;
+  yIncFunc = xIncFunc*xdim;
+  zIncFunc = yIncFunc*ydim;
+  scalarZIncFunc = zIncFunc;
 
   // Kens increments, probably to do with edge array
   zstep = xdim*ydim;
@@ -221,7 +226,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
         scalarsTmp++;
         }
       }
-    scalarZInc = -scalarZInc;
+    scalarZIncFunc = -scalarZIncFunc;
 
     //==================================================================
     for (k = zMin; k <= zMax; k++)
@@ -251,7 +256,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
           }
         }
       inPtrY = scalars1;
-      scalarZInc = -scalarZInc;
+      scalarZIncFunc = -scalarZIncFunc;
 
       z = origin[2] + spacing[2]*k;
       x[2] = z;
@@ -279,7 +284,8 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
       for (j = yMin; j <= yMax; j++)
         {
         // Should not impact performance here/
-        edgePtId = (j-inExt[2])*yInc + (k-inExt[4])*zInc;
+        edgePtId = (xMin-inExt[0])*xInc + (j-inExt[2])*yInc + (k-inExt[4])*zInc;
+
         // Increments are different for cells.  Since the cells are not
         // contoured until the second row of templates, subtract 1 from
         // i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
@@ -303,7 +309,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
           *(isect2Ptr + 2) = -1;
           if (i < xMax)
             {
-            s1 = (inPtrX + xInc);
+            s1 = (inPtrX + xIncFunc);
             v1 = (*s1 < value ? 0 : 1);
             if (v0 ^ v1)
               {
@@ -347,7 +353,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
             }
           if (j < yMax)
             {
-            s2 = (inPtrX + yInc);
+            s2 = (inPtrX + yIncFunc);
             v2 = (*s2 < value ? 0 : 1);
             if (v0 ^ v2)
               {
@@ -387,7 +393,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
             }
           if (k < zMax)
             {
-            s3 = (inPtrX + scalarZInc);
+            s3 = (inPtrX + scalarZIncFunc);
             v3 = (*s3 < value ? 0 : 1);
             if (v0 ^ v3)
               {
@@ -486,15 +492,15 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
                 }
               }
             }
-          inPtrX += xInc;
+          inPtrX += xIncFunc;
           isect2Ptr += 3;
           isect1Ptr += 3;
           // To keep track of ids for copying cell attributes..
           ++inCellId;
           }
-        inPtrY += yInc;
+        inPtrY += yIncFunc;
         }
-      inPtrZ += zInc;
+      inPtrZ += zIncFunc;
       }
     }
   delete [] isect1;
