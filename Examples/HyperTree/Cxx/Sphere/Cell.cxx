@@ -26,9 +26,9 @@ double Cell::_R = 10.0;
 
 /*-------------------------------------------------------------------------
   service     : Constructeur
-  description : 
+  description :
 
-  parametres  : 
+  parametres  :
   id (int) :
   nodes (vector<Node*>) :
   -----------------------------------------------------------------------*/
@@ -49,7 +49,7 @@ Cell::Cell (int id, vector<Node*> nodes)
 
 /*-------------------------------------------------------------------------
   service     : Destructeur
-  description : 
+  description :
 
   parametres  : Aucun
   -----------------------------------------------------------------------*/
@@ -64,7 +64,7 @@ Cell::~Cell()
 
 /*-------------------------------------------------------------------------
   service     : refineIfNeeded
-  description : 
+  description :
 
   retour      : aucun
 
@@ -88,7 +88,7 @@ void Cell::refineIfNeeded()
 
 /*-------------------------------------------------------------------------
   service     : refine
-  description : 
+  description :
 
   retour      : aucun
 
@@ -99,8 +99,8 @@ void Cell::refine ()
   _refinedCount++;
   // attention : petite inversion entre X et Z par rapport a la creation du maillage initial
   _cells = Mesh::instance()->createCells (_refineNumber + 1, _refineNumber + 1, _refineNumber + 1,
-                                          _nodes[0], _nodes[3], _nodes[2], _nodes[1], 
-                                          _nodes[4], _nodes[7], _nodes[6], _nodes[5]); 
+                                          _nodes[0], _nodes[3], _nodes[2], _nodes[1],
+                                          _nodes[4], _nodes[7], _nodes[6], _nodes[5]);
 
   // desenregistrement de la maille aupres des noeuds
   for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); it++)
@@ -108,18 +108,18 @@ void Cell::refine ()
     (*it)->unregisterCell (this);
     }
   delete [] _nodeIds;
-   
+
   _count--;
   _refined = true;
 }
 
 /*-------------------------------------------------------------------------
   service     : computeValue
-  description : 
+  description :
 
-  retour (double) : 
+  retour (double) :
 
-  parametres  : 
+  parametres  :
   n (Node *) :
   -----------------------------------------------------------------------*/
 double Cell::computeValue (Node * n)
@@ -135,13 +135,13 @@ double Cell::computeValue (Node * n)
 
 /*-------------------------------------------------------------------------
   service     : getNodeIds
-  description : 
+  description :
 
-  retour (vtkIdType *) : 
+  retour (vtkIdType *) :
 
   parametres  : aucun
   -----------------------------------------------------------------------*/
-vtkIdType * Cell::getNodeIds() 
+vtkIdType * Cell::getNodeIds()
 {
   delete [] _nodeIds;
   _nodeIds = new vtkIdType[_nodes.size()+1];
@@ -156,11 +156,11 @@ vtkIdType * Cell::getNodeIds()
 
 /*-------------------------------------------------------------------------
   service     : replaceNode
-  description : remplace 
+  description : remplace
 
   retour      : aucun
 
-  parametres  : 
+  parametres  :
   oldNode (Node *) :
   newNode (Node *) :
   -----------------------------------------------------------------------*/
