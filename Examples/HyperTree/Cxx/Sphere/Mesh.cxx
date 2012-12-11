@@ -27,9 +27,9 @@ Mesh * Mesh::_instance = 0;
 
 /*-------------------------------------------------------------------------
   service     : Constructeur
-  description : 
+  description :
 
-  parametres  : 
+  parametres  :
   xnode (int) :
   ynode (int) :
   znode (int) :
@@ -59,7 +59,7 @@ Mesh::Mesh (int xnode, int ynode, int znode, Node* n1, Node* n2, Node* n3, Node*
 
 /*-------------------------------------------------------------------------
   service     : Destructeur
-  description : 
+  description :
 
   parametres  : Aucun
   -----------------------------------------------------------------------*/
@@ -70,11 +70,11 @@ Mesh::~Mesh()
 
 /*-------------------------------------------------------------------------
   service     : addCell
-  description : 
+  description :
 
   retour      : aucun
 
-  parametres  : 
+  parametres  :
   c (Cell *) :
   -----------------------------------------------------------------------*/
 void Mesh::addCell (Cell * c)
@@ -84,11 +84,11 @@ void Mesh::addCell (Cell * c)
 
 /*-------------------------------------------------------------------------
   service     : addNode
-  description : 
+  description :
 
   retour      : aucun
 
-  parametres  : 
+  parametres  :
   n (Node *) :
   -----------------------------------------------------------------------*/
 void Mesh::addNode (Node * n)
@@ -99,9 +99,9 @@ void Mesh::addNode (Node * n)
 
 /*-------------------------------------------------------------------------
   service     : getDataSet
-  description : 
+  description :
 
-  retour (vtkDataSet *) : 
+  retour (vtkDataSet *) :
 
   parametres  : aucun
   -----------------------------------------------------------------------*/
@@ -145,9 +145,9 @@ vtkDataSet * Mesh::getDataSet()
 
 /*-------------------------------------------------------------------------
   service     : getNextNodeId
-  description : 
+  description :
 
-  retour (int) : 
+  retour (int) :
 
   parametres  : aucun
   -----------------------------------------------------------------------*/
@@ -158,9 +158,9 @@ int Mesh::getNextNodeId()
 
 /*-------------------------------------------------------------------------
   service     : getNextCellId
-  description : 
+  description :
 
-  retour (int) : 
+  retour (int) :
 
   parametres  : aucun
   -----------------------------------------------------------------------*/
@@ -172,11 +172,11 @@ int Mesh::getNextCellId()
 
 /*-------------------------------------------------------------------------
   service     : createCells
-  description : 
+  description :
 
-  retour (vector<Cell*> &) : 
+  retour (vector<Cell*> &) :
 
-  parametres  : 
+  parametres  :
   xnode (int) :
   ynode (int) :
   znode (int) :
@@ -189,8 +189,8 @@ int Mesh::getNextCellId()
   n7 (Node*) :
   n8 (Node*) :
   -----------------------------------------------------------------------*/
-vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode, 
-                                   Node* n1, Node* n2, Node* n3, Node* n4, Node* n5, Node* n6, Node* n7, Node* n8, 
+vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
+                                   Node* n1, Node* n2, Node* n3, Node* n4, Node* n5, Node* n6, Node* n7, Node* n8,
                                    Cell * fromCell)
 {
   _lastCreatedCells.clear();
@@ -200,7 +200,7 @@ vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
   int zm = znode - 1;
 
   vector<Node*> tempNodes;
-   
+
 #define chekNode(N) {if (N->getId()==-1) {this->addNode (N); N->setId(_lastNodeId++);} tempNodes.push_back(N);}
 
   // creation des noeuds
@@ -262,7 +262,7 @@ vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
         int idy2 = (j == ynode-1 ? -1 : i*(ynode-1)*(znode-1) + (j+1)*(znode-1) + k);
         int idz1 = (k == 0 ? -1 : i*(ynode-1)*(znode-1) + j*(znode-1) + k-1);
         int idz2 = (k == znode-1 ? -1 : i*(ynode-1)*(znode-1) + j*(znode-1) + k+1);
-            
+
         c->setNeighbours(idx1, idx2, idy1, idy2, idz1, idz2);
 
         _lastCreatedCells.push_back(c);
@@ -271,17 +271,17 @@ vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
         }
       }
     }
-   
+
   return _lastCreatedCells;
 }
 
 /*-------------------------------------------------------------------------
   service     : setRefine
-  description : 
+  description :
 
   retour      : aucun
 
-  parametres  : 
+  parametres  :
   refine (int) :
   -----------------------------------------------------------------------*/
 void Mesh::setRefine (int refine)
@@ -291,7 +291,7 @@ void Mesh::setRefine (int refine)
 }
 /*-------------------------------------------------------------------------
   service     : refine
-  description : 
+  description :
 
   retour      : aucun
 
@@ -314,7 +314,7 @@ void Mesh::refine()
 
 /*-------------------------------------------------------------------------
   service     : mergePoints
-  description : 
+  description :
 
   retour      : aucun
 
@@ -340,7 +340,7 @@ void Mesh::mergePoints ()
       {
       map<double , map<double, Node *> > xmap = itx->second;
       map<double , map<double, Node *> >::iterator ity = xmap.find (y);
- 
+
       if (ity != xmap.end())
         {
         map<double, Node *> ymap = ity->second;
@@ -350,7 +350,7 @@ void Mesh::mergePoints ()
           {
           // on a trouve un meme noeud
           Node * nodeInMap = itz->second;
-               
+
           if (nodeInMap != n)
             {
             // remplacement de n par nodeInMap
