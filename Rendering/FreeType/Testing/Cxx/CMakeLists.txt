@@ -31,6 +31,16 @@ if(MATPLOTLIB_FOUND)
     )
 endif()
 
+# This benchmark takes a while to run and can't fail, so disable it by default:
+option(VTK_BUILD_FREETYPE_BENCHMARK
+  "Build a BenchmarkFreeTypeRendering test that benchmarks freetype rendering performance."
+  OFF)
+mark_as_advanced(VTK_BUILD_FREETYPE_BENCHMARK)
+
+if(VTK_BUILD_FREETYPE_BENCHMARK)
+  set(MyTests ${MyTests} BenchmarkFreeTypeRendering.cxx)
+endif()
+
 # Use the testing object factory, to reduce boilerplate code in tests.
 include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
 vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
