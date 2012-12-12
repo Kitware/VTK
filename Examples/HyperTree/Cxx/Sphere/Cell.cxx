@@ -7,8 +7,6 @@ All rights reserved.
 // This class was written by Daniel Aguilera and Philippe Pebay
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-const static char * CELL_CPP_SCCS_ID = "%Z% DSSI/SNEC/LDDC %M%   %I%     %G%";
-
 #include "Mesh.h"
 #include "Cell.h"
 #include "Node.h"
