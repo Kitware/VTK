@@ -40,22 +40,24 @@ using namespace std;
 void usage ()
 {
   cout << "Usage : amr [-level <int>] [-refine <int>] [-nx <int>] [-ny <int>] [-nz <int>] [-write <file>] [-shrink] [-help]" << endl;
-  cout << "   -level  : nombre de raffinement. Defaut = 3" << endl;
-  cout << "   -refine : nombre de decoupage dans chaque direction. Defaut = 3" << endl;
-  cout << "   -n[xyz] : dimension en nombre de noeuds pour chaque direction. Defaut = 5" << endl;
-  cout << "   -write  : ecriture dans le fichier specifie avant affichage. Defaut = pas d'ecriture" << endl;
-  cout << "   -shrink : application d'un filtre vtkShrink avant affichage. Defaut = pas de shrink" << endl;
-  cout << "   -help   : affichage de cette aide" << endl;
+  cout << "   -depth  : Number of refinement levels. Defaut = 3" << endl;
+  cout << "   -factor : Refinement branching factor. Defaut = 3" << endl;
+  cout << "   -n[xyz] : Number of grid points in each direction. Defaut = 5" << endl;
+  cout << "   -write  : Output mesh in a VTK unstructured grid file. Defaut = no output" << endl;
+  cout << "   -shrink : Apply shrink filter before rendering geometry. Defaut = do not shrink" << endl;
+  cout << "   -help   : Print available options" << endl;
   exit (0);
 }
 
 int main( int argc, char *argv[] )
 {
+  // Default values
   int nx = 5;
   int ny = 5;
+
   int nz = 5;
-  int level = 3; // profondeur de raffinement
-  int refine = 3; // nombre de decoupage de la maille dans chaque direction
+  int depth = 3;
+  int factor = 3;
   bool shrink = false;
   string datafile = "";
   double R = 0.0;
@@ -63,15 +65,15 @@ int main( int argc, char *argv[] )
   for (int i = 1; i < argc; i++)
     {
     // Refinement depth
-    if (strcmp (argv[i], "-level") == 0)
+    if (strcmp (argv[i], "-depth") == 0)
       {
-      if (i+1 < argc) {level = atoi (argv[i+1]); SHIFT_NARGS(2);}
+      if (i+1 < argc) {depth = atoi (argv[i+1]); SHIFT_NARGS(2);}
       else usage();
       }
-    // Franch factor
-    else if (strcmp (argv[i], "-refine") == 0)
+    // Branch factor
+    else if (strcmp (argv[i], "-factor") == 0)
       {
-      if (i+1 < argc) {refine = atoi (argv[i+1]); SHIFT_NARGS(2);}
+      if (i+1 < argc) {factor = atoi (argv[i+1]); SHIFT_NARGS(2);}
       else usage();
       }
     // Dimensions
@@ -117,8 +119,8 @@ int main( int argc, char *argv[] )
 
   // Create mesh
   Mesh * mesh = new Mesh (nx, ny, nz, n1, n2, n3, n4, n5, n6, n7, n8);
-  mesh->setRefine (refine);
-  for (int i = 0; i < level; i++) mesh->refine();
+  mesh->setFactor (factor);
+  for (int i = 0; i < depth; i++) mesh->refine();
 
   // reduction des points
   mesh->mergePoints();
@@ -166,12 +168,12 @@ int main( int argc, char *argv[] )
   actor1->SetMapper (polyDataMapper1);
   vtkActor *actor2 = vtkActor::New();
   actor2->GetProperty()->SetRepresentationToWireframe();
-  actor2->GetProperty()->SetColor( .7, .7, .7 );
+  actor2->GetProperty()->SetColor( .5, .5, .5 );
   actor2->SetMapper (polyDataMapper2);
 
   // Window and interactor
   vtkRenderer * ren = vtkRenderer::New();
-  ren->SetBackground (0.8,0.8,0.8);
+  ren->SetBackground (1.,1.,1.);
   ren->AddActor(actor1);
   ren->AddActor(actor2);
 

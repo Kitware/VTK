@@ -26,14 +26,15 @@ class Mesh
   // raffine de 1 niveau
   void refine();
   // nombre de decoupage a chaque raffinement
-  void setRefine (int refine);
+  void setFactor (int factor);
 
   // suppression des points identiques
   void mergePoints ();
 
   // creation d'une grille de mailles
   std::vector<Cell*> & createCells (int xnode, int ynode, int znode, 
-                                    Node* n1, Node* n2, Node* n3, Node* n4, Node* n5, Node* n6, Node* n7, Node* n8, 
+                                    Node* n1, Node* n2, Node* n3, Node* n4,
+                                    Node* n5, Node* n6, Node* n7, Node* n8, 
                                     Cell * fromCell = 0);
 
   // creation d'un dataset VTK
@@ -55,7 +56,7 @@ class Mesh
 
   int _lastCellId;
   int _lastNodeId;
-  int _refineNumber;
+  int _branchFactor;
 
   vtkDataSet * _dataSet;
 

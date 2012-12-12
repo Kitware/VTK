@@ -35,7 +35,7 @@ Mesh::Mesh (int xnode, int ynode, int znode, Node* n1, Node* n2, Node* n3, Node*
   _lastCellId = 0;
   _lastNodeId = 0;
   _dataSet = 0;
-  _refineNumber = 0;
+  _branchFactor = 0;
 
   cout << "creation du maillage de niveau 0" << endl;
 
@@ -209,16 +209,16 @@ vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
 
 /*-------------------------------------------------------------------------
   -----------------------------------------------------------------------*/
-void Mesh::setRefine (int refine)
+void Mesh::setFactor (int factor)
 {
-  _refineNumber = refine;
-  Cell::setRefine (_refineNumber);
+  _branchFactor = factor;
+  Cell::setRefine (_branchFactor);
 }
 /*-------------------------------------------------------------------------
   -----------------------------------------------------------------------*/
 void Mesh::refine()
 {
-  assert (_refineNumber != 0);
+  assert (_branchFactor != 0);
 
   cout << "Raffinement d'un niveau" << endl;
 
