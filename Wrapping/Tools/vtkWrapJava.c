@@ -1343,11 +1343,11 @@ int main(int argc, char *argv[])
 
   if (!strcmp("vtkObject",data->Name))
     {
-    /* Add the Print method to vtkObject. */
-    fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObject_Print(JNIEnv *env,jobject obj)\n");
-    fprintf(fp,"{\n  vtkObject *op;\n");
+    /* Add the Print method to vtkObjectBase. */
+    fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObjectBase_Print(JNIEnv *env,jobject obj)\n");
+    fprintf(fp,"{\n  vtkObjectBase *op;\n");
     fprintf(fp,"  jstring tmp;\n\n");
-    fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj);\n");
+    fprintf(fp,"  op = (vtkObjectBase *)vtkJavaGetPointerFromObject(env,obj);\n");
 
     fprintf(fp,"  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;\n");
     fprintf(fp,"  op->Print(vtkmsg_with_warning_C4701);\n");
@@ -1358,11 +1358,11 @@ int main(int argc, char *argv[])
     fprintf(fp,"}\n");
 
 #ifndef VTK_LEGACY_REMOVE
-    /* Add the PrintRevisions method to vtkObject. */
-    fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObject_PrintRevisions(JNIEnv *env,jobject obj)\n");
-    fprintf(fp,"{\n  vtkObject *op;\n");
+    /* Add the PrintRevisions method to vtkObjectBase. */
+    fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObjectBase_PrintRevisions(JNIEnv *env,jobject obj)\n");
+    fprintf(fp,"{\n  vtkObjectBase *op;\n");
     fprintf(fp,"  jstring tmp;\n\n");
-    fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj);\n");
+    fprintf(fp,"  op = (vtkObjectBase *)vtkJavaGetPointerFromObject(env,obj);\n");
 
     fprintf(fp,"  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;\n");
     fprintf(fp,"  op->PrintRevisions(vtkmsg_with_warning_C4701);\n");
