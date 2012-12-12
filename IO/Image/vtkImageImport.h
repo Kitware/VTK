@@ -117,6 +117,14 @@ public:
   virtual int RequestUpdateExtent(  vtkInformation* request,
                                     vtkInformationVector** inputVector,
                                     vtkInformationVector* outputVector);
+  // Description:
+  // Override vtkAlgorithm
+  virtual int
+  ComputePipelineMTime(vtkInformation* request,
+                       vtkInformationVector** inInfoVec,
+                       vtkInformationVector* outInfoVec,
+                       int requestFromOutputPort,
+                       unsigned long* mtime);
 
   // Description:
   // Set/get the scalar array name for this data set. Initial value is
