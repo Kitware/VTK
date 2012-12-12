@@ -104,7 +104,7 @@ int main( int argc, char *argv[] )
     else usage();
     }
 
-  // si le rayon n'est pas defini on prend une sphere visible suivant X
+  // If no radius is defined, then take the number of grid points along X axis
   if (R == 0.0) R = nx;
   Cell::setR(R);
    
@@ -122,13 +122,13 @@ int main( int argc, char *argv[] )
   mesh->setFactor (factor);
   for (int i = 0; i < depth; i++) mesh->refine();
 
-  // reduction des points
+  // Reduce points
   mesh->mergePoints();
 
-  // generation du dataset
+  // Generate dataset
   vtkDataSet * ds = mesh->getDataSet();
 
-  // reduction des mailles
+  // Reduce cells des mailles
   vtkShrinkFilter * shrinkFilter = vtkShrinkFilter::New();
   if (shrink)
     {
@@ -138,7 +138,7 @@ int main( int argc, char *argv[] )
     ds = shrinkFilter->GetOutput();
     }
 
-  // ecriture du dataset
+  // Write out dataset
   if (datafile != "")
     {
     vtkUnstructuredGridWriter * writer = vtkUnstructuredGridWriter::New();
@@ -186,12 +186,11 @@ int main( int argc, char *argv[] )
   interacteur->SetRenderWindow(renWindow);
   if (style) style->SetCurrentStyleToTrackballCamera ();
 
-  // premier rendu
+  // Render
   renWindow->Render();
-
   interacteur->Start();
    
-  // menage
+  // Clean up
   delete mesh;
   delete n1;
   delete n2;
