@@ -37,7 +37,7 @@ Mesh::Mesh (int xnode, int ynode, int znode, Node* n1, Node* n2, Node* n3, Node*
   _dataSet = 0;
   _branchFactor = 0;
 
-  cout << "creation du maillage de niveau 0" << endl;
+  cout << "Creating level 0 grid" << endl;
 
   this->createCells (xnode, ynode, znode, n1, n2, n3, n4, n5, n6, n7, n8);
 }
@@ -68,7 +68,7 @@ void Mesh::addNode (Node * n)
   -----------------------------------------------------------------------*/
 vtkDataSet * Mesh::getDataSet()
 {
-  cout << "Generation du dataset" << endl;
+  cout << "Generating dataset" << endl;
 
   // creation du dataset
   if (_dataSet) _dataSet->Delete();
@@ -100,7 +100,7 @@ vtkDataSet * Mesh::getDataSet()
       }
     }
 
-  cout << "Generation du dataset terminee" << endl;
+  cout << "Completed dataset creation" << endl;
   return _dataSet;
 }
 
@@ -220,7 +220,7 @@ void Mesh::refine()
 {
   assert (_branchFactor != 0);
 
-  cout << "Raffinement d'un niveau" << endl;
+  cout << "Refining level" << endl;
 
   vector<Cell*> tempCells = _cells;
 
@@ -235,7 +235,7 @@ void Mesh::refine()
   -----------------------------------------------------------------------*/
 void Mesh::mergePoints ()
 {
-  cout << "Suppression des points multiples" << endl;
+  cout << "Merging repeated points" << endl;
 
   map<double, map<double , map<double, Node * > > > nodesMap;
 
