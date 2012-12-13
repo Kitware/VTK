@@ -707,19 +707,23 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     // Subdivide hyper tree grid leaf
     this->Output->SubdivideLeaf( cursor, treeIdx );
 
-    // Now traverse to children.
+    // Now traverse to children
     int xDim = 1;
     int yDim = 1;
     int zDim = 1;
+    double newSize[3];
     switch ( this->Dimension )
       {
       // Warning: Run through is intended! Do NOT add break statements
       case 3:
         zDim = this->BranchFactor;
+        newSize[2] = size[2] / this->BranchFactor;
       case 2:
         yDim = this->BranchFactor;
+        newSize[1] = size[1] / this->BranchFactor;
       case 1:
         xDim = this->BranchFactor;
+        newSize[0] = size[0] / this->BranchFactor;
       }
 
     int newChildIdx = 0;
@@ -738,21 +742,13 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
           cursor->ToChild( newChildIdx );
 
           // Recurse
-          for ( unsigned int d = 0; d < this->Dimension; ++ d )
-            {
-            size[d] /= this->BranchFactor;
-            }
           this->SubdivideFromQuadric( cursor,
                                       level + 1,
                                       treeIdx,
                                       newIdx,
                                       cellIdOffset,
                                       origin,
-                                      size );
-          for ( unsigned int d = 0; d < this->Dimension; ++ d )
-            {
-            size[d] *= this->BranchFactor;
-            }
+                                      newSize );
 
           // Reset cursor to parent
           cursor->ToParent();

@@ -27,7 +27,7 @@ int TestHyperTreeGridTernary3DSphere( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridSource> htGrid;
   int maxLevel = 4;
   htGrid->SetMaximumLevel( maxLevel );
-  htGrid->SetGridSize( 5, 5, 5 );
+  htGrid->SetGridSize( 5, 5, 6 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
