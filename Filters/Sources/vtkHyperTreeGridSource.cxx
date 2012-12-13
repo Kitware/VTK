@@ -67,6 +67,9 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   // By default expose the primal grid API
   this->Dual = false;
 
+  // By default use the descriptor string
+  this->UseDescriptor = true;
+
   // By default do not use the material mask
   this->UseMaterialMask = false;
 
@@ -135,8 +138,9 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
     }
 
   os << indent << "Dual: " << this->Dual << endl;
-  os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
 
+  os << indent << "UseDescriptor: " << this->UseDescriptor << endl;
+  os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
   os << indent << "Descriptor: " << this->Descriptor << endl;
   os << indent << "MaterialMask: " << this->Descriptor << endl;
   os << indent << "LevelDescriptors: " << this->LevelDescriptors.size() << endl;
@@ -253,8 +257,8 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     return 0;
     }
 
-  // Initialize descriptor parsing
-  if ( ! this->Initialize() )
+  // When using descriptor-based definition, initialize descriptor parsing
+  if ( this->UseDescriptor && ! this->InitializeFromDescriptor() )
     {
     return 0;
     }
@@ -309,13 +313,13 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   scalars->UnRegister( this );
 
   // Iterate over grid of trees
-  unsigned int n[3];
-  this->Output->GetGridSize( n );
-  for ( unsigned int k = 0; k < n[2]; ++ k )
+  unsigned int np[3];
+  this->Output->GetGridSize( np );
+  for ( unsigned int k = 0; k < np[2]; ++ k )
     {
-    for ( unsigned int j = 0; j < n[1]; ++ j )
+    for ( unsigned int j = 0; j < np[1]; ++ j )
       {
-      for ( unsigned int i = 0; i < n[0]; ++ i )
+      for ( unsigned int i = 0; i < np[0]; ++ i )
         {
         // Calculate tree index
         int treeIdx = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
@@ -329,13 +333,11 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
         idx[0] = idx[1] = idx[2] = 0;
 
         // Retrieve offset into array of scalars and recurse
-        this->Subdivide( cursor,
-                         0,
-                         treeIdx,
-                         0,
-                         idx,
-                         this->Output->GetLeafData()->GetScalars()->GetNumberOfTuples(),
-                         0 );
+        vtkIdType nt = this->Output->GetLeafData()->GetScalars()->GetNumberOfTuples();
+        if ( this->UseDescriptor )
+          {
+          this->SubdivideFromDescriptor( cursor, 0, treeIdx, 0, idx, nt, 0 );
+          }
 
         // Clean up
         cursor->UnRegister( this );
@@ -349,10 +351,10 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridSource::Initialize()
+int vtkHyperTreeGridSource::InitializeFromDescriptor()
 {
   // Verify that grid and material specifications are consistent
-  if (  this->UseMaterialMask
+  if ( this->UseMaterialMask
         && this->MaterialMask.size() != this->Descriptor.size() )
     {
     vtkErrorMacro(<<"Material mask is used but has length "
@@ -545,13 +547,13 @@ int vtkHyperTreeGridSource::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
-                                        unsigned int level,
-                                        int treeIdx,
-                                        int childIdx,
-                                        int idx[3],
-                                        int cellIdOffset,
-                                        int parentPos )
+void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor,
+                                                      unsigned int level,
+                                                      int treeIdx,
+                                                      int childIdx,
+                                                      int idx[3],
+                                                      int cellIdOffset,
+                                                      int parentPos )
 {
   // Calculate pointer into level descriptor string
   int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
@@ -562,7 +564,7 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
   // Check for hard coded minimum and maximum level restrictions
   if ( level + 1 >= this->MaximumLevel )
     {
-    subdivide = 0;
+    subdivide = false;
     }
 
   if ( subdivide )
@@ -601,22 +603,22 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
           cursor->ToChild( newChildIdx );
 
           // Recurse
-          this->Subdivide( cursor,
-                           level + 1,
-                           treeIdx,
-                           newChildIdx,
-                           newIdx,
-                           cellIdOffset,
-                           this->LevelCounters.at( level ) );
+          this->SubdivideFromDescriptor( cursor,
+                                         level + 1,
+                                         treeIdx,
+                                         newChildIdx,
+                                         newIdx,
+                                         cellIdOffset,
+                                         this->LevelCounters.at( level ) );
 
           // Reset cursor to parent
           cursor->ToParent();
 
           // Increment child index
           ++ newChildIdx;
-          }
-        }
-      }
+          } // x
+        } // y
+      } // z
 
     // Increment current level counter
     ++ this->LevelCounters.at( level );
@@ -643,5 +645,3 @@ void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
     this->Output->GetLeafData()->GetScalars()->InsertTuple1( id, level );
     } // else
 }
-
-//-----------------------------------------------------------------------------

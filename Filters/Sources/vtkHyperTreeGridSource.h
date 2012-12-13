@@ -94,8 +94,17 @@ public:
   vtkGetMacro(Dual, bool);
   vtkBooleanMacro(Dual, bool);
 
- // Description:
+  // Description:
+  // Set/get whether the descriptor string should be used.
+  // NB: Otherwise a quadric definition is expected.
+  // Default: true
+  vtkSetMacro(UseDescriptor, bool);
+  vtkGetMacro(UseDescriptor, bool);
+  vtkBooleanMacro(UseDescriptor, bool);
+
+  // Description:
   // Set/get whether the material mask should be used.
+  // NB: This is only used when UseDescriptor is ON
   // Default: false
   vtkSetMacro(UseMaterialMask, bool);
   vtkGetMacro(UseMaterialMask, bool);
@@ -123,15 +132,19 @@ protected:
                            vtkInformationVector**,
                            vtkInformationVector* );
 
-  int Initialize();
+  // Description:
+  // Initialize grid from descriptor string when it is to be used
+  int InitializeFromDescriptor();
 
-  void Subdivide( vtkHyperTreeCursor* cursor,
-                  unsigned int level,
-                  int treeIdx,
-                  int childIdx,
-                  int idx[3],
-                  int cellIdOffset,
-                  int parentPos );
+  // Description:
+  // Subdivide grid from descriptor string when it is to be used
+  void SubdivideFromDescriptor( vtkHyperTreeCursor* cursor,
+                                unsigned int level,
+                                int treeIdx,
+                                int childIdx,
+                                int idx[3],
+                                int cellIdOffset,
+                                int parentPos );
 
   double GridScale[3];
   unsigned int GridSize[3];
@@ -140,8 +153,8 @@ protected:
   unsigned int BranchFactor;
   unsigned int BlockSize;
   bool Dual;
+  bool UseDescriptor;
   bool UseMaterialMask;
- 
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;
