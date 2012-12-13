@@ -24,6 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkQuadric.h"
 
 #include <vtksys/ios/sstream>
 
@@ -79,6 +80,14 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   // Material mask
   this->MaterialMask = "0";
 
+  // Default quadric is a sphere with radius 1
+  this->Quadric = vtkQuadric::New();  
+  this->Quadric->SetCoefficients( 1., 1., 1., 
+                                  0., 0., 0., 
+                                  0., 0., 0.,
+                                  -1. );
+
+  // Keep reference to hyper tree grid output
   this->Output = NULL;
 }
 
@@ -101,6 +110,12 @@ vtkHyperTreeGridSource::~vtkHyperTreeGridSource()
     {
     this->ZCoordinates->UnRegister( this );
     this->ZCoordinates = NULL;
+    }
+
+  if ( this->Quadric )
+    {
+    this->Quadric->UnRegister( this );
+    this->Quadric = NULL;
     }
 }
 
@@ -146,6 +161,11 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "LevelDescriptors: " << this->LevelDescriptors.size() << endl;
   os << indent << "LevelMaterialMasks: " << this->LevelMaterialMasks.size() << endl;
   os << indent << "LevelCounters: " << this->LevelCounters.size() << endl;
+
+  if ( this->Quadric )
+    {
+    this->Quadric->PrintSelf( os, indent.GetNextIndent() );
+    }
 
   os << indent
      << "Output: ";
@@ -665,7 +685,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     O[d] = origin[d] + idx[d] * size[d];
     }
 
-  double v1 =  O[0] * O[0] + O[1] * O[1] + O[2] * O[2] - 25.;
+  double q0 =  this->Quadric->EvaluateFunction( O );
   double nV = 1 << this->Dimension;
   for ( int v = 1; v < nV; ++ v )
     {
@@ -675,8 +695,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     pt[0] = O[0] + d1.rem * size[0];
     pt[1] = O[1] + d2.rem * size[1];
     pt[2] = O[2] + d2.quot * size[2];
-    double v2 =  pt[0] * pt[0] + pt[1] * pt[1] + pt[2] * pt[2] - 25.;
-    if ( v1 * v2 < 0 )
+    if ( q0 * this->Quadric->EvaluateFunction( pt ) < 0 )
       {
       subdivide = true;
       break;
@@ -762,4 +781,32 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     // Cell value is depth level for now
     this->Output->GetLeafData()->GetScalars()->InsertTuple1( id, level );
     } // else
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::SetQuadricCoefficients( double a[10] )
+{
+  this->Quadric->SetCoefficients( a );
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::SetQuadricCoefficients( double a0, double a1,
+                                                     double a2, double a3,
+                                                     double a4, double a5,
+                                                     double a6, double a7,
+                                                     double a8, double a9 )
+{
+  this->Quadric->SetCoefficients( a0, a1, a2, a3, a4, a5, a6, a7, a8, a9 );
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::GetQuadricCoefficients( double a[10] )
+{
+  this->Quadric->GetCoefficients( a );
+}
+
+//-----------------------------------------------------------------------------
+double* vtkHyperTreeGridSource::GetQuadricCoefficients()
+{
+  return this->Quadric->GetCoefficients();
 }

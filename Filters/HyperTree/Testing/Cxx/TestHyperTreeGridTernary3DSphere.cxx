@@ -33,6 +33,10 @@ int TestHyperTreeGridTernary3DSphere( int argc, char* argv[] )
   htGrid->SetBranchFactor( 3 );
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
+  htGrid->SetQuadricCoefficients( 1., 1., 1., 
+                                  0., 0., 0., 
+                                  0., 0., 0.,
+                                  -25. );
 
   htGrid->Update();
   vtkNew<vtkHyperTreeGrid> htgCopy;

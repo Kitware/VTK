@@ -47,6 +47,7 @@
 class vtkDataArray;
 class vtkImplicitFunction;
 class vtkHyperTreeGrid;
+class vtkQuadric;
 
 class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridAlgorithm
 {
@@ -120,6 +121,14 @@ public:
   virtual void SetMaterialMask( const vtkStdString& );
   virtual vtkStdString GetMaterialMask();
 
+  // Description
+  // Set/Get the 10 coefficients of the quadric function
+  void SetQuadricCoefficients( double[10] );
+  void SetQuadricCoefficients( double, double, double, double, double,
+                               double, double, double, double, double );
+  void GetQuadricCoefficients( double a[10] );
+  double* GetQuadricCoefficients();
+
 protected:
   vtkHyperTreeGridSource();
   ~vtkHyperTreeGridSource();
@@ -156,6 +165,10 @@ protected:
                              double origin[3],
                              double size[3] );
 
+  // Description:
+  // Evaluate quadric at given point coordinates
+  double EvaluateQuadric( double[3] );
+
   double GridScale[3];
   unsigned int GridSize[3];
   unsigned int MaximumLevel;
@@ -175,6 +188,9 @@ protected:
   std::vector<vtkStdString> LevelDescriptors;
   std::vector<vtkStdString> LevelMaterialMasks;
   std::vector<int> LevelCounters;
+
+  vtkQuadric* Quadric;
+
   vtkHyperTreeGrid* Output;
 
 private:
