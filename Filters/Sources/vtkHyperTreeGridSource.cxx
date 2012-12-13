@@ -313,13 +313,11 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   scalars->UnRegister( this );
 
   // Iterate over grid of trees
-  unsigned int np[3];
-  this->Output->GetGridSize( np );
-  for ( unsigned int k = 0; k < np[2]; ++ k )
+  for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
     {
-    for ( unsigned int j = 0; j < np[1]; ++ j )
+    for ( unsigned int j = 0; j < this->GridSize[1]; ++ j )
       {
-      for ( unsigned int i = 0; i < np[0]; ++ i )
+      for ( unsigned int i = 0; i < this->GridSize[0]; ++ i )
         {
         // Calculate tree index
         int treeIdx = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
@@ -336,15 +334,18 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
         vtkIdType nt = this->Output->GetLeafData()->GetScalars()->GetNumberOfTuples();
         if ( this->UseDescriptor )
           {
+          // Subdivide using descriptor
           this->SubdivideFromDescriptor( cursor, 0, treeIdx, 0, idx, nt, 0 );
           }
         else
           {
+          // Initialize coordinate system for implicit function
           double origin[3];
-          origin[0] = ( i % np[0] ) * this->GridScale[0];
-          origin[1] = ( j % np[1] ) * this->GridScale[1];
-          origin[2] = ( k % np[2] ) * this->GridScale[2];
+          origin[0] = ( i % this->GridSize[0] ) * this->GridScale[0];
+          origin[1] = ( j % this->GridSize[1] ) * this->GridScale[1];
+          origin[2] = ( k % this->GridSize[2] ) * this->GridScale[2];
 
+          // Subdivide based on quadric implicit function
           this->SubdivideFromQuadric( cursor, 0, treeIdx, idx, nt, origin, this->GridScale );
           }
 
