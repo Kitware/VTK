@@ -569,15 +569,8 @@ void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor
   int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
 
   // Determine whether to subdivide or not
-  bool subdivide = this->LevelDescriptors.at( level ).at( pointer ) == 'R' ? true : false;
-
-  // Check for hard coded minimum and maximum level restrictions
-  if ( level + 1 >= this->MaximumLevel )
-    {
-    subdivide = false;
-    }
-
-  if ( subdivide )
+  if ( level + 1 < this->MaximumLevel
+       && this->LevelDescriptors.at( level ).at( pointer ) == 'R' )
     {
     // Subdivide hyper tree grid leaf
     this->Output->SubdivideLeaf( cursor, treeIdx );
@@ -684,11 +677,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     pt[0] = O[0] + d1.rem * size[0];
     pt[1] = O[1] + d2.rem * size[1];
     pt[2] = O[2] + d2.quot * size[2];
-    double v2 = 
-      pt[0] * pt[0] +
-      pt[1] * pt[1] +
-      pt[2] * pt[2]
-      - 25.;
+    double v2 =  pt[0] * pt[0] + pt[1] * pt[1] + pt[2] * pt[2] - 25.;
     if ( v1 * v2 < 0 )
       {
       subdivide = true;
