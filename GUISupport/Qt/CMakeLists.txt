@@ -12,6 +12,7 @@ set(QVTKLibSrcs
   vtkQtAbstractModelAdapter.cxx
   vtkQtAnnotationLayersModelAdapter.cxx
   vtkQtDebugLeaksModel.cxx
+  vtkQtDebugLeaksView.cxx
   vtkQtTableModelAdapter.cxx
   vtkQtTreeModelAdapter.cxx
   )
@@ -26,6 +27,7 @@ set(QVTKMocHeaders
   vtkQtAbstractModelAdapter.h
   vtkQtAnnotationLayersModelAdapter.h
   vtkQtDebugLeaksModel.h
+  vtkQtDebugLeaksView.h
   vtkQtTableModelAdapter.h
   vtkQtTreeModelAdapter.h
   )

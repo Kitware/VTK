@@ -1,4 +1,5 @@
 set(MyTests
+  TestQtDebugLeaksView.cxx
   TestQtTableModelAdapter.cxx
   TestQtTreeModelAdapter.cxx
   )
