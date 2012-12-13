@@ -684,7 +684,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     }
 
   // Determine whether to subdivide or not
-    if ( subdivide && level + 1 < this->MaximumLevel )
+  if ( subdivide && level + 1 < this->MaximumLevel )
     {
     // Subdivide hyper tree grid leaf
     this->Output->SubdivideLeaf( cursor, treeIdx );
