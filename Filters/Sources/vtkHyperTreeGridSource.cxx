@@ -338,6 +338,15 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
           {
           this->SubdivideFromDescriptor( cursor, 0, treeIdx, 0, idx, nt, 0 );
           }
+        else
+          {
+          double origin[3];
+          origin[0] = ( i % np[0] ) * this->GridScale[0];
+          origin[1] = ( j % np[1] ) * this->GridScale[1];
+          origin[2] = ( k % np[2] ) * this->GridScale[2];
+
+          this->SubdivideFromQuadric( cursor, 0, treeIdx, idx, nt, origin, this->GridScale );
+          }
 
         // Clean up
         cursor->UnRegister( this );
@@ -631,6 +640,136 @@ void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor
     // Blank leaf if needed
     if ( this->UseMaterialMask
          && this->LevelMaterialMasks.at( level ).at( pointer ) == '0' )
+      {
+      // Blank leaf in underlying hyper tree
+      this->Output->GetMaterialMask()->InsertTuple1( id, 1 );
+      }
+    else
+      {
+      // Do not blank leaf in underlying hyper tree
+      this->Output->GetMaterialMask()->InsertTuple1( id, 0 );
+      }
+
+    // Cell value is depth level for now
+    this->Output->GetLeafData()->GetScalars()->InsertTuple1( id, level );
+    } // else
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
+                                                   unsigned int level,
+                                                   int treeIdx,
+                                                   int idx[3],
+                                                   int cellIdOffset,
+                                                   double origin[3],
+                                                   double size[3] )
+{
+  // Determine whether to subdivide or not
+  bool subdivide = false;
+
+  double O[3];
+  for ( unsigned int d = 0; d < this->Dimension; ++ d )
+    {
+    O[d] = origin[d] + idx[d] * size[d];
+    }
+
+  double v1 =  O[0] * O[0] + O[1] * O[1] + O[2] * O[2] - 25.;
+  double nV = 1 << this->Dimension;
+  for ( int v = 1; v < nV; ++ v )
+    {
+    div_t d1 = div( v, 2 );
+    div_t d2 = div( d1.quot, 2 );
+    double pt[3];
+    pt[0] = O[0] + d1.rem * size[0];
+    pt[1] = O[1] + d2.rem * size[1];
+    pt[2] = O[2] + d2.quot * size[2];
+    double v2 = 
+      pt[0] * pt[0] +
+      pt[1] * pt[1] +
+      pt[2] * pt[2]
+      - 25.;
+    if ( v1 * v2 < 0 )
+      {
+      subdivide = true;
+      break;
+      }
+    }
+
+  // Check for hard coded minimum and maximum level restrictions
+  if ( level + 1 >= this->MaximumLevel )
+    {
+    subdivide = false;
+    }
+
+  if ( subdivide )
+    {
+    // Subdivide hyper tree grid leaf
+    this->Output->SubdivideLeaf( cursor, treeIdx );
+
+    // Now traverse to children.
+    int xDim = 1;
+    int yDim = 1;
+    int zDim = 1;
+    switch ( this->Dimension )
+      {
+      // Warning: Run through is intended! Do NOT add break statements
+      case 3:
+        zDim = this->BranchFactor;
+      case 2:
+        yDim = this->BranchFactor;
+      case 1:
+        xDim = this->BranchFactor;
+      }
+
+    int newChildIdx = 0;
+    int newIdx[3];
+    for ( int z = 0; z < zDim; ++ z )
+      {
+      newIdx[2] = idx[2] * zDim + z;
+      for ( int y = 0; y < yDim; ++ y )
+        {
+        newIdx[1] = idx[1] * yDim + y;
+        for ( int x = 0; x < xDim; ++ x )
+          {
+          newIdx[0] = idx[0] * xDim + x;
+
+          // Set cursor to child
+          cursor->ToChild( newChildIdx );
+
+          // Recurse
+          for ( unsigned int d = 0; d < this->Dimension; ++ d )
+            {
+            size[d] /= this->BranchFactor;
+            }
+          this->SubdivideFromQuadric( cursor,
+                                      level + 1,
+                                      treeIdx,
+                                      newIdx,
+                                      cellIdOffset,
+                                      origin,
+                                      size );
+          for ( unsigned int d = 0; d < this->Dimension; ++ d )
+            {
+            size[d] *= this->BranchFactor;
+            }
+
+          // Reset cursor to parent
+          cursor->ToParent();
+
+          // Increment child index
+          ++ newChildIdx;
+          } // x
+        } // y
+      } // z
+    } // if ( subdivide )
+  else 
+    {
+    // We are at a leaf cell, calculate its global index
+    vtkIdType id = cellIdOffset + cursor->GetLeafId();
+
+    // Blank leaf if needed
+    if ( this->UseMaterialMask
+         && 0 )
       {
       // Blank leaf in underlying hyper tree
       this->Output->GetMaterialMask()->InsertTuple1( id, 1 );

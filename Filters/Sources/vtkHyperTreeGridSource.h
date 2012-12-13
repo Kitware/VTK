@@ -146,6 +146,16 @@ protected:
                                 int cellIdOffset,
                                 int parentPos );
 
+  // Description:
+  // Subdivide grid from quadric when descriptor is not used
+  void SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
+                             unsigned int level,
+                             int treeIdx,
+                             int idx[3],
+                             int cellIdOffset,
+                             double origin[3],
+                             double size[3] );
+
   double GridScale[3];
   unsigned int GridSize[3];
   unsigned int MaximumLevel;
