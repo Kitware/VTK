@@ -821,3 +821,19 @@ double* vtkHyperTreeGridSource::GetQuadricCoefficients()
 {
   return this->Quadric->GetCoefficients();
 }
+
+//----------------------------------------------------------------------------
+// Overload standard modified time function. If cut functions is modified,
+// or contour values modified, then this object is modified as well.
+unsigned long vtkHyperTreeGridSource::GetMTime()
+{
+  unsigned long mTime = this->Superclass::GetMTime();
+
+  if ( this->Quadric != NULL )
+    {
+    unsigned long time = this->Quadric->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
+}

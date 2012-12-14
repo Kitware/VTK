@@ -129,6 +129,10 @@ public:
   void GetQuadricCoefficients( double a[10] );
   double* GetQuadricCoefficients();
 
+  // Description:
+  // Override GetMTime because we delegate to a vtkQuadric
+  unsigned long GetMTime();
+
 protected:
   vtkHyperTreeGridSource();
   ~vtkHyperTreeGridSource();
