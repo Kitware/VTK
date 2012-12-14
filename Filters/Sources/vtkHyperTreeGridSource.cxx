@@ -588,7 +588,7 @@ void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor
   // Calculate pointer into level descriptor string
   int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
 
-  // Determine whether to subdivide or not
+  // Subdivide further or stop recursion with terminal leaf
   if ( level + 1 < this->MaximumLevel
        && this->LevelDescriptors.at( level ).at( pointer ) == 'R' )
     {
@@ -678,6 +678,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
                                                    double origin[3],
                                                    double size[3] )
 {
+  // Determine whether to subdivide or not
   bool subdivide = false;
   double O[3];
   for ( unsigned int d = 0; d < this->Dimension; ++ d )
@@ -695,14 +696,14 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     pt[0] = O[0] + d1.rem * size[0];
     pt[1] = O[1] + d2.rem * size[1];
     pt[2] = O[2] + d2.quot * size[2];
-    if ( q0 * this->Quadric->EvaluateFunction( pt ) < 0 )
+    if ( q0 * this->Quadric->EvaluateFunction( pt ) <= 0 )
       {
       subdivide = true;
       break;
       }
-    }
+    } // v
 
-  // Determine whether to subdivide or not
+  // Subdivide further or stop recursion with terminal leaf
   if ( subdivide && level + 1 < this->MaximumLevel )
     {
     // Subdivide hyper tree grid leaf
@@ -767,7 +768,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
 
     // Blank leaf if needed
     if ( this->UseMaterialMask
-         && 0 )
+         && q0 > 0 )
       {
       // Blank leaf in underlying hyper tree
       this->Output->GetMaterialMask()->InsertTuple1( id, 1 );

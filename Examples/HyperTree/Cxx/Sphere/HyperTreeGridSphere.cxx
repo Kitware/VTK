@@ -187,8 +187,8 @@ int main( int argc, char *argv[] )
   if (style) style->SetCurrentStyleToTrackballCamera ();
 
   // Render
-  renWindow->Render();
-  interacteur->Start();
+  //renWindow->Render();
+  //interacteur->Start();
    
   // Clean up
   delete mesh;

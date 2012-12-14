@@ -25,7 +25,7 @@ int TestHyperTreeGridTernary3DSphere( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 4;
+  int maxLevel = 6;
   htGrid->SetMaximumLevel( maxLevel );
   htGrid->SetGridSize( 5, 5, 6 );
   htGrid->SetGridScale( 1.5, 1., .7 );
@@ -33,14 +33,17 @@ int TestHyperTreeGridTernary3DSphere( int argc, char* argv[] )
   htGrid->SetBranchFactor( 3 );
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
+  htGrid->UseMaterialMaskOn();
   htGrid->SetQuadricCoefficients( 1., 1., 1., 
-                                  0., 0., 0., 
                                   0., 0., 0.,
+                                  0., 0., 0., 
                                   -25. );
 
   htGrid->Update();
   vtkNew<vtkHyperTreeGrid> htgCopy;
   htgCopy->ShallowCopy( htGrid->GetOutput() );
+  cerr << htGrid->GetOutput()->GetNumberOfLeaves() << endl;
+  cerr << htGrid->GetOutput()->GetNumberOfCells() << endl;
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
