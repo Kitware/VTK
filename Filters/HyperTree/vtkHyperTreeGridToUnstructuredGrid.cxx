@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridAxisCut.cxx
+  Module:    vtkHyperTreeGridToUnstructuredGrid.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkHyperTreeGridAxisCut.h"
+#include "vtkHyperTreeGridToUnstructuredGrid.h"
 
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
@@ -21,24 +21,25 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
+vtkStandardNewMacro(vtkHyperTreeGridToUnstructuredGrid);
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
+vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
 {
   this->Points = 0;
   this->Cells = 0;
   this->Input = 0;
   this->Output = 0;
 
-  this->PlanePosition = 0.0;
-  this->PlaneNormalAxis = 0;
+  this->Dimension = 0;
+  this->CellSize = 0;
+  this->Coefficients = 0;
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridAxisCut::~vtkHyperTreeGridAxisCut()
+vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()
 {
   if ( this->Points )
     {
@@ -50,10 +51,15 @@ vtkHyperTreeGridAxisCut::~vtkHyperTreeGridAxisCut()
     this->Cells->Delete();
     this->Cells = 0;
     }
+  if ( this->Coefficients )
+    {
+    delete [] this->Coefficients;
+    this->Coefficients = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
+void vtkHyperTreeGridToUnstructuredGrid::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
 
@@ -94,19 +100,29 @@ void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
     os << indent << "Cells: ( none )\n";
     }
 
-  os << indent << "Plane Normal Axis : " << this->PlaneNormalAxis << endl;
-  os << indent << "Plane Position : " << this->PlanePosition << endl;
+  os << indent << "Dimension : " << this->Dimension << endl;
+  os << indent << "CellSize : " << this->CellSize << endl;
+  os << indent << "Coefficients : " << endl;
+  for ( unsigned int i = 0; i < this->CellSize; ++ i )
+    {
+    os << indent;
+    for ( unsigned int j = 0; j < this->Dimension; ++ j )
+      {
+      os << " " << this->Coefficients[i * this->Dimension + j];
+      }
+    os << endl;
+    }
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridAxisCut::FillInputPortInformation( int, vtkInformation *info )
+int vtkHyperTreeGridToUnstructuredGrid::FillInputPortInformation( int, vtkInformation *info )
 {
   info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid" );
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
+int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
                                           vtkInformationVector** inputVector,
                                           vtkInformationVector* outputVector )
 {
@@ -116,14 +132,49 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
 
   // Retrieve input and output
   this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Output= vtkUnstructuredGrid::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
-  // This filter is only for 2D slices of 3D grids
-  if ( this->Input->GetDimension() != 3 )
+  // Set instance variables needed for this conversion
+  this->Dimension = this->Input->GetDimension();
+  switch ( this->Dimension )
     {
-    vtkErrorMacro( "Axis cut only works with 3D trees." );
-    return 0;
+    case 1:
+      this->CellSize = 2;
+      this->Coefficients = new unsigned int[2];
+      for ( unsigned int i = 0; i < 2; ++ i )
+        {
+        this->Coefficients[i] = i;
+        }
+      break;
+    case 2 :
+      this->CellSize = 4;
+      this->Coefficients = new unsigned int[8];
+      for ( unsigned int i = 0; i < 4; ++ i )
+        {
+        div_t d = div( i, 2 );
+        this->Coefficients[2 * i] = d.rem;
+        this->Coefficients[2 * i + 1] = d.quot;
+        }
+      break;
+    case 3 :
+      this->CellSize = 8;
+      this->Coefficients = new unsigned int[24];
+      for ( unsigned int i = 0; i < 8; ++ i )
+        {
+        div_t d1 = div( i, 2 );
+        div_t d2 = div( d1.quot, 2 );
+        this->Coefficients[3 * i] = d1.rem;
+        this->Coefficients[3 * i + 1] = d2.quot;
+        this->Coefficients[3 * i + 2] = d2.rem;
+        }
+      break;
+    default:
+      vtkErrorMacro( "Incorrect tree dimension: "
+                     << this->Dimension
+                     << "." );
+      return 0;
     }
+
 
   // Ensure that primal grid API is used for hyper trees
   int inputDualFlagIsOn = this->Input->GetUseDualGrid();
@@ -156,7 +207,7 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::ProcessTrees()
+void vtkHyperTreeGridToUnstructuredGrid::ProcessTrees()
 {
   // TODO: MTime on generation of this table.
   this->Input->GenerateSuperCursorTraversalTable();
@@ -185,39 +236,52 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
       } // j
     } // k
 
-
   // Set output geometry and topology
   this->Output->SetPoints( this->Points );
-  this->Output->SetPolys( this->Cells );
+  switch ( this->Dimension )
+    {
+    case 1:
+      this->Output->SetCells( VTK_LINE, this->Cells );
+      break;
+    case 2:
+      this->Output->SetCells( VTK_QUAD, this->Cells );
+      break;
+    case 3:
+      this->Output->SetCells( VTK_VOXEL, this->Cells );
+      break;
+    }
 }
 
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::AddFace( vtkIdType inId, double* origin, 
-                                       double* size, double offset0,
-                                       int axis0, int axis1, int axis2 )
+void vtkHyperTreeGridToUnstructuredGrid::AddCell( vtkIdType inId,
+                                                  double* origin,
+                                                  double* size )
 {
-  vtkIdType ids[4];
+  // Storage for cell IDs
+  vtkIdType ids[8];
+
+  // Generate 2^d points
   double pt[3];
   pt[0] = origin[0];
   pt[1] = origin[1];
   pt[2] = origin[2];
-  pt[axis0] += size[axis0] * offset0;
-
   ids[0] = this->Points->InsertNextPoint( pt );
-  pt[axis1] += size[axis1];
-  ids[1] = this->Points->InsertNextPoint( pt );
-  pt[axis2] += size[axis2];
-  ids[2] = this->Points->InsertNextPoint( pt );
-  pt[axis1] = origin[axis1];
-  ids[3] = this->Points->InsertNextPoint( pt );
+  for ( unsigned int i = 1; i < this->CellSize; ++ i )
+    {
+    for ( unsigned int j = 0; j < this->Dimension; ++ j )
+      {
+      pt[j] = origin[j] + this->Coefficients[i * this->Dimension + j] * size[j];
+      }
+    ids[i] = this->Points->InsertNextPoint( pt );
+    }
 
-  vtkIdType outId = this->Cells->InsertNextCell( 4, ids );
+  vtkIdType outId = this->Cells->InsertNextCell( this->CellSize, ids );
   this->Output->GetCellData()->CopyData( this->Input->GetCellData(), inId, outId );
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
+void vtkHyperTreeGridToUnstructuredGrid::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
 {
   // Get cursor at super cursor center
   vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( 0 );
@@ -244,37 +308,6 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree( vtkHyperTreeGridSuperCursor*
     return;
     }
 
-  // Terminate if the node does not touch the plane.
-  if ( superCursor->Origin[this->PlaneNormalAxis] > this->PlanePosition ||
-       superCursor->Origin[this->PlaneNormalAxis] + superCursor->Size[this->PlaneNormalAxis]
-       < this->PlanePosition )
-    {
-    return;
-    }
-
-  // Create rectangles at plane/grid intersection
-  double k = this->PlanePosition - superCursor->Origin[this->PlaneNormalAxis];
-  k = k / superCursor->Size[this->PlaneNormalAxis];
-  int axis1, axis2;
-  switch ( this->PlaneNormalAxis )
-    {
-    case 0:
-      axis1 = 1;
-      axis2 = 2;
-      break;
-    case 1:
-      axis1 = 0;
-      axis2 = 2;
-      break;
-    case 2:
-      axis1 = 0;
-      axis2 = 1;
-      break;
-    default:
-      vtkErrorMacro( "Bad Axis." );
-      return;
-    }
-
-  this->AddFace( inId, superCursor->Origin, 
-                 superCursor->Size, k, this->PlaneNormalAxis, axis1, axis2 );
+  // Create cell
+  this->AddCell( inId, superCursor->Origin, superCursor->Size );
 }

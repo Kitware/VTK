@@ -66,17 +66,17 @@ MACRO(C_SOURCE_COMPILES SOURCE VAR)
     IF(${VAR})
       SET(${VAR} 1 CACHE INTERNAL "NetCDF test ${FUNCTION}")
       MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Success")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+      FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Performing C SOURCE FILE Test ${VAR} succeded with the following output:\n"
         "${OUTPUT}\n"
-        "Source file was:\n${SOURCE}\n" APPEND)
+        "Source file was:\n${SOURCE}\n")
     ELSE(${VAR})
       MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Failed")
       SET(${VAR} "" CACHE INTERNAL "NetCDF test ${FUNCTION}")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
+      FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Performing C SOURCE FILE Test ${VAR} failed with the following output:\n"
         "${OUTPUT}\n"
-        "Source file was:\n${SOURCE}\n" APPEND)
+        "Source file was:\n${SOURCE}\n")
     ENDIF(${VAR})
   ENDIF("${VAR}" MATCHES "^${VAR}$")
 ENDMACRO(C_SOURCE_COMPILES)

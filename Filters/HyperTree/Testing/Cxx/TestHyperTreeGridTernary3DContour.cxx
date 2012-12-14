@@ -50,7 +50,28 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
     {
     contour->SetValue( i, isovalue );
     }
+
+  contour->GenerateTrianglesOff();
   contour->Update();
+  if(contour->GetOutput()->GetNumberOfPoints()!=547)
+    {
+    return 1;
+    }
+  if(contour->GetOutput()->GetNumberOfCells()!=463)
+    {
+    return 1;
+    }
+  contour->GenerateTrianglesOn();
+  contour->Update();
+  if(contour->GetOutput()->GetNumberOfPoints()!=547)
+    {
+    return 1;
+    }
+  if(contour->GetOutput()->GetNumberOfCells()!=917)
+    {
+    return 1;
+    }
+
   vtkPolyData* pd = contour->GetOutput();
 
   // Mappers
@@ -99,7 +120,7 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
   // Render window
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer( renderer.GetPointer() );
-  renWin->SetSize( 300, 300 );
+  renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
@@ -108,7 +129,7 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {

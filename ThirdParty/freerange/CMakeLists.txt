@@ -14,7 +14,7 @@ INCLUDE_DIRECTORIES(
 ADD_EXECUTABLE( freerangeTests ${freerangeTestSrcs} )
 
 SET( TestsToRun ${freerangeTestSrcs} )
-REMOVE( TestsToRun freerangeTests.cxx )
+LIST(REMOVE_ITEM TestsToRun freerangeTests.cxx )
 
 FOREACH (test ${TestsToRun})
   GET_FILENAME_COMPONENT(TName ${test} NAME_WE)

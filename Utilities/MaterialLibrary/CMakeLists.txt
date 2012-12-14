@@ -48,7 +48,7 @@ ENDMACRO(GET_RELATIVE_PATH)
 #Macro to copy files over. Copies the entire subtree.
 MACRO(COPY_FILES_TO_DIR src_dir target_dir)
   IF (NOT EXISTS ${target_dir})
-    MAKE_DIRECTORY(${target_dir})
+    FILE(MAKE_DIRECTORY ${target_dir})
   ENDIF(NOT EXISTS ${target_dir})
 
   FILE (GLOB_RECURSE files_to_copy1 ${src_dir}/*.*)
@@ -64,7 +64,7 @@ MACRO(COPY_FILES_TO_DIR src_dir target_dir)
     FOREACH(subdir ${dirlist})
       SET(path "${path}/${subdir}")
       IF (NOT EXISTS ${path})
-        MAKE_DIRECTORY(${path})
+        FILE(MAKE_DIRECTORY ${path})
       ENDIF (NOT EXISTS ${path})
     ENDFOREACH(subdir)
 

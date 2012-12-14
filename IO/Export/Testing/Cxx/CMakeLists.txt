@@ -28,7 +28,7 @@ include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
 vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 
 set(TestsToRun ${Tests})
-remove(TestsToRun CxxTests.cxx)
+list(REMOVE_ITEM TestsToRun CxxTests.cxx)
 
 # Add all the executables
 foreach(test ${TestsToRun})

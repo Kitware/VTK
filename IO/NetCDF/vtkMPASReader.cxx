@@ -2363,7 +2363,9 @@ void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: "
      << (this->FileName?this->FileName:"NULL") << "\n";
-  os << indent << "VerticalLevelRange: " << this->VerticalLevelRange << "\n";
+  os << indent << "VerticalLevelRange: " 
+     << this->VerticalLevelRange[0] << ","
+     << this->VerticalLevelRange[1] << "\n";
   os << indent << "this->NumberOfPointVars: " << this->NumberOfPointVars << "\n";
   os << indent << "this->NumberOfCellVars: " << this->NumberOfCellVars << "\n";
   os << indent << "this->MaximumPoints: " << this->MaximumPoints << "\n";

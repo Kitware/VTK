@@ -14,7 +14,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
 vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 
 set(TestsToRun ${Tests})
-remove(TestsToRun ${vtk-module}CxxTests.cxx)
+list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
 
 ## Add all executables
 foreach(test ${TestsToRun})

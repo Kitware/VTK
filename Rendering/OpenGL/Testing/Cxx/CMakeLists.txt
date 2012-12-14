@@ -154,7 +154,7 @@ if(VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
 endif()
 
 set(TestsToRun ${Tests})
-remove(TestsToRun ${vtk-module}CxxTests.cxx)
+list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
 
 # Add all the executables
 foreach(test ${RenderingTests})

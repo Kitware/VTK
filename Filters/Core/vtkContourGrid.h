@@ -120,7 +120,19 @@ public:
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
-  // Description:
+
+ // Description:
+  // If this is enabled (by default), the output will be triangles
+  // otherwise, the output will be the intersection polygons
+  // WARNING: if the cutting function is not a plane, the output
+  // will be 3D poygons, which might be nice to look at but hard
+  // to compute with downstream.
+  vtkSetMacro(GenerateTriangles,int);
+  vtkGetMacro(GenerateTriangles,int);
+  vtkBooleanMacro(GenerateTriangles,int);
+
+
+// Description:
   // Create default locator. Used to create one when none is
   // specified. The locator is used to merge coincident points.
   void CreateDefaultLocator();
@@ -143,6 +155,8 @@ protected:
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
+  int GenerateTriangles;
+
   vtkIncrementalPointLocator *Locator;
   int UseScalarTree;
   int OutputPointsPrecision;

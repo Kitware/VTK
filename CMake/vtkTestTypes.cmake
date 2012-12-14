@@ -36,17 +36,17 @@ IF(VTK_SIZEOF___INT64)
     IF(VTK_TYPE_SAME_LONG_AND___INT64)
       MESSAGE(STATUS "Checking whether long and __int64 are the same type -- yes")
       SET(VTK_TYPE_SAME_LONG_AND___INT64 1 CACHE INTERNAL "Whether long and __int64 are the same type")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+      FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Determining whether long and __int64 are the same type "
         "passed with the following output:\n"
-        "${OUTPUT}\n" APPEND)
+        "${OUTPUT}\n")
     ELSE(VTK_TYPE_SAME_LONG_AND___INT64)
       MESSAGE(STATUS "Checking whether long and __int64 are the same type -- no")
       SET(VTK_TYPE_SAME_LONG_AND___INT64 0 CACHE INTERNAL "Whether long and __int64 are the same type")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
+      FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Determining whether long and __int64 are the same type "
         "failed with the following output:\n"
-        "${OUTPUT}\n" APPEND)
+        "${OUTPUT}\n")
     ENDIF(VTK_TYPE_SAME_LONG_AND___INT64)
   ENDIF("VTK_TYPE_SAME_LONG_AND___INT64" MATCHES "^VTK_TYPE_SAME_LONG_AND___INT64$")
   IF(VTK_SIZEOF_LONG_LONG)
@@ -63,17 +63,17 @@ IF(VTK_SIZEOF___INT64)
       IF(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
         MESSAGE(STATUS "Checking whether long long and __int64 are the same type -- yes")
         SET(VTK_TYPE_SAME_LONG_LONG_AND___INT64 1 CACHE INTERNAL "Whether long long and __int64 are the same type")
-        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+        FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
           "Determining whether long long and __int64 are the same type "
           "passed with the following output:\n"
-          "${OUTPUT}\n" APPEND)
+          "${OUTPUT}\n")
       ELSE(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
         MESSAGE(STATUS "Checking whether long long and __int64 are the same type -- no")
         SET(VTK_TYPE_SAME_LONG_LONG_AND___INT64 0 CACHE INTERNAL "Whether long long and __int64 are the same type")
-        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
+        FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Determining whether long long and __int64 are the same type "
           "failed with the following output:\n"
-          "${OUTPUT}\n" APPEND)
+          "${OUTPUT}\n")
       ENDIF(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
     ENDIF("VTK_TYPE_SAME_LONG_LONG_AND___INT64" MATCHES "^VTK_TYPE_SAME_LONG_LONG_AND___INT64$")
   ENDIF(VTK_SIZEOF_LONG_LONG)
@@ -94,17 +94,17 @@ IF(VTK_SIZEOF___INT64)
         IF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
           MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double -- yes")
           SET(VTK_TYPE_CONVERT_UI64_TO_DOUBLE 1 CACHE INTERNAL "Whether unsigned __int64 can convert to double")
-          WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+          FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
             "Determining whether unsigned __int64 can convert to double "
             "passed with the following output:\n"
-            "${OUTPUT}\n" APPEND)
+            "${OUTPUT}\n")
         ELSE(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
           MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double -- no")
           SET(VTK_TYPE_CONVERT_UI64_TO_DOUBLE 0 CACHE INTERNAL "Whether unsigned __int64 can convert to double")
-          WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
+          FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
             "Determining whether unsigned __int64 can convert to double "
             "failed with the following output:\n"
-            "${OUTPUT}\n" APPEND)
+            "${OUTPUT}\n")
         ENDIF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
       ENDIF("VTK_TYPE_CONVERT_UI64_TO_DOUBLE" MATCHES "^VTK_TYPE_CONVERT_UI64_TO_DOUBLE$")
     ENDIF(NOT VTK_TYPE_SAME_LONG_LONG_AND___INT64)
@@ -138,17 +138,17 @@ IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
   IF(VTK_COMPILER_HAS_BOOL)
     MESSAGE(STATUS "Checking support for C++ type bool -- yes")
     SET(VTK_COMPILER_HAS_BOOL 1 CACHE INTERNAL "Support for C++ type bool")
-    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+    FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
       "Determining if the C++ compiler supports type bool "
       "passed with the following output:\n"
-      "${OUTPUT}\n" APPEND)
+      "${OUTPUT}\n")
   ELSE(VTK_COMPILER_HAS_BOOL)
     MESSAGE(STATUS "Checking support for C++ type bool -- no")
     SET(VTK_COMPILER_HAS_BOOL 0 CACHE INTERNAL "Support for C++ type bool")
-    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
+    FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
       "Determining if the C++ compiler supports type bool "
       "failed with the following output:\n"
-      "${OUTPUT}\n" APPEND)
+      "${OUTPUT}\n")
   ENDIF(VTK_COMPILER_HAS_BOOL)
 ENDIF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
 

@@ -53,16 +53,21 @@ public:
   
   // Description:
   // Return the index of the current leaf in the data arrays.
-  // \pre is_leaf: CurrentIsLeaf()
+  // \pre is_leaf: IsLeaf()
   virtual int GetLeafId() = 0;
   
   // Description:
   // Is the node pointed by the cursor a leaf?
-  virtual int CurrentIsLeaf() = 0;
+  virtual bool IsLeaf() = 0;
+  
+  // Are the children of the current node all leaves?
+  // This query can be called also on a leaf node.
+  // \post compatible: result implies !IsLeaf()
+  virtual bool IsTerminalNode() = 0;
   
   // Description:
   // Is the node pointed by the cursor the root?
-  virtual int CurrentIsRoot() = 0;
+  virtual bool IsRoot() = 0;
   
   // Description:
   // Return the level of the node pointed by the cursor.
@@ -71,44 +76,39 @@ public:
   
   // Description:
   // Return the child number of the current node relative to its parent.
-  // \pre not_root: !CurrentIsRoot().
+  // \pre not_root: !IsRoot().
   // \post valid_range: result>=0 && result<GetNumberOfChildren()
   virtual int GetChildIndex() = 0;
   
-  // Are the children of the current node all leaves?
-  // This query can be called also on a leaf node.
-  // \post compatible: result implies !CurrentIsLeaf()
-  virtual int CurrentIsTerminalNode() = 0;
-  
   // Description:
-  // Move the cursor the root node.
+  // Move the cursor to the root node.
   // \pre can be root
-  // \post is_root: CurrentIsRoot()
+  // \post is_root: IsRoot()
   virtual void ToRoot() = 0;
   
   // Description:
   // Move the cursor to the parent of the current node.
-  // \pre not_root: !CurrentIsRoot()
+  // \pre not_root: !IsRoot()
   virtual void ToParent() = 0;
   
   // Description:
   // Move the cursor to child `child' of the current node.
-  // \pre not_leaf: !CurrentIsLeaf()
+  // \pre not_leaf: !IsLeaf()
   // \pre valid_child: child>=0 && child<this->GetNumberOfChildren()
-  virtual void ToChild(int child) = 0;
+  virtual void ToChild( int child ) = 0;
   
   // Description:
   // Move the cursor to the same node pointed by `other'.
   // \pre other_exists: other!=0
   // \pre same_hyper3TREE: this->SameTree(other);
   // \post equal: this->IsEqual(other)
-  virtual void ToSameNode(vtkHyperTreeCursor *other) = 0;
+  virtual void ToSameNode( vtkHyperTreeCursor* other ) = 0;
  
   // Description:
   // Is `this' equal to `other'?
   // \pre other_exists: other!=0
   // \pre same_hyper3TREE: this->SameTree(other);
-  virtual int IsEqual(vtkHyperTreeCursor *other) = 0;
+  virtual bool IsEqual( vtkHyperTreeCursor* other ) = 0;
   
   // Description:
   // Create a copy of `this'.

@@ -33,7 +33,7 @@
 #include "vtkMergePoints.h"
 #include "vtkPointLocator.h"
 #include "vtkIncrementalPointLocator.h"
-
+#include "vtkContourHelper.h"
 #include <math.h>
 
 vtkStandardNewMacro(vtkContourGrid);
@@ -47,6 +47,7 @@ vtkContourGrid::vtkContourGrid()
   this->ComputeNormals = 0;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
+  this->GenerateTriangles = 1;
 
   this->Locator = NULL;
 
@@ -101,7 +102,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
                            vtkDataArray *inScalars, T *scalarArrayPtr,
                            int numContours, double *values,
                            int computeScalars,
-                           int useScalarTree,vtkScalarTree *&scalarTree)
+                           int useScalarTree,vtkScalarTree *&scalarTree,bool generateTriangles)
 {
   vtkIdType cellId, i;
   int abortExecute=0;
@@ -175,6 +176,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
   outCd->CopyAllocate(inCd,estimatedSize,estimatedSize);
 
+  vtkContourHelper helper(locator, newVerts, newLines, newPolys,inPd, inCd, outPd,outCd, estimatedSize, generateTriangles);
   // If enabled, build a scalar tree to accelerate search
   //
   if ( !useScalarTree )
@@ -269,9 +271,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
             {
             if ((values[i] >= range[0]) && (values[i] <= range[1]))
               {
-              cell->Contour(values[i], cellScalars, locator,
-                            newVerts, newLines, newPolys, inPd, outPd,
-                            inCd, cellId, outCd);
+              helper.Contour(cell,values[i],cellScalars,cellId);
               } // if contour value in range of values for this cell
             } // for all contour values
           } // if contour goes through this cell
@@ -300,10 +300,9 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
       for ( scalarTree->InitTraversal(values[i]);
           (cell=scalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
         {
-        cell->Contour(values[i], cellScalars, locator,
-                      newVerts, newLines, newPolys, inPd, outPd,
-                      inCd, cellId, outCd);
-           //don't want to call Contour any more than necessary
+        helper.Contour(cell,values[i],cellScalars,cellId);
+
+        //don't want to call Contour any more than necessary
         } //for all cells
       } //for all contour values
     } //using scalar tree
@@ -388,7 +387,7 @@ int vtkContourGrid::RequestData(
       vtkContourGridExecute(this, input, output, inScalars,
                             static_cast<VTK_TT *>(scalarArrayPtr),
                             numContours, values,computeScalars, useScalarTree,
-                            scalarTree));
+                            scalarTree, this->GenerateTriangles!=0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;

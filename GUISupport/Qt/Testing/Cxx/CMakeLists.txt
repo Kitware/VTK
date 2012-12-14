@@ -12,7 +12,7 @@ include(${QT_USE_FILE})
 vtk_module_test_executable(${vtk-module}CxxTests ${Tests} QTestApp.cxx)
 
 set(TestsToRun ${Tests})
-remove(TestsToRun ${vtk-module}CxxTests.cxx)
+list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
 
 # Add all the executables
 foreach(test ${TestsToRun})

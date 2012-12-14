@@ -42,120 +42,13 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkTimerLog.h"
 #include "vtkSmartPointer.h"
-#include "vtkPolygonBuilder.h"
+#include "vtkContourHelper.h"
 
 #include <math.h>
 
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkCutter,Locator,vtkIncrementalPointLocator)
-
-//Description:
-// This is a simple utility class that can be used to
-//  produce either contour triangles or polygons based on the outputTriangles parameter
-// When needed, it can be exposed to be used in other contour filters
-class ContourBuilder
-{
-public:
-  ContourBuilder(vtkIncrementalPointLocator *locator,
-                 vtkCellArray *verts,
-                 vtkCellArray *lines,
-                 vtkCellArray* polys,
-                 vtkPointData *inPd,
-                 vtkCellData *inCd,
-                 vtkPointData* outPd,
-                 vtkCellData *outCd,
-                 int estimatedSize,
-                 bool outputTriangles):
-    Locator(locator),
-    Verts(verts),
-    Lines(lines),
-    Polys(polys),
-    InPd(inPd),
-    InCd(inCd),
-    OutPd(outPd),
-    OutCd(outCd),
-    GenerateTriangles(outputTriangles)
-  {
-    this->Tris = vtkCellArray::New();
-    this->TriOutCd = vtkCellData::New();
-    if(this->GenerateTriangles)
-      {
-      this->Tris->Allocate(estimatedSize,estimatedSize/2);
-      this->TriOutCd->Initialize();
-      }
-    this->Poly = vtkIdList::New();
-  }
-
-  ~ContourBuilder()
-  {
-    this->Tris->Delete();
-    this->TriOutCd->Delete();
-    this->Poly->FastDelete();
-  }
-
-  void Contour(vtkCell* cell, double value, vtkDataArray *cellScalars, vtkIdType cellId)
-  {
-    bool mergeTriangles = (!this->GenerateTriangles) && cell->GetCellDimension()==3;
-    vtkCellData* outCD;
-    vtkCellArray* outPoly;
-    if(mergeTriangles)
-      {
-      outPoly = this->Tris;
-      outCD = this->TriOutCd;
-      }
-    else
-      {
-      outPoly = this->Polys;
-      outCD = this->OutCd;
-      }
-    cell->Contour(value,cellScalars,this->Locator,  this->Verts, this->Lines,
-                  outPoly, this->InPd,this->OutPd,this->InCd,cellId, outCD);
-    if(mergeTriangles)
-      {
-      this->PolyBuilder.Reset();
-
-      vtkIdType cellSize;
-      vtkIdType* cellVerts;
-      while(this->Tris->GetNextCell(cellSize,cellVerts))
-        {
-        if(cellSize==3)
-          {
-          this->PolyBuilder.InsertTriangle(cellVerts);
-          }
-        else //for whatever reason, the cell contouring is already outputing polys
-          {
-          vtkIdType outCellId = this->Polys->InsertNextCell(cellSize, cellVerts);
-          this->OutCd->CopyData(this->InCd, cellId, outCellId);
-          }
-        }
-
-      this->PolyBuilder.GetPolygon(this->Poly);
-      if(this->Poly->GetNumberOfIds()!=0)
-        {
-        vtkIdType outCellId = this->Polys->InsertNextCell(this->Poly);
-        this->OutCd->CopyData(this->InCd, cellId, outCellId);
-        }
-      }
-  }
-
-
-private:
-  vtkIncrementalPointLocator* Locator;
-  vtkCellArray* Verts;
-  vtkCellArray* Lines;
-  vtkCellArray* Polys;
-  vtkPointData* InPd;
-  vtkCellData* InCd;
-  vtkPointData* OutPd;
-  vtkCellData* OutCd;
-  vtkSmartPointer<vtkCellData> TriOutCd;
-
-  vtkCellArray* Tris;
-  vtkPolygonBuilder PolyBuilder;
-  vtkIdList* Poly;
-  bool GenerateTriangles;
-};
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; initial value of 0.0; and
@@ -618,7 +511,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   vtkIdType progressInterval = numCuts/20 + 1;
   int cut=0;
 
-  ContourBuilder builder(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
+  vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
   if ( this->SortBy == VTK_SORT_BY_CELL )
     {
     // Loop over all contour values.  Then for each contour value,
@@ -655,7 +548,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
 
         value = this->ContourValues->GetValue(iter);
 
-        builder.Contour(cell,value, cellScalars, cellId);
+        helper.Contour(cell,value, cellScalars, cellId);
         } // for all cells
       } // for all contour values
     } // sort by cell
@@ -720,7 +613,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
             abortExecute = this->GetAbortExecute();
             }
           value = this->ContourValues->GetValue(iter);
-          builder.Contour(cell,value, cellScalars, cellId);
+          helper.Contour(cell,value, cellScalars, cellId);
           } // for all contour values
         } // for all cells
       } // for all dimensions.
@@ -850,7 +743,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   cellScalars->SetNumberOfComponents(cutScalars->GetNumberOfComponents());
   cellScalars->Allocate(VTK_CELL_SIZE*cutScalars->GetNumberOfComponents());
 
-  ContourBuilder builder(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
+  vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
   if ( this->SortBy == VTK_SORT_BY_CELL )
     {
     // Loop over all contour values.  Then for each contour value,
@@ -915,7 +808,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
               }
             value = this->ContourValues->GetValue(iter);
 
-            builder.Contour(cell,value, cellScalars, cellId);
+            helper.Contour(cell,value, cellScalars, cellId);
             }
           }
 
@@ -1012,7 +905,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
               abortExecute = this->GetAbortExecute();
               }
             value = this->ContourValues->GetValue(iter);
-            builder.Contour(cell,value, cellScalars, cellId);
+            helper.Contour(cell,value, cellScalars, cellId);
             } // for all contour values
 
           } // if need cell
