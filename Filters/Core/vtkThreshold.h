@@ -47,6 +47,7 @@
 #define VTK_COMPONENT_MODE_USE_ANY         2
 
 class vtkDataArray;
+class vtkIdList;
 
 class VTKFILTERSCORE_EXPORT vtkThreshold : public vtkUnstructuredGridAlgorithm
 {
@@ -124,6 +125,17 @@ public:
   vtkBooleanMacro(AllScalars,int);
 
   // Description:
+  // If this is on (default is off), we will use the continuous interval
+  // [minimum cell scalar, maxmimum cell scalar] to intersect the threshold bound
+  //, rather than the set of discrete scalar values from the vertices
+  // *WARNING*: For higher order cells, the scalar range of the cell is
+  // not the same as the vertex scalar interval used here, so the
+  // result will not be accurate.
+  vtkSetMacro(UseContinuousCellRange,int);
+  vtkGetMacro(UseContinuousCellRange,int);
+  vtkBooleanMacro(UseContinuousCellRange,int);
+
+  // Description:
   // Set the data type of the output points (See the data types defined in
   // vtkType.h). The default data type is float.
   //
@@ -160,6 +172,7 @@ protected:
   int    ComponentMode;
   int    SelectedComponent;
   int OutputPointsPrecision;
+  int UseContinuousCellRange;
 
   //BTX
   int (vtkThreshold::*ThresholdFunction)(double s);
@@ -171,7 +184,8 @@ protected:
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 
   int EvaluateComponents( vtkDataArray *scalars, vtkIdType id );
-
+  int EvaluateCell( vtkDataArray *scalars, vtkIdList* cellPts, int numCellPts );
+  int EvaluateCell( vtkDataArray *scalars, int c, vtkIdList* cellPts, int numCellPts );
 private:
   vtkThreshold(const vtkThreshold&);  // Not implemented.
   void operator=(const vtkThreshold&);  // Not implemented.
