@@ -42,8 +42,6 @@ int TestHyperTreeGridTernary3DSphere( int argc, char* argv[] )
   htGrid->Update();
   vtkNew<vtkHyperTreeGrid> htgCopy;
   htgCopy->ShallowCopy( htGrid->GetOutput() );
-  cerr << htGrid->GetOutput()->GetNumberOfLeaves() << endl;
-  cerr << htGrid->GetOutput()->GetNumberOfCells() << endl;
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
@@ -78,7 +76,7 @@ int TestHyperTreeGridTernary3DSphere( int argc, char* argv[] )
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
+  camera->SetPosition( -.7 * bd[1], .9 * bd[3], -2.5 * bd[5] );
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
