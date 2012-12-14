@@ -408,7 +408,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
       for (j = yMin; j <= yMax; j++)
         {
         // Should not impact performance here/
-        edgePtId = (j-inExt[2])*yInc + (k-inExt[4])*zInc;
+        edgePtId = (xMin-inExt[0])*xInc + (j-inExt[2])*yInc + (k-inExt[4])*zInc;
         // Increments are different for cells.  Since the cells are not
         // contoured until the second row of templates, subtract 1 from
         // i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
