@@ -182,6 +182,11 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::SetDescriptor( const vtkStdString& string )
 {
+  if ( this->Descriptor == string )
+    {
+    return;
+    }
+
   this->Descriptor = string;
   this->Modified();
 }
@@ -195,6 +200,11 @@ vtkStdString vtkHyperTreeGridSource::GetDescriptor()
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::SetMaterialMask( const vtkStdString& string )
 {
+  if ( this->MaterialMask == string )
+    {
+    return;
+    }
+
   this->MaterialMask = string;
   this->Modified();
 }
