@@ -328,19 +328,19 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     }
 
   // Prepare array of doubles for depth values
-  vtkDoubleArray* scalars = vtkDoubleArray::New();
-  scalars->SetName( "Depth" );
-  scalars->SetNumberOfComponents( 1 );
+  vtkDoubleArray* depth = vtkDoubleArray::New();
+  depth->SetName( "Depth" );
+  depth->SetNumberOfComponents( 1 );
   vtkIdType fact = 1;
   for ( unsigned int i = 1; i < this->MaximumLevel; ++ i )
     {
     fact *= this->BranchFactor;
     }
-  scalars->Allocate( fact * fact );
+  depth->Allocate( fact * fact );
 
   // Set leaf (cell) data and clean up
-  this->Output->GetLeafData()->SetScalars( scalars );
-  scalars->UnRegister( this );
+  this->Output->GetLeafData()->SetScalars( depth );
+  depth->UnRegister( this );
 
   // Iterate over grid of trees
   for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
@@ -595,6 +595,9 @@ void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor
                                                       int cellIdOffset,
                                                       int parentPos )
 {
+  // Get handle on leaf scalar data 
+  vtkDataArray* depthArray = this->Output->GetLeafData()->GetArray( "Depth" );
+
   // Calculate pointer into level descriptor string
   int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
 
@@ -674,8 +677,8 @@ void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor
       this->Output->GetMaterialMask()->InsertTuple1( id, 0 );
       }
 
-    // Cell value is depth level for now
-    this->Output->GetLeafData()->GetScalars()->InsertTuple1( id, level );
+    // Cell value: depth level
+    depthArray->InsertTuple1( id, level );
     } // else
 }
 
@@ -688,6 +691,9 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
                                                    double origin[3],
                                                    double size[3] )
 {
+  // Get handle on leaf scalar data 
+  vtkDataArray* depthArray = this->Output->GetLeafData()->GetArray( "Depth" );
+
   // Determine whether to subdivide or not
   bool subdivide = false;
   double O[3];
@@ -696,9 +702,16 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     O[d] = origin[d] + idx[d] * size[d];
     }
 
+  // Prepare array of doubles for quadric values
+  vtkDoubleArray* quadricArray = vtkDoubleArray::New();
+  quadricArray->SetName( "Quadric" );
+  quadricArray->SetNumberOfComponents( 1 );
+ 
+  // Evaluate quadric at all cell vertices
   double q0 =  this->Quadric->EvaluateFunction( O );
-  double nV = 1 << this->Dimension;
-  for ( int v = 1; v < nV; ++ v )
+  double sum = q0;
+  double nVert = 1 << this->Dimension;
+  for ( int v = 1; v < nVert; ++ v )
     {
     div_t d1 = div( v, 2 );
     div_t d2 = div( d1.quot, 2 );
@@ -706,12 +719,18 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     pt[0] = O[0] + d1.rem * size[0];
     pt[1] = O[1] + d2.rem * size[1];
     pt[2] = O[2] + d2.quot * size[2];
-    if ( q0 * this->Quadric->EvaluateFunction( pt ) <= 0 )
+    double qv = this->Quadric->EvaluateFunction( pt );
+
+    // Update integral
+    sum += qv;
+
+    // Subdivide iff quadrich changes sign within cell
+    if ( q0 * qv <= 0 )
       {
       subdivide = true;
-      break;
       }
     } // v
+  sum /= nVert;
 
   // Subdivide further or stop recursion with terminal leaf
   if ( subdivide && level + 1 < this->MaximumLevel )
@@ -789,9 +808,15 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
       this->Output->GetMaterialMask()->InsertTuple1( id, 0 );
       }
 
-    // Cell value is depth level for now
-    this->Output->GetLeafData()->GetScalars()->InsertTuple1( id, level );
+    // Cell values: depth level and quadric function value
+    depthArray->InsertTuple1( id, level );
+    quadricArray->InsertTuple1( id, sum );
     } // else
+
+
+  // Finaly store quadric function values as data set array
+  this->Output->GetLeafData()->AddArray( quadricArray );
+  quadricArray->UnRegister( this );
 }
 
 //-----------------------------------------------------------------------------
