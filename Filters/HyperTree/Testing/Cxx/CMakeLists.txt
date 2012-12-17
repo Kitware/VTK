@@ -13,6 +13,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestHyperTreeGridTernary3DMaterialAxisCut.cxx
   TestHyperTreeGridTernary3DMaterialGeometry.cxx
   TestHyperTreeGridTernary3DMaterialUnstructured.cxx
+  TestHyperTreeGridTernaryHyperbola.cxx
   TestHyperTreeGridBinary2D.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h

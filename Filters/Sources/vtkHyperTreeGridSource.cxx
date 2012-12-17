@@ -328,20 +328,31 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     }
 
   // Prepare array of doubles for depth values
-  vtkDoubleArray* depth = vtkDoubleArray::New();
-  depth->SetName( "Depth" );
-  depth->SetNumberOfComponents( 1 );
+  vtkDoubleArray* depthArray = vtkDoubleArray::New();
+  depthArray->SetName( "Depth" );
+  depthArray->SetNumberOfComponents( 1 );
   vtkIdType fact = 1;
   for ( unsigned int i = 1; i < this->MaximumLevel; ++ i )
     {
     fact *= this->BranchFactor;
     }
-  depth->Allocate( fact * fact );
+  fact *= fact;
+  depthArray->Allocate( fact );
+  this->Output->GetLeafData()->SetScalars( depthArray );
+  depthArray->UnRegister( this );
 
-  // Set leaf (cell) data and clean up
-  this->Output->GetLeafData()->SetScalars( depth );
-  depth->UnRegister( this );
+  if ( ! this->UseDescriptor )
+    {
+    // Prepare array of doubles for quadric values
+    vtkDoubleArray* quadricArray = vtkDoubleArray::New();
+    quadricArray->SetName( "Quadric" );
+    quadricArray->SetNumberOfComponents( 1 );
 
+    quadricArray->Allocate( fact );
+    this->Output->GetLeafData()->AddArray( quadricArray );
+    quadricArray->UnRegister( this );
+    }
+    
   // Iterate over grid of trees
   for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
     {
@@ -693,6 +704,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
 {
   // Get handle on leaf scalar data 
   vtkDataArray* depthArray = this->Output->GetLeafData()->GetArray( "Depth" );
+  vtkDataArray* quadricArray = this->Output->GetLeafData()->GetArray( "Quadric" );
 
   // Determine whether to subdivide or not
   bool subdivide = false;
@@ -702,11 +714,6 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     O[d] = origin[d] + idx[d] * size[d];
     }
 
-  // Prepare array of doubles for quadric values
-  vtkDoubleArray* quadricArray = vtkDoubleArray::New();
-  quadricArray->SetName( "Quadric" );
-  quadricArray->SetNumberOfComponents( 1 );
- 
   // Evaluate quadric at all cell vertices
   double q0 =  this->Quadric->EvaluateFunction( O );
   double sum = q0;
@@ -724,13 +731,25 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     // Update integral
     sum += qv;
 
-    // Subdivide iff quadrich changes sign within cell
+    // Subdivide iff quadric changes sign within cell
     if ( q0 * qv <= 0 )
       {
       subdivide = true;
+      break;
       }
     } // v
-  sum /= nVert;
+
+  // Assign cell value 
+  if ( subdivide && level + 1 == this->MaximumLevel )
+    {
+    // Intersecting cells at deepest level are 0-set
+    sum = 0.;
+    }
+  else
+    {
+    // Cell value is average of all corner quadric values
+    sum /= nVert;
+    }
 
   // Subdivide further or stop recursion with terminal leaf
   if ( subdivide && level + 1 < this->MaximumLevel )
@@ -812,11 +831,6 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     depthArray->InsertTuple1( id, level );
     quadricArray->InsertTuple1( id, sum );
     } // else
-
-
-  // Finaly store quadric function values as data set array
-  this->Output->GetLeafData()->AddArray( quadricArray );
-  quadricArray->UnRegister( this );
 }
 
 //-----------------------------------------------------------------------------
