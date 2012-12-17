@@ -327,9 +327,9 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     coords->Delete();
     }
 
-  // Prepare array of doubles for cell values
+  // Prepare array of doubles for depth values
   vtkDoubleArray* scalars = vtkDoubleArray::New();
-  scalars->SetName( "Cell Value" );
+  scalars->SetName( "Depth" );
   scalars->SetNumberOfComponents( 1 );
   vtkIdType fact = 1;
   for ( unsigned int i = 1; i < this->MaximumLevel; ++ i )
