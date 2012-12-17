@@ -36,9 +36,9 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOff();
-  htGrid->SetQuadricCoefficients( 1., -1., 0., 
+  htGrid->SetQuadricCoefficients( 1., -1., 0.,
                                   0., 0., 0.,
-                                  -12., 12., 0., 
+                                  -12., 12., 0.,
                                   1. );
 
   // Geometry
@@ -48,7 +48,7 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   vtkPolyData* pd = geometry->GetOutput();
   pd->GetCellData()->SetActiveScalars( "Quadric" );
 
-  // Contour  
+  // Contour
   vtkNew<vtkContourFilter> contour;
   int nContours = 1;
   contour->SetNumberOfContours( nContours );
@@ -120,7 +120,7 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {

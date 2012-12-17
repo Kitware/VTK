@@ -81,9 +81,9 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->MaterialMask = "0";
 
   // Default quadric is a sphere with radius 1
-  this->Quadric = vtkQuadric::New();  
-  this->Quadric->SetCoefficients( 1., 1., 1., 
-                                  0., 0., 0., 
+  this->Quadric = vtkQuadric::New();
+  this->Quadric->SetCoefficients( 1., 1., 1.,
+                                  0., 0., 0.,
                                   0., 0., 0.,
                                   -1. );
 
@@ -352,7 +352,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     this->Output->GetLeafData()->AddArray( quadricArray );
     quadricArray->UnRegister( this );
     }
-    
+
   // Iterate over grid of trees
   for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
     {
@@ -606,7 +606,7 @@ void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor
                                                       int cellIdOffset,
                                                       int parentPos )
 {
-  // Get handle on leaf scalar data 
+  // Get handle on leaf scalar data
   vtkDataArray* depthArray = this->Output->GetLeafData()->GetArray( "Depth" );
 
   // Calculate pointer into level descriptor string
@@ -670,7 +670,7 @@ void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor
     // Increment current level counter
     ++ this->LevelCounters.at( level );
     } // if ( subdivide )
-  else 
+  else
     {
     // We are at a leaf cell, calculate its global index
     vtkIdType id = cellIdOffset + cursor->GetLeafId();
@@ -702,7 +702,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
                                                    double origin[3],
                                                    double size[3] )
 {
-  // Get handle on leaf scalar data 
+  // Get handle on leaf scalar data
   vtkDataArray* depthArray = this->Output->GetLeafData()->GetArray( "Depth" );
   vtkDataArray* quadricArray = this->Output->GetLeafData()->GetArray( "Quadric" );
 
@@ -739,7 +739,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
       }
     } // v
 
-  // Assign cell value 
+  // Assign cell value
   if ( subdivide && level + 1 == this->MaximumLevel )
     {
     // Intersecting cells at deepest level are 0-set
@@ -809,7 +809,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
         } // y
       } // z
     } // if ( subdivide )
-  else 
+  else
     {
     // We are at a leaf cell, calculate its global index
     vtkIdType id = cellIdOffset + cursor->GetLeafId();
