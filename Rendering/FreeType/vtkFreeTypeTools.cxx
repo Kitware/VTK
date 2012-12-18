@@ -1196,7 +1196,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   // Compile the metrics data to determine the final bounding box. Set line
   // origins here, too.
   int justification = metaData.textProperty->GetJustification();
-  for (int i = 0; i < metaData.lineMetrics.size(); ++i)
+  for (size_t i = 0; i < metaData.lineMetrics.size(); ++i)
     {
     MetaData::LineMetrics &metrics = metaData.lineMetrics[i];
 
