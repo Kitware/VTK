@@ -63,7 +63,7 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
     {
     contour->SetValue( i, quadricRange[0] + i * resolution );
     }
-  
+
   //  Color transfer function
   vtkNew<vtkColorTransferFunction> colorFunction;
   colorFunction->AddRGBSegment( quadricRange[0], 0., 0., 1.,

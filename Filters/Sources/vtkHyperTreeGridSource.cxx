@@ -396,6 +396,13 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       } // j
     } // k
 
+  // Squeeze attribute arrays
+  vtkDataSetAttributes* attr =  this->Output->GetLeafData();
+  for ( int a = 0; a < attr->GetNumberOfArrays(); ++ a )
+    {
+    attr->GetArray( a )->Squeeze();
+    }
+  
   assert( "post: dataset_and_data_size_match" && this->Output->CheckAttributes() == 0 );
 
   return 1;
