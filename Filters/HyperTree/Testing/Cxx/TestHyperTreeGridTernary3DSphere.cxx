@@ -5,7 +5,7 @@
 
 =========================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This test was written by Philippe Pebay, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"

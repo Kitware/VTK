@@ -5,7 +5,7 @@
 
 =========================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This test was written by Philippe Pebay, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
@@ -13,15 +13,19 @@
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkContourFilter.h"
-#include "vtkLookupTable.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkProperty2D.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkScalarBarActor.h"
+#include "vtkTextProperty.h"
 
 int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
 {
@@ -50,25 +54,30 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
 
   // Contour
   vtkNew<vtkContourFilter> contour;
-  int nContours = 1;
+  int nContours = 5;
   contour->SetNumberOfContours( nContours );
   contour->SetInputConnection( htGrid->GetOutputPort() );
-  double* range = pd->GetCellData()->GetScalars()->GetRange();
-  double resolution = ( range[1] - range[0] ) / ( nContours + 1. );
-  double isovalue = range[0] + resolution;
-  contour->SetValue( 0, 5. );
-  for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
+  double quadricRange[] = { -30., 30.};
+  double resolution = ( quadricRange[1] - quadricRange[0] ) / ( nContours + 1. );
+  for ( int i = 0; i < nContours; ++ i )
     {
-    // contour->SetValue( i, isovalue );
-    cerr << isovalue << endl;
+    contour->SetValue( i, quadricRange[0] + i * resolution );
     }
+  
+  //  Color transfer function
+  vtkNew<vtkColorTransferFunction> colorFunction;
+  colorFunction->AddRGBSegment( quadricRange[0], 0., 0., 1.,
+                                0.,  0., 1., 1.);
+  colorFunction->AddRGBSegment( VTK_DBL_MIN,  1., 1., 0.,
+                                quadricRange[1], 1., 0., 0.);
 
   // Mappers
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
-  mapper1->SetScalarRange( range );
   mapper1->SetResolveCoincidentTopologyToPolygonOffset();
   mapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
+  mapper1->UseLookupTableScalarRangeOn();
+  mapper1->SetLookupTable( colorFunction.GetPointer() );
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection( geometry->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
@@ -100,6 +109,24 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   camera->SetFocalPoint( pd->GetCenter() );
   camera->SetPosition( .5 * bd[1], .5 * bd[3], 24. );
 
+  // Scalar bar
+  vtkNew<vtkScalarBarActor> scalarBar;
+  scalarBar->SetLookupTable( colorFunction.GetPointer() );
+  scalarBar->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+  scalarBar->GetPositionCoordinate()->SetValue( .65, .05 );
+  scalarBar->SetTitle( "Quadric" );
+  scalarBar->SetWidth( 0.15 );
+  scalarBar->SetHeight( 0.4 );
+  scalarBar->SetMaximumWidthInPixels( 60 );
+  scalarBar->SetMaximumHeightInPixels( 200 );
+  scalarBar->SetTextPositionToPrecedeScalarBar();
+  scalarBar->GetTitleTextProperty()->SetColor( .4, .4, .4 );
+  scalarBar->GetLabelTextProperty()->SetColor( .4, .4, .4 );
+  scalarBar->SetDrawFrame( 1 );
+  scalarBar->GetFrameProperty()->SetColor( .4, .4, .4 );
+  scalarBar->SetDrawBackground( 1 );
+  scalarBar->GetBackgroundProperty()->SetColor( 1., 1., 1. );
+
   // Renderer
   vtkNew<vtkRenderer> renderer;
   renderer->SetActiveCamera( camera.GetPointer() );
@@ -107,6 +134,7 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   renderer->AddActor( actor1.GetPointer() );
   renderer->AddActor( actor2.GetPointer() );
   renderer->AddActor( actor3.GetPointer() );
+  renderer->AddActor( scalarBar.GetPointer() );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
