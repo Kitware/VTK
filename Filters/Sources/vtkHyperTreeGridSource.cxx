@@ -402,7 +402,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     {
     attr->GetArray( a )->Squeeze();
     }
-  
+
   assert( "post: dataset_and_data_size_match" && this->Output->CheckAttributes() == 0 );
 
   return 1;
