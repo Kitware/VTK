@@ -39,8 +39,7 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 6;
-  htGrid->SetMaximumLevel( maxLevel );
+  htGrid->SetMaximumLevel( 6 );
   htGrid->SetGridSize( 8, 12, 1 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 2 );
@@ -62,22 +61,18 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
 
   // Contour
   vtkNew<vtkContourFilter> contour;
-  int nContours = 5;
-  contour->SetNumberOfContours( nContours );
   contour->SetInputConnection( htGrid->GetOutputPort() );
-  double quadricRange[] = { -30., 30.};
-  double resolution = ( quadricRange[1] - quadricRange[0] ) / ( nContours + 1. );
-  for ( int i = 0; i < nContours; ++ i )
-    {
-    contour->SetValue( i, quadricRange[0] + i * resolution );
-    }
-
+  contour->SetNumberOfContours( 0 );
+  contour->SetValue( 0, 0 );
+  contour->SetInputArrayToProcess( 0, 0, 0,
+                                   vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                                   "Quadric" );
   //  Color transfer function
   vtkNew<vtkColorTransferFunction> colorFunction;
-  colorFunction->AddRGBSegment( quadricRange[0], 0., 0., 1.,
+  colorFunction->AddRGBSegment( -30., 0., 0., 1.,
                                 0.,  0., 1., 1.);
   colorFunction->AddRGBSegment( VTK_DBL_MIN,  1., 1., 0.,
-                                quadricRange[1], 1., 0., 0.);
+                                30., 1., 0., 0.);
 
   // Mappers
   vtkNew<vtkPolyDataMapper> mapper1;
@@ -106,7 +101,7 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   actor2->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor3;
   actor3->SetMapper( mapper3.GetPointer() );
-  actor3->GetProperty()->SetColor( .8, .2, .3 );
+  actor3->GetProperty()->SetColor( 0., 0., 0. );
   actor3->GetProperty()->SetLineWidth( 2 );
 
   // Camera

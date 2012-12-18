@@ -61,21 +61,21 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
 
   contour->GenerateTrianglesOff();
   contour->Update();
-  if(contour->GetOutput()->GetNumberOfPoints()!=547)
+  if( contour->GetOutput()->GetNumberOfPoints() != 547 )
     {
     return 1;
     }
-  if(contour->GetOutput()->GetNumberOfCells()!=463)
+  if( contour->GetOutput()->GetNumberOfCells() != 463 )
     {
     return 1;
     }
   contour->GenerateTrianglesOn();
   contour->Update();
-  if(contour->GetOutput()->GetNumberOfPoints()!=547)
+  if( contour->GetOutput()->GetNumberOfPoints() != 547 )
     {
     return 1;
     }
-  if(contour->GetOutput()->GetNumberOfCells()!=917)
+  if( contour->GetOutput()->GetNumberOfCells() != 917 )
     {
     return 1;
     }

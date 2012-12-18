@@ -86,7 +86,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
                                   0., 0., 0.,
                                   0., 0., 0.,
                                   -1. );
-
+  
   // Keep reference to hyper tree grid output
   this->Output = NULL;
 }
