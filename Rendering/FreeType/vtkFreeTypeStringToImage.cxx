@@ -88,9 +88,10 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
   return recti;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
                                            const vtkUnicodeString& string,
-                                           vtkImageData *data)
+                                           vtkImageData *data, int textDims[2])
 {
   // Get the required size, and initialize a new QImage to draw on.
   vtkVector2i box = this->GetBounds(property, string);
@@ -101,12 +102,13 @@ int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
 
   return this->Implementation->FreeType->RenderString(property,
                                                       string,
-                                                      data);
+                                                      data, textDims);
 }
 
+//-----------------------------------------------------------------------------
 int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
                                            const vtkStdString& string,
-                                           vtkImageData *data)
+                                           vtkImageData *data, int textDims[2])
 {
   // Get the required size, and initialize a new QImage to draw on.
   vtkVector2i box = this->GetBounds(property, string);
@@ -115,7 +117,8 @@ int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
     return 0;
     }
 
-  return this->Implementation->FreeType->RenderString(property, string, data);
+  return this->Implementation->FreeType->RenderString(property, string, data,
+                                                      textDims);
 }
 
 //-----------------------------------------------------------------------------

@@ -54,13 +54,16 @@ public:
 
   // Description:
   // Given a text property and a string, this function initializes the
-  // vtkImageData *data and renders it in a vtkImageData.
+  // vtkImageData *data and renders it in a vtkImageData. textDims, if provided,
+  // will be overwritten by the pixel width and height of the rendered string.
   virtual int RenderString(vtkTextProperty *property,
                            const vtkUnicodeString& string,
-                           vtkImageData *data);
+                           vtkImageData *data,
+                           int textDims[2] = NULL);
   virtual int RenderString(vtkTextProperty *property,
                            const vtkStdString& string,
-                           vtkImageData *data);
+                           vtkImageData *data,
+                           int textDims[2] = NULL);
 
   // Description:
   // Make a deep copy of the supplied utility class.

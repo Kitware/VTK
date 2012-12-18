@@ -122,7 +122,8 @@ vtkInstantiatorNewMacro(vtkMatplotlibMathTextUtilities)
 
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
-  : Superclass(), MaskParser(NULL), PathParser(NULL), FontPropertiesClass(NULL)
+  : Superclass(), MaskParser(NULL), PathParser(NULL), FontPropertiesClass(NULL),
+    ScaleToPowerOfTwo(true)
 {
 }
 
@@ -340,6 +341,55 @@ void vtkMatplotlibMathTextUtilities::RotateCorners(double angleDeg,
 }
 
 //----------------------------------------------------------------------------
+// This is more or less ported from vtkFreeTypeTools.
+bool vtkMatplotlibMathTextUtilities::PrepareImageData(vtkImageData *data,
+                                                      int width, int height)
+{
+  // If the current image data is too small to render the text,
+  // or more than twice as big (too hungry), then resize
+  int imgDims[3], newImgDims[3];
+  data->GetDimensions(imgDims);
+
+  if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
+      data->GetNumberOfScalarComponents() != 4 ||
+      imgDims[0] < width || imgDims[1] < height ||
+      width * 2 < imgDims[0] || height * 2 < imgDims[1])
+    {
+    // Scale to the next highest power of 2 if required.
+    if (this->ScaleToPowerOfTwo)
+      {
+      newImgDims[0] =
+          1 << static_cast<int>(ceil(log(static_cast<double>(width+1)) /
+                                     log(2.0)));
+      newImgDims[1] =
+          1 << static_cast<int>(ceil(log(static_cast<double>(height+1)) /
+                                     log(2.0)));
+      }
+    else
+      {
+      newImgDims[0] = width;
+      newImgDims[1] = height;
+      }
+    newImgDims[2] = 1;
+
+    // Allocate the new image if needed
+    if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
+        data->GetNumberOfScalarComponents() != 4 ||
+        newImgDims[0] != imgDims[0] ||
+        newImgDims[1] != imgDims[1] ||
+        newImgDims[2] != imgDims[2])
+      {
+      data->SetDimensions(newImgDims);
+      data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
+      }
+    }
+
+  // Clear the image
+  memset(data->GetScalarPointer(), 0,
+         (data->GetNumberOfPoints() * data->GetNumberOfScalarComponents()));
+}
+
+//----------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
     vtkTextProperty *tprop, const char *str, unsigned int dpi, int bbox[4])
 {
@@ -402,10 +452,10 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
 
   double bboxd[4];
   this->RotateCorners(angleDeg, corners, bboxd);
-  bbox[0] = vtkMath::Round(bboxd[0]);
-  bbox[1] = vtkMath::Round(bboxd[1]);
-  bbox[2] = vtkMath::Round(bboxd[2]);
-  bbox[3] = vtkMath::Round(bboxd[3]);
+  bbox[0] = vtkMath::Ceil(bboxd[0]);
+  bbox[1] = vtkMath::Ceil(bboxd[1]);
+  bbox[2] = vtkMath::Ceil(bboxd[2]);
+  bbox[3] = vtkMath::Ceil(bboxd[3]);
 
   return true;
 }
@@ -414,7 +464,8 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
 bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
                                                   vtkImageData *image,
                                                   vtkTextProperty *tprop,
-                                                  unsigned int dpi)
+                                                  unsigned int dpi,
+                                                  int textDims[2])
 {
   if (!this->MaskParser)
     {
@@ -493,8 +544,14 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
     return false;
     }
 
-  image->SetDimensions(cols, rows, 1);
-  image->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
+  if (textDims)
+    {
+    textDims[0] = cols;
+    textDims[1] = rows;
+    }
+
+  this->PrepareImageData(image, cols, rows);
+
   for (long int row = rows-1; row >= 0; --row)
     {
     for (long int col = 0; col < cols; ++col)
@@ -538,6 +595,23 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
 
   // Rotate the corners of the image and determine the bounding box
   this->RotateCorners(angleDeg, corners, bbox);
+
+  // Also rotate the text dimensions.
+  if (textDims)
+    {
+    double text_bbox[4];
+    corners[0][0] = static_cast<double>(0);
+    corners[0][1] = static_cast<double>(0);
+    corners[1][0] = static_cast<double>(0);
+    corners[1][1] = static_cast<double>(textDims[1]);
+    corners[2][0] = static_cast<double>(textDims[0]);
+    corners[2][1] = static_cast<double>(textDims[1]);
+    corners[3][0] = static_cast<double>(textDims[0]) ;
+    corners[3][1] = static_cast<double>(0);
+    this->RotateCorners(angleDeg, corners, text_bbox);
+    textDims[0] = std::ceil(text_bbox[1] - text_bbox[0]);
+    textDims[1] = std::ceil(text_bbox[3] - text_bbox[2]);
+    }
 
   // Rotate the temporary image into the returned image:
   vtkNew<vtkTransform> rotation;

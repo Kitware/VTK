@@ -75,14 +75,16 @@ public:
   vtkGetMacro(NumberOfLines,int);
 
   // Description:
-  // Set and return the font size required to make this mapper fit in a given
+  // Set and return the font size (in points) required to make this mapper fit
+  // in a given
   // target rectangle (width x height, in pixels). A static version of the method
   // is also available for convenience to other classes (e.g., widgets).
   virtual int SetConstrainedFontSize(vtkViewport*, int targetWidth, int targetHeight);
   static int SetConstrainedFontSize(vtkTextMapper*, vtkViewport*, int targetWidth, int targetHeight);
 
   // Description:
-  // Set and return the font size required to make each element of an array
+  // Set and return the font size (in points) required to make each element of
+  // an array
   // of mappers fit in a given rectangle (width x height, in pixels).  This
   // font size is the smallest size that was required to fit the largest
   // mapper in this constraint.

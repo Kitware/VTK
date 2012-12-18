@@ -36,7 +36,9 @@
 # include <stdint.h>
 #endif
 
+#include <algorithm>
 #include <map>
+#include <vector>
 
 #ifdef FTGL_USE_NAMESPACE
 using namespace ftgl;
@@ -51,6 +53,43 @@ class vtkTextPropertyLookup
 {
 public:
   bool contains(const unsigned long id) {return this->find(id) != this->end();}
+};
+
+class vtkFreeTypeTools::MetaData
+{
+public:
+  // Set by PrepareMetaData
+  vtkTextProperty *textProperty;
+  unsigned long textPropertyCacheId;
+  FT_Face face;
+  bool faceHasKerning;
+
+  // Set by CalculateBoundingBox
+  int ascent;
+  int descent;
+  int height;
+  struct LineMetrics {
+    int originX;
+    int originY;
+    int width;
+    // bbox relative to origin[XY]:
+    int xmin;
+    int xmax;
+    int ymin;
+    int ymax;
+  };
+  std::vector<LineMetrics> lineMetrics;
+  int maxLineWidth;
+  int bbox[4];
+};
+
+class vtkFreeTypeTools::ImageMetaData : public vtkFreeTypeTools::MetaData
+{
+public:
+  // Set by PrepareImageMetaData
+  int imageDimensions[3];
+  vtkIdType imageIncrements[3];
+  unsigned char rgba[4];
 };
 
 //----------------------------------------------------------------------------
@@ -161,7 +200,7 @@ vtkFreeTypeTools::vtkFreeTypeTools()
   this->CacheManager = NULL;
   this->ImageCache   = NULL;
   this->CMapCache    = NULL;
-  this->ScaleToPowerTwo = false;
+  this->ScaleToPowerTwo = true;
 }
 
 //----------------------------------------------------------------------------
@@ -361,13 +400,23 @@ bool vtkFreeTypeTools::GetBoundingBox(vtkTextProperty *tprop,
     return false;
     }
 
-  return this->CalculateBoundingBox(tprop, str, bbox);
+  MetaData metaData;
+  bool result = this->PrepareMetaData(tprop, metaData);
+  if (result)
+    {
+    result = this->CalculateBoundingBox(str, metaData);
+    if (result)
+      {
+      memcpy(bbox, metaData.bbox, sizeof(int) * 4);
+      }
+    }
+  return result;
 }
 
 //----------------------------------------------------------------------------
 bool vtkFreeTypeTools::GetBoundingBox(vtkTextProperty *tprop,
-                                     const vtkUnicodeString& str,
-                                     int bbox[4])
+                                      const vtkUnicodeString& str,
+                                      int bbox[4])
 {
   // We need the tprop and bbox
   if (!tprop || !bbox)
@@ -382,85 +431,75 @@ bool vtkFreeTypeTools::GetBoundingBox(vtkTextProperty *tprop,
     return false;
     }
 
-  return this->CalculateBoundingBox(tprop, str, bbox);
+  MetaData metaData;
+  bool result = this->PrepareMetaData(tprop, metaData);
+  if (result)
+    {
+    result = this->CalculateBoundingBox(str, metaData);
+    if (result)
+      {
+      memcpy(bbox, metaData.bbox, sizeof(int) * 4);
+      }
+    }
+  return result;
 }
 
 //----------------------------------------------------------------------------
 bool vtkFreeTypeTools::RenderString(vtkTextProperty *tprop,
-                                   const vtkStdString& str,
-                                   vtkImageData *data)
+                                    const vtkStdString& str,
+                                    vtkImageData *data, int textDims[2])
 {
-  // Check parameters
-  if (!tprop || !data)
-    {
-    vtkErrorMacro(<< "Wrong parameters, one of them is NULL or zero");
-    return false;
-    }
-
-  if (data->GetNumberOfScalarComponents() > 4)
-    {
-    vtkErrorMacro("The image data must have a maximum of four components");
-    return false;
-    }
-
-  if (str.empty())
-    {
-    return false;
-    }
-
-  // Prepare the ImageData to receive the text
-  int x = 0;
-  int y = 0;
-  this->PrepareImageData(data, tprop, str, &x, &y);
-
-  // Execute text
-  return this->PopulateImageData(tprop, str, x, y, data);
+  return this->RenderStringInternal(tprop, str, data, textDims);
 }
 
 //----------------------------------------------------------------------------
 bool vtkFreeTypeTools::RenderString(vtkTextProperty *tprop,
-                                   const vtkUnicodeString& str,
-                                   vtkImageData *data)
+                                    const vtkUnicodeString& str,
+                                    vtkImageData *data, int textDims[2])
 {
-  // Check parameters
-  if (!tprop || !data)
-    {
-    vtkErrorMacro(<< "Wrong parameters, one of them is NULL or zero");
-    return false;
-    }
-
-  if (data->GetNumberOfScalarComponents() > 4)
-    {
-    vtkErrorMacro("The image data must have a maximum of four components");
-    return false;
-    }
-
-  if (str.empty())
-    {
-    return false;
-    }
-
-  // Prepare the ImageData to receive the text
-  int x = 0;
-  int y = 0;
-  this->PrepareImageData(data, tprop, str, &x, &y);
-
-  // Execute text
-  return this->PopulateImageData(tprop, str, x, y, data);
+  return this->RenderStringInternal(tprop, str, data, textDims);
 }
 
 //----------------------------------------------------------------------------
 bool vtkFreeTypeTools::StringToPath(vtkTextProperty *tprop,
                                     const vtkStdString &str, vtkPath *path)
 {
-  return this->PopulatePath<vtkStdString>(tprop, str, 0, 0, path);
+  return this->StringToPathInternal(tprop, str, path);
 }
 
 //----------------------------------------------------------------------------
 bool vtkFreeTypeTools::StringToPath(vtkTextProperty *tprop,
                                     const vtkUnicodeString &str, vtkPath *path)
 {
-  return this->PopulatePath<vtkUnicodeString>(tprop, str, 0, 0, path);
+  return this->StringToPathInternal(tprop, str, path);
+}
+
+//----------------------------------------------------------------------------
+int vtkFreeTypeTools::GetConstrainedFontSize(const vtkStdString &str,
+                                             vtkTextProperty *tprop,
+                                             int targetWidth, int targetHeight)
+{
+  MetaData metaData;
+  if (!this->PrepareMetaData(tprop, metaData))
+    {
+    vtkErrorMacro(<<"Could not prepare metadata.");
+    return false;
+    }
+  return this->FitStringToBBox(str, metaData, targetWidth, targetHeight);
+}
+
+//----------------------------------------------------------------------------
+int vtkFreeTypeTools::GetConstrainedFontSize(const vtkUnicodeString &str,
+                                             vtkTextProperty *tprop,
+                                             int targetWidth, int targetHeight)
+{
+  MetaData metaData;
+  if (!this->PrepareMetaData(tprop, metaData))
+    {
+    vtkErrorMacro(<<"Could not prepare metadata.");
+    return false;
+    }
+  return this->FitStringToBBox(str, metaData, targetWidth, targetHeight);
 }
 
 //----------------------------------------------------------------------------
@@ -497,8 +536,6 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   int bits = 1;
 
   // The font family is hashed into 16 bits (= 17 bits so far)
-  // (2 would be enough right now, but who knows, it might grow)
-  // Avoid unknown as this can cause segfaluts - this should be fixed...
   *id |= vtkFreeTypeTools::HashString(tprop->GetFontFamilyAsString()) << bits;
   bits += 16;
 
@@ -704,10 +741,10 @@ bool vtkFreeTypeTools::GetGlyphIndex(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 bool vtkFreeTypeTools::GetGlyph(unsigned long tprop_cache_id,
-                               int font_size,
-                               FT_UInt gindex,
-                               FT_Glyph *glyph,
-                               int request)
+                                int font_size,
+                                FT_UInt gindex,
+                                FT_Glyph *glyph,
+                                int request)
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeTools::GetGlyph()\n");
@@ -751,6 +788,7 @@ bool vtkFreeTypeTools::GetGlyph(unsigned long tprop_cache_id,
   return error ? false : true;
 }
 
+//----------------------------------------------------------------------------
 bool vtkFreeTypeTools::LookupFace(vtkTextProperty *tprop, FT_Library lib,
                                   FT_Face *face)
 {
@@ -831,8 +869,6 @@ bool vtkFreeTypeTools::LookupFace(vtkTextProperty *tprop, FT_Library lib,
     [family][tprop->GetBold()][tprop->GetItalic()].ptr;
 
   // Create a new face from the embedded fonts if possible
-
-  // If the font face is of type unknown, attempt to load it from disk
   FT_Error error = FT_New_Memory_Face(lib, ptr, length, 0, face);
 
   if (error)
@@ -918,131 +954,321 @@ FT_Error vtkFreeTypeTools::CreateFTCManager()
 }
 
 //----------------------------------------------------------------------------
-template <typename T>
-bool vtkFreeTypeTools::CalculateBoundingBox(vtkTextProperty *tprop,
-                                            const T& str,
-                                            int bbox[4])
+inline bool vtkFreeTypeTools::PrepareImageMetaData(vtkTextProperty *tprop,
+                                                   vtkImageData *image,
+                                                   ImageMetaData &metaData)
 {
-  // Initialize bbox minima to 0 -- this is the starting point of the pen,
-  // omitting it will not consider the first character's bearing.
-  bbox[0] = bbox[2] = 0;
-  // This will be updated as the glyphs bboxes are tested:
-  bbox[1] = bbox[3] = VTK_INT_MIN;
+  // Image properties
+  image->GetIncrements(metaData.imageIncrements);
+  image->GetDimensions(metaData.imageDimensions);
 
-  // Map the text property to a unique id that will be used as face id, get the
-  // font face and establish whether kerning information is available.
-  unsigned long tprop_cache_id;
-  FT_Face face;
-  bool face_has_kerning = false;
-  if (!this->GetFace(tprop, tprop_cache_id, face, face_has_kerning))
+  double color[3];
+  tprop->GetColor(color);
+  metaData.rgba[0] = static_cast<unsigned char>(color[0] * 255);
+  metaData.rgba[1] = static_cast<unsigned char>(color[1] * 255);
+  metaData.rgba[2] = static_cast<unsigned char>(color[2] * 255);
+  metaData.rgba[3] = static_cast<unsigned char>(tprop->GetOpacity() * 255);
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+inline bool vtkFreeTypeTools::PrepareMetaData(vtkTextProperty *tprop,
+                                              MetaData &metaData)
+{
+  // Text properties
+  metaData.textProperty = tprop;
+  if (!this->GetFace(tprop, metaData.textPropertyCacheId, metaData.face,
+                     metaData.faceHasKerning))
     {
     return false;
-    }
-
-  int tprop_font_size = tprop->GetFontSize();
-  FT_BitmapGlyph bitmap_glyph;
-  FT_Bitmap *bitmap;
-  FT_UInt gindex, previous_gindex = 0;
-  FT_Vector kerning_delta;
-
-  int x = 0, y = 0;
-
-  // Render char by char
-  for (typename T::const_iterator it = str.begin(); it != str.end(); ++it)
-    {
-    bitmap = this->GetBitmap(*it, tprop_cache_id, tprop_font_size, gindex,
-                             bitmap_glyph);
-    if (!bitmap)
-      {
-      // Glyph not found in the face. FIXME: do something more elegant here.
-      // We should render an empty rectangle to adhere to the specs...
-      continue;
-      }
-
-    if (bitmap->width && bitmap->rows)
-      {
-      // Starting position given the bearings.  Move the pen to the upper-left
-      // extent of this character.
-
-      // Subtract 1 to the bearing Y, because this is the vertical distance
-      // from the glyph origin (0,0) to the topmost pixel of the glyph bitmap
-      // (more precisely, to the pixel just above the bitmap). This distance is
-      // expressed in integer pixels, and is positive for upwards y.
-      int pen_x = x + bitmap_glyph->left;
-      int pen_y = y + bitmap_glyph->top - 1;
-
-      // Add the kerning
-      if (face_has_kerning && previous_gindex && gindex)
-        {
-        FT_Get_Kerning(
-          face, previous_gindex, gindex, ft_kerning_default, &kerning_delta);
-        pen_x += kerning_delta.x >> 6;
-        pen_y += kerning_delta.y >> 6;
-        }
-
-      previous_gindex = gindex;
-
-      // Update bounding box
-      if (pen_x < bbox[0])
-        {
-        bbox[0] = pen_x;
-        }
-      if (pen_y > bbox[3])
-        {
-        bbox[3] = pen_y;
-        }
-      // now move the pen to the lower-right corner of this character and
-      // update the bounding box if appropriate
-      pen_x += bitmap->width;
-      pen_y -= bitmap->rows;
-
-      if (pen_x > bbox[1])
-        {
-        bbox[1] = pen_x;
-        }
-      if (pen_y < bbox[2])
-        {
-        bbox[2] = pen_y;
-        }
-      }
-
-    // Advance to next char
-    x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
-    y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
     }
 
   return true;
 }
 
-template <typename T>
-void vtkFreeTypeTools::PrepareImageData(vtkImageData *data,
-                                        vtkTextProperty *tprop,
-                                        const T& str,
-                                        int *x, int *y)
+//----------------------------------------------------------------------------
+template <typename StringType>
+bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
+                                            const StringType &str,
+                                            vtkImageData *data,
+                                            int textDims[2])
 {
-  int text_bbox[4];
-  if (!this->GetBoundingBox(tprop, str, text_bbox))
+  // Check parameters
+  if (!tprop || !data)
+    {
+    vtkErrorMacro(<< "Wrong parameters, one of them is NULL or zero");
+    return false;
+    }
+
+  if (data->GetNumberOfScalarComponents() > 4)
+    {
+    vtkErrorMacro("The image data must have a maximum of four components");
+    return false;
+    }
+
+  if (str.empty())
+    {
+    return false;
+    }
+
+  ImageMetaData metaData;
+
+  // Setup the metadata cache
+  if (!this->PrepareMetaData(tprop, metaData))
+    {
+    vtkErrorMacro(<<"Error prepare text metadata.");
+    return false;
+    }
+
+  // Calculate the bounding box.
+  if (!this->CalculateBoundingBox(str, metaData))
     {
     vtkErrorMacro(<<"Could not get a valid bounding box.");
-    return;
+    return false;
     }
-  if (!this->IsBoundingBoxValid(text_bbox))
+
+  // Calculate the text dimensions:
+  if (textDims)
     {
-    vtkErrorMacro(<<"no text in input");
-    return;
+    textDims[0] = metaData.bbox[1] - metaData.bbox[0] + 1;
+    textDims[1] = metaData.bbox[3] - metaData.bbox[2] + 1;
     }
+
+  // Prepare the ImageData to receive the text
+  this->PrepareImageData(data, metaData.bbox);
+
+  // Setup the image metadata
+  if (!this->PrepareImageMetaData(tprop, data, metaData))
+    {
+    vtkErrorMacro(<<"Error prepare image metadata.");
+    return false;
+    }
+
+  // Render shadow if needed
+  if (metaData.textProperty->GetShadow())
+    {
+    // Modify the line offsets with the shadow offset
+    int shadowOffset[2];
+    metaData.textProperty->GetShadowOffset(shadowOffset);
+    std::vector<MetaData::LineMetrics> origMetrics = metaData.lineMetrics;
+    metaData.lineMetrics.clear();
+    for (std::vector<MetaData::LineMetrics>::const_iterator
+         it = origMetrics.begin(), itEnd = origMetrics.end(); it < itEnd; ++it)
+      {
+      MetaData::LineMetrics line = *it;
+      line.originX += shadowOffset[0];
+      line.originY += shadowOffset[1];
+      metaData.lineMetrics.push_back(line);
+      }
+
+    // Set the color
+    unsigned char origColor[3] = {metaData.rgba[0], metaData.rgba[1],
+                                  metaData.rgba[2]};
+    double shadowColor[3];
+    metaData.textProperty->GetShadowColor(shadowColor);
+    metaData.rgba[0] = static_cast<unsigned char>(shadowColor[0] * 255);
+    metaData.rgba[1] = static_cast<unsigned char>(shadowColor[1] * 255);
+    metaData.rgba[2] = static_cast<unsigned char>(shadowColor[2] * 255);
+
+    if (!this->PopulateData(str, data, metaData))
+      {
+      vtkErrorMacro(<<"Error rendering shadow");
+      return false;
+      }
+
+    // Restore color and line metrics
+    metaData.lineMetrics = origMetrics;
+    memcpy(metaData.rgba, origColor, 3 * sizeof(unsigned char));
+    }
+
+  // Render image
+  return this->PopulateData(str, data, metaData);
+}
+
+//----------------------------------------------------------------------------
+template <typename StringType>
+bool vtkFreeTypeTools::StringToPathInternal(vtkTextProperty *tprop,
+                                            const StringType &str,
+                                            vtkPath *path)
+{
+  // Setup the metadata
+  MetaData metaData;
+  if (!this->PrepareMetaData(tprop, metaData))
+    {
+    vtkErrorMacro(<<"Could not prepare metadata.");
+    return false;
+    }
+
+  // Layout the text, calculate bounding box
+  if (!this->CalculateBoundingBox(str, metaData))
+    {
+    vtkErrorMacro(<<"Could not calculate bounding box.");
+    return false;
+    }
+
+  // Create the path
+  if (!this->PopulateData(str, path, metaData))
+    {
+    vtkErrorMacro(<<"Could not populate path.");
+    return false;
+    }
+
+  // Adjust for justification
+  this->JustifyPath(path, metaData);
+  return true;
+}
+
+//----------------------------------------------------------------------------
+template <typename T>
+bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
+                                            MetaData &metaData)
+{
+  // Calculate the metrics for each line. These will be used to calculate
+  // a bounding box, but first we need to know the maximum line length to
+  // get justification right.
+  metaData.lineMetrics.clear();
+  metaData.maxLineWidth = 0;
+
+  // Go through the string, line by line, and build the metrics data.
+  typename T::const_iterator beginLine = str.begin();
+  typename T::const_iterator endLine = std::find(beginLine, str.end(), '\n');
+  while (endLine != str.end())
+    {
+    metaData.lineMetrics.push_back(MetaData::LineMetrics());
+    this->GetLineMetrics(beginLine, endLine, metaData,
+                         metaData.lineMetrics.back().width,
+                         &metaData.lineMetrics.back().xmin);
+    metaData.maxLineWidth = std::max(metaData.maxLineWidth,
+                                     metaData.lineMetrics.back().width);
+    beginLine = endLine;
+    ++beginLine;
+    endLine = std::find(beginLine, str.end(), '\n');
+    }
+  // Last line...
+  metaData.lineMetrics.push_back(MetaData::LineMetrics());
+  this->GetLineMetrics(beginLine, endLine, metaData,
+                       metaData.lineMetrics.back().width,
+                       &metaData.lineMetrics.back().xmin);
+  metaData.maxLineWidth = std::max(metaData.maxLineWidth,
+                                   metaData.lineMetrics.back().width);
+
+  // Calculate line height from a reference set of characters, since the global
+  // face values are usually way too big. This is the same string used to
+  // determine height in vtkFreeTypeUtilities.
+  const char *heightString = "_/7Agfy";
+  int fontSize = metaData.textProperty->GetFontSize();
+  metaData.ascent = 0;
+  metaData.descent = 0;
+  while (*heightString)
+    {
+    FT_BitmapGlyph bitmapGlyph;
+    FT_UInt glyphIndex;
+    FT_Bitmap *bitmap = this->GetBitmap(
+          *heightString, metaData.textPropertyCacheId, fontSize, glyphIndex,
+          bitmapGlyph);
+    if (bitmap)
+      {
+      metaData.ascent = std::max(bitmapGlyph->top - 1, metaData.ascent);
+      metaData.descent = std::min(-(bitmap->rows - (bitmapGlyph->top - 1)),
+                                  metaData.descent);
+      }
+    ++heightString;
+    }
+  // Set line height. Descent is negative.
+  metaData.height = metaData.ascent - metaData.descent;
+
+  // sin, cos of orientation
+  float angle = vtkMath::RadiansFromDegrees(
+        metaData.textProperty->GetOrientation());
+  float c = cos(angle);
+  float s = sin(angle);
+
+  // The base of the current line, and temp vars for line offsets and origins
+  int pen[2] = {0, 0};
+  int offset[2] = {0, 0};
+  int origin[2] = {0, 0};
+
+  // Initialize bbox
+  metaData.bbox[0] = metaData.bbox[1] = pen[0];
+  metaData.bbox[2] = metaData.bbox[3] = pen[1];
+
+  // Compile the metrics data to determine the final bounding box. Set line
+  // origins here, too.
+  int justification = metaData.textProperty->GetJustification();
+  for (int i = 0; i < metaData.lineMetrics.size(); ++i)
+    {
+    MetaData::LineMetrics &metrics = metaData.lineMetrics[i];
+
+    // Apply justification
+    origin[0] = pen[0];
+    origin[1] = pen[1];
+    if (justification != VTK_TEXT_LEFT)
+      {
+      int xShift = metaData.maxLineWidth - metrics.width;
+      if (justification == VTK_TEXT_CENTERED)
+        {
+        xShift /= 2;
+        }
+      origin[0] += vtkMath::Floor(c * xShift + 0.5);
+      origin[1] += vtkMath::Floor(s * xShift + 0.5);
+      }
+
+    // Set line origin
+    metrics.originX = origin[0];
+    metrics.originY = origin[1];
+
+    // Merge bounding boxes
+    metaData.bbox[0] = std::min(metaData.bbox[0], metrics.xmin + origin[0]);
+    metaData.bbox[1] = std::max(metaData.bbox[1], metrics.xmax + origin[0]);
+    metaData.bbox[2] = std::min(metaData.bbox[2], metrics.ymin + origin[1]);
+    metaData.bbox[3] = std::max(metaData.bbox[3], metrics.ymax + origin[1]);
+
+    // Calculate offset of next line
+    offset[0] = 0;
+    offset[1] = -std::ceil(metaData.height *
+                           metaData.textProperty->GetLineSpacing());
+
+    // Update pen position
+    pen[0] += vtkMath::Floor(c * offset[0] - s * offset[1] + 0.5);
+    pen[1] += vtkMath::Floor(s * offset[0] + c * offset[1] + 0.5);
+    }
+
+  // Adjust for shadow
+  if (metaData.textProperty->GetShadow())
+    {
+    int shadowOffset[2];
+    metaData.textProperty->GetShadowOffset(shadowOffset);
+    if (shadowOffset[0] < 0)
+      {
+      metaData.bbox[0] += shadowOffset[0];
+      }
+    else
+      {
+      metaData.bbox[1] += shadowOffset[0];
+      }
+    if (shadowOffset[1] < 0)
+      {
+      metaData.bbox[2] += shadowOffset[1];
+      }
+    else
+      {
+      metaData.bbox[3] += shadowOffset[1];
+      }
+    }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkFreeTypeTools::PrepareImageData(vtkImageData *data, int text_bbox[4])
+{
   // The bounding box was the area that is going to be filled with pixels
   // given a text origin of (0, 0). Now get the real size we need, i.e.
   // the full extent from the origin to the bounding box.
   int text_size[2];
-  text_size[0] = (text_bbox[1] - text_bbox[0] + 1);// + abs(text_bbox[0]);
-  text_size[1] = (text_bbox[3] - text_bbox[2] + 1);// + abs(text_bbox[2]);
-
-  // If the RGBA image data is too small, resize it to the next power of 2
-  // WARNING: at this point, since this image is going to be a texture
-  // we should limit its size or query the hardware
-
-  data->SetSpacing(1.0, 1.0, 1.0);
+  text_size[0] = (text_bbox[1] - text_bbox[0] + 1);
+  text_size[1] = (text_bbox[3] - text_bbox[2] + 1);
 
   // If the current image data is too small to render the text,
   // or more than twice as big (too hungry), then resize
@@ -1052,7 +1278,7 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data,
   if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
       data->GetNumberOfScalarComponents() != 4 ||
       img_dims[0] < text_size[0] || img_dims[1] < text_size[1] ||
-      text_size[0] * 2 < img_dims[0] || text_size[1] * 2 < img_dims[0])
+      text_size[0] * 2 < img_dims[0] || text_size[1] * 2 < img_dims[1])
     {
     // Scale to the next highest power of 2 if required.
     if (this->ScaleToPowerTwo)
@@ -1066,193 +1292,224 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data,
       }
     else
       {
-      new_img_dims[0] = text_size[0]+1;
-      new_img_dims[1] = text_size[1]+1;
+      new_img_dims[0] = text_size[0];
+      new_img_dims[1] = text_size[1];
       }
     new_img_dims[2] = 1;
+
+    // Set the extents to match the bbox + padding
+    data->SetExtent(text_bbox[0], text_bbox[0] + new_img_dims[0] - 1,
+                    text_bbox[2], text_bbox[2] + new_img_dims[1] - 1,
+                    0, 0);
+
     if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
         data->GetNumberOfScalarComponents() != 4 ||
         new_img_dims[0] != img_dims[0] ||
         new_img_dims[1] != img_dims[1] ||
         new_img_dims[2] != img_dims[2])
       {
-      data->SetDimensions(new_img_dims);
       data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-      data->SetOrigin(text_size[0], text_size[1], 0.0);
-      data->SetSpacing((text_size[0]) / static_cast<double>(new_img_dims[0]),
-                       (text_size[1]) / static_cast<double>(new_img_dims[1]),
-                       0.0);
       }
     }
 
-  // Render inside the image data
-  *x = (text_bbox[0] < 0 ? -text_bbox[0] : 0);
-  *y = (text_bbox[2] < 0 ? -text_bbox[2] : 0);
-
+  // Clear the image
   memset(data->GetScalarPointer(), 0,
-          (data->GetNumberOfPoints() *
-            data->GetNumberOfScalarComponents()));
+         (data->GetNumberOfPoints() * data->GetNumberOfScalarComponents()));
 }
 
 //----------------------------------------------------------------------------
-template <typename T>
-bool vtkFreeTypeTools::PopulateImageData(vtkTextProperty *tprop,
-                                         const T& str,
-                                         int x, int y,
-                                         vtkImageData *data)
+void vtkFreeTypeTools::JustifyPath(vtkPath *path, MetaData &metaData)
 {
-  // Map the text property to a unique id that will be used as face id, get the
-  // font face and establish whether kerning information is available.
-  unsigned long tprop_cache_id;
-  FT_Face face;
-  bool face_has_kerning = false;
-  if (!this->GetFace(tprop, tprop_cache_id, face, face_has_kerning))
+  double delta[2] = {0.0, 0.0};
+  double bounds[6];
+
+  vtkPoints *points = path->GetPoints();
+  points->GetBounds(bounds);
+
+  // Apply justification:
+  switch (metaData.textProperty->GetJustification())
     {
-    return false;
+    default:
+    case VTK_TEXT_LEFT:
+      delta[0] = -bounds[0];
+      break;
+    case VTK_TEXT_CENTERED:
+      delta[0] = -(bounds[0] + bounds[1]) * 0.5;
+      break;
+    case VTK_TEXT_RIGHT:
+      delta[0] = -bounds[1];
+      break;
+    }
+  switch (metaData.textProperty->GetVerticalJustification())
+    {
+    default:
+    case VTK_TEXT_BOTTOM:
+      delta[1] = -bounds[2];
+      break;
+    case VTK_TEXT_CENTERED:
+      delta[1] = -(bounds[2] + bounds[3]) * 0.5;
+      break;
+    case VTK_TEXT_TOP:
+      delta[1] = -bounds[3];
     }
 
-  // Text property size and opacity
-  int tprop_font_size = tprop->GetFontSize();
-  float tprop_opacity = tprop->GetOpacity();
-
-  // Image params (increments, range)
-  vtkIdType data_inc_x, data_inc_y, data_inc_z;
-  data->GetIncrements(data_inc_x, data_inc_y, data_inc_z);
-
-  double data_min, data_max;
-  if (data->GetScalarType() == VTK_DOUBLE || data->GetScalarType() == VTK_FLOAT)
-    {
-    data_min = 0.0;
-    data_max = 1.0;
+  if (delta[0] != 0 || delta[1] != 0) {
+    for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
+      {
+      double *point = points->GetPoint(i);
+      point[0] += delta[0];
+      point[1] += delta[1];
+      points->SetPoint(i, point);
+      }
     }
-  else
+}
+
+//----------------------------------------------------------------------------
+template <typename StringType, typename DataType>
+bool vtkFreeTypeTools::PopulateData(const StringType &str, DataType data,
+                                    MetaData &metaData)
+{
+  // Go through the string, line by line
+  typename StringType::const_iterator beginLine = str.begin();
+  typename StringType::const_iterator endLine =
+      std::find(beginLine, str.end(), '\n');
+
+  int lineIndex = 0;
+  while (endLine != str.end())
     {
-    data_min = data->GetScalarTypeMin();
-    data_max = data->GetScalarTypeMax();
+    if (!this->RenderLine(beginLine, endLine, lineIndex, data, metaData))
+      {
+      return false;
+      }
+
+    beginLine = endLine;
+    ++beginLine;
+    endLine = std::find(beginLine, str.end(), '\n');
+    ++lineIndex;
     }
-  double data_range = data_max - data_min;
 
-  // Calculate the text color to set in the tight loop.
-  double color[3];
-  tprop->GetColor(color);
-  unsigned char text_color[] = {
-    static_cast<unsigned char>(data_min + data_range * color[0]),
-    static_cast<unsigned char>(data_min + data_range * color[1]),
-    static_cast<unsigned char>(data_min + data_range * color[2]) };
+  // Render the last line:
+  return this->RenderLine(beginLine, endLine, lineIndex, data, metaData);
+}
 
-  FT_BitmapGlyph bitmap_glyph;
-  FT_Bitmap *bitmap;
-  FT_UInt gindex, previous_gindex = 0;
-  FT_Vector kerning_delta;
+//----------------------------------------------------------------------------
+template <typename IteratorType, typename DataType>
+bool vtkFreeTypeTools::RenderLine(IteratorType begin, IteratorType end,
+                                  int lineIndex, DataType data,
+                                  MetaData &metaData)
+{
+  int x = metaData.lineMetrics[lineIndex].originX;
+  int y = metaData.lineMetrics[lineIndex].originY;
 
   // Render char by char
-  for (typename T::const_iterator it = str.begin(); it != str.end(); ++it)
+  FT_UInt previousGlyphIndex = 0; // for kerning
+  for (; begin != end; ++begin)
     {
-    bitmap = this->GetBitmap(*it, tprop_cache_id, tprop_font_size, gindex,
-                             bitmap_glyph);
-    if (!bitmap)
-      {
-      // Glyph not found in the face.
-      continue;
-      }
-
-    if (bitmap->width && bitmap->rows)
-      {
-      // Starting position given the bearings.
-      // Subtract 1 to the bearing Y, because this is the vertical distance
-      // from the glyph origin (0,0) to the topmost pixel of the glyph bitmap
-      // (more precisely, to the pixel just above the bitmap). This distance is
-      // expressed in integer pixels, and is positive for upwards y.
-      int pen_x = x + bitmap_glyph->left;
-      int pen_y = y + bitmap_glyph->top - 1;
-
-      // Add the kerning
-      if (face_has_kerning && previous_gindex && gindex)
-        {
-        FT_Get_Kerning(
-          face, previous_gindex, gindex, ft_kerning_default, &kerning_delta);
-        pen_x += kerning_delta.x >> 6;
-        pen_y += kerning_delta.y >> 6;
-        }
-      previous_gindex = gindex;
-
-      // Render the current face.
-      unsigned char *data_ptr =
-        static_cast<unsigned char *>(data->GetScalarPointer(pen_x, pen_y, 0));
-      if(!data_ptr)
-        {
-        return false;
-        }
-
-      int data_pitch = (-data->GetDimensions()[0] - bitmap->width) * data_inc_x;
-      unsigned char *glyph_ptr_row = bitmap->buffer;
-      unsigned char *glyph_ptr;
-      float t_alpha, data_alpha, t_1_m_alpha;
-
-      for (int j = 0; j < bitmap->rows; ++j)
-        {
-        glyph_ptr = glyph_ptr_row;
-
-        for (int i = 0; i < bitmap->width; ++i)
-          {
-          t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
-          t_1_m_alpha = 1.0 - t_alpha;
-          data_alpha = (data_ptr[3] - data_min) / data_range;
-          *data_ptr = text_color[0];
-          ++data_ptr;
-          *data_ptr = text_color[1];
-          ++data_ptr;
-          *data_ptr = text_color[2];
-          ++data_ptr;
-          *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
-          ++data_ptr;
-          ++glyph_ptr;
-          }
-        glyph_ptr_row += bitmap->pitch;
-        data_ptr += data_pitch;
-        }
-      }
-
-    // Advance to next char
-    x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
-    y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
+    this->RenderCharacter(*begin, x, y, previousGlyphIndex, data, metaData);
     }
+
   return true;
 }
 
 //----------------------------------------------------------------------------
-template <typename T>
-bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
-                                    const T& str,
-                                    int x, int y,
-                                    vtkPath *path)
+template <typename CharType>
+bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
+                                       FT_UInt &previousGlyphIndex,
+                                       vtkImageData *image,
+                                       MetaData &metaData)
 {
-  if (!path)
+  ImageMetaData *iMetaData = reinterpret_cast<ImageMetaData*>(&metaData);
+  FT_BitmapGlyph bitmapGlyph;
+  FT_UInt glyphIndex;
+  FT_Bitmap *bitmap = this->GetBitmap(character, iMetaData->textPropertyCacheId,
+                                      iMetaData->textProperty->GetFontSize(),
+                                      glyphIndex, bitmapGlyph);
+
+  if (!bitmap)
     {
+    // TODO This should draw an empty rectangle.
+    previousGlyphIndex = glyphIndex;
     return false;
     }
 
-  path->Reset();
-
-  // Map the text property to a unique id that will be used as face id, get the
-  // font face and establish whether kerning information is available.
-  unsigned long tprop_cache_id;
-  FT_Face face;
-  bool face_has_kerning = false;
-  if (!this->GetFace(tprop, tprop_cache_id, face, face_has_kerning))
+  if (bitmap->width && bitmap->rows)
     {
-    return false;
+    // Starting position given the bearings.
+    // Subtract 1 to the bearing Y, because this is the vertical distance
+    // from the glyph origin (0,0) to the topmost pixel of the glyph bitmap
+    // (more precisely, to the pixel just above the bitmap). This distance is
+    // expressed in integer pixels, and is positive for upwards y.
+    int penX = x + bitmapGlyph->left;
+    int penY = y + bitmapGlyph->top - 1;
+
+    // Add the kerning
+    if (iMetaData->faceHasKerning && previousGlyphIndex && glyphIndex)
+      {
+      FT_Vector kerningDelta;
+      if (FT_Get_Kerning(iMetaData->face, previousGlyphIndex, glyphIndex,
+                         FT_KERNING_DEFAULT, &kerningDelta) == 0)
+        {
+        penX += kerningDelta.x >> 6;
+        penY += kerningDelta.y >> 6;
+        }
+      }
+    previousGlyphIndex = glyphIndex;
+
+    // Render the current glyph into the image
+    unsigned char *dataPtr =
+        static_cast<unsigned char *>(image->GetScalarPointer(penX, penY, 0));
+    if (!dataPtr)
+      {
+      return false;
+      }
+
+    int dataPitch = (-iMetaData->imageDimensions[0] - bitmap->width) *
+        iMetaData->imageIncrements[0];
+    unsigned char *glyphPtrRow = bitmap->buffer;
+    unsigned char *glyphPtr;
+    float tpropAlpha = iMetaData->rgba[3] / 255.0;
+
+    for (int j = 0; j < bitmap->rows; ++j)
+      {
+      glyphPtr = glyphPtrRow;
+
+      for (int i = 0; i < bitmap->width; ++i)
+        {
+        if (*glyphPtr != 0)
+          {
+          *dataPtr = iMetaData->rgba[0];
+          ++dataPtr;
+          *dataPtr = iMetaData->rgba[1];
+          ++dataPtr;
+          *dataPtr = iMetaData->rgba[2];
+          ++dataPtr;
+          *dataPtr = static_cast<unsigned char>((*glyphPtr) * tpropAlpha);
+          ++dataPtr;
+          ++glyphPtr;
+          }
+        else
+          {
+          dataPtr += 4;
+          ++glyphPtr;
+          }
+        }
+      glyphPtrRow += bitmap->pitch;
+      dataPtr += dataPitch;
+      }
     }
 
-  // Text property size and opacity
-  int tprop_font_size = tprop->GetFontSize();
+  // Advance to next char
+  x += (bitmapGlyph->root.advance.x + 0x8000) >> 16;
+  y += (bitmapGlyph->root.advance.y + 0x8000) >> 16;
+  return true;
+}
 
-  FT_OutlineGlyph outline_glyph;
-  FT_Outline *outline;
-  FT_UInt gindex, previous_gindex = 0;
-  FT_Vector kerning_delta;
-
+//----------------------------------------------------------------------------
+template <typename CharType>
+bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
+                                       FT_UInt &previousGlyphIndex,
+                                       vtkPath *path, MetaData &metaData)
+{
   // The FT_CURVE defines don't really work in a switch...only the first two
   // bits are meaningful, and the rest appear to be garbage. We'll convert them
   // into values in the enum below:
@@ -1264,262 +1521,267 @@ bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
     CONIC_POINT
     };
 
-  // Bounding box for all control points, used for justification
-  double cbox[4] = {VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MIN, VTK_FLOAT_MIN};
-
-  // Render char by char
-  for (typename T::const_iterator it = str.begin(); it != str.end(); ++it)
+  FT_UInt glyphIndex;
+  FT_OutlineGlyph outlineGlyph;
+  FT_Outline *outline = this->GetOutline(character,
+                                         metaData.textPropertyCacheId,
+                                         metaData.textProperty->GetFontSize(),
+                                         glyphIndex, outlineGlyph);
+  if (!outline)
     {
-    outline = this->GetOutline(*it, tprop_cache_id, tprop_font_size, gindex,
-                               outline_glyph);
-    if (!outline)
+    // TODO render an empty box.
+    return false;
+    }
+
+  if (outline->n_points > 0)
+    {
+    int pen_x = x;
+    int pen_y = y;
+
+    // Add the kerning
+    if (metaData.faceHasKerning && previousGlyphIndex && glyphIndex)
       {
-      // Glyph not found in the face.
-      continue;
+      FT_Vector kerningDelta;
+      FT_Get_Kerning(metaData.face, previousGlyphIndex, glyphIndex,
+                     FT_KERNING_DEFAULT, &kerningDelta);
+      pen_x += kerningDelta.x >> 6;
+      pen_y += kerningDelta.y >> 6;
       }
+    previousGlyphIndex = glyphIndex;
 
-    if (outline->n_points > 0)
+    short point = 0;
+    for (short contour = 0; contour < outline->n_contours; ++contour)
       {
-      int pen_x = x;
-      int pen_y = y;
-
-      // Add the kerning
-      if (face_has_kerning && previous_gindex && gindex)
+      short contourEnd = outline->contours[contour];
+      controlType lastTag = FIRST_POINT;
+      double contourStartVec[2];
+      contourStartVec[0] = contourStartVec[1] = 0.0;
+      double lastVec[2];
+      lastVec[0] = lastVec[1] = 0.0;
+      for (; point <= contourEnd; ++point)
         {
-        FT_Get_Kerning(
-              face, previous_gindex, gindex, ft_kerning_default, &kerning_delta);
-        pen_x += kerning_delta.x >> 6;
-        pen_y += kerning_delta.y >> 6;
-        }
-      previous_gindex = gindex;
-
-      short point = 0;
-      for (short contour = 0; contour < outline->n_contours; ++contour)
-        {
-        short contourEnd = outline->contours[contour];
-        controlType lastTag = FIRST_POINT;
-        double contourStartVec[2];
-        contourStartVec[0] = contourStartVec[1] = 0.0;
-        double lastVec[2];
-        lastVec[0] = lastVec[1] = 0.0;
-        for (; point <= contourEnd; ++point)
+        FT_Vector ftvec = outline->points[point];
+        char fttag = outline->tags[point];
+        controlType tag = FIRST_POINT;
+        if (fttag & FT_CURVE_TAG_ON)
           {
-          FT_Vector ftvec = outline->points[point];
-          char fttag = outline->tags[point];
-          controlType tag = FIRST_POINT;
-          if (fttag & FT_CURVE_TAG_ON)
-            {
-            tag = ON_POINT;
-            }
-          else if (fttag & FT_CURVE_TAG_CUBIC)
-            {
-            tag = CUBIC_POINT;
-            }
-          else if (fttag & FT_CURVE_TAG_CONIC)
-            {
-            tag = CONIC_POINT;
-            }
+          tag = ON_POINT;
+          }
+        else if (fttag & FT_CURVE_TAG_CUBIC)
+          {
+          tag = CUBIC_POINT;
+          }
+        else if (fttag & FT_CURVE_TAG_CONIC)
+          {
+          tag = CONIC_POINT;
+          }
 
-          double vec[2];
-          vec[0] = ftvec.x / 64.0 + x;
-          vec[1] = ftvec.y / 64.0 + y;
+        double vec[2];
+        vec[0] = ftvec.x / 64.0 + x;
+        vec[1] = ftvec.y / 64.0 + y;
 
-          // Update (control) bounding box
-          if (vec[0] < cbox[0])
-            {
-            cbox[0] = vec[0];
-            }
-          if (vec[1] < cbox[1])
-            {
-            cbox[1] = vec[1];
-            }
-          if (vec[0] > cbox[2])
-            {
-            cbox[2] = vec[0];
-            }
-          if (vec[1] > cbox[3])
-            {
-            cbox[3] = vec[1];
-            }
-
-          // Handle the first point here, unless it is a CONIC point, in which
-          // case the switches below handle it.
-          if (lastTag == FIRST_POINT && tag != CONIC_POINT)
-            {
-            path->InsertNextPoint(vec[0], vec[1], 0.0, vtkPath::MOVE_TO);
-            lastTag = tag;
-            lastVec[0] = vec[0];
-            lastVec[1] = vec[1];
-            contourStartVec[0] = vec[0];
-            contourStartVec[1] = vec[1];
-            continue;
-            }
-
-          switch (tag)
-            {
-            case ON_POINT:
-              switch(lastTag)
-                {
-                case ON_POINT:
-                  path->InsertNextPoint(vec[0], vec[1], 0.0, vtkPath::LINE_TO);
-                  break;
-                case CONIC_POINT:
-                  path->InsertNextPoint(vec[0], vec[1], 0.0,
-                                        vtkPath::CONIC_CURVE);
-                  break;
-                case CUBIC_POINT:
-                  path->InsertNextPoint(vec[0], vec[1], 0.0,
-                                        vtkPath::CUBIC_CURVE);
-                  break;
-                case FIRST_POINT:
-                default:
-                  break;
-                }
-              break;
-            case CONIC_POINT:
-              switch(lastTag)
-                {
-                case ON_POINT:
-                  path->InsertNextPoint(vec[0], vec[1], 0.0,
-                                        vtkPath::CONIC_CURVE);
-                  break;
-                case CONIC_POINT: {
-                  // Two conic points indicate a virtual "ON" point between
-                  // them. Insert both points.
-                  double virtualOn[2] = {(vec[0] + lastVec[0]) * 0.5,
-                                         (vec[1] + lastVec[1]) * 0.5};
-                  path->InsertNextPoint(virtualOn[0], virtualOn[1], 0.0,
-                                        vtkPath::CONIC_CURVE);
-                  path->InsertNextPoint(vec[0], vec[1], 0.0,
-                                        vtkPath::CONIC_CURVE);
-                  }
-                  break;
-                case FIRST_POINT: {
-                  // The first point in the contour can be a conic control
-                  // point. Use the last point of the contour as the starting
-                  // point. If the last point is a conic point as well, start
-                  // on a virtual point between the two:
-                  FT_Vector lastContourFTVec = outline->points[contourEnd];
-                  double lastContourVec[2] = {lastContourFTVec.x / 64.0 + x,
-                                              lastContourFTVec.y / 64.0 + y};
-                  char lastContourFTTag = outline->tags[contourEnd];
-                  if (lastContourFTTag & FT_CURVE_TAG_CONIC)
-                    {
-                    double virtualOn[2] = {(vec[0] + lastContourVec[0]) * 0.5,
-                                           (vec[1] + lastContourVec[1]) * 0.5};
-                    path->InsertNextPoint(virtualOn[0], virtualOn[1],
-                                          0.0, vtkPath::MOVE_TO);
-                    path->InsertNextPoint(vec[0], vec[1], 0.0,
-                                          vtkPath::CONIC_CURVE);
-                    }
-                  else
-                    {
-                    path->InsertNextPoint(lastContourVec[0], lastContourVec[1],
-                                          0.0, vtkPath::MOVE_TO);
-                    path->InsertNextPoint(vec[0], vec[1], 0.0,
-                                          vtkPath::CONIC_CURVE);
-                    }
-                  }
-                  break;
-                case CUBIC_POINT:
-                default:
-                  break;
-                }
-              break;
-            case CUBIC_POINT:
-              switch(lastTag)
-                {
-                case ON_POINT:
-                case CUBIC_POINT:
-                  path->InsertNextPoint(vec[0], vec[1], 0.0,
-                                        vtkPath::CUBIC_CURVE);
-                  break;
-                case CONIC_POINT:
-                case FIRST_POINT:
-                default:
-                  break;
-                }
-              break;
-            case FIRST_POINT:
-            default:
-              break;
-            } // end switch
-
+        // Handle the first point here, unless it is a CONIC point, in which
+        // case the switches below handle it.
+        if (lastTag == FIRST_POINT && tag != CONIC_POINT)
+          {
+          path->InsertNextPoint(vec[0], vec[1], 0.0, vtkPath::MOVE_TO);
           lastTag = tag;
           lastVec[0] = vec[0];
           lastVec[1] = vec[1];
-          } // end contour
+          contourStartVec[0] = vec[0];
+          contourStartVec[1] = vec[1];
+          continue;
+          }
 
-        // The contours are always implicitly closed to the start point of the
-        // contour:
-        switch (lastTag)
+        switch (tag)
           {
           case ON_POINT:
-            path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
-                                  vtkPath::LINE_TO);
-            break;
-          case CUBIC_POINT:
-            path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
-                                  vtkPath::CUBIC_CURVE);
+            switch(lastTag)
+              {
+              case ON_POINT:
+                path->InsertNextPoint(vec[0], vec[1], 0.0, vtkPath::LINE_TO);
+                break;
+              case CONIC_POINT:
+                path->InsertNextPoint(vec[0], vec[1], 0.0,
+                    vtkPath::CONIC_CURVE);
+                break;
+              case CUBIC_POINT:
+                path->InsertNextPoint(vec[0], vec[1], 0.0,
+                    vtkPath::CUBIC_CURVE);
+                break;
+              case FIRST_POINT:
+              default:
+                break;
+              }
             break;
           case CONIC_POINT:
-            path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
-                                  vtkPath::CONIC_CURVE);
+            switch(lastTag)
+              {
+              case ON_POINT:
+                path->InsertNextPoint(vec[0], vec[1], 0.0,
+                    vtkPath::CONIC_CURVE);
+                break;
+              case CONIC_POINT: {
+                // Two conic points indicate a virtual "ON" point between
+                // them. Insert both points.
+                double virtualOn[2] = {(vec[0] + lastVec[0]) * 0.5,
+                                       (vec[1] + lastVec[1]) * 0.5};
+                path->InsertNextPoint(virtualOn[0], virtualOn[1], 0.0,
+                    vtkPath::CONIC_CURVE);
+                path->InsertNextPoint(vec[0], vec[1], 0.0,
+                    vtkPath::CONIC_CURVE);
+                }
+                break;
+              case FIRST_POINT: {
+                // The first point in the contour can be a conic control
+                // point. Use the last point of the contour as the starting
+                // point. If the last point is a conic point as well, start
+                // on a virtual point between the two:
+                FT_Vector lastContourFTVec = outline->points[contourEnd];
+                double lastContourVec[2] = {lastContourFTVec.x / 64.0 + x,
+                                            lastContourFTVec.y / 64.0 + y};
+                char lastContourFTTag = outline->tags[contourEnd];
+                if (lastContourFTTag & FT_CURVE_TAG_CONIC)
+                  {
+                  double virtualOn[2] = {(vec[0] + lastContourVec[0]) * 0.5,
+                                         (vec[1] + lastContourVec[1]) * 0.5};
+                  path->InsertNextPoint(virtualOn[0], virtualOn[1],
+                      0.0, vtkPath::MOVE_TO);
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                      vtkPath::CONIC_CURVE);
+                  }
+                else
+                  {
+                  path->InsertNextPoint(lastContourVec[0], lastContourVec[1],
+                      0.0, vtkPath::MOVE_TO);
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                      vtkPath::CONIC_CURVE);
+                  }
+                }
+                break;
+              case CUBIC_POINT:
+              default:
+                break;
+              }
+            break;
+          case CUBIC_POINT:
+            switch(lastTag)
+              {
+              case ON_POINT:
+              case CUBIC_POINT:
+                path->InsertNextPoint(vec[0], vec[1], 0.0,
+                    vtkPath::CUBIC_CURVE);
+                break;
+              case CONIC_POINT:
+              case FIRST_POINT:
+              default:
+                break;
+              }
             break;
           case FIRST_POINT:
           default:
             break;
-          }
+          } // end switch
 
-        } // end if n_points > 0
-      } // end character iteration
+        lastTag = tag;
+        lastVec[0] = vec[0];
+        lastVec[1] = vec[1];
+        } // end contour
 
-    // Advance to next char
-    x += (outline_glyph->root.advance.x + 0x8000) >> 16;
-    y += (outline_glyph->root.advance.y + 0x8000) >> 16;
-    }
+      // The contours are always implicitly closed to the start point of the
+      // contour:
+      switch (lastTag)
+        {
+        case ON_POINT:
+          path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
+              vtkPath::LINE_TO);
+          break;
+        case CUBIC_POINT:
+          path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
+              vtkPath::CUBIC_CURVE);
+          break;
+        case CONIC_POINT:
+          path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
+              vtkPath::CONIC_CURVE);
+          break;
+        case FIRST_POINT:
+        default:
+          break;
+        } // end switch (lastTag)
+      } // end contour points iteration
+    } // end contour iteration
 
-  double delta[2] = {0.0, 0.0};
-
-  // Apply justification:
-  switch (tprop->GetJustification())
-    {
-    default:
-    case VTK_TEXT_LEFT:
-      delta[0] = -cbox[0];
-      break;
-    case VTK_TEXT_CENTERED:
-      delta[0] = -(cbox[2] - cbox[0]) * 0.5;
-      break;
-    case VTK_TEXT_RIGHT:
-      delta[0] = -cbox[2];
-      break;
-    }
-  switch (tprop->GetVerticalJustification())
-    {
-    default:
-    case VTK_TEXT_BOTTOM:
-      delta[1] = -cbox[1];
-      break;
-    case VTK_TEXT_CENTERED:
-      delta[1] = -(cbox[3] - cbox[1]) * 0.5;
-      break;
-    case VTK_TEXT_TOP:
-      delta[1] = -cbox[3];
-    }
-
-  vtkPoints *points = path->GetPoints();
-  for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
-    {
-    double *point = points->GetPoint(i);
-    point[0] += delta[0];
-    point[1] += delta[1];
-    points->SetPoint(i, point);
-    }
-
+  // Advance to next char
+  x += (outlineGlyph->root.advance.x + 0x8000) >> 16;
+  y += (outlineGlyph->root.advance.y + 0x8000) >> 16;
   return true;
 }
 
+//----------------------------------------------------------------------------
+// Similar to implementations in vtkFreeTypeUtilities and vtkTextMapper.
+template <typename T>
+int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
+                                      int targetWidth, int targetHeight)
+{
+  if (str.empty() || targetWidth == 0 || targetHeight == 0 ||
+      metaData.textProperty == 0)
+    {
+    return 0;
+    }
+
+  // Use the current font size as a first guess
+  int size[2];
+  int fontSize = metaData.textProperty->GetFontSize();
+  if (!this->CalculateBoundingBox(str, metaData))
+    {
+    return -1;
+    }
+  size[0] = metaData.bbox[1] - metaData.bbox[0];
+  size[1] = metaData.bbox[3] - metaData.bbox[2];
+
+  // Bad assumption but better than nothing -- assume the bbox grows linearly
+  // with the font size:
+  if (size[0] != 0 && size[1] != 0)
+    {
+    fontSize *= std::min(
+          static_cast<double>(targetWidth)  / static_cast<double>(size[0]),
+        static_cast<double>(targetHeight) / static_cast<double>(size[1]));
+    metaData.textProperty->SetFontSize(fontSize);
+    if (!this->CalculateBoundingBox(str, metaData))
+      {
+      return -1;
+      }
+    size[0] = metaData.bbox[1] - metaData.bbox[0];
+    size[1] = metaData.bbox[3] - metaData.bbox[2];
+    }
+
+  // Now just step up/down until the bbox matches the target.
+  while (size[0] < targetWidth && size[1] < targetHeight && fontSize < 200)
+    {
+    metaData.textProperty->SetFontSize(++fontSize);
+    if (!this->CalculateBoundingBox(str, metaData))
+      {
+      return -1;
+      }
+    size[0] = metaData.bbox[1] - metaData.bbox[0];
+    size[1] = metaData.bbox[3] - metaData.bbox[2];
+    }
+
+  while ((size[0] > targetWidth || size[1] > targetHeight) && fontSize > 0)
+    {
+    metaData.textProperty->SetFontSize(--fontSize);
+    if (!this->CalculateBoundingBox(str, metaData))
+      {
+      return -1;
+      }
+    size[0] = metaData.bbox[1] - metaData.bbox[0];
+    size[1] = metaData.bbox[3] - metaData.bbox[2];
+    }
+
+  return fontSize;
+}
+
+//----------------------------------------------------------------------------
 inline bool vtkFreeTypeTools::GetFace(vtkTextProperty *prop,
                                       unsigned long &prop_cache_id,
                                       FT_Face &face, bool &face_has_kerning)
@@ -1534,6 +1796,7 @@ inline bool vtkFreeTypeTools::GetFace(vtkTextProperty *prop,
   return true;
 }
 
+//----------------------------------------------------------------------------
 inline FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c,
                                               unsigned long prop_cache_id,
                                               int prop_font_size,
@@ -1568,6 +1831,7 @@ inline FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c,
   return bitmap;
 }
 
+//----------------------------------------------------------------------------
 inline FT_Outline *vtkFreeTypeTools::GetOutline(FT_UInt32 c,
                                                 unsigned long prop_cache_id,
                                                 int prop_font_size,
@@ -1595,4 +1859,80 @@ inline FT_Outline *vtkFreeTypeTools::GetOutline(FT_UInt32 c,
   FT_Outline *outline= &outline_glyph->outline;
 
   return outline;
+}
+
+//----------------------------------------------------------------------------
+template<typename T>
+void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
+                                      int &width, int bbox[4])
+{
+  FT_Matrix inverseRotation;
+  bool isRotated = (fabs(metaData.textProperty->GetOrientation()) > 1e-5);
+  if (isRotated)
+    {
+    float angle = -vtkMath::RadiansFromDegrees(
+          static_cast<float>(metaData.textProperty->GetOrientation()));
+    float c = cos(angle);
+    float s = sin(angle);
+    inverseRotation.xx = (FT_Fixed)( c * 0x10000L);
+    inverseRotation.xy = (FT_Fixed)(-s * 0x10000L);
+    inverseRotation.yx = (FT_Fixed)( s * 0x10000L);
+    inverseRotation.yy = (FT_Fixed)( c * 0x10000L);
+    }
+
+  FT_BitmapGlyph bitmapGlyph;
+  FT_UInt gindex = 0;
+  FT_UInt gindexLast = 0;
+  FT_Vector delta;
+  width = 0;
+  int pen[2] = {0, 0};
+  bbox[0] = bbox[1] = pen[0];
+  bbox[2] = bbox[3] = pen[1];
+  int fontSize = metaData.textProperty->GetFontSize();
+  for (; begin != end; ++begin)
+    {
+    // Adjust the pen location for kerning
+    if (metaData.faceHasKerning && gindexLast && gindex)
+      {
+      if (FT_Get_Kerning(metaData.face, gindexLast, gindex, FT_KERNING_DEFAULT,
+                         &delta) == 0)
+        {
+        pen[0] += delta.x >> 6;
+        pen[1] += delta.y >> 6;
+        if (isRotated)
+          {
+          FT_Vector_Transform(&delta, &inverseRotation);
+          }
+        width += delta.x >> 6;
+        }
+      }
+
+    // Use the dimensions of the bitmap glyph to get a tight bounding box.
+    FT_Bitmap *bitmap = this->GetBitmap(*begin, metaData.textPropertyCacheId,
+                                        fontSize, gindex, bitmapGlyph);
+    if (bitmap)
+      {
+      bbox[0] = std::min(bbox[0], pen[0] + bitmapGlyph->left);
+      bbox[1] = std::max(bbox[1], pen[0] + bitmapGlyph->left + bitmap->width);
+      bbox[2] = std::min(bbox[2], pen[1] + bitmapGlyph->top - 1 - bitmap->rows);
+      bbox[3] = std::max(bbox[3], pen[1] + bitmapGlyph->top - 1);
+      }
+    else
+      {
+      // FIXME: do something more elegant here.
+      // We should render an empty rectangle to adhere to the specs...
+      continue;
+      }
+
+    // Update advance.
+    delta = bitmapGlyph->root.advance;
+    pen[0] += (delta.x + 0x8000) >> 16;
+    pen[1] += (delta.y + 0x8000) >> 16;
+
+    if (isRotated)
+      {
+      FT_Vector_Transform(&delta, &inverseRotation);
+      }
+    width += (delta.x + 0x8000) >> 16;
+    }
 }

@@ -20,7 +20,6 @@
 #include "vtkWindow.h"
 #include "vtkTransform.h"
 #include "vtkImageData.h"
-#include "vtkFreeTypeUtilities.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -28,7 +27,7 @@
 #include "vtkFloatArray.h"
 #include "vtkTexture.h"
 #include "vtkMath.h"
-#include "vtkTexture.h"
+#include "vtkTextRenderer.h"
 #include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkTextActor);
@@ -105,10 +104,10 @@ vtkTextActor::vtkTextActor()
 
   this->FormerOrientation = 0.0;
 
-  this->FreeTypeUtilities = vtkFreeTypeUtilities::GetInstance();
-  if (!this->FreeTypeUtilities)
+  this->TextRenderer = vtkTextRenderer::GetInstance();
+  if (!this->TextRenderer)
     {
-    vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
+    vtkErrorMacro(<<"Failed getting the TextRenderer instance!");
     }
 }
 
@@ -204,18 +203,14 @@ void vtkTextActor::SetMapper(vtkMapper2D *mapper)
 // ----------------------------------------------------------------------------
 bool vtkTextActor::RenderImage(vtkTextProperty *tprop, vtkViewport *)
 {
-  return this->FreeTypeUtilities->RenderString(tprop,
-                                               this->Input,
-                                               this->ImageData) != 0;
+  return this->TextRenderer->RenderString(tprop, this->Input, this->ImageData);
 }
 
 // ----------------------------------------------------------------------------
 bool vtkTextActor::GetImageBoundingBox(vtkTextProperty *tprop, vtkViewport *,
                                   int bbox[4])
 {
-  return
-      this->FreeTypeUtilities->GetBoundingBox(tprop, this->Input, bbox) != 0 &&
-      this->FreeTypeUtilities->IsBoundingBoxValid(bbox) != 0;
+  return this->TextRenderer->GetBoundingBox(tprop, this->Input, bbox);
 }
 
 // ----------------------------------------------------------------------------
@@ -595,9 +590,17 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
           }
         int max_height = static_cast<int>(this->MaximumLineHeight * size[1]);
 
-        int fsize = this->FreeTypeUtilities->GetConstrainedFontSize(
-          this->Input, this->TextProperty, this->Orientation, size[0],
+        int fsize = this->TextRenderer->GetConstrainedFontSize(
+          this->Input, this->TextProperty, size[0],
           (size[1] < max_height ? size[1] : max_height));
+
+        if (fsize == -1)
+          {
+          vtkWarningMacro(<<"Could not determine constrained font size for "
+                          "string:\n\t'" << this->Input << "'\n. Resetting to "
+                          "20pt.");
+          fsize = 20;
+          }
 
         // apply non-linear scaling
         fsize = static_cast<int>(

@@ -760,25 +760,32 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
                 std::floor(point[1] * yScale) / yScale };
 
   // Cache rendered text strings
-  vtkTextureImageCache<TextPropertyKey>::CacheData cache =
+  vtkTextureImageCache<TextPropertyKey>::CacheData &cache =
     this->Storage->TextTextureCache.GetCacheData(
       TextPropertyKey(this->TextProp, string));
   vtkImageData* image = cache.ImageData;
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
     {
-    if (!this->TextRenderer->RenderString(this->TextProp, string, image))
+    int textDims[2];
+    if (!this->TextRenderer->RenderString(this->TextProp, string, image,
+                                          textDims))
       {
       return;
       }
+    cache.TextWidth = textDims[0];
+    cache.TextHeight = textDims[1];
     }
   vtkTexture* texture = cache.Texture;
   texture->Render(this->Renderer);
 
-  float width = static_cast<float>(image->GetOrigin()[0]) / xScale;
-  float height = static_cast<float>(image->GetOrigin()[1]) / yScale;
+  int imgDims[3];
+  image->GetDimensions(imgDims);
 
-  float xw = static_cast<float>(image->GetSpacing()[0]);
-  float xh = static_cast<float>(image->GetSpacing()[1]);
+  float width = cache.TextWidth / xScale;
+  float height = cache.TextHeight / yScale;
+
+  float xw = cache.TextWidth / static_cast<float>(imgDims[0]);
+  float xh = cache.TextHeight / static_cast<float>(imgDims[1]);
 
   this->AlignText(this->TextProp->GetOrientation(), width, height, p);
 
@@ -887,25 +894,38 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
   float p[] = { std::floor(point[0]), std::floor(point[1]) };
 
   // Cache rendered text strings
-  vtkTextureImageCache<TextPropertyKey>::CacheData cache =
+  vtkTextureImageCache<TextPropertyKey>::CacheData &cache =
     this->Storage->MathTextTextureCache.GetCacheData(
       TextPropertyKey(this->TextProp, string));
   vtkImageData* image = cache.ImageData;
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
     {
+    int textDims[2];
     if (!mathText->RenderString(string.c_str(), image, this->TextProp,
-                                this->RenderWindow->GetDPI()))
+                                this->RenderWindow->GetDPI(), textDims))
       {
       return;
       }
+    cache.TextWidth = textDims[0];
+    cache.TextHeight = textDims[1];
     }
 
   vtkTexture* texture = cache.Texture;
   texture->Render(this->Renderer);
 
-  int *dims = image->GetDimensions();
-  float width = static_cast<float>(dims[0]);
-  float height = static_cast<float>(dims[1]);
+  GLfloat mv[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+  float xScale = mv[0];
+  float yScale = mv[5];
+
+  int imgDims[3];
+  image->GetDimensions(imgDims);
+
+  float width = cache.TextWidth / xScale;
+  float height = cache.TextHeight / yScale;
+
+  float xw = cache.TextWidth / static_cast<float>(imgDims[0]);
+  float xh = cache.TextHeight / static_cast<float>(imgDims[1]);
 
   this->AlignText(this->TextProp->GetOrientation(), width, height, p);
 
@@ -915,9 +935,9 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
                      p[0]        , p[1] + height };
 
   float texCoord[] = { 0.0f, 0.0f,
-                       1.0f, 0.0f,
-                       1.0f, 1.0f,
-                       0.0f, 1.0f };
+                       xw,   0.0f,
+                       xw,   xh,
+                       0.0f, xh };
 
   glColor4ub(255, 255, 255, 255);
   glEnableClientState(GL_VERTEX_ARRAY);

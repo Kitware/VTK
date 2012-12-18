@@ -236,8 +236,8 @@ public:
                         int *x, int *y);
 
   // Description:
-  // This function returns the font size required to fit the string in the
-  // target rectangle
+  // This function returns the font size (in points) required to fit the string
+  // in the target rectangle
   int GetConstrainedFontSize(const char *str, vtkTextProperty *tprop,
                              double orientation, int targetWidth,
                              int targetHeight);
