@@ -86,6 +86,7 @@ public:
   // Custom overrides should define other backends starting at 16.
   enum Backend
     {
+    Default = -1,
     Detect = 0,
     FreeType,
     MathText,
@@ -94,7 +95,7 @@ public:
     };
 
   // Description:
-  // The backend to use when none is specified.
+  // The backend to use when none is specified. Default: Detect
   vtkSetMacro(DefaultBackend, int)
   vtkGetMacro(DefaultBackend, int)
 
@@ -120,15 +121,9 @@ public:
     return this->GetBoundingBoxInternal(tprop, str, bbox, dpi, backend);
   }
   bool GetBoundingBox(vtkTextProperty *tprop, const vtkStdString &str,
-                      int bbox[4], int backend)
+                      int bbox[4], int backend = Default)
   {
     return this->GetBoundingBoxInternal(tprop, str, bbox, 120, backend);
-  }
-  bool GetBoundingBox(vtkTextProperty *tprop, const vtkStdString &str,
-                      int bbox[4])
-  {
-    return this->GetBoundingBoxInternal(tprop, str, bbox, 120,
-                                        this->DefaultBackend);
   }
 
   // Description:
@@ -150,12 +145,6 @@ public:
                                       backend);
   }
   bool RenderString(vtkTextProperty *tprop, const vtkStdString &str,
-                    vtkImageData *data, int textDims[2], int backend)
-  {
-    return this->RenderStringInternal(tprop, str, data, textDims, 120,
-                                      backend);
-  }
-  bool RenderString(vtkTextProperty *tprop, const vtkStdString &str,
                     vtkImageData *data, int dpi, int backend)
   {
     return this->RenderStringInternal(tprop, str, data, NULL, dpi, backend);
@@ -166,16 +155,11 @@ public:
     return this->RenderStringInternal(tprop, str, data, NULL, 120, backend);
   }
   bool RenderString(vtkTextProperty *tprop, const vtkStdString &str,
-                    vtkImageData *data, int textDims[2])
+                    vtkImageData *data, int textDims[2] = NULL,
+                    int backend = Default)
   {
     return this->RenderStringInternal(tprop, str, data, textDims, 120,
-                                      this->DefaultBackend);
-  }
-  bool RenderString(vtkTextProperty *tprop, const vtkStdString &str,
-                    vtkImageData *data)
-  {
-    return this->RenderStringInternal(tprop, str, data, NULL, 120,
-                                      this->DefaultBackend);
+                                      backend);
   }
 
   // Description:
@@ -193,17 +177,11 @@ public:
                                                 targetHeight, dpi, backend);
   }
   int GetConstrainedFontSize(const vtkStdString &str, vtkTextProperty *tprop,
-                             int targetWidth, int targetHeight, int backend)
+                             int targetWidth, int targetHeight,
+                             int backend = Default)
   {
     return this->GetConstrainedFontSizeInternal(str, tprop, targetWidth,
                                                 targetHeight, 120, backend);
-  }
-  int GetConstrainedFontSize(const vtkStdString &str, vtkTextProperty *tprop,
-                             int targetWidth, int targetHeight)
-  {
-    return this->GetConstrainedFontSizeInternal(str, tprop, targetWidth,
-                                                targetHeight, 120,
-                                                this->DefaultBackend);
   }
 
   // Description:
@@ -211,15 +189,9 @@ public:
   // path with the outline of the rendered string.
   // Return true on success, false otherwise.
   bool StringToPath(vtkTextProperty *tprop, const vtkStdString &str,
-                    vtkPath *path, int backend)
+                    vtkPath *path, int backend = Default)
   {
     return this->StringToPathInternal(tprop, str, path, backend);
-  }
-  bool StringToPath(vtkTextProperty *tprop, const vtkStdString &str,
-                    vtkPath *path)
-  {
-    return this->StringToPathInternal(tprop, str, path,
-                                      this->DefaultBackend);
   }
 
   // Description:
@@ -282,7 +254,7 @@ protected:
   bool HasMathText;
 
   // Description:
-  // The backend to use when none is specified.
+  // The backend to use when none is specified. Default: Detect
   int DefaultBackend;
 
 private:

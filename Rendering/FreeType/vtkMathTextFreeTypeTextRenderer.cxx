@@ -67,6 +67,11 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
     return true;
     }
 
+  if (static_cast<Backend>(backend) == Default)
+    {
+    backend = this->DefaultBackend;
+    }
+
   if (static_cast<Backend>(backend) == Detect)
     {
     backend = static_cast<int>(this->DetectBackend(str));
@@ -109,6 +114,11 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
     {
     vtkErrorMacro("No image container and/or text property supplied!");
     return false;
+    }
+
+  if (static_cast<Backend>(backend) == Default)
+    {
+    backend = this->DefaultBackend;
     }
 
   if (static_cast<Backend>(backend) == Detect)
@@ -156,6 +166,11 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
     return false;
     }
 
+  if (static_cast<Backend>(backend) == Default)
+    {
+    backend = this->DefaultBackend;
+    }
+
   if (static_cast<Backend>(backend) == Detect)
     {
     backend = static_cast<int>(this->DetectBackend(str));
@@ -201,6 +216,11 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
     {
     vtkErrorMacro("No path container and/or text property supplied!");
     return false;
+    }
+
+  if (static_cast<Backend>(backend) == Default)
+    {
+    backend = this->DefaultBackend;
     }
 
   if (static_cast<Backend>(backend) == Detect)
