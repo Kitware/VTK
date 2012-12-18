@@ -34,10 +34,10 @@ resulting in wrapper code that is faster and more compact.
 // Macro to mimic a check done in PyArg_ParseTuple
 #if PY_VERSION_HEX >= 0x02030000
 #define VTK_PYTHON_FLOAT_CHECK()\
-  if (PyFloat_Check(o) && \
-      PyErr_Warn(PyExc_DeprecationWarning, \
-                 (char *)"integer argument expected, got float")) \
+  if (PyFloat_Check(o)) \
     { \
+    PyErr_SetString(PyExc_TypeError, \
+                      (char *)"integer argument expected, got float"); \
     return false; \
     }
 #else
@@ -1320,7 +1320,7 @@ bool vtkPythonArgs::RefineArgTypeError(int i)
     PyObject *exc;
     PyObject *val;
     PyObject *frame;
-    char text[256];
+    char text[480];
     const char *cp = "";
 
     PyErr_Fetch(&exc, &val, &frame);
@@ -1328,7 +1328,8 @@ bool vtkPythonArgs::RefineArgTypeError(int i)
       {
       cp = PyString_AsString(val);
       }
-    sprintf(text, "argument %d: %.200s", i+1, cp);
+    sprintf(text, "%.200s argument %d: %.200s",
+            this->MethodName, i+1, cp);
     Py_XDECREF(val);
     val = PyString_FromString(text);
     PyErr_Restore(exc, val, frame);
