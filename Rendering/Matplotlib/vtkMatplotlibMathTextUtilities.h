@@ -104,7 +104,7 @@ protected:
   static Availablity MPLMathTextAvailable;
 
   bool ScaleToPowerOfTwo;
-  bool PrepareImageData(vtkImageData *data, int width, int height);
+  bool PrepareImageData(vtkImageData *data, int bbox[4]);
 
 private:
   vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.

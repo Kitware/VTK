@@ -61,8 +61,8 @@ bool ContextMathTextImageTest::Paint(vtkContext2D *painter)
 {
   painter->GetTextProp()->SetColor(0.4, 0.6, 0.7);
   painter->GetTextProp()->SetFontSize(60);
-  painter->DrawMathTextString(20, 20, "$\\left{\\frac{-b\\pm\\sqrt{b^2-4ac}}"
-                              "{2a}\\right}$");
+  painter->DrawMathTextString(20, 20, "$\\left\\{\\frac{-b\\pm\\sqrt{b^2-4ac}}"
+                              "{2a}\\right\\}$");
 
   return true;
 }
