@@ -1,7 +1,7 @@
 /*==================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridTernary3DGeometry.cxx
+  Module:    TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -29,17 +29,22 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
+int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   htGrid->SetMaximumLevel( 5 );
-  htGrid->SetGridSize( 3, 3, 2 );
-  htGrid->SetGridScale( 1.5, 1., .7 );
+  htGrid->SetGridSize( 8, 8, 8 );
+  htGrid->SetGridScale( 1., .5, .75 );
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
   htGrid->DualOn();
-  htGrid->SetDescriptor( "RRR .R. .RR ..R ..R .R.|R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ..........................." );
+  htGrid->UseDescriptorOff();
+  htGrid->UseMaterialMaskOn();
+  htGrid->SetQuadricCoefficients( 4., -16., 0., 
+                                  0., 0., 0.,
+                                  -32., 64., 16., 
+                                  -48. );
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
@@ -73,7 +78,7 @@ int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
+  camera->SetPosition( -.7 * bd[1], .9 * bd[3], -2.5 * bd[5] );
 
   // Renderer
   vtkNew<vtkRenderer> renderer;

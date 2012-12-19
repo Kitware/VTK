@@ -7,6 +7,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestHyperOctreeToUniformGrid.cxx
   TestHyperTreeGridBinary2D.cxx
   TestHyperTreeGridBinaryEllipseMaterial.cxx
+  TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
   TestHyperTreeGridTernary3DAxisCut.cxx
   TestHyperTreeGridTernary3DAxisCutMaterial.cxx
   TestHyperTreeGridTernary3DContour.cxx
