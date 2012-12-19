@@ -626,7 +626,7 @@ void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor
     // Subdivide hyper tree grid leaf
     this->Output->SubdivideLeaf( cursor, treeIdx );
 
-    // Now traverse to children.
+    // Now traverse to children
     int xDim = 1;
     int yDim = 1;
     int zDim = 1;
