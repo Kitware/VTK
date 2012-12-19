@@ -37,7 +37,7 @@ int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] 
   htGrid->SetGridSize( 8, 8, 8 );
   htGrid->SetGridScale( 1., .5, .75 );
   htGrid->SetDimension( 3 );
-  htGrid->SetBranchFactor( 3 );
+  htGrid->SetBranchFactor( 2 );
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
