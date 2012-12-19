@@ -1,7 +1,7 @@
 /*==================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridTernaryMaterialEllipse.cxx
+  Module:    TestHyperTreeGridBinaryMaterialEllipse.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -23,7 +23,6 @@
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkContourFilter.h"
-#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -35,22 +34,22 @@
 #include "vtkScalarBarActor.h"
 #include "vtkTextProperty.h"
 
-int TestHyperTreeGridTernaryMaterialEllipse( int argc, char* argv[] )
+int TestHyperTreeGridBinaryMaterialEllipse( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  htGrid->SetMaximumLevel( 6 );
+  htGrid->SetMaximumLevel( 8 );
   htGrid->SetGridSize( 8, 12, 1 );
   htGrid->SetGridScale( 1., .5, .7 );
   htGrid->SetDimension( 2 );
-  htGrid->SetBranchFactor( 3 );
+  htGrid->SetBranchFactor( 2 );
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
-  htGrid->SetQuadricCoefficients( 4., 9., 0.,
+  htGrid->SetQuadricCoefficients( -4., -9., 0.,
                                   0., 0., 0.,
-                                  -32., -54., 0.,
-                                  109. );
+                                  32., 54., 0.,
+                                  -109. );
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
@@ -69,10 +68,8 @@ int TestHyperTreeGridTernaryMaterialEllipse( int argc, char* argv[] )
                                    "Quadric" );
   //  Color transfer function
   vtkNew<vtkColorTransferFunction> colorFunction;
-  colorFunction->AddRGBSegment( -40., 0., 0., 1.,
-                                0.,  0., 1., 1.);
-  colorFunction->AddRGBSegment( VTK_DBL_MIN,  1., 1., 0.,
-                                90., 1., 0., 0.);
+  colorFunction->AddHSVSegment( -90., .667, 1., 1.,
+                                0., 0., 1., 1. );
 
   // Mappers
   vtkNew<vtkPolyDataMapper> mapper1;
@@ -118,10 +115,11 @@ int TestHyperTreeGridTernaryMaterialEllipse( int argc, char* argv[] )
   scalarBar->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar->GetPositionCoordinate()->SetValue( .45, .3 );
   scalarBar->SetTitle( "Quadric" );
+  scalarBar->SetNumberOfLabels( 4 );
   scalarBar->SetWidth( 0.15 );
-  scalarBar->SetHeight( 0.35 );
+  scalarBar->SetHeight( 0.4 );
   scalarBar->SetMaximumWidthInPixels( 60 );
-  scalarBar->SetMaximumHeightInPixels( 180 );
+  scalarBar->SetMaximumHeightInPixels( 200 );
   scalarBar->SetTextPositionToPrecedeScalarBar();
   scalarBar->GetTitleTextProperty()->SetColor( .4, .4, .4 );
   scalarBar->GetLabelTextProperty()->SetColor( .4, .4, .4 );

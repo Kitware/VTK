@@ -278,8 +278,11 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
 
       break; // case 1
     case 2:
-      // In 2D all faces are generated
-      this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2 );
+      // In 2D all unmasked faces are generated
+      if ( ! this->Input->GetMaterialMask()->GetTuple1( inId ) )
+        {
+        this->AddFace( inId, superCursor->Origin, superCursor->Size, 0, 2 );
+        }
 
       break; // case 2
     case 3:
