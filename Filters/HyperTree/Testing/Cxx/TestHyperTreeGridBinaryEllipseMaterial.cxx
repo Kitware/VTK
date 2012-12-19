@@ -1,7 +1,7 @@
 /*==================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridBinaryMaterialEllipse.cxx
+  Module:    TestHyperTreeGridBinaryEllipseMaterial.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -34,7 +34,7 @@
 #include "vtkScalarBarActor.h"
 #include "vtkTextProperty.h"
 
-int TestHyperTreeGridBinaryMaterialEllipse( int argc, char* argv[] )
+int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;

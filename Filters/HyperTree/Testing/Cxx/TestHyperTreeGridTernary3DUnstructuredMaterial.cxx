@@ -1,7 +1,7 @@
 /*==================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridTernary3DMaterialUnstructured.cxx
+  Module:    TestHyperTreeGridTernary3DUnstructuredMaterial.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -33,7 +33,7 @@
 #include "vtkShrinkFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-int TestHyperTreeGridTernary3DMaterialUnstructured( int argc, char* argv[] )
+int TestHyperTreeGridTernary3DUnstructuredMaterial( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
