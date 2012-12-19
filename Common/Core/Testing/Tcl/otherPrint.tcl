@@ -29,6 +29,9 @@ proc rtOtherTest { fileid } {
   if {$a == "vtkMathTextUtilities"} {
       continue
   }
+  if {$a == "vtkTextRenderer"} {
+      continue
+  }
   catch {
            $a b
            puts "calling [b GetClassName]::Print"
