@@ -37,8 +37,7 @@ int TestHyperTreeGridTernary3DAxisCutMaterial( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 5;
-  htGrid->SetMaximumLevel( maxLevel );
+  htGrid->SetMaximumLevel( 5 );
   htGrid->SetGridSize( 3, 3, 2 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );

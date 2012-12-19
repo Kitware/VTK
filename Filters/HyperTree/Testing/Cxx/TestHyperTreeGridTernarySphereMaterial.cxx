@@ -33,8 +33,7 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 4;
-  htGrid->SetMaximumLevel( maxLevel );
+  htGrid->SetMaximumLevel( 4 );
   htGrid->SetGridSize( 5, 5, 6 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
