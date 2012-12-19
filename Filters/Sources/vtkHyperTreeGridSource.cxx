@@ -823,7 +823,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
 
     // Blank leaf if needed
     if ( this->UseMaterialMask
-         && q0 >= 0 )
+         && q0 > 0 )
       {
       // Blank leaf in underlying hyper tree
       this->Output->GetMaterialMask()->InsertTuple1( id, 1 );

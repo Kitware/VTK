@@ -41,9 +41,9 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
-  htGrid->SetQuadricCoefficients( 1., 1., 1., 
+  htGrid->SetQuadricCoefficients( 1., 1., 1.,
                                   0., 0., 0.,
-                                  0., 0., 0., 
+                                  0., 0., 0.,
                                   -25. );
 
   htGrid->Update();
@@ -68,7 +68,7 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
   mapper2->ScalarVisibilityOff();
   mapper2->SetResolveCoincidentTopologyToPolygonOffset();
   mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
- 
+
   // Actors
   vtkNew<vtkActor> actor1;
   actor1->SetMapper( mapper1.GetPointer() );
@@ -104,7 +104,7 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
