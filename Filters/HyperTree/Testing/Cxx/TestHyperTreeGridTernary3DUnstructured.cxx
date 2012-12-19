@@ -1,11 +1,19 @@
-/*=========================================================================
+/*==================================================================
 
-  Copyright (c) Kitware Inc.
+  Program:   Visualization Toolkit
+  Module:    TestHyperTreeGridTernary3DUnstructured.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-=========================================================================*/
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+===================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This test was written by Philippe Pebay, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGrid.h"
@@ -29,8 +37,7 @@ int TestHyperTreeGridTernary3DUnstructured( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 5;
-  htGrid->SetMaximumLevel( maxLevel );
+  htGrid->SetMaximumLevel( 5 );
   htGrid->SetGridSize( 3, 3, 2 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );

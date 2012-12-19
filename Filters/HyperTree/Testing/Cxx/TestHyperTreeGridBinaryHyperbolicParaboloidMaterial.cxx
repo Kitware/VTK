@@ -1,11 +1,19 @@
-/*=========================================================================
+/*==================================================================
 
-  Copyright (c) Kitware Inc.
+  Program:   Visualization Toolkit
+  Module:    TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-=========================================================================*/
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+===================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This test was written by Philippe Pebay, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
@@ -21,32 +29,26 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-int TestHyperTreeGridTernary3DSphere( int argc, char* argv[] )
+int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 4;
-  htGrid->SetMaximumLevel( maxLevel );
-  htGrid->SetGridSize( 5, 5, 6 );
-  htGrid->SetGridScale( 1.5, 1., .7 );
+  htGrid->SetMaximumLevel( 5 );
+  htGrid->SetGridSize( 8, 8, 8 );
+  htGrid->SetGridScale( 1., .5, .75 );
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
-  htGrid->SetQuadricCoefficients( 1., 1., 1., 
+  htGrid->SetQuadricCoefficients( 4., -16., 0., 
                                   0., 0., 0.,
-                                  0., 0., 0., 
-                                  -25. );
-
-  htGrid->Update();
-  vtkNew<vtkHyperTreeGrid> htgCopy;
-  htgCopy->ShallowCopy( htGrid->GetOutput() );
+                                  -32., 64., 16., 
+                                  -48. );
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
-  //  geometry->SetInputConnection( htGrid->GetOutputPort() );
-  geometry->SetInputData( htgCopy.GetPointer() );
+  geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
   vtkPolyData* pd = geometry->GetOutput();
 

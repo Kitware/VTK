@@ -1,11 +1,19 @@
-/*=========================================================================
+/*==================================================================
 
-  Copyright (c) Kitware Inc.
+  Program:   Visualization Toolkit
+  Module:    TestHyperTreeGridTernarySphereMaterial.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-=========================================================================*/
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+===================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This test was written by Philippe Pebay, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
@@ -21,20 +29,22 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-int TestHyperTreeGridTernary3DMaterialGeometry( int argc, char* argv[] )
+int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 5;
-  htGrid->SetMaximumLevel( maxLevel );
-  htGrid->SetGridSize( 3, 3, 2 );
+  htGrid->SetMaximumLevel( 4 );
+  htGrid->SetGridSize( 5, 5, 6 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
   htGrid->DualOn();
+  htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
-  htGrid->SetDescriptor( "RRR .R. .RR ..R ..R .R.|R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ..........................." );
-  htGrid->SetMaterialMask( "111 011 011 111 011 110|111111111111111111111111111 111111111111111111111111111 000000000100110111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 000110011100000100100010100|000001011011111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111001111111101111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111|000000000111100100111100100 000000000111001001111001001 000000111100100111111111111 000000111001001111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 110110110100111110111000000|111111111111111111111111111  11111111111111111111111111" );
+  htGrid->SetQuadricCoefficients( 1., 1., 1.,
+                                  0., 0., 0.,
+                                  0., 0., 0.,
+                                  -25. );
 
   htGrid->Update();
   vtkNew<vtkHyperTreeGrid> htgCopy;
@@ -58,7 +68,7 @@ int TestHyperTreeGridTernary3DMaterialGeometry( int argc, char* argv[] )
   mapper2->ScalarVisibilityOff();
   mapper2->SetResolveCoincidentTopologyToPolygonOffset();
   mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
- 
+
   // Actors
   vtkNew<vtkActor> actor1;
   actor1->SetMapper( mapper1.GetPointer() );
@@ -73,7 +83,7 @@ int TestHyperTreeGridTernary3DMaterialGeometry( int argc, char* argv[] )
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
+  camera->SetPosition( -.7 * bd[1], .9 * bd[3], -2.5 * bd[5] );
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
@@ -94,7 +104,7 @@ int TestHyperTreeGridTernary3DMaterialGeometry( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {

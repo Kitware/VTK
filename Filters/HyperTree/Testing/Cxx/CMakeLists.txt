@@ -5,15 +5,18 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestHyperOctreeDual.cxx
   TestHyperOctreeSurfaceFilter.cxx
   TestHyperOctreeToUniformGrid.cxx
+  TestHyperTreeGridBinary2D.cxx
+  TestHyperTreeGridBinaryEllipseMaterial.cxx
+  TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
   TestHyperTreeGridTernary3DAxisCut.cxx
+  TestHyperTreeGridTernary3DAxisCutMaterial.cxx
   TestHyperTreeGridTernary3DContour.cxx
   TestHyperTreeGridTernary3DGeometry.cxx
-  TestHyperTreeGridTernary3DSphere.cxx
+  TestHyperTreeGridTernary3DGeometryMaterial.cxx
   TestHyperTreeGridTernary3DUnstructured.cxx
-  TestHyperTreeGridTernary3DMaterialAxisCut.cxx
-  TestHyperTreeGridTernary3DMaterialGeometry.cxx
-  TestHyperTreeGridTernary3DMaterialUnstructured.cxx
-  TestHyperTreeGridBinary2D.cxx
+  TestHyperTreeGridTernary3DUnstructuredMaterial.cxx
+  TestHyperTreeGridTernaryHyperbola.cxx
+  TestHyperTreeGridTernarySphereMaterial.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )

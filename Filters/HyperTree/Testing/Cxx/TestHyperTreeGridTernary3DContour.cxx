@@ -1,11 +1,19 @@
-/*=========================================================================
+/*==================================================================
 
-  Copyright (c) Kitware Inc.
+  Program:   Visualization Toolkit
+  Module:    TestHyperTreeGridTernary3DContour.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-=========================================================================*/
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+===================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This test was written by Philippe Pebay, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridSource.h"
@@ -53,21 +61,21 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
 
   contour->GenerateTrianglesOff();
   contour->Update();
-  if(contour->GetOutput()->GetNumberOfPoints()!=547)
+  if( contour->GetOutput()->GetNumberOfPoints() != 547 )
     {
     return 1;
     }
-  if(contour->GetOutput()->GetNumberOfCells()!=463)
+  if( contour->GetOutput()->GetNumberOfCells() != 463 )
     {
     return 1;
     }
   contour->GenerateTrianglesOn();
   contour->Update();
-  if(contour->GetOutput()->GetNumberOfPoints()!=547)
+  if( contour->GetOutput()->GetNumberOfPoints() != 547 )
     {
     return 1;
     }
-  if(contour->GetOutput()->GetNumberOfCells()!=917)
+  if( contour->GetOutput()->GetNumberOfCells() != 917 )
     {
     return 1;
     }
