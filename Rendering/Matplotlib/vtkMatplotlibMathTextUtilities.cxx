@@ -387,6 +387,8 @@ bool vtkMatplotlibMathTextUtilities::PrepareImageData(vtkImageData *data,
   // Clear the image
   memset(data->GetScalarPointer(), 0,
          (data->GetNumberOfPoints() * data->GetNumberOfScalarComponents()));
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
