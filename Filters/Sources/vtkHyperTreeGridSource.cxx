@@ -626,7 +626,7 @@ void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor
     // Subdivide hyper tree grid leaf
     this->Output->SubdivideLeaf( cursor, treeIdx );
 
-    // Now traverse to children.
+    // Now traverse to children
     int xDim = 1;
     int yDim = 1;
     int zDim = 1;
@@ -713,38 +713,52 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
   vtkDataArray* depthArray = this->Output->GetLeafData()->GetArray( "Depth" );
   vtkDataArray* quadricArray = this->Output->GetLeafData()->GetArray( "Quadric" );
 
-  // Determine whether to subdivide or not
-  bool subdivide = false;
+  // Compute cell origin coordinates
   double O[3];
   for ( unsigned int d = 0; d < this->Dimension; ++ d )
     {
     O[d] = origin[d] + idx[d] * size[d];
     }
 
-  // Evaluate quadric at all cell vertices
-  double q0 =  this->Quadric->EvaluateFunction( O );
-  double sum = q0;
+  // Iterate over all vertices
+  int nPos = 0;
+  int nNeg = 0;
+  double sum = 0.;
   double nVert = 1 << this->Dimension;
-  for ( int v = 1; v < nVert; ++ v )
+  for ( int v = 0; v < nVert; ++ v )
     {
+    // Transform flat index into triple
     div_t d1 = div( v, 2 );
     div_t d2 = div( d1.quot, 2 );
     double pt[3];
+
+    // Compute vertex coordinates
     pt[0] = O[0] + d1.rem * size[0];
     pt[1] = O[1] + d2.rem * size[1];
     pt[2] = O[2] + d2.quot * size[2];
+
+    // Evaluate quadric at current vertex
     double qv = this->Quadric->EvaluateFunction( pt );
-
-    // Update integral
-    sum += qv;
-
-    // Subdivide iff quadric changes sign within cell
-    if ( q0 * qv <= 0 )
+    if ( qv > 0 )
       {
-      subdivide = true;
-      break;
+      // Found positive value at this vertex
+      ++ nPos;
+
+      // Update integral
+      sum += qv;
+      }
+    else if ( qv < 0 )
+      {
+      // Found negative value at this vertex
+      ++ nNeg;
+
+      // Update integral
+      sum += qv;
       }
     } // v
+
+  // Subdivide iff quadric changes sign within cell
+  bool subdivide =  nPos != nVert && nNeg != nVert ? true : false;
 
   // Assign cell value
   if ( subdivide && level + 1 == this->MaximumLevel )
@@ -822,8 +836,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     vtkIdType id = cellIdOffset + cursor->GetLeafId();
 
     // Blank leaf if needed
-    if ( this->UseMaterialMask
-         && q0 > 0 )
+    if ( this->UseMaterialMask && nPos > 0 )
       {
       // Blank leaf in underlying hyper tree
       this->Output->GetMaterialMask()->InsertTuple1( id, 1 );
