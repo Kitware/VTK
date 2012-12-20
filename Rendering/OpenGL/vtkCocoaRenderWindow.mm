@@ -63,7 +63,6 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->Capabilities = 0;
   this->OnScreenInitialized = 0;
   this->OffScreenInitialized = 0;
-  this->ScaleFactor = 1.0;
 }
 
 //----------------------------------------------------------------------------
@@ -341,9 +340,8 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
         NSView *theView = (NSView*)this->GetWindowId();
         NSRect viewRect = [theView frame];
         CGFloat oldHeight = NSHeight(viewRect);
-        // VTK measures in pixels, but NSWindow/NSView measure in points
-        CGFloat height = (CGFloat)y / this->ScaleFactor;
-        CGFloat width = (CGFloat)x / this->ScaleFactor;
+        CGFloat height = (CGFloat)y;
+        CGFloat width = (CGFloat)x;
         CGFloat xpos = NSMinX(viewRect);
         CGFloat ypos = NSMinY(viewRect) - (height - oldHeight);
         NSRect theRect = NSMakeRect(xpos, ypos, width, height);
@@ -357,9 +355,7 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
       if (!resizing)
         {
         resizing = 1;
-        // VTK measures in pixels, but NSWindow/NSView measure in points
-        NSSize theSize = NSMakeSize((CGFloat)x / this->ScaleFactor,
-                                    (CGFloat)y / this->ScaleFactor);
+        NSSize theSize = NSMakeSize((CGFloat)x, (CGFloat)y);
         [(NSWindow*)this->GetRootWindow() setContentSize:theSize];
         resizing = 0;
         }
@@ -401,9 +397,8 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
         NSRect viewRect = [theView frame];
         CGFloat parentHeight = NSHeight(parentRect);
         CGFloat height = NSHeight(viewRect);
-        // VTK measures in pixels, but NSWindow/NSView measure in points
-        CGFloat xpos = (CGFloat)x / this->ScaleFactor;
-        CGFloat ypos = parentHeight - height - (CGFloat)y / this->ScaleFactor;
+        CGFloat xpos = (CGFloat)x;
+        CGFloat ypos = parentHeight - height - (CGFloat)y;
         NSPoint origin = NSMakePoint(xpos,ypos);
         [theView setFrameOrigin:origin];
         [theView setNeedsDisplay:YES];
@@ -525,14 +520,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
 {
   static unsigned count = 1;
 
-  // Get the screen's scale factor.
-  // It will be used to create the window if not created yet.
-  NSScreen *screen = [NSScreen mainScreen];
-  if (screen)
-    {
-    this->ScaleFactor = [screen userSpaceScaleFactor];
-    }
-
   // As vtk is both crossplatform and a library, we don't know if it is being
   // used in a 'regular Cocoa application' or as a 'pure vtk application'.
   // By the former I mean a regular Cocoa application that happens to have
@@ -558,11 +545,12 @@ void vtkCocoaRenderWindow::CreateAWindow()
     NSWindow* theWindow = nil;
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
+    NSScreen *screen = [NSScreen mainScreen];
     if (this->FullScreen && screen)
       {
       NSRect ctRect = [screen frame];
-      this->Size[0] = (int)round(NSWidth(ctRect) * this->ScaleFactor);
-      this->Size[1] = (int)round(NSHeight(ctRect) * this->ScaleFactor);
+      this->Size[0] = (int)round(NSWidth(ctRect));
+      this->Size[1] = (int)round(NSHeight(ctRect));
 
       theWindow = [[[vtkCocoaFullScreenWindow alloc]
                     initWithContentRect:ctRect
@@ -589,11 +577,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
         this->Position[1] = 50;
         }
 
-      // VTK measures in pixels, but NSWindow/NSView measure in points
       NSRect ctRect = NSMakeRect((CGFloat)this->Position[0],
                                  (CGFloat)this->Position[1],
-                                 (CGFloat)this->Size[0] / this->ScaleFactor,
-                                 (CGFloat)this->Size[1] / this->ScaleFactor);
+                                 (CGFloat)this->Size[0],
+                                 (CGFloat)this->Size[1]);
 
       theWindow = [[[NSWindow alloc]
                     initWithContentRect:ctRect
@@ -618,13 +605,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
     [theWindow setAcceptsMouseMovedEvents:YES];
     }
 
-  // Always use the scaling factor from the window once it is created.
-  // The screen and the window might possibly have different scaling factors, though unlikely.
-  if (this->GetRootWindow())
-    {
-    this->ScaleFactor = [(NSWindow*)this->GetRootWindow() userSpaceScaleFactor];
-    }
-
   // create a view if one has not been specified
   if (!this->GetWindowId())
     {
@@ -634,12 +614,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
       NSRect parentRect = [parent frame];
       CGFloat parentHeight = NSHeight(parentRect);
       CGFloat parentWidth = NSWidth(parentRect);
-      // VTK measures in pixels, but NSWindow/NSView measure in points.
-      CGFloat width = (CGFloat)this->Size[0] / this->ScaleFactor;
-      CGFloat height = (CGFloat)this->Size[1] / this->ScaleFactor;
-      CGFloat x = (CGFloat)this->Position[0] / this->ScaleFactor;
-      CGFloat y = parentHeight - height -
-                    (CGFloat)this->Position[1] / this->ScaleFactor;
+      CGFloat width = (CGFloat)this->Size[0];
+      CGFloat height = (CGFloat)this->Size[1];
+      CGFloat x = (CGFloat)this->Position[0];
+      CGFloat y = parentHeight - height - (CGFloat)this->Position[1];
 
       // A whole bunch of sanity checks: frame must be inside parent
       if (x > parentWidth - 1) { x = parentWidth - 1; };
@@ -659,10 +637,9 @@ void vtkCocoaRenderWindow::CreateAWindow()
       }
     else
       {
-      // VTK measures in pixels, but NSWindow/NSView measure in points.
       NSRect glRect = NSMakeRect(0.0, 0.0,
-                                 (CGFloat)this->Size[0] / this->ScaleFactor,
-                                 (CGFloat)this->Size[1] / this->ScaleFactor);
+                                 (CGFloat)this->Size[0],
+                                 (CGFloat)this->Size[1]);
 
       // Create a vtkCocoaGLView.
       vtkCocoaGLView *glView =
@@ -818,13 +795,12 @@ int *vtkCocoaRenderWindow::GetSize()
   // We want to return the size of 'the window'.  But the term 'window'
   // is overloaded. It's really the NSView that vtk draws into, so we
   // return its size.
-  // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
   NSView* view = (NSView*)this->GetWindowId();
   if (view)
     {
     NSRect frameRect = [view frame];
-    this->Size[0] = (int)round(NSWidth(frameRect) * this->ScaleFactor);
-    this->Size[1] = (int)round(NSHeight(frameRect) * this->ScaleFactor);
+    this->Size[0] = (int)round(NSWidth(frameRect));
+    this->Size[1] = (int)round(NSHeight(frameRect));
     }
   return this->Superclass::GetSize();
 }
@@ -839,9 +815,8 @@ int *vtkCocoaRenderWindow::GetScreenSize()
   NSScreen* screen = [[NSScreen screens] objectAtIndex:currentScreen];
   NSRect screenRect = [screen frame];
 
-  // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
-  this->Size[0] = (int)round(NSWidth(screenRect) * [screen userSpaceScaleFactor]);
-  this->Size[1] = (int)round(NSHeight(screenRect) * [screen userSpaceScaleFactor]);
+  this->Size[0] = (int)round(NSWidth(screenRect));
+  this->Size[1] = (int)round(NSHeight(screenRect));
 
   return this->Size;
 }
@@ -861,11 +836,10 @@ int *vtkCocoaRenderWindow::GetPosition()
     // Get display position of the NSView within its parent
     NSRect parentRect = [(NSView*)this->GetParentId() frame];
     NSRect viewFrameRect = [(NSView*)this->GetWindowId() frame];
-    this->Position[0] = int(round(NSMinX(viewFrameRect) * this->ScaleFactor));
+    this->Position[0] = int(round(NSMinX(viewFrameRect)));
     this->Position[1] = int(round((NSHeight(parentRect)
                                    - NSHeight(viewFrameRect)
-                                   - NSMinY(viewFrameRect))
-                                  * this->ScaleFactor));
+                                   - NSMinY(viewFrameRect))));
     }
   else
     {
@@ -973,7 +947,6 @@ void vtkCocoaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "MultiSamples: " << this->MultiSamples << endl;
-  os << indent << "ScaleFactor: " << this->GetScaleFactor() << endl;
   os << indent << "CocoaManager: " << this->GetCocoaManager() << endl;
   os << indent << "RootWindow (NSWindow): " << this->GetRootWindow() << endl;
   os << indent << "WindowId (NSView): " << this->GetWindowId() << endl;

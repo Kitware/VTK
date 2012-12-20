@@ -280,11 +280,6 @@ public:
   virtual void *GetGenericParentId() { return this->GetParentId(); }
 
   // Description:
-  // Returns the scaling factor for 'resolution independence', to convert
-  // between points and pixels.
-  vtkGetMacro(ScaleFactor, double);
-
-  // Description:
   // Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
   void SetPixelFormat(void *pixelFormat);
   void *GetPixelFormat();
@@ -301,14 +296,6 @@ protected:
 
   int OffScreenInitialized;
   int OnScreenInitialized;
-
-  // Using CGFloat would be better, but doing it this way avoids pulling in
-  // Apple headers, which cause problems with the 10.3 SDK and python wrappings.
-#if defined(__LP64__) && __LP64__
-  double ScaleFactor;
-#else
-  float ScaleFactor;
-#endif
 
   // Description:
   // Accessors for the cocoa manager (Really an NSMutableDictionary*).
