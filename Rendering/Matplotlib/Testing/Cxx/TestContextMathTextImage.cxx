@@ -42,7 +42,7 @@ int TestContextMathTextImage(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetRenderWindow()->SetSize(400, 150);
+  view->GetRenderWindow()->SetSize(325, 150);
   vtkNew<ContextMathTextImageTest> test;
   view->GetScene()->AddItem(test.GetPointer());
 
@@ -61,8 +61,8 @@ bool ContextMathTextImageTest::Paint(vtkContext2D *painter)
 {
   painter->GetTextProp()->SetColor(0.4, 0.6, 0.7);
   painter->GetTextProp()->SetFontSize(60);
-  painter->DrawMathTextString(20, 20, "$\\left\\{\\frac{-b\\pm\\sqrt{b^2-4ac}}"
-                              "{2a}\\right\\}$");
+  painter->DrawMathTextString(20, 20, "$\\frac{-b\\pm\\sqrt{b^2-4ac}}"
+                              "{2a}$");
 
   return true;
 }
