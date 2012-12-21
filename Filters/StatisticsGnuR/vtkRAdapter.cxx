@@ -567,8 +567,9 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
       SET_STRING_ELT(node_label,newNodeId[vertexId]- ntip - 1, mkChar(lab.c_str())); //the starting id of the internal nodes is (ntip + 1)
       }
     }
+  iter->Delete();
 
-  // set all elments
+  // set all elements
   SET_VECTOR_ELT(r_tree, 0, edge);
   SET_VECTOR_ELT(r_tree, 1, Nnode);
   SET_VECTOR_ELT(r_tree, 2, tip_label);
