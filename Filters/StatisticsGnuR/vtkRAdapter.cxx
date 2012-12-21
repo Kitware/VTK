@@ -490,7 +490,7 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   vtkTreeDFSIterator* iter = vtkTreeDFSIterator::New();
   iter->SetTree(tree);
   int nVerts = tree->GetNumberOfVertices();
-  int newNodeId[nVerts];//including root vertex 0
+  int *newNodeId = new int[nVerts];//including root vertex 0
   while (iter->HasNext())
     {// find out all the leaf nodes, and number them sequentially
     vtkIdType vertexId = iter->Next();
@@ -587,6 +587,8 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   PROTECT(classname = allocVector(STRSXP, 1));
   SET_STRING_ELT(classname, 0, mkChar("phylo"));
   setAttrib(r_tree, R_ClassSymbol, classname);
+
+  delete [] newNodeId;
 
   UNPROTECT(8);
   return r_tree;
