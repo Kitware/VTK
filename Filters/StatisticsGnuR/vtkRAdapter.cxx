@@ -532,7 +532,6 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   double * e_len = REAL(edge_length);
 
   // fill in e and e_len
-  int currentNode = ntip + 1;
   vtkSmartPointer<vtkEdgeListIterator> edgeIterator = vtkSmartPointer<vtkEdgeListIterator>::New();
   tree->GetEdges(edgeIterator);
   vtkEdgeType vEdge = edgeIterator->Next();//skip the first empty edge (0,1) with weight 0
