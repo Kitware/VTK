@@ -34,6 +34,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSelectionNode.h"
@@ -54,6 +55,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
+vtkCxxSetObjectMacro(vtkConvertSelection, SelectionExtractor, vtkExtractSelection);
 
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
@@ -64,12 +66,14 @@ vtkConvertSelection::vtkConvertSelection()
   this->ArrayNames = 0;
   this->InputFieldType = -1;
   this->MatchAnyValues = false;
+  this->SelectionExtractor = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkConvertSelection::~vtkConvertSelection()
 {
   this->SetArrayNames(0);
+  this->SetSelectionExtractor(0);
 }
 
 //----------------------------------------------------------------------------
@@ -175,8 +179,7 @@ int vtkConvertSelection::ConvertToIndexSelection(
   tempInput->AddNode(input);
 
   // Use the extraction filter to create an insidedness array.
-  vtkSmartPointer<vtkExtractSelection> extract =
-    vtkSmartPointer<vtkExtractSelection>::New();
+  vtkExtractSelection* extract = this->SelectionExtractor;
   extract->PreserveTopologyOn();
   extract->SetInputData(0, data);
   extract->SetInputData(1, tempInput);
@@ -552,11 +555,12 @@ int vtkConvertSelection::Convert(
       vtkSmartPointer<vtkIdTypeArray>::New();
 
     if (inputNode->GetContentType() == vtkSelectionNode::FRUSTUM ||
-        inputNode->GetContentType() == vtkSelectionNode::LOCATIONS)
+        inputNode->GetContentType() == vtkSelectionNode::LOCATIONS||
+        inputNode->GetContentType() == vtkSelectionNode::QUERY)
       {
       if (!vtkDataSet::SafeDownCast(data))
         {
-        vtkErrorMacro("Can only convert from frustum or locations if the input is a vtkDataSet");
+        vtkErrorMacro("Can only convert from frustum, locations, or query if the input is a vtkDataSet");
         return 0;
         }
       // Use the extract selection filter to create an index selection
@@ -878,6 +882,12 @@ int vtkConvertSelection::RequestData(
   vtkSelection* origInput = vtkSelection::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  if (!this->SelectionExtractor)
+    {
+    vtkNew<vtkExtractSelection> se;
+    this->SetSelectionExtractor(se.GetPointer());
+    }
+
   vtkSmartPointer<vtkSelection> input = vtkSmartPointer<vtkSelection>::New();
   input->ShallowCopy(origInput);
   if (this->InputFieldType != -1)
@@ -1077,6 +1087,7 @@ void vtkConvertSelection::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "InputFieldType: " << this->InputFieldType << endl;
   os << indent << "OutputType: " << this->OutputType << endl;
+  os << indent << "SelectionExtractor: " << this->SelectionExtractor << endl;
   os << indent << "MatchAnyValues: " << (this->MatchAnyValues ? "true" : "false") << endl;
   os << indent << "ArrayNames: " << (this->ArrayNames ? "" : "(null)") << endl;
   if (this->ArrayNames)
