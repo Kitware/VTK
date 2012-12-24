@@ -28,12 +28,6 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkgluPickMatrix.h"
-#include "vtkToolkits.h"  // for VTK_USE_GL2PS
-
-#ifdef VTK_USE_GL2PS
-#include "vtk_gl2ps.h"
-#include "vtkGL2PSExporter.h"
-#endif // VTK_USE_GL2PS
 
 #include <math.h>
 
@@ -298,14 +292,6 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     }
   glEnd();
 
-  // Set pointsize and linewidth for GL2PS output.
-#ifdef VTK_USE_GL2PS
-  gl2psPointSize(actor->GetProperty()->GetPointSize()*
-                 vtkGL2PSExporter::GetGlobalPointSizeFactor());
-  gl2psLineWidth(actor->GetProperty()->GetLineWidth()*
-                 vtkGL2PSExporter::GetGlobalLineWidthFactor());
-#endif // VTK_USE_GL2PS
-
   // Set the LineWidth
   glLineWidth(actor->GetProperty()->GetLineWidth());
 
@@ -313,18 +299,12 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if (actor->GetProperty()->GetLineStipplePattern() != 0xFFFF)
     {
     glEnable (GL_LINE_STIPPLE);
-#ifdef VTK_USE_GL2PS
-    gl2psEnable(GL2PS_LINE_STIPPLE);
-#endif // VTK_USE_GL2PS
     glLineStipple (actor->GetProperty()->GetLineStippleRepeatFactor(),
                    actor->GetProperty()->GetLineStipplePattern());
     }
   else
     {
     glDisable (GL_LINE_STIPPLE);
-#ifdef VTK_USE_GL2PS
-    gl2psDisable(GL2PS_LINE_STIPPLE);
-#endif // VTK_USE_GL2PS
     }
 
   aPrim = input->GetLines();
