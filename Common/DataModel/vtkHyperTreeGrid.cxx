@@ -848,7 +848,7 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId,
     vtkIdTypeArray* cornerLeafIds = this->GetLeafCenterIds();
     assert( "Index out of bounds." &&
             cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
-    npts = 1 << this->Dimension;
+    npts = static_cast<vtkIdType>( 1 << this->Dimension );
     pts = cornerLeafIds->GetPointer( 0 ) + cellId * npts;
     }
   else
@@ -857,7 +857,7 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId,
     vtkIdTypeArray* leafCornerIds = this->GetLeafCornerIds();
     assert( "Index out of bounds." &&
             cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
-    npts = 1 << this->Dimension;
+    npts = static_cast<vtkIdType>( 1 << this->Dimension );
     pts = leafCornerIds->GetPointer( 0 ) + cellId * npts;
     }
 }
