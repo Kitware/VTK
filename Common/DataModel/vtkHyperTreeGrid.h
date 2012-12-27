@@ -38,6 +38,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
+#include <map> // STL header for dual point coordinates ajustment
 
 class vtkHyperTreeSimpleCursor;
 //BTX
@@ -356,6 +357,7 @@ protected:
 
   vtkPoints* LeafCenters;
   vtkIdTypeArray* LeafCenterIds;
+  std::map<vtkIdType,double> LeafCentersAdjustments[3];
 
   vtkPoints* CornerPoints;
   vtkIdTypeArray* LeafCornerIds;
@@ -365,7 +367,7 @@ protected:
   void DeleteInternalArrays();
 //BTX
   void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*,
-                                int );
+                                int, double* );
 
   void TraverseGridRecursively( vtkHyperTreeGridSuperCursor*,
                                 unsigned char*);
