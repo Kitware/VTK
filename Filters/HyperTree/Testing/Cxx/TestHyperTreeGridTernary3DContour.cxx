@@ -49,37 +49,17 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
 
   // Contour
   vtkNew<vtkContourFilter> contour;
-  int nContours = 3;
+  int nContours = 4;
   contour->SetNumberOfContours( nContours );
   contour->SetInputConnection( htGrid->GetOutputPort() );
+  contour->GenerateTrianglesOn();
   double resolution = ( maxLevel - 1 ) / ( nContours + 1. );
   double isovalue = resolution;
   for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
     {
     contour->SetValue( i, isovalue );
     }
-
-  contour->GenerateTrianglesOff();
   contour->Update();
-  if( contour->GetOutput()->GetNumberOfPoints() != 547 )
-    {
-    return 1;
-    }
-  if( contour->GetOutput()->GetNumberOfCells() != 463 )
-    {
-    return 1;
-    }
-  contour->GenerateTrianglesOn();
-  contour->Update();
-  if( contour->GetOutput()->GetNumberOfPoints() != 547 )
-    {
-    return 1;
-    }
-  if( contour->GetOutput()->GetNumberOfCells() != 917 )
-    {
-    return 1;
-    }
-
   vtkPolyData* pd = contour->GetOutput();
 
   // Mappers
