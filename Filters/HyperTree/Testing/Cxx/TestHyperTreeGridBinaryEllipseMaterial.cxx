@@ -39,8 +39,8 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   htGrid->SetMaximumLevel( 8 );
-  htGrid->SetGridSize( 8, 12, 1 );
-  htGrid->SetGridScale( 1., .5, .7 );
+  htGrid->SetGridSize( 16, 24, 1 );
+  htGrid->SetGridScale( .5, .25, .7 );
   htGrid->SetDimension( 2 );
   htGrid->SetBranchFactor( 2 );
   htGrid->DualOn();
@@ -61,8 +61,13 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   // Contour
   vtkNew<vtkContourFilter> contour;
   contour->SetInputConnection( htGrid->GetOutputPort() );
-  contour->SetNumberOfContours( 0 );
-  contour->SetValue( 0, 0 );
+  int nContours = 6;
+  contour->SetNumberOfContours( nContours );
+  double isovalue = -90.;
+  for ( int i = 0; i < nContours; ++ i, isovalue += 16. )
+    {
+    contour->SetValue( i, isovalue );
+    }
   contour->SetInputArrayToProcess( 0, 0, 0,
                                    vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                    "Quadric" );
@@ -98,8 +103,8 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   actor2->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor3;
   actor3->SetMapper( mapper3.GetPointer() );
-  actor3->GetProperty()->SetColor( 0., 0., 0. );
-  actor3->GetProperty()->SetLineWidth( 2 );
+  actor3->GetProperty()->SetRepresentationToWireframe();
+  actor3->GetProperty()->SetColor( .2, .9, .2 );
 
   // Camera
   double bd[6];
@@ -107,7 +112,7 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( .5 * bd[1], .5 * bd[3], 14. );
+  camera->SetPosition( .5 * bd[1], .5 * bd[3], 15.5 );
 
   // Scalar bar
   vtkNew<vtkScalarBarActor> scalarBar;
