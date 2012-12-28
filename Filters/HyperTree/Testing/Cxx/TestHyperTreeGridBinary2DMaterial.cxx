@@ -75,12 +75,16 @@ int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
   mapper2->ScalarVisibilityOff();
   mapper2->SetResolveCoincidentTopologyToPolygonOffset();
   mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
-  vtkNew<vtkDataSetMapper> mapper3;
-  mapper3->SetInputConnection( htGrid->GetOutputPort() );
-  //mapper3->SetInputConnection( contour->GetOutputPort() );
+  vtkNew<vtkPolyDataMapper> mapper3;
+  mapper3->SetInputConnection( contour->GetOutputPort() );
   mapper3->ScalarVisibilityOff();
   mapper3->SetResolveCoincidentTopologyToPolygonOffset();
   mapper3->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
+  vtkNew<vtkDataSetMapper> mapper4;
+  mapper4->SetInputConnection( htGrid->GetOutputPort() );
+  mapper4->ScalarVisibilityOff();
+  mapper4->SetResolveCoincidentTopologyToPolygonOffset();
+  mapper4->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
 
   // Actors
   vtkNew<vtkActor> actor1;
@@ -91,9 +95,12 @@ int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
   actor2->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor3;
   actor3->SetMapper( mapper3.GetPointer() );
-  actor3->GetProperty()->SetRepresentationToWireframe();
-  actor3->GetProperty()->SetColor( .8, .2, .3 );
-  actor3->GetProperty()->SetLineWidth( 2 );
+  actor3->GetProperty()->SetColor( .8, .4, .3 );
+  actor3->GetProperty()->SetLineWidth( 3 );
+  vtkNew<vtkActor> actor4;
+  actor4->SetMapper( mapper4.GetPointer() );
+  actor4->GetProperty()->SetRepresentationToWireframe();
+  actor4->GetProperty()->SetColor( .0, .0, .0 );
 
   // Camera
   double bd[6];
@@ -110,6 +117,7 @@ int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
   renderer->AddActor( actor1.GetPointer() );
   renderer->AddActor( actor2.GetPointer() );
   renderer->AddActor( actor3.GetPointer() );
+  renderer->AddActor( actor4.GetPointer() );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
