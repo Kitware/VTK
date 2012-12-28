@@ -61,8 +61,13 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   // Contour
   vtkNew<vtkContourFilter> contour;
   contour->SetInputConnection( htGrid->GetOutputPort() );
-  contour->SetNumberOfContours( 0 );
-  contour->SetValue( 0, -8. );
+  int nContours = 6;
+  contour->SetNumberOfContours( nContours );
+  double isovalue = -90.;
+  for ( int i = 0; i < nContours; ++ i, isovalue += 16. )
+    {
+    contour->SetValue( i, isovalue );
+    }
   contour->SetInputArrayToProcess( 0, 0, 0,
                                    vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                    "Quadric" );
@@ -99,8 +104,7 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   vtkNew<vtkActor> actor3;
   actor3->SetMapper( mapper3.GetPointer() );
   actor3->GetProperty()->SetRepresentationToWireframe();
-  actor3->GetProperty()->SetColor( 0., 0., 0. );
-  actor3->GetProperty()->SetLineWidth( 2 );
+  actor3->GetProperty()->SetColor( .2, .9, .2 );
 
   // Camera
   double bd[6];
@@ -108,7 +112,7 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( .5 * bd[1], .5 * bd[3], 14. );
+  camera->SetPosition( .5 * bd[1], .5 * bd[3], 15.5 );
 
   // Scalar bar
   vtkNew<vtkScalarBarActor> scalarBar;
