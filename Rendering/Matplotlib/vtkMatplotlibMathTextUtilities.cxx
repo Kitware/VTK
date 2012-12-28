@@ -74,6 +74,25 @@ vtkMatplotlibMathTextUtilities::Availablity
 vtkMatplotlibMathTextUtilities::MPLMathTextAvailable =
     vtkMatplotlibMathTextUtilities::NOT_TESTED;
 
+// A macro that is used in New() to print warnings if VTK_MATPLOTLIB_DEBUG
+// is defined in the environment. Use warnings to allow this to work in
+// release mode builds. This is adapted from vtkWarningWithObjectMacro
+#define vtkMplStartUpDebugMacro(x)                             \
+if (debug)                                                     \
+  {                                                            \
+  if (vtkObject::GetGlobalWarningDisplay())                    \
+    {                                                          \
+    vtkOStreamWrapper::EndlType endl;                          \
+    vtkOStreamWrapper::UseEndl(endl);                          \
+    vtkOStrStreamWrapper vtkmsg;                               \
+    vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__    \
+           << "\nvtkMatplotlibMathTextUtilities::New(): "      \
+           << x << "\n\n";                                     \
+    vtkOutputWindowDisplayWarningText(vtkmsg.str());           \
+    vtkmsg.rdbuf()->freeze(0);                                 \
+    }                                                          \
+  }
+
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
 {
@@ -86,33 +105,116 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
     case vtkMatplotlibMathTextUtilities::AVAILABLE:
       break;
     case vtkMatplotlibMathTextUtilities::NOT_TESTED:
+
+      // Print setup details if this env flag is set:
+      bool debug = vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG");
+
       // Initialize the python interpretor if needed
+      vtkMplStartUpDebugMacro("Testing if matplotlib is already init'd.");
       if (!Py_IsInitialized())
         {
         // Check for a specified interpreter in the system environment.
+        vtkMplStartUpDebugMacro("Not initialized. Checking "
+                                "VTK_MATPLOTLIB_PYTHONHOME.");
+
+        vtkStdString mplPyHome;
+        if (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_PYTHONHOME",
+                                        mplPyHome) &&
+            mplPyHome.size() != 0)
+          {
+          vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONHOME="<<mplPyHome);
+          Py_SetPythonHome(const_cast<char*>(mplPyHome.c_str()));
+          }
+        else
+          {
+          vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONHOME undefined.");
+          }
+
+        vtkMplStartUpDebugMacro("Checking VTK_MATPLOTLIB_PYTHONINTERP.");
         vtkStdString mplPyInterp;
         if (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_PYTHONINTERP",
                                         mplPyInterp) &&
             mplPyInterp.size() != 0)
           {
+          vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONINTERP="<<mplPyInterp);
           Py_SetProgramName(const_cast<char*>(mplPyInterp.c_str()));
           }
+        else
+          {
+          vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONINTERP undefined.");
+          }
+
+        vtkMplStartUpDebugMacro("Initializing python. (if there is a segfault "
+                                "and error 'ImportError: No module named site',"
+                                " VTK_MATPLOTLIB_PYTHONHOME is incorrect).");
         Py_Initialize();
         }
 
+      if (!Py_IsInitialized())
+        {
+        vtkMplStartUpDebugMacro("Python environment failed to initialize. "
+                                "Matplotlib will be unavailable.");
+        vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
+        return NULL;
+        }
+
+      vtkMplStartUpDebugMacro("Python environment initialized. Checking "
+                              "VTK_MATPLOTLIB_PYTHONPATH.");
+
+      PyObject *pypath = PySys_GetObject(const_cast<char*>("path"));
+      vtkStdString envPaths;
+      if (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_PYTHONPATH",
+                                      envPaths) && envPaths.size() != 0)
+        {
+        vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONPATH=" << envPaths);
+
+        // Split paths and prepend them to the python path object.
+#ifdef _WIN32
+        char delim = ';';
+#else // _WIN32
+        char delim = ':';
+#endif // _WIN32
+        size_t pathEnd = vtkStdString::npos;
+        size_t pathStart = envPaths.rfind(delim, pathEnd);
+        while (pathStart != vtkStdString::npos)
+          {
+          vtkStdString envPath(envPaths, pathStart + 1,
+                               pathEnd == vtkStdString::npos
+                               ? vtkStdString::npos : pathEnd - pathStart);
+          PyList_Insert(pypath, 0, PyString_FromString(envPath.c_str()));
+          pathEnd = pathStart - 1;
+          pathStart = envPaths.rfind(delim, pathEnd);
+          }
+        vtkStdString envPath(envPaths, 0,
+                             pathEnd == vtkStdString::npos
+                             ? vtkStdString::npos : pathEnd + 1);
+        PyList_Insert(pypath, 0, PyString_FromString(envPath.c_str()));
+        }
+      else
+        {
+        vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONPATH undefined.");
+        }
+
+      SmartPyObject pypathStr = PyObject_Str(pypath);
+      vtkMplStartUpDebugMacro("sys.path =\n"
+                              << PyString_AsString(pypathStr.GetPointer()));
+
+
+      vtkMplStartUpDebugMacro("Attempting to import matplotlib.");
       if (PyErr_Occurred() ||
           !PyImport_ImportModule("matplotlib") ||
           PyErr_Occurred())
         {
+        vtkMplStartUpDebugMacro("Error occurred. Writing exception info to "
+                                "stdout/stderr.");
+        PyErr_PrintEx(0);
         vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
+        return NULL;
         }
       else
         {
+        vtkMplStartUpDebugMacro("Successfully imported matplotlib.");
         vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = AVAILABLE;
-        }
-      if (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable == UNAVAILABLE)
-        {
-        return NULL;
         }
       break;
     }

@@ -17,9 +17,18 @@
 // vtkMatplotlibMathTextUtilities provides access to the MatPlotLib MathText
 // implementation.
 //
-// The python interpretor used by this class can be specified by setting the
-// VTK_MATPLOTLIB_PYTHONINTERP environment variable. This will be passed to
-// Py_SetProgramName prior to calling Py_Initialize.
+// This class is aware of a number of enviroment variables that can be used to
+// configure and debug python initialization (all are optional):
+// - VTK_MATPLOTLIB_DEBUG: Enable verbose debugging output during initialization
+// of the python environment.
+// - VTK_MATPLOTLIB_PYTHONINTERP: Path to the python interpreter. This will be
+// passed to Py_SetProgramName prior to calling Py_Initialize.
+// - VTK_MATPLOTLIB_PYTHONHOME: See the Python documentation on the PYTHONHOME
+// environment variable. This will be passed to Py_SetPythonHome prior to
+// calling Py_Initialize.
+// - VTK_MATPLOTLIB_PYTHONPATH: A list of additional python module paths to be
+// prepended to the sys.path object after initialization. Use ';' on windows and
+// ':' on apple/linux to separate multiple paths.
 
 #ifndef __vtkMatplotlibMathTextUtilities_h
 #define __vtkMatplotlibMathTextUtilities_h
