@@ -107,7 +107,7 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
     case vtkMatplotlibMathTextUtilities::NOT_TESTED:
 
       // Print setup details if this env flag is set:
-      bool debug = vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG");
+      bool debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != NULL);
 
       // Initialize the python interpretor if needed
       vtkMplStartUpDebugMacro("Testing if matplotlib is already init'd.");
