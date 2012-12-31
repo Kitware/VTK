@@ -112,7 +112,7 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
 
       // Print setup details if this env flag is set. The debug variable is used
       // by the vtkMplStartUpDebugMacro.
-      debug = vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG");
+      debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != NULL);
 
       // Initialize the python interpretor if needed
       vtkMplStartUpDebugMacro("Testing if matplotlib is already init'd.");
