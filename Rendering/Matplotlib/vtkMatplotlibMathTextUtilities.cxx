@@ -96,6 +96,10 @@ if (debug)                                                     \
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
 {
+  // Enable startup debugging output. This will be set to true when
+  // VTK_MATPLOTLIB_DEBUG is defined in the process environment.
+  bool debug = false;
+
   // Attempt to import matplotlib to check for availability
   switch (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable)
     {
@@ -106,8 +110,9 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
       break;
     case vtkMatplotlibMathTextUtilities::NOT_TESTED:
 
-      // Print setup details if this env flag is set:
-      bool debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != NULL);
+      // Print setup details if this env flag is set. The debug variable is used
+      // by the vtkMplStartUpDebugMacro.
+      debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != NULL);
 
       // Initialize the python interpretor if needed
       vtkMplStartUpDebugMacro("Testing if matplotlib is already init'd.");
@@ -218,7 +223,16 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
         }
       break;
     }
-  VTK_OBJECT_FACTORY_NEW_BODY(vtkMatplotlibMathTextUtilities)
+  // Adapted from VTK_OBJECT_FACTORY_NEW_BODY to enable debugging output when
+  // requested.
+  vtkObject* ret =
+      vtkObjectFactory::CreateInstance("vtkMatplotlibMathTextUtilities");
+  if(ret)
+    {
+    ret->SetDebug(debug);
+    return static_cast<vtkMatplotlibMathTextUtilities*>(ret);
+    }
+  return new vtkMatplotlibMathTextUtilities;
 }
 vtkInstantiatorNewMacro(vtkMatplotlibMathTextUtilities)
 
@@ -320,7 +334,10 @@ bool vtkMatplotlibMathTextUtilities::CheckForError()
   if (exception)
     {
     vtkDebugMacro(<< "Python exception raised.");
-    PyErr_PrintEx(0);
+    if (this->Debug)
+      {
+      PyErr_PrintEx(0);
+      }
     return true;
     }
   return false;
@@ -334,7 +351,7 @@ bool vtkMatplotlibMathTextUtilities::CheckForError(PyObject *object)
 
   if (object == NULL)
     {
-    vtkErrorMacro(<< "Object is NULL!");
+    vtkDebugMacro(<< "Object is NULL!");
     return true;
     }
   return result;
@@ -510,7 +527,7 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
       }
     }
 
-  vtkDebugMacro(<<"Calculation bbox for '" << str << "'");
+  vtkDebugMacro(<<"Calculating bbox for '" << str << "'");
 
   long int rows = 0;
   long int cols = 0;
