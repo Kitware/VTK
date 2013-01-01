@@ -77,22 +77,18 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
                                 0., 0., 1., 1. );
 
   // Mappers
+  vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
-  mapper1->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
   mapper1->UseLookupTableScalarRangeOn();
   mapper1->SetLookupTable( colorFunction.GetPointer() );
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection( geometry->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
-  mapper2->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper3;
   mapper3->SetInputConnection( contour->GetOutputPort() );
   mapper3->ScalarVisibilityOff();
-  mapper3->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper3->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
 
   // Actors
   vtkNew<vtkActor> actor1;

@@ -72,29 +72,23 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   shrink2->SetShrinkFactor( .8 );
  
   // Mappers
+  vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection( shrink1->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
-  mapper1->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection( axisCut1->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
-  mapper2->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper3;
   mapper3->SetInputConnection( outline->GetOutputPort() );
   mapper3->ScalarVisibilityOff();
   vtkNew<vtkDataSetMapper> mapper4;
   mapper4->SetInputConnection( shrink2->GetOutputPort() );
   mapper4->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
-  mapper4->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper4->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
   vtkNew<vtkPolyDataMapper> mapper5;
   mapper5->SetInputConnection( axisCut2->GetOutputPort() );
   mapper5->ScalarVisibilityOff();
-  mapper5->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper5->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
  
   // Actors
   vtkNew<vtkActor> actor1;

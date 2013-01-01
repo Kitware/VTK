@@ -64,11 +64,11 @@ int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] 
                                 0., 1., .4, 0. );
 
   // Mappers
+  vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
-  mapper1->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
   mapper1->UseLookupTableScalarRangeOn();
   mapper1->SetLookupTable( colorFunction.GetPointer() );
  
