@@ -46,6 +46,7 @@
 class vtkImageData;
 class vtkPath;
 class vtkStdString;
+class vtkUnicodeString;
 class vtkTextProperty;
 
 namespace vtksys {
@@ -125,6 +126,16 @@ public:
   {
     return this->GetBoundingBoxInternal(tprop, str, bbox, 120, backend);
   }
+  bool GetBoundingBox(vtkTextProperty *tprop, const vtkUnicodeString &str,
+                      int bbox[4], int dpi, int backend)
+  {
+    return this->GetBoundingBoxInternal(tprop, str, bbox, dpi, backend);
+  }
+  bool GetBoundingBox(vtkTextProperty *tprop, const vtkUnicodeString &str,
+                      int bbox[4], int backend = Default)
+  {
+    return this->GetBoundingBoxInternal(tprop, str, bbox, 120, backend);
+  }
 
   // Description:
   // Given a text property and a string, this function initializes the
@@ -161,6 +172,29 @@ public:
     return this->RenderStringInternal(tprop, str, data, textDims, 120,
                                       backend);
   }
+  bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString &str,
+                    vtkImageData *data, int textDims[2], int dpi, int backend)
+  {
+    return this->RenderStringInternal(tprop, str, data, textDims, dpi,
+                                      backend);
+  }
+  bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString &str,
+                    vtkImageData *data, int dpi, int backend)
+  {
+    return this->RenderStringInternal(tprop, str, data, NULL, dpi, backend);
+  }
+  bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString &str,
+                    vtkImageData *data, int backend)
+  {
+    return this->RenderStringInternal(tprop, str, data, NULL, 120, backend);
+  }
+  bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString &str,
+                    vtkImageData *data, int textDims[2] = NULL,
+                    int backend = Default)
+  {
+    return this->RenderStringInternal(tprop, str, data, textDims, 120,
+                                      backend);
+  }
 
   // Description:
   // This function returns the font size (in points) and sets the size in @a
@@ -183,12 +217,32 @@ public:
     return this->GetConstrainedFontSizeInternal(str, tprop, targetWidth,
                                                 targetHeight, 120, backend);
   }
+  int GetConstrainedFontSize(const vtkUnicodeString &str, vtkTextProperty *tprop,
+                             int targetWidth, int targetHeight, int dpi,
+                             int backend)
+  {
+    return this->GetConstrainedFontSizeInternal(str, tprop, targetWidth,
+                                                targetHeight, dpi, backend);
+  }
+  int GetConstrainedFontSize(const vtkUnicodeString &str,
+                             vtkTextProperty *tprop,
+                             int targetWidth, int targetHeight,
+                             int backend = Default)
+  {
+    return this->GetConstrainedFontSizeInternal(str, tprop, targetWidth,
+                                                targetHeight, 120, backend);
+  }
 
   // Description:
   // Given a text property and a string, this function populates the vtkPath
   // path with the outline of the rendered string.
   // Return true on success, false otherwise.
   bool StringToPath(vtkTextProperty *tprop, const vtkStdString &str,
+                    vtkPath *path, int backend = Default)
+  {
+    return this->StringToPathInternal(tprop, str, path, backend);
+  }
+  bool StringToPath(vtkTextProperty *tprop, const vtkUnicodeString &str,
                     vtkPath *path, int backend = Default)
   {
     return this->StringToPathInternal(tprop, str, path, backend);
@@ -211,20 +265,34 @@ protected:
   ~vtkTextRenderer();
 
   // Description:
-  // Virtual method for concrete implementations of the public methods.
+  // Virtual methods for concrete implementations of the public methods.
   virtual bool GetBoundingBoxInternal(vtkTextProperty *tprop,
                                       const vtkStdString &str,
                                       int bbox[4], int dpi, int backend) = 0;
+  virtual bool GetBoundingBoxInternal(vtkTextProperty *tprop,
+                                      const vtkUnicodeString &str,
+                                      int bbox[4], int dpi, int backend) = 0;
   virtual bool RenderStringInternal(vtkTextProperty *tprop,
                                     const vtkStdString &str,
+                                    vtkImageData *data, int textDims[2],
+                                    int dpi, int backend) = 0;
+  virtual bool RenderStringInternal(vtkTextProperty *tprop,
+                                    const vtkUnicodeString &str,
                                     vtkImageData *data, int textDims[2],
                                     int dpi, int backend) = 0;
   virtual int GetConstrainedFontSizeInternal(const vtkStdString &str,
                                              vtkTextProperty *tprop,
                                              int targetWidth, int targetHeight,
                                              int dpi, int backend) = 0;
+  virtual int GetConstrainedFontSizeInternal(const vtkUnicodeString &str,
+                                             vtkTextProperty *tprop,
+                                             int targetWidth, int targetHeight,
+                                             int dpi, int backend) = 0;
   virtual bool StringToPathInternal(vtkTextProperty *tprop,
                                     const vtkStdString &str, vtkPath *path,
+                                    int backend) = 0;
+  virtual bool StringToPathInternal(vtkTextProperty *tprop,
+                                    const vtkUnicodeString &str, vtkPath *path,
                                     int backend) = 0;
   virtual void SetScaleToPowerOfTwoInternal(bool scale) = 0;
 
@@ -241,11 +309,13 @@ protected:
   // Description:
   // Determine the appropriate back end needed to render the given string.
   virtual int DetectBackend(const vtkStdString &str);
+  virtual int DetectBackend(const vtkUnicodeString &str);
   vtksys::RegularExpression *MathTextRegExp;
 
   // Description:
   // Replace all instances of "\$" with "$".
   virtual void CleanUpFreeTypeEscapes(vtkStdString &str);
+  virtual void CleanUpFreeTypeEscapes(vtkUnicodeString &str);
 
   // Description:
   // Used to cache the availability of backends. Set these in the derived class
