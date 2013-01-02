@@ -675,7 +675,8 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
     textDims[1] = rows;
     }
 
-  int bbox[4] = {0, cols - 1, 0, rows - 1};
+  int bbox[4] = {0, static_cast<int>(cols - 1),
+                 0, static_cast<int>(rows - 1)};
   this->PrepareImageData(image, bbox);
 
   for (long int row = rows-1; row >= 0; --row)
