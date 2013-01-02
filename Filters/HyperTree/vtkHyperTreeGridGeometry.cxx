@@ -137,7 +137,7 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   this->Input = 0;
   this->Output = 0;
 
-  this->UpdateProgress ( 1. );
+  this->UpdateProgress( 1. );
   return 1;
 }
 
@@ -191,10 +191,8 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
 {
   // Initialize points
   double pt[3];
-  for ( int i = 0; i < 3; ++ i )
-    {
-    pt[i] = origin[i];
-    }
+  memcpy( pt, origin, 3 * sizeof(double));
+
   if ( offset )
     {
     pt[orientation] += size[orientation];
@@ -239,8 +237,9 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor* superCursor )
+void vtkHyperTreeGridGeometry::RecursiveProcessTree( void* cursor )
 {
+  vtkHyperTreeGridSuperCursor* superCursor = static_cast<vtkHyperTreeGridSuperCursor*>(cursor);
   // Get cursor at super cursor center
   vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
@@ -298,7 +297,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
             vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( neighborIdx );
 
             // Generate faces shared by an unmasked cell, break ties at same level
-            if ( cursor->GetTree() 
+            if ( cursor->GetTree()
                  && cursor->IsLeaf()
                  && cursor->GetLevel() < cursor0->GetLevel() )
               {
@@ -324,7 +323,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
           {
           // Retrieve face neighbor cursor
           vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( neighborIdx );
-          
+
           // Boundary faces, or faces shared by a masked cell, must be created
           if ( ! cursor->GetTree()
                ||
@@ -334,7 +333,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeGridSuperCursor
             this->AddFace( id0,
                            superCursor->Origin, superCursor->Size,
                            o, f );
-            
+
             }
           } // o
         } // f

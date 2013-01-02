@@ -20,8 +20,8 @@
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkHyperTreeGrid.h" // We need this because of supercursor
 
+class vtkHyperTreeGrid;
 class vtkCellArray;
 class vtkPoints;
 
@@ -40,7 +40,7 @@ protected:
   virtual int FillInputPortInformation( int, vtkInformation* );
 
   void ProcessTrees();
-  void RecursiveProcessTree( vtkHyperTreeGridSuperCursor* );
+  void RecursiveProcessTree( void* );
   void AddFace( vtkIdType inId, double* origin, double* size,
                 int offset, int orientation );
 
@@ -48,7 +48,7 @@ protected:
   vtkPolyData* Output;
   vtkPoints* Points;
   vtkCellArray* Cells;
-  
+
 private:
   vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&);  // Not implemented.
   void operator=(const vtkHyperTreeGridGeometry&);  // Not implemented.
