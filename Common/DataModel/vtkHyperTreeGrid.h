@@ -42,7 +42,7 @@
 
 class vtkHyperTreeSimpleCursor;
 //BTX
-class vtkHyperTreeGridSuperCursor;
+struct vtkHyperTreeGridSuperCursor;
 //ETX
 class vtkHyperTreeCursor;
 class vtkHyperTree;
@@ -77,7 +77,7 @@ public:
   static vtkInformationDoubleVectorKey* SIZES();
   static vtkHyperTreeGrid* New();
 
-  vtkTypeMacro(vtkHyperTreeGrid,vtkDataSet);
+  vtkTypeMacro(vtkHyperTreeGrid, vtkDataSet);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
@@ -92,7 +92,7 @@ public:
   // Description:
   // Set/Get sizes of this rectilinear grid dataset
   void SetGridSize( unsigned int[3] );
-  vtkGetVector3Macro(GridSize,unsigned int);
+  vtkGetVector3Macro(GridSize, unsigned int);
 
   // Description:
   // Set/Get the subdivision factor in the grid refinement scheme
@@ -108,7 +108,7 @@ public:
 
   // Description:
   // Get number of root cells
-  vtkGetMacro(NumberOfRoots,unsigned int);
+  vtkGetMacro(NumberOfRoots, unsigned int);
 
   // Description:
   // Return the number of cells in the dual grid or grid.
@@ -136,22 +136,22 @@ public:
   // Description:
   // Specify the grid coordinates in the x-direction.
   virtual void SetXCoordinates( vtkDataArray* );
-  vtkGetObjectMacro(XCoordinates,vtkDataArray);
+  vtkGetObjectMacro(XCoordinates, vtkDataArray);
 
   // Description:
   // Specify the grid coordinates in the y-direction.
   virtual void SetYCoordinates( vtkDataArray* );
-  vtkGetObjectMacro(YCoordinates,vtkDataArray);
+  vtkGetObjectMacro(YCoordinates, vtkDataArray);
 
   // Description:
   // Specify the blanking mask of primal leaf cells
   virtual void SetMaterialMask( vtkBitArray* );
-  vtkGetObjectMacro(MaterialMask,vtkBitArray);
+  vtkGetObjectMacro(MaterialMask, vtkBitArray);
 
   // Description:
   // Specify the grid coordinates in the z-direction.
   virtual void SetZCoordinates( vtkDataArray* );
-  vtkGetObjectMacro(ZCoordinates,vtkDataArray);
+  vtkGetObjectMacro(ZCoordinates, vtkDataArray);
 
   // Description:
   // Create a new cursor: an object that can traverse
@@ -171,7 +171,7 @@ public:
   // Random access to points requires that arrays are created explicitly.
   // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual double *GetPoint( vtkIdType );
+  virtual double* GetPoint( vtkIdType );
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -192,7 +192,7 @@ public:
   // Description:
   // This method should be avoided in favor of cell/point iterators.
   // Random access to cells requires that connectivity arrays are created explicitly.
-  // Get cell with cellId such that: 0 <= cellId < NumberOfCells. 
+  // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
   // This is a thread-safe alternative to the previous GetCell()
   // method.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
@@ -250,7 +250,7 @@ public:
                              double *weights);
 
   // Description:
-  // This is a version of the above method that can be used with 
+  // This is a version of the above method that can be used with
   // multithreaded applications. A vtkGenericCell must be passed in
   // to be used in internal calls that might be made to GetCell()
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
@@ -284,8 +284,9 @@ public:
 
   // Description:
   // Switch between returning leaves as cells, or the dual grid.
-  void SetUseDualGrid( int );
-  vtkGetMacro(UseDualGrid,int);
+  void SetUseDualGrid(int);
+  vtkGetMacro(UseDualGrid, int);
+  vtkBooleanMacro(UseDualGrid, int);
 
   // Description:
   // Return the actual size of the data in kilobytes. This number
@@ -318,7 +319,7 @@ public:
 //ETX
   // Description:
   // The number of children each node can have.
-  vtkGetMacro(NumberOfChildren,int);
+  vtkGetMacro(NumberOfChildren, int);
 
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -401,7 +402,7 @@ protected:
                                 double* origin, double* size);
 
   // This toggles the data set API between the leaf cells and
-  // the dual grid (leaves are points, corners are cells). 
+  // the dual grid (leaves are points, corners are cells).
   int UseDualGrid;
 
 private:
@@ -431,6 +432,7 @@ public:
   int GetGlobalLeafIndex() { return this->Offset + this->Index; }
   vtkIdType GetOffset() { return this->Offset; }
   unsigned short GetLevel() { return this->Level; }
+
 private:
   vtkHyperTree* Tree;
   int Index;
@@ -440,20 +442,23 @@ private:
 };
 
 
-// Public structure filters used to move around the tree.
+// Public structure filters use to move around the tree.
 // The super cursor keeps neighbor cells so filters can
 // easily access neighbor to leaves.
-// The super cursor is static.  Methods in vtkHyperTreeGrid
+// The super cursor is static (?!).  Methods in vtkHyperTreeGrid
 // initialize and compute children for moving toward leaves.
-class vtkHyperTreeGridSuperCursor
+struct vtkHyperTreeGridSuperCursor
 {
- public:
-  vtkHyperTreeSimpleCursor Cursors[27];
+  vtkHyperTreeSimpleCursor Cursors[3*3*3];
   int NumberOfCursors;
   int MiddleCursorId;
   double Origin[3];
   double Size[3];
-  vtkHyperTreeSimpleCursor* GetCursor( int idx ) { return this->Cursors + this->MiddleCursorId + idx; }
+
+  vtkHyperTreeSimpleCursor* GetCursor( int idx )
+  {
+    return this->Cursors + this->MiddleCursorId + idx;
+  }
 };
 
 //ETX
