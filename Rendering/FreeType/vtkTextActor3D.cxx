@@ -18,12 +18,13 @@
 #include "vtkCamera.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
+#include "vtkStdString.h"
 #include "vtkTransform.h"
 #include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkWindow.h"
-#include "vtkFreeTypeUtilities.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 
@@ -96,7 +97,6 @@ double* vtkTextActor3D::GetBounds()
 }
 
 // --------------------------------------------------------------------------
-
 int vtkTextActor3D::GetBoundingBox(int bbox[4])
 {
   if (!this->TextProperty)
@@ -110,23 +110,20 @@ int vtkTextActor3D::GetBoundingBox(int bbox[4])
     vtkErrorMacro(<<"Need 4-element int array for bounding box.");
   }
 
-  vtkFreeTypeUtilities *fu = vtkFreeTypeUtilities::GetInstance();
-  if (!fu)
+  vtkTextRenderer *tRend = vtkTextRenderer::GetInstance();
+  if (!tRend)
   {
-    vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
+    vtkErrorMacro(<<"Failed getting the TextRenderer instance.");
     return 0;
   }
 
-  fu->GetBoundingBox(this->TextProperty, this->Input, bbox);
-  if (!fu->IsBoundingBoxValid(bbox))
+  if (!tRend->GetBoundingBox(this->TextProperty, this->Input, bbox))
   {
     vtkErrorMacro(<<"No text in input.");
     return 0;
   }
 
   return 1;
-
-
 }
 
 // --------------------------------------------------------------------------
@@ -247,15 +244,14 @@ int vtkTextActor3D::UpdateImageActor()
       this->ImageData->SetSpacing(1.0, 1.0, 1.0);
       }
 
-    vtkFreeTypeUtilities *fu = vtkFreeTypeUtilities::GetInstance();
-    if (!fu)
+    vtkTextRenderer *tRend = vtkTextRenderer::GetInstance();
+    if (!tRend)
       {
-      vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
+      vtkErrorMacro(<<"Failed getting the TextRenderer instance.");
       return 0;
       }
 
-    if (!fu->RenderString(
-          this->TextProperty, this->Input, this->ImageData))
+    if (!tRend->RenderString(this->TextProperty, this->Input, this->ImageData))
       {
       vtkErrorMacro(<<"Failed rendering text to buffer");
       return 0;
