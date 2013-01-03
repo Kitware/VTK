@@ -397,6 +397,15 @@ int vtkXdmfReader::RequestData(vtkInformation *, vtkInformationVector **,
     }
 
   vtkDataObject* output = vtkDataObject::GetData(outInfo);
+
+  if (!output->IsA(data->GetClassName()))
+    {
+    // BUG #0013766: Just in case the data type expected doesn't match the
+    // produced data type, we should print a warning.
+    vtkWarningMacro("Data type generated (" << data->GetClassName() << ") "
+      "does not match data type expected (" << output->GetClassName() << "). "
+      "Reader may not produce valid data.");
+    }
   output->ShallowCopy(data);
   data->Delete();
 
