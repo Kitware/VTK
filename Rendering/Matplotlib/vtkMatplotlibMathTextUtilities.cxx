@@ -42,6 +42,18 @@
 
 #include <vector>
 
+// We need to define Py_ssize_t for older python API version
+#if PYTHON_API_VERSION < 1013
+// Taken from pyport.h
+#  ifdef HAVE_SSIZE_T
+     typedef ssize_t         Py_ssize_t;
+#  elif SIZEOF_VOID_P == SIZEOF_SIZE_T
+     typedef Py_intptr_t     Py_ssize_t;
+#  else
+#    error "Python needs a typedef for Py_ssize_t."
+#  endif
+#endif
+
 // Smart pointer for PyObjects. Calls Py_XDECREF when scope ends.
 class SmartPyObject
 {
