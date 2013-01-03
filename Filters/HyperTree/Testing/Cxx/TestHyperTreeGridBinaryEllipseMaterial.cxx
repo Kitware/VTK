@@ -33,6 +33,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkScalarBarActor.h"
 #include "vtkTextProperty.h"
+#include "vtkQuadric.h"
 
 int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
 {
@@ -46,10 +47,12 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
-  htGrid->SetQuadricCoefficients( -4., -9., 0.,
-                                  0., 0., 0.,
-                                  32., 54., 0.,
-                                  -109. );
+  vtkNew<vtkQuadric> quadric;
+  quadric->SetCoefficients( -4., -9., 0.,
+                            0., 0., 0.,
+                            32., 54., 0.,
+                            -109. );
+  htGrid->SetQuadric( quadric.GetPointer() );
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;

@@ -153,15 +153,15 @@ public:
   virtual unsigned int GetActualMemorySize() = 0;
 
   // Description:
-  // Return an instance of a templated hypertree for given branch 
-  // factor and dimension. 
+  // Return an instance of a templated hypertree for given branch
+  // factor and dimension.
   // This is done to hide templates.
   static vtkHyperTree* CreateInstance( int factor, int dimension );
 
   // Description:
   // Find the Index and IsLeaf() parameters of a child for hypertree.
   // This is done to hide templates.
-  virtual void FindChildParameters( int, int&, bool& );
+  virtual void FindChildParameters( int, vtkIdType&, bool& );
 
 protected:
   vtkHyperTree()

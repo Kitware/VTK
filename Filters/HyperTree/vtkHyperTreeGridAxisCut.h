@@ -13,28 +13,36 @@
 
 =========================================================================*/
 // .NAME vtkHyperTreeGridAxisCut - Axis aligned hyper tree grid cut
+//
 // .SECTION Description
 // Cut along an axis aligned plane. Only works for 3D grids.
 // Produces disjoint (no point sharing) quads for now.
 // NB: If cut plane contains inter-cell boundaries, the output will contain
 // superimposed faces as a result.
+//
+// .SECTION See Also
+// vtkHyperTreeGrid
+//
+// .SECTION Thanks
+// This class was written by Philippe Pebay and Charles Law, Kitware 2012
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGridAxisCut_h
 #define __vtkHyperTreeGridAxisCut_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkHyperTreeGrid.h" // We need this because of supercursor
 
 class vtkPoints;
 class vtkCellArray;
+class vtkHyperTreeGrid;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkPolyDataAlgorithm
 {
 public:
   static vtkHyperTreeGridAxisCut* New();
-  vtkTypeMacro(vtkHyperTreeGridAxisCut,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro( vtkHyperTreeGridAxisCut, vtkPolyDataAlgorithm );
+  void PrintSelf( ostream&, vtkIndent );
 
   // Description:
   // Normal axis: 0=X, 1=Y, 2=Z
@@ -55,7 +63,8 @@ protected:
   virtual int FillInputPortInformation( int, vtkInformation* );
 
   void ProcessTrees();
-  void RecursiveProcessTree(vtkHyperTreeGridSuperCursor* superCursor);
+  void RecursiveProcessTree( void* );
+  void ProcessLeaf3D( void* );
   void AddFace( vtkIdType inId, double* origin, double* size,
                 double offset0, int axis0, int axis1, int axis2 );
 

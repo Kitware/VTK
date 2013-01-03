@@ -13,7 +13,13 @@
 
 =========================================================================*/
 // .NAME vtkHyperTreeGridGeometry - Hyper tree grid outer surface
-// .SECTION Description
+//
+// .SECTION See Also
+// vtkHyperTreeGrid
+//
+// .SECTION Thanks
+// This class was written by Philippe Pebay and Charles Law, Kitware 2012
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGridGeometry_h
 #define __vtkHyperTreeGridGeometry_h
@@ -29,8 +35,8 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkPolyDataAl
 {
 public:
   static vtkHyperTreeGridGeometry* New();
-  vtkTypeMacro(vtkHyperTreeGridGeometry,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro( vtkHyperTreeGridGeometry, vtkPolyDataAlgorithm );
+  void PrintSelf( ostream&, vtkIndent );
 
 protected:
   vtkHyperTreeGridGeometry();
@@ -41,6 +47,9 @@ protected:
 
   void ProcessTrees();
   void RecursiveProcessTree( void* );
+  void ProcessLeaf1D( void* );
+  void ProcessLeaf2D( void* );
+  void ProcessLeaf3D( void* );
   void AddFace( vtkIdType inId, double* origin, double* size,
                 int offset, int orientation );
 

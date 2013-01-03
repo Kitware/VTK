@@ -121,12 +121,15 @@ public:
   virtual void SetMaterialMask( const vtkStdString& );
   virtual vtkStdString GetMaterialMask();
 
-  // Description
-  // Set/Get the 10 coefficients of the quadric function
+  // Description:
+  // Set/Get the quadric function
+  void SetQuadric( vtkQuadric* );
+  vtkGetMacro(Quadric, vtkQuadric*);
+
+  // Description:
+  // Helpers to set/get the 10 coefficients of the quadric function
   void SetQuadricCoefficients( double[10] );
-  void SetQuadricCoefficients( double, double, double, double, double,
-                               double, double, double, double, double );
-  void GetQuadricCoefficients( double a[10] );
+  void GetQuadricCoefficients( double[10] );
   double* GetQuadricCoefficients();
 
   // Description:

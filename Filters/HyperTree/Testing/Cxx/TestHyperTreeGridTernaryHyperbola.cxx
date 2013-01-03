@@ -34,6 +34,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkScalarBarActor.h"
 #include "vtkTextProperty.h"
+#include "vtkQuadric.h"
 
 int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
 {
@@ -47,10 +48,12 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOff();
-  htGrid->SetQuadricCoefficients( 1., -1., 0.,
-                                  0., 0., 0.,
-                                  -12., 12., 0.,
-                                  1. );
+  vtkNew<vtkQuadric> quadric;
+  quadric->SetCoefficients( 1., -1., 0.,
+                            0., 0., 0.,
+                            -12., 12., 0.,
+                            1. );
+  htGrid->SetQuadric( quadric.GetPointer() );
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
