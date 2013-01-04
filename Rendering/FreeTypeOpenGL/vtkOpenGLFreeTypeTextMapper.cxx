@@ -20,7 +20,6 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkToolkits.h"  // for VTK_USE_GL2PS
 
 #include "vtkFreeTypeUtilities.h"
 #include "vtkftglConfig.h"
@@ -28,10 +27,6 @@
 #include "vtkgluPickMatrix.h"
 
 #include "FTFont.h"
-
-#ifdef VTK_USE_GL2PS
-#include "vtk_gl2ps.h"
-#endif // VTK_USE_GL2PS
 
 #ifdef FTGL_USE_NAMESPACE
 using namespace ftgl;
@@ -45,51 +40,6 @@ using namespace ftgl;
 
 //----------------------------------------------------------------------------
 // GL2PS related internal helper functions.
-
-#ifdef VTK_USE_GL2PS
-static void
-vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
-                                             char *ps_font)
-{
- // For speed we use ARIAL == 0, COURIER == 1, TIMES == 2
-  static char const *family[] = {"Helvetica", "Courier", "Times"};
-  static char const *italic[] = {"Oblique", "Oblique", "Italic"};
-  static char const *base[] = {"", "", "-Roman"};
-
-  int font = tprop->GetFontFamily();
-
-  if (font > 2)
-    {
-    sprintf(ps_font, "%s", tprop->GetFontFamilyAsString());
-    if (tprop->GetBold())
-      {
-      sprintf(ps_font, "%s%s", ps_font, "Bold");
-      }
-    if (tprop->GetItalic())
-      {
-      sprintf(ps_font, "%s%s", ps_font, "Italic");
-      }
-      return;
-    }
-
-  if (tprop->GetBold())
-    {
-    sprintf(ps_font, "%s-%s", family[font], "Bold");
-    if (tprop->GetItalic())
-      {
-      sprintf(ps_font, "%s%s", ps_font, italic[font]);
-      }
-    }
-  else if (tprop->GetItalic())
-    {
-    sprintf(ps_font, "%s-%s", family[font], italic[font]);
-    }
-  else
-    {
-    sprintf(ps_font, "%s%s", family[font], base[font]);
-    }
-}
-#endif
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
@@ -377,13 +327,6 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
   struct FTGLRenderContext *ftgl_context = 0;
 
-  // Setup the fonts for GL2PS output.
-
-#ifdef VTK_USE_GL2PS
-  char ps_font[64];
-  vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(tprop, ps_font);
-#endif // VTK_USE_GL2PS
-
   // Set up the shadow color
 
   if (tprop->GetShadow())
@@ -433,14 +376,6 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
       vtkErrorMacro(<< "Render - No font");
       return;
       }
-
-    // Shadow text for GL2PS.
-
-#ifdef VTK_USE_GL2PS
-    glRasterPos2i(xoff + tprop->GetShadowOffset()[0],
-                  yoff + tprop->GetShadowOffset()[1]);
-    gl2psText(this->Input, ps_font, tprop->GetFontSize());
-#endif // VTK_USE_GL2PS
     }
 
   // Set the color here since load/render glyphs is done
@@ -461,13 +396,6 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   font->render(this->Input, ftgl_context);
 
   glFlush();
-
-  // Normal text for GL2PS.
-
-#ifdef VTK_USE_GL2PS
-  glRasterPos2i(xoff, yoff);
-  gl2psText(this->Input, ps_font, tprop->GetFontSize());
-#endif // VTK_USE_GL2PS
 
   // Restore the original GL state
   glMatrixMode(GL_PROJECTION);

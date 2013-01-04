@@ -55,13 +55,18 @@ public:
 
   // Description:
   // Given a text property and a string, this function initializes the
-  // vtkImageData *data and renders it in a vtkImageData.
+  // vtkImageData *data and renders it in a vtkImageData. textDims, if provided,
+  // will be overwritten by the pixel width and height of the rendered string.
+  // This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
+  // not match the dimensions of the rendered text.
   virtual int RenderString(vtkTextProperty *property,
                            const vtkUnicodeString& string,
-                           vtkImageData *data) = 0;
+                           vtkImageData *data,
+                           int textDims[2] = NULL) = 0;
   virtual int RenderString(vtkTextProperty *property,
                            const vtkStdString& string,
-                           vtkImageData *data) = 0;
+                           vtkImageData *data,
+                           int text_dims[2] = NULL) = 0;
 
   // Description:
   // Should we produce images at powers of 2, makes rendering on old OpenGL

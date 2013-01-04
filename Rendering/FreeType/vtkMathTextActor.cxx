@@ -17,7 +17,6 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
-#include "vtkFreeTypeUtilities.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMathTextUtilities.h"
@@ -29,6 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
 #include "vtkTexture.h"
 #include "vtkViewport.h"
 
@@ -70,9 +70,9 @@ bool vtkMathTextActor::RenderImage(vtkTextProperty *tprop,
   vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();
   if (!util)
     { // Fall back to freetype rendering
-    if (!this->FreeTypeUtilities->RenderString(
+    if (!this->TextRenderer->RenderString(
           tprop, this->FallbackText ? this->FallbackText : this->Input,
-          this->ImageData))
+          this->ImageData, vtkTextRenderer::MathText))
       {
       vtkErrorMacro(<<"Failed rendering fallback text to buffer");
       return false;
@@ -107,10 +107,9 @@ bool vtkMathTextActor::GetImageBoundingBox(vtkTextProperty *tprop,
   vtkMathTextUtilities* util = vtkMathTextUtilities::GetInstance();
   if (!util)
     { // Fall back to freetype rendering
-    if (!this->FreeTypeUtilities->GetBoundingBox(
+    if (!this->TextRenderer->GetBoundingBox(
           tprop, this->FallbackText ? this->FallbackText : this->Input,
-          bbox) ||
-        !this->FreeTypeUtilities->IsBoundingBoxValid(bbox))
+          bbox, vtkTextRenderer::MathText))
       {
       vtkErrorMacro(<<"Failed rendering fallback text to buffer");
       return false;

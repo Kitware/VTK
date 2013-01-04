@@ -51,7 +51,7 @@ int TestStringToPath(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetRenderWindow()->SetSize(400, 150);
+  view->GetRenderWindow()->SetSize(325, 150);
   vtkNew<StringToPathContextTest> test;
   view->GetScene()->AddItem(test.GetPointer());
 
@@ -59,8 +59,8 @@ int TestStringToPath(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkNew<vtkTextProperty> tprop;
 
   vtkMathTextUtilities::GetInstance()->StringToPath(
-        "$\\left{\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}\\right}$", path.GetPointer(),
-        tprop.GetPointer());
+        "$\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}$",
+        path.GetPointer(), tprop.GetPointer());
 
   test->SetPath(path.GetPointer());
 

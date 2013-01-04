@@ -54,16 +54,7 @@
 // transparency and complex 3D scenes.  This ivar is set to Off by
 // default.  Specific 3D props can be excluded from the rasterization
 // process by adding them to the RasterExclusions ivar.  Props in this
-// collection will be rendered as 2D vector primitives instead. When
-// drawing lines and points the OpenGL point size and
-// line width are multiplied by a factor in order to generate
-// PostScript lines and points of the right size.  The
-// Get/SetGlobalPointSizeFactor and Get/SetGlobalLineWidthFactor let
-// one customize this ratio.  The default value is such that the
-// PostScript output looks close to what is seen on screen.
-//
-// To use this class you need to turn on VTK_USE_GL2PS when
-// configuring VTK.
+// collection will be rendered as 2D vector primitives instead.
 
 // .SECTION Caveats
 // By default (with Write3DPropsAsRasterImage set to Off) exporting

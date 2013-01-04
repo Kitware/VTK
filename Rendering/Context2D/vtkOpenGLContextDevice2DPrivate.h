@@ -52,6 +52,10 @@ public:
   {
     vtkSmartPointer<vtkImageData> ImageData;
     vtkSmartPointer<vtkTexture>   Texture;
+    // Dimensions of the text. Used for generating texture coords when the image
+    // dimensions are scaled to a power of two.
+    int TextWidth;
+    int TextHeight;
   };
 
   // Description:
@@ -150,6 +154,8 @@ typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
   cacheData.ImageData = vtkSmartPointer<vtkImageData>::New();
   cacheData.Texture = vtkSmartPointer<vtkTexture>::New();
   cacheData.Texture->SetInputData(cacheData.ImageData);
+  cacheData.TextWidth = 0;
+  cacheData.TextHeight = 0;
   return this->AddCacheData(key, cacheData);
 }
 

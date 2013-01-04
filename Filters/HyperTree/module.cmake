@@ -7,7 +7,8 @@ vtk_module(vtkFiltersHyperTree
     vtkFiltersModeling
     vtkIOXML
     vtkIOLegacy
-    vtkRenderingOpenGL
+    vtkRenderingAnnotation
     vtkTestingRendering
     vtkInteractionStyle
+    vtkRenderingFreeTypeOpenGL
   )

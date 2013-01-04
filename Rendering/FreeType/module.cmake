@@ -1,4 +1,6 @@
 vtk_module(vtkRenderingFreeType
+  IMPLEMENTS
+    vtkRenderingCore
   GROUPS
     Rendering
   DEPENDS
@@ -6,6 +8,7 @@ vtk_module(vtkRenderingFreeType
     vtkfreetype
     vtkftgl
   TEST_DEPENDS
+    vtkRenderingMatplotlib
     vtkTestingRendering
     vtkViewsContext2D
   )

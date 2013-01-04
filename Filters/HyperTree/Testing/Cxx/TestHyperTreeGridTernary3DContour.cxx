@@ -1,11 +1,19 @@
-/*=========================================================================
+/*==================================================================
 
-  Copyright (c) Kitware Inc.
+  Program:   Visualization Toolkit
+  Module:    TestHyperTreeGridTernary3DContour.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-=========================================================================*/
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+===================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This test was written by Philippe Pebay, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridSource.h"
@@ -41,50 +49,28 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
 
   // Contour
   vtkNew<vtkContourFilter> contour;
-  int nContours = 3;
+  int nContours = 4;
   contour->SetNumberOfContours( nContours );
   contour->SetInputConnection( htGrid->GetOutputPort() );
+  contour->GenerateTrianglesOn();
   double resolution = ( maxLevel - 1 ) / ( nContours + 1. );
   double isovalue = resolution;
   for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
     {
     contour->SetValue( i, isovalue );
     }
-
-  contour->GenerateTrianglesOff();
   contour->Update();
-  if(contour->GetOutput()->GetNumberOfPoints()!=547)
-    {
-    return 1;
-    }
-  if(contour->GetOutput()->GetNumberOfCells()!=463)
-    {
-    return 1;
-    }
-  contour->GenerateTrianglesOn();
-  contour->Update();
-  if(contour->GetOutput()->GetNumberOfPoints()!=547)
-    {
-    return 1;
-    }
-  if(contour->GetOutput()->GetNumberOfCells()!=917)
-    {
-    return 1;
-    }
-
   vtkPolyData* pd = contour->GetOutput();
 
   // Mappers
+  vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( contour->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetPointData()->GetScalars()->GetRange() );
-  mapper1->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection( contour->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
-  mapper2->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper3;
   mapper3->SetInputConnection( outline->GetOutputPort() );
   mapper3->ScalarVisibilityOff();

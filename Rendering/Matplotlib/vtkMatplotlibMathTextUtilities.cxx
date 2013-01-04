@@ -42,6 +42,18 @@
 
 #include <vector>
 
+// We need to define Py_ssize_t for older python API version
+#if PYTHON_API_VERSION < 1013
+// Taken from pyport.h
+#  ifdef HAVE_SSIZE_T
+     typedef ssize_t         Py_ssize_t;
+#  elif SIZEOF_VOID_P == SIZEOF_SIZE_T
+     typedef Py_intptr_t     Py_ssize_t;
+#  else
+#    error "Python needs a typedef for Py_ssize_t."
+#  endif
+#endif
+
 // Smart pointer for PyObjects. Calls Py_XDECREF when scope ends.
 class SmartPyObject
 {
@@ -74,9 +86,32 @@ vtkMatplotlibMathTextUtilities::Availablity
 vtkMatplotlibMathTextUtilities::MPLMathTextAvailable =
     vtkMatplotlibMathTextUtilities::NOT_TESTED;
 
+// A macro that is used in New() to print warnings if VTK_MATPLOTLIB_DEBUG
+// is defined in the environment. Use warnings to allow this to work in
+// release mode builds. This is adapted from vtkWarningWithObjectMacro
+#define vtkMplStartUpDebugMacro(x)                             \
+if (debug)                                                     \
+  {                                                            \
+  if (vtkObject::GetGlobalWarningDisplay())                    \
+    {                                                          \
+    vtkOStreamWrapper::EndlType endl;                          \
+    vtkOStreamWrapper::UseEndl(endl);                          \
+    vtkOStrStreamWrapper vtkmsg;                               \
+    vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__    \
+           << "\nvtkMatplotlibMathTextUtilities::New(): "      \
+           << x << "\n\n";                                     \
+    vtkOutputWindowDisplayWarningText(vtkmsg.str());           \
+    vtkmsg.rdbuf()->freeze(0);                                 \
+    }                                                          \
+  }
+
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
 {
+  // Enable startup debugging output. This will be set to true when
+  // VTK_MATPLOTLIB_DEBUG is defined in the process environment.
+  bool debug = false;
+
   // Attempt to import matplotlib to check for availability
   switch (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable)
     {
@@ -86,43 +121,161 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
     case vtkMatplotlibMathTextUtilities::AVAILABLE:
       break;
     case vtkMatplotlibMathTextUtilities::NOT_TESTED:
+
+      // Print setup details if this env flag is set. The debug variable is used
+      // by the vtkMplStartUpDebugMacro.
+      debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != NULL);
+
       // Initialize the python interpretor if needed
+      vtkMplStartUpDebugMacro("Testing if matplotlib is already init'd.");
       if (!Py_IsInitialized())
         {
         // Check for a specified interpreter in the system environment.
+        vtkMplStartUpDebugMacro("Not initialized. Checking "
+                                "VTK_MATPLOTLIB_PYTHONHOME.");
+
+        vtkStdString mplPyHome;
+        if (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_PYTHONHOME",
+                                        mplPyHome) &&
+            mplPyHome.size() != 0)
+          {
+          vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONHOME="<<mplPyHome);
+          Py_SetPythonHome(const_cast<char*>(mplPyHome.c_str()));
+          }
+        else
+          {
+          vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONHOME undefined.");
+          }
+
+        vtkMplStartUpDebugMacro("Checking VTK_MATPLOTLIB_PYTHONINTERP.");
         vtkStdString mplPyInterp;
         if (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_PYTHONINTERP",
                                         mplPyInterp) &&
             mplPyInterp.size() != 0)
           {
+          vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONINTERP="<<mplPyInterp);
           Py_SetProgramName(const_cast<char*>(mplPyInterp.c_str()));
           }
+        else
+          {
+          vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONINTERP undefined.");
+          }
+
+        vtkMplStartUpDebugMacro("Initializing python. (if there is a segfault "
+                                "and error 'ImportError: No module named site',"
+                                " VTK_MATPLOTLIB_PYTHONHOME is incorrect).");
         Py_Initialize();
         }
 
+      if (!Py_IsInitialized())
+        {
+        vtkMplStartUpDebugMacro("Python environment failed to initialize. "
+                                "Matplotlib will be unavailable.");
+        vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
+        return NULL;
+        }
+
+      vtkMplStartUpDebugMacro("Python environment initialized. Checking "
+                              "VTK_MATPLOTLIB_PYTHONPATH.");
+
+      PyObject *pypath = PySys_GetObject(const_cast<char*>("path"));
+      vtkStdString envPaths;
+      if (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_PYTHONPATH",
+                                      envPaths) && envPaths.size() != 0)
+        {
+        vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONPATH=" << envPaths);
+
+        // Split paths and prepend them to the python path object.
+#ifdef _WIN32
+        char delim = ';';
+#else // _WIN32
+        char delim = ':';
+#endif // _WIN32
+        size_t pathEnd = vtkStdString::npos;
+        size_t pathStart = envPaths.rfind(delim, pathEnd);
+        while (pathStart != vtkStdString::npos)
+          {
+          vtkStdString envPath(envPaths, pathStart + 1,
+                               pathEnd == vtkStdString::npos
+                               ? vtkStdString::npos : pathEnd - pathStart);
+          PyList_Insert(pypath, 0, PyString_FromString(envPath.c_str()));
+          pathEnd = pathStart - 1;
+          pathStart = envPaths.rfind(delim, pathEnd);
+          }
+        vtkStdString envPath(envPaths, 0,
+                             pathEnd == vtkStdString::npos
+                             ? vtkStdString::npos : pathEnd + 1);
+        PyList_Insert(pypath, 0, PyString_FromString(envPath.c_str()));
+        }
+      else
+        {
+        vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONPATH undefined.");
+        }
+
+      SmartPyObject pypathStr = PyObject_Str(pypath);
+      vtkMplStartUpDebugMacro("sys.path =\n"
+                              << PyString_AsString(pypathStr.GetPointer()));
+
+
+      vtkMplStartUpDebugMacro("Attempting to import matplotlib.");
       if (PyErr_Occurred() ||
           !PyImport_ImportModule("matplotlib") ||
           PyErr_Occurred())
         {
+        // Fetch the exception info. Note that value and traceback may still be
+        // NULL after the call to PyErr_Fetch().
+        PyObject *type = NULL;
+        PyObject *value = NULL;
+        PyObject *traceback = NULL;
+        PyErr_Fetch(&type, &value, &traceback);
+        SmartPyObject typeStr(PyObject_Str(type));
+        SmartPyObject valueStr(PyObject_Str(value));
+        SmartPyObject tracebackStr(PyObject_Str(traceback));
+        vtkMplStartUpDebugMacro(
+              "Error during matplotlib import:\n"
+              << "\nStack:\n"
+              << (tracebackStr.GetPointer() == NULL
+                  ? "(none)"
+                  : const_cast<char*>(
+                      PyString_AsString(tracebackStr.GetPointer())))
+              << "\nValue:\n"
+              << (valueStr.GetPointer() == NULL
+                  ? "(none)"
+                  : const_cast<char*>(
+                      PyString_AsString(valueStr.GetPointer())))
+              << "\nType:\n"
+              << (typeStr.GetPointer() == NULL
+                  ? "(none)"
+                  : const_cast<char*>(
+                      PyString_AsString(typeStr.GetPointer()))));
+        PyErr_Clear();
         vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
+        return NULL;
         }
       else
         {
+        vtkMplStartUpDebugMacro("Successfully imported matplotlib.");
         vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = AVAILABLE;
-        }
-      if (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable == UNAVAILABLE)
-        {
-        return NULL;
         }
       break;
     }
-  VTK_OBJECT_FACTORY_NEW_BODY(vtkMatplotlibMathTextUtilities)
+  // Adapted from VTK_OBJECT_FACTORY_NEW_BODY to enable debugging output when
+  // requested.
+  vtkObject* ret =
+      vtkObjectFactory::CreateInstance("vtkMatplotlibMathTextUtilities");
+  if(ret)
+    {
+    ret->SetDebug(debug);
+    return static_cast<vtkMatplotlibMathTextUtilities*>(ret);
+    }
+  return new vtkMatplotlibMathTextUtilities;
 }
 vtkInstantiatorNewMacro(vtkMatplotlibMathTextUtilities)
 
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
-  : Superclass(), MaskParser(NULL), PathParser(NULL), FontPropertiesClass(NULL)
+  : Superclass(), MaskParser(NULL), PathParser(NULL), FontPropertiesClass(NULL),
+    ScaleToPowerOfTwo(true)
 {
 }
 
@@ -216,8 +369,35 @@ bool vtkMatplotlibMathTextUtilities::CheckForError()
   PyObject *exception = PyErr_Occurred();
   if (exception)
     {
-    vtkDebugMacro(<< "Python exception raised.");
-    PyErr_PrintEx(0);
+    if (this->Debug)
+      {
+      // Fetch the exception info. Note that value and traceback may still be
+      // NULL after the call to PyErr_Fetch().
+      PyObject *type = NULL;
+      PyObject *value = NULL;
+      PyObject *traceback = NULL;
+      PyErr_Fetch(&type, &value, &traceback);
+      SmartPyObject typeStr(PyObject_Str(type));
+      SmartPyObject valueStr(PyObject_Str(value));
+      SmartPyObject tracebackStr(PyObject_Str(traceback));
+      vtkWarningMacro(<< "Python exception raised:\n"
+                      << "\nStack:\n"
+                      << (tracebackStr.GetPointer() == NULL
+                          ? "(none)"
+                          : const_cast<char*>(
+                            PyString_AsString(tracebackStr.GetPointer())))
+                      << "\nValue:\n"
+                      << (valueStr.GetPointer() == NULL
+                          ? "(none)"
+                          : const_cast<char*>(
+                            PyString_AsString(valueStr.GetPointer())))
+                      << "\nType:\n"
+                      << (typeStr.GetPointer() == NULL
+                          ? "(none)"
+                          : const_cast<char*>(
+                            PyString_AsString(typeStr.GetPointer()))));
+      }
+    PyErr_Clear();
     return true;
     }
   return false;
@@ -231,7 +411,7 @@ bool vtkMatplotlibMathTextUtilities::CheckForError(PyObject *object)
 
   if (object == NULL)
     {
-    vtkErrorMacro(<< "Object is NULL!");
+    vtkDebugMacro(<< "Object is NULL!");
     return true;
     }
   return result;
@@ -340,6 +520,61 @@ void vtkMatplotlibMathTextUtilities::RotateCorners(double angleDeg,
 }
 
 //----------------------------------------------------------------------------
+// This is more or less ported from vtkFreeTypeTools.
+bool vtkMatplotlibMathTextUtilities::PrepareImageData(vtkImageData *data,
+                                                      int bbox[4])
+{
+  int width = bbox[1] - bbox[0] + 1;
+  int height = bbox[3] - bbox[2] + 1;
+  // If the current image data is too small to render the text,
+  // or more than twice as big (too hungry), then resize
+  int imgDims[3], newImgDims[3];
+  data->GetDimensions(imgDims);
+
+  if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
+      data->GetNumberOfScalarComponents() != 4 ||
+      imgDims[0] < width || imgDims[1] < height ||
+      width * 2 < imgDims[0] || height * 2 < imgDims[1])
+    {
+    // Scale to the next highest power of 2 if required.
+    if (this->ScaleToPowerOfTwo)
+      {
+      newImgDims[0] =
+          1 << static_cast<int>(ceil(log(static_cast<double>(width+1)) /
+                                     log(2.0)));
+      newImgDims[1] =
+          1 << static_cast<int>(ceil(log(static_cast<double>(height+1)) /
+                                     log(2.0)));
+      }
+    else
+      {
+      newImgDims[0] = width;
+      newImgDims[1] = height;
+      }
+    newImgDims[2] = 1;
+
+    // Allocate the new image if needed
+    if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
+        data->GetNumberOfScalarComponents() != 4 ||
+        newImgDims[0] != imgDims[0] ||
+        newImgDims[1] != imgDims[1] ||
+        newImgDims[2] != imgDims[2])
+      {
+      data->SetExtent(bbox[0], bbox[0] + newImgDims[0] - 1,
+                      bbox[2], bbox[2] + newImgDims[1] - 1,
+                      0, 0);
+      data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
+      }
+    }
+
+  // Clear the image
+  memset(data->GetScalarPointer(), 0,
+         (data->GetNumberOfPoints() * data->GetNumberOfScalarComponents()));
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
     vtkTextProperty *tprop, const char *str, unsigned int dpi, int bbox[4])
 {
@@ -352,7 +587,7 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
       }
     }
 
-  vtkDebugMacro(<<"Calculation bbox for '" << str << "'");
+  vtkDebugMacro(<<"Calculating bbox for '" << str << "'");
 
   long int rows = 0;
   long int cols = 0;
@@ -402,10 +637,10 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
 
   double bboxd[4];
   this->RotateCorners(angleDeg, corners, bboxd);
-  bbox[0] = vtkMath::Round(bboxd[0]);
-  bbox[1] = vtkMath::Round(bboxd[1]);
-  bbox[2] = vtkMath::Round(bboxd[2]);
-  bbox[3] = vtkMath::Round(bboxd[3]);
+  bbox[0] = vtkMath::Ceil(bboxd[0]);
+  bbox[1] = vtkMath::Ceil(bboxd[1]);
+  bbox[2] = vtkMath::Ceil(bboxd[2]);
+  bbox[3] = vtkMath::Ceil(bboxd[3]);
 
   return true;
 }
@@ -414,7 +649,8 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
 bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
                                                   vtkImageData *image,
                                                   vtkTextProperty *tprop,
-                                                  unsigned int dpi)
+                                                  unsigned int dpi,
+                                                  int textDims[2])
 {
   if (!this->MaskParser)
     {
@@ -493,8 +729,16 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
     return false;
     }
 
-  image->SetDimensions(cols, rows, 1);
-  image->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
+  if (textDims)
+    {
+    textDims[0] = cols;
+    textDims[1] = rows;
+    }
+
+  int bbox[4] = {0, static_cast<int>(cols - 1),
+                 0, static_cast<int>(rows - 1)};
+  this->PrepareImageData(image, bbox);
+
   for (long int row = rows-1; row >= 0; --row)
     {
     for (long int col = 0; col < cols; ++col)
@@ -528,23 +772,48 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
     return true;
     }
 
-  double *bounds = image->GetBounds();
   // Corners of original image
-  double corners[4][2] = { {bounds[0], bounds[2]},
-                           {bounds[1], bounds[2]},
-                           {bounds[0], bounds[3]},
-                           {bounds[1], bounds[3]} };
-  double bbox[4];
+  double corners[4][2] = { {static_cast<double>(bbox[0]),
+                            static_cast<double>(bbox[2])},
+                           {static_cast<double>(bbox[1]),
+                            static_cast<double>(bbox[2])},
+                           {static_cast<double>(bbox[0]),
+                            static_cast<double>(bbox[3])},
+                           {static_cast<double>(bbox[1]),
+                            static_cast<double>(bbox[3])} };
+  double bbox2[4];
 
   // Rotate the corners of the image and determine the bounding box
-  this->RotateCorners(angleDeg, corners, bbox);
+  this->RotateCorners(angleDeg, corners, bbox2);
+
+  // Also rotate the text dimensions.
+  if (textDims)
+    {
+    double text_bbox[4];
+    corners[0][0] = static_cast<double>(0);
+    corners[0][1] = static_cast<double>(0);
+    corners[1][0] = static_cast<double>(0);
+    corners[1][1] = static_cast<double>(textDims[1]);
+    corners[2][0] = static_cast<double>(textDims[0]);
+    corners[2][1] = static_cast<double>(textDims[1]);
+    corners[3][0] = static_cast<double>(textDims[0]) ;
+    corners[3][1] = static_cast<double>(0);
+    this->RotateCorners(angleDeg, corners, text_bbox);
+    textDims[0] = std::ceil(text_bbox[1] - text_bbox[0]);
+    textDims[1] = std::ceil(text_bbox[3] - text_bbox[2]);
+    }
+
+  bbox[0] = static_cast<int>(bbox2[0]);
+  bbox[1] = static_cast<int>(bbox2[1]);
+  bbox[2] = static_cast<int>(bbox2[2]);
+  bbox[3] = static_cast<int>(bbox2[3]);
 
   // Rotate the temporary image into the returned image:
   vtkNew<vtkTransform> rotation;
   rotation->RotateWXYZ(-angleDeg, 0, 0, 1);
   // Dummy image with the output dimensions
   vtkNew<vtkImageData> dummyImage;
-  dummyImage->SetExtent(bbox[0], bbox[1], bbox[2], bbox[3], 0, 0);
+  this->PrepareImageData(dummyImage.GetPointer(), bbox);
   vtkNew<vtkImageReslice> rotator;
   rotator->SetInputData(image);
   rotator->SetInformationInput(dummyImage.GetPointer());

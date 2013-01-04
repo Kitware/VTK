@@ -1,11 +1,19 @@
-/*=========================================================================
+/*==================================================================
 
-  Copyright (c) Kitware Inc.
+  Program:   Visualization Toolkit
+  Module:    TestHyperTreeGridTernary3DGeometry.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-=========================================================================*/
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+===================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This test was written by Philippe Pebay, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
@@ -25,8 +33,7 @@ int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 5;
-  htGrid->SetMaximumLevel( maxLevel );
+  htGrid->SetMaximumLevel( 5 );
   htGrid->SetGridSize( 3, 3, 2 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
@@ -34,28 +41,21 @@ int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
   htGrid->DualOn();
   htGrid->SetDescriptor( "RRR .R. .RR ..R ..R .R.|R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ..........................." );
 
-  htGrid->Update();
-  vtkNew<vtkHyperTreeGrid> htgCopy;
-  htgCopy->ShallowCopy( htGrid->GetOutput() );
-
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
-  //  geometry->SetInputConnection( htGrid->GetOutputPort() );
-  geometry->SetInputData( htgCopy.GetPointer() );
+  geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
   vtkPolyData* pd = geometry->GetOutput();
 
   // Mappers
+  vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
-  mapper1->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection( geometry->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
-  mapper2->SetResolveCoincidentTopologyToPolygonOffset();
-  mapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
  
   // Actors
   vtkNew<vtkActor> actor1;

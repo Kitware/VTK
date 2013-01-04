@@ -26,6 +26,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkStringArray.h"
 #include "vtkMolecule.h"
+#include "vtkPointLocator.h"
+#include "vtkNew.h"
 
 #include <ctype.h>
 
@@ -234,7 +236,7 @@ int vtkMoleculeReaderBase::RequestData(
 
   if ((fp = fopen(this->FileName, "r")) == NULL)
     {
-    vtkErrorMacro(<< "File " << this->FileName << " not found");
+    vtkErrorMacro(<< "Unable to open " << this->FileName);
     return 0;
     }
   vtkDebugMacro(<< "opening base file " << this->FileName);
@@ -418,12 +420,20 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
                                      vtkIdTypeArray *atype,
                                      vtkCellArray *newBonds)
 {
-  register int i, j;
+  register int i, j, k;
   register int nbonds;
   register double dx, dy, dz;
-  double max, dist;
+  double max, dist, radius;
   double X[3], Y[3];
   vtkIdType bond[2];
+
+  vtkNew<vtkPolyData> ds;
+  ds->SetPoints(newPts);
+
+  vtkNew<vtkPointLocator> locator;
+  locator->SetDataSet(ds.GetPointer());
+
+  vtkNew<vtkIdList> result;
 
   // Add atoms to the molecule first because an atom must
   // must be declared before bonds involving it.
@@ -441,8 +451,22 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
     {
     bond[0] = i;
     newPts->GetPoint(i, X);
-    for (j = i - 1; j >= 0 ; j--)
+
+    /* Find all the atoms in the neighborhood at the max acceptable
+     * bond distance
+     */
+    radius =
+      (vtkMoleculeReaderBaseCovRadius[atype->GetValue(i)] + 2.0 + 0.56) *
+      std::max(BScale, HBScale);
+    locator->FindPointsWithinRadius(radius, X, result.GetPointer());
+    for (k = result->GetNumberOfIds()-1; k >= 0; k--)
       {
+      j = result->GetId(k);
+      // Skip points with which a bond may have already been created
+      if (j >= i)
+        {
+        continue;
+        }
       /*
        * The outer loop index 'i' is AFTER the inner loop 'j': 'i'
        * leads 'j' in the list: since hydrogens traditionally follow
@@ -454,7 +478,7 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
        * Base distance criteria on vdw...lb
        */
 
-      /* never bond hydrogens to each other... */
+      // Never bond hydrogens to each other
       if (atype->GetValue(i) == 0 && atype->GetValue(j) == 0)
         {
         continue;
@@ -475,38 +499,25 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
 
       newPts->GetPoint(j, Y);
       dx = X[0] - Y[0];
-      dist = dx * dx;
-
-      if(dist > max )
-        {
-        continue;
-        }
-
       dy = X[1] - Y[1];
-      dist += dy * dy;
-      if(dist > max )
-        {
-        continue;
-        }
-
       dz = X[2] - Y[2];
-      dist += dz * dz;
-      if(dist > max )
+      dist = dx * dx + dy * dy + dz * dz;
+
+      if (dist <= max)
         {
-        continue;
+        bond[1] = j;
+        newBonds->InsertNextCell(2, bond);
+
+        // Add bond to the molecule
+        if (this->Molecule)
+          {
+          this->Molecule->AppendBond(bond[0], bond[1]);
+          }
+
+        nbonds++;
         }
-
-      bond[1] = j;
-      newBonds->InsertNextCell(2, bond);
-
-      // Add bond to the molecule
-      if (this->Molecule)
-        {
-        this->Molecule->AppendBond(bond[0], bond[1]);
-        }
-
-      nbonds++;
       }
+    result->Reset();
     }
   newBonds->Squeeze();
   return nbonds;

@@ -1,11 +1,6 @@
-# Check that python is both found and version >= 2.6
-if(NOT PYTHON_EXECUTABLE)
-  message(FATAL_ERROR "Cannot build RenderingMatplotlib: PYTHON_EXECUTABLE not set.")
-endif()
-
-if(${PYTHON_VERSION_STRING} VERSION_LESS "2.6")
-  message(FATAL_ERROR "Cannot build RenderingMatplotlib: Python is too old. "
-    "Required: >= 2.6, Found: ${PYTHON_VERSION_STRING}")
+# Check that python is found
+if(NOT PYTHON_LIBRARIES)
+  message(FATAL_ERROR "Cannot build RenderingMatplotlib: PYTHON_LIBRARIES not set.")
 endif()
 
 set(Module_SRCS

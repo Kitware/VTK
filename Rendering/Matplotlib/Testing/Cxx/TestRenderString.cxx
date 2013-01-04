@@ -32,6 +32,7 @@ int TestRenderString(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   vtkNew<vtkImageData> image;
   vtkNew<vtkMathTextUtilities> utils;
+  utils->SetScaleToPowerOfTwo(false);
   vtkNew<vtkTextProperty> tprop;
   tprop->SetColor(1, 1, 1);
   tprop->SetFontSize(50);

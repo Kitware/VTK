@@ -17,9 +17,18 @@
 // vtkMatplotlibMathTextUtilities provides access to the MatPlotLib MathText
 // implementation.
 //
-// The python interpretor used by this class can be specified by setting the
-// VTK_MATPLOTLIB_PYTHONINTERP environment variable. This will be passed to
-// Py_SetProgramName prior to calling Py_Initialize.
+// This class is aware of a number of enviroment variables that can be used to
+// configure and debug python initialization (all are optional):
+// - VTK_MATPLOTLIB_DEBUG: Enable verbose debugging output during initialization
+// of the python environment.
+// - VTK_MATPLOTLIB_PYTHONINTERP: Path to the python interpreter. This will be
+// passed to Py_SetProgramName prior to calling Py_Initialize.
+// - VTK_MATPLOTLIB_PYTHONHOME: See the Python documentation on the PYTHONHOME
+// environment variable. This will be passed to Py_SetPythonHome prior to
+// calling Py_Initialize.
+// - VTK_MATPLOTLIB_PYTHONPATH: A list of additional python module paths to be
+// prepended to the sys.path object after initialization. Use ';' on windows and
+// ':' on apple/linux to separate multiple paths.
 
 #ifndef __vtkMatplotlibMathTextUtilities_h
 #define __vtkMatplotlibMathTextUtilities_h
@@ -50,14 +59,24 @@ public:
 
   // Description:
   // Render the given string @a str into the vtkImageData @a data with a
-  // resolution of @a dpi. The image is resized automatically.
+  // resolution of @a dpi. The image is resized automatically. textDims
+  // will be overwritten by the pixel width and height of the rendered string.
+  // This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
+  // not match the dimensions of the rendered text.
   bool RenderString(const char *str, vtkImageData *data, vtkTextProperty *tprop,
-                    unsigned int dpi);
+                    unsigned int dpi, int textDims[2] = NULL);
 
   // Description:
   // Parse the MathText expression in str and fill path with a contour of the
   // glyphs.
   bool StringToPath(const char *str, vtkPath *path, vtkTextProperty *tprop);
+
+  // Description:
+  // Set to true if the graphics implmentation requires texture image dimensions
+  // to be a power of two. Default is true, but this member will be set
+  // appropriately when GL is inited.
+  vtkSetMacro(ScaleToPowerOfTwo, bool);
+  vtkGetMacro(ScaleToPowerOfTwo, bool);
 
 protected:
   vtkMatplotlibMathTextUtilities();
@@ -92,6 +111,9 @@ protected:
     UNAVAILABLE
     };
   static Availablity MPLMathTextAvailable;
+
+  bool ScaleToPowerOfTwo;
+  bool PrepareImageData(vtkImageData *data, int bbox[4]);
 
 private:
   vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.

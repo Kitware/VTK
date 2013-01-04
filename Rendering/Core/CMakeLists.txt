@@ -143,6 +143,7 @@ set(Module_SRCS
   vtkStringToImage.cxx
   vtkTextMapper.cxx
   vtkTextProperty.cxx
+  vtkTextRenderer.cxx
   )
 
 set(${vtk-module}_HDRS
@@ -175,6 +176,7 @@ set_source_files_properties(
   vtkShaderDeviceAdapter
   vtkShaderDeviceAdapter2
   vtkShaderProgram
+  vtkTextRenderer
   vtkTDxInteractorStyle
   vtkViewport
   vtkVisibilitySort

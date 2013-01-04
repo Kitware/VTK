@@ -148,7 +148,7 @@ vtkVector2i vtkQtStringToImage::GetBounds(vtkTextProperty *property,
 
 int vtkQtStringToImage::RenderString(vtkTextProperty *property,
                                      const vtkUnicodeString& string,
-                                     vtkImageData *data)
+                                     vtkImageData *data, int textDims[2])
 {
   if (!QApplication::instance())
     {
@@ -160,6 +160,11 @@ int vtkQtStringToImage::RenderString(vtkTextProperty *property,
   if (box.GetX() == 0 || box.GetY() == 0)
     {
     return 0;
+    }
+  if (textDims)
+    {
+    textDims[0] = box.GetX();
+    textDims[1] = box.GetY();
     }
 
   QString text = QString::fromUtf8(string.utf8_str());
@@ -222,9 +227,10 @@ int vtkQtStringToImage::RenderString(vtkTextProperty *property,
 
 int vtkQtStringToImage::RenderString(vtkTextProperty *property,
                                      const vtkStdString& string,
-                                     vtkImageData *data)
+                                     vtkImageData *data, int textDims[2])
 {
-  return this->RenderString(property, vtkUnicodeString::from_utf8(string), data);
+  return this->RenderString(property, vtkUnicodeString::from_utf8(string), data,
+                            textDims);
 }
 
 //-----------------------------------------------------------------------------

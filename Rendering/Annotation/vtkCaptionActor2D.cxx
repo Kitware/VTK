@@ -473,11 +473,16 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // assign properties
   //
-  this->TextActor->SetProperty(this->GetProperty());
   this->BorderActor->SetProperty(this->GetProperty());
   this->LeaderActor2D->SetProperty(this->GetProperty());
   this->LeaderActor3D->GetProperty()->SetColor(
     this->GetProperty()->GetColor());
+  // Copy the property into the text actor and reset the color -- otherwise the
+  // text shadow will be colored the same as the text.
+  this->TextActor->GetProperty()->DeepCopy(this->GetProperty());
+  this->TextActor->GetProperty()->SetColor(1.0, 1.0, 1.0);
+  this->TextActor->GetProperty()->SetOpacity(1.0);
+
 
   // Okay we are ready to render something
   int renderedSomething = 0;
