@@ -53,6 +53,7 @@ void vtkTextRenderer::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "HasFreeType: " << this->HasFreeType << endl;
   os << indent << "HasMathText: " << this->HasMathText << endl;
   os << indent << "MathTextRegExp: " << this->MathTextRegExp << endl;
+  os << indent << "MathTextRegExp2: " << this->MathTextRegExp2 << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -112,6 +113,7 @@ void vtkTextRenderer::SetInstance(vtkTextRenderer *instance)
 //----------------------------------------------------------------------------
 vtkTextRenderer::vtkTextRenderer()
   : MathTextRegExp(new vtksys::RegularExpression("[^\\]\\$.+[^\\]\\$")),
+    MathTextRegExp2(new vtksys::RegularExpression("^\\$.+[^\\]\\$")),
     HasFreeType(false),
     HasMathText(false),
     DefaultBackend(Detect)
@@ -122,14 +124,26 @@ vtkTextRenderer::vtkTextRenderer()
 vtkTextRenderer::~vtkTextRenderer()
 {
   delete this->MathTextRegExp;
+  delete this->MathTextRegExp2;
 }
 
 //----------------------------------------------------------------------------
 int vtkTextRenderer::DetectBackend(const vtkStdString &str)
 {
-  if (this->MathTextRegExp->find(str))
+  if (!str.empty())
     {
-    return static_cast<int>(MathText);
+    // the vtksys::RegularExpression class doesn't support {...|...} "or"
+    // branching, so we check the first character to see which regexp to use:
+    //
+    // Find unescaped "$...$" patterns where "$" is not the first character:
+    //   MathTextRegExp  = "[^\\]\\$.+[^\\]\\$"
+    // Find unescaped "$...$" patterns where "$" is the first character:
+    //   MathTextRegExp2 = "^\\$.+[^\\]\\$"
+    if ((str[0] == '$' && this->MathTextRegExp2->find(str)) ||
+        this->MathTextRegExp->find(str))
+      {
+      return static_cast<int>(MathText);
+      }
     }
   return static_cast<int>(FreeType);
 }
@@ -137,9 +151,20 @@ int vtkTextRenderer::DetectBackend(const vtkStdString &str)
 //----------------------------------------------------------------------------
 int vtkTextRenderer::DetectBackend(const vtkUnicodeString &str)
 {
-  if (this->MathTextRegExp->find(str.utf8_str()))
+  if (!str.empty())
     {
-    return static_cast<int>(MathText);
+    // the vtksys::RegularExpression class doesn't support {...|...} "or"
+    // branching, so we check the first character to see which regexp to use:
+    //
+    // Find unescaped "$...$" patterns where "$" is not the first character:
+    //   MathTextRegExp  = "[^\\]\\$.+[^\\]\\$"
+    // Find unescaped "$...$" patterns where "$" is the first character:
+    //   MathTextRegExp2 = "^\\$.+[^\\]\\$"
+    if ((str[0] == '$' && this->MathTextRegExp2->find(str.utf8_str())) ||
+        this->MathTextRegExp->find(str.utf8_str()))
+      {
+      return static_cast<int>(MathText);
+      }
     }
   return static_cast<int>(FreeType);
 }

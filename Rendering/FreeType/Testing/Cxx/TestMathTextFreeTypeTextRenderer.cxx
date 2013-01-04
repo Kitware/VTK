@@ -153,6 +153,13 @@ int TestMathTextFreeTypeTextRenderer(int , char *[])
   actor12->SetInput("Test MathText '\\$' $\\$\\sqrt[3]{8}$");
   actor12->SetPosition(10, 300);
 
+  // $...$ without other text.
+  vtkNew<vtkTextActor> actor13;
+  actor13->GetTextProperty()->SetFontSize(18);
+  actor13->GetTextProperty()->SetColor(0.2, 1.0, 1.0);
+  actor13->SetInput("$A = \\pi r^2$");
+  actor13->SetPosition(10, 250);
+
   // Boring rendering setup....
 
   vtkNew<vtkRenderer> ren;
@@ -175,6 +182,7 @@ int TestMathTextFreeTypeTextRenderer(int , char *[])
   ren->AddActor(actor10.GetPointer());
   ren->AddActor(actor11.GetPointer());
   ren->AddActor(actor12.GetPointer());
+  ren->AddActor(actor13.GetPointer());
 
   win->SetMultiSamples(0);
   win->Render();

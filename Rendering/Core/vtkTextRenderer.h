@@ -311,6 +311,7 @@ protected:
   virtual int DetectBackend(const vtkStdString &str);
   virtual int DetectBackend(const vtkUnicodeString &str);
   vtksys::RegularExpression *MathTextRegExp;
+  vtksys::RegularExpression *MathTextRegExp2;
 
   // Description:
   // Replace all instances of "\$" with "$".
