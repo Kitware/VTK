@@ -63,6 +63,9 @@ vtkImageReader2::vtkImageReader2()
   this->FileName = NULL;
   this->InternalFileName = NULL;
 
+  this->MemoryBuffer = NULL;
+  this->MemoryBufferLength = 0;
+
   this->HeaderSize = 0;
   this->ManualHeaderSize = 0;
 
