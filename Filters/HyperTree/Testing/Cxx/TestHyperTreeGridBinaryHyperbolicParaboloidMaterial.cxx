@@ -33,6 +33,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkScalarBarActor.h"
 #include "vtkTextProperty.h"
+#include "vtkQuadric.h"
 
 int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] )
 {
@@ -46,10 +47,12 @@ int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] 
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
-  htGrid->SetQuadricCoefficients( 4., -16., 0., 
-                                  0., 0., 0.,
-                                  -32., 64., 16., 
-                                  -48. );
+  vtkNew<vtkQuadric> quadric;
+  quadric->SetCoefficients( 4., -16., 0.,
+                            0., 0., 0.,
+                            -32., 64., 16.,
+                            -48. );
+  htGrid->SetQuadric( quadric.GetPointer() );
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
@@ -71,7 +74,7 @@ int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] 
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
   mapper1->UseLookupTableScalarRangeOn();
   mapper1->SetLookupTable( colorFunction.GetPointer() );
- 
+
   // Actors
   vtkNew<vtkActor> actor1;
   actor1->SetMapper( mapper1.GetPointer() );
@@ -123,7 +126,7 @@ int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] 
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {

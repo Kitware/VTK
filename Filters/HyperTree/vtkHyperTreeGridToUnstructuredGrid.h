@@ -21,23 +21,30 @@
 // Produces segments in 1D, rectangles in 2D, right hexahedra in 3D.
 // NB: The output will contain superimposed inter-element boundaries and pending
 // nodes as a result of T-junctions.
+//
+// .SECTION See Also
+// vtkHyperTreeGrid vtkUnstructuredGrid
+//
+// .SECTION Thanks
+// This class was written by Philippe Pebay and Charles Law, Kitware 2012
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGridToUnstructuredGrid_h
 #define __vtkHyperTreeGridToUnstructuredGrid_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
-#include "vtkHyperTreeGrid.h" // We need this because of supercursor
 
 class vtkPoints;
 class vtkCellArray;
+class vtkHyperTreeGrid;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToUnstructuredGrid : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkHyperTreeGridToUnstructuredGrid* New();
-  vtkTypeMacro(vtkHyperTreeGridToUnstructuredGrid,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro( vtkHyperTreeGridToUnstructuredGrid, vtkUnstructuredGridAlgorithm );
+  void PrintSelf( ostream&, vtkIndent );
 
 protected:
   vtkHyperTreeGridToUnstructuredGrid();
@@ -51,7 +58,7 @@ protected:
   virtual int FillInputPortInformation( int, vtkInformation* );
 
   void ProcessTrees();
-  void RecursiveProcessTree(vtkHyperTreeGridSuperCursor* superCursor);
+  void RecursiveProcessTree( void* );
   void AddCell( vtkIdType inId, double* origin, double* size );
 
   vtkHyperTreeGrid* Input;

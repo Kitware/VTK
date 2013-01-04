@@ -28,6 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkQuadric.h"
 
 int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
 {
@@ -41,10 +42,12 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
   htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
-  htGrid->SetQuadricCoefficients( 1., 1., 1.,
-                                  0., 0., 0.,
-                                  0., 0., 0.,
-                                  -25. );
+  vtkNew<vtkQuadric> quadric;
+  quadric->SetCoefficients( 1., 1., 1.,
+                            0., 0., 0.,
+                            0., 0., 0.,
+                            -25. );
+  htGrid->SetQuadric( quadric.GetPointer() );
 
   htGrid->Update();
   vtkNew<vtkHyperTreeGrid> htgCopy;
