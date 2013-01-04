@@ -40,6 +40,7 @@ class vtkSelection;
 class vtkSelectionNode;
 class vtkStringArray;
 class vtkTable;
+class vtkExtractSelection;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkConvertSelection : public vtkSelectionAlgorithm
 {
@@ -89,6 +90,12 @@ public:
   vtkSetMacro(MatchAnyValues, bool);
   vtkGetMacro(MatchAnyValues, bool);
   vtkBooleanMacro(MatchAnyValues, bool);
+
+  // Description:
+  // Set/get a selection extractor used in some conversions to
+  // obtain IDs.
+  virtual void SetSelectionExtractor(vtkExtractSelection*);
+  vtkGetObjectMacro(SelectionExtractor,vtkExtractSelection);
 
   // Description:
   // Static methods for easily converting between selection types.
@@ -194,6 +201,7 @@ protected:
   int InputFieldType;
   vtkStringArray* ArrayNames;
   bool MatchAnyValues;
+  vtkExtractSelection* SelectionExtractor;
 
 private:
   vtkConvertSelection(const vtkConvertSelection&);  // Not implemented.
