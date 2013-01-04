@@ -2,6 +2,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestProStarReader.cxx
   TestSimplePointsReaderWriter.cxx
   TestTecplotReader.cxx
+  TestWindBladeReader.cxx
   TestAMRReadWrite.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
@@ -9,7 +10,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
 vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 
 set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
+list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx TestWindBladeReader.cxx)
 
 # Add all the executables
 foreach(test ${TestsToRun})
@@ -25,3 +26,11 @@ foreach(test ${TestsToRun})
       COMMAND ${vtk-module}CxxTests ${TName})
   endif()
 endforeach()
+
+if(VTK_LARGE_DATA_ROOT)
+  add_test(NAME ${vtk-module}Cxx-TestWindBladeReader
+    COMMAND ${vtk-module}CxxTests TestWindBladeReader
+    -D ${VTK_LARGE_DATA_ROOT}
+    -T ${VTK_TEST_OUTPUT_DIR}
+    -V Baseline/Parallel/TestWindBladeReader.png)
+endif()

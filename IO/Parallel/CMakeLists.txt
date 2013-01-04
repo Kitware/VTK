@@ -7,7 +7,6 @@ set(Module_SRCS
   vtkPImageWriter.cxx
   vtkPOpenFOAMReader.cxx
   vtkPSLACReader.cxx
-  vtkWindBladeReader.cxx
   vtkXMLPHierarchicalBoxDataWriter.cxx
   vtkXMLPMultiBlockDataWriter.cxx
   vtkXMLPUniformGridAMRWriter.cxx

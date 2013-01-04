@@ -30,7 +30,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-
 #include "vtkStringArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
@@ -38,82 +37,34 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkToolkits.h"
 #include "vtksys/SystemTools.hxx"
 
-#include <string>
-#include <sstream>
+#include <algorithm>
 #include <iostream>
+#include <iterator>
+#include <sstream>
+#include <string>
 
-#include "vtkMultiProcessController.h"
-#include "vtkToolkits.h"
+//vtkStandardNewMacro(vtkWindBladeReader);
+vtkObjectFactoryNewMacro(vtkWindBladeReader);
 
-#ifdef VTK_USE_MPI
+float vtkWindBladeReader::DRY_AIR_CONSTANT = 287.04;
+int   vtkWindBladeReader::NUM_PART_SIDES = 4;  // Blade parts rhombus
+const int   vtkWindBladeReader::NUM_BASE_SIDES = 5;  // Base pyramid
+const int   vtkWindBladeReader::LINE_SIZE             = 256;
+int   vtkWindBladeReader::DIMENSION             = 3;
+int   vtkWindBladeReader::BYTES_PER_DATA = 4;
+int   vtkWindBladeReader::SCALAR  = 1;
+int   vtkWindBladeReader::VECTOR  = 2;
+int   vtkWindBladeReader::FLOAT   = 1;
+int   vtkWindBladeReader::INTEGER  = 2;
 
-#include "vtkMPI.h"
-
-// copied from MPIImageReader
-#ifdef MPI_VERSION
-#  if (MPI_VERSION >= 2)
-#    define VTK_USE_MPI_IO 1
-#  endif
-#endif
-#if !defined(VTK_USE_MPI_IO) && defined(ROMIO_VERSION)
-#  define VTK_USE_MPI_IO 1
-#endif
-#if !defined(VTK_USE_MPI_IO) && defined(MPI_SEEK_SET)
-#  define VTK_USE_MPI_IO 1
-#endif
-
-#endif
-
-
-#ifdef VTK_USE_MPI_IO
-
-// This macro can be wrapped around MPI function calls to easily report errors.
-// Reporting errors is more important with file I/O because, unlike network I/O,
-// they usually don't terminate the program.
-#define MPICall(funcall) \
-  { \
-  int __my_result = funcall; \
-  if (__my_result != MPI_SUCCESS) \
-    { \
-    char errormsg[MPI_MAX_ERROR_STRING]; \
-    int dummy; \
-    MPI_Error_string(__my_result, errormsg, &dummy); \
-    vtkErrorMacro(<< "Received error when calling" << endl \
-                  << #funcall << endl << endl \
-                  << errormsg); \
-    } \
-  }
-
-#endif // VTK_USE_MPI_IO
-
-
-namespace
+class WindBladeReaderInternal
 {
-  const float DRY_AIR_CONSTANT = 287.04;
-  const int NUM_PART_SIDES = 4;  // Blade parts rhombus
-  const int NUM_BASE_SIDES = 5;  // Base pyramid
-  const int LINE_SIZE             = 256;
-  const int DIMENSION             = 3;
-  const int BYTES_PER_DATA = 4;
-  const int SCALAR  = 1;
-  const int VECTOR  = 2;
-  const int FLOAT   = 1;
-  const int INTEGER  = 2;
-}
-
-
-class WindBladeReaderInternal {
 public:
-#ifndef VTK_USE_MPI_IO
-  FILE* FilePtr;   // Open file pointer
-#else
-  MPI_File FilePtr;
-#endif
+  FILE* FilePtr;
 };
-
-vtkStandardNewMacro(vtkWindBladeReader);
 
 //----------------------------------------------------------------------------
 // Constructor for WindBlade Reader
@@ -172,35 +123,6 @@ vtkWindBladeReader::vtkWindBladeReader()
   this->DivideVariables->InsertNextValue("Oxygen");
 
   this->Data = NULL;
-
-  // Set rank and total number of processors
-  this->MPIController = vtkMultiProcessController::GetGlobalController();
-
-  if(this->MPIController)
-    {
-    this->Rank = this->MPIController->GetLocalProcessId();
-    this->TotalRank = this->MPIController->GetNumberOfProcesses();
-    }
-  else
-    {
-    this->Rank = 0;
-    this->TotalRank = 1;
-    }
-
-// make it run on 0 processors (since ParaView doesn't seem to initialize
-// when it is single process)
-#ifdef VTK_USE_MPI
-  if(this->TotalRank == 1)
-    {
-    int flag;
-    MPICall(MPI_Initialized(&flag));
-    if(!flag)
-      {
-      MPICall(MPI_Init(0, 0));
-      }
-    }
-#endif
-
   this->Internal = new WindBladeReaderInternal();
 
   // by default don't skip any lines because normal wind files do not
@@ -252,36 +174,11 @@ vtkWindBladeReader::~vtkWindBladeReader()
 
   delete this->Internal;
 
-  // Do not delete the MPIController it is Singleton like and will
-  // cleanup itself;
-  this->MPIController = NULL;
   if(this->TimeSteps)
     {
     delete [] this->TimeSteps;
     this->TimeSteps = NULL;
     }
-}
-
-//----------------------------------------------------------------------------
-// Print information about WindBlade Reader
-//----------------------------------------------------------------------------
-void vtkWindBladeReader::PrintSelf(ostream &os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "Filename: "
-     << (this->Filename ? this->Filename : "(NULL)") << endl;
-
-  os << indent << "WholeExent: {" << this->WholeExtent[0] << ", "
-     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
-     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
-     << this->WholeExtent[5] << "}" << endl;
-  os << indent << "SubExtent: {" << this->SubExtent[0] << ", "
-     << this->SubExtent[1] << ", " << this->SubExtent[2] << ", "
-     << this->SubExtent[3] << ", " << this->SubExtent[4] << ", "
-     << this->SubExtent[5] << "}" << endl;
-  os << indent << "VariableArraySelection:" << endl;
-  this->PointDataArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
 //----------------------------------------------------------------------------
@@ -315,10 +212,9 @@ int vtkWindBladeReader::ProcessRequest(vtkInformation* reqInfo,
 //----------------------------------------------------------------------------
 // RequestInformation supplies global meta information
 //----------------------------------------------------------------------------
-int vtkWindBladeReader::RequestInformation(
-  vtkInformation* reqInfo,
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* outputVector)
+int vtkWindBladeReader::RequestInformation(vtkInformation* reqInfo,
+                                           vtkInformationVector** vtkNotUsed(inputVector),
+                                           vtkInformationVector* outputVector)
 {
   int port = reqInfo->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
   if(port == 0)
@@ -456,6 +352,29 @@ int vtkWindBladeReader::RequestInformation(
   return 1;
 }
 
+
+//----------------------------------------------------------------------------
+// Print information about WindBlade Reader
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::PrintSelf(ostream &os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Filename: "
+     << (this->Filename ? this->Filename : "(NULL)") << endl;
+
+  os << indent << "WholeExent: {" << this->WholeExtent[0] << ", "
+     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
+     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
+     << this->WholeExtent[5] << "}" << endl;
+  os << indent << "SubExtent: {" << this->SubExtent[0] << ", "
+     << this->SubExtent[1] << ", " << this->SubExtent[2] << ", "
+     << this->SubExtent[3] << ", " << this->SubExtent[4] << ", "
+     << this->SubExtent[5] << "}" << endl;
+  os << indent << "VariableArraySelection:" << endl;
+  this->PointDataArraySelection->PrintSelf(os, indent.GetNextIndent());
+}
+
 //----------------------------------------------------------------------------
 // RequestData populates the output object with data for rendering
 // Uses three output ports (field, turbine blades, and ground).
@@ -471,180 +390,35 @@ int vtkWindBladeReader::RequestData(
   // Request data for field port
   if (port == 0)
     {
-    // Get the information and output pointers
-    vtkInformation* fieldInfo = outVector->GetInformationObject(0);
-    vtkStructuredGrid *field = GetFieldOutput();
-
-    // Set the extent info for this processor
-    fieldInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                   this->SubExtent);
-    field->SetExtent(this->SubExtent);
-
-    // Set the rectilinear coordinates matching the requested subextents
-    // Extents may include ghost cells for filters that require them
-    FillCoordinates();
-    field->SetPoints(this->Points);
-
-    this->SubDimension[0] = this->SubExtent[1] - this->SubExtent[0] + 1;
-    this->SubDimension[1] = this->SubExtent[3] - this->SubExtent[2] + 1;
-    this->SubDimension[2] = this->SubExtent[5] - this->SubExtent[4] + 1;
-
-    this->NumberOfTuples = 1;
-    for (int dim = 0; dim < DIMENSION; dim++)
-      this->NumberOfTuples *= this->SubDimension[dim];
-
-    // Collect the time step requested
-    vtkInformationDoubleKey* timeKey =
-      static_cast<vtkInformationDoubleKey*>
-        (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-
-    double dTime = 0.0;
-    if (fieldInfo->Has(timeKey))
-      {
-      dTime = fieldInfo->Get(timeKey);
-      }
-
-    // Actual time for the time step
-    field->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), dTime);
-
-    // Index of the time step to request
-    int timeStep = 0;
-    while (timeStep < this->NumberOfTimeSteps &&
-           this->TimeSteps[timeStep] < dTime)
-      {
-      timeStep++;
-      }
-
-    // Open the data file for time step if needed
     std::ostringstream fileName;
-    fileName << this->RootDirectory << "/"
-             << this->DataDirectory << "/" << this->DataBaseName
-             << this->TimeSteps[timeStep];
-
-#ifndef VTK_USE_MPI_IO
+    vtkStructuredGrid *field = this->GetFieldOutput();
+    this->InitFieldData(outVector, fileName, field);
     this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
-#else
-    char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-    strcpy(cchar, fileName.str().c_str());
-    MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->Internal->FilePtr));
-    delete [] cchar;
-#endif
-
     if (this->Internal->FilePtr == NULL)
       {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
+      return 0;
       }
-    // Some variables depend on others, so force their loading
-    for (int i = 0; i < this->DivideVariables->GetNumberOfTuples(); i++)
-      {
-      if (GetPointArrayStatus(this->DivideVariables->GetValue(i)))
-        {
-        this->SetPointArrayStatus("Density", 1);
-        }
-      }
-
-    // Examine each file variable to see if it is selected and load
-    for (int var = 0; var < this->NumberOfFileVariables; var++)
-      {
-      if (this->PointDataArraySelection->GetArraySetting(var))
-        {
-        this->LoadVariableData(var);
-        field->GetPointData()->AddArray(this->Data[var]);
-        }
-      }
-
-    // Divide variables by Density if required
-    for (int i = 0; i < this->DivideVariables->GetNumberOfTuples(); i++)
-      {
-      if (GetPointArrayStatus(this->DivideVariables->GetValue(i)))
-        {
-        this->DivideByDensity(this->DivideVariables->GetValue(i));
-        }
-      }
-
-    // Calculate pressure if requested
-    if (GetPointArrayStatus("Pressure"))
-      {
-      int pressure = this->PointDataArraySelection->GetArrayIndex("Pressure");
-      int pre = this->PointDataArraySelection->GetArrayIndex("Pressure-Pre");
-      int tempg = this->PointDataArraySelection->GetArrayIndex("tempg");
-      int density = this->PointDataArraySelection->GetArrayIndex("Density");
-
-      this->CalculatePressure(pressure, pre, tempg, density);
-      field->GetPointData()->AddArray(this->Data[pressure]);
-      field->GetPointData()->AddArray(this->Data[pressure + 1]);
-      }
-
-    // Calculate vorticity if requested
-    if (GetPointArrayStatus("Vorticity"))
-      {
-      int vort = this->PointDataArraySelection->GetArrayIndex("Vorticity");
-      int uvw = this->PointDataArraySelection->GetArrayIndex("UVW");
-      int density = this->PointDataArraySelection->GetArrayIndex("Density");
-
-      this->CalculateVorticity(vort, uvw, density);
-      field->GetPointData()->AddArray(this->Data[vort]);
-      }
+    this->SetUpFieldVars(field);
     // Close file after all data is read
-#ifndef VTK_USE_MPI_IO
     fclose(this->Internal->FilePtr);
-#else
-    MPICall(MPI_File_close(&this->Internal->FilePtr));
-#endif
 
     return 1;
     }
-
-  // Request data is on blade and is displayed only by processor 0
+  // Request data is on blade
   // Even if the blade is turned off, it must update with time along with field
-  if (port == 1)
+  else if (port == 1)
     {
-    if (this->UseTurbineFile == 1 && this->Rank == 0)
+    if (this->UseTurbineFile == 1)
       {
-      vtkInformation* bladeInfo = outVector->GetInformationObject(1);
-      vtkUnstructuredGrid* blade = this->GetBladeOutput();
-
-      // Collect the time step requested
-      vtkInformationDoubleKey* timeKey =
-        static_cast<vtkInformationDoubleKey*>
-          (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-
-      double dTime = 0.0;
-      if (bladeInfo->Has(timeKey))
-        {
-        dTime = bladeInfo->Get(timeKey);
-        }
-
-      // Actual time for the time step
-      blade->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), dTime);
-
-      // Index of the time step to request
-      int timeStep = 0;
-      while (timeStep < this->NumberOfTimeSteps &&
-             this->TimeSteps[timeStep] < dTime)
-        {
-        timeStep++;
-        }
-      // only rank 0 reads this so we have to be careful with MPI-IO
-      this->LoadBladeData(timeStep);
+      this->InitBladeData(outVector);
       }
     return 1;
     }
-
   // Request data in on ground
-  if (port == 2)
+  else if (port == 2)
     {
-    vtkInformation* groundInfo = outVector->GetInformationObject(2);
-    vtkStructuredGrid *ground = this->GetGroundOutput();
-
-    // Set the extent info for this processor
-    groundInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                   this->GSubExtent);
-    ground->SetExtent(this->GSubExtent);
-
-    // Set the rectilinear coordinates matching the requested subextents
-    this->FillGroundCoordinates();
-    ground->SetPoints(this->GPoints);
+    this->SetUpGroundData(outVector);
     }
 
   return 1;
@@ -682,20 +456,13 @@ void vtkWindBladeReader::DivideByDensity(const char* varName)
 void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
                                            int tempg, int density)
 {
-  // Set the number of components and tuples for the requested data
-  this->Data[pressure]->SetNumberOfComponents(1);
-  this->Data[pressure]->SetNumberOfTuples(this->NumberOfTuples);
-  float* pressureData = this->Data[pressure]->GetPointer(0);
-
-  this->Data[prespre]->SetNumberOfComponents(1);
-  this->Data[prespre]->SetNumberOfTuples(this->NumberOfTuples);
-  float* prespreData = this->Data[prespre]->GetPointer(0);
+  float *pressureData = NULL, *prespreData = NULL;
+  this->InitPressureData(pressure, prespre, pressureData, prespreData);
 
   // Read tempg and Density components from file
-  float* tempgData = new float[this->BlockSize];
+  float* tempgData   = new float[this->BlockSize];
   float* densityData = new float[this->BlockSize];
 
-#ifndef VTK_USE_MPI_IO
   fseek(this->Internal->FilePtr, this->VariableOffset[tempg], SEEK_SET);
   if (fread(tempgData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
     {
@@ -712,53 +479,12 @@ void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading densityData.");
     }
-#else
-  MPI_Status status;
-  char native[7] = "native";
-
-  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[tempg], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->Internal->FilePtr, tempgData, this->BlockSize, MPI_FLOAT, &status));
-  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->Internal->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
-#endif
-
-  // Entire block of data is read so to calculate index into that data we
-  // must use the entire Dimension and not the SubDimension
-  int planeSize = this->Dimension[0] * this->Dimension[1];
-  int rowSize = this->Dimension[0];
-
-  // Pressure - pre needs the first XY plane pressure values
-  float* firstPressure = new float[this->Dimension[2]];
-  for (int k = 0; k < this->Dimension[2]; k++)
-    {
-    int index = k * planeSize;
-    firstPressure[k] = densityData[index] * DRY_AIR_CONSTANT * tempgData[index];
-    }
 
   // Only the requested subextents are stored on this processor
-  int pos = 0;
-  for (int k = this->SubExtent[4]; k <= this->SubExtent[5]; k++)
-    {
-    for (int j = this->SubExtent[2]; j <= this->SubExtent[3]; j++)
-      {
-      for (int i = this->SubExtent[0]; i <= this->SubExtent[1]; i++)
-        {
-        int index = (k * planeSize) + (j * rowSize) + i;
+  this->SetUpPressureData(pressureData, prespreData, tempgData, densityData);
 
-        // Pressure is function of density and tempg for the same position
-        // Pressure - pre is the pressure at a position minus the pressure
-        // from the first value in the z plane
-
-        pressureData[pos] = densityData[index] *
-                            DRY_AIR_CONSTANT * tempgData[index];
-        prespreData[pos] = pressureData[pos] - firstPressure[k];
-        pos++;
-        }
-      }
-    }
   delete [] tempgData;
   delete [] densityData;
-  delete [] firstPressure;
 }
 
 //----------------------------------------------------------------------------
@@ -776,7 +502,6 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   float* uData = new float[this->BlockSize];
   float* vData = new float[this->BlockSize];
 
-#ifndef VTK_USE_MPI_IO
   fseek(this->Internal->FilePtr, this->VariableOffset[uvw], SEEK_SET);
   if (fread(uData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
     {
@@ -793,20 +518,9 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading vData.");
     }
-#else
-  MPI_Status status;
-  char native[7] = "native";
-
-  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[uvw], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->Internal->FilePtr, uData, this->BlockSize, MPI_FLOAT, &status));
-  MPICall(MPI_File_set_view(this->Internal->FilePtr, (2 * sizeof(int)), MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->Internal->FilePtr, vData, this->BlockSize, MPI_FLOAT, &status));
-#endif
 
   // Read Density component
   float* densityData = new float[this->BlockSize];
-
-#ifndef VTK_USE_MPI_IO
   fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
   if (fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
     {
@@ -815,68 +529,9 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading densityData.");
     }
-#else
-  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->Internal->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
-#endif
 
-  // Divide U and V components by Density
-  for (unsigned int i = 0; i < this->BlockSize; i++)
-    {
-    uData[i] /= densityData[i];
-    vData[i] /= densityData[i];
-    }
+  this->SetUpVorticityData(uData, vData, densityData, vortData);
 
-  // Entire block of data is read so to calculate index into that data we
-  // must use the entire Dimension and not the SubDimension
-  // Only the requested subextents are stored on this processor
-  int planeSize = this->Dimension[0] * this->Dimension[1];
-  int rowSize = this->Dimension[0];
-
-  // Initialize to 0.0 because edges have no values
-  int pos = 0;
-  for (int k = this->SubExtent[4]; k <= this->SubExtent[5]; k++)
-    {
-    for (int j = this->SubExtent[2]; j <= this->SubExtent[3]; j++)
-      {
-      for (int i = this->SubExtent[0]; i <= this->SubExtent[1]; i++)
-        {
-        vortData[pos++] = 0.0;
-        }
-      }
-    }
-
-  // For inner positions calculate vorticity
-  pos = 0;
-  float ddx = this->Step[0];
-  float ddy = this->Step[1];
-
-  for (int k = this->SubExtent[4]; k <= this->SubExtent[5]; k++)
-    {
-    for (int j = this->SubExtent[2]; j <= this->SubExtent[3]; j++)
-      {
-      for (int i = this->SubExtent[0]; i <= this->SubExtent[1]; i++)
-        {
-        // Edges are initialized to 0
-        if (j == this->SubExtent[2] || j == this->SubExtent[3] ||
-            i == this->SubExtent[0] || i == this->SubExtent[1])
-          {
-          pos++;
-          }
-        else
-          {
-          // Vorticity depends on four cells surrounding this cell
-          int index_vp = (k * planeSize) + (j * rowSize) + (i + 1);
-          int index_vm = (k * planeSize) + (j * rowSize) + (i - 1);
-          int index_up = (k * planeSize) + ((j + 1) * rowSize) + i;
-          int index_um = (k * planeSize) + ((j - 1) * rowSize) + i;
-
-          vortData[pos++] = ((vData[index_vp] - vData[index_vm]) / ddx) -
-            ((uData[index_up] - uData[index_um]) / ddy);
-          }
-        }
-      }
-    }
   delete [] uData;
   delete [] vData;
   delete [] densityData;
@@ -893,43 +548,15 @@ void vtkWindBladeReader::LoadVariableData(int var)
 
   // Skip to the appropriate variable block and read byte count
   // not used? int byteCount;
-#ifndef VTK_USE_MPI_IO
   fseek(this->Internal->FilePtr, this->VariableOffset[var], SEEK_SET);
-#else
-  char native[7] = "native";
-  MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[var], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-#endif
 
-  // Set the number of components for this variable
-  int numberOfComponents = 0;
-  if (this->VariableStruct[var] == SCALAR)
-    {
-    numberOfComponents = 1;
-    this->Data[var]->SetNumberOfComponents(numberOfComponents);
-    }
-  else if (this->VariableStruct[var] == VECTOR)
-    {
-    numberOfComponents = DIMENSION;
-    this->Data[var]->SetNumberOfComponents(numberOfComponents);
-    }
-
-  // Set the number of tuples which will allocate all tuples
-  this->Data[var]->SetNumberOfTuples(this->NumberOfTuples);
-
-  // For each component of the requested variable load data
+  int numberOfComponents = 0, planeSize = 0, rowSize;
+  float *varData = NULL;
   float* block = new float[this->BlockSize];
-  float* varData = this->Data[var]->GetPointer(0);
-
-  // Entire block of data is read so to calculate index into that data we
-  // must use the entire Dimension and not the SubDimension
-  // Only the requested subextents are stored on this processor
-  int planeSize = this->Dimension[0] * this->Dimension[1];
-  int rowSize = this->Dimension[0];
-
+  this->InitVariableData(var, numberOfComponents, varData, planeSize, rowSize);
   for (int comp = 0; comp < numberOfComponents; comp++)
     {
     // Read the block of data
-#ifndef VTK_USE_MPI_IO
     size_t cnt;
     if ((cnt = fread(block, sizeof(float), this->BlockSize, this->Internal->FilePtr)) !=
         static_cast<size_t>(this->BlockSize) )
@@ -940,10 +567,6 @@ void vtkWindBladeReader::LoadVariableData(int var)
                      << " Premature EOF while reading block of data."
                      << " Expected " << this->BlockSize << " but got " << cnt);
     }
-#else
-    MPI_Status status;
-    MPICall(MPI_File_read_all(this->Internal->FilePtr, block, this->BlockSize, MPI_FLOAT, &status));
-#endif
 
     int pos = comp;
     for (int k = this->SubExtent[4]; k <= this->SubExtent[5]; k++)
@@ -960,11 +583,7 @@ void vtkWindBladeReader::LoadVariableData(int var)
       }
 
     // Skip closing and opening byte sizes
-#ifndef VTK_USE_MPI_IO
     fseek(this->Internal->FilePtr, (2 * sizeof(int)), SEEK_CUR);
-#else
-    MPICall(MPI_File_seek(this->Internal->FilePtr, (2 * sizeof(int)), MPI_SEEK_CUR));
-#endif
   }
   delete [] block;
 }
@@ -978,176 +597,12 @@ bool vtkWindBladeReader::ReadGlobalData()
   std::string fileName = this->Filename;
   vtksys::SystemTools::ConvertToUnixSlashes(fileName);
 
-  char inBuf[LINE_SIZE];
-
-#ifndef VTK_USE_MPI_IO
-  ifstream inStr(fileName.c_str());
-#else
-  MPI_File tempFile;
-  char native[7] = "native";
-  char* cchar = new char[strlen(fileName.c_str()) + 1];
-  strcpy(cchar, fileName.c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete [] cchar;
-
+  std::ifstream inStrStream(fileName.c_str());
   std::stringstream inStr;
-  MPI_Offset i, tempSize;
-  MPI_Status status;
-
-  MPICall(MPI_File_get_size(tempFile, &tempSize));
-  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-
-  for(i = 0; i < tempSize; i = i + LINE_SIZE)
-    {
-    if(i + LINE_SIZE > tempSize)
-      {
-      MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
-      inStr.write(inBuf, tempSize - i);
-      }
-    else
-      {
-      MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
-      inStr.write(inBuf, LINE_SIZE);
-      }
-    }
-
-  MPICall(MPI_File_close(&tempFile));
-#endif
-
-  if (!inStr)
-    {
-    vtkWarningMacro("Could not open the global .wind file " << fileName);
-    }
-
-  std::string::size_type dirPos = std::string(fileName).rfind("/");
-  if (dirPos == std::string::npos)
-    {
-    vtkWarningMacro("Bad input file name " << fileName);
-    }
-  this->RootDirectory = std::string(fileName).substr(0, dirPos);
-
-  std::string keyword;
-  std::string rest;
-  std::string headerVersion;
-
-  while (inStr.getline(inBuf, LINE_SIZE))
-    {
-    if (inBuf[0] != '#' && inStr.gcount() > 1)
-      {
-      std::string line(inBuf);
-      std::string::size_type keyPos = line.find(' ');
-      keyword = line.substr(0, keyPos);
-      rest = line.substr(keyPos + 1);
-      std::istringstream lineStr(rest.c_str());
-
-      // Header information
-      if (keyword == "WIND_HEADER_VERSION")
-        {
-        lineStr >> headerVersion;
-        }
-
-      // Topology variables
-      else if (keyword == "GRID_SIZE_X")
-        {
-        lineStr >> this->Dimension[0];
-        }
-      else if (keyword == "GRID_SIZE_Y")
-        {
-        lineStr >> this->Dimension[1];
-        }
-      else if (keyword == "GRID_SIZE_Z")
-        {
-        lineStr >> this->Dimension[2];
-        }
-      else if (keyword == "GRID_DELTA_X")
-        {
-        lineStr >> this->Step[0];
-        }
-      else if (keyword == "GRID_DELTA_Y")
-        {
-        lineStr >> this->Step[1];
-        }
-      else if (keyword == "GRID_DELTA_Z")
-        {
-        lineStr >> this->Step[2];
-        }
-
-      // Geometry variables
-      else if (keyword == "USE_TOPOGRAPHY_FILE")
-        {
-        lineStr >> this->UseTopographyFile;
-        }
-      else if (keyword == "TOPOGRAPHY_FILE")
-        {
-        this->TopographyFile = rest;
-        }
-      else if (keyword == "COMPRESSION")
-        {
-        lineStr >> this->Compression;
-        }
-      else if (keyword == "FIT")
-        {
-        lineStr >> this->Fit;
-        }
-
-      // Time variables
-      else if (keyword == "TIME_STEP_FIRST")
-        {
-        lineStr >> this->TimeStepFirst;
-        }
-      else if (keyword == "TIME_STEP_LAST")
-        {
-        lineStr >> this->TimeStepLast;
-        }
-      else if (keyword == "TIME_STEP_DELTA")
-        {
-        lineStr >> this->TimeStepDelta;
-        }
-
-      // Turbine variables
-      else if (keyword == "USE_TURBINE_FILE")
-        {
-        lineStr >> this->UseTurbineFile;
-        }
-      else if (keyword == "TURBINE_DIRECTORY")
-        {
-        this->TurbineDirectory = rest;
-        }
-      else if (keyword == "TURBINE_TOWER")
-        {
-        this->TurbineTowerName = rest;
-        }
-      else if (keyword == "TURBINE_BLADE")
-        {
-        this->TurbineBladeName = rest;
-        }
-
-      // Data variables
-      else if (keyword == "DATA_DIRECTORY")
-        {
-        this->DataDirectory = rest;
-        }
-      else if (keyword == "DATA_BASE_FILENAME")
-        {
-        this->DataBaseName = rest;
-        }
-      else if (keyword == "DATA_VARIABLES")
-        {
-        lineStr >> this->NumberOfFileVariables;
-        this->ReadDataVariables(inStr);
-        if(this->FindVariableOffsets() == false)
-          {
-          return false;
-          }
-        }
-      }
-    }
-  if (this->TimeStepFirst < this->TimeStepLast)
-    {
-    this->NumberOfTimeSteps = ((this->TimeStepLast - this->TimeStepFirst) /
-                                this->TimeStepDelta) + 1;
-    }
-  return true;
+  std::copy(std::istreambuf_iterator<char>(inStrStream),
+            std::istreambuf_iterator<char>(),
+            std::ostreambuf_iterator<char>(inStr));
+  return this->SetUpGlobalData(fileName, inStr);
 }
 
 //----------------------------------------------------------------------------
@@ -1268,14 +723,7 @@ bool vtkWindBladeReader::FindVariableOffsets()
            << this->DataDirectory << "/"
            << this->DataBaseName << this->TimeStepFirst;
 
-#ifndef VTK_USE_MPI_IO
   this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
-#else
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-  strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->Internal->FilePtr));
-  delete [] cchar;
-#endif
 
   if (this->Internal->FilePtr == NULL)
     {
@@ -1285,8 +733,6 @@ bool vtkWindBladeReader::FindVariableOffsets()
 
   // Scan file recording offsets which points to the first data value
   int byteCount;
-
-#ifndef VTK_USE_MPI_IO
   if (fread(&byteCount, sizeof(int), 1, this->Internal->FilePtr) != 1)
     {
     // This is really and error, but for the time being we report a
@@ -1294,25 +740,12 @@ bool vtkWindBladeReader::FindVariableOffsets()
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading byteCount.");
     }
-#else
-  MPI_Status status;
-  char native[7] = "native";
-
-  MPICall(MPI_File_set_view(this->Internal->FilePtr, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->Internal->FilePtr, &byteCount, 1, MPI_INT, &status));
-#endif
 
   this->BlockSize = byteCount / BYTES_PER_DATA;
 
   for (int var = 0; var < this->NumberOfFileVariables; var++)
     {
-#ifndef VTK_USE_MPI_IO
     this->VariableOffset[var] = ftell(this->Internal->FilePtr);
-#else
-    MPI_Offset offset;
-    MPICall(MPI_File_get_position(this->Internal->FilePtr, &offset));
-    this->VariableOffset[var] = offset;
-#endif
 
     // Skip over the SCALAR or VECTOR components for this variable
     int numberOfComponents = 1;
@@ -1324,18 +757,10 @@ bool vtkWindBladeReader::FindVariableOffsets()
     for (int comp = 0; comp < numberOfComponents; comp++)
       {
       // Skip data plus two integer byte counts
-#ifndef VTK_USE_MPI_IO
       fseek(this->Internal->FilePtr, (byteCount+(2 * sizeof(int))), SEEK_CUR);
-#else
-      MPICall(MPI_File_seek(this->Internal->FilePtr, (byteCount+(2 * sizeof(int))), MPI_SEEK_CUR));
-#endif
       }
     }
-#ifndef VTK_USE_MPI_IO
   fclose(this->Internal->FilePtr);
-#else
-  MPICall(MPI_File_close(&this->Internal->FilePtr));
-#endif
 
   return true;
 }
@@ -1521,19 +946,10 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
   fileName << this->RootDirectory << "/"
            << this->TopographyFile;
 
-  int blockSize = this->Dimension[0] * this->Dimension[1];
+  int blockSize   = this->Dimension[0] * this->Dimension[1];
   float* topoData = new float[blockSize];
+  FILE* filePtr   = fopen(fileName.str().c_str(), "rb");
 
-#ifndef VTK_USE_MPI_IO
-  FILE* filePtr = fopen(fileName.str().c_str(), "rb");
-#else
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-  strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->Internal->FilePtr));
-  delete [] cchar;
-#endif
-
-#ifndef VTK_USE_MPI_IO
   fseek(filePtr, BYTES_PER_DATA, SEEK_SET);  // Fortran byte count
   if(fread(topoData, sizeof(float), blockSize, filePtr) != static_cast<size_t>(blockSize) )
     {
@@ -1542,109 +958,11 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading topoData.");
     }
-#else
-  MPI_Status status;
-  char native[7] = "native";
 
-  MPICall(MPI_File_set_view(this->Internal->FilePtr, BYTES_PER_DATA, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-  MPICall(MPI_File_read_all(this->Internal->FilePtr, topoData, blockSize, MPI_FLOAT, &status));
-#endif
-
-  // Initial z coordinate processing
-  float* zedge = new float[this->Dimension[2] + 1];
-  float* z = new float[this->Dimension[2]];
-  float zb;
-  int ibctopbot = 1;
-
-  if (ibctopbot == 1)
-    {
-    for (int k = 0; k <= this->Dimension[2]; k++)
-      {
-      zedge[k] = k * this->Step[2];
-      }
-    zb = zedge[this->Dimension[2]];
-    for (int k = 0; k < this->Dimension[2]; k++)
-      {
-      z[k] = k * this->Step[2] + 0.5 * this->Step[2];
-      }
-    }
-
-  else
-    {
-    for (int k = 0; k < this->Dimension[2]; k++)
-      {
-      z[k] = k * this->Step[2];
-      }
-    zb = z[this->Dimension[2] - 1];
-    }
-
-  // Use cubic spline or deformation to calculate z values
-  int npoints = 31;
-  float* zdata = new float[npoints];
-  float* zcoeff = new float[npoints];
-  float zcrdata[] = {
-        0.0 ,    2.00,    4.00,     6.00,      8.00,
-       10.00,   14.00,   18.00,    22.00,     26.00,
-       30.00,   34.00,   40.00,    50.00,     70.00,
-      100.00,  130.00,  160.00,   200.00,    250.00,
-      300.00,  350.00,  450.00,   550.00,    750.00,
-      950.00, 1150.00, 1400.00,  1700.00,   2000.00,   2400.00 };
-
-  // No deformation, use spline to define z coefficients
-  if (this->Compression == 0.0)
-    {
-    for (int i = 0; i < npoints; i++)
-      {
-      zdata[i] = (z[i] * zb) / z[npoints - 1];
-      }
-
-    // Call spline with zcoeff being the answer
-    this->Spline(zdata, zcrdata, npoints, 99.0e31, 99.0e31, zcoeff);
-    }
-
-  // Fill the zValues array depending on compression
-  int planeSize = this->Dimension[0] * this->Dimension[1];
-  int rowSize = this->Dimension[0];
-  int flag = 0;
-
-  for (int k = 0; k < this->Dimension[2]; k++)
-    {
-    for (int j = 0; j < this->Dimension[1]; j++)
-      {
-      for (int i = 0; i < this->Dimension[0]; i++)
-        {
-        int index = (k * planeSize) + (j * rowSize) + i;
-        int tIndex = (j * rowSize) + i;
-
-        if (this->Compression == 0.0)
-          {
-          // Use spline interpolation
-          float zinterp;
-          this->Splint(zdata, zcrdata, zcoeff, npoints, z[k], &zinterp, flag);
-          zValues[index] = zinterp;
-          }
-        else
-          {
-          // Use deformation
-          zValues[index] = GDeform(z[k], zb, flag) *
-            (zb - topoData[tIndex]) / zb + topoData[tIndex];
-          }
-        }
-      }
-    }
+  this->ProcessZCoords(topoData, zValues);
 
   delete [] topoData;
-  delete [] zedge;
-  delete [] z;
-  delete [] zdata;
-  delete [] zcoeff;
-
-#ifndef VTK_USE_MPI_IO
   fclose(filePtr);
-#else
-  MPICall(MPI_File_close(&this->Internal->FilePtr));
-#endif
-
 }
 
 //----------------------------------------------------------------------------
@@ -1808,98 +1126,21 @@ void vtkWindBladeReader::SetupBladeData()
            << this->TurbineTowerName;
   char inBuf[LINE_SIZE];
 
-#ifndef VTK_USE_MPI_IO
   ifstream inStr(fileName.str().c_str());
-#else
-  MPI_File tempFile;
-  char native[7] = "native";
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-  strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete [] cchar;
-
-  std::stringstream inStr;
-  MPI_Offset i, tempSize;
-  MPI_Status status;
-
-  MPICall(MPI_File_get_size(tempFile, &tempSize));
-  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-
-  for(i = 0; i < tempSize; i = i + LINE_SIZE)
-    {
-    if(i + LINE_SIZE > tempSize)
-      {
-      MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
-      inStr.write(inBuf, tempSize - i);
-      }
-    else
-      {
-      MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
-      inStr.write(inBuf, LINE_SIZE);
-      }
-    }
-
-  MPICall(MPI_File_close(&tempFile));
-#endif
 
   if (!inStr)
     {
     vtkWarningMacro("Could not open " << fileName.str() << endl);
     }
 
-  // File is ASCII text so read until EOF
-  float hubHeight, bladeLength, maxRPM, xPos, yPos, yawAngle;
-  float angularVelocity, angleBlade1;
-  int numberOfBlades;
-  int towerID;
-  // all header stuff is here to deal with wind data format changes
-  // number of columns tells us if the turbine tower file has at least 13
-  // columns. if so then we are dealing with a wind data format that has
-  // an extra header in the turbine blade files
   int numColumns = 0;
+  std::stringstream inStrSS;
+  std::copy(std::istreambuf_iterator<char>(inStr),
+            std::istreambuf_iterator<char>(),
+            std::ostreambuf_iterator<char>(inStrSS));
+  this->ReadBladeHeader(fileName.str(), inStrSS, numColumns);
 
-  // test first line in turbine tower file to see if it has at least 13th column
-  // if so then this is indication of "new" format
-  if (inStr.getline(inBuf, LINE_SIZE))
-    {
-    size_t len = strlen(inBuf);
-    // number of lines corresponds to number of spaces
-    for (size_t j = 0; j < len; j++)
-      {
-      if (inBuf[j] == ' ')
-        {
-        numColumns++;
-        }
-      }
-    }
-  else
-    {
-    std::cout << fileName.str().c_str() << " is empty!\n";
-    }
-  // reset seek position
-  inStr.seekg(0, std::ios_base::beg);
-  inStr.clear();
-
-  // make sure we skip lines with one character (\n)
-  while (inStr.getline(inBuf, LINE_SIZE) && inStr.gcount() > 1)
-    {
-    std::istringstream line(inBuf);
-    line >> towerID >> hubHeight >> bladeLength >> numberOfBlades >> maxRPM;
-    line >> xPos >> yPos;
-    line >> yawAngle >> angularVelocity >> angleBlade1;
-
-    this->XPosition->InsertNextValue(xPos);
-    this->YPosition->InsertNextValue(yPos);
-    this->HubHeight->InsertNextValue(hubHeight);
-    this->BladeCount->InsertNextValue(numberOfBlades);
-    this->BladeLength->InsertNextValue(bladeLength);
-    this->AngularVeloc->InsertNextValue(angularVelocity);
-    }
-  this->NumberOfBladeTowers = XPosition->GetNumberOfTuples();
-
-#ifndef VTK_USE_MPI_IO
   inStr.close();
-#endif
 
   // Calculate the number of cells in unstructured turbine blades
   std::ostringstream fileName2;
@@ -1907,35 +1148,7 @@ void vtkWindBladeReader::SetupBladeData()
             << this->TurbineDirectory << "/"
             << this->TurbineBladeName << this->TimeStepFirst;
 
-#ifndef VTK_USE_MPI_IO
   ifstream inStr2(fileName2.str().c_str());
-#else
-  cchar = new char[strlen(fileName2.str().c_str()) + 1];
-  strcpy(cchar, fileName2.str().c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete [] cchar;
-
-  std::stringstream inStr2;
-
-  MPICall(MPI_File_get_size(tempFile, &tempSize));
-  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-
-  for(i = 0; i < tempSize; i = i + LINE_SIZE)
-    {
-    if(i + LINE_SIZE > tempSize)
-      {
-      MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
-      inStr2.write(inBuf, tempSize - i);
-      }
-    else
-      {
-      MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
-      inStr2.write(inBuf, LINE_SIZE);
-      }
-    }
-
-  MPICall(MPI_File_close(&tempFile));
-#endif
 
   if (!inStr2)
     {
@@ -1950,36 +1163,7 @@ void vtkWindBladeReader::SetupBladeData()
                 << this->TurbineBladeName << j;
       //std::cout << "Trying " << fileName3.str().c_str() << "...";
 
-#ifndef VTK_USE_MPI_IO
       inStr2.open(fileName3.str().c_str());
-#else
-      cchar = new char[strlen(fileName3.str().c_str()) + 1];
-      strcpy(cchar, fileName3.str().c_str());
-      MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-      delete [] cchar;
-
-      inStr2.clear();
-      inStr2.str("");
-
-      MPICall(MPI_File_get_size(tempFile, &tempSize));
-      MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
-
-      for(i = 0; i < tempSize; i = i + LINE_SIZE)
-        {
-        if(i + LINE_SIZE > tempSize)
-          {
-          MPICall(MPI_File_read_all(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
-          inStr2.write(inBuf, tempSize - i);
-          }
-        else
-          {
-          MPICall(MPI_File_read_all(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
-          inStr2.write(inBuf, LINE_SIZE);
-          }
-        }
-
-      MPICall(MPI_File_close(&tempFile));
-#endif
 
       if(inStr2.good())
         {
@@ -2011,11 +1195,8 @@ void vtkWindBladeReader::SetupBladeData()
     }
   while (inStr2.getline(inBuf, LINE_SIZE))
     this->NumberOfBladeCells++;
-#ifndef VTK_USE_MPI_IO
   inStr2.close();
-#endif
   this->NumberOfBladePoints = this->NumberOfBladeCells * NUM_PART_SIDES;
-
   // Points and cells needed for constant towers
   this->NumberOfBladePoints += this->NumberOfBladeTowers * NUM_BASE_SIDES;
   this->NumberOfBladeCells += this->NumberOfBladeTowers;
@@ -2035,48 +1216,613 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
            << this->TurbineDirectory << "/"
            << this->TurbineBladeName
            << this->TimeSteps[timeStep];
-  char inBuf[LINE_SIZE];
 
-#ifndef VTK_USE_MPI_IO
-  ifstream inStr(fileName.str().c_str());
-#else
-  // only rank 0 reads this so we have to be careful
-  MPI_File tempFile;
-  char native[7] = "native";
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-  strcpy(cchar, fileName.str().c_str());
-  // here only rank 0 opens it : MPI_COMM_SELF
-  MPICall(MPI_File_open(MPI_COMM_SELF, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete [] cchar;
+  std::ifstream inStr(fileName.str().c_str());
+  std::stringstream inStrSS;
+  std::copy(std::istreambuf_iterator<char>(inStr),
+            std::istreambuf_iterator<char>(),
+            std::ostreambuf_iterator<char>(inStrSS));
+  this->ReadBladeData(inStrSS);
+}
 
-  std::stringstream inStr;
-  MPI_Offset i, tempSize;
-  MPI_Status status;
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::InitFieldData(vtkInformationVector *outVector,
+                                       std::ostringstream &fileName,
+                                       vtkStructuredGrid *field)
+{
+  // Get the information and output pointers
+  vtkInformation* fieldInfo = outVector->GetInformationObject(0);
 
-  MPICall(MPI_File_get_size(tempFile, &tempSize));
-  MPICall(MPI_File_set_view(tempFile, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
+  // Set the extent info for this processor
+  fieldInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                 this->SubExtent);
+  field->SetExtent(this->SubExtent);
 
-  for(i = 0; i < tempSize; i = i + LINE_SIZE)
+  // Set the rectilinear coordinates matching the requested subextents
+  // Extents may include ghost cells for filters that require them
+  this->FillCoordinates();
+  field->SetPoints(this->Points);
+
+  this->SubDimension[0] = this->SubExtent[1] - this->SubExtent[0] + 1;
+  this->SubDimension[1] = this->SubExtent[3] - this->SubExtent[2] + 1;
+  this->SubDimension[2] = this->SubExtent[5] - this->SubExtent[4] + 1;
+
+  this->NumberOfTuples = 1;
+  for (int dim = 0; dim < DIMENSION; dim++)
+    this->NumberOfTuples *= this->SubDimension[dim];
+
+  // Collect the time step requested
+  vtkInformationDoubleKey* timeKey =
+    static_cast<vtkInformationDoubleKey*>
+      (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
+  double dTime = 0.0;
+  if (fieldInfo->Has(timeKey))
     {
-    if(i + LINE_SIZE > tempSize)
+    dTime = fieldInfo->Get(timeKey);
+    }
+
+  // Actual time for the time step
+  field->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), dTime);
+
+  // Index of the time step to request
+  int timeStep = 0;
+  while (timeStep < this->NumberOfTimeSteps &&
+         this->TimeSteps[timeStep] < dTime)
+    {
+    timeStep++;
+    }
+
+  // Open the data file for time step if needed
+  fileName << this->RootDirectory << "/"
+           << this->DataDirectory << "/" << this->DataBaseName
+           << this->TimeSteps[timeStep];
+}
+
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::SetUpFieldVars(vtkStructuredGrid *field)
+{
+  // Some variables depend on others, so force their loading
+  for (int i = 0; i < this->DivideVariables->GetNumberOfTuples(); i++)
+    {
+    if (GetPointArrayStatus(this->DivideVariables->GetValue(i)))
       {
-      MPICall(MPI_File_read(tempFile, inBuf, tempSize - i, MPI_BYTE, &status));
-      inStr.write(inBuf, tempSize - i);
-      }
-    else
-      {
-      MPICall(MPI_File_read(tempFile, inBuf, LINE_SIZE, MPI_BYTE, &status));
-      inStr.write(inBuf, LINE_SIZE);
+      this->SetPointArrayStatus("Density", 1);
       }
     }
 
-  MPICall(MPI_File_close(&tempFile));
-#endif
-  /*
-  if (this->Rank == 0)
-    cout << "Load file " << fileName.str() << endl;
-  */
+  // Examine each file variable to see if it is selected and load
+  for (int var = 0; var < this->NumberOfFileVariables; var++)
+    {
+    if (this->PointDataArraySelection->GetArraySetting(var))
+      {
+      this->LoadVariableData(var);
+      field->GetPointData()->AddArray(this->Data[var]);
+      }
+    }
 
+  // Divide variables by Density if required
+  for (int i = 0; i < this->DivideVariables->GetNumberOfTuples(); i++)
+    {
+    if (GetPointArrayStatus(this->DivideVariables->GetValue(i)))
+      {
+      this->DivideByDensity(this->DivideVariables->GetValue(i));
+      }
+    }
+
+  // Calculate pressure if requested
+  if (GetPointArrayStatus("Pressure"))
+    {
+    int pressure = this->PointDataArraySelection->GetArrayIndex("Pressure");
+    int pre = this->PointDataArraySelection->GetArrayIndex("Pressure-Pre");
+    int tempg = this->PointDataArraySelection->GetArrayIndex("tempg");
+    int density = this->PointDataArraySelection->GetArrayIndex("Density");
+
+    this->CalculatePressure(pressure, pre, tempg, density);
+    field->GetPointData()->AddArray(this->Data[pressure]);
+    field->GetPointData()->AddArray(this->Data[pressure + 1]);
+    }
+
+  // Calculate vorticity if requested
+  if (GetPointArrayStatus("Vorticity"))
+    {
+    int vort = this->PointDataArraySelection->GetArrayIndex("Vorticity");
+    int uvw = this->PointDataArraySelection->GetArrayIndex("UVW");
+    int density = this->PointDataArraySelection->GetArrayIndex("Density");
+
+    this->CalculateVorticity(vort, uvw, density);
+    field->GetPointData()->AddArray(this->Data[vort]);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::InitBladeData(vtkInformationVector *outVector)
+{
+  vtkInformation* bladeInfo  = outVector->GetInformationObject(1);
+  vtkUnstructuredGrid* blade = this->GetBladeOutput();
+
+  // Collect the time step requested
+  vtkInformationDoubleKey* timeKey =
+    static_cast<vtkInformationDoubleKey*>
+    (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
+  double dTime = 0.0;
+  if (bladeInfo->Has(timeKey))
+    {
+    dTime = bladeInfo->Get(timeKey);
+    }
+
+  // Actual time for the time step
+  blade->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), dTime);
+
+  // Index of the time step to request
+  int timeStep = 0;
+  while (timeStep < this->NumberOfTimeSteps &&
+         this->TimeSteps[timeStep] < dTime)
+    {
+    timeStep++;
+    }
+  this->LoadBladeData(timeStep);
+}
+
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::SetUpGroundData(vtkInformationVector *outVector)
+{
+  vtkInformation* groundInfo = outVector->GetInformationObject(2);
+  vtkStructuredGrid *ground  = this->GetGroundOutput();
+
+  // Set the extent info for this processor
+  groundInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                  this->GSubExtent);
+  ground->SetExtent(this->GSubExtent);
+
+  // Set the rectilinear coordinates matching the requested subextents
+  this->FillGroundCoordinates();
+  ground->SetPoints(this->GPoints);
+}
+
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::InitPressureData(int pressure, int prespre,
+                                          float *&pressureData, float *&prespreData)
+{
+  // Set the number of components and tuples for the requested data
+  this->Data[pressure]->SetNumberOfComponents(1);
+  this->Data[pressure]->SetNumberOfTuples(this->NumberOfTuples);
+  pressureData = this->Data[pressure]->GetPointer(0);
+
+  this->Data[prespre]->SetNumberOfComponents(1);
+  this->Data[prespre]->SetNumberOfTuples(this->NumberOfTuples);
+  prespreData = this->Data[prespre]->GetPointer(0);
+}
+
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::SetUpPressureData(float* pressureData, float* prespreData,
+                                           float* tempgData, float* densityData)
+{
+  // Entire block of data is read so to calculate index into that data we
+  // must use the entire Dimension and not the SubDimension
+  int planeSize = this->Dimension[0] * this->Dimension[1];
+  int rowSize = this->Dimension[0];
+
+  // Pressure - pre needs the first XY plane pressure values
+  float* firstPressure = new float[this->Dimension[2]];
+  for (int k = 0; k < this->Dimension[2]; k++)
+    {
+    int index = k * planeSize;
+    firstPressure[k] = densityData[index] * DRY_AIR_CONSTANT * tempgData[index];
+    }
+
+  // Only the requested subextents are stored on this processor
+  int pos = 0;
+  for (int k = this->SubExtent[4]; k <= this->SubExtent[5]; k++)
+    {
+    for (int j = this->SubExtent[2]; j <= this->SubExtent[3]; j++)
+      {
+      for (int i = this->SubExtent[0]; i <= this->SubExtent[1]; i++)
+        {
+        int index = (k * planeSize) + (j * rowSize) + i;
+
+        // Pressure is function of density and tempg for the same position
+        // Pressure - pre is the pressure at a position minus the pressure
+        // from the first value in the z plane
+
+        pressureData[pos] = densityData[index] *
+                            DRY_AIR_CONSTANT * tempgData[index];
+        prespreData[pos] = pressureData[pos] - firstPressure[k];
+        pos++;
+        }
+      }
+    }
+  delete [] firstPressure;
+}
+
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::SetUpVorticityData(float* uData, float* vData,
+                                            float *densityData, float* vortData)
+{
+  // Divide U and V components by Density
+  for (unsigned int i = 0; i < this->BlockSize; i++)
+    {
+    uData[i] /= densityData[i];
+    vData[i] /= densityData[i];
+    }
+
+  // Entire block of data is read so to calculate index into that data we
+  // must use the entire Dimension and not the SubDimension
+  // Only the requested subextents are stored on this processor
+  int planeSize = this->Dimension[0] * this->Dimension[1];
+  int rowSize = this->Dimension[0];
+
+  // Initialize to 0.0 because edges have no values
+  int pos = 0;
+  for (int k = this->SubExtent[4]; k <= this->SubExtent[5]; k++)
+    {
+    for (int j = this->SubExtent[2]; j <= this->SubExtent[3]; j++)
+      {
+      for (int i = this->SubExtent[0]; i <= this->SubExtent[1]; i++)
+        {
+        vortData[pos++] = 0.0;
+        }
+      }
+    }
+
+  // For inner positions calculate vorticity
+  pos = 0;
+  float ddx = this->Step[0];
+  float ddy = this->Step[1];
+
+  for (int k = this->SubExtent[4]; k <= this->SubExtent[5]; k++)
+    {
+    for (int j = this->SubExtent[2]; j <= this->SubExtent[3]; j++)
+      {
+      for (int i = this->SubExtent[0]; i <= this->SubExtent[1]; i++)
+        {
+        // Edges are initialized to 0
+        if (j == this->SubExtent[2] || j == this->SubExtent[3] ||
+            i == this->SubExtent[0] || i == this->SubExtent[1])
+          {
+          pos++;
+          }
+        else
+          {
+          // Vorticity depends on four cells surrounding this cell
+          int index_vp = (k * planeSize) + (j * rowSize) + (i + 1);
+          int index_vm = (k * planeSize) + (j * rowSize) + (i - 1);
+          int index_up = (k * planeSize) + ((j + 1) * rowSize) + i;
+          int index_um = (k * planeSize) + ((j - 1) * rowSize) + i;
+
+          vortData[pos++] = ((vData[index_vp] - vData[index_vm]) / ddx) -
+            ((uData[index_up] - uData[index_um]) / ddy);
+          }
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::InitVariableData(int var, int &numberOfComponents, float *&varData,
+                                          int &planeSize, int &rowSize)
+{
+  // Set the number of components for this variable
+  numberOfComponents = 0;
+  if (this->VariableStruct[var] == SCALAR)
+    {
+    numberOfComponents = 1;
+    this->Data[var]->SetNumberOfComponents(numberOfComponents);
+    }
+  else if (this->VariableStruct[var] == VECTOR)
+    {
+    numberOfComponents = DIMENSION;
+    this->Data[var]->SetNumberOfComponents(numberOfComponents);
+    }
+
+  // Set the number of tuples which will allocate all tuples
+  this->Data[var]->SetNumberOfTuples(this->NumberOfTuples);
+
+  // For each component of the requested variable load data
+  varData = this->Data[var]->GetPointer(0);
+
+  // Entire block of data is read so to calculate index into that data we
+  // must use the entire Dimension and not the SubDimension
+  // Only the requested subextents are stored on this processor
+  planeSize = this->Dimension[0] * this->Dimension[1];
+  rowSize   = this->Dimension[0];
+}
+
+//----------------------------------------------------------------------------
+bool vtkWindBladeReader::SetUpGlobalData(const std::string &fileName,
+                                         std::stringstream& inStr)
+{
+  char inBuf[LINE_SIZE];
+  if (!inStr)
+    {
+    vtkWarningMacro("Could not open the global .wind file " << fileName);
+    }
+
+  std::string::size_type dirPos = std::string(fileName).rfind("/");
+  if (dirPos == std::string::npos)
+    {
+    vtkWarningMacro("Bad input file name " << fileName);
+    }
+  this->RootDirectory = std::string(fileName).substr(0, dirPos);
+
+  std::string keyword;
+  std::string rest;
+  std::string headerVersion;
+
+  while (inStr.getline(inBuf, LINE_SIZE))
+    {
+    if (inBuf[0] != '#' && inStr.gcount() > 1)
+      {
+      std::string line(inBuf);
+      std::string::size_type keyPos = line.find(' ');
+      keyword = line.substr(0, keyPos);
+      rest = line.substr(keyPos + 1);
+      std::istringstream lineStr(rest.c_str());
+
+      // Header information
+      if (keyword == "WIND_HEADER_VERSION")
+        {
+        lineStr >> headerVersion;
+        }
+
+      // Topology variables
+      else if (keyword == "GRID_SIZE_X")
+        {
+        lineStr >> this->Dimension[0];
+        }
+      else if (keyword == "GRID_SIZE_Y")
+        {
+        lineStr >> this->Dimension[1];
+        }
+      else if (keyword == "GRID_SIZE_Z")
+        {
+        lineStr >> this->Dimension[2];
+        }
+      else if (keyword == "GRID_DELTA_X")
+        {
+        lineStr >> this->Step[0];
+        }
+      else if (keyword == "GRID_DELTA_Y")
+        {
+        lineStr >> this->Step[1];
+        }
+      else if (keyword == "GRID_DELTA_Z")
+        {
+        lineStr >> this->Step[2];
+        }
+
+      // Geometry variables
+      else if (keyword == "USE_TOPOGRAPHY_FILE")
+        {
+        lineStr >> this->UseTopographyFile;
+        }
+      else if (keyword == "TOPOGRAPHY_FILE")
+        {
+        this->TopographyFile = rest;
+        }
+      else if (keyword == "COMPRESSION")
+        {
+        lineStr >> this->Compression;
+        }
+      else if (keyword == "FIT")
+        {
+        lineStr >> this->Fit;
+        }
+
+      // Time variables
+      else if (keyword == "TIME_STEP_FIRST")
+        {
+        lineStr >> this->TimeStepFirst;
+        }
+      else if (keyword == "TIME_STEP_LAST")
+        {
+        lineStr >> this->TimeStepLast;
+        }
+      else if (keyword == "TIME_STEP_DELTA")
+        {
+        lineStr >> this->TimeStepDelta;
+        }
+
+      // Turbine variables
+      else if (keyword == "USE_TURBINE_FILE")
+        {
+        lineStr >> this->UseTurbineFile;
+        }
+      else if (keyword == "TURBINE_DIRECTORY")
+        {
+        this->TurbineDirectory = rest;
+        }
+      else if (keyword == "TURBINE_TOWER")
+        {
+        this->TurbineTowerName = rest;
+        }
+      else if (keyword == "TURBINE_BLADE")
+        {
+        this->TurbineBladeName = rest;
+        }
+
+      // Data variables
+      else if (keyword == "DATA_DIRECTORY")
+        {
+        this->DataDirectory = rest;
+        }
+      else if (keyword == "DATA_BASE_FILENAME")
+        {
+        this->DataBaseName = rest;
+        }
+      else if (keyword == "DATA_VARIABLES")
+        {
+        lineStr >> this->NumberOfFileVariables;
+        this->ReadDataVariables(inStr);
+        if(this->FindVariableOffsets() == false)
+          {
+          return false;
+          }
+        }
+      }
+    }
+  if (this->TimeStepFirst < this->TimeStepLast)
+    {
+    this->NumberOfTimeSteps = ((this->TimeStepLast - this->TimeStepFirst) /
+                                this->TimeStepDelta) + 1;
+    }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::ProcessZCoords(float *topoData, float *zValues)
+{
+  // Initial z coordinate processing
+  float* zedge = new float[this->Dimension[2] + 1];
+  float* z     = new float[this->Dimension[2]];
+  float  zb;
+  int    ibctopbot = 1;
+
+  if (ibctopbot == 1)
+    {
+    for (int k = 0; k <= this->Dimension[2]; k++)
+      {
+      zedge[k] = k * this->Step[2];
+      }
+    zb = zedge[this->Dimension[2]];
+    for (int k = 0; k < this->Dimension[2]; k++)
+      {
+      z[k] = k * this->Step[2] + 0.5 * this->Step[2];
+      }
+    }
+
+  else
+    {
+    for (int k = 0; k < this->Dimension[2]; k++)
+      {
+      z[k] = k * this->Step[2];
+      }
+    zb = z[this->Dimension[2] - 1];
+    }
+
+  // Use cubic spline or deformation to calculate z values
+  int npoints = 31;
+  float* zdata = new float[npoints];
+  float* zcoeff = new float[npoints];
+  float zcrdata[] = {
+        0.0 ,    2.00,    4.00,     6.00,      8.00,
+       10.00,   14.00,   18.00,    22.00,     26.00,
+       30.00,   34.00,   40.00,    50.00,     70.00,
+      100.00,  130.00,  160.00,   200.00,    250.00,
+      300.00,  350.00,  450.00,   550.00,    750.00,
+      950.00, 1150.00, 1400.00,  1700.00,   2000.00,   2400.00 };
+
+  // No deformation, use spline to define z coefficients
+  if (this->Compression == 0.0)
+    {
+    for (int i = 0; i < npoints; i++)
+      {
+      zdata[i] = (z[i] * zb) / z[npoints - 1];
+      }
+
+    // Call spline with zcoeff being the answer
+    this->Spline(zdata, zcrdata, npoints, 99.0e31, 99.0e31, zcoeff);
+    }
+
+  // Fill the zValues array depending on compression
+  int planeSize = this->Dimension[0] * this->Dimension[1];
+  int rowSize = this->Dimension[0];
+  int flag = 0;
+
+  for (int k = 0; k < this->Dimension[2]; k++)
+    {
+    for (int j = 0; j < this->Dimension[1]; j++)
+      {
+      for (int i = 0; i < this->Dimension[0]; i++)
+        {
+        int index = (k * planeSize) + (j * rowSize) + i;
+        int tIndex = (j * rowSize) + i;
+
+        if (this->Compression == 0.0)
+          {
+          // Use spline interpolation
+          float zinterp;
+          this->Splint(zdata, zcrdata, zcoeff, npoints, z[k], &zinterp, flag);
+          zValues[index] = zinterp;
+          }
+        else
+          {
+          // Use deformation
+          zValues[index] = GDeform(z[k], zb, flag) *
+            (zb - topoData[tIndex]) / zb + topoData[tIndex];
+          }
+        }
+      }
+    }
+
+  delete [] zedge;
+  delete [] z;
+  delete [] zdata;
+  delete [] zcoeff;
+}
+
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::ReadBladeHeader(const std::string &fileName,
+                                         std::stringstream &inStr,
+                                         int &numColumns)
+{
+  char inBuf[LINE_SIZE];
+  // File is ASCII text so read until EOF
+  float hubHeight, bladeLength, maxRPM, xPos, yPos, yawAngle;
+  float angularVelocity, angleBlade1;
+  int numberOfBlades;
+  int towerID;
+  // all header stuff is here to deal with wind data format changes
+  // number of columns tells us if the turbine tower file has at least 13
+  // columns. if so then we are dealing with a wind data format that has
+  // an extra header in the turbine blade files
+  numColumns = 0;
+
+  // test first line in turbine tower file to see if it has at least 13th column
+  // if so then this is indication of "new" format
+  if (inStr.getline(inBuf, LINE_SIZE))
+    {
+    size_t len = strlen(inBuf);
+    // number of lines corresponds to number of spaces
+    for (size_t j = 0; j < len; j++)
+      {
+      if (inBuf[j] == ' ')
+        {
+        numColumns++;
+        }
+      }
+    }
+  else
+    {
+    std::cout << fileName.c_str() << " is empty!\n";
+    }
+  // reset seek position
+  inStr.seekg(0, std::ios_base::beg);
+  inStr.clear();
+
+  // make sure we skip lines with one character (\n)
+  while (inStr.getline(inBuf, LINE_SIZE) && inStr.gcount() > 1)
+    {
+    std::istringstream line(inBuf);
+    line >> towerID >> hubHeight >> bladeLength >> numberOfBlades >> maxRPM;
+    line >> xPos >> yPos;
+    line >> yawAngle >> angularVelocity >> angleBlade1;
+
+    this->XPosition->InsertNextValue(xPos);
+    this->YPosition->InsertNextValue(yPos);
+    this->HubHeight->InsertNextValue(hubHeight);
+    this->BladeCount->InsertNextValue(numberOfBlades);
+    this->BladeLength->InsertNextValue(bladeLength);
+    this->AngularVeloc->InsertNextValue(angularVelocity);
+    }
+  this->NumberOfBladeTowers = XPosition->GetNumberOfTuples();
+}
+
+//----------------------------------------------------------------------------
+void vtkWindBladeReader::ReadBladeData(std::stringstream &inStr)
+{
+  char inBuf[LINE_SIZE];
   // Allocate space for points and cells
   this->BPoints->Allocate(this->NumberOfBladePoints, this->NumberOfBladePoints);
   vtkUnstructuredGrid* blade = GetBladeOutput();
@@ -2325,6 +2071,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   bladeDragUVW->Delete();
   bladeLiftUVW->Delete();
 }
+
 
 //----------------------------------------------------------------------------
 void vtkWindBladeReader::SelectionCallback(
