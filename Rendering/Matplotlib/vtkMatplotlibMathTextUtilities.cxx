@@ -222,9 +222,33 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
           !PyImport_ImportModule("matplotlib") ||
           PyErr_Occurred())
         {
-        vtkMplStartUpDebugMacro("Error occurred. Writing exception info to "
-                                "stdout/stderr.");
-        PyErr_PrintEx(0);
+        // Fetch the exception info. Note that value and traceback may still be
+        // NULL after the call to PyErr_Fetch().
+        PyObject *type = NULL;
+        PyObject *value = NULL;
+        PyObject *traceback = NULL;
+        PyErr_Fetch(&type, &value, &traceback);
+        SmartPyObject typeStr(PyObject_Str(type));
+        SmartPyObject valueStr(PyObject_Str(value));
+        SmartPyObject tracebackStr(PyObject_Str(traceback));
+        vtkMplStartUpDebugMacro(
+              "Error during matplotlib import:\n"
+              << "\nStack:\n"
+              << (tracebackStr.GetPointer() == NULL
+                  ? "(none)"
+                  : const_cast<char*>(
+                      PyString_AsString(tracebackStr.GetPointer())))
+              << "\nValue:\n"
+              << (valueStr.GetPointer() == NULL
+                  ? "(none)"
+                  : const_cast<char*>(
+                      PyString_AsString(valueStr.GetPointer())))
+              << "\nType:\n"
+              << (typeStr.GetPointer() == NULL
+                  ? "(none)"
+                  : const_cast<char*>(
+                      PyString_AsString(typeStr.GetPointer()))));
+        PyErr_Clear();
         vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
         return NULL;
         }
@@ -345,11 +369,35 @@ bool vtkMatplotlibMathTextUtilities::CheckForError()
   PyObject *exception = PyErr_Occurred();
   if (exception)
     {
-    vtkDebugMacro(<< "Python exception raised.");
     if (this->Debug)
       {
-      PyErr_PrintEx(0);
+      // Fetch the exception info. Note that value and traceback may still be
+      // NULL after the call to PyErr_Fetch().
+      PyObject *type = NULL;
+      PyObject *value = NULL;
+      PyObject *traceback = NULL;
+      PyErr_Fetch(&type, &value, &traceback);
+      SmartPyObject typeStr(PyObject_Str(type));
+      SmartPyObject valueStr(PyObject_Str(value));
+      SmartPyObject tracebackStr(PyObject_Str(traceback));
+      vtkWarningMacro(<< "Python exception raised:\n"
+                      << "\nStack:\n"
+                      << (tracebackStr.GetPointer() == NULL
+                          ? "(none)"
+                          : const_cast<char*>(
+                            PyString_AsString(tracebackStr.GetPointer())))
+                      << "\nValue:\n"
+                      << (valueStr.GetPointer() == NULL
+                          ? "(none)"
+                          : const_cast<char*>(
+                            PyString_AsString(valueStr.GetPointer())))
+                      << "\nType:\n"
+                      << (typeStr.GetPointer() == NULL
+                          ? "(none)"
+                          : const_cast<char*>(
+                            PyString_AsString(typeStr.GetPointer()))));
       }
+    PyErr_Clear();
     return true;
     }
   return false;
