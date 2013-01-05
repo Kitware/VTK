@@ -28,6 +28,7 @@
 #include "vtksys/SystemTools.hxx"
 
 #include <sstream>
+#include <vector>
 
 vtkStandardNewMacro(vtkPWindBladeReader);
 
