@@ -23,31 +23,32 @@
 
 namespace {
 
+
 // Description:
 // For all cells in the input "usg", for a specific array
 // "V" interpolate to quadrature points using the given
 // dictionary "dict" into "interpolated". Additionally if
-// "indexes" is not 0 then track the indexes of where the
+// "indices" is not 0 then track the indices of where the
 // values from each cell start as well. In the case of
 // an error the return is 0.
-template<class T>
+template<class TV, class TI>
 int Interpolate(
         vtkUnstructuredGrid *usg,
         const vtkIdType nCellsUsg,
-        T *pV,
+        TV *pV,
         const int nCompsV,
         vtkQuadratureSchemeDefinition **dict,
         vtkDoubleArray *interpolated,
-        vtkIdType *indexes)
+        TI *indices)
 {
   // Walk cells.
   vtkIdType currentIndex=0;
   for (vtkIdType cellId=0; cellId<nCellsUsg; ++cellId)
     {
     // Point to the start of the data associated with this cell.
-    if (indexes!=NULL)
+    if (indices!=NULL)
       {
-      indexes[cellId]=currentIndex;
+      indices[cellId]=static_cast<TI>(currentIndex);
       }
     // Grab the cell's associated shape function definition.
     int cellType=usg->GetCellType(cellId);
@@ -89,6 +90,28 @@ int Interpolate(
       }
     }
   return 1;
+}
+
+// Description:
+// Dispatch helper, descides what type of indices we are working with
+template<class TV>
+int Interpolate(
+        vtkUnstructuredGrid *usg,
+        const vtkIdType nCellsUsg,
+        TV *pV,
+        const int nCompsV,
+        vtkQuadratureSchemeDefinition **dict,
+        vtkDoubleArray *interpolated,
+        void *indices,
+        int indexType)
+{
+  switch(indexType)
+    {
+    vtkTemplateMacro(
+      return Interpolate(usg,nCellsUsg,pV,nCompsV,dict,interpolated,(VTK_TT*)indices);
+      );
+    }
+  return 0;
 }
 
 //------------------------------------------------------------------------------

@@ -30,6 +30,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkQuadratureSchemeDefinition.h"
+#include "vtkInformationStringKey.h"
 
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>
@@ -670,6 +671,30 @@ int vtkXMLReader::CreateInformationKey(
     {
     vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
     key->RestoreState(info, eInfoKey);
+    vtkIndent indent;
+    }
+
+  if ((strcmp(location, "vtkQuadratureSchemeDefinition")==0)
+      &&(strcmp(name, "DICTIONARY")==0))
+    {
+    vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
+    key->RestoreState(info, eInfoKey);
+    vtkIndent indent;
+    }
+
+  if ((strcmp(location, "vtkQuadratureSchemeDefinition")==0)
+      &&(strcmp(name, "QUADRATURE_OFFSET_ARRAY_NAME")==0))
+    {
+    const char *value=eInfoKey->GetAttribute("value");
+    if (value==NULL)
+      {
+      vtkWarningMacro("required attribute \"value\" for "
+                      "\"InformationKey\" with name \"QUADRATURE_OFFSET_ARRAY_NAME\" "
+                      "is missing.");
+      return 0;
+      }
+    vtkInformationStringKey *key=vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME();
+    key->Set(info, value);
     vtkIndent indent;
     }
 

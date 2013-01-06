@@ -40,6 +40,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkQuadratureSchemeDefinition.h"
+#include "vtkInformationStringKey.h"
 
 #include <vtksys/auto_ptr.hxx>
 #include <vtksys/ios/sstream>
@@ -1777,19 +1778,43 @@ void vtkXMLWriter::WriteArrayAppended(
 
   //
   offs.GetPosition(timestep) = this->ReserveAttributeSpace("offset");
+
   // Write information in the recognized keys associated with this array.
   vtkInformation *info=a->GetInformation();
-  vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
-  if (info->Has(key))
+
+  vtkInformationQuadratureSchemeDefinitionVectorKey *dictKey=vtkQuadratureSchemeDefinition::DICTIONARY();
+  bool hasDictKey=info->Has(dictKey);
+
+  vtkInformationStringKey *offsNameKey=vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME();
+  bool hasOffsNameKey = info->Has(offsNameKey);
+
+  if (hasOffsNameKey || hasDictKey)
     {
-    // Close the header
+    // close header
+    // with </DataArray> or </Array>
     os << ">" << endl;
+    shortFormatTag=0;
+    }
+
+  if (info->Has(dictKey))
+    {
     vtkXMLDataElement *eKey=vtkXMLDataElement::New();
-    key->SaveState(info,eKey);
+    dictKey->SaveState(info,eKey);
     eKey->PrintXML(os,indent.GetNextIndent());
     eKey->Delete();
-    shortFormatTag=0; // close with </DataArray> or </Array>
     }
+
+  if (info->Has(offsNameKey))
+    {
+    vtkXMLDataElement *eKey=vtkXMLDataElement::New();
+    eKey->SetName("InformationKey");
+    eKey->SetAttribute("name","QUADRATURE_OFFSET_ARRAY_NAME");
+    eKey->SetAttribute("location","vtkQuadratureSchemeDefinition");
+    eKey->SetAttribute("value",offsNameKey->Get(info));
+    eKey->PrintXML(os,indent.GetNextIndent());
+    eKey->Delete();
+    }
+
   // Close tag.
   this->WriteArrayFooter(os, indent, a, shortFormatTag);
 }

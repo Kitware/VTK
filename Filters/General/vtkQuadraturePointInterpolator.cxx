@@ -141,8 +141,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
   int nArrays
     = usgOut->GetPointData()->GetNumberOfArrays();
 
-  vtkIdTypeArray *offsets=vtkIdTypeArray::SafeDownCast(this->GetInputArrayToProcess(0,usgOut));
-
+  vtkDataArray *offsets=this->GetInputArrayToProcess(0,usgOut);
   if(offsets == NULL)
     {
     vtkWarningMacro("no Offset array, skipping.");
@@ -150,6 +149,8 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
     }
 
   const char* arrayOffsetName = offsets->GetName();
+  void *pOffsets = offsets->GetVoidPointer(0);
+  int O_Type = offsets->GetDataType();
 
   vtkInformation *info=offsets->GetInformation();
   vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
@@ -162,19 +163,15 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
   vtkQuadratureSchemeDefinition **dict=new vtkQuadratureSchemeDefinition *[dictSize];
   key->GetRange(info,dict,0,0,dictSize);
 
-  vtkIdType *pOffsets=offsets->GetPointer(0);
 
   // interpolate the arrays
   for (int arrayId=0; arrayId<nArrays; ++arrayId)
     {
-    // Grab the next array, process it only if we have floating
-    // point data.
+    // Grab the next array
     vtkDataArray *V=usgOut->GetPointData()->GetArray(arrayId);
     int V_type=V->GetDataType();
-    if (! ((V_type==VTK_FLOAT)||(V_type==VTK_DOUBLE)))
-      {
-      continue;
-      }
+    void *pV=V->GetVoidPointer(0);
+
     // Use two arrays, one with the interpolated values,
     // the other with offsets to the start of each cell's
     // interpolated values.
@@ -187,41 +184,31 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
     interpolatedName << V->GetName();// << "_QP_Interpolated";
     interpolated->SetName(interpolatedName.str().c_str());
     usgOut->GetFieldData()->AddArray(interpolated);
-    interpolated->GetInformation()->Set(vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME(), arrayOffsetName);
+    interpolated->GetInformation()->Set(
+            vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME(),
+            arrayOffsetName);
     interpolated->Delete();
-
-    // Get the dictionary associated with this array.We are going
-    // to make a copy for efficiency.
 
     // For all cells interpolate.
     switch (V_type)
       {
-      case VTK_DOUBLE:
-        {
-        vtkDoubleArray *V_d=static_cast<vtkDoubleArray *>(V);
-        double *pV_d=V_d->GetPointer(0);
-        if (!Interpolate(usgOut,nCells,pV_d,nComps,dict,interpolated,pOffsets))
+      vtkTemplateMacro(
+        if (!Interpolate(
+                usgOut,
+                nCells,
+                static_cast<VTK_TT*>(pV),
+                nComps,
+                dict,
+                interpolated,
+                pOffsets,
+                O_Type))
           {
           vtkWarningMacro("Failed to interpolate fields "
                           "to quadrature points. Aborting.");
           return 0;
           }
-        break;
-        }
-      case VTK_FLOAT:
-        {
-        vtkFloatArray *V_f=static_cast<vtkFloatArray *>(V);
-        float *pV_f=V_f->GetPointer(0);
-        if (!Interpolate(usgOut,nCells,pV_f,nComps,dict,interpolated,pOffsets))
-          {
-          vtkWarningMacro("Failed to interpolate fields "
-                          "to quadrature points. Aborting.");
-          return 0;
-          }
-        break;
-        }
+        );
       }
-
     }
   delete [] dict;
 
