@@ -82,6 +82,7 @@ vtkAMREnzoReader::vtkAMREnzoReader()
   this->Internal = new vtkEnzoReaderInternal();
   this->IsReady  = false;
   this->Initialize();
+  this->ConvertToCGS = 1;
 }
 
 //-----------------------------------------------------------------------------
