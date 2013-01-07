@@ -903,6 +903,35 @@ void vtkWin32OpenGLRenderWindow::InitializeApplication()
 
 void vtkWin32OpenGLRenderWindow::CreateAWindow()
 {
+
+  WNDCLASS wndClass;
+  // has the class been registered ?
+#ifdef UNICODE
+  if (!GetClassInfo(this->ApplicationInstance,L"vtkOpenGL",&wndClass))
+#else
+  if (!GetClassInfo(this->ApplicationInstance,"vtkOpenGL",&wndClass))
+#endif
+    {
+    wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+    wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
+    wndClass.cbClsExtra = 0;
+    wndClass.hInstance = this->ApplicationInstance;
+    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    wndClass.lpszMenuName = NULL;
+#ifdef UNICODE
+    wndClass.lpszClassName = L"vtkOpenGL";
+#else
+    wndClass.lpszClassName = "vtkOpenGL";
+#endif
+    // vtk doesn't use the first extra vtkLONG's worth of bytes,
+    // but app writers may want them, so we provide them. VTK
+    // does use the second vtkLONG's worth of bytes of extra space.
+    wndClass.cbWndExtra = 2 * sizeof(vtkLONG);
+    RegisterClass(&wndClass);
+    }
+
   if(this->WindowIdReferenceCount == 0)
     {
     static int count = 1;
@@ -910,7 +939,6 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
 
     if (!this->WindowId)
       {
-      WNDCLASS wndClass;
       this->DeviceContext = 0;
 
       int len = static_cast<int>(strlen("Visualization Toolkit - Win32OpenGL #"))
@@ -920,33 +948,6 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
       sprintf(windowName,"Visualization Toolkit - Win32OpenGL #%i",count++);
       this->SetWindowName(windowName);
       delete [] windowName;
-
-      // has the class been registered ?
-#ifdef UNICODE
-      if (!GetClassInfo(this->ApplicationInstance,L"vtkOpenGL",&wndClass))
-#else
-        if (!GetClassInfo(this->ApplicationInstance,"vtkOpenGL",&wndClass))
-#endif
-          {
-          wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-          wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
-          wndClass.cbClsExtra = 0;
-          wndClass.hInstance = this->ApplicationInstance;
-          wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-          wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-          wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-          wndClass.lpszMenuName = NULL;
-#ifdef UNICODE
-          wndClass.lpszClassName = L"vtkOpenGL";
-#else
-          wndClass.lpszClassName = "vtkOpenGL";
-#endif
-          // vtk doesn't use the first extra vtkLONG's worth of bytes,
-          // but app writers may want them, so we provide them. VTK
-          // does use the second vtkLONG's worth of bytes of extra space.
-          wndClass.cbWndExtra = 2 * sizeof(vtkLONG);
-          RegisterClass(&wndClass);
-          }
 
 #ifdef UNICODE
       wchar_t *wname = new wchar_t [mbstowcs(NULL, this->WindowName, 32000)+1];
