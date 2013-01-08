@@ -3,6 +3,13 @@ find_package(JNI REQUIRED)
 
 include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
 
+# Add the option for build the SWT component to VTK.
+option(VTK_JAVA_SWT_COMPONENT "Should SWT component for Java be built (it requires Eclipse)?" OFF)
+
+if(VTK_JAVA_SWT_COMPONENT)
+  find_package(SWT REQUIRED)
+endif()
+
 set(WrappingJava_SRCS
   vtkJavaUtil.cxx
   )
@@ -147,15 +154,35 @@ endif()
 if(vtkRenderingCore_ENABLED AND vtkIOImage_ENABLED)
   set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
     vtkPanel
+
+    rendering/vtkAbstractComponent
+    rendering/vtkComponent
+    rendering/vtkEventInterceptor
+    rendering/vtkInteractorForwarder
+    rendering/awt/vtkAwtComponent
+    rendering/awt/vtkInternalAwtComponent
     )
+  if(VTK_JAVA_SWT_COMPONENT)
+    set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
+      rendering/swt/vtkSwtComponent
+      rendering/swt/vtkInternalSwtComponent
+      rendering/swt/vtkSwtInteractorForwarderDecorator
+    )
+  endif()
   set(VTK_JAVA_SAMPLE_DEPENDENCIES ${VTK_JAVA_SAMPLE_DEPENDENCIES}
     InternalFrames
     Demo
     SimpleVTK
     VTKCanvas
     ReleaseVtkPanel
+    rendering/AwtConeRendering
     rendering/annotation/LabeledCubeAxesActor
     )
+  if(VTK_JAVA_SWT_COMPONENT)
+    set(VTK_JAVA_SAMPLE_DEPENDENCIES ${VTK_JAVA_SAMPLE_DEPENDENCIES}
+      rendering/SwtConeRendering
+    )
+  endif()
 endif()
 
 if(vtkFiltersModeling_ENABLED AND vtkIOImage_ENABLED)
@@ -189,13 +216,23 @@ foreach(jfile ${VTK_JAVA_DEPENDENCIES})
   endif()
 endforeach()
 
+if(WIN32)
+  set(SEPARATOR "\;")
+else()
+  set(SEPARATOR ":")
+endif()
+
+if(VTK_JAVA_SWT_COMPONENT)
+  set(SWT_FILES "${VTK_BINARY_DIR}/java/vtk/rendering/swt/*.java")
+endif()
+
 # Compile the Java classes
 add_custom_command(
   OUTPUT ${VTK_BINARY_DIR}/java/javac_stamp.txt
   DEPENDS ${VTK_JAVA_SOURCE_FILES}
   COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS}
-    -source 1.5 -classpath ${VTK_JAVA_HOME}/.. -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
-    ${VTK_BINARY_DIR}/java/vtk/*.java
+    -source 1.5 -classpath ${VTK_JAVA_HOME}/..${SEPARATOR}${ECLIPSE_SWT_LIBRARIES} -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
+    ${VTK_BINARY_DIR}/java/vtk/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/awt/*.java ${SWT_FILES}
   COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_stamp.txt
   COMMENT "Compiling Java Classes"
   )
@@ -211,12 +248,6 @@ add_custom_command(
   )
 
 if(BUILD_TESTING)
-  if(WIN32)
-    set(SEPARATOR "\;")
-  else()
-    set(SEPARATOR ":")
-  endif()
-
   foreach(jfile
     Regression
     ConcurrencyGC
