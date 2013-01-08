@@ -443,38 +443,32 @@ static void vtkExtractArraysAddColumnValue(
 
 //------------------------------------------------------------------------------
 void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForQuery(
-  unsigned int composite_index, double time, vtkDataObject* input)
+  unsigned int composite_index, double vtkNotUsed(time), vtkDataObject* input)
 {
   vtkFieldData* inFD = 0;
-  const char* idarrayname = 0;
   if (this->FieldType == vtkSelectionNode::CELL)
     {
     inFD = vtkDataSet::SafeDownCast(input)->GetCellData();
-    idarrayname = "vtkOriginalCellIds";
     }
   else if (this->FieldType == vtkSelectionNode::POINT)
     {
     inFD = vtkDataSet::SafeDownCast(input)->GetPointData();
-    idarrayname = "vtkOriginalPointIds";
     }
   else if (this->FieldType == vtkSelectionNode::ROW)
     {
     inFD = vtkTable::SafeDownCast(input)->GetRowData();
-    idarrayname = "vtkOriginalRowIds";
     }
   else if (this->FieldType == vtkSelectionNode::FIELD)
     {
-    idarrayname = NULL;
+    inFD = input->GetFieldData();
     }
-  else
+
+  if (!inFD)
     { // We don't handle graph selections yet
     vtkGenericWarningMacro(
       "Ignoring unsupported field type " << this->FieldType << ".");
     return;
     }
-
-  vtkIdTypeArray* idsArray = idarrayname ?
-    vtkIdTypeArray::SafeDownCast(inFD->GetArray(idarrayname)) : NULL;
 
   vtkIdType numIDs = inFD->GetNumberOfTuples();
   if (numIDs <= 0)
