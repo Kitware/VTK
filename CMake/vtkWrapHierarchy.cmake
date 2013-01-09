@@ -39,7 +39,7 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
 
   # write wrapper-tool arguments to a file
   string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
-  set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.args)
+  set(_args_file ${VTK_MODULES_DIR}/${TARGET}.args)
   configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
                  ${_args_file} @ONLY)
 
@@ -125,9 +125,9 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   # call are located under _LINK_DEPENDS.
   foreach(dep ${${vtk-module}_LINK_DEPENDS})
     if(NOT "${vtk-module}" STREQUAL "${dep}")
-      if(NOT ${dep}_EXCLUDE_FROM_WRAPPING AND DEFINED ${dep}_BINARY_DIR)
+      if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
         list(APPEND OTHER_HIERARCHY_FILES
-          "${quote}${${dep}_BINARY_DIR}/${dep}Hierarchy.txt${quote}")
+          "${quote}${VTK_MODULES_DIR}/${dep}Hierarchy.txt${quote}")
         list(APPEND OTHER_HIERARCHY_TARGETS ${dep})
       endif()
     endif()
