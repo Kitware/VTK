@@ -39,6 +39,7 @@
 #include "vtkSmartPointer.h"      // For internal method.
 
 class vtkDataArraySelection;
+class vtkDoubleArray;
 class vtkIdTypeArray;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
@@ -97,6 +98,11 @@ public:
   // Sets the phase offset for each mode. Each shift is reset to 0.
   virtual void ResetPhaseShifts();
   virtual void SetPhaseShift(int index, double shift);
+
+  // Description:
+  // NOTE: This is not thread-safe.
+  virtual vtkDoubleArray* GetFrequencyScales();
+  virtual vtkDoubleArray* GetPhaseShifts();
 
   // Description:
   // Returns true if the given file can be read by this reader.

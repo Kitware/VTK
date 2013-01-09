@@ -34,6 +34,7 @@
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -503,6 +504,14 @@ public:
   vtkSmartPointer<vtkPoints> PointCache;
   vtkSmartPointer<vtkMultiBlockDataSet> MeshCache;
   MidpointIdMap MidpointIdCache;
+
+  // Description:
+  // These are use by GetFrequencyScales() and GetPhaseShifts() methods to
+  // returns the values of this->FrequencyScales and this->PhaseShifts as
+  // vtkDoubleArray. Don't use these otherwise since these are only populated in
+  // the corresponding methods.
+  vtkNew<vtkDoubleArray> FrequencyScalesArray;
+  vtkNew<vtkDoubleArray> PhaseShiftsArray;
 };
 
 //-----------------------------------------------------------------------------
@@ -1108,6 +1117,19 @@ void vtkSLACReader::SetFrequencyScale(int index, double scale)
 }
 
 //-----------------------------------------------------------------------------
+vtkDoubleArray* vtkSLACReader::GetFrequencyScales()
+{
+  this->Internal->FrequencyScalesArray->SetNumberOfTuples(
+    static_cast<vtkIdType>(this->Internal->FrequencyScales.size()));
+
+  std::copy(this->Internal->FrequencyScales.begin(),
+            this->Internal->FrequencyScales.end(),
+            this->Internal->FrequencyScalesArray->GetPointer(0));
+
+  return this->Internal->FrequencyScalesArray.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
 void vtkSLACReader::ResetPhaseShifts()
 {
   std::fill(this->Internal->PhaseShifts.begin(),
@@ -1125,6 +1147,19 @@ void vtkSLACReader::SetPhaseShift(int index, double scale)
     }
 
   this->Internal->PhaseShifts[index] = scale;
+}
+
+//-----------------------------------------------------------------------------
+vtkDoubleArray* vtkSLACReader::GetPhaseShifts()
+{
+  this->Internal->PhaseShiftsArray->SetNumberOfTuples(
+    static_cast<vtkIdType>(this->Internal->PhaseShifts.size()));
+
+  std::copy(this->Internal->PhaseShifts.begin(),
+            this->Internal->PhaseShifts.end(),
+            this->Internal->PhaseShiftsArray->GetPointer(0));
+
+  return this->Internal->PhaseShiftsArray.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
