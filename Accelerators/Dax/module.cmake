@@ -1,0 +1,14 @@
+vtk_module(vtkAcceleratorsDax
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkFiltersCore
+    vtkFiltersGeometry
+  TEST_DEPENDS
+    vtkIOXML
+    vtkIOCore
+  EXCLUDE_FROM_ALL
+  EXCLUDE_FROM_WRAPPING
+  EXCLUDE_FROM_WRAP_HIERARCHY
+  )
