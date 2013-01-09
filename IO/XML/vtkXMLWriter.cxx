@@ -1783,10 +1783,10 @@ void vtkXMLWriter::WriteArrayAppended(
   vtkInformation *info=a->GetInformation();
 
   vtkInformationQuadratureSchemeDefinitionVectorKey *dictKey=vtkQuadratureSchemeDefinition::DICTIONARY();
-  bool hasDictKey=info->Has(dictKey);
+  bool hasDictKey= static_cast<bool>(info->Has(dictKey));
 
   vtkInformationStringKey *offsNameKey=vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME();
-  bool hasOffsNameKey = info->Has(offsNameKey);
+  bool hasOffsNameKey = static_cast<bool>(info->Has(offsNameKey));
 
   if (hasOffsNameKey || hasDictKey)
     {
