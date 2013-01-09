@@ -230,10 +230,6 @@ macro(vtk_module_test)
     set(vtk_module_test_called 1) # Run once in a given scope.
     include(../../module.cmake) # Load module meta-data
     vtk_module_config(${vtk-module-test}-Cxx ${${vtk-module-test}-Cxx_DEPENDS})
-    if(${vtk-module-test}-Cxx_DEFINITIONS)
-      set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
-        ${${vtk-module-test}-Cxx_DEFINITIONS})
-    endif()
     if(${vtk-module-test}-Cxx_INCLUDE_DIRS)
       include_directories(${${vtk-module-test}-Cxx_INCLUDE_DIRS})
     endif()
@@ -391,6 +387,11 @@ macro(vtk_module_test_executable test_exe_name)
   # No forwarding or export for test executables.
   add_executable(${test_exe_name} ${ARGN})
   target_link_libraries(${test_exe_name} ${${vtk-module-test}-Cxx_LIBRARIES})
+
+  if(${vtk-module-test}-Cxx_DEFINITIONS)
+    set_property(TARGET ${test_exe_name} APPEND PROPERTY COMPILE_DEFINITIONS
+      ${${vtk-module-test}-Cxx_DEFINITIONS})
+  endif()
 endmacro()
 
 function(vtk_module_library name)
