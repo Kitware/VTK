@@ -1010,7 +1010,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
     // private or templated objects.
     int *modeFDCopy = new int[modeFDVector.size()];
     std::copy(modeFDVector.begin(), modeFDVector.end(), modeFDCopy);
-    if (!this->ReadFieldData(modeFDCopy, modeFDVector.size(), compositeOutput))
+    if (!this->ReadFieldData(modeFDCopy, static_cast<int>(modeFDVector.size()), compositeOutput))
       {
       return 0;
       }
