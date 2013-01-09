@@ -78,7 +78,9 @@ protected:
   virtual int RestoreMeshCache(vtkMultiBlockDataSet *surfaceOutput,
                                vtkMultiBlockDataSet *volumeOutput,
                                vtkMultiBlockDataSet *compositeOutput);
-  virtual int ReadFieldData(int modeFD, vtkMultiBlockDataSet *output);
+  virtual int ReadFieldData(const int *modeFDArray,
+                            int numModeFDs,
+                            vtkMultiBlockDataSet *output);
 
   virtual int ReadTetrahedronInteriorArray(int meshFD,
                                            vtkIdTypeArray *connectivity);

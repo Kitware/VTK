@@ -34,6 +34,7 @@
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -211,9 +212,17 @@ static int NetCDFTypeToVTKType(nc_type type)
 class vtkSLACReaderAutoCloseNetCDF
 {
 public:
+  vtkSLACReaderAutoCloseNetCDF()
+  {
+    this->FileDescriptor = -1;
+    this->ReferenceCount = new int;
+    *this->ReferenceCount = 1;
+  }
+
   vtkSLACReaderAutoCloseNetCDF(const char *filename, int omode,
-                               bool quiet=false) {
-    int errorcode = nc_open(filename, omode, &this->fd);
+                               bool quiet=false)
+  {
+    int errorcode = nc_open(filename, omode, &this->FileDescriptor);
     if (errorcode != NC_NOERR)
       {
       if (!quiet)
@@ -221,23 +230,54 @@ public:
         vtkGenericWarningMacro(<< "Could not open " << filename << endl
                                << nc_strerror(errorcode));
         }
-      this->fd = -1;
+      this->FileDescriptor = -1;
       }
+
+    // Reference count is maintained regardless of validity of FileDescriptor.
+    this->ReferenceCount = new int;
+    *this->ReferenceCount = 1;
   }
-  ~vtkSLACReaderAutoCloseNetCDF() {
-    if (this->fd != -1)
-      {
-      nc_close(this->fd);
-      }
+
+  ~vtkSLACReaderAutoCloseNetCDF()
+  {
+    this->UnReference();
   }
-  int operator()() const { return this->fd; }
-  bool Valid() const { return this->fd != -1; }
+
+  vtkSLACReaderAutoCloseNetCDF(const vtkSLACReaderAutoCloseNetCDF &src)
+  {
+    this->FileDescriptor = src.FileDescriptor;
+    this->ReferenceCount = src.ReferenceCount;
+    (*this->ReferenceCount)++;
+  }
+
+  void operator=(const vtkSLACReaderAutoCloseNetCDF &src)
+  {
+    this->UnReference();
+    this->FileDescriptor = src.FileDescriptor;
+    this->ReferenceCount = src.ReferenceCount;
+    (*this->ReferenceCount)++;
+  }
+
+  operator int() const { return this->FileDescriptor; }
+
+  bool Valid() const { return this->FileDescriptor != -1; }
 protected:
-  int fd;
-private:
-  vtkSLACReaderAutoCloseNetCDF();       // Not implemented
-  vtkSLACReaderAutoCloseNetCDF(const vtkSLACReaderAutoCloseNetCDF &); // Not implemented
-  void operator=(const vtkSLACReaderAutoCloseNetCDF &); // Not implemented
+  int FileDescriptor;
+  int *ReferenceCount;
+
+  void UnReference() {
+    assert(*this->ReferenceCount > 0);
+    (*this->ReferenceCount)--;
+    if (*this->ReferenceCount < 1)
+      {
+      if (this->FileDescriptor != -1)
+        {
+        nc_close(this->FileDescriptor);
+        }
+      delete this->ReferenceCount;
+      this->ReferenceCount = NULL;
+      }
+  }
 };
 
 //=============================================================================
@@ -444,11 +484,34 @@ public:
   std::map<double, vtkStdString> TimeStepToFile;
 
   // Description:
+  // The rates at which the mode fields repeat.
+  // Only valid when FrequencyModes is true.
+  std::vector<double> Frequencies;
+
+  // Description:
+  // The phases of the modes at the current time step. Set at the beginning of
+  // RequestData. Only valid when FreqencyModes is true.
+  std::vector<double> Phases;
+
+  // Description:
+  // Scale/offset for each of themodes. Only valid when FrequencyModes is true.
+  std::vector<double> FrequencyScales;
+  std::vector<double> PhaseShifts;
+
+  // Description:
   // References and shallow copies to the last output data.  We keep this
   // around in case we do not have to read everything in again.
   vtkSmartPointer<vtkPoints> PointCache;
   vtkSmartPointer<vtkMultiBlockDataSet> MeshCache;
   MidpointIdMap MidpointIdCache;
+
+  // Description:
+  // These are use by GetFrequencyScales() and GetPhaseShifts() methods to
+  // returns the values of this->FrequencyScales and this->PhaseShifts as
+  // vtkDoubleArray. Don't use these otherwise since these are only populated in
+  // the corresponding methods.
+  vtkNew<vtkDoubleArray> FrequencyScalesArray;
+  vtkNew<vtkDoubleArray> PhaseShiftsArray;
 };
 
 //-----------------------------------------------------------------------------
@@ -521,9 +584,9 @@ int vtkSLACReader::CanReadFile(const char *filename)
 
   // Check for the existence of several arrays we know should be in the file.
   int dummy;
-  if (nc_inq_varid(ncFD(), "coords", &dummy) != NC_NOERR) return 0;
-  if (nc_inq_varid(ncFD(), "tetrahedron_interior",&dummy) != NC_NOERR) return 0;
-  if (nc_inq_varid(ncFD(), "tetrahedron_exterior",&dummy) != NC_NOERR) return 0;
+  if (nc_inq_varid(ncFD, "coords", &dummy) != NC_NOERR) return 0;
+  if (nc_inq_varid(ncFD, "tetrahedron_interior",&dummy) != NC_NOERR) return 0;
+  if (nc_inq_varid(ncFD, "tetrahedron_exterior",&dummy) != NC_NOERR) return 0;
 
   return 1;
 }
@@ -613,7 +676,7 @@ int vtkSLACReader::RequestInformation(
   this->TimeStepModes = false;
   this->Internal->TimeStepToFile.clear();
   this->FrequencyModes = false;
-  this->Frequency = 0.0;
+  this->Internal->Frequencies.clear();
   if (!this->Internal->ModeFileNames.empty())
     {
     // Check the first mode file, assume that the rest follow.
@@ -622,11 +685,11 @@ int vtkSLACReader::RequestInformation(
     if (!modeFD.Valid()) return 0;
 
     int meshCoordsVarId, modeCoordsVarId;
-    CALL_NETCDF(nc_inq_varid(meshFD(), "coords", &meshCoordsVarId));
-    CALL_NETCDF(nc_inq_varid(modeFD(), "coords", &modeCoordsVarId));
+    CALL_NETCDF(nc_inq_varid(meshFD, "coords", &meshCoordsVarId));
+    CALL_NETCDF(nc_inq_varid(modeFD, "coords", &modeCoordsVarId));
 
-    if (   this->GetNumTuplesInVariable(meshFD(), meshCoordsVarId, 3)
-        != this->GetNumTuplesInVariable(modeFD(), modeCoordsVarId, 3) )
+    if (   this->GetNumTuplesInVariable(meshFD, meshCoordsVarId, 3)
+        != this->GetNumTuplesInVariable(modeFD, modeCoordsVarId, 3) )
       {
       vtkWarningMacro(<< "Mode file "
                       << this->Internal->ModeFileNames[0].c_str()
@@ -642,43 +705,46 @@ int vtkSLACReader::RequestInformation(
       // the difference, but things happen very quickly (less than nanoseconds)
       // in simulations that write out this data.  Thus, we expect large numbers
       // to be frequency (in Hz) and small numbers to be time (in seconds).
-      if (   (nc_get_scalar_double(modeFD(), "frequency", &this->Frequency) != NC_NOERR)
-          && (nc_get_scalar_double(modeFD(), "frequencyreal", &this->Frequency) != NC_NOERR) )
+      double frequency;
+      if (   (nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR)
+          && (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR) )
         {
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
         }
-      if (this->Frequency < 100)
+      if (frequency < 100)
         {
         this->TimeStepModes = true;
-        this->Internal->TimeStepToFile[this->Frequency]
+        this->Internal->TimeStepToFile[frequency]
           = this->Internal->ModeFileNames[0];
         }
       else
         {
         this->FrequencyModes = true;
+        this->Internal->Frequencies.resize(this->GetNumberOfModeFileNames());
+        this->Internal->Frequencies[0] = frequency;
         }
 
       //vtksys::RegularExpression imaginaryVar("_imag$");
 
       int ncoordDim;
-      CALL_NETCDF(nc_inq_dimid(modeFD(), "ncoord", &ncoordDim));
+      CALL_NETCDF(nc_inq_dimid(modeFD, "ncoord", &ncoordDim));
 
       int numVariables;
-      CALL_NETCDF(nc_inq_nvars(modeFD(), &numVariables));
+      CALL_NETCDF(nc_inq_nvars(modeFD, &numVariables));
 
       for (int i = 0; i < numVariables; i++)
         {
         int numDims;
-        CALL_NETCDF(nc_inq_varndims(modeFD(), i, &numDims));
+        CALL_NETCDF(nc_inq_varndims(modeFD, i, &numDims));
         if ((numDims < 1) || (numDims > 2)) continue;
 
         int dimIds[2];
-        CALL_NETCDF(nc_inq_vardimid(modeFD(), i, dimIds));
+        CALL_NETCDF(nc_inq_vardimid(modeFD, i, dimIds));
         if (dimIds[0] != ncoordDim) continue;
 
         char name[NC_MAX_NAME+1];
-        CALL_NETCDF(nc_inq_varname(modeFD(), i, name));
+        CALL_NETCDF(nc_inq_varname(modeFD, i, name));
         if (strcmp(name, "coords") == 0) continue;
         //if (this->FrequencyModes && imaginaryVar.find(name)) continue;
 
@@ -700,13 +766,14 @@ int vtkSLACReader::RequestInformation(
       vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
       if (!modeFD.Valid()) return 0;
 
-      if (   (nc_get_scalar_double(modeFD(), "frequency", &this->Frequency) != NC_NOERR)
-          && (nc_get_scalar_double(modeFD(), "frequencyreal", &this->Frequency) != NC_NOERR) )
+      double frequency;
+      if (   (nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR)
+          && (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR) )
         {
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
         }
-      this->Internal->TimeStepToFile[this->Frequency] = *fileitr;
+      this->Internal->TimeStepToFile[frequency] = *fileitr;
       }
 
     double range[2];
@@ -728,9 +795,47 @@ int vtkSLACReader::RequestInformation(
     }
   else if (this->FrequencyModes)
     {
+    // If we are in time steps modes, we need to read in the frequencies from
+    // all the files (and we have already read the first one) and record them.
+    std::vector<vtkStdString>::iterator fileitr =
+        this->Internal->ModeFileNames.begin();
+    fileitr++;
+    std::vector<double>::iterator frequencyiter =
+        this->Internal->Frequencies.begin();
+    frequencyiter++;
+    for ( ; fileitr != this->Internal->ModeFileNames.end();
+          fileitr++, frequencyiter++)
+      {
+      assert(frequencyiter != this->Internal->Frequencies.end());
+
+      vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
+      if (!modeFD.Valid()) return 0;
+
+      double frequency;
+      if (   (nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR)
+          && (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR) )
+        {
+        vtkWarningMacro(<< "Could not find frequency in mode data.");
+        return 0;
+        }
+      *frequencyiter = frequency;
+      }
+    assert(frequencyiter == this->Internal->Frequencies.end());
+
+    this->Internal->FrequencyScales.resize(
+          this->Internal->Frequencies.size(), 1.0);
+    this->Internal->PhaseShifts.resize(
+          this->Internal->Frequencies.size(), 0.0);
+
+    // When there is more than one frequency (defined in multiple mode files),
+    // the appropriate range is ill defined. Arbitrarily pick the smallest
+    // frequency (the largest range) so that all modes will cycle at least once
+    // within the range.
+    double minFrequency = *std::min_element(this->Internal->Frequencies.begin(),
+                                            this->Internal->Frequencies.end());
     double range[2];
     range[0] = 0;
-    range[1] = 1.0/this->Frequency;
+    range[1] = 1.0/minFrequency;
     surfaceOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),range,2);
     volumeOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),range,2);
     }
@@ -773,7 +878,18 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
   if (this->FrequencyModes)
     {
-    this->Phase = 2.0 * vtkMath::Pi()*(time*this->Frequency);
+    this->Internal->Phases.resize(this->Internal->Frequencies.size());
+    for (size_t modeIndex = 0;
+         modeIndex < this->Internal->Frequencies.size();
+         modeIndex++)
+      {
+      this->Internal->Phases[modeIndex] =
+          2.0 * vtkMath::Pi()*(time*this->Internal->Frequencies[modeIndex]);
+      }
+    }
+  else
+    {
+    this->Internal->Phases.clear();
     }
 
   int readMesh = !this->MeshUpToDate();
@@ -793,7 +909,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
     if (!this->ReadInternalVolume && !this->ReadExternalSurface) return 1;
 
-    if (!this->ReadConnectivity(meshFD(),surfaceOutput,volumeOutput)) return 0;
+    if (!this->ReadConnectivity(meshFD,surfaceOutput,volumeOutput)) return 0;
 
     this->UpdateProgress(0.25);
 
@@ -812,7 +928,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
     compositeOutput->GetInformation()->Set(vtkSLACReader::POINTS(), points);
     compositeOutput->GetInformation()->Set(vtkSLACReader::POINT_DATA(), pd);
 
-    if (!this->ReadCoordinates(meshFD(), compositeOutput)) return 0;
+    if (!this->ReadCoordinates(meshFD, compositeOutput)) return 0;
 
     this->UpdateProgress(0.5);
 
@@ -821,9 +937,9 @@ int vtkSLACReader::RequestData(vtkInformation *request,
       {
       // if midpoints present in file
       int dummy;
-      if (nc_inq_varid(meshFD(), "surface_midpoint", &dummy) == NC_NOERR)
+      if (nc_inq_varid(meshFD, "surface_midpoint", &dummy) == NC_NOERR)
         {
-        if (!this->ReadMidpointData(meshFD(), compositeOutput,
+        if (!this->ReadMidpointData(meshFD, compositeOutput,
                                     this->Internal->MidpointIdCache))
           {
           return 0;
@@ -852,19 +968,53 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
   if (this->ReadModeData)
     {
-    vtkStdString modeFileName;
-    if (this->TimeStepModes && timeValid)
+    std::vector<vtkStdString> modeFileNames;
+    if (this->TimeStepModes)
       {
-      modeFileName = this->Internal->TimeStepToFile.lower_bound(time)->second;
+      modeFileNames.resize(1);
+      if (timeValid)
+        {
+        modeFileNames[0] =
+            this->Internal->TimeStepToFile.lower_bound(time)->second;
+        }
+      else
+        {
+        modeFileNames[0] = this->Internal->ModeFileNames[0];
+        }
       }
     else
       {
-      modeFileName = this->Internal->ModeFileNames[0];
+      modeFileNames = this->Internal->ModeFileNames;
       }
-    vtkSLACReaderAutoCloseNetCDF modeFD(modeFileName, NC_NOWRITE);
-    if (!modeFD.Valid()) return 0;
 
-    if (!this->ReadFieldData(modeFD(), compositeOutput)) return 0;
+    std::vector<vtkSLACReaderAutoCloseNetCDF> modeFDVector;
+    modeFDVector.reserve(modeFileNames.size());
+    for (std::vector<vtkStdString>::iterator nameIter = modeFileNames.begin();
+         nameIter != modeFileNames.end();
+         nameIter++)
+      {
+      vtkSLACReaderAutoCloseNetCDF modeFD(*nameIter, NC_NOWRITE);
+      if (modeFD.Valid())
+        {
+        modeFDVector.push_back(modeFD);
+        }
+      }
+    if (modeFDVector.size() < 1)
+      {
+      // Warning should already have been emitted.
+      return 0;
+      }
+
+    // Copy file descripters to a structure ReadFieldData can accept.  The
+    // ReadFieldData interface was designed to not use implementation of
+    // private or templated objects.
+    int *modeFDCopy = new int[modeFDVector.size()];
+    std::copy(modeFDVector.begin(), modeFDVector.end(), modeFDCopy);
+    if (!this->ReadFieldData(modeFDCopy, modeFDVector.size(), compositeOutput))
+      {
+      return 0;
+      }
+    delete[] modeFDCopy;
 
     this->UpdateProgress(0.875);
 
@@ -944,6 +1094,72 @@ void vtkSLACReader::SetVariableArrayStatus(const char* name, int status)
     {
     this->Internal->VariableArraySelection->DisableArray(name);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSLACReader::ResetFrequencyScales()
+{
+  std::fill(this->Internal->FrequencyScales.begin(),
+            this->Internal->FrequencyScales.end(),
+            1.0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkSLACReader::SetFrequencyScale(int index, double scale)
+{
+  if ((index < 0) ||
+      (static_cast<size_t>(index) >= this->Internal->FrequencyScales.size()))
+    {
+    vtkErrorMacro(<< "Bad mode index: " << index);
+    }
+
+  this->Internal->FrequencyScales[index] = scale;
+}
+
+//-----------------------------------------------------------------------------
+vtkDoubleArray* vtkSLACReader::GetFrequencyScales()
+{
+  this->Internal->FrequencyScalesArray->SetNumberOfTuples(
+    static_cast<vtkIdType>(this->Internal->FrequencyScales.size()));
+
+  std::copy(this->Internal->FrequencyScales.begin(),
+            this->Internal->FrequencyScales.end(),
+            this->Internal->FrequencyScalesArray->GetPointer(0));
+
+  return this->Internal->FrequencyScalesArray.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
+void vtkSLACReader::ResetPhaseShifts()
+{
+  std::fill(this->Internal->PhaseShifts.begin(),
+            this->Internal->PhaseShifts.end(),
+            0.0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkSLACReader::SetPhaseShift(int index, double scale)
+{
+  if ((index < 0) ||
+      (static_cast<size_t>(index) >= this->Internal->PhaseShifts.size()))
+    {
+    vtkErrorMacro(<< "Bad mode index: " << index);
+    }
+
+  this->Internal->PhaseShifts[index] = scale;
+}
+
+//-----------------------------------------------------------------------------
+vtkDoubleArray* vtkSLACReader::GetPhaseShifts()
+{
+  this->Internal->PhaseShiftsArray->SetNumberOfTuples(
+    static_cast<vtkIdType>(this->Internal->PhaseShifts.size()));
+
+  std::copy(this->Internal->PhaseShifts.begin(),
+            this->Internal->PhaseShifts.end(),
+            this->Internal->PhaseShiftsArray->GetPointer(0));
+
+  return this->Internal->PhaseShiftsArray.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
@@ -1193,17 +1409,26 @@ int vtkSLACReader::ReadCoordinates(int meshFD, vtkMultiBlockDataSet *output)
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
+int vtkSLACReader::ReadFieldData(const int *modeFDArray,
+                                 int numModeFDs,
+                                 vtkMultiBlockDataSet *output)
 {
+  assert(numModeFDs > 0);
+  assert(
+    !this->FrequencyModes ||
+    (static_cast<size_t>(numModeFDs) <= this->Internal->Frequencies.size()));
+  assert(!this->FrequencyModes ||
+         (static_cast<size_t>(numModeFDs) <= this->Internal->Phases.size()));
+
   vtkPointData *pd = vtkPointData::SafeDownCast(
                     output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
 
   // Get the number of coordinates (which determines how many items are read
   // per variable).
   int ncoordDim;
-  CALL_NETCDF(nc_inq_dimid(modeFD, "ncoord", &ncoordDim));
+  CALL_NETCDF(nc_inq_dimid(modeFDArray[0], "ncoord", &ncoordDim));
   size_t numCoords;
-  CALL_NETCDF(nc_inq_dimlen(modeFD, ncoordDim, &numCoords));
+  CALL_NETCDF(nc_inq_dimlen(modeFDArray[0], ncoordDim, &numCoords));
 
   int numArrays = this->Internal->VariableArraySelection->GetNumberOfArrays();
   for (int arrayIndex = 0; arrayIndex < numArrays; arrayIndex++)
@@ -1218,23 +1443,18 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
     const char * cname
       = this->Internal->VariableArraySelection->GetArrayName(arrayIndex);
     int varId;
-    CALL_NETCDF(nc_inq_varid(modeFD, cname, &varId));
+    CALL_NETCDF(nc_inq_varid(modeFDArray[0], cname, &varId));
 
     vtkStdString name(cname);
 
     // if this variable isn't 1d or 2d array, skip it.
     int numDims;
-    CALL_NETCDF(nc_inq_varndims(modeFD, varId, &numDims));
+    CALL_NETCDF(nc_inq_varndims(modeFDArray[0], varId, &numDims));
     if (numDims < 1 || numDims > 2)
       {
       vtkWarningMacro(<< "Encountered invalid variable dimensions.")
       continue;
       }
-
-    // Read in the array data.
-    vtkSmartPointer<vtkDataArray> dataArray
-      = this->ReadPointDataArray(modeFD, varId);
-    if (!dataArray) continue;
 
 
     // Handle the imaginary component of mode data:
@@ -1251,54 +1471,111 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
     // otherwise use zeroes.)
     if (this->FrequencyModes && (name == "efield" || name == "bfield"))
       {
-      vtkIdType numTuples = dataArray->GetNumberOfTuples();
+      // An array to accumulate the data.
+      vtkSmartPointer<vtkDoubleArray> dataArray =
+          vtkSmartPointer<vtkDoubleArray>::New();
 
-      // I am assuming here that the imaginary data has the same dimensions as
-      // the real data.
+      vtkSmartPointer<vtkDoubleArray> cplxMagArray =
+          vtkSmartPointer<vtkDoubleArray>::New();
 
-      // if this variable name has a correstponding name_imag, use that,
-      // otherwise assume zeroes.
-      vtkSmartPointer<vtkDataArray> imagDataArray= 0;
-      if (nc_inq_varid(modeFD, (name+"_imag").c_str(), &varId) == NC_NOERR)
-        imagDataArray = this->ReadPointDataArray(modeFD, varId);
+      vtkSmartPointer<vtkDoubleArray> phaseArray =
+          vtkSmartPointer<vtkDoubleArray>::New();
 
-      // allocate space for complex magnitude data
-      vtkSmartPointer<vtkDataArray> cplxMagArray;
-      cplxMagArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
-      cplxMagArray->SetNumberOfComponents(1);
-      cplxMagArray->SetNumberOfTuples(numTuples);
-
-      // allocate space for phase data
-      vtkSmartPointer<vtkDataArray> phaseArray;
-      phaseArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
-      phaseArray->SetNumberOfComponents(3);
-      phaseArray->SetNumberOfTuples(numTuples);
-
-      int numComponents = dataArray->GetNumberOfComponents();
-      for (vtkIdType i = 0; i < numTuples; i++)
+      for (int modeIndex = 0; modeIndex < numModeFDs; modeIndex++)
         {
-        double accumulated_mag= 0.0;
-        for (int j = 0; j < numComponents; j++)
+        int modeFD = modeFDArray[modeIndex];
+
+        // Read in the real array data.
+        vtkSmartPointer<vtkDataArray> realDataArray
+            = this->ReadPointDataArray(modeFD, varId);
+        if (!dataArray) { return 0; }
+
+        vtkIdType numTuples = realDataArray->GetNumberOfTuples();
+        int numComponents = realDataArray->GetNumberOfComponents();
+
+        if (modeIndex == 0)
           {
-          double real = dataArray->GetComponent(i, j);
-          double imag = 0.0;
+          dataArray->SetNumberOfComponents(numComponents);
+          dataArray->SetNumberOfTuples(numTuples);
 
-          // when values are purely real, no imaginary component is saved in the
-          // data file, because all those zeroes would waste space.  So if
-          // imaginary values are provided, use them, otherwise use 0.0.
-          if (imagDataArray)
-            imag = imagDataArray->GetComponent(i, j);
+          cplxMagArray->SetNumberOfComponents(1);
+          cplxMagArray->SetNumberOfTuples(numTuples);
 
-          double mag2 = real*real + imag*imag;
-          accumulated_mag += mag2;
-          double mag= sqrt(mag2);
-
-          double startphase = atan2(imag, real);
-          dataArray->SetComponent(i, j, mag*cos(startphase + this->Phase));
-          phaseArray->SetComponent(i, j, startphase);
+          phaseArray->SetNumberOfComponents(numComponents);
+          phaseArray->SetNumberOfTuples(numTuples);
           }
-        cplxMagArray->SetComponent(i, 0, sqrt(accumulated_mag));
+
+        // I am assuming here that the imaginary data has the same dimensions as
+        // the real data.
+
+        // if this variable name has a correstponding name_imag, use that,
+        // otherwise assume zeroes.
+        vtkSmartPointer<vtkDataArray> imagDataArray = 0;
+        if (nc_inq_varid(modeFD, (name+"_imag").c_str(), &varId) == NC_NOERR)
+          {
+          imagDataArray = this->ReadPointDataArray(modeFD, varId);
+          }
+
+        for (vtkIdType tupleIndex = 0; tupleIndex < numTuples; tupleIndex++)
+        {
+          double accumulatedMag= 0.0;
+          for (int componentIndex = 0;
+               componentIndex < numComponents;
+               componentIndex++)
+            {
+            double real =
+                realDataArray->GetComponent(tupleIndex, componentIndex);
+
+            // when values are purely real, no imaginary component is saved in the
+            // data file, because all those zeroes would waste space.  So if
+            // imaginary values are provided, use them, otherwise use 0.0.
+            double imag;
+            if (imagDataArray)
+              {
+              imag = imagDataArray->GetComponent(tupleIndex, componentIndex);
+              }
+            else
+              {
+              imag = 0.0;
+              }
+
+            double mag2 = real*real + imag*imag;
+            accumulatedMag += mag2;
+            double mag = sqrt(mag2);
+
+            double startphase = atan2(imag, real);
+
+            double accumulatedMode;
+            if (modeIndex == 0)
+              {
+              accumulatedMode = 0.0;
+              }
+            else
+              {
+              accumulatedMode =
+                  dataArray->GetComponent(tupleIndex, componentIndex);
+              }
+            double modeMag = mag * this->Internal->FrequencyScales[modeIndex];
+            double modePhase =
+                startphase + this->Internal->Phases[modeIndex]
+                + this->Internal->PhaseShifts[modeIndex];
+            accumulatedMode += modeMag*cos(modePhase);
+            dataArray->SetComponent(tupleIndex,componentIndex,accumulatedMode);
+            if (modeIndex == 0)
+              {
+              phaseArray->SetComponent(tupleIndex, componentIndex, startphase);
+              }
+            }
+          if (modeIndex == 0)
+            {
+            cplxMagArray->SetComponent(tupleIndex, 0, sqrt(accumulatedMag));
+            }
+          }
         }
+
+      // Add the data to the point data.
+      dataArray->SetName(name);
+      pd->AddArray(dataArray);
 
       // add complex magnitude data to the point data
       vtkStdString cplxMagName= name + "_cplx_mag";
@@ -1309,10 +1586,17 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
       phaseArray->SetName(phaseName);
       pd->AddArray(phaseArray);
       }
+    else
+      {
+      // Must be a real-only field.  No animation/blending of modes.
+      vtkSmartPointer<vtkDataArray> dataArray
+          = this->ReadPointDataArray(modeFDArray[0], varId);
+      if (!dataArray) continue;
 
-    // Add the data to the point data.
-    dataArray->SetName(name);
-    pd->AddArray(dataArray);
+      // Add the data to the point data.
+      dataArray->SetName(name);
+      pd->AddArray(dataArray);
+      }
     }
 
   return 1;

@@ -39,6 +39,7 @@
 #include "vtkSmartPointer.h"      // For internal method.
 
 class vtkDataArraySelection;
+class vtkDoubleArray;
 class vtkIdTypeArray;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
@@ -87,6 +88,21 @@ public:
   virtual const char *GetVariableArrayName(int idx);
   virtual int GetVariableArrayStatus(const char *name);
   virtual void SetVariableArrayStatus(const char *name, int status);
+
+  // Description:
+  // Sets the scale factor for each mode. Each scale factor is reset to 1.
+  virtual void ResetFrequencyScales();
+  virtual void SetFrequencyScale(int index, double scale);
+
+  // Description:
+  // Sets the phase offset for each mode. Each shift is reset to 0.
+  virtual void ResetPhaseShifts();
+  virtual void SetPhaseShift(int index, double shift);
+
+  // Description:
+  // NOTE: This is not thread-safe.
+  virtual vtkDoubleArray* GetFrequencyScales();
+  virtual vtkDoubleArray* GetPhaseShifts();
 
   // Description:
   // Returns true if the given file can be read by this reader.
@@ -191,13 +207,6 @@ protected:
   // Description:
   // True if mode files describe vibrating fields.
   bool FrequencyModes;
-  // Description:
-  // The rate at which the fields repeat.
-  // Only valid when FrequencyModes is true.
-  double Frequency;
-  // Description:
-  // The phase of the current time step.  Set at the beginning of RequestData.
-  double Phase;
 
 //ETX
 
@@ -350,7 +359,9 @@ protected:
   // Description:
   // Read in the field data from the mode file.  Returns 1 on success, 0
   // on failure.
-  virtual int ReadFieldData(int modeFD, vtkMultiBlockDataSet *output);
+  virtual int ReadFieldData(const int *modeFDArray,
+                            int numModeFDs,
+                            vtkMultiBlockDataSet *output);
 
   // Description:
   // Takes the data read on the fields and interpolates data for the midpoints.

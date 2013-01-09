@@ -949,11 +949,13 @@ int vtkPSLACReader::ReadCoordinates(int meshFD, vtkMultiBlockDataSet *output)
 }
 
 //-----------------------------------------------------------------------------
-int vtkPSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
+int vtkPSLACReader::ReadFieldData(const int *modeFDArray,
+                                  int numModeFDs,
+                                  vtkMultiBlockDataSet *output)
 {
   // The superclass reads everything correctly because it will call our
   // ReadPointDataArray method, which will properly redistribute points.
-  return this->Superclass::ReadFieldData(modeFD, output);
+  return this->Superclass::ReadFieldData(modeFDArray, numModeFDs, output);
 }
 
 //-----------------------------------------------------------------------------
