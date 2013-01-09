@@ -887,7 +887,8 @@ vtkStdString vtkVariant::ToString() const
     iter->Delete();
     return str;
     }
-  vtkGenericWarningMacro(<< "Cannot convert unknown type (" << this->Type << ") to a string.");
+  vtkGenericWarningMacro(
+    << "Cannot convert unknown type (" << this->GetTypeAsString() << ") to a string.");
   return vtkStdString();
 }
 
