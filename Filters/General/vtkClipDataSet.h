@@ -156,8 +156,8 @@ public:
   // Set/get the desired precision for the output types. See the documentation
   // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
   // the available precision settings.
-  void SetOutputPointsPrecision(int precision);
-  int GetOutputPointsPrecision() const;
+  vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
+  vtkGetMacro(OutputPointsPrecision, int);
 
 protected:
   vtkClipDataSet(vtkImplicitFunction *cf=NULL);

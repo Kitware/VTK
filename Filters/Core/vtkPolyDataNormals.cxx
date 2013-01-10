@@ -43,6 +43,7 @@ vtkPolyDataNormals::vtkPolyDataNormals()
   this->AutoOrientNormals = 0;
   // some internal data
   this->NumFlips = 0;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 #define VTK_CELL_NOT_VISITED     0
@@ -363,7 +364,27 @@ int vtkPolyDataNormals::RequestData(
     outPD->CopyNormalsOff();
     outPD->CopyAllocate(pd,numNewPts);
 
-    newPts = vtkPoints::New(); newPts->SetNumberOfPoints(numNewPts);
+    newPts = vtkPoints::New();
+
+    // set precision for the points in the output
+    if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+      {
+      vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+      if(inputPointSet)
+        {
+        newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+        }
+      }
+    else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+      {
+      newPts->SetDataType(VTK_FLOAT);
+      }
+    else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+      {
+      newPts->SetDataType(VTK_DOUBLE);
+      }
+
+    newPts->SetNumberOfPoints(numNewPts);
     for (ptId=0; ptId < numNewPts; ptId++)
       {
       oldId = this->Map->GetId(ptId);
@@ -729,5 +750,7 @@ void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
      << (this->ComputeCellNormals ? "On\n" : "Off\n");
   os << indent << "Non-manifold Traversal: "
      << (this->NonManifoldTraversal ? "On\n" : "Off\n");
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }
 

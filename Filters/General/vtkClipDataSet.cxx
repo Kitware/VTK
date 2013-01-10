@@ -135,17 +135,6 @@ unsigned long vtkClipDataSet::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkClipDataSet::SetOutputPointsPrecision(int precision)
-{
-  this->OutputPointsPrecision = precision;
-}
-
-//----------------------------------------------------------------------------
-int vtkClipDataSet::GetOutputPointsPrecision() const
-{
-  return this->OutputPointsPrecision;
-}
-
 vtkUnstructuredGrid *vtkClipDataSet::GetClippedOutput()
 {
   if (!this->GenerateClippedOutput)

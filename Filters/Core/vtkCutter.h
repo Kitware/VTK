@@ -183,6 +183,13 @@ public:
   // to generate unstructured grid output instead of poly data, I am leaving it here.
   static void GetCellTypeDimensions(unsigned char* cellTypeDimensions);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
+  vtkGetMacro(OutputPointsPrecision, int);
+
 protected:
   vtkCutter(vtkImplicitFunction *cf=NULL);
   ~vtkCutter();
@@ -215,6 +222,7 @@ protected:
   int SortBy;
   vtkContourValues *ContourValues;
   int GenerateCutScalars;
+  int OutputPointsPrecision;
 private:
   vtkCutter(const vtkCutter&);  // Not implemented.
   void operator=(const vtkCutter&);  // Not implemented.

@@ -128,6 +128,13 @@ public:
   vtkGetMacro(NonManifoldTraversal,int);
   vtkBooleanMacro(NonManifoldTraversal,int);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
+  vtkGetMacro(OutputPointsPrecision, int);
+
 protected:
   vtkPolyDataNormals();
   ~vtkPolyDataNormals() {};
@@ -144,6 +151,7 @@ protected:
   int ComputePointNormals;
   int ComputeCellNormals;
   int NumFlips;
+  int OutputPointsPrecision;
 
 private:
   vtkIdList *Wave;

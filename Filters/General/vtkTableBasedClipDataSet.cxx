@@ -602,12 +602,12 @@ class  vtkTableBasedClipperVolumeFromVolume :
 {
   public:
               vtkTableBasedClipperVolumeFromVolume
-              ( int nPts, int ptSizeGuess );
+              ( int precision, int nPts, int ptSizeGuess );
     virtual  ~vtkTableBasedClipperVolumeFromVolume() { }
 
-    void      ConstructDataSet( vtkPointData *, vtkCellData *,
+    void      ConstructDataSet( vtkDataSet *,
                                 vtkUnstructuredGrid *, double * );
-    void      ConstructDataSet( vtkPointData *, vtkCellData *,
+    void      ConstructDataSet( vtkDataSet *,
                                 vtkUnstructuredGrid *, int *, double *,
                                 double *, double * );
 
@@ -646,16 +646,18 @@ class  vtkTableBasedClipperVolumeFromVolume :
 
     vtkTableBasedClipperShapeList * shapes[8];
     const int    nshapes;
+    int OutputPointsPrecision;
 
     void         ConstructDataSet
-                 ( vtkPointData *, vtkCellData *, vtkUnstructuredGrid *,
+                 ( vtkDataSet *, vtkUnstructuredGrid *,
                    TableBasedClipperCommonPointsStructure & );
 };
 
 
 vtkTableBasedClipperVolumeFromVolume::
-vtkTableBasedClipperVolumeFromVolume( int nPts, int ptSizeGuess )
-    : vtkTableBasedClipperDataSetFromVolume( nPts, ptSizeGuess ), nshapes( 8 )
+vtkTableBasedClipperVolumeFromVolume( int precision, int nPts, int ptSizeGuess )
+    : vtkTableBasedClipperDataSetFromVolume( nPts, ptSizeGuess ), nshapes( 8 ),
+      OutputPointsPrecision(precision)
 {
   shapes[0] = &tets;
   shapes[1] = &pyramids;
@@ -1198,17 +1200,17 @@ void vtkTableBasedClipperVertexList::AddVertex( int cellId, int v1 )
 }
 
 void vtkTableBasedClipperVolumeFromVolume::
-     ConstructDataSet( vtkPointData * inPD, vtkCellData * inCD,
+     ConstructDataSet( vtkDataSet * input,
                        vtkUnstructuredGrid * output, double * pts_ptr )
 {
   TableBasedClipperCommonPointsStructure cps;
   cps.hasPtsList = true;
   cps.pts_ptr    = pts_ptr;
-  ConstructDataSet( inPD, inCD, output, cps );
+  ConstructDataSet( input, output, cps );
 }
 
 void vtkTableBasedClipperVolumeFromVolume::
-     ConstructDataSet( vtkPointData * inPD, vtkCellData * inCD,
+     ConstructDataSet( vtkDataSet * input,
                        vtkUnstructuredGrid * output,
                        int * dims, double * X, double * Y, double * Z )
 {
@@ -1218,15 +1220,18 @@ void vtkTableBasedClipperVolumeFromVolume::
   cps.X          = X;
   cps.Y          = Y;
   cps.Z          = Z;
-  ConstructDataSet( inPD, inCD, output, cps );
+  ConstructDataSet( input, output, cps );
 }
 
 void vtkTableBasedClipperVolumeFromVolume::
-     ConstructDataSet( vtkPointData * inPD, vtkCellData * inCD,
+     ConstructDataSet( vtkDataSet * input,
                        vtkUnstructuredGrid * output,
                        TableBasedClipperCommonPointsStructure & cps )
 {
   int   i, j, k, l;
+
+  vtkPointData * inPD = input->GetPointData();
+  vtkCellData  * inCD = input->GetCellData();
 
   vtkPointData * outPD = output->GetPointData();
   vtkCellData  * outCD = output->GetCellData();
@@ -1281,6 +1286,25 @@ void vtkTableBasedClipperVolumeFromVolume::
   // Set up the output points and its point data.
   //
   vtkPoints * outPts = vtkPoints::New();
+
+  // set precision for the points in the output
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+    if(inputPointSet)
+      {
+      outPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    outPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    outPts->SetDataType(VTK_DOUBLE);
+    }
+
   int centroidStart  = numUsed + pt_list.GetTotalNumberOfPoints();
   int nOutPts        = centroidStart + centroid_list.GetTotalNumberOfPoints();
   outPts->SetNumberOfPoints( nOutPts );
@@ -1589,6 +1613,8 @@ vtkTableBasedClipDataSet::vtkTableBasedClipDataSet( vtkImplicitFunction * cf )
   this->UseValueAsOffset      = true;
   this->GenerateClipScalars   = 0;
   this->GenerateClippedOutput = 0;
+
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   this->SetNumberOfOutputPorts( 2 );
   vtkUnstructuredGrid * output2 = vtkUnstructuredGrid::New();
@@ -2082,7 +2108,8 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
   int           numCells = polyData->GetNumberOfCells();
 
   vtkTableBasedClipperVolumeFromVolume   * visItVFV = new
-  vtkTableBasedClipperVolumeFromVolume(    polyData->GetNumberOfPoints(),
+  vtkTableBasedClipperVolumeFromVolume(
+     this->OutputPointsPrecision, polyData->GetNumberOfPoints(),
      int(   pow(  double( numCells ),  double( 0.6667f )  )   ) * 5 + 100    );
 
   vtkUnstructuredGrid * specials = vtkUnstructuredGrid::New();
@@ -2406,8 +2433,7 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
     this->ClipDataSet( specials, clipAray, vtkUGrid );
 
     vtkUnstructuredGrid * visItGrd = vtkUnstructuredGrid::New();
-    visItVFV->ConstructDataSet( polyData->GetPointData(),
-                                polyData->GetCellData(), visItGrd, theCords );
+    visItVFV->ConstructDataSet( polyData, visItGrd, theCords );
 
     vtkAppendFilter * appender = vtkAppendFilter::New();
     appender->AddInputData( vtkUGrid );
@@ -2425,8 +2451,7 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
     }
   else
     {
-    visItVFV->ConstructDataSet( polyData->GetPointData(),
-                                polyData->GetCellData(), outputUG, theCords );
+    visItVFV->ConstructDataSet( polyData, outputUG, theCords );
     }
 
 
@@ -2457,7 +2482,8 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
   numCells = rectGrid->GetNumberOfCells();
 
   vtkTableBasedClipperVolumeFromVolume   * visItVFV = new
-  vtkTableBasedClipperVolumeFromVolume(    rectGrid->GetNumberOfPoints(),
+  vtkTableBasedClipperVolumeFromVolume(
+      this->OutputPointsPrecision, rectGrid->GetNumberOfPoints(),
       int(   pow(  double( numCells ), double( 0.6667f )  )   ) * 5 + 100    );
 
   int   shiftLUT[3][8] = {
@@ -2747,7 +2773,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
     }
 
   visItVFV->ConstructDataSet
-            ( rectGrid->GetPointData(), rectGrid->GetCellData(),
+            ( rectGrid,
               outputUG, rectDims, theCords[0], theCords[1], theCords[2] );
 
   delete visItVFV;
@@ -2779,7 +2805,8 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
   numCells = strcGrid->GetNumberOfCells();
 
   vtkTableBasedClipperVolumeFromVolume  *  visItVFV = new
-  vtkTableBasedClipperVolumeFromVolume(    strcGrid->GetNumberOfPoints(),
+  vtkTableBasedClipperVolumeFromVolume(
+      this->OutputPointsPrecision, strcGrid->GetNumberOfPoints(),
       int(   pow(  double( numCells ), double( 0.6667f )  )   ) * 5 + 100    );
 
 
@@ -3031,8 +3058,7 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
     }
   inputPts = NULL;
 
-  visItVFV->ConstructDataSet( strcGrid->GetPointData(),
-                              strcGrid->GetCellData(), outputUG, theCords );
+  visItVFV->ConstructDataSet( strcGrid, outputUG, theCords );
 
 
   delete visItVFV;
@@ -3058,7 +3084,8 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
 
   // volume from volume
   vtkTableBasedClipperVolumeFromVolume   * visItVFV = new
-  vtkTableBasedClipperVolumeFromVolume(    unstruct->GetNumberOfPoints(),
+  vtkTableBasedClipperVolumeFromVolume(
+      this->OutputPointsPrecision, unstruct->GetNumberOfPoints(),
       int(   pow(  double( numCells ), double( 0.6667f )  )   ) * 5 + 100    );
 
   // the stuffs that can not be clipped by this filter
@@ -3417,8 +3444,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
     this->ClipDataSet( specials, clipAray, vtkUGrid );
 
     vtkUnstructuredGrid * visItGrd = vtkUnstructuredGrid::New();
-    visItVFV->ConstructDataSet( unstruct->GetPointData(),
-                                unstruct->GetCellData(), visItGrd, theCords );
+    visItVFV->ConstructDataSet( unstruct, visItGrd, theCords );
 
     vtkAppendFilter * appender = vtkAppendFilter::New();
     appender->AddInputData( vtkUGrid );
@@ -3436,8 +3462,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
     }
   else
     {
-    visItVFV->ConstructDataSet( unstruct->GetPointData(),
-                                unstruct->GetCellData(), outputUG, theCords );
+    visItVFV->ConstructDataSet( unstruct, outputUG, theCords );
     }
 
   specials->Delete();
@@ -3485,4 +3510,7 @@ void vtkTableBasedClipDataSet::PrintSelf( ostream & os, vtkIndent indent )
 
   os << indent << "UseValueAsOffset: "
      << (this->UseValueAsOffset ? "On\n" : "Off\n");
+
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }
