@@ -166,7 +166,8 @@ macro(add_test_python)
     get_filename_component(TName ${ARGV0} NAME_WE)
     string (REPLACE "vtk" "" _baselinedname ${vtk-module})
     # Check if data root and second parameter is present
-    if(VTK_DATA_ROOT AND NOT ARGV1)
+    set (base_dir "${ARGV1}")
+    if(VTK_DATA_ROOT AND base_dir)
       add_test(NAME ${vtk-module}Python-${TName}
         COMMAND ${VTK_PYTHON_EXE}
         ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
@@ -203,7 +204,8 @@ macro(add_test_python1)
     get_filename_component(TName ${ARGV0} NAME_WE)
     string (REPLACE "vtk" "" _baselinedname ${vtk-module})
     # Check if data root and second parameter is present
-    if(VTK_DATA_ROOT AND NOT ARGV1)
+    set (base_dir "${ARGV1}")
+    if(VTK_DATA_ROOT AND base_dir)
       add_test(NAME ${vtk-module}Python-${TName}
         COMMAND ${VTK_PYTHON_EXE}
         ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
@@ -231,7 +233,8 @@ macro(add_test_tcl)
     get_filename_component(TName ${ARGV0} NAME_WE)
     string (REPLACE "vtk" "" _baselinedname ${vtk-module})
     # Check if data root and second parameter is present
-    if(VTK_DATA_ROOT AND NOT ARGV1)
+    set (base_dir "${ARGV1}")
+    if(VTK_DATA_ROOT AND base_dir)
       add_test(NAME ${vtk-module}Tcl-${TName}
         COMMAND ${VTK_TCL_EXE}
         ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
