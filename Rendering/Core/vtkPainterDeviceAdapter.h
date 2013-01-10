@@ -97,6 +97,15 @@ public:
                              const void *attribute, vtkIdType offset=0) = 0;
 
   // Description:
+  // Sends material properties to the graphics card.
+  virtual void SendMaterialProperties(int components,
+                                      int type,
+                                      const void *ambient,
+                                      const void *diffuse,
+                                      const void *specular,
+                                      const void *specular_power);
+
+  // Description:
   // Sets an array of attributes.  This allows you to send all the data for
   // a particular attribute with one call, thus greatly reducing function
   // call overhead.  Once set, the array is enabled with
