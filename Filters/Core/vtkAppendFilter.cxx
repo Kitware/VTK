@@ -33,6 +33,7 @@ vtkAppendFilter::vtkAppendFilter()
 {
   this->InputList = NULL;
   this->MergePoints = 0;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 }
 
 //----------------------------------------------------------------------------
@@ -222,6 +223,37 @@ int vtkAppendFilter::RequestData(
   outputCD->CopyAllocate(cellList,numCells);
 
   newPts = vtkPoints::New();
+
+  // set precision for the points in the output
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    // take the precision of the first pointset
+    int datatype = VTK_FLOAT;
+    for (idx = 0; idx < numInputs; ++idx)
+      {
+      inInfo = inputVector[0]->GetInformationObject(idx);
+      vtkPointSet* ps = 0;
+      if (inInfo)
+        {
+        ps = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+        }
+      if ( ps != NULL && ps->GetNumberOfPoints() > 0)
+        {
+        datatype = ps->GetPoints()->GetDataType();
+        break;
+        }
+      }
+    newPts->SetDataType(datatype);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->SetNumberOfPoints(numPts);
   ptIds = vtkIdList::New(); ptIds->Allocate(VTK_CELL_SIZE);
   newPtIds = vtkIdList::New(); newPtIds->Allocate(VTK_CELL_SIZE);
@@ -428,6 +460,37 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
   // Now can allocate memory
   output->Allocate( numCells );
   newPts = vtkPoints::New();
+
+  // set precision for the points in the output
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    // take the precision of the first pointset
+    int datatype = VTK_FLOAT;
+    for (idx = 0; idx < numInputs; ++idx)
+      {
+      inInfo = inputVector[0]->GetInformationObject(idx);
+      vtkPointSet* ps = 0;
+      if (inInfo)
+        {
+        ps = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+        }
+      if ( ps != NULL && ps->GetNumberOfPoints() > 0)
+        {
+        datatype = ps->GetPoints()->GetDataType();
+        break;
+        }
+      }
+    newPts->SetDataType(datatype);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   ptIds  = vtkIdList::New();
   ptIds->Allocate( VTK_CELL_SIZE );
   newPtIds = vtkIdList::New();
@@ -637,5 +700,7 @@ int vtkAppendFilter::FillInputPortInformation(int, vtkInformation *info)
 void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << "MergePoints:" << (this->MergePoints?"On":"Off") << endl;
+  os << indent << "MergePoints:" << (this->MergePoints?"On":"Off") << "\n";
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }

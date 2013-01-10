@@ -63,6 +63,8 @@ vtkGridSynchronizedTemplates3D::vtkGridSynchronizedTemplates3D()
   this->MinimumPieceSize[1] = 10;
   this->MinimumPieceSize[2] = 10;
 
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
+
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
@@ -98,6 +100,7 @@ unsigned long vtkGridSynchronizedTemplates3D::GetMTime()
 
 //----------------------------------------------------------------------------
 void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
+                                                    int precision,
                                                     vtkStructuredGrid *input,
                                                     vtkPolyData *o,
                                                     vtkFloatArray *scalars,
@@ -117,6 +120,25 @@ void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
     }
 
   newPts = vtkPoints::New();
+
+  // set precision for the points in the output
+  if(precision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+    if(inputPointSet)
+      {
+      newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    }
+  else if(precision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(precision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->Allocate(estimatedSize,estimatedSize);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
@@ -403,8 +425,9 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkGridSynchronizedTemplates3DInitializeOutput(exExt, input, output,
-                                                 newScalars, newNormals, newGradients, inScalars);
+  vtkGridSynchronizedTemplates3DInitializeOutput(
+              exExt, self->GetOutputPointsPrecision(), input, output,
+              newScalars, newNormals, newGradients, inScalars);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
 
@@ -952,6 +975,9 @@ void vtkGridSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
   os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
+
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }
 
 //----------------------------------------------------------------------------

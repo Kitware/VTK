@@ -61,6 +61,7 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
   this->GenerateCutScalars = 0;
   this->Locator = NULL;
   this->GenerateTriangles = 1;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
   this->SynchronizedTemplatesCutter3D = vtkSynchronizedTemplatesCutter3D::New();
@@ -234,6 +235,8 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
   int numContours = this->GetNumberOfContours();
 
   this->GridSynchronizedTemplates->SetDebug(this->GetDebug());
+  this->GridSynchronizedTemplates->
+    SetOutputPointsPrecision(this->OutputPointsPrecision);
   this->GridSynchronizedTemplates->SetInputData(contourData);
   this->GridSynchronizedTemplates->
     SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
@@ -464,6 +467,23 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
     }
 
   newPoints = vtkPoints::New();
+  // set precision for the points in the output
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+    if(inputPointSet)
+      {
+      newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
   newPoints->Allocate(estimatedSize,estimatedSize/2);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize,estimatedSize/2);
@@ -689,6 +709,23 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
     }
 
   newPoints = vtkPoints::New();
+  // set precision for the points in the output
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+    if(inputPointSet)
+      {
+      newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
   newPoints->Allocate(estimatedSize,estimatedSize/2);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize,estimatedSize/2);
@@ -1001,6 +1038,9 @@ void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Cut Scalars: "
      << (this->GenerateCutScalars ? "On\n" : "Off\n");
+
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }
 
 //-----------------------------------------------------------------------

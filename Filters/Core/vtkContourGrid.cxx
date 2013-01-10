@@ -397,6 +397,7 @@ int vtkContourGrid::RequestData(
     {
     vtkInformation* info = outputVector->GetInformationObject(0);
     vtkNew<vtkPolyDataNormals> normalsFilter;
+    normalsFilter->SetOutputPointsPrecision(this->OutputPointsPrecision);
     vtkNew<vtkPolyData> tempInput;
     tempInput->ShallowCopy(output);
     normalsFilter->SetInputData(tempInput.GetPointer());
