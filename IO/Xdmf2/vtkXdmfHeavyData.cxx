@@ -22,6 +22,7 @@
 #include "vtkExtractSelectedIds.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
+#include "vtkMath.h"
 #include "vtkMergePoints.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
@@ -218,9 +219,15 @@ vtkDataObject* vtkXdmfHeavyData::ReadTemporalCollection(
   for (XdmfInt32 cc=0; cc < xmfTemporalCollection->GetNumberOfChildren(); cc++)
     {
     XdmfGrid* child = xmfTemporalCollection->GetChild(cc);
-    if (child && child->GetTime()->IsValid(this->Time, this->Time))
+    if (child)
       {
-      valid_children.push_back(child);
+      // ensure that we set correct epsilon for comparison
+      // BUG #0013766.
+      child->GetTime()->SetEpsilon(VTK_DBL_EPSILON);
+      if (child->GetTime()->IsValid(this->Time, this->Time))
+        {
+        valid_children.push_back(child);
+        }
       }
     }
   // if no child matched this timestep, handle the case where the user didn't

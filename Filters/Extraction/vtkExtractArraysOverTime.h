@@ -39,7 +39,7 @@
 class vtkSelection;
 class vtkDataSet;
 class vtkTable;
-class vtkExtractArraysOverTimeInternal;
+class vtkExtractSelection;
 class vtkDataSetAttributes;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractArraysOverTime : public vtkMultiBlockDataSetAlgorithm
@@ -60,6 +60,31 @@ public:
   {
     this->SetInputConnection(1, algOutput);
   }
+
+  // Description:
+  // Set/get the vtkExtractSelection instance used to obtain
+  // array values at each time step.
+  // An instance of vtkExtractSelection is created on
+  // demand when the filter is first executed.
+  //
+  // This is used by ParaView to override the default
+  // extractor with one that supports Python-based QUERY
+  // selection.
+  virtual void SetSelectionExtractor(vtkExtractSelection*);
+  vtkGetObjectMacro(SelectionExtractor,vtkExtractSelection);
+
+  // Description:
+  // Instead of breaking a selection into a separate time-history
+  // table for each (block,ID)-tuple, you may call
+  // ReportStatisticsOnlyOn(). Then a single table per
+  // block of the input dataset will report the minimum, maximum,
+  // quartiles, and (for numerical arrays) the average and standard
+  // deviation of the selection over time.
+  //
+  // The default is off to preserve backwards-compatibility.
+  vtkSetMacro(ReportStatisticsOnly,int);
+  vtkGetMacro(ReportStatisticsOnly,int);
+  vtkBooleanMacro(ReportStatisticsOnly,int);
 
 //BTX
 protected:
@@ -114,6 +139,8 @@ protected:
   bool IsExecuting;
   bool UseFastPath;
 
+  int ReportStatisticsOnly;
+
   int Error;
 
   enum Errors
@@ -121,6 +148,8 @@ protected:
     NoError,
     MoreThan1Indices
   };
+
+  vtkExtractSelection* SelectionExtractor;
 
 private:
   vtkExtractArraysOverTime(const vtkExtractArraysOverTime&);  // Not implemented.
@@ -133,6 +162,3 @@ private:
 };
 
 #endif
-
-
-

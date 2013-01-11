@@ -76,18 +76,21 @@ int TestQuadraturePoints(int argc,char *argv[])
   vtkUnstructuredGrid *input=0;
   vtkSmartPointer<vtkXMLUnstructuredGridReader> xusgr = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
   xusgr->SetFileName(inputFileName.c_str());
+
   vtkSmartPointer<vtkUnstructuredGridReader> lusgr = vtkSmartPointer<vtkUnstructuredGridReader>::New();
   lusgr->SetFileName(inputFileName.c_str());
   if (xusgr->CanReadFile(inputFileName.c_str()))
     {
     input=xusgr->GetOutput();
     xusgr->Update();
+    lusgr=NULL;
     }
   else if (lusgr->IsFileValid("unstructured_grid"))
     {
     lusgr->SetFileName(inputFileName.c_str());
     input=lusgr->GetOutput();
     lusgr->Update();
+    xusgr=NULL;
     }
   if (input==0)
     {
@@ -105,8 +108,8 @@ int TestQuadraturePoints(int argc,char *argv[])
   // solely for our convinience. Typically we would expect that users
   // provide there own in XML format and use the readers or to generate
   // them on the fly.
-  vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator> dictGen =
-    vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator>::New();
+  vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator> dictGen
+    = vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator>::New();
   dictGen->SetInputData(input);
 
   // Interpolate fields to the quadrature points. This generates new field data
@@ -117,25 +120,32 @@ int TestQuadraturePoints(int argc,char *argv[])
   fieldInterp->SetInputConnection(dictGen->GetOutputPort());
 
   // Write the dataset as XML. This excercises the information writer.
-  /*vtkXMLUnstructuredGridWriter *xusgw=vtkXMLUnstructuredGridWriter::New();
+  vtkSmartPointer<vtkXMLUnstructuredGridWriter> xusgw
+    = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
   xusgw->SetFileName(tempFile.c_str());
-  xusgw->SetInput(fieldInterp->GetOutput());
-  fieldInterp->Delete();
+  xusgw->SetInputConnection(fieldInterp->GetOutputPort());
   xusgw->Write();
-  xusgw->Delete();
+  xusgw=NULL;
+  fieldInterp=NULL;
 
   // Read the data back in form disk. This excercises the information reader.
-  xusgr=vtkXMLUnstructuredGridReader::New();
+  xusgr=NULL;
+  xusgr.TakeReference(vtkXMLUnstructuredGridReader::New());
   xusgr->SetFileName(tempFile.c_str());
-  input=xusgr->GetOutput();*/
-  input = vtkUnstructuredGrid::SafeDownCast(fieldInterp->GetOutput());
-  fieldInterp->Update();
+  xusgr->Update();
+
+  input=xusgr->GetOutput();
+  input->Register(0);
   input->GetPointData()->SetActiveVectors(warpName.c_str());
   input->GetPointData()->SetActiveScalars(threshName.c_str());
+
+  xusgr=NULL;
+
  // Demonstrate warp by vector.
   vtkSmartPointer<vtkWarpVector> warper = vtkSmartPointer<vtkWarpVector>::New();
   warper->SetInputData(input);
   warper->SetScaleFactor(0.02);
+  input->Delete();
 
   // Demonstrate clip functionality.
   vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();

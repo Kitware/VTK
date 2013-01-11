@@ -52,12 +52,12 @@ protected:
   // Description:
   // Generate the point set .
   int Generate(vtkUnstructuredGrid *usgIn,
-                vtkIdTypeArray* offsets,
+                vtkDataArray* offsets,
                 vtkPolyData *pdOut);
 
   int GenerateField(vtkUnstructuredGrid *usgIn,
                 vtkDataArray* data,
-                vtkIdTypeArray* offsets,
+                vtkDataArray* offsets,
                 vtkPolyData* pdOut);
 
   vtkQuadraturePointsGenerator();

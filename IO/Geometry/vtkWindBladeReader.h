@@ -27,14 +27,11 @@
 #ifndef __vtkWindBladeReader_h
 #define __vtkWindBladeReader_h
 
-
-#include "vtkIOParallelModule.h" // For export macro
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
-class vtkWindBladeReaderPiece;
 class vtkDataArraySelection;
 class vtkCallbackCommand;
-class vtkMultiProcessController;
 class vtkStringArray;
 class vtkFloatArray;
 class vtkIntArray;
@@ -45,7 +42,7 @@ class vtkMultiBlockDataSetAglorithm;
 class vtkStructuredGridAlgorithm;
 class WindBladeReaderInternal;
 
-class VTKIOPARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm
+class VTKIOGEOMETRY_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkWindBladeReader *New();
@@ -65,7 +62,7 @@ public:
   // Get the reader's output
   vtkStructuredGrid *GetFieldOutput();    // Output port 0
   vtkUnstructuredGrid *GetBladeOutput();  // Output port 1
-  vtkStructuredGrid *GetGroundOutput();    // Output port 2
+  vtkStructuredGrid *GetGroundOutput();   // Output port 2
 
   // Description:
   // The following methods allow selective reading of solutions fields.
@@ -80,23 +77,24 @@ public:
   void DisableAllPointArrays();
   void EnableAllPointArrays();
 
-  // Description:
-  // We intercept the requests to check for which port
-  // information is being requested for and if there is
-  // a REQUEST_DATA_NOT_GENERATED request then we mark
-  // which ports won't have data generated for that request.
-  virtual int ProcessRequest(vtkInformation *request,
-                             vtkInformationVector **inInfo,
-                             vtkInformationVector *outInfo);
-
 protected:
+//BTX
+   static float DRY_AIR_CONSTANT;
+   static int   NUM_PART_SIDES;  // Blade parts rhombus
+   const static int   NUM_BASE_SIDES;  // Base pyramid
+   const static int   LINE_SIZE;
+   static int   DIMENSION;
+   static int   BYTES_PER_DATA;
+   static int   SCALAR;
+   static int   VECTOR;
+   static int   FLOAT;
+   static int   INTEGER;
+//ETX
+
   vtkWindBladeReader();
   ~vtkWindBladeReader();
 
   char* Filename;   // Base file name
-
-  int Rank;    // Number of this processor
-  int TotalRank;   // Number of processors
 
   // Extent information
   vtkIdType NumberOfTuples;  // Number of tuples in subextent
@@ -181,43 +179,59 @@ protected:
   // Observer to modify this object when array selections are modified
   vtkCallbackCommand* SelectionObserver;
 
-  // Controls initializing and querrying MPI
-  vtkMultiProcessController * MPIController;
 
   // Read the header file describing the dataset
-  bool ReadGlobalData();
+  virtual bool ReadGlobalData();
   void ReadDataVariables(istream& inStr);
-  bool FindVariableOffsets();
+  virtual bool FindVariableOffsets();
 
   // Turbine methods
-  void SetupBladeData();
-  void LoadBladeData(int timeStep);
+  virtual void SetupBladeData();
+  virtual void LoadBladeData(int timeStep);
 
   // Calculate the coordinates
   void FillCoordinates();
   void FillGroundCoordinates();
   void CreateCoordinates();
-  void CreateZTopography(float* zdata);
+  virtual void CreateZTopography(float* zdata);
   float GDeform(float sigma, float sigmaMax, int flag);
   void Spline(float* x, float* y, int n, float yp1, float ypn, float* y2);
   void Splint(float* xa, float* ya, float* y2a, int n, float x, float* y, int);
 
   // Load a variable from data file
-  void LoadVariableData(int var);
+  virtual void LoadVariableData(int var);
 
   // Variables which must be divided by density after being read from file
   void DivideByDensity(const char* name);
 
   // Calculate derived variables
-  void CalculateVorticity(int vort, int uvw, int density);
-  void CalculatePressure(int pres, int prespre, int tempg, int density);
+  virtual void CalculatePressure(int pres, int prespre, int tempg, int density);
+  virtual void CalculateVorticity(int vort, int uvw, int density);
 
+  // convenience functions shared between serial and parallel version
+  void InitFieldData(vtkInformationVector *outVector,
+                     std::ostringstream &fileName,
+                     vtkStructuredGrid *field);
+  void SetUpFieldVars(vtkStructuredGrid *field);
+  void InitBladeData(vtkInformationVector *outVector);
+  void SetUpGroundData(vtkInformationVector *outVector);
+  void InitPressureData(int pressure, int prespre,
+                        float *&pressureData, float *&prespreData);
+  void SetUpPressureData(float* pressureData, float* prespreData,
+                         float* tempgData, float* densityData);
+  void SetUpVorticityData(float* uData, float* vData, float *densityData,
+                          float* vortData);
+  void InitVariableData(int var, int &numberOfComponents, float *&varData,
+                        int &planeSize, int &rowSize);
+  bool SetUpGlobalData(const std::string &fileName, std::stringstream& inStr);
+  void ProcessZCoords(float *topoData, float *zValues);
+  void ReadBladeHeader(const std::string &fileName, std::stringstream &inStr,
+                       int &numColumns);
+  void ReadBladeData(std::stringstream &inStr);
+
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *);
   virtual int RequestData(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
-
-  virtual int RequestInformation(
     vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
@@ -234,12 +248,18 @@ protected:
     void* clientdata, void* calldata);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
-
+  // Description:
+  // We intercept the requests to check for which port
+  // information is being requested for and if there is
+  // a REQUEST_DATA_NOT_GENERATED request then we mark
+  // which ports won't have data generated for that request.
+  int ProcessRequest(vtkInformation *request,
+                     vtkInformationVector **inInfo,
+                     vtkInformationVector *outInfo);
+private:
   WindBladeReaderInternal * Internal;
 
-private:
   vtkWindBladeReader(const vtkWindBladeReader&);  // Not implemented.
   void operator=(const vtkWindBladeReader&);  // Not implemented.
 };
 #endif
-

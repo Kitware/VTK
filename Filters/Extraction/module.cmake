@@ -4,6 +4,8 @@ vtk_module(vtkFiltersExtraction
   DEPENDS
     vtkCommonExecutionModel
     vtkFiltersCore
+    vtkFiltersGeneral
+    vtkFiltersStatistics
   TEST_DEPENDS
     vtkIOLegacy
     vtkIOXML
