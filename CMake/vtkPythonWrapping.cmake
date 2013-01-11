@@ -29,11 +29,8 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
 
   # Figure out the dependent PythonXYD libraries for the module
   foreach(dep ${${vtk-module}_LINK_DEPENDS})
-    if(NOT "${vtk-module}" STREQUAL "${dep}")
-      if(${dep}_WRAP_PYTHON)
-        list(APPEND extra_links ${dep}PythonD)
-        list(APPEND VTK_WRAP_INCLUDE_DIRS ${${dep}_SOURCE_DIR})
-      endif()
+    if(NOT "${vtk-module}" STREQUAL "${dep}" AND TARGET ${dep}PythonD)
+      list(APPEND extra_links ${dep}PythonD)
     endif()
   endforeach()
 
