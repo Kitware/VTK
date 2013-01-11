@@ -512,8 +512,6 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkGraph* graphOut = vtkGraph::SafeDownCast(output);
   if (graphOut)
     {
-    int ncells = graphIn->GetNumberOfEdges();
-    int npoints = graphIn->GetNumberOfVertices();
     this->ProcessOutputGraph(graphOut);
     return (1);
     }
