@@ -33,6 +33,7 @@
 #include "vtkXMLMaterial.h"
 #include "vtkXMLShader.h"
 #include "vtkGLSLShaderDeviceAdapter2.h"
+#include "vtkOpenGLPainterDeviceAdapter.h"
 
 #include <assert.h>
 
@@ -156,10 +157,7 @@ void vtkOpenGLProperty::AddShaderVariable(const char *name,
 void vtkOpenGLProperty::Render(vtkActor *anActor,
                                vtkRenderer *ren)
 {
-  int i;
   GLenum method;
-  GLfloat info[4];
-  GLenum face;
   double  color[4];
 
   // unbind any textures for starters
@@ -408,7 +406,6 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 
   glDisable(GL_COLOR_MATERIAL); // fixed-pipeline
 
-  face = GL_FRONT_AND_BACK;
   // turn on/off backface culling
   if ( ! this->BackfaceCulling && ! this->FrontfaceCulling)
     {
@@ -426,44 +423,14 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     glEnable (GL_CULL_FACE);
     }
 
-  info[3] = static_cast<GLfloat>(this->Opacity);
-
-  double factor;
-  GLint alphaBits = context->GetAlphaBitPlanes();
-
-  // Dealing with having a correct alpha (none square) in the framebuffer
-  // is only required if there is an alpha component in the framebuffer
-  // (doh...) and if we cannot deal directly with BlendFuncSeparate.
-  if(vtkgl::BlendFuncSeparate==0 && alphaBits>0)
-    {
-    factor=this->Opacity;
-    }
-  else
-    {
-    factor=1;
-    }
-
-  for (i=0; i < 3; i++)
-    {
-    info[i] = static_cast<float> (factor * this->Ambient
-        * this->AmbientColor[i]);
-    }
-  glMaterialfv( face, GL_AMBIENT, info );
-  for (i=0; i < 3; i++)
-    {
-    info[i] = static_cast<float> (factor * this->Diffuse
-        * this->DiffuseColor[i]);
-    }
-  glMaterialfv( face, GL_DIFFUSE, info );
-  for (i=0; i < 3; i++)
-    {
-    info[i] = static_cast<float> (factor * this->Specular
-        * this->SpecularColor[i]);
-    }
-  glMaterialfv( face, GL_SPECULAR, info );
-
-  info[0] = static_cast<float>(this->SpecularPower);
-  glMaterialfv( face, GL_SHININESS, info );
+  // set front and backface material properties
+  this->RenderMaterialForFace(anActor,
+                              ren,
+                              this->AmbientColor,
+                              this->DiffuseColor,
+                              this->SpecularColor,
+                              this->SpecularPower,
+                              GL_FRONT_AND_BACK);
 
   // set interpolation
   switch (this->Interpolation)
@@ -487,6 +454,21 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
   // disabled. Shading is disabled in the
   // vtkOpenGLPolyDataMapper::Draw() method if points or lines
   // are encountered without normals.
+  double factor;
+  GLint alphaBits = context->GetAlphaBitPlanes();
+
+  // Dealing with having a correct alpha (none square) in the framebuffer
+  // is only required if there is an alpha component in the framebuffer
+  // (doh...) and if we cannot deal directly with BlendFuncSeparate.
+  if(vtkgl::BlendFuncSeparate==0 && alphaBits>0)
+    {
+    factor=this->Opacity;
+    }
+  else
+    {
+    factor=1;
+    }
+
   this->GetColor( color );
   color[0] *= factor;
   color[1] *= factor;
@@ -586,6 +568,69 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLProperty::RenderMaterialForFace(vtkActor *,
+                                              vtkRenderer *renderer,
+                                              double *ambient,
+                                              double *diffuse,
+                                              double *specular,
+                                              double specular_power,
+                                              unsigned int face)
+{
+  // get opengl render window
+  vtkOpenGLRenderWindow *oglRenderWindow =
+    vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+
+  // get opengl device adaptor
+  vtkOpenGLPainterDeviceAdapter *oglDeviceAdapter =
+    vtkOpenGLPainterDeviceAdapter::SafeDownCast(oglRenderWindow->GetPainterDeviceAdapter());
+
+  // calculate factor
+  double factor;
+  GLint alphaBits = oglRenderWindow->GetAlphaBitPlanes();
+
+  // Dealing with having a correct alpha (none square) in the framebuffer
+  // is only required if there is an alpha component in the framebuffer
+  // (doh...) and if we cannot deal directly with BlendFuncSeparate.
+  if(vtkgl::BlendFuncSeparate==0 && alphaBits>0)
+    {
+    factor=this->Opacity;
+    }
+  else
+    {
+    factor=1;
+    }
+
+  GLfloat ambient4[4];
+  GLfloat diffuse4[4];
+  GLfloat specular4[4];
+
+  // set rgb components for colors
+  for(int i = 0; i < 3; i++)
+    {
+    ambient4[i] = static_cast<GLfloat>(factor * this->Ambient * ambient[i]);
+    diffuse4[i] = static_cast<GLfloat>(factor * this->Diffuse * diffuse[i]);
+    specular4[i] = static_cast<GLfloat>(factor * this->Specular * specular[i]);
+    }
+
+  // set alpha component for colors
+  ambient4[3] = static_cast<GLfloat>(this->Opacity);
+  diffuse4[3] = static_cast<GLfloat>(this->Opacity);
+  specular4[3] = static_cast<GLfloat>(this->Opacity);
+
+  // get shininess
+  GLfloat shininess = static_cast<GLfloat>(specular_power);
+
+  // send materials
+  oglDeviceAdapter->SendMaterialPropertiesForFace(face,
+                                                  4,
+                                                  VTK_FLOAT,
+                                                  ambient4,
+                                                  diffuse4,
+                                                  specular4,
+                                                  &shininess);
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
 {
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(renderer);
@@ -652,62 +697,16 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
 
 //-----------------------------------------------------------------------------
 // Implement base class method.
-void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor), vtkRenderer *ren)
+void vtkOpenGLProperty::BackfaceRender(vtkActor *actor, vtkRenderer *renderer)
 {
-  int i;
-  GLfloat info[4];
-  GLenum face;
-
-  face = GL_BACK;
-
-  info[3] = static_cast<GLfloat>(this->Opacity);
-
-  vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
-  if (!oRenderer)
-    {
-    vtkErrorMacro("the vtkOpenGLProperty needs a vtkOpenGLRenderer to render.");
-    return;
-    }
-  vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
-      oRenderer->GetRenderWindow());
-
-  double factor;
-  GLint alphaBits = context->GetAlphaBitPlanes();
-
-  // Dealing with having a correct alpha (none square) in the framebuffer
-  // is only required if there is an alpha component in the framebuffer
-  // (doh...) and if we cannot deal directly with BlendFuncSeparate.
-  if(vtkgl::BlendFuncSeparate==0 && alphaBits>0)
-    {
-    factor=this->Opacity;
-    }
-  else
-    {
-    factor=1;
-    }
-
-  for (i=0; i < 3; i++)
-    {
-    info[i] = static_cast<float> (factor * this->Ambient
-        * this->AmbientColor[i]);
-    }
-  glMaterialfv( face, GL_AMBIENT, info );
-  for (i=0; i < 3; i++)
-    {
-    info[i] = static_cast<float> (factor * this->Diffuse
-        * this->DiffuseColor[i]);
-    }
-  glMaterialfv( face, GL_DIFFUSE, info );
-  for (i=0; i < 3; i++)
-    {
-    info[i] = static_cast<float> (factor * this->Specular
-        * this->SpecularColor[i]);
-    }
-  glMaterialfv( face, GL_SPECULAR, info );
-
-  info[0] = static_cast<float>(this->SpecularPower);
-  glMaterialfv( face, GL_SHININESS, info );
-
+  // set backface material properties
+  this->RenderMaterialForFace(actor,
+                              renderer,
+                              this->AmbientColor,
+                              this->DiffuseColor,
+                              this->SpecularColor,
+                              this->SpecularPower,
+                              GL_BACK);
 }
 
 //-----------------------------------------------------------------------------

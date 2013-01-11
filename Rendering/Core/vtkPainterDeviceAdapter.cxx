@@ -39,6 +39,17 @@ vtkPainterDeviceAdapter::~vtkPainterDeviceAdapter()
 }
 
 //-----------------------------------------------------------------------------
+void vtkPainterDeviceAdapter::SendMaterialProperties(int,
+                                                     int,
+                                                     const void*,
+                                                     const void*,
+                                                     const void*,
+                                                     const void*)
+{
+  // should be implemented by subclasses
+}
+
+//-----------------------------------------------------------------------------
 void vtkPainterDeviceAdapter::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
