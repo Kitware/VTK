@@ -34,7 +34,7 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
   endif()
 
   if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
-    set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
+    set(KIT_HIERARCHY_FILE ${VTK_MODULES_DIR}/${module_name}Hierarchy.txt)
   endif()
 
   vtk_wrap_java3(${module_name}Java ModuleJava_SRCS
