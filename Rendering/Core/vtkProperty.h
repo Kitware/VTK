@@ -93,6 +93,18 @@ public:
   //ETX
 
   // Description:
+  // Render the material for the face. This method should be implemented
+  // by subclasses. The default implementation does nothing.
+  //
+  // Warning: Experimental. This API may change in future releases.
+  virtual void RenderMaterial(vtkActor *actor,
+                              vtkRenderer *renderer,
+                              double *ambient,
+                              double *diffuse,
+                              double *specular,
+                              double specular_power);
+
+  // Description:
   // Set/Get lighting flag for an object. Initial value is true.
   vtkGetMacro(Lighting,bool);
   vtkSetMacro(Lighting,bool);
