@@ -70,6 +70,43 @@ extern "C" void vtk_jpeg_output_message (j_common_ptr cinfo)
                             "libjpeg error: " <<  buffer);
 }
 
+extern "C" void jpg_null (j_decompress_ptr vtkNotUsed(cinfo))
+{
+}
+
+extern "C" boolean fill_input_buffer (j_decompress_ptr vtkNotUsed(cinfo))
+{
+  vtkGenericWarningMacro(<< "libjpeg error: unexpected end of JPEG data!");
+  return TRUE;
+}
+
+extern "C" void skip_input_data (j_decompress_ptr cinfo, long num_bytes)
+{
+  struct jpeg_source_mgr* src = (struct jpeg_source_mgr*) cinfo->src;
+
+  if (num_bytes > 0)
+    {
+    src->next_input_byte += (size_t) num_bytes;
+    src->bytes_in_buffer -= (size_t) num_bytes;
+    }
+}
+
+// Read JPEG image from a memory buffer
+extern "C" void jpeg_mem_src (j_decompress_ptr cinfo, void* buffer, long nbytes)
+{
+  cinfo->src = (struct jpeg_source_mgr *)
+      (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
+      sizeof(struct jpeg_source_mgr));
+  cinfo->src = (struct jpeg_source_mgr*) cinfo->src;
+  cinfo->src->init_source = jpg_null;
+  cinfo->src->fill_input_buffer = fill_input_buffer;
+  cinfo->src->skip_input_data = skip_input_data;
+  cinfo->src->resync_to_restart = jpeg_resync_to_restart;
+  cinfo->src->term_source = jpg_null;
+  cinfo->src->bytes_in_buffer = nbytes;
+  cinfo->src->next_input_byte = (const JOCTET*)buffer;
+}
+
 #ifdef _MSC_VER
 // Let us get rid of this funny warning on /W4:
 // warning C4611: interaction between '_setjmp' and C++ object
@@ -80,18 +117,33 @@ extern "C" void vtk_jpeg_output_message (j_common_ptr cinfo)
 void vtkJPEGReader::ExecuteInformation()
 {
   this->ComputeInternalFileName(this->DataExtent[4]);
-  if (this->InternalFileName == NULL)
+  if (this->InternalFileName == NULL && this->MemoryBuffer == NULL)
     {
     return;
     }
 
-  FILE *fp = fopen(this->InternalFileName, "rb");
-  if (!fp)
+  FILE *fp = NULL;
+
+  if (!this->MemoryBuffer)
     {
-    vtkErrorWithObjectMacro(this,
-                            "Unable to open file "
-                            << this->InternalFileName);
-    return;
+    fp = fopen(this->InternalFileName, "rb");
+    if (!fp)
+      {
+      vtkErrorWithObjectMacro(this,
+                              "Unable to open file "
+                              << this->InternalFileName);
+      return;
+      }
+    }
+  else
+    {
+    if (this->MemoryBufferLength == 0)
+      {
+      vtkErrorWithObjectMacro(this,
+                              "Trying to read a JPEG image from "
+                              "a zero-length memory buffer!");
+      return;
+      }
     }
 
   // create jpeg decompression object and error handler
@@ -109,16 +161,31 @@ void vtkJPEGReader::ExecuteInformation()
     // clean up
     jpeg_destroy_decompress(&cinfo);
     // close the file
-    fclose(fp);
-    // this is not a valid jpeg file
-    vtkErrorWithObjectMacro(this, "libjpeg could not read file: "
-                            << this->InternalFileName);
+    if (fp)
+      {
+      fclose(fp);
+      // this is not a valid jpeg file
+      vtkErrorWithObjectMacro(this, "libjpeg could not read file: "
+                              << this->InternalFileName);
+      }
+    else
+      {
+      vtkErrorWithObjectMacro(this, "libjpeg could not read file from memory buffer: "
+                              << static_cast<void*>(this->MemoryBuffer));
+      }
     return;
     }
   jpeg_create_decompress(&cinfo);
 
   // set the source file
-  jpeg_stdio_src(&cinfo, fp);
+  if (fp)
+    {
+    jpeg_stdio_src(&cinfo, fp);
+    }
+  else
+    {
+    jpeg_mem_src(&cinfo, this->MemoryBuffer, this->MemoryBufferLength);
+    }
 
   // read the header
   jpeg_read_header(&cinfo, TRUE);
@@ -141,7 +208,11 @@ void vtkJPEGReader::ExecuteInformation()
 
   // close the file
   jpeg_destroy_decompress(&cinfo);
-  fclose(fp);
+
+  if (fp)
+    {
+    fclose(fp);
+    }
 }
 
 template <class OT>
@@ -150,10 +221,15 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
 {
   unsigned int ui;
   int i;
-  FILE *fp = fopen(self->GetInternalFileName(), "rb");
-  if (!fp)
+  FILE *fp = 0;
+
+  if (!self->GetMemoryBuffer())
     {
-    return 1;
+    fp = fopen(self->GetInternalFileName(), "rb");
+    if (!fp)
+      {
+      return 1;
+      }
     }
 
   // create jpeg decompression object and error handler
@@ -171,7 +247,10 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
     // clean up
     jpeg_destroy_decompress(&cinfo);
     // close the file
-    fclose(fp);
+    if (fp)
+      {
+      fclose(fp);
+      }
 
     // this is not a valid jpeg file
     return 2;
@@ -179,7 +258,14 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   jpeg_create_decompress(&cinfo);
 
   // set the source file
-  jpeg_stdio_src(&cinfo, fp);
+  if (fp)
+    {
+    jpeg_stdio_src(&cinfo, fp);
+    }
+  else
+    {
+    jpeg_mem_src(&cinfo, self->GetMemoryBuffer(), self->GetMemoryBufferLength());
+    }
 
   // read the header
   jpeg_read_header(&cinfo, TRUE);
@@ -227,7 +313,10 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   delete [] row_pointers;
 
   // close the file
-  fclose(fp);
+  if (fp)
+    {
+    fclose(fp);
+    }
   return 0;
 }
 

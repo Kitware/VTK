@@ -84,6 +84,16 @@ public:
   vtkGetStringMacro(FilePattern);
 
   // Description:
+  // Specify the in memory image buffer.
+  // May be used by a reader to allow the reading
+  // of an image from memory instead of from file.
+  vtkSetNGetMacro(MemoryBuffer, void*);
+
+  // Description:
+  // Specify the in memory image buffer length.
+  vtkSetNGetMacro(MemoryBufferLength, vtkIdType);
+
+  // Description:
   // Set the data type of pixels in the file.
   // If you want the output scalar type to have a different value, set it
   // after this method is called.
@@ -239,6 +249,9 @@ protected:
   char *FilePattern;
   int NumberOfScalarComponents;
   int FileLowerLeft;
+
+  void *MemoryBuffer;
+  vtkIdType MemoryBufferLength;
 
   ifstream *File;
   unsigned long DataIncrements[4];
