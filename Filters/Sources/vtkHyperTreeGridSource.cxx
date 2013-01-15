@@ -66,7 +66,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->ZCoordinates->SetComponent( 1, 0, this->GridScale[2] );
 
   // By default expose the primal grid API
-  this->Dual = false;
+  this->Dual = true;
 
   // By default use the descriptor string
   this->UseDescriptor = true;
