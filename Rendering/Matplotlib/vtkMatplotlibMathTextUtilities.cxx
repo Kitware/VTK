@@ -105,6 +105,22 @@ if (debug)                                                     \
     }                                                          \
   }
 
+namespace {
+
+//----------------------------------------------------------------------------
+// Used to replace "\ " with " " in paths.
+void UnEscapeSpaces(std::string &str)
+{
+  size_t pos = str.rfind("\\ ");
+  while (pos != std::string::npos)
+    {
+    str.erase(pos, 1);
+    pos = str.rfind("\\ ", pos);
+    }
+}
+
+} // end anon namespace
+
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
 {
@@ -139,6 +155,7 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
                                         mplPyHome) &&
             mplPyHome.size() != 0)
           {
+          UnEscapeSpaces(mplPyHome);
           vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONHOME="<<mplPyHome);
           Py_SetPythonHome(const_cast<char*>(mplPyHome.c_str()));
           }
@@ -153,6 +170,7 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
                                         mplPyInterp) &&
             mplPyInterp.size() != 0)
           {
+          UnEscapeSpaces(mplPyInterp);
           vtkMplStartUpDebugMacro("VTK_MATPLOTLIB_PYTHONINTERP="<<mplPyInterp);
           Py_SetProgramName(const_cast<char*>(mplPyInterp.c_str()));
           }
@@ -198,6 +216,7 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
           vtkStdString envPath(envPaths, pathStart + 1,
                                pathEnd == vtkStdString::npos
                                ? vtkStdString::npos : pathEnd - pathStart);
+          UnEscapeSpaces(envPath);
           PyList_Insert(pypath, 0, PyString_FromString(envPath.c_str()));
           pathEnd = pathStart - 1;
           pathStart = envPaths.rfind(delim, pathEnd);
