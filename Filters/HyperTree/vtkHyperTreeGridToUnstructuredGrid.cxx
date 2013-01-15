@@ -177,13 +177,8 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
       return 0;
     }
 
-
   // Ensure that primal grid API is used for hyper trees
-  int inputDualFlagIsOn = this->Input->GetUseDualGrid();
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 0 );
-    }
+  this->Input->SetUseDualGrid( 0 );
 
   // Initialize output cell data
   vtkCellData *outCD = this->Output->GetCellData();
@@ -194,10 +189,7 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
   this->ProcessTrees();
 
   // Return duality flag of input to its original state
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 1 );
-    }
+  this->Input->SetUseDualGrid( 1 );
 
   // Clean up
   this->Input = 0;
@@ -282,9 +274,9 @@ void vtkHyperTreeGridToUnstructuredGrid::AddCell( vtkIdType inId,
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridToUnstructuredGrid::RecursiveProcessTree( void* sc )
 {
-  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
-    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>(sc);
   // Get cursor at super cursor center
+  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( 0 );
 
   if ( cursor->IsLeaf() )
@@ -292,7 +284,7 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursiveProcessTree( void* sc )
     // Cursor is a leaf, retrieve its global index
     vtkIdType inId = cursor->GetGlobalLeafIndex();
     // If leaf is masked, skip it
-    if ( !this->Input->GetMaterialMask()->GetTuple1( inId ) )
+    if ( ! this->Input->GetMaterialMask()->GetTuple1( inId ) )
       {
       // Create cell
       this->AddCell( inId, superCursor->Origin, superCursor->Size );

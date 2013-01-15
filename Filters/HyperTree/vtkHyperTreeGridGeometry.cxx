@@ -113,12 +113,7 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Ensure that primal grid API is used for hyper trees
-  int inputDualFlagIsOn = this->Input->GetUseDualGrid();
-
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 0 );
-    }
+  this->Input->SetUseDualGrid( 0 );
 
   // Initialize output cell data
   vtkCellData* inCD = this->Input->GetCellData();
@@ -129,10 +124,7 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   this->ProcessTrees();
 
   // Return duality flag of input to its original state
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 1 );
-    }
+  this->Input->SetUseDualGrid( 1 );
 
   // Clean up
   this->Input = 0;
@@ -238,12 +230,11 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::RecursiveProcessTree( void* cursor )
+void vtkHyperTreeGridGeometry::RecursiveProcessTree( void* sc )
 {
-  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
-    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>(cursor);
-
   // Get cursor at super cursor center
+  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   if ( cursor0->IsLeaf() )
@@ -251,13 +242,13 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( void* cursor )
     switch ( this->Input->GetDimension() )
       {
       case 1:
-        ProcessLeaf1D( cursor );
+        ProcessLeaf1D( sc );
         break;
       case 2:
-        ProcessLeaf2D( cursor );
+        ProcessLeaf2D( sc );
         break;
       case 3:
-        ProcessLeaf3D( cursor );
+        ProcessLeaf3D( sc );
         break;
       }
     }
@@ -274,10 +265,11 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( void* cursor )
     }
 }
 
-void vtkHyperTreeGridGeometry::ProcessLeaf1D( void* cursor )
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridGeometry::ProcessLeaf1D( void* sc )
 {
   vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
-    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>(cursor);
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
 
   // In 1D the geometry is composed of edges
   vtkIdType ids[2];
@@ -290,12 +282,12 @@ void vtkHyperTreeGridGeometry::ProcessLeaf1D( void* cursor )
   this->Cells->InsertNextCell( 2, ids );
 }
 
-void vtkHyperTreeGridGeometry::ProcessLeaf2D( void* cursor )
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridGeometry::ProcessLeaf2D( void* sc )
 {
-  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
-    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>(cursor);
-
   // Get cursor at super cursor center
+  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   // Cell at cursor 0 is a leaf, retrieve its global index
@@ -308,12 +300,12 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D( void* cursor )
     }
 }
 
-void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* cursor )
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
 {
-  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
-    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>(cursor);
-
   // Get cursor at super cursor center
+  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   // Cell at cursor 0 is a leaf, retrieve its global index

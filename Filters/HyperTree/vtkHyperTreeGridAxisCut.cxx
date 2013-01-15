@@ -127,11 +127,7 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
     }
 
   // Ensure that primal grid API is used for hyper trees
-  int inputDualFlagIsOn = this->Input->GetUseDualGrid();
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 0 );
-    }
+  this->Input->SetUseDualGrid( 0 );
 
   // Initialize output cell data
   vtkCellData *outCD = this->Output->GetCellData();
@@ -142,10 +138,7 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
   this->ProcessTrees();
 
   // Return duality flag of input to its original state
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 1 );
-    }
+  this->Input->SetUseDualGrid( 1 );
 
   // Clean up
   this->Input = 0;
@@ -242,12 +235,11 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree( void* cursor )
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::ProcessLeaf3D( void* cursor )
+void vtkHyperTreeGridAxisCut::ProcessLeaf3D( void* sc )
 {
-  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
-    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( cursor );
-
   // Get cursor at super cursor center
+  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   // Cursor is a leaf, retrieve its global index
