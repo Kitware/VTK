@@ -1406,11 +1406,11 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
 
     if ( this->GetMaterialMask()->GetTuple1( id0 ) )
       {
-      TraverseDualMaskedLeaf( superCursor, scale );
+      this->TraverseDualMaskedLeaf( superCursor, scale );
       }
     else
       {
-      TraverseDualLeaf( superCursor );
+      this->TraverseDualLeaf( superCursor );
       }
     }
   else
@@ -1424,6 +1424,8 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
       }
     }
 }
+
+//-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* superCursor,
                                                double* scale )
 {
@@ -1463,6 +1465,7 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
     } // d
 }
 
+//-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCursor )
 {
   // Get cursor at super cursor center
