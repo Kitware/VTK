@@ -167,13 +167,17 @@ void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkUnicodeString &str)
   for (vtkUnicodeString::const_iterator it = begin; it != end; ++it)
     {
     if (*it != '\\')
+      {
       continue;
+      }
 
     // No operator+ in the unicode string iterator. Copy and advance it:
     vtkUnicodeString::const_iterator nextChar = it;
     std::advance(nextChar, 1);
     if (*nextChar != '$')
+      {
       continue;
+      }
 
     // We found a "\$" in the string. Append [begin, it) into tmp.
     tmp.append(begin, it);

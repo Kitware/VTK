@@ -72,7 +72,7 @@ bool vtkMathTextActor::RenderImage(vtkTextProperty *tprop,
     { // Fall back to freetype rendering
     if (!this->TextRenderer->RenderString(
           tprop, this->FallbackText ? this->FallbackText : this->Input,
-          this->ImageData, vtkTextRenderer::MathText))
+          this->ImageData, NULL, 120, vtkTextRenderer::MathText))
       {
       vtkErrorMacro(<<"Failed rendering fallback text to buffer");
       return false;
