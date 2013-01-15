@@ -89,13 +89,6 @@ public:
   vtkGetMacro(Dimension, unsigned int);
 
   // Description:
-  // Set/Get whether the dual grid interface is the default one
-  // Default: false
-  vtkSetMacro(Dual, bool);
-  vtkGetMacro(Dual, bool);
-  vtkBooleanMacro(Dual, bool);
-
-  // Description:
   // Set/get whether the descriptor string should be used.
   // NB: Otherwise a quadric definition is expected.
   // Default: true
@@ -182,7 +175,6 @@ protected:
   unsigned int Dimension;
   unsigned int BranchFactor;
   unsigned int BlockSize;
-  bool Dual;
   bool UseDescriptor;
   bool UseMaterialMask;
 
