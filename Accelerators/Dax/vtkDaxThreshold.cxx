@@ -27,7 +27,8 @@ namespace vtkDax {
                     vtkUnstructuredGrid *output,
                     vtkDataArray* field,
                     double lower,
-                    double upper);
+                    double upper)
+  {}
 }
 
 vtkStandardNewMacro(vtkDaxThreshold)

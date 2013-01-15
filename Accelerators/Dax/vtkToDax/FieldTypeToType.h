@@ -17,9 +17,12 @@
 #ifndef vtkToDax_FieldTypeToType_h
 #define vtkToDax_FieldTypeToType_h
 
+#include <stdint.h>
+
 class vtkIntArray;
 class vtkIdTypeArray;
 class vtkFloatArray;
+class vtkUnsignedCharArray;
 
 #include <dax/Types.h>
 
@@ -75,6 +78,22 @@ struct FieldTypeToType<vtkFloatArray,1>
   static const int NUM_COMPNENTS = 1;
   typedef dax::Scalar FieldType;
   typedef dax::Scalar ComponentType;
+};
+
+template<int NUM_COMP>
+struct FieldTypeToType<vtkUnsignedCharArray,NUM_COMP>
+{
+  static const int NUM_COMPNENTS = NUM_COMP;
+  typedef dax::Tuple<uint8_t,NUM_COMPNENTS> FieldType;
+  typedef uint8_t ComponentType;
+};
+
+template<>
+struct FieldTypeToType<vtkUnsignedCharArray,1>
+{
+  static const int NUM_COMPNENTS = 1;
+  typedef uint8_t FieldType;
+  typedef uint8_t ComponentType;
 };
 }
 

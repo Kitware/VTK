@@ -28,7 +28,8 @@ namespace vtkDax {
   int MarchingCubes(vtkDataSet* input,
                     vtkUnstructuredGrid *output,
                     vtkDataArray* field,
-                    double isoValue);
+                    double isoValue)
+  {}
 }
 
 

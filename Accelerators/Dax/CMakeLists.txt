@@ -22,16 +22,29 @@ find_package(Dax REQUIRED)
 
 # Setting the configuration file to include the appropriate driver.
 if(${Dax_ENABLE_CUDA})
-message ("CUDA_ENABLED")
-elsif(${Dax_ENABLE_TBB})
-message ("TBB_ENABLED")
-elsif(${Dax_ENABLE_OPENMP})
-message ("OPENMP_ENABLED")
+  message ("CUDA_ENABLED")
+  DaxConfigureCuda(REQUIRED)
+  set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_CUDA")
+  set (DAX_DEVICE_ADAPTER_INCLUDE "dax/cuda/cont/DeviceAdapterCuda.h")
+elseif(${Dax_ENABLE_TBB})
+  message ("TBB_ENABLED")
+  DaxConfigureTBB(REQUIRED)
+  set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_TBB")
+  set (DAX_DEVICE_ADAPTER_INCLUDE "dax/cuda/cont/DeviceAdapterTBB.h")
+elseif(${Dax_ENABLE_OPENMP})
+  message ("OPENMP_ENABLED")
+  DaxConfigureOpenMP(REQUIRED)
+  set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_OPENMP")
+  set (DAX_DEVICE_ADAPTER_INCLUDE "dax/cuda/cont/DeviceAdapterOpenMP.h")
 else()
-message ("SERIAL_ENABLED")
+  message ("SERIAL_ENABLED")
+  DaxConfigureSerial(REQUIRED)
+  set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_SERIAL")
+  set (DAX_DEVICE_ADAPTER_INCLUDE "dax/cuda/cont/DeviceAdapterSerial.h")
 endif()
 
-
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/daxConfig.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/daxConfig.h" @ONLY)
 
 #needed for our export macros
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -55,10 +68,10 @@ set(headers
   )
 set(Module_SRCS
   DaxObjectFactory.h
-  #vtkDaxMarchingCubes.cxx
+  vtkDaxMarchingCubes.cxx
   #DaxMarchingCubes.cxx
   vtkDaxThreshold.cxx
-  DaxThreshold.cxx
+  #DaxThreshold.cxx
   ${headers}
   )
 

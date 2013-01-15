@@ -14,10 +14,7 @@
 //
 //=============================================================================
 
-//really should be in UseDaxCuda.h
-// #define BOOST_SP_DISABLE_THREADS
-// #define DAX_DEVICE_ADAPTER DAX_DEVICE_ADAPTER_CUDA
-#include <dax/cont/DeviceAdapter.h>
+#include "daxConfig.h"
 
 #include <vtkDispatcher.h>
 #include <vtkDoubleDispatcher.h>
@@ -38,6 +35,7 @@
 //fields we support
 #include <vtkFloatArray.h>
 #include <vtkIntArray.h>
+#include <vtkUnsignedCharArray.h>
 
 //datasets we support
 #include <vtkDataObjectTypes.h>
@@ -182,6 +180,7 @@ int Threshold(vtkDataSet* input, vtkUnstructuredGrid *output,
   //setup the dispatch to only allow float and int array to go to the next step
   vtkDispatcher<vtkAbstractArray,int> fieldDispatcher;
   fieldDispatcher.Add<vtkFloatArray>(validInput);
+  fieldDispatcher.Add<vtkUnsignedCharArray>(validInput);
   fieldDispatcher.Add<vtkIntArray>(validInput);
   return fieldDispatcher.Go(field);
 }

@@ -14,9 +14,7 @@
 //
 //=============================================================================
 
-//really should be in UseDaxCuda.h
-#define BOOST_SP_DISABLE_THREADS
-#include <dax/cuda/cont/DeviceAdapterCuda.h>
+#include "config.h"
 
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>

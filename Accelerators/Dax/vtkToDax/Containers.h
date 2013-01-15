@@ -20,7 +20,7 @@
 #include <vtkPoints.h>
 #include <vtkCellArray.h>
 
-#include <dax/cuda/cont/DeviceAdapterCuda.h>
+#include "daxConfig.h"
 
 #include "Portals.h"
 #include "Allocators.h"
