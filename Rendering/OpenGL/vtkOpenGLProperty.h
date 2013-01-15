@@ -54,6 +54,18 @@ public:
                           vtkRenderer *r);
 
   // Description:
+  // Render the material for the face. Face can either be GL_FRONT, GL_BACK, or
+  // GL_FRONT_AND_BACK. The rest of the arguments are the same as for
+  // RenderMaterial().
+  void RenderMaterialForFace(vtkActor *actor,
+                             vtkRenderer *renderer,
+                             double *ambient,
+                             double *diffuse,
+                             double *specular,
+                             double specular_power,
+                             unsigned int face);
+
+  // Description:
   // Release any graphics resources that are being consumed by this
   // property. The parameter window could be used to determine which graphic
   // resources to release.

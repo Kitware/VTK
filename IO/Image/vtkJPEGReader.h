@@ -15,7 +15,9 @@
 // .NAME vtkJPEGReader - read JPEG files
 // .SECTION Description
 // vtkJPEGReader is a source object that reads JPEG files.
-// It should be able to read most any JPEG file
+// The reader can also read an image from a memory buffer,
+// see vtkImageReader2::MemoryBuffer.
+// It should be able to read most any JPEG file.
 //
 // .SECTION See Also
 // vtkJPEGWriter

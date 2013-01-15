@@ -71,6 +71,13 @@ public:
   // will not be reflected in the actual inputs.
   vtkDataSetCollection *GetInputList();
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::Precision enum for an explanation of the available
+  // precision settings.
+  vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
+  vtkGetMacro(OutputPointsPrecision, int);
+
 protected:
   vtkAppendFilter();
   ~vtkAppendFilter();
@@ -96,6 +103,8 @@ protected:
   //If true we will attempt to merge points. Must also not have
   //ghost cells defined.
   int MergePoints;
+
+  int OutputPointsPrecision;
 
 private:
   vtkAppendFilter(const vtkAppendFilter&);  // Not implemented.

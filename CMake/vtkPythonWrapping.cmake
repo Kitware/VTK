@@ -20,7 +20,7 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
   endif()
 
   if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
-    set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
+    set(KIT_HIERARCHY_FILE ${VTK_MODULES_DIR}/${module_name}Hierarchy.txt)
   endif()
 
   string(REGEX REPLACE "^vtk" "" kit_name "${module_name}")
@@ -29,11 +29,8 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
 
   # Figure out the dependent PythonXYD libraries for the module
   foreach(dep ${${vtk-module}_LINK_DEPENDS})
-    if(NOT "${vtk-module}" STREQUAL "${dep}")
-      if(${dep}_WRAP_PYTHON)
-        list(APPEND extra_links ${dep}PythonD)
-        list(APPEND VTK_WRAP_INCLUDE_DIRS ${${dep}_SOURCE_DIR})
-      endif()
+    if(NOT "${vtk-module}" STREQUAL "${dep}" AND TARGET ${dep}PythonD)
+      list(APPEND extra_links ${dep}PythonD)
     endif()
   endforeach()
 

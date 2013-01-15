@@ -248,6 +248,7 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     dda->Delete();
     da->Delete();
     rint->Delete();
+    vtk_tr->Delete();
     return 0;
     }
   catch( std::exception& e )

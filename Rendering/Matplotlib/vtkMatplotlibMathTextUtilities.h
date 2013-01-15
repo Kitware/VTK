@@ -115,6 +115,11 @@ protected:
   bool ScaleToPowerOfTwo;
   bool PrepareImageData(vtkImageData *data, int bbox[4]);
 
+  // Description:
+  // Set to true if this class initialized the python interpreter. This
+  // is used to determine if Py_Finalize() should be called when destructed.
+  static bool InitializedPython;
+
 private:
   vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.
   void operator=(const vtkMatplotlibMathTextUtilities&); // Not implemented.

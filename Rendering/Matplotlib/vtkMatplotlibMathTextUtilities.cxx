@@ -85,6 +85,7 @@ public:
 vtkMatplotlibMathTextUtilities::Availablity
 vtkMatplotlibMathTextUtilities::MPLMathTextAvailable =
     vtkMatplotlibMathTextUtilities::NOT_TESTED;
+bool vtkMatplotlibMathTextUtilities::InitializedPython = false;
 
 // A macro that is used in New() to print warnings if VTK_MATPLOTLIB_DEBUG
 // is defined in the environment. Use warnings to allow this to work in
@@ -165,6 +166,7 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
                                 "and error 'ImportError: No module named site',"
                                 " VTK_MATPLOTLIB_PYTHONHOME is incorrect).");
         Py_InitializeEx(0);
+        vtkMatplotlibMathTextUtilities::InitializedPython = true;
         }
 
       if (!Py_IsInitialized())
@@ -257,6 +259,10 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
                       PyString_AsString(typeStr.GetPointer()))));
         PyErr_Clear();
         vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
+        if (vtkMatplotlibMathTextUtilities::InitializedPython)
+          {
+          Py_Finalize();
+          }
         return NULL;
         }
       else
@@ -292,7 +298,11 @@ vtkMatplotlibMathTextUtilities::~vtkMatplotlibMathTextUtilities()
   Py_XDECREF(this->MaskParser);
   Py_XDECREF(this->PathParser);
   Py_XDECREF(this->FontPropertiesClass);
-  Py_Finalize();
+
+  if(vtkMatplotlibMathTextUtilities::InitializedPython)
+    {
+    Py_Finalize();
+    }
 }
 
 //----------------------------------------------------------------------------
