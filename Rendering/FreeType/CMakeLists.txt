@@ -8,6 +8,7 @@ set(Module_SRCS
   vtkMathTextActor3D.cxx
   vtkTextActor3D.cxx
   vtkTextActor.cxx
+  vtkTextRendererStringToImage.cxx
   vtkScaledTextActor.cxx
   vtkVectorText.cxx
 

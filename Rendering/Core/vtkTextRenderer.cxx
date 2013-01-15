@@ -20,6 +20,7 @@
 #include "vtkPath.h"
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
+#include "vtkUnicodeString.h"
 
 #include <vtksys/RegularExpression.hxx>
 
@@ -134,6 +135,16 @@ int vtkTextRenderer::DetectBackend(const vtkStdString &str)
 }
 
 //----------------------------------------------------------------------------
+int vtkTextRenderer::DetectBackend(const vtkUnicodeString &str)
+{
+  if (this->MathTextRegExp->find(str.utf8_str()))
+    {
+    return static_cast<int>(MathText);
+    }
+  return static_cast<int>(FreeType);
+}
+
+//----------------------------------------------------------------------------
 void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkStdString &str)
 {
   size_t ind = str.find("\\$");
@@ -142,4 +153,43 @@ void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkStdString &str)
     str.replace(ind, 2, "$");
     ind = str.find("\\$", ind + 1);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkUnicodeString &str)
+{
+  // vtkUnicodeString has only a subset of the std::string API available, so
+  // this method is more complex than the std::string overload.
+  vtkUnicodeString::const_iterator begin = str.begin();
+  vtkUnicodeString::const_iterator end = str.end();
+  vtkUnicodeString tmp;
+
+  for (vtkUnicodeString::const_iterator it = begin; it != end; ++it)
+    {
+    if (*it != '\\')
+      continue;
+
+    // No operator+ in the unicode string iterator. Copy and advance it:
+    vtkUnicodeString::const_iterator nextChar = it;
+    std::advance(nextChar, 1);
+    if (*nextChar != '$')
+      continue;
+
+    // We found a "\$" in the string. Append [begin, it) into tmp.
+    tmp.append(begin, it);
+
+    // Add the dollar sign
+    tmp.append(vtkUnicodeString::from_utf8("$"));
+
+    // Reset the iterators to continue checking the rest of the string.
+    begin = it;
+    std::advance(it, 1);
+    std::advance(begin, 2);
+    }
+
+  // Append the last bit of the string to tmp
+  tmp.append(begin, end);
+
+  // Update the input with the cleaned up string:
+  str = tmp;
 }
