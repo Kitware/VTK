@@ -44,7 +44,6 @@ int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] 
   htGrid->SetGridScale( 1., .5, .75 );
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 2 );
-  htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
   vtkNew<vtkQuadric> quadric;
