@@ -568,6 +568,23 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLProperty::RenderMaterial(vtkActor *actor,
+                                       vtkRenderer *renderer,
+                                       double *ambient,
+                                       double *diffuse,
+                                       double *specular,
+                                       double specular_power)
+{
+  this->RenderMaterialForFace(actor,
+                              renderer,
+                              ambient,
+                              diffuse,
+                              specular,
+                              specular_power,
+                              GL_FRONT_AND_BACK);
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLProperty::RenderMaterialForFace(vtkActor *,
                                               vtkRenderer *renderer,
                                               double *ambient,
