@@ -323,7 +323,6 @@ protected:
 
   void GetCell( vtkIdType, vtkCell* );
 
-  void UpdateGridArrays();
   vtkPoints* GetCornerPoints();
   vtkIdTypeArray* GetLeafCornerIds();
 
@@ -365,15 +364,7 @@ protected:
 
   void TraverseDualLeaf( vtkHyperTreeGridSuperCursor* );
 
-  void TraverseGridRecursively( vtkHyperTreeGridSuperCursor*,
-                                unsigned char* );
-
   void EvaluateDualCorner( vtkHyperTreeSimpleCursor* );
-
-  vtkIdType EvaluateGridCorner( int,
-                                vtkHyperTreeGridSuperCursor*,
-                                unsigned char*,
-                                int* );
 #endif
 //ETX
 
