@@ -48,11 +48,19 @@ public:
   virtual void SetCutFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
+  vtkGetMacro(OutputPointsPrecision, int);
+
 protected:
   vtkSynchronizedTemplatesCutter3D();
   ~vtkSynchronizedTemplatesCutter3D();
 
   vtkImplicitFunction *CutFunction;
+  int OutputPointsPrecision;
 
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,

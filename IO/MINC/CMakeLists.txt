@@ -10,4 +10,8 @@ set(Module_SRCS
   vtkMNITransformWriter.cxx
   )
 
+set(${vtk-module}_HDRS
+  vtkMINC.h
+  )
+
 vtk_module_library(vtkIOMINC ${Module_SRCS})

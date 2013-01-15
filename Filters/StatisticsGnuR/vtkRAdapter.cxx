@@ -490,7 +490,7 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   vtkTreeDFSIterator* iter = vtkTreeDFSIterator::New();
   iter->SetTree(tree);
   int nVerts = tree->GetNumberOfVertices();
-  int newNodeId[nVerts];//including root vertex 0
+  int *newNodeId = new int[nVerts];//including root vertex 0
   while (iter->HasNext())
     {// find out all the leaf nodes, and number them sequentially
     vtkIdType vertexId = iter->Next();
@@ -532,7 +532,6 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   double * e_len = REAL(edge_length);
 
   // fill in e and e_len
-  int currentNode = ntip + 1;
   vtkSmartPointer<vtkEdgeListIterator> edgeIterator = vtkSmartPointer<vtkEdgeListIterator>::New();
   tree->GetEdges(edgeIterator);
   vtkEdgeType vEdge = edgeIterator->Next();//skip the first empty edge (0,1) with weight 0
@@ -568,8 +567,9 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
       SET_STRING_ELT(node_label,newNodeId[vertexId]- ntip - 1, mkChar(lab.c_str())); //the starting id of the internal nodes is (ntip + 1)
       }
     }
+  iter->Delete();
 
-  // set all elments
+  // set all elements
   SET_VECTOR_ELT(r_tree, 0, edge);
   SET_VECTOR_ELT(r_tree, 1, Nnode);
   SET_VECTOR_ELT(r_tree, 2, tip_label);
@@ -587,6 +587,8 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   PROTECT(classname = allocVector(STRSXP, 1));
   SET_STRING_ELT(classname, 0, mkChar("phylo"));
   setAttrib(r_tree, R_ClassSymbol, classname);
+
+  delete [] newNodeId;
 
   UNPROTECT(8);
   return r_tree;

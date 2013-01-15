@@ -89,7 +89,9 @@ void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
 {
   if (tree == NULL || tree->GetNumberOfVertices() == 0)
     {
-    vtkWarningMacro( << "Warning: empty input tree");
+    this->Tree = vtkSmartPointer<vtkTree>::New();
+    this->PrunedTree = vtkSmartPointer<vtkTree>::New();
+    this->LayoutTree = vtkSmartPointer<vtkTree>::New();
     return;
     }
 
@@ -147,6 +149,11 @@ void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetTable(vtkTable *table)
 {
+  if (table == NULL || table->GetNumberOfRows() == 0)
+    {
+    this->Table = vtkSmartPointer<vtkTable>::New();
+    return;
+    }
   this->Table = table;
 }
 

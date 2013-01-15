@@ -291,11 +291,10 @@ public:
 
   // Description:
   // The cells marked by calls to DeleteCell are stored in the Cell Array
-  // VTK_EMPTY_CELL, but they still exist in the polys array.
-  // Calling RemoveDeletedCells will travers the poly array and remove/compact
-  // the cell array as well as any cell data thus truly removing the cells
-  // from the polydata object. WARNING. This only handles the polys
-  // at the moment
+  // VTK_EMPTY_CELL, but they still exist in the cell arrays.
+  // Calling RemoveDeletedCells will traverse the cell arrays and remove/compact
+  // the cell arrays as well as any cell data thus truly removing the cells
+  // from the polydata object.
   void RemoveDeletedCells();
 
   // Description:

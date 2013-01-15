@@ -52,6 +52,7 @@ vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D,CutFunction,vtkImplicitFun
 vtkSynchronizedTemplatesCutter3D::vtkSynchronizedTemplatesCutter3D()
 {
   this->CutFunction = 0;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 //----------------------------------------------------------------------------
@@ -62,7 +63,7 @@ vtkSynchronizedTemplatesCutter3D::~vtkSynchronizedTemplatesCutter3D()
 
 //----------------------------------------------------------------------------
 void vtkSynchronizedTemplatesCutter3DInitializeOutput(
-  int *ext,vtkImageData *input, vtkPolyData *o)
+  int *ext, int precision, vtkImageData *input, vtkPolyData *o)
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;
@@ -75,6 +76,25 @@ void vtkSynchronizedTemplatesCutter3DInitializeOutput(
     estimatedSize = 1024;
     }
   newPts = vtkPoints::New();
+
+  // set precision for the points in the output
+  if(precision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+    if(inputPointSet)
+      {
+      newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    }
+  else if(precision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(precision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->Allocate(estimatedSize,estimatedSize);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
@@ -137,7 +157,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   vtkPolygonBuilder polyBuilder;
   vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();
 
-  vtkSynchronizedTemplatesCutter3DInitializeOutput(exExt, data, output);
+  vtkSynchronizedTemplatesCutter3DInitializeOutput(exExt, self->GetOutputPointsPrecision(), data, output);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
 
@@ -569,5 +589,7 @@ void vtkSynchronizedTemplatesCutter3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Cut Function: " << this->CutFunction << "\n";
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }
 
