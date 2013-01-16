@@ -87,7 +87,6 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->BranchFactor = 2;
   this->Dimension =  1;
   this->NumberOfChildren = 2;
-  this->UseDualGrid = 1;
 
   // Masked primal leaves
   this->MaterialMask = vtkBitArray::New();
@@ -184,7 +183,6 @@ void vtkHyperTreeGrid::PrintSelf( ostream& os, vtkIndent indent )
     {
     this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
     }
-  os << indent << "UseDualGrid: " << this->UseDualGrid << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -213,7 +211,6 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->NumberOfChildren = htg->NumberOfChildren;
   memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
   this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-  this->UseDualGrid = htg->UseDualGrid;
 
   // Un-register existing tree
   if ( this->HyperTrees )
@@ -322,31 +319,6 @@ void vtkHyperTreeGrid::SetBranchFactor( unsigned int factor )
 
   this->Modified();
   this->UpdateTree();
-}
-
-//-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::SetUseDualGrid( int dual )
-{
-  if ( dual )
-    {
-    dual = 1;
-    }
-  if ( this->UseDualGrid == dual )
-    {
-    return;
-    }
-  if ( ( this->UseDualGrid && ! dual ) || ( ! this->UseDualGrid && dual ) )
-    {
-    // Swap point and cell data.
-    vtkDataSetAttributes* attr = vtkDataSetAttributes::New();
-    attr->ShallowCopy( this->CellData );
-    this->CellData->ShallowCopy( this->PointData );
-    this->PointData->ShallowCopy( attr );
-    attr->UnRegister( this );
-    }
-  this->DeleteInternalArrays();
-  this->UseDualGrid = dual;
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
