@@ -347,7 +347,7 @@ static void preproc_skip_name(const char **cpp)
 static unsigned int preproc_hash_name(const char **cpp)
 {
   const char *cp = (*cpp);
-  int h = 5381;
+  unsigned int h = 5381;
 
   if (preproc_chartype(*cp, CPRE_ID))
     {
