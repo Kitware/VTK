@@ -17,10 +17,12 @@
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridGeometry);
@@ -28,10 +30,14 @@ vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
 {
-  this->Points = 0;
-  this->Cells = 0;
   this->Input = 0;
   this->Output = 0;
+
+  this->InData = 0;
+  this->OutData = 0;
+
+  this->Points = 0;
+  this->Cells = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -54,41 +60,64 @@ void vtkHyperTreeGridGeometry::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
 
-  if ( this->Input )
+  if( this->Input )
     {
     os << indent << "Input:\n";
     this->Input->PrintSelf( os, indent.GetNextIndent() );
     }
   else
     {
-    os << indent << "Input: (none)\n";
+    os << indent << "Input: ( none )\n";
     }
-  if ( this->Output )
+
+  if( this->Output )
     {
     os << indent << "Output:\n";
     this->Output->PrintSelf( os, indent.GetNextIndent() );
     }
   else
     {
-    os << indent << "Output: (none)\n";
+    os << indent << "Output: ( none )\n";
     }
-  if ( this->Points )
+
+  if( this->InData )
+    {
+    os << indent << "InData:\n";
+    this->InData->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "InData: ( none )\n";
+    }
+
+  if( this->OutData )
+    {
+    os << indent << "OutData:\n";
+    this->OutData->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "OutData: ( none )\n";
+    }
+
+  if( this->Points )
     {
     os << indent << "Points:\n";
     this->Points->PrintSelf( os, indent.GetNextIndent() );
     }
   else
     {
-    os << indent << "Points: (none)\n";
+    os << indent << "Points: ( none )\n";
     }
-  if ( this->Cells )
+
+  if( this->Cells )
     {
     os << indent << "Cells:\n";
     this->Cells->PrintSelf( os, indent.GetNextIndent() );
     }
   else
     {
-    os << indent << "Cells: (none)\n";
+    os << indent << "Cells: ( none )\n";
     }
 }
 
@@ -112,19 +141,13 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
   this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
-  // Ensure that primal grid API is used for hyper trees
-  this->Input->SetUseDualGrid( 0 );
-
   // Initialize output cell data
-  vtkCellData* inCD = this->Input->GetCellData();
-  vtkCellData* outCD = this->Output->GetCellData();
-  outCD->CopyAllocate( inCD );
+  this->InData = static_cast<vtkDataSetAttributes*>( this->Input->GetPointData() );
+  this->OutData = static_cast<vtkDataSetAttributes*>( this->Output->GetCellData() );
+  this->OutData->CopyAllocate( this->InData );
 
   // Extract geometry from hyper tree grid
   this->ProcessTrees();
-
-  // Return duality flag of input to its original state
-  this->Input->SetUseDualGrid( 1 );
 
   // Clean up
   this->Input = 0;
@@ -226,7 +249,7 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
   vtkIdType outId = this->Cells->InsertNextCell( 4, ids );
 
   // Copy face data from that of the cell from which it comes
-  this->Output->GetCellData()->CopyData( this->Input->GetCellData(), inId, outId );
+  this->OutData->CopyData( this->InData, inId, outId );
 }
 
 //----------------------------------------------------------------------------

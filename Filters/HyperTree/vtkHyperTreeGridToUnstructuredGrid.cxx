@@ -17,10 +17,12 @@
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridToUnstructuredGrid);
@@ -28,13 +30,18 @@ vtkStandardNewMacro(vtkHyperTreeGridToUnstructuredGrid);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
 {
-  this->Points = 0;
-  this->Cells = 0;
   this->Input = 0;
   this->Output = 0;
 
+  this->InData = 0;
+  this->OutData = 0;
+
+  this->Points = 0;
+  this->Cells = 0;
+
   this->Dimension = 0;
   this->CellSize = 0;
+
   this->Coefficients = 0;
 }
 
@@ -71,6 +78,7 @@ void vtkHyperTreeGridToUnstructuredGrid::PrintSelf( ostream& os, vtkIndent inden
     {
     os << indent << "Input: ( none )\n";
     }
+
   if( this->Output )
     {
     os << indent << "Output:\n";
@@ -80,6 +88,27 @@ void vtkHyperTreeGridToUnstructuredGrid::PrintSelf( ostream& os, vtkIndent inden
     {
     os << indent << "Output: ( none )\n";
     }
+
+  if( this->InData )
+    {
+    os << indent << "InData:\n";
+    this->InData->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "InData: ( none )\n";
+    }
+
+  if( this->OutData )
+    {
+    os << indent << "OutData:\n";
+    this->OutData->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "OutData: ( none )\n";
+    }
+
   if( this->Points )
     {
     os << indent << "Points:\n";
@@ -89,6 +118,7 @@ void vtkHyperTreeGridToUnstructuredGrid::PrintSelf( ostream& os, vtkIndent inden
     {
     os << indent << "Points: ( none )\n";
     }
+
   if( this->Cells )
     {
     os << indent << "Cells:\n";
@@ -101,6 +131,7 @@ void vtkHyperTreeGridToUnstructuredGrid::PrintSelf( ostream& os, vtkIndent inden
 
   os << indent << "Dimension : " << this->Dimension << endl;
   os << indent << "CellSize : " << this->CellSize << endl;
+
   if ( this->Coefficients )
     {
     os << indent << "Coefficients : " << endl;
@@ -177,19 +208,13 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
       return 0;
     }
 
-  // Ensure that primal grid API is used for hyper trees
-  this->Input->SetUseDualGrid( 0 );
-
   // Initialize output cell data
-  vtkCellData *outCD = this->Output->GetCellData();
-  vtkCellData *inCD = this->Input->GetCellData();
-  outCD->CopyAllocate( inCD );
+  this->InData = static_cast<vtkDataSetAttributes*>( this->Input->GetPointData() );
+  this->OutData = static_cast<vtkDataSetAttributes*>( this->Output->GetCellData() );
+  this->OutData->CopyAllocate( this->InData );
 
-  // Cut through hyper tree grid
+  // Convert hyper tree grid to unstructured grid
   this->ProcessTrees();
-
-  // Return duality flag of input to its original state
-  this->Input->SetUseDualGrid( 1 );
 
   // Clean up
   this->Input = 0;
@@ -254,6 +279,7 @@ void vtkHyperTreeGridToUnstructuredGrid::AddCell( vtkIdType inId,
   // Generate 2^d points
   double pt[3];
   memcpy( pt, origin, 3 * sizeof(double) );
+
   // Storage for cell IDs
   vtkIdType ids[8];
   ids[0] = this->Points->InsertNextPoint( pt );
@@ -268,7 +294,7 @@ void vtkHyperTreeGridToUnstructuredGrid::AddCell( vtkIdType inId,
     }
 
   vtkIdType outId = this->Cells->InsertNextCell( this->CellSize, ids );
-  this->Output->GetCellData()->CopyData( this->Input->GetCellData(), inId, outId );
+  this->OutData->CopyData( this->InData, inId, outId );
 }
 
 //----------------------------------------------------------------------------
