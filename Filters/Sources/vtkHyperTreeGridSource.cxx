@@ -65,9 +65,6 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->ZCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates->SetComponent( 1, 0, this->GridScale[2] );
 
-  // By default expose the primal grid API
-  this->Dual = false;
-
   // By default use the descriptor string
   this->UseDescriptor = true;
 
@@ -151,8 +148,6 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
     {
     this->ZCoordinates->PrintSelf( os, indent.GetNextIndent() );
     }
-
-  os << indent << "Dual: " << this->Dual << endl;
 
   os << indent << "UseDescriptor: " << this->UseDescriptor << endl;
   os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
@@ -296,7 +291,6 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   this->Output->SetGridSize( this->GridSize );
   this->Output->SetDimension( this->Dimension );
   this->Output->SetBranchFactor( this->BranchFactor );
-  this->Output->SetUseDualGrid( this->Dual );
 
   // Create geometry
   for ( unsigned int i = 0; i < 3; ++ i )

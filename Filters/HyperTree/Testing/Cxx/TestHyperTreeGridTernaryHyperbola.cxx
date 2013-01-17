@@ -45,7 +45,6 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 2 );
   htGrid->SetBranchFactor( 3 );
-  htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOff();
   vtkNew<vtkQuadric> quadric;

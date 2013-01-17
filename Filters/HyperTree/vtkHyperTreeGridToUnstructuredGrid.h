@@ -35,9 +35,10 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class vtkPoints;
 class vtkCellArray;
+class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
+class vtkPoints;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToUnstructuredGrid : public vtkUnstructuredGridAlgorithm
 {
@@ -63,6 +64,10 @@ protected:
 
   vtkHyperTreeGrid* Input;
   vtkUnstructuredGrid* Output;
+
+  vtkDataSetAttributes* InData;
+  vtkDataSetAttributes* OutData;
+
   vtkPoints* Points;
   vtkCellArray* Cells;
 
