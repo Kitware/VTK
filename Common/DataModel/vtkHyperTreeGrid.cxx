@@ -698,12 +698,8 @@ void vtkHyperTreeGrid::GetPointCells( vtkIdType ptId, vtkIdList* cellIds )
 }
 
 //-----------------------------------------------------------------------------
-// This is unecessary because we have the info already.
-// Is it really a part of the vtkDataSet API?
-// It would be better to build the links of both dual and grid.
 void vtkHyperTreeGrid::BuildLinks()
 {
-  assert( "Not tested for 27 trees" && 0 );
   this->Links = vtkCellLinks::New();
   this->Links->Allocate( this->GetNumberOfPoints() );
   this->Links->Register( this );
