@@ -2,7 +2,7 @@
 /*==================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridTernary3DCut.cxx
+  Module:    TestHyperTreeGridTernary3DClip.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -22,21 +22,21 @@
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
-#include "vtkCellData.h"
-#include "vtkCutter.h"
+#include "vtkPointData.h"
+#include "vtkClipDataSet.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkPointData.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkShrinkFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-int TestHyperTreeGridTernary3DCut( int argc, char* argv[] )
+int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
@@ -52,37 +52,31 @@ int TestHyperTreeGridTernary3DCut( int argc, char* argv[] )
   htg2ug->SetInputConnection( htGrid->GetOutputPort() );
 
   // Cuts
-  vtkNew<vtkPlane> plane1;
-  plane1->SetOrigin( 3.35, 0., 0. );
-  plane1->SetNormal( 1., -.2, .2 );
-  vtkNew<vtkCutter> cut1;
-  cut1->SetInputConnection( htGrid->GetOutputPort() );
-  cut1->SetCutFunction( plane1.GetPointer() );
-  vtkNew<vtkPlane> plane2;
-  plane2->SetOrigin( 0., .6, .4 );
-  plane2->SetNormal( -.2, -.6, 1. );
-  vtkNew<vtkCutter> cut2;
-  cut2->SetInputConnection( htGrid->GetOutputPort() );
-  cut2->SetCutFunction( plane2.GetPointer() );
+  vtkNew<vtkPlane> plane;
+  plane->SetOrigin( 0., .5, .4 );
+  plane->SetNormal( -.2, -.6, 1. );
+  vtkNew<vtkClipDataSet> clip;
+  clip->SetInputConnection( htGrid->GetOutputPort() );
+  clip->SetClipFunction( plane.GetPointer() );
+
+  // Shrink
+  vtkNew<vtkShrinkFilter> shrink;
+  shrink->SetInputConnection( clip->GetOutputPort() );
+  shrink->SetShrinkFactor( .8 );
 
   // Mappers
-  cut1->Update();
-  double* range1 = cut1->GetOutput()->GetPointData()->GetScalars()->GetRange();
-  cut2->Update();
-  double* range2 = cut2->GetOutput()->GetPointData()->GetScalars()->GetRange();
-  double range[2];
-  range[0] = range1[0] < range2[0] ? range1[0] : range2[0];
-  range[1] = range1[1] > range2[1] ? range1[1] : range2[1];
+  clip->Update();
+  double* range = clip->GetOutput()->GetPointData()->GetScalars()->GetRange();
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkDataSetMapper> mapper1;
-  mapper1->SetInputConnection( cut1->GetOutputPort() );
+  mapper1->SetInputConnection( clip->GetOutputPort() );
   mapper1->SetScalarRange( range );
   vtkNew<vtkDataSetMapper> mapper2;
   mapper2->SetInputConnection( htg2ug->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
   vtkNew<vtkDataSetMapper> mapper3;
-  mapper3->SetInputConnection( cut2->GetOutputPort() );
+  mapper3->SetInputConnection( shrink->GetOutputPort() );
   mapper3->SetScalarRange( range );
  
   // Actors
@@ -108,7 +102,7 @@ int TestHyperTreeGridTernary3DCut( int argc, char* argv[] )
   vtkNew<vtkRenderer> renderer;
   renderer->SetActiveCamera( camera.GetPointer() );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
+  //renderer->AddActor( actor1.GetPointer() );
   renderer->AddActor( actor2.GetPointer() );
   renderer->AddActor( actor3.GetPointer() );
 
