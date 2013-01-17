@@ -192,9 +192,6 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  // Retrieve the scaling factor.
-  double factor = renWin->GetScaleFactor();
-
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner.  Since this is a NOT mouseevent, we can not use
   // locationInWindow.  Instead we get the mouse location at this instant,
@@ -235,10 +232,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     keySym = "None";
     }
 
-  // The mouse location is in points, we must convert to pixels using the
-  // scaling factor.
-  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                  (int)round(mouseLoc.y * factor),
+  interactor->SetEventInformation((int)round(mouseLoc.x),
+                                  (int)round(mouseLoc.y),
                                   controlDown, shiftDown,
                                   charCode, 1, keySym);
   interactor->SetAltKey(altDown);
@@ -269,9 +264,6 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  // Retrieve the scaling factor.
-  double factor = renWin->GetScaleFactor();
-
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner.  Since this is a NOT mouseevent, we can not use
   // locationInWindow.  Instead we get the mouse location at this instant,
@@ -312,10 +304,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     keySym = "None";
     }
 
-  // The mouse location is in points, we must convert to pixels using the
-  // scaling factor.
-  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                  (int)round(mouseLoc.y * factor),
+  interactor->SetEventInformation((int)round(mouseLoc.x),
+                                  (int)round(mouseLoc.y),
                                   controlDown, shiftDown,
                                   charCode, 1, keySym);
   interactor->SetAltKey(altDown);
@@ -341,9 +331,6 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     return;
     }
-
-  // Retrieve the scaling factor.
-  double factor = renWin->GetScaleFactor();
 
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner.  Since this is a NOT mouseevent, we can not use
@@ -390,8 +377,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                  (int)round(mouseLoc.y * factor),
+  interactor->SetEventInformation((int)round(mouseLoc.x),
+                                  (int)round(mouseLoc.y),
                                   oldControlDown, oldShiftDown,
                                   charCode, 1, keySym);
   interactor->SetAltKey(oldAltDown);
@@ -428,9 +415,6 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  // Retrieve the scaling factor.
-  double factor = renWin->GetScaleFactor();
-
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouseevent, we can use locationInWindow.
   NSPoint mouseLoc =
@@ -447,10 +431,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int altDown = ([theEvent modifierFlags] &
                   (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
 
-  // The mouse location is in points, we must convert to pixels using the
-  // scaling factor.
-  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                  (int)round(mouseLoc.y * factor),
+  interactor->SetEventInformation((int)round(mouseLoc.x),
+                                  (int)round(mouseLoc.y),
                                   controlDown, shiftDown);
   interactor->SetAltKey(altDown);
   interactor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
@@ -478,9 +460,6 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  // Retrieve the scaling factor.
-  double factor = renWin->GetScaleFactor();
-
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouseevent, we can use locationInWindow.
   NSPoint mouseLoc =
@@ -491,10 +470,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int altDown = ([theEvent modifierFlags] &
                  (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
 
-  // The mouse location is in points, we must convert to pixels using the
-  // scaling factor.
-  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                  (int)round(mouseLoc.y * factor),
+  interactor->SetEventInformation((int)round(mouseLoc.x),
+                                  (int)round(mouseLoc.y),
                                   controlDown, shiftDown);
   interactor->SetAltKey(altDown);
   interactor->InvokeEvent(vtkCommand::EnterEvent, NULL);
@@ -518,9 +495,6 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  // Retrieve the scaling factor.
-  double factor = renWin->GetScaleFactor();
-
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouseevent, we can use locationInWindow.
   NSPoint mouseLoc =
@@ -531,10 +505,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int altDown = ([theEvent modifierFlags] &
                  (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
 
-  // The mouse location is in points, we must convert to pixels using the
-  // scaling factor.
-  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                  (int)round(mouseLoc.y * factor),
+  interactor->SetEventInformation((int)round(mouseLoc.x),
+                                  (int)round(mouseLoc.y),
                                   controlDown, shiftDown);
   interactor->SetAltKey(altDown);
   interactor->InvokeEvent(vtkCommand::LeaveEvent, NULL);
@@ -558,9 +530,6 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  // Retrieve the scaling factor.
-  double factor = renWin->GetScaleFactor();
-
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouseevent, we can use locationInWindow.
   NSPoint mouseLoc =
@@ -571,10 +540,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int altDown = ([theEvent modifierFlags] &
                   (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
 
-  // The mouse location is in points, we must convert to pixels using the
-  // scaling factor.
-  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                  (int)round(mouseLoc.y * factor),
+  interactor->SetEventInformation((int)round(mouseLoc.x),
+                                  (int)round(mouseLoc.y),
                                   controlDown, shiftDown);
   interactor->SetAltKey(altDown);
 
@@ -606,9 +573,6 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  // Retrieve the scaling factor.
-  double factor = renWin->GetScaleFactor();
-
   BOOL keepOn = YES;
 
   // Get the location of the mouse event relative to this NSView's bottom
@@ -623,10 +587,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int clickCount = static_cast<int>([theEvent clickCount]);
   int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
 
-  // The mouse location is in points, we must convert to pixels using the
-  // scaling factor.
-  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                  (int)round(mouseLoc.y * factor),
+  interactor->SetEventInformation((int)round(mouseLoc.x),
+                                  (int)round(mouseLoc.y),
                                   controlDown, shiftDown,
                                   0, repeatCount);
   interactor->SetAltKey(altDown);
@@ -646,10 +608,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
       {
       mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
-      // The mouse location is in points, we must convert to pixels using the
-      // scaling factor.
-      interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                      (int)round(mouseLoc.y * factor),
+      interactor->SetEventInformation((int)round(mouseLoc.x),
+                                      (int)round(mouseLoc.y),
                                       controlDown, shiftDown);
       interactor->SetAltKey(altDown);
 
@@ -691,9 +651,6 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  // Retrieve the scaling factor.
-  double factor = renWin->GetScaleFactor();
-
   BOOL keepOn = YES;
 
   // Get the location of the mouse event relative to this NSView's bottom
@@ -708,10 +665,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int clickCount = [theEvent clickCount];
   int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
 
-  // The mouse location is in points, we must convert to pixels using the
-  // scaling factor.
-  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                  (int)round(mouseLoc.y * factor),
+  interactor->SetEventInformation((int)round(mouseLoc.x),
+                                  (int)round(mouseLoc.y),
                                   controlDown, shiftDown,
                                   0, repeatCount);
   interactor->SetAltKey(altDown);
@@ -731,10 +686,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
       {
       mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
-      // The mouse location is in points, we must convert to pixels using the
-      // scaling factor.
-      interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                      (int)round(mouseLoc.y * factor),
+      interactor->SetEventInformation((int)round(mouseLoc.x),
+                                      (int)round(mouseLoc.y),
                                       controlDown, shiftDown);
       interactor->SetAltKey(altDown);
 
@@ -776,9 +729,6 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  // Retrieve the scaling factor.
-  double factor = renWin->GetScaleFactor();
-
   BOOL keepOn = YES;
 
   // Get the location of the mouse event relative to this NSView's bottom
@@ -793,10 +743,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int clickCount = [theEvent clickCount];
   int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
 
-  // The mouse location is in points, we must convert to pixels using the
-  // scaling factor.
-  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                  (int)round(mouseLoc.y * factor),
+  interactor->SetEventInformation((int)round(mouseLoc.x),
+                                  (int)round(mouseLoc.y),
                                   controlDown, shiftDown,
                                   0, repeatCount);
   interactor->SetAltKey(altDown);
@@ -816,10 +764,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
       {
       mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
-      // The mouse location is in points, we must convert to pixels using the
-      // scaling factor.
-      interactor->SetEventInformation((int)round(mouseLoc.x * factor),
-                                      (int)round(mouseLoc.y * factor),
+      interactor->SetEventInformation((int)round(mouseLoc.x),
+                                      (int)round(mouseLoc.y),
                                       controlDown, shiftDown);
       interactor->SetAltKey(altDown);
 
