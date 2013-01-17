@@ -1364,7 +1364,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
 
   // Retrieve global index of center cursor
   int id0 = cursor0->GetGlobalLeafIndex();
-  double pt[3];
+  double pt[] = { 0., 0., 0. };
   // Compute dual point coordinates and adjust depending on cell neighborhood
   int neighborIdx = 1;
   for ( unsigned int d = 0; d < this->Dimension; ++ d, neighborIdx *= 3 )
