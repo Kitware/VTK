@@ -1,4 +1,3 @@
-
 /*==================================================================
 
   Program:   Visualization Toolkit
@@ -78,7 +77,7 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
   vtkNew<vtkDataSetMapper> mapper3;
   mapper3->SetInputConnection( shrink->GetOutputPort() );
   mapper3->SetScalarRange( range );
- 
+
   // Actors
   vtkNew<vtkActor> actor1;
   actor1->SetMapper( mapper1.GetPointer() );
@@ -118,7 +117,7 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
