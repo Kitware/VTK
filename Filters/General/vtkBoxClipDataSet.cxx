@@ -36,11 +36,10 @@
 #include "vtkIncrementalPointLocator.h"
 
 #include <math.h>
+#include <vector>
 
 vtkStandardNewMacro(vtkBoxClipDataSet);
-
 vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkIncrementalPointLocator)
-
 //----------------------------------------------------------------------------
 vtkBoxClipDataSet::vtkBoxClipDataSet()
 {
@@ -1849,7 +1848,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
   vtkCellArray *arraytetra = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[4];
   vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
@@ -1876,7 +1875,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
     }
 
   // Convert all volume cells to tetrahedra
-  this->CellGrid(cellType,npts,cellptId,arraytetra);
+  this->CellGrid(cellType,npts,&cellptId[0],arraytetra);
   unsigned int totalnewtetra = arraytetra->GetNumberOfCells();
   unsigned int idtetranew;
 
@@ -2321,7 +2320,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
   vtkCellArray *arraytetra = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[4];
   vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
@@ -2347,7 +2346,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
     cellptId[i] = cellIds->GetId(i);
     }
 
-  this->CellGrid(cellType,npts,cellptId,arraytetra);  // Convert all volume cells to tetrahedra
+  this->CellGrid(cellType,npts,&cellptId[0],arraytetra);  // Convert all volume cells to tetrahedra
 
   unsigned int totalnewtetra = arraytetra->GetNumberOfCells();
   unsigned int idtetranew;
@@ -2787,7 +2786,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
   vtkCellArray *arraytetra = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[4];
   vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
@@ -2818,7 +2817,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
     }
 
   // Convert all volume cells to tetrahedra
-  this->CellGrid(cellType,npts,cellptId,arraytetra);
+  this->CellGrid(cellType,npts,&cellptId[0],arraytetra);
   unsigned int totalnewtetra = arraytetra->GetNumberOfCells();
 
   for (idtetranew = 0 ; idtetranew < totalnewtetra; idtetranew++)
@@ -3330,7 +3329,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
   vtkCellArray *arraytetra = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[4];
   vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
@@ -3359,7 +3358,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
     cellptId[i] = cellIds->GetId(i);
     }
 
-  this->CellGrid(cellType,npts,cellptId,arraytetra);  // Convert all volume cells to tetrahedra
+  this->CellGrid(cellType,npts,&cellptId[0],arraytetra);  // Convert all volume cells to tetrahedra
 
   unsigned int totalnewtetra = arraytetra->GetNumberOfCells();
   for (idtetranew = 0 ; idtetranew < totalnewtetra; idtetranew++)
@@ -3876,7 +3875,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
   vtkCellArray *arraytriangle = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[3];
   vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
@@ -3906,7 +3905,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
     }
 
   // Convert all 2d cells to triangle
-  this->CellGrid(cellType,npts,cellptId,arraytriangle);
+  this->CellGrid(cellType,npts,&cellptId[0],arraytriangle);
 
   unsigned int totalnewtriangle= arraytriangle->GetNumberOfCells();
   unsigned int idtrianglenew;
@@ -4219,7 +4218,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
   vtkCellArray *arraytriangle = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[3];
   vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
@@ -4251,7 +4250,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
     }
 
   // Convert all 2D cells to triangle
-  this->CellGrid(cellType,npts,cellptId,arraytriangle);
+  this->CellGrid(cellType,npts, &cellptId[0],arraytriangle);
   unsigned int totalnewtriangle = arraytriangle->GetNumberOfCells();
   unsigned int idtrianglenew;
 
@@ -4628,7 +4627,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
   vtkCellArray *arraytriangle = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[3];
   vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
@@ -4659,7 +4658,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
     cellptId[i] = cellIds->GetId(i);
     }
 
-  this->CellGrid(cellType,npts,cellptId,arraytriangle);  // Convert all volume cells to triangle
+  this->CellGrid(cellType,npts,&cellptId[0],arraytriangle);  // Convert all volume cells to triangle
 
   unsigned int totalnewtriangle = arraytriangle->GetNumberOfCells();
   for (idtrianglenew = 0 ; idtrianglenew < totalnewtriangle; idtrianglenew++)
@@ -4975,7 +4974,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
   vtkCellArray *arraytriangle = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[3];
   vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
@@ -5008,7 +5007,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
     }
 
   // Convert all polygon cells to triangles
-  this->CellGrid(cellType,npts,cellptId,arraytriangle);
+  this->CellGrid(cellType,npts,&cellptId[0],arraytriangle);
 
   unsigned int totalnewtriangle = arraytriangle->GetNumberOfCells();
   for (idtrianglenew = 0 ; idtrianglenew < totalnewtriangle; idtrianglenew++)
@@ -5384,7 +5383,7 @@ void vtkBoxClipDataSet::ClipBox1D(vtkPoints *newPoints,
   vtkCellArray *arrayline  = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[2];
   vtkIdType    *v_id = NULL;
   vtkIdType     ptId;
@@ -5407,7 +5406,7 @@ void vtkBoxClipDataSet::ClipBox1D(vtkPoints *newPoints,
     }
 
   // Convert all 1d cells to single line.
-  this->CellGrid(cellType, npts, cellptId, arrayline);
+  this->CellGrid(cellType, npts, &cellptId[0], arrayline);
 
   unsigned int totalnewline = arrayline->GetNumberOfCells();
   for (unsigned int idlinenew = 0; idlinenew < totalnewline; idlinenew++)
@@ -5604,7 +5603,7 @@ void vtkBoxClipDataSet::ClipBoxInOut1D(vtkPoints *newPoints,
   vtkCellArray *arrayline  = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[2];
   vtkIdType    *v_id = NULL;
   vtkIdType     ptId;
@@ -5627,7 +5626,7 @@ void vtkBoxClipDataSet::ClipBoxInOut1D(vtkPoints *newPoints,
     }
 
   // Convert all 1d cells to single line.
-  this->CellGrid(cellType, npts, cellptId, arrayline);
+  this->CellGrid(cellType, npts, &cellptId[0], arrayline);
 
   unsigned int totalnewline = arrayline->GetNumberOfCells();
   for (unsigned int idlinenew = 0; idlinenew < totalnewline; idlinenew++)
@@ -5841,7 +5840,7 @@ void vtkBoxClipDataSet::ClipHexahedron1D(vtkPoints *newPoints,
   vtkCellArray *arrayline  = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[2];
   vtkIdType    *v_id = NULL;
   vtkIdType     ptId;
@@ -5863,7 +5862,7 @@ void vtkBoxClipDataSet::ClipHexahedron1D(vtkPoints *newPoints,
     }
 
   // Convert all 1d cells to single line.
-  this->CellGrid(cellType, npts, cellptId, arrayline);
+  this->CellGrid(cellType, npts, &cellptId[0], arrayline);
 
   unsigned int totalnewline = arrayline->GetNumberOfCells();
   for (unsigned int idlinenew = 0; idlinenew < totalnewline; idlinenew++)
@@ -6041,7 +6040,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
   vtkCellArray *arrayline  = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[2];
   vtkIdType    *v_id = NULL;
   vtkIdType     ptId;
@@ -6063,7 +6062,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
     }
 
   // Convert all 1d cells to single line.
-  this->CellGrid(cellType, npts, cellptId, arrayline);
+  this->CellGrid(cellType, npts, &cellptId[0], arrayline);
 
   unsigned int totalnewline = arrayline->GetNumberOfCells();
   for (unsigned int idlinenew = 0; idlinenew < totalnewline; idlinenew++)
@@ -6257,7 +6256,7 @@ void vtkBoxClipDataSet::ClipBox0D(vtkGenericCell *cell,
   vtkCellArray *arrayvert  = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid;
   vtkIdType    *v_id = NULL;
   vtkIdType     ptId;
@@ -6273,7 +6272,7 @@ void vtkBoxClipDataSet::ClipBox0D(vtkGenericCell *cell,
     }
 
   // Convert all 0d cells to single vert.
-  this->CellGrid(cellType, npts, cellptId, arrayvert);
+  this->CellGrid(cellType, npts, &cellptId[0], arrayvert);
 
   unsigned int totalnewvert = arrayvert->GetNumberOfCells();
   for (unsigned int idlinenew = 0; idlinenew < totalnewvert; idlinenew++)
@@ -6319,7 +6318,7 @@ void vtkBoxClipDataSet::ClipBoxInOut0D(vtkGenericCell *cell,
   vtkCellArray *arrayvert  = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid;
   vtkIdType    *v_id = NULL;
   vtkIdType     ptId;
@@ -6335,7 +6334,7 @@ void vtkBoxClipDataSet::ClipBoxInOut0D(vtkGenericCell *cell,
     }
 
   // Convert all 0d cells to single vert.
-  this->CellGrid(cellType, npts, cellptId, arrayvert);
+  this->CellGrid(cellType, npts, &cellptId[0], arrayvert);
 
   unsigned int totalnewvert = arrayvert->GetNumberOfCells();
   for (unsigned int idlinenew = 0; idlinenew < totalnewvert; idlinenew++)
@@ -6389,7 +6388,7 @@ void vtkBoxClipDataSet::ClipHexahedron0D(vtkGenericCell *cell,
   vtkCellArray *arrayvert  = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid;
   vtkIdType    *v_id = NULL;
   vtkIdType     ptId;
@@ -6405,7 +6404,7 @@ void vtkBoxClipDataSet::ClipHexahedron0D(vtkGenericCell *cell,
     }
 
   // Convert all 0d cells to single vert.
-  this->CellGrid(cellType, npts, cellptId, arrayvert);
+  this->CellGrid(cellType, npts, &cellptId[0], arrayvert);
 
   unsigned int totalnewvert = arrayvert->GetNumberOfCells();
   for (unsigned int idlinenew = 0; idlinenew < totalnewvert; idlinenew++)
@@ -6460,7 +6459,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut0D(vtkGenericCell *cell,
   vtkCellArray *arrayvert  = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
-  vtkIdType     cellptId[VTK_CELL_SIZE];
+  std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid;
   vtkIdType    *v_id = NULL;
   vtkIdType     ptId;
@@ -6476,7 +6475,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut0D(vtkGenericCell *cell,
     }
 
   // Convert all 0d cells to single vert.
-  this->CellGrid(cellType, npts, cellptId, arrayvert);
+  this->CellGrid(cellType, npts, &cellptId[0], arrayvert);
 
   unsigned int totalnewvert = arrayvert->GetNumberOfCells();
   for (unsigned int idlinenew = 0; idlinenew < totalnewvert; idlinenew++)
