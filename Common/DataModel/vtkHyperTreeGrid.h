@@ -317,9 +317,6 @@ protected:
 
   void GetCell( vtkIdType, vtkCell* );
 
-  vtkPoints* GetCornerPoints();
-  vtkIdTypeArray* GetLeafCornerIds();
-
   void UpdateDualArrays();
   vtkPoints* GetLeafCenters();
   vtkIdTypeArray* GetLeafCenterIds();
@@ -342,9 +339,6 @@ protected:
   vtkPoints* LeafCenters;
   vtkIdTypeArray* LeafCenterIds;
   std::map<vtkIdType, double> LeafCentersAdjustments[3];
-
-  vtkPoints* CornerPoints;
-  vtkIdTypeArray* LeafCornerIds;
 
   int UpdateHyperTreesLeafIdOffsets();
 

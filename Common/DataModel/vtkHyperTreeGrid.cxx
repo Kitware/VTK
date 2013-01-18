@@ -66,10 +66,6 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->HyperTrees = vtkCollection::New();
   this->HyperTreesLeafIdOffsets = 0;
 
-  // Primal grid corners
-  this->CornerPoints = 0;
-  this->LeafCornerIds = 0;
-
   // Dual grid corners (primal grid leaf centers)
   this->LeafCenters = 0;
   this->LeafCenterIds = 0;
@@ -992,16 +988,6 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySize()
     size += this->LeafCenterIds->GetActualMemorySize();
     }
 
-  if ( this->CornerPoints )
-    {
-    size += this->CornerPoints->GetActualMemorySize();
-    }
-
-  if ( this->LeafCornerIds )
-    {
-    size += this->LeafCornerIds->GetActualMemorySize();
-    }
-
   if ( this->MaterialMask )
     {
     size += this->MaterialMask->GetActualMemorySize();
@@ -1452,18 +1438,6 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
 }
 
 //-----------------------------------------------------------------------------
-vtkPoints* vtkHyperTreeGrid::GetCornerPoints()
-{
-  return this->CornerPoints;
-}
-
-//-----------------------------------------------------------------------------
-vtkIdTypeArray* vtkHyperTreeGrid::GetLeafCornerIds()
-{
-  return this->LeafCornerIds;
-}
-
-//-----------------------------------------------------------------------------
 int vtkHyperTreeGrid::UpdateHyperTreesLeafIdOffsets()
 {
   delete [] this->HyperTreesLeafIdOffsets;
@@ -1568,18 +1542,6 @@ void vtkHyperTreeGrid::DeleteInternalArrays()
     {
     this->LeafCenterIds->UnRegister( this );
     this->LeafCenterIds = 0;
-    }
-
-  if ( this->CornerPoints )
-    {
-    this->CornerPoints->UnRegister( this );
-    this->CornerPoints = 0;
-    }
-
-  if ( this->LeafCornerIds )
-    {
-    this->LeafCornerIds->UnRegister( this );
-    this->LeafCornerIds = 0;
     }
 
   if ( this->Links )
