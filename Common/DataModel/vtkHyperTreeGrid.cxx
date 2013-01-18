@@ -52,10 +52,10 @@ vtkCxxSetObjectMacro( vtkHyperTreeGrid, YCoordinates, vtkDataArray );
 vtkCxxSetObjectMacro( vtkHyperTreeGrid, ZCoordinates, vtkDataArray );
 
 // Useful helpers to quickly fetch a HT at a given index or iterator
-#define GetHyperTreeAtIndexMacro( _index_ )\
+#define GetHyperTreeAtIndexMacro( _index_ )                             \
   ( static_cast<vtkHyperTree*>( this->HyperTrees->GetItemAsObject( _index_ ) ) )
 
-#define GetNextHyperTreeMacro( _iterator_ )\
+#define GetNextHyperTreeMacro( _iterator_ )                             \
   ( static_cast<vtkHyperTree*>( this->HyperTrees->GetNextItemAsObject( _iterator_ ) ) )
 
 
@@ -1261,8 +1261,8 @@ void vtkHyperTreeGrid::UpdateDualArrays()
     {
     // Iterate over all adjustments for current dimension
     for ( std::map<vtkIdType,double>::const_iterator it =
-      this->LeafCentersAdjustments[d].begin();
-      it != this->LeafCentersAdjustments[d].end(); ++ it )
+            this->LeafCentersAdjustments[d].begin();
+          it != this->LeafCentersAdjustments[d].end(); ++ it )
       {
       double pt[3];
       this->LeafCenters->GetPoint( it->first, pt );
@@ -1286,7 +1286,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
   vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   if ( cursor0->IsLeaf() )
-     {
+    {
     // Center is a leaf, create a dual point
     // Retrieve global index of center cursor
     int id0 = cursor0->GetGlobalLeafIndex();
@@ -1331,8 +1331,8 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
 
       // Detect faces shared by an unmasked cell, break ties at same level
       if ( cursor->GetTree()
-        && cursor->IsLeaf()
-        && cursor->GetLevel() < cursor0->GetLevel() )
+           && cursor->IsLeaf()
+           && cursor->GetLevel() < cursor0->GetLevel() )
         {
         int id = cursor->GetGlobalLeafIndex();
         if ( ! this->GetMaterialMask()->GetTuple1( id ) )
