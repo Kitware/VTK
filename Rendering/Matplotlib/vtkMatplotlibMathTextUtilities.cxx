@@ -165,7 +165,7 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
         vtkMplStartUpDebugMacro("Initializing python. (if there is a segfault "
                                 "and error 'ImportError: No module named site',"
                                 " VTK_MATPLOTLIB_PYTHONHOME is incorrect).");
-        Py_Initialize();
+        Py_InitializeEx(0);
         vtkMatplotlibMathTextUtilities::InitializedPython = true;
         }
 
@@ -176,6 +176,13 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
         vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
         return NULL;
         }
+
+      // The call to Py_InitializeEx(0) should disable signal handlers, but
+      // for some reason SIGINT is still handled (and ignored) by the threading
+      // module. This works around that issue.
+      vtkMplStartUpDebugMacro("Disabling interrupt signal handlers.");
+      PyRun_SimpleString("import signal;"
+                         "signal.signal(signal.SIGINT, signal.SIG_DFL);");
 
       vtkMplStartUpDebugMacro("Python environment initialized. Checking "
                               "VTK_MATPLOTLIB_PYTHONPATH.");
@@ -252,6 +259,10 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
                       PyString_AsString(typeStr.GetPointer()))));
         PyErr_Clear();
         vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
+        if (vtkMatplotlibMathTextUtilities::InitializedPython)
+          {
+          Py_Finalize();
+          }
         return NULL;
         }
       else
