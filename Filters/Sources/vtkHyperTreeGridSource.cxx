@@ -49,6 +49,9 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->GridSize[2] = 1;
 
   // Grid geometry
+  this->Origin[0] = 0.;
+  this->Origin[1] = 0.;
+  this->Origin[2] = 0.;
   this->GridScale[0] = 1.;
   this->GridScale[1] = 1.;
   this->GridScale[2] = 1.;
@@ -125,6 +128,11 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
      << this->GridSize[0] <<","
      << this->GridSize[1] <<","
      << this->GridSize[2] << endl;
+
+  os << indent << "Origin: "
+     << this->Origin[0] <<","
+     << this->Origin[1] <<","
+     << this->Origin[2] << endl;
 
   os << indent << "GridScale: "
      << this->GridScale[0] <<","
@@ -295,12 +303,13 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   // Create geometry
   for ( unsigned int i = 0; i < 3; ++ i )
     {
-    vtkDoubleArray *coords = vtkDoubleArray::New();
+    vtkDoubleArray* coords = vtkDoubleArray::New();
     unsigned int n = this->GridSize[i] + 1;
     coords->SetNumberOfValues( n );
     for ( unsigned int j = 0; j < n; ++ j )
       {
-      coords->SetValue( j, this->GridScale[i] * static_cast<double>( j ) );
+      double coord = this->Origin[i] + this->GridScale[i] * static_cast<double>( j );
+      coords->SetValue( j, coord );
       }
 
     switch ( i )

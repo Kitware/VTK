@@ -101,7 +101,7 @@ int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( .5 * bd[1], .5 * bd[3], 6 );
+  camera->SetPosition( .5 * bd[1], .5 * bd[3], 6. );
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
