@@ -137,7 +137,7 @@ namespace
     }
     ~MyStream()
     {
-      delete this->Data;
+      delete [] this->Data;
     }
     int GetSize() { return Size;}
 
