@@ -69,6 +69,11 @@ public:
   void SetMaximumLevel( unsigned int levels );
 
   // Description:
+  // Set/Get the origin of the grid
+  vtkSetVector3Macro(Origin, double);
+  vtkGetVector3Macro(Origin, double);
+
+  // Description:
   // Set/Get the scale to be applied to root cells in each dimension of the grid
   vtkSetVector3Macro(GridScale, double);
   vtkGetVector3Macro(GridScale, double);
@@ -169,6 +174,7 @@ protected:
   // Evaluate quadric at given point coordinates
   double EvaluateQuadric( double[3] );
 
+  double Origin[3];
   double GridScale[3];
   unsigned int GridSize[3];
   unsigned int MaximumLevel;
