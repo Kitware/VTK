@@ -318,8 +318,8 @@ protected:
   void GetCell( vtkIdType, vtkCell* );
 
   void UpdateDualArrays();
-  vtkPoints* GetLeafCenters();
-  vtkIdTypeArray* GetLeafCenterIds();
+  vtkPoints* GetPoints();
+  vtkIdTypeArray* GetConnectivity();
 
   unsigned int Dimension;    // 1, 2 or 3.
   unsigned int GridSize[3];
@@ -336,9 +336,9 @@ protected:
   vtkCollection* HyperTrees;
   vtkIdType* HyperTreesLeafIdOffsets;
 
-  vtkPoints* LeafCenters;
-  vtkIdTypeArray* LeafCenterIds;
-  std::map<vtkIdType, double> LeafCentersAdjustments[3];
+  vtkPoints* Points;
+  vtkIdTypeArray* Connectivity;
+  std::map<vtkIdType, double> PointsAdjustments[3];
 
   int UpdateHyperTreesLeafIdOffsets();
 

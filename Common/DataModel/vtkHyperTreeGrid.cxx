@@ -67,8 +67,8 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->HyperTreesLeafIdOffsets = 0;
 
   // Dual grid corners (primal grid leaf centers)
-  this->LeafCenters = 0;
-  this->LeafCenterIds = 0;
+  this->Points = 0;
+  this->Connectivity = 0;
 
   // Internal links
   this->Links = 0;
@@ -501,7 +501,7 @@ int vtkHyperTreeGrid::GetNumberOfLeaves()
 vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
 {
   this->UpdateDualArrays();
-  return this->GetLeafCenterIds()->GetNumberOfTuples();
+  return this->GetConnectivity()->GetNumberOfTuples();
 }
 
 //-----------------------------------------------------------------------------
@@ -520,7 +520,7 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfPoints()
 double* vtkHyperTreeGrid::GetPoint( vtkIdType ptId )
 {
   this->UpdateDualArrays();
-  vtkPoints* leafCenters = this->GetLeafCenters();
+  vtkPoints* leafCenters = this->GetPoints();
   assert( "Index out of bounds." &&
           ptId >= 0 && ptId < leafCenters->GetNumberOfPoints() );
   return leafCenters->GetPoint( ptId );
@@ -535,7 +535,7 @@ double* vtkHyperTreeGrid::GetPoint( vtkIdType ptId )
 void vtkHyperTreeGrid::GetPoint( vtkIdType ptId, double x[3] )
 {
   this->UpdateDualArrays();
-  vtkPoints* leafCenters = this->GetLeafCenters();
+  vtkPoints* leafCenters = this->GetPoints();
   assert( "Index out of bounds." &&
           ptId >= 0 && ptId < leafCenters->GetNumberOfPoints() );
   leafCenters->GetPoint( ptId, x );
@@ -556,10 +556,10 @@ void vtkHyperTreeGrid::GetCell( vtkIdType cellId, vtkCell* cell )
   double x[3];
 
   this->UpdateDualArrays();
-  vtkIdTypeArray* cornerLeafIds = this->GetLeafCenterIds();
+  vtkIdTypeArray* cornerLeafIds = this->GetConnectivity();
   assert( "Index out of bounds." &&
           cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
-  vtkPoints* leafCenters = this->GetLeafCenters();
+  vtkPoints* leafCenters = this->GetPoints();
   vtkIdType* ptr = cornerLeafIds->GetPointer( 0 ) + cellId*numPts;
   for ( int ptIdx = 0; ptIdx < numPts; ++ptIdx, ++ptr )
     {
@@ -652,7 +652,7 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId, vtkIdList* ptIds )
   ptIds->SetNumberOfIds( numPts );
 
   this->UpdateDualArrays();
-  vtkIdTypeArray* cornerLeafIds = this->GetLeafCenterIds();
+  vtkIdTypeArray* cornerLeafIds = this->GetConnectivity();
   assert( "Index out of bounds." &&
           cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
   vtkIdType* ptr = cornerLeafIds->GetPointer( 0 ) + cellId * numPts;
@@ -667,7 +667,7 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId,
                                       vtkIdType* &pts )
 {
   this->UpdateDualArrays();
-  vtkIdTypeArray* cornerLeafIds = this->GetLeafCenterIds();
+  vtkIdTypeArray* cornerLeafIds = this->GetConnectivity();
   assert( "Index out of bounds." &&
           cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
   npts = static_cast<vtkIdType>( 1 << this->Dimension );
@@ -978,14 +978,14 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySize()
     size += this->ZCoordinates->GetActualMemorySize();
     }
 
-  if ( this->LeafCenters )
+  if ( this->Points )
     {
-    size += this->LeafCenters->GetActualMemorySize();
+    size += this->Points->GetActualMemorySize();
     }
 
-  if ( this->LeafCenterIds )
+  if ( this->Connectivity )
     {
-    size += this->LeafCenterIds->GetActualMemorySize();
+    size += this->Connectivity->GetActualMemorySize();
     }
 
   if ( this->MaterialMask )
@@ -1001,17 +1001,17 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySize()
 // requires the cell leaves connectively array which costs memory.
 
 //-----------------------------------------------------------------------------
-vtkPoints* vtkHyperTreeGrid::GetLeafCenters()
+vtkPoints* vtkHyperTreeGrid::GetPoints()
 {
   this->UpdateDualArrays();
-  return this->LeafCenters;
+  return this->Points;
 }
 
 //-----------------------------------------------------------------------------
-vtkIdTypeArray* vtkHyperTreeGrid::GetLeafCenterIds()
+vtkIdTypeArray* vtkHyperTreeGrid::GetConnectivity()
 {
   this->UpdateDualArrays();
-  return this->LeafCenterIds;
+  return this->Connectivity;
 }
 
 //-----------------------------------------------------------------------------
@@ -1180,32 +1180,32 @@ void vtkHyperTreeGrid::InitializeSuperCursorChild( vtkHyperTreeGridSuperCursor* 
 // Traverse tree with 3x3x3 super cursor.  Center cursor generates dual point
 // Smallest leaf (highest level) owns corners/dual cell.  Ties are given to
 // smallest index (z,y,x order)
-// post: Generate LeafCenters and LeafCenterIds.
+// post: Generate Points and Connectivity.
 void vtkHyperTreeGrid::UpdateDualArrays()
 {
   int numLeaves = this->UpdateHyperTreesLeafIdOffsets();
 
   // Check if we can break out early
-  if ( this->LeafCenters )
+  if ( this->Points )
     {
-    if ( this->LeafCenters->GetNumberOfPoints() == numLeaves )
+    if ( this->Points->GetNumberOfPoints() == numLeaves )
       {
       return;
       }
-    this->LeafCenters->UnRegister( this );
-    this->LeafCenterIds->UnRegister( this );
+    this->Points->UnRegister( this );
+    this->Connectivity->UnRegister( this );
     }
 
   vtkTimerLog* timer = vtkTimerLog::New();
   timer->StartTimer();
 
   // Primal cell centers are dual points
-  this->LeafCenters = vtkPoints::New();
-  this->LeafCenters->SetNumberOfPoints( numLeaves );
+  this->Points = vtkPoints::New();
+  this->Points->SetNumberOfPoints( numLeaves );
 
-  this->LeafCenterIds = vtkIdTypeArray::New();
+  this->Connectivity = vtkIdTypeArray::New();
   int numVerts = 1 << this->Dimension;
-  this->LeafCenterIds->SetNumberOfComponents( numVerts );
+  this->Connectivity->SetNumberOfComponents( numVerts );
 
   // Create an array of cursors that occupy 1 3x3x3 neighborhood
   // Will traverse the tree as one
@@ -1247,13 +1247,13 @@ void vtkHyperTreeGrid::UpdateDualArrays()
     {
     // Iterate over all adjustments for current dimension
     for ( std::map<vtkIdType,double>::const_iterator it =
-            this->LeafCentersAdjustments[d].begin();
-          it != this->LeafCentersAdjustments[d].end(); ++ it )
+            this->PointsAdjustments[d].begin();
+          it != this->PointsAdjustments[d].end(); ++ it )
       {
       double pt[3];
-      this->LeafCenters->GetPoint( it->first, pt );
+      this->Points->GetPoint( it->first, pt );
       pt[d] += it->second;
-      this->LeafCenters->SetPoint( it->first, pt );
+      this->Points->SetPoint( it->first, pt );
       } // it
     } // d
 
@@ -1331,7 +1331,7 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
             }
 
           // Store adjustment
-          this->LeafCentersAdjustments[d][id] = -0.5 * o * factor * scale[d];
+          this->PointsAdjustments[d][id] = -0.5 * o * factor * scale[d];
           }
         }
       } // o
@@ -1371,7 +1371,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
     } // d
 
   // Insert dual point corresponding to current primal cell
-  this->LeafCenters->SetPoint( id0, pt );
+  this->Points->SetPoint( id0, pt );
 
   // If cell is masked, terminate recursion, no dual cell will be generated
   if ( this->GetMaterialMask()->GetTuple1( id0 ) )
@@ -1432,7 +1432,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
 
     if ( owner )
       {
-      this->LeafCenterIds->InsertNextTupleValue( leaves );
+      this->Connectivity->InsertNextTupleValue( leaves );
       }
     } // cornerIdx
 }
@@ -1532,16 +1532,16 @@ void vtkHyperTreeGrid::DeleteInternalArrays()
   delete [] this->HyperTreesLeafIdOffsets;
   this->HyperTreesLeafIdOffsets = 0;
 
-  if ( this->LeafCenters )
+  if ( this->Points )
     {
-    this->LeafCenters->UnRegister( this );
-    this->LeafCenters = 0;
+    this->Points->UnRegister( this );
+    this->Points = 0;
     }
 
-  if ( this->LeafCenterIds )
+  if ( this->Connectivity )
     {
-    this->LeafCenterIds->UnRegister( this );
-    this->LeafCenterIds = 0;
+    this->Connectivity->UnRegister( this );
+    this->Connectivity = 0;
     }
 
   if ( this->Links )
