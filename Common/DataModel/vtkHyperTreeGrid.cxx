@@ -944,13 +944,6 @@ vtkIdType vtkHyperTreeGrid::FindCell( double x[3], vtkCell* cell, vtkIdType cell
   return this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
 }
 
-//-----------------------------------------------------------------------------
-// Generic way to set the leaf data attributes.
-vtkDataSetAttributes* vtkHyperTreeGrid::GetLeafData()
-{
-  return static_cast<vtkDataSetAttributes*>( this->PointData );
-}
-
 //----------------------------------------------------------------------------
 unsigned long vtkHyperTreeGrid::GetActualMemorySize()
 {

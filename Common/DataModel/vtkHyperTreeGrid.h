@@ -30,7 +30,7 @@
 // vtkHyperTree vtkRectilinearGrid
 //
 // .SECTION Thanks
-// This class was written by Philippe Pebay and Charles Law, Kitware 2012
+// This class was written by Philippe Pebay and Charles Law, Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGrid_h
@@ -266,11 +266,6 @@ public:
   // Shallow and Deep copy.
   void ShallowCopy( vtkDataObject* );
   void DeepCopy( vtkDataObject* );
-
-  // Description:
-  // A generic way to set the leaf data attributes.
-  // This can be either point data for dual or cell data for normal grid.
-  vtkDataSetAttributes* GetLeafData();
 
   // Description:
   // Return the actual size of the data in kilobytes. This number
