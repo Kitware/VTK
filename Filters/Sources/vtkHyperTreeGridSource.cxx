@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <assert.h>
 
 vtkStandardNewMacro(vtkHyperTreeGridSource);
+vtkCxxSetObjectMacro(vtkHyperTreeGridSource,Quadric,vtkQuadric);
 
 //----------------------------------------------------------------------------
 vtkHyperTreeGridSource::vtkHyperTreeGridSource()
@@ -859,29 +860,14 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::SetQuadric( vtkQuadric* q )
-{
-  if ( q == 0 )
-    {
-    return;
-    }
-
-  if ( this->Quadric )
-    {
-    this->Quadric->UnRegister( this );
-    }
-  this->Quadric = q;
-  this->Quadric->Register( this );
-}
-
-//-----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::SetQuadricCoefficients( double a[10] )
 {
-  if ( this->Quadric == 0 )
+  if ( ! this->Quadric )
     {
     this->Quadric = vtkQuadric::New();
     }
   this->Quadric->SetCoefficients( a );
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -901,7 +887,7 @@ unsigned long vtkHyperTreeGridSource::GetMTime()
 {
   unsigned long mTime = this->Superclass::GetMTime();
 
-  if ( this->Quadric != NULL )
+  if ( this->Quadric )
     {
     unsigned long time = this->Quadric->GetMTime();
     mTime = ( time > mTime ? time : mTime );

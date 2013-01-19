@@ -872,7 +872,7 @@ vtkIdType vtkHyperTreeGrid::RecursiveFindPoint( double x[3],
     }
   newCursor.ToChild( child );
 
-  return this->RecursiveFindPoint(x, &newCursor, newOrigin, newSize);
+  return this->RecursiveFindPoint( x, &newCursor, newOrigin, newSize );
 }
 
 //----------------------------------------------------------------------------
