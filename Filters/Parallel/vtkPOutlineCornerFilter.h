@@ -28,6 +28,8 @@
 #include "vtkPolyDataAlgorithm.h"
 class vtkOutlineCornerSource;
 class vtkMultiProcessController;
+class vtkAppendPolyData;
+class vtkPOutlineFilterInternals;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPOutlineCornerFilter : public vtkPolyDataAlgorithm
 {
@@ -42,7 +44,13 @@ public:
   // Description:
   // Set/Get the factor that controls the relative size of the corners
   // to the length of the corresponding bounds
-  vtkSetClampMacro(CornerFactor, double, 0.001, 0.5);
+  // Typically vtkSetClampMacro(CornerFactor, double, 0.001, 0.5) would
+  // used but since we are chaining this to an internal method we rewrite
+  // the code in the macro
+  virtual void SetCornerFactor(double cornerFactor);
+  virtual double GetCornerFactorMinValue()  { return 0.001;}
+  virtual double GetCornerFactorMaxValue() { return 0.5; }
+
   vtkGetMacro(CornerFactor, double);
 
   // Description:
@@ -64,6 +72,8 @@ protected:
 private:
   vtkPOutlineCornerFilter(const vtkPOutlineCornerFilter&);  // Not implemented.
   void operator=(const vtkPOutlineCornerFilter&);  // Not implemented.
+
+  vtkPOutlineFilterInternals* Internals;
 };
 
 #endif

@@ -18,6 +18,7 @@ set(Module_SRCS
   vtkPLinearExtrusionFilter.cxx
   vtkPOutlineCornerFilter.cxx
   vtkPOutlineFilter.cxx
+  vtkPOutlineFilterInternals.cxx
   vtkPPolyDataNormals.cxx
   vtkPProbeFilter.cxx
   vtkPProjectSphereFilter.cxx
@@ -40,6 +41,7 @@ set_source_files_properties(
 
 set_source_files_properties(
   ${vtk-module}ObjectFactory.cxx
+  vtkPOutlineFilterInternals.cxx
   WRAP_EXCLUDE
   )
 
