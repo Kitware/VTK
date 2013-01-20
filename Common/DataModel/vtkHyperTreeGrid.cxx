@@ -385,8 +385,6 @@ int vtkHyperTreeGrid::GetNumberOfLevels( unsigned int idx )
 
 
 //-----------------------------------------------------------------------------
-// Description:
-// Create a new cursor: an object that can traverse vtkHyperTree cells
 vtkHyperTreeCursor* vtkHyperTreeGrid::NewCursor( int idx )
 {
   vtkHyperTree* tree = GetHyperTreeAtIndexMacro( idx );
@@ -407,9 +405,6 @@ void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType id )
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Restore data object to initial state,
-// THIS METHOD IS NOT THREAD SAFE.
 void vtkHyperTreeGrid::Initialize()
 {
   if ( this->HyperTrees )
@@ -426,11 +421,6 @@ void vtkHyperTreeGrid::Initialize()
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Convenience method returns largest cell size in dataset. This is generally
-// used to allocate memory for supporting data structures.
-// This is the number of points of a cell.
-// THIS METHOD IS THREAD SAFE
 int vtkHyperTreeGrid::GetMaxCellSize()
 {
   switch( this->Dimension )
@@ -500,18 +490,12 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Return the number of points.
-// \post positive_result: result>=0
 vtkIdType vtkHyperTreeGrid::GetNumberOfPoints()
 {
   return this->GetNumberOfLeaves();
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
-// THIS METHOD IS NOT THREAD SAFE.
 double* vtkHyperTreeGrid::GetPoint( vtkIdType ptId )
 {
   this->UpdateDualArrays();
@@ -522,11 +506,6 @@ double* vtkHyperTreeGrid::GetPoint( vtkIdType ptId )
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Copy point coordinates into user provided array x[3] for specified
-// point id.
-// THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
-// THE DATASET IS NOT MODIFIED
 void vtkHyperTreeGrid::GetPoint( vtkIdType ptId, double x[3] )
 {
   this->UpdateDualArrays();
@@ -537,12 +516,6 @@ void vtkHyperTreeGrid::GetPoint( vtkIdType ptId, double x[3] )
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Get cell with cellId such that: 0 <= cellId < NumberOfCells.
-// This is a thread-safe alternative to the previous GetCell()
-// method.
-// THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
-// THE DATASET IS NOT MODIFIED
 void vtkHyperTreeGrid::GetCell( vtkIdType cellId, vtkCell* cell )
 {
   assert( "Null cell ptr." && cell != 0 );
@@ -565,9 +538,6 @@ void vtkHyperTreeGrid::GetCell( vtkIdType cellId, vtkCell* cell )
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Get cell with cellId such that: 0 <= cellId < NumberOfCells.
-// THIS METHOD IS NOT THREAD SAFE.
 vtkCell* vtkHyperTreeGrid::GetCell( vtkIdType cellId )
 {
   vtkCell* cell = 0;
@@ -589,12 +559,6 @@ vtkCell* vtkHyperTreeGrid::GetCell( vtkIdType cellId )
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Get cell with cellId such that: 0 <= cellId < NumberOfCells.
-// This is a thread-safe alternative to the previous GetCell()
-// method.
-// THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
-// THE DATASET IS NOT MODIFIED
 void vtkHyperTreeGrid::GetCell( vtkIdType cellId, vtkGenericCell* cell )
 {
   assert( "GetCell on null cell." && cell != 0 );
@@ -615,10 +579,6 @@ void vtkHyperTreeGrid::GetCell( vtkIdType cellId, vtkGenericCell* cell )
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
-// THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
-// THE DATASET IS NOT MODIFIED
 int vtkHyperTreeGrid::GetCellType( vtkIdType vtkNotUsed(cellId) )
 {
   switch ( this->Dimension )
@@ -636,10 +596,6 @@ int vtkHyperTreeGrid::GetCellType( vtkIdType vtkNotUsed(cellId) )
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Topological inquiry to get points defining cell.
-// THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
-// THE DATASET IS NOT MODIFIED
 void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId, vtkIdList* ptIds )
 {
   int numPts = 1 << this->Dimension;
@@ -655,8 +611,6 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId, vtkIdList* ptIds )
 }
 
 //----------------------------------------------------------------------------
-// Return a pointer to a list of point ids defining cell. (More efficient than alternative
-// method.)
 void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId,
                                       vtkIdType& npts,
                                       vtkIdType* &pts )
@@ -699,7 +653,6 @@ void vtkHyperTreeGrid::BuildLinks()
 }
 
 //-----------------------------------------------------------------------------
-// This is exactly the same as GetCellNeighbors in unstructured grid.
 void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
                                          vtkIdList* ptIds,
                                          vtkIdList* cellIds )
@@ -775,13 +728,8 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
 
 
 //----------------------------------------------------------------------------
-// Note: This always returns the closest point, even if the point is outside
-// tree.
-// Since dual points are leaves, use the structure of the Tree instead
-// of a point locator.
 vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
 {
-  // Find cell to which this point belongs, or at least closest one
   vtkIdType ix = 0;
   vtkIdType nx = this->XCoordinates->GetNumberOfTuples();
   while ( ix < nx && x[0] > this->XCoordinates->GetTuple1( ix ) )
@@ -871,8 +819,6 @@ vtkIdType vtkHyperTreeGrid::RecursiveFindPoint( double x[3],
 }
 
 //----------------------------------------------------------------------------
-// No need for a starting cell.  Just use the point.
-// Tree is efficient enough.
 vtkIdType vtkHyperTreeGrid::FindCell( double x[3], vtkCell* cell,
                                       vtkGenericCell* gencell, vtkIdType cellId,
                                       double tol2, int& subId, double pcoords[3],
