@@ -1279,18 +1279,35 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
 
   // Retrieve global index of center cursor
   int id0 = cursor0->GetGlobalLeafIndex();
-  double pt[] = { 0., 0., 0. };
+
+  // neighborIdx keeps track of neighbor cursors across topological entities
+  // In 1D: 
+  //   (D-0)-faces are points, neighbors are +/- 1
+  //   (D-1)-faces do not exist
+  //   (D-2)-faces do not exist
+  // In 2D:
+  //   (D-0)-faces are edges, neighbors are +/- 1, 3
+  //   (D-1)-faces are points, neighbors are +/- 2, 4
+  //   (D-2)-faces do not exist
+  // In 3D:
+  //   (D-0)-faces are faces, neighbors are +/- 1, 3, 9
+  //   (D-1)-faces are edges, neighbors are +/- 2, 4, 6, 8, 10, 12
+  //   (D-2)-faces are points, neighbors are +/-  5, 7, 11, 13
+
   // Compute dual point coordinates and adjust depending on cell neighborhood
   int neighborIdx = 1;
+  double pt[] = { 0., 0., 0. };
+  bool adjusted[] = { false, false, false };
   for ( unsigned int d = 0; d < this->Dimension; ++ d, neighborIdx *= 3 )
     {
     // Start at center
-    double halfLength = superCursor->Size[d] * 0.5;
+    double halfLength = .5 * superCursor->Size[d];
     pt[d] = superCursor->Origin[d] + halfLength;
 
-    // Check whether point must be adjusted along current direction
+    // Check whether point must be adjusted
     for ( int o = -1; o < 2; o += 2 )
       {
+      // Check across D-face neighbor
       vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o * neighborIdx );
       if ( ! cursor->GetTree()
            ||
@@ -1299,9 +1316,38 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
         {
         // Move to corresponding bound
         pt[d] += o * halfLength;
+        adjusted[d] = true;
         }
       } // o
     } // d
+
+  if ( this->Dimension == 2 )
+    {
+    // Check across (D-1)-face neighbors (corners)
+    for ( int c = -1; c < 2; c += 2 )
+      {
+      for ( int o = -1; o < 2; o += 2 )
+        {
+        vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o * ( c + 3 ) );
+        if ( ! cursor->GetTree()
+             ||
+             ( cursor->IsLeaf()
+               && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+          {
+          if ( ! adjusted[0] )
+            {
+            // Move to corresponding corner
+            pt[0] += .5 * o * c * superCursor->Size[0];
+            }
+          if ( ! adjusted[1] )
+            {
+            // Move to corresponding corner
+            pt[1] += .5 * o * superCursor->Size[1];
+            }
+          }
+        } // o
+      } // c
+    } // if ( this->Dimension == 2 )
 
   // Insert dual point corresponding to current primal cell
   this->Points->SetPoint( id0, pt );
