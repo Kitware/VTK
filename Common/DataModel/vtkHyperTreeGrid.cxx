@@ -346,42 +346,37 @@ void vtkHyperTreeGrid::UpdateTree()
 //----------------------------------------------------------------------------
 void vtkHyperTreeGrid::ComputeBounds()
 {
-  vtkMath::UninitializeBounds( this->Bounds );
-
-  if ( ! this->XCoordinates || ! this->YCoordinates || ! this->ZCoordinates )
+  // Retrieve coordinate arrays
+  vtkDataArray* coords[3];
+  coords[0] = this->XCoordinates;
+  coords[1] = this->YCoordinates;
+  coords[2] = this->ZCoordinates;
+  for ( unsigned int i = 0; i < 3; ++ i )
     {
-    return;
-    }
-
-  if ( ! this->XCoordinates->GetNumberOfTuples() ||
-       ! this->YCoordinates->GetNumberOfTuples() ||
-       ! this->ZCoordinates->GetNumberOfTuples() )
-    {
-    return;
-    }
-
-  this->Bounds[0] = this->XCoordinates->GetComponent( 0, 0 );
-  this->Bounds[2] = this->YCoordinates->GetComponent( 0, 0 );
-  this->Bounds[4] = this->ZCoordinates->GetComponent( 0, 0 );
-
-  this->Bounds[1] = this->XCoordinates->GetComponent( this->XCoordinates->GetNumberOfTuples() - 1, 0 );
-  this->Bounds[3] = this->YCoordinates->GetComponent( this->YCoordinates->GetNumberOfTuples() - 1, 0 );
-  this->Bounds[5] = this->ZCoordinates->GetComponent( this->ZCoordinates->GetNumberOfTuples() - 1, 0 );
-
-  // Ensure that the bounds are increasing
-  for ( int i = 0; i < 5; i += 2 )
-    {
-    if ( this->Bounds[i + 1] < this->Bounds[i] )
+    if ( ! coords[i] || ! coords[i]->GetNumberOfTuples() )
       {
-      std::swap( this->Bounds[i], this->Bounds[i + 1] );
+      return;
+      }
+    }
+
+  // Get bounds from coordinate arrays
+  vtkMath::UninitializeBounds( this->Bounds );
+  for ( unsigned int i = 0; i < 3; ++ i )
+    {
+    unsigned int di = 2 * i;
+    unsigned int dip = di + 1;
+    this->Bounds[di] = coords[i]->GetComponent( 0, 0 );
+    this->Bounds[dip] = coords[i]->GetComponent( coords[i]->GetNumberOfTuples() - 1, 0 );
+
+    // Ensure that the bounds are increasing
+    if ( this->Bounds[di] > this->Bounds[dip] )
+      {
+      std::swap( this->Bounds[di], this->Bounds[dip] );
       }
     }
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Return the number of levels.
-// \post result_greater_or_equal_to_one: result>=1
 int vtkHyperTreeGrid::GetNumberOfLevels( unsigned int idx )
 {
   vtkHyperTree* tree = GetHyperTreeAtIndexMacro( idx );
@@ -1235,13 +1230,12 @@ void vtkHyperTreeGrid::UpdateDualArrays()
       } // j
     } // k
 
-  // Adjust dual points as needed
+  // Adjust dual points as needed to fit the primal boundary
   for ( unsigned int d = 0; d < this->Dimension; ++ d )
     {
     // Iterate over all adjustments for current dimension
-    for ( std::map<vtkIdType,double>::const_iterator it =
-            this->PointsAdjustments[d].begin();
-          it != this->PointsAdjustments[d].end(); ++ it )
+    for ( std::map<vtkIdType,double>::const_iterator it = this->PointShifts[d].begin();
+          it != this->PointShifts[d].end(); ++ it )
       {
       double pt[3];
       this->Points->GetPoint( it->first, pt );
@@ -1251,7 +1245,7 @@ void vtkHyperTreeGrid::UpdateDualArrays()
     } // d
 
   timer->StopTimer();
-  std::cerr << "Internal dual update : " << timer->GetElapsedTime() << endl;
+  cerr << "Internal dual update : " << timer->GetElapsedTime() << endl;
   timer->Delete();
 }
 
@@ -1302,7 +1296,7 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
   int neighborIdx = 1;
   for ( unsigned int d = 0; d < this->Dimension; ++ d, neighborIdx *= 3 )
     {
-    // For each plane, check both orientations
+    // For each direction, check both orientations
     for ( int o = -1; o < 2; o += 2 )
       {
       // Retrieve face neighbor cursor
@@ -1317,16 +1311,16 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
         if ( ! this->GetMaterialMask()->GetTuple1( id ) )
           {
           // Compute reduction factor
-          double factor = 1.0;
+          double factor = 1.;
           for ( unsigned short p = 0; p < cursor->GetLevel(); ++ p )
             {
             factor /= this->BranchFactor;
             }
 
           // Store adjustment
-          this->PointsAdjustments[d][id] = -0.5 * o * factor * scale[d];
+          this->PointShifts[d][id] = -.5 * o * factor * scale[d];
           }
-        }
+        } // if cursor
       } // o
     } // d
 }

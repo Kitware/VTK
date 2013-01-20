@@ -333,7 +333,7 @@ protected:
 
   vtkPoints* Points;
   vtkIdTypeArray* Connectivity;
-  std::map<vtkIdType, double> PointsAdjustments[3];
+  std::map<vtkIdType, double> PointShifts[3];
 
   int UpdateHyperTreesLeafIdOffsets();
 
