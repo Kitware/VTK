@@ -1280,35 +1280,36 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
   // Retrieve global index of center cursor
   int id0 = cursor0->GetGlobalLeafIndex();
 
+  // Initialize dual point coordinates and adjustment flags
+  double pt[] = { 0., 0., 0. };
+  bool adjusted[] = { false, false, false };
+
   // neighborIdx keeps track of neighbor cursors across topological entities
   // In 1D: 
-  //   (D-0)-faces are points, neighbors are +/- 1
+  //   (D-0)-faces are corners, neighbors are +/- 1  X
   //   (D-1)-faces do not exist
   //   (D-2)-faces do not exist
   // In 2D:
-  //   (D-0)-faces are edges, neighbors are +/- 1, 3
-  //   (D-1)-faces are points, neighbors are +/- 2, 4
+  //   (D-0)-faces are edges, neighbors are +/- 1, 3  X
+  //   (D-1)-faces are corners, neighbors are +/- 2, 4  X
   //   (D-2)-faces do not exist
   // In 3D:
-  //   (D-0)-faces are faces, neighbors are +/- 1, 3, 9
+  //   (D-0)-faces are faces, neighbors are +/- 1, 3, 9  X
   //   (D-1)-faces are edges, neighbors are +/- 2, 4, 6, 8, 10, 12
-  //   (D-2)-faces are points, neighbors are +/-  5, 7, 11, 13
+  //   (D-2)-faces are corners, neighbors are +/-  5, 7, 11, 13
 
-  // Compute dual point coordinates and adjust depending on cell neighborhood
-  int neighborIdx = 1;
-  double pt[] = { 0., 0., 0. };
-  bool adjusted[] = { false, false, false };
-  for ( unsigned int d = 0; d < this->Dimension; ++ d, neighborIdx *= 3 )
+  // Check across D-face neighbors whether point must be adjusted
+  unsigned int f = 1;
+  for ( unsigned int d = 0; d < this->Dimension; ++ d, f *= 3 )
     {
     // Start at center
     double halfLength = .5 * superCursor->Size[d];
     pt[d] = superCursor->Origin[d] + halfLength;
 
-    // Check whether point must be adjusted
+    // Check 
     for ( int o = -1; o < 2; o += 2 )
       {
-      // Check across D-face neighbor
-      vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o * neighborIdx );
+      vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o * f );
       if ( ! cursor->GetTree()
            ||
            ( cursor->IsLeaf()
@@ -1321,34 +1322,73 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
       } // o
     } // d
 
-  if ( this->Dimension == 2 )
+  // Check across (D-1)- and (D-2)-face neighbors whether point must be adjusted
+  switch ( this->Dimension )
     {
-    // Check across (D-1)-face neighbors (corners)
-    for ( int c = -1; c < 2; c += 2 )
+    case 2:
       {
-      for ( int o = -1; o < 2; o += 2 )
+      // Check across (D-1)-face neighbors (corners)
+      for ( int c = -1; c < 2; c += 2 )
         {
-        vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o * ( c + 3 ) );
-        if ( ! cursor->GetTree()
-             ||
-             ( cursor->IsLeaf()
-               && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+        for ( int o = -1; o < 2; o += 2 )
           {
-          if ( ! adjusted[0] )
+          vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o * ( c + 3 ) );
+          if ( ! cursor->GetTree()
+               ||
+               ( cursor->IsLeaf()
+                 && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
             {
-            // Move to corresponding corner
-            pt[0] += .5 * o * c * superCursor->Size[0];
+            if ( ! adjusted[0] )
+              {
+              // Move to corresponding corner
+              pt[0] += .5 * o * c * superCursor->Size[0];
+              }
+            if ( ! adjusted[1] )
+              {
+              // Move to corresponding corner
+              pt[1] += .5 * o * superCursor->Size[1];
+              }
             }
-          if ( ! adjusted[1] )
+          } // o
+        } // c
+      break;
+      } // case 2
+    case 3:
+      {
+      // Check across (D-2)-face neighbors (corners)
+      for ( int c = -1; c < 2; c += 2 )
+        {
+        for ( int o2 = -1; o2 < 2; o2 += 2 )
+          {
+          for ( int o1 = -1; o1 < 2; o1 += 2 )
             {
-            // Move to corresponding corner
-            pt[1] += .5 * o * superCursor->Size[1];
-            }
-          }
-        } // o
-      } // c
-    } // if ( this->Dimension == 2 )
-
+            cerr << o1 * ( 9 + o2 * ( c + 3 ) )
+                 << " " << o1
+                 << " " << o2
+                 << " " << c
+                 << endl;
+            if ( ! adjusted[0] )
+              {
+              // Move to corresponding corner
+              pt[0] += .5 * o1 * o2 * c * superCursor->Size[0];
+              }
+            if ( ! adjusted[1] )
+              {
+              // Move to corresponding corner
+              pt[1] += .5 * o1 * o2 * superCursor->Size[1];
+              }
+            if ( ! adjusted[2] )
+              {
+              // Move to corresponding corner
+              pt[2] += .5 * o1 * superCursor->Size[2];
+              }
+            } // o1
+          } // o2
+        } // c
+      break;
+      } // case 3
+    } // switch ( this->Dimension )
+  
   // Insert dual point corresponding to current primal cell
   this->Points->SetPoint( id0, pt );
 
