@@ -1296,7 +1296,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
   // In 3D:
   //   (D-0)-faces are faces, neighbors are +/- 1, 3, 9  X
   //   (D-1)-faces are edges, neighbors are +/- 2, 4, 6, 8, 10, 12
-  //   (D-2)-faces are corners, neighbors are +/-  5, 7, 11, 13
+  //   (D-2)-faces are corners, neighbors are +/-  5, 7, 11, 13  X
 
   // Check across D-face neighbors whether point must be adjusted
   unsigned int f = 1;
@@ -1328,11 +1328,12 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
     case 2:
       {
       // Check across (D-1)-face neighbors (corners)
-      for ( int c = -1; c < 2; c += 2 )
+      for ( int o2 = -1; o2 < 2; o2 += 2 )
         {
-        for ( int o = -1; o < 2; o += 2 )
+        int c = o2 + 3;
+        for ( int o1 = -1; o1 < 2; o1 += 2 )
           {
-          vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o * ( c + 3 ) );
+          vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
           if ( ! cursor->GetTree()
                ||
                ( cursor->IsLeaf()
@@ -1341,50 +1342,89 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
             if ( ! adjusted[0] )
               {
               // Move to corresponding corner
-              pt[0] += .5 * o * c * superCursor->Size[0];
+              pt[0] += .5 * o1 * o2 * superCursor->Size[0];
               }
             if ( ! adjusted[1] )
               {
               // Move to corresponding corner
-              pt[1] += .5 * o * superCursor->Size[1];
+              pt[1] += .5 * o1 * superCursor->Size[1];
               }
-            }
-          } // o
-        } // c
+            } // if cursor
+          } // o1
+        } // o2
       break;
       } // case 2
     case 3:
       {
+      // Check across (D-1)-face neighbors (edges)
+      unsigned int tpa1 = 1;
+      for ( int a1 = 0; a1 < 2; ++ a1, tpa1 *= 3 )
+        {
+        unsigned int tpa2 = 3 * tpa1;
+        for ( int a2 = a1 + 1; a2 < 3; ++ a2, tpa2 *= 3 )
+          {
+          for ( int o2 = -1; o2 < 2; o2 += 2 )
+            {
+            int c  = tpa1 * o2 + tpa2;
+            for ( int o1 = -1; o1 < 2; o1 += 2 )
+              {
+              vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
+              if ( ! cursor->GetTree()
+                   ||
+                   ( cursor->IsLeaf()
+                     && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+                {
+                if ( ! adjusted[a1] )
+                  {
+                  // Move to corresponding corner
+                  pt[a1] += .5 * o1 * o2 * superCursor->Size[a1];
+                  adjusted[a1] = true;
+                  }
+                if ( ! adjusted[a2] )
+                  {
+                  // Move to corresponding corner
+                  pt[a2] += .5 * o1 * superCursor->Size[a2];
+                  adjusted[a2] = true;
+                  }
+                } // if cursor
+              } // o1
+            } // o2
+          } // a2
+        } // a1
+
       // Check across (D-2)-face neighbors (corners)
-      for ( int c = -1; c < 2; c += 2 )
+      for ( int o3 = -1; o3 < 2; o3 += 2 )
         {
         for ( int o2 = -1; o2 < 2; o2 += 2 )
           {
+          int c = o2 * ( o3 + 3 ) + 9;
           for ( int o1 = -1; o1 < 2; o1 += 2 )
             {
-            cerr << o1 * ( 9 + o2 * ( c + 3 ) )
-                 << " " << o1
-                 << " " << o2
-                 << " " << c
-                 << endl;
-            if ( ! adjusted[0] )
+            vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
+            if ( ! cursor->GetTree()
+                 ||
+                 ( cursor->IsLeaf()
+                   && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
               {
-              // Move to corresponding corner
-              pt[0] += .5 * o1 * o2 * c * superCursor->Size[0];
-              }
-            if ( ! adjusted[1] )
-              {
-              // Move to corresponding corner
-              pt[1] += .5 * o1 * o2 * superCursor->Size[1];
-              }
-            if ( ! adjusted[2] )
-              {
-              // Move to corresponding corner
-              pt[2] += .5 * o1 * superCursor->Size[2];
-              }
+              if ( ! adjusted[0] )
+                {
+                // Move to corresponding corner
+                pt[0] += .5 * o1 * o2 * o3 * superCursor->Size[0];
+                }
+              if ( ! adjusted[1] )
+                {
+                // Move to corresponding corner
+                pt[1] += .5 * o1 * o2 * superCursor->Size[1];
+                }
+              if ( ! adjusted[2] )
+                {
+                // Move to corresponding corner
+                pt[2] += .5 * o1 * superCursor->Size[2];
+                }
+              } // if cursor
             } // o1
           } // o2
-        } // c
+        } // o3
       break;
       } // case 3
     } // switch ( this->Dimension )
