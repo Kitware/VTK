@@ -1280,9 +1280,9 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
   // Retrieve global index of center cursor
   int id0 = cursor0->GetGlobalLeafIndex();
 
-  // Initialize dual point coordinates and adjustment flags
+  // Initialize dual point coordinates and D-face adjustment flag
   double pt[] = { 0., 0., 0. };
-  bool adjusted[] = { false, false, false };
+  bool movedToDFace = false;
 
   // neighborIdx keeps track of neighbor cursors across topological entities
   // In 1D: 
@@ -1317,87 +1317,22 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
         {
         // Move to corresponding bound
         pt[d] += o * halfLength;
-        adjusted[d] = true;
+        movedToDFace = true;
         }
       } // o
     } // d
 
-  // Check across (D-1)- and (D-2)-face neighbors whether point must be adjusted
-  switch ( this->Dimension )
+  // Only when point was not moved to D-face, check D-1 and D-2 neighbors
+  if ( ! movedToDFace )
     {
-    case 2:
+    switch ( this->Dimension )
       {
-      // Check across (D-1)-face neighbors (corners)
-      for ( int o2 = -1; o2 < 2; o2 += 2 )
+      case 2:
         {
-        int c = o2 + 3;
-        for ( int o1 = -1; o1 < 2; o1 += 2 )
-          {
-          vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
-          if ( ! cursor->GetTree()
-               ||
-               ( cursor->IsLeaf()
-                 && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
-            {
-            if ( ! adjusted[0] )
-              {
-              // Move to corresponding corner
-              pt[0] += .5 * o1 * o2 * superCursor->Size[0];
-              }
-            if ( ! adjusted[1] )
-              {
-              // Move to corresponding corner
-              pt[1] += .5 * o1 * superCursor->Size[1];
-              }
-            } // if cursor
-          } // o1
-        } // o2
-      break;
-      } // case 2
-    case 3:
-      {
-      // Check across (D-1)-face neighbors (edges)
-      unsigned int tpa1 = 1;
-      for ( int a1 = 0; a1 < 2; ++ a1, tpa1 *= 3 )
-        {
-        unsigned int tpa2 = 3 * tpa1;
-        for ( int a2 = a1 + 1; a2 < 3; ++ a2, tpa2 *= 3 )
-          {
-          for ( int o2 = -1; o2 < 2; o2 += 2 )
-            {
-            int c  = tpa1 * o2 + tpa2;
-            for ( int o1 = -1; o1 < 2; o1 += 2 )
-              {
-              vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
-              if ( ! cursor->GetTree()
-                   ||
-                   ( cursor->IsLeaf()
-                     && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
-                {
-                if ( ! adjusted[a1] )
-                  {
-                  // Move to corresponding corner
-                  pt[a1] += .5 * o1 * o2 * superCursor->Size[a1];
-                  adjusted[a1] = true;
-                  }
-                if ( ! adjusted[a2] )
-                  {
-                  // Move to corresponding corner
-                  pt[a2] += .5 * o1 * superCursor->Size[a2];
-                  adjusted[a2] = true;
-                  }
-                } // if cursor
-              } // o1
-            } // o2
-          } // a2
-        } // a1
-
-      // Check across (D-2)-face neighbors (corners)
-      for ( int o3 = -1; o3 < 2; o3 += 2 )
-        {
+        // Check across (D-1)-face neighbors (corners)
         for ( int o2 = -1; o2 < 2; o2 += 2 )
           {
-          int c = o2 * ( o3 + 3 ) + 9;
+          int c = o2 + 3;
           for ( int o1 = -1; o1 < 2; o1 += 2 )
             {
             vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
@@ -1406,29 +1341,77 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
                  ( cursor->IsLeaf()
                    && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
               {
-              if ( ! adjusted[0] )
-                {
-                // Move to corresponding corner
-                pt[0] += .5 * o1 * o2 * o3 * superCursor->Size[0];
-                }
-              if ( ! adjusted[1] )
-                {
-                // Move to corresponding corner
-                pt[1] += .5 * o1 * o2 * superCursor->Size[1];
-                }
-              if ( ! adjusted[2] )
-                {
-                // Move to corresponding corner
-                pt[2] += .5 * o1 * superCursor->Size[2];
-                }
+              // Move to corresponding corner
+              pt[0] += .5 * o1 * o2 * superCursor->Size[0];
+              pt[1] += .5 * o1 * superCursor->Size[1];
               } // if cursor
             } // o1
           } // o2
-        } // o3
-      break;
-      } // case 3
-    } // switch ( this->Dimension )
-  
+        break;
+        } // case 2
+      case 3:
+        {
+        // Initialize edge adjustment flag
+        bool movedToEdge = false;
+
+        // Check across (D-1)-face neighbors (edges)
+        unsigned int tpa1 = 1;
+        for ( int a1 = 0; a1 < 2; ++ a1, tpa1 *= 3 )
+          {
+          unsigned int tpa2 = 3 * tpa1;
+          for ( int a2 = a1 + 1; a2 < 3; ++ a2, tpa2 *= 3 )
+            {
+            for ( int o2 = -1; o2 < 2; o2 += 2 )
+              {
+              int c  = tpa1 * o2 + tpa2;
+              for ( int o1 = -1; o1 < 2; o1 += 2 )
+                {
+                vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
+                if ( ! cursor->GetTree()
+                     ||
+                     ( cursor->IsLeaf()
+                       && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+                  {
+                  // Move to corresponding edge
+                  pt[a1] += .5 * o1 * o2 * superCursor->Size[a1];
+                  pt[a2] += .5 * o1 * superCursor->Size[a2];
+                  movedToEdge = true;
+                  } // if cursor
+                } // o1
+              } // o2
+            } // a2
+          } // a1
+
+        // Only when point was not moved to edge, check across corners
+        if ( ! movedToEdge )
+          {
+          for ( int o3 = -1; o3 < 2; o3 += 2 )
+            {
+            for ( int o2 = -1; o2 < 2; o2 += 2 )
+              {
+              int c = o2 * ( o3 + 3 ) + 9;
+              for ( int o1 = -1; o1 < 2; o1 += 2 )
+                {
+                vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
+                if ( ! cursor->GetTree()
+                     ||
+                     ( cursor->IsLeaf()
+                       && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+                  {
+                  // Move to corresponding corner
+                  pt[0] += .5 * o1 * o2 * o3 * superCursor->Size[0];
+                  pt[1] += .5 * o1 * o2 * superCursor->Size[1];
+                  pt[2] += .5 * o1 * superCursor->Size[2];
+                  } // if cursor
+                } // o1
+              } // o2
+            } // o3
+          } // if ( ! movedToEdge )
+        break;
+        } // case 3
+      } // switch ( this->Dimension )
+    } // if ( ! movedToDFace )
+
   // Insert dual point corresponding to current primal cell
   this->Points->SetPoint( id0, pt );
 
