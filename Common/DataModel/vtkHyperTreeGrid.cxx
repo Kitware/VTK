@@ -89,14 +89,8 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
 
   // Grid geometry
   this->XCoordinates = vtkDoubleArray::New();
-  this->XCoordinates->SetNumberOfTuples( 1 );
-  this->XCoordinates->SetComponent( 0, 0, 0. );
   this->YCoordinates = vtkDoubleArray::New();
-  this->YCoordinates->SetNumberOfTuples( 1 );
-  this->YCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates = vtkDoubleArray::New();
-  this->ZCoordinates->SetNumberOfTuples( 1 );
-  this->ZCoordinates->SetComponent( 0, 0, 0. );
 
   // For data set API
   this->Voxel = vtkVoxel::New();
@@ -254,7 +248,6 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 }
 
 //-----------------------------------------------------------------------------
-// Set the number of root cells of the tree.
 void vtkHyperTreeGrid::SetGridSize( unsigned int n[3] )
 {
   if( this->GridSize[0] == n[0] && this->GridSize[1] == n[1] && this->GridSize[2] == n[2] )
@@ -332,12 +325,48 @@ void vtkHyperTreeGrid::UpdateTree()
     this->HyperTrees->RemoveAllItems();
     }
 
+  // Check whether coordinate arrays are set
+  bool coords[3];
+  coords[0] = this->XCoordinates->GetNumberOfTuples() ? true : false;
+  coords[1] = this->YCoordinates->GetNumberOfTuples() ? true : false;
+  coords[2] = this->ZCoordinates->GetNumberOfTuples() ? true : false;
+
   // Generate concrete instance of hyper tree and append it to list of roots
-  for ( unsigned int i = 0; i < this->NumberOfRoots; ++ i )
+  double scale[] = { 1., 1., 1. };
+  for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
     {
-    vtkHyperTree* tree = vtkHyperTree::CreateInstance( this->BranchFactor, this->Dimension );
-    this->HyperTrees->AddItem( tree );
-    }
+    // Compute scale along z-axis
+    if ( coords[2] )
+      {
+      scale[2]
+        = this->ZCoordinates->GetTuple1( k + 1 ) - this->ZCoordinates->GetTuple1( k );
+      }
+    for ( unsigned int j = 0; j < this->GridSize[1]; ++ j )
+      {
+      // Compute scale along y-axis
+      if ( coords[1] )
+        {
+        scale[1]
+          = this->YCoordinates->GetTuple1( j + 1 ) - this->YCoordinates->GetTuple1( j );
+        }
+      for ( unsigned int i = 0; i < this->GridSize[0]; ++ i )
+        {
+        // Compute scale along x-axis
+        if ( coords[0] )
+          {
+          scale[0]
+            = this->XCoordinates->GetTuple1( i + 1 ) - this->XCoordinates->GetTuple1( i );
+          }
+
+        // Instantiate tree and set its scale
+        vtkHyperTree* tree = vtkHyperTree::CreateInstance( this->BranchFactor, this->Dimension );
+        tree->SetScale( scale );
+
+        // Append tree to the list 
+        this->HyperTrees->AddItem( tree );
+        } // i
+      } // j
+    } // k
 
   this->Modified();
   this->DeleteInternalArrays();
@@ -607,7 +636,7 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId, vtkIdList* ptIds )
   assert( "Index out of bounds." &&
           cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
   vtkIdType* ptr = cornerLeafIds->GetPointer( 0 ) + cellId * numPts;
-  memcpy( ptIds->GetPointer(0), ptr, numPts * sizeof(vtkIdType) );
+  memcpy( ptIds->GetPointer(0), ptr, numPts * sizeof( vtkIdType ) );
 }
 
 //----------------------------------------------------------------------------
@@ -1262,9 +1291,10 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
             {
             factor /= this->BranchFactor;
             }
-
+          
+          cerr << d << " " << scale[d] << " " << cursor->GetTree()->GetScale( d ) << endl;
           // Store adjustment
-          this->PointShifts[d][id] = -.5 * o * factor * scale[d];
+          this->PointShifts[d][id] = -.5 * o * factor * cursor->GetTree()->GetScale( d );
           }
         } // if cursor
       } // o

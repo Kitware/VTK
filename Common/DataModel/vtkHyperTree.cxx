@@ -128,7 +128,7 @@ public:
     assert( "pre: not_root" && !IsRoot() );
     this->Index = this->Leaf ?
       this->Tree->GetLeafParent( this->Index ) :
-      this->Index = this->Tree->GetNode( this->Index)->GetParent();
+      this->Tree->GetNode( this->Index )->GetParent();
 
     this->Leaf = false;
     this->ChildIndex = this->ChildHistory.back(); // top()
@@ -143,7 +143,7 @@ public:
   //---------------------------------------------------------------------------
   // \pre not_leaf: !IsLeaf()
   // \pre valid_child: child >= 0 && child<this->GetNumberOfChildren()
-  virtual void ToChild(int child)
+  virtual void ToChild( int child )
   {
     assert( "pre: not_leaf" && !IsLeaf() );
     assert( "pre: valid_child" && child >= 0 && child<this->GetNumberOfChildren() );
@@ -741,6 +741,9 @@ public:
   {
     this->Superclass::PrintSelf(os,indent);
 
+    os << indent << "Dimension=" << this->Dimension << endl;
+    os << indent << "BranchFactor=" << this->BranchFactor << endl;
+
     os << indent << "Nodes=" << this->Nodes.size() << endl;
     os << indent << "LeafParent=" << this->LeafParent.size() << endl;
 
@@ -781,6 +784,19 @@ public:
     return this->Dimension;
   }
 
+  void SetScale( double s[3] )
+  {
+    memcpy( this->Scale, s, 3 * sizeof( double ) );
+  }
+  void GetScale( double s[3] )
+  {
+    memcpy( s, this->Scale, 3 * sizeof( double ) );
+  }
+  double GetScale( unsigned int d )
+  {
+    return this->Scale[d];
+  }
+
 protected:
   //---------------------------------------------------------------------------
   // Description:
@@ -788,6 +804,7 @@ protected:
   // The tree as only one node and one leaf: the root.
   vtkCompactHyperTree()
   {
+    // Set tree parameters depending on template parameter value
     switch ( N )
       {
       case 2:
@@ -816,6 +833,12 @@ protected:
         break;
       } // switch ( N )
 
+    // Set default scale
+    for ( int i = 0; i < 3; ++ i )
+      {
+      this->Scale[i] = 1.;
+      }
+
     // Set root node
     this->Nodes.resize( 1 );
     this->Nodes[0].SetParent( 0 );
@@ -835,6 +858,7 @@ protected:
 
   int BranchFactor;
   int Dimension;
+  double Scale[3];
   vtkIdType NumberOfLevels;
 
   // Storage for non-leaf tree nodes

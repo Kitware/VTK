@@ -54,7 +54,7 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
-  //  geometry->SetInputConnection( htGrid->GetOutputPort() );
+  //geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->SetInputData( htgCopy.GetPointer() );
   geometry->Update();
   vtkPolyData* pd = geometry->GetOutput();

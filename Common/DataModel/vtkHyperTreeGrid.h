@@ -118,23 +118,23 @@ public:
 
   // Description:
   // Specify the grid coordinates in the x-direction.
-  virtual void SetXCoordinates( vtkDataArray* );
+  void SetXCoordinates( vtkDataArray* );
   vtkGetObjectMacro(XCoordinates, vtkDataArray);
 
   // Description:
   // Specify the grid coordinates in the y-direction.
-  virtual void SetYCoordinates( vtkDataArray* );
+  void SetYCoordinates( vtkDataArray* );
   vtkGetObjectMacro(YCoordinates, vtkDataArray);
 
   // Description:
-  // Specify the blanking mask of primal leaf cells
-  virtual void SetMaterialMask( vtkBitArray* );
-  vtkGetObjectMacro(MaterialMask, vtkBitArray);
+  // Specify the grid coordinates in the z-direction.
+  void SetZCoordinates( vtkDataArray* );
+  vtkGetObjectMacro(ZCoordinates, vtkDataArray);
 
   // Description:
-  // Specify the grid coordinates in the z-direction.
-  virtual void SetZCoordinates( vtkDataArray* );
-  vtkGetObjectMacro(ZCoordinates, vtkDataArray);
+  // Specify the blanking mask of primal leaf cells
+  void SetMaterialMask( vtkBitArray* );
+  vtkGetObjectMacro(MaterialMask, vtkBitArray);
 
   // Description:
   // Create a new cursor: an object that can traverse
