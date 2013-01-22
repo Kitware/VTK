@@ -1535,7 +1535,8 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsLean(vtkIdType myCount, 
     }
 
   countArray = vtkIdTypeArray::New();
-  countArray->SetArray(counts, nprocs, 0);
+  countArray->SetArray(counts, nprocs, 0,
+    vtkIdTypeArray::VTK_DATA_ARRAY_DELETE);
 
   return countArray;
 }
@@ -1645,7 +1646,8 @@ vtkFloatArray **
     if (recvSize[i] > 0)
       {
       remoteArrays[i] = vtkFloatArray::New();
-      remoteArrays[i]->SetArray(recvArrays[i], recvSize[i], 0);
+      remoteArrays[i]->SetArray(recvArrays[i], recvSize[i],
+        vtkFloatArray::VTK_DATA_ARRAY_DELETE);
       }
     else
       {
@@ -1764,7 +1766,8 @@ vtkIdTypeArray **
     if (recvSize[i] > 0)
       {
       remoteArrays[i] = vtkIdTypeArray::New();
-      remoteArrays[i]->SetArray(recvArrays[i], recvSize[i], 0);
+      remoteArrays[i]->SetArray(recvArrays[i], recvSize[i], 0,
+        vtkIdTypeArray::VTK_DATA_ARRAY_DELETE);
       }
     else
       {
@@ -1982,7 +1985,8 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsFast(vtkIdType myCount, 
     }
 
   countArray = vtkIdTypeArray::New();
-  countArray->SetArray(counts, nprocs, 0);
+  countArray->SetArray(counts, nprocs, 0,
+    vtkIdTypeArray::VTK_DATA_ARRAY_DELETE);
 
   for (i = 0; i < nprocs; i++)
     {
@@ -2123,7 +2127,8 @@ vtkFloatArray **
     if (recvBufs[proc])
       {
       fa[proc] = vtkFloatArray::New();
-      fa[proc]->SetArray(recvBufs[proc], recvSize[proc], 0);
+      fa[proc]->SetArray(recvBufs[proc], recvSize[proc], 0,
+        vtkFloatArray::VTK_DATA_ARRAY_DELETE);
       }
     else
       {
@@ -2276,7 +2281,8 @@ vtkIdTypeArray **
     if (recvBufs[proc])
       {
       ia[proc] = vtkIdTypeArray::New();
-      ia[proc]->SetArray(recvBufs[proc], recvSize[proc], 0);
+      ia[proc]->SetArray(recvBufs[proc], recvSize[proc], 0,
+        vtkIdTypeArray::VTK_DATA_ARRAY_DELETE);
       }
     else
       {
@@ -2807,7 +2813,8 @@ void vtkDistributedDataFilter::AddConstantUnsignedCharPointArray(
 
   vtkUnsignedCharArray *Array = vtkUnsignedCharArray::New();
   Array->SetName(arrayName);
-  Array->SetArray(vals, npoints, 0);
+  Array->SetArray(vals, npoints, 0,
+    vtkUnsignedCharArray::VTK_DATA_ARRAY_DELETE);
 
   grid->GetPointData()->AddArray(Array);
 
@@ -2826,7 +2833,7 @@ void vtkDistributedDataFilter::AddConstantUnsignedCharCellArray(
 
   vtkUnsignedCharArray *Array = vtkUnsignedCharArray::New();
   Array->SetName(arrayName);
-  Array->SetArray(vals, ncells, 0);
+  Array->SetArray(vals, ncells, 0, vtkUnsignedCharArray::VTK_DATA_ARRAY_DELETE);
 
   grid->GetCellData()->AddArray(Array);
 

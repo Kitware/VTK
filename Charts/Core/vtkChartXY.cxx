@@ -517,17 +517,17 @@ void vtkChartXY::SetPlotCorner(vtkPlot *plot, int corner)
                     << corner);
     return;
     }
+  if (this->GetPlotCorner(plot) == corner)
+    {
+    return;
+    }
   this->RemovePlotFromCorners(plot);
   // Grow the plot corners if necessary
-  if (int(this->ChartPrivate->PlotCorners.size()) <= corner)
+  while (static_cast<int>(this->ChartPrivate->PlotCorners.size() - 1) < corner)
     {
-    while (int(this->ChartPrivate->PlotCorners.size()) <= corner)
-      {
-      vtkSmartPointer<vtkContextTransform> transform =
-        vtkSmartPointer<vtkContextTransform>::New();
-      this->ChartPrivate->PlotCorners.push_back(transform);
-      this->ChartPrivate->Clip->AddItem(transform); // Clip maintains ownership.
-      }
+    vtkNew<vtkContextTransform> transform;
+    this->ChartPrivate->PlotCorners.push_back(transform.GetPointer());
+    this->ChartPrivate->Clip->AddItem(transform.GetPointer()); // Clip maintains ownership.
     }
   this->ChartPrivate->PlotCorners[corner]->AddItem(plot);
   if (corner == 0)
@@ -1074,7 +1074,12 @@ void vtkChartXY::ClearPlots()
   for (int i = 0; i < int(this->ChartPrivate->PlotCorners.size()); ++i)
     {
     this->ChartPrivate->PlotCorners[i]->ClearItems();
+    if (i > 0)
+      {
+      this->ChartPrivate->Clip->RemoveItem(this->ChartPrivate->PlotCorners[i]);
+      }
     }
+  this->ChartPrivate->PlotCorners.resize(1);
 
   // Ensure that the bounds are recalculated
   this->PlotTransformValid = false;
@@ -1243,9 +1248,31 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     yAxis->SetMinimum(yAxis->GetMinimum() + delta[1]);
     yAxis->SetMaximum(yAxis->GetMaximum() + delta[1]);
 
-    // Same again for the axes in the top right
-    if (this->ChartPrivate->PlotCorners.size() > 2)
+    if (this->ChartPrivate->PlotCorners.size() == 2)
       {
+      // Figure out the right axis position, if greater than 2 both will be done
+      // in the else if block below.
+      screenPos = vtkVector2d(mouse.GetScreenPos().Cast<double>().GetData());
+      lastScreenPos =
+          vtkVector2d(mouse.GetLastScreenPos().Cast<double>().GetData());
+      pos = vtkVector2d(0.0, 0.0);
+      last = vtkVector2d(0.0, 0.0);
+      transform = this->ChartPrivate->PlotCorners[1]->GetTransform();
+      transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
+      transform->InverseTransformPoints(lastScreenPos.GetData(), last.GetData(), 1);
+      delta = last - pos;
+
+      // Now move the axes and recalculate the transform
+      yAxis = this->ChartPrivate->axes[vtkAxis::RIGHT];
+      delta[1] = delta[1] > 0 ?
+        std::min(delta[1], yAxis->GetMaximumLimit() - yAxis->GetMaximum()) :
+        std::max(delta[1], yAxis->GetMinimumLimit() - yAxis->GetMinimum());
+      yAxis->SetMinimum(yAxis->GetMinimum() + delta[1]);
+      yAxis->SetMaximum(yAxis->GetMaximum() + delta[1]);
+      }
+    else if (this->ChartPrivate->PlotCorners.size() > 2)
+      {
+      // Figure out the right and top axis positions.
       // Go from screen to scene coordinates to work out the delta
       screenPos = vtkVector2d(mouse.GetScreenPos().Cast<double>().GetData());
       lastScreenPos =
@@ -1798,7 +1825,7 @@ bool vtkChartXY::RemovePlotFromCorners(vtkPlot *plot)
   // We know the plot will only ever be in one of the corners
   for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
     {
-    if(this->ChartPrivate->PlotCorners[i]->RemoveItem(plot))
+    if (this->ChartPrivate->PlotCorners[i]->RemoveItem(plot))
       {
       return true;
       }
