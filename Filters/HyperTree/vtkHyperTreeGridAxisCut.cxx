@@ -17,10 +17,12 @@
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
@@ -28,12 +30,16 @@ vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 {
-  this->Points = 0;
-  this->Cells = 0;
   this->Input = 0;
   this->Output = 0;
 
-  this->PlanePosition = 0.0;
+  this->InData = 0;
+  this->OutData = 0;
+
+  this->Points = 0;
+  this->Cells = 0;
+
+  this->PlanePosition = 0.;
   this->PlaneNormalAxis = 0;
 }
 
@@ -67,6 +73,7 @@ void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
     {
     os << indent << "Input: ( none )\n";
     }
+
   if( this->Output )
     {
     os << indent << "Output:\n";
@@ -76,6 +83,27 @@ void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
     {
     os << indent << "Output: ( none )\n";
     }
+
+  if( this->InData )
+    {
+    os << indent << "InData:\n";
+    this->InData->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "InData: ( none )\n";
+    }
+
+  if( this->OutData )
+    {
+    os << indent << "OutData:\n";
+    this->OutData->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "OutData: ( none )\n";
+    }
+
   if( this->Points )
     {
     os << indent << "Points:\n";
@@ -85,6 +113,7 @@ void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
     {
     os << indent << "Points: ( none )\n";
     }
+
   if( this->Cells )
     {
     os << indent << "Cells:\n";
@@ -126,26 +155,13 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
     return 0;
     }
 
-  // Ensure that primal grid API is used for hyper trees
-  int inputDualFlagIsOn = this->Input->GetUseDualGrid();
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 0 );
-    }
-
   // Initialize output cell data
-  vtkCellData *outCD = this->Output->GetCellData();
-  vtkCellData *inCD = this->Input->GetCellData();
-  outCD->CopyAllocate( inCD );
+  this->InData = static_cast<vtkDataSetAttributes*>( this->Input->GetPointData() );
+  this->OutData = static_cast<vtkDataSetAttributes*>( this->Output->GetCellData() );
+  this->OutData->CopyAllocate( this->InData );
 
   // Cut through hyper tree grid
   this->ProcessTrees();
-
-  // Return duality flag of input to its original state
-  if ( inputDualFlagIsOn )
-    {
-    this->Input->SetUseDualGrid( 1 );
-    }
 
   // Clean up
   this->Input = 0;
@@ -197,10 +213,12 @@ void vtkHyperTreeGridAxisCut::AddFace( vtkIdType inId, double* origin,
                                        double* size, double offset0,
                                        int axis0, int axis1, int axis2 )
 {
+  // Generate 4 points
   double pt[3];
   memcpy( pt, origin, 3 * sizeof(double) );
   pt[axis0] += size[axis0] * offset0;
 
+  // Storage for cell IDs
   vtkIdType ids[4];
   ids[0] = this->Points->InsertNextPoint( pt );
   pt[axis1] += size[axis1];
@@ -211,7 +229,7 @@ void vtkHyperTreeGridAxisCut::AddFace( vtkIdType inId, double* origin,
   ids[3] = this->Points->InsertNextPoint( pt );
 
   vtkIdType outId = this->Cells->InsertNextCell( 4, ids );
-  this->Output->GetCellData()->CopyData( this->Input->GetCellData(), inId, outId );
+  this->OutData->CopyData( this->InData, inId, outId );
 }
 
 //----------------------------------------------------------------------------
@@ -242,12 +260,11 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree( void* cursor )
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::ProcessLeaf3D( void* cursor )
+void vtkHyperTreeGridAxisCut::ProcessLeaf3D( void* sc )
 {
-  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
-    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( cursor );
-
   // Get cursor at super cursor center
+  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   // Cursor is a leaf, retrieve its global index

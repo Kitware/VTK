@@ -16,7 +16,7 @@
 #include "vtkOpenGLContextDevice2D.h"
 
 #include "vtkMathTextUtilities.h"
-#include "vtkFreeTypeStringToImage.h"
+#include "vtkTextRendererStringToImage.h"
 
 #include "vtkVector.h"
 #include "vtkRect.h"
@@ -60,7 +60,7 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
 {
   this->Renderer = 0;
   this->InRender = false;
-  this->TextRenderer = vtkFreeTypeStringToImage::New();
+  this->TextRenderer = vtkTextRendererStringToImage::New();
   this->Storage = new vtkOpenGLContextDevice2D::Private;
   this->RenderWindow = NULL;
   this->MaximumMarkerCacheSize = 20;

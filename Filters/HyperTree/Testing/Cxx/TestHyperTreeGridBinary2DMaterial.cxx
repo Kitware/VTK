@@ -41,7 +41,6 @@ int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 2 );
   htGrid->SetBranchFactor( 2 );
-  htGrid->DualOn();
   htGrid->UseMaterialMaskOn();
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
   htGrid->SetMaterialMask( "111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 1111 1111 1111 1111|1111 1111 1111 1111|1111" );

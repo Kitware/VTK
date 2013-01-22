@@ -33,9 +33,10 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class vtkPoints;
 class vtkCellArray;
+class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
+class vtkPoints;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkPolyDataAlgorithm
 {
@@ -70,6 +71,10 @@ protected:
 
   vtkHyperTreeGrid* Input;
   vtkPolyData* Output;
+
+  vtkDataSetAttributes* InData;
+  vtkDataSetAttributes* OutData;
+
   vtkPoints* Points;
   vtkCellArray* Cells;
 

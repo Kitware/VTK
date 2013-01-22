@@ -41,7 +41,6 @@ int TestHyperTreeGridBinary2D( int argc, char* argv[] )
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 2 );
   htGrid->SetBranchFactor( 2 );
-  htGrid->DualOn();
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
 
   // Geometry

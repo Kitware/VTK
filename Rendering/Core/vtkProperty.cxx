@@ -920,6 +920,17 @@ void vtkProperty::PostRender(vtkActor* actor, vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
+void vtkProperty::RenderMaterial(vtkActor *,
+                                 vtkRenderer *,
+                                 double *,
+                                 double *,
+                                 double *,
+                                 double)
+{
+  // should be implemented by subclasses
+}
+
+//----------------------------------------------------------------------------
 void vtkProperty::AddShaderVariable(const char* name, int numVars, int* x)
 {
   if( !this->ShaderProgram )

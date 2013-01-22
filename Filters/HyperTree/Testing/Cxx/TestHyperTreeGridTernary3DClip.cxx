@@ -1,7 +1,7 @@
 /*==================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridTernary3DGeometryMaterial.cxx
+  Module:    TestHyperTreeGridTernary3DClip.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,23 +13,29 @@
 
 ===================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay, Kitware 2012
+// This test was written by Philippe Pebay, Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridToUnstructuredGrid.h"
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
-#include "vtkCellData.h"
+#include "vtkPointData.h"
+#include "vtkClipDataSet.h"
+#include "vtkDataSetMapper.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
+#include "vtkPlane.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkShrinkFilter.h"
+#include "vtkUnstructuredGrid.h"
 
-int TestHyperTreeGridTernary3DGeometryMaterial( int argc, char* argv[] )
+int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
@@ -38,48 +44,66 @@ int TestHyperTreeGridTernary3DGeometryMaterial( int argc, char* argv[] )
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
-  htGrid->UseMaterialMaskOn();
   htGrid->SetDescriptor( "RRR .R. .RR ..R ..R .R.|R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ..........................." );
-  htGrid->SetMaterialMask( "111 011 011 111 011 110|111111111111111111111111111 111111111111111111111111111 000000000100110111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 000110011100000100100010100|000001011011111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111001111111101111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111|000000000111100100111100100 000000000111001001111001001 000000111100100111111111111 000000111001001111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 110110110100111110111000000|111111111111111111111111111  11111111111111111111111111" );
 
-  // Geometry
-  vtkNew<vtkHyperTreeGridGeometry> geometry;
-  geometry->SetInputConnection( htGrid->GetOutputPort() );
-  geometry->Update();
-  vtkPolyData* pd = geometry->GetOutput();
+  // Hyper tree grid to unstructured grid filter
+  vtkNew<vtkHyperTreeGridToUnstructuredGrid> htg2ug;
+  htg2ug->SetInputConnection( htGrid->GetOutputPort() );
+
+  // Cuts
+  vtkNew<vtkPlane> plane;
+  plane->SetOrigin( 0., .5, .4 );
+  plane->SetNormal( -.2, -.6, 1. );
+  vtkNew<vtkClipDataSet> clip;
+  clip->SetInputConnection( htGrid->GetOutputPort() );
+  clip->SetClipFunction( plane.GetPointer() );
+
+  // Shrink
+  vtkNew<vtkShrinkFilter> shrink;
+  shrink->SetInputConnection( clip->GetOutputPort() );
+  shrink->SetShrinkFactor( .8 );
 
   // Mappers
+  clip->Update();
+  double* range = clip->GetOutput()->GetPointData()->GetScalars()->GetRange();
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
-  vtkNew<vtkPolyDataMapper> mapper1;
-  mapper1->SetInputConnection( geometry->GetOutputPort() );
-  mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
-  vtkNew<vtkPolyDataMapper> mapper2;
-  mapper2->SetInputConnection( geometry->GetOutputPort() );
+  vtkNew<vtkDataSetMapper> mapper1;
+  mapper1->SetInputConnection( clip->GetOutputPort() );
+  mapper1->SetScalarRange( range );
+  vtkNew<vtkDataSetMapper> mapper2;
+  mapper2->SetInputConnection( htg2ug->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
- 
+  vtkNew<vtkDataSetMapper> mapper3;
+  mapper3->SetInputConnection( shrink->GetOutputPort() );
+  mapper3->SetScalarRange( range );
+
   // Actors
   vtkNew<vtkActor> actor1;
   actor1->SetMapper( mapper1.GetPointer() );
   vtkNew<vtkActor> actor2;
   actor2->SetMapper( mapper2.GetPointer() );
   actor2->GetProperty()->SetRepresentationToWireframe();
-  actor2->GetProperty()->SetColor( .7, .7, .7 );
+  actor2->GetProperty()->SetColor( .8, .8, .8 );
+  vtkNew<vtkActor> actor3;
+  actor3->SetMapper( mapper3.GetPointer() );
 
   // Camera
+  vtkHyperTreeGrid* ht = htGrid->GetOutput();
   double bd[6];
-  pd->GetBounds( bd );
+  ht->GetBounds( bd );
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
-  camera->SetFocalPoint( pd->GetCenter() );
+  camera->SetFocalPoint( ht->GetCenter() );
   camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
   renderer->SetActiveCamera( camera.GetPointer() );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
+  //renderer->AddActor( actor1.GetPointer() );
   renderer->AddActor( actor2.GetPointer() );
+  renderer->AddActor( actor3.GetPointer() );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
@@ -93,7 +117,7 @@ int TestHyperTreeGridTernary3DGeometryMaterial( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {

@@ -273,12 +273,6 @@ public:
   vtkDataSetAttributes* GetLeafData();
 
   // Description:
-  // Switch between returning leaves as cells, or the dual grid.
-  void SetUseDualGrid(int);
-  vtkGetMacro(UseDualGrid, int);
-  vtkBooleanMacro(UseDualGrid, int);
-
-  // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
   // returned is guaranteed to be greater than or equal to the
@@ -323,7 +317,6 @@ protected:
 
   void GetCell( vtkIdType, vtkCell* );
 
-  void UpdateGridArrays();
   vtkPoints* GetCornerPoints();
   vtkIdTypeArray* GetLeafCornerIds();
 
@@ -365,15 +358,7 @@ protected:
 
   void TraverseDualLeaf( vtkHyperTreeGridSuperCursor* );
 
-  void TraverseGridRecursively( vtkHyperTreeGridSuperCursor*,
-                                unsigned char* );
-
   void EvaluateDualCorner( vtkHyperTreeSimpleCursor* );
-
-  vtkIdType EvaluateGridCorner( int,
-                                vtkHyperTreeGridSuperCursor*,
-                                unsigned char*,
-                                int* );
 #endif
 //ETX
 
@@ -408,9 +393,6 @@ protected:
                                 vtkHyperTreeSimpleCursor* cursor,
                                 double* origin, double* size);
 //ETX
-  // This toggles the data set API between the leaf cells and
-  // the dual grid (leaves are points, corners are cells).
-  int UseDualGrid;
 
 public:
 //BTX

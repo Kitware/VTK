@@ -44,7 +44,6 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   htGrid->SetGridScale( .5, .25, .7 );
   htGrid->SetDimension( 2 );
   htGrid->SetBranchFactor( 2 );
-  htGrid->DualOn();
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
   vtkNew<vtkQuadric> quadric;
