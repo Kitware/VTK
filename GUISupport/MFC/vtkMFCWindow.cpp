@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
-// Allow use of features specific to Windows 95 and Windows NT 4 or later.
+// 0x0501 means target Windows XP or later
 #ifndef WINVER
-#define WINVER 0x0400
+#define WINVER 0x0501
 #endif
 
 // Define _WIN32_WINNT and _WIN32_IE to avoid the following error with Visual
@@ -25,7 +25,7 @@
 // setting"
 
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0400 // =_WIN32_WINNT_NT4
+#define _WIN32_WINNT 0x0501 // 0x0501 means target Windows XP or later
 #endif
 #ifndef _WIN32_IE
 #define _WIN32_IE 0x0601 //=_WIN32_IE_IE60SP1

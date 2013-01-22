@@ -16,10 +16,10 @@
 // On Visual Studio, older than VS9, CoInitializeEx() is not automatically
 // defined if the minimum compatibility OS is not specified.
 // The Spacenavigator is supported on Windows 2000, XP, Vista
-// Setting the minimum requirement to Windows 2000 (code 0x500) is
-// a reasonable value.
 #if defined(_MSC_VER) && (_MSC_VER<1500) // 1500=VS9(2008)
-# define _WIN32_WINNT 0x500 // aka Windows 2000, for CoInitializeEx()
+# ifndef _WIN32_WINNT
+# define _WIN32_WINNT 0x501 // for CoInitializeEx(), 0x0501 means target Windows XP or later
+# endif
 #endif
 
 #include "vtkTDxWinDevice.h"
