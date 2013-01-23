@@ -362,7 +362,7 @@ void vtkHyperTreeGrid::UpdateTree()
         vtkHyperTree* tree = vtkHyperTree::CreateInstance( this->BranchFactor, this->Dimension );
         tree->SetScale( scale );
 
-        // Append tree to the list 
+        // Append tree to the list
         this->HyperTrees->AddItem( tree );
         } // i
       } // j
@@ -1291,7 +1291,7 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
             {
             factor /= this->BranchFactor;
             }
-          
+
           cerr << d << " " << scale[d] << " " << cursor->GetTree()->GetScale( d ) << endl;
           // Store adjustment
           this->PointShifts[d][id] = -.5 * o * factor * cursor->GetTree()->GetScale( d );
@@ -1315,7 +1315,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
   double halfL[] = { 0., 0., 0. };
   bool movedToDFace = false;
 
-  // In 1D: 
+  // In 1D:
   //   (D-0)-faces are corners, neighbors are +/- 1  X
   //   (D-1)-faces do not exist
   //   (D-2)-faces do not exist
@@ -1336,7 +1336,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
     halfL[d] = .5 * superCursor->Size[d];
     pt[d] = superCursor->Origin[d] + halfL[d];
 
-    // Check 
+    // Check
     for ( int o = -1; o < 2; o += 2 )
       {
       vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o * f );
