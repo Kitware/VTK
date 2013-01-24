@@ -110,11 +110,11 @@ public:
 
   // Description:
   // Get the number of leaves in the primal tree grid.
-  int GetNumberOfLeaves();
+  unsigned int GetNumberOfLeaves();
 
   // Description:
   // Return the number of levels in an individual (primal) tree
-  int GetNumberOfLevels( unsigned int );
+  unsigned int GetNumberOfLevels( unsigned int );
 
   // Description:
   // Specify the grid coordinates in the x-direction.
@@ -340,6 +340,7 @@ protected:
   vtkPoints* Points;
   vtkIdTypeArray* Connectivity;
   std::map<vtkIdType, double> PointShifts[3];
+  std::map<vtkIdType, double> ReductionFactors;
 
   int UpdateHyperTreesLeafIdOffsets();
 
