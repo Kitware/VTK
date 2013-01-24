@@ -168,18 +168,19 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
   this->Cells = vtkCellArray::New();
 
   // Iterate over all hyper trees
+  unsigned int index = 0;
   unsigned int* gridSize = this->Input->GetGridSize();
   for ( unsigned int k = 0; k < gridSize[2]; ++ k )
     {
     for ( unsigned int j = 0; j < gridSize[1]; ++ j )
       {
-        for ( unsigned int i = 0; i < gridSize[0]; ++ i )
+        for ( unsigned int i = 0; i < gridSize[0]; ++ i, ++ index )
         {
         // Storage for super cursors
         vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
         // Initialize center cursor
-        this->Input->InitializeSuperCursor( &superCursor, i, j, k );
+        this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
 
         // Traverse and populate dual recursively
         this->RecursiveProcessTree( &superCursor );

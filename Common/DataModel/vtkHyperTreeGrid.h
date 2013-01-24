@@ -294,6 +294,7 @@ public:
   void InitializeSuperCursor( vtkHyperTreeGridSuperCursor*,
                               unsigned int,
                               unsigned int,
+                              unsigned int,
                               unsigned int );
   // Description:
   // Initialize a cursor to point to a child of an existing super cursor.
@@ -317,7 +318,7 @@ protected:
 
   void GetCell( vtkIdType, vtkCell* );
 
-  void UpdateDualArrays();
+  void ComputeDualGrid();
   vtkPoints* GetPoints();
   vtkIdTypeArray* GetConnectivity();
 
@@ -346,9 +347,9 @@ protected:
 
 //BTX
 #ifndef __WRAP__
-  void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, int, double* );
+  void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, int );
 
-  void TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor*, double* );
+  void TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* );
 
   void TraverseDualLeaf( vtkHyperTreeGridSuperCursor* );
 
