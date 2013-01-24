@@ -1309,13 +1309,51 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
         int id = cursor->GetGlobalLeafIndex();
         if ( ! this->GetMaterialMask()->GetTuple1( id ) )
           {
-          // Store adjustment
-          this->PointShifts[d][id]
-            = -o * this->ReductionFactors[cursor->GetLevel()] * cursor->GetTree()->GetScale( d );
+          // Move to corresponding D-face
+          this->PointShifted[id] = true;
+          this->PointShifts[d][id] = - o
+            * this->ReductionFactors[cursor->GetLevel()]
+            * cursor->GetTree()->GetScale( d );
           }
         } // if cursor
       } // o
     } // d
+
+  switch ( this->Dimension )
+    {
+    case 2:
+      {
+      // Check across (D-1)-face neighbors (corners)
+      for ( int o2 = -1; o2 < 2; o2 += 2 )
+        {
+        int c = o2 + 3;
+        for ( int o1 = -1; o1 < 2; o1 += 2 )
+          {
+          vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
+          if ( cursor->GetTree()
+               &&
+               cursor->IsLeaf()
+               && cursor->GetLevel() < cursor0->GetLevel() )
+
+            {
+            int id = cursor->GetGlobalLeafIndex();
+            if ( ! this->GetMaterialMask()->GetTuple1( id ) 
+                 && ! this->PointShifted[id] )
+              {
+              // Move to corresponding corner
+              this->PointShifts[0][id] = - o1 * o2
+                * this->ReductionFactors[cursor->GetLevel()]
+                * cursor->GetTree()->GetScale( static_cast<unsigned int>( 0 ) );
+              this->PointShifts[1][id] = - o1
+                * this->ReductionFactors[cursor->GetLevel()]
+                * cursor->GetTree()->GetScale( static_cast<unsigned int>( 1 ) );
+              }
+            } // if cursor
+          } // o1
+        } // o2
+      break;
+      } // case 2
+    } // switch  ( this->Dimension )
 }
 
 //-----------------------------------------------------------------------------
@@ -1362,7 +1400,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
            ( cursor->IsLeaf()
              && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
         {
-        // Move to corresponding bound
+        // Move to corresponding D-face
         pt[d] += o * halfL[d];
         movedToDFace = true;
         } // if cursor

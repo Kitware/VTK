@@ -339,6 +339,7 @@ protected:
 
   vtkPoints* Points;
   vtkIdTypeArray* Connectivity;
+  std::map<vtkIdType, bool> PointShifted;
   std::map<vtkIdType, double> PointShifts[3];
   std::map<vtkIdType, double> ReductionFactors;
 
