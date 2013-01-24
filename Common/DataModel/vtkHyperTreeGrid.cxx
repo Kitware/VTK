@@ -244,9 +244,6 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->SetXCoordinates( htg->XCoordinates );
   this->SetYCoordinates( htg->YCoordinates );
   this->SetZCoordinates( htg->ZCoordinates );
-
-  for ( int i = 0; i< this->XCoordinates->GetNumberOfTuples(); ++ i )
-    cerr << i << ": " << this->XCoordinates->GetTuple1( i ) << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -1334,25 +1331,94 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
                &&
                cursor->IsLeaf()
                && cursor->GetLevel() < cursor0->GetLevel() )
-
             {
             int id = cursor->GetGlobalLeafIndex();
-            if ( ! this->GetMaterialMask()->GetTuple1( id ) 
-                 && ! this->PointShifted[id] )
+            if ( ! this->GetMaterialMask()->GetTuple1( id )
+                 && ! this->PointShifted[id] ) 
               {
               // Move to corresponding corner
-              this->PointShifts[0][id] = - o1 * o2
-                * this->ReductionFactors[cursor->GetLevel()]
-                * cursor->GetTree()->GetScale( static_cast<unsigned int>( 0 ) );
-              this->PointShifts[1][id] = - o1
-                * this->ReductionFactors[cursor->GetLevel()]
-                * cursor->GetTree()->GetScale( static_cast<unsigned int>( 1 ) );
+              double halfL[3];
+              cursor->GetTree()->GetScale( halfL );
+              double fac = this->ReductionFactors[cursor->GetLevel()];
+              this->PointShifts[0][id] = - o1 * o2 * fac * halfL[0];
+              this->PointShifts[1][id] = - o1 * fac * halfL[1];
               }
             } // if cursor
           } // o1
         } // o2
       break;
       } // case 2
+    case 3:
+      {
+      // Check across (D-1)-face neighbors (edges)
+      unsigned int tpa1 = 1;
+      for ( int a1 = 0; a1 < 2; ++ a1, tpa1 *= 3 )
+        {
+        unsigned int tpa2 = 3 * tpa1;
+        for ( int a2 = a1 + 1; a2 < 3; ++ a2, tpa2 *= 3 )
+          {
+          for ( int o2 = -1; o2 < 2; o2 += 2 )
+            {
+            int c  = tpa1 * o2 + tpa2;
+            for ( int o1 = -1; o1 < 2; o1 += 2 )
+              {
+              vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
+              if ( cursor->GetTree()
+                   &&
+                   cursor->IsLeaf()
+                   && cursor->GetLevel() < cursor0->GetLevel() )
+                {
+                int id = cursor->GetGlobalLeafIndex();
+                if ( ! this->GetMaterialMask()->GetTuple1( id )
+                     && ! this->PointShifted[id] )
+                  {
+                  // Move to corresponding edge
+                  double halfL[3];
+                  cursor->GetTree()->GetScale( halfL );
+                  double fac = this->ReductionFactors[cursor->GetLevel()];
+                  this->PointShifts[a1][id] = - o1 * o2 * fac * halfL[a1];
+                  this->PointShifts[a2][id] = - o1 * fac * halfL[a2];
+                  this->PointShifted[id] = true;
+                  }
+                } // if cursor
+              } // o1
+            } // o2
+          } // a2
+        } // a1
+
+      // Check across (D-2)-face neighbors (corners)
+      for ( int o3 = -1; o3 < 2; o3 += 2 )
+        {
+        for ( int o2 = -1; o2 < 2; o2 += 2 )
+          {
+          int c = o2 * ( o3 + 3 ) + 9;
+          for ( int o1 = -1; o1 < 2; o1 += 2 )
+            {
+            vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( o1 * c );
+            if ( cursor->GetTree()
+                 &&
+                 cursor->IsLeaf()
+                 && cursor->GetLevel() < cursor0->GetLevel() )
+              {
+              int id = cursor->GetGlobalLeafIndex();
+              if ( ! this->GetMaterialMask()->GetTuple1( id )
+                   && ! this->PointShifted[id] )
+                {
+                // Move to corresponding corner
+                double halfL[3];
+                cursor->GetTree()->GetScale( halfL );
+                double fac = this->ReductionFactors[cursor->GetLevel()];
+                this->PointShifts[0][id] = - o1 * o2 * o3 * fac * halfL[0];
+                this->PointShifts[1][id] = - o1 * o2 * fac * halfL[1];
+                this->PointShifts[2][id] = - o1 * fac * halfL[2];
+                this->PointShifted[id] = true;
+                }
+              } // if cursor
+            } // o1
+          } // o2
+        } // o3
+      break;
+      } // case 3
     } // switch  ( this->Dimension )
 }
 

@@ -21,11 +21,11 @@
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
-#include "vtkPointData.h"
 #include "vtkClipDataSet.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
+#include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -50,7 +50,7 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridToUnstructuredGrid> htg2ug;
   htg2ug->SetInputConnection( htGrid->GetOutputPort() );
 
-  // Cuts
+  // Clip
   vtkNew<vtkPlane> plane;
   plane->SetOrigin( 0., .5, .4 );
   plane->SetNormal( -.2, -.6, 1. );
