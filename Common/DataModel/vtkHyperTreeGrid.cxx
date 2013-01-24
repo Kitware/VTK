@@ -757,7 +757,7 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
     {
     -- iz;
     }
- 
+
   int index = ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
  vtkHyperTreeSimpleCursor cursor;
   vtkIdType offsets[3];
@@ -1144,11 +1144,11 @@ void vtkHyperTreeGrid::ComputeDualGrid()
 
   // Check whether coordinate arrays match grid size
   bool coords[3];
-  coords[0] = this->GridSize[0] + 1 
+  coords[0] = this->GridSize[0] + 1
     == this->XCoordinates->GetNumberOfTuples() ? true : false;
-  coords[1] = this->GridSize[1] + 1 
+  coords[1] = this->GridSize[1] + 1
     == this->YCoordinates->GetNumberOfTuples() ? true : false;
-  coords[2] = this->GridSize[2] + 1 
+  coords[2] = this->GridSize[2] + 1
     == this->ZCoordinates->GetNumberOfTuples() ? true : false;
 
   // If coordinates array are complete, compute all tree scales
@@ -1157,24 +1157,24 @@ void vtkHyperTreeGrid::ComputeDualGrid()
     // Iterate over all hyper trees
     vtkCollectionSimpleIterator it;
     this->HyperTrees->InitTraversal( it );
-    for ( unsigned int k = 0; k < this->GridSize[2]; ++ k ) 
+    for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
       {
       // Compute scale along z-axis
       scale[2] = this->ZCoordinates->GetTuple1( k + 1 ) -
         this->ZCoordinates->GetTuple1( k );
-      
+
       for ( unsigned int j = 0; j < this->GridSize[1]; ++ j )
         {
         // Compute scale along y-axis
         scale[1] = this->YCoordinates->GetTuple1( j + 1 ) -
           this->YCoordinates->GetTuple1( j );
-        
+
         for ( unsigned int i = 0; i < this->GridSize[0]; ++ i )
           {
           // Compute scale along x-axis
           scale[0] = this->XCoordinates->GetTuple1( i + 1 ) -
             this->XCoordinates->GetTuple1( i );
-          
+
           // Retrieve hyper tree and set its scale
           vtkHyperTree* tree = GetNextHyperTreeMacro( it );
           tree->SetScale( scale );
@@ -1185,7 +1185,7 @@ void vtkHyperTreeGrid::ComputeDualGrid()
 
   // Traverse hyper tree grid and generate dual
   unsigned int index = 0;
-  for ( unsigned int k = 0; k < this->GridSize[2]; ++ k ) 
+  for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
     {
 
     // Compute scale along z-axis
