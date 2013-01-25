@@ -42,14 +42,18 @@ void @vtk-module@ObjectFactory::PrintSelf(ostream &os, vtkIndent indent)
 
 // Registration of object factories.
 static unsigned int @vtk-module@Count;
-static @vtk-module@ObjectFactory* Factory;
 
 @VTK-MODULE@_EXPORT void @vtk-module@_AutoInit_Construct()
 {
   if(++@vtk-module@Count == 1)
     {
-    Factory = @vtk-module@ObjectFactory::New();
-    vtkObjectFactory::RegisterFactory(Factory);
+    @vtk-module@ObjectFactory* factory = @vtk-module@ObjectFactory::New();
+    if (factory)
+      {
+      // vtkObjectFactory keeps a reference to the "factory",
+      vtkObjectFactory::RegisterFactory(factory);
+      factory->Delete();
+      }
     }
 }
 
@@ -59,6 +63,5 @@ static @vtk-module@ObjectFactory* Factory;
     {
     // Do not call vtkObjectFactory::UnRegisterFactory because
     // vtkObjectFactory.cxx statically unregisters all factories.
-    Factory->Delete();
     }
 }
