@@ -205,8 +205,7 @@ int vtkShepardMethod::RequestData(
   // Traverse all input points.
   // Each input point affects voxels within maxDistance.
   //
-  int abortExecute=0;
-  for (ptId=0; ptId < numPts && !abortExecute; ptId++)
+  for (ptId=0; ptId < numPts; ptId++)
     {
     if ( ! (ptId % 1000) )
       {
@@ -214,7 +213,6 @@ int vtkShepardMethod::RequestData(
       this->UpdateProgress (ptId/numPts);
       if (this->GetAbortExecute())
         {
-        abortExecute = 1;
         break;
         }
       }
