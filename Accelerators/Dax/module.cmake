@@ -6,8 +6,12 @@ vtk_module(vtkAcceleratorsDax
     vtkFiltersCore
     vtkFiltersGeometry
   TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkRenderingVolume
+    vtkRenderingVolumeOpenGL
+    vtkIOLegacy
     vtkIOXML
-    vtkIOCore
   EXCLUDE_FROM_ALL
   EXCLUDE_FROM_WRAPPING
   EXCLUDE_FROM_WRAP_HIERARCHY

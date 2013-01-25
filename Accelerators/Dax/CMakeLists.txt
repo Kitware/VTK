@@ -18,6 +18,7 @@ cmake_minimum_required(VERSION 2.8)
 #ensure we link against our dependencies
 include(module.cmake)
 
+find_package(Thrust REQUIRED)
 find_package(Dax REQUIRED)
 
 # Setting the configuration file to include the appropriate driver.
@@ -30,17 +31,17 @@ elseif(${Dax_ENABLE_TBB})
   message ("TBB_ENABLED")
   DaxConfigureTBB(REQUIRED)
   set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_TBB")
-  set (DAX_DEVICE_ADAPTER_INCLUDE "dax/cuda/cont/DeviceAdapterTBB.h")
-elseif(${Dax_ENABLE_OPENMP})
-  message ("OPENMP_ENABLED")
-  DaxConfigureOpenMP(REQUIRED)
-  set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_OPENMP")
-  set (DAX_DEVICE_ADAPTER_INCLUDE "dax/cuda/cont/DeviceAdapterOpenMP.h")
+  set (DAX_DEVICE_ADAPTER_INCLUDE "dax/tbb/cont/DeviceAdapterTBB.h")
+  # elseif(${Dax_ENABLE_OPENMP})
+  #   message ("OPENMP_ENABLED")
+  #   DaxConfigureOpenMP(REQUIRED)
+  #   set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_OPENMP")
+  #   set (DAX_DEVICE_ADAPTER_INCLUDE "dax/openmp/cont/DeviceAdapterOpenMP.h")
 else()
   message ("SERIAL_ENABLED")
   DaxConfigureSerial(REQUIRED)
   set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_SERIAL")
-  set (DAX_DEVICE_ADAPTER_INCLUDE "dax/cuda/cont/DeviceAdapterSerial.h")
+  set (DAX_DEVICE_ADAPTER_INCLUDE "dax/cont/DeviceAdapterSerial.h")
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/daxConfig.h.in"
@@ -49,6 +50,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/daxConfig.h.in"
 #needed for our export macros
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${THRUST_INCLUDE_DIRS})
 include_directories(${Dax_INCLUDE_DIRS})
 include_directories(${${vtk-module}_DEPENDS_INCLUDE_DIRS})
 
@@ -71,7 +73,7 @@ set(Module_SRCS
   vtkDaxMarchingCubes.cxx
   #DaxMarchingCubes.cxx
   vtkDaxThreshold.cxx
-  #DaxThreshold.cxx
+  DaxThreshold.cxx
   ${headers}
   )
 

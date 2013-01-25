@@ -24,38 +24,38 @@
 
 namespace vtkDax {
   int Threshold(vtkDataSet* input,
-                    vtkUnstructuredGrid *output,
-                    vtkDataArray* field,
-                    double lower,
-                    double upper)
-  {}
+                vtkUnstructuredGrid *output,
+                vtkDataArray* field,
+                double lower,
+                double upper);
 }
 
 vtkStandardNewMacro(vtkDaxThreshold)
 
 //------------------------------------------------------------------------------
 vtkDaxThreshold::vtkDaxThreshold()
-  {
+{
 
-  }
+}
 
 //------------------------------------------------------------------------------
 vtkDaxThreshold::~vtkDaxThreshold()
-  {
-  }
+{
+}
 
 //------------------------------------------------------------------------------
 int vtkDaxThreshold::RequestData(vtkInformation *request,
-                             vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector)
-  {
+                                 vtkInformationVector **inputVector,
+                                 vtkInformationVector *outputVector)
+{
+  std::cout << ">>>>>> vtkDaxThreshold::RequestData()" << std::endl;
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
-                                  outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
 
   int result = vtkDax::Threshold(input,
@@ -65,7 +65,8 @@ int vtkDaxThreshold::RequestData(vtkInformation *request,
                                  this->GetUpperThreshold());
   if(!result)
     {
-    result = this->Superclass::RequestData(request,inputVector,outputVector);
+      result = this->Superclass::RequestData(request,inputVector,outputVector);
+      std::cout << " >>>>>>> vtkThreshold::RequestData()" << std::endl;
     }
   return result;
 }

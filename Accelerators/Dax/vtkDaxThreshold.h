@@ -30,7 +30,9 @@ protected:
   vtkDaxThreshold();
   ~vtkDaxThreshold();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *);
 
 private:
   vtkDaxThreshold(const vtkDaxThreshold&);
