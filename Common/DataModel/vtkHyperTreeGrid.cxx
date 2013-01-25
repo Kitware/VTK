@@ -1334,7 +1334,7 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
             {
             int id = cursor->GetGlobalLeafIndex();
             if ( ! this->GetMaterialMask()->GetTuple1( id )
-                 && ! this->PointShifted[id] ) 
+                 && ! this->PointShifted[id] )
               {
               // Move to corresponding corner
               double halfL[3];
