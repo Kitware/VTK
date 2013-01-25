@@ -840,7 +840,6 @@ void vtkMINCImageAttributes::SetAttributeValueAsArray(
     }
 
   n = attribs->GetNumberOfValues();
-  i = 0;
   for (i = 0; i < n; i++)
     {
     if (strcmp(attribs->GetValue(i), attribute) == 0)

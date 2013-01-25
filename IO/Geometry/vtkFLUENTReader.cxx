@@ -2605,18 +2605,17 @@ void vtkFLUENTReader::GetNodesDoublePrecision()
   size_t dstart = this->CaseBuffer->value.find('(', 7);
   size_t ptr = dstart+1;
 
-  double x, y, z;
   if (this->GridDimension == 3)
     {
     for (int i = firstIndex; i <=lastIndex; i++)
       {
-      x = this->GetCaseBufferDouble( static_cast< int >(ptr) );
+      double x = this->GetCaseBufferDouble( static_cast< int >(ptr) );
       ptr = ptr + 8;
 
-      y = this->GetCaseBufferDouble( static_cast< int >(ptr) );
+      double y = this->GetCaseBufferDouble( static_cast< int >(ptr) );
       ptr = ptr + 8;
 
-      z = this->GetCaseBufferDouble( static_cast< int >(ptr) );
+      double z = this->GetCaseBufferDouble( static_cast< int >(ptr) );
       ptr = ptr + 8;
       this->Points->InsertPoint(i-1, x, y, z);
       }
@@ -2625,13 +2624,12 @@ void vtkFLUENTReader::GetNodesDoublePrecision()
     {
     for (int i = firstIndex; i <=lastIndex; i++)
       {
-      x = this->GetCaseBufferDouble( static_cast< int >(ptr) );
+      double x = this->GetCaseBufferDouble( static_cast< int >(ptr) );
       ptr = ptr + 8;
 
-      y = this->GetCaseBufferDouble( static_cast< int >(ptr) );
+      double y = this->GetCaseBufferDouble( static_cast< int >(ptr) );
       ptr = ptr + 8;
 
-      z = 0.0;
       this->Points->InsertPoint(i-1, x, y, 0.0);
       }
     }
