@@ -552,7 +552,7 @@ void vtkAbstractArray::GetProminentComponentValues(
 
   vtkIdType len;
   const vtkVariant* vals = info->Get(DISCRETE_VALUES());
-  if ((vals = info->Get(DISCRETE_VALUES())) != NULL)
+  if (vals != NULL)
     {
     len = info->Length(DISCRETE_VALUES());
     values->SetNumberOfTuples(len / values->GetNumberOfComponents());

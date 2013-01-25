@@ -236,9 +236,8 @@ int vtkImageAppend::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
+  // get the outInfo object
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   // default input extent will be that of output extent
   int inExt[6];
@@ -246,14 +245,13 @@ int vtkImageAppend::RequestUpdateExtent(
   int *outExt =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
-  int whichInput;
-  for (whichInput = 0; whichInput < this->GetNumberOfInputConnections(0);
+  for (int whichInput = 0; whichInput < this->GetNumberOfInputConnections(0);
        whichInput++)
     {
     int *inWextent;
 
     // Find the outMin/max of the appended axis for this input.
-    inInfo = inputVector[0]->GetInformationObject(whichInput);
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(whichInput);
     inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
     this->InternalComputeInputUpdateExtent(inExt, outExt,
