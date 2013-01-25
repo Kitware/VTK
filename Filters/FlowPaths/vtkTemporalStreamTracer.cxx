@@ -594,11 +594,13 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
   // Assign unique identifiers taking into account uneven distribution
   // across processes and seeds which were rejected
   this->AssignUniqueIds(LocalSeedPoints);
-  //
+
+#ifndef NDEBUG
   vtkDebugMacro(<< "Tested " << numTested << " LocallyAssigned " << LocalAssignedCount);
   if (this->UpdatePiece==0) {
     vtkDebugMacro(<< "Total Assigned to all processes " << TotalAssigned);
   }
+#endif
 }
 //---------------------------------------------------------------------------
 void vtkTemporalStreamTracer::AssignUniqueIds(
