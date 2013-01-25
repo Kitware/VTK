@@ -271,6 +271,7 @@ int vtkThreshold::EvaluateCell( vtkDataArray *scalars,vtkIdList* cellPts, int nu
     case VTK_COMPONENT_MODE_USE_SELECTED:
       c  =   (this->SelectedComponent < numComp)?(this->SelectedComponent):(0);
       keepCell = EvaluateCell(scalars,c,cellPts,numCellPts);
+      break;
     case VTK_COMPONENT_MODE_USE_ANY:
       keepCell = 0;
       for ( c = 0; (!keepCell) && (c < numComp); c++ )
