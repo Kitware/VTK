@@ -573,6 +573,7 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
   if(ctype == NULL)
     {
     vtkErrorMacro(<< "Error allocating ctype memory");
+    return;
     }
 
   this->FileStream->seekg(6*4 + 1,ios::beg);
@@ -582,6 +583,7 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
   if(topology_list == NULL)
     {
     vtkErrorMacro(<< "Error allocating topology_list memory");
+    return;
     }
 
   this->ReadIntBlock(this->NlistNodes, topology_list);
