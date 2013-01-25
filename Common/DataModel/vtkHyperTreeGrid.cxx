@@ -1142,11 +1142,11 @@ void vtkHyperTreeGrid::ComputeDualGrid()
 
   // Check whether coordinate arrays match grid size
   bool coords[3];
-  coords[0] = this->GridSize[0] + 1
+  coords[0] = static_cast<int>( this->GridSize[0] ) + 1
     == this->XCoordinates->GetNumberOfTuples() ? true : false;
-  coords[1] = this->GridSize[1] + 1
+  coords[1] = static_cast<int>( this->GridSize[1] ) + 1
     == this->YCoordinates->GetNumberOfTuples() ? true : false;
-  coords[2] = this->GridSize[2] + 1
+  coords[2] = static_cast<int>( this->GridSize[2] ) + 1
     == this->ZCoordinates->GetNumberOfTuples() ? true : false;
 
   // If coordinates array are complete, compute all tree scales
