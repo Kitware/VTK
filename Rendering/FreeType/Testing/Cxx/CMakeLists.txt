@@ -42,7 +42,7 @@ if(VTK_BUILD_FREETYPE_BENCHMARK)
 endif()
 
 # Use the testing object factory, to reduce boilerplate code in tests.
-include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
+include(vtkTestingObjectFactory)
 vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 
 set(TestsToRun ${Tests})
