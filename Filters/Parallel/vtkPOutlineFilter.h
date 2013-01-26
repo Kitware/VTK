@@ -52,5 +52,4 @@ private:
   vtkPOutlineFilter(const vtkPOutlineFilter&);  // Not implemented.
   void operator=(const vtkPOutlineFilter&);  // Not implemented.
 };
-
 #endif

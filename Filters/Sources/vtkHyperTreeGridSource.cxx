@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <assert.h>
 
 vtkStandardNewMacro(vtkHyperTreeGridSource);
+vtkCxxSetObjectMacro(vtkHyperTreeGridSource,Quadric,vtkQuadric);
 
 //----------------------------------------------------------------------------
 vtkHyperTreeGridSource::vtkHyperTreeGridSource()
@@ -288,6 +289,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     {
     return 0;
     }
+  vtkPointData* outData = this->Output->GetPointData();
 
   // When using descriptor-based definition, initialize descriptor parsing
   if ( this->UseDescriptor && ! this->InitializeFromDescriptor() )
@@ -340,7 +342,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     }
   fact *= fact;
   depthArray->Allocate( fact );
-  this->Output->GetLeafData()->SetScalars( depthArray );
+  outData->SetScalars( depthArray );
   depthArray->UnRegister( this );
 
   if ( ! this->UseDescriptor )
@@ -351,7 +353,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     quadricArray->SetNumberOfComponents( 1 );
 
     quadricArray->Allocate( fact );
-    this->Output->GetLeafData()->AddArray( quadricArray );
+    outData->AddArray( quadricArray );
     quadricArray->UnRegister( this );
     }
 
@@ -373,7 +375,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
         int idx[3] = { 0, 0, 0 };
 
         // Retrieve offset into array of scalars and recurse
-        vtkIdType nt = this->Output->GetLeafData()->GetScalars()->GetNumberOfTuples();
+        vtkIdType nt = outData->GetScalars()->GetNumberOfTuples();
         if ( this->UseDescriptor )
           {
           // Subdivide using descriptor
@@ -397,11 +399,10 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       } // j
     } // k
 
-  // Squeeze attribute arrays
-  vtkDataSetAttributes* attr =  this->Output->GetLeafData();
-  for ( int a = 0; a < attr->GetNumberOfArrays(); ++ a )
+  // Squeeze output data arrays
+  for ( int a = 0; a < outData->GetNumberOfArrays(); ++ a )
     {
-    attr->GetArray( a )->Squeeze();
+    outData->GetArray( a )->Squeeze();
     }
 
   assert( "post: dataset_and_data_size_match" && this->Output->CheckAttributes() == 0 );
@@ -618,7 +619,7 @@ void vtkHyperTreeGridSource::SubdivideFromDescriptor( vtkHyperTreeCursor* cursor
                                                       int parentPos )
 {
   // Get handle on leaf scalar data
-  vtkDataArray* depthArray = this->Output->GetLeafData()->GetArray( "Depth" );
+  vtkDataArray* depthArray = this->Output->GetPointData()->GetArray( "Depth" );
 
   // Calculate pointer into level descriptor string
   int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
@@ -714,11 +715,12 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
                                                    double size[3] )
 {
   // Get handle on leaf scalar data
-  vtkDataArray* depthArray = this->Output->GetLeafData()->GetArray( "Depth" );
-  vtkDataArray* quadricArray = this->Output->GetLeafData()->GetArray( "Quadric" );
+  vtkPointData* outData = this->Output->GetPointData();
+  vtkDataArray* depthArray = outData->GetArray( "Depth" );
+  vtkDataArray* quadricArray = outData->GetArray( "Quadric" );
 
   // Compute cell origin coordinates
-  double O[3];
+  double O[] = { 0., 0., 0. };
   for ( unsigned int d = 0; d < this->Dimension; ++ d )
     {
     O[d] = origin[d] + idx[d] * size[d];
@@ -734,9 +736,9 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     // Transform flat index into triple
     div_t d1 = div( v, 2 );
     div_t d2 = div( d1.quot, 2 );
-    double pt[3];
 
     // Compute vertex coordinates
+    double pt[3];
     pt[0] = O[0] + d1.rem * size[0];
     pt[1] = O[1] + d2.rem * size[1];
     pt[2] = O[2] + d2.quot * size[2];
@@ -762,7 +764,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     } // v
 
   // Subdivide iff quadric changes sign within cell
-  bool subdivide = (nPos != nVert && nNeg != nVert) ? true : false;
+  bool subdivide = ( nPos != nVert && nNeg != nVert ) ? true : false;
 
   // Assign cell value
   if ( subdivide && level + 1 == this->MaximumLevel )
@@ -786,7 +788,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     int xDim = 1;
     int yDim = 1;
     int zDim = 1;
-    double newSize[3];
+    double newSize[] = { 0., 0., 0. };
     switch ( this->Dimension )
       {
       // Warning: Run through is intended! Do NOT add break statements
@@ -858,29 +860,14 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::SetQuadric( vtkQuadric* q )
-{
-  if ( q == 0 )
-    {
-    return;
-    }
-
-  if ( this->Quadric )
-    {
-    this->Quadric->UnRegister( this );
-    }
-  this->Quadric = q;
-  this->Quadric->Register( this );
-}
-
-//-----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::SetQuadricCoefficients( double a[10] )
 {
-  if ( this->Quadric == 0 )
+  if ( ! this->Quadric )
     {
     this->Quadric = vtkQuadric::New();
     }
   this->Quadric->SetCoefficients( a );
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -896,13 +883,11 @@ double* vtkHyperTreeGridSource::GetQuadricCoefficients()
 }
 
 //----------------------------------------------------------------------------
-// Overload standard modified time function. If cut functions is modified,
-// or contour values modified, then this object is modified as well.
 unsigned long vtkHyperTreeGridSource::GetMTime()
 {
   unsigned long mTime = this->Superclass::GetMTime();
 
-  if ( this->Quadric != NULL )
+  if ( this->Quadric )
     {
     unsigned long time = this->Quadric->GetMTime();
     mTime = ( time > mTime ? time : mTime );

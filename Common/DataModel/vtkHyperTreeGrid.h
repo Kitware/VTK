@@ -30,7 +30,7 @@
 // vtkHyperTree vtkRectilinearGrid
 //
 // .SECTION Thanks
-// This class was written by Philippe Pebay and Charles Law, Kitware 2012
+// This class was written by Philippe Pebay and Charles Law, Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGrid_h
@@ -101,26 +101,19 @@ public:
   vtkGetMacro(NumberOfRoots, unsigned int);
 
   // Description:
-  // Return the number of cells in the dual grid or grid.
-  // This call should be avoided for dual grids.  Estimate
-  // the number of cells from the number of leaves and use the dual
-  // grid cell iterator.
-  // \post positive_result: result>=0
+  // Return the number of cells in the dual grid.
   vtkIdType GetNumberOfCells();
 
   // Description:
-  // Get the number of leaves in the tree grid.
-  int GetNumberOfLeaves();
-
-  // Description:
-  // Return the number of points in the dual grid or grid.
-  // This call should be avoided for the normal grid.
-  // \post positive_result: result>=0
+  // Return the number of points in the dual grid.
   vtkIdType GetNumberOfPoints();
 
   // Description:
-  // Return the number of levels.
-  // \post result_greater_or_equal_to_one: result>=1
+  // Get the number of leaves in the primal tree grid.
+  int GetNumberOfLeaves();
+
+  // Description:
+  // Return the number of levels in an individual (primal) tree
   int GetNumberOfLevels( unsigned int );
 
   // Description:
@@ -203,6 +196,10 @@ public:
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   virtual void GetCellPoints( vtkIdType, vtkIdList* );
+
+  // Description:
+  // Return a pointer to a list of point ids defining cell.
+  // NB: More efficient than alternative method.
   virtual void GetCellPoints( vtkIdType, vtkIdType&, vtkIdType*& );
 
   // Description:
@@ -219,13 +216,19 @@ public:
   // Topological inquiry to get all cells using list of points exclusive of
   // cell specified (e.g., cellId). Note that the list consists of only
   // cells that use ALL the points provided.
+  // This is exactly the same as GetCellNeighbors in unstructured grid.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   virtual void GetCellNeighbors( vtkIdType, vtkIdList*, vtkIdList* );
 
+  // Description:
+  // Find cell to which this point belongs, or at least closest one,
+  // even if the point is outside the grid.
+  // Since dual points are leaves, use the structure of the Tree instead
+  // of a point locator.
   virtual vtkIdType FindPoint( double x[3] );
 
-   // Description:
+  // Description:
   // Locate cell based on global coordinate x and tolerance
   // squared. If cell and cellId is non-NULL, then search starts from
   // this cell and looks at immediate neighbors.  Returns cellId >= 0
@@ -234,7 +237,9 @@ public:
   // weights[]. (The number of weights is equal to the number of
   // points in the found cell). Tolerance is used to control how close
   // the point is to be considered "in" the cell.
-  // THIS METHOD IS NOT THREAD SAFE.
+  // NB: There is actually no need for a starting cell, just use the
+  // point, as the tree structure is efficient enough.
+// THIS METHOD IS NOT THREAD SAFE.
   virtual vtkIdType FindCell( double x[3], vtkCell *cell, vtkIdType cellId,
                               double tol2, int& subId, double pcoords[3],
                               double *weights );
@@ -266,11 +271,6 @@ public:
   // Shallow and Deep copy.
   void ShallowCopy( vtkDataObject* );
   void DeepCopy( vtkDataObject* );
-
-  // Description:
-  // A generic way to set the leaf data attributes.
-  // This can be either point data for dual or cell data for normal grid.
-  vtkDataSetAttributes* GetLeafData();
 
   // Description:
   // Return the actual size of the data in kilobytes. This number
@@ -317,12 +317,9 @@ protected:
 
   void GetCell( vtkIdType, vtkCell* );
 
-  vtkPoints* GetCornerPoints();
-  vtkIdTypeArray* GetLeafCornerIds();
-
   void UpdateDualArrays();
-  vtkPoints* GetLeafCenters();
-  vtkIdTypeArray* GetLeafCenterIds();
+  vtkPoints* GetPoints();
+  vtkIdTypeArray* GetConnectivity();
 
   unsigned int Dimension;    // 1, 2 or 3.
   unsigned int GridSize[3];
@@ -339,12 +336,9 @@ protected:
   vtkCollection* HyperTrees;
   vtkIdType* HyperTreesLeafIdOffsets;
 
-  vtkPoints* LeafCenters;
-  vtkIdTypeArray* LeafCenterIds;
-  std::map<vtkIdType, double> LeafCentersAdjustments[3];
-
-  vtkPoints* CornerPoints;
-  vtkIdTypeArray* LeafCornerIds;
+  vtkPoints* Points;
+  vtkIdTypeArray* Connectivity;
+  std::map<vtkIdType, double> PointShifts[3];
 
   int UpdateHyperTreesLeafIdOffsets();
 

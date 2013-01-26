@@ -121,8 +121,8 @@ public:
 
   // Description:
   // Set/Get the quadric function
-  void SetQuadric( vtkQuadric* );
-  vtkGetMacro(Quadric, vtkQuadric*);
+  virtual void SetQuadric( vtkQuadric* );
+  vtkGetObjectMacro(Quadric, vtkQuadric);
 
   // Description:
   // Helpers to set/get the 10 coefficients of the quadric function
