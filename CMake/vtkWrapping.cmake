@@ -46,6 +46,11 @@ function(vtk_add_wrapping module_name module_srcs module_hdrs)
         set(_all_files ${module_srcs} ${modules_hdrs})
         vtk_wrap_hierarchy(${module_name}Hierarchy ${VTK_MODULES_DIR}
           "${_all_files}")
+        set (${module_name}_WRAP_HIERARCHY_FILE
+          "${VTK_MODULES_DIR}/${module_name}Hierarchy.txt"
+          PARENT_SCOPE)
+        set (${module_name}_WRAP_HIERARCHY_FILE
+          "${VTK_MODULES_DIR}/${module_name}Hierarchy.txt")
       endif()
 
       # Now to wrap the languages that are on.
