@@ -21,54 +21,31 @@ vtkOpenGLState::vtkOpenGLState(vtkOpenGLRenderWindow *context)
   m->LoadExtension("GL_VERSION_2_1");
   m->LoadExtension("GL_EXT_framebuffer_object");
 
-  this->TCPU=0;
-  this->TIU=0;
+  this->TCPU = 0;
+  this->TIU = 0;
 
-  this->FixedPipeline.TextureImageUnitEnabled=0;
-  this->FixedPipeline.LightEnabled=0;
+  this->FixedPipeline.TextureImageUnitEnabled = 0;
+  this->FixedPipeline.LightEnabled = 0;
 
-  this->ClipPlanes=0;
-  this->Lights=0;
+  this->ClipPlanes = 0;
+  this->Lights = 0;
 
-  this->DrawBuffers=0;
+  this->DrawBuffers = 0;
 
-  this->CurrentProgram=0;
-  this->CurrentProgramState=0;
+  this->CurrentProgram = 0;
+  this->CurrentProgramState = 0;
 }
 
 vtkOpenGLState::~vtkOpenGLState()
 {
-  if(this->TCPU!=0)
-    {
-    delete this->TCPU;
-    }
-  if(this->TIU!=0)
-    {
-    delete this->TIU;
-    }
-  if(this->FixedPipeline.TextureImageUnitEnabled!=0)
-    {
-    delete this->FixedPipeline.TextureImageUnitEnabled;
-    }
-
-  if(this->ClipPlanes!=0)
-    {
-    delete this->ClipPlanes;
-    }
-  if(this->FixedPipeline.LightEnabled!=0)
-    {
-    delete this->FixedPipeline.LightEnabled;
-    delete this->Lights;
-    }
-
-  if(this->DrawBuffers!=0)
-    {
-    delete this->DrawBuffers;
-    }
-  if(this->CurrentProgramState!=0)
-    {
-    delete this->CurrentProgramState;
-    }
+  delete this->TCPU;
+  delete this->TIU;
+  delete this->FixedPipeline.TextureImageUnitEnabled;
+  delete this->ClipPlanes;
+  delete this->FixedPipeline.LightEnabled;
+  delete this->Lights;
+  delete this->DrawBuffers;
+  delete this->CurrentProgramState;
 }
 
 void vtkOpenGLState::Update()
@@ -82,21 +59,21 @@ void vtkOpenGLState::Update()
 
   GLint ivalues[4];
 
-  this->ErrorCode=glGetError(); // this change the state..
+  this->ErrorCode = glGetError(); // this change the state..
   // Texture environment
   // Has to be restored to this value.
-  glGetIntegerv(vtkgl::ACTIVE_TEXTURE,ivalues);
+  glGetIntegerv(vtkgl::ACTIVE_TEXTURE, ivalues);
   this->ActiveTexture=static_cast<GLenum>(ivalues[0]);
 
-  glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&this->FrameBufferBinding);
+  glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT, &this->FrameBufferBinding);
 
   this->UpdateCurrentProgram();
 
   // max number of TCPU
-  glGetIntegerv(vtkgl::MAX_TEXTURE_COORDS,&this->MaxTextureCoords); // 8
+  glGetIntegerv(vtkgl::MAX_TEXTURE_COORDS, &this->MaxTextureCoords); // 8
 
   // Max number of TIU available to the fixed-pipeline (enable/disable state)
-  glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS,&this->MaxTextureUnits); // 4
+  glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &this->MaxTextureUnits); // 4
 
   // Max number of TIU.
   glGetIntegerv(vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS,
@@ -107,23 +84,23 @@ void vtkOpenGLState::Update()
                 &this->MaxVertexTextureImageUnits);
 
   // max number of TIU available from a fragment shader.
-  glGetIntegerv(vtkgl::MAX_TEXTURE_IMAGE_UNITS,&this->MaxTextureImageUnits);
+  glGetIntegerv(vtkgl::MAX_TEXTURE_IMAGE_UNITS, &this->MaxTextureImageUnits);
 
 
-  if(this->TCPU!=0 &&
-     this->TCPU->size()!=static_cast<size_t>(this->MaxTextureCoords))
+  if (this->TCPU != 0 &&
+     this->TCPU->size() != static_cast<size_t>(this->MaxTextureCoords))
     {
     delete this->TCPU;
-    this->TIU=0;
+    this->TIU = 0;
     }
-  if(this->TCPU==0)
+  if (this->TCPU == 0)
     {
-    this->TCPU=new std::vector<vtkOpenGLTextureCoordinateProcessingUnit>(
+    this->TCPU = new std::vector<vtkOpenGLTextureCoordinateProcessingUnit>(
       static_cast<size_t>(this->MaxTextureCoords));
     }
 
-  unsigned int i=0;
-  while(i<static_cast<size_t>(this->MaxTextureCoords))
+  unsigned int i = 0;
+  while (i<static_cast<size_t>(this->MaxTextureCoords))
     {
     vtkgl::ActiveTexture(vtkgl::TEXTURE0+i);
     glGetFloatv(GL_TEXTURE_MATRIX,
@@ -133,86 +110,86 @@ void vtkOpenGLState::Update()
     ++i;
     }
 
-  if(this->TIU!=0 && this->TIU->size()!=static_cast<size_t>(
+  if (this->TIU!=0 && this->TIU->size()!=static_cast<size_t>(
        this->MaxCombinedTextureImageUnits))
     {
     delete this->TIU;
-    this->TIU=0;
+    this->TIU = 0;
     }
-  if(this->TIU==0)
+  if (this->TIU == 0)
     {
-    this->TIU=new std::vector<vtkOpenGLTextureImageUnit>(
+    this->TIU = new std::vector<vtkOpenGLTextureImageUnit>(
       static_cast<size_t>(this->MaxCombinedTextureImageUnits));
     }
 
-  i=0;
-  while(i<static_cast<size_t>(this->MaxCombinedTextureImageUnits))
+  i = 0;
+  while (i<static_cast<size_t>(this->MaxCombinedTextureImageUnits))
     {
     vtkgl::ActiveTexture(vtkgl::TEXTURE0+i);
-    glGetIntegerv(GL_TEXTURE_BINDING_1D,&(*this->TIU)[i].TextureBinding1D);
-    glGetIntegerv(GL_TEXTURE_BINDING_2D,&(*this->TIU)[i].TextureBinding2D);
-    glGetIntegerv(vtkgl::TEXTURE_BINDING_3D,&(*this->TIU)[i].TextureBinding3D);
-    glGetIntegerv(vtkgl::TEXTURE_BINDING_CUBE_MAP,&(*this->TIU)[i].TextureBindingCubeMap);
+    glGetIntegerv(GL_TEXTURE_BINDING_1D, &(*this->TIU)[i].TextureBinding1D);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &(*this->TIU)[i].TextureBinding2D);
+    glGetIntegerv(vtkgl::TEXTURE_BINDING_3D, &(*this->TIU)[i].TextureBinding3D);
+    glGetIntegerv(vtkgl::TEXTURE_BINDING_CUBE_MAP, &(*this->TIU)[i].TextureBindingCubeMap);
     ++i;
     }
 
-  glGetIntegerv(GL_MAX_CLIP_PLANES,&this->MaxClipPlanes);
-  if(this->ClipPlanes!=0 &&
+  glGetIntegerv(GL_MAX_CLIP_PLANES, &this->MaxClipPlanes);
+  if (this->ClipPlanes!=0 &&
      this->ClipPlanes->size()!=static_cast<size_t>(this->MaxClipPlanes))
     {
     delete this->ClipPlanes;
-    this->ClipPlanes=0;
+    this->ClipPlanes = 0;
     }
-  if(this->ClipPlanes==0)
+  if (this->ClipPlanes == 0)
     {
-    this->ClipPlanes=new std::vector<vtkOpenGLClipPlaneState>(
+    this->ClipPlanes = new std::vector<vtkOpenGLClipPlaneState>(
       static_cast<size_t>(this->MaxClipPlanes));
     }
 
-
-  glGetIntegerv(GL_MAX_LIGHTS,&this->MaxLights);
-  if(this->FixedPipeline.LightEnabled!=0 && this->FixedPipeline.LightEnabled->size()!=static_cast<size_t>(this->MaxLights))
+  glGetIntegerv(GL_MAX_LIGHTS, &this->MaxLights);
+  if (this->FixedPipeline.LightEnabled !=0 &&
+    this->FixedPipeline.LightEnabled->size() != static_cast<size_t>(this->MaxLights))
     {
     delete this->FixedPipeline.LightEnabled;
-    this->FixedPipeline.LightEnabled=0;
+    this->FixedPipeline.LightEnabled = 0;
 
     delete Lights;
-    this->Lights=0;
+    this->Lights = 0;
     }
-  if(this->FixedPipeline.LightEnabled==0)
+  if (this->FixedPipeline.LightEnabled == 0)
     {
-    this->FixedPipeline.LightEnabled=
+    this->FixedPipeline.LightEnabled =
       new std::vector<GLboolean>(static_cast<size_t>(this->MaxLights));
     this->Lights=
       new std::vector<vtkOpenGLLightState>(
         static_cast<size_t>(this->MaxLights));
     }
 
-  if(this->FixedPipeline.TextureImageUnitEnabled!=0 &&
-     this->FixedPipeline.TextureImageUnitEnabled->size()!=
+  if (this->FixedPipeline.TextureImageUnitEnabled != 0 &&
+     this->FixedPipeline.TextureImageUnitEnabled->size() !=
      static_cast<size_t>(this->MaxTextureUnits))
     {
     delete this->FixedPipeline.TextureImageUnitEnabled;
-    this->FixedPipeline.TextureImageUnitEnabled=0;
+    this->FixedPipeline.TextureImageUnitEnabled = 0;
     }
-  if(this->FixedPipeline.TextureImageUnitEnabled==0)
+  if (this->FixedPipeline.TextureImageUnitEnabled == 0)
     {
-    this->FixedPipeline.TextureImageUnitEnabled=
+    this->FixedPipeline.TextureImageUnitEnabled =
       new std::vector<vtkOpenGLTextureImageUnitFixedPipelineState>(
         static_cast<size_t>(this->MaxTextureUnits));
     }
 
-  i=0;
-  while(i<static_cast<size_t>(this->MaxTextureUnits))
+  i = 0;
+  while (i < static_cast<size_t>(this->MaxTextureUnits))
     {
-    vtkgl::ActiveTexture(vtkgl::TEXTURE0+i);
-    (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture1DEnabled=
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0 + i);
+    (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture1DEnabled =
       glIsEnabled(GL_TEXTURE_1D);
-    (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture2DEnabled=
+    (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture2DEnabled =
       glIsEnabled(GL_TEXTURE_2D);
-    (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture3DEnabled=
+    (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture3DEnabled =
       glIsEnabled(vtkgl::TEXTURE_3D);
-    (*this->FixedPipeline.TextureImageUnitEnabled)[i].TextureCubeMapEnabled=
+    (*this->FixedPipeline.TextureImageUnitEnabled)[i].TextureCubeMapEnabled =
       glIsEnabled(vtkgl::TEXTURE_CUBE_MAP);
     ++i;
     }
@@ -220,143 +197,141 @@ void vtkOpenGLState::Update()
   // Restore real active texture
   vtkgl::ActiveTexture(this->ActiveTexture);
 
+  glGetFloatv(GL_MODELVIEW_MATRIX, this->ModelViewMatrix);
+  glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &this->ModelViewStackDepth);
 
-  glGetFloatv(GL_MODELVIEW_MATRIX,this->ModelViewMatrix);
-  glGetIntegerv(GL_MODELVIEW_STACK_DEPTH,&this->ModelViewStackDepth);
+  glGetFloatv(GL_PROJECTION_MATRIX, this->ProjectionMatrix);
+  glGetIntegerv(GL_PROJECTION_STACK_DEPTH, &this->ProjectionStackDepth);
 
-  glGetFloatv(GL_PROJECTION_MATRIX,this->ProjectionMatrix);
-  glGetIntegerv(GL_PROJECTION_STACK_DEPTH,&this->ProjectionStackDepth);
+  glGetIntegerv(GL_VIEWPORT, this->Viewport);
+  glGetFloatv(GL_DEPTH_RANGE, this->DepthRange);
 
-  glGetIntegerv(GL_VIEWPORT,this->Viewport);
-  glGetFloatv(GL_DEPTH_RANGE,this->DepthRange);
-
-  glGetIntegerv(GL_MATRIX_MODE,&this->MatrixMode);
+  glGetIntegerv(GL_MATRIX_MODE, &this->MatrixMode);
 
   // fragment fixed-pipeline
-  this->FixedPipeline.ColorSumEnabled=glIsEnabled(vtkgl::COLOR_SUM);
+  this->FixedPipeline.ColorSumEnabled = glIsEnabled(vtkgl::COLOR_SUM);
 
-  glGetIntegerv(GL_SHADE_MODEL,&this->ShadeModel);
+  glGetIntegerv(GL_SHADE_MODEL, &this->ShadeModel);
 
   // vertex fixed-pipeline
-  this->FixedPipeline.LightingEnabled=glIsEnabled(GL_LIGHTING);
+  this->FixedPipeline.LightingEnabled = glIsEnabled(GL_LIGHTING);
 
   // rasterization
-  this->CullFaceEnabled=glIsEnabled(GL_CULL_FACE);
-  glGetIntegerv(GL_CULL_FACE_MODE,&this->CullFaceMode);
-  glGetIntegerv(GL_FRONT_FACE,&this->FrontFace);
-  this->PolygonSmoothEnabled=glIsEnabled(GL_POLYGON_SMOOTH);
-  glGetIntegerv(GL_POLYGON_MODE,this->PolygonMode);
-  glGetFloatv(GL_POLYGON_OFFSET_FACTOR,&this->PolygonOffsetFactor);
-  glGetFloatv(GL_POLYGON_OFFSET_UNITS,&this->PolygonOffsetUnits);
-  this->PolygonOffsetPointEnabled=glIsEnabled(GL_POLYGON_OFFSET_POINT);
-  this->PolygonOffsetLineEnabled=glIsEnabled(GL_POLYGON_OFFSET_LINE);
-  this->PolygonOffsetFillEnabled=glIsEnabled(GL_POLYGON_OFFSET_FILL);
-  this->PolygonStippleEnabled=glIsEnabled(GL_POLYGON_STIPPLE);
+  this->CullFaceEnabled = glIsEnabled(GL_CULL_FACE);
+  glGetIntegerv(GL_CULL_FACE_MODE, &this->CullFaceMode);
+  glGetIntegerv(GL_FRONT_FACE, &this->FrontFace);
+  this->PolygonSmoothEnabled = glIsEnabled(GL_POLYGON_SMOOTH);
+  glGetIntegerv(GL_POLYGON_MODE, this->PolygonMode);
+  glGetFloatv(GL_POLYGON_OFFSET_FACTOR, &this->PolygonOffsetFactor);
+  glGetFloatv(GL_POLYGON_OFFSET_UNITS, &this->PolygonOffsetUnits);
+  this->PolygonOffsetPointEnabled = glIsEnabled(GL_POLYGON_OFFSET_POINT);
+  this->PolygonOffsetLineEnabled = glIsEnabled(GL_POLYGON_OFFSET_LINE);
+  this->PolygonOffsetFillEnabled = glIsEnabled(GL_POLYGON_OFFSET_FILL);
+  this->PolygonStippleEnabled = glIsEnabled(GL_POLYGON_STIPPLE);
 
   // multisampling
-  this->MultiSampleEnabled=glIsEnabled(vtkgl::MULTISAMPLE);
-  this->SampleAlphaToCoverageEnabled=glIsEnabled(vtkgl::SAMPLE_ALPHA_TO_COVERAGE);
-  this->SampleAlphaToOneEnabled=glIsEnabled(vtkgl::SAMPLE_ALPHA_TO_ONE);
-  this->SampleCoverageEnabled=glIsEnabled(vtkgl::SAMPLE_COVERAGE);
-  glGetFloatv(vtkgl::SAMPLE_COVERAGE_VALUE,&this->SampleCoverageValue);
-  glGetBooleanv(vtkgl::SAMPLE_COVERAGE_INVERT,&this->SampleCoverageInvert);
+  this->MultiSampleEnabled = glIsEnabled(vtkgl::MULTISAMPLE);
+  this->SampleAlphaToCoverageEnabled = glIsEnabled(vtkgl::SAMPLE_ALPHA_TO_COVERAGE);
+  this->SampleAlphaToOneEnabled = glIsEnabled(vtkgl::SAMPLE_ALPHA_TO_ONE);
+  this->SampleCoverageEnabled = glIsEnabled(vtkgl::SAMPLE_COVERAGE);
+  glGetFloatv(vtkgl::SAMPLE_COVERAGE_VALUE, &this->SampleCoverageValue);
+  glGetBooleanv(vtkgl::SAMPLE_COVERAGE_INVERT, &this->SampleCoverageInvert);
 
   // pixel operations
-  this->ScissorTestEnabled=glIsEnabled(GL_SCISSOR_TEST);
-  glGetIntegerv(GL_SCISSOR_BOX,this->ScissorBox);
+  this->ScissorTestEnabled = glIsEnabled(GL_SCISSOR_TEST);
+  glGetIntegerv(GL_SCISSOR_BOX, this->ScissorBox);
 
-  this->AlphaTestEnabled=glIsEnabled(GL_ALPHA_TEST);
-  glGetIntegerv(GL_ALPHA_TEST_FUNC,&this->AlphaTestFunc);
-  glGetFloatv(GL_ALPHA_TEST_REF,&this->AlphaTestRef);
+  this->AlphaTestEnabled = glIsEnabled(GL_ALPHA_TEST);
+  glGetIntegerv(GL_ALPHA_TEST_FUNC, &this->AlphaTestFunc);
+  glGetFloatv(GL_ALPHA_TEST_REF, &this->AlphaTestRef);
 
-  this->StencilTestEnabled=glIsEnabled(GL_STENCIL_TEST);
-  this->DepthTestEnabled=glIsEnabled(GL_DEPTH_TEST);
-  glGetIntegerv(GL_DEPTH_FUNC,&this->DepthFunc);
+  this->StencilTestEnabled = glIsEnabled(GL_STENCIL_TEST);
+  this->DepthTestEnabled = glIsEnabled(GL_DEPTH_TEST);
+  glGetIntegerv(GL_DEPTH_FUNC, &this->DepthFunc);
 
   this->BlendEnabled=glIsEnabled(GL_BLEND);
-  glGetIntegerv(vtkgl::BLEND_SRC_RGB,&this->BlendSrcRGB);
-  glGetIntegerv(vtkgl::BLEND_SRC_ALPHA,&this->BlendSrcAlpha);
-  glGetIntegerv(vtkgl::BLEND_DST_RGB,&this->BlendDstRGB);
-  glGetIntegerv(vtkgl::BLEND_DST_ALPHA,&this->BlendDstAlpha);
-  glGetIntegerv(vtkgl::BLEND_EQUATION_RGB,&this->BlendEquationRGB);
-  glGetIntegerv(vtkgl::BLEND_EQUATION_ALPHA,&this->BlendEquationAlpha);
-  glGetFloatv(vtkgl::BLEND_COLOR,this->BlendColor);
+  glGetIntegerv(vtkgl::BLEND_SRC_RGB, &this->BlendSrcRGB);
+  glGetIntegerv(vtkgl::BLEND_SRC_ALPHA, &this->BlendSrcAlpha);
+  glGetIntegerv(vtkgl::BLEND_DST_RGB, &this->BlendDstRGB);
+  glGetIntegerv(vtkgl::BLEND_DST_ALPHA, &this->BlendDstAlpha);
+  glGetIntegerv(vtkgl::BLEND_EQUATION_RGB, &this->BlendEquationRGB);
+  glGetIntegerv(vtkgl::BLEND_EQUATION_ALPHA, &this->BlendEquationAlpha);
+  glGetFloatv(vtkgl::BLEND_COLOR, this->BlendColor);
 
+  this->DitherEnabled = glIsEnabled(GL_DITHER);
 
-  this->DitherEnabled=glIsEnabled(GL_DITHER);
-
-  this->IndexLogicOpEnabled=glIsEnabled(GL_INDEX_LOGIC_OP);
-  this->ColorLogicOpEnabled=glIsEnabled(GL_COLOR_LOGIC_OP);
-  glGetIntegerv(GL_LOGIC_OP_MODE,&this->LogicOpMode);
+  this->IndexLogicOpEnabled = glIsEnabled(GL_INDEX_LOGIC_OP);
+  this->ColorLogicOpEnabled = glIsEnabled(GL_COLOR_LOGIC_OP);
+  glGetIntegerv(GL_LOGIC_OP_MODE, &this->LogicOpMode);
 
   // framebuffer control
-  glGetIntegerv(vtkgl::MAX_DRAW_BUFFERS,&this->MaxDrawBuffers);
+  glGetIntegerv(vtkgl::MAX_DRAW_BUFFERS, &this->MaxDrawBuffers);
 
-  if(this->DrawBuffers!=0)
+  if (this->DrawBuffers !=0)
     {
     delete this->DrawBuffers;
-    this->DrawBuffers=0;
+    this->DrawBuffers = 0;
     }
-  if(this->DrawBuffers==0)
+  if (this->DrawBuffers == 0)
     {
-    this->DrawBuffers=new std::vector<GLint>(
+    this->DrawBuffers = new std::vector<GLint>(
       static_cast<size_t>(this->MaxDrawBuffers));
     }
-  i=0;
-  while(i<static_cast<size_t>(this->MaxDrawBuffers))
+  i = 0;
+  while (i < static_cast<size_t>(this->MaxDrawBuffers))
     {
-    glGetIntegerv(vtkgl::DRAW_BUFFER0+i,&(*this->DrawBuffers)[i]);
+    glGetIntegerv(vtkgl::DRAW_BUFFER0+i, &(*this->DrawBuffers)[i]);
     ++i;
     }
 
-  glGetIntegerv(GL_INDEX_WRITEMASK,&this->IndexWriteMask);
-  glGetBooleanv(GL_COLOR_WRITEMASK,this->ColorWriteMask);
-  glGetBooleanv(GL_DEPTH_WRITEMASK,&this->DepthWriteMask);
-  glGetIntegerv(GL_STENCIL_WRITEMASK,ivalues);
+  glGetIntegerv(GL_INDEX_WRITEMASK, &this->IndexWriteMask);
+  glGetBooleanv(GL_COLOR_WRITEMASK, this->ColorWriteMask);
+  glGetBooleanv(GL_DEPTH_WRITEMASK, &this->DepthWriteMask);
+  glGetIntegerv(GL_STENCIL_WRITEMASK, ivalues);
   this->StencilWriteMask=static_cast<GLuint>(ivalues[0]);
-  glGetIntegerv(vtkgl::STENCIL_BACK_WRITEMASK,ivalues);
+  glGetIntegerv(vtkgl::STENCIL_BACK_WRITEMASK, ivalues);
   this->StencilBackWriteMask=static_cast<GLuint>(ivalues[0]);
-  glGetFloatv(GL_COLOR_CLEAR_VALUE,this->ColorClearValue);
-  glGetFloatv(GL_INDEX_CLEAR_VALUE,&this->IndexClearValue);
-  glGetFloatv(GL_DEPTH_CLEAR_VALUE,&this->DepthClearValue);
-  glGetIntegerv(GL_STENCIL_CLEAR_VALUE,&this->StencilClearValue);
-  glGetFloatv(GL_ACCUM_CLEAR_VALUE,this->AccumClearValue);
+  glGetFloatv(GL_COLOR_CLEAR_VALUE, this->ColorClearValue);
+  glGetFloatv(GL_INDEX_CLEAR_VALUE, &this->IndexClearValue);
+  glGetFloatv(GL_DEPTH_CLEAR_VALUE, &this->DepthClearValue);
+  glGetIntegerv(GL_STENCIL_CLEAR_VALUE, &this->StencilClearValue);
+  glGetFloatv(GL_ACCUM_CLEAR_VALUE, this->AccumClearValue);
 
   // pixels
 
-  glGetBooleanv(GL_UNPACK_SWAP_BYTES,&this->Unpack.SwapBytes);
-  glGetBooleanv(GL_UNPACK_LSB_FIRST,&this->Unpack.LsbFirst);
-  glGetIntegerv(vtkgl::UNPACK_IMAGE_HEIGHT,&this->Unpack.ImageHeight);
-  glGetIntegerv(vtkgl::UNPACK_SKIP_IMAGES,&this->Unpack.SkipImages);
-  glGetIntegerv(GL_UNPACK_ROW_LENGTH,&this->Unpack.RowLength);
-  glGetIntegerv(GL_UNPACK_SKIP_ROWS,&this->Unpack.SkipRows);
-  glGetIntegerv(GL_UNPACK_SKIP_PIXELS,&this->Unpack.SkipPixels);
-  glGetIntegerv(GL_UNPACK_ALIGNMENT,&this->Unpack.Alignment);
+  glGetBooleanv(GL_UNPACK_SWAP_BYTES, &this->Unpack.SwapBytes);
+  glGetBooleanv(GL_UNPACK_LSB_FIRST, &this->Unpack.LsbFirst);
+  glGetIntegerv(vtkgl::UNPACK_IMAGE_HEIGHT, &this->Unpack.ImageHeight);
+  glGetIntegerv(vtkgl::UNPACK_SKIP_IMAGES, &this->Unpack.SkipImages);
+  glGetIntegerv(GL_UNPACK_ROW_LENGTH, &this->Unpack.RowLength);
+  glGetIntegerv(GL_UNPACK_SKIP_ROWS, &this->Unpack.SkipRows);
+  glGetIntegerv(GL_UNPACK_SKIP_PIXELS, &this->Unpack.SkipPixels);
+  glGetIntegerv(GL_UNPACK_ALIGNMENT, &this->Unpack.Alignment);
 
-  glGetBooleanv(GL_PACK_SWAP_BYTES,&this->Pack.SwapBytes);
-  glGetBooleanv(GL_PACK_LSB_FIRST,&this->Pack.LsbFirst);
-  glGetIntegerv(vtkgl::PACK_IMAGE_HEIGHT,&this->Pack.ImageHeight);
-  glGetIntegerv(vtkgl::PACK_SKIP_IMAGES,&this->Pack.SkipImages);
-  glGetIntegerv(GL_PACK_ROW_LENGTH,&this->Pack.RowLength);
-  glGetIntegerv(GL_PACK_SKIP_ROWS,&this->Pack.SkipRows);
-  glGetIntegerv(GL_PACK_SKIP_PIXELS,&this->Pack.SkipPixels);
-  glGetIntegerv(GL_PACK_ALIGNMENT,&this->Pack.Alignment);
+  glGetBooleanv(GL_PACK_SWAP_BYTES, &this->Pack.SwapBytes);
+  glGetBooleanv(GL_PACK_LSB_FIRST, &this->Pack.LsbFirst);
+  glGetIntegerv(vtkgl::PACK_IMAGE_HEIGHT, &this->Pack.ImageHeight);
+  glGetIntegerv(vtkgl::PACK_SKIP_IMAGES, &this->Pack.SkipImages);
+  glGetIntegerv(GL_PACK_ROW_LENGTH, &this->Pack.RowLength);
+  glGetIntegerv(GL_PACK_SKIP_ROWS, &this->Pack.SkipRows);
+  glGetIntegerv(GL_PACK_SKIP_PIXELS, &this->Pack.SkipPixels);
+  glGetIntegerv(GL_PACK_ALIGNMENT, &this->Pack.Alignment);
 
-  glGetIntegerv(vtkgl::PIXEL_PACK_BUFFER_BINDING,ivalues);
+  glGetIntegerv(vtkgl::PIXEL_PACK_BUFFER_BINDING, ivalues);
   this->PixelPackBufferBinding=static_cast<GLenum>(ivalues[0]);
 
-  glGetIntegerv(vtkgl::PIXEL_UNPACK_BUFFER_BINDING,ivalues);
+  glGetIntegerv(vtkgl::PIXEL_UNPACK_BUFFER_BINDING, ivalues);
   this->PixelUnpackBufferBinding=static_cast<GLenum>(ivalues[0]);
 
-  if(this->PixelPackBufferBinding>0)
+  if (this->PixelPackBufferBinding>0)
     {
     this->PixelPackBufferObject.Id=this->PixelPackBufferBinding;
-    vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER,vtkgl::BUFFER_SIZE,
+    vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER, vtkgl::BUFFER_SIZE,
                                 &this->PixelPackBufferObject.Size);
-    vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER,vtkgl::BUFFER_USAGE,
+    vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER, vtkgl::BUFFER_USAGE,
                                 ivalues);
     this->PixelPackBufferObject.Usage=static_cast<GLenum>(ivalues[0]);
-    vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER,vtkgl::BUFFER_ACCESS,
+    vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER, vtkgl::BUFFER_ACCESS,
                                 ivalues);
     this->PixelPackBufferObject.Access=static_cast<GLenum>(ivalues[0]);
 
@@ -383,13 +358,13 @@ void vtkOpenGLState::Update()
                                 &this->PixelPackBufferObject.MapLength);
 #endif
     }
-  if(this->PixelUnpackBufferBinding>0)
+  if (this->PixelUnpackBufferBinding>0)
     {
     this->PixelUnpackBufferObject.Id=PixelUnpackBufferBinding;
     this->PixelUnpackBufferObject.Id=this->PixelUnpackBufferBinding;
-    vtkgl::GetBufferParameteriv(vtkgl::PIXEL_UNPACK_BUFFER,vtkgl::BUFFER_SIZE,
+    vtkgl::GetBufferParameteriv(vtkgl::PIXEL_UNPACK_BUFFER, vtkgl::BUFFER_SIZE,
                                 &this->PixelUnpackBufferObject.Size);
-    vtkgl::GetBufferParameteriv(vtkgl::PIXEL_UNPACK_BUFFER,vtkgl::BUFFER_USAGE,
+    vtkgl::GetBufferParameteriv(vtkgl::PIXEL_UNPACK_BUFFER, vtkgl::BUFFER_USAGE,
                                 ivalues);
     this->PixelUnpackBufferObject.Usage=static_cast<GLenum>(ivalues[0]);
     vtkgl::GetBufferParameteriv(vtkgl::PIXEL_UNPACK_BUFFER,
@@ -420,81 +395,81 @@ void vtkOpenGLState::Update()
 #endif
     }
 
-  glGetFloatv(GL_RED_SCALE,&this->RedTransform.Scale);
-  glGetFloatv(GL_RED_BIAS,&this->RedTransform.Bias);
-  glGetFloatv(GL_GREEN_SCALE,&this->GreenTransform.Scale);
-  glGetFloatv(GL_GREEN_BIAS,&this->GreenTransform.Bias);
-  glGetFloatv(GL_BLUE_SCALE,&this->BlueTransform.Scale);
-  glGetFloatv(GL_BLUE_BIAS,&this->BlueTransform.Bias);
-  glGetFloatv(GL_ALPHA_SCALE,&this->AlphaTransform.Scale);
-  glGetFloatv(GL_ALPHA_BIAS,&this->AlphaTransform.Bias);
-  glGetFloatv(GL_DEPTH_SCALE,&this->DepthTransform.Scale);
-  glGetFloatv(GL_DEPTH_BIAS,&this->DepthTransform.Bias);
+  glGetFloatv(GL_RED_SCALE, &this->RedTransform.Scale);
+  glGetFloatv(GL_RED_BIAS, &this->RedTransform.Bias);
+  glGetFloatv(GL_GREEN_SCALE, &this->GreenTransform.Scale);
+  glGetFloatv(GL_GREEN_BIAS, &this->GreenTransform.Bias);
+  glGetFloatv(GL_BLUE_SCALE, &this->BlueTransform.Scale);
+  glGetFloatv(GL_BLUE_BIAS, &this->BlueTransform.Bias);
+  glGetFloatv(GL_ALPHA_SCALE, &this->AlphaTransform.Scale);
+  glGetFloatv(GL_ALPHA_BIAS, &this->AlphaTransform.Bias);
+  glGetFloatv(GL_DEPTH_SCALE, &this->DepthTransform.Scale);
+  glGetFloatv(GL_DEPTH_BIAS, &this->DepthTransform.Bias);
 
-  glGetFloatv(GL_ZOOM_X,&this->ZoomX);
-  glGetFloatv(GL_ZOOM_Y,&this->ZoomY);
+  glGetFloatv(GL_ZOOM_X, &this->ZoomX);
+  glGetFloatv(GL_ZOOM_Y, &this->ZoomY);
 
-  glGetIntegerv(GL_READ_BUFFER,&this->ReadBuffer);
+  glGetIntegerv(GL_READ_BUFFER, &this->ReadBuffer);
 
-  glGetIntegerv(GL_AUX_BUFFERS,&this->AuxBuffers);
-  glGetBooleanv(GL_RGBA_MODE,&this->RGBAMode);
-  glGetBooleanv(GL_INDEX_MODE,&this->IndexMode);
-  glGetBooleanv(GL_DOUBLEBUFFER,&this->DoubleBuffer);
-  glGetBooleanv(GL_STEREO,&this->Stereo);
+  glGetIntegerv(GL_AUX_BUFFERS, &this->AuxBuffers);
+  glGetBooleanv(GL_RGBA_MODE, &this->RGBAMode);
+  glGetBooleanv(GL_INDEX_MODE, &this->IndexMode);
+  glGetBooleanv(GL_DOUBLEBUFFER, &this->DoubleBuffer);
+  glGetBooleanv(GL_STEREO, &this->Stereo);
 
-  glGetIntegerv(vtkgl::MAX_COLOR_ATTACHMENTS,&this->MaxColorAttachments);
+  glGetIntegerv(vtkgl::MAX_COLOR_ATTACHMENTS, &this->MaxColorAttachments);
 
-  glGetIntegerv(GL_LIST_BASE,&this->ListBase);
-  glGetIntegerv(GL_LIST_INDEX,&this->ListIndex);
-  if(this->ListIndex!=0)
+  glGetIntegerv(GL_LIST_BASE, &this->ListBase);
+  glGetIntegerv(GL_LIST_INDEX, &this->ListIndex);
+  if (this->ListIndex!=0)
     {
-    glGetIntegerv(GL_LIST_MODE,&this->ListMode);
+    glGetIntegerv(GL_LIST_MODE, &this->ListMode);
     }
   else
     {
     this->ListMode=0; // not relevant
     }
 
-  glGetIntegerv(GL_RENDER_MODE,&this->RenderMode);
+  glGetIntegerv(GL_RENDER_MODE, &this->RenderMode);
 }
 
 void vtkOpenGLState::UpdateCurrentProgram()
 {
   GLint ivalues[4];
 
-  if(this->CurrentProgramState!=0)
+  if (this->CurrentProgramState!=0)
     {
     delete this->CurrentProgramState;
     this->CurrentProgramState=0;
     }
 
-  glGetIntegerv(vtkgl::CURRENT_PROGRAM,ivalues);
+  glGetIntegerv(vtkgl::CURRENT_PROGRAM, ivalues);
   this->CurrentProgram=static_cast<GLuint>(ivalues[0]);
-  if(this->CurrentProgram!=0)
+  if (this->CurrentProgram!=0)
     {
     this->CurrentProgramState=new vtkOpenGLProgramState;
     this->CurrentProgramState->Id=this->CurrentProgram;
     GLuint progId=this->CurrentProgramState->Id;
 
-    vtkgl::GetProgramiv(progId,vtkgl::DELETE_STATUS,ivalues);
+    vtkgl::GetProgramiv(progId, vtkgl::DELETE_STATUS, ivalues);
     this->CurrentProgramState->DeleteStatus=static_cast<GLboolean>(ivalues[0]);
 
-    vtkgl::GetProgramiv(progId,vtkgl::LINK_STATUS,ivalues);
+    vtkgl::GetProgramiv(progId, vtkgl::LINK_STATUS, ivalues);
     this->CurrentProgramState->LinkStatus=static_cast<GLboolean>(ivalues[0]);
 
-    vtkgl::GetProgramiv(progId,vtkgl::VALIDATE_STATUS,ivalues);
+    vtkgl::GetProgramiv(progId, vtkgl::VALIDATE_STATUS, ivalues);
     this->CurrentProgramState->ValidateStatus=static_cast<GLboolean>(ivalues[0]);
 
-    vtkgl::GetProgramiv(progId,vtkgl::INFO_LOG_LENGTH,
+    vtkgl::GetProgramiv(progId, vtkgl::INFO_LOG_LENGTH,
                         &this->CurrentProgramState->InfoLogLength);
-    vtkgl::GetProgramiv(progId,vtkgl::ATTACHED_SHADERS,
+    vtkgl::GetProgramiv(progId, vtkgl::ATTACHED_SHADERS,
                         &this->CurrentProgramState->NumberOfAttachedShaders);
-    vtkgl::GetProgramiv(progId,vtkgl::ACTIVE_ATTRIBUTES,
+    vtkgl::GetProgramiv(progId, vtkgl::ACTIVE_ATTRIBUTES,
                         &this->CurrentProgramState->ActiveAttributes);
     vtkgl::GetProgramiv(progId,
                         vtkgl::ACTIVE_ATTRIBUTE_MAX_LENGTH,
                         &this->CurrentProgramState->ActiveAttributeMaxLength);
-    vtkgl::GetProgramiv(progId,vtkgl::ACTIVE_UNIFORMS,
+    vtkgl::GetProgramiv(progId, vtkgl::ACTIVE_UNIFORMS,
                         &this->CurrentProgramState->ActiveUniforms);
     vtkgl::GetProgramiv(progId,
                         vtkgl::ACTIVE_UNIFORM_MAX_LENGTH,
@@ -507,12 +482,12 @@ void vtkOpenGLState::UpdateCurrentProgram()
 
     GLuint *shaders=new GLuint[numberOfShaders];
 
-    vtkgl::GetAttachedShaders(progId,numberOfShaders,0,shaders);
+    vtkgl::GetAttachedShaders(progId, numberOfShaders, 0, shaders);
 
     size_t i=0;
     this->CurrentProgramState->HasVertexShader=false;
     this->CurrentProgramState->HasFragmentShader=false;
-    while(i<static_cast<size_t>(numberOfShaders))
+    while (i<static_cast<size_t>(numberOfShaders))
       {
       (*this->CurrentProgramState->AttachedShaders)[i].Id=shaders[i];
       this->UpdateShader(i);
@@ -532,8 +507,8 @@ void vtkOpenGLState::UpdateCurrentProgram()
     this->CurrentProgramState->InfoLog=
       new vtkgl::GLchar[this->CurrentProgramState->InfoLogLength];
 
-    vtkgl::GetProgramInfoLog(progId,this->CurrentProgramState->InfoLogLength,
-                             0,this->CurrentProgramState->InfoLog);
+    vtkgl::GetProgramInfoLog(progId, this->CurrentProgramState->InfoLogLength,
+                             0, this->CurrentProgramState->InfoLog);
 
     // Active vertex attributes
     // TODO
@@ -551,22 +526,22 @@ void vtkOpenGLState::UpdateShader(size_t i)
 
   GLint ivalues[4];
 
-  vtkgl::GetShaderiv(s->Id,vtkgl::SHADER_TYPE,ivalues);
+  vtkgl::GetShaderiv(s->Id, vtkgl::SHADER_TYPE, ivalues);
   s->Type=static_cast<GLenum>(ivalues[0]);
 
-  vtkgl::GetShaderiv(s->Id,vtkgl::DELETE_STATUS,ivalues);
+  vtkgl::GetShaderiv(s->Id, vtkgl::DELETE_STATUS, ivalues);
   s->DeleteStatus=static_cast<GLboolean>(ivalues[0]);
 
-  vtkgl::GetShaderiv(s->Id,vtkgl::COMPILE_STATUS,ivalues);
+  vtkgl::GetShaderiv(s->Id, vtkgl::COMPILE_STATUS, ivalues);
   s->CompileStatus=static_cast<GLboolean>(ivalues[0]);
-  vtkgl::GetShaderiv(s->Id,vtkgl::INFO_LOG_LENGTH,&(s->InfoLogLength));
-  vtkgl::GetShaderiv(s->Id,vtkgl::SHADER_SOURCE_LENGTH,&(s->SourceLength));
+  vtkgl::GetShaderiv(s->Id, vtkgl::INFO_LOG_LENGTH, &(s->InfoLogLength));
+  vtkgl::GetShaderiv(s->Id, vtkgl::SHADER_SOURCE_LENGTH, &(s->SourceLength));
 
   s->InfoLog=new vtkgl::GLchar[s->InfoLogLength];
-  vtkgl::GetShaderInfoLog(s->Id,s->InfoLogLength,0,s->InfoLog);
+  vtkgl::GetShaderInfoLog(s->Id, s->InfoLogLength, 0, s->InfoLog);
 
   s->Source=new vtkgl::GLchar[s->SourceLength];
-  vtkgl::GetShaderSource(s->Id,s->SourceLength,0,s->Source);
+  vtkgl::GetShaderSource(s->Id, s->SourceLength, 0, s->Source);
 }
 
 
@@ -579,7 +554,7 @@ void vtkOpenGLState::PrintSelf(ostream &os,
   os << indent << "ErrorCode: " << this->ErrorCodeToString() << endl;
 
   os << indent << "FrameBufferBinding (drawFB and readFB)=";
-  if(this->FrameBufferBinding==0)
+  if (this->FrameBufferBinding==0)
     {
     os << "0 (default framebuffer)" << endl;
     }
@@ -589,33 +564,33 @@ void vtkOpenGLState::PrintSelf(ostream &os,
     }
 
   os << indent << "CurrentProgram=";
-  if(this->CurrentProgram==0)
+  if (this->CurrentProgram==0)
     {
     os << "0 (fixed-pipeline)" << endl;
     }
   else
     {
     os << this->CurrentProgram << endl;
-    this->CurrentProgramState->PrintSelf(os,indent);
+    this->CurrentProgramState->PrintSelf(os, indent);
     }
 
   os << indent << "ModelViewMatrix=" << endl;
-  this->PrintMatrix(os,indent,this->ModelViewMatrix);
+  this->PrintMatrix(os, indent, this->ModelViewMatrix);
   os << indent << "ModelViewStackDepth="<< this->ModelViewStackDepth << endl;
   os << indent << "ProjectionMatrix=" << endl;
-  this->PrintMatrix(os,indent,this->ProjectionMatrix);
+  this->PrintMatrix(os, indent, this->ProjectionMatrix);
   os << indent << "ProjectionStackDepth=" << this->ProjectionStackDepth
      << endl;
 
   size_t i;
 
-  if(this->CurrentProgram==0 || !this->CurrentProgramState->HasVertexShader)
+  if (this->CurrentProgram==0 || !this->CurrentProgramState->HasVertexShader)
     {
     i=0;
-    while(i<static_cast<size_t>(this->MaxTextureCoords))
+    while (i<static_cast<size_t>(this->MaxTextureCoords))
       {
       os << indent << "TextureCoordinateProcessingUnit " << i << ":" <<endl;
-      this->PrintMatrix(os,indent,(*this->TCPU)[i].CurrentMatrix);
+      this->PrintMatrix(os, indent, (*this->TCPU)[i].CurrentMatrix);
       os << indent << "TextureStackDepth=" << (*this->TCPU)[i].MatrixStackDepth
          << endl;
       ++i;
@@ -623,12 +598,12 @@ void vtkOpenGLState::PrintSelf(ostream &os,
     }
 
   i=0;
-  while(i<static_cast<size_t>(this->MaxCombinedTextureImageUnits))
+  while (i<static_cast<size_t>(this->MaxCombinedTextureImageUnits))
     {
     // only display texture unit with at least one binding, otherwise it is
     // too verbose.
 
-    if((*this->TIU)[i].TextureBinding1D!=0 ||
+    if ((*this->TIU)[i].TextureBinding1D!=0 ||
        (*this->TIU)[i].TextureBinding2D!=0 ||
        (*this->TIU)[i].TextureBinding3D!=0 ||
        (*this->TIU)[i].TextureBindingCubeMap!=0)
@@ -642,22 +617,22 @@ void vtkOpenGLState::PrintSelf(ostream &os,
       ++i;
     }
 
-  if(this->CurrentProgram==0 || !this->CurrentProgramState->HasVertexShader)
+  if (this->CurrentProgram==0 || !this->CurrentProgramState->HasVertexShader)
     {
     os << indent << "fixed-pipeline vertex shader flags:" << endl;
     os << indent << " LightingEnabled=" << static_cast<bool>(this->FixedPipeline.LightingEnabled==GL_TRUE) << endl;
     os << indent << " ColorSumEnabled=" << static_cast<bool>(this->FixedPipeline.ColorSumEnabled==GL_TRUE) << endl;
     }
 
-  if(this->CurrentProgram==0 || !this->CurrentProgramState->HasFragmentShader)
+  if (this->CurrentProgram==0 || !this->CurrentProgramState->HasFragmentShader)
     {
     os << indent << " fixed-pipeline texture flags:" <<endl;
     i=0;
-    while(i<static_cast<size_t>(this->MaxTextureUnits))
+    while (i<static_cast<size_t>(this->MaxTextureUnits))
       {
       // only display texture unit with at least one enabled flag,
       // otherwise it is too verbose.
-      if((*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture1DEnabled==GL_TRUE||
+      if ((*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture1DEnabled==GL_TRUE||
          (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture2DEnabled==GL_TRUE||
          (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture3DEnabled==GL_TRUE||
          (*this->FixedPipeline.TextureImageUnitEnabled)[i].TextureCubeMapEnabled==GL_TRUE)
@@ -758,10 +733,10 @@ void vtkOpenGLState::PrintSelf(ostream &os,
 
   os << indent << "MaxDrawBuffers=" << this->MaxDrawBuffers << endl;
   i=0;
-  while(i<static_cast<size_t>(this->MaxDrawBuffers))
+  while (i<static_cast<size_t>(this->MaxDrawBuffers))
     {
     os << indent << "DrawBuffer[" << i <<"]=";
-    this->ColorBufferToStream(os,(*this->DrawBuffers)[static_cast<size_t>(i)]);
+    this->ColorBufferToStream(os, (*this->DrawBuffers)[static_cast<size_t>(i)]);
     os << endl;
     ++i;
     }
@@ -780,40 +755,40 @@ void vtkOpenGLState::PrintSelf(ostream &os,
   os << indent << "-- Pixels" << endl;
 
   os << indent << "Unpack:"<<endl;
-  this->Unpack.PrintSelf(os,indent.GetNextIndent());
+  this->Unpack.PrintSelf(os, indent.GetNextIndent());
   os << indent << "Pack:"<<endl;
-  this->Pack.PrintSelf(os,indent.GetNextIndent());
+  this->Pack.PrintSelf(os, indent.GetNextIndent());
 
   os << indent << "PixelPackBufferBinding=" << this->PixelPackBufferBinding << endl;
 
-  if(this->PixelPackBufferBinding>0)
+  if (this->PixelPackBufferBinding>0)
     {
-    this->PixelPackBufferObject.PrintSelf(os,indent);
+    this->PixelPackBufferObject.PrintSelf(os, indent);
     }
 
   os << indent << "PixelUnpackBufferBinding=" << this->PixelUnpackBufferBinding << endl;
- if(this->PixelUnpackBufferBinding>0)
+ if (this->PixelUnpackBufferBinding>0)
     {
-    this->PixelUnpackBufferObject.PrintSelf(os,indent);
+    this->PixelUnpackBufferObject.PrintSelf(os, indent);
     }
 
 
   os << indent << "RedTransform:";
-  this->RedTransform.PrintSelf(os,indent.GetNextIndent());
+  this->RedTransform.PrintSelf(os, indent.GetNextIndent());
   os << indent << "GreenTransform:";
-  this->GreenTransform.PrintSelf(os,indent.GetNextIndent());
+  this->GreenTransform.PrintSelf(os, indent.GetNextIndent());
   os << indent << "BlueTransform:";
-  this->BlueTransform.PrintSelf(os,indent.GetNextIndent());
+  this->BlueTransform.PrintSelf(os, indent.GetNextIndent());
   os << indent << "AlphaTransform:";
-  this->AlphaTransform.PrintSelf(os,indent.GetNextIndent());
+  this->AlphaTransform.PrintSelf(os, indent.GetNextIndent());
   os << indent << "DepthTransform:";
-  this->DepthTransform.PrintSelf(os,indent.GetNextIndent());
+  this->DepthTransform.PrintSelf(os, indent.GetNextIndent());
 
   os << indent << "ZoomX=" << this->ZoomX << endl;
   os << indent << "ZoomY=" << this->ZoomY << endl;
 
 os << indent << "ReadBuffer=";
-this->ColorBufferToStream(os,this->ReadBuffer);
+this->ColorBufferToStream(os, this->ReadBuffer);
 os << endl;
 
 os << indent << "AuxBuffers=" << this->AuxBuffers << endl;
@@ -835,7 +810,7 @@ os << indent << "MaxDrawBuffers=" <<  this->MaxDrawBuffers << endl;
 void vtkOpenGLProgramState::PrintSelf(ostream &os,
                                       vtkIndent indent)
 {
-  if(this->HasVertexShader)
+  if (this->HasVertexShader)
     {
     os << indent << "customized verter shader" << endl;
     }
@@ -843,7 +818,7 @@ void vtkOpenGLProgramState::PrintSelf(ostream &os,
     {
     os << indent << "fixed-pipeline verter shader" << endl;
     }
-  if(this->HasFragmentShader)
+  if (this->HasFragmentShader)
     {
     os << indent << "customized fragment shader" << endl;
     }
@@ -872,9 +847,9 @@ void vtkOpenGLProgramState::PrintSelf(ostream &os,
   os << indent << "Shaders: " << endl;
 
   size_t i=0;
-  while(i<static_cast<size_t>(this->NumberOfAttachedShaders))
+  while (i<static_cast<size_t>(this->NumberOfAttachedShaders))
     {
-    (*this->AttachedShaders)[i].PrintSelf(os,indent.GetNextIndent());
+    (*this->AttachedShaders)[i].PrintSelf(os, indent.GetNextIndent());
     ++i;
     }
 }
@@ -907,8 +882,8 @@ const char *ShaderTypeStringTable[2]={
 
 const char *vtkOpenGLShaderState::ShaderTypeToString()
 {
-  return ::ValueToString(static_cast<GLint>(this->Type),ShaderTypeValueTable,
-                         ShaderTypeStringTable,2);
+  return ::ValueToString(static_cast<GLint>(this->Type), ShaderTypeValueTable,
+                         ShaderTypeStringTable, 2);
 }
 
 
@@ -928,41 +903,41 @@ void vtkOpenGLPixelControl::PrintSelf(ostream &os,
 void vtkOpenGLBufferObjectState::BufferAccessFlagsToStream(ostream &os)
 {
   bool firstFlag=true;
-  if((this->AccessFlags&vtkgl::MAP_READ_BIT)!=0)
+  if ((this->AccessFlags&vtkgl::MAP_READ_BIT)!=0)
     {
     os << "GL_MAP_READ_BIT";
     firstFlag=false;
     }
-  if((this->AccessFlags&vtkgl::MAP_WRITE_BIT)!=0)
+  if ((this->AccessFlags&vtkgl::MAP_WRITE_BIT)!=0)
     {
-    if(!firstFlag)
+    if (!firstFlag)
       {
       os << "|";
       }
     os << "GL_MAP_WRITE_BIT";
     firstFlag=false;
     }
-  if((this->AccessFlags&vtkgl::MAP_INVALIDATE_RANGE_BIT)!=0)
+  if ((this->AccessFlags&vtkgl::MAP_INVALIDATE_RANGE_BIT)!=0)
     {
-    if(!firstFlag)
+    if (!firstFlag)
       {
       os << "|";
       }
     os << "GL_MAP_INVALIDATE_RANGE_BIT";
     firstFlag=false;
     }
-  if((this->AccessFlags&vtkgl::MAP_INVALIDATE_BUFFER_BIT)!=0)
+  if ((this->AccessFlags&vtkgl::MAP_INVALIDATE_BUFFER_BIT)!=0)
     {
-    if(!firstFlag)
+    if (!firstFlag)
       {
       os << "|";
       }
     os << "GL_MAP_INVALIDATE_BUFFER_BIT";
     firstFlag=false;
     }
-   if((this->AccessFlags&vtkgl::MAP_FLUSH_EXPLICIT_BIT)!=0)
+   if ((this->AccessFlags&vtkgl::MAP_FLUSH_EXPLICIT_BIT)!=0)
     {
-    if(!firstFlag)
+    if (!firstFlag)
       {
       os << "|";
       }
@@ -970,9 +945,9 @@ void vtkOpenGLBufferObjectState::BufferAccessFlagsToStream(ostream &os)
     firstFlag=false;
     }
 
-   if((this->AccessFlags&vtkgl::MAP_UNSYNCHRONIZED_BIT)!=0)
+   if ((this->AccessFlags&vtkgl::MAP_UNSYNCHRONIZED_BIT)!=0)
     {
-    if(!firstFlag)
+    if (!firstFlag)
       {
       os << "|";
       }
@@ -1007,8 +982,8 @@ const char *BufferUsageStringTable[9]={
 
 const char *vtkOpenGLBufferObjectState::BufferUsageToString()
 {
-  return ::ValueToString(static_cast<GLint>(this->Usage),BufferUsageValueTable,
-                         BufferUsageStringTable,9);
+  return ::ValueToString(static_cast<GLint>(this->Usage), BufferUsageValueTable,
+                         BufferUsageStringTable, 9);
 }
 
 int BufferAccessValueTable[3]={
@@ -1027,7 +1002,7 @@ const char *vtkOpenGLBufferObjectState::BufferAccessToString()
 {
   return ::ValueToString(static_cast<GLint>(this->Access),
                          BufferAccessValueTable,
-                         BufferAccessStringTable,3);
+                         BufferAccessStringTable, 3);
 }
 
 
@@ -1335,7 +1310,7 @@ void vtkOpenGLState::ColorBufferToStream(ostream &os,
                                          GLint colorBuffer)
 {
   GLint auxBuffer=colorBuffer-GL_AUX0;
-  if(auxBuffer>=0 && auxBuffer<this->AuxBuffers)
+  if (auxBuffer>=0 && auxBuffer<this->AuxBuffers)
     {
     os << "GL_AUX" << auxBuffer;
     }
@@ -1343,14 +1318,14 @@ void vtkOpenGLState::ColorBufferToStream(ostream &os,
     {
     GLint colorAttachment=static_cast<int>(static_cast<unsigned int>(colorBuffer)
                                            -vtkgl::COLOR_ATTACHMENT0);
-    if(colorAttachment>=0 && colorAttachment<this->MaxColorAttachments)
+    if (colorAttachment>=0 && colorAttachment<this->MaxColorAttachments)
       {
       os << "GL_COLOR_ATTACHMENT" << colorAttachment;
       }
     else
       {
-      os << this->ValueToString(colorBuffer,ColorBufferValueTable,
-                                ColorBufferStringTable,10);
+      os << this->ValueToString(colorBuffer, ColorBufferValueTable,
+                                ColorBufferStringTable, 10);
       }
     }
 }
@@ -1358,94 +1333,94 @@ void vtkOpenGLState::ColorBufferToStream(ostream &os,
 const char *vtkOpenGLState::ErrorCodeToString()
 {
   return this->ValueToString(static_cast<GLint>(this->ErrorCode),
-                             ErrorCodeValueTable,ErrorCodeStringTable,9);
+                             ErrorCodeValueTable, ErrorCodeStringTable, 9);
 }
 
 const char *vtkOpenGLState::BlendFuncToString(GLint blendFunc)
 {
-  return this->ValueToString(blendFunc,BlendFuncValueTable,
-                             BlendFuncStringTable,15);
+  return this->ValueToString(blendFunc, BlendFuncValueTable,
+                             BlendFuncStringTable, 15);
 }
 
 const char *vtkOpenGLState::BlendEquationToString(GLint blendEquation)
 {
-  return this->ValueToString(blendEquation,BlendEquationValueTable,
-                             BlendEquationStringTable,5);
+  return this->ValueToString(blendEquation, BlendEquationValueTable,
+                             BlendEquationStringTable, 5);
 }
 
 const char *vtkOpenGLState::LogicOpModeToString()
 {
-  return this->ValueToString(this->LogicOpMode,LogicOpModeValueTable,
-                             LogicOpModeStringTable,16);
+  return this->ValueToString(this->LogicOpMode, LogicOpModeValueTable,
+                             LogicOpModeStringTable, 16);
 }
 
 const char *vtkOpenGLState::ListModeToString()
 {
   const char*result;
-  if(this->ListMode==0)
+  if (this->ListMode==0)
     {
     result=NA;
     }
   else
     {
-    result=this->ValueToString(this->ListMode,ListModeValueTable,
-                               ListModeStringTable,2);
+    result=this->ValueToString(this->ListMode, ListModeValueTable,
+                               ListModeStringTable, 2);
     }
   return result;
 }
 
 const char *vtkOpenGLState::BooleanToString(GLint booleanValue)
 {
-  return this->ValueToString(booleanValue,BooleanValueTable,
-                             BooleanStringTable,2);
+  return this->ValueToString(booleanValue, BooleanValueTable,
+                             BooleanStringTable, 2);
 }
 const char *vtkOpenGLState::ShadeModelToString()
 {
-  return this->ValueToString(this->ShadeModel,ShadeModelValueTable,
-                             ShadeModelStringTable,2);
+  return this->ValueToString(this->ShadeModel, ShadeModelValueTable,
+                             ShadeModelStringTable, 2);
 }
 
 const char *vtkOpenGLState::CullFaceModeToString()
 {
-  return this->ValueToString(this->CullFaceMode,CullFaceModeValueTable,
-                             CullFaceModeStringTable,3);
+  return this->ValueToString(this->CullFaceMode, CullFaceModeValueTable,
+                             CullFaceModeStringTable, 3);
 }
 
 const char *vtkOpenGLState::FrontFaceToString()
 {
-  return this->ValueToString(this->FrontFace,FrontFaceValueTable,
-                             FrontFaceStringTable,2);
+  return this->ValueToString(this->FrontFace, FrontFaceValueTable,
+                             FrontFaceStringTable, 2);
 }
 
 const char *vtkOpenGLState::PolygonModeToString(GLint polygonMode)
 {
-  return this->ValueToString(polygonMode,PolygonModeValueTable,
-                             PolygonModeStringTable,3);
+  return this->ValueToString(polygonMode, PolygonModeValueTable,
+                             PolygonModeStringTable, 3);
 }
 
 const char *vtkOpenGLState::AlphaTestFuncToString()
 {
-  return this->ValueToString(this->AlphaTestFunc,AlphaTestFuncValueTable,
-                             AlphaTestFuncStringTable,8);
+  return this->ValueToString(this->AlphaTestFunc, AlphaTestFuncValueTable,
+                             AlphaTestFuncStringTable, 8);
 }
 
 const char *vtkOpenGLState::DepthFuncToString()
 {
   // yes, same functions values for alpha test and depth test.
-  return this->ValueToString(this->DepthFunc,AlphaTestFuncValueTable,
-                             AlphaTestFuncStringTable,8);
+  return this->ValueToString(this->DepthFunc, AlphaTestFuncValueTable,
+                             AlphaTestFuncStringTable, 8);
 }
 
 const char *vtkOpenGLState::RenderModeToString()
 {
-  return this->ValueToString(this->RenderMode,RenderModeValueTable,
-                             RenderModeStringTable,3);
+  return this->ValueToString(this->RenderMode, RenderModeValueTable,
+                             RenderModeStringTable, 3);
 }
 
 const char *vtkOpenGLState::MatrixModeToString()
 {
-  return this->ValueToString(this->MatrixMode,MatrixModeValueTable,
-                             MatrixModeStringTable,4);
+  return this->ValueToString(this->MatrixMode, MatrixModeValueTable,
+                             MatrixModeStringTable, 4);
 }
 
 const char *ValueToString(GLint value,
@@ -1456,12 +1431,12 @@ const char *ValueToString(GLint value,
   const char *result;
   bool found=false;
   int i=0;
-  while(!found && i<tableSize)
+  while (!found && i<tableSize)
     {
     found=valueTable[i]==value;
     ++i;
     }
-  if(!found)
+  if (!found)
     {
     result=UnknownValue;
     }
@@ -1477,7 +1452,7 @@ const char *vtkOpenGLState::ValueToString(GLint value,
                                           const char *stringTable[],
                                           int tableSize)
 {
-  return ::ValueToString(value,valueTable,stringTable,tableSize);
+  return ::ValueToString(value, valueTable, stringTable, tableSize);
 }
 
 void vtkOpenGLState::PrintMatrix(ostream &os,
@@ -1496,11 +1471,11 @@ void vtkOpenGLState::PrintMatrix(ostream &os,
   // a2 ..
   // a3 ...
   int row=0;
-  while(row<4)
+  while (row<4)
     {
     os << indent;
     int column=0;
-    while(column<4)
+    while (column<4)
       {
       os << matrix[column*4+row] << ", ";
       ++column;

@@ -38,10 +38,10 @@ vtkOpenGLTexture::vtkOpenGLTexture()
 {
   this->Index = 0;
   this->RenderWindow = 0;
-  this->CheckedHardwareSupport=false;
-  this->SupportsNonPowerOfTwoTextures=false;
-  this->SupportsPBO=false;
-  this->PBO=0;
+  this->CheckedHardwareSupport = false;
+  this->SupportsNonPowerOfTwoTextures = false;
+  this->SupportsPBO = false;
+  this->PBO = 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -50,16 +50,16 @@ vtkOpenGLTexture::~vtkOpenGLTexture()
   if (this->RenderWindow)
     {
     this->ReleaseGraphicsResources(this->RenderWindow);
+    this->RenderWindow = 0;
     }
-  if(this->PBO!=0)
+  if (this->PBO)
     {
     vtkErrorMacro(<< "PBO should have been deleted in ReleaseGraphicsResources()");
     }
-  this->RenderWindow = NULL;
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLTexture::Initialize(vtkRenderer * vtkNotUsed(ren))
+void vtkOpenGLTexture::Initialize(vtkRenderer* vtkNotUsed(ren))
 {
 }
 
@@ -89,13 +89,13 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
     }
   this->Index = 0;
   this->RenderWindow = NULL;
-  this->CheckedHardwareSupport=false;
-  this->SupportsNonPowerOfTwoTextures=false;
-  this->SupportsPBO=false;
-  if(this->PBO!=0)
+  this->CheckedHardwareSupport = false;
+  this->SupportsNonPowerOfTwoTextures = false;
+  this->SupportsPBO = false;
+  if(this->PBO)
     {
     this->PBO->Delete();
-    this->PBO=0;
+    this->PBO = 0;
     }
   this->Modified();
 }
@@ -118,53 +118,53 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   vtkOpenGLRenderWindow* renWin =
     static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
 
-  if(this->BlendingMode != VTK_TEXTURE_BLENDING_MODE_NONE
+  if (this->BlendingMode != VTK_TEXTURE_BLENDING_MODE_NONE
      && vtkgl::ActiveTexture)
     {
     glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, vtkgl::COMBINE);
 
-    switch(this->BlendingMode)
+    switch (this->BlendingMode)
       {
       case VTK_TEXTURE_BLENDING_MODE_REPLACE:
         {
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_REPLACE);
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_REPLACE);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_REPLACE);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_REPLACE);
         break;
         }
       case VTK_TEXTURE_BLENDING_MODE_MODULATE:
         {
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_MODULATE);
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_MODULATE);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_MODULATE);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_MODULATE);
         break;
         }
       case VTK_TEXTURE_BLENDING_MODE_ADD:
         {
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_ADD);
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_ADD);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_ADD);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_ADD);
         break;
         }
       case VTK_TEXTURE_BLENDING_MODE_ADD_SIGNED:
         {
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, vtkgl::ADD_SIGNED);
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, vtkgl::ADD_SIGNED);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, vtkgl::ADD_SIGNED);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, vtkgl::ADD_SIGNED);
         break;
         }
       case VTK_TEXTURE_BLENDING_MODE_INTERPOLATE:
         {
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, vtkgl::INTERPOLATE);
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, vtkgl::INTERPOLATE);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, vtkgl::INTERPOLATE);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, vtkgl::INTERPOLATE);
         break;
         }
       case VTK_TEXTURE_BLENDING_MODE_SUBTRACT:
         {
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, vtkgl::SUBTRACT);
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, vtkgl::SUBTRACT);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, vtkgl::SUBTRACT);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, vtkgl::SUBTRACT);
         break;
         }
       default:
         {
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_ADD);
-        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_ADD);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_ADD);
+        glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_ADD);
         }
       }
     }
@@ -176,17 +176,15 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
        renWin != this->RenderWindow.GetPointer() ||
        renWin->GetContextCreationTime() > this->LoadTime)
     {
-    int bytesPerPixel;
     int size[3];
-    vtkDataArray *scalars;
     unsigned char *dataPtr;
-    unsigned char *resultData=NULL;
+    unsigned char *resultData = 0;
     int xsize, ysize;
-    unsigned int xs,ys;
-    GLuint tempIndex=0;
+    unsigned int xs, ys;
+    GLuint tempIndex = 0;
 
     // Get the scalars the user choose to color with.
-    scalars = this->GetInputArrayToProcess(0, input);
+    vtkDataArray* scalars = this->GetInputArrayToProcess(0, input);
 
     // make sure scalars are non null
     if (!scalars)
@@ -201,7 +199,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     if (input->GetNumberOfCells() == scalars->GetNumberOfTuples())
       {
       // we are using cell scalars. Adjust image size for cells.
-      for (int kk=0; kk < 3; kk++)
+      for (int kk = 0; kk < 3; kk++)
         {
         if (size[kk]>1)
           {
@@ -210,7 +208,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         }
       }
 
-    bytesPerPixel = scalars->GetNumberOfComponents();
+    int bytesPerPixel = scalars->GetNumberOfComponents();
 
     // make sure using unsigned char data of color scalars type
     if (this->MapColorScalarsThroughLookupTable ||
@@ -250,11 +248,11 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       }
 
 
-    if(!this->CheckedHardwareSupport)
+    if (!this->CheckedHardwareSupport)
       {
-      vtkOpenGLExtensionManager *m=renWin->GetExtensionManager();
-      this->CheckedHardwareSupport=true;
-      this->SupportsNonPowerOfTwoTextures=
+      vtkOpenGLExtensionManager *m = renWin->GetExtensionManager();
+      this->CheckedHardwareSupport = true;
+      this->SupportsNonPowerOfTwoTextures =
         m->ExtensionSupported("GL_VERSION_2_0")
         || m->ExtensionSupported("GL_ARB_texture_non_power_of_two");
       this->SupportsPBO=vtkPixelBufferObject::IsSupported(renWin);
@@ -263,7 +261,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     // -- decide whether the texture needs to be resampled --
 
     GLint maxDimGL;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxDimGL);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxDimGL);
     // if larger than permitted by the graphics library then must resample
     bool resampleNeeded=xsize > maxDimGL || ysize > maxDimGL;
     if(resampleNeeded)
@@ -288,14 +286,14 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       resampleNeeded= (xs>1) || (ys>1);
       }
 
-    if(resampleNeeded)
+    if (resampleNeeded)
       {
       vtkDebugMacro(<< "Resampling texture to power of two for OpenGL");
       resultData = this->ResampleToPowerOfTwo(xsize, ysize, dataPtr,
                                               bytesPerPixel);
       }
 
-    if ( resultData == NULL )
+    if (!resultData)
         {
         resultData = dataPtr;
         }
@@ -320,12 +318,12 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     glBindTexture(GL_TEXTURE_2D, this->Index);
 #else
     this->Index = glGenLists(1);
-    glDeleteLists (static_cast<GLuint>(this->Index), static_cast<GLsizei>(0));
-    glNewList (static_cast<GLuint>(this->Index), GL_COMPILE);
+    glDeleteLists(static_cast<GLuint>(this->Index), static_cast<GLsizei>(0));
+    glNewList(static_cast<GLuint>(this->Index), GL_COMPILE);
 #endif
     //seg fault protection for those wackos that don't use an
     //opengl render window
-    if(this->RenderWindow->IsA("vtkOpenGLRenderWindow"))
+    if (this->RenderWindow->IsA("vtkOpenGLRenderWindow"))
       {
       static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow())->
         RegisterTextureResource( this->Index );
@@ -333,20 +331,20 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
     if (this->Interpolate)
       {
-      glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                       GL_LINEAR);
-      glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                       GL_LINEAR );
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                      GL_LINEAR);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                      GL_LINEAR);
       }
     else
       {
-      glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-      glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       }
     if (this->Repeat)
       {
-      glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_REPEAT );
-      glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_REPEAT );
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       }
     else
       {
@@ -355,15 +353,15 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
            (manager->ExtensionSupported("GL_VERSION_1_2") ||
             manager->ExtensionSupported("GL_EXT_texture_edge_clamp")))
         {
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                         vtkgl::CLAMP_TO_EDGE );
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                         vtkgl::CLAMP_TO_EDGE );
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                        vtkgl::CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                        vtkgl::CLAMP_TO_EDGE);
         }
       else
         {
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP );
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP );
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
         }
       }
     int internalFormat = bytesPerPixel;
@@ -397,35 +395,34 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         }
       }
 #endif
-    if(this->SupportsPBO)
+    if (this->SupportsPBO)
       {
-      if(this->PBO==0)
+      if (!this->PBO)
         {
-        this->PBO=vtkPixelBufferObject::New();
+        this->PBO = vtkPixelBufferObject::New();
         this->PBO->SetContext(renWin);
         }
       unsigned int dims[2];
+      dims[0] = static_cast<unsigned int>(xsize);
+      dims[1] = static_cast<unsigned int>(ysize);
       vtkIdType increments[2];
-      dims[0]=static_cast<unsigned int>(xsize);
-      dims[1]=static_cast<unsigned int>(ysize);
-      increments[0]=0;
-      increments[1]=0;
-      this->PBO->Upload2D(VTK_UNSIGNED_CHAR,resultData,dims,bytesPerPixel,
+      increments[0] = 0;
+      increments[1] = 0;
+      this->PBO->Upload2D(VTK_UNSIGNED_CHAR, resultData, dims, bytesPerPixel,
         increments);
       // non-blocking call
       this->PBO->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
-      glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,
-                    xsize, ysize, 0, format,
-                    GL_UNSIGNED_BYTE,0);
+      glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
+                   xsize, ysize, 0, format,
+                   GL_UNSIGNED_BYTE, 0);
       this->PBO->UnBind();
       }
     else
       {
       // blocking call
-      glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,
-                    xsize, ysize, 0, format,
-                    GL_UNSIGNED_BYTE,
-                    static_cast<const GLvoid *>(resultData) );
+      glTexImage2D(GL_TEXTURE_2D, 0 , internalFormat,
+                   xsize, ysize, 0, format, GL_UNSIGNED_BYTE,
+                   static_cast<const GLvoid *>(resultData));
 
       }
 #ifndef GL_VERSION_1_1
@@ -438,6 +435,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     if (resultData != dataPtr)
       {
       delete [] resultData;
+      resultData = 0;
       }
     }
 
@@ -450,8 +448,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
   // don't accept fragments if they have zero opacity. this will stop the
   // zbuffer from be blocked by totally transparent texture fragments.
-  glAlphaFunc (GL_GREATER, static_cast<GLclampf>(0));
-  glEnable (GL_ALPHA_TEST);
+  glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0.f));
+  glEnable(GL_ALPHA_TEST);
 
   if (this->PremultipliedAlpha)
     {
@@ -472,41 +470,24 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   // build transformation
   if (this->Transform)
     {
-    double *mat = this->Transform->GetMatrix()->Element[0];
-    double mat2[16];
-    mat2[0] = mat[0];
-    mat2[1] = mat[4];
-    mat2[2] = mat[8];
-    mat2[3] = mat[12];
-    mat2[4] = mat[1];
-    mat2[5] = mat[5];
-    mat2[6] = mat[9];
-    mat2[7] = mat[13];
-    mat2[8] = mat[2];
-    mat2[9] = mat[6];
-    mat2[10] = mat[10];
-    mat2[11] = mat[14];
-    mat2[12] = mat[3];
-    mat2[13] = mat[7];
-    mat2[14] = mat[11];
-    mat2[15] = mat[15];
-
+    double mat[16];
+    vtkMatrix4x4::Transpose(*this->Transform->GetMatrix()->Element, mat);
     // insert texture transformation
-    glMultMatrixd(mat2);
+    glMultMatrixd(mat);
     }
   glMatrixMode(GL_MODELVIEW);
 
-  GLint uUseTexture=-1;
-  GLint uTexture=-1;
+  GLint uUseTexture = -1;
+  GLint uTexture = -1;
 
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
 
   if(oRenderer->GetDepthPeelingHigherLayer())
     {
-    uUseTexture=oRenderer->GetUseTextureUniformVariable();
-    uTexture=oRenderer->GetTextureUniformVariable();
-    vtkgl::Uniform1i(uUseTexture,1);
-    vtkgl::Uniform1i(uTexture,0); // active texture 0
+    uUseTexture = oRenderer->GetUseTextureUniformVariable();
+    uTexture = oRenderer->GetTextureUniformVariable();
+    vtkgl::Uniform1i(uUseTexture, 1);
+    vtkgl::Uniform1i(uTexture, 0); // active texture 0
     }
 }
 
@@ -525,7 +506,7 @@ static int FindPowerOfTwo(int i)
 {
   int size;
 
-  for ( i--, size=1; i > 0; size*=2 )
+  for (i--, size=1; i > 0; size *= 2)
     {
     i /= 2;
     }
@@ -535,10 +516,10 @@ static int FindPowerOfTwo(int i)
   // limit the size of the texture to the maximum allowed by OpenGL
   // (slightly more graceful than texture failing but not ideal)
   GLint maxDimGL;
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxDimGL);
-  if ( size > maxDimGL )
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxDimGL);
+  if (size > maxDimGL)
     {
-        size = maxDimGL ;
+    size = maxDimGL ;
     }
   // end of Tim's additions
 
@@ -554,11 +535,11 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
                                                       int bpp)
 {
   unsigned char *tptr, *p, *p1, *p2, *p3, *p4;
-  int xsize, ysize, i, j, k, jOffset, iIdx, jIdx;
-  double pcoords[3], hx, hy, rm, sm, w0, w1, w2, w3;
+  int jOffset, iIdx, jIdx;
+  double pcoords[3], rm, sm, w0, w1, w2, w3;
 
-  xsize = FindPowerOfTwo(xs);
-  ysize = FindPowerOfTwo(ys);
+  int xsize = FindPowerOfTwo(xs);
+  int ysize = FindPowerOfTwo(ys);
   if (this->RestrictPowerOf2ImageSmaller)
     {
     if (xsize > xs)
@@ -570,19 +551,19 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
       ysize /= 2;
       }
     }
-  hx = xsize > 1 ? (xs - 1.0) / (xsize - 1.0) : 0;
-  hy = ysize > 1 ? (ys - 1.0) / (ysize - 1.0) : 0;
+  double hx = xsize > 1 ? (xs - 1.0) / (xsize - 1.0) : 0;
+  double hy = ysize > 1 ? (ys - 1.0) / (ysize - 1.0) : 0;
 
   tptr = p = new unsigned char[xsize*ysize*bpp];
 
   // Resample from the previous image. Compute parametric coordinates and
   // interpolate
-  for (j=0; j < ysize; j++)
+  for (int j = 0; j < ysize; j++)
     {
     pcoords[1] = j*hy;
 
     jIdx = static_cast<int>(pcoords[1]);
-    if ( jIdx >= (ys-1) ) //make sure to interpolate correctly at edge
+    if (jIdx >= (ys-1)) //make sure to interpolate correctly at edge
       {
       jIdx = ys - 2;
       pcoords[1] = 1.0;
@@ -594,11 +575,11 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
     jOffset = jIdx*xs;
     sm = 1.0 - pcoords[1];
 
-    for (i=0; i < xsize; i++)
+    for (int i = 0; i < xsize; i++)
       {
       pcoords[0] = i*hx;
       iIdx = static_cast<int>(pcoords[0]);
-      if ( iIdx >= (xs-1) )
+      if (iIdx >= (xs-1))
         {
         iIdx = xs - 2;
         pcoords[0] = 1.0;
@@ -620,7 +601,7 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
       w1 = pcoords[0]*sm;
       w2 = rm*pcoords[1];
       w3 = pcoords[0]*pcoords[1];
-      for (k=0; k < bpp; k++)
+      for (int k = 0; k < bpp; k++)
         {
         *p++ = static_cast<unsigned char>(p1[k]*w0 + p2[k]*w1 + p3[k]*w2
                                           + p4[k]*w3);

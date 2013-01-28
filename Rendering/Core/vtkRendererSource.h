@@ -41,7 +41,7 @@ class VTKRENDERINGCORE_EXPORT vtkRendererSource : public vtkAlgorithm
 {
 public:
   static vtkRendererSource *New();
-  vtkTypeMacro(vtkRendererSource,vtkAlgorithm);
+  vtkTypeMacro(vtkRendererSource, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -54,14 +54,14 @@ public:
 
   // Description:
   // Returns which renderer is being used as the source for the pixel data.
-  vtkGetObjectMacro(Input,vtkRenderer);
+  vtkGetObjectMacro(Input, vtkRenderer);
 
   // Description:
   // Use the entire RenderWindow as a data source or just the Renderer.
   // The default is zero, just the Renderer.
-  vtkSetMacro(WholeWindow,int);
-  vtkGetMacro(WholeWindow,int);
-  vtkBooleanMacro(WholeWindow,int);
+  vtkSetMacro(WholeWindow, int);
+  vtkGetMacro(WholeWindow, int);
+  vtkBooleanMacro(WholeWindow, int);
 
   // Description:
   // If this flag is on, the Executing causes a render first.
@@ -73,18 +73,18 @@ public:
   // A boolean value to control whether to grab z-buffer
   // (i.e., depth values) along with the image data. The z-buffer data
   // is placed into a field data attributes named "ZBuffer" .
-  vtkSetMacro(DepthValues,int);
-  vtkGetMacro(DepthValues,int);
-  vtkBooleanMacro(DepthValues,int);
+  vtkSetMacro(DepthValues, int);
+  vtkGetMacro(DepthValues, int);
+  vtkBooleanMacro(DepthValues, int);
 
   // Description:
   // A boolean value to control whether to grab z-buffer
   // (i.e., depth values) along with the image data. The z-buffer data
   // is placed in the scalars as a fourth Z component (shift and scaled
   // to map the full 0..255 range).
-  vtkSetMacro(DepthValuesInScalars,int);
-  vtkGetMacro(DepthValuesInScalars,int);
-  vtkBooleanMacro(DepthValuesInScalars,int);
+  vtkSetMacro(DepthValuesInScalars, int);
+  vtkGetMacro(DepthValuesInScalars, int);
+  vtkBooleanMacro(DepthValuesInScalars, int);
 
   // Description:
   // Get the output data object for a port on this algorithm.
@@ -122,5 +122,3 @@ private:
 };
 
 #endif
-
-

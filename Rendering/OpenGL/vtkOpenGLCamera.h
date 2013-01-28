@@ -29,7 +29,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLCamera : public vtkCamera
 {
 public:
   static vtkOpenGLCamera *New();
-  vtkTypeMacro(vtkOpenGLCamera,vtkCamera);
+  vtkTypeMacro(vtkOpenGLCamera, vtkCamera);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -39,8 +39,8 @@ public:
   void UpdateViewport(vtkRenderer *ren);
 
 protected:
-  vtkOpenGLCamera() {};
-  ~vtkOpenGLCamera() {};
+  vtkOpenGLCamera() {}
+  ~vtkOpenGLCamera() {}
 private:
   vtkOpenGLCamera(const vtkOpenGLCamera&);  // Not implemented.
   void operator=(const vtkOpenGLCamera&);  // Not implemented.

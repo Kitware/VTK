@@ -42,7 +42,7 @@ class vtkProperty;
 class VTKRENDERINGCORE_EXPORT vtkActor : public vtkProp3D
 {
 public:
-  vtkTypeMacro(vtkActor,vtkProp3D);
+  vtkTypeMacro(vtkActor, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -111,7 +111,7 @@ public:
   // be a vtkTexture object. An actor does not need to have an associated
   // texture map and multiple actors can share one texture.
   virtual void SetTexture(vtkTexture*);
-  vtkGetObjectMacro(Texture,vtkTexture);
+  vtkGetObjectMacro(Texture, vtkTexture);
 
   // Description:
   // This is the method that is used to connect an actor to the end of a
@@ -122,7 +122,7 @@ public:
 
   // Description:
   // Returns the Mapper that this actor is getting its data from.
-  vtkGetObjectMacro(Mapper,vtkMapper);
+  vtkGetObjectMacro(Mapper, vtkMapper);
 
   // Description:
   // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
@@ -146,7 +146,7 @@ public:
   // Description:
   // Return the mtime of anything that would cause the rendered image to
   // appear differently. Usually this involves checking the mtime of the
-  // prop plus anything else it depends on such as properties, textures
+  // prop plus anything else it depends on such as properties, textures,
   // etc.
   virtual unsigned long GetRedrawMTime();
 
@@ -161,17 +161,17 @@ protected:
   vtkActor();
   ~vtkActor();
 
+  // is this actor opaque
+  int GetIsOpaque();
+
   vtkProperty *Property;
   vtkProperty *BackfaceProperty;
   vtkTexture *Texture;
   vtkMapper *Mapper;
 
-  // is this actor opaque
-  int GetIsOpaque();
-
   // Bounds are cached in an actor - the MapperBounds are also cache to
   // help know when the Bounds need to be recomputed.
-  double       MapperBounds[6];
+  double MapperBounds[6];
   vtkTimeStamp BoundsMTime;
 
 private:
@@ -180,4 +180,3 @@ private:
 };
 
 #endif
-

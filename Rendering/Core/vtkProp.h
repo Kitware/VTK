@@ -39,7 +39,7 @@ class vtkInformation;
 class VTKRENDERINGCORE_EXPORT vtkProp : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkProp,vtkObject);
+  vtkTypeMacro(vtkProp, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -60,9 +60,9 @@ public:
   // Set/Get the pickable instance variable.  This determines if the vtkProp
   // can be picked (typically using the mouse). Also see dragable.
   // Initial value is true.
-  vtkSetMacro(Pickable,int);
-  vtkGetMacro(Pickable,int);
-  vtkBooleanMacro(Pickable,int);
+  vtkSetMacro(Pickable, int);
+  vtkGetMacro(Pickable, int);
+  vtkBooleanMacro(Pickable, int);
 
   // Description:
   // Method fires PickEvent if the prop is picked.
@@ -76,30 +76,32 @@ public:
   // to work.  It is just intended to prevent some vtkProp'ss from being
   // dragged from within a user interface.
   // Initial value is true.
-  vtkSetMacro(Dragable,int);
-  vtkGetMacro(Dragable,int);
-  vtkBooleanMacro(Dragable,int);
+  vtkSetMacro(Dragable, int);
+  vtkGetMacro(Dragable, int);
+  vtkBooleanMacro(Dragable, int);
 
   // Description:
   // Return the mtime of anything that would cause the rendered image to
   // appear differently. Usually this involves checking the mtime of the
   // prop plus anything else it depends on such as properties, textures
   // etc.
-  virtual unsigned long GetRedrawMTime() {return this->GetMTime();}
+  virtual unsigned long GetRedrawMTime()
+    { return this->GetMTime(); }
 
   // Description:
   // In case the Visibility flag is true, tell if the bounds of this prop
   // should be taken into account or ignored during the computation of other
   // bounding boxes, like in vtkRenderer::ResetCamera().
   // Initial value is true.
-  vtkSetMacro(UseBounds,bool);
-  vtkGetMacro(UseBounds,bool);
-  vtkBooleanMacro(UseBounds,bool);
+  vtkSetMacro(UseBounds, bool);
+  vtkGetMacro(UseBounds, bool);
+  vtkBooleanMacro(UseBounds, bool);
 
   // Description:
   // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   // in world coordinates. NULL means that the bounds are not defined.
-  virtual double *GetBounds() {return NULL;}
+  virtual double *GetBounds()
+    { return NULL; }
 
   // Description:
   // Shallow copy of this vtkProp.
@@ -118,14 +120,16 @@ public:
   // GetNextPath() returns a NULL pointer when the list is exhausted.
   virtual void InitPathTraversal();
   virtual vtkAssemblyPath *GetNextPath();
-  virtual int GetNumberOfPaths() {return 1;}
+  virtual int GetNumberOfPaths()
+    { return 1; }
 
   // Description:
   // These methods are used by subclasses to place a matrix (if any) in the
   // prop prior to rendering. Generally used only for picking. See vtkProp3D
   // for more information.
   virtual void PokeMatrix(vtkMatrix4x4 *vtkNotUsed(matrix)) {}
-  virtual vtkMatrix4x4 *GetMatrix() {return NULL;}
+  virtual vtkMatrix4x4 *GetMatrix()
+    { return NULL; }
 
   // Description:
   // Set/Get property keys. Property keys can be digest by some rendering
@@ -157,10 +161,14 @@ public:
   // The last method is to render any 2D annotation or overlays.
   // Each of these methods return an integer value indicating
   // whether or not this render method was applied to this data.
-  virtual int RenderOpaqueGeometry(      vtkViewport *) { return 0; }
-  virtual int RenderTranslucentPolygonalGeometry( vtkViewport *) { return 0; }
-  virtual int RenderVolumetricGeometry( vtkViewport *) { return 0; }
-  virtual int RenderOverlay(             vtkViewport *) { return 0; }
+  virtual int RenderOpaqueGeometry(vtkViewport *)
+    { return 0; }
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *)
+    { return 0; }
+  virtual int RenderVolumetricGeometry(vtkViewport *)
+    { return 0; }
+  virtual int RenderOverlay(vtkViewport *)
+    { return 0; }
 
   // Description:
   // Render the opaque geometry only if the prop has all the requiredKeys.
@@ -220,7 +228,8 @@ public:
   // vtkAssembly) that has at least one sub-prop that has some translucent
   // polygonal geometry will return true.
   // Default implementation return false.
-  virtual int HasTranslucentPolygonalGeometry() { return 0; }
+  virtual int HasTranslucentPolygonalGeometry()
+    { return 0; }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -242,7 +251,8 @@ public:
   // no estimation.
   virtual double GetEstimatedRenderTime( vtkViewport * )
     { return this->EstimatedRenderTime; }
-  virtual double GetEstimatedRenderTime(){ return this->EstimatedRenderTime; }
+  virtual double GetEstimatedRenderTime()
+    { return this->EstimatedRenderTime; }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -251,7 +261,7 @@ public:
   // initialize the estimated render time at start-up to some user defined
   // value.
   virtual void SetEstimatedRenderTime(double t)
-    {this->EstimatedRenderTime = t; this->SavedEstimatedRenderTime = t;}
+    { this->EstimatedRenderTime = t; this->SavedEstimatedRenderTime = t; }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -277,7 +287,7 @@ public:
   // to rebuild matrices at every render because the estimated render time
   // is changing)
   virtual void AddEstimatedRenderTime(double t, vtkViewport *vtkNotUsed(vp))
-    {this->EstimatedRenderTime+=t;}
+    { this->EstimatedRenderTime += t; }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -306,7 +316,8 @@ public:
   // Get/Set the multiplier for the render time. This is used
   // for culling and is a number between 0 and 1. It is used
   // to create the allocated render time value.
-  void SetRenderTimeMultiplier( double t ) { this->RenderTimeMultiplier = t; }
+  void SetRenderTimeMultiplier( double t )
+    { this->RenderTimeMultiplier = t; }
   vtkGetMacro(RenderTimeMultiplier, double);
 
   // Description:
@@ -366,5 +377,3 @@ private:
 };
 
 #endif
-
-

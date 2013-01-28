@@ -64,7 +64,7 @@ private:
   class vtkInternalCleanup
     {
   public:
-    vtkInternalCleanup() {};
+    vtkInternalCleanup() {}
     ~vtkInternalCleanup();
     };
 
@@ -77,7 +77,4 @@ private:
 //ETX
 };
 
-
-
 #endif
-

@@ -42,11 +42,11 @@
 // Values for GetType()/SetType()
 enum vtkShader2Type
 {
-  VTK_SHADER_TYPE_VERTEX=0,
-  VTK_SHADER_TYPE_TESSELLATION_CONTROL=3, // new, not supported yet
-  VTK_SHADER_TYPE_TESSELLATION_EVALUATION=4, // new, not supported yet
-  VTK_SHADER_TYPE_GEOMETRY=1,
-  VTK_SHADER_TYPE_FRAGMENT=2
+  VTK_SHADER_TYPE_VERTEX = 0,
+  VTK_SHADER_TYPE_TESSELLATION_CONTROL = 3, // new, not supported yet
+  VTK_SHADER_TYPE_TESSELLATION_EVALUATION = 4, // new, not supported yet
+  VTK_SHADER_TYPE_GEOMETRY = 1,
+  VTK_SHADER_TYPE_FRAGMENT = 2
 };
 
 class vtkOpenGLRenderWindow;

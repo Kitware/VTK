@@ -24,27 +24,27 @@ vtkCxxSetObjectMacro(vtkSequencePass,Passes,vtkRenderPassCollection);
 // ----------------------------------------------------------------------------
 vtkSequencePass::vtkSequencePass()
 {
-  this->Passes=0;
+  this->Passes = 0;
 }
 
 // ----------------------------------------------------------------------------
 vtkSequencePass::~vtkSequencePass()
 {
-  if(this->Passes!=0)
+  if (this->Passes)
     {
-      this->Passes->Delete();
+    this->Passes->Delete();
     }
-}
+  }
 
 // ----------------------------------------------------------------------------
 void vtkSequencePass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Passes:";
-  if(this->Passes!=0)
+  if (this->Passes != 0)
     {
-    this->Passes->PrintSelf(os,indent);
+    this->Passes->PrintSelf(os, indent);
     }
   else
     {
@@ -58,18 +58,18 @@ void vtkSequencePass::PrintSelf(ostream& os, vtkIndent indent)
 // \pre s_exists: s!=0
 void vtkSequencePass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s != 0);
 
-  this->NumberOfRenderedProps=0;
-  if(this->Passes!=0)
+  this->NumberOfRenderedProps = 0;
+  if (this->Passes)
     {
       this->Passes->InitTraversal();
-      vtkRenderPass *p=this->Passes->GetNextRenderPass();
-      while(p!=0)
+      vtkRenderPass *p = this->Passes->GetNextRenderPass();
+      while (p)
         {
           p->Render(s);
-          this->NumberOfRenderedProps+=p->GetNumberOfRenderedProps();
-          p=this->Passes->GetNextRenderPass();
+          this->NumberOfRenderedProps += p->GetNumberOfRenderedProps();
+          p = this->Passes->GetNextRenderPass();
         }
     }
 }
@@ -81,16 +81,16 @@ void vtkSequencePass::Render(const vtkRenderState *s)
 // \pre w_exists: w!=0
 void vtkSequencePass::ReleaseGraphicsResources(vtkWindow *w)
 {
-  assert("pre: w_exists" && w!=0);
+  assert("pre: w_exists" && w != 0);
 
-  if(this->Passes!=0)
+  if (this->Passes)
     {
     this->Passes->InitTraversal();
-    vtkRenderPass *p=this->Passes->GetNextRenderPass();
-    while(p!=0)
+    vtkRenderPass *p = this->Passes->GetNextRenderPass();
+    while (p)
       {
       p->ReleaseGraphicsResources(w);
-      p=this->Passes->GetNextRenderPass();
+      p = this->Passes->GetNextRenderPass();
       }
     }
 }

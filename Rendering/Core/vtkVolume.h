@@ -41,7 +41,7 @@ class vtkAbstractVolumeMapper;
 class VTKRENDERINGCORE_EXPORT vtkVolume : public vtkProp3D
 {
 public:
-  vtkTypeMacro(vtkVolume,vtkProp3D);
+  vtkTypeMacro(vtkVolume, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -74,7 +74,8 @@ public:
   // Get the bounds - either all six at once
   // (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
   double *GetBounds();
-  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
+  void GetBounds(double bounds[6])
+    { this->vtkProp3D::GetBounds(bounds); }
   double GetMinXBound();
   double GetMaxXBound();
   double GetMinYBound();
@@ -119,54 +120,59 @@ public:
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetCorrectedScalarOpacityArray(int);
   float *GetCorrectedScalarOpacityArray()
-    {return this->GetCorrectedScalarOpacityArray(0);};
+    { return this->GetCorrectedScalarOpacityArray(0); }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetScalarOpacityArray(int);
-  float *GetScalarOpacityArray(){return this->GetScalarOpacityArray(0);};
+  float *GetScalarOpacityArray()
+    { return this->GetScalarOpacityArray(0); }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetGradientOpacityArray(int);
-  float *GetGradientOpacityArray(){return this->GetGradientOpacityArray(0);};
+  float *GetGradientOpacityArray()
+    { return this->GetGradientOpacityArray(0); }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetGrayArray(int);
-  float *GetGrayArray(){return this->GetGrayArray(0);};
+  float *GetGrayArray()
+    { return this->GetGrayArray(0); }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetRGBArray(int);
-  float *GetRGBArray(){return this->GetRGBArray(0);};
+  float *GetRGBArray()
+    { return this->GetRGBArray(0); }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  float  GetGradientOpacityConstant(int);
-  float  GetGradientOpacityConstant()
-    {return this->GetGradientOpacityConstant(0);};
+  float GetGradientOpacityConstant(int);
+  float GetGradientOpacityConstant()
+    { return this->GetGradientOpacityConstant(0); }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  float  GetArraySize () { return static_cast<float>(this->ArraySize); };
+  float  GetArraySize()
+    { return static_cast<float>(this->ArraySize); }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  void UpdateTransferFunctions( vtkRenderer *ren );
+  void UpdateTransferFunctions(vtkRenderer *ren);
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  void UpdateScalarOpacityforSampleSize( vtkRenderer *ren,
-                                         float sample_distance );
+  void UpdateScalarOpacityforSampleSize(vtkRenderer *ren,
+                                        float sample_distance);
 
 //ETX
 
@@ -174,53 +180,53 @@ protected:
   vtkVolume();
   ~vtkVolume();
 
-  vtkAbstractVolumeMapper      *Mapper;
-  vtkVolumeProperty            *Property;
+  vtkAbstractVolumeMapper *Mapper;
+  vtkVolumeProperty *Property;
 
   // The rgb transfer function array - for unsigned char data this
   // is 256 elements, for short or unsigned short it is 65536 elements
   // This is a sample at each scalar value of the rgb transfer
   // function.  A time stamp is kept to know when it needs rebuilding
-  float                *RGBArray[VTK_MAX_VRCOMP];
-  vtkTimeStamp          RGBArrayMTime[VTK_MAX_VRCOMP];
+  float *RGBArray[VTK_MAX_VRCOMP];
+  vtkTimeStamp RGBArrayMTime[VTK_MAX_VRCOMP];
 
   // The gray transfer function array - for unsigned char data this
   // is 256 elements, for short or unsigned short it is 65536 elements
   // This is a sample at each scalar value of the gray transfer
   // function.  A time stamp is kept to know when it needs rebuilding
-  float                *GrayArray[VTK_MAX_VRCOMP];
-  vtkTimeStamp          GrayArrayMTime[VTK_MAX_VRCOMP];
+  float *GrayArray[VTK_MAX_VRCOMP];
+  vtkTimeStamp GrayArrayMTime[VTK_MAX_VRCOMP];
 
   // The scalar opacity transfer function array - for unsigned char data this
   // is 256 elements, for short or unsigned short it is 65536 elements
   // This is a sample at each scalar value of the opacity transfer
   // function.  A time stamp is kept to know when it needs rebuilding
-  float                *ScalarOpacityArray[VTK_MAX_VRCOMP];
-  vtkTimeStamp          ScalarOpacityArrayMTime[VTK_MAX_VRCOMP];
+  float *ScalarOpacityArray[VTK_MAX_VRCOMP];
+  vtkTimeStamp ScalarOpacityArrayMTime[VTK_MAX_VRCOMP];
 
   // The corrected scalar opacity transfer function array - this is identical
   // to the opacity transfer function array when the step size is 1.
   // In other cases, it is corrected to reflect the new material thickness
   // modelled by a step size different than 1.
-  float                *CorrectedScalarOpacityArray[VTK_MAX_VRCOMP];
-  vtkTimeStamp          CorrectedScalarOpacityArrayMTime[VTK_MAX_VRCOMP];
+  float *CorrectedScalarOpacityArray[VTK_MAX_VRCOMP];
+  vtkTimeStamp CorrectedScalarOpacityArrayMTime[VTK_MAX_VRCOMP];
 
   // CorrectedStepSize is the step size currently modelled by
   // CorrectedArray.  It is used to determine when the
   // CorrectedArray needs to be updated to match SampleDistance
   // in the volume mapper.
-  float                CorrectedStepSize;
+  float CorrectedStepSize;
 
   // Number of elements in the rgb, gray, and opacity transfer function arrays
-  int                  ArraySize;
+  int ArraySize;
 
   // The magnitude of gradient opacity transfer function array
-  float                GradientOpacityArray[VTK_MAX_VRCOMP][256];
-  float                GradientOpacityConstant[VTK_MAX_VRCOMP];
-  vtkTimeStamp         GradientOpacityArrayMTime[VTK_MAX_VRCOMP];
+  float GradientOpacityArray[VTK_MAX_VRCOMP][256];
+  float GradientOpacityConstant[VTK_MAX_VRCOMP];
+  vtkTimeStamp GradientOpacityArrayMTime[VTK_MAX_VRCOMP];
 
   // Function to compute screen coverage of this volume
-  double ComputeScreenCoverage( vtkViewport *vp );
+  double ComputeScreenCoverage(vtkViewport *vp);
 
 private:
   vtkVolume(const vtkVolume&);  // Not implemented.
@@ -228,4 +234,3 @@ private:
 };
 
 #endif
-

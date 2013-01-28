@@ -56,40 +56,40 @@ class VTKRENDERINGCORE_EXPORT vtkScenePicker : public vtkObject
   friend class vtkScenePickerSelectionRenderCommand;
   //ETX
 public:
-  static vtkScenePicker * New();
-  vtkTypeMacro(vtkScenePicker,vtkObject);
+  static vtkScenePicker* New();
+  vtkTypeMacro(vtkScenePicker, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the renderer. Scene picks are restricted to the viewport.
-  virtual void SetRenderer( vtkRenderer* );
-  vtkGetObjectMacro(Renderer,vtkRenderer);
+  virtual void SetRenderer(vtkRenderer*);
+  vtkGetObjectMacro(Renderer, vtkRenderer);
 
   // Description:
   // Get cell id at the pick position.
   // Returns -1 if no cell was picked.
   // Makes sense only after Pick has been called.
-  vtkIdType GetCellId( int displayPos[2] );
+  vtkIdType GetCellId(int displayPos[2]);
 
   // Description:
   // Get cell id at the pick position.
   // Returns -1 if no cell was picked.
   // Makes sense only after Pick has been called.
-  vtkIdType GetVertexId( int displayPos[2] );
+  vtkIdType GetVertexId(int displayPos[2]);
 
   // Description:
   // Get actor at the pick position.
   // Returns NULL if none.
   // Makes sense only after Pick has been called.
-  vtkProp * GetViewProp( int displayPos[2] );
+  vtkProp* GetViewProp(int displayPos[2]);
 
   // Description:
   // Vertex picking (using the method GetVertexId()), required
   // additional resources and can slow down still render time by
   // 5-10%. Enabled by default.
-  vtkSetMacro( EnableVertexPicking, int );
-  vtkGetMacro( EnableVertexPicking, int );
-  vtkBooleanMacro( EnableVertexPicking, int );
+  vtkSetMacro(EnableVertexPicking, int);
+  vtkGetMacro(EnableVertexPicking, int);
+  vtkBooleanMacro(EnableVertexPicking, int);
 
 protected:
   vtkScenePicker();
@@ -100,33 +100,31 @@ protected:
   void PickRender();
 
   // Pick render a region of the renderwindow
-  void PickRender( int x0, int y0, int x1, int y1 );
+  void PickRender(int x0, int y0, int x1, int y1);
 
   // Internal update method retrieves info from the Selector
-  void Update( int displayPos[2] );
+  void Update(int displayPos[2]);
 
   // The RenderWindowInteractor must be set, so that avoid scene picks (which
   // involve extra renders) during interaction. This is done by observing the
   // RenderWindowInteractor for start and end interaction events.
-  void SetInteractor( vtkRenderWindowInteractor * );
+  void SetInteractor(vtkRenderWindowInteractor *);
 
-  int                                     EnableVertexPicking;
-  vtkHardwareSelector                   * Selector;
-  vtkRenderer                           * Renderer;
-  vtkRenderWindowInteractor             * Interactor;
-  vtkIdType                               VertId;
-  vtkIdType                               CellId;
-  vtkProp                               * Prop;
-  bool                                    NeedToUpdate;
-  int                                     LastQueriedDisplayPos[2];
-  vtkScenePickerSelectionRenderCommand  * SelectionRenderCommand;
+  int EnableVertexPicking;
+  vtkHardwareSelector* Selector;
+  vtkRenderer* Renderer;
+  vtkRenderWindowInteractor* Interactor;
+  vtkIdType VertId;
+  vtkIdType CellId;
+  vtkProp* Prop;
+  bool NeedToUpdate;
+  int LastQueriedDisplayPos[2];
+  vtkScenePickerSelectionRenderCommand* SelectionRenderCommand;
 
   vtkTimeStamp PickRenderTime;
 private:
-  vtkScenePicker(
-                 const vtkScenePicker&); // Not implemented.
+  vtkScenePicker(const vtkScenePicker&); // Not implemented.
   void operator=(const vtkScenePicker&); // Not implemented.
 };
 
 #endif
-

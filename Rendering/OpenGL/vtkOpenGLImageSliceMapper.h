@@ -39,7 +39,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLImageSliceMapper :
 {
 public:
   static vtkOpenGLImageSliceMapper *New();
-  vtkTypeMacro(vtkOpenGLImageSliceMapper,vtkImageSliceMapper);
+  vtkTypeMacro(vtkOpenGLImageSliceMapper, vtkImageSliceMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

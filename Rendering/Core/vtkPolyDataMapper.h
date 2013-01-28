@@ -34,7 +34,7 @@ class VTKRENDERINGCORE_EXPORT vtkPolyDataMapper : public vtkMapper
 {
 public:
   static vtkPolyDataMapper *New();
-  vtkTypeMacro(vtkPolyDataMapper,vtkMapper);
+  vtkTypeMacro(vtkPolyDataMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -42,7 +42,7 @@ public:
   virtual void RenderPiece(vtkRenderer *ren, vtkActor *act) = 0;
 
   // Description:
-  // This calls RenderPiece (in a for loop is streaming is necessary).
+  // This calls RenderPiece (in a for loop if streaming is necessary).
   virtual void Render(vtkRenderer *ren, vtkActor *act);
 
   // Description:
@@ -74,7 +74,7 @@ public:
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual double *GetBounds();
   virtual void GetBounds(double bounds[6])
-    {this->Superclass::GetBounds(bounds);};
+    { this->Superclass::GetBounds(bounds); }
 
   // Description:
   // Make a shallow copy of this mapper.
@@ -92,11 +92,11 @@ public:
   // the attribute. If -1, then all components are passed.
   virtual void MapDataArrayToVertexAttribute(
     const char* vertexAttributeName,
-    const char* dataArrayName, int fieldAssociation, int componentno=-1);
+    const char* dataArrayName, int fieldAssociation, int componentno = -1);
 
   virtual void MapDataArrayToMultiTextureAttribute(
     int unit,
-    const char* dataArrayName, int fieldAssociation, int componentno=-1);
+    const char* dataArrayName, int fieldAssociation, int componentno = -1);
 
   // Description:
   // Remove a vertex attribute mapping.
@@ -108,7 +108,7 @@ public:
 
 protected:
   vtkPolyDataMapper();
-  ~vtkPolyDataMapper() {};
+  ~vtkPolyDataMapper() {}
 
   // Description:
   // Called in GetBounds(). When this method is called, the consider the input

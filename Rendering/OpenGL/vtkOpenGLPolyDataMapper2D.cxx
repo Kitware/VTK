@@ -132,7 +132,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     vtkMath::Round(size[1]*(visVP[3] - visVP[1])/(vport[3] - vport[1]));
 
   // Set up the font color from the text actor
-  double*  actorColor = actor->GetProperty()->GetColor();
+  double* actorColor = actor->GetProperty()->GetColor();
   color[0] = static_cast<unsigned char>(actorColor[0] * 255.0);
   color[1] = static_cast<unsigned char>(actorColor[1] * 255.0);
   color[2] = static_cast<unsigned char>(actorColor[2] * 255.0);
@@ -179,7 +179,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   glColor4ubv(color);
 
   // push a 2D matrix on the stack
-  glMatrixMode( GL_PROJECTION );
+  glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
   if(viewport->GetIsPicking())
@@ -190,15 +190,15 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                      viewport->GetOrigin(), viewport->GetSize());
     }
 
-  glMatrixMode( GL_MODELVIEW );
+  glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
 
-  if ( ! t)
+  if (!t)
     {
-    glDisable( GL_TEXTURE_2D );
+    glDisable(GL_TEXTURE_2D);
     }
-  glDisable( GL_LIGHTING );
+  glDisable(GL_LIGHTING);
 
 
   // Assume we want to do Zbuffering for now.
@@ -212,8 +212,8 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   int yoff = static_cast<int>(actorPos[1] - (visVP[1] - vport[1])*
                               winSize[1]);
 
-  if ( actor->GetProperty()->GetDisplayLocation() ==
-       VTK_FOREGROUND_LOCATION )
+  if (actor->GetProperty()->GetDisplayLocation() ==
+       VTK_FOREGROUND_LOCATION)
     {
     glOrtho(-xoff,-xoff + size[0],
             -yoff, -yoff +size[1], 0, 1);
@@ -298,13 +298,13 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   // Set the LineStipple
   if (actor->GetProperty()->GetLineStipplePattern() != 0xFFFF)
     {
-    glEnable (GL_LINE_STIPPLE);
-    glLineStipple (actor->GetProperty()->GetLineStippleRepeatFactor(),
-                   actor->GetProperty()->GetLineStipplePattern());
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(actor->GetProperty()->GetLineStippleRepeatFactor(),
+                  actor->GetProperty()->GetLineStipplePattern());
     }
   else
     {
-    glDisable (GL_LINE_STIPPLE);
+    glDisable(GL_LINE_STIPPLE);
     }
 
   aPrim = input->GetLines();
@@ -332,7 +332,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
-      glVertex3d(dptr[0],dptr[1],0);
+      glVertex3d(dptr[0], dptr[1], 0);
       }
     glEnd();
     }
@@ -408,15 +408,15 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     }
 
   // push a 2D matrix on the stack
-  glMatrixMode( GL_PROJECTION);
+  glMatrixMode(GL_PROJECTION);
   glPopMatrix();
-  glMatrixMode( GL_MODELVIEW);
+  glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
-  glEnable( GL_LIGHTING);
+  glEnable(GL_LIGHTING);
 
   // Turn it back on in case we've turned it off
-  glDepthMask( GL_TRUE );
-  glDisable( GL_TEXTURE_2D );
+  glDepthMask(GL_TRUE);
+  glDisable(GL_TEXTURE_2D);
 }
 
 //----------------------------------------------------------------------------

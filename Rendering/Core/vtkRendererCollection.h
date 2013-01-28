@@ -30,54 +30,51 @@
 
 class VTKRENDERINGCORE_EXPORT vtkRendererCollection : public vtkCollection
 {
- public:
+public:
   static vtkRendererCollection *New();
-  vtkTypeMacro(vtkRendererCollection,vtkCollection);
+  vtkTypeMacro(vtkRendererCollection, vtkCollection);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a Renderer to the list.
   void AddItem(vtkRenderer *a)
-    {
-    this->vtkCollection::AddItem(a);
-    }
+    { this->vtkCollection::AddItem(a); }
 
 
   // Description:
-  // Get the next Renderer in the list. Return NULL when at the end of the
-  // list.
-  vtkRenderer *GetNextItem() {
-    return static_cast<vtkRenderer *>(this->GetNextItemAsObject());};
+  // Get the next Renderer in the list.
+  // Return NULL when at the end of the list.
+  vtkRenderer *GetNextItem()
+    { return static_cast<vtkRenderer *>(this->GetNextItemAsObject()); }
 
   // Description:
   // Forward the Render() method to each renderer in the list.
   void Render();
 
   // Description:
-  // Get the first Renderer in the list. Return NULL when at the end of the
-  // list.
+  // Get the first Renderer in the list.
+  // Return NULL when at the end of the list.
   vtkRenderer *GetFirstRenderer();
 
   //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
-  vtkRenderer *GetNextRenderer(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkRenderer *>(this->GetNextItemAsObject(cookie));};
+  vtkRenderer *GetNextRenderer(vtkCollectionSimpleIterator &cookie)
+    { return static_cast<vtkRenderer *>(this->GetNextItemAsObject(cookie)); }
   //ETX
 
 protected:
-  vtkRendererCollection() {};
-  ~vtkRendererCollection() {};
+  vtkRendererCollection() {}
+  ~vtkRendererCollection() {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o)
+    { this->vtkCollection::AddItem(o); }
 
-private:
   vtkRendererCollection(const vtkRendererCollection&);  // Not implemented.
   void operator=(const vtkRendererCollection&);  // Not implemented.
 };
-
 
 #endif

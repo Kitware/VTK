@@ -83,7 +83,7 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *win)
   if (this->ListId && win && win->GetMapped())
     {
     win->MakeCurrent();
-    glDeleteLists(this->ListId,1);
+    glDeleteLists(this->ListId, 1);
     }
   this->ListId = 0;
   this->LastWindow = NULL;
@@ -101,15 +101,13 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
 {
   vtkPolyData *input= this->GetInput();
 
-  //
   // make sure that we've been properly initialized
-  //
   if (ren->GetRenderWindow()->CheckAbortStatus())
     {
     return;
     }
 
-  if ( input == NULL )
+  if (!input)
     {
     vtkErrorMacro(<< "No input!");
     return;
@@ -131,7 +129,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
       }
     }
 
-  if ( this->LookupTable == NULL )
+  if (!this->LookupTable)
     {
     this->CreateDefaultLookupTable();
     }
@@ -147,12 +145,11 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     numClipPlanes = 6;
     }
 
-  int i;
-  for (i = 0; i < numClipPlanes; i++)
+  for (int i = 0; i < numClipPlanes; i++)
     {
     double planeEquation[4];
     this->GetClippingPlaneInDataCoords(act->GetMatrix(), i, planeEquation);
-    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
+    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0 + i);
     glEnable(clipPlaneId);
     glClipPlane(clipPlaneId, planeEquation);
     }
@@ -174,16 +171,15 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
       }
     this->InternalColorTexture->SetInputData(this->ColorTextureMap);
     // Keep color from interacting with texture.
-    float info[4];
-    info[0] = info[1] = info[2] = info[3] = 1.0;
-    glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, info );
+    float info[4] = {1.f, 1.f, 1.f, 1.f};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, info);
     }
 
   //
   // if something has changed regenerate colors and display lists
   // if required
   //
-  int noAbort=1;
+  int noAbort = 1;
   if ( this->GetMTime() > this->BuildTime ||
        input->GetMTime() > this->BuildTime ||
        act->GetProperty()->GetMTime() > this->BuildTime ||
@@ -204,7 +200,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
 
       // get a unique display list id
       this->ListId = glGenLists(1);
-      glNewList(this->ListId,GL_COMPILE);
+      glNewList(this->ListId, GL_COMPILE);
 
       noAbort = this->Draw(ren,act);
       glEndList();
@@ -265,18 +261,17 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero
-  if ( this->TimeToDraw == 0.0 )
+  if (this->TimeToDraw == 0.0)
     {
     this->TimeToDraw = 0.0001;
     }
 
-  for (i = 0; i < numClipPlanes; i++)
+  for (int c = 0; c < numClipPlanes; c++)
     {
-    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
+    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0 + c);
     glDisable(clipPlaneId);
     }
 }
-
 
 //
 // Helper routine which starts a poly, triangle or quad based upon

@@ -29,12 +29,9 @@ class vtkShaderProgram2;
 
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLRenderer : public vtkRenderer
 {
-protected:
-  int NumberOfLightsBound;
-
 public:
   static vtkOpenGLRenderer *New();
-  vtkTypeMacro(vtkOpenGLRenderer,vtkRenderer);
+  vtkTypeMacro(vtkOpenGLRenderer, vtkRenderer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -69,7 +66,7 @@ public:
   //BTX
   // Description:
   //
-  vtkGetObjectMacro(ShaderProgram,vtkShaderProgram2);
+  vtkGetObjectMacro(ShaderProgram, vtkShaderProgram2);
   virtual void SetShaderProgram(vtkShaderProgram2 *program);
   //ETX
 
@@ -77,7 +74,7 @@ public:
   // Set/Get a custom render pass.
   // Initial value is NULL.
   void SetPass(vtkRenderPass *p);
-  vtkGetObjectMacro(Pass,vtkRenderPass);
+  vtkGetObjectMacro(Pass, vtkRenderPass);
 
 protected:
   vtkOpenGLRenderer();
@@ -100,11 +97,14 @@ protected:
   virtual unsigned int GetNumPickedIds();
   virtual int GetPickedIds(unsigned int atMost, unsigned int *callerBuffer);
   virtual double GetPickedZ();
+
   // Ivars used in picking
   class vtkGLPickInfo* PickInfo;
   //ETX
+
   double PickedZ;
 
+  int NumberOfLightsBound;
   // Description:
   // Render a peel layer. If there is no more GPU RAM to save the texture,
   // return false otherwise returns true. Also if layer==0 and no prop have

@@ -68,9 +68,9 @@ public:
 // initial sources are defined.
 vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapper()
 {
-  this->SourceMappers=0;
+  this->SourceMappers = 0;
 
-  this->DisplayListId=0; // for the matrices and color per glyph
+  this->DisplayListId = 0; // for the matrices and color per glyph
   this->LastWindow = 0;
 
   this->ScalarsToColorsPainter = vtkScalarsToColorsPainter::New();
@@ -81,11 +81,8 @@ vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapper()
 // ---------------------------------------------------------------------------
 vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
 {
-  if(this->SourceMappers!=0)
-    {
-    delete this->SourceMappers;
-    this->SourceMappers=0;
-    }
+  delete this->SourceMappers;
+  this->SourceMappers = 0;
 
   if (this->LastWindow)
     {
@@ -97,8 +94,11 @@ vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
     this->ScalarsToColorsPainter->Delete();
     this->ScalarsToColorsPainter = 0;
     }
-  this->PainterInformation->Delete();
-  this->PainterInformation = 0;
+  if (this->PainterInformation)
+    {
+    this->PainterInformation->Delete();
+    this->PainterInformation = 0;
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -180,15 +180,15 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     // Selecting some other attribute. Not supported.
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     }
-  bool immediateMode=this->ImmediateModeRendering ||
+  bool immediateMode = this->ImmediateModeRendering ||
     vtkMapper::GetGlobalImmediateModeRendering() ||
     !this->NestedDisplayLists || (selecting_points);
 
   vtkDataObject* inputDO = this->GetInputDataObject(0, 0);
 
-  vtkProperty *prop=actor->GetProperty();
+  vtkProperty *prop = actor->GetProperty();
 
-  bool createDisplayList=false;
+  bool createDisplayList = false;
 
   if (immediateMode)
     {
@@ -197,7 +197,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
   else
     {
     // if something has changed, regenerate display lists.
-    createDisplayList=this->DisplayListId==0 ||
+    createDisplayList = this->DisplayListId == 0 ||
       this->GetMTime() > this->BuildTime ||
       inputDO->GetMTime() > this->BuildTime ||
       prop->GetMTime() > this->BuildTime ||
@@ -206,20 +206,20 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
 
   if (immediateMode || createDisplayList)
     {
-    int numberOfSources=this->GetNumberOfInputConnections(1);
+    int numberOfSources = this->GetNumberOfInputConnections(1);
 
     // Check input for consistency
     //
 
     // Create a default source, if no source is specified.
-    if (this->GetSource(0)==0)
+    if (this->GetSource(0) == 0)
       {
       vtkPolyData *defaultSource = vtkPolyData::New();
       defaultSource->Allocate();
       vtkPoints *defaultPoints = vtkPoints::New();
       defaultPoints->Allocate(6);
-      defaultPoints->InsertNextPoint(0, 0, 0);
-      defaultPoints->InsertNextPoint(1, 0, 0);
+      defaultPoints->InsertNextPoint(0., 0., 0.);
+      defaultPoints->InsertNextPoint(1., 0., 0.);
       vtkIdType defaultPointIds[2];
       defaultPointIds[0] = 0;
       defaultPointIds[1] = 1;
@@ -233,9 +233,9 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       }
 
 
-    if(this->SourceMappers==0)
+    if (!this->SourceMappers)
       {
-      this->SourceMappers=new vtkOpenGLGlyph3DMapperArray;
+      this->SourceMappers = new vtkOpenGLGlyph3DMapperArray();
       }
     if (/*indexArray*/ true)
       {
@@ -246,15 +246,15 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       {
       this->SourceMappers->Mappers.resize(1);
       }
-    for (size_t cc=0; cc < this->SourceMappers->Mappers.size(); cc++)
+    for (size_t cc = 0; cc < this->SourceMappers->Mappers.size(); cc++)
       {
-      vtkPolyData *s=this->GetSource(static_cast<int>(cc));
+      vtkPolyData *s = this->GetSource(static_cast<int>(cc));
       // s can be null.
-      if (this->SourceMappers->Mappers[cc]==0)
+      if (!this->SourceMappers->Mappers[cc])
         {
-        this->SourceMappers->Mappers[cc]=vtkPainterPolyDataMapper::New();
+        this->SourceMappers->Mappers[cc] = vtkPainterPolyDataMapper::New();
         this->SourceMappers->Mappers[cc]->Delete();
-        vtkDefaultPainter *p=
+        vtkDefaultPainter *p =
           static_cast<vtkDefaultPainter *>(this->SourceMappers->Mappers[cc]->GetPainter());
         p->SetScalarsToColorsPainter(0); // bypass default mapping.
         p->SetClipPlanesPainter(0); // bypass default mapping.
@@ -265,8 +265,8 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       // Copy mapper ivar to sub-mapper
       this->CopyInformationToSubMapper(this->SourceMappers->Mappers[cc]);
 
-      vtkPolyData *ss=this->SourceMappers->Mappers[cc]->GetInput();
-      if (ss==0)
+      vtkPolyData *ss = this->SourceMappers->Mappers[cc]->GetInput();
+      if (!ss)
         {
         ss = vtkPolyData::New();
         this->SourceMappers->Mappers[cc]->SetInputData(ss);
@@ -282,16 +282,16 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       if (createDisplayList)
         {
         this->SourceMappers->Mappers[cc]->SetForceCompileOnly(1);
-        this->SourceMappers->Mappers[cc]->Render(ren,actor); // compile display list.
+        this->SourceMappers->Mappers[cc]->Render(ren, actor); // compile display list.
         this->SourceMappers->Mappers[cc]->SetForceCompileOnly(0);
         }
       }
 
-    if(createDisplayList)
+    if (createDisplayList)
       {
       this->ReleaseList();
-      this->DisplayListId=glGenLists(1);
-      glNewList(this->DisplayListId,GL_COMPILE);
+      this->DisplayListId = glGenLists(1);
+      glNewList(this->DisplayListId, GL_COMPILE);
       }
     this->UpdatePainterInformation();
 
@@ -321,7 +321,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       iter->Delete();
       }
 
-    if(createDisplayList)
+    if (createDisplayList)
       {
       glEndList();
       this->BuildTime.Modified();
@@ -330,9 +330,9 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
 
     } // if(immediateMode||createDisplayList)
 
-  if(!immediateMode)
+  if (!immediateMode)
     {
-    this->TimeToDraw=0.0;
+    this->TimeToDraw = 0.0;
     this->Timer->StartTimer();
     glCallList(this->DisplayListId);
     this->Timer->StopTimer();
@@ -367,14 +367,14 @@ void vtkOpenGLGlyph3DMapper::Render(
   bool selecting_points = selector && (selector->GetFieldAssociation() ==
     vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
-  double den=this->Range[1]-this->Range[0];
-  if (den==0.0)
+  double den = this->Range[1] - this->Range[0];
+  if (den == 0.0)
     {
-    den=1.0;
+    den = 1.0;
     }
 
-  int numberOfSources=this->GetNumberOfInputConnections(1);
-  vtkTransform *trans=vtkTransform::New();
+  int numberOfSources = this->GetNumberOfInputConnections(1);
+  vtkTransform *trans = vtkTransform::New();
   vtkDataArray* scaleArray = this->GetScaleArray(dataset);
   vtkDataArray* orientArray = this->GetOrientationArray(dataset);
   vtkDataArray* indexArray = this->GetSourceIndexArray(dataset);
@@ -384,13 +384,13 @@ void vtkOpenGLGlyph3DMapper::Render(
   if (this->Masking)
     {
     maskArray = vtkBitArray::SafeDownCast(this->GetMaskArray(dataset));
-    if (maskArray==0)
+    if (maskArray == 0)
       {
       vtkDebugMacro(<<"masking is enabled but there is no mask array. Ignore masking.");
       }
     else
       {
-      if (maskArray->GetNumberOfComponents()!=1)
+      if (maskArray->GetNumberOfComponents() != 1)
         {
         vtkErrorMacro(" expecting a mask array with one component, getting "
           << maskArray->GetNumberOfComponents() << " components.");
@@ -399,7 +399,7 @@ void vtkOpenGLGlyph3DMapper::Render(
       }
     }
 
-  if (orientArray!=0 && orientArray->GetNumberOfComponents()!=3)
+  if (orientArray !=0 && orientArray->GetNumberOfComponents() != 3)
     {
     vtkErrorMacro(" expecting an orientation array with 3 component, getting "
       << orientArray->GetNumberOfComponents() << " components.");
@@ -411,7 +411,7 @@ void vtkOpenGLGlyph3DMapper::Render(
   vtkUnsignedCharArray* colors = this->GetColors(
     vtkDataSet::SafeDownCast(this->ScalarsToColorsPainter->GetOutput()));
   bool multiplyWithAlpha =
-    this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor)==1;
+    (this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor) == 1);
   if (multiplyWithAlpha)
     {
     // We colors were premultiplied by alpha then we change the blending
@@ -421,15 +421,13 @@ void vtkOpenGLGlyph3DMapper::Render(
     glPushAttrib(GL_COLOR_BUFFER_BIT);
     // the following function is not correct with textures because there
     // are not premultiplied by alpha.
-    glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
 
   // Traverse all Input points, transforming Source points
-  vtkIdType inPtId;
-
-  for (inPtId=0; inPtId < numPts; inPtId++)
+  for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
     {
-    if ( ! (inPtId % 10000) )
+    if (!(inPtId % 10000))
       {
       this->UpdateProgress (static_cast<double>(inPtId)/
         static_cast<double>(numPts));
@@ -439,7 +437,7 @@ void vtkOpenGLGlyph3DMapper::Render(
         }
       }
 
-    if (maskArray && maskArray->GetValue(inPtId)==0)
+    if (maskArray && maskArray->GetValue(inPtId) == 0)
       {
       continue;
       }
@@ -504,10 +502,10 @@ void vtkOpenGLGlyph3DMapper::Render(
       }
 
     // source can be null.
-    vtkPolyData *source=this->GetSource(index);
+    vtkPolyData *source = this->GetSource(index);
 
     // Make sure we're not indexing into empty glyph
-    if (source!=0)
+    if (source)
       {
       // Now begin copying/transforming glyph
       trans->Identity();
@@ -517,7 +515,7 @@ void vtkOpenGLGlyph3DMapper::Render(
       dataset->GetPoint(inPtId, x);
       trans->Translate(x[0], x[1], x[2]);
 
-      if (orientArray!=0)
+      if (orientArray)
         {
         double orientation[3];
         orientArray->GetTuple(inPtId, orientation);
@@ -582,47 +580,30 @@ void vtkOpenGLGlyph3DMapper::Render(
       // scale data if appropriate
       if (this->Scaling)
         {
-        if ( scalex == 0.0 )
+        if (scalex == 0.0)
           {
           scalex = 1.0e-10;
           }
-        if ( scaley == 0.0 )
+        if (scaley == 0.0)
           {
           scaley = 1.0e-10;
           }
-        if ( scalez == 0.0 )
+        if (scalez == 0.0)
           {
           scalez = 1.0e-10;
           }
-        trans->Scale(scalex,scaley,scalez);
+        trans->Scale(scalex, scaley, scalez);
         }
 
       // multiply points and normals by resulting matrix
       // glFinish(); // for debug
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
-      double *mat = trans->GetMatrix()->Element[0];
-      float mat2[16]; // transpose for OpenGL, float is native OpenGL
-      // format.
-      mat2[0] = static_cast<float>(mat[0]);
-      mat2[1] = static_cast<float>(mat[4]);
-      mat2[2] = static_cast<float>(mat[8]);
-      mat2[3] = static_cast<float>(mat[12]);
-      mat2[4] = static_cast<float>(mat[1]);
-      mat2[5] = static_cast<float>(mat[5]);
-      mat2[6] = static_cast<float>(mat[9]);
-      mat2[7] = static_cast<float>(mat[13]);
-      mat2[8] = static_cast<float>(mat[2]);
-      mat2[9] = static_cast<float>(mat[6]);
-      mat2[10] = static_cast<float>(mat[10]);
-      mat2[11] = static_cast<float>(mat[14]);
-      mat2[12] = static_cast<float>(mat[3]);
-      mat2[13] = static_cast<float>(mat[7]);
-      mat2[14] = static_cast<float>(mat[11]);
-      mat2[15] = static_cast<float>(mat[15]);
-      glMultMatrixf(mat2);
-      this->SourceMappers->Mappers[static_cast<size_t>(
-        index)]->Render(ren,actor);
+      double mat[16];
+      vtkMatrix4x4::Transpose(*trans->GetMatrix()->Element, mat);
+      glMultMatrixd(mat);
+      this->SourceMappers->Mappers[static_cast<size_t>(index)]->
+        Render(ren, actor);
       // assume glMatrix(GL_MODELVIEW);
       glMatrixMode(GL_MODELVIEW);
       glPopMatrix();
@@ -632,7 +613,7 @@ void vtkOpenGLGlyph3DMapper::Render(
   trans->Delete();
 
   // from vtkOpenGLScalarsToColorsPainter::RenderInternal
-  if(multiplyWithAlpha)
+  if (multiplyWithAlpha)
     {
     // restore the blend function
     glPopAttrib();

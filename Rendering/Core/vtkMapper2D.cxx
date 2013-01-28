@@ -17,9 +17,7 @@
 #include "vtkActor2D.h"
 #include "vtkObjectFactory.h"
 
-
 void vtkMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-

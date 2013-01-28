@@ -20,7 +20,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
 
-GLenum vtkShaderTypeVTKToGL[5]={
+GLenum vtkShaderTypeVTKToGL[5] = {
   vtkgl::VERTEX_SHADER, // VTK_SHADER_TYPE_VERTEX=0
   vtkgl::GEOMETRY_SHADER, // VTK_SHADER_TYPE_GEOMETRY=1,
   vtkgl::FRAGMENT_SHADER, // VTK_SHADER_TYPE_FRAGMENT=2,
@@ -28,7 +28,7 @@ GLenum vtkShaderTypeVTKToGL[5]={
   0// VTK_SHADER_TYPE_TESSELLATION_EVALUATION=4, not yet
 };
 
-const char *TypeAsStringArray[5]={
+const char *TypeAsStringArray[5] = {
   "vertex shader",
   "geometry shader",
   "fragment shader",
@@ -46,41 +46,39 @@ vtkCxxSetObjectMacro(vtkShader2,UniformVariables,vtkUniformVariables);
 vtkShader2::vtkShader2()
 {
   // user API
-  this->SourceCode=0;
-  this->Type=VTK_SHADER_TYPE_VERTEX;
+  this->SourceCode = 0;
+  this->Type = VTK_SHADER_TYPE_VERTEX;
 
   // OpenGL part
-  this->Context=0;
-  this->Id=0;
-  this->ExtensionsLoaded=false;
-  this->SupportGeometryShader=false;
-
-  this->LastCompileStatus=false;
+  this->Context = 0;
+  this->Id = 0;
+  this->ExtensionsLoaded = false;
+  this->SupportGeometryShader = false;
+  this->LastCompileStatus = false;
 
   // 8 as an initial capcity is nice because the allocation is aligned on
   // 32-bit or 64-bit architecture.
+  this->LastCompileLogCapacity = 8;
+  this->LastCompileLog = new char[this->LastCompileLogCapacity];
+  this->LastCompileLog[0] = '\0'; // empty string
 
-  this->LastCompileLogCapacity=8;
-  this->LastCompileLog=new char[this->LastCompileLogCapacity];
-  this->LastCompileLog[0]='\0'; // empty string
-
-  this->UniformVariables=vtkUniformVariables::New();
+  this->UniformVariables = vtkUniformVariables::New();
 }
 
 // ----------------------------------------------------------------------------
 void vtkShader2::ReleaseGraphicsResources()
 {
-  if(this->Context!=0)
+  if (this->Context)
     {
-    if(this->Id!=0)
+    if (this->Id !=0)
       {
       vtkgl::DeleteShader(this->Id);
-      this->Id=0;
+      this->Id = 0;
       }
     }
   else
     {
-    if(this->Id!=0)
+    if (this->Id != 0)
       {
       vtkErrorMacro(<<" no context but some OpenGL resource has not been deleted.");
       }
@@ -92,19 +90,15 @@ void vtkShader2::ReleaseGraphicsResources()
 // Destructor. Delete SourceCode if any.
 vtkShader2::~vtkShader2()
 {
-  if(this->SourceCode!=0)
-    {
-    delete[] this->SourceCode;
-    }
-  if(this->LastCompileLog!=0)
-    {
-    delete[] this->LastCompileLog;
-    }
-  if(this->UniformVariables!=0)
+  delete[] this->SourceCode;
+  delete[] this->LastCompileLog;
+
+  if (this->UniformVariables)
     {
     this->UniformVariables->Delete();
     }
-  if(this->Id!=0)
+
+  if (this->Id != 0)
     {
     vtkErrorMacro(<<"a vtkShader2 object is being deleted before ReleaseGraphicsResources() has been called.");
     }
@@ -115,7 +109,7 @@ bool vtkShader2::IsSupported(vtkOpenGLRenderWindow *context)
 {
   assert("pre: context_exists" && context!=0);
 
-  vtkOpenGLExtensionManager *e=context->GetExtensionManager();
+  vtkOpenGLExtensionManager *e = context->GetExtensionManager();
   return e->ExtensionSupported("GL_VERSION_2_0") ||
     (e->ExtensionSupported("GL_ARB_shading_language_100") &&
      e->ExtensionSupported("GL_ARB_shader_objects") &&
@@ -128,26 +122,26 @@ bool vtkShader2::LoadExtensions(vtkOpenGLRenderWindow *context)
 {
   assert("pre: context_exists" && context!=0);
 
-  vtkOpenGLExtensionManager *e=context->GetExtensionManager();
+  vtkOpenGLExtensionManager *e = context->GetExtensionManager();
 
-  bool result=false;
-  if(e->ExtensionSupported("GL_VERSION_2_0"))
+  bool result = false;
+  if (e->ExtensionSupported("GL_VERSION_2_0"))
     {
     e->LoadExtension("GL_VERSION_2_0");
-    result=true;
+    result = true;
     }
   else
     {
-    if(e->ExtensionSupported("GL_ARB_shading_language_100") &&
-       e->ExtensionSupported("GL_ARB_shader_objects") &&
-       e->ExtensionSupported("GL_ARB_vertex_shader") &&
-       e->ExtensionSupported("GL_ARB_fragment_shader"))
+    if (e->ExtensionSupported("GL_ARB_shading_language_100") &&
+      e->ExtensionSupported("GL_ARB_shader_objects") &&
+      e->ExtensionSupported("GL_ARB_vertex_shader") &&
+      e->ExtensionSupported("GL_ARB_fragment_shader"))
       {
       e->LoadCorePromotedExtension("GL_ARB_shading_language_100");
       e->LoadCorePromotedExtension("GL_ARB_shader_objects");
       e->LoadCorePromotedExtension("GL_ARB_vertex_shader");
       e->LoadCorePromotedExtension("GL_ARB_fragment_shader");
-      result=true;
+      result = true;
       }
     }
   return result;
@@ -156,34 +150,37 @@ bool vtkShader2::LoadExtensions(vtkOpenGLRenderWindow *context)
 // ----------------------------------------------------------------------------
 void vtkShader2::SetContext(vtkOpenGLRenderWindow *context)
 {
-  if(this->Context!=context)
+  if (this->Context == context)
     {
-    this->ReleaseGraphicsResources();
-    this->Context=context;
-    if(this->Context!=0)
+    return;
+    }
+
+  this->ReleaseGraphicsResources();
+  this->Context = context;
+  if (this->Context)
+    {
+    this->ExtensionsLoaded=this->LoadExtensions(this->Context);
+    if (this->ExtensionsLoaded)
       {
-      this->ExtensionsLoaded=this->LoadExtensions(this->Context);
-      if(this->ExtensionsLoaded)
+      vtkOpenGLExtensionManager *e = this->Context->GetExtensionManager();
+      bool supportGeometryShaderARB =
+        e->ExtensionSupported("GL_ARB_geometry_shader4") == 1;
+      this->SupportGeometryShader = supportGeometryShaderARB
+        || e->ExtensionSupported("GL_EXT_geometry_shader4") == 1;
+      if (this->SupportGeometryShader)
         {
-        vtkOpenGLExtensionManager *e=this->Context->GetExtensionManager();
-        bool supportGeometryShaderARB=e->ExtensionSupported("GL_ARB_geometry_shader4")==1;
-        this->SupportGeometryShader=supportGeometryShaderARB
-          || e->ExtensionSupported("GL_EXT_geometry_shader4")==1;
-        if(this->SupportGeometryShader)
+        if (supportGeometryShaderARB)
           {
-          if(supportGeometryShaderARB)
-            {
-            e->LoadExtension("GL_ARB_geometry_shader4");
-            }
-          else
-            {
-            e->LoadAsARBExtension("GL_EXT_geometry_shader4");
-            }
+          e->LoadExtension("GL_ARB_geometry_shader4");
+          }
+        else
+          {
+          e->LoadAsARBExtension("GL_EXT_geometry_shader4");
           }
         }
       }
-    this->Modified();
     }
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -194,61 +191,58 @@ void vtkShader2::SetContext(vtkOpenGLRenderWindow *context)
 // \pre SourceCode_exists: SourceCode!=0
 void vtkShader2::Compile()
 {
-  assert("pre: SourceCode_exists" && this->SourceCode!=0);
+  assert("pre: SourceCode_exists" && this->SourceCode != 0);
 
-  if(this->Id==0 || this->LastCompileTime<this->MTime)
+  if(this->Id == 0 || this->LastCompileTime < this->MTime)
     {
-    if(this->Type==VTK_SHADER_TYPE_TESSELLATION_CONTROL)
+    if (this->Type == VTK_SHADER_TYPE_TESSELLATION_CONTROL)
       {
       vtkErrorMacro(<<"tessellation control shader is not supported.");
-      this->LastCompileStatus=false;
-      this->LastCompileLog=0;
+      this->LastCompileStatus = false;
+      this->LastCompileLog = 0;
       return;
       }
-     if(this->Type==VTK_SHADER_TYPE_TESSELLATION_EVALUATION)
+     if (this->Type == VTK_SHADER_TYPE_TESSELLATION_EVALUATION)
       {
       vtkErrorMacro(<<"tessellation evaluation shader is not supported.");
-      this->LastCompileStatus=false;
-      this->LastCompileLog=0;
+      this->LastCompileStatus = false;
+      this->LastCompileLog = 0;
       return;
       }
-    if(this->Type==VTK_SHADER_TYPE_GEOMETRY && !this->SupportGeometryShader)
+    if (this->Type == VTK_SHADER_TYPE_GEOMETRY && !this->SupportGeometryShader)
       {
       vtkErrorMacro(<<"geometry shader is not supported.");
-      this->LastCompileStatus=false;
-      this->LastCompileLog=0;
+      this->LastCompileStatus = false;
+      this->LastCompileLog = 0;
       return;
       }
-    GLuint shaderId=static_cast<GLuint>(this->Id);
-    if(shaderId==0)
+    GLuint shaderId = static_cast<GLuint>(this->Id);
+    if (shaderId == 0)
       {
-      shaderId=vtkgl::CreateShader(vtkShaderTypeVTKToGL[this->Type]);
-      if(shaderId==0)
+      shaderId = vtkgl::CreateShader(vtkShaderTypeVTKToGL[this->Type]);
+      if (shaderId == 0)
         {
         vtkErrorMacro(<<"fatal error (bad current OpenGL context?, extension not supported?).");
-        this->LastCompileStatus=false;
-        this->LastCompileLog=0;
+        this->LastCompileStatus = false;
+        this->LastCompileLog = 0;
         return;
         }
-      this->Id=static_cast<unsigned int>(shaderId);
+      this->Id = static_cast<unsigned int>(shaderId);
       }
 
-    vtkgl::ShaderSource(shaderId,1,const_cast<const vtkgl::GLchar**>(&this->SourceCode),0);
+    vtkgl::ShaderSource(shaderId,1,const_cast<const vtkgl::GLchar**>(&this->SourceCode), 0);
     vtkgl::CompileShader(shaderId);
     GLint value;
-    vtkgl::GetShaderiv(shaderId,vtkgl::COMPILE_STATUS,&value);
-    this->LastCompileStatus=value==GL_TRUE;
-    vtkgl::GetShaderiv(shaderId,vtkgl::INFO_LOG_LENGTH,&value);
-    if(static_cast<size_t>(value)>this->LastCompileLogCapacity)
+    vtkgl::GetShaderiv(shaderId, vtkgl::COMPILE_STATUS, &value);
+    this->LastCompileStatus = (value== GL_TRUE);
+    vtkgl::GetShaderiv(shaderId, vtkgl::INFO_LOG_LENGTH, &value);
+    if (static_cast<size_t>(value) > this->LastCompileLogCapacity)
       {
-      if(this->LastCompileLog!=0)
-        {
-        delete[] this->LastCompileLog;
-        }
-      this->LastCompileLogCapacity=static_cast<size_t>(value);
-      this->LastCompileLog=new char[this->LastCompileLogCapacity];
+      delete[] this->LastCompileLog;
+      this->LastCompileLogCapacity = static_cast<size_t>(value);
+      this->LastCompileLog = new char[this->LastCompileLogCapacity];
       }
-    vtkgl::GetShaderInfoLog(shaderId,value,0,this->LastCompileLog);
+    vtkgl::GetShaderInfoLog(shaderId,value, 0, this->LastCompileLog);
     this->LastCompileTime.Modified();
     }
 }
@@ -274,17 +268,17 @@ bool vtkShader2::GetLastCompileStatus()
 // Return the log of the last call to compile as a string.
 const char *vtkShader2::GetLastCompileLog()
 {
-  assert("post: result_exists" && this->LastCompileLog!=0);
+  assert("post: result_exists" && this->LastCompileLog != 0);
   return this->LastCompileLog;
 }
 
 //---------------------------------------------------------------------------
 void vtkShader2::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Type: ";
-  switch(this->Type)
+  switch (this->Type)
     {
     case VTK_SHADER_TYPE_VERTEX:
       os << "vertex" << endl;
@@ -307,19 +301,13 @@ void vtkShader2::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "OpenGL Id: " << this->Id << endl;
   os << indent << "Last Compile Status: ";
-  if(this->LastCompileStatus)
-    {
-    os << "true" << endl;
-    }
-  else
-    {os << "false" << endl;
-    }
+  os << ((this->LastCompileStatus) ? "true" : "false") << endl;
 
   os << indent << "Last Compile Log Capacity: " <<
     this->LastCompileLogCapacity<< endl;
 
   os << indent << "Last Compile Log: ";
-  if(this->LastCompileLog==0)
+  if (this->LastCompileLog == 0)
     {
     os << "(none)" << endl;
     }
@@ -329,7 +317,7 @@ void vtkShader2::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Context: ";
-  if(this->Context!=0)
+  if (this->Context)
     {
     os << static_cast<void *>(this->Context) <<endl;
     }
@@ -339,9 +327,9 @@ void vtkShader2::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "UniformVariables: ";
-  if(this->UniformVariables!=0)
+  if (this->UniformVariables)
     {
-    this->UniformVariables->PrintSelf(os,indent);
+    this->UniformVariables->PrintSelf(os, indent);
     }
   else
     {
@@ -349,7 +337,7 @@ void vtkShader2::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "SourceCode: ";
-  if(this->SourceCode==0)
+  if (this->SourceCode == 0)
     {
     os << "(none)" << endl;
     }

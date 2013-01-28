@@ -52,34 +52,35 @@ class VTKRENDERINGCORE_EXPORT vtkPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkPicker *New();
-  vtkTypeMacro(vtkPicker,vtkAbstractPropPicker);
+  vtkTypeMacro(vtkPicker, vtkAbstractPropPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify tolerance for performing pick operation. Tolerance is specified
   // as fraction of rendering window size. (Rendering window size is measured
   // across diagonal.)
-  vtkSetMacro(Tolerance,double);
-  vtkGetMacro(Tolerance,double);
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
 
   // Description:
   // Return position in mapper (i.e., non-transformed) coordinates of
   // pick point.
-  vtkGetVectorMacro(MapperPosition,double,3);
+  vtkGetVectorMacro(MapperPosition, double, 3);
 
   // Description:
   // Return mapper that was picked (if any).
-  vtkGetObjectMacro(Mapper,vtkAbstractMapper3D);
+  vtkGetObjectMacro(Mapper, vtkAbstractMapper3D);
 
   // Description:
   // Get a pointer to the dataset that was picked (if any). If nothing
   // was picked then NULL is returned.
-  vtkGetObjectMacro(DataSet,vtkDataSet);
+  vtkGetObjectMacro(DataSet, vtkDataSet);
 
   // Description:
   // Return a collection of all the prop 3D's that were intersected
   // by the pick ray. This collection is not sorted.
-  vtkProp3DCollection *GetProp3Ds() {return this->Prop3Ds;};
+  vtkProp3DCollection *GetProp3Ds()
+    { return this->Prop3Ds; }
 
   // Description:
   // Return a collection of all the actors that were intersected.
@@ -91,7 +92,8 @@ public:
   // Return a list of the points the the actors returned by GetProp3Ds
   // were intersected at. The order of this list will match the order of
   // GetProp3Ds.
-  vtkPoints *GetPickedPositions() {return this->PickedPositions;};
+  vtkPoints *GetPickedPositions()
+    { return this->PickedPositions; }
 
   // Description:
   // Perform pick operation with selection point provided. Normally the
@@ -106,7 +108,7 @@ public:
   // two values for the selection point are x-y pixel coordinate, and the
   // third value is =0. Return non-zero if something was successfully picked.
   int Pick(double selectionPt[3], vtkRenderer *ren)
-    {return this->Pick(selectionPt[0], selectionPt[1], selectionPt[2], ren);};
+    { return this->Pick(selectionPt[0], selectionPt[1], selectionPt[2], ren); }
 
 protected:
   vtkPicker();
@@ -136,7 +138,4 @@ private:
   void operator=(const vtkPicker&);  // Not implemented.
 };
 
-
 #endif
-
-

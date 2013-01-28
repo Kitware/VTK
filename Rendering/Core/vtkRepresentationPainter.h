@@ -40,6 +40,4 @@ private:
   void operator=(const vtkRepresentationPainter&); // Not implemented.
 };
 
-
 #endif
-

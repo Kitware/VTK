@@ -59,7 +59,7 @@ class VTKRENDERINGCORE_EXPORT vtkProp3DFollower : public vtkProp3D
   // Set/Get the camera to follow. If this is not set, then the follower
   // won't know what to follow and will act like a normal vtkProp3D.
   virtual void SetCamera(vtkCamera*);
-  vtkGetObjectMacro(Camera,vtkCamera);
+  vtkGetObjectMacro(Camera, vtkCamera);
 
   // Description:
   // This causes the actor to be rendered. It in turn will render the actor's
@@ -109,7 +109,6 @@ private:
 
   //Internal matrices to avoid New/Delete for performance reasons
   vtkMatrix4x4 *InternalMatrix;
-
 };
 
 #endif

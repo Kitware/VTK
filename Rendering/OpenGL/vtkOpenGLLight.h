@@ -29,20 +29,20 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLLight : public vtkLight
 {
 public:
   static vtkOpenGLLight *New();
-  vtkTypeMacro(vtkOpenGLLight,vtkLight);
+  vtkTypeMacro(vtkOpenGLLight, vtkLight);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement base class method.
-  void Render(vtkRenderer *ren,int light_index);
+  void Render(vtkRenderer *ren, int light_index);
 
 protected:
-  vtkOpenGLLight() {};
-  ~vtkOpenGLLight() {};
+  vtkOpenGLLight() {}
+  ~vtkOpenGLLight() {}
+
 private:
   vtkOpenGLLight(const vtkOpenGLLight&);  // Not implemented.
   void operator=(const vtkOpenGLLight&);  // Not implemented.
 };
 
 #endif
-

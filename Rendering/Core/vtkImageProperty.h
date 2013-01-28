@@ -103,7 +103,8 @@ public:
   // Set the layer number.  This is ignored unless the image is part
   // of a vtkImageStack.  The default layer number is zero.
   vtkSetMacro(LayerNumber, int);
-  int GetLayerNumber() { return this->LayerNumber; }
+  int GetLayerNumber()
+    { return this->LayerNumber; }
 
   // Description:
   // Make a checkerboard pattern where the black squares are transparent.

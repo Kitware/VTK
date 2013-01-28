@@ -28,36 +28,34 @@ vtkStandardNewMacro(vtkOpenGLActor);
 // Actual actor render method.
 void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
-  double opacity;
-
   // get opacity
-  opacity = this->GetProperty()->GetOpacity();
+  double opacity = this->GetProperty()->GetOpacity();
   if (opacity == 1.0)
     {
-    glDepthMask (GL_TRUE);
+    glDepthMask(GL_TRUE);
     }
   else
     {
-    // add this check here for GL_SELECT mode
+    // Add this check here for GL_SELECT mode
     // If we are not picking, then don't write to the zbuffer
     // because we probably haven't sorted the polygons. If we
     // are picking, then translucency doesn't matter - we want to
     // pick the thing closest to us.
-    GLint param[1];
-    glGetIntegerv(GL_RENDER_MODE, param);
-    if(param[0] == GL_SELECT )
+    GLint param;
+    glGetIntegerv(GL_RENDER_MODE, &param);
+    if (param == GL_SELECT )
       {
       glDepthMask(GL_TRUE);
       }
     else
       {
-      if(ren->GetLastRenderingUsedDepthPeeling())
+      if (ren->GetLastRenderingUsedDepthPeeling())
         {
         glDepthMask(GL_TRUE); // transparency with depth peeling
         }
       else
         {
-        glDepthMask (GL_FALSE); // transparency with alpha blending
+        glDepthMask(GL_FALSE); // transparency with alpha blending
         }
       }
     }
@@ -65,44 +63,29 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   // build transformation
   if (!this->IsIdentity)
     {
-    double *mat = this->GetMatrix()->Element[0];
-    double mat2[16];
-    mat2[0] = mat[0];
-    mat2[1] = mat[4];
-    mat2[2] = mat[8];
-    mat2[3] = mat[12];
-    mat2[4] = mat[1];
-    mat2[5] = mat[5];
-    mat2[6] = mat[9];
-    mat2[7] = mat[13];
-    mat2[8] = mat[2];
-    mat2[9] = mat[6];
-    mat2[10] = mat[10];
-    mat2[11] = mat[14];
-    mat2[12] = mat[3];
-    mat2[13] = mat[7];
-    mat2[14] = mat[11];
-    mat2[15] = mat[15];
+    // compute the transposed matrix
+    double mat[16];
+    vtkMatrix4x4::Transpose(*this->GetMatrix()->Element, mat);
 
     // insert model transformation
-    glMatrixMode( GL_MODELVIEW );
+    glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glMultMatrixd(mat2);
+    glMultMatrixd(mat);
     }
 
   // send a render to the mapper; update pipeline
-  mapper->Render(ren,this);
+  mapper->Render(ren, this);
 
   // pop transformation matrix
   if (!this->IsIdentity)
     {
-    glMatrixMode( GL_MODELVIEW );
+    glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     }
 
   if (opacity != 1.0)
     {
-    glDepthMask (GL_TRUE);
+    glDepthMask(GL_TRUE);
     }
 }
 

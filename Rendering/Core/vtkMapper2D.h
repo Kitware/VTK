@@ -32,17 +32,17 @@ class vtkActor2D;
 class VTKRENDERINGCORE_EXPORT vtkMapper2D : public vtkAbstractMapper
 {
 public:
-  vtkTypeMacro(vtkMapper2D,vtkAbstractMapper);
+  vtkTypeMacro(vtkMapper2D, vtkAbstractMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {};
-  virtual void RenderOpaqueGeometry(vtkViewport*, vtkActor2D*) {};
+  virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {}
+  virtual void RenderOpaqueGeometry(vtkViewport*, vtkActor2D*) {}
   virtual void RenderTranslucentPolygonalGeometry(vtkViewport*, vtkActor2D*) {}
   virtual int HasTranslucentPolygonalGeometry() { return 0; }
 
 protected:
-  vtkMapper2D() {};
-  ~vtkMapper2D() {};
+  vtkMapper2D() {}
+  ~vtkMapper2D() {}
 
 private:
   vtkMapper2D(const vtkMapper2D&);  // Not implemented.
@@ -50,6 +50,3 @@ private:
 };
 
 #endif
-
-
-

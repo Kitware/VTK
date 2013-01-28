@@ -58,13 +58,14 @@ public:
   // Create an instance of this class.
   static vtkLODProp3D *New();
 
-  vtkTypeMacro(vtkLODProp3D,vtkProp3D);
+  vtkTypeMacro(vtkLODProp3D, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Standard vtkProp method to get 3D bounds of a 3D prop
   double *GetBounds();
-  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
+  void GetBounds(double bounds[6])
+    { this->vtkProp3D::GetBounds( bounds ); }
 
   // Description:
   // Add a level of detail with a given mapper, property, backface property,
@@ -99,31 +100,31 @@ public:
   // Description:
   // Delete a level of detail given an ID. This is the ID returned by the
   // AddLOD method
-  void RemoveLOD( int id );
+  void RemoveLOD(int id);
 
   // Description:
   // Methods to set / get the property of an LOD. Since the LOD could be
   // a volume or an actor, you have to pass in the pointer to the property
   // to get it. The returned property will be NULL if the id is not valid,
   // or the property is of the wrong type for the corresponding Prop3D.
-  void SetLODProperty( int id, vtkProperty  *p );
-  void GetLODProperty( int id, vtkProperty  **p );
-  void SetLODProperty( int id, vtkVolumeProperty  *p );
-  void GetLODProperty( int id, vtkVolumeProperty  **p );
-  void SetLODProperty( int id, vtkImageProperty  *p );
-  void GetLODProperty( int id, vtkImageProperty  **p );
+  void SetLODProperty(int id, vtkProperty *p);
+  void GetLODProperty(int id, vtkProperty **p);
+  void SetLODProperty(int id, vtkVolumeProperty *p);
+  void GetLODProperty(int id, vtkVolumeProperty **p);
+  void SetLODProperty(int id, vtkImageProperty *p);
+  void GetLODProperty(int id, vtkImageProperty **p);
 
   // Description:
   // Methods to set / get the mapper of an LOD. Since the LOD could be
   // a volume or an actor, you have to pass in the pointer to the mapper
   // to get it. The returned mapper will be NULL if the id is not valid,
   // or the mapper is of the wrong type for the corresponding Prop3D.
-  void SetLODMapper( int id, vtkMapper  *m );
-  void GetLODMapper( int id, vtkMapper  **m );
-  void SetLODMapper( int id, vtkAbstractVolumeMapper  *m );
-  void GetLODMapper( int id, vtkAbstractVolumeMapper  **m );
-  void SetLODMapper( int id, vtkImageMapper3D  *m );
-  void GetLODMapper( int id, vtkImageMapper3D  **m );
+  void SetLODMapper(int id, vtkMapper *m);
+  void GetLODMapper(int id, vtkMapper **m);
+  void SetLODMapper(int id, vtkAbstractVolumeMapper *m);
+  void GetLODMapper(int id, vtkAbstractVolumeMapper **m);
+  void SetLODMapper(int id, vtkImageMapper3D *m);
+  void GetLODMapper(int id, vtkImageMapper3D **m);
 
   // Description:
   // Get the LODMapper as an vtkAbstractMapper3D.  It is the user's
@@ -134,22 +135,22 @@ public:
   // Description:
   // Methods to set / get the backface property of an LOD. This method is only
   // valid for LOD ids that are Actors (not Volumes)
-  void SetLODBackfaceProperty( int id, vtkProperty *t );
-  void GetLODBackfaceProperty( int id, vtkProperty **t );
+  void SetLODBackfaceProperty(int id, vtkProperty *t);
+  void GetLODBackfaceProperty(int id, vtkProperty **t);
 
   // Description:
   // Methods to set / get the texture of an LOD. This method is only
   // valid for LOD ids that are Actors (not Volumes)
-  void SetLODTexture( int id, vtkTexture *t );
-  void GetLODTexture( int id, vtkTexture **t );
+  void SetLODTexture(int id, vtkTexture *t);
+  void GetLODTexture(int id, vtkTexture **t);
 
   // Description:
   // Enable / disable a particular LOD. If it is disabled, it will not
   // be used during automatic selection, but can be selected as the
   // LOD if automatic LOD selection is off.
-  void EnableLOD( int id );
-  void DisableLOD( int id );
-  int IsLODEnabled( int id );
+  void EnableLOD(int id);
+  void DisableLOD(int id);
+  int IsLODEnabled(int id);
 
   // Description:
   // Set the level of a particular LOD. When a LOD is selected for
@@ -158,30 +159,30 @@ public:
   // render faster but has a lower (more resolution/better) level.
   // This quantity is a double to ensure that a level can be inserted
   // between 2 and 3.
-  void SetLODLevel( int id, double level );
-  double GetLODLevel( int id );
-  double GetLODIndexLevel( int index );
+  void SetLODLevel(int id, double level);
+  double GetLODLevel(int id );
+  double GetLODIndexLevel(int index);
 
   // Description:
   // Access method that can be used to find out the estimated render time
   // (the thing used to select an LOD) for a given LOD ID or index.
   // Value is returned in seconds.
-  double GetLODEstimatedRenderTime( int id );
-  double GetLODIndexEstimatedRenderTime( int index );
+  double GetLODEstimatedRenderTime(int id);
+  double GetLODIndexEstimatedRenderTime(int index);
 
   // Description:
   // Turn on / off automatic selection of LOD.
   // This is on by default. If it is off, then the SelectedLODID is
   // rendered regardless of rendering time or desired update rate.
-  vtkSetClampMacro( AutomaticLODSelection, int, 0, 1 );
-  vtkGetMacro( AutomaticLODSelection, int );
-  vtkBooleanMacro( AutomaticLODSelection, int );
+  vtkSetClampMacro(AutomaticLODSelection, int, 0, 1);
+  vtkGetMacro(AutomaticLODSelection, int);
+  vtkBooleanMacro(AutomaticLODSelection, int);
 
   // Description:
   // Set the id of the LOD that is to be drawn when automatic LOD selection
   // is turned off.
-  vtkSetMacro( SelectedLODID, int );
-  vtkGetMacro( SelectedLODID, int );
+  vtkSetMacro(SelectedLODID, int);
+  vtkGetMacro(SelectedLODID, int);
 
   // Description:
   // Get the ID of the previously (during the last render) selected LOD index
@@ -202,15 +203,15 @@ public:
   // Set the id of the LOD that is to be used for picking when  automatic
   // LOD pick selection is turned off.
   void SetSelectedPickLODID(int id);
-  vtkGetMacro( SelectedPickLODID, int );
+  vtkGetMacro(SelectedPickLODID, int);
 
   // Description:
   // Turn on / off automatic selection of picking LOD.
   // This is on by default. If it is off, then the SelectedLODID is
   // rendered regardless of rendering time or desired update rate.
-  vtkSetClampMacro( AutomaticPickLODSelection, int, 0, 1 );
-  vtkGetMacro( AutomaticPickLODSelection, int );
-  vtkBooleanMacro( AutomaticPickLODSelection, int );
+  vtkSetClampMacro(AutomaticPickLODSelection, int, 0, 1);
+  vtkGetMacro(AutomaticPickLODSelection, int);
+  vtkBooleanMacro(AutomaticPickLODSelection, int);
 
   // Description:
   // Shallow copy of this vtkLODProp3D.
@@ -261,18 +262,18 @@ protected:
   int GetAutomaticPickPropIndex(void);
 
   vtkLODProp3DEntry *LODs;
-  int               NumberOfEntries;
-  int               NumberOfLODs;
-  int               CurrentIndex;
+  int NumberOfEntries;
+  int NumberOfLODs;
+  int CurrentIndex;
 
-  int               GetNextEntryIndex();
-  int               ConvertIDToIndex( int id );
-  int               SelectedLODIndex;
+  int GetNextEntryIndex();
+  int ConvertIDToIndex( int id );
+  int SelectedLODIndex;
 
-  int               AutomaticLODSelection;
-  int               SelectedLODID;
-  int               SelectedPickLODID;
-  int               AutomaticPickLODSelection;
+  int AutomaticLODSelection;
+  int SelectedLODID;
+  int SelectedPickLODID;
+  int AutomaticPickLODSelection;
   vtkLODProp3DCallback *PickCallback;
 
 private:
@@ -281,4 +282,3 @@ private:
 };
 
 #endif
-

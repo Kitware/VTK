@@ -27,23 +27,22 @@
 #ifndef __vtkOpenGLImageMapper_h
 #define __vtkOpenGLImageMapper_h
 
-
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkImageMapper.h"
-class vtkActor2D;
 
+class vtkActor2D;
 
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLImageMapper : public vtkImageMapper
 {
 public:
   static vtkOpenGLImageMapper *New();
-  vtkTypeMacro(vtkOpenGLImageMapper,vtkImageMapper);
+  vtkTypeMacro(vtkOpenGLImageMapper, vtkImageMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Handle the render method.
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) {
-    this->RenderStart(viewport,actor);}
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
+    { this->RenderStart(viewport, actor); }
 
   // Description:
   // Called by the Render function in vtkImageMapper.  Actually draws
@@ -52,8 +51,6 @@ public:
                   vtkActor2D* actor);
 
 protected:
-  //
-  //
   vtkOpenGLImageMapper();
   ~vtkOpenGLImageMapper();
 
@@ -62,14 +59,4 @@ private:
   void operator=(const vtkOpenGLImageMapper&);  // Not implemented.
 };
 
-
 #endif
-
-
-
-
-
-
-
-
-
