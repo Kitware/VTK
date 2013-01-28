@@ -16,6 +16,7 @@ set(Module_SRCS
   vtkClipPlanesPainter.cxx
   vtkCoincidentTopologyResolutionPainter.cxx
   vtkColorTransferFunction.cxx
+  vtkCompositeDataDisplayAttributes.cxx
   vtkCompositePainter.cxx
   vtkCompositePolyDataMapper2.cxx
   vtkCompositePolyDataMapper.cxx

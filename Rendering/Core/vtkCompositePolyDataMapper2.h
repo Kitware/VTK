@@ -24,6 +24,9 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPainterPolyDataMapper.h"
+#include "vtkSmartPointer.h" // for vtkSmartPointer
+
+class vtkCompositeDataDisplayAttributes;
 
 class VTKRENDERINGCORE_EXPORT vtkCompositePolyDataMapper2 : public vtkPainterPolyDataMapper
 {
@@ -42,6 +45,18 @@ public:
   // Overridden to use the actual data and ScalarMode to determine if we have
   // opaque geometry.
   virtual bool GetIsOpaque();
+
+  // Description:
+  // Set/get the composite data set attributes.
+  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes *attributes);
+  vtkCompositeDataDisplayAttributes* GetCompositeDataDisplayAttributes();
+
+  // Description:
+  // Set/get the visibility for a block given its flat index.
+  void SetBlockVisibility(unsigned int index, bool visible);
+  bool GetBlockVisibility(unsigned int index) const;
+  void RemoveBlockVisibility(unsigned int index);
+  void RemoveBlockVisibilites();
 
 //BTX
 protected:
@@ -65,6 +80,10 @@ protected:
   // Description:
   // Time stamp for computation of bounds.
   vtkTimeStamp BoundsMTime;
+
+  // Description:
+  // Composite data set attributes.
+  vtkSmartPointer<vtkCompositeDataDisplayAttributes> CompositeAttributes;
 
 private:
   vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&); // Not implemented.

@@ -20,6 +20,9 @@
 #include "vtkHardwareSelector.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
+#include "vtkPolyData.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 
 vtkStandardNewMacro(vtkCompositePainter);
 //----------------------------------------------------------------------------
@@ -54,33 +57,115 @@ void vtkCompositePainter::RenderInternal(vtkRenderer* renderer,
     }
 
   vtkHardwareSelector* selector = renderer->GetSelector();
-  vtkCompositeDataIterator* iter = input->NewIterator();
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+
+  if(this->CompositeDataDisplayAttributes)
     {
-    vtkDataObject* dobj = iter->GetCurrentDataObject();
-    if (dobj)
+    // render using the composite data attributes
+    unsigned int flat_index = 0;
+    bool visible = true;
+    this->RenderBlock(renderer, actor, typeflags, forceCompileOnly, input, flat_index, visible);
+    }
+  else
+    {
+    // render using the multi-block structure itself
+    vtkCompositeDataIterator* iter = input->NewIterator();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
-      if (selector)
+      vtkDataObject* dobj = iter->GetCurrentDataObject();
+      if (dobj)
         {
-        selector->BeginRenderProp();
-        // If hardware selection is in progress, we need to pass the composite
-        // index to the selection framework,
-        selector->RenderCompositeIndex(iter->GetCurrentFlatIndex());
-        }
+        if (selector)
+          {
+          selector->BeginRenderProp();
+          // If hardware selection is in progress, we need to pass the composite
+          // index to the selection framework,
+          selector->RenderCompositeIndex(iter->GetCurrentFlatIndex());
+          }
 
-      this->DelegatePainter->SetInput(dobj);
-      this->OutputData = dobj;
-      this->Superclass::RenderInternal(renderer, actor, typeflags,
-                                       forceCompileOnly);
-      this->OutputData = 0;
+        this->DelegatePainter->SetInput(dobj);
+        this->OutputData = dobj;
+        this->Superclass::RenderInternal(renderer, actor, typeflags,
+                                         forceCompileOnly);
+        this->OutputData = 0;
 
-      if (selector)
-        {
-        selector->EndRenderProp();
+        if (selector)
+          {
+          selector->EndRenderProp();
+          }
         }
       }
+    iter->Delete();
     }
-  iter->Delete();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
+                                      vtkActor *actor,
+                                      unsigned long typeflags,
+                                      bool forceCompileOnly,
+                                      vtkDataObject *dobj,
+                                      unsigned int &flat_index,
+                                      bool &visible)
+{
+    vtkHardwareSelector *selector = renderer->GetSelector();
+
+    // push display attributes
+    bool prev_visible = visible;
+    if(this->CompositeDataDisplayAttributes->HasBlockVisibility(flat_index))
+      {
+      visible = this->CompositeDataDisplayAttributes->GetBlockVisibility(flat_index);
+      }
+
+    vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
+    if(mbds)
+      {
+      // recurse down to child blocks
+      for(unsigned int i = 0; i < mbds->GetNumberOfBlocks(); i++)
+        {
+        flat_index++;
+        this->RenderBlock(renderer, actor, typeflags, forceCompileOnly, mbds->GetBlock(i), flat_index, visible);
+        }
+
+      // pop display attributes
+      if(this->CompositeDataDisplayAttributes->HasBlockVisibility(flat_index))
+        {
+        visible = prev_visible;
+        }
+      flat_index++;
+      }
+    else if(dobj)
+      {
+      // render leaf-node
+      if(visible)
+        {
+        if(selector)
+          {
+          selector->BeginRenderProp();
+          // If hardware selection is in progress, we need to pass the composite
+          // index to the selection framework,
+          selector->RenderCompositeIndex(flat_index);
+          }
+
+        this->DelegatePainter->SetInput(dobj);
+        this->OutputData = dobj;
+        this->Superclass::RenderInternal(renderer,
+                                         actor,
+                                         typeflags,
+                                         forceCompileOnly);
+        this->OutputData = 0;
+
+        if(selector)
+          {
+          selector->EndRenderProp();
+          }
+        }
+
+        // pop display attributes
+        if(this->CompositeDataDisplayAttributes->HasBlockVisibility(flat_index))
+          {
+          visible = prev_visible;
+          }
+      }
 }
 
 //-----------------------------------------------------------------------------
