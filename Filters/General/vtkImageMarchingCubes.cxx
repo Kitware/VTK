@@ -505,7 +505,6 @@ void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
   int cubeIndex, ii;
   vtkIdType pointIds[3];
   vtkMarchingCubesTriangleCases *triCase, *triCases;
-  EDGE_LIST  *edge;
 
   vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
 
@@ -554,7 +553,7 @@ void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
       {
       // Get edges.
       triCase = triCases + cubeIndex;
-      edge = triCase->edges;
+      EDGE_LIST *edge = triCase->edges;
       // loop over triangles
       while(*edge > -1)
         {
