@@ -31,7 +31,7 @@ if(vtkTestingRendering_SOURCE_DIR)
 set(KIT ModellingExamples)
 set(MyTests TestFinance.cxx TestDelaunay3D.cxx TestDelaunay3DAlpha.cxx)
 
-include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
+include(vtkTestingObjectFactory)
 
 add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
 target_link_LIBRARIES(${KIT}CxxTests ${VTK_LIBRARIES})

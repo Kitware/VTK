@@ -168,10 +168,13 @@ macro(vtk_module_export_info)
   set(vtk-module-LIBRARY_DIRS "${${vtk-module}_SYSTEM_LIBRARY_DIRS}")
   set(vtk-module-INCLUDE_DIRS "${vtk-module-INCLUDE_DIRS-build}")
   set(vtk-module-EXPORT_CODE "${vtk-module-EXPORT_CODE-build}")
+  set(vtk-module-WRAP_HIERARCHY_FILE "${${vtk-module}_WRAP_HIERARCHY_FILE}")
   configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in
     ${VTK_MODULES_DIR}/${vtk-module}.cmake @ONLY)
   set(vtk-module-INCLUDE_DIRS "${vtk-module-INCLUDE_DIRS-install}")
   set(vtk-module-EXPORT_CODE "${vtk-module-EXPORT_CODE-install}")
+  set(vtk-module-WRAP_HIERARCHY_FILE
+    "\${CMAKE_CURRENT_LIST_DIR}/${vtk-module}Hierarchy.txt")
   configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in
     CMakeFiles/${vtk-module}.cmake @ONLY)
   if (NOT VTK_INSTALL_NO_DEVELOPMENT)
@@ -421,9 +424,6 @@ function(vtk_module_library name)
   list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h")
   list(REMOVE_DUPLICATES _hdrs)
 
-  # Export the module information.
-  vtk_module_export("${ARGN}")
-
   # The instantiators are off by default, and only work on wrapped modules.
   if(VTK_MAKE_INSTANTIATORS AND NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING)
     string(TOUPPER "${vtk-module}_EXPORT" _export_macro)
@@ -517,6 +517,9 @@ VTK_AUTOINIT(${vtk-module})
 
   # Add the module to the list of wrapped modules if necessary
   vtk_add_wrapping(${vtk-module} "${ARGN}" "${${vtk-module}_HDRS}")
+
+  # Export the module information.
+  vtk_module_export("${ARGN}")
 
   # Figure out which headers to install.
   if(NOT VTK_INSTALL_NO_DEVELOPMENT AND _hdrs)

@@ -33,7 +33,7 @@ set(MyTests
     TestTubesWithVaryingRadiusAndColors.cxx
 )
 
-include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
+include(vtkTestingObjectFactory)
 
 add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
 target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
