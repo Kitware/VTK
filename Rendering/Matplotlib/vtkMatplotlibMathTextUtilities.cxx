@@ -233,6 +233,7 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
         vtkStdString envPath(envPaths, 0,
                              pathEnd == vtkStdString::npos
                              ? vtkStdString::npos : pathEnd + 1);
+        UnEscapeSpaces(envPath);
         PyList_Insert(pypath, 0, PyString_FromString(envPath.c_str()));
         }
       else
