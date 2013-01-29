@@ -55,6 +55,7 @@ class vtkSynchronizedTemplates2D;
 class vtkSynchronizedTemplates3D;
 class vtkGridSynchronizedTemplates3D;
 class vtkRectilinearSynchronizedTemplates;
+class vtkCallbackCommand;
 
 class VTKFILTERSCORE_EXPORT vtkContourFilter : public vtkPolyDataAlgorithm
 {
@@ -188,6 +189,12 @@ protected:
   vtkSynchronizedTemplates3D *SynchronizedTemplates3D;
   vtkGridSynchronizedTemplates3D *GridSynchronizedTemplates;
   vtkRectilinearSynchronizedTemplates *RectilinearSynchronizedTemplates;
+  vtkCallbackCommand *InternalProgressCallbackCommand;
+
+  static void InternalProgressCallbackFunction(vtkObject *caller,
+                                               unsigned long eid,
+                                               void *clientData,
+                                               void *callData);
 
 private:
   vtkContourFilter(const vtkContourFilter&);  // Not implemented.
