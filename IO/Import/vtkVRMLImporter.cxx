@@ -4,29 +4,6 @@
 #  undef __VTK_SYSTEM_INCLUDES__INSIDE
 #endif
 
-#if defined (__digital__) && defined (__unix__) || defined(__IBMCPP__) || defined(__sun)
-#define HAVE_ALLOCA_H 1
-#endif
-
-
-#ifdef __GNUC__
-#undef alloca
-#define alloca __builtin_alloca
-#else /* not __GNUC__ */
-#if HAVE_ALLOCA_H
-#include <alloca.h>
-#else /* not HAVE_ALLOCA_H */
-#ifdef _AIX
-#pragma alloca
-#else /* not _AIX */
-#ifndef alloca
-char *alloca ();
-#endif
-#include <malloc.h>
-#endif /* not _AIX */
-#endif /* not HAVE_ALLOCA_H */
-#endif /* not __GNUC__ */
-
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -825,30 +802,46 @@ static const short yycheck[] = {    66,
 extern int yylex(vtkVRMLImporter* self);
 extern void yyerror();
 
-#ifndef alloca
-#ifdef __GNUC__
-#define alloca __builtin_alloca
-#else /* not GNU C.  */
-#if (!defined (__STDC__) && defined (sparc)) || defined (__sparc__) || defined (__sparc) || defined (__sgi)
-#include <alloca.h>
-#else /* not sparc */
-#if defined (MSDOS) && !defined (__TURBOC__)
-#include <malloc.h>
-#else /* not MSDOS, or __TURBOC__ */
-#if defined(_AIX)
-#include <malloc.h>
-#pragma alloca
-#else /* not MSDOS, __TURBOC__, or _AIX */
-#ifdef __hpux
-#include <alloca.h>
-#endif /* __hpux */
-#endif /* not _AIX */
-#endif /* not MSDOS, or __TURBOC__ */
-#endif /* not sparc.  */
-#endif /* not GNU C.  */
-#endif /* alloca not defined.  */
+#include <list>
+//
+// This file was originally generated from a yacc grammar source
+// file, but subsequently it has been locally modified to suit
+// VTK's needs.  The use of alloca -- part of the original parser
+// boilerplate became problematic because the confusing
+// preprocessor #defines with respect to alloca were causing
+// compile problems with newer versions of CLang.
+//
+// This class replaces alloca with a malloc-based allocator that
+// cleans up after itself when the FakeAlloca object goes out of
+// scope.  Whatever performance penalty this incurs is minor and
+// would only be noticeably if a very large, deeply nested VRML
+// file was imported; in the real world, I think alloca was very
+// rarely called here.
 
-
+namespace
+{
+class FakeAlloca
+{
+public:
+  typedef std::list<void *> list_type;
+  ~FakeAlloca()
+    {
+      for(list_type::iterator it = this->m_allocs.begin();
+          it != this->m_allocs.end(); ++it)
+        {
+        free(*it);
+        }
+    }
+  void *Allocate(size_t size)
+    {
+      void *rval = malloc(size);
+      m_allocs.push_back(rval);
+      return rval;
+    }
+private:
+  list_type m_allocs;
+};
+}
 /* This is the parser code that is written into each bison parser
   when the %semantic_parser declaration is not specified in the grammar.
   It was written by Richard Stallman by simplifying the hairy parser
@@ -994,6 +987,7 @@ __yy_memcpy (char *from, char *to, int count)
 int
 yyparse(vtkVRMLImporter* self)
 {
+  FakeAlloca yyallocator;
   register int yystate;
   register int yyn;
   register short *yyssp;
@@ -1107,12 +1101,12 @@ yyparse(vtkVRMLImporter* self)
     yystacksize *= 2;
     if (yystacksize > YYMAXDEPTH)
       yystacksize = YYMAXDEPTH;
-    yyss = (short *) alloca (yystacksize * sizeof (*yyssp));
+    yyss = (short *) yyallocator.Allocate (yystacksize * sizeof (*yyssp));
     __yy_memcpy ((char *)yyss1, (char *)yyss, size * sizeof (*yyssp));
-    yyvs = (YYSTYPE *) alloca (yystacksize * sizeof (*yyvsp));
+    yyvs = (YYSTYPE *) yyallocator.Allocate (yystacksize * sizeof (*yyvsp));
     __yy_memcpy ((char *)yyvs1, (char *)yyvs, size * sizeof (*yyvsp));
 #ifdef YYLSP_NEEDED
-    yyls = (YYLTYPE *) alloca (yystacksize * sizeof (*yylsp));
+    yyls = (YYLTYPE *) yyallocator.Allocate (yystacksize * sizeof (*yylsp));
     __yy_memcpy ((char *)yyls1, (char *)yyls, size * sizeof (*yylsp));
 #endif
 #endif /* no yyoverflow */
