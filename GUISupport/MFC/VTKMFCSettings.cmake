@@ -74,6 +74,7 @@ IF(VTK_MFC_STATIC)
   SET(VTK_MFC_EXTRA_LIBS ${VTK_MFC_EXTRA_LIBS}
     debug nafxcwd optimized nafxcw
     debug LIBCMTD optimized LIBCMT
+    Uxtheme windowscodecs
     )
 ENDIF(VTK_MFC_STATIC)
 
