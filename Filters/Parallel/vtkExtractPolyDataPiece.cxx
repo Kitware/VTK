@@ -337,9 +337,10 @@ void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData *input,
         const vtkIdType numNeighbors= neighborIds->GetNumberOfIds();
         for(vtkIdType k= 0; k < numNeighbors; ++k)
           {
-          if(cellTags->GetValue(neighborIds->GetId(k)) == -1)
+          const vtkIdType neighborCellId = neighborIds->GetId(k);
+          if(cellTags->GetValue(neighborCellId) == -1)
             {
-            cellTags->SetValue(neighborIds->GetId(k), level);
+            cellTags->SetValue(neighborCellId, level);
             }
           }
         }
