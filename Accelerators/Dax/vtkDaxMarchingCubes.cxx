@@ -21,6 +21,7 @@
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkObjectFactory.h>
+#include <vtkPointData.h>
 
 vtkStandardNewMacro(vtkDaxMarchingCubes)
 
@@ -28,8 +29,7 @@ namespace vtkDax {
   int MarchingCubes(vtkDataSet* input,
                     vtkUnstructuredGrid *output,
                     vtkDataArray* field,
-                    double isoValue)
-  {}
+                    float isoValue);
 }
 
 
@@ -48,6 +48,7 @@ int vtkDaxMarchingCubes::RequestData(vtkInformation *request,
                              vtkInformationVector **inputVector,
                              vtkInformationVector *outputVector)
   {
+  std::cout << ">>>>>> vtkDaxMarchingCubes::RequestData()" << std::endl;
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkDataSet *input = vtkDataSet::SafeDownCast(
@@ -56,14 +57,20 @@ int vtkDaxMarchingCubes::RequestData(vtkInformation *request,
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
                                   outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  vtkDataArray *scalars = input->GetPointData()->GetScalars();
+  int result = 0;
+  if(scalars)
+    {
+    result = vtkDax::MarchingCubes(input,
+                                   output,
+                                   scalars,
+                                   this->GetValue(0));
+    }
 
-  int result = vtkDax::MarchingCubes(input,
-                                     output,
-                                     this->GetInputArrayToProcess(0,inputVector),
-                                     this->GetValue(0));
   if(!result)
     {
     result = this->Superclass::RequestData(request,inputVector,outputVector);
+    std::cout << " >>>>>>> vtkMarchingCubes::RequestData()" << std::endl;
     }
   return result;
 }

@@ -33,6 +33,7 @@ class vtkWedge;
 
 #include <dax/cont/UnstructuredGrid.h>
 #include <dax/cont/UniformGrid.h>
+#include <dax/cont/ArrayHandle.h>
 
 #include "CellTypeToType.h"
 
@@ -122,9 +123,6 @@ void addPointData(vtkDataSet* output,
   vtkPointData *pd = output->GetPointData();
   pd->AddArray(data);
 }
-
-
-
 
 
 }

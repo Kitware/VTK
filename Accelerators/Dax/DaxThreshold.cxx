@@ -52,32 +52,11 @@
 #include <vtkToDax/Portals.h>
 #include <vtkToDax/Threshold.h>
 
+// Common code
+#include "vtkDaxDetailCommon.h"
+
 namespace vtkDax{
 namespace detail{
-
-  struct CellTypeInDataSet
-    {
-    explicit CellTypeInDataSet(int cellType):
-      Cell(vtkGenericCell::InstantiateCell(cellType)){}
-    ~CellTypeInDataSet(){this->Cell->Delete();}
-    vtkCell* Cell;
-    };
-
-  //returns if a dataset can be used from within Dax
-  CellTypeInDataSet cellType(vtkDataSet* input)
-  {
-    //determine the cell types that the dataset has
-    vtkNew<vtkCellTypes> cellTypes;
-    input->GetCellTypes(cellTypes.GetPointer());
-
-    if(cellTypes->GetNumberOfTypes() > 1)
-      {
-      //we currently only support a single cell type
-      return CellTypeInDataSet(VTK_EMPTY_CELL);
-      }
-
-    return CellTypeInDataSet(cellTypes->GetCellType(0));
-  }
 
   struct ValidThresholdInput
   {

@@ -14,7 +14,7 @@
 //
 //=============================================================================
 
-#include "config.h"
+#include "daxConfig.h"
 
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
@@ -49,45 +49,23 @@
 #include "vtkToDax/FieldTypeToType.h"
 #include "vtkToDax/MarchingCubes.h"
 
+// Common code
+#include "vtkDaxDetailCommon.h"
 
-
-namespace vtkDax { namespace detail {
-  struct CellTypeInDataSet
-    {
-    explicit CellTypeInDataSet(int cellType):
-      Cell(vtkGenericCell::InstantiateCell(cellType)){}
-    ~CellTypeInDataSet(){this->Cell->Delete();}
-    vtkCell* Cell;
-    };
-
-  //returns if a dataset can be used from within Dax
-  CellTypeInDataSet cellType(vtkDataSet* input)
-  {
-    //determine the cell types that the dataset has
-    vtkNew<vtkCellTypes> cellTypes;
-    input->GetCellTypes(cellTypes.GetPointer());
-
-    if(cellTypes->GetNumberOfTypes() > 1)
-      {
-      //we currently only support a single cell type
-      return CellTypeInDataSet(VTK_EMPTY_CELL);
-      }
-
-    return CellTypeInDataSet(cellTypes->GetCellType(0));
-  }
-
+namespace vtkDax {
+namespace detail {
   struct ValidMarchingCubesInput
   {
     typedef int ReturnType;
     vtkDataSet* Input;
     vtkCell* Cell;
-    double Value;
+    double IsoValue;
 
     vtkUnstructuredGrid* Result;
 
     ValidMarchingCubesInput(vtkDataSet* in, vtkUnstructuredGrid* out,
-                        vtkCell* cell, double value):
-      Input(in),Cell(cell),Value(value),Result(out){}
+                        vtkCell* cell, double isoValue):
+      Input(in),Cell(cell),IsoValue(isoValue),Result(out){}
 
     template<typename LHS>
     int operator()(LHS &arrayField) const
@@ -102,14 +80,14 @@ namespace vtkDax { namespace detail {
             typedef typename vtkToDax::FieldTypeToType<LHS,1>::FieldType FT1;
             return dispatchOnFieldType<LHS,FT1>(arrayField);
           case 2:
-            typedef typename vtkToDax::FieldTypeToType<LHS,2>::FieldType FT2;
-          return dispatchOnFieldType<LHS,FT2>(arrayField);
+            // typedef typename vtkToDax::FieldTypeToType<LHS,2>::FieldType FT2;
+            // return dispatchOnFieldType<LHS,FT2>(arrayField);
           case 3:
-            typedef typename vtkToDax::FieldTypeToType<LHS,3>::FieldType FT3;
-            return dispatchOnFieldType<LHS,FT3>(arrayField);
+            // typedef typename vtkToDax::FieldTypeToType<LHS,3>::FieldType FT3;
+            // return dispatchOnFieldType<LHS,FT3>(arrayField);
           case 4:
-            typedef typename vtkToDax::FieldTypeToType<LHS,4>::FieldType FT4;
-            return dispatchOnFieldType<LHS,FT4>(arrayField);
+            // typedef typename vtkToDax::FieldTypeToType<LHS,4>::FieldType FT4;
+            // return dispatchOnFieldType<LHS,FT4>(arrayField);
         default:
           //currently only support 1 to 4 components
           //we need to make dispatch on field data smarter in that it does
@@ -125,22 +103,26 @@ namespace vtkDax { namespace detail {
       {
       typedef DaxFieldType FieldType;
       typedef vtkToDax::vtkArrayContainerTag<VTKArrayType> FieldTag;
-      typedef typename FieldTag::template Portal<FieldType>::Type PortalType;
       typedef dax::cont::ArrayHandle<FieldType,FieldTag> FieldHandle;
+
+      typedef typename dax::cont::ArrayHandle
+        <FieldType, FieldTag>::PortalConstControl PortalType;
 
       FieldHandle field = FieldHandle( PortalType(&vtkField,
                                             vtkField.GetNumberOfTuples() ) );
       vtkToDax::MarchingCubes<FieldHandle> marching(field,
-                                                 FieldType(Value));
+                                                 FieldType(IsoValue));
       marching.setFieldName(vtkField.GetName());
       marching.setOutputGrid(Result);
 
-
+      // see if we have a valid data set type if so will perform the
+      // marchingcubes if possible
       vtkDoubleDispatcher<vtkDataSet,vtkCell,int> dataDispatcher;
       dataDispatcher.Add<vtkImageData,vtkVoxel>(marching);
       dataDispatcher.Add<vtkUniformGrid,vtkVoxel>(marching);
-      int validThreshold = dataDispatcher.Go(this->Input,this->Cell);
-      return validThreshold;
+      
+      int validMC = dataDispatcher.Go(this->Input,this->Cell);
+      return validMC;
       }
   private:
     void operator=(const ValidMarchingCubesInput&);
@@ -150,7 +132,7 @@ namespace vtkDax { namespace detail {
 
 //------------------------------------------------------------------------------
 int MarchingCubes(vtkDataSet* input, vtkUnstructuredGrid *output,
-              vtkDataArray* field, double isoValue)
+              vtkDataArray* field, float isoValue)
 {
   //we are doing a point threshold now verify we have suitable cells
   //Dax currently supports: hexs,lines,quads,tets,triangles,vertex,voxel,wedge
@@ -158,7 +140,7 @@ int MarchingCubes(vtkDataSet* input, vtkUnstructuredGrid *output,
   //VTK implementation.
   vtkDax::detail::CellTypeInDataSet cType = vtkDax::detail::cellType(input);
 
-  //construct the object that holds all the state needed to do the threshold
+  //construct the object that holds all the state needed to do the MC
   vtkDax::detail::ValidMarchingCubesInput validInput(input,output,cType.Cell,
                                                      isoValue);
 
@@ -166,6 +148,8 @@ int MarchingCubes(vtkDataSet* input, vtkUnstructuredGrid *output,
   //setup the dispatch to only allow float and int array to go to the next step
   vtkDispatcher<vtkAbstractArray,int> fieldDispatcher;
   fieldDispatcher.Add<vtkFloatArray>(validInput);
+  // fieldDispatcher.Add<vtkUnsignedCharArray>(validInput);
+  // fieldDispatcher.Add<vtkIntArray>(validInput);
   return fieldDispatcher.Go(field);
 }
 
