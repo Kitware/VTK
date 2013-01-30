@@ -158,6 +158,10 @@ protected:
   vtkDiscretizableColorTransferFunction();
   ~vtkDiscretizableColorTransferFunction();
 
+  // Description:
+  // Called when ScalarOpacityFunction is modified.
+  void ScalarOpacityFunctionModified();
+
   int Discretize;
   int UseLogScale;
 
@@ -168,6 +172,7 @@ protected:
 
   bool EnableOpacityMapping;
   vtkSmartPointer<vtkPiecewiseFunction> ScalarOpacityFunction;
+  unsigned long ScalarOpacityFunctionObserverId;
 
 private:
   vtkDiscretizableColorTransferFunction(const vtkDiscretizableColorTransferFunction&); // Not implemented.

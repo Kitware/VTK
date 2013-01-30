@@ -80,3 +80,5 @@ protected:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkMFCWindow.h

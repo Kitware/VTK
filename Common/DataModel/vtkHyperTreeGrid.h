@@ -110,31 +110,31 @@ public:
 
   // Description:
   // Get the number of leaves in the primal tree grid.
-  int GetNumberOfLeaves();
+  unsigned int GetNumberOfLeaves();
 
   // Description:
   // Return the number of levels in an individual (primal) tree
-  int GetNumberOfLevels( unsigned int );
+  unsigned int GetNumberOfLevels( unsigned int );
 
   // Description:
   // Specify the grid coordinates in the x-direction.
-  virtual void SetXCoordinates( vtkDataArray* );
+  void SetXCoordinates( vtkDataArray* );
   vtkGetObjectMacro(XCoordinates, vtkDataArray);
 
   // Description:
   // Specify the grid coordinates in the y-direction.
-  virtual void SetYCoordinates( vtkDataArray* );
+  void SetYCoordinates( vtkDataArray* );
   vtkGetObjectMacro(YCoordinates, vtkDataArray);
 
   // Description:
-  // Specify the blanking mask of primal leaf cells
-  virtual void SetMaterialMask( vtkBitArray* );
-  vtkGetObjectMacro(MaterialMask, vtkBitArray);
+  // Specify the grid coordinates in the z-direction.
+  void SetZCoordinates( vtkDataArray* );
+  vtkGetObjectMacro(ZCoordinates, vtkDataArray);
 
   // Description:
-  // Specify the grid coordinates in the z-direction.
-  virtual void SetZCoordinates( vtkDataArray* );
-  vtkGetObjectMacro(ZCoordinates, vtkDataArray);
+  // Specify the blanking mask of primal leaf cells
+  void SetMaterialMask( vtkBitArray* );
+  vtkGetObjectMacro(MaterialMask, vtkBitArray);
 
   // Description:
   // Create a new cursor: an object that can traverse
@@ -294,6 +294,7 @@ public:
   void InitializeSuperCursor( vtkHyperTreeGridSuperCursor*,
                               unsigned int,
                               unsigned int,
+                              unsigned int,
                               unsigned int );
   // Description:
   // Initialize a cursor to point to a child of an existing super cursor.
@@ -317,7 +318,7 @@ protected:
 
   void GetCell( vtkIdType, vtkCell* );
 
-  void UpdateDualArrays();
+  void ComputeDualGrid();
   vtkPoints* GetPoints();
   vtkIdTypeArray* GetConnectivity();
 
@@ -338,7 +339,9 @@ protected:
 
   vtkPoints* Points;
   vtkIdTypeArray* Connectivity;
+  std::map<vtkIdType, bool> PointShifted;
   std::map<vtkIdType, double> PointShifts[3];
+  std::map<vtkIdType, double> ReductionFactors;
 
   int UpdateHyperTreesLeafIdOffsets();
 
@@ -346,9 +349,9 @@ protected:
 
 //BTX
 #ifndef __WRAP__
-  void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, int, double* );
+  void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, int );
 
-  void TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor*, double* );
+  void TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* );
 
   void TraverseDualLeaf( vtkHyperTreeGridSuperCursor* );
 

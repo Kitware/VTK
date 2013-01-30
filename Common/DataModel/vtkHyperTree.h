@@ -113,7 +113,7 @@
 // octree see vtkCellLocator instead.
 //
 // .SECTION Thanks
-// This class was written by Philippe Pebay and Charles Law, Kitware 2012
+// This class was written by Philippe Pebay and Charles Law, Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTree_h
@@ -134,6 +134,9 @@ public:
   virtual int GetNumberOfNodes() = 0;
   virtual int GetBranchFactor() = 0;
   virtual int GetDimension() = 0;
+  virtual void SetScale( double[3] ) = 0;
+  virtual void GetScale( double[3] ) = 0;
+  virtual double GetScale( unsigned int ) = 0;
 
   // Description:
   // Return the number of levels.
@@ -154,7 +157,7 @@ public:
 
   // Description:
   // Return an instance of a templated hypertree for given branch
-  // factor and dimension.
+  // factor and dimension
   // This is done to hide templates.
   static vtkHyperTree* CreateInstance( int factor, int dimension );
 

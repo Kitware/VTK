@@ -19,7 +19,7 @@
 
 
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0400  // for trackmouseevent support  requires Win95 with IE 3.0 or greater.
+#define _WIN32_WINNT 0x0501  // for trackmouseevent support, 0x0501 means target Windows XP or later
 #endif
 
 #include "vtkWin32OpenGLRenderWindow.h"

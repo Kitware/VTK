@@ -986,19 +986,25 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
           {
           style = WS_POPUP | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
           }
+        RECT r;
+        r.left = x;
+        r.top = y;
+        r.right = r.left + width;
+        r.bottom = r.top + height;
+        BOOL result = AdjustWindowRect( &r, style, FALSE );
+        if (!result)
+          {
+          vtkErrorMacro("AdjustWindowRect failed, error: " << GetLastError());
+          }
 #ifdef UNICODE
         this->WindowId = CreateWindow(
           L"vtkOpenGL", wname, style,
-          x,y, width+2*GetSystemMetrics(SM_CXFRAME),
-          height+2*GetSystemMetrics(SM_CYFRAME)
-          +GetSystemMetrics(SM_CYCAPTION),
+          x, y, r.right-r.left, r.bottom-r.top,
           NULL, NULL, this->ApplicationInstance, NULL);
 #else
         this->WindowId = CreateWindow(
           "vtkOpenGL", this->WindowName, style,
-          x,y, width+2*GetSystemMetrics(SM_CXFRAME),
-          height+2*GetSystemMetrics(SM_CYFRAME)
-          +GetSystemMetrics(SM_CYCAPTION),
+          x, y, r.right-r.left, r.bottom-r.top,
           NULL, NULL, this->ApplicationInstance, NULL);
 #endif
         }

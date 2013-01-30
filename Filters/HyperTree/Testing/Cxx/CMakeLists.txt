@@ -10,6 +10,8 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestHyperTreeGridTernary2DBiMaterial.cxx
   TestHyperTreeGridBinaryEllipseMaterial.cxx
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
+  TestHyperTreeGridTernary2D.cxx
+  TestHyperTreeGridTernary2DMaterial.cxx
   TestHyperTreeGridTernary3DAxisCut.cxx
   TestHyperTreeGridTernary3DAxisCutMaterial.cxx
   TestHyperTreeGridTernary3DContour.cxx
@@ -22,7 +24,6 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestHyperTreeGridTernary3DUnstructuredMaterial.cxx
   TestHyperTreeGridTernaryHyperbola.cxx
   TestHyperTreeGridTernarySphereMaterial.cxx
-
   EXTRA_INCLUDE vtkTestDriver.h
 )
 

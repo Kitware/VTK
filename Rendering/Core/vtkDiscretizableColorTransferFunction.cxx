@@ -14,9 +14,10 @@
 =========================================================================*/
 #include "vtkDiscretizableColorTransferFunction.h"
 
+#include "vtkCommand.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkLookupTable.h"
 #include "vtkPiecewiseFunction.h"
 
 #include <vector>
@@ -34,13 +35,16 @@ vtkDiscretizableColorTransferFunction::vtkDiscretizableColorTransferFunction()
   this->UseLogScale = 0;
 
   this->ScalarOpacityFunction = 0;
+  this->ScalarOpacityFunctionObserverId = 0;
   this->EnableOpacityMapping = false;
 }
 
 //-----------------------------------------------------------------------------
 vtkDiscretizableColorTransferFunction::~vtkDiscretizableColorTransferFunction()
 {
-  this->ScalarOpacityFunction = 0;
+  // this removes any observer we may have setup for the
+  // ScalarOpacityFunction.
+  this->SetScalarOpacityFunction(NULL);
   this->LookupTable->Delete();
   delete [] this->Data;
 }
@@ -287,7 +291,20 @@ void vtkDiscretizableColorTransferFunction::SetScalarOpacityFunction(vtkPiecewis
 {
   if(this->ScalarOpacityFunction != function)
     {
+    if (this->ScalarOpacityFunction &&
+      this->ScalarOpacityFunctionObserverId > 0)
+      {
+      this->ScalarOpacityFunction->RemoveObserver(this->ScalarOpacityFunctionObserverId);
+      this->ScalarOpacityFunctionObserverId = 0;
+      }
     this->ScalarOpacityFunction = function;
+    if (function)
+      {
+      this->ScalarOpacityFunctionObserverId =
+        function->AddObserver(vtkCommand::ModifiedEvent,
+          this,
+          &vtkDiscretizableColorTransferFunction::ScalarOpacityFunctionModified);
+      }
     this->Modified();
     }
 }
@@ -296,6 +313,12 @@ void vtkDiscretizableColorTransferFunction::SetScalarOpacityFunction(vtkPiecewis
 vtkPiecewiseFunction* vtkDiscretizableColorTransferFunction::GetScalarOpacityFunction() const
 {
   return this->ScalarOpacityFunction;
+}
+
+//-----------------------------------------------------------------------------
+void vtkDiscretizableColorTransferFunction::ScalarOpacityFunctionModified()
+{
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
