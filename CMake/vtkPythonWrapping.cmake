@@ -20,7 +20,7 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
   endif()
 
   if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
-    set(KIT_HIERARCHY_FILE ${VTK_MODULES_DIR}/${module_name}Hierarchy.txt)
+    set(KIT_HIERARCHY_FILE ${${module_name}_WRAP_HIERARCHY_FILE})
   endif()
 
   string(REGEX REPLACE "^vtk" "" kit_name "${module_name}")

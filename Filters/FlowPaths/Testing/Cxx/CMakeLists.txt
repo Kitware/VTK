@@ -5,7 +5,7 @@ set(MyTests
   TestParticleTracers
   )
 
-include(${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake)
+include(vtkTestingObjectFactory)
 vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 
 set(TestsToRun ${Tests})

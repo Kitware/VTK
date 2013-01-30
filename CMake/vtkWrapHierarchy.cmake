@@ -127,7 +127,7 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     if(NOT "${vtk-module}" STREQUAL "${dep}")
       if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
         list(APPEND OTHER_HIERARCHY_FILES
-          "${quote}${VTK_MODULES_DIR}/${dep}Hierarchy.txt${quote}")
+          "${quote}${${dep}_WRAP_HIERARCHY_FILE}${quote}")
         list(APPEND OTHER_HIERARCHY_TARGETS ${dep})
       endif()
     endif()
