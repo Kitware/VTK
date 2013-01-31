@@ -101,7 +101,7 @@ class FTGL_EXPORT FTFont
      *
      * @param d   The extrusion distance.
      */
-    virtual void Depth( float ){}
+    virtual void Depth( float d ){ (void)d; }
 
     
     /**
@@ -130,7 +130,7 @@ class FTGL_EXPORT FTFont
     /**
      * Get the bounding box for a string.
      *
-     * @param string  a char string
+     * @param text   a char string
      * @param llx    lower left near x coord
      * @param lly    lower left near y coord
      * @param llz    lower left near z coord

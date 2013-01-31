@@ -586,9 +586,9 @@ void vtkGeoInteractorStyle::OnMouseMove()
 }
 
 //-----------------------------------------------------------------------------
-//<cough> compute a good screen coordinate to base pan operations off
-//of. Brute force approach. Sample the screen and take the weighted average
-//of hits
+// <cough> compute a good screen coordinate to base pan operations off
+// of. Brute force approach. Sample the screen and take the weighted average
+// of hits
 void vtkGeoInteractorStyle::GetPanCenter(double &px, double &py)
 {
   vtkRenderer *renderer = this->CurrentRenderer;

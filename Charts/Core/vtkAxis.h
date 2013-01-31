@@ -206,9 +206,9 @@ public:
   // Description:
   // Enumeration of the axis behaviors.
   enum {
-    AUTO = 0, //< Automatically scale the axis to view all data that is visible.
-    FIXED,    //< Use a fixed axis range and make no attempt to rescale.
-    CUSTOM    //< Deprecated, use the tick label settings instead.
+    AUTO = 0, // Automatically scale the axis to view all data that is visible.
+    FIXED,    // Use a fixed axis range and make no attempt to rescale.
+    CUSTOM    // Deprecated, use the tick label settings instead.
   };
 
   // Description:

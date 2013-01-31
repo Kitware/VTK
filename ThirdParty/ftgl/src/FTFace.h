@@ -40,7 +40,7 @@ class FTGL_EXPORT FTFace
     /**
      * Opens and reads a face file.
      *
-     * @param fontname  font file name.
+     * @param filename  font file name.
      * @return      <code>true</code> if file has opened
      *          successfully.
      */

@@ -24,15 +24,15 @@
 // another coordinate system (e.g., GetComputedWorldValue()).
 //
 // The coordinate systems in vtk are as follows:
-//<PRE>
-//  DISPLAY -             x-y pixel values in window
-//  NORMALIZED DISPLAY -  x-y (0,1) normalized values
-//  VIEWPORT -            x-y pixel values in viewport
-//  NORMALIZED VIEWPORT - x-y (0,1) normalized value in viewport
-//  VIEW -                x-y-z (-1,1) values in camera coordinates. (z is depth)
-//  WORLD -               x-y-z global coordinate values
-//  USERDEFINED -         x-y-z in User defined space
-//</PRE>
+// <PRE>
+//   DISPLAY -             x-y pixel values in window
+//   NORMALIZED DISPLAY -  x-y (0,1) normalized values
+//   VIEWPORT -            x-y pixel values in viewport
+//   NORMALIZED VIEWPORT - x-y (0,1) normalized value in viewport
+//   VIEW -                x-y-z (-1,1) values in camera coordinates. (z is depth)
+//   WORLD -               x-y-z global coordinate values
+//   USERDEFINED -         x-y-z in User defined space
+// </PRE>
 //
 // If you cascade vtkCoordinate objects, you refer to another vtkCoordinate
 // object which in turn can refer to others, and so on. This allows you to
