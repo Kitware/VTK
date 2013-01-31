@@ -15,6 +15,8 @@
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware SAS 2012
 
+#include "vtkSmartPointer.h"
+
 #include "vtkAVSucdReader.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
@@ -25,7 +27,6 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -172,12 +173,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
 
   // Render and test;
   window->Render();
+  interactor->Start();
 
-  int retVal = vtkRegressionTestImage( window.GetPointer() );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
-    interactor->Start();
-    }
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }

@@ -51,8 +51,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkRegressionTestImage.h"
-
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, var) \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
@@ -128,7 +126,7 @@ static void CheckWinding(vtkUnstructuredGrid *data)
     {
     if (npts != 4)
       {
-      cout << "Weird.  I got something that is not a tetrahedra." << endl;
+      std::cout << "Weird.  I got something that is not a tetrahedra." << std::endl;
       continue;
       }
 
@@ -360,7 +358,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
 }
 
 
-int BoxClipTetrahedra(int argc, char *argv[])
+int BoxClipTetrahedra(int, char *[])
 {
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetSize(960, 640);
@@ -381,18 +379,13 @@ int BoxClipTetrahedra(int argc, char *argv[])
     }
   catch (BadWinding bw)
     {
-    cout << "Encountered a bad winding.  Aborting test." << endl;
-    return 1;
+    std::cout << "Encountered a bad winding.  Aborting test." << std::endl;
+    return EXIT_FAILURE;
     }
 
   // Run the regression test.
   renwin->Render();
-  int retVal = vtkRegressionTestImage(renwin);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    return 0;
-    }
+  iren->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }

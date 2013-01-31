@@ -35,10 +35,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkRegressionTestImage.h"
-
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, var) \
+#define VTK_CREATE(type, var)                                   \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
 const int NumImagesX = 6;
@@ -204,7 +202,7 @@ static void AddToRenderWindow(vtkRenderWindow *renwin,
   renwin->AddRenderer(renderer);
 }
 
-int BoxClipTriangulateAndInterpolate(int argc, char *argv[])
+int BoxClipTriangulateAndInterpolate(int, char *[])
 {
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetSize(600, 400);
@@ -284,17 +282,10 @@ int BoxClipTriangulateAndInterpolate(int argc, char *argv[])
   SetClipAsHexahedron(clip51, -1.0, 1.0, 0.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip51, 5, 1);
 
-  // Run the regression test.
-  int retVal = vtkRegressionTestImage(renwin);
+  VTK_CREATE(vtkRenderWindowInteractor, iren);
+  iren->SetRenderWindow(renwin);
+  renwin->Render();
+  iren->Start();
 
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    VTK_CREATE(vtkRenderWindowInteractor, iren);
-    iren->SetRenderWindow(renwin);
-    renwin->Render();
-    iren->Start();
-    return 0;
-    }
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }

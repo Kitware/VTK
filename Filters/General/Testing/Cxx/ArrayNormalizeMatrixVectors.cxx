@@ -51,10 +51,10 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     source->SetSuperDiagonal(0.5);
     source->SetSubDiagonal(-0.5);
 
-    cout << std::fixed << setprecision(1);
-    cout << "sparse diagonal source:\n";
+    std::cout << std::fixed << setprecision(1);
+    std::cout << "sparse diagonal source:\n";
     source->Update();
-    vtkPrintMatrixFormat(cout, vtkTypedArray<double>::SafeDownCast(
+    vtkPrintMatrixFormat(std::cout, vtkTypedArray<double>::SafeDownCast(
         source->GetOutput()->GetArray(static_cast<vtkIdType>(0))));
 
     vtkSmartPointer<vtkNormalizeMatrixVectors> normalize = vtkSmartPointer<vtkNormalizeMatrixVectors>::New();
@@ -64,9 +64,9 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     normalize->Update();
     vtkTypedArray<double>* normalized = vtkTypedArray<double>::SafeDownCast(
       normalize->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
-    cout << std::fixed << setprecision(17);
-    cout << "sparse normalized:\n";
-    vtkPrintMatrixFormat(cout, normalized);
+    std::cout << std::fixed << setprecision(17);
+    std::cout << "sparse normalized:\n";
+    vtkPrintMatrixFormat(std::cout, normalized);
 
     test_expression(normalized);
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(0, 0)), 0.89442719099991586));
@@ -82,18 +82,18 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(2, 2)), 0.89442719099991586));
 
     source->SetArrayType(vtkDiagonalMatrixSource::DENSE);
-    cout << std::fixed << setprecision(1);
-    cout << "dense diagonal source:\n";
+    std::cout << std::fixed << setprecision(1);
+    std::cout << "dense diagonal source:\n";
     source->Update();
-    vtkPrintMatrixFormat(cout, vtkTypedArray<double>::SafeDownCast(
+    vtkPrintMatrixFormat(std::cout, vtkTypedArray<double>::SafeDownCast(
         source->GetOutput()->GetArray(static_cast<vtkIdType>(0))));
 
     normalize->Update();
     normalized = vtkTypedArray<double>::SafeDownCast(
       normalize->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
-    cout << std::fixed << setprecision(17);
-    cout << "dense normalized:\n";
-    vtkPrintMatrixFormat(cout, normalized);
+    std::cout << std::fixed << setprecision(17);
+    std::cout << "dense normalized:\n";
+    vtkPrintMatrixFormat(std::cout, normalized);
 
     test_expression(normalized);
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(0, 0)), 0.89442719099991586));
@@ -108,12 +108,12 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(1, 2)), 0.44721359549995793));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(2, 2)), 0.89442719099991586));
 
-    return 0;
+    return EXIT_SUCCESS;
     }
   catch(std::exception& e)
     {
-    cerr << e.what() << endl;
-    return 1;
+    std::cerr << e.what() << std::endl;
+    return EXIT_FAILURE;
     }
 }
 

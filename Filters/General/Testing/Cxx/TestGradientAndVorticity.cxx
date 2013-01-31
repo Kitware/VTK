@@ -50,16 +50,16 @@ namespace
         {
         return true;
         }
-      cout << fabs(v2) << " (fabs(v2)) should be less than "
-           << Tolerance << endl;
+      std::cout << fabs(v2) << " (fabs(v2)) should be less than "
+           << Tolerance << std::endl;
       return false;
       }
     if(fabs(v1/v2) < Tolerance)
       {
         return true;
         }
-    cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than "
-         << Tolerance << endl;
+    std::cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than "
+         << Tolerance << std::endl;
     return false;
   }
 
@@ -258,7 +258,7 @@ namespace
       // because the accuracy is so lousy
       if(!IsGradientCorrect(gradCellArray, offset))
         {
-        return 1;
+        return EXIT_FAILURE;
         }
       }
 
@@ -268,7 +268,7 @@ namespace
 
     if(!IsGradientCorrect(gradPointArray, offset))
       {
-      return 1;
+      return EXIT_FAILURE;
       }
 
     if(numberOfComponents == 3)
@@ -298,7 +298,7 @@ namespace
 
       if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
         {
-        return 1;
+        return EXIT_FAILURE;
         }
 
       // point stuff
@@ -308,18 +308,18 @@ namespace
 
       if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
         {
-        return 1;
+        return EXIT_FAILURE;
         }
       vtkDoubleArray* qCriterionPointArray = vtkDoubleArray::SafeDownCast(
         vtkDataSet::SafeDownCast(
           pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
       if(!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
         {
-        return 1;
+        return EXIT_FAILURE;
         }
       }
 
-    return 0;
+    return EXIT_SUCCESS;
   }
 } // end local namespace
 
@@ -341,7 +341,7 @@ int TestGradientAndVorticity(int argc, char *argv[])
     {
     vtkGenericWarningMacro(
       "Need to specify the directory to VTK_DATA_ROOT with -D <dir>.");
-    return 1;
+    return EXIT_FAILURE;
     }
 
   vtkStdString filename;
@@ -355,7 +355,7 @@ int TestGradientAndVorticity(int argc, char *argv[])
 
   if(PerformTest(grid))
     {
-    return 1;
+    return EXIT_FAILURE;
     }
 
   // convert the structured grid to an unstructured grid
