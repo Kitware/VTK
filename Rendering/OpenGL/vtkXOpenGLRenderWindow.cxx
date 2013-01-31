@@ -1126,12 +1126,6 @@ void vtkXOpenGLRenderWindow::SetFullScreen(int arg)
   // remap the window
   this->WindowRemap();
 
-  // if full screen then grab the keyboard
-  if (this->FullScreen)
-    {
-    XGrabKeyboard(this->DisplayId,this->WindowId,
-                  False,GrabModeAsync,GrabModeAsync,CurrentTime);
-    }
   this->Modified();
 }
 
