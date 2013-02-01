@@ -1,3 +1,16 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestBooleanOperationPolyDataFilter.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+=========================================================================*/
 
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
@@ -15,31 +28,31 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
   bool outputDirected = (vtkDirectedGraph::SafeDownCast(Output) != 0);
   if(inputDirected != outputDirected)
     {
-    cerr << "Directedness not the same" << endl;
+    std::cerr << "Directedness not the same" << std::endl;
     return false;
     }
 
   if(Input->GetNumberOfVertices() != Output->GetNumberOfVertices())
     {
-    cerr << "GetNumberOfVertices not the same" << endl;
+    std::cerr << "GetNumberOfVertices not the same" << std::endl;
     return false;
     }
 
   if(Input->GetNumberOfEdges() != Output->GetNumberOfEdges())
     {
-    cerr << "GetNumberOfEdges not the same" << endl;
+    std::cerr << "GetNumberOfEdges not the same" << std::endl;
     return false;
     }
 
   if(Input->GetVertexData()->GetNumberOfArrays() != Output->GetVertexData()->GetNumberOfArrays())
     {
-    cerr << "GetVertexData()->GetNumberOfArrays() not the same" << endl;
+    std::cerr << "GetVertexData()->GetNumberOfArrays() not the same" << std::endl;
     return false;
     }
 
   if(Input->GetEdgeData()->GetNumberOfArrays() != Output->GetEdgeData()->GetNumberOfArrays())
     {
-    cerr << "GetEdgeData()->GetNumberOfArrays() not the same" << endl;
+    std::cerr << "GetEdgeData()->GetNumberOfArrays() not the same" << std::endl;
     return false;
     }
 
@@ -51,13 +64,13 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
     vtkEdgeType outputEdge = outputEdges->Next();
     if(inputEdge.Source != outputEdge.Source)
       {
-      cerr << "Input source != output source" << endl;
+      std::cerr << "Input source != output source" << std::endl;
       return false;
       }
 
     if(inputEdge.Target != outputEdge.Target)
       {
-      cerr << "Input target != output target" << endl;
+      std::cerr << "Input target != output target" << std::endl;
       return false;
       }
     }
@@ -69,7 +82,7 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
 
 int TestPassThrough(int , char* [])
 {
-  cerr << "Generating graph ..." << endl;
+  std::cerr << "Generating graph ..." << std::endl;
   VTK_CREATE(vtkMutableDirectedGraph, g);
   VTK_CREATE(vtkDoubleArray, x);
   x->SetName("x");
@@ -90,7 +103,7 @@ int TestPassThrough(int , char* [])
   g->GetVertexData()->AddArray(x);
   g->GetVertexData()->AddArray(y);
   g->GetVertexData()->AddArray(z);
-  cerr << "... done" << endl;
+  std::cerr << "... done" << std::endl;
 
   VTK_CREATE(vtkPassThrough, pass);
   pass->SetInputData(g);
@@ -99,8 +112,8 @@ int TestPassThrough(int , char* [])
 
   if (!CompareData(g, output))
     {
-    cerr << "ERROR: Graphs not identical!" << endl;
-    return 1;
+    std::cerr << "ERROR: Graphs not identical!" << std::endl;
+    return EXIT_FAILURE;
     }
-  return 0;
+  return EXIT_SUCCESS;
 }

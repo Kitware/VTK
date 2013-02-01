@@ -19,7 +19,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTestUtilities.h"

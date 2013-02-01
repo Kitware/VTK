@@ -139,7 +139,7 @@ static void CheckWinding(vtkBoxClipDataSet* alg)
     {
     if (npts != 4)
       {
-      cout << "Weird.  I got something that is not a tetrahedra." << endl;
+      std::cout << "Weird.  I got something that is not a tetrahedra." << std::endl;
       continue;
       }
 
@@ -163,7 +163,7 @@ static void CheckWinding(vtkBoxClipDataSet* alg)
 
     if (vtkMath::Dot(n, d) < 0)
       {
-      cout << "Found a tetrahedra with bad winding." << endl;
+      std::cout << "Found a tetrahedra with bad winding." << std::endl;
       throw BoxClipTriangulateFailed();
       }
     }
@@ -243,7 +243,7 @@ static void Check2DPrimitive(int type, vtkIdType numcells,
 
   if (output->GetNumberOfCells() < 1)
     {
-    cout << "Output has no cells!" << endl;
+    std::cout << "Output has no cells!" << std::endl;
     throw BoxClipTriangulateFailed();
     }
 
@@ -255,7 +255,7 @@ static void Check2DPrimitive(int type, vtkIdType numcells,
     {
     if (npts != 3)
       {
-      cout << "Got a primitive that is not a triangle!" << endl;
+      std::cout << "Got a primitive that is not a triangle!" << std::endl;
       throw BoxClipTriangulateFailed();
       }
 
@@ -263,7 +263,7 @@ static void Check2DPrimitive(int type, vtkIdType numcells,
     vtkTriangle::ComputeNormal(output->GetPoints(), npts, pts, n);
     if ((n[0] > 0.1) || (n[1] > 0.1) || (n[2] < 0.9))
       {
-      cout << "Primitive is facing the wrong way!" << endl;
+      std::cout << "Primitive is facing the wrong way!" << std::endl;
       throw BoxClipTriangulateFailed();
       }
     }
@@ -287,7 +287,7 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
 
   if (output->GetNumberOfCells() < 1)
     {
-    cout << "Output has no cells!" << endl;
+    std::cout << "Output has no cells!" << std::endl;
     throw BoxClipTriangulateFailed();
     }
 
@@ -316,8 +316,8 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
 
   if (surface->GetOutput()->GetNumberOfCells() != numSurfacePolys)
     {
-    cout << "Expected " << numSurfacePolys << " triangles on the surface, got "
-         << surface->GetOutput()->GetNumberOfCells() << endl;
+    std::cout << "Expected " << numSurfacePolys << " triangles on the surface, got "
+         << surface->GetOutput()->GetNumberOfCells() << std::endl;
     throw BoxClipTriangulateFailed();
     }
 }
@@ -327,7 +327,7 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
 int BoxClipTriangulate(int, char *[])
 {
   long seed = time(NULL);
-  cout << "Random seed = " << seed << endl;
+  std::cout << "Random seed = " << seed << std::endl;
   vtkMath::RandomSeed(seed);
   vtkMath::Random();
   vtkMath::Random();
@@ -335,38 +335,38 @@ int BoxClipTriangulate(int, char *[])
 
   try
     {
-    cout << "Checking triangle strip." << endl;
+    std::cout << "Checking triangle strip." << std::endl;
     Check2DPrimitive(VTK_TRIANGLE_STRIP, NumTriStripCells, TriStripCells);
 
-    cout << "Checking quadrilaterals." << endl;
+    std::cout << "Checking quadrilaterals." << std::endl;
     Check2DPrimitive(VTK_QUAD, NumQuadCells, QuadCells);
 
-    cout << "Checking pixels." << endl;
+    std::cout << "Checking pixels." << std::endl;
     Check2DPrimitive(VTK_PIXEL, NumPixelCells, PixelCells);
 
-    cout << "Checking polygons." << endl;
+    std::cout << "Checking polygons." << std::endl;
     Check2DPrimitive(VTK_POLYGON, NumPolyCells, PolyCells);
 
-    cout << "Checking hexahedrons." << endl;
+    std::cout << "Checking hexahedrons." << std::endl;
     Check3DPrimitive(VTK_HEXAHEDRON, NumHexCells, HexCells,
                      NumExpectedHexSurfacePolys);
 
-    cout << "Checking voxels." << endl;
+    std::cout << "Checking voxels." << std::endl;
     Check3DPrimitive(VTK_VOXEL, NumVoxelCells, VoxelCells,
                      NumExpectedVoxelSurfacePolys);
 
-    cout << "Checking wedges." << endl;
+    std::cout << "Checking wedges." << std::endl;
     Check3DPrimitive(VTK_WEDGE, NumWedgeCells, WedgeCells,
                      NumExpectedWedgeSurfacePolys);
 
-    cout << "Checking pyramids." << endl;
+    std::cout << "Checking pyramids." << std::endl;
     Check3DPrimitive(VTK_PYRAMID, NumPyramidCells, PyramidCells,
                      NumExpectedPyramidSurfacePolys);
     }
   catch (BoxClipTriangulateFailed)
     {
-    return 1;
+    return EXIT_FAILURE;
     }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

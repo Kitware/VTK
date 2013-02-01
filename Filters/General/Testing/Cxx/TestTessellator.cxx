@@ -2910,10 +2910,10 @@ vtkTestTessellatorSubdivision::~vtkTestTessellatorSubdivision()
 void vtkTestTessellatorSubdivision::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "AmbiguousTests: " << (this->AmbiguousTests ? "On" : "Off") << endl;
-  os << indent << "CurrentTestId: " << this->CurrentTestId << endl;
-  os << indent << "CurrentTest: " << this->CurrentTest << endl;
-  os << indent << "CurrentEdge: " << this->CurrentEdge << endl;
+  os << indent << "AmbiguousTests: " << (this->AmbiguousTests ? "On" : "Off") << std::endl;
+  os << indent << "CurrentTestId: " << this->CurrentTestId << std::endl;
+  os << indent << "CurrentTest: " << this->CurrentTest << std::endl;
+  os << indent << "CurrentEdge: " << this->CurrentEdge << std::endl;
 }
 
 void vtkTestTessellatorSubdivision::AmbiguousTestsOn()
@@ -2995,7 +2995,7 @@ bool vtkTestTessellatorSubdivision::EvaluateEdge( const double* vtkNotUsed(p0), 
 
 void TessellatorEdgeProcessorFunction( const double*, const double*, vtkEdgeSubdivisionCriterion*, void*, const void* )
 {
-  cerr << "Don't handle line segments yet." << endl;
+  std::cerr << "Don't handle line segments yet." << std::endl;
 }
 
 void TessellatorTriangleProcessorFunction( const double* a, const double* b, const double* c, vtkEdgeSubdivisionCriterion*, void* out, const void* )
@@ -3008,7 +3008,7 @@ void TessellatorTriangleProcessorFunction( const double* a, const double* b, con
   vtkUnstructuredGrid* mesh = static_cast<vtkUnstructuredGrid*>(out);
   if ( ! mesh )
     {
-    cerr << "ERROR: You didn't pass me a mesh in which to place the triangle." << endl;
+    std::cerr << "ERROR: You didn't pass me a mesh in which to place the triangle." << std::endl;
     vtkTessellatorError = 1;
     return;
     }
@@ -3037,17 +3037,17 @@ void TessellatorTriangleProcessorFunction( const double* a, const double* b, con
     {
     if ( vtkOTriPtr[    pt] != a[pt] )
       {
-      cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tri coord, tri " << vtkOTriCtr << " point a, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tri coord, tri " << vtkOTriCtr << " point a, coord " << pt << "\n";
       vtkTessellatorError = 1;
       }
     if ( vtkOTriPtr[3 + pt] != b[pt] )
       {
-      cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tri coord, tri " << vtkOTriCtr << " point b, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tri coord, tri " << vtkOTriCtr << " point b, coord " << pt << "\n";
       vtkTessellatorError = 1;
       }
     if ( vtkOTriPtr[6 + pt] != c[pt] )
       {
-      cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tri coord, tri " << vtkOTriCtr << " point c, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tri coord, tri " << vtkOTriCtr << " point c, coord " << pt << "\n";
       vtkTessellatorError = 1;
       }
     }
@@ -3062,7 +3062,7 @@ void TessellatorTetrahedronProcessorFunction( const double* a, const double* b, 
   vtkUnstructuredGrid* mesh = static_cast<vtkUnstructuredGrid*>(out);
   if ( ! mesh )
     {
-    cerr << "ERROR: You didn't pass me a mesh in which to place the tetrahedron." << endl;
+    std::cerr << "ERROR: You didn't pass me a mesh in which to place the tetrahedron." << std::endl;
     return;
     }
 
@@ -3092,22 +3092,22 @@ void TessellatorTetrahedronProcessorFunction( const double* a, const double* b, 
     {
     if ( vtkOTetPtr[    pt] != a[pt] )
       {
-      cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point a, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point a, coord " << pt << "\n";
       vtkTessellatorError = 1;
       }
     if ( vtkOTetPtr[3 + pt] != b[pt] )
       {
-      cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point b, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point b, coord " << pt << "\n";
       vtkTessellatorError = 1;
       }
     if ( vtkOTetPtr[6 + pt] != c[pt] )
       {
-      cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point c, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point c, coord " << pt << "\n";
       vtkTessellatorError = 1;
       }
     if ( vtkOTetPtr[9 + pt] != d[pt] )
       {
-      cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point d, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point d, coord " << pt << "\n";
       vtkTessellatorError = 1;
       }
     }
@@ -3343,7 +3343,7 @@ int TestTessellator( int argc, char* argv[] )
           {
           if ( *vtkITetPtr != tetPoints[pt*6 + cr] )
             {
-            cerr
+            std::cerr
               << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad input tet coord, tet " << vtkITetCtr
               << " point " << pt << " coord " << cr << " was " << tetPoints[pt*6 + cr] << ", expecting " << *vtkITetPtr
               << "\n";
@@ -3407,7 +3407,7 @@ int TestTessellator( int argc, char* argv[] )
           }
 #ifdef VTK_GENERATE_BASELINE
         //tessellatorRegressionTest.StdOut() << annotation << "\nOutput Tetrahedra:\n";
-        //cout << annotation << "\nOutput Tetrahedra:\n";
+        //std::cout << annotation << "\nOutput Tetrahedra:\n";
         if ( otetCtr )
           {
           tstc << ", " << otetCtr << " },\n";
@@ -3418,12 +3418,12 @@ int TestTessellator( int argc, char* argv[] )
 #ifdef VTK_CHECK_RESULTS
         if ( strcmp( vtkTestSummaries[vtkTstCode].Name, annotation ) )
           {
-          cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation << ", expecting \"" << vtkTestSummaries[vtkTstCode].Name << "\"\n";
+          std::cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation << ", expecting \"" << vtkTestSummaries[vtkTstCode].Name << "\"\n";
           vtkTessellatorError = 1;
           }
         if ( vtkOTetCtr != vtkTestSummaries[vtkTstCode].BeginOffset )
           {
-          cerr
+          std::cerr
             << "ERROR: Test " << vtkTstCode << " started at offset "
             << vtkOTetCtr << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--" << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
           vtkTessellatorError = 1;
@@ -3486,7 +3486,7 @@ int TestTessellator( int argc, char* argv[] )
         {
         if ( *vtkITetPtr != tetPoints[pt*6 + cr] )
           {
-          cerr
+          std::cerr
             << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad input tet coord, tet " << vtkITetCtr
             << " point " << pt << " coord " << cr << " was " << tetPoints[pt*6 + cr] << ", expecting " << *vtkITetPtr
             << "\n";
@@ -3558,7 +3558,7 @@ int TestTessellator( int argc, char* argv[] )
       }
 #ifdef VTK_GENERATE_BASELINE
     //tessellatorRegressionTest.StdOut() << annotation << "\nOutput Tetrahedra:\n";
-    //cout << annotation << "\nOutput Tetrahedra:\n";
+    //std::cout << annotation << "\nOutput Tetrahedra:\n";
     //tstc << "\"" << annotation << "\",\n";
     //tstc << "  { \"" << annotation << "\", " << otetCtr << " },\n";
     if ( otetCtr )
@@ -3570,12 +3570,12 @@ int TestTessellator( int argc, char* argv[] )
 #ifdef VTK_CHECK_RESULTS
     if ( strcmp( vtkTestSummaries[vtkTstCode].Name, annotation ) )
       {
-      cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation << ", expecting \"" << vtkTestSummaries[vtkTstCode].Name << "\"\n";
+      std::cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation << ", expecting \"" << vtkTestSummaries[vtkTstCode].Name << "\"\n";
       vtkTessellatorError = 1;
       }
     if ( vtkOTetCtr != vtkTestSummaries[vtkTstCode].BeginOffset )
       {
-      cerr
+      std::cerr
         << "ERROR: Test " << vtkTstCode << " started at offset "
         << vtkOTetCtr << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--" << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
       vtkTessellatorError = 1;
@@ -3597,10 +3597,10 @@ int TestTessellator( int argc, char* argv[] )
 
   for ( int c=0; c<11; ++c )
     {
-    cout << at->GetCaseCount(c);
+    std::cout << at->GetCaseCount(c);
     for ( int s=0; s<51; ++s )
-      cout << " " << at->GetSubcaseCount(c,s);
-    cout << endl;
+      std::cout << " " << at->GetSubcaseCount(c,s);
+    std::cout << std::endl;
     }
 
   ug->Delete();
@@ -3631,7 +3631,7 @@ int TestTessellator( int argc, char* argv[] )
   --vtkTstCode;
   if ( vtkOTetCtr != vtkTestSummaries[vtkTstCode].EndOffset )
     {
-    cerr
+    std::cerr
       << "ERROR: Test " << vtkTstCode << " ended at offset "
       << vtkOTetCtr << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--" << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
     vtkTessellatorError = 1;

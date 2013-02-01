@@ -63,8 +63,8 @@ int TestQuadraturePoints(int argc,char *argv[])
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
   if (!testHelper->IsFlagSpecified("-D"))
     {
-    cerr << "Error: -D /path/to/data was not specified.";
-    return 1;
+    std::cerr << "Error: -D /path/to/data was not specified.";
+    return EXIT_FAILURE;
     }
   std::string dataRoot=testHelper->GetDataRoot();
   std::string tempDir=testHelper->GetTempDirectory();
@@ -94,8 +94,8 @@ int TestQuadraturePoints(int argc,char *argv[])
     }
   if (input==0)
     {
-    cerr << "Error: Could not read file " << inputFileName << "." << endl;
-    return 1;
+    std::cerr << "Error: Could not read file " << inputFileName << "." << std::endl;
+    return EXIT_FAILURE;
     }
 
   // Add a couple arrays to be used in the demonstrations.
@@ -185,7 +185,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   if(output->GetPointData()->GetArray(0) == NULL)
     {
     vtkGenericWarningMacro( << "no point data in output of vtkQuadraturePointsGenerator" );
-    return 0;
+    return EXIT_FAILURE;
     }
   pdmQPts->SetScalarRange(output->GetPointData()->GetArray(activeScalars)->GetRange());
   vtkSmartPointer<vtkActor> outputActor = vtkSmartPointer<vtkActor>::New();
@@ -251,31 +251,13 @@ int TestQuadraturePoints(int argc,char *argv[])
   renwin->AddRenderer(ren2);
   renwin->SetSize(800,600);
 
-  // Perform the regression test.
-  int failFlag=1;
-  // Perform test.
-  failFlag=vtkTesting::Test(argc, argv, renwin, 5.0);
-  if (failFlag==vtkTesting::DO_INTERACTOR)
-    {
-    // Not testing, interact with scene.
-    vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    iren->SetRenderWindow(renwin);
-    iren->Initialize();
-    iren->Start();
-    }
-  else
-    {
-    // Save a baseline
-    vtkSmartPointer<vtkWindowToImageFilter> baselineImage = vtkSmartPointer<vtkWindowToImageFilter>::New();
-    baselineImage->SetInput(renwin);
-    vtkSmartPointer<vtkPNGWriter> baselineWriter = vtkSmartPointer<vtkPNGWriter>::New();
-    baselineWriter->SetFileName(tempBaseline.c_str());
-    baselineWriter->SetInputConnection(baselineImage->GetOutputPort());
-    baselineWriter->Write();
-    }
-  failFlag=failFlag==vtkTesting::PASSED?0:1;
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  iren->SetRenderWindow(renwin);
+  iren->Initialize();
+  iren->Start();
 
-  return failFlag;
+  return EXIT_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
