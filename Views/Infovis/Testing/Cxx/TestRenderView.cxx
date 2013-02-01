@@ -1066,7 +1066,7 @@ char RenderViewEventLog[] =
 
 //#define RECORD
 
-int TestRenderView(int argc, char* argv[])
+int TestRenderView(int, char*[])
 {
   VTK_CREATE(vtkAnnotationLink, link);
   VTK_CREATE(TestRenderViewUpdater, updater);
@@ -1119,7 +1119,6 @@ int TestRenderView(int argc, char* argv[])
   // render the image
   //
   view->GetInteractor()->Initialize();
-  view->Render();
 #ifdef RECORD
 #else
   recorder->Play();
@@ -1128,35 +1127,7 @@ int TestRenderView(int argc, char* argv[])
   // testing option fails.
   recorder->Off();
 #endif
+  view->GetInteractor()->Start();
 
-  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    // If interactive, make a second view to play with.
-
-    // Render view 2
-    VTK_CREATE(vtkRenderView, view2);
-    updater->AddView(view2);
-
-    // Sphere 2
-    VTK_CREATE(vtkRenderedSurfaceRepresentation, sphereRep2);
-    sphereRep2->SetInputConnection(sphere->GetOutputPort());
-    sphereRep2->SetAnnotationLink(link);
-    view2->AddRepresentation(sphereRep2);
-    view2->Update();
-
-    // Sphere 3
-    VTK_CREATE(vtkRenderedSurfaceRepresentation, sphereRep3);
-    sphereRep3->SetInputConnection(transform->GetOutputPort());
-    sphereRep3->SetAnnotationLink(link);
-    view2->AddRepresentation(sphereRep3);
-
-    view2->ResetCamera();
-
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    retVal = vtkRegressionTester::PASSED;
-    }
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }
