@@ -18,7 +18,6 @@
 #include "vtkImageData.h"
 #include "vtkIntArray.h"
 #include "vtkFloatArray.h"
-#include "vtkFreeTypeTools.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
@@ -26,6 +25,7 @@
 #include "vtkPath.h"
 #include "vtkRenderWindow.h"
 #include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
 
 #include "vtk_gl2ps.h"
 
@@ -66,15 +66,15 @@ void vtkGL2PSUtilities::DrawString(const char *str,
     {
     // Render the string to a path and then draw it to GL2PS:
     vtkNew<vtkPath> path;
-    if (vtkFreeTypeTools *tools = vtkFreeTypeTools::GetInstance())
+    if (vtkTextRenderer *tren = vtkTextRenderer::GetInstance())
       {
-      tools->StringToPath(tprop, str, path.GetPointer());
+      tren->StringToPath(tprop, str, path.GetPointer());
       }
     else
       {
       vtkNew<vtkGL2PSUtilities> dummy;
-      vtkErrorWithObjectMacro(dummy.GetPointer(), <<"Cannot access freetype "
-                              "tools!");
+      vtkErrorWithObjectMacro(dummy.GetPointer(),
+                              <<"vtkTextRenderer unavailable.");
       return;
       }
     // Get color

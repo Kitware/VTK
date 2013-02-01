@@ -27,7 +27,7 @@
 // this actor.
 //
 // .SECTION See Also
-// vtkActor2D vtkPolyDataMapper vtkTextProperty vtkFreeTypeUtilities
+// vtkActor2D vtkPolyDataMapper vtkTextProperty vtkTextRenderer
 
 #ifndef __vtkTextActor_h
 #define __vtkTextActor_h

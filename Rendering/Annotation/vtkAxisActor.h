@@ -74,7 +74,6 @@ class vtkAxisFollower;
 class vtkCamera;
 class vtkCoordinate;
 class vtkFollower;
-class vtkFreeTypeUtilities;
 class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper;
@@ -583,10 +582,6 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 
   double	      LastMinDisplayCoordinate[3];
   double	      LastMaxDisplayCoordinate[3];
-
-  // Description:
-  // FreeType library utility
-  vtkFreeTypeUtilities *FreeTypeUtilities;
 };
 
 

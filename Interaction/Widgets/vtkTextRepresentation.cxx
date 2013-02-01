@@ -15,9 +15,10 @@
 #include "vtkTextRepresentation.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
-#include "vtkFreeTypeUtilities.h"
+#include "vtkTextRenderer.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
+#include "vtkStdString.h"
 #include "vtkCommand.h"
 
 class vtkTextRepresentationObserver : public vtkCommand
@@ -260,19 +261,18 @@ void vtkTextRepresentation::CheckTextBoundary()
   if(this->GetRenderer() &&
      this->TextActor->GetTextScaleMode() != vtkTextActor::TEXT_SCALE_MODE_PROP)
     {
-    vtkFreeTypeUtilities* ftu = vtkFreeTypeUtilities::GetInstance();
-    if (!ftu)
+    vtkTextRenderer* tren = vtkTextRenderer::GetInstance();
+    if (!tren)
       {
-      vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
+      vtkErrorMacro(<<"Failed getting the vtkTextRenderer instance");
       return;
       }
 
     this->TextActor->ComputeScaledFont(this->GetRenderer());
 
     int text_bbox[4];
-    ftu->GetBoundingBox(this->TextActor->GetScaledTextProperty(),
-      this->GetText(), text_bbox);
-    if (!ftu->IsBoundingBoxValid(text_bbox))
+    if (!tren->GetBoundingBox(this->TextActor->GetScaledTextProperty(),
+                              this->GetText(), text_bbox))
       {
       return;
       }

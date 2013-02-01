@@ -24,7 +24,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTextActor.h"
 #include "vtkTextMapper.h"
-#include "vtkFreeTypeUtilities.h"
+#include "vtkTextRenderer.h"
 
 vtkStandardNewMacro(vtkCaptionRepresentation);
 
@@ -186,17 +186,16 @@ void vtkCaptionRepresentation::AdjustCaptionBoundary()
 {
   if(this->CaptionActor2D->GetCaption())
     {
-    vtkFreeTypeUtilities* ftu = vtkFreeTypeUtilities::GetInstance();
-    if (!ftu)
+    vtkTextRenderer* tren = vtkTextRenderer::GetInstance();
+    if (!tren)
       {
-      vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
+      vtkErrorMacro(<<"Failed getting the vtkTextRenderer instance");
       return;
       }
 
     int text_bbox[4];
-    ftu->GetBoundingBox(this->CaptionActor2D->GetCaptionTextProperty(),
-      this->CaptionActor2D->GetCaption(), text_bbox);
-    if (!ftu->IsBoundingBoxValid(text_bbox))
+    if (!tren->GetBoundingBox(this->CaptionActor2D->GetCaptionTextProperty(),
+                              this->CaptionActor2D->GetCaption(), text_bbox))
       {
       return;
       }
