@@ -170,13 +170,13 @@ ren1.SetActiveCamera(camera)
 renWin.Render()
 # prevent the tk window from showing up then start the event loop
 xform = vtk.vtkTransform()
-def animate (__vtk__temp0=0,__vtk__temp1=0):
+def animate():
     numSteps = 250
     min = interpolator.GetMinimumT()
     max = interpolator.GetMaximumT()
     i = 0
     while i <= numSteps:
-        t = expr.expr(globals(), locals(),["double","(","i",")","*","(","max","-","min",")","/","double","(","numSteps",")"])
+        t = float(i)*(max-min)/float(numSteps)
         interpolator.InterpolateTransform(t,xform)
         cubeActor.SetUserMatrix(xform.GetMatrix())
         renWin.Render()
@@ -186,5 +186,5 @@ def animate (__vtk__temp0=0,__vtk__temp1=0):
 interpolator.InterpolateTransform(13.2,xform)
 cubeActor.SetUserMatrix(xform.GetMatrix())
 renWin.Render()
-#animate
+#animate()
 # --- end of script --
