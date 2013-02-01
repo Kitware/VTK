@@ -1,9 +1,12 @@
+# This test requires Numpy.
+
+import sys
 import vtk
 from vtk.test import Testing
 try:
     import numpy as np
 except ImportError:
-    print "Numpy (http://numpy.scipy.org) not found.",
+    print "WARNING: This test requires Numeric Python: http://numpy.sf.net"
     sys.exit(0)
 
 def GenerateCell(cellType, points):
