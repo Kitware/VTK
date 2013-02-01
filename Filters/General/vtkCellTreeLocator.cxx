@@ -794,7 +794,7 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
         node = near;
         }
       else if ((tDist > tmax) || (tDist <= 0) )
-        { //<=0 for ray on edge
+        { // <=0 for ray on edge
         node = near;
         }
       // if the distance to the far edge of the near box is < tmin, no need to test near box

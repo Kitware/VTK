@@ -121,7 +121,7 @@ public:
   * each input circle).
   *
   * @param[in] N The number of nodes (technically not needed since circles.size() provides it, but we need it as a vtkIdType).
-  * @param[inout] circles A vector of (x,y,z,r,child,idx) tuples for each node.
+  * @param[in,out] circles A vector of (x,y,z,r,child,idx) tuples for each node.
   * @param[out] Re The radius of the enclosing circle.
   */
 int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
@@ -260,7 +260,7 @@ int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
   * overlap the center of the container).
   *
   * @param[in] N The number of nodes (technically not needed since circles.size() provides it, but we need it as a vtkIdType).
-  * @param[inout] circles A vector of (x,y,z,r,child,idx) tuples for each node.
+  * @param[in,out] circles A vector of (x,y,z,r,child,idx) tuples for each node.
   * @param[out] Re The radius of the enclosing circle.
   */
 int vtkCosmicTreeLayoutStrategyComputeCentersWell(

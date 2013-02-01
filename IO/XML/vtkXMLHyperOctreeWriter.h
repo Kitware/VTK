@@ -59,28 +59,28 @@ protected:
   // specify that we require HyperOctree input
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  //The most important method, make the XML file for my input.
+  // The most important method, make the XML file for my input.
   int WriteData();
 
-  //<HyperOctree ...
+  // <HyperOctree ...
   int StartPrimElement(vtkIndent);
 
-  //... dim, size, origin>
+  // ... dim, size, origin>
   void WritePrimaryElementAttributes(ostream &, vtkIndent);
 
-  //Tree Structure
+  // Tree Structure
   int WriteTopology(vtkIndent);
 
-  //Used by WriteTopology to make and array from the Tree structure recursively
+  // Used by WriteTopology to make and array from the Tree structure recursively
   void SerializeTopology(vtkHyperOctreeCursor *, int);
 
-  //Writes PointData and CellData attribute data.
+  // Writes PointData and CellData attribute data.
   int WriteAttributeData(vtkIndent);
 
-  //</HyperOctree>
+  // </HyperOctree>
   int FinishPrimElement(vtkIndent);
 
-  //For appended mode placekeeping
+  // For appended mode placekeeping
   vtkIntArray *TopologyArray;
   unsigned long TopoOffset;
   OffsetsManagerGroup * TopologyOM;

@@ -314,7 +314,7 @@ void vtkImageAppendGetContinuousIncrements
     }
 
   //cerr << "INCS "
-  //<< increments[0] << " " << increments[1] << " " << increments[2] << endl;
+  // << increments[0] << " " << increments[1] << " " << increments[2] << endl;
   int dx = (e1-e0 + ptAdjust);
   if (dx == 0) dx = 1;
   int dy = (e3-e2 + ptAdjust);

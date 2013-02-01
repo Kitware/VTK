@@ -727,7 +727,7 @@ int vtkModifiedBSPTree::IntersectWithLine(double p1[3], double p2[3], double tol
       node->Classify(p1, ray_vec, tDist, Near, Mid, Far);
       // if the distance to the far edge of the near box is > tmax, no need to test far box
       // (we still need to test Mid because it may overlap slightly)
-      if ((tDist > tmax) || (tDist <= 0) )  //<=0 for ray on edge
+      if ((tDist > tmax) || (tDist <= 0) )  // <=0 for ray on edge
         {
         if (Mid)
           {
@@ -882,7 +882,7 @@ int vtkModifiedBSPTree::IntersectWithLine(
       // if the distance to the far edge of the near box is > tmax, no need to test far box
       // (we still need to test Mid because it may overlap slightly)
       if ((tDist > tmax) || (tDist <= 0) )
-        { //<=0 for ray on edge
+        { // <=0 for ray on edge
         if (Mid)
           {
           ns.push(Mid);
