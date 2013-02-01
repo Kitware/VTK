@@ -15,8 +15,6 @@
 
 #include "vtkOpenGL2ContextDevice2D.h"
 
-#include "vtkFreeTypeStringToImage.h"
-
 #include "vtkVector.h"
 #include "vtkRect.h"
 #include "vtkPen.h"

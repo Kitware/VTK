@@ -24,7 +24,6 @@
 #include "vtkContextActor.h"
 #include "vtkContextScene.h"
 #include "vtkCoordinate.h"
-#include "vtkFreeTypeTools.h"
 #include "vtkGL2PSContextDevice2D.h"
 #include "vtkGL2PSUtilities.h"
 #include "vtkIntArray.h"
@@ -47,6 +46,7 @@
 #include "vtkTextActor3D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkVolume.h"
@@ -707,9 +707,18 @@ void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
   tprop->ShallowCopy(textAct->GetTextProperty());
   tprop->SetJustificationToLeft(); // Ignored by textactor3d
   tprop->SetVerticalJustificationToBottom(); // Ignored by textactor3d
-  vtkFreeTypeTools::GetInstance()->StringToPath(tprop.GetPointer(),
-                                                vtkStdString(string),
-                                                path.GetPointer());
+  vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
+  if (tren)
+    {
+    tren->StringToPath(tprop.GetPointer(), vtkStdString(string),
+                       path.GetPointer());
+    }
+  else
+    {
+    vtkWarningMacro(<<"Cannot generate path data from 3D text string: "
+                    << string);
+    return;
+    }
 
   // Get actor info
   vtkMatrix4x4 *actorMatrix = textAct->GetMatrix();
