@@ -77,6 +77,11 @@ SET(RenderingTestsWithArguments
   TestTranslucentLUTTextureDepthPeeling.cxx
   )
 
+if(APPLE)
+  list(REMOVE_ITEM RenderingTestsWithArguments TestOffAxisStereo.cxx)
+  list(REMOVE_ITEM RenderingTestsWithArguments TestShadowMapPass.cxx)
+endif()
+
 if(WIN32 AND NOT VTK_USE_X)
   set(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}

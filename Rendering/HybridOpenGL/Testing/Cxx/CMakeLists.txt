@@ -1,6 +1,4 @@
-set(MyTests
-  TestSurfaceLIC.cxx
-  )
+set(MyTests "")
 
 if(NOT APPLE)
   # This is from the old build system - not working on Apple platform.
@@ -9,6 +7,7 @@ if(NOT APPLE)
     TestStructuredGridLIC2DXSlice.cxx
     TestStructuredGridLIC2DYSlice.cxx
     TestStructuredGridLIC2DZSlice.cxx
+    TestSurfaceLIC.cxx
     )
 endif()
 
@@ -19,12 +18,15 @@ vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 
 set(TestsToRun ${Tests})
 list(REMOVE_ITEM TestsToRun CxxTests.cxx)
-list(REMOVE_ITEM TestsToRun TestSurfaceLIC.cxx)
-add_test(NAME ${vtk-module}Cxx-SurfaceLIC
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Rendering/TestSurfaceLIC.png)
+
+list(FIND TestsToRun TestSurfaceLIC.cxx RUN_TestSurfaceLIC)
+if (${RUN_TestSurfaceLIC} GREATER -1)
+  add_test(NAME ${vtk-module}Cxx-SurfaceLIC
+    COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+      -D ${VTK_DATA_ROOT}
+      -T ${VTK_TEST_OUTPUT_DIR}
+      -V Baseline/Rendering/TestSurfaceLIC.png)
+endif()
 
 # Add all the executables
 foreach(test ${TestsToRun})
