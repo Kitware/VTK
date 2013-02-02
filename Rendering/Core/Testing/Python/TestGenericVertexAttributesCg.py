@@ -1,51 +1,52 @@
 #!/usr/bin/env python
 
 # tests the support to pass generic vertex attributes to be used in Cg shaders.
-xmlMaterial = <?xml version="1.0" encoding="UTF-8"?>
-<Material name="GenericAttributes1">
-  <Shader
-    scope="Vertex"
-    name="VertexShader"
-    location="Inline"
-    language="Cg"
-    entry="main">
-      <MatrixUniform name="ModelViewProj"
-        type="State"
-        number_of_elements="2"
-        value="CG_GL_MODELVIEW_PROJECTION_MATRIX CG_GL_MATRIX_IDENTITY" />
-      <MatrixUniform name="ModelViewIT"
-        type="State"
-        number_of_elements="2"
-        value="CG_GL_MODELVIEW_MATRIX CG_GL_MATRIX_INVERSE_TRANSPOSE" />
-
-      struct appin
-      {
-          float4 Position : POSITION;
-          float3 Normal   : NORMAL;
-      };
-
-      // define outputs from vertex shader
-      struct vertout
-      {
-          float4 HPosition : POSITION;
-          float4 Color0    : COLOR0;
-      };
-
-      vertout main(appin IN,
-                   uniform float4x4 ModelViewProj,
-                   uniform float4x4 ModelViewIT)
-      {
-        vertout OUT;
-
-        // transform vertex position into homogenous clip-space
-        OUT.HPosition = mul(ModelViewProj, IN.Position);
-
-        OUT.Color0.xyz = normalize(IN.Normal);
-        OUT.Color0.a = 1.0;
-        return OUT;
-      }
-  </Shader>
-</Material>
+xmlMaterial = '<?xml version="1.0" encoding="UTF-8"?> \
+<Material name="GenericAttributes1"> \
+  <Shader \
+    scope="Vertex" \
+    name="VertexShader" \
+    location="Inline" \
+    language="Cg" \
+    entry="main"> \
+      <MatrixUniform name="ModelViewProj" \
+        type="State" \
+        number_of_elements="2" \
+        value="CG_GL_MODELVIEW_PROJECTION_MATRIX CG_GL_MATRIX_IDENTITY" /> \
+      <MatrixUniform name="ModelViewIT" \
+        type="State" \
+        number_of_elements="2" \
+        value="CG_GL_MODELVIEW_MATRIX CG_GL_MATRIX_INVERSE_TRANSPOSE" /> \
+ \
+      struct appin \
+      { \
+          float4 Position : POSITION; \
+          float3 Normal   : NORMAL; \
+      }; \
+ \
+      // define outputs from vertex shader \
+      struct vertout \
+      { \
+          float4 HPosition : POSITION; \
+          float4 Color0    : COLOR0; \
+      }; \
+ \
+      vertout main(appin IN, \
+                   uniform float4x4 ModelViewProj, \
+                   uniform float4x4 ModelViewIT) \
+      { \
+        vertout OUT; \
+ \
+        // transform vertex position into homogenous clip-space \
+        OUT.HPosition = mul(ModelViewProj, IN.Position); \
+ \
+        OUT.Color0.xyz = normalize(IN.Normal); \
+        OUT.Color0.a = 1.0; \
+        return OUT; \
+      } \
+  </Shader> \
+</Material> \
+'
 
 renWin = vtk.vtkRenderWindow()
 iren = vtk.vtkRenderWindowInteractor()
