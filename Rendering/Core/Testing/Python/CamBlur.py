@@ -48,7 +48,6 @@ ren1.AddActor(sphereActor2)
 ren1.AddActor(spikeActor2)
 ren1.SetBackground(0.1,0.2,0.4)
 renWin.SetSize(200,200)
-renWin.DoubleBufferOff()
 # do the first render and then zoom in a little
 renWin.Render()
 ren1.GetActiveCamera().SetFocalPoint(0,0,0)
