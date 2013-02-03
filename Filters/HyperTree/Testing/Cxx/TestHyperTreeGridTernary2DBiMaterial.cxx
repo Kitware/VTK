@@ -23,6 +23,7 @@
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -64,9 +65,6 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   vtkNew<vtkShrinkFilter> shrink1;
   shrink1->SetInputConnection( geometry1->GetOutputPort() );
   shrink1->SetShrinkFactor( .8 );
-  vtkNew<vtkShrinkFilter> shrink2;
-  shrink2->SetInputConnection( geometry2->GetOutputPort() );
-  shrink2->SetShrinkFactor( .97 );
 
   // Mappers
   geometry1->Update();
@@ -78,9 +76,9 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection( shrink1->GetOutputPort() );
   mapper1->SetScalarRange( pd1->GetCellData()->GetScalars()->GetRange() );
-  vtkNew<vtkDataSetMapper> mapper2;
-  mapper2->SetInputConnection( shrink2->GetOutputPort() );
-  mapper2->SetScalarRange( pd2->GetCellData()->GetScalars()->GetRange() );
+  vtkNew<vtkPolyDataMapper> mapper2;
+  mapper2->SetInputConnection( geometry2->GetOutputPort() );
+  mapper2->ScalarVisibilityOff();
  
   // Actors
   vtkNew<vtkActor> actor1;
@@ -88,7 +86,9 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   vtkNew<vtkActor> actor2;
   actor2->SetMapper( mapper2.GetPointer() );
   actor2->GetProperty()->SetRepresentationToWireframe();
-
+  actor2->GetProperty()->SetColor( 0., 0., 0. );
+  actor2->GetProperty()->SetLineWidth( 2 );
+    
   // Camera
   double bd1[6];
   pd1->GetBounds( bd1 );
