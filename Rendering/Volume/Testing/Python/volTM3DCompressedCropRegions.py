@@ -73,7 +73,7 @@ ren1.GetCullers().InitTraversal()
 culler = ren1.GetCullers().GetNextItem()
 culler.SetSortingStyleToBackToFront()
 valid = volumeMapper_0_0.IsRenderSupported(volumeProperty,ren1)
-if ():
+if (valid == 0):
     ren1.RemoveAllViewProps()
     t = vtk.vtkTextActor()
     t.SetInput("Required Extensions Not Supported")
