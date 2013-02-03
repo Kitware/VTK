@@ -24,7 +24,6 @@
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -43,7 +42,7 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   htGrid1->SetBranchFactor( 3 );
   htGrid1->UseMaterialMaskOn();
   htGrid1->SetDescriptor( ".R|.R..R..R.|......... ......... ........." );
-  htGrid1->SetMaterialMask( "..|..1..1..1|..1..1..1 ..1..1..1 ..1..1..1" );
+  htGrid1->SetMaterialMask( "11|110110110|110110110 110110110 110110110" );
   vtkNew<vtkHyperTreeGridSource> htGrid2;
   htGrid2->SetMaximumLevel( 3 );
   htGrid2->SetOrigin( 1., 0., 0. );
@@ -53,7 +52,7 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   htGrid2->SetBranchFactor( 3 );
   htGrid2->UseMaterialMaskOn();
   htGrid2->SetDescriptor( "R.|.R..R..R.|......... ......... ........." );
-  htGrid2->SetMaterialMask( "..|1..1..1..|1..1..1.. 1..1..1.. 1..1..1.." );
+  htGrid2->SetMaterialMask( "11|011011011|011011011 011011011 011011011" );
 
   // Geometries
   vtkNew<vtkHyperTreeGridGeometry> geometry1;
@@ -61,10 +60,13 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridGeometry> geometry2;
   geometry2->SetInputConnection( htGrid2->GetOutputPort() );
 
-  // Shrink
-  vtkNew<vtkShrinkFilter> shrink;
-  shrink->SetInputConnection( geometry1->GetOutputPort() );
-  shrink->SetShrinkFactor( .85 );
+  // Shrinks
+  vtkNew<vtkShrinkFilter> shrink1;
+  shrink1->SetInputConnection( geometry1->GetOutputPort() );
+  shrink1->SetShrinkFactor( .8 );
+  vtkNew<vtkShrinkFilter> shrink2;
+  shrink2->SetInputConnection( geometry2->GetOutputPort() );
+  shrink2->SetShrinkFactor( .97 );
 
   // Mappers
   geometry1->Update();
@@ -74,10 +76,10 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkDataSetMapper> mapper1;
-  mapper1->SetInputConnection( shrink->GetOutputPort() );
+  mapper1->SetInputConnection( shrink1->GetOutputPort() );
   mapper1->SetScalarRange( pd1->GetCellData()->GetScalars()->GetRange() );
-  vtkNew<vtkPolyDataMapper> mapper2;
-  mapper2->SetInputConnection( geometry2->GetOutputPort() );
+  vtkNew<vtkDataSetMapper> mapper2;
+  mapper2->SetInputConnection( shrink2->GetOutputPort() );
   mapper2->SetScalarRange( pd2->GetCellData()->GetScalars()->GetRange() );
  
   // Actors
