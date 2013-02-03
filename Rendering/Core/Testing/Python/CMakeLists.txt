@@ -38,5 +38,8 @@ add_test_python1(cells.py Baseline/Rendering)
 if(VTK_USE_CG_SHADERS)
   add_test_python(TestGenericVertexAttributesCg.py Rendering)
   add_test_python(TestCgShader.py Rendering)
+endif()
+
+if(VTK_USE_GLSL_SHADERS)
   add_test_python(TestGLSLShader.py Rendering)
 endif()
