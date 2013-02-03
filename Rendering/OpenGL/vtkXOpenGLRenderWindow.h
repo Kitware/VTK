@@ -253,6 +253,7 @@ protected:
   char    *Capabilities;
 
   // we must keep track of the cursors we are using
+  Cursor XCCrosshair;
   Cursor XCArrow;
   Cursor XCSizeAll;
   Cursor XCSizeNS;
