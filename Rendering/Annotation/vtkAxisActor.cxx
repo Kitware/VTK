@@ -19,7 +19,7 @@
 #include "vtkCellArray.h"
 #include "vtkCoordinate.h"
 #include "vtkFollower.h"
-#include "vtkFreeTypeUtilities.h"
+#include "vtkTextRenderer.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -173,12 +173,6 @@ vtkAxisActor::vtkAxisActor()
 
   this->CalculateTitleOffset = 1;
   this->CalculateLabelOffset = 1;
-
-  this->FreeTypeUtilities = vtkFreeTypeUtilities::GetInstance();
-  if (!this->FreeTypeUtilities)
-    {
-    vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
-    }
 
   // Instance variables specific to 2D mode
   this->Use2DMode = 0;
@@ -853,6 +847,13 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
   double transpos[3] = {0., 0., 0.};
   double center[3], tick[3], pos[2];
 
+  vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
+  if (!tren)
+    {
+    vtkErrorMacro(<< "Unable to obtain the vtkTextRenderer instance!");
+    return;
+    }
+
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     ptIdx = 4*i + 1;
@@ -868,7 +869,13 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
     viewport->GetDisplayPoint(transpos);
 
     int bbox[4];
-    this->FreeTypeUtilities->GetBoundingBox(this->LabelActors2D[i]->GetTextProperty(), this->LabelActors2D[i]->GetInput(), bbox);
+    if (!tren->GetBoundingBox(this->LabelActors2D[i]->GetTextProperty(),
+                              this->LabelActors2D[i]->GetInput(), bbox))
+      {
+      vtkErrorMacro(<< "Unable to calculate bounding box for label "
+                    << this->LabelActors2D[i]->GetInput());
+      continue;
+      }
 
     double width  = (bbox[1]-bbox[0]);
     double height = (bbox[3]-bbox[2]);
