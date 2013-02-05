@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
 project(VTK)
 
+# Objective-C++ compile flags, future CMake versions might make this obsolete
+IF(APPLE)
+  # Being a library, VTK may be linked in either GC (garbage collected)
+  # processes or non-GC processes.  Default to "GC supported" so that both
+  # GC and MRR (manual reference counting) are supported.
+  SET(VTK_OBJCXX_FLAGS_DEFAULT "-fobjc-gc")
+  SET(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective-C++ compilation")
+  MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
+ENDIF(APPLE)
+
 set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 
