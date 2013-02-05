@@ -682,6 +682,11 @@ void vtkMPASReader::SetDefaults() {
   this->PointVarDataArray = NULL;
   this->PointVarData = NULL;
   this->TimeSteps = NULL;
+
+  this->NumberOfPointVars = 0;
+  this->NumberOfCellVars = 0;
+  this->MaximumPoints = 0;
+  this->MaximumCells = 0;
 }
 
 //----------------------------------------------------------------------------

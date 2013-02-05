@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkCenterOfMass);
 vtkCenterOfMass::vtkCenterOfMass()
 {
   this->UseScalarsAsWeights = false;
-
+  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
   this->SetNumberOfOutputPorts(0);
 }
 

@@ -42,6 +42,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   // Grid parameters
   this->BranchFactor = 2;
   this->MaximumLevel = 1;
+  this->BlockSize = 0;
 
   // Grid topology
   this->Dimension = 3;
