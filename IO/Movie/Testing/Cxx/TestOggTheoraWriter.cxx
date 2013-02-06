@@ -24,10 +24,16 @@
 #include "vtkImageMapToColors.h"
 #include "vtkLookupTable.h"
 #include "vtkOggTheoraWriter.h"
-#include "vtksys/SystemTools.hxx"
+#include "vtkTestUtilities.h"
 
-int TestOggTheoraWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+#include "vtksys/SystemTools.hxx"
+#include <string>
+
+int TestOggTheoraWriter(int argc, char* argv[])
 {
+  char* tempDir = vtkTestUtilities::GetArgOrEnvOrDefault(
+    "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+
   int err = 0;
   int cc = 0;
   int exists = 0;
@@ -54,10 +60,12 @@ int TestOggTheoraWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   colorize->SetLookupTable(table);
   colorize->SetInputConnection(cast->GetOutputPort());
 
+  std::string fileName = std::string(tempDir) +
+    std::string("/TestOggTheoraWriter.ogv");
   vtkOggTheoraWriter *w = vtkOggTheoraWriter::New();
   w->SetInputConnection(colorize->GetOutputPort());
-  w->SetFileName("TestOggTheoraWriter.ogv");
-  cout << "Writing file TestOggTheoraWriter.ogv..." << endl;
+  w->SetFileName(fileName.c_str());
+  cout << "Writing file " << fileName << "..." << endl;
   w->Start();
   for ( cc = 2; cc < 99; cc ++ )
     {
@@ -74,8 +82,8 @@ int TestOggTheoraWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cout << "Done writing file TestOggTheoraWriter.ogv..." << endl;
   w->Delete();
 
-  exists = (int) vtksys::SystemTools::FileExists("TestOggTheoraWriter.ogv");
-  length = vtksys::SystemTools::FileLength("TestOggTheoraWriter.ogv");
+  exists = (int) vtksys::SystemTools::FileExists(fileName.c_str());
+  length = vtksys::SystemTools::FileLength(fileName.c_str());
   cout << "TestOggTheoraWriter.ogv file exists: " << exists << endl;
   cout << "TestOggTheoraWriter.ogv file length: " << length << endl;
   if (!exists)
