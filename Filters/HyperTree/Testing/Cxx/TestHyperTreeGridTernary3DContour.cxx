@@ -115,7 +115,7 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 30 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     iren->Start();
