@@ -61,6 +61,8 @@ set classExceptions {
    vtkWin32VideoSource
    vtkDistributedDataFilter
    vtkAMREnzoReader
+   vtkAMRFlashReader
+   vtkAMRFlashParticleReader
    vtkMathTextUtilities
 }
 
