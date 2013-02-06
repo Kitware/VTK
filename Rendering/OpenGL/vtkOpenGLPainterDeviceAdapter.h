@@ -178,4 +178,4 @@ private:
 #pragma warning(pop)
 #endif
 
-#endif //_vtkOpenGLPainterDeviceAdapter_h
+#endif

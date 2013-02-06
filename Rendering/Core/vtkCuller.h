@@ -34,17 +34,18 @@ class vtkRenderer;
 class VTKRENDERINGCORE_EXPORT vtkCuller : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCuller,vtkObject);
+  vtkTypeMacro(vtkCuller, vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This is called outside the render loop by vtkRenderer
   virtual double Cull( vtkRenderer *ren, vtkProp **propList,
-                       int& listLength, int& initialized )=0;
+                       int& listLength, int& initialized ) = 0;
 
 protected:
   vtkCuller();
   ~vtkCuller();
+
 private:
   vtkCuller(const vtkCuller&);  // Not implemented.
   void operator=(const vtkCuller&);    // Not implemented.

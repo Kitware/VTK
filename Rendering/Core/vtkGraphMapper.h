@@ -50,13 +50,11 @@ class vtkTexture;
 class vtkTexturedActor2D;
 class vtkVertexGlyphFilter;
 
-
-
 class VTKRENDERINGCORE_EXPORT vtkGraphMapper : public vtkMapper
 {
 public:
   static vtkGraphMapper *New();
-  vtkTypeMacro(vtkGraphMapper,vtkMapper);
+  vtkTypeMacro(vtkGraphMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
   void Render(vtkRenderer *ren, vtkActor *act);
 
@@ -78,7 +76,7 @@ public:
   // scale. If you turn this option on you will get circles
   // at each vertex and they will scale as you zoom in/out.
   void SetScaledGlyphs(bool arg);
-  vtkGetMacro(ScaledGlyphs,bool);
+  vtkGetMacro(ScaledGlyphs, bool);
   vtkBooleanMacro(ScaledGlyphs, bool);
 
   // Description:
@@ -111,9 +109,9 @@ public:
 
   // Description:
   // Whether to enable/disable edges using array values.  Default is off.
-  vtkSetMacro(EnableEdgesByArray,int);
-  vtkGetMacro(EnableEdgesByArray,int);
-  vtkBooleanMacro(EnableEdgesByArray,int);
+  vtkSetMacro(EnableEdgesByArray, int);
+  vtkGetMacro(EnableEdgesByArray, int);
+  vtkBooleanMacro(EnableEdgesByArray, int);
 
   // Description:
   // The array to use for coloring edges.  Default is "color".
@@ -122,9 +120,9 @@ public:
 
   // Description:
   // Whether to enable/disable vertices using array values.  Default is off.
-  vtkSetMacro(EnableVerticesByArray,int);
-  vtkGetMacro(EnableVerticesByArray,int);
-  vtkBooleanMacro(EnableVerticesByArray,int);
+  vtkSetMacro(EnableVerticesByArray, int);
+  vtkGetMacro(EnableVerticesByArray, int);
+  vtkBooleanMacro(EnableVerticesByArray, int);
 
   // Description:
   // The array to use for assigning icons.
@@ -222,24 +220,24 @@ protected:
   char* IconArrayNameInternal;
 
   //BTX
-  vtkSmartPointer<vtkGlyph3D>                    CircleGlyph;
-  vtkSmartPointer<vtkGlyph3D>                    CircleOutlineGlyph;
+  vtkSmartPointer<vtkGlyph3D> CircleGlyph;
+  vtkSmartPointer<vtkGlyph3D> CircleOutlineGlyph;
 
-  vtkSmartPointer<vtkGraphToPolyData>            GraphToPoly;
-  vtkSmartPointer<vtkVertexGlyphFilter>          VertexGlyph;
-  vtkSmartPointer<vtkIconGlyphFilter>            IconGlyph;
-  vtkSmartPointer<vtkMapArrayValues>                   IconTypeToIndex;
+  vtkSmartPointer<vtkGraphToPolyData> GraphToPoly;
+  vtkSmartPointer<vtkVertexGlyphFilter> VertexGlyph;
+  vtkSmartPointer<vtkIconGlyphFilter> IconGlyph;
+  vtkSmartPointer<vtkMapArrayValues> IconTypeToIndex;
   vtkSmartPointer<vtkTransformCoordinateSystems> IconTransform;
 
-  vtkSmartPointer<vtkPolyDataMapper>    EdgeMapper;
-  vtkSmartPointer<vtkPolyDataMapper>    VertexMapper;
-  vtkSmartPointer<vtkPolyDataMapper>    OutlineMapper;
-  vtkSmartPointer<vtkPolyDataMapper2D>  IconMapper;
+  vtkSmartPointer<vtkPolyDataMapper> EdgeMapper;
+  vtkSmartPointer<vtkPolyDataMapper> VertexMapper;
+  vtkSmartPointer<vtkPolyDataMapper> OutlineMapper;
+  vtkSmartPointer<vtkPolyDataMapper2D> IconMapper;
 
-  vtkSmartPointer<vtkActor>             EdgeActor;
-  vtkSmartPointer<vtkActor>             VertexActor;
-  vtkSmartPointer<vtkActor>             OutlineActor;
-  vtkSmartPointer<vtkTexturedActor2D>   IconActor;
+  vtkSmartPointer<vtkActor> EdgeActor;
+  vtkSmartPointer<vtkActor> VertexActor;
+  vtkSmartPointer<vtkActor> OutlineActor;
+  vtkSmartPointer<vtkTexturedActor2D> IconActor;
   //ETX
 
   // Color maps
@@ -265,5 +263,3 @@ private:
 };
 
 #endif
-
-

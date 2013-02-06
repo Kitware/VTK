@@ -27,11 +27,9 @@ class vtkOpenGLRenderer;
 
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLActor : public vtkActor
 {
-protected:
-
 public:
   static vtkOpenGLActor *New();
-  vtkTypeMacro(vtkOpenGLActor,vtkActor);
+  vtkTypeMacro(vtkOpenGLActor, vtkActor);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -39,8 +37,8 @@ public:
   void Render(vtkRenderer *ren, vtkMapper *mapper);
 
 protected:
-  vtkOpenGLActor() {};
-  ~vtkOpenGLActor() {};
+  vtkOpenGLActor() {}
+  ~vtkOpenGLActor() {}
 
 private:
   vtkOpenGLActor(const vtkOpenGLActor&);  // Not implemented.
@@ -48,4 +46,3 @@ private:
 };
 
 #endif
-

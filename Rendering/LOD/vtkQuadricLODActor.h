@@ -63,16 +63,16 @@ public:
 
   // Description:
   // Standard class methods.
-  vtkTypeMacro(vtkQuadricLODActor,vtkActor);
+  vtkTypeMacro(vtkQuadricLODActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify whether to build the LOD immediately (i.e., on the first render)
   // or to wait until the LOD is requested in a subsequent render. By default,
   // LOD construction is not deferred (DeferLODConstruction is false).
-  vtkSetMacro(DeferLODConstruction,int);
-  vtkGetMacro(DeferLODConstruction,int);
-  vtkBooleanMacro(DeferLODConstruction,int);
+  vtkSetMacro(DeferLODConstruction, int);
+  vtkGetMacro(DeferLODConstruction, int);
+  vtkBooleanMacro(DeferLODConstruction, int);
 
   // Description:
   // Turn on/off a flag to control whether the underlying pipeline is static.
@@ -80,16 +80,16 @@ public:
   // again until the user manually modifies this class. By default, Static is
   // off because trying to debug this is tricky, and you should only use it
   // when you know what you are doing.
-  vtkSetMacro(Static,int);
-  vtkGetMacro(Static,int);
-  vtkBooleanMacro(Static,int);
+  vtkSetMacro(Static, int);
+  vtkGetMacro(Static, int);
+  vtkBooleanMacro(Static, int);
 
 //BTX
   enum DataConfigurationEnum
   {
-    UNKNOWN=0,
-    XLINE,YLINE,ZLINE,
-    XYPLANE,XZPLANE,YZPLANE,
+    UNKNOWN = 0,
+    XLINE, YLINE, ZLINE,
+    XYPLANE, XZPLANE, YZPLANE,
     XYZVOLUME
   };
 //ETX
@@ -105,24 +105,24 @@ public:
   // DataConfiguration to UNKNOWN (the default value) means that the class
   // will attempt to figure the dimension of the class automatically using
   // the CollapseDimensionRatio ivar.
-  vtkSetClampMacro(DataConfiguration,int,UNKNOWN,XYZVOLUME);
-  vtkGetMacro(DataConfiguration,int);
+  vtkSetClampMacro(DataConfiguration, int, UNKNOWN,XYZVOLUME);
+  vtkGetMacro(DataConfiguration, int);
   void SetDataConfigurationToUnknown()
-    {this->SetDataConfiguration(UNKNOWN);}
+    { this->SetDataConfiguration(UNKNOWN); }
   void SetDataConfigurationToXLine()
-    {this->SetDataConfiguration(XLINE);}
+    { this->SetDataConfiguration(XLINE); }
   void SetDataConfigurationToYLine()
-    {this->SetDataConfiguration(YLINE);}
+    { this->SetDataConfiguration(YLINE); }
   void SetDataConfigurationToZLine()
-    {this->SetDataConfiguration(ZLINE);}
+    { this->SetDataConfiguration(ZLINE); }
   void SetDataConfigurationToXYPlane()
-    {this->SetDataConfiguration(XYPLANE);}
+    { this->SetDataConfiguration(XYPLANE); }
   void SetDataConfigurationToYZPlane()
-    {this->SetDataConfiguration(YZPLANE);}
+    { this->SetDataConfiguration(YZPLANE); }
   void SetDataConfigurationToXZPlane()
-    {this->SetDataConfiguration(XZPLANE);}
+    { this->SetDataConfiguration(XZPLANE); }
   void SetDataConfigurationToXYZVolume()
-    {this->SetDataConfiguration(XYZVOLUME);}
+    { this->SetDataConfiguration(XYZVOLUME); }
 
   // Description:
   // If the data configuration is set to UNKNOWN, this class attempts to
@@ -130,15 +130,15 @@ public:
   // This ivar is the ratio of short edge of the input bounding box to its
   // long edge, which is then used to collapse the data dimension (and set the
   // quadric bin size in that direction to one). By default, this value is 0.05.
-  vtkSetClampMacro(CollapseDimensionRatio,double,0.0,1.0);
-  vtkGetMacro(CollapseDimensionRatio,double);
+  vtkSetClampMacro(CollapseDimensionRatio, double, 0.0, 1.0);
+  vtkGetMacro(CollapseDimensionRatio, double);
 
   // Description:
   // This class will create a vtkQuadricClustering algorithm automatically.
   // However, if you would like to specify the filter to use, or to access it
   // and configure it, these method provide access to the filter.
   void SetLODFilter(vtkQuadricClustering *lodFilter);
-  vtkGetObjectMacro(LODFilter,vtkQuadricClustering);
+  vtkGetObjectMacro(LODFilter, vtkQuadricClustering);
 
   // Description:
   // Specify the maximum display list size. This variable is used to determine
@@ -147,31 +147,31 @@ public:
   // overly large display lists on some graphics hardware will cause faults).
   // The display list size is the length of the vtkCellArray representing the
   // topology of the input vtkPolyData.
-  vtkSetClampMacro(MaximumDisplayListSize,int,1000,VTK_LARGE_INTEGER);
-  vtkGetMacro(MaximumDisplayListSize,int);
+  vtkSetClampMacro(MaximumDisplayListSize, int, 1000, VTK_LARGE_INTEGER);
+  vtkGetMacro(MaximumDisplayListSize, int);
 
 //BTX
   enum PropTypeEnum
   {
-    FOLLOWER=0,
+    FOLLOWER = 0,
     ACTOR
   };
 //ETX
   // Description:
-  // Indicate that this actor is actually a follower. By default, the prop
-  // type is a vtkActor.
-  vtkSetClampMacro(PropType,int,FOLLOWER,ACTOR);
-  vtkGetMacro(PropType,int);
+  // Indicate that this actor is actually a follower.
+  // By default, the prop type is a vtkActor.
+  vtkSetClampMacro(PropType, int, FOLLOWER, ACTOR);
+  vtkGetMacro(PropType, int);
   void SetPropTypeToFollower()
-    {this->SetPropType(FOLLOWER);}
+    { this->SetPropType(FOLLOWER); }
   void SetPropTypeToActor()
-    {this->SetPropType(ACTOR);}
+    { this->SetPropType(ACTOR); }
 
   // Description:
   // Set/Get the camera to follow. This method is only applicable when the
   // prop type is set to a vtkFollower.
   void SetCamera(vtkCamera*);
-  vtkGetObjectMacro(Camera,vtkCamera);
+  vtkGetObjectMacro(Camera, vtkCamera);
 
   // Description:
   // This causes the actor to be rendered. Depending on the frame rate request,
@@ -199,7 +199,7 @@ protected:
   ~vtkQuadricLODActor();
 
   // Renders the LOD
-  vtkActor          *LODActor;
+  vtkActor *LODActor;
   vtkPolyDataMapper *LODMapper;
 
   // Keep track of the requested interactive frame rate
@@ -216,7 +216,7 @@ protected:
   int DataConfiguration;
 
   // Control whether this is a follower or regular actor
-  int        PropType;
+  int PropType;
   vtkCamera *Camera;
 
   // Control what size (in terms of number of graphics primitives)
@@ -238,5 +238,3 @@ private:
 };
 
 #endif
-
-

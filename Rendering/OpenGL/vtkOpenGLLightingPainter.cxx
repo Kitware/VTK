@@ -60,16 +60,13 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer *renderer,
 {
   vtkPolyData* input = this->GetInputAsPolyData();
   vtkProperty* prop = actor->GetProperty();
-  vtkDataArray* n;
-  int interpolation, rep;
+  vtkDataArray* n = input->GetPointData()->GetNormals();
 
   // get the representation (e.g., surface / wireframe / points)
-  rep = prop->GetRepresentation();
+  int rep = prop->GetRepresentation();
 
   // get the shading interpolation
-  interpolation = prop->GetInterpolation();
-
-  n = input->GetPointData()->GetNormals();
+  int interpolation = prop->GetInterpolation();
 
   if (interpolation == VTK_FLAT)
     {
@@ -89,8 +86,8 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer *renderer,
     disable_flags = typeflags;
     enable_flags = 0;
     }
-  else if ( !n &&
-    ((typeflags & vtkPainter::VERTS) || (typeflags & vtkPainter::LINES)) )
+  else if (!n &&
+    ((typeflags & vtkPainter::VERTS) || (typeflags & vtkPainter::LINES)))
     {
     disable_flags = typeflags & (vtkPainter::VERTS | vtkPainter::LINES);
     enable_flags = typeflags & (~disable_flags);
@@ -120,7 +117,7 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer *renderer,
     time_to_draw += this->DelegatePainter?
       this->DelegatePainter->GetTimeToDraw() : 0;
 
-    glEnable( GL_LIGHTING);
+    glEnable(GL_LIGHTING);
 
     this->ProgressOffset += this->ProgressScaleFactor;
     }

@@ -60,18 +60,12 @@ vtkRenderPass *vtkRenderPassCollection::GetNextRenderPass()
 // ----------------------------------------------------------------------------
 vtkRenderPass *vtkRenderPassCollection::GetLastRenderPass()
 {
-  if ( this->Bottom == NULL )
-    {
-    return NULL;
-    }
-  else
-    {
-    return static_cast<vtkRenderPass *>(this->Bottom->Item);
-    }
+  return (this->Bottom) ?
+    static_cast<vtkRenderPass *>(this->Bottom->Item) : NULL;
 }
 
 // ----------------------------------------------------------------------------
 void vtkRenderPassCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

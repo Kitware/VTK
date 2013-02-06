@@ -39,14 +39,14 @@ class vtkMatrix4x4;
 class VTKRENDERINGCORE_EXPORT vtkAbstractMapper3D : public vtkAbstractMapper
 {
 public:
-  vtkTypeMacro(vtkAbstractMapper3D,vtkAbstractMapper);
+  vtkTypeMacro(vtkAbstractMapper3D, vtkAbstractMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Return bounding box (array of six doubles) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   // Update this->Bounds as a side effect.
-  virtual double *GetBounds()=0;
+  virtual double *GetBounds() = 0;
 
   // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -68,12 +68,14 @@ public:
   // Description:
   // Is this a ray cast mapper? A subclass would return 1 if the
   // ray caster is needed to generate an image from this mapper.
-  virtual int IsARayCastMapper() {return 0;}
+  virtual int IsARayCastMapper()
+    { return 0; }
 
   // Description:
   // Is this a "render into image" mapper? A subclass would return 1 if the
   // mapper produces an image by rendering into a software image buffer.
-  virtual int IsARenderIntoImageMapper() {return 0;}
+  virtual int IsARenderIntoImageMapper()
+    { return 0; }
 
   // Description:
   // Get the ith clipping plane as a homogeneous plane equation.
@@ -87,7 +89,7 @@ public:
 
 protected:
    vtkAbstractMapper3D();
-   ~vtkAbstractMapper3D() {};
+   ~vtkAbstractMapper3D() {}
 
   double Bounds[6];
   double Center[3];

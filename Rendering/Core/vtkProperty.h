@@ -75,14 +75,14 @@ public:
   // vtkProperty, which is created automatically. This
   // method includes the invoking actor as an argument which can
   // be used by property devices that require the actor.
-  virtual void Render(vtkActor *,vtkRenderer *);
+  virtual void Render(vtkActor *, vtkRenderer *);
 
   // Description:
   // This method renders the property as a backface property. TwoSidedLighting
   // must be turned off to see any backface properties. Note that only
   // colors and opacity are used for backface properties. Other properties
   // such as Representation, Culling are specified by the Property.
-  virtual void BackfaceRender(vtkActor *,vtkRenderer *) {};
+  virtual void BackfaceRender(vtkActor *, vtkRenderer *) {}
 
   //BTX
   // Description:
@@ -106,27 +106,32 @@ public:
 
   // Description:
   // Set/Get lighting flag for an object. Initial value is true.
-  vtkGetMacro(Lighting,bool);
-  vtkSetMacro(Lighting,bool);
-  vtkBooleanMacro(Lighting,bool);
+  vtkGetMacro(Lighting, bool);
+  vtkSetMacro(Lighting, bool);
+  vtkBooleanMacro(Lighting, bool);
 
   // Description:
   // Set the shading interpolation method for an object.
-  vtkSetClampMacro(Interpolation,int,VTK_FLAT,VTK_PHONG);
+  vtkSetClampMacro(Interpolation, int, VTK_FLAT, VTK_PHONG);
   vtkGetMacro(Interpolation,int);
-  void SetInterpolationToFlat() {this->SetInterpolation(VTK_FLAT);};
-  void SetInterpolationToGouraud() {this->SetInterpolation(VTK_GOURAUD);};
-  void SetInterpolationToPhong() {this->SetInterpolation(VTK_PHONG);};
+  void SetInterpolationToFlat()
+    { this->SetInterpolation(VTK_FLAT); }
+  void SetInterpolationToGouraud()
+    { this->SetInterpolation(VTK_GOURAUD); }
+  void SetInterpolationToPhong()
+    { this->SetInterpolation(VTK_PHONG); }
   const char *GetInterpolationAsString();
 
   // Description:
   // Control the surface geometry representation for the object.
-  vtkSetClampMacro(Representation,int,VTK_POINTS,VTK_SURFACE);
+  vtkSetClampMacro(Representation,int, VTK_POINTS, VTK_SURFACE);
   vtkGetMacro(Representation,int);
-  void SetRepresentationToPoints() {this->SetRepresentation(VTK_POINTS);};
-  void SetRepresentationToWireframe() {
-    this->SetRepresentation(VTK_WIREFRAME);};
-  void SetRepresentationToSurface() {this->SetRepresentation(VTK_SURFACE);};
+  void SetRepresentationToPoints()
+    { this->SetRepresentation(VTK_POINTS); }
+  void SetRepresentationToWireframe()
+    { this->SetRepresentation(VTK_WIREFRAME); }
+  void SetRepresentationToSurface()
+    { this->SetRepresentation(VTK_SURFACE); }
   const char *GetRepresentationAsString();
 
   // Description:
@@ -134,109 +139,110 @@ public:
   // ambient diffuse and specular colors as well. This is basically
   // a quick overall color setting method.
   void SetColor(double r, double g, double b);
-  void SetColor(double a[3]) { this->SetColor(a[0], a[1], a[2]); };
+  void SetColor(double a[3])
+    { this->SetColor(a[0], a[1], a[2]); }
   double *GetColor();
   void GetColor(double rgb[3]);
   void GetColor(double &r, double &g, double &b);
 
   // Description:
   // Set/Get the ambient lighting coefficient.
-  vtkSetClampMacro(Ambient,double,0.0,1.0);
-  vtkGetMacro(Ambient,double);
+  vtkSetClampMacro(Ambient, double, 0.0, 1.0);
+  vtkGetMacro(Ambient, double);
 
   // Description:
   // Set/Get the diffuse lighting coefficient.
-  vtkSetClampMacro(Diffuse,double,0.0,1.0);
-  vtkGetMacro(Diffuse,double);
+  vtkSetClampMacro(Diffuse, double, 0.0, 1.0);
+  vtkGetMacro(Diffuse, double);
 
   // Description:
   // Set/Get the specular lighting coefficient.
-  vtkSetClampMacro(Specular,double,0.0,1.0);
-  vtkGetMacro(Specular,double);
+  vtkSetClampMacro(Specular, double, 0.0, 1.0);
+  vtkGetMacro(Specular, double);
 
   // Description:
   // Set/Get the specular power.
-  vtkSetClampMacro(SpecularPower,double,0.0,128.0);
-  vtkGetMacro(SpecularPower,double);
+  vtkSetClampMacro(SpecularPower, double, 0.0, 128.0);
+  vtkGetMacro(SpecularPower, double);
 
   // Description:
   // Set/Get the object's opacity. 1.0 is totally opaque and 0.0 is completely
   // transparent.
-  vtkSetClampMacro(Opacity,double,0.0,1.0);
-  vtkGetMacro(Opacity,double);
+  vtkSetClampMacro(Opacity, double, 0.0, 1.0);
+  vtkGetMacro(Opacity, double);
 
   // Description:
   // Set/Get the ambient surface color. Not all renderers support separate
   // ambient and diffuse colors. From a physical standpoint it really
   // doesn't make too much sense to have both. For the rendering
   // libraries that don't support both, the diffuse color is used.
-  vtkSetVector3Macro(AmbientColor,double);
-  vtkGetVector3Macro(AmbientColor,double);
+  vtkSetVector3Macro(AmbientColor, double);
+  vtkGetVector3Macro(AmbientColor, double);
 
   // Description:
   // Set/Get the diffuse surface color.
-  vtkSetVector3Macro(DiffuseColor,double);
-  vtkGetVector3Macro(DiffuseColor,double);
+  vtkSetVector3Macro(DiffuseColor, double);
+  vtkGetVector3Macro(DiffuseColor, double);
 
   // Description:
   // Set/Get the specular surface color.
-  vtkSetVector3Macro(SpecularColor,double);
-  vtkGetVector3Macro(SpecularColor,double);
+  vtkSetVector3Macro(SpecularColor, double);
+  vtkGetVector3Macro(SpecularColor, double);
 
   // Description:
   // Turn on/off the visibility of edges. On some renderers it is
   // possible to render the edges of geometric primitives separately
   // from the interior.
-  vtkGetMacro(EdgeVisibility,int);
-  vtkSetMacro(EdgeVisibility,int);
-  vtkBooleanMacro(EdgeVisibility,int);
+  vtkGetMacro(EdgeVisibility, int);
+  vtkSetMacro(EdgeVisibility, int);
+  vtkBooleanMacro(EdgeVisibility, int);
 
   // Description:
   // Set/Get the color of primitive edges (if edge visibility is enabled).
-  vtkSetVector3Macro(EdgeColor,double);
-  vtkGetVector3Macro(EdgeColor,double);
+  vtkSetVector3Macro(EdgeColor, double);
+  vtkGetVector3Macro(EdgeColor, double);
 
   // Description:
   // Set/Get the width of a Line. The width is expressed in screen units.
   // This is only implemented for OpenGL. The default is 1.0.
-  vtkSetClampMacro(LineWidth,float,0,VTK_LARGE_FLOAT);
-  vtkGetMacro(LineWidth,float);
+  vtkSetClampMacro(LineWidth, float, 0, VTK_LARGE_FLOAT);
+  vtkGetMacro(LineWidth, float);
 
   // Description:
   // Set/Get the stippling pattern of a Line, as a 16-bit binary pattern
   // (1 = pixel on, 0 = pixel off).
   // This is only implemented for OpenGL. The default is 0xFFFF.
-  vtkSetMacro(LineStipplePattern,int);
-  vtkGetMacro(LineStipplePattern,int);
+  vtkSetMacro(LineStipplePattern, int);
+  vtkGetMacro(LineStipplePattern, int);
 
   // Description:
   // Set/Get the stippling repeat factor of a Line, which specifies how
   // many times each bit in the pattern is to be repeated.
   // This is only implemented for OpenGL. The default is 1.
-  vtkSetClampMacro(LineStippleRepeatFactor,int,1,VTK_LARGE_INTEGER);
-  vtkGetMacro(LineStippleRepeatFactor,int);
+  vtkSetClampMacro(LineStippleRepeatFactor, int, 1, VTK_LARGE_INTEGER);
+  vtkGetMacro(LineStippleRepeatFactor, int);
 
   // Description:
   // Set/Get the diameter of a point. The size is expressed in screen units.
   // This is only implemented for OpenGL. The default is 1.0.
-  vtkSetClampMacro(PointSize,float,0,VTK_LARGE_FLOAT);
-  vtkGetMacro(PointSize,float);
+  vtkSetClampMacro(PointSize, float, 0, VTK_LARGE_FLOAT);
+  vtkGetMacro(PointSize, float);
 
   // Description:
   // Turn on/off fast culling of polygons based on orientation of normal
   // with respect to camera. If backface culling is on, polygons facing
   // away from camera are not drawn.
-  vtkGetMacro(BackfaceCulling,int);
-  vtkSetMacro(BackfaceCulling,int);
-  vtkBooleanMacro(BackfaceCulling,int);
+  vtkGetMacro(BackfaceCulling, int);
+  vtkSetMacro(BackfaceCulling, int);
+  vtkBooleanMacro(BackfaceCulling, int);
 
   // Description:
   // Turn on/off fast culling of polygons based on orientation of normal
   // with respect to camera. If frontface culling is on, polygons facing
   // towards camera are not drawn.
-  vtkGetMacro(FrontfaceCulling,int);
-  vtkSetMacro(FrontfaceCulling,int);
-  vtkBooleanMacro(FrontfaceCulling,int);
+  vtkGetMacro(FrontfaceCulling, int);
+  vtkSetMacro(FrontfaceCulling, int);
+  vtkBooleanMacro(FrontfaceCulling, int);
 
   // Description:
   // Get the material representation used for shading. The material will be used
@@ -274,7 +280,8 @@ public:
 
   // Description:
   // Get the vtkShaderDeviceAdapter2 if set, returns null otherwise.
-  virtual vtkShaderDeviceAdapter2* GetShaderDeviceAdapter2() { return NULL; }
+  virtual vtkShaderDeviceAdapter2* GetShaderDeviceAdapter2()
+    { return NULL; }
 
   // Description:
   // Provide values to initialize shader variables.
@@ -290,65 +297,44 @@ public:
   // Description:
   // Methods to provide to add shader variables from tcl.
   void AddShaderVariable(const char* name, int v)
-    {
-    this->AddShaderVariable(name, 1, &v);
-    }
+    { this->AddShaderVariable(name, 1, &v); }
   void AddShaderVariable(const char* name, float v)
-    {
-    this->AddShaderVariable(name, 1, &v);
-    }
+    { this->AddShaderVariable(name, 1, &v); }
   void AddShaderVariable(const char* name, double v)
-    {
-    this->AddShaderVariable(name, 1, &v);
-    }
+    { this->AddShaderVariable(name, 1, &v); }
   void AddShaderVariable(const char* name, int v1, int v2)
     {
-    int v[2];
-    v[0] = v1;
-    v[1] = v2;
+    int v[2] = {v1, v2};
     this->AddShaderVariable(name, 2, v);
     }
   void AddShaderVariable(const char* name, float v1, float v2)
     {
-    float v[2];
-    v[0] = v1;
-    v[1] = v2;
+    float v[2] = {v1, v2};
     this->AddShaderVariable(name, 2, v);
     }
   void AddShaderVariable(const char* name, double v1, double v2)
     {
-    double v[2];
-    v[0] = v1;
-    v[1] = v2;
+    double v[2] = {v1, v2};
     this->AddShaderVariable(name, 2, v);
     }
   void AddShaderVariable(const char* name, int v1, int v2, int v3)
     {
-    int v[3];
-    v[0] = v1;
-    v[1] = v2;
-    v[2] = v3;
+    int v[3] = {v1, v2, v3};
     this->AddShaderVariable(name, 3, v);
     }
   void AddShaderVariable(const char* name, float v1, float v2, float v3)
     {
-    float v[3];
-    v[0] = v1;
-    v[1] = v2;
-    v[2] = v3;
+    float v[3] = {v1, v2, v3};
     this->AddShaderVariable(name, 3, v);
     }
   void AddShaderVariable(const char* name, double v1, double v2, double v3)
     {
-    double v[3];
-    v[0] = v1;
-    v[1] = v2;
-    v[2] = v3;
+    double v[3] = {v1, v2, v3};
     this->AddShaderVariable(name, 3, v);
     }
 
   // Description:
-  // Set/Get the texture object to control rendering texture maps.  This will
+  // Set/Get the texture object to control rendering texture maps. This will
   // be a vtkTexture object. A property does not need to have an associated
   // texture map and multiple properties can share one texture. Textures
   // must be assigned unique names.
@@ -356,14 +342,13 @@ public:
   vtkTexture* GetTexture(const char* name);
 
   // Description:
-  // Set/Get the texture object to control rendering texture maps.  This will
+  // Set/Get the texture object to control rendering texture maps. This will
   // be a vtkTexture object. A property does not need to have an associated
   // texture map and multiple properties can share one texture. Textures
   // must be assigned unique names.
   void SetTexture(int unit, vtkTexture* texture);
   vtkTexture* GetTexture(int unit);
   void RemoveTexture(int unit);
-
 
   // Description:
   // Remove a texture from the collection. Note that the
@@ -409,9 +394,9 @@ protected:
   // Load property iVar values from the Material XML.
   void LoadProperty();
   void LoadTextures();
-  void LoadTexture(vtkXMLDataElement* elem);
-  void LoadPerlineNoise(vtkXMLDataElement* );
-  void LoadMember(vtkXMLDataElement* elem);
+  void LoadTexture(vtkXMLDataElement*);
+  void LoadPerlineNoise(vtkXMLDataElement*);
+  void LoadMember(vtkXMLDataElement*);
 
   double Color[3];
   double AmbientColor[3];
@@ -425,13 +410,13 @@ protected:
   double Opacity;
   float PointSize;
   float LineWidth;
-  int   LineStipplePattern;
-  int   LineStippleRepeatFactor;
-  int   Interpolation;
-  int   Representation;
-  int   EdgeVisibility;
-  int   BackfaceCulling;
-  int   FrontfaceCulling;
+  int LineStipplePattern;
+  int LineStippleRepeatFactor;
+  int Interpolation;
+  int Representation;
+  int EdgeVisibility;
+  int BackfaceCulling;
+  int FrontfaceCulling;
   bool Lighting;
 
   int Shading;
@@ -473,11 +458,11 @@ private:
 // Return the method of shading as a descriptive character string.
 inline const char *vtkProperty::GetInterpolationAsString(void)
 {
-  if ( this->Interpolation == VTK_FLAT )
+  if (this->Interpolation == VTK_FLAT)
     {
     return "Flat";
     }
-  else if ( this->Interpolation == VTK_GOURAUD )
+  else if (this->Interpolation == VTK_GOURAUD)
     {
     return "Gouraud";
     }
@@ -487,16 +472,15 @@ inline const char *vtkProperty::GetInterpolationAsString(void)
     }
 }
 
-
 // Description:
 // Return the method of shading as a descriptive character string.
 inline const char *vtkProperty::GetRepresentationAsString(void)
 {
-  if ( this->Representation == VTK_POINTS )
+  if (this->Representation == VTK_POINTS)
     {
     return "Points";
     }
-  else if ( this->Representation == VTK_WIREFRAME )
+  else if (this->Representation == VTK_WIREFRAME)
     {
     return "Wireframe";
     }
@@ -505,7 +489,5 @@ inline const char *vtkProperty::GetRepresentationAsString(void)
     return "Surface";
     }
 }
-
-
 
 #endif

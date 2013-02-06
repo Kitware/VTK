@@ -81,89 +81,85 @@ enum IVarEnum {
   IVarFrontfaceCulling
 };
 
-static IVarEnum XMLMemberToIvar( const char* name )
+static IVarEnum XMLMemberToIvar(const char* name)
 {
-  if ( (strcmp(name,"Color") == 0) )
+  if (!strcmp(name, "Color"))
     {
     return IVarColor;
     }
-  else if (strcmp(name,"AmbientColor") == 0)
+  if (!strcmp(name, "AmbientColor"))
     {
     return IVarAmbientColor;
     }
-  else if (strcmp(name,"DiffuseColor") == 0)
+  if (!strcmp(name, "DiffuseColor"))
     {
     return IVarDiffuseColor;
     }
-  else if (strcmp(name,"SpecularColor") == 0)
+  if (!strcmp(name, "SpecularColor"))
     {
     return IVarSpecularColor;
     }
-  else if (strcmp(name,"EdgeColor") == 0)
+  if (!strcmp(name, "EdgeColor"))
     {
     return IVarEdgeColor;
     }
-  else if (strcmp(name,"Ambient") == 0)
+  if (!strcmp(name, "Ambient"))
     {
     return IVarAmbient;
     }
-  else if (strcmp(name,"Diffuse") == 0)
+  if (!strcmp(name, "Diffuse"))
     {
     return IVarDiffuse;
     }
-  else if (strcmp(name,"Specular") == 0)
+  if (!strcmp(name, "Specular"))
     {
     return IVarSpecular;
     }
-  else if (strcmp(name,"SpecularPower") == 0)
+  if (!strcmp(name, "SpecularPower"))
     {
     return IVarSpecularPower;
     }
-  else if (strcmp(name,"Opacity") == 0)
+  if (!strcmp(name, "Opacity"))
     {
     return IVarOpacity;
     }
-  else if (strcmp(name,"PointSize") == 0)
+  if (!strcmp(name, "PointSize"))
     {
     return IVarPointSize;
     }
-  else if (strcmp(name,"LineWidth") == 0)
+  if (!strcmp(name, "LineWidth"))
     {
     return IVarLineWidth;
     }
-  else if (strcmp(name,"LineStipplePattern") == 0)
+  if (!strcmp(name, "LineStipplePattern"))
     {
     return IVarLineStipplePattern;
     }
-  else if (strcmp(name,"LineStippleRepeatFactor") == 0)
+  if (!strcmp(name, "LineStippleRepeatFactor"))
     {
     return IVarLineStippleRepeatFactor;
     }
-  else if (strcmp(name,"Interpolation") == 0)
+  if (!strcmp(name, "Interpolation"))
     {
     return IVarInterpolation;
     }
-  else if (strcmp(name,"Representation") == 0)
+  if (!strcmp(name, "Representation"))
     {
     return IVarRepresentation;
     }
-  else if (strcmp(name,"EdgeVisibility") == 0)
+  if (!strcmp(name, "EdgeVisibility"))
     {
     return IVarEdgeVisibility;
     }
-  else if (strcmp(name,"BackfaceCulling") == 0)
+  if (!strcmp(name, "BackfaceCulling"))
     {
     return IVarBackfaceCulling;
     }
-  else if (strcmp(name,"FrontfaceCulling") == 0)
+  if (!strcmp(name, "FrontfaceCulling"))
     {
     return IVarFrontfaceCulling;
     }
-  else
-    {
-    return IVarNone;
-    }
-
+  return IVarNone;
 }
 
 
@@ -207,7 +203,7 @@ vtkProperty::vtkProperty()
   this->LineWidth = 1.0;
   this->LineStipplePattern = 0xFFFF;
   this->LineStippleRepeatFactor = 1;
-  this->Lighting=true;
+  this->Lighting = true;
 
   this->Shading = 0;
   this->ShaderProgram = 0;
@@ -222,18 +218,18 @@ vtkProperty::~vtkProperty()
   if (this->Material)
     {
     this->Material->UnRegister(this);
+    this->Material = 0;
     }
   this->SetShaderProgram(0);
   this->SetMaterialName(0);
   delete this->Internals;
 }
 
-
 //----------------------------------------------------------------------------
 // Assign one property to another.
 void vtkProperty::DeepCopy(vtkProperty *p)
 {
-  if ( p != NULL )
+  if (p != NULL)
     {
     this->SetColor(p->GetColor());
     this->SetAmbientColor(p->GetAmbientColor());
@@ -260,27 +256,26 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->RemoveAllTextures();
     vtkPropertyInternals::MapOfTextures::iterator iter =
       p->Internals->Textures.begin();
-    for ( ;iter != p->Internals->Textures.end(); ++iter)
+    for (;iter != p->Internals->Textures.end(); ++iter)
       {
       this->Internals->Textures[iter->first] = iter->second;
       }
-
     // TODO: need to pass shader variables.
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::SetColor(double R,double G,double B)
+void vtkProperty::SetColor(double r, double g, double b)
 {
   // Really should set the placeholder Color[3] variable
-  this->Color[0] = R;
-  this->Color[1] = G;
-  this->Color[2] = B;
+  this->Color[0] = r;
+  this->Color[1] = g;
+  this->Color[2] = b;
 
   // Use Set macros to insure proper modified time behavior
-  this->SetAmbientColor(R,G,B);
-  this->SetDiffuseColor(R,G,B);
-  this->SetSpecularColor(R,G,B);
+  this->SetAmbientColor(this->Color);
+  this->SetDiffuseColor(this->Color);
+  this->SetSpecularColor(this->Color);
 }
 
 //----------------------------------------------------------------------------
@@ -288,23 +283,18 @@ void vtkProperty::SetColor(double R,double G,double B)
 // is a pointer to rgb values.
 double *vtkProperty::GetColor()
 {
-  double norm;
-  int i;
+  double norm = 0.0;
 
   if ((this->Ambient + this->Diffuse + this->Specular)>0)
     {
     norm = 1.0 / (this->Ambient + this->Diffuse + this->Specular);
     }
-  else
-    {
-    norm = 0.0;
-    }
 
-  for (i = 0; i < 3; i ++)
+  for (int i = 0; i < 3; i ++)
     {
-    this->Color[i] = this->AmbientColor[i]*this->Ambient*norm;
-    this->Color[i] = this->Color[i] + this->DiffuseColor[i]*this->Diffuse*norm;
-    this->Color[i] = this->Color[i] + this->SpecularColor[i]*this->Specular*norm;
+    this->Color[i] = this->AmbientColor[i] * this->Ambient * norm;
+    this->Color[i] = this->Color[i] + this->DiffuseColor[i] * this->Diffuse * norm;
+    this->Color[i] = this->Color[i] + this->SpecularColor[i] * this->Specular * norm;
     }
 
   return this->Color;
@@ -436,7 +426,7 @@ vtkTexture* vtkProperty::GetTextureAtIndex(int index)
 {
   vtkPropertyInternals::MapOfTextures::iterator iter =
     this->Internals->Textures.begin();
-  for (int id=0; iter != this->Internals->Textures.end(); ++iter, ++id)
+  for (int id = 0; iter != this->Internals->Textures.end(); ++iter, ++id)
     {
     if (id == index)
       {
@@ -453,7 +443,7 @@ int vtkProperty::GetTextureUnitAtIndex(int index)
 {
   vtkPropertyInternals::MapOfTextures::iterator iter =
     this->Internals->Textures.begin();
-  for (int id=0; iter != this->Internals->Textures.end(); ++iter, ++id)
+  for (int id = 0; iter != this->Internals->Textures.end(); ++iter, ++id)
     {
     if (id == index)
       {
@@ -492,16 +482,14 @@ void vtkProperty::LoadMaterial(const char* name)
   // vtkXMLMaterial::CreateInstance using library/absolute path/repository
   // in that order.
   vtkXMLMaterial* material = vtkXMLMaterial::CreateInstance(name);
-  if (material)
-    {
-    this->LoadMaterial(material);
-    material->Delete();
-    return;
-    }
-  else
+  if (!material)
     {
     vtkErrorMacro("Failed to create Material : " << name);
+    return;
     }
+  this->LoadMaterial(material);
+  material->Delete();
+  return;
 }
 
 //----------------------------------------------------------------------------
@@ -542,11 +530,11 @@ void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
     this->LoadProperty();
     this->LoadTextures();
     int lang = this->Material->GetShaderLanguage();
-    int style=this->Material->GetShaderStyle();
+    int style = this->Material->GetShaderStyle();
 
-    if(style==2)
+    if (style == 2) // TODO: use a constant instead of a literal
       {
-      if(lang==vtkXMLShader::LANGUAGE_GLSL)
+      if (lang == vtkXMLShader::LANGUAGE_GLSL)
         {
         // ready-for-multipass
         this->ReadFrameworkMaterial();
@@ -571,8 +559,8 @@ void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
         this->ShaderProgram->ReadMaterial();
         }
       // Some materials may have no shaders and only set ivars for vtkProperty.
-      else if( (material->GetNumberOfVertexShaders() != 0) ||
-               (material->GetNumberOfFragmentShaders() != 0) )
+      else if ((material->GetNumberOfVertexShaders() != 0) ||
+               (material->GetNumberOfFragmentShaders() != 0))
         {
         vtkErrorMacro("Failed to setup the shader.");
         this->SetShaderProgram(0); // failed to create shaders.
@@ -589,21 +577,20 @@ void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
 void vtkProperty::LoadProperty()
 {
   vtkXMLDataElement* elem = this->Material->GetProperty();
-  if( elem == NULL )
+  if (elem == NULL )
     {
     return;
     }
 
-  int iElem = 0;
   int numNested = elem->GetNumberOfNestedElements();
 
   // Each element is a child node of <Property />
-  for( iElem=0; iElem<numNested; iElem++ )
+  for (int iElem = 0; iElem < numNested; iElem++)
     {
     vtkXMLDataElement* currElement = elem->GetNestedElement(iElem);
     const char* tagname = currElement->GetName();
 
-    if (strcmp(tagname, "Member") == 0)
+    if (!strcmp(tagname, "Member"))
       {
       this->LoadMember(currElement);
       }
@@ -618,7 +605,7 @@ void vtkProperty::LoadProperty()
 void vtkProperty::LoadTextures()
 {
   int numTextures = this->Material->GetNumberOfTextures();
-  for (int i=0; i < numTextures; i++)
+  for (int i = 0; i < numTextures; i++)
     {
     this->LoadTexture(this->Material->GetTexture(i));
     }
@@ -641,7 +628,6 @@ void vtkProperty::LoadMember(vtkXMLDataElement* elem)
     return;
     }
   int number_of_elements;
-
   int* pint = 0;
   double* pdouble = 0;
   float* pfloat = 0;
@@ -816,9 +802,9 @@ void vtkProperty::LoadMember(vtkXMLDataElement* elem)
       }
     }
 
-  delete []pdouble;
-  delete []pfloat;
-  delete []pint;
+  delete [] pdouble;
+  delete [] pfloat;
+  delete [] pint;
 }
 
 //----------------------------------------------------------------------------
@@ -847,7 +833,6 @@ void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
     return;
     }
 
-
   char* filename = vtkXMLShader::LocateFile(location);
 
   vtkImageReader2* reader =
@@ -875,7 +860,7 @@ void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
     }
 
   reader->Delete();
-  delete []filename;
+  delete [] filename;
 }
 
 //----------------------------------------------------------------------------
@@ -933,31 +918,31 @@ void vtkProperty::RenderMaterial(vtkActor *,
 //----------------------------------------------------------------------------
 void vtkProperty::AddShaderVariable(const char* name, int numVars, int* x)
 {
-  if( !this->ShaderProgram )
+  if (!this->ShaderProgram)
     {
     return;
     }
-  this->ShaderProgram->AddShaderVariable( name, numVars, x );
+  this->ShaderProgram->AddShaderVariable(name, numVars, x);
 }
 
 //----------------------------------------------------------------------------
 void vtkProperty::AddShaderVariable(const char* name, int numVars, float* x)
 {
-  if( !this->ShaderProgram )
+  if (!this->ShaderProgram)
     {
     return;
     }
-  this->ShaderProgram->AddShaderVariable( name, numVars, x );
+  this->ShaderProgram->AddShaderVariable(name, numVars, x);
 }
 
 //----------------------------------------------------------------------------
 void vtkProperty::AddShaderVariable(const char* name, int numVars, double* x)
 {
-  if( !this->ShaderProgram )
+  if (!this->ShaderProgram)
     {
     return;
     }
-  this->ShaderProgram->AddShaderVariable( name, numVars, x );
+  this->ShaderProgram->AddShaderVariable(name, numVars, x);
 }
 
 //-----------------------------------------------------------------------------
@@ -971,7 +956,6 @@ void vtkProperty::ReleaseGraphicsResources(vtkWindow *win)
   // vtkOpenGLRenderer releases texture resources, so we don't need to release
   // them here.
 }
-
 
 //----------------------------------------------------------------------------
 void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)

@@ -216,55 +216,55 @@ public:
   // the right).  They are generally set at the equator (elevation = 0),
   // and at approximately 120 degrees (lighting from each side and behind).
   void SetKeyLightAngle(double elevation, double azimuth);
-  void SetKeyLightAngle(double angle[2]) {
-    this->SetKeyLightAngle(angle[0], angle[1]); };
+  void SetKeyLightAngle(double angle[2])
+    { this->SetKeyLightAngle(angle[0], angle[1]); }
 
-  void SetKeyLightElevation(double x) {
-    this->SetKeyLightAngle(x, this->KeyLightAngle[1]); };
+  void SetKeyLightElevation(double x)
+    { this->SetKeyLightAngle(x, this->KeyLightAngle[1]); }
 
-  void SetKeyLightAzimuth(double x) {
-    this->SetKeyLightAngle(this->KeyLightAngle[0], x); };
+  void SetKeyLightAzimuth(double x)
+    { this->SetKeyLightAngle(this->KeyLightAngle[0], x); }
 
   vtkGetVectorMacro(KeyLightAngle, double, 2);
-  double GetKeyLightElevation() {
-    double ang[2]; this->GetKeyLightAngle(ang); return ang[0]; };
+  double GetKeyLightElevation()
+    { double ang[2]; this->GetKeyLightAngle(ang); return ang[0]; }
 
-  double GetKeyLightAzimuth() {
-    double ang[2]; this->GetKeyLightAngle(ang); return ang[1]; };
+  double GetKeyLightAzimuth()
+    { double ang[2]; this->GetKeyLightAngle(ang); return ang[1]; }
 
   void SetFillLightAngle(double elevation, double azimuth);
-  void SetFillLightAngle(double angle[2]) {
-    this->SetFillLightAngle(angle[0], angle[1]); };
+  void SetFillLightAngle(double angle[2])
+    { this->SetFillLightAngle(angle[0], angle[1]); }
 
-  void SetFillLightElevation(double x) {
-    this->SetFillLightAngle(x, this->FillLightAngle[1]); };
+  void SetFillLightElevation(double x)
+    { this->SetFillLightAngle(x, this->FillLightAngle[1]); }
 
-  void SetFillLightAzimuth(double x) {
-    this->SetFillLightAngle(this->FillLightAngle[0], x); };
+  void SetFillLightAzimuth(double x)
+    { this->SetFillLightAngle(this->FillLightAngle[0], x); }
 
   vtkGetVectorMacro(FillLightAngle, double, 2);
   double GetFillLightElevation() {
-    double ang[2]; this->GetFillLightAngle(ang); return ang[0]; };
+    double ang[2]; this->GetFillLightAngle(ang); return ang[0]; }
 
-  double GetFillLightAzimuth() {
-    double ang[2]; this->GetFillLightAngle(ang); return ang[1]; };
+  double GetFillLightAzimuth()
+    { double ang[2]; this->GetFillLightAngle(ang); return ang[1]; }
 
   void SetBackLightAngle(double elevation, double azimuth);
-  void SetBackLightAngle(double angle[2]) {
-    this->SetBackLightAngle(angle[0], angle[1]); };
+  void SetBackLightAngle(double angle[2])
+    { this->SetBackLightAngle(angle[0], angle[1]); }
 
-  void SetBackLightElevation(double x) {
-    this->SetBackLightAngle(x, this->BackLightAngle[1]); };
+  void SetBackLightElevation(double x)
+    { this->SetBackLightAngle(x, this->BackLightAngle[1]); }
 
-  void SetBackLightAzimuth(double x) {
-    this->SetBackLightAngle(this->BackLightAngle[0], x); };
+  void SetBackLightAzimuth(double x)
+    { this->SetBackLightAngle(this->BackLightAngle[0], x); }
 
   vtkGetVectorMacro(BackLightAngle, double, 2);
-  double GetBackLightElevation() {
-    double ang[2]; this->GetBackLightAngle(ang); return ang[0]; };
+  double GetBackLightElevation()
+    { double ang[2]; this->GetBackLightAngle(ang); return ang[0]; }
 
-  double GetBackLightAzimuth() {
-    double ang[2]; this->GetBackLightAngle(ang); return ang[1]; };
+  double GetBackLightAzimuth()
+    { double ang[2]; this->GetBackLightAngle(ang); return ang[1]; }
 
   // Description:
   // Add lights to, or remove lights from, a renderer.

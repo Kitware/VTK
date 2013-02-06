@@ -35,31 +35,31 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLTexture : public vtkTexture
 {
 public:
   static vtkOpenGLTexture *New();
-  vtkTypeMacro(vtkOpenGLTexture,vtkTexture);
+  vtkTypeMacro(vtkOpenGLTexture, vtkTexture);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement base class method.
-  void Load(vtkRenderer *ren);
+  void Load(vtkRenderer*);
 
   // Descsription:
   // Clean up after the rendering is complete.
-  virtual void PostRender(vtkRenderer *ren);
+  virtual void PostRender(vtkRenderer*);
 
   // Description:
   // Release any graphics resources that are being consumed by this texture.
   // The parameter window could be used to determine which graphic
   // resources to release. Using the same texture object in multiple
   // render windows is NOT currently supported.
-  void ReleaseGraphicsResources(vtkWindow *);
-
+  void ReleaseGraphicsResources(vtkWindow*);
 
   // Description:
   // Get the openGL texture name to which this texture is bound.
   // This is available only if GL version >= 1.1
   vtkGetMacro(Index, long);
-//BTX
+
 protected:
+//BTX
   vtkOpenGLTexture();
   ~vtkOpenGLTexture();
 

@@ -103,36 +103,36 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
                                                      unsigned long typeflags,
                                                      bool forceCompileOnly)
 {
-  vtkProperty* prop = actor->GetProperty();
-
   // If we have not yet set the alpha bit planes, do it based on the
   // render window so we're not querying GL in the middle of render.
   if (this->AlphaBitPlanes < 0)
     {
-    vtkOpenGLRenderer* oRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
-    if (oRenderer != NULL)
+    vtkOpenGLRenderer* oglRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+    if (oglRenderer)
       {
       vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
-        oRenderer->GetRenderWindow());
-      this->AlphaBitPlanes = context->GetAlphaBitPlanes();
+        oglRenderer->GetRenderWindow());
+      if (context)
+        {
+        this->AlphaBitPlanes = context->GetAlphaBitPlanes();
+        }
       }
     }
 
   // check for separate specular color support
-  if(!this->AcquiredGraphicsResources)
+  if (!this->AcquiredGraphicsResources)
     {
-    vtkOpenGLRenderer *oglRenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer);
-    if(oglRenderer)
+    vtkOpenGLRenderer *oglRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+    if (oglRenderer)
       {
       vtkOpenGLRenderWindow *oglRenderWindow =
         vtkOpenGLRenderWindow::SafeDownCast(oglRenderer->GetRenderWindow());
-      if(oglRenderWindow)
+      if (oglRenderWindow)
         {
         vtkOpenGLExtensionManager *oglExtensionManager =
           oglRenderWindow->GetExtensionManager();
 
-        if(oglExtensionManager)
+        if (oglExtensionManager)
           {
           this->SupportsSeparateSpecularColor =
             (oglExtensionManager->ExtensionSupported("GL_EXT_separate_specular_color") != 0);
@@ -153,9 +153,8 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
       }
     this->InternalColorTexture->SetInputData(this->ColorTextureMap);
     // Keep color from interacting with texture.
-    float info[4];
-    info[0] = info[1] = info[2] = info[3] = 1.0;
-    glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, info );
+    float info[4] = { 1.0, 1.0, 1.0, 1.0 };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, info);
 
     this->LastWindow = renderer->GetRenderWindow();
     }
@@ -166,24 +165,19 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
     this->LastWindow = 0;
     }
 
-
+  vtkProperty* prop = actor->GetProperty();
   // if we are doing vertex colors then set lmcolor to adjust
   // the current materials ambient and diffuse values using
   // vertex color commands otherwise tell it not to.
-  glDisable( GL_COLOR_MATERIAL );
+  glDisable(GL_COLOR_MATERIAL);
+
   if (this->UsingScalarColoring)
     {
     GLenum lmcolorMode;
     if (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT)
       {
-      if (prop->GetAmbient() > prop->GetDiffuse())
-        {
-        lmcolorMode = GL_AMBIENT;
-        }
-      else
-        {
-        lmcolorMode = GL_DIFFUSE;
-        }
+      lmcolorMode = (prop->GetAmbient() > prop->GetDiffuse()) ?
+        GL_AMBIENT : GL_DIFFUSE;
       }
     else if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE)
       {
@@ -205,17 +199,17 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
     else
       {
       glColorMaterial( GL_FRONT_AND_BACK, lmcolorMode);
-      glEnable( GL_COLOR_MATERIAL );
+      glEnable(GL_COLOR_MATERIAL);
       }
     }
 
   int pre_multiplied_by_alpha =  this->GetPremultiplyColorsWithAlpha(actor);
 
-  if(pre_multiplied_by_alpha || this->InterpolateScalarsBeforeMapping)
-  {
+  if (pre_multiplied_by_alpha || this->InterpolateScalarsBeforeMapping)
+    {
     // save the blend function.
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT);
-  }
+    }
 
   // We colors were premultiplied by alpha then we change the blending
   // function to one that will compute correct blended destination alpha
@@ -235,7 +229,7 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
     glLightModeli(vtkgl::LIGHT_MODEL_COLOR_CONTROL, vtkgl::SEPARATE_SPECULAR_COLOR);
     }
 
-  this->Superclass::RenderInternal(renderer, actor, typeflags,forceCompileOnly);
+  this->Superclass::RenderInternal(renderer, actor, typeflags, forceCompileOnly);
 
   if (pre_multiplied_by_alpha || this->InterpolateScalarsBeforeMapping)
     {

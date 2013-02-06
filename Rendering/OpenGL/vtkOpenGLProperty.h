@@ -34,7 +34,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLProperty : public vtkProperty
 {
 public:
   static vtkOpenGLProperty *New();
-  vtkTypeMacro(vtkOpenGLProperty,vtkProperty);
+  vtkTypeMacro(vtkOpenGLProperty, vtkProperty);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -83,7 +83,7 @@ public:
   // Description:
   // Set/Get the shader program of the vtkProp. It can be set directly or
   // by defining a Material.
-  vtkGetObjectMacro(PropProgram,vtkShaderProgram2);
+  vtkGetObjectMacro(PropProgram, vtkShaderProgram2);
   void SetPropProgram(vtkShaderProgram2 *);
 
   // Description:
@@ -92,7 +92,7 @@ public:
 
   // Description:
   // Get the vtkShaderProgram2 object in use.
-  vtkGetObjectMacro(CurrentShaderProgram2,vtkShaderProgram2);
+  vtkGetObjectMacro(CurrentShaderProgram2, vtkShaderProgram2);
   //ETX
 
   // Description:
@@ -102,9 +102,9 @@ public:
   // - \p name - hardware name of the uniform variable
   // - \p numVars - number of variables being set
   // - \p x - values
-  virtual void AddShaderVariable(const char *name,int numVars,int *x);
-  virtual void AddShaderVariable(const char *name,int numVars,float *x);
-  virtual void AddShaderVariable(const char *name,int numVars,double *x);
+  virtual void AddShaderVariable(const char *name, int numVars, int *x);
+  virtual void AddShaderVariable(const char *name, int numVars, float *x);
+  virtual void AddShaderVariable(const char *name, int numVars, double *x);
 
 protected:
   vtkOpenGLProperty();
@@ -118,16 +118,16 @@ protected:
   // Read this->Material from new style shaders.
   virtual void ReadFrameworkMaterial();
 
-  // Owned. Result of merging the shader program of the renderer and the
-  // PropProgram.
+  // Owned. Result of merging the shader program of the renderer
+  // and the PropProgram.
   vtkShaderProgram2 *CachedShaderProgram2;
 
   vtkShaderProgram2 *LastRendererShaderProgram2; // just a ref
   vtkShaderProgram2 *LastPropProgram; // just a ref
   vtkShaderProgram2 *PropProgram; // owned
 
-  // Point to CachedShaderProgram2 if Shading is on and the context supports
-  // it.
+  // Point to CachedShaderProgram2 if Shading is on and the context
+  // supports it.
   vtkShaderProgram2 *CurrentShaderProgram2;
 
   vtkShader2 *DefaultMainVS;
@@ -139,7 +139,6 @@ protected:
   bool UseDefaultPropVS;
   bool UseDefaultPropFS;
   vtkGLSLShaderDeviceAdapter2 *ShaderDeviceAdapter2;
-
 
 private:
   vtkOpenGLProperty(const vtkOpenGLProperty&);  // Not implemented.

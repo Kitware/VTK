@@ -30,7 +30,6 @@ vtkStandardNewMacro(vtkOpenGLCoincidentTopologyResolutionPainter);
 vtkOpenGLCoincidentTopologyResolutionPainter::
 vtkOpenGLCoincidentTopologyResolutionPainter()
 {
-
 }
 
 //-----------------------------------------------------------------------------
@@ -41,10 +40,8 @@ vtkOpenGLCoincidentTopologyResolutionPainter::
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLCoincidentTopologyResolutionPainter::RenderInternal(
-   vtkRenderer *renderer,
-   vtkActor *actor,
-   unsigned long typeflags,
-    bool forceCompileOnly)
+  vtkRenderer *renderer, vtkActor *actor, unsigned long typeflags,
+  bool forceCompileOnly)
 {
   vtkProperty* prop = actor->GetProperty();
   bool draw_surface_with_edges =
@@ -69,11 +66,9 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderInternal(
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLCoincidentTopologyResolutionPainter::RenderPolygonOffset(
-                                                        vtkRenderer *renderer,
-                                                        vtkActor *actor,
-                                                        unsigned long typeflags,
-                                                        bool forceCompileOnly)
-{
+  vtkRenderer *renderer, vtkActor *actor, unsigned long typeflags,
+  bool forceCompileOnly)
+  {
 #ifdef GL_VERSION_1_1
   if (this->OffsetFaces)
     {
@@ -105,10 +100,8 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderPolygonOffset(
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
-                                                        vtkRenderer *renderer,
-                                                        vtkActor *actor,
-                                                        unsigned long typeflags,
-                                                        bool forceCompileOnly)
+  vtkRenderer *renderer, vtkActor *actor, unsigned long typeflags,
+  bool forceCompileOnly)
 {
   // Get the flags for each type of primitive.  Polygons can be drawn
   // as vertices or lines rather than filled, so check the property and
@@ -174,7 +167,6 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
                                      forceCompileOnly);
     }
 }
-
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLCoincidentTopologyResolutionPainter::PrintSelf(

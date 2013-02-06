@@ -31,7 +31,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLClipPlanesPainter : public vtkClipPlane
 public:
   static vtkOpenGLClipPlanesPainter* New();
   vtkTypeMacro(vtkOpenGLClipPlanesPainter, vtkClipPlanesPainter);
-  void PrintSelf(ostream& os ,vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkOpenGLClipPlanesPainter();
@@ -48,7 +48,4 @@ private:
   void operator=(const vtkOpenGLClipPlanesPainter&); // Not implemented.
 };
 
-
-
 #endif
-

@@ -57,7 +57,7 @@ class VTKRENDERINGCORE_EXPORT vtkAreaPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkAreaPicker *New();
-  vtkTypeMacro(vtkAreaPicker,vtkAbstractPropPicker);
+  vtkTypeMacro(vtkAreaPicker, vtkAbstractPropPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -83,21 +83,22 @@ public:
   // This makes a thin frustum around the selected pixel.
   // Note: this ignores Z in order to pick everying in a volume from z=0 to z=1.
   virtual int Pick(double x0, double y0, double vtkNotUsed(z0), vtkRenderer *renderer = NULL)
-    {return this->AreaPick(x0, y0, x0+1.0, y0+1.0, renderer);};
+    { return this->AreaPick(x0, y0, x0+1.0, y0+1.0, renderer); }
 
   // Description:
   // Return mapper that was picked (if any).
-  vtkGetObjectMacro(Mapper,vtkAbstractMapper3D);
+  vtkGetObjectMacro(Mapper, vtkAbstractMapper3D);
 
   // Description:
   // Get a pointer to the dataset that was picked (if any). If nothing
   // was picked then NULL is returned.
-  vtkGetObjectMacro(DataSet,vtkDataSet);
+  vtkGetObjectMacro(DataSet, vtkDataSet);
 
   // Description:
   // Return a collection of all the prop 3D's that were intersected
   // by the pick ray. This collection is not sorted.
-  vtkProp3DCollection *GetProp3Ds() {return this->Prop3Ds;};
+  vtkProp3DCollection *GetProp3Ds()
+    { return this->Prop3Ds; }
 
   // Description:
   // Return the six planes that define the selection frustum. The implicit
@@ -114,7 +115,7 @@ protected:
   ~vtkAreaPicker();
 
   virtual void Initialize();
-  void DefineFrustum(double x0, double y0, double x1, double y1, vtkRenderer *renderer);
+  void DefineFrustum(double x0, double y0, double x1, double y1, vtkRenderer *);
   virtual int PickProps(vtkRenderer *renderer);
   int TypeDecipher(vtkProp *, vtkAbstractMapper3D **);
 
@@ -141,5 +142,3 @@ private:
 };
 
 #endif
-
-

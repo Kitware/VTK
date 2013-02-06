@@ -24,7 +24,7 @@
 // Default constructor. Do nothing.
 vtkRenderPass::vtkRenderPass()
 {
-  this->NumberOfRenderedProps=0;
+  this->NumberOfRenderedProps = 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ vtkRenderPass::~vtkRenderPass()
 // \pre w_exists: w!=0
 void vtkRenderPass::ReleaseGraphicsResources(vtkWindow *w)
 {
-  assert("pre: w_exists" && w!=0);
+  assert("pre: w_exists" && w != 0);
   // empty implementation;
   static_cast<void>(w); // avoid warning in release mode.
 }
@@ -53,7 +53,7 @@ void vtkRenderPass::ReleaseGraphicsResources(vtkWindow *w)
 // \pre renderer_exists: renderer!=0
 void vtkRenderPass::UpdateCamera(vtkRenderer *renderer)
 {
-  assert("pre: renderer_exists" && renderer!=0);
+  assert("pre: renderer_exists" && renderer != 0);
   renderer->UpdateCamera();
 }
 
@@ -63,8 +63,8 @@ void vtkRenderPass::UpdateCamera(vtkRenderer *renderer)
 // \pre renderer_exists: renderer!=0
 void vtkRenderPass::ClearLights(vtkRenderer *renderer)
 {
-  assert("pre: renderer_exists" && renderer!=0);
-  vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(renderer);
+  assert("pre: renderer_exists" && renderer != 0);
+  vtkOpenGLRenderer *oRenderer = static_cast<vtkOpenGLRenderer *>(renderer);
   oRenderer->ClearLights();
 }
 
@@ -74,7 +74,7 @@ void vtkRenderPass::ClearLights(vtkRenderer *renderer)
 // \pre renderer_exists: renderer!=0
 void vtkRenderPass::UpdateLightGeometry(vtkRenderer *renderer)
 {
-  assert("pre: renderer_exists" && renderer!=0);
+  assert("pre: renderer_exists" && renderer != 0);
   renderer->UpdateLightGeometry();
 }
 
@@ -84,7 +84,7 @@ void vtkRenderPass::UpdateLightGeometry(vtkRenderer *renderer)
 // \pre renderer_exists: renderer!=0
 void vtkRenderPass::UpdateLights(vtkRenderer *renderer)
 {
-  assert("pre: renderer_exists" && renderer!=0);
+  assert("pre: renderer_exists" && renderer != 0);
   renderer->UpdateLights();
 }
 
@@ -94,7 +94,7 @@ void vtkRenderPass::UpdateLights(vtkRenderer *renderer)
 // \pre renderer_exists: renderer!=0
 void vtkRenderPass::UpdateGeometry(vtkRenderer *renderer)
 {
-  assert("pre: renderer_exists" && renderer!=0);
+  assert("pre: renderer_exists" && renderer != 0);
   renderer->UpdateGeometry();
 }
 
@@ -106,15 +106,15 @@ void vtkRenderPass::UpdateGeometry(vtkRenderer *renderer)
 void vtkRenderPass::SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
                                                      bool value)
 {
-  assert("pre: renderer_exists" && renderer!=0);
+  assert("pre: renderer_exists" && renderer != 0);
 
-  renderer->LastRenderingUsedDepthPeeling=value;
+  renderer->LastRenderingUsedDepthPeeling = value;
 }
 
 // ----------------------------------------------------------------------------
 void vtkRenderPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os ,indent);
 
   os << indent << "NumberOfRenderedProps:" << this->NumberOfRenderedProps
      << endl;

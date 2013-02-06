@@ -38,23 +38,23 @@ public:
   // Usually the fastest one. If it is not null, it should be take into
   // account first and DedicatedSystemMemory or SharedSystemMemory should be
   // ignored.
-  vtkSetMacro(DedicatedVideoMemory,vtkIdType);
-  vtkGetMacro(DedicatedVideoMemory,vtkIdType);
+  vtkSetMacro(DedicatedVideoMemory, vtkIdType);
+  vtkGetMacro(DedicatedVideoMemory, vtkIdType);
 
   // Description:
   // Set/Get dedicated system memory in bytes. Initial value is 0.
   // This is slow memory. If it is not null, this value should be taken into
   // account only if there is no DedicatedVideoMemory and SharedSystemMemory
   // should be ignored.
-  vtkSetMacro(DedicatedSystemMemory,vtkIdType);
-  vtkGetMacro(DedicatedSystemMemory,vtkIdType);
+  vtkSetMacro(DedicatedSystemMemory, vtkIdType);
+  vtkGetMacro(DedicatedSystemMemory, vtkIdType);
 
   // Description:
   // Set/Get shared system memory in bytes. Initial value is 0.
   // Slowest memory. This value should be taken into account only if there is
   // neither DedicatedVideoMemory nor DedicatedSystemMemory.
-  vtkSetMacro(SharedSystemMemory,vtkIdType);
-  vtkGetMacro(SharedSystemMemory,vtkIdType);
+  vtkSetMacro(SharedSystemMemory, vtkIdType);
+  vtkGetMacro(SharedSystemMemory, vtkIdType);
 
 protected:
   vtkGPUInfo();

@@ -53,7 +53,7 @@ public:
   // it has been casted to the proper type.
   virtual void SendAttribute(const char* attrname,
     int components, int type,
-    const void* attribute, unsigned long offset=0)=0;
+    const void* attribute, unsigned long offset=0) = 0;
 
   // Description:
   // Set the shader program which is being updated by this device adapter.
@@ -66,7 +66,7 @@ public:
   // This method is called before rendering. This gives the shader device
   // adapter an opportunity to collect information, such as attribute indices
   // that it will need while rendering.
-  virtual void PrepareForRender()=0;
+  virtual void PrepareForRender() = 0;
 protected:
   vtkShaderDeviceAdapter();
   ~vtkShaderDeviceAdapter();

@@ -45,7 +45,7 @@ class VTKRENDERINGCORE_EXPORT vtkGraphToGlyphs : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGraphToGlyphs *New();
-  vtkTypeMacro(vtkGraphToGlyphs,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGraphToGlyphs, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX
@@ -112,10 +112,10 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info);
 
   //BTX
-  vtkSmartPointer<vtkGraphToPoints>    GraphToPoints;
-  vtkSmartPointer<vtkGlyphSource2D>    GlyphSource;
-  vtkSmartPointer<vtkSphereSource>     Sphere;
-  vtkSmartPointer<vtkGlyph3D>          Glyph;
+  vtkSmartPointer<vtkGraphToPoints> GraphToPoints;
+  vtkSmartPointer<vtkGlyphSource2D> GlyphSource;
+  vtkSmartPointer<vtkSphereSource> Sphere;
+  vtkSmartPointer<vtkGlyph3D> Glyph;
   vtkSmartPointer<vtkDistanceToCamera> DistanceToCamera;
   int GlyphType;
   bool Filled;

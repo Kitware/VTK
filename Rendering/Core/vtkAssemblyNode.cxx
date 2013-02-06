@@ -19,17 +19,20 @@
 
 vtkStandardNewMacro(vtkAssemblyNode);
 
+//----------------------------------------------------------------------------
 vtkAssemblyNode::vtkAssemblyNode()
 {
-  this->ViewProp = NULL;
-  this->Matrix = NULL;
+  this->ViewProp = 0;
+  this->Matrix = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkAssemblyNode::~vtkAssemblyNode()
 {
-  if ( this->Matrix )
+  if (this->Matrix)
     {
     this->Matrix->Delete();
+    this->Matrix = 0;
     }
 }
 
@@ -40,16 +43,17 @@ void vtkAssemblyNode::SetViewProp(vtkProp *prop)
   this->ViewProp = prop;
 }
 
+//----------------------------------------------------------------------------
 void vtkAssemblyNode::SetMatrix(vtkMatrix4x4 *matrix)
 {
   // delete previous
-  if ( this->Matrix != NULL )
+  if (this->Matrix)
     {
     this->Matrix->Delete();
-    this->Matrix = NULL;
+    this->Matrix = 0;
     }
   // return if NULL matrix specified
-  if ( matrix == NULL )
+  if (!matrix)
     {
     return;
     }
@@ -60,16 +64,17 @@ void vtkAssemblyNode::SetMatrix(vtkMatrix4x4 *matrix)
   this->Matrix = newMatrix;
 }
 
+//----------------------------------------------------------------------------
 unsigned long vtkAssemblyNode::GetMTime()
 {
-  unsigned long propMTime=0;
-  unsigned long matrixMTime=0;
+  unsigned long propMTime = 0;
+  unsigned long matrixMTime = 0;
 
-  if ( this->ViewProp != NULL )
+  if (this->ViewProp)
     {
     propMTime = this->ViewProp->GetMTime();
     }
-  if ( this->Matrix != NULL )
+  if (this->Matrix)
     {
     matrixMTime = this->Matrix->GetMTime();
     }
@@ -77,6 +82,7 @@ unsigned long vtkAssemblyNode::GetMTime()
   return (propMTime > matrixMTime ? propMTime : matrixMTime);
 }
 
+//----------------------------------------------------------------------------
 void vtkAssemblyNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

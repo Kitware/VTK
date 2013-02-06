@@ -78,7 +78,7 @@ class vtkImageData;
 class VTKRENDERINGCORE_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
 public:
-  vtkTypeMacro(vtkMapper,vtkAbstractMapper3D);
+  vtkTypeMacro(vtkMapper, vtkAbstractMapper3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -99,7 +99,7 @@ public:
   // Release any graphics resources that are being consumed by this mapper.
   // The parameter window could be used to determine which graphic
   // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *) {};
+  virtual void ReleaseGraphicsResources(vtkWindow *) {}
 
   // Description:
   // Specify a lookup table for the mapper to use.
@@ -113,18 +113,18 @@ public:
 
   // Description:
   // Turn on/off flag to control whether scalar data is used to color objects.
-  vtkSetMacro(ScalarVisibility,int);
-  vtkGetMacro(ScalarVisibility,int);
-  vtkBooleanMacro(ScalarVisibility,int);
+  vtkSetMacro(ScalarVisibility, int);
+  vtkGetMacro(ScalarVisibility, int);
+  vtkBooleanMacro(ScalarVisibility, int);
 
   // Description:
   // Turn on/off flag to control whether the mapper's data is static. Static data
   // means that the mapper does not propagate updates down the pipeline, greatly
   // decreasing the time it takes to update many mappers. This should only be
   // used if the data never changes.
-  vtkSetMacro(Static,int);
-  vtkGetMacro(Static,int);
-  vtkBooleanMacro(Static,int);
+  vtkSetMacro(Static, int);
+  vtkGetMacro(Static, int);
+  vtkBooleanMacro(Static, int);
 
   // Description:
   // Control how the scalar data is mapped to colors.  By default
@@ -134,12 +134,12 @@ public:
   // the lookup table.  (Note that for multi-component scalars, the
   // particular component to use for mapping can be specified using the
   // SelectColorArray() method.)
-  vtkSetMacro(ColorMode,int);
-  vtkGetMacro(ColorMode,int);
+  vtkSetMacro(ColorMode, int);
+  vtkGetMacro(ColorMode, int);
   void SetColorModeToDefault()
-    {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
+    { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
   void SetColorModeToMapScalars()
-    {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
+    { this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS); }
 
   // Description:
   // Return the method of coloring scalar data.
@@ -150,9 +150,9 @@ public:
   // Colors are interpolated after being mapped.
   // This option avoids color interpolation by using a one dimensional
   // texture map for the colors.
-  vtkSetMacro(InterpolateScalarsBeforeMapping,int);
-  vtkGetMacro(InterpolateScalarsBeforeMapping,int);
-  vtkBooleanMacro(InterpolateScalarsBeforeMapping,int);
+  vtkSetMacro(InterpolateScalarsBeforeMapping, int);
+  vtkGetMacro(InterpolateScalarsBeforeMapping, int);
+  vtkBooleanMacro(InterpolateScalarsBeforeMapping, int);
 
   // Description:
   // Control whether the mapper sets the lookuptable range based on its
@@ -161,16 +161,16 @@ public:
   // the LookupTable range, but users who are sharing LookupTables between
   // mappers/actors will probably wish to force the mapper to use the
   // LookupTable unchanged.
-  vtkSetMacro(UseLookupTableScalarRange,int);
-  vtkGetMacro(UseLookupTableScalarRange,int);
-  vtkBooleanMacro(UseLookupTableScalarRange,int);
+  vtkSetMacro(UseLookupTableScalarRange, int);
+  vtkGetMacro(UseLookupTableScalarRange, int);
+  vtkBooleanMacro(UseLookupTableScalarRange, int);
 
   // Description:
   // Specify range in terms of scalar minimum and maximum (smin,smax). These
   // values are used to map scalars into lookup table. Has no effect when
   // UseLookupTableScalarRange is true.
-  vtkSetVector2Macro(ScalarRange,double);
-  vtkGetVectorMacro(ScalarRange,double,2);
+  vtkSetVector2Macro(ScalarRange, double);
+  vtkGetVectorMacro(ScalarRange, double, 2);
 
   // Description:
   // Turn on/off flag to control whether data is rendered using
@@ -179,9 +179,9 @@ public:
   // The default value is immediate mode off. If you are
   // having problems rendering a large dataset you might
   // want to consider using immediate more rendering.
-  vtkSetMacro(ImmediateModeRendering,int);
-  vtkGetMacro(ImmediateModeRendering,int);
-  vtkBooleanMacro(ImmediateModeRendering,int);
+  vtkSetMacro(ImmediateModeRendering, int);
+  vtkGetMacro(ImmediateModeRendering, int);
+  vtkBooleanMacro(ImmediateModeRendering, int);
 
   // Description:
   // Turn on/off flag to control whether data is rendered using
@@ -192,9 +192,9 @@ public:
   // want to consider using immediate more rendering.
   static void SetGlobalImmediateModeRendering(int val);
   static void GlobalImmediateModeRenderingOn()
-    {vtkMapper::SetGlobalImmediateModeRendering(1);};
+    { vtkMapper::SetGlobalImmediateModeRendering(1); }
   static void GlobalImmediateModeRenderingOff()
-    {vtkMapper::SetGlobalImmediateModeRendering(0);};
+    { vtkMapper::SetGlobalImmediateModeRendering(0); }
   static int  GetGlobalImmediateModeRendering();
 
   //BTX
@@ -206,7 +206,7 @@ public:
   // This can be used by another rendering class which also uses display lists
   // (call of display lists can be nested but not their creation.)
   // There is no good reason to expose it to wrappers.
-  vtkGetMacro(ForceCompileOnly,int);
+  vtkGetMacro(ForceCompileOnly, int);
   void SetForceCompileOnly(int value);
   //ETX
 
@@ -226,20 +226,20 @@ public:
   // color cells. In this mode, if the poly data has triangle strips,
   // the field data is treated as the celldata for each mini-cell formed by
   // a triangle in the strip rather than the entire strip.
-  vtkSetMacro(ScalarMode,int);
-  vtkGetMacro(ScalarMode,int);
-  void SetScalarModeToDefault() {
-    this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT);};
-  void SetScalarModeToUsePointData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA);};
-  void SetScalarModeToUseCellData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA);};
-  void SetScalarModeToUsePointFieldData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);};
-  void SetScalarModeToUseCellFieldData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);};
-  void SetScalarModeToUseFieldData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_FIELD_DATA); }
+  vtkSetMacro(ScalarMode, int);
+  vtkGetMacro(ScalarMode, int);
+  void SetScalarModeToDefault()
+    { this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT); }
+  void SetScalarModeToUsePointData()
+    { this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA); }
+  void SetScalarModeToUseCellData()
+    { this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA); }
+  void SetScalarModeToUsePointFieldData()
+    { this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA); }
+  void SetScalarModeToUseCellFieldData()
+    { this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA); }
+  void SetScalarModeToUseFieldData()
+    { this->SetScalarMode(VTK_SCALAR_MODE_USE_FIELD_DATA); }
 
   // Description:
   // When ScalarMode is set to UsePointFieldData or UseCellFieldData,
@@ -281,11 +281,11 @@ public:
   static int  GetResolveCoincidentTopology();
   static void SetResolveCoincidentTopologyToDefault();
   static void SetResolveCoincidentTopologyToOff()
-    {SetResolveCoincidentTopology(VTK_RESOLVE_OFF);}
+    { SetResolveCoincidentTopology(VTK_RESOLVE_OFF) ;}
   static void SetResolveCoincidentTopologyToPolygonOffset()
-    {SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);}
+    { SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET); }
   static void SetResolveCoincidentTopologyToShiftZBuffer()
-    {SetResolveCoincidentTopology(VTK_RESOLVE_SHIFT_ZBUFFER);}
+    { SetResolveCoincidentTopology(VTK_RESOLVE_SHIFT_ZBUFFER); }
 
   // Description:
   // Used to set the polygon offset scale factor and units.
@@ -316,7 +316,7 @@ public:
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual double *GetBounds();
   virtual void GetBounds(double bounds[6])
-    {this->vtkAbstractMapper3D::GetBounds(bounds);};
+    { this->vtkAbstractMapper3D::GetBounds(bounds); }
 
   // Description:
   // This instance variable is used by vtkLODActor to determine which
@@ -338,7 +338,7 @@ public:
   // GetInput().  This method is provided for use in the wrapper languages,
   // C++ programmers should use GetInput() instead.
   vtkDataSet *GetInputAsDataSet()
-    {return this->GetInput();}
+    { return this->GetInput(); }
 
   // Description:
   // Map the scalars (if there are any scalars and ScalarVisibility is on)
@@ -353,13 +353,13 @@ public:
   vtkSetMacro(ScalarMaterialMode,int);
   vtkGetMacro(ScalarMaterialMode,int);
   void SetScalarMaterialModeToDefault()
-    {this->SetScalarMaterialMode(VTK_MATERIALMODE_DEFAULT);};
+    { this->SetScalarMaterialMode(VTK_MATERIALMODE_DEFAULT); }
   void SetScalarMaterialModeToAmbient()
-    {this->SetScalarMaterialMode(VTK_MATERIALMODE_AMBIENT);};
+    { this->SetScalarMaterialMode(VTK_MATERIALMODE_AMBIENT); }
   void SetScalarMaterialModeToDiffuse()
-    {this->SetScalarMaterialMode(VTK_MATERIALMODE_DIFFUSE);};
+    { this->SetScalarMaterialMode(VTK_MATERIALMODE_DIFFUSE); }
   void SetScalarMaterialModeToAmbientAndDiffuse()
-    {this->SetScalarMaterialMode(VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE);};
+    { this->SetScalarMaterialMode(VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE); }
 
   // Description:
   // Return the light-model color mode.
@@ -372,7 +372,8 @@ public:
   // component.  Default implementation simply returns true. Note that even if
   // this method returns true, an actor may treat the geometry as translucent
   // since a constant translucency is set on the property, for example.
-  virtual bool GetIsOpaque() { return true; }
+  virtual bool GetIsOpaque()
+    { return true; }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

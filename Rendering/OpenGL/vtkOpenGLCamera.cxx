@@ -35,11 +35,11 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   int usize, vsize;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
-  vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
-  ren->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
+  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
 
   // if were on a stereo renderer draw to special parts of screen
   if (this->Stereo)
@@ -49,7 +49,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
       case VTK_STEREO_CRYSTAL_EYES:
         if (this->LeftEye)
           {
-          if(ren->GetRenderWindow()->GetDoubleBuffer())
+          if (ren->GetRenderWindow()->GetDoubleBuffer())
             {
             glDrawBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
             glReadBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
@@ -62,7 +62,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
           }
         else
           {
-           if(ren->GetRenderWindow()->GetDoubleBuffer())
+           if (ren->GetRenderWindow()->GetDoubleBuffer())
             {
             glDrawBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
             glReadBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
@@ -106,31 +106,30 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
       }
     }
 
-  glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
-  glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
+  glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  glEnable(GL_SCISSOR_TEST);
+  glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
 
   // some renderer subclasses may have more complicated computations for the
-  // aspect ratio. SO take that into account by computing the difference
-  // between our simple aspect ratio and what the actual renderer is
-  // reporting.
+  // aspect ratio. So take that into account by computing the difference
+  // between our simple aspect ratio and what the actual renderer is reporting.
   ren->ComputeAspect();
   ren->GetAspect(aspect);
   double aspect2[2];
   ren->vtkViewport::ComputeAspect();
   ren->vtkViewport::GetAspect(aspect2);
-  double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
+  double aspectModification = aspect[0] * aspect2[1] / (aspect[1] * aspect2[0]);
 
-  glMatrixMode( GL_PROJECTION);
-  if(usize && vsize)
+  glMatrixMode(GL_PROJECTION);
+  if (usize && vsize)
     {
     matrix->DeepCopy(this->GetProjectionTransformMatrix(
-                       aspectModification*usize/vsize, -1,1));
+                       aspectModification * usize / vsize, -1, 1));
     matrix->Transpose();
     }
-  if(ren->GetIsPicking())
+  if (ren->GetIsPicking())
     {
-    int size[2]; size[0] = usize; size[1] = vsize;
+    int size[2] = {usize, vsize};
     glLoadIdentity();
     vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(),
                      ren->GetPickWidth(), ren->GetPickHeight(),
@@ -163,15 +162,16 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   matrix->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
 {
-  int  lowerLeft[2];
+  int lowerLeft[2];
   int usize, vsize;
-  ren->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
+  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
 
-  glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
-  glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
+  glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  glEnable(GL_SCISSOR_TEST);
+  glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
 }
 
 //----------------------------------------------------------------------------

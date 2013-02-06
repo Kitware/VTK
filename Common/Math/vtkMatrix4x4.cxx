@@ -28,10 +28,9 @@ typedef double (*SqMatPtr)[4];
 void vtkMatrix4x4::Zero(double Elements[16])
 {
   SqMatPtr elem  = (SqMatPtr)Elements;
-  int i,j;
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
     {
-    for (j = 0; j < 4; j++)
+    for (int j = 0; j < 4; j++)
       {
       elem[i][j] = 0.0;
       }
@@ -73,14 +72,14 @@ void vtkMatrix4x4MultiplyPoint(T1 elem[16], T2 in[4], T3 out[4])
 void vtkMatrix4x4::MultiplyPoint(const double Elements[16],
                                  const float in[4], float result[4])
 {
-  vtkMatrix4x4MultiplyPoint(Elements,in,result);
+  vtkMatrix4x4MultiplyPoint(Elements, in, result);
 }
 
 //----------------------------------------------------------------------------
 void vtkMatrix4x4::MultiplyPoint(const double Elements[16],
                                  const double in[4], double result[4])
 {
-  vtkMatrix4x4MultiplyPoint(Elements,in,result);
+  vtkMatrix4x4MultiplyPoint(Elements, in, result);
 }
 
 //----------------------------------------------------------------------------
@@ -88,8 +87,8 @@ void vtkMatrix4x4::PointMultiply(const double Elements[16],
                                  const float in[4], float result[4])
 {
   double newElements[16];
-  vtkMatrix4x4::Transpose(Elements,newElements);
-  vtkMatrix4x4::MultiplyPoint(newElements,in,result);
+  vtkMatrix4x4::Transpose(Elements, newElements);
+  vtkMatrix4x4::MultiplyPoint(newElements, in, result);
 }
 
 //----------------------------------------------------------------------------
@@ -97,8 +96,8 @@ void vtkMatrix4x4::PointMultiply(const double Elements[16],
                                  const double in[4], double result[4])
 {
   double newElements[16];
-  vtkMatrix4x4::Transpose(Elements,newElements);
-  vtkMatrix4x4::MultiplyPoint(newElements,in,result);
+  vtkMatrix4x4::Transpose(Elements, newElements);
+  vtkMatrix4x4::MultiplyPoint(newElements, in, result);
 }
 
 //----------------------------------------------------------------------------
@@ -106,15 +105,14 @@ void vtkMatrix4x4::PointMultiply(const double Elements[16],
 void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16],
                                double c[16])
 {
-  SqMatPtr aMat = (SqMatPtr) a;
-  SqMatPtr bMat = (SqMatPtr) b;
-  SqMatPtr cMat = (SqMatPtr) c;
-  int i, k;
+  SqMatPtr aMat = (SqMatPtr)a;
+  SqMatPtr bMat = (SqMatPtr)b;
+  SqMatPtr cMat = (SqMatPtr)c;
   double Accum[4][4];
 
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
     {
-    for (k = 0; k < 4; k++)
+    for (int k = 0; k < 4; k++)
       {
       Accum[i][k] = aMat[i][0] * bMat[0][k] +
                     aMat[i][1] * bMat[1][k] +
@@ -124,7 +122,7 @@ void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16],
     }
 
   // Copy to final dest
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
     {
     cMat[i][0] = Accum[i][0];
     cMat[i][1] = Accum[i][1];
@@ -150,28 +148,25 @@ void vtkMatrix4x4::Invert(const double inElements[16],
   //         det A
   //
 
-  int i, j;
-  double det;
-
   // calculate the 4x4 determinent
   // if the determinent is zero,
   // then the inverse matrix is not unique.
 
-  det = vtkMatrix4x4::Determinant(inElements);
-  if ( det == 0.0 )
+  double det = vtkMatrix4x4::Determinant(inElements);
+  if (det == 0.0)
     {
     return;
     }
 
   // calculate the adjoint matrix
-  vtkMatrix4x4::Adjoint(inElements, outElements );
+  vtkMatrix4x4::Adjoint(inElements, outElements);
 
   // scale the adjoint matrix to get the inverse
-  for (i=0; i<4; i++)
+  for (int i = 0; i < 4; i++)
     {
-    for(j=0; j<4; j++)
+    for(int j = 0; j < 4; j++)
       {
-      outElem[i][j] = outElem[i][j] / det;
+      outElem[i][j] /= det;
       }
     }
 }
@@ -286,11 +281,11 @@ void vtkMatrix4x4::Adjoint(const double inElements[16], double outElements[16])
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrix4x4::DeepCopy(double Elements[16], const double newElements[16])
+void vtkMatrix4x4::DeepCopy(double elements[16], const double newElements[16])
 {
   for (int i = 0; i < 16; i++)
     {
-    Elements[i] = newElements[i];
+    elements[i] = newElements[i];
     }
 }
 
@@ -301,14 +296,12 @@ void vtkMatrix4x4::Transpose(const double inElements[16],
 {
   SqMatPtr inElem = (SqMatPtr)inElements;
   SqMatPtr outElem = (SqMatPtr)outElements;
-  int i, j;
-  double temp;
 
-  for (i=0; i<4; i++)
+  for (int i = 0; i < 4; i++)
     {
-    for(j=i; j<4; j++)
+    for(int j = i; j < 4; j++)
       {
-      temp = inElem[i][j];
+      double temp = inElem[i][j];
       outElem[i][j] = inElem[j][i];
       outElem[j][i] = temp;
       }
@@ -320,13 +313,11 @@ void vtkMatrix4x4::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  int i, j;
-
   os << indent << "Elements:\n";
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
     {
     os << indent << indent;
-    for (j = 0; j < 4; j++)
+    for (int j = 0; j < 4; j++)
       {
       os << this->Element[i][j] << " ";
       }

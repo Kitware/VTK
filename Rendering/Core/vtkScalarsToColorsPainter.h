@@ -179,17 +179,17 @@ protected:
   // Methods to set the ivars. These are purposefully protected.
   // The only means of affecting these should be using the vtkInformation
   // object.
-  vtkSetMacro(UseLookupTableScalarRange,int);
-  vtkSetVector2Macro(ScalarRange,double);
+  vtkSetMacro(UseLookupTableScalarRange, int);
+  vtkSetVector2Macro(ScalarRange, double);
   vtkSetMacro(ScalarMode, int);
   vtkSetMacro(ColorMode, int);
-  vtkSetMacro(InterpolateScalarsBeforeMapping,int);
-  vtkSetMacro(ScalarVisibility,int);
-  vtkSetMacro(ScalarMaterialMode,int);
+  vtkSetMacro(InterpolateScalarsBeforeMapping, int);
+  vtkSetMacro(ScalarVisibility, int);
+  vtkSetMacro(ScalarMaterialMode, int);
   vtkSetMacro(ArrayAccessMode, int);
+  vtkSetMacro(ArrayComponent, int);
   vtkSetMacro(ArrayId, int);
   vtkSetStringMacro(ArrayName);
-  vtkSetMacro(ArrayComponent, int);
 
   vtkDataObject* OutputData;
 
@@ -227,4 +227,3 @@ private:
 };
 
 #endif
-

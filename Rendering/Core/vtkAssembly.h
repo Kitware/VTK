@@ -66,7 +66,7 @@ class VTKRENDERINGCORE_EXPORT vtkAssembly : public vtkProp3D
 public:
   static vtkAssembly *New();
 
-  vtkTypeMacro(vtkAssembly,vtkProp3D);
+  vtkTypeMacro(vtkAssembly, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -79,7 +79,8 @@ public:
 
   // Description:
   // Return the parts (direct descendants) of this assembly.
-  vtkProp3DCollection *GetParts();
+  vtkProp3DCollection *GetParts()
+    { return this->Parts; }
 
   // Description:
   // For some exporters and other other operations we must be
@@ -96,8 +97,8 @@ public:
   // assemblies; that is, assemblies that only serve to group and transform
   // its parts.
   int RenderOpaqueGeometry(vtkViewport *ren);
-  virtual int RenderTranslucentPolygonalGeometry( vtkViewport *ren);
-  virtual int RenderVolumetricGeometry( vtkViewport *ren);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *ren);
+  virtual int RenderVolumetricGeometry(vtkViewport *ren);
 
   // Description:
   // Does this prop have some translucent polygonal geometry?
@@ -126,7 +127,8 @@ public:
 
   // Description:
   // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );};
+  void GetBounds(double bounds[6])
+    { this->vtkProp3D::GetBounds( bounds ); }
   double *GetBounds();
 
   // Description:
@@ -164,12 +166,4 @@ private:
   void operator=(const vtkAssembly&);  // Not implemented.
 };
 
-// Description:
-// Get the list of parts for this assembly.
-inline vtkProp3DCollection *vtkAssembly::GetParts() {return this->Parts;}
-
 #endif
-
-
-
-

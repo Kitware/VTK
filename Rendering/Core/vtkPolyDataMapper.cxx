@@ -44,21 +44,18 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     return;
     }
 
-  int currentPiece, nPieces;
   vtkInformation *inInfo = this->GetInputInformation();
-
   if (inInfo == NULL)
     {
     vtkErrorMacro("Mapper has no input.");
     return;
     }
 
-  nPieces = this->NumberOfPieces * this->NumberOfSubPieces;
-
-  for(int i=0; i<this->NumberOfSubPieces; i++)
+  int nPieces = this->NumberOfPieces * this->NumberOfSubPieces;
+  for (int i = 0; i < this->NumberOfSubPieces; i++)
     {
     // If more than one pieces, render in loop.
-    currentPiece = this->NumberOfSubPieces * this->Piece + i;
+    int currentPiece = this->NumberOfSubPieces * this->Piece + i;
     vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
       inInfo,
       currentPiece, nPieces, this->GhostLevel);
@@ -80,6 +77,7 @@ vtkPolyData *vtkPolyDataMapper::GetInput()
     this->GetExecutive()->GetInputData(0, 0));
 }
 
+//----------------------------------------------------------------------------
 // Update the network connected to this mapper.
 void vtkPolyDataMapper::Update(int port)
 {
@@ -90,35 +88,36 @@ void vtkPolyDataMapper::Update(int port)
 
   this->UpdateInformation();
 
-  int currentPiece, nPieces = this->NumberOfPieces;
   vtkInformation* inInfo = this->GetInputInformation();
 
   // If the estimated pipeline memory usage is larger than
   // the memory limit, break the current piece into sub-pieces.
   if (inInfo)
     {
-    currentPiece = this->NumberOfSubPieces * this->Piece;
+    int currentPiece = this->NumberOfSubPieces * this->Piece;
     vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
       inInfo,
       currentPiece,
-      this->NumberOfSubPieces*nPieces,
+      this->NumberOfSubPieces * this->NumberOfPieces,
       this->GhostLevel);
     }
 
   this->vtkMapper::Update(port);
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyDataMapper::Update()
 {
   this->Superclass::Update();
 }
 
+//----------------------------------------------------------------------------
 // Get the bounds for the input of this mapper as
 // (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkPolyDataMapper::GetBounds()
 {
   // do we have an input
-  if ( ! this->GetNumberOfInputConnections(0))
+  if ( !this->GetNumberOfInputConnections(0))
     {
       vtkMath::UninitializeBounds(this->Bounds);
       return this->Bounds;
@@ -151,15 +150,17 @@ double *vtkPolyDataMapper::GetBounds()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyDataMapper::ComputeBounds()
 {
   this->GetInput()->GetBounds(this->Bounds);
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
 {
   vtkPolyDataMapper *m = vtkPolyDataMapper::SafeDownCast(mapper);
-  if ( m != NULL )
+  if (m != NULL)
     {
     this->SetInputConnection(m->GetInputConnection(0, 0));
     this->SetGhostLevel(m->GetGhostLevel());
@@ -171,6 +172,7 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
   this->vtkMapper::ShallowCopy(mapper);
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyDataMapper::MapDataArrayToVertexAttribute(
     const char* vtkNotUsed(vertexAttributeName),
     const char* vtkNotUsed(dataArrayName),
@@ -181,6 +183,7 @@ void vtkPolyDataMapper::MapDataArrayToVertexAttribute(
   vtkErrorMacro("Not impmlemented at this level...");
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyDataMapper::MapDataArrayToMultiTextureAttribute(
     int vtkNotUsed(unit),
     const char* vtkNotUsed(dataArrayName),
@@ -191,19 +194,20 @@ void vtkPolyDataMapper::MapDataArrayToMultiTextureAttribute(
   vtkErrorMacro("Not impmlemented at this level...");
 }
 
-
-void vtkPolyDataMapper::RemoveVertexAttributeMapping(const char* vtkNotUsed(vertexAttributeName))
+//----------------------------------------------------------------------------
+void vtkPolyDataMapper::RemoveVertexAttributeMapping(
+  const char* vtkNotUsed(vertexAttributeName))
 {
   vtkErrorMacro("Not impmlemented at this level...");
 }
 
-
+//----------------------------------------------------------------------------
 void vtkPolyDataMapper::RemoveAllVertexAttributeMappings()
 {
   vtkErrorMacro("Not impmlemented at this level...");
 }
 
-
+//----------------------------------------------------------------------------
 void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -217,7 +221,7 @@ void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkPolyDataMapper::FillInputPortInformation(
-  int vtkNotUsed( port ), vtkInformation* info)
+  int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;

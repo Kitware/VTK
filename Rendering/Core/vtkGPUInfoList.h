@@ -42,7 +42,7 @@ public:
   // Default implementation created an empty list. Useful if there is no
   // implementation available for a given architecture yet.
   // \post probed: IsProbed()
-  virtual void Probe()=0;
+  virtual void Probe() = 0;
 
   // Description:
   // Tells if the operating system has been probed. Initial value is false.

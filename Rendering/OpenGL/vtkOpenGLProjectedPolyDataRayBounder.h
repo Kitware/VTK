@@ -43,7 +43,7 @@ class vtkWindow;
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLProjectedPolyDataRayBounder : public vtkProjectedPolyDataRayBounder
 {
 public:
-  vtkTypeMacro(vtkOpenGLProjectedPolyDataRayBounder,vtkProjectedPolyDataRayBounder);
+  vtkTypeMacro(vtkOpenGLProjectedPolyDataRayBounder, vtkProjectedPolyDataRayBounder);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -62,16 +62,16 @@ protected:
   vtkOpenGLProjectedPolyDataRayBounder();
   ~vtkOpenGLProjectedPolyDataRayBounder();
 
-  GLuint    DisplayList;
-  float     *DepthRangeBuffer;
+  GLuint DisplayList;
+  float *DepthRangeBuffer;
 
   // Description:
   // Create a display list from the poly data.
-  void Build( vtkPolyData *pdata );
+  void Build(vtkPolyData *pdata);
 
   // Description:
   // Render the display list and create the near and far buffers
-  float *Draw( vtkRenderer *ren, vtkMatrix4x4 *matrix );
+  float *Draw(vtkRenderer *ren, vtkMatrix4x4 *matrix);
 
 private:
   vtkOpenGLProjectedPolyDataRayBounder(const vtkOpenGLProjectedPolyDataRayBounder&);  // Not implemented.

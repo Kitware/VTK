@@ -40,6 +40,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLGlyph3DMapper : public vtkGlyph3DMapper
 public:
   static vtkOpenGLGlyph3DMapper* New();
   vtkTypeMacro(vtkOpenGLGlyph3DMapper, vtkGlyph3DMapper);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
    // Description:
   // Method initiates the mapping process. Generally sent by the actor
@@ -53,21 +54,19 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  //BTX
 protected:
+  //BTX
   vtkOpenGLGlyph3DMapper();
   ~vtkOpenGLGlyph3DMapper();
 
   // Description:
   // Take part in garbage collection.
-  virtual void ReportReferences(vtkGarbageCollector *collector);
+  virtual void ReportReferences(vtkGarbageCollector*);
 
   // Description:
   // Send mapper ivars to sub-mapper.
   // \pre mapper_exists: mapper!=0
-  void CopyInformationToSubMapper(vtkPainterPolyDataMapper *mapper);
+  void CopyInformationToSubMapper(vtkPainterPolyDataMapper*);
 
   // Description:
   // Release display list used for matrices and color.
@@ -92,7 +91,7 @@ private:
   vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&); // Not implemented.
   void operator=(const vtkOpenGLGlyph3DMapper&); // Not implemented.
 
-  virtual void Render(vtkRenderer *ren, vtkActor *a, vtkDataSet* ds);
+  virtual void Render(vtkRenderer*, vtkActor*, vtkDataSet*);
   //ETX
 };
 

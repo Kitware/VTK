@@ -16,16 +16,16 @@
 // .SECTION Description
 // vtkLODActor is an actor that stores multiple levels of detail (LOD) and
 // can automatically switch between them. It selects which level of detail to
-// use based on how much time it has been allocated to render.  Currently a
-// very simple method of TotalTime/NumberOfActors is used.  (In the future
+// use based on how much time it has been allocated to render. Currently a
+// very simple method of TotalTime/NumberOfActors is used. (In the future
 // this should be modified to dynamically allocate the rendering time between
 // different actors based on their needs.)
 //
 // There are three levels of detail by default. The top level is just the
-// normal data.  The lowest level of detail is a simple bounding box outline
+// normal data. The lowest level of detail is a simple bounding box outline
 // of the actor. The middle level of detail is a point cloud of a fixed
 // number of points that have been randomly sampled from the mapper's input
-// data.  Point attributes are copied over to the point cloud.  These two
+// data. Point attributes are copied over to the point cloud. These two
 // lower levels of detail are accomplished by creating instances of a
 // vtkOutlineFilter (low-res) and vtkMaskPoints (medium-res). Additional
 // levels of detail can be add using the AddLODMapper() method.
@@ -66,49 +66,49 @@ class vtkWindow;
 class VTKRENDERINGLOD_EXPORT vtkLODActor : public vtkActor
 {
 public:
-  vtkTypeMacro(vtkLODActor,vtkActor);
+  vtkTypeMacro(vtkLODActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Creates a vtkLODActor with the following defaults: origin(0,0,0)
   // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
   // orientation=(0,0,0). NumberOfCloudPoints is set to 150.
-  static vtkLODActor *New();
+  static vtkLODActor* New();
 
   // Description:
-  // This causes the actor to be rendered. It, in turn, will render the actor's
-  // property and then mapper.
+  // This causes the actor to be rendered.
+  // It, in turn, will render the actor's property and then mapper.
   virtual void Render(vtkRenderer *, vtkMapper *);
 
   // Description:
   // This method is used internally by the rendering process. We overide
   // the superclass method to properly set the estimated render time.
-  int RenderOpaqueGeometry(vtkViewport *viewport);
+  int RenderOpaqueGeometry(vtkViewport* viewport);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow*);
 
   // Description:
-  // Add another level of detail.  They do not have to be in any order
-  // of complexity.
-  void AddLODMapper(vtkMapper *mapper);
+  // Add another level of detail.
+  // They do not have to be in any order of complexity.
+  void AddLODMapper(vtkMapper* mapper);
 
   // Description:
-  // You may plug in your own filters to decimate/subsample the input. The
-  // default is to use a vtkOutlineFilter (low-res) and vtkMaskPoints
+  // You may plug in your own filters to decimate/subsample the input.
+  // The default is to use a vtkOutlineFilter (low-res) and vtkMaskPoints
   // (medium-res).
-  virtual void SetLowResFilter( vtkPolyDataAlgorithm * );
-  virtual void SetMediumResFilter( vtkPolyDataAlgorithm * );
-  vtkGetObjectMacro( LowResFilter,    vtkPolyDataAlgorithm );
-  vtkGetObjectMacro( MediumResFilter, vtkPolyDataAlgorithm );
+  virtual void SetLowResFilter(vtkPolyDataAlgorithm*);
+  virtual void SetMediumResFilter(vtkPolyDataAlgorithm*);
+  vtkGetObjectMacro(LowResFilter, vtkPolyDataAlgorithm);
+  vtkGetObjectMacro(MediumResFilter, vtkPolyDataAlgorithm);
 
   // Description:
   // Set/Get the number of random points for the point cloud.
-  vtkGetMacro(NumberOfCloudPoints,int);
-  vtkSetMacro(NumberOfCloudPoints,int);
+  vtkGetMacro(NumberOfCloudPoints, int);
+  vtkSetMacro(NumberOfCloudPoints, int);
 
   // Description:
   // All the mappers for different LODs are stored here.
@@ -127,18 +127,18 @@ protected:
   vtkLODActor();
   ~vtkLODActor();
 
-  vtkActor            *Device;
-  vtkMapperCollection *LODMappers;
+  vtkActor* Device;
+  vtkMapperCollection* LODMappers;
 
   // We can create our own LOD filters. The default is to use a
   //
-  vtkPolyDataAlgorithm  * LowResFilter;
-  vtkPolyDataAlgorithm  * MediumResFilter;
-  vtkPolyDataMapper     * LowMapper;
-  vtkPolyDataMapper     * MediumMapper;
+  vtkPolyDataAlgorithm* LowResFilter;
+  vtkPolyDataAlgorithm* MediumResFilter;
+  vtkPolyDataMapper* LowMapper;
+  vtkPolyDataMapper* MediumMapper;
 
-  vtkTimeStamp            BuildTime;
-  int                     NumberOfCloudPoints;
+  vtkTimeStamp BuildTime;
+  int NumberOfCloudPoints;
 
   virtual void CreateOwnLODs();
   virtual void UpdateOwnLODs();
@@ -150,5 +150,3 @@ private:
 };
 
 #endif
-
-

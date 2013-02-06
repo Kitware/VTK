@@ -30,7 +30,7 @@
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
-  vtkTypeMacro(vtkOpenGLPolyDataMapper2D,vtkPolyDataMapper2D);
+  vtkTypeMacro(vtkOpenGLPolyDataMapper2D, vtkPolyDataMapper2D);
   static vtkOpenGLPolyDataMapper2D *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -39,14 +39,12 @@ public:
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:
-  vtkOpenGLPolyDataMapper2D() {};
-  ~vtkOpenGLPolyDataMapper2D() {};
+  vtkOpenGLPolyDataMapper2D() {}
+  ~vtkOpenGLPolyDataMapper2D() {}
 
 private:
   vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
   void operator=(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
 };
 
-
 #endif
-

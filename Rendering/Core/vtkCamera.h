@@ -39,9 +39,9 @@ class vtkCameraCallbackCommand;
 
 class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
 {
- public:
+public:
+  vtkTypeMacro(vtkCamera, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkCamera,vtkObject);
 
   // Description:
   // Construct camera instance with its focal point at the origin,
@@ -55,7 +55,7 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   void SetPosition(double x, double y, double z);
   void SetPosition(const double a[3]) {
     this->SetPosition(a[0], a[1], a[2]); };
-  vtkGetVector3Macro(Position,double);
+  vtkGetVector3Macro(Position, double);
 
   // Description:
   // Set/Get the focal of the camera in world coordinates.
@@ -63,7 +63,7 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   void SetFocalPoint(double x, double y, double z);
   void SetFocalPoint(const double a[3]) {
     this->SetFocalPoint(a[0], a[1], a[2]);};
-  vtkGetVector3Macro(FocalPoint,double);
+  vtkGetVector3Macro(FocalPoint, double);
 
   // Description:
   // Set/Get the view up direction for the camera.  The default
@@ -71,7 +71,7 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   void SetViewUp(double vx, double vy, double vz);
   void SetViewUp(const double a[3]) {
     this->SetViewUp(a[0], a[1], a[2]); }
-  vtkGetVector3Macro(ViewUp,double);
+  vtkGetVector3Macro(ViewUp, double);
 
   // Description:
   // Recompute the ViewUp vector to force it to be perpendicular to
@@ -87,13 +87,13 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   // Description:
   // Return the distance from the camera position to the focal point.
   // This distance is positive.
-  vtkGetMacro(Distance,double);
+  vtkGetMacro(Distance, double);
 
   // Description:
   // Get the vector in the direction from the camera position to the
   // focal point.  This is usually the opposite of the ViewPlaneNormal,
   // the vector perpendicular to the screen, unless the view is oblique.
-  vtkGetVector3Macro(DirectionOfProjection,double);
+  vtkGetVector3Macro(DirectionOfProjection, double);
 
   // Description:
   // Divide the camera's distance from the focal point by the given
@@ -144,8 +144,8 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   // Set/Get the value of the ParallelProjection instance variable. This
   // determines if the camera should do a perspective or parallel projection.
   void SetParallelProjection(int flag);
-  vtkGetMacro(ParallelProjection,int);
-  vtkBooleanMacro(ParallelProjection,int);
+  vtkGetMacro(ParallelProjection, int);
+  vtkBooleanMacro(ParallelProjection, int);
 
   // Description:
   // Set/Get the value of the UseHorizontalViewAngle instance variable. If
@@ -167,7 +167,7 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   // (measured by holding a ruler up to your screen) and d is the
   // distance from your eyes to the screen.
   void SetViewAngle(double angle);
-  vtkGetMacro(ViewAngle,double);
+  vtkGetMacro(ViewAngle, double);
 
   // Description:
   // Set/Get the scaling used for a parallel projection, i.e. the height
@@ -176,7 +176,7 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   // larger numbers produce smaller images.
   // This method has no effect in perspective projection mode.
   void SetParallelScale(double scale);
-  vtkGetMacro(ParallelScale,double);
+  vtkGetMacro(ParallelScale ,double);
 
   // Description:
   // In perspective mode, decrease the view angle by the specified factor.
@@ -195,16 +195,16 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   // Clipping distance is measured in world coordinate unless a scale factor
   // exists in camera's ModelTransformMatrix.
   void SetClippingRange(double dNear, double dFar);
-  void SetClippingRange(const double a[2]) {
-    this->SetClippingRange(a[0], a[1]); };
-  vtkGetVector2Macro(ClippingRange,double);
+  void SetClippingRange(const double a[2])
+    { this->SetClippingRange(a[0], a[1]); }
+  vtkGetVector2Macro(ClippingRange, double);
 
   // Description:
   // Set the distance between clipping planes.  This method adjusts the
   // far clipping plane to be set a distance 'thickness' beyond the
   // near clipping plane.
   void SetThickness(double);
-  vtkGetMacro(Thickness,double);
+  vtkGetMacro(Thickness, double);
 
   // Description:
   // Set/Get the center of the window in viewport coordinates.
@@ -213,7 +213,7 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   // or if you have several screens which you want to act together as
   // one large screen.
   void SetWindowCenter(double x, double y);
-  vtkGetVector2Macro(WindowCenter,double);
+  vtkGetVector2Macro(WindowCenter, double);
 
   // Description:
   // Get/Set the oblique viewing angles.  The first angle, alpha, is the
@@ -237,7 +237,7 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   // Get the ViewPlaneNormal.  This vector will point opposite to
   // the direction of projection, unless you have created an sheared output
   // view using SetViewShear/SetObliqueAngles.
-  vtkGetVector3Macro(ViewPlaneNormal,double);
+  vtkGetVector3Macro(ViewPlaneNormal, double);
 
   // Description:
   // Set/get the shear transform of the viewing frustum.  Parameters are
@@ -251,16 +251,16 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   // Description:
   // Set/Get the separation between eyes (in degrees). This is used
   // when generating stereo images.
-  vtkSetMacro(EyeAngle,double);
-  vtkGetMacro(EyeAngle,double);
+  vtkSetMacro(EyeAngle, double);
+  vtkGetMacro(EyeAngle, double);
 
   // Description:
   // Set the size of the cameras lens in world coordinates. This is only
   // used when the renderer is doing focal depth rendering. When that is
   // being done the size of the focal disk will effect how significant the
   // depth effects will be.
-  vtkSetMacro(FocalDisk,double);
-  vtkGetMacro(FocalDisk,double);
+  vtkSetMacro(FocalDisk, double);
+  vtkGetMacro(FocalDisk, double);
 
   // Description:
   // Set/Get use offaxis frustum.
@@ -380,7 +380,7 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Return the projection transform matrix, which converts from camera
-  // coordinates to viewport coordinates.  The 'aspect' is the
+  // coordinates to viewport coordinates. The 'aspect' is the
   // width/height for the viewport, and the nearz and farz are the
   // Z-buffer values that map to the near and far clipping planes.
   // The viewport coordinates of a point located inside the frustum are in the
@@ -391,8 +391,8 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Return the concatenation of the ViewTransform and the
-  // ProjectionTransform.  This transform will convert world
-  // coordinates to viewport coordinates.  The 'aspect' is the
+  // ProjectionTransform. This transform will convert world
+  // coordinates to viewport coordinates. The 'aspect' is the
   // width/height for the viewport, and the nearz and farz are the
   // Z-buffer values that map to the near and far clipping planes.
   // The viewport coordinates of a point located inside the frustum are in the
@@ -411,7 +411,7 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // In addition to the instance variables such as position and orientation,
-  // you can add an additional transformation for your own use.  This
+  // you can add an additional transformation for your own use. This
   // transformation is concatenated to the camera's ProjectionTransform
   void SetUserTransform(vtkHomogeneousTransform *transform);
   vtkGetObjectMacro(UserTransform,vtkHomogeneousTransform);
@@ -463,8 +463,8 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Set the Left Eye setting
-  vtkSetMacro(LeftEye,int);
-  vtkGetMacro(LeftEye,int);
+  vtkSetMacro(LeftEye, int);
+  vtkGetMacro(LeftEye, int);
 
   // Description:
   // Copy the properties of `source' into `this'.
@@ -484,8 +484,9 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
   // Set/Get the value of the FreezeDolly instance variable. This
   // determines if the camera should move the focal point with the camera position.
   // HACK!!!
-  vtkSetMacro(FreezeFocalPoint,bool);
-  vtkGetMacro(FreezeFocalPoint,bool);
+  vtkSetMacro(FreezeFocalPoint, bool);
+  vtkGetMacro(FreezeFocalPoint, bool);
+
 protected:
   vtkCamera();
   ~vtkCamera();
@@ -585,10 +586,10 @@ protected:
   // transformed to the camera's location and orientation.
   vtkTimeStamp ViewingRaysMTime;
   bool FreezeFocalPoint;
+
 private:
   vtkCamera(const vtkCamera&);  // Not implemented.
   void operator=(const vtkCamera&);  // Not implemented.
 };
 
 #endif
-

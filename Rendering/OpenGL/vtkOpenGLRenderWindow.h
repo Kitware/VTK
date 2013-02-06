@@ -34,11 +34,8 @@ class vtkTextureUnitManager;
 
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
-protected:
-  long OldMonitorSetting;
-
 public:
-  vtkTypeMacro(vtkOpenGLRenderWindow,vtkRenderWindow);
+  vtkTypeMacro(vtkOpenGLRenderWindow, vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -206,11 +203,12 @@ protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
 
+  long OldMonitorSetting;
   vtkIdList *TextureResourceIds;
 
-  int GetPixelData(int x,int y,int x2,int y2,int front, unsigned char* data);
-  int GetRGBAPixelData(int x,int y,int x2,int y2, int front, float* data);
-  int GetRGBACharPixelData(int x,int y,int x2,int y2, int front,
+  int GetPixelData(int x, int y, int x2, int y2, int front, unsigned char* data);
+  int GetRGBAPixelData(int x, int y, int x2, int y2, int front, float* data);
+  int GetRGBACharPixelData(int x, int y, int x2, int y2, int front,
                            unsigned char* data);
 
   // Description:
@@ -242,11 +240,11 @@ protected:
 
   // Description:
   // Create a not-off-screen window.
-  virtual void CreateAWindow()=0;
+  virtual void CreateAWindow() = 0;
 
   // Description:
   // Destroy a not-off-screen window.
-  virtual void DestroyWindow()=0;
+  virtual void DestroyWindow() = 0;
 
   // Description:
   // Set the texture unit manager.
