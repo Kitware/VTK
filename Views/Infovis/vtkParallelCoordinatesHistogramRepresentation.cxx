@@ -62,6 +62,8 @@ vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRe
   this->SetNumberOfInputPorts(vtkParallelCoordinatesHistogramRepresentation::NUM_INPUT_PORTS);
 
   this->UseHistograms = 0;
+  this->HistogramLookupTableRange[0] = 0.0;
+  this->HistogramLookupTableRange[1] = -1.0;
 
   this->HistogramFilter = vtkSmartPointer<vtkPairwiseExtractHistogram2D>::New();
   this->HistogramFilter->SetInputData(this->InputArrayTable);

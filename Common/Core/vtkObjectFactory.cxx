@@ -381,10 +381,19 @@ void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
 void vtkObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent
-     << "Factory DLL path: " << this->LibraryPath << "\n";
-  os << indent << "Library version: " << this->LibraryVTKVersion << "\n";
-  os << indent << "Compiler used: " << this->LibraryCompilerUsed << "\n";
+  if (this->LibraryPath)
+    {
+    os << indent
+       << "Factory DLL path: " << this->LibraryPath << "\n";
+    }
+  if (this->LibraryVTKVersion)
+    {
+    os << indent << "Library version: " << this->LibraryVTKVersion << "\n";
+    }
+  if (this->LibraryCompilerUsed)
+    {
+    os << indent << "Compiler used: " << this->LibraryCompilerUsed << "\n";
+    }
   os << indent << "Factory description: " << this->GetDescription() << endl;
   int num = this->GetNumberOfOverrides();
   os << indent << "Factory overides " << num << " classes:" << endl;
