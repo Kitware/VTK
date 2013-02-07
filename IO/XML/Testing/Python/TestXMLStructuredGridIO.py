@@ -3,11 +3,14 @@
 import os
 import vtk
 from vtk.util.misc import vtkGetDataRoot
-VTK_DATA_ROOT = vtkGetDataRoot()
+from vtk.util.misc import vtkGetTempDir
 
-file0 = 'sgFile0.vts'
-file1 = 'sgFile1.vts'
-file2 = 'sgFile2.vts'
+VTK_DATA_ROOT = vtkGetDataRoot()
+VTK_TEMP_DIR = vtkGetTempDir()
+
+file0 = VTK_TEMP_DIR + '/sgFile0.vts'
+file1 = VTK_TEMP_DIR + '/sgFile1.vts'
+file2 = VTK_TEMP_DIR + '/sgFile2.vts'
 
 # Create a reader and write out the field
 combReader = vtk.vtkMultiBlockPLOT3DReader()
