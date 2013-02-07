@@ -3,11 +3,14 @@
 import os
 import vtk
 from vtk.util.misc import vtkGetDataRoot
-VTK_DATA_ROOT = vtkGetDataRoot()
+from vtk.util.misc import vtkGetTempDir
 
-file0 = 'idFile0.vti'
-file1 = 'idFile1.vti'
-file2 = 'idFile2.vti'
+VTK_DATA_ROOT = vtkGetDataRoot()
+VTK_TEMP_DIR = vtkGetTempDir()
+
+file0 = VTK_TEMP_DIR + '/idFile0.vtp'
+file1 = VTK_TEMP_DIR + '/idFile1.vtp'
+file2 = VTK_TEMP_DIR + '/idFile2.vtp'
 
 # read in some poly data
 pdReader = vtk.vtkPolyDataReader()
