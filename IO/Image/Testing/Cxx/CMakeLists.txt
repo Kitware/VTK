@@ -1,5 +1,11 @@
 set(TEST_SRC)
 
+if (VTK_DATA_ROOT)
+  set(TEST_SRC
+    TestNrrdReader.cxx
+    )
+endif()
+
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   # TestImageReader2Factory.cxx   # fixme (deps not satisfied)
   TestMetaIO.cxx
