@@ -1,6 +1,7 @@
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+set(MyTests
   # TestAxisActor3D.cxx # todo (may not be in vtk in the first place)
   TestBarChartActor.cxx
+  TestCaptionActor2D.cxx
   TestCubeAxes2DMode.cxx
   TestCubeAxes3.cxx
   TestCubeAxesWithGridLines.cxx
@@ -24,14 +25,14 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestCubeAxesInnerGridClosest.cxx
   TestCubeAxesInnerGridFurthest.cxx
   TestXYPlotActor.cxx
-
-  EXTRA_INCLUDE vtkTestDriver.h
 )
 
+# Use the testing object factory, to reduce boilerplate code in tests.
+include(vtkTestingObjectFactory)
 vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 
 set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
+list(REMOVE_ITEM TestsToRun CxxTests.cxx)
 
 # Add all the executables
 foreach(test ${TestsToRun})
