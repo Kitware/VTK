@@ -32,3 +32,9 @@ foreach(test ${TestsToRun})
   endif()
 
 endforeach()
+
+# Run these serial to avoid intermittent test failures on machines
+# that do parallel testing
+set_tests_properties(vtkIOSQLCxx-TestSQLDatabaseSchema PROPERTIES RUN_SERIAL 1)
+set_tests_properties(vtkIOSQLCxx-TestSQLiteDatabase PROPERTIES RUN_SERIAL 1)
+set_tests_properties(vtkIOSQLCxx-SQLiteTableReadWrite  PROPERTIES RUN_SERIAL 1)
