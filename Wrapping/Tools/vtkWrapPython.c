@@ -146,7 +146,7 @@ static int vtkWrapPython_IsSpecialTypeWrappable(ClassInfo *data);
 
 /* check whether the superclass of the specified class is wrapped */
 static int vtkWrapPython_HasWrappedSuperClass(
-  HierarchyInfo *hinfo, const char *classname);
+  HierarchyInfo *hinfo, const char *classname, int *is_external);
 
 /* write out a python type object */
 static void vtkWrapPython_GenerateSpecialType(
@@ -156,7 +156,7 @@ static void vtkWrapPython_GenerateSpecialType(
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
 
-/* get the true superclass */
+/* get the true superclass, check if it is external to this module */
 static const char *vtkWrapPython_GetSuperClass(
   ClassInfo *data, HierarchyInfo *hinfo);
 
@@ -248,7 +248,7 @@ const char *vtkWrapPython_GetSuperClass(
         return supername;
         }
       }
-    else if (vtkWrapPython_HasWrappedSuperClass(hinfo, data->Name))
+    else if (vtkWrapPython_HasWrappedSuperClass(hinfo, data->Name, NULL))
       {
       return supername;
       }
@@ -534,7 +534,7 @@ static const char *vtkWrapPython_ClassHeader(
 /* -------------------------------------------------------------------- */
 /* check whether the superclass of the specified class is wrapped */
 int vtkWrapPython_HasWrappedSuperClass(
-  HierarchyInfo *hinfo, const char *classname)
+  HierarchyInfo *hinfo, const char *classname, int *is_external)
 {
   HierarchyEntry *entry;
   const char *module;
@@ -542,6 +542,12 @@ int vtkWrapPython_HasWrappedSuperClass(
   const char *name;
   const char *supername;
   int result = 0;
+  int depth = 0;
+
+  if (is_external)
+    {
+    *is_external = 0;
+    }
 
   if (!hinfo)
     {
@@ -566,22 +572,26 @@ int vtkWrapPython_HasWrappedSuperClass(
       }
     name = supername;
     entry = vtkParseHierarchy_FindEntry(hinfo, name);
-    /* the order of these conditions is important */
     if (!entry)
       {
       break;
       }
-    else if (entry->IsTypedef)
+
+    /* check if superclass is in a different module */
+    if (is_external && depth == 0 && strcmp(entry->Module, module) != 0)
+      {
+      *is_external = 1;
+      }
+    depth++;
+
+    /* the order of these conditions is important */
+    if (entry->IsTypedef)
       {
       break;
       }
     else if (!vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE"))
       {
       result = 1;
-      break;
-      }
-    else if (strcmp(entry->Module, module) != 0)
-      {
       break;
       }
     else if (strncmp(entry->Name, "vtk", 3) != 0)
@@ -2768,7 +2778,7 @@ static int vtkWrapPython_IsValueWrappable(
     if (vtkWrap_IsObject(val))
       {
       if (vtkWrap_IsSpecialType(hinfo, aClass) ||
-          vtkWrapPython_HasWrappedSuperClass(hinfo, aClass) ||
+          vtkWrapPython_HasWrappedSuperClass(hinfo, aClass, NULL) ||
           vtkWrap_IsQtObject(val) ||
           vtkWrap_IsQtEnum(val))
         {
@@ -3119,13 +3129,9 @@ void vtkWrapPython_ExportVTKClass(
 
   /* for vtkObjectBase objects: export New method for use by subclasses */
   fprintf(fp,
-          "#if defined(WIN32)\n"
-          "extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(const char *); }\n"
-          "#else\n"
-          "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n"
-          "#endif\n"
+          "extern \"C\" { %s PyObject *PyVTKClass_%sNew(const char *); }\n"
           "\n",
-          classname, classname);
+          "VTK_ABI_EXPORT", classname, classname);
 
   /* declare the New methods for all the superclasses */
   supername = vtkWrapPython_GetSuperClass(data, hinfo);
@@ -4125,6 +4131,7 @@ static void vtkWrapPython_GenerateSpecialType(
   const char *constructor;
   size_t n, m;
   int has_superclass = 0;
+  int is_external = 0;
 
   /* remove namespaces and template parameters from the
    * class name to get the constructor name */
@@ -4146,25 +4153,27 @@ static void vtkWrapPython_GenerateSpecialType(
   /* forward declaration of the type object */
   fprintf(fp,
     "#ifndef DECLARED_Py%s_Type\n"
-    "extern PyTypeObject Py%s_Type;\n"
+    "extern %s PyTypeObject Py%s_Type;\n"
     "#define DECLARED_Py%s_Type\n"
     "#endif\n"
     "\n",
-    classname, classname, classname);
+    classname, "VTK_ABI_EXPORT", classname, classname);
 
   /* and the superclass */
-  has_superclass = vtkWrapPython_HasWrappedSuperClass(hinfo, data->Name);
+  has_superclass = vtkWrapPython_HasWrappedSuperClass(
+    hinfo, data->Name, &is_external);
   if (has_superclass)
     {
     name = vtkWrapPython_GetSuperClass(data, hinfo);
     vtkWrapPython_PythonicName(name, supername);
     fprintf(fp,
       "#ifndef DECLARED_Py%s_Type\n"
-      "extern PyTypeObject Py%s_Type;\n"
+      "extern %s PyTypeObject Py%s_Type;\n"
       "#define DECLARED_Py%s_Type\n"
       "#endif\n"
       "\n",
-      supername, supername, supername);
+      supername, (is_external ? "VTK_ABI_IMPORT" : "VTK_ABI_EXPORT"),
+      supername, supername);
     }
 
   /* generate all constructor methods */
@@ -4437,6 +4446,16 @@ int vtkWrapPython_WrapTemplatedClass(
         {
         types = vtkParse_GetArrayTypes();
         }
+      else if (strcmp(entry->Name, "vtkTuple") == 0)
+        {
+        static const char *tuple_types[13] = {
+          "unsigned char, 2", "unsigned char, 3", "unsigned char, 4",
+          "int, 2", "int, 3", "int, 4",
+          "float, 2", "float, 3", "float, 4",
+          "double, 2", "double, 3", "double, 4",
+          NULL };
+        types = tuple_types;
+        }
       /* do all other templated classes indirectly */
       else if (nargs > 0)
         {
@@ -4452,7 +4471,7 @@ int vtkWrapPython_WrapTemplatedClass(
             {
             sprintf(classname, "%s", entry->Name);
             }
-          else if (nargs == 1)
+          else
             {
             sprintf(classname, "%s<%s>", entry->Name, types[i]);
             }
@@ -4939,12 +4958,8 @@ int main(int argc, char *argv[])
 
   /* do the export of the main entry point */
   fprintf(fp,
-          "#if defined(WIN32)\n"
-          "extern \"C\" { __declspec( dllexport ) void PyVTKAddFile_%s(PyObject *, const char *); }\n"
-          "#else\n"
-          "extern \"C\" { void PyVTKAddFile_%s(PyObject *, const char *); }\n"
-          "#endif\n",
-          name, name);
+          "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *, const char *); }\n",
+          "VTK_ABI_EXPORT", name, name);
 
   /* Check for all special classes before any classes are wrapped */
   for (i = 0; i < contents->NumberOfClasses; i++)
