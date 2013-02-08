@@ -340,6 +340,13 @@ elseif(VTK_USE_COCOA)
   list(APPEND ${vtk-module}_HDRS
     vtkCocoaMacOSXSDKCompatibility.h
     )
+  # Set specified Objective-C++ flags, if any.
+  if(VTK_REQUIRED_OBJCXX_FLAGS)
+    set_source_files_properties(vtkCocoaRenderWindowInteractor.mm
+                                vtkCocoaRenderWindow.mm
+                                vtkCocoaGLView.mm
+                                PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
+  endif(VTK_REQUIRED_OBJCXX_FLAGS)
   set_source_files_properties(vtkCocoaGLView WRAP_EXCLUDE)
 elseif(VTK_USE_CARBON)
   # Add some custom overrides
