@@ -59,3 +59,9 @@ foreach(test ${TestsToRun})
       COMMAND ${vtk-module}CxxTests ${TName})
   endif()
 endforeach()
+
+set_tests_properties(${vtk-module}Cxx-TestProp3DFollower
+  PROPERTIES TIMEOUT 100)
+
+set_tests_properties(${vtk-module}Cxx-TestTM3DLightComponents
+  PROPERTIES TIMEOUT 110)
