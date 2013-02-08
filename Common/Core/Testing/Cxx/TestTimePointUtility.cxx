@@ -72,7 +72,7 @@ int TestTimePointUtility(int, char *[])
       {
       std::cout << m << "/" << d << "/" << y << std::endl;
       std::cout << "FAILED to convert " << iso0copy
-                << " to a time point. Return value: %llu" << tp1
+                << " to a time point. Return value: " << tp1
                 << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -81,7 +81,7 @@ int TestTimePointUtility(int, char *[])
     if (!ok)
       {
       std::cout << "FAILED to convert " << iso1
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -89,7 +89,7 @@ int TestTimePointUtility(int, char *[])
     if (!ok)
       {
       std::cout << "FAILED to convert " << iso2
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -97,7 +97,7 @@ int TestTimePointUtility(int, char *[])
     if (!ok)
       {
       std::cout << "FAILED to convert " << iso3
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -105,7 +105,7 @@ int TestTimePointUtility(int, char *[])
     if (!ok)
       {
       std::cout << "FAILED to convert " << iso4
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -116,7 +116,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso0copy
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -127,7 +127,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso0copy
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -138,7 +138,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso0copy
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -149,7 +149,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso0copy
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -160,7 +160,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso0copy
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -176,7 +176,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso2copy
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -187,7 +187,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso2copy
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -203,7 +203,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso3copy
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -214,7 +214,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso3copy
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
@@ -225,7 +225,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso3copy
-        << " to a time point. Return value: %llu" << tp1
+        << " to a time point. Return value: " << tp1
         << std::endl;
       testResult = EXIT_FAILURE;
       }
