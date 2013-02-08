@@ -214,3 +214,8 @@ if(VTK_USE_GLSL_SHADERS)
     ${vtk-module}Cxx-TestGenericVertexAttributesGLSLDepthPeelingPass
     PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:.*vtkOpenGLProperty.*Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.")
 endif()
+
+set_tests_properties(${vtk-module}Cxx-TestOpacity
+  PROPERTIES TIMEOUT 70)
+set_tests_properties(${vtk-module}Cxx-TestTextureSize
+  PROPERTIES TIMEOUT 90)

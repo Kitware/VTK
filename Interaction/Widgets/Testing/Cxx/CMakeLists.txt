@@ -118,3 +118,6 @@ foreach(test ${TestsToRun})
     add_test(NAME ${vtk-module}Cxx-${TName} COMMAND ${vtk-module}CxxTests ${TName})
   endif()
 endforeach()
+
+set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor
+  PROPERTIES TIMEOUT 90)
