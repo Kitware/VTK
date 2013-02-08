@@ -299,6 +299,7 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
     cellSize->SetTuple1(c,size);
 
     // check cqs consistency
+#ifdef DEBUG
     double checkZero[3] = {0,0,0};
     double checkVolume = 0;
     for(int p=0;p<np;p++)
@@ -309,7 +310,6 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
       }
     checkVolume /= (double) cell->GetCellDimension();
 
-#ifdef DEBUG
     if( vtkMath::Norm(checkZero)>VTK_CQS_EPSILON || fabs(size-checkVolume)>VTK_CQS_EPSILON )
       {
       cout<<"Bad CQS sum at cell #"<<c<<", Sum="<<vtkMath::Norm(checkZero)<<", volume="<<size<<", ratio Vol="<<size/checkVolume<<"\n";

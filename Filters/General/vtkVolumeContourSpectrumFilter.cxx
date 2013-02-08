@@ -288,7 +288,7 @@ int vtkVolumeContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(reque
 
           // first, search for the next valid sample
           int nextSample = i;
-          for(nextSample = i; nextSample < NumberOfSamples; nextSample++)
+          for(; nextSample < NumberOfSamples; nextSample++)
             {
             if(samples[nextSample].first) break;
             }

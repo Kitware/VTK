@@ -16,9 +16,12 @@ FTCharmap::FTCharmap( FT_Face face)
   if( !face->charmap)
   {
     FT_Set_Charmap( ftFace, ftFace->charmaps[0]);
+    ftEncoding = ft_encoding_none;
   }
-  
-  ftEncoding = face->charmap->encoding;
+  else
+  {
+    ftEncoding = face->charmap->encoding;
+  }
 }
 
 

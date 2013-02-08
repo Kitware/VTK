@@ -200,7 +200,6 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
   for (vidx = 0; vidx < numContours; vidx++)
     {
     rowPtr = scalars;
-    inPtr = rowPtr;
 
     lineCases[13] = dim0*2;
     lineCases[21] = dim0*2;

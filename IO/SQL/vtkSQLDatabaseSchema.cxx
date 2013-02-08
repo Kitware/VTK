@@ -682,7 +682,7 @@ int vtkSQLDatabaseSchema::AddTableMultipleArguments( const char* tblName, ... )
   int token;
   int dtyp;
   int size;
-  int curIndexHandle = -1;
+  int curIndexHandle;
   const char* name;
   const char* attr;
   const char* bcke;
@@ -703,7 +703,6 @@ int vtkSQLDatabaseSchema::AddTableMultipleArguments( const char* tblName, ... )
         size = va_arg( args, int );
         attr = va_arg( args, const char* );
         this->AddColumnToTable( tblHandle, dtyp, name, size, attr );
-        curIndexHandle = -1; // Don't allow bad state.
         break;
       case INDEX_TOKEN:
         dtyp = va_arg( args, int );

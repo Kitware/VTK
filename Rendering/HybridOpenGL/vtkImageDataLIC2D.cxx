@@ -161,12 +161,10 @@ void vtkImageDataLIC2D::TranslateInputExtent(const int* inExt,
     {
     int whole_dim = (inWholeExtent[axis*2+1] - inWholeExtent[axis*2]) + 1;
     int dim = (inExt[axis*2+1] - inExt[axis*2]) + 1;
-    int min = inExt[axis*2];
-    int max = inExt[axis*2+1];
 
     // Scale the output extent
-    min = min * this->Magnification;
-    max = min + (whole_dim>1? (dim * this->Magnification - 1) : 0);
+    int min = inExt[axis*2] * this->Magnification;
+    int max = min + (whole_dim>1? (dim * this->Magnification - 1) : 0);
 
     resultExtent[axis*2] = min;
     resultExtent[axis*2+1] = max;

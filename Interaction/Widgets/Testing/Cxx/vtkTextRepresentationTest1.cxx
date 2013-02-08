@@ -34,9 +34,13 @@ int vtkTextRepresentationTest1(int , char * [] )
   node1->SetPosition(pos);
   double *pos2;
   pos2 = node1->GetPosition();
-  if (!pos2 ||
-      pos2[0] != pos[0] ||
-      pos2[1] != pos[1])
+  if (!pos2)
+    {
+    std::cerr << "Failure in Get/Set Position, expected " << pos[0] << ", " << pos[1] << ", instead got NULL" << std::endl;
+    return EXIT_FAILURE;
+    }
+  else if (pos2[0] != pos[0] ||
+           pos2[1] != pos[1])
     {
     std::cerr << "Failure in Get/Set Position, expected " << pos[0] << ", " << pos[1] << ", instead got " << pos2[0] << ", " << pos2[1] << std::endl;
     return EXIT_FAILURE;
@@ -47,6 +51,12 @@ int vtkTextRepresentationTest1(int , char * [] )
   if (!pos2 ||
       pos2[0] != pos[0] ||
       pos2[1] != pos[1])
+    {
+    std::cerr << "Failure in Get/Set Position x,y, expected " << pos[0] << ", " << pos[1] << ", instead got NULL" << std::endl;
+    return EXIT_FAILURE;
+    }
+  else if (pos2[0] != pos[0] ||
+           pos2[1] != pos[1])
     {
     std::cerr << "Failure in Get/Set Position x,y, expected " << pos[0] << ", " << pos[1] << ", instead got " << pos2[0] << ", " << pos2[1] << std::endl;
     return EXIT_FAILURE;

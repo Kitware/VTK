@@ -268,7 +268,6 @@ int vtkIntersectionPolyDataFilter::Impl
   vtkCellData *inCD  = input->GetCellData();
   vtkCellData *outCD = output->GetCellData();
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkIdType newId;
   vtkIdType cellIdX = 0;
 
   //
@@ -330,7 +329,7 @@ int vtkIntersectionPolyDataFilter::Impl
   if ( input->GetPolys()->GetNumberOfCells() > 0 )
     {
     vtkCellArray *cells = input->GetPolys();
-    newId = output->GetNumberOfCells();
+    vtkIdType newId = output->GetNumberOfCells();
 
     vtkSmartPointer< vtkCellArray > newPolys =
       vtkSmartPointer< vtkCellArray >::New();

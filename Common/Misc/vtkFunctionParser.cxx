@@ -1406,11 +1406,10 @@ void vtkFunctionParser::RemoveSpaces()
 int vtkFunctionParser::OperatorWithinVariable(int idx)
 {
   char *tmpString = NULL;
-  int start, end;
 
   for ( int i = 0;  i < this->NumberOfScalarVariables;  i ++ )
     {
-    end = 0;
+    int end = 0;
 
     if (  strchr( this->ScalarVariableNames[i], this->Function[idx] ) != 0  )
       {
@@ -1420,7 +1419,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
           {
           if (tmpString)
             {
-            start = static_cast<int>(tmpString - this->Function);
+            int start = static_cast<int>(tmpString - this->Function);
             end   = start + static_cast<int>( strlen(this->ScalarVariableNames[i]) );
 
             // the variable being investigated does contain an operator (at idx)
@@ -1440,7 +1439,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
 
   for ( int i = 0;  i < this->NumberOfVectorVariables;  i ++ )
     {
-    end = 0;
+    int end = 0;
 
     if (  strchr( this->VectorVariableNames[i], this->Function[idx] ) != 0  )
       {
@@ -1450,7 +1449,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
           {
           if (tmpString)
             {
-            start = static_cast<int>(tmpString - this->Function);
+            int start = static_cast<int>(tmpString - this->Function);
             end   = start + static_cast<int>( strlen(this->VectorVariableNames[i]) );
 
             // the variable being investigated does contain an operator (at idx)

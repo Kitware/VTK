@@ -102,7 +102,6 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
 
     mesh->BuildLinks();
     //data init
-    f = 0;
     F = mesh->GetNumberOfCells();
     // init, preallocate the mean curvature
     int* num_neighb = new int[numPts];
