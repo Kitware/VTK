@@ -64,8 +64,14 @@ if(TK_FOUND AND VTK_USE_TK)
       vtkTkRenderWidget.cxx
       vtkTkImageViewerWidget.cxx)
 
-    if (VTK_USE_COCOA)
+    if(VTK_USE_COCOA)
       set(Module_TCL_SRCS ${Module_TCL_SRCS} vtkCocoaTkUtilities.mm)
+
+      # Set specified Objective-C++ flags, if any.
+      if(VTK_REQUIRED_OBJCXX_FLAGS)
+        set_source_files_properties(vtkCocoaTkUtilities.mm
+          PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
+      endif(VTK_REQUIRED_OBJCXX_FLAGS)
     endif()
 
     set(Module_TCL_LIBS ${VTK_TK_LIBRARIES})
@@ -104,6 +110,12 @@ if(TK_FOUND AND VTK_USE_TK)
     if(VTK_USE_COCOA)
       set(Module_PYTHON_SRCS ${Module_PYTHON_SRCS}
           vtkCocoaTkUtilities.mm)
+
+      # Set specified Objective-C++ flags, if any.
+      if(VTK_REQUIRED_OBJCXX_FLAGS)
+        set_source_files_properties(vtkCocoaTkUtilities.mm
+          PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
+      endif(VTK_REQUIRED_OBJCXX_FLAGS)
     endif()
 
     add_library(vtkRenderingPythonTkWidgets SHARED ${Module_PYTHON_SRCS})
