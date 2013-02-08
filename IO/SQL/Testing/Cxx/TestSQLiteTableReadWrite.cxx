@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 
 void PrintFile(const char* name, std::ostream& os);
+bool CompareAsciiFiles(const char* file1, const char* file2);
 
 int TestSQLiteTableReadWrite(int argc, char *argv[])
 {
@@ -81,7 +82,7 @@ int TestSQLiteTableReadWrite(int argc, char *argv[])
 
   std::cerr << "verifying that it's the same as what we started with...";
   int result = 0;
-  if(vtksys::SystemTools::FilesDiffer(argv[1], "TestSQLiteTableReadWrite.vtk"))
+  if(!CompareAsciiFiles(argv[1], "TestSQLiteTableReadWrite.vtk"))
     {
     std::cerr << argv[1] << " differs from TestSQLiteTableReadWrite.vtk" << std::endl;
     PrintFile(argv[1], std::cerr);
@@ -135,4 +136,53 @@ void PrintFile(const char* name, std::ostream& os)
     {
     os << " but cannot be opened for read.\n";
     }
+}
+
+bool CompareAsciiFiles(const char* file1, const char* file2)
+{
+  // Open the two files for read
+  std::ifstream fin1(file1);
+  if(!fin1)
+    {
+    std::cerr << file2 << " cannot be opened for read.\n";
+    return false;
+    }
+  std::ifstream fin2(file2);
+  if(!fin2)
+    {
+    std::cerr << file2 << " cannot be opened for read.\n";
+    return false;
+    }
+  unsigned int lineNo = 0;
+  bool status = true;
+  std::string line1, line2;
+  while (!fin1.eof() && !fin2.eof())
+    {
+    std::getline(fin1, line1);
+    std::getline(fin2, line2);
+    if (fin1.eof() && !fin2.eof())
+      {
+      status = false;
+      break;
+      }
+    else if (!fin1.eof() && fin2.eof())
+      {
+      status = false;
+      break;
+      }
+    lineNo++;
+    if (line1 != line2)
+      {
+      std::cerr << "ERROR: line " << lineNo << " in file " << file1
+                << ":\n" << line1
+                << " does not match line in " << file2
+                << ":\n" << line2
+                << std::endl;
+      status = false;
+      break;
+      }
+    }
+  fin1.close();
+  fin2.close();
+  return status;
 }
