@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    SurfacePlusEdges.cxx
+  Module:    TestSplitViewportStereoHorizontal.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,11 +13,11 @@
 
 =========================================================================*/
 
-// This test draws a sphere in anaglyphic stereo (red-blue) mode using deering
-// frustum.
+// This test draws a cone in split-screen stereo.
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkExtractEdges.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -44,13 +44,16 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   sphere1->SetThetaResolution(40);
   sphere1->SetPhiResolution(40);
 
+  VTK_CREATE(vtkExtractEdges, edges);
+  edges->SetInputConnection(sphere1->GetOutputPort());
+
   VTK_CREATE(vtkPolyDataMapper, mapper1);
-  mapper1->SetInputConnection(sphere1->GetOutputPort());
+  mapper1->SetInputConnection(edges->GetOutputPort());
 
   VTK_CREATE(vtkActor, actor1);
   actor1->SetMapper(mapper1);
-  actor1->GetProperty()->SetAmbient(0.1);
-  actor1->GetProperty()->SetRepresentationToWireframe();
+  actor1->GetProperty()->SetAmbient(1.0);
+  actor1->GetProperty()->SetDiffuse(0.0);
   actor1->GetProperty()->SetColor(0.8, 0.8, 0.0);
 
   VTK_CREATE(vtkConeSource, cone1);
@@ -72,8 +75,9 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->AddRenderer(renderer);
   renwin->SetSize(400, 400);
-  renwin->SetStereoRender(1);
   renwin->SetStereoTypeToSplitViewportHorizontal();
+  renwin->SetStereoRender(1);
+  renwin->SetMultiSamples(0);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
@@ -94,7 +98,7 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
 
   renwin->Render();
 
-  int retVal = vtkRegressionTestImage(renwin);
+  int retVal = vtkRegressionTestImageThreshold(renwin, 25);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
