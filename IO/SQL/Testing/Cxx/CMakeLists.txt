@@ -16,6 +16,7 @@ if(VTK_DATA_ROOT)
     COMMAND ${vtk-module}CxxTests TestSQLiteTableReadWrite
       ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk
   )
+  set_tests_properties(vtkIOSQLCxx-SQLiteTableReadWrite PROPERTIES RUN_SERIAL 1)
 endif()
 
 # Add all the executables
@@ -37,4 +38,3 @@ endforeach()
 # that do parallel testing
 set_tests_properties(vtkIOSQLCxx-TestSQLDatabaseSchema PROPERTIES RUN_SERIAL 1)
 set_tests_properties(vtkIOSQLCxx-TestSQLiteDatabase PROPERTIES RUN_SERIAL 1)
-set_tests_properties(vtkIOSQLCxx-SQLiteTableReadWrite  PROPERTIES RUN_SERIAL 1)
