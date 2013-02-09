@@ -1,9 +1,16 @@
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+# Tests with data
+if(VTK_DATA_ROOT)
+  set(NEEDS_DATA
   TestProStarReader.cxx
-  TestSimplePointsReaderWriter.cxx
   TestTecplotReader.cxx
-  TestWindBladeReader.cxx
   TestAMRReadWrite.cxx
+  )
+endif()
+
+create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  ${NEEDS_DATA}
+  TestSimplePointsReaderWriter.cxx
+  TestWindBladeReader.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 

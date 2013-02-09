@@ -102,5 +102,5 @@ int TestOffAxisStereo(int argc, char *argv[])
     retVal = vtkRegressionTester::PASSED;
     }
 
-  return (retVal == vtkRegressionTester::PASSED) ? 0 : 1;
+  return (!retVal);
 }

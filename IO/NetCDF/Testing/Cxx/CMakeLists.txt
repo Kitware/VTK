@@ -1,5 +1,10 @@
+if(VTK_DATA_ROOT)
+  set (NEEDS_DATA
+    SLACMultipleModes.cxx
+    )
+endif()
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-  SLACMultipleModes.cxx
+  ${NEEDS_DATA}
   SLACParticleReader.cxx
   SLACReaderLinear.cxx
   SLACReaderQuadratic.cxx

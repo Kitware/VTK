@@ -3,12 +3,16 @@ set(MyTests "")
 if(NOT APPLE)
   # This is from the old build system - not working on Apple platform.
   list(APPEND MyTests
-    TestImageDataLIC2D.cxx # This was segfaulting before modularization (and is now).
     TestStructuredGridLIC2DXSlice.cxx
     TestStructuredGridLIC2DYSlice.cxx
     TestStructuredGridLIC2DZSlice.cxx
-    TestSurfaceLIC.cxx
     )
+  if(VTK_DATA_ROOT)
+    list(APPEND MyTests
+      TestSurfaceLIC.cxx
+      TestImageDataLIC2D.cxx # This was segfaulting before modularization (and is now).
+      )
+  endif()
 endif()
 
 # Use the testing object factory, to reduce boilerplate code in tests.

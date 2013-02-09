@@ -28,14 +28,12 @@ SET(RenderingTestsWithArguments
   TestHomogeneousTransformOfActor.cxx
   TestImageResliceMapperAlpha.cxx
   TestImageResliceMapperBackground.cxx
-  TestImageResliceMapperBorder.cxx
   TestImageResliceMapperInterpolation.cxx
   TestImageResliceMapperOffAxis.cxx
   TestImageResliceMapperOrient3D.cxx
   TestImageResliceMapperSlab.cxx
   TestImageSliceMapperAlpha.cxx
   TestImageSliceMapperBackground.cxx
-  TestImageSliceMapperBorder.cxx
   TestImageSliceMapperOrient2D.cxx
   TestImageSliceMapperOrient3D.cxx
   TestImageSliceMapperInterpolation.cxx
@@ -96,6 +94,8 @@ if(VTK_DATA_ROOT)
     TestMultiTexturing.cxx
     TestMultiTexturingTransform.cxx
     TestGlyph3DMapperArrow.cxx
+    TestImageSliceMapperBorder.cxx
+    TestImageResliceMapperBorder.cxx
     TestScalarBar.cxx
     TestScenePicker.cxx
     TestTextureRGBA.cxx

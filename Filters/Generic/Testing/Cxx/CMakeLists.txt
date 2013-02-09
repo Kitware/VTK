@@ -1,4 +1,11 @@
+# Tests with data
+if(VTK_DATA_ROOT)
+  set(NEEDS_DATA
+  TestGenericStreamTracer.cxx
+  )
+endif()
 vtk_tests(BASELINEDIR GenericFiltering DATADIR ${VTK_DATA_ROOT}
+  ${NEEDS_DATA}
   TestGenericClip.cxx
   TestGenericContourFilter.cxx
   TestGenericCutter.cxx
@@ -6,5 +13,4 @@ vtk_tests(BASELINEDIR GenericFiltering DATADIR ${VTK_DATA_ROOT}
   TestGenericGeometryFilter.cxx
   TestGenericGlyph3DFilter.cxx
   TestGenericProbeFilter.cxx
-  TestGenericStreamTracer.cxx
   otherCreation.cxx)

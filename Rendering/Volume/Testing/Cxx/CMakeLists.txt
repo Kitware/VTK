@@ -4,8 +4,6 @@ set(MyTests
   PartialPreIntegration.cxx
   PreIntegrationIncremental.cxx
   PreIntegrationNonIncremental.cxx
-  ProjectedTetrahedraZoomIn.cxx
-  TestFinalColorWindowLevel.cxx
   TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastAdditive.cxx
   TestGPURayCastCompositeBinaryMask.cxx
@@ -15,26 +13,35 @@ set(MyTests
   TestGPURayCastCompositeToMIP.cxx
   TestGPURayCastCropping.cxx
   TestGPURayCastDataTypesMIP.cxx
-  TestGPURayCastDataTypesMinIP.cxx
   TestGPURayCastFourComponentsComposite.cxx
   TestGPURayCastFourComponentsCompositeStreaming.cxx
   TestGPURayCastFourComponentsMIP.cxx
   TestGPURayCastFourComponentsMinIP.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
-  TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
-  TestHAVSVolumeMapper.cxx
-  TestMinIntensityRendering.cxx
   TestProjectedHexahedra.cxx
-  TestProjectedTetrahedra.cxx
-  TestProp3DFollower.cxx
   TestSmartVolumeMapper.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   TestTM3DLightComponents.cxx
   ZsweepConcavities.cxx
-  volProt.cxx
 )
+
+# Tests with data
+if(VTK_DATA_ROOT)
+  set(MyTests
+    ${MyTests}
+    ProjectedTetrahedraZoomIn.cxx
+    TestFinalColorWindowLevel.cxx
+    TestGPURayCastNearestDataTypesMIP.cxx
+    TestGPURayCastDataTypesMinIP.cxx
+    TestHAVSVolumeMapper.cxx
+    TestMinIntensityRendering.cxx
+    TestProjectedTetrahedra.cxx
+    TestProp3DFollower.cxx
+    volProt.cxx
+    )
+endif()
 
 # Use the testing object factory, to reduce boilerplate code in tests.
 include(vtkTestingObjectFactory)
@@ -60,8 +67,10 @@ foreach(test ${TestsToRun})
   endif()
 endforeach()
 
-set_tests_properties(${vtk-module}Cxx-TestProp3DFollower
-  PROPERTIES TIMEOUT 100)
+if (VTK_DATA_ROOT)
+  set_tests_properties(${vtk-module}Cxx-TestProp3DFollower
+    PROPERTIES TIMEOUT 100)
+endif()
 
 set_tests_properties(${vtk-module}Cxx-TestTM3DLightComponents
   PROPERTIES TIMEOUT 110)

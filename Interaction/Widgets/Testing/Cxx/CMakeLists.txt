@@ -17,7 +17,6 @@ set(MyTests
   TestCheckerboardWidget.cxx
   TestConstrainedHandleWidget.cxx
   TestContourWidget2.cxx
-  TestDijkstraGraphGeodesicPath.cxx
   TestDijkstraImageGeodesicPath.cxx
   TestDistanceWidget.cxx
   TestDistanceWidget3D.cxx
@@ -31,8 +30,6 @@ set(MyTests
   TestImplicitPlaneWidget2.cxx
   TestImplicitPlaneWidget2LockNormalToCamera.cxx
   TestImplicitPlaneWidget2b.cxx
-  TestLineWidget.cxx
-  TestLineWidget2.cxx
   TestLogoWidget.cxx
   TestLogoWidgetAlphaBlending.cxx
   TestLogoWidgetDepthPeeling.cxx
@@ -41,14 +38,8 @@ set(MyTests
   TestParallelopipedWidget.cxx
   TestPickingManagerWidgets.cxx
   TestPickingManagerSeedWidget.cxx
-  TestPlaneWidget.cxx
   TestPlaybackWidget.cxx
   TestPointHandleRepresentation3D.cxx
-  TestPointWidget.cxx
-  TestPolyPlane.cxx
-  TestPolygonalHandleRepresentations.cxx
-  TestPolygonalRepresentationHandleWidget.cxx
-  TestPolygonalSurfaceConstrainedDistanceWidget.cxx
   TestProgrammaticPlacement.cxx
   TestProp3DButtonRepresentation.cxx
   TestRectilinearWipeWidget.cxx
@@ -60,10 +51,7 @@ set(MyTests
   TestSeedWidgetNonUniformRepresentations.cxx
   TestSliderWidget.cxx
   TestSliderWidget2D.cxx
-  TestSphereHandleWidget.cxx
   # TestSplineWidget.cxx # todo (unsatistfied deps)
-  TestSurfaceConstrainedHandleWidget.cxx
-  TestTensorProbeWidget.cxx
   TestTextWidget.cxx
   vtkAngleRepresentation2DTest1.cxx
   vtkAngleRepresentation3DTest1.cxx
@@ -85,6 +73,25 @@ set(MyTests
   vtkTextRepresentationTest1.cxx
   vtkTextWidgetTest1.cxx
 )
+
+# Tests with data
+if(VTK_DATA_ROOT)
+  set(MyTests
+    ${MyTests}
+    TestDijkstraGraphGeodesicPath.cxx
+    TestLineWidget.cxx
+    TestLineWidget2.cxx
+    TestPlaneWidget.cxx
+    TestPointWidget.cxx
+    TestPolyPlane.cxx
+    TestPolygonalHandleRepresentations.cxx
+    TestPolygonalRepresentationHandleWidget.cxx
+    TestPolygonalSurfaceConstrainedDistanceWidget.cxx
+    TestSphereHandleWidget.cxx
+    TestSurfaceConstrainedHandleWidget.cxx
+    TestTensorProbeWidget.cxx
+    )
+endif()
 
 # Use the testing object factory, to reduce boilerplate code in tests.
 include(vtkTestingObjectFactory)

@@ -1,10 +1,15 @@
+if(VTK_DATA_ROOT)
+  set (NEEDS_DATA
+    TestBiomTableReader.cxx
+    TestNewickTreeReader.cxx
+    TestMultiNewickTreeReader.cxx
+    TestTulipReaderProperties.cxx
+  )
+endif()
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  ${NEEDS_DATA}
   # TestTulipReader.cxx           # todo (unsatisfied deps)
   # TestTulipReaderClusters.cxx   # todo (unsatisfied deps)
-  TestBiomTableReader.cxx
-  TestTulipReaderProperties.cxx
-  TestNewickTreeReader.cxx
-  TestMultiNewickTreeReader.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )

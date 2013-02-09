@@ -1,5 +1,10 @@
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+if(VTK_DATA_ROOT)
+  set (NEEDS_DATA
   TestVRMLNormals.cxx
+  )
+endif()
+create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  ${NEEDS_DATA}
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
