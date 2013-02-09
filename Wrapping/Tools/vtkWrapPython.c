@@ -156,7 +156,7 @@ static void vtkWrapPython_GenerateSpecialType(
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
 
-/* get the true superclass, check if it is external to this module */
+/* get the true superclass */
 static const char *vtkWrapPython_GetSuperClass(
   ClassInfo *data, HierarchyInfo *hinfo);
 
@@ -3131,7 +3131,7 @@ void vtkWrapPython_ExportVTKClass(
   fprintf(fp,
           "extern \"C\" { %s PyObject *PyVTKClass_%sNew(const char *); }\n"
           "\n",
-          "VTK_ABI_EXPORT", classname, classname);
+          "VTK_ABI_EXPORT", classname);
 
   /* declare the New methods for all the superclasses */
   supername = vtkWrapPython_GetSuperClass(data, hinfo);
@@ -4959,7 +4959,7 @@ int main(int argc, char *argv[])
   /* do the export of the main entry point */
   fprintf(fp,
           "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *, const char *); }\n",
-          "VTK_ABI_EXPORT", name, name);
+          "VTK_ABI_EXPORT", name);
 
   /* Check for all special classes before any classes are wrapped */
   for (i = 0; i < contents->NumberOfClasses; i++)
