@@ -1,6 +1,6 @@
 ## List all test sources
 set(MyTests
-    TestFlashReader.cxx
+#    TestFlashReader.cxx  there is not data for this test
     TestEnzoReader.cxx
     )
 
