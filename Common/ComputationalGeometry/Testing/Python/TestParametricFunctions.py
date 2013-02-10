@@ -560,7 +560,7 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "TestParametricFunctions.png"
-        vtk.test.Testing.compareImage(iren.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtk.test.Testing.compareImage(iren.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=35)
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":
