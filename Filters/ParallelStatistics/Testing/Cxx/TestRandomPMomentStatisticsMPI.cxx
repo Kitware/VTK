@@ -23,10 +23,12 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // Thanks to Philippe Pebay, David Thompson and Janine Bennett from Sandia National Laboratories
 // for implementing this test.
+// This class was extended to auto-correlative statistics by Philippe Pebay, Kitware 2013
 
 #include <mpi.h>
 
 #include "vtkDescriptiveStatistics.h"
+#include "vtkPAutoCorrelativeStatistics.h"
 #include "vtkPDescriptiveStatistics.h"
 #include "vtkCorrelativeStatistics.h"
 #include "vtkPCorrelativeStatistics.h"
@@ -35,6 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPPCAStatistics.h"
 
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMath.h"
 #include "vtkMPIController.h"
 #include "vtkMultiBlockDataSet.h"
@@ -53,6 +56,7 @@ struct RandomSampleStatisticsArgs
   double absTol;
   bool skipDescriptive;
   bool skipPDescriptive;
+  bool skipPAutoCorrelative;
   bool skipPCorrelative;
   bool skipPMultiCorrelative;
   bool skipPPCA;
@@ -528,6 +532,103 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   delete [] extrema_agg;
   delete [] extrema_par;
 
+  // ************************** Parallel Auto-Correlative Statistics **************************
+
+  // Skip parallel correlative statistics if requested
+  if ( ! args->skipPAutoCorrelative )
+    {
+    // Synchronize and start clock
+    com->Barrier();
+    timer->StartTimer();
+
+    // Instantiate a parallel auto-correlative statistics engine and set its input
+    vtkPAutoCorrelativeStatistics* pas = vtkPAutoCorrelativeStatistics::New();
+    pas->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+
+    // Select all columns
+    for ( int c = 0; c < nVariables; ++ c )
+      {
+      pas->AddColumn( columnNames[c] );
+      }
+
+    // Create input parameter table for the stationary case
+    vtkIdTypeArray* timeLags = vtkIdTypeArray::New();
+    timeLags->SetName( "Time Lags" );
+    timeLags->SetNumberOfTuples( 1 );
+    timeLags->SetValue( 0, 0 );
+    vtkTable* paramTable = vtkTable::New();
+    paramTable->AddColumn( timeLags );
+    timeLags->Delete();
+
+    // Set spatial cardinality
+    pas->SetSliceCardinality( args->nVals ); 
+
+    // Set parameters for autocorrelation of whole data set with respect to itself
+    pas->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramTable );
+
+    // Test (in parallel) with Learn, Derive operations turned on
+    pas->SetLearnOption( true );
+    pas->SetDeriveOption( true );
+    pas->SetAssessOption( false );
+    pas->SetTestOption( false );
+    pas->Update();
+
+    // Get output data and meta tables
+    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pas->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+    vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+    vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+
+    // Synchronize and stop clock
+    com->Barrier();
+    timer->StopTimer();
+
+    if ( myRank == args->ioRank )
+      {
+      cout << "\n## Completed parallel calculation of auto-correlative statistics (with assessment):\n"
+           << "   Total sample size: "
+           << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()
+           << " \n"
+           << "   Wall time: "
+           << timer->GetElapsedTime()
+           << " sec.\n";
+
+      cout << "   Calculated the following primary statistics:\n";
+      for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
+        {
+        cout << "   ";
+        for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
+          {
+          cout << outputPrimary->GetColumnName( i )
+               << "="
+               << outputPrimary->GetValue( r, i ).ToString()
+               << "  ";
+          }
+        cout << "\n";
+        }
+
+      cout << "   Calculated the following derived statistics:\n";
+      for ( vtkIdType r = 0; r < outputDerived->GetNumberOfRows(); ++ r )
+        {
+        cout << "   ";
+        for ( int i = 0; i < outputDerived->GetNumberOfColumns(); ++ i )
+          {
+          cout << outputDerived->GetColumnName( i )
+               << "="
+               << outputDerived->GetValue( r, i ).ToString()
+               << "  ";
+          }
+        cout << "\n";
+        }
+      }
+
+    // Clean up
+    pas->Delete();
+    } // if ( ! args->skipPAutoCorrelative )
+  else if ( myRank == args->ioRank )
+    {
+    cout << "\n## Skipped calculation of parallel auto-correlative statistics.\n";
+    }
+
   // ************************** Parallel Correlative Statistics **************************
 
   // Skip parallel correlative statistics if requested
@@ -835,6 +936,7 @@ int main( int argc, char** argv )
   double absTol = 1.e-6;
   bool skipDescriptive = false;
   bool skipPDescriptive = false;
+  bool skipPAutoCorrelative = false;
   bool skipPCorrelative = false;
   bool skipPMultiCorrelative = false;
   bool skipPPCA = false;
@@ -863,6 +965,11 @@ int main( int argc, char** argv )
   clArgs.AddArgument("--skip-PDescriptive",
                      vtksys::CommandLineArguments::NO_ARGUMENT,
                      &skipPDescriptive, "Skip parallel descriptive statistics");
+
+  // Parse whether parallel auto-correlative statistics should be skipped (for faster testing)
+  clArgs.AddArgument("--skip-PAutoCorrelative",
+                     vtksys::CommandLineArguments::NO_ARGUMENT,
+                     &skipPAutoCorrelative, "Skip parallel auto-correlative statistics");
 
   // Parse whether parallel correlative statistics should be skipped (for faster testing)
   clArgs.AddArgument("--skip-PCorrelative",
@@ -903,6 +1010,7 @@ int main( int argc, char** argv )
   args.absTol = absTol;
   args.skipDescriptive = skipDescriptive;
   args.skipPDescriptive = skipPDescriptive;
+  args.skipPAutoCorrelative = skipPAutoCorrelative;
   args.skipPCorrelative = skipPCorrelative;
   args.skipPMultiCorrelative = skipPMultiCorrelative;
   args.skipPPCA = skipPPCA;
