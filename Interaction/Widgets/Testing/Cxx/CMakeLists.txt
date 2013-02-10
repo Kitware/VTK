@@ -114,9 +114,14 @@ foreach(test ${TestsToRun})
         -D ${VTK_DATA_ROOT}
         -T ${VTK_TEST_OUTPUT_DIR}
         -V Baseline/Widgets/${TName}.png)
-    set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor
-      PROPERTIES TIMEOUT 90)
   else()
     add_test(NAME ${vtk-module}Cxx-${TName} COMMAND ${vtk-module}CxxTests ${TName})
   endif()
 endforeach()
+
+set_tests_properties(${vtk-module}Cxx-TestPickingManagerSeedWidget
+  PROPERTIES TIMEOUT 60)
+if (VTK_DATA_ROOT)
+  set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor
+    PROPERTIES TIMEOUT 90)
+endif()
