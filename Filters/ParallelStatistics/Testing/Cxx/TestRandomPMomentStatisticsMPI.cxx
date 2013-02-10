@@ -38,6 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMPIController.h"
 #include "vtkMultiBlockDataSet.h"
@@ -575,8 +576,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Get output data and meta tables
     vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pas->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-    vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-    vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
     // Synchronize and stop clock
     com->Barrier();
@@ -584,41 +583,42 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     if ( myRank == args->ioRank )
       {
-      cout << "\n## Completed parallel calculation of auto-correlative statistics (with assessment):\n"
+      cout << "\n## Completed parallel calculation of auto-correlative statistics (without assessment):\n"
            << "   Total sample size: "
-           << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()
+           << vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) )->GetValueByName( 0, "Cardinality").ToInt()
            << " \n"
            << "   Wall time: "
            << timer->GetElapsedTime()
            << " sec.\n";
 
-      cout << "   Calculated the following primary statistics:\n";
-      for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
+      cout << "   Calculated the following statistics:\n";
+      unsigned int nbm1 = outputMetaDS->GetNumberOfBlocks() - 1;
+      for ( unsigned int b = 0; b < nbm1; ++ b )
         {
-        cout << "   ";
-        for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
+        const char* tabName = outputMetaDS->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
+        cerr << "   "
+             << tabName
+             << "\n";
+        vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
+        for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
           {
-          cout << outputPrimary->GetColumnName( i )
-               << "="
-               << outputPrimary->GetValue( r, i ).ToString()
-               << "  ";
+          cout << "   ";
+          for ( int i = 0; i < outputMeta->GetNumberOfColumns(); ++ i )
+            {
+            cout << outputMeta->GetColumnName( i )
+                 << "="
+                 << outputMeta->GetValue( r, i ).ToString()
+                 << "  ";
+            }
+          cout << "\n";
           }
-        cout << "\n";
         }
-
-      cout << "   Calculated the following derived statistics:\n";
-      for ( vtkIdType r = 0; r < outputDerived->GetNumberOfRows(); ++ r )
-        {
-        cout << "   ";
-        for ( int i = 0; i < outputDerived->GetNumberOfColumns(); ++ i )
-          {
-          cout << outputDerived->GetColumnName( i )
-               << "="
-               << outputDerived->GetValue( r, i ).ToString()
-               << "  ";
-          }
-        cout << "\n";
-        }
+      const char* tabName = outputMetaDS->GetMetaData( nbm1 )->Get( vtkCompositeDataSet::NAME() );
+      cerr << "   "
+           << tabName
+           << "\n";
+      vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( nbm1 ) );
+      outputMeta->Dump();
       }
 
     // Clean up
