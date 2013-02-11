@@ -88,7 +88,7 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
   // Brute force division.
   //mark all we own as zero and the rest as -1
   const vtkIdType minCell = (numCells+1)/numPieces * piece;
-  const vtkIdType maxCell = minCell + (numCells/numPieces);
+  const vtkIdType maxCell = minCell + (numCells/numPieces) + 1;
   for (idx = 0; idx < minCell; ++idx)
     {
     tags->SetValue(idx, -1);
@@ -347,7 +347,7 @@ void vtkExtractUnstructuredGridPiece::AddFirstGhostLevel(
   //for level 1 we have an optimal implementation
   //that can compute the subset of cells we need to check
   const vtkIdType minCell = (numCells+1)/numPieces * piece;
-  const vtkIdType maxCell = minCell + (numCells/numPieces);
+  const vtkIdType maxCell = minCell + (numCells/numPieces) + 1;
   for (vtkIdType idx = minCell; idx < maxCell; ++idx)
     {
     input->GetCellPoints(idx, cellPointIds.GetPointer());
