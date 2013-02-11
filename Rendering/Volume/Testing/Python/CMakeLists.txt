@@ -24,3 +24,5 @@ set_tests_properties(vtkRenderingVolumePython-volTM3DCompressedCropRegions
   PROPERTIES TIMEOUT 120)
 set_tests_properties(vtkRenderingVolumePython-volTM3DCropRegions
   PROPERTIES TIMEOUT 120)
+set_tests_properties(vtkRenderingVolumePython-volTM3DRotateClip
+  PROPERTIES TIMEOUT 80)
