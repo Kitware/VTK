@@ -42,7 +42,7 @@ typedef struct oc_mode_choice        oc_mode_choice;
   This is the inverse of the equivalent table OC_MODE_ALPHABETS in the
    decoder.*/
 static const unsigned char OC_MODE_RANKS[7][OC_NMODES]={
-  /*Last MV dominates.*/ 
+  /*Last MV dominates.*/
   /*L P M N I G GM 4*/
   {3,4,2,0,1,5,6,7},
   /*L P N M I G GM 4*/
@@ -285,7 +285,7 @@ static void oc_fr_state_advance_sb(oc_fr_state *_fr,
 static void oc_fr_state_flush_sb(oc_fr_state *_fr){
   ptrdiff_t bits;
   int       sb_partial;
-  int       sb_full=sb_full;
+  int       sb_full=0;
   int       b_coded_count;
   int       b_coded;
   int       b_count;
@@ -323,7 +323,7 @@ static void oc_fr_state_advance_block(oc_fr_state *_fr,int _b_coded){
   int       b_coded_count;
   int       b_count;
   int       sb_partial;
-  int       sb_full=sb_full;
+  int       sb_full=0;
   bits=_fr->bits;
   /*Extend the b_coded run, or start a new one.*/
   b_coded_count=_fr->b_coded_count;
