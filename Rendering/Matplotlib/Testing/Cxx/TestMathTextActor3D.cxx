@@ -82,6 +82,7 @@ int TestMathTextActor3D(int, char *[])
   ren->GetActiveCamera()->SetPosition(0, 0, 400);
   ren->GetActiveCamera()->SetFocalPoint(0, 0, 0);
   ren->GetActiveCamera()->SetViewUp(0, 1, 0);
+  ren->ResetCameraClippingRange();
 
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
