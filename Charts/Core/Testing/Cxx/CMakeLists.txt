@@ -54,6 +54,7 @@
     set(TestMultipleScalarsToColorsError 25)
     set(TestParallelCoordinatesError 15)
     set(TestControlPointsHandleItemError 30)
+    set(TestColorTransferFunctionError 80)
   endif()
 
   # Use the testing object factory, to reduce boilerplate code in tests.
