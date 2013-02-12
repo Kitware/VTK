@@ -64,6 +64,7 @@ set classExceptions {
    vtkAMRFlashReader
    vtkAMRFlashParticleReader
    vtkMathTextUtilities
+   vtkMatplotlibMathTextUtilities
 }
 
 proc rtTestEmptyInputTest { fileid } {
