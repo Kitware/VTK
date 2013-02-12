@@ -115,6 +115,7 @@ set classExceptions {
    vtkStructuredAMRGridConnectivity
    vtkUniformGridAMRDataIterator
    vtkMathTextUtilities
+   vtkMatplotlibMathTextUtilities
    vtkTextRenderer
 }
 
