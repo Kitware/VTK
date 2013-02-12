@@ -21,28 +21,24 @@ include(module.cmake)
 find_package(Thrust REQUIRED)
 find_package(Dax REQUIRED)
 
+DaxConfigureSerial(REQUIRED)
+DaxConfigureCuda()
+DaxConfigureTBB()
+DaxConfigureOpenMP()
+
 # Setting the configuration file to include the appropriate driver.
-# if(${Dax_ENABLE_CUDA})
-#   message ("CUDA_ENABLED")
-#   DaxConfigureCuda(REQUIRED)
-#   set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_CUDA")
-#   set (DAX_DEVICE_ADAPTER_INCLUDE "dax/cuda/cont/DeviceAdapterCuda.h")
-# elseif(${Dax_ENABLE_TBB})
-#   message ("TBB_ENABLED")
-#   DaxConfigureTBB(REQUIRED)
-#   set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_TBB")
-#   set (DAX_DEVICE_ADAPTER_INCLUDE "dax/tbb/cont/DeviceAdapterTBB.h")
-#   # elseif(${Dax_ENABLE_OPENMP})
-#   #   message ("OPENMP_ENABLED")
-#   #   DaxConfigureOpenMP(REQUIRED)
-#   #   set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_OPENMP")
-#   #   set (DAX_DEVICE_ADAPTER_INCLUDE "dax/openmp/cont/DeviceAdapterOpenMP.h")
-# else()
-  message ("SERIAL_ENABLED")
-  DaxConfigureSerial(REQUIRED)
+#we prefer cuda over everything else, than tbb and openmp
+set (DAX_DISABLE_BOOST_SP_THREADS 0)
+if(${Dax_ENABLE_CUDA})
+  set (DAX_DISABLE_BOOST_SP_THREADS 1)
+  set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_CUDA")
+elseif(${Dax_ENABLE_TBB})
+  set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_TBB")
+elseif(${Dax_ENABLE_OPENMP})
+  set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_OPENMP")
+else()
   set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_SERIAL")
-  set (DAX_DEVICE_ADAPTER_INCLUDE "dax/cont/DeviceAdapterSerial.h")
-# endif()
+endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/daxConfig.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/daxConfig.h" @ONLY)
@@ -68,13 +64,17 @@ set(headers
   vtkToDax/Portals.h
   vtkToDax/Threshold.h
   )
-set(Module_SRCS
+
+#implementation of the algorithms for cpu accelerators
+set(cpu_accelerator_srcs
+  DaxMarchingCubes.cxx
+  DaxThreshold.cxx
+  )
+
+set(vtk_srcs
   DaxObjectFactory.h
   vtkDaxMarchingCubes.cxx
   vtkDaxThreshold.cxx
-  DaxMarchingCubes.cxx
-  DaxThreshold.cxx
-  ${headers}
   )
 
 set_source_files_properties(
@@ -82,4 +82,38 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-vtk_module_library(vtkAcceleratorsDax ${Module_SRCS})
+#we are building with CUDA support
+if(${Dax_ENABLE_CUDA})
+
+  #implementation of the algorithms for gpu accelerators
+  set(cuda_accelerator_srcs
+    DaxMarchingCubes.cu
+    DaxThreshold.cu
+    )
+
+
+  #follow pistons example on how to build a subsection of the cuda with nvcc
+  if(BUILD_SHARED_LIBS)
+    set(GPGPU_BUILD_TYPE SHARED)
+  endif()
+  set(CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE OFF) #otherwise C_SOURCES is empty in VS
+  vtk_module_impl()
+
+  cuda_compile(cuda_compiled_srcs ${cuda_accelerator_srcs} ${headers}
+               ${GPGPU_BUILD_TYPE})
+
+  set_source_files_properties(
+    ${cuda_compiled_srcs}
+    WRAP_EXCLUDE
+    )
+
+  vtk_module_library(vtkAcceleratorsDax ${vtk_srcs} ${cuda_compiled_srcs}
+                                        ${headers})
+  target_link_libraries(vtkAcceleratorsDax ${CUDA_LIBRARIES})
+
+else()
+
+  vtk_module_library(vtkAcceleratorsDax ${vtk_srcs}
+                                        ${cpu_accelerator_srcs} ${headers})
+
+endif()

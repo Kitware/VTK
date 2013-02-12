@@ -12,9 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef _DAX_CONFIG_H_
-#define _DAX_CONFIG_H_
+#ifndef _VTK_DAX_CONFIG_H_
+#define _VTK_DAX_CONFIG_H_
+
+// Boost gives a bunch of warnings with nvcc if you don't specify how shared
+// pointers should handle threads. Dax does not care (it is too careful about
+// threading to cause hazards in shared pointers), but your code might. Thus,
+// you should specify one when compiling with nvcc. If your code does not share
+// shared pointers among threads, then you can just disable them as below.
+// (BTW, if you forget to set this, Dax will give its own descriptive message
+// with instructions on how to fix.)
+#if @DAX_DISABLE_BOOST_SP_THREADS@ == 1
 #define BOOST_SP_DISABLE_THREADS
+#endif
+
+
 #define DAX_DEVICE_ADAPTER @DAX_DEVICE_ADAPTER@
-#include <@DAX_DEVICE_ADAPTER_INCLUDE@>
-#endif // _DAX_CONFIG_H_
+#include <dax/cont/DeviceAdapter.h>
+#endif // _VTK_DAX_CONFIG_H_
