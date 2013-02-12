@@ -57,7 +57,6 @@ bool vtkContext3D::End()
 {
   if (this->Device)
     {
-    this->Device->End();
     this->Device = NULL;
     }
   return true;
