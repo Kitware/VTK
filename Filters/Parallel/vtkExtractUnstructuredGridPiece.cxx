@@ -29,6 +29,23 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+
+namespace
+{
+
+  void determineMinMax(int piece, int numPieces, vtkIdType numCells,
+                       vtkIdType& minCell, vtkIdType& maxCell)
+  {
+    const float fnumPieces = static_cast<float>(numPieces);
+    const float fminCell = (numCells/fnumPieces) * piece;
+    const float fmaxCell = fminCell + (numCells/fnumPieces);
+
+    //round up if over N.5
+    minCell = static_cast<vtkIdType>(fminCell + 0.5f);
+    maxCell = static_cast<vtkIdType>(fmaxCell + 0.5f);
+  }
+}
+
 vtkStandardNewMacro(vtkExtractUnstructuredGridPiece);
 
 vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()
@@ -85,10 +102,18 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
       }
     }
 
+  //no point on tagging cells if we have no cells
+  if(numCells == 0)
+    {
+    return;
+    }
+
   // Brute force division.
   //mark all we own as zero and the rest as -1
-  const vtkIdType minCell = (numCells+1)/numPieces * piece;
-  const vtkIdType maxCell = minCell + (numCells/numPieces) + 1;
+  vtkIdType minCell = 0;
+  vtkIdType maxCell = 0;
+  determineMinMax(piece,numPieces,numCells,minCell,maxCell);
+
   for (idx = 0; idx < minCell; ++idx)
     {
     tags->SetValue(idx, -1);
@@ -102,7 +127,6 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
     tags->SetValue(idx, -1);
     }
 
-  //mark all our cells as 0
   vtkIdType* cellPointer = (input->GetCells() ? input->GetCells()->GetPointer() : 0);
   if(pointOwnership && cellPointer)
     {
@@ -346,8 +370,9 @@ void vtkExtractUnstructuredGridPiece::AddFirstGhostLevel(
 
   //for level 1 we have an optimal implementation
   //that can compute the subset of cells we need to check
-  const vtkIdType minCell = (numCells+1)/numPieces * piece;
-  const vtkIdType maxCell = minCell + (numCells/numPieces) + 1;
+  vtkIdType minCell = 0;
+  vtkIdType maxCell = 0;
+  determineMinMax(piece,numPieces,numCells,minCell,maxCell);
   for (vtkIdType idx = minCell; idx < maxCell; ++idx)
     {
     input->GetCellPoints(idx, cellPointIds.GetPointer());
