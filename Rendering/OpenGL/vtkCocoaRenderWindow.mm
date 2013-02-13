@@ -628,7 +628,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
       [theWindow makeKeyAndOrderFront:nil];
       [theWindow setAcceptsMouseMovedEvents:YES];
       }
-
+  }
   // create a view if one has not been specified
   if (!this->GetWindowId())
     {
