@@ -3,6 +3,16 @@
 This script scrapes two test results from a days dashboard that explain the
 configuration of the submitting machine. Source this script and then you can
 query 'configs' to see what each machine was testing.
+
+To use it get to a command line and run:
+python vtk_submitter_summary.py
+Or better yet:
+call it from a python interpretter and then work interactively with the configs map.
+ex, to see what GPUs we are testing on:
+import vtk_submitter_summary
+for sub, info in sorted(vtk_submitter_summary.configs.iteritems()):
+	if 'GL_RENDERER' in info:
+		print sub, info['GL_RENDERER']
 """
 
 import urllib

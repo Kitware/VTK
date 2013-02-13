@@ -10,6 +10,10 @@ import urllib
 url = 'http://open.cdash.org/api/?method=build&task=sitetestfailures&project=VTK&group=Nightly%20Expected'
 page = urllib.urlopen(url)
 data = page.readlines()
+if len(data[0]) == 2: #"[]"
+  print "Cdash returned nothing useful, please try again later."
+  raise SystemExit
+
 submissions = eval(data[0])
 tfails = dict()
 print "-"*20, "ANALYZING", "-"*20

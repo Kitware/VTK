@@ -78,6 +78,9 @@ ConfigSummary = {
 "MSVC10":
 "@MSVC10@",
 
+"MSVC11":
+"@MSVC11@",
+
 "BUILD_SHARED_LIBS":
 "@BUILD_SHARED_LIBS@",
 
