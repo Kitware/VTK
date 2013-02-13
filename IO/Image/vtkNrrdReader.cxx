@@ -27,6 +27,7 @@
 #include "vtkStringArray.h"
 
 #include <string>
+#include <algorithm>
 #include <vector>
 #include <vtksys/SystemTools.hxx>
 #include <istream>

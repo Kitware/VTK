@@ -19,7 +19,7 @@
 
 #include "vtkNrrdReader.h"
 
-#include "vtkActor2d.h"
+#include "vtkActor2D.h"
 #include "vtkCamera.h"
 #include "vtkImageMapper.h"
 #include "vtkNew.h"
