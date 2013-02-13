@@ -216,6 +216,74 @@ private:
 
 };
 
+template <typename Type,
+          int NUM_COMPONENTS = 3>
+class vtkTrianglesPortal
+{
+public:
+  typedef typename ConstCorrectedType<Type>::Type ValueType;
+  typedef typename ConstCorrectedType<Type>::ComponentType ComponentType;
+
+  DAX_CONT_EXPORT vtkTrianglesPortal():
+    Points(NULL),
+    Array(NULL),
+    Size(0)
+    {
+    }
+
+  DAX_CONT_EXPORT vtkTrianglesPortal(vtkPoints* points, dax::Id size):
+    Points(points),
+    Array(static_cast<ComponentType*>(points->GetVoidPointer(0))),
+    Size(size)
+    {
+    DAX_ASSERT_CONT(this->GetNumberOfValues() >= 0);
+    }
+
+  /// Copy constructor for any other vtkArrayPortal with an iterator
+  /// type that can be copied to this iterator type. This allows us to do any
+  /// type casting that the iterators do (like the non-const to const cast).
+  ///
+  template<typename OtherType>
+  DAX_CONT_EXPORT
+  vtkTrianglesPortal(const vtkTrianglesPortal<OtherType> &src):
+    Points(src.Get()),
+    Array(static_cast<ComponentType*>(src.Get()->GetVoidPointer(0))),
+    Size(src.GetNumberOfValues())
+  {
+  }
+
+  DAX_CONT_EXPORT
+  dax::Id GetNumberOfValues() const
+    {
+    return this->Size;
+    }
+
+  DAX_CONT_EXPORT
+  ValueType Get(dax::Id index) const {
+    return ValueType(this->Array[index*NUM_COMPONENTS]);
+  }
+
+  DAX_CONT_EXPORT
+  void Set(dax::Id index, const ValueType& value) const{
+
+    ComponentType *rawArray = this->Array + (index * NUM_COMPONENTS);
+    //use template magic to auto unroll insertion
+    fillComponents<NUM_COMPONENTS>()(rawArray,value);
+  }
+
+  typedef dax::cont::IteratorFromArrayPortal<vtkTrianglesPortal> IteratorType;
+  DAX_CONT_EXPORT IteratorType GetIteratorBegin() const { return IteratorType(*this, 0); }
+  DAX_CONT_EXPORT IteratorType GetIteratorEnd() const { return IteratorType(*this, this->Size); }
+
+  vtkPoints* Get() const { return Points; }
+
+private:
+  vtkPoints* Points;
+  ComponentType *Array;
+  dax::Id Size;
+
+};
+
 
 //A topology portal goal is to make the vtkCellArray for a continous cell type
 //look like a dax topology layout. This means that we skip over the elements
