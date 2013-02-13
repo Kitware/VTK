@@ -55,6 +55,14 @@ protected:
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     unsigned long typeflags, bool forceCompileOnly);
 
+  void RenderBlock(vtkRenderer *renderer,
+                   vtkActor *actor,
+                   unsigned long typeflags,
+                   bool forceCompileOnly,
+                   vtkDataObject *dobj,
+                   unsigned int &flat_index,
+                   bool &visible);
+
   vtkDataObject* OutputData;
 private:
   vtkCompositePainter(const vtkCompositePainter&); // Not implemented.

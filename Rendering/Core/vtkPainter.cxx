@@ -26,6 +26,7 @@
 
 #include "vtkCellData.h"
 #include "vtkCommand.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkDataSet.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGarbageCollector.h"
@@ -39,6 +40,7 @@
 
 vtkCxxSetObjectMacro(vtkPainter, Input, vtkDataObject);
 vtkCxxSetObjectMacro(vtkPainter, Information, vtkInformation);
+vtkCxxSetObjectMacro(vtkPainter, CompositeDataDisplayAttributes, vtkCompositeDataDisplayAttributes)
 vtkInformationKeyMacro(vtkPainter, STATIC_DATA, Integer);
 vtkInformationKeyMacro(vtkPainter, CONSERVE_MEMORY, Integer);
 vtkInformationKeyMacro(vtkPainter, HIGH_QUALITY, Integer);
@@ -87,6 +89,8 @@ vtkPainter::vtkPainter()
   vtkPainter::STATIC_DATA()->Set(this->Information, 0);
   vtkPainter::CONSERVE_MEMORY()->Set(this->Information, 0);
   vtkPainter::HIGH_QUALITY()->Set(this->Information, 1);
+
+  this->CompositeDataDisplayAttributes = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -106,6 +110,8 @@ vtkPainter::~vtkPainter()
     }
 
   this->Timer->Delete();
+
+  this->SetCompositeDataDisplayAttributes(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -367,5 +373,14 @@ void vtkPainter::PrintSelf(ostream &os, vtkIndent indent)
     os << "(none)" << endl;
     }
 
+  os << indent << "CompositeDataDisplayAttributes: " ;
+  if (this->CompositeDataDisplayAttributes)
+    {
+    os << endl;
+    this->CompositeDataDisplayAttributes->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }
-
