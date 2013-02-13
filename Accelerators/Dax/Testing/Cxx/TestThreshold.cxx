@@ -47,26 +47,6 @@ int TestThreshold(int, char *[])
     {
     return EXIT_FAILURE;
     }
-  else
-    {
-    std::cout << " ********** SUCCESS ********" << std::endl;
-    }
-
-  filter->UseContinuousCellRangeOff();
-  filter->ThresholdBetween(L,L);
-  filter->Update();
-  //since we are not using continuous cell range
-  //no cell points should fall in the empty interval
-  if(filter->GetOutput()->GetNumberOfCells()>0)
-    {
-    return EXIT_FAILURE;
-    }
-  filter->UseContinuousCellRangeOn();
-  filter->Update();
-  if(filter->GetOutput()->GetNumberOfCells()==0)
-    {
-    return EXIT_FAILURE;
-    }
 
   return EXIT_SUCCESS;
 }

@@ -76,6 +76,5 @@ int thresholdMain(int argc, char* argv[])
 
   //run the pipeline
   RunVTKPipeline(grid.GetPointer(),dim);
-  grid->Delete();
   return EXIT_SUCCESS;
 }

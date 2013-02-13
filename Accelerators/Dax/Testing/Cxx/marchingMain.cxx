@@ -30,37 +30,37 @@
 namespace
 {
 template<typename T>
-void RunVTKPipeline(T *t)
+void RunVTKPipeline(T *t, int argc, char* argv[])
 {
-    vtkNew<vtkRenderer> ren;
-    vtkNew<vtkRenderWindow> renWin;
-    vtkNew<vtkRenderWindowInteractor> iren;
+  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkRenderWindow> renWin;
+  vtkNew<vtkRenderWindowInteractor> iren;
 
-    renWin->AddRenderer(ren.GetPointer());
-    iren->SetRenderWindow(renWin.GetPointer());
+  renWin->AddRenderer(ren.GetPointer());
+  iren->SetRenderWindow(renWin.GetPointer());
 
-    vtkNew<vtkDaxMarchingCubes> cubes;
+  vtkNew<vtkDaxMarchingCubes> cubes;
 
-    cubes->SetInputConnection(t->GetOutputPort());
-    cubes->SetNumberOfContours(1);
-    cubes->SetValue(0,10);
+  cubes->SetInputConnection(t->GetOutputPort());
+  cubes->SetNumberOfContours(1);
+  cubes->SetValue(0,10);
 
-    vtkNew<vtkPolyDataMapper> mapper;
-    mapper->SetInputConnection(cubes->GetOutputPort());
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputConnection(cubes->GetOutputPort());
 
-    vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper.GetPointer());
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper.GetPointer());
 
-    ren->AddActor(actor.GetPointer());
-    ren->ResetCamera();
-    renWin->Render();
+  ren->AddActor(actor.GetPointer());
+  ren->ResetCamera();
+  renWin->Render();
 
-// int retVal = vtkRegressionTestImage(renWin.GetPointer());
+int retVal = vtkRegressionTestImage(renWin.GetPointer());
 
-// if(retVal == vtkRegressionTester::DO_INTERACTOR)
-//   {
-    iren->Start();
-// }
+if(retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+  iren->Start();
+  }
 }
 
 } // Anonymous namespace
@@ -74,6 +74,6 @@ int marchingMain(int argc, char* argv[])
   src->SetWholeExtent(0,40,0,40,0,40);
 
   //run the pipeline
-  RunVTKPipeline(src);
+  RunVTKPipeline(src,argc,argv);
   return 0;
 }
