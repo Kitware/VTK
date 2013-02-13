@@ -794,6 +794,8 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     tree->GetVertexData()->AddArray(nodeWeights.GetPointer());
 
 
+    this->vdoc->AddItem(tree);
+    tree->Delete();
     return tree;
     }
   else
