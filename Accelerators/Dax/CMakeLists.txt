@@ -51,6 +51,9 @@ include_directories(${Dax_INCLUDE_DIRS})
 include_directories(${${vtk-module}_DEPENDS_INCLUDE_DIRS})
 
 set(headers
+  DaxDetailCommon.h
+  DaxMarchingCubesImpl.h
+  DaxThresholdImpl.h
   daxToVtk/CellTypeToType.h
   daxToVtk/DataSetConverters.h
   vtkToDax/Allocators.h
