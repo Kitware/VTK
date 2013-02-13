@@ -56,3 +56,4 @@ DaxObjectFactory::DaxObjectFactory()
 }
 
 vtkStandardNewMacro(DaxObjectFactory)
+// VTK-HeaderTest-Exclude: DaxObjectFactory.h

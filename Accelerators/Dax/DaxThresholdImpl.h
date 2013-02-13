@@ -165,5 +165,4 @@ int Threshold(vtkDataSet* input, vtkUnstructuredGrid *output,
 }
 
 } //end vtkDax namespace
-
-// VTK-HeaderTest-Exclude: vtkDataArrayDispatcher.h
+// VTK-HeaderTest-Exclude: DaxThresholdImpl.h

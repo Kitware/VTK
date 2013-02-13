@@ -18,12 +18,13 @@
 #define vtkDaxMarchingCubes_H
 
 #include <vtkMarchingCubes.h>
-#include "vtkAcceleratorsDaxModule.h"
+#include "vtkAcceleratorsDaxModule.h" //required for correct implementation
 
 class VTKACCELERATORSDAX_EXPORT vtkDaxMarchingCubes : public vtkMarchingCubes
 {
 public:
   vtkTypeMacro(vtkDaxMarchingCubes,vtkMarchingCubes)
+  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkDaxMarchingCubes* New();
 
 protected:
@@ -33,8 +34,8 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkDaxMarchingCubes(const vtkDaxMarchingCubes&);
-  void operator=(const vtkDaxMarchingCubes&);
+  vtkDaxMarchingCubes(const vtkDaxMarchingCubes&); //Not implemented
+  void operator=(const vtkDaxMarchingCubes&); // Not implemented
 };
 
 #endif // vtkDaxMarchingCubes_H

@@ -44,6 +44,12 @@ vtkDaxMarchingCubes::~vtkDaxMarchingCubes()
   }
 
 //------------------------------------------------------------------------------
+void vtkDaxMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
+
+//------------------------------------------------------------------------------
 int vtkDaxMarchingCubes::RequestData(vtkInformation *request,
                              vtkInformationVector **inputVector,
                              vtkInformationVector *outputVector)

@@ -138,3 +138,4 @@ int MarchingCubes(vtkDataSet* input, vtkUnstructuredGrid *output,
 }
 
 } //end vtkDax namespace
+// VTK-HeaderTest-Exclude: DaxMarchingCubesImpl.h

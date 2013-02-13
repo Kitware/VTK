@@ -44,6 +44,12 @@ vtkDaxThreshold::~vtkDaxThreshold()
 }
 
 //------------------------------------------------------------------------------
+void vtkDaxThreshold::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
+
+//------------------------------------------------------------------------------
 int vtkDaxThreshold::RequestData(vtkInformation *request,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector)

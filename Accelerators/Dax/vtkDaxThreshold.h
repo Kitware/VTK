@@ -18,12 +18,14 @@
 #define VTKDAXTHRESHOLD_H
 
 #include <vtkThreshold.h>
-#include "vtkAcceleratorsDaxModule.h"
+#include "vtkAcceleratorsDaxModule.h" //required for correct implementation
 
 class VTKACCELERATORSDAX_EXPORT vtkDaxThreshold : public vtkThreshold
 {
 public:
   vtkTypeMacro(vtkDaxThreshold,vtkThreshold)
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   static vtkDaxThreshold* New();
 
 protected:
@@ -35,8 +37,8 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkDaxThreshold(const vtkDaxThreshold&);
-  void operator=(const vtkDaxThreshold&);
+  vtkDaxThreshold(const vtkDaxThreshold&); // Not implemented
+  void operator=(const vtkDaxThreshold&); // Not implemented
 };
 
 #endif // VTKDAXTHRESHOLD_H

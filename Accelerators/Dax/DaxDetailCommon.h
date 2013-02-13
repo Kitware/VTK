@@ -14,8 +14,8 @@
 //
 //=============================================================================
 
-#ifndef vtkDaxDetailCommon_h
-#define vtkDaxDetailCommon_h
+#ifndef DaxDetailCommon_h
+#define DaxDetailCommon_h
 
 #include <vtkCellTypes.h>
 #include <vtkGenericCell.h>
@@ -47,4 +47,5 @@ namespace detail {
     return CellTypeInDataSet(cellTypes->GetCellType(0));
   }
 }}
-#endif // vtkDaxDetailCommon_h
+#endif // DaxDetailCommon_h
+// VTK-HeaderTest-Exclude: DaxDetailCommon.h
