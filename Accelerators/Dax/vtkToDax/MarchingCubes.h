@@ -17,6 +17,8 @@
 #ifndef vtkToDax_MarchingCubes_h
 #define vtkToDax_MarchingCubes_h
 
+#include <vtkPolyData.h>
+
 #include "DataSetTypeToType.h"
 #include "CellTypeToType.h"
 #include "DataSetConverters.h"
@@ -32,12 +34,9 @@ namespace
 {
 template <typename T> struct MarchingCubesOuputType
 {
-  typedef T type;
+  typedef dax::CellTagTriangle type;
 };
-template <> struct MarchingCubesOuputType< dax::CellTagVoxel >
-{
-  typedef dax::CellTagHexahedron type;
-};
+
 }
 
 namespace vtkToDax
@@ -58,7 +57,6 @@ namespace vtkToDax
                    const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &,
                    dax::cont::ArrayHandle<TriangleValueType,Container2,Adapter> &)
       {
-      std::cout << "Not calling DAX, GridType and CellType combination not supported" << std::endl;
       return 0;
       }
   };
@@ -79,14 +77,9 @@ namespace vtkToDax
         const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &mcHandle,
         dax::cont::ArrayHandle<TriangleValueType,Container2,Adapter> &mcResult)
       {
-      std::cout << "GridType and CellType are supported by Dax"
-                << std::endl;
-      std::cout << "Doing MarchingCubes..."
-                << std::endl;
       int result=1;
-      dax::Scalar isoValueT(isoValue);
 
-      dax::cont::UnstructuredGrid<dax::CellTagTriangle> resultGrid;
+      dax::Scalar isoValueT(isoValue);
 
       try {
 
@@ -117,18 +110,10 @@ namespace vtkToDax
         // run the second step
         scheduler.Invoke(generate,
                          inGrid,
-                         resultGrid,
-                         // outGeom,
+                         outGeom,
                          mcHandle,
                          inGrid.GetPointCoordinates(),
-                         mcResult);
-
-        // convert mcResult to a sequential array.
-        std::cout << " size of output = "
-                  << mcResult.GetNumberOfValues()
-                  << std::endl;
-        // mcResult.CopyInto(mcResult.GetPortalControl().GetIteratorBegin());
-      }
+                         mcResult);      }
 
       catch(...){result=0; }
       return result;
@@ -151,7 +136,7 @@ namespace vtkToDax
       {
       }
 
-    void setOutputGrid(vtkUnstructuredGrid* grid)
+    void setOutputGrid(vtkPolyData* grid)
       {
       Result=grid;
       }
@@ -177,70 +162,42 @@ namespace vtkToDax
       //construct the output grid type to use the vtk containers
       //as we know we are going back to vtk. In a more general framework
       //we would want a tag to say what the destination container tag types
-      //are
+      //are. We don't need the points container be
       typedef daxToVtk::CellTypeToType<OutCellType> VTKCellType;
       dax::cont::UnstructuredGrid<OutCellType,
-                vtkToDax::vtkTopologyContainerTag<VTKCellType>,
-                vtkToDax::vtkPointsContainerTag> resultGrid;
-
-      //schedule marching cubes worklet generate step, saving
-      //the coordinates into outputHandle.
-      typedef dax::Tuple<dax::Vector3,3> TriCoordinatesType;
-      dax::cont::ArrayHandle<TriCoordinatesType> outputHandle;
+                vtkToDax::vtkTopologyContainerTag<VTKCellType> > resultGrid;
 
       InputDataSetType inputDaxData = vtkToDax::dataSetConverter(&dataSet,
-                                                                 DataSetTypeToTypeStruct());
+                                                    DataSetTypeToTypeStruct());
 
 
-      std::cout << "Input Data Set NumCells:"
-                << inputDaxData.GetNumberOfCells()
-                << std::endl;
-      std::cout << "Input Data Set NumPoints: "
-                << inputDaxData.GetNumberOfPoints()
-                << std::endl;
+      //schedule marching cubes worklet generate step, saving
+      //the coordinates into outputHandle. In our case we want the output
+      //handle to point to a container whose storage is a vtkPoints class
+
+      typedef dax::Tuple<dax::Vector3,3> TriCoordinatesType;
+      dax::cont::ArrayHandle<TriCoordinatesType,
+                             vtkToDax::vtkTrianglesContainerTag> outputHandle;
 
       vtkToDax::DoMarchingCubes<DataSetTypeToTypeStruct::Valid> mc;
       int result = mc(inputDaxData,
-                       resultGrid,
-                       this->Value,
-                       this->Field,
-                       outputHandle);
-      std::cout << "result = " << result << std::endl;
-
+                      resultGrid,
+                      this->Value,
+                      this->Field,
+                      outputHandle);
       if(result==1)
         {
-        //if we converted correctly, copy the data back to VTK
-        //remembering to add back in the output array to the generated
-        //unstructured grid
 
-        //get from the Field the proper handle type
-        // typedef FieldType::PortalConstControl<T> PortalType<T>;
-        // FieldType pointOutputHandle(PortalType(outputHandle.GetPortalControl().GetIteratorBegin(),outputHandle.GetNumberOfValues()*3));
-        FieldType outFieldType;
-
-        daxToVtk::addPointData(this->Result,outputHandle,outFieldType,this->Name);
-        // daxToVtk::dataSetConverter(resultGrid,this->Result);
-
-        std::cout << "Dax Data Set NumCells: "
-                  << resultGrid.GetNumberOfCells()
-                  << std::endl;
-        std::cout << "Dax Data Set NumPoints: "
-                  << resultGrid.GetNumberOfPoints()
-                  << std::endl;
-
-        std::cout << "VTK Data Set NumCells: "
-                  << this->Result->GetNumberOfCells()
-                  << std::endl;
-        std::cout << "VTK Data Set NumPoints: "
-                  << this->Result->GetNumberOfPoints()
-                  << std::endl;
+        daxToVtk::dataSetConverter(resultGrid,
+                                   outputHandle,
+                                   this->Result);
         }
 
       return result;
 
       }
   private:
-    vtkUnstructuredGrid* Result;
+    vtkPolyData* Result;
     FieldType Field;
     T Value;
     std::string Name;

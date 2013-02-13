@@ -54,7 +54,6 @@ int vtkDaxThreshold::RequestData(vtkInformation *request,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector)
 {
-  std::cout << ">>>>>> vtkDaxThreshold::RequestData()" << std::endl;
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkDataSet *input = vtkDataSet::SafeDownCast(
@@ -72,7 +71,6 @@ int vtkDaxThreshold::RequestData(vtkInformation *request,
   if(!result)
     {
       result = this->Superclass::RequestData(request,inputVector,outputVector);
-      std::cout << " >>>>>>> vtkThreshold::RequestData()" << std::endl;
     }
   return result;
 }

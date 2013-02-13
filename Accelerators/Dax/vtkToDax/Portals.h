@@ -217,12 +217,14 @@ private:
 };
 
 template <typename Type,
-          int NUM_COMPONENTS = 3>
+          int NUM_COMPONENTS = dax::VectorTraits<Type>::NUM_COMPONENTS >
 class vtkTrianglesPortal
 {
 public:
   typedef typename ConstCorrectedType<Type>::Type ValueType;
-  typedef typename ConstCorrectedType<Type>::ComponentType ComponentType;
+  //we are a tuple of tuples!
+  //the real component type is the inner tuples component type
+  typedef typename ConstCorrectedType<typename Type::ComponentType>::ComponentType ComponentType;
 
   DAX_CONT_EXPORT vtkTrianglesPortal():
     Points(NULL),
@@ -260,15 +262,25 @@ public:
 
   DAX_CONT_EXPORT
   ValueType Get(dax::Id index) const {
-    return ValueType(this->Array[index*NUM_COMPONENTS]);
+    typedef typename ValueType::ComponentType CT;
+    const dax::Id start_offset = index*(NUM_COMPONENTS*3);
+    ValueType v( CT(&this->Array[start_offset]),
+                 CT(&this->Array[start_offset+3]),
+                 CT(&this->Array[start_offset+6]));
+    return v;
   }
 
   DAX_CONT_EXPORT
   void Set(dax::Id index, const ValueType& value) const{
+    enum {sub_size=dax::VectorTraits<typename ValueType::ComponentType>::NUM_COMPONENTS};
+    const dax::Id start_offset = index*(NUM_COMPONENTS*3);
 
-    ComponentType *rawArray = this->Array + (index * NUM_COMPONENTS);
     //use template magic to auto unroll insertion
-    fillComponents<NUM_COMPONENTS>()(rawArray,value);
+    //value is 3 component tuple of vector3's
+    for(dax::Id i=0; i < NUM_COMPONENTS; ++i)
+      {
+      fillComponents<sub_size>()(&this->Array[start_offset+(i*3)],value[i]);
+      }
   }
 
   typedef dax::cont::IteratorFromArrayPortal<vtkTrianglesPortal> IteratorType;

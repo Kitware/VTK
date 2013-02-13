@@ -79,8 +79,6 @@ namespace vtkToDax
         const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &thresholdHandle,
         dax::cont::ArrayHandle<ValueType,Container2,Adapter> &thresholdResult)
       {
-      std::cout << "GridType and CellType are supported by Dax" << std::endl;
-      std::cout << "Doing threshold..." << std::endl;
       int result=1;
       try{
 
@@ -159,10 +157,6 @@ namespace vtkToDax
       InputDataSetType inputDaxData = vtkToDax::dataSetConverter(&dataSet,
                                                                  DataSetTypeToTypeStruct());
 
-
-      std::cout << "Input Data Set NumCells: " << inputDaxData.GetNumberOfCells() << std::endl;
-      std::cout << "Input Data Set NumPoints: "  << inputDaxData.GetNumberOfPoints() << std::endl;
-
       vtkToDax::DoThreshold<DataSetTypeToTypeStruct::Valid> threshold;
       int result = threshold(inputDaxData,
                        resultGrid,
@@ -178,12 +172,6 @@ namespace vtkToDax
         //unstructured grid
         daxToVtk::addPointData(this->Result,outputHandle,this->Name);
         daxToVtk::dataSetConverter(resultGrid,this->Result);
-
-        std::cout << "Dax Data Set NumCells: " << resultGrid.GetNumberOfCells() << std::endl;
-        std::cout << "Dax Data Set NumPoints: "  << resultGrid.GetNumberOfPoints() << std::endl;
-
-        std::cout << "VTK Data Set NumCells: " << this->Result->GetNumberOfCells() << std::endl;
-        std::cout << "VTK Data Set NumPoints: "  << this->Result->GetNumberOfPoints() << std::endl;
         }
 
       return result;

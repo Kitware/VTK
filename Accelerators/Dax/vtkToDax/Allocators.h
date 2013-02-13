@@ -85,6 +85,8 @@ struct vtkAlloc<vtkPoints, NUM_COMPONENTS>
   void deallocate(self::pointer p, self::size_type)
     {
     p->Delete();
+    std::cout << "after delete" << std::endl;
+    std::cout << "ref count:" << p->GetReferenceCount() << std::endl;
     }
 };
 

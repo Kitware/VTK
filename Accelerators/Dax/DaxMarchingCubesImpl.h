@@ -36,7 +36,7 @@
 #include <vtkDataObjectTypes.h>
 #include <vtkImageData.h>
 #include <vtkUniformGrid.h>
-#include <vtkUnstructuredGrid.h>
+#include <vtkPolyData.h>
 
 //helpers that convert vtk to dax
 #include "vtkDispatcher.h"
@@ -61,9 +61,9 @@ namespace detail {
     vtkCell* Cell;
     double IsoValue;
 
-    vtkUnstructuredGrid* Result;
+    vtkPolyData* Result;
 
-    ValidMarchingCubesInput(vtkDataSet* in, vtkUnstructuredGrid* out,
+    ValidMarchingCubesInput(vtkDataSet* in, vtkPolyData* out,
                         vtkCell* cell, double isoValue):
       Input(in),Cell(cell),IsoValue(isoValue),Result(out){}
 
@@ -97,7 +97,7 @@ namespace detail {
       vtkToDax::MarchingCubes<FieldHandle> marching(field,
                                                  FieldType(IsoValue));
       marching.setFieldName(vtkField.GetName());
-      marching.setOutputGrid(Result);
+      marching.setOutputGrid(this->Result);
 
       // see if we have a valid data set type if so will perform the
       // marchingcubes if possible
@@ -115,7 +115,7 @@ namespace detail {
 
 
 //------------------------------------------------------------------------------
-int MarchingCubes(vtkDataSet* input, vtkUnstructuredGrid *output,
+int MarchingCubes(vtkDataSet* input, vtkPolyData *output,
               vtkDataArray* field, float isoValue)
 {
   //we are doing a point threshold now verify we have suitable cells

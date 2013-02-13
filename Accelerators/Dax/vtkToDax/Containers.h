@@ -279,7 +279,7 @@ public:
 
 private:
   //determine the allocator type and pointer type for this container
-  typedef vtkToDax::vtkAlloc<vtkPoints,9> AllocatorType;
+  typedef vtkToDax::vtkAlloc<vtkPoints,3> AllocatorType;
   //the pointer type tells us the type of what the allocator returns
   typedef typename AllocatorType::pointer PointerType;
 
@@ -298,7 +298,9 @@ public:
       {
       DAX_ASSERT_CONT(this->Array != NULL);
       AllocatorType allocator;
-      allocator.deallocate(this->Array, this->NumberOfValues);
+      //we are allocating based on the number of cells, so we need
+      //to multiple by 3 to get the number of points in total
+      allocator.deallocate(this->Array, this->NumberOfValues * 3);
       this->Array = NULL;
       this->NumberOfValues = 0;
       }
@@ -318,7 +320,9 @@ public:
       if (numberOfValues > 0)
         {
         AllocatorType allocator;
-        this->Array = allocator.allocate(numberOfValues);
+        //we are allocating based on the number of cells, so we need
+        //to multiple by 3 to get the number of points in total
+        this->Array = allocator.allocate(numberOfValues * 3);
         this->NumberOfValues = numberOfValues;
         }
       else

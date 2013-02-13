@@ -25,11 +25,12 @@ class vtkTriangle;
 class vtkVoxel;
 class vtkWedge;
 
-#include <vtkDataSet.h>
-#include <vtkPointData.h>
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
+#include <vtkDataSet.h>
 #include <vtkNew.h>
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
 
 #include <dax/cont/UnstructuredGrid.h>
 #include <dax/cont/UniformGrid.h>
@@ -50,10 +51,11 @@ void writeCellTags(vtkCellArray *cell)
   //the memory, which will cause performance issues when we are in openMP
 
   //so instead we do it once we pull back to vtk
+  vtkIdType* raw_ids = cell->GetPointer();
+
   for(vtkIdType i=0; i < cell->GetNumberOfCells(); ++i)
     {
-    cell->GetCell(i,npts,pts);
-    npts=CellType::NUM_POINTS;
+    raw_ids[i*(CellType::NUM_POINTS+1)]=CellType::NUM_POINTS;
     }
 }
 
@@ -90,8 +92,32 @@ inline void dataSetConverter(dax::cont::UnstructuredGrid<CellType,TopoTag,PointT
   daxToVtk::writeCellTags<CellTypeToType<CellType> >(cells);
   output->SetCells(CELL_TYPE,cells);
 
-  output->SetPoints(grid.GetPointCoordinates().GetPortalControl().Get());
+  vtkPoints *p = grid.GetPointCoordinates().GetPortalControl().Get();
+  output->SetPoints(p);
 }
+
+//convert a vtkUnstructuredGrid to vtk
+template<typename CellType, typename TopoTag, typename PointTag,
+         typename ArrayHandle>
+inline void dataSetConverter(
+  dax::cont::UnstructuredGrid<CellType,TopoTag,PointTag>& grid,
+  ArrayHandle& coordinates,
+  vtkPolyData* output)
+{
+  //get the vtk cell type we are extracting
+  enum{CELL_TYPE=CellTypeToType<CellType>::VTKCellType};
+
+  //to properly set the points back into vtk we have to make
+  //sure that for each cell we will fill in the part which states
+  //how many points are in that cells
+  vtkCellArray* cells = grid.GetCellConnections().GetPortalControl().Get();
+  daxToVtk::writeCellTags<CellTypeToType<CellType> >(cells);
+  output->SetPolys(cells);
+
+  vtkPoints *p = coordinates.GetPortalControl().Get();
+  output->SetPoints(p);
+}
+
 
 //convert a vtkUnstructuredGrid to vtk
 inline void dataSetConverter(const dax::cont::UniformGrid<>& grid,
