@@ -28,7 +28,6 @@
 
 class vtkBrush;
 class vtkPen;
-class vtkRenderer;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkOpenGLContextDevice3D : public vtkContextDevice3D
 {
@@ -102,23 +101,17 @@ public:
   void EnableClippingPlane(int i, double *planeEquation);
   void DisableClippingPlane(int i);
 
-  // Description:
-  // Begin drawing, pass in the viewport to set up the view.
-  virtual void Begin(vtkViewport*);
-
-  // Description:
-  // End drawing, clean up the view.
-  virtual void End();
-
 protected:
   vtkOpenGLContextDevice3D();
   ~vtkOpenGLContextDevice3D();
 
   // Description:
-  // We need to store a pointer to the renderer for the text rendering
-  vtkRenderer *Renderer;
+  // Begin drawing, turn on the depth buffer.
+  virtual void EnableDepthBuffer();
 
-  bool InRender;
+  // Description:
+  // End drawing, turn off the depth buffer.
+  virtual void DisableDepthBuffer();
 
 private:
   vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &); // Not implemented.
