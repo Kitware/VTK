@@ -285,7 +285,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkCarbonRenderWindow.*warning.*is deprecated"
 
   # Mac OS X and Java moving to Oracle, Apple is deprecating their own Java Implementation
-  "warning: 'JAWT_GetAWT' is deprecated"
+  "vtkJavaAwt.*warning.*JAWT_GetAWT.*deprecated"
   )
 ENDIF(APPLE)
 
