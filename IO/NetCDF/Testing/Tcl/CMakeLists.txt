@@ -1,22 +1,7 @@
-# Tests with test images in Baseline/IO
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    NetCDFCF2DBounds
-    NetCDFCFSetOutputType
-    NetCDFCFSphericalCoords
-    NetCDFCFUnstructured
-    NetCDFReader
-  )
+  add_test_tcl(NetCDFCF2DBounds IO)
+  add_test_tcl(NetCDFCFSetOutputType IO)
+  add_test_tcl(NetCDFCFSphericalCoords IO)
+  add_test_tcl(NetCDFCFUnstructured IO)
+  add_test_tcl(NetCDFReader IO)
 endif()
-
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/IO/${tfile}.png
-   )
-endforeach()

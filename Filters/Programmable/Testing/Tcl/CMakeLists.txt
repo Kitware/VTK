@@ -1,20 +1,6 @@
-# Tests with test images in Baseline/Graphics
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    progGlyphs
-    progGlyphsBySource
-    MultidimensionalSolution
-  )
+  add_test_tcl(MultidimensionalSolution Graphics)
 endif()
 
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Graphics/${tfile}.png
-   )
-endforeach()
+add_test_tcl(progGlyphs Graphics)
+add_test_tcl(progGlyphsBySource Graphics)

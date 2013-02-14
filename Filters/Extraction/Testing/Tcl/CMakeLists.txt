@@ -1,23 +1,8 @@
-# Tests with test images in Baseline/Graphics
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    ExtractEdgesQuadraticCells
-    ExtractTensors
-    extractPolyData
-    extractRectGrid
-    extractUGrid
-    extractVectors
-  )
+  add_test_tcl(extractRectGrid Graphics)
+  add_test_tcl(extractUGrid Graphics)
+  add_test_tcl(extractVectors Graphics)
 endif()
-
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Graphics/${tfile}.png
-   )
-endforeach()
+add_test_tcl(ExtractEdgesQuadraticCells Graphics)
+add_test_tcl(ExtractTensors Graphics)
+add_test_tcl(extractPolyData Graphics)

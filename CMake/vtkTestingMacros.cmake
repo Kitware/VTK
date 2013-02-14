@@ -246,9 +246,11 @@ macro(add_test_tcl)
     else()
       add_test(NAME ${vtk-module}Tcl-${TName}
         COMMAND ${VTK_TCL_EXE}
+        ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
         ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.tcl
-        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl
-        ${${TName}_ARGS})
+        -D VTK_DATA_ROOT-NOTFOUND
+        -T ${VTK_TEST_OUTPUT_DIR}
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     endif()
   else()
     message(FATAL_ERROR "VTK_TCL_EXE not set")

@@ -1,59 +1,27 @@
-# Tests with test images in Baseline/Hybrid
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    camera
-  )
+  add_test_tcl(TestImageMarchingCubes Graphics)
+  add_test_tcl(TestRibbonAndTube Graphics)
+  add_test_tcl(contour2DAll Graphics)
+  add_test_tcl(contour3DAll Graphics)
+  add_test_tcl(eleState Graphics)
+  add_test_tcl(sync3dAll Graphics)
 endif()
 
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Hybrid/${tfile}.png
-   )
-endforeach()
-
-# Tests with test images in Baseline/Graphics
-#
-unset(tests)
-if(VTK_DATA_ROOT)
-  set(tests
-    contour3DAll
-    eleState
-    extrudeCopyCD
-    Hyper
-    HyperScalarBar
-    KlineBottle
-    schwarz
-    smoothCyl
-    smoothCyl2
-    subdividePointData
-    subDivideTetra
-    sync3dAll
-    TenEllip
-    TestBandedContourFilter
-    TestBoxFunction
-    TestFillHolesFilter
-    TestImageMarchingCubes
-    TestRibbonAndTube
-    TestRuledSurface
-    TestRuledSurface2
-    TestSpherePuzzle
-    TestSpherePuzzleArrows
-    contour2DAll
-  )
-endif()
-
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Graphics/${tfile}.png
-   )
-endforeach()
+add_test_tcl(camera Hybrid)
+add_test_tcl(extrudeCopyCD Graphics)
+add_test_tcl(Hyper Graphics)
+add_test_tcl(HyperScalarBar Graphics)
+add_test_tcl(KlineBottle Graphics)
+add_test_tcl(schwarz Graphics)
+add_test_tcl(smoothCyl Graphics)
+add_test_tcl(smoothCyl2 Graphics)
+add_test_tcl(subdividePointData Graphics)
+add_test_tcl(subDivideTetra Graphics)
+add_test_tcl(TenEllip Graphics)
+add_test_tcl(TestBandedContourFilter Graphics)
+add_test_tcl(TestBoxFunction Graphics)
+add_test_tcl(TestFillHolesFilter Graphics)
+add_test_tcl(TestRuledSurface Graphics)
+add_test_tcl(TestRuledSurface2 Graphics)
+add_test_tcl(TestSpherePuzzle Graphics)
+add_test_tcl(TestSpherePuzzleArrows Graphics)

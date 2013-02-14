@@ -1,25 +1,10 @@
-# Tests with test images in Baseline/IO
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    TestBMPReader
-    TestImageWriters
-    TestJPEGReader
-    TestMHD
-    TestMetaImage2D
-    TestSetFileNames
-    TestTIFFReader
-    dem
-  )
+  add_test_tcl(TestBMPReader IO)
+  add_test_tcl(TestImageWriters IO)
+  add_test_tcl(TestJPEGReader IO)
+  add_test_tcl(TestMHD IO)
+  add_test_tcl(TestMetaImage2D IO)
+  add_test_tcl(TestSetFileNames IO)
+  add_test_tcl(TestTIFFReader IO)
+  add_test_tcl(dem IO)
 endif()
-
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/IO/${tfile}.png
-   )
-endforeach()
