@@ -22,6 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkPolyData.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkCompositeDataDisplayAttributes.h"
 
 vtkStandardNewMacro(vtkCompositePainter);
@@ -117,13 +118,22 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
       }
 
     vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
-    if(mbds)
+    vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::SafeDownCast(dobj);
+    if(mbds || mpds)
       {
       // recurse down to child blocks
-      for(unsigned int i = 0; i < mbds->GetNumberOfBlocks(); i++)
+      unsigned int childCount =
+        mbds ? mbds->GetNumberOfBlocks() : mpds->GetNumberOfPieces();
+      for(unsigned int i = 0; i < childCount; i++)
         {
         flat_index++;
-        this->RenderBlock(renderer, actor, typeflags, forceCompileOnly, mbds->GetBlock(i), flat_index, visible);
+        this->RenderBlock(renderer,
+                          actor,
+                          typeflags,
+                          forceCompileOnly,
+                          mbds ? mbds->GetBlock(i) : mpds->GetPiece(i),
+                          flat_index,
+                          visible);
         }
 
       // pop display attributes
