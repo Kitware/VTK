@@ -14,6 +14,4 @@ vtk_module(vtkAcceleratorsDax
     vtkIOXML
     vtkImagingSources
   EXCLUDE_FROM_ALL
-  EXCLUDE_FROM_WRAPPING
-  EXCLUDE_FROM_WRAP_HIERARCHY
   )
