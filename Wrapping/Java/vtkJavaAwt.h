@@ -17,6 +17,11 @@
 
 #define VTK_JAVA_DEBUG
 
+// On OS X, disable deprecation warnings since JAWT_GetAWT() is deprecated.
+#if defined(__GNUC__) && defined(__APPLE__) && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1080)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 #if defined(_WIN32) || defined(WIN32)
 #define WIN32_JAWT_LOCK_HACK
@@ -350,4 +355,10 @@ Java_vtk_vtkPanel_UnLock(JNIEnv *env,
 
   return 0;
 }
+
+// Undo disabling of deprecation warning.
+#if defined(__GNUC__) && defined(__APPLE__) && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1080)
+  #pragma GCC diagnostic pop
+#endif
+
 // VTK-HeaderTest-Exclude: vtkJavaAwt.h
