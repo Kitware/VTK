@@ -12,6 +12,7 @@ print and save two reports, which can then be imported into a spreadsheet.
 You can of course import it in python and query the data manually if you like.
 """
 
+import sys
 import urllib
 import datetime
 import re
@@ -21,14 +22,12 @@ submitters = configs
 categories = {}
 summary = {}
 
-def scrape_cdash():
-  now = datetime.datetime.now()
+def scrape_cdash(date):
 
-  url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkCommonCore-TestSystemInformation&date='+now.strftime("%Y-%m-%d")
-  #url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkCommonCore-TestSystemInformation&date=2013-02-13'
-  #print url
+  test_sysinfo_url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkCommonCore-TestSystemInformation&date='+date
+  test_fbo_url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkRenderingOpenGLCxx-TestFBO&date='+date
 
-  testspage = urllib.urlopen(url)
+  testspage = urllib.urlopen(test_sysinfo_url)
   response = "".join(testspage.readlines())
   #print response
 
@@ -76,10 +75,8 @@ def scrape_cdash():
 
   #TODO: pull out common parts into a scraper function
   #Now grab GL info from TestFBO
-  url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkRenderingOpenGLCxx-TestFBO&date='+now.strftime("%Y-%m-%d")
-  #url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkRenderingOpenGLCxx-TestFBO&date=2013-02-13'
 
-  testspage = urllib.urlopen(url)
+  testspage = urllib.urlopen(test_fbo_url)
   response = "".join(testspage.readlines())
   #print response
 
@@ -221,12 +218,18 @@ def save_submitter_view(filename="submitters.txt"):
 
 
 if __name__ == '__main__':
-    scrape_cdash()
-    save_database()
-    restore_database()
-    interpret_database()
-    print_feature_view()
-    save_feature_view()
-    print
-    print_submitter_view()
-    save_submitter_view()
+  if len(sys.argv) == 2:
+    #assumes YYYY-MM-DD" format
+    date = sys.argv[1]
+  else:
+    now = datetime.datetime.now()
+    date = now.strftime("%Y-%m-%d")
+  scrape_cdash(date)
+  save_database()
+  restore_database()
+  interpret_database()
+  print_feature_view()
+  save_feature_view()
+  print
+  print_submitter_view()
+  save_submitter_view()
