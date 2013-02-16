@@ -163,6 +163,12 @@ def interpret_database():
     for x in categories:
       if x in submitters[y]:
         z = submitters[y][x]
+        if z == "ON":
+          z = 1
+          submitters[y][x] = z
+        if z == "OFF":
+          z = 0
+          submitters[y][x] = z
         if not str(z) in summary[x]:
           summary[x][str(z)] = []
         summary[x][str(z)].append(y)
