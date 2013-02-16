@@ -199,6 +199,7 @@ def make_submitter_view(filename="submitters.txt"):
   result = ""
   ssubmitters = sorted(submitters.keys())
   scategories = sorted(categories)
+  result = result + " ;"
   for y in scategories:
       result = result + y + ";"
   result = result + "\n"
