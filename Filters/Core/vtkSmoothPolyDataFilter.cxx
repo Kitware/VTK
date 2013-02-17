@@ -194,7 +194,7 @@ int vtkSmoothPolyDataFilter::RequestData(
   double CosFeatureAngle; //Cosine of angle between adjacent polys
   double CosEdgeAngle; // Cosine of angle between adjacent edges
   double closestPt[3], dist2, *w = NULL;
-  int iterationNumber, abortExecute;
+  int iterationNumber;
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
@@ -565,8 +565,8 @@ int vtkSmoothPolyDataFilter::RequestData(
     }
 
   factor = this->RelaxationFactor;
-  for ( maxDist=VTK_DOUBLE_MAX, iterationNumber=0, abortExecute=0;
-  maxDist > conv && iterationNumber < this->NumberOfIterations && !abortExecute;
+  for ( maxDist=VTK_DOUBLE_MAX, iterationNumber=0;
+  maxDist > conv && iterationNumber < this->NumberOfIterations;
   iterationNumber++ )
     {
 
@@ -575,7 +575,6 @@ int vtkSmoothPolyDataFilter::RequestData(
       this->UpdateProgress (0.5 + 0.5*iterationNumber/this->NumberOfIterations);
       if (this->GetAbortExecute())
         {
-        abortExecute = 1;
         break;
         }
       }
