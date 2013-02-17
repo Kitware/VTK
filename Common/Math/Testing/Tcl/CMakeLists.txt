@@ -1,4 +1,3 @@
-unset(tests)
 set(tests
   TestAmoebaMinimizer
   )

@@ -1,26 +1,12 @@
-# Tests with test images in Baseline/Rendering
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    TestStyleJoystickCamera
-    TestFlyTo
-    TestStyleRubberBandZoom
-    TestInteractorStyleTerrain
-    TestStyleTerrain
-    TestStyleTrackballActor
-    TestStyleBaseSpike
-    TestStyleTrackballCamera
-    TestStyleJoystickActor
-  )
+  add_test_tcl(TestInteractorStyleTerrain Rendering)
+  add_test_tcl(TestStyleRubberBandZoom Rendering)
 endif()
 
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Rendering/${tfile}.png
-   )
-endforeach()
+add_test_tcl(TestStyleJoystickCamera Rendering)
+add_test_tcl(TestFlyTo Rendering)
+add_test_tcl(TestStyleTerrain Rendering)
+add_test_tcl(TestStyleTrackballActor Rendering)
+add_test_tcl(TestStyleBaseSpike Rendering)
+add_test_tcl(TestStyleTrackballCamera Rendering)
+add_test_tcl(TestStyleJoystickActor Rendering)

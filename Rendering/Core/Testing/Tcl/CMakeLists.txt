@@ -1,73 +1,36 @@
-unset(tests)
-
 if(VTK_DATA_ROOT)
-  list(APPEND tests
-    assembly
-    CamBlur
-    cells
-    ImageActor
-    ImageActorStressed
-    PickerWithLocator
-    ScalarBar
-    SurfacePickerWithTexture
-    TestLeaderActor2D
-    TestOnePoint
-    TestOpacity2
-    TestTriangleStripCellColor
-    TestWindowToImageTransparency
-    TexturedSphere
-    pickCells
-    propAssembly
-    rendererSource
-    rotations
-    )
+  add_test_tcl(ImageActor Rendering)
+  add_test_tcl(PickerWithLocator Rendering)
+  add_test_tcl(PolyDataMapperAllPolygons Graphics)
+  add_test_tcl(PolyDataMapperAllWireframe Graphics)
+  add_test_tcl(SurfacePickerWithTexture Rendering)
+  add_test_tcl(TestCameraInterpolator Graphics)
+  add_test_tcl(TestOpacity2 Rendering)
+  add_test_tcl(TexturedSphere Rendering)
+  add_test_tcl(cells Rendering)
+  add_test_tcl(cowHair2 Graphics)
+  add_test_tcl(cowHair Graphics)
+  add_test_tcl(rendererSource Rendering)
+  add_test_tcl(rotations Rendering)
 endif()
 
-foreach(test ${tests})
-  set(_test_args
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${test}.tcl
-    -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-  if(VTK_DATA_ROOT)
-    list(APPEND _test_args
-      -D ${VTK_DATA_ROOT}
-      -T ${VTK_TEST_OUTPUT_DIR}
-      -V Baseline/Rendering/${test}.png)
-  endif()
-  add_test(NAME ${vtk-module}Tcl-${test}
-    COMMAND ${VTK_TCL_EXE} ${_test_args})
-endforeach()
+add_test_tcl(assembly Rendering)
+add_test_tcl(CamBlur Rendering)
+add_test_tcl(ImageActorStressed Rendering)
+add_test_tcl(ScalarBar Rendering)
+add_test_tcl(TestLeaderActor2D Rendering)
+add_test_tcl(TestOnePoint Rendering)
+add_test_tcl(TestTriangleStripCellColor Rendering)
+add_test_tcl(TestWindowToImageTransparency Rendering)
+add_test_tcl(pickCells Rendering)
+add_test_tcl(propAssembly Rendering)
 
-if(VTK_DATA_ROOT)
-  set(tests
-    cowHair2
-    cowHair
-    NoLightGeneration
-    PolyDataMapperAllPolygons
-    PolyDataMapperAllWireframe
-    TestCameraInterpolator
-    TestRotate
-    TestTransformCoordinateSystems
-    TestTransformInterpolator
-    TransformConcatenation
-    TransformCoverage
-    TransformImageData
-    TransformPolyData
-    stereoDresdenMace
-    )
-endif()
-
-foreach(test ${tests})
-  set(_test_args
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${test}.tcl
-    -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-  if(VTK_DATA_ROOT)
-    list(APPEND _test_args
-      -D ${VTK_DATA_ROOT}
-      -T ${VTK_TEST_OUTPUT_DIR}
-      -V Baseline/Graphics/${test}.png)
-  endif()
-  add_test(NAME ${vtk-module}Tcl-${test}
-    COMMAND ${VTK_TCL_EXE} ${_test_args})
-endforeach()
+add_test_tcl(NoLightGeneration Graphics)
+add_test_tcl(TestRotate Graphics)
+add_test_tcl(TestTransformCoordinateSystems Graphics)
+add_test_tcl(TestTransformInterpolator Graphics)
+add_test_tcl(TransformConcatenation Graphics)
+add_test_tcl(TransformCoverage Graphics)
+add_test_tcl(TransformImageData Graphics)
+add_test_tcl(TransformPolyData Graphics)
+add_test_tcl(stereoDresdenMace Graphics)

@@ -12,6 +12,10 @@ for {set i 1} {$i < $argc} {incr i} {
    rtTester AddArgument "[lindex $argv $i]"
 }
 set VTK_DATA_ROOT [rtTester GetDataRoot]
+set FoundData 1
+if { [string match "*VTK_DATA_ROOT-NOTFOUND" $VTK_DATA_ROOT] == 1 } {
+  set FoundData 0
+}
 
 for {set i  1} {$i < [expr $argc - 1]} {incr i} {
    if {[lindex $argv $i] == "-A"} {
@@ -46,43 +50,47 @@ if {[info commands iren] == "iren"} {renWin Render}
 # run the event loop quickly to map any tkwidget windows
 update
 
-# current directory
-set rtResult 0
-if {[rtTester IsValidImageSpecified] != 0} {
-   # look for a renderWindow ImageWindow or ImageViewer
-   # first check for some common names
-   if {[info commands renWin] == "renWin"} {
-      rtTester SetRenderWindow renWin
-      if {$threshold == -1} {
-         set threshold 10
-      }
-   } else {
-      if {$threshold == -1} {
-         set threshold 5
-      }
-      if {[info commands viewer] == "viewer"} {
-         rtTester SetRenderWindow [viewer GetRenderWindow]
-         viewer Render
-      } else {
-         if {[info commands imgWin] == "imgWin"} {
-            rtTester SetRenderWindow imgWin
-            imgWin Render
-         } else {
-            if {[info exists viewer]} {
-               rtTester SetRenderWindow [$viewer GetRenderWindow]
+# only regression test if VTK_DATA_ROOT is defined
+if { $FoundData == 1} {
+    # current directory
+    set rtResult 0
+    if {[rtTester IsValidImageSpecified] != 0} {
+        # look for a renderWindow ImageWindow or ImageViewer
+        # first check for some common names
+        if {[info commands renWin] == "renWin"} {
+            rtTester SetRenderWindow renWin
+            if {$threshold == -1} {
+                set threshold 10
             }
-         }
-      }
-   }
-   set rtResult [rtTester RegressionTest $threshold]
-}
+        } else {
+            if {$threshold == -1} {
+                set threshold 5
+            }
+            if {[info commands viewer] == "viewer"} {
+                rtTester SetRenderWindow [viewer GetRenderWindow]
+                viewer Render
+            } else {
+                if {[info commands imgWin] == "imgWin"} {
+                    rtTester SetRenderWindow imgWin
+                    imgWin Render
+                } else {
+                    if {[info exists viewer]} {
+                        rtTester SetRenderWindow [$viewer GetRenderWindow]
+                    }
+                }
+            }
+        }
+        set rtResult [rtTester RegressionTest $threshold]
+    }
 
-if {[rtTester IsInteractiveModeSpecified] != 0} {
-  if {[info commands iren] == "iren"} {
-    iren Start
-  }
+    if {[rtTester IsInteractiveModeSpecified] != 0} {
+        if {[info commands iren] == "iren"} {
+            iren Start
+        }
+    }
+} else {
+    set rtResult 1
 }
-
 vtkCommand DeleteAllObjects
 catch {destroy .top}
 catch {destroy .geo}
