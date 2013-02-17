@@ -965,7 +965,6 @@ void vtkOctreePointLocator::FindClosestNPoints(int N, const double x[3],
       }
     else if(node->GetDistance2ToBoundary(x[0], x[1], x[2], this->Top, 1) < largestDist2)
       {
-      regionId = node->GetID();
       numPoints = node->GetNumberOfPoints();
       where = node->GetMinID();
       ids = this->LocatorIds + where;
