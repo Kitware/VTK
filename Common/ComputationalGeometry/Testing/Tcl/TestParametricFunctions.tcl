@@ -2,14 +2,14 @@
 # Purpose: Test the parametric functions.
 # ------------------------------------------------------------
 
-# ------------------------------------------------------------
+# -------------------------------------------------------------
 # Call the VTK Tcl packages to make available all VTK commands
 # ------------------------------------------------------------
 package require vtk
 package require vtkinteraction
-
+set threshold 30
 # ------------------------------------------------------------
-# Get a texture
+# Get a texture`
 # ------------------------------------------------------------
 vtkJPEGReader textureReader
   textureReader SetFileName "$VTK_DATA_ROOT/Data/beach.jpg"
