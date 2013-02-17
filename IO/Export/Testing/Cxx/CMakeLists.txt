@@ -51,9 +51,8 @@ endforeach()
 # run the PNGCompare test target to do an image diff on the output against a
 # baseline.
 if(GL2PSTests)
+  set(TestGL2PSExporterVolumeRasterError 50)
   foreach(test ${GL2PSTests})
-    # Convert ps to png
-    get_filename_component(TName ${test} NAME_WE)
     add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePNG
       COMMAND ${CMAKE_COMMAND}
         -DPSFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.ps
@@ -69,11 +68,19 @@ if(GL2PSTests)
           "${VTK_TEST_OUTPUT_DIR}/${TName}.ps"
     )
 
+    # Convert ps to png
+    get_filename_component(TName ${test} NAME_WE)
+    if(${${TName}Error})
+      set(_error_threshold ${${TName}Error})
+    else()
+      set(_error_threshold 10)
+    endif()
     # Image diff rasterized png with baseline
     add_test(NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
       COMMAND vtkRenderingGL2PSCxxTests PNGCompare
         -D ${VTK_DATA_ROOT}
         -T ${VTK_TEST_OUTPUT_DIR}
+        -E ${_error_threshold}
         -V Baseline/Hybrid/${TName}-rasterRef.png
         --test-file ${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png
     )
