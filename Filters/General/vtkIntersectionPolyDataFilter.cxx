@@ -205,7 +205,6 @@ int vtkIntersectionPolyDataFilter::Impl
               {
               // Coplanar triangle intersection is not handled.
               // This intersection will not be included in the output.
-              intersects = 0;
               continue;
               }
 
@@ -329,7 +328,7 @@ int vtkIntersectionPolyDataFilter::Impl
   if ( input->GetPolys()->GetNumberOfCells() > 0 )
     {
     vtkCellArray *cells = input->GetPolys();
-    vtkIdType newId = output->GetNumberOfCells();
+    vtkIdType newId;
 
     vtkSmartPointer< vtkCellArray > newPolys =
       vtkSmartPointer< vtkCellArray >::New();
