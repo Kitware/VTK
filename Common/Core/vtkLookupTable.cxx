@@ -1211,3 +1211,15 @@ vtkIdType vtkLookupTable::GetNumberOfAvailableColors()
 {
   return this->Table->GetNumberOfTuples();
 }
+
+//----------------------------------------------------------------------------
+void vtkLookupTable::GetIndexedColor(vtkIdType idx, double rgba[4])
+{
+  vtkIdType n = this->GetNumberOfAvailableColors();
+  if (n > 0 && idx >= 0)
+    {
+    this->GetTableValue(idx % n, rgba);
+    return;
+    }
+  this->GetNanColor(rgba);
+}

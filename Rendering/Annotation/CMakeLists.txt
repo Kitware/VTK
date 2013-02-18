@@ -20,4 +20,14 @@ set(Module_SRCS
   vtkXYPlotActor.cxx
   )
 
+set(${vtk-module}_HDRS
+  vtkScalarBarActorInternal.h
+  )
+
+set_source_files_properties(
+  vtkScalarBarActorInternal.h
+  HEADER_FILE_ONLY
+  WRAP_EXCLUDE
+  )
+
 vtk_module_library(vtkRenderingAnnotation ${Module_SRCS})

@@ -84,7 +84,8 @@ public:
   // Description:
   // A cell traversal methods that is more efficient than vtkDataSet traversal
   // methods.  GetNextCell() gets the next cell in the list. If end of list
-  // is encountered, 0 is returned.
+  // is encountered, 0 is returned. A value of 1 is returned whenever
+  // npts and pts have been updated without error.
   int GetNextCell(vtkIdType& npts, vtkIdType* &pts);
 
   // Description:

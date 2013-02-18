@@ -81,8 +81,15 @@ int TestScalarBar( int argc, char *argv[] )
 
   vtkSmartPointer<vtkScalarBarActor> scalarBar1 =
     vtkSmartPointer<vtkScalarBarActor>::New();
+  vtkScalarsToColors* lut = outlineMapper->GetLookupTable();
+  lut->SetAnnotation(0.0, "Zed");
+  lut->SetAnnotation(1.0, "Uno");
+  lut->SetAnnotation(0.1, "$\\frac{1}{10}$");
+  lut->SetAnnotation(0.125, "$\\frac{1}{8}$");
+  lut->SetAnnotation(0.5, "Half");
   scalarBar1->SetTitle("Density");
-  scalarBar1->SetLookupTable( outlineMapper->GetLookupTable());
+  scalarBar1->SetLookupTable(lut);
+  scalarBar1->DrawAnnotationsOn();
   scalarBar1->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar1->GetPositionCoordinate()->SetValue( .6, .05 );
   scalarBar1->SetWidth( 0.15 );
@@ -98,7 +105,8 @@ int TestScalarBar( int argc, char *argv[] )
   vtkSmartPointer<vtkScalarBarActor> scalarBar2 =
     vtkSmartPointer<vtkScalarBarActor>::New();
   scalarBar2->SetTitle("Density");
-  scalarBar2->SetLookupTable( outlineMapper->GetLookupTable());
+  scalarBar2->SetLookupTable(lut);
+  scalarBar2->DrawAnnotationsOff();
   scalarBar2->SetOrientationToHorizontal();
   scalarBar2->SetWidth( 0.5 );
   scalarBar2->SetHeight( 0.15 );
@@ -115,7 +123,8 @@ int TestScalarBar( int argc, char *argv[] )
   vtkSmartPointer<vtkScalarBarActor> scalarBar3 =
     vtkSmartPointer<vtkScalarBarActor>::New();
   scalarBar3->SetTitle("Density");
-  scalarBar3->SetLookupTable( outlineMapper->GetLookupTable());
+  scalarBar3->SetLookupTable(lut);
+  scalarBar3->DrawAnnotationsOff();
   scalarBar3->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar3->GetPositionCoordinate()->SetValue( .8, .05 );
   scalarBar3->SetWidth( 0.15 );
@@ -130,7 +139,8 @@ int TestScalarBar( int argc, char *argv[] )
   vtkSmartPointer<vtkScalarBarActor> scalarBar4 =
     vtkSmartPointer<vtkScalarBarActor>::New();
   scalarBar4->SetTitle("Density");
-  scalarBar4->SetLookupTable( outlineMapper->GetLookupTable());
+  scalarBar4->SetLookupTable(lut);
+  scalarBar4->DrawAnnotationsOff();
   scalarBar4->SetOrientationToHorizontal();
   scalarBar4->SetWidth( 0.5 );
   scalarBar4->SetHeight( 0.15 );

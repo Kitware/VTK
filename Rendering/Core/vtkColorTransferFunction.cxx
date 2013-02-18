@@ -1677,6 +1677,25 @@ vtkIdType vtkColorTransferFunction::GetNumberOfAvailableColors()
 }
 
 //----------------------------------------------------------------------------
+void vtkColorTransferFunction::GetIndexedColor(vtkIdType idx, double rgba[4])
+{
+  vtkIdType n = this->GetSize();
+  if (n > 0 && idx >= 0)
+    {
+    double nodeValue[6];
+    this->GetNodeValue(idx % n, nodeValue);
+    for (int j = 0; j < 3; ++j)
+      {
+      rgba[j] = nodeValue[j+1];
+      }
+    rgba[3] = 1.0; // NodeColor is RGB-only.
+    return;
+    }
+  this->GetNanColor(rgba);
+  rgba[3] = 1.0; // NanColor is RGB-only.
+}
+
+//----------------------------------------------------------------------------
 void vtkColorTransferFunction::FillFromDataPointer(int nb, double *ptr)
 {
   if (nb <= 0 || !ptr)
