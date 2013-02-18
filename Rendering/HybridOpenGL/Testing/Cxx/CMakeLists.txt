@@ -19,24 +19,19 @@ vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 set(TestsToRun ${Tests})
 list(REMOVE_ITEM TestsToRun CxxTests.cxx)
 
-list(FIND TestsToRun TestSurfaceLIC.cxx RUN_TestSurfaceLIC)
-if (${RUN_TestSurfaceLIC} GREATER -1)
-  add_test(NAME ${vtk-module}Cxx-SurfaceLIC
-    COMMAND ${vtk-module}CxxTests TestSurfaceLIC
-      -D ${VTK_DATA_ROOT}
-      -T ${VTK_TEST_OUTPUT_DIR}
-      -V Baseline/Rendering/TestSurfaceLIC.png)
-endif()
-
 # Add all the executables
 foreach(test ${TestsToRun})
   get_filename_component(TName ${test} NAME_WE)
   if(VTK_DATA_ROOT)
+    set(_basedir Hybrid)
+    if("${TName}" STREQUAL "TestSurfaceLIC")
+      set(_basedir Rendering)
+    endif()
     add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
         -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/Hybrid/${TName}.png)
+        -V Baseline/${_basedir}/${TName}.png)
   else()
     add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName})
