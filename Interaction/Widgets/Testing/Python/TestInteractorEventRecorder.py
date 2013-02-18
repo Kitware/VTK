@@ -22,6 +22,7 @@
 # vtkpython TestBoxWidget.py  -D $VTK_DATA_ROOT \
 # -B $VTK_DATA_ROOT/Baseline/Widgets
 
+import sys
 import vtk
 import vtk.test.Testing
 from vtk.util.misc import vtkGetDataRoot
@@ -81,7 +82,7 @@ class TestInteractorEventRecorder(vtk.test.Testing.vtkTest):
         iRen.SetRenderWindow(renWin);
         #iren = vtk.vtkRenderWindowInteractor()
         #iren.SetRenderWindow(renWin)
-        iRen.AddObserver("ExitEvent", exit)
+        iRen.AddObserver("ExitEvent", sys.exit)
 
         # The SetInteractor method is how 3D widgets are associated with the render
         # window interactor. Internally, SetInteractor sets up a bunch of callbacks
