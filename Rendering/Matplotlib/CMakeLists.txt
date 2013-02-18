@@ -1,7 +1,6 @@
-# Check that python is found
-if(NOT PYTHON_LIBRARIES)
-  message(FATAL_ERROR "Cannot build RenderingMatplotlib: PYTHON_LIBRARIES not set.")
-endif()
+find_package(PythonLibs REQUIRED)
+
+include_directories(${PYTHON_INCLUDE_DIRS})
 
 set(Module_SRCS
   vtkMatplotlibMathTextUtilities.cxx
@@ -39,3 +38,5 @@ configure_file(${VTK_CMAKE_DIR}/vtkObjectFactory.cxx.in
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
+
+target_link_libraries(${vtk-module} LINK_PRIVATE ${PYTHON_LIBRARIES})
