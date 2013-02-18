@@ -307,7 +307,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
 char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
                            double coord[3], double& t)
 {
-  char    inside=1;
+  bool    inside=true;
   char    quadrant[3];
   int     i, whichPlane=0;
   double  maxT[3], candidatePlane[3];
@@ -320,13 +320,13 @@ char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
       {
       quadrant[i] = VTK_LEFT;
       candidatePlane[i] = bounds[2*i];
-      inside = 0;
+      inside = false;
       }
     else if ( origin[i] > bounds[2*i+1] )
       {
       quadrant[i] = VTK_RIGHT;
       candidatePlane[i] = bounds[2*i+1];
-      inside = 0;
+      inside = false;
       }
     else
       {

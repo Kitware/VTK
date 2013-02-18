@@ -845,15 +845,9 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
       reinterpret_cast<vtkDataArray *>(this->FrameBuffer[i])->Delete();
       }
 
-    if (this->FrameBuffer)
-      {
-      delete [] this->FrameBuffer;
-      }
+    delete [] this->FrameBuffer;
     this->FrameBuffer = framebuffer;
-    if (this->FrameBufferTimeStamps)
-      {
-      delete [] this->FrameBufferTimeStamps;
-      }
+    delete [] this->FrameBufferTimeStamps;
     this->FrameBufferTimeStamps = timestamps;
 
     // make sure that frame buffer index is within the buffer
