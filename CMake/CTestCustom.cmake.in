@@ -283,9 +283,6 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # Almost all of Carbon is deprecated, so mask deprecation warnings out
   # of dashboard results for Carbon-specific files.
   "vtkCarbonRenderWindow.*warning.*is deprecated"
-
-  # Mac OS X and Java moving to Oracle, Apple is deprecating their own Java Implementation
-  "vtkJavaAwt.*warning.*JAWT_GetAWT.*deprecated"
   )
 ENDIF(APPLE)
 
