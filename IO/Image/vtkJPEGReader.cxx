@@ -92,7 +92,11 @@ extern "C" void skip_input_data (j_decompress_ptr cinfo, long num_bytes)
 }
 
 // Read JPEG image from a memory buffer
+#if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
+extern "C" void jMemSrc (j_decompress_ptr cinfo, void* buffer, long nbytes)
+#else
 extern "C" void jpeg_mem_src (j_decompress_ptr cinfo, void* buffer, long nbytes)
+#endif
 {
   cinfo->src = (struct jpeg_source_mgr *)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
@@ -184,7 +188,11 @@ void vtkJPEGReader::ExecuteInformation()
     }
   else
     {
+#if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
+    jMemSrc(&cinfo, this->MemoryBuffer, this->MemoryBufferLength);
+#else
     jpeg_mem_src(&cinfo, this->MemoryBuffer, this->MemoryBufferLength);
+#endif
     }
 
   // read the header
@@ -264,7 +272,11 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
     }
   else
     {
+#if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
+    jMemSrc(&cinfo, self->GetMemoryBuffer(), self->GetMemoryBufferLength());
+#else
     jpeg_mem_src(&cinfo, self->GetMemoryBuffer(), self->GetMemoryBufferLength());
+#endif
     }
 
   // read the header
