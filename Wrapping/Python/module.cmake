@@ -1,5 +1,6 @@
 vtk_module(vtkWrappingPython
   DEPENDS
+    vtkPython
     vtkCommonCore
     vtksys
   COMPILE_DEPENDS
