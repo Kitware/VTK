@@ -26,7 +26,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkConeSource.h"
-#include "vtkSphereSource.h"
+#include "vtkPlaneSource.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, var) \
@@ -34,18 +34,19 @@
 
 int TestSplitViewportStereoHorizontal(int argc, char *argv[])
 {
-  double bottomLeft[3]  = {-2.0, -1.0, -1.0};
-  double bottomRight[3] = { 2.0, -1.0, -1.0};
-  double topRight[3]    = { 2.0,  1.0, -1.0};
+  double bottomLeft[3]  = {-1.0, -1.0, -10.0};
+  double bottomRight[3] = { 1.0, -1.0, -10.0};
+  double topRight[3]    = { 1.0,  1.0, -10.0};
 
-  VTK_CREATE(vtkSphereSource, sphere1);
-  sphere1->SetCenter(0.0, 0.0, -5.0);
-  sphere1->SetRadius(15.0);
-  sphere1->SetThetaResolution(40);
-  sphere1->SetPhiResolution(40);
+  VTK_CREATE(vtkPlaneSource, plane1);
+  plane1->SetOrigin(-5.0, -5.0, -6.0);
+  plane1->SetPoint1(5.0, -5.0, -6.0);
+  plane1->SetPoint2(-5.0, 5.0, -6.0);
+  plane1->SetResolution(100, 100);
 
   VTK_CREATE(vtkExtractEdges, edges);
-  edges->SetInputConnection(sphere1->GetOutputPort());
+  edges->SetInputConnection(plane1->GetOutputPort());
+  edges->Update();
 
   VTK_CREATE(vtkPolyDataMapper, mapper1);
   mapper1->SetInputConnection(edges->GetOutputPort());
@@ -57,7 +58,7 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   actor1->GetProperty()->SetColor(0.8, 0.8, 0.0);
 
   VTK_CREATE(vtkConeSource, cone1);
-  cone1->SetCenter(0.0, 0.0, -5.0);
+  cone1->SetCenter(0.0, 0.0, -6.0);
   cone1->SetResolution(100);
 
   VTK_CREATE(vtkPolyDataMapper, mapper2);
@@ -82,7 +83,9 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
 
-  double eyePosition[3] = {0.0, 0.0, 5.0};
+  double eyePosition[3] = {0.0, 0.0, 0.0};
+
+  renwin->Render();
 
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetScreenBottomLeft(bottomLeft);
@@ -97,6 +100,7 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   camera->SetViewAngle(30.0);
 
   renwin->Render();
+
 
   int retVal = vtkRegressionTestImageThreshold(renwin, 25);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
