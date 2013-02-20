@@ -4,7 +4,7 @@ vtk_module(vtkRenderingMatplotlib
   DEPENDS
     vtkImagingCore
     vtkRenderingCore
-    vtkWrappingPython
+    vtkPython
   TEST_DEPENDS
     vtkCommonColor
     vtkInteractionImage

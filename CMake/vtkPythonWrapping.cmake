@@ -13,6 +13,8 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
   set(_python_include_dirs
     ${VTK_SOURCE_DIR}/Wrapping/Python
     ${VTK_BINARY_DIR}/Wrapping/Python
+    ${VTK_SOURCE_DIR}/Utilities/Python
+    ${VTK_BINARY_DIR}/Utilities/Python
     ${PYTHON_INCLUDE_DIRS})
 
   if(NOT CMAKE_HAS_TARGET_INCLUDES)
