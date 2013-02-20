@@ -17,7 +17,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkExtractEdges.h"
+#include "vtkConeSource.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -25,8 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkConeSource.h"
-#include "vtkPlaneSource.h"
+#include "vtkSphereSource.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, var) \
@@ -38,23 +37,17 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   double bottomRight[3] = { 1.0, -1.0, -10.0};
   double topRight[3]    = { 1.0,  1.0, -10.0};
 
-  VTK_CREATE(vtkPlaneSource, plane1);
-  plane1->SetOrigin(-5.0, -5.0, -6.0);
-  plane1->SetPoint1(5.0, -5.0, -6.0);
-  plane1->SetPoint2(-5.0, 5.0, -6.0);
-  plane1->SetResolution(100, 100);
-
-  VTK_CREATE(vtkExtractEdges, edges);
-  edges->SetInputConnection(plane1->GetOutputPort());
-  edges->Update();
+  VTK_CREATE(vtkSphereSource, sphere1);
+  sphere1->SetCenter(0.2, 0.0, -7.0);
+  sphere1->SetRadius(0.5);
+  sphere1->SetThetaResolution(100);
+  sphere1->SetPhiResolution(100);
 
   VTK_CREATE(vtkPolyDataMapper, mapper1);
-  mapper1->SetInputConnection(edges->GetOutputPort());
+  mapper1->SetInputConnection(sphere1->GetOutputPort());
 
   VTK_CREATE(vtkActor, actor1);
   actor1->SetMapper(mapper1);
-  actor1->GetProperty()->SetAmbient(1.0);
-  actor1->GetProperty()->SetDiffuse(0.0);
   actor1->GetProperty()->SetColor(0.8, 0.8, 0.0);
 
   VTK_CREATE(vtkConeSource, cone1);
@@ -83,7 +76,7 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
 
-  double eyePosition[3] = {0.0, 0.0, 0.0};
+  double eyePosition[3] = {0.0, 0.0, 2.0};
 
   renwin->Render();
 
