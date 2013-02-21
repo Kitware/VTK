@@ -1292,8 +1292,6 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
   {
     this->ModelViewTransform->Register(this);
   }
-
-  std::cerr << "deep copy" << std::endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -1551,8 +1549,8 @@ void vtkCamera::PartialCopy(vtkCamera *source)
   this->UseOffAxisProjection=source->UseOffAxisProjection;
 
   this->FocalDisk=source->FocalDisk;
-  this->EyeSeparation = source->EyeSeparation;
-  this->WorldToScreenMatrixMTime = source->WorldToScreenMatrixMTime;
+  this->EyeSeparation=source->EyeSeparation;
+  this->WorldToScreenMatrixMTime=source->WorldToScreenMatrixMTime;
 
   this->ViewingRaysMTime=source->ViewingRaysMTime;
 }
