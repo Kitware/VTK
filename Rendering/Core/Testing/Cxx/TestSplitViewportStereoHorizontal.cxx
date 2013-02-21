@@ -78,8 +78,6 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
 
   double eyePosition[3] = {0.0, 0.0, 2.0};
 
-  renwin->Render();
-
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetScreenBottomLeft(bottomLeft);
   camera->SetScreenBottomRight(bottomRight);

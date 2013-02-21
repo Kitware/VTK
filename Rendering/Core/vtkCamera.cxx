@@ -1268,6 +1268,32 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
     {
     this->CameraLightTransform->Register(this);
     }
+
+  this->EyeTransformMatrix = source->EyeTransformMatrix;
+  if (this->EyeTransformMatrix !=0)
+  {
+    this->EyeTransformMatrix->Register(this);
+  }
+
+  this->WorldToScreenMatrix = source->WorldToScreenMatrix;
+  if (this->WorldToScreenMatrix != 0)
+  {
+    this->WorldToScreenMatrix->Register(this);
+  }
+
+  this->ModelTransformMatrix = source->ModelTransformMatrix;
+  if (this->ModelTransformMatrix != 0)
+  {
+    this->ModelTransformMatrix->Register(this);
+  }
+
+  this->ModelViewTransform = source->ModelViewTransform;
+  if (this->ModelViewTransform != 0)
+  {
+    this->ModelViewTransform->Register(this);
+  }
+
+  std::cerr << "deep copy" << std::endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -1397,6 +1423,83 @@ void vtkCamera::DeepCopy(vtkCamera *source)
       }
      this->CameraLightTransform->DeepCopy(source->CameraLightTransform);
     }
+
+  if(source->ModelViewTransform==0)
+    {
+    if(this->ModelViewTransform!=0)
+      {
+      this->ModelViewTransform->UnRegister(this);
+      this->ModelViewTransform=0;
+      }
+    }
+  else
+    {
+    if(this->ModelViewTransform==0)
+      {
+      this->ModelViewTransform=
+        static_cast<vtkTransform *>(
+          source->ModelViewTransform->MakeTransform());
+      }
+     this->ModelViewTransform->DeepCopy(source->ModelViewTransform);
+    }
+
+  if(source->ModelTransformMatrix == 0)
+    {
+    if(this->ModelTransformMatrix != 0)
+      {
+      this->ModelTransformMatrix->UnRegister(this);
+      this->ModelTransformMatrix = 0;
+      }
+    }
+  else
+    {
+    if(this->ModelTransformMatrix==0)
+      {
+      this->ModelTransformMatrix=
+        static_cast<vtkMatrix4x4 *>(
+          source->ModelTransformMatrix->NewInstance());
+      }
+     this->ModelTransformMatrix->DeepCopy(source->ModelTransformMatrix);
+    }
+
+  if(source->EyeTransformMatrix == 0)
+    {
+    if(this->EyeTransformMatrix != 0)
+      {
+      this->EyeTransformMatrix->UnRegister(this);
+      this->EyeTransformMatrix = 0;
+      }
+    }
+  else
+    {
+    if(this->EyeTransformMatrix==0)
+      {
+      this->EyeTransformMatrix=
+        static_cast<vtkMatrix4x4 *>(
+          source->EyeTransformMatrix->NewInstance());
+      }
+     this->EyeTransformMatrix->DeepCopy(source->EyeTransformMatrix);
+    }
+
+
+  if(source->WorldToScreenMatrix == 0)
+    {
+    if(this->WorldToScreenMatrix != 0)
+      {
+      this->WorldToScreenMatrix->UnRegister(this);
+      this->WorldToScreenMatrix = 0;
+      }
+    }
+  else
+    {
+    if(this->WorldToScreenMatrix==0)
+      {
+      this->WorldToScreenMatrix=
+        static_cast<vtkMatrix4x4 *>(
+          source->WorldToScreenMatrix->NewInstance());
+      }
+     this->WorldToScreenMatrix->DeepCopy(source->WorldToScreenMatrix);
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -1429,6 +1532,10 @@ void vtkCamera::PartialCopy(vtkCamera *source)
     this->DirectionOfProjection[i]=source->DirectionOfProjection[i];
     this->ViewPlaneNormal[i]=source->ViewPlaneNormal[i];
     this->ViewShear[i]=source->ViewShear[i];
+
+    this->ScreenBottomLeft[i]=source->ScreenBottomLeft[i];
+    this->ScreenBottomRight[i]=source->ScreenBottomRight[i];
+    this->ScreenTopRight[i]=source->ScreenTopRight[i];
     ++i;
     }
 
@@ -1441,7 +1548,12 @@ void vtkCamera::PartialCopy(vtkCamera *source)
   this->Thickness=source->Thickness;
   this->Distance=source->Distance;
   this->UseHorizontalViewAngle=source->UseHorizontalViewAngle;
+  this->UseOffAxisProjection=source->UseOffAxisProjection;
+
   this->FocalDisk=source->FocalDisk;
+  this->EyeSeparation = source->EyeSeparation;
+  this->WorldToScreenMatrixMTime = source->WorldToScreenMatrixMTime;
+
   this->ViewingRaysMTime=source->ViewingRaysMTime;
 }
 
@@ -1536,6 +1648,10 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ModelTransformMatrix: (" << this->ModelTransformMatrix << "\n";
   this->ModelTransformMatrix->PrintSelf(os, indent.GetNextIndent());
+  os << indent << ")\n";
+
+  os << indent << "ProjectionTransform: (" << this->ProjectionTransform << "\n";
+  this->ProjectionTransform->PrintSelf(os, indent.GetNextIndent());
   os << indent << ")\n";
 }
 
