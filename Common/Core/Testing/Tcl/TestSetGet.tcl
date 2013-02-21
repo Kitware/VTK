@@ -39,7 +39,7 @@ vtkDataObjectTreeIterator-GetCurrentFlatIndex
 proc TestOne {cname} {
    global exceptions
    $cname b
-   puts "Testing Class $cname"
+   puts "Test $cname"
    set methods [b ListMethods]
    # look for a Get Set pair
    set len [llength $methods]
@@ -48,17 +48,14 @@ proc TestOne {cname} {
          if {($i == $len - 1) || ($i < $len - 1 && [lindex $methods [expr $i + 1]] != "with")} {
             if {[lsearch $exceptions "$cname-[lindex $methods $i]"] == -1} {
                # invoke the GetMethod
-               puts "  Invoking Get$name"
                set tmp [b Get$name]
                # find matching set method
                for {set j 0} {$j < $len} {incr j} {
                   if {[regexp "^Set$name" [lindex $methods $j]]} {
                      if {$j < $len - 3 && [lindex $methods [expr $j + 2]] == "1"} {
-                        puts "    Invoking Set$name"
                         catch {b Set$name $tmp}
                      }
                      if {$j < $len - 3 && [lindex $methods [expr $j + 2]] > 1} {
-                        puts "    Invoking Set$name"
                         catch {eval b Set$name $tmp}
                      }
                   }
@@ -67,7 +64,6 @@ proc TestOne {cname} {
          }
       }
    }
-  puts "Testing DescribeMethods Class $cname"
   # $object DescribeMethods with no arguments returns a list of methods for the object.
   # $object DescribeMethods <MethodName> returns a list containing the following:
   # MethodName {arglist} {description} {c++ signature} DefiningSuperclass
@@ -78,11 +74,9 @@ proc TestOne {cname} {
     if { [llength [lindex [b DescribeMethods $GetMethod] 1]] > 0 } { continue }
     # check the exceptions list
     if {[lsearch $exceptions "$cname-$GetMethod"] != -1} { continue }
-    puts "  Invoking $GetMethod"
     set tmp [b $GetMethod]
     set SetMethodSearch Set[string range $GetMethod 3 end]
     foreach SetMethod [lsearch -inline -all $Methods $SetMethodSearch] {
-      puts "    Invoking $SetMethod"
       catch { eval b $SetMethod $tmp }
       catch { b $SetMethod $tmp }
     }
@@ -137,10 +131,7 @@ proc rtSetGetTest { fileid } {
 
              if { $elapsedTime > 1.0 } {
                puts "Elapsed Time: $elapsedTime and took longer than 1 second."
-             } else {
-               puts "Elapsed Time: $elapsedTime"
              }
-         puts "Total Elapsed Time: $totalTime"
       }
    }
 }
