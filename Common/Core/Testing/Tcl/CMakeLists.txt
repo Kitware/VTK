@@ -10,7 +10,7 @@ set(tests
 
 foreach(test ${tests})
   add_test(NAME ${vtk-module}Tcl-${test}
-         COMMAND ${VTK_TCL_EXE}
+         COMMAND ${TCL_TCLSH}
          ${CMAKE_CURRENT_SOURCE_DIR}/${test}.tcl
-         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+         -A ${VTK_BINARY_DIR}/Wrapping/Tcl)
 endforeach()
