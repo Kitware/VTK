@@ -38,7 +38,7 @@ class vtkProp;
 class VTKRENDERINGCORE_EXPORT vtkAssemblyPath : public vtkCollection
 {
 public:
-  vtkTypeMacro(vtkAssemblyPath,vtkCollection);
+  vtkTypeMacro(vtkAssemblyPath, vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -91,8 +91,8 @@ public:
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
-  vtkAssemblyNode *GetNextNode(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkAssemblyNode *>(this->GetNextItemAsObject(cookie));};
+  vtkAssemblyNode *GetNextNode(vtkCollectionSimpleIterator &cookie)
+    { return static_cast<vtkAssemblyNode *>(this->GetNextItemAsObject(cookie)); }
   //ETX
 
 protected:
@@ -105,7 +105,8 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o)
+    { this->vtkCollection::AddItem(o); }
 
 private:
   vtkAssemblyPath(const vtkAssemblyPath&);  // Not implemented.

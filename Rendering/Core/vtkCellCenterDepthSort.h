@@ -75,5 +75,4 @@ private:
   void operator=(const vtkCellCenterDepthSort &);  // Not implemented.
 };
 
-#endif //__vtkCellCenterDepthSort_h
-
+#endif

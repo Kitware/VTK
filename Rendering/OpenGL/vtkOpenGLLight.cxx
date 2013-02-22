@@ -25,32 +25,30 @@
 vtkStandardNewMacro(vtkOpenGLLight);
 
 // Implement base class method.
-void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
+void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren), int light_index)
 {
-  float dx, dy, dz;
   float color[4];
-  float Info[4];
+  float info[4];
 
   // get required info from light
+  float dx = this->FocalPoint[0] - this->Position[0];
+  float dy = this->FocalPoint[1] - this->Position[1];
+  float dz = this->FocalPoint[2] - this->Position[2];
 
-  dx = this->FocalPoint[0] - this->Position[0];
-  dy = this->FocalPoint[1] - this->Position[1];
-  dz = this->FocalPoint[2] - this->Position[2];
-
-  if(this->TransformMatrix != NULL)
+  if (this->TransformMatrix)
     {
-    double xform[16];
-    vtkMatrix4x4::Transpose(*this->TransformMatrix->Element, xform);
+    double mat[16];
+    vtkMatrix4x4::Transpose(*this->TransformMatrix->Element, mat);
 
     // code assumes that we're already in GL_MODELVIEW matrix mode
     glPushMatrix();
-    glMultMatrixd(xform);
+    glMultMatrixd(mat);
     }
 
   color[0] = this->Intensity * this->AmbientColor[0];
   color[1] = this->Intensity * this->AmbientColor[1];
   color[2] = this->Intensity * this->AmbientColor[2];
-  color[3] = 1.0;
+  color[3] = 1.f;
   glLightfv(static_cast<GLenum>(light_index), GL_AMBIENT, color);
 
   color[0] = this->Intensity * this->DiffuseColor[0];
@@ -66,24 +64,24 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
   // define the light source
   if (!this->Positional)
     {
-    Info[0]  = -dx;
-    Info[1]  = -dy;
-    Info[2]  = -dz;
-    Info[3]  = 0.0;
+    info[0] = -dx;
+    info[1] = -dy;
+    info[2] = -dz;
+    info[3] = 0.f;
 
-    glLightf(static_cast<GLenum>(light_index), GL_SPOT_EXPONENT, 0);
-    glLightf(static_cast<GLenum>(light_index), GL_SPOT_CUTOFF, 180);
+    glLightf(static_cast<GLenum>(light_index), GL_SPOT_EXPONENT, 0.f);
+    glLightf(static_cast<GLenum>(light_index), GL_SPOT_CUTOFF, 180.f);
 
-    glLightfv(static_cast<GLenum>(light_index), GL_POSITION, Info );
+    glLightfv(static_cast<GLenum>(light_index), GL_POSITION, info);
     }
   else
     {
     // specify position and attenuation
-    Info[0]  = this->Position[0];
-    Info[1]  = this->Position[1];
-    Info[2]  = this->Position[2];
-    Info[3]  = 1.0;
-    glLightfv(static_cast<GLenum>(light_index), GL_POSITION, Info );
+    info[0] = this->Position[0];
+    info[1] = this->Position[1];
+    info[2] = this->Position[2];
+    info[3] = 1.f;
+    glLightfv(static_cast<GLenum>(light_index), GL_POSITION, info);
 
     glLightf(static_cast<GLenum>(light_index),
              GL_CONSTANT_ATTENUATION, this->AttenuationValues[0]);
@@ -95,10 +93,10 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
     // set up spot parameters if necessary
     if (this->ConeAngle < 180.0)
       {
-      Info[0] = dx;
-      Info[1] = dy;
-      Info[2] = dz;
-      glLightfv(static_cast<GLenum>(light_index), GL_SPOT_DIRECTION, Info );
+      info[0] = dx;
+      info[1] = dy;
+      info[2] = dz;
+      glLightfv(static_cast<GLenum>(light_index), GL_SPOT_DIRECTION, info);
       glLightf(static_cast<GLenum>(light_index), GL_SPOT_EXPONENT,
                this->Exponent);
       glLightf(static_cast<GLenum>(light_index), GL_SPOT_CUTOFF,
@@ -110,7 +108,7 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
       }
     }
 
-  if(this->TransformMatrix != NULL)
+  if (this->TransformMatrix)
     {
     glPopMatrix();
     }
@@ -119,5 +117,5 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
 //----------------------------------------------------------------------------
 void vtkOpenGLLight::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

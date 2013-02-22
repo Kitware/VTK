@@ -19,7 +19,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTestUtilities.h"
@@ -35,10 +34,10 @@
 #define VTK_CREATE(type, var) \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-int TestDensifyPolyData(int argc, char *argv[])
+int TestDensifyPolyData(int, char *[])
 {
 
-  vtkPoints *boxPoints = vtkPoints::New();
+  VTK_CREATE(vtkPoints, boxPoints);
   boxPoints->InsertNextPoint(-0.5,-0.5,-0.5);
   boxPoints->InsertNextPoint(-0.5,-0.5,0.5);
   boxPoints->InsertNextPoint(-0.5,0.5,0.5);
@@ -50,8 +49,8 @@ int TestDensifyPolyData(int argc, char *argv[])
   boxPoints->InsertNextPoint(0.5,0.072707727551,0.5);
   boxPoints->InsertNextPoint(-0.014212930575,0.5,0.5);
 
-  vtkPolyData *boxPolydata = vtkPolyData::New();
-  vtkCellArray *polys = vtkCellArray::New();
+  VTK_CREATE(vtkPolyData, boxPolydata);;
+  VTK_CREATE(vtkCellArray, polys);
   boxPolydata->SetPolys(polys);
   boxPolydata->SetPoints(boxPoints);
   { vtkIdType ids[] = {0,1,2,3};
@@ -73,7 +72,7 @@ int TestDensifyPolyData(int argc, char *argv[])
   densifyFilter->SetInputData(boxPolydata);
   densifyFilter->SetNumberOfSubdivisions(2);
 
-  vtkXMLPolyDataWriter *writer = vtkXMLPolyDataWriter::New();
+  VTK_CREATE( vtkXMLPolyDataWriter, writer);
   writer->SetInputConnection(densifyFilter->GetOutputPort());
   writer->SetFileName("tessellatedBox.vtp");
   writer->SetDataModeToAscii();
@@ -149,20 +148,9 @@ int TestDensifyPolyData(int argc, char *argv[])
   renwin->AddRenderer(renderer4);
   actor4->GetProperty()->SetRepresentationToWireframe();
 
-
   renwin->Render();
+  iren->Start();
 
-  int retVal = vtkRegressionTestImage(renwin);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  writer->Delete();
-  boxPolydata->Delete();
-  boxPoints->Delete();
-  polys->Delete();
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }
 

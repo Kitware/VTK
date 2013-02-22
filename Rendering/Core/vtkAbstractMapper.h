@@ -49,7 +49,7 @@ class vtkWindow;
 class VTKRENDERINGCORE_EXPORT vtkAbstractMapper : public vtkAlgorithm
 {
 public:
-  vtkTypeMacro(vtkAbstractMapper,vtkAlgorithm);
+  vtkTypeMacro(vtkAbstractMapper, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -60,7 +60,7 @@ public:
   // Release any graphics resources that are being consumed by this mapper.
   // The parameter window could be used to determine which graphic
   // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *) {};
+  virtual void ReleaseGraphicsResources(vtkWindow *) {}
 
   // Description:
   // Get the time required to draw the geometry last time it was rendered
@@ -77,7 +77,7 @@ public:
   // Get/Set the vtkPlaneCollection which specifies the
   // clipping planes.
   virtual void SetClippingPlanes(vtkPlaneCollection*);
-  vtkGetObjectMacro(ClippingPlanes,vtkPlaneCollection);
+  vtkGetObjectMacro(ClippingPlanes, vtkPlaneCollection);
 
   // Description:
   // An alternative way to set clipping planes: use up to six planes found
@@ -114,5 +114,3 @@ private:
 };
 
 #endif
-
-

@@ -38,7 +38,7 @@ class vtkImageData;
 class VTKRENDERINGCORE_EXPORT vtkImageMapper : public vtkMapper2D
 {
 public:
-  vtkTypeMacro(vtkImageMapper,vtkMapper2D);
+  vtkTypeMacro(vtkImageMapper, vtkMapper2D);
   static vtkImageMapper *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -64,8 +64,8 @@ public:
   // the number of slices that can be displayed. Again the number
   // of slices is in reference to the display z axis, which is not
   // necessarily the z axis on disk. (due to reformatting etc)
-  vtkSetMacro(ZSlice,int);
-  vtkGetMacro(ZSlice,int);
+  vtkSetMacro(ZSlice, int);
+  vtkGetMacro(ZSlice, int);
   int GetWholeZMin();
   int GetWholeZMax();
 
@@ -94,9 +94,9 @@ public:
   // If RenderToRectangle is set (by default not), then the imagemapper
   // will render the image into the rectangle supplied by the Actor2D's
   // PositionCoordinate and Position2Coordinate
-  vtkSetMacro(RenderToRectangle,int);
-  vtkGetMacro(RenderToRectangle,int);
-  vtkBooleanMacro(RenderToRectangle,int);
+  vtkSetMacro(RenderToRectangle, int);
+  vtkGetMacro(RenderToRectangle, int);
+  vtkBooleanMacro(RenderToRectangle, int);
 
   // Description:
   // Usually, the entire image is displayed, if UseCustomExtents
@@ -104,16 +104,16 @@ public:
   // CustomDisplayExtents is used in preference.
   // Note that the Custom extents are x,y only and the zslice is still
   // applied
-  vtkSetMacro(UseCustomExtents,int);
-  vtkGetMacro(UseCustomExtents,int);
-  vtkBooleanMacro(UseCustomExtents,int);
+  vtkSetMacro(UseCustomExtents, int);
+  vtkGetMacro(UseCustomExtents, int);
+  vtkBooleanMacro(UseCustomExtents, int);
 
   // Description:
   // The image extents which should be displayed with UseCustomExtents
   // Note that the Custom extents are x,y only and the zslice is still
   // applied
-  vtkSetVectorMacro(CustomDisplayExtents,int,4);
-  vtkGetVectorMacro(CustomDisplayExtents,int,4);
+  vtkSetVectorMacro(CustomDisplayExtents, int, 4);
+  vtkGetVectorMacro(CustomDisplayExtents, int, 4);
 
 protected:
   vtkImageMapper();
@@ -134,8 +134,4 @@ private:
   void operator=(const vtkImageMapper&);  // Not implemented.
 };
 
-
-
 #endif
-
-

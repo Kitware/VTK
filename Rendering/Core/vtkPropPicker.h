@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkPropPicker : public vtkAbstractPropPicker
 public:
   static vtkPropPicker *New();
 
-  vtkTypeMacro(vtkPropPicker,vtkAbstractPropPicker);
+  vtkTypeMacro(vtkPropPicker, vtkAbstractPropPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -60,7 +60,7 @@ public:
            vtkRenderer *renderer);
   int Pick(double selectionPt[3], vtkRenderer *renderer)
     { return this->Pick( selectionPt[0],
-                         selectionPt[1], selectionPt[2], renderer); };
+                         selectionPt[1], selectionPt[2], renderer); }
 
 protected:
   vtkPropPicker();
@@ -78,5 +78,3 @@ private:
 };
 
 #endif
-
-

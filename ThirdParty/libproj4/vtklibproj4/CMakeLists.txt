@@ -23,7 +23,7 @@ option( PROJ_USE_PTHREADS "Should libproj4 be built as a thread-friendly library
 mark_as_advanced( PROJ_USE_PTHREADS )
 if ( PROJ_USE_PTHREADS )
   if ( NOT VTK_USE_PTHREADS )
-    message( FATAL "Your platform does not appear to support pthreads. Please turn PROJ_USE_PTHREADS off and retry." )
+    message( FATAL_ERROR "Your platform does not appear to support pthreads. Please turn PROJ_USE_PTHREADS off and retry." )
   endif ( NOT VTK_USE_PTHREADS )
 endif ( PROJ_USE_PTHREADS )
 

@@ -3,11 +3,14 @@
 import os
 import vtk
 from vtk.util.misc import vtkGetDataRoot
+from vtk.util.misc import vtkGetTempDir
+
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-file0 = 'rgFile0.vtr'
-file1 = 'rgFile1.vtr'
-file2 = 'rgFile2.vtr'
+VTK_TEMP_DIR = vtkGetTempDir()
+file0 = VTK_TEMP_DIR + '/rgFile0.vtr'
+file1 = VTK_TEMP_DIR + '/rgFile1.vtr'
+file2 = VTK_TEMP_DIR + '/rgFile2.vtr'
 
 # read in some grid data
 gridReader = vtk.vtkRectilinearGridReader()

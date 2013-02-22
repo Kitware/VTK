@@ -5,59 +5,21 @@ add_test(NAME ${vtk-module}Tcl-otherDataSetAttributes
          ${CMAKE_CURRENT_SOURCE_DIR}/otherDataSetAttributes.tcl
          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 
-# Tests with test images in Baseline/Filtering
-#
-unset(tests)
+# Tests with images
 if(VTK_DATA_ROOT)
-  set(tests
-    ImplicitSum
-    PerlinNoise
-    SelectionLoop
-  )
+  add_test_tcl(headBone Graphics)
 endif()
 
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Filtering/${tfile}.png
-    -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-endforeach()
+add_test_tcl(ImplicitSum Filtering)
+add_test_tcl(PerlinNoise Filtering)
+add_test_tcl(SelectionLoop Filtering)
 
-# Tests with test images in Baseline/Graphics
-#
-unset(tests)
-if(VTK_DATA_ROOT)
-  set(tests
-    headBone
-    LineIntersectQuadraticCells
-    quadricCut
-    scalarColors
-    scalarConn
-    TestConvexPointSet
-    TestQuadricClustering
-    TestStructuredGrid
-  )
-endif()
+add_test_tcl(LineIntersectQuadraticCells Graphics)
+add_test_tcl(quadricCut Graphics)
+add_test_tcl(scalarColors Graphics)
+add_test_tcl(scalarConn Graphics)
+add_test_tcl(TestConvexPointSet Graphics)
+add_test_tcl(TestQuadricClustering Graphics)
+add_test_tcl(TestStructuredGrid Graphics)
 
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Graphics/${tfile}.png
-    -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-endforeach()
-
-# Tests with test images in Baseline/Hybrid
-#
-add_test(NAME ${vtk-module}Tcl-TestICPTransform COMMAND ${VTK_TCL_EXE}
-  ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-  ${CMAKE_CURRENT_SOURCE_DIR}/TestICPTransform.tcl
-  -D ${VTK_DATA_ROOT}
-  -T ${VTK_TEST_OUTPUT_DIR}
-  -V Baseline/Hybrid/TestICPTransform.png
-  -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+add_test_tcl(TestICPTransform Hybrid)

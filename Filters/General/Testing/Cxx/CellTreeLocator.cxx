@@ -86,16 +86,16 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
     vtkGenericWarningMacro("ERROR: " << numMissed << " ray-sphere intersections missed! "
                            << "If on a non-WinTel32 platform, try rayLen = 0.200001"
                            << " or 0.20001 for a new test.");
-    return 1;
+    return EXIT_FAILURE;
     }
   else
     {
-    cout << "Passed: a total of 9802 ray-sphere intersections detected." << endl;
+    std::cout << "Passed: a total of 9802 ray-sphere intersections detected." << std::endl;
     }
 
   sphereNormals = NULL;
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 int CellTreeLocator( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )

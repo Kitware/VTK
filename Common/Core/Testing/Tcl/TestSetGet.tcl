@@ -115,6 +115,8 @@ set classExceptions {
    vtkStructuredAMRGridConnectivity
    vtkUniformGridAMRDataIterator
    vtkMathTextUtilities
+   vtkMatplotlibMathTextUtilities
+   vtkTextRenderer
 }
 
 proc rtSetGetTest { fileid } {

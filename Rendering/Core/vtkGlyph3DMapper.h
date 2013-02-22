@@ -54,9 +54,7 @@ public:
   // to SetInputConnection(1, id, outputPort).
   void SetSourceConnection(int idx, vtkAlgorithmOutput* algOutput);
   void SetSourceConnection(vtkAlgorithmOutput* algOutput)
-    {
-      this->SetSourceConnection(0, algOutput);
-    }
+    { this->SetSourceConnection(0, algOutput); }
 
   // Description:
   // Assign a data object as input. Note that this method does not
@@ -74,7 +72,7 @@ public:
 
   // Description:
   // Get a pointer to a source object at a specified table location.
-  vtkPolyData *GetSource(int idx=0);
+  vtkPolyData *GetSource(int idx = 0);
 
   // Description:
   // Turn on/off scaling of source geometry. When turned on, ScaleFactor
@@ -95,8 +93,8 @@ public:
   // Description:
   // Specify scale factor to scale object by. This is used only when Scaling is
   // On.
-  vtkSetMacro(ScaleFactor,double);
-  vtkGetMacro(ScaleFactor,double);
+  vtkSetMacro(ScaleFactor, double);
+  vtkGetMacro(ScaleFactor, double);
 
   //BTX
   enum ScaleModes
@@ -116,8 +114,8 @@ public:
 
   // Description:
   // Specify range to map scalar values into.
-  vtkSetVector2Macro(Range,double);
-  vtkGetVectorMacro(Range,double,2);
+  vtkSetVector2Macro(Range, double);
+  vtkGetVectorMacro(Range, double, 2);
 
   // Description:
   // Turn on/off orienting of input geometry.
@@ -310,8 +308,8 @@ public:
   // For selection by color id mode (not for end-user, called by
   // vtkGlyphSelectionRenderMode). 0 is reserved for miss. it has to
   // start at 1. Initial value is 1.
-  vtkSetMacro(SelectionColorId,unsigned int);
-  vtkGetMacro(SelectionColorId,unsigned int);
+  vtkSetMacro(SelectionColorId, unsigned int);
+  vtkGetMacro(SelectionColorId, unsigned int);
 
   // Description:
   // Called by vtkGlyphSelectionRenderMode.
@@ -333,8 +331,7 @@ protected:
     vtkInformationVector **inInfo,
     vtkInformationVector *outInfo);
 
-  virtual int FillInputPortInformation(int port,
-    vtkInformation *info);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkPolyData *GetSource(int idx, vtkInformationVector *sourceInfo);
 

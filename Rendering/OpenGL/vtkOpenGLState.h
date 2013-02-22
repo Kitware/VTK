@@ -93,7 +93,6 @@ public:
 
   // 1.4
   GLint DepthSize;
-
 };
 
 #if 0

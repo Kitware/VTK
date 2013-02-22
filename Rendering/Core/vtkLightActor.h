@@ -49,22 +49,21 @@ class VTKRENDERINGCORE_EXPORT vtkLightActor : public vtkProp3D
 {
 public:
   static vtkLightActor *New();
-  vtkTypeMacro(vtkLightActor,vtkProp3D);
+  vtkTypeMacro(vtkLightActor, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // The spotlight to represent. Initial value is NULL.
   void SetLight(vtkLight *light);
-  vtkGetObjectMacro(Light,vtkLight);
+  vtkGetObjectMacro(Light, vtkLight);
 
   // Description:
   // Set/Get the location of the near and far clipping planes along the
   // direction of projection.  Both of these values must be positive.
   // Initial values are  (0.5,11.0)
-  void SetClippingRange(double dNear,
-                        double dFar);
+  void SetClippingRange(double dNear, double dFar);
   void SetClippingRange(const double a[2]);
-  vtkGetVector2Macro(ClippingRange,double);
+  vtkGetVector2Macro(ClippingRange, double);
 
   // Description:
   // Support the standard render methods.

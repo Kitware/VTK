@@ -24,10 +24,16 @@
 #include "vtkImageMapToColors.h"
 #include "vtkLookupTable.h"
 #include "vtkOggTheoraWriter.h"
-#include "vtksys/SystemTools.hxx"
+#include "vtkTestUtilities.h"
 
-int TestOggTheoraWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+#include "vtksys/SystemTools.hxx"
+#include <string>
+
+int TestOggTheoraWriter(int argc, char* argv[])
 {
+  char* tempDir = vtkTestUtilities::GetArgOrEnvOrDefault(
+    "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+
   int err = 0;
   int cc = 0;
   int exists = 0;
@@ -54,14 +60,16 @@ int TestOggTheoraWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   colorize->SetLookupTable(table);
   colorize->SetInputConnection(cast->GetOutputPort());
 
+  std::string fileName = std::string(tempDir) +
+    std::string("/TestOggTheoraWriter.ogv");
   vtkOggTheoraWriter *w = vtkOggTheoraWriter::New();
   w->SetInputConnection(colorize->GetOutputPort());
-  w->SetFileName("TestOggTheoraWriter.ogv");
-  cout << "Writing file TestOggTheoraWriter.ogv..." << endl;
+  w->SetFileName(fileName.c_str());
+  std::cout << "Writing file " << fileName << "..." << std::endl;
   w->Start();
-  for ( cc = 2; cc < 99; cc ++ )
+  for ( cc = 2; cc < 10; cc ++ )
     {
-    cout << ".";
+    std::cout << ".";
     Fractal0->SetMaximumNumberOfIterations(cc);
     table->SetTableRange(0, cc);
     table->SetNumberOfColors(cc);
@@ -70,18 +78,18 @@ int TestOggTheoraWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     w->Write();
     }
   w->End();
-  cout << endl;
-  cout << "Done writing file TestOggTheoraWriter.ogv..." << endl;
+  std::cout << std::endl;
+  std::cout << "Done writing file TestOggTheoraWriter.ogv..." << std::endl;
   w->Delete();
 
-  exists = (int) vtksys::SystemTools::FileExists("TestOggTheoraWriter.ogv");
-  length = vtksys::SystemTools::FileLength("TestOggTheoraWriter.ogv");
-  cout << "TestOggTheoraWriter.ogv file exists: " << exists << endl;
-  cout << "TestOggTheoraWriter.ogv file length: " << length << endl;
+  exists = (int) vtksys::SystemTools::FileExists(fileName.c_str());
+  length = vtksys::SystemTools::FileLength(fileName.c_str());
+  std::cout << "TestOggTheoraWriter.ogv file exists: " << exists << std::endl;
+  std::cout << "TestOggTheoraWriter.ogv file length: " << length << std::endl;
   if (!exists)
     {
     err = 1;
-    cerr << "ERROR: 1 - Test failing because TestOggTheoraWriter.ogv file doesn't exist..." << endl;
+    std::cerr << "ERROR: 1 - Test failing because TestOggTheoraWriter.ogv file doesn't exist..." << std::endl;
     }
   else
     {
@@ -90,7 +98,7 @@ int TestOggTheoraWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (0==length)
     {
     err = 2;
-    cerr << "ERROR: 2 - Test failing because TestOggTheoraWriter.ogv file has zero length..." << endl;
+    std::cerr << "ERROR: 2 - Test failing because TestOggTheoraWriter.ogv file has zero length..." << std::endl;
     }
 
   colorize->Delete();
@@ -100,5 +108,9 @@ int TestOggTheoraWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   // err == 0 means test passes...
   //
+  if (tempDir)
+    {
+    delete [] tempDir;
+    }
   return err;
 }

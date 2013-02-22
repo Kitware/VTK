@@ -37,7 +37,6 @@ const char * @vtk-module@ObjectFactory::GetVTKSourceVersion()
 void @vtk-module@ObjectFactory::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Description: " << this->GetDescription() << endl;
 }
 
 // Registration of object factories.

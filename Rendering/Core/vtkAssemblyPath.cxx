@@ -54,7 +54,7 @@ void vtkAssemblyPath::AddNode(vtkAssemblyNode *n)
   // Grab the matrix, if any, and concatenate it
   this->Transform->Push(); //keep in synch with list of nodes
   vtkMatrix4x4 *matrix;
-  if ( (matrix = n->GetMatrix()) != NULL )
+  if ((matrix = n->GetMatrix()) != NULL)
     {
     this->Transform->Concatenate(matrix);
     this->Transform->GetMatrix(matrix); //replace previous matrix
@@ -68,42 +68,29 @@ vtkAssemblyNode *vtkAssemblyPath::GetNextNode()
 
 vtkAssemblyNode *vtkAssemblyPath::GetFirstNode()
 {
-  if ( this->Top == NULL )
-    {
-    return NULL;
-    }
-  else
-    {
-    return static_cast<vtkAssemblyNode *>(this->Top->Item);
-    }
+  return this->Top ?
+    static_cast<vtkAssemblyNode*>(this->Top->Item) : 0;
 }
 
 vtkAssemblyNode *vtkAssemblyPath::GetLastNode()
 {
-  if ( this->Bottom == NULL )
-    {
-    return NULL;
-    }
-  else
-    {
-    return static_cast<vtkAssemblyNode *>(this->Bottom->Item);
-    }
+  return this->Bottom ?
+    static_cast<vtkAssemblyNode*>(this->Bottom->Item) : 0;
 }
 
 void vtkAssemblyPath::DeleteLastNode()
 {
   vtkAssemblyNode *node = this->GetLastNode();
   this->vtkCollection::RemoveItem(node);
-
   this->Transform->Pop();
 }
 
 void vtkAssemblyPath::ShallowCopy(vtkAssemblyPath *path)
 {
-  vtkAssemblyNode *node;
-
   this->RemoveAllItems();
-  for ( path->InitTraversal(); (node = path->GetNextNode()); )
+
+  vtkAssemblyNode *node;
+  for (path->InitTraversal(); (node = path->GetNextNode());)
     {
     this->vtkCollection::AddItem(node);
     }
@@ -111,14 +98,13 @@ void vtkAssemblyPath::ShallowCopy(vtkAssemblyPath *path)
 
 unsigned long vtkAssemblyPath::GetMTime()
 {
-  unsigned long mtime=this->vtkCollection::GetMTime();
-  unsigned long nodeMTime;
-  vtkAssemblyNode *node;
+  unsigned long mtime = this->vtkCollection::GetMTime();
 
-  for ( this->InitTraversal(); (node = this->GetNextNode()); )
+  vtkAssemblyNode *node;
+  for (this->InitTraversal(); (node = this->GetNextNode());)
     {
-    nodeMTime = node->GetMTime();
-    if ( nodeMTime > mtime )
+    unsigned long nodeMTime = node->GetMTime();
+    if (nodeMTime > mtime)
       {
       mtime = nodeMTime;
       }

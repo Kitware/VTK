@@ -63,9 +63,9 @@ public:
 
   // Description:
   // Turn on/off flag to control whether scalar data is used to color objects.
-  vtkSetMacro(ScalarVisibility,int);
-  vtkGetMacro(ScalarVisibility,int);
-  vtkBooleanMacro(ScalarVisibility,int);
+  vtkSetMacro(ScalarVisibility, int);
+  vtkGetMacro(ScalarVisibility, int);
+  vtkBooleanMacro(ScalarVisibility, int);
 
   // Description:
   // Control how the scalar data is mapped to colors.  By default
@@ -75,8 +75,8 @@ public:
   // the lookup table.  (Note that for multi-component scalars, the
   // particular component to use for mapping can be specified using the
   // ColorByArrayComponent() method.)
-  vtkSetMacro(ColorMode,int);
-  vtkGetMacro(ColorMode,int);
+  vtkSetMacro(ColorMode, int);
+  vtkGetMacro(ColorMode, int);
   void SetColorModeToDefault();
   void SetColorModeToMapScalars();
 
@@ -91,16 +91,16 @@ public:
   // the LookupTable range, but users who are sharing LookupTables between
   // mappers/actors will probably wish to force the mapper to use the
   // LookupTable unchanged.
-  vtkSetMacro(UseLookupTableScalarRange,int);
-  vtkGetMacro(UseLookupTableScalarRange,int);
-  vtkBooleanMacro(UseLookupTableScalarRange,int);
+  vtkSetMacro(UseLookupTableScalarRange, int);
+  vtkGetMacro(UseLookupTableScalarRange, int);
+  vtkBooleanMacro(UseLookupTableScalarRange, int);
 
   // Description:
   // Specify range in terms of scalar minimum and maximum (smin,smax). These
   // values are used to map scalars into lookup table. Has no effect when
   // UseLookupTableScalarRange is true.
-  vtkSetVector2Macro(ScalarRange,double);
-  vtkGetVectorMacro(ScalarRange,double,2);
+  vtkSetVector2Macro(ScalarRange, double);
+  vtkGetVectorMacro(ScalarRange, double, 2);
 
   // Description:
   // Control how the filter works with scalar point data and cell attribute
@@ -113,18 +113,18 @@ public:
   // (ScalarModeToUseCellFieldData).  If scalars are coming from a field
   // data array, you must call ColorByArrayComponent before you call
   // GetColors.
-  vtkSetMacro(ScalarMode,int);
-  vtkGetMacro(ScalarMode,int);
-  void SetScalarModeToDefault() {
-    this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT);};
-  void SetScalarModeToUsePointData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA);};
-  void SetScalarModeToUseCellData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA);};
-  void SetScalarModeToUsePointFieldData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);};
-  void SetScalarModeToUseCellFieldData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);};
+  vtkSetMacro(ScalarMode, int);
+  vtkGetMacro(ScalarMode, int);
+  void SetScalarModeToDefault()
+    { this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT); }
+  void SetScalarModeToUsePointData()
+    { this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA); }
+  void SetScalarModeToUseCellData()
+    { this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA); }
+  void SetScalarModeToUsePointFieldData()
+    { this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA); }
+  void SetScalarModeToUseCellFieldData()
+    { this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA); }
 
   // Description:
   // Choose which component of which field data array to color by.
@@ -153,9 +153,9 @@ public:
   // Description:
   // Specify whether or not rounding to integers the transformed points when
   // TransformCoordinate is set. By default, it does not use double precision.
-  vtkGetMacro(TransformCoordinateUseDouble,bool);
-  vtkSetMacro(TransformCoordinateUseDouble,bool);
-  vtkBooleanMacro(TransformCoordinateUseDouble,bool);
+  vtkGetMacro(TransformCoordinateUseDouble, bool);
+  vtkSetMacro(TransformCoordinateUseDouble, bool);
+  vtkBooleanMacro(TransformCoordinateUseDouble, bool);
 
   // Description:
   // Map the scalars (if there are any scalars and ScalarVisibility is on)
@@ -173,6 +173,8 @@ protected:
   vtkPolyDataMapper2D();
   ~vtkPolyDataMapper2D();
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
   vtkUnsignedCharArray *Colors;
 
   vtkScalarsToColors *LookupTable;
@@ -185,8 +187,6 @@ protected:
 
   vtkCoordinate *TransformCoordinate;
   bool TransformCoordinateUseDouble;
-
-  virtual int FillInputPortInformation(int, vtkInformation*);
 
   // for coloring by a component of a field data array
   int ArrayId;

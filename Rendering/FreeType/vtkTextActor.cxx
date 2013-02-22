@@ -661,11 +661,8 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
   double radians = vtkMath::RadiansFromDegrees( this->Orientation );
   double c = cos( radians );
   double s = sin( radians );
-  double xo, yo;
+  double xo = 0.0, yo = 0.0;
   double x, y;
-  double maxWidth, maxHeight;
-  xo = yo = 0.0;
-  maxWidth = maxHeight = 0;
   // When TextScaleMode is PROP, we justify text based on the rectangle
   // formed by Position & Position2 coordinates
   if( ( this->TextScaleMode == TEXT_SCALE_MODE_PROP ) || this->UseBorderAlign )
@@ -677,8 +674,8 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
                               this->PositionCoordinate->GetCoordinateSystem() );
     this->SpecifiedToDisplay( position2, viewport,
                               this->Position2Coordinate->GetCoordinateSystem() );
-    maxWidth = position2[0] - position1[0];
-    maxHeight = position2[1] - position1[1];
+    double maxWidth = position2[0] - position1[0];
+    double maxHeight = position2[1] - position1[1];
     // I could get rid of "GetAlignmentPoint" and use justification directly.
     switch( this->GetAlignmentPoint() )
       {

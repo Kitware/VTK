@@ -1,143 +1,93 @@
-# Tests with test images in Baseline/Imaging
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    ContinuousClose2D
-    IdealHighPass
-    LaplacianEdgeEnhance
-    MultipleUpdateExtents
-    reconstructSurface
-    resampledTexture
-    ResliceBSpline
-    ResliceColorWrap
-    ResliceInformationInput
-    ResliceInterpolationModes
-    ResliceInterpolationOblique
-    ResliceLanczosKaiser
-    ResliceMirrorOblique
-    ResliceMirrorPad
-    ResliceOptimizationOff
-    ReslicePermutations
-    ReslicePermuteResample
-    ReslicePermuteSlab
-    ResliceSlabModes
-    ResliceToColors
-    ResliceWrapOblique
-    ResliceWrapPad
-    Spectrum
-    TestAccumulate
-    TestAllBlends
-    TestAllBlendsFloat
-    TestAllFlips
-    TestAllLogic
-    TestAllMaskBits
-    TestAllMathematics
-    TestAllShrinks
-    TestAnisotropicDiffusion2D
-    TestAnisotropicDiffusion3D
-    TestBlendStencil
-    TestButterworthHighPass
-    TestButterworthLowPass
-    TestCache
-    TestChangeInformation
-    TestCheckerboard
-    TestCityBlockDistance
-    TestConvolve
-    TestCorrelation
-    TestDivergence
-    TestDotProduct
-    TestEuclideanDistance
-    TestEuclideanDistanceCached
-    TestEuclideanToPolar
-    TestFFTCorrelation
-    TestGradientMagnitude
-    TestGradientMagnitude2
-    TestHSIToRGB
-    TestHSVToRGB
-    TestHybridMedian2D
-    TestIdealLowPass
-    TestImageCanvas
-    TestImageProjection
-    TestImageThresholdConnectivity
-    TestImageWeightedSum
-    TestInPlaceFilter
-    TestIslandRemoval2D
-    TestLassoStencil
-    TestMapToRGBABlockStreaming
-    TestMapToWindowLevelColors
-    TestMapToWindowLevelColors2
-    TestMask2
-    TestMedian3D
-    TestNormalize
-    TestOpenClose3D
-    TestPermute
-    TestQuantizeTo16Colors
-    TestRange3D
-    TestResample
-    TestROIStencil
-    TestSeparableFilter
-    TestShiftScale
-    TestShiftScale2
-    TestSimpleImageExample
-    TestSkeleton2D
-    TestSobel2D
-    TestSobel3D
-    TestStencilToImage
-    TestStencilWithFunction
-    TestStencilWithImage
-    TestThreshold
-    TestVariance3D
-    TestWipe
-    TestWrapPad
-    voxelModel
-  )
+  add_test_tcl(ContinuousClose2D Imaging)
+  add_test_tcl(IdealHighPass Imaging)
+  add_test_tcl(LaplacianEdgeEnhance Imaging)
+  add_test_tcl(MultipleUpdateExtents Imaging)
+  add_test_tcl(ResliceBSpline Imaging)
+  add_test_tcl(ResliceColorWrap Imaging)
+  add_test_tcl(ResliceInformationInput Imaging)
+  add_test_tcl(ResliceInterpolationModes Imaging)
+  add_test_tcl(ResliceInterpolationOblique Imaging)
+  add_test_tcl(ResliceLanczosKaiser Imaging)
+  add_test_tcl(ResliceMirrorOblique Imaging)
+  add_test_tcl(ResliceMirrorPad Imaging)
+  add_test_tcl(ResliceOptimizationOff Imaging)
+  add_test_tcl(ReslicePermutations Imaging)
+  add_test_tcl(ReslicePermuteResample Imaging)
+  add_test_tcl(ReslicePermuteSlab Imaging)
+  add_test_tcl(ResliceSlabModes Imaging)
+  add_test_tcl(ResliceToColors Imaging)
+  add_test_tcl(ResliceWrapOblique Imaging)
+  add_test_tcl(ResliceWrapPad Imaging)
+  add_test_tcl(Spectrum Imaging)
+  add_test_tcl(TestAccumulate Imaging)
+  add_test_tcl(TestAllBlends Imaging)
+  add_test_tcl(TestAllBlendsFloat Imaging)
+  add_test_tcl(TestAllFlips Imaging)
+  add_test_tcl(TestAllLogic Imaging)
+  add_test_tcl(TestAllMaskBits Imaging)
+  add_test_tcl(TestAllShrinks Imaging)
+  add_test_tcl(TestAnisotropicDiffusion2D Imaging)
+  add_test_tcl(TestAnisotropicDiffusion3D Imaging)
+  add_test_tcl(TestBlendStencil Imaging)
+  add_test_tcl(TestButterworthHighPass Imaging)
+  add_test_tcl(TestButterworthLowPass Imaging)
+  add_test_tcl(TestCache Imaging)
+  add_test_tcl(TestChangeInformation Imaging)
+  add_test_tcl(TestCityBlockDistance Imaging)
+  add_test_tcl(TestDivergence Imaging)
+  add_test_tcl(TestDotProduct Imaging)
+  add_test_tcl(TestEuclideanDistance Imaging)
+  add_test_tcl(TestEuclideanDistanceCached Imaging)
+  add_test_tcl(TestGradientMagnitude Imaging)
+  add_test_tcl(TestGradientMagnitude2)
+  add_test_tcl(TestIdealLowPass Imaging)
+  add_test_tcl(TestImageCanvas Imaging)
+  add_test_tcl(TestImageProjection Imaging)
+  add_test_tcl(TestImageThresholdConnectivity Imaging)
+  add_test_tcl(TestImageWeightedSum Imaging)
+  add_test_tcl(TestInPlaceFilter Imaging)
+  add_test_tcl(TestIslandRemoval2D Imaging)
+  add_test_tcl(TestLassoStencil Imaging)
+  add_test_tcl(TestMapToRGBABlockStreaming Imaging)
+  add_test_tcl(TestMapToWindowLevelColors2 Imaging)
+  add_test_tcl(TestMask2 Imaging)
+  add_test_tcl(TestMedian3D Imaging)
+  add_test_tcl(TestOpenClose3D Imaging)
+  add_test_tcl(TestPermute Imaging)
+  add_test_tcl(TestQuantizeTo16Colors Imaging)
+  add_test_tcl(TestRange3D Imaging)
+  add_test_tcl(TestResample Imaging)
+  add_test_tcl(TestROIStencil Imaging)
+  add_test_tcl(TestSeparableFilter Imaging)
+  add_test_tcl(TestShiftScale Imaging)
+  add_test_tcl(TestShiftScale2 Imaging)
+  add_test_tcl(TestSimpleImageExample Imaging)
+  add_test_tcl(TestSobel2D Imaging)
+  add_test_tcl(TestSobel3D Imaging)
+  add_test_tcl(TestStencilWithFunction Imaging)
+  add_test_tcl(TestStencilWithImage Imaging)
+  add_test_tcl(TestThreshold Imaging)
+  add_test_tcl(TestVariance3D Imaging)
+  add_test_tcl(TestWrapPad Imaging)
+  add_test_tcl(reconstructSurface Imaging)
+  add_test_tcl(resampledTexture Imaging)
+  add_test_tcl(imageMCAll Graphics)
 endif()
 
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Imaging/${tfile}.png
-   )
-endforeach()
-
-# Tests with test images in Baseline/Graphics
-#
-unset(tests)
-if(VTK_DATA_ROOT)
-  set(tests
-    imageMCAll
-  )
-endif()
-
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Graphics/${tfile}.png
-   )
-endforeach()
-
-# Tests with test images in Baseline/Parallel
-#
-unset(tests)
-if(VTK_DATA_ROOT)
-  set(tests
-    TestExtractVOI
-  )
-endif()
-
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Parallel/${tfile}.png
-   )
-endforeach()
+add_test_tcl(TestAllMathematics Imaging)
+add_test_tcl(TestCheckerboard Imaging)
+add_test_tcl(TestConvolve Imaging)
+add_test_tcl(TestCorrelation Imaging)
+add_test_tcl(TestEuclideanToPolar Imaging)
+add_test_tcl(TestFFTCorrelation Imaging)
+add_test_tcl(TestHSIToRGB Imaging)
+add_test_tcl(TestHSVToRGB Imaging)
+add_test_tcl(TestHybridMedian2D Imaging)
+add_test_tcl(TestMapToWindowLevelColors Imaging)
+add_test_tcl(TestNormalize Imaging)
+add_test_tcl(TestSkeleton2D Imaging)
+add_test_tcl(TestStencilToImage Imaging)
+add_test_tcl(TestWipe Imaging)
+add_test_tcl(voxelModel Imaging)
+add_test_tcl(TestExtractVOI Parallel)

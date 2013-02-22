@@ -9,6 +9,7 @@
  */
 
 
+#include "vtkSmartPointer.h"
 #include <vtkIconGlyphFilter.h>
 
 #include <vtkTexturedActor2D.h>
@@ -27,8 +28,6 @@
 #include <vtkImageData.h>
 
 #include <vtkTestUtilities.h>
-#include <vtkRegressionTestImage.h>
-
 
 int TestIconGlyphFilterGravity( int argc, char *argv[])
 {
@@ -37,7 +36,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
 
   int imageDims[3];
 
-  vtkPNGReader * imageReader = vtkPNGReader::New();
+  vtkSmartPointer<vtkPNGReader>  imageReader =
+    vtkSmartPointer<vtkPNGReader>::New();
 
   imageReader->SetFileName(fname);
   delete[] fname;
@@ -45,14 +45,18 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
 
   imageReader->GetOutput()->GetDimensions(imageDims);
 
-  vtkPolyData * pointSet = vtkPolyData::New();
-  vtkPoints * points = vtkPoints::New();
-  vtkDoubleArray * pointData = vtkDoubleArray::New();
+  vtkSmartPointer<vtkPolyData>  pointSet =
+    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints>  points =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkDoubleArray>  pointData =
+    vtkSmartPointer<vtkDoubleArray>::New();
   pointData->SetNumberOfComponents(3);
   points->SetData(pointData);
   pointSet->SetPoints(points);
 
-  vtkIntArray * iconIndex = vtkIntArray::New();
+  vtkSmartPointer<vtkIntArray>  iconIndex =
+    vtkSmartPointer<vtkIntArray>::New();
   iconIndex->SetNumberOfComponents(1);
 
   pointSet->GetPointData()->SetScalars(iconIndex);
@@ -69,7 +73,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
 
   int size[] = {24, 24};
 
-  vtkIconGlyphFilter * iconFilter = vtkIconGlyphFilter::New();
+  vtkSmartPointer<vtkIconGlyphFilter>  iconFilter =
+    vtkSmartPointer<vtkIconGlyphFilter>::New();
 
   iconFilter->SetInputData(pointSet);
   iconFilter->SetIconSize(size);
@@ -77,14 +82,18 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   iconFilter->SetIconSheetSize(imageDims);
   iconFilter->SetGravityToBottomLeft();
 
-  vtkPolyData * pointSet2 = vtkPolyData::New();
-  vtkPoints * points2 = vtkPoints::New();
-  vtkDoubleArray * pointData2 = vtkDoubleArray::New();
+  vtkSmartPointer<vtkPolyData>  pointSet2 =
+    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints>  points2 =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkDoubleArray>  pointData2 =
+    vtkSmartPointer<vtkDoubleArray>::New();
   pointData2->SetNumberOfComponents(3);
   points2->SetData(pointData2);
   pointSet2->SetPoints(points2);
 
-  vtkIntArray * iconIndex2 = vtkIntArray::New();
+  vtkSmartPointer<vtkIntArray>  iconIndex2 =
+    vtkSmartPointer<vtkIntArray>::New();
   iconIndex2->SetNumberOfComponents(1);
 
   pointSet2->GetPointData()->SetScalars(iconIndex2);
@@ -99,7 +108,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     iconIndex2->InsertNextTuple1(i + 8);
     }
 
-  vtkIconGlyphFilter * iconFilter2 = vtkIconGlyphFilter::New();
+  vtkSmartPointer<vtkIconGlyphFilter>  iconFilter2 =
+    vtkSmartPointer<vtkIconGlyphFilter>::New();
 
   iconFilter2->SetInputData(pointSet2);
   iconFilter2->SetIconSize(size);
@@ -107,14 +117,18 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   iconFilter2->SetIconSheetSize(imageDims);
   iconFilter2->SetGravityToBottomCenter();
 
-  vtkPolyData * pointSet3 = vtkPolyData::New();
-  vtkPoints * points3 = vtkPoints::New();
-  vtkDoubleArray * pointData3 = vtkDoubleArray::New();
+  vtkSmartPointer<vtkPolyData>  pointSet3 =
+    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints>  points3 =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkDoubleArray>  pointData3 =
+    vtkSmartPointer<vtkDoubleArray>::New();
   pointData3->SetNumberOfComponents(3);
   points3->SetData(pointData3);
   pointSet3->SetPoints(points3);
 
-  vtkIntArray * iconIndex3 = vtkIntArray::New();
+  vtkSmartPointer<vtkIntArray>  iconIndex3 =
+    vtkSmartPointer<vtkIntArray>::New();
   iconIndex3->SetNumberOfComponents(1);
 
   pointSet3->GetPointData()->SetScalars(iconIndex3);
@@ -129,7 +143,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     iconIndex3->InsertNextTuple1(i + 16);
     }
 
-  vtkIconGlyphFilter * iconFilter3 = vtkIconGlyphFilter::New();
+  vtkSmartPointer<vtkIconGlyphFilter>  iconFilter3 =
+    vtkSmartPointer<vtkIconGlyphFilter>::New();
 
   iconFilter3->SetInputData(pointSet3);
   iconFilter3->SetIconSize(size);
@@ -137,14 +152,18 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   iconFilter3->SetIconSheetSize(imageDims);
   iconFilter3->SetGravityToBottomRight();
 
-  vtkPolyData * pointSet4 = vtkPolyData::New();
-  vtkPoints * points4 = vtkPoints::New();
-  vtkDoubleArray * pointData4 = vtkDoubleArray::New();
+  vtkSmartPointer<vtkPolyData>  pointSet4 =
+    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints>  points4 =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkDoubleArray>  pointData4 =
+    vtkSmartPointer<vtkDoubleArray>::New();
   pointData4->SetNumberOfComponents(3);
   points4->SetData(pointData4);
   pointSet4->SetPoints(points4);
 
-  vtkIntArray * iconIndex4 = vtkIntArray::New();
+  vtkSmartPointer<vtkIntArray>  iconIndex4 =
+    vtkSmartPointer<vtkIntArray>::New();
   iconIndex4->SetNumberOfComponents(1);
 
   pointSet4->GetPointData()->SetScalars(iconIndex4);
@@ -159,7 +178,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     iconIndex4->InsertNextTuple1(i + 24);
     }
 
-  vtkIconGlyphFilter * iconFilter4 = vtkIconGlyphFilter::New();
+  vtkSmartPointer<vtkIconGlyphFilter>  iconFilter4 =
+    vtkSmartPointer<vtkIconGlyphFilter>::New();
 
   iconFilter4->SetInputData(pointSet4);
   iconFilter4->SetIconSize(size);
@@ -167,14 +187,18 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   iconFilter4->SetIconSheetSize(imageDims);
   iconFilter4->SetGravityToCenterLeft();
 
-  vtkPolyData * pointSet5 = vtkPolyData::New();
-  vtkPoints * points5 = vtkPoints::New();
-  vtkDoubleArray * pointData5 = vtkDoubleArray::New();
+  vtkSmartPointer<vtkPolyData>  pointSet5 =
+    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints>  points5 =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkDoubleArray>  pointData5 =
+    vtkSmartPointer<vtkDoubleArray>::New();
   pointData5->SetNumberOfComponents(3);
   points5->SetData(pointData5);
   pointSet5->SetPoints(points5);
 
-  vtkIntArray * iconIndex5 = vtkIntArray::New();
+  vtkSmartPointer<vtkIntArray>  iconIndex5 =
+    vtkSmartPointer<vtkIntArray>::New();
   iconIndex5->SetNumberOfComponents(1);
 
   pointSet5->GetPointData()->SetScalars(iconIndex5);
@@ -189,7 +213,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     iconIndex5->InsertNextTuple1(i + 32);
     }
 
-  vtkIconGlyphFilter * iconFilter5 = vtkIconGlyphFilter::New();
+  vtkSmartPointer<vtkIconGlyphFilter>  iconFilter5 =
+    vtkSmartPointer<vtkIconGlyphFilter>::New();
 
   iconFilter5->SetInputData(pointSet5);
   iconFilter5->SetIconSize(size);
@@ -197,14 +222,18 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   iconFilter5->SetIconSheetSize(imageDims);
   iconFilter5->SetGravityToCenterCenter();
 
-  vtkPolyData * pointSet6 = vtkPolyData::New();
-  vtkPoints * points6 = vtkPoints::New();
-  vtkDoubleArray * pointData6 = vtkDoubleArray::New();
+  vtkSmartPointer<vtkPolyData>  pointSet6 =
+    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints>  points6 =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkDoubleArray>  pointData6 =
+    vtkSmartPointer<vtkDoubleArray>::New();
   pointData6->SetNumberOfComponents(3);
   points6->SetData(pointData6);
   pointSet6->SetPoints(points6);
 
-  vtkIntArray * iconIndex6 = vtkIntArray::New();
+  vtkSmartPointer<vtkIntArray>  iconIndex6 =
+    vtkSmartPointer<vtkIntArray>::New();
   iconIndex6->SetNumberOfComponents(1);
 
   pointSet6->GetPointData()->SetScalars(iconIndex6);
@@ -219,7 +248,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     iconIndex6->InsertNextTuple1(i + 40);
     }
 
-  vtkIconGlyphFilter * iconFilter6 = vtkIconGlyphFilter::New();
+  vtkSmartPointer<vtkIconGlyphFilter>  iconFilter6 =
+    vtkSmartPointer<vtkIconGlyphFilter>::New();
 
   iconFilter6->SetInputData(pointSet6);
   iconFilter6->SetIconSize(size);
@@ -227,14 +257,18 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   iconFilter6->SetIconSheetSize(imageDims);
   iconFilter6->SetGravityToCenterRight();
 
-  vtkPolyData * pointSet7 = vtkPolyData::New();
-  vtkPoints * points7 = vtkPoints::New();
-  vtkDoubleArray * pointData7 = vtkDoubleArray::New();
+  vtkSmartPointer<vtkPolyData>  pointSet7 =
+    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints>  points7 =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkDoubleArray>  pointData7 =
+    vtkSmartPointer<vtkDoubleArray>::New();
   pointData7->SetNumberOfComponents(3);
   points7->SetData(pointData7);
   pointSet7->SetPoints(points7);
 
-  vtkIntArray * iconIndex7 = vtkIntArray::New();
+  vtkSmartPointer<vtkIntArray>  iconIndex7 =
+    vtkSmartPointer<vtkIntArray>::New();
   iconIndex7->SetNumberOfComponents(1);
 
   pointSet7->GetPointData()->SetScalars(iconIndex7);
@@ -249,7 +283,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     iconIndex7->InsertNextTuple1(i + 48);
     }
 
-  vtkIconGlyphFilter * iconFilter7 = vtkIconGlyphFilter::New();
+  vtkSmartPointer<vtkIconGlyphFilter>  iconFilter7 =
+    vtkSmartPointer<vtkIconGlyphFilter>::New();
 
   iconFilter7->SetInputData(pointSet7);
   iconFilter7->SetIconSize(size);
@@ -257,14 +292,18 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   iconFilter7->SetIconSheetSize(imageDims);
   iconFilter7->SetGravityToTopLeft();
 
-  vtkPolyData * pointSet8 = vtkPolyData::New();
-  vtkPoints * points8 = vtkPoints::New();
-  vtkDoubleArray * pointData8 = vtkDoubleArray::New();
+  vtkSmartPointer<vtkPolyData>  pointSet8 =
+    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints>  points8 =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkDoubleArray>  pointData8 =
+    vtkSmartPointer<vtkDoubleArray>::New();
   pointData8->SetNumberOfComponents(3);
   points8->SetData(pointData8);
   pointSet8->SetPoints(points8);
 
-  vtkIntArray * iconIndex8 = vtkIntArray::New();
+  vtkSmartPointer<vtkIntArray>  iconIndex8 =
+    vtkSmartPointer<vtkIntArray>::New();
   iconIndex8->SetNumberOfComponents(1);
 
   pointSet8->GetPointData()->SetScalars(iconIndex8);
@@ -279,7 +318,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     iconIndex8->InsertNextTuple1(i + 56);
     }
 
-  vtkIconGlyphFilter * iconFilter8 = vtkIconGlyphFilter::New();
+  vtkSmartPointer<vtkIconGlyphFilter>  iconFilter8 =
+    vtkSmartPointer<vtkIconGlyphFilter>::New();
 
   iconFilter8->SetInputData(pointSet8);
   iconFilter8->SetIconSize(size);
@@ -287,14 +327,18 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   iconFilter8->SetIconSheetSize(imageDims);
   iconFilter8->SetGravityToTopCenter();
 
-  vtkPolyData * pointSet9 = vtkPolyData::New();
-  vtkPoints * points9 = vtkPoints::New();
-  vtkDoubleArray * pointData9 = vtkDoubleArray::New();
+  vtkSmartPointer<vtkPolyData>  pointSet9 =
+    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints>  points9 =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkDoubleArray>  pointData9 =
+    vtkSmartPointer<vtkDoubleArray>::New();
   pointData9->SetNumberOfComponents(3);
   points9->SetData(pointData9);
   pointSet9->SetPoints(points9);
 
-  vtkIntArray * iconIndex9 = vtkIntArray::New();
+  vtkSmartPointer<vtkIntArray>  iconIndex9 =
+    vtkSmartPointer<vtkIntArray>::New();
   iconIndex9->SetNumberOfComponents(1);
 
   pointSet9->GetPointData()->SetScalars(iconIndex9);
@@ -309,7 +353,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     iconIndex9->InsertNextTuple1(i + 64);
     }
 
-  vtkIconGlyphFilter * iconFilter9 = vtkIconGlyphFilter::New();
+  vtkSmartPointer<vtkIconGlyphFilter>  iconFilter9 =
+    vtkSmartPointer<vtkIconGlyphFilter>::New();
 
   iconFilter9->SetInputData(pointSet9);
   iconFilter9->SetIconSize(size);
@@ -317,7 +362,8 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   iconFilter9->SetIconSheetSize(imageDims);
   iconFilter9->SetGravityToTopRight();
 
-  vtkAppendPolyData * append = vtkAppendPolyData::New();
+  vtkSmartPointer<vtkAppendPolyData>  append =
+    vtkSmartPointer<vtkAppendPolyData>::New();
   append->AddInputConnection(iconFilter->GetOutputPort());
   append->AddInputConnection(iconFilter2->GetOutputPort());
   append->AddInputConnection(iconFilter3->GetOutputPort());
@@ -328,87 +374,34 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   append->AddInputConnection(iconFilter8->GetOutputPort());
   append->AddInputConnection(iconFilter9->GetOutputPort());
 
-  vtkPolyDataMapper2D * mapper = vtkPolyDataMapper2D::New();
+  vtkSmartPointer<vtkPolyDataMapper2D>  mapper =
+    vtkSmartPointer<vtkPolyDataMapper2D>::New();
   mapper->SetInputConnection(append->GetOutputPort());
 
-  vtkTexturedActor2D * iconActor = vtkTexturedActor2D::New();
+  vtkSmartPointer<vtkTexturedActor2D>  iconActor =
+    vtkSmartPointer<vtkTexturedActor2D>::New();
   iconActor->SetMapper(mapper);
 
-  vtkTexture * texture =  vtkTexture::New();
+  vtkSmartPointer<vtkTexture>  texture =
+    vtkSmartPointer<vtkTexture>::New();
   texture->SetInputConnection(imageReader->GetOutputPort());
   iconActor->SetTexture(texture);
 
-  vtkRenderer * renderer = vtkRenderer::New();
-  vtkRenderWindow * renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer>  renderer =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow>  renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetSize(208, 260);
   renWin->AddRenderer(renderer);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
     iren->SetRenderWindow(renWin);
 
   renderer->AddActor(iconActor);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
-  renderer->Delete();
-  renWin->Delete();
-  iren->Delete();
-  mapper->Delete();
-  texture->Delete();
-  imageReader->Delete();
-  iconIndex->Delete();
-  iconFilter->Delete();
-  iconActor->Delete();
-  pointSet->Delete();
-  points->Delete();
-  pointData->Delete();
-  iconIndex2->Delete();
-  iconFilter2->Delete();
-  pointSet2->Delete();
-  points2->Delete();
-  pointData2->Delete();
-  iconIndex3->Delete();
-  iconFilter3->Delete();
-  pointSet3->Delete();
-  points3->Delete();
-  pointData3->Delete();
-  iconIndex4->Delete();
-  iconFilter4->Delete();
-  pointSet4->Delete();
-  points4->Delete();
-  pointData4->Delete();
-  iconIndex5->Delete();
-  iconFilter5->Delete();
-  pointSet5->Delete();
-  points5->Delete();
-  pointData5->Delete();
-  iconIndex6->Delete();
-  iconFilter6->Delete();
-  pointSet6->Delete();
-  points6->Delete();
-  pointData6->Delete();
-  iconIndex7->Delete();
-  iconFilter7->Delete();
-  pointSet7->Delete();
-  points7->Delete();
-  pointData7->Delete();
-  iconIndex8->Delete();
-  iconFilter8->Delete();
-  pointSet8->Delete();
-  points8->Delete();
-  pointData8->Delete();
-  iconIndex9->Delete();
-  iconFilter9->Delete();
-  pointSet9->Delete();
-  points9->Delete();
-  pointData9->Delete();
-  append->Delete();
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }
-

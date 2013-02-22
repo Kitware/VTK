@@ -56,12 +56,12 @@ int ArrayExtractFactoredArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     extract->Update();
     test_expression(extract->GetOutput()->GetArray(static_cast<vtkIdType>(0)) == b.GetPointer());
 
-    return 0;
+    return EXIT_SUCCESS;
     }
   catch(std::exception& e)
     {
-    cout << e.what() << endl;
-    return 1;
+    std::cout << e.what() << std::endl;
+    return EXIT_FAILURE;
     }
 }
 

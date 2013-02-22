@@ -24,15 +24,15 @@
 // another coordinate system (e.g., GetComputedWorldValue()).
 //
 // The coordinate systems in vtk are as follows:
-//<PRE>
-//  DISPLAY -             x-y pixel values in window
-//  NORMALIZED DISPLAY -  x-y (0,1) normalized values
-//  VIEWPORT -            x-y pixel values in viewport
-//  NORMALIZED VIEWPORT - x-y (0,1) normalized value in viewport
-//  VIEW -                x-y-z (-1,1) values in camera coordinates. (z is depth)
-//  WORLD -               x-y-z global coordinate values
-//  USERDEFINED -         x-y-z in User defined space
-//</PRE>
+// <PRE>
+//   DISPLAY -             x-y pixel values in window
+//   NORMALIZED DISPLAY -  x-y (0,1) normalized values
+//   VIEWPORT -            x-y pixel values in viewport
+//   NORMALIZED VIEWPORT - x-y (0,1) normalized value in viewport
+//   VIEW -                x-y-z (-1,1) values in camera coordinates. (z is depth)
+//   WORLD -               x-y-z global coordinate values
+//   USERDEFINED -         x-y-z in User defined space
+// </PRE>
 //
 // If you cascade vtkCoordinate objects, you refer to another vtkCoordinate
 // object which in turn can refer to others, and so on. This allows you to
@@ -61,7 +61,7 @@ class vtkViewport;
 class VTKRENDERINGCORE_EXPORT vtkCoordinate : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCoordinate,vtkObject);
+  vtkTypeMacro(vtkCoordinate, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -75,31 +75,35 @@ public:
   // Viewport, Normalized Viewport, View, and World.
   vtkSetMacro(CoordinateSystem, int);
   vtkGetMacro(CoordinateSystem, int);
-  void SetCoordinateSystemToDisplay() {this->SetCoordinateSystem(VTK_DISPLAY);}
+  void SetCoordinateSystemToDisplay()
+    { this->SetCoordinateSystem(VTK_DISPLAY); }
   void SetCoordinateSystemToNormalizedDisplay()
-        {this->SetCoordinateSystem(VTK_NORMALIZED_DISPLAY);}
+    { this->SetCoordinateSystem(VTK_NORMALIZED_DISPLAY); }
   void SetCoordinateSystemToViewport()
-        {this->SetCoordinateSystem(VTK_VIEWPORT);}
+    { this->SetCoordinateSystem(VTK_VIEWPORT); }
   void SetCoordinateSystemToNormalizedViewport()
-        {this->SetCoordinateSystem(VTK_NORMALIZED_VIEWPORT);}
-  void SetCoordinateSystemToView() {this->SetCoordinateSystem(VTK_VIEW);}
-  void SetCoordinateSystemToWorld() {this->SetCoordinateSystem(VTK_WORLD);}
+    { this->SetCoordinateSystem(VTK_NORMALIZED_VIEWPORT); }
+  void SetCoordinateSystemToView()
+    { this->SetCoordinateSystem(VTK_VIEW); }
+  void SetCoordinateSystemToWorld()
+    { this->SetCoordinateSystem(VTK_WORLD); }
 
   const char *GetCoordinateSystemAsString ();
 
   // Description:
   // Set/get the value of this coordinate. This can be thought of as
   // the position of this coordinate in its coordinate system.
-  vtkSetVector3Macro(Value,double);
-  vtkGetVector3Macro(Value,double);
-  void SetValue(double a, double b) { this->SetValue(a,b,0.0);}
+  vtkSetVector3Macro(Value, double);
+  vtkGetVector3Macro(Value, double);
+  void SetValue(double a, double b)
+    { this->SetValue(a, b, 0.0); }
 
   // Description:
   // If this coordinate is relative to another coordinate,
   // then specify that coordinate as the ReferenceCoordinate.
   // If this is NULL the coordinate is assumed to be absolute.
   virtual void SetReferenceCoordinate(vtkCoordinate*);
-  vtkGetObjectMacro(ReferenceCoordinate,vtkCoordinate);
+  vtkGetObjectMacro(ReferenceCoordinate, vtkCoordinate);
 
   // Description:
   // If you want this coordinate to be relative to a specific
@@ -109,7 +113,7 @@ public:
   // object to avoid reference cycle loop between rendering classes and filter
   // classes.
   void SetViewport(vtkViewport *viewport);
-  vtkGetObjectMacro(Viewport,vtkViewport);
+  vtkGetObjectMacro(Viewport, vtkViewport);
 
   // Description:
   // Return the computed value in a specified coordinate system.
@@ -142,13 +146,13 @@ protected:
   ~vtkCoordinate();
 
   double Value[3];
-  int   CoordinateSystem;
+  int CoordinateSystem;
   vtkCoordinate *ReferenceCoordinate;
   vtkViewport *Viewport;
   double ComputedWorldValue[3];
-  int   ComputedDisplayValue[2];
-  int   ComputedViewportValue[2];
-  int   Computing;
+  int ComputedDisplayValue[2];
+  int ComputedViewportValue[2];
+  int Computing;
 
   double ComputedDoubleDisplayValue[2];
   double ComputedDoubleViewportValue[2];

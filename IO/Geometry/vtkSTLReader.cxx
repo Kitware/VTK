@@ -460,7 +460,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       if ((strstr(line, "COLOR") == 0) || (strstr(line, "color") == 0))
         {
           done = (fscanf(fp,"%f %f %f\n", x,x+1,x+2)==EOF);
-          done = (fscanf(fp,"%s", line)==EOF);
+          done = done || (fscanf(fp,"%s", line)==EOF);
         }
       }
     if (!done) {

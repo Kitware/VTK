@@ -15,6 +15,8 @@
 // This test creates some polylines with uncertainty values.
 
 #include "vtkUncertaintyTubeFilter.h"
+
+#include "vtkSmartPointer.h"
 #include "vtkPolyData.h"
 #include "vtkDelaunay2D.h"
 #include "vtkCellArray.h"
@@ -28,11 +30,11 @@
 #include "vtkCamera.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
 
-int TestUncertaintyTubeFilter( int argc, char* argv[] )
+int TestUncertaintyTubeFilter( int, char*[] )
 {
-  vtkPoints *newPts = vtkPoints::New();
+  vtkSmartPointer<vtkPoints> newPts =
+    vtkSmartPointer<vtkPoints>::New();
   newPts->SetNumberOfPoints(10);
   newPts->SetPoint( 0, 10,10,0);
   newPts->SetPoint( 1, 10,10,2);
@@ -46,10 +48,12 @@ int TestUncertaintyTubeFilter( int argc, char* argv[] )
   newPts->SetPoint( 9, 1,16,5);
 
   vtkMath::RandomSeed(1177);
-  vtkDoubleArray *s = vtkDoubleArray::New();
+  vtkSmartPointer<vtkDoubleArray> s =
+    vtkSmartPointer<vtkDoubleArray>::New();
   s->SetNumberOfComponents(1);
   s->SetNumberOfTuples(10);
-  vtkDoubleArray *v = vtkDoubleArray::New();
+  vtkSmartPointer<vtkDoubleArray> v =
+    vtkSmartPointer<vtkDoubleArray>::New();
   v->SetNumberOfComponents(3);
   v->SetNumberOfTuples(10);
   for (int i=0; i<10; i++)
@@ -61,7 +65,8 @@ int TestUncertaintyTubeFilter( int argc, char* argv[] )
     v->SetTuple3(i,x,y,z);
     }
 
-  vtkCellArray *lines = vtkCellArray::New();
+  vtkSmartPointer<vtkCellArray> lines =
+    vtkSmartPointer<vtkCellArray>::New();
   lines->EstimateSize(2,5);
   lines->InsertNextCell(5);
   lines->InsertCellPoint(0);
@@ -76,33 +81,36 @@ int TestUncertaintyTubeFilter( int argc, char* argv[] )
   lines->InsertCellPoint(8);
   lines->InsertCellPoint(9);
 
-  vtkPolyData *pd = vtkPolyData::New();
+  vtkSmartPointer<vtkPolyData> pd =
+    vtkSmartPointer<vtkPolyData>::New();
   pd->SetPoints(newPts);
   pd->SetLines(lines);
   pd->GetPointData()->SetScalars(s);
   pd->GetPointData()->SetVectors(v);
-  newPts->Delete();
-  lines->Delete();
-  s->Delete();
-  v->Delete();
 
-  vtkUncertaintyTubeFilter *utf = vtkUncertaintyTubeFilter::New();
+  vtkSmartPointer<vtkUncertaintyTubeFilter> utf =
+    vtkSmartPointer<vtkUncertaintyTubeFilter>::New();
   utf->SetInputData(pd);
   utf->SetNumberOfSides(8);
 
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection( utf->GetOutputPort() );
 
-  vtkActor *actor = vtkActor::New();
+  vtkSmartPointer<vtkActor> actor =
+    vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
-  vtkRenderer *ren = vtkRenderer::New();
+  vtkSmartPointer<vtkRenderer> ren =
+    vtkSmartPointer<vtkRenderer>::New();
   ren->AddActor(actor);
 
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   ren->GetActiveCamera()->SetPosition(1,1,1);
@@ -113,20 +121,7 @@ int TestUncertaintyTubeFilter( int argc, char* argv[] )
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
-  // Clean up
-  pd->Delete();
-  utf->Delete();
-  mapper->Delete();
-  actor->Delete();
-  ren->Delete();
-  renWin->Delete();
-  iren->Delete();
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }

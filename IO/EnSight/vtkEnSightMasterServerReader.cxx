@@ -175,8 +175,8 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
   if ( piece == -1 && currentserver != numberservers )
     {
     //cout << "Number of servers (" << numberservers
-    //<< ") is not equal to the actual number of servers ("
-    //<< currentserver << ")" << endl;
+    // << ") is not equal to the actual number of servers ("
+    // << currentserver << ")" << endl;
     return VTK_ERROR;
     }
 

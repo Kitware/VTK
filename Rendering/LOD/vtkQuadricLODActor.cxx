@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkQuadricLODActor);
 
 //---------------------------------------------------------------------------
 // Specify the quadric clustering algorithm for decimating the geometry.
-vtkCxxSetObjectMacro(vtkQuadricLODActor,LODFilter,vtkQuadricClustering);
+vtkCxxSetObjectMacro(vtkQuadricLODActor, LODFilter, vtkQuadricClustering);
 
 //-------------------------------------------------------------------------
 vtkQuadricLODActor::vtkQuadricLODActor()
@@ -66,19 +66,16 @@ vtkQuadricLODActor::vtkQuadricLODActor()
   vtkMatrix4x4 *m = vtkMatrix4x4::New();
   this->LODActor->SetUserMatrix(m);
   m->Delete();
-
 }
 
 //----------------------------------------------------------------------------
 vtkQuadricLODActor::~vtkQuadricLODActor()
 {
   this->LODFilter->Delete();
-
   this->LODActor->Delete();
   this->LODActor = NULL;
   this->LODMapper->Delete();
 }
-
 
 //----------------------------------------------------------------------------
 int vtkQuadricLODActor::RenderOpaqueGeometry(vtkViewport *vp)
@@ -86,7 +83,7 @@ int vtkQuadricLODActor::RenderOpaqueGeometry(vtkViewport *vp)
   int renderedSomething = 0;
   vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
 
-  if ( ! this->Mapper )
+  if (!this->Mapper)
     {
     return 0;
     }
@@ -107,7 +104,7 @@ int vtkQuadricLODActor::RenderOpaqueGeometry(vtkViewport *vp)
       {
       this->Texture->Render(ren);
       }
-    this->Render(ren,this->Mapper);
+    this->Render(ren, this->Mapper);
 
     renderedSomething = 1;
     }
@@ -126,35 +123,30 @@ inline vtkIdType vtkQuadricLODActor::GetDisplayListSize(vtkPolyData *pd)
   return numEntries;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 {
-  float allowedTime;
-  vtkMatrix4x4 *matrix;
-  vtkMapper *bestMapper;
-
-  if ( !this->Mapper )
+  if (!this->Mapper)
     {
     vtkErrorMacro("No mapper for actor.");
     return;
     }
 
   // determine out how much time we have to render
-  allowedTime = this->AllocatedRenderTime;
+  float allowedTime = this->AllocatedRenderTime;
   double frameRate = ren->GetRenderWindow()->GetInteractor()->GetDesiredUpdateRate();
   frameRate = (frameRate < 1.0 ? 1.0 : (frameRate > 75 ? 75.0 : frameRate));
   int interactiveRender = 0;
   // interactive renders are defined when compared with the desired update rate. Here we use
   // a generous fudge factor to insure that the LOD kicks in.
-  if ( allowedTime <= (1.1/frameRate) )
+  if (allowedTime <= (1.1 / frameRate))
     {
     interactiveRender = 1;
     }
 
   // Use display lists if it makes sense
   vtkIdType nCells = this->GetDisplayListSize(static_cast<vtkPolyData*>(this->Mapper->GetInput()));
-  if ( nCells < this->MaximumDisplayListSize )
+  if (nCells < this->MaximumDisplayListSize)
     {
     this->Mapper->ImmediateModeRenderingOff();
     }
@@ -163,25 +155,21 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     this->Mapper->ImmediateModeRenderingOn();
     }
 
+  vtkMatrix4x4 *matrix;
+
   // Build LOD only if necessary
-  if ( (interactiveRender || !this->DeferLODConstruction) &&
-       (this->GetMTime() > this->BuildTime ||
-        this->Mapper->GetMTime() > this->BuildTime ||
-        this->CachedInteractiveFrameRate < 0.9*frameRate || this->CachedInteractiveFrameRate > 1.1*frameRate) )
+  if ((interactiveRender || !this->DeferLODConstruction) &&
+      (this->GetMTime() > this->BuildTime ||
+      (this->Mapper->GetMTime() > this->BuildTime) ||
+      (this->CachedInteractiveFrameRate < 0.9*frameRate) ||
+      (this->CachedInteractiveFrameRate > 1.1*frameRate)))
     {
     vtkDebugMacro(">>>>>>>>>>>>>>>Building LOD");
     this->CachedInteractiveFrameRate = frameRate;
 
     // The mapper must be updated the first time prior to going static
     this->Mapper->Update();
-    if ( this->Static )
-      {
-      this->Mapper->StaticOn();
-      }
-    else
-      {
-      this->Mapper->StaticOff();
-      }
+    this->Mapper->SetStatic(this->Static);
 
     // Make sure LOD mapper is consistent with mapper
     this->LODMapper->ShallowCopy(this->Mapper);
@@ -192,15 +180,15 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     // This table has been empirically defined. It specifies a quadric
     // clustering bin size go along with a desired frame rate.
     static int NumTableEntries = 7;
-    static double FPSTable[] = { 0.0,  5.0, 10.0, 17.5, 25.0, 50.0, 75.0};
-    static double DIMTable[] = {75.0, 60.0, 50.0, 35.0, 25.0, 20.0, 15.0};
+    static double FPSTable[] = {  0.0,  5.0, 10.0, 17.5, 25.0, 50.0, 75.0 };
+    static double DIMTable[] = { 75.0, 60.0, 50.0, 35.0, 25.0, 20.0, 15.0 };
     int dim = 15;
     for (int i=0; i < (NumTableEntries-1); i++)
       {
       if (frameRate >= FPSTable[i] && frameRate <= FPSTable[i+1] )
         {
-        dim = static_cast<int>((DIMTable[i] +
-                                (frameRate-FPSTable[i])/(FPSTable[i+1]-FPSTable[i]) * (DIMTable[i+1]-DIMTable[i])));
+        dim = static_cast<int>((DIMTable[i] + (frameRate - FPSTable[i]) /
+          (FPSTable[i+1] - FPSTable[i]) * (DIMTable[i+1] - DIMTable[i])));
         break;
         }
       }
@@ -209,35 +197,35 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     vtkPolyData *pd = vtkPolyData::SafeDownCast(this->Mapper->GetInput());
 
     // First see if there is an explicit description of the data configuration.
-    if ( this->DataConfiguration == XLINE )
+    if (this->DataConfiguration == XLINE)
       {
-      this->LODFilter->SetNumberOfDivisions(dim,1,1);
+      this->LODFilter->SetNumberOfDivisions(dim, 1, 1);
       }
-    else if ( this->DataConfiguration == YLINE )
+    else if (this->DataConfiguration == YLINE)
       {
-      this->LODFilter->SetNumberOfDivisions(1,dim,1);
+      this->LODFilter->SetNumberOfDivisions(1, dim, 1);
       }
-    else if ( this->DataConfiguration == ZLINE )
+    else if (this->DataConfiguration == ZLINE)
       {
-      this->LODFilter->SetNumberOfDivisions(1,1,dim);
+      this->LODFilter->SetNumberOfDivisions(1, 1, dim);
       }
-    else if ( this->DataConfiguration == XYPLANE )
+    else if (this->DataConfiguration == XYPLANE)
       {
-      this->LODFilter->SetNumberOfDivisions(dim,dim,1);
+      this->LODFilter->SetNumberOfDivisions(dim, dim, 1);
       }
-    else if ( this->DataConfiguration == YZPLANE )
+    else if (this->DataConfiguration == YZPLANE)
       {
-      this->LODFilter->SetNumberOfDivisions(1,dim,dim);
+      this->LODFilter->SetNumberOfDivisions(1, dim, dim);
       }
-    else if ( this->DataConfiguration == XZPLANE )
+    else if (this->DataConfiguration == XZPLANE)
       {
-      this->LODFilter->SetNumberOfDivisions(dim,1,dim);
+      this->LODFilter->SetNumberOfDivisions(dim, 1, dim);
       }
-    else if ( this->DataConfiguration == XYZVOLUME )
+    else if (this->DataConfiguration == XYZVOLUME)
       {
-      this->LODFilter->SetNumberOfDivisions(dim,dim,dim);
+      this->LODFilter->SetNumberOfDivisions(dim, dim, dim);
       }
-    else //no explicit description
+    else // no explicit description
       {
       // If here, we analyze the data to see if we can optimize binning.  The
       // binning is optimized depending on data dimension and data aspect
@@ -247,11 +235,13 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
       h[0] = bounds[1] - bounds[0];
       h[1] = bounds[3] - bounds[2];
       h[2] = bounds[5] - bounds[4];
-      double hMax = (h[0]>h[1] ? (h[0]>h[2]?h[0]:h[2]) : (h[1]>h[2]?h[1]:h[2]));
-      int nDivs[3], numSmallDims=0;
-      for (int i=0; i<3; i++)
+      double hMax = (h[0]>h[1]) ?
+        (h[0] > h[2] ? h[0] : h[2]) :
+        (h[1] > h[2] ? h[1]:h[2]);
+      int nDivs[3], numSmallDims = 0;
+      for (int i = 0; i < 3; i++)
         {
-        if ( h[i] <= (this->CollapseDimensionRatio*hMax) )
+        if (h[i] <= (this->CollapseDimensionRatio * hMax))
           {
           nDivs[i] = 1;
           numSmallDims++;
@@ -277,7 +267,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     this->GetMatrix(matrix);
 
     this->LODMapper->Update();
-    if ( this->Static )
+    if (this->Static)
       {
       this->LODMapper->StaticOn();
       }
@@ -289,11 +279,11 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   // assumed that mappers that take longer to render are better quality.
   // Timings might become out of date, but we rely on them to be consistent
   // across renders.
-  bestMapper = this->Mapper;
+  vtkMapper* bestMapper = this->Mapper;
 #ifndef NDEBUG
   float bestTime = bestMapper->GetTimeToDraw();
 #endif
-  if ( interactiveRender )
+  if (interactiveRender)
     {//use lod
     bestMapper = this->LODMapper;
 #ifndef NDEBUG
@@ -332,7 +322,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 
   // Store information on time it takes to render.
   // We might want to estimate time from the number of polygons in mapper.
-  this->LODActor->Render(ren,bestMapper);
+  this->LODActor->Render(ren, bestMapper);
   this->EstimatedRenderTime = bestMapper->GetTimeToDraw();
 }
 
@@ -374,41 +364,35 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Collapse Dimension Ratio: " << this->CollapseDimensionRatio << "\n";
 
   os << indent << "Data Configuration: ";
-  if ( this->DataConfiguration == XYZVOLUME )
+  switch (this->DataConfiguration)
     {
-    os << "XYZ Volume\n";
-    }
-  else if ( this->DataConfiguration == XLINE )
-    {
-    os << "X Line\n";
-    }
-  else if ( this->DataConfiguration == YLINE )
-    {
-    os << "Y Line\n";
-    }
-  else if ( this->DataConfiguration == ZLINE )
-    {
-    os << "Z Line\n";
-    }
-  else if ( this->DataConfiguration == XYPLANE )
-    {
-    os << "XY Plane\n";
-    }
-  else if ( this->DataConfiguration == YZPLANE )
-    {
-    os << "YZ Plane\n";
-    }
-  else if ( this->DataConfiguration == XZPLANE )
-    {
-    os << "XZ Plane\n";
-    }
-  else //if ( this->DataConfiguration == XLINE )
-    {
-    os << "Unknown\n";
+    case XYZVOLUME:
+      os << "XYZ Volume\n";
+      break;
+    case XLINE:
+      os << "X Line\n";
+      break;
+    case YLINE:
+      os << "Y Line\n";
+      break;
+    case ZLINE:
+      os << "Z Line\n";
+      break;
+    case XYPLANE:
+      os << "XY Plane\n";
+      break;
+    case YZPLANE:
+      os << "YZ Plane\n";
+      break;
+    case XZPLANE:
+      os << "XZ Plane\n";
+      break;
+    default: //XLINE
+      os << "Unknown\n";
     }
 
   os << indent << "LOD Filter: ";
-  if ( this->LODFilter )
+  if (this->LODFilter)
     {
     os << this->LODFilter << "\n";
     }
@@ -421,7 +405,7 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumDisplayListSize << "\n";
 
   os << indent << "Prop Type: ";
-  if ( this->PropType == FOLLOWER )
+  if (this->PropType == FOLLOWER)
     {
     os << "Follower\n";
     }
@@ -431,7 +415,7 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Camera: ";
-  if ( this->Camera )
+  if (this->Camera)
     {
     os << this->Camera << "\n";
     }

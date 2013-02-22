@@ -34,8 +34,6 @@
 #include "vtkSphereSource.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkRegressionTestImage.h"
-
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, var) \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
@@ -225,7 +223,7 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
 
 //-----------------------------------------------------------------------------
 
-int BoxClipPolyData(int argc, char *argv[])
+int BoxClipPolyData(int, char *[])
 {
   vtkIdType i;
 
@@ -310,12 +308,7 @@ int BoxClipPolyData(int argc, char *argv[])
 
   // Run the regression test.
   renwin->Render();
-  int retVal = vtkRegressionTestImage(renwin);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    return 0;
-    }
+  iren->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }

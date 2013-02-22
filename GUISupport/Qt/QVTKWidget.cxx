@@ -50,6 +50,7 @@
 
 #if defined(Q_WS_WIN)
 # include <windows.h>
+# include <QSysInfo>
 #endif
 
 #include "vtkInteractorStyleTrackballCamera.h"
@@ -814,7 +815,11 @@ void QVTKWidget::x11_setup_window()
 #if defined(Q_WS_WIN)
 bool QVTKWidget::winEvent(MSG* msg, long*)
 {
-  if(msg->message == WM_PAINT)
+  // Starting with Windows Vista, Microsoft introduced WDDM.
+  // We need to call InvalidateRect() to work with WDDM correctly,
+  // especially when AERO is off.
+  if(msg->message == WM_PAINT &&
+    QSysInfo::windowsVersion() >= QSysInfo::WV_VISTA)
     {
     InvalidateRect(this->winId(), NULL, FALSE);
     }

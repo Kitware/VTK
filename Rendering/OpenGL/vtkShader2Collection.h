@@ -108,11 +108,12 @@ protected:
   vtkShader2Collection();
   ~vtkShader2Collection();
 
+  bool HasShadersOfType(int);
+
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o);
 
-private:
   vtkShader2Collection(const vtkShader2Collection&);  // Not implemented.
   void operator=(const vtkShader2Collection&);  // Not implemented.
 };

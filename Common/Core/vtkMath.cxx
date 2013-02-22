@@ -1417,7 +1417,6 @@ inline void vtkLUFactor3x3(T A[3][3], int index[3])
   // third column
   A[1][2] -= A[1][0]*A[0][2];
   A[2][2] -= A[2][0]*A[0][2] + A[2][1]*A[1][2];
-  largest = scale[2]*fabs(A[2][2]);
   index[2] = 2;
 }
 

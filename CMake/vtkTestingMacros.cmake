@@ -151,7 +151,7 @@ macro(vtk_tests_python)
       endif()
     endforeach()
   else()
-    messge(FATAL "VTK_PYTHON_EXE not set")
+    message(FATAL_ERROR "VTK_PYTHON_EXE not set")
   endif()
 
 endmacro(vtk_tests_python)
@@ -184,7 +184,7 @@ macro(add_test_python)
         ${${TName}_ARGS})
     endif()
   else()
-    messge(FATAL "VTK_PYTHON_EXE not set")
+    message(FATAL_ERROR "VTK_PYTHON_EXE not set")
   endif()
 endmacro(add_test_python)
 
@@ -219,7 +219,7 @@ macro(add_test_python1)
         ${${TName}_ARGS})
     endif()
   else()
-    messge(FATAL "VTK_PYTHON_EXE not set")
+    message(FATAL_ERROR "VTK_PYTHON_EXE not set")
   endif()
 endmacro(add_test_python1)
 
@@ -246,11 +246,13 @@ macro(add_test_tcl)
     else()
       add_test(NAME ${vtk-module}Tcl-${TName}
         COMMAND ${VTK_TCL_EXE}
+        ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
         ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.tcl
-        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl
-        ${${TName}_ARGS})
+        -D VTK_DATA_ROOT-NOTFOUND
+        -T ${VTK_TEST_OUTPUT_DIR}
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     endif()
   else()
-    messge(FATAL "VTK_TCL_EXE not set")
+    message(FATAL_ERROR "VTK_TCL_EXE not set")
   endif()
 endmacro(add_test_tcl)

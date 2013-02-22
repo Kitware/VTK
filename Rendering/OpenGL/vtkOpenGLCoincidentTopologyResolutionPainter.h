@@ -55,5 +55,4 @@ private:
   void operator=(const vtkOpenGLCoincidentTopologyResolutionPainter&); // Not implemented.
 };
 
-
 #endif

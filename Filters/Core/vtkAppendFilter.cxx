@@ -386,7 +386,6 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
   // all inputs. Note that data is common if 1) it is the same attribute
   // type (scalar, vector, etc.), 2) it is the same native type (int,
   // float, etc.), and 3) if a data array in a field, if it has the same name.
-  count    = 0;
   numPts   = 0;
   decimal  = 0.0;
   numCells = 0;

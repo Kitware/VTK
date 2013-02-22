@@ -33,7 +33,7 @@ class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
 {
  public:
   static vtkLightCollection *New();
-  vtkTypeMacro(vtkLightCollection,vtkCollection);
+  vtkTypeMacro(vtkLightCollection, vtkCollection);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -53,19 +53,17 @@ class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
   //ETX
 
 protected:
-  vtkLightCollection() {};
-  ~vtkLightCollection() {};
-
+  vtkLightCollection() {}
+  ~vtkLightCollection() {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o)
+    { this->vtkCollection::AddItem(o); }
 
 private:
   vtkLightCollection(const vtkLightCollection&);  // Not implemented.
   void operator=(const vtkLightCollection&);  // Not implemented.
 };
 
-
 #endif
-

@@ -42,17 +42,17 @@ vtkShader2Collection::~vtkShader2Collection()
 // ----------------------------------------------------------------------------
 unsigned long vtkShader2Collection::GetMTime()
 {
-  unsigned long result=this->Superclass::GetMTime();
+  unsigned long result = this->Superclass::GetMTime();
   this->InitTraversal();
-  vtkShader2 *s=this->GetNextShader();
-  while(s!=0)
+  vtkShader2 *s = this->GetNextShader();
+  while (s!=0)
     {
-    unsigned long time=s->GetMTime();
-    if(time>result)
+    unsigned long time = s->GetMTime();
+    if (time > result)
       {
-      result=time;
+      result = time;
       }
-    s=this->GetNextShader();
+    s = this->GetNextShader();
     }
   return result;
 }
@@ -65,9 +65,9 @@ void vtkShader2Collection::AddItem(vtkObject *o)
 }
 
 // ----------------------------------------------------------------------------
-void vtkShader2Collection::AddItem(vtkShader2 *a)
+void vtkShader2Collection::AddItem(vtkShader2 *s)
 {
-  this->vtkCollection::AddItem(a);
+  this->vtkCollection::AddItem(s);
 }
 
 // ----------------------------------------------------------------------------
@@ -79,14 +79,8 @@ vtkShader2 *vtkShader2Collection::GetNextShader()
 // ----------------------------------------------------------------------------
 vtkShader2 *vtkShader2Collection::GetLastShader()
 {
-  if ( this->Bottom == NULL )
-    {
-    return NULL;
-    }
-  else
-    {
-    return static_cast<vtkShader2 *>(this->Bottom->Item);
-    }
+  return (this->Bottom) ?
+    static_cast<vtkShader2 *>(this->Bottom->Item) : NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -97,15 +91,15 @@ vtkShader2 *vtkShader2Collection::GetLastShader()
 // \post added: this->GetNumberOfItems()=old this->GetNumberOfItems()+other->GetNumberOfItems()
 void vtkShader2Collection::AddCollection(vtkShader2Collection *other)
 {
-  assert("pre: other_exists" && other!=0);
-  assert("pre: not_self" && other!=this);
+  assert("pre: other_exists" && other != 0);
+  assert("pre: not_self" && other != this);
 
   other->InitTraversal();
-  vtkShader2 *s=other->GetNextShader();
-  while(s!=0)
+  vtkShader2 *s = other->GetNextShader();
+  while (s)
     {
     this->AddItem(s);
-    s=other->GetNextShader();
+    s = other->GetNextShader();
     }
 }
 
@@ -118,29 +112,47 @@ void vtkShader2Collection::AddCollection(vtkShader2Collection *other)
 // \post removed: this->GetNumberOfItems()=old this->GetNumberOfItems()-other->GetNumberOfItems()
 void vtkShader2Collection::RemoveCollection(vtkShader2Collection *other)
 {
-  assert("pre: other_exists" && other!=0);
-  assert("pre: not_self" && other!=this);
+  assert("pre: other_exists" && other != 0);
+  assert("pre: not_self" && other != this);
 
   other->InitTraversal();
-  vtkShader2 *s=other->GetNextShader();
-  if(s!=0)
+  vtkShader2 *s = other->GetNextShader();
+  if (s)
     {
     // `other' is not an empty list.
-    int loc=this->IsItemPresent(s);
-    if(loc==0)
+    int loc = this->IsItemPresent(s);
+    if (loc == 0)
       {
       vtkErrorMacro("try to remove the elements of vtkShader2Collection " << other << " but they don't exist in vtkShader2Collection" << this);
       return;
       }
-    int size=other->GetNumberOfItems();
+    int size = other->GetNumberOfItems();
     --loc;
-    int i=0;
-    while(i<size)
+    int i = 0;
+    while (i < size)
       {
       this->RemoveItem(loc);
       ++i;
       }
     }
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if at least one of the shaders is on given type.
+bool vtkShader2Collection::HasShadersOfType(int t)
+{
+  bool result = false;
+
+  this->InitTraversal();
+  vtkShader2 *s = this->GetNextShader();
+  while (!result && s)
+    {
+    result = (s->GetType() == t);
+    s = this->GetNextShader();
+    }
+
+  return result;
 }
 // ----------------------------------------------------------------------------
 // Description:
@@ -149,17 +161,7 @@ void vtkShader2Collection::RemoveCollection(vtkShader2Collection *other)
 // If no, it means the vertex processing of the fixed-pipeline is used.
 bool vtkShader2Collection::HasVertexShaders()
 {
-  bool result=false;
-
-  this->InitTraversal();
-  vtkShader2 *s=this->GetNextShader();
-  while(!result && s!=0)
-    {
-    result=s->GetType()==VTK_SHADER_TYPE_VERTEX;
-    s=this->GetNextShader();
-    }
-
-  return result;
+  return HasShadersOfType(VTK_SHADER_TYPE_VERTEX);
 }
 
 // ----------------------------------------------------------------------------
@@ -167,17 +169,7 @@ bool vtkShader2Collection::HasVertexShaders()
 // Tells if at least one of the shaders is a tessellation control shader.
 bool vtkShader2Collection::HasTessellationControlShaders()
 {
-  bool result=false;
-
-  this->InitTraversal();
-  vtkShader2 *s=this->GetNextShader();
-  while(!result && s!=0)
-    {
-    result=s->GetType()==VTK_SHADER_TYPE_TESSELLATION_CONTROL;
-    s=this->GetNextShader();
-    }
-
-  return result;
+  return HasShadersOfType(VTK_SHADER_TYPE_TESSELLATION_CONTROL);
 }
 
 // ----------------------------------------------------------------------------
@@ -185,17 +177,7 @@ bool vtkShader2Collection::HasTessellationControlShaders()
 // Tells if at least one of the shaders is a tessellation evaluation shader.
 bool vtkShader2Collection::HasTessellationEvaluationShaders()
 {
-  bool result=false;
-
-  this->InitTraversal();
-  vtkShader2 *s=this->GetNextShader();
-  while(!result && s!=0)
-    {
-    result=s->GetType()==VTK_SHADER_TYPE_TESSELLATION_EVALUATION;
-    s=this->GetNextShader();
-    }
-
-  return result;
+  return HasShadersOfType(VTK_SHADER_TYPE_TESSELLATION_EVALUATION);
 }
 
 // ----------------------------------------------------------------------------
@@ -203,17 +185,7 @@ bool vtkShader2Collection::HasTessellationEvaluationShaders()
 // Tells if at least one of the shaders is a geometry shader.
 bool vtkShader2Collection::HasGeometryShaders()
 {
-  bool result=false;
-
-  this->InitTraversal();
-  vtkShader2 *s=this->GetNextShader();
-  while(!result && s!=0)
-    {
-    result=s->GetType()==VTK_SHADER_TYPE_GEOMETRY;
-    s=this->GetNextShader();
-    }
-
-  return result;
+  return HasShadersOfType(VTK_SHADER_TYPE_GEOMETRY);
 }
 
 // ----------------------------------------------------------------------------
@@ -224,17 +196,7 @@ bool vtkShader2Collection::HasGeometryShaders()
 // If no, it means the fragment processing of the fixed-pipeline is used.
 bool vtkShader2Collection::HasFragmentShaders()
 {
-  bool result=false;
-
-  this->InitTraversal();
-  vtkShader2 *s=this->GetNextShader();
-  while(!result && s!=0)
-    {
-    result=s->GetType()==VTK_SHADER_TYPE_FRAGMENT;
-    s=this->GetNextShader();
-    }
-
-  return result;
+  return HasShadersOfType(VTK_SHADER_TYPE_FRAGMENT);
 }
 
 // ----------------------------------------------------------------------------
@@ -243,28 +205,28 @@ bool vtkShader2Collection::HasFragmentShaders()
 void vtkShader2Collection::ReleaseGraphicsResources()
 {
   this->InitTraversal();
-  vtkShader2 *s=this->GetNextShader();
-  while(s!=0)
+  vtkShader2 *s = this->GetNextShader();
+  while (s)
     {
     s->ReleaseGraphicsResources();
-    s=this->GetNextShader();
+    s = this->GetNextShader();
     }
 }
 
 // ----------------------------------------------------------------------------
 void vtkShader2Collection::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  size_t i=0;
-  size_t c=static_cast<size_t>(this->GetNumberOfItems());
+  int i = 0;
+  int c = this->GetNumberOfItems();
   this->InitTraversal();
-  vtkShader2 *s=this->GetNextShader();
-  while(s!=0)
+  vtkShader2 *s = this->GetNextShader();
+  while (s)
     {
-    os << indent << "shader #" << i << "/"<<c<<endl;
-    s->PrintSelf(os,indent.GetNextIndent());
-    s=this->GetNextShader();
+    os << indent << "shader #" << i << "/" << c <<endl;
+    s->PrintSelf(os, indent.GetNextIndent());
+    s = this->GetNextShader();
     ++i;
     }
 }

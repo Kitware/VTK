@@ -81,6 +81,7 @@ int TestSystemInformation(int argc, char* argv[])
     "Common/Core/vtkConfigure.h",
     "Common/Core/vtkToolkits.h",
     "VTKConfig.cmake",
+    "Testing/Temporary/ConfigSummary.txt",
     0
     };
 

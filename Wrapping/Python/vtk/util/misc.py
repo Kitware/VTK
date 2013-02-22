@@ -24,6 +24,21 @@ def vtkGetDataRoot():
 
     return dataRoot
 
+def vtkGetTempDir():
+    """vtkGetTempDir() -- return vtk testing temp dir
+    """
+    tempIndex=-1;
+    for i in range(0, len(sys.argv)):
+        if sys.argv[i] == '-T' and i < len(sys.argv)-1:
+            tempIndex = i+1
+
+    if tempIndex != -1:
+        tempDir = sys.argv[tempIndex]
+    else:
+        tempDir = '.'
+
+    return tempDir
+
 
 def vtkRegressionTestImage( renWin ):
     """vtkRegressionTestImage(renWin) -- produce regression image for window

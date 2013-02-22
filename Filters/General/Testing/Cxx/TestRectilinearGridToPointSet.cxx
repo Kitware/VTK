@@ -73,7 +73,7 @@ static vtkSmartPointer<vtkRectilinearGrid> MakeRectilinearGrid()
 int TestRectilinearGridToPointSet(int, char*[])
 {
   int seed = time(NULL);
-  cout << "Seed: " << seed << endl;
+  std::cout << "Seed: " << seed << std::endl;
   vtkMath::RandomSeed(seed);
 
   vtkSmartPointer<vtkRectilinearGrid> inData = MakeRectilinearGrid();
@@ -87,17 +87,17 @@ int TestRectilinearGridToPointSet(int, char*[])
   vtkIdType numPoints = inData->GetNumberOfPoints();
   if (numPoints != outData->GetNumberOfPoints())
     {
-    cout << "Got wrong number of points: " << numPoints << " vs "
-         << outData->GetNumberOfPoints() << endl;
-    return 1;
+    std::cout << "Got wrong number of points: " << numPoints << " vs "
+         << outData->GetNumberOfPoints() << std::endl;
+    return EXIT_FAILURE;
     }
 
   vtkIdType numCells = inData->GetNumberOfCells();
   if (numCells != outData->GetNumberOfCells())
     {
-    cout << "Got wrong number of cells: " << numCells << " vs "
-         << outData->GetNumberOfCells() << endl;
-    return 1;
+    std::cout << "Got wrong number of cells: " << numCells << " vs "
+         << outData->GetNumberOfCells() << std::endl;
+    return EXIT_FAILURE;
     }
 
   for (vtkIdType pointId = 0; pointId < numPoints; pointId++)
@@ -112,11 +112,11 @@ int TestRectilinearGridToPointSet(int, char*[])
         || (inPoint[1] != outPoint[1])
         || (inPoint[2] != outPoint[2]) )
       {
-      cout << "Got mismatched point coordinates." << endl;
-      cout << "Input: " << inPoint[0] << " " << inPoint[1] << " " << inPoint[2] << endl;
-      cout << "Output: " << outPoint[0] << " " << outPoint[1] << " " << outPoint[2] << endl;
+      std::cout << "Got mismatched point coordinates." << std::endl;
+      std::cout << "Input: " << inPoint[0] << " " << inPoint[1] << " " << inPoint[2] << std::endl;
+      std::cout << "Output: " << outPoint[0] << " " << outPoint[1] << " " << outPoint[2] << std::endl;
       }
     }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

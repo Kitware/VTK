@@ -55,6 +55,7 @@ vtkStructuredAMRGridConnectivity::vtkStructuredAMRGridConnectivity()
   this->DataDescription    = VTK_EMPTY;
   this->NumberOfGrids      = 0;
   this->MaxLevel           = -1;
+  this->RefinementRatio    = -1;
   this->NumberOfLevels     = 0;
   this->BalancedRefinement = true;
   this->CellCentered       = true;

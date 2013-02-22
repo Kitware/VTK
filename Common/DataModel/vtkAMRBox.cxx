@@ -280,9 +280,6 @@ void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& bytesize)
 
   // STEP 8: serialize the high corner
   std::memcpy(ptr, &(this->HiCorner), 3*sizeof(int) );
-  ptr += 3*sizeof( int );
-
-  ptr += sizeof( int );
 }
 
 //-----------------------------------------------------------------------------

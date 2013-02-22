@@ -60,63 +60,66 @@ class vtkTransform;
 class VTKRENDERINGCORE_EXPORT vtkTexture : public vtkImageAlgorithm
 {
 public:
-  static vtkTexture *New();
-  vtkTypeMacro(vtkTexture,vtkImageAlgorithm);
+  static vtkTexture* New();
+  vtkTypeMacro(vtkTexture, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Renders a texture map. It first checks the object's modified time
   // to make sure the texture maps Input is valid, then it invokes the
   // Load() method.
-  virtual void Render(vtkRenderer *ren);
+  virtual void Render(vtkRenderer* ren);
 
   // Description:
   // Cleans up after the texture rendering to restore the state of the
   // graphics context.
-  virtual void PostRender(vtkRenderer *) {};
+  virtual void PostRender(vtkRenderer*) {}
 
   // Description:
   // Release any graphics resources that are being consumed by this texture.
   // The parameter window could be used to determine which graphic
   // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *) {};
+  virtual void ReleaseGraphicsResources(vtkWindow*) {}
 
   // Description:
   // Abstract interface to renderer. Each concrete subclass of
   // vtkTexture will load its data into graphics system in response
   // to this method invocation.
-  virtual void Load(vtkRenderer *) {};
+  virtual void Load(vtkRenderer*) {}
 
   // Description:
   // Turn on/off the repetition of the texture map when the texture
   // coords extend beyond the [0,1] range.
-  vtkGetMacro(Repeat,int);
-  vtkSetMacro(Repeat,int);
-  vtkBooleanMacro(Repeat,int);
+  vtkGetMacro(Repeat, int);
+  vtkSetMacro(Repeat, int);
+  vtkBooleanMacro(Repeat, int);
 
   // Description:
   // Turn on/off the clamping of the texture map when the texture
   // coords extend beyond the [0,1] range.
   // Only used when Repeat is off, and edge clamping is supported by
   // the graphics card.
-  vtkGetMacro(EdgeClamp,int);
-  vtkSetMacro(EdgeClamp,int);
-  vtkBooleanMacro(EdgeClamp,int);
+  vtkGetMacro(EdgeClamp, int);
+  vtkSetMacro(EdgeClamp, int);
+  vtkBooleanMacro(EdgeClamp, int);
 
   // Description:
   // Turn on/off linear interpolation of the texture map when rendering.
-  vtkGetMacro(Interpolate,int);
-  vtkSetMacro(Interpolate,int);
-  vtkBooleanMacro(Interpolate,int);
+  vtkGetMacro(Interpolate, int);
+  vtkSetMacro(Interpolate, int);
+  vtkBooleanMacro(Interpolate, int);
 
   // Description:
   // Force texture quality to 16-bit or 32-bit.
   // This might not be supported on all machines.
-  vtkSetMacro(Quality,int);
-  vtkGetMacro(Quality,int);
-  void SetQualityToDefault() {this->SetQuality(VTK_TEXTURE_QUALITY_DEFAULT);};
-  void SetQualityTo16Bit() {this->SetQuality(VTK_TEXTURE_QUALITY_16BIT);};
-  void SetQualityTo32Bit() {this->SetQuality(VTK_TEXTURE_QUALITY_32BIT);};
+  vtkSetMacro(Quality, int);
+  vtkGetMacro(Quality, int);
+  void SetQualityToDefault()
+    { this->SetQuality(VTK_TEXTURE_QUALITY_DEFAULT); }
+  void SetQualityTo16Bit()
+    { this->SetQuality(VTK_TEXTURE_QUALITY_16BIT); }
+  void SetQualityTo32Bit()
+    { this->SetQuality(VTK_TEXTURE_QUALITY_32BIT); }
 
   // Description:
   // Turn on/off the mapping of color scalars through the lookup table.
@@ -125,29 +128,29 @@ public:
   // lookup table to generate 4-component unsigned char scalars.
   // This ivar does not affect other scalars like unsigned short, float,
   // etc. These scalars are always mapped through lookup tables.
-  vtkGetMacro(MapColorScalarsThroughLookupTable,int);
-  vtkSetMacro(MapColorScalarsThroughLookupTable,int);
-  vtkBooleanMacro(MapColorScalarsThroughLookupTable,int);
+  vtkGetMacro(MapColorScalarsThroughLookupTable, int);
+  vtkSetMacro(MapColorScalarsThroughLookupTable, int);
+  vtkBooleanMacro(MapColorScalarsThroughLookupTable, int);
 
 //BTX
   // Description:
   // Get the input as a vtkImageData object.  This method is for
   // backwards compatibility.
-  vtkImageData *GetInput();
+  vtkImageData* GetInput();
 //ETX
 
   // Description:
   // Specify the lookup table to convert scalars if necessary
   void SetLookupTable(vtkScalarsToColors *);
-  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
+  vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
 
   // Description:
   // Get Mapped Scalars
-  vtkGetObjectMacro(MappedScalars,vtkUnsignedCharArray);
+  vtkGetObjectMacro(MappedScalars, vtkUnsignedCharArray);
 
   // Description:
   // Map scalar values into color scalars.
-  unsigned char *MapScalarsToColors (vtkDataArray *scalars);
+  unsigned char* MapScalarsToColors(vtkDataArray* scalars);
 
   // Description:
   // Set a transform on the texture which allows one to scale,
@@ -180,9 +183,9 @@ public:
   // Description:
   // Whether the texture colors are premultiplied by alpha.
   // Initial value is false.
-  vtkGetMacro(PremultipliedAlpha,bool);
-  vtkSetMacro(PremultipliedAlpha,bool);
-  vtkBooleanMacro(PremultipliedAlpha,bool);
+  vtkGetMacro(PremultipliedAlpha, bool);
+  vtkSetMacro(PremultipliedAlpha, bool);
+  vtkBooleanMacro(PremultipliedAlpha, bool);
 
   // Description:
   // When the texture is forced to be a power of 2, the default behavior is
@@ -190,9 +193,9 @@ public:
   // respects to the original.  Setting RestrictPowerOf2ImageSmaller to be
   // 1 (or ON) with force the new image's dimensions to be less than or equal
   // to with respects to the original.
-  vtkGetMacro(RestrictPowerOf2ImageSmaller,int);
-  vtkSetMacro(RestrictPowerOf2ImageSmaller,int);
-  vtkBooleanMacro(RestrictPowerOf2ImageSmaller,int);
+  vtkGetMacro(RestrictPowerOf2ImageSmaller, int);
+  vtkSetMacro(RestrictPowerOf2ImageSmaller, int);
+  vtkBooleanMacro(RestrictPowerOf2ImageSmaller, int);
 
   // Description:
   // Is this Texture Translucent?
@@ -205,14 +208,14 @@ protected:
   vtkTexture();
   ~vtkTexture();
 
-  int   Repeat;
-  int   EdgeClamp;
-  int   Interpolate;
-  int   Quality;
-  int   MapColorScalarsThroughLookupTable;
-  vtkScalarsToColors *LookupTable;
-  vtkUnsignedCharArray *MappedScalars;
-  vtkTransform  *Transform;
+  int Repeat;
+  int EdgeClamp;
+  int Interpolate;
+  int Quality;
+  int MapColorScalarsThroughLookupTable;
+  vtkScalarsToColors* LookupTable;
+  vtkUnsignedCharArray* MappedScalars;
+  vtkTransform * Transform;
 
   int BlendingMode;
   int RestrictPowerOf2ImageSmaller;

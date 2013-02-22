@@ -45,7 +45,7 @@ class vtkImageToImageMapper3DFriendship;
 class VTKRENDERINGCORE_EXPORT vtkImageMapper3D : public vtkAbstractMapper3D
 {
 public:
-  vtkTypeMacro(vtkImageMapper3D,vtkAbstractMapper3D);
+  vtkTypeMacro(vtkImageMapper3D, vtkAbstractMapper3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

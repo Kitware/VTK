@@ -72,7 +72,8 @@ int TestTimePointUtility(int, char *[])
       {
       std::cout << m << "/" << d << "/" << y << std::endl;
       std::cout << "FAILED to convert " << iso0copy
-                << " to a time point." << std::endl;
+                << " to a time point. Return value: " << tp1
+                << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -80,28 +81,32 @@ int TestTimePointUtility(int, char *[])
     if (!ok)
       {
       std::cout << "FAILED to convert " << iso1
-                << " to a time point." << std::endl;
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso2, &ok);
     if (!ok)
       {
       std::cout << "FAILED to convert " << iso2
-                << " to a time point." << std::endl;
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso3, &ok);
     if (!ok)
       {
       std::cout << "FAILED to convert " << iso3
-                << " to a time point." << std::endl;
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso4, &ok);
     if (!ok)
       {
       std::cout << "FAILED to convert " << iso4
-                << " to a time point." << std::endl;
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -111,7 +116,8 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso0copy
-                << " to a time point." << std::endl;
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -121,7 +127,8 @@ int TestTimePointUtility(int, char *[])
     if (ok)
       {
       std::cout << "Should have FAILED to convert " << iso0copy
-                << " to a time point." << std::endl;
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -130,8 +137,9 @@ int TestTimePointUtility(int, char *[])
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso0copy.c_str(), &ok);
     if (ok)
       {
-      std::cout << "Should have FAILED to convert "
-                << iso0copy << " to a time point." << std::endl;
+      std::cout << "Should have FAILED to convert " << iso0copy
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -140,8 +148,9 @@ int TestTimePointUtility(int, char *[])
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso0copy.c_str(), &ok);
     if (ok)
       {
-      std::cout << "Should have FAILED to convert "
-                << iso0copy << " to a time point." << std::endl;
+      std::cout << "Should have FAILED to convert " << iso0copy
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -150,8 +159,9 @@ int TestTimePointUtility(int, char *[])
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso0copy.c_str(), &ok);
     if (ok)
       {
-      std::cout << "Should have FAILED to convert "
-                << iso0copy << " to a time point." << std::endl;
+      std::cout << "Should have FAILED to convert " << iso0copy
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -165,8 +175,9 @@ int TestTimePointUtility(int, char *[])
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso2copy.c_str(), &ok);
     if (ok)
       {
-      std::cout << "Should have FAILED to convert "
-                << iso2copy << " to a time point." << std::endl;
+      std::cout << "Should have FAILED to convert " << iso2copy
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -175,8 +186,9 @@ int TestTimePointUtility(int, char *[])
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso2copy.c_str(), &ok);
     if (ok)
       {
-      std::cout << "Should have FAILED to convert "
-                << iso2copy << " to a time point." << std::endl;
+      std::cout << "Should have FAILED to convert " << iso2copy
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -190,8 +202,9 @@ int TestTimePointUtility(int, char *[])
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso3copy.c_str(), &ok);
     if (ok)
       {
-      std::cout << "Should have FAILED to convert "
-                << iso3copy << " to a time point." << std::endl;
+      std::cout << "Should have FAILED to convert " << iso3copy
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -200,8 +213,9 @@ int TestTimePointUtility(int, char *[])
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso3copy.c_str(), &ok);
     if (ok)
       {
-      std::cout << "Should have FAILED to convert "
-                << iso3copy << " to a time point." << std::endl;
+      std::cout << "Should have FAILED to convert " << iso3copy
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 
@@ -210,8 +224,9 @@ int TestTimePointUtility(int, char *[])
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso3copy.c_str(), &ok);
     if (ok)
       {
-      std::cout << "Should have FAILED to convert "
-                << iso3copy << " to a time point." << std::endl;
+      std::cout << "Should have FAILED to convert " << iso3copy
+        << " to a time point. Return value: " << tp1
+        << std::endl;
       testResult = EXIT_FAILURE;
       }
 

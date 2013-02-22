@@ -50,10 +50,13 @@ protected:
   void ComputeCellTags(vtkIntArray *cellTags, vtkIdList *pointOwnership,
                        int piece, int numPieces, vtkUnstructuredGrid *input);
 
-  void AddGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags, int ghostLevel);
+  void AddGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags,int ghostLevel);
 
   int CreateGhostCells;
 private:
+  void AddFirstGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags,
+                         int piece, int numPieces);
+
   vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&);  // Not implemented.
   void operator=(const vtkExtractUnstructuredGridPiece&);  // Not implemented.
 };

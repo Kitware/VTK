@@ -135,7 +135,6 @@ vtkStandardNewMacro(vtkOpenGLContextDevice3D)
 
 vtkOpenGLContextDevice3D::vtkOpenGLContextDevice3D() : Storage(new Private)
 {
-  this->InRender = false;
 }
 
 vtkOpenGLContextDevice3D::~vtkOpenGLContextDevice3D()
@@ -148,6 +147,8 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
 {
   assert("verts must be non-null" && verts != NULL);
   assert("n must be greater than 0" && n > 0);
+
+  this->EnableDepthBuffer();
 
   this->Storage->SetLineType(this->Pen->GetLineType());
   glLineWidth(this->Pen->GetWidth());
@@ -169,6 +170,8 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
     {
     glDisableClientState(GL_COLOR_ARRAY);
     }
+
+  this->DisableDepthBuffer();
 }
 
 void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
@@ -176,6 +179,8 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
 {
   assert("verts must be non-null" && verts != NULL);
   assert("n must be greater than 0" && n > 0);
+
+  this->EnableDepthBuffer();
 
   glPointSize(this->Pen->GetWidth());
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -195,6 +200,8 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
     {
     glDisableClientState(GL_COLOR_ARRAY);
     }
+
+  this->DisableDepthBuffer();
 }
 
 void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
@@ -203,6 +210,8 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
 {
   assert("mesh must be non-null" && mesh != NULL);
   assert("n must be greater than 0" && n > 0);
+
+  this->EnableDepthBuffer();
 
   glPointSize(this->Pen->GetWidth());
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -222,6 +231,8 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
     {
     glDisableClientState(GL_COLOR_ARRAY);
     }
+
+  this->DisableDepthBuffer();
 }
 
 void vtkOpenGLContextDevice3D::ApplyPen(vtkPen *pen)
@@ -324,58 +335,14 @@ void vtkOpenGLContextDevice3D::DisableClippingPlane(int i)
   glDisable(clipPlaneId);
 }
 
-void vtkOpenGLContextDevice3D::Begin(vtkViewport* viewport)
+void vtkOpenGLContextDevice3D::EnableDepthBuffer()
 {
-  // Need the actual pixel size of the viewport - ask OpenGL.
-  GLint vp[4];
-  glGetIntegerv(GL_VIEWPORT, vp);
-  this->Storage->Offset.Set(static_cast<int>(vp[0]),
-                            static_cast<int>(vp[1]));
-
-  this->Storage->Dim.Set(static_cast<int>(vp[2]),
-                         static_cast<int>(vp[3]));
-
-  // push a 2D matrix on the stack
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  float offset = 0.5;
-  glOrtho(offset, vp[2]+offset-1.0,
-          offset, vp[3]+offset-1.0,
-          -1000, 1000);
-
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-
-  // Store the previous state before changing it
-  this->Storage->SaveGLState();
-  glDisable(GL_LIGHTING);
   glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-
-  this->Renderer = vtkRenderer::SafeDownCast(viewport);
-
-  this->InRender = true;
 }
 
-void vtkOpenGLContextDevice3D::End()
+void vtkOpenGLContextDevice3D::DisableDepthBuffer()
 {
-  if (!this->InRender)
-    {
-    return;
-    }
-
-  // push a 2D matrix on the stack
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-
-  // Restore the GL state that we changed
-  this->Storage->RestoreGLState();
-
-  this->InRender = false;
+  glDisable(GL_DEPTH_TEST);
 }
 
 void vtkOpenGLContextDevice3D::PrintSelf(ostream &os, vtkIndent indent)

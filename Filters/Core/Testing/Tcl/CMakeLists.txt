@@ -1,81 +1,52 @@
-# Tests with test images in Baseline/Graphics
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    CellDataToPointData
-    Delaunay2D
-    Delaunay2DAlpha
-    Delaunay2DTransform
-    Delaunay3D
-    QuadricDecimation
-    StreamPolyData
-    TestGridSynchronizedTemplates3D
-    TestMarchingSquares
-    TestRectilinearSynchronizedTemplates
-    TestSynchronizedTemplates2D
-    TestSynchronizedTemplates3D
-    TestTriangleFilter
-    capCow
-    capSphere
-    clipArt
-    combStreamers
-    combStreamers2
-    constrainedDelaunay
-    contourCells
-    contourQuadraticCells
-    createBFont
-    cutLoop
-    deciFranFace
-    deciPlane
-    dispPlot
-    fieldToPolyData
-    fieldToRGrid
-    fieldToSGrid
-    fieldToUGrid
-    financialField
-    hull
-    mergeFilter
-    multipleComponentContour
-    multipleIso
-    polyConn
-    probe
-    probeComb
-    reverseNormals
-    skinOrder
-    smoothMeshOnMesh
-    stripF
-    teapotHulls
-  )
+  add_test_tcl(QuadricDecimation Graphics)
+  add_test_tcl(TestGridSynchronizedTemplates3D Graphics)
+  add_test_tcl(TestMarchingSquares Graphics)
+  add_test_tcl(TestRectilinearSynchronizedTemplates Graphics)
+  add_test_tcl(TestSynchronizedTemplates2D Graphics)
+  add_test_tcl(TestSynchronizedTemplates3D Graphics)
+  add_test_tcl(capCow Graphics)
+  add_test_tcl(clipArt Graphics)
+  add_test_tcl(combStreamers Graphics)
+  add_test_tcl(combStreamers2 Graphics)
+  add_test_tcl(createBFont Graphics)
+  add_test_tcl(deciFranFace Graphics)
+  add_test_tcl(dispPlot Graphics)
+  add_test_tcl(fieldToPolyData Graphics)
+  add_test_tcl(fieldToRGrid Graphics)
+  add_test_tcl(fieldToSGrid Graphics)
+  add_test_tcl(fieldToUGrid Graphics)
+  add_test_tcl(financialField Graphics)
+  add_test_tcl(mergeFilter Graphics)
+  add_test_tcl(multipleIso Graphics)
+  add_test_tcl(polyConn Graphics)
+  add_test_tcl(probe Graphics)
+  add_test_tcl(probeComb Graphics)
+  add_test_tcl(reverseNormals Graphics)
+  add_test_tcl(skinOrder Graphics)
+  add_test_tcl(smoothMeshOnMesh Graphics)
+  add_test_tcl(stripF Graphics)
+  add_test_tcl(teapotHulls Graphics)
 endif()
 
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Graphics/${tfile}.png
-   )
-endforeach()
+add_test_tcl(CellDataToPointData Graphics)
+add_test_tcl(Delaunay2D Graphics)
+add_test_tcl(Delaunay2DAlpha Graphics)
+add_test_tcl(Delaunay2DTransform Graphics)
+add_test_tcl(Delaunay3D Graphics)
+add_test_tcl(StreamPolyData Graphics)
+add_test_tcl(TestTriangleFilter Graphics)
+add_test_tcl(capSphere Graphics)
+add_test_tcl(constrainedDelaunay Graphics)
+add_test_tcl(contourCells Graphics)
+add_test_tcl(contourQuadraticCells Graphics)
+add_test_tcl(cutLoop Graphics)
+add_test_tcl(deciPlane Graphics)
+add_test_tcl(hull Graphics)
+add_test_tcl(multipleComponentContour Graphics)
 
-# Tests with test images in Baseline/Hybrid
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    MassProperties
-    financialField2
-    financialField3
-  )
+  add_test_tcl(MassProperties Hybrid)
+  add_test_tcl(financialField2 Hybrid)
+  add_test_tcl(financialField3 Hybrid)
 endif()
-
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Hybrid/${tfile}.png
-   )
-endforeach()

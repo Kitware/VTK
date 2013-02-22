@@ -32,7 +32,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLLightingPainter : public vtkLightingPai
 public:
   static vtkOpenGLLightingPainter* New();
   vtkTypeMacro(vtkOpenGLLightingPainter, vtkLightingPainter);
-  void PrintSelf(ostream& os ,vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This painter overrides GetTimeToDraw() to never pass the request to the
@@ -41,9 +41,8 @@ public:
   // responsibility is borne by the painter causing the multiple rendering
   // requests i.e. this painter itself.
   virtual double GetTimeToDraw()
-    {
-    return this->TimeToDraw;
-    }
+    { return this->TimeToDraw; }
+
 protected:
   vtkOpenGLLightingPainter();
   ~vtkOpenGLLightingPainter();
@@ -62,4 +61,3 @@ private:
 };
 
 #endif
-

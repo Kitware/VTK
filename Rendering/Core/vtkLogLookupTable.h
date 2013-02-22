@@ -31,12 +31,12 @@ class VTKRENDERINGCORE_EXPORT vtkLogLookupTable : public vtkLookupTable
 public:
   static vtkLogLookupTable *New();
 
-  vtkTypeMacro(vtkLogLookupTable,vtkLookupTable);
+  vtkTypeMacro(vtkLogLookupTable, vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkLogLookupTable(int sze=256, int ext=256);
-  ~vtkLogLookupTable() {};
+  vtkLogLookupTable(int sze = 256, int ext = 256);
+  ~vtkLogLookupTable() {}
 private:
   vtkLogLookupTable(const vtkLogLookupTable&);  // Not implemented.
   void operator=(const vtkLogLookupTable&);  // Not implemented.

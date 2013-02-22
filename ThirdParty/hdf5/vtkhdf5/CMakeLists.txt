@@ -409,7 +409,7 @@ IF (HDF5_ENABLE_Z_LIB_SUPPORT)
       SET (H5_HAVE_LIBZ 1)
       SET (H5_ZLIB_HEADER "zlib.h")
     ELSE (ZLIB_FOUND)
-      MESSAGE (FATAL " ZLib is Required for ZLib support in HDF5")
+      MESSAGE (FATAL_ERROR " ZLib is Required for ZLib support in HDF5")
     ENDIF (ZLIB_FOUND)
   ELSE (NOT H5_ZLIB_HEADER)
     # This project is being called from within another and ZLib is already configured

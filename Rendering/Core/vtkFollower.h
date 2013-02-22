@@ -48,7 +48,7 @@ class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
   // Set/Get the camera to follow. If this is not set, then the follower
   // won't know who to follow.
   virtual void SetCamera(vtkCamera*);
-  vtkGetObjectMacro(Camera,vtkCamera);
+  vtkGetObjectMacro(Camera, vtkCamera);
 
   // Description:
   // This causes the actor to be rendered. It in turn will render the actor's
@@ -87,14 +87,10 @@ private:
   void operator=(const vtkFollower&);  // Not implemented.
 
   // hide the two parameter Render() method from the user and the compiler.
-  virtual void Render(vtkRenderer *, vtkMapper *) {};
+  virtual void Render(vtkRenderer *, vtkMapper *) {}
 
   //Internal matrices to avoid New/Delete for performance reasons
   vtkMatrix4x4 *InternalMatrix;
-
 };
 
 #endif
-
-
-

@@ -1,37 +1,23 @@
-# Tests with test images in Baseline/VolumeRendering
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    gaussian
-    TestBunykRayCastFunction
-    TestFixedPointRayCasterLinearCropped
-    TestFixedPointRayCasterLinear
-    TestFixedPointRayCasterNearestCropped
-    TestFixedPointRayCasterNearest
-    TestLODProp3D
-    TestPTZSweep
-    volRCClipPlanes
-    volRCCropRegions
-    volRCRotateClip
-    volTM2DCropRegions
-    volTM2DRotateClip
-    volTM3DCompressedCropRegions
-    volTM3DCropRegions
-    volTM3DRotateClip
-    VolumeOutlineSourceClipped
-    VolumeOutlineSource
-    VolumePickerCrop
-    VolumePicker
-  )
+  add_test_tcl(TestBunykRayCastFunction VolumeRendering)
+  add_test_tcl(TestLODProp3D VolumeRendering)
+  add_test_tcl(VolumeOutlineSourceClipped VolumeRendering)
+  add_test_tcl(VolumePickerCrop VolumeRendering)
+  add_test_tcl(VolumePicker VolumeRendering)
+  add_test_tcl(gaussian VolumeRendering)
+  add_test_tcl(volRCClipPlanes VolumeRendering)
+  add_test_tcl(volRCCropRegions VolumeRendering)
+  add_test_tcl(volRCRotateClip VolumeRendering)
+  add_test_tcl(volTM3DCompressedCropRegions VolumeRendering)
+  add_test_tcl(volTM3DCropRegions VolumeRendering)
+  add_test_tcl(volTM3DRotateClip VolumeRendering)
+  add_test_tcl(volTM2DCropRegions VolumeRendering)
+  add_test_tcl(VolumeOutlineSource VolumeRendering)
 endif()
 
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/VolumeRendering/${tfile}.png
-   )
-endforeach()
+add_test_tcl(TestFixedPointRayCasterLinearCropped VolumeRendering)
+add_test_tcl(TestFixedPointRayCasterLinear VolumeRendering)
+add_test_tcl(TestFixedPointRayCasterNearestCropped VolumeRendering)
+add_test_tcl(TestFixedPointRayCasterNearest VolumeRendering)
+add_test_tcl(TestPTZSweep VolumeRendering)
+add_test_tcl(volTM2DRotateClip VolumeRendering)

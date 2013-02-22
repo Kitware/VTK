@@ -19,6 +19,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositePainter.h"
 #include "vtkDefaultPainter.h"
 #include "vtkDisplayListPainter.h"
@@ -136,6 +137,78 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
       }
     }
   return this->Superclass::GetIsOpaque();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::SetBlockVisibility(unsigned int index, bool visible)
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->SetBlockVisibility(index, visible);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositePolyDataMapper2::GetBlockVisibility(unsigned int index) const
+{
+  if(this->CompositeAttributes)
+    {
+    return this->CompositeAttributes->GetBlockVisibility(index);
+    }
+  else
+    {
+    return true;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::RemoveBlockVisibility(unsigned int index)
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->RemoveBlockVisibility(index);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::RemoveBlockVisibilites()
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->RemoveBlockVisibilites();
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::SetCompositeDataDisplayAttributes(
+  vtkCompositeDataDisplayAttributes *attributes)
+{
+  if(this->CompositeAttributes != attributes)
+    {
+    this->CompositeAttributes = attributes;
+
+    // set composite display attributes on the composite painter
+    vtkDefaultPainter *defaultPainter =
+      vtkDefaultPainter::SafeDownCast(this->Painter);
+    if(defaultPainter)
+      {
+      vtkCompositePainter *compositePainter =
+        defaultPainter->GetCompositePainter();
+
+      compositePainter->
+        SetCompositeDataDisplayAttributes(this->CompositeAttributes);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkCompositeDataDisplayAttributes*
+vtkCompositePolyDataMapper2::GetCompositeDataDisplayAttributes()
+{
+  return this->CompositeAttributes;
 }
 
 //----------------------------------------------------------------------------

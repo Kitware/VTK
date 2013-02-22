@@ -36,7 +36,7 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   VTK_CREATE(vtkPassArrays, pass);
 
-  cerr << "Creating a simple polydata ..." << endl;
+  std::cerr << "Creating a simple polydata ..." << std::endl;
   VTK_CREATE(vtkPolyData, pd);
   VTK_CREATE(vtkIntArray, col1);
   col1->SetName("column1");
@@ -62,7 +62,7 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkFieldData* fieldData = pd->GetFieldData();
   fieldData->AddArray(col1);
   fieldData->AddArray(col2);
-  cerr << "... done" << endl;
+  std::cerr << "... done" << std::endl;
 
   int errors = 0;
   pass->SetInputData(pd);
@@ -73,25 +73,25 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       {
       for (int useFieldTypes = 0; useFieldTypes <= 1; useFieldTypes++)
         {
-        cerr << "Passing a column from field type " << type << " ..." << endl;
+        std::cerr << "Passing a column from field type " << type << " ..." << std::endl;
         pass->ClearArrays();
         pass->AddArray(type, "column1");
 
-        cerr << "RemoveArrays flag is " << removeArrays << endl;
+        std::cerr << "RemoveArrays flag is " << removeArrays << std::endl;
         pass->SetRemoveArrays(removeArrays > 0 ? true : false);
 
-        cerr << "UseFieldTypes flag is " << useFieldTypes << endl;
+        std::cerr << "UseFieldTypes flag is " << useFieldTypes << std::endl;
         pass->SetUseFieldTypes(useFieldTypes > 0 ? true : false);
         pass->ClearFieldTypes();
         int processType = (type+1)%3;
-        cerr << "FieldType is " << processType << endl;
+        std::cerr << "FieldType is " << processType << std::endl;
         pass->AddFieldType(processType);
 
         pass->Update();
         vtkPolyData* out = vtkPolyData::SafeDownCast(pass->GetOutput());
-        cerr << "... done" << endl;
+        std::cerr << "... done" << std::endl;
 
-        cerr << "Checking output ..." << endl;
+        std::cerr << "Checking output ..." << std::endl;
         vtkFieldData* outAttrib = out->GetAttributesAsFieldData(type);
         vtkIntArray* out1 = vtkIntArray::SafeDownCast(outAttrib->GetAbstractArray("column1"));
         vtkIntArray* out2 = vtkIntArray::SafeDownCast(outAttrib->GetAbstractArray("column2"));
@@ -100,17 +100,17 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
           if (!out1 || !out2)
             {
             ++errors;
-            cerr << "ERROR: Output arrays should not have been touched" << endl;
+            std::cerr << "ERROR: Output arrays should not have been touched" << std::endl;
             }
           if (!removeArrays && out->GetAttributesAsFieldData(processType)->GetNumberOfArrays() != 0)
             {
             ++errors;
-            cerr << "ERROR: Processed field data should have been cleared" << endl;
+            std::cerr << "ERROR: Processed field data should have been cleared" << std::endl;
             }
           if (removeArrays && out->GetAttributesAsFieldData(processType)->GetNumberOfArrays() != 2)
             {
             ++errors;
-            cerr << "ERROR: Processed field data should remain the same" << endl;
+            std::cerr << "ERROR: Processed field data should remain the same" << std::endl;
             }
           }
         else
@@ -118,22 +118,22 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
           if (removeArrays && out1)
             {
             ++errors;
-            cerr << "ERROR: Array output1 should have been removed but it wasn't" << endl;
+            std::cerr << "ERROR: Array output1 should have been removed but it wasn't" << std::endl;
             }
           if (!removeArrays && !out1)
             {
             ++errors;
-            cerr << "ERROR: Array output1 should have been passed but it wasn't" << endl;
+            std::cerr << "ERROR: Array output1 should have been passed but it wasn't" << std::endl;
             }
           if (removeArrays && !out2)
             {
             ++errors;
-            cerr << "ERROR: Array output2 should have been passed but it wasn't" << endl;
+            std::cerr << "ERROR: Array output2 should have been passed but it wasn't" << std::endl;
             }
           if (!removeArrays && out2)
             {
             ++errors;
-            cerr << "ERROR: Array output2 should have been removed but it wasn't" << endl;
+            std::cerr << "ERROR: Array output2 should have been removed but it wasn't" << std::endl;
             }
           }
         for (vtkIdType j = 0; j < 10; j++)
@@ -141,26 +141,26 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
           if (out1 && out1->GetValue(j) != col1->GetValue(j))
             {
             errors++;
-            cerr << "ERROR: column1 output does not match input "
+            std::cerr << "ERROR: column1 output does not match input "
                  << out1->GetValue(j) << "!=" << col1->GetValue(j)
-                 << " for field type " << type << endl;
+                 << " for field type " << type << std::endl;
             break;
             }
           if (out2 && out2->GetValue(j) != col2->GetValue(j))
             {
             errors++;
-            cerr << "ERROR: column2 output does not match input "
+            std::cerr << "ERROR: column2 output does not match input "
                  << out2->GetValue(j) << "!=" << col2->GetValue(j)
-                 << " for field type " << type << endl;
+                 << " for field type " << type << std::endl;
             break;
             }
           }
-        cerr << "... done" << endl;
+        std::cerr << "... done" << std::endl;
         }
       }
     }
 
-  cerr << errors << " errors" << endl;
+  std::cerr << errors << " errors" << std::endl;
   return errors;
 }
 

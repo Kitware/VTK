@@ -14,6 +14,7 @@ get_filename_component(VTK_TOP_DIR ${VTKTestExternal_SOURCE_DIR}/../.. ABSOLUTE)
 # Load module infrastructure macros.
 list(APPEND CMAKE_MODULE_PATH ${VTK_TOP_DIR}/CMake)
 include(vtkModuleMacros)
+include(vtkTestingMacros)
 
 # Find the VTK build or install tree.  Assume the version matches exactly.
 # One should provide VTK_DIR explicitly in our intended use cases.
@@ -46,10 +47,21 @@ find_path(VTK_DATA_ROOT VTKData.readme ${VTK_TOP_DIR}/../VTKData)
 find_path(VTK_LARGE_DATA_ROOT VTKLargeData.readme ${VTK_TOP_DIR}/../VTKLargeData)
 set(VTK_TEST_OUTPUT_DIR "${VTKTestExternal_BINARY_DIR}/Testing/Temporary")
 
-# Add the test directory for each enabled module that has tests.
+# Add the test directory for each enabled module that has tests
+# whose dependencies are also enabled.
 foreach(mod ${VTK_MODULES_ALL})
   if(${mod}_TESTS_FOR AND ${${mod}_TESTS_FOR}_LOADED)
-    set(vtk-module ${${mod}_TESTS_FOR})
-    add_subdirectory(${${mod}_SOURCE_DIR} ${${mod}_BINARY_DIR})
+    set(missing "")
+    foreach(dep IN LISTS ${mod}_DEPENDS)
+      if(NOT ${dep}_LOADED)
+        set(missing "${missing}  ${dep}\n")
+      endif()
+    endforeach()
+    if(NOT missing)
+      set(vtk-module ${${mod}_TESTS_FOR})
+      add_subdirectory(${${mod}_SOURCE_DIR} ${${mod}_BINARY_DIR})
+    else()
+      message(STATUS "Skipping ${mod} due to missing dependencies:\n${missing}")
+    endif()
   endif()
 endforeach()

@@ -197,14 +197,14 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // Get the position of the text actor
 
   int* actorPos;
-  actorPos=
+  actorPos =
     actor->GetActualPositionCoordinate()->GetComputedViewportValue(viewport);
 
   // Define bounding rectangle
 
   int pos[2];
   pos[0] = actorPos[0];
-  pos[1] =  static_cast<int>(actorPos[1] - tprop->GetLineOffset());
+  pos[1] = static_cast<int>(actorPos[1] - tprop->GetLineOffset());
 
   switch (tprop->GetJustification())
     {
@@ -288,7 +288,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // as text only picks when the pick point is exactly on the
   // origin of the text
 
-  if(viewport->GetIsPicking())
+  if (viewport->GetIsPicking())
     {
     float x1 = (2.0 * actorPos[0]) / vsize[0] - 1.0;
     float y1 = 2.0 * (actorPos[1] - tprop->GetLineOffset())/vsize[1] - 1.0;
@@ -409,6 +409,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   glDepthFunc(depthFunc);
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLFreeTypeTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

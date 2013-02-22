@@ -76,9 +76,9 @@ int TestTableSplitColumnComponents(int, char*[])
       vtkGenericWarningMacro(<< "One of the output arrays values did not match.");
       table->Dump();
       out->Dump();
-      return 1;
+      return EXIT_FAILURE;
       }
     }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

@@ -1110,10 +1110,6 @@ int vtkChacoReader::InputGraph2(
     {
     *adjacency = new vtkIdType [2 * narcs + 1];  // why +1 ?
     }
-  else
-    {
-    *adjacency = NULL;
-    }
   if (vweights && (vwgt_dim > 0))
     {
     *vweights = new double [nvtxs * vwgt_dim];

@@ -115,7 +115,7 @@ public:
   // then the interpolators are expected to be directly manipulated and this
   // class does not forward the request for interpolation type to its
   // interpolators.
-  vtkSetClampMacro(InterpolationType,int, INTERPOLATION_TYPE_LINEAR,
+  vtkSetClampMacro(InterpolationType, int, INTERPOLATION_TYPE_LINEAR,
                    INTERPOLATION_TYPE_MANUAL);
   vtkGetMacro(InterpolationType,int);
   void SetInterpolationTypeToLinear()
@@ -131,7 +131,7 @@ public:
   // (linear vs spline interpolation; change spline basis) by manipulating
   // the interpolator instances directly.
   virtual void SetPositionInterpolator(vtkTupleInterpolator*);
-  vtkGetObjectMacro(PositionInterpolator,vtkTupleInterpolator);
+  vtkGetObjectMacro(PositionInterpolator, vtkTupleInterpolator);
 
   // Description:
   // Set/Get the tuple interpolator used to interpolate the focal point portion
@@ -139,7 +139,7 @@ public:
   // (linear vs spline interpolation; change spline basis) by manipulating
   // the interpolator instances directly.
   virtual void SetFocalPointInterpolator(vtkTupleInterpolator*);
-  vtkGetObjectMacro(FocalPointInterpolator,vtkTupleInterpolator);
+  vtkGetObjectMacro(FocalPointInterpolator, vtkTupleInterpolator);
 
   // Description:
   // Set/Get the tuple interpolator used to interpolate the view up portion
@@ -147,7 +147,7 @@ public:
   // (linear vs spline interpolation; change spline basis) by manipulating
   // the interpolator instances directly.
   virtual void SetViewUpInterpolator(vtkTupleInterpolator*);
-  vtkGetObjectMacro(ViewUpInterpolator,vtkTupleInterpolator);
+  vtkGetObjectMacro(ViewUpInterpolator, vtkTupleInterpolator);
 
   // Description:
   // Set/Get the tuple interpolator used to interpolate the view angle portion
@@ -155,7 +155,7 @@ public:
   // (linear vs spline interpolation; change spline basis) by manipulating
   // the interpolator instances directly.
   virtual void SetViewAngleInterpolator(vtkTupleInterpolator*);
-  vtkGetObjectMacro(ViewAngleInterpolator,vtkTupleInterpolator);
+  vtkGetObjectMacro(ViewAngleInterpolator, vtkTupleInterpolator);
 
   // Description:
   // Set/Get the tuple interpolator used to interpolate the parallel scale portion
@@ -163,7 +163,7 @@ public:
   // (linear vs spline interpolation; change spline basis) by manipulating
   // the interpolator instances directly.
   virtual void SetParallelScaleInterpolator(vtkTupleInterpolator*);
-  vtkGetObjectMacro(ParallelScaleInterpolator,vtkTupleInterpolator);
+  vtkGetObjectMacro(ParallelScaleInterpolator, vtkTupleInterpolator);
 
   // Description:
   // Set/Get the tuple interpolator used to interpolate the clipping range portion
@@ -171,7 +171,7 @@ public:
   // (linear vs spline interpolation; change spline basis) by manipulating
   // the interpolator instances directly.
   virtual void SetClippingRangeInterpolator(vtkTupleInterpolator*);
-  vtkGetObjectMacro(ClippingRangeInterpolator,vtkTupleInterpolator);
+  vtkGetObjectMacro(ClippingRangeInterpolator, vtkTupleInterpolator);
 
   // Description:
   // Override GetMTime() because we depend on the interpolators which may be
@@ -204,7 +204,6 @@ protected:
 private:
   vtkCameraInterpolator(const vtkCameraInterpolator&);  // Not implemented.
   void operator=(const vtkCameraInterpolator&);  // Not implemented.
-
 };
 
 #endif

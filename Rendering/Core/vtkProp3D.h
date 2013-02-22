@@ -49,83 +49,79 @@ public:
 
   // Description:
   // Set/Get/Add the position of the Prop3D in world coordinates.
-  virtual void SetPosition(double _arg1, double _arg2, double _arg3)
+  virtual void SetPosition(double x, double y, double z)
     {
       vtkDebugMacro(<< this->GetClassName() << " (" << this <<
-      "): setting Position to (" << _arg1 << "," << _arg2 << "," <<
-      _arg3 << ")");
-      if ((this->Position[0] != _arg1)||
-          (this->Position[1] != _arg2)||
-          (this->Position[2] != _arg3))
+      "): setting Position to (" << x << "," << y << "," <<
+      z << ")");
+      if ((this->Position[0] != x)||
+          (this->Position[1] != y)||
+          (this->Position[2] != z))
         {
-        this->Position[0] = _arg1;
-        this->Position[1] = _arg2;
-        this->Position[2] = _arg3;
+        this->Position[0] = x;
+        this->Position[1] = y;
+        this->Position[2] = z;
         this->Modified();
         this->IsIdentity = 0;
         }
     };
-  virtual void SetPosition (double _arg[3])
-    {
-      this->SetPosition (_arg[0], _arg[1], _arg[2]);
-    }
-  vtkGetVectorMacro(Position,double,3);
+
+  virtual void SetPosition(double pos[3])
+    { this->SetPosition(pos[0], pos[1], pos[2]); }
+  vtkGetVectorMacro(Position, double, 3);
   void AddPosition(double deltaPosition[3]);
-  void AddPosition(double deltaX,double deltaY,double deltaZ);
+  void AddPosition(double deltaX, double deltaY, double deltaZ);
 
   // Description:
   // Set/Get the origin of the Prop3D. This is the point about which all
   // rotations take place.
-  virtual void SetOrigin(double _arg1, double _arg2, double _arg3)
+  virtual void SetOrigin(double x, double y, double z)
     {
       vtkDebugMacro(<< this->GetClassName() << " (" << this <<
-      "): setting Origin to (" << _arg1 << "," << _arg2 << "," <<
-      _arg3 << ")");
-      if ((this->Origin[0] != _arg1)||
-          (this->Origin[1] != _arg2)||
-          (this->Origin[2] != _arg3))
+      "): setting Origin to (" << x << "," << y << "," <<
+      z << ")");
+      if ((this->Origin[0] != x)||
+          (this->Origin[1] != y)||
+          (this->Origin[2] != z))
         {
-        this->Origin[0] = _arg1;
-        this->Origin[1] = _arg2;
-        this->Origin[2] = _arg3;
+        this->Origin[0] = x;
+        this->Origin[1] = y;
+        this->Origin[2] = z;
         this->Modified();
         this->IsIdentity = 0;
         }
     };
-  virtual void SetOrigin(double _arg[3])
-    {
-      this->SetOrigin (_arg[0], _arg[1], _arg[2]);
-    }
-  vtkGetVectorMacro(Origin,double,3);
+  virtual void SetOrigin(double pos[3])
+    { this->SetOrigin(pos[0], pos[1], pos[2]); }
+  vtkGetVectorMacro(Origin, double, 3);
 
   // Description:
   // Set/Get the scale of the actor. Scaling in performed independently on the
   // X, Y and Z axis. A scale of zero is illegal and will be replaced with one.
-  virtual void SetScale(double _arg1, double _arg2, double _arg3)
+  virtual void SetScale(double x, double y, double z)
     {
     vtkDebugMacro(<< this->GetClassName() << " (" << this <<
-      "): setting Scale to (" << _arg1 << "," << _arg2 << "," <<
-      _arg3 << ")");
-    if (this->Scale[0] != _arg1 ||
-        this->Scale[1] != _arg2 ||
-        this->Scale[2] != _arg3 )
+      "): setting Scale to (" << x << "," << y << "," <<
+      z << ")");
+    if (this->Scale[0] != x ||
+        this->Scale[1] != y ||
+        this->Scale[2] != z )
       {
-      this->Scale[0] = _arg1;
-      this->Scale[1] = _arg2;
-      this->Scale[2] = _arg3;
+      this->Scale[0] = x;
+      this->Scale[1] = y;
+      this->Scale[2] = z;
       this->Modified();
       this->IsIdentity = 0;
       }
     };
-  virtual void SetScale (double _arg[3])
-    {
-    this->SetScale (_arg[0], _arg[1], _arg[2]);
-    }
-  vtkGetVectorMacro(Scale,double,3);
+  virtual void SetScale(double scale[3])
+    { this->SetScale(scale[0], scale[1], scale[2]); }
+  vtkGetVectorMacro(Scale, double, 3);
 
   // Description:
   // Method to set the scale isotropically
-  void SetScale(double s) {this->SetScale(s,s,s);};
+  void SetScale(double s)
+    { this->SetScale(s, s, s); }
 
   // Description:
   // In addition to the instance variables such as position and orientation,
@@ -139,7 +135,7 @@ public:
   // UserTransform, concatenated with the UserMatrix if the UserMatrix
   // is present.
   void SetUserTransform(vtkLinearTransform *transform);
-  vtkGetObjectMacro(UserTransform,vtkLinearTransform);
+  vtkGetObjectMacro(UserTransform, vtkLinearTransform);
 
   // Description:
   // The UserMatrix can be used in place of UserTransform.
@@ -210,19 +206,19 @@ public:
   // the last three arguments. The axis is specified in world
   // coordinates. To rotate an about its model axes, use RotateX,
   // RotateY, RotateZ.
-  void RotateWXYZ(double,double,double,double);
+  void RotateWXYZ(double w, double x, double y, double z);
 
   // Description:
   // Sets the orientation of the Prop3D.  Orientation is specified as
   // X,Y and Z rotations in that order, but they are performed as
   // RotateZ, RotateX, and finally RotateY.
-  void SetOrientation(double,double,double);
+  void SetOrientation(double x, double y, double z);
 
   // Description:
   // Sets the orientation of the Prop3D.  Orientation is specified as
   // X,Y and Z rotations in that order, but they are performed as
   // RotateZ, RotateX, and finally RotateY.
-  void SetOrientation(double a[3]);
+  void SetOrientation(double orientation[3]);
 
   // Description:
   // Returns the orientation of the Prop3D as s vector of X,Y and Z rotation.
@@ -230,7 +226,7 @@ public:
   // same matrix is RotateZ, RotateX, and finally RotateY. See also
   // SetOrientation.
   double *GetOrientation();
-  void GetOrientation(double o[3]);
+  void GetOrientation(double orentation[3]);
 
   // Description:
   // Returns the WXYZ orientation of the Prop3D.
@@ -241,14 +237,14 @@ public:
   // GetOrientation for more details. This basically does a
   // GetOrientation, adds the passed in arguments, and then calls
   // SetOrientation.
-  void AddOrientation(double,double,double);
+  void AddOrientation(double x, double y, double z);
 
   // Description:
   // Add to the current orientation. See SetOrientation and
   // GetOrientation for more details. This basically does a
   // GetOrientation, adds the passed in arguments, and then calls
   // SetOrientation.
-  void AddOrientation(double a[3]);
+  void AddOrientation(double orentation[3]);
 
   // Description:
   // This method modifies the vtkProp3D so that its transformation
@@ -282,35 +278,34 @@ public:
   // Get a pointer to an internal vtkMatrix4x4. that represents
   vtkMatrix4x4 *GetMatrix()
     {
-      this->ComputeMatrix();
-      return this->Matrix;
+    this->ComputeMatrix();
+    return this->Matrix;
     }
 
   // Description:
   // Is the matrix for this actor identity
-  vtkGetMacro(IsIdentity,int);
+  vtkGetMacro(IsIdentity, int);
 
 protected:
   vtkProp3D();
   ~vtkProp3D();
 
   vtkLinearTransform *UserTransform;
-  vtkMatrix4x4  *UserMatrix;
-  vtkMatrix4x4  *Matrix;
-  vtkTimeStamp  MatrixMTime;
-  double         Origin[3];
-  double         Position[3];
-  double         Orientation[3];
-  double         Scale[3];
-  double         Center[3];
-  vtkTransform  *Transform;
-  double         Bounds[6];
-  vtkProp3D     *CachedProp3D; //support the PokeMatrix() method
-  int           IsIdentity;
+  vtkMatrix4x4 *UserMatrix;
+  vtkMatrix4x4 *Matrix;
+  vtkTimeStamp MatrixMTime;
+  double Origin[3];
+  double Position[3];
+  double Orientation[3];
+  double Scale[3];
+  double Center[3];
+  vtkTransform *Transform;
+  double Bounds[6];
+  vtkProp3D *CachedProp3D; //support the PokeMatrix() method
+  int IsIdentity;
 private:
   vtkProp3D(const vtkProp3D&);  // Not implemented.
   void operator=(const vtkProp3D&);  // Not implemented.
 };
 
 #endif
-

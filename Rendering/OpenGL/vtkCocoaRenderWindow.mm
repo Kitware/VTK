@@ -621,10 +621,14 @@ void vtkCocoaRenderWindow::CreateAWindow()
     this->SetRootWindow(theWindow);
     this->WindowCreated = 1;
 
-    [theWindow makeKeyAndOrderFront:nil];
-    [theWindow setAcceptsMouseMovedEvents:YES];
-    }
-
+    // make key and order front will show the window
+    // we don't want this if offscreen was requested
+    if(!this->OffScreenRendering)
+      {
+      [theWindow makeKeyAndOrderFront:nil];
+      [theWindow setAcceptsMouseMovedEvents:YES];
+      }
+  }
   // create a view if one has not been specified
   if (!this->GetWindowId())
     {

@@ -449,26 +449,22 @@ int vtkStructuredGridGeometryFilter::RequestUpdateExtent(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  int piece, numPieces;
-  int *wholeExt;
-  int ext[6];
-  vtkExtentTranslator *translator;
-
-  translator = vtkExtentTranslator::SafeDownCast(
+  vtkExtentTranslator *translator = vtkExtentTranslator::SafeDownCast(
     inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-  wholeExt =
+  int *wholeExt =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Copy whole extent only if present
+  int ext[6];
   if ( wholeExt )
     {
     memcpy( ext, wholeExt, 6 * sizeof( int ) );
     }
 
   // Get request from output information
-  piece =
+  int piece =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces =
+  int numPieces =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   // get the extent associated with the piece.

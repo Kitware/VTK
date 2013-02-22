@@ -101,7 +101,7 @@ void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
         }
       glDeleteTextures(n, tempIndex);
       }
-    if (this->UseFragmentProgram &&
+    if (this->FragmentShaderIndex &&
         vtkgl::IsProgramARB(this->FragmentShaderIndex))
       {
       GLuint tempIndex;
@@ -371,9 +371,11 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
       glGetIntegerv(vtkgl::PROGRAM_ERROR_POSITION_ARB, &erri);
       if (erri != -1)
         {
-        vtkErrorMacro("Failed to load bicubic shader program: "
+        vtkWarningMacro("Failed to load bicubic shader program: "
                       << reinterpret_cast<const char *>(
                            glGetString(vtkgl::PROGRAM_ERROR_STRING_ARB)));
+        this->UseFragmentProgram = 0;
+        useFragmentProgram = 0;
         }
       }
 

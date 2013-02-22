@@ -1,38 +1,24 @@
-# Tests with test images in Baseline/Hybrid
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    3DMorph
-    TestFacetReader
-    TestGreedyTerrainDecimation
-    TestGridWarp3D
-    TestGridWarpCubic
-    TestGridWarpLinear
-    TestGridWarpNearest
-    TestImageStencilWithPolydata
-    TestPCA
-    TestProcrustes
-    TestProcrustesRigidCentroid
-    TestProjectedTerrainPath
-    WarpPolyData
-    appendImplicitModel
-    appendImplicitModelNoBounds
-    banana
-    depthSort
-    earth
-    imageToPolyData
-    largeImageOffset
-    largeImageParallel
-  )
+  add_test_tcl(TestFacetReader Hybrid)
+  add_test_tcl(TestGreedyTerrainDecimation Hybrid)
+  add_test_tcl(TestGridWarp3D Hybrid)
+  add_test_tcl(TestGridWarpCubic Hybrid)
+  add_test_tcl(TestGridWarpLinear Hybrid)
+  add_test_tcl(TestGridWarpNearest Hybrid)
+  add_test_tcl(TestImageStencilWithPolydata Hybrid)
+  add_test_tcl(TestProjectedTerrainPath Hybrid)
+  add_test_tcl(earth Hybrid)
+  add_test_tcl(imageToPolyData Hybrid)
+  add_test_tcl(largeImageOffset Hybrid)
+  add_test_tcl(largeImageParallel Hybrid)
 endif()
 
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Hybrid/${tfile}.png
-   )
-endforeach()
+add_test_tcl(3DMorph Hybrid)
+add_test_tcl(TestPCA Hybrid)
+add_test_tcl(TestProcrustes Hybrid)
+add_test_tcl(TestProcrustesRigidCentroid Hybrid)
+add_test_tcl(WarpPolyData Hybrid)
+add_test_tcl(appendImplicitModel Hybrid)
+add_test_tcl(appendImplicitModelNoBounds Hybrid)
+add_test_tcl(banana Hybrid)
+add_test_tcl(depthSort Hybrid)

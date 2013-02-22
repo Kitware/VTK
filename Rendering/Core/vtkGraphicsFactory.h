@@ -25,7 +25,7 @@ class VTKRENDERINGCORE_EXPORT vtkGraphicsFactory : public vtkObject
 {
 public:
   static vtkGraphicsFactory *New();
-  vtkTypeMacro(vtkGraphicsFactory,vtkObject);
+  vtkTypeMacro(vtkGraphicsFactory, vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -51,7 +51,7 @@ public:
   static int  GetOffScreenOnlyMode();
 
 protected:
-  vtkGraphicsFactory() {};
+  vtkGraphicsFactory() {}
 
   static int UseMesaClasses;
   static int OffScreenOnlyMode;

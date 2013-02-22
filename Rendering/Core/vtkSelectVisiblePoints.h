@@ -51,7 +51,7 @@ class vtkMatrix4x4;
 class VTKRENDERINGCORE_EXPORT vtkSelectVisiblePoints : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkSelectVisiblePoints,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSelectVisiblePoints, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -70,34 +70,35 @@ public:
         this->Modified();
         }
     }
-  vtkRenderer* GetRenderer() { return this->Renderer; }
+  vtkRenderer* GetRenderer()
+    { return this->Renderer; }
 
   // Description:
   // Set/Get the flag which enables selection in a rectangular display
   // region.
-  vtkSetMacro(SelectionWindow,int);
-  vtkGetMacro(SelectionWindow,int);
-  vtkBooleanMacro(SelectionWindow,int);
+  vtkSetMacro(SelectionWindow, int);
+  vtkGetMacro(SelectionWindow, int);
+  vtkBooleanMacro(SelectionWindow, int);
 
   // Description:
   // Specify the selection window in display coordinates. You must specify
   // a rectangular region using (xmin,xmax,ymin,ymax).
-  vtkSetVector4Macro(Selection,int);
-  vtkGetVectorMacro(Selection,int,4);
+  vtkSetVector4Macro(Selection, int);
+  vtkGetVectorMacro(Selection, int, 4);
 
   // Description:
   // Set/Get the flag which enables inverse selection; i.e., invisible points
   // are selected.
-  vtkSetMacro(SelectInvisible,int);
-  vtkGetMacro(SelectInvisible,int);
-  vtkBooleanMacro(SelectInvisible,int);
+  vtkSetMacro(SelectInvisible, int);
+  vtkGetMacro(SelectInvisible, int);
+  vtkBooleanMacro(SelectInvisible, int);
 
   // Description:
   // Set/Get a tolerance to use to determine whether a point is visible. A
   // tolerance is usually required because the conversion from world space
   // to display space during rendering introduces numerical round-off.
-  vtkSetClampMacro(Tolerance,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Tolerance,double);
+  vtkSetClampMacro(Tolerance, double,0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Tolerance, double);
 
   // Description:
   // Requires the renderer to be set. Populates the composite perspective transform

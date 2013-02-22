@@ -44,6 +44,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkXMLMaterial);
+
 //-----------------------------------------------------------------------------
 vtkXMLMaterial::vtkXMLMaterial()
 {
@@ -61,7 +62,7 @@ vtkXMLMaterial::~vtkXMLMaterial()
 //-----------------------------------------------------------------------------
 vtkXMLMaterial* vtkXMLMaterial::CreateInstance(const char* name)
 {
-  if( !name )
+  if (!name)
     {
     return 0;
     }
@@ -78,12 +79,12 @@ vtkXMLMaterial* vtkXMLMaterial::CreateInstance(const char* name)
     {
     parser->Parse(xml);
     parser->Delete();
-    delete []xml;
+    delete [] xml;
     return material;
     }
 
   char* filename = vtkXMLShader::LocateFile(name);
-  if( filename )
+  if (filename)
     {
     parser->SetFileName( filename );
     delete [] filename;
@@ -153,7 +154,6 @@ int vtkXMLMaterial::GetNumberOfProperties()
   return static_cast<int>(this->Internals->Properties.size());
 }
 
-
 //-----------------------------------------------------------------------------
 int vtkXMLMaterial::GetNumberOfTextures()
 {
@@ -220,17 +220,17 @@ int vtkXMLMaterial::GetShaderLanguage()
     int vLang = this->GetVertexShader()->GetLanguage();
     int fLang = this->GetFragmentShader()->GetLanguage();
 
-    if( vLang == fLang )
+    if (vLang == fLang)
       {
       return this->GetVertexShader()->GetLanguage();
       }
-    else if( vLang != vtkXMLShader::LANGUAGE_NONE &&
-      fLang == vtkXMLShader::LANGUAGE_NONE )
+    else if(vLang != vtkXMLShader::LANGUAGE_NONE &&
+      fLang == vtkXMLShader::LANGUAGE_NONE)
       {
       return this->GetVertexShader()->GetLanguage();
       }
-    else if( vLang == vtkXMLShader::LANGUAGE_NONE &&
-      fLang != vtkXMLShader::LANGUAGE_NONE )
+    else if(vLang == vtkXMLShader::LANGUAGE_NONE &&
+      fLang != vtkXMLShader::LANGUAGE_NONE)
       {
       return this->GetFragmentShader()->GetLanguage();
       }
@@ -239,11 +239,11 @@ int vtkXMLMaterial::GetShaderLanguage()
       return vtkXMLShader::LANGUAGE_MIXED;
       }
     }
-  else if( this->GetVertexShader() )
+  else if (this->GetVertexShader())
     {
     return this->GetVertexShader()->GetLanguage();
     }
-  else if( this->GetFragmentShader() )
+  else if (this->GetFragmentShader())
     {
     return this->GetFragmentShader()->GetLanguage();
     }
@@ -256,32 +256,32 @@ int vtkXMLMaterial::GetShaderLanguage()
 // \post valid_result: result==1 || result==2
 int vtkXMLMaterial::GetShaderStyle()
 {
-  int result=1;
-  if(this->GetShaderLanguage()==vtkXMLShader::LANGUAGE_GLSL)
+  int result = 1;
+  if(this->GetShaderLanguage() == vtkXMLShader::LANGUAGE_GLSL)
     {
-    int vStyle=0;
-    if(this->GetVertexShader())
+    int vStyle = 0;
+    if (this->GetVertexShader())
       {
-      vStyle=this->GetVertexShader()->GetStyle();
+      vStyle = this->GetVertexShader()->GetStyle();
       }
-    int fStyle=0;
-    if(this->GetFragmentShader())
+    int fStyle = 0;
+    if (this->GetFragmentShader())
       {
       fStyle=this->GetFragmentShader()->GetStyle();
       }
-    if(vStyle!=0 && fStyle!=0 && vStyle!=fStyle)
+    if (vStyle!=0 && fStyle!=0 && vStyle!=fStyle)
       {
       vtkErrorMacro(<<"vertex shader and fragment shader style differ.");
       }
     else
       {
-      if(vStyle!=0)
+      if (vStyle!=0)
         {
-        result=vStyle;
+        result = vStyle;
         }
       else
         {
-        result=fStyle;
+        result = fStyle;
         }
       }
     }

@@ -402,15 +402,16 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
 
   this->Internal = new vtkXOpenGLRenderWindowInternal(this);
 
-  this->XCArrow =   0;
-  this->XCSizeAll = 0;
-  this->XCSizeNS =  0;
-  this->XCSizeWE =  0;
-  this->XCSizeNE =  0;
-  this->XCSizeNW =  0;
-  this->XCSizeSE =  0;
-  this->XCSizeSW =  0;
-  this->XCHand   =  0;
+  this->XCCrosshair = 0;
+  this->XCArrow     = 0;
+  this->XCSizeAll   = 0;
+  this->XCSizeNS    = 0;
+  this->XCSizeWE    = 0;
+  this->XCSizeNE    = 0;
+  this->XCSizeNW    = 0;
+  this->XCSizeSE    = 0;
+  this->XCSizeSW    = 0;
+  this->XCHand      = 0;
 
   this->Capabilities = 0;
 
@@ -629,7 +630,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
       }
     }
 
-  if(this->OwnWindow)
+  if(this->OwnWindow && !this->OffScreenRendering)
     {
     vtkDebugMacro(" Mapping the xwindow\n");
     XMapWindow(this->DisplayId, this->WindowId);
@@ -674,6 +675,10 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
       {
       XFreeCursor(this->DisplayId,this->XCArrow);
       }
+    if (this->XCCrosshair)
+      {
+      XFreeCursor(this->DisplayId,this->XCCrosshair);
+      }
     if (this->XCSizeAll)
       {
       XFreeCursor(this->DisplayId,this->XCSizeAll);
@@ -708,15 +713,16 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
       }
     }
 
-  this->XCArrow =   0;
-  this->XCSizeAll = 0;
-  this->XCSizeNS =  0;
-  this->XCSizeWE =  0;
-  this->XCSizeNE =  0;
-  this->XCSizeNW =  0;
-  this->XCSizeSE =  0;
-  this->XCSizeSW =  0;
-  this->XCHand   =  0;
+  this->XCCrosshair = 0;
+  this->XCArrow     = 0;
+  this->XCSizeAll   = 0;
+  this->XCSizeNS    = 0;
+  this->XCSizeWE    = 0;
+  this->XCSizeNE    = 0;
+  this->XCSizeNW    = 0;
+  this->XCSizeSE    = 0;
+  this->XCSizeSW    = 0;
+  this->XCHand      = 0;
 
   if (this->OwnContext && this->Internal->ContextId)
     {
@@ -1126,12 +1132,6 @@ void vtkXOpenGLRenderWindow::SetFullScreen(int arg)
   // remap the window
   this->WindowRemap();
 
-  // if full screen then grab the keyboard
-  if (this->FullScreen)
-    {
-    XGrabKeyboard(this->DisplayId,this->WindowId,
-                  False,GrabModeAsync,GrabModeAsync,CurrentTime);
-    }
   this->Modified();
 }
 
@@ -1959,7 +1959,13 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
 
   switch (shape)
     {
-    case VTK_CURSOR_CROSSHAIR: // XC_crosshair sucks on linux, default to arrow
+    case VTK_CURSOR_CROSSHAIR:
+      if (!this->XCCrosshair)
+        {
+        this->XCCrosshair = XCreateFontCursor(this->DisplayId, XC_crosshair);
+        }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCCrosshair);
+      break;
     case VTK_CURSOR_ARROW:
       if (!this->XCArrow)
         {

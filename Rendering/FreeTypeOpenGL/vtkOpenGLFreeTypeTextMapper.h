@@ -31,7 +31,7 @@ class VTKRENDERINGFREETYPEOPENGL_EXPORT vtkOpenGLFreeTypeTextMapper
   : public vtkTextMapper
 {
 public:
-  vtkTypeMacro(vtkOpenGLFreeTypeTextMapper,vtkTextMapper);
+  vtkTypeMacro(vtkOpenGLFreeTypeTextMapper, vtkTextMapper);
   static vtkOpenGLFreeTypeTextMapper *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -46,8 +46,8 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
-  // What is the size of the rectangle required to draw this
-  // mapper ?
+  // Return the the size of the rectangle required to draw this
+  // mapper.
   virtual void GetSize(vtkViewport* viewport, int size[2]);
 
 protected:

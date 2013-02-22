@@ -34,7 +34,7 @@ class VTKRENDERINGCORE_EXPORT vtkTransformCoordinateSystems : public vtkPointSet
 public:
   // Description:
   // Standard methods for type information and printing.
-  vtkTypeMacro(vtkTransformCoordinateSystems,vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkTransformCoordinateSystems, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
@@ -49,11 +49,11 @@ public:
   vtkSetMacro(InputCoordinateSystem, int);
   vtkGetMacro(InputCoordinateSystem, int);
   void SetInputCoordinateSystemToDisplay()
-    {this->SetInputCoordinateSystem(VTK_DISPLAY);}
+    { this->SetInputCoordinateSystem(VTK_DISPLAY); }
   void SetInputCoordinateSystemToViewport()
-    {this->SetInputCoordinateSystem(VTK_VIEWPORT);}
+    { this->SetInputCoordinateSystem(VTK_VIEWPORT); }
   void SetInputCoordinateSystemToWorld()
-    {this->SetInputCoordinateSystem(VTK_WORLD);}
+    { this->SetInputCoordinateSystem(VTK_WORLD); }
 
   // Description:
   // Set/get the coordinate system to which to transform the output.
@@ -62,11 +62,11 @@ public:
   vtkSetMacro(OutputCoordinateSystem, int);
   vtkGetMacro(OutputCoordinateSystem, int);
   void SetOutputCoordinateSystemToDisplay()
-    {this->SetOutputCoordinateSystem(VTK_DISPLAY);}
+    { this->SetOutputCoordinateSystem(VTK_DISPLAY); }
   void SetOutputCoordinateSystemToViewport()
-    {this->SetOutputCoordinateSystem(VTK_VIEWPORT);}
+    { this->SetOutputCoordinateSystem(VTK_VIEWPORT); }
   void SetOutputCoordinateSystemToWorld()
-    {this->SetOutputCoordinateSystem(VTK_WORLD);}
+    { this->SetOutputCoordinateSystem(VTK_WORLD); }
 
   // Description:
   // Return the MTime also considering the instance of vtkCoordinate.
@@ -78,8 +78,8 @@ public:
   // NOTE: this is a raw pointer, not a weak pointer not a reference counted
   // object to avoid reference cycle loop between rendering classes and filter
   // classes.
-  void SetViewport(vtkViewport *viewport);
-  vtkGetObjectMacro(Viewport,vtkViewport);
+  void SetViewport(vtkViewport* viewport);
+  vtkGetObjectMacro(Viewport, vtkViewport);
 
 protected:
   vtkTransformCoordinateSystems();
@@ -89,9 +89,9 @@ protected:
 
   int InputCoordinateSystem;
   int OutputCoordinateSystem;
-  vtkViewport *Viewport;
+  vtkViewport* Viewport;
 
-  vtkCoordinate *TransformCoordinate;
+  vtkCoordinate* TransformCoordinate;
 
 private:
   vtkTransformCoordinateSystems(const vtkTransformCoordinateSystems&);  // Not implemented.

@@ -24,19 +24,19 @@
 // surface. Note, however, that large cap values can generate weird surface
 // normals in those cells adjacent to the boundary of the dataset. Using
 // smaller cap value will reduce this effect.
-//<P>
+// <P>
 // Another important ivar is MaximumDistance. This controls how far into the
 // volume the distance function is computed from the input geometry.  Small
 // values give significant increases in performance. However, there can
 // strange sampling effects at the extreme range of the MaximumDistance.
-//<P>
+// <P>
 // In order to properly execute and sample the input data, a rectangular
 // region in space must be defined (this is the ivar ModelBounds).  If not
 // explicitly defined, the model bounds will be computed. Note that to avoid
 // boundary effects, it is possible to adjust the model bounds (i.e., using
 // the AdjustBounds and AdjustDistance ivars) to strictly contain the
 // sampled data.
-//<P>
+// <P>
 // This filter has one other unusual capability: it is possible to append
 // data in a sequence of operations to generate a single output. This is
 // useful when you have multiple datasets and want to create a
@@ -44,7 +44,7 @@
 // either specify the ModelBounds or specify the first item such that its
 // bounds completely contain all other items.  This is because the
 // rectangular region of the output can not be changed after the 1st Append.
-//<P>
+// <P>
 // The ProcessMode ivar controls the method used within the Append function
 // (where the actual work is done regardless if the Append function is
 // explicitly called) to compute the implicit model.  If set to work in voxel
@@ -57,13 +57,13 @@
 // visited each Append.  Append the data before input if possible when using
 // the voxel mode.  Do not switch between voxel and cell mode between execution
 // of StartAppend and EndAppend.
-//<P>
+// <P>
 // Further performance improvement is now possible using the PerVoxel process
 // mode on multi-processor machines (the mode is now multithreaded).  Each
 // thread processes a different "slab" of the output.  Also, if the input is
 // vtkPolyData, it is appropriately clipped for each thread; that is, each
 // thread only considers the input which could affect its slab of the output.
-//<P>
+// <P>
 // This filter can now produce output of any type supported by vtkImageData.
 // However to support this change, additional sqrts must be executed during the
 // Append step.  Previously, the output was initialized to the squared CapValue

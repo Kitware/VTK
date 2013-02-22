@@ -63,6 +63,7 @@ public:
   // adapter an opportunity to collect information, such as attribute indices
   // that it will need while rendering.
   virtual void PrepareForRender() = 0;
+
 protected:
   vtkShaderDeviceAdapter2();
   ~vtkShaderDeviceAdapter2();

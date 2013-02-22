@@ -26,13 +26,13 @@
 vtkRenderState::vtkRenderState(vtkRenderer *renderer)
 {
   assert("pre: renderer_exists" && renderer!=0);
-  this->Renderer=renderer;
-  this->FrameBuffer=0;
-  this->PropArray=0;
-  this->PropArrayCount=0;
-  this->RequiredKeys=0;
+  this->Renderer = renderer;
+  this->FrameBuffer = 0;
+  this->PropArray = 0;
+  this->PropArrayCount = 0;
+  this->RequiredKeys = 0;
 
-  assert("post: renderer_is_set" && this->GetRenderer()==renderer);
+  assert("post: renderer_is_set" && this->GetRenderer() == renderer);
   assert("post: is_valid" && this->IsValid());
 }
 
@@ -49,7 +49,7 @@ vtkRenderState::~vtkRenderState()
 // Tells if the RenderState is a valid one (Renderer is not null).
 bool vtkRenderState::IsValid() const
 {
-  return this->Renderer!=0;
+  return this->Renderer != 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ bool vtkRenderState::IsValid() const
 // \post result_exists: result!=0
 vtkRenderer *vtkRenderState::GetRenderer() const
 {
-  assert("post: valid_result" && this->Renderer!=0);
+  assert("post: valid_result" && this->Renderer != 0);
   return this->Renderer;
 }
 
@@ -76,8 +76,8 @@ vtkFrameBufferObject *vtkRenderState::GetFrameBuffer() const
 // \post is_set: GetFrameBuffer()==fbo
 void vtkRenderState::SetFrameBuffer(vtkFrameBufferObject *fbo)
 {
-  this->FrameBuffer=fbo;
-  assert("post: is_set" && this->GetFrameBuffer()==fbo);
+  this->FrameBuffer = fbo;
+  assert("post: is_set" && this->GetFrameBuffer() == fbo);
 }
 
 // ----------------------------------------------------------------------------
@@ -85,9 +85,9 @@ void vtkRenderState::SetFrameBuffer(vtkFrameBufferObject *fbo)
 // Get the window size of the state.
 void vtkRenderState::GetWindowSize(int size[2]) const
 {
-  if(this->FrameBuffer==0)
+  if (this->FrameBuffer==0)
     {
-    this->Renderer->GetTiledSize(&size[0],&size[1]);
+    this->Renderer->GetTiledSize(&size[0], &size[1]);
     }
   else
     {
@@ -109,7 +109,7 @@ vtkProp **vtkRenderState::GetPropArray() const
 // \post positive_result: result>=0
 int vtkRenderState::GetPropArrayCount() const
 {
-  assert("post: positive_result"  && this->PropArrayCount>=0);
+  assert("post: positive_result"  && this->PropArrayCount >= 0);
   return this->PropArrayCount;
 }
 
@@ -122,14 +122,14 @@ int vtkRenderState::GetPropArrayCount() const
 void vtkRenderState::SetPropArrayAndCount(vtkProp **propArray,
                                           int propArrayCount)
 {
-  assert("pre: positive_size" && propArrayCount>=0);
-  assert("pre: valid_null_array" && (propArray!=0 || propArrayCount==0));
+  assert("pre: positive_size" && propArrayCount >= 0);
+  assert("pre: valid_null_array" && (propArray != 0 || propArrayCount == 0));
 
-  this->PropArray=propArray;
-  this->PropArrayCount=propArrayCount;
+  this->PropArray = propArray;
+  this->PropArrayCount = propArrayCount;
 
-  assert("post: is_set" && this->GetPropArray()==propArray
-         && this->GetPropArrayCount()==propArrayCount);
+  assert("post: is_set" && this->GetPropArray() == propArray
+         && this->GetPropArrayCount() == propArrayCount);
 }
 
 // ----------------------------------------------------------------------------
@@ -146,6 +146,6 @@ vtkInformation *vtkRenderState::GetRequiredKeys() const
 // \post is_set: GetRequiredKeys()==keys
 void vtkRenderState::SetRequiredKeys(vtkInformation *keys)
 {
-  this->RequiredKeys=keys;
-  assert("post: is_set" && this->GetRequiredKeys()==keys);
+  this->RequiredKeys = keys;
+  assert("post: is_set" && this->GetRequiredKeys() == keys);
 }

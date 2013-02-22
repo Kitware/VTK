@@ -35,7 +35,7 @@ class VTKRENDERINGCORE_EXPORT vtkAssemblyPaths : public vtkCollection
 {
 public:
   static vtkAssemblyPaths *New();
-  vtkTypeMacro(vtkAssemblyPaths,vtkCollection);
+  vtkTypeMacro(vtkAssemblyPaths, vtkCollection);
 
   // Description:
   // Add a path to the list.
@@ -63,8 +63,8 @@ public:
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
-  vtkAssemblyPath *GetNextPath(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkAssemblyPath *>(this->GetNextItemAsObject(cookie));};
+  vtkAssemblyPath *GetNextPath(vtkCollectionSimpleIterator &cookie)
+    { return static_cast<vtkAssemblyPath *>(this->GetNextItemAsObject(cookie)); }
   //ETX
 
 protected:
@@ -73,11 +73,14 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
-  void RemoveItem(vtkObject *o) { this->vtkCollection::RemoveItem(o); };
-  void RemoveItem(int i) { this->vtkCollection::RemoveItem(i); };
+  void AddItem(vtkObject *o)
+    { this->vtkCollection::AddItem(o); }
+  void RemoveItem(vtkObject *o)
+    { this->vtkCollection::RemoveItem(o); }
+  void RemoveItem(int i)
+    { this->vtkCollection::RemoveItem(i); }
   int  IsItemPresent(vtkObject *o)
-    { return this->vtkCollection::IsItemPresent(o);};
+    { return this->vtkCollection::IsItemPresent(o); }
 private:
   vtkAssemblyPaths(const vtkAssemblyPaths&);  // Not implemented.
   void operator=(const vtkAssemblyPaths&);  // Not implemented.

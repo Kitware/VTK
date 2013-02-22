@@ -16,6 +16,7 @@
 // Brute force computation of Bessel functions. Might be better to create a
 // filter (or source) object. Might also consider vtkSampleFunction.
 
+#include "vtkSmartPointer.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkDataSetMapper.h"
@@ -25,7 +26,6 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -39,21 +39,27 @@ int expCos( int argc, char *argv[] )
   double x[3];
   double r, deriv;
 
-  vtkRenderer *ren = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // create plane to warp
-  vtkPlaneSource *plane = vtkPlaneSource::New();
+  vtkSmartPointer<vtkPlaneSource> plane =
+    vtkSmartPointer<vtkPlaneSource>::New();
   plane->SetResolution (300,300);
 
-  vtkTransform *transform = vtkTransform::New();
+  vtkSmartPointer<vtkTransform> transform =
+    vtkSmartPointer<vtkTransform>::New();
   transform->Scale(10.0,10.0,1.0);
 
-  vtkTransformPolyDataFilter *transF = vtkTransformPolyDataFilter::New();
+  vtkSmartPointer<vtkTransformPolyDataFilter> transF =
+    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
   transF->SetInputConnection(plane->GetOutputPort());
   transF->SetTransform(transform);
   transF->Update();
@@ -64,13 +70,16 @@ int expCos( int argc, char *argv[] )
   vtkPolyData *input = transF->GetOutput();
   numPts = input->GetNumberOfPoints();
 
-  vtkPoints *newPts = vtkPoints::New();
+  vtkSmartPointer<vtkPoints> newPts =
+    vtkSmartPointer<vtkPoints>::New();
   newPts->SetNumberOfPoints(numPts);
 
-  vtkFloatArray *derivs = vtkFloatArray::New();
+  vtkSmartPointer<vtkFloatArray> derivs =
+    vtkSmartPointer<vtkFloatArray>::New();
   derivs->SetNumberOfTuples(numPts);
 
-  vtkPolyData *bessel = vtkPolyData::New();
+  vtkSmartPointer<vtkPolyData> bessel =
+    vtkSmartPointer<vtkPolyData>::New();
   bessel->CopyStructure(input);
   bessel->SetPoints(newPts);
   bessel->GetPointData()->SetScalars(derivs);
@@ -88,19 +97,22 @@ int expCos( int argc, char *argv[] )
   derivs->Delete();
 
   // warp plane
-  vtkWarpScalar *warp = vtkWarpScalar::New();
+  vtkSmartPointer<vtkWarpScalar> warp =
+    vtkSmartPointer<vtkWarpScalar>::New();
   warp->SetInputData(bessel);
   warp->XYPlaneOn();
   warp->SetScaleFactor(0.5);
 
   // mapper and actor
-  vtkDataSetMapper *mapper = vtkDataSetMapper::New();
+  vtkSmartPointer<vtkDataSetMapper> mapper =
+    vtkSmartPointer<vtkDataSetMapper>::New();
   mapper->SetInputConnection(warp->GetOutputPort());
   double tmp[2];
   bessel->GetScalarRange(tmp);
   mapper->SetScalarRange(tmp[0],tmp[1]);
 
-  vtkActor *carpet = vtkActor::New();
+  vtkSmartPointer<vtkActor> carpet =
+    vtkSmartPointer<vtkActor>::New();
   carpet->SetMapper(mapper);
 
   // assign our actor to the renderer
@@ -116,23 +128,7 @@ int expCos( int argc, char *argv[] )
   ren->ResetCameraClippingRange();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
-  // Clean up
-  ren->Delete();
-  renWin->Delete();
-  iren->Delete();
-  plane->Delete();
-  transform->Delete();
-  transF->Delete();
-  bessel->Delete();
-  warp->Delete();
-  mapper->Delete();
-  carpet->Delete();
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }

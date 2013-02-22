@@ -1,76 +1,45 @@
-# Tests with test images in Baseline/Graphics
-#
-unset(tests)
 if(VTK_DATA_ROOT)
-  set(tests
-    Canny
-    OBBCylinder
-    TestCellDerivs
-    TestClipClosedSurface
-    TestClipOutline
-    TestCurvatures
-    TestDiscreteMarchingCubes
-    TestGraphLayoutFilter
-    TestMultiBlockStreamer
-    TestRandomAttributeGenerator
-    TestRectilinearGridToTetrahedra
-    TestSplineFilter
-    WarpScalarImage
-    WarpToImage
-    WarpVectorImage
-    blankGrid
-    clipComb
-    clipImage
-    clipQuadraticCells
-    clipVolume
-    clipVolume2
-    clipVolume3
-    contoursToSurface
-    cursor2D
-    cursor3D
-    dicer
-    edgePoints
-    mcubes
-    recursiveDC
-    spatialRepAll
-    splitVectors
-    streamTracer
-    subPixelPositionMin
-    testDataSetTriangleFilter
-    testDataSetTriangleFilter2
-    testReflect
-    warplens
-  )
+  add_test_tcl(Canny Graphics)
+  add_test_tcl(TestClipClosedSurface Graphics)
+  add_test_tcl(TestMultiBlockStreamer Graphics)
+  add_test_tcl(TestSplineFilter Graphics)
+  add_test_tcl(WarpVectorImage Graphics)
+  add_test_tcl(blankGrid Graphics)
+  add_test_tcl(clipComb Graphics)
+  add_test_tcl(clipImage Graphics)
+  add_test_tcl(cursor3D Graphics)
+  add_test_tcl(dicer Graphics)
+  add_test_tcl(edgePoints Graphics)
+  add_test_tcl(mcubes Graphics)
+  add_test_tcl(recursiveDC Graphics)
+  add_test_tcl(spatialRepAll Graphics)
+  add_test_tcl(splitVectors Graphics)
+  add_test_tcl(streamTracer Graphics)
+  add_test_tcl(testDataSetTriangleFilter Graphics)
+  add_test_tcl(testDataSetTriangleFilter2 Graphics)
+  add_test_tcl(warplens Graphics)
 endif()
 
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Graphics/${tfile}.png
-   )
-endforeach()
+add_test_tcl(OBBCylinder Graphics)
+add_test_tcl(TestCellDerivs Graphics)
+add_test_tcl(TestClipOutline Graphics)
+add_test_tcl(TestCurvatures Graphics)
+add_test_tcl(TestDiscreteMarchingCubes Graphics)
+add_test_tcl(TestGraphLayoutFilter Graphics)
+add_test_tcl(TestRandomAttributeGenerator Graphics)
+add_test_tcl(TestRectilinearGridToTetrahedra Graphics)
+add_test_tcl(WarpScalarImage Graphics)
+add_test_tcl(WarpToImage Graphics)
+add_test_tcl(clipQuadraticCells Graphics)
+add_test_tcl(clipVolume Graphics)
+add_test_tcl(clipVolume2 Graphics)
+add_test_tcl(clipVolume3 Graphics)
+add_test_tcl(contoursToSurface Graphics)
+add_test_tcl(cursor2D Graphics)
+add_test_tcl(subPixelPositionMin Graphics)
+add_test_tcl(testReflect Graphics)
 
-# Tests with test images in Baseline/Hybrid
-#
-unset(tests)
-if(VTK_DATA_ROOT)
-  set(tests
-    clipHex
-    clipPyramid
-    clipTet
-    clipWedge
-  )
-endif()
-
-foreach( tfile ${tests})
-  add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-    ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-    ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Hybrid/${tfile}.png
-   )
-endforeach()
+add_test_tcl(clipHex Hybrid)
+add_test_tcl(clipPyramid Hybrid)
+add_test_tcl(clipTet Hybrid)
+add_test_tcl(clipWedge Hybrid)

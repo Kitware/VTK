@@ -20,6 +20,7 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkOBBDicer.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -315,54 +316,34 @@ void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData *input,
                                             vtkIntArray *cellTags,
                                             int level)
 {
-  vtkIdType numCells, pointId, cellId, i;
-  int j, k;
-  vtkGenericCell *cell1 = vtkGenericCell::New();
-  vtkGenericCell *cell2 = vtkGenericCell::New();
-  vtkIdList *cellIds = vtkIdList::New();
-
-  numCells = input->GetNumberOfCells();
-
-  for (i = 0; i < numCells; i++)
+  //for layers of ghost cells after the first we have to search
+  //the entire input dataset. in the future we can extend this
+  //function to return the list of cells that we set on our
+  //level so we only have to search that subset for neighbors
+  const vtkIdType numCells = input->GetNumberOfCells();
+  vtkNew<vtkIdList> cellPointIds;
+  vtkNew<vtkIdList> neighborIds;
+  for (vtkIdType idx = 0; idx < numCells; ++idx)
     {
-    if (cellTags->GetValue(i) == level - 1)
+    if(cellTags->GetValue(idx) == level - 1)
       {
-      input->GetCell(i, cell1);
-      for (j = 0; j < cell1->GetNumberOfPoints(); j++)
+      input->GetCellPoints(idx, cellPointIds.GetPointer());
+      const vtkIdType numCellPoints = cellPointIds->GetNumberOfIds();
+      for (vtkIdType j = 0; j < numCellPoints; j++)
         {
-        pointId = cell1->GetPointId(j);
-        input->GetPointCells(pointId, cellIds);
-        for (k = 0; k < cellIds->GetNumberOfIds(); k++)
+        const vtkIdType pointId = cellPointIds->GetId(j);
+        input->GetPointCells(pointId,neighborIds.GetPointer());
+
+        const vtkIdType numNeighbors= neighborIds->GetNumberOfIds();
+        for(vtkIdType k= 0; k < numNeighbors; ++k)
           {
-          cellId = cellIds->GetId(k);
-          if (cellTags->GetValue(cellId) == -1)
+          const vtkIdType neighborCellId = neighborIds->GetId(k);
+          if(cellTags->GetValue(neighborCellId) == -1)
             {
-            input->GetCell(cellId, cell2);
-            cellTags->SetValue(cellId, level);
+            cellTags->SetValue(neighborCellId, level);
             }
           }
         }
       }
     }
-  cell1->Delete();
-  cell2->Delete();
-  cellIds->Delete();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -31,10 +31,10 @@ public:
 protected:
   vtkLightingPainter();
   ~vtkLightingPainter();
+
 private:
   vtkLightingPainter(const vtkLightingPainter&); // Not implemented.
   void operator=(const vtkLightingPainter&); // Not implemented.
 };
 
 #endif
-

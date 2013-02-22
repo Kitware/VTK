@@ -55,8 +55,8 @@ int ArrayMatricizeArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
         }
       }
 
-    cout << "array source:\n";
-    vtkPrintCoordinateFormat(cout, array.GetPointer());
+    std::cout << "array source:\n";
+    vtkPrintCoordinateFormat(std::cout, array.GetPointer());
 
     // Create an array data object to hold it ...
     vtkSmartPointer<vtkArrayData> array_data = vtkSmartPointer<vtkArrayData>::New();
@@ -72,8 +72,8 @@ int ArrayMatricizeArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       matricize->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
     test_expression(matricized_array);
 
-    cout << "matricize output:\n";
-    vtkPrintCoordinateFormat(cout, matricized_array);
+    std::cout << "matricize output:\n";
+    vtkPrintCoordinateFormat(std::cout, matricized_array);
 
     test_expression(matricized_array->GetValue(vtkArrayCoordinates(0, 0)) == 0);
     test_expression(matricized_array->GetValue(vtkArrayCoordinates(0, 1)) == 1);
@@ -84,12 +84,12 @@ int ArrayMatricizeArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(matricized_array->GetValue(vtkArrayCoordinates(1, 2)) == 6);
     test_expression(matricized_array->GetValue(vtkArrayCoordinates(1, 3)) == 7);
 
-    return 0;
+    return EXIT_SUCCESS;
     }
   catch(std::exception& e)
     {
-    cout << e.what() << endl;
-    return 1;
+    std::cout << e.what() << std::endl;
+    return EXIT_FAILURE;
     }
 }
 

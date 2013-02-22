@@ -3,11 +3,14 @@
 import os
 import vtk
 from vtk.util.misc import vtkGetDataRoot
-VTK_DATA_ROOT = vtkGetDataRoot()
+from vtk.util.misc import vtkGetTempDir
 
-file0 = 'ugFile0.vtu'
-file1 = 'ugFile1.vtu'
-file2 = 'ugFile2.vtu'
+VTK_DATA_ROOT = vtkGetDataRoot()
+VTK_TEMP_DIR = vtkGetTempDir()
+
+file0 = VTK_TEMP_DIR + '/ugFile0.vtu'
+file1 = VTK_TEMP_DIR + '/ugFile1.vtu'
+file2 = VTK_TEMP_DIR + '/ugFile2.vtu'
 
 # read in some unstructured grid data
 ugReader = vtk.vtkUnstructuredGridReader()

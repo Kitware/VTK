@@ -1450,7 +1450,10 @@ void vtkGraph::RemoveVertexInternal(vtkIdType v, bool directed)
     }
 
   this->ForceOwnership();
-  this->BuildEdgeList(); // This function assumes the edge list is created.
+  if (!this->EdgeList)
+    {
+    this->BuildEdgeList();
+    }
 
   // Remove connected edges
   vtksys_stl::set<vtkIdType> edges;

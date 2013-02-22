@@ -20,8 +20,8 @@ import sys
 try:
     import numpy.core.numeric as numeric
 except ImportError:
-    print "This test requires Numeric Python: http://numpy.sf.net"
-    sys.exit(1)
+    print "WARNING: This test requires Numeric Python: http://numpy.sf.net"
+    sys.exit(0)
 
 import os
 import glob

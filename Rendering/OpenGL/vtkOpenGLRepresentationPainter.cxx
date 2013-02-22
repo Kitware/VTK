@@ -46,7 +46,6 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
   int rep = prop->GetRepresentation();
   int reset_needed = 0;
 
-
   GLenum face = GL_FRONT_AND_BACK;
 
   // If both front & back culling is on, will fall into backface culling.
