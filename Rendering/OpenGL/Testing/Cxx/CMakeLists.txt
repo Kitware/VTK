@@ -78,7 +78,6 @@ SET(RenderingTestsWithArguments
   )
 
 if(APPLE)
-  list(REMOVE_ITEM RenderingTestsWithArguments TestOffAxisStereo.cxx)
   list(REMOVE_ITEM RenderingTestsWithArguments TestShadowMapPass.cxx)
 endif()
 
