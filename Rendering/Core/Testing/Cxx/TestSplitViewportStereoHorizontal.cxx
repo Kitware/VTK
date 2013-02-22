@@ -17,7 +17,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkExtractEdges.h"
+#include "vtkConeSource.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -25,7 +25,6 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkConeSource.h"
 #include "vtkSphereSource.h"
 
 #include "vtkSmartPointer.h"
@@ -34,30 +33,25 @@
 
 int TestSplitViewportStereoHorizontal(int argc, char *argv[])
 {
-  double bottomLeft[3]  = {-2.0, -1.0, -1.0};
-  double bottomRight[3] = { 2.0, -1.0, -1.0};
-  double topRight[3]    = { 2.0,  1.0, -1.0};
+  double bottomLeft[3]  = {-1.0, -1.0, -10.0};
+  double bottomRight[3] = { 1.0, -1.0, -10.0};
+  double topRight[3]    = { 1.0,  1.0, -10.0};
 
   VTK_CREATE(vtkSphereSource, sphere1);
-  sphere1->SetCenter(0.0, 0.0, -5.0);
-  sphere1->SetRadius(15.0);
-  sphere1->SetThetaResolution(40);
-  sphere1->SetPhiResolution(40);
-
-  VTK_CREATE(vtkExtractEdges, edges);
-  edges->SetInputConnection(sphere1->GetOutputPort());
+  sphere1->SetCenter(0.2, 0.0, -7.0);
+  sphere1->SetRadius(0.5);
+  sphere1->SetThetaResolution(100);
+  sphere1->SetPhiResolution(100);
 
   VTK_CREATE(vtkPolyDataMapper, mapper1);
-  mapper1->SetInputConnection(edges->GetOutputPort());
+  mapper1->SetInputConnection(sphere1->GetOutputPort());
 
   VTK_CREATE(vtkActor, actor1);
   actor1->SetMapper(mapper1);
-  actor1->GetProperty()->SetAmbient(1.0);
-  actor1->GetProperty()->SetDiffuse(0.0);
   actor1->GetProperty()->SetColor(0.8, 0.8, 0.0);
 
   VTK_CREATE(vtkConeSource, cone1);
-  cone1->SetCenter(0.0, 0.0, -5.0);
+  cone1->SetCenter(0.0, 0.0, -6.0);
   cone1->SetResolution(100);
 
   VTK_CREATE(vtkPolyDataMapper, mapper2);
@@ -82,7 +76,7 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
 
-  double eyePosition[3] = {0.0, 0.0, 5.0};
+  double eyePosition[3] = {0.0, 0.0, 2.0};
 
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetScreenBottomLeft(bottomLeft);
@@ -97,6 +91,7 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   camera->SetViewAngle(30.0);
 
   renwin->Render();
+
 
   int retVal = vtkRegressionTestImageThreshold(renwin, 25);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
