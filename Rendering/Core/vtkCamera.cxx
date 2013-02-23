@@ -1270,28 +1270,28 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
     }
 
   this->EyeTransformMatrix = source->EyeTransformMatrix;
-  if (this->EyeTransformMatrix !=0)
-  {
+  if (this->EyeTransformMatrix!=0)
+    {
     this->EyeTransformMatrix->Register(this);
-  }
+    }
 
   this->WorldToScreenMatrix = source->WorldToScreenMatrix;
-  if (this->WorldToScreenMatrix != 0)
-  {
+  if (this->WorldToScreenMatrix!=0)
+    {
     this->WorldToScreenMatrix->Register(this);
-  }
+    }
 
   this->ModelTransformMatrix = source->ModelTransformMatrix;
-  if (this->ModelTransformMatrix != 0)
-  {
+  if (this->ModelTransformMatrix!=0)
+    {
     this->ModelTransformMatrix->Register(this);
-  }
+    }
 
   this->ModelViewTransform = source->ModelViewTransform;
-  if (this->ModelViewTransform != 0)
-  {
+  if (this->ModelViewTransform!=0)
+    {
     this->ModelViewTransform->Register(this);
-  }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -1324,7 +1324,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkHomogeneousTransform *>(
           source->UserTransform->MakeTransform());
       }
-     this->UserTransform->DeepCopy(source->UserTransform);
+    this->UserTransform->DeepCopy(source->UserTransform);
     }
 
   if(source->UserViewTransform==0)
@@ -1343,7 +1343,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkHomogeneousTransform *>(
           source->UserViewTransform->MakeTransform());
       }
-     this->UserViewTransform->DeepCopy(source->UserViewTransform);
+    this->UserViewTransform->DeepCopy(source->UserViewTransform);
     }
 
   if(source->ViewTransform==0)
@@ -1362,7 +1362,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkTransform *>(
           source->ViewTransform->MakeTransform());
       }
-     this->ViewTransform->DeepCopy(source->ViewTransform);
+    this->ViewTransform->DeepCopy(source->ViewTransform);
     }
 
   if(source->ProjectionTransform==0)
@@ -1381,7 +1381,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkPerspectiveTransform *>(
           source->ProjectionTransform->MakeTransform());
       }
-     this->ProjectionTransform->DeepCopy(source->ProjectionTransform);
+    this->ProjectionTransform->DeepCopy(source->ProjectionTransform);
     }
 
   if(source->Transform==0)
@@ -1400,7 +1400,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkPerspectiveTransform *>(
           source->Transform->MakeTransform());
       }
-     this->Transform->DeepCopy(source->Transform);
+    this->Transform->DeepCopy(source->Transform);
     }
 
   if(source->CameraLightTransform==0)
@@ -1419,7 +1419,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkTransform *>(
           source->CameraLightTransform->MakeTransform());
       }
-     this->CameraLightTransform->DeepCopy(source->CameraLightTransform);
+    this->CameraLightTransform->DeepCopy(source->CameraLightTransform);
     }
 
   if(source->ModelViewTransform==0)
@@ -1438,7 +1438,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkTransform *>(
           source->ModelViewTransform->MakeTransform());
       }
-     this->ModelViewTransform->DeepCopy(source->ModelViewTransform);
+    this->ModelViewTransform->DeepCopy(source->ModelViewTransform);
     }
 
   if(source->ModelTransformMatrix == 0)
@@ -1457,7 +1457,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkMatrix4x4 *>(
           source->ModelTransformMatrix->NewInstance());
       }
-     this->ModelTransformMatrix->DeepCopy(source->ModelTransformMatrix);
+    this->ModelTransformMatrix->DeepCopy(source->ModelTransformMatrix);
     }
 
   if(source->EyeTransformMatrix == 0)
@@ -1476,9 +1476,8 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkMatrix4x4 *>(
           source->EyeTransformMatrix->NewInstance());
       }
-     this->EyeTransformMatrix->DeepCopy(source->EyeTransformMatrix);
+    this->EyeTransformMatrix->DeepCopy(source->EyeTransformMatrix);
     }
-
 
   if(source->WorldToScreenMatrix == 0)
     {
@@ -1496,7 +1495,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkMatrix4x4 *>(
           source->WorldToScreenMatrix->NewInstance());
       }
-     this->WorldToScreenMatrix->DeepCopy(source->WorldToScreenMatrix);
+    this->WorldToScreenMatrix->DeepCopy(source->WorldToScreenMatrix);
     }
 }
 
