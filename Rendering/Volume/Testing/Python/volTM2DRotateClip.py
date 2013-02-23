@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import time
 import vtk
 from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
@@ -118,8 +117,5 @@ while i < 5:
     sphereActor.RotateY(17)
     renWin.Render()
     i = i + 1
-
-# force a wait for hardware to finish rendering
-time.sleep(1)
 
 # --- end of script --
