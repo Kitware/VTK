@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 
 # Simple volume rendering example.
 reader = vtk.vtkSLCReader()
@@ -74,13 +75,8 @@ culler = ren1.GetCullers().GetNextItem()
 culler.SetSortingStyleToBackToFront()
 valid = volumeMapper_0_0.IsRenderSupported(volumeProperty,ren1)
 if (valid == 0):
-    ren1.RemoveAllViewProps()
-    t = vtk.vtkTextActor()
-    t.SetInput("Required Extensions Not Supported")
-    t.SetDisplayPosition(300,150)
-    t.GetTextProperty().SetJustificationToCentered()
-    ren1.AddViewProp(t)
-    pass
+    print "Required Extensions Not Supported"
+    sys.exit(0)
 ren1.ResetCamera()
 ren1.GetActiveCamera().Zoom(3.0)
 renWin.Render()
