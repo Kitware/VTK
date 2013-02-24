@@ -80,7 +80,7 @@ while i < 2:
         j = j + 1
 
     i = i + 1
-
+renWin.Render()
 # render the image
 #
 # prevent the tk window from showing up then start the event loop
