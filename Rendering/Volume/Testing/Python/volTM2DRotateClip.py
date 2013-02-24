@@ -117,5 +117,6 @@ while i < 5:
     sphereActor.RotateY(17)
     renWin.Render()
     i = i + 1
+renWin.Render()
 
 # --- end of script --

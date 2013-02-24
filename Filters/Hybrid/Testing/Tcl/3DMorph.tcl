@@ -89,7 +89,7 @@ for {set i 0} {$i < 2} {incr i} {
       renWin Render
    }
 }
-
+renWin Render
 
 # render the image
 #
