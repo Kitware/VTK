@@ -281,3 +281,63 @@ vtkObjectFactory* vtkLoad()                     \
 {                                               \
   return factoryName ::New();                   \
 }
+
+// Macro to implement the body of the object factory form of the New() method.
+#define VTK_OBJECT_FACTORY_NEW_BODY(thisClass) \
+  vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass); \
+  if(ret) \
+    { \
+    return static_cast<thisClass*>(ret); \
+    } \
+  return new thisClass;
+
+// Macro to implement the body of the abstract object factory form of the New()
+// method, i.e. an abstract base class that can only be instantiated if the
+// object factory overrides it.
+#define VTK_ABSTRACT_OBJECT_FACTORY_NEW_BODY(thisClass) \
+  vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass); \
+  if(ret) \
+    { \
+    return static_cast<thisClass*>(ret); \
+    } \
+  vtkGenericWarningMacro("Error: no override found for '" #thisClass "'."); \
+  return NULL;
+
+// Macro to implement the body of the standard form of the New() method.
+#if defined(VTK_ALL_NEW_OBJECT_FACTORY)
+# define VTK_STANDARD_NEW_BODY(thisClass) \
+  VTK_OBJECT_FACTORY_NEW_BODY(thisClass)
+#elif defined(VTK_DEBUG_LEAKS)
+# define VTK_STANDARD_NEW_BODY(thisClass) \
+  vtkObjectFactory::ConstructInstance(#thisClass); \
+  return new thisClass;
+#else
+# define VTK_STANDARD_NEW_BODY(thisClass) \
+  return new thisClass;
+#endif
+
+// Macro to implement the standard form of the New() method.
+#define vtkStandardNewMacro(thisClass) \
+  thisClass* thisClass::New() \
+  { \
+  VTK_STANDARD_NEW_BODY(thisClass) \
+  } \
+  vtkInstantiatorNewMacro(thisClass)
+
+// Macro to implement the object factory form of the New() method.
+#define vtkObjectFactoryNewMacro(thisClass) \
+  thisClass* thisClass::New() \
+  { \
+  VTK_OBJECT_FACTORY_NEW_BODY(thisClass) \
+  } \
+  vtkInstantiatorNewMacro(thisClass)
+
+// Macro to implement the abstract object factory form of the New() method.
+// That is an abstract base class that can only be instantiated if the
+// object factory overrides it.
+#define vtkAbstractObjectFactoryNewMacro(thisClass) \
+  thisClass* thisClass::New() \
+  { \
+  VTK_ABSTRACT_OBJECT_FACTORY_NEW_BODY(thisClass) \
+  } \
+  vtkInstantiatorNewMacro(thisClass)
