@@ -129,29 +129,6 @@ IF(VTK_SIZEOF___INT64)
   ENDIF(NOT VTK_TYPE_SAME_LONG_AND___INT64)
 ENDIF(VTK_SIZEOF___INT64)
 
-IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
-  MESSAGE(STATUS "Checking support for C++ type bool")
-  TRY_COMPILE(VTK_COMPILER_HAS_BOOL
-              ${VTK_BINARY_DIR}/CMakeTmp/Bool
-              ${VTK_CMAKE_DIR}/vtkTestBoolType.cxx
-              OUTPUT_VARIABLE OUTPUT)
-  IF(VTK_COMPILER_HAS_BOOL)
-    MESSAGE(STATUS "Checking support for C++ type bool -- yes")
-    SET(VTK_COMPILER_HAS_BOOL 1 CACHE INTERNAL "Support for C++ type bool")
-    FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
-      "Determining if the C++ compiler supports type bool "
-      "passed with the following output:\n"
-      "${OUTPUT}\n")
-  ELSE(VTK_COMPILER_HAS_BOOL)
-    MESSAGE(STATUS "Checking support for C++ type bool -- no")
-    SET(VTK_COMPILER_HAS_BOOL 0 CACHE INTERNAL "Support for C++ type bool")
-    FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
-      "Determining if the C++ compiler supports type bool "
-      "failed with the following output:\n"
-      "${OUTPUT}\n")
-  ENDIF(VTK_COMPILER_HAS_BOOL)
-ENDIF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
-
 IF("VTK_TYPE_CHAR_IS_SIGNED" MATCHES "^VTK_TYPE_CHAR_IS_SIGNED$")
   MESSAGE(STATUS "Checking signedness of char")
   TRY_RUN(VTK_TYPE_CHAR_IS_SIGNED VTK_TYPE_CHAR_IS_SIGNED_COMPILED
