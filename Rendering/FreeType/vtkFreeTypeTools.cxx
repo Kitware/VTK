@@ -1007,11 +1007,6 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
     return false;
     }
 
-  if (str.empty())
-    {
-    return false;
-    }
-
   ImageMetaData metaData;
 
   // Setup the metadata cache
