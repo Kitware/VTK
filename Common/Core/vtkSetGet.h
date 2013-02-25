@@ -658,6 +658,7 @@ virtual double *Get##name() \
     { \
     return static_cast<thisClass*>(ret); \
     } \
+  vtkGenericWarningMacro("Error: no override found for '" #thisClass "'."); \
   return NULL;
 
 // Macro to implement the body of the standard form of the New() method.
