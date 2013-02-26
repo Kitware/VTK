@@ -49,7 +49,7 @@ template<typename CellTypeToTypeDef> struct DataSetTypeToType<CellTypeToTypeDef,
   typedef CellTypeToTypeDef CellTypeToType;
   typedef typename CellTypeToTypeDef::DaxCellType DaxCellType;
   enum {VTKDataSetType=VTK_IMAGE_DATA};
-  enum {Valid=CellTypeAndDataType<VTK_IMAGE_DATA,CellTypeToTypeDef::VTKCellType>::Valid};
+  enum {Valid=(CellTypeAndDataType<VTK_IMAGE_DATA,CellTypeToTypeDef::VTKCellType>::Valid)};
   typedef dax::cont::UniformGrid<> DaxDataSetType;
 };
 
@@ -58,7 +58,7 @@ template<typename CellTypeToTypeDef> struct DataSetTypeToType<CellTypeToTypeDef,
   typedef CellTypeToTypeDef CellTypeToType;
   typedef typename CellTypeToTypeDef::DaxCellType DaxCellType;
   enum {VTKDataSetType=VTK_UNIFORM_GRID};
-  enum {Valid=CellTypeAndDataType<VTK_UNIFORM_GRID,CellTypeToTypeDef::VTKCellType>::Valid};
+  enum {Valid=(CellTypeAndDataType<VTK_UNIFORM_GRID,CellTypeToTypeDef::VTKCellType>::Valid)};
   typedef dax::cont::UniformGrid<> DaxDataSetType;
 };
 
@@ -67,7 +67,7 @@ template<typename CellTypeToTypeDef> struct DataSetTypeToType<CellTypeToTypeDef,
   typedef CellTypeToTypeDef CellTypeToType;
   typedef typename CellTypeToTypeDef::DaxCellType DaxCellType;
   enum {VTKDataSetType=VTK_UNSTRUCTURED_GRID};
-  enum {Valid=CellTypeAndDataType<VTK_UNSTRUCTURED_GRID,CellTypeToTypeDef::VTKCellType>::Valid};
+  enum {Valid=(CellTypeAndDataType<VTK_UNSTRUCTURED_GRID,CellTypeToTypeDef::VTKCellType>::Valid)};
   typedef dax::cont::UnstructuredGrid<DaxCellType,
           vtkToDax::vtkTopologyContainerTag<CellTypeToType>,
           vtkToDax::vtkPointsContainerTag>
