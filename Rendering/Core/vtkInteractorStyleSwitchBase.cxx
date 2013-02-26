@@ -25,6 +25,8 @@ vtkObjectFactoryNewMacro(vtkInteractorStyleSwitchBase)
 //----------------------------------------------------------------------------
 vtkInteractorStyleSwitchBase::vtkInteractorStyleSwitchBase()
 {
+  vtkWarningMacro(
+    "Warning: Link to vtkInteractionStyle for default style selection.");
 }
 
 //----------------------------------------------------------------------------
