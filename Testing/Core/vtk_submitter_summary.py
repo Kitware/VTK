@@ -105,22 +105,22 @@ def scrape_cdash(date):
     key = sitename + " " + buildname
     if not(key in configs):
       configs[key] = {}
-      #grab renderer string
-      try:
-        result = re.search('GL_RENDERER=(.+)', testresponse).group(1)
-        configs[key]['GL_RENDERER'] = result
-        result = re.search('GL_VENDOR=(.+)', testresponse).group(1)
-        configs[key]['GL_VENDOR'] = result
-        result = re.search('GL_VERSION=(.+)', testresponse).group(1)
-        configs[key]['GL_VERSION'] = result
-        #print configs[key]['GL_VENDOR']
-        #print configs[key]['GL_RENDERER']
-        #print configs[key]['GL_VERSION']
-      except (AttributeError,SyntaxError):
-        print "GPU info not found on this dashboard"
-        #configs[key]['GL_RENDERER'] = "unknown"
-        #configs[key]['GL_VENDOR'] = "unknown"
-        #configs[key]['GL_VERSION'] = "unknown"
+    #grab renderer string
+    try:
+      result = re.search('GL_RENDERER=(.+)', testresponse).group(1)
+      configs[key]['GL_RENDERER'] = result
+      result = re.search('GL_VENDOR=(.+)', testresponse).group(1)
+      configs[key]['GL_VENDOR'] = result
+      result = re.search('GL_VERSION=(.+)', testresponse).group(1)
+      configs[key]['GL_VERSION'] = result
+      #print configs[key]['GL_VENDOR']
+      #print configs[key]['GL_RENDERER']
+      #print configs[key]['GL_VERSION']
+    except (AttributeError,SyntaxError):
+      print "GPU info not found on this dashboard"
+      #configs[key]['GL_RENDERER'] = "unknown"
+      #configs[key]['GL_VENDOR'] = "unknown"
+      #configs[key]['GL_VERSION'] = "unknown"
 
   #print configs
   print "done scraping"
