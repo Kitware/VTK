@@ -44,7 +44,6 @@ namespace daxToVtk
 template<typename CellType>
 void writeCellTags(vtkCellArray *cell)
 {
-  vtkIdType npts,*pts;
   //in no place do we in dax write the number of points are in the cell
   //we don't want to that in the allocator. If the allocator does it
   //we create an affinity between the thread the allocator is on and

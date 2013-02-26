@@ -80,8 +80,8 @@ namespace vtkToDax
         dax::cont::ArrayHandle<ValueType,Container2,Adapter> &thresholdResult)
       {
       int result=1;
-      try{
-
+      try
+        {
         typedef dax::cont::ScheduleGenerateTopology<dax::worklet::ThresholdTopology,Adapter> ScheduleGT;
         typedef typename ScheduleGT::ClassifyResultType  ClassifyResultType;
         typedef dax::worklet::ThresholdClassify<ValueType> ThresholdClassifyType;
@@ -96,8 +96,18 @@ namespace vtkToDax
         scheduler.Invoke(resolveTopology,inGrid,outGeom);
         resolveTopology.CompactPointField(thresholdHandle,thresholdResult);
       }
-
-      catch(...){result=0; }
+      catch(dax::cont::ErrorControlOutOfMemory error)
+        {
+        std::cerr << "Ran out of memory trying to use the GPU" << std::endl;
+        std::cerr << error.GetMessage() << std::endl;
+        result = 0;
+        }
+      catch(dax::cont::ErrorExecution error)
+        {
+        std::cerr << "Got ErrorExecution from Dax." << std::endl;
+        std::cerr << error.GetMessage() << std::endl;
+        result = 0;
+        }
       return result;
       }
   };

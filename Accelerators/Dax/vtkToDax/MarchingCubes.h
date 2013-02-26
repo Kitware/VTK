@@ -81,8 +81,8 @@ namespace vtkToDax
 
       dax::Scalar isoValueT(isoValue);
 
-      try {
-
+      try
+        {
         typedef dax::cont::ScheduleGenerateTopology
           <dax::worklet::MarchingCubesTopology,Adapter> ScheduleGT;
         typedef typename ScheduleGT::ClassifyResultType  ClassifyResultType;
@@ -113,9 +113,20 @@ namespace vtkToDax
                          outGeom,
                          mcHandle,
                          inGrid.GetPointCoordinates(),
-                         mcResult);      }
-
-      catch(...){result=0; }
+                         mcResult);
+        }
+      catch(dax::cont::ErrorControlOutOfMemory error)
+        {
+        std::cerr << "Ran out of memory trying to use the GPU" << std::endl;
+        std::cerr << error.GetMessage() << std::endl;
+        result = 0;
+        }
+      catch(dax::cont::ErrorExecution error)
+        {
+        std::cerr << "Got ErrorExecution from Dax." << std::endl;
+        std::cerr << error.GetMessage() << std::endl;
+        result = 0;
+        }
       return result;
       }
   };
