@@ -469,10 +469,11 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
         if (xy && active)
           {
           vtkAxis *a = active->GetAxis(vtkAxis::BOTTOM);
-          xy->GetAxis(vtkAxis::TOP)->SetRange(a->GetMinimum(), a->GetMaximum());
+          xy->GetAxis(vtkAxis::TOP)->SetUnscaledRange(
+            a->GetUnscaledMinimum(), a->GetUnscaledMaximum());
           a = active->GetAxis(vtkAxis::LEFT);
-          xy->GetAxis(vtkAxis::RIGHT)->SetRange(a->GetMinimum(),
-                                                a->GetMaximum());
+          xy->GetAxis(vtkAxis::RIGHT)->SetUnscaledRange(
+            a->GetUnscaledMinimum(), a->GetUnscaledMaximum());
           }
         }
       else
@@ -696,7 +697,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     for (int i = 0; i < 3; ++i)
       {
       PIMPL::ColumnSetting &settings = this->Private->ColumnSettings[names[i]];
-      chart->GetAxis(i)->SetRange(settings.min, settings.max);
+      chart->GetAxis(i)->SetUnscaledRange(settings.min, settings.max);
       }
     chart->RecalculateTransform();
     this->GetScene()->SetDirty(true);
@@ -1302,10 +1303,10 @@ void vtkScatterPlotMatrix::UpdateAxes()
       // Apply a little padding either side of the ranges.
       range[0] = range[0] - (0.01 * range[0]);
       range[1] = range[1] + (0.01 * range[1]);
-      axis->SetRange(range);
+      axis->SetUnscaledRange(range);
       axis->AutoScale();
-      settings.min = axis->GetMinimum();
-      settings.max = axis->GetMaximum();
+      settings.min = axis->GetUnscaledMinimum();
+      settings.max = axis->GetUnscaledMaximum();
       settings.nTicks = axis->GetNumberOfTicks();
       settings.title = name;
       this->Private->ColumnSettings[name] = settings;
@@ -1336,16 +1337,16 @@ void vtkScatterPlotMatrix::ApplyAxisSetting(vtkChart *chart,
   PIMPL::ColumnSetting &xSettings = this->Private->ColumnSettings[x];
   PIMPL::ColumnSetting &ySettings = this->Private->ColumnSettings[y];
   vtkAxis *axis = chart->GetAxis(vtkAxis::BOTTOM);
-  axis->SetRange(xSettings.min, xSettings.max);
+  axis->SetUnscaledRange(xSettings.min, xSettings.max);
   axis->SetBehavior(vtkAxis::FIXED);
   axis = chart->GetAxis(vtkAxis::TOP);
-  axis->SetRange(xSettings.min, xSettings.max);
+  axis->SetUnscaledRange(xSettings.min, xSettings.max);
   axis->SetBehavior(vtkAxis::FIXED);
   axis = chart->GetAxis(vtkAxis::LEFT);
-  axis->SetRange(ySettings.min, ySettings.max);
+  axis->SetUnscaledRange(ySettings.min, ySettings.max);
   axis->SetBehavior(vtkAxis::FIXED);
   axis = chart->GetAxis(vtkAxis::RIGHT);
-  axis->SetRange(ySettings.min, ySettings.max);
+  axis->SetUnscaledRange(ySettings.min, ySettings.max);
   axis->SetBehavior(vtkAxis::FIXED);
 }
 
@@ -1499,16 +1500,26 @@ void vtkScatterPlotMatrix::AxisRangeForwarderCallback(vtkObject*,
   int n = this->GetSize().GetX() - 1;
   for (int i = 0; i < n; ++i)
     {
-    this->GetChart(vtkVector2i(i, 0))->GetAxis(vtkAxis::BOTTOM)->GetRange(r);
+    this->GetChart(vtkVector2i(i, 0))
+      ->GetAxis(vtkAxis::BOTTOM)
+      ->GetUnscaledRange(r);
     for (int j = 1; j < n - i; ++j)
       {
-      this->GetChart(vtkVector2i(i, j))->GetAxis(vtkAxis::BOTTOM)->SetRange(r);
+      this->GetChart(vtkVector2i(i, j))
+        ->GetAxis(vtkAxis::BOTTOM)
+        ->SetUnscaledRange(r);
       }
-    this->GetChart(vtkVector2i(i, n-i))->GetAxis(vtkAxis::TOP)->SetRange(r);
-    this->GetChart(vtkVector2i(0, i))->GetAxis(vtkAxis::LEFT)->GetRange(r);
+    this->GetChart(vtkVector2i(i, n-i))
+      ->GetAxis(vtkAxis::TOP)
+      ->SetUnscaledRange(r);
+    this->GetChart(vtkVector2i(0, i))
+      ->GetAxis(vtkAxis::LEFT)
+      ->GetUnscaledRange(r);
     for (int j = 1; j < n - i; ++j)
       {
-      this->GetChart(vtkVector2i(j, i))->GetAxis(vtkAxis::LEFT)->SetRange(r);
+      this->GetChart(vtkVector2i(j, i))
+        ->GetAxis(vtkAxis::LEFT)
+        ->SetUnscaledRange(r);
       }
     }
 }

@@ -168,8 +168,8 @@ class vtkPlotStackedSegment : public vtkObject {
         return;
         }
 
-      bool logX = xAxis->GetLogScale();
-      bool logY = yAxis->GetLogScale();
+      bool logX = xAxis->GetLogScaleActive();
+      bool logY = yAxis->GetLogScaleActive();
 
       float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
 
@@ -615,10 +615,10 @@ void vtkPlotStacked::Update()
     this->UpdateTableCache(table);
     }
   else if ((this->XAxis && this->XAxis->GetMTime() > this->BuildTime) ||
-           (this->YAxis && this->YAxis->GetMaximum() > this->BuildTime))
+           (this->YAxis && this->YAxis->GetMTime() > this->BuildTime))
     {
-    if (this->LogX != this->XAxis->GetLogScale() ||
-        this->LogY != this->YAxis->GetLogScale())
+    if (this->LogX != this->XAxis->GetLogScaleActive() ||
+        this->LogY != this->YAxis->GetLogScaleActive())
       {
       this->UpdateTableCache(table);
       }
@@ -781,8 +781,8 @@ bool vtkPlotStacked::UpdateTableCache(vtkTable *table)
     }
 
   // Record if this update was done with Log scale.
-  this->LogX = this->XAxis ? this->XAxis->GetLogScale(): false;
-  this->LogY = this->YAxis ? this->YAxis->GetLogScale(): false;
+  this->LogX = this->XAxis ? this->XAxis->GetLogScaleActive(): false;
+  this->LogY = this->YAxis ? this->YAxis->GetLogScaleActive(): false;
 
   this->BuildTime.Modified();
   return true;

@@ -576,23 +576,43 @@ void vtkPlotPoints::CalculateLogSeries()
     {
     return;
     }
-  this->LogX = this->XAxis->GetLogScale();
-  this->LogY = this->YAxis->GetLogScale();
+  this->LogX = this->XAxis->GetLogScaleActive();
+  this->LogY = this->YAxis->GetLogScaleActive();
   float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
   vtkIdType n = this->Points->GetNumberOfPoints();
   if (this->LogX)
     {
-    for (vtkIdType i = 0; i < n; ++i)
+    if (this->XAxis->GetUnscaledMinimum() < 0.)
       {
-      data[2*i] = log10(data[2*i]);
+      for (vtkIdType i = 0; i < n; ++i)
+        {
+        data[2*i] = log10(fabs(data[2*i]));
+        }
+      }
+    else
+      {
+      for (vtkIdType i = 0; i < n; ++i)
+        {
+        data[2*i] = log10(data[2*i]);
+        }
       }
     }
   if (this->LogY)
     {
-    for (vtkIdType i = 0; i < n; ++i)
-    {
-    data[2*i+1] = log10(data[2*i+1]);
-    }
+    if (this->YAxis->GetUnscaledMinimum() < 0.)
+      {
+      for (vtkIdType i = 0; i < n; ++i)
+        {
+        data[2*i+1] = log10(fabs(data[2*i+1]));
+        }
+      }
+    else
+      {
+      for (vtkIdType i = 0; i < n; ++i)
+        {
+        data[2*i+1] = log10(data[2*i+1]);
+        }
+      }
   }
 }
 
@@ -698,6 +718,10 @@ void vtkPlotPoints::CalculateBounds(double bounds[4])
       }
     // Now figure out the next range
     start = end + 1;
+    while (i < nBad && start == this->BadPoints->GetValue(i))
+      {
+      start = this->BadPoints->GetValue(i++) + 1;
+      }
     if (++i < nBad)
       {
       end = this->BadPoints->GetValue(i);

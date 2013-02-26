@@ -355,11 +355,11 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
           axis->SetCustomTickPositions(arr, strings);
           if (strings->GetNumberOfTuples() > 1)
             {
-            axis->SetRange(0.0, strings->GetNumberOfTuples()-1);
+            axis->SetUnscaledRange(0.0, strings->GetNumberOfTuples()-1);
             }
           else
             {
-            axis->SetRange(-0.1, 0.1);
+            axis->SetUnscaledRange(-0.1, 0.1);
             }
           axis->Update();
           }
@@ -373,8 +373,8 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
       }
 
     // Also need the range from the appropriate axis, to normalize points
-    float min = axis->GetMinimum();
-    float max = axis->GetMaximum();
+    float min = axis->GetUnscaledMinimum();
+    float max = axis->GetUnscaledMaximum();
     float scale = 1.0f / (max - min);
 
     for (vtkIdType j = 0; j < rows; ++j)
