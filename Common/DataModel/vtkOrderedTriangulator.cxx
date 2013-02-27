@@ -1222,7 +1222,7 @@ void vtkOrderedTriangulator::TemplateTriangulate(int cellType,
                                                  int numPts, int numEdges)
 {
   this->CellType = cellType;
-  if ( ! this->UseTemplates )
+  if ( ! this->UseTemplates || cellType != VTK_HEXAHEDRON)
     {
     this->Triangulate();
     return;
