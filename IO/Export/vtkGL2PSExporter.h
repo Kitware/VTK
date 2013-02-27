@@ -78,9 +78,12 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
+#include "vtkNew.h" // For vtkNew
+
 class vtkActor2D;
 class vtkCollection;
 class vtkCoordinate;
+class vtkImageData;
 class vtkIntArray;
 class vtkMathTextActor;
 class vtkMathTextActor3D;
@@ -331,8 +334,7 @@ protected:
   int Write3DPropsAsRasterImage;
   bool TextAsPath;
 
-  float *PixelData;
-  int PixelDataSize[2];
+  vtkNew<vtkImageData> PixelData;
 
 private:
   vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented
