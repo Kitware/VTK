@@ -88,6 +88,8 @@ if(WIN32 AND NOT VTK_USE_X)
     )
 endif()
 
+include_directories(${OPENGL_INCLUDE_DIR})
+
 if(VTK_DATA_ROOT)
   set(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}
