@@ -45,6 +45,7 @@ int TestGDALVectorReader(int argc, char** argv)
   // Create reader to read shape file.
   vtkNew<vtkGDALVectorReader> reader;
   reader->SetFileName(vectorFileName);
+  delete [] vectorFileName;
   reader->Update();
 
   // We need a renderer
