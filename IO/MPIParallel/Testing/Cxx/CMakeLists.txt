@@ -1,4 +1,4 @@
-if (VTK_LARGE_DATA_ROOT)
+if (VTK_LARGE_DATA_ROOT AND NOT CMAKE_WORDS_BIGENDIAN)
   find_package(MPI REQUIRED)
   include_directories(${MPI_INCLUDE_PATH})
   vtk_module_test_executable(${vtk-module}CxxTests TestPWindBladeReader.cxx)
