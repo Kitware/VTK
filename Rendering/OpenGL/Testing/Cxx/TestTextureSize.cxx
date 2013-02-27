@@ -57,7 +57,7 @@ vtkImageData* createTexture2D(int width, int height, int comp)
       {
       for (int c = 0; c < comp; ++c)
         {
-        *ptr++ = static_cast<char>(value);
+        *ptr++ = static_cast<unsigned char>(value);
         }
       value += valueIncr;
       }
