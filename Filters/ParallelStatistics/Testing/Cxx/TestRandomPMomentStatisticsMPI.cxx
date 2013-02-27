@@ -566,6 +566,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Set parameters for autocorrelation of whole data set with respect to itself
     pas->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramTable );
+    paramTable->Delete();
 
     // Test (in parallel) with Learn, Derive operations turned on
     pas->SetLearnOption( true );
