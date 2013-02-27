@@ -6,12 +6,12 @@ newalpha         crlf=input
 newversion       crlf=input
 pre-commit       crlf=input
 
-*.c              whitespace=tab-in-indent,-blank-at-eol
-*.h              whitespace=tab-in-indent,-blank-at-eol
-*.cxx            whitespace=tab-in-indent,-blank-at-eol
-*.hxx            whitespace=tab-in-indent,-blank-at-eol
-*.txx            whitespace=tab-in-indent,-blank-at-eol
-*.txt            whitespace=tab-in-indent,-blank-at-eol
-*.cmake          whitespace=tab-in-indent,-blank-at-eol
+*.c              whitespace=tab-in-indent
+*.h              whitespace=tab-in-indent
+*.cxx            whitespace=tab-in-indent
+*.hxx            whitespace=tab-in-indent
+*.txx            whitespace=tab-in-indent
+*.txt            whitespace=tab-in-indent
+*.cmake          whitespace=tab-in-indent
 
 /ThirdParty/sqlite/vtksqlite/vtk_sqlite3.c hooks.MaxObjectKiB=4096
