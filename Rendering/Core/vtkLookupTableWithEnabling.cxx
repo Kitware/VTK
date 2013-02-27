@@ -94,6 +94,11 @@ void vtkLookupTableWithEnablingLogRange(double range[2], double logRange[2])
     logRange[0] = log10(static_cast<double>(rmin));
     logRange[1] = log10(static_cast<double>(rmax));
     }
+  else
+    {
+    logRange[0] = 0.;
+    logRange[1] = 0.;
+    }
 }
 
 //----------------------------------------------------------------------------
