@@ -225,8 +225,6 @@ void vtkOOGLExporter::WriteData()
       }
     }
 
-  VTK_INDENT_LESS;
-
   fclose(fp);
 }
 
