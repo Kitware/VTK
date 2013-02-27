@@ -521,6 +521,7 @@ int TestSeedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   ren1->AddActor(actor);
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(300, 300);
+  renWin->SetMultiSamples(0);
 
   // record events
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =
