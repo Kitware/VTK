@@ -186,6 +186,10 @@ int vtkWindBladeReader::ProcessRequest(vtkInformation* reqInfo,
                                        vtkInformationVector** inputVector,
                                        vtkInformationVector* outputVector)
 {
+#ifdef VTK_WORDS_BIGENDIAN
+  vtkWarningMacro
+  ("Warning WindBlade reader does not yet work on big endian processors")
+#endif
   if(reqInfo->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
     {
     int port = reqInfo->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());

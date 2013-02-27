@@ -27,7 +27,7 @@ foreach(test ${TestsToRun})
   endif()
 endforeach()
 
-if(VTK_LARGE_DATA_ROOT)
+if(VTK_LARGE_DATA_ROOT AND NOT CMAKE_WORDS_BIGENDIAN)
   add_test(NAME ${vtk-module}Cxx-TestWindBladeReader
     COMMAND ${vtk-module}CxxTests TestWindBladeReader
     -D ${VTK_LARGE_DATA_ROOT}
