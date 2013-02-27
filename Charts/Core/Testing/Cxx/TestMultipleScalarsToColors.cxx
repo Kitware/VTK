@@ -26,8 +26,6 @@
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkLookupTableItem.h"
-#include "vtkOpenGLExtensionManager.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPiecewiseFunctionItem.h"
