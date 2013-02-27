@@ -315,7 +315,7 @@ void vtkPointHandleRepresentation2D::CreateDefaultProperties()
 {
   this->Property = vtkProperty2D::New();
   this->Property->SetColor(1.0,1.0,1.0);
-  this->Property->SetLineWidth(0.5);
+  this->Property->SetLineWidth(1.0);
 
   this->SelectedProperty = vtkProperty2D::New();
   this->SelectedProperty->SetColor(0.0,1.0,0.0);
