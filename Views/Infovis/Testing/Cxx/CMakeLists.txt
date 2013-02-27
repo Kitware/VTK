@@ -6,7 +6,6 @@ set(MyTests
   TestHeatmapOnly.cxx
   TestHierarchicalGraphView.cxx
   TestIcicleView.cxx
-  TestIconGlyphFilter.cxx
   TestInteractorStyleTreeMapHover.cxx
   TestNetworkViews.cxx
   TestRenderView.cxx
@@ -17,6 +16,10 @@ set(MyTests
   TestTreeRingView.cxx
   ${QtTests}
 )
+
+if( VTK_DATA_ROOT)
+  set(MyTests ${MyTests} TestIconGlyphFilter.cxx)
+endif()
 
 # Use the testing object factory, to reduce boilerplate code in tests.
 include(vtkTestingObjectFactory)

@@ -1,8 +1,15 @@
+# Tests with data
+if(VTK_DATA_ROOT)
+  set(NEEDS_DATA
+    TestArrayCalculator
+    )
+endif()
+
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  ${NEEDS_DATA}
   TestGhostArray.cxx
   # TestAppendPolyData.cxx
   TestAppendSelection.cxx
-  TestArrayCalculator.cxx
   TestAssignAttribute.cxx
   TestCellDataToPointData.cxx
   TestCenterOfMass.cxx
