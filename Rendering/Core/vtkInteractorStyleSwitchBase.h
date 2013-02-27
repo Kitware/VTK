@@ -36,6 +36,8 @@ public:
   vtkTypeMacro(vtkInteractorStyleSwitchBase, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  vtkRenderWindowInteractor* GetInteractor();
+
 protected:
   vtkInteractorStyleSwitchBase();
   ~vtkInteractorStyleSwitchBase();
