@@ -42,20 +42,20 @@ void lorenz(const float * varX, float * varXDerivative)
 } // end anonymous namespace
 
 //----------------------------------------------------------------------------
-int TestLinePlot3D( int, char * [] )
+int TestLinePlot3D(int, char * [])
 {
   // Create the data.
   vtkNew<vtkTable> varXSolution;
   vtkNew<vtkFloatArray> arrX0;
-  arrX0->SetName("X Axis");
+  arrX0->SetName("X");
   varXSolution->AddColumn(arrX0.GetPointer());
   vtkNew<vtkFloatArray> arrX1;
-  arrX1->SetName("Y Axis");
+  arrX1->SetName("Y");
   varXSolution->AddColumn(arrX1.GetPointer());
   vtkNew<vtkFloatArray> arrX2;
-  arrX2->SetName("Z Axis");
+  arrX2->SetName("Z");
   varXSolution->AddColumn(arrX2.GetPointer());
-  const unsigned int numberOfTimePoints = 10000;
+  const unsigned int numberOfTimePoints = 1000;
   varXSolution->SetNumberOfRows(numberOfTimePoints);
   float varX[3];
   varX[0] = 0.0f;
@@ -84,8 +84,7 @@ int TestLinePlot3D( int, char * [] )
   // Add a line plot.
   vtkNew<vtkPlotLine3D> plot;
   plot->SetInputData(varXSolution.GetPointer());
-  vtkPen * pen = plot->GetPen();
-  pen->SetColorF(0.1, 0.2, 0.8, 0.5);
+  plot->GetPen()->SetColorF(0.1, 0.2, 0.8, 1.0);
   chart->AddPlot(plot.GetPointer());
 
   // Finally render the scene and compare the image to a reference image.
