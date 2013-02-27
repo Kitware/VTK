@@ -73,7 +73,7 @@ if(GL2PSTests)
     if(${${TName}Error})
       set(_error_threshold ${${TName}Error})
     else()
-      set(_error_threshold 10)
+      set(_error_threshold 15)
     endif()
     # Image diff rasterized png with baseline
     add_test(NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
