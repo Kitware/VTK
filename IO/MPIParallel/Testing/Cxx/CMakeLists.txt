@@ -1,4 +1,11 @@
-if (VTK_LARGE_DATA_ROOT AND NOT VTK_WORDS_BIGENDIAN)
+set(_known_little_endian FALSE)
+if (DEFINED CMAKE_WORDS_BIGENDIAN)
+  if (NOT CMAKE_WORDS_BIGENDIAN)
+    set(_known_little_endian TRUE)
+  endif()
+endif()
+
+if (VTK_LARGE_DATA_ROOT AND _known_little_endian)
   find_package(MPI REQUIRED)
   include_directories(${MPI_INCLUDE_PATH})
   vtk_module_test_executable(${vtk-module}CxxTests TestPWindBladeReader.cxx)
