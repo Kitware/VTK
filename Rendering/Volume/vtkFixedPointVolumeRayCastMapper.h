@@ -21,6 +21,11 @@
 // calculation are performed in 15 bit fixed point precision. This mapper
 // is threaded, and will interleave scan lines across processors.
 //
+// WARNING: This ray caster may not produce consistent results when
+// the number of threads exceeds 1. The class warns if the number of
+// threads > 1. The differences may be subtle. Applications should decide
+// if the trade-off in performance is worth the lack of consistency.
+//
 // This mapper is a good replacement for vtkVolumeRayCastMapper EXCEPT:
 //   - it does not do isosurface ray casting
 //   - it does only interpolate before classify compositing
@@ -160,6 +165,7 @@ public:
   // Description:
   // Set/Get the number of threads to use. This by default is equal to
   // the number of available processors detected.
+  // WARNING: If number of threads > 1, results may not be consistent.
   void SetNumberOfThreads( int num );
   int GetNumberOfThreads();
 
@@ -500,6 +506,8 @@ protected:
 private:
   vtkFixedPointVolumeRayCastMapper(const vtkFixedPointVolumeRayCastMapper&);  // Not implemented.
   void operator=(const vtkFixedPointVolumeRayCastMapper&);  // Not implemented.
+
+  bool ThreadWarning;
 };
 
 
