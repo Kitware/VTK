@@ -1,5 +1,5 @@
 vtk_tests(BASELINEDIR Parallel PrmMagnify.cxx)
-add_test_mpi(TestClientServerRendering.cxx)
+vtk_module_test_executable(TestClientServerRendering TestClientServerRendering.cxx)
 add_test_mpi(TestDistributedDataCompositeZPass.cxx DATADIR ${VTK_DATA_ROOT})
 add_test_mpi(TestPCompositeZPass.cxx DATADIR ${VTK_DATA_ROOT})
 add_test_mpi(TestPShadowMapPass.cxx DATADIR ${VTK_DATA_ROOT})
