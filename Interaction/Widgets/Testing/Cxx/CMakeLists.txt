@@ -36,7 +36,6 @@ set(MyTests
   TestOrientationMarkerWidget.cxx
   # TestOrthoPlanes.cxx # todo (unsatistfied deps)
   TestParallelopipedWidget.cxx
-  TestPickingManagerWidgets.cxx
   TestPickingManagerSeedWidget.cxx
   TestPlaybackWidget.cxx
   TestPointHandleRepresentation3D.cxx
@@ -93,6 +92,12 @@ if(VTK_DATA_ROOT)
     )
 endif()
 
+if(NOT VTK_OPENGL_HAS_OSMESA)
+  set(MyTests
+    ${MyTests} TestPickingManagerWidgets.cxx)
+endif()
+
+
 # Use the testing object factory, to reduce boilerplate code in tests.
 include(vtkTestingObjectFactory)
 
@@ -126,9 +131,12 @@ foreach(test ${TestsToRun})
   endif()
 endforeach()
 
-set_tests_properties(${vtk-module}Cxx-TestPickingManagerSeedWidget
-  PROPERTIES TIMEOUT 60)
 if (VTK_DATA_ROOT)
   set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor
     PROPERTIES TIMEOUT 90)
+endif()
+
+if(NOT VTK_OPENGL_HAS_OSMESA)
+  set_tests_properties(${vtk-module}Cxx-TestPickingManagerSeedWidget
+    PROPERTIES TIMEOUT 60)
 endif()
