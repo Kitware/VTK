@@ -57,7 +57,7 @@ class TestFixedPointRayCasterLinear(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "TestFixedPointRayCasterLinear.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=10)
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":

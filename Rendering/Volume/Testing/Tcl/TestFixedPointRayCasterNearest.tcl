@@ -1,4 +1,5 @@
 package require vtk
+set threshold 10
 
 # Create a gaussian
 vtkImageGaussianSource gs
@@ -223,6 +224,7 @@ for { set j 0 } { $j < 5 } { incr j } {
       vtkVolumeProperty volumeProperty${i}${j}
       vtkFixedPointVolumeRayCastMapper volumeMapper${i}${j}
       volumeMapper${i}${j} SetSampleDistance 0.25
+      volumeMapper${i}${j} SetNumberOfThreads 1
 
       vtkVolume volume${i}${j}
       volume${i}${j} SetMapper volumeMapper${i}${j}
