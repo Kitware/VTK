@@ -9,4 +9,5 @@ vtk_module(vtkRenderingParallel
     vtkTestingRendering
     vtkImagingSources
     vtkRenderingOpenGL
+    vtkInteractionStyle
   )
