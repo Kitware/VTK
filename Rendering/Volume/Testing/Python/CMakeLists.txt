@@ -21,8 +21,8 @@ add_test_python1(TestFixedPointRayCasterNearestCropped.py Baseline/VolumeRenderi
 add_test_python1(VolumePicker.py Baseline/VolumeRendering)
 
 set_tests_properties(vtkRenderingVolumePython-volTM3DCompressedCropRegions
-  PROPERTIES TIMEOUT 120)
+  PROPERTIES TIMEOUT 250)
 set_tests_properties(vtkRenderingVolumePython-volTM3DCropRegions
-  PROPERTIES TIMEOUT 120)
+  PROPERTIES TIMEOUT 250)
 set_tests_properties(vtkRenderingVolumePython-volTM3DRotateClip
   PROPERTIES TIMEOUT 80)
