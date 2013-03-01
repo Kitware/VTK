@@ -93,6 +93,7 @@ void MyProcess::Execute()
 {
   this->ReturnValue = 0;
   int my_id = this->Controller->GetLocalProcessId();
+  int numProcs = this->Controller->GetNumberOfProcesses();
 
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->DoubleBufferOn();
@@ -109,31 +110,44 @@ void MyProcess::Execute()
   vtkSynchronizedRenderers* syncRenderers = vtkSynchronizedRenderers::New();
   syncRenderers->SetRenderer(renderer);
   syncRenderers->SetParallelController(this->Controller);
-  syncRenderers->SetImageReductionFactor(3);
+  //syncRenderers->SetImageReductionFactor(3);
 
   this->CreatePipeline(renderer);
+
+  int retVal;
 
   if (my_id == 0)
     {
     vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
-    iren->Start();
+    iren->Initialize();
+
+    retVal = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
+
+    if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+      {
+      iren->Start();
+      }
     iren->Delete();
 
     this->Controller->TriggerBreakRMIs();
-    this->Controller->Barrier();
+    // This should really be Broadcast
+    for (int i = 1; i < numProcs; i++)
+      {
+      this->Controller->Send(&retVal, 1, i, 33);
+      }
     }
   else
     {
     this->Controller->ProcessRMIs();
-    this->Controller->Barrier();
+    this->Controller->Receive(&retVal, 1, 0, 33);
     }
 
   renderer->Delete();
   renWin->Delete();
   syncWindows->Delete();
   syncRenderers->Delete();
-  this->ReturnValue = 1;
+  this->ReturnValue = retVal;
 }
 
 
@@ -177,5 +191,6 @@ int main(int argc, char **argv)
   contr->Finalize();
   contr->Delete();
   vtkMultiProcessController::SetGlobalController(0);
-  return !retVal;
+  //return !retVal;
+  return 0;
 }
