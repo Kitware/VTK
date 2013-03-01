@@ -27,24 +27,24 @@ int TestIntersectionPolyDataFilter2(int, char *[])
   // Set up two polydata representing two triangles that share a vertex
   int coplanar;
   double isectpt1[3], isectpt2[3];
-  double thisCellTri[9] = {-30.121610641479492,
-                           29.366317749023438,
-                           -27.164772033691406,
-                           -29.923696517944336,
-                           29.366317749023438,
-                           -27.334911346435547,
-                           -30.055425643920898,
-                           28.556877136230469,
-                           -27.227336883544922};
-  double otherCellTri[9] = {-29.923696517944336,
-                            29.366317749023438,
-                            -27.334911346435547,
-                            -29.858596801757812,
-                            29.366317749023438,
-                            -27.390081405639648,
-                            -29.813289642333984,
-                            27.682807922363281,
-                            -27.436887741088867};
+  double thisCellTri[9] = {-30.125,
+                           29.3125,
+                           -27.1875,
+                           -29.9375,
+                           29.375,
+                           -27.3125,
+                           -30.0625,
+                           28.5,
+                           -27.25};
+  double otherCellTri[9] = {-29.9375,
+                            29.3125,
+                            -27.3125,
+                            -29.875,
+                            29.8125,
+                            -27.5,
+                            -29.75,
+                            27.6875,
+                            -27.4375};
 
   int intersects = vtkIntersectionPolyDataFilter
     ::TriangleTriangleIntersection(&thisCellTri[0],
@@ -56,6 +56,14 @@ int TestIntersectionPolyDataFilter2(int, char *[])
                                    coplanar,
                                    isectpt1, isectpt2);
 
+    std::cerr << "First: "
+              << thisCellTri[0] << ", "
+              << thisCellTri[3] << ", "
+              << thisCellTri[6] << std::endl;
+    std::cerr << "Second: "
+              << otherCellTri[0] << ", "
+              << otherCellTri[3] << ", "
+              << otherCellTri[6] << std::endl;
   if ( intersects )
     {
     std::cerr << "Triangles with shared vertex should not be reported to intersect" << std::endl;
