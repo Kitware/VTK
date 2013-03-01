@@ -74,6 +74,7 @@ int main(int argc,char **argv)
   char* fname1 = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                       "Data/ironProt.vtk");
   ironProt0->SetFileName(fname1);
+  delete[] fname1;
 
   vtkPOutlineFilter* Geometry4 = vtkPOutlineFilter::New();
   Geometry4->SetController(contr);
