@@ -274,20 +274,20 @@ void GetGlobalGrid( const int dimension, int wholeExtent[6], int dims[3] )
     {
     case 2:
       wholeExtent[0] = 0;
-      wholeExtent[1] = 99;
+      wholeExtent[1] = 9;
       wholeExtent[2] = 0;
-      wholeExtent[3] = 99;
+      wholeExtent[3] = 9;
 
       dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
       dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
       break;
     case 3:
       wholeExtent[0] = 0;
-      wholeExtent[1] = 99;
+      wholeExtent[1] = 9;
       wholeExtent[2] = 0;
-      wholeExtent[3] = 99;
+      wholeExtent[3] = 9;
       wholeExtent[4] = 0;
-      wholeExtent[5] = 99;
+      wholeExtent[5] = 9;
 
       dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
       dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
@@ -569,11 +569,11 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
   static_cast<void>( argc );
   static_cast<void>( argv );
 
-  int expected      = 100*100*100;
-  int expectedCells = 99*99*99;
+  int expected      = 10*10*10;
+  int expectedCells = 9*9*9;
   int rc = 0;
-  int numberOfPartitions[] = {128};
-  int numGhostLayers[]     = {3};
+  int numberOfPartitions[] = {4};
+  int numGhostLayers[]     = {1};
 //  int numberOfPartitions[] = { 2, 4, 8, 16, 32, 64, 128, 256 };
 //  int numGhostLayers[]     = { 0, 1, 2, 3 };
 
@@ -783,12 +783,12 @@ int SimpleTest( int argc, char **argv )
   switch( dim )
     {
     case 2:
-      expectedCells = 99*99;
-      expected      = 100*100;
+      expectedCells = 9*9;
+      expected      = 10*10;
       break;
     case 3:
-      expectedCells = 99*99*99;
-      expected      = 100*100*100;
+      expectedCells = 9*9*9;
+      expected      = 10*10*10;
       break;
     default:
       assert( "Code should not reach here!" && false );
