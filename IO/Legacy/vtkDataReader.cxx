@@ -1750,6 +1750,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
           int decodedLength = this->DecodeString(decoded, s.c_str());
           vtkStdString decodedStr(decoded, decodedLength);
           ((vtkStringArray*)array)->InsertNextValue(decodedStr);
+          delete[] decoded;
           }
         }
       }
@@ -1830,6 +1831,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
           int decodedLength = this->DecodeString(decoded, s.c_str());
           vtkUnicodeString decodedStr = vtkUnicodeString::from_utf8(decoded, decoded + decodedLength);
           ((vtkUnicodeStringArray*)array)->InsertNextValue(decodedStr);
+          delete[] decoded;
           }
         }
       }
@@ -1848,6 +1850,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
         char* decoded = new char[str.length() + 1];
         int decodedLength = this->DecodeString(decoded, str.c_str());
         vtkStdString decodedStr(decoded, decodedLength);
+        delete[] decoded;
         vtkVariant sv(decodedStr);
         vtkVariant v;
         switch (t)
