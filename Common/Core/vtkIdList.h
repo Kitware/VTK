@@ -30,7 +30,13 @@ public:
   static vtkIdList *New();
 
   void Initialize();
+
+  // Description:
+  // Allocate a capacity for sz ids in the list and
+  // set the number of stored ids in the list to 0.
+  // strategy is not used.
   int Allocate(const vtkIdType sz, const int strategy=0);
+
   vtkTypeMacro(vtkIdList,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 

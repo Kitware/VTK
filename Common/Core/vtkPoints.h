@@ -40,7 +40,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Allocate initial memory size.
+  // Allocate initial memory size. ext is no longer used.
   virtual int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
 
   // Description:
