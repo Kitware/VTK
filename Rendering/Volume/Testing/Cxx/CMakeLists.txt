@@ -73,4 +73,4 @@ if (VTK_DATA_ROOT)
 endif()
 
 set_tests_properties(${vtk-module}Cxx-TestTM3DLightComponents
-  PROPERTIES TIMEOUT 110)
+  PROPERTIES TIMEOUT 120)
