@@ -27,6 +27,7 @@
 #include "vtkChemistryConfigure.h"
 
 #include <locale>
+#include <sstream>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -515,7 +516,16 @@ inline int vtkBlueObeliskDataParser::parseInt(const char *d)
 //----------------------------------------------------------------------------
 inline float vtkBlueObeliskDataParser::parseFloat(const char *d)
 {
-  return static_cast<float>(atof(d));
+  float value;
+  std::stringstream stream(d);
+  stream >> value;
+
+  if(stream.fail())
+    {
+    return 0.f;
+    }
+
+  return value;
 }
 
 //----------------------------------------------------------------------------
