@@ -191,6 +191,7 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     (PNG_LIBPNG_VER_STRING, (png_voidp)NULL, NULL, NULL);
   if (!png_ptr)
     {
+    fclose(fp);
     return;
     }
 
@@ -199,6 +200,7 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     {
     png_destroy_read_struct(&png_ptr,
                             (png_infopp)NULL, (png_infopp)NULL);
+    fclose(fp);
     return;
     }
 
@@ -207,6 +209,7 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     {
     png_destroy_read_struct(&png_ptr, &info_ptr,
                             (png_infopp)NULL);
+    fclose(fp);
     return;
     }
 

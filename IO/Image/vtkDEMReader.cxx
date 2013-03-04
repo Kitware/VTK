@@ -202,6 +202,7 @@ int vtkDEMReader::ReadTypeARecord ()
     {
     vtkErrorMacro("For the file " << this->FileName
                   << " fscanf expected 1 items but got " << result);
+    fclose(fp);
     return -1;
     }
   result = fscanf(fp, "%512c", record+512);
@@ -209,6 +210,7 @@ int vtkDEMReader::ReadTypeARecord ()
     {
     vtkErrorMacro("For the file " << this->FileName
                   << " fscanf expected 1 items but got " << result);
+    fclose(fp);
     return -1;
     }
   record[1024] = '\0';
