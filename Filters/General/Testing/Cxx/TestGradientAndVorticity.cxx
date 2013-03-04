@@ -40,10 +40,11 @@ namespace
 
   bool ArePointsWithinTolerance(double v1, double v2)
   {
-    if(v1 == v2)
+    if(v1 == v2 || fabs(v1)+fabs(v2) < Tolerance)
       {
       return true;
       }
+
     if(v1 == 0.0)
       {
       if(fabs(v2) < Tolerance)
@@ -56,8 +57,8 @@ namespace
       }
     if(fabs(v1/v2) < Tolerance)
       {
-        return true;
-        }
+      return true;
+      }
     std::cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than "
          << Tolerance << std::endl;
     return false;
