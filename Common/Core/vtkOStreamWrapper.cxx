@@ -57,7 +57,6 @@ VTKOSTREAM_OPERATOR(vtkObjectBase&);
 VTKOSTREAM_OPERATOR(const vtkLargeInteger&);
 VTKOSTREAM_OPERATOR(const vtkSmartPointerBase&);
 VTKOSTREAM_OPERATOR(const vtkStdString&);
-VTKOSTREAM_OPERATOR(ostream&);
 VTKOSTREAM_OPERATOR(const char*);
 VTKOSTREAM_OPERATOR(void*);
 VTKOSTREAM_OPERATOR(char);
