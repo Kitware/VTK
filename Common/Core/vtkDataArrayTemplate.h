@@ -23,6 +23,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
+#include <cassert> // for assert()
 
 template <class T>
 class vtkDataArrayTemplateLookup;
@@ -131,13 +132,14 @@ public:
 
   // Description:
   // Get the data at a particular index.
-  T GetValue(vtkIdType id) { return this->Array[id]; }
+  T GetValue(vtkIdType id)
+    { assert(id >= 0 && id < this->Size); return this->Array[id]; }
 
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
   // you use the method SetNumberOfValues() before inserting data.
   void SetValue(vtkIdType id, T value)
-    { this->Array[id] = value;};
+    { assert(id >= 0 && id < this->Size); this->Array[id] = value;};
 
   // Description:
   // Specify the number of values for this object to hold. Does an
