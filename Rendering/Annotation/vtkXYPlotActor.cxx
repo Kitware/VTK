@@ -1937,6 +1937,13 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
         {
         continue;
         }
+      if (scalars->GetNumberOfTuples() < numPts)
+        {
+        vtkErrorMacro("Number of points: " << numPts
+                      << " exceeds number of scalar tuples: "
+                      << scalars->GetNumberOfTuples());
+        continue;
+        }
       component = this->SelectedInputScalarsComponent->GetValue( dsNum );
       if ( component < 0 || component >= scalars->GetNumberOfComponents() )
         {
