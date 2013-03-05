@@ -112,11 +112,13 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to read magic number");
+    fclose(fp);
     return 1;
     }
   if( magic_num != 11111 )
     {
     vtkErrorMacro(<< "SLC magic number is not correct");
+    fclose(fp);
     return 1;
     }
 
@@ -128,6 +130,7 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to read size[0]");
+    fclose(fp);
     return 1;
     }
   if (fscanf( fp, "%d", size+1 ) != 1)
@@ -135,6 +138,7 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to read size[1]");
+    fclose(fp);
     return 1;
     }
   if (fscanf( fp, "%d", size+2 ) != 1)
@@ -142,6 +146,7 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to read size[2]");
+    fclose(fp);
     return 1;
     }
   this->SetDataExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
@@ -152,6 +157,7 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to skip over bits per pixel");
+    fclose(fp);
     return 1;
     }
 
@@ -160,6 +166,7 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to spacing[0]");
+    fclose(fp);
     return 1;
     }
   if (fscanf( fp, "%lf", f+1 ) != 1)
@@ -167,6 +174,7 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to spacing[1]");
+    fclose(fp);
     return 1;
     }
   if (fscanf( fp, "%lf", f+2 ) != 1)
@@ -174,6 +182,7 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to spacing[2]");
+    fclose(fp);
     return 1;
     }
   this->SetDataSpacing(f);
@@ -184,6 +193,7 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to skip over unit type");
+    fclose(fp);
     return 1;
     }
   if (fscanf( fp, "%d", &temp ) != 1)
@@ -191,6 +201,7 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to skip over data origin");
+    fclose(fp);
     return 1;
     }
   if (fscanf( fp, "%d", &temp ) != 1)
@@ -198,6 +209,7 @@ int vtkSLCReader::RequestInformation (
     vtkErrorMacro(
       <<"Error reading file: " << this->FileName
       << "Failed to skip over data modification");
+    fclose(fp);
     return 1;
     }
 

@@ -45,6 +45,7 @@ int vtkGESignaReader::CanReadFile(const char* fname)
     fclose(fp);
     return 0;
     }
+  fclose(fp);
   return 3;
 }
 

@@ -165,6 +165,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
   if (n != 2)
     {
     cerr << "ERROR: Can't read file: " << filename << "\n";
+    fclose(file);
     return NULL;
     }
 

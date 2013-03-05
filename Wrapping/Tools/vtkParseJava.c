@@ -914,6 +914,7 @@ int main(int argc, char *argv[])
     fprintf(fp,"  public native int AddObserver(String id0, Object id1, String id2);\n");
     }
   fprintf(fp,"\n}\n");
+  fclose(fp);
   {
   size_t cc;
   size_t len;

@@ -120,6 +120,7 @@ int vtkUGFacetReader::RequestData(
   fread (header, 1, 36, fp) <= 0 )
     {
     vtkErrorMacro(<<"File ended prematurely");
+    fclose(fp);
     return 0;
     }
 

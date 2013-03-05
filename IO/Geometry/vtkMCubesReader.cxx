@@ -147,6 +147,7 @@ int vtkMCubesReader::RequestData(
       vtkErrorMacro ("MCubesReader error reading file: " << this->LimitsFileName
                      << " Premature EOF while reading limits.");
       fclose (limitp);
+      fclose (fp);
       return 0;
       }
 
