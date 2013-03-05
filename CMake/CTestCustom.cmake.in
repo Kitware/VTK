@@ -275,6 +275,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # Strange Arch warning
   "cc1plus: warning: assuming signed overflow does not occur when assuming that .* is always true"
 
+  # Unused dll when building Examples/AMR/Cxx with VS 7.1, Release configuration
+  "warning LNK4089: all references to .vtkIOXML-.*dll. discarded by /OPT:REF"
+
   # Ignore clang's summary warning, assuming prior text has matched some
   # other warning expression:
   "[0-9,]+ warnings? generated."
