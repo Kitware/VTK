@@ -3127,6 +3127,14 @@ int vtkMath::IsNan(double x)
 }
 #endif
 
+//-----------------------------------------------------------------------------
+#if !defined(VTK_HAS_ISFINITE)
+bool vtkMath::IsFinite(double x)
+{
+  return !vtkMath::IsNan(x) && !vtkMath::IsInf(x);
+}
+#endif
+
 #ifndef VTK_LEGACY_REMOVE
 //-----------------------------------------------------------------------------
 double vtkMath::DoublePi()

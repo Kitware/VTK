@@ -916,6 +916,10 @@ public:
   // Test if a number is equal to the special floating point value Not-A-Number (Nan).
   static int IsNan(double x);
 
+  // Description:
+  // Test if a number has finite value i.e. it is normal, subnormal or zero, but not infinite or Nan.
+  static bool IsFinite(double x);
+
 protected:
   vtkMath() {};
   ~vtkMath() {};
@@ -1219,6 +1223,14 @@ inline int vtkMath::IsInf(double x)
 inline int vtkMath::IsNan(double x)
 {
   return (isnan(x) ? 1 : 0);
+}
+#endif
+
+#if defined(VTK_HAS_ISFINITE)
+//-----------------------------------------------------------------------------
+inline bool vtkMath::IsFinite(double x)
+{
+  return (isfinite(x) ? true : false);
 }
 #endif
 

@@ -37,6 +37,9 @@
 #if !defined(VTK_HAS_ISINF) && defined(isinf)
 # define VTK_HAS_ISINF 1
 #endif
+#if !defined(VTK_HAS_ISFINITE) && defined(isfinite)
+# define VTK_HAS_ISFINITE 1
+#endif
 
 // Try to fake having isnan and isinf if _isnan or _isinf is available
 #if !defined(VTK_HAS_ISNAN) && (defined(VTK_HAS__ISNAN) || defined(_isnan))
@@ -46,6 +49,10 @@
 #if !defined(VTK_HAS_ISINF) && (defined(VTK_HAS__ISINF) || defined(_isinf))
 # define isinf(x) _isinf(x)
 # define VTK_HAS_ISINF 1
+#endif
+#if !defined(VTK_HAS_ISFINITE) && (defined(VTK_HAS__ISFINITE) || defined(_isfinite))
+# define isfinite(x) _isfinite(x)
+# define VTK_HAS_ISFINITE 1
 #endif
 
 // The compiler for the G5 Apple is not including the isnan and isinf prototypes
