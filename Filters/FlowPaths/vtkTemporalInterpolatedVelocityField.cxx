@@ -37,6 +37,12 @@ vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
   this->LastGoodVelocity[1]=0.0;
   this->LastGoodVelocity[2]=0.0;
   this->CurrentWeight=0.0;
+  this->OneMinusWeight=1.0;
+  this->ScaleCoeff=1.0;
+
+  this->vals1[0] = this->vals1[1] = this->vals1[2] = 0.0;
+  this->vals2[0] = this->vals2[1] = this->vals2[2] = 0.0;
+  this->times[0] = this->times[1] = 0.0;
 }
 
 //---------------------------------------------------------------------------
