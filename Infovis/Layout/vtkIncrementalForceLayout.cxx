@@ -390,7 +390,8 @@ void vtkIncrementalForceLayout::UpdatePositions()
 
 void vtkIncrementalForceLayout::SetFixed(vtkIdType v)
 {
-  if (this->Fixed >= 0)
+  if (this->Fixed >= 0 &&
+      this->Fixed < static_cast<vtkIdType>(this->Impl->LastPosition.size()))
     {
     this->Impl->LastPosition[this->Fixed] = this->Impl->GetPosition(this->Fixed);
     }
