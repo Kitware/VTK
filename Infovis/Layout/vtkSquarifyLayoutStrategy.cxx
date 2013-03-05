@@ -56,6 +56,13 @@ void vtkSquarifyLayoutStrategy::Layout(
     return;
     }
 
+  // Zero out coords and make points offscreen by default
+  for (vtkIdType i = 0; i < inputTree->GetNumberOfVertices(); ++i)
+    {
+    coordsArray->SetTuple4(i, 0, 0, 0, 0);
+    inputTree->GetPoints()->SetPoint(i, -100, -100, 0);
+    }
+
   // Get the root vertex and set it to 0,1,0,1
   vtkIdType rootId = inputTree->GetRoot();
   float coords[] = {0,1,0,1};
