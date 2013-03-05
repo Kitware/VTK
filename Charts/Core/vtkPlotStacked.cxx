@@ -32,6 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkColorSeries.h"
 #include "vtkSmartPointer.h"
+#include "vtkNew.h"
 
 #include <vector>
 #include <algorithm>
@@ -658,10 +659,22 @@ bool vtkPlotStacked::Paint(vtkContext2D *painter)
 
 //-----------------------------------------------------------------------------
 bool vtkPlotStacked::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                                 int)
+                                 int legendIndex)
 {
-  painter->ApplyPen(this->Pen);
-  painter->ApplyBrush(this->Brush);
+  if (this->ColorSeries)
+    {
+    vtkNew<vtkPen> pen;
+    vtkNew<vtkBrush> brush;
+    pen->SetColor(this->ColorSeries->GetColorRepeating(legendIndex).GetData());
+    brush->SetColor(pen->GetColor());
+    painter->ApplyPen(pen.GetPointer());
+    painter->ApplyBrush(brush.GetPointer());
+    }
+  else
+    {
+    painter->ApplyPen(this->Pen);
+    painter->ApplyBrush(this->Brush);
+    }
   painter->DrawRect(rect[0], rect[1], rect[2], rect[3]);
   return true;
 }
