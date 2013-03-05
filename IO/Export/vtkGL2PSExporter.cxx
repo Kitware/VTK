@@ -78,6 +78,7 @@ vtkGL2PSExporter::vtkGL2PSExporter()
   this->PS3Shading = 1;
   this->OcclusionCull = 1;
   this->Write3DPropsAsRasterImage = 0;
+  this->TextAsPath = false;
 }
 
 vtkGL2PSExporter::~vtkGL2PSExporter()
