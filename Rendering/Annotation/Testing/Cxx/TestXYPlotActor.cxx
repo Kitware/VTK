@@ -70,7 +70,6 @@ int TestXYPlotActor( int argc, char* argv[] )
     data[1]->InsertNextValue( val1 );
     double val2 = val0  * cos( 2. * val0 );
     data[2]->InsertNextValue( val2 );
-    points->InsertNextPoint( i, 0., 0. );
     data[3]->InsertNextValue( -val0 );
     }
 
