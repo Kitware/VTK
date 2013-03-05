@@ -2816,15 +2816,16 @@ int vtkEnSight6BinaryReader::ReadIntNumber(int *result)
     vtkByteSwap::Swap4LE(&tmpLE);
     vtkByteSwap::Swap4BE(&tmpBE);
 
+    // Compare to file size, being careful not to overflow the
+    // multiplication (by doing 64 bit math).
     // Use negative value as an indication of bad number.
-    // Compare unmultiplied number to file size in case multiplying by
-    // sizeof(int) creates a number big enough that it does not fit in an int,
-    // and so becomes negative.
-    if ((tmpLE*(int)(sizeof(int))) > this->FileSize || tmpLE > this->FileSize)
+    if (tmpLE < 0 ||
+        ((vtkTypeInt64)tmpLE * sizeof(int)) > this->FileSize)
       {
       tmpLE = -1;
       }
-    if ((tmpBE*(int)(sizeof(int))) > this->FileSize || tmpBE > this->FileSize)
+    if (tmpBE < 0 ||
+        ((vtkTypeInt64)tmpBE * sizeof(int)) > this->FileSize)
       {
       tmpBE = -1;
       }
