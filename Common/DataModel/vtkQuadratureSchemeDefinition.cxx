@@ -154,7 +154,7 @@ int vtkQuadratureSchemeDefinition::SecureResources()
   // Shape function weights, one vector for each quad point.
   this->ShapeFunctionWeights =
     new double [this->NumberOfQuadraturePoints*this->NumberOfNodes];
-  for (unsigned int i = 0;
+  for (int i = 0;
        i < this->NumberOfQuadraturePoints*this->NumberOfNodes; i++)
     {
     this->ShapeFunctionWeights[i] = 0.0;
@@ -163,7 +163,7 @@ int vtkQuadratureSchemeDefinition::SecureResources()
  // Quadrature weights, one double for each quad point
   this->QuadratureWeights =
     new double [this->NumberOfQuadraturePoints];
-  for (unsigned int i = 0; i < this->NumberOfQuadraturePoints; i++)
+  for (int i = 0; i < this->NumberOfQuadraturePoints; i++)
     {
     this->QuadratureWeights[i] = 0.0;
     }
