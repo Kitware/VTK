@@ -1338,7 +1338,7 @@ ReadStream(int _nDims,
       delete [] wrds;
       if ( (fileImageDim == 0) || (fileImageDim > m_NDims) )
         {
-        // if optional file dimension size is not give or is larger than
+        // if optional file dimension size is not given or is larger than
         // overall dimension then default to a size of m_NDims - 1.
         fileImageDim = m_NDims-1;
         }
@@ -1415,6 +1415,44 @@ ReadStream(int _nDims,
         {
         stepV = (int)atof(wrds[3]);
         }
+      if(nWrds >= 5 )
+      {
+        // In this case, the filename must have had spaces in the
+        // name.  The filename was parsed into multiple pieces by the
+        // MET_StringToWordArray, which parses based on spaces.
+        // Thus, we need to reconstruct the filename in this case.
+        // The last three wrds must be numbers.  If they are not, we give an error.
+        for( i = nWrds-3; i < nWrds; i++ )
+        {
+          for( j = 0; j < strlen(wrds[i]); j++ )
+          {
+            if( !isdigit(wrds[i][j]) )
+            {
+              METAIO_STREAM::cerr << "MetaImage: Read: Last three arguments must be numbers!"
+                  << METAIO_STREAM::endl;
+              continue;
+            }
+          }
+        }
+        stepV = (int)atof(wrds[nWrds-1]);
+        maxV =  (int)atof(wrds[nWrds-2]);
+        minV =  (int)atof(wrds[nWrds-3]);
+        for( i = 1; i < nWrds-3; i++ )
+        {
+          strcat(wrds[0]," ");
+          strcat(wrds[0],wrds[i]);
+        }
+      }
+      // If the specified size of the third dimension is less than the size
+      // specified by the regular expression, we should only read a volume with the specified
+      // size.  Otherwise, the code will crash when trying to fill m_ElementData more than it can hold.
+      // Therefore, we modify maxV to ensure that the images spanned by minV:stepV:maxV are less than or equal
+      // to the size in the last dimension.
+      int numberOfImages = 1 + (maxV - minV)/stepV;
+      if( numberOfImages > m_DimSize[m_NDims-1] )
+      {
+        maxV = (m_DimSize[m_NDims-1]-1)*stepV + minV;
+      }
       int cnt = 0;
       for(i=minV; i<=maxV; i += stepV)
         {
@@ -2796,7 +2834,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
       delete [] wrds;
       if ( (fileImageDim == 0) || (fileImageDim > m_NDims) )
         {
-        // if optional file dimension size is not give or is larger than
+        // if optional file dimension size is not given or is larger than
         // overall dimension then default to a size of m_NDims - 1.
         fileImageDim = m_NDims-1;
         }
@@ -2898,6 +2936,45 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
         {
         stepV = (int)atof(wrds[3]);
         }
+      if(nWrds >= 5 )
+      {
+        // In this case, the filename must have had spaces in the
+        // name.  The filename was parsed into multiple pieces by the
+        // MET_StringToWordArray, which parses based on spaces.
+        // Thus, we need to reconstruct the filename in this case.
+        // The last three wrds must be numbers.  If they are not, we give an error.
+        for( i = nWrds-3; i < nWrds; i++ )
+        {
+          for( j = 0; j < strlen(wrds[i]); j++ )
+          {
+            if( !isdigit(wrds[i][j]) )
+            {
+              METAIO_STREAM::cerr << "MetaImage: Read: Last three arguments must be numbers!"
+                  << METAIO_STREAM::endl;
+              continue;
+            }
+          }
+        }
+        stepV = (int)atof(wrds[nWrds-1]);
+        maxV =  (int)atof(wrds[nWrds-2]);
+        minV =  (int)atof(wrds[nWrds-3]);
+        for( i = 1; i < nWrds-3; i++ )
+        {
+          strcat(wrds[0]," ");
+          strcat(wrds[0],wrds[i]);
+        }
+      }
+      // If the specified size of the third dimension is less than the size
+      // specified by the regular expression, we should only read a volume with the specified
+      // size.  Otherwise, the code will crash when trying to fill m_ElementData more than it can hold.
+      // Therefore, we modify maxV to ensure that the images spanned by minV:stepV:maxV are less than or equal
+      // to the size in the last dimension.
+      int numberOfImages = 1 + (maxV - minV)/stepV;
+      if( numberOfImages > m_DimSize[m_NDims-1] )
+      {
+        maxV = (m_DimSize[m_NDims-1]-1)*stepV + minV;
+      }
+
       int cnt = 0;
 
       // Uses the _indexMin and _indexMax
@@ -3407,7 +3484,7 @@ M_ReadElementData(METAIO_STREAM::ifstream * _fstream,
       MET_SizeOfType(m_ElementType, &elementSize);
       METAIO_STL::streamoff elementNumberOfBytes = elementSize*m_ElementNumberOfChannels;
 
-      // the data is read with calls no bigger then MaxIOChunk
+      // the data is read with calls no bigger than MaxIOChunk
       METAIO_STL::streamoff bytesRemaining = _dataQuantity * elementNumberOfBytes;
       while ( bytesRemaining )
         {

@@ -8,17 +8,23 @@ set(MyTests
   TestBooleanOperationPolyDataFilter2.cxx
   TestDensifyPolyData.cxx
   TestDistancePolyDataFilter.cxx
-  TestGradientAndVorticity.cxx
-  TestIconGlyphFilterGravity.cxx
   TestImageDataToPointSet.cxx
   TestIntersectionPolyDataFilter.cxx
   TestIntersectionPolyDataFilter2.cxx
-  TestQuadraturePoints.cxx
   TestRectilinearGridToPointSet.cxx
   TestReflectionFilter.cxx
   TestUncertaintyTubeFilter.cxx
-  TestYoungsMaterialInterface.cxx
 )
+# Tests with data
+if(VTK_DATA_ROOT)
+  set(MyTests
+    ${MyTests}
+    TestGradientAndVorticity.cxx
+    TestIconGlyphFilterGravity.cxx
+    TestQuadraturePoints.cxx
+    TestYoungsMaterialInterface.cxx
+    )
+endif()
 
 # Set the tolerance higher for a few tests that need it
 set(TestDensifyPolyDataError 15)

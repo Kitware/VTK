@@ -1,11 +1,16 @@
+if(VTK_LARGE_DATA_ROOT)
+  set (NEEDS_LARGE_DATA
+    SLACMultipleModes.cxx
+    SLACParticleReader.cxx
+    SLACReaderLinear.cxx
+    SLACReaderQuadratic.cxx
+    TestMPASReader.cxx
+    TestNetCDFCAMReader.cxx
+    TestNetCDFPOPReader.cxx
+    )
+endif()
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-  SLACMultipleModes.cxx
-  SLACParticleReader.cxx
-  SLACReaderLinear.cxx
-  SLACReaderQuadratic.cxx
-  TestMPASReader.cxx
-  TestNetCDFCAMReader.cxx
-  TestNetCDFPOPReader.cxx
+  ${NEEDS_LARGE_DATA}
 
   EXTRA_INCLUDE vtkTestDriver.h
 )

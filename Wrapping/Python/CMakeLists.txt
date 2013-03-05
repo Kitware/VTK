@@ -1,12 +1,7 @@
-set(VTK_WRAP_PYTHON_FIND_LIBS ON)
-include(vtkWrapPython)
 include(GenerateExportHeader)
 include(vtkPythonWrapping)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonConfigure.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h)
-
-set(WrappingPython_SRCS
+set(Module_SRCS
   vtkPythonArgs.cxx
   vtkPythonCommand.cxx
   vtkPythonOverload.cxx
@@ -18,23 +13,18 @@ set(WrappingPython_SRCS
   PyVTKTemplate.cxx
   )
 
-set(WrappingPython_HDRS
-  vtkPython.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkWrappingPythonModule.h
+set(Module_HDRS
+  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h
   )
 
-list(APPEND WrappingPython_SRCS ${WrappingPython_HDRS})
+list(APPEND Module_SRCS ${Module_HDRS})
 
 set_source_files_properties(
-  ${WrappingPython_HDRS}
+  ${Module_HDRS}
   HEADER_FILE_ONLY
   )
 
 include_directories(
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${VTK_SOURCE_DIR}/Common/Core
-  ${VTK_BINARY_DIR}/Common/Core
   ${VTK_SOURCE_DIR}/Utilities
   )
 
@@ -43,20 +33,16 @@ SET(PYTHON_WRAPPING_INCLUDE_DIRS)
 if(VTK_WRAP_PYTHON_SIP)
   list(APPEND PYTHON_WRAPPING_INCLUDE_DIRS "${SIP_INCLUDE_DIR}")
 endif()
-list(APPEND PYTHON_WRAPPING_INCLUDE_DIRS "${PYTHON_INCLUDE_PATH}")
-set(vtkWrappingPython_SYSTEM_INCLUDE_DIRS ${PYTHON_WRAPPING_INCLUDE_DIRS})
+set(${vtk-module}_SYSTEM_INCLUDE_DIRS ${PYTHON_WRAPPING_INCLUDE_DIRS})
 
 set(${vtk-module}_NO_HeaderTest 1)
+set(${vtk-module}_INCLUDE_DIRS)
 
 set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})
-vtk_module_library(vtkWrappingPython ${WrappingPython_SRCS})
-get_property(output_name TARGET vtkWrappingPython PROPERTY OUTPUT_NAME)
+vtk_module_library(${vtk-module} ${Module_SRCS})
+get_property(output_name TARGET ${vtk-module} PROPERTY OUTPUT_NAME)
 string(REPLACE "Python" "Python${XY}" output_name "${output_name}")
-set_property(TARGET vtkWrappingPython PROPERTY OUTPUT_NAME ${output_name})
-target_link_libraries(vtkWrappingPython
-  ${VTK_PYTHON_LIBRARIES})
-target_link_libraries(vtkWrappingPython
-  LINK_INTERFACE_LIBRARIES ${VTK_PYTHON_LIBRARIES})
+set_property(TARGET ${vtk-module} PROPERTY OUTPUT_NAME ${output_name})
 
 get_property(VTK_PYTHON_MODULES GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
 
@@ -98,8 +84,6 @@ vtk_write_python_modules_header_for_wrapped_modules(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h"
   py_module_dependencies)
 
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
-
 # create the VTK/Python  executable
 configure_file(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
                ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h)
@@ -137,9 +121,7 @@ endif()
 
 # Link against all the kit wrappers.
 list(APPEND VTKPYTHON_LINK_LIBS
-  ${VTK_PYTHON_LIBRARIES}
-  vtksys
-  vtkCommonCore
+  ${vtk-module}
   )
 
 set(vtkpython_pyc_depends
@@ -177,7 +159,6 @@ IF(VTK_USE_FFMPEG_ENCODER)
 ENDIF(VTK_USE_FFMPEG_ENCODER)
 
 TARGET_LINK_LIBRARIES(vtkpython ${VTKPYTHON_LINK_LIBS})
-TARGET_LINK_LIBRARIES(vtkpython LINK_INTERFACE_LIBRARIES ${VTK_PYTHON_LIBRARIES})
 
 IF(VTK_USE_MATLAB_MEX)
   INCLUDE(${MATLAB_MEX_USE_FILE})
@@ -207,7 +188,6 @@ IF (VTK_USE_PARALLEL AND VTK_USE_MPI)
   SET(PVTKPYTHON_EXECUTABLE pvtkpython)
   VTK_ADD_EXECUTABLE(pvtkpython vtkParaPythonAppInit.cxx)
   TARGET_LINK_LIBRARIES(pvtkpython ${VTKPYTHON_LINK_LIBS} ${MPI_LIBRARIES})
-  TARGET_LINK_LIBRARIES(pvtkpython LINK_INTERFACE_LIBRARIES ${VTK_PYTHON_LIBRARIES})
   IF(VTK_USE_MATLAB_MEX)
     INCLUDE(${MATLAB_MEX_USE_FILE})
     SET_TARGET_PROPERTIES(pvtkpython PROPERTIES
@@ -469,5 +449,5 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/setup.py.in
 
 # Allow the user to customize their build with some local options
 #
-INCLUDE (${VTK_BINARY_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
-INCLUDE (${VTK_SOURCE_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_BINARY_DIR}/Wrapping/Python/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/Wrapping/Python/LocalUserOptions.cmake OPTIONAL)

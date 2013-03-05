@@ -96,7 +96,6 @@
 #cmakedefine VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #cmakedefine VTK_NO_FULL_TEMPLATE_SPECIALIZATION
 #cmakedefine VTK_NO_ANSI_STRING_STREAM
-#cmakedefine VTK_COMPILER_HAS_BOOL
 #cmakedefine VTK_ISTREAM_SUPPORTS_LONG_LONG
 #cmakedefine VTK_OSTREAM_SUPPORTS_LONG_LONG
 #define VTK_STREAM_EOF_SEVERITY @VTK_STREAM_EOF_SEVERITY@
@@ -149,12 +148,10 @@
 # define vtkstd std
 #endif
 
-/* Define a "vtkstd_bool" type.  This should be used as the
-   return type of comparison operators to keep STL happy on all
-   platforms.  It should not be used elsewhere.  Only use bool
+/* Define a "vtkstd_bool" for backwards compatibility.  Only use bool
    if this file is included by a c++ file. */
 #ifndef VTK_LEGACY_REMOVE
-# if defined(VTK_COMPILER_HAS_BOOL) && defined(__cplusplus)
+# if defined(__cplusplus)
   typedef bool vtkstd_bool;
 # else
   typedef int vtkstd_bool;

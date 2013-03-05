@@ -1,9 +1,16 @@
 set(MyTests
-  TestCellDistanceSelector2D.cxx
-  TestCellDistanceSelector3D.cxx
   TestLinearSelector2D.cxx
-  TestLinearSelector3D.cxx
 )
+
+# Tests with data
+if(VTK_DATA_ROOT)
+  set(MyTests
+    ${MyTests}
+    TestCellDistanceSelector2D.cxx
+    TestCellDistanceSelector3D.cxx
+    TestLinearSelector3D.cxx
+    )
+endif()
 
 # Use the testing object factory, to reduce boilerplate code in tests.
 include(vtkTestingObjectFactory)

@@ -263,6 +263,7 @@ class FixedPointRayCasterNearest(object):
                 self.volumeProperty[i][j] = vtk.vtkVolumeProperty()
                 self.volumeMapper[i][j] = vtk.vtkFixedPointVolumeRayCastMapper()
                 self.volumeMapper[i][j].SetSampleDistance(0.25)
+                self.volumeMapper[i][j].SetNumberOfThreads(1)
 
                 volume[i][j] = vtk.vtkVolume()
                 volume[i][j].SetMapper(self.volumeMapper[i][j])
@@ -410,7 +411,7 @@ class TestFixedPointRayCasterNearest(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "TestFixedPointRayCasterNearest.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=10)
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":

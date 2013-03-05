@@ -1,4 +1,9 @@
+if(VTK_DATA_ROOT)
+  set (NEEDS_DATA TestStringToNumeric.cxx TestMergeTables.cxx)
+endif()
+
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  ${NEEDS_DATA}
   ArraySparseArrayToTable.cxx
   ArrayTableToSparseArray.cxx
   ArrayToTable.cxx
@@ -10,12 +15,10 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestExtractSelectedGraph.cxx
   TestGraphAlgorithms.cxx
   TestMergeGraphs.cxx
-  TestMergeTables.cxx
   TestPruneTreeFilter.cxx
   TestRandomGraphSource.cxx
   TestRemoveIsolatedVertices.cxx
   TestStreamGraph.cxx
-  TestStringToNumeric.cxx
   TestTableToArray.cxx
   TestThresholdTable.cxx
   # TestTimePoint.cxx             # deprecated dep

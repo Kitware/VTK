@@ -122,8 +122,11 @@ ENDIF(CMAKE_COMPILER_IS_GNU_C)
 
 # set up linker flags
 IF(APPLE)
+  # Note: as an optimization, oggtheora also passes '-read_only_relocs suppress' on i386 only;
+  # it is omitted here because including it unconditionally causes a warning on x86_64,
+  # where the flag cannot be used.
   SET( VTKOGGTHEORA_SHARED_LINKER_FLAGS
-    "-read_only_relocs suppress -Wl,-exported_symbols_list,\"${VTKOGGTHEORA_SOURCE_DIR}/vtkoggtheora.exp\""
+    "-Wl,-exported_symbols_list,\"${VTKOGGTHEORA_SOURCE_DIR}/vtkoggtheora.exp\""
     )
 ENDIF(APPLE)
 # assume that -Wl,--version-script works on UNIX systems (excluding Mac, Cygwin and Solaris SPARC).

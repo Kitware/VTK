@@ -2136,6 +2136,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
               inPoint2[2] = inPoint1[2] + idX*xAxis[2];
               inPoint2[3] = inPoint1[3] + idX*xAxis[3];
 
+              F inPoint3[4];
               F *inPoint = inPoint2;
               isInBounds = 0;
 
@@ -2145,7 +2146,6 @@ void vtkImageResliceExecute(vtkImageReslice *self,
                 if (nsamples > 1)
                   {
                   double s = sample - 0.5*(nsamples - 1);
-                  F inPoint3[4];
                   inPoint3[0] = inPoint2[0] + s*zAxis[0];
                   inPoint3[1] = inPoint2[1] + s*zAxis[1];
                   inPoint3[2] = inPoint2[2] + s*zAxis[2];

@@ -28,14 +28,12 @@ SET(RenderingTestsWithArguments
   TestHomogeneousTransformOfActor.cxx
   TestImageResliceMapperAlpha.cxx
   TestImageResliceMapperBackground.cxx
-  TestImageResliceMapperBorder.cxx
   TestImageResliceMapperInterpolation.cxx
   TestImageResliceMapperOffAxis.cxx
   TestImageResliceMapperOrient3D.cxx
   TestImageResliceMapperSlab.cxx
   TestImageSliceMapperAlpha.cxx
   TestImageSliceMapperBackground.cxx
-  TestImageSliceMapperBorder.cxx
   TestImageSliceMapperOrient2D.cxx
   TestImageSliceMapperOrient3D.cxx
   TestImageSliceMapperInterpolation.cxx
@@ -78,7 +76,6 @@ SET(RenderingTestsWithArguments
   )
 
 if(APPLE)
-  list(REMOVE_ITEM RenderingTestsWithArguments TestOffAxisStereo.cxx)
   list(REMOVE_ITEM RenderingTestsWithArguments TestShadowMapPass.cxx)
 endif()
 
@@ -89,6 +86,8 @@ if(WIN32 AND NOT VTK_USE_X)
     )
 endif()
 
+include_directories(${OPENGL_INCLUDE_DIR})
+
 if(VTK_DATA_ROOT)
   set(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}
@@ -96,6 +95,8 @@ if(VTK_DATA_ROOT)
     TestMultiTexturing.cxx
     TestMultiTexturingTransform.cxx
     TestGlyph3DMapperArrow.cxx
+    TestImageSliceMapperBorder.cxx
+    TestImageResliceMapperBorder.cxx
     TestScalarBar.cxx
     TestScenePicker.cxx
     TestTextureRGBA.cxx

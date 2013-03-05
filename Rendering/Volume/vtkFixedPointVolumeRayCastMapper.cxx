@@ -663,7 +663,7 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   this->VoxelsToViewTransform  = vtkTransform::New();
 
   this->Threader               = vtkMultiThreader::New();
-
+  this->ThreadWarning          = true;
   this->RayCastImage           = vtkFixedPointRayCastImage::New();
 
   this->RowBounds              = NULL;
@@ -1512,6 +1512,13 @@ void vtkFixedPointVolumeRayCastMapper::CaptureZBuffer( vtkRenderer *ren )
 
 void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 {
+  if (this->Threader->GetNumberOfThreads() > 1 && this->ThreadWarning)
+    {
+    vtkWarningMacro("Number of threads "
+                    << this->Threader->GetNumberOfThreads()
+                    << " is  > 1. This class does not produce repeatable results when the number of threads exceeds 1.");
+    this->ThreadWarning = false;
+    }
   this->Timer->StartTimer();
 
   // Since we are passing in a value of 0 for the multiRender flag

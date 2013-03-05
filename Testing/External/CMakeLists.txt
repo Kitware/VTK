@@ -47,6 +47,13 @@ find_path(VTK_DATA_ROOT VTKData.readme ${VTK_TOP_DIR}/../VTKData)
 find_path(VTK_LARGE_DATA_ROOT VTKLargeData.readme ${VTK_TOP_DIR}/../VTKLargeData)
 set(VTK_TEST_OUTPUT_DIR "${VTKTestExternal_BINARY_DIR}/Testing/Temporary")
 
+# If vtkParallelMPI is found then look for MPI and bring in
+# vtkTestingMPISupport.
+if(vtkParallelMPI_LOADED)
+  find_package(MPI REQUIRED)
+  include(vtkTestingMPISupport)
+endif()
+
 # Add the test directory for each enabled module that has tests
 # whose dependencies are also enabled.
 foreach(mod ${VTK_MODULES_ALL})

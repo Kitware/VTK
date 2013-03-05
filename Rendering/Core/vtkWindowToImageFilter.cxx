@@ -301,6 +301,16 @@ void vtkWindowToImageFilter::RequestData(
     cam->SetUserTransform(cams[i]->GetUserTransform());
     cam->SetUseHorizontalViewAngle(cams[i]->GetUseHorizontalViewAngle());
     cam->SetViewShear(cams[i]->GetViewShear());
+    cam->SetModelTransformMatrix(cams[i]->GetModelTransformMatrix());
+    cam->SetEyeTransformMatrix(cams[i]->GetEyeTransformMatrix());
+    cam->SetUseOffAxisProjection(cams[i]->GetUseOffAxisProjection());
+    cam->SetScreenBottomLeft(cams[i]->GetScreenBottomLeft());
+    cam->SetScreenBottomRight(cams[i]->GetScreenBottomRight());
+    cam->SetScreenTopRight(cams[i]->GetScreenTopRight());
+    cam->SetEyeSeparation(cams[i]->GetEyeSeparation());
+    double eyePos[3];
+    cams[i]->GetEyePosition(eyePos);
+    cam->SetEyePosition(eyePos);
     aren->SetActiveCamera(cam);
     }
 

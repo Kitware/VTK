@@ -34,12 +34,12 @@
 
 int TestOffAxisStereo(int argc, char *argv[])
 {
-  double bottomLeft[3]  = {-1.0, -1.0, -1.0};
-  double bottomRight[3] = { 1.0, -1.0, -1.0};
-  double topRight[3]    = { 1.0,  1.0, -1.0};
+  double bottomLeft[3]  = {-1.0, -1.0, -10.0};
+  double bottomRight[3] = { 1.0, -1.0, -10.0};
+  double topRight[3]    = { 1.0,  1.0, -10.0};
 
   VTK_CREATE(vtkSphereSource, sphere1);
-  sphere1->SetCenter(0.0, 0.0, -4.0);
+  sphere1->SetCenter(0.6, 0.0, -15.0);
   sphere1->SetThetaResolution(100);
   sphere1->SetPhiResolution(100);
 
@@ -51,7 +51,7 @@ int TestOffAxisStereo(int argc, char *argv[])
   actor1->GetProperty()->SetAmbient(0.1);
 
   VTK_CREATE(vtkConeSource, cone1);
-  cone1->SetCenter(0.0, 0.0, -10.0);
+  cone1->SetCenter(0.0, 0.0, -2.0);
   cone1->SetResolution(100);
 
   VTK_CREATE(vtkPolyDataMapper, mapper2);
@@ -102,5 +102,5 @@ int TestOffAxisStereo(int argc, char *argv[])
     retVal = vtkRegressionTester::PASSED;
     }
 
-  return (retVal == vtkRegressionTester::PASSED) ? 0 : 1;
+  return (!retVal);
 }

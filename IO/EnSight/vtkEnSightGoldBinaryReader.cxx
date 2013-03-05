@@ -3916,7 +3916,7 @@ int vtkEnSightGoldBinaryReader::CreateImageDataOutput(
 // Returns zero if there was an error.
 int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
 {
-  if ( this->IFile->read(result, 80) == 0)
+  if (!this->IFile->read(result, 80))
     {
     // The read fails when reading the last part/array when there are no points.
     // I took out the error macro as a tempory fix.
@@ -3935,7 +3935,7 @@ int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
     result[76] = 0;
     // better read an extra 8 bytes to prevent error next time
     char dummy[8];
-    if (this->IFile->read(dummy, 8) == 0)
+    if (!this->IFile->read(dummy, 8))
       {
       vtkDebugMacro("Read (fortran) failed");
       return 0;
@@ -3992,14 +3992,14 @@ int vtkEnSightGoldBinaryReader::ReadInt(int *result)
   char dummy[4];
   if (this->Fortran)
     {
-    if (this->IFile->read(dummy, 4) == 0)
+    if (!this->IFile->read(dummy, 4))
       {
       vtkErrorMacro("Read (fortran) failed.");
       return 0;
       }
     }
 
-  if ( this->IFile->read((char*)result, sizeof(int)) == 0)
+  if (!this->IFile->read((char*)result, sizeof(int)))
     {
     vtkErrorMacro("Read failed");
     return 0;
@@ -4016,7 +4016,7 @@ int vtkEnSightGoldBinaryReader::ReadInt(int *result)
 
   if (this->Fortran)
     {
-    if (this->IFile->read(dummy, 4) == 0)
+    if (!this->IFile->read(dummy, 4))
       {
       vtkErrorMacro("Read (fortran) failed.");
       return 0;
@@ -4039,14 +4039,14 @@ int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
   char dummy[4];
   if (this->Fortran)
     {
-    if (this->IFile->read(dummy, 4) == 0)
+    if (!this->IFile->read(dummy, 4))
       {
       vtkErrorMacro("Read (fortran) failed.");
       return 0;
       }
     }
 
-  if (this->IFile->read((char*)result, sizeof(int)*numInts) == 0)
+  if (!this->IFile->read((char*)result, sizeof(int)*numInts))
     {
     vtkErrorMacro("Read failed.");
     return 0;
@@ -4063,7 +4063,7 @@ int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
 
   if (this->Fortran)
     {
-    if (this->IFile->read(dummy, 4) == 0)
+    if (!this->IFile->read(dummy, 4))
       {
       vtkErrorMacro("Read (fortran) failed.");
       return 0;
@@ -4086,14 +4086,14 @@ int vtkEnSightGoldBinaryReader::ReadFloatArray(float *result,
   char dummy[4];
   if (this->Fortran)
     {
-    if (this->IFile->read(dummy, 4) == 0)
+    if (!this->IFile->read(dummy, 4))
       {
       vtkErrorMacro("Read (fortran) failed.");
       return 0;
       }
     }
 
-  if (this->IFile->read((char*)result, sizeof(float)*numFloats) == 0)
+  if (!this->IFile->read((char*)result, sizeof(float)*numFloats))
     {
     vtkErrorMacro("Read failed");
     return 0;
@@ -4110,7 +4110,7 @@ int vtkEnSightGoldBinaryReader::ReadFloatArray(float *result,
 
   if (this->Fortran)
     {
-    if (this->IFile->read(dummy, 4) == 0)
+    if (!this->IFile->read(dummy, 4))
       {
       vtkErrorMacro("Read (fortran) failed.");
       return 0;

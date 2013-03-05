@@ -86,13 +86,7 @@ public:
   vtkOStreamWrapper& operator << (__int64);
   vtkOStreamWrapper& operator << (unsigned __int64);
 #endif
-
-  // Need to switch on bool type because this wrapper is supposed to
-  // be as transparent as possible to user code.  This example should
-  // not be used to justify using bool elsewhere in VTK.
-#ifdef VTK_COMPILER_HAS_BOOL
   vtkOStreamWrapper& operator << (bool);
-#endif
 
   // Work-around for IBM Visual Age bug in overload resolution.
 #if defined(__IBMCPP__)

@@ -508,29 +508,26 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
 void vtkOpenGLImageSliceMapper::RenderPolygon(
   vtkPoints *points, const int extent[6], bool textured)
 {
-  static double normals[3][3] =
+  static const int stripOrder[4] = { 3, 0, 2, 1 };
+  static const double normals[3][3] =
     { { 1.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
-  double *normal = normals[(this->Orientation % 3)];
+  const double *normal = normals[(this->Orientation % 3)];
 
   if (!points)
     {
     double coords[12], tcoords[8];
     this->MakeTextureGeometry(extent, coords, tcoords);
-    double *coord = coords;
-    double *tcoord = tcoords;
 
-    glBegin(GL_POLYGON);
+    glBegin(GL_TRIANGLE_STRIP);
     for (int i = 0; i < 4; i++)
       {
+      int j = stripOrder[i];
       glNormal3dv(normal);
       if (textured)
         {
-        glTexCoord2dv(tcoord);
+        glTexCoord2dv(&tcoords[2*j]);
         }
-      glVertex3dv(coord);
-
-      coord += 3;
-      tcoord += 2;
+      glVertex3dv(&coords[3*j]);
       }
     glEnd();
     }
@@ -548,10 +545,11 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
     double coord[3];
     double tcoord[2];
 
-    glBegin(GL_POLYGON);
+    glBegin(GL_TRIANGLE_STRIP);
     for (vtkIdType i = 0; i < ncoords; i++)
       {
-      points->GetPoint(i, coord);
+      vtkIdType j = ((i % 2 == 0) ? ncoords - 1 - i/2 : i/2);
+      points->GetPoint(j, coord);
       glNormal3dv(normal);
       if (textured)
         {

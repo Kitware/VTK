@@ -1,9 +1,16 @@
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+# Tests with data
+if(VTK_DATA_ROOT)
+  set(NEEDS_DATA
   TestProStarReader.cxx
-  TestSimplePointsReaderWriter.cxx
   TestTecplotReader.cxx
-  TestWindBladeReader.cxx
   TestAMRReadWrite.cxx
+  )
+endif()
+
+create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  ${NEEDS_DATA}
+  TestSimplePointsReaderWriter.cxx
+  TestWindBladeReader.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
@@ -27,7 +34,14 @@ foreach(test ${TestsToRun})
   endif()
 endforeach()
 
-if(VTK_LARGE_DATA_ROOT)
+set(_known_little_endian FALSE)
+if (DEFINED CMAKE_WORDS_BIGENDIAN)
+  if (NOT CMAKE_WORDS_BIGENDIAN)
+    set(_known_little_endian TRUE)
+  endif()
+endif()
+
+if(VTK_LARGE_DATA_ROOT AND _known_little_endian)
   add_test(NAME ${vtk-module}Cxx-TestWindBladeReader
     COMMAND ${vtk-module}CxxTests TestWindBladeReader
     -D ${VTK_LARGE_DATA_ROOT}

@@ -147,6 +147,7 @@ int TestLinearSelector3D( int argc, char * argv [] )
   ls0->SetEndPoint( .23, .04, .04 );
   ls0->IncludeVerticesOff();
   ls0->SetVertexEliminationTolerance( 1.e-12 );
+  ls0->SetTolerance(1.e-12);
 
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es0 =  vtkSmartPointer<vtkExtractSelection>::New();
@@ -167,6 +168,7 @@ int TestLinearSelector3D( int argc, char * argv [] )
   ls1->SetEndPoint( .23, .0, .0 );
   ls1->IncludeVerticesOff();
   ls1->SetVertexEliminationTolerance( 1.e-12 );
+  ls1->SetTolerance(1.e-12);
 
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es1 =  vtkSmartPointer<vtkExtractSelection>::New();
@@ -192,7 +194,7 @@ int TestLinearSelector3D( int argc, char * argv [] )
   ls2->SetPoints( points2 );
   ls2->IncludeVerticesOff();
   ls2->SetVertexEliminationTolerance( 1.e-12 );
-
+  ls2->SetTolerance(1.e-12);
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es2 =  vtkSmartPointer<vtkExtractSelection>::New();
   es2->SetInputData( 0, mesh );
@@ -217,6 +219,7 @@ int TestLinearSelector3D( int argc, char * argv [] )
   ls3->SetPoints( points3 );
   ls3->IncludeVerticesOff();
   ls3->SetVertexEliminationTolerance( 1.e-12 );
+  ls3->SetTolerance(1.e-12);
 
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es3 =  vtkSmartPointer<vtkExtractSelection>::New();

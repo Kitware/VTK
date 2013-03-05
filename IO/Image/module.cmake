@@ -18,4 +18,8 @@ vtk_module(vtkIOImage
     vtkTestingCore
     vtkImagingSources
     vtkImagingMath
+    vtkRenderingContext2D
+    vtkRenderingCore
+    vtkTestingCore
+    vtkTestingRendering
   )

@@ -80,6 +80,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "could not be inlined"
   "ld: warning prebinding disabled because \\((__TEXT|__DATA|__LINKEDIT) segment \\(address = 0x[a-f0-9]+ size = 0x[a-f0-9]+\\) of (.*) overlaps with (__LINKEDIT|__TEXT|__DATA) segment \\(address = 0x[a-f0-9]+ size = 0x[a-f0-9]+\\) of (.*)"
   "ld: warning prebinding disabled because dependent library: (.*).dylib is not prebound"
+  "ld: warning: duplicate dylib"
 
   # MPI uses c++ but may have been built with a different c++ compiler.
   # It seems to work anyway so let's ignore it to make it easier to
@@ -273,6 +274,10 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
   # Strange Arch warning
   "cc1plus: warning: assuming signed overflow does not occur when assuming that .* is always true"
+
+  # Ignore clang's summary warning, assuming prior text has matched some
+  # other warning expression:
+  "[0-9,]+ warnings? generated."
   )
 
 IF(APPLE)

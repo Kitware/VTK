@@ -38,18 +38,23 @@ void vtkTestingInteractor::Start()
   testing->AddArgument("-T");
   testing->AddArgument(vtkTestingInteractor::TempDirectory.c_str());
 
-  // Location of the Data directory
-  testing->AddArgument("-D");
-  testing->AddArgument(vtkTestingInteractor::DataDirectory.c_str());
+  // Location of the Data directory. If NOTFOUND, suppress regression
+  // testing
+  if (vtkTestingInteractor::DataDirectory != "VTK_DATA_ROOT-NOTFOUND")
+    {
+    testing->AddArgument("-D");
+    testing->AddArgument(vtkTestingInteractor::DataDirectory.c_str());
 
-  // The name of the valid baseline image
-  testing->AddArgument("-V");
-  std::string valid = vtkTestingInteractor::ValidBaseline;
-  testing->AddArgument(valid.c_str());
+    // The name of the valid baseline image
+    testing->AddArgument("-V");
+    std::string valid = vtkTestingInteractor::ValidBaseline;
+    testing->AddArgument(valid.c_str());
 
-  // Regression test the image
-  vtkTestingInteractor::TestReturnStatus =
+    // Regression test the image
+    vtkTestingInteractor::TestReturnStatus =
       testing->RegressionTest(vtkTestingInteractor::ErrorThreshold);
+    }
+
 }
 
 //----------------------------------------------------------------------------------
