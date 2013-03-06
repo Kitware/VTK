@@ -926,6 +926,8 @@ int vtkNetCDFCFReader::RequestDataObject(
     break;
     }
 
+  CALL_NETCDF(nc_close(ncFD));
+
   if (dataType == -1)
     {
     // Either no variables are selected or only variables with no dimensions.
