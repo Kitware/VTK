@@ -105,6 +105,8 @@ int TestStackedPlot(int , char * [])
   chart->GetAxis(1)->SetRange(0, 11);
   chart->GetAxis(1)->SetBehavior(vtkAxis::FIXED);
 
+  chart->SetShowLegend(true);
+
   // Add multiple line plots, setting the colors etc
   vtkPlotStacked *stack = 0;
 
