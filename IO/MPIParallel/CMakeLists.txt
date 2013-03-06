@@ -2,8 +2,16 @@ find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 add_definitionS("-DMPICH_IGNORE_CXX_SEEK")
 
+# We don't build the parallel WindBlade reader on windows
+# because there's problems with the MPI_File_open()
+# function when there's paths in the filenames.
+set(PWindBladeReader vtkPWindBladeReader.cxx)
+if(WIN32)
+  set(PWindBladeReader)
+endif()
+
 set(Module_SRCS
-  vtkPWindBladeReader.cxx
+  ${PWindBladeReader}
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
@@ -16,6 +24,10 @@ set_source_files_properties(
 set( vtk_module_overrides
   WindBladeReader
   )
+if(WIN32)
+  set( vtk_module_overrides )
+endif()
+
 
 foreach(_class ${vtk_module_overrides})
   set(_override vtkP${_class})
