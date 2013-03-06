@@ -33,6 +33,19 @@ vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
   //this->ExtentTranslator = vtkTableExtentTranslator::New();
   this->ExtentSplitter = vtkExtentSplitter::New();
   this->PieceExtents = 0;
+  memset(this->UpdateExtent, 0, sizeof(this->UpdateExtent));
+  memset(this->PointDimensions, 0, sizeof(this->PointDimensions));
+  memset(this->PointIncrements, 0, sizeof(this->PointIncrements));
+  memset(this->CellDimensions, 0, sizeof(this->CellDimensions));
+  memset(this->CellIncrements, 0, sizeof(this->CellIncrements));
+  memset(this->SubExtent, 0, sizeof(this->SubExtent));
+  memset(this->SubPointDimensions, 0, sizeof(this->SubPointDimensions));
+  memset(this->SubCellDimensions, 0, sizeof(this->SubCellDimensions));
+  memset(this->SubPieceExtent, 0, sizeof(this->SubPieceExtent));
+  memset(this->SubPiecePointDimensions, 0, sizeof(this->SubPiecePointDimensions));
+  memset(this->SubPiecePointIncrements, 0, sizeof(this->SubPiecePointIncrements));
+  memset(this->SubPieceCellDimensions, 0, sizeof(this->SubPieceCellDimensions));
+  memset(this->SubPieceCellIncrements, 0, sizeof(this->SubPieceCellIncrements));
 }
 
 //----------------------------------------------------------------------------
