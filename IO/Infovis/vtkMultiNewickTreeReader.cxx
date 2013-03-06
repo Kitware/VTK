@@ -127,9 +127,10 @@ int vtkMultiNewickTreeReader::RequestData(
   ifs.seekg(0, std::ios::end);
   fileSize = ifs.tellg();
   ifs.seekg(0, std::ios::beg);
-  char * buffer = new char[fileSize];
+  char * buffer = new char[fileSize+1];
   ifs.read(buffer, fileSize);
   ifs.close();
+  buffer[fileSize] = '\0';
 
   //use the separator ";" to decide how many trees are contained in the file
   char * current = buffer;
@@ -137,7 +138,7 @@ int vtkMultiNewickTreeReader::RequestData(
   while ( *current != '\0')
     {
     while (*current == '\n' || *current == ' ')
-      {//ignor extra \n and spacings
+      {//ignore extra \n and spaces
       current ++;
       }
 
@@ -169,6 +170,7 @@ int vtkMultiNewickTreeReader::RequestData(
       delete [] singleTreeBuffer;
       }
     }
+  delete [] buffer;
 
   return 1;
 }
