@@ -83,6 +83,10 @@ def scrape_cdash(date):
       tfails = testfails_tester.search(testsresponse).group(1)
       #print tfails
       configuration['FAILS'] = tfails
+      modules = configuration['MODULES']
+      del configuration['MODULES']
+      for x in modules:
+         configuration[x] = 'ON'
     except (AttributeError,SyntaxError):
       configuration = {'NA' : "summary not found on this dashboard"}
       print configuration
