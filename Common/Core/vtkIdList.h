@@ -106,7 +106,7 @@ public:
   //BTX
   // This method should become legacy
   void IntersectWith(vtkIdList& otherIds) {
-    return this->IntersectWith(&otherIds); };
+    this->IntersectWith(&otherIds); };
   //ETX
 
 protected:
