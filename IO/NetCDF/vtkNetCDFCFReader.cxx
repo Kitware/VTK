@@ -32,6 +32,7 @@
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkMergePoints.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkRectilinearGrid.h"
@@ -1071,7 +1072,17 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
     = vtkRectilinearGrid::GetData(outputVector);
   if (rectilinearOutput)
     {
-    this->AddRectilinearCoordinates(rectilinearOutput);
+    switch (this->CoordinateType(this->LoadingDimensions))
+      {
+      case COORDS_EUCLIDEAN_PSIDED_CELLS:
+      case COORDS_SPHERICAL_PSIDED_CELLS:
+        // There is no sensible way to store p-sided cells in a structured grid.
+        // Just fake some coordinates (related to ParaView bug #11543).
+        this->FakeRectilinearCoordinates(rectilinearOutput);
+        break;
+      default:
+        this->AddRectilinearCoordinates(rectilinearOutput);
+      }
     }
 
   vtkStructuredGrid *structuredOutput
@@ -1098,9 +1109,8 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
       case COORDS_EUCLIDEAN_PSIDED_CELLS:
       case COORDS_SPHERICAL_PSIDED_CELLS:
         // There is no sensible way to store p-sided cells in a structured grid.
-        // Just store them as a rectilinear grid, which should at least not
-        // crash (bug #11543).
-        this->Add1DRectilinearCoordinates(structuredOutput);
+        // Just fake some coordinates (ParaView bug #11543).
+        this->FakeStructuredCoordinates(structuredOutput);
         break;
       default:
         vtkErrorMacro("Internal error: unknown coordinate type.");
@@ -1244,6 +1254,34 @@ void vtkNetCDFCFReader::AddRectilinearCoordinates(
       case 0: rectilinearOutput->SetXCoordinates(coords);  break;
       case 1: rectilinearOutput->SetYCoordinates(coords);  break;
       case 2: rectilinearOutput->SetZCoordinates(coords);  break;
+      default: vtkErrorMacro("Sanity check failed!"); break;
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::FakeRectilinearCoordinates(
+    vtkRectilinearGrid *rectilinearOutput)
+{
+  int dimensionSizes[3];
+  rectilinearOutput->GetDimensions(dimensionSizes);
+
+  for (int dim = 0; dim < 3; dim++)
+    {
+    vtkNew<vtkDoubleArray> coordinate;
+    coordinate->SetNumberOfComponents(1);
+    coordinate->SetNumberOfTuples(dimensionSizes[dim]);
+
+    for (int index = 0; index < dimensionSizes[dim]; index++)
+      {
+      coordinate->SetComponent(index, 0, static_cast<double>(index));
+      }
+    switch(dim)
+      {
+      case 0: rectilinearOutput->SetXCoordinates(coordinate.GetPointer());break;
+      case 1: rectilinearOutput->SetYCoordinates(coordinate.GetPointer());break;
+      case 2: rectilinearOutput->SetZCoordinates(coordinate.GetPointer());break;
+      default: vtkErrorMacro("Sanity check failed!"); break;
       }
     }
 }
@@ -1376,6 +1414,33 @@ void vtkNetCDFCFReader::Add2DRectilinearCoordinates(
   VTK_CREATE(vtkPoints, points);
   this->Add2DRectilinearCoordinates(points, extent);
   structuredOutput->SetPoints(points);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::FakeStructuredCoordinates(
+    vtkStructuredGrid *structuredOutput)
+{
+  int extent[6];
+  structuredOutput->GetExtent(extent);
+
+  vtkNew<vtkPoints> points;
+  points->SetDataTypeToDouble();
+  points->Allocate( (extent[1]-extent[0]+1)
+                    * (extent[3]-extent[2]+1)
+                    * (extent[5]-extent[4]+1) );
+
+  for (int kIndex = extent[4]; kIndex <= extent[5]; kIndex++)
+    {
+    for (int jIndex = extent[2]; jIndex <= extent[3]; jIndex++)
+      {
+      for (int iIndex = extent[0]; iIndex <= extent[1]; iIndex++)
+        {
+        points->InsertNextPoint(iIndex, jIndex, kIndex);
+        }
+      }
+    }
+
+  structuredOutput->SetPoints(points.GetPointer());
 }
 
 //-----------------------------------------------------------------------------
