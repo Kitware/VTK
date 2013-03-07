@@ -284,7 +284,6 @@ int vtkPLYReader::RequestData(
       vtkCellArray *polys = vtkCellArray::New();
       polys->Allocate(polys->EstimateSize(numPolys,3),numPolys/2);
       plyFace face;
-      int verts[256];
       vtkIdType vtkVerts[256];
 
       // Get the face properties
@@ -308,12 +307,13 @@ int vtkPLYReader::RequestData(
       for (int j=0; j < numPolys; j++)
         {
         //grab and element from the file
-        face.verts = verts;
         vtkPLY::ply_get_element (ply, (void *) &face);
         for (int k=0; k < face.nverts; k++)
           {
           vtkVerts[k] = face.verts[k];
           }
+        free(face.verts); // allocated in vtkPLY::ascii/binary_get_element
+
         polys->InsertNextCell(face.nverts,vtkVerts);
         if ( intensityAvailable )
           {
