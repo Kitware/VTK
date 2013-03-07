@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestRemoveTreeLeafFilter.cxx
+  Module:    TestExtractSelectedTree.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,20 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkRemoveTreeLeafFilter.h"
+#include "vtkExtractSelectedTree.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkTree.h"
+#include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkStringArray.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkInformation.h"
 
 //----------------------------------------------------------------------------
-int TestRemoveTreeLeafFilter(int, char*[])
+int TestExtractSelectedTree(int, char*[])
 {
   vtkNew<vtkMutableDirectedGraph> graph;
   vtkIdType root = graph->AddVertex();
@@ -60,31 +62,33 @@ int TestRemoveTreeLeafFilter(int, char*[])
   graph->GetEdgeData()->AddArray(weights.GetPointer());
   graph->GetVertexData()->AddArray(names.GetPointer());
 
+  vtkNew<vtkTree> tree;
+  tree->ShallowCopy(graph.GetPointer());
+
+  int SUCCESS = 0;
+
+  // subtest 1
   vtkNew<vtkSelection> sel;
   vtkNew<vtkSelectionNode> selNode;
   vtkNew<vtkIdTypeArray> selArr;
+  selArr->InsertNextValue(a);
   selArr->InsertNextValue(b);
   selArr->InsertNextValue(c);
   selNode->SetContentType(vtkSelectionNode::INDICES);
   selNode->SetFieldType(vtkSelectionNode::VERTEX);
   selNode->SetSelectionList(selArr.GetPointer());
+  selNode->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
   sel->AddNode(selNode.GetPointer());
 
-
-  vtkNew<vtkTree> tree;
-  tree->ShallowCopy(graph.GetPointer());
-
-  int SUCCESS = 0;
-  vtkNew<vtkRemoveTreeLeafFilter> filter1;
+  vtkNew<vtkExtractSelectedTree> filter1;
   filter1->SetInputData(0,tree.GetPointer());
   filter1->SetInputData(1,sel.GetPointer());
-  filter1->SetShouldRemoveParentVertex(true);
   vtkTree * resultTree1 = filter1->GetOutput();
   filter1->Update();
 
-
   if (resultTree1->GetNumberOfVertices() == 5)
     {
+
     vtkDataSetAttributes * vertexData = resultTree1->GetVertexData();
     vtkDataSetAttributes * edgeData = resultTree1->GetEdgeData();
     if (vertexData->GetNumberOfTuples() != 5)
@@ -97,10 +101,10 @@ int TestRemoveTreeLeafFilter(int, char*[])
       vtkStringArray * a = vtkStringArray::SafeDownCast(vertexData->GetAbstractArray("node name"));
       vtkStdString n = a->GetValue(4);
       if (n.compare("d") != 0)
-         {
-         std::cerr <<"The node name should be \'d\', but appear to be: "<< n.c_str() << std::endl;
-         return EXIT_FAILURE;
-         }
+        {
+        std::cerr <<"The node name should be \'d\', but appear to be: "<< n.c_str() << std::endl;
+        return EXIT_FAILURE;
+        }
       }
 
     if (edgeData->GetNumberOfTuples() != 4)
@@ -111,19 +115,57 @@ int TestRemoveTreeLeafFilter(int, char*[])
     SUCCESS++;
     }
 
-  vtkNew<vtkRemoveTreeLeafFilter> filter2;
+  //subtest 2
+  vtkNew<vtkExtractSelectedTree> filter2;
+  selNode->GetProperties()->Set(vtkSelectionNode::INVERSE(), 0);
   filter2->SetInputData(0,tree.GetPointer());
   filter2->SetInputData(1,sel.GetPointer());
-  filter2->SetShouldRemoveParentVertex(false);
   vtkTree * resultTree2 = filter2->GetOutput();
   filter2->Update();
 
-  if (resultTree2->GetNumberOfVertices() == 6)
+  if (resultTree2->GetNumberOfVertices() == 3)
     {
     SUCCESS++;
     }
+  else
+    {
+    std::cerr<<"sub test 2: edge # ="<<resultTree2->GetNumberOfEdges()<<std::endl;
+    std::cerr<<"vertex # ="<<resultTree2->GetNumberOfVertices()<<std::endl;
+    return EXIT_FAILURE;
+    }
 
-  if( SUCCESS == 2)
+
+
+  //sub test 3
+  vtkNew<vtkExtractSelectedTree> filter3;
+  vtkNew<vtkSelection> sel3;
+  vtkNew<vtkSelectionNode> selEdge;
+  vtkNew<vtkIdTypeArray> selArrEdge;
+  selArrEdge->InsertNextValue(5);
+  selArrEdge->InsertNextValue(6);
+  selEdge->SetContentType(vtkSelectionNode::INDICES);
+  selEdge->SetFieldType(vtkSelectionNode::EDGE);
+  selEdge->SetSelectionList(selArrEdge.GetPointer());
+  selEdge->GetProperties()->Set(vtkSelectionNode::INVERSE(), 0);
+  sel3->AddNode(selEdge.GetPointer());
+
+  filter3->SetInputData(0,tree.GetPointer());
+  filter3->SetInputData(1,sel3.GetPointer());
+  vtkTree * resultTree3 = filter3->GetOutput();
+  filter3->Update();
+
+  if (resultTree3->GetNumberOfVertices() == 3)
+    {
+    SUCCESS++;
+    }
+  else
+    {
+    std::cerr<<"sub test 3: edge # ="<<resultTree3->GetNumberOfEdges()<<std::endl;
+    std::cerr<<"vertex # ="<<resultTree3->GetNumberOfVertices()<<std::endl;
+    return EXIT_FAILURE;
+    }
+
+  if( SUCCESS == 3)
     {
     return EXIT_SUCCESS;
     }
