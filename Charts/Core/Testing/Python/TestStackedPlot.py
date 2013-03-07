@@ -78,6 +78,8 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
         chart.GetAxis(1).SetMaximum(11)
         chart.GetAxis(1).SetBehavior(vtk.vtkAxis.FIXED)
 
+        chart.SetShowLegend(True)
+
         # Create the stacked plot
         stack = chart.AddPlot(3)
         stack.SetUseIndexForXSeries(True)
