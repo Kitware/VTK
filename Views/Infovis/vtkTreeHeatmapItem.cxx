@@ -46,6 +46,7 @@ vtkTreeHeatmapItem::vtkTreeHeatmapItem()
 {
   this->Interactive = true;
   this->JustCollapsedOrExpanded = false;
+  this->ColorTree = false;
   this->TreeHeatmapBuildTime = 0;
   this->Tree = vtkSmartPointer<vtkTree>::New();
   this->PrunedTree = vtkSmartPointer<vtkTree>::New();
@@ -552,6 +553,8 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     bool alreadyDrewCollapsedSubTree = false;
     vtkIdType originalId = this->GetOriginalId(target);
 
+    double color[3];
+    double colorKey;
     if (vertexIsPruned->GetValue(originalId) > 0)
       {
       ++numberOfCollapsedSubTrees;
@@ -569,14 +572,20 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
           this->LineIsVisible(trianglePoints[2], trianglePoints[3],
                               trianglePoints[4], trianglePoints[5]))
         {
-        double color[3];
-        double colorKey =
-          static_cast<double>(vertexIsPruned->GetValue(originalId));
+        colorKey = static_cast<double>(vertexIsPruned->GetValue(originalId));
         this->TriangleLookupTable->GetColor(colorKey, color);
         painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
         painter->DrawPolygon(trianglePoints, 3);
         }
       alreadyDrewCollapsedSubTree = true;
+      }
+
+    // color this portion of the tree based on the target node
+    if (this->ColorTree)
+      {
+      colorKey = this->TreeColorArray->GetValue(target);
+      this->TreeLookupTable->GetColor(colorKey, color);
+      painter->GetPen()->SetColorF(color[0], color[1], color[2]);
       }
 
     if (this->LineIsVisible(x0, y0, x0, y1))
@@ -589,6 +598,12 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
         {
         painter->DrawLine (x0, y1, x1, y1);
         }
+      }
+
+    if (this->ColorTree)
+      {
+      // revert to drawing black lines by default
+      painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
       }
     }
 
@@ -1358,6 +1373,28 @@ void vtkTreeHeatmapItem::CollapseToNumberOfLeafNodes(unsigned int n)
       }
     this->CollapseSubTree(prunedId);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::SetTreeColorArray(const char *arrayName)
+{
+  this->TreeColorArray = vtkDoubleArray::SafeDownCast(
+    this->Tree->GetVertexData()->GetArray(arrayName));
+  if (!this->TreeColorArray)
+    {
+    vtkErrorMacro("Could not downcast " << arrayName << " to a vtkDoubleArray");
+    this->ColorTree = false;
+    return;
+    }
+
+  double range[2];
+  this->TreeColorArray->GetValueRange(range, 0);
+
+  this->TreeLookupTable->SetNumberOfTableValues(256);
+  this->TreeLookupTable->SetRange(range[0], range[1]);
+  this->TreeLookupTable->Build();
+
+  this->ColorTree = true;
 }
 
 //-----------------------------------------------------------------------------
