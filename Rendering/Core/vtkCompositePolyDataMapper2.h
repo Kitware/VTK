@@ -85,6 +85,8 @@ protected:
   // Composite data set attributes.
   vtkSmartPointer<vtkCompositeDataDisplayAttributes> CompositeAttributes;
 
+  vtkPainter* SelectionCompositePainter;
+
 private:
   vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&); // Not implemented.
   void operator=(const vtkCompositePolyDataMapper2&); // Not implemented.

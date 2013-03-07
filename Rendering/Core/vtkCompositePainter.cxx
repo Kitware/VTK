@@ -111,22 +111,26 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
     vtkHardwareSelector *selector = renderer->GetSelector();
 
     // push display attributes
+    bool pop_visibility = false;
     bool prev_visible = visible;
     if(this->CompositeDataDisplayAttributes->HasBlockVisibility(flat_index))
       {
       visible = this->CompositeDataDisplayAttributes->GetBlockVisibility(flat_index);
+      pop_visibility = true;
       }
 
     vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
     vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::SafeDownCast(dobj);
     if(mbds || mpds)
       {
+      // move flat_index to first child
+      flat_index++;
+
       // recurse down to child blocks
       unsigned int childCount =
         mbds ? mbds->GetNumberOfBlocks() : mpds->GetNumberOfPieces();
       for(unsigned int i = 0; i < childCount; i++)
         {
-        flat_index++;
         this->RenderBlock(renderer,
                           actor,
                           typeflags,
@@ -135,13 +139,6 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
                           flat_index,
                           visible);
         }
-
-      // pop display attributes
-      if(this->CompositeDataDisplayAttributes->HasBlockVisibility(flat_index))
-        {
-        visible = prev_visible;
-        }
-      flat_index++;
       }
     else if(dobj)
       {
@@ -170,12 +167,18 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
           }
         }
 
-        // pop display attributes
-        if(this->CompositeDataDisplayAttributes->HasBlockVisibility(flat_index))
-          {
-          visible = prev_visible;
-          }
+      flat_index++;
       }
+    else
+      {
+      flat_index++;
+      }
+
+  // pop display attributes (if neccessary)
+  if(pop_visibility)
+    {
+    visible = prev_visible;
+    }
 }
 
 //-----------------------------------------------------------------------------
