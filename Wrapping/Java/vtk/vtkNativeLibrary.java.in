@@ -32,6 +32,7 @@ public enum vtkNativeLibrary {
                 }
             } catch (UnsatisfiedLinkError e) {
                 isEveryThingLoaded = false;
+                e.printStackTrace();
             }
         }
 
@@ -88,6 +89,7 @@ public enum vtkNativeLibrary {
                         loaded = true;
                         return;
                     } catch (UnsatisfiedLinkError e) {
+                        e.printStackTrace();
                     }
                 }
             }
