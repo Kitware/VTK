@@ -781,6 +781,11 @@ void vtkScalarBarActor::ComputeScalarBarThickness()
     this->P->ScalarBarBox.Posn[this->P->TL[0]] +=
       this->P->Frame.Size[0] - this->P->ScalarBarBox.Size[0];
     }
+
+  // Now knock the thickness down and nudge the bar so the bar doesn't hug the frame.
+  double nudge = fmin(this->P->TextPad,this->P->ScalarBarBox.Size[0] / 8.);
+  this->P->ScalarBarBox.Size[0] -= nudge;
+  this->P->ScalarBarBox.Posn[this->P->TL[0]] += nudge;
 }
 
 //----------------------------------------------------------------------------
@@ -866,7 +871,7 @@ void vtkScalarBarActor::LayoutTitle()
 
   int targetWidth, targetHeight;
   // Title spans entire width of frame at top, regardless of orientation.
-  targetWidth = static_cast<int>(this->P->Frame.Size[this->P->TL[0]]);
+  targetWidth = static_cast<int>(this->P->Frame.Size[this->P->TL[0]]) - 2 * this->P->TextPad;
   // Height is either: at most half the frame height or
   // a fixed portion of the frame remaining after subtracting the
   // scalar bar's thickness.
@@ -877,7 +882,8 @@ void vtkScalarBarActor::LayoutTitle()
     this->Orientation == VTK_ORIENT_VERTICAL ||
     this->LookupTable->GetIndexedLookup()) ?
     ceil(this->P->Frame.Size[this->P->TL[1]] / 2. - this->P->TextPad) :
-    (this->P->Frame.Size[0] - this->P->ScalarBarBox.Size[0] - this->P->TextPad)
+    (this->P->Frame.Size[0] - this->P->ScalarBarBox.Size[0]
+     - this->P->ScalarBarBox.Posn[this->P->TL[0]] - this->P->TextPad)
     * 0.625);
 
   this->TitleActor->SetConstrainedFontSize(
@@ -887,11 +893,15 @@ void vtkScalarBarActor::LayoutTitle()
   // update the box size and position.
   double titleSize[2] = {0, 0};
   this->TitleActor->GetSize(this->P->Viewport, titleSize);
+  this->TitleActor->GetTextProperty()->SetVerticalJustificationToTop();
   for (int i = 0; i < 2; ++i)
     {
     this->P->TitleBox.Size[this->P->TL[i]] =
       static_cast<int>(ceil(titleSize[i]));
     }
+  // Pad vertically (no need for horizontal padding as the box
+  // is centered and the targetWidth already took it into account).
+  this->P->TitleBox.Size[this->P->TL[1]] += 2 * this->P->TextPad;
 
   this->P->TitleBox.Posn[0] =
     this->P->Frame.Posn[0] +
@@ -902,11 +912,11 @@ void vtkScalarBarActor::LayoutTitle()
     this->Orientation == VTK_ORIENT_VERTICAL ||
     this->TextPosition == vtkScalarBarActor::SucceedScalarBar)
     {
-    this->P->TitleBox.Posn[1] -= this->P->TitleBox.Size[this->P->TL[1]];
+    this->P->TitleBox.Posn[1] -= this->P->TitleBox.Size[this->P->TL[1]] + this->P->TextPad;
     }
   else
     {
-    this->P->TitleBox.Posn[1] = this->P->Frame.Posn[1];
+    this->P->TitleBox.Posn[1] = this->P->Frame.Posn[1] - this->P->TextPad;
     }
 }
 

@@ -86,7 +86,7 @@ public:
 
   enum
     {
-    TextPad = 2
+    TextPad = 4
     };
 
   /**\brief Cache of dimensions fixed during geometry assembly.
