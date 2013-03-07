@@ -44,6 +44,7 @@ vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
   selectionPainter->SetDelegatePainter(this->SelectionPainter);
   this->SetSelectionPainter(selectionPainter);
   selectionPainter->FastDelete();
+  this->SelectionCompositePainter = selectionPainter;
 }
 
 //----------------------------------------------------------------------------
@@ -199,6 +200,13 @@ void vtkCompositePolyDataMapper2::SetCompositeDataDisplayAttributes(
         defaultPainter->GetCompositePainter();
 
       compositePainter->
+        SetCompositeDataDisplayAttributes(this->CompositeAttributes);
+      }
+
+    // set composite display attributes on the selection painter
+    if(this->SelectionCompositePainter)
+      {
+      this->SelectionCompositePainter->
         SetCompositeDataDisplayAttributes(this->CompositeAttributes);
       }
     }
