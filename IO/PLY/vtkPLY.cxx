@@ -1681,7 +1681,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
       }
       else {
         if (store_it) {
-          item_ptr = (char *) plyAllocateMemory (sizeof (char) * item_size * list_count);
+          item_ptr = (char *) myalloc (sizeof (char) * item_size * list_count);
           item = item_ptr;
           *store_array = item_ptr;
         }
