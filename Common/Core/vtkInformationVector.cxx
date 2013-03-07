@@ -85,6 +85,7 @@ void vtkInformationVector::SetNumberOfInformationObjects(int newNumber)
       {
       this->Internal->Vector[i] = vtkInformation::New();
       }
+    this->NumberOfInformationObjects = newNumber;
     }
   else if(newNumber < oldNumber)
     {
@@ -101,8 +102,8 @@ void vtkInformationVector::SetNumberOfInformationObjects(int newNumber)
         }
       }
     this->Internal->Vector.resize(newNumber);
+    this->NumberOfInformationObjects = newNumber;
     }
-  this->NumberOfInformationObjects = newNumber;
 }
 
 //----------------------------------------------------------------------------
