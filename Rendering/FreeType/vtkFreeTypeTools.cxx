@@ -1270,16 +1270,19 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data, int textBbox[4])
   textDims[1] = (textBbox[3] - textBbox[2] + 1);
 
   // Calculate the size the image needs to be.
-  // Scale to the next highest power of 2 if required.
   int targetDims[3];
+  // Scale to the next highest power of 2 if required.
   if (this->ScaleToPowerTwo)
     {
-    targetDims[0] =
-        1 << static_cast<int>(ceil(log(static_cast<double>(textDims[0]+1)) /
-                                   log(2.0)));
-    targetDims[1] =
-        1 << static_cast<int>(ceil(log(static_cast<double>(textDims[1]+1)) /
-                                   log(2.0)));
+    targetDims[0] = targetDims[1] = 1;
+    while (targetDims[0] < textDims[0])
+      {
+      targetDims[0] *= 2;
+      }
+    while (targetDims[1] < textDims[1])
+      {
+      targetDims[1] *= 2;
+      }
     }
   else
     {
