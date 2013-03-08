@@ -857,6 +857,7 @@ void vtkKdTree::BuildLocator()
     else // need lower bound to be strictly less than any point in decomposition
       {
       volBounds[2*i] -= this->FudgeFactor;
+      volBounds[2*i+1] += this->FudgeFactor;
       }
     }
   TIMERDONE("Set up to build k-d tree");
@@ -1796,6 +1797,7 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints **ptArrays, int numPtArrays)
     else                           // case (2) above
       {
       bounds[2*i] -= this->FudgeFactor;
+      bounds[2*i+1] += this->FudgeFactor;
       }
     }
 
