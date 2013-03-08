@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParticleTracerBase - A Parallel Particle tracer for unsteady vector fields
+// .NAME vtkParticleTracerBase - A particle tracer for vector fields
 // .SECTION Description
 // vtkParticleTracerBase is the base class for filters that advect particles
-// in a time varying vector field
+// in a vector field. Note that the input vtkPointData structure must
+// be identical on all datasets.
 //
 // .SECTION See Also
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
@@ -32,26 +33,24 @@
 #include <list>   // STL Header
 //ETX
 
-class vtkMultiProcessController;
-
-class vtkMultiBlockDataSet;
-class vtkDataArray;
-class vtkDoubleArray;
-class vtkGenericCell;
-class vtkIntArray;
-class vtkTemporalInterpolatedVelocityField;
-class vtkPoints;
+class vtkAbstractInterpolatedVelocityField;
+class vtkAbstractParticleWriter;
 class vtkCellArray;
+class vtkCharArray;
+class vtkCompositeDataSet;
+class vtkDataArray;
+class vtkDataSet;
 class vtkDoubleArray;
 class vtkFloatArray;
-class vtkIntArray;
-class vtkCharArray;
-class vtkAbstractParticleWriter;
-class vtkDataSet;
+class vtkGenericCell;
 class vtkInitialValueProblemSolver;
+class vtkIntArray;
+class vtkMultiBlockDataSet;
+class vtkMultiProcessController;
 class vtkPointData;
-class vtkAbstractInterpolatedVelocityField;
+class vtkPoints;
 class vtkPolyData;
+class vtkTemporalInterpolatedVelocityField;
 
 //BTX
 namespace vtkParticleTracerBaseNamespace
@@ -348,8 +347,9 @@ public:
     return true;
   }
 
-  // Description : This is an old routine kept for possible future use.
-  // In dnamic meshes, particles might leave the domain and need to be extrapolated across
+  // Description:
+  // This is an old routine kept for possible future use.
+  // In dynamic meshes, particles might leave the domain and need to be extrapolated across
   // a gap between the meshes before they re-renter another domain
   // dodgy rotating meshes need special care....
   bool ComputeDomainExitLocation(
@@ -389,6 +389,14 @@ public:
   virtual void ResetCache();
   void AddParticle(vtkParticleTracerBaseNamespace::ParticleInformation &info, double* velocity);
 
+  // Description:
+  // Methods that check that the input arrays are ordered the
+  // same on all data sets. This needs to be true for all
+  // blocks in a composite data set as well as across all processes.
+  virtual bool IsPointDataValid(vtkDataObject* input);
+  bool IsPointDataValid(vtkCompositeDataSet* input, std::vector<std::string>& arrayNames);
+  void GetPointDataArrayNames(vtkDataSet* input, std::vector<std::string>& names);
+
 private:
   // Description:
   // Hide this because we require a new interpolator type
@@ -402,8 +410,6 @@ private:
   bool RetryWithPush(
     vtkParticleTracerBaseNamespace::ParticleInformation &info, double* point1,double delT, int subSteps);
 
-
-private:
   //Parameters of tracing
   vtkInitialValueProblemSolver* Integrator;
   double IntegrationStep;
