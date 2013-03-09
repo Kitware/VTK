@@ -377,7 +377,6 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
   vtkIdType streamSkip0, streamSkip1;
   vtkIdType streamRead;
   int idx0, idx1, idx2, pixelRead;
-  unsigned char *buf;
   int inExtent[6];
   int dataExtent[6];
   int pixelSkip;
@@ -434,14 +433,10 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
     streamSkip0 = (vtkIdType) (-streamRead - self->GetDataIncrements()[1]);
     }
 
-  // create a buffer to hold a row of the data
-  buf = new unsigned char[streamRead];
-
   target = (unsigned long)((dataExtent[5]-dataExtent[4]+1)*
                            (dataExtent[3]-dataExtent[2]+1)/50.0);
   target++;
 
-  // read the data row by row
   if (self->GetFileDimensionality() == 3)
     {
     if (!self->OpenAndSeekFile(dataExtent,0))
@@ -449,6 +444,11 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
       return;
       }
     }
+
+  // create a buffer to hold a row of the data
+  unsigned char *buf = new unsigned char[streamRead];
+
+  // read the data row by row
   for (idx2 = dataExtent[4]; idx2 <= dataExtent[5]; ++idx2)
     {
     if (self->GetFileDimensionality() == 2)
@@ -481,6 +481,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
                                << ", FileName = " << self->GetInternalFileName()
                                );
         self->GetFile()->close();
+        delete [] buf;
         return;
         }
 
