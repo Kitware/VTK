@@ -144,10 +144,6 @@ int vtkTensorGlyph::RequestData(
 
   numDirs = (this->ThreeGlyphs?3:1)*(this->Symmetric+1);
 
-  pts = new vtkIdType[source->GetMaxCellSize()];
-  trans = vtkTransform::New();
-  matrix = vtkMatrix4x4::New();
-
   // set up working matrices
   m[0] = m0; m[1] = m1; m[2] = m2;
   v[0] = v0; v[1] = v1; v[2] = v2;
@@ -165,6 +161,11 @@ int vtkTensorGlyph::RequestData(
     vtkErrorMacro(<<"No data to glyph!");
     return 1;
     }
+
+  pts = new vtkIdType[source->GetMaxCellSize()];
+  trans = vtkTransform::New();
+  matrix = vtkMatrix4x4::New();
+
   //
   // Allocate storage for output PolyData
   //
