@@ -201,6 +201,7 @@ function(vtk_module_export sources)
         get_source_file_property(_wrap_exclude ${src} WRAP_EXCLUDE)
         get_source_file_property(_abstract ${src} ABSTRACT)
         get_source_file_property(_wrap_special ${src} WRAP_SPECIAL)
+        get_source_file_property(_wrap_header ${src} WRAP_HEADER)
 
         if(_wrap_special OR NOT _wrap_exclude)
           list(APPEND vtk-module-CLASSES ${_cls})
@@ -218,6 +219,10 @@ function(vtk_module_export sources)
           if(_wrap_special)
             set(vtk-module-WRAP_SPECIAL
               "${vtk-module-WRAP_SPECIAL}set(${vtk-module}_CLASS_${_cls}_WRAP_SPECIAL 1)\n")
+          endif()
+          if(_wrap_header)
+            set(vtk-module-WRAP_SPECIAL
+              "${vtk-module-WRAP_SPECIAL}set(${vtk-module}_CLASS_${_cls}_WRAP_HEADER 1)\n")
           endif()
         endif()
       endif()

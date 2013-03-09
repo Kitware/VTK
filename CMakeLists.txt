@@ -354,8 +354,13 @@ find_program(VTK_GHOSTSCRIPT_EXECUTABLE gs gswin32c gsos2)
 mark_as_advanced(VTK_GHOSTSCRIPT_EXECUTABLE)
 
 #----------------------------------------------------------------------
-# Load the module DAG.
+# Load the module DAG, assess all modules etc.
 include(vtkModuleTop)
+
+# Now build the Python wrapping if necessary.
+if(VTK_WRAP_PYTHON)
+  add_subdirectory(Wrapping/Python)
+endif()
 
 if(BUILD_TESTING)
   add_subdirectory(Testing/Install)

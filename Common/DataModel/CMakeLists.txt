@@ -177,6 +177,7 @@ set(Module_SRCS
   vtkBond.cxx
   vtkMolecule.cxx
   vtkAbstractElectronicData.cxx
+  vtkCellType.h
 
   # Header only classes
   vtkDataArrayDispatcher.h
@@ -244,6 +245,7 @@ set_source_files_properties(
   vtkAtom
   vtkBond
   vtkBoundingBox
+  vtkCellType
   vtkDataArrayDispatcher
   vtkDispatcher_Private
   vtkDispatcher

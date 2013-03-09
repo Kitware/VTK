@@ -444,6 +444,46 @@ set_source_files_properties(
   vtkSparseArray.h
   vtkTypedArray.h
   vtkTypeTemplate.h
+
+  vtkABI.h
+  vtkArrayInterpolate.h
+  vtkArrayInterpolate.txx
+  vtkArrayIteratorIncludes.h
+  vtkArrayIteratorTemplate.h
+  vtkArrayIteratorTemplate.txx
+  vtkArrayIteratorTemplateImplicit.txx
+  vtkArrayPrint.h
+  vtkArrayPrint.txx
+  vtkAutoInit.h
+  vtkDataArrayTemplate.txx
+  vtkDataArrayTemplateImplicit.txx
+  vtkDenseArray.txx
+  vtkIOStreamFwd.h
+  vtkInformationInternals.h
+  vtkMathUtilities.h
+  vtkNew.h
+  vtkSetGet.h
+  vtkSmartPointer.h
+  vtkSparseArray.txx
+  vtkTemplateAliasMacro.h
+  vtkTypeTraits.h
+  vtkTypedArray.txx
+  vtkVariantCast.h
+  vtkVariantCreate.h
+  vtkVariantExtract.h
+  vtkVariantInlineOperators.h
+  vtkWeakPointer.h
+  vtkWin32Header.h
+  vtkWindows.h
+  vtkToolkits.h
+
+  # We need to get these wrapped, WRAP_SPECIAL? WRAP_HEADER does not seem to be used.
+  #vtkSystemIncludes.h
+  #vtkType.h
+  #vtkConfigure.h
+  #vtkMathConfigure.h
+  #vtkVersionMacros.h
+
   WRAP_EXCLUDE
   )
 
@@ -482,7 +522,7 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*")
   set(KIT_LIBS ${KIT_LIBS} socket nsl)
 endif()
 
-vtk_module_library(vtkCommonCore ${Module_SRCS})
+vtk_module_library(vtkCommonCore ${Module_SRCS} ${${vtk-module}_HDRS})
 
 target_link_libraries(vtkCommonCore ${CMAKE_THREAD_LIBS_INIT})
 set_target_properties(vtkCommonCore PROPERTIES LINK_INTERFACE_LIBRARIES "")
