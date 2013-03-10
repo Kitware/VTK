@@ -1271,25 +1271,15 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data, int textBbox[4])
 
   // Calculate the size the image needs to be.
   int targetDims[3];
+  targetDims[0] = textDims[0];
+  targetDims[1] = textDims[1];
+  targetDims[2] = 1;
   // Scale to the next highest power of 2 if required.
   if (this->ScaleToPowerTwo)
     {
-    targetDims[0] = targetDims[1] = 1;
-    while (targetDims[0] < textDims[0])
-      {
-      targetDims[0] *= 2;
-      }
-    while (targetDims[1] < textDims[1])
-      {
-      targetDims[1] *= 2;
-      }
+    targetDims[0] = vtkMath::NearestPowerOfTwo(targetDims[0]);
+    targetDims[1] = vtkMath::NearestPowerOfTwo(targetDims[1]);
     }
-  else
-    {
-    targetDims[0] = textDims[0];
-    targetDims[1] = textDims[1];
-    }
-  targetDims[2] = 1;
 
   // Calculate the target extent of the image using the text origin as (0, 0, 0)
   int targetExtent[6];

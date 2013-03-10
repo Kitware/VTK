@@ -117,6 +117,12 @@ public:
   static int Ceil(double x);
 
   // Description:
+  // Compute the nearest power of two that is not less than x.
+  // The return value is 1 if x is less than or equal to zero,
+  // and is VTK_INT_MIN if result is too large to fit in an int.
+  static int NearestPowerOfTwo(int x);
+
+  // Description:
   // Compute N factorial, N! = N*(N-1) * (N-2)...*3*2*1.
   // 0! is taken to be 1.
   static vtkTypeInt64 Factorial( int N );
@@ -963,6 +969,19 @@ inline vtkTypeInt64 vtkMath::Factorial( int N )
     r *= N--;
     }
   return r;
+}
+
+//----------------------------------------------------------------------------
+// Credit goes to Peter Hart and William Lewis on comp.lang.python 1997
+inline int vtkMath::NearestPowerOfTwo(int x)
+{
+  unsigned int z = ((x > 0) ? x - 1 : 0);
+  z |= z >> 1;
+  z |= z >> 2;
+  z |= z >> 4;
+  z |= z >> 8;
+  z |= z >> 16;
+  return static_cast<int>(z + 1);
 }
 
 //----------------------------------------------------------------------------

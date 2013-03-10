@@ -278,6 +278,23 @@ int TestMath(int,char *[])
     return 1;
     }
 
+  // test nearest-power-of-two
+  const static int testPowerOfTwoInputs[10] = {
+    0, 1, 31, 32, 33, -1, -8, VTK_INT_MAX, 1073741824, 1073741825 };
+  const static int testPowerOfTwoOutputs[10] = {
+    1, 1, 32, 32, 64, 1, 1, VTK_INT_MIN, 1073741824, VTK_INT_MIN };
+  for (int po2 = 0; po2 < 10; po2++)
+    {
+    int po2v = vtkMath::NearestPowerOfTwo(testPowerOfTwoInputs[po2]);
+    if (po2v != testPowerOfTwoOutputs[po2])
+      {
+      vtkGenericWarningMacro("NearestPowerOfTwo(" <<
+        testPowerOfTwoInputs[po2] << ") = " << po2v << " != " <<
+        testPowerOfTwoOutputs[po2]);
+      return 1;
+      }
+    }
+
   // Test add, subtract, scalar multiplication.
   double a[3] = {1.0, 2.0, 3.0};
   double b[3] = {0.0, 1.0, 2.0};
