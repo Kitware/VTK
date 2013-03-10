@@ -243,11 +243,11 @@ int vtkImageDataGeometryFilter::RequestData(
       newPolys = vtkCellArray::New();
       if (this->OutputTriangles)
         {
-        newPolys->Allocate(2*newLines->EstimateSize(numPolys,3));
+        newPolys->Allocate(2*newPolys->EstimateSize(numPolys,3));
         }
       else
         {
-        newPolys->Allocate(newLines->EstimateSize(numPolys,4));
+        newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
         }
       outPD->CopyAllocate(pd,totPoints);
       outCD->CopyAllocate(cd,numPolys);
