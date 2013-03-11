@@ -380,8 +380,8 @@ void vtkTexturedButtonRepresentation::ShallowCopy(vtkProp *prop)
       {
       (*this->TextureArray)[(*iter).first] = (*iter).second;
       }
+    this->FollowCamera = rep->FollowCamera;
     }
-  this->FollowCamera = rep->FollowCamera;
 
   this->Superclass::ShallowCopy(prop);
 }
