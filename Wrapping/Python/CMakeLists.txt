@@ -66,7 +66,7 @@ configure_file("${CMAKE_CURRENT_BINARY_DIR}/vtkInstantiators.h.in"
 #-----------------------
 # for the vtkpython executable
 if(VTK_USE_CARBON)
-  find_program(VTK_APPLE_RESOURCE Rez /Developer/Tools)
+  find_program(VTK_APPLE_RESOURCE Rez "${OSX_DEVELOPER_ROOT}/usr/bin")
 endif()
 
 if(UNIX)
