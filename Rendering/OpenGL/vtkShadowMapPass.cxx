@@ -404,6 +404,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     if(this->Program->GetLastBuildStatus()!=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
       {
       vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
+      delete[] lightSwitches;
       return;
       }
 

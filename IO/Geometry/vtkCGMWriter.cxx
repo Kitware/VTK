@@ -1205,8 +1205,10 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   im->picnum++;
   tb = static_cast<char *>(calloc(4*4, SIZEOF(char) ));
   headerp = static_cast<unsigned char *>(calloc(1024, SIZEOF(unsigned char )));
-  if (!headerp)
+  if (!tb || !headerp)
     {
+    free(fb);
+    free(headerp);
     return 0; /* memory allocation failed */
     }
   head=headerp;

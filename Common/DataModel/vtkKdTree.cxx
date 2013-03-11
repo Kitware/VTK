@@ -3719,6 +3719,7 @@ void vtkKdTree::CreateCellLists(vtkDataSet *set, int *regionList, int listSize)
   if (!list->cells)
     {
     vtkErrorMacro(<<"vtkKdTree::CreateCellLists memory allocation");
+    delete [] idlist;
     delete [] listptr;
     return;
     }

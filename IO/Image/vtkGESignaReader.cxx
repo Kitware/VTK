@@ -633,6 +633,8 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
         vtkGenericWarningMacro ("GESignaReader error reading file: " << self->GetInternalFileName()
                                 << " Premature EOF while reading packHdrOffset.");
         fclose (fp);
+        delete [] leftMap;
+        delete [] widthMap;
         return;
         }
       vtkByteSwap::Swap4BE(&packHdrOffset);
@@ -681,14 +683,9 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
     }
 
   delete [] tmp;
-  if (leftMap)
-    {
-      delete [] leftMap;
-    }
-  if (widthMap)
-    {
-      delete [] widthMap;
-    }
+  delete [] leftMap;
+  delete [] widthMap;
+
   fclose(fp);
 }
 
