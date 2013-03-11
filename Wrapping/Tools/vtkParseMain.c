@@ -105,14 +105,14 @@ static int read_option_file(
   int j;
   int in_string;
 
-  line = (char *)malloc(maxlen);
-
   fp = fopen(filename, "r");
 
   if (fp == NULL)
     {
     return 0;
     }
+
+  line = (char *)malloc(maxlen);
 
   /* read the file line by line */
   while (fgets(line, (int)maxlen, fp))
