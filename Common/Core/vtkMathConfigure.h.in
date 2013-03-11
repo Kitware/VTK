@@ -21,7 +21,10 @@
 #ifndef __vtkMathConfigure_h
 #define __vtkMathConfigure_h
 
+// Include cmath first as it is the proper C++ header, include others as
+// fallbacks so we might catch the C99 isnan, isinf, and isfinite functions.
 #include <cmath>
+#include <math.h>
 #include <float.h>
 
 #cmakedefine VTK_HAS_ISNAN
