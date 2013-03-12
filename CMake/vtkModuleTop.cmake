@@ -17,6 +17,13 @@ endif()
 #----------------------------------------------------------------------
 # Load the module DAG.
 
+# Remove old ${vtk-module}.*.cmake files generated for enabled modules.
+# These will be re-written on currently enabled modules.
+file(GLOB module_files "${VTK_MODULES_DIR}/*.cmake")
+if (module_files)
+  file(REMOVE ${module_files})
+endif()
+
 # Assess modules, and tests in the repository.
 vtk_module_search(${_test_languages})
 
