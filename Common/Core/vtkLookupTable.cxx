@@ -398,12 +398,7 @@ inline unsigned char *vtkLinearLookup(
   double v, unsigned char *table, double maxIndex, double shift, double scale,
   unsigned char *nanColor)
 {
-  // calling isnan() instead of vtkMath::IsNan() improves performance
-#ifdef VTK_HAS_ISNAN
-  if (isnan(v))
-#else
   if (vtkMath::IsNan(v))
-#endif
     {
     return nanColor;
     }
@@ -474,12 +469,7 @@ vtkIdType vtkLookupTable::GetIndex(double v)
 
   // Map to an index:
   //   First, check whether we have a number...
-  //     calling isnan() instead of vtkMath::IsNan() improves performance
-#ifdef VTK_HAS_ISNAN
-  if ( isnan( v ) )
-#else
   if ( vtkMath::IsNan( v ) )
-#endif
     {
     return -1;
     }
