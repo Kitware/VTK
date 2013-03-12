@@ -2820,12 +2820,12 @@ int vtkEnSight6BinaryReader::ReadIntNumber(int *result)
     // multiplication (by doing 64 bit math).
     // Use negative value as an indication of bad number.
     if (tmpLE < 0 ||
-        ((vtkTypeInt64)tmpLE * sizeof(int)) > this->FileSize)
+        tmpLE * (vtkTypeInt64)sizeof(int) > this->FileSize)
       {
       tmpLE = -1;
       }
     if (tmpBE < 0 ||
-        ((vtkTypeInt64)tmpBE * sizeof(int)) > this->FileSize)
+        tmpBE * (vtkTypeInt64)sizeof(int) > this->FileSize)
       {
       tmpBE = -1;
       }
