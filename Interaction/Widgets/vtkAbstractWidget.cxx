@@ -182,7 +182,10 @@ void vtkAbstractWidget::SetEnabled(int enabling)
       this->Parent->RemoveObserver(this->EventCallbackCommand);
       }
 
-    this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
+    if (this->CurrentRenderer)
+      {
+      this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
+      }
 
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     this->SetCurrentRenderer(NULL);
