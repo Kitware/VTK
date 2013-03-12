@@ -240,7 +240,7 @@ int vtkRectilinearGridGeometryFilter::RequestData(
       newPts = vtkPoints::New();
       newPts->Allocate(totPoints);
       newPolys = vtkCellArray::New();
-      newPolys->Allocate(newLines->EstimateSize(numPolys,4));
+      newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
       outPD->CopyAllocate(pd,totPoints);
       outCD->CopyAllocate(cd,numPolys);
 //
