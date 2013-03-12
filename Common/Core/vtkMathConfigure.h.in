@@ -58,15 +58,6 @@
 # define VTK_HAS_ISFINITE 1
 #endif
 
-// The compiler for the G5 Apple is not including the isnan and isinf prototypes
-// in its math headers even though the symbol exists in the libraries.  Just do
-// a brute force to not use those functions in this case to get around compiler
-// errors.
-#if defined(__APPLE__) && (__GNUC__ < 4)
-# undef VTK_HAS_ISNAN
-# undef VTK_HAS_ISINF
-#endif
-
 // We pretty much assume that all compilers are going to provide
 // std::numeric_limits methods in the limits header.  On of the Borland
 // dashboard compilers failed to link in the methods, so we have a special
