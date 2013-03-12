@@ -103,8 +103,6 @@ const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFLL;
 //
 // Some useful macros and functions
 //
-#define VTK_SIGN(x)              (( (x) < 0 )?( -1 ):( 1 ))
-// avoid dll boundary problems
 
 //----------------------------------------------------------------------------
 // Generate pseudo-random numbers distributed according to the uniform
