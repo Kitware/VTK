@@ -272,8 +272,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     if(!resampleNeeded && !this->SupportsNonPowerOfTwoTextures)
       {
       // if not a power of two then resampling is required
-      resampleNeeded = (vtkMath::NearestPowerOfTwo(xsize) != xsize ||
-                        vtkMath::NearestPowerOfTwo(ysize) != ysize);
+      resampleNeeded = !(vtkMath::IsPowerOfTwo(xsize) &&
+                         vtkMath::IsPowerOfTwo(ysize));
       }
 
     if (resampleNeeded)

@@ -117,6 +117,16 @@ public:
   static int Ceil(double x);
 
   // Description:
+  // Gives the exponent of the lowest power of two not less than x.
+  // Or in mathspeak, return the smallest "i" for which 2^i >= x.
+  // If x is zero, then the return value will be zero.
+  static int CeilLog2(vtkTypeUInt64 x);
+
+  // Description:
+  // Returns true if integer is a power of two.
+  static bool IsPowerOfTwo(vtkTypeUInt64 x);
+
+  // Description:
   // Compute the nearest power of two that is not less than x.
   // The return value is 1 if x is less than or equal to zero,
   // and is VTK_INT_MIN if result is too large to fit in an int.
@@ -969,6 +979,12 @@ inline vtkTypeInt64 vtkMath::Factorial( int N )
     r *= N--;
     }
   return r;
+}
+
+//----------------------------------------------------------------------------
+inline bool vtkMath::IsPowerOfTwo(vtkTypeUInt64 x)
+{
+  return ((x != 0) & ((x & (x - 1)) == 0));
 }
 
 //----------------------------------------------------------------------------

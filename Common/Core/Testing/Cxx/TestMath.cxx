@@ -278,6 +278,42 @@ int TestMath(int,char *[])
     return 1;
     }
 
+  // test CeilLog2
+  const static vtkTypeUInt64 testCeilLog2Inputs[7] = {
+    0ull, 1ull, 31ull, 32ull, 33ull,
+    9223372036854775808ull /* 2^63 */, 18446744073709551615ull /* 2^64-1 */};
+  const static int testCeilLog2Outputs[7] = {
+    0, 0, 5, 5, 6, 63, 64};
+  for (int cl2 = 0; cl2 < 7; cl2++)
+    {
+    int po2v = vtkMath::CeilLog2(testCeilLog2Inputs[cl2]);
+    if (po2v != testCeilLog2Outputs[cl2])
+      {
+      vtkGenericWarningMacro("CeilLog2(" <<
+        testCeilLog2Inputs[cl2] << ") = " << po2v << " != " <<
+        testCeilLog2Outputs[cl2]);
+      return 1;
+      }
+    }
+
+  // test is-power-of-two
+  const static vtkTypeUInt64 isPowerOfTwoInputs[16] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 255, 256, 257,
+    9223372036854775808ull /* 2^63 */, 18446744073709551615ull /* 2^64-1 */};
+  const static int isPowerOfTwoOutputs[16] = {
+    0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 };
+  for (int ip2 = 0; ip2 < 10; ip2++)
+    {
+    int ip2v = vtkMath::IsPowerOfTwo(isPowerOfTwoInputs[ip2]);
+    if (ip2v ^ isPowerOfTwoOutputs[ip2])
+      {
+      vtkGenericWarningMacro("IsPowerOfTwo(" <<
+        isPowerOfTwoInputs[ip2] << ") = " << ip2v << " != " <<
+        isPowerOfTwoOutputs[ip2]);
+      return 1;
+      }
+    }
+
   // test nearest-power-of-two
   const static int testPowerOfTwoInputs[10] = {
     0, 1, 31, 32, 33, -1, -8, VTK_INT_MAX, 1073741824, 1073741825 };
