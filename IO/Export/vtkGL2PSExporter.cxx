@@ -137,6 +137,7 @@ void vtkGL2PSExporter::WriteData()
   if (!fpObj)
     {
     vtkErrorMacro(<< "unable to open file: " << fName);
+    delete [] fName;
     return;
     }
 

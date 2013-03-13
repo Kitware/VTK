@@ -407,10 +407,8 @@ int vtkGenericGeometryFilter::RequestData(
     }
   output->Squeeze();
 
-  if ( cellVis )
-    {
-    delete [] cellVis;
-    }
+  delete [] cellVis;
+
   return 1;
 }
 

@@ -680,16 +680,16 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
 
   int direction=1;
 
-  double* weights = 0;
-  if ( maxCellSize > 0 )
-    {
-    weights = new double[maxCellSize];
-    }
-
   if (this->GetIntegrator() == 0)
     {
     vtkErrorMacro("No integrator is specified.");
     return;
+    }
+
+  double* weights = 0;
+  if ( maxCellSize > 0 )
+    {
+    weights = new double[maxCellSize];
     }
 
   // Used in GetCell()

@@ -369,10 +369,7 @@ int vtkGeometryFilter::RequestData(
 
   cellIds->Delete();
   pts->Delete();
-  if ( cellVis )
-    {
-    delete [] cellVis;
-    }
+  delete [] cellVis;
 
   return 1;
 }

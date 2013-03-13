@@ -1097,7 +1097,7 @@ int vtkSocketCommunicator::CheckForErrorInternal(int id)
 //-----------------------------------------------------------------------------
 void vtkSocketCommunicator::Barrier()
 {
-  int junk;
+  int junk = 0;
   if (this->IsServer)
     {
     this->Send(&junk, 1, 1, BARRIER_TAG);

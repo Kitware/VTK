@@ -452,6 +452,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
                      <<  key
                      <<". Cannot derive model." );
+      delete [] derivedVals;
       return;
       }
 

@@ -461,6 +461,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
       {
       vtkErrorMacro("For the file " << this->FileName
                     << " fscanf expected 1 items but got " << result);
+      fclose (fp);
       return -1;
     }
     //
@@ -493,6 +494,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
         {
         vtkErrorMacro("For the file " << this->FileName
                       << " fscanf expected 1 items but got " << result);
+        fclose (fp);
         return -1;
         }
       *(outPtr + columnId + row * numberOfColumns) = elevation * units;

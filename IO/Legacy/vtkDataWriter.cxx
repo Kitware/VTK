@@ -1350,6 +1350,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       {
       vtkErrorMacro(<<"Type currently not supported");
       *fp << "NULL_ARRAY" << endl;
+      delete[] outputFormat;
       return 0;
       }
     }
