@@ -285,28 +285,38 @@ public:
 
   // Description:
   // Return the range of the array values for the given component.
-  // Range is copied into the array provided.
   // If comp is equal to -1, it returns the range of the magnitude
   // (if the number of components is equal to 1 it still returns the range of
   // component 0).
   void GetRange(double range[2], int comp)
     {
-    this->ComputeRange(comp);
-    memcpy(range, this->Range, 2*sizeof(double));
+    this->ComputeRange(range, comp);
     }
+
+  // Description:
+  // Return the range of the array values for the given component.
+  // Range is copied into the array provided.
+  // If comp is equal to -1, it returns the range of the magnitude
+  // (if the number of components is equal to 1 it still returns the range of
+  // component 0).
+  // THIS METHOD IS NOT THREAD SAFE.
   double* GetRange(int comp)
     {
-    this->ComputeRange(comp);
+    this->GetRange(this->Range, comp);
     return this->Range;
     }
+
+  // Description:
+  // Return the range of the array values for the 0th component.
+  // THIS METHOD IS NOT THREAD SAFE.
+  double* GetRange()
+    {
+    return this->GetRange(0);
+    }
+
   // Description:
   // Return the range of the array values for the 0th component.
   // Range is copied into the array provided.
-  double* GetRange()
-    {
-    this->ComputeRange(0);
-    return this->Range;
-    }
   void GetRange(double range[2])
     {
     this->GetRange(range,0);
@@ -363,12 +373,13 @@ protected:
   // Description:
   // Compute the range for a specific component. If comp is set -1
   // then L2 norm is computed on all components. Call ClearRange
-  // to force a recomputation if it is needed.
-  virtual void ComputeRange(int comp);
+  // to force a recomputation if it is needed. The range is copied
+  // to the range argument.
+  virtual void ComputeRange(double range[2], int comp);
   // Description:
   // Slow range computation methods. Reimplement.
-  virtual void ComputeScalarRange(int comp);
-  virtual void ComputeVectorRange();
+  virtual void ComputeScalarRange(double range[2], int comp);
+  virtual void ComputeVectorRange(double range[2]);
 
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(vtkIdType numComp=1);
