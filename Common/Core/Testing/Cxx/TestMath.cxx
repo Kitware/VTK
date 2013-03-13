@@ -331,6 +331,41 @@ int TestMath(int,char *[])
       }
     }
 
+  // test Floor and Ceil
+  const static double fcInputs[19] = {
+    0.0, -VTK_DBL_EPSILON, VTK_DBL_EPSILON,
+    1.0, 1-VTK_DBL_EPSILON, 1+VTK_DBL_EPSILON,
+    2.0, 2-2*VTK_DBL_EPSILON, 2+2*VTK_DBL_EPSILON,
+    -1.0, -1-VTK_DBL_EPSILON, -1+VTK_DBL_EPSILON,
+    -2.0, -2-2*VTK_DBL_EPSILON, -2+2*VTK_DBL_EPSILON,
+    2147483647.0, 2147483647.0-2147483648.0*VTK_DBL_EPSILON,
+    -2147483648.0, -2147483648.0+2147483648.0*VTK_DBL_EPSILON };
+  const static int floorOutputs[19] = {
+    0, -1, 0,  1, 0, 1,  2, 1, 2,  -1, -2, -1,  -2, -3, -2,
+    VTK_INT_MAX, VTK_INT_MAX-1,  VTK_INT_MIN, VTK_INT_MIN };
+  const static int ceilOutputs[19] = {
+    0, 0, 1,  1, 1, 2,  2, 2, 3,  -1, -1, 0,  -2, -2, -1,
+    VTK_INT_MAX, VTK_INT_MAX,  VTK_INT_MIN, VTK_INT_MIN+1 };
+  for (int fcc = 0; fcc < 19; fcc++)
+    {
+    int floorOut = vtkMath::Floor(fcInputs[fcc]);
+    int ceilOut = vtkMath::Ceil(fcInputs[fcc]);
+    if (floorOut != floorOutputs[fcc])
+      {
+      vtkGenericWarningMacro("Floor(" <<
+        fcInputs[fcc] << ") = " << floorOut << " != " <<
+        floorOutputs[fcc]);
+      return 1;
+      }
+    if (ceilOut != ceilOutputs[fcc])
+      {
+      vtkGenericWarningMacro("Ceil(" <<
+        fcInputs[fcc] << ") = " << ceilOut << " != " <<
+        ceilOutputs[fcc]);
+      return 1;
+      }
+    }
+
   // Test add, subtract, scalar multiplication.
   double a[3] = {1.0, 2.0, 3.0};
   double b[3] = {0.0, 1.0, 2.0};
