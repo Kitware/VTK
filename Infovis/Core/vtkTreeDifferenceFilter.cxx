@@ -106,7 +106,7 @@ int vtkTreeDifferenceFilter::RequestData(
     this->EdgeMap.clear();
     for (vtkIdType edge = 0; edge < tree1->GetNumberOfEdges(); ++edge)
       {
-      this->VertexMap[edge] = edge;
+      this->EdgeMap[edge] = edge;
       }
     }
 
@@ -262,7 +262,14 @@ void vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
   for (vtkIdType treeId1 = 0; treeId1 < arrayToCompare1->GetNumberOfTuples();
        ++treeId1)
     {
-    treeId2 = this->EdgeMap[treeId1];
+    if (this->ComparisonArrayIsVertexData)
+      {
+      treeId2 = this->VertexMap[treeId1];
+      }
+    else
+      {
+      treeId2 = this->EdgeMap[treeId1];
+      }
     double result =
       arrayToCompare1->GetValue(treeId1) - arrayToCompare2->GetValue(treeId2);
     resultArray->SetValue(treeId1, result);
