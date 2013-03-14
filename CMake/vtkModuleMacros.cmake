@@ -97,7 +97,7 @@ endmacro()
 # This macro provides module implementation, setting up important variables
 # necessary to build a module. It assumes we are in the directory of the module.
 macro(vtk_module_impl)
-  include(module.cmake) # Load module meta-data
+  include(module.cmake OPTIONAL) # Load module meta-data
 
   vtk_module_config(_dep ${${vtk-module}_DEPENDS})
   if(_dep_INCLUDE_DIRS)

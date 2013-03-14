@@ -94,6 +94,7 @@ void vtkPNGReader::ExecuteInformation()
   if (setjmp (png_jmpbuf(png_ptr)))
   {
     png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
+    fclose(fp);
     return;
   }
 
@@ -217,6 +218,7 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
   if (setjmp (png_jmpbuf(png_ptr)))
   {
     png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
+    fclose(fp);
     return;
   }
 

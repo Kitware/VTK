@@ -278,6 +278,94 @@ int TestMath(int,char *[])
     return 1;
     }
 
+  // test CeilLog2
+  const static vtkTypeUInt64 testCeilLog2Inputs[7] = {
+    0ull, 1ull, 31ull, 32ull, 33ull,
+    9223372036854775808ull /* 2^63 */, 18446744073709551615ull /* 2^64-1 */};
+  const static int testCeilLog2Outputs[7] = {
+    0, 0, 5, 5, 6, 63, 64};
+  for (int cl2 = 0; cl2 < 7; cl2++)
+    {
+    int po2v = vtkMath::CeilLog2(testCeilLog2Inputs[cl2]);
+    if (po2v != testCeilLog2Outputs[cl2])
+      {
+      vtkGenericWarningMacro("CeilLog2(" <<
+        testCeilLog2Inputs[cl2] << ") = " << po2v << " != " <<
+        testCeilLog2Outputs[cl2]);
+      return 1;
+      }
+    }
+
+  // test is-power-of-two
+  const static vtkTypeUInt64 isPowerOfTwoInputs[16] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 255, 256, 257,
+    9223372036854775808ull /* 2^63 */, 18446744073709551615ull /* 2^64-1 */};
+  const static int isPowerOfTwoOutputs[16] = {
+    0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 };
+  for (int ip2 = 0; ip2 < 10; ip2++)
+    {
+    int ip2v = vtkMath::IsPowerOfTwo(isPowerOfTwoInputs[ip2]);
+    if (ip2v ^ isPowerOfTwoOutputs[ip2])
+      {
+      vtkGenericWarningMacro("IsPowerOfTwo(" <<
+        isPowerOfTwoInputs[ip2] << ") = " << ip2v << " != " <<
+        isPowerOfTwoOutputs[ip2]);
+      return 1;
+      }
+    }
+
+  // test nearest-power-of-two
+  const static int testPowerOfTwoInputs[10] = {
+    0, 1, 31, 32, 33, -1, -8, VTK_INT_MAX, 1073741824, 1073741825 };
+  const static int testPowerOfTwoOutputs[10] = {
+    1, 1, 32, 32, 64, 1, 1, VTK_INT_MIN, 1073741824, VTK_INT_MIN };
+  for (int po2 = 0; po2 < 10; po2++)
+    {
+    int po2v = vtkMath::NearestPowerOfTwo(testPowerOfTwoInputs[po2]);
+    if (po2v != testPowerOfTwoOutputs[po2])
+      {
+      vtkGenericWarningMacro("NearestPowerOfTwo(" <<
+        testPowerOfTwoInputs[po2] << ") = " << po2v << " != " <<
+        testPowerOfTwoOutputs[po2]);
+      return 1;
+      }
+    }
+
+  // test Floor and Ceil
+  const static double fcInputs[19] = {
+    0.0, -VTK_DBL_EPSILON, VTK_DBL_EPSILON,
+    1.0, 1-VTK_DBL_EPSILON, 1+VTK_DBL_EPSILON,
+    2.0, 2-2*VTK_DBL_EPSILON, 2+2*VTK_DBL_EPSILON,
+    -1.0, -1-VTK_DBL_EPSILON, -1+VTK_DBL_EPSILON,
+    -2.0, -2-2*VTK_DBL_EPSILON, -2+2*VTK_DBL_EPSILON,
+    2147483647.0, 2147483647.0-2147483648.0*VTK_DBL_EPSILON,
+    -2147483648.0, -2147483648.0+2147483648.0*VTK_DBL_EPSILON };
+  const static int floorOutputs[19] = {
+    0, -1, 0,  1, 0, 1,  2, 1, 2,  -1, -2, -1,  -2, -3, -2,
+    VTK_INT_MAX, VTK_INT_MAX-1,  VTK_INT_MIN, VTK_INT_MIN };
+  const static int ceilOutputs[19] = {
+    0, 0, 1,  1, 1, 2,  2, 2, 3,  -1, -1, 0,  -2, -2, -1,
+    VTK_INT_MAX, VTK_INT_MAX,  VTK_INT_MIN, VTK_INT_MIN+1 };
+  for (int fcc = 0; fcc < 19; fcc++)
+    {
+    int floorOut = vtkMath::Floor(fcInputs[fcc]);
+    int ceilOut = vtkMath::Ceil(fcInputs[fcc]);
+    if (floorOut != floorOutputs[fcc])
+      {
+      vtkGenericWarningMacro("Floor(" <<
+        fcInputs[fcc] << ") = " << floorOut << " != " <<
+        floorOutputs[fcc]);
+      return 1;
+      }
+    if (ceilOut != ceilOutputs[fcc])
+      {
+      vtkGenericWarningMacro("Ceil(" <<
+        fcInputs[fcc] << ") = " << ceilOut << " != " <<
+        ceilOutputs[fcc]);
+      return 1;
+      }
+    }
+
   // Test add, subtract, scalar multiplication.
   double a[3] = {1.0, 2.0, 3.0};
   double b[3] = {0.0, 1.0, 2.0};

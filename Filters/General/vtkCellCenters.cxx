@@ -138,10 +138,7 @@ int vtkCellCenters::RequestData(
     {
     outPD->PassData(inCD); //because number of points = number of cells
     }
-  if (weights)
-    {
-    delete [] weights;
-    }
+  delete [] weights;
 
   return 1;
 }

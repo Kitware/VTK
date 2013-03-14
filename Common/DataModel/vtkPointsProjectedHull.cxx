@@ -307,6 +307,7 @@ int i,j;
   // up and doesn't handle some degenerate cases
   if (nHullPts == 0)
     {
+    delete [] hullPts;
     return 0;
     }
 

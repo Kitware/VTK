@@ -1892,6 +1892,7 @@ float *vtkPKdTree::DataBounds(int L, int K, int R)
 
   if (this->AllCheckForFailure(fail, "DataBounds", "memory allocation"))
     {
+    delete [] globalBounds;
     return NULL;
     }
 

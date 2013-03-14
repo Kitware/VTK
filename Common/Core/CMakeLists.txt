@@ -314,15 +314,15 @@ foreach(t Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 Float32 Float64)
   endif()
 endforeach()
 
-# Figure out if isnan and isinf functions are present.
+# Figure out if the C99 isnan, isinf, and isfinite functions/macros are present.
 include(CheckSymbolExists)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 
+# Check float.h too, as a fallback.
 if(NOT HAVE_FLOAT_H)
   check_include_file("float.h" HAVE_FLOAT_H)
 endif()
-
 if(HAVE_FLOAT_H)
   check_symbol_exists(isnan "float.h" VTK_HAS_ISNAN)
   if(NOT VTK_HAS_ISNAN)
@@ -331,6 +331,10 @@ if(HAVE_FLOAT_H)
   check_symbol_exists(isinf "float.h" VTK_HAS_ISINF)
   if(NOT VTK_HAS_ISINF)
     check_function_exists(_isinf "float.h" VTK_HAS__ISINF)
+  endif()
+  check_symbol_exists(isfinite "float.h" VTK_HAS_ISFINITE)
+  if(NOT VTK_HAS_ISFINITE)
+    check_function_exists(_isfinite "float.h" VTK_HAS__ISFINITE)
   endif()
 endif()
 

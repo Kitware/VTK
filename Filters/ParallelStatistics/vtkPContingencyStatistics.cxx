@@ -292,7 +292,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
 
   // Allocate receive buffers on reducer process, based on the global sizes obtained above
   char* xyPacked_g = 0;
-  vtkIdType*  kcValues_g = 0;
+  vtkIdType* kcValues_g = 0;
   if ( myRank == rProc )
     {
     xyPacked_g = new char[xySizeTotal];
@@ -312,6 +312,10 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
                   << myRank
                   << "could not gather (x,y) values.");
 
+    delete [] xyOffset;
+    delete [] kcOffset;
+    delete [] xyPacked_g;
+    delete [] kcValues_g;
     return;
     }
 
@@ -326,6 +330,10 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
                   << myRank
                   << "could not gather (k,c) values.");
 
+    delete [] xyOffset;
+    delete [] kcOffset;
+    delete [] xyPacked_g;
+    delete [] kcValues_g;
     return;
     }
 
@@ -339,6 +347,10 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
                        kcValues_g,
                        kcValues_l ) )
       {
+      delete [] xyOffset;
+      delete [] kcOffset;
+      delete [] xyPacked_g;
+      delete [] kcValues_g;
       return;
       }
     } // if ( myRank == rProc )
@@ -357,6 +369,10 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
                         kcValues_l,
                         rProc ) )
     {
+    delete [] xyOffset;
+    delete [] kcOffset;
+    delete [] xyPacked_g;
+    delete [] kcValues_g;
     return;
     }
 
@@ -406,12 +422,8 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   // Clean up
   row4->Delete();
 
-  if ( myRank == rProc )
-    {
-    delete [] xyPacked_g;
-    delete [] kcValues_g;
-    }
-
+  delete [] xyPacked_g;
+  delete [] kcValues_g;
   delete [] xySize_g;
   delete [] kcSize_g;
   delete [] xyOffset;

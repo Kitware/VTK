@@ -26,7 +26,16 @@ SET(VTK_USE_FILE "${VTK_CMAKE_DIR}/UseVTK.cmake")
 # Load requested modules.
 
 # List of available VTK modules.
-set(VTK_MODULES_ENABLED "@VTK_CONFIG_MODULES_ENABLED@")
+set(VTK_MODULES_ENABLED)
+
+# Determine list of available VTK-modules by scanning the VTK_MODULES_DIR.
+file(GLOB config_files RELATIVE "${VTK_MODULES_DIR}" "${VTK_MODULES_DIR}/*.cmake")
+foreach (_file ${config_files})
+  if (NOT "${_file}" MATCHES "[^\\-]+-[a-zA-Z]+\\.cmake")
+    string(REGEX REPLACE "\\.cmake$" "" _module "${_file}")
+    list(APPEND VTK_MODULES_ENABLED "${_module}")
+  endif()
+endforeach()
 
 # Import VTK targets.
 set(VTK_CONFIG_TARGETS_FILE "@VTK_CONFIG_TARGETS_FILE@")

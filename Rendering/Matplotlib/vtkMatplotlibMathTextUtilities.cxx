@@ -576,12 +576,15 @@ bool vtkMatplotlibMathTextUtilities::PrepareImageData(vtkImageData *data,
     // Scale to the next highest power of 2 if required.
     if (this->ScaleToPowerOfTwo)
       {
-      newImgDims[0] =
-          1 << static_cast<int>(ceil(log(static_cast<double>(width+1)) /
-                                     log(2.0)));
-      newImgDims[1] =
-          1 << static_cast<int>(ceil(log(static_cast<double>(height+1)) /
-                                     log(2.0)));
+      newImgDims[0] = newImgDims[1] = 1;
+      while (newImgDims[0] < width)
+        {
+        newImgDims[0] *= 2;
+        }
+      while (newImgDims[1] < height)
+        {
+        newImgDims[1] *= 2;
+        }
       }
     else
       {

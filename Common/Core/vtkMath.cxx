@@ -103,8 +103,37 @@ const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFLL;
 //
 // Some useful macros and functions
 //
-#define VTK_SIGN(x)              (( (x) < 0 )?( -1 ):( 1 ))
-// avoid dll boundary problems
+
+//----------------------------------------------------------------------------
+// Return the lowest value "i" for which 2^i >= x
+int vtkMath::CeilLog2(vtkTypeUInt64 x)
+{
+  static const vtkTypeUInt64 t[6] = {
+    0xffffffff00000000ull,
+    0x00000000ffff0000ull,
+    0x000000000000ff00ull,
+    0x00000000000000f0ull,
+    0x000000000000000cull,
+    0x0000000000000002ull
+  };
+
+  int j = 32;
+
+  // if x is not a power of two, add 1 to final answer
+  // (this is the "ceil" part of the computation)
+  int y = (((x & (x - 1)) == 0) ? 0 : 1);
+
+  // loop through the table (this unrolls nicely)
+  for (int i = 0; i < 6; i++)
+    {
+    int k = (((x & t[i]) == 0) ? 0 : j);
+    y += k;
+    x >>= k;
+    j >>= 1;
+    }
+
+  return y;
+}
 
 //----------------------------------------------------------------------------
 // Generate pseudo-random numbers distributed according to the uniform
@@ -3124,6 +3153,14 @@ int vtkMath::IsNan(double x)
 #else
   return !((x <= 0.0) || (x >= 0.0));
 #endif
+}
+#endif
+
+//-----------------------------------------------------------------------------
+#if !defined(VTK_HAS_ISFINITE)
+bool vtkMath::IsFinite(double x)
+{
+  return !vtkMath::IsNan(x) && !vtkMath::IsInf(x);
 }
 #endif
 

@@ -269,8 +269,8 @@ void vtkProp3DButtonRepresentation::ShallowCopy(vtkProp *prop)
       {
       (*this->PropArray)[(*iter).first] = (*iter).second;
       }
+    this->FollowCamera = rep->FollowCamera;
     }
-  this->FollowCamera = rep->FollowCamera;
 
   this->Superclass::ShallowCopy(prop);
 }

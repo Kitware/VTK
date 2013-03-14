@@ -17,6 +17,7 @@
 #include "vtkHomogeneousTransform.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkPointData.h"
@@ -180,7 +181,6 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     unsigned char *dataPtr;
     unsigned char *resultData = 0;
     int xsize, ysize;
-    unsigned int xs, ys;
     GLuint tempIndex = 0;
 
     // Get the scalars the user choose to color with.
@@ -271,19 +271,9 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
     if(!resampleNeeded && !this->SupportsNonPowerOfTwoTextures)
       {
-      // xsize and ysize must be a power of 2 in OpenGL
-      xs = static_cast<unsigned int>(xsize);
-      ys = static_cast<unsigned int>(ysize);
-      while (!(xs & 0x01))
-        {
-        xs = xs >> 1;
-        }
-      while (!(ys & 0x01))
-        {
-        ys = ys >> 1;
-        }
       // if not a power of two then resampling is required
-      resampleNeeded= (xs>1) || (ys>1);
+      resampleNeeded = !(vtkMath::IsPowerOfTwo(xsize) &&
+                         vtkMath::IsPowerOfTwo(ysize));
       }
 
     if (resampleNeeded)
@@ -504,12 +494,7 @@ void vtkOpenGLTexture::PostRender(vtkRenderer *vtkNotUsed(ren))
 // ----------------------------------------------------------------------------
 static int FindPowerOfTwo(int i)
 {
-  int size;
-
-  for (i--, size=1; i > 0; size *= 2)
-    {
-    i /= 2;
-    }
+  int size = vtkMath::NearestPowerOfTwo(i);
 
   // [these lines added by Tim Hutton (implementing Joris Vanden Wyngaerd's
   // suggestions)]
@@ -517,7 +502,7 @@ static int FindPowerOfTwo(int i)
   // (slightly more graceful than texture failing but not ideal)
   GLint maxDimGL;
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxDimGL);
-  if (size > maxDimGL)
+  if (size < 0 || size > maxDimGL)
     {
     size = maxDimGL ;
     }

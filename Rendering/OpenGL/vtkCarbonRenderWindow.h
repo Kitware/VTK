@@ -32,7 +32,10 @@ PURPOSE.  See the above copyright notice for more information.
 #define __vtkCarbonRenderWindow_h
 
 #if defined(__LP64__) && __LP64__
-  #error VTK_USE_CARBON cannot work in 64 bit, use VTK_USE_COCOA instead.
+  #error VTK_USE_CARBON cannot work in 64 bit; use VTK_USE_COCOA instead.
+#endif
+#if defined(MAC_OS_X_VERSION_MAX_ALLOWED) && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1070)
+  #error VTK_USE_CARBON cannot work with the OS X 10.7 SDK or later; use VTK_USE_COCOA instead.
 #endif
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
