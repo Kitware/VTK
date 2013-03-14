@@ -26,7 +26,7 @@
 
 #include <dax/cont/Scheduler.h>
 #include <dax/cont/ScheduleGenerateTopology.h>
-#include <dax/worklet/Threshold.worklet>
+#include <dax/worklet/Threshold.h>
 
 namespace
 {

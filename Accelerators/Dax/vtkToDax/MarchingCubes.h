@@ -28,7 +28,7 @@
 
 #include <dax/cont/Scheduler.h>
 #include <dax/cont/ScheduleGenerateTopology.h>
-#include <dax/worklet/MarchingCubes.worklet>
+#include <dax/worklet/MarchingCubes.h>
 
 namespace
 {
