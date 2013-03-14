@@ -1331,7 +1331,7 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
                                                   bool highlight)
 {
   // Generate the cache key for this marker
-  vtkTypeUInt64 key = highlight ? (1 << 31) : 0;
+  vtkTypeUInt64 key = highlight ? (1U << 31) : 0U;
   key |= static_cast<vtkTypeUInt16>(shape);
   key <<= 32;
   key |= static_cast<vtkTypeUInt32>(size);
