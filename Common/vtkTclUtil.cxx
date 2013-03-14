@@ -21,6 +21,12 @@
 #include <string>
 #include <vtksys/SystemTools.hxx>
 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION < 6)
+#define vtkTclGetErrorLine(m) (m->errorLine)
+#else
+#define vtkTclGetErrorLine(m) (Tcl_GetErrorLine(m))
+#endif
+
 extern "C"
 {
 #if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
@@ -490,13 +496,15 @@ VTKTCL_EXPORT void vtkTclVoidFunc(void *arg)
       vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
                              arg2->command << endl <<
                              Tcl_GetVar(arg2->interp,(char *)("errorInfo"),0) <<
-                             " at line number " << arg2->interp->errorLine);
+                             " at line number " <<
+                             vtkTclGetErrorLine(arg2->interp));
       }
     else
       {
       vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
                              arg2->command << endl <<
-                             " at line number " << arg2->interp->errorLine);
+                             " at line number " <<
+                             vtkTclGetErrorLine(arg2->interp));
       }
     }
 }
@@ -723,14 +731,15 @@ void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
       vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
                              this->StringCommand << endl <<
                              Tcl_GetVar(this->Interp,(char *)("errorInfo"),0) <<
-                             " at line number " << this->Interp->errorLine);
+                             " at line number " <<
+                             vtkTclGetErrorLine(this->Interp));
       }
     else
       {
       vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
                              this->StringCommand << endl <<
-                             " at line number " << 
-                             this->Interp->errorLine);
+                             " at line number " <<
+                             vtkTclGetErrorLine(this->Interp));
       }
     }
   else if (res == -1)
