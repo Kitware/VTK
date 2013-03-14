@@ -1395,5 +1395,7 @@ int main(int argc, char *argv[])
 
   vtkParse_Free(file_info);
 
+  fclose(fp);
+
   return 0;
 }

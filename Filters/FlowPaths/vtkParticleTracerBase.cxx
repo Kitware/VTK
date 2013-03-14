@@ -111,7 +111,6 @@ namespace
 //---------------------------------------------------------------------------
 vtkParticleTracerBase::vtkParticleTracerBase()
 {
-
   this->SetNumberOfInputPorts(2);
 
   // by default process active point vectors
@@ -1027,6 +1026,13 @@ int vtkParticleTracerBase::RequestData(
   if(this->FirstIteration)
     {
     vtkDataObject* input    = inInfo->Get(vtkDataObject::DATA_OBJECT());
+    // first check if the point data is consistent on all blocks of a multiblock
+    // and over all processes.
+    if(this->IsPointDataValid(input) == false)
+      {
+      vtkErrorMacro("Point data arrays are not consistent across all data sets. Cannot do flow paths.");
+      return 0;
+      }
     this->CreateProtoPD(input);
     }
 
@@ -1566,6 +1572,56 @@ void vtkParticleTracerBase::AddParticle( vtkParticleTracerBaseNamespace::Particl
     info.time       = info.CurrentPosition.x[3];
     }
 
+}
+
+bool vtkParticleTracerBase::IsPointDataValid(vtkDataObject* input)
+{
+  if(vtkCompositeDataSet* cdInput = vtkCompositeDataSet::SafeDownCast(input))
+    {
+    std::vector<std::string> arrayNames;
+    return this->IsPointDataValid(cdInput, arrayNames);
+    }
+  // a single data set on a single process will always have consistent point data
+  return true;
+}
+
+bool vtkParticleTracerBase::IsPointDataValid(vtkCompositeDataSet* input,
+                                             std::vector<std::string>& arrayNames)
+{
+  arrayNames.clear();
+  vtkCompositeDataIterator* iter = input->NewIterator();
+  iter->SkipEmptyNodesOn();
+  iter->GoToFirstItem();
+  this->GetPointDataArrayNames(vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()),
+                               arrayNames);
+  for(iter->GoToNextItem();!iter->IsDoneWithTraversal();iter->GoToNextItem())
+    {
+    std::vector<std::string> tempNames;
+    this->GetPointDataArrayNames(vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()),
+                                 tempNames);
+    if(std::equal(tempNames.begin(), tempNames.end(), arrayNames.begin()) == false)
+      {
+      iter->Delete();
+      return false;
+      }
+    }
+  iter->Delete();
+  return true;
+}
+
+void vtkParticleTracerBase::GetPointDataArrayNames(
+  vtkDataSet* input, std::vector<std::string>& names)
+{
+  if(input == NULL)
+    {
+    names.clear();
+    return;
+    }
+  names.resize(input->GetPointData()->GetNumberOfArrays());
+  for(vtkIdType i=0;i<input->GetPointData()->GetNumberOfArrays();i++)
+    {
+    names[i] = input->GetPointData()->GetArrayName(i);
+    }
 }
 
 vtkFloatArray*  vtkParticleTracerBase::GetParticleAge(vtkPointData* pd)

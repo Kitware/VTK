@@ -83,10 +83,16 @@ void vtkOBJExporter::WriteData()
   sprintf(nameObj,"%s.obj",this->FilePrefix);
   sprintf(nameMtl,"%s.mtl",this->FilePrefix);
   fpObj = fopen(nameObj,"w");
-  fpMtl = fopen(nameMtl,"w");
-  if (!fpObj || !fpMtl)
+  if (!fpObj)
     {
-    vtkErrorMacro(<< "unable to open .obj and .mtl files ");
+    vtkErrorMacro(<< "unable to open .obj files ");
+    return;
+    }
+  fpMtl = fopen(nameMtl,"w");
+  if (!fpMtl)
+    {
+    fclose(fpObj);
+    vtkErrorMacro(<< "unable to open .mtl files ");
     return;
     }
 

@@ -307,7 +307,7 @@ public:
         unsigned char c = buffer[i];
         bytes += c;
         }
-      delete buffer;
+      delete [] buffer;
 
       vtkX3DExporterFIWriterHelper::EncodeNonEmptyByteString5(writer, bytes);
       if (image)
@@ -388,8 +388,8 @@ public:
       bytesCompressed += c;
       }
     vtkX3DExporterFIWriterHelper::EncodeNonEmptyByteString5(writer, bytesCompressed);
-    delete buffer;
-    delete bytes;
+    delete [] buffer;
+    delete [] bytes;
     }
 
 };

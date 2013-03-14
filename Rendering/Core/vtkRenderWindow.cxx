@@ -1330,6 +1330,15 @@ void vtkRenderWindow::StereoRenderComplete(void)
                                   !this->DoubleBuffer);
 
       int midX = static_cast<int>(size[0] / 2.0);
+
+      // If the row size is even, reduce the row copy by
+      // one. Otherwise the pointer will overflow when we fill the
+      // right hand part of the stereo.
+      if (size[0] % 2 == 0)
+        {
+        midX--;
+        }
+
       int offsetX = static_cast<int>(ceil(size[0] / 2.0));
 
       // copy pixel data

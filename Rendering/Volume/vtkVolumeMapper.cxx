@@ -46,7 +46,8 @@ vtkVolumeMapper::~vtkVolumeMapper()
 void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
 {
   double *spacing    = this->GetInput()->GetSpacing();
-  int   *dimensions = this->GetInput()->GetDimensions();
+  int dimensions[3];
+  this->GetInput()->GetDimensions(dimensions);
   double origin[3];
   double *bds = this->GetInput()->GetBounds();
   origin[0] = bds[0];

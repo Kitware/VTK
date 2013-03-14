@@ -188,9 +188,23 @@ public:
     this->SetName( x.GetName() );
     this->NumberOfValues = x.GetNumberOfValues();
     this->Type = x.GetType();
-    this->IntValues = NULL;
-    this->FloatValues = NULL;
-    this->DoubleValues = NULL;
+
+    if (this->IntValues)
+      {
+      delete [] this->IntValues;
+      this->IntValues = NULL;
+      }
+    if (this->FloatValues)
+      {
+      delete [] this->FloatValues;
+      this->FloatValues = NULL;
+      }
+    if (this->DoubleValues)
+      {
+      delete [] this->DoubleValues;
+      this->DoubleValues = NULL;
+      }
+
     if ( (this->Type == VTK_INT) && (this->NumberOfValues > 0) )
       {
       this->IntValues = new int[this->NumberOfValues];

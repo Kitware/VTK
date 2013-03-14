@@ -440,6 +440,7 @@ void vtkSliceCubes::Execute()
   if ( (dims[0]*dims[1]*dims[2]) <= 1 || dims[2] < 2 )
     {
     vtkErrorMacro(<<"Bad dimensions...slice must be 3D volume");
+    fclose(outFP);
     return;
     }
 
@@ -451,6 +452,7 @@ void vtkSliceCubes::Execute()
     {
     vtkErrorMacro(<<"Must have scalars to generate isosurface");
     tempStructPts->Delete();
+    fclose(outFP);
     return;
     }
   inScalars->Register(this);

@@ -39,7 +39,16 @@ vtkStandardNewMacro(vtkCachingInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 const double IVFDataSetInfo::TOLERANCE_SCALE = 1.0E-8;
 //---------------------------------------------------------------------------
-IVFDataSetInfo::IVFDataSetInfo() {}
+IVFDataSetInfo::IVFDataSetInfo()
+{
+  this->VelocityFloat  = NULL;
+  this->VelocityDouble = NULL;
+  this->DataSet        = NULL;
+  this->Cell           = NULL;
+  this->BSPTree        = NULL;
+  this->Tolerance      = 0.0;
+  this->StaticDataSet  = false;
+}
 //---------------------------------------------------------------------------
 void IVFDataSetInfo::SetDataSet(vtkDataSet *data, char *velocity, bool staticdataset, vtkAbstractCellLocator *locator)
 {

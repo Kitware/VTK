@@ -529,6 +529,8 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
 
   sort_hierarchy_entries(info);
 
+  fclose(fp);
+
   return info;
 }
 
