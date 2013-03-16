@@ -40,7 +40,7 @@ public:
 
   // Description:
   // Turn on every nth point (strided sampling), ignored by random modes.
-  vtkSetClampMacro(OnRatio,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(OnRatio,int,1,VTK_INT_MAX);
   vtkGetMacro(OnRatio,int);
 
   // Description:

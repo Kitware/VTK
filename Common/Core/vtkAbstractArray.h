@@ -94,7 +94,7 @@ public:
   // Description:
   // Set/Get the dimension (n) of the components. Must be >= 1. Make sure that
   // this is set before allocation.
-  vtkSetClampMacro(NumberOfComponents, int, 1, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfComponents, int, 1, VTK_INT_MAX);
   int GetNumberOfComponents() { return this->NumberOfComponents; }
 
   // Description:

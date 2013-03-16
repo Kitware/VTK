@@ -73,7 +73,7 @@ public:
   // Description:
   // Set/Get the maximum number of cells that GetNextCells will return
   // in one invocation.
-  vtkSetClampMacro(MaxCellsReturned, int, 1, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(MaxCellsReturned, int, 1, VTK_INT_MAX);
   vtkGetMacro(MaxCellsReturned, int);
 
   // Description:

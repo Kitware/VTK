@@ -66,7 +66,7 @@ public:
   // Description:
   // Set the maximum number of subdivisions that are created for each
   // polyline.
-  vtkSetClampMacro(MaximumNumberOfSubdivisions,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(MaximumNumberOfSubdivisions,int,1,VTK_INT_MAX);
   vtkGetMacro(MaximumNumberOfSubdivisions,int);
 
   // Description:
@@ -83,7 +83,7 @@ public:
   // Set the number of subdivisions that are created for the
   // polyline. This method only has effect if Subdivisions is set
   // to SetSubdivisionsToSpecify().
-  vtkSetClampMacro(NumberOfSubdivisions,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfSubdivisions,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfSubdivisions,int);
 
   // Description:
@@ -122,7 +122,7 @@ public:
   // calculation. The TextureLength indicates what length (whether
   // calculated from scalars or length) is mapped to the [0,1)
   // texture space.
-  vtkSetClampMacro(TextureLength,double,0.000001,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(TextureLength,double,0.000001,VTK_INT_MAX);
   vtkGetMacro(TextureLength,double);
 
 protected:

@@ -79,7 +79,7 @@ public:
 
   // Description:
   // Set/Get the maximum number of ticks in ruler mode.
-  vtkSetClampMacro(MaximumNumberOfRulerTicks, int, 1, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(MaximumNumberOfRulerTicks, int, 1, VTK_INT_MAX);
   vtkGetMacro(MaximumNumberOfRulerTicks, int);
 
   // Description:

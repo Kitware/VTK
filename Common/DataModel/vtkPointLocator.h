@@ -62,7 +62,7 @@ public:
 
   // Description:
   // Specify the average number of points in each bucket.
-  vtkSetClampMacro(NumberOfPointsPerBucket,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfPointsPerBucket,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfPointsPerBucket,int);
 
   // Description:

@@ -198,7 +198,7 @@ public:
   // Set/Get the inertial factor that controls how often (i.e, how
   // many renders) the axes can switch position (jump from one axes
   // to another).
-  vtkSetClampMacro(Inertia, int, 1, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(Inertia, int, 1, VTK_INT_MAX);
   vtkGetMacro(Inertia, int);
 
   // Description:

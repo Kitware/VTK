@@ -69,7 +69,7 @@ public:
   // Description:
   // Specify the component in the data array to use to generate the blanking
   // field.
-  vtkSetClampMacro(Component,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(Component,int,0,VTK_INT_MAX);
   vtkGetMacro(Component,int);
 
 protected:

@@ -301,7 +301,7 @@ public:
 
   // Description:
   // Set the number of frames to fly to when FlyTo is invoked.
-  vtkSetClampMacro(NumberOfFlyFrames,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfFlyFrames,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfFlyFrames,int);
 
   // Description:

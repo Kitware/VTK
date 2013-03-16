@@ -71,19 +71,19 @@ public:
 
   // Description:
   // Specify the resolution of the button in the circumferential direction.
-  vtkSetClampMacro(CircumferentialResolution,int,4,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(CircumferentialResolution,int,4,VTK_INT_MAX);
   vtkGetMacro(CircumferentialResolution,int);
 
   // Description:
   // Specify the resolution of the texture in the radial direction in the
   // texture region.
-  vtkSetClampMacro(TextureResolution,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(TextureResolution,int,1,VTK_INT_MAX);
   vtkGetMacro(TextureResolution,int);
 
   // Description:
   // Specify the resolution of the texture in the radial direction in the
   // shoulder region.
-  vtkSetClampMacro(ShoulderResolution,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(ShoulderResolution,int,1,VTK_INT_MAX);
   vtkGetMacro(ShoulderResolution,int);
 
   // Description:

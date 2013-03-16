@@ -114,28 +114,28 @@ public:
   // Set/Get the offset of the right axis from the border. This number is expressed in
   // pixels, and represents the approximate distance of the axes from the sides
   // of the renderer. The default is 50.
-  vtkSetClampMacro(RightBorderOffset,int,5,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(RightBorderOffset,int,5,VTK_INT_MAX);
   vtkGetMacro(RightBorderOffset,int);
 
   // Description:
   // Set/Get the offset of the top axis from the border. This number is expressed in
   // pixels, and represents the approximate distance of the axes from the sides
   // of the renderer. The default is 30.
-  vtkSetClampMacro(TopBorderOffset,int,5,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(TopBorderOffset,int,5,VTK_INT_MAX);
   vtkGetMacro(TopBorderOffset,int);
 
   // Description:
   // Set/Get the offset of the left axis from the border. This number is expressed in
   // pixels, and represents the approximate distance of the axes from the sides
   // of the renderer. The default is 50.
-  vtkSetClampMacro(LeftBorderOffset,int,5,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(LeftBorderOffset,int,5,VTK_INT_MAX);
   vtkGetMacro(LeftBorderOffset,int);
 
   // Description:
   // Set/Get the offset of the bottom axis from the border. This number is expressed in
   // pixels, and represents the approximate distance of the axes from the sides
   // of the renderer. The default is 30.
-  vtkSetClampMacro(BottomBorderOffset,int,5,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(BottomBorderOffset,int,5,VTK_INT_MAX);
   vtkGetMacro(BottomBorderOffset,int);
 
   // Description:

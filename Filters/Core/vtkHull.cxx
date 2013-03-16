@@ -71,7 +71,7 @@ int vtkHull::AddPlane( double A, double B, double C )
   if ( norm == 0.0 )
     {
     vtkErrorMacro( << "Zero length vector not allowed for plane normal!" );
-    return -VTK_LARGE_INTEGER;
+    return -VTK_INT_MAX;
     }
   A /= norm;
   B /= norm;
@@ -117,7 +117,7 @@ int vtkHull::AddPlane( double A, double B, double C )
       {
       vtkErrorMacro( << "Unable to allocate space for planes" );
       this->Planes = tmpPointer;
-      return -VTK_LARGE_INTEGER;
+      return -VTK_INT_MAX;
       }
 
     // Copy the planes and delete the old storage space

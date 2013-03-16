@@ -125,7 +125,7 @@ public:
   // Description:
   // Set/Get the field data array to plot. This instance variable is
   // only applicable if field data is plotted.
-  vtkSetClampMacro(FieldDataArray,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(FieldDataArray,int,0,VTK_INT_MAX);
   vtkGetMacro(FieldDataArray,int);
 
   // Description:

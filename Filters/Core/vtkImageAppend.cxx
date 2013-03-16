@@ -105,8 +105,8 @@ int vtkImageAppend::RequestInformation (
   int unionExt[6];
 
   // Initialize the union.
-  unionExt[0] = unionExt[2] = unionExt[4] = VTK_LARGE_INTEGER;
-  unionExt[1] = unionExt[3] = unionExt[5] = -VTK_LARGE_INTEGER;
+  unionExt[0] = unionExt[2] = unionExt[4] = VTK_INT_MAX;
+  unionExt[1] = unionExt[3] = unionExt[5] = -VTK_INT_MAX;
 
   // Initialize the shifts.
   if (this->Shifts)
