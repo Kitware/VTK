@@ -153,8 +153,10 @@
 #endif
 
 /* Define compatibility names for these constants.  */
-#define VTK_LARGE_INTEGER VTK_INT_MAX
-#define VTK_LARGE_FLOAT VTK_FLOAT_MAX
+#if !defined(VTK_LEGACY_REMOVE)
+# define VTK_LARGE_INTEGER VTK_INT_MAX
+# define VTK_LARGE_FLOAT VTK_FLOAT_MAX
+#endif
 
 /*--------------------------------------------------------------------------*/
 /* Define named types and constants corresponding to specific integer
