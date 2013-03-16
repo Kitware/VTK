@@ -109,11 +109,7 @@ int vtkDirectory::Open(const char* name)
   struct _finddata_t data;      // data of current file
 
   // First count the number of files in the directory
-#if _MSC_VER < 1300
-  long srchHandle;
-#else
   intptr_t srchHandle;
-#endif
 
   srchHandle = _findfirst(buf, &data);
 

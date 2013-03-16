@@ -180,7 +180,7 @@ The parentheses serve to disambiguate the statement.
 
 /* Borland and MSVC do not define __STDC__ properly. */
 #if !defined(__STDC__)
-# if (defined(_MSC_VER) && _MSC_VER >= 1200) || defined(__BORLANDC__)
+# if defined(_MSC_VER) || defined(__BORLANDC__)
 #  define __STDC__ 1
 # endif
 #endif

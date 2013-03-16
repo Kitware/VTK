@@ -132,9 +132,7 @@ public:
       {
       if ( this != &rhs )
         {
-#if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
         std::multiset<vtkIdType,PriorityComparator>::operator = ( rhs );
-#endif
         this->TotalAnchors = rhs.TotalAnchors;
         this->Size = rhs.Size;
         for ( int i = 0; i < 3; ++ i )

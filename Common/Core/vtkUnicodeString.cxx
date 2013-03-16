@@ -111,11 +111,7 @@ public:
 
   back_insert_iterator& operator=(std::string::const_reference value)
   {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // MSVC 6
-    this->Container->append(1, value);
-#else
     this->Container->push_back(value);
-#endif
     return *this;
   }
 
