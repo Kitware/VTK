@@ -144,9 +144,9 @@ bool vtkPythonOverloadHelper::next(const char **format, const char **classname)
 
 #if VTK_SIZEOF_LONG != VTK_SIZEOF_INT
 #ifdef PY_LONG_LONG
-int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
+static int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
 #else
-int vtkPythonIntPenalty(long tmpi, int penalty, char format)
+static int vtkPythonIntPenalty(long tmpi, int penalty, char format)
 #endif
 {
   if (tmpi > VTK_INT_MAX || tmpi < VTK_INT_MIN)

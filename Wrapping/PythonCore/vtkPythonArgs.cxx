@@ -220,7 +220,7 @@ inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *
 //--------------------------------------------------------------------
 // Overloaded methods, mostly based on the above templates
 
-bool vtkPythonGetValue(PyObject *o, const void *&a)
+static bool vtkPythonGetValue(PyObject *o, const void *&a)
 {
   PyBufferProcs *b = o->ob_type->tp_as_buffer;
   if (b && b->bf_getreadbuffer && b->bf_getsegcount)

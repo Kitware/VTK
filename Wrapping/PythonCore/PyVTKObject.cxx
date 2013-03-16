@@ -80,7 +80,7 @@ static PyObject *PyVTKObject_Repr(PyObject *op)
 }
 
 //--------------------------------------------------------------------
-int PyVTKObject_SetAttr(PyObject *op, PyObject *attr, PyObject *value)
+static int PyVTKObject_SetAttr(PyObject *op, PyObject *attr, PyObject *value)
 {
   PyVTKObject *self = (PyVTKObject *)op;
   char *name = PyString_AsString(attr);
