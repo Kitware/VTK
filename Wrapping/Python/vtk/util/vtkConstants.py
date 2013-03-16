@@ -5,7 +5,7 @@ All the constants are part of the base vtk module.
 
 # Some constants used throughout code
 
-VTK_LARGE_FLOAT = 1.0e+38
+VTK_FLOAT_MAX = 1.0e+38
 VTK_INT_MAX = 2147483647 # 2^31 - 1
 
 # These types are returned by GetDataType to indicate pixel type.
@@ -67,8 +67,8 @@ VTK_LONG_MIN = (-VTK_INT_MAX-1)
 VTK_LONG_MAX = VTK_INT_MAX
 #VTK_UNSIGNED_LONG_MIN = 0
 #VTK_UNSIGNED_LONG_MAX = 4294967295
-VTK_FLOAT_MIN = -VTK_LARGE_FLOAT
-VTK_FLOAT_MAX = VTK_LARGE_FLOAT
+VTK_FLOAT_MIN = -VTK_FLOAT_MAX
+VTK_FLOAT_MAX = VTK_FLOAT_MAX
 VTK_DOUBLE_MIN = -1.0e+99
 VTK_DOUBLE_MAX  = 1.0e+99
 

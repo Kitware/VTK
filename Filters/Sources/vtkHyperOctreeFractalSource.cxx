@@ -265,7 +265,7 @@ void vtkHyperOctreeFractalSource::Subdivide(vtkHyperOctreeCursor *cursor,
   int ii;
   float min, max;
   int numCorners = 1 << this->Dimension;
-  min = VTK_LARGE_FLOAT;
+  min = VTK_FLOAT_MAX;
   max = 0.0;
   for (ii = 0; ii < numCorners; ++ii)
     {

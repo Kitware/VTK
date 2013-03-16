@@ -747,7 +747,7 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
     }
   // Ok, setup a stack and various params
   nodeStack  ns;
-  double    closest_intersection = VTK_LARGE_FLOAT;
+  double    closest_intersection = VTK_FLOAT_MAX;
   bool     HIT = false;
   // setup our axis optimized ray box edge stuff
   int axis = getDominantAxis(ray_vec);
@@ -1206,13 +1206,13 @@ void vtkCellTreeLocator::Classify(const double origin[3],
     {
     near = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
     far  = &this->Tree->Nodes.at(parent->GetLeftChildIndex()+1);
-    rDist = (tDivDirection) ? tOriginToDivPlane2 / tDivDirection : VTK_LARGE_FLOAT;
+    rDist = (tDivDirection) ? tOriginToDivPlane2 / tDivDirection : VTK_FLOAT_MAX;
     }
   else if (tOriginToDivPlane < 0)  // origin is left of the lm
     {
     far  = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
     near = &this->Tree->Nodes.at(parent->GetLeftChildIndex()+1);
-    rDist = (tDivDirection) ? tOriginToDivPlane / tDivDirection : VTK_LARGE_FLOAT;
+    rDist = (tDivDirection) ? tOriginToDivPlane / tDivDirection : VTK_FLOAT_MAX;
     }
 
 
@@ -1231,7 +1231,7 @@ void vtkCellTreeLocator::Classify(const double origin[3],
         {
         mustCheck=1;  // Ray was exactly on edge left max box.
         }
-      rDist = (tDivDirection) ? 0 / tDivDirection : VTK_LARGE_FLOAT;
+      rDist = (tDivDirection) ? 0 / tDivDirection : VTK_FLOAT_MAX;
       }
     else
       {
@@ -1241,7 +1241,7 @@ void vtkCellTreeLocator::Classify(const double origin[3],
         {
         mustCheck=1; // Ray was exactly on edge right min box.
         }
-      rDist = (tDivDirection) ? 0 / tDivDirection : VTK_LARGE_FLOAT;
+      rDist = (tDivDirection) ? 0 / tDivDirection : VTK_FLOAT_MAX;
       }
     }
 

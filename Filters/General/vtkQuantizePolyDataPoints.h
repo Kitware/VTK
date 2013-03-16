@@ -50,7 +50,7 @@ public:
 
   // Description:
   // Specify quantization grain size. Default is 0.25
-  vtkSetClampMacro(QFactor,double,1E-5,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(QFactor,double,1E-5,VTK_FLOAT_MAX);
   vtkGetMacro(QFactor,double);
 
   // Description:

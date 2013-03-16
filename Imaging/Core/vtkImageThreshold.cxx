@@ -28,8 +28,8 @@ vtkStandardNewMacro(vtkImageThreshold);
 // Constructor sets default values
 vtkImageThreshold::vtkImageThreshold()
 {
-  this->UpperThreshold = VTK_LARGE_FLOAT;
-  this->LowerThreshold = -VTK_LARGE_FLOAT;
+  this->UpperThreshold = VTK_FLOAT_MAX;
+  this->LowerThreshold = -VTK_FLOAT_MAX;
   this->ReplaceIn = 0;
   this->InValue = 0.0;
   this->ReplaceOut = 0;
@@ -64,10 +64,10 @@ void vtkImageThreshold::SetOutValue(double val)
 // The values greater than or equal to the value match.
 void vtkImageThreshold::ThresholdByUpper(double thresh)
 {
-  if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_LARGE_FLOAT)
+  if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_FLOAT_MAX)
     {
     this->LowerThreshold = thresh;
-    this->UpperThreshold = VTK_LARGE_FLOAT;
+    this->UpperThreshold = VTK_FLOAT_MAX;
     this->Modified();
     }
 }
@@ -76,10 +76,10 @@ void vtkImageThreshold::ThresholdByUpper(double thresh)
 // The values less than or equal to the value match.
 void vtkImageThreshold::ThresholdByLower(double thresh)
 {
-  if (this->UpperThreshold != thresh || this->LowerThreshold > -VTK_LARGE_FLOAT)
+  if (this->UpperThreshold != thresh || this->LowerThreshold > -VTK_FLOAT_MAX)
     {
     this->UpperThreshold = thresh;
-    this->LowerThreshold = -VTK_LARGE_FLOAT;
+    this->LowerThreshold = -VTK_FLOAT_MAX;
     this->Modified();
     }
 }

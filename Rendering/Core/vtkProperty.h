@@ -205,7 +205,7 @@ public:
   // Description:
   // Set/Get the width of a Line. The width is expressed in screen units.
   // This is only implemented for OpenGL. The default is 1.0.
-  vtkSetClampMacro(LineWidth, float, 0, VTK_LARGE_FLOAT);
+  vtkSetClampMacro(LineWidth, float, 0, VTK_FLOAT_MAX);
   vtkGetMacro(LineWidth, float);
 
   // Description:
@@ -225,7 +225,7 @@ public:
   // Description:
   // Set/Get the diameter of a point. The size is expressed in screen units.
   // This is only implemented for OpenGL. The default is 1.0.
-  vtkSetClampMacro(PointSize, float, 0, VTK_LARGE_FLOAT);
+  vtkSetClampMacro(PointSize, float, 0, VTK_FLOAT_MAX);
   vtkGetMacro(PointSize, float);
 
   // Description:

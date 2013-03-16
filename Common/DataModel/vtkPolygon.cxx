@@ -1909,7 +1909,7 @@ double vtkPolygon::DistanceToPolygon(double x[3], int numPts, double *pts,
     }
 
   // Not inside, compute the distance of the point to the edges.
-  double minDist2=VTK_LARGE_FLOAT;
+  double minDist2=VTK_FLOAT_MAX;
   double *p0, *p1, dist2, t, c[3];
   for (int i=0; i<numPts; i++)
     {

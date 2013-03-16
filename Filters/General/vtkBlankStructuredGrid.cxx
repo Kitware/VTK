@@ -27,8 +27,8 @@ vtkStandardNewMacro(vtkBlankStructuredGrid);
 // Construct object to extract all of the input data.
 vtkBlankStructuredGrid::vtkBlankStructuredGrid()
 {
-  this->MinBlankingValue = VTK_LARGE_FLOAT;
-  this->MaxBlankingValue = VTK_LARGE_FLOAT;
+  this->MinBlankingValue = VTK_FLOAT_MAX;
+  this->MaxBlankingValue = VTK_FLOAT_MAX;
   this->ArrayName = NULL;
   this->ArrayId = -1;
   this->Component = 0;

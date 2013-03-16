@@ -136,7 +136,7 @@ double vtkTransformInterpolator::GetMinimumT()
 {
   if ( this->TransformList->empty() )
     {
-    return -VTK_LARGE_FLOAT;
+    return -VTK_FLOAT_MAX;
     }
   else
     {
@@ -150,7 +150,7 @@ double vtkTransformInterpolator::GetMaximumT()
 {
   if ( this->TransformList->empty() )
     {
-    return VTK_LARGE_FLOAT;
+    return VTK_FLOAT_MAX;
     }
   else
     {

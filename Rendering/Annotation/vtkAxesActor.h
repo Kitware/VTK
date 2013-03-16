@@ -150,11 +150,11 @@ public:
 
   // Description:
   // Set/get the radius of the pieces of the axes actor.
-  vtkSetClampMacro(ConeRadius, double, 0, VTK_LARGE_FLOAT);
+  vtkSetClampMacro(ConeRadius, double, 0, VTK_FLOAT_MAX);
   vtkGetMacro(ConeRadius, double);
-  vtkSetClampMacro(SphereRadius, double, 0, VTK_LARGE_FLOAT);
+  vtkSetClampMacro(SphereRadius, double, 0, VTK_FLOAT_MAX);
   vtkGetMacro(SphereRadius, double);
-  vtkSetClampMacro(CylinderRadius, double, 0, VTK_LARGE_FLOAT);
+  vtkSetClampMacro(CylinderRadius, double, 0, VTK_FLOAT_MAX);
   vtkGetMacro(CylinderRadius, double);
 
   // Description:

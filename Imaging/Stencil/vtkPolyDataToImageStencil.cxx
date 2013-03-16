@@ -418,7 +418,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       slice->GetPoint( secondLooseEndId, secondLooseEnd );
 
       // search for the loose end closest to the first one
-      double maxval = -VTK_LARGE_FLOAT;
+      double maxval = -VTK_FLOAT_MAX;
 
       for(vtkIdType j = 1; j < looseEndIdList->GetNumberOfIds(); j++)
         {

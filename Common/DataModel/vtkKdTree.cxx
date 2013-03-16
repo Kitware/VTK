@@ -107,7 +107,7 @@ namespace
       {
         this->NumDesiredPoints = N;
         this->NumPoints = 0;
-        this->LargestDist2 = VTK_LARGE_FLOAT;
+        this->LargestDist2 = VTK_FLOAT_MAX;
       }
 
     void InsertPoint(float dist2, vtkIdType id)

@@ -692,7 +692,7 @@ int vtkModifiedBSPTree::IntersectWithLine(double p1[3], double p2[3], double tol
     }
   // Ok, setup a stack and various params
   nodestack  ns;
-  double    closest_intersection = VTK_LARGE_FLOAT;
+  double    closest_intersection = VTK_FLOAT_MAX;
   bool     HIT = false;
   // setup our axis optimized ray box edge stuff
   int axis = BSPNode::getDominantAxis(ray_vec);
@@ -831,7 +831,7 @@ int vtkModifiedBSPTree::IntersectWithLine(
     }
   // Ok, setup a stack and various params
   nodestack  ns;
-  double    closest_intersection = VTK_LARGE_FLOAT;
+  double    closest_intersection = VTK_FLOAT_MAX;
   bool     HIT = false;
   // setup our axis optimized ray box edge stuff
   int axis = BSPNode::getDominantAxis(ray_vec);
@@ -1141,7 +1141,7 @@ void BSPNode::Classify(const double origin[3],
       Near = mChild[2];
       }
     }
-  rDist = (tDivDirection) ? tOriginToDivPlane / tDivDirection : VTK_LARGE_FLOAT;
+  rDist = (tDivDirection) ? tOriginToDivPlane / tDivDirection : VTK_FLOAT_MAX;
 }
 //---------------------------------------------------------------------------
 // Update the two t values for the ray against the box, return false if misses

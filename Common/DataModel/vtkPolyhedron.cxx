@@ -1748,10 +1748,10 @@ int vtkPolyhedron::IntersectWithLine(double p1[3], double p2[3], double tol,
   vtkIdType *face = this->Faces->GetPointer(0);
   vtkIdType nfaces = *face++;
   vtkIdType npts, i, fid, numHits=0;
-  double t=VTK_LARGE_FLOAT;
+  double t=VTK_FLOAT_MAX;
   double x[3];
 
-  tMin=VTK_LARGE_FLOAT;
+  tMin=VTK_FLOAT_MAX;
   for (fid=0; fid < nfaces; ++fid)
     {
     npts = face[0];
