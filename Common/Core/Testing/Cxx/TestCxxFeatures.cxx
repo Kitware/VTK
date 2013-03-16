@@ -43,14 +43,6 @@
 # define VTK_CXX_SUNPRO
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ < 3)
-# if (__GNUC__ < 3)
-#  define VTK_CXX_GCC_2
-# elif (__GNUC__ == 3)
-#  define VTK_CXX_GCC_3
-# endif
-#endif
-
 //----------------------------------------------------------------------------
 
 /* Check for known compiler limitations.  */
@@ -79,14 +71,6 @@
 //----------------------------------------------------------------------------
 
 #include "vtkSystemIncludes.h"
-
-//----------------------------------------------------------------------------
-
-/* Test inclusion of sstream header.  */
-//#if !(defined(VTK_CXX_GCC_2) || defined(VTK_CXX_ACC) || defined(VTK_CXX_SGI_6))
-#if defined(VTK_CXX_GCC_3)
-# include <sstream>
-#endif
 
 //----------------------------------------------------------------------------
 
@@ -693,9 +677,7 @@ int main()
 #endif
   DO_TEST(TestBinaryWriting);
   DO_TEST(TestSafeBoolIdiom);
-#ifndef VTK_CXX_GCC_2 // avoid strange exception problem on debian gcc 2.95
   DO_TEST(TestException);
-#endif
   DO_TEST(TestSetLocale);
 
 #if defined(_MSC_VER) && defined(_DEBUG)
