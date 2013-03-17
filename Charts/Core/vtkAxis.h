@@ -289,10 +289,12 @@ public:
     SCIENTIFIC_NOTATION,
     FIXED_NOTATION,
 
+#ifndef VTK_LEGACY_REMOVE
     // deprecated, use the *_NOTATION versions above
     STANDARD = STANDARD_NOTATION,
     SCIENTIFIC = SCIENTIFIC_NOTATION,
     MIXED = FIXED_NOTATION
+#endif
   };
 
   // Description:
