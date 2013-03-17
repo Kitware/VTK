@@ -357,7 +357,8 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
         }
 */
 #if ((defined(__sgi) && !defined(__GNUC__)) \
-    || (__BORLANDC__>=0x0560) || defined (__APPLE_CC__))
+    || (defined(__BORLANDC__) && (__BORLANDC__ >= 0x0560)) \
+    || defined (__APPLE_CC__))
       // this check is required for SGI's
       // seems that after a read that just reaches EOF, tellg reports a -1.
       // clear() does not work, so we have to reopen the file.

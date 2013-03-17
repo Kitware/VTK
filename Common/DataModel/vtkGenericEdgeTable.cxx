@@ -367,7 +367,7 @@ int vtkGenericEdgeTable::CheckEdge(vtkIdType e1, vtkIdType e2, vtkIdType &ptId)
   //Need to check size first
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
 
-#if USE_CONST_ITERATOR
+#if defined(USE_CONST_ITERATOR)
   vtkEdgeTableEdge::VectorEdgeTableType::const_iterator it;
   for(it = vect.begin(); it != vect.end(); ++it)
     {

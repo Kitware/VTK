@@ -287,7 +287,7 @@ double vtkLookupTable::GetOpacity(double v)
 // There is a little more to this than simply taking the log10 of the
 // two range values: we do conversion of negative ranges to positive
 // ranges, and conversion of zero to a 'very small number'
-void vtkLookupTableLogRange(const double range[2], double logRange[2])
+static void vtkLookupTableLogRange(const double range[2], double logRange[2])
 {
   double rmin = range[0];
   double rmax = range[1];

@@ -298,7 +298,7 @@ int vtkDirectory::FileIsDirectory(const char *name)
   struct stat fs;
   if(stat(fullPath, &fs) == 0)
     {
-#if _WIN32
+#if defined(_WIN32)
     result = ((fs.st_mode & _S_IFDIR) != 0);
 #else
     result = S_ISDIR(fs.st_mode);
