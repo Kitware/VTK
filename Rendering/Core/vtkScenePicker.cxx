@@ -257,8 +257,10 @@ void vtkScenePicker::Update( int displayPos[2] )
       {
       dpos[0] = static_cast<unsigned int>(displayPos[0]);
       dpos[1] = static_cast<unsigned int>(displayPos[1]);
-      this->Selector->GetPixelInformation(dpos,
-        procid, this->CellId, this->Prop);
+      vtkHardwareSelector::PixelInformation info = this->Selector->GetPixelInformation(dpos);
+      procid = info.ProcessID;
+      this->CellId = info.AttributeID;
+      this->Prop = info.Prop;
       }
     this->LastQueriedDisplayPos[0] = displayPos[0];
     this->LastQueriedDisplayPos[1] = displayPos[1];
