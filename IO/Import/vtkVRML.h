@@ -39,14 +39,6 @@
 
 #include <new>
 
-#if defined(__BORLANDC__) && (__BORLANDC__<0x0560)
-// seems to be missing from new.h and new for borland
-void* operator new[](unsigned int,void *v)
-{
-  return v;
-}
-#endif
-
 // Use a user-managed heap to remove memory leaks
 // This code must come before "#include vtkVRML.h" because
 // it uses the functions below.
