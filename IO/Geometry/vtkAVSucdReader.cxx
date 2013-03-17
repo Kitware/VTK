@@ -286,24 +286,32 @@ int vtkAVSucdReader::RequestInformation(
                      << this->NumberOfFields << " "
                      << this->NlistNodes << endl);
 
+      // If we've guessed the wrong endianness, these values will be nonsense,
+      // and the arithmetic below could easily caused (undefined) signed overflow,
+      // so convert everything into uint64.
+      vtkTypeUInt64 numNodes = this->NumberOfNodes;
+      vtkTypeUInt64 numCells = this->NumberOfCells;
+      vtkTypeUInt64 numNodeFields = this->NumberOfNodeFields;
+      vtkTypeUInt64 numCellFields = this->NumberOfCellFields;
+      vtkTypeUInt64 numFields = this->NumberOfFields;
+      vtkTypeUInt64 numListNodes = this->NlistNodes;
+
       calculatedFileLength  = 1 + 6*4;
-      calculatedFileLength += 16 * this->NumberOfCells + 4 * this->NlistNodes;
-      calculatedFileLength += 3*4 * this->NumberOfNodes;
-      if(this->NumberOfNodeFields)
+      calculatedFileLength += 16 * numCells + 4 * numListNodes;
+      calculatedFileLength += 3*4 * numNodes;
+      if(numNodeFields)
         {
-        calculatedFileLength += 2052 +
-          this->NumberOfNodeFields*(12 + 4 * this->NumberOfNodes + 4);
+        calculatedFileLength += 2052 + numNodeFields*(12 + 4 * numNodes + 4);
         }
 
-      if(this->NumberOfCellFields)
+      if(numCellFields)
         {
-        calculatedFileLength += 2052 +
-          this->NumberOfCellFields*(12 + 4 * this->NumberOfCells + 4);
+        calculatedFileLength += 2052 + numCellFields*(12 + 4 * numCells + 4);
         }
 
-      if(this->NumberOfFields)
+      if(numFields)
         {
-        calculatedFileLength += 2052 + this->NumberOfFields*(4 * 5);
+        calculatedFileLength += 2052 + numFields*(4 * 5);
         }
 
       vtkDebugMacro( << "TFL = " << trueFileLength
