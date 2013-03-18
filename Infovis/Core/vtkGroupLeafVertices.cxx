@@ -70,7 +70,8 @@ vtkVariant vtkGroupLeafVerticesGetValue(T* arr, vtkIdType index)
 }
 
 //---------------------------------------------------------------------------
-vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr, vtkIdType i)
+static vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr,
+                                                 vtkIdType i)
 {
   vtkVariant val;
   switch(arr->GetDataType())

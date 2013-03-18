@@ -49,7 +49,7 @@ int periodical_2009[] =  {197, 166, 176, 231, 171, 152, 166, 131, 184, 191, 143,
 int audiobook_2009[] =  {1213, 1076, 926, 987, 903, 1196, 1073, 1144, 1203, 1038, 874, 1173};
 int video_2009[] =  {2293, 1561, 1542, 1627, 1588, 1179, 1563, 1445, 1811, 1565, 1524, 1816};
 
-void build_array(const char *name, vtkIntArray *array, int c_array[])
+static void build_array(const char *name, vtkIntArray *array, int c_array[])
 {
   array->SetName(name);
   for (int i = 0; i < num_months; ++i)

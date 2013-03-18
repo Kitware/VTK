@@ -45,7 +45,7 @@
 
 #if 1
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
-int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
+static int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
   {
   // Returns 1 if an OpenGL error occurred, 0 otherwise.
   //

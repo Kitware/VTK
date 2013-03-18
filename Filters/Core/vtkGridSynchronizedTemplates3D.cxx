@@ -99,14 +99,15 @@ unsigned long vtkGridSynchronizedTemplates3D::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
-                                                    int precision,
-                                                    vtkStructuredGrid *input,
-                                                    vtkPolyData *o,
-                                                    vtkFloatArray *scalars,
-                                                    vtkFloatArray *normals,
-                                                    vtkFloatArray *gradients,
-                                                    vtkDataArray *inScalars)
+static void vtkGridSynchronizedTemplates3DInitializeOutput(
+  int *ext,
+  int precision,
+  vtkStructuredGrid *input,
+  vtkPolyData *o,
+  vtkFloatArray *scalars,
+  vtkFloatArray *normals,
+  vtkFloatArray *gradients,
+  vtkDataArray *inScalars)
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;

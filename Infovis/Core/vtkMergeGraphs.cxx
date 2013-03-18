@@ -71,7 +71,7 @@ int vtkMergeGraphs::FillInputPortInformation(int port, vtkInformation *info)
 
 //---------------------------------------------------------------------------
 // Fills array_map with matching arrays from data1 to data2
-void vtkMergeGraphsCreateArrayMapping(std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map, vtkDataSetAttributes* data1, vtkDataSetAttributes* data2)
+static void vtkMergeGraphsCreateArrayMapping(std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map, vtkDataSetAttributes* data1, vtkDataSetAttributes* data2)
 {
   vtkIdType narr1 = data1->GetNumberOfArrays();
   for (int arr1 = 0; arr1 < narr1; ++arr1)
@@ -91,7 +91,7 @@ void vtkMergeGraphsCreateArrayMapping(std::map<vtkAbstractArray*, vtkAbstractArr
 //---------------------------------------------------------------------------
 // Uses array_map to append a row to data1 corresponding to
 // row index2 of mapped arrays (which came from data2)
-void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2, std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map)
+static void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2, std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map)
 {
   int narr1 = data1->GetNumberOfArrays();
   for (int arr1 = 0; arr1 < narr1; ++arr1)

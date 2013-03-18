@@ -28,7 +28,7 @@ vtkCxxSetObjectMacro(vtkImageSeparableConvolution,ZKernel,vtkFloatArray);
 
 
 // Actually do the convolution
-void ExecuteConvolve (float* kernel, int kernelSize, float* image, float* outImage, int imageSize )
+static void ExecuteConvolve (float* kernel, int kernelSize, float* image, float* outImage, int imageSize )
 {
 
   // Consider the kernel to be centered at (int) ( (kernelSize - 1 ) / 2.0 )

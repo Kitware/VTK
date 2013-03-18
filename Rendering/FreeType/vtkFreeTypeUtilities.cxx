@@ -69,7 +69,7 @@ struct EmbeddedFontStruct
 // if it happens to be destroyed before our singleton (this order is not
 // deterministic). It will destroy our singleton, if needed.
 
-void vtkFreeTypeUtilitiesCleanupCallback ()
+static void vtkFreeTypeUtilitiesCleanupCallback ()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeUtilitiesCleanupCallback\n");

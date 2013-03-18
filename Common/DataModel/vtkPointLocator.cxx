@@ -435,7 +435,7 @@ static int __cdecl vtkidsortcompare(const void *arg1, const void *arg2)
 #else
 extern "C"
 {
-  int vtkidsortcompare(const void *arg1, const void *arg2)
+  static int vtkidsortcompare(const void *arg1, const void *arg2)
 #endif
 {
   idsort *v1 = (idsort *)arg1;

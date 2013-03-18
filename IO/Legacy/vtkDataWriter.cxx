@@ -1747,7 +1747,7 @@ int vtkDataWriter::WritePedigreeIdData(ostream *fp, vtkAbstractArray *pedigreeId
   return this->WriteArray(fp, pedigreeIds->GetDataType(), pedigreeIds, format, num, 1);
 }
 
-int vtkIsInTheList(int index, int* list, int numElem)
+static int vtkIsInTheList(int index, int* list, int numElem)
 {
   for(int i=0; i<numElem; i++)
     {

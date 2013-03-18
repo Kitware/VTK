@@ -64,9 +64,9 @@ public:
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
-void vtkMultiProcessControllerBreakRMI(void *localArg,
-                                       void *remoteArg, int remoteArgLength,
-                                       int vtkNotUsed(remoteId))
+static void vtkMultiProcessControllerBreakRMI(void *localArg,
+                                              void *remoteArg, int remoteArgLength,
+                                              int vtkNotUsed(remoteId))
 {
   (void)remoteArg;
   (void)remoteArgLength;

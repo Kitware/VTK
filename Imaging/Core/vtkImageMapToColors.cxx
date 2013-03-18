@@ -163,11 +163,12 @@ int vtkImageMapToColors::RequestInformation (
 //----------------------------------------------------------------------------
 // This non-templated function executes the filter for any type of data.
 
-void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
-                                vtkImageData *inData, void *inPtr,
-                                vtkImageData *outData,
-                                unsigned char *outPtr,
-                                int outExt[6], int id)
+static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
+                                       vtkImageData *inData,
+                                       void *inPtr,
+                                       vtkImageData *outData,
+                                       unsigned char *outPtr,
+                                       int outExt[6], int id)
 {
   int idxY, idxZ;
   int extX, extY, extZ;

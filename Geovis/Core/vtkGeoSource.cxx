@@ -34,7 +34,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-VTK_THREAD_RETURN_TYPE vtkGeoSourceThreadStart(void* arg)
+static VTK_THREAD_RETURN_TYPE vtkGeoSourceThreadStart(void* arg)
 {
   vtkGeoSource* self;
   self = static_cast<vtkGeoSource *>(static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);

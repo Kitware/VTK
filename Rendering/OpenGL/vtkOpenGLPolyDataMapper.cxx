@@ -1571,7 +1571,7 @@ void vtkOpenGLPolyDataMapper::DrawTStrips(int idx,
     }
 }
 
-void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
+static void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
                                             vtkPoints *p,
                                             vtkDataArray *n,
                                             vtkUnsignedCharArray *c,

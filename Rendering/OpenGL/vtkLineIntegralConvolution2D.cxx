@@ -65,7 +65,7 @@ vtkStandardNewMacro( vtkLineIntegralConvolution2D );
 //
 // width and height: the size (in number of pixels) of the output image
 //
-void vtkRenderQuad( double vTCoords[4], double licTCoords[4],
+static void vtkRenderQuad( double vTCoords[4], double licTCoords[4],
                     unsigned int width, unsigned int height )
 {
   // glTexCoord2f( tcoordx, tcoordy )
