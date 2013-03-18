@@ -42,4 +42,4 @@ SOURCE_GROUP("Generated" FILES
 )
 
 ADD_EXECUTABLE( QtVTKRenderWindows ${QtVTKRenderWindowsSrcs} ${UISrcs} ${MOCSrcs})
-TARGET_LINK_LIBRARIES( QtVTKRenderWindows QVTK )
+TARGET_LINK_LIBRARIES( QtVTKRenderWindows ${VTK_LIBRARIES} )
