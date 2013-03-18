@@ -9,28 +9,28 @@
  *
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
- *
- * RCS: @(#) Id
  */
 
 #ifndef _WINPORT
 #define _WINPORT
 
-#include <X11/Xlib.h>
-#include <X11/cursorfont.h>
-#include <X11/keysym.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
+/*
+ *---------------------------------------------------------------------------
+ * The following sets of #includes and #ifdefs are required to get Tcl to
+ * compile under the windows compilers.
+ *---------------------------------------------------------------------------
+ */
 
-#include <malloc.h>
+#include <wchar.h>
+#include <io.h>
+#include <stdlib.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <malloc.h>
 #include <ctype.h>
 #include <math.h>
-#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <fcntl.h>
-#include <io.h>
 
 /*
  * Need to block out this include for building extensions with MetroWerks
@@ -42,15 +42,32 @@
 #endif
 
 #include <time.h>
-#ifdef __CYGWIN__
-#    define _T(x) L##x
-#else
-#    include <tchar.h>
-#endif
 
 #ifdef _MSC_VER
-#    define hypot _hypot
+#   ifndef hypot
+#  define hypot _hypot
+#   endif
 #endif /* _MSC_VER */
+
+/*
+ *  Pull in the typedef of TCHAR for windows.
+ */
+#include <tchar.h>
+#ifndef _TCHAR_DEFINED
+    /* Borland seems to forget to set this. */
+    typedef _TCHAR TCHAR;
+#   define _TCHAR_DEFINED
+#endif
+#if defined(_MSC_VER) && defined(__STDC__)
+    /* VS2005 SP1 misses this. See [Bug #3110161] */
+    typedef _TCHAR TCHAR;
+#endif
+
+#include <X11/Xlib.h>
+#include <X11/cursorfont.h>
+#include <X11/keysym.h>
+#include <X11/Xatom.h>
+#include <X11/Xutil.h>
 
 #ifndef __GNUC__
 #    define strncasecmp strnicmp
@@ -81,27 +98,6 @@
 #endif /* _MSC_VER */
 
 /*
- * The following stubs implement various calls that don't do anything
- * under Windows.
- */
-
-#define TkpCmapStressed(tkwin,colormap) (0)
-#define XFlush(display)
-#define XGrabServer(display)
-#define XUngrabServer(display)
-#define TkpSync(display)
-
-/*
- * The following functions are implemented as macros under Windows.
- */
-
-#define XFree(data) {if ((data) != NULL) ckfree((char *) (data));}
-#define XNoOp(display) {display->request++;}
-#define XSynchronize(display, bool) {display->request++;}
-#define XSync(display, bool) {display->request++;}
-#define XVisualIDFromVisual(visual) (visual->visualid)
-
-/*
  * The following Tk functions are implemented as macros under Windows.
  */
 
@@ -109,21 +105,12 @@
   | ((p)->green & 0xff00) | (((p)->blue << 8) & 0xff0000)) | 0x20000000)
 
 /*
- * These calls implement native bitmaps which are not currently 
+ * These calls implement native bitmaps which are not currently
  * supported under Windows.  The macros eliminate the calls.
  */
 
 #define TkpDefineNativeBitmaps()
 #define TkpCreateNativeBitmap(display, source) None
 #define TkpGetNativeAppBitmap(display, name, w, h) None
-
-/*
- * Define timezone for gettimeofday.
- */
-
-struct timezone {
-    int tz_minuteswest;
-    int tz_dsttime;
-};
 
 #endif /* _WINPORT */
