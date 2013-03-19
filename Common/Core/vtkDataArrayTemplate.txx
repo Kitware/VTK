@@ -922,7 +922,7 @@ vtkIdType vtkDataArrayTemplate<T>::InsertNextValue(T f)
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkDataArrayTemplate<T>::ComputeScalarRange(int comp)
+void vtkDataArrayTemplate<T>::ComputeScalarRange(double range[2], int comp)
 {
   // Compute range only if there are data.
   T* begin = this->Array+comp;
@@ -934,30 +934,27 @@ void vtkDataArrayTemplate<T>::ComputeScalarRange(int comp)
 
   // Compute the range of scalar values.
   int numComp = this->NumberOfComponents;
-  T range[2] = {vtkTypeTraits<T>::Max(), vtkTypeTraits<T>::Min()};
+  T tempRange[2] = {vtkTypeTraits<T>::Max(), vtkTypeTraits<T>::Min()};
   for(T* i = begin; i != end; i += numComp)
     {
     T s = *i;
-    if(s < range[0])
+    if(s < tempRange[0])
       {
-      range[0] = s;
+      tempRange[0] = s;
       }
-    if(s > range[1])
+    if(s > tempRange[1])
       {
-      range[1] = s;
+      tempRange[1] = s;
       }
     }
 
-  // Store the range.
-  this->ValueRange[0] = range[0];
-  this->ValueRange[1] = range[1];
-  this->Range[0] = static_cast<double>(range[0]);
-  this->Range[1] = static_cast<double>(range[1]);
+  range[0] = static_cast<double>(tempRange[0]);
+  range[1] = static_cast<double>(tempRange[1]);
 }
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkDataArrayTemplate<T>::ComputeVectorRange()
+void vtkDataArrayTemplate<T>::ComputeVectorRange(double range[2])
 {
   // Compute range only if there are data.
   T* begin = this->Array;
@@ -969,7 +966,8 @@ void vtkDataArrayTemplate<T>::ComputeVectorRange()
 
   // Compute the range of vector magnitude squared.
   int numComp = this->NumberOfComponents;
-  double range[2] = {VTK_DOUBLE_MAX, VTK_DOUBLE_MIN};
+  range[0] = VTK_DOUBLE_MAX;
+  range[1] = VTK_DOUBLE_MIN;
   for(T* i = begin; i != end; i += numComp)
     {
     double s = 0.0;
@@ -991,8 +989,8 @@ void vtkDataArrayTemplate<T>::ComputeVectorRange()
     }
 
   // Store the range of vector magnitude.
-  this->Range[0] = sqrt(range[0]);
-  this->Range[1] = sqrt(range[1]);
+  range[0] = sqrt(range[0]);
+  range[1] = sqrt(range[1]);
 }
 
 //----------------------------------------------------------------------------
