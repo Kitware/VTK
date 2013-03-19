@@ -20,12 +20,12 @@ endforeach()
 # Now to build the vtkPython executable, configure the .py files etc.
 get_property(VTK_PYTHON_MODULES GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
 
-vtk_module_load(vtkWrappingPython)
+vtk_module_load(vtkWrappingPythonCore)
 vtk_module_load(vtkPython)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}
   ${VTK_SOURCE_DIR}/Utilities
   ${vtkPython_INCLUDE_DIRS}
-  ${vtkWrappingPython_INCLUDE_DIRS})
+  ${vtkWrappingPythonCore_INCLUDE_DIRS})
 # Needed for the vtkpython executable.
 if(VTK_USE_CARBON)
   find_program(VTK_APPLE_RESOURCE Rez "${OSX_DEVELOPER_ROOT}/usr/bin")
@@ -81,7 +81,7 @@ if(APPLE)
 endif()
 
 # Link against all the kit wrappers.
-list(APPEND VTKPYTHON_LINK_LIBS vtkWrappingPython)
+list(APPEND VTKPYTHON_LINK_LIBS vtkWrappingPythonCore)
 
 set(vtkpython_pyc_depends
   vtkCommonPython

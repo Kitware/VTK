@@ -33,7 +33,7 @@
 
 //--------------------------------------------------------------------
 // methods for adding this type to a module
-extern "C" { VTKWRAPPINGPYTHON_EXPORT void PyVTKAddFile_mutable(PyObject *, const char *); }
+extern "C" { VTKWRAPPINGPYTHONCORE_EXPORT void PyVTKAddFile_mutable(PyObject *, const char *); }
 
 //--------------------------------------------------------------------
 

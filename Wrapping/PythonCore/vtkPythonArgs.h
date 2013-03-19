@@ -26,7 +26,7 @@ resulting in wrapper code that is faster and more compact.
 #ifndef __vtkPythonArgs_h
 #define __vtkPythonArgs_h
 
-#include "vtkWrappingPythonModule.h" // For export macro
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPythonUtil.h"
 #include "PyVTKClass.h"
 #include "PyVTKTemplate.h"
@@ -36,7 +36,7 @@ resulting in wrapper code that is faster and more compact.
 
 #include <string>
 
-class VTKWRAPPINGPYTHON_EXPORT vtkPythonArgs
+class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs
 {
 public:
 

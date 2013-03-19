@@ -297,12 +297,12 @@ if(VTK_WRAP_PYTHON)
   set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
   set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
   set(VTK_PYTHON_EXE vtkpython)
-  # Force the WrappingPython module to on if wrapping is on
-  set(Module_vtkWrappingPython ON CACHE BOOL "Core Python wrapping library"
+  # Force the WrappingPythonCore module to on if wrapping is on
+  set(Module_vtkWrappingPythonCore ON CACHE BOOL "Core Python wrapping library"
     FORCE)
 else()
-  # if wrapping is not on then force WrappingPython module to be off
-  set(Module_vtkWrappingPython OFF CACHE BOOL "Core Python wrapping library"
+  # if wrapping is not on then force WrappingPythonCore module to be off
+  set(Module_vtkWrappingPythonCore OFF CACHE BOOL "Core Python wrapping library"
     FORCE)
 endif()
 

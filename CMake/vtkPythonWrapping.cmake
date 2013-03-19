@@ -50,7 +50,7 @@ function(vtk_add_python_wrapping module_name)
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()
   target_link_libraries(${module_name}PythonD ${module_name}
-    vtkWrappingPython ${extra_links} ${VTK_PYTHON_LIBRARIES})
+    vtkWrappingPythonCore ${extra_links} ${VTK_PYTHON_LIBRARIES})
 
   _vtk_add_python_module(${module_name}Python ${module_name}PythonInit.cxx)
   target_link_libraries(${module_name}Python ${module_name}PythonD)
