@@ -89,6 +89,8 @@ protected:
   void NewValueStarted(const char **attr);
   void NewValueFinished();
 
+  std::string CharacterDataValueBuffer;
+
   enum AtomValueType {
     None = 0,
     AtomicNumber,

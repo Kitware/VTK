@@ -382,6 +382,7 @@ void vtkBlueObeliskDataParser::NewValueStarted(const char **attr)
 void vtkBlueObeliskDataParser::NewValueFinished()
 {
   this->IsProcessingValue = false;
+  this->CharacterDataValueBuffer.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -397,9 +398,9 @@ void vtkBlueObeliskDataParser::CharacterDataHandler(const char *data,
 //----------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::SetCurrentValue(const char *data, int length)
 {
-  std::string str(data, data+length);
+  this->CharacterDataValueBuffer += std::string(data, data+length);
 
-  this->SetCurrentValue(str.c_str());
+  this->SetCurrentValue(this->CharacterDataValueBuffer.c_str());
 }
 
 //----------------------------------------------------------------------------
