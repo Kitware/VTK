@@ -68,12 +68,13 @@ endmacro()
 #  <module>_CLASS_<class>_WRAP_SPECIAL
 macro(vtk_module_classes_load mod)
   if(NOT ${mod}_CLASSES_LOADED)
-    include("${VTK_MODULES_DIR}/${mod}-Classes.cmake" OPTIONAL RESULT_VARIABLE _found)
+    include("${VTK_MODULES_DIR}/${mod}-Headers.cmake"
+      OPTIONAL RESULT_VARIABLE _found)
     if (NOT _found)
       # When building applications outside VTK, they can provide extra module
       # config files by simply adding the corresponding locations to the
       # CMAKE_MODULE_PATH
-      include(${mod}-Classes OPTIONAL)
+      include(${mod}-Headers OPTIONAL)
     endif()
     if(NOT ${mod}_CLASSES_LOADED)
       message(FATAL_ERROR "No such module: \"${mod}\"")

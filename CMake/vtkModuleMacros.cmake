@@ -229,8 +229,8 @@ function(vtk_module_export sources)
     endif()
   endforeach()
   # Configure wrapping information for external wrapping of classes.
-  configure_file(${_VTKModuleMacros_DIR}/vtkModuleClasses.cmake.in
-    ${VTK_MODULES_DIR}/${vtk-module}-Classes.cmake @ONLY)
+  configure_file(${_VTKModuleMacros_DIR}/vtkModuleHeaders.cmake.in
+    ${VTK_MODULES_DIR}/${vtk-module}-Headers.cmake @ONLY)
 endfunction()
 
 macro(vtk_module_test)
