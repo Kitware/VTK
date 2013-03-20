@@ -23,6 +23,7 @@
 
 #include "vtkRenderingCoreModule.h" // for export macro
 #include "vtkObject.h"
+#include "vtkColor.h" // for vtkColor3d
 
 #include <map> // for std::map
 
@@ -52,6 +53,24 @@ public:
   // for all blocks to true.
   void RemoveBlockVisibilites();
 
+  // Description:
+  // Set/get the color for the block with \p flat_index.
+  void SetBlockColor(unsigned int flat_index, const double color[3]);
+  void GetBlockColor(unsigned int flat_index, double color[3]) const;
+  vtkColor3d GetBlockColor(unsigned int flat_index) const;
+
+  // Description:
+  // Returns true if the block with the given \p flat_index has a color.
+  bool HasBlockColor(unsigned int flat_index) const;
+
+  // Description:
+  // Removes the block color for the block with \p flat_index.
+  void RemoveBlockColor(unsigned int flat_index);
+
+  // Description:
+  // Removes all block colors.
+  void RemoveBlockColors();
+
 protected:
   vtkCompositeDataDisplayAttributes();
   ~vtkCompositeDataDisplayAttributes();
@@ -62,6 +81,7 @@ private:
 
 private:
   std::map<unsigned int, bool> BlockVisibilities;
+  std::map<unsigned int, vtkColor3d> BlockColors;
 };
 
 #endif // __vtkCompositeDataDisplayAttributes_h

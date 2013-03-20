@@ -25,6 +25,8 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPainter.h"
 
+class vtkColor3d;
+
 class VTKRENDERINGCORE_EXPORT vtkCompositePainter : public vtkPainter
 {
 public:
@@ -61,7 +63,8 @@ protected:
                    bool forceCompileOnly,
                    vtkDataObject *dobj,
                    unsigned int &flat_index,
-                   bool &visible);
+                   bool &visible,
+                   vtkColor3d &color);
 
   vtkDataObject* OutputData;
 private:
