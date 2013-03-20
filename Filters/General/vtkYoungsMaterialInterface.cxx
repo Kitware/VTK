@@ -1664,10 +1664,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #define KERNEL_DECL /* exported function */
 #endif
 
-#ifndef CONSTANT_DECL
-#define CONSTANT_DECL static const
-#endif
-
 #ifndef REAL_PRECISION
 #define REAL_PRECISION 64 /* defaults to 64 bits floating point */
 #endif
@@ -1680,10 +1676,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 #ifndef KERNEL_DECL
 #define KERNEL_DECL __global__
-#endif
-
-#ifndef CONSTANT_DECL
-#define CONSTANT_DECL __constant__
 #endif
 
 #ifndef REAL_PRECISION
