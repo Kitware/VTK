@@ -56,7 +56,6 @@ void vtkDataSetGradientPrecompute::PrintSelf(ostream& os, vtkIndent indent)
 #define SCALE_VEC(a,b) a[0]*=b;a[1]*=b;a[2]*=b
 #define ZERO_VEC(a) a[0]=0;a[1]=0;a[2]=0
 #define MAX_CELL_POINTS 128
-#define MAX_FACE_POINTS 16
 #define VTK_CQS_EPSILON 1e-12
 
 static inline void TETRA_CQS_VECTOR( double v0[3], double v1[3], double v2[3], double p[3], double cqs[3] )
