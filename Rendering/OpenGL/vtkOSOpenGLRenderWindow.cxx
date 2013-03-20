@@ -69,8 +69,6 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal(
 
 vtkStandardNewMacro(vtkOSOpenGLRenderWindow);
 
-#define MAX_LIGHTS 8
-
 // a couple of routines for offscreen rendering
 void vtkOSMesaDestroyWindow(void *Window)
 {
