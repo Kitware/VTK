@@ -437,9 +437,9 @@ void vtkGESignaReader::ExecuteInformation()
   fclose(fp);
 }
 
-void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
-                         short *map_left, short *map_wide,
-                         unsigned short *output)
+static void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
+                                short *map_left, short *map_wide,
+                                unsigned short *output)
 {
   unsigned short row;
   unsigned short last_pixel=0;
@@ -544,8 +544,8 @@ void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
 }
 
 
-void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
-                             int *outExt, vtkIdType *)
+static void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
+                                    int *outExt, vtkIdType *)
 {
   FILE *fp = fopen(self->GetInternalFileName(), "rb");
   if (!fp)
@@ -692,8 +692,8 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
 //----------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
-void vtkGESignaReaderUpdate(vtkGESignaReader *self, vtkImageData *data,
-                            unsigned short *outPtr)
+static void vtkGESignaReaderUpdate(vtkGESignaReader *self, vtkImageData *data,
+                                   unsigned short *outPtr)
 {
   vtkIdType outIncr[3];
   int outExtent[6];

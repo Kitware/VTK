@@ -709,7 +709,7 @@ void vtkAxisActor2D::UpdateAdjustedRange()
 
 // this is a helper function that computes some useful functions
 // for an axis. It returns the number of ticks
-int vtkAxisActor2DComputeTicks(double sRange[2], double &interval,
+static int vtkAxisActor2DComputeTicks(double sRange[2], double &interval,
                                double &root)
 {
   // first we try assuming the first value is reasonable

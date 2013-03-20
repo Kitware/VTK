@@ -148,10 +148,10 @@ inline void vtkNearestHelper(double displacement[3], double derivatives[3][3],
   derivatives[2][2] = gridPtr1[2] - gridPtr0[2];
 }
 
-void vtkNearestNeighborInterpolation(double point[3], double displacement[3],
-                                     double derivatives[3][3], void *gridPtr,
-                                     int gridType, int gridExt[6],
-                                     vtkIdType gridInc[3])
+static void vtkNearestNeighborInterpolation(double point[3], double displacement[3],
+                                            double derivatives[3][3], void *gridPtr,
+                                            int gridType, int gridExt[6],
+                                            vtkIdType gridInc[3])
 {
   if (derivatives == NULL)
     {
@@ -304,9 +304,9 @@ inline void vtkLinearHelper(double displacement[3], double derivatives[3][3],
     }
 }
 
-void vtkTrilinearInterpolation(double point[3], double displacement[3],
-                               double derivatives[3][3], void *gridPtr, int gridType,
-                               int gridExt[6], vtkIdType gridInc[3])
+static void vtkTrilinearInterpolation(double point[3], double displacement[3],
+                                      double derivatives[3][3], void *gridPtr, int gridType,
+                                      int gridExt[6], vtkIdType gridInc[3])
 {
   // change point into integer plus fraction
   double f[3];
@@ -391,8 +391,8 @@ void vtkTrilinearInterpolation(double point[3], double displacement[3],
 // helper function: set up the lookup indices and the interpolation
 // coefficients
 
-void vtkSetTricubicInterpCoeffs(double F[4], int *l, int *m, double f,
-                                int interpMode)
+static void vtkSetTricubicInterpCoeffs(double F[4], int *l, int *m, double f,
+                                       int interpMode)
 {
   double fp1,fm1,fm2;
 
@@ -443,8 +443,8 @@ void vtkSetTricubicInterpCoeffs(double F[4], int *l, int *m, double f,
 }
 
 // set coefficients to be used to find the derivative of the cubic
-void vtkSetTricubicDerivCoeffs(double F[4], double G[4], int *l, int *m,
-                               double f, int interpMode)
+static void vtkSetTricubicDerivCoeffs(double F[4], double G[4], int *l, int *m,
+                                      double f, int interpMode)
 {
   double fp1,fm1,fm2;
 
@@ -612,10 +612,10 @@ inline void vtkCubicHelper(double displacement[3], double derivatives[3][3],
     }
 }
 
-void vtkTricubicInterpolation(double point[3], double displacement[3],
-                              double derivatives[3][3], void *gridPtr,
-                              int gridType, int gridExt[6],
-                              vtkIdType gridInc[3])
+static void vtkTricubicInterpolation(double point[3], double displacement[3],
+                                     double derivatives[3][3], void *gridPtr,
+                                     int gridType, int gridExt[6],
+                                     vtkIdType gridInc[3])
 {
   vtkIdType factX[4],factY[4],factZ[4];
 

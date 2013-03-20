@@ -124,7 +124,7 @@ public:
   * @param[in,out] circles A vector of (x,y,z,r,child,idx) tuples for each node.
   * @param[out] Re The radius of the enclosing circle.
   */
-int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
+static int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
   vtkIdType N, std::vector<vtkCosmicTreeEntry>& circles, double& Re )
 {
   int i;
@@ -263,7 +263,7 @@ int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
   * @param[in,out] circles A vector of (x,y,z,r,child,idx) tuples for each node.
   * @param[out] Re The radius of the enclosing circle.
   */
-int vtkCosmicTreeLayoutStrategyComputeCentersWell(
+static int vtkCosmicTreeLayoutStrategyComputeCentersWell(
   vtkIdType N, std::vector<vtkCosmicTreeEntry>& circles, double& Re )
 {
   int i;

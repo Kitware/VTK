@@ -479,7 +479,7 @@ void vtkXMLUtilities::ReadElementFromAttributeArray(
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLUtilitiesFindSimilarElementsInternal(
+static void vtkXMLUtilitiesFindSimilarElementsInternal(
   vtkXMLDataElement *elem,
   vtkXMLDataElement *tree,
   vtkXMLUtilitiesDataElementContainer *results)

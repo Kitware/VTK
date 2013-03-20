@@ -142,7 +142,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
 }
 
 //----------------------------------------------------------------------------
-void
+static void
 vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(vtkDataArray *scalars,
                                                    vtkImageData *outData,
                                                    int outExt[6],

@@ -1333,7 +1333,7 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 
 //----------------------------------------------------------------------------
 // Special implementation for unsigned char input.
-void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
+static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
                                      unsigned char* input,
                                      unsigned char* output,
                                      int length, int inIncr,
@@ -1396,7 +1396,7 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 
 //----------------------------------------------------------------------------
 // Special implementation for unsigned short input.
-void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
+static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
                                      unsigned short* input,
                                      unsigned char* output,
                                      int length, int inIncr,

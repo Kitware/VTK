@@ -40,7 +40,7 @@
 // Helper function that reads the particle coordinates
 // NOTE: it is assumed that H5DOpen has been called on the
 // internal file index this->FileIndex.
-void GetParticleCoordinates(    hid_t &dataIdx,
+static void GetParticleCoordinates( hid_t &dataIdx,
   std::vector< double > &xcoords, std::vector< double > &ycoords,
   std::vector< double > &zcoords,
   vtkFlashReaderInternal *iReader,
