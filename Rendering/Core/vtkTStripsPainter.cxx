@@ -43,47 +43,6 @@ vtkTStripsPainter::~vtkTStripsPainter()
 }
 
 //-----------------------------------------------------------------------------
-#define vtkDrawStripLinesMacro(prim,glVertFuncs,glCellFuncs,glInitFuncs) \
-{ \
-  vtkIdType nPts; \
-  vtkIdType *savedPtIds = ptIds; \
-  glInitFuncs \
-  while (ptIds < endPtIds) \
-    { \
-    nPts = *ptIds; \
-    ++ptIds; \
-    device->BeginPrimitive(prim); \
-    glCellFuncs \
-    while (nPts > 0) \
-      { \
-      glVertFuncs \
-      ptIds += 2; \
-      nPts -= 2; \
-      } \
-    device->EndPrimitive(); \
-    ptIds += nPts; /* nPts could be 0 or -1 here */ \
-    } \
-  ptIds = savedPtIds; \
-  while (ptIds < endPtIds) \
-    { \
-    nPts = *ptIds; \
-    ++ptIds; \
-    device->BeginPrimitive(prim); \
-    glCellFuncs \
-    ++ptIds; \
-    --nPts; \
-    while (nPts > 0) \
-      { \
-      glVertFuncs \
-      ptIds += 2; \
-      nPts -= 2; \
-      } \
-    device->EndPrimitive(); \
-    ptIds += nPts; /* nPts could be 0 or -1 here */ \
-    } \
-}
-
-//-----------------------------------------------------------------------------
 #define vtkDrawPolysMacro(prim,glVertFuncs,glCellFuncs,glInitFuncs) \
 { \
   vtkIdType nPts; unsigned short count = 0; \
