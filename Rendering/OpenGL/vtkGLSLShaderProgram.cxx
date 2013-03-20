@@ -43,7 +43,7 @@
 //#include <GL/glu.h>
 #include <vtkgl.h>
 
-#if 1
+#if 0
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
 static int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
   {
