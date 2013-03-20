@@ -57,17 +57,17 @@ macro(vtk_module_dep_includes mod)
   endif()
 endmacro()
 
-# vtk_module_classes_load(<module>)
+# vtk_module_headers_load(<module>)
 #
 # Loads variables describing the given module:
-#  <module>_CLASSES_LOADED  = True if the module class info has been loaded
-#  <module>_CLASSES              = List of classes
-#  <module>_CLASS_<class>_EXISTS
-#  <module>_CLASS_<class>_ABSTRACT
-#  <module>_CLASS_<class>_WRAP_EXCLUDE
-#  <module>_CLASS_<class>_WRAP_SPECIAL
-macro(vtk_module_classes_load mod)
-  if(NOT ${mod}_CLASSES_LOADED)
+#  <module>_HEADERS_LOADED       = True if the module header info has been loaded
+#  <module>_HEADERS              = List of headers
+#  <module>_HEADER_<header>_EXISTS
+#  <module>_HEADER_<header>_ABSTRACT
+#  <module>_HEADER_<header>_WRAP_EXCLUDE
+#  <module>_HEADER_<header>_WRAP_SPECIAL
+macro(vtk_module_headers_load mod)
+  if(NOT ${mod}_HEADERS_LOADED)
     include("${VTK_MODULES_DIR}/${mod}-Headers.cmake"
       OPTIONAL RESULT_VARIABLE _found)
     if (NOT _found)
@@ -76,7 +76,7 @@ macro(vtk_module_classes_load mod)
       # CMAKE_MODULE_PATH
       include(${mod}-Headers OPTIONAL)
     endif()
-    if(NOT ${mod}_CLASSES_LOADED)
+    if(NOT ${mod}_HEADERS_LOADED)
       message(FATAL_ERROR "No such module: \"${mod}\"")
     endif()
   endif()

@@ -280,43 +280,43 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
   configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
                  ${_args_file} @ONLY)
 
-  # Decide what to do for each class.
-  foreach(class ${${module}_CLASSES})
-    # Everything in this block is for classes that will be wrapped.
-    if(${module}_CLASSES_${class}_WRAP_SPECIAL OR
-       NOT ${module}_CLASSES_${class}_WRAP_EXCLUDE)
+  # Decide what to do for each header.
+  foreach(header ${${module}_HEADERS})
+    # Everything in this block is for headers that will be wrapped.
+    if(${module}_HEADER_${header}_WRAP_SPECIAL OR
+       NOT ${module}_HEADER_${header}_WRAP_EXCLUDE)
 
       # Find the full path to the header file to be wrapped.
-      vtk_find_header(${class}.h "${${module}_INCLUDE_DIRS}" class_header_path)
+      vtk_find_header(${header}.h "${${module}_INCLUDE_DIRS}" class_header_path)
       if(NOT class_header_path)
-        message(FATAL_ERROR "Could not find header for ${class}.")
+        message(FATAL_ERROR "Could not find the ${header} header file.")
       endif()
 
       # add the info to the init file
       set(VTK_WRAPPER_INIT_DATA
-        "${VTK_WRAPPER_INIT_DATA}\n${class}")
+        "${VTK_WRAPPER_INIT_DATA}\n${header}")
 
       # new source file is namePython.cxx, add to resulting list
-      set(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${class}Python.cxx)
+      set(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${header}Python.cxx)
 
       # add custom command to output
       add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${class}Python.cxx
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${header}Python.cxx
         DEPENDS ${VTK_WRAP_PYTHON_EXE} ${VTK_WRAP_HINTS} ${class_header_path}
           ${_args_file} ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_PYTHON_EXE}
           ARGS
           "${quote}@${_args_file}${quote}"
-          "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${class}Python.cxx${quote}"
+          "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${header}Python.cxx${quote}"
           "${quote}${class_header_path}${quote}"
-        COMMENT "Python Wrapping - generating ${class}Python.cxx"
+        COMMENT "Python Wrapping - generating ${header}Python.cxx"
           ${verbatim}
         )
 
       # Add this output to a custom target if needed.
       if(VTK_WRAP_PYTHON_NEED_CUSTOM_TARGETS)
         set(VTK_WRAP_PYTHON_CUSTOM_LIST ${VTK_WRAP_PYTHON_CUSTOM_LIST}
-          ${CMAKE_CURRENT_BINARY_DIR}/${class}Python.cxx)
+          ${CMAKE_CURRENT_BINARY_DIR}/${header}Python.cxx)
         set(VTK_WRAP_PYTHON_CUSTOM_COUNT ${VTK_WRAP_PYTHON_CUSTOM_COUNT}x)
         if(VTK_WRAP_PYTHON_CUSTOM_COUNT MATCHES "^${VTK_WRAP_PYTHON_CUSTOM_LIMIT}$")
           set(VTK_WRAP_PYTHON_CUSTOM_NAME ${VTK_WRAP_PYTHON_CUSTOM_NAME}Hack)
@@ -328,7 +328,7 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
         endif()
       endif()
     else()
-      message("${class} will not be wrapped.")
+      message("${header} will not be wrapped.")
     endif()
   endforeach()
 

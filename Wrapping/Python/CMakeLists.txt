@@ -12,7 +12,7 @@ endmacro()
 # Loop through all modules that should be wrapped, and wrap them.
 foreach(module ${VTK_PYTHON_MODULES})
   vtk_module_load(${module})
-  vtk_module_classes_load(${module})
+  vtk_module_headers_load(${module})
   vtk_include_recurse(${module})
   vtk_add_python_wrapping(${module})
 endforeach()
