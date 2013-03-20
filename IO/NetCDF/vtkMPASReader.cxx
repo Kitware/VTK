@@ -99,7 +99,6 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace std;
 
 #define MAX_VARS 100
-#define DEFAULT_LAYER_THICKNESS 10
 
 
 //----------------------------------------------------------------------------
