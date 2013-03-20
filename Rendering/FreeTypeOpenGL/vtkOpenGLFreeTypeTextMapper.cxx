@@ -36,7 +36,6 @@ using namespace ftgl;
 // Print debug info
 
 #define VTK_FTTM_DEBUG 0
-#define VTK_FTTM_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
 // GL2PS related internal helper functions.
