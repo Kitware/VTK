@@ -14,6 +14,8 @@
 =========================================================================*/
 
 #include "vtkAxisExtended.h"
+
+#include "vtkMath.h" // for VTK_DBL_EPSILON
 #include "vtkStdString.h"
 #include "vtkObjectFactory.h"
 

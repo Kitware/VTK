@@ -160,7 +160,7 @@ void vtkColorLegend::ComputeTexture()
     }
 
   // Set the axis up
-  this->Axis->SetRange(bounds[0], bounds[1]);
+  this->Axis->SetUnscaledRange(bounds[0], bounds[1]);
   //this->Axis->AutoScale();
 
   // Could depend of the screen resolution
