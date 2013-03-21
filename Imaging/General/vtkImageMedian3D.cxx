@@ -80,12 +80,14 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
     }
 }
 
+namespace {
+
 //-----------------------------------------------------------------------------
 // Add a sample to the median computation
-static double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
-                                                int &UpMax, int &DownMax,
-                                                int &NumNeighborhood,
-                                                double *Median, double val)
+double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
+                                         int &UpMax, int &DownMax,
+                                         int &NumNeighborhood,
+                                         double *Median, double val)
 {
   int idx, max;
   double temp, *ptr;
@@ -177,6 +179,8 @@ static double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
 
   return Median;
 }
+
+} // end anonymous namespace
 
 //-----------------------------------------------------------------------------
 // This method contains the second switch statement that calls the correct
