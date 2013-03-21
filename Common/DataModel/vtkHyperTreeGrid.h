@@ -40,6 +40,9 @@
 #include "vtkDataSet.h"
 #include <map> // STL header for dual point coordinates ajustment
 
+#define VTK_INDEXING_MODE_KJI  0
+#define VTK_INDEXING_MODE_IJK  1
+
 class vtkHyperTreeCursor;
 class vtkHyperTree;
 
@@ -83,6 +86,20 @@ public:
   // Set/Get sizes of this rectilinear grid dataset
   void SetGridSize( unsigned int[3] );
   vtkGetVector3Macro(GridSize, unsigned int);
+
+  // Description:
+  // Specify indexing mode:
+  // KJI: k first, i last: iterate in k / j / i order
+  // IJK: i first, k last: iterate in i / j / k order
+  // Default is KJI mode
+  vtkSetMacro(IndexingMode, unsigned int);
+  vtkGetMacro(IndexingMode, unsigned int);
+  void SetIndexingModeToDefault()
+    { this->SetIndexingMode( VTK_INDEXING_MODE_KJI ); }
+  void SetIndexingModeToKJI()
+    { this->SetIndexingMode( VTK_INDEXING_MODE_KJI ); }
+  void SetIndexingModeToIJK()
+    { this->SetIndexingMode( VTK_INDEXING_MODE_IJK ); }
 
   // Description:
   // Set/Get the subdivision factor in the grid refinement scheme
@@ -320,6 +337,7 @@ protected:
 
   unsigned int Dimension;    // 1, 2 or 3.
   unsigned int GridSize[3];
+  unsigned int IndexingMode;
   unsigned int BranchFactor;
   unsigned int NumberOfChildren;
 
