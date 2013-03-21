@@ -76,7 +76,6 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->GridSize[0] = 0;
   this->GridSize[1] = 0;
   this->GridSize[2] = 0;
-  this->NumberOfRoots = 0;
 
   // Grid parameters
   this->BranchFactor = 2;
@@ -158,7 +157,6 @@ void vtkHyperTreeGrid::PrintSelf( ostream& os, vtkIndent indent )
      << this->GridSize[0] <<","
      << this->GridSize[1] <<","
      << this->GridSize[2] << endl;
-  os << indent << "NumberOfRoots: " << this->NumberOfRoots << endl;
 
   if ( this->XCoordinates )
     {
@@ -199,7 +197,6 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->BranchFactor = htg->BranchFactor;
   this->NumberOfChildren = htg->NumberOfChildren;
   memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
-  this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
   // Un-register existing tree
   if ( this->HyperTrees )
@@ -256,7 +253,6 @@ void vtkHyperTreeGrid::SetGridSize( unsigned int n[3] )
   this->GridSize[0] = n[0];
   this->GridSize[1] = n[1];
   this->GridSize[2] = n[2];
-  this->NumberOfRoots = n[0] * n[1] * n[2];
 
   this->Modified();
   this->UpdateTree();
@@ -325,7 +321,8 @@ void vtkHyperTreeGrid::UpdateTree()
     }
 
   // Generate concrete instance of hyper tree and append it to list of roots
-  for ( unsigned int r = 0; r < this->NumberOfRoots; ++ r )
+  unsigned int nr = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+  for ( unsigned int r = 0; r < nr; ++ r )
     {
     vtkHyperTree* tree = vtkHyperTree::CreateInstance( this->BranchFactor, this->Dimension );
     this->HyperTrees->AddItem( tree );
@@ -1633,8 +1630,10 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
 //-----------------------------------------------------------------------------
 int vtkHyperTreeGrid::UpdateHyperTreesLeafIdOffsets()
 {
+  // Prepare storage for hyper tree grid roots
   delete [] this->HyperTreesLeafIdOffsets;
-  this->HyperTreesLeafIdOffsets = new vtkIdType[this->NumberOfRoots];
+  unsigned int nr = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+  this->HyperTreesLeafIdOffsets = new vtkIdType[nr];
 
   // Calculate point offsets into individual trees
   int numLeaves = 0;

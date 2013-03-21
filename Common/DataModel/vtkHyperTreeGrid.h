@@ -97,10 +97,6 @@ public:
   vtkGetMacro(Dimension, unsigned int);
 
   // Description:
-  // Get number of root cells
-  vtkGetMacro(NumberOfRoots, unsigned int);
-
-  // Description:
   // Return the number of cells in the dual grid.
   vtkIdType GetNumberOfCells();
 
@@ -324,7 +320,6 @@ protected:
 
   unsigned int Dimension;    // 1, 2 or 3.
   unsigned int GridSize[3];
-  unsigned int NumberOfRoots;
   unsigned int BranchFactor;
   unsigned int NumberOfChildren;
 
