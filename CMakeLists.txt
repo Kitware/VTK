@@ -153,7 +153,7 @@ check_cxx_source_compiles("${VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE}"
 
 #-----------------------------------------------------------------------------
 # Provide compatibility options.
-option(VTK_LEGACY_REMOVE "Remove all legacy code completely." ON)
+option(VTK_LEGACY_REMOVE "Remove all legacy code completely." OFF)
 option(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
 mark_as_advanced(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
 
