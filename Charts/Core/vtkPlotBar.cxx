@@ -55,8 +55,9 @@ void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, B *b,
     if (previous_points)
       previous_points->GetPoint(i,prev);
     points->SetPoint(i,
-      (logScale & 1) ? log10(a[i]) : a[i],
-      (logScale & 2) ? log10(b[i] + prev[1]) : (b[i] + prev[1]));
+      (logScale & 1) ? log10(static_cast<double>(a[i])) : a[i],
+      (logScale & 2) ?
+        log10(static_cast<double>(b[i] + prev[1])) : (b[i] + prev[1]));
     }
 }
 
@@ -73,8 +74,9 @@ void CopyToPoints(
       previous_points->GetPoint(i,prev);
     points->SetPoint(i, i, a[i] + prev[1]);
     points->SetPoint(i,
-      (logScale & 1) ? log10(i + 1.0) : i,
-      (logScale & 2) ? log10(a[i] + prev[1]) : (a[i] + prev[1]));
+      (logScale & 1) ? log10(static_cast<double>(i + 1.0)) : i,
+      (logScale & 2) ?
+        log10(static_cast<double>(a[i] + prev[1])) : (a[i] + prev[1]));
     }
 }
 
