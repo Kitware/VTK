@@ -143,5 +143,9 @@ ConfigSummary = {
 
 "QT":
 "@QT_QTGUI_INCLUDE_DIR@",
+
+"VTK_LEGACY_REMOVE":
+"@VTK_LEGACY_REMOVE@",
+
 }
 ]#CSMarker
