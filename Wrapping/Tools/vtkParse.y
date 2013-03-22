@@ -2794,7 +2794,7 @@ declaration_macro:
      set_return(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 3);
      output_function();
    }
-| TypeMacro '(' simple_id ',' simple_id opt_comma ')'
+| TypeMacro '(' simple_id ',' id_expression opt_comma ')'
    {
    currentFunction->Macro = "vtkTypeMacro";
    currentFunction->Name = "GetClassName";
