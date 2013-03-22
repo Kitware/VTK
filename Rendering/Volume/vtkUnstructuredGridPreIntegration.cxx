@@ -180,7 +180,7 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
   // Similar scaling is performed for the other dimensions of the
   // pre-integration table.
   this->IntegrationTableLengthScale
-    = (this->IntegrationTableLengthResolution-2)/this->MaxLength;
+    = (this->IntegrationTableLengthResolution-1)/this->MaxLength;
 
   // We only do computations at one length.
   float d_length = (float)(1/this->IntegrationTableLengthScale);
@@ -239,7 +239,7 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     else
       {
       this->IntegrationTableScalarScale[component]
-        = (this->IntegrationTableScalarResolution-2)/(range[1]-range[0]);
+        = (this->IntegrationTableScalarResolution-1)/(range[1]-range[0]);
       }
     this->IntegrationTableScalarShift[component]
       = -range[0]*this->IntegrationTableScalarScale[component];
@@ -281,17 +281,15 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     tmpIntersectionLengths->SetTuple1(0, d_length);
     for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution; sb_idx++)
       {
-      tmpFarIntersections
-        ->SetTuple1(0,
-                    (  (sb_idx - this->IntegrationTableScalarShift[component])
-                     / (this->IntegrationTableScalarScale[component]) ));
+      double sb = (sb_idx - this->IntegrationTableScalarShift[component])
+                  / (this->IntegrationTableScalarScale[component]);
+      tmpFarIntersections->SetTuple1(0, sb);
       for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution;
            sf_idx++)
         {
-        tmpNearIntersections
-          ->SetTuple1(0,
-                      (  (sf_idx - this->IntegrationTableScalarShift[component])
-                       / (this->IntegrationTableScalarScale[component]) ));
+        double sf = (sf_idx - this->IntegrationTableScalarShift[component])
+                    / (this->IntegrationTableScalarScale[component]);
+        tmpNearIntersections->SetTuple1(0, sf);
         c[0] = c[1] = c[2] = c[3] = 0;
         this->Integrator->Integrate(tmpIntersectionLengths,
                                     tmpNearIntersections, tmpFarIntersections,
