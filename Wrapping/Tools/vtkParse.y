@@ -51,8 +51,8 @@ function pointer types, or "method" for method pointer types.
 Conformance Notes:
 
 This parser was designed empirically and incrementally.  It has been
-refactored to make it more similar to the ANSI C++ 1996 BNF grammar,
-but there are still many very significant differences.
+refactored to make it more similar to the C++ 1998 grammar, but there
+are still many very significant differences.
 
 The most significant difference between this parser and a "standard"
 parser is that it only parses declarations in detail.  All other
@@ -65,7 +65,7 @@ Instead, these two id types are used to allow operator functions to be
 handled by their own rules, rather than by the generic function rules.
 These ids can only be used in function declarations and using declarations.
 
-Types are handled quite differently from the ANSI BNF.  These differences
+Types are handled quite differently from the C++ BNF.  These differences
 represent a prolonged (and ultimately successful) attempt to empirically
 create a yacc parser without any shift/reduce conflicts.  The rules for
 types are organized according to the way that types are usually defined
@@ -77,7 +77,7 @@ where class and enum specifiers can be used: you can declare a new struct
 within a variable declaration, but not within a parameter declaration.
 
 The lexer returns each of "(scope::*", "(*", "(a::b::*", etc. as single
-tokens.  The ANSI BNF, in contrast, would consider these to be a "("
+tokens.  The C++ BNF, in contrast, would consider these to be a "("
 followed by a "ptr_operator".  The lexer concatenates these tokens in
 order to eliminate shift/reduce conflicts in the parser.  However, this
 means that this parser will only recognize "scope::*" as valid if it is
@@ -90,6 +90,24 @@ a class.  This parser always interprets this pattern as a constructor
 declaration, because function calls are ignored by the parser, and
 variable declarations of the form y(x); are exceedingly rare compared
 to the more usual form y x; without parentheses.
+
+One ambiguous structure that has been found in some working code, but
+is currently not dealt with properly by the parser, is the following:
+
+  enum { x = mytemplate<int,2>::x };
+
+This is interpreted as the following ungrammatical statement:
+
+  enum { x = mytemplate < int ,
+         2 > ::x };
+
+This has proven to be very hard to fix in the parser, but it possible
+to modify the statement so that it does not confuse the parser:
+
+  enum { x = (mytemplate<int,2>::x) };
+
+The parentheses serve to disambiguate the statement.
+
 */
 
 #include <stdio.h>
