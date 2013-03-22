@@ -32,7 +32,7 @@ vtkCxxSetObjectMacro(vtkSplineFilter,Spline,vtkSpline);
 vtkSplineFilter::vtkSplineFilter()
 {
   this->Subdivide = VTK_SUBDIVIDE_SPECIFIED;
-  this->MaximumNumberOfSubdivisions = VTK_LARGE_INTEGER;
+  this->MaximumNumberOfSubdivisions = VTK_INT_MAX;
   this->NumberOfSubdivisions = 100;
   this->Length = 0.1;
   this->GenerateTCoords = VTK_TCOORDS_FROM_NORMALIZED_LENGTH;

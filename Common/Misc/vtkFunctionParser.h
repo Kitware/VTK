@@ -118,7 +118,7 @@
 #define VTK_PARSER_BEGIN_VARIABLES 48
 
 // the value that is retuned as a result if there is an error
-#define VTK_PARSER_ERROR_RESULT VTK_LARGE_FLOAT
+#define VTK_PARSER_ERROR_RESULT VTK_FLOAT_MAX
 
 class VTKCOMMONMISC_EXPORT vtkFunctionParser : public vtkObject
 {

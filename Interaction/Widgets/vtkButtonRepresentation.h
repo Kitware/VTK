@@ -50,7 +50,7 @@ public:
 
   // Description:
   // Retrieve the current button state.
-  vtkSetClampMacro(NumberOfStates,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfStates,int,1,VTK_INT_MAX);
 
   // Description:
   // Retrieve the current button state.

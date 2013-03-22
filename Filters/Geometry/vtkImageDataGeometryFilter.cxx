@@ -29,11 +29,11 @@ vtkStandardNewMacro(vtkImageDataGeometryFilter);
 vtkImageDataGeometryFilter::vtkImageDataGeometryFilter()
 {
   this->Extent[0] = 0;
-  this->Extent[1] = VTK_LARGE_INTEGER;
+  this->Extent[1] = VTK_INT_MAX;
   this->Extent[2] = 0;
-  this->Extent[3] = VTK_LARGE_INTEGER;
+  this->Extent[3] = VTK_INT_MAX;
   this->Extent[4] = 0;
-  this->Extent[5] = VTK_LARGE_INTEGER;
+  this->Extent[5] = VTK_INT_MAX;
   this->ThresholdCells  = 0;
   this->ThresholdValue  = 0.0;
   this->OutputTriangles = 0;

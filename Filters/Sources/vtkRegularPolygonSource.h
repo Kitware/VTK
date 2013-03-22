@@ -39,7 +39,7 @@ public:
   // Description:
   // Set/Get the number of sides of the polygon. By default, the number of sides
   // is set to six.
-  vtkSetClampMacro(NumberOfSides,int,3,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfSides,int,3,VTK_INT_MAX);
   vtkGetMacro(NumberOfSides,int);
 
   // Description:

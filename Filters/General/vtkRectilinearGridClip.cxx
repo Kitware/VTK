@@ -35,11 +35,11 @@ vtkRectilinearGridClip::vtkRectilinearGridClip()
 
   this->OutputWholeExtent[0] =
   this->OutputWholeExtent[2] =
-  this->OutputWholeExtent[4] = -VTK_LARGE_INTEGER;
+  this->OutputWholeExtent[4] = -VTK_INT_MAX;
 
   this->OutputWholeExtent[1] =
   this->OutputWholeExtent[3] =
-  this->OutputWholeExtent[5] = VTK_LARGE_INTEGER;
+  this->OutputWholeExtent[5] = VTK_INT_MAX;
 }
 
 //----------------------------------------------------------------------------

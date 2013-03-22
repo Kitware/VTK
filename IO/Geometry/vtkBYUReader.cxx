@@ -215,7 +215,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
         }
       }
     partStart = 1;
-    partEnd = VTK_LARGE_INTEGER;
+    partEnd = VTK_INT_MAX;
     }
 
   if ( numParts < 1 || numPts < 1 || numPolys < 1 )

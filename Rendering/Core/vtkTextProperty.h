@@ -64,7 +64,7 @@ public:
 
   // Description:
   // Set/Get the font size (in points).
-  vtkSetClampMacro(FontSize,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(FontSize,int,0,VTK_INT_MAX);
   vtkGetMacro(FontSize, int);
 
   // Description:

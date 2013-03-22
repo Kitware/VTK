@@ -356,8 +356,8 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-      tmax_x = VTK_LARGE_FLOAT;
-      tdelta_x = VTK_LARGE_FLOAT;
+      tmax_x = VTK_FLOAT_MAX;
+      tdelta_x = VTK_FLOAT_MAX;
     }
 
   if (ray_direction_y != 0.0)
@@ -368,8 +368,8 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-      tmax_y = VTK_LARGE_FLOAT;
-      tdelta_y = VTK_LARGE_FLOAT;
+      tmax_y = VTK_FLOAT_MAX;
+      tdelta_y = VTK_FLOAT_MAX;
     }
 
   if (ray_direction_z != 0.0)
@@ -380,8 +380,8 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-      tmax_z = VTK_LARGE_FLOAT;
-      tdelta_z = VTK_LARGE_FLOAT;
+      tmax_z = VTK_FLOAT_MAX;
+      tdelta_z = VTK_FLOAT_MAX;
     }
 
   dptr = data_ptr +
@@ -629,8 +629,8 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-    tmax_x = VTK_LARGE_FLOAT;
-    tdelta_x = VTK_LARGE_FLOAT;
+    tmax_x = VTK_FLOAT_MAX;
+    tdelta_x = VTK_FLOAT_MAX;
     }
 
   if (ray_direction_y != 0.0)
@@ -641,8 +641,8 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-    tmax_y = VTK_LARGE_FLOAT;
-    tdelta_y = VTK_LARGE_FLOAT;
+    tmax_y = VTK_FLOAT_MAX;
+    tdelta_y = VTK_FLOAT_MAX;
     }
 
   if (ray_direction_z != 0.0)
@@ -653,8 +653,8 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-    tmax_z = VTK_LARGE_FLOAT;
-    tdelta_z = VTK_LARGE_FLOAT;
+    tmax_z = VTK_FLOAT_MAX;
+    tdelta_z = VTK_FLOAT_MAX;
     }
 
   dptr = data_ptr +

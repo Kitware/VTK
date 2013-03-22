@@ -103,7 +103,7 @@ public:
 
   // Description:
   // Set/Get a subsample rate.
-  vtkSetClampMacro(SubsampleRate, int, 1, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(SubsampleRate, int, 1, VTK_INT_MAX);
   vtkGetMacro(SubsampleRate, int);
 
 protected:

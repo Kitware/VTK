@@ -44,7 +44,7 @@ public:
   // Seed the random number generator used to compute point positions.
   // This has a significant effect on their final positions when
   // the layout is complete.
-  vtkSetClampMacro(RandomSeed, int, 0, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(RandomSeed, int, 0, VTK_INT_MAX);
   vtkGetMacro(RandomSeed, int);
 
   // Description:

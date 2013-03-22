@@ -100,7 +100,7 @@ public:
 
   // Description:
   // Specify the array component to use to color the data.
-  vtkSetClampMacro(Component,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(Component,int,0,VTK_INT_MAX);
   vtkGetMacro(Component,int);
 
   // Description:

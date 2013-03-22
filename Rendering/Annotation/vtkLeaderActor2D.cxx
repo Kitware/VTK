@@ -442,7 +442,7 @@ int vtkLeaderActor2D::ClipLeader(double center[3], int box[2], double p1[3],
     }
   else
     {
-    tx = VTK_LARGE_FLOAT;
+    tx = VTK_FLOAT_MAX;
     }
 
   // y-line
@@ -452,7 +452,7 @@ int vtkLeaderActor2D::ClipLeader(double center[3], int box[2], double p1[3],
     }
   else
     {
-    ty = VTK_LARGE_FLOAT;
+    ty = VTK_FLOAT_MAX;
     }
 
   // Find the closest intersection point nearest the center of the box

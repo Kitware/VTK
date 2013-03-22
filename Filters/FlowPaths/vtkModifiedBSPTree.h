@@ -300,7 +300,7 @@ class BSPNode {
     BSPNode(void) {
       mChild[0] = mChild[1] = mChild[2] = NULL;
       for (int i=0; i<6; i++) sorted_cell_lists[i] = NULL;
-      for (int i=0; i<3; i++) { bounds[i*2] = VTK_LARGE_FLOAT; bounds[i*2+1] = -VTK_LARGE_FLOAT; }
+      for (int i=0; i<3; i++) { bounds[i*2] = VTK_FLOAT_MAX; bounds[i*2+1] = -VTK_FLOAT_MAX; }
     }
     // Destructor
     ~BSPNode(void) {

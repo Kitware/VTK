@@ -97,7 +97,7 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
   // Description:
   // Set/Get resolution of sweep operation. Resolution controls the number
   // of intermediate node points.
-  vtkSetClampMacro(Resolution,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(Resolution,int,1,VTK_INT_MAX);
   vtkGetMacro(Resolution,int);
 
   // Description:

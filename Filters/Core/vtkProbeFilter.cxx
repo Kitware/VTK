@@ -371,11 +371,11 @@ int vtkProbeFilter::RequestInformation(
       {
       if (m1 < -1)
         {
-        m1 = VTK_LARGE_INTEGER;
+        m1 = VTK_INT_MAX;
         }
       if (m2 < -1)
         {
-        m2 = VTK_LARGE_INTEGER;
+        m2 = VTK_INT_MAX;
         }
       if (m2 < m1)
         {

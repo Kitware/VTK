@@ -130,7 +130,7 @@ public:
   // Description:
   // Specify the number of smoothing iterations to smooth polygons. (Only
   // in effect if output style is Polygonalize and smoothing is on.)
-  vtkSetClampMacro(NumberOfSmoothingIterations,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfSmoothingIterations,int,0,VTK_INT_MAX);
   vtkGetMacro(NumberOfSmoothingIterations,int);
 
   // Description:
@@ -152,7 +152,7 @@ public:
   // Specify the error value between two colors where the colors are
   // considered the same. Only use this if the color mode uses the
   // default 256 table.
-  vtkSetClampMacro(Error,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(Error,int,0,VTK_INT_MAX);
   vtkGetMacro(Error,int);
 
   // Description:
@@ -161,7 +161,7 @@ public:
   // large amounts of memory are used. In order to process large images,
   // the image is broken into pieces that are at most Size pixels in
   // width and height.
-  vtkSetClampMacro(SubImageSize,int,10,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(SubImageSize,int,10,VTK_INT_MAX);
   vtkGetMacro(SubImageSize,int);
 
 protected:

@@ -49,7 +49,7 @@ public:
   // Seed the random number generator used to jitter point positions.
   // This has a significant effect on their final positions when
   // the layout is complete.
-  vtkSetClampMacro(RandomSeed, int, 0, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(RandomSeed, int, 0, VTK_INT_MAX);
   vtkGetMacro(RandomSeed, int);
 
   // Description:
@@ -59,7 +59,7 @@ public:
   // The default is '100' for no particular reason
   // Note: The strong recommendation is that you do not change
   // this parameter. :)
-  vtkSetClampMacro(MaxNumberOfIterations, int, 0, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(MaxNumberOfIterations, int, 0, VTK_INT_MAX);
   vtkGetMacro(MaxNumberOfIterations, int);
 
   // Description:
@@ -68,7 +68,7 @@ public:
   // to do visualizations of the layout before it's complete.
   // The default is '100' to match the default 'MaxNumberOfIterations'
   // Note: Changing this parameter is just fine :)
-  vtkSetClampMacro(IterationsPerLayout, int, 0, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(IterationsPerLayout, int, 0, VTK_INT_MAX);
   vtkGetMacro(IterationsPerLayout, int);
 
   // Description:

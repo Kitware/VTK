@@ -106,7 +106,7 @@ public:
   // Description:
   // Specify the number of animation steps to take if the animation mode
   // is set to animate.
-  vtkSetClampMacro(NumberOfAnimationSteps,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfAnimationSteps,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfAnimationSteps,int);
 
   // Description:

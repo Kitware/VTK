@@ -866,7 +866,7 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
 {
   int i;
   int j;
-  double min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);
+  double min=VTK_FLOAT_MAX, max=(-VTK_FLOAT_MAX);
 
   // find the maximum value
   for (i=0; i < size; i++)
@@ -891,7 +891,7 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
 
   if ( min == 0.0 )
     {
-    return VTK_LARGE_FLOAT;
+    return VTK_FLOAT_MAX;
     }
   else
     {

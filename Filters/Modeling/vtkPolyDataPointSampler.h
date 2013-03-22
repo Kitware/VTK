@@ -56,7 +56,7 @@ public:
   // Description:
   // Set/Get the approximate distance between points. This is an absolute
   // distance measure. The default is 0.01.
-  vtkSetClampMacro(Distance,double,0.0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(Distance,double,0.0,VTK_FLOAT_MAX);
   vtkGetMacro(Distance,double);
 
   // Description:

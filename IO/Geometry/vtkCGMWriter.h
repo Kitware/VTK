@@ -74,7 +74,7 @@ public:
   // Description:
   // Specify the resolution of the CGM file. This number is used to integerize
   // the maximum coordinate range of the plot file.
-  vtkSetClampMacro(Resolution, int, 100, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(Resolution, int, 100, VTK_INT_MAX);
   vtkGetMacro(Resolution, int);
 
   // Description:

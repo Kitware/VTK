@@ -131,9 +131,9 @@ public:
   // expressed in pixels and clamp the minimum/maximum possible size for the
   // width/length of the arrow head. (When clamped, the ratio between length
   // and width is preserved.)
-  vtkSetClampMacro(MinimumArrowSize,double,1.0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(MinimumArrowSize,double,1.0,VTK_FLOAT_MAX);
   vtkGetMacro(MinimumArrowSize,double);
-  vtkSetClampMacro(MaximumArrowSize,double,1.0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(MaximumArrowSize,double,1.0,VTK_FLOAT_MAX);
   vtkGetMacro(MaximumArrowSize,double);
 
   // Description:

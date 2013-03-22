@@ -61,7 +61,7 @@ public:
   // Set/Get the maximum number of iterations to be used.
   // The higher this number, the more iterations through the algorithm
   // is possible, and thus, the more the graph gets modified.
-  vtkSetClampMacro(MaxNumberOfIterations, int, 0, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(MaxNumberOfIterations, int, 0, VTK_INT_MAX);
   vtkGetMacro(MaxNumberOfIterations, int);
 
   // Description:
