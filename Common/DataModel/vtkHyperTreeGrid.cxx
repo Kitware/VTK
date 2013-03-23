@@ -196,6 +196,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->Dimension = htg->Dimension;
   this->BranchFactor = htg->BranchFactor;
   this->NumberOfChildren = htg->NumberOfChildren;
+  this->IndexingMode = htg->IndexingMode;
   memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
 
   // Un-register existing tree
@@ -1756,12 +1757,12 @@ void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
                 = dx.quot + 3 * ( dy.quot + 3 * dz.quot );
               this->SuperCursorTraversalTable[tableId].Child
                 = dx.rem + bf * ( dy.rem + bf * dz.rem );
-              }
-            }
-          }
-        }
-      }
-    }
+              } // xCursor
+            } // yCursor
+          } // zCursor
+        } // xChild
+      } // yChild
+    } // zChild
 }
 
 //-----------------------------------------------------------------------------
