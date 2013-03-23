@@ -84,6 +84,17 @@ public:
   vtkGetVector3Macro(GridSize, unsigned int);
 
   // Description:
+  // Specify indexing mode:
+  // KJI: k first, i last: iterate in k / j / i order
+  // IJK: i first, k last: iterate in i / j / k order
+  // Default is KJI mode
+  vtkSetMacro(IndexingMode, unsigned int);
+  vtkGetMacro(IndexingMode, unsigned int);
+  void SetIndexingModeToDefault();
+  void SetIndexingModeToKJI();
+  void SetIndexingModeToIJK();
+
+  // Description:
   // Set/Get the subdivision factor in the grid refinement scheme
   vtkSetClampMacro(BranchFactor, unsigned int, 2, 3);
   vtkGetMacro(BranchFactor, unsigned int);
@@ -177,6 +188,7 @@ protected:
   double Origin[3];
   double GridScale[3];
   unsigned int GridSize[3];
+  unsigned int IndexingMode;
   unsigned int MaximumLevel;
   unsigned int Dimension;
   unsigned int BranchFactor;

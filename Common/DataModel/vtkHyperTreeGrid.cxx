@@ -1827,7 +1827,11 @@ void vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::Initialize( vtkHyperTreeGrid* g
   // Convert local index into global one
   unsigned int n[3];
   grid->GetGridSize( n );
-  vtkIdType globalIndex = index + pos[0] +
+  vtkIdType globalIndex = grid->GetIndexingMode() ?
+    index + pos[2] +
+    pos[1] * static_cast<int>( n[2] ) +
+    pos[0] * static_cast<int>( n[2] ) * static_cast<int>( n[1] ) :
+    index + pos[0] +
     pos[1] * static_cast<int>( n[0] ) +
     pos[2] * static_cast<int>( n[0] ) * static_cast<int>( n[1] );
 
