@@ -170,7 +170,7 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
   // Iterate over all hyper trees
   unsigned int index = 0;
   unsigned int* gridSize = this->Input->GetGridSize();
-  if ( this->Input->GetIndexingMode() )
+  if ( this->Input->GetTransposedRootIndexing() )
     {
     for ( unsigned int i = 0; i < gridSize[0]; ++ i )
       {
@@ -189,7 +189,7 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
           } // i
         } // j
       } // k
-    } // if ( this->IndexingMode )
+    } // if ( this->TransposedRootIndexing )
   else
     {
     for ( unsigned int k = 0; k < gridSize[2]; ++ k )

@@ -196,7 +196,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->Dimension = htg->Dimension;
   this->BranchFactor = htg->BranchFactor;
   this->NumberOfChildren = htg->NumberOfChildren;
-  this->IndexingMode = htg->IndexingMode;
+  this->TransposedRootIndexing = htg->TransposedRootIndexing;
   memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
 
   // Un-register existing tree
@@ -752,7 +752,7 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
     -- iz;
     }
 
-  int index = ( this->IndexingMode ) ?
+  int index = ( this->TransposedRootIndexing ) ?
     ( ix * this->GridSize[1] + iy ) * this->GridSize[2] + iz :
     ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
 
@@ -1150,7 +1150,7 @@ void vtkHyperTreeGrid::ComputeDualGrid()
     // Iterate over all hyper trees depending on indexing mode
     vtkCollectionSimpleIterator it;
     this->HyperTrees->InitTraversal( it );
-    if ( this->IndexingMode )
+    if ( this->TransposedRootIndexing )
       {
       // I-J-K indexing
       for ( unsigned int i = 0; i < this->GridSize[0]; ++ i )
@@ -1184,7 +1184,7 @@ void vtkHyperTreeGrid::ComputeDualGrid()
             } // i
           } // j
         } // k
-      } // if ( this->IndexingMode )
+      } // if ( this->TransposedRootIndexing )
     else
       {
       // K-J-I indexing
@@ -1232,7 +1232,7 @@ void vtkHyperTreeGrid::ComputeDualGrid()
 
   // Traverse hyper tree grid and generate dual
   unsigned int index = 0;
-  if ( this->IndexingMode )
+  if ( this->TransposedRootIndexing )
     {
     // I-J-K indexing
     for ( unsigned int i = 0; i < this->GridSize[0]; ++ i )
@@ -1250,7 +1250,7 @@ void vtkHyperTreeGrid::ComputeDualGrid()
           } // i
         } // j
       } // k
-    } // if ( this->IndexingMode )
+    } // if ( this->TransposedRootIndexing )
   else
     {
     // K-J-I indexing
@@ -1828,7 +1828,7 @@ void vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::Initialize( vtkHyperTreeGrid* g
   // Convert local index into global one
   unsigned int n[3];
   grid->GetGridSize( n );
-  vtkIdType globalIndex = grid->GetIndexingMode() ?
+  vtkIdType globalIndex = grid->GetTransposedRootIndexing() ?
     index + pos[2] +
     pos[1] * static_cast<int>( n[2] ) +
     pos[0] * static_cast<int>( n[2] ) * static_cast<int>( n[1] ) :

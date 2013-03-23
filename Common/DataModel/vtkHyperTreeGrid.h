@@ -40,9 +40,6 @@
 #include "vtkDataSet.h"
 #include <map> // STL header for dual point coordinates ajustment
 
-#define VTK_INDEXING_MODE_KJI  0
-#define VTK_INDEXING_MODE_IJK  1
-
 class vtkHyperTreeCursor;
 class vtkHyperTree;
 
@@ -88,18 +85,14 @@ public:
   vtkGetVector3Macro(GridSize, unsigned int);
 
   // Description:
-  // Specify indexing mode:
-  // KJI: k first, i last: iterate in k / j / i order
-  // IJK: i first, k last: iterate in i / j / k order
-  // Default is KJI mode
-  vtkSetMacro(IndexingMode, unsigned int);
-  vtkGetMacro(IndexingMode, unsigned int);
-  void SetIndexingModeToDefault()
-    { this->SetIndexingMode( VTK_INDEXING_MODE_KJI ); }
+  // Specify whether indexing mode of grid root cells must be transposed to
+  // x-axis first, z-axis last, instead of the default z-axis first, k-axis last
+  vtkSetMacro(TransposedRootIndexing, bool);
+  vtkGetMacro(TransposedRootIndexing, bool);
   void SetIndexingModeToKJI()
-    { this->SetIndexingMode( VTK_INDEXING_MODE_KJI ); }
+    { this->SetTransposedRootIndexing( false ); }
   void SetIndexingModeToIJK()
-    { this->SetIndexingMode( VTK_INDEXING_MODE_IJK ); }
+    { this->SetTransposedRootIndexing( true ); }
 
   // Description:
   // Set/Get the subdivision factor in the grid refinement scheme
@@ -337,7 +330,7 @@ protected:
 
   unsigned int Dimension;    // 1, 2 or 3.
   unsigned int GridSize[3];
-  unsigned int IndexingMode;
+  bool TransposedRootIndexing;
   unsigned int BranchFactor;
   unsigned int NumberOfChildren;
 

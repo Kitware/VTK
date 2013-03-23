@@ -49,7 +49,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->GridSize[0] = 1;
   this->GridSize[1] = 1;
   this->GridSize[2] = 1;
-  this->IndexingMode = VTK_INDEXING_MODE_KJI;
+  this->TransposedRootIndexing = false;
 
   // Grid geometry
   this->Origin[0] = 0.;
@@ -186,19 +186,14 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::SetIndexingModeToDefault()
-{
-  this->SetIndexingMode( VTK_INDEXING_MODE_KJI );
-}
-//----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::SetIndexingModeToKJI()
 {
-  this->SetIndexingMode( VTK_INDEXING_MODE_KJI );
+  this->SetTransposedRootIndexing( false );
 }
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::SetIndexingModeToIJK()
 {
-  this->SetIndexingMode( VTK_INDEXING_MODE_IJK );
+  this->SetTransposedRootIndexing( true );
 }
 
 //----------------------------------------------------------------------------
@@ -317,7 +312,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
 
   // Set grid parameters
   this->Output->SetGridSize( this->GridSize );
-  this->Output->SetIndexingMode( this->IndexingMode );
+  this->Output->SetTransposedRootIndexing( this->TransposedRootIndexing );
   this->Output->SetDimension( this->Dimension );
   this->Output->SetBranchFactor( this->BranchFactor );
 

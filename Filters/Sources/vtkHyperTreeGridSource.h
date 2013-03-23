@@ -84,13 +84,10 @@ public:
   vtkGetVector3Macro(GridSize, unsigned int);
 
   // Description:
-  // Specify indexing mode:
-  // KJI: k first, i last: iterate in k / j / i order
-  // IJK: i first, k last: iterate in i / j / k order
-  // Default is KJI mode
-  vtkSetMacro(IndexingMode, unsigned int);
-  vtkGetMacro(IndexingMode, unsigned int);
-  void SetIndexingModeToDefault();
+  // Specify whether indexing mode of grid root cells must be transposed to
+  // x-axis first, z-axis last, instead of the default z-axis first, k-axis last
+  vtkSetMacro(TransposedRootIndexing, bool);
+  vtkGetMacro(TransposedRootIndexing, bool);
   void SetIndexingModeToKJI();
   void SetIndexingModeToIJK();
 
@@ -188,7 +185,7 @@ protected:
   double Origin[3];
   double GridScale[3];
   unsigned int GridSize[3];
-  unsigned int IndexingMode;
+  bool TransposedRootIndexing;
   unsigned int MaximumLevel;
   unsigned int Dimension;
   unsigned int BranchFactor;
