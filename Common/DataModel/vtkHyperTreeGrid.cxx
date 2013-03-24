@@ -76,6 +76,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->GridSize[0] = 0;
   this->GridSize[1] = 0;
   this->GridSize[2] = 0;
+  this->TransposedRootIndexing = false;
 
   // Grid parameters
   this->BranchFactor = 2;
