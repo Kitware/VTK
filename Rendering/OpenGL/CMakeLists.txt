@@ -415,6 +415,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGLConfigure.h.in
 # Set up some of the module specific preprocessor definitions.
 set(${vtk-module}_EXPORT_CODE "#include \"vtkRenderingOpenGLConfigure.h\"")
 
+# Since several headers in this module include vtkOpenGL.h which needed GL.h,
+# need to ensure that any dependent modules inherit the include directory
+# automatically.
+set(${vtk-module}_INCLUDE_DIRS "${OPENGL_INCLUDE_DIR}")
+
 vtk_module_library(vtkRenderingOpenGL ${Module_SRCS})
 target_link_libraries(vtkRenderingOpenGL ${OPENGL_LIBRARIES} ${extra_libs})
 if(VTK_USE_X)
