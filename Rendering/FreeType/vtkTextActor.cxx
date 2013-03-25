@@ -641,8 +641,8 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     float tcXMax, tcYMax;
     // Add a fudge factor to the texture coordinates to prevent the top
     // row of pixels from being truncated on some systems.
-    tcXMax = fminf(1.0, (dims[0] + 0.001) / static_cast<float>(p2dims[0]));
-    tcYMax = fminf(1.0, (dims[1] + 0.001) / static_cast<float>(p2dims[1]));
+    tcXMax = std::min(1.0f, (dims[0] + 0.001f) / static_cast<float>(p2dims[0]));
+    tcYMax = std::min(1.0f, (dims[1] + 0.001f) / static_cast<float>(p2dims[1]));
     tc->InsertComponent(0, 0, 0.0);
     tc->InsertComponent(0, 1, 0.0);
 
