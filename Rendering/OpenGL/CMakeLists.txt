@@ -60,6 +60,7 @@ set(Module_SRCS
   vtkOpenGLCoincidentTopologyResolutionPainter.cxx
   vtkOpenGLDisplayListPainter.cxx
   vtkOpenGLExtensionManager.cxx
+  vtkOpenGLGL2PSHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSupport.cxx
   vtkOpenGLImageMapper.cxx
@@ -122,6 +123,7 @@ set_source_files_properties(
   vtkLightingHelper
   vtkRenderState
   vtkOpenGLState
+  vtkOpenGLGL2PSHelper
   vtkShader2
   vtkShader2Collection
   vtkShaderProgram2
