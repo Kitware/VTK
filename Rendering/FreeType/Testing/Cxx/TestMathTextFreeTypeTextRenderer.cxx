@@ -160,6 +160,18 @@ int TestMathTextFreeTypeTextRenderer(int , char *[])
   actor13->SetInput("$A = \\pi r^2$");
   actor13->SetPosition(10, 250);
 
+  // Numbers, using courier, Text that gets 'cut off'
+  vtkNew<vtkTextActor> actor14;
+  actor14->GetTextProperty()->SetFontSize(21);
+  actor14->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
+  actor14->GetTextProperty()->SetJustificationToCentered();
+  actor14->GetTextProperty()->SetVerticalJustificationToCentered();
+  actor14->GetTextProperty()->SetBold(1);
+  actor14->GetTextProperty()->SetItalic(1);
+  actor14->GetTextProperty()->SetFontFamilyToCourier();
+  actor14->SetInput("4.0");
+  actor14->SetPosition(500, 400);
+
   // Boring rendering setup....
 
   vtkNew<vtkRenderer> ren;
@@ -183,6 +195,7 @@ int TestMathTextFreeTypeTextRenderer(int , char *[])
   ren->AddActor(actor11.GetPointer());
   ren->AddActor(actor12.GetPointer());
   ren->AddActor(actor13.GetPointer());
+  ren->AddActor(actor14.GetPointer());
 
   win->SetMultiSamples(0);
   win->Render();
