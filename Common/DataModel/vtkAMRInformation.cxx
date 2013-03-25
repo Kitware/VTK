@@ -643,9 +643,9 @@ void vtkAMRInformation::CalculateParentChildRelationShip(
 
   // 1. Find the bounds of all boxes at level n-1
   // 2. Find the average block size
-  int extents[6] = { VTK_LARGE_INTEGER, -VTK_LARGE_INTEGER,
-                     VTK_LARGE_INTEGER, -VTK_LARGE_INTEGER,
-                     VTK_LARGE_INTEGER, -VTK_LARGE_INTEGER};
+  int extents[6] = { VTK_INT_MAX, -VTK_INT_MAX,
+                     VTK_INT_MAX, -VTK_INT_MAX,
+                     VTK_INT_MAX, -VTK_INT_MAX};
   float totalsize[3] = {0, 0, 0};
   unsigned int numParentDataSets = this->GetNumberOfDataSets(level - 1);
   int refinementRatio = this->GetRefinementRatio(level - 1);

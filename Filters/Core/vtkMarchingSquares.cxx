@@ -46,8 +46,8 @@ vtkMarchingSquares::vtkMarchingSquares()
 {
   this->ContourValues = vtkContourValues::New();
 
-  this->ImageRange[0] = 0; this->ImageRange[1] = VTK_LARGE_INTEGER;
-  this->ImageRange[2] = 0; this->ImageRange[3] = VTK_LARGE_INTEGER;
+  this->ImageRange[0] = 0; this->ImageRange[1] = VTK_INT_MAX;
+  this->ImageRange[2] = 0; this->ImageRange[3] = VTK_INT_MAX;
   this->ImageRange[4] = 0; this->ImageRange[5] = 0;
 
   this->Locator = NULL;

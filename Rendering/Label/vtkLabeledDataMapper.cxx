@@ -763,10 +763,10 @@ vtkLabeledDataMapper::SetFieldDataArray(int arrayIndex)
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FieldDataArray to " << arrayIndex );
 
   if (this->FieldDataArray != (arrayIndex < 0 ? 0 :
-                               (arrayIndex > VTK_LARGE_INTEGER ? VTK_LARGE_INTEGER : arrayIndex)))
+                               (arrayIndex > VTK_INT_MAX ? VTK_INT_MAX : arrayIndex)))
     {
     this->FieldDataArray = ( arrayIndex < 0 ? 0 :
-                             (arrayIndex > VTK_LARGE_INTEGER ? VTK_LARGE_INTEGER : arrayIndex ));
+                             (arrayIndex > VTK_INT_MAX ? VTK_INT_MAX : arrayIndex ));
     this->Modified();
     }
 }

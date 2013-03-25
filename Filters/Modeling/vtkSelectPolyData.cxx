@@ -292,13 +292,13 @@ int vtkSelectPolyData::RequestData(
   cellMarks->SetNumberOfValues(numCells);
   for (i=0; i<numCells; i++)  //mark unvisited
     {
-    cellMarks->SetValue(i,VTK_LARGE_INTEGER);
+    cellMarks->SetValue(i,VTK_INT_MAX);
     }
   vtkIntArray *pointMarks = vtkIntArray::New();
   pointMarks->SetNumberOfValues(numPts);
   for (i=0; i<numPts; i++)  //mark unvisited
     {
-    pointMarks->SetValue(i,VTK_LARGE_INTEGER);
+    pointMarks->SetValue(i,VTK_INT_MAX);
     }
 
   vtkIdList *currentFront = vtkIdList::New(), *tmpFront;
@@ -324,7 +324,7 @@ int vtkSelectPolyData::RequestData(
       for (j=0; j<ncells; j++)
         {
         id = cells[j];
-        if ( cellMarks->GetValue(id) == VTK_LARGE_INTEGER )
+        if ( cellMarks->GetValue(id) == VTK_INT_MAX )
           {
           if ( currentFrontNumber > maxFront )
             {
@@ -334,7 +334,7 @@ int vtkSelectPolyData::RequestData(
           this->Mesh->GetCellPoints(id,npts,pts);
           for (k=0; k<npts; k++)
             {
-            if ( pointMarks->GetValue(pts[k]) == VTK_LARGE_INTEGER )
+            if ( pointMarks->GetValue(pts[k]) == VTK_INT_MAX )
               {
               pointMarks->SetValue(pts[k], 1);
               nextFront->InsertNextId(pts[k]);

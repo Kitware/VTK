@@ -117,7 +117,7 @@ public:
 
   // Description:
   // Specify the number of iterations for Laplacian smoothing,
-  vtkSetClampMacro(NumberOfIterations,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfIterations,int,0,VTK_INT_MAX);
   vtkGetMacro(NumberOfIterations,int);
 
   // Description:

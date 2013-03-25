@@ -217,8 +217,8 @@ static int ParseFile(FILE *file, const char *label, float *data)
 {
   char tag[80];
   int i, npts, readData=0;
-  float min=VTK_LARGE_FLOAT;
-  float max=(-VTK_LARGE_FLOAT);
+  float min=VTK_FLOAT_MAX;
+  float max=(-VTK_FLOAT_MAX);
 
   if ( file == NULL || label == NULL ) return 0;
 

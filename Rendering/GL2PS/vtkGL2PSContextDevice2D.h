@@ -144,7 +144,6 @@ public:
   virtual void SetLineType(int type);
 
 protected:
-  bool StippleOn;
   vtkGL2PSContextDevice2D();
   virtual ~vtkGL2PSContextDevice2D();
 

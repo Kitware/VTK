@@ -86,7 +86,7 @@ public:
   // Control piece size based on the maximum number of points per piece.
   // (This ivar has effect only when the DiceMode is set to
   // SetDiceModeToNumberOfPoints().)
-  vtkSetClampMacro(NumberOfPointsPerPiece,int,1000,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfPointsPerPiece,int,1000,VTK_INT_MAX);
   vtkGetMacro(NumberOfPointsPerPiece,int);
 
   // Description:
@@ -96,7 +96,7 @@ public:
   // NumberOfPieces is a target - depending on the particulars of the
   // data, more or less number of pieces than the target value may be
   // created.
-  vtkSetClampMacro(NumberOfPieces,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfPieces,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfPieces,int);
 
   // Description:
@@ -104,7 +104,7 @@ public:
   // effect only when the DiceMode is set to
   // SetDiceModeToMemoryLimit()). The memory limit should be set in
   // kilobytes.
-  vtkSetClampMacro(MemoryLimit,unsigned long,100,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(MemoryLimit,unsigned long,100,VTK_INT_MAX);
   vtkGetMacro(MemoryLimit,unsigned long);
 
 protected:

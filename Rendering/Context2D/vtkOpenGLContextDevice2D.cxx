@@ -300,7 +300,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
 {
   if (points && n > 0)
     {
-    glPointSize(this->Pen->GetWidth());
+    this->SetPointSize(this->Pen->GetWidth());
     if (sprite)
       {
       if (!this->Storage->SpriteTexture)
@@ -588,7 +588,7 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
     }
 
   this->SetLineType(this->Pen->GetLineType());
-  glLineWidth(this->Pen->GetWidth());
+  this->SetLineWidth(this->Pen->GetWidth());
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, p);
   glColor4ubv(this->Brush->GetColor());

@@ -46,6 +46,4 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-include_directories(${OPENGL_INCLUDE_DIR})
-
 vtk_module_library(vtkRenderingParallel ${Module_SRCS})

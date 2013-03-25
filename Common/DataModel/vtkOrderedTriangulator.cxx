@@ -1512,11 +1512,11 @@ vtkIdType vtkOrderedTriangulator::AddTriangles(vtkCellArray *tris)
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
     {
     tetra = *t;
-    tetra->CurrentPointId = VTK_LARGE_INTEGER; //mark visited
+    tetra->CurrentPointId = VTK_INT_MAX; //mark visited
     for (i=0; i<4; i++)
       {
       if ( tetra->Neighbors[i] &&
-           tetra->Neighbors[i]->CurrentPointId != VTK_LARGE_INTEGER &&
+           tetra->Neighbors[i]->CurrentPointId != VTK_INT_MAX &&
            tetra->Type != tetra->Neighbors[i]->Type )
         {//face not yet visited
         tetra->GetFacePoints(i,face);
@@ -1550,11 +1550,11 @@ vtkIdType vtkOrderedTriangulator::AddTriangles(vtkIdType id, vtkCellArray *tris)
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
     {
     tetra = *t;
-    tetra->CurrentPointId = VTK_LARGE_INTEGER; //mark visited
+    tetra->CurrentPointId = VTK_INT_MAX; //mark visited
     for (i=0; i<4; i++)
       {
       if ( tetra->Neighbors[i] &&
-           tetra->Neighbors[i]->CurrentPointId != VTK_LARGE_INTEGER &&
+           tetra->Neighbors[i]->CurrentPointId != VTK_INT_MAX &&
            tetra->Type != tetra->Neighbors[i]->Type )
         {//face not yet visited
         tetra->GetFacePoints(i,face);

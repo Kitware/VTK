@@ -2398,7 +2398,7 @@ void vtkHyperOctree::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
   //
   numPts = ptIds->GetNumberOfIds();
   pts = ptIds->GetPointer(0);
-  for (minNumCells=VTK_LARGE_INTEGER,i=0; i<numPts; i++)
+  for (minNumCells=VTK_INT_MAX,i=0; i<numPts; i++)
     {
     ptId = pts[i];
     numCells = this->Links->GetNcells(ptId);
@@ -2411,7 +2411,7 @@ void vtkHyperOctree::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       }
     }
 
-  if (minNumCells == VTK_LARGE_INTEGER && numPts == 0) {
+  if (minNumCells == VTK_INT_MAX && numPts == 0) {
     vtkErrorMacro("input point ids empty.");
     minNumCells = 0;
   }

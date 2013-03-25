@@ -364,7 +364,7 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
     else
       {
       int first = 1;
-      minDistance = VTK_LARGE_FLOAT; // Suppresses warning message.
+      minDistance = VTK_FLOAT_MAX; // Suppresses warning message.
 
       if ((xmin != outerBoundaryMin[0]) &&
           (((dist = x - xmin) < minDistance) || first))
@@ -410,7 +410,7 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
       }
 
     // if there are no inner boundaries we dont want to square.
-    if(minDistance != VTK_LARGE_FLOAT)
+    if(minDistance != VTK_FLOAT_MAX)
       {
       minDistance *= minDistance;
       }

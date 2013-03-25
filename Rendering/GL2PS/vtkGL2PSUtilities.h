@@ -55,11 +55,7 @@ public:
   static int TextPropertyToGL2PSAlignment(vtkTextProperty *tprop);
 
   // Description:
-  // Set/Get the current RenderWindow that is being exported
-  static void SetRenderWindow(vtkRenderWindow *renWin)
-  {
-    vtkGL2PSUtilities::RenderWindow = renWin;
-  }
+  // Get the current RenderWindow that is being exported
   static vtkRenderWindow *GetRenderWindow()
   {
     return vtkGL2PSUtilities::RenderWindow;
@@ -82,17 +78,43 @@ public:
                        unsigned char rgba[4], double scale[2] = NULL,
                        double rotateAngle = 0.0, float strokeWidth = -1);
 
-  // Set/Get whether all text will be exported as paths.
-  static void SetTextAsPath(bool b)
-  {
-    vtkGL2PSUtilities::TextAsPath = b;
-  }
+  // Description:
+  // Get whether all text will be exported as paths.
   static bool GetTextAsPath()
   {
     return vtkGL2PSUtilities::TextAsPath;
   }
 
+  // Description:
+  // Get a scaling factor for the point size or line width used by GL2PS.
+  // Default value: 5/7.
+  static float GetPointSizeFactor()
+    { return vtkGL2PSUtilities::PointSizeFactor; }
+  static float GetLineWidthFactor()
+    { return vtkGL2PSUtilities::LineWidthFactor; }
+
 protected:
+  friend class vtkGL2PSExporter;
+
+  static void StartExport();
+  static void FinishExport();
+
+  static void SetPointSizeFactor(float f)
+    { vtkGL2PSUtilities::PointSizeFactor = f; }
+
+  static void SetLineWidthFactor(float f)
+    { vtkGL2PSUtilities::LineWidthFactor = f; }
+
+  static void SetTextAsPath(bool b)
+  {
+    vtkGL2PSUtilities::TextAsPath = b;
+  }
+
+  static void SetRenderWindow(vtkRenderWindow *renWin)
+  {
+    vtkGL2PSUtilities::RenderWindow = renWin;
+  }
+
   static void DrawPathPS(vtkPath *path, double rasterPos[3],
                          double windowPos[2], unsigned char rgba[4],
                          double scale[2] = NULL, double rotateAngle = 0.0,
@@ -115,6 +137,8 @@ private:
 
   static vtkRenderWindow *RenderWindow;
   static bool TextAsPath;
+  static float PointSizeFactor;
+  static float LineWidthFactor;
 
   // Description:
   // Project the point from world coordinates into device coordinates.

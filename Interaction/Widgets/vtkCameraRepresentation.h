@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Set the number of frames to generate when playback is initiated.
-  vtkSetClampMacro(NumberOfFrames,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfFrames,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfFrames,int);
 
   // Description:

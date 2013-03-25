@@ -170,23 +170,46 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
   // Iterate over all hyper trees
   unsigned int index = 0;
   unsigned int* gridSize = this->Input->GetGridSize();
-  for ( unsigned int k = 0; k < gridSize[2]; ++ k )
+  if ( this->Input->GetTransposedRootIndexing() )
     {
-    for ( unsigned int j = 0; j < gridSize[1]; ++ j )
+    for ( unsigned int i = 0; i < gridSize[0]; ++ i )
       {
-        for ( unsigned int i = 0; i < gridSize[0]; ++ i, ++ index )
+      for ( unsigned int j = 0; j < gridSize[1]; ++ j )
         {
-        // Storage for super cursors
-        vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
+        for ( unsigned int k = 0; k < gridSize[2]; ++ k, ++ index )
+          {
+          // Storage for super cursors
+          vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
-        // Initialize center cursor
-        this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
+          // Initialize center cursor
+          this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
 
-        // Traverse and populate dual recursively
-        this->RecursiveProcessTree( &superCursor );
-        } // i
-      } // j
-    } // k
+          // Traverse and populate dual recursively
+          this->RecursiveProcessTree( &superCursor );
+          } // i
+        } // j
+      } // k
+    } // if ( this->TransposedRootIndexing )
+  else
+    {
+    for ( unsigned int k = 0; k < gridSize[2]; ++ k )
+      {
+      for ( unsigned int j = 0; j < gridSize[1]; ++ j )
+        {
+        for ( unsigned int i = 0; i < gridSize[0]; ++ i, ++ index )
+          {
+          // Storage for super cursors
+          vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
+
+          // Initialize center cursor
+          this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
+
+          // Traverse and populate dual recursively
+          this->RecursiveProcessTree( &superCursor );
+          } // i
+        } // j
+      } // k
+    } // else indexing mode
 
   // Set output geometry and topology
   this->Output->SetPoints( this->Points );

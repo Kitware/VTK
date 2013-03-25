@@ -52,7 +52,7 @@ public:
   // Description:
   // Set / get the number of sides for the tube. At a minimum,
   // the number of sides is 3.
-  vtkSetClampMacro(NumberOfSides,int,3,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfSides,int,3,VTK_INT_MAX);
   vtkGetMacro(NumberOfSides,int);
 
 protected:
