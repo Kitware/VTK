@@ -612,27 +612,27 @@ void vtkModifiedBSPTree::GenerateRepresentationLeafs(vtkPolyData *pd)
 //////////////////////////////////////////////////////////////////////////////
 
 // Ray->Box edge t-distance tests
-double _getMinDistPOS_X(const double origin[3], const double dir[3], const double B[6])
+static double _getMinDistPOS_X(const double origin[3], const double dir[3], const double B[6])
 {
   return ((B[0] - origin[0]) / dir[0]);
 }
-double _getMinDistNEG_X(const double origin[3], const double dir[3], const double B[6])
+static double _getMinDistNEG_X(const double origin[3], const double dir[3], const double B[6])
 {
   return ((B[1] - origin[0]) / dir[0]);
 }
-double _getMinDistPOS_Y(const double origin[3], const double dir[3], const double B[6])
+static double _getMinDistPOS_Y(const double origin[3], const double dir[3], const double B[6])
 {
   return ((B[2] - origin[1]) / dir[1]);
 }
-double _getMinDistNEG_Y(const double origin[3], const double dir[3], const double B[6])
+static double _getMinDistNEG_Y(const double origin[3], const double dir[3], const double B[6])
 {
   return ((B[3] - origin[1]) / dir[1]);
 }
-double _getMinDistPOS_Z(const double origin[3], const double dir[3], const double B[6])
+static double _getMinDistPOS_Z(const double origin[3], const double dir[3], const double B[6])
 {
   return ((B[4] - origin[2]) / dir[2]);
 }
-double _getMinDistNEG_Z(const double origin[3], const double dir[3], const double B[6])
+static double _getMinDistNEG_Z(const double origin[3], const double dir[3], const double B[6])
 {
   return ((B[5] - origin[2]) / dir[2]);
 }

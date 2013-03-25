@@ -1278,7 +1278,7 @@ typedef std::vector<boxLevel> boxlist;
 typedef std::pair<vtkCellTreeLocator::vtkCellTreeNode*, boxLevel> nodeBoxLevel;
 typedef std::stack<nodeBoxLevel, std::vector<nodeBoxLevel> > nodeinfostack;
 //---------------------------------------------------------------------------
-void SplitNodeBox(vtkCellTreeLocator::vtkCellTreeNode *n, vtkBoundingBox &b, vtkBoundingBox &l, vtkBoundingBox &r)
+static void SplitNodeBox(vtkCellTreeLocator::vtkCellTreeNode *n, vtkBoundingBox &b, vtkBoundingBox &l, vtkBoundingBox &r)
 {
   double minpt[3], maxpt[3];
   // create a box for left node
@@ -1295,7 +1295,7 @@ void SplitNodeBox(vtkCellTreeLocator::vtkCellTreeNode *n, vtkBoundingBox &b, vtk
   r = rr;
 }
 //---------------------------------------------------------------------------
-void AddBox(vtkPolyData *pd, double *bounds, int level)
+static void AddBox(vtkPolyData *pd, double *bounds, int level)
 {
   vtkPoints      *pts = pd->GetPoints();
   vtkCellArray *lines = pd->GetLines();

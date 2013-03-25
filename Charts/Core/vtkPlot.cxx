@@ -148,7 +148,7 @@ vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
     ostr.setf(ios::fixed, ios::floatfield);
     }
 
-  if (axis && axis->GetLogScale())
+  if (axis && axis->GetLogScaleActive())
     {
     // If axes are set to logarithmic scale we need to convert the
     // axis value using 10^(axis value)

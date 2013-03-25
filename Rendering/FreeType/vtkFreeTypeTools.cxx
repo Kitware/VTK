@@ -114,7 +114,7 @@ struct EmbeddedFontStruct
 // This callback will be called by the FTGLibrary singleton cleanup destructor
 // if it happens to be destroyed before our singleton (this order is not
 // deterministic). It will destroy our singleton, if needed.
-void vtkFreeTypeToolsCleanupCallback ()
+static void vtkFreeTypeToolsCleanupCallback ()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeToolsCleanupCallback\n");

@@ -19,6 +19,31 @@
 // The vtkAxis is drawn in screen coordinates. It is usually one of the last
 // elements of a chart to be drawn. It renders the axis label, tick marks and
 // tick labels.
+// The tick marks and labels span the range of values between
+// \a Minimum and \a Maximum.
+// The \a Minimum and \a Maximum values are not allowed to extend beyond the
+// \a MinimumLimit and \a MaximumLimit values, respectively.
+//
+// Note that many other chart elements (e.g., vtkPlotPoints) refer to
+// vtkAxis instances to determine how to scale raw data for presentation.
+// In particular, care must be taken with logarithmic scaling.
+// The axis Minimum, Maximum, and Limit values are stored both unscaled
+// and scaled (with log(x) applied when GetLogScaleActive() returns true).
+// User interfaces will most likely present the unscaled values as they
+// represent the values provided by the user.
+// Other chart elements may need the scaled values in order to draw
+// in the same coordinate system.
+//
+// Just because LogScale is set to true does not guarantee that the axis
+// will use logarithmic scaling -- the Minimum and Maximum values for the
+// axis must both lie to the same side of origin (and not include the origin).
+// Also, this switch from linear- to log-scaling may occur during a rendering
+// pass if autoscaling is enabled.
+// Because the log and pow functions are not invertible and the axis itself
+// decides when to switch between them without offering any external class
+// managing the axis a chance to save the old values, it saves
+// old Limit values in NonLogUnscaled{Min,Max}Limit so that behavior is
+// consistent when LogScale is changed from false to true and back again.
 
 #ifndef __vtkAxis_h
 #define __vtkAxis_h
@@ -104,28 +129,67 @@ public:
 
   // Description:
   // Set the logical minimum value of the axis, in plot coordinates.
+  // If LogScaleActive is true (not just LogScale), then this
+  // sets the minimum base-10 <b>exponent</b>.
   virtual void SetMinimum(double minimum);
 
   // Description:
   // Get the logical minimum value of the axis, in plot coordinates.
+  // If LogScaleActive is true (not just LogScale), then this
+  // returns the minimum base-10 <b>exponent</b>.
   vtkGetMacro(Minimum, double);
 
   // Description:
   // Set the logical maximum value of the axis, in plot coordinates.
+  // If LogScaleActive is true (not just LogScale), then this
+  // sets the maximum base-10 <b>exponent</b>.
   virtual void SetMaximum(double maximum);
 
   // Description:
   // Get the logical maximum value of the axis, in plot coordinates.
+  // If LogScaleActive is true (not just LogScale), then this
+  // returns the maximum base-10 <b>exponent</b>.
   vtkGetMacro(Maximum, double);
 
   // Description:
+  // Set the logical, unscaled minimum value of the axis, in plot coordinates.
+  // Use this instead of SetMinimum() if you wish to provide the actual minimum
+  // instead of log10(the minimum) as part of the axis scale.
+  virtual void SetUnscaledMinimum(double minimum);
+
+  // Description:
+  // Get the logical minimum value of the axis, in plot coordinates.
+  vtkGetMacro(UnscaledMinimum, double);
+
+  // Description:
+  // Set the logical maximum value of the axis, in plot coordinates.
+  virtual void SetUnscaledMaximum(double maximum);
+
+  // Description:
+  // Get the logical maximum value of the axis, in plot coordinates.
+  vtkGetMacro(UnscaledMaximum, double);
+
+  // Description:
   // Set the logical range of the axis, in plot coordinates.
+  //
+  // The unscaled range will always be in the same coordinate system of
+  // the data being plotted, regardless of whether LogScale is true or false.
+  // When calling SetRange() and LogScale is true, the range must be specified
+  // in logarithmic coordinates.
+  // Using SetUnscaledRange(), you may ignore the value of LogScale.
   virtual void SetRange(double minimum, double maximum);
   virtual void SetRange(double range[2]);
+  virtual void SetUnscaledRange(double minimum, double maximum);
+  virtual void SetUnscaledRange(double range[2]);
 
   // Description:
   // Get the logical range of the axis, in plot coordinates.
+  //
+  // The unscaled range will always be in the same coordinate system of
+  // the data being plotted, regardless of whether LogScale is true or false.
+  // Calling GetRange() when LogScale is true will return the log10({min, max}).
   virtual void GetRange(double *range);
+  virtual void GetUnscaledRange(double *range);
 
   // Description:
   // Set the logical lowest possible value for \a Minimum, in plot coordinates.
@@ -142,6 +206,22 @@ public:
   // Description:
   // Get the logical highest possible value for \a Maximum, in plot coordinates.
   vtkGetMacro(MaximumLimit, double);
+
+  // Description:
+  // Set the logical lowest possible value for \a Minimum, in plot coordinates.
+  virtual void SetUnscaledMinimumLimit(double lowest);
+
+  // Description:
+  // Get the logical lowest possible value for \a Minimum, in plot coordinates.
+  vtkGetMacro(UnscaledMinimumLimit, double);
+
+  // Description:
+  // Set the logical highest possible value for \a Maximum, in plot coordinates.
+  virtual void SetUnscaledMaximumLimit(double highest);
+
+  // Description:
+  // Get the logical highest possible value for \a Maximum, in plot coordinates.
+  vtkGetMacro(UnscaledMaximumLimit, double);
 
   // Description:
   // Get the margins of the axis, in pixels.
@@ -161,9 +241,26 @@ public:
   vtkGetObjectMacro(TitleProperties, vtkTextProperty);
 
   // Description:
-  // Get/set whether the axis should use a log scale, default is false.
-  vtkSetMacro(LogScale, bool);
+  // Get whether the axis is using a log scale.
+  // This will always be false when LogScale is false.
+  // It is only true when LogScale is true <b>and</b> the \a UnscaledRange
+  // does not cross or include the origin (zero).
+  //
+  // The limits (\a MinimumLimit, \a MaximumLimit, and their
+  // unscaled counterparts) do not prevent LogScaleActive from becoming
+  // true; they are adjusted if they cross or include the origin
+  // and the original limits are preserved for when LogScaleActive
+  // becomes false again.
+  vtkGetMacro(LogScaleActive, bool);
+
+  // Description:
+  // Get/set whether the axis should <b>attempt</b> to use a log scale.
+  //
+  // The default is false.
+  // \sa{LogScaleActive}.
   vtkGetMacro(LogScale, bool);
+  virtual void SetLogScale(bool logScale);
+  vtkBooleanMacro(LogScale,bool);
 
   // Description:
   // Get/set whether the axis grid lines should be drawn, default is true.
@@ -312,6 +409,15 @@ protected:
   ~vtkAxis();
 
   // Description:
+  // Update whether log scaling will be used for layout and rendering.
+  //
+  // Log scaling is only active when LogScaling is true <b>and</b> the closed,
+  // unscaled range does not contain the origin.
+  // The boolean parameter determines whether the minimum and maximum values
+  // are set from their unscaled counterparts.
+  void UpdateLogScaleActive(bool updateMinMaxFromUnscaled);
+
+  // Description:
   // Calculate and assign nice labels/logical label positions.
   void GenerateTickLabels(double min, double max);
 
@@ -340,6 +446,18 @@ protected:
                           int &order);
 
   // Description:
+  // Generate logarithmically-spaced tick marks with linear-style labels.
+  //
+  // This is for the case when log scaling is active, but the axis min and max
+  // span less than an order of magnitude.
+  // In this case, the most significant digit that varies is identified and
+  // ticks generated for each value that digit may take on. If that results
+  // in only 2 tick marks, the next-most-significant digit is varied.
+  // If more than 20 tick marks would result, the stride for the varying digit
+  // is increased.
+  void GenerateLogSpacedLinearTicks(int order, double min, double max);
+
+  // Description:
   // Generate tick marks for logarithmic scale for specific order of magnitude.
   // Mark generation is limited by parameters min and max.
   // Tick marks will be: ... 0.1 0.2 .. 0.9 1 2 .. 9 10 20 .. 90 100 ...
@@ -364,10 +482,17 @@ protected:
   double Maximum;      // Maximum values of the axis
   double MinimumLimit; // Lowest possible value for Minimum
   double MaximumLimit; // Highest possible value for Maximum
+  double UnscaledMinimum;      // UnscaledMinimum value of the axis
+  double UnscaledMaximum;      // UnscaledMaximum values of the axis
+  double UnscaledMinimumLimit; // Lowest possible value for UnscaledMinimum
+  double UnscaledMaximumLimit; // Highest possible value for UnscaledMaximum
+  double NonLogUnscaledMinLimit; // Saved UnscaledMinimumLimit (when !LogActive)
+  double NonLogUnscaledMaxLimit; // Saved UnscaledMinimumLimit (when !LogActive)
   int Margins[2];      // Horizontal/vertical margins for the axis
   vtkStdString Title;  // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
-  bool LogScale;       // Should the axis use a log scale
+  bool LogScale;       // *Should* the axis use a log scale?
+  bool LogScaleActive; // *Is* the axis using a log scale?
   bool GridVisible;    // Whether the grid for the axis should be drawn
   bool LabelsVisible;  // Should the axis labels be visible
   bool TicksVisible;   // Should the tick marks be visible.
@@ -414,10 +539,6 @@ protected:
   // Description:
   // Flag to indicate that the axis has been resized.
   bool Resized;
-
-  // Description:
-  // Hint as to whether a logarithmic scale is reasonable or not.
-  bool LogScaleReasonable;
 
   // Description:
   // The algorithm being used to tick label placement.

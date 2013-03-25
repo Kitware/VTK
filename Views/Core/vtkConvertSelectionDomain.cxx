@@ -55,7 +55,7 @@ vtkConvertSelectionDomain::~vtkConvertSelectionDomain()
 }
 
 //----------------------------------------------------------------------------
-void vtkConvertSelectionDomainFindDomains(
+static void vtkConvertSelectionDomainFindDomains(
   vtkDataSetAttributes* dsa,
   vtksys_stl::set<vtkStdString> & domains)
 {
@@ -83,7 +83,7 @@ void vtkConvertSelectionDomainFindDomains(
     }
 }
 
-void vtkConvertSelectionDomainConvertAnnotationDomain(
+static void vtkConvertSelectionDomainConvertAnnotationDomain(
   vtkAnnotation* annIn,
   vtkAnnotation* annOut,
   vtksys_stl::set<vtkStdString>& domains1,

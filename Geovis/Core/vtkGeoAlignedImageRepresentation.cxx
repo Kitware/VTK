@@ -37,7 +37,7 @@
 #include <vtksys/stl/stack>
 #include <vtksys/stl/utility>
 
-vtksys_stl::pair<vtkGeoImageNode*, double>
+static vtksys_stl::pair<vtkGeoImageNode*, double>
 vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, double* bounds, vtkGeoTreeNodeCache* nodeList)
 {
   if (!p->HasData())

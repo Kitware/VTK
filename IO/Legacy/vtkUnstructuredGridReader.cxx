@@ -94,7 +94,7 @@ int vtkUnstructuredGridReader::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   int i, numPts=0, numCells=0;
   char line[256];
-  int npts, size, ncells=0;
+  int npts, size = 0, ncells=0;
   int piece, numPieces, skip1, read2, skip3, tmp;
   vtkCellArray *cells=NULL;
   int *types=NULL;

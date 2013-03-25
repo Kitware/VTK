@@ -712,7 +712,10 @@ void vtkOpenGLPainterDeviceAdapter::SendMaterialPropertiesForFace(unsigned int f
         glMaterialfv(face, GL_SPECULAR, static_cast<const GLfloat *>(specular));
         }
 
-      glMaterialfv(face, GL_SHININESS, static_cast<const GLfloat *>(specular_power));
+      if(specular_power)
+        {
+        glMaterialfv(face, GL_SHININESS, static_cast<const GLfloat *>(specular_power));
+        }
       }
       break;
     case GL_DOUBLE:
@@ -745,7 +748,7 @@ void vtkOpenGLPainterDeviceAdapter::SendMaterialPropertiesForFace(unsigned int f
           static_cast<GLfloat>(static_cast<const double *>(diffuse)[2]),
           diffuse_alpha
         };
-        glMaterialfv(face, GL_AMBIENT, diffuse4);
+        glMaterialfv(face, GL_DIFFUSE, diffuse4);
 
         const GLfloat specular4[] = {
           static_cast<GLfloat>(static_cast<const double *>(specular)[0]),
@@ -753,12 +756,14 @@ void vtkOpenGLPainterDeviceAdapter::SendMaterialPropertiesForFace(unsigned int f
           static_cast<GLfloat>(static_cast<const double *>(specular)[2]),
           specular_alpha
         };
-        glMaterialfv(face, GL_AMBIENT, specular4);
+        glMaterialfv(face, GL_SPECULAR, specular4);
 
-        GLfloat specular_power_float =
-          static_cast<GLfloat>(static_cast<const double *>(specular_power)[0]
-        );
-        glMaterialfv(face, GL_SHININESS, &specular_power_float);
+        if(specular_power)
+          {
+          GLfloat specular_power_float =
+            static_cast<GLfloat>(static_cast<const double *>(specular_power)[0]);
+          glMaterialfv(face, GL_SHININESS, &specular_power_float);
+          }
       }
       break;
     default:

@@ -192,7 +192,7 @@ void vtkChartXY::Update()
     {
     this->AnnotationLink->Update();
     vtkSelection *selection =
-        vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
+      vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
     if (selection->GetNumberOfNodes())
       {
       vtkSelectionNode *node = selection->GetNode(0);
@@ -466,11 +466,11 @@ void vtkChartXY::RecalculatePlotTransforms()
           yAxis = this->ChartPrivate->axes[vtkAxis::LEFT];
           break;
         default:
-          vtkWarningMacro("Error: default case in recalculate plot transforms.");
+          vtkWarningMacro(
+            "Error: default case in recalculate plot transforms.");
         }
-      this->CalculatePlotTransform(xAxis, yAxis,
-                                   this->ChartPrivate
-                                   ->PlotCorners[i]->GetTransform());
+      this->CalculatePlotTransform(
+        xAxis, yAxis, this->ChartPrivate->PlotCorners[i]->GetTransform());
       }
     }
   this->PlotTransformValid = true;

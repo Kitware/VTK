@@ -94,10 +94,10 @@ typedef struct
 /*                                                                      */
 /************************************************************************/
 
-void trilin_line_intersection( float start[3], float vec[3],
-                               double A, double B, double C, double D,
-                               double E, double F, double G, double H,
-                               double iso, LineIntersectInfo *solution )
+static void trilin_line_intersection( float start[3], float vec[3],
+                                      double A, double B, double C, double D,
+                                      double E, double F, double G, double H,
+                                      double iso, LineIntersectInfo *solution )
 {
   double        c0, c1, c2, c3; /* Coefficients Of Cubic Equation */
   double        r1, r2, r3;     /* Roots Of Equation */

@@ -638,9 +638,9 @@ void OTTetra::GetFacePoints(int i, OTFace *face)
 // Routines used to sort the points based on id.
 extern "C" {
 #ifdef _WIN32_WCE
-  int __cdecl vtkSortOnIds(const void *val1, const void *val2)
+  static int __cdecl vtkSortOnIds(const void *val1, const void *val2)
 #else
-  int vtkSortOnIds(const void *val1, const void *val2)
+  static int vtkSortOnIds(const void *val1, const void *val2)
 #endif
   {
     if (((OTPoint *)val1)->SortId < ((OTPoint *)val2)->SortId)
@@ -660,9 +660,9 @@ extern "C" {
 
 extern "C" {
 #ifdef _WIN32_WCE
-  int __cdecl vtkSortOnTwoIds(const void *val1, const void *val2)
+  static int __cdecl vtkSortOnTwoIds(const void *val1, const void *val2)
 #else
-  int vtkSortOnTwoIds(const void *val1, const void *val2)
+  static int vtkSortOnTwoIds(const void *val1, const void *val2)
 #endif
   {
     if (((OTPoint *)val1)->SortId2 < ((OTPoint *)val2)->SortId2)

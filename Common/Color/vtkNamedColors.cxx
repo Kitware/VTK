@@ -180,7 +180,7 @@ public:
       {
         c[i] = color[i];
       }
-    c[3] = 255;
+    c[3] = 1.0;
     this->SetColor(name,c);
   }
 

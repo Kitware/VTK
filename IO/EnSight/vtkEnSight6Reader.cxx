@@ -56,8 +56,9 @@ vtkEnSight6Reader::~vtkEnSight6Reader()
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSight6ReaderRead1(const char *line, const char *, int *pointId,
-                            float *point1, float *point2, float *point3)
+static void vtkEnSight6ReaderRead1(const char *line, const char *,
+                                   int *pointId, float *point1,
+                                   float *point2, float *point3)
 {
 #ifdef __CYGWIN__
   // most cygwins are busted in sscanf, this is a work around
@@ -83,8 +84,8 @@ void vtkEnSight6ReaderRead1(const char *line, const char *, int *pointId,
   assert("post: all_items_match" && numEntries==4);
 }
 
-void vtkEnSight6ReaderRead2(const char *line, const char *,
-                            float *point1, float *point2, float *point3)
+static void vtkEnSight6ReaderRead2(const char *line, const char *,
+                                   float *point1, float *point2, float *point3)
 {
 #ifdef __CYGWIN__
   // most cygwins are busted in sscanf, this is a work around
@@ -108,9 +109,9 @@ void vtkEnSight6ReaderRead2(const char *line, const char *,
   assert("post: all_items_match" && numEntries==3);
 }
 
-void vtkEnSight6ReaderRead3(const char *line, const char *,
-                            float *point1, float *point2, float *point3,
-                            float *point4, float *point5, float *point6)
+static void vtkEnSight6ReaderRead3(const char *line, const char *,
+                                   float *point1, float *point2, float *point3,
+                                   float *point4, float *point5, float *point6)
 {
 #ifdef __CYGWIN__
   // most cygwins are busted in sscanf, this is a work around
@@ -143,7 +144,7 @@ void vtkEnSight6ReaderRead3(const char *line, const char *,
   assert("post: all_items_match" && numEntries==6);
 }
 
-void vtkEnSight6ReaderRead4(const char *line, float *point1)
+static void vtkEnSight6ReaderRead4(const char *line, float *point1)
 {
 #ifdef __CYGWIN__
   // most cygwins are busted in sscanf, this is a work around

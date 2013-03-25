@@ -755,9 +755,9 @@ void vtkGeoInteractorStyle::Dolly(double factor)
 //-----------------------------------------------------------------------------
 // Called by the renderer start event.
 // Redraw the rectangle.
-void vtkGeoInteractorStyleRenderCallback(vtkObject *caller,
-                                 unsigned long event,
-                                 void *clientData, void *)
+static void vtkGeoInteractorStyleRenderCallback(vtkObject *caller,
+                                                unsigned long event,
+                                                void *clientData, void *)
 {
   (void)caller;
   (void)event;

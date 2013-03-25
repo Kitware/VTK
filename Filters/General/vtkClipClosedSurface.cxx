@@ -2579,7 +2579,7 @@ int vtkCCSCheckPolygonSense(
 // The values of pp, bounds, and tol2 must be precomputed
 // by calling vtkCCSPrepareForPolyInPoly() on outerPoly.
 
-int vtkCCSPolyInPoly(
+static int vtkCCSPolyInPoly(
   const vtkCCSPoly &outerPoly, const vtkCCSPoly &innerPoly,
   vtkPoints *points, const double normal[3],
   const double *pp, const double bounds[6],
@@ -2640,7 +2640,7 @@ int vtkCCSPolyInPoly(
 // tol2: a tolerance value based on the size of the polygon
 // (note: pp must be pre-allocated to the 3*outerPoly.size())
 
-void vtkCCSPrepareForPolyInPoly(
+static void vtkCCSPrepareForPolyInPoly(
   const vtkCCSPoly &outerPoly, vtkPoints *points,
   double *pp, double bounds[6], double &tol2)
 {
@@ -2802,7 +2802,7 @@ void vtkCCSMakeHoleyPolys(
 // Return value of zero means check failed and the cut is not
 // usable.
 
-int vtkCCSCheckCut(
+static int vtkCCSCheckCut(
   const std::vector<vtkCCSPoly> &polys, vtkPoints *points,
   const double normal[3], const vtkCCSPolyGroup &polyGroup,
   size_t outerPolyId, size_t innerPolyId,
@@ -2938,7 +2938,7 @@ int vtkCCSCheckCut(
 // line segment that it joins to.  Smaller values indicate a
 // higher quality cut.
 
-double vtkCCSCutQuality(
+static double vtkCCSCutQuality(
   const vtkCCSPoly &outerPoly, const vtkCCSPoly &innerPoly,
   size_t i, size_t j, vtkPoints *points)
 {
@@ -3014,7 +3014,7 @@ double vtkCCSCutQuality(
 // ---------------------------------------------------
 // Find the two sharpest verts on an inner (i.e. inside-out) poly.
 
-void vtkCCSFindSharpestVerts(
+static void vtkCCSFindSharpestVerts(
   const vtkCCSPoly &poly, vtkPoints *points, const double normal[3],
   size_t verts[2])
 {
@@ -3072,7 +3072,7 @@ void vtkCCSFindSharpestVerts(
 // Find two valid cuts between outerPoly and innerPoly.
 // Used by vtkCCSCutHoleyPolys.
 
-int vtkCCSFindCuts(
+static int vtkCCSFindCuts(
   const std::vector<vtkCCSPoly> &polys,
   const vtkCCSPolyGroup &polyGroup, size_t outerPolyId, size_t innerPolyId,
   vtkPoints *points, const double normal[3], size_t cuts[2][2],
@@ -3170,7 +3170,7 @@ int vtkCCSFindCuts(
 // Helper for vtkCCSCutHoleyPolys.  Change a polygon and a hole
 // into two separate polygons by making two cuts between them.
 
-void vtkCCSMakeCuts(
+static void vtkCCSMakeCuts(
   std::vector<vtkCCSPoly> &polys,
   std::vector<vtkCCSPolyEdges> &polyEdges,
   size_t outerPolyId, size_t innerPolyId,

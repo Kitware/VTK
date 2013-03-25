@@ -308,7 +308,7 @@ void vtkResliceCursorPicker::Pick(
 // Helper function for sanity check - to see if one point is different from
 // another.
 //
-bool vtkResliceCursorPickerIsDifferentSanityCheck(
+static bool vtkResliceCursorPickerIsDifferentSanityCheck(
     const double a[3], const double b[3] )
 {
   // Tolerance of 0.0001 needs some fluff..

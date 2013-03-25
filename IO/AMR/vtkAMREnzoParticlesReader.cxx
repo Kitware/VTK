@@ -39,7 +39,7 @@
 // Description:
 // Finds the block index (blockIndx) within the HDF5 file associated with
 // the given file index.
-bool FindBlockIndex( hid_t fileIndx, const int blockIdx, hid_t &rootIndx )
+static bool FindBlockIndex( hid_t fileIndx, const int blockIdx, hid_t &rootIndx )
 {
   // retrieve the contents of the root directory to look for a group
   // corresponding to the target block, if available, open that group
@@ -82,7 +82,7 @@ bool FindBlockIndex( hid_t fileIndx, const int blockIdx, hid_t &rootIndx )
 //------------------------------------------------------------------------------
 // Description:
 // Returns the double array
-void GetDoubleArrayByName(
+static void GetDoubleArrayByName(
     const hid_t rootIdx, const char* name, std::vector<double> &array)
 {
   // turn off warnings

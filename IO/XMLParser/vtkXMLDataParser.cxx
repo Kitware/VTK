@@ -948,7 +948,7 @@ T* vtkXMLParseAsciiData(istream& is, int* length, T*, long)
 }
 
 //----------------------------------------------------------------------------
-char* vtkXMLParseAsciiData(istream& is, int* length, char*, int)
+static char* vtkXMLParseAsciiData(istream& is, int* length, char*, int)
 {
   int dataLength = 0;
   int dataBufferSize = 64;
@@ -981,8 +981,10 @@ char* vtkXMLParseAsciiData(istream& is, int* length, char*, int)
 }
 
 //----------------------------------------------------------------------------
-unsigned char* vtkXMLParseAsciiData(istream& is, int* length, unsigned char*,
-                                    int)
+static unsigned char* vtkXMLParseAsciiData(istream& is,
+                                           int* length,
+                                           unsigned char*,
+                                           int)
 {
   int dataLength = 0;
   int dataBufferSize = 64;
@@ -1015,8 +1017,10 @@ unsigned char* vtkXMLParseAsciiData(istream& is, int* length, unsigned char*,
 }
 
 //----------------------------------------------------------------------------
-signed char* vtkXMLParseAsciiData(istream& is, int* length, signed char*,
-                                  int)
+static signed char* vtkXMLParseAsciiData(istream& is,
+                                         int* length,
+                                         signed char*,
+                                         int)
 {
   int dataLength = 0;
   int dataBufferSize = 64;

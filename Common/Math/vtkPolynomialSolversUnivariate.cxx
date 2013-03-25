@@ -454,7 +454,7 @@ inline double evaluateHorner( double* P, int d, double x )
   return val;
 }
 
-int vtkGetSignChanges(
+static int vtkGetSignChanges(
   double* P, int* degP, int* offsets, int count, double val, int* fsign = 0 )
 {
   int oldVal = 0;
@@ -509,7 +509,7 @@ int vtkGetSignChanges(
 //
 // This algorithm is modified from
 // BPR, Algorithms in Real Algebraic Geometry, page 318
-int vtkGetHabichtSequence(
+static int vtkGetHabichtSequence(
   double* P, int d, double * SSS, int* degrees, int* offsets, double rtol )
 {
   //const static double high = pow(2.,256);
@@ -615,7 +615,7 @@ int vtkGetHabichtSequence(
 // Gets the sturm sequence. SSS and degrees and offsets are expected to
 // be large enough and the number of non-zero items
 // is returned. P is expected to have degree at least 1.
-int vtkGetSturmSequence(
+static int vtkGetSturmSequence(
   double* P, int d, double* SSS, int* degrees, int* offsets, double rtol )
 {
   degrees[0] = d;
@@ -668,7 +668,7 @@ int vtkGetSturmSequence(
 
 extern "C" {
 
-int vtkPolynomialSolversUnivariateCompareRoots( const void* a, const void* b )
+static int vtkPolynomialSolversUnivariateCompareRoots( const void* a, const void* b )
 {
   return ( *( (const double*) a ) ) < ( *( (const double*) b ) ) ? -1 : 1;
 }
@@ -692,7 +692,7 @@ int vtkPolynomialSolversUnivariateCompareRoots( const void* a, const void* b )
 //
 // It probably would have been better to originally have had the tolerance be a
 // relative tolerance rather than an absolute tolerance.
-int vtkHabichtOrSturmBisectionSolve(
+static int vtkHabichtOrSturmBisectionSolve(
   double* P, int d, double* a, double* upperBnds, double tol,
   int intervalType, int divideGCD, int method )
 {
@@ -1349,7 +1349,7 @@ int vtkPolynomialSolversUnivariate::SturmBisectionSolve(
 // Furthermore assume that dP is large enough.
 // Stores
 // {f,f',f^(2)/2!,f^(3)/3!,...,f^(p)/p!}.
-void vtkGetDerivativeSequence( double* dP, int p )
+static void vtkGetDerivativeSequence( double* dP, int p )
 {
   int offsetA = 0;
   int offsetB = p+1;
@@ -1364,7 +1364,7 @@ void vtkGetDerivativeSequence( double* dP, int p )
     }
 }
 
-int vtkGetSignChangesForDerivativeSequence( double* dP, int count, double val )
+static int vtkGetSignChangesForDerivativeSequence( double* dP, int count, double val )
 {
   int oldVal = 0;
   double v;

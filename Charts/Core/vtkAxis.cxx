@@ -15,6 +15,7 @@
 
 #include "vtkAxis.h"
 
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkContext2D.h"
 #include "vtkPen.h"
@@ -60,11 +61,18 @@ vtkAxis::vtkAxis()
   this->TitleProperties->SetJustificationToCentered();
   this->Minimum = 0.0;
   this->Maximum = 6.66;
+  this->UnscaledMinimum = this->Minimum;
+  this->UnscaledMaximum = this->Maximum;
   this->MinimumLimit = std::numeric_limits<double>::max() * -1.;
   this->MaximumLimit = std::numeric_limits<double>::max();
+  this->UnscaledMinimumLimit = std::numeric_limits<double>::max() * -1.;
+  this->UnscaledMaximumLimit = std::numeric_limits<double>::max();
+  this->NonLogUnscaledMinLimit = this->UnscaledMinimumLimit;
+  this->NonLogUnscaledMaxLimit = this->UnscaledMaximumLimit;
   this->Margins[0] = 15;
   this->Margins[1] = 5;
   this->LogScale = false;
+  this->LogScaleActive = false;
   this->GridVisible = true;
   this->LabelsVisible = true;
   this->TicksVisible = true;
@@ -84,7 +92,6 @@ vtkAxis::vtkAxis()
   this->TickLabels = vtkSmartPointer<vtkStringArray>::New();
   this->UsingNiceMinMax = false;
   this->TickMarksDirty = true;
-  this->LogScaleReasonable = false;
   this->MaxLabel[0] = this->MaxLabel[1] = 0.0;
   this->Resized = true;
   this->SetPosition(vtkAxis::LEFT);
@@ -196,39 +203,31 @@ void vtkAxis::Update()
     return;
     }
 
+  this->UpdateLogScaleActive(false);
   if ((this->Behavior == vtkAxis::AUTO || this->Behavior == vtkAxis::FIXED) &&
       this->TickMarksDirty)
     {
     // Regenerate the tick marks/positions if necessary
     // Calculate where the first tick mark should be drawn
-    if (this->LogScale && !this->LogScaleReasonable)
+    // FIXME: We need a specific resize event, to handle position change
+    // independently.
+    this->RecalculateTickSpacing();
+    double first = ceil(this->Minimum / this->TickInterval)
+      * this->TickInterval;
+    double last = first;
+    double interval(this->TickInterval);
+    if (this->Minimum > this->Maximum)
       {
-      // Since the TickInterval may have changed due to moved axis we need to
-      // recalculte TickInterval
-      this->RecalculateTickSpacing();
+      interval *= -1.0;
       }
-    else
+    for (int i = 0; i < 500; ++i)
       {
-      // FIXME: We need a specific resize event, to handle position change
-      // independently.
-      this->RecalculateTickSpacing();
-      double first = ceil(this->Minimum / this->TickInterval)
-        * this->TickInterval;
-      double last = first;
-      double interval(this->TickInterval);
-      if (this->Minimum > this->Maximum)
+      last += interval;
+      if ((interval > 0.0 && last > this->Maximum) ||
+          (interval <= 0.0 && last < this->Maximum))
         {
-        interval *= -1.0;
-        }
-      for (int i = 0; i < 500; ++i)
-        {
-        last += interval;
-        if ((interval > 0.0 && last > this->Maximum) ||
-            (interval <= 0.0 && last < this->Maximum))
-          {
-          this->GenerateTickLabels(first, last - this->TickInterval);
-          break;
-          }
+        this->GenerateTickLabels(first, last - this->TickInterval);
+        break;
         }
       }
     }
@@ -282,6 +281,8 @@ bool vtkAxis::Paint(vtkContext2D *painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkAxis.");
+
+  this->UpdateLogScaleActive(false);
 
   if (!this->Visible)
     {
@@ -416,6 +417,23 @@ void vtkAxis::SetMinimum(double minimum)
     return;
     }
   this->Minimum = minimum;
+  this->UnscaledMinimum = this->LogScaleActive ? pow(10., this->Minimum) : this->Minimum;
+  this->UsingNiceMinMax = false;
+  this->TickMarksDirty = true;
+  this->Modified();
+  this->InvokeEvent(vtkChart::UpdateRange);
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetUnscaledMinimum(double minimum)
+{
+  minimum = std::max(minimum, this->UnscaledMinimumLimit);
+  if (this->UnscaledMinimum == minimum)
+    {
+    return;
+    }
+  this->UnscaledMinimum = minimum;
+  this->UpdateLogScaleActive(true);
   this->UsingNiceMinMax = false;
   this->TickMarksDirty = true;
   this->Modified();
@@ -430,9 +448,41 @@ void vtkAxis::SetMinimumLimit(double lowest)
     return;
     }
   this->MinimumLimit = lowest;
+  if (this->LogScaleActive)
+    {
+    if (this->UnscaledMinimum < 0)
+      {
+      this->UnscaledMaximumLimit = -1. * pow(10., this->MinimumLimit);
+      }
+    else
+      {
+      this->UnscaledMinimumLimit = pow(10., this->MinimumLimit);
+      }
+    }
+  else
+    {
+    this->UnscaledMinimumLimit = this->MinimumLimit;
+    }
   if (this->Minimum < lowest)
     {
     this->SetMinimum(lowest);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetUnscaledMinimumLimit(double lowest)
+{
+  if (this->UnscaledMinimumLimit == lowest)
+    {
+    return;
+    }
+  this->UnscaledMinimumLimit = lowest;
+  this->NonLogUnscaledMinLimit = this->UnscaledMinimumLimit;
+  this->MinimumLimit = this->LogScaleActive ?
+    log10(this->UnscaledMinimumLimit) : this->UnscaledMinimumLimit;
+  if (this->UnscaledMinimum < lowest)
+    {
+    this->SetUnscaledMinimum(lowest);
     }
 }
 
@@ -445,6 +495,23 @@ void vtkAxis::SetMaximum(double maximum)
     return;
     }
   this->Maximum = maximum;
+  this->UnscaledMaximum = this->LogScaleActive ? pow(10., this->Maximum) : this->Maximum;
+  this->UsingNiceMinMax = false;
+  this->TickMarksDirty = true;
+  this->Modified();
+  this->InvokeEvent(vtkChart::UpdateRange);
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetUnscaledMaximum(double maximum)
+{
+  maximum = std::min(maximum, this->UnscaledMaximumLimit);
+  if (this->UnscaledMaximum == maximum)
+    {
+    return;
+    }
+  this->UnscaledMaximum = maximum;
+  this->UpdateLogScaleActive(true);
   this->UsingNiceMinMax = false;
   this->TickMarksDirty = true;
   this->Modified();
@@ -459,9 +526,41 @@ void vtkAxis::SetMaximumLimit(double highest)
     return;
     }
   this->MaximumLimit = highest;
+  if (this->LogScaleActive)
+    {
+    if (this->UnscaledMaximum < 0)
+      {
+      this->UnscaledMinimumLimit = -1. * pow(10., this->MaximumLimit);
+      }
+    else
+      {
+      this->UnscaledMaximumLimit = pow(10., this->MaximumLimit);
+      }
+    }
+  else
+    {
+    this->UnscaledMaximumLimit = this->MaximumLimit;
+    }
   if (this->Maximum > highest)
     {
     this->SetMaximum(highest);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetUnscaledMaximumLimit(double highest)
+{
+  if (this->UnscaledMaximumLimit == highest)
+    {
+    return;
+    }
+  this->UnscaledMaximumLimit = highest;
+  this->NonLogUnscaledMaxLimit = this->UnscaledMaximumLimit;
+  this->MaximumLimit = this->LogScaleActive ?
+    log10(this->UnscaledMaximumLimit) : this->UnscaledMaximumLimit;
+  if (this->UnscaledMaximum > highest)
+    {
+    this->SetUnscaledMaximum(highest);
     }
 }
 
@@ -475,15 +574,48 @@ void vtkAxis::SetRange(double minimum, double maximum)
 //-----------------------------------------------------------------------------
 void vtkAxis::SetRange(double *range)
 {
-  this->SetMinimum(range[0]);
-  this->SetMaximum(range[1]);
+  if (range)
+    {
+    this->SetMinimum(range[0]);
+    this->SetMaximum(range[1]);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetUnscaledRange(double minimum, double maximum)
+{
+  this->SetUnscaledMinimum(minimum);
+  this->SetUnscaledMaximum(maximum);
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetUnscaledRange(double *range)
+{
+  if (range)
+    {
+    this->SetUnscaledMinimum(range[0]);
+    this->SetUnscaledMaximum(range[1]);
+    }
 }
 
 //-----------------------------------------------------------------------------
 void vtkAxis::GetRange(double *range)
 {
-  range[0] = this->Minimum;
-  range[1] = this->Maximum;
+  if (range)
+    {
+    range[0] = this->Minimum;
+    range[1] = this->Maximum;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::GetUnscaledRange(double *range)
+{
+  if (range)
+    {
+    range[0] = this->UnscaledMinimum;
+    range[1] = this->UnscaledMaximum;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -515,6 +647,18 @@ void vtkAxis::SetPrecision(int precision)
 }
 
 //-----------------------------------------------------------------------------
+void vtkAxis::SetLogScale(bool logScale)
+{
+  if (this->LogScale == logScale)
+    {
+    return;
+    }
+  this->LogScale = logScale;
+  this->UpdateLogScaleActive(false);
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
 void vtkAxis::SetNotation(int notation)
 {
   if (this->Notation == notation)
@@ -533,6 +677,8 @@ void vtkAxis::AutoScale()
     {
     return;
     }
+
+  this->UpdateLogScaleActive(false);
   // Calculate the min and max, set the number of ticks and the tick spacing.
   if (this->TickLabelAlgorithm == vtkAxis::TICK_SIMPLE)
     {
@@ -570,68 +716,35 @@ void vtkAxis::RecalculateTickSpacing()
       }
     else
       {
-      if (this->LogScale && !this->LogScaleReasonable)
+      // Calculated tickinterval may be 0. So calculation of new minimum and
+      // maximum by incrementing/decrementing using tickinterval will fail.
+      if (this->TickInterval == 0.0)
         {
-          // If logartihmic axis is enabled and log scale is not reasonable
-          // then TickInterval was calculated for linear scale but transformed
-          // to log value. Therefore we need another method to
-          // increment/decrement min and max value.
-          if (this->Minimum < this->Maximum)
+        return;
+        }
+      if (this->Minimum < this->Maximum)
+        {
+        while (min < this->Minimum)
           {
-          while (min < this->Minimum)
-            {
-            min = log10(pow(10.0, min) + pow(10.0, this->TickInterval));
-            }
-          while (max > this->Maximum)
-            {
-            max = log10(pow(10.0, max) - pow(10.0, this->TickInterval));
-            }
+          min += this->TickInterval;
           }
-        else
+        while (max > this->Maximum)
           {
-          while (min > this->Minimum)
-            {
-            min = log10(pow(10.0, min) - pow(10.0, this->TickInterval));
-            }
-          while (max < this->Maximum)
-            {
-            max = log10(pow(10.0, max) + pow(10.0, this->TickInterval));
-            }
+          max -= this->TickInterval;
           }
-        this->GenerateTickLabels(min, max);
         }
       else
         {
-        // Calculated tickinterval may be 0. So calculation of new minimum and
-        // maximum by incrementing/decrementing using tickinterval will fail.
-        if (this->TickInterval == 0.0)
+        while (min > this->Minimum)
           {
-          return;
+          min -= this->TickInterval;
           }
-        if (this->Minimum < this->Maximum)
+        while (max < this->Maximum)
           {
-          while (min < this->Minimum)
-            {
-            min += this->TickInterval;
-            }
-          while (max > this->Maximum)
-            {
-            max -= this->TickInterval;
-            }
+          max += this->TickInterval;
           }
-        else
-          {
-          while (min > this->Minimum)
-            {
-            min -= this->TickInterval;
-            }
-          while (max < this->Maximum)
-            {
-            max += this->TickInterval;
-            }
-          }
-        this->GenerateTickLabels(min, max);
         }
+      this->GenerateTickLabels(min, max);
       }
     }
 }
@@ -788,6 +901,81 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 }
 
 //-----------------------------------------------------------------------------
+void vtkAxis::UpdateLogScaleActive(bool alwaysUpdateMinMaxFromUnscaled)
+{
+  bool needUpdate = false;
+  if (this->LogScale &&
+    this->UnscaledMinimum * this->UnscaledMaximum > 0.)
+    {
+    if (!this->LogScaleActive)
+      {
+      this->LogScaleActive = true;
+      needUpdate = true;
+      }
+    if (needUpdate || alwaysUpdateMinMaxFromUnscaled)
+      {
+      if (this->UnscaledMinimum < 0)
+        { // Both unscaled min & max are negative, logs must be swapped
+        this->Minimum = log10(fabs(this->UnscaledMaximum));
+        this->Maximum = log10(fabs(this->UnscaledMinimum));
+        if (this->UnscaledMaximumLimit >= 0)
+          {
+          // The limit is on the other side of 0 relative to the data...
+          // move it to the same side as the data.
+          // Specifically, allow scrolling equal to the width of the plot.
+          this->MinimumLimit = -vtkMath::Inf();
+          this->NonLogUnscaledMaxLimit = this->UnscaledMaximumLimit;
+          this->UnscaledMaximumLimit = 0.;
+          }
+        else
+          {
+          this->MinimumLimit = log10(fabs(this->UnscaledMaximumLimit));
+          }
+        this->MaximumLimit = log10(fabs(this->UnscaledMinimumLimit));
+        }
+      else
+        {
+        this->Minimum = log10(fabs(this->UnscaledMinimum));
+        this->Maximum = log10(fabs(this->UnscaledMaximum));
+        if (this->UnscaledMinimumLimit <= 0)
+          {
+          // The limit is on the other side of 0 relative to the data...
+          // move it to the same side as the data.
+          // Specifically, allow scrolling equal to the width of the plot.
+          this->MinimumLimit = -vtkMath::Inf();
+          this->NonLogUnscaledMinLimit = this->UnscaledMinimumLimit;
+          this->UnscaledMinimumLimit = 0.;
+          }
+        else
+          {
+          this->MinimumLimit = log10(fabs(this->UnscaledMinimumLimit));
+          }
+        this->MaximumLimit = log10(fabs(this->UnscaledMaximumLimit));
+        }
+      this->Modified();
+      }
+    }
+  else
+    {
+    if (this->LogScaleActive)
+      {
+      this->LogScaleActive = false;
+      needUpdate = true;
+      }
+    if (needUpdate || alwaysUpdateMinMaxFromUnscaled)
+      {
+      this->Minimum = this->UnscaledMinimum;
+      this->Maximum = this->UnscaledMaximum;
+      this->UnscaledMinimumLimit = this->NonLogUnscaledMinLimit;
+      this->UnscaledMaximumLimit = this->NonLogUnscaledMaxLimit;
+      this->MinimumLimit = this->UnscaledMinimumLimit;
+      this->MaximumLimit = this->UnscaledMaximumLimit;
+      this->Modified();
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkAxis::GenerateTickLabels(double min, double max)
 {
   if (this->CustomTickLabels == true)
@@ -801,7 +989,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
 
   // We generate a logarithmic scale when logarithmic axis is activated and the
   // order of magnitude of the axis is higher than 0.6.
-  if (this->LogScale && this->LogScaleReasonable)
+  if (this->LogScaleActive)
     {
     // We calculate the first tick mark for lowest order of magnitude.
     // and the last for the highest order of magnitude.
@@ -822,7 +1010,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     // We generate the tick marks for all orders of magnitude
     if (maxOrder - minOrder == 0)
       {
-      GenerateLogScaleTickMarks(minOrder, minValue, maxValue);
+      this->GenerateLogSpacedLinearTicks(minOrder, min, max);
       }
     else
       {
@@ -897,10 +1085,12 @@ void vtkAxis::GenerateTickLabels(double min, double max)
       if(min < this->Minimum)
         {
         this->Minimum = min;
+        this->UnscaledMinimum = (this->LogScaleActive ? pow(10., this->Minimum) : this->Minimum);
         }
       if(max > this->Maximum)
         {
         this->Maximum = max;
+        this->UnscaledMaximum = (this->LogScaleActive ? pow(10., this->Maximum) : this->Maximum);
         }
 
       this->Notation = tickPositionExtended->GetLabelFormat();
@@ -915,7 +1105,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     double mult = max > min ? 1.0 : -1.0;
     double range = 0.0;
     int n = 0;
-    if (this->LogScale)
+    if (this->LogScaleActive)
       {
       range = mult > 0.0 ? pow(10.0, max) - pow(10.0, min)
         : pow(10.0, min) - pow(10.0, max);
@@ -933,7 +1123,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     for (int i = 0; i <= n && i < 200; ++i)
       {
       double value = 0.0;
-      if (this->LogScale)
+      if (this->LogScaleActive)
         {
         value = log10(pow(10.0, min) + double(i) * mult
           * pow(10.0, this->TickInterval));
@@ -959,7 +1149,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
         }
       this->TickPositions->InsertNextValue(value);
       // Make a tick mark label for the tick
-      if (this->LogScale)
+      if (this->LogScaleActive)
         {
         value = pow(double(10.0), double(value));
         }
@@ -1002,7 +1192,7 @@ void vtkAxis::GenerateTickLabels()
     {
     double value = this->TickPositions->GetValue(i);
     // Make a tick mark label for the tick
-    if (this->LogScale)
+    if (this->LogScaleActive)
       {
       value = pow(double(10.0), double(value));
       }
@@ -1198,24 +1388,6 @@ double vtkAxis::NiceMinMax(double &min, double &max, float pixelRange,
 //-----------------------------------------------------------------------------
 double vtkAxis::CalculateNiceMinMax(double &min, double &max)
 {
-  double oldmin = min;
-  double oldmax = max;
-  this->LogScaleReasonable = false;
-  // We check if logaritmic scale seems reasonable.
-  if (this->LogScale)
-    {
-    this->LogScaleReasonable = ((max - min) >= log10(6.0));
-    }
-
-  // If logarithmic axis is activated and a logarithmic scale seems NOT
-  // reasonable we transform the min/max value.
-  // Thus the following code works for logarithmic axis with linear scale too.
-  if (this->LogScale && !this->LogScaleReasonable)
-    {
-    min = pow(double(10.0), double(min));
-    max = pow(double(10.0), double(max));
-    }
-
   float pixelRange = 0;
   float tickPixelSpacing = 0;
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::RIGHT
@@ -1232,24 +1404,6 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
 
   double niceTickSpacing =
     vtkAxis::NiceMinMax(min, max, pixelRange, tickPixelSpacing);
-
-  // If logarithmic axis is activated and logarithmic scale is NOT reasonable
-  // we transform the min/max and tick spacing
-  if (this->LogScale && !this->LogScaleReasonable)
-    {
-    // We need to handle value 0 for logarithmic function
-    if (min < 1.0e-20)
-      {
-        min = pow(double(10.0), (floor(oldmin)));
-      }
-    if (max < 1.0e-20)
-      {
-        max = pow(double(10.0), (floor(oldmax)));
-      }
-    min = log10(min);
-    max = log10(max);
-    niceTickSpacing = log10(niceTickSpacing);
-    }
 
   if (this->NumberOfTicks > 0)
     {
@@ -1330,6 +1484,61 @@ double vtkAxis::LogScaleTickMark(double number,
     niceValue = true;
     }
   return result;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::GenerateLogSpacedLinearTicks(int order, double min, double max)
+{
+  // Log-scale axis, but zoomed in too far to show an order of magnitude in
+  // the left-most digit.
+  // Figure out which digit to vary and by how much.
+  double linMin = pow(10., min);
+  double linMax = pow(10., max);
+  int varyDigit = floor(log10(linMax - linMin));
+  if (varyDigit == order)
+    {
+    --varyDigit;
+    }
+  double multiplier = pow(10.,varyDigit);
+  int lo = floor(linMin / multiplier);
+  int hi = ceil(linMax / multiplier);
+  if (hi - lo < 2)
+    {
+    ++hi;
+    --lo;
+    }
+  int incr = 1;
+  int nt = hi - lo;
+  if (nt > 20)
+    {
+    incr = nt > 10 ? 5 : 2;
+    }
+
+  for(int j = lo; j <= hi; j += incr)
+    {
+    // We calculate the tick mark value
+    double value = j * multiplier;
+    this->TickPositions->InsertNextValue(log10(value));
+
+    // Now create a label for the tick position
+    vtksys_ios::ostringstream ostr;
+    ostr.imbue(std::locale::classic());
+    if (this->Notation > 0)
+      {
+      ostr.precision(this->Precision);
+      }
+    if (this->Notation == SCIENTIFIC_NOTATION)
+      {
+      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      }
+    else if (this->Notation == FIXED_NOTATION)
+      {
+      ostr.setf(ios::fixed, ios::floatfield);
+      }
+    ostr << value;
+
+    this->TickLabels->InsertNextValue(ostr.str());
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1445,5 +1654,15 @@ void vtkAxis::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Maximum point: " << this->Point2[0] << ", "
      << this->Point2[1] << endl;
   os << indent << "Range: " << this->Minimum << " - " << this->Maximum << endl;
+  os << indent << "Range limits: "
+    << this->MinimumLimit << " - " << this->MaximumLimit << endl;
   os << indent << "Number of tick marks: " << this->NumberOfTicks << endl;
+  os << indent << "LogScale: " << (this->LogScale ? "TRUE" : "FALSE") << endl;
+  os << indent << "LogScaleActive: " << (this->LogScaleActive ? "TRUE" : "FALSE") << endl;
+  os << indent << "Unscaled range: "
+    << this->UnscaledMinimum << " - " << this->UnscaledMaximum << endl;
+  os << indent << "Unscaled range limits: "
+    << this->UnscaledMinimumLimit << " - " << this->UnscaledMaximumLimit << endl;
+  os << indent << "Fallback unscaled range limits: "
+    << this->NonLogUnscaledMinLimit << " - " << this->NonLogUnscaledMaxLimit << endl;
 }

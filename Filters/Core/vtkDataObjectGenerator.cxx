@@ -179,7 +179,7 @@ public:
 //do something with. If we see something, bump char ptr passed it, and return
 //a code that says what we found. Skip over chars we don't recognize. When
 //nothing is left in the string return -1.
-int vtkDataObjectGeneratorGetNextToken(char **str)
+static int vtkDataObjectGeneratorGetNextToken(char **str)
 {
   if (!str || !*str)
     {
@@ -208,7 +208,7 @@ int vtkDataObjectGeneratorGetNextToken(char **str)
 }
 
 //----------------------------------------------------------------------------
-vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Program)
+static vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Program)
 {
   vtkInternalStructureCache *structure = new vtkInternalStructureCache();
   vtkInternalStructureCache *sptr = structure;
