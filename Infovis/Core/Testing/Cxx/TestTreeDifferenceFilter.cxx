@@ -22,7 +22,7 @@
 #include "vtkTree.h"
 
 //----------------------------------------------------------------------------
-int TestTreeDifferenceFilter(int argc, char* argv[])
+int TestTreeDifferenceFilter(int, char*[])
 {
   // create tree 1
   vtkNew<vtkMutableDirectedGraph> graph1;
