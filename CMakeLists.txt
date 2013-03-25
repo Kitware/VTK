@@ -297,12 +297,12 @@ if(VTK_WRAP_PYTHON)
   set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
   set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
   set(VTK_PYTHON_EXE vtkpython)
-  # Force the WrappingPython module to on if wrapping is on
-  set(Module_vtkWrappingPython ON CACHE BOOL "Core Python wrapping library"
+  # Force the WrappingPythonCore module to on if wrapping is on
+  set(Module_vtkWrappingPythonCore ON CACHE BOOL "Core Python wrapping library"
     FORCE)
 else()
-  # if wrapping is not on then force WrappingPython module to be off
-  set(Module_vtkWrappingPython OFF CACHE BOOL "Core Python wrapping library"
+  # if wrapping is not on then force WrappingPythonCore module to be off
+  set(Module_vtkWrappingPythonCore OFF CACHE BOOL "Core Python wrapping library"
     FORCE)
 endif()
 
@@ -354,8 +354,13 @@ find_program(VTK_GHOSTSCRIPT_EXECUTABLE gs gswin32c gsos2)
 mark_as_advanced(VTK_GHOSTSCRIPT_EXECUTABLE)
 
 #----------------------------------------------------------------------
-# Load the module DAG.
+# Load the module DAG, assess all modules etc.
 include(vtkModuleTop)
+
+# Now build the Python wrapping if necessary.
+if(VTK_WRAP_PYTHON)
+  add_subdirectory(Wrapping/Python)
+endif()
 
 if(BUILD_TESTING)
   add_subdirectory(Testing/Install)

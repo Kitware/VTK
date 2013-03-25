@@ -1,4 +1,4 @@
-#! /bin/env python
+#!/bin/env python
 
 """
 This script will return the paths that distutils will use for installing

@@ -4,7 +4,7 @@
 
 # First, ensure we include the correct CMake code so that we can wrap.
 if(VTK_WRAP_PYTHON)
-  include(vtkPythonWrapping)
+#  include(vtkPythonWrapping)
 endif()
 if(VTK_WRAP_TCL)
   include(vtkTclWrapping)
@@ -54,11 +54,9 @@ function(vtk_add_wrapping module_name module_srcs module_hdrs)
       endif()
 
       # Now to wrap the languages that are on.
-      if(VTK_WRAP_PYTHON)
-        if (${module_name}_WRAP_PYTHON)
-          set_property(GLOBAL APPEND PROPERTY VTK_PYTHON_WRAPPED ${module_name})
-          vtk_add_python_wrapping(${module_name} "${module_srcs}" "${module_hdrs}")
-        endif()
+      if(VTK_WRAP_PYTHON AND ${module_name}_WRAP_PYTHON)
+        # Note that the module should be Python wrapped.
+        set_property(GLOBAL APPEND PROPERTY VTK_PYTHON_WRAPPED ${module_name})
       endif()
       if(VTK_WRAP_TCL)
         set_property(GLOBAL APPEND PROPERTY VTK_TCL_WRAPPED ${module_name})

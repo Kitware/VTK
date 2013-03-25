@@ -142,10 +142,10 @@ SET(Module_SRCS
   vtkWeakPointerBase.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
-  vtkDataArrayTemplate.h
-  vtkDenseArray.h
-  vtkSparseArray.h
-  vtkTypedArray.h
+  vtkDataArrayTemplate.txx
+  vtkDenseArray.txx
+  vtkSparseArray.txx
+  vtkTypedArray.txx
   vtkTypeTemplate.h
   )
 
@@ -160,21 +160,17 @@ set(${vtk-module}_HDRS
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAutoInit.h
-  vtkDataArrayTemplate.txx
   vtkDataArrayTemplateImplicit.txx
-  vtkDenseArray.txx
   vtkIOStreamFwd.h
   vtkInformationInternals.h
   vtkMathUtilities.h
   vtkNew.h
   vtkSetGet.h
   vtkSmartPointer.h
-  vtkSparseArray.txx
   vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
   vtkType.h
   vtkTypeTraits.h
-  vtkTypedArray.txx
   vtkVariantCast.h
   vtkVariantCreate.h
   vtkVariantExtract.h
@@ -359,16 +355,6 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h
   )
 
-# header files that have constants that can be wrapped
-set_source_files_properties(
-  vtkSystemIncludes.h
-  vtkType.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
-  PROPERTIES WRAP_HEADER 1
-  )
-
 set_source_files_properties(
   # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
   vtkAbstractArray
@@ -440,10 +426,45 @@ set_source_files_properties(
   vtkWeakPointerBase.cxx
   vtkUnicodeString.cxx
   vtkDataArrayTemplate.h
-  vtkDenseArray.h
-  vtkSparseArray.h
-  vtkTypedArray.h
+
+  vtkABI.h
+  vtkArrayInterpolate.h
+  vtkArrayInterpolate.txx
+  vtkArrayIteratorIncludes.h
+  vtkArrayIteratorTemplate.h
+  vtkArrayIteratorTemplate.txx
+  vtkArrayIteratorTemplateImplicit.txx
+  vtkArrayPrint.h
+  vtkArrayPrint.txx
+  vtkAutoInit.h
+  vtkDataArrayTemplate.txx
+  vtkDataArrayTemplateImplicit.txx
+  vtkDenseArray.txx
+  vtkIOStreamFwd.h
+  vtkInformationInternals.h
+  vtkMathUtilities.h
+  vtkNew.h
+  vtkSetGet.h
+  vtkSmartPointer.h
+  vtkSparseArray.txx
+  vtkTemplateAliasMacro.h
+  vtkTypeTraits.h
+  vtkTypedArray.txx
+  vtkVariantCast.h
+  vtkVariantCreate.h
+  vtkVariantExtract.h
+  vtkVariantInlineOperators.h
+  vtkWeakPointer.h
+  vtkWin32Header.h
+  vtkWindows.h
+  vtkToolkits.h
+  vtkSystemIncludes.h
+  vtkType.h
+  vtkConfigure.h
+  vtkMathConfigure.h
+  vtkVersionMacros.h
   vtkTypeTemplate.h
+
   WRAP_EXCLUDE
   )
 
@@ -465,10 +486,15 @@ set_source_files_properties(
   vtkArrayWeights.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
-  vtkDenseArray.h
-  vtkSparseArray.h
-  vtkTypedArray.h
+  vtkDenseArray.txx
+  vtkSparseArray.txx
+  vtkTypedArray.txx
   vtkTypeTemplate.h
+  vtkSystemIncludes.h
+  vtkType.h
+  vtkConfigure.h
+  vtkMathConfigure.h
+  vtkVersionMacros.h
   PROPERTIES WRAP_SPECIAL 1
 )
 
@@ -482,7 +508,7 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*")
   set(KIT_LIBS ${KIT_LIBS} socket nsl)
 endif()
 
-vtk_module_library(vtkCommonCore ${Module_SRCS})
+vtk_module_library(vtkCommonCore ${Module_SRCS} ${${vtk-module}_HDRS})
 
 target_link_libraries(vtkCommonCore ${CMAKE_THREAD_LIBS_INIT})
 set_target_properties(vtkCommonCore PROPERTIES LINK_INTERFACE_LIBRARIES "")

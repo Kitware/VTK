@@ -16,12 +16,12 @@
 #ifndef __vtkPythonCommand_h
 #define __vtkPythonCommand_h
 
-#include "vtkWrappingPythonModule.h" // For export macro
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkCommand.h"
 
 // To allow Python to use the vtkCommand features
-class VTKWRAPPINGPYTHON_EXPORT vtkPythonCommand : public vtkCommand
+class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonCommand : public vtkCommand
 {
 public:
   vtkTypeMacro(vtkPythonCommand,vtkCommand);
