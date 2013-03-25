@@ -19,6 +19,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLGL2PSHelper.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkTexture.h"
 
@@ -484,9 +485,11 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 
   // Set the PointSize
   glPointSize(this->PointSize);
+  vtkOpenGLGL2PSHelper::SetPointSize(this->PointSize);
 
   // Set the LineWidth
   glLineWidth(this->LineWidth);
+  vtkOpenGLGL2PSHelper::SetLineWidth(this->LineWidth);
 
   // Set the LineStipple
   if (this->LineStipplePattern != 0xFFFF)
@@ -494,6 +497,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(this->LineStippleRepeatFactor,
                   static_cast<GLushort>(this->LineStipplePattern));
+    vtkOpenGLGL2PSHelper::EnableStipple(); // must be called after glLineStipple
     }
   else
     {
@@ -502,6 +506,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     glLineStipple(this->LineStippleRepeatFactor,
                   static_cast<GLushort>(this->LineStipplePattern));
     glDisable(GL_LINE_STIPPLE);
+    vtkOpenGLGL2PSHelper::DisableStipple();
     }
 
   if (this->Lighting) // fixed-pipeline

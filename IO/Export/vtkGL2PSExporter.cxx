@@ -79,6 +79,8 @@ vtkGL2PSExporter::vtkGL2PSExporter()
   this->OcclusionCull = 1;
   this->Write3DPropsAsRasterImage = 0;
   this->TextAsPath = false;
+  this->PointSizeFactor = 5.f / 7.f;
+  this->LineWidthFactor = 5.f / 7.f;
 }
 
 vtkGL2PSExporter::~vtkGL2PSExporter()
@@ -144,6 +146,9 @@ void vtkGL2PSExporter::WriteData()
   // Setup the helper class.
   vtkGL2PSUtilities::SetRenderWindow(this->RenderWindow);
   vtkGL2PSUtilities::SetTextAsPath(this->TextAsPath != 0);
+  vtkGL2PSUtilities::SetPointSizeFactor(this->PointSizeFactor);
+  vtkGL2PSUtilities::SetLineWidthFactor(this->LineWidthFactor);
+  vtkGL2PSUtilities::StartExport();
 
   // Store the "properly" rendered image's pixel data for special actors that
   // need to copy bitmaps into the output (e.g. paraview's scalar bar actor)
@@ -291,6 +296,7 @@ void vtkGL2PSExporter::WriteData()
   delete[] fName;
 
   vtkDebugMacro(<<"Finished writing file using GL2PS");
+  vtkGL2PSUtilities::FinishExport();
 }
 
 int vtkGL2PSExporter::GetGL2PSOptions()
