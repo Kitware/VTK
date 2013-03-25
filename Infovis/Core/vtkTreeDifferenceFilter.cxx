@@ -183,7 +183,7 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree *tree1, vtkTree *tree2)
     edgeId2 = tree2->GetEdgeId(tree2->GetParent(vertexId2), vertexId2);
     this->EdgeMap[edgeId1] = edgeId2;
 
-    // descend the tree until we reach the root, mapping parent vertices to
+    // ascend the tree until we reach the root, mapping parent vertices to
     // each other along the way.
     while (tree1->GetParent(vertexId1) != root1 &&
            tree2->GetParent(vertexId2) != root2)
@@ -227,8 +227,8 @@ void vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
     dataName = "EdgeData";
     }
 
-  vtkDoubleArray *arrayToCompare1 = vtkDoubleArray::SafeDownCast(
-    treeData1->GetAbstractArray(this->ComparisonArrayName));
+  vtkDataArray *arrayToCompare1 =
+    treeData1->GetArray(this->ComparisonArrayName);
   if (arrayToCompare1 == NULL)
     {
     vtkErrorMacro("tree #1's " << dataName <<
@@ -236,8 +236,8 @@ void vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
     return;
     }
 
-  vtkDoubleArray *arrayToCompare2 = vtkDoubleArray::SafeDownCast(
-    treeData2->GetAbstractArray(this->ComparisonArrayName));
+  vtkDataArray *arrayToCompare2 =
+    treeData2->GetArray(this->ComparisonArrayName);
   if (arrayToCompare2 == NULL)
     {
     vtkErrorMacro("tree #2's " << dataName <<
@@ -271,7 +271,7 @@ void vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
       treeId2 = this->EdgeMap[treeId1];
       }
     double result =
-      arrayToCompare1->GetValue(treeId1) - arrayToCompare2->GetValue(treeId2);
+      arrayToCompare1->GetTuple1(treeId1) - arrayToCompare2->GetTuple1(treeId2);
     resultArray->SetValue(treeId1, result);
     }
 
@@ -282,4 +282,8 @@ void vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
 void vtkTreeDifferenceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "IdArrayName: " << this->IdArrayName << endl;
+  os << indent << "ComparisonArrayName: " << this->ComparisonArrayName << endl;
+  os << indent << "OutputArrayName: " << this->OutputArrayName << endl;
+  os << indent << "ComparisonArrayIsVertexData: " << this->ComparisonArrayIsVertexData << endl;
 }
