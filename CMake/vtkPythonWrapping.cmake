@@ -30,6 +30,8 @@ function(vtk_add_python_wrapping module_name)
   set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})
 
   # Figure out the dependent PythonXYD libraries for the module
+  unset(extra_links)
+  set(EXTRA_PYTHON_INCLUDE_DIRS ${${module_name}_PYTHON_INCLUDE_DIRS})
   foreach(dep ${${module_name}_DEPENDS})
     if(NOT "${module_name}" STREQUAL "${dep}" AND TARGET ${dep}PythonD)
       list(APPEND extra_links ${dep}PythonD)
