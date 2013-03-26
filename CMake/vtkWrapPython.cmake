@@ -257,6 +257,9 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
   else()
     set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
   endif()
+  if(EXTRA_PYTHON_INCLUDE_DIRS)
+    list(APPEND TMP_INCLUDE_DIRS ${EXTRA_PYTHON_INCLUDE_DIRS})
+  endif()
 
   # collect the common wrapper-tool arguments
   set(_common_args)

@@ -5,8 +5,8 @@ get_property(VTK_PYTHON_MODULES GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
 
 # Get the include directories for the module and all its dependencies.
 macro(vtk_include_recurse module)
-  _vtk_module_config_recurse("py" ${module})
-  include_directories(${py_INCLUDE_DIRS})
+  _vtk_module_config_recurse("${module}_PYTHON" ${module})
+  include_directories(${${module}_PYTHON_INCLUDE_DIRS})
 endmacro()
 
 # Loop through all modules that should be wrapped, and wrap them.
