@@ -147,6 +147,11 @@ SET(Module_SRCS
   vtkSparseArray.txx
   vtkTypedArray.txx
   vtkTypeTemplate.h
+  vtkType.h
+  vtkSystemIncludes.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
 
 set(${vtk-module}_HDRS
@@ -167,9 +172,7 @@ set(${vtk-module}_HDRS
   vtkNew.h
   vtkSetGet.h
   vtkSmartPointer.h
-  vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
-  vtkType.h
   vtkTypeTraits.h
   vtkVariantCast.h
   vtkVariantCreate.h
@@ -178,10 +181,7 @@ set(${vtk-module}_HDRS
   vtkWeakPointer.h
   vtkWin32Header.h
   vtkWindows.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
 
 if(vtkCommonDataModel_ENABLED)
@@ -508,7 +508,7 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*")
   set(KIT_LIBS ${KIT_LIBS} socket nsl)
 endif()
 
-vtk_module_library(vtkCommonCore ${Module_SRCS} ${${vtk-module}_HDRS})
+vtk_module_library(vtkCommonCore ${Module_SRCS})
 
 target_link_libraries(vtkCommonCore ${CMAKE_THREAD_LIBS_INIT})
 set_target_properties(vtkCommonCore PROPERTIES LINK_INTERFACE_LIBRARIES "")
