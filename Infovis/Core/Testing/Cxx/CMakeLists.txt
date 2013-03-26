@@ -12,6 +12,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestCollapseVerticesByArray.cxx
   # TestConvexHull2D.cxx          # todo (unsatisfied deps)
   TestDataObjectToTable.cxx
+  TestExtractSelectedTree.cxx
   TestExtractSelectedGraph.cxx
   TestGraphAlgorithms.cxx
   TestMergeGraphs.cxx

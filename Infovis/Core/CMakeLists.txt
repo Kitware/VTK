@@ -6,6 +6,7 @@ set(Module_SRCS
   vtkCollapseGraph.cxx
   vtkCollapseVerticesByArray.cxx
   vtkDataObjectToTable.cxx
+  vtkExtractSelectedTree.cxx
   vtkEdgeCenters.cxx
   vtkExpandSelectedGraph.cxx
   vtkExtractSelectedGraph.cxx
