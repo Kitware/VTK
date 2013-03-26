@@ -58,12 +58,6 @@ vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPoi
   B[3] = A[0]*M[12] + A[1]*M[13] + A[2]*M[14] + M[15]; \
   if ( B[3] != 1.0 ) { B[0] /= B[3]; B[1] /= B[3]; B[2] /= B[3]; }
 
-#define vtkVRCMultiplyViewPointMacro( A, B, M ) \
-  B[0] = A[0]*M[0]  + A[1]*M[1]  + A[2]*M[2]  + M[3]; \
-  B[1] = A[0]*M[4]  + A[1]*M[5]  + A[2]*M[6]  + M[7]; \
-  B[3] = A[0]*M[12] + A[1]*M[13] + A[2]*M[14] + M[15]; \
-  if ( B[3] != 1.0 ) { B[0] /= B[3]; B[1] /= B[3]; }
-
 #define vtkVRCMultiplyNormalMacro( A, B, M ) \
   B[0] = A[0]*M[0]  + A[1]*M[4]  + A[2]*M[8]; \
   B[1] = A[0]*M[1]  + A[1]*M[5]  + A[2]*M[9]; \
