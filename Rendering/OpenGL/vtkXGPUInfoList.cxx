@@ -78,7 +78,7 @@ void vtkXGPUInfoList::Probe()
                 ramSize=0;
                 }
               vtkGPUInfo *info=vtkGPUInfo::New();
-              info->SetDedicatedVideoMemory(ramSize*1024); // ramSize is in KB
+              info->SetDedicatedVideoMemory(static_cast<vtkIdType>(ramSize)*1024); // ramSize is in KB
               this->Array->v[j]=info;
               ++j;
               }
