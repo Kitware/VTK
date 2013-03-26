@@ -263,15 +263,11 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
+  vtkCellType.h
   vtkColor.h
   vtkRect.h
   vtkVector.h
   PROPERTIES WRAP_SPECIAL 1
-  )
-
-set_source_files_properties(
-  vtkCellType.h
-  PROPERTIES WRAP_HEADER 1
   )
 
 vtk_module_library(vtkCommonDataModel ${Module_SRCS})
