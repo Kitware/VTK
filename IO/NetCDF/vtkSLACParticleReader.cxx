@@ -101,10 +101,6 @@ static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[],
 #define nc_get_vars_vtkIdType nc_get_vars_int
 #endif // VTK_USE_64BIT_IDS
 
-//=============================================================================
-#define MY_MIN(x, y)    ((x) < (y) ? (x) : (y))
-#define MY_MAX(x, y)    ((x) < (y) ? (y) : (x))
-
 // //=============================================================================
 // static int NetCDFTypeToVTKType(nc_type type)
 // {
