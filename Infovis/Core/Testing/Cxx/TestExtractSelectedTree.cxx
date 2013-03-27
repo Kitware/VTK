@@ -98,8 +98,8 @@ int TestExtractSelectedTree(int, char*[])
       }
     else
       {
-      vtkStringArray * a = vtkStringArray::SafeDownCast(vertexData->GetAbstractArray("node name"));
-      vtkStdString n = a->GetValue(4);
+      vtkStringArray * nodename = vtkStringArray::SafeDownCast(vertexData->GetAbstractArray("node name"));
+      vtkStdString n = nodename->GetValue(4);
       if (n.compare("d") != 0)
         {
         std::cerr <<"The node name should be \'d\', but appear to be: "<< n.c_str() << std::endl;
