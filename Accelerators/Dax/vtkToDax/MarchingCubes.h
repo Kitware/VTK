@@ -27,7 +27,7 @@
 #include <daxToVtk/DataSetConverters.h>
 
 #include <dax/cont/Scheduler.h>
-#include <dax/cont/ScheduleGenerateTopology.h>
+#include <dax/cont/GenerateInterpolatedCells.h>
 #include <dax/worklet/MarchingCubes.h>
 
 namespace
@@ -47,15 +47,12 @@ namespace vtkToDax
     template<class InGridType,
              class OutGridType,
              typename ValueType,
-             typename TriangleValueType,
              class Container1,
-             class Container2,
              class Adapter>
     int operator()(const InGridType &,
                    OutGridType &,
                    ValueType,
-                   const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &,
-                   dax::cont::ArrayHandle<TriangleValueType,Container2,Adapter> &)
+                   const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &)
       {
       return 0;
       }
@@ -66,16 +63,13 @@ namespace vtkToDax
     template<class InGridType,
              class OutGridType,
              typename ValueType,
-             typename TriangleValueType,
              class Container1,
-             class Container2,
              class Adapter>
     int operator()(
         const InGridType &inGrid,
         OutGridType &outGeom,
         ValueType isoValue,
-        const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &mcHandle,
-        dax::cont::ArrayHandle<TriangleValueType,Container2,Adapter> &mcResult)
+        const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &mcHandle)
       {
       int result=1;
 
@@ -83,9 +77,13 @@ namespace vtkToDax
 
       try
         {
-        typedef dax::cont::ScheduleGenerateTopology
-          <dax::worklet::MarchingCubesTopology,Adapter> ScheduleGT;
-        typedef typename ScheduleGT::ClassifyResultType  ClassifyResultType;
+        //we don't want to use the custom container, so specify the default
+        //container for the classification storage.
+        typedef dax::cont::ArrayHandle<dax::Id,
+                                      DAX_DEFAULT_ARRAY_CONTAINER_CONTROL_TAG,
+                                      Adapter> ClassifyResultType;
+        typedef dax::cont::GenerateInterpolatedCells<dax::worklet::MarchingCubesTopology,
+                ClassifyResultType > GenerateIC;
 
         // construct the scheduler that will execute all the worklets
         dax::cont::Scheduler<Adapter> scheduler;
@@ -104,16 +102,14 @@ namespace vtkToDax
                          classification);
 
         // construct the topology generation worklet
-        ScheduleGT generate(classification,generateWorklet);
-        generate.SetRemoveDuplicatePoints(false);
+        GenerateIC generate(classification,generateWorklet);
+        generate.SetRemoveDuplicatePoints(true);
 
         // run the second step
         scheduler.Invoke(generate,
                          inGrid,
                          outGeom,
-                         mcHandle,
-                         inGrid.GetPointCoordinates(),
-                         mcResult);
+                         mcHandle);
         }
       catch(dax::cont::ErrorControlOutOfMemory error)
         {
@@ -176,32 +172,20 @@ namespace vtkToDax
       //are. We don't need the points container be
       typedef daxToVtk::CellTypeToType<OutCellType> VTKCellType;
       dax::cont::UnstructuredGrid<OutCellType,
-                vtkToDax::vtkTopologyContainerTag<VTKCellType> > resultGrid;
+                vtkToDax::vtkTopologyContainerTag<VTKCellType>,
+                vtkToDax::vtkPointsContainerTag > resultGrid;
 
       InputDataSetType inputDaxData = vtkToDax::dataSetConverter(&dataSet,
                                                     DataSetTypeToTypeStruct());
-
-
-      //schedule marching cubes worklet generate step, saving
-      //the coordinates into outputHandle. In our case we want the output
-      //handle to point to a container whose storage is a vtkPoints class
-
-      typedef dax::Tuple<dax::Vector3,3> TriCoordinatesType;
-      dax::cont::ArrayHandle<TriCoordinatesType,
-                             vtkToDax::vtkTrianglesContainerTag> outputHandle;
 
       vtkToDax::DoMarchingCubes<DataSetTypeToTypeStruct::Valid> mc;
       int result = mc(inputDaxData,
                       resultGrid,
                       this->Value,
-                      this->Field,
-                      outputHandle);
+                      this->Field);
       if(result==1)
         {
-
-        daxToVtk::dataSetConverter(resultGrid,
-                                   outputHandle,
-                                   this->Result);
+        daxToVtk::dataSetConverter(resultGrid,this->Result);
         }
 
       return result;

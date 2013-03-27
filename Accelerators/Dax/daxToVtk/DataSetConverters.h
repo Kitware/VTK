@@ -96,11 +96,9 @@ inline void dataSetConverter(dax::cont::UnstructuredGrid<CellType,TopoTag,PointT
 }
 
 //convert a vtkUnstructuredGrid to vtk
-template<typename CellType, typename TopoTag, typename PointTag,
-         typename ArrayHandle>
+template<typename CellType, typename TopoTag, typename PointTag>
 inline void dataSetConverter(
   dax::cont::UnstructuredGrid<CellType,TopoTag,PointTag>& grid,
-  ArrayHandle& coordinates,
   vtkPolyData* output)
 {
   //get the vtk cell type we are extracting
@@ -113,7 +111,7 @@ inline void dataSetConverter(
   daxToVtk::writeCellTags<CellTypeToType<CellType> >(cells);
   output->SetPolys(cells);
 
-  vtkPoints *p = coordinates.GetPortalControl().Get();
+  vtkPoints *p = grid.GetPointCoordinates().GetPortalControl().Get();
   output->SetPoints(p);
 }
 

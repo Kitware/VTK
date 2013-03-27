@@ -25,7 +25,7 @@
 #include <daxToVtk/DataSetConverters.h>
 
 #include <dax/cont/Scheduler.h>
-#include <dax/cont/ScheduleGenerateTopology.h>
+#include <dax/cont/GenerateTopology.h>
 #include <dax/worklet/Threshold.h>
 
 namespace
@@ -82,8 +82,13 @@ namespace vtkToDax
       int result=1;
       try
         {
-        typedef dax::cont::ScheduleGenerateTopology<dax::worklet::ThresholdTopology,Adapter> ScheduleGT;
-        typedef typename ScheduleGT::ClassifyResultType  ClassifyResultType;
+        //we don't want to use the custom container, so specify the default
+        //container for the classification storage.
+        typedef dax::cont::ArrayHandle<dax::Id,
+                                      DAX_DEFAULT_ARRAY_CONTAINER_CONTROL_TAG,
+                                      Adapter> ClassifyResultType;
+        typedef dax::cont::GenerateTopology<dax::worklet::ThresholdTopology,
+                                            ClassifyResultType> ScheduleGT;
         typedef dax::worklet::ThresholdClassify<ValueType> ThresholdClassifyType;
 
         ClassifyResultType classification;
