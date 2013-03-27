@@ -3709,8 +3709,8 @@ YY_BUFFER_STATE yy_scan_string (yyconst char * yystr )
 
 /** Setup the input buffer state to scan the given bytes. The next call to yylex() will
  * scan from a @e copy of @a bytes.
- * @param bytes the byte buffer to scan
- * @param len the number of bytes in the buffer pointed to by @a bytes.
+ * @param yybytes the byte buffer to scan
+ * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
  *
  * @return the newly allocated buffer state object.
  */
@@ -3815,7 +3815,6 @@ char *yyget_text  (void)
 }
 
 /** Set the current line number.
- * @param line_number
  *
  */
 void yyset_lineno (int  line_number )
