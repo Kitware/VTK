@@ -89,7 +89,7 @@ int vtkExtractSelectedTree::BuildTree( vtkTree * inputTree, vtkIdTypeArray * sel
   //Add selected vertices and set up a  map between the input tree vertex id
   //and the output tree vertex id
   vtksys_stl::map<vtkIdType, vtkIdType> vertexMap;
-  for (unsigned int j = 0;j < selectedVerticesList->GetNumberOfTuples();j++)
+  for (vtkIdType j = 0; j < selectedVerticesList->GetNumberOfTuples();j++)
     {
     vtkIdType inVert = selectedVerticesList->GetValue(j);
     vtkIdType outVert = builder->AddVertex();
