@@ -1186,7 +1186,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
 
   // The base of the current line, and temp vars for line offsets and origins
   int pen[2] = {0, 0};
-  int offset[2] = {0, 0};
+  double offset[2] = {0., 0.};
   int origin[2] = {0, 0};
 
   // Initialize bbox
@@ -1225,9 +1225,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
     metaData.bbox[3] = std::max(metaData.bbox[3], metrics.ymax + origin[1]);
 
     // Calculate offset of next line
-    offset[0] = 0;
-    offset[1] = -std::ceil(metaData.height *
-                           metaData.textProperty->GetLineSpacing());
+    offset[0] = 0.;
+    offset[1] = -(metaData.height * metaData.textProperty->GetLineSpacing());
 
     // Update pen position
     pen[0] += vtkMath::Floor(c * offset[0] - s * offset[1] + 0.5);
