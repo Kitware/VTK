@@ -310,28 +310,30 @@ foreach(t Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 Float32 Float64)
   endif()
 endforeach()
 
-# Figure out if the C99 isnan, isinf, and isfinite functions/macros are present.
+# look for various headers and functions
 include(CheckSymbolExists)
-include(CheckFunctionExists)
 include(CheckIncludeFile)
 
-# Check float.h too, as a fallback.
-if(NOT HAVE_FLOAT_H)
-  check_include_file("float.h" HAVE_FLOAT_H)
+# Check C++ <cmath> first, where the C++11 standard says these must be.
+check_symbol_exists(std::isnan "cmath" VTK_HAS_STD_ISNAN)
+check_symbol_exists(std::isinf "cmath" VTK_HAS_STD_ISINF)
+check_symbol_exists(std::isfinite "cmath" VTK_HAS_STD_ISFINITE)
+
+# Check C99 <math.h> next, where the C99 standard says these must be.
+# (they will be found even if they are defined as macros)
+check_symbol_exists(isnan "math.h" VTK_HAS_ISNAN)
+check_symbol_exists(isinf "math.h" VTK_HAS_ISINF)
+check_symbol_exists(isfinite "math.h" VTK_HAS_ISFINITE)
+
+# Check for finite() which is widespread, though non-standard.
+check_symbol_exists(finite "math.h" VTK_HAS_FINITE)
+
+# Check float.h last, where Windows keeps its underscore versions.
+if(NOT VTK_HAS_ISNAN AND NOT VTK_HAS_STD_ISNAN)
+  check_symbol_exists(_isnan "float.h" VTK_HAS__ISNAN)
 endif()
-if(HAVE_FLOAT_H)
-  check_symbol_exists(isnan "float.h" VTK_HAS_ISNAN)
-  if(NOT VTK_HAS_ISNAN)
-    check_symbol_exists(_isnan "float.h" VTK_HAS__ISNAN)
-  endif()
-  check_symbol_exists(isinf "float.h" VTK_HAS_ISINF)
-  if(NOT VTK_HAS_ISINF)
-    check_function_exists(_isinf "float.h" VTK_HAS__ISINF)
-  endif()
-  check_symbol_exists(isfinite "float.h" VTK_HAS_ISFINITE)
-  if(NOT VTK_HAS_ISFINITE)
-    check_function_exists(_isfinite "float.h" VTK_HAS__ISFINITE)
-  endif()
+if(NOT VTK_HAS_FINITE AND NOT VTK_HAS_ISFINITE AND NOT VTK_HAS_STD_ISFINITE)
+  check_symbol_exists(_finite "float.h" VTK_HAS__FINITE)
 endif()
 
 configure_file(
