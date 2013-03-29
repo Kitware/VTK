@@ -66,6 +66,8 @@ int TestContextGL2PS( int, char *[] )
   exp->CompressOff();
   exp->SetSortToOff();
   exp->DrawBackgroundOn();
+  exp->SetLineWidthFactor(1.0);
+  exp->SetPointSizeFactor(1.0);
 
   std::string fileprefix = vtkTestingInteractor::TempDirectory +
       std::string("/TestContextGL2PS");

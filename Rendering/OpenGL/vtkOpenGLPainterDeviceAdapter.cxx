@@ -26,6 +26,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLGL2PSHelper.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkRenderer.h"
 #include "vtkgl.h"
@@ -1064,6 +1065,7 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(bool mode)
     glGetFloatv(GL_POINT_SIZE, &s);
     this->PointSize = s;
     glPointSize(4.0); //make verts large enough to be sure to overlap cell
+    vtkOpenGLGL2PSHelper::SetPointSize(4.0);
 
     float nf[2];   //put verts just in front of associated cells
     glGetFloatv(GL_DEPTH_RANGE, nf);
@@ -1075,6 +1077,7 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(bool mode)
   else
     {
     glPointSize(static_cast<GLfloat>(this->PointSize));
+    vtkOpenGLGL2PSHelper::SetPointSize(static_cast<GLfloat>(this->PointSize));
     glDepthRange(this->RangeNear, this->RangeFar);
     glDepthMask(GL_TRUE);
     }

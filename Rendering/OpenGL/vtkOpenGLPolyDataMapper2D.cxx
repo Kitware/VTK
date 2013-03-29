@@ -17,6 +17,7 @@
 #include "vtkActor2D.h"
 #include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkOpenGLGL2PSHelper.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
@@ -260,6 +261,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   // Set the PointSize
   glPointSize(actor->GetProperty()->GetPointSize());
+  vtkOpenGLGL2PSHelper::SetPointSize(actor->GetProperty()->GetPointSize());
 
   double *dptr;
   aPrim = input->GetVerts();
@@ -294,6 +296,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   // Set the LineWidth
   glLineWidth(actor->GetProperty()->GetLineWidth());
+  vtkOpenGLGL2PSHelper::SetLineWidth(actor->GetProperty()->GetLineWidth());
 
   // Set the LineStipple
   if (actor->GetProperty()->GetLineStipplePattern() != 0xFFFF)
@@ -301,10 +304,12 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(actor->GetProperty()->GetLineStippleRepeatFactor(),
                   actor->GetProperty()->GetLineStipplePattern());
+    vtkOpenGLGL2PSHelper::EnableStipple();
     }
   else
     {
     glDisable(GL_LINE_STIPPLE);
+    vtkOpenGLGL2PSHelper::DisableStipple();
     }
 
   aPrim = input->GetLines();

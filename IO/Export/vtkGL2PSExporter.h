@@ -268,6 +268,16 @@ public:
   void SetRasterExclusions(vtkPropCollection*);
   vtkGetObjectMacro(RasterExclusions, vtkPropCollection);
 
+  // Description:
+  // Set the ratio between the OpenGL PointSize and that used by GL2PS
+  // to generate PostScript.  Defaults to a ratio of 5/7.
+  vtkSetNGetMacro(PointSizeFactor, float)
+
+  // Description:
+  // Set the ratio between the OpenGL LineWidth and that used by GL2PS
+  // to generate PostScript.  Defaults to a ratio of 5/7.
+  vtkSetNGetMacro(LineWidthFactor, float)
+
 protected:
   vtkGL2PSExporter();
   ~vtkGL2PSExporter();
@@ -333,6 +343,8 @@ protected:
   int OcclusionCull;
   int Write3DPropsAsRasterImage;
   bool TextAsPath;
+  float PointSizeFactor;
+  float LineWidthFactor;
 
   vtkNew<vtkImageData> PixelData;
 

@@ -20,6 +20,7 @@
 #include "vtkMathTextUtilities.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLGL2PSHelper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkPath.h"
 #include "vtkPen.h"
@@ -35,7 +36,6 @@ vtkStandardNewMacro(vtkGL2PSContextDevice2D)
 //-----------------------------------------------------------------------------
 vtkGL2PSContextDevice2D::vtkGL2PSContextDevice2D()
 {
-  this->StippleOn = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -268,13 +268,15 @@ void vtkGL2PSContextDevice2D::ApplyPen(vtkPen *pen)
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::SetPointSize(float size)
 {
-  gl2psPointSize(size);
+  glPointSize(size);
+  vtkOpenGLGL2PSHelper::SetPointSize(size);
 }
 
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::SetLineWidth(float width)
 {
-  gl2psLineWidth(width);
+  glLineWidth(width);
+  vtkOpenGLGL2PSHelper::SetLineWidth(width);
 }
 
 //-----------------------------------------------------------------------------
@@ -283,13 +285,13 @@ void vtkGL2PSContextDevice2D::SetLineType(int type)
   // Must call gl2psEnable(GL_LINE_STIPPLE) after glLineStipple. Let the
   // superclass handle setting the stipple type:
   this->Superclass::SetLineType(type);
-  if (type == vtkPen::SOLID_LINE && this->StippleOn)
+  if (type == vtkPen::SOLID_LINE)
     {
-    gl2psDisable(GL2PS_LINE_STIPPLE);
+    vtkOpenGLGL2PSHelper::DisableStipple();
     }
-  else if (!this->StippleOn)
+  else
     {
-    gl2psEnable(GL2PS_LINE_STIPPLE);
+    vtkOpenGLGL2PSHelper::EnableStipple();
     }
 }
 
@@ -664,6 +666,4 @@ void vtkGL2PSContextDevice2D::TransformPath(vtkPath *path)
 void vtkGL2PSContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "StippleOn: " << this->StippleOn << endl;
 }
