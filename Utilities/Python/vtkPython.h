@@ -68,7 +68,15 @@ To avoid re-definitions warnings, ensure "vtkPython.h" is included
 before _any_ headers that define feature macros, whether or not
 they are system headers.  Do NOT add any #undef lines here.  */
 
+#if defined(_MSC_VER)
+# pragma warning (push, 1)
+#endif
+
 #include <Python.h>
+
+#if defined(_MSC_VER)
+# pragma warning (pop)
+#endif
 
 #ifdef VTK_PYTHON_UNDEF_DEBUG
 # define _DEBUG
