@@ -34,6 +34,7 @@ set(Module_SRCS
   vtkThresholdTable.cxx
   vtkTransposeMatrix.cxx
   vtkTreeFieldAggregator.cxx
+  vtkTreeDifferenceFilter.cxx
   vtkTreeLevelsFilter.cxx
   vtkVertexDegree.cxx
   vtkRemoveHiddenData.cxx

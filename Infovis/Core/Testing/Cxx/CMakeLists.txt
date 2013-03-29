@@ -22,6 +22,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestStreamGraph.cxx
   TestTableToArray.cxx
   TestThresholdTable.cxx
+  TestTreeDifferenceFilter.cxx
   # TestTimePoint.cxx             # deprecated dep
 
   EXTRA_INCLUDE vtkTestDriver.h
