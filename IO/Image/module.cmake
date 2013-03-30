@@ -20,6 +20,7 @@ vtk_module(vtkIOImage
     vtkTestingCore
     vtkImagingSources
     vtkImagingMath
+    vtkInteractionStyle
     vtkRenderingContext2D
     vtkRenderingCore
     vtkTestingCore
