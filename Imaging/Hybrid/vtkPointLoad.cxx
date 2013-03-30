@@ -174,9 +174,9 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformatio
         if ( rho < 1.0e-10 )
           {
           vtkWarningMacro(<<"Attempting to set singularity, resetting");
-          tensor[0] = VTK_LARGE_FLOAT; // Component(0,0)
-          tensor[4] = VTK_LARGE_FLOAT; // Component(1,1);
-          tensor[8] = VTK_LARGE_FLOAT; // Component(2,2);
+          tensor[0] = VTK_FLOAT_MAX; // Component(0,0)
+          tensor[4] = VTK_FLOAT_MAX; // Component(1,1);
+          tensor[8] = VTK_FLOAT_MAX; // Component(2,2);
           tensor[3] = 0.0; // Component(0,1);
           tensor[6] = 0.0; // Component(0,2);
           tensor[1] = 0.0; // Component(1,0);
@@ -184,7 +184,7 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformatio
           tensor[2] = 0.0; // Component(2,0);
           tensor[5] = 0.0; // Component(2,1);
           newTensors->InsertNextTuple(tensor);
-          double val = VTK_LARGE_FLOAT;
+          double val = VTK_FLOAT_MAX;
           newScalars->InsertTuple(pointCount,&val);
           pointCount++;
           continue;

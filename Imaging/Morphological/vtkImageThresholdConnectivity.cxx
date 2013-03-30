@@ -37,8 +37,8 @@ vtkCxxSetObjectMacro(vtkImageThresholdConnectivity, SeedPoints, vtkPoints);
 // Constructor sets default values
 vtkImageThresholdConnectivity::vtkImageThresholdConnectivity()
 {
-  this->UpperThreshold = VTK_LARGE_FLOAT;
-  this->LowerThreshold = -VTK_LARGE_FLOAT;
+  this->UpperThreshold = VTK_FLOAT_MAX;
+  this->LowerThreshold = -VTK_FLOAT_MAX;
   this->SeedPoints = 0;
   this->ReplaceIn = 0;
   this->InValue = 0.0;
@@ -102,10 +102,10 @@ void vtkImageThresholdConnectivity::SetOutValue(double val)
 // The values greater than or equal to the value match.
 void vtkImageThresholdConnectivity::ThresholdByUpper(double thresh)
 {
-  if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_LARGE_FLOAT)
+  if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_FLOAT_MAX)
     {
     this->LowerThreshold = thresh;
-    this->UpperThreshold = VTK_LARGE_FLOAT;
+    this->UpperThreshold = VTK_FLOAT_MAX;
     this->Modified();
     }
 }
@@ -116,10 +116,10 @@ void vtkImageThresholdConnectivity::ThresholdByLower(
   double thresh)
 {
   if (this->UpperThreshold != thresh ||
-      this->LowerThreshold > -VTK_LARGE_FLOAT)
+      this->LowerThreshold > -VTK_FLOAT_MAX)
     {
     this->UpperThreshold = thresh;
-    this->LowerThreshold = -VTK_LARGE_FLOAT;
+    this->LowerThreshold = -VTK_FLOAT_MAX;
     this->Modified();
     }
 }

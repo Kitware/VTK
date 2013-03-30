@@ -52,6 +52,7 @@
 #else  // DBL_EPSILON
 #  define VTK_DBL_EPSILON    DBL_EPSILON
 #endif  // DBL_EPSILON
+
 #include "vtkMathConfigure.h" // For VTK_HAS_ISINF and VTK_HAS_ISNAN
 
 #ifndef VTK_DBL_EPSILON

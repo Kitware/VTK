@@ -84,6 +84,14 @@ public:
   vtkGetVector3Macro(GridSize, unsigned int);
 
   // Description:
+  // Specify whether indexing mode of grid root cells must be transposed to
+  // x-axis first, z-axis last, instead of the default z-axis first, k-axis last
+  vtkSetMacro(TransposedRootIndexing, bool);
+  vtkGetMacro(TransposedRootIndexing, bool);
+  void SetIndexingModeToKJI();
+  void SetIndexingModeToIJK();
+
+  // Description:
   // Set/Get the subdivision factor in the grid refinement scheme
   vtkSetClampMacro(BranchFactor, unsigned int, 2, 3);
   vtkGetMacro(BranchFactor, unsigned int);
@@ -177,6 +185,7 @@ protected:
   double Origin[3];
   double GridScale[3];
   unsigned int GridSize[3];
+  bool TransposedRootIndexing;
   unsigned int MaximumLevel;
   unsigned int Dimension;
   unsigned int BranchFactor;

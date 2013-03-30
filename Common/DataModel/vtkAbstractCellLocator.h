@@ -55,7 +55,7 @@ public:
   // Default 32. Locators generally operate by subdividing space into
   // smaller regions until the number of cells in each region (or node)
   // reaches the desired level.
-  vtkSetClampMacro(NumberOfCellsPerNode,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfCellsPerNode,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfCellsPerNode,int);
 
   // Description:

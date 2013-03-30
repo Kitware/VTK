@@ -185,7 +185,7 @@ void vtkProp3DButtonRepresentation::PlaceWidget(double bds[6])
       {
       if ( (bounds[2*i+1]-bounds[2*i]) <= 0.0 || (aBds[2*i+1]-aBds[2*i]) <= 0.0 )
         {
-        s[i] = VTK_LARGE_FLOAT;
+        s[i] = VTK_FLOAT_MAX;
         }
       else
         {

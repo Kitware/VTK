@@ -31,11 +31,11 @@ vtkStandardNewMacro(vtkStructuredGridGeometryFilter);
 vtkStructuredGridGeometryFilter::vtkStructuredGridGeometryFilter()
 {
   this->Extent[0] = 0;
-  this->Extent[1] = VTK_LARGE_INTEGER;
+  this->Extent[1] = VTK_INT_MAX;
   this->Extent[2] = 0;
-  this->Extent[3] = VTK_LARGE_INTEGER;
+  this->Extent[3] = VTK_INT_MAX;
   this->Extent[4] = 0;
-  this->Extent[5] = VTK_LARGE_INTEGER;
+  this->Extent[5] = VTK_INT_MAX;
 }
 
 int vtkStructuredGridGeometryFilter::RequestData(

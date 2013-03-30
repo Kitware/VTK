@@ -51,12 +51,12 @@ public:
 
   // Description:
   // Set the number of points in radius direction.
-  vtkSetClampMacro(RadialResolution,int,1,VTK_LARGE_INTEGER)
+  vtkSetClampMacro(RadialResolution,int,1,VTK_INT_MAX)
     vtkGetMacro(RadialResolution,int);
 
   // Description:
   // Set the number of points in circumferential direction.
-  vtkSetClampMacro(CircumferentialResolution,int,3,VTK_LARGE_INTEGER)
+  vtkSetClampMacro(CircumferentialResolution,int,3,VTK_INT_MAX)
     vtkGetMacro(CircumferentialResolution,int);
 
   // Description:

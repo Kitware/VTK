@@ -139,7 +139,7 @@ void vtkProjectedTetrahedraMapperTransformPoints(const point_type *in_points,
         // A negative w probably means the point is behind the viewer.  Things
         // can get screwy if we try to inverse-project that.  Instead, just
         // set the position somewhere very far behind us.
-        out_p[2] = -VTK_LARGE_FLOAT;
+        out_p[2] = -VTK_FLOAT_MAX;
         }
       }
     }

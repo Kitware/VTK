@@ -12,6 +12,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestCollapseVerticesByArray.cxx
   # TestConvexHull2D.cxx          # todo (unsatisfied deps)
   TestDataObjectToTable.cxx
+  TestExtractSelectedTree.cxx
   TestExtractSelectedGraph.cxx
   TestGraphAlgorithms.cxx
   TestMergeGraphs.cxx
@@ -21,6 +22,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestStreamGraph.cxx
   TestTableToArray.cxx
   TestThresholdTable.cxx
+  TestTreeDifferenceFilter.cxx
   # TestTimePoint.cxx             # deprecated dep
 
   EXTRA_INCLUDE vtkTestDriver.h

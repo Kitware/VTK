@@ -335,8 +335,8 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
   for (i=this->StartComp; i <= this->EndComp; i++)
     {
     range = this->DataRange + 2*i;
-    range[0] =  VTK_LARGE_FLOAT;
-    range[1] =  -VTK_LARGE_FLOAT;
+    range[0] =  VTK_FLOAT_MAX;
+    range[1] =  -VTK_FLOAT_MAX;
     }
 
   for (i=0; i<numPts; i++)

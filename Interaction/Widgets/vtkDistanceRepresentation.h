@@ -103,7 +103,7 @@ public:
   // Description:
   // Specify the RulerDistance which indicates the spacing of the major ticks.
   // This ivar only has effect when the RulerMode is on.
-  vtkSetClampMacro(RulerDistance,double,0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(RulerDistance,double,0,VTK_FLOAT_MAX);
   vtkGetMacro(RulerDistance,double);
 
   // Description:
@@ -112,7 +112,7 @@ public:
   // specify the number of major ticks. Note: the number of ticks is the
   // number between the two handle endpoints. This ivar only has effect
   // when the RulerMode is off.
-  vtkSetClampMacro(NumberOfRulerTicks,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfRulerTicks,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfRulerTicks,int);
 
 //BTX -- used to communicate about the state of the representation

@@ -184,7 +184,7 @@ topological_sort(VTK_MODULES_ENABLED "" _DEPENDS)
 # Report what will be built.
 set(_modules_enabled_alpha "${VTK_MODULES_ENABLED}")
 list(SORT _modules_enabled_alpha)
-list(REMOVE_ITEM _modules_enabled_alpha vtkWrappingJava vtkWrappingPython)
+list(REMOVE_ITEM _modules_enabled_alpha vtkWrappingJava vtkWrappingPythonCore)
 list(LENGTH _modules_enabled_alpha _length)
 message(STATUS "Enabled ${_length} modules:")
 foreach(vtk-module ${_modules_enabled_alpha})
@@ -333,7 +333,7 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkForwardingExecutable.cmake
                 CMake/vtkJavaWrapping.cmake
                 CMake/vtkModuleAPI.cmake
-                CMake/vtkModuleClasses.cmake.in
+                CMake/vtkModuleHeaders.cmake.in
                 CMake/vtkModuleInfo.cmake.in
                 CMake/vtkModuleMacros.cmake
                 CMake/vtkObjectFactory.cxx.in

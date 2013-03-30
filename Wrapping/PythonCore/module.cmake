@@ -1,4 +1,4 @@
-vtk_module(vtkWrappingPython
+vtk_module(vtkWrappingPythonCore
   DEPENDS
     vtkPython
     vtkCommonCore

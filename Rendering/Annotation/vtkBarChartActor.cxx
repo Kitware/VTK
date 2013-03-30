@@ -112,8 +112,8 @@ vtkBarChartActor::vtkBarChartActor()
 
   this->N = 0;
   this->Heights = NULL;
-  this->MinHeight =  VTK_LARGE_FLOAT;
-  this->MaxHeight = -VTK_LARGE_FLOAT;
+  this->MinHeight =  VTK_FLOAT_MAX;
+  this->MaxHeight = -VTK_FLOAT_MAX;
 
   this->LowerLeft[0] = this->LowerLeft[1] = 0.0;
   this->UpperRight[0] = this->UpperRight[1] = 0.0;
@@ -386,8 +386,8 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
 
   // We need to loop over the field to determine the total
   this->Heights = new double[this->N];
-  this->MaxHeight = -VTK_LARGE_FLOAT;
-  this->MinHeight =  VTK_LARGE_FLOAT;
+  this->MaxHeight = -VTK_FLOAT_MAX;
+  this->MinHeight =  VTK_FLOAT_MAX;
   for (i=0; i<this->N; i++)
     {
     v = fabs(da->GetComponent(i,this->ComponentNumber));

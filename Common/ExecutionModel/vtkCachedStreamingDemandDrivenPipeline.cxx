@@ -280,7 +280,7 @@ int vtkCachedStreamingDemandDrivenPipeline
   int result = this->Superclass::ExecuteData(request, inInfoVec, outInfoVec);
 
   // then save the newly generated data
-  unsigned long bestTime = VTK_LARGE_INTEGER;
+  unsigned long bestTime = VTK_INT_MAX;
   int bestIdx = 0;
 
   // Save the image in cache.

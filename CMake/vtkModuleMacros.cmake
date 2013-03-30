@@ -184,15 +184,15 @@ macro(vtk_module_export_info)
   endif()
 endmacro()
 
-# Export data from a module such as name, include directory and class level
+# Export data from a module such as name, include directory and header level
 # information useful for wrapping.
 function(vtk_module_export sources)
   vtk_module_export_info()
-  # Now iterate through the classes in the module to get class level information.
+  # Now iterate through the headers in the module to get header level information.
   foreach(arg ${sources})
     get_filename_component(src "${arg}" ABSOLUTE)
 
-    string(REGEX REPLACE "\\.(cxx|mm)$" ".h" hdr "${src}")
+    string(REGEX REPLACE "\\.(cxx|txx|mm)$" ".h" hdr "${src}")
     if("${hdr}" MATCHES "\\.h$")
       if(EXISTS "${hdr}")
         get_filename_component(_filename "${hdr}" NAME)
@@ -203,29 +203,29 @@ function(vtk_module_export sources)
         get_source_file_property(_wrap_special ${src} WRAP_SPECIAL)
 
         if(_wrap_special OR NOT _wrap_exclude)
-          list(APPEND vtk-module-CLASSES ${_cls})
+          list(APPEND vtk-module-HEADERS ${_cls})
 
           if(_abstract)
             set(vtk-module-ABSTRACT
-              "${vtk-module-ABSTRACT}set(${vtk-module}_CLASS_${_cls}_ABSTRACT 1)\n")
+              "${vtk-module-ABSTRACT}set(${vtk-module}_HEADER_${_cls}_ABSTRACT 1)\n")
           endif()
 
           if(_wrap_exclude)
             set(vtk-module-WRAP_EXCLUDE
-              "${vtk-module-WRAP_EXCLUDE}set(${vtk-module}_CLASS_${_cls}_WRAP_EXCLUDE 1)\n")
+              "${vtk-module-WRAP_EXCLUDE}set(${vtk-module}_HEADER_${_cls}_WRAP_EXCLUDE 1)\n")
           endif()
 
           if(_wrap_special)
             set(vtk-module-WRAP_SPECIAL
-              "${vtk-module-WRAP_SPECIAL}set(${vtk-module}_CLASS_${_cls}_WRAP_SPECIAL 1)\n")
+              "${vtk-module-WRAP_SPECIAL}set(${vtk-module}_HEADER_${_cls}_WRAP_SPECIAL 1)\n")
           endif()
         endif()
       endif()
     endif()
   endforeach()
-  # Configure wrapping information for external wrapping of classes.
-  configure_file(${_VTKModuleMacros_DIR}/vtkModuleClasses.cmake.in
-    ${VTK_MODULES_DIR}/${vtk-module}-Classes.cmake @ONLY)
+  # Configure wrapping information for external wrapping of headers.
+  configure_file(${_VTKModuleMacros_DIR}/vtkModuleHeaders.cmake.in
+    ${VTK_MODULES_DIR}/${vtk-module}-Headers.cmake @ONLY)
 endfunction()
 
 macro(vtk_module_test)
@@ -405,7 +405,7 @@ function(vtk_module_library name)
   set(${vtk-module}_LIBRARIES ${vtk-module})
   vtk_module_impl()
 
-  set(vtk-module-CLASSES)
+  set(vtk-module-HEADERS)
   set(vtk-module-ABSTRACT)
   set(vtk-module-WRAP_SPECIAL)
 
@@ -419,6 +419,10 @@ function(vtk_module_library name)
       list(APPEND _hdrs "${hdr}")
     elseif("${src}" MATCHES "\\.txx$" AND EXISTS "${src}")
       list(APPEND _hdrs "${src}")
+      string(REGEX REPLACE "\\.txx$" ".h" hdr "${src}")
+      if("${hdr}" MATCHES "\\.h$" AND EXISTS "${hdr}")
+        list(APPEND _hdrs "${hdr}")
+      endif()
     endif()
   endforeach()
   list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h")

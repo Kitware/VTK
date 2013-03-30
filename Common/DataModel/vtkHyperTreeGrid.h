@@ -85,6 +85,16 @@ public:
   vtkGetVector3Macro(GridSize, unsigned int);
 
   // Description:
+  // Specify whether indexing mode of grid root cells must be transposed to
+  // x-axis first, z-axis last, instead of the default z-axis first, k-axis last
+  vtkSetMacro(TransposedRootIndexing, bool);
+  vtkGetMacro(TransposedRootIndexing, bool);
+  void SetIndexingModeToKJI()
+    { this->SetTransposedRootIndexing( false ); }
+  void SetIndexingModeToIJK()
+    { this->SetTransposedRootIndexing( true ); }
+
+  // Description:
   // Set/Get the subdivision factor in the grid refinement scheme
   // NB: Can only be 2 or 3
   void SetBranchFactor( unsigned int );
@@ -95,10 +105,6 @@ public:
   // NB: Can only be 1, 2 or 3
   void SetDimension( unsigned int );
   vtkGetMacro(Dimension, unsigned int);
-
-  // Description:
-  // Get number of root cells
-  vtkGetMacro(NumberOfRoots, unsigned int);
 
   // Description:
   // Return the number of cells in the dual grid.
@@ -324,7 +330,7 @@ protected:
 
   unsigned int Dimension;    // 1, 2 or 3.
   unsigned int GridSize[3];
-  unsigned int NumberOfRoots;
+  bool TransposedRootIndexing;
   unsigned int BranchFactor;
   unsigned int NumberOfChildren;
 

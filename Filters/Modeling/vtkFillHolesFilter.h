@@ -54,7 +54,7 @@ public:
   // to the bounding circumsphere containing the hole.  Note that this is an
   // approximate area; the actual area cannot be computed without first
   // triangulating the hole.
-  vtkSetClampMacro(HoleSize, double, 0.0, VTK_LARGE_FLOAT);
+  vtkSetClampMacro(HoleSize, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(HoleSize, double);
 
 protected:

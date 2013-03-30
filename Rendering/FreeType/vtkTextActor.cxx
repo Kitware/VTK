@@ -638,16 +638,21 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     // compute TCoords.
     vtkFloatArray* tc = vtkFloatArray::SafeDownCast
       ( this->Rectangle->GetPointData()->GetTCoords() );
+    float tcXMax, tcYMax;
+    // Add a fudge factor to the texture coordinates to prevent the top
+    // row of pixels from being truncated on some systems.
+    tcXMax = std::min(1.0f, (dims[0] + 0.001f) / static_cast<float>(p2dims[0]));
+    tcYMax = std::min(1.0f, (dims[1] + 0.001f) / static_cast<float>(p2dims[1]));
     tc->InsertComponent(0, 0, 0.0);
     tc->InsertComponent(0, 1, 0.0);
 
     tc->InsertComponent(1, 0, 0.0);
-    tc->InsertComponent(1, 1, dims[1] / static_cast<float>(p2dims[1]));
+    tc->InsertComponent(1, 1, tcYMax);
 
-    tc->InsertComponent(2, 0, dims[0] / static_cast<float>(p2dims[0]));
-    tc->InsertComponent(2, 1, dims[1] / static_cast<float>(p2dims[1]));
+    tc->InsertComponent(2, 0, tcXMax);
+    tc->InsertComponent(2, 1, tcYMax);
 
-    tc->InsertComponent(3, 0, dims[0] / static_cast<float>(p2dims[0]));
+    tc->InsertComponent(3, 0, tcXMax);
     tc->InsertComponent(3, 1, 0.0);
     }
   else

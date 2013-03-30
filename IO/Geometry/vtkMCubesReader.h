@@ -77,7 +77,7 @@ public:
 
   // Description:
   // Specify a header size if one exists. The header is skipped and not used at this time.
-  vtkSetClampMacro(HeaderSize,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(HeaderSize,int,0,VTK_INT_MAX);
   vtkGetMacro(HeaderSize,int);
 
   // Description:

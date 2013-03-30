@@ -35,7 +35,7 @@ public:
 
   // Description:
   // Set radius of earth.
-  vtkSetClampMacro(Radius,double,0.0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(Radius,double,0.0,VTK_FLOAT_MAX);
   vtkGetMacro(Radius,double);
 
   // Description:

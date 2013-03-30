@@ -57,7 +57,7 @@ public:
   // children per tree node. Smaller values (minimum is 2) mean deeper
   // trees and more memory overhead. Larger values mean shallower
   // trees, less memory usage, but worse performance.
-  vtkSetClampMacro(BranchingFactor,int,2,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(BranchingFactor,int,2,VTK_INT_MAX);
   vtkGetMacro(BranchingFactor,int);
 
   // Description:
@@ -67,7 +67,7 @@ public:
 
   // Description:
   // Set the maximum allowable level for the tree.
-  vtkSetClampMacro(MaxLevel,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(MaxLevel,int,1,VTK_INT_MAX);
   vtkGetMacro(MaxLevel,int);
 
   // Description:

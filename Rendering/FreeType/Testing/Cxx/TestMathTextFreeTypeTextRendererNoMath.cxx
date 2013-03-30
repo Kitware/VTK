@@ -121,6 +121,18 @@ int TestMathTextFreeTypeTextRendererNoMath(int , char *[])
   actor8->SetInput(str.c_str());
   actor8->SetPosition(500, 200);
 
+  // Numbers, using courier, Text that gets 'cut off'
+  vtkNew<vtkTextActor> actor9;
+  actor9->GetTextProperty()->SetFontSize(21);
+  actor9->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
+  actor9->GetTextProperty()->SetJustificationToCentered();
+  actor9->GetTextProperty()->SetVerticalJustificationToCentered();
+  actor9->GetTextProperty()->SetBold(1);
+  actor9->GetTextProperty()->SetItalic(1);
+  actor9->GetTextProperty()->SetFontFamilyToCourier();
+  actor9->SetInput("4.0");
+  actor9->SetPosition(500, 400);
+
   // Boring rendering setup....
 
   vtkNew<vtkRenderer> ren;
@@ -139,6 +151,7 @@ int TestMathTextFreeTypeTextRendererNoMath(int , char *[])
   ren->AddActor(actor6.GetPointer());
   ren->AddActor(actor7.GetPointer());
   ren->AddActor(actor8.GetPointer());
+  ren->AddActor(actor9.GetPointer());
 
   win->SetMultiSamples(0);
   win->Render();

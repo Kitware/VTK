@@ -280,6 +280,11 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
       return(LP);
     }
 
+"("{PS}("__cdecl"|"__clrcall"|"__stdcall"|"__fastcall"|"__thiscall"){PS}"*" {
+      yylval.str = "";
+      return(LP);
+    }
+
 "("{PS}("APIENTRY"|"CALLBACK"|"WINAPI"){PS}"*" {
       yylval.str = "";
       return(LP);

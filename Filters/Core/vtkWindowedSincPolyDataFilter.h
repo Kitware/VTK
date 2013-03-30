@@ -157,7 +157,7 @@ public:
   // Description:
   // Specify the number of iterations (or degree of the polynomial
   // approximating the windowed sinc function).
-  vtkSetClampMacro(NumberOfIterations,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfIterations,int,0,VTK_INT_MAX);
   vtkGetMacro(NumberOfIterations,int);
 
   // Description:

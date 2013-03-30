@@ -230,14 +230,14 @@ public:
   // when the camera is being rotated, or zoomed.  When the interactor is
   // still, the StillUpdateRate is used instead.
   // The default is 15.
-  vtkSetClampMacro(DesiredUpdateRate,double,0.0001,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(DesiredUpdateRate,double,0.0001,VTK_FLOAT_MAX);
   vtkGetMacro(DesiredUpdateRate,double);
 
   // Description:
   // Set/Get the desired update rate when movement has stopped.
   // For the non-still update rate, see the SetDesiredUpdateRate method.
   // The default is 0.0001
-  vtkSetClampMacro(StillUpdateRate,double,0.0001,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(StillUpdateRate,double,0.0001,VTK_FLOAT_MAX);
   vtkGetMacro(StillUpdateRate,double);
 
   // Description:
@@ -301,7 +301,7 @@ public:
 
   // Description:
   // Set the number of frames to fly to when FlyTo is invoked.
-  vtkSetClampMacro(NumberOfFlyFrames,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfFlyFrames,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfFlyFrames,int);
 
   // Description:

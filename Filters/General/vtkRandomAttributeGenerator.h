@@ -77,7 +77,7 @@ public:
   // attribute types that take a variable number of components. For example, a vector
   // is only three components so the number of components is not applicable; whereas
   // a scalar may support multiple, varying number of components.
-  vtkSetClampMacro(NumberOfComponents,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfComponents,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfComponents,int);
 
   // Description:
@@ -98,7 +98,7 @@ public:
   // Specify the number of tuples to generate. This value only applies when creating
   // general field data. In all other cases (i.e., point data or cell data), the number
   // of tuples is controlled by the number of points and cells, respectively.
-  vtkSetClampMacro(NumberOfTuples,vtkIdType,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfTuples,vtkIdType,0,VTK_INT_MAX);
   vtkGetMacro(NumberOfTuples,vtkIdType);
 
   // Description:

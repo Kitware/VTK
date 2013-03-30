@@ -118,7 +118,7 @@ public:
   // Set/Get the maximum number of scalar bar segments to show. This may
   // differ from the number of colors in the lookup table, in which case
   // the colors are samples from the lookup table.
-  vtkSetClampMacro(MaximumNumberOfColors, int, 2, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(MaximumNumberOfColors, int, 2, VTK_INT_MAX);
   vtkGetMacro(MaximumNumberOfColors, int);
 
   // Description:
