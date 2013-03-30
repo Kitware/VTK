@@ -2329,12 +2329,12 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
    ***          Macros                 ***
    ***************************************/
 
+  // local arrays allocation
+#ifdef __CUDACC__
+
 // ensure a maximum alignment of arrays
 #define ROUND_SIZE(n) (n)
   //( (n+sizeof(REAL)-1) & ~(sizeof(REAL)-1) )
-
-  // local arrays allocation
-#ifdef __CUDACC__
 
 #define ALLOC_LOCAL_ARRAY(name,type,n)          \
   type * name = (type*)sdata;                   \
