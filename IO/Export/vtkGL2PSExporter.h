@@ -271,12 +271,14 @@ public:
   // Description:
   // Set the ratio between the OpenGL PointSize and that used by GL2PS
   // to generate PostScript.  Defaults to a ratio of 5/7.
-  vtkSetNGetMacro(PointSizeFactor, float)
+  vtkSetMacro(PointSizeFactor, float);
+  vtkGetMacro(PointSizeFactor, float);
 
   // Description:
   // Set the ratio between the OpenGL LineWidth and that used by GL2PS
   // to generate PostScript.  Defaults to a ratio of 5/7.
-  vtkSetNGetMacro(LineWidthFactor, float)
+  vtkSetMacro(LineWidthFactor, float);
+  vtkGetMacro(LineWidthFactor, float);
 
 protected:
   vtkGL2PSExporter();

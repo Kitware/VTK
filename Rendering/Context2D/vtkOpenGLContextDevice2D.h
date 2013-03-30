@@ -88,7 +88,8 @@ public:
   // Adjust the size of the MarkerCache. This implementation generates point
   // sprites for each mark size/shape and uses DrawPointSprites to render them.
   // The number of cached markers can be accessed with this function.
-  vtkSetNGetMacro(MaximumMarkerCacheSize, int)
+  vtkSetMacro(MaximumMarkerCacheSize, int)
+  vtkGetMacro(MaximumMarkerCacheSize, int)
 
   // Description:
   // Draws a rectangle

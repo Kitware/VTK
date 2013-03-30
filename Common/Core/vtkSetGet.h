@@ -63,22 +63,6 @@
 "Undefined"))))))))))))))))))))))
 
 //
-// Set built-in type. Creates member Set"name"() & Get"name"()
-// Note: This method can be used by objects that do not inherit
-// by vtkObject.
-//
-#define vtkSetNGetMacro(name,type) \
-virtual void Set##name( type _arg ) \
-  { \
-    this->name = _arg; \
-  } \
-virtual type Get##name( ) \
-  { \
-    return this->name; \
-  }
-
-
-//
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
 //
 #define vtkSetMacro(name,type) \
