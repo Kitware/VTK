@@ -139,11 +139,6 @@ private:
 // Array that is indexed starting from 1.
 class tableVert {
 public:
-  tableVert()
-    {
-    this->_array = 0;
-    }
-
   tableVert(int n)
     {
     this->_array = vtkIntArray::New();
@@ -163,37 +158,6 @@ public:
       this->_array->Delete();
       this->_array = 0;
       }
-    }
-
-  int getArraySize()
-    {
-    if(this->_array)
-      {
-      return(this->_array->GetNumberOfTuples());
-      }
-    return(0);
-    }
-
-  void setNewArray(int n)
-    {
-    if(this->_array)
-      {
-      this->_array->Delete();
-      }
-    this->_array = vtkIntArray::New();
-    this->_array->SetNumberOfTuples(n);
-    }
-
-  int operator[]( int idx ) const
-    {
-    if(idx < 1 || idx > this->_array->GetNumberOfTuples())
-      {
-      cerr << "Read Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
-      cerr << "Array index out out bounds in tableVert operator [], index: " << idx << endl;
-      return(this->_array->GetValue(0));
-      }
-
-    return(this->_array->GetValue(vtkIdType(idx - 1)));
     }
 
   int& operator[]( int idx )
@@ -218,18 +182,6 @@ public:
   tableDeg()
     {
     this->_array = 0;
-    }
-
-  tableDeg(int n)
-    {
-    this->_array = vtkIntArray::New();
-    this->_array->SetNumberOfTuples(n);
-    }
-
-  tableDeg(vtkIntArray* a)
-    {
-    this->_array = a;
-    this->_array->Register(this->_array);
     }
 
   ~tableDeg()
@@ -258,18 +210,6 @@ public:
       }
     this->_array = vtkIntArray::New();
     this->_array->SetNumberOfTuples(n);
-    }
-
-  int operator[]( int idx ) const
-    {
-    if(idx < 0 || idx >= this->_array->GetNumberOfTuples())
-      {
-      cerr << "Read Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
-      cerr << "Array index out out bounds in tableDeg operator [], index: " << idx << endl;
-      return(this->_array->GetValue(0));
-      }
-
-    return(this->_array->GetValue(vtkIdType(idx)));
     }
 
   int& operator[]( int idx )
