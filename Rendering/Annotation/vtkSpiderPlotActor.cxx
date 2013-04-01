@@ -441,7 +441,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
   // Note: numComponents also includes the non-numeric arrays.
 
   int numColumns = 0; //number of "columns" -- includes only numeric arrays.
-  vtkIdType numRows = VTK_LARGE_ID; //figure out number of rows
+  vtkIdType numRows = VTK_ID_MAX; //figure out number of rows
   vtkIdType numTuples;
   vtkDataArray *array;
   for (i=0; i<field->GetNumberOfArrays(); i++)
@@ -470,7 +470,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     this->N = numRows;
     }
 
-  if ( this->N <= 0 || this->N >= VTK_LARGE_ID )
+  if ( this->N <= 0 || this->N >= VTK_ID_MAX )
     {
     this->N = 0;
     vtkErrorMacro(<<"No field data to plot");

@@ -1205,7 +1205,7 @@ double vtkDataArray::GetDataTypeMax(int type)
 #endif
     case VTK_FLOAT:              return static_cast<double>(VTK_FLOAT_MAX);
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MAX);
-    case VTK_ID_TYPE:            return static_cast<double>(VTK_LARGE_ID);
+    case VTK_ID_TYPE:            return static_cast<double>(VTK_ID_MAX);
     default: return 1;
     }
 }

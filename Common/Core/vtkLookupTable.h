@@ -243,7 +243,7 @@ public:
   // SetNumberOfTableValues() instead, it can be used both before and
   // after the table has been built whereas SetNumberOfColors() has no
   // effect after the table has been built.
-  vtkSetClampMacro(NumberOfColors,vtkIdType,2,VTK_LARGE_ID);
+  vtkSetClampMacro(NumberOfColors,vtkIdType,2,VTK_ID_MAX);
   vtkGetMacro(NumberOfColors,vtkIdType);
 
   // Description:

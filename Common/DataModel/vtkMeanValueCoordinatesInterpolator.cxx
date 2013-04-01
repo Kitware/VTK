@@ -83,7 +83,7 @@ public:
         }
       else
         {
-        this->CurrentPolygonSize = VTK_LARGE_ID;
+        this->CurrentPolygonSize = VTK_ID_MAX;
         }
       return this->Current;
     }

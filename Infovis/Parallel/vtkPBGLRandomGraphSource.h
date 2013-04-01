@@ -48,13 +48,13 @@ public:
   // Description:
   // The number of vertices in the graph.
   vtkGetMacro(NumberOfVertices, vtkIdType);
-  vtkSetClampMacro(NumberOfVertices, vtkIdType, 0, VTK_LARGE_ID);
+  vtkSetClampMacro(NumberOfVertices, vtkIdType, 0, VTK_ID_MAX);
 
   // Description:
   // If UseEdgeProbability is off, creates a graph with the specified number
   // of edges.  Duplicate (parallel) edges are allowed.
   vtkGetMacro(NumberOfEdges, vtkIdType);
-  vtkSetClampMacro(NumberOfEdges, vtkIdType, 0, VTK_LARGE_ID);
+  vtkSetClampMacro(NumberOfEdges, vtkIdType, 0, VTK_ID_MAX);
 
   // Description:
   // If UseEdgeProbability is on, adds an edge with this probability between 0 and 1

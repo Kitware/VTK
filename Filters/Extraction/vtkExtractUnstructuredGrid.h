@@ -71,22 +71,22 @@ public:
 
   // Description:
   // Specify the minimum point id for point id selection.
-  vtkSetClampMacro(PointMinimum,vtkIdType,0,VTK_LARGE_ID);
+  vtkSetClampMacro(PointMinimum,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(PointMinimum,vtkIdType);
 
   // Description:
   // Specify the maximum point id for point id selection.
-  vtkSetClampMacro(PointMaximum,vtkIdType,0,VTK_LARGE_ID);
+  vtkSetClampMacro(PointMaximum,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(PointMaximum,vtkIdType);
 
   // Description:
   // Specify the minimum cell id for point id selection.
-  vtkSetClampMacro(CellMinimum,vtkIdType,0,VTK_LARGE_ID);
+  vtkSetClampMacro(CellMinimum,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(CellMinimum,vtkIdType);
 
   // Description:
   // Specify the maximum cell id for point id selection.
-  vtkSetClampMacro(CellMaximum,vtkIdType,0,VTK_LARGE_ID);
+  vtkSetClampMacro(CellMaximum,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(CellMaximum,vtkIdType);
 
   // Description:

@@ -33,7 +33,7 @@ vtkMaskPoints::vtkMaskPoints()
   this->OnRatio = 2;
   this->Offset = 0;
   this->RandomMode = 0;
-  this->MaximumNumberOfPoints = VTK_LARGE_ID;
+  this->MaximumNumberOfPoints = VTK_ID_MAX;
   this->GenerateVertices = 0;
   this->SingleVertexPerCell = 0;
   this->RandomModeType = 0;

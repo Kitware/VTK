@@ -1689,7 +1689,7 @@ void vtkXYPlotActor::ComputeDORange( double xrange[2], double yrange[2],
     field = dobj->GetFieldData();
     numColumns = field->GetNumberOfComponents();  //number of "columns"
     // numColumns includes the components for non-numeric arrays as well.
-    for ( numRows = VTK_LARGE_ID, i=0; i<field->GetNumberOfArrays(); i++)
+    for ( numRows = VTK_ID_MAX, i=0; i<field->GetNumberOfArrays(); i++)
       {
       array = field->GetArray( i );
       if (!array )
@@ -2050,7 +2050,7 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
       field = dobj->GetFieldData();
       numColumns = field->GetNumberOfComponents(); //number of "columns"
       // numColumns also includes non-numeric array components.
-      for ( numRows = VTK_LARGE_ID, i=0; i<field->GetNumberOfArrays(); i++)
+      for ( numRows = VTK_ID_MAX, i=0; i<field->GetNumberOfArrays(); i++)
         {
         array = field->GetArray( i );
         if (!array )
