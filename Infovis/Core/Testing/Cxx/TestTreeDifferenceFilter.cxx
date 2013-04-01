@@ -86,6 +86,7 @@ int TestTreeDifferenceFilter(int, char*[])
   tree2->ShallowCopy(graph2.GetPointer());
 
   vtkNew<vtkTreeDifferenceFilter> filter;
+  filter->Print(std::cout);
   filter->SetInputDataObject(0, tree1.GetPointer());
   filter->SetInputDataObject(1, tree2.GetPointer());
   filter->SetIdArrayName("node name");
