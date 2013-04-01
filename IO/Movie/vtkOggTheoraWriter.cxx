@@ -420,13 +420,13 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData *id,
     for (x = 0; x < static_cast<size_t>(this->Dim[0]); ++x)
       {
       // do the actual transformation
-      *Y  = uchar((Kr * rgb[0] + Kg * rgb[1] + Kb *rgb[2]) *ExcurY ) + OffY;
+      *Y  = uchar((Kr * rgb[0] + Kg * rgb[1] + Kb *rgb[2]) *ExcurY  + OffY);
       if (!this->Writer->GetSubsampling())
         {
         *Cb = uchar((Kr   * rgb[0] + Kg * rgb[1] + Kbm1 * rgb[2]) /
-            (2 * Kbm1) * ExcurCb) + OffCb;
+            (2 * Kbm1) * ExcurCb + OffCb);
         *Cr = uchar((Krm1 * rgb[0] + Kg * rgb[1] + Kb   * rgb[2]) /
-            (2 * Krm1) * ExcurCr) + OffCr;
+            (2 * Krm1) * ExcurCr + OffCr);
         }
       else
         {
@@ -452,9 +452,9 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData *id,
               (2 * Krm1) * ExcurCr) + OffCr;
 #else
           *Cb = uchar((Kr   * rgb[0] + Kg * rgb[1] + Kbm1 * rgb[2]) /
-              (2 * Kbm1) * ExcurCb) + OffCb;
+              (2 * Kbm1) * ExcurCb + OffCb);
           *Cr = uchar((Krm1 * rgb[0] + Kg * rgb[1] + Kb   * rgb[2]) /
-              (2 * Krm1) * ExcurCr) + OffCr;
+              (2 * Krm1) * ExcurCr + OffCr);
 #endif
           }
         }
