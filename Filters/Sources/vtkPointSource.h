@@ -39,7 +39,7 @@ public:
 
   // Description:
   // Set the number of points to generate.
-  vtkSetClampMacro(NumberOfPoints,vtkIdType,1,VTK_LARGE_ID);
+  vtkSetClampMacro(NumberOfPoints,vtkIdType,1,VTK_ID_MAX);
   vtkGetMacro(NumberOfPoints,vtkIdType);
 
   // Description:

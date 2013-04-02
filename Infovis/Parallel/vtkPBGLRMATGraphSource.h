@@ -88,7 +88,7 @@ public:
   // Creates a graph with the specified number of edges. Duplicate
   // (parallel) edges are allowed.
   vtkGetMacro(NumberOfEdges, vtkIdType);
-  vtkSetClampMacro(NumberOfEdges, vtkIdType, 0, VTK_LARGE_ID);
+  vtkSetClampMacro(NumberOfEdges, vtkIdType, 0, VTK_ID_MAX);
 
   // Description:
   // Set the quadrant probabilities A, B, C, D. Requires that

@@ -1173,7 +1173,7 @@ double vtkDataArray::GetDataTypeMin(int type)
 #endif
     case VTK_FLOAT:              return static_cast<double>(VTK_FLOAT_MIN);
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MIN);
-    case VTK_ID_TYPE:            return static_cast<double>(-VTK_LARGE_ID-1);
+    case VTK_ID_TYPE:            return static_cast<double>(VTK_ID_MIN);
     default: return 0;
     }
 }
@@ -1205,7 +1205,7 @@ double vtkDataArray::GetDataTypeMax(int type)
 #endif
     case VTK_FLOAT:              return static_cast<double>(VTK_FLOAT_MAX);
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MAX);
-    case VTK_ID_TYPE:            return static_cast<double>(VTK_LARGE_ID);
+    case VTK_ID_TYPE:            return static_cast<double>(VTK_ID_MAX);
     default: return 1;
     }
 }

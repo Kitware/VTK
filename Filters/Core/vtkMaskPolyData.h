@@ -41,7 +41,7 @@ public:
 
   // Description:
   // Start with this entity (cell).
-  vtkSetClampMacro(Offset,vtkIdType,0,VTK_LARGE_ID);
+  vtkSetClampMacro(Offset,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(Offset,vtkIdType);
 
 protected:

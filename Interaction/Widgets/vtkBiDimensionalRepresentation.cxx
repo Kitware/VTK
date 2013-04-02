@@ -56,7 +56,7 @@ vtkBiDimensionalRepresentation::vtkBiDimensionalRepresentation()
   this->LabelFormat = new char[6];
   sprintf(this->LabelFormat,"%s","%0.3g");
 
-  this->ID = VTK_LARGE_ID;
+  this->ID = VTK_ID_MAX;
   this->IDInitialized = 0;
 
   this->ShowLabelAboveWidget = 1;
