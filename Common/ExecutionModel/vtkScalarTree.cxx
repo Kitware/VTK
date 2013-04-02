@@ -48,10 +48,3 @@ void vtkScalarTree::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Build Time: " << this->BuildTime.GetMTime() << "\n";
 }
-
-//----------------------------------------------------------------------------
-void vtkScalarTree::ReportReferences(vtkGarbageCollector* collector)
-{
-  this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->DataSet, "DataSet");
-}

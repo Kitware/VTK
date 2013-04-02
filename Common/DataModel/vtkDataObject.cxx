@@ -505,18 +505,6 @@ void vtkDataObject::ReleaseData()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}
-
-//----------------------------------------------------------------------------
 unsigned long vtkDataObject::GetUpdateTime()
 {
   return this->UpdateTime.GetMTime();
@@ -629,14 +617,6 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 void vtkDataObject::Crop(const int*)
 {
 }
-
-//----------------------------------------------------------------------------
-void vtkDataObject::ReportReferences(vtkGarbageCollector* collector)
-{
-  this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->Information, "Information");
-}
-
 
 //----------------------------------------------------------------------------
 vtkDataObject* vtkDataObject::GetData(vtkInformation* info)

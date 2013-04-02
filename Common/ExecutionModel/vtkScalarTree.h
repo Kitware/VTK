@@ -84,8 +84,6 @@ protected:
   vtkTimeStamp BuildTime; //time at which tree was built
   double       ScalarValue; //current scalar value for traversal
 
-  virtual void ReportReferences(vtkGarbageCollector*);
-
 private:
   vtkScalarTree(const vtkScalarTree&);  // Not implemented.
   void operator=(const vtkScalarTree&);  // Not implemented.

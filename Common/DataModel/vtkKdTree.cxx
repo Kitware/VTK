@@ -4614,14 +4614,6 @@ void vtkKdTree::PrintTiming(ostream& os, vtkIndent )
   vtkTimerLog::DumpLogWithIndents(&os, 0.0f);
 }
 
-//---------------------------------------------------------------------------
-void vtkKdTree::ReportReferences(vtkGarbageCollector *collector)
-{
-  this->Superclass::ReportReferences(collector);
-
-  vtkGarbageCollectorReport(collector, this->DataSets, "DataSets");
-}
-
 //----------------------------------------------------------------------------
 void vtkKdTree::UpdateProgress(double amt)
 {
