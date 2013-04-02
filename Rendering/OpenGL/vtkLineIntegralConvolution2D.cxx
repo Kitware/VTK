@@ -117,51 +117,6 @@ static void vtkRenderQuad( double vTCoords[4], double licTCoords[4],
 
 #define RENDERQUAD vtkRenderQuad( vTCoords, licTCoords, outWidth, outHeight );
 
-#define UNIFORM1i(name, val)\
-{\
-  int uvar=shaderProg->GetUniformLocation(name);\
-  vtkGraphicErrorMacro(context, "Get uniform " name);\
-  if(uvar==-1)\
-    {\
-    vtkErrorMacro(<< name << " is not a uniform variable.");\
-    }\
-  else\
-    {\
-    vtkgl::Uniform1i(uvar, val);\
-    vtkGraphicErrorMacro(context, "Setting " name);\
-    }\
-}
-
-#define UNIFORM1f(name, val)\
-{\
-  int uvar=shaderProg->GetUniformLocation(name);\
-  vtkGraphicErrorMacro(context, "Get uniform " name);\
-  if(uvar==-1)\
-    {\
-    vtkErrorMacro(<< name << " is not a uniform variable.");\
-    }\
-  else\
-    {\
-    vtkgl::Uniform1f(uvar, val);\
-    vtkGraphicErrorMacro(context, "Setting " name);\
-    }\
-}
-
-#define UNIFORM2f(name, val0, val1)\
-{\
-  int uvar=shaderProg->GetUniformLocation(name);\
-  vtkGraphicErrorMacro(context, "Get uniform " name);\
-  if(uvar==-1)\
-    {\
-    vtkErrorMacro(<< name << " is not a uniform variable.");\
-    }\
-  else\
-    {\
-    vtkgl::Uniform2f(uvar, val0, val1);\
-    vtkGraphicErrorMacro(context, "Setting " name);\
-    }\
-}
-
 // ----------------------------------------------------------------------------
 vtkLineIntegralConvolution2D::vtkLineIntegralConvolution2D()
 {

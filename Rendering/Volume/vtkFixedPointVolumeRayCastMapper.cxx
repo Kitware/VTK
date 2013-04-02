@@ -51,31 +51,12 @@
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
-// Macro for tri-linear interpolation - do four linear interpolations on
-// edges, two linear interpolations between pairs of edges, then a final
-// interpolation between faces
-#define vtkTrilinFuncMacro(v,x,y,z,a,b,c,d,e,f,g,h)         \
-        t00 =   a + (x)*(b-a);      \
-        t01 =   c + (x)*(d-c);      \
-        t10 =   e + (x)*(f-e);      \
-        t11 =   g + (x)*(h-g);      \
-        t0  = t00 + (y)*(t01-t00);  \
-        t1  = t10 + (y)*(t11-t10);  \
-        v   =  t0 + (z)*(t1-t0);
-
-
 #define vtkVRCMultiplyPointMacro( A, B, M ) \
   B[0] = A[0]*M[0]  + A[1]*M[1]  + A[2]*M[2]  + M[3]; \
   B[1] = A[0]*M[4]  + A[1]*M[5]  + A[2]*M[6]  + M[7]; \
   B[2] = A[0]*M[8]  + A[1]*M[9]  + A[2]*M[10] + M[11]; \
   B[3] = A[0]*M[12] + A[1]*M[13] + A[2]*M[14] + M[15]; \
   if ( B[3] != 1.0 ) { B[0] /= B[3]; B[1] /= B[3]; B[2] /= B[3]; }
-
-#define vtkVRCMultiplyViewPointMacro( A, B, M ) \
-  B[0] = A[0]*M[0]  + A[1]*M[1]  + A[2]*M[2]  + M[3]; \
-  B[1] = A[0]*M[4]  + A[1]*M[5]  + A[2]*M[6]  + M[7]; \
-  B[3] = A[0]*M[12] + A[1]*M[13] + A[2]*M[14] + M[15]; \
-  if ( B[3] != 1.0 ) { B[0] /= B[3]; B[1] /= B[3]; }
 
 #define vtkVRCMultiplyNormalMacro( A, B, M ) \
   B[0] = A[0]*M[0]  + A[1]*M[4]  + A[2]*M[8]; \

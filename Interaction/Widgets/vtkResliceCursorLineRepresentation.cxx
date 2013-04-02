@@ -405,8 +405,6 @@ void vtkResliceCursorLineRepresentation
          v[2] * (1            -    w * (l[1]*l[1] + l[0]*l[0]));
 }
 
-#define sign(x) (((x)<0) ? (-1) : (1))
-
 //----------------------------------------------------------------------
 int vtkResliceCursorLineRepresentation
 ::DisplayToReslicePlaneIntersection(

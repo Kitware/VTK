@@ -43,10 +43,6 @@
 
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
-// This is just a convenient macro for smart pointers
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 #ifndef MIN
 #define MIN(x, y)       ((x) < (y) ? (x) : (y))
 #endif

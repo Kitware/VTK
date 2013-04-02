@@ -31,6 +31,7 @@
 #include "vtkType.h"
 #include "LSDynaExport.h"
 
+#include <string.h>
 #include <stdio.h>
 #include <iostream>
 #include <string>
@@ -274,10 +275,18 @@ inline double LSDynaFamily::GetNextWordAsFloat()
   switch (this->WordSize)
     {
   case 4:
-    return double( *(float*)(&this->Chunk[ this->ChunkWord++ << 2 ]) );
+    {
+    vtkTypeFloat32 value;
+    memcpy(&value, &this->Chunk[ this->ChunkWord++ << 2 ], sizeof(value));
+    return value;
+    }
   case 8:
   default:
-    return *(double*)(&this->Chunk[ this->ChunkWord++ << 3 ]);
+    {
+    vtkTypeFloat64 value;
+    memcpy(&value, &this->Chunk[ this->ChunkWord++ << 3 ], sizeof(value));
+    return value;
+    }
     }
   }
 
@@ -291,10 +300,18 @@ inline vtkIdType LSDynaFamily::GetNextWordAsInt()
   switch (this->WordSize)
     {
   case 4:
-    return vtkIdType( *(int*)(&this->Chunk[ this->ChunkWord++ << 2 ]) );
+    {
+    vtkTypeInt32 value;
+    memcpy(&value, &this->Chunk[ this->ChunkWord++ << 2 ], sizeof(value));
+    return value;
+    }
   case 8:
   default:
-    return *(vtkIdType*)(&this->Chunk[ this->ChunkWord++ << 3 ]);
+    {
+    vtkIdType value;
+    memcpy(&value, &this->Chunk[ this->ChunkWord++ << 3 ], sizeof(value));
+    return value;
+    }
     }
   }
 

@@ -38,7 +38,6 @@
 #define ZERO_VEC(a) a[0]=0;a[1]=0;a[2]=0
 #define COPY_VEC(a,b) a[0]=b[0];a[1]=b[1];a[2]=b[2];
 #define MAX_CELL_POINTS 128
-#define MAX_FACE_POINTS 16
 #define VTK_CQS_EPSILON 1e-12
 
 

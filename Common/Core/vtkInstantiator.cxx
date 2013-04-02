@@ -112,11 +112,10 @@ vtkInstantiatorHashTable::~vtkInstantiatorHashTable()
 void vtkInstantiatorHashTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "NumberOfBuckets: " << this->NumberOfBuckets << "\n";
-  unsigned int i;
-  float avgBucketSize = 0;
-  unsigned int maxBucketSize = 0;
-  unsigned int minBucketSize = this->NumberOfClassNames;
-  for(i=0;i < this->NumberOfBuckets;++i)
+  double avgBucketSize = 0;
+  unsigned long maxBucketSize = 0;
+  unsigned long minBucketSize = this->NumberOfClassNames;
+  for(unsigned long i=0;i < this->NumberOfBuckets;++i)
     {
     avgBucketSize += this->BucketCounts[i];
     if(this->BucketCounts[i] > maxBucketSize)
@@ -124,7 +123,7 @@ void vtkInstantiatorHashTable::PrintSelf(ostream& os, vtkIndent indent)
     if(this->BucketCounts[i] < minBucketSize)
       { minBucketSize = this->BucketCounts[i]; }
     }
-  avgBucketSize /= float(this->NumberOfBuckets);
+  avgBucketSize /= double(this->NumberOfBuckets);
   os << indent << "Average Bucket Size: " << avgBucketSize << "\n";
   os << indent << "Minimum Bucket Size: " << minBucketSize << "\n";
   os << indent << "Maximum Bucket Size: " << maxBucketSize << "\n";

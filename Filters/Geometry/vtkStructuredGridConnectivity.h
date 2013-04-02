@@ -27,6 +27,11 @@
 #ifndef vtkStructuredGridConnectivity_H_
 #define vtkStructuredGridConnectivity_H_
 
+#define VTK_NO_OVERLAP      0
+#define VTK_NODE_OVERLAP    1
+#define VTK_EDGE_OVERLAP    2
+#define VTK_PARTIAL_OVERLAP 3
+
 // VTK include directives
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkAbstractGridConnectivity.h"
@@ -343,10 +348,10 @@ protected:
   // Checks if the intervals A,B overlap. The intersection of A,B is returned
   // in the overlap array and a return code is used to indicate the type of
   // overlap. The return values are defined as follows:
-  // NO_OVERLAP      0
-  // NODE_OVERLAP    1
-  // EDGE_OVERLAP    2
-  // PARTIAL_OVERLAP 3
+  // VTK_NO_OVERLAP      0
+  // VTK_NODE_OVERLAP    1
+  // VTK_EDGE_OVERLAP    2
+  // VTK_PARTIAL_OVERLAP 3
   int IntervalOverlap( int A[2], int B[2], int overlap[2] );
 
   // Description:
@@ -354,9 +359,9 @@ protected:
   // The intersection of s,S is stored in the supplied overlap array and a
   // return code is used to indicate the type of overlap. The return values
   // are defined as follows:
-  // NO_OVERLAP      0
-  // NODE_OVERLAP    1
-  // PARTIAL_OVERLAP 3
+  // VTK_NO_OVERLAP      0
+  // VTK_NODE_OVERLAP    1
+  // VTK_PARTIAL_OVERLAP 3
   int DoPartialOverlap( int s[2], int S[2], int overlap[2] );
 
   // Description:
@@ -364,9 +369,9 @@ protected:
   // overlap is returned in the provided overlap array and a return code is
   // used to indicate whether there is partial overlap or not. The return
   // values are defined as follows:
-  // NO_OVERLAP      0
-  // NODE_OVERLAP    1
-  // PARTIAL_OVERLAP 3
+  // VTK_NO_OVERLAP      0
+  // VTK_NODE_OVERLAP    1
+  // VTK_PARTIAL_OVERLAP 3
   int PartialOverlap(
       int A[2], const int CofA,
       int B[2], const int CofB,

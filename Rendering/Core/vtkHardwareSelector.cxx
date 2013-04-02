@@ -33,7 +33,6 @@
 #include <set>
 #include <map>
 
-#define TEX_UNIT_ATTRIBID 1
 #define ID_OFFSET 1
 class vtkHardwareSelector::vtkInternals
 {

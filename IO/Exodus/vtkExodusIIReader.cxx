@@ -77,8 +77,6 @@
 /// Define this to get printouts summarizing array glomming process
 #undef VTK_DBG_GLOM
 
-#define VTK_EXO_BLKSETID_NAME  "BlockId"
-
 #define VTK_EXO_FUNC(funcall,errmsg)\
   if ( (funcall) < 0 ) \
     { \

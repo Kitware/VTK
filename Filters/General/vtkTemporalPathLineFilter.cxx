@@ -218,8 +218,6 @@ TrailPointer vtkTemporalPathLineFilter::GetTrail(vtkIdType i)
   return trail;
 }
 //---------------------------------------------------------------------------
-#define vtkTTFEQUAL(p,q) (p[0]==q[0] && p[1]==q[1] && p[2]==q[2])
-//---------------------------------------------------------------------------
 void vtkTemporalPathLineFilter::IncrementTrail(
   TrailPointer trail, vtkDataSet *input, vtkIdType id)
 {
