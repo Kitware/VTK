@@ -145,14 +145,14 @@ public:
   // Description:
   // @deprecated Replaced by
   // PixelInformation* GetPixelInformation(unsigned int position[2]);
-  bool GetPixelInformation(unsigned int display_position[2],
-    int& processId, vtkIdType& attrId, vtkProp*& prop);
+  VTK_LEGACY(bool GetPixelInformation(unsigned int display_position[2],
+    int& processId, vtkIdType& attrId, vtkProp*& prop));
 
   // Description:
   // @deprecated Replaced by
   // PixelInformation* GetPixelInformation(unsigned int position[2], int maxDist);
-  bool GetPixelInformation(unsigned int display_position[2],
-    int& processId, vtkIdType& attrId, vtkProp*& prop, int maxDist);
+  VTK_LEGACY(bool GetPixelInformation(unsigned int display_position[2],
+    int& processId, vtkIdType& attrId, vtkProp*& prop, int maxDist));
 
   // Description:
   // Called by any vtkMapper or vtkProp subclass to render a composite-index.

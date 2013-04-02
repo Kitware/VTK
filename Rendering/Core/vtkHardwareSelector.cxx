@@ -564,11 +564,13 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
 }
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
   int& processid,
   vtkIdType& attrId, vtkProp*& prop,
   int maxDist)
 {
+  VTK_LEGACY_BODY(vtkHardwareSelector::GetPixelInformation, "VTK 6.0");
   PixelInformation info = this->GetPixelInformation(display_position, maxDist);
   processid = info.ProcessID;
   attrId = info.AttributeID;
@@ -580,12 +582,14 @@ bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
 bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
   int& processid, vtkIdType& attrId, vtkProp*& prop)
 {
+  VTK_LEGACY_BODY(vtkHardwareSelector::GetPixelInformation, "VTK 6.0");
   PixelInformation info = this->GetPixelInformation(display_position, 0);
   processid = info.ProcessID;
   attrId = info.AttributeID;
   prop = info.Prop;
   return info.Valid;
 }
+#endif
 
 //----------------------------------------------------------------------------
 namespace
