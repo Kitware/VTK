@@ -153,7 +153,7 @@ protected:
 
 
   // Reset the pipeline update values in the given output information object.
-  virtual void ResetPipelineInformation(int port, vtkInformation*);
+  virtual void ResetPipelineInformation(int, vtkInformation*);
 
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
