@@ -31,7 +31,7 @@
 
 // Mapping from Usage values to OpenGL values.
 
-GLenum OpenGLBufferObjectUsage[9]=
+static const GLenum OpenGLBufferObjectUsage[9]=
 {
   vtkgl::STREAM_DRAW,
   vtkgl::STREAM_READ,
@@ -44,7 +44,7 @@ GLenum OpenGLBufferObjectUsage[9]=
   vtkgl::DYNAMIC_COPY
 };
 
-const char *BufferObjectUsageAsString[9]=
+static const char *BufferObjectUsageAsString[9]=
 {
   "StreamDraw",
   "StreamRead",

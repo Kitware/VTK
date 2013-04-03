@@ -33,7 +33,7 @@
 
 // Mapping from DepthTextureCompareFunction values to OpenGL values.
 
-GLint OpenGLDepthTextureCompareFunction[8]=
+static GLint OpenGLDepthTextureCompareFunction[8]=
 {
   GL_LEQUAL,
   GL_GEQUAL,
@@ -45,7 +45,7 @@ GLint OpenGLDepthTextureCompareFunction[8]=
   GL_NEVER
 };
 
-const char *DepthTextureCompareFunctionAsString[8]=
+static const char *DepthTextureCompareFunctionAsString[8]=
 {
   "Lequal",
   "Gequal",
@@ -59,14 +59,14 @@ const char *DepthTextureCompareFunctionAsString[8]=
 
 // Mapping from DepthTextureMode values to OpenGL values.
 
-GLint OpenGLDepthTextureMode[3]=
+static GLint OpenGLDepthTextureMode[3]=
 {
   GL_LUMINANCE,
   GL_INTENSITY,
   GL_ALPHA
 };
 
-const char *DepthTextureModeAsString[3]=
+static const char *DepthTextureModeAsString[3]=
 {
   "Luminance",
   "Intensity",
@@ -74,7 +74,7 @@ const char *DepthTextureModeAsString[3]=
 };
 
 // Mapping from Wrap values to OpenGL values.
-GLint OpenGLWrap[5]=
+static GLint OpenGLWrap[5]=
 {
   GL_CLAMP,
   vtkgl::CLAMP_TO_EDGE,
@@ -83,7 +83,7 @@ GLint OpenGLWrap[5]=
   vtkgl::MIRRORED_REPEAT
 };
 
-const char *WrapAsString[5]=
+static const char *WrapAsString[5]=
 {
   "Clamp",
   "ClampToEdge",
@@ -93,7 +93,7 @@ const char *WrapAsString[5]=
 };
 
 // Mapping MinificationFilter values to OpenGL values.
-GLint OpenGLMinFilter[6]=
+static GLint OpenGLMinFilter[6]=
 {
   GL_NEAREST,
   GL_LINEAR,
@@ -103,7 +103,7 @@ GLint OpenGLMinFilter[6]=
   GL_LINEAR_MIPMAP_LINEAR
 };
 
-const char *MinFilterAsString[6]=
+static const char *MinFilterAsString[6]=
 {
   "Nearest",
   "Linear",
@@ -113,7 +113,7 @@ const char *MinFilterAsString[6]=
   "LinearMipmapLinear"
 };
 
-GLenum OpenGLDepthInternalFormat[5]=
+static GLenum OpenGLDepthInternalFormat[5]=
 {
   GL_DEPTH_COMPONENT,
   vtkgl::DEPTH_COMPONENT16,
@@ -122,7 +122,7 @@ GLenum OpenGLDepthInternalFormat[5]=
   vtkgl::DEPTH_COMPONENT32F,
 };
 
-const char *DepthInternalFormatFilterAsString[6]=
+static const char *DepthInternalFormatFilterAsString[6]=
 {
   "Native",
   "Fixed16",

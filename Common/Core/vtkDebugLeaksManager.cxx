@@ -24,7 +24,7 @@
 
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
-unsigned int vtkDebugLeaksManagerCount;
+static unsigned int vtkDebugLeaksManagerCount;
 
 vtkDebugLeaksManager::vtkDebugLeaksManager()
 {

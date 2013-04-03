@@ -61,7 +61,7 @@ void _OctreeNodeInsertNextPoint( vtkPoints * points, vtkIdType * pntIdx,
 typedef void ( * OCTREENODE_INSERTPOINT_FUNCTION )
   ( vtkPoints * points, vtkIdType * pntIdx, const double * coords );
 
-OCTREENODE_INSERTPOINT_FUNCTION OCTREENODE_INSERTPOINT[3] =
+static OCTREENODE_INSERTPOINT_FUNCTION OCTREENODE_INSERTPOINT[3] =
 {
   _OctreeNodeGetPointId,
   _OctreeNodeInsertPoint,

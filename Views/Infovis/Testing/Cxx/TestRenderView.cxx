@@ -65,7 +65,7 @@ private:
   vector<vtkView*> Views;
 };
 
-char RenderViewEventLog[] =
+static char RenderViewEventLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 299 49 0 0 0 0 0\n"

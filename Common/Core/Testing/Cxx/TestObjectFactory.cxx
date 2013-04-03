@@ -22,7 +22,7 @@
 #include "vtkVersion.h"
 #include "vtkPoints.h"
 
-int failed = 0;
+static int failed = 0;
 
 class vtkTestPoints : public vtkPoints
 {
