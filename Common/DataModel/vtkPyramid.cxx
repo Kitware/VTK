@@ -91,8 +91,9 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
 
   double length2 = vtkMath::Distance2BetweenPoints(apexPoint, baseMidpoint);
   // we use .001 as the relative tolerance here since that is the same
-  // that is used for the interior cell check below.
-  if(dist2 == 0. || ( length2 != 0. && dist2/length2 < .001) )
+  // that is used for the interior cell check below but we need to
+  // square it here because we're looking at dist2^2.
+  if(dist2 == 0. || ( length2 != 0. && dist2/length2 < 1.e-6) )
     {
     pcoords[0] = pcoords[1] = .5;
     pcoords[2] = 1;
