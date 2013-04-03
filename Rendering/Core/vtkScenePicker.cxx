@@ -250,7 +250,6 @@ void vtkScenePicker::Update( int displayPos[2] )
       this->LastQueriedDisplayPos[0] != displayPos[0] ||
       this->LastQueriedDisplayPos[1] != displayPos[1])
     {
-    int procid;
     this->Prop = 0;
     unsigned int dpos[2] = {0, 0};
     if (displayPos[0] >= 0 && displayPos[1] >= 0)
@@ -258,7 +257,6 @@ void vtkScenePicker::Update( int displayPos[2] )
       dpos[0] = static_cast<unsigned int>(displayPos[0]);
       dpos[1] = static_cast<unsigned int>(displayPos[1]);
       vtkHardwareSelector::PixelInformation info = this->Selector->GetPixelInformation(dpos);
-      procid = info.ProcessID;
       this->CellId = info.AttributeID;
       this->Prop = info.Prop;
       }
