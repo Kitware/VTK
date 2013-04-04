@@ -158,9 +158,9 @@ macro(vtk_module_export_info)
   set(vtk-module-EXPORT_CODE-install "${_code}${${vtk-module}_EXPORT_CODE_INSTALL}")
   if(${vtk-module}_WRAP_HINTS)
     set(vtk-module-EXPORT_CODE-build
-      "${_code}set(${vtk-module}_WRAP_HINTS \"${${vtk-module}_WRAP_HINTS}\")\n")
+      "${vtk-module-EXPORT_CODE-build}set(${vtk-module}_WRAP_HINTS \"${${vtk-module}_WRAP_HINTS}\")\n")
     set(vtk-module-EXPORT_CODE-install
-      "${_code}set(${vtk-module}_WRAP_HINTS \"\${CMAKE_CURRENT_LIST_DIR}/${vtk-module}_hints\")\n")
+      "${vtk-module-EXPORT_CODE-install}set(${vtk-module}_WRAP_HINTS \"\${CMAKE_CURRENT_LIST_DIR}/${vtk-module}_hints\")\n")
   endif()
 
   set(vtk-module-DEPENDS "${${vtk-module}_DEPENDS}")
