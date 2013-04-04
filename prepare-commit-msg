@@ -27,5 +27,4 @@ esac
 
 #-----------------------------------------------------------------------------
 # Chain to project-specific hook.
-. "$HOOKS_DIR/hooks-chain.bash"
 hooks_chain prepare-commit-msg "$@"

@@ -25,4 +25,20 @@ config=".hooks-config.bash" && test -r "$config" && . "$config"
 # Set up the location for "this" set of hooks.
 HOOKS_DIR="${BASH_SOURCE%/*}"
 
+hooks_chain() {
+	hook="$1" ; shift
+	chain=$(git config --get hooks.chain-$hook) ||
+	eval chain="\${hooks_chain_${hook//-/_}}"
+	test -n "$chain" || return 0
+	case "$chain" in
+	'/'*) prefix="" ;;
+	'[A-Za-z]:/'*) prefix="" ;;
+	'.'*) prefix="" ;;
+	*) prefix="./" ;;
+	esac
+	if test -x "$prefix$chain" ; then
+		exec "$prefix$chain" "$@"
+	fi
+}
+
 # vim: set filetype=sh tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab :
