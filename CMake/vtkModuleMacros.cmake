@@ -159,7 +159,7 @@ macro(vtk_module_export_info)
   if(${vtk-module}_WRAP_HINTS)
     set(vtk-module-EXPORT_CODE-build
       "${_code}set(${vtk-module}_WRAP_HINTS \"${${vtk-module}_WRAP_HINTS}\")\n")
-    set(vtk-module-EXPORT_CODE-build
+    set(vtk-module-EXPORT_CODE-install
       "${_code}set(${vtk-module}_WRAP_HINTS \"\${CMAKE_CURRENT_LIST_DIR}/${vtk-module}_hints\")\n")
   endif()
 
