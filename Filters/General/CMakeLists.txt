@@ -23,6 +23,7 @@ set(Module_SRCS
   vtkDataSetGradient.cxx
   vtkDataSetGradientPrecompute.cxx
   vtkDataSetTriangleFilter.cxx
+  vtkDeformPointSet.cxx
   vtkDensifyPolyData.cxx
   vtkDicer.cxx
   vtkDiscreteMarchingCubes.cxx

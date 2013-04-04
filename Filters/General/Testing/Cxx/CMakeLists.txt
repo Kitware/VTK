@@ -9,6 +9,7 @@ set(MyTests
   TestContourTriangulator.cxx
   TestContourTriangulatorCutter.cxx
   TestContourTriangulatorMarching.cxx
+  TestDeformPointSet.cxx
   TestDensifyPolyData.cxx
   TestDistancePolyDataFilter.cxx
   TestImageDataToPointSet.cxx
