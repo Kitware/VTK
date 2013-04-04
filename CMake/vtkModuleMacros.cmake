@@ -437,7 +437,17 @@ function(vtk_module_library name)
     list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Instantiator.h")
   endif()
 
-  vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS})
+  # Add the vtkWrapHierarchy custom command output to the target, if any.
+  # TODO: Re-order things so we do not need to duplicate this condition.
+  if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
+      NOT ${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY AND
+      ( VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA ))
+    set(_hierarchy ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp)
+  else()
+    set(_hierarchy "")
+  endif()
+
+  vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
   foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
     target_link_libraries(${vtk-module} ${${dep}_LIBRARIES})
   endforeach()
