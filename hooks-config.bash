@@ -40,15 +40,20 @@ hooks_chain() {
 	chain=$(git config --get hooks.chain-$hook) ||
 	chain="$(hooks_config --get hooks.chain.$hook)" ||
 	eval chain="\${hooks_chain_${hook//-/_}}"
-	test -n "$chain" || return 0
-	case "$chain" in
+	hooks_child "$chain" "$@" || exit
+}
+
+hooks_child() {
+	child="$1" ; shift
+	test -n "$child" || return 0
+	case "$child" in
 	'/'*) prefix="" ;;
 	'[A-Za-z]:/'*) prefix="" ;;
 	'.'*) prefix="" ;;
 	*) prefix="./" ;;
 	esac
-	if test -x "$prefix$chain" ; then
-		exec "$prefix$chain" "$@"
+	if test -x "$prefix$child" ; then
+		"$prefix$child" "$@"
 	fi
 }
 
