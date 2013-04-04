@@ -17,6 +17,9 @@
 
 . "${BASH_SOURCE%/*}/hooks-config.bash"
 
+# Start with project-specific hook.
+hooks_start pre-commit "$@"
+
 die() {
 	echo 'pre-commit hook failure' 1>&2
 	echo '-----------------------' 1>&2

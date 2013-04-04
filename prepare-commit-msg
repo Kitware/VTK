@@ -17,6 +17,9 @@
 
 . "${BASH_SOURCE%/*}/hooks-config.bash"
 
+# Start with project-specific hook.
+hooks_start prepare-commit-msg "$@"
+
 # Invoke the Gerrit Change-Id hook here for "git merge" because
 # it does not run the normal commit-msg hook.
 hooks_GerritId=$(git config --get hooks.GerritId)

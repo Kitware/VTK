@@ -17,6 +17,9 @@
 
 . "${BASH_SOURCE%/*}/hooks-config.bash"
 
+# Start with project-specific hook.
+hooks_start commit-msg "$@"
+
 # Prepare a copy of the message:
 #  - strip comment lines
 #  - stop at "diff --git" (git commit -v)

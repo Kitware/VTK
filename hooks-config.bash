@@ -43,6 +43,12 @@ hooks_chain() {
 	hooks_child "$chain" "$@" || exit
 }
 
+hooks_start() {
+	hook="$1" ; shift
+	start="$(hooks_config --get hooks.start.$hook)"
+	hooks_child "$start" "$@" || exit
+}
+
 hooks_child() {
 	child="$1" ; shift
 	test -n "$child" || return 0
