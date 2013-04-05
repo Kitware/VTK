@@ -465,11 +465,24 @@ function(vtk_module_library name)
   else()
     set(_hierarchy "")
   endif()
+  if(CMAKE_GENERATOR MATCHES "Visual Studio 7([^0-9]|$)" AND
+      NOT VTK_BUILD_SHARED_LIBS AND _hierarchy)
+    # For VS <= 7.1 use explicit dependencies between static libraries
+    # to tell CMake to use an ugly workaround for a VS limitation.
+    set(_help_vs7 1)
+  else()
+    set(_help_vs7 0)
+  endif()
 
   vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
   foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
     target_link_libraries(${vtk-module} ${${dep}_LIBRARIES})
+    if(_help_vs7 AND ${dep}_LIBRARIES)
+      add_dependencies(${vtk-module} ${${dep}_LIBRARIES})
+    endif()
   endforeach()
+
+  unset(_help_vs7)
 
   set(sep "")
   if(${vtk-module}_EXPORT_CODE)
