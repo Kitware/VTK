@@ -85,7 +85,7 @@ void vtkFrameBufferObject::DestroyFBO()
 bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *win)
 {
   vtkOpenGLRenderWindow *renWin=vtkOpenGLRenderWindow::SafeDownCast(win);
-  if(renWin!=0)
+  if (renWin)
     {
     vtkOpenGLExtensionManager *mgr=renWin->GetExtensionManager();
 
@@ -113,7 +113,8 @@ bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *win)
       = !(mgr->DriverIsMesa()
         && (mgr->DriverGLVersionIs(1,4)
         || (mgr->DriverVersionIs(7)
-        && mgr->DriverGLRendererIs("Software Rasterizer"))));
+        && (mgr->DriverGLRendererIs("Software Rasterizer")
+        || mgr->DriverGLRendererIs("Mesa X11")))));
 
     return tex3D && depthTex && drawBufs && fbo && fboBlit && driver;
     }
@@ -162,17 +163,6 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(vtkRenderWindow *win)
       mgr->LoadCorePromotedExtension("GL_ARB_depth_texture");
       }
 
-    /*
-    if(gl15)
-      {
-      mgr->LoadSupportedExtension("GL_VERSION_1_5");
-      }
-    else
-      {
-      mgr->LoadCorePromotedExtension("GL_ARB_occlusion_query");
-      }
-    */
-
     if(gl20)
       {
       mgr->LoadSupportedExtension("GL_VERSION_2_0");
@@ -181,7 +171,6 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(vtkRenderWindow *win)
       {
       mgr->LoadCorePromotedExtension("GL_ARB_draw_buffers");
       }
-
     mgr->LoadSupportedExtension("GL_EXT_framebuffer_object");
     mgr->LoadSupportedExtension("GL_EXT_framebuffer_blit");
     }

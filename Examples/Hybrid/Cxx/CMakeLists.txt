@@ -15,7 +15,7 @@ include_directories(
   # ImageDataLIC2DDemo and StructuredGridLIC2DDemo include
   # TestImageDataLIC2D.h  and TestStructuredGridLIC2DSlice
   # from the dir below
-  ${VTK_SOURCE_DIR}/Rendering/HybridOpenGL/Testing/Cxx
+  ${VTK_SOURCE_DIR}/Rendering/LIC/Testing/Cxx
 )
 
 set(HYBRID_EXAMPLES_SRCS

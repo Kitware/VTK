@@ -57,7 +57,6 @@ set(Module_SRCS
   vtkImageProcessingPass.cxx
   vtkLightingHelper.cxx
   vtkLightsPass.cxx
-  vtkLineIntegralConvolution2D.cxx
   vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
@@ -72,7 +71,9 @@ set(Module_SRCS
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLLight.cxx
+  vtkOpenGLLightMonitor.cxx
   vtkOpenGLLightingPainter.cxx
+  vtkOpenGLModelViewProjectionMonitor.cxx
   vtkOpenGLPainterDeviceAdapter.cxx
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
@@ -236,9 +237,6 @@ set(shader_files
   vtkGaussianBlurPassShader_fs.glsl
   vtkLighting_s.glsl # s not vs or fs because it can be used in both.
   vtkLightingHelper_s.glsl # s not vs or fs because it can be used in both.
-  vtkLineIntegralConvolution2D_fs.glsl
-  vtkLineIntegralConvolution2D_fs1.glsl
-  vtkLineIntegralConvolution2D_fs2.glsl
   vtkOpenGLRenderer_PeelingFS.glsl
   vtkOpenGLPropertyDefaultPropFunc_fs.glsl
   vtkOpenGLPropertyDefaultPropFunc_vs.glsl
