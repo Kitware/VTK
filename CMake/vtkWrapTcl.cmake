@@ -138,9 +138,8 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
       # add custom command to output
       ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx
-        DEPENDS ${VTK_WRAP_TCL_EXE} ${VTK_WRAP_HINTS} ${_args_file}
+        DEPENDS ${VTK_WRAP_TCL_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_args_file}
         ${KIT_HIERARCHY_FILE}
-        MAIN_DEPENDENCY "${TMP_INPUT}"
         COMMAND ${VTK_WRAP_TCL_EXE}
         ARGS
         ${TMP_HINTS}
