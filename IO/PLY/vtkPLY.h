@@ -207,7 +207,7 @@ public:
   static void get_binary_item(PlyFile *, int, int *, unsigned int *, double *);
   static void ascii_get_element(PlyFile *, char *);
   static void binary_get_element(PlyFile *, char *);
-  static char *my_alloc(size_t, int, const char *);
+  static void *my_alloc(size_t, int, const char *);
   static int get_prop_type(const char *);
 
 };

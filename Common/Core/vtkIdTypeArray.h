@@ -116,11 +116,11 @@ public:
 
   // Description:
   // Get the minimum data value in its native type.
-  static vtkIdType GetDataTypeValueMin() { return -VTK_LARGE_ID-1; }
+  static vtkIdType GetDataTypeValueMin() { return VTK_ID_MIN; }
 
   // Description:
   // Get the maximum data value in its native type.
-  static vtkIdType GetDataTypeValueMax() { return VTK_LARGE_ID; }
+  static vtkIdType GetDataTypeValueMax() { return VTK_ID_MAX; }
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated

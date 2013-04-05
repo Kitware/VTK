@@ -113,7 +113,7 @@ public:
   // good idea to make sure this is less than a tessellated mesh
   // at full resolution.) You need to set this value only when
   // the error measure is set to NumberOfTriangles.
-  vtkSetClampMacro(NumberOfTriangles,vtkIdType,2,VTK_LARGE_ID);
+  vtkSetClampMacro(NumberOfTriangles,vtkIdType,2,VTK_ID_MAX);
   vtkGetMacro(NumberOfTriangles,vtkIdType);
 
   // Description:

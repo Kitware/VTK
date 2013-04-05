@@ -10,16 +10,6 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     endif()
   endif()
 
-  # The shell into which nmake.exe executes the custom command has some issues
-  # with mixing quoted and unquoted arguments :( Let's help.
-  if(CMAKE_GENERATOR MATCHES "NMake Makefiles")
-    set(verbatim "")
-    set(quote "\"")
-  else()
-    set(verbatim "VERBATIM")
-    set(quote "")
-  endif()
-
   # all the include directories
   if(VTK_WRAP_INCLUDE_DIRS)
     set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
@@ -39,9 +29,8 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
 
   # write wrapper-tool arguments to a file
   string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
-  set(_args_file ${VTK_MODULES_DIR}/${TARGET}.args)
   configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                 ${_args_file} @ONLY)
+                 ${vtk-module}Hierarchy.args @ONLY)
 
   # list of all files to wrap
   set(VTK_WRAPPER_INIT_DATA)
@@ -111,14 +100,13 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   # finish the data file for the init file
   configure_file(
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
-    ${OUTPUT_DIR}/${TARGET}.data
+    ${vtk-module}Hierarchy.data
     COPY_ONLY
     IMMEDIATE
     )
 
   # search through the deps to find modules we depend on
   set(OTHER_HIERARCHY_FILES)
-  set(OTHER_HIERARCHY_TARGETS)
   # Don't use ${vtk-module}_DEPENDS. That list also includes COMPILE_DEPENDS,
   # which aren't library dependencies, merely dependencies for generators and
   # such. The dependecies specified under "DEPENDS" in the vtk_module(..) macro
@@ -126,76 +114,35 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   foreach(dep ${${vtk-module}_LINK_DEPENDS})
     if(NOT "${vtk-module}" STREQUAL "${dep}")
       if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
-        list(APPEND OTHER_HIERARCHY_FILES
-          "${quote}${${dep}_WRAP_HIERARCHY_FILE}${quote}")
-        list(APPEND OTHER_HIERARCHY_TARGETS ${dep})
+        list(APPEND OTHER_HIERARCHY_FILES "${${dep}_WRAP_HIERARCHY_FILE}")
       endif()
     endif()
   endforeach()
 
-  if(NOT CMAKE_GENERATOR MATCHES "Visual Studio.*")
-    # Build the hierarchy file when the module library is built, this
-    # ensures that the file is built when modules in other libraries
-    # need it (i.e. they depend on this module's library, but if this
-    # module's library is built, then the hierarchy file is also built).
-    add_custom_command(
-      TARGET ${vtk-module} POST_BUILD
-      COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-        "${quote}@${_args_file}${quote}"
-        "-o" "${quote}${OUTPUT_DIR}/${vtk-module}Hierarchy.txt${quote}"
-        "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
-        ${OTHER_HIERARCHY_FILES}
-
-      COMMAND ${CMAKE_COMMAND}
-        "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
-
-      COMMENT "For ${vtk-module} - updating ${vtk-module}Hierarchy.txt"
-        ${verbatim}
-      )
-
-    # Force the above custom command to execute if hierarchy tool changes
-    add_dependencies(${vtk-module} vtkWrapHierarchy)
-
-    # Add a custom-command for when the hierarchy file is needed
-    # within its own module.  A dummy target is needed because the
-    # vtkWrapHierarchy tool only changes the timestamp on the
-    # hierarchy file if the VTK hierarchy actually changes.
-    add_custom_command(
-      OUTPUT ${OUTPUT_DIR}/${TARGET}.target
-      ${OUTPUT_DIR}/${vtk-module}Hierarchy.txt
-      DEPENDS ${VTK_WRAP_HIERARCHY_EXE}
-      ${_args_file} ${OUTPUT_DIR}/${TARGET}.data ${INPUT_FILES}
-
-      COMMAND ${CMAKE_COMMAND}
-      "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
-
-      COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-      "${quote}@${_args_file}${quote}"
-      "-o" "${quote}${OUTPUT_DIR}/${vtk-module}Hierarchy.txt${quote}"
-      "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
-      ${OTHER_HIERARCHY_FILES}
-
-      COMMENT "Hierarchy Wrapping - updating ${vtk-module}Hierarchy.txt"
-      ${verbatim}
-      )
+  # Ninja does not wait for order-only dependencies before enforcing the
+  # existence of explicit dependencies that those order-only dependencies
+  # might have produced.  Specify the real output to help it out.
+  if(CMAKE_GENERATOR MATCHES "Ninja")
+    set(help_ninja ${OUTPUT_DIR}/${vtk-module}Hierarchy.txt)
   else()
-    # On Visual Studio builds, the target-timestamp trick does not work,
-    # so only build hierarchy files when library is built.
-    add_custom_command(
-      TARGET ${vtk-module} POST_BUILD
-
-      COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-      "${quote}@${_args_file}${quote}"
-      "-o" "${quote}${OUTPUT_DIR}/${vtk-module}Hierarchy.txt${quote}"
-      "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
-      ${OTHER_HIERARCHY_FILES}
-
-      COMMENT "Updating ${vtk-module}Hierarchy.txt"
-      ${verbatim}
-      )
-    # Set target-level dependencies so that everything builds in the
-    # correct order, particularly the libraries.
-    add_dependencies(${vtk-module} vtkWrapHierarchy ${OTHER_HIERARCHY_TARGETS})
+    set(help_ninja "")
   endif()
+
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp
+           ${help_ninja}
+    COMMAND ${VTK_WRAP_HIERARCHY_EXE}
+            @${vtk-module}Hierarchy.args -o ${OUTPUT_DIR}/${vtk-module}Hierarchy.txt
+            ${vtk-module}Hierarchy.data
+            ${OTHER_HIERARCHY_FILES}
+    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp
+    COMMENT "For ${vtk-module} - updating ${vtk-module}Hierarchy.txt"
+    DEPENDS ${VTK_WRAP_HIERARCHY_EXE}
+            ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.args
+            ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.data
+            ${OTHER_HIERARCHY_FILES}
+            ${INPUT_FILES}
+    VERBATIM
+    )
 
 endmacro()

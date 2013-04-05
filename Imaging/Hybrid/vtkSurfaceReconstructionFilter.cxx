@@ -515,7 +515,6 @@ void vtkSRAddOuterProduct(double **m,double *v)
 }
 
 #define VTK_NR_END 1
-#define VTK_FREE_ARG char*
 
 // allocate a float vector with subscript range v[nl..nh]
 double *vtkSRVector(long nl, long nh)
@@ -584,7 +583,6 @@ void vtkSRFreeMatrix(double **m, long nrl, long vtkNotUsed(nrh),
 }
 
 #undef VTK_NR_END
-#undef VTK_FREE_ARG
 
 
 

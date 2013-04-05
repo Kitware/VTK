@@ -615,7 +615,6 @@ static inline float erf(float x)
 /* Compute Dawson's integral as described in Numerical Recipes in C++ by
    Press, et al. */
 #define H 0.4
-#define NMAX 6
 static const float dawson_constant0 = 0.852144;
 static const float dawson_constant1 = 0.236928;
 static const float dawson_constant2 = 0.0183156;

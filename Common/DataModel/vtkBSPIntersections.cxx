@@ -48,17 +48,6 @@ if ((id < 0) || (id >= this->NumberOfRegions)) \
   return err;                                  \
   }
 
-#define REGIONIDCHECK(id)    \
-if (this->BuildRegionList()) \
-  {                          \
-  return;                    \
-  }                          \
-if ((id < 0) || (id >= this->NumberOfRegions)) \
-  {                                            \
-  vtkErrorMacro(<< "Invalid region ID");       \
-  return;                                      \
-  }
-
 //----------------------------------------------------------------------------
 
 vtkCxxSetObjectMacro(vtkBSPIntersections, Cuts, vtkBSPCuts)

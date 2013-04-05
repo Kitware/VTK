@@ -432,7 +432,7 @@ int vtkMNIObjectReader::ReadNumberOfPoints(vtkIdType *numPoints)
                     << this->FileName << ":" << this->LineNumber);
       status = 0;
       }
-    else if (*numPoints > VTK_LARGE_ID/4)
+    else if (*numPoints > VTK_ID_MAX/4)
       {
       vtkErrorMacro("Too many points -> " << *numPoints << " "
                     << this->FileName << ":" << this->LineNumber);
@@ -455,7 +455,7 @@ int vtkMNIObjectReader::ReadNumberOfCells(vtkIdType *numCells)
                     << this->FileName << ":" << this->LineNumber);
       status = 0;
       }
-    else if (*numCells > VTK_LARGE_ID/4)
+    else if (*numCells > VTK_ID_MAX/4)
       {
       vtkErrorMacro("Too many cells -> " << *numCells << " "
                     << this->FileName << ":" << this->LineNumber);

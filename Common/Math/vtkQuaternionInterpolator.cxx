@@ -18,8 +18,6 @@
 #include "vtkQuaternionInterpolator.h"
 #include <vector>
 
-#define VTKQUATERNIONINTERPOLATOR_TOLERNCE 1e-6
-
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
 //----------------------------------------------------------------------------

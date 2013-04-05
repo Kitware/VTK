@@ -37,7 +37,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkTable.h"
 #include "vtkTrivialProducer.h"
 
@@ -903,7 +903,7 @@ vtkExecutive* vtkAlgorithm::CreateDefaultExecutive()
     {
     return vtkAlgorithm::DefaultExecutivePrototype->NewInstance();
     }
-  return vtkStreamingDemandDrivenPipeline::New();
+  return vtkCompositeDataPipeline::New();
 }
 
 //----------------------------------------------------------------------------

@@ -62,8 +62,6 @@ vtkResliceCursorPicker::~vtkResliceCursorPicker()
   this->Plane->Delete();
 }
 
-#define sign(x) (((x)<0) ? (-1) : (1))
-
 //----------------------------------------------------------------------------
 int vtkResliceCursorPicker::Pick(double selectionX, double selectionY,
                            double selectionZ, vtkRenderer *renderer)

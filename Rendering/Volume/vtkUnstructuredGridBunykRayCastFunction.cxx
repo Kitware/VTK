@@ -37,8 +37,6 @@ vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
 
-#define VTK_BUNYKRCF_MAX_COMPONENTS 4
-
 template <class T>
 vtkIdType TemplateCastRay(
   const T *scalars,

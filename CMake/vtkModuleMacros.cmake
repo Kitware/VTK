@@ -156,6 +156,12 @@ macro(vtk_module_export_info)
   endif()
   set(vtk-module-EXPORT_CODE-build "${_code}${${vtk-module}_EXPORT_CODE_BUILD}")
   set(vtk-module-EXPORT_CODE-install "${_code}${${vtk-module}_EXPORT_CODE_INSTALL}")
+  if(${vtk-module}_WRAP_HINTS)
+    set(vtk-module-EXPORT_CODE-build
+      "${vtk-module-EXPORT_CODE-build}set(${vtk-module}_WRAP_HINTS \"${${vtk-module}_WRAP_HINTS}\")\n")
+    set(vtk-module-EXPORT_CODE-install
+      "${vtk-module-EXPORT_CODE-install}set(${vtk-module}_WRAP_HINTS \"\${CMAKE_CURRENT_LIST_DIR}/${vtk-module}_hints\")\n")
+  endif()
 
   set(vtk-module-DEPENDS "${${vtk-module}_DEPENDS}")
   set(vtk-module-LIBRARIES "${${vtk-module}_LIBRARIES}")
@@ -181,6 +187,19 @@ macro(vtk_module_export_info)
     install(FILES ${${vtk-module}_BINARY_DIR}/CMakeFiles/${vtk-module}.cmake
       DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
       COMPONENT Development)
+    if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING)
+      if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
+        install(FILES ${${vtk-module}_WRAP_HIERARCHY_FILE}
+          DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
+          COMPONENT Development)
+      endif()
+      if(${vtk-module}_WRAP_HINTS AND EXISTS "${${vtk-module}_WRAP_HINTS}")
+        install(FILES ${${vtk-module}_WRAP_HINTS}
+          RENAME ${vtk-module}_HINTS
+          DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
+          COMPONENT Development)
+      endif()
+    endif()
   endif()
 endmacro()
 
@@ -437,7 +456,17 @@ function(vtk_module_library name)
     list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Instantiator.h")
   endif()
 
-  vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS})
+  # Add the vtkWrapHierarchy custom command output to the target, if any.
+  # TODO: Re-order things so we do not need to duplicate this condition.
+  if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
+      NOT ${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY AND
+      ( VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA ))
+    set(_hierarchy ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp)
+  else()
+    set(_hierarchy "")
+  endif()
+
+  vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
   foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
     target_link_libraries(${vtk-module} ${${dep}_LIBRARIES})
   endforeach()

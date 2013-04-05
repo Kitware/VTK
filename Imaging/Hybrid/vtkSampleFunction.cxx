@@ -366,13 +366,16 @@ void vtkSampleFunction::Cap(vtkDataArray *s)
     }
 }
 
+#ifndef VTK_LEGACY_REMOVE
 void vtkSampleFunction::SetScalars(vtkDataArray *da)
 {
+  VTK_LEGACY_BODY(vtkSampleFunction::SetScalars, "VTK 6.0");
   if (da)
     {
     this->SetOutputScalarType(da->GetDataType());
     }
 }
+#endif
 
 void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
 {

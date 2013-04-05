@@ -38,6 +38,10 @@ function(vtk_add_python_wrapping module_name)
     endif()
   endforeach()
 
+  if(${module_name}_WRAP_HINTS AND EXISTS "${${module_name}_WRAP_HINTS}")
+    set(VTK_WRAP_HINTS "${${module_name}_WRAP_HINTS}")
+  endif()
+
   vtk_wrap_python(${module_name}Python Python_SRCS ${module_name})
   vtk_add_library(${module_name}PythonD ${Python_SRCS} ${extra_srcs})
   get_property(output_name TARGET ${module_name}PythonD PROPERTY OUTPUT_NAME)

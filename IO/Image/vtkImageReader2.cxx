@@ -839,6 +839,25 @@ void vtkImageReader2::ExecuteDataWithInformation(vtkDataObject *output,
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkImageReader2::SetMemoryBuffer(void *membuf)
+{
+  if (this->MemoryBuffer != membuf)
+    {
+    this->MemoryBuffer = membuf;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReader2::SetMemoryBufferLength(vtkIdType buflen)
+{
+  if (this->MemoryBufferLength != buflen)
+    {
+    this->MemoryBufferLength = buflen;
+    this->Modified();
+    }
+}
 
 //----------------------------------------------------------------------------
 // Set the data type of pixels in the file.

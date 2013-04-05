@@ -282,8 +282,36 @@ void vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
 void vtkTreeDifferenceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "IdArrayName: " << this->IdArrayName << endl;
-  os << indent << "ComparisonArrayName: " << this->ComparisonArrayName << endl;
-  os << indent << "OutputArrayName: " << this->OutputArrayName << endl;
-  os << indent << "ComparisonArrayIsVertexData: " << this->ComparisonArrayIsVertexData << endl;
+  if (this->IdArrayName)
+    {
+    os << indent << "IdArrayName: "
+       << this->IdArrayName << std::endl;
+    }
+  else
+    {
+    os << indent << "IdArrayName: "
+       << "(None)" << std::endl;
+    }
+  if (this->ComparisonArrayName)
+    {
+    os << indent << "ComparisonArrayName: "
+       << this->ComparisonArrayName << std::endl;
+    }
+  else
+    {
+    os << indent << "ComparisonArrayName: "
+       << "(None)" << std::endl;
+    }
+  if (this->OutputArrayName)
+    {
+    os << indent << "OutputArrayName: "
+       << this->OutputArrayName << std::endl;
+    }
+  else
+    {
+    os << indent << "OutputArrayName: "
+       << "(None)" << std::endl;
+    }
+  os << indent << "ComparisonArrayIsVertexData: "
+     << this->ComparisonArrayIsVertexData << std::endl;
 }

@@ -386,7 +386,7 @@ public:
   // ids.
   // Add new events by updating vtkAllEventsMacro.
 #define _vtk_add_event(Enum)  Enum,
-  vtkEventDeclarationMacro(EventIds);
+  vtkEventDeclarationMacro(EventIds)
 #undef _vtk_add_event
 //ETX
 

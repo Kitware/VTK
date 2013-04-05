@@ -1664,10 +1664,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #define KERNEL_DECL /* exported function */
 #endif
 
-#ifndef CONSTANT_DECL
-#define CONSTANT_DECL static const
-#endif
-
 #ifndef REAL_PRECISION
 #define REAL_PRECISION 64 /* defaults to 64 bits floating point */
 #endif
@@ -1680,10 +1676,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 #ifndef KERNEL_DECL
 #define KERNEL_DECL __global__
-#endif
-
-#ifndef CONSTANT_DECL
-#define CONSTANT_DECL __constant__
 #endif
 
 #ifndef REAL_PRECISION
@@ -2337,12 +2329,12 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
    ***          Macros                 ***
    ***************************************/
 
+  // local arrays allocation
+#ifdef __CUDACC__
+
 // ensure a maximum alignment of arrays
 #define ROUND_SIZE(n) (n)
   //( (n+sizeof(REAL)-1) & ~(sizeof(REAL)-1) )
-
-  // local arrays allocation
-#ifdef __CUDACC__
 
 #define ALLOC_LOCAL_ARRAY(name,type,n)          \
   type * name = (type*)sdata;                   \

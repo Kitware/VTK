@@ -523,8 +523,6 @@ RectangleBoundingBoxIntersection(double hmin, double hmax,
   return 1;
 }
 
-#define sameDirection(a, b) ((((a)==0) && ((b)<0)) || (((a)>0) && ((b)>0)))
-
 int vtkPointsProjectedHull::
 OutsideHorizontalLine(double vmin, double vmax,
                       double *p0, double *, double *insidePt)

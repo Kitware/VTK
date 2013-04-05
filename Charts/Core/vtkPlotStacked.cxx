@@ -38,9 +38,6 @@
 #include <algorithm>
 #include <map>
 
-#define vtkStackedMIN(x, y) (((x)<(y))?(x):(y))
-#define vtkStackedMAX(x, y) (((x)>(y))?(x):(y))
-
 //-----------------------------------------------------------------------------
 namespace {
 

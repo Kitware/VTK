@@ -88,7 +88,7 @@ public:
         }
       else
         {
-        this->CurrentPolygonSize = VTK_LARGE_ID;
+        this->CurrentPolygonSize = VTK_ID_MAX;
         }
       return this->Current;
     }
@@ -1804,8 +1804,6 @@ int vtkPolyhedron::IntersectWithLine(double p1[3], double p2[3], double tol,
   return numHits;
 }
 
-#define VTK_CERTAIN 1
-#define VTK_UNCERTAIN 0
 #define VTK_MAX_ITER 10    //Maximum iterations for ray-firing
 #define VTK_VOTE_THRESHOLD 3
 
@@ -1928,8 +1926,6 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
   return ( deltaVotes < 0 ? 0 : 1 );
 }
 
-#undef VTK_CERTAIN
-#undef VTK_UNCERTAIN
 #undef VTK_MAX_ITER
 #undef VTK_VOTE_THRESHOLD
 
