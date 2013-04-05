@@ -188,7 +188,7 @@ void vtkDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
     }
   if (numProcs == 1)  numProcBits = 1;
 
-  this->signBitMask = static_cast<vtkIdType>(1) << ((sizeof(vtkIdType) * CHAR_BIT) - 1);
+  this->signBitMask = VTK_ID_MIN;
   this->highBitShiftMask = static_cast<vtkIdType>(1) << numProcBits;
   this->procBits = numProcBits + 1;
   this->indexBits = (sizeof(vtkIdType) * CHAR_BIT) - (numProcBits + 1);
