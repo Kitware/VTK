@@ -21,6 +21,7 @@
 
 #include "vtkgl.h"
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 //#define VTK_PBO_DEBUG
 //#define VTK_PBO_TIMING
@@ -28,6 +29,8 @@
 #ifdef VTK_PBO_TIMING
 #include "vtkTimerLog.h"
 #endif
+
+#include <cassert>
 
 // Mapping from Usage values to OpenGL values.
 
@@ -57,31 +60,74 @@ static const char *BufferObjectUsageAsString[9]=
   "DynamicCopy"
 };
 
+// access modes
+GLenum OpenGLBufferObjectAccess[2]=
+{
+  vtkgl::WRITE_ONLY,
+  vtkgl::READ_ONLY
+};
+
+// targets
+GLenum OpenGLBufferObjectTarget[2]=
+{
+  vtkgl::PIXEL_UNPACK_BUFFER_ARB,
+  vtkgl::PIXEL_PACK_BUFFER_ARB
+};
+
+
 #ifdef  VTK_PBO_DEBUG
 #include <pthread.h> // for debugging with MPI, pthread_self()
 #endif
 
+// converting double to float behind the
+// scene so we need sizeof(double)==4
+template< class T >
+class vtksizeof
+{
+public:
+  static int GetSize() { return sizeof(T); }
+};
+
+template<>
+class vtksizeof< double >
+{
+public:
+  static int GetSize() { return sizeof(float); }
+};
+
+static int vtkGetSize(int type)
+{
+  switch (type)
+    {
+    vtkTemplateMacro(
+      return ::vtksizeof<VTK_TT>::GetSize();
+      );
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPixelBufferObject);
+
 //----------------------------------------------------------------------------
 vtkPixelBufferObject::vtkPixelBufferObject()
 {
   this->Handle = 0;
-  this->Context = 0;
+  this->Context = NULL;
   this->BufferTarget = 0;
-  this->Size=0;
-  this->Type=VTK_UNSIGNED_CHAR;
-  this->Usage=StaticDraw;
+  this->Components = 0;
+  this->Size = 0;
+  this->Type = VTK_UNSIGNED_CHAR;
+  this->Usage = StaticDraw;
 }
 
 //----------------------------------------------------------------------------
 vtkPixelBufferObject::~vtkPixelBufferObject()
 {
-  this->SetContext(0);
+  this->DestroyBuffer();
 }
 
 //----------------------------------------------------------------------------
-// Description:
-// Returns if the context supports the required extensions.
 bool vtkPixelBufferObject::IsSupported(vtkRenderWindow* win)
 {
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(win);
@@ -103,9 +149,15 @@ bool vtkPixelBufferObject::IsSupported(vtkRenderWindow* win)
 }
 
 //----------------------------------------------------------------------------
-bool vtkPixelBufferObject::LoadRequiredExtensions(
-  vtkOpenGLExtensionManager* mgr)
+bool vtkPixelBufferObject::LoadRequiredExtensions(vtkRenderWindow *renWin)
 {
+  vtkOpenGLRenderWindow* context =
+    vtkOpenGLRenderWindow::SafeDownCast(renWin);
+
+  if ( !context ) return false;
+
+  vtkOpenGLExtensionManager* mgr = context->GetExtensionManager();
+
   bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5")==1;
   bool gl21=mgr->ExtensionSupported("GL_VERSION_2_1")==1;
 
@@ -135,26 +187,32 @@ bool vtkPixelBufferObject::LoadRequiredExtensions(
 //----------------------------------------------------------------------------
 void vtkPixelBufferObject::SetContext(vtkRenderWindow* renWin)
 {
-  if (this->Context == renWin)
+  // avoid pointless re-assignment
+  if (this->Context==renWin)
     {
     return;
     }
-
+  // free resource allocations
   this->DestroyBuffer();
-
-  vtkOpenGLRenderWindow* openGLRenWin =
-    vtkOpenGLRenderWindow::SafeDownCast(renWin);
-  this->Context = openGLRenWin;
-  if (openGLRenWin)
-    {
-    if (!this->LoadRequiredExtensions(openGLRenWin->GetExtensionManager()))
-      {
-      this->Context = 0;
-      vtkErrorMacro("Required OpenGL extensions not supported by the context.");
-      }
-    }
-
+  this->Context = NULL;
   this->Modified();
+  // all done if assigned null
+  if (!renWin)
+    {
+    return;
+    }
+  // check for support
+  vtkOpenGLRenderWindow* context =
+    vtkOpenGLRenderWindow::SafeDownCast(renWin);
+  if ( !context
+    || !this->LoadRequiredExtensions(renWin) )
+    {
+    vtkErrorMacro("Required OpenGL extensions not supported by the context.");
+    return;
+    }
+  // update context
+  this->Context = renWin;
+  this->Context->MakeCurrent();
 }
 
 //----------------------------------------------------------------------------
@@ -164,13 +222,15 @@ vtkRenderWindow* vtkPixelBufferObject::GetContext()
 }
 
 //----------------------------------------------------------------------------
+void vtkPixelBufferObject::SetSize(unsigned int nTups, int nComps)
+{
+  this->Size = nTups*nComps;
+}
+
+//----------------------------------------------------------------------------
 void vtkPixelBufferObject::Bind(BufferType type)
 {
-  if (!this->Context)
-    {
-    vtkErrorMacro("No context specified. Cannot Bind.");
-    return;
-    }
+  assert(this->Context);
 
   this->CreateBuffer();
 
@@ -192,16 +252,17 @@ void vtkPixelBufferObject::Bind(BufferType type)
     }
   this->BufferTarget = target;
   vtkgl::BindBuffer(static_cast<GLenum>(this->BufferTarget), this->Handle);
-  vtkGraphicErrorMacro(this->Context,"after BindBuffer");
+  vtkOpenGLCheckErrorMacro("failed at glBindBuffer");
 }
 
 //----------------------------------------------------------------------------
 void vtkPixelBufferObject::UnBind()
 {
-  if (this->Context && this->Handle && this->BufferTarget)
+  assert(this->Context);
+  if (this->Handle && this->BufferTarget)
     {
     vtkgl::BindBuffer(this->BufferTarget, 0);
-    vtkGraphicErrorMacro(this->Context,"after BindBuffer");
+    vtkOpenGLCheckErrorMacro("failed at glBindBuffer(0)");
     this->BufferTarget = 0;
     }
 }
@@ -209,12 +270,11 @@ void vtkPixelBufferObject::UnBind()
 //----------------------------------------------------------------------------
 void vtkPixelBufferObject::CreateBuffer()
 {
-  this->Context->MakeCurrent();
   if (!this->Handle)
     {
     GLuint ioBuf;
     vtkgl::GenBuffers(1, &ioBuf);
-    vtkGraphicErrorMacro(this->Context,"after GenBuffers");
+    vtkOpenGLCheckErrorMacro("failed at glGenBuffers");
     this->Handle = ioBuf;
     }
 }
@@ -222,37 +282,18 @@ void vtkPixelBufferObject::CreateBuffer()
 //----------------------------------------------------------------------------
 void vtkPixelBufferObject::DestroyBuffer()
 {
+  // because we don't hold a reference to the render
+  // context we don't have any control on when it is
+  // destroyed. In fact it may be destroyed before
+  // we are(eg smart pointers), in which case we should
+  // do nothing.
   if (this->Context && this->Handle)
     {
     GLuint ioBuf = static_cast<GLuint>(this->Handle);
     vtkgl::DeleteBuffers(1, &ioBuf);
+    vtkOpenGLCheckErrorMacro("failed at glDeleteBuffers");
     }
   this->Handle = 0;
-}
-
-template< class T >
-class vtksizeof
-{
-public:
-  static int GetSize() { return sizeof(T); }
-};
-
-template<>
-class vtksizeof< double >
-{
-public:
-  static int GetSize() { return sizeof(float); }
-};
-
-static int vtkGetSize(int type)
-{
-  switch (type)
-    {
-    vtkTemplateMacro(
-      return ::vtksizeof<VTK_TT>::GetSize();
-      );
-    }
-  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -390,6 +431,106 @@ public:
 };
 
 //----------------------------------------------------------------------------
+void *vtkPixelBufferObject::MapBuffer(
+        unsigned int nbytes,
+        BufferType mode)
+{
+  // from vtk to opengl enums
+  GLenum target = OpenGLBufferObjectTarget[mode];
+  GLenum access = OpenGLBufferObjectAccess[mode];
+  GLenum usage = OpenGLBufferObjectUsage[mode];
+  GLuint size = static_cast<GLuint>(nbytes);
+  GLuint ioBuf = static_cast<GLuint>(this->Handle);
+
+  if (!ioBuf)
+    {
+    vtkgl::GenBuffers(1, &ioBuf);
+    vtkOpenGLCheckErrorMacro("failed at glGenBuffers");
+    this->Handle = static_cast<unsigned int>(ioBuf);
+    }
+  this->BufferTarget = 0;
+
+  // pointer to the mapped memory
+  vtkgl::BindBuffer(target, ioBuf);
+  vtkOpenGLCheckErrorMacro("failed at glBindBuffer");
+
+  vtkgl::BufferData(target, size, NULL, usage);
+  vtkOpenGLCheckErrorMacro("failed at glBufferData");
+
+  void *pPBO = vtkgl::MapBuffer(target, access);
+  vtkOpenGLCheckErrorMacro("failed at glMapBuffer");
+
+  vtkgl::BindBuffer(target, 0);
+
+  return pPBO;
+}
+
+//----------------------------------------------------------------------------
+void *vtkPixelBufferObject::MapBuffer(
+        int type,
+        unsigned int numtuples,
+        int comps,
+        BufferType mode)
+{
+  // from vtk to opengl enums
+  this->Size = numtuples*comps;
+  this->Type = type;
+  this->Components = comps;
+  unsigned int size = ::vtkGetSize(type)*this->Size;
+
+  return this->MapBuffer(size, mode);
+}
+
+//----------------------------------------------------------------------------
+void *vtkPixelBufferObject::MapBuffer(BufferType mode)
+{
+  // from vtk to opengl enum
+  GLuint ioBuf = static_cast<GLuint>(this->Handle);
+  if (!ioBuf)
+    {
+    vtkErrorMacro("Uninitialized object");
+    return NULL;
+    }
+  GLenum target = OpenGLBufferObjectTarget[mode];
+  GLenum access = OpenGLBufferObjectAccess[mode];
+
+  // pointer to the mnapped memory
+  vtkgl::BindBuffer(target, ioBuf);
+  vtkOpenGLCheckErrorMacro("failed at glBindBuffer");
+
+  void *pPBO = vtkgl::MapBuffer(target, access);
+  vtkOpenGLCheckErrorMacro("failed at glMapBuffer");
+
+  vtkgl::BindBuffer(target, 0);
+  vtkOpenGLCheckErrorMacro("failed at glBindBuffer(0)");
+
+  this->BufferTarget = 0;
+
+  return pPBO;
+}
+
+//----------------------------------------------------------------------------
+void vtkPixelBufferObject::UnmapBuffer(BufferType mode)
+{
+  GLuint ioBuf = static_cast<GLuint>(this->Handle);
+  if (!ioBuf)
+    {
+    vtkErrorMacro("Uninitialized object");
+    return;
+    }
+  GLenum target = OpenGLBufferObjectTarget[mode];
+
+  vtkgl::BindBuffer(target, ioBuf);
+  vtkOpenGLCheckErrorMacro("failed at glBindBuffer");
+
+  vtkgl::UnmapBuffer(target);
+  vtkOpenGLCheckErrorMacro("failed at glUnmapBuffer");
+
+  vtkgl::BindBuffer(target, 0);
+  vtkOpenGLCheckErrorMacro("failed at glBindBuffer(0)");
+}
+
+//----------------------------------------------------------------------------
 bool vtkPixelBufferObject::Upload3D(
   int type, void* data,
   unsigned int dims[3],
@@ -402,16 +543,9 @@ bool vtkPixelBufferObject::Upload3D(
   vtkTimerLog *timer=vtkTimerLog::New();
   timer->StartTimer();
 #endif
-
-  if (!this->Context)
-    {
-    vtkErrorMacro("No context specified. Cannot upload data.");
-    return false;
-    }
+  assert(this->Context);
 
   this->CreateBuffer();
-
-//  this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
   this->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
 
   unsigned int size;
@@ -425,6 +559,7 @@ bool vtkPixelBufferObject::Upload3D(
     size = dims[0]*dims[1]*dims[2]*static_cast<unsigned int>(components);
     }
 
+  this->Components = numComponents;
 
   if(data!=0)
     {
@@ -438,7 +573,7 @@ bool vtkPixelBufferObject::Upload3D(
   vtkgl::BufferData(this->BufferTarget,
                     size*static_cast<unsigned int>(::vtkGetSize(type)),
                     NULL,OpenGLBufferObjectUsage[this->Usage]);
-  vtkGraphicErrorMacro(this->Context,"");
+  vtkOpenGLCheckErrorMacro("failed at glBufferData");
   this->Type = type;
   if (this->Type == VTK_DOUBLE)
     {
@@ -446,50 +581,10 @@ bool vtkPixelBufferObject::Upload3D(
     }
   this->Size = size;
 
-#ifdef  VTK_PBO_DEBUG
-  GLint value;
-  glGetIntegerv(vtkgl::PIXEL_UNPACK_BUFFER_BINDING,&value);
-
-  cout << pthread_self() << "this->Handle=" << this->Handle << " pixel unpack buffer=" << value << endl;
-  glGetIntegerv(vtkgl::PIXEL_PACK_BUFFER_BINDING,&value);
-
-  cout << pthread_self() << "this->Handle=" << this->Handle << " pixel pack buffer=" << value << endl;
-
-  vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER,vtkgl::BUFFER_MAPPED,&value);
-
-
-  cout << pthread_self() << "this->Handle=" << this->Handle << " packed buffer is";
-  if(value==GL_TRUE)
-    {
-    cout << " mapped." << endl;
-    }
-  else
-    {
-    cout << " not mapped." << endl;
-    }
-
-  vtkgl::GetBufferParameteriv(this->BufferTarget,vtkgl::BUFFER_MAPPED,&value);
-
-  cout << pthread_self() << "this->Handle=" << this->Handle << " buffer target is";
-  if(value==GL_TRUE)
-    {
-    cout << " mapped." << endl;
-    }
-  else
-    {
-    cout << " not mapped." << endl;
-    }
-#endif
   if (data)
     {
-#ifdef  VTK_PBO_DEBUG
-    cout << pthread_self() << "this->Handle=" << this->Handle  << " mapping" << endl;
-#endif
     void* ioMem = vtkgl::MapBuffer(this->BufferTarget, vtkgl::WRITE_ONLY);
-#ifdef  VTK_PBO_DEBUG
-    cout << pthread_self() << "this->Handle=" << this->Handle  << " mapped: ioMem=" << ioMem << endl;
-#endif
-    vtkGraphicErrorMacro(this->Context,"");
+    vtkOpenGLCheckErrorMacro("");
     switch (type)
       {
       vtkTemplateMacro(
@@ -499,19 +594,11 @@ bool vtkPixelBufferObject::Upload3D(
                                         components,componentList);
         );
       default:
-#ifdef  VTK_PBO_DEBUG
-        cout << pthread_self() << "this->Handle=" << this->Handle  << " WTF" << endl;
-#endif
+        vtkErrorMacro("unsupported vtk type");
         return false;
       }
-#ifdef  VTK_PBO_DEBUG
-    cout << pthread_self() << "this->Handle=" << this->Handle  << " unmapping" << endl;
-#endif
     vtkgl::UnmapBuffer(this->BufferTarget);
-#ifdef  VTK_PBO_DEBUG
-    cout << pthread_self() << "this->Handle=" << this->Handle  << " unmapped" << endl;
-#endif
-    vtkGraphicErrorMacro(this->Context,"");
+    vtkOpenGLCheckErrorMacro("failed at glUnmapBuffer");
     }
 
   this->UnBind();
@@ -525,38 +612,64 @@ bool vtkPixelBufferObject::Upload3D(
 }
 
 //----------------------------------------------------------------------------
-// Description:
-// Allocate the memory
-void vtkPixelBufferObject::Allocate(unsigned int size,
-                                    int type)
+void vtkPixelBufferObject::Allocate(
+        int type,
+        unsigned int numtuples,
+        int comps,
+        BufferType mode)
 {
-  if(this->Context!=0)
-    {
-    if(this->Size!=size)
-      {
-      this->Size=size;
-      this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
-      vtkgl::BufferData(this->BufferTarget,size,NULL,
-                        OpenGLBufferObjectUsage[this->Usage]);
-      this->UnBind();
-      }
-    this->Type=type;
-    if (this->Type == VTK_DOUBLE)
-      {
-      this->Type = VTK_FLOAT;
-      }
-    }
+  assert(this->Context);
+
+  // from vtk to opengl enums
+  this->Size = numtuples*comps;
+  this->Type = type;
+  this->Components = comps;
+  unsigned int size = ::vtkGetSize(type)*this->Size;
+
+  this->Allocate(size, mode);
 }
+
+//----------------------------------------------------------------------------
+void vtkPixelBufferObject::Allocate(
+        unsigned int nbytes,
+        BufferType mode)
+{
+  assert(this->Context);
+
+  // from vtk to opengl enums
+  GLenum target = OpenGLBufferObjectTarget[mode];
+  GLenum usage = OpenGLBufferObjectUsage[mode];
+  GLuint size = static_cast<GLuint>(nbytes);
+  GLuint ioBuf = static_cast<GLuint>(this->Handle);
+
+  if (!ioBuf)
+    {
+    vtkgl::GenBuffers(1, &ioBuf);
+    vtkOpenGLCheckErrorMacro("failed at glGenBuffers");
+    this->Handle = static_cast<unsigned int>(ioBuf);
+    }
+  this->BufferTarget = 0;
+
+  vtkgl::BindBuffer(target, ioBuf);
+  vtkOpenGLCheckErrorMacro("failed at glBindBuffer");
+
+  vtkgl::BufferData(target, size, NULL, usage);
+  vtkOpenGLCheckErrorMacro("failed at glBufferData");
+
+  vtkgl::BindBuffer(target, 0);
+}
+
 
 //----------------------------------------------------------------------------
 void vtkPixelBufferObject::ReleaseMemory()
 {
-  if (this->Context && this->Handle)
-    {
-    this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
-    vtkgl::BufferData(this->BufferTarget, 0, NULL, vtkgl::STREAM_DRAW);
-    this->Size = 0;
-    }
+  assert(this->Context);
+  assert(this->Handle);
+
+  this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
+  vtkgl::BufferData(this->BufferTarget, 0, NULL, vtkgl::STREAM_DRAW);
+  vtkOpenGLCheckErrorMacro("failed at glBufferData");
+  this->Size = 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -630,7 +743,9 @@ bool vtkPixelBufferObject::Download3D(
   vtkTimerLog *timer=vtkTimerLog::New();
   timer->StartTimer();
 #endif
-  if (!this->Handle || !this->Context)
+  assert(this->Context);
+
+  if (!this->Handle)
     {
     vtkErrorMacro("No GPU data available.");
     return false;
@@ -645,58 +760,9 @@ bool vtkPixelBufferObject::Download3D(
   this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
 
 
-#ifdef  VTK_PBO_DEBUG
-  GLint value;
-  glGetIntegerv(vtkgl::PIXEL_UNPACK_BUFFER_BINDING,&value);
-
-  cout << pthread_self() << "d this->Handle=" << this->Handle << " pixel unpack buffer=" << value << endl;
-  glGetIntegerv(vtkgl::PIXEL_PACK_BUFFER_BINDING,&value);
-
-  cout << pthread_self() << "d this->Handle=" << this->Handle << " pixel pack buffer=" << value << endl;
-
-  vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER,vtkgl::BUFFER_MAPPED,&value);
-
-
-  cout << pthread_self() << "d this->Handle=" << this->Handle << " packed buffer is";
-  if(value==GL_TRUE)
-    {
-    cout << " mapped." << endl;
-    }
-  else
-    {
-    cout << " not mapped." << endl;
-    }
-
-  vtkgl::GetBufferParameteriv(this->BufferTarget,vtkgl::BUFFER_MAPPED,&value);
-
-  cout << pthread_self() << "d this->Handle=" << this->Handle << " buffer target is";
-  if(value==GL_TRUE)
-    {
-    cout << " mapped." << endl;
-    }
-  else
-    {
-    cout << " not mapped." << endl;
-    }
-
-
-
-  cout << pthread_self() << "d this->Handle=" << this->Handle  << " mapping" << endl;
-#endif
   void* ioMem = vtkgl::MapBuffer(this->BufferTarget, vtkgl::READ_ONLY);
-#ifdef  VTK_PBO_DEBUG
-  cout << pthread_self() << "d this->Handle=" << this->Handle  << " mapped: ioMem=" << ioMem << endl;
-#endif
-  vtkGraphicErrorMacro(this->Context,"after MapBuffer");
-#ifdef  VTK_PBO_DEBUG
-  cout << pthread_self() << "d type="<< type << endl;
-  cout << pthread_self() << "d this->Type="<< this->Type << endl;
-#endif
+  vtkOpenGLCheckErrorMacro("failed at glMapBuffer");
 
-#ifdef  VTK_PBO_DEBUG
-  cout << pthread_self() << "d2 type="<< type << endl;
-  cout << pthread_self() << "d2 this->Type="<< this->Type << endl;
-#endif
   switch (type)
     {
     vtkTemplateMacro(
@@ -704,19 +770,11 @@ bool vtkPixelBufferObject::Download3D(
       ::vtkDownload3DSpe(this->Type,ioMem,odata,dims,numcomps,increments);
       );
     default:
-#ifdef  VTK_PBO_DEBUG
-      cout << pthread_self() << "d this->Handle=" << this->Handle  << " WTF" << endl;
-#endif
+      vtkErrorMacro("unsupported vtk type");
       return false;
     }
-#ifdef  VTK_PBO_DEBUG
-  cout << pthread_self() << "d this->Handle=" << this->Handle  << " unmapping" << endl;
-#endif
   vtkgl::UnmapBuffer(this->BufferTarget);
-#ifdef VTK_PBO_DEBUG
-  cout << pthread_self() << "d this->Handle=" << this->Handle  << " unmapped" << endl;
-#endif
-  vtkGraphicErrorMacro(this->Context,"after UnmapBuffer");
+  vtkOpenGLCheckErrorMacro("failed at glUnmapBuffer");
   this->UnBind();
 
 #ifdef VTK_PBO_TIMING
@@ -728,7 +786,6 @@ bool vtkPixelBufferObject::Download3D(
 
   return true;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkPixelBufferObject::PrintSelf(ostream& os, vtkIndent indent)

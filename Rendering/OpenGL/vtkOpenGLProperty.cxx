@@ -30,11 +30,12 @@
 #include "vtkUniformVariables.h"
 #include "vtkShader2Collection.h"
 #include "vtkTextureUnitManager.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkXMLMaterial.h"
 #include "vtkXMLShader.h"
 #include "vtkGLSLShaderDeviceAdapter2.h"
 #include "vtkOpenGLPainterDeviceAdapter.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLError.h"
 
 #include <assert.h>
 
@@ -194,6 +195,8 @@ bool vtkOpenGLProperty::RenderShaders(vtkActor* vtkNotUsed(anActor), vtkRenderer
     {
     assert("check: prog is initialized" && prog->GetContext() == context);
     }
+
+  vtkOpenGLClearErrorMacro();
 
   bool useShaders = false;
   vtkShaderProgram2 *propProg;
@@ -634,12 +637,17 @@ bool vtkOpenGLProperty::RenderTextures(vtkActor*, vtkRenderer* ren,
       vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       }
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
+
   return (numTextures > 0);
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkOpenGLRenderer *oRenderer = static_cast<vtkOpenGLRenderer *>(renderer);
   vtkShaderProgram2 *prog = oRenderer->GetShaderProgram();
 
@@ -699,6 +707,8 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
       vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       }
     }
+
+  vtkOpenGLCheckErrorMacro("failed after PostRender");
 }
 
 //-----------------------------------------------------------------------------
@@ -800,6 +810,7 @@ void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
   int numTextures = this->GetNumberOfTextures();
   if (win && win->GetMapped() && numTextures > 0 && vtkgl::ActiveTexture)
     {
+    vtkOpenGLClearErrorMacro();
     GLint numSupportedTextures;
     glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
     for (int i = 0; i < numTextures; i++)
@@ -819,6 +830,7 @@ void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
       this->GetTextureAtIndex(i)->ReleaseGraphicsResources(win);
       }
     vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+    vtkOpenGLCheckErrorMacro("failwed during ReleaseGraphicsResources");
     }
   else if (numTextures > 0 && vtkgl::ActiveTexture)
     {

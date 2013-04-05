@@ -40,6 +40,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkgl.h"
+#include "vtkOpenGLError.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 
@@ -60,6 +61,8 @@ static void ImageCallback(vtkObject *__renwin, unsigned long, void *, void *)
     return;
     }
   inImageCallback = 1;
+
+  vtkOpenGLClearErrorMacro();
 
   cout << "In ImageCallback" << endl;
 
@@ -84,6 +87,8 @@ static void ImageCallback(vtkObject *__renwin, unsigned long, void *, void *)
   renwin->SwapBuffersOff();
 
   inImageCallback = 0;
+
+  vtkOpenGLStaticCheckErrorMacro("failed after ImageCallback");
 }
 
 int LoadOpenGLExtension(int argc, char *argv[])
@@ -241,6 +246,8 @@ int LoadOpenGLExtension(int argc, char *argv[])
     vtkgl::ConvolutionParameteri(vtkgl::CONVOLUTION_2D,
                                vtkgl::CONVOLUTION_BORDER_MODE,
                                  vtkgl::REPLICATE_BORDER);
+
+    vtkOpenGLStaticCheckErrorMacro("failed after setting up convolution");
 
     image = vtkUnsignedCharArray::New();
     vtkCallbackCommand *cbc = vtkCallbackCommand::New();

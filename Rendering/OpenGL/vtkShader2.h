@@ -36,6 +36,7 @@
 #ifndef __vtkShader2_h
 #define __vtkShader2_h
 
+#include "vtkWeakPointer.h" // for ren context
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
 
@@ -49,7 +50,7 @@ enum vtkShader2Type
   VTK_SHADER_TYPE_FRAGMENT = 2
 };
 
-class vtkOpenGLRenderWindow;
+class vtkRenderWindow;
 class vtkUniformVariables;
 
 class VTKRENDERINGOPENGL_EXPORT vtkShader2 : public vtkObject
@@ -61,8 +62,8 @@ public:
 
   // Description:
   // Returns if the context supports the required extensions.
-  static bool IsSupported(vtkOpenGLRenderWindow *context);
-  static bool LoadExtensions(vtkOpenGLRenderWindow *context);
+  // Extensions are load when the context is set.
+  static bool IsSupported(vtkRenderWindow *context);
 
   // Description:
   // String containing the shader source code. Reminder SetString makes a copy
@@ -116,8 +117,8 @@ public:
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
-  void SetContext(vtkOpenGLRenderWindow *context);
-  vtkGetObjectMacro(Context,vtkOpenGLRenderWindow);
+  void SetContext(vtkRenderWindow *context);
+  vtkRenderWindow *GetContext();
 
   // Description:
   // Release OpenGL resource (shader id).
@@ -142,6 +143,10 @@ protected:
   // Destructor. Delete SourceCode and LastCompileLog if any.
   virtual ~vtkShader2();
 
+  // Description:
+  // Load the required OpenGL extensions.
+  bool LoadRequiredExtensions(vtkRenderWindow *context);
+
   char *SourceCode;
   int Type;
 
@@ -153,7 +158,8 @@ protected:
 
   vtkTimeStamp LastCompileTime;
   vtkUniformVariables *UniformVariables; // Initial values is an empty list
-  vtkOpenGLRenderWindow *Context;
+
+  vtkWeakPointer<vtkRenderWindow> Context;
 
   bool ExtensionsLoaded;
   bool SupportGeometryShader;

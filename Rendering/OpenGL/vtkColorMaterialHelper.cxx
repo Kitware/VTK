@@ -23,8 +23,12 @@
 
 extern const char * vtkColorMaterialHelper_vs;
 
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkColorMaterialHelper);
+
+//----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkColorMaterialHelper, Shader, vtkShaderProgram2);
+
 //----------------------------------------------------------------------------
 vtkColorMaterialHelper::vtkColorMaterialHelper()
 {
@@ -54,14 +58,17 @@ void vtkColorMaterialHelper::Initialize(vtkShaderProgram2* pgm)
       }
     }
 }
+
 //----------------------------------------------------------------------------
 void vtkColorMaterialHelper::PrepareForRendering()
 {
+  #ifndef NDEBUG
   if (!this->Shader)
     {
     vtkErrorMacro("Please Initialize() before calling PrepareForRendering().");
     return ;
     }
+  #endif
 
   this->Mode = vtkColorMaterialHelper::DISABLED;
   if (glIsEnabled(GL_COLOR_MATERIAL))
@@ -96,14 +103,23 @@ void vtkColorMaterialHelper::PrepareForRendering()
 //----------------------------------------------------------------------------
 void vtkColorMaterialHelper::Render()
 {
+  #ifndef NDEBUG
   if (!this->Shader)
     {
     vtkErrorMacro("Please Initialize() before calling Render().");
     return;
     }
+  #endif
 
   int value=this->Mode;
   this->Shader->GetUniformVariables()->SetUniformi("vtkColorMaterialHelper_Mode",1,&value);
+}
+
+//----------------------------------------------------------------------------
+void vtkColorMaterialHelper::SetUniformVariables()
+{
+  this->PrepareForRendering(); // iniitialize this with gl state
+  this->Render();              // send as uniforms
 }
 
 //----------------------------------------------------------------------------

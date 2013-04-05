@@ -28,11 +28,13 @@
 #include "vtkProperty.h"
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkImageData.h"
+#include "vtkWindow.h"
+#include "vtkRenderWindow.h"
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 #include <math.h>
 
@@ -84,6 +86,7 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *win)
     {
     win->MakeCurrent();
     glDeleteLists(this->ListId, 1);
+    vtkOpenGLCheckErrorMacro("failed after glDeleteLists");
     }
   this->ListId = 0;
   this->LastWindow = NULL;
@@ -99,6 +102,8 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *win)
 //
 void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkPolyData *input= this->GetInput();
 
   // make sure that we've been properly initialized
@@ -271,6 +276,8 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0 + c);
     glDisable(clipPlaneId);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after RenderPiece");
 }
 
 //
@@ -1067,6 +1074,8 @@ void vtkOpenGLPolyDataMapper::DrawPolygons(int idx,
                                          vtkCellArray *ca,
                                          vtkRenderer *ren)
 {
+  vtkOpenGLClearErrorMacro();
+
   void *voidPoints = p->GetVoidPointer(0);
   void *voidNormals = 0;
   void *voidTCoords = 0;
@@ -1310,6 +1319,7 @@ void vtkOpenGLPolyDataMapper::DrawPolygons(int idx,
       }
     }
     }
+  vtkOpenGLCheckErrorMacro("failed after DrawPolygons");
 }
 
 // fix refs here
@@ -1345,6 +1355,7 @@ void vtkOpenGLPolyDataMapper::DrawTStrips(int idx,
                                         vtkCellArray *ca,
                                         vtkRenderer *ren)
 {
+  vtkOpenGLClearErrorMacro();
   void *voidPoints = p->GetVoidPointer(0);
   void *voidNormals = 0;
   void *voidTCoords = 0;
@@ -1528,6 +1539,7 @@ void vtkOpenGLPolyDataMapper::DrawTStrips(int idx,
       }
     }
     }
+  vtkOpenGLCheckErrorMacro("failed after DrawTStrips");
 }
 
 static void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
@@ -1541,6 +1553,7 @@ static void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
                                             vtkCellArray *ca,
                                             vtkRenderer *ren)
 {
+  vtkOpenGLClearErrorMacro();
   void *voidPoints = p->GetVoidPointer(0);
   void *voidNormals = 0;
   void *voidTCoords = 0;
@@ -1769,11 +1782,13 @@ static void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
       }
     }
     }
+  vtkOpenGLStaticCheckErrorMacro("failed after DrawTStripLines");
 }
 
 // Draw method for OpenGL.
 int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 {
+  vtkOpenGLClearErrorMacro();
   vtkOpenGLRenderer *ren = static_cast<vtkOpenGLRenderer *>(aren);
   int rep, interpolation;
   float tran;
@@ -2083,6 +2098,7 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
       }
     }
 
+  vtkOpenGLCheckErrorMacro("failed after Draw");
   this->UpdateProgress(1.0);
   return noAbort;
 }

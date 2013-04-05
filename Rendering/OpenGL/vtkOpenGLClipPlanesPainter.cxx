@@ -20,8 +20,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
-
+#include "vtkOpenGLError.h"
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkOpenGLClipPlanesPainter);
 
@@ -41,6 +42,8 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer *renderer,
                                                 unsigned long typeflags,
                                                 bool forceCompileOnly)
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkPlaneCollection *clipPlanes;
   vtkPlane *plane;
   int i, numClipPlanes;
@@ -101,6 +104,8 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer *renderer,
     {
     glDisable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
     }
+
+  vtkOpenGLCheckErrorMacro("failed after RenderInternal");
 }
 
 //-----------------------------------------------------------------------------

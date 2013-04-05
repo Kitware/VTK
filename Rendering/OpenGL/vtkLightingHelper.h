@@ -39,18 +39,21 @@ public:
   vtkTypeMacro(vtkLightingHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  enum {
+    VTK_MAX_LIGHTS=8
+  };
+
   // Description:
   // Get/Set the shader program to which we want to add the lighting kernels.
   // mode = VTK_SHADER_TYPE_VERTEX or VTK_SHADER_TYPE_FRAGMENT
   // depending on whether the vertex lighting or fragment lighting is to be
   // used.
-  void Initialize(vtkShaderProgram2 *shader,
-                  vtkShader2Type mode);
+  void Initialize(vtkShaderProgram2 *shader, vtkShader2Type mode);
   vtkGetObjectMacro(Shader, vtkShaderProgram2);
 
   // Description:
-  // Updates any lighting specific information needed.
-  // This must be called before the shader program is bound.
+  // Encodes light state in diffuse component 3, where the shader looks for it.
+  void EncodeLightState(){ this->PrepareForRendering(); }
   void PrepareForRendering();
 
 //BTX
