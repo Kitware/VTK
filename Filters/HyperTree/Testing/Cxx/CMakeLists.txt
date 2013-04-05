@@ -9,11 +9,12 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestHyperTreeGridBinary2DIJK.cxx
   TestHyperTreeGridBinary2DMaterial.cxx
   TestHyperTreeGridBinary2DMaterialIJK.cxx
-  TestHyperTreeGridTernary2DBiMaterial.cxx
   TestHyperTreeGridBinaryEllipseMaterial.cxx
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
   TestHyperTreeGridTernary2D.cxx
   TestHyperTreeGridTernary2DMaterial.cxx
+  TestHyperTreeGridTernary2DMaterialBits.cxx
+  TestHyperTreeGridTernary2DBiMaterial.cxx
   TestHyperTreeGridTernary3DAxisCut.cxx
   TestHyperTreeGridTernary3DAxisCutMaterial.cxx
   TestHyperTreeGridTernary3DContour.cxx
@@ -22,6 +23,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestHyperTreeGridTernary3DCut.cxx
   TestHyperTreeGridTernary3DGeometry.cxx
   TestHyperTreeGridTernary3DGeometryMaterial.cxx
+  TestHyperTreeGridTernary3DGeometryMaterialBits.cxx
   TestHyperTreeGridTernary3DUnstructured.cxx
   TestHyperTreeGridTernary3DUnstructuredMaterial.cxx
   TestHyperTreeGridTernaryHyperbola.cxx
@@ -38,11 +40,12 @@ list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
 foreach(test ${TestsToRun})
   get_filename_component(TName ${test} NAME_WE)
   if(VTK_DATA_ROOT)
+    string(REGEX REPLACE "Bits" "" TNameNoBits ${TName})
     add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
         -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/Graphics/${TName}.png)
+        -V Baseline/Graphics/${TNameNoBits}.png)
   else()
     add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName})
