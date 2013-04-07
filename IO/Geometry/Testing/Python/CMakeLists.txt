@@ -1,4 +1,5 @@
 add_test_python(ParticleReader.py IO)
+add_test_python(Plot3D IO)
 add_test_python(Plot3DScalars.py IO)
 add_test_python(Plot3DVectors.py IO)
 add_test_python(TestAVSucdReader.py IO)

@@ -17,7 +17,9 @@
 // vtkMultiBlockPLOT3DReader is a reader object that reads PLOT3D formatted
 // files and generates structured grid(s) on output. PLOT3D is a computer
 // graphics program designed to visualize the grids and solutions of
-// computational fluid dynamics. Please see the "PLOT3D User's Manual"
+// computational fluid dynamics. This reader also supports the variant
+// of the PLOT3D format used by NASA's OVERFLOW CFD software, including
+// full support for all Q variables. Please see the "PLOT3D User's Manual"
 // available from NASA Ames Research Center, Moffett Field CA.
 //
 // PLOT3D files consist of a grid file (also known as XYZ file), an
@@ -29,6 +31,10 @@
 // called Properties in the FieldData of each output (tuple 0: fsmach, tuple 1:
 // alpha, tuple 2: re, tuple 3: time). In addition, the solution file contains
 // the flow density (scalar), flow momentum (vector), and flow energy (scalar).
+//
+// Note that this reader does not support time series data which is usually
+// stored as a series of Q and optionally XYZ files. If you want to read such
+// a file series, use vtkPlot3DMetaReader.
 //
 // The reader can generate additional scalars and vectors (or "functions")
 // from this information. To use vtkMultiBlockPLOT3DReader, you must specify the
@@ -56,10 +62,10 @@
 //
 // (Other functions are described in the PLOT3D spec, but only those listed are
 // implemented here.) Note that by default, this reader creates the density
-// scalar (100) and momentum vector (202) as output. (These are just read in
-// from the solution file.) Please note that the validity of computation is
-// a function of this class's gas constants (R, Gamma) and the equations used.
-// They may not be suitable for your computational domain.
+// scalar (100), stagnation energy (163) and momentum vector (202) as output.
+// (These are just read in from the solution file.) Please note that the validity
+// of computation is a function of this class's gas constants (R, Gamma) and the
+// equations used. They may not be suitable for your computational domain.
 //
 // Additionally, you can read other data and associate it as a vtkDataArray
 // into the output's point attribute data. Use the method AddFunction()
@@ -67,7 +73,7 @@
 // an integer parameter that defines the function number.
 //
 // .SECTION See Also
-// vtkStructuredGridSource vtkStructuredGrid
+// vtkMultiBlockDataSet vtkStructuredGrid vtkPlot3DMetaReader
 
 #ifndef __vtkMultiBlockPLOT3DReader_h
 #define __vtkMultiBlockPLOT3DReader_h
@@ -75,9 +81,9 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkIntArray;
-class vtkFloatArray;
 class vtkStructuredGrid;
 //BTX
 struct vtkMultiBlockPLOT3DReaderInternals;
@@ -102,15 +108,17 @@ public:
   vtkGetStringMacro(QFileName);
 
   // Description:
-  // This returns the number of outputs this reader will produce.
-  // This number is equal to the number of grids in the current
-  // file. This method has to be called before getting any output
-  // if the number of outputs will be greater than 1 (the first
-  // output is always the same). Note that every time this method
-  // is invoked, the header file is opened and part of the header
-  // is read.
-  int GetNumberOfBlocks();
-  int GetNumberOfGrids() { return this->GetNumberOfBlocks(); }
+  // When this option is turned on, the reader will try to figure
+  // out the values of various options such as byte order, byte
+  // count etc. automatically. This options works only for binary
+  // files. When it is turned on, the reader should be able to read
+  // most Plot3D files automatically. The default is OFF for backwards
+  // compatibility reasons. For binary files, it is strongly recommended
+  // that you turn on AutoDetectFormat and leave the other file format
+  // related options untouched.
+  vtkSetMacro(AutoDetectFormat, int);
+  vtkGetMacro(AutoDetectFormat, int);
+  vtkBooleanMacro(AutoDetectFormat, int);
 
   // Description:
   // Is the file to be read written in binary format (as opposed
@@ -152,6 +160,14 @@ public:
   vtkBooleanMacro(TwoDimensionalGeometry, int);
 
   // Description:
+  // Is this file in double precision or single precision.
+  // This only matters for binary files.
+  // Default is single.
+  vtkSetMacro(DoublePrecision, int);
+  vtkGetMacro(DoublePrecision, int);
+  vtkBooleanMacro(DoublePrecision, int);
+
+  // Description:
   // Try to read a binary file even if the file length seems to be
   // inconsistent with the header information. Use this with caution,
   // if the file length is not the same as calculated from the header.
@@ -180,21 +196,6 @@ public:
   // Set/Get the ratio of specific heats. Default is 1.4.
   vtkSetMacro(Gamma,double);
   vtkGetMacro(Gamma,double);
-
-  // Description:
-  // Set/Get the x-component of the free-stream velocity. Default is 1.0.
-  vtkSetMacro(Uvinf,double);
-  vtkGetMacro(Uvinf,double);
-
-  // Description:
-  // Set/Get the y-component of the free-stream velocity. Default is 1.0.
-  vtkSetMacro(Vvinf,double);
-  vtkGetMacro(Vvinf,double);
-
-  // Description:
-  // Set/Get the z-component of the free-stream velocity. Default is 1.0.
-  vtkSetMacro(Wvinf,double);
-  vtkGetMacro(Wvinf,double);
 
   // Description:
   // Specify the scalar function to extract. If ==(-1), then no scalar
@@ -233,21 +234,28 @@ protected:
   vtkMultiBlockPLOT3DReader();
   ~vtkMultiBlockPLOT3DReader();
 
+  vtkDataArray* CreateFloatArray();
+
   int CheckFile(FILE*& fp, const char* fname);
   int CheckGeometryFile(FILE*& xyzFp);
   int CheckSolutionFile(FILE*& qFp);
 
-  void SkipByteCount (FILE* fp);
+  int SkipByteCount (FILE* fp);
   int ReadIntBlock  (FILE* fp, int n, int*   block);
-  int ReadFloatBlock(FILE* fp, int n, float* block);
 
-  int GetNumberOfBlocksInternal(FILE* xyzFp, int verify=1);
+  int ReadScalar(FILE* fp, int n, vtkDataArray* scalar);
+  int ReadVector(FILE* fp, int n, int numDims, vtkDataArray* vector);
+
+  int GetNumberOfBlocksInternal(FILE* xyzFp, int allocate);
 
   int ReadGeometryHeader(FILE* fp);
-  int ReadQHeader(FILE* fp);
+  int ReadQHeader(FILE* fp, int& nq, int& nqc, int& overflow);
 
   void CalculateFileSize(FILE* fp);
   long EstimateSize(int ni, int nj, int nk);
+
+  int AutoDetectionCheck(FILE* fp);
+
 
   void AssignAttribute(int fNumber, vtkStructuredGrid* output,
                        int attributeType);
@@ -262,6 +270,10 @@ protected:
   void ComputeVelocity(vtkStructuredGrid* output);
   void ComputeVorticity(vtkStructuredGrid* output);
   void ComputePressureGradient(vtkStructuredGrid* output);
+
+  // Returns a vtkFloatArray or a vtkDoubleArray depending
+  // on DoublePrecision setting
+  vtkDataArray* NewFloatArray();
 
   // Delete references to any existing vtkPoints and
   // I-blank arrays. The next Update() will (re)read
@@ -279,6 +291,8 @@ protected:
   int ForceRead;
   int ByteOrder;
   int IBlanking;
+  int DoublePrecision;
+  int AutoDetectFormat;
 
   long FileSize;
 
@@ -294,17 +308,6 @@ protected:
 
   int ScalarFunctionNumber;
   int VectorFunctionNumber;
-
-  // Cache of geometry
-  vtkFloatArray** PointCache;
-  vtkUnsignedCharArray** IBlankCache;
-
-  // First pass at automatically detecting configuration
-  int GenerateDefaultConfiguration();
-  int VerifySettings(char* buf, int bufSize);
-
-  void ReadIntBlockV(char** buf, int n, int* block);
-  void SkipByteCountV(char** buf);
 
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
