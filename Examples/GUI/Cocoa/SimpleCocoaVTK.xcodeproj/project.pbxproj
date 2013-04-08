@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		142CC7E917133C7000FE6428 /* libvtkRenderingFreeTypeOpenGL-6.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 142CC7E817133C7000FE6428 /* libvtkRenderingFreeTypeOpenGL-6.0.a */; };
+		142CC7EC17133D3600FE6428 /* libvtkfreetype-6.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 142CC7EB17133D3600FE6428 /* libvtkfreetype-6.0.a */; };
+		142CC7EE17133D4D00FE6428 /* libvtkftgl-6.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 142CC7ED17133D4D00FE6428 /* libvtkftgl-6.0.a */; };
 		1454C0F1094E266D00F594FE /* MyDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1454C0F0094E266D00F594FE /* MyDocument.mm */; };
 		1454C1D6094F306B00F594FE /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1454C1D5094F306B00F594FE /* OpenGL.framework */; };
 		1454C4360950A4A800F594FE /* BasicVTKView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1454C4350950A4A800F594FE /* BasicVTKView.mm */; };
@@ -54,6 +57,10 @@
 
 /* Begin PBXFileReference section */
 		1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		142CC7E817133C7000FE6428 /* libvtkRenderingFreeTypeOpenGL-6.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libvtkRenderingFreeTypeOpenGL-6.0.a"; sourceTree = "vtk-debug-lib"; };
+		142CC7EA17133CB300FE6428 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		142CC7EB17133D3600FE6428 /* libvtkfreetype-6.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libvtkfreetype-6.0.a"; sourceTree = "vtk-debug-lib"; };
+		142CC7ED17133D4D00FE6428 /* libvtkftgl-6.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libvtkftgl-6.0.a"; sourceTree = "vtk-debug-lib"; };
 		1454C0EF094E266D00F594FE /* MyDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocument.h; sourceTree = SOURCE_ROOT; };
 		1454C0F0094E266D00F594FE /* MyDocument.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocument.mm; sourceTree = SOURCE_ROOT; };
 		1454C1D5094F306B00F594FE /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
@@ -144,6 +151,9 @@
 				14FC3EEB16C5A9830092149A /* libvtktiff-6.0.a in Frameworks */,
 				14FC3EEE16C5A9A60092149A /* libvtkFiltersExtraction-6.0.a in Frameworks */,
 				14FC3EEF16C5A9A60092149A /* libvtkmetaio-6.0.a in Frameworks */,
+				142CC7E917133C7000FE6428 /* libvtkRenderingFreeTypeOpenGL-6.0.a in Frameworks */,
+				142CC7EC17133D3600FE6428 /* libvtkfreetype-6.0.a in Frameworks */,
+				142CC7EE17133D4D00FE6428 /* libvtkftgl-6.0.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -178,10 +188,13 @@
 				14FC3ED516C5A9030092149A /* libvtkIOXMLParser-6.0.a */,
 				14FC3EAC16C5A02D0092149A /* libvtkRenderingCore-6.0.a */,
 				14FC3ECA16C5A1C20092149A /* libvtkRenderingFreeType-6.0.a */,
+				142CC7E817133C7000FE6428 /* libvtkRenderingFreeTypeOpenGL-6.0.a */,
 				14FC3EAE16C5A0460092149A /* libvtkRenderingOpenGL-6.0.a */,
 				14FC3EE816C5A9830092149A /* libvtksys-6.0.a */,
 				14FC3EE916C5A9830092149A /* libvtktiff-6.0.a */,
 				14FC3EE216C5A9470092149A /* libvtkexpat-6.0.a */,
+				142CC7EB17133D3600FE6428 /* libvtkfreetype-6.0.a */,
+				142CC7ED17133D4D00FE6428 /* libvtkftgl-6.0.a */,
 				14FC3ECC16C5A8A20092149A /* libvtklibxml2-6.0.a */,
 				14FC3ECE16C5A8C00092149A /* libvtkjpeg-6.0.a */,
 				14FC3EED16C5A9A60092149A /* libvtkmetaio-6.0.a */,
@@ -227,6 +240,7 @@
 		2A37F4AFFDCFA73011CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				142CC7EA17133CB300FE6428 /* PrefixHeader.pch */,
 				2A37F4B0FDCFA73011CA2CEA /* main.mm */,
 			);
 			name = "Other Sources";
