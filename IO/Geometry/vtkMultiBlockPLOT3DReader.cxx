@@ -257,13 +257,13 @@ struct vtkMultiBlockPLOT3DReaderInternals
           }
         int nMax = 3*numGrids;
         int ndims;
-        if(recMarkBeg == nMax*sizeof(int) + 2*sizeof(int))
+        if(recMarkBeg == static_cast<int>(nMax*sizeof(int) + 2*sizeof(int)))
           {
           ndims = 3;
           }
         else
           {
-          if(recMarkBeg == nMax*sizeof(int))
+          if(recMarkBeg == static_cast<int>(nMax*sizeof(int)))
             {
             ndims = 3;
             }
