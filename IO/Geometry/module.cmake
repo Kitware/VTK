@@ -7,6 +7,7 @@ vtk_module(vtkIOGeometry
     vtkCommonMisc
     vtkIOCore
     vtkzlib
+    vtkjsoncpp
   TEST_DEPENDS
     vtkIOAMR
     vtkIOLegacy
