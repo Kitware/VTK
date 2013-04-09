@@ -25,7 +25,7 @@
 #define __vtkUnstructuredGrid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkPointSet.h"
+#include "vtkUnstructuredGridBase.h"
 
 class vtkCellArray;
 class vtkCellLinks;
@@ -68,12 +68,13 @@ class vtkCubicLine;
 class vtkPolyhedron;
 class vtkIdTypeArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGrid : public vtkPointSet
+class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGrid :
+    public vtkUnstructuredGridBase
 {
 public:
   static vtkUnstructuredGrid *New();
 
-  vtkTypeMacro(vtkUnstructuredGrid,vtkPointSet);
+  vtkTypeMacro(vtkUnstructuredGrid, vtkUnstructuredGridBase)
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

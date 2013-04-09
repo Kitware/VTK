@@ -170,6 +170,7 @@ set(Module_SRCS
   vtkUndirectedGraph.cxx
   vtkUniformGrid.cxx
   vtkUnstructuredGrid.cxx
+  vtkUnstructuredGridBase.cxx
   vtkUnstructuredGridCellIterator.cxx
   vtkVertex.cxx
   vtkVertexListIterator.cxx
@@ -243,6 +244,7 @@ set_source_files_properties(
   vtkSpline
   vtkStructuredData
   vtkTreeIterator
+  vtkUnstructuredGridBase
   ABSTRACT
   )
 

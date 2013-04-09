@@ -26,6 +26,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
 #include "vtkPointData.h"
@@ -326,86 +327,89 @@ int vtkUnstructuredGrid::GetGhostLevel()
 // Copy the geometric and topological structure of an input unstructured grid.
 void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
 {
-  vtkUnstructuredGrid *ug=static_cast<vtkUnstructuredGrid *>(ds);
-  vtkPointSet::CopyStructure(ds);
-
-  if (this->Connectivity != ug->Connectivity)
+  // If ds is a vtkUnstructuredGrid, do a shallow copy of the cell data.
+  if (vtkUnstructuredGrid *ug = vtkUnstructuredGrid::SafeDownCast(ds))
     {
-    if ( this->Connectivity )
+    if (this->Connectivity != ug->Connectivity)
       {
-      this->Connectivity->UnRegister(this);
+      if ( this->Connectivity )
+        {
+        this->Connectivity->UnRegister(this);
+        }
+      this->Connectivity = ug->Connectivity;
+      if (this->Connectivity)
+        {
+        this->Connectivity->Register(this);
+        }
       }
-    this->Connectivity = ug->Connectivity;
-    if (this->Connectivity)
+
+    if (this->Links != ug->Links)
       {
-      this->Connectivity->Register(this);
+      if ( this->Links )
+        {
+        this->Links->UnRegister(this);
+        }
+      this->Links = ug->Links;
+      if (this->Links)
+        {
+        this->Links->Register(this);
+        }
+      }
+
+    if (this->Types != ug->Types)
+      {
+      if ( this->Types )
+        {
+        this->Types->UnRegister(this);
+        }
+      this->Types = ug->Types;
+      if (this->Types)
+        {
+        this->Types->Register(this);
+        }
+      }
+
+    if (this->Locations != ug->Locations)
+      {
+      if ( this->Locations )
+        {
+        this->Locations->UnRegister(this);
+        }
+      this->Locations = ug->Locations;
+      if (this->Locations)
+        {
+        this->Locations->Register(this);
+        }
+      }
+
+    if (this->Faces != ug->Faces)
+      {
+      if ( this->Faces )
+        {
+        this->Faces->UnRegister(this);
+        }
+      this->Faces = ug->Faces;
+      if (this->Faces)
+        {
+        this->Faces->Register(this);
+        }
+      }
+
+    if (this->FaceLocations != ug->FaceLocations)
+      {
+      if ( this->FaceLocations )
+        {
+        this->FaceLocations->UnRegister(this);
+        }
+      this->FaceLocations = ug->FaceLocations;
+      if (this->FaceLocations)
+        {
+        this->FaceLocations->Register(this);
+        }
       }
     }
 
-  if (this->Links != ug->Links)
-    {
-    if ( this->Links )
-      {
-      this->Links->UnRegister(this);
-      }
-    this->Links = ug->Links;
-    if (this->Links)
-      {
-      this->Links->Register(this);
-      }
-    }
-
-  if (this->Types != ug->Types)
-    {
-    if ( this->Types )
-      {
-      this->Types->UnRegister(this);
-      }
-    this->Types = ug->Types;
-    if (this->Types)
-      {
-      this->Types->Register(this);
-      }
-    }
-
-  if (this->Locations != ug->Locations)
-    {
-    if ( this->Locations )
-      {
-      this->Locations->UnRegister(this);
-      }
-    this->Locations = ug->Locations;
-    if (this->Locations)
-      {
-      this->Locations->Register(this);
-      }
-    }
-
-  if (this->Faces != ug->Faces)
-    {
-    if ( this->Faces )
-      {
-      this->Faces->UnRegister(this);
-      }
-    this->Faces = ug->Faces;
-    if (this->Faces)
-      {
-      this->Faces->Register(this);
-      }
-    }
-
-  if (this->FaceLocations != ug->FaceLocations)
-    {
-    if ( this->FaceLocations )
-      {
-      this->FaceLocations->UnRegister(this);
-      }
-    this->FaceLocations = ug->FaceLocations;
-    if (this->FaceLocations)
-      {
-      this->FaceLocations->Register(this);
-      }
-    }
+  this->Superclass::CopyStructure(ds);
 }
 
 //----------------------------------------------------------------------------
@@ -1560,9 +1564,7 @@ unsigned long vtkUnstructuredGrid::GetActualMemorySize()
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::ShallowCopy(vtkDataObject *dataObject)
 {
-  vtkUnstructuredGrid *grid = vtkUnstructuredGrid::SafeDownCast(dataObject);
-
-  if ( grid != NULL )
+  if (vtkUnstructuredGrid *grid = vtkUnstructuredGrid::SafeDownCast(dataObject))
     {
     // I do not know if this is correct but.
 
@@ -1625,11 +1627,26 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject *dataObject)
       {
       this->FaceLocations->Register(this);
       }
-
+    }
+  else if (vtkUnstructuredGridBase *ugb =
+           vtkUnstructuredGridBase::SafeDownCast(dataObject))
+    {
+    // The source object has vtkUnstructuredGrid topology, but a different
+    // cell implementation. Deep copy the cells, and shallow copy the rest:
+    vtkSmartPointer<vtkCellIterator> cellIter =
+        vtkSmartPointer<vtkCellIterator>::Take(ugb->NewCellIterator());
+    for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+         cellIter->GoToNextCell())
+      {
+      this->InsertNextCell(cellIter->GetCellType(),
+                           cellIter->GetNumberOfPoints(),
+                           cellIter->GetPointIds()->GetPointer(0),
+                           cellIter->GetNumberOfFaces(),
+                           cellIter->GetFaces()->GetPointer(0));
+      }
     }
 
-  // Do superclass
-  this->vtkPointSet::ShallowCopy(dataObject);
+  this->Superclass::ShallowCopy(dataObject);
 }
 
 //----------------------------------------------------------------------------
@@ -1708,10 +1725,16 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
       this->FaceLocations->Register(this);
       this->FaceLocations->Delete();
       }
-    }
 
-  // Do superclass
-  this->vtkPointSet::DeepCopy(dataObject);
+    // Skip the unstructured grid base implementation, as it uses a less
+    // efficient method of copying cell data.
+    this->vtkUnstructuredGridBase::Superclass::DeepCopy(grid);
+    }
+  else
+    {
+    // Use the vtkUnstructuredGridBase deep copy implementation.
+    this->Superclass::DeepCopy(dataObject);
+    }
 
   // Finally Build Links if we need to
   if (grid && grid->Links)
