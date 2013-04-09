@@ -1508,7 +1508,7 @@ namespace Json {
        * \return Formatted error message with the list of errors with their location in
        *         the parsed document. An empty string is returned if no error occurred
        *         during parsing.
-       * \deprecated Use getFormattedErrorMessages() instead (typo fix).
+       * deprecated: Use getFormattedErrorMessages() instead (typo fix).
        */
       JSONCPP_DEPRECATED("Use getFormattedErrorMessages instead")
       std::string getFormatedErrorMessages() const;
@@ -1783,7 +1783,7 @@ namespace Json {
     *
     * If the Value have comments then they are outputed according to their #CommentPlacement.
     *
-    * \param indentation Each level will be indented by this amount extra.
+    * param: indentation Each level will be indented by this amount extra.
     * \sa Reader, Value, Value::setComment()
     */
    class JSON_API StyledStreamWriter

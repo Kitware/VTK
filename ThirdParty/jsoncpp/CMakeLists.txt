@@ -4,6 +4,15 @@ set(vtkjsoncpp_THIRD_PARTY 1)
 set(vtkjsoncpp_LIBRARIES vtkjsoncpp)
 vtk_module_export_info()
 
+if(VTK_REQUIRE_LARGE_FILE_SUPPORT)
+  add_definitions(
+    -D_LARGEFILE_SOURCE
+    -D_LARGEFILE64_SOURCE
+    -D_LARGE_FILES
+    -D_FILE_OFFSET_BITS=64
+    )
+endif()
+
 set(JSONCPP_SOURCES
   jsoncpp.cpp
 )
