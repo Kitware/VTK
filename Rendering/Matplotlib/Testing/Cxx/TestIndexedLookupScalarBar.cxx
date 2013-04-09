@@ -20,6 +20,7 @@
 #include "vtkStructuredGridGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -394,6 +395,11 @@ public:
         this->Lookup->SetIndexedLookup( ! this->Lookup->GetIndexedLookup() );
         cout << "Index mode " << ( this->Lookup->GetIndexedLookup() ? "ON" : "OFF" ) << "\n";
         }
+      else if ( ri->GetKeySym()[0] == 'd' )
+        {
+        this->ScalarBar->SetDrawBackground( ! this->ScalarBar->GetDrawBackground() );
+        cout << "Background " << ( this->ScalarBar->GetDrawBackground() ? "ON" : "OFF" ) << "\n";
+        }
       else if ( ri->GetKeySym()[0] == 'k' )
         {
         this->ScalarBar->SetTextPosition(
@@ -515,6 +521,7 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
   scalarWidget->GetScalarBarActor()->SetNumberOfLabels(5);
   scalarWidget->GetScalarBarActor()->SetTextPositionToSucceedScalarBar();
   scalarWidget->GetScalarBarActor()->DrawNanAnnotationOn();
+  scalarWidget->GetScalarBarActor()->GetBackgroundProperty()->SetColor(0.5, 0.5, 0.5);
   //scalarWidget->GetScalarBarActor()->DrawNanAnnotationOff();
   scalarWidget->GetScalarBarActor()->SetLookupTable(outlineMapper->GetLookupTable());
 

@@ -84,11 +84,6 @@ public:
   typedef std::vector<double> DoubleVec;
   typedef std::vector<vtkColor3ub> ColorVec;
 
-  enum
-    {
-    TextPad = 4
-    };
-
   /**\brief Cache of dimensions fixed during geometry assembly.
     *
     * Only valid within methods invoked by vtkScalarBarActor::RebuildLayout().

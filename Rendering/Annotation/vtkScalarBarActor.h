@@ -274,6 +274,26 @@ public:
   virtual void SetFrameProperty(vtkProperty2D* p);
   vtkGetObjectMacro(FrameProperty,vtkProperty2D);
 
+  // Description:
+  // Set/get the amount of padding around text boxes.
+  // The default is 1 pixel.
+  vtkGetMacro(TextPad,int);
+  vtkSetMacro(TextPad,int);
+
+  // Description:
+  // Set/get the thickness of the color bar relative to the widget frame.
+  // The default is 0.375 and must always be in the range ]0, 1[.
+  vtkGetMacro(BarRatio,double);
+  vtkSetClampMacro(BarRatio,double,0.,1.);
+
+  // Description:
+  // Set/get the ratio of the title height to the tick label height
+  // (used only when the \a Orientation is horizontal).
+  // The default is 0.5, which attempts to make the labels and title
+  // the same size. This must be a number in the range ]0, 1[.
+  vtkGetMacro(TitleRatio,double);
+  vtkSetClampMacro(TitleRatio,double,0.,1.);
+
 protected:
   vtkScalarBarActor();
   ~vtkScalarBarActor();
@@ -342,6 +362,10 @@ protected:
   //
   // This method must set this->P->TitleBox
   // It may depend on layout performed by LayoutNanSwatch.
+  // If useTickBox is true, it should increase the target area
+  // for the label to touch the tick box. It is called in this
+  // way when the tick labels are small due to constraints other
+  // than the title box.
   virtual void LayoutTitle();
 
   // Description:
@@ -378,6 +402,10 @@ protected:
   // Description:
   // Generate/configure the representation of the frame from laid-out geometry.
   virtual void ConfigureFrame();
+
+  // Description:
+  // For debugging, add placement boxes to the frame polydata.
+  virtual void DrawBoxes();
 
   // Description:
   // Generate/configure the scalar bar representation from laid-out geometry.
@@ -453,6 +481,9 @@ protected:
   double AnnotationLeaderPadding;
   int MaximumWidthInPixels;
   int MaximumHeightInPixels;
+  int TextPad;
+  double BarRatio;
+  double TitleRatio;
   //@}
 
   /// Internal state used for rendering
