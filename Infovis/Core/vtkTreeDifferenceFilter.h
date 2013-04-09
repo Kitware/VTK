@@ -29,8 +29,10 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
+#include "vtkSmartPointer.h"      // For ivars
 #include <vector>                 // For ivars
 
+class vtkDoubleArray;
 class vtkTree;
 
 class VTKINFOVISCORE_EXPORT vtkTreeDifferenceFilter : public vtkGraphAlgorithm
@@ -94,7 +96,8 @@ protected:
   // Description:
   // Compute the differences between tree #1 and tree #2's copies of the
   // comparison array.
-  void ComputeDifference(vtkTree *tree1, vtkTree *tree2);
+  vtkSmartPointer<vtkDoubleArray> ComputeDifference(vtkTree *tree1,
+                                                    vtkTree *tree2);
 
   char* IdArrayName;
   char* ComparisonArrayName;
