@@ -340,6 +340,12 @@ int vtkPlot3DMetaReader::RequestInformation(
 
   this->Reader->RemoveAllFunctions();
 
+  if (!this->FileName)
+    {
+    vtkErrorMacro("No file name was specified. Cannot execute.");
+    return 0;
+    }
+
   ifstream file(this->FileName);
 
   Json::Value root;
