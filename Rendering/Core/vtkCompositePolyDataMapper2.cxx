@@ -184,6 +184,44 @@ void vtkCompositePolyDataMapper2::RemoveBlockVisibilites()
 }
 
 //----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, double color[3])
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->SetBlockColor(index, color);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+double* vtkCompositePolyDataMapper2::GetBlockColor(unsigned int index)
+{
+  (void) index;
+
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::RemoveBlockColor(unsigned int index)
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->RemoveBlockColor(index);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::RemoveBlockColors()
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->RemoveBlockColors();
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetCompositeDataDisplayAttributes(
   vtkCompositeDataDisplayAttributes *attributes)
 {

@@ -24,6 +24,19 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkPainterDeviceAdapter.h"
+#include "vtkRenderWindow.h"
+#include "vtkColor.h"
+
+namespace {
+
+void SendColor(vtkPainterDeviceAdapter *adapter, const vtkColor3d &color)
+{
+  const double *c = reinterpret_cast<const double *>(&color[0]);
+  adapter->SendMaterialProperties(3, VTK_DOUBLE, c, c, c, 0);
+}
+
+} // end anonymous namespace
 
 vtkStandardNewMacro(vtkCompositePainter);
 //----------------------------------------------------------------------------
@@ -64,7 +77,15 @@ void vtkCompositePainter::RenderInternal(vtkRenderer* renderer,
     // render using the composite data attributes
     unsigned int flat_index = 0;
     bool visible = true;
-    this->RenderBlock(renderer, actor, typeflags, forceCompileOnly, input, flat_index, visible);
+    vtkColor3d color(0.5, 0.5, 0.5);
+    this->RenderBlock(renderer,
+                      actor,
+                      typeflags,
+                      forceCompileOnly,
+                      input,
+                      flat_index,
+                      visible,
+                      color);
     }
   else
     {
@@ -106,7 +127,8 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
                                       bool forceCompileOnly,
                                       vtkDataObject *dobj,
                                       unsigned int &flat_index,
-                                      bool &visible)
+                                      bool &visible,
+                                      vtkColor3d &color)
 {
     vtkHardwareSelector *selector = renderer->GetSelector();
 
@@ -117,6 +139,21 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
       {
       visible = this->CompositeDataDisplayAttributes->GetBlockVisibility(flat_index);
       pop_visibility = true;
+      }
+
+    bool pop_color = false;
+    vtkColor3d prev_color = color;
+    if(this->CompositeDataDisplayAttributes->HasBlockColor(flat_index))
+      {
+      color = this->CompositeDataDisplayAttributes->GetBlockColor(flat_index);
+      pop_color = true;
+
+      vtkPainterDeviceAdapter* deviceAdapter =
+        renderer->GetRenderWindow()->GetPainterDeviceAdapter();
+      if(deviceAdapter)
+        {
+        SendColor(deviceAdapter, color);
+        }
       }
 
     vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
@@ -137,7 +174,8 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
                           forceCompileOnly,
                           mbds ? mbds->GetBlock(i) : mpds->GetPiece(i),
                           flat_index,
-                          visible);
+                          visible,
+                          color);
         }
       }
     else if(dobj)
@@ -178,6 +216,18 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
   if(pop_visibility)
     {
     visible = prev_visible;
+    }
+
+  if(pop_color)
+    {
+    color = prev_color;
+
+    vtkPainterDeviceAdapter* deviceAdapter =
+      renderer->GetRenderWindow()->GetPainterDeviceAdapter();
+    if(deviceAdapter)
+      {
+      SendColor(deviceAdapter, prev_color);
+      }
     }
 }
 
