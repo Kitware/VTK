@@ -121,13 +121,13 @@ public:
 
   // Description:
   // Set/Get the string used to describe the grid
-  virtual void SetDescriptor( const vtkStdString& );
-  virtual vtkStdString GetDescriptor();
+  vtkSetStringMacro(Descriptor);
+  vtkGetStringMacro(Descriptor);
 
   // Description:
   // Set/Get the string used to as a material mask
-  virtual void SetMaterialMask( const vtkStdString& );
-  vtkStdString GetMaterialMask();
+  vtkSetStringMacro(MaterialMask);
+  vtkGetStringMacro(MaterialMask);
 
   // Description:
   // Set/Get the bitarray used to describe the grid
@@ -241,8 +241,8 @@ protected:
   vtkDataArray* YCoordinates;
   vtkDataArray* ZCoordinates;
 
-  vtkStdString Descriptor;
-  vtkStdString MaterialMask;
+  char* Descriptor;
+  char* MaterialMask;
   std::vector<vtkStdString> LevelDescriptors;
   std::vector<vtkStdString> LevelMaterialMasks;
 
@@ -250,7 +250,8 @@ protected:
   vtkBitArray* MaterialMaskBits;
   std::vector<vtkIdType> LevelBitsIndex;
 
-  std::map<vtkIdType, vtkIdType>* LevelZeroMaterialIndex;
+  vtkIdTypeArray* LevelZeroMaterialIndex;
+  std::map<vtkIdType, vtkIdType>* LevelZeroMaterialMap;
 
   std::vector<int> LevelCounters;
 

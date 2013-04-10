@@ -57,7 +57,7 @@ int TestHyperTreeGridTernary3DGeometryMaterial( int argc, char* argv[] )
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection( geometry->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
- 
+
   // Actors
   vtkNew<vtkActor> actor1;
   actor1->SetMapper( mapper1.GetPointer() );
@@ -93,7 +93,7 @@ int TestHyperTreeGridTernary3DGeometryMaterial( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 30 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {

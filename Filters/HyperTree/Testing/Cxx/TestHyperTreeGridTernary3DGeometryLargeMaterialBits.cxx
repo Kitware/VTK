@@ -1,7 +1,7 @@
 /*==================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridTernary2DMaterialBits.cxx
+  Module:    TestHyperTreeGridTernary3DGeometryMaterial.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -21,39 +21,35 @@
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkContourFilter.h"
-#include "vtkDataSetMapper.h"
+#include "vtkBitArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkNew.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkBitArray.h"
-#include "vtkIdTypeArray.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkPointData.h"
 
-int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
+int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 6;
-  htGrid->SetMaximumLevel( maxLevel );
-  htGrid->SetGridSize( 2, 3, 1 );
+  htGrid->SetMaximumLevel( 6 );
+  htGrid->SetGridSize( 30, 30, 20 );
   htGrid->SetGridScale( 1.5, 1., .7 );
-  htGrid->SetDimension( 2 );
+  htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
   htGrid->UseMaterialMaskOn();
-  const std::string descriptor = "_RRRR.|" // Level 0 refinement
-    "..R...... RRRRRRRRR R........ R........|..R...... ........R ......RRR ......RRR ..R..R..R RRRRRRRRR R..R..R.. ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ........R ..R..R..R ......... ......RRR ......R.. ......... RRRRRRRRR R..R..R.. ......... ......... ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ......... RRRRRRRRR ......... ......... ......... ......... ......... ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ........." ;
+  const std::string descriptor = ".RR _R. _RR ..R _.R .R_ |" // Level 0 refinement
+   "R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR.........  ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ...........................";
   const std::string materialMask = // Level 0 materials are not needed, visible cells are described with LevelZeroMaterialIndex
-    "111111111 111111111 111111111 111111111|111111111 000000001 000000111 011011111 001001001 111111111 100100100 001001001 111111111 111111111 111111111 001111111|111111111 001001001 111111111 111111111 111111111 111111111 111111111 111111111 001001111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111|111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111|111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111";
+   "111111111111111111111111111 000000000100110111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 000110011100000100100010100|000001011011111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111001111111101111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111|000000000111100100111100100 000000000111001001111001001 000000111100100111111111111 000000111001001111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 110110110100111110111000000|111111111111111111111111111  11111111111111111111111111";
+  vtkIdType zeroArray[] = { 0, 1, 2, 4, 5, 7, 8, 9, 30, 29*30+1, 30*30, 30*30*19, 30*30*20-2, 30*30*20-1 };
   vtkNew<vtkIdTypeArray> zero;
-  zero->InsertNextValue(1);
-  zero->InsertNextValue(2);
-  zero->InsertNextValue(3);
-  zero->InsertNextValue(4);
-  zero->InsertNextValue(5);
+  zero->SetArray( zeroArray, sizeof(zeroArray) / sizeof(vtkIdType), 1, 0 );
   htGrid->SetLevelZeroMaterialIndex( zero.GetPointer() );
   vtkBitArray* desc = htGrid->ConvertDescriptorStringToBitArray( descriptor );
   htGrid->SetDescriptorBits(desc);
@@ -68,18 +64,6 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   geometry->Update();
   vtkPolyData* pd = geometry->GetOutput();
 
-  // Contour
-  vtkNew<vtkContourFilter> contour;
-  int nContours = 3;
-  contour->SetNumberOfContours( nContours );
-  contour->SetInputConnection( htGrid->GetOutputPort() );
-  double resolution = ( maxLevel - 1 ) / ( nContours + 1. );
-  double isovalue = resolution;
-  for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
-    {
-    contour->SetValue( i, isovalue );
-    }
-
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
@@ -89,12 +73,6 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection( geometry->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
-  vtkNew<vtkPolyDataMapper> mapper3;
-  mapper3->SetInputConnection( contour->GetOutputPort() );
-  mapper3->ScalarVisibilityOff();
-  vtkNew<vtkDataSetMapper> mapper4;
-  mapper4->SetInputConnection( htGrid->GetOutputPort() );
-  mapper4->ScalarVisibilityOff();
 
   // Actors
   vtkNew<vtkActor> actor1;
@@ -103,14 +81,6 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   actor2->SetMapper( mapper2.GetPointer() );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
-  vtkNew<vtkActor> actor3;
-  actor3->SetMapper( mapper3.GetPointer() );
-  actor3->GetProperty()->SetColor( .8, .4, .3 );
-  actor3->GetProperty()->SetLineWidth( 3 );
-  vtkNew<vtkActor> actor4;
-  actor4->SetMapper( mapper4.GetPointer() );
-  actor4->GetProperty()->SetRepresentationToWireframe();
-  actor4->GetProperty()->SetColor( .0, .0, .0 );
 
   // Camera
   double bd[6];
@@ -118,7 +88,7 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( .5 * bd[1], .5 * bd[3], 6. );
+  camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
@@ -126,8 +96,6 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   renderer->SetBackground( 1., 1., 1. );
   renderer->AddActor( actor1.GetPointer() );
   renderer->AddActor( actor2.GetPointer() );
-  renderer->AddActor( actor3.GetPointer() );
-  renderer->AddActor( actor4.GetPointer() );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
@@ -142,7 +110,7 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 70 );
+  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 30 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     iren->Start();

@@ -127,11 +127,11 @@ class vtkHyperTreeCursor;
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTree : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkHyperTree,vtkObject);
+  vtkTypeMacro(vtkHyperTree, vtkObject);
   virtual void Initialize() = 0;
   virtual vtkHyperTreeCursor* NewCursor() = 0;
   virtual vtkIdType GetNumberOfLeaves() = 0;
-  virtual int GetNumberOfNodes() = 0;
+  virtual vtkIdType GetNumberOfNodes() = 0;
   virtual int GetBranchFactor() = 0;
   virtual int GetDimension() = 0;
   virtual void SetScale( double[3] ) = 0;
@@ -159,7 +159,7 @@ public:
   // Return an instance of a templated hypertree for given branch
   // factor and dimension
   // This is done to hide templates.
-  static vtkHyperTree* CreateInstance( int factor, int dimension );
+  static vtkHyperTree* CreateInstance( int branchFactor, int dimension );
 
   // Description:
   // Find the Index and IsLeaf() parameters of a child for hypertree.

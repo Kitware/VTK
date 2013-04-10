@@ -47,8 +47,8 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
                             0., 0., 0.,
                             -25. );
   htGrid->SetQuadric( quadric.GetPointer() );
-
   htGrid->Update();
+
   vtkNew<vtkHyperTreeGrid> htgCopy;
   htgCopy->ShallowCopy( htGrid->GetOutput() );
 

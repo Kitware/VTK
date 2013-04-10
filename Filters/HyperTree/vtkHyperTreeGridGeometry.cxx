@@ -168,7 +168,7 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
   this->Cells = vtkCellArray::New();
 
   // Iterate over all hyper trees
-  unsigned int index = 0;
+  vtkIdType index = 0;
   unsigned int* gridSize = this->Input->GetGridSize();
   if ( this->Input->GetTransposedRootIndexing() )
     {
@@ -178,18 +178,21 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
         {
         for ( unsigned int k = 0; k < gridSize[2]; ++ k, ++ index )
           {
-          // Storage for super cursors
-          vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
+          if ( this->Input->GetLevelZeroIndex( index ) >= 0 )
+            {
+            // Storage for super cursors
+            vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
-          // Initialize center cursor
-          this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
+            // Initialize center cursor
+            this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
 
-          // Traverse and populate dual recursively
-          this->RecursiveProcessTree( &superCursor );
+            // Traverse and populate dual recursively
+            this->RecursiveProcessTree( &superCursor );
+            }
           } // i
         } // j
       } // k
-    } // if ( this->TransposedRootIndexing )
+    } // if ( this->Input->GetTransposedRootIndexing() )
   else
     {
     for ( unsigned int k = 0; k < gridSize[2]; ++ k )
@@ -198,14 +201,17 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
         {
         for ( unsigned int i = 0; i < gridSize[0]; ++ i, ++ index )
           {
-          // Storage for super cursors
-          vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
+          if ( this->Input->GetLevelZeroIndex( index ) >= 0 )
+            {
+            // Storage for super cursors
+            vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
-          // Initialize center cursor
-          this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
+            // Initialize center cursor
+            this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
 
-          // Traverse and populate dual recursively
-          this->RecursiveProcessTree( &superCursor );
+            // Traverse and populate dual recursively
+            this->RecursiveProcessTree( &superCursor );
+            }
           } // i
         } // j
       } // k
@@ -221,59 +227,6 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
     {
     this->Output->SetPolys( this->Cells );
     }
-}
-
-
-//----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
-                                        double* origin, double* size,
-                                        int offset, int orientation )
-{
-  // Initialize points
-  double pt[3];
-  memcpy( pt, origin, 3 * sizeof(double) );
-
-  if ( offset )
-    {
-    pt[orientation] += size[orientation];
-    }
-
-  // Storage for face vertices
-  vtkIdType ids[4];
-
-  // Create origin vertex
-  ids[0] = this->Points->InsertNextPoint( pt );
-
-  // Create other face vertices depending on orientation
-  int axis1 = 0;
-  int axis2 = 0;
-  switch ( orientation )
-    {
-    case 0:
-      axis1 = 1;
-      axis2 = 2;
-      break;
-    case 1:
-      axis1 = 0;
-      axis2 = 2;
-      break;
-    case 2:
-      axis1 = 0;
-      axis2 = 1;
-      break;
-    }
-  pt[axis1] += size[axis1];
-  ids[1] = this->Points->InsertNextPoint( pt );
-  pt[axis2] += size[axis2];
-  ids[2] = this->Points->InsertNextPoint( pt );
-  pt[axis1] = origin[axis1];
-  ids[3] = this->Points->InsertNextPoint( pt );
-
-  // Insert face
-  vtkIdType outId = this->Cells->InsertNextCell( 4, ids );
-
-  // Copy face data from that of the cell from which it comes
-  this->OutData->CopyData( this->InData, inId, outId );
 }
 
 //----------------------------------------------------------------------------
@@ -341,7 +294,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D( void* sc )
   vtkIdType id0 = cursor0->GetGlobalLeafIndex();
 
   // In 2D all unmasked faces are generated
-  if ( ! this->Input->GetMaterialMask()->GetTuple1( id0 ) )
+  if ( id0 >= 0 && ! this->Input->GetMaterialMask()->GetTuple1( id0 ) )
     {
     this->AddFace( id0, superCursor->Origin, superCursor->Size, 0, 2 );
     }
@@ -357,6 +310,11 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
 
   // Cell at cursor 0 is a leaf, retrieve its global index
   vtkIdType id0 = cursor0->GetGlobalLeafIndex();
+
+  if ( id0 < 0 )
+    {
+    return;
+    }
 
   int neighborIdx = -1;
   int masked = this->Input->GetMaterialMask()->GetTuple1( id0 );
@@ -378,8 +336,8 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
           && cursor->IsLeaf()
           && cursor->GetLevel() < cursor0->GetLevel() )
           {
-          int id = cursor->GetGlobalLeafIndex();
-          if ( ! this->Input->GetMaterialMask()->GetTuple1( id ) )
+          vtkIdType id = cursor->GetGlobalLeafIndex();
+          if ( id >=0 && ! this->Input->GetMaterialMask()->GetTuple1( id ) )
             {
             this->AddFace( id, superCursor->Origin, superCursor->Size, o, f );
             }
@@ -388,6 +346,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
       else
         {
         // Boundary faces, or faces shared by a masked cell, must be created
+        // TODO: fix this test, otherwise some faces may be added twice (?)
         if ( ! cursor->GetTree()
           ||
           ( cursor->IsLeaf()
@@ -398,4 +357,42 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
         }
       } // o
     } // f
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
+                                        double* origin, double* size,
+                                        int offset, int orientation )
+{
+  // Initialize points
+  double pt[3];
+  memcpy( pt, origin, 3 * sizeof(double) );
+
+  if ( offset )
+    {
+    pt[orientation] += size[orientation];
+    }
+
+  // Storage for face vertices
+  vtkIdType ids[4];
+
+  // Create origin vertex
+  ids[0] = this->Points->InsertNextPoint( pt );
+
+  // Create other face vertices depending on orientation
+  int axis1 = ( orientation == 0 ) ? 1 : 0;
+  int axis2 = ( orientation == 2 ) ? 1 : 2;
+
+  pt[axis1] += size[axis1];
+  ids[1] = this->Points->InsertNextPoint( pt );
+  pt[axis2] += size[axis2];
+  ids[2] = this->Points->InsertNextPoint( pt );
+  pt[axis1] = origin[axis1];
+  ids[3] = this->Points->InsertNextPoint( pt );
+
+  // Insert face
+  vtkIdType outId = this->Cells->InsertNextCell( 4, ids );
+
+  // Copy face data from that of the cell from which it comes
+  this->OutData->CopyData( this->InData, inId, outId );
 }

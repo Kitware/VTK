@@ -55,7 +55,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  int GetLeafId()
+  vtkIdType GetLeafId()
   {
     assert( "pre: is_leaf" && IsLeaf() );
     return this->Index;
@@ -314,7 +314,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  virtual int Found()
+  virtual bool Found()
   {
     return this->IsFound;
   }
@@ -337,7 +337,7 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // Public only for vtkCompactHyperTree.
-  void SetIndex( int index )
+  void SetIndex( vtkIdType index )
   {
     assert( "pre: positive_index" && index >= 0 );
     this->Index = index;
@@ -384,12 +384,12 @@ protected:
   unsigned char Dimension;
 
   // Index either in the Nodes or Parents (if leaf)
-  int Index;
+  vtkIdType Index;
 
   // Number of current node as a child
   int ChildIndex;
 
-  int IsFound;
+  bool IsFound;
   bool Leaf;
 
   // A stack, but stack does not have clear()
@@ -429,15 +429,8 @@ public:
       ++ i;
       idx -= 8;
       }
-    unsigned char mask = 1<<idx;
-    if ( val )
-      {
-      this->Flags[i] = this->Flags[i] | mask;
-      }
-    else
-      {
-      this->Flags[i] = this->Flags[i] & (mask^255);
-      }
+    unsigned char mask = 1 << idx;
+    this->Flags[i] = val ? ( this->Flags[i] | mask ) : ( this->Flags[i] & (mask ^ 255) );
   }
 
   bool GetLeafFlag(int idx)
@@ -450,7 +443,7 @@ public:
       idx -= 8;
       }
     unsigned char mask = 1 << idx;
-    return (mask & this->Flags[i]) == mask;
+    return ( mask & this->Flags[i] ) == mask;
   }
 
   void PrintSelf(ostream& os, int numChildren)
@@ -461,7 +454,7 @@ public:
     unsigned char mask = 1;
     while ( childIdx < numChildren )
       {
-      os << ((( this->Flags[byteIdx])&mask)==mask);
+      os << ( ( this->Flags[byteIdx] & mask ) == mask );
       ++childIdx;
       if (mask == 128)
         {
@@ -489,11 +482,11 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // See GetParent().
-  void SetParent(int parent)
+  void SetParent(vtkIdType parent)
   {
     assert( "pre: positive_parent" && parent >= 0 );
-    this->Parent=parent;
-    assert( "post: is_set" && parent==this->GetParent() );
+    this->Parent = parent;
+    assert( "post: is_set" && parent == this->GetParent() );
   }
 
   //---------------------------------------------------------------------------
@@ -509,9 +502,9 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // See GetLeafFlags()
-  void SetLeafFlag(int childIdx, bool flag)
+  void SetLeafFlag( vtkIdType childIdx, bool flag )
   {
-    this->LeafFlags.SetLeafFlag(childIdx, flag);
+    this->LeafFlags.SetLeafFlag( childIdx, flag );
   }
 
   //---------------------------------------------------------------------------
@@ -662,10 +655,10 @@ public:
 
   //---------------------------------------------------------------------------
   // NB: Public only for the vtkCompactHyperTreeCursor.
-  virtual int GetNumberOfNodes()
+  virtual vtkIdType GetNumberOfNodes()
   {
-    assert( "post: not_empty" && this->Nodes.size()>0 );
-    return static_cast<int>( this->Nodes.size() );
+    assert( "post: not_empty" && this->Nodes.size() > 0 );
+    return static_cast<vtkIdType>( this->Nodes.size() );
   }
 
   //---------------------------------------------------------------------------
@@ -676,17 +669,17 @@ public:
 
     // We are using a vtkCompactHyperTreeCursor.
     // We know that GetLeafId() return Cursor.
-    int leafIndex = leafCursor->GetLeafId();
+    vtkIdType leafIndex = leafCursor->GetLeafId();
     vtkCompactHyperTreeCursor<N>* cursor = static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
 
     // The leaf becomes a node and is not anymore a leaf
     cursor->SetIsLeaf( false ); // let the cursor know about that change.
     size_t nodeIndex = this->Nodes.size();
-    cursor->SetIndex( static_cast<int>( nodeIndex ) );
+    cursor->SetIndex( static_cast<vtkIdType>( nodeIndex ) );
 
     // Nodes get constructed with leaf flags set to 1.
     this->Nodes.resize( nodeIndex + 1 );
-    int parentNodeIdx = this->LeafParent[leafIndex];
+    vtkIdType parentNodeIdx = this->LeafParent[leafIndex];
     this->Nodes[nodeIndex].SetParent( parentNodeIdx );
 
     // Change the parent: it has one less child as a leaf
@@ -714,7 +707,7 @@ public:
       }
 
     // Update the number of leaves per level.
-    int level = cursor->GetChildHistorySize();
+    vtkIdType level = cursor->GetChildHistorySize();
 
     // Remove the subdivided leaf from the number of leaves at its level.
     -- this->NumberOfLeavesPerLevel[level];
@@ -731,7 +724,7 @@ public:
 
   //---------------------------------------------------------------------------
   // NB: Bad interface: This is really GetNumberOfLeaves.
-  int GetLeafParentSize()
+  vtkIdType GetLeafParentSize()
   {
     return static_cast<int>( this->LeafParent.size() );
   }
@@ -865,10 +858,10 @@ protected:
   std::vector<vtkCompactHyperTreeNode<N> > Nodes;
 
   // Storage for number of leaves in each level
-  std::vector<int> NumberOfLeavesPerLevel;
+  std::vector<vtkIdType> NumberOfLeavesPerLevel;
 
   // Storage to record the parent of each leaf
-  std::vector<int> LeafParent;
+  std::vector<vtkIdType> LeafParent;
 
 private:
   vtkCompactHyperTree(const vtkCompactHyperTree<N> &);  // Not implemented.
@@ -914,72 +907,41 @@ vtkHyperTree* vtkHyperTree::CreateInstance( int factor, int dimension )
 //-----------------------------------------------------------------------------
 void vtkHyperTree::FindChildParameters( int child, vtkIdType& index, bool& isLeaf )
 {
+#define GetNodeParametersMacro( _N_ )                                              \
+  {                                                                                \
+  vtkCompactHyperTree<_N_>* tree = static_cast<vtkCompactHyperTree<_N_>*>( this ); \
+  vtkCompactHyperTreeNode<_N_>* node = tree->GetNode( index );                     \
+  index = node->GetChild( child );                                                 \
+  isLeaf = node->IsChildLeaf( child );                                             \
+  return;                                                                          \
+  }
+
   switch ( this->GetDimension() )
     {
     case 3:
       switch ( this->GetBranchFactor() )
         {
-        case 2:
-          {
-          vtkCompactHyperTree<8>* tree = static_cast<vtkCompactHyperTree<8>*>( this );
-          vtkCompactHyperTreeNode<8>* node = tree->GetNode( index );
-          index = node->GetChild( child );
-          isLeaf = node->IsChildLeaf( child );
-          return;
-          }
-        case 3:
-          {
-          vtkCompactHyperTree<27>* tree = static_cast<vtkCompactHyperTree<27>*>( this );
-          vtkCompactHyperTreeNode<27>* node = tree->GetNode( index );
-          index = node->GetChild( child );
-          isLeaf = node->IsChildLeaf( child );
-          return;
-          }
+        case 2: GetNodeParametersMacro( 8 );
+        case 3: GetNodeParametersMacro( 27 );
         } // case 3
       break;
     case 2:
       switch ( this->GetBranchFactor() )
         {
-        case 2:
-          {
-          vtkCompactHyperTree<4>* tree = static_cast<vtkCompactHyperTree<4>*>( this );
-          vtkCompactHyperTreeNode<4>* node = tree->GetNode( index );
-          index = node->GetChild( child );
-          isLeaf = node->IsChildLeaf( child );
-          return;
-          }
-        case 3:
-          {
-          vtkCompactHyperTree<9>* tree = static_cast<vtkCompactHyperTree<9>*>( this );
-          vtkCompactHyperTreeNode<9>* node = tree->GetNode( index );
-          index = node->GetChild( child );
-          isLeaf = node->IsChildLeaf( child );
-          return;
-          }
+        case 2: GetNodeParametersMacro( 4 );
+        case 3: GetNodeParametersMacro( 9 );
         } // case 2
       break;
     case 1:
       switch ( this->GetBranchFactor() )
         {
-        case 2:
-          {
-          vtkCompactHyperTree<2>* tree = static_cast<vtkCompactHyperTree<2>*>( this );
-          vtkCompactHyperTreeNode<2>* node = tree->GetNode( index );
-          index = node->GetChild( child );
-          isLeaf = node->IsChildLeaf( child );
-          return;
-          }
-        case 3:
-          {
-          vtkCompactHyperTree<3>* tree = static_cast<vtkCompactHyperTree<3>*>( this );
-          vtkCompactHyperTreeNode<3>* node = tree->GetNode( index );
-          index = node->GetChild( child );
-          isLeaf = node->IsChildLeaf( child );
-          return;
-          }
+        case 2: GetNodeParametersMacro( 2 );
+        case 3: GetNodeParametersMacro( 3 );
         } // case 1
       break;
     }
+
+#undef GetNodeParametersMacro
 
   vtkGenericWarningMacro( "Bad branching factor " << this->GetBranchFactor() );
 }

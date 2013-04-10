@@ -24,6 +24,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestHyperTreeGridTernary3DGeometry.cxx
   TestHyperTreeGridTernary3DGeometryMaterial.cxx
   TestHyperTreeGridTernary3DGeometryMaterialBits.cxx
+  TestHyperTreeGridTernary3DGeometryLargeMaterialBits.cxx
   TestHyperTreeGridTernary3DUnstructured.cxx
   TestHyperTreeGridTernary3DUnstructuredMaterial.cxx
   TestHyperTreeGridTernaryHyperbola.cxx

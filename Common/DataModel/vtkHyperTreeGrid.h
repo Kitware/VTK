@@ -116,11 +116,11 @@ public:
 
   // Description:
   // Get the number of leaves in the primal tree grid.
-  unsigned int GetNumberOfLeaves();
+  vtkIdType GetNumberOfLeaves();
 
   // Description:
   // Return the number of levels in an individual (primal) tree
-  unsigned int GetNumberOfLevels( unsigned int );
+  vtkIdType GetNumberOfLevels( vtkIdType );
 
   // Description:
   // Specify the grid coordinates in the x-direction.
@@ -143,10 +143,19 @@ public:
   vtkGetObjectMacro(MaterialMask, vtkBitArray);
 
   // Description:
+  // Specify the visibility mask of primal leaf cells
+  virtual void SetMaterialMaskIndex( vtkIdTypeArray* );
+  vtkGetObjectMacro(MaterialMaskIndex, vtkIdTypeArray);
+
+  // Description:
+  // This method must be called once the tree settings change
+  virtual void GenerateTrees();
+
+  // Description:
   // Create a new cursor: an object that can traverse
   // the cells of an individual hyper tree.
   // \post result_exists: result!=0
-  vtkHyperTreeCursor* NewCursor( int );
+  vtkHyperTreeCursor* NewCursor( vtkIdType );
 
   // Description:
   // Subdivide node pointed by cursor, only if its a leaf.
@@ -301,7 +310,7 @@ public:
                               unsigned int,
                               unsigned int,
                               unsigned int,
-                              unsigned int );
+                              vtkIdType );
   // Description:
   // Initialize a cursor to point to a child of an existing super cursor.
   // This will not work in place.
@@ -314,13 +323,14 @@ public:
   // The number of children each node can have.
   vtkGetMacro(NumberOfChildren, int);
 
+  vtkIdType GetLevelZeroIndex( vtkIdType );
+
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperTreeGrid();
   ~vtkHyperTreeGrid();
 
   void ComputeBounds();
-  void UpdateTree();
 
   void GetCell( vtkIdType, vtkCell* );
 
@@ -330,17 +340,19 @@ protected:
 
   unsigned int Dimension;    // 1, 2 or 3.
   unsigned int GridSize[3];
-  bool TransposedRootIndexing;
   unsigned int BranchFactor;
   unsigned int NumberOfChildren;
+  bool TransposedRootIndexing;
 
   vtkBitArray* MaterialMask;
+  vtkIdTypeArray* MaterialMaskIndex;
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;
   vtkDataArray* ZCoordinates;
 
   vtkCollection* HyperTrees;
+  std::map<vtkIdType, vtkIdType> HyperTreesMap;
   vtkIdType* HyperTreesLeafIdOffsets;
 
   vtkPoints* Points;
@@ -355,7 +367,7 @@ protected:
 
 //BTX
 #ifndef __WRAP__
-  void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, int );
+  void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, unsigned int );
 
   void TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* );
 
@@ -416,7 +428,7 @@ public:
     vtkHyperTree* GetTree() { return this->Tree; }
     vtkIdType GetLeafIndex() { return this->Index; } // Only valid for leaves.
 
-    vtkIdType GetGlobalLeafIndex() { return this->Offset + this->Index; }
+    vtkIdType GetGlobalLeafIndex() { return ( this->Offset >= 0 ) ? this->Offset + this->Index : -1; }
     vtkIdType GetOffset() { return this->Offset; }
     unsigned short GetLevel() { return this->Level; }
 
