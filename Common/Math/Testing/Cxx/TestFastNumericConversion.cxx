@@ -35,7 +35,7 @@ int TestFastNumericConversion(int,char *[])
   double *dval = new double[inner_count];
   int *ival = new int[inner_count];
   int *frac = new int[inner_count];
-
+  union { int i; double d; } int_double_conv;
 
   int i,o;
   vtkTimerLog *timer = vtkTimerLog::New();
@@ -52,7 +52,8 @@ int TestFastNumericConversion(int,char *[])
     for (i=0; i<inner_count; i++)
       {
       // Pure bit copy
-      ival[i] = *reinterpret_cast<int *>(&dval[i]);
+      int_double_conv.d = dval[i];
+      ival[i] = int_double_conv.i;
       }
     }
   timer->StopTimer();
