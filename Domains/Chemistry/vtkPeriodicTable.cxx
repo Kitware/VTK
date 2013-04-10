@@ -18,6 +18,7 @@
 #include "vtkAbstractArray.h"
 #include "vtkBlueObeliskData.h"
 #include "vtkColor.h"
+#include "vtkDebugLeaks.h"
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMutexLock.h"
