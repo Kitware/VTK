@@ -686,6 +686,15 @@ int vtkMultiBlockPLOT3DReader::SkipByteCount(FILE* fp)
       fclose (fp);
       return 0;
       }
+    if (this->Internal->ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
+      {
+      vtkByteSwap::Swap4LERange(&tmp, 1);
+      }
+    else
+      {
+      vtkByteSwap::Swap4BERange(&tmp, 1);
+      }
+
     return tmp;
     }
   return 0;
