@@ -24,19 +24,9 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkCompositeDataDisplayAttributes.h"
-#include "vtkPainterDeviceAdapter.h"
 #include "vtkRenderWindow.h"
 #include "vtkColor.h"
-
-namespace {
-
-void SendColor(vtkPainterDeviceAdapter *adapter, const vtkColor3d &color)
-{
-  const double *c = reinterpret_cast<const double *>(&color[0]);
-  adapter->SendMaterialProperties(3, VTK_DOUBLE, c, c, c, 0);
-}
-
-} // end anonymous namespace
+#include "vtkProperty.h"
 
 vtkStandardNewMacro(vtkCompositePainter);
 //----------------------------------------------------------------------------
@@ -131,6 +121,7 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
                                       vtkColor3d &color)
 {
     vtkHardwareSelector *selector = renderer->GetSelector();
+    vtkProperty *property = actor->GetProperty();
 
     // push display attributes
     bool pop_visibility = false;
@@ -148,12 +139,8 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
       color = this->CompositeDataDisplayAttributes->GetBlockColor(flat_index);
       pop_color = true;
 
-      vtkPainterDeviceAdapter* deviceAdapter =
-        renderer->GetRenderWindow()->GetPainterDeviceAdapter();
-      if(deviceAdapter)
-        {
-        SendColor(deviceAdapter, color);
-        }
+      double color4[] = { color[0], color[1], color[2], 1. };
+      property->RenderMaterial(actor, renderer, color4, color4, color4, 1.);
       }
 
     vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
@@ -222,12 +209,8 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
     {
     color = prev_color;
 
-    vtkPainterDeviceAdapter* deviceAdapter =
-      renderer->GetRenderWindow()->GetPainterDeviceAdapter();
-    if(deviceAdapter)
-      {
-      SendColor(deviceAdapter, prev_color);
-      }
+    double color4[] = { color[0], color[1], color[2], 1. };
+    property->RenderMaterial(actor, renderer, color4, color4, color4, 1.);
     }
 }
 
