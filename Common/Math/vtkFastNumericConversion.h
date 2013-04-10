@@ -309,26 +309,7 @@ public:
   // teensy" problem is exacerbated when trying to floor larger numbers, due
   // to limitations of the representation's dynamic range. See the definition
   // of RoundingTieBreaker() for details.
-  inline static int QuickFloor(const double &val)
-    {
-#ifdef VTK_USE_TRICK
-      union { int i[2]; double d; } u;
-#ifdef VTK_EXT_PREC
-      u.d = (((val - (QuickRoundAdjust() - RoundingTieBreaker()))
-              // Push off those extended precision bits
-              + QuickExtPrecTempDenormalizer())
-             // Pull back the wanted bits into double range
-             - QuickExtPrecTempDenormalizer())
-        + QuickFloorDenormalizer();
-#else // ! VTK_EXT_PREC
-      u.d = (val - (QuickRoundAdjust() - RoundingTieBreaker()))
-        + QuickFloorDenormalizer();
-#endif // VTK_EXT_PREC
-      return u.i[mantissa_pos];
-#else // ! VTK_USE_TRICK
-      return static_cast<int>(val);
-#endif // VTK_USE_TRICK
-    }
+  static int QuickFloor(const double &val);
 
   // Description:
   // Perform a SAFE flooring. Similar to QuickFloor, but modified to return
@@ -344,24 +325,7 @@ public:
   // bit of fixed point precision in the intermediate calculation, the range
   // of integers supported is reduced by one bit. Plus, it takes a little
   // longer to execute, due to the final bit shift.
-  inline static int SafeFloor(const double &val)
-    {
-#ifdef VTK_USE_TRICK
-      union { int i[2]; double d; } u;
-#ifdef VTK_EXT_PREC
-      u.d = (((val - SafeRoundAdjust())
-              + SafeExtPrecTempDenormalizer())
-             - SafeExtPrecTempDenormalizer())
-        + SafeFloorDenormalizer();
-#else // ! VTK_EXT_PREC
-      u.d = (val - SafeRoundAdjust())
-        + SafeFloorDenormalizer();
-#endif // VTK_EXT_PREC
-      return u.i[mantissa_pos] >> SafeFinalShift();
-#else // ! VTK_USE_TRICK
-      return static_cast<int>(val);
-#endif // VTK_USE_TRICK
-    }
+  static int SafeFloor(const double &val);
 
   // Description:
   // Round to nearest int.  This is pretty sweet in the default
@@ -372,31 +336,7 @@ public:
   // result for the analogous "Floor(3)". Therefore, we don't need to worry
   // at all about adding a teensy but not too teensy tie breaker, or shifting
   // off a half-integer bit. This makes it exceptionally fast.
-  inline static int Round(const double &val)
-    {
-#ifdef VTK_USE_TRICK
-      union { int i[2]; double d; } u;
-#ifdef VTK_EXT_PREC
-      u.d = ((val
-              + QuickExtPrecTempDenormalizer())
-             - QuickExtPrecTempDenormalizer())
-        + QuickFloorDenormalizer();
-#else // ! VTK_EXT_PREC
-      u.d = val
-        + QuickFloorDenormalizer();
-#endif // VTK_EXT_PREC
-    return u.i[mantissa_pos];
-#else // ! VTK_USE_TRICK
-    if (val>=0)
-      {
-      return static_cast<int>(val + 0.5);
-      }
-    else
-      {
-      return static_cast<int>(val - 0.5);
-      }
-#endif // VTK_USE_TRICK
-    }
+  static int Round(const double &val);
 
   // Description:
   // Convert the value to a fixed point representation, returning the
@@ -422,23 +362,20 @@ public:
 
 protected:
   //BTX
-  vtkFastNumericConversion()
-    {
-#ifdef VTK_TEST_HACK_TO_EMULATE_LINUX_UNDER_WINDOWS
-    _controlfp( _PC_64, MCW_PC );
-#endif
-
-    this->fixRound = 0;
-    this->internalReservedFracBits = 0;
-    this->fracMask = 0;
-    this->fpDenormalizer = 0;
-    };
+  vtkFastNumericConversion();
   ~vtkFastNumericConversion() {};
   void InternalRebuild(void);
 
 private:
   vtkSetMacro(internalReservedFracBits, int);
   vtkGetMacro(internalReservedFracBits, int);
+
+#ifndef VTK_LEGACY_SILENT
+  static int QuickFloorInline(const double &val);
+  static int SafeFloorInline(const double &val);
+  static int RoundInline(const double &val);
+#endif
+
   int internalReservedFracBits;
   int fracMask;
 
@@ -458,5 +395,83 @@ private:
   vtkFastNumericConversion(const vtkFastNumericConversion&); // Not implemented
   void operator=(const vtkFastNumericConversion&); // Not implemented
 };
+
+#ifndef VTK_LEGACY_SILENT
+inline int vtkFastNumericConversion::QuickFloorInline(const double &val)
+#else
+inline int vtkFastNumericConversion::QuickFloor(const double &val)
+#endif
+{
+#ifdef VTK_USE_TRICK
+  union { int i[2]; double d; } u;
+#ifdef VTK_EXT_PREC
+  u.d = (((val - (QuickRoundAdjust() - RoundingTieBreaker()))
+          // Push off those extended precision bits
+          + QuickExtPrecTempDenormalizer())
+         // Pull back the wanted bits into double range
+         - QuickExtPrecTempDenormalizer())
+    + QuickFloorDenormalizer();
+#else // ! VTK_EXT_PREC
+  u.d = (val - (QuickRoundAdjust() - RoundingTieBreaker()))
+    + QuickFloorDenormalizer();
+#endif // VTK_EXT_PREC
+  return u.i[mantissa_pos];
+#else // ! VTK_USE_TRICK
+  return static_cast<int>(val);
+#endif // VTK_USE_TRICK
+}
+
+#ifndef VTK_LEGACY_SILENT
+inline int vtkFastNumericConversion::SafeFloorInline(const double &val)
+#else
+inline int vtkFastNumericConversion::SafeFloor(const double &val)
+#endif
+{
+#ifdef VTK_USE_TRICK
+  union { int i[2]; double d; } u;
+#ifdef VTK_EXT_PREC
+  u.d = (((val - SafeRoundAdjust())
+          + SafeExtPrecTempDenormalizer())
+         - SafeExtPrecTempDenormalizer())
+    + SafeFloorDenormalizer();
+#else // ! VTK_EXT_PREC
+  u.d = (val - SafeRoundAdjust())
+    + SafeFloorDenormalizer();
+#endif // VTK_EXT_PREC
+  return u.i[mantissa_pos] >> SafeFinalShift();
+#else // ! VTK_USE_TRICK
+  return static_cast<int>(val);
+#endif // VTK_USE_TRICK
+}
+
+#ifndef VTK_LEGACY_SILENT
+inline int vtkFastNumericConversion::RoundInline(const double &val)
+#else
+inline int vtkFastNumericConversion::Round(const double &val)
+#endif
+{
+#ifdef VTK_USE_TRICK
+  union { int i[2]; double d; } u;
+#ifdef VTK_EXT_PREC
+  u.d = ((val
+          + QuickExtPrecTempDenormalizer())
+         - QuickExtPrecTempDenormalizer())
+    + QuickFloorDenormalizer();
+#else // ! VTK_EXT_PREC
+  u.d = val
+    + QuickFloorDenormalizer();
+#endif // VTK_EXT_PREC
+return u.i[mantissa_pos];
+#else // ! VTK_USE_TRICK
+if (val>=0)
+  {
+  return static_cast<int>(val + 0.5);
+  }
+else
+  {
+  return static_cast<int>(val - 0.5);
+  }
+#endif // VTK_USE_TRICK
+}
 
 #endif

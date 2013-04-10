@@ -25,8 +25,6 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastMapper.h"
 
-#include <math.h>
-
 vtkStandardNewMacro(vtkVolumeRayCastIsosurfaceFunction);
 
 /*    Is x between y and z?                                     */
@@ -313,9 +311,9 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   ray_position_y = ray_start[1];
   ray_position_z = ray_start[2];
 
-  voxel_x = vtkFloorFuncMacro( ray_position_x );
-  voxel_y = vtkFloorFuncMacro( ray_position_y );
-  voxel_z = vtkFloorFuncMacro( ray_position_z );
+  voxel_x = vtkMath::Floor( ray_position_x );
+  voxel_y = vtkMath::Floor( ray_position_y );
+  voxel_z = vtkMath::Floor( ray_position_z );
 
   ray_end[0] = ray_start[0] + num_steps*ray_increment[0];
   ray_end[1] = ray_start[1] + num_steps*ray_increment[1];
@@ -344,9 +342,9 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   tstep_y = VTK_Sign( ray_direction_y );
   tstep_z = VTK_Sign( ray_direction_z );
 
-  end_voxel_x = (int)ray_end[0] + tstep_x;
-  end_voxel_y = (int)ray_end[1] + tstep_y;
-  end_voxel_z = (int)ray_end[2] + tstep_z;
+  end_voxel_x = vtkMath::Floor(ray_end[0]) + tstep_x;
+  end_voxel_y = vtkMath::Floor(ray_end[1]) + tstep_y;
+  end_voxel_z = vtkMath::Floor(ray_end[2]) + tstep_z;
 
   if (ray_direction_x != 0.0)
     {
@@ -586,9 +584,9 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   ray_position_y = ray_start[1];
   ray_position_z = ray_start[2];
 
-  voxel_x = vtkFloorFuncMacro( ray_position_x );
-  voxel_y = vtkFloorFuncMacro( ray_position_y );
-  voxel_z = vtkFloorFuncMacro( ray_position_z );
+  voxel_x = vtkMath::Floor( ray_position_x );
+  voxel_y = vtkMath::Floor( ray_position_y );
+  voxel_z = vtkMath::Floor( ray_position_z );
 
   ray_end[0] = ray_start[0] + num_steps*ray_increment[0];
   ray_end[1] = ray_start[1] + num_steps*ray_increment[1];
@@ -617,9 +615,9 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   tstep_y = VTK_Sign( ray_direction_y );
   tstep_z = VTK_Sign( ray_direction_z );
 
-  end_voxel_x = (int)ray_end[0] + tstep_x;
-  end_voxel_y = (int)ray_end[1] + tstep_y;
-  end_voxel_z = (int)ray_end[2] + tstep_z;
+  end_voxel_x = vtkMath::Floor(ray_end[0]) + tstep_x;
+  end_voxel_y = vtkMath::Floor(ray_end[1]) + tstep_y;
+  end_voxel_z = vtkMath::Floor(ray_end[2]) + tstep_z;
 
   if (ray_direction_x != 0.0)
     {
