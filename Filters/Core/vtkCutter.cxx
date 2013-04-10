@@ -343,6 +343,12 @@ int vtkCutter::RequestData(
     return 0;
     }
 
+  if (!input)
+    {
+    // this could be a table in a multiblock structure, i.e. no cut!
+    return 0;
+    }
+
   if ( input->GetNumberOfPoints() < 1 || this->GetNumberOfContours() < 1 )
     {
     return 1;
