@@ -696,6 +696,10 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     // find the row in the table that corresponds to this vertex
     std::string nodeName = nodeNames->GetValue(vertex);
     vtkIdType tableRow = tableNames->LookupValue(nodeName);
+    if (tableRow < 0)
+      {
+      continue;
+      }
 
     this->RowMap[currentRow] = tableRow;
 
