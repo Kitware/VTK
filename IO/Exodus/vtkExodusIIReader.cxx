@@ -6176,6 +6176,16 @@ double vtkExodusIIReader::GetCacheSize()
   return this->Metadata->GetCacheSize();
 }
 
+void vtkExodusIIReader::SetSqueezePoints(bool sp)
+{
+  this->Metadata->SetSqueezePoints(sp ? 1 : 0);
+}
+
+bool vtkExodusIIReader::GetSqueezePoints()
+{
+  return this->Metadata->GetSqueezePoints() != 0;
+}
+
 void vtkExodusIIReader::ResetCache()
 {
   this->Metadata->ResetCache();
