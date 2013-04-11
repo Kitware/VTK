@@ -68,7 +68,7 @@
 
 vtkStandardNewMacro(vtkVideoSource);
 
-#if defined ( _MSC_VER ) && ( _MSC_VER >= 1300 ) // Visual studio .NET
+#if defined(_MSC_VER)
 #pragma warning ( disable : 4311 )
 #pragma warning ( disable : 4312 )
 #endif

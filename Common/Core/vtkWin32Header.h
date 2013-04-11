@@ -87,7 +87,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 # define VTK_WORKAROUND_WINDOWS_MANGLE
 #endif
 
-#if ( _MSC_VER >= 1300 ) // Visual studio .NET
+#if defined(_MSC_VER) // Visual studio
 #pragma warning ( disable : 4311 )
 #pragma warning ( disable : 4312 )
 #  define vtkGetWindowLong GetWindowLongPtr
@@ -96,7 +96,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #  define vtkGWL_WNDPROC GWLP_WNDPROC
 #  define vtkGWL_HINSTANCE GWLP_HINSTANCE
 #  define vtkGWL_USERDATA GWLP_USERDATA
-#else // older or non-Visual studio
+#else // non-Visual studio
 #  define vtkGetWindowLong GetWindowLong
 #  define vtkSetWindowLong SetWindowLong
 #  define vtkLONG LONG
@@ -130,15 +130,6 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #  pragma warning ( disable : 4710 ) /* function not inlined */
 #  pragma warning ( disable : 4786 ) /* identifier truncated in debug info */
 # endif
-#endif
-
-// MSVC 6.0 in release mode will warn about code it produces with its
-// optimizer.  Disable the warnings specifically for this
-// configuration.  Real warnings will be revealed by a debug build or
-// by other compilers.
-#if defined(_MSC_VER) && (_MSC_VER < 1300) && defined(NDEBUG)
-# pragma warning ( disable : 4701 ) /* Variable may be used uninitialized.  */
-# pragma warning ( disable : 4702 ) /* Unreachable code.  */
 #endif
 
 #if defined(__BORLANDC__)

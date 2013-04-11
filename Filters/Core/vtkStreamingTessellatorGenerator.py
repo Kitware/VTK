@@ -434,14 +434,6 @@ print >> genCode, """
 #undef UGLY_ASPECT_RATIO_HACK
 #undef DBG_MIDPTS
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-   /* Ignore "return type for 'std::deque<int*>::const_iterator::operator ->'
-    * is 'int *const * ' (ie; not a UDT or reference to a UDT.
-    * Will produce errors if applied using infix notation)" warning on MSVC6.
-    */
-#  pragma warning ( disable : 4284 )
-#endif
-
 #include <stack>
 #include <algorithm>
 
