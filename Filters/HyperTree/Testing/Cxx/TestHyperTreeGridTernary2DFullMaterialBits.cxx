@@ -114,8 +114,8 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   int sx = 10;
   int sy = 10;
   int sz = 1;
-  int depth = 3;
-  int branch = 2;
+  int depth = 2;
+  int branch = 3;
 
   vtkNew<vtkTimerLog> timer;
 
@@ -153,15 +153,14 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   vtkIdType nbCells = htGrid->GetOutput()->GetNumberOfCells();
   timer->StopTimer();
   cout << "#cells " << nbCells << endl;
-  //vtkDataArray* depthArray = htGrid->GetOutput()->GetPointData()->GetArray( "Depth" );
 
+  /*vtkDataArray* depthArray = htGrid->GetOutput()->GetPointData()->GetArray( "Depth" );
   for ( int i = 0; i < htGrid->GetOutput()->GetNumberOfPoints(); i++ )
     {
     double x[3];
     htGrid->GetOutput()->GetPoint( i, x );
-    //cout << "pt " << i << " : " << x[0] << ", " << x[1] << " : " << depthArray->GetTuple1( i ) << endl;
-    }
-  //depthArray->SetTuple1(25,4);
+    cout << "pt " << i << " : " << x[0] << ", " << x[1] << " : " << depthArray->GetTuple1( i ) << endl;
+    }*/
 
   // Geometry
   cout << "Constructing geometry..." << endl;

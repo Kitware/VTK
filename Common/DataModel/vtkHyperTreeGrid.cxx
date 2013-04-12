@@ -1304,28 +1304,32 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
 {
   // Get cursor at super cursor center
   vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
-  //if ( !cursor0->IsLeaf() )
-  //  {
-  //  // Initialize dual point coordinates and D-face adjustment flag
-  //  double pt[3] = { 0., 0., 0. };
-  //  for ( unsigned int d = 0; d < this->Dimension; ++ d )
-  //    {
-  //    double s = superCursor->Size[d] / 2.;
-  //    pt[d] = superCursor->Origin[d] + s;
-  //    }
-  //  // Retrieve global index of center cursor
-  //  int idx = cursor0->GetOffset();
-  //  int lf =  cursor0->GetGlobalLeafIndex();
-  //  int id0 = level > 0 ? ((level == 1 && cursor0->GetLeafIndex() == 2 ) ? lf -1 : lf ) :  idx;
-  //  //cout << "node " << idx << " : " << lf << " detected at " << id0 << endl;
-  //  //this->Points->SetPoint( id0, pt );
-  //  }
 
-  if ( cursor0->IsLeaf() )
+  // Retrieve global index of center cursor
+  vtkIdType id0 = cursor0->GetGlobalLeafIndex();
+
+  if ( !cursor0->IsLeaf() )
+    {
+    // Initialize non leaf point coordinate
+    double pt[3] = { 0., 0., 0. };
+    for ( unsigned int d = 0; d < this->Dimension; ++ d )
+      {
+      pt[d] = superCursor->Origin[d] + superCursor->Size[d] / 2.;
+      }
+    // Retrieve global index of center cursor
+    this->Points->SetPoint( id0 - 1, pt );
+
+    // If cursor 0 is not at leaf, recurse to all children
+    for ( unsigned int child = 0; child < this->NumberOfChildren; ++ child )
+      {
+      vtkHyperTreeGridSuperCursor newSuperCursor;
+      this->InitializeSuperCursorChild( superCursor, &newSuperCursor, child );
+      this->TraverseDualRecursively( &newSuperCursor, level + 1 );
+      }
+    }
+  else
     {
     // Center is a leaf, create a dual point
-    // Retrieve global index of center cursor
-    vtkIdType id0 = cursor0->GetGlobalLeafIndex();
     if ( this->GetMaterialMask()->GetTuple1( id0 ) )
       {
       this->TraverseDualMaskedLeaf( superCursor );
@@ -1333,16 +1337,6 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
     else
       {
       this->TraverseDualLeaf( superCursor );
-      }
-    }
-  else
-    {
-    // If cursor 0 is not at leaf, recurse to all children
-    for ( unsigned int child = 0; child < this->NumberOfChildren; ++ child )
-      {
-      vtkHyperTreeGridSuperCursor newSuperCursor;
-      this->InitializeSuperCursorChild( superCursor, &newSuperCursor, child );
-      this->TraverseDualRecursively( &newSuperCursor, level + 1 );
       }
     }
 }
