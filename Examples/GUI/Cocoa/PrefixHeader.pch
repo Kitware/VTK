@@ -1,0 +1,8 @@
+// This header is automatically #included in every source file in the Xcode project.
+
+// Match the definitions used to build VTK.
+// Required for proper object factory initialization.
+// It happens automatically when building with CMake,
+// but not when building with Xcode.
+#define vtkRenderingCore_AUTOINIT 4(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingFreeTypeOpenGL,vtkRenderingOpenGL)
+#define vtkRenderingVolume_AUTOINIT 1(vtkRenderingVolumeOpenGL)
