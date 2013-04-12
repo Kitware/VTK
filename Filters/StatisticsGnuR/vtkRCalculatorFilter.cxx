@@ -317,8 +317,31 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataObject* input = inpinfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* output = outinfo->Get(vtkDataObject::DATA_OBJECT());
 
-  //only one output port; the ouput type is assumed to be the same as the first input data object (backward compatibility)
+  //only one output port
+  //the output type is assumed to be the same as the first input data object
+  //(backward compatibility)
   output->ShallowCopy(input);
+
+  // if the input is a composite, we also need to initialize the
+  // output's components.
+  vtkCompositeDataSet* inComposite =
+    vtkCompositeDataSet::SafeDownCast(input);
+  if (inComposite)
+    {
+    vtkCompositeDataSet* outComposite =
+      vtkCompositeDataSet::SafeDownCast(output);
+    outComposite->CopyStructure(inComposite);
+    vtkCompositeDataIterator* iter = inComposite->NewIterator();
+    iter->InitTraversal();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+         iter->GoToNextItem())
+      {
+      vtkDataObject* outComponent =
+        iter->GetCurrentDataObject()->NewInstance();
+      outComposite->SetDataSet(iter, outComponent);
+      outComponent->Delete();
+      }
+    }
 
   // For now: use the first input information for timing
   if(this->TimeOutput)
@@ -379,63 +402,12 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
     }
 
   // assign vtk variables to R variables
-  vtkDataSet * dataSetIn = 0;
-  vtkGraph * graphIn = 0;
-  vtkTree * treeIn = 0;
-  vtkTable* tableIn = 0;
-  vtkCompositeDataSet * compositeDataSetIn = 0;
-  vtkArrayData * arrayDataIn = 0;
   int numberOfInputs =  inputVector[0]->GetNumberOfInformationObjects();
   for ( int i = 0; i < numberOfInputs; i++)
     {
     inpinfo = inputVector[0]->GetInformationObject(i);
-
     input = inpinfo->Get(vtkDataObject::DATA_OBJECT());
-
-    dataSetIn = vtkDataSet::SafeDownCast(input);
-    if (dataSetIn)
-      {
-      this->ProcessInputDataSet(dataSetIn);
-      continue;
-      }
-
-    treeIn = vtkTree::SafeDownCast(input);
-    if (treeIn)
-      {
-      this->ProcessInputTree(treeIn);
-      continue;
-      }
-
-    graphIn = vtkGraph::SafeDownCast(input);
-    if (graphIn)
-      {
-      this->ProcessInputGraph(graphIn);
-      continue;
-      }
-
-    arrayDataIn = vtkArrayData::SafeDownCast(input);
-    if (arrayDataIn)
-      {
-      this->ProcessInputArrayData(arrayDataIn);
-      continue;
-      }
-
-    compositeDataSetIn = vtkCompositeDataSet::SafeDownCast(input);
-    if (compositeDataSetIn)
-      {
-      this->ProcessInputCompositeDataSet(compositeDataSetIn);
-      continue;
-      }
-
-    tableIn = vtkTable::SafeDownCast(input);
-    if (tableIn)
-      {
-      this->ProcessInputTable(tableIn);
-      continue;
-      }
-
-
-
+    this->ProcessInputDataObject(input);
     }
 
   //run scripts
@@ -471,54 +443,14 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
       }
     }
 
-
   // generate output
-  vtkDataSet* dataSetOut = vtkDataSet::SafeDownCast(output);
-  if (dataSetOut)
+  if (this->ProcessOutputDataObject(output) != 0)
     {
-    this->ProcessOutputDataSet(dataSetOut);
-    return (1);
+    vtkErrorMacro(<<"Filter does not handle output data type");
+    return 1;
     }
 
-
-  vtkCompositeDataSet* compositeDataSetOut= vtkCompositeDataSet::SafeDownCast(output);
-  if (compositeDataSetOut)
-    {
-    this->ProcessOutputCompositeDataSet(compositeDataSetOut);
-    return (1);
-    }
-
-  vtkArrayData* arrayDataOut = vtkArrayData::SafeDownCast(output);
-  if (arrayDataOut)
-    {
-    this->ProcessOutputArrayData(arrayDataOut);
-    return (1);
-    }
-
-  vtkTable* tableOut= vtkTable::SafeDownCast(output);
-  if (tableOut)
-    {
-    this->ProcessOutputTable(tableOut);
-    return (1);
-    }
-
-  vtkTree* treeOut = vtkTree::SafeDownCast(output);
-  if (treeOut)
-    {
-    this->ProcessOutputTree(treeOut);
-    return (1);
-    }
-
-  vtkGraph* graphOut = vtkGraph::SafeDownCast(output);
-  if (graphOut)
-    {
-    this->ProcessOutputGraph(graphOut);
-    return (1);
-    }
-
-
-  vtkErrorMacro(<<"Filter does not handle output data type");
-  return(1);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -813,8 +745,7 @@ int vtkRCalculatorFilter::ProcessInputCompositeDataSet(vtkCompositeDataSet* cdsI
         this->BlockId->SetValue(0,bid);
         this->ri->AssignVTKDataArrayToRVariable(this->BlockId, "VTK_BLOCK_ID");
         }
-      vtkDataSet* inputDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-      this->ProcessInputDataSet(inputDS);
+      this->ProcessInputDataObject(iter->GetCurrentDataObject());
       bid++;
       }
     iter->Delete();
@@ -831,10 +762,10 @@ int vtkRCalculatorFilter::ProcessOutputCompositeDataSet(vtkCompositeDataSet * cd
 
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-    vtkDataSet* outputDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    this->ProcessOutputDataSet(outputDS);
+    this->ProcessOutputDataObject(iter->GetCurrentDataObject());
     }
   iter->Delete();
+
   return (1);
 }
 
@@ -857,7 +788,8 @@ int vtkRCalculatorFilter::ProcessOutputTable(vtkTable* tOut)
 
   if(this->rcfi->GetTableName.size() > 0)
     {
-    tOut->ShallowCopy(this->ri->AssignRVariableToVTKTable(this->rcfi->GetTableName.c_str()));
+    tOut->ShallowCopy(
+      this->ri->AssignRVariableToVTKTable(this->rcfi->GetTableName.c_str()));
     }
 
   return (1);
@@ -865,6 +797,7 @@ int vtkRCalculatorFilter::ProcessOutputTable(vtkTable* tOut)
 }
 
 
+//----------------------------------------------------------------------------
 int vtkRCalculatorFilter::ProcessInputTree(vtkTree* tIn)
 {
 
@@ -877,19 +810,21 @@ int vtkRCalculatorFilter::ProcessInputTree(vtkTree* tIn)
 }
 
 
+//----------------------------------------------------------------------------
 int vtkRCalculatorFilter::ProcessOutputTree(vtkTree* tOut)
 {
 
   if(this->rcfi->GetTreeName.size() > 0)
     {
-    tOut->ShallowCopy(this->ri->AssignRVariableToVTKTree(this->rcfi->GetTreeName.c_str()));
+    tOut->ShallowCopy(
+      this->ri->AssignRVariableToVTKTree(this->rcfi->GetTreeName.c_str()));
     }
   return (1);
 
 }
 
 
-
+//----------------------------------------------------------------------------
 int vtkRCalculatorFilter::SetRscriptFromFile(const char* fname)
 {
 
@@ -947,10 +882,13 @@ int vtkRCalculatorFilter::SetRscriptFromFile(const char* fname)
 }
 
 
-void vtkRCalculatorFilter::PutArray(const char* NameOfVTKArray, const char* NameOfMatVar)
+//----------------------------------------------------------------------------
+void vtkRCalculatorFilter::PutArray(const char* NameOfVTKArray,
+                                    const char* NameOfMatVar)
 {
 
-  if( NameOfVTKArray && (strlen(NameOfVTKArray) > 0) && NameOfMatVar && (strlen(NameOfMatVar) > 0) )
+  if( NameOfVTKArray && (strlen(NameOfVTKArray) > 0) &&
+      NameOfMatVar && (strlen(NameOfMatVar) > 0) )
     {
     rcfi->PutArrNames.push_back(ArrNames(NameOfVTKArray, NameOfMatVar));
     this->Modified();
@@ -959,10 +897,13 @@ void vtkRCalculatorFilter::PutArray(const char* NameOfVTKArray, const char* Name
 }
 
 
-void vtkRCalculatorFilter::GetArray(const char* NameOfVTKArray, const char* NameOfMatVar)
+//----------------------------------------------------------------------------
+void vtkRCalculatorFilter::GetArray(const char* NameOfVTKArray,
+                                    const char* NameOfMatVar)
 {
 
-  if( NameOfVTKArray && (strlen(NameOfVTKArray) > 0) && NameOfMatVar && (strlen(NameOfMatVar) > 0) )
+  if( NameOfVTKArray && (strlen(NameOfVTKArray) > 0) &&
+      NameOfMatVar && (strlen(NameOfMatVar) > 0) )
     {
     rcfi->GetArrNames.push_back(ArrNames(NameOfVTKArray, NameOfMatVar));
     this->Modified();
@@ -971,6 +912,7 @@ void vtkRCalculatorFilter::GetArray(const char* NameOfVTKArray, const char* Name
 }
 
 
+//----------------------------------------------------------------------------
 void vtkRCalculatorFilter::PutTable(const char* NameOfRvar)
 {
 
@@ -983,6 +925,7 @@ void vtkRCalculatorFilter::PutTable(const char* NameOfRvar)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkRCalculatorFilter::GetTable(const char* NameOfRvar)
 {
 
@@ -995,6 +938,7 @@ void vtkRCalculatorFilter::GetTable(const char* NameOfRvar)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkRCalculatorFilter::PutTree(const char* NameOfRvar)
 {
 
@@ -1007,6 +951,7 @@ void vtkRCalculatorFilter::PutTree(const char* NameOfRvar)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkRCalculatorFilter::GetTree(const char* NameOfRvar)
 {
 
@@ -1019,6 +964,7 @@ void vtkRCalculatorFilter::GetTree(const char* NameOfRvar)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkRCalculatorFilter::RemoveAllPutVariables()
 {
   rcfi->PutArrNames.clear();
@@ -1026,9 +972,107 @@ void vtkRCalculatorFilter::RemoveAllPutVariables()
 }
 
 
+//----------------------------------------------------------------------------
 void vtkRCalculatorFilter::RemoveAllGetVariables()
 {
   rcfi->GetArrNames.clear();
   this->Modified();
 }
 
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessInputDataObject(vtkDataObject *input)
+{
+  vtkDataSet * dataSetIn = vtkDataSet::SafeDownCast(input);
+  if (dataSetIn)
+    {
+    this->ProcessInputDataSet(dataSetIn);
+    return 0;
+    }
+
+  vtkTree * treeIn = vtkTree::SafeDownCast(input);
+  if (treeIn)
+    {
+    this->ProcessInputTree(treeIn);
+    return 0;
+    }
+
+  vtkGraph * graphIn = vtkGraph::SafeDownCast(input);
+  if (graphIn)
+    {
+    this->ProcessInputGraph(graphIn);
+    return 0;
+    }
+
+  vtkArrayData * arrayDataIn = vtkArrayData::SafeDownCast(input);
+  if (arrayDataIn)
+    {
+    this->ProcessInputArrayData(arrayDataIn);
+    return 0;
+    }
+
+  vtkCompositeDataSet * compositeDataSetIn =
+    vtkCompositeDataSet::SafeDownCast(input);
+  if (compositeDataSetIn)
+    {
+    this->ProcessInputCompositeDataSet(compositeDataSetIn);
+    return 0;
+    }
+
+  vtkTable * tableIn = vtkTable::SafeDownCast(input);
+  if (tableIn)
+    {
+    this->ProcessInputTable(tableIn);
+    return 0;
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkRCalculatorFilter::ProcessOutputDataObject(vtkDataObject *output)
+{
+  vtkDataSet* dataSetOut = vtkDataSet::SafeDownCast(output);
+  if (dataSetOut)
+    {
+    this->ProcessOutputDataSet(dataSetOut);
+    return 0;
+    }
+
+  vtkCompositeDataSet* compositeDataSetOut= vtkCompositeDataSet::SafeDownCast(output);
+  if (compositeDataSetOut)
+    {
+    this->ProcessOutputCompositeDataSet(compositeDataSetOut);
+    return 0;
+    }
+
+  vtkArrayData* arrayDataOut = vtkArrayData::SafeDownCast(output);
+  if (arrayDataOut)
+    {
+    this->ProcessOutputArrayData(arrayDataOut);
+    return 0;
+    }
+
+  vtkTable* tableOut= vtkTable::SafeDownCast(output);
+  if (tableOut)
+    {
+    this->ProcessOutputTable(tableOut);
+    return 0;
+    }
+
+  vtkTree* treeOut = vtkTree::SafeDownCast(output);
+  if (treeOut)
+    {
+    this->ProcessOutputTree(treeOut);
+    return 0;
+    }
+
+  vtkGraph* graphOut = vtkGraph::SafeDownCast(output);
+  if (graphOut)
+    {
+    this->ProcessOutputGraph(graphOut);
+    return 0;
+    }
+
+  return 1;
+}
