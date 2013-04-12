@@ -32,9 +32,12 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkBitArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkPointData.h"
+#include "vtkTimerLog.h"
 
 int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
 {
+
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   int maxLevel = 6;
@@ -56,9 +59,9 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   zero->InsertNextValue(5);
   htGrid->SetLevelZeroMaterialIndex( zero.GetPointer() );
   vtkBitArray* desc = htGrid->ConvertDescriptorStringToBitArray( descriptor );
+  vtkBitArray* mat = htGrid->ConvertMaterialMaskStringToBitArray( materialMask );
   htGrid->SetDescriptorBits(desc);
   desc->Delete();
-  vtkBitArray* mat = htGrid->ConvertMaterialMaskStringToBitArray( materialMask );
   htGrid->SetMaterialMaskBits(mat);
   mat->Delete();
 

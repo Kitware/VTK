@@ -269,27 +269,6 @@ void vtkHyperTreeGridSource::SetLevelZeroMaterialIndex( vtkIdTypeArray* indexArr
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::SetLevelZeroMaterialIndex( std::map<vtkIdType, vtkIdType>* indexMap )
-{
-  if ( this->LevelZeroMaterialMap == indexMap )
-    {
-    return;
-    }
-  if ( this->LevelZeroMaterialMap )
-    {
-    delete this->LevelZeroMaterialMap;
-    }
-  this->LevelZeroMaterialMap = indexMap;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-std::map<vtkIdType, vtkIdType>* vtkHyperTreeGridSource::GetLevelZeroMaterialIndex()
-{
-  return this->LevelZeroMaterialMap;
-}
-
-//----------------------------------------------------------------------------
 // Description:
 // Return the maximum number of levels of the hypertree.
 // \post positive_result: result>=1
@@ -444,47 +423,52 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     quadricArray->UnRegister( this );
     }
 
-  // Iterate over grid of trees
-  for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
+  // Iterate over all hyper trees
+  vtkIdType index;
+  vtkHyperTreeGrid::vtkHyperTreeIterator it;
+  this->Output->InitializeTreeIterator( it );
+  while ( it.GetNextTree( index ) )
     {
-    for ( unsigned int j = 0; j < this->GridSize[1]; ++ j )
+    vtkIdType i, j, k;
+    //if ( this->TransposedRootIndexing )
+    //  {
+    //  this->Output->GetLevelZeroCoordsFromIndex( index, k, j, i );
+    //  }
+    //else
+    this->Output->GetLevelZeroCoordsFromIndex( index, i, j, k );
+
+    // Initialize cursor
+    vtkHyperTreeCursor* cursor = this->Output->NewCursor( index );
+    if ( !cursor )
       {
-      for ( unsigned int i = 0; i < this->GridSize[0]; ++ i )
-        {
-        // Calculate tree index
-        int treeIdx = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
+      continue;
+      }
+    cursor->ToRoot();
 
-        // Initialize cursor
-        vtkHyperTreeCursor* cursor = this->Output->NewCursor( treeIdx );
-        if ( !cursor ) { continue; }
-        cursor->ToRoot();
+    // Initialize local cell index
+    int idx[3] = { 0, 0, 0 };
 
-        // Initialize local cell index
-        int idx[3] = { 0, 0, 0 };
+    // Retrieve offset into array of scalars and recurse
+    vtkIdType nt = outData->GetScalars()->GetNumberOfTuples();
 
-        // Retrieve offset into array of scalars and recurse
-        vtkIdType nt = outData->GetScalars()->GetNumberOfTuples();
+    if ( this->UseDescriptor )
+      {
+      this->InitTreeFromDescriptor( cursor, index, idx, nt );
+      }
+    else
+      {
+      // Initialize coordinate system for implicit function
+      double origin[3];
+      origin[0] = ( i % this->GridSize[0] ) * this->GridScale[0];
+      origin[1] = ( j % this->GridSize[1] ) * this->GridScale[1];
+      origin[2] = ( k % this->GridSize[2] ) * this->GridScale[2];
 
-        if ( this->UseDescriptor )
-          {
-          this->InitTreeFromDescriptor( cursor, treeIdx, idx, nt );
-          }
-        else
-          {
-          // Initialize coordinate system for implicit function
-          double origin[3];
-          origin[0] = ( i % this->GridSize[0] ) * this->GridScale[0];
-          origin[1] = ( j % this->GridSize[1] ) * this->GridScale[1];
-          origin[2] = ( k % this->GridSize[2] ) * this->GridScale[2];
-
-          // Subdivide based on quadric implicit function
-          this->SubdivideFromQuadric( cursor, 0, treeIdx, idx, nt, origin, this->GridScale );
-          }
-        // Clean up
-        cursor->UnRegister( this );
-        } // i
-      } // j
-    } // k
+      // Subdivide based on quadric implicit function
+      this->SubdivideFromQuadric( cursor, 0, index, idx, nt, origin, this->GridScale );
+      }
+    // Clean up
+    cursor->UnRegister( this );
+    } // it
 
   // Squeeze output data arrays
   for ( int a = 0; a < outData->GetNumberOfArrays(); ++ a )

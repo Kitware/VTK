@@ -30,15 +30,54 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkPointData.h"
+#include "vtkTimerLog.h"
+#include <vtkObjectFactory.h>
+
+vtkNew<vtkRenderer> renderer;
+
+// Define interaction style
+class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
+{
+  public:
+    static KeyPressInteractorStyle* New();
+    vtkTypeMacro(KeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
+
+    virtual void OnKeyPress()
+    {
+      // Get the keypress
+      vtkRenderWindowInteractor *rwi = this->Interactor;
+      std::string key = rwi->GetKeySym();
+
+      // Handle a "normal" key
+      if(key == "a")
+        {
+        double *pos = renderer->GetActiveCamera()->GetPosition();
+        double *focal = renderer->GetActiveCamera()->GetFocalPoint();
+        double *clip = renderer->GetActiveCamera()->GetClippingRange();
+        double *up = renderer->GetActiveCamera()->GetViewUp();
+        cout << "----" << endl;
+        cout << "Camera position " << pos[0] << ", " << pos[1] << ", " << pos[2] << endl;
+        cout << "Camera focalpoint " << focal[0] << ", " << focal[1] << ", " << focal[2] << endl;
+        cout << "Camera viewup " << up[0] << ", " << up[1] << ", " << up[2] << endl;
+        cout << "Camera range " << clip[0] << ", " << clip[1] << endl;
+        }
+
+      // Forward events
+      vtkInteractorStyleTrackballCamera::OnKeyPress();
+    }
+
+};
+vtkStandardNewMacro(KeyPressInteractorStyle);
 
 int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   htGrid->SetMaximumLevel( 6 );
-  htGrid->SetGridSize( 30, 30, 20 );
+  htGrid->SetGridSize( 100, 100, 2048 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
@@ -57,12 +96,21 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
   vtkBitArray* mat = htGrid->ConvertMaterialMaskStringToBitArray( materialMask );
   htGrid->SetMaterialMaskBits(mat);
   mat->Delete();
+  vtkNew<vtkTimerLog> timer;
+  timer->StartTimer();
+  htGrid->Update();
+  timer->StopTimer();
+  cout << "Tree created in " << timer->GetElapsedTime() << "s" << endl;
+  htGrid->GetOutput()->GetNumberOfCells();
 
+  timer->StartTimer();
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
   vtkPolyData* pd = geometry->GetOutput();
+  timer->StopTimer();
+  cout << "Geometry computed in " << timer->GetElapsedTime() << "s" <<  endl;
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
@@ -82,20 +130,16 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
 
-  // Camera
-  double bd[6];
-  pd->GetBounds( bd );
-  vtkNew<vtkCamera> camera;
-  camera->SetClippingRange( 1., 100. );
-  camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
-
   // Renderer
-  vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera( camera.GetPointer() );
   renderer->SetBackground( 1., 1., 1. );
   renderer->AddActor( actor1.GetPointer() );
   renderer->AddActor( actor2.GetPointer() );
+
+  // Camera
+  renderer->GetActiveCamera()->SetFocalPoint( 39.47, 14.97, 5.83 );
+  renderer->GetActiveCamera()->SetPosition( -34.83, -20.41, -27.78 );
+  renderer->GetActiveCamera()->SetViewUp( -0.257301, 0.959041, -0.118477 );
+  renderer->GetActiveCamera()->SetClippingRange( 0.314716, 314.716 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
@@ -106,6 +150,8 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow( renWin.GetPointer() );
+  vtkNew<KeyPressInteractorStyle> style;
+  iren->SetInteractorStyle( style.GetPointer() );
 
   // Render and test
   renWin->Render();

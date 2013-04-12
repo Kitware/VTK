@@ -694,13 +694,13 @@ public:
     // The first new child
     // Recycle the leaf index we are deleting because it became a node.
     // This avoids messy leaf parent array issues.
-    this->Nodes[nodeIndex].SetChild( 0, leafIndex );
-    this->LeafParent[leafIndex] = static_cast<int>( nodeIndex );
+    //this->Nodes[nodeIndex].SetChild( 0, leafIndex );
+    //this->LeafParent[leafIndex] = static_cast<int>( nodeIndex );
 
     // The other (N-1) new children.
     size_t nextLeaf = this->LeafParent.size();
-    this->LeafParent.resize( nextLeaf + ( N - 1 ) );
-    for( int i = 1; i < N; ++ i, ++ nextLeaf )
+    this->LeafParent.resize( nextLeaf + N ); //( N - 1 ) );
+    for( int i = 0; i < N; ++ i, ++ nextLeaf )
       {
       this->Nodes[nodeIndex].SetChild( i, static_cast<int>( nextLeaf ) );
       this->LeafParent[nextLeaf] = static_cast<int>( nodeIndex );
@@ -736,9 +736,6 @@ public:
 
     os << indent << "Dimension=" << this->Dimension << endl;
     os << indent << "BranchFactor=" << this->BranchFactor << endl;
-
-    os << indent << "Nodes=" << this->Nodes.size() << endl;
-    os << indent << "LeafParent=" << this->LeafParent.size() << endl;
 
     os << indent << "Nodes=" << this->Nodes.size() << endl;
     for ( unsigned int i = 0; i < this->Nodes.size(); ++ i )

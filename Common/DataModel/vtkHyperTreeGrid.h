@@ -59,6 +59,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataSet
 public:
 //BTX
   class vtkHyperTreeSimpleCursor;
+  class vtkHyperTreeIterator;
   struct vtkHyperTreeGridSuperCursor;
 //ETX
 
@@ -121,6 +122,10 @@ public:
   // Description:
   // Return the number of levels in an individual (primal) tree
   vtkIdType GetNumberOfLevels( vtkIdType );
+
+  // Description:
+  // Return the number of trees in the level 0 grid.
+  vtkIdType GetNumberOfTrees();
 
   // Description:
   // Specify the grid coordinates in the x-direction.
@@ -276,6 +281,10 @@ public:
   void Initialize();
 
   // Description:
+  // Initialize an iterator to browse level 0 trees.
+  void InitializeTreeIterator( vtkHyperTreeIterator& );
+
+  // Description:
   // Convenience method returns largest cell size in dataset. This is generally
   // used to allocate memory for supporting data structures.
   // This is the number of points of a cell.
@@ -323,7 +332,12 @@ public:
   // The number of children each node can have.
   vtkGetMacro(NumberOfChildren, int);
 
+  // Description:
   vtkIdType GetLevelZeroIndex( vtkIdType );
+
+  // Description:
+  // Convert a level 0 index to its ijk coordinates according the grid size.
+  void GetLevelZeroCoordsFromIndex( vtkIdType index, vtkIdType &i, vtkIdType &j, vtkIdType &k );
 
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -351,9 +365,11 @@ protected:
   vtkDataArray* YCoordinates;
   vtkDataArray* ZCoordinates;
 
-  vtkCollection* HyperTrees;
+  std::map<vtkIdType, vtkHyperTree*> HyperTrees;
   std::map<vtkIdType, vtkIdType> HyperTreesMap;
   vtkIdType* HyperTreesLeafIdOffsets;
+  vtkIdType NumLeaves;
+  vtkTimeStamp HyperTreesLeafIdOffsetsMTime;
 
   vtkPoints* Points;
   vtkIdTypeArray* Connectivity;
@@ -364,6 +380,7 @@ protected:
   int UpdateHyperTreesLeafIdOffsets();
 
   void DeleteInternalArrays();
+  void DeleteTrees();
 
 //BTX
 #ifndef __WRAP__
@@ -438,6 +455,30 @@ public:
     vtkIdType Offset;
     unsigned short Level;
     bool Leaf;
+  };
+
+  class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeIterator
+  {
+  public:
+    vtkHyperTreeIterator() {}
+
+    // Description:
+    // Initialize the iterator on the tree set of the given HyperTreeGrid.
+    void Initialize( vtkHyperTreeGrid* );
+
+    // Description:
+    // Get the next tree and set its index then increment the iterator.
+    // Returns 0 at the end.
+    vtkHyperTree* GetNextTree( vtkIdType &index );
+
+    // Description:
+    // Get the next tree and set its index then increment the iterator.
+    // Returns 0 at the end.
+    vtkHyperTree* GetNextTree();
+
+  protected:
+    std::map<vtkIdType, vtkHyperTree*>::iterator Iterator;
+    vtkHyperTreeGrid* Tree;
   };
 
   // Public structure filters use to move around the tree.

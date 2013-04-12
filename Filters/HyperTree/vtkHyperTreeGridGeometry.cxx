@@ -168,54 +168,23 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
   this->Cells = vtkCellArray::New();
 
   // Iterate over all hyper trees
-  vtkIdType index = 0;
-  unsigned int* gridSize = this->Input->GetGridSize();
-  if ( this->Input->GetTransposedRootIndexing() )
+  vtkIdType index;
+  vtkHyperTreeGrid::vtkHyperTreeIterator it;
+  this->Input->InitializeTreeIterator( it );
+  while ( it.GetNextTree( index ) )
     {
-    for ( unsigned int i = 0; i < gridSize[0]; ++ i )
-      {
-      for ( unsigned int j = 0; j < gridSize[1]; ++ j )
-        {
-        for ( unsigned int k = 0; k < gridSize[2]; ++ k, ++ index )
-          {
-          if ( this->Input->GetLevelZeroIndex( index ) >= 0 )
-            {
-            // Storage for super cursors
-            vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
+    vtkIdType i, j, k;
+    this->Input->GetLevelZeroCoordsFromIndex( index, i, j, k );
 
-            // Initialize center cursor
-            this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
+    // Storage for super cursors
+    vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
-            // Traverse and populate dual recursively
-            this->RecursiveProcessTree( &superCursor );
-            }
-          } // i
-        } // j
-      } // k
-    } // if ( this->Input->GetTransposedRootIndexing() )
-  else
-    {
-    for ( unsigned int k = 0; k < gridSize[2]; ++ k )
-      {
-      for ( unsigned int j = 0; j < gridSize[1]; ++ j )
-        {
-        for ( unsigned int i = 0; i < gridSize[0]; ++ i, ++ index )
-          {
-          if ( this->Input->GetLevelZeroIndex( index ) >= 0 )
-            {
-            // Storage for super cursors
-            vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
+    // Initialize center cursor
+    this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
 
-            // Initialize center cursor
-            this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
-
-            // Traverse and populate dual recursively
-            this->RecursiveProcessTree( &superCursor );
-            }
-          } // i
-        } // j
-      } // k
-    } // else indexing mode
+    // Traverse and populate dual recursively
+    this->RecursiveProcessTree( &superCursor );
+    } // it
 
   // Set output geometry and topology
   this->Output->SetPoints( this->Points );

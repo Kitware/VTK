@@ -135,10 +135,8 @@ public:
   vtkGetObjectMacro( DescriptorBits, vtkBitArray );
 
   // Description:
-  // Set/Get the index array used to as a material mask
+  // Set the index array used to as a material mask
   virtual void SetLevelZeroMaterialIndex( vtkIdTypeArray* );
-  virtual void SetLevelZeroMaterialIndex( std::map<vtkIdType, vtkIdType>* );
-  virtual std::map<vtkIdType, vtkIdType>* GetLevelZeroMaterialIndex();
 
   // Description:
   // Set/Get the bitarray used as a material mask
