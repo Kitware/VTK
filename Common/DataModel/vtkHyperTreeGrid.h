@@ -30,7 +30,8 @@
 // vtkHyperTree vtkRectilinearGrid
 //
 // .SECTION Thanks
-// This class was written by Philippe Pebay and Charles Law, Kitware 2013
+// This class was written by Philippe Pebay, Joachim Pouderoux and Charles Law,
+// Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGrid_h
@@ -337,7 +338,8 @@ public:
 
   // Description:
   // Convert a level 0 index to its ijk coordinates according the grid size.
-  void GetLevelZeroCoordsFromIndex( vtkIdType index, vtkIdType &i, vtkIdType &j, vtkIdType &k );
+  void GetLevelZeroCoordsFromIndex( vtkIdType index,
+                                    vtkIdType &i, vtkIdType &j, vtkIdType &k );
 
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -445,7 +447,8 @@ public:
     vtkHyperTree* GetTree() { return this->Tree; }
     vtkIdType GetLeafIndex() { return this->Index; } // Only valid for leaves.
 
-    vtkIdType GetGlobalLeafIndex() { return ( this->Offset >= 0 ) ? this->Offset + this->Index : -1; }
+    vtkIdType GetGlobalLeafIndex() { return ( this->Offset >= 0 ) ?
+                                       this->Offset + this->Index : -1; }
     vtkIdType GetOffset() { return this->Offset; }
     unsigned short GetLevel() { return this->Level; }
 
