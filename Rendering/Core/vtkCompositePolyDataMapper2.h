@@ -58,6 +58,13 @@ public:
   void RemoveBlockVisibility(unsigned int index);
   void RemoveBlockVisibilites();
 
+  // Description:
+  // Set/get the color for a block given its flat index.
+  void SetBlockColor(unsigned int index, double color[3]);
+  double* GetBlockColor(unsigned int index);
+  void RemoveBlockColor(unsigned int index);
+  void RemoveBlockColors();
+
 //BTX
 protected:
   vtkCompositePolyDataMapper2();

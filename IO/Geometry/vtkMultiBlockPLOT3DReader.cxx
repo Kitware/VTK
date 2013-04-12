@@ -16,6 +16,7 @@
 
 #include "vtkByteSwap.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
@@ -39,9 +40,465 @@ vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 #define VTK_PINF ((VTK_RHOINF*VTK_CINF) * (VTK_RHOINF*VTK_CINF) / this->Gamma)
 #define VTK_CV (this->R / (this->Gamma-1.0))
 
+template <class DataType>
+class vtkPLOT3DArrayReader
+{
+public:
+  vtkPLOT3DArrayReader() : ByteOrder(
+    vtkMultiBlockPLOT3DReader::FILE_BIG_ENDIAN)
+    {
+    }
+
+  int ReadScalar(FILE* fp, int n, DataType* scalar)
+    {
+      int retVal = static_cast<int>(fread(scalar, sizeof(DataType), n, fp));
+      if (this->ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
+        {
+        if (sizeof(DataType) == 4)
+          {
+          vtkByteSwap::Swap4LERange(scalar, n);
+          }
+        else
+          {
+          vtkByteSwap::Swap8LERange(scalar, n);
+          }
+        }
+      else
+        {
+        if (sizeof(DataType) == 4)
+          {
+          vtkByteSwap::Swap4BERange(scalar, n);
+          }
+        else
+          {
+          vtkByteSwap::Swap8BERange(scalar, n);
+          }
+        }
+      return retVal;
+    }
+
+  int ReadVector(FILE* fp, int n, int numDims, DataType* vector)
+    {
+      // Setting to 0 in case numDims == 0. We still need to
+      // populate an array with 3 components but the code below
+      // does not read the 3rd component (it doesn't exist
+      // in the file)
+      memset(vector, 0, n*3*sizeof(DataType));
+
+      int retVal = 0;
+      DataType* buffer = new DataType[n];
+      for (int component = 0; component < numDims; component++)
+        {
+        retVal += this->ReadScalar(fp, n, buffer);
+        for (int i=0; i<n; i++)
+          {
+          vector[3*i+component] = buffer[i];
+          }
+        }
+      delete[] buffer;
+
+      return retVal;
+    }
+
+  int ByteOrder;
+};
+
 struct vtkMultiBlockPLOT3DReaderInternals
 {
   std::vector<vtkSmartPointer<vtkStructuredGrid> > Blocks;
+  int BinaryFile;
+  int ByteOrder;
+  int HasByteCount;
+  int MultiGrid;
+  int NumberOfDimensions;
+  int Precision; // in bytes
+  int IBlanking;
+
+  vtkMultiBlockPLOT3DReaderInternals() :
+    BinaryFile(1),
+    ByteOrder(vtkMultiBlockPLOT3DReader::FILE_BIG_ENDIAN),
+    HasByteCount(1),
+    MultiGrid(0),
+    NumberOfDimensions(3),
+    Precision(4),
+    IBlanking(0)
+    {
+    }
+
+  int ReadInts(FILE* fp, int n, int* val)
+    {
+    int retVal = static_cast<int>(fread(val, sizeof(int), n, fp));
+    if (this->ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
+      {
+      vtkByteSwap::Swap4LERange(val, n);
+      }
+    else
+      {
+      vtkByteSwap::Swap4BERange(val, n);
+      }
+    return retVal;
+    }
+
+  void CheckBinaryFile(FILE *fp)
+    {
+      int j, k, l;
+      rewind(fp);
+      // Try fscanf to read 3 integers. If it fails,
+      // must be a binary file.
+      if(0 == fscanf(fp, "%d %d %d\n", &j, &k, &l))
+        {
+        this->BinaryFile = 1;
+        }
+      else
+        {
+        this->BinaryFile = 0;
+        }
+    }
+  int CheckByteOrder(FILE* fp)
+    {
+      rewind(fp);
+      int i;
+      if (fread(&i, sizeof(int), 1, fp) < 1)
+        {
+        return 0;
+        }
+      char* cpy = (char*)&i;
+
+      // If binary, we can assume that the first value is going to be either a
+      // count (Fortran) or a number of block or a dimension. We assume that
+      // this number will be smaller than 2^24. Then we check the first byte.
+      // If it is 0 and the last byte is not 0, it is likely that this is big
+      // endian.
+      if(cpy[0] == 0 && cpy[3] != 0)
+        {
+        this->ByteOrder = vtkMultiBlockPLOT3DReader::FILE_BIG_ENDIAN;
+        }
+      else
+        {
+        this->ByteOrder = vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN;
+        }
+      return 1;
+    }
+  int CheckByteCount(FILE* fp)
+    {
+      rewind(fp);
+      // Read the first integer, then skip by that many bytes, then
+      // read the value again. If the two match, it is likely that
+      // the file has byte counts.
+      int count;
+      if (!this->ReadInts(fp, 1, &count))
+        {
+        return 0;
+        }
+      if (fseek(fp, count, SEEK_CUR) != 0)
+        {
+        return 0;
+        }
+      int count2;
+      if (!this->ReadInts(fp, 1, &count2))
+        {
+        return 0;
+        }
+      if (count == count2)
+        {
+        this->HasByteCount = 1;
+        }
+      else
+        {
+        this->HasByteCount = 0;
+        }
+      return 1;
+    }
+  int CheckMultiGrid(FILE* fp)
+    {
+      if (this->HasByteCount)
+        {
+        rewind(fp);
+        // We read the byte count, if it is 4 (1 int),
+        // then this is multi-grid because the first
+        // value is the number of grids rather than
+        // an array of 2 or 3 values.
+        int recMarkBeg;
+        if (!this->ReadInts(fp, 1, &recMarkBeg))
+          {
+          return 0;
+          }
+        if(recMarkBeg == sizeof(int))
+          {
+          this->MultiGrid = 1;
+          }
+        else
+          {
+          this->MultiGrid = 0;
+          }
+        return 1;
+        }
+      return 0;
+    }
+  int Check2DGeom(FILE* fp)
+    {
+      if (this->HasByteCount)
+        {
+        rewind(fp);
+        int recMarkBeg, recMarkEnd;
+        int numGrids = 1;
+        if(this->MultiGrid)
+          {
+          if (!this->ReadInts(fp, 1, &recMarkBeg) ||
+              !this->ReadInts(fp, 1, &numGrids) ||
+              !this->ReadInts(fp, 1, &recMarkEnd))
+            {
+            return 0;
+            }
+          }
+        if (!this->ReadInts(fp, 1, &recMarkBeg))
+          {
+          return 0;
+          }
+        int nMax = 3*numGrids;
+        int ndims;
+        if(recMarkBeg == static_cast<int>(nMax*sizeof(int) + 2*sizeof(int)))
+          {
+          ndims = 3;
+          }
+        else
+          {
+          if(recMarkBeg == static_cast<int>(nMax*sizeof(int)))
+            {
+            ndims = 3;
+            }
+          else
+            {
+            ndims = 2;
+            }
+          }
+        this->NumberOfDimensions = ndims;
+        return 1;
+        }
+      return 0;
+    }
+  int CheckBlankingAndPrecision(FILE* fp)
+    {
+      int recMarkBeg, recMarkEnd, numGrids = 1, nMax, totPts;
+      int* jmax;
+
+      rewind(fp);
+      if(this->MultiGrid)
+        {
+        if (!this->ReadInts(fp, 1, &recMarkBeg) ||
+            !this->ReadInts(fp, 1, &numGrids) ||
+            !this->ReadInts(fp, 1, &recMarkEnd))
+          {
+          return 0;
+          }
+        }
+      if (!this->ReadInts(fp, 1, &recMarkBeg))
+        {
+        return 0;
+        }
+      nMax = this->NumberOfDimensions * numGrids;
+      jmax = new int[numGrids*3]; // allocate memory for jmax
+      if (!this->ReadInts(fp, nMax, jmax) ||
+          !this->ReadInts(fp, 1, &recMarkEnd))
+        {
+        delete[] jmax;
+        return 0;
+        }
+      totPts = 1;
+      for (int i=0; i<this->NumberOfDimensions; i++)
+        {
+        totPts *= jmax[i];
+        }
+      this->ReadInts(fp, 1, &recMarkBeg);
+      // single precision, with iblanking
+      if(recMarkBeg == totPts*(this->NumberOfDimensions*4 + 4))
+        {
+        this->Precision = 4;
+        this->IBlanking = 1;
+        delete[] jmax;
+        return 1;
+        }
+      // double precision, with iblanking
+      else if(recMarkBeg == totPts*(this->NumberOfDimensions*8 + 4))
+        {
+        this->Precision = 8;
+        this->IBlanking = 1;
+        delete[] jmax;
+        return 1;
+        }
+      // single precision, no iblanking
+      else if(recMarkBeg == totPts*this->NumberOfDimensions*4)
+        {
+        this->Precision = 4;
+        this->IBlanking = 0;
+        delete[] jmax;
+        return 1;
+        }
+      // double precision, no iblanking
+      else if(recMarkBeg == totPts*this->NumberOfDimensions*8)
+        {
+        this->Precision = 8;
+        this->IBlanking = 0;
+        delete[] jmax;
+        return 1;
+        }
+      return 0;
+    }
+
+  // Unfortunately, a Plot3D file written in C is trickier
+  // to check becaues it has no byte count markers. We need
+  // to do a bit more brute force checks based on reading
+  // data and estimating file size.
+  int CheckCFile(FILE* fp, long fileSize)
+    {
+      int precisions[2] = {4, 8};
+      int blankings[2] = {0, 1};
+      int dimensions[2] = {2, 3};
+
+      rewind(fp);
+      int gridDims[3];
+      if (this->ReadInts(fp, 3, gridDims) != 3)
+        {
+        return 0;
+        }
+
+      // Single grid
+      for (int i=0; i<2; i++)
+        {
+        int precision = precisions[i];
+        for (int j=0; j<2; j++)
+          {
+          int blanking = blankings[j];
+          for (int k=0; k<2; k++)
+            {
+            int dimension = dimensions[k];
+
+            if (fileSize ==
+                this->CalculateFileSize(false,
+                                        precision,
+                                        blanking,
+                                        dimension,
+                                        false, // always
+                                        1,
+                                        gridDims))
+              {
+              this->MultiGrid = 0;
+              this->Precision = precision;
+              this->IBlanking = blanking;
+              this->NumberOfDimensions = dimension;
+              return 1;
+              }
+            }
+          }
+        }
+
+      // Multi grid
+      int nGrids;
+      rewind(fp);
+      if (!this->ReadInts(fp, 1, &nGrids))
+        {
+        return 0;
+        }
+      int* gridDims2 = new int[3*nGrids];
+      if (this->ReadInts(fp, nGrids*3, gridDims2) != nGrids*3)
+        {
+        delete[] gridDims2;
+        return 0;
+        }
+
+      for (int i=0; i<2; i++)
+        {
+        int precision = precisions[i];
+        for (int j=0; j<2; j++)
+          {
+          int blanking = blankings[j];
+          for (int k=0; k<2; k++)
+            {
+            int dimension = dimensions[k];
+
+            if (fileSize ==
+                this->CalculateFileSize(true,
+                                        precision,
+                                        blanking,
+                                        dimension,
+                                        false, // always
+                                        nGrids,
+                                        gridDims2))
+              {
+              this->MultiGrid = 1;
+              this->Precision = precision;
+              this->IBlanking = blanking;
+              this->NumberOfDimensions = dimension;
+              delete[] gridDims2;
+              return 1;
+              }
+            }
+          }
+        }
+      delete[] gridDims2;
+      return 0;
+    }
+
+  long CalculateFileSize(int mgrid,
+                         int precision, // in bytes
+                         int blanking,
+                         int ndims,
+                         int hasByteCount,
+                         int nGrids,
+                         int* gridDims)
+    {
+      long size = 0; // the header portion, 3 ints
+
+      // N grids
+      if (mgrid)
+        {
+        size += 4; // int for nblocks
+        if (hasByteCount)
+          {
+          size += 2*4; // byte counts for nblocks
+          }
+        }
+      // Header
+      size += nGrids*ndims*4;
+
+      if (hasByteCount)
+        {
+        size += 2*4; // byte counts for grid dims
+        }
+      for (int i=0; i<nGrids; i++)
+        {
+        size += this->CalculateFileSizeForBlock(
+          precision, blanking, ndims, hasByteCount, gridDims + ndims*i);
+        }
+      return size;
+    }
+
+  long CalculateFileSizeForBlock(int precision, // in bytes
+                                 int blanking,
+                                 int ndims,
+                                 int hasByteCount,
+                                 int* gridDims)
+    {
+      long size = 0;
+      // x, y, (z)
+      int npts = 1;
+      for (int i=0; i<ndims; i++)
+        {
+        npts *= gridDims[i];
+        }
+      size += npts*ndims*precision;
+
+      if (blanking)
+        {
+        size += npts*4;
+        }
+
+      if (hasByteCount)
+        {
+        size += 2*4;
+        }
+      return size;
+    }
 };
 
 vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
@@ -56,12 +513,11 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
   this->ByteOrder = FILE_BIG_ENDIAN;
   this->IBlanking = 0;
   this->TwoDimensionalGeometry = 0;
+  this->DoublePrecision = 0;
+  this->AutoDetectFormat = 0;
 
   this->R = 1.0;
   this->Gamma = 1.4;
-  this->Uvinf = 0.0;
-  this->Vvinf = 0.0;
-  this->Wvinf = 0.0;
 
   this->FunctionList = vtkIntArray::New();
 
@@ -69,9 +525,6 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
   this->SetScalarFunctionNumber(100);
   this->VectorFunctionNumber = -1;
   this->SetVectorFunctionNumber(202);
-
-  this->PointCache = 0;
-  this->IBlankCache = 0;
 
   this->SetNumberOfInputPorts(0);
 
@@ -90,23 +543,93 @@ vtkMultiBlockPLOT3DReader::~vtkMultiBlockPLOT3DReader()
 
 void vtkMultiBlockPLOT3DReader::ClearGeometryCache()
 {
-  if ( this->PointCache )
-    {
-    for ( int g=0; this->PointCache[g]; ++g )
-      this->PointCache[g]->UnRegister( this );
+  this->Internal->Blocks.clear();
+}
 
-    delete [] this->PointCache;
-    this->PointCache = 0;
+int vtkMultiBlockPLOT3DReader::AutoDetectionCheck(FILE* fp)
+{
+  this->Internal->CheckBinaryFile(fp);
+
+  if (!this->Internal->BinaryFile)
+    {
+    vtkDebugMacro("Auto-detection only works with binary files.");
+    if (this->BinaryFile)
+      {
+      vtkWarningMacro("This appears to be an ASCII file. Please make sure "
+                      "that all settings are correct to read it correctly.");
+      }
+    this->Internal->ByteOrder = this->ByteOrder;
+    this->Internal->HasByteCount = this->HasByteCount;
+    this->Internal->MultiGrid = this->MultiGrid;
+    this->Internal->NumberOfDimensions = this->TwoDimensionalGeometry ? 2 : 3;
+    this->Internal->Precision = this->DoublePrecision ? 8 : 4;
+    this->Internal->IBlanking = this->IBlanking;
+    return 1;
     }
 
-  if ( this->IBlankCache )
+  if (!this->Internal->CheckByteOrder(fp))
     {
-    for ( int i=0; this->IBlankCache[i]; ++i )
-      this->IBlankCache[i]->UnRegister( this );
-
-    delete [] this->IBlankCache;
-    this->IBlankCache = 0;
+    return 0;
     }
+  if (!this->Internal->CheckByteCount(fp))
+    {
+    return 0;
+    }
+
+  if (!this->Internal->HasByteCount)
+    {
+    if (!this->Internal->CheckCFile(fp, this->FileSize))
+      {
+      return 0;
+      }
+    }
+  else
+    {
+    if (!this->Internal->CheckMultiGrid(fp))
+      {
+      return 0;
+      }
+    if (!this->Internal->Check2DGeom(fp))
+      {
+      return 0;
+      }
+    if (!this->Internal->CheckBlankingAndPrecision(fp))
+      {
+      return 0;
+      }
+    }
+  if (!this->AutoDetectFormat)
+    {
+    if ( !this->ForceRead && (
+           this->Internal->BinaryFile != this->BinaryFile ||
+           this->Internal->ByteOrder != this->ByteOrder ||
+           this->Internal->HasByteCount != this->HasByteCount ||
+           this->Internal->MultiGrid != this->MultiGrid ||
+           this->Internal->NumberOfDimensions != (this->TwoDimensionalGeometry ? 2 : 3) ||
+           this->Internal->Precision != (this->DoublePrecision ? 8 : 4) ||
+           this->Internal->IBlanking != this->IBlanking ) )
+      {
+      vtkErrorMacro(<< "The settings that you provided do not match what was auto-detected "
+                    << "in the file. The detected settings are: " << "\n"
+                    << "BinaryFile: " << (this->Internal->BinaryFile ? 1 : 0) << "\n"
+                    << "ByteOrder: " << this->Internal->ByteOrder << "\n"
+                    << "HasByteCount: " << (this->Internal->HasByteCount ? 1 : 0) << "\n"
+                    << "MultiGrid: " << (this->Internal->MultiGrid ? 1 : 0) << "\n"
+                    << "NumberOfDimensions: " << this->Internal->NumberOfDimensions << "\n"
+                    << "DoublePrecision: " << (this->Internal->Precision == 4 ? 0 : 1) << "\n"
+                    << "IBlanking: " << (this->Internal->IBlanking ? 1 : 0) << endl);
+      return 0;
+      }
+    this->Internal->BinaryFile = this->BinaryFile;
+    this->Internal->ByteOrder = this->ByteOrder;
+    this->Internal->HasByteCount = this->HasByteCount;
+    this->Internal->MultiGrid = this->MultiGrid;
+    this->Internal->NumberOfDimensions = this->TwoDimensionalGeometry ? 2 : 3;
+    this->Internal->Precision = this->DoublePrecision ? 8 : 4;
+    this->Internal->IBlanking = this->IBlanking;
+    return 1;
+    }
+  return 1;
 }
 
 int vtkMultiBlockPLOT3DReader::CheckFile(FILE*& fp, const char* fname)
@@ -151,9 +674,9 @@ int vtkMultiBlockPLOT3DReader::CheckSolutionFile(FILE*& qFp)
 }
 
 // Skip Fortran style byte count.
-void vtkMultiBlockPLOT3DReader::SkipByteCount(FILE* fp)
+int vtkMultiBlockPLOT3DReader::SkipByteCount(FILE* fp)
 {
-  if (this->BinaryFile && this->HasByteCount)
+  if (this->Internal->BinaryFile && this->Internal->HasByteCount)
     {
     int tmp;
     if (fread(&tmp, sizeof(int), 1, fp) != 1)
@@ -161,18 +684,29 @@ void vtkMultiBlockPLOT3DReader::SkipByteCount(FILE* fp)
       vtkErrorMacro ("MultiBlockPLOT3DReader error reading file: " << this->XYZFileName
                      << " Premature EOF while reading skipping byte count.");
       fclose (fp);
-      return;
+      return 0;
       }
+    if (this->Internal->ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
+      {
+      vtkByteSwap::Swap4LERange(&tmp, 1);
+      }
+    else
+      {
+      vtkByteSwap::Swap4BERange(&tmp, 1);
+      }
+
+    return tmp;
     }
+  return 0;
 }
 
 // Read a block of ints (ascii or binary) and return number read.
 int vtkMultiBlockPLOT3DReader::ReadIntBlock(FILE* fp, int n, int* block)
 {
-  if (this->BinaryFile)
+  if (this->Internal->BinaryFile)
     {
     int retVal=static_cast<int>(fread(block, sizeof(int), n, fp));
-    if (this->ByteOrder == FILE_LITTLE_ENDIAN)
+    if (this->Internal->ByteOrder == FILE_LITTLE_ENDIAN)
       {
       vtkByteSwap::Swap4LERange(block, n);
       }
@@ -201,36 +735,142 @@ int vtkMultiBlockPLOT3DReader::ReadIntBlock(FILE* fp, int n, int* block)
     }
 }
 
-int vtkMultiBlockPLOT3DReader::ReadFloatBlock(FILE* fp, int n, float* block)
+vtkDataArray* vtkMultiBlockPLOT3DReader::NewFloatArray()
 {
-  if (this->BinaryFile)
+  if (this->Internal->Precision == 4)
     {
-    int retVal=static_cast<int>(fread(block, sizeof(float), n, fp));
-    if (this->ByteOrder == FILE_LITTLE_ENDIAN)
-      {
-      vtkByteSwap::Swap4LERange(block, n);
-      }
-    else
-      {
-      vtkByteSwap::Swap4BERange(block, n);
-      }
-    return retVal;
+    return vtkFloatArray::New();
     }
   else
     {
-    int count = 0;
-    for(int i=0; i<n; i++)
+    return vtkDoubleArray::New();
+    }
+}
+
+int vtkMultiBlockPLOT3DReader::ReadScalar(FILE* fp, int n, vtkDataArray* scalar)
+{
+  if (this->Internal->BinaryFile)
+    {
+    if (this->Internal->Precision == 4)
       {
-      int num = fscanf(fp, "%f", &(block[i]));
-      if ( num > 0 )
-        {
-        count++;
-        }
-      else
-        {
-        return 0;
-        }
+      vtkPLOT3DArrayReader<float> arrayReader;
+      arrayReader.ByteOrder = this->Internal->ByteOrder;
+      vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(scalar);
+      return arrayReader.ReadScalar(fp, n, floatArray->GetPointer(0));
       }
+    else
+      {
+      vtkPLOT3DArrayReader<double> arrayReader;
+      arrayReader.ByteOrder = this->Internal->ByteOrder;
+      vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(scalar);
+      return arrayReader.ReadScalar(fp, n, doubleArray->GetPointer(0));
+      }
+    }
+  else
+    {
+    if (this->Internal->Precision == 4)
+      {
+      vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(scalar);
+      float* values = floatArray->GetPointer(0);
+
+      int count = 0;
+      for(int i=0; i<n; i++)
+        {
+        int num = fscanf(fp, "%f", &(values[i]));
+        if ( num > 0 )
+          {
+          count++;
+          }
+        else
+          {
+          return 0;
+          }
+        }
+      return count;
+      }
+    else
+      {
+      vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(scalar);
+      double* values = doubleArray->GetPointer(0);
+
+      int count = 0;
+      for(int i=0; i<n; i++)
+        {
+        int num = fscanf(fp, "%lf", &(values[i]));
+        if ( num > 0 )
+          {
+          count++;
+          }
+        else
+          {
+          return 0;
+          }
+        }
+      return count;
+      }
+    }
+}
+
+int vtkMultiBlockPLOT3DReader::ReadVector(FILE* fp, int n, int numDims, vtkDataArray* vector)
+{
+  if (this->Internal->BinaryFile)
+    {
+    if (this->Internal->Precision == 4)
+      {
+      vtkPLOT3DArrayReader<float> arrayReader;
+      arrayReader.ByteOrder = this->Internal->ByteOrder;
+      vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(vector);
+      return arrayReader.ReadVector(fp, n, numDims, floatArray->GetPointer(0));
+      }
+    else
+      {
+      vtkPLOT3DArrayReader<double> arrayReader;
+      arrayReader.ByteOrder = this->Internal->ByteOrder;
+      vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(vector);
+      return arrayReader.ReadVector(fp, n, numDims, doubleArray->GetPointer(0));
+      }
+    }
+  else
+    {
+    // Initialize the 3rd component to 0 in case the input file is
+    // 2D
+    vector->FillComponent(2, 0);
+
+    int count = 0;
+
+    if (this->Internal->Precision == 4)
+      {
+      vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(vector);
+
+      vtkFloatArray* tmpArray = vtkFloatArray::New();
+      tmpArray->Allocate(n);
+      for (int component = 0; component < numDims; component++)
+        {
+        count += this->ReadScalar(fp, n, tmpArray);
+        for (int i=0; i<n; i++)
+          {
+          floatArray->SetValue(3*i+component, tmpArray->GetValue(i));
+          }
+        }
+      tmpArray->Delete();
+      }
+    else
+      {
+      vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(vector);
+
+      vtkDoubleArray* tmpArray = vtkDoubleArray::New();
+      tmpArray->Allocate(n);
+      for (int component = 0; component < numDims; component++)
+        {
+        count += this->ReadScalar(fp, n, tmpArray);
+        for (int i=0; i<n; i++)
+          {
+          doubleArray->SetValue(3*i+component, tmpArray->GetValue(i));
+          }
+        }
+      tmpArray->Delete();
+      }
+
     return count;
     }
 }
@@ -249,21 +889,15 @@ void vtkMultiBlockPLOT3DReader::CalculateFileSize(FILE* fp)
 long vtkMultiBlockPLOT3DReader::EstimateSize(int ni, int nj, int nk)
 {
   long size; // the header portion, 3 ints
-  if (!this->TwoDimensionalGeometry)
-    {
-    size = 3*4;
-    size += ni*nj*nk*3*4; // x, y, z
-    }
-  else
-    {
-    size = 2*4;
-    size += ni*nj*nk*2*4; // x, y, z
-    }
-  if (this->HasByteCount)
+  size = this->Internal->NumberOfDimensions*4;
+  // x, y, z
+  size += ni*nj*nk*this->Internal->NumberOfDimensions*this->Internal->Precision;
+
+  if (this->Internal->HasByteCount)
     {
     size += 2*4; // the byte counts
     }
-  if (this->IBlanking)
+  if (this->Internal->IBlanking)
     {
     size += ni*nj*nk*4;
     }
@@ -287,7 +921,14 @@ int vtkMultiBlockPLOT3DReader::CanReadBinaryFile(const char* fname)
 
   this->CalculateFileSize(xyzFp);
 
-  int numBlocks = this->GetNumberOfBlocksInternal(xyzFp, 1);
+  if (!this->AutoDetectionCheck(xyzFp))
+    {
+    fclose(xyzFp);
+    return 0;
+    }
+  rewind(xyzFp);
+
+  int numBlocks = this->GetNumberOfBlocksInternal(xyzFp, 0);
   fclose(xyzFp);
   if (numBlocks != 0)
     {
@@ -296,138 +937,12 @@ int vtkMultiBlockPLOT3DReader::CanReadBinaryFile(const char* fname)
   return 0;
 }
 
-int vtkMultiBlockPLOT3DReader::GetNumberOfBlocks()
-{
-  FILE* xyzFp;
-
-  if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
-    {
-    return 0;
-    }
-  this->CalculateFileSize(xyzFp);
-  int numBlocks = this->GetNumberOfBlocksInternal(xyzFp, 1);
-  fclose(xyzFp);
-  if (numBlocks != 0)
-    {
-    return numBlocks;
-    }
-  return 1;
-}
-
-int vtkMultiBlockPLOT3DReader::GenerateDefaultConfiguration()
-{
-  FILE* xyzFp;
-
-  if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
-    {
-    return 0;
-    }
-  char buf[1024];
-  if (fread(buf, 1024, 1, xyzFp) != 1)
-    {
-    vtkErrorMacro ("MultiBlockPLOT3DReader error reading file: " << this->XYZFileName
-                   << " Premature EOF while reading buffer.");
-    fclose (xyzFp);
-    return 0;
-    }
-  int retVal = this->VerifySettings(buf, 1024);
-  fclose(xyzFp);
-  return retVal;
-}
-
-void vtkMultiBlockPLOT3DReader::ReadIntBlockV(char** buf, int n, int* block)
-{
-  memcpy(block, *buf, sizeof(int)*n);
-
-  if (this->ByteOrder == FILE_LITTLE_ENDIAN)
-    {
-    vtkByteSwap::Swap4LERange(block, n);
-    }
-  else
-    {
-    vtkByteSwap::Swap4BERange(block, n);
-    }
-  *buf += sizeof(int);
-}
-
-void vtkMultiBlockPLOT3DReader::SkipByteCountV(char** buf)
-{
-  if (this->HasByteCount)
-    {
-    *buf += sizeof(int);
-    }
-}
-
-int vtkMultiBlockPLOT3DReader::VerifySettings(char* buf, int vtkNotUsed(bufSize))
-{
-  int numGrid=0;
-
-  if ( this->MultiGrid )
-    {
-    this->SkipByteCountV(&buf);
-    this->ReadIntBlockV(&buf, 1, &numGrid);
-    this->SkipByteCountV(&buf);
-    }
-  else
-    {
-    numGrid=1;
-    }
-
-  int retVal=1;
-
-  long fileSize = 0;
-  // Size of number of grids information.
-  if ( this->MultiGrid )
-    {
-    fileSize += 4; // numGrids
-    if (this->HasByteCount)
-      {
-      fileSize += 4*4; // byte counts for the header
-      }
-    }
-
-  // Add the size of each grid.
-  this->SkipByteCountV(&buf);
-  for(int i=0; i<numGrid; i++)
-    {
-    int ni, nj, nk;
-    this->ReadIntBlockV(&buf, 1, &ni);
-    this->ReadIntBlockV(&buf, 1, &nj);
-    if (!this->TwoDimensionalGeometry)
-      {
-      this->ReadIntBlockV(&buf, 1, &nk);
-      }
-    else
-      {
-      nk = 1;
-      }
-    fileSize += this->EstimateSize(ni, nj, nk);
-    // If this number is larger than the file size, there
-    // is something wrong.
-    if ( fileSize > this->FileSize )
-      {
-      retVal = 0;
-      break;
-      }
-    }
-  this->SkipByteCountV(&buf);
-  // If this number is different than the file size, there
-  // is something wrong.
-  if ( fileSize != this->FileSize )
-    {
-    retVal = 0;
-    }
-
-  return retVal;
-}
-
 // Read the header and return the number of grids.
-int vtkMultiBlockPLOT3DReader::GetNumberOfBlocksInternal(FILE* xyzFp, int verify)
+int vtkMultiBlockPLOT3DReader::GetNumberOfBlocksInternal(FILE* xyzFp, int allocate)
 {
-  int numGrid=0;
-  int numBlocks;
+  int numGrid = 0;
 
-  if ( this->MultiGrid )
+  if ( this->Internal->MultiGrid )
     {
     this->SkipByteCount(xyzFp);
     this->ReadIntBlock(xyzFp, 1, &numGrid);
@@ -438,77 +953,11 @@ int vtkMultiBlockPLOT3DReader::GetNumberOfBlocksInternal(FILE* xyzFp, int verify
     numGrid=1;
     }
 
-  if (!verify)
+
+  if (allocate)
     {
-    // We were told not the verify the number of grid. Just return it.
-    numBlocks = numGrid;
-    }
-  else
-    {
-    // We were told to make sure that the file can really contain
-    // the number of grid in the header (we can only check this
-    // if file is binary)
-    int error=0;
-    if ( this->BinaryFile )
-      {
-      // Store the beginning of first grid.
-      long pos = ftell(xyzFp);
-
-      long fileSize = 0;
-      // Size of number of grids information.
-      if ( this->MultiGrid )
-        {
-        fileSize += 4; // numGrids
-        if (this->HasByteCount)
-          {
-          fileSize += 4*4; // byte counts for the header
-          }
-        }
-      // Add the size of each grid.
-      this->SkipByteCount(xyzFp);
-      for(int i=0; i<numGrid; i++)
-        {
-        int ni, nj, nk;
-        this->ReadIntBlock(xyzFp, 1, &ni);
-        this->ReadIntBlock(xyzFp, 1, &nj);
-        if (!this->TwoDimensionalGeometry)
-          {
-          this->ReadIntBlock(xyzFp, 1, &nk);
-          }
-        else
-          {
-          nk = 1;
-          }
-        fileSize += this->EstimateSize(ni, nj, nk);
-        // If this number is larger than the file size, there
-        // is something wrong.
-        if ( fileSize > this->FileSize )
-          {
-          error = 1;
-          break;
-          }
-        }
-      this->SkipByteCount(xyzFp);
-      // If this number is different than the file size, there
-      // is something wrong.
-      if ( fileSize != this->FileSize && !this->ForceRead)
-        {
-        this->SetErrorCode(vtkErrorCode::FileFormatError);
-        error = 1;
-        }
-
-      fseek(xyzFp, pos, SEEK_SET);
-      }
-    else
-      {
-      if (numGrid == 0)
-        {
-        this->SetErrorCode(vtkErrorCode::FileFormatError);
-        }
-      }
-
     // Now set the number of blocks.
-    if (!error && numGrid != 0)
+    if (numGrid != 0)
       {
       if ( numGrid > (int)this->Internal->Blocks.size() )
         {
@@ -523,21 +972,21 @@ int vtkMultiBlockPLOT3DReader::GetNumberOfBlocksInternal(FILE* xyzFp, int verify
           sg->Delete();
           }
         }
-      numBlocks = numGrid;
-      }
-    else
-      {
-      numBlocks = 0;
       }
     }
 
-  return numBlocks;
+  return numGrid;
 }
 
 int vtkMultiBlockPLOT3DReader::ReadGeometryHeader(FILE* fp)
 {
+  if (!this->AutoDetectionCheck(fp))
+    {
+    return VTK_ERROR;
+    }
+  rewind(fp);
+
   int numGrid = this->GetNumberOfBlocksInternal(fp, 1);
-  int numBlocks = static_cast<int>(this->Internal->Blocks.size());
   int i;
   vtkDebugMacro("Geometry number of grids: " << numGrid);
   if ( numGrid == 0 )
@@ -549,59 +998,25 @@ int vtkMultiBlockPLOT3DReader::ReadGeometryHeader(FILE* fp)
   this->SkipByteCount(fp);
   for(i=0; i<numGrid; i++)
     {
-    int ni, nj, nk=1;
-    this->ReadIntBlock(fp, 1, &ni);
-    this->ReadIntBlock(fp, 1, &nj);
-    if (!this->TwoDimensionalGeometry)
-      {
-      this->ReadIntBlock(fp, 1, &nk);
-      }
+    int n[3];
+    n[2] = 1;
+    this->ReadIntBlock(fp, this->Internal->NumberOfDimensions, n);
     vtkDebugMacro("Geometry, block " << i << " dimensions: "
-                  << ni << " " << nj << " " << nk);
-    this->Internal->Blocks[i]->SetExtent(
-      0, ni-1, 0, nj-1, 0, nk-1);
+                  << n[0] << " " << n[1] << " " << n[2]);
+    this->Internal->Blocks[i]->SetExtent(0, n[0]-1, 0, n[1]-1, 0, n[2]-1);
     }
   this->SkipByteCount(fp);
 
-  if ( !this->PointCache )
-    {
-    this->PointCache = new vtkFloatArray*[ numBlocks + 1 ];
-    this->IBlankCache = new vtkUnsignedCharArray* [ numBlocks + 1 ];
-    for ( int g=0; g < numBlocks+1; ++g )
-      {
-      this->PointCache[g] = 0;
-      this->IBlankCache[g] = 0;
-      }
-    }
   return VTK_OK;
 }
 
-int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp)
+int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp, int& nq, int& nqc, int& overflow)
 {
   int numGrid = this->GetNumberOfBlocksInternal(fp, 0);
   vtkDebugMacro("Q number of grids: " << numGrid);
   if ( numGrid == 0 )
     {
     return VTK_ERROR;
-    }
-
-  // The number of grids read from q file does not match
-  // internal structure, regenerate it.
-  if (numGrid != static_cast<int>(this->Internal->Blocks.size()))
-    {
-    FILE* xyzFp;
-    if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
-      {
-      return VTK_ERROR;
-      }
-
-    if ( this->ReadGeometryHeader(xyzFp) != VTK_OK )
-      {
-      vtkErrorMacro("Error reading geometry file.");
-      fclose(xyzFp);
-      return VTK_ERROR;
-      }
-    fclose(xyzFp);
     }
 
   // If the numbers of grids still do not match, the
@@ -613,23 +1028,29 @@ int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp)
     return VTK_ERROR;
     }
 
-
-  this->SkipByteCount(fp);
+  int bytes = this->SkipByteCount(fp);
+  // If the header contains 2 additional ints, then we assume
+  // that this is an Overflow file.
+  if (bytes > 0 &&
+      bytes == (numGrid*this->Internal->NumberOfDimensions+2)*4)
+    {
+    overflow = 1;
+    }
+  else
+    {
+    overflow = 0;
+    }
   for(int i=0; i<numGrid; i++)
     {
-    int ni, nj, nk=1;
-    this->ReadIntBlock(fp, 1, &ni);
-    this->ReadIntBlock(fp, 1, &nj);
-    if (!this->TwoDimensionalGeometry)
-      {
-      this->ReadIntBlock(fp, 1, &nk);
-      }
+    int n[3];
+    n[2] = 1;
+    this->ReadIntBlock(fp, this->Internal->NumberOfDimensions, n);
     vtkDebugMacro("Q, block " << i << " dimensions: "
-                  << ni << " " << nj << " " << nk);
+                  << n[0] << " " << n[1] << " " << n[2]);
 
     int extent[6];
     this->Internal->Blocks[i]->GetExtent(extent);
-    if ( extent[1] != ni-1 || extent[3] != nj-1 || extent[5] != nk-1)
+    if ( extent[1] != n[0]-1 || extent[3] != n[1]-1 || extent[5] != n[2]-1)
       {
       this->SetErrorCode(vtkErrorCode::FileFormatError);
       vtkErrorMacro("Geometry and data dimensions do not match. "
@@ -637,6 +1058,16 @@ int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp)
       this->Internal->Blocks[i]->Initialize();
       return VTK_ERROR;
       }
+    }
+  if (overflow)
+    {
+    this->ReadIntBlock(fp, 1, &nq);
+    this->ReadIntBlock(fp, 1, &nqc);
+    }
+  else
+    {
+    nq = 5;
+    nqc = 0;
     }
   this->SkipByteCount(fp);
   return VTK_OK;
@@ -735,18 +1166,6 @@ int vtkMultiBlockPLOT3DReader::RequestInformation(
   vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
-  FILE* xyzFp;
-
-  if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
-    {
-    return 0;
-    }
-
-  this->CalculateFileSize(xyzFp);
-  this->ReadGeometryHeader(xyzFp);
-
-  fclose(xyzFp);
-
   vtkInformation* info = outputVector->GetInformationObject(0);
   info->Set(
     vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
@@ -770,20 +1189,21 @@ int vtkMultiBlockPLOT3DReader::RequestData(
   this->SetErrorCode(vtkErrorCode::NoError);
 
   int i;
-  int ndim, nx, ny, nz;
-  int numberOfDims;
-  vtkIdType index;
 
+  // This may be wrong if geometry is not cached. It is
+  // update below.
   int numBlocks = static_cast<int>(this->Internal->Blocks.size());
 
   // Don't read the geometry if we already have it!
-  if ( (!this->PointCache) || (!this->PointCache[0]) )
+  if ( numBlocks == 0 )
     {
     FILE* xyzFp;
     if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
       {
       return 0;
       }
+
+    this->CalculateFileSize(xyzFp);
 
     if ( this->ReadGeometryHeader(xyzFp) != VTK_OK )
       {
@@ -792,14 +1212,8 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       return 0;
       }
 
-    if (!this->TwoDimensionalGeometry)
-      {
-      numberOfDims = 3;
-      }
-    else
-      {
-      numberOfDims = 2;
-      }
+    // Update from the value in the file.
+    numBlocks = static_cast<int>(this->Internal->Blocks.size());
 
     for(i=0; i<numBlocks; i++)
       {
@@ -808,66 +1222,35 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       this->SkipByteCount(xyzFp);
 
       vtkStructuredGrid* nthOutput = this->Internal->Blocks[i];
-      int dims[6];
+      int dims[3];
       nthOutput->GetDimensions(dims);
-      this->PointCache[i] = vtkFloatArray::New();
-      this->PointCache[i]->SetNumberOfComponents(3);
-      this->PointCache[i]->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
+      vtkDataArray* pointArray = this->NewFloatArray();
+      pointArray->SetNumberOfComponents(3);
+      pointArray->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
 
       vtkPoints* points = vtkPoints::New();
-      points->SetData(this->PointCache[i]);
+      points->SetData(pointArray);
+      pointArray->Delete();
       nthOutput->SetPoints(points);
       points->Delete();
-      this->PointCache[i]->Register( this );
-      this->PointCache[i]->Delete();
-
-      float coord;
-      for(ndim=0; ndim < numberOfDims; ndim++)
+      if ( this->ReadVector(xyzFp,
+                            dims[0]*dims[1]*dims[2],
+                            this->Internal->NumberOfDimensions,
+                            pointArray) == 0)
         {
-        for(nz=0; nz < dims[2]; nz++)
-          {
-          for(ny=0; ny < dims[1]; ny++)
-            {
-            for(nx=0; nx < dims[0]; nx++)
-              {
-              if ( this->ReadFloatBlock(xyzFp, 1, &coord) == 0 )
-                {
-                vtkErrorMacro("Encountered premature end-of-file while reading "
-                              "the geometry file (or the file is corrupt).");
-                this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
-                // We need to generate output (otherwise, this filter will
-                // keep executing). So we produce all 0's
-                double nullpt[3] = {0.0, 0.0, 0.0};
-                vtkIdType ipts, npts=this->PointCache[i]->GetNumberOfTuples();
-                for(ipts=0; ipts < npts; ipts++)
-                  {
-                  this->PointCache[i]->SetTuple(ipts, nullpt);
-                  }
-                fclose(xyzFp);
-                return 0;
-                }
-              index = nz*dims[0]*dims[1]+ny*dims[0]+nx;
-              this->PointCache[i]->SetComponent(index, ndim, coord);
-              }
-            }
-          }
+        vtkErrorMacro("Encountered premature end-of-file while reading "
+                      "the geometry file (or the file is corrupt).");
+        this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+        fclose(xyzFp);
+        return 0;
         }
 
-      if (this->TwoDimensionalGeometry)
+      if (this->Internal->IBlanking)
         {
-        vtkIdType ipts, npts=this->PointCache[i]->GetNumberOfTuples();
-        for(ipts=0; ipts < npts; ipts++)
-          {
-          this->PointCache[i]->SetComponent(ipts, 2, 0);
-          }
-        }
-
-      if (this->IBlanking)
-        {
-        this->IBlankCache[i] = vtkUnsignedCharArray::New();
-        this->IBlankCache[i]->SetNumberOfComponents(1);
-        this->IBlankCache[i]->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
-        this->IBlankCache[i]->SetName("Visibility");
+        vtkUnsignedCharArray* blank = vtkUnsignedCharArray::New();
+        blank->SetNumberOfComponents(1);
+        blank->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
+        blank->SetName("Visibility");
         int* ib = new int[dims[0]*dims[1]*dims[2]];
         if ( this->ReadIntBlock(xyzFp, dims[0]*dims[1]*dims[2], ib) == 0)
           {
@@ -877,40 +1260,19 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           fclose(xyzFp);
           return 0;
           }
-        vtkIdType ipts, npts=this->IBlankCache[i]->GetNumberOfTuples();
-        unsigned char* ib2 = this->IBlankCache[i]->GetPointer(0);
+        vtkIdType ipts, npts=blank->GetNumberOfTuples();
+        unsigned char* ib2 = blank->GetPointer(0);
         for (ipts=0; ipts<npts; ipts++)
           {
           ib2[ipts] = ib[ipts];
           }
         delete[] ib;
-        nthOutput->SetPointVisibilityArray(this->IBlankCache[i]);
-        this->IBlankCache[i]->Register( this );
-        this->IBlankCache[i]->Delete();
+        nthOutput->SetPointVisibilityArray(blank);
         }
       this->SkipByteCount(xyzFp);
       }
 
     fclose(xyzFp);
-    }
-  else
-    {
-    numberOfDims = this->TwoDimensionalGeometry ? 2 : 3;
-
-    for(i=0; i<numBlocks; i++)
-      {
-      vtkStructuredGrid* nthOutput = this->Internal->Blocks[i];
-
-      vtkPoints* points = vtkPoints::New();
-      points->SetData(this->PointCache[i]);
-      nthOutput->SetPoints(points);
-      points->Delete();
-
-      if (this->IBlanking)
-        {
-        nthOutput->SetPointVisibilityArray(this->IBlankCache[i]);
-        }
-      }
     }
 
   // Now read the solution.
@@ -922,7 +1284,8 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       return 0;
       }
 
-    if ( this->ReadQHeader(qFp) != VTK_OK )
+    int nq, nqc, isOverflow;
+    if ( this->ReadQHeader(qFp, nq, nqc, isOverflow) != VTK_OK )
       {
       fclose(qFp);
       return 0;
@@ -932,100 +1295,213 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       {
       vtkStructuredGrid* nthOutput = this->Internal->Blocks[i];
 
-      float fsmach, alpha, re, time;
-
-      this->SkipByteCount(qFp);
-      this->ReadFloatBlock(qFp, 1, &fsmach);
-      this->ReadFloatBlock(qFp, 1, &alpha);
-      this->ReadFloatBlock(qFp, 1, &re);
-      this->ReadFloatBlock(qFp, 1, &time);
-      this->SkipByteCount(qFp);
 
       // Save the properties first
-      vtkFloatArray* properties = vtkFloatArray::New();
+      vtkDataArray* properties = this->NewFloatArray();
       properties->SetName("Properties");
-      properties->SetNumberOfTuples(4);
-      properties->SetTuple1(0, fsmach);
-      properties->SetTuple1(1, alpha);
-      properties->SetTuple1(2, re);
-      properties->SetTuple1(3, time);
-      nthOutput->GetFieldData()->AddArray(properties);
-      properties->Delete();
 
-      int dims[6];
-      nthOutput->GetDimensions(dims);
+      int numProperties = 4;
+      int count = this->SkipByteCount(qFp);
+      // We have a byte count to tell us how many Q values to
+      // read. If this is more that 4, this is probably an Overflow
+      // file.
+      if (isOverflow)
+        {
+        // We take 4 bytes because there is an int there that
+        // we will throw away
+        numProperties = (count-4) / this->Internal->Precision + 1;
+        }
+      properties->SetNumberOfTuples(numProperties);
 
-      this->SkipByteCount(qFp);
-
-      vtkFloatArray* density = vtkFloatArray::New();
-      density->SetNumberOfComponents(1);
-      density->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
-      density->SetName("Density");
-      float* dens = density->GetPointer(0);
-      if ( this->ReadFloatBlock(qFp, dims[0]*dims[1]*dims[2], dens) == 0)
+      // Read fsmach, alpha, re, time;
+      if ( this->ReadScalar(qFp, 4, properties) == 0)
         {
         vtkErrorMacro("Encountered premature end-of-file while reading "
                       "the q file (or the file is corrupt).");
         this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
         fclose(qFp);
+        properties->Delete();
+        return 0;
+        }
+
+      if (isOverflow)
+        {
+        // We create a dummy array to use with ReadScalar
+        vtkDataArray* dummyArray = properties->NewInstance();
+        dummyArray->SetVoidArray(properties->GetVoidPointer(4), 3, 1);
+
+        // Read GAMINF, BETA, TINF
+        if ( this->ReadScalar(qFp, 3, dummyArray) == 0)
+          {
+          vtkErrorMacro("Encountered premature end-of-file while reading "
+                        "the q file (or the file is corrupt).");
+          this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+          fclose(qFp);
+          properties->Delete();
+          return 0;
+          }
+
+        // igam is an int
+        int igam;
+        this->ReadIntBlock(qFp, 1, &igam);
+        properties->SetTuple1(7, igam);
+
+        dummyArray->SetVoidArray(properties->GetVoidPointer(8), 3, 1);
+        // Read the rest of properties
+        if ( this->ReadScalar(qFp, numProperties - 8, dummyArray) == 0)
+          {
+          vtkErrorMacro("Encountered premature end-of-file while reading "
+                        "the q file (or the file is corrupt).");
+          this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+          fclose(qFp);
+          properties->Delete();
+          return 0;
+          }
+        dummyArray->Delete();
+        }
+
+      nthOutput->GetFieldData()->AddArray(properties);
+      properties->Delete();
+      this->SkipByteCount(qFp);
+
+      int dims[3];
+      nthOutput->GetDimensions(dims);
+
+      this->SkipByteCount(qFp);
+
+      vtkDataArray* density = this->NewFloatArray();
+      density->SetNumberOfComponents(1);
+      density->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
+      density->SetName("Density");
+      if ( this->ReadScalar(qFp, dims[0]*dims[1]*dims[2], density) == 0)
+        {
+        vtkErrorMacro("Encountered premature end-of-file while reading "
+                      "the q file (or the file is corrupt).");
+        this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+        fclose(qFp);
+        density->Delete();
         return 0;
         }
       nthOutput->GetPointData()->AddArray(density);
       density->Delete();
 
-      vtkFloatArray* momentum = vtkFloatArray::New();
+      vtkDataArray* momentum = this->NewFloatArray();
       momentum->SetNumberOfComponents(3);
       momentum->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
       momentum->SetName("Momentum");
-
-      float comp;
-      for(ndim=0; ndim < numberOfDims; ndim++)
+      if ( this->ReadVector(qFp,
+                            dims[0]*dims[1]*dims[2],
+                            this->Internal->NumberOfDimensions,
+                            momentum) == 0)
         {
-        for(nz=0; nz < dims[2]; nz++)
-          {
-          for(ny=0; ny < dims[1]; ny++)
-            {
-            for(nx=0; nx < dims[0]; nx++)
-              {
-              if ( this->ReadFloatBlock(qFp, 1, &comp) == 0 )
-                {
-                vtkErrorMacro("Encountered premature end-of-file while "
-                              "reading the q file (or the file is corrupt).");
-                fclose(qFp);
-                return 0;
-                }
-              index = nz*dims[0]*dims[1]+ny*dims[0]+nx;
-              momentum->SetComponent(index, ndim, comp);
-              }
-            }
-          }
+        vtkErrorMacro("Encountered premature end-of-file while reading "
+                      "the q file (or the file is corrupt).");
+        this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+        fclose(qFp);
+        momentum->Delete();
+        return 0;
         }
-      if (this->TwoDimensionalGeometry)
-        {
-        vtkIdType ipts, npts=momentum->GetNumberOfTuples();
-        for(ipts=0; ipts < npts; ipts++)
-          {
-          momentum->SetComponent(ipts, 2, 0);
-          }
-        }
-
       nthOutput->GetPointData()->AddArray(momentum);
       momentum->Delete();
 
-      vtkFloatArray* se = vtkFloatArray::New();
+      vtkDataArray* se = this->NewFloatArray();
       se->SetNumberOfComponents(1);
       se->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
       se->SetName("StagnationEnergy");
-      float* sen = se->GetPointer(0);
-      if (this->ReadFloatBlock(qFp, dims[0]*dims[1]*dims[2], sen) == 0)
+      if (this->ReadScalar(qFp, dims[0]*dims[1]*dims[2], se) == 0)
         {
         vtkErrorMacro("Encountered premature end-of-file while reading "
                       "the q file (or the file is corrupt).");
         fclose(qFp);
+        se->Delete();
         return 0;
         }
       nthOutput->GetPointData()->AddArray(se);
       se->Delete();
+
+      if (isOverflow)
+        {
+        if(nq >= 6) /// super new
+          {
+          vtkDataArray* gamma = this->NewFloatArray();
+          gamma->SetNumberOfComponents(1);
+          gamma->SetNumberOfTuples(dims[0]*dims[1]*dims[2]);
+          gamma->SetName("Gamma");
+          if (this->ReadScalar(qFp, dims[0]*dims[1]*dims[2], gamma) == 0)
+            {
+            vtkErrorMacro("Encountered premature end-of-file while reading "
+                          "the q file (or the file is corrupt).");
+            fclose(qFp);
+            gamma->Delete();
+            return 0;
+            }
+          nthOutput->GetPointData()->AddArray(gamma);
+          gamma->Delete();
+        } /// end of new
+
+        char res[100];
+        // Read species and turbulence variables for overflow q files
+        for(int j=0; j<nqc; j++)
+          {
+          vtkDataArray* temp = this->NewFloatArray();
+          temp->SetNumberOfComponents(1);
+          temp->SetNumberOfTuples(dims[0]*dims[1]*dims[2]);
+          int k = j+1;
+          sprintf(res, "Species Density #%d", k);
+          temp->SetName(res);
+          if (this->ReadScalar(qFp, dims[0]*dims[1]*dims[2], temp) == 0)
+            {
+            vtkErrorMacro("Encountered premature end-of-file while reading "
+                          "the q file (or the file is corrupt).");
+            fclose(qFp);
+            temp->Delete();
+            return 0;
+            }
+          nthOutput->GetPointData()->AddArray(temp);
+          temp->Delete();
+          }
+        float d, r;
+        for(int v=0; v<nqc; v++)
+          {
+          vtkDataArray* rat = this->NewFloatArray();
+          sprintf(res, "Species Density #%d", v+1);
+          vtkPointData* outputPD = nthOutput->GetPointData();
+          vtkDataArray* spec = outputPD->GetArray(res);
+          vtkDataArray* dens = outputPD->GetArray("Density");
+          rat->SetNumberOfComponents(1);
+          rat->SetNumberOfTuples(dims[0]*dims[1]*dims[2]);
+          sprintf(res, "Spec Dens #%d / rho", v+1);
+          rat->SetName(res);
+          for(int w=0; w<dims[0]*dims[1]*dims[2]; w++)
+            {
+            r = dens->GetComponent(w,0);
+            r = (r != 0.0 ? r : 1.0);
+            d = spec->GetComponent(w,0);
+            rat->SetTuple1(w, d/r);
+            }
+          nthOutput->GetPointData()->AddArray(rat);
+          rat->Delete();
+          }
+        for(int a=0; a<nq-6-nqc; a++)
+          {
+          vtkDataArray* temp = this->NewFloatArray();
+          temp->SetNumberOfComponents(1);
+          temp->SetNumberOfTuples(dims[0]*dims[1]*dims[2]);
+          int k = a+1;
+          sprintf(res, "Turb Field Quant #%d", k);
+          temp->SetName(res);
+          if (this->ReadScalar(qFp, dims[0]*dims[1]*dims[2], temp) == 0)
+            {
+            vtkErrorMacro("Encountered premature end-of-file while reading "
+                          "the q file (or the file is corrupt).");
+            fclose(qFp);
+            temp->Delete();
+            return 0;
+            }
+          nthOutput->GetPointData()->AddArray(temp);
+          temp->Delete();
+          }
+        }
 
       this->SkipByteCount(qFp);
 
@@ -1055,7 +1531,6 @@ int vtkMultiBlockPLOT3DReader::RequestData(
     mb->SetBlock(i, nthOutput);
     }
 
-  this->Internal->Blocks.clear();
   return 1;
 }
 
@@ -1210,7 +1685,7 @@ void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
 {
   double *m, e, rr, u, v, w, v2, p, d, rrgas;
   vtkIdType i;
-  vtkFloatArray *temperature;
+  vtkDataArray *temperature;
 
   //  Check that the required data is available
   //
@@ -1227,7 +1702,7 @@ void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
     }
 
   vtkIdType numPts = density->GetNumberOfTuples();
-  temperature = vtkFloatArray::New();
+  temperature = this->NewFloatArray();
   temperature->SetNumberOfTuples(numPts);
 
   //  Compute the temperature
@@ -1245,7 +1720,7 @@ void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
     w = m[2] * rr;
     v2 = u*u + v*v + w*w;
     p = (this->Gamma-1.) * (e - 0.5 * d * v2);
-    temperature->SetValue(i, p*rr*rrgas);
+    temperature->SetTuple1(i, p*rr*rrgas);
   }
 
   temperature->SetName("Temperature");
@@ -1259,7 +1734,7 @@ void vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
 {
   double *m, e, u, v, w, v2, p, d, rr;
   vtkIdType i;
-  vtkFloatArray *pressure;
+  vtkDataArray *pressure;
 
   //  Check that the required data is available
   //
@@ -1275,7 +1750,7 @@ void vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
     }
 
   vtkIdType numPts = density->GetNumberOfTuples();
-  pressure = vtkFloatArray::New();
+  pressure = this->NewFloatArray();
   pressure->SetNumberOfTuples(numPts);
 
   //  Compute the pressure
@@ -1292,7 +1767,7 @@ void vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
     w = m[2] * rr;
     v2 = u*u + v*v + w*w;
     p = (this->Gamma-1.) * (e - 0.5 * d * v2);
-    pressure->SetValue(i, p);
+    pressure->SetTuple1(i, p);
   }
 
   pressure->SetName("Pressure");
@@ -1305,7 +1780,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
 {
   double *m, e, u, v, w, v2, d, rr;
   vtkIdType i;
-  vtkFloatArray *enthalpy;
+  vtkDataArray *enthalpy;
 
   //  Check that the required data is available
   //
@@ -1321,7 +1796,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
     }
 
   vtkIdType numPts = density->GetNumberOfTuples();
-  enthalpy = vtkFloatArray::New();
+  enthalpy = this->NewFloatArray();
   enthalpy->SetNumberOfTuples(numPts);
 
   //  Compute the enthalpy
@@ -1337,7 +1812,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
     v = m[1] * rr;
     w = m[2] * rr;
     v2 = u*u + v*v + w*w;
-    enthalpy->SetValue(i, this->Gamma*(e*rr - 0.5*v2));
+    enthalpy->SetTuple1(i, this->Gamma*(e*rr - 0.5*v2));
   }
   enthalpy->SetName("Enthalpy");
   outputPD->AddArray(enthalpy);
@@ -1349,7 +1824,7 @@ void vtkMultiBlockPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
 {
   double *m, u, v, w, v2, d, rr;
   vtkIdType i;
-  vtkFloatArray *kineticEnergy;
+  vtkDataArray *kineticEnergy;
 
   //  Check that the required data is available
   //
@@ -1363,7 +1838,7 @@ void vtkMultiBlockPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
     }
 
   vtkIdType numPts = density->GetNumberOfTuples();
-  kineticEnergy = vtkFloatArray::New();
+  kineticEnergy = this->NewFloatArray();
   kineticEnergy->SetNumberOfTuples(numPts);
 
   //  Compute the kinetic energy
@@ -1378,7 +1853,7 @@ void vtkMultiBlockPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
     v = m[1] * rr;
     w = m[2] * rr;
     v2 = u*u + v*v + w*w;
-    kineticEnergy->SetValue(i, 0.5*v2);
+    kineticEnergy->SetTuple1(i, 0.5*v2);
   }
   kineticEnergy->SetName("KineticEnergy");
   outputPD->AddArray(kineticEnergy);
@@ -1390,7 +1865,7 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* outp
 {
   double *m, u, v, w, v2, d, rr;
   vtkIdType i;
-  vtkFloatArray *velocityMag;
+  vtkDataArray *velocityMag;
 
   //  Check that the required data is available
   //
@@ -1406,7 +1881,7 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* outp
     }
 
   vtkIdType numPts = density->GetNumberOfTuples();
-  velocityMag = vtkFloatArray::New();
+  velocityMag = this->NewFloatArray();
   velocityMag->SetNumberOfTuples(numPts);
 
   //  Compute the velocity magnitude
@@ -1421,8 +1896,8 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* outp
     v = m[1] * rr;
     w = m[2] * rr;
     v2 = u*u + v*v + w*w;
-    velocityMag->SetValue(i, sqrt((double)v2));
-  }
+    velocityMag->SetTuple1(i, sqrt((double)v2));
+    }
   velocityMag->SetName("VelocityMagnitude");
   outputPD->AddArray(velocityMag);
   velocityMag->Delete();
@@ -1433,7 +1908,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
 {
   double *m, u, v, w, v2, d, rr, s, p, e;
   vtkIdType i;
-  vtkFloatArray *entropy;
+  vtkDataArray *entropy;
 
   //  Check that the required data is available
   //
@@ -1449,7 +1924,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
     }
 
   vtkIdType numPts = density->GetNumberOfTuples();
-  entropy = vtkFloatArray::New();
+  entropy = this->NewFloatArray();
   entropy->SetNumberOfTuples(numPts);
 
   //  Compute the entropy
@@ -1467,7 +1942,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
     v2 = u*u + v*v + w*w;
     p = (this->Gamma-1.)*(e - 0.5*d*v2);
     s = VTK_CV * log((p/VTK_PINF)/pow((double)d/VTK_RHOINF,(double)this->Gamma));
-    entropy->SetValue(i,s);
+    entropy->SetTuple1(i,s);
   }
   entropy->SetName("Entropy");
   outputPD->AddArray(entropy);
@@ -1480,7 +1955,7 @@ void vtkMultiBlockPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
   vtkDataArray *vorticity;
   double d, rr, *m, u, v, w, v2, *vort, s;
   vtkIdType i;
-  vtkFloatArray *swirl;
+  vtkDataArray *swirl;
 
   //  Check that the required data is available
   //
@@ -1496,7 +1971,7 @@ void vtkMultiBlockPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
     }
 
   vtkIdType numPts = density->GetNumberOfTuples();
-  swirl = vtkFloatArray::New();
+  swirl = this->NewFloatArray();
   swirl->SetNumberOfTuples(numPts);
 
   this->ComputeVorticity(output);
@@ -1524,7 +1999,7 @@ void vtkMultiBlockPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
       s = 0.0;
       }
 
-    swirl->SetValue(i,s);
+    swirl->SetTuple1(i,s);
   }
   swirl->SetName("Swirl");
   outputPD->AddArray(swirl);
@@ -1538,7 +2013,7 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
 {
   double *m, v[3], d, rr;
   vtkIdType i;
-  vtkFloatArray *velocity;
+  vtkDataArray *velocity;
 
   //  Check that the required data is available
   //
@@ -1554,7 +2029,7 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
     }
 
   vtkIdType numPts = density->GetNumberOfTuples();
-  velocity = vtkFloatArray::New();
+  velocity = this->NewFloatArray();
   velocity->SetNumberOfComponents(3);
   velocity->SetNumberOfTuples(numPts);
 
@@ -1580,7 +2055,7 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
 void vtkMultiBlockPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
 {
   vtkDataArray *velocity;
-  vtkFloatArray *vorticity;
+  vtkDataArray *vorticity;
   int dims[3], ijsize;
   vtkPoints *points;
   int i, j, k, idx, idx2, ii;
@@ -1605,7 +2080,7 @@ void vtkMultiBlockPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
     }
 
   vtkIdType numPts = density->GetNumberOfTuples();
-  vorticity = vtkFloatArray::New();
+  vorticity = this->NewFloatArray();
   vorticity->SetNumberOfComponents(3);
   vorticity->SetNumberOfTuples(numPts);
 
@@ -1812,7 +2287,7 @@ void vtkMultiBlockPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
 void vtkMultiBlockPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* output)
 {
   vtkDataArray *pressure;
-  vtkFloatArray *gradient;
+  vtkDataArray *gradient;
   int dims[3], ijsize;
   vtkPoints *points;
   int i, j, k, idx, idx2, ii;
@@ -1837,7 +2312,7 @@ void vtkMultiBlockPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* outpu
     }
 
   vtkIdType numPts = density->GetNumberOfTuples();
-  gradient = vtkFloatArray::New();
+  gradient = this->NewFloatArray();
   gradient->SetNumberOfComponents(3);
   gradient->SetNumberOfTuples(numPts);
 
@@ -2087,18 +2562,15 @@ void vtkMultiBlockPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HasByteCount: " << this->HasByteCount << endl;
   os << indent << "Gamma: " << this->Gamma << endl;
   os << indent << "R: " << this->R << endl;
-  os << indent << "Uvinf: " << this->Uvinf << endl;
-  os << indent << "Vvinf: " << this->Vvinf << endl;
-  os << indent << "Wvinf: " << this->Wvinf << endl;
   os << indent << "ScalarFunctionNumber: " << this->ScalarFunctionNumber << endl;
   os << indent << "VectorFunctionNumber: " << this->VectorFunctionNumber << endl;
   os << indent << "MultiGrid: " << this->MultiGrid << endl;
-  os << indent << "TwoDimensionalGeometry: "
-     << this->TwoDimensionalGeometry << endl;
   os << indent << "ForceRead: " << this->ForceRead << endl;
   os << indent << "IBlanking: " << this->IBlanking << endl;
   os << indent << "ByteOrder: " << this->ByteOrder << endl;
   os << indent << "TwoDimensionalGeometry: " << (this->TwoDimensionalGeometry?"on":"off")
      << endl;
+  os << indent << "Double Precision:" << this->DoublePrecision << endl;
+  os << indent << "Auto Detect Format: " << this->AutoDetectFormat << endl;
 }
 

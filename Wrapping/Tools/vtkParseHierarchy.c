@@ -577,7 +577,7 @@ int vtkParseHierarchy_IsTypeOfTemplated(
   const char *baseclass, const char **baseclass_with_args)
 {
   HierarchyEntry *tmph;
-  const char *name;
+  const char *name = NULL;
   const char *supername;
   char *tmp;
   int templated;

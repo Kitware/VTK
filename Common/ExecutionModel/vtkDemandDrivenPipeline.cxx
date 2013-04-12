@@ -301,9 +301,8 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
 
 //----------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::ResetPipelineInformation(int,
-                                                       vtkInformation* info)
+                                                       vtkInformation*)
 {
-  info->Remove(RELEASE_DATA());
 }
 
 //----------------------------------------------------------------------------

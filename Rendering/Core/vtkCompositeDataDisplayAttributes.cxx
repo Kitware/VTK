@@ -62,6 +62,52 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilites()
   this->BlockVisibilities.clear();
 }
 
+void vtkCompositeDataDisplayAttributes::SetBlockColor(
+  unsigned int flat_index, const double color[3])
+{
+  this->BlockColors[flat_index] = vtkColor3d(color[0], color[1], color[2]);
+}
+
+void vtkCompositeDataDisplayAttributes::GetBlockColor(
+  unsigned int flat_index, double color[3]) const
+{
+  std::map<unsigned int, vtkColor3d>::const_iterator
+    iter = this->BlockColors.find(flat_index);
+  if(iter != this->BlockColors.end())
+    {
+    std::copy(&iter->second[0], &iter->second[3], color);
+    }
+}
+
+vtkColor3d vtkCompositeDataDisplayAttributes::GetBlockColor(
+  unsigned int flat_index) const
+{
+  std::map<unsigned int, vtkColor3d>::const_iterator
+    iter = this->BlockColors.find(flat_index);
+  if(iter != this->BlockColors.end())
+    {
+    return iter->second;
+    }
+  return vtkColor3d();
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockColor(
+  unsigned int flat_index) const
+{
+  return this->BlockColors.count(flat_index) == size_t(1);
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockColor(
+  unsigned int flat_index)
+{
+  this->BlockColors.erase(flat_index);
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockColors()
+{
+  this->BlockColors.clear();
+}
+
 void vtkCompositeDataDisplayAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

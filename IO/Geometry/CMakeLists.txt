@@ -18,6 +18,7 @@ SET(Module_SRCS
   vtkOpenFOAMReader.cxx
   vtkParticleReader.cxx
   vtkPDBReader.cxx
+  vtkPlot3DMetaReader.cxx
   vtkProStarReader.cxx
   vtkSESAMEReader.cxx
   vtkSTLReader.cxx
