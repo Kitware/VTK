@@ -236,48 +236,21 @@ void vtkHyperTreeGridToUnstructuredGrid::ProcessTrees()
   this->Cells = vtkCellArray::New();
 
   // Iterate over all hyper trees
-  unsigned int index = 0;
-  unsigned int* gridSize = this->Input->GetGridSize();
-  if ( this->Input->GetTransposedRootIndexing() )
+  vtkIdType index;
+  vtkHyperTreeGrid::vtkHyperTreeIterator it;
+  it.Initialize( this->Input );
+  while ( it.GetNextTree( index ) )
     {
-    for ( unsigned int i = 0; i < gridSize[0]; ++ i )
-      {
-      for ( unsigned int j = 0; j < gridSize[1]; ++ j )
-        {
-        for ( unsigned int k = 0; k < gridSize[2]; ++ k, ++ index )
-          {
-          // Storage for super cursors
-          vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
+    vtkIdType i, j, k;
+    this->Input->GetLevelZeroCoordsFromIndex( index, i, j, k );
+    vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
-          // Initialize center cursor
-          this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
+    // Initialize center cursor
+    this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
 
-          // Traverse and populate dual recursively
-          this->RecursiveProcessTree( &superCursor );
-          } // k
-        } // j
-      } // i
-    } //   if ( this->Input->GetTransposedRootIndexing() )
-  else
-    {
-    for ( unsigned int k = 0; k < gridSize[2]; ++ k )
-      {
-      for ( unsigned int j = 0; j < gridSize[1]; ++ j )
-        {
-        for ( unsigned int i = 0; i < gridSize[0]; ++ i, ++ index )
-          {
-          // Storage for super cursors
-          vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
-
-          // Initialize center cursor
-          this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
-
-          // Traverse and populate dual recursively
-          this->RecursiveProcessTree( &superCursor );
-          } // i
-        } // j
-      } // k
-    } // else indexing mode
+    // Traverse and populate dual recursively
+    this->RecursiveProcessTree( &superCursor );
+  }
 
   // Set output geometry and topology
   this->Output->SetPoints( this->Points );

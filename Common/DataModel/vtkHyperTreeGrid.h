@@ -59,6 +59,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataSet
 public:
 //BTX
   class vtkHyperTreeSimpleCursor;
+  class vtkHyperTreeIterator;
   struct vtkHyperTreeGridSuperCursor;
 //ETX
 
@@ -116,11 +117,15 @@ public:
 
   // Description:
   // Get the number of leaves in the primal tree grid.
-  unsigned int GetNumberOfLeaves();
+  vtkIdType GetNumberOfLeaves();
 
   // Description:
   // Return the number of levels in an individual (primal) tree
-  unsigned int GetNumberOfLevels( unsigned int );
+  vtkIdType GetNumberOfLevels( vtkIdType );
+
+  // Description:
+  // Return the number of trees in the level 0 grid.
+  vtkIdType GetNumberOfTrees();
 
   // Description:
   // Specify the grid coordinates in the x-direction.
@@ -143,10 +148,19 @@ public:
   vtkGetObjectMacro(MaterialMask, vtkBitArray);
 
   // Description:
+  // Specify the visibility mask of primal leaf cells
+  virtual void SetMaterialMaskIndex( vtkIdTypeArray* );
+  vtkGetObjectMacro(MaterialMaskIndex, vtkIdTypeArray);
+
+  // Description:
+  // This method must be called once the tree settings change
+  virtual void GenerateTrees();
+
+  // Description:
   // Create a new cursor: an object that can traverse
   // the cells of an individual hyper tree.
   // \post result_exists: result!=0
-  vtkHyperTreeCursor* NewCursor( int );
+  vtkHyperTreeCursor* NewCursor( vtkIdType );
 
   // Description:
   // Subdivide node pointed by cursor, only if its a leaf.
@@ -267,6 +281,10 @@ public:
   void Initialize();
 
   // Description:
+  // Initialize an iterator to browse level 0 trees.
+  void InitializeTreeIterator( vtkHyperTreeIterator& );
+
+  // Description:
   // Convenience method returns largest cell size in dataset. This is generally
   // used to allocate memory for supporting data structures.
   // This is the number of points of a cell.
@@ -301,7 +319,7 @@ public:
                               unsigned int,
                               unsigned int,
                               unsigned int,
-                              unsigned int );
+                              vtkIdType );
   // Description:
   // Initialize a cursor to point to a child of an existing super cursor.
   // This will not work in place.
@@ -314,13 +332,19 @@ public:
   // The number of children each node can have.
   vtkGetMacro(NumberOfChildren, int);
 
+  // Description:
+  vtkIdType GetLevelZeroIndex( vtkIdType );
+
+  // Description:
+  // Convert a level 0 index to its ijk coordinates according the grid size.
+  void GetLevelZeroCoordsFromIndex( vtkIdType index, vtkIdType &i, vtkIdType &j, vtkIdType &k );
+
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperTreeGrid();
   ~vtkHyperTreeGrid();
 
   void ComputeBounds();
-  void UpdateTree();
 
   void GetCell( vtkIdType, vtkCell* );
 
@@ -330,18 +354,22 @@ protected:
 
   unsigned int Dimension;    // 1, 2 or 3.
   unsigned int GridSize[3];
-  bool TransposedRootIndexing;
   unsigned int BranchFactor;
   unsigned int NumberOfChildren;
+  bool TransposedRootIndexing;
 
   vtkBitArray* MaterialMask;
+  vtkIdTypeArray* MaterialMaskIndex;
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;
   vtkDataArray* ZCoordinates;
 
-  vtkCollection* HyperTrees;
+  std::map<vtkIdType, vtkHyperTree*> HyperTrees;
+  std::map<vtkIdType, vtkIdType> HyperTreesMap;
   vtkIdType* HyperTreesLeafIdOffsets;
+  vtkIdType NumLeaves;
+  vtkTimeStamp HyperTreesLeafIdOffsetsMTime;
 
   vtkPoints* Points;
   vtkIdTypeArray* Connectivity;
@@ -352,10 +380,11 @@ protected:
   int UpdateHyperTreesLeafIdOffsets();
 
   void DeleteInternalArrays();
+  void DeleteTrees();
 
 //BTX
 #ifndef __WRAP__
-  void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, int );
+  void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, unsigned int );
 
   void TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* );
 
@@ -416,7 +445,7 @@ public:
     vtkHyperTree* GetTree() { return this->Tree; }
     vtkIdType GetLeafIndex() { return this->Index; } // Only valid for leaves.
 
-    vtkIdType GetGlobalLeafIndex() { return this->Offset + this->Index; }
+    vtkIdType GetGlobalLeafIndex() { return ( this->Offset >= 0 ) ? this->Offset + this->Index : -1; }
     vtkIdType GetOffset() { return this->Offset; }
     unsigned short GetLevel() { return this->Level; }
 
@@ -426,6 +455,30 @@ public:
     vtkIdType Offset;
     unsigned short Level;
     bool Leaf;
+  };
+
+  class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeIterator
+  {
+  public:
+    vtkHyperTreeIterator() {}
+
+    // Description:
+    // Initialize the iterator on the tree set of the given HyperTreeGrid.
+    void Initialize( vtkHyperTreeGrid* );
+
+    // Description:
+    // Get the next tree and set its index then increment the iterator.
+    // Returns 0 at the end.
+    vtkHyperTree* GetNextTree( vtkIdType &index );
+
+    // Description:
+    // Get the next tree and set its index then increment the iterator.
+    // Returns 0 at the end.
+    vtkHyperTree* GetNextTree();
+
+  protected:
+    std::map<vtkIdType, vtkHyperTree*>::iterator Iterator;
+    vtkHyperTreeGrid* Tree;
   };
 
   // Public structure filters use to move around the tree.

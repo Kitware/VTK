@@ -29,6 +29,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkQuadric.h"
+#include "vtkTimerLog.h"
 
 int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
 {
@@ -43,21 +44,29 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
   htGrid->UseMaterialMaskOn();
   vtkNew<vtkQuadric> quadric;
   quadric->SetCoefficients( 1., 1., 1.,
-                            0., 0., 0.,
-                            0., 0., 0.,
+                            0, 0., 0.,
+                            0.0, 0., 0.,
                             -25. );
   htGrid->SetQuadric( quadric.GetPointer() );
-
+  vtkNew<vtkTimerLog> timer;
+  timer->StartTimer();
   htGrid->Update();
+  timer->StopTimer();
+  cerr << "Creation time : " << timer->GetElapsedTime() << endl;
+  timer->StartTimer();
   vtkNew<vtkHyperTreeGrid> htgCopy;
   htgCopy->ShallowCopy( htGrid->GetOutput() );
-
+  timer->StopTimer();
+  cerr << "Copy time : " << timer->GetElapsedTime() << endl;
   // Geometry
+  timer->StartTimer();
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   //geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->SetInputData( htgCopy.GetPointer() );
   geometry->Update();
   vtkPolyData* pd = geometry->GetOutput();
+  timer->StopTimer();
+  cerr << "Geometry time : " << timer->GetElapsedTime() << endl;
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
