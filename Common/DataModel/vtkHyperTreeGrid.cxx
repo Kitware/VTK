@@ -1317,7 +1317,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
       pt[d] = superCursor->Origin[d] + superCursor->Size[d] / 2.;
       }
     // Retrieve global index of center cursor
-    this->Points->SetPoint( id0 - 1, pt );
+    //this->Points->SetPoint( id0 - 1, pt );
 
     // If cursor 0 is not at leaf, recurse to all children
     for ( unsigned int child = 0; child < this->NumberOfChildren; ++ child )
