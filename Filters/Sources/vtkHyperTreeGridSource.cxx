@@ -885,10 +885,10 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor( vtkHyperTreeCursor* cu
     this->Output->SubdivideLeaf( cursor, treeIdx );
 
     // We are at a non-leaf cell, calculate its global index
-    vtkIdType id = cellIdOffset + childIdx + ( level == 0 ? 0 : 1 );
+    //vtkIdType id = cellIdOffset + childIdx + ( level == 0 ? 0 : 1 );
 
     // Cell value: depth level
-    depthArray->InsertTuple1( id, level );
+    //depthArray->InsertTuple1( id, level );
 
     // Now traverse to children
     int xDim = ( this->Dimension >= 1 ) ? this->BranchFactor : 1;
