@@ -108,6 +108,11 @@ public:
   vtkGetStringMacro(QFileName);
 
   // Description:
+  // Set/Get the PLOT3D function filename.
+  vtkSetStringMacro(FunctionFileName);
+  vtkGetStringMacro(FunctionFileName);
+
+  // Description:
   // When this option is turned on, the reader will try to figure
   // out the values of various options such as byte order, byte
   // count etc. automatically. This options works only for binary
@@ -239,6 +244,7 @@ protected:
   int CheckFile(FILE*& fp, const char* fname);
   int CheckGeometryFile(FILE*& xyzFp);
   int CheckSolutionFile(FILE*& qFp);
+  int CheckFunctionFile(FILE*& fFp);
 
   int SkipByteCount (FILE* fp);
   int ReadIntBlock  (FILE* fp, int n, int*   block);
@@ -250,6 +256,7 @@ protected:
 
   int ReadGeometryHeader(FILE* fp);
   int ReadQHeader(FILE* fp, int& nq, int& nqc, int& overflow);
+  int ReadFunctionHeader(FILE* fp, int& nFunctions);
 
   void CalculateFileSize(FILE* fp);
   long EstimateSize(int ni, int nj, int nk);
@@ -283,6 +290,7 @@ protected:
   //plot3d FileNames
   char *XYZFileName;
   char *QFileName;
+  char *FunctionFileName;
 
   int BinaryFile;
   int HasByteCount;

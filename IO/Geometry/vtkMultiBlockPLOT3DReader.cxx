@@ -505,6 +505,7 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
 {
   this->XYZFileName = NULL;
   this->QFileName = NULL;
+  this->FunctionFileName = NULL;
   this->BinaryFile = 1;
   this->HasByteCount = 0;
   this->FileSize = 0;
@@ -535,6 +536,7 @@ vtkMultiBlockPLOT3DReader::~vtkMultiBlockPLOT3DReader()
 {
   delete [] this->XYZFileName;
   delete [] this->QFileName;
+  delete [] this->FunctionFileName;
   this->FunctionList->Delete();
   this->ClearGeometryCache();
 
@@ -671,6 +673,17 @@ int vtkMultiBlockPLOT3DReader::CheckSolutionFile(FILE*& qFp)
     return VTK_ERROR;
     }
   return this->CheckFile(qFp, this->QFileName);
+}
+
+int vtkMultiBlockPLOT3DReader::CheckFunctionFile(FILE*& fFp)
+{
+  if ( this->FunctionFileName == NULL || this->FunctionFileName[0] == '\0' )
+    {
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
+    vtkErrorMacro(<< "Must specify geometry file");
+    return VTK_ERROR;
+    }
+  return this->CheckFile(fFp, this->FunctionFileName);
 }
 
 // Skip Fortran style byte count.
@@ -1069,6 +1082,49 @@ int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp, int& nq, int& nqc, int& ove
     nq = 5;
     nqc = 0;
     }
+  this->SkipByteCount(fp);
+  return VTK_OK;
+}
+
+int vtkMultiBlockPLOT3DReader::ReadFunctionHeader(FILE* fp, int& nFunctions)
+{
+  int numGrid = this->GetNumberOfBlocksInternal(fp, 0);
+  vtkDebugMacro("Function number of grids: " << numGrid);
+  if ( numGrid == 0 )
+    {
+    return VTK_ERROR;
+    }
+
+  // If the numbers of grids still do not match, the
+  // function file is wrong
+  if (numGrid != static_cast<int>(this->Internal->Blocks.size()))
+    {
+    vtkErrorMacro("The number of grids between the geometry "
+                  "and the function file do not match.");
+    return VTK_ERROR;
+    }
+
+  int bytes = this->SkipByteCount(fp);
+  for(int i=0; i<numGrid; i++)
+    {
+    int n[3];
+    n[2] = 1;
+    this->ReadIntBlock(fp, this->Internal->NumberOfDimensions, n);
+    vtkDebugMacro("Function, block " << i << " dimensions: "
+                  << n[0] << " " << n[1] << " " << n[2]);
+
+    int extent[6];
+    this->Internal->Blocks[i]->GetExtent(extent);
+    if ( extent[1] != n[0]-1 || extent[3] != n[1]-1 || extent[5] != n[2]-1)
+      {
+      this->SetErrorCode(vtkErrorCode::FileFormatError);
+      vtkErrorMacro("Geometry and data dimensions do not match. "
+                    "Data file may be corrupt.");
+      this->Internal->Blocks[i]->Initialize();
+      return VTK_ERROR;
+      }
+    }
+  this->ReadIntBlock(fp, 1, &nFunctions);
   this->SkipByteCount(fp);
   return VTK_OK;
 }
@@ -1522,6 +1578,53 @@ int vtkMultiBlockPLOT3DReader::RequestData(
                             vtkDataSetAttributes::VECTORS);
       }
     fclose(qFp);
+    }
+
+  // Now read the functions.
+  if (this->FunctionFileName && this->FunctionFileName[0] != '\0')
+    {
+    FILE* fFp;
+    if ( this->CheckFunctionFile(fFp) != VTK_OK)
+      {
+      return 0;
+      }
+
+    int nFunctions;
+    if ( this->ReadFunctionHeader(fFp, nFunctions) != VTK_OK )
+      {
+      fclose(fFp);
+      return 0;
+      }
+
+    for(i=0; i<numBlocks; i++)
+      {
+      vtkStructuredGrid* nthOutput = this->Internal->Blocks[i];
+      int dims[3];
+      nthOutput->GetDimensions(dims);
+
+      this->SkipByteCount(fFp);
+
+      for (int j=0; j<nFunctions; j++)
+        {
+        vtkDataArray* functionArray = this->NewFloatArray();
+        functionArray->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
+        char functionName[20];
+        sprintf(functionName, "Function%d", j);
+        functionArray->SetName(functionName);
+        if (this->ReadScalar(fFp, dims[0]*dims[1]*dims[2], functionArray) == 0)
+          {
+          vtkErrorMacro("Encountered premature end-of-file while reading "
+                        "the function file (or the file is corrupt).");
+          fclose(fFp);
+          functionArray->Delete();
+          return 0;
+          }
+        nthOutput->GetPointData()->AddArray(functionArray);
+        functionArray->Delete();
+        }
+
+      this->SkipByteCount(fFp);
+      }
     }
 
   mb->SetNumberOfBlocks(numBlocks);
@@ -2558,6 +2661,8 @@ void vtkMultiBlockPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
     (this->XYZFileName ? this->XYZFileName : "(none)") << "\n";
   os << indent << "Q File Name: " <<
     (this->QFileName ? this->QFileName : "(none)") << "\n";
+  os << indent << "Function File Name: " <<
+    (this->FunctionFileName ? this->FunctionFileName : "(none)") << "\n";
   os << indent << "BinaryFile: " << this->BinaryFile << endl;
   os << indent << "HasByteCount: " << this->HasByteCount << endl;
   os << indent << "Gamma: " << this->Gamma << endl;
