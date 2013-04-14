@@ -199,10 +199,6 @@ void vtkViewport::DisplayToView()
       }
     sizex = size[0];
     sizey = size[1];
-    if ((sizex <= 0) || (sizey <= 0))
-      {
-      return;
-      }
 
     vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/
       (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
