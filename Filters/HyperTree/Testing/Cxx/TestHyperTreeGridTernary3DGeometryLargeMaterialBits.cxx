@@ -36,8 +36,6 @@
 #include "vtkTimerLog.h"
 #include <vtkObjectFactory.h>
 
-vtkNew<vtkRenderer> renderer;
-
 // Define interaction style
 class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 {
@@ -54,10 +52,10 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
       // Handle a "normal" key
       if(key == "a")
         {
-        double *pos = renderer->GetActiveCamera()->GetPosition();
-        double *focal = renderer->GetActiveCamera()->GetFocalPoint();
-        double *clip = renderer->GetActiveCamera()->GetClippingRange();
-        double *up = renderer->GetActiveCamera()->GetViewUp();
+        double *pos = this->Renderer->GetActiveCamera()->GetPosition();
+        double *focal = this->Renderer->GetActiveCamera()->GetFocalPoint();
+        double *clip = this->Renderer->GetActiveCamera()->GetClippingRange();
+        double *up = this->Renderer->GetActiveCamera()->GetViewUp();
         cout << "----" << endl;
         cout << "Camera position " << pos[0] << ", " << pos[1] << ", " << pos[2] << endl;
         cout << "Camera focalpoint " << focal[0] << ", " << focal[1] << ", " << focal[2] << endl;
@@ -69,6 +67,7 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
       vtkInteractorStyleTrackballCamera::OnKeyPress();
     }
 
+    vtkRenderer* Renderer;
 };
 vtkStandardNewMacro(KeyPressInteractorStyle);
 
@@ -77,15 +76,15 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   htGrid->SetMaximumLevel( 6 );
-  htGrid->SetGridSize( 100, 100, 2048 );
+  htGrid->SetGridSize( 100, 100, 20 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
   htGrid->UseMaterialMaskOn();
-  const std::string descriptor = ".RR _R. _RR ..R _.R .R_ |" // Level 0 refinement
-   "R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR.........  ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ...........................";
+  const std::string descriptor = ".RR _R. _RR ..R _.R .R_|" // Level 0 refinement
+   "R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ...........................";
   const std::string materialMask = // Level 0 materials are not needed, visible cells are described with LevelZeroMaterialIndex
-   "111111111111111111111111111 000000000100110111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 000110011100000100100010100|000001011011111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111001111111101111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111|000000000111100100111100100 000000000111001001111001001 000000111100100111111111111 000000111001001111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 110110110100111110111000000|111111111111111111111111111  11111111111111111111111111";
+   "111111111111111111111111111 000000000100110111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 000110011100000100100010100|000001011011111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111001111111101111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111|000000000111100100111100100 000000000111001001111001001 000000111100100111111111111 000000111001001111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 110110110100111110111000000|111111111111111111111111111 111111111111111111111111111";
   vtkIdType zeroArray[] = { 0, 1, 2, 4, 5, 7, 8, 9, 30, 29*30+1, 30*30, 30*30*19, 30*30*20-2, 30*30*20-1 };
   vtkNew<vtkIdTypeArray> zero;
   zero->SetArray( zeroArray, sizeof(zeroArray) / sizeof(vtkIdType), 1, 0 );
@@ -131,6 +130,7 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
   actor2->GetProperty()->SetColor( .7, .7, .7 );
 
   // Renderer
+  vtkNew<vtkRenderer> renderer;
   renderer->SetBackground( 1., 1., 1. );
   renderer->AddActor( actor1.GetPointer() );
   renderer->AddActor( actor2.GetPointer() );
@@ -151,6 +151,7 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow( renWin.GetPointer() );
   vtkNew<KeyPressInteractorStyle> style;
+  style->Renderer = renderer.GetPointer();
   iren->SetInteractorStyle( style.GetPointer() );
 
   // Render and test
