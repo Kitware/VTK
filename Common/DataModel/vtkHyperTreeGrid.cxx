@@ -1281,13 +1281,13 @@ void vtkHyperTreeGrid::ComputeDualGrid()
   for ( unsigned int d = 0; d < this->Dimension; ++ d )
     {
     // Iterate over all adjustments for current dimension
-    for ( std::map<vtkIdType,double>::const_iterator it = this->PointShifts[d].begin();
-          it != this->PointShifts[d].end(); ++ it )
+    for ( std::map<vtkIdType,double>::const_iterator itps = this->PointShifts[d].begin();
+          itps != this->PointShifts[d].end(); ++ itps )
       {
       double pt[3];
-      this->Points->GetPoint( it->first, pt );
-      pt[d] += it->second;
-      this->Points->SetPoint( it->first, pt );
+      this->Points->GetPoint( itps->first, pt );
+      pt[d] += itps->second;
+      this->Points->SetPoint( itps->first, pt );
       } // it
     } // d
 
@@ -1311,13 +1311,13 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
   if ( !cursor0->IsLeaf() )
     {
     // Initialize non leaf point coordinate
-    double pt[3] = { 0., 0., 0. };
+    /*double pt[3] = { 0., 0., 0. };
     for ( unsigned int d = 0; d < this->Dimension; ++ d )
       {
       pt[d] = superCursor->Origin[d] + superCursor->Size[d] / 2.;
       }
     // Retrieve global index of center cursor
-    //this->Points->SetPoint( id0 - 1, pt );
+    this->Points->SetPoint( id0 - 1, pt );*/
 
     // If cursor 0 is not at leaf, recurse to all children
     for ( unsigned int child = 0; child < this->NumberOfChildren; ++ child )
