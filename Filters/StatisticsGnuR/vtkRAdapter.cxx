@@ -731,7 +731,6 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     weights->SetValue(0, 0.0);//root edge weight = 0.0
     for (int i = 0; i < nedge; i++)
       {
-      cout << "(debug) edge weight #" << i << ": " << edge_length[i] << endl;
       weights->SetValue(i+1, edge_length[i]);
       }
     builder->GetEdgeData()->AddArray(weights.GetPointer());

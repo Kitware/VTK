@@ -341,6 +341,7 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
       outComposite->SetDataSet(iter, outComponent);
       outComponent->Delete();
       }
+    iter->Delete();
     }
 
   // For now: use the first input information for timing
