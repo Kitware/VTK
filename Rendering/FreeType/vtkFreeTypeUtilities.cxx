@@ -19,6 +19,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkImageData.h"
+#include "vtkTextActor.h"
+#include "vtkViewport.h"
+#include "vtkWindow.h"
 
 // FTGL
 
@@ -1711,6 +1714,10 @@ void vtkFreeTypeUtilities::GetWidthHeightDescender(const char *str,
   *height = 0;
   *width = 0;
   *descender = 0;
+  if (!str || !str[0])
+    {
+    return;
+    }
 
   // The font global ascender and descender might just be too high
   // for given a face. Let's get a compromise by computing these values
@@ -1907,7 +1914,6 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
     }
   return fontSize;
 }
-
 
 void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
                                        int totalWidth, int *x, int *y)

@@ -275,6 +275,13 @@ public:
   // Get the number of available colors for mapping to.
   virtual vtkIdType GetNumberOfAvailableColors();
 
+  // Description:
+  // Return a color given an integer index.
+  //
+  // This is used to assign colors to annotations (given an offset into the list of annotations).
+  // If the table is empty or \a idx < 0, then NanColor is returned.
+  virtual void GetIndexedColor(vtkIdType idx, double rgba[4]);
+
 protected:
   vtkLookupTable(int sze=256, int ext=256);
   ~vtkLookupTable();

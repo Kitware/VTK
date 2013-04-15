@@ -94,6 +94,10 @@ public:
   virtual void GetColor(double v, double rgb[3]);
 
   // Description:
+  // Return the opacity of a given scalar.
+  virtual double GetOpacity(double v);
+
+  // Description:
   // An internal method maps a data array into a 4-component, unsigned char
   // RGBA array. The color mode determines the behavior of mapping. If
   // VTK_COLOR_MODE_DEFAULT is set, then unsigned char data arrays are

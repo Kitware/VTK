@@ -71,6 +71,7 @@ int TestDistancePolyDataFilter(int, char*[])
   scalarBar->SetLookupTable(mapper->GetLookupTable());
   scalarBar->SetTitle("Distance");
   scalarBar->SetNumberOfLabels(5);
+  scalarBar->SetTextPad(4);
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
 

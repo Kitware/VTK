@@ -218,6 +218,19 @@ void vtkDiscretizableColorTransferFunction::GetColor(double v, double rgb[3])
 }
 
 //-----------------------------------------------------------------------------
+double vtkDiscretizableColorTransferFunction::GetOpacity(double v)
+{
+  if (
+    this->IndexedLookup ||
+    !this->EnableOpacityMapping ||
+    !this->ScalarOpacityFunction)
+    {
+    return this->Superclass::GetOpacity(v);
+    }
+  return this->ScalarOpacityFunction->GetValue(v);
+}
+
+//-----------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(vtkDataArray *scalars,
   int colorMode, int component)
 {
