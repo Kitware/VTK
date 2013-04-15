@@ -38,7 +38,6 @@
 
 #include <algorithm>
 #include <queue>
-#include <set>
 #include <sstream>
 
 vtkStandardNewMacro(vtkTreeHeatmapItem);
@@ -1390,13 +1389,11 @@ void vtkTreeHeatmapItem::SetTreeColorArray(const char *arrayName)
     return;
     }
 
-  std::set<double> treeColorSet;
   double minDifference = VTK_DOUBLE_MAX;
   double maxDifference = VTK_DOUBLE_MIN;
   for (vtkIdType id = 0; id < this->TreeColorArray->GetNumberOfTuples(); ++id)
     {
     double d = this->TreeColorArray->GetValue(id);
-    treeColorSet.insert(d);
     if (d > maxDifference)
       {
       maxDifference = d;
