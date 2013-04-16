@@ -85,6 +85,9 @@ public:
   // may be re-expanded.
   void CollapseToNumberOfLeafNodes(unsigned int n);
 
+  // Get the collapsed tree
+  vtkTree * GetPrunedTree();
+
   // Description:
   // Indicate which array within the Tree's VertexData should be used to
   // color the tree.  The specified array must be a vtkDoubleArray.
