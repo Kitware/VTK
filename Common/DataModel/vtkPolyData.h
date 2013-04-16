@@ -176,7 +176,8 @@ public:
   // Method allocates initial storage for vertex, line, polygon, and
   // triangle strip arrays. Use this method before the method
   // PolyData::InsertNextCell(). (Or, provide vertex, line, polygon, and
-  // triangle strip cell arrays.)
+  // triangle strip cell arrays.) The array capacity is doubled when the
+  // inserting a cell exceeds the current capacity. extSize is no longer used.
   void Allocate(vtkIdType numCells=1000, int extSize=1000);
 
   // Description:

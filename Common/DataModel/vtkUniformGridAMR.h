@@ -81,12 +81,13 @@ public:
   void GetMax(double max[3]);
 
   // Description:
-  // Unhiding superclass method
+  // Unhiding superclass method.
   virtual void SetDataSet(
     vtkCompositeDataIterator* iter, vtkDataObject* dataObj);
 
   // Description:
-  // Unhiding superclass method
+  // At the passed in level, set grid as the idx'th block at that level.
+  // idx must be less than the number of data sets at that level.
   virtual void SetDataSet(unsigned int level, unsigned int idx, vtkUniformGrid *grid);
 
   // Description:
