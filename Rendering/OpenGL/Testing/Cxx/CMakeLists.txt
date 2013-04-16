@@ -53,6 +53,7 @@ SET(RenderingTestsWithArguments
   TestOpacity.cxx
   TestOpenGLPolyDataMapper.cxx
   TestOSConeCxx.cxx
+  TestPolygonSelection.cxx
   TestPOVExporter.cxx
   TestResetCameraVerticalAspectRatio.cxx
   TestResetCameraVerticalAspectRatioParallel.cxx
