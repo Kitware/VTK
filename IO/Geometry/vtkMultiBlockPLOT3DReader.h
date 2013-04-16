@@ -256,7 +256,7 @@ protected:
 
   int ReadGeometryHeader(FILE* fp);
   int ReadQHeader(FILE* fp, int& nq, int& nqc, int& overflow);
-  int ReadFunctionHeader(FILE* fp, int& nFunctions);
+  int ReadFunctionHeader(FILE* fp, int* nFunctions);
 
   void CalculateFileSize(FILE* fp);
   long EstimateSize(int ni, int nj, int nk);
@@ -326,10 +326,9 @@ protected:
                                  vtkInformationVector**,
                                  vtkInformationVector*);
 
-private:
-
   vtkMultiBlockPLOT3DReaderInternals* Internal;
 
+private:
   vtkMultiBlockPLOT3DReader(const vtkMultiBlockPLOT3DReader&);  // Not implemented.
   void operator=(const vtkMultiBlockPLOT3DReader&);  // Not implemented.
 };
