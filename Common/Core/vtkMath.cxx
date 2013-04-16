@@ -3120,7 +3120,7 @@ double vtkMath::Nan()
 }
 
 //-----------------------------------------------------------------------------
-#if !defined(VTK_HAS_ISINF)
+#ifndef VTK_MATH_ISINF_IS_INLINE
 int vtkMath::IsInf(double x)
 {
 #if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
@@ -3130,7 +3130,7 @@ int vtkMath::IsInf(double x)
   // mantissa set.
   vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
   return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
-          && ((xbits & vtkMathDoubleMantissa) == 0) ) ? 1 : 0;
+          && ((xbits & vtkMathDoubleMantissa) == 0) );
 #else
   return (   !vtkMath::IsNan(x)
           && !((x < vtkMath::Inf()) && (x > vtkMath::NegInf())) );
@@ -3139,7 +3139,7 @@ int vtkMath::IsInf(double x)
 #endif
 
 //-----------------------------------------------------------------------------
-#if !defined(VTK_HAS_ISNAN)
+#ifndef VTK_MATH_ISNAN_IS_INLINE
 int vtkMath::IsNan(double x)
 {
 #if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
@@ -3149,7 +3149,7 @@ int vtkMath::IsNan(double x)
   // their mantissa set.
   vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
   return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
-          && ((xbits & vtkMathDoubleMantissa) != 0) ) ? 1 : 0;
+          && ((xbits & vtkMathDoubleMantissa) != 0) );
 #else
   return !((x <= 0.0) || (x >= 0.0));
 #endif
@@ -3157,7 +3157,7 @@ int vtkMath::IsNan(double x)
 #endif
 
 //-----------------------------------------------------------------------------
-#if !defined(VTK_HAS_ISFINITE)
+#ifndef VTK_MATH_ISFINITE_IS_INLINE
 bool vtkMath::IsFinite(double x)
 {
   return !vtkMath::IsNan(x) && !vtkMath::IsInf(x);
