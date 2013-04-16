@@ -44,7 +44,6 @@ die() {
 # Check the commit message layout with a simple state machine.
 
 msg_is_merge() {
-	test -f "$GIT_DIR/MERGE_HEAD" &&
 	echo "$line" | grep "^Merge " >/dev/null 2>&1
 }
 
