@@ -148,7 +148,7 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
   iren->Initialize();
   renWin->Render();
   t->SetRenderWindow(renWin.GetPointer());
-  int res = t->RegressionTest(10.);
+  int res = t->RegressionTest(threshold);
   t->Delete();
 
   iren->Start();
