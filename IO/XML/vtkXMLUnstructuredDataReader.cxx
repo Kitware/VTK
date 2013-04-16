@@ -793,7 +793,9 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
       }
     }
 
-  vtkIdType facesArrayLength = maxOffset - outFaces->GetNumberOfTuples();
+  // Paraview-BUG-13892. The facesArrayLength here should be relative
+  // to the current piece being read, NOT the outFaces already read.
+  vtkIdType facesArrayLength = maxOffset;
 
   // special handling of the case of all non-polyhedron cells
   if (facesArrayLength <= 0)
@@ -857,24 +859,39 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
   vtkIdType startLoc = outFaceOffsets->GetNumberOfTuples();
   vtkIdType* outFaceOffsetsPtr = outFaceOffsets->WritePointer(startLoc, numberOfCells);
   vtkIdType currLoc = startLoc;
-  for(vtkIdType i = 0; i < numberOfCells; ++i)
+
+  // (Paraview-BUG-13892)
+  // outFaceOffsets should point to the offset location in the outFaces array
+  vtkIdType currFaceLoc = outFaces->GetNumberOfTuples();
+  for(vtkIdType i = 0; i < numberOfCells; ++i, ++outFaceOffsetsPtr)
     {
     if (faceoffsetPtr[i] < 0)
       {
-      outFaceOffsetsPtr[i] = -1;
+      *outFaceOffsetsPtr = -1;
       }
     else
       {
-      outFaceOffsetsPtr[i] = currLoc;
+      *outFaceOffsetsPtr = currFaceLoc;
       // find next offset
       // read numberOfFaces in a cell
       vtkIdType numberOfCellFaces = facesPtr[currLoc - startLoc];
       currLoc += 1;
+      currFaceLoc++;
       for (vtkIdType j = 0; j < numberOfCellFaces; j++)
         {
         // read numberOfPoints in a face
-        vtkIdType numberOfFacePoints = facesPtr[currLoc - startLoc];
+        vtkIdType tmpLoc = currLoc - startLoc;
+        vtkIdType numberOfFacePoints = facesPtr[tmpLoc];
+        // update the point ids with StartPoint (Paraview-BUG-13892)
+        if(this->StartPoint > 0)
+          {
+          for (vtkIdType pidx = tmpLoc+1; pidx < tmpLoc+1+numberOfFacePoints; pidx++)
+            {
+            facesPtr[pidx] += this->StartPoint;
+            }
+          }
         currLoc += numberOfFacePoints + 1;
+        currFaceLoc += numberOfFacePoints + 1;
         }
       }
     }
@@ -893,9 +910,9 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
   startLoc = outFaces->GetNumberOfTuples();
   vtkIdType length = faces->GetNumberOfTuples();
   vtkIdType* outFacesPtr = outFaces->WritePointer(startLoc, length);
-  for(vtkIdType i = 0; i < length; ++i)
+  for(vtkIdType i = 0; i < length; ++i, ++outFacesPtr)
     {
-    outFacesPtr[i] = facesPtr[i];
+    *outFacesPtr = facesPtr[i];
     }
 
   faces->Delete();

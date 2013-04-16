@@ -2,6 +2,7 @@ if(VTK_DATA_ROOT)
   set (NEEDS_DATA
     TestAMRXMLIO.cxx
     TestXMLHierarchicalBoxDataFileConverter.cxx
+    TestXMLUnstructuredGridReader.cxx
     )
 endif()
 
