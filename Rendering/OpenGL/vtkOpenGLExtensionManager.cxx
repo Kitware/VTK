@@ -163,6 +163,17 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
     p += n;
     }
 
+  const char *gl_renderer =
+    reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+
+  const char *gl_version=
+    reinterpret_cast<const char *>(glGetString(GL_VERSION));
+
+  const char *gl_vendor=
+    reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+
+  const char *mesa_version = strstr(gl_version, "Mesa");
+
   // Woraround for a nVidia bug in indirect/remote rendering mode (ssh -X)
   // The version returns is not the one actually supported.
   // For example, the version returns is greater or equal to 2.1
@@ -170,7 +181,7 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   // In this case, force the version to be 1.1 (minimal). Anything above
   // will be requested only through extensions.
   // See ParaView bug
-  if (result && !this->RenderWindow->IsDirect())
+  if (result && !this->RenderWindow->IsDirect() && !mesa_version)
     {
     if (result && strncmp(name, "GL_VERSION_", 11) == 0)
       {
@@ -179,7 +190,6 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
       result = 0;
       }
     }
-
 
   // Workaround for a bug on Mac PowerPC G5 with nVidia GeForce FX 5200
   // Mac OS 10.3.9 and driver 1.5 NVIDIA-1.3.42. It reports it supports
@@ -192,9 +202,6 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
     result = this->GetProcAddress("glPointParameteri")!=0 &&
       this->GetProcAddress("glPointParameteriv")!=0;
     }
-
-  const char *gl_renderer =
-    reinterpret_cast<const char *>(glGetString(GL_RENDERER));
 
   // Workaround for a bug on renderer string="Quadro4 900 XGL/AGP/SSE2"
   // version string="1.5.8 NVIDIA 96.43.01" or "1.5.6 NVIDIA 87.56"
@@ -209,11 +216,6 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
     result = strstr(gl_renderer,"Quadro4")==0 &&
       strstr(gl_renderer,"GeForce4") == 0;
     }
-
-  const char *gl_version=
-    reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  const char *gl_vendor=
-    reinterpret_cast<const char *>(glGetString(GL_VENDOR));
 
   // Workaround for a bug on renderer string="ATI Radeon X1600 OpenGL Engine"
   // version string="2.0 ATI-1.4.58" vendor string="ATI Technologies Inc."
@@ -247,7 +249,7 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   // is less than 7.10 we report that the platform does not support it.
   if (result && strcmp(name, "GL_EXT_separate_specular_color") == 0)
     {
-    if (const char *mesa_version = strstr(gl_version, "Mesa"))
+    if (mesa_version)
       {
       int mesa_major = 0;
       int mesa_minor = 0;
