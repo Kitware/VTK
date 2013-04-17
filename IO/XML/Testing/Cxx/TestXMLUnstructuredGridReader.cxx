@@ -83,7 +83,7 @@ int TestXMLUnstructuredGridReader(int argc, char *argv[])
   renderer->ResetCamera();
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->Elevation(-90.0);
-  camera->OrthogonalizeViewUp();
+  camera->SetViewUp(0.0, 0.0, 1.0);
   camera->Azimuth(125.0);
 
   // interact with data
