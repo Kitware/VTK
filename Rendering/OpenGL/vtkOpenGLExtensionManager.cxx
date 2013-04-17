@@ -47,6 +47,10 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 #include <dlfcn.h>
 #endif //VTK_USE_APPLE_LOADER
 
+#ifdef VTK_OPENGL_HAS_OSMESA
+# include <GL/osmesa.h>
+#endif
+
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
@@ -358,6 +362,11 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
   return NULL;
 #endif //VTK_USE_VTK_DYNAMIC_LOADER
 
+#ifdef VTK_OPENGL_HAS_OSMESA
+  return static_cast<vtkOpenGLExtensionManagerFunctionPointer>(
+      OSMesaGetProcAddress(fname));
+#endif
+
 #ifdef VTK_NO_EXTENSION_LOADING
   return NULL;
 #endif //VTK_NO_EXTENSION_LOADING
@@ -469,7 +478,7 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 
   const char *gl_extensions;
   const char *glu_extensions = "";
-  const char *win_extensions;
+  const char *win_extensions = "";
 
   gl_extensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 
@@ -518,12 +527,12 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 #elif defined(__APPLE__)
 //   vtkWarningMacro("Does APPLE have a windows extension string?");
   win_extensions = "";
-#else
+#elif defined(VTK_USE_X)
   win_extensions = glXGetClientString(glXGetCurrentDisplay(),
                                       GLX_EXTENSIONS);
 #endif
 
-  if (win_extensions)
+  if (win_extensions && win_extensions[0] != '\0')
     {
     extensions_string += " ";
     extensions_string += win_extensions;
