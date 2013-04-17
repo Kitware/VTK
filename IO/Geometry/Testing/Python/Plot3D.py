@@ -61,5 +61,11 @@ class TestPlot3D(Testing.vtkTest):
             self.assertEqual(int(pd.GetArray("Momentum").GetComponent(10, 2)), 0)
             self.assertEqual(int(pd.GetArray("StagnationEnergy").GetValue(3)), 1)
 
+    def testMetaReader(self):
+        r = vtk.vtkPlot3DMetaReader()
+        r.SetFileName(str(VTK_DATA_ROOT) + "/Data/multi.p3d")
+        r.Update()
+        self.assertTrue(r.GetOutput().GetBlock(0).GetPointData().GetArray("Function0"))
+
 if __name__ == "__main__":
     Testing.main([(TestPlot3D, 'test')])

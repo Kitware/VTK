@@ -52,11 +52,11 @@
 //                                  // as [ value, value, value, ...]
 // "filenames" : [     // List of xyz (geometry) and q (value) file names along with the time values.
 //                     // This is an array which contains items in the format:
-//                     // { "time" : values, "xyz" : "xyz file name", "q" : "q file name" }
-//                     // Note that q is optional. Also, you can repeat the same file name for xyz or q
+//                     // {"time" : values, "xyz" : "xyz file name", "q" : "q file name", "function" : "function file name"}
+//                     // Note that q and function are optional. Also, you can repeat the same file name for xyz or q
 //                     // if they don't change over time. The reader will not read files unnecessarily.
-//  { "time" : 3.5, "xyz" : "combxyz.bin", "q" : "combq.1.bin"},
-//  { "time" : 4.5, "xyz" : "combxyz.bin", "q" : "combq.2.bin"}
+//  { "time" : 3.5, "xyz" : "combxyz.bin", "q" : "combq.1.bin", "function" : "combf.1.bin" },
+//  { "time" : 4.5, "xyz" : "combxyz.bin", "q" : "combq.2.bin", "function" : "combf.2.bin" }
 // ]
 // }
 // \endverbatim
