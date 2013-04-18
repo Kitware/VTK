@@ -171,6 +171,11 @@ vtkTable * vtkTreeHeatmapItem::GetTable()
 }
 
 //-----------------------------------------------------------------------------
+vtkTree * vtkTreeHeatmapItem::GetPrunedTree()
+{
+  return this->PrunedTree;
+}
+//-----------------------------------------------------------------------------
 bool vtkTreeHeatmapItem::Paint(vtkContext2D *painter)
 {
   if (this->Tree->GetNumberOfVertices() == 0 &&
