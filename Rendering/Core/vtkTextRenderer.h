@@ -101,6 +101,11 @@ public:
   vtkGetMacro(DefaultBackend, int)
 
   // Description:
+  // Determine the appropriate back end needed to render the given string.
+  virtual int DetectBackend(const vtkStdString &str);
+  virtual int DetectBackend(const vtkUnicodeString &str);
+
+  // Description:
   // Test for availability of various backends
   bool FreeTypeIsSupported() { return HasFreeType; }
   bool MathTextIsSupported() { return HasMathText; }
@@ -247,10 +252,6 @@ protected:
   static vtkTextRenderer *Instance;
   static vtkTextRendererCleanup Cleanup;
 
-  // Description:
-  // Determine the appropriate back end needed to render the given string.
-  virtual int DetectBackend(const vtkStdString &str);
-  virtual int DetectBackend(const vtkUnicodeString &str);
   vtksys::RegularExpression *MathTextRegExp;
   vtksys::RegularExpression *MathTextRegExp2;
 

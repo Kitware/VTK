@@ -234,7 +234,7 @@ int vtkTextActor::SetConstrainedFontSize(
     }
 
   // While the size is too large decrease it..  but never below 2 pt.
-  // (The MathTextActor subclass uses matplotlib which behaves poorly
+  // (The MathText rendering uses matplotlib which behaves poorly
   // for very small fonts.)
   while ((tempi[1] > targetHeight || tempi[0] > targetWidth)
          && fontSize > 3)

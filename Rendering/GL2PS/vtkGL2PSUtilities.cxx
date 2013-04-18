@@ -44,7 +44,17 @@ float vtkGL2PSUtilities::LineWidthFactor = 5.f / 7.f;
 void vtkGL2PSUtilities::DrawString(const char *str,
                                    vtkTextProperty *tprop, double pos[])
 {
-  if (!vtkGL2PSUtilities::TextAsPath)
+  vtkTextRenderer *tren(vtkTextRenderer::GetInstance());
+  if (tren == NULL)
+    {
+    vtkNew<vtkGL2PSUtilities> dummy;
+    vtkErrorWithObjectMacro(dummy.GetPointer(),
+                            <<"vtkTextRenderer unavailable.");
+    return;
+    }
+
+  bool isMath = tren->DetectBackend(str) == vtkTextRenderer::MathText;
+  if (!isMath && !vtkGL2PSUtilities::TextAsPath)
     {
     const char *fontname = vtkGL2PSUtilities::TextPropertyToPSFontName(tprop);
 
@@ -70,17 +80,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
     {
     // Render the string to a path and then draw it to GL2PS:
     vtkNew<vtkPath> path;
-    if (vtkTextRenderer *tren = vtkTextRenderer::GetInstance())
-      {
-      tren->StringToPath(tprop, str, path.GetPointer());
-      }
-    else
-      {
-      vtkNew<vtkGL2PSUtilities> dummy;
-      vtkErrorWithObjectMacro(dummy.GetPointer(),
-                              <<"vtkTextRenderer unavailable.");
-      return;
-      }
+    tren->StringToPath(tprop, str, path.GetPointer());
     // Get color
     double rgbd[3];
     tprop->GetColor(rgbd[0], rgbd[1], rgbd[2]);

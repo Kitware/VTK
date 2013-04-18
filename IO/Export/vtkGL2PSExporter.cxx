@@ -30,8 +30,6 @@
 #include "vtkImageShiftScale.h"
 #include "vtkIntArray.h"
 #include "vtkMapper2D.h"
-#include "vtkMathTextActor.h"
-#include "vtkMathTextActor3D.h"
 #include "vtkMathTextUtilities.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
@@ -662,15 +660,7 @@ void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
     {
     if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
       {
-      if (vtkMathTextActor *mathTextAct =
-          vtkMathTextActor::SafeDownCast(act2d))
-        {
-        this->DrawMathTextActor(mathTextAct, ren);
-        }
-      else
-        {
-        this->DrawTextActor(textAct, ren);
-        }
+      this->DrawTextActor(textAct, ren);
       }
     else if (vtkMapper2D *map2d = act2d->GetMapper())
       {
@@ -691,15 +681,7 @@ void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
   else if (vtkTextActor3D *textAct3D =
            vtkTextActor3D::SafeDownCast(prop))
     {
-    if (vtkMathTextActor3D *mathTextAct3D =
-        vtkMathTextActor3D::SafeDownCast(prop))
-      {
-      this->DrawMathTextActor3D(mathTextAct3D, ren);
-      }
-    else
-      {
-      this->DrawTextActor3D(textAct3D, ren);
-      }
+    this->DrawTextActor3D(textAct3D, ren);
     }
   else // Some other prop
     {
@@ -765,73 +747,6 @@ void vtkGL2PSExporter::DrawTextMapper(vtkTextMapper *textMap,
   vtkTextProperty *tprop = textMap->GetTextProperty();
 
   this->DrawViewportTextOverlay(string, tprop, coord, ren);
-}
-
-void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
-                                         vtkRenderer *ren)
-{
-  const char *string = textAct->GetInput();
-  vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
-  vtkTextProperty *tprop = textAct->GetScaledTextProperty();
-
-  vtkNew<vtkPath> path;
-  vtkMathTextUtilities::GetInstance()->StringToPath(string,
-                                                    path.GetPointer(),
-                                                    tprop);
-  double *dcolor = tprop->GetColor();
-  unsigned char color[4] = {static_cast<unsigned char>(dcolor[0]*255),
-                            static_cast<unsigned char>(dcolor[1]*255),
-                            static_cast<unsigned char>(dcolor[2]*255),
-                            static_cast<unsigned char>(tprop->GetOpacity()*255)
-                           };
-
-  // Set the raster position at the center of the front plane. This is an
-  // overlay annotation, it shouldn't need to be clipped.
-  vtkNew<vtkCoordinate> rasterCoord;
-  rasterCoord->SetCoordinateSystemToView();
-  // Set a very small but finite depth -- otherwise the raster position will be
-  // clipped.
-  rasterCoord->SetValue(0.0, 0.0, 1e-5);
-  double *rasterPos = rasterCoord->GetComputedWorldValue(ren);
-
-  int *textPos = coord->GetComputedDisplayValue(ren);
-  double textPosd[2] = {static_cast<double>(textPos[0]),
-                        static_cast<double>(textPos[1])};
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, textPosd, color,
-                              NULL, tprop->GetOrientation());
-}
-
-void vtkGL2PSExporter::DrawMathTextActor3D(vtkMathTextActor3D *textAct,
-                                           vtkRenderer *)
-{
-  // Get path
-  vtkNew<vtkPath> path;
-  vtkNew<vtkTextProperty> tprop;
-  const char *string = textAct->GetInput();
-  tprop->ShallowCopy(textAct->GetTextProperty());
-  tprop->SetOrientation(0); // Ignored in mathtextactor3d
-  tprop->SetJustificationToLeft(); // Ignored in mathtextactor3d
-  tprop->SetVerticalJustificationToBottom(); // Ignored in mathtextactor3d
-
-  vtkMathTextUtilities::GetInstance()->StringToPath(string,
-                                                    path.GetPointer(),
-                                                    tprop.GetPointer());
-
-  // Get actor info
-  vtkMatrix4x4 *actorMatrix = textAct->GetMatrix();
-  double *actorBounds = textAct->GetBounds();
-  double rasterPos[3] = {(actorBounds[1] + actorBounds[0]) * 0.5,
-                         (actorBounds[3] + actorBounds[2]) * 0.5,
-                         (actorBounds[5] + actorBounds[4]) * 0.5};
-  double *dcolor = tprop->GetColor();
-  unsigned char actorColor[4] = {
-    static_cast<unsigned char>(dcolor[0]*255),
-    static_cast<unsigned char>(dcolor[1]*255),
-    static_cast<unsigned char>(dcolor[2]*255),
-    static_cast<unsigned char>(tprop->GetOpacity()*255)};
-
-  vtkGL2PSUtilities::Draw3DPath(path.GetPointer(), actorMatrix, rasterPos,
-                                actorColor);
 }
 
 void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
