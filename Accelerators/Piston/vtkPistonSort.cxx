@@ -32,7 +32,7 @@ void vtkPistonSort::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkPistonSort::RequestData(vtkInformation *request,
+int vtkPistonSort::RequestData(vtkInformation *vtkNotUsed(request),
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector)
 {
