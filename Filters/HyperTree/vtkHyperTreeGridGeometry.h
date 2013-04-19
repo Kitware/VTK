@@ -18,7 +18,8 @@
 // vtkHyperTreeGrid
 //
 // .SECTION Thanks
-// This class was written by Philippe Pebay and Charles Law, Kitware 2012
+// This class was written by Philippe Pebay, Joachim Pouderoux and Charles Law,
+// Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGridGeometry_h

@@ -54,10 +54,23 @@ public:
     this->Tree = tree;
   }
 
+   //---------------------------------------------------------------------------
+  // Initialization
+  virtual vtkHyperTree* GetTree()
+  {
+    return this->Tree;
+  }
+
   //---------------------------------------------------------------------------
   vtkIdType GetLeafId()
   {
     assert( "pre: is_leaf" && IsLeaf() );
+    return this->Index;
+  }
+
+  //---------------------------------------------------------------------------
+  vtkIdType GetNodeId()
+  {
     return this->Index;
   }
 
@@ -84,7 +97,7 @@ public:
   //---------------------------------------------------------------------------
   virtual bool IsRoot()
   {
-    return ( ! this->Leaf && this->Index == 1 )
+    return ( ! this->Leaf && this->Index == 0 )
       || ( this->Leaf && ! this->Index && this->Tree->GetLeafParentSize() == 1 );
   }
 
@@ -148,7 +161,7 @@ public:
     assert( "pre: not_leaf" && !IsLeaf() );
     assert( "pre: valid_child" && child >= 0 && child<this->GetNumberOfChildren() );
 
-    vtkCompactHyperTreeNode<N>* node = this->Tree->GetNode( this->Index);
+    vtkCompactHyperTreeNode<N>* node = this->Tree->GetNode( this->Index );
     this->ChildHistory.push_back( this->ChildIndex );
     this->ChildIndex = child;
     this->Index = node->GetChild( child );
@@ -599,6 +612,9 @@ public:
     this->NumberOfLevels = 1;
     this->NumberOfLeavesPerLevel.resize( 1 );
     this->NumberOfLeavesPerLevel[0] = 1;
+    this->NumberOfNodes = 1;
+    this->GlobalIndexTable.clear();
+    this->GlobalIndexStart = 0;
   }
 
   //---------------------------------------------------------------------------
@@ -617,7 +633,37 @@ public:
   //---------------------------------------------------------------------------
   virtual vtkIdType GetNumberOfLeaves()
   {
+    return this->NumberOfNodes;
+  }
+
+  //---------------------------------------------------------------------------
+  virtual vtkIdType GetNumberOfIndex()
+  {
     return this->LeafParent.size();
+  }
+
+  //---------------------------------------------------------------------------
+  virtual void SetGlobalIndexStart( vtkIdType start )
+  {
+    this->GlobalIndexStart = start;
+  }
+
+  //---------------------------------------------------------------------------
+  virtual void SetGlobalIndexFromLocal( vtkIdType local, vtkIdType global )
+  {
+    if ( static_cast<vtkIdType>( this->GlobalIndexTable.size() ) <= local )
+      {
+      this->GlobalIndexTable.resize( local + 1 );
+      }
+    this->GlobalIndexTable[ local ] = global;
+    if ( local == 0 && this->LeafParent.size() == 1 ) SetGlobalIndexFromLocal( 1, global );
+  }
+
+  //---------------------------------------------------------------------------
+  virtual vtkIdType GetGlobalIndexFromLocal( vtkIdType local )
+  {
+    return ( local < static_cast<vtkIdType>( this->GlobalIndexTable.size() ) ) ?
+      this->GlobalIndexTable[ local ] : ( this->GlobalIndexStart + local );
   }
 
   //---------------------------------------------------------------------------
@@ -648,8 +694,9 @@ public:
   // This really returns the nodeIdx of the leafs parent.
   int GetLeafParent( int leafIdx )
   {
-    assert( "pre: valid_range" && leafIdx >= 0 && leafIdx<this->GetNumberOfLeaves() );
-    assert( "post: valid_result" && this->LeafParent[leafIdx] >= 0 && this->LeafParent[leafIdx]<this->GetNumberOfNodes() );
+    assert( "pre: valid_range" && leafIdx >= 0 && leafIdx < this->LeafParent.size());
+    assert( "post: valid_result" && this->LeafParent[leafIdx] >= 0 &&
+      this->LeafParent[leafIdx] < this->GetNumberOfNodes() );
     return this->LeafParent[leafIdx];
   }
 
@@ -670,11 +717,12 @@ public:
     // We are using a vtkCompactHyperTreeCursor.
     // We know that GetLeafId() return Cursor.
     vtkIdType leafIndex = leafCursor->GetLeafId();
-    vtkCompactHyperTreeCursor<N>* cursor = static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
+    vtkCompactHyperTreeCursor<N>* cursor =
+      static_cast<vtkCompactHyperTreeCursor<N> *>(leafCursor);
 
     // The leaf becomes a node and is not anymore a leaf
     cursor->SetIsLeaf( false ); // let the cursor know about that change.
-    size_t nodeIndex = this->Nodes.size();
+    size_t nodeIndex = this->LeafParent.size();
     cursor->SetIndex( static_cast<vtkIdType>( nodeIndex ) );
 
     // Nodes get constructed with leaf flags set to 1.
@@ -694,13 +742,11 @@ public:
     // The first new child
     // Recycle the leaf index we are deleting because it became a node.
     // This avoids messy leaf parent array issues.
-    //this->Nodes[nodeIndex].SetChild( 0, leafIndex );
-    //this->LeafParent[leafIndex] = static_cast<int>( nodeIndex );
-
-    // The other (N-1) new children.
-    size_t nextLeaf = this->LeafParent.size();
-    this->LeafParent.resize( nextLeaf + N ); //( N - 1 ) );
-    for( int i = 0; i < N; ++ i, ++ nextLeaf )
+    this->NumberOfNodes += N;
+    // The other (N) new children.
+    size_t nextLeaf = 1 + this->LeafParent.size();
+    this->LeafParent.resize( nextLeaf + N );
+    for ( int i = 0; i < N; ++ i, ++ nextLeaf )
       {
       this->Nodes[nodeIndex].SetChild( i, static_cast<int>( nextLeaf ) );
       this->LeafParent[nextLeaf] = static_cast<int>( nodeIndex );
@@ -709,11 +755,8 @@ public:
     // Update the number of leaves per level.
     vtkIdType level = cursor->GetChildHistorySize();
 
-    // Remove the subdivided leaf from the number of leaves at its level.
-    -- this->NumberOfLeavesPerLevel[level];
-
     // Add the new leaves to the number of leaves at the next level.
-    if( level + 1 == this->NumberOfLevels ) // >=
+    if ( level + 1 == this->NumberOfLevels ) // >=
       {
       // We have a new level.
       ++ this->NumberOfLevels;
@@ -759,7 +802,7 @@ public:
   // Ignore the attribute array because its size is added by the data set.
   unsigned int GetActualMemorySize()
   {
-    size_t size = sizeof(int) * this->GetNumberOfLeaves() +
+    size_t size = sizeof(int) * this->LeafParent.size() +
       sizeof(vtkCompactHyperTreeNode<N>) * this->Nodes.size();
     return static_cast<unsigned int>( size / 1024 );
   }
@@ -844,12 +887,19 @@ protected:
     this->NumberOfLevels = 1;
     this->NumberOfLeavesPerLevel.resize( 1 );
     this->NumberOfLeavesPerLevel[0] = 1;
+    this->NumberOfNodes = 1;
+
+    this->GlobalIndexTable.clear();
+    this->GlobalIndexStart = 0;
   }
 
   int BranchFactor;
   int Dimension;
   double Scale[3];
   vtkIdType NumberOfLevels;
+  vtkIdType NumberOfNodes;
+
+  vtkIdType GlobalIndexStart;
 
   // Storage for non-leaf tree nodes
   std::vector<vtkCompactHyperTreeNode<N> > Nodes;
@@ -859,6 +909,9 @@ protected:
 
   // Storage to record the parent of each leaf
   std::vector<vtkIdType> LeafParent;
+
+  // Storage to record the local to global id mapping
+  std::vector<vtkIdType> GlobalIndexTable;
 
 private:
   vtkCompactHyperTree(const vtkCompactHyperTree<N> &);  // Not implemented.

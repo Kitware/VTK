@@ -379,8 +379,6 @@ protected:
   std::map<vtkIdType, double> PointShifts[3];
   std::map<vtkIdType, double> ReductionFactors;
 
-  int UpdateHyperTreesLeafIdOffsets();
-
   void DeleteInternalArrays();
   void DeleteTrees();
 
@@ -440,22 +438,18 @@ public:
     ~vtkHyperTreeSimpleCursor();
 
     void Clear();
-    void Initialize( vtkHyperTreeGrid*, vtkIdType*, vtkIdType, int[3] );
+    void Initialize( vtkHyperTreeGrid*, vtkIdType, int[3] );
     void ToRoot();
     void ToChild( int );
     bool IsLeaf();
     vtkHyperTree* GetTree() { return this->Tree; }
     vtkIdType GetLeafIndex() { return this->Index; } // Only valid for leaves.
-
-    vtkIdType GetGlobalLeafIndex() { return ( this->Offset >= 0 ) ?
-                                       this->Offset + this->Index : -1; }
-    vtkIdType GetOffset() { return this->Offset; }
+    vtkIdType GetGlobalNodeIndex();
     unsigned short GetLevel() { return this->Level; }
 
   private:
     vtkHyperTree* Tree;
     vtkIdType Index;
-    vtkIdType Offset;
     unsigned short Level;
     bool Leaf;
   };

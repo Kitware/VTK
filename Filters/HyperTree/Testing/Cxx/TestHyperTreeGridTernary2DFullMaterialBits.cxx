@@ -34,6 +34,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkPointData.h"
 #include "vtkTimerLog.h"
+#include "vtkScalarBarActor.h"
 #include <sstream>
 
 void GenerateDescriptorAndMaterial(int depth, int sx, int sy, int sz, int branch,
@@ -147,20 +148,24 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   timer->StartTimer();
   htGrid->Update();
   timer->StopTimer();
+    vtkIdType nbCells = htGrid->GetOutput()->GetNumberOfCells();
   cout << " Done in " << timer->GetElapsedTime() << "s" << endl;
   cout << "#pts " << htGrid->GetOutput()->GetNumberOfPoints() << endl;
   timer->StartTimer();
-  vtkIdType nbCells = htGrid->GetOutput()->GetNumberOfCells();
   timer->StopTimer();
   cout << "#cells " << nbCells << endl;
 
-  /*vtkDataArray* depthArray = htGrid->GetOutput()->GetPointData()->GetArray( "Depth" );
-  for ( int i = 0; i < htGrid->GetOutput()->GetNumberOfPoints(); i++ )
+  // Prepare an array of ids
+  vtkIdTypeArray* idArray = vtkIdTypeArray::New();
+  idArray->SetName( "Ids" );
+  idArray->SetNumberOfComponents( 1 );
+  vtkIdType nbPoints = htGrid->GetOutput()->GetNumberOfPoints();
+  idArray->SetNumberOfValues( nbPoints );
+  for ( unsigned int i = 0; i < nbPoints; ++ i )
     {
-    double x[3];
-    htGrid->GetOutput()->GetPoint( i, x );
-    cout << "pt " << i << " : " << x[0] << ", " << x[1] << " : " << depthArray->GetTuple1( i ) << endl;
-    }*/
+    idArray->SetValue( i, i );
+    }
+  htGrid->GetOutput()->GetPointData()->SetScalars( idArray );
 
   // Geometry
   cout << "Constructing geometry..." << endl;
@@ -205,6 +210,12 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   actor4->GetProperty()->SetPointSize(4);
   actor4->GetProperty()->SetColor( 0., 1., 0. );
 
+  vtkNew<vtkScalarBarActor> scalarBar;
+  scalarBar->SetLookupTable(mapper1->GetLookupTable());
+  scalarBar->SetTitle("Ids");
+  scalarBar->SetNumberOfLabels(4);
+  scalarBar->SetLabelFormat("%.0f      ");
+
   // Camera
   double bd[6];
   pd->GetBounds( bd );
@@ -221,6 +232,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   renderer->AddActor( actor2.GetPointer() );
   renderer->AddActor( actor3.GetPointer() );
   renderer->AddActor( actor4.GetPointer() );
+  renderer->AddActor2D( scalarBar.GetPointer() );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;

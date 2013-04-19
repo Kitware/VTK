@@ -266,7 +266,7 @@ void vtkHyperTreeGridAxisCut::ProcessLeaf3D( void* sc )
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   // Cursor is a leaf, retrieve its global index
-  vtkIdType inId = cursor0->GetGlobalLeafIndex();
+  vtkIdType inId = cursor0->GetGlobalNodeIndex();
 
   // If leaf is masked, skip it
   if ( this->Input->GetMaterialMask()->GetTuple1( inId ) )

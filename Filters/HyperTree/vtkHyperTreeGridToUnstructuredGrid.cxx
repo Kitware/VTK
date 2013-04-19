@@ -305,7 +305,7 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursiveProcessTree( void* sc )
   if ( cursor->IsLeaf() )
     {
     // Cursor is a leaf, retrieve its global index
-    vtkIdType inId = cursor->GetGlobalLeafIndex();
+    vtkIdType inId = cursor->GetGlobalNodeIndex();
     // If leaf is masked, skip it
     if ( ! this->Input->GetMaterialMask()->GetTuple1( inId ) )
       {
