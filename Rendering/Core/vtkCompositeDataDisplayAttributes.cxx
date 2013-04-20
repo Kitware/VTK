@@ -47,6 +47,11 @@ bool vtkCompositeDataDisplayAttributes::GetBlockVisibility(unsigned int flat_ind
     }
 }
 
+bool vtkCompositeDataDisplayAttributes::HasBlockVisibilities() const
+{
+  return !this->BlockVisibilities.empty();
+}
+
 bool vtkCompositeDataDisplayAttributes::HasBlockVisibility(unsigned int flat_index) const
 {
   return this->BlockVisibilities.count(flat_index) == size_t(1);
@@ -91,6 +96,11 @@ vtkColor3d vtkCompositeDataDisplayAttributes::GetBlockColor(
   return vtkColor3d();
 }
 
+bool vtkCompositeDataDisplayAttributes::HasBlockColors() const
+{
+  return !this->BlockColors.empty();
+}
+
 bool vtkCompositeDataDisplayAttributes::HasBlockColor(
   unsigned int flat_index) const
 {
@@ -111,4 +121,41 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockColors()
 void vtkCompositeDataDisplayAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+void vtkCompositeDataDisplayAttributes::SetBlockOpacity(unsigned int flat_index, double opacity)
+{
+  this->BlockOpacities[flat_index] = opacity;
+}
+
+double vtkCompositeDataDisplayAttributes::GetBlockOpacity(unsigned int flat_index) const
+{
+  std::map<unsigned int, double>::const_iterator iter = this->BlockOpacities.find(flat_index);
+
+  if(iter != this->BlockOpacities.end())
+    {
+    return iter->second;
+    }
+
+  return 0;
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockOpacities() const
+{
+  return !this->BlockOpacities.empty();
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockOpacity(unsigned int flat_index) const
+{
+  return this->BlockOpacities.find(flat_index) != this->BlockOpacities.end();
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockOpacity(unsigned int flat_index)
+{
+  this->BlockOpacities.erase(flat_index);
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockOpacities()
+{
+  this->BlockOpacities.clear();
 }

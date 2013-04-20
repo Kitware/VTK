@@ -23,12 +23,13 @@
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkProperty.h"
 
+class vtkGLSLShaderDeviceAdapter2;
 class vtkOpenGLRenderer;
+class vtkOpenGLRenderWindow;
 class vtkShader2;
 class vtkShader2Collection;
-class vtkShaderProgram2;
 class vtkShaderDeviceAdapter2;
-class vtkGLSLShaderDeviceAdapter2;
+class vtkShaderProgram2;
 
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLProperty : public vtkProperty
 {
@@ -52,27 +53,6 @@ public:
   // any shaders allocated.
   virtual void PostRender(vtkActor *a,
                           vtkRenderer *r);
-
-  // Description:
-  // Render the material for the face.
-  virtual void RenderMaterial(vtkActor *actor,
-                              vtkRenderer *renderer,
-                              double *ambient,
-                              double *diffuse,
-                              double *specular,
-                              double specular_power);
-
-  // Description:
-  // Render the material for the face. Face can either be GL_FRONT, GL_BACK, or
-  // GL_FRONT_AND_BACK. The rest of the arguments are the same as for
-  // RenderMaterial().
-  void RenderMaterialForFace(vtkActor *actor,
-                             vtkRenderer *renderer,
-                             double *ambient,
-                             double *diffuse,
-                             double *specular,
-                             double specular_power,
-                             unsigned int face);
 
   // Description:
   // Release any graphics resources that are being consumed by this
@@ -106,9 +86,29 @@ public:
   virtual void AddShaderVariable(const char *name, int numVars, float *x);
   virtual void AddShaderVariable(const char *name, int numVars, double *x);
 
+  // Description:
+  // Helper method to set OpenGL material properties.
+  static void SetMaterialProperties(unsigned int face,
+    double ambient, const double ambient_color[3],
+    double diffuse, const double diffuse_color[3],
+    double specular, const double specular_color[3], double specular_power,
+    double opacity, vtkOpenGLRenderWindow* context);
+
 protected:
   vtkOpenGLProperty();
   ~vtkOpenGLProperty();
+
+  // Description:
+  // Method called in vtkOpenGLProperty::Render() to render shaders and/or
+  // related entities like shader variables. Returns true if any shaders were
+  // rendered.
+  bool RenderShaders(vtkActor* actor, vtkRenderer* renderer);
+
+  // Description:
+  // Method called in vtkOpenGLProperty::Render() to render textures.
+  // Last argument is the value returned from RenderShaders() call.
+  bool RenderTextures(vtkActor* actor, vtkRenderer* renderer,
+    bool using_shader_program2);
 
   // Description:
   // Load OpenGL extensions for multi texturing.
