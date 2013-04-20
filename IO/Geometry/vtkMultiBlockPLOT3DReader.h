@@ -44,6 +44,9 @@
 //    -1  - don't read or compute any scalars
 //    100 - density
 //    110 - pressure
+//    111 - pressure coefficient (requires Overflow file with Gamma)
+//    112 - mach number (requires Overflow file with Gamma)
+//    113 - sounds speed (requires Overflow file with Gamma)
 //    120 - temperature
 //    130 - enthalpy
 //    140 - internal energy
@@ -51,7 +54,8 @@
 //    153 - velocity magnitude
 //    163 - stagnation energy
 //    170 - entropy
-//    184 - swirl.
+//    184 - swirl
+//    211 - vorticity magnitude
 //
 // The vector functions are:
 //    -1  - don't read or compute any vectors
@@ -59,6 +63,7 @@
 //    201 - vorticity
 //    202 - momentum
 //    210 - pressure gradient.
+//    212 - strain rate
 //
 // (Other functions are described in the PLOT3D spec, but only those listed are
 // implemented here.) Note that by default, this reader creates the density
@@ -277,6 +282,11 @@ protected:
   void ComputeVelocity(vtkStructuredGrid* output);
   void ComputeVorticity(vtkStructuredGrid* output);
   void ComputePressureGradient(vtkStructuredGrid* output);
+  void ComputePressureCoefficient(vtkStructuredGrid* output);
+  void ComputeMachNumber(vtkStructuredGrid* output);
+  void ComputeSoundSpeed(vtkStructuredGrid* output);
+  void ComputeVorticityMagnitude(vtkStructuredGrid* output);
+  void ComputeStrainRate(vtkStructuredGrid* output);
 
   // Returns a vtkFloatArray or a vtkDoubleArray depending
   // on DoublePrecision setting
