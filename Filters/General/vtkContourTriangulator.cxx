@@ -208,7 +208,7 @@ int vtkCCSSplitAtPinchPoints(
   std::vector<vtkCCSPoly> &polys, vtkPoints *points,
   std::vector<vtkCCSPolyGroup> &polyGroups,
   std::vector<vtkCCSPolyEdges> &polyEdges,
-  const double normal[3]);
+  const double normal[3], bool oriented);
 
 // Given three vectors p->p1, p->p2, and p->p3, this routine
 // checks to see if progressing from p1 to p2 to p3 is a clockwise
@@ -875,7 +875,7 @@ int vtkCCSSplitAtPinchPoints(
   std::vector<vtkCCSPoly> &polys, vtkPoints *points,
   std::vector<vtkCCSPolyGroup> &polyGroups,
   std::vector<vtkCCSPolyEdges> &polyEdges,
-  const double normal[3])
+  const double normal[3], bool oriented)
 {
   vtkPoints *tryPoints = vtkPoints::New();
   tryPoints->SetDataTypeToDouble();
@@ -926,7 +926,7 @@ int vtkCCSSplitAtPinchPoints(
 
         if ((idx2 > idx1 + 2 - unique) && (n + idx1 > idx2 + 2 - unique))
           {
-          if (normal)
+          if (oriented)
             {
             // Make sure that splitting this poly won't create a hole poly
             double p1[3], p2[3], p3[3];
@@ -2472,7 +2472,8 @@ int vtkContourTriangulator::TriangulateContours(
   // Some polys might be self-intersecting.  Split the polys at each
   // intersection point.
 
-  vtkCCSSplitAtPinchPoints(newPolys, points, polyGroups, polyEdges, normal);
+  vtkCCSSplitAtPinchPoints(newPolys, points, polyGroups, polyEdges,
+                           normal, oriented);
 
   // ------ Triangulation code ------
 
