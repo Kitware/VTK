@@ -174,8 +174,6 @@ protected:
   int TriangulationErrorDisplay;
 
   vtkIdList *IdList;
-  vtkCellArray *CellArray;
-  vtkPolygon *Polygon;
 
   virtual int ComputePipelineMTime(
     vtkInformation* request, vtkInformationVector** inputVector,
@@ -231,7 +229,7 @@ protected:
   // of the clip plane, which will be opposite the the normals
   // of the polys that will be produced.  If outCD has scalars, then color
   // scalars will be added for each poly that is created.
-  void MakePolysFromContours(
+  void TriangulateContours(
     vtkPolyData *data, vtkIdType firstLine, vtkIdType numLines,
     vtkCellArray *outputPolys, const double normal[3]);
 
