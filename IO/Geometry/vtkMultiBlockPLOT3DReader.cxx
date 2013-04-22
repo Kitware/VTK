@@ -596,12 +596,6 @@ int vtkMultiBlockPLOT3DReader::GetNumberOfBlocksInternal(FILE* xyzFp, int alloca
 
 int vtkMultiBlockPLOT3DReader::ReadGeometryHeader(FILE* fp)
 {
-  if (!this->AutoDetectionCheck(fp))
-    {
-    return VTK_ERROR;
-    }
-  rewind(fp);
-
   int numGrid = this->GetNumberOfBlocksInternal(fp, 1);
   int i;
   vtkDebugMacro("Geometry number of grids: " << numGrid);
@@ -626,7 +620,11 @@ int vtkMultiBlockPLOT3DReader::ReadGeometryHeader(FILE* fp)
   return VTK_OK;
 }
 
-int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp, int& nq, int& nqc, int& overflow)
+int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp,
+                                           bool checkGrid,
+                                           int& nq,
+                                           int& nqc,
+                                           int& overflow)
 {
   int numGrid = this->GetNumberOfBlocksInternal(fp, 0);
   vtkDebugMacro("Q number of grids: " << numGrid);
@@ -637,7 +635,8 @@ int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp, int& nq, int& nqc, int& ove
 
   // If the numbers of grids still do not match, the
   // q file is wrong
-  if (numGrid != static_cast<int>(this->Internal->Blocks.size()))
+  if (checkGrid &&
+      numGrid != static_cast<int>(this->Internal->Blocks.size()))
     {
     vtkErrorMacro("The number of grids between the geometry "
                   "and the q file do not match.");
@@ -664,15 +663,18 @@ int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp, int& nq, int& nqc, int& ove
     vtkDebugMacro("Q, block " << i << " dimensions: "
                   << n[0] << " " << n[1] << " " << n[2]);
 
-    int extent[6];
-    this->Internal->Blocks[i]->GetExtent(extent);
-    if ( extent[1] != n[0]-1 || extent[3] != n[1]-1 || extent[5] != n[2]-1)
+    if (checkGrid)
       {
-      this->SetErrorCode(vtkErrorCode::FileFormatError);
-      vtkErrorMacro("Geometry and data dimensions do not match. "
-                    "Data file may be corrupt.");
-      this->Internal->Blocks[i]->Initialize();
-      return VTK_ERROR;
+      int extent[6];
+      this->Internal->Blocks[i]->GetExtent(extent);
+      if ( extent[1] != n[0]-1 || extent[3] != n[1]-1 || extent[5] != n[2]-1)
+        {
+        this->SetErrorCode(vtkErrorCode::FileFormatError);
+        vtkErrorMacro("Geometry and data dimensions do not match. "
+                      "Data file may be corrupt.");
+        this->Internal->Blocks[i]->Initialize();
+        return VTK_ERROR;
+        }
       }
     }
   if (overflow)
@@ -754,6 +756,7 @@ void vtkMultiBlockPLOT3DReader::SetXYZFileName( const char* name )
     this->XYZFileName = 0;
     }
 
+  this->Internal->NeedToCheckXYZFile = true;
   this->ClearGeometryCache();
   this->Modified();
 }
@@ -825,7 +828,76 @@ int vtkMultiBlockPLOT3DReader::RequestInformation(
   vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
+  if (this->XYZFileName &&
+      this->XYZFileName[0] != '\0' &&
+      this->Internal->NeedToCheckXYZFile)
+    {
+    FILE* xyzFp;
+    if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
+      {
+      fclose(xyzFp);
+      return 0;
+      }
+
+    this->CalculateFileSize(xyzFp);
+
+    if (!this->AutoDetectionCheck(xyzFp))
+      {
+      fclose(xyzFp);
+      return 0;
+      }
+    this->Internal->NeedToCheckXYZFile = false;
+    fclose(xyzFp);
+    }
+
   vtkInformation* info = outputVector->GetInformationObject(0);
+
+  // We report time from the Q file for meta-type readers that
+  // might support file series of Q files.
+  if (this->QFileName && this->QFileName[0] != '\0')
+    {
+    FILE* qFp;
+    if ( this->CheckSolutionFile(qFp) != VTK_OK)
+      {
+      return 0;
+      }
+    int nq, nqc, overflow;
+    if (this->ReadQHeader(qFp, false, nq, nqc, overflow) != VTK_OK)
+      {
+      fclose(qFp);
+      return 0;
+      }
+
+    // I have seen Plot3D files with bogus time values so the only
+    // type I have some confidence about having correct time values
+    // is Overflow output.
+    if (overflow)
+      {
+      vtkDataArray* properties = this->NewFloatArray();
+
+      this->SkipByteCount(qFp);
+      properties->SetNumberOfTuples(4);
+
+      // Read fsmach, alpha, re, time;
+      if (this->ReadScalar(qFp, 4, properties) == 0)
+        {
+        vtkErrorMacro("Encountered premature end-of-file while reading "
+                      "the q file (or the file is corrupt).");
+        this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+        fclose(qFp);
+        properties->Delete();
+        return 0;
+        }
+      double time = properties->GetTuple1(3);
+      double times[2] = { time, time };
+      info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &time, 1);
+      info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), times, 2);
+      vtkWarningMacro("time: " << time);
+      properties->Delete();
+      }
+    fclose(qFp);
+    }
+
   info->Set(
     vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
   return 1;
@@ -861,8 +933,6 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       {
       return 0;
       }
-
-    this->CalculateFileSize(xyzFp);
 
     if ( this->ReadGeometryHeader(xyzFp) != VTK_OK )
       {
@@ -965,7 +1035,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       }
 
     int nq, nqc, isOverflow;
-    if ( this->ReadQHeader(qFp, nq, nqc, isOverflow) != VTK_OK )
+    if ( this->ReadQHeader(qFp, true, nq, nqc, isOverflow) != VTK_OK )
       {
       fclose(qFp);
       return 0;

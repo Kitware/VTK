@@ -260,7 +260,7 @@ protected:
   int GetNumberOfBlocksInternal(FILE* xyzFp, int allocate);
 
   int ReadGeometryHeader(FILE* fp);
-  int ReadQHeader(FILE* fp, int& nq, int& nqc, int& overflow);
+  int ReadQHeader(FILE* fp, bool checkGrid, int& nq, int& nqc, int& overflow);
   int ReadFunctionHeader(FILE* fp, int* nFunctions);
 
   void CalculateFileSize(FILE* fp);
