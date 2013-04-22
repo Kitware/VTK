@@ -870,12 +870,12 @@ void vtkOpenGLShaderState::PrintSelf(ostream &os,
 
 }
 
-int ShaderTypeValueTable[2]={
+static int ShaderTypeValueTable[2]={
   vtkgl::VERTEX_SHADER,
   vtkgl::FRAGMENT_SHADER
 };
 
-const char *ShaderTypeStringTable[2]={
+static const char *ShaderTypeStringTable[2]={
   "GL_VERTEX_SHADER",
   "GL_FRAGMENT_SHADER"
 };
@@ -956,7 +956,7 @@ void vtkOpenGLBufferObjectState::BufferAccessFlagsToStream(ostream &os)
     }
 }
 
-int BufferUsageValueTable[9]={
+static int BufferUsageValueTable[9]={
   vtkgl::STREAM_DRAW,
   vtkgl::STREAM_READ,
   vtkgl::STREAM_COPY,
@@ -968,7 +968,7 @@ int BufferUsageValueTable[9]={
   vtkgl::DYNAMIC_COPY
 };
 
-const char *BufferUsageStringTable[9]={
+static const char *BufferUsageStringTable[9]={
   "GL_STREAM_DRAW",
   "GL_STREAM_READ",
   "GL_STREAM_COPY",
@@ -986,13 +986,13 @@ const char *vtkOpenGLBufferObjectState::BufferUsageToString()
                          BufferUsageStringTable, 9);
 }
 
-int BufferAccessValueTable[3]={
+static int BufferAccessValueTable[3]={
   vtkgl::READ_ONLY,
   vtkgl::WRITE_ONLY,
   vtkgl::READ_WRITE
 };
 
-const char *BufferAccessStringTable[3]={
+static const char *BufferAccessStringTable[3]={
   "GL_READ_ONLY",
   "GL_WRITE_ONLY",
   "GL_READ_WRITE"
@@ -1027,24 +1027,22 @@ void vtkOpenGLComponentTransform::PrintSelf(ostream &os,
   os << indent << "Bias=" << this->Bias << endl;
 }
 
-// Unknown is a reserved value on BCC:
-// Bcc55\include\winioctl.h 682:
-const char *UnknownValue="Unknown value";
-const char *NA="N/A";
+static const char *UnknownValue="Unknown value";
+static const char *NA="N/A";
 
-int BooleanValueTable[2]=
+static int BooleanValueTable[2]=
 {
   GL_FALSE,
   GL_TRUE
 };
 
-const char *BooleanStringTable[2]=
+static const char *BooleanStringTable[2]=
 {
   "GL_FALSE",
   "GL_TRUE"
 };
 
-int MatrixModeValueTable[4]=
+static int MatrixModeValueTable[4]=
 {
   GL_MODELVIEW,
   GL_PROJECTION,
@@ -1052,7 +1050,7 @@ int MatrixModeValueTable[4]=
   GL_COLOR
 };
 
-const char *MatrixModeStringTable[4]=
+static const char *MatrixModeStringTable[4]=
 {
   "GL_MODELVIEW",
   "GL_PROJECTION",
@@ -1060,59 +1058,59 @@ const char *MatrixModeStringTable[4]=
   "GL_COLOR"
 };
 
-int ShadeModelValueTable[2]=
+static int ShadeModelValueTable[2]=
 {
   GL_SMOOTH,
   GL_FLAT
 };
 
-const char *ShadeModelStringTable[2]=
+static const char *ShadeModelStringTable[2]=
 {
   "GL_SMOOTH",
   "GL_FLAT"
 };
 
-int CullFaceModeValueTable[3]=
+static int CullFaceModeValueTable[3]=
 {
   GL_FRONT,
   GL_BACK,
   GL_FRONT_AND_BACK
 };
 
-const char *CullFaceModeStringTable[3]=
+static const char *CullFaceModeStringTable[3]=
 {
   "GL_FRONT",
   "GL_BACK",
   "GL_FRONT_AND_BACK"
 };
 
-int FrontFaceValueTable[2]=
+static int FrontFaceValueTable[2]=
 {
   GL_CW,
   GL_CCW
 };
 
-const char *FrontFaceStringTable[2]=
+static const char *FrontFaceStringTable[2]=
 {
   "GL_CW",
   "GL_CCW",
 };
 
-int PolygonModeValueTable[3]=
+static int PolygonModeValueTable[3]=
 {
   GL_POINT,
   GL_LINE,
   GL_FILL
 };
 
-const char *PolygonModeStringTable[3]=
+static const char *PolygonModeStringTable[3]=
 {
   "GL_POINT",
   "GL_LINE",
   "GL_FILL"
 };
 
-int AlphaTestFuncValueTable[8]=
+static int AlphaTestFuncValueTable[8]=
 {
   GL_NEVER,
   GL_ALWAYS,
@@ -1124,7 +1122,7 @@ int AlphaTestFuncValueTable[8]=
   GL_NOTEQUAL
 };
 
-const char *AlphaTestFuncStringTable[8]=
+static const char *AlphaTestFuncStringTable[8]=
 {
   "GL_NEVER",
   "GL_ALWAYS",
@@ -1136,33 +1134,33 @@ const char *AlphaTestFuncStringTable[8]=
   "GL_NOTEQUAL"
 };
 
-int RenderModeValueTable[3]=
+static int RenderModeValueTable[3]=
 {
   GL_RENDER,
   GL_SELECT,
   GL_FEEDBACK
 };
 
-const char *RenderModeStringTable[3]=
+static const char *RenderModeStringTable[3]=
 {
   "GL_RENDER",
   "GL_SELECT",
   "GL_FEEDBACK"
 };
 
-int ListModeValueTable[2]=
+static int ListModeValueTable[2]=
 {
   GL_COMPILE,
   GL_COMPILE_AND_EXECUTE
 };
 
-const char *ListModeStringTable[2]=
+static const char *ListModeStringTable[2]=
 {
   "GL_COMPILE",
   "GL_COMPILE_AND_EXECUTE"
 };
 
-int BlendFuncValueTable[15]=
+static int BlendFuncValueTable[15]=
 {
   GL_ZERO,
   GL_ONE,
@@ -1181,7 +1179,7 @@ int BlendFuncValueTable[15]=
   GL_SRC_ALPHA_SATURATE
 };
 
-const char *BlendFuncStringTable[15]=
+static const char *BlendFuncStringTable[15]=
 {
   "GL_ZERO",
   "GL_ONE",
@@ -1200,7 +1198,7 @@ const char *BlendFuncStringTable[15]=
   "GL_SRC_ALPHA_SATURATE"
 };
 
-int BlendEquationValueTable[5]=
+static int BlendEquationValueTable[5]=
 {
   vtkgl::FUNC_ADD,
   vtkgl::FUNC_SUBTRACT,
@@ -1209,7 +1207,7 @@ int BlendEquationValueTable[5]=
   vtkgl::MAX
 };
 
-const char *BlendEquationStringTable[5]=
+static const char *BlendEquationStringTable[5]=
 {
   "GL_FUNC_ADD",
   "GL_FUNC_SUBTRACT",
@@ -1218,7 +1216,7 @@ const char *BlendEquationStringTable[5]=
   "GL_MAX"
 };
 
-int LogicOpModeValueTable[16]={
+static int LogicOpModeValueTable[16]={
   GL_CLEAR,
   GL_AND,
   GL_AND_REVERSE,
@@ -1237,7 +1235,7 @@ int LogicOpModeValueTable[16]={
   GL_SET
 };
 
-const char *LogicOpModeStringTable[16]={
+static const char *LogicOpModeStringTable[16]={
   "GL_CLEAR",
   "GL_AND",
   "GL_AND_REVERSE",
@@ -1256,7 +1254,7 @@ const char *LogicOpModeStringTable[16]={
   "GL_SET"
 };
 
-int ColorBufferValueTable[10]={
+static int ColorBufferValueTable[10]={
   GL_NONE,
   GL_FRONT_LEFT,
   GL_FRONT_RIGHT,
@@ -1269,7 +1267,7 @@ int ColorBufferValueTable[10]={
   GL_FRONT_AND_BACK
 };
 
-const char *ColorBufferStringTable[10]={
+static const char *ColorBufferStringTable[10]={
   "GL_NONE",
   "GL_FRONT_LEFT",
   "GL_FRONT_RIGHT",
@@ -1282,7 +1280,7 @@ const char *ColorBufferStringTable[10]={
   "GL_FRONT_AND_BACK"
 };
 
-int ErrorCodeValueTable[9]={
+static int ErrorCodeValueTable[9]={
   GL_NO_ERROR,
   GL_INVALID_ENUM,
   GL_INVALID_VALUE,
@@ -1294,7 +1292,7 @@ int ErrorCodeValueTable[9]={
   vtkgl::INVALID_FRAMEBUFFER_OPERATION_EXT
 };
 
-const char *ErrorCodeStringTable[9]={
+static const char *ErrorCodeStringTable[9]={
   "GL_NO_ERROR",
   "GL_INVALID_ENUM",
   "GL_INVALID_VALUE",

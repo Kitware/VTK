@@ -28,7 +28,7 @@
 #include <assert.h>
 #include "vtkStdString.h"
 
-GLenum vtkGeometryTypeInVTKToGL[5] = {
+static GLenum vtkGeometryTypeInVTKToGL[5] = {
   GL_POINTS, // VTK_GEOMETRY_SHADER_IN_TYPE_POINTS=0
   GL_LINES, // VTK_GEOMETRY_SHADER_IN_TYPE_LINES=1,
   vtkgl::LINES_ADJACENCY_ARB, // VTK_GEOMETRY_SHADER_IN_TYPE_LINES_ADJACENCY=2
@@ -36,7 +36,7 @@ GLenum vtkGeometryTypeInVTKToGL[5] = {
   vtkgl::TRIANGLES_ADJACENCY_ARB // VTK_GEOMETRY_SHADER_IN_TYPE_TRIANGLES_ADJACENCY=4
 };
 
-const char *vtkGeometryTypeInAsStringArray[5] = {
+static const char *vtkGeometryTypeInAsStringArray[5] = {
   "points",
   "lines",
   "lines with adjacency",
@@ -44,13 +44,13 @@ const char *vtkGeometryTypeInAsStringArray[5] = {
   "triangles with adjacency"
 };
 
-GLenum vtkGeometryTypeOutVTKToGL[3] = {
+static GLenum vtkGeometryTypeOutVTKToGL[3] = {
   GL_POINTS, // VTK_GEOMETRY_SHADER_OUT_TYPE_POINTS=0
   GL_LINE_STRIP, // VTK_GEOMETRY_SHADER_OUT_TYPE_LINE_STRIP=1,
   GL_TRIANGLE_STRIP, // VTK_GEOMETRY_SHADER_OUT_TYPE_TRIANGLE_STRIP=2
 };
 
-const char *vtkGeometryTypeOutAsStringArray[3] = {
+static const char *vtkGeometryTypeOutAsStringArray[3] = {
   "points",
   "line strip",
   "triangle strip"

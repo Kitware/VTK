@@ -40,12 +40,12 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTextProperty.h"
 
-int xLength;
-int yLength;
-vtkSmartPointer<vtkSelectVisiblePoints> visPts;
-vtkSmartPointer<vtkSelectVisiblePoints> visCells;
-vtkSmartPointer<vtkPoints> pts;
-vtkSmartPointer<vtkRenderWindow> renWin;
+static int xLength;
+static int yLength;
+static vtkSmartPointer<vtkSelectVisiblePoints> visPts;
+static vtkSmartPointer<vtkSelectVisiblePoints> visCells;
+static vtkSmartPointer<vtkPoints> pts;
+static vtkSmartPointer<vtkRenderWindow> renWin;
 
 // Create a procedure to draw the selection window at each location it
 // is moved to.

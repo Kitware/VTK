@@ -46,9 +46,9 @@
 #include "vtkDataSetReader.h"
 
 static vtkSmartPointer<vtkRenderer> renderer;
-vtkSmartPointer<vtkSphereSource> SS1;
-vtkSmartPointer<vtkDataSetMapper> sMap;
-vtkSmartPointer<vtkPolyData> emptyPD;
+static vtkSmartPointer<vtkSphereSource> SS1;
+static vtkSmartPointer<vtkDataSetMapper> sMap;
+static vtkSmartPointer<vtkPolyData> emptyPD;
 
 #define MY_CREATE_NEW(class, variable)\
   vtkSmartPointer<class> variable = vtkSmartPointer<class>::New();

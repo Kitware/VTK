@@ -43,7 +43,7 @@
 #include "vtkPolygonalSurfaceContourLineInterpolator.h"
 #include "vtkTestUtilities.h"
 
-char TestDijkstraGraphGeodesicPathLog[] =
+static char TestDijkstraGraphGeodesicPathLog[] =
   "# StreamVersion 1\n"
   "EnterEvent 260 15 0 0 0 0 0 i\n"
   "MouseMoveEvent 186 15 0 0 0 0 0 i\n"

@@ -52,8 +52,8 @@
 #include <vtksys/SystemTools.hxx>
 
 
-GLuint fbo, rgba_rb, z_rb;
-GLint  db;
+static GLuint fbo, rgba_rb, z_rb;
+static GLint  db;
 //-----------------------------------------------------------------------------
 
 // static int tet_faces[4][3] = { {1,2,3}, {2,0,3}, {0,1,3}, {0,2,1} };

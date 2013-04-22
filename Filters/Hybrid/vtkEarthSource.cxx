@@ -73,7 +73,7 @@ void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 // Special thanks to Tom Johnson at Johnson Scientific International who 
 // developed and contributed this class based on the data of John B. Allison.
 
-short vtkEarthData[] = {
+static const short vtkEarthData[] = {
 /* 0 */
 3903, 1, 13663, 15523, 21733,
  -138, 74, 34, 69, 29, -64, -38, 19, 10, -93, 24, 41,

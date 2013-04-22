@@ -653,7 +653,7 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
 
 //============================================================================
 // The intent is to give access to a processes controller from a static method.
-vtkWeakPointer<vtkMultiProcessController> VTK_GLOBAL_MULTI_PROCESS_CONTROLLER;
+static vtkWeakPointer<vtkMultiProcessController> VTK_GLOBAL_MULTI_PROCESS_CONTROLLER;
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::GetGlobalController()
 {
