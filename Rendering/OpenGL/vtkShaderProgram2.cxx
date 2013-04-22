@@ -50,12 +50,6 @@ static GLenum vtkGeometryTypeOutVTKToGL[3] = {
   GL_TRIANGLE_STRIP, // VTK_GEOMETRY_SHADER_OUT_TYPE_TRIANGLE_STRIP=2
 };
 
-static const char *vtkGeometryTypeOutAsStringArray[3] = {
-  "points",
-  "line strip",
-  "triangle strip"
-};
-
 vtkStandardNewMacro(vtkShaderProgram2);
 vtkCxxSetObjectMacro(vtkShaderProgram2, UniformVariables, vtkUniformVariables);
 
