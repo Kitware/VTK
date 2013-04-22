@@ -85,8 +85,6 @@ class vtkCollection;
 class vtkCoordinate;
 class vtkImageData;
 class vtkIntArray;
-class vtkMathTextActor;
-class vtkMathTextActor3D;
 class vtkMatrix4x4;
 class vtkPath;
 class vtkProp;
@@ -312,10 +310,6 @@ protected:
   void DrawTextActor3D(vtkTextActor3D *textAct, vtkRenderer *ren);
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
                       vtkRenderer *ren);
-  void DrawMathTextActor(vtkMathTextActor *textAct,
-                         vtkRenderer *ren);
-  void DrawMathTextActor3D(vtkMathTextActor3D *textAct,
-                           vtkRenderer *ren);
   void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
                                vtkCoordinate *coord, vtkRenderer *ren);
 

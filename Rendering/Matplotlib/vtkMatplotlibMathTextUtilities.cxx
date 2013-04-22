@@ -1093,13 +1093,21 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
       delta[1] = -cbox[3];
     }
 
+  const double theta = vtkMath::RadiansFromDegrees(tprop->GetOrientation());
+  const double sinTheta = sin(theta);
+  const double cosTheta = cos(theta);
   vtkPoints *points = path->GetPoints();
+  double point[3];
+  double newPoint[3];
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
     {
-    double *point = points->GetPoint(i);
+    points->GetPoint(i, point);
     point[0] += delta[0];
     point[1] += delta[1];
-    points->SetPoint(i, point);
+    newPoint[0] = (point[0] * cosTheta) - (point[1] * sinTheta);
+    newPoint[1] = (point[0] * sinTheta) + (point[1] * cosTheta);
+    newPoint[2] = point[2];
+    points->SetPoint(i, newPoint);
     }
 
 
