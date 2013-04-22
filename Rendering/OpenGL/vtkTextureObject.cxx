@@ -122,15 +122,6 @@ static GLenum OpenGLDepthInternalFormat[5]=
   vtkgl::DEPTH_COMPONENT32F,
 };
 
-static const char *DepthInternalFormatFilterAsString[6]=
-{
-  "Native",
-  "Fixed16",
-  "Fixed24",
-  "Fixed32",
-  "Float32"
-};
-
 vtkStandardNewMacro(vtkTextureObject);
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()

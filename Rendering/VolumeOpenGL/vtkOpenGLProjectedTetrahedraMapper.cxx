@@ -52,7 +52,6 @@
 #include <vtksys/SystemTools.hxx>
 
 
-static GLuint fbo, rgba_rb, z_rb;
 static GLint  db;
 //-----------------------------------------------------------------------------
 
