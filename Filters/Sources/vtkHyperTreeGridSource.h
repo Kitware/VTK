@@ -248,7 +248,7 @@ protected:
   std::vector<vtkIdType> LevelBitsIndexCnt;
 
   vtkIdTypeArray* LevelZeroMaterialIndex;
-  std::map<vtkIdType, vtkIdType>* LevelZeroMaterialMap;
+  std::map<vtkIdType, vtkIdType> LevelZeroMaterialMap;
 
   std::vector<int> LevelCounters;
 

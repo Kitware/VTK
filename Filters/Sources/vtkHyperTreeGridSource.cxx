@@ -94,7 +94,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->DescriptorBits = 0;
   this->MaterialMaskBits = 0;
   this->LevelZeroMaterialIndex = 0;
-  this->LevelZeroMaterialMap = 0;
+  this->LevelZeroMaterialMap.clear();
 
   // Default quadric is a sphere with radius 1
   this->Quadric = vtkQuadric::New();
@@ -146,8 +146,7 @@ vtkHyperTreeGridSource::~vtkHyperTreeGridSource()
     this->LevelZeroMaterialIndex = 0;
     }
 
-  delete this->LevelZeroMaterialMap;
-  this->LevelZeroMaterialMap = 0;
+  this->LevelZeroMaterialMap.clear();
 
   delete [] this->Descriptor;
   this->Descriptor = 0;
@@ -254,17 +253,13 @@ void vtkHyperTreeGridSource::SetLevelZeroMaterialIndex( vtkIdTypeArray* indexArr
   this->LevelZeroMaterialIndex = indexArray;
   this->LevelZeroMaterialIndex->Register( this );
 
-  if ( this->LevelZeroMaterialMap )
-    {
-    delete this->LevelZeroMaterialMap;
-    }
-  this->LevelZeroMaterialMap = new std::map<vtkIdType, vtkIdType>();
+  this->LevelZeroMaterialMap.clear();
   vtkIdType len = indexArray->GetNumberOfTuples();
   // Fill the map index - key is leaf number, value is index in the array that
   // will be used to fetch the descriptor value.
   for ( vtkIdType i = 0; i < len; ++ i )
     {
-    (*this->LevelZeroMaterialMap)[ indexArray->GetValue( i ) ] = i;
+    this->LevelZeroMaterialMap[ indexArray->GetValue( i ) ] = i;
     }
   this->Modified();
 }
@@ -431,7 +426,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   vtkIdType index;
   vtkHyperTreeGrid::vtkHyperTreeIterator it;
   this->Output->InitializeTreeIterator( it );
-  while ( it.GetNextTree( index ) )
+  while ( vtkHyperTree* tree = it.GetNextTree( index ) )
     {
     vtkIdType i, j, k;
     //if ( this->TransposedRootIndexing )
@@ -458,6 +453,11 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       }
     else
       {
+      // Initialize the tree global start index with the number of
+      // points added so far. This avoid the storage of a local
+      // to global node id per tree.
+      tree->SetGlobalIndexStart( this->LevelBitsIndexCnt[0] );
+
       // Initialize coordinate system for implicit function
       double origin[3];
       origin[0] = ( i % this->GridSize[0] ) * this->GridScale[0];
@@ -779,7 +779,7 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
 
   // Calculate total level 0 grid size
   vtkIdType nTotal = this->LevelZeroMaterialIndex ?
-    this->LevelZeroMaterialMap->size() :
+    this->LevelZeroMaterialMap.size() :
     this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
   // Parse descriptor and material mask if used
@@ -860,8 +860,10 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor( vtkHyperTreeCursor* cu
   // Calculate the node global index
   vtkIdType id = this->LevelBitsIndexCnt[level];
   this->LevelBitsIndexCnt[level]++;
+
   // Cell value: depth level
   depthArray->InsertTuple1( id, level );
+
   // Set the global index of the node
   cursor->GetTree()->SetGlobalIndexFromLocal( cursor->GetNodeId(), id );
 
@@ -869,11 +871,11 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor( vtkHyperTreeCursor* cu
 
   if ( this->LevelZeroMaterialIndex && level == 0 )
     {
-    if ( this->LevelZeroMaterialMap->find( treeIdx ) !=
-      this->LevelZeroMaterialMap->end() )
+    if ( this->LevelZeroMaterialMap.find( treeIdx ) !=
+      this->LevelZeroMaterialMap.end() )
       {
        refine = this->DescriptorBits->GetValue(
-         (*this->LevelZeroMaterialMap)[ treeIdx ] ) == 1;
+         this->LevelZeroMaterialMap[ treeIdx ] ) == 1;
       }
     }
   else
@@ -963,9 +965,8 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
   vtkDataArray* quadricArray = outData->GetArray( "Quadric" );
 
     // Calculate the node global index
-  vtkIdType id = this->LevelBitsIndexCnt[0];
+  vtkIdType id = cursor->GetTree()->GetGlobalIndexFromLocal( cursor->GetNodeId() );
   this->LevelBitsIndexCnt[0]++;
-  cursor->GetTree()->SetGlobalIndexFromLocal( cursor->GetNodeId(), id );
 
   // Compute cell origin coordinates
   double O[] = { 0., 0., 0. };

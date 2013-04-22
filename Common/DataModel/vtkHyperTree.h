@@ -167,7 +167,6 @@ public:
   // This is done to hide templates.
   virtual void FindChildParameters( int, vtkIdType&, bool& );
 
-
   // Description:
   // Set the start global index for the current tree.
   // The global index of a node will be this index + the node index.
