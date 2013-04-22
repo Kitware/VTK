@@ -9,4 +9,5 @@ vtk_module(vtkIOPLY
     vtkRenderingOpenGL
     vtkIOImage
     vtkTestingRendering
+    vtkInteractionStyle
   )

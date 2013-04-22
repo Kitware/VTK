@@ -407,7 +407,7 @@ endfunction()
 macro(vtk_module_test_executable test_exe_name)
   vtk_module_test()
   # No forwarding or export for test executables.
-  add_executable(${test_exe_name} ${ARGN})
+  add_executable(${test_exe_name} MACOSX_BUNDLE ${ARGN})
   target_link_libraries(${test_exe_name} ${${vtk-module-test}-Cxx_LIBRARIES})
 
   if(${vtk-module-test}-Cxx_DEFINITIONS)

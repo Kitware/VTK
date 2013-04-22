@@ -14,4 +14,5 @@ vtk_module(vtkIOXML
     vtkRenderingOpenGL
     vtkTestingCore
     vtkTestingRendering
+    vtkInteractionStyle
   )

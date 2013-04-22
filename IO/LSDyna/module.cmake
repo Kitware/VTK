@@ -7,4 +7,5 @@ vtk_module(vtkIOLSDyna
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
   )

@@ -7,4 +7,5 @@ vtk_module(vtkCommonColor
     vtkRenderingOpenGL
     vtkTestingCore
     vtkTestingRendering
+    vtkInteractionStyle
 )

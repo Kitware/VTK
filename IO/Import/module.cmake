@@ -7,4 +7,5 @@ vtk_module(vtkIOImport
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
   )

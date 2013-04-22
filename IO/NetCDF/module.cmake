@@ -11,4 +11,5 @@ vtk_module(vtkIONetCDF
     vtkCommonExecutionModel
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
   )
