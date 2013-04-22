@@ -259,6 +259,10 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
     {
     glDisableClientState(GL_COLOR_ARRAY);
     }
+
+  // Restore line type and width.
+  this->SetLineType(vtkPen::SOLID_LINE);
+  this->SetLineWidth(1.0f);
 }
 
 //-----------------------------------------------------------------------------
@@ -596,6 +600,9 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
   glColor4ubv(this->Pen->GetColor());
   glDrawArrays(GL_LINE_STRIP, 0, iterations+1);
   glDisableClientState(GL_VERTEX_ARRAY);
+  // Restore line type and width.
+  this->SetLineType(vtkPen::SOLID_LINE);
+  this->SetLineWidth(1.0f);
 
   delete[] p;
 }
