@@ -203,7 +203,6 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   long streamSkip0, streamSkip1;
   unsigned long streamRead;
   int idx0, idx1, idx2, pixelRead;
-  unsigned char *buf;
   int inExtent[6];
   int dataExtent[6];
   int comp, pixelSkip;
@@ -258,7 +257,7 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
 
   // create a buffer to hold a row of the data
-  buf = new unsigned char[streamRead];
+  IT *buf = new IT[streamRead/sizeof(IT)];
 
   target = (unsigned long)((dataExtent[5]-dataExtent[4]+1)*
                            (dataExtent[3]-dataExtent[2]+1)/50.0);
@@ -321,7 +320,7 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
         }
 
       // copy the bytes into the typed data
-      inPtr = (IT *)(buf);
+      inPtr = buf;
       for (idx0 = dataExtent[0]; idx0 <= dataExtent[1]; ++idx0)
         {
         // Copy pixel into the output.
