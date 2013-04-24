@@ -173,14 +173,11 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
   this->Input->InitializeTreeIterator( it );
   while ( it.GetNextTree( index ) )
     {
-    vtkIdType i, j, k;
-    this->Input->GetLevelZeroCoordsFromIndex( index, i, j, k );
-
     // Storage for super cursors
     vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
     // Initialize center cursor
-    this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
+    this->Input->InitializeSuperCursor( &superCursor, index );
 
     // Traverse and populate dual recursively
     this->RecursiveProcessTree( &superCursor );
@@ -205,7 +202,6 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( void* sc )
   vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
     static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
-
   if ( cursor0->IsLeaf() )
     {
     switch ( this->Input->GetDimension() )
@@ -260,8 +256,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D( void* sc )
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   // Cell at cursor 0 is a leaf, retrieve its global index
-  vtkIdType id0 = cursor0->GetGlobalLeafIndex();
-
+  vtkIdType id0 = cursor0->GetGlobalNodeIndex();
   // In 2D all unmasked faces are generated
   if ( id0 >= 0 && ! this->Input->GetMaterialMask()->GetTuple1( id0 ) )
     {
@@ -278,12 +273,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   // Cell at cursor 0 is a leaf, retrieve its global index
-  vtkIdType id0 = cursor0->GetGlobalLeafIndex();
-
-  if ( id0 < 0 )
-    {
-    return;
-    }
+  vtkIdType id0 = cursor0->GetGlobalNodeIndex();
 
   int neighborIdx = -1;
   int masked = this->Input->GetMaterialMask()->GetTuple1( id0 );
@@ -296,6 +286,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
       // Retrieve face neighbor cursor
       vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor =
         superCursor->GetCursor( neighborIdx );
+      vtkIdType id = cursor->GetGlobalNodeIndex();
 
       // Cell is masked, check if any of the face neighbors are unmasked
       if ( masked )
@@ -305,21 +296,20 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
           && cursor->IsLeaf()
           && cursor->GetLevel() < cursor0->GetLevel() )
           {
-          vtkIdType id = cursor->GetGlobalLeafIndex();
+
           if ( id >=0 && ! this->Input->GetMaterialMask()->GetTuple1( id ) )
             {
-            this->AddFace( id, superCursor->Origin, superCursor->Size, o, f );
+            this->AddFace( id0, superCursor->Origin, superCursor->Size, o, f );
             }
           }
         }
       else
         {
         // Boundary faces, or faces shared by a masked cell, must be created
-        // TODO: fix this test, otherwise some faces may be added twice (?)
         if ( ! cursor->GetTree()
           ||
           ( cursor->IsLeaf()
-          && this->Input->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+          && this->Input->GetMaterialMask()->GetTuple1( id ) ) )
           {
           this->AddFace( id0, superCursor->Origin, superCursor->Size, o, f );
           }

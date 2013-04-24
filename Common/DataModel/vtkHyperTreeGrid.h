@@ -321,6 +321,8 @@ public:
                               unsigned int,
                               unsigned int,
                               vtkIdType );
+  void InitializeSuperCursor( vtkHyperTreeGridSuperCursor*,
+                              vtkIdType );
   // Description:
   // Initialize a cursor to point to a child of an existing super cursor.
   // This will not work in place.
@@ -329,12 +331,10 @@ public:
                                    int childIdx );
 #endif
 //ETX
+
   // Description:
   // The number of children each node can have.
   vtkGetMacro(NumberOfChildren, int);
-
-  // Description:
-  vtkIdType GetLevelZeroIndex( vtkIdType );
 
   // Description:
   // Convert a level 0 index to its ijk coordinates according the grid size.
@@ -368,18 +368,12 @@ protected:
   vtkDataArray* ZCoordinates;
 
   std::map<vtkIdType, vtkHyperTree*> HyperTrees;
-  std::map<vtkIdType, vtkIdType> HyperTreesMap;
-  vtkIdType* HyperTreesLeafIdOffsets;
-  vtkIdType NumLeaves;
-  vtkTimeStamp HyperTreesLeafIdOffsetsMTime;
 
   vtkPoints* Points;
   vtkIdTypeArray* Connectivity;
   std::map<vtkIdType, bool> PointShifted;
   std::map<vtkIdType, double> PointShifts[3];
   std::map<vtkIdType, double> ReductionFactors;
-
-  int UpdateHyperTreesLeafIdOffsets();
 
   void DeleteInternalArrays();
   void DeleteTrees();
@@ -429,8 +423,8 @@ protected:
 //ETX
 
 public:
-//BTX
 
+//BTX
   // A simplified hyper tree cursor, to be used by the hyper tree
   // grid supercursor.
   class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeSimpleCursor
@@ -440,22 +434,18 @@ public:
     ~vtkHyperTreeSimpleCursor();
 
     void Clear();
-    void Initialize( vtkHyperTreeGrid*, vtkIdType*, vtkIdType, int[3] );
+    void Initialize( vtkHyperTreeGrid*, vtkIdType, int[3] );
     void ToRoot();
     void ToChild( int );
     bool IsLeaf();
     vtkHyperTree* GetTree() { return this->Tree; }
     vtkIdType GetLeafIndex() { return this->Index; } // Only valid for leaves.
-
-    vtkIdType GetGlobalLeafIndex() { return ( this->Offset >= 0 ) ?
-                                       this->Offset + this->Index : -1; }
-    vtkIdType GetOffset() { return this->Offset; }
+    vtkIdType GetGlobalNodeIndex();
     unsigned short GetLevel() { return this->Level; }
 
   private:
     vtkHyperTree* Tree;
     vtkIdType Index;
-    vtkIdType Offset;
     unsigned short Level;
     bool Leaf;
   };

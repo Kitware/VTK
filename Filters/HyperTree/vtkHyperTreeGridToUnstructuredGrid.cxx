@@ -241,12 +241,11 @@ void vtkHyperTreeGridToUnstructuredGrid::ProcessTrees()
   it.Initialize( this->Input );
   while ( it.GetNextTree( index ) )
     {
-    vtkIdType i, j, k;
-    this->Input->GetLevelZeroCoordsFromIndex( index, i, j, k );
+    // Storage for super cursors
     vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
     // Initialize center cursor
-    this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
+    this->Input->InitializeSuperCursor( &superCursor, index );
 
     // Traverse and populate dual recursively
     this->RecursiveProcessTree( &superCursor );
@@ -305,7 +304,7 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursiveProcessTree( void* sc )
   if ( cursor->IsLeaf() )
     {
     // Cursor is a leaf, retrieve its global index
-    vtkIdType inId = cursor->GetGlobalLeafIndex();
+    vtkIdType inId = cursor->GetGlobalNodeIndex();
     // If leaf is masked, skip it
     if ( ! this->Input->GetMaterialMask()->GetTuple1( inId ) )
       {

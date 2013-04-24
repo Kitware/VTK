@@ -37,7 +37,6 @@
 
 int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
 {
-
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   int maxLevel = 6;
@@ -46,7 +45,6 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 2 );
   htGrid->SetBranchFactor( 3 );
-  htGrid->UseMaterialMaskOn();
   const std::string descriptor = "_RRRR.|" // Level 0 refinement
     "..R...... RRRRRRRRR R........ R........|..R...... ........R ......RRR ......RRR ..R..R..R RRRRRRRRR R..R..R.. ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ........R ..R..R..R ......... ......RRR ......R.. ......... RRRRRRRRR R..R..R.. ......... ......... ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ......... RRRRRRRRR ......... ......... ......... ......... ......... ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ........." ;
   const std::string materialMask = // Level 0 materials are not needed, visible cells are described with LevelZeroMaterialIndex
@@ -57,6 +55,7 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   zero->InsertNextValue(3);
   zero->InsertNextValue(4);
   zero->InsertNextValue(5);
+  htGrid->UseMaterialMaskOn();
   htGrid->SetLevelZeroMaterialIndex( zero.GetPointer() );
   vtkBitArray* desc = htGrid->ConvertDescriptorStringToBitArray( descriptor );
   vtkBitArray* mat = htGrid->ConvertMaterialMaskStringToBitArray( materialMask );
