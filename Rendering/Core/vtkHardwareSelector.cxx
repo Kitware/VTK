@@ -774,7 +774,8 @@ vtkSelection* vtkHardwareSelector::GeneratePolygonSelection(
       if(this->Internals->PixelInsidePolygon(
         xx, yy, polygonPoints, count))
         {
-        unsigned int pos[2] = {xx, yy};
+        unsigned int pos[2] = {static_cast<unsigned int>(xx),
+          static_cast<unsigned int>(yy)};
         PixelInformation info = this->GetPixelInformation(pos, 0);
         if (info.Valid)
           {
