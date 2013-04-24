@@ -29,10 +29,13 @@
 #include "vtkMath.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
+#include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+
+#include <algorithm> // for min(), max()
 
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
@@ -251,6 +254,8 @@ void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
 template <class T>
 inline void vtkDataArrayRoundIfNecessary(double val, T* retVal)
 {
+  val = std::max(val, static_cast<double>(vtkTypeTraits<T>::Min()));
+  val = std::min(val, static_cast<double>(vtkTypeTraits<T>::Max()));
   *retVal = static_cast<T>((val>=0.0)?(val + 0.5):(val - 0.5));
 }
 
