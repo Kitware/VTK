@@ -45,7 +45,7 @@ void vtkPistonContour::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkPistonContour::RequestData(vtkInformation *request,
+int vtkPistonContour::RequestData(vtkInformation *vtkNotUsed(request),
                                    vtkInformationVector** inputVector,
                                    vtkInformationVector* outputVector)
 {

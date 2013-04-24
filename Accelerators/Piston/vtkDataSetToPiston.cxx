@@ -60,7 +60,7 @@ vtkDataSetToPiston
 }
 
 //------------------------------------------------------------------------------
-int vtkDataSetToPiston::RequestData(vtkInformation *request,
+int vtkDataSetToPiston::RequestData(vtkInformation *vtkNotUsed(request),
                                      vtkInformationVector** inputVector,
                                      vtkInformationVector* outputVector)
 {
@@ -124,7 +124,7 @@ int vtkDataSetToPiston::RequestData(vtkInformation *request,
       break;
     case VTK_POLY_DATA:
       {
-      vtkPolyData *id = vtkPolyData::GetData(inputVector[0]);
+      vtkPolyData *idp = vtkPolyData::GetData(inputVector[0]);
       //convert to simplices that piston can handle
       //TODO: support points, lines and tets in addition to triangles
       //TODO: support cell attributes
@@ -132,11 +132,11 @@ int vtkDataSetToPiston::RequestData(vtkInformation *request,
       vtkPoints *tPts = vtkPoints::New();
       triangulated->SetPoints(tPts);
       tPts->Delete();
-      triangulated->GetPointData()->CopyStructure(id->GetPointData());
-      triangulated->GetPointData()->CopyAllocate(id->GetPointData());
+      triangulated->GetPointData()->CopyStructure(idp->GetPointData());
+      triangulated->GetPointData()->CopyAllocate(idp->GetPointData());
       triangulated->GetPointData()->SetCopyNormals(1);
 
-      vtkCellArray *cells = id->GetPolys();
+      vtkCellArray *cells = idp->GetPolys();
       vtkIdType npts =0;
       vtkIdType *index = 0;
       vtkIdType opnt = 0;
@@ -147,24 +147,24 @@ int vtkDataSetToPiston::RequestData(vtkInformation *request,
         triangle[1] = index[1];
         triangle[2] = index[2];
         //the first triangle
-        triangulated->GetPoints()->InsertNextPoint(id->GetPoint(triangle[0]));
-        triangulated->GetPointData()->CopyData(id->GetPointData(), triangle[0], opnt++);
-        triangulated->GetPoints()->InsertNextPoint(id->GetPoint(triangle[1]));
-        triangulated->GetPointData()->CopyData(id->GetPointData(), triangle[1], opnt++);
-        triangulated->GetPoints()->InsertNextPoint(id->GetPoint(triangle[2]));
-        triangulated->GetPointData()->CopyData(id->GetPointData(), triangle[2], opnt++);
+        triangulated->GetPoints()->InsertNextPoint(idp->GetPoint(triangle[0]));
+        triangulated->GetPointData()->CopyData(idp->GetPointData(), triangle[0], opnt++);
+        triangulated->GetPoints()->InsertNextPoint(idp->GetPoint(triangle[1]));
+        triangulated->GetPointData()->CopyData(idp->GetPointData(), triangle[1], opnt++);
+        triangulated->GetPoints()->InsertNextPoint(idp->GetPoint(triangle[2]));
+        triangulated->GetPointData()->CopyData(idp->GetPointData(), triangle[2], opnt++);
         // the remaining triangles, of which
         // each introduces a triangle after extraction
         for ( vtkIdType i = 3; i < npts; i ++ )
         {
           triangle[1] = triangle[2];
           triangle[2] = index[i];
-          triangulated->GetPoints()->InsertNextPoint(id->GetPoint(triangle[0]));
-          triangulated->GetPointData()->CopyData(id->GetPointData(), triangle[0], opnt++);
-          triangulated->GetPoints()->InsertNextPoint(id->GetPoint(triangle[1]));
-          triangulated->GetPointData()->CopyData(id->GetPointData(), triangle[1], opnt++);
-          triangulated->GetPoints()->InsertNextPoint(id->GetPoint(triangle[2]));
-          triangulated->GetPointData()->CopyData(id->GetPointData(), triangle[2], opnt++);
+          triangulated->GetPoints()->InsertNextPoint(idp->GetPoint(triangle[0]));
+          triangulated->GetPointData()->CopyData(idp->GetPointData(), triangle[0], opnt++);
+          triangulated->GetPoints()->InsertNextPoint(idp->GetPoint(triangle[1]));
+          triangulated->GetPointData()->CopyData(idp->GetPointData(), triangle[1], opnt++);
+          triangulated->GetPoints()->InsertNextPoint(idp->GetPoint(triangle[2]));
+          triangulated->GetPointData()->CopyData(idp->GetPointData(), triangle[2], opnt++);
         }
       }
       vtkpiston::CopyToGPU(triangulated, od);

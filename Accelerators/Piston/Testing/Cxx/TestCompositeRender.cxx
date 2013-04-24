@@ -162,7 +162,6 @@ void MyProcess::Execute()
 {
   int my_id = this->Controller->GetLocalProcessId();
 
-  int go;
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
   comm->Barrier();
