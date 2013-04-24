@@ -165,7 +165,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   idArray->SetNumberOfComponents( 1 );
   vtkIdType nbPoints = htGrid->GetOutput()->GetNumberOfPoints();
   idArray->SetNumberOfValues( nbPoints );
-  for ( unsigned int i = 0; i < nbPoints; ++ i )
+  for ( vtkIdType i = 0; i < nbPoints; ++ i )
     {
     idArray->SetValue( i, i );
     }
