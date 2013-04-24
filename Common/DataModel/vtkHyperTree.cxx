@@ -950,8 +950,8 @@ void vtkHyperTree::FindChildParameters( int child, vtkIdType& index, bool& isLea
 #define GetNodeParametersMacro( _N_ )                                              \
   {                                                                                \
   vtkCompactHyperTree<_N_>* tree = static_cast<vtkCompactHyperTree<_N_>*>( this ); \
-  vtkCompactHyperTreeNode<_N_>* node = tree->GetNode( index );                     \
-  index = node->GetChild( child );                                                 \
+  vtkCompactHyperTreeNode<_N_>* node = tree->GetNode( static_cast<int>(index) );   \
+  index = static_cast<vtkIdType>(node->GetChild( child ));                         \
   isLeaf = node->IsChildLeaf( child );                                             \
   return;                                                                          \
   }
