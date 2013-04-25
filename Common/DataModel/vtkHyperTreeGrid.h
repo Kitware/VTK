@@ -328,18 +328,20 @@ public:
   // This will not work in place.
   void InitializeSuperCursorChild( vtkHyperTreeGridSuperCursor* parent,
                                    vtkHyperTreeGridSuperCursor* child,
-                                   int childIdx );
+                                   unsigned int childIdx );
 #endif
 //ETX
 
   // Description:
   // The number of children each node can have.
-  vtkGetMacro(NumberOfChildren, int);
+  vtkGetMacro(NumberOfChildren, unsigned int);
 
   // Description:
   // Convert a level 0 index to its ijk coordinates according the grid size.
   void GetLevelZeroCoordsFromIndex( vtkIdType index,
-                                    vtkIdType &i, vtkIdType &j, vtkIdType &k );
+                                    unsigned int &i,
+                                    unsigned int &j,
+                                    unsigned int &k );
 
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
