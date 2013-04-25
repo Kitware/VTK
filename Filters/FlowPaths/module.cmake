@@ -11,6 +11,6 @@ vtk_module(vtkFiltersFlowPaths
     vtkFiltersImaging
     vtkTestingCore
     vtkTestingRendering
-    vtkRenderingOpenGL
     vtkInteractionStyle
+    vtkRenderingOpenGL
   )

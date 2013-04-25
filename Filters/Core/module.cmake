@@ -9,6 +9,7 @@ vtk_module(vtkFiltersCore
     vtkCommonMath
   TEST_DEPENDS
     vtkTestingRendering
+    vtkInteractionStyle
     vtkIOLegacy
     vtkIOXML
     vtkImagingCore

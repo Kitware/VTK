@@ -12,6 +12,7 @@ vtk_module(vtkRenderingMatplotlib
     vtkIOExport
     vtkIOGeometry
     vtkTestingRendering
+    vtkInteractionStyle
     vtkRenderingGL2PS
     vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL

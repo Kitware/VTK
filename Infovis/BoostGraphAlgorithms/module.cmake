@@ -5,6 +5,7 @@ vtk_module(vtkInfovisBoostGraphAlgorithms
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
     vtkIOInfovis
     vtkViewsInfovis
     vtkRenderingFreeTypeOpenGL

@@ -9,6 +9,7 @@ vtk_module(vtkAcceleratorsPiston
     vtkImagingHybrid #from piston
   TEST_DEPENDS
     vtkTestingRendering
+    vtkInteractionStyle
     vtkInteractionWidgets
     vtkImagingSources
     vtkParallelCore

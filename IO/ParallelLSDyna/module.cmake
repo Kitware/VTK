@@ -7,5 +7,6 @@ vtk_module(vtkIOParallelLSDyna
    vtkParallelMPI
    vtkRenderingParallel
    vtkTestingRendering
+   vtkInteractionStyle
    vtkRenderingOpenGL
   )

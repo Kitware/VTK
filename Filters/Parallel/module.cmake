@@ -9,6 +9,7 @@ vtk_module(vtkFiltersParallel
   TEST_DEPENDS
     vtkParallelMPI
     vtkTestingRendering
+    vtkInteractionStyle
     vtkRenderingOpenGL
     vtkRenderingParallel
     vtkFiltersParallelMPI
