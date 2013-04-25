@@ -110,13 +110,24 @@ int vtkTreeDifferenceFilter::RequestData(
       }
     }
 
-  this->ComputeDifference(tree1, tree2);
+  vtkSmartPointer<vtkDoubleArray> resultArray =
+    this->ComputeDifference(tree1, tree2);
 
   if (!outputTree->CheckedShallowCopy(tree1))
     {
     vtkErrorMacro(<<"Invalid tree structure.");
     return 0;
     }
+
+  if (this->ComparisonArrayIsVertexData)
+    {
+    outputTree->GetVertexData()->AddArray(resultArray);
+    }
+  else
+    {
+    outputTree->GetEdgeData()->AddArray(resultArray);
+    }
+
   return 1;
 }
 
@@ -204,12 +215,13 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree *tree1, vtkTree *tree2)
 }
 
 //---------------------------------------------------------------------------
-void vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
+vtkSmartPointer<vtkDoubleArray>
+vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
 {
   if (this->ComparisonArrayName == 0)
     {
     vtkErrorMacro("ComparisonArrayName has not been set.");
-    return;
+    return NULL;
     }
 
   vtkDataSetAttributes *treeData1, *treeData2;
@@ -233,7 +245,7 @@ void vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
     {
     vtkErrorMacro("tree #1's " << dataName <<
       " does not have a vtkDoubleArray named " << this->IdArrayName);
-    return;
+    return NULL;
     }
 
   vtkDataArray *arrayToCompare2 =
@@ -242,10 +254,11 @@ void vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
     {
     vtkErrorMacro("tree #2's " << dataName <<
       " does not have a vtkDoubleArray named " << this->IdArrayName);
-    return;
+    return NULL;
     }
 
-  vtkNew<vtkDoubleArray> resultArray;
+  vtkSmartPointer<vtkDoubleArray> resultArray =
+    vtkSmartPointer<vtkDoubleArray>::New();
   resultArray->SetNumberOfValues(arrayToCompare1->GetNumberOfTuples());
   resultArray->FillComponent(0, vtkMath::Nan());
 
@@ -275,7 +288,7 @@ void vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
     resultArray->SetValue(treeId1, result);
     }
 
-  treeData1->AddArray(resultArray.GetPointer());
+  return resultArray;
 }
 
 //---------------------------------------------------------------------------

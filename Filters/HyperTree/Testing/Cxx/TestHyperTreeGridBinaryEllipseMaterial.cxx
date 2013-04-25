@@ -121,6 +121,7 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   scalarBar->SetNumberOfLabels( 4 );
   scalarBar->SetWidth( 0.15 );
   scalarBar->SetHeight( 0.4 );
+  scalarBar->SetTextPad( 4 );
   scalarBar->SetMaximumWidthInPixels( 60 );
   scalarBar->SetMaximumHeightInPixels( 200 );
   scalarBar->SetTextPositionToPrecedeScalarBar();

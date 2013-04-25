@@ -39,9 +39,7 @@ vtkStandardNewMacro(vtkOrderedTriangulator);
 # ifndef __PLACEMENT_NEW_INLINE
 #  define __PLACEMENT_NEW_INLINE
    inline void *__cdecl operator new(size_t, void *_P) { return (_P); }
-#  if _MSC_VER >= 1200
-    inline void __cdecl operator delete(void *, void *) { return; }
-#  endif
+   inline void __cdecl operator delete(void *, void *) { return; }
 # endif
 #else
 # include <new>

@@ -992,25 +992,7 @@ T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored
 //----------------------------------------------------------------------------
 // Definition of ToNumeric
 
-// Visual Studio 6 chokes with "error C2893: Failed to specialize function
-// template" when the definition of ToNumeric is included here and it
-// encounters the various callers of ToNumeric below. So for VS6 include the
-// the implementation of ToNumeric at the bottom of the file.
-//
-#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
-# define VTK_VARIANT_TO_NUMERIC_CXX_INCLUDED
-# include "vtkVariantToNumeric.cxx"
-#endif
-
-//----------------------------------------------------------------------------
-// Explicit instantiations of ToNumeric
-
-// Visual Studio 6 chokes with "fatal error C1001: INTERNAL COMPILER ERROR"
-// when trying to use the vtkVariantToNumericInstantiateMacro, so don't...
-//
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-# define VTK_VARIANT_NO_INSTANTIATE
-#endif
+#include "vtkVariantToNumeric.cxx"
 
 //----------------------------------------------------------------------------
 // Explicitly instantiate the ToNumeric member template to make sure
@@ -1235,11 +1217,4 @@ ostream& operator << ( ostream& os, const vtkVariant& val )
   return os;
 }
 
-//----------------------------------------------------------------------------
-// Definition of ToNumeric if not already included above:
-
-#if !defined(VTK_VARIANT_TO_NUMERIC_CXX_INCLUDED)
-# define VTK_VARIANT_TO_NUMERIC_CXX_INCLUDED
-# include "vtkVariantToNumeric.cxx"
-#endif
 #endif

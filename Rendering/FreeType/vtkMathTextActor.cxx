@@ -127,7 +127,7 @@ bool vtkMathTextActor::GetImageBoundingBox(vtkTextProperty *tprop,
         }
       }
 
-    if (!util->GetBoundingBox(tprop ,this->Input, dpi, bbox))
+    if (!util->GetBoundingBox(tprop, this->Input, dpi, bbox))
       {
       vtkErrorMacro(<<"Failed rendering text to buffer");
       return false;

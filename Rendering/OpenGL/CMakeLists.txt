@@ -204,6 +204,8 @@ else()
     if(NVCtrlLib_FOUND)
       set(VTK_USE_NVCONTROL 1)
     endif()
+  elseif (VTK_USE_OSMESA)
+    # we'll use OSMesa to load extensions.
   else()
     set(VTK_NO_EXTENSION_LOADING 1)
   endif()

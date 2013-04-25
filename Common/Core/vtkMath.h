@@ -39,6 +39,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+#include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
+
 #include <assert.h> // assert() in inline implementations.
 
 #ifndef DBL_MIN
@@ -52,8 +54,6 @@
 #else  // DBL_EPSILON
 #  define VTK_DBL_EPSILON    DBL_EPSILON
 #endif  // DBL_EPSILON
-
-#include "vtkMathConfigure.h" // For VTK_HAS_ISINF and VTK_HAS_ISNAN
 
 #ifndef VTK_DBL_EPSILON
 #  ifndef DBL_EPSILON
@@ -1240,27 +1240,37 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
   return result;
 }
 
-#if defined(VTK_HAS_ISINF)
 //-----------------------------------------------------------------------------
+#if defined(VTK_HAS_ISINF) || defined(VTK_HAS_STD_ISINF)
+#define VTK_MATH_ISINF_IS_INLINE
 inline int vtkMath::IsInf(double x)
 {
-  return (isinf(x) ? 1 : 0);
+  using namespace std; // Could be isinf() or std::isinf()
+  return (isinf(x) != 0); // Force conversion to bool
 }
 #endif
 
-#if defined(VTK_HAS_ISNAN)
 //-----------------------------------------------------------------------------
+#if defined(VTK_HAS_ISNAN) || defined(VTK_HAS_STD_ISNAN)
+#define VTK_MATH_ISNAN_IS_INLINE
 inline int vtkMath::IsNan(double x)
 {
-  return (isnan(x) ? 1 : 0);
+  using namespace std; // Could be isnan() or std::isnan()
+  return (isnan(x) != 0); // Force conversion to bool
 }
 #endif
 
-#if defined(VTK_HAS_ISFINITE)
 //-----------------------------------------------------------------------------
+#if defined(VTK_HAS_ISFINITE) || defined(VTK_HAS_STD_ISFINITE) || defined(VTK_HAS_FINITE)
+#define VTK_MATH_ISFINITE_IS_INLINE
 inline bool vtkMath::IsFinite(double x)
 {
-  return (isfinite(x) ? true : false);
+#if defined(VTK_HAS_ISFINITE) || defined(VTK_HAS_STD_ISFINITE)
+  using namespace std; // Could be isfinite() or std::isfinite()
+  return (isfinite(x) != 0); // Force conversion to bool
+#else
+  return (finite(x) != 0); // Force conversion to bool
+#endif
 }
 #endif
 

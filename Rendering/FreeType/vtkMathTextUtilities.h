@@ -27,6 +27,8 @@
 class vtkImageData;
 class vtkPath;
 class vtkTextProperty;
+class vtkTextActor;
+class vtkViewport;
 
 //----------------------------------------------------------------------------
 // Singleton cleanup

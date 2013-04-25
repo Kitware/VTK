@@ -241,39 +241,55 @@ public:
     *
     * Returns the index of \a value in the list of annotations.
     */
-  virtual vtkIdType SetAnnotation( vtkVariant value, vtkStdString annotation );
+  virtual vtkIdType SetAnnotation(vtkVariant value, vtkStdString annotation);
 
   /// This variant of \a SetAnnotation accepts the value as a string so ParaView can treat annotations as string vector arrays.
-  virtual vtkIdType SetAnnotation( vtkStdString value, vtkStdString annotation );
+  virtual vtkIdType SetAnnotation(vtkStdString value, vtkStdString annotation);
 
   /// Return the annotated value at a particular index in the list of annotations.
   vtkIdType GetNumberOfAnnotatedValues();
 
   /// Return the annotated value at a particular index in the list of annotations.
-  vtkVariant GetAnnotatedValue( vtkIdType idx );
+  vtkVariant GetAnnotatedValue(vtkIdType idx);
 
   /// Return the annotation at a particular index in the list of annotations.
-  vtkStdString GetAnnotation( vtkIdType idx );
+  vtkStdString GetAnnotation(vtkIdType idx);
+
+  /// Obtain the color associated with a particular annotated value (or NanColor if unmatched).
+  virtual void GetAnnotationColor(const vtkVariant& val, double rgba[4]);
 
   /// Return the index of the given value in the list of annotated values (or -1 if not present).
   vtkIdType GetAnnotatedValueIndex( vtkVariant val );
 
   /// Look up an index into the array of annotations given a value. Does no pointer checks. Returns -1 when \a val not present.
-  vtkIdType GetAnnotatedValueIndexInternal( vtkVariant& val );
+  vtkIdType GetAnnotatedValueIndexInternal(vtkVariant& val);
+
+  /** Get the "indexed color" assigned to an index.
+   *
+   * The index is used in \a IndexedLookup mode to assign colors to annotations (in the order
+   * the annotations were set).
+   * Subclasses must implement this and interpret how to treat the index.
+   * vtkLookupTable simply returns GetTableValue(\a index % \a this->GetNumberOfTableValues()).
+   * vtkColorTransferFunction returns the color assocated with node \a index % \a this->GetSize().
+   *
+   * Note that implementations *must* set the opacity (alpha) component of the color, even if they
+   * do not provide opacity values in their colormaps. In that case, alpha = 1 should be used.
+   */
+  virtual void GetIndexedColor(vtkIdType i, double rgba[4]);
 
   /**\brief Remove an existing entry from the list of annotated values.
     *
     * True is returned when the entry was actually removed (i.e., it existed before the call).
     * Otherwise, false is returned.
     */
-  virtual bool RemoveAnnotation( vtkVariant value );
+  virtual bool RemoveAnnotation(vtkVariant value);
 
   /// Remove all existing values and their annotations.
   virtual void ResetAnnotations();
 
   // Description:
   // Set/get whether the lookup table is for categorical or ordinal data.
-  // The default is ordinal data and values not present in the lookup table
+  // The default is ordinal data; values not present in the lookup table
   // will be assigned an interpolated color.
   // When categorical data is present, only values in the lookup table will be
   // considered valid; all other values will be assigned \a NanColor.

@@ -145,7 +145,7 @@ void vtkUniformGridAMR::SetDataSet(
 {
   if(!grid)
     {
-    return; //NULL gird, nothing to do
+    return; //NULL grid, nothing to do
     }
   if(level>=this->GetNumberOfLevels() || idx >=this->GetNumberOfDataSets(level))
     {

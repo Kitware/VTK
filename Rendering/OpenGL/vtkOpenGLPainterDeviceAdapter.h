@@ -45,7 +45,7 @@
 
 // To switch off deprecated warning about
 // vtkPainterDeviceAdapter::MakeVertexEmphasisWithStencilCheck
-#if defined(_MSC_VER) && _MSC_VER >= 1300
+#if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable:4996)
 #endif
@@ -174,7 +174,7 @@ private:
   void operator=(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
 };
 
-#if defined(_MSC_VER) && _MSC_VER >= 1300
+#if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
 

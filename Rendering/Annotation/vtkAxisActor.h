@@ -416,6 +416,14 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkSetMacro(AxisOnOrigin,int);
   vtkGetMacro(AxisOnOrigin,int);
 
+  // Description:
+  // Set/Get the offsets used to position texts.
+  vtkSetMacro(LabelOffset, double);
+  vtkGetMacro(LabelOffset, double);
+  vtkSetMacro(TitleOffset, double);
+  vtkGetMacro(TitleOffset, double);
+  vtkSetMacro(ScreenSize, double);
+  vtkGetMacro(ScreenSize, double);
 
  protected:
   vtkAxisActor();
@@ -582,7 +590,12 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 
   double	      LastMinDisplayCoordinate[3];
   double	      LastMaxDisplayCoordinate[3];
-};
 
+  // Description:
+  // Offsets used to position text.
+  double ScreenSize;
+  double LabelOffset;
+  double TitleOffset;
+};
 
 #endif

@@ -20,6 +20,7 @@
 #include "vtkStructuredGridGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -27,6 +28,7 @@
 #include "vtkScalarBarRepresentation.h"
 #include "vtkScalarBarActor.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTextProperty.h"
 
 #include "vtkCommand.h"
 #include "vtkLookupTable.h"
@@ -393,6 +395,11 @@ public:
         this->Lookup->SetIndexedLookup( ! this->Lookup->GetIndexedLookup() );
         cout << "Index mode " << ( this->Lookup->GetIndexedLookup() ? "ON" : "OFF" ) << "\n";
         }
+      else if ( ri->GetKeySym()[0] == 'd' )
+        {
+        this->ScalarBar->SetDrawBackground( ! this->ScalarBar->GetDrawBackground() );
+        cout << "Background " << ( this->ScalarBar->GetDrawBackground() ? "ON" : "OFF" ) << "\n";
+        }
       else if ( ri->GetKeySym()[0] == 'k' )
         {
         this->ScalarBar->SetTextPosition(
@@ -413,6 +420,30 @@ public:
           vtkStdString prev = this->Lookup->GetAnnotation( idx );
           this->Lookup->SetAnnotation( 4.00, prev.empty() ? "No" : "" );
           }
+        }
+      else if ( ri->GetKeySym()[0] == 't' )
+        {
+        this->ScalarBar->SetDrawAnnotations(!this->ScalarBar->GetDrawAnnotations());
+        cout
+          << "Draw annotation "
+          << ( this->ScalarBar->GetDrawAnnotations() ? "ON" : "OFF" )
+          << "\n";
+        }
+      else if ( ri->GetKeySym()[0] == 'n' )
+        {
+        this->ScalarBar->SetDrawNanAnnotation(!this->ScalarBar->GetDrawNanAnnotation());
+        cout
+          << "Draw NaN annotation "
+          << ( this->ScalarBar->GetDrawNanAnnotation() ? "ON" : "OFF" )
+          << "\n";
+        }
+      else if ( ri->GetKeySym()[0] == 'l' )
+        {
+        this->ScalarBar->SetFixedAnnotationLeaderLineColor(!this->ScalarBar->GetFixedAnnotationLeaderLineColor());
+        cout
+          << "Use fixed leader line color for annotations "
+          << ( this->ScalarBar->GetFixedAnnotationLeaderLineColor() ? "YES" : "NO" )
+          << "\n";
         }
       cout.flush();
       this->RenderWindow->Render();
@@ -487,13 +518,18 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
     vtkSmartPointer<vtkScalarBarWidget>::New();
   scalarWidget->SetInteractor(iren);
   scalarWidget->GetScalarBarActor()->SetTitle("Temperature");
+  scalarWidget->GetScalarBarActor()->SetNumberOfLabels(5);
+  scalarWidget->GetScalarBarActor()->SetTextPositionToSucceedScalarBar();
+  scalarWidget->GetScalarBarActor()->DrawNanAnnotationOn();
+  scalarWidget->GetScalarBarActor()->GetBackgroundProperty()->SetColor(0.5, 0.5, 0.5);
+  //scalarWidget->GetScalarBarActor()->DrawNanAnnotationOff();
   scalarWidget->GetScalarBarActor()->SetLookupTable(outlineMapper->GetLookupTable());
 
   vtkSmartPointer<vtkLookupTable> lutBC = vtkSmartPointer<vtkLookupTable>::New();
   vtkSmartPointer<vtkScalarBarWidget> scalarWidgetB =
     vtkSmartPointer<vtkScalarBarWidget>::New();
   scalarWidgetB->SetInteractor(iren);
-  scalarWidgetB->GetScalarBarActor()->SetTitle("Density");
+  scalarWidgetB->GetScalarBarActor()->SetTitle("$\\rho [kg/m^3]$");
   scalarWidgetB->GetScalarBarActor()->SetLookupTable( lutBC );
   scalarWidgetB->GetScalarBarActor()->SetOrientationToHorizontal();
   scalarWidgetB->GetScalarBarActor()->SetTextPositionToPrecedeScalarBar();
@@ -506,10 +542,12 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
   vtkSmartPointer<vtkScalarBarWidget> scalarWidgetC =
     vtkSmartPointer<vtkScalarBarWidget>::New();
   scalarWidgetC->SetInteractor(iren);
-  scalarWidgetC->GetScalarBarActor()->SetTitle("Destiny");
+  scalarWidgetC->GetScalarBarActor()->SetTitle("Destiny, $\\sigma$");
   scalarWidgetC->GetScalarBarActor()->SetLookupTable( lutBC );
   scalarWidgetC->GetScalarBarActor()->SetOrientationToVertical();
-  //scalarWidgetC->GetScalarBarActor()->SetTextPositionToPrecedeScalarBar();
+  scalarWidgetC->GetScalarBarActor()->FixedAnnotationLeaderLineColorOn();
+  scalarWidgetC->GetScalarBarActor()->GetLabelTextProperty()->SetColor(.8, .8, .8);
+  scalarWidgetC->GetScalarBarActor()->SetTextPositionToSucceedScalarBar();
   srep = vtkScalarBarRepresentation::SafeDownCast( scalarWidgetC->GetRepresentation() );
   srep->SetPosition( 0.861806, 0.0615385 );
   srep->SetPosition2( 0.1399, 0.405351 );
@@ -541,6 +579,7 @@ int TestIndexedLookupScalarBar( int argc, char *argv[] )
   scalarWidget->GetScalarBarActor()->SetMaximumNumberOfColors( 5 * 5 );
   //cb->ScalarBar->SetAnnotationLeaderPadding( 8. );
   pal->BuildLookupTable( cb->Lookup );
+  //cb->Lookup->IndexedLookupOff();
   cb->Lookup->SetAnnotation( 5.00, "Just Wow" );
   cb->Lookup->SetAnnotation( 4.00, "Super-Special" );
   cb->Lookup->SetAnnotation( 3.00, "Amazingly Special" );

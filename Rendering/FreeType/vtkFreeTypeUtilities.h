@@ -30,6 +30,8 @@
 
 class vtkImageData;
 class vtkTextProperty;
+class vtkTextActor;
+class vtkViewport;
 
 // FreeType
 

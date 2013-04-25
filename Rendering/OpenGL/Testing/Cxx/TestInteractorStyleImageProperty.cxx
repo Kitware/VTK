@@ -108,15 +108,14 @@ int TestInteractorStyleImagePropertyInternal(int argc, char *argv[], int sliceOr
   //the chain of methods to set the ImageProperty.
   style->OnLeftButtonDown();
 
-  int retVal = ((style->GetCurrentImageProperty()) ? 1:0);
-
-  if (retVal)
+  if (!style->GetCurrentImageProperty())
     {
     cerr << "TestInteractorStyleImagePropertyInternal failed with sliceOrder parameter " << sliceOrder << "." << std::endl;
+    return 1;
     }
 
-  //retVal is 0 if property not found. Returns 1 on failure, 0 on success.
-  return !retVal;
+  // Returns 1 on failure, 0 on success.
+  return 0;
 }
 
 int TestInteractorStyleImageProperty(int argc, char *argv[])

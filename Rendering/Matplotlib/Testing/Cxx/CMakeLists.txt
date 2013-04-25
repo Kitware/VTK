@@ -32,6 +32,7 @@ if(MATPLOTLIB_FOUND)
       TestRenderString.cxx
       TestStringToPath.cxx
       TestIndexedLookupScalarBar.cxx
+      TestScalarBarCombinatorics.cxx
       ${GL2PSTests}
       )
   endif()

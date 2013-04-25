@@ -1282,16 +1282,6 @@ int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess,
   return numTetraCreated;
 }
 
-// With Visual Studio 7.0 in release mode, we have to disable the global
-// optimization flag for compiling vtkTetraTile::Refine
-// Here we restore the flag value (it does not mean we put the flag to
-// on, the pragma syntax is confusing for that)
-#ifdef _MSC_VER
-# if _MSC_VER==1300
-#  pragma optimize("g",on)
-# endif
-#endif
-
 //-----------------------------------------------------------------------------
 // Create the tessellator helper with a default of 0.25 for threshold
 //

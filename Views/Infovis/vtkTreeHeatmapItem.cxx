@@ -171,6 +171,11 @@ vtkTable * vtkTreeHeatmapItem::GetTable()
 }
 
 //-----------------------------------------------------------------------------
+vtkTree * vtkTreeHeatmapItem::GetPrunedTree()
+{
+  return this->PrunedTree;
+}
+//-----------------------------------------------------------------------------
 bool vtkTreeHeatmapItem::Paint(vtkContext2D *painter)
 {
   if (this->Tree->GetNumberOfVertices() == 0 &&
@@ -583,6 +588,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     // color this portion of the tree based on the target node
     if (this->ColorTree)
       {
+      painter->GetPen()->SetWidth(2.0);
       colorKey = this->TreeColorArray->GetValue(target);
       this->TreeLookupTable->GetColor(colorKey, color);
       painter->GetPen()->SetColorF(color[0], color[1], color[2]);
@@ -602,8 +608,9 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
 
     if (this->ColorTree)
       {
-      // revert to drawing black lines by default
+      // revert to drawing thin black lines by default
       painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
+      painter->GetPen()->SetWidth(1.0);
       }
     }
 
@@ -696,6 +703,10 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     // find the row in the table that corresponds to this vertex
     std::string nodeName = nodeNames->GetValue(vertex);
     vtkIdType tableRow = tableNames->LookupValue(nodeName);
+    if (tableRow < 0)
+      {
+      continue;
+      }
 
     this->RowMap[currentRow] = tableRow;
 
@@ -1387,12 +1398,47 @@ void vtkTreeHeatmapItem::SetTreeColorArray(const char *arrayName)
     return;
     }
 
-  double range[2];
-  this->TreeColorArray->GetValueRange(range, 0);
+  double minDifference = VTK_DOUBLE_MAX;
+  double maxDifference = VTK_DOUBLE_MIN;
+  for (vtkIdType id = 0; id < this->TreeColorArray->GetNumberOfTuples(); ++id)
+    {
+    double d = this->TreeColorArray->GetValue(id);
+    if (d > maxDifference)
+      {
+      maxDifference = d;
+      }
+    if (d < minDifference)
+      {
+      minDifference = d;
+      }
+    }
 
-  this->TreeLookupTable->SetNumberOfTableValues(256);
-  this->TreeLookupTable->SetRange(range[0], range[1]);
-  this->TreeLookupTable->Build();
+  // how much we vary the colors from step to step
+  double inc = 0.06;
+
+  // setup the color lookup table.  It will contain 10 shades of red,
+  // 10 shades of blue, and a grey neutral value.
+
+  this->TreeLookupTable->SetNumberOfTableValues(21);
+  if (abs(maxDifference) > abs(minDifference))
+    {
+    this->TreeLookupTable->SetRange(-maxDifference, maxDifference);
+    }
+  else
+    {
+    this->TreeLookupTable->SetRange(minDifference, -minDifference);
+    }
+  for (vtkIdType i = 0; i < 10; ++i)
+    {
+    this->TreeLookupTable->SetTableValue(i,
+      1.0, 0.25 + inc * i, 0.25 + inc * i);
+    }
+  this->TreeLookupTable->SetTableValue(10, 0.60, 0.60, 0.60);
+  for (vtkIdType i = 11; i < 21; ++i)
+    {
+    this->TreeLookupTable->SetTableValue(i,
+      0.85 - inc * (i - 10), 0.85 - inc * (i - 10), 1.0);
+    }
 
   this->ColorTree = true;
 }

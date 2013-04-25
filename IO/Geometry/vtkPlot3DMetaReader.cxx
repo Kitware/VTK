@@ -45,6 +45,7 @@ struct Plot3DTimeStep
   double Time;
   std::string XYZFile;
   std::string QFile;
+  std::string FunctionFile;
 };
 
 struct vtkPlot3DMetaReaderInternals
@@ -321,6 +322,13 @@ void vtkPlot3DMetaReader::SetFileNames(Json::Value* val)
                                                     qfile);
       }
 
+    if (astep.isMember("function"))
+      {
+      std::string functionfile = astep["function"].asString();
+      aTime.FunctionFile = this->Internal->ResolveFileName(this->FileName,
+                                                           functionfile);
+      }
+
     if (doAdd)
       {
       this->Internal->TimeSteps.push_back(aTime);
@@ -467,6 +475,16 @@ int vtkPlot3DMetaReader::RequestData(
     else
       {
       this->Reader->SetQFileName(0);
+      }
+    const char* fname =
+      this->Internal->TimeSteps[updateTime].FunctionFile.c_str();
+    if (strlen(fname) > 0)
+      {
+      this->Reader->SetFunctionFileName(fname);
+      }
+    else
+      {
+      this->Reader->SetFunctionFileName(0);
       }
     this->Reader->Update();
     output->ShallowCopy(this->Reader->GetOutput());
