@@ -382,12 +382,12 @@ void vtkHyperOctreeSurfaceFilter::GenerateQuads(double bounds[4],
 
 // For each face, give the sequence of for point id, counterclockwise.
 // [face][ptId]
-int Quads[6][4]={{0,4,6,2}, // -x
-                 {3,7,5,1}, // +x
-                 {0,1,5,4}, // -y
-                 {2,6,7,3}, // +y
-                 {0,2,3,1}, // -z
-                 {4,5,7,6}}; // +z
+static const int Quads[6][4]={{0,4,6,2}, // -x
+                              {3,7,5,1}, // +x
+                              {0,1,5,4}, // -y
+                              {2,6,7,3}, // +y
+                              {0,2,3,1}, // -z
+                              {4,5,7,6}}; // +z
 
 //-----------------------------------------------------------------------------
 void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],

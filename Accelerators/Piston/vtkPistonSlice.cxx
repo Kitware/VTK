@@ -83,7 +83,7 @@ int vtkPistonSlice::ComputePipelineMTime(
 }
 
 //----------------------------------------------------------------------------
-int vtkPistonSlice::RequestData(vtkInformation *request,
+int vtkPistonSlice::RequestData(vtkInformation *vtkNotUsed(request),
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector)
 {

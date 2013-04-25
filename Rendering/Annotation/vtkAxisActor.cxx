@@ -697,8 +697,8 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
     }
 }
 
-int vtkAxisActorMultiplierTable1[4] = { -1, -1, 1,  1};
-int vtkAxisActorMultiplierTable2[4] = { -1,  1, 1, -1};
+static const int vtkAxisActorMultiplierTable1[4] = { -1, -1, 1,  1};
+static const int vtkAxisActorMultiplierTable2[4] = { -1,  1, 1, -1};
 
 // *******************************************************************
 // Determine and set scale factor and position for labels.

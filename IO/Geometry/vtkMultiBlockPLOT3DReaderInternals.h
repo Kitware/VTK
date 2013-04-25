@@ -33,6 +33,8 @@ struct vtkMultiBlockPLOT3DReaderInternals
   int Precision; // in bytes
   int IBlanking;
 
+  bool NeedToCheckXYZFile;
+
   vtkMultiBlockPLOT3DReaderInternals() :
     BinaryFile(1),
     ByteOrder(vtkMultiBlockPLOT3DReader::FILE_BIG_ENDIAN),
@@ -40,7 +42,8 @@ struct vtkMultiBlockPLOT3DReaderInternals
     MultiGrid(0),
     NumberOfDimensions(3),
     Precision(4),
-    IBlanking(0)
+    IBlanking(0),
+    NeedToCheckXYZFile(true)
     {
     }
 

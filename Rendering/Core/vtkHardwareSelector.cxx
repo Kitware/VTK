@@ -34,6 +34,39 @@
 #include <map>
 
 #define ID_OFFSET 1
+
+//----------------------------------------------------------------------------
+namespace
+{
+  class PixelInformationComparator
+    {
+  public:
+    bool operator() (const vtkHardwareSelector::PixelInformation& a,
+      const vtkHardwareSelector::PixelInformation& b) const
+      {
+      if (a.Valid != b.Valid)
+        {
+        return a.Valid < b.Valid;
+        }
+      if (a.ProcessID != b.ProcessID)
+        {
+        return a.ProcessID < b.ProcessID;
+        }
+      if (a.Prop != b.Prop)
+        {
+        return a.Prop < b.Prop;
+        }
+      if (a.PropID != b.PropID)
+        {
+        return a.PropID < b.PropID;
+        }
+      return a.CompositeID < b.CompositeID;
+
+      // We don't consider AttributeID in this comparison
+      }
+    };
+}
+
 class vtkHardwareSelector::vtkInternals
 {
 public:
@@ -45,6 +78,103 @@ public:
   int OriginalMultisample;
   int OriginalLighting;
   int OriginalBlending;
+
+  typedef std::map<PixelInformation, std::set<vtkIdType>,
+    PixelInformationComparator> MapOfAttributeIds;
+
+  typedef std::map<PixelInformation, vtkIdType,
+    PixelInformationComparator> PixelCountType;
+
+  //-----------------------------------------------------------------------------
+  vtkSelection* ConvertSelection(
+    int fieldassociation, const MapOfAttributeIds& dataMap,
+    const PixelCountType& pixelCounts)
+    {
+    vtkSelection* sel = vtkSelection::New();
+
+    MapOfAttributeIds::const_iterator iter;
+    for (iter = dataMap.begin(); iter != dataMap.end(); ++iter)
+      {
+      const PixelInformation &key = iter->first;
+      const std::set<vtkIdType> &id_values = iter->second;
+      vtkSelectionNode* child = vtkSelectionNode::New();
+      child->SetContentType(vtkSelectionNode::INDICES);
+      switch (fieldassociation)
+        {
+        case vtkDataObject::FIELD_ASSOCIATION_CELLS:
+          child->SetFieldType(vtkSelectionNode::CELL);
+          break;
+
+        case vtkDataObject::FIELD_ASSOCIATION_POINTS:
+          child->SetFieldType(vtkSelectionNode::POINT);
+          break;
+        }
+      child->GetProperties()->Set(vtkSelectionNode::PROP_ID(), key.PropID);
+      child->GetProperties()->Set(vtkSelectionNode::PROP(), key.Prop);
+      PixelCountType::const_iterator pit = pixelCounts.find(key);
+      child->GetProperties()->Set(vtkSelectionNode::PIXEL_COUNT(), pit->second);
+      if (key.ProcessID >= 0)
+        {
+        child->GetProperties()->Set(vtkSelectionNode::PROCESS_ID(),
+          key.ProcessID);
+        }
+
+      child->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(),
+        key.CompositeID);
+
+      vtkIdTypeArray* ids = vtkIdTypeArray::New();
+      ids->SetName("SelectedIds");
+      ids->SetNumberOfComponents(1);
+      ids->SetNumberOfTuples(iter->second.size());
+      vtkIdType* ptr = ids->GetPointer(0);
+      std::set<vtkIdType>::const_iterator idIter;
+      vtkIdType cc=0;
+      for (idIter = id_values.begin(); idIter != id_values.end(); ++idIter, ++cc)
+        {
+        ptr[cc] = *idIter;
+        }
+      child->SetSelectionList(ids);
+      ids->FastDelete();
+      sel->AddNode(child);
+      child->FastDelete();
+      }
+
+    return sel;
+    }
+
+  //-----------------------------------------------------------------------------
+  bool PixelInsidePolygon(float x, float y, int* polygonPoints, vtkIdType count)
+    {
+    // http://en.wikipedia.org/wiki/Point_in_polygon
+    // RayCasting method shooting the ray along the x axis, using float
+    bool inside = false;
+    float xintersection;
+    for(vtkIdType i=0; i<count; i+=2)
+      {
+      float p1X = polygonPoints[i];
+      float p1Y = polygonPoints[i+1];
+      float p2X = polygonPoints[(i+2) % count];
+      float p2Y = polygonPoints[(i+3) % count];
+
+      if (y > std::min(p1Y, p2Y) &&
+        y <= std::max(p1Y,p2Y) &&
+        p1Y != p2Y)
+        {
+        if (x <= std::max(p1X, p2X) )
+          {
+          xintersection = (y - p1Y)*(p2X - p1X)/(p2Y - p1Y) + p1X;
+          if ( p1X == p2X || x <= xintersection)
+            {
+            // each time intersect, toggle inside
+            inside = !inside;
+            }
+          }
+        }
+      }
+
+    return inside;
+    }
+
 };
 
 vtkStandardNewMacro(vtkHardwareSelector);
@@ -591,62 +721,12 @@ bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
 #endif
 
 //----------------------------------------------------------------------------
-namespace
-{
-  class PixelInformationComparator
-    {
-  public:
-    bool operator() (const vtkHardwareSelector::PixelInformation& a,
-      const vtkHardwareSelector::PixelInformation& b) const
-      {
-      if (a.Valid != b.Valid)
-        {
-        return a.Valid < b.Valid;
-        }
-      if (a.ProcessID != b.ProcessID)
-        {
-        return a.ProcessID < b.ProcessID;
-        }
-      if (a.Prop != b.Prop)
-        {
-        return a.Prop < b.Prop;
-        }
-      if (a.PropID != b.PropID)
-        {
-        return a.PropID < b.PropID;
-        }
-      return a.CompositeID < b.CompositeID;
-
-      // We don't consider AttributeID in this comparison
-      }
-    };
-}
-
-//----------------------------------------------------------------------------
 vtkSelection* vtkHardwareSelector::GenerateSelection(
   unsigned int x1, unsigned int y1,
   unsigned int x2, unsigned int y2)
 {
-  int extent[6] = { static_cast<int>(x1),
-                    static_cast<int>(x2),
-                    static_cast<int>(y1),
-                    static_cast<int>(y2),
-                    0,
-                    0};
-  int whole_extent[6] = {static_cast<int>(this->Area[0]),
-                         static_cast<int>(this->Area[2]),
-                         static_cast<int>(this->Area[1]),
-                         static_cast<int>(this->Area[3]),
-                         0,
-                         0};
-  vtkStructuredExtent::Clamp(extent, whole_extent);
-
-  typedef std::map<PixelInformation, std::set<vtkIdType>,
-          PixelInformationComparator> MapOfAttributeIds;
-  MapOfAttributeIds dataMap;
-
-  typedef std::map<PixelInformation, vtkIdType, PixelInformationComparator> PixelCountType;
-  PixelCountType pixelCounts;
+  vtkInternals::MapOfAttributeIds dataMap;
+  vtkInternals::PixelCountType pixelCounts;
 
   for (unsigned int yy = y1; yy <= y2; yy++)
     {
@@ -661,56 +741,51 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
         }
       }
     }
+  return this->Internals->ConvertSelection(
+    this->FieldAssociation, dataMap, pixelCounts);
+}
 
-  vtkSelection* sel = vtkSelection::New();
-
-  MapOfAttributeIds::iterator iter;
-  for (iter = dataMap.begin(); iter != dataMap.end(); ++iter)
+//----------------------------------------------------------------------------
+vtkSelection* vtkHardwareSelector::GeneratePolygonSelection(
+  int* polygonPoints, vtkIdType count)
+{
+  // we need at least three points (x,y) for a polygon selection.
+  if(!polygonPoints || count < 6)
     {
-    const PixelInformation &key = iter->first;
-    std::set<vtkIdType> &id_values = iter->second;
-    vtkSelectionNode* child = vtkSelectionNode::New();
-    child->SetContentType(vtkSelectionNode::INDICES);
-    switch (this->FieldAssociation)
-      {
-    case vtkDataObject::FIELD_ASSOCIATION_CELLS:
-      child->SetFieldType(vtkSelectionNode::CELL);
-      break;
-
-    case vtkDataObject::FIELD_ASSOCIATION_POINTS:
-      child->SetFieldType(vtkSelectionNode::POINT);
-      break;
-      }
-    child->GetProperties()->Set(vtkSelectionNode::PROP_ID(), key.PropID);
-    child->GetProperties()->Set(vtkSelectionNode::PROP(), key.Prop);
-    child->GetProperties()->Set(vtkSelectionNode::PIXEL_COUNT(), pixelCounts[key]);
-    if (key.ProcessID >= 0)
-      {
-      child->GetProperties()->Set(vtkSelectionNode::PROCESS_ID(),
-        key.ProcessID);
-      }
-
-    child->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(),
-      key.CompositeID);
-
-    vtkIdTypeArray* ids = vtkIdTypeArray::New();
-    ids->SetName("SelectedIds");
-    ids->SetNumberOfComponents(1);
-    ids->SetNumberOfTuples(iter->second.size());
-    vtkIdType* ptr = ids->GetPointer(0);
-    std::set<vtkIdType>::iterator idIter;
-    vtkIdType cc=0;
-    for (idIter = id_values.begin(); idIter != id_values.end(); ++idIter, ++cc)
-      {
-      ptr[cc] = *idIter;
-      }
-    child->SetSelectionList(ids);
-    ids->FastDelete();
-    sel->AddNode(child);
-    child->FastDelete();
+    return NULL;
     }
 
-  return sel;
+  int x1=VTK_INT_MAX, x2=VTK_INT_MIN, y1=VTK_INT_MAX, y2=VTK_INT_MIN;
+  // Get polygon bounds, so that we only check pixels within the bounds
+  for(vtkIdType i=0; i<count; i+=2)
+    {
+    x1 = std::min(polygonPoints[i], x1);
+    x2 = std::max(polygonPoints[i], x2);
+    y1 = std::min(polygonPoints[i+1], y1);
+    y2 = std::max(polygonPoints[i+1], y2);
+    }
+
+  vtkInternals::MapOfAttributeIds dataMap;
+  vtkInternals::PixelCountType pixelCounts;
+  for (int yy = y1; yy <= y2; yy++)
+    {
+    for (int xx = x1; xx <= x2; xx++)
+      {
+      if(this->Internals->PixelInsidePolygon(
+        xx, yy, polygonPoints, count))
+        {
+        unsigned int pos[2] = {xx, yy};
+        PixelInformation info = this->GetPixelInformation(pos, 0);
+        if (info.Valid)
+          {
+          dataMap[info].insert(info.AttributeID);
+          pixelCounts[info]++;
+          }
+        }
+      }
+    }
+  return this->Internals->ConvertSelection(
+    this->FieldAssociation, dataMap, pixelCounts);
 }
 
 //----------------------------------------------------------------------------

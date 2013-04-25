@@ -6,6 +6,9 @@ set(MyTests
   BoxClipTriangulateAndInterpolate.cxx
   TestBooleanOperationPolyDataFilter.cxx
   TestBooleanOperationPolyDataFilter2.cxx
+  TestContourTriangulator.cxx
+  TestContourTriangulatorCutter.cxx
+  TestContourTriangulatorMarching.cxx
   TestDensifyPolyData.cxx
   TestDistancePolyDataFilter.cxx
   TestImageDataToPointSet.cxx

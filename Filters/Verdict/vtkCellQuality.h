@@ -73,7 +73,7 @@ class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
     STRETCH,
     TAPER,
     VOLUME,
-    WARPAGE,
+    WARPAGE
     };
   //ETX
 

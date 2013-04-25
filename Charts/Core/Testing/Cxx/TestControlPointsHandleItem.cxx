@@ -31,7 +31,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkCompositeTransferFunctionItem.h"
 
-char TestControlPointsHandleItemLog[] =
+static char TestControlPointsHandleItemLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "TimerEvent 0 0 0 0 0 0 0\n"

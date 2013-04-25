@@ -18,6 +18,10 @@
 // Cursors are created by the hyper3TREE.
 // .SECTION See Also
 // vtkDataObject vtkFieldData vtkHyper3TREEAlgorithm
+// .SECTION Thanks
+// This class was written by Philippe Pebay, Joachim Pouderoux and Charles Law,
+// Kitware 2013
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeCursor_h
 #define __vtkHyperTreeCursor_h
@@ -45,6 +49,8 @@ const int VTK_2TREE_CHILD_NE=VTK_3TREE_CHILD_ZMIN_YMAX_XMAX;
 const int VTK_1TREE_TREE_CHILD_LEFT=VTK_2TREE_CHILD_SW;
 const int VTK_1TREE_TREE_CHILD_RIGHT=VTK_2TREE_CHILD_SE;
 
+class vtkHyperTree;
+
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeCursor : public vtkObject
 {
 public:
@@ -52,9 +58,17 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Return the HyperTree on which the cursor points to.
+  virtual vtkHyperTree* GetTree() = 0;
+
+  // Description:
   // Return the index of the current leaf in the data arrays.
   // \pre is_leaf: IsLeaf()
   virtual vtkIdType GetLeafId() = 0;
+
+  // Description:
+  // Return the index of the current node in the data arrays.
+  virtual vtkIdType GetNodeId() = 0;
 
   // Description:
   // Is the node pointed by the cursor a leaf?

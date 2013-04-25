@@ -44,7 +44,7 @@ public:
 //BTX
   enum {
     POLYGON = 0,
-    SPLINE = 1,
+    SPLINE = 1
   };
 //ETX
 

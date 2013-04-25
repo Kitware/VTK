@@ -60,7 +60,7 @@ public:
 };
 
 // -----------------------------------------------------------------------
-char PickFollowerLog[] =
+static char PickFollowerLog[] =
   "# StreamVersion 1\n"
   "RenderEvent 0 0 0 0 0 0 0\n"
   "EnterEvent 123 298 0 0 0 0 0\n"

@@ -50,7 +50,7 @@ vtkIVExporter::~vtkIVExporter()
 }
 
 static char indent[256];
-int indent_now = 0;
+static int indent_now = 0;
 #define VTK_INDENT_MORE { indent[indent_now] = ' '; \
                                           indent_now += 4; \
                                       indent[indent_now] = 0; }

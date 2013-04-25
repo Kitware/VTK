@@ -33,7 +33,9 @@
 // NB: For ease of legibility, white spaces are allowed and ignored.
 //
 // .SECTION Thanks
-// This class was written by Philippe Pebay and Joachim Pouderoux, Kitware SAS 2012
+// This class was written by Philippe Pebay and Joachim Pouderoux,
+// Kitware 2013
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGridSource_h
 #define __vtkHyperTreeGridSource_h
@@ -187,8 +189,7 @@ protected:
   // Initialize tree grid from descriptor and call subdivide if needed
   void InitTreeFromDescriptor( vtkHyperTreeCursor* cursor,
                                 int treeIdx,
-                                int idx[3],
-                                int cellIdOffset );
+                                int idx[3] );
 
   // Description:
   // Subdivide grid from descriptor string when it is to be used
@@ -197,7 +198,6 @@ protected:
                                 int treeIdx,
                                 int childIdx,
                                 int idx[3],
-                                int cellIdOffset,
                                 int parentPos );
 
   // Description:
@@ -207,7 +207,6 @@ protected:
                                 int treeIdx,
                                 int childIdx,
                                 int idx[3],
-                                int cellIdOffset,
                                 int parentPos );
 
   // Description:
@@ -216,7 +215,6 @@ protected:
                              unsigned int level,
                              int treeIdx,
                              int idx[3],
-                             int cellIdOffset,
                              double origin[3],
                              double size[3] );
 
@@ -247,9 +245,10 @@ protected:
   vtkBitArray* DescriptorBits;
   vtkBitArray* MaterialMaskBits;
   std::vector<vtkIdType> LevelBitsIndex;
+  std::vector<vtkIdType> LevelBitsIndexCnt;
 
   vtkIdTypeArray* LevelZeroMaterialIndex;
-  std::map<vtkIdType, vtkIdType>* LevelZeroMaterialMap;
+  std::map<vtkIdType, vtkIdType> LevelZeroMaterialMap;
 
   std::vector<int> LevelCounters;
 

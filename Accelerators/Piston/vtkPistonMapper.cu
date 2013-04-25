@@ -49,12 +49,12 @@ struct color_map : thrust::unary_function<ValueType, float3>
     float *table;
     const int numberOfChanels;
 
-    color_map(float *table, int arrSize, int noOfChanels,
+    color_map(float *rtable, int arrSize, int noOfChanels,
       ValueType rMin, ValueType rMax) :
       min(rMin),
       max(rMax),
       size((arrSize / noOfChanels) - 1),
-      table(table),
+      table(rtable),
       numberOfChanels(noOfChanels)
       {
       }

@@ -145,9 +145,9 @@ int vtkPistonAlgorithm::RequestUpdateExtent(
 
 //----------------------------------------------------------------------------
 int vtkPistonAlgorithm::RequestData(
-  vtkInformation* request,
+  vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* outputVector)
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
   return 1;

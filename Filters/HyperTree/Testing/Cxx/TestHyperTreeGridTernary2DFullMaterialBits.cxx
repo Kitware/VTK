@@ -34,6 +34,9 @@
 #include "vtkIdTypeArray.h"
 #include "vtkPointData.h"
 #include "vtkTimerLog.h"
+#include "vtkScalarBarActor.h"
+#include "vtkTextProperty.h"
+#include "vtkProperty2D.h"
 #include <sstream>
 
 void GenerateDescriptorAndMaterial(int depth, int sx, int sy, int sz, int branch,
@@ -147,20 +150,26 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   timer->StartTimer();
   htGrid->Update();
   timer->StopTimer();
+  vtkIdType nbCells = htGrid->GetOutput()->GetNumberOfCells();
   cout << " Done in " << timer->GetElapsedTime() << "s" << endl;
   cout << "#pts " << htGrid->GetOutput()->GetNumberOfPoints() << endl;
   timer->StartTimer();
-  vtkIdType nbCells = htGrid->GetOutput()->GetNumberOfCells();
   timer->StopTimer();
   cout << "#cells " << nbCells << endl;
 
-  /*vtkDataArray* depthArray = htGrid->GetOutput()->GetPointData()->GetArray( "Depth" );
-  for ( int i = 0; i < htGrid->GetOutput()->GetNumberOfPoints(); i++ )
+  cout << "HTG takes " << htGrid->GetOutput()->GetActualMemorySize() << "KB in memory." << endl;
+
+  // Prepare an array of ids
+  vtkNew<vtkIdTypeArray> idArray;
+  idArray->SetName( "Ids" );
+  idArray->SetNumberOfComponents( 1 );
+  vtkIdType nbPoints = htGrid->GetOutput()->GetNumberOfPoints();
+  idArray->SetNumberOfValues( nbPoints );
+  for ( vtkIdType i = 0; i < nbPoints; ++ i )
     {
-    double x[3];
-    htGrid->GetOutput()->GetPoint( i, x );
-    cout << "pt " << i << " : " << x[0] << ", " << x[1] << " : " << depthArray->GetTuple1( i ) << endl;
-    }*/
+    idArray->SetValue( i, i );
+    }
+  htGrid->GetOutput()->GetPointData()->SetScalars( idArray.GetPointer() );
 
   // Geometry
   cout << "Constructing geometry..." << endl;
@@ -195,6 +204,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   actor2->SetMapper( mapper2.GetPointer() );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
+
   vtkNew<vtkActor> actor3;
   actor3->SetMapper( mapper3.GetPointer() );
   actor3->GetProperty()->SetRepresentationToWireframe();
@@ -204,6 +214,26 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   actor4->GetProperty()->SetRepresentationToPoints();
   actor4->GetProperty()->SetPointSize(4);
   actor4->GetProperty()->SetColor( 0., 1., 0. );
+
+  vtkNew<vtkScalarBarActor> scalarBar;
+  scalarBar->SetLookupTable(mapper1->GetLookupTable());
+  scalarBar->SetLabelFormat("%.0f");
+  scalarBar->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+  scalarBar->GetPositionCoordinate()->SetValue( .80, .32 );
+  scalarBar->SetTitle( "  id  " );
+  scalarBar->SetNumberOfLabels( 4 );
+  scalarBar->SetWidth( 0.15 );
+  scalarBar->SetHeight( 0.4 );
+  scalarBar->SetTextPad( 4 );
+  scalarBar->SetMaximumWidthInPixels( 60 );
+  scalarBar->SetMaximumHeightInPixels( 200 );
+  scalarBar->SetTextPositionToPrecedeScalarBar();
+  scalarBar->GetTitleTextProperty()->SetColor( .4, .4, .4 );
+  scalarBar->GetLabelTextProperty()->SetColor( .4, .4, .4 );
+  scalarBar->SetDrawFrame( 1 );
+  scalarBar->GetFrameProperty()->SetColor( .4, .4, .4 );
+  scalarBar->SetDrawBackground( 1 );
+  scalarBar->GetBackgroundProperty()->SetColor( 1., 1., 1. );
 
   // Camera
   double bd[6];
@@ -221,6 +251,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   renderer->AddActor( actor2.GetPointer() );
   renderer->AddActor( actor3.GetPointer() );
   renderer->AddActor( actor4.GetPointer() );
+  renderer->AddActor2D( scalarBar.GetPointer() );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;

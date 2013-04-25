@@ -47,7 +47,7 @@ public:
   enum {
     Linear = 0,
     Log = 1,
-    Sqrt = 2,
+    Sqrt = 2
     };
 
   // Description:

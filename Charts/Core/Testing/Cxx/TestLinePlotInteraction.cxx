@@ -27,7 +27,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkNew.h"
 
-char TestLinePlotInteractionLog[] =
+static char TestLinePlotInteractionLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 198 5 0 0 0 0 0\n"

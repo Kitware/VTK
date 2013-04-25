@@ -4,8 +4,6 @@ set(Module_SRCS
   vtkFreeTypeTools.cxx
   vtkMathTextFreeTypeTextRenderer.cxx
   vtkMathTextUtilities.cxx
-  vtkMathTextActor.cxx
-  vtkMathTextActor3D.cxx
   vtkTextActor3D.cxx
   vtkTextActor.cxx
   vtkTextRendererStringToImage.cxx
