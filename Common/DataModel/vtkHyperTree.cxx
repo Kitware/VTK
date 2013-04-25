@@ -361,7 +361,7 @@ public:
   // Public only for vtkCompactHyperTree.
   vtkIdType GetChildHistorySize()
   {
-    return this->ChildHistory.size();
+    return static_cast<vtkIdType>( this->ChildHistory.size() );
   }
 
 protected:
@@ -645,7 +645,7 @@ public:
   //---------------------------------------------------------------------------
   virtual vtkIdType GetNumberOfIndex()
   {
-    return this->LeafParent.size();
+    return static_cast<vtkIdType>( this->LeafParent.size() );
   }
 
   //---------------------------------------------------------------------------
@@ -682,7 +682,7 @@ public:
   virtual vtkIdType GetNumberOfLevels()
   {
     assert( "post: result_greater_or_equal_to_one"
-      && this->NumberOfLevels >= 1);
+      && this->NumberOfLevels >= 1 );
     return this->NumberOfLevels;
   }
 
@@ -692,7 +692,7 @@ public:
   vtkCompactHyperTreeNode<N>* GetNode( int nodeIdx )
   {
     assert( "pre: valid_range" && nodeIdx >= 0
-      && nodeIdx < this->Nodes.size() );
+      && nodeIdx < this->GetNumberOfNodes() );
     return &this->Nodes[nodeIdx];
   }
 
@@ -706,7 +706,7 @@ public:
   int GetLeafParent( int leafIdx )
   {
     assert( "pre: valid_range" && leafIdx >= 0
-      && leafIdx < this->LeafParent.size());
+      && leafIdx < this->GetNumberOfIndex() );
     assert( "post: valid_result" && this->LeafParent[leafIdx] >= 0
       && this->LeafParent[leafIdx] < this->GetNumberOfNodes() );
     return this->LeafParent[leafIdx];
@@ -732,10 +732,10 @@ public:
 
     // The leaf becomes a node and is not anymore a leaf
     cursor->SetIsLeaf( false ); // let the cursor know about that change.
-    size_t nodeIndex = cursor->GetNodeId();
+    vtkIdType nodeIndex = cursor->GetNodeId();
 
     // Nodes get constructed with leaf flags set to 1.
-    if ( this->Nodes.size() <= nodeIndex )
+    if ( this->GetNumberOfNodes() <= nodeIndex )
       {
       this->Nodes.resize( nodeIndex + 1 );
       }
@@ -760,7 +760,7 @@ public:
     for ( int i = 0; i < N; ++ i, ++ nextLeaf )
       {
       this->Nodes[nodeIndex].SetChild( i, static_cast<int>( nextLeaf ) );
-      this->LeafParent[nextLeaf] = static_cast<int>( nodeIndex );
+      this->LeafParent[nextLeaf] = nodeIndex;
       this->Nodes[nodeIndex].SetLeafFlag( i, true );
       }
 
@@ -909,7 +909,8 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-vtkHyperTree* vtkHyperTree::CreateInstance( int factor, int dimension )
+vtkHyperTree* vtkHyperTree::CreateInstance( unsigned int factor,
+                                            unsigned int dimension )
 {
   switch ( factor )
     {
@@ -938,7 +939,7 @@ vtkHyperTree* vtkHyperTree::CreateInstance( int factor, int dimension )
           vtkGenericWarningMacro( "Bad dimension " << dimension );
         }
     default:
-      vtkGenericWarningMacro( "Bad branching factor " << factor);
+      vtkGenericWarningMacro( "Bad branching factor " << factor );
     }
 
   return NULL;

@@ -428,7 +428,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   this->Output->InitializeTreeIterator( it );
   while ( vtkHyperTree* tree = it.GetNextTree( index ) )
     {
-    vtkIdType i, j, k;
+    unsigned int i, j, k;
     //if ( this->TransposedRootIndexing )
     //  {
     //  this->Output->GetLevelZeroCoordsFromIndex( index, k, j, i );
