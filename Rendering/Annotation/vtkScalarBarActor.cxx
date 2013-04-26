@@ -138,9 +138,6 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->P->AnnotationLeadersActor->SetMapper(this->P->AnnotationLeadersMapper);
   this->P->AnnotationLeadersActor->GetPositionCoordinate()->
     SetReferenceCoordinate(this->PositionCoordinate);
-  this->P->AnnotationLabels = 0; // Can't allocate until we have a lookup table.
-  this->P->AnnotationAnchors = 0; // Can't allocate until we have a lookup table.
-  this->P->AnnotationColors = 0; // Can't allocate until we have a lookup table.
   this->P->NumberOfAnnotationLabelsBuilt = 0;
 
   // If opacity is on, a jail like texture is displayed behind it..
@@ -256,7 +253,7 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow* win)
       (*it)->ReleaseGraphicsResources(win);
       }
     }
-  if ( this->P->AnnotationLabels != NULL )
+  if (!this->P->AnnotationLabels.empty())
     {
     for ( int i = 0; i < this->P->NumberOfAnnotationLabelsBuilt; ++ i )
       {
@@ -281,22 +278,6 @@ vtkScalarBarActor::~vtkScalarBarActor()
     }
 
   this->TitleActor->Delete();
-  if (this->P->AnnotationLabels != NULL)
-    {
-    for (int i = 0; i < this->P->NumberOfAnnotationLabelsBuilt; ++i)
-      {
-      this->P->AnnotationLabels[i]->Delete();
-      }
-    delete [] this->P->AnnotationLabels;
-    }
-  if (this->P->AnnotationAnchors != NULL)
-    {
-    delete [] this->P->AnnotationAnchors;
-    }
-  if (this->P->AnnotationColors != NULL)
-    {
-    delete [] this->P->AnnotationColors;
-    }
   this->SetNanAnnotation(NULL);
 
   this->ScalarBar->Delete();
@@ -402,7 +383,7 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
     renderedSomething += this->TitleActor->RenderOverlay(viewport);
     }
 
-  if (this->P->AnnotationLabels == NULL &&
+  if (this->P->AnnotationLabels.empty() &&
     this->P->NumberOfAnnotationLabelsBuilt)
     {
     vtkWarningMacro(<<"Need a mapper to render the scalar bar");
@@ -1442,16 +1423,16 @@ void vtkScalarBarActor::ConfigureAnnotations()
     return;
     }
 
-  this->P->AnnotationLabels = new vtkTextActor*[numNotes];
-  this->P->AnnotationAnchors = new double[numNotes];
-  this->P->AnnotationColors = new vtkColor3ub[numNotes];
+  this->P->AnnotationLabels.resize(numNotes);
+  this->P->AnnotationAnchors.resize(numNotes);
+  this->P->AnnotationColors.resize(numNotes);
   int i = 0;
   std::map<double,vtkStdString>::iterator it;
   for (it = this->P->Labels.begin(); it != this->P->Labels.end(); ++it, ++i)
     {
     this->P->AnnotationAnchors[i] = it->first;
     this->P->AnnotationColors[i] = this->P->LabelColors[it->first];
-    this->P->AnnotationLabels[i] = vtkTextActor::New();
+    this->P->AnnotationLabels[i] = vtkSmartPointer<vtkTextActor>::New();
     this->P->AnnotationLabels[i]->GetTextProperty()->ShallowCopy(
       this->LabelTextProperty );
     this->P->AnnotationLabels[i]->SetProperty( this->GetProperty() );
@@ -1612,23 +1593,12 @@ void vtkScalarBarActor::ConfigureAnnotations()
 //----------------------------------------------------------------------------
 void vtkScalarBarActor::FreeLayoutStorage()
 {
-  int i;
   // Delete previously constructed objects
   this->P->TextActors.clear();
-  if (this->P->AnnotationLabels != NULL)
-    {
-    for ( i = 0; i < this->P->NumberOfAnnotationLabelsBuilt; ++ i )
-      {
-      this->P->AnnotationLabels[i]->Delete();
-      }
-    delete [] this->P->AnnotationLabels;
-    delete [] this->P->AnnotationAnchors;
-    delete [] this->P->AnnotationColors;
-    this->P->AnnotationLabels = 0;
-    this->P->AnnotationAnchors = 0;
-    this->P->AnnotationColors = 0;
-    this->P->NumberOfAnnotationLabelsBuilt = 0;
-    }
+  this->P->AnnotationLabels.clear();
+  this->P->AnnotationAnchors.clear();
+  this->P->AnnotationColors.clear();
+  this->P->NumberOfAnnotationLabelsBuilt = 0;
 }
 
 //----------------------------------------------------------------------------
