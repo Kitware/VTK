@@ -15,4 +15,5 @@ vtk_module(vtkGeovisCore
     vtkRenderingCore
     vtkRenderingFreeTypeOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
   )

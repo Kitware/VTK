@@ -10,5 +10,6 @@ vtk_module(vtkInfovisCore
     vtkInfovisLayout
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
     vtkIOInfovis
   )

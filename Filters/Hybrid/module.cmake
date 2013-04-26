@@ -10,5 +10,6 @@ vtk_module(vtkFiltersHybrid
     vtkRenderingOpenGL
     vtkImagingCore
     vtkTestingRendering
+    vtkInteractionStyle
     vtkIOLegacy
   )

@@ -12,4 +12,5 @@ vtk_module(vtkFiltersSelection
     vtkRenderingFreeTypeOpenGL
     vtkRenderingAnnotation
     vtkTestingRendering
+    vtkInteractionStyle
   )

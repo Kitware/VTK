@@ -7,6 +7,7 @@ vtk_module(vtkFiltersSources
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
+    vtkInteractionStyle
     vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL
     vtkFiltersModeling

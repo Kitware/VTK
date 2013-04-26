@@ -13,6 +13,7 @@ vtk_module(vtkImagingCore
     vtkFiltersHybrid
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
     vtkInteractionImage
     vtkImagingMath # Move tests
     vtkImagingStencil # Move tests

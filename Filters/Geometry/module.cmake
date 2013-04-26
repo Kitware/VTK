@@ -7,4 +7,5 @@ vtk_module(vtkFiltersGeometry
     vtkIOXML
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
   )

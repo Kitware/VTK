@@ -499,7 +499,7 @@ int vtkMaskPoints::RequestData(
   else // striding mode
     {
     for ( ptId = this->Offset;
-    (ptId < numPts) && (id < (localMaxPts-1)) && !abort;
+    (ptId < numPts) && (id < localMaxPts) && !abort;
     ptId += this->OnRatio )
       {
       input->GetPoint(ptId, x);

@@ -6,4 +6,5 @@ vtk_module(vtkRenderingGL2PS
     vtkgl2ps
   TEST_DEPENDS
     vtkTestingRendering
+    vtkInteractionStyle
 )

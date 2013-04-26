@@ -1251,22 +1251,60 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
 
         for (int i = 0; i < bitmap->width; ++i)
           {
-          t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
-          t_1_m_alpha = 1.0 - t_alpha;
-          data_alpha = (data_ptr[3] - data_min) / data_range;
-          *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * tprop_r);
-          ++data_ptr;
-          *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * tprop_g);
-          ++data_ptr;
-          *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * tprop_b);
-          ++data_ptr;
-          *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
-          ++data_ptr;
-          ++glyph_ptr;
+          if(*glyph_ptr == 0)
+            {
+            data_ptr += 4;
+            ++glyph_ptr;
+            }
+          else if(data_ptr[3] > 0)
+            {
+            // This is a pixel we've drawn before since it has non-zero alpha.
+            // We must therefore blend the colors.
+            t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
+            t_1_m_alpha = 1.0 - t_alpha;
+            data_alpha = (data_ptr[3] - data_min) / data_range;
+
+            float blendR =
+                (t_1_m_alpha * ((data_ptr[0] - data_min) / data_range))
+                + (t_alpha * tprop_r);
+            float blendG =
+                (t_1_m_alpha * ((data_ptr[1] - data_min) / data_range))
+                + (t_alpha * tprop_g);
+            float blendB =
+                (t_1_m_alpha * ((data_ptr[2] - data_min) / data_range))
+                + (t_alpha * tprop_b);
+
+            // Figure out the color.
+            data_ptr[0] = static_cast<unsigned char>(data_min
+                                                     + data_range * blendR);
+            data_ptr[1] = static_cast<unsigned char>(data_min
+                                                     + data_range * blendG);
+            data_ptr[2] = static_cast<unsigned char>(data_min
+                                                     + data_range * blendB);
+            data_ptr[3] = static_cast<unsigned char>(
+                  data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
+            data_ptr += 4;
+            ++glyph_ptr;
+            }
+          else
+            {
+            t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
+            t_1_m_alpha = 1.0 - t_alpha;
+            data_alpha = (data_ptr[3] - data_min) / data_range;
+            *data_ptr = static_cast<unsigned char>(
+              data_min + data_range * tprop_r);
+            ++data_ptr;
+            *data_ptr = static_cast<unsigned char>(
+              data_min + data_range * tprop_g);
+            ++data_ptr;
+            *data_ptr = static_cast<unsigned char>(
+              data_min + data_range * tprop_b);
+            ++data_ptr;
+            *data_ptr = static_cast<unsigned char>(
+              data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
+            ++data_ptr;
+            ++glyph_ptr;
+            }
           }
         glyph_ptr_row += bitmap->pitch;
         data_ptr += data_pitch;

@@ -55,31 +55,20 @@ int TestButterflyScalars(int argc, char * argv[])
   colors->SetNumberOfTuples(originalMesh->GetNumberOfPoints());
   colors->SetName("Colors");
 
-  //Creating an array to store the values according to which the
-  //colors are selected.
-  //Values are inserted for each of the points in the polydata
-  int *colorAT = new int[originalMesh->GetNumberOfPoints()];
-  for (int i = 0; i < originalMesh->GetNumberOfPoints(); i++)
-    {
-    colorAT[i] = i;
-    }
-
-  int activationTime;
   //Loop to select colors for each of the points in the polydata.
   for (int i = 0; i < originalMesh->GetNumberOfPoints(); i++)
     {
-    activationTime = colorAT[i];
-    if (activationTime > 0 && activationTime < 5)
+    if (i > 0 && i < 5)
       {
       //Black
       colors->InsertTuple3(i, 255, 255, 0);
       }
-    else if (activationTime > 4 && activationTime < 10)
+    else if (i > 4 && i < 10)
       {
       //Blue
       colors->InsertTuple3(i, 0, 0, 255);
       }
-    else if (activationTime > 9 && activationTime < 300)
+    else if (i > 9 && i < 300)
       {
       //Red
       colors->InsertTuple3(i, 255, 0, 0);

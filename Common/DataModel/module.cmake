@@ -7,6 +7,7 @@ vtk_module(vtkCommonDataModel
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
+    vtkInteractionStyle
     vtkCommonExecutionModel
     vtkIOGeometry
     vtkIOLegacy

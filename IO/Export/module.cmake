@@ -15,6 +15,7 @@ vtk_module(vtkIOExport
     vtkChartsCore
     vtkInteractionImage
     vtkTestingRendering
+    vtkInteractionStyle
     vtkRenderingAnnotation
     vtkRenderingFreeTypeOpenGL
     vtkRenderingVolumeOpenGL

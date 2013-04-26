@@ -9,4 +9,5 @@ vtk_module(vtkRenderingFreeTypeOpenGL
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
+    vtkInteractionStyle
   )

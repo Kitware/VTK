@@ -1471,7 +1471,33 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
 
       for (int i = 0; i < bitmap->width; ++i)
         {
-        if (*glyphPtr != 0)
+        if (*glyphPtr == 0)
+          {
+          dataPtr += 4;
+          ++glyphPtr;
+          }
+        else if (dataPtr[3] > 0)
+          {
+          // This is a pixel we've drawn before since it has non-zero alpha.
+          // We must therefore blend the colors.
+          float t_alpha = tpropAlpha * (*glyphPtr / 255.0);
+          float t_1_m_alpha = 1.0 - t_alpha;
+          float data_alpha = dataPtr[3] / 255.0;
+
+          float blendR(t_1_m_alpha * dataPtr[0] + t_alpha * iMetaData->rgba[0]);
+          float blendG(t_1_m_alpha * dataPtr[1] + t_alpha * iMetaData->rgba[1]);
+          float blendB(t_1_m_alpha * dataPtr[2] + t_alpha * iMetaData->rgba[2]);
+
+          // Figure out the color.
+          dataPtr[0] = static_cast<unsigned char>(blendR);
+          dataPtr[1] = static_cast<unsigned char>(blendG);
+          dataPtr[2] = static_cast<unsigned char>(blendB);
+          dataPtr[3] = static_cast<unsigned char>(
+                255 * (t_alpha + data_alpha * t_1_m_alpha));
+          dataPtr += 4;
+          ++glyphPtr;
+          }
+        else
           {
           *dataPtr = iMetaData->rgba[0];
           ++dataPtr;
@@ -1481,11 +1507,6 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
           ++dataPtr;
           *dataPtr = static_cast<unsigned char>((*glyphPtr) * tpropAlpha);
           ++dataPtr;
-          ++glyphPtr;
-          }
-        else
-          {
-          dataPtr += 4;
           ++glyphPtr;
           }
         }
