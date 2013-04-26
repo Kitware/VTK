@@ -30,7 +30,6 @@
 #include <vector>
 #include <vtksys/ios/sstream>
 
-
 #include "vtkCompositeDataPipeline.h"
 
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
@@ -296,12 +295,14 @@ void vtkExecutive::ReportReferences(vtkGarbageCollector* collector)
 {
   // Report reference to our algorithm.
   vtkGarbageCollectorReport(collector, this->Algorithm, "Algorithm");
+
   for(int i=0; i < int(this->ExecutiveInternal->InputInformation.size()); ++i)
     {
     vtkGarbageCollectorReport(collector,
                               this->ExecutiveInternal->InputInformation[i],
                               "Input Information Vector");
     }
+
   vtkGarbageCollectorReport(collector, this->OutputInformation,
                             "Output Information Vector");
   this->Superclass::ReportReferences(collector);

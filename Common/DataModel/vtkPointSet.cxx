@@ -424,3 +424,14 @@ void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Locator: " << this->Locator << "\n";
 }
 
+//----------------------------------------------------------------------------
+void vtkPointSet::Register(vtkObjectBase* o)
+{
+  this->RegisterInternal(o, 1);
+}
+
+//----------------------------------------------------------------------------
+void vtkPointSet::UnRegister(vtkObjectBase* o)
+{
+  this->UnRegisterInternal(o, 1);
+}

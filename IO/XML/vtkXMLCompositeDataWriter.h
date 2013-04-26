@@ -146,9 +146,6 @@ protected:
   // The observer to report progress from the internal writer.
   vtkCallbackCommand* ProgressObserver;
 
-  // Garbage collection support.
-  virtual void ReportReferences(vtkGarbageCollector*);
-
   // Description:
   // Internal method called recursively to create the xml tree for
   // the children of compositeData as well as write the actual data

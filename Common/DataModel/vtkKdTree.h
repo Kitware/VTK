@@ -634,8 +634,6 @@ protected:
 
   vtkDataSetCollection *DataSets;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
-
   // Description:
   // Modelled on vtkAlgorithm::UpdateProgress().
   // Update the progress when building the locator.
