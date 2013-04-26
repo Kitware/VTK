@@ -892,7 +892,6 @@ int vtkMultiBlockPLOT3DReader::RequestInformation(
       double times[2] = { time, time };
       info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &time, 1);
       info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), times, 2);
-      vtkWarningMacro("time: " << time);
       properties->Delete();
       }
     fclose(qFp);
