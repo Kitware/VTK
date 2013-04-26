@@ -40,8 +40,64 @@
 #include "vtkFastNumericConversion.h"
 #include "vtkObjectFactory.h"
 
+#include "vtkMath.h"
+
 vtkStandardNewMacro(vtkFastNumericConversion);
 
+vtkFastNumericConversion::vtkFastNumericConversion()
+{
+#ifdef VTK_TEST_HACK_TO_EMULATE_LINUX_UNDER_WINDOWS
+  _controlfp( _PC_64, MCW_PC );
+#endif
+
+  this->fixRound = 0;
+  this->internalReservedFracBits = 0;
+  this->fracMask = 0;
+  this->fpDenormalizer = 0;
+
+#ifndef VTK_LEGACY_SILENT
+  vtkWarningMacro("Class vtkFastNumericConversion was depecated for VTK 6.0 "
+                  "and will be removed in a future version.");
+#endif
+}
+
+#ifndef VTK_LEGACY_SILENT
+int vtkFastNumericConversion::QuickFloor(const double &val)
+{
+  static int once = 0;
+  if (!once)
+    {
+    VTK_LEGACY_REPLACED_BODY(vtkFastNumericConversion::QuickFloor, "VTK 6.0",
+                             vtkMath::Floor);
+    once = 1;
+    }
+  return vtkFastNumericConversion::QuickFloorInline(val);
+}
+
+int vtkFastNumericConversion::SafeFloor(const double &val)
+{
+  static int once = 0;
+  if (!once)
+    {
+    VTK_LEGACY_REPLACED_BODY(vtkFastNumericConversion::SafeFloor, "VTK 6.0",
+                             vtkMath::Floor);
+    once = 1;
+    }
+  return vtkFastNumericConversion::SafeFloorInline(val);
+}
+
+int vtkFastNumericConversion::Round(const double &val)
+{
+  static int once = 0;
+  if (!once)
+    {
+    VTK_LEGACY_REPLACED_BODY(vtkFastNumericConversion::Round, "VTK 6.0",
+                             vtkMath::Round);
+    once = 1;
+    }
+  return vtkFastNumericConversion::RoundInline(val);
+}
+#endif
 
 void vtkFastNumericConversion::InternalRebuild()
 {
