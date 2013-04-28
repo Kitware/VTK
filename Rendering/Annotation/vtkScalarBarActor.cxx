@@ -138,7 +138,6 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->P->AnnotationLeadersActor->SetMapper(this->P->AnnotationLeadersMapper);
   this->P->AnnotationLeadersActor->GetPositionCoordinate()->
     SetReferenceCoordinate(this->PositionCoordinate);
-  this->P->NumberOfAnnotationLabelsBuilt = 0;
 
   // If opacity is on, a jail like texture is displayed behind it..
 
@@ -253,12 +252,9 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow* win)
       (*it)->ReleaseGraphicsResources(win);
       }
     }
-  if (!this->P->AnnotationLabels.empty())
+  for (vtkScalarBarActorInternal::ActorVec::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
     {
-    for ( int i = 0; i < this->P->NumberOfAnnotationLabelsBuilt; ++ i )
-      {
-      this->P->AnnotationLabels[i]->ReleaseGraphicsResources(win);
-      }
+    this->P->AnnotationLabels[i]->ReleaseGraphicsResources(win);
     }
   this->ScalarBarActor->ReleaseGraphicsResources(win);
   this->P->NanSwatchActor->ReleaseGraphicsResources(win);
@@ -329,7 +325,6 @@ vtkScalarBarActor::~vtkScalarBarActor()
 int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
 {
   int renderedSomething = 0;
-  int i;
 
   // Everything is built, just have to render
   if (this->DrawBackground)
@@ -383,24 +378,17 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
     renderedSomething += this->TitleActor->RenderOverlay(viewport);
     }
 
-  if (this->P->AnnotationLabels.empty() &&
-    this->P->NumberOfAnnotationLabelsBuilt)
+  if (this->DrawAnnotations)
     {
-    vtkWarningMacro(<<"Need a mapper to render the scalar bar");
-    return renderedSomething;
-    }
-
-  if ( this->DrawAnnotations )
-    {
-    if ( this->P->NumberOfAnnotationLabelsBuilt )
+    if (!this->P->AnnotationLabels.empty())
       {
       renderedSomething +=
         this->P->AnnotationLeadersActor->RenderOverlay( viewport );
-      }
-    for ( i = 0; i < this->P->NumberOfAnnotationLabelsBuilt; ++ i )
-      {
-      renderedSomething +=
-        this->P->AnnotationLabels[i]->RenderOverlay( viewport );
+      for (vtkScalarBarActorInternal::ActorVec::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
+        {
+        renderedSomething +=
+          this->P->AnnotationLabels[i]->RenderOverlay( viewport );
+        }
       }
     }
 
@@ -412,7 +400,6 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
 int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   int renderedSomething = 0;
-  int i;
 
   if (!this->LookupTable)
     {
@@ -520,15 +507,15 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
   // Draw the annotation leaders and labels
   if ( this->DrawAnnotations )
     {
-    if ( this->P->NumberOfAnnotationLabelsBuilt )
+    if (!this->P->AnnotationLabels.empty())
       {
       renderedSomething +=
         this->P->AnnotationLeadersActor->RenderOpaqueGeometry( viewport );
-      }
-    for ( i = 0; i < this->P->NumberOfAnnotationLabelsBuilt; ++ i )
-      {
-      renderedSomething +=
-        this->P->AnnotationLabels[i]->RenderOpaqueGeometry( viewport );
+      for (vtkScalarBarActorInternal::ActorVec::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
+        {
+        renderedSomething +=
+          this->P->AnnotationLabels[i]->RenderOpaqueGeometry( viewport );
+        }
       }
     }
 
@@ -1138,11 +1125,10 @@ void vtkScalarBarActor::LayoutAnnotations()
     {
     double* range = this->LookupTable->GetRange();
 
-    this->P->NumberOfAnnotationLabelsBuilt =
-      this->MapAnnotationLabels(
-        this->LookupTable,
-        this->P->ScalarBarBox.Posn[this->P->TL[1]],
-        this->P->ScalarBarBox.Size[1], range);
+    this->MapAnnotationLabels(
+      this->LookupTable,
+      this->P->ScalarBarBox.Posn[this->P->TL[1]],
+      this->P->ScalarBarBox.Size[1], range);
     }
 }
 
@@ -1489,14 +1475,13 @@ void vtkScalarBarActor::ConfigureAnnotations()
     swatchC1 = swatchC0 + this->P->ScalarBarBox.Size[0];
     if ( this->Orientation == VTK_ORIENT_VERTICAL )
       {
-      this->P->NumberOfAnnotationLabelsBuilt =
-        this->PlaceAnnotationsVertically(
-          this->TextPosition == vtkScalarBarActor::SucceedScalarBar ?
-            swatchC0 : swatchC1,
-          this->P->ScalarBarBox.Posn[1],
-          this->P->ScalarBarBox.Size[this->P->TL[0]],
-          this->P->ScalarBarBox.Size[this->P->TL[1]],
-          delta, this->P->SwatchPad);
+      this->PlaceAnnotationsVertically(
+        this->TextPosition == vtkScalarBarActor::SucceedScalarBar ?
+          swatchC0 : swatchC1,
+        this->P->ScalarBarBox.Posn[1],
+        this->P->ScalarBarBox.Size[this->P->TL[0]],
+        this->P->ScalarBarBox.Size[this->P->TL[1]],
+        delta, this->P->SwatchPad);
       double top =
         this->P->ScalarBarBox.Posn[1] +
         this->P->ScalarBarBox.Size[this->P->TL[1]];
@@ -1515,11 +1500,10 @@ void vtkScalarBarActor::ConfigureAnnotations()
       }
     else
       {
-      this->P->NumberOfAnnotationLabelsBuilt =
-        this->PlaceAnnotationsHorizontally(
-          this->P->ScalarBarBox.Posn[0], swatchC1,
-          this->P->ScalarBarBox.Size[1],
-          this->P->ScalarBarBox.Size[0], delta, this->P->SwatchPad);
+      this->PlaceAnnotationsHorizontally(
+        this->P->ScalarBarBox.Posn[0], swatchC1,
+        this->P->ScalarBarBox.Size[1],
+        this->P->ScalarBarBox.Size[0], delta, this->P->SwatchPad);
       for (i = 0; i < indexedDenom; ++i)
         {
         x[0] = this->P->ScalarBarBox.Posn[0] + i * delta + this->P->SwatchPad;
@@ -1598,7 +1582,6 @@ void vtkScalarBarActor::FreeLayoutStorage()
   this->P->AnnotationLabels.clear();
   this->P->AnnotationAnchors.clear();
   this->P->AnnotationColors.clear();
-  this->P->NumberOfAnnotationLabelsBuilt = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -1770,7 +1753,7 @@ int vtkScalarBarActor::PlaceAnnotationsVertically(
     if (upCum < ctr + hh) upCum = ctr + hh; \
     if (dnCum > ctr - hh) dnCum = ctr - hh;
 
-  int numNotes = this->P->NumberOfAnnotationLabelsBuilt;
+  int numNotes = static_cast<int>(this->P->AnnotationLabels.size());
   vtkPoints* lpts = vtkPoints::New();
   vtkCellArray* llines = vtkCellArray::New();
   vtkUnsignedCharArray* llcolors = vtkUnsignedCharArray::New();
@@ -2110,8 +2093,7 @@ int vtkScalarBarActor::PlaceAnnotationsHorizontally(
   double barWidth, double barHeight,
   double vtkNotUsed(delta), double pad )
 {
-  if (!this->LookupTable ||
-    this->LookupTable->GetNumberOfAnnotatedValues() <= 0)
+  if (!this->LookupTable)
     {
     return 0;
     }
@@ -2126,7 +2108,7 @@ int vtkScalarBarActor::PlaceAnnotationsHorizontally(
   placer.AddBrokenLeader(j, lpts, llines, llcolors, \
       this->P->AnnotationColors[j]);
 
-  int numNotes = this->P->NumberOfAnnotationLabelsBuilt;
+  int numNotes = static_cast<int>(this->P->AnnotationLabels.size());
   bool precede = this->TextPosition == vtkScalarBarActor::PrecedeScalarBar;
   vtkScalarBarHLabelPlacer placer(
     numNotes, precede ? barY : barY - barHeight, precede ? +1 : -1,

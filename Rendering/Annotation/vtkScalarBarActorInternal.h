@@ -133,7 +133,6 @@ public:
   ActorVec             AnnotationLabels;
   std::vector<double>  AnnotationAnchors;
   std::vector<vtkColor3ub> AnnotationColors;
-  int                  NumberOfAnnotationLabelsBuilt;
   vtkPolyData*         NanSwatch;
   vtkPolyDataMapper2D* NanSwatchMapper;
   vtkActor2D*          NanSwatchActor;
