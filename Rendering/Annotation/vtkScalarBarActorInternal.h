@@ -34,7 +34,6 @@ public:
     }
 };
 
-namespace {
 /// A structure to represent pixel coordinates for text or swatch bounds.
 struct vtkScalarBarBox
 {
@@ -50,7 +49,6 @@ struct vtkScalarBarBox
     */
   vtkTuple<int,2> Size;
 };
-}
 
 /// Internal state for the scalar bar actor shared with subclasses.
 class vtkScalarBarActorInternal
@@ -68,9 +66,6 @@ public:
     this->AnnotationLeaders = 0;
     this->AnnotationLeadersMapper = 0;
     this->AnnotationLeadersActor = 0;
-    this->AnnotationLabels = 0;
-    this->AnnotationAnchors = 0;
-    this->AnnotationColors = 0;
     this->NanSwatch = 0;
     this->NanSwatchMapper = 0;
     this->NanSwatchActor = 0;
@@ -135,10 +130,9 @@ public:
   vtkPolyData*         AnnotationLeaders;
   vtkPolyDataMapper2D* AnnotationLeadersMapper;
   vtkActor2D*          AnnotationLeadersActor;
-  vtkTextActor**   AnnotationLabels;
-  double*              AnnotationAnchors;
-  vtkColor3ub*         AnnotationColors;
-  int                  NumberOfAnnotationLabelsBuilt;
+  ActorVec             AnnotationLabels;
+  std::vector<double>  AnnotationAnchors;
+  std::vector<vtkColor3ub> AnnotationColors;
   vtkPolyData*         NanSwatch;
   vtkPolyDataMapper2D* NanSwatchMapper;
   vtkActor2D*          NanSwatchActor;
