@@ -127,6 +127,8 @@ int vtkXMLDataSetWriter::WriteInternal()
   writer->SetBlockSize(this->GetBlockSize());
   writer->SetDataMode(this->GetDataMode());
   writer->SetEncodeAppendedData(this->GetEncodeAppendedData());
+  writer->SetHeaderType(this->GetHeaderType());
+  writer->SetIdType(this->GetIdType());
   writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
 
   // Try to write.
