@@ -95,6 +95,7 @@ vtkInteractorStyleDrawPolygon::vtkInteractorStyleDrawPolygon()
   this->StartPosition[0] = this->StartPosition[1] = 0;
   this->EndPosition[0] = this->EndPosition[1] = 0;
   this->Moving = 0;
+  this->DrawPolygonPixels = true;
   this->PixelArray = vtkUnsignedCharArray::New();
 }
 
@@ -146,7 +147,10 @@ void vtkInteractorStyleDrawPolygon::OnMouseMove()
   if((lastPoint - newPoint).SquaredNorm() > 100)
     {
     this->Internal->AddPoint(newPoint);
-    this->DrawPolygon();
+    if(this->DrawPolygonPixels)
+      {
+      this->DrawPolygon();
+      }
     }
 }
 
@@ -183,6 +187,14 @@ void vtkInteractorStyleDrawPolygon::OnLeftButtonUp()
   if (!this->Interactor || !this->Moving)
     {
     return;
+    }
+
+  if(this->DrawPolygonPixels)
+    {
+    int *size = this->Interactor->GetRenderWindow()->GetSize();
+    unsigned char *pixels = this->PixelArray->GetPointer(0);
+    this->Interactor->GetRenderWindow()->SetPixelData(
+      0, 0, size[0]-1, size[1]-1, pixels, 1);
     }
 
   this->Moving = 0;
@@ -223,4 +235,8 @@ void vtkInteractorStyleDrawPolygon::DrawPolygon()
 void vtkInteractorStyleDrawPolygon::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Moving: " << this->Moving << endl;
+  os << indent << "DrawPolygonPixels: " << this->DrawPolygonPixels << endl;
+  os << indent << "StartPosition: " << this->StartPosition[0] << "," << this->StartPosition[1] << endl;
+  os << indent << "EndPosition: " << this->EndPosition[0] << "," << this->EndPosition[1] << endl;
 }
