@@ -34,6 +34,9 @@
 #include "vtkTransform.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkIdTypeArray.h"
 
 #include "vtkObjectFactory.h"
 
@@ -207,10 +210,32 @@ void vtkChartXYZ::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXYZ::Update()
+{
+  if (this->Link)
+    {
+    vtkSelection *selection =
+        vtkSelection::SafeDownCast(this->Link->GetOutputDataObject(2));
+    if (selection->GetNumberOfNodes())
+      {
+      vtkSelectionNode *node = selection->GetNode(0);
+      vtkIdTypeArray *idArray =
+          vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      for (size_t i = 0; i < this->Plots.size(); ++i)
+        {
+        this->Plots[i]->SetSelection(idArray);
+        }
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 bool vtkChartXYZ::Paint(vtkContext2D *painter)
 {
   if (!this->Visible)
     return false;
+
+  this->Update();
 
   // Get the 3D context.
   vtkContext3D *context = painter->GetContext3D();
