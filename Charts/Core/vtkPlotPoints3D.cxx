@@ -92,7 +92,7 @@ bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
       {
       size_t nSelected(static_cast<size_t>(this->Selection->GetNumberOfTuples()));
       this->SelectedPoints.reserve(nSelected);
-      for (int i = 0; i < nSelected; ++i)
+      for (size_t i = 0; i < nSelected; ++i)
         {
         this->SelectedPoints.push_back(this->Points[this->Selection->GetValue(i)]);
         }
