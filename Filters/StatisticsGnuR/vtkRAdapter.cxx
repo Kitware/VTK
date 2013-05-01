@@ -598,7 +598,6 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
 
 vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
 {
-
   int nedge, nnode, ntip;
   vtkTree * tree = vtkTree::New();
 
@@ -761,27 +760,38 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
       return NULL;
       }
 
-    //Create the "node weight" array for the Vertices, in order to use vtkTreeLayoutStrategy for visulaizing the tree using vtkTreeHeatmapItem
-    double maxWeight = 0.0;
+
+
+    // Create the "node weight" array for the Vertices, in order to use
+    // vtkTreeLayoutStrategy for visualizing the tree using vtkTreeHeatmapItem
     vtkNew<vtkDoubleArray> nodeWeights;
     nodeWeights->SetNumberOfTuples(tree->GetNumberOfVertices());
+
+    // trueWeights is (for the most part) a duplicate of nodeWeights.
+    // The only difference is that leaf nodes aren't clamped to the max
+    // weight in this array.
+    vtkNew<vtkDoubleArray> trueWeights;
+    trueWeights->SetNumberOfTuples(tree->GetNumberOfVertices());
+
+    double maxWeight = 0.0;
     for (vtkIdType vertex = 0; vertex < tree->GetNumberOfVertices(); ++vertex)
       {
-      double weight = 0.0;
-      vtkIdType node = vertex;
-      vtkIdType parent = tree->GetParent(node);
-      while (parent != -1)
-        {
-        weight += weights->GetValue(tree->GetEdgeId(parent, node));
-        node = parent;
-        parent = tree->GetParent(node);
-        }
+        double weight = 0.0;
+        vtkIdType node = vertex;
+        vtkIdType parent = tree->GetParent(node);
+        while (parent != -1)
+          {
+          weight += weights->GetValue(tree->GetEdgeId(parent, node));
+          node = parent;
+          parent = tree->GetParent(node);
+          }
 
-      if (weight > maxWeight)
-        {
-        maxWeight = weight;
-        }
-      nodeWeights->SetValue(vertex, weight);
+        if (weight > maxWeight)
+          {
+          maxWeight = weight;
+          }
+        nodeWeights->SetValue(vertex, weight);
+        trueWeights->SetValue(vertex, weight);
       }
     for (vtkIdType vertex = 0; vertex < tree->GetNumberOfVertices(); ++vertex)
       {
@@ -790,9 +800,12 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
         nodeWeights->SetValue(vertex, maxWeight);
         }
       }
+
     nodeWeights->SetName("node weight");
     tree->GetVertexData()->AddArray(nodeWeights.GetPointer());
 
+    trueWeights->SetName("true node weight");
+    tree->GetVertexData()->AddArray(trueWeights.GetPointer());
 
     this->vdoc->AddItem(tree);
     tree->Delete();
@@ -803,7 +816,6 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     vtkErrorMacro(<<"RToVTKTree(): R variable is not a list. ");
     return NULL;
     }
-
 }
 
 

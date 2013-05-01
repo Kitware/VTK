@@ -244,7 +244,7 @@ vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
   if (arrayToCompare1 == NULL)
     {
     vtkErrorMacro("tree #1's " << dataName <<
-      " does not have a vtkDoubleArray named " << this->IdArrayName);
+      " does not have a vtkDoubleArray named " << this->ComparisonArrayName);
     return NULL;
     }
 
@@ -253,7 +253,7 @@ vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
   if (arrayToCompare2 == NULL)
     {
     vtkErrorMacro("tree #2's " << dataName <<
-      " does not have a vtkDoubleArray named " << this->IdArrayName);
+      " does not have a vtkDoubleArray named " << this->ComparisonArrayName);
     return NULL;
     }
 
