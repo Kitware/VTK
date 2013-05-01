@@ -27,6 +27,7 @@
 //----------------------------------------------------------------------------
 int TestLinePlot( int, char * [] )
 {
+  int status = EXIT_SUCCESS;
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
@@ -47,6 +48,9 @@ int TestLinePlot( int, char * [] )
   vtkNew<vtkFloatArray> arrS2;
   arrS2->SetName("Sine2");
   table->AddColumn(arrS2.GetPointer());
+  vtkNew<vtkFloatArray> arr1;
+  arr1->SetName("One");
+  table->AddColumn(arr1.GetPointer());
   // Test charting with a few more points...
   int numPoints = 69;
   float inc = 7.5 / (numPoints-1);
@@ -57,6 +61,7 @@ int TestLinePlot( int, char * [] )
     table->SetValue(i, 1, cos(i * inc) + 0.0);
     table->SetValue(i, 2, sin(i * inc) + 0.0);
     table->SetValue(i, 3, sin(i * inc) + 0.5);
+    table->SetValue(i, 4, 1.0);
     }
 
   // Add multiple line plots, setting the colors etc
@@ -73,9 +78,33 @@ int TestLinePlot( int, char * [] )
   line->SetColor(0, 0, 255, 255);
   line->SetWidth(4.0);
 
-  //Finally render the scene and compare the image to a reference image
+  // Render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
-  return EXIT_SUCCESS;
+
+  // Verify that log-scaling is improper for both x & y axes
+  double bds[4];
+  line->GetUnscaledInputBounds(bds);
+  if (bds[0] * bds[1] > 0. || bds[2] * bds[3] > 0.)
+    {
+    cerr
+      << "ERROR: Data on both X and Y axes expected to cross origin.\n";
+    status = EXIT_FAILURE;
+    }
+
+  // Verify that log-scaling is proper for arr1 y axis (which
+  // is not plotted so as to avoid changing baseline images).
+  line = chart->AddPlot(vtkChart::LINE);
+  line->SetInputData(table.GetPointer(), 0, 4);
+  line->Update();
+  line->GetUnscaledInputBounds(bds);
+  if (bds[0] * bds[1] > 0. || bds[2] * bds[3] <= 0.)
+    {
+    cerr
+      << "ERROR: Data on X axis expected to cross origin.\n";
+    status = EXIT_FAILURE;
+    }
+
+  return status;
 }

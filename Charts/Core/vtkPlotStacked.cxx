@@ -57,7 +57,7 @@ bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
 // Copy the two arrays into the points array
 template<class A, class B>
 void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, B *b,
-                  int n)
+                  int n, double bds[4])
 {
   points->SetNumberOfPoints(n);
   for (int i = 0; i < n; ++i)
@@ -65,34 +65,48 @@ void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, B *b,
     double prev[] = {0.0,0.0};
     if (previous_points)
       previous_points->GetPoint(i,prev);
-    points->SetPoint(i, a[i], b[i] + prev[1]);
+    double yi = b[i] + prev[1];
+    points->SetPoint(i, a[i], yi);
+
+    bds[0] = bds[0] < a[i] ? bds[0] : a[i];
+    bds[1] = bds[1] > a[i] ? bds[1] : a[i];
+
+    bds[2] = bds[2] < yi ? bds[2] : yi;
+    bds[3] = bds[3] > yi ? bds[3] : yi;
     }
 }
 
 // Copy one array into the points array, use the index of that array as x
 template<class A>
-void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, int n)
+void CopyToPoints(
+  vtkPoints2D *points, vtkPoints2D *previous_points, A *a, int n, double bds[4])
 {
+  bds[0] = 0.;
+  bds[1] = n - 1.;
   points->SetNumberOfPoints(n);
   for (int i = 0; i < n; ++i)
     {
     double prev[] = {0.0,0.0};
     if (previous_points)
       previous_points->GetPoint(i,prev);
-    points->SetPoint(i, i, a[i] + prev[1]);
+    double yi = a[i] + prev[1];
+    points->SetPoint(i, i, yi);
+
+    bds[2] = bds[2] < yi ? bds[2] : yi;
+    bds[3] = bds[3] > yi ? bds[3] : yi;
     }
 }
 
 // Copy the two arrays into the points array
 template<class A>
 void CopyToPointsSwitch(vtkPoints2D *points, vtkPoints2D *previous_points, A *a,
-                        vtkDataArray *b, int n)
+                        vtkDataArray *b, int n, double bds[4])
 {
   switch(b->GetDataType())
     {
     vtkTemplateMacro(
         CopyToPoints(points,previous_points, a,
-                     static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
+                     static_cast<VTK_TT*>(b->GetVoidPointer(0)), n, bds));
     }
 }
 
@@ -112,7 +126,10 @@ class vtkPlotStackedSegment : public vtkObject {
       this->Sorted = false;
       }
 
-    void Configure(vtkPlotStacked *stacked,vtkDataArray *x_array, vtkDataArray *y_array,vtkPlotStackedSegment *prev)
+    void Configure(
+      vtkPlotStacked *stacked, vtkDataArray *x_array,
+      vtkDataArray *y_array,vtkPlotStackedSegment *prev,
+      double bds[4])
       {
       this->Stacked = stacked;
       this->Sorted = false;
@@ -130,7 +147,7 @@ class vtkPlotStackedSegment : public vtkObject {
             vtkTemplateMacro(
               CopyToPointsSwitch(this->Points,this->Previous ? this->Previous->Points : 0,
                                  static_cast<VTK_TT*>(x_array->GetVoidPointer(0)),
-                                 y_array,x_array->GetNumberOfTuples()));
+                                 y_array,x_array->GetNumberOfTuples(), bds));
           }
         }
       else
@@ -140,7 +157,7 @@ class vtkPlotStackedSegment : public vtkObject {
           vtkTemplateMacro(
             CopyToPoints(this->Points, this->Previous ? this->Previous->Points : 0,
                          static_cast<VTK_TT*>(y_array->GetVoidPointer(0)),
-                         y_array->GetNumberOfTuples()));
+                         y_array->GetNumberOfTuples(), bds));
           }
         }
 
@@ -449,12 +466,14 @@ class vtkPlotStackedPrivate {
     void Update()
       {
       this->Segments.clear();
+      this->UnscaledInputBounds[0] = this->UnscaledInputBounds[2] = vtkMath::Inf();
+      this->UnscaledInputBounds[1] = this->UnscaledInputBounds[3] = -vtkMath::Inf();
       }
 
     vtkPlotStackedSegment *AddSegment(vtkDataArray *x_array, vtkDataArray *y_array, vtkPlotStackedSegment *prev=0)
       {
       vtkSmartPointer<vtkPlotStackedSegment> segment = vtkSmartPointer<vtkPlotStackedSegment>::New();
-      segment->Configure(this->Stacked,x_array,y_array,prev);
+      segment->Configure(this->Stacked,x_array,y_array,prev,this->UnscaledInputBounds);
       this->Segments.push_back(segment);
       return segment;
       }
@@ -536,6 +555,7 @@ class vtkPlotStackedPrivate {
     std::vector<vtkSmartPointer<vtkPlotStackedSegment> > Segments;
     vtkPlotStacked *Stacked;
     std::map<int,std::string> AdditionalSeries;
+    double UnscaledInputBounds[4];
 };
 
 //-----------------------------------------------------------------------------
@@ -680,6 +700,15 @@ bool vtkPlotStacked::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
 void vtkPlotStacked::GetBounds(double bounds[4])
 {
   this->Private->GetBounds(bounds);
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotStacked::GetUnscaledInputBounds(double bounds[4])
+{
+  for (int i = 0; i < 4; ++i)
+    {
+    bounds[i] = this->Private->UnscaledInputBounds[i];
+    }
 }
 
 //-----------------------------------------------------------------------------
