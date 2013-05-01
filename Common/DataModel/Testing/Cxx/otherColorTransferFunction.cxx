@@ -33,7 +33,7 @@ int Test(ostream& strm)
   ctf1->AddRGBPoint (0.0, 1, 0, 0);
   ctf1->AddHSVPoint (1.0, 1, 1, .6);
   ctf1->AddRGBSegment (2.0, 1, 1, 1, 10.0, 0, 0, 0);
-  ctf1->AddHSVSegment (11.0, 1, 1, 6, 15.0, .1, .2, .3);
+  ctf1->AddHSVSegment (11.0, 1, 1, .6, 15.0, .1, .2, .3);
   strm << *ctf1;
 
   double rgb[3];
