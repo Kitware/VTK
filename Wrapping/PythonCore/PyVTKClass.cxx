@@ -56,6 +56,17 @@ static PyObject *PyVTKClass_Repr(PyObject *op)
 }
 
 //--------------------------------------------------------------------
+static long PyVTKClass_Hash(PyObject *op)
+{
+  size_t y = reinterpret_cast<size_t>(op);
+  y = (y >> 4) | (y << (8 * sizeof(op) - 4));
+  long x = static_cast<long>(y);
+  if (x == -1) { x = -2; }
+
+  return x;
+}
+
+//--------------------------------------------------------------------
 static PyObject *PyVTKClass_Call(PyObject *op, PyObject *arg, PyObject *kw)
 {
   PyVTKClass *self = (PyVTKClass *)op;
@@ -398,7 +409,7 @@ PyTypeObject PyVTKClass_Type = {
   0,                                     // tp_as_number
   0,                                     // tp_as_sequence
   0,                                     // tp_as_mapping
-  0,                                     // tp_hash
+  PyVTKClass_Hash,                       // tp_hash
   PyVTKClass_Call,                       // tp_call
   PyVTKClass_String,                     // tp_string
   PyVTKClass_GetAttr,                    // tp_getattro
