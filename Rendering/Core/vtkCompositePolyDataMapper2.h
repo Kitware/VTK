@@ -61,9 +61,21 @@ public:
   // Description:
   // Set/get the color for a block given its flat index.
   void SetBlockColor(unsigned int index, double color[3]);
+  void SetBlockColor(unsigned int index, double r, double g, double b)
+    {
+    double color[3] = {r, g, b};
+    this->SetBlockColor(index, color);
+    }
   double* GetBlockColor(unsigned int index);
   void RemoveBlockColor(unsigned int index);
   void RemoveBlockColors();
+
+  // Description:
+  // Set/get the opacity for a block given its flat index.
+  void SetBlockOpacity(unsigned int index, double opacity);
+  double GetBlockOpacity(unsigned int index);
+  void RemoveBlockOpacity(unsigned int index);
+  void RemoveBlockOpacities();
 
 //BTX
 protected:
@@ -83,6 +95,11 @@ protected:
   // Description:
   // Need to loop over the hierarchy to compute bounds
   virtual void ComputeBounds();
+
+  // Description:
+  // Called when the PainterInformation becomes obsolete. Overridden to pass
+  // CompositeDataDisplayAttributes to the painters.
+  virtual void UpdatePainterInformation();
 
   // Description:
   // Time stamp for computation of bounds.

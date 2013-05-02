@@ -93,9 +93,10 @@ if(VTK_DATA_ROOT)
   set(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}
     TestAreaSelections.cxx
+    TestGlyph3DMapperArrow.cxx
+    TestMultiblockDisplayProperties.cxx
     TestMultiTexturing.cxx
     TestMultiTexturingTransform.cxx
-    TestGlyph3DMapperArrow.cxx
     TestImageSliceMapperBorder.cxx
     TestImageResliceMapperBorder.cxx
     TestScalarBar.cxx
