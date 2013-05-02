@@ -1459,13 +1459,6 @@ int vtkStreamingDemandDrivenPipeline
     return 1;
     }
 
-  if( outInfo->Has( UPDATE_AMR_LEVEL() ) )
-    {
-      std::cout << "EXECUTING.....\n";
-      std::cout.flush();
-      return 1;
-    }
-
   if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
     {
     // Check the unstructured extent.  If we do not have the requested

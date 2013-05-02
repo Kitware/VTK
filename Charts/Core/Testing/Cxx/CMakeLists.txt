@@ -28,6 +28,8 @@
       TestLinePlotAxisFonts.cxx
       TestLinePlot2.cxx
       TestLinePlotInteraction.cxx
+      TestLinePlotSelection.cxx
+      TestLinePlotSelection2.cxx
       TestMultipleChartRenderers.cxx
       TestMultipleRenderers.cxx
       TestMultipleScalarsToColors.cxx

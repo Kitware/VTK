@@ -193,17 +193,40 @@ void vtkChartXY::Update()
     this->AnnotationLink->Update();
     vtkSelection *selection =
       vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
-    if (selection->GetNumberOfNodes())
+    // Two major selection methods - row based or plot based.
+    if (this->SelectionMethod == vtkChart::SELECTION_ROWS &&
+        selection->GetNumberOfNodes())
       {
       vtkSelectionNode *node = selection->GetNode(0);
       vtkIdTypeArray *idArray =
           vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-      // Now iterate through the plots to update selection data
       std::vector<vtkPlot*>::iterator it =
           this->ChartPrivate->plots.begin();
       for ( ; it != this->ChartPrivate->plots.end(); ++it)
         {
+        // Use the first selection node for all plots to select the rows.
         (*it)->SetSelection(idArray);
+        }
+      }
+    else if (this->SelectionMethod == vtkChart::SELECTION_PLOTS)
+      {
+      for (unsigned int i = 0; i < selection->GetNumberOfNodes(); ++i)
+        {
+        vtkSelectionNode *node = selection->GetNode(i);
+        vtkIdTypeArray *idArray =
+            vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+        vtkPlot *selectionPlot =
+            vtkPlot::SafeDownCast(node->GetProperties()->Get(vtkSelectionNode::PROP()));
+        // Now iterate through the plots to update selection data
+        std::vector<vtkPlot*>::iterator it =
+            this->ChartPrivate->plots.begin();
+        for ( ; it != this->ChartPrivate->plots.end(); ++it)
+          {
+          if (selectionPlot == *it)
+            {
+            (*it)->SetSelection(idArray);
+            }
+          }
         }
       }
     }
@@ -1179,6 +1202,27 @@ void vtkChartXY::RecalculateBounds()
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXY::SetSelectionMethod(int method)
+{
+  if (method == this->SelectionMethod)
+    {
+    return;
+    }
+  if (method == vtkChart::SELECTION_PLOTS)
+    {
+    // Clear the selection on the plots which may be shared between all of them.
+    // Now iterate through the plots to update selection data
+    std::vector<vtkPlot*>::iterator it =
+        this->ChartPrivate->plots.begin();
+    for ( ; it != this->ChartPrivate->plots.end(); ++it)
+      {
+      (*it)->SetSelection(NULL);
+      }
+    }
+  Superclass::SetSelectionMethod(method);
+}
+
+//-----------------------------------------------------------------------------
 bool vtkChartXY::Hit(const vtkContextMouseEvent &mouse)
 {
   if (!this->Interactive)
@@ -1427,7 +1471,8 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
                 if (this->AnnotationLink)
                   {
                   vtkChartSelectionHelper::MakeSelection(this->AnnotationLink,
-                                                         selectionIds.GetPointer());
+                                                         selectionIds.GetPointer(),
+                                                         plot);
                   }
                 }
               }
@@ -1563,68 +1608,149 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
         }
       }
     }
-  if (mouse.GetButton() == this->Actions.Select())
+  if (mouse.GetButton() == this->Actions.Select() ||
+      mouse.GetButton() == this->Actions.SelectPolygon())
     {
     // Modifiers or selection modes can affect how selection is performed.
     int selectionMode =
         vtkChartSelectionHelper::GetMouseSelectionMode(mouse,
                                                        this->SelectionMode);
+    bool polygonMode(mouse.GetButton() == this->Actions.SelectPolygon());
+    this->Scene->SetDirty(true);
 
-    if (fabs(this->MouseBox.GetWidth()) < 0.5 || fabs(this->MouseBox.GetHeight()) < 0.5)
+    // Update the polygon or box with the last mouse position.
+    if (polygonMode)
       {
-      // Invalid box size - do nothing
-      this->MouseBox.SetWidth(0.0);
-      this->MouseBox.SetHeight(0.0);
+      this->SelectionPolygon.AddPoint(mouse.GetPos());
+      this->DrawSelectionPolygon = false;
+      }
+    else
+      {
+      this->MouseBox.SetWidth(mouse.GetPos().GetX() - this->MouseBox.GetX());
+      this->MouseBox.SetHeight(mouse.GetPos().GetY() - this->MouseBox.GetY());
       this->DrawBox = false;
+      }
+
+    // Check whether we have a valid selection area, exit early if not.
+    if (polygonMode && this->SelectionPolygon.GetNumberOfPoints() < 3)
+      {
+      // There is no polygon to select points in.
+      this->SelectionPolygon.Clear();
       return true;
       }
-    // Iterate through the plots and build a selection
-    vtkNew<vtkIdTypeArray> oldSelection;
-    for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
+    else if (fabs(this->MouseBox.GetWidth()) < 0.5 ||
+             fabs(this->MouseBox.GetHeight()) < 0.5)
       {
-      int items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
-                                   ->GetNumberOfItems());
-      if (items)
+      // The box is too small, and no useful selection can be made.
+      this->MouseBox.SetWidth(0.0);
+      this->MouseBox.SetHeight(0.0);
+      return true;
+      }
+
+    // Iterate through the plots and build a selection. Two main behaviors are
+    // supported - row-based selections add all rows from all plots and set that
+    // as the selection, plot-based selections create a selection node for each
+    // plot.
+    vtkNew<vtkIdTypeArray> oldSelection;
+    vtkNew<vtkIdTypeArray> accumulateSelection;
+    if (this->SelectionMethod == vtkChart::SELECTION_ROWS)
+      {
+      // There is only one global selection, we build up a union of all rows
+      // selected in all charts and set that on all plots.
+      for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
         {
-        vtkTransform2D *transform =
-            this->ChartPrivate->PlotCorners[i]->GetTransform();
-        transform->InverseTransformPoints(this->MouseBox.GetData(),
-                                          this->MouseBox.GetData(), 1);
-        vtkVector2f point2(mouse.GetPos());
-        transform->InverseTransformPoints(point2.GetData(), point2.GetData(), 1);
+        int items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
+                                     ->GetNumberOfItems());
+        if (items)
+          {
+          vtkTransform2D *transform =
+              this->ChartPrivate->PlotCorners[i]->GetTransform();
+          vtkVector2f min;
+          vtkVector2f max;
+          vtkContextPolygon polygon;
+          this->TransformBoxOrPolygon(polygonMode, transform, mouse.GetPos(),
+                                      min, max, polygon);
 
-        vtkVector2f min(this->MouseBox.GetData());
-        vtkVector2f max(point2);
-        if (min.GetX() > max.GetX())
-          {
-          float tmp = min.GetX();
-          min.SetX(max.GetX());
-          max.SetX(tmp);
-          }
-        if (min.GetY() > max.GetY())
-          {
-          float tmp = min.GetY();
-          min.SetY(max.GetY());
-          max.SetY(tmp);
-          }
-
-        for (int j = 0; j < items; ++j)
-          {
-          vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
-                                                PlotCorners[i]->GetItem(j));
-          if (plot && plot->GetVisible())
+          // Iterate through the plots and create the selection.
+          for (int j = 0; j < items; ++j)
             {
-            oldSelection->DeepCopy(plot->GetSelection());
-            /*
-             * Populate the internal selection.  This will be referenced later
-             * to subsequently populate the selection inside the annotation link.
-             */
-            plot->SelectPoints(min, max);
+            vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
+                                                  PlotCorners[i]->GetItem(j));
+            if (plot && plot->GetVisible())
+              {
+              // There is only really one old selection in this mode.
+              if (i == 0 && j == 0)
+                {
+                oldSelection->DeepCopy(plot->GetSelection());
+                }
+              // Populate the selection using the appropriate shape.
+              if (polygonMode)
+                {
+                plot->SelectPointsInPolygon(polygon);
+                }
+              else
+                {
+                plot->SelectPoints(min, max);
+                }
 
-            vtkChartSelectionHelper::BuildSelection(this->AnnotationLink,
-                                                    selectionMode,
-                                                    plot->GetSelection(),
-                                                    oldSelection.GetPointer());
+              // Accumulate the selection in each plot.
+              vtkChartSelectionHelper::BuildSelection(0,
+                                                      vtkContextScene::SELECTION_ADDITION,
+                                                      accumulateSelection.GetPointer(),
+                                                      plot->GetSelection(),
+                                                      0);
+              }
+            }
+          }
+        }
+      // Now add the accumulated selection to the old selection.
+      vtkChartSelectionHelper::BuildSelection(this->AnnotationLink,
+                                              selectionMode,
+                                              accumulateSelection.GetPointer(),
+                                              oldSelection.GetPointer(),
+                                              0);
+      }
+    else
+      {
+      // We are performing plot based selections.
+      for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
+        {
+        int items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
+                                     ->GetNumberOfItems());
+        if (items)
+          {
+          vtkTransform2D *transform =
+              this->ChartPrivate->PlotCorners[i]->GetTransform();
+          vtkVector2f min;
+          vtkVector2f max;
+          vtkContextPolygon polygon;
+          this->TransformBoxOrPolygon(polygonMode, transform, mouse.GetPos(),
+                                      min, max, polygon);
+
+          for (int j = 0; j < items; ++j)
+            {
+            vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
+                                                  PlotCorners[i]->GetItem(j));
+            if (plot && plot->GetVisible())
+              {
+              oldSelection->DeepCopy(plot->GetSelection());
+              // Populate the selection using the appropriate shape.
+              if (polygonMode)
+                {
+                plot->SelectPointsInPolygon(polygon);
+                }
+              else
+                {
+                plot->SelectPoints(min, max);
+                }
+
+              // Combine the selection in this plot with any previous selection.
+              vtkChartSelectionHelper::BuildSelection(this->AnnotationLink,
+                                                      selectionMode,
+                                                      plot->GetSelection(),
+                                                      oldSelection.GetPointer(),
+                                                      plot);
+              }
             }
           }
         }
@@ -1633,67 +1759,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     this->MouseBox.SetWidth(0.0);
     this->MouseBox.SetHeight(0.0);
-    this->DrawBox = false;
-    // Mark the scene as dirty
-    this->Scene->SetDirty(true);
-    return true;
-    }
-  else if (mouse.GetButton() == this->Actions.SelectPolygon())
-    {
-    this->SelectionPolygon.AddPoint(mouse.GetPos());
-    this->DrawSelectionPolygon = false;
-    this->Scene->SetDirty(true);
-
-    // Modifiers or selection modes can affect how selection is performed.
-    int selectionMode =
-        vtkChartSelectionHelper::GetMouseSelectionMode(mouse,
-                                                       this->SelectionMode);
-
-    if(this->SelectionPolygon.GetNumberOfPoints() < 3)
-      {
-      // no polygon to select in
-      return true;
-      }
-
-    // make selection
-    vtkNew<vtkIdTypeArray> oldSelection;
-    for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
-      {
-      int items = this->ChartPrivate->PlotCorners[i]->GetNumberOfItems();
-      if (items)
-        {
-        vtkTransform2D *transform =
-          this->ChartPrivate->PlotCorners[i]->GetTransform();
-        vtkNew<vtkTransform2D> inverseTransform;
-        inverseTransform->SetMatrix(transform->GetMatrix());
-        inverseTransform->Inverse();
-        vtkContextPolygon polygon =
-          this->SelectionPolygon.Transformed(inverseTransform.GetPointer());
-
-        for (int j = 0; j < items; ++j)
-          {
-          vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
-                                                PlotCorners[i]->GetItem(j));
-          if (plot && plot->GetVisible())
-            {
-            oldSelection->DeepCopy(plot->GetSelection());
-            /*
-             * Populate the internal selection.  This will be referenced later
-             * to subsequently populate the selection inside the annotation link.
-             */
-            plot->SelectPointsInPolygon(polygon);
-
-            vtkChartSelectionHelper::BuildSelection(this->AnnotationLink,
-                                                    selectionMode,
-                                                    plot->GetSelection(),
-                                                    oldSelection.GetPointer());
-            }
-          }
-        }
-      }
-
-    this->InvokeEvent(vtkCommand::SelectionChangedEvent);
-
+    this->SelectionPolygon.Clear();
     return true;
     }
   else if (mouse.GetButton() == this->Actions.Zoom())
@@ -1831,6 +1897,43 @@ bool vtkChartXY::RemovePlotFromCorners(vtkPlot *plot)
       }
     }
   return false;
+}
+
+//-----------------------------------------------------------------------------
+inline void vtkChartXY::TransformBoxOrPolygon(bool polygonMode,
+                                              vtkTransform2D *transform,
+                                              const vtkVector2f &mousePosition,
+                                              vtkVector2f &min, vtkVector2f &max,
+                                              vtkContextPolygon &polygon)
+{
+  if (polygonMode)
+    {
+    vtkNew<vtkTransform2D> inverseTransform;
+    inverseTransform->SetMatrix(transform->GetMatrix());
+    inverseTransform->Inverse();
+    polygon =
+      this->SelectionPolygon.Transformed(inverseTransform.GetPointer());
+    }
+  else
+    {
+    transform->InverseTransformPoints(this->MouseBox.GetData(),
+                                      min.GetData(), 1);
+    transform->InverseTransformPoints(mousePosition.GetData(),
+                                      max.GetData(), 1);
+    // Normalize the rectangle selection area before using it.
+    if (min.GetX() > max.GetX())
+      {
+      float tmp = min.GetX();
+      min.SetX(max.GetX());
+      max.SetX(tmp);
+      }
+    if (min.GetY() > max.GetY())
+      {
+      float tmp = min.GetY();
+      min.SetY(max.GetY());
+      max.SetY(tmp);
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------

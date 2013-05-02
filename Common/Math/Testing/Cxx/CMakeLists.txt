@@ -1,9 +1,18 @@
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+set(Test_SRCS
   TestAmoebaMinimizer.cxx
-  TestFastNumericConversion.cxx
   TestMatrix3x3.cxx
   TestPolynomialSolversUnivariate.cxx
   TestQuaternion.cxx
+)
+
+if(NOT VTK_LEGACY_REMOVE)
+  list(APPEND Test_SRCS
+    TestFastNumericConversion.cxx
+    )
+endif()
+
+create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+  ${Test_SRCS}
   EXTRA_INCLUDE vtkTestDriver.h
 )
 

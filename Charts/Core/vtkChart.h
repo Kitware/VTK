@@ -121,6 +121,25 @@ public:
   virtual void RecalculateBounds();
 
   // Description:
+  // Enumeration of the possible selection methods in a chart. SELECTION_ROWS
+  // is the default and simply selects the row in a table in all plots showing
+  // that table. SELECTION_PLOTS will make a selection in each plot, and that
+  // selection remains specific to the plot object.
+  enum {
+    SELECTION_ROWS,
+    SELECTION_PLOTS
+  };
+
+  // Description:
+  // Set the selection method, which controls how selections are handled by the
+  // chart. The default is SELECTION_ROWS which selects all points in all plots
+  // in a chart that have values in the rows selected. SELECTION_PLOTS allows
+  // for finer-grained selections specific to each plot, and so to each XY
+  // column pair.
+  virtual void SetSelectionMethod(int method);
+  virtual int GetSelectionMethod();
+
+  // Description:
   // Set the vtkAnnotationLink for the chart.
   virtual void SetAnnotationLink(vtkAnnotationLink *link);
 
@@ -318,6 +337,10 @@ protected:
 
   // The mode when the chart is doing selection.
   int SelectionMode;
+
+  // How plot selections are handled, SELECTION_ROWS (default) or
+  // SELECTION_PLOTS - based on the plot that created the selection.
+  int SelectionMethod;
 
   // Description:
   // Hold mouse action mappings.

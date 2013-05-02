@@ -122,6 +122,14 @@ public:
   virtual void RecalculateBounds();
 
   // Description:
+  // Set the selection method, which controls how selections are handled by the
+  // chart. The default is SELECTION_ROWS which selects all points in all plots
+  // in a chart that have values in the rows selected. SELECTION_PLOTS allows
+  // for finer-grained selections specific to each plot, and so to each XY
+  // column pair.
+  virtual void SetSelectionMethod(int method);
+
+  // Description:
   // If true then the axes will be drawn at the origin (scientific style).
   vtkSetMacro(DrawAxesAtOrigin, bool);
   vtkGetMacro(DrawAxesAtOrigin, bool);
@@ -317,6 +325,13 @@ private:
   bool RemovePlotFromCorners(vtkPlot *plot);
 
   void ZoomInAxes(vtkAxis *x, vtkAxis *y, float *orign, float *max);
+
+  // Description:
+  // Transform the selection box or polygon.
+  void TransformBoxOrPolygon(bool polygonMode, vtkTransform2D *transform,
+                             const vtkVector2f &mousePosition,
+                             vtkVector2f &min, vtkVector2f &max,
+                             vtkContextPolygon &polygon);
 
 //ETX
 };

@@ -10,7 +10,7 @@ if(${IMPORT_MATPLOTLIB_EXITCODE} EQUAL 0)
 endif()
 
 if(NOT MATPLOTLIB_FOUND)
-  message("Matplotlib not found! MathText rendering will not be available until it is installed. Disabling tests.")
+  message(STATUS "Matplotlib not found! MathText rendering will not be available until it is installed. Disabling tests.")
 endif()
 
 if(MATPLOTLIB_FOUND)

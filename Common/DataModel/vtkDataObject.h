@@ -100,10 +100,6 @@ public:
   virtual void SetFieldData(vtkFieldData*);
   vtkGetObjectMacro(FieldData,vtkFieldData);
 
-  // Handle the source/data loop.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
-
   // Description:
   // Return class name of data type. This is one of VTK_STRUCTURED_GRID,
   // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
@@ -351,8 +347,6 @@ protected:
 
   // When was this data last generated?
   vtkTimeStamp UpdateTime;
-
-  virtual void ReportReferences(vtkGarbageCollector*);
 
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;
