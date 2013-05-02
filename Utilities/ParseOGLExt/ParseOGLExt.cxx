@@ -690,10 +690,10 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   ConstantsAlreadyWritten.clear();
   WriteClassDeclarationGuts(hfile, Extension::GL);
   hfile << endl << "  // Method to load functions for a particular extension.";
-  hfile << endl << "  int LoadExtension(const char *name, "
+  hfile << endl << "  extern int VTKRENDERINGOPENGL_EXPORT LoadExtension(const char *name, "
         << "vtkOpenGLExtensionManager *manager);" << endl;
   hfile << endl << "  // Strings containing special version extensions.";
-  hfile << endl << "  const char *GLVersionExtensionsString();" << endl;
+  hfile << endl << "  extern VTKRENDERINGOPENGL_EXPORT const char *GLVersionExtensionsString();" << endl;
   hfile << endl << "  const char *GLXVersionExtensionsString();" << endl;
   hfile << "}" << endl;
   Extension::WriteSupportWrapperEnd(hfile, Extension::GL);
