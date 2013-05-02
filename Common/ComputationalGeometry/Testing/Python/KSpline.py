@@ -11,42 +11,53 @@ renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren1)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
+
 math = vtk.vtkMath()
+
 numberOfInputPoints = 30
+
 aSplineX = vtk.vtkKochanekSpline()
 aSplineY = vtk.vtkKochanekSpline()
 aSplineZ = vtk.vtkKochanekSpline()
+
 # generate random points
 inputPoints = vtk.vtkPoints()
 i = 0
 while i < numberOfInputPoints:
-    x = math.Random(0,1)
-    y = math.Random(0,1)
-    z = math.Random(0,1)
-    aSplineX.AddPoint(i,x)
-    aSplineY.AddPoint(i,y)
-    aSplineZ.AddPoint(i,z)
-    inputPoints.InsertPoint(i,x,y,z)
-    i = i + 1
+    x = math.Random(0, 1)
+    y = math.Random(0, 1)
+    z = math.Random(0, 1)
+    aSplineX.AddPoint(i, x)
+    aSplineY.AddPoint(i, y)
+    aSplineZ.AddPoint(i, z)
+    inputPoints.InsertPoint(i, x, y, z)
+    i += 1
 
 inputData = vtk.vtkPolyData()
 inputData.SetPoints(inputPoints)
+
 balls = vtk.vtkSphereSource()
 balls.SetRadius(.01)
 balls.SetPhiResolution(10)
 balls.SetThetaResolution(10)
+
 glyphPoints = vtk.vtkGlyph3D()
 glyphPoints.SetInputData(inputData)
 glyphPoints.SetSourceConnection(balls.GetOutputPort())
+
 glyphMapper = vtk.vtkPolyDataMapper()
 glyphMapper.SetInputConnection(glyphPoints.GetOutputPort())
+
 glyph = vtk.vtkActor()
 glyph.SetMapper(glyphMapper)
-glyph.GetProperty().SetDiffuseColor(1,0.6,0.6)
+glyph.GetProperty().SetDiffuseColor(1, 0.6, 0.6)
 glyph.GetProperty().SetSpecular(.3)
 glyph.GetProperty().SetSpecularPower(30)
+
 ren1.AddActor(glyph)
+
 points = vtk.vtkPoints()
+
 # create a line
 tension = 0
 bias = 0
@@ -60,23 +71,26 @@ aSplineY.SetDefaultContinuity(continuity)
 aSplineZ.SetDefaultTension(tension)
 aSplineZ.SetDefaultBias(bias)
 aSplineZ.SetDefaultContinuity(continuity)
+
 profileData = vtk.vtkPolyData()
+
 numberOfOutputPoints = 300
 offset = 1.0
-def fit (__vtk__temp0=0,__vtk__temp1=0):
-    global numberOfInputPoints, numberOfOutputPoints, offset
+def fit ():
     points.Reset()
     i = 0
     while i < numberOfOutputPoints:
-        t = expr.expr(globals(), locals(),["(","numberOfInputPoints","-","offset",")","/","(","numberOfOutputPoints","-","1",")","*","i"])
-        points.InsertPoint(i,aSplineX.Evaluate(t),aSplineY.Evaluate(t),aSplineZ.Evaluate(t))
+        t = (numberOfInputPoints - offset) / (numberOfOutputPoints - 1) * i
+        points.InsertPoint(i, aSplineX.Evaluate(t), aSplineY.Evaluate(t), aSplineZ.Evaluate(t))
         i = i + 1
 
     profileData.Modified()
 
 fit()
+
 lines = vtk.vtkCellArray()
 lines.InsertNextCell(numberOfOutputPoints)
+
 i = 0
 while i < numberOfOutputPoints:
     lines.InsertCellPoint(i)
@@ -84,27 +98,33 @@ while i < numberOfOutputPoints:
 
 profileData.SetPoints(points)
 profileData.SetLines(lines)
+
 profileTubes = vtk.vtkTubeFilter()
 profileTubes.SetNumberOfSides(8)
 profileTubes.SetInputData(profileData)
 profileTubes.SetRadius(.005)
+
 profileMapper = vtk.vtkPolyDataMapper()
 profileMapper.SetInputConnection(profileTubes.GetOutputPort())
+
 profile = vtk.vtkActor()
 profile.SetMapper(profileMapper)
-profile.GetProperty().SetDiffuseColor(1,1,0.7)
+profile.GetProperty().SetDiffuseColor(1, 1, 0.7)
 profile.GetProperty().SetSpecular(.3)
 profile.GetProperty().SetSpecularPower(30)
+
 ren1.AddActor(profile)
 ren1.GetActiveCamera().Dolly(1.5)
 ren1.ResetCamera()
 ren1.ResetCameraClippingRange()
-renWin.SetSize(400,400)
+
+renWin.SetSize(400, 400)
+
 # render the image
 #
 iren.Initialize()
-# prevent the tk window from showing up then start the event loop
-def defaults (__vtk__temp0=0,__vtk__temp1=0):
+
+def defaults (aSplineX, aSplineY, aSplineZ):
     aSplineX.SetDefaultBias(0)
     aSplineX.SetDefaultTension(0)
     aSplineX.SetDefaultContinuity(0)
@@ -117,8 +137,8 @@ def defaults (__vtk__temp0=0,__vtk__temp1=0):
     fit()
     renWin.Render()
 
-def varyBias (__vtk__temp0=0,__vtk__temp1=0):
-    defaults()
+def varyBias (aSplineX, aSplineY, aSplineZ):
+    defaults(aSplineX, aSplineY, aSplineZ)
     bias = -1
     while bias <= 1:
         aSplineX.SetDefaultBias(bias)
@@ -126,11 +146,11 @@ def varyBias (__vtk__temp0=0,__vtk__temp1=0):
         aSplineZ.SetDefaultBias(bias)
         fit()
         renWin.Render()
-        bias = expr.expr(globals(), locals(),["bias","+",".05"])
+        bias += .05
 
 
-def varyTension (__vtk__temp0=0,__vtk__temp1=0):
-    defaults()
+def varyTension (aSplineX, aSplineY, aSplineZ):
+    defaults(aSplineX, aSplineY, aSplineZ)
     tension = -1
     while tension <= 1:
         aSplineX.SetDefaultTension(tension)
@@ -138,11 +158,11 @@ def varyTension (__vtk__temp0=0,__vtk__temp1=0):
         aSplineZ.SetDefaultTension(tension)
         fit()
         renWin.Render()
-        tension = expr.expr(globals(), locals(),["tension","+",".05"])
+        tension += 0.05
 
 
-def varyContinuity (__vtk__temp0=0,__vtk__temp1=0):
-    defaults()
+def varyContinuity (aSplineX, aSplineY, aSplineZ):
+    defaults(aSplineX, aSplineY, aSplineZ)
     Continuity = -1
     while Continuity <= 1:
         aSplineX.SetDefaultContinuity(Continuity)
@@ -150,11 +170,10 @@ def varyContinuity (__vtk__temp0=0,__vtk__temp1=0):
         aSplineZ.SetDefaultContinuity(Continuity)
         fit()
         renWin.Render()
-        Continuity = expr.expr(globals(), locals(),["Continuity","+",".05"])
+        Continuity += 0.05
 
 
-def closed (__vtk__temp0=0,__vtk__temp1=0):
-    global offset
+def closed (aSplineX, aSplineY, aSplineZ):
     offset = 0.0
     aSplineX.ClosedOn()
     aSplineY.ClosedOn()
@@ -162,8 +181,7 @@ def closed (__vtk__temp0=0,__vtk__temp1=0):
     fit()
     renWin.Render()
 
-def opened (__vtk__temp0=0,__vtk__temp1=0):
-    global offset
+def opened (aSplineX, aSplineY, aSplineZ):
     offset = 1.0
     aSplineX.ClosedOff()
     aSplineY.ClosedOff()
@@ -171,4 +189,4 @@ def opened (__vtk__temp0=0,__vtk__temp1=0):
     fit()
     renWin.Render()
 
-# --- end of script --
+# iren.Start()

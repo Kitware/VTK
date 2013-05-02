@@ -1,11 +1,11 @@
 #!/usr/bin/env python
+import math
 import vtk
 from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-# get the interactor ui
-## Graphics stuff
+# Graphics stuff
 # Create the RenderWindow, Renderer and both Actors
 #
 ren1 = vtk.vtkRenderer()
@@ -13,53 +13,64 @@ renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren1)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
+
 pl3d = vtk.vtkMultiBlockPLOT3DReader()
-pl3d.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-pl3d.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
+
 output = pl3d.GetOutput().GetBlock(0)
+
 range = output.GetPointData().GetScalars().GetRange()
-min = lindex(range,0)
-max = lindex(range,1)
-value = expr.expr(globals(), locals(),["(","min","+","max",")","/","2.0"])
+min = range[0]
+max = range[1]
+value = (min + max) / 2.0
+
 cf = vtk.vtkContourFilter()
 cf.SetInputData(output)
-cf.SetValue(0,value)
+cf.SetValue(0, value)
 cf.UseScalarTreeOn()
+
 numberOfContours = 5
-epsilon = expr.expr(globals(), locals(),["double","(","max","-","min",")","/","double","(","numberOfContours","*","10",")"])
-min = expr.expr(globals(), locals(),["min","+","epsilon"])
-max = expr.expr(globals(), locals(),["max","-","epsilon"])
+epsilon = float(max - min) / float(numberOfContours * 10)
+min = min + epsilon
+max = max - epsilon
 i = 1
 while i <= numberOfContours:
-    cf.SetValue(0,expr.expr(globals(), locals(),["min","+","((","i","-","1",")","/","double","(","numberOfContours","-","1",")",")*(","max","-","min",")"]))
+    cf.SetValue(0, min + ((i - 1) / float(numberOfContours - 1)) * (max - min))
     cf.Update()
-    locals()[get_variable_name("pd", i, "")] = vtk.vtkPolyData()
-    locals()[get_variable_name("pd", i, "")].CopyStructure(cf.GetOutput())
-    locals()[get_variable_name("pd", i, "")].GetPointData().DeepCopy(cf.GetOutput().GetPointData())
-    locals()[get_variable_name("mapper", i, "")] = vtk.vtkPolyDataMapper()
-    locals()[get_variable_name("mapper", i, "")].SetInputData(locals()[get_variable_name("pd", i, "")])
-    locals()[get_variable_name("mapper", i, "")].SetScalarRange(output.GetPointData().GetScalars().GetRange())
-    locals()[get_variable_name("actor", i, "")] = vtk.vtkActor()
-    locals()[get_variable_name("actor", i, "")].AddPosition(0,expr.expr(globals(), locals(),["i","*","12"]),0)
-    locals()[get_variable_name("actor", i, "")].SetMapper(locals()[get_variable_name("mapper", i, "")])
-    ren1.AddActor(locals()[get_variable_name("actor", i, "")])
-    i = i + 1
+    idx = str(i)
+    exec("pd" + idx + " = vtk.vtkPolyData()")
+    eval("pd" + idx).CopyStructure(cf.GetOutput())
+    eval("pd" + idx).GetPointData().DeepCopy(cf.GetOutput().GetPointData())
+
+    exec("mapper" + idx + " = vtk.vtkPolyDataMapper()")
+    eval("mapper" + idx).SetInputData(eval("pd" + idx))
+    eval("mapper" + idx).SetScalarRange(
+      output.GetPointData().GetScalars().GetRange())
+
+    exec("actor" + idx + " = vtk.vtkActor()")
+    eval("actor" + idx).AddPosition(0, i * 12, 0)
+    eval("actor" + idx).SetMapper(eval("mapper" + idx))
+
+    ren1.AddActor(eval("actor" + idx))
+
+    i += 1
 
 # Add the actors to the renderer, set the background and size
 #
-ren1.SetBackground(.3,.3,.3)
-renWin.SetSize(450,150)
-cam1 = ren1.GetActiveCamera()
-ren1.GetActiveCamera().SetPosition(-36.3762,32.3855,51.3652)
-ren1.GetActiveCamera().SetFocalPoint(8.255,33.3861,29.7687)
+ren1.SetBackground(.3, .3, .3)
+
+renWin.SetSize(450, 150)
+
+# cam1 = ren1.GetActiveCamera()
+ren1.GetActiveCamera().SetPosition(-36.3762, 32.3855, 51.3652)
+ren1.GetActiveCamera().SetFocalPoint(8.255, 33.3861, 29.7687)
 ren1.GetActiveCamera().SetViewAngle(30)
-ren1.GetActiveCamera().SetViewUp(0,0,1)
+ren1.GetActiveCamera().SetViewUp(0, 0, 1)
 ren1.ResetCameraClippingRange()
+
 iren.Initialize()
-# render the image
-#
-# prevent the tk window from showing up then start the event loop
-# --- end of script --
+#iren.Start()
