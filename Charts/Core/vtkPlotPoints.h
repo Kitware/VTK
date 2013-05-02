@@ -76,6 +76,10 @@ public:
   virtual void GetBounds(double bounds[4]);
 
   // Description:
+  // Get the non-log-scaled bounds on chart inputs for this plot as (Xmin, Xmax, Ymin, Ymax).
+  virtual void GetUnscaledInputBounds(double bounds[4]);
+
+  // Description:
   // Specify a lookup table for the mapper to use.
   void SetLookupTable(vtkScalarsToColors *lut);
   vtkScalarsToColors *GetLookupTable();
@@ -203,6 +207,10 @@ protected:
   vtkUnsignedCharArray *Colors;
   int ScalarVisibility;
   vtkStdString ColorArrayName;
+
+  // Description:
+  // Cached bounds on the plot input axes
+  double UnscaledInputBounds[4];
 
 private:
   vtkPlotPoints(const vtkPlotPoints &); // Not implemented.

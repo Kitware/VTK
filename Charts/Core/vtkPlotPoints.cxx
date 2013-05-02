@@ -75,6 +75,9 @@ vtkPlotPoints::vtkPlotPoints()
   this->LookupTable = 0;
   this->Colors = 0;
   this->ScalarVisibility = 0;
+
+  this->UnscaledInputBounds[0] = this->UnscaledInputBounds[2] = vtkMath::Inf();
+  this->UnscaledInputBounds[1] = this->UnscaledInputBounds[3] = -vtkMath::Inf();
 }
 
 //-----------------------------------------------------------------------------
@@ -252,6 +255,18 @@ void vtkPlotPoints::GetBounds(double bounds[4])
     }
   vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
                 << bounds[2] << "\t" << bounds[3]);
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotPoints::GetUnscaledInputBounds(double bounds[4])
+{
+  for (int i = 0; i < 4; ++i)
+    {
+    bounds[i] = this->UnscaledInputBounds[i];
+    }
+  vtkDebugMacro(
+    << "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
+    << bounds[2] << "\t" << bounds[3]);
 }
 
 namespace
@@ -436,38 +451,53 @@ namespace {
 
 // Copy the two arrays into the points array
 template<class A, class B>
-void CopyToPoints(vtkPoints2D *points, A *a, B *b, int n)
+void CopyToPoints(vtkPoints2D *points, A *a, B *b, int n, double bds[4])
 {
+  bds[0] = bds[2] = vtkMath::Inf();
+  bds[1] = bds[3] = -vtkMath::Inf();
   points->SetNumberOfPoints(n);
   float* data = static_cast<float*>(points->GetVoidPointer(0));
   for (int i = 0; i < n; ++i)
     {
     data[2*i] = a[i];
     data[2*i+1] = b[i];
+
+    bds[0] = bds[0] < a[i] ? bds[0] : a[i];
+    bds[1] = bds[1] > a[i] ? bds[1] : a[i];
+
+    bds[2] = bds[2] < b[i] ? bds[2] : b[i];
+    bds[3] = bds[3] > b[i] ? bds[3] : b[i];
     }
 }
 
 // Copy one array into the points array, use the index of that array as x
 template<class A>
-void CopyToPoints(vtkPoints2D *points, A *a, int n)
+void CopyToPoints(vtkPoints2D *points, A *a, int n, double bds[4])
 {
+  bds[0] = 0.;
+  bds[1] = n - 1.;
   points->SetNumberOfPoints(n);
   float* data = static_cast<float*>(points->GetVoidPointer(0));
   for (int i = 0; i < n; ++i)
     {
     data[2*i] = static_cast<float>(i);
     data[2*i+1] = a[i];
+
+    bds[2] = bds[2] < a[i] ? bds[2] : a[i];
+    bds[3] = bds[3] > a[i] ? bds[3] : a[i];
     }
 }
 
 // Copy the two arrays into the points array
 template<class A>
-void CopyToPointsSwitch(vtkPoints2D *points, A *a, vtkDataArray *b, int n)
+void CopyToPointsSwitch(
+  vtkPoints2D *points, A *a, vtkDataArray *b, int n, double bds[4])
 {
   switch(b->GetDataType())
     {
     vtkTemplateMacro(
-        CopyToPoints(points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
+      CopyToPoints(
+        points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n, bds));
     }
 }
 
@@ -512,10 +542,10 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
     {
     switch(y->GetDataType())
       {
-        vtkTemplateMacro(
-            CopyToPoints(this->Points,
-                         static_cast<VTK_TT*>(y->GetVoidPointer(0)),
-                         y->GetNumberOfTuples()));
+      vtkTemplateMacro(
+        CopyToPoints(
+          this->Points, static_cast<VTK_TT*>(y->GetVoidPointer(0)),
+          y->GetNumberOfTuples(), this->UnscaledInputBounds));
       }
     }
   else
@@ -523,9 +553,9 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
     switch(x->GetDataType())
       {
       vtkTemplateMacro(
-          CopyToPointsSwitch(this->Points,
-                             static_cast<VTK_TT*>(x->GetVoidPointer(0)),
-                             y, x->GetNumberOfTuples()));
+        CopyToPointsSwitch(
+          this->Points, static_cast<VTK_TT*>(x->GetVoidPointer(0)),
+          y, x->GetNumberOfTuples(), this->UnscaledInputBounds));
       }
     }
   this->CalculateLogSeries();

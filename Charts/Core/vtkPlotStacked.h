@@ -71,8 +71,13 @@ public:
                            int legendIndex);
 
   // Description:
-  // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax).
   virtual void GetBounds(double bounds[4]);
+
+  // Description:
+  // Get the unscaled input bounds for this mapper as (Xmin,Xmax,Ymin,Ymax).
+  // See vtkPlot for more information.
+  virtual void GetUnscaledInputBounds(double bounds[4]);
 
   // Description:
   // When used to set additional arrays, stacked bars are created.

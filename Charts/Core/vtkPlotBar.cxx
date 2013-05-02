@@ -581,10 +581,11 @@ bool vtkPlotBar::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotBar::GetBounds(double bounds[4])
+void vtkPlotBar::GetBounds(double bounds[4], bool unscaled)
 {
   int seriesLow, seriesHigh, valuesLow, valuesHigh;
-  if (this->Orientation ==  vtkPlotBar::VERTICAL)
+  // Don't re-orient the axes for vertical plots or unscaled bounds:
+  if (this->Orientation ==  vtkPlotBar::VERTICAL || unscaled)
     {
     seriesLow = 0; // Xmin
     seriesHigh = 1; // Xmax
@@ -647,8 +648,37 @@ void vtkPlotBar::GetBounds(double bounds[4])
     {
     bounds[valuesHigh] = 0.0;
     }
+
+  if (unscaled)
+    {
+    vtkAxis* axes[2];
+    axes[seriesLow / 2] = this->GetXAxis();
+    axes[valuesLow / 2] = this->GetYAxis();
+    if (axes[0]->GetLogScaleActive())
+      {
+      bounds[0] = log10(fabs(bounds[0]));
+      bounds[1] = log10(fabs(bounds[1]));
+      }
+    if (axes[1]->GetLogScaleActive())
+      {
+      bounds[2] = log10(fabs(bounds[2]));
+      bounds[3] = log10(fabs(bounds[3]));
+      }
+    }
   vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
                 << bounds[2] << "\t" << bounds[3]);
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotBar::GetBounds(double bounds[4])
+{
+  this->GetBounds(bounds, false);
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotBar::GetUnscaledInputBounds(double bounds[4])
+{
+  this->GetBounds(bounds, true);
 }
 
 //-----------------------------------------------------------------------------
