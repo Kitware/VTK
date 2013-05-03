@@ -2644,20 +2644,21 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
         this->ReadIntArray(nodeIdList, numElements*15);
         }
 
+      const char wedgeMap[6] = {0, 2, 1, 3, 5, 4};
       for (i = 0; i < numElements; i++)
         {
         if (cellType == vtkEnSightReader::PENTA6)
           {
           for (j = 0; j < 6; j++)
             {
-            nodeIds[j] = nodeIdList[6*i+j] - 1;
+            nodeIds[wedgeMap[j]] = nodeIdList[6*i+j] - 1;
             }
           }
         else
           {
           for (j = 0; j < 6; j++)
             {
-            nodeIds[j] = nodeIdList[15*i+j] - 1;
+            nodeIds[wedgeMap[j]] = nodeIdList[15*i+j] - 1;
             }
           }
         if (this->UnstructuredNodeIds)
