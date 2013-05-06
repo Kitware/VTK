@@ -758,21 +758,32 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
 
   // III. Store the results in the array's vtkInformation.
   int c;
+  vtkInformationVector* iv;
   for (c = 0; c < nc; ++c)
     {
     if (uniques[c].size() <= MAX_DISCRETE_VALUES)
       {
       ++ numberOfComponentsWithProminentValues;
-      this->GetInformation()->Get(
-        PER_COMPONENT())->GetInformationObject(c)->Set(
+      iv = this->GetInformation()->Get(PER_COMPONENT());
+      if (!iv)
+        {
+        vtkNew<vtkInformationVector> infoVec;
+        infoVec->SetNumberOfInformationObjects(this->NumberOfComponents);
+        this->GetInformation()->Set(PER_COMPONENT(), infoVec.GetPointer());
+        iv = this->GetInformation()->Get(PER_COMPONENT());
+        }
+      iv->GetInformationObject(c)->Set(
         DISCRETE_VALUES(), &uniques[c][0],
         static_cast<int>(uniques[c].size()));
       }
     else
       {
-      this->GetInformation()->Get(
-        PER_COMPONENT())->GetInformationObject(c)->Remove(
-        DISCRETE_VALUES());
+      iv = this->GetInformation()->Get(PER_COMPONENT());
+      if (iv)
+        {
+        iv->GetInformationObject(c)->Remove(
+          DISCRETE_VALUES());
+        }
       }
     }
   if (nc > 1 &&
