@@ -2027,7 +2027,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
       numElements = atoi(line);
       lineRead = this->ReadNextDataLine(line);
 
-      const char penta6Map[6] = {0, 2, 1, 3, 5, 4};
+      const unsigned char penta6Map[6] = {0, 2, 1, 3, 5, 4};
       for (i = 0; i < numElements; i++)
         {
         if (!(sscanf(line, " %*d %d %d %d %d %d %d", &intIds[0],
