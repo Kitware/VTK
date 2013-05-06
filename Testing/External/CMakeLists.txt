@@ -14,6 +14,7 @@ get_filename_component(VTK_TOP_DIR ${VTKTestExternal_SOURCE_DIR}/../.. ABSOLUTE)
 # Load module infrastructure macros.
 list(APPEND CMAKE_MODULE_PATH ${VTK_TOP_DIR}/CMake)
 include(vtkModuleMacros)
+include(vtkExternalData)
 include(vtkTestingMacros)
 
 # Find the VTK build or install tree.  Assume the version matches exactly.
