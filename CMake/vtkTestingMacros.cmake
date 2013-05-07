@@ -130,98 +130,130 @@ macro (add_test_mpi fileName)
 endmacro()
 
 # -----------------------------------------------------------------------------
-# add_test_python() macro takes a python file and an optional base directory where the
-# corresponding test image is found and list of python files and makes them into
-# proper python tests.
-macro(add_test_python)
-  if(VTK_PYTHON_EXE)
-    # Parse Command line args
-    get_filename_component(TName ${ARGV0} NAME_WE)
-    # Check if data root and second parameter is present
-    set (base_dir "${ARGV1}")
-    if(VTK_DATA_ROOT AND base_dir)
-      add_test(NAME ${vtk-module}Python-${TName}
-        COMMAND ${VTK_PYTHON_EXE}
-        ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
-        ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_BINARY_DIR}/Testing/Temporary
-        -V Baseline/${ARGV1}/${TName}.png
-        -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py")
-    else()
-      add_test(NAME ${vtk-module}Python-${TName}
-        COMMAND ${VTK_PYTHON_EXE}
-        ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
-        ${${TName}_ARGS})
-    endif()
-  else()
+# Usage: add_test_python(name [NO_RT] [NO_DATA] [NO_VALID|<base_dir>])
+# NO_RT is for tests using vtk.test.testing
+function(add_test_python name)
+  if(NOT VTK_PYTHON_EXE)
     message(FATAL_ERROR "VTK_PYTHON_EXE not set")
   endif()
-endmacro(add_test_python)
-
-# -----------------------------------------------------------------------------
-# This macro is for tests using vtk.test.testing
-# add_test_python1() macro takes a python file and an optional base directory where the
-# corresponding test image is found and list of python files and makes them into
-# proper python tests.
-# Usage: add_test_python1(name base_dir)
-#    Where: name - the name of the test
-#                  e.g x.py
-#           base_dir - the (optional) base directory where the test image is
-#                      e.g Baseline/Graphics
-macro(add_test_python1)
-  if(VTK_PYTHON_EXE)
-    # Parse Command line args
-    get_filename_component(TName ${ARGV0} NAME_WE)
-    # Check if data root and second parameter is present
-    set (base_dir "${ARGV1}")
-    if(VTK_DATA_ROOT AND base_dir)
-      add_test(NAME ${vtk-module}Python-${TName}
-        COMMAND ${VTK_PYTHON_EXE}
-        ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
-        -D ${VTK_DATA_ROOT}
-        -B ${VTK_DATA_ROOT}/${ARGV1}
-        -T "${VTK_BINARY_DIR}/Testing/Temporary")
+  # Parse Command line args
+  get_filename_component(TName ${name} NAME_WE)
+  set(no_data 0)
+  set(no_valid 0)
+  set(no_output 0)
+  set(no_rt 0)
+  unset(base_dir)
+  foreach(a IN LISTS ARGN)
+    if("[${a}]" STREQUAL "[NO_DATA]")
+      set(no_data 1)
+    elseif("[${a}]" STREQUAL "[NO_VALID]")
+      set(no_valid 1)
+    elseif("[${a}]" STREQUAL "[NO_OUTPUT]")
+      set(no_output 1)
+    elseif("[${a}]" STREQUAL "[NO_RT]")
+      set(no_rt 1)
+    elseif(NOT DEFINED base_dir)
+      set(base_dir "${a}")
     else()
-      add_test(NAME ${vtk-module}Python-${TName}
-        COMMAND ${VTK_PYTHON_EXE}
-        ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
-        ${${TName}_ARGS})
+      message(FATAL_ERROR "Unknown argument \"${a}\"")
     endif()
-  else()
-    message(FATAL_ERROR "VTK_PYTHON_EXE not set")
+  endforeach()
+
+  if(no_valid)
+    set(base_dir "")
+  elseif(NOT DEFINED base_dir)
+    set(base_dir "")
   endif()
-endmacro(add_test_python1)
+
+  if(VTK_DATA_ROOT AND NOT no_data)
+    set(_D -D ${VTK_DATA_ROOT})
+  else()
+    set(_D "")
+  endif()
+
+  set(rtImageTest "")
+  set(_B "")
+  set(_V "")
+  set(_T "")
+  set(_A "")
+  if(VTK_DATA_ROOT AND base_dir)
+    if(no_rt)
+      set(_B -B ${VTK_DATA_ROOT}/Baseline/${base_dir})
+    else()
+      set(rtImageTest ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py)
+      set(_V -V Baseline/${base_dir}/${TName}.png)
+      set(_A -A ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py)
+    endif()
+    if(NOT no_output)
+      set(_T -T ${VTK_TEST_OUTPUT_DIR})
+    endif()
+  endif()
+
+  add_test(NAME ${vtk-module}Python-${TName}
+    COMMAND ${VTK_PYTHON_EXE} ${rtImageTest}
+    ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py ${${TName}_ARGS}
+    ${_D} ${_B} ${_T} ${_V} ${_A})
+endfunction()
 
 # -----------------------------------------------------------------------------
-# add_test_tcl() macro takes a tcl file and an optional base directory where the
-# corresponding test image is found and list of tcl files and makes them into
-# proper tcl tests.
-macro(add_test_tcl)
-  if(VTK_TCL_EXE)
-    # Parse Command line args
-    get_filename_component(TName ${ARGV0} NAME_WE)
-    # Check if data root and second parameter is present
-    set (base_dir "${ARGV1}")
-    if(VTK_DATA_ROOT AND base_dir)
-      add_test(NAME ${vtk-module}Tcl-${TName}
-        COMMAND ${VTK_TCL_EXE}
-        ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-        ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.tcl
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/${ARGV1}/${TName}.png
-        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-    else()
-      add_test(NAME ${vtk-module}Tcl-${TName}
-        COMMAND ${VTK_TCL_EXE}
-        ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl
-        ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.tcl
-        -D VTK_DATA_ROOT-NOTFOUND
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-    endif()
-  else()
+# Usage: add_test_tcl(name [NO_DATA] [NO_VALID|<base_dir>])
+function(add_test_tcl name)
+  if(NOT VTK_TCL_EXE)
     message(FATAL_ERROR "VTK_TCL_EXE not set")
   endif()
-endmacro(add_test_tcl)
+  # Parse Command line args
+  get_filename_component(TName ${name} NAME_WE)
+  set(no_data 0)
+  set(no_valid 0)
+  set(no_output 0)
+  set(no_rt 0)
+  unset(base_dir)
+  foreach(a IN LISTS ARGN)
+    if("[${a}]" STREQUAL "[NO_DATA]")
+      set(no_data 1)
+    elseif("[${a}]" STREQUAL "[NO_VALID]")
+      set(no_valid 1)
+    elseif("[${a}]" STREQUAL "[NO_OUTPUT]")
+      set(no_output 1)
+    elseif("[${a}]" STREQUAL "[NO_RT]")
+      set(no_rt 1)
+    elseif(NOT DEFINED base_dir)
+      set(base_dir "${a}")
+    else()
+      message(FATAL_ERROR "Unknown argument \"${a}\"")
+    endif()
+  endforeach()
+
+  if(no_valid OR no_rt)
+    set(base_dir "")
+  elseif(NOT DEFINED base_dir)
+    set(base_dir "")
+  endif()
+
+  if(VTK_DATA_ROOT AND NOT no_data)
+    set(_D -D ${VTK_DATA_ROOT})
+  elseif(no_rt)
+    set(_D "")
+  else()
+    set(_D -D VTK_DATA_ROOT-NOTFOUND)
+  endif()
+
+  set(rtImageTest "")
+  set(_V "")
+  set(_T "")
+  if(NOT no_rt)
+    set(rtImageTest ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl)
+    if(VTK_DATA_ROOT AND base_dir)
+      set(_V -V Baseline/${base_dir}/${TName}.png)
+    endif()
+    if(NOT no_output)
+      set(_T -T ${VTK_TEST_OUTPUT_DIR})
+    endif()
+  endif()
+  set(_A -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+  add_test(NAME ${vtk-module}Tcl-${TName}
+    COMMAND ${VTK_TCL_EXE} ${rtImageTest}
+    ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.tcl ${${TName}_ARGS}
+    ${_D} ${_T} ${_V} ${_A})
+endfunction()

@@ -1,3 +1,3 @@
 add_test_python(TestFreetypeTextOverlay.py Rendering)
-add_test_python1(TestFreetypeTextMapper.py Baseline/Rendering)
+add_test_python(TestFreetypeTextMapper.py Rendering NO_RT)
 add_test_python(TestFreetypeTextMapperBigger.py Rendering)
