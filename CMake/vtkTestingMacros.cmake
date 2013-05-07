@@ -130,33 +130,6 @@ macro (add_test_mpi fileName)
 endmacro()
 
 # -----------------------------------------------------------------------------
-# vtk_tests_python() macro takes a list of python files and makes them into
-# proper python tests.
-macro(vtk_tests_python)
-  if(VTK_PYTHON_EXE)
-    foreach(test ${ARGV})
-      get_filename_component(TName ${test} NAME_WE)
-      if(VTK_DATA_ROOT)
-        string (REPLACE "vtk" "" _baselinedname ${vtk-module})
-        add_test(NAME ${vtk-module}Python-${TName}
-          COMMAND ${VTK_PYTHON_EXE}
-          ${CMAKE_CURRENT_SOURCE_DIR}/${test}
-          -D ${VTK_DATA_ROOT}
-          -B ${VTK_DATA_ROOT}/Baseline/${_baselinedname})
-      else()
-        add_test(NAME ${vtk-module}Python-${TName}
-          COMMAND ${VTK_PYTHON_EXE}
-          ${CMAKE_CURRENT_SOURCE_DIR}/${test}
-          ${${TName}_ARGS})
-      endif()
-    endforeach()
-  else()
-    message(FATAL_ERROR "VTK_PYTHON_EXE not set")
-  endif()
-
-endmacro(vtk_tests_python)
-
-# -----------------------------------------------------------------------------
 # add_test_python() macro takes a python file and an optional base directory where the
 # corresponding test image is found and list of python files and makes them into
 # proper python tests.
@@ -164,7 +137,6 @@ macro(add_test_python)
   if(VTK_PYTHON_EXE)
     # Parse Command line args
     get_filename_component(TName ${ARGV0} NAME_WE)
-    string (REPLACE "vtk" "" _baselinedname ${vtk-module})
     # Check if data root and second parameter is present
     set (base_dir "${ARGV1}")
     if(VTK_DATA_ROOT AND base_dir)
@@ -175,8 +147,7 @@ macro(add_test_python)
         -D ${VTK_DATA_ROOT}
         -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/${ARGV1}/${TName}.png
-        -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py"
-        -A "${VTK_LIBRARY_DIR}")
+        -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py")
     else()
       add_test(NAME ${vtk-module}Python-${TName}
         COMMAND ${VTK_PYTHON_EXE}
@@ -202,7 +173,6 @@ macro(add_test_python1)
   if(VTK_PYTHON_EXE)
     # Parse Command line args
     get_filename_component(TName ${ARGV0} NAME_WE)
-    string (REPLACE "vtk" "" _baselinedname ${vtk-module})
     # Check if data root and second parameter is present
     set (base_dir "${ARGV1}")
     if(VTK_DATA_ROOT AND base_dir)
@@ -231,7 +201,6 @@ macro(add_test_tcl)
   if(VTK_TCL_EXE)
     # Parse Command line args
     get_filename_component(TName ${ARGV0} NAME_WE)
-    string (REPLACE "vtk" "" _baselinedname ${vtk-module})
     # Check if data root and second parameter is present
     set (base_dir "${ARGV1}")
     if(VTK_DATA_ROOT AND base_dir)
