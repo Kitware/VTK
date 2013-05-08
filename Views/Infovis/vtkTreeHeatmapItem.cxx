@@ -1398,8 +1398,11 @@ void vtkTreeHeatmapItem::SetTreeColorArray(const char *arrayName)
     return;
     }
 
+  this->ColorTree = true;
+
   double minDifference = VTK_DOUBLE_MAX;
   double maxDifference = VTK_DOUBLE_MIN;
+
   for (vtkIdType id = 0; id < this->TreeColorArray->GetNumberOfTuples(); ++id)
     {
     double d = this->TreeColorArray->GetValue(id);
@@ -1411,6 +1414,15 @@ void vtkTreeHeatmapItem::SetTreeColorArray(const char *arrayName)
       {
       minDifference = d;
       }
+    }
+
+  // special case when there is no difference.  Without this, all the
+  // edges would be drawn in either red or blue.
+  if (minDifference == maxDifference)
+    {
+    this->TreeLookupTable->SetNumberOfTableValues(1);
+    this->TreeLookupTable->SetTableValue(10, 0.60, 0.60, 0.60);
+    return;
     }
 
   // how much we vary the colors from step to step
@@ -1439,8 +1451,6 @@ void vtkTreeHeatmapItem::SetTreeColorArray(const char *arrayName)
     this->TreeLookupTable->SetTableValue(i,
       0.85 - inc * (i - 10), 0.85 - inc * (i - 10), 1.0);
     }
-
-  this->ColorTree = true;
 }
 
 //-----------------------------------------------------------------------------

@@ -43,6 +43,12 @@ public:
   virtual void OnLeftButtonUp();
 
   // Description:
+  // Whether to draw polygon in screen pixels. Default is ON
+  vtkSetMacro(DrawPolygonPixels, bool);
+  vtkGetMacro(DrawPolygonPixels, bool);
+  vtkBooleanMacro(DrawPolygonPixels, bool);
+
+  // Description:
   // Get the current polygon points in display units
   std::vector<vtkVector2i> GetPolygonPoints();
 
@@ -54,8 +60,9 @@ protected:
 
   int StartPosition[2];
   int EndPosition[2];
-
   int Moving;
+
+  bool DrawPolygonPixels;
 
   vtkUnsignedCharArray *PixelArray;
 

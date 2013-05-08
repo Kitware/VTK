@@ -12,9 +12,11 @@ class SimpleGlyph:
     """A simple class used to test vtkTensorGlyph."""
     def __init__(self, reader):
         self.reader = reader
+
         sg = self.src_glyph = vtk.vtkSphereSource()
         sg.SetRadius(0.5)
         sg.SetCenter(0.5, 0.0, 0.0)
+
         g = self.glyph = vtk.vtkTensorGlyph()
         g.SetInputConnection(self.reader.GetOutputPort())
         g.SetSourceConnection(self.src_glyph.GetOutputPort())
@@ -24,16 +26,20 @@ class SimpleGlyph:
         # not used some of the glyphs are black.
         self.normals = vtk.vtkPolyDataNormals()
         self.normals.SetInputConnection(g.GetOutputPort())
+
         self.map = vtk.vtkPolyDataMapper()
         self.map.SetInputConnection(self.normals.GetOutputPort())
+
         self.act = vtk.vtkActor()
         self.act.SetMapper(self.map)
 
         # An outline.
         self.of = vtk.vtkOutlineFilter()
         self.of.SetInputConnection(self.reader.GetOutputPort())
+
         self.out_map = vtk.vtkPolyDataMapper()
         self.out_map.SetInputConnection(self.of.GetOutputPort())
+
         self.out_act = vtk.vtkActor()
         self.out_act.SetMapper(self.out_map)
 
@@ -42,6 +48,7 @@ class SimpleGlyph:
 
     def Update(self):
         self.glyph.Update()
+
         s = self.glyph.GetOutput().GetPointData().GetScalars()
         if s:
             self.map.SetScalarRange(s.GetRange())
@@ -53,10 +60,11 @@ class SimpleGlyph:
 
 class TestTensorGlyph(Testing.vtkTest):
     def testGlyphs(self):
-        "Test if the glyphs are created nicely."
+        '''Test if the glyphs are created nicely.'''
         reader = vtk.vtkDataSetReader()
-        data_file = os.path.join(Testing.VTK_DATA_ROOT, "Data",
-                                 "tensors.vtk")
+
+        data_file = os.path.join(Testing.VTK_DATA_ROOT, "Data", "tensors.vtk")
+
         reader.SetFileName(data_file)
 
         g1 = SimpleGlyph(reader)
@@ -87,12 +95,14 @@ class TestTensorGlyph(Testing.vtkTest):
                 ren.AddActor(j)
 
         ren.ResetCamera();
+
         cam = ren.GetActiveCamera()
         cam.Azimuth(-20)
         cam.Elevation(20)
         cam.Zoom(1.5)
 
         ren.SetBackground(0.5, 0.5, 0.5)
+
         renWin = vtk.vtkRenderWindow()
         renWin.AddRenderer(ren)
         renWin.Render()

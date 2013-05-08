@@ -58,6 +58,7 @@ set(Module_SRCS
   vtkOpenGLCamera.cxx
   vtkOpenGLClipPlanesPainter.cxx
   vtkOpenGLCoincidentTopologyResolutionPainter.cxx
+  vtkOpenGLCompositePainter.cxx
   vtkOpenGLDisplayListPainter.cxx
   vtkOpenGLExtensionManager.cxx
   vtkOpenGLGL2PSHelper.cxx
@@ -274,6 +275,7 @@ set(opengl_overrides
   Camera
   ClipPlanesPainter
   CoincidentTopologyResolutionPainter
+  CompositePainter
   DisplayListPainter
   Glyph3DMapper
   ImageSliceMapper

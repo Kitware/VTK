@@ -33,6 +33,7 @@
 
 class vtkChartXYZ;
 class vtkDataArray;
+class vtkIdTypeArray;
 class vtkTable;
 class vtkUnsignedCharArray;
 class vtkPen;
@@ -92,6 +93,11 @@ public:
   // Get the bounding cube surrounding the currently rendered data points.
   std::vector<vtkVector3f> GetDataBounds() { return this->DataBounds; }
 
+  // Description:
+  // Set/get the selection array for the plot.
+  virtual void SetSelection(vtkIdTypeArray *id);
+  virtual vtkIdTypeArray* GetSelection();
+
 //BTX
 protected:
   vtkPlot3D();
@@ -141,6 +147,10 @@ protected:
   // Description:
   // A bounding cube surrounding the currently rendered data points.
   std::vector<vtkVector3f> DataBounds;
+
+  // Description:
+  // Selected indices for the table the plot is rendering
+  vtkSmartPointer<vtkIdTypeArray> Selection;
 
 private:
   vtkPlot3D(const vtkPlot3D &); // Not implemented.

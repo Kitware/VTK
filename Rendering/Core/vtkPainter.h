@@ -46,7 +46,6 @@
 
 class vtkAbstractArray;
 class vtkActor;
-class vtkCompositeDataDisplayAttributes;
 class vtkDataObject;
 class vtkDataSet;
 class vtkInformation;
@@ -151,13 +150,6 @@ public:
   virtual vtkDataObject* GetOutput()
     { return this->Input; }
 
-  // Description:
-  // Set/get the composite data set display attributes. If set, these attributes
-  // can be used by the painter to control specific rendering attributes on a
-  // per-block basis for a multi-block dataset.
-  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes *attributes);
-  vtkGetObjectMacro(CompositeDataDisplayAttributes, vtkCompositeDataDisplayAttributes)
-
 //BTX
 protected:
   vtkPainter();
@@ -246,7 +238,6 @@ protected:
   double TimeToDraw;
   vtkTimerLog* Timer;
 
-  vtkCompositeDataDisplayAttributes *CompositeDataDisplayAttributes;
 
   vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
                          // This is not reference counted.

@@ -93,18 +93,6 @@ public:
   //ETX
 
   // Description:
-  // Render the material for the face. This method should be implemented
-  // by subclasses. The default implementation does nothing.
-  //
-  // Warning: Experimental. This API may change in future releases.
-  virtual void RenderMaterial(vtkActor *actor,
-                              vtkRenderer *renderer,
-                              double *ambient,
-                              double *diffuse,
-                              double *specular,
-                              double specular_power);
-
-  // Description:
   // Set/Get lighting flag for an object. Initial value is true.
   vtkGetMacro(Lighting, bool);
   vtkSetMacro(Lighting, bool);
@@ -389,6 +377,13 @@ public:
 protected:
   vtkProperty();
   ~vtkProperty();
+
+  // Description:
+  // Computes composite color. Used by GetColor().
+  static void ComputeCompositeColor(double result[3],
+    double ambient, const double ambient_color[3],
+    double diffuse, const double diffuse_color[3],
+    double specular, const double specular_color[3]);
 
   // Description:
   // Load property iVar values from the Material XML.
