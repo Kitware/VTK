@@ -3532,13 +3532,16 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
         this->ReadIntArray(nodeIdList, numElements*6);
         }
 
+      const unsigned char penta6Map[6] = {0, 2, 1, 3, 5, 4};
+      const unsigned char penta15Map[15] = {0, 2, 1, 3, 5, 4, 8, 7, 6, 11, 10, 9, 12, 14, 13};
+
       for (i = 0; i < numElements; i++)
         {
         if (cellType == vtkEnSightReader::PENTA15)
           {
           for (j = 0; j < 15; j++)
             {
-            nodeIds[j] = nodeIdList[15*i+j] - 1;
+            nodeIds[penta15Map[j]] = nodeIdList[15*i+j] - 1;
             }
           cellId = output->InsertNextCell(VTK_QUADRATIC_WEDGE, 15, nodeIds);
           }
@@ -3546,7 +3549,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
           {
           for (j = 0; j < 6; j++)
             {
-            nodeIds[j] = nodeIdList[6*i+j] - 1;
+            nodeIds[penta6Map[j]] = nodeIdList[6*i+j] - 1;
             }
           cellId = output->InsertNextCell(VTK_WEDGE, 6, nodeIds);
           }
