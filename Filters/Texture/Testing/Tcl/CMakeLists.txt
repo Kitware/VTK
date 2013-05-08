@@ -1,8 +1,8 @@
 if(VTK_DATA_ROOT)
-  add_test_tcl(AutomaticPlaneGeneration.tcl Graphics)
-  add_test_tcl(cylMap.tcl Graphics)
-  add_test_tcl(socbal.tcl Graphics)
-  add_test_tcl(textureThreshold.tcl Graphics)
+  vtk_add_test_tcl(AutomaticPlaneGeneration.tcl Graphics)
+  vtk_add_test_tcl(cylMap.tcl Graphics)
+  vtk_add_test_tcl(socbal.tcl Graphics)
+  vtk_add_test_tcl(textureThreshold.tcl Graphics)
 endif()
 
-add_test_tcl(triangularTCoords.tcl Graphics)
+vtk_add_test_tcl(triangularTCoords.tcl Graphics)

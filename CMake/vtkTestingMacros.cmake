@@ -90,13 +90,13 @@ macro(vtk_tests)
 endmacro(vtk_tests)
 
 # -----------------------------------------------------------------------------
-# add_test_mpi(filenames [DATADIR data_directory)]
+# vtk_add_test_mpi(filenames [DATADIR data_directory)]
 # Adds one or more tests that are run under MPI.
 #
 # DATADIR a data directory to look for input data to the tests in. If not
 # specified the test is assumed to not require input data.
 # Ex. ${VTK_DATA_ROOT} or ${VTK_LARGE_DATA_ROOT}
-macro (add_test_mpi fileName)
+macro (vtk_add_test_mpi fileName)
 
   parse_optional_arguments(${ARGV})
 
@@ -130,9 +130,9 @@ macro (add_test_mpi fileName)
 endmacro()
 
 # -----------------------------------------------------------------------------
-# Usage: add_test_python(name [NO_RT] [NO_DATA] [NO_VALID|<base_dir>])
+# Usage: vtk_add_test_python(name [NO_RT] [NO_DATA] [NO_VALID|<base_dir>])
 # NO_RT is for tests using vtk.test.testing
-function(add_test_python name)
+function(vtk_add_test_python name)
   if(NOT VTK_PYTHON_EXE)
     message(FATAL_ERROR "VTK_PYTHON_EXE not set")
   endif()
@@ -196,8 +196,8 @@ function(add_test_python name)
 endfunction()
 
 # -----------------------------------------------------------------------------
-# Usage: add_test_tcl(name [NO_DATA] [NO_VALID|<base_dir>])
-function(add_test_tcl name)
+# Usage: vtk_add_test_tcl(name [NO_DATA] [NO_VALID|<base_dir>])
+function(vtk_add_test_tcl name)
   if(NOT VTK_TCL_EXE)
     message(FATAL_ERROR "VTK_TCL_EXE not set")
   endif()
