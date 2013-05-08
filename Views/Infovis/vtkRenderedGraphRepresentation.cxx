@@ -537,6 +537,7 @@ void vtkRenderedGraphRepresentation::SetVertexColorArrayName(const char* name)
   this->SetVertexColorArrayNameInternal(name);
   this->ApplyColors->SetInputArrayToProcess(0, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  this->VertexScalarBar->GetScalarBarActor()->SetTitle(name);
 }
 
 const char* vtkRenderedGraphRepresentation::GetVertexColorArrayName()
@@ -559,6 +560,7 @@ void vtkRenderedGraphRepresentation::SetEdgeColorArrayName(const char* name)
   this->SetEdgeColorArrayNameInternal(name);
   this->ApplyColors->SetInputArrayToProcess(1, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_EDGES, name);
+  this->EdgeScalarBar->GetScalarBarActor()->SetTitle(name);
 }
 
 const char* vtkRenderedGraphRepresentation::GetEdgeColorArrayName()
@@ -672,6 +674,16 @@ void vtkRenderedGraphRepresentation::SetEdgeScalarBarVisibility(bool b)
 bool vtkRenderedGraphRepresentation::GetEdgeScalarBarVisibility()
 {
   return this->EdgeScalarBar->GetScalarBarActor()->GetVisibility() ? true : false;
+}
+
+vtkScalarBarWidget* vtkRenderedGraphRepresentation::GetVertexScalarBar()
+{
+  return this->VertexScalarBar.GetPointer();
+}
+
+vtkScalarBarWidget* vtkRenderedGraphRepresentation::GetEdgeScalarBar()
+{
+  return this->EdgeScalarBar.GetPointer();
 }
 
 bool vtkRenderedGraphRepresentation::IsLayoutComplete()
@@ -1250,6 +1262,8 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
 
   this->ApplyColors->SetPointLookupTable(theme->GetPointLookupTable());
   this->ApplyColors->SetCellLookupTable(theme->GetCellLookupTable());
+  this->VertexScalarBar->GetScalarBarActor()->SetLookupTable(theme->GetPointLookupTable());
+  this->EdgeScalarBar->GetScalarBarActor()->SetLookupTable(theme->GetCellLookupTable());
 
   this->ApplyColors->SetDefaultPointColor(theme->GetPointColor());
   this->ApplyColors->SetDefaultPointOpacity(theme->GetPointOpacity());
