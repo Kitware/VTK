@@ -1,3 +1,3 @@
 if(VTK_DATA_ROOT)
-  vtk_add_test_python(MeshQuality.py ${VTK_DATA_ROOT} NO_RT)
+  vtk_add_test_python(MeshQuality.py NO_VALID NO_RT)
 endif(VTK_DATA_ROOT)

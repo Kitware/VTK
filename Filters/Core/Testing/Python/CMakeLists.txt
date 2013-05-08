@@ -55,5 +55,5 @@ vtk_add_test_python(TestContourCases.py NO_DATA NO_VALID)
 vtk_add_test_python(pointsPrecisions.py NO_DATA NO_VALID NO_RT)
 
 if(VTK_DATA_ROOT)
-  vtk_add_test_python(TestCompositeCutter.py ${VTK_DATA_ROOT})
+  vtk_add_test_python(TestCompositeCutter.py NO_VALID)
 endif()

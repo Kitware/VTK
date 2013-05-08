@@ -1,4 +1,4 @@
-vtk_add_test_python(TestEmptyXML.py NO_DATA NO_RT)
+vtk_add_test_python(TestEmptyXML.py NO_DATA NO_VALID NO_RT)
 vtk_add_test_python(TestXMLImageDataIO.py IO)
 vtk_add_test_python(TestXMLPolyDataIO.py IO)
 vtk_add_test_python(TestXMLRectilinearGridIO.py IO)
