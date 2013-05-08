@@ -103,6 +103,9 @@ public:
   // Invalidate the internal temporary array and call superclass method.
   void Modified();
 
+  // vtkAbstractArray override:
+  bool HasStandardMemoryLayout() { return false; }
+
 protected:
   vtkMappedDataArray();
   ~vtkMappedDataArray();
