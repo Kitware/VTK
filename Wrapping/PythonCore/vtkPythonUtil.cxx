@@ -19,19 +19,21 @@
 #include "vtkSystemIncludes.h"
 
 #include "vtkObject.h"
+#include "vtkPythonCommand.h"
 #include "vtkSmartPointerBase.h"
-#include "vtkWeakPointerBase.h"
-#include "vtkVariant.h"
 #include "vtkStdString.h"
-#include "vtkUnicodeString.h"
-#include "vtkWindows.h"
 #include "vtkToolkits.h"
+#include "vtkUnicodeString.h"
+#include "vtkVariant.h"
+#include "vtkWeakPointer.h"
+#include "vtkWindows.h"
 
 #include <vtksys/ios/sstream>
 #include <map>
 #include <vector>
 #include <string>
 #include <utility>
+#include <algorithm>
 
 #ifdef VTK_WRAP_PYTHON_SIP
 #include "sip.h"
@@ -90,6 +92,28 @@ class vtkPythonSpecialTypeMap
 {
 };
 
+// Keep track of all vtkPythonCommand instances.
+class vtkPythonCommandList
+  : public std::vector<vtkWeakPointer<vtkPythonCommand> >
+{
+public:
+  ~vtkPythonCommandList()
+    {
+    iterator iter;
+    for (iter = this->begin(); iter != this->end(); ++iter)
+      {
+      if (iter->GetPointer())
+        {
+        iter->GetPointer()->obj = NULL;
+        iter->GetPointer()->ThreadState = NULL;
+        }
+      }
+    }
+  void findAndErase(vtkPythonCommand* ptr)
+    {
+    this->erase(std::remove(this->begin(), this->end(), ptr), this->end());
+    }
+};
 
 //--------------------------------------------------------------------
 // The singleton for vtkPythonUtil
@@ -103,6 +127,16 @@ void vtkPythonUtilDelete()
   vtkPythonMap = NULL;
 }
 
+// constructs the singleton
+void vtkPythonUtilCreateIfNeeded()
+{
+  if (vtkPythonMap == NULL)
+    {
+    vtkPythonMap = new vtkPythonUtil();
+    Py_AtExit(vtkPythonUtilDelete);
+    }
+}
+
 //--------------------------------------------------------------------
 vtkPythonUtil::vtkPythonUtil()
 {
@@ -110,6 +144,7 @@ vtkPythonUtil::vtkPythonUtil()
   this->GhostMap = new vtkPythonGhostMap;
   this->ClassMap = new vtkPythonClassMap;
   this->SpecialTypeMap = new vtkPythonSpecialTypeMap;
+  this->PythonCommandList = new vtkPythonCommandList;
 }
 
 //--------------------------------------------------------------------
@@ -119,7 +154,28 @@ vtkPythonUtil::~vtkPythonUtil()
   delete this->GhostMap;
   delete this->ClassMap;
   delete this->SpecialTypeMap;
+  delete this->PythonCommandList;
 }
+
+//--------------------------------------------------------------------
+void vtkPythonUtil::RegisterPythonCommand(vtkPythonCommand* cmd)
+{
+  if (cmd)
+    {
+    vtkPythonUtilCreateIfNeeded();
+    vtkPythonMap->PythonCommandList->push_back(cmd);
+    }
+}
+
+//--------------------------------------------------------------------
+void vtkPythonUtil::UnRegisterPythonCommand(vtkPythonCommand* cmd)
+{
+  if (cmd && vtkPythonMap)
+    {
+    vtkPythonMap->PythonCommandList->findAndErase(cmd);
+    }
+}
+
 
 //--------------------------------------------------------------------
 // Concatenate an array of strings into a single string.  The resulting
@@ -173,12 +229,7 @@ PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
   const char *docstring[], PyVTKSpecialCopyFunc copyfunc)
 {
   const char *classname = pytype->tp_name;
-
-  if (vtkPythonMap == NULL)
-    {
-    vtkPythonMap = new vtkPythonUtil();
-    Py_AtExit(vtkPythonUtilDelete);
-    }
+  vtkPythonUtilCreateIfNeeded();
 
 #ifdef VTKPYTHONDEBUG
   //  vtkGenericWarningMacro("Adding an type " << type << " to map ptr");
