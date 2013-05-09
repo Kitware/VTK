@@ -90,43 +90,44 @@ macro(vtk_tests)
 endmacro(vtk_tests)
 
 # -----------------------------------------------------------------------------
-# vtk_add_test_mpi(filenames [DATADIR data_directory)]
-# Adds one or more tests that are run under MPI.
-#
-# DATADIR a data directory to look for input data to the tests in. If not
-# specified the test is assumed to not require input data.
-# Ex. ${VTK_DATA_ROOT} or ${VTK_LARGE_DATA_ROOT}
-macro (vtk_add_test_mpi fileName)
+# Usage: vtk_add_test_mpi(name [VTK_DATA_ROOT|VTK_LARGE_DATA_ROOT])
+macro (vtk_add_test_mpi name)
+  get_filename_component(TName ${name} NAME_WE)
+  set(argn "${ARGN}")
+  set(data_dir "")
+  set(test_extra "")
+  foreach(a IN LISTS argn)
+    if("[${a}]" STREQUAL "[VTK_DATA_ROOT]")
+      set(data_dir ${VTK_DATA_ROOT})
+    elseif("[${a}]" STREQUAL "[VTK_LARGE_DATA_ROOT]")
+      set(data_dir ${VTK_LARGE_DATA_ROOT})
+    elseif("x${a}" MATCHES "\\.cxx$")
+      list(APPEND test_extra ${a})
+    else()
+      message(FATAL_ERROR "Unknown argument \"${a}\"")
+    endif()
+  endforeach()
 
-  parse_optional_arguments(${ARGV})
-
-  get_filename_component(name ${fileName} NAME_WE)
-  list(REMOVE_AT MYARGV 0)
-  vtk_module_test_executable(
-    ${name}
-    ${name}.cxx
-    ${MYARGV})
-
-  if(DATADIR)
-    add_test(
-      NAME ${vtk-module}Cxx-MPI-${name}
-      COMMAND ${VTK_MPIRUN_EXE}
-      ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
-      ${VTK_MPI_PREFLAGS}
-      $<TARGET_FILE:${name}>
-      -D ${DATADIR}
-      -T ${VTK_BINARY_DIR}/Testing/Temporary
-      -V ${DATADIR}/Baseline/Parallel/${name}.png
-      ${VTK_MPI_POSTFLAGS})
+  if(data_dir)
+    set(_D -D ${data_dir})
+    set(_T -T ${VTK_BINARY_DIR}/Testing/Temporary)
+    set(_V -V ${data_dir}/Baseline/Parallel/${TName}.png)
   else()
-    add_test(
-      NAME ${vtk-module}Cxx-MPI-${name}
-      COMMAND ${VTK_MPIRUN_EXE}
-      ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
-      ${VTK_MPI_PREFLAGS}
-      $<TARGET_FILE:${name}>
-      ${VTK_MPI_POSTFLAGS})
+    set(_D "")
+    set(_T "")
+    set(_V "")
   endif()
+
+  add_test(
+    NAME ${vtk-module}Cxx-MPI-${TName}
+    COMMAND ${VTK_MPIRUN_EXE}
+    ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+    ${VTK_MPI_PREFLAGS}
+    $<TARGET_FILE:${TName}>
+    ${_D} ${_T} ${_V}
+    ${VTK_MPI_POSTFLAGS})
+
+  vtk_module_test_executable(${TName} ${TName}.cxx ${test_extra})
 endmacro()
 
 # -----------------------------------------------------------------------------
