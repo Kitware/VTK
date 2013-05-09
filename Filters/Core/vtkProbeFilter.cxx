@@ -52,6 +52,9 @@ vtkProbeFilter::vtkProbeFilter()
   this->CellList = 0;
 
   this->UseNullPoint = true;
+
+  this->PassCellArrays = 0;
+  this->PassPointArrays = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -116,6 +119,27 @@ int vtkProbeFilter::RequestData(
     }
 
   this->Probe(input, source, output);
+
+  // copy point data arrays
+  if (this->PassPointArrays)
+    {
+    int numPtArrays = input->GetPointData()->GetNumberOfArrays();
+    for (int i=0; i<numPtArrays; ++i)
+      {
+      output->GetPointData()->AddArray(input->GetPointData()->GetArray(i));
+      }
+    }
+
+  // copy cell data arrays
+  if (this->PassCellArrays)
+    {
+    int numCellArrays = input->GetCellData()->GetNumberOfArrays();
+    for (int i=0; i<numCellArrays; ++i)
+      {
+      output->GetCellData()->AddArray(input->GetCellData()->GetArray(i));
+      }
+    }
+
   return 1;
 }
 
