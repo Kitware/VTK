@@ -25,7 +25,7 @@ if(MATPLOTLIB_FOUND)
 
   if(VTK_DATA_ROOT)
     # add tests that require data
-    set(MyTests
+    vtk_add_test_cxx(Rendering
       TestContextMathTextImage.cxx
       TestMathTextActor.cxx
       TestMathTextActor3D.cxx
@@ -33,38 +33,13 @@ if(MATPLOTLIB_FOUND)
       TestStringToPath.cxx
       TestIndexedLookupScalarBar.cxx
       TestScalarBarCombinatorics.cxx
-      ${GL2PSTests}
       )
   endif()
 endif()
 
-# Use the testing object factory, to reduce boilerplate code in tests.
-include(vtkTestingObjectFactory)
-vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
+vtk_add_test_cxx(${GL2PSTests} Rendering)
 
-set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun CxxTests.cxx)
-
-# Add all the executables
-foreach(test ${TestsToRun})
-  get_filename_component(TName ${test} NAME_WE)
-  if(VTK_DATA_ROOT)
-    if(${${TName}Error})
-      set(_error_threshold ${${TName}Error})
-    else()
-      set(_error_threshold 10)
-    endif()
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName}
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/Rendering/${TName}.png
-        -E ${_error_threshold})
-  else()
-    add_test(NAME MathText-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName})
-  endif()
-endforeach()
+vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
 
 # The GL2PS tests produce postscript output, which cannot be compared using
 # the built-in image regression framework. The tests added above will create the
