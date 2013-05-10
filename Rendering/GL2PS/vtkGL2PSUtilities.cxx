@@ -94,7 +94,9 @@ void vtkGL2PSUtilities::DrawString(const char *str,
     double devicePos[3] = {pos[0], pos[1], pos[2]};
     vtkGL2PSUtilities::ProjectPoint(devicePos);
 
-    vtkGL2PSUtilities::DrawPath(path.GetPointer(), pos, devicePos, rgba);
+    vtkGL2PSUtilities::DrawPath(path.GetPointer(), pos, devicePos, rgba, NULL,
+                                0.0, -1.f, (std::string("Pathified string: ")
+                                            + str).c_str());
     }
 }
 
@@ -236,35 +238,36 @@ int vtkGL2PSUtilities::TextPropertyToGL2PSAlignment(vtkTextProperty *tprop)
 
 void vtkGL2PSUtilities::Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
                                    double rasterPos[3],
-                                   unsigned char actorColor[4])
+                                   unsigned char actorColor[4],
+                                   const char *label)
 {
   double translation[2] = {0.0, 0.0};
   vtkNew<vtkPath> projPath;
   projPath->DeepCopy(path);
   vtkGL2PSUtilities::ProjectPoints(projPath->GetPoints(), actorMatrix);
   vtkGL2PSUtilities::DrawPath(projPath.GetPointer(), rasterPos, translation,
-                              actorColor);
+                              actorColor, NULL, 0.0, -1.f, label);
 }
 
 void vtkGL2PSUtilities::DrawPath(vtkPath *path, double rasterPos[3],
                                  double windowPos[2], unsigned char rgba[4],
                                  double scale[2], double rotateAngle,
-                                 float strokeWidth)
+                                 float strokeWidth, const char *label)
 {
   switch (gl2psGetFileFormat())
     {
     case GL2PS_PS:
     case GL2PS_EPS:
       vtkGL2PSUtilities::DrawPathPS(path, rasterPos, windowPos, rgba, scale,
-                                    rotateAngle, strokeWidth);
+                                    rotateAngle, strokeWidth, label);
       break;
     case GL2PS_SVG:
       vtkGL2PSUtilities::DrawPathSVG(path, rasterPos, windowPos, rgba, scale,
-                                     rotateAngle, strokeWidth);
+                                     rotateAngle, strokeWidth, label);
       break;
     case GL2PS_PDF:
       vtkGL2PSUtilities::DrawPathPDF(path, rasterPos, windowPos, rgba, scale,
-                                     rotateAngle, strokeWidth);
+                                     rotateAngle, strokeWidth, label);
       break;
     default:
       break;
@@ -302,7 +305,7 @@ void vtkGL2PSUtilities::FinishExport()
 void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
                                    double windowPos[2], unsigned char rgba[4],
                                    double scale[2], double rotateAngle,
-                                   float strokeWidth)
+                                   float strokeWidth, const char *label)
 {
   vtkFloatArray *points =
       vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
@@ -334,6 +337,10 @@ void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
   int *codeBegin = code;
 #endif
   int *codeEnd = code + codes->GetNumberOfTuples();
+  if (label != NULL && label[0] != '\0')
+    {
+    out << "% " << label << endl;
+    }
   out << "gsave" << endl;
   out << "initmatrix" << endl;
   out << windowPos[0] << " " << windowPos[1] << " translate" << endl;
@@ -435,7 +442,8 @@ void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
 void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
                                     double windowPos[2], unsigned char rgba[4],
                                     double scale[2], double rotateAngle,
-                                    float strokeWidth)
+                                    float strokeWidth,
+                                    const char *)
 {
   vtkFloatArray *points =
       vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
@@ -583,7 +591,7 @@ void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
 void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
                                     double windowPos[2], unsigned char rgba[4],
                                     double scale[2], double rotateAngle,
-                                    float strokeWidth)
+                                    float strokeWidth, const char *label)
 {
   vtkFloatArray *points =
       vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
@@ -625,6 +633,12 @@ void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
   float *ptBegin = pt;
   int *codeBegin = code;
 #endif
+
+  if (label != NULL && label[0] != '\0')
+    {
+    out << "<!-- " << label << " -->" << endl;
+    }
+
   int *codeEnd = code + codes->GetNumberOfTuples();
   out << "<g transform=\"" << endl
       << "     translate(" << windowPos[0] << " "
