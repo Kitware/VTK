@@ -63,8 +63,8 @@ int TestContextGL2PS( int, char *[] )
   vtkNew<vtkGL2PSExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());
   exp->SetFileFormatToPS();
+  exp->UsePainterSettings();
   exp->CompressOff();
-  exp->SetSortToOff();
   exp->DrawBackgroundOn();
   exp->SetLineWidthFactor(1.0);
   exp->SetPointSizeFactor(1.0);

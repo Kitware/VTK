@@ -126,8 +126,8 @@ int TestStackedPlotGL2PS(int , char * [])
   vtkNew<vtkGL2PSExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());
   exp->SetFileFormatToPS();
+  exp->UsePainterSettings();
   exp->CompressOff();
-  exp->SetSortToOff();
   exp->DrawBackgroundOn();
 
   std::string fileprefix = vtkTestingInteractor::TempDirectory +
