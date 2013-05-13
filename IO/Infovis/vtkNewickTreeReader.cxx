@@ -152,8 +152,8 @@ int vtkNewickTreeReader:: ReadNewickTree(  char * const buffer, vtkTree & tree)
     if (parent >= 0)
       {
       weight = weights->GetValue(tree.GetEdgeId(parent, vertex));
+      weight += nodeWeights->GetValue(parent);
       }
-    weight += nodeWeights->GetValue(parent);
 
     if (weight > maxWeight)
       {
