@@ -1,12 +1,8 @@
 macro(vtk_test_data_transform data_dir base_dir name)
   set(module_base_dir ${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline)
   set(in "${data_dir}/Baseline/${base_dir}/${name}.png")
-  if(EXISTS "${in}")
-    file(GLOB in_ "${data_dir}/Baseline/${base_dir}/${name}_*.png")
-    file(COPY ${in} ${in_} DESTINATION ${module_base_dir})
-  else()
-    message(FATAL_ERROR "Baseline does not exist:\n ${in}")
-  endif()
+  file(GLOB in_ "${data_dir}/Baseline/${base_dir}/${name}_*.png")
+  file(REMOVE ${in} ${in_})
 endmacro()
 
 # -----------------------------------------------------------------------------
