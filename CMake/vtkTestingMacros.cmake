@@ -20,14 +20,14 @@ macro (vtk_add_test_mpi name)
   if(data_dir)
     set(_D -D ${data_dir})
     set(_T -T ${VTK_BINARY_DIR}/Testing/Temporary)
-    set(_V -V ${data_dir}/Baseline/Parallel/${TName}.png)
+    set(_V -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/${TName}.png,:}")
   else()
     set(_D "")
     set(_T "")
     set(_V "")
   endif()
 
-  add_test(
+  ExternalData_add_test(VTKData
     NAME ${vtk-module}Cxx-MPI-${TName}
     COMMAND ${VTK_MPIRUN_EXE}
     ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
@@ -107,9 +107,10 @@ function(vtk_add_test_cxx)
       endif()
     endforeach()
     if(data_dir AND tmp_base)
-      set(_V -V Baseline/${tmp_base}/${name}.png)
+      set(_V -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/${name}.png,:}")
     endif()
-    add_test(NAME ${vtk-module}Cxx-${name}
+    ExternalData_add_test(VTKData
+      NAME ${vtk-module}Cxx-${name}
       COMMAND ${vtk-module}CxxTests ${name} ${${name}_ARGS}
       ${_D} ${_T} ${_V} ${_E})
     set_property(DIRECTORY APPEND PROPERTY VTK_TEST_CXX_SOURCES ${name}.cxx)
@@ -185,10 +186,10 @@ function(vtk_add_test_python name)
   set(_A "")
   if(VTK_DATA_ROOT AND base_dir)
     if(no_rt)
-      set(_B -B ${VTK_DATA_ROOT}/Baseline/${base_dir})
+      set(_B -B "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/,REGEX:${TName}(_[0-9]+)?.png}")
     else()
       set(rtImageTest ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py)
-      set(_V -V Baseline/${base_dir}/${TName}.png)
+      set(_V -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/${TName}.png,:}")
       set(_A -A ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py)
     endif()
     if(NOT no_output)
@@ -196,7 +197,8 @@ function(vtk_add_test_python name)
     endif()
   endif()
 
-  add_test(NAME ${vtk-module}Python-${TName}
+  ExternalData_add_test(VTKData
+    NAME ${vtk-module}Python-${TName}
     COMMAND ${VTK_PYTHON_EXE} ${rtImageTest}
     ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py ${${TName}_ARGS}
     ${_D} ${_B} ${_T} ${_V} ${_A})
@@ -251,7 +253,7 @@ function(vtk_add_test_tcl name)
   if(NOT no_rt)
     set(rtImageTest ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl)
     if(VTK_DATA_ROOT AND base_dir)
-      set(_V -V Baseline/${base_dir}/${TName}.png)
+      set(_V -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/${TName}.png,:}")
     endif()
     if(NOT no_output)
       set(_T -T ${VTK_TEST_OUTPUT_DIR})
@@ -259,7 +261,8 @@ function(vtk_add_test_tcl name)
   endif()
   set(_A -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 
-  add_test(NAME ${vtk-module}Tcl-${TName}
+  ExternalData_add_test(VTKData
+    NAME ${vtk-module}Tcl-${TName}
     COMMAND ${VTK_TCL_EXE} ${rtImageTest}
     ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.tcl ${${TName}_ARGS}
     ${_D} ${_T} ${_V} ${_A})

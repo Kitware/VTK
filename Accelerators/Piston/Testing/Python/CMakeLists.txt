@@ -24,20 +24,22 @@ if (VTK_PYTHON_EXE)
       Slice
       Sort
       )
-    add_test(NAME ${vtk-module}Python-TestPlaced${tfile}
+    ExternalData_add_test(VTKData
+      NAME ${vtk-module}Python-TestPlaced${tfile}
       COMMAND ${VTK_PYTHON_EXE}
       ${CMAKE_CURRENT_SOURCE_DIR}/Test${tfile}.py
-      -B ${VTK_DATA_ROOT}/Baseline/AcceleratorsPiston
+      -B "DATA{../Data/Baseline/,REGEX:Test${tfile}(_[0-9]+)?.png}"
       -D ${VTK_DATA_ROOT}/Data)
   endforeach ( )
 
   #
   # Exercise thrust to gl direct on GPU rendering.
   #
-  add_test(NAME ${vtk-module}Python-TestDirectRendering
+  ExternalData_add_test(VTKData
+    NAME ${vtk-module}Python-TestDirectRendering
     COMMAND ${VTK_PYTHON_EXE}
     ${CMAKE_CURRENT_SOURCE_DIR}/TestRendering.py
-    -B ${VTK_DATA_ROOT}/Baseline/AcceleratorsPiston
+    -B "DATA{../Data/Baseline/,REGEX:TestRendering(_[0-9]+)?.png}"
     -D ${VTK_DATA_ROOT}/Data
     --gpu_render)
 

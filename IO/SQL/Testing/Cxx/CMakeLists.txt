@@ -4,7 +4,7 @@ vtk_add_test_cxx(NO_VALID
   )
 
 if(VTK_DATA_ROOT)
-  set(TestSQLiteTableReadWrite_ARGS ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
+  set(TestSQLiteTableReadWrite_ARGS DATA{../Data/Input/simple_table.vtk})
   vtk_add_test_cxx(TestSQLiteTableReadWrite.cxx NO_DATA NO_VALID NO_OUTPUT)
   set_tests_properties(vtkIOSQLCxx-TestSQLiteTableReadWrite PROPERTIES RUN_SERIAL 1)
 endif()

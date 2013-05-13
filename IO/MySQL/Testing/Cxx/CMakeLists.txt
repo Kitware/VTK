@@ -8,10 +8,10 @@ if(VTK_MYSQL_TEST_URL)
   if(VTK_DATA_ROOT)
     if(WIN32)
       set(TestMySQLTableReadWrite_ARGS
-        ${VTK_DATA_ROOT}/Baseline/IO/simple_table_win.vtk)
+        DATA{../Data/Input/simple_table_win.vtk})
     else()
       set(TestMySQLTableReadWrite_ARGS
-        ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
+        DATA{../Data/Input/simple_table.vtk})
     endif()
     vtk_add_test_cxx(TestMySQLTableReadWrite.cxx NO_DATA NO_VALID)
   endif()

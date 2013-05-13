@@ -279,10 +279,11 @@ if(BUILD_TESTING)
       # If JAVA_DATAMODEL_FLAG is set, pass it as first argument. Otherwise, it's empty.
       # For example, use "-d64" to force 64-bit java jvm.
       #
-      add_test(JavaRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
+      ExternalData_add_test(VTKData
+         JavaRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
          vtk.test.Regression -D ${VTK_DATA_ROOT}
-         -V Baseline/Graphics/Cone.png
+         -V DATA{Baseline/Cone.png,:}
          -T ${VTK_TEST_OUTPUT_DIR}
          )
     endif()

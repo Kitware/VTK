@@ -14,12 +14,13 @@ if(VTK_DATA_ROOT AND (VTK_MPI_MAX_NUMPROCS GREATER 1))
 
     vtk_module_test_executable(${vtk-module}Cxx-${test} ${test}.cxx)
     if(VTK_DATA_ROOT)
-      add_test(NAME ${vtk-module}Cxx-${test}
+      ExternalData_add_test(VTKData
+        NAME ${vtk-module}Cxx-${test}
         COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS}
         $<TARGET_FILE:${vtk-module}Cxx-${test}>
         -D ${VTK_DATA_ROOT}
         -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/${_baselinedname}/${test}.png
+        -V DATA{../Data/Baseline/${test}.png,:}
         ${VTK_MPI_POSTFLAGS})
     else()
       add_test(NAME ${vtk-module}Cxx-${test}

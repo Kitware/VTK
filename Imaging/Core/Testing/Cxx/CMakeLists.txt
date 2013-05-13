@@ -18,21 +18,24 @@ set_property(DIRECTORY APPEND PROPERTY VTK_TEST_CXX_SOURCES
   TestImageStencilData.cxx
   )
 if(VTK_DATA_ROOT)
-  add_test(NAME ${vtk-module}Cxx-AddStencilData
+  ExternalData_add_test(VTKData
+    NAME ${vtk-module}Cxx-AddStencilData
     COMMAND ${vtk-module}CxxTests TestImageStencilData 1
       -D ${VTK_DATA_ROOT}
       -T ${VTK_TEST_OUTPUT_DIR}
-      -V Baseline/Hybrid/TestAddStencilData.png)
-  add_test(NAME ${vtk-module}Cxx-SubtractStencilData
+      -V DATA{../Data/Baseline/TestAddStencilData.png,:})
+  ExternalData_add_test(VTKData
+    NAME ${vtk-module}Cxx-SubtractStencilData
     COMMAND ${vtk-module}CxxTests TestImageStencilData 2
       -D ${VTK_DATA_ROOT}
       -T ${VTK_TEST_OUTPUT_DIR}
-      -V Baseline/Hybrid/TestSubtractStencilData.png)
-  add_test(NAME ${vtk-module}Cxx-ClipStencilData
+      -V DATA{../Data/Baseline/TestSubtractStencilData.png,:})
+  ExternalData_add_test(VTKData
+    NAME ${vtk-module}Cxx-ClipStencilData
     COMMAND ${vtk-module}CxxTests TestImageStencilData 3
       -D ${VTK_DATA_ROOT}
       -T ${VTK_TEST_OUTPUT_DIR}
-      -V Baseline/Hybrid/TestClipStencilData.png)
+      -V DATA{../Data/Baseline/TestClipStencilData.png,:})
 endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests)

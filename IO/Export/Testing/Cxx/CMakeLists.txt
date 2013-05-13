@@ -49,12 +49,13 @@ if(GL2PSTests)
       set(_error_threshold 15)
     endif()
     # Image diff rasterized png with baseline
-    add_test(NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
+    ExternalData_add_test(VTKData
+      NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
       COMMAND vtkRenderingGL2PSCxxTests PNGCompare
         -D ${VTK_DATA_ROOT}
         -T ${VTK_TEST_OUTPUT_DIR}
         -E ${_error_threshold}
-        -V Baseline/Hybrid/${TName}-rasterRef.png
+        -V DATA{../Data/Baseline/${TName}-rasterRef.png,:}
         --test-file ${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png
     )
     set_tests_properties("${vtk-module}Cxx-${TName}-VerifyRasterizedPNG"
