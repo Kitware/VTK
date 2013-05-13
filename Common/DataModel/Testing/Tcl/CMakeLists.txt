@@ -1,9 +1,6 @@
 # Tests without test images
 #
-add_test(NAME ${vtk-module}Tcl-otherDataSetAttributes
-         COMMAND ${VTK_TCL_EXE}
-         ${CMAKE_CURRENT_SOURCE_DIR}/otherDataSetAttributes.tcl
-         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+vtk_add_test_tcl(otherDataSetAttributes.tcl NO_DATA NO_RT)
 
 # Tests with images
 if(VTK_DATA_ROOT)

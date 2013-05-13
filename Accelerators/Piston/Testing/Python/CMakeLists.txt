@@ -2,7 +2,7 @@ if (VTK_PYTHON_EXE)
   #
   # Test base functionality.
   #
-  string (REPLACE "vtk" "" _baselinedname ${vtk-module})
+  set(TestConversion_OPTS NO_VALID)
   foreach ( tfile
       TestConversion
       TestContour
@@ -11,12 +11,8 @@ if (VTK_PYTHON_EXE)
       TestSlice
       TestSort
       )
-    add_test(NAME ${vtk-module}Python-${tfile}
-      COMMAND ${VTK_PYTHON_EXE}
-      ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.py
-      -B ${VTK_DATA_ROOT}/Baseline/${_baselinedname}
-      -D ${VTK_DATA_ROOT}/Data
-      --normalize)
+    set(${tfile}_ARGS --normalize)
+    vtk_add_test_python(${tfile}.py AcceleratorsPiston NO_RT ${${tfile}_OPTS})
   endforeach ( )
 
   #
@@ -31,7 +27,7 @@ if (VTK_PYTHON_EXE)
     add_test(NAME ${vtk-module}Python-TestPlaced${tfile}
       COMMAND ${VTK_PYTHON_EXE}
       ${CMAKE_CURRENT_SOURCE_DIR}/Test${tfile}.py
-      -B ${VTK_DATA_ROOT}/Baseline/${_baselinedname}
+      -B ${VTK_DATA_ROOT}/Baseline/AcceleratorsPiston
       -D ${VTK_DATA_ROOT}/Data)
   endforeach ( )
 
@@ -41,7 +37,7 @@ if (VTK_PYTHON_EXE)
   add_test(NAME ${vtk-module}Python-TestDirectRendering
     COMMAND ${VTK_PYTHON_EXE}
     ${CMAKE_CURRENT_SOURCE_DIR}/TestRendering.py
-    -B ${VTK_DATA_ROOT}/Baseline/${_baselinedname}
+    -B ${VTK_DATA_ROOT}/Baseline/AcceleratorsPiston
     -D ${VTK_DATA_ROOT}/Data
     --gpu_render)
 
