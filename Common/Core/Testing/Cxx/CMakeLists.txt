@@ -1,4 +1,10 @@
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+# Tell TestSystemInformation where to find the build trees.
+set(TestSystemInformation_ARGS ${CMAKE_BINARY_DIR})
+
+# Tell TestXMLFileOutputWindow where to write test file
+set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOutputWindow.txt)
+
+vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
   TestArrayAPI.cxx
   TestArrayAPIConvenience.cxx
   TestArrayAPIDense.cxx
@@ -46,24 +52,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   #otherLookupTable.cxx
   #otherLookupTableWithEnabling.cxx
   otherStringArray.cxx
+  )
 
-  EXTRA_INCLUDE vtkTestDriver.h
-)
-
-vtk_module_test_executable(${vtk-module}CxxTests ${Tests}
+vtk_test_cxx_executable(${vtk-module}CxxTests
   vtkTestNewVar.cxx)
-
-set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
-
-# Tell TestSystemInformation where to find the build trees.
-set(TestSystemInformation_ARGS ${CMAKE_BINARY_DIR})
-
-# Tell TestXMLFileOutputWindow where to write test file
-set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOutputWindow.txt)
-
-# Add all the executables
-foreach(test ${TestsToRun})
-  get_filename_component(TName ${test} NAME_WE)
-  add_test(NAME ${vtk-module}-${TName} COMMAND ${vtk-module}CxxTests ${TName} ${${TName}_ARGS})
-endforeach()

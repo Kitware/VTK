@@ -1,9 +1,3 @@
 if(VTK_PYTHON_EXE)
-  foreach(tfile
-   kMeansDistanceCalculator
-   )
-    add_test(NAME ${vtk-module}Python-${tfile}
-      COMMAND ${VTK_PYTHON_EXE}
-        ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.py)
-  endforeach()
+  vtk_add_test_python(kMeansDistanceCalculator.py NO_DATA NO_VALID NO_OUTPUT)
 endif()

@@ -1,38 +1,15 @@
 # Tests with data
 if(VTK_DATA_ROOT)
-  set(NEEDS_DATA
-  TestProStarReader.cxx
-  TestTecplotReader.cxx
-  TestAMRReadWrite.cxx
-  )
+  vtk_add_test_cxx(IO
+    TestProStarReader.cxx
+    TestTecplotReader.cxx
+    TestAMRReadWrite.cxx,NO_VALID
+    )
 endif()
 
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-  ${NEEDS_DATA}
+vtk_add_test_cxx(NO_VALID
   TestSimplePointsReaderWriter.cxx
-  TestWindBladeReader.cxx
-  EXTRA_INCLUDE vtkTestDriver.h
-)
-
-vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
-
-set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx TestWindBladeReader.cxx)
-
-# Add all the executables
-foreach(test ${TestsToRun})
-  get_filename_component(TName ${test} NAME_WE)
-  if(VTK_DATA_ROOT)
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName}
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/IO/${TName}.png)
-  else()
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName})
-  endif()
-endforeach()
+  )
 
 set(_known_little_endian FALSE)
 if (DEFINED CMAKE_WORDS_BIGENDIAN)
@@ -40,11 +17,10 @@ if (DEFINED CMAKE_WORDS_BIGENDIAN)
     set(_known_little_endian TRUE)
   endif()
 endif()
-
 if(VTK_LARGE_DATA_ROOT AND _known_little_endian)
-  add_test(NAME ${vtk-module}Cxx-TestWindBladeReader
-    COMMAND ${vtk-module}CxxTests TestWindBladeReader
-    -D ${VTK_LARGE_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Parallel/TestWindBladeReader.png)
+  vtk_add_test_cxx(Parallel LARGE_DATA
+    TestWindBladeReader.cxx
+    )
 endif()
+
+vtk_test_cxx_executable(${vtk-module}CxxTests)

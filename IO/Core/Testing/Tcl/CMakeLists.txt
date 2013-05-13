@@ -7,9 +7,6 @@ set(tests
 
 foreach( tfile ${tests})
   if(VTK_DATA_ROOT)
-    add_test(NAME ${vtk-module}Tcl-${tfile} COMMAND ${VTK_TCL_EXE}
-      ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-      -D ${VTK_DATA_ROOT}
-   )
+    vtk_add_test_tcl(${tfile}.tcl NO_RT)
   endif()
 endforeach()

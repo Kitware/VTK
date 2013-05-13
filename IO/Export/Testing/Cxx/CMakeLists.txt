@@ -1,49 +1,20 @@
 # Only run GL2PS tests if GhostScript is available if VTK_DATA_ROOT is set
 if(VTK_GHOSTSCRIPT_EXECUTABLE AND VTK_DATA_ROOT)
   set(GL2PSTests
-    TestContextGL2PS.cxx
+    TestContextGL2PS.cxx,NO_VALID
     TestGL2PSExporterMultipleRenderers.cxx
-    TestGL2PSExporterRaster.cxx
+    TestGL2PSExporterRaster.cxx,NO_VALID
     TestGL2PSExporterRasterExclusion.cxx
-    TestGL2PSExporterVector.cxx
-    TestGL2PSExporterVolumeRaster.cxx
+    TestGL2PSExporterVector.cxx,NO_VALID
+    TestGL2PSExporterVolumeRaster.cxx,NO_VALID
     TestGL2PSTextActor3D.cxx
     TestStackedPlotGL2PS.cxx
   )
 endif()
 
-set(MyTests
-  X3DTest.cxx
-)
-
-if (VTK_DATA_ROOT)
-  set(MyTests
-    ${MyTest}
-    ${GL2PSTests}
-  )
-endif()
-
-# Use the testing object factory, to reduce boilerplate code in tests.
-include(vtkTestingObjectFactory)
-vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
-
-set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun CxxTests.cxx)
-
-# Add all the executables
-foreach(test ${TestsToRun})
-  get_filename_component(TName ${test} NAME_WE)
-  if(VTK_DATA_ROOT)
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName}
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/Hybrid/${TName}.png)
-  else()
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName})
-  endif()
-endforeach()
+vtk_add_test_cxx(X3DTest.cxx NO_DATA NO_VALID)
+vtk_add_test_cxx(${GL2PSTests} Hybrid)
+vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
 
 # The GL2PS tests produce postscript output, which cannot be compared using
 # the built-in image regression framework. The tests added above will create the
@@ -53,6 +24,8 @@ endforeach()
 if(GL2PSTests)
   set(TestGL2PSExporterVolumeRasterError 50)
   foreach(test ${GL2PSTests})
+    string(REGEX REPLACE ",.*" "" testsrc "${test}")
+    get_filename_component(TName ${testsrc} NAME_WE)
     add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePNG
       COMMAND ${CMAKE_COMMAND}
         -DPSFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.ps
