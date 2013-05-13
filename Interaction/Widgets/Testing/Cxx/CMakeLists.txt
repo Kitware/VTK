@@ -41,7 +41,7 @@ vtk_add_test_cxx(Widgets
   TestPlaybackWidget.cxx
   TestPointHandleRepresentation3D.cxx
   TestProgrammaticPlacement.cxx
-  TestProp3DButtonRepresentation.cxx
+  TestProp3DButtonRepresentation.cxx,NO_VALID
   TestRectilinearWipeWidget.cxx
   # TestResliceCursorWidget2.cxx # todo (unsatistfied deps)
   # TestResliceCursorWidget3.cxx # todo (unsatistfied deps)
@@ -53,6 +53,8 @@ vtk_add_test_cxx(Widgets
   TestSliderWidget2D.cxx
   # TestSplineWidget.cxx # todo (unsatistfied deps)
   TestTextWidget.cxx
+  )
+vtk_add_test_cxx(NO_VALID
   vtkAngleRepresentation2DTest1.cxx
   vtkAngleRepresentation3DTest1.cxx
   vtkAngleWidgetTest1.cxx
@@ -82,7 +84,7 @@ if(VTK_DATA_ROOT)
     TestLineWidget2.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
-    TestPolyPlane.cxx
+    TestPolyPlane.cxx,NO_VALID
     TestPolygonalHandleRepresentations.cxx
     TestPolygonalRepresentationHandleWidget.cxx
     TestPolygonalSurfaceConstrainedDistanceWidget.cxx

@@ -1,12 +1,12 @@
 # Only run GL2PS tests if GhostScript is available if VTK_DATA_ROOT is set
 if(VTK_GHOSTSCRIPT_EXECUTABLE AND VTK_DATA_ROOT)
   set(GL2PSTests
-    TestContextGL2PS.cxx
+    TestContextGL2PS.cxx,NO_VALID
     TestGL2PSExporterMultipleRenderers.cxx
-    TestGL2PSExporterRaster.cxx
+    TestGL2PSExporterRaster.cxx,NO_VALID
     TestGL2PSExporterRasterExclusion.cxx
-    TestGL2PSExporterVector.cxx
-    TestGL2PSExporterVolumeRaster.cxx
+    TestGL2PSExporterVector.cxx,NO_VALID
+    TestGL2PSExporterVolumeRaster.cxx,NO_VALID
     TestGL2PSTextActor3D.cxx
     TestStackedPlotGL2PS.cxx
   )
@@ -24,7 +24,8 @@ vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
 if(GL2PSTests)
   set(TestGL2PSExporterVolumeRasterError 50)
   foreach(test ${GL2PSTests})
-    get_filename_component(TName ${test} NAME_WE)
+    string(REGEX REPLACE ",.*" "" testsrc "${test}")
+    get_filename_component(TName ${testsrc} NAME_WE)
     add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePNG
       COMMAND ${CMAKE_COMMAND}
         -DPSFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.ps

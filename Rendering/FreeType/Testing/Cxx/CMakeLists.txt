@@ -32,7 +32,7 @@ option(VTK_BUILD_FREETYPE_BENCHMARK
 mark_as_advanced(VTK_BUILD_FREETYPE_BENCHMARK)
 
 if(VTK_BUILD_FREETYPE_BENCHMARK)
-  vtk_add_test_cxx(BenchmarkFreeTypeRendering.cxx Rendering)
+  vtk_add_test_cxx(BenchmarkFreeTypeRendering.cxx NO_VALID)
 endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)

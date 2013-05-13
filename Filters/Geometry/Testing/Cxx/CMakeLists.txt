@@ -1,9 +1,9 @@
 vtk_add_test_cxx(Graphics
   TestExtractSurfaceNonLinearSubdivision.cxx
-  TestImageDataToUniformGrid.cxx
-  TestProjectSphereFilter.cxx
-  TestStructuredAMRNeighbor.cxx
-  TestUniformGridGhostDataGenerator.cxx
+  TestImageDataToUniformGrid.cxx,NO_VALID
+  TestProjectSphereFilter.cxx,NO_VALID
+  TestStructuredAMRNeighbor.cxx,NO_VALID
+  TestUniformGridGhostDataGenerator.cxx,NO_VALID
   TestUnstructuredGridGeometryFilter.cxx
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests)

@@ -30,7 +30,7 @@ vtk_add_test_cxx(VolumeRendering
 # Tests with data
 if(VTK_DATA_ROOT)
   vtk_add_test_cxx(VolumeRendering
-    ProjectedTetrahedraZoomIn.cxx
+    ProjectedTetrahedraZoomIn.cxx,NO_VALID
     TestFinalColorWindowLevel.cxx
     TestGPURayCastNearestDataTypesMIP.cxx
     TestGPURayCastDataTypesMinIP.cxx

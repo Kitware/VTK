@@ -2,7 +2,7 @@ vtk_add_test_cxx(Geovis
   TestCoincidentGeoGraphRepresentation2D.cxx
   TestGeoAssignCoordinates.cxx
   TestGeoGraticule.cxx
-  TestGeoProjection.cxx
+  TestGeoProjection.cxx,NO_VALID
   TestGlobeSource.cxx
   TestLabeledGeoView2D.cxx
   )

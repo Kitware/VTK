@@ -1,4 +1,4 @@
-vtk_add_test_cxx(QVTK
+vtk_add_test_cxx(NO_VALID
   TestQtDebugLeaksView.cxx
   TestQtTableModelAdapter.cxx
   TestQtTreeModelAdapter.cxx

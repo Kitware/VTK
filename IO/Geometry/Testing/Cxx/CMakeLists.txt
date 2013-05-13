@@ -3,11 +3,11 @@ if(VTK_DATA_ROOT)
   vtk_add_test_cxx(IO
     TestProStarReader.cxx
     TestTecplotReader.cxx
-    TestAMRReadWrite.cxx
+    TestAMRReadWrite.cxx,NO_VALID
     )
 endif()
 
-vtk_add_test_cxx(IO
+vtk_add_test_cxx(NO_VALID
   TestSimplePointsReaderWriter.cxx
   )
 

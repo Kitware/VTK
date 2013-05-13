@@ -1,4 +1,4 @@
-vtk_add_test_cxx(IO
+vtk_add_test_cxx(NO_VALID
   TestArrayDataWriter.cxx
   TestArrayDenormalized.cxx
   TestArraySerialization.cxx

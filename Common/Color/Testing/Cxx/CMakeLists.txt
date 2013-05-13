@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Common
+vtk_add_test_cxx(NO_VALID
   TestCategoricalColors.cxx
   TestNamedColors.cxx
   )

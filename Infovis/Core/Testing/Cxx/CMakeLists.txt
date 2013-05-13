@@ -1,28 +1,31 @@
 if(VTK_DATA_ROOT)
-  set (NEEDS_DATA TestStringToNumeric.cxx TestMergeTables.cxx)
+  set (NEEDS_DATA
+    TestStringToNumeric.cxx,NO_VALID
+    TestMergeTables.cxx,NO_VALID
+    )
 endif()
 
 vtk_add_test_cxx(Infovis
   ${NEEDS_DATA}
-  ArraySparseArrayToTable.cxx
-  ArrayTableToSparseArray.cxx
-  ArrayToTable.cxx
-  ArrayTransposeMatrix.cxx
+  ArraySparseArrayToTable.cxx,NO_VALID
+  ArrayTableToSparseArray.cxx,NO_VALID
+  ArrayToTable.cxx,NO_VALID
+  ArrayTransposeMatrix.cxx,NO_VALID
   # TestArrayNorm.cxx             # todo (unsatisfied deps)
-  TestCollapseVerticesByArray.cxx
+  TestCollapseVerticesByArray.cxx,NO_VALID
   # TestConvexHull2D.cxx          # todo (unsatisfied deps)
-  TestDataObjectToTable.cxx
-  TestExtractSelectedTree.cxx
-  TestExtractSelectedGraph.cxx
+  TestDataObjectToTable.cxx,NO_VALID
+  TestExtractSelectedTree.cxx,NO_VALID
+  TestExtractSelectedGraph.cxx,NO_VALID
   TestGraphAlgorithms.cxx
-  TestMergeGraphs.cxx
+  TestMergeGraphs.cxx,NO_VALID
   TestPruneTreeFilter.cxx
-  TestRandomGraphSource.cxx
-  TestRemoveIsolatedVertices.cxx
-  TestStreamGraph.cxx
-  TestTableToArray.cxx
-  TestThresholdTable.cxx
-  TestTreeDifferenceFilter.cxx
+  TestRandomGraphSource.cxx,NO_VALID
+  TestRemoveIsolatedVertices.cxx,NO_VALID
+  TestStreamGraph.cxx,NO_VALID
+  TestTableToArray.cxx,NO_VALID
+  TestThresholdTable.cxx,NO_VALID
+  TestTreeDifferenceFilter.cxx,NO_VALID
   # TestTimePoint.cxx             # deprecated dep
   )
 

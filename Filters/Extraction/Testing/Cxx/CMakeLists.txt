@@ -1,5 +1,5 @@
 vtk_add_test_cxx(Graphics
-  TestConvertSelection.cxx
+  TestConvertSelection.cxx,NO_VALID
   TestExtractSelection.cxx
   TestExtraction.cxx
   )

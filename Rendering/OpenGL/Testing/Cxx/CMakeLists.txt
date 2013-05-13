@@ -16,14 +16,14 @@ vtk_add_test_cxx(Rendering
   TestBackfaceCulling.cxx
   TestBlurAndSobelPasses.cxx
   TestDynamic2DLabelMapper.cxx
-  TestFBO.cxx
+  TestFBO.cxx,NO_VALID
   TestFollowerPicking.cxx
   TestGaussianBlurPass.cxx
   TestGlyph3DMapper.cxx
   TestGlyph3DMapperMasking.cxx
   TestGlyph3DMapperOrientationArray.cxx
   TestGlyph3DMapperPicking.cxx
-  TestGPUInfo.cxx
+  TestGPUInfo.cxx,NO_VALID
   TestGradientBackground.cxx
   TestHomogeneousTransformOfActor.cxx
   TestImageResliceMapperAlpha.cxx
@@ -38,23 +38,23 @@ vtk_add_test_cxx(Rendering
   TestImageSliceMapperOrient3D.cxx
   TestImageSliceMapperInterpolation.cxx
   TestImageStack.cxx
-  TestInteractorStyleImageProperty.cxx
-  TestInteractorTimers.cxx
+  TestInteractorStyleImageProperty.cxx,NO_VALID
+  TestInteractorTimers.cxx,NO_VALID
   TestLabelPlacer.cxx
   TestLabelPlacer2D.cxx
   TestLabelPlacerCoincidentPoints.cxx
   TestLabelPlacementMapper2D.cxx
   TestLabelPlacementMapperCoincidentPoints.cxx
   TestLightActor.cxx
-  TestLODActor.cxx
-  TestManyActors.cxx
+  TestLODActor.cxx,NO_VALID
+  TestManyActors.cxx,NO_VALID
   TestOffAxisStereo.cxx
   TestOrderedTriangulator.cxx
   TestOpacity.cxx
   TestOpenGLPolyDataMapper.cxx
   TestOSConeCxx.cxx
   TestPolygonSelection.cxx
-  TestPOVExporter.cxx
+  TestPOVExporter.cxx,NO_VALID
   TestResetCameraVerticalAspectRatio.cxx
   TestResetCameraVerticalAspectRatioParallel.cxx
   TestSetImageOrientation.cxx
@@ -64,7 +64,7 @@ vtk_add_test_cxx(Rendering
   TestTextActor3DAlphaBlending.cxx
   TestTextActor3DDepthPeeling.cxx
   TestTexturedBackground.cxx
-  TestTextureSize.cxx
+  TestTextureSize.cxx,NO_VALID
   TestTDx.cxx
   TestTilingCxx.cxx
   TestTransformCoordinateUseDouble.cxx
@@ -79,7 +79,7 @@ if(NOT APPLE)
 endif()
 
 if(WIN32 AND NOT VTK_USE_X)
-  vtk_add_test_cxx(TestWin32OpenGLRenderWindow.cxx Rendering)
+  vtk_add_test_cxx(TestWin32OpenGLRenderWindow.cxx NO_VALID)
 endif()
 
 include_directories(${OPENGL_INCLUDE_DIR})
@@ -94,7 +94,7 @@ if(VTK_DATA_ROOT)
     TestImageSliceMapperBorder.cxx
     TestImageResliceMapperBorder.cxx
     TestScalarBar.cxx
-    TestScenePicker.cxx
+    TestScenePicker.cxx,NO_VALID
     TestTextureRGBA.cxx
     TestTextureRGBADepthPeeling.cxx
     TestTranslucentImageActorAlphaBlending.cxx

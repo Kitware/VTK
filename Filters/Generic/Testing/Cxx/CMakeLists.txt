@@ -10,6 +10,7 @@ vtk_add_test_cxx(GenericFiltering
   TestGenericGeometryFilter.cxx
   TestGenericGlyph3DFilter.cxx
   TestGenericProbeFilter.cxx
-  otherCreation.cxx)
+  otherCreation.cxx,NO_VALID
+  )
 
 vtk_test_cxx_executable(${vtk-module}CxxTests)

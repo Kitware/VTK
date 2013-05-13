@@ -6,15 +6,15 @@ vtk_add_test_cxx(Chemistry
   TestCompositeRender.cxx
   TestFastRender.cxx
   TestLiquoriceSticks.cxx
-  TestMolecule.cxx
-  TestMoleculeSelection.cxx
+  TestMolecule.cxx,NO_VALID
+  TestMoleculeSelection.cxx,NO_VALID
   TestMoleculeMapperPropertyUpdate.cxx
   TestMultiCylinderOn.cxx
   TestMultiCylinderOff.cxx
-  TestPeriodicTable.cxx
-  TestProgrammableElectronicData.cxx
+  TestPeriodicTable.cxx,NO_VALID
+  TestProgrammableElectronicData.cxx,NO_VALID
   TestProteinRibbon.cxx
-  TestSimpleBondPerceiver.cxx
+  TestSimpleBondPerceiver.cxx,NO_VALID
   TestVDWSpheres.cxx
   )
 

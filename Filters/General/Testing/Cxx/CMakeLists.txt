@@ -1,8 +1,8 @@
 vtk_add_test_cxx(Graphics
-  TestGraphWeightEuclideanDistanceFilter.cxx
+  TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
   BoxClipPolyData.cxx
   BoxClipTetrahedra.cxx
-  BoxClipTriangulate.cxx
+  BoxClipTriangulate.cxx,NO_VALID
   BoxClipTriangulateAndInterpolate.cxx
   TestBooleanOperationPolyDataFilter.cxx
   TestBooleanOperationPolyDataFilter2.cxx
@@ -12,18 +12,18 @@ vtk_add_test_cxx(Graphics
   TestDeformPointSet.cxx
   TestDensifyPolyData.cxx,-E15
   TestDistancePolyDataFilter.cxx
-  TestImageDataToPointSet.cxx
+  TestImageDataToPointSet.cxx,NO_VALID
   TestIntersectionPolyDataFilter.cxx
-  TestIntersectionPolyDataFilter2.cxx
-  TestRectilinearGridToPointSet.cxx
-  TestReflectionFilter.cxx
+  TestIntersectionPolyDataFilter2.cxx,NO_VALID
+  TestRectilinearGridToPointSet.cxx,NO_VALID
+  TestReflectionFilter.cxx,NO_VALID
   TestUncertaintyTubeFilter.cxx
   )
 
 # Tests with data
 if(VTK_DATA_ROOT)
   vtk_add_test_cxx(Graphics
-    TestGradientAndVorticity.cxx
+    TestGradientAndVorticity.cxx,NO_VALID
     TestIconGlyphFilterGravity.cxx
     TestQuadraturePoints.cxx
     TestYoungsMaterialInterface.cxx

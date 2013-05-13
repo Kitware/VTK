@@ -1,5 +1,5 @@
 vtk_add_test_python(ParticleReader.py IO)
-vtk_add_test_python(Plot3D IO)
+vtk_add_test_python(Plot3D NO_VALID)
 vtk_add_test_python(Plot3DScalars.py IO)
 vtk_add_test_python(Plot3DVectors.py IO)
 vtk_add_test_python(TestAVSucdReader.py IO)

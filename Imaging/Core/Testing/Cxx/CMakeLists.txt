@@ -1,6 +1,6 @@
 vtk_add_test_cxx(Imaging
   # FastSplatter.cxx # todo (unsatistfied deps)
-  ImageAccumulate.cxx
+  ImageAccumulate.cxx,NO_VALID
   # ImageAutoRange.cxx # todo (unsatistfied deps)
   ImageBSplineCoefficients.cxx
   # ImageHistogram.cxx # todo (unsatistfied deps)
@@ -8,9 +8,9 @@ vtk_add_test_cxx(Imaging
   # ImageResize.cxx # todo (unsatistfied deps)
   # ImageResize3D.cxx # todo (unsatistfied deps)
   # ImageResizeCropping.cxx # todo (unsatistfied deps)
-  ImageWeightedSum.cxx
+  ImageWeightedSum.cxx,NO_VALID
   # ImportExport.cxx # todo (unsatistfied deps)
-  TestUpdateExtentReset.cxx
+  TestUpdateExtentReset.cxx,NO_VALID
   )
 
 # The stencil test is special

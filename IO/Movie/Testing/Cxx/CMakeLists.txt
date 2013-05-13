@@ -8,7 +8,7 @@ if(vtkIOMovie_vtkoggtheora)
   list(APPEND TEST_SRC TestOggTheoraWriter.cxx)
 endif()
 
-vtk_add_test_cxx(IO
+vtk_add_test_cxx(NO_VALID
   # TestMovieWriter.cxx           # fixme (deps not satisfied)
   ${TEST_SRC}
   )

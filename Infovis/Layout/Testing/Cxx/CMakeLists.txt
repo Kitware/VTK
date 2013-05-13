@@ -3,8 +3,8 @@ vtk_add_test_cxx(Infovis
   # TestChacoGraphReader.cxx # todo (unsatisfied deps)
   TestCirclePackLayoutStrategy.cxx
   # TestCosmicTreeLayoutStrategy.cxx # todo (unsatisfied deps)
-  TestGraphLayoutStrategy.cxx
-  TestIncrementalForceLayout.cxx
+  TestGraphLayoutStrategy.cxx,NO_VALID
+  TestIncrementalForceLayout.cxx,NO_VALID
   TestTreeMapLayoutStrategy.cxx
   )
 

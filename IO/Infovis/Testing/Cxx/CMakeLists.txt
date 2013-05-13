@@ -1,5 +1,5 @@
 if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(IO
+  vtk_add_test_cxx(NO_VALID
     TestBiomTableReader.cxx
     TestNewickTreeReader.cxx
     TestMultiNewickTreeReader.cxx

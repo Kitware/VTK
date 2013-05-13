@@ -1,8 +1,8 @@
 vtk_add_test_cxx(Hybrid
   # TestBSplineWarp.cxx           # Fixme after vtkImageViewer deps
   TestPolyDataSilhouette.cxx
-  TestTemporalCacheSimple.cxx
-  TestTemporalCacheTemporal.cxx
+  TestTemporalCacheSimple.cxx,NO_VALID
+  TestTemporalCacheTemporal.cxx,NO_VALID
   )
 vtk_add_test_cxx(Parallel
   TestTemporalFractal.cxx
