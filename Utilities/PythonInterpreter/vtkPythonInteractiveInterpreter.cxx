@@ -129,7 +129,7 @@ vtkPythonInteractiveInterpreter::~vtkPythonInteractiveInterpreter()
 
 //----------------------------------------------------------------------------
 void vtkPythonInteractiveInterpreter::HandleEvents(
-  vtkObject* caller, unsigned long eventid, void* calldata)
+  vtkObject* vtkNotUsed(caller), unsigned long eventid, void* calldata)
 {
   if (eventid == vtkCommand::ExitEvent)
     {
