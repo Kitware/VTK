@@ -61,6 +61,14 @@ public:
   void Reset();
 
   // Description:
+  // Executes the given python source code using the context given by the
+  // locals() object used by this interactive console.  This is similar to
+  // using vtkPythonInterpreter::RunSimpleString(), except that method will
+  // execute code in the context of the __main__ module. Returns 0 on success
+  // or -1 if an exception was raised.
+  int RunStringWithConsoleLocals(const char* script);
+
+  // Description:
   // Provides access to the internal PyObject instances used for the
   // code.InteractiveConsole() as well as the dictionary for the locals of the
   // code.InteractiveConsole() instance. Do not use if you are not sure what

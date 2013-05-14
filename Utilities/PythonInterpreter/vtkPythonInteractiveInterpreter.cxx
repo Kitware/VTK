@@ -183,6 +183,31 @@ bool vtkPythonInteractiveInterpreter::Push(const char* const code)
 }
 
 //----------------------------------------------------------------------------
+int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* script)
+{
+  // The implementation of this method is modeled after
+  // PyRun_SimpleStringFlags() found in Python's pythonrun.c
+
+  this->Internals->GetInteractiveConsole(); //ensure the console is initialized
+
+  PyObject* context = this->Internals->GetInteractiveConsoleLocalsPyObject();
+  PyObject* result = PyRun_String(const_cast<char*>(script), Py_file_input, context, context);
+
+  if (result == NULL)
+    {
+    PyErr_Print();
+    return -1;
+    }
+
+  Py_DECREF(result);
+  if (Py_FlushLine())
+    {
+    PyErr_Clear();
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 void vtkPythonInteractiveInterpreter::Reset()
 {
   this->Internals->CleanupPythonObjects();
