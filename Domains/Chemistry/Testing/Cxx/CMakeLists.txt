@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Chemistry
+vtk_add_test_cxx(
   TestBallAndStick.cxx
   TestPDBBallAndStick.cxx
   TestBondColorModeDiscreteByAtom.cxx
@@ -20,7 +20,7 @@ vtk_add_test_cxx(Chemistry
 
 # Tests with data
 if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(TestCMLMoleculeReader.cxx Chemistry)
+  vtk_add_test_cxx(TestCMLMoleculeReader.cxx)
 endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)

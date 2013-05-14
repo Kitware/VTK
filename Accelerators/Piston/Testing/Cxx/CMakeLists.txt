@@ -1,4 +1,4 @@
-vtk_add_test_cxx(AcceleratorsPiston
+vtk_add_test_cxx(
   TestUsePiston.cxx
 )
 

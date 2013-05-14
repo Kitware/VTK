@@ -9,7 +9,7 @@ INCLUDE_DIRECTORIES(
 )
 
 # For tests that actually use a vtkRenderWindow
-vtk_add_test_cxx(Rendering
+vtk_add_test_cxx(
   LoadOpenGLExtension.cxx
   TestActorLightingFlag.cxx
   TestAnimationScene.cxx
@@ -75,7 +75,7 @@ vtk_add_test_cxx(Rendering
   TestTranslucentLUTTextureDepthPeeling.cxx
   )
 if(NOT APPLE)
-  vtk_add_test_cxx(TestShadowMapPass.cxx Rendering)
+  vtk_add_test_cxx(TestShadowMapPass.cxx)
 endif()
 
 if(WIN32 AND NOT VTK_USE_X)
@@ -85,7 +85,7 @@ endif()
 include_directories(${OPENGL_INCLUDE_DIR})
 
 if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(Rendering
+  vtk_add_test_cxx(
     TestAreaSelections.cxx
     TestGlyph3DMapperArrow.cxx
     TestMultiblockDisplayProperties.cxx
@@ -107,7 +107,7 @@ if(VTK_DATA_ROOT)
 endif()
 
 if(VTK_USE_DISPLAY AND VTK_DATA_ROOT)
-  vtk_add_test_cxx(Rendering
+  vtk_add_test_cxx(
     RenderNonFinite.cxx
     SurfacePlusEdges.cxx
     TestLabelPlacementMapper.cxx
@@ -117,7 +117,7 @@ endif()
 set(VTK_USE_GLSL_SHADERS TRUE)
 if(VTK_USE_GLSL_SHADERS)
   # Tests testing GLSL Shaders.
-  vtk_add_test_cxx(Rendering
+  vtk_add_test_cxx(
     TestGenericVertexAttributesGLSLCxx.cxx
     TestGenericVertexAttributesGLSLAlphaBlending.cxx
     TestGenericVertexAttributesGLSLDepthPeelingPass.cxx

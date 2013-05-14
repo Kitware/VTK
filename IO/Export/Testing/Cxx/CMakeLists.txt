@@ -13,7 +13,7 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE AND VTK_DATA_ROOT)
 endif()
 
 vtk_add_test_cxx(X3DTest.cxx NO_DATA NO_VALID)
-vtk_add_test_cxx(${GL2PSTests} Hybrid)
+vtk_add_test_cxx(${GL2PSTests})
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
 
 # The GL2PS tests produce postscript output, which cannot be compared using

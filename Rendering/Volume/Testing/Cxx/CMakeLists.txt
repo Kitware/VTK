@@ -1,4 +1,4 @@
-vtk_add_test_cxx(VolumeRendering
+vtk_add_test_cxx(
   HomogeneousRayIntegration.cxx
   LinearRayIntegration.cxx
   PartialPreIntegration.cxx
@@ -29,7 +29,7 @@ vtk_add_test_cxx(VolumeRendering
 
 # Tests with data
 if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(VolumeRendering
+  vtk_add_test_cxx(
     ProjectedTetrahedraZoomIn.cxx,NO_VALID
     TestFinalColorWindowLevel.cxx
     TestGPURayCastNearestDataTypesMIP.cxx

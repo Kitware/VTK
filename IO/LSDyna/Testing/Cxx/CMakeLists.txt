@@ -1,4 +1,4 @@
-vtk_add_test_cxx(IO LARGE_DATA
+vtk_add_test_cxx( LARGE_DATA
   TestLSDynaReader.cxx
   TestLSDynaReaderSPH.cxx
   )

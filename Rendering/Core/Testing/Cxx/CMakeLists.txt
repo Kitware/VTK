@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Rendering
+vtk_add_test_cxx(
   TestPickingManager.cxx,NO_VALID
   TestSplitViewportStereoHorizontal.cxx
   # otherLookupTable.cxx             # fixme

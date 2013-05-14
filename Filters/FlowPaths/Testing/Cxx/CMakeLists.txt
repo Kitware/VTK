@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Graphics
+vtk_add_test_cxx(
   TestBSPTree.cxx
   TestStreamTracer.cxx,NO_VALID
   TestAMRInterpolatedVelocityField.cxx,NO_VALID

@@ -1,5 +1,5 @@
 set(TerrainPolylineEditor_ARGS -ProjectionMode 2 -HeightOffset 100)
-vtk_add_test_cxx(Widgets
+vtk_add_test_cxx(
   BoxWidget.cxx
   BoxWidget2.cxx
   # ImagePlaneWidget.cxx # todo (unsatisfied deps)
@@ -78,7 +78,7 @@ vtk_add_test_cxx(NO_VALID
 
 # Tests with data
 if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(Widgets
+  vtk_add_test_cxx(
     TestDijkstraGraphGeodesicPath.cxx
     TestLineWidget.cxx
     TestLineWidget2.cxx
@@ -95,7 +95,7 @@ if(VTK_DATA_ROOT)
 endif()
 
 if(NOT VTK_OPENGL_HAS_OSMESA)
-  vtk_add_test_cxx(TestPickingManagerWidgets.cxx Widgets)
+  vtk_add_test_cxx(TestPickingManagerWidgets.cxx)
 endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)

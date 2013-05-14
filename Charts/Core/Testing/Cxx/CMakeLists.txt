@@ -7,7 +7,7 @@ vtk_add_test_cxx(NO_DATA NO_VALID
 
 if(VTK_DATA_ROOT)
   # add tests that require data
-  vtk_add_test_cxx(Charts
+  vtk_add_test_cxx(
     TestAxes.cxx
     TestBarGraph.cxx
     TestBarGraphHorizontal.cxx

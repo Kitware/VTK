@@ -12,7 +12,7 @@ if (VTK_PYTHON_EXE)
       TestSort
       )
     set(${tfile}_ARGS --normalize)
-    vtk_add_test_python(${tfile}.py AcceleratorsPiston NO_RT ${${tfile}_OPTS})
+    vtk_add_test_python(${tfile}.py NO_RT ${${tfile}_OPTS})
   endforeach ( )
 
   #

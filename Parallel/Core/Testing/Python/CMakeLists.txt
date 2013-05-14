@@ -1,2 +1,2 @@
-vtk_add_test_python(TestPolyDataPieces.py Parallel)
-vtk_add_test_python(TestUnstructuredPieces.py Parallel)
+vtk_add_test_python(TestPolyDataPieces.py)
+vtk_add_test_python(TestUnstructuredPieces.py)

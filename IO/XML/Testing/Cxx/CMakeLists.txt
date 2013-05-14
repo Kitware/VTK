@@ -1,5 +1,5 @@
 if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(IO
+  vtk_add_test_cxx(
     TestAMRXMLIO.cxx,NO_VALID
     TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
     TestXMLUnstructuredGridReader.cxx

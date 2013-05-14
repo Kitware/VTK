@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Graphics
+vtk_add_test_cxx(
   TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
   BoxClipPolyData.cxx
   BoxClipTetrahedra.cxx
@@ -22,7 +22,7 @@ vtk_add_test_cxx(Graphics
 
 # Tests with data
 if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(Graphics
+  vtk_add_test_cxx(
     TestGradientAndVorticity.cxx,NO_VALID
     TestIconGlyphFilterGravity.cxx
     TestQuadraturePoints.cxx

@@ -1,6 +1,6 @@
 # Tests with data
 if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(IO
+  vtk_add_test_cxx(
     TestProStarReader.cxx
     TestTecplotReader.cxx
     TestAMRReadWrite.cxx,NO_VALID
@@ -18,7 +18,7 @@ if (DEFINED CMAKE_WORDS_BIGENDIAN)
   endif()
 endif()
 if(VTK_LARGE_DATA_ROOT AND _known_little_endian)
-  vtk_add_test_cxx(Parallel LARGE_DATA
+  vtk_add_test_cxx( LARGE_DATA
     TestWindBladeReader.cxx
     )
 endif()

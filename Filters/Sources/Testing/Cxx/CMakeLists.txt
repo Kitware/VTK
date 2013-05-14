@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Graphics
+vtk_add_test_cxx(
   TestLineSource.cxx,NO_VALID
   TestTessellatedBoxSource.cxx,NO_VALID
   TestMultiBlock.cxx

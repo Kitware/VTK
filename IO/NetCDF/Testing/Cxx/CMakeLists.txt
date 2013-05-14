@@ -1,5 +1,5 @@
 if(VTK_LARGE_DATA_ROOT)
-  vtk_add_test_cxx(IO LARGE_DATA
+  vtk_add_test_cxx( LARGE_DATA
     SLACMultipleModes.cxx
     SLACParticleReader.cxx
     SLACReaderLinear.cxx

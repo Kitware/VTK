@@ -29,5 +29,5 @@ if(VTK_DATA_ROOT)
 endif()
 
 foreach( tfile ${tests})
-  vtk_add_test_tcl(${tfile}.tcl Graphics)
+  vtk_add_test_tcl(${tfile}.tcl)
 endforeach()

@@ -14,15 +14,15 @@ if(NOT MATPLOTLIB_FOUND)
 endif()
 
 # add tests that do not require data or produce vector output
-vtk_add_test_cxx(TestMathTextFreeTypeTextRendererNoMath.cxx Rendering)
+vtk_add_test_cxx(TestMathTextFreeTypeTextRendererNoMath.cxx)
 
 if(VTK_DATA_ROOT)
   # add tests that require data
-  vtk_add_test_cxx(TestFTStringToPath.cxx Rendering)
+  vtk_add_test_cxx(TestFTStringToPath.cxx)
 endif()
 
 if(MATPLOTLIB_FOUND)
-  vtk_add_test_cxx(TestMathTextFreeTypeTextRenderer.cxx Rendering)
+  vtk_add_test_cxx(TestMathTextFreeTypeTextRenderer.cxx)
 endif()
 
 # This benchmark takes a while to run and can't fail, so disable it by default:

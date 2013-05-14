@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Graphics
+vtk_add_test_cxx(
   TestButterflyScalars.cxx
   TestNamedColorsIntegration.cxx
   TestPolyDataPointSampler.cxx

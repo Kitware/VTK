@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Imaging
+vtk_add_test_cxx(
   # FastSplatter.cxx # todo (unsatistfied deps)
   ImageAccumulate.cxx,NO_VALID
   # ImageAutoRange.cxx # todo (unsatistfied deps)

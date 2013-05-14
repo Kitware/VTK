@@ -4,7 +4,7 @@ if(VTK_DATA_ROOT)
   # properly. Do not run TestMultiBlockExodusWrite on VS6 builds.
   #
   if(NOT CMAKE_GENERATOR MATCHES "Visual Studio 6")
-    vtk_add_test_cxx(Parallel
+    vtk_add_test_cxx(
       TestMultiBlockExodusWrite.cxx
       )
   endif()

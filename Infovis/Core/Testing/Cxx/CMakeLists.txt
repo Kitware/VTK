@@ -5,7 +5,7 @@ if(VTK_DATA_ROOT)
     )
 endif()
 
-vtk_add_test_cxx(Infovis
+vtk_add_test_cxx(
   ${NEEDS_DATA}
   ArraySparseArrayToTable.cxx,NO_VALID
   ArrayTableToSparseArray.cxx,NO_VALID

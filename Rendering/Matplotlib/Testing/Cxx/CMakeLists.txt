@@ -25,7 +25,7 @@ if(MATPLOTLIB_FOUND)
 
   if(VTK_DATA_ROOT)
     # add tests that require data
-    vtk_add_test_cxx(Rendering
+    vtk_add_test_cxx(
       TestContextMathTextImage.cxx
       TestMathTextActor.cxx
       TestMathTextActor3D.cxx
@@ -37,7 +37,7 @@ if(MATPLOTLIB_FOUND)
   endif()
 endif()
 
-vtk_add_test_cxx(${GL2PSTests} Rendering)
+vtk_add_test_cxx(${GL2PSTests})
 
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
 

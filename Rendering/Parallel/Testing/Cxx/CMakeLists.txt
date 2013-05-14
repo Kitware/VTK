@@ -1,4 +1,4 @@
-vtk_add_test_cxx(PrmMagnify.cxx Parallel)
+vtk_add_test_cxx(PrmMagnify.cxx)
 vtk_test_cxx_executable(${vtk-module}CxxTests)
 vtk_module_test_executable(TestClientServerRendering TestClientServerRendering.cxx)
 vtk_add_test_mpi(TestDistributedDataCompositeZPass.cxx VTK_DATA_ROOT)

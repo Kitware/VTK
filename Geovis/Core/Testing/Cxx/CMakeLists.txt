@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Geovis
+vtk_add_test_cxx(
   TestCoincidentGeoGraphRepresentation2D.cxx
   TestGeoAssignCoordinates.cxx
   TestGeoGraticule.cxx

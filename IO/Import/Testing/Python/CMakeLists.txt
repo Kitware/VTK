@@ -1,1 +1,1 @@
-vtk_add_test_python(VRMLImporter.py Hybrid)
+vtk_add_test_python(VRMLImporter.py)

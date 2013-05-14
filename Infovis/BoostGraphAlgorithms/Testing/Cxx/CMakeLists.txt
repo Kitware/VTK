@@ -1,7 +1,7 @@
 find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
-vtk_add_test_cxx(Infovis
+vtk_add_test_cxx(
   # BoostArrayLogWeighting.cxx    # todo (unsatisfied deps)
   BoostArrayRandomSparseArraySource.cxx,NO_VALID
   TestBoostAdapter.cxx,NO_VALID

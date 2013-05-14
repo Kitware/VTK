@@ -1,11 +1,11 @@
 # Tests with data
 if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(Graphics
+  vtk_add_test_cxx(
     TestArrayCalculator.cxx,NO_VALID
     )
 endif()
 
-vtk_add_test_cxx(Graphics
+vtk_add_test_cxx(
   TestGhostArray.cxx,NO_VALID
   # TestAppendPolyData.cxx
   TestAppendSelection.cxx,NO_VALID

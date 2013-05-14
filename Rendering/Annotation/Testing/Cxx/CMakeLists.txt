@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Hybrid
+vtk_add_test_cxx(
   # TestAxisActor3D.cxx # todo (may not be in vtk in the first place)
   TestBarChartActor.cxx
   TestCaptionActor2D.cxx

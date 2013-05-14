@@ -1,8 +1,8 @@
 # Tests with data
 if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(TestGenericStreamTracer.cxx GenericFiltering)
+  vtk_add_test_cxx(TestGenericStreamTracer.cxx)
 endif()
-vtk_add_test_cxx(GenericFiltering
+vtk_add_test_cxx(
   TestGenericClip.cxx
   TestGenericContourFilter.cxx
   TestGenericCutter.cxx

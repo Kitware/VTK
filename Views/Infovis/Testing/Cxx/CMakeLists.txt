@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Views
+vtk_add_test_cxx(
   TestCoincidentGraphLayoutView.cxx
   TestConeLayoutStrategy.cxx
   TestDendrogramOnly.cxx
@@ -17,7 +17,7 @@ vtk_add_test_cxx(Views
   )
 
 if( VTK_DATA_ROOT)
-  vtk_add_test_cxx(TestIconGlyphFilter.cxx Views)
+  vtk_add_test_cxx(TestIconGlyphFilter.cxx)
 endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)

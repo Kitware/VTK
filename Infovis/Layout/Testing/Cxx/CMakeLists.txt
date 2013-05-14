@@ -1,4 +1,4 @@
-vtk_add_test_cxx(Infovis
+vtk_add_test_cxx(
   # TestAssignCoordinates.cxx # todo (unsatisfied deps)
   # TestChacoGraphReader.cxx # todo (unsatisfied deps)
   TestCirclePackLayoutStrategy.cxx

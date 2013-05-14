@@ -4,7 +4,7 @@ vtk_add_test_cxx(NO_VALID
   )
 
 if (VTK_DATA_ROOT)
-  vtk_add_test_cxx(Common
+  vtk_add_test_cxx(
     TestColorSeries.cxx
     )
 endif()

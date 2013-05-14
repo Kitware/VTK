@@ -1,3 +1,3 @@
-vtk_add_test_python(MultidimensionalSolution.py Graphics)
-vtk_add_test_python(progGlyphs.py Graphics)
-vtk_add_test_python(progGlyphsBySource.py Graphics)
+vtk_add_test_python(MultidimensionalSolution.py)
+vtk_add_test_python(progGlyphs.py)
+vtk_add_test_python(progGlyphsBySource.py)
