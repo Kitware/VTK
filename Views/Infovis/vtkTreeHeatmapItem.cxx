@@ -140,10 +140,16 @@ void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
       }
     }
 
+  double rangeMinimum = 2.0;
+  if (numLeavesInBiggestSubTree < rangeMinimum)
+    {
+    rangeMinimum = numLeavesInBiggestSubTree;
+    }
+
   this->TriangleLookupTable->SetNumberOfTableValues(256);
   this->TriangleLookupTable->SetHueRange(0.5, 0.045);
   this->TriangleLookupTable->SetRange(
-    2.0, static_cast<double>(numLeavesInBiggestSubTree));
+    rangeMinimum, static_cast<double>(numLeavesInBiggestSubTree));
   this->TriangleLookupTable->Build();
 }
 
