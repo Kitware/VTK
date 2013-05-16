@@ -22,10 +22,12 @@ vtkPythonCommand::vtkPythonCommand()
 {
   this->obj = NULL;
   this->ThreadState = NULL;
+  vtkPythonUtil::RegisterPythonCommand(this);
 }
 
 vtkPythonCommand::~vtkPythonCommand()
 {
+  vtkPythonUtil::UnRegisterPythonCommand(this);
   if (this->obj && Py_IsInitialized())
     {
     Py_DECREF(this->obj);
@@ -47,6 +49,11 @@ void vtkPythonCommand::SetThreadState(PyThreadState *ts)
 void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
                                void *CallData)
 {
+  if (!this->obj)
+    {
+    return;
+    }
+
   PyObject *arglist, *result, *obj2;
   const char *eventname;
 

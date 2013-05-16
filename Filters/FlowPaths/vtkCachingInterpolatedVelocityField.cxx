@@ -286,9 +286,14 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(
     }
   else
     {
-    data->DataSet->GetCell(this->LastCellId, this->TempCell);
+    vtkGenericCell* tmpCell = 0;
+    if (this->LastCellId >= 0)
+      {
+      data->DataSet->GetCell(this->LastCellId, this->TempCell);
+      tmpCell = this->TempCell;
+      }
     this->LastCellId =
-      data->DataSet->FindCell(x, this->TempCell, data->Cell, -1,
+      data->DataSet->FindCell(x, tmpCell, data->Cell, this->LastCellId,
       data->Tolerance, subId, data->PCoords, &this->Weights[0]);
     if (this->LastCellId != -1)
       {

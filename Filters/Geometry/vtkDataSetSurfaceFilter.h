@@ -87,12 +87,14 @@ public:
   // set to NULL, then vtkOriginalCellIds or vtkOriginalPointIds (the default)
   // is used, respectively.
   vtkSetStringMacro(OriginalCellIdsName);
-  virtual const char *GetOriginalCellIdsName() {
+  virtual const char *GetOriginalCellIdsName()
+  {
     return (  this->OriginalCellIdsName
-            ? this->OriginalCellIdsName : "vtkOriginalCellIds");
+              ? this->OriginalCellIdsName : "vtkOriginalCellIds");
   }
   vtkSetStringMacro(OriginalPointIdsName);
-  virtual const char *GetOriginalPointIdsName() {
+  virtual const char *GetOriginalPointIdsName()
+  {
     return (  this->OriginalPointIdsName
             ? this->OriginalPointIdsName : "vtkOriginalPointIds");
   }

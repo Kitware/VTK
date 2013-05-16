@@ -976,7 +976,11 @@ T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored
   vtksys_ios::istringstream vstr(str);
   T data;
   vstr >> data;
-  vstr >> std::ws; // eat whitespace after number
+  if(!vstr.eof())
+    {
+    // take in white space so that it can reach eof.
+    vstr >> std::ws;
+    }
   bool v = ( !vstr.fail() && vstr.eof() );
   if (valid) *valid = v;
   if (!v)

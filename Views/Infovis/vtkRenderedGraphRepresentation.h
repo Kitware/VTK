@@ -338,6 +338,11 @@ public:
   virtual bool GetEdgeScalarBarVisibility();
 
   // Description:
+  // Obtain the scalar bar widget used to draw a legend for the vertices/edges.
+  virtual vtkScalarBarWidget* GetVertexScalarBar();
+  virtual vtkScalarBarWidget* GetEdgeScalarBar();
+
+  // Description:
   // Whether the current graph layout is complete.
   virtual bool IsLayoutComplete();
 
