@@ -207,7 +207,7 @@ public:
   // The name is treated as being case-insensitive.
   // The range of each color is 0...255.
   // No color is set if the name is empty.
-  void SetColor(const vtkStdString & name,
+  virtual void SetColor(const vtkStdString & name,
                 const unsigned char & r, const unsigned char & g,
                 const unsigned char & b, const unsigned char & a = 255);
 
@@ -216,7 +216,7 @@ public:
   // The name is treated as being case-insensitive.
   // The range of each color is 0...1.
   // No color is set if the name is empty.
-  void SetColor(const vtkStdString & name,
+  virtual void SetColor(const vtkStdString & name,
                 const double & r, const double & g,
                 const double & b, const double & a = 1);
 
@@ -227,21 +227,21 @@ public:
   // [red, green, blue, alpha]. The range of each element is 0...255.
   // The user must ensure that the color array size is 4.
   // No color is set if the name is empty.
-  void SetColor(const vtkStdString & name, const unsigned char rgba[4]);
+  virtual void SetColor(const vtkStdString & name, const unsigned char rgba[4]);
 
   // Description:
   // Set the color by name.
   // The name is treated as being case-insensitive.
   // The color is a vtkColor4ub class.
   // No color is set if the name is empty.
-  void SetColor(const vtkStdString & name, const vtkColor4ub & rgba);
+  virtual void SetColor(const vtkStdString & name, const vtkColor4ub & rgba);
 
   // Description:
   // Set the color by name.
   // The name is treated as being case-insensitive.
   // The color is a vtkColor3ub class.
   // No color is set if the name is empty.
-  void SetColor(const vtkStdString & name, const vtkColor3ub & rgb);
+  virtual void SetColor(const vtkStdString & name, const vtkColor3ub & rgb);
 
   // Description:
   // Set the color by name.
@@ -249,21 +249,21 @@ public:
   // The color is a double array:
   // [red, green, blue, alpha]. The range of each element is 0...1.
   // No color is set if the name is empty.
-  void SetColor(const vtkStdString & name, const double rgba[4]);
+  virtual void SetColor(const vtkStdString & name, const double rgba[4]);
 
   // Description:
   // Set the color by name.
   // The name is treated as being case-insensitive.
   // The color is a vtkColor4d class.
   // No color is set if the name is empty.
-  void SetColor(const vtkStdString & name, const vtkColor4d & rgba);
+  virtual void SetColor(const vtkStdString & name, const vtkColor4d & rgba);
 
   // Description:
   // Set the color by name.
   // The name is treated as being case-insensitive.
   // The color is a vtkColor3d class.
   // No color is set if the name is empty.
-  void SetColor(const vtkStdString & name, const vtkColor3d & rgb);
+  virtual void SetColor(const vtkStdString & name, const vtkColor3d & rgb);
 
   // Description:
   // Remove the color by name.
