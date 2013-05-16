@@ -126,9 +126,8 @@ public:
   // Set the color of the object. Has the side effect of setting the
   // ambient diffuse and specular colors as well. This is basically
   // a quick overall color setting method.
-  void SetColor(double r, double g, double b);
-  void SetColor(double a[3])
-    { this->SetColor(a[0], a[1], a[2]); }
+  virtual void SetColor(double r, double g, double b);
+  virtual void SetColor(double a[3]);
   double *GetColor();
   void GetColor(double rgb[3]);
   void GetColor(double &r, double &g, double &b);

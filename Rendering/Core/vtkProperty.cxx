@@ -279,6 +279,12 @@ void vtkProperty::SetColor(double r, double g, double b)
 }
 
 //----------------------------------------------------------------------------
+void vtkProperty::SetColor(double a[3])
+{
+  this->SetColor(a[0], a[1], a[2]);
+}
+
+//----------------------------------------------------------------------------
 void vtkProperty::ComputeCompositeColor(double result[3],
   double ambient, const double ambient_color[3],
   double diffuse, const double diffuse_color[3],
