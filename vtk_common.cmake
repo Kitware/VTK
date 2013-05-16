@@ -29,6 +29,7 @@
 #   dashboard_root_name       = Change name of "My Tests" directory
 #   dashboard_source_name     = Name of source directory (VTK)
 #   dashboard_binary_name     = Name of binary directory (VTK-build)
+#   dashboard_store_name      = Name of ExternalData store (ExternalData)
 #   dashboard_data_name       = Name of data directory (VTKData)
 #   dashboard_large_data_name = Name of data directory (VTKLargeData)
 #   dashboard_cache           = Initial CMakeCache.txt file content
@@ -60,7 +61,7 @@
 #   set(ENV{LD_LIBRARY_PATH} /path/to/vendor/lib) # (if necessary)
 
 #=============================================================================
-# Copyright 2010-2012 Kitware, Inc.
+# Copyright 2010-2013 Kitware, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -196,6 +197,15 @@ if(NOT DEFINED CTEST_BINARY_DIRECTORY)
     set(CTEST_BINARY_DIRECTORY ${CTEST_DASHBOARD_ROOT}/${dashboard_binary_name})
   else()
     set(CTEST_BINARY_DIRECTORY ${CTEST_SOURCE_DIRECTORY}-build)
+  endif()
+endif()
+
+# Select a data store.
+if(NOT DEFINED ExternalData_OBJECT_STORES)
+  if(DEFINED dashboard_store_name)
+    set(ExternalData_OBJECT_STORES ${CTEST_DASHBOARD_ROOT}/${dashboard_store_name})
+  else()
+    set(ExternalData_OBJECT_STORES ${CTEST_DASHBOARD_ROOT}/ExternalData)
   endif()
 endif()
 
@@ -360,6 +370,7 @@ foreach(v
     CTEST_CHECKOUT_COMMAND
     CTEST_SCRIPT_DIRECTORY
     CTEST_USE_LAUNCHERS
+    ExternalData_OBJECT_STORES
     VTK_DATA_ROOT
     VTK_LARGE_DATA_ROOT
     )
@@ -385,6 +396,7 @@ SITE:STRING=${CTEST_SITE}
 BUILDNAME:STRING=${CTEST_BUILD_NAME}
 CTEST_USE_LAUNCHERS:BOOL=${CTEST_USE_LAUNCHERS}
 DART_TESTING_TIMEOUT:STRING=${CTEST_TEST_TIMEOUT}
+ExternalData_OBJECT_STORES:STRING=${ExternalData_OBJECT_STORES}
 VTK_DATA_ROOT:PATH=${VTK_DATA_ROOT}
 VTK_LARGE_DATA_ROOT:PATH=${VTK_LARGE_DATA_ROOT}
 ${cache_build_type}
