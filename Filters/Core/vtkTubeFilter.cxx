@@ -199,7 +199,9 @@ int vtkTubeFilter::RequestData(
   //
   this->Theta = 2.0*vtkMath::Pi() / this->NumberOfSides;
   vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
-  for (inCellId=0, inLines->InitTraversal();
+  // the line cellIds start after the last vert cellId
+  inCellId = input->GetNumberOfVerts();
+  for (inLines->InitTraversal();
        inLines->GetNextCell(npts,pts) && !abort; inCellId++)
     {
     this->UpdateProgress((double)inCellId/numLines);
