@@ -40,7 +40,7 @@ int TestVRMLNormals( int argc, char * argv [] )
 
   delete [] fname;
 
-  renWin->SetSize(800, 800);
+  renWin->SetSize(400, 400);
 
   // render the image
   iren->Initialize();
@@ -58,5 +58,5 @@ int TestVRMLNormals( int argc, char * argv [] )
   renWin->Delete();
   iren->Delete();
 
-  return retVal;
+  return !retVal;
 }
