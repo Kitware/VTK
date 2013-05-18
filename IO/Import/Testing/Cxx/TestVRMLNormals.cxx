@@ -34,7 +34,7 @@ int TestVRMLNormals( int argc, char * argv [] )
   vtkVRMLImporter* importer = vtkVRMLImporter::New();
   importer->SetRenderWindow(renWin);
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/wineglass.wrl");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/WineGlass.wrl");
   importer->SetFileName(fname);
   importer->Read();
 
