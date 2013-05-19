@@ -29,19 +29,19 @@
 
 #include "vtkTypedArray.h"
 
-/// \relates vtkArrayPrint
+/// @relates vtkArrayPrint
 /// Serializes the contents of an array to a stream as a series of
 /// coordinates.  For 2D arrays of double values, the output is compatible
 /// with the MatrixMarket "Coordinate Text File" format.
 template<typename T>
 void vtkPrintCoordinateFormat(ostream& stream, vtkTypedArray<T>* array);
 
-/// \relates vtkArrayPrint
+/// @relates vtkArrayPrint
 /// Serializes the contents of a matrix to a stream in human-readable form.
 template<typename T>
 void vtkPrintMatrixFormat(ostream& stream, vtkTypedArray<T>* matrix);
 
-/// \relates vtkArrayPrint
+/// @relates vtkArrayPrint
 /// Serializes the contents of a vector to a stream in human-readable form.
 template<typename T>
 void vtkPrintVectorFormat(ostream& stream, vtkTypedArray<T>* vector);
