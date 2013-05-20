@@ -5514,6 +5514,11 @@ vtkVRMLImporter::~vtkVRMLImporter()
   delete VrmlNodeType::useList;
   VrmlNodeType::useList = 0;
   vtkVRMLAllocator::CleanUp();
+
+  if (yy_current_buffer)
+    {
+    yy_delete_buffer(yy_current_buffer);
+    }
 }
 
 void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
