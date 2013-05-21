@@ -1045,17 +1045,14 @@ bool vtkTreeHeatmapItem::MouseMoveEvent(const vtkContextMouseEvent &event)
         this->Tooltip->SetText(tooltipText);
         this->Tooltip->SetVisible(true);
         this->Scene->SetDirty(true);
+        return true;
         }
-      return true;
       }
-    else
+    bool shouldRepaint = this->Tooltip->GetVisible();
+    this->Tooltip->SetVisible(false);
+    if (shouldRepaint)
       {
-      bool shouldRepaint = this->Tooltip->GetVisible();
-      this->Tooltip->SetVisible(false);
-      if (shouldRepaint)
-        {
-        this->Scene->SetDirty(true);
-        }
+      this->Scene->SetDirty(true);
       }
     }
   return false;
