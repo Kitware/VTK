@@ -10,6 +10,7 @@ include(CTest)
 
 # Find the top of the main VTK source tree.
 get_filename_component(VTK_TOP_DIR ${VTKTestExternal_SOURCE_DIR}/../.. ABSOLUTE)
+set(ExternalData_SOURCE_ROOT ${VTK_TOP_DIR})
 
 # Load module infrastructure macros.
 list(APPEND CMAKE_MODULE_PATH ${VTK_TOP_DIR}/CMake)
@@ -73,3 +74,7 @@ foreach(mod ${VTK_MODULES_ALL})
     endif()
   endif()
 endforeach()
+
+# Create target to download data from the VTKData group.  This must come after
+# all tests have been added that reference the group, so we put it last.
+ExternalData_Add_Target(VTKData)
