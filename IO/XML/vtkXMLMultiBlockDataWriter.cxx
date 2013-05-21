@@ -67,33 +67,31 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
     iter->GoToNextItem(), index++)
     {
     vtkDataObject* curDO = iter->GetCurrentDataObject();
+    const char *name = NULL;
+    if (iter->HasCurrentMetaData())
+      {
+      name = iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
+      }
+
     if (curDO && curDO->IsA("vtkCompositeDataSet"))
     // if node is a supported composite dataset
     // note in structure file and recurse.
       {
       vtkXMLDataElement* tag = vtkXMLDataElement::New();
-
-      const char *name = iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
+      if (name)
+        {
+        tag->SetAttribute("name", name);
+        }
 
       if (curDO->IsA("vtkMultiPieceDataSet"))
         {
         tag->SetName("Piece");
         tag->SetIntAttribute("index", index);
-
-        if(name)
-          {
-          tag->SetAttribute("name", name);
-          }
         }
       else if (curDO->IsA("vtkMultiBlockDataSet"))
         {
         tag->SetName("Block");
         tag->SetIntAttribute("index", index);
-
-        if(name)
-          {
-          tag->SetAttribute("name", name);
-          }
         }
       vtkCompositeDataSet* curCD
         = vtkCompositeDataSet::SafeDownCast(curDO);
@@ -112,6 +110,10 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
       vtkXMLDataElement* datasetXML = vtkXMLDataElement::New();
       datasetXML->SetName("DataSet");
       datasetXML->SetIntAttribute("index", index);
+      if (name)
+        {
+        datasetXML->SetAttribute("name", name);
+        }
       vtkStdString fileName = this->CreatePieceFileName(writerIdx);
       if (this->WriteNonCompositeData( curDO, datasetXML, writerIdx,
                                        fileName.c_str()))
