@@ -1281,7 +1281,9 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     clone->ShallowCopy(input);
     uggf->SetInputData(clone.GetPointer());
     uggf->SetPassThroughCellIds(this->PassThroughCellIds);
+    uggf->SetOriginalCellIdsName(this->GetOriginalCellIdsName());
     uggf->SetPassThroughPointIds(this->PassThroughPointIds);
+    uggf->SetOriginalPointIdsName(this->GetOriginalPointIdsName());
     uggf->Update();
 
     tempInput = vtkSmartPointer<vtkUnstructuredGrid>::New();

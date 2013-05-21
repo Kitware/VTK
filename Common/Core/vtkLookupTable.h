@@ -1,4 +1,4 @@
-/*=========================================================================
+ /*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkLookupTable.h
@@ -188,12 +188,13 @@ public:
   // component specification. Make sure that you've either used the
   // Build() method or used SetNumberOfTableValues() prior to using this
   // method.
-  void SetTableValue(vtkIdType indx, double rgba[4]);
+  virtual void SetTableValue(vtkIdType indx, double rgba[4]);
 
   // Description:
   // Directly load color into lookup table. Use [0,1] double values for color
   // component specification.
-  void SetTableValue(vtkIdType indx, double r, double g, double b, double a=1.0);
+  virtual void SetTableValue(vtkIdType indx,
+                              double r, double g, double b, double a=1.0);
 
   // Description:
   // Return a rgba color value for the given index into the lookup table. Color
@@ -278,7 +279,8 @@ public:
   // Description:
   // Return a color given an integer index.
   //
-  // This is used to assign colors to annotations (given an offset into the list of annotations).
+  // This is used to assign colors to annotations (given an offset into the
+  // list of annotations).
   // If the table is empty or \a idx < 0, then NanColor is returned.
   virtual void GetIndexedColor(vtkIdType idx, double rgba[4]);
 

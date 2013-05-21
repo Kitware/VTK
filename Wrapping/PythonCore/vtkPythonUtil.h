@@ -24,13 +24,15 @@
 #include "PyVTKObject.h"
 #include "PyVTKSpecialObject.h"
 
-class vtkPythonObjectMap;
-class vtkPythonGhostMap;
 class vtkPythonClassMap;
+class vtkPythonCommand;
+class vtkPythonCommandList;
+class vtkPythonGhostMap;
+class vtkPythonObjectMap;
 class vtkPythonSpecialTypeMap;
-class vtkVariant;
 class vtkStdString;
 class vtkUnicodeString;
+class vtkVariant;
 
 extern "C" void vtkPythonUtilDelete();
 
@@ -141,6 +143,14 @@ public:
   // Compute a hash for a vtkVariant.
   static long VariantHash(const vtkVariant *variant);
 
+  // Description:
+  // Register a vtkPythonCommand. Registering vtkPythonCommand instances ensures
+  // that when the interpreter is destroyed (and Py_AtExit() gets called), the
+  // vtkPythonCommand state is updated to avoid referring to dangling Python
+  // objects pointers. Note, this will not work with Py_NewInterpreter.
+  static void RegisterPythonCommand(vtkPythonCommand*);
+  static void UnRegisterPythonCommand(vtkPythonCommand*);
+
 private:
   vtkPythonUtil();
   ~vtkPythonUtil();
@@ -151,8 +161,10 @@ private:
   vtkPythonGhostMap *GhostMap;
   vtkPythonClassMap *ClassMap;
   vtkPythonSpecialTypeMap *SpecialTypeMap;
+  vtkPythonCommandList *PythonCommandList;
 
   friend void vtkPythonUtilDelete();
+  friend void vtkPythonUtilCreateIfNeeded();
 };
 
 // For use by SetXXMethod() , SetXXMethodArgDelete()

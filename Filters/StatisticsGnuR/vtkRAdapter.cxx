@@ -774,25 +774,28 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     trueWeights->SetNumberOfTuples(tree->GetNumberOfVertices());
 
     double maxWeight = 0.0;
-    for (vtkIdType vertex = 0; vertex < tree->GetNumberOfVertices(); ++vertex)
+    vtkNew<vtkTreeDFSIterator> treeIterator;
+    treeIterator->SetStartVertex(tree->GetRoot());
+    treeIterator->SetTree(tree);
+    while (treeIterator->HasNext())
       {
-        double weight = 0.0;
-        vtkIdType node = vertex;
-        vtkIdType parent = tree->GetParent(node);
-        while (parent != -1)
-          {
-          weight += weights->GetValue(tree->GetEdgeId(parent, node));
-          node = parent;
-          parent = tree->GetParent(node);
-          }
+      vtkIdType vertex = treeIterator->Next();
+      vtkIdType parent = tree->GetParent(vertex);
+      double weight = 0.0;
+      if (parent >= 0)
+        {
+        weight = weights->GetValue(tree->GetEdgeId(parent, vertex));
+        }
+      weight += nodeWeights->GetValue(parent);
 
-        if (weight > maxWeight)
-          {
-          maxWeight = weight;
-          }
-        nodeWeights->SetValue(vertex, weight);
-        trueWeights->SetValue(vertex, weight);
+      if (weight > maxWeight)
+        {
+        maxWeight = weight;
+        }
+      nodeWeights->SetValue(vertex, weight);
+      trueWeights->SetValue(vertex, weight);
       }
+
     for (vtkIdType vertex = 0; vertex < tree->GetNumberOfVertices(); ++vertex)
       {
       if (tree->IsLeaf(vertex))
@@ -800,7 +803,6 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
         nodeWeights->SetValue(vertex, maxWeight);
         }
       }
-
     nodeWeights->SetName("node weight");
     tree->GetVertexData()->AddArray(nodeWeights.GetPointer());
 

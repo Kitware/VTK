@@ -17,18 +17,10 @@
 // vtkMatplotlibMathTextUtilities provides access to the MatPlotLib MathText
 // implementation.
 //
-// This class is aware of a number of enviroment variables that can be used to
+// This class is aware of a number of environment variables that can be used to
 // configure and debug python initialization (all are optional):
 // - VTK_MATPLOTLIB_DEBUG: Enable verbose debugging output during initialization
 // of the python environment.
-// - VTK_MATPLOTLIB_PYTHONINTERP: Path to the python interpreter. This will be
-// passed to Py_SetProgramName prior to calling Py_Initialize.
-// - VTK_MATPLOTLIB_PYTHONHOME: See the Python documentation on the PYTHONHOME
-// environment variable. This will be passed to Py_SetPythonHome prior to
-// calling Py_Initialize.
-// - VTK_MATPLOTLIB_PYTHONPATH: A list of additional python module paths to be
-// prepended to the sys.path object after initialization. Use ';' on windows and
-// ':' on apple/linux to separate multiple paths.
 
 #ifndef __vtkMatplotlibMathTextUtilities_h
 #define __vtkMatplotlibMathTextUtilities_h
@@ -40,6 +32,7 @@ struct _object;
 typedef struct _object PyObject;
 class vtkImageData;
 class vtkPath;
+class vtkPythonInterpreter;
 class vtkTextProperty;
 
 class VTKRENDERINGMATPLOTLIB_EXPORT vtkMatplotlibMathTextUtilities :
@@ -94,6 +87,13 @@ protected:
   // the vtkTextProperty tprop.
   PyObject * GetFontProperties(vtkTextProperty *tprop);
 
+  // Description:
+  // Cleanup and destroy any python objects. This is called during destructor as
+  // well as when the Python interpreter is finalized. Thus this class must
+  // handle the case where the internal python objects disappear between calls.
+  void CleanupPythonObjects();
+
+  vtkPythonInterpreter* Interpreter;
   PyObject *MaskParser;
   PyObject *PathParser;
   PyObject *FontPropertiesClass;
@@ -110,19 +110,20 @@ protected:
     AVAILABLE,
     UNAVAILABLE
     };
-  static Availablity MPLMathTextAvailable;
 
   bool ScaleToPowerOfTwo;
   bool PrepareImageData(vtkImageData *data, int bbox[4]);
 
-  // Description:
-  // Set to true if this class initialized the python interpreter. This
-  // is used to determine if Py_Finalize() should be called when destructed.
-  static bool InitializedPython;
+  // Function used to check MPL availability and update MPLMathTextAvailable.
+  // This will do tests only the first time this method is called.
+  static void CheckMPLAvailability();
 
 private:
   vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.
   void operator=(const vtkMatplotlibMathTextUtilities&); // Not implemented.
+
+
+  static Availablity MPLMathTextAvailable;
 };
 
 #endif

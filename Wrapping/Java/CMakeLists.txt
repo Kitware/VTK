@@ -316,9 +316,7 @@ endif()
 
 # Make sure .class files are cleaned up
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${VTK_JAVA_CLASS_FILES}")
-#  IF(NOT VTK_INSTALL_NO_RUNTIME)
-#    INSTALL(FILES
-#      ${VTK_JAR_PATH}/vtk.jar
-#      DESTINATION ${VTK_INSTALL_JAVA_DIR_CM24}
-#      COMPONENT RuntimeLibraries)
-#  ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
+install(FILES
+  ${VTK_JAR_PATH}/vtk.jar
+  DESTINATION ${VTK_INSTALL_LIBRARY_DIR}
+  COMPONENT RuntimeLibraries)
