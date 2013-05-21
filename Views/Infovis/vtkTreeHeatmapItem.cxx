@@ -706,8 +706,20 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     this->LayoutTree->GetPoint(vertex, point);
     int currentRow = floor(point[1] * this->MultiplierY / this->CellHeight + 0.5);
 
-    // find the row in the table that corresponds to this vertex
+    // draw the label for this leaf node
     std::string nodeName = nodeNames->GetValue(vertex);
+    if (drawRowLabels)
+      {
+      xStart = this->TreeMaxX + spacing * 2 +
+        this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+      yStart = point[1] * this->MultiplierY;
+      if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
+        {
+        painter->DrawString(xStart, yStart, nodeName);
+        }
+      }
+
+    // find the row in the table that corresponds to this vertex
     vtkIdType tableRow = tableNames->LookupValue(nodeName);
     if (tableRow < 0)
       {
@@ -762,18 +774,6 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       if (yStart < this->HeatmapMinY)
         {
         this->HeatmapMinY = yStart;
-        }
-      }
-
-    // draw the label for this row
-    if (drawRowLabels)
-      {
-      xStart = this->TreeMaxX + spacing * 2 +
-        this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
-      yStart = point[1] * this->MultiplierY;
-      if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
-        {
-        painter->DrawString(xStart, yStart, nodeName);
         }
       }
     }
