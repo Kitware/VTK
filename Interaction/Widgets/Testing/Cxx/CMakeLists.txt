@@ -1,4 +1,5 @@
-set(MyTests
+set(TerrainPolylineEditor_ARGS -ProjectionMode 2 -HeightOffset 100)
+vtk_add_test_cxx(
   BoxWidget.cxx
   BoxWidget2.cxx
   # ImagePlaneWidget.cxx # todo (unsatisfied deps)
@@ -40,7 +41,7 @@ set(MyTests
   TestPlaybackWidget.cxx
   TestPointHandleRepresentation3D.cxx
   TestProgrammaticPlacement.cxx
-  TestProp3DButtonRepresentation.cxx
+  TestProp3DButtonRepresentation.cxx,NO_VALID
   TestRectilinearWipeWidget.cxx
   # TestResliceCursorWidget2.cxx # todo (unsatistfied deps)
   # TestResliceCursorWidget3.cxx # todo (unsatistfied deps)
@@ -52,6 +53,8 @@ set(MyTests
   TestSliderWidget2D.cxx
   # TestSplineWidget.cxx # todo (unsatistfied deps)
   TestTextWidget.cxx
+  )
+vtk_add_test_cxx(NO_VALID
   vtkAngleRepresentation2DTest1.cxx
   vtkAngleRepresentation3DTest1.cxx
   vtkAngleWidgetTest1.cxx
@@ -71,18 +74,17 @@ set(MyTests
   vtkSplineWidget2Test1.cxx
   vtkTextRepresentationTest1.cxx
   vtkTextWidgetTest1.cxx
-)
+  )
 
 # Tests with data
 if(VTK_DATA_ROOT)
-  set(MyTests
-    ${MyTests}
+  vtk_add_test_cxx(
     TestDijkstraGraphGeodesicPath.cxx
     TestLineWidget.cxx
     TestLineWidget2.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
-    TestPolyPlane.cxx
+    TestPolyPlane.cxx,NO_VALID
     TestPolygonalHandleRepresentations.cxx
     TestPolygonalRepresentationHandleWidget.cxx
     TestPolygonalSurfaceConstrainedDistanceWidget.cxx
@@ -93,43 +95,10 @@ if(VTK_DATA_ROOT)
 endif()
 
 if(NOT VTK_OPENGL_HAS_OSMESA)
-  set(MyTests
-    ${MyTests} TestPickingManagerWidgets.cxx)
+  vtk_add_test_cxx(TestPickingManagerWidgets.cxx)
 endif()
 
-
-# Use the testing object factory, to reduce boilerplate code in tests.
-include(vtkTestingObjectFactory)
-
-vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
-
-set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun CxxTests.cxx)
-list(REMOVE_ITEM TestsToRun TerrainPolylineEditor.cxx)
-
-if(VTK_DATA_ROOT)
-  add_test(NAME ${vtk-module}Cxx-TerrainPolylineEditor
-    COMMAND ${vtk-module}CxxTests TerrainPolylineEditor
-      -ProjectionMode 2
-      -HeightOffset 100
-      -D ${VTK_DATA_ROOT}
-      -T ${VTK_TEST_OUTPUT_DIR}
-      -V Baseline/Widgets/TerrainPolylineEditor.png)
-endif()
-
-# Add all the executables
-foreach(test ${TestsToRun})
-  get_filename_component(TName ${test} NAME_WE)
-  if(VTK_DATA_ROOT)
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName}
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/Widgets/${TName}.png)
-  else()
-    add_test(NAME ${vtk-module}Cxx-${TName} COMMAND ${vtk-module}CxxTests ${TName})
-  endif()
-endforeach()
+vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
 
 if (VTK_DATA_ROOT)
   set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor

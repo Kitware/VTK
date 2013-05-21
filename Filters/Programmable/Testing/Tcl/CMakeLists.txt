@@ -1,6 +1,6 @@
 if(VTK_DATA_ROOT)
-  add_test_tcl(MultidimensionalSolution Graphics)
+  vtk_add_test_tcl(MultidimensionalSolution)
 endif()
 
-add_test_tcl(progGlyphs Graphics)
-add_test_tcl(progGlyphsBySource Graphics)
+vtk_add_test_tcl(progGlyphs)
+vtk_add_test_tcl(progGlyphsBySource)

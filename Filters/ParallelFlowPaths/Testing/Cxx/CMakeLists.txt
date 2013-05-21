@@ -1,11 +1,12 @@
 vtk_module_test_executable(TestPStream TestPStream.cxx)
 
-add_test(NAME ${vtk-module}Cxx-TestPStream-image
+ExternalData_add_test(VTKData
+  NAME ${vtk-module}Cxx-TestPStream-image
   COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS}
     $<TARGET_FILE:TestPStream>
     -D ${VTK_DATA_ROOT}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Parallel/TestPStream.cxx.png
+    -V DATA{../Data/Baseline/TestPStream.cxx.png,:}
     ${VTK_MPI_POSTFLAGS})
 
 vtk_module_test_executable(TestPStreamGeometry TestVectorFieldSource.cxx
