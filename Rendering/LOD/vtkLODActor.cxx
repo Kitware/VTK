@@ -355,23 +355,25 @@ void vtkLODActor::UpdateOwnLODs()
 // (number two and three)
 void vtkLODActor::DeleteOwnLODs()
 {
-  if (!this->MediumMapper)
+  // remove the mappers from the LOD collection
+  if (this->LowMapper)
     {
-    return;
+    this->LODMappers->RemoveItem(this->LowMapper);
+    this->LowMapper->Delete();
+    this->LowMapper = NULL;
     }
 
-  // remove the mappers from the LOD collection
-  this->LODMappers->RemoveItem(this->LowMapper);
-  this->LODMappers->RemoveItem(this->MediumMapper);
+  if (this->MediumMapper)
+    {
+    this->LODMappers->RemoveItem(this->MediumMapper);
+    this->MediumMapper->Delete();
+    this->MediumMapper = NULL;
+    }
 
   // delete the filters used to create the LODs ...
   // The NULL check should not be necessary, but for sanity ...
   this->SetLowResFilter(NULL);
   this->SetMediumResFilter(NULL);
-  this->LowMapper->Delete();
-  this->LowMapper = NULL;
-  this->MediumMapper->Delete();
-  this->MediumMapper = NULL;
 }
 
 //----------------------------------------------------------------------------
