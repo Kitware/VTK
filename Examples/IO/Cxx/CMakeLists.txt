@@ -21,21 +21,16 @@ target_link_libraries(ParticleReader ${VTK_LIBRARIES})
 
 if(vtkTestingRendering_SOURCE_DIR)
 ######## Regression Testing ########
-SET(KIT IOExamples)
-SET(MyTests TestDumpXMLFile.cxx TestParticleReader.cxx)
-
-include(vtkTestingObjectFactory)
-
-add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
-target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
-
+  set(vtk-example IOExamples)
   if (VTK_DATA_ROOT)
-    add_test(NAME ${KIT}-ParticleReader COMMAND ${KIT}CxxTests
-             TestParticleReader
-               ${VTK_DATA_ROOT}/Data/golf.csv
-               ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
-    add_test(NAME ${KIT}-DumpXMLFile COMMAND ${KIT}CxxTests
-             TestDumpXMLFile
-               ${VTK_DATA_ROOT}/Data/cow.vtp)
+    set(TestDumpXMLFile_ARGS ${VTK_DATA_ROOT}/Data/cow.vtp)
+    set(TestParticleReader_ARGS
+      ${VTK_DATA_ROOT}/Data/golf.csv
+      ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
+    vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
+      TestParticleReader.cxx
+      TestDumpXMLFile.cxx
+      )
   endif()
+  vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
 endif()

@@ -41,22 +41,16 @@ target_link_libraries(GenerateCubesFromLabels ${VTK_LIBRARIES})
 
 if(vtkTestingRendering_SOURCE_DIR)
 ######## Regression Testing ########
-set(KIT MedicalExamples)
-set(MyTests TestMedical1.cxx TestMedical2.cxx TestMedical3.cxx TestMedical4.cxx)
-
-include(vtkTestingObjectFactory)
-
-add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
-target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
-
-  if (VTK_DATA_ROOT)
-    add_test(NAME ${KIT}-Medical1 COMMAND ${KIT}CxxTests
-      TestMedical1 ${VTK_DATA_ROOT}/Data/headsq/quarter)
-    add_test(NAME ${KIT}-Medical2 COMMAND ${KIT}CxxTests
-      TestMedical2 ${VTK_DATA_ROOT}/Data/headsq/quarter)
-    add_test(NAME ${KIT}-Medical3 COMMAND ${KIT}CxxTests
-      TestMedical3 ${VTK_DATA_ROOT}/Data/headsq/quarter)
-    add_test(NAME ${KIT}-Medical4 COMMAND ${KIT}CxxTests
-      TestMedical4 ${VTK_DATA_ROOT}/Data/headsq/quarter)
-  endif()
+  set(vtk-example MedicalExamples)
+  set(TestMedical1_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
+  set(TestMedical2_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
+  set(TestMedical3_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
+  set(TestMedical4_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
+  vtk_add_test_cxx(
+    TestMedical1.cxx
+    TestMedical2.cxx
+    TestMedical3.cxx
+    TestMedical4.cxx
+    )
+  vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
 endif()

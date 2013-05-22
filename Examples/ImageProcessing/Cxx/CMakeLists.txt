@@ -22,15 +22,10 @@ target_link_libraries(ImageSlicing ${VTK_LIBRARIES})
 
 if(vtkTestingRendering_SOURCE_DIR)
 ######## Regression Testing ########
-set(KIT ImageProcessingExamples)
-set(MyTests TestImageSlicing.cxx)
-
-include(vtkTestingObjectFactory)
-add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
-target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
-
-  if (VTK_DATA_ROOT)
-    add_test(NAME ${KIT}-ImageSlicing COMMAND ${KIT}CxxTests
-      TestImageSlicing ${VTK_DATA_ROOT}/Data/headsq/quarter)
-  endif()
+  set(vtk-example ImageProcessingExamples)
+  set(TestImageSlicing_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
+  vtk_add_test_cxx(
+    TestImageSlicing.cxx
+    )
+  vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
 endif()
