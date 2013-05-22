@@ -84,6 +84,16 @@ function(vtk_add_test_cxx)
     set(_T -T ${VTK_TEST_OUTPUT_DIR})
   endif()
 
+  if(vtk-module)
+    set(prefix ${vtk-module})
+    set(base_dir ${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline)
+  elseif(vtk-example)
+    set(prefix ${vtk-example})
+    set(base_dir ${CMAKE_CURRENT_SOURCE_DIR}/Baseline)
+  else()
+    message(FATAL_ERROR "Neither vtk-module nor vtk-example is set!")
+  endif()
+
   foreach(name ${names})
     set(_V "")
     set(_E "")
@@ -98,11 +108,11 @@ function(vtk_add_test_cxx)
       endif()
     endforeach()
     if(data_dir AND NOT tmp_no_valid)
-      set(_V -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/${name}.png,:}")
+      set(_V -V "DATA{${base_dir}/${name}.png,:}")
     endif()
     ExternalData_add_test(VTKData
-      NAME ${vtk-module}Cxx-${name}
-      COMMAND ${vtk-module}CxxTests ${name} ${${name}_ARGS}
+      NAME ${prefix}Cxx-${name}
+      COMMAND ${prefix}CxxTests ${name} ${${name}_ARGS}
       ${_D} ${_T} ${_V} ${_E})
     set_property(DIRECTORY APPEND PROPERTY VTK_TEST_CXX_SOURCES ${name}.cxx)
   endforeach()
@@ -125,7 +135,14 @@ macro(vtk_test_cxx_executable exe_name)
   get_property(vtk_test_cxx_sources DIRECTORY PROPERTY VTK_TEST_CXX_SOURCES)
   create_test_sourcelist(Tests ${exe_name}.cxx ${vtk_test_cxx_sources}
     EXTRA_INCLUDE ${test_driver})
-  vtk_module_test_executable(${exe_name} ${Tests} ${test_extra})
+  if(vtk-module)
+    vtk_module_test_executable(${exe_name} ${Tests} ${test_extra})
+  elseif(vtk-example)
+    add_executable(${exe_name} ${Tests} ${test_extra})
+    target_link_libraries(${exe_name} ${VTK_LIBRARIES})
+  else()
+    message(FATAL_ERROR "Neither vtk-module nor vtk-example is set!")
+  endif()
 endmacro()
 
 # -----------------------------------------------------------------------------
