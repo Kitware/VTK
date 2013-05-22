@@ -451,11 +451,13 @@ void vtkTIFFReader::ExecuteInformation()
     {
     if(this->GetInternalImage()->SubFiles>0)
       {
-      this->DataExtent[5] = this->GetInternalImage()->SubFiles;
+      this->DataExtent[4] = 0;
+      this->DataExtent[5] = this->GetInternalImage()->SubFiles - 1;
       }
     else
       {
-      this->DataExtent[5] = this->GetInternalImage()->NumberOfPages;
+      this->DataExtent[4] = 0;
+      this->DataExtent[5] = this->GetInternalImage()->NumberOfPages - 1;
       }
 
     if( !SpacingSpecifiedFlag )
