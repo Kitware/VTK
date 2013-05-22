@@ -25,6 +25,7 @@
 #include "vtkWindow.h"
 #include "vtkObjectFactory.h"
 
+#include <cassert>
 
 vtkStandardNewMacro(vtkBorderRepresentation);
 
@@ -34,7 +35,8 @@ vtkBorderRepresentation::vtkBorderRepresentation()
 {
   this->InteractionState = vtkBorderRepresentation::Outside;
 
-  this->ShowBorder = BORDER_ON;
+  this->ShowVerticalBorder = BORDER_ON;
+  this->ShowHorizontalBorder = BORDER_ON;
   this->ProportionalResize = 0;
   this->Tolerance = 3;
   this->SelectionPoint[0] = this->SelectionPoint[1] = 0.0;
@@ -106,6 +108,33 @@ vtkBorderRepresentation::~vtkBorderRepresentation()
   this->BWMapper->Delete();
   this->BWActor->Delete();
   this->BorderProperty->Delete();
+}
+
+//-------------------------------------------------------------------------
+void vtkBorderRepresentation::SetShowBorder(int border)
+{
+  this->SetShowVerticalBorder(border);
+  this->SetShowHorizontalBorder(border);
+  this->UpdateShowBorder();
+}
+
+//-------------------------------------------------------------------------
+int vtkBorderRepresentation::GetShowBorderMinValue()
+{
+  return BORDER_OFF;
+}
+
+//-------------------------------------------------------------------------
+int vtkBorderRepresentation::GetShowBorderMaxValue()
+{
+  return BORDER_ACTIVE;
+}
+
+//-------------------------------------------------------------------------
+int vtkBorderRepresentation::GetShowBorder()
+{
+  return this->GetShowVerticalBorder() != BORDER_OFF ?
+    this->GetShowVerticalBorder() : this->GetShowHorizontalBorder();
 }
 
 //-------------------------------------------------------------------------
@@ -275,40 +304,34 @@ int vtkBorderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
   if ( X < (pos1[0]-this->Tolerance) || (pos2[0]+this->Tolerance) < X ||
        Y < (pos1[1]-this->Tolerance) || (pos2[1]+this->Tolerance) < Y )
     {
-    if ( this->ShowBorder != BORDER_ON )
-      {
-      this->BWActor->VisibilityOff();
-      }
     this->InteractionState = vtkBorderRepresentation::Outside;
     }
 
   else // we are on the boundary or inside the border
     {
-    if ( this->ShowBorder != BORDER_OFF )
-      {
-      this->BWActor->VisibilityOn();
-      }
-
     // Now check for proximinity to edges and points
     int e0 = (Y >= (pos1[1] - this->Tolerance) && Y <= (pos1[1] + this->Tolerance));
     int e1 = (X >= (pos2[0] - this->Tolerance) && X <= (pos2[0] + this->Tolerance));
     int e2 = (Y >= (pos2[1] - this->Tolerance) && Y <= (pos2[1] + this->Tolerance));
     int e3 = (X >= (pos1[0] - this->Tolerance) && X <= (pos1[0] + this->Tolerance));
 
-    // Points
-    if ( e0 && e1 )
+    int adjustHorizontalEdges = (this->ShowHorizontalBorder != BORDER_OFF);
+    int adjustVerticalEdges = (this->ShowVerticalBorder != BORDER_OFF);
+    int adjustPoints = (adjustHorizontalEdges && adjustVerticalEdges);
+
+    if ( e0 && e1 && adjustPoints )
       {
       this->InteractionState = vtkBorderRepresentation::AdjustingP1;
       }
-    else if ( e1 && e2 )
+    else if ( e1 && e2 && adjustPoints)
       {
       this->InteractionState = vtkBorderRepresentation::AdjustingP2;
       }
-    else if ( e2 && e3 )
+    else if ( e2 && e3 && adjustPoints )
       {
       this->InteractionState = vtkBorderRepresentation::AdjustingP3;
       }
-    else if ( e3 && e0 )
+    else if ( e3 && e0 && adjustPoints )
       {
       this->InteractionState = vtkBorderRepresentation::AdjustingP0;
       }
@@ -316,19 +339,19 @@ int vtkBorderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
     // Edges
     else if ( e0 || e1 || e2 || e3 )
       {
-      if ( e0 )
+      if ( e0 && adjustHorizontalEdges )
         {
         this->InteractionState = vtkBorderRepresentation::AdjustingE0;
         }
-      else if ( e1 )
+      else if ( e1 && adjustVerticalEdges )
         {
         this->InteractionState = vtkBorderRepresentation::AdjustingE1;
         }
-      else if ( e2 )
+      else if ( e2 && adjustHorizontalEdges )
         {
         this->InteractionState = vtkBorderRepresentation::AdjustingE2;
         }
-      else if ( e3 )
+      else if ( e3 && adjustVerticalEdges )
         {
         this->InteractionState = vtkBorderRepresentation::AdjustingE3;
         }
@@ -350,10 +373,100 @@ int vtkBorderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
         }
       }
     }//else inside or on border
+  this->UpdateShowBorder();
 
   return this->InteractionState;
 }
 
+//-------------------------------------------------------------------------
+void vtkBorderRepresentation::UpdateShowBorder()
+{
+  enum{
+    NoBorder = 0x00,
+    VerticalBorder = 0x01,
+    HorizontalBorder = 0x02,
+    AllBorders = VerticalBorder | HorizontalBorder
+  };
+  int currentBorder = NoBorder;
+  switch (this->BWPolyData->GetLines()->GetNumberOfCells())
+    {
+    case 1:
+      currentBorder = AllBorders;
+      break;
+    case 2:
+      {
+      vtkIdType npts = 0;
+      vtkIdType* pts = 0;
+      this->BWPolyData->GetLines()->GetCell(0, npts, pts);
+      assert(npts == 2);
+      currentBorder = (pts[0] == 0 ? HorizontalBorder : VerticalBorder);
+      break;
+      }
+    case 0:
+    default: // not supported
+      currentBorder = NoBorder;
+      break;
+    }
+  int newBorder = NoBorder;
+  if (this->ShowVerticalBorder == this->ShowHorizontalBorder)
+    {
+    newBorder =
+      (this->ShowVerticalBorder == BORDER_ON ||
+       (this->ShowVerticalBorder == BORDER_ACTIVE &&
+        this->InteractionState != vtkBorderRepresentation::Outside)) ? AllBorders : NoBorder;
+    }
+  else
+    {
+    newBorder = newBorder |
+      ((this->ShowVerticalBorder == BORDER_ON ||
+       (this->ShowVerticalBorder == BORDER_ACTIVE &&
+        this->InteractionState != vtkBorderRepresentation::Outside)) ? VerticalBorder: NoBorder);
+    newBorder = newBorder |
+      ((this->ShowHorizontalBorder == BORDER_ON ||
+        (this->ShowHorizontalBorder == BORDER_ACTIVE &&
+         this->InteractionState != vtkBorderRepresentation::Outside)) ? HorizontalBorder: NoBorder);
+    }
+  bool visible = (newBorder != NoBorder);
+  if (currentBorder != newBorder &&
+      visible)
+    {
+    vtkCellArray *outline = vtkCellArray::New();
+    switch (newBorder)
+      {
+      case AllBorders:
+        outline->InsertNextCell(5);
+        outline->InsertCellPoint(0);
+        outline->InsertCellPoint(1);
+        outline->InsertCellPoint(2);
+        outline->InsertCellPoint(3);
+        outline->InsertCellPoint(0);
+        break;
+      case VerticalBorder:
+        outline->InsertNextCell(2);
+        outline->InsertCellPoint(1);
+        outline->InsertCellPoint(2);
+        outline->InsertNextCell(2);
+        outline->InsertCellPoint(3);
+        outline->InsertCellPoint(0);
+        break;
+      case HorizontalBorder:
+        outline->InsertNextCell(2);
+        outline->InsertCellPoint(0);
+        outline->InsertCellPoint(1);
+        outline->InsertNextCell(2);
+        outline->InsertCellPoint(2);
+        outline->InsertCellPoint(3);
+        break;
+      default:
+        break;
+      }
+    this->BWPolyData->SetLines(outline);
+    outline->Delete();
+    this->BWPolyData->Modified();
+    this->Modified();
+    }
+  this->BWActor->SetVisibility(visible);
+}
 
 //-------------------------------------------------------------------------
 void vtkBorderRepresentation::BuildRepresentation()
@@ -460,16 +573,30 @@ void vtkBorderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Show Border: ";
-  if ( this->ShowBorder == BORDER_OFF)
+  os << indent << "Show Vertical Border: ";
+  if ( this->ShowVerticalBorder == BORDER_OFF)
     {
     os << "Off\n";
     }
-  else if ( this->ShowBorder == BORDER_ON)
+  else if ( this->ShowVerticalBorder == BORDER_ON)
     {
     os << "On\n";
     }
-  else //if ( this->ShowBorder == BORDER_ACTIVE)
+  else //if ( this->ShowVerticalBorder == BORDER_ACTIVE)
+    {
+    os << "Active\n";
+    }
+
+  os << indent << "Show Horizontal Border: ";
+  if ( this->ShowHorizontalBorder == BORDER_OFF)
+    {
+    os << "Off\n";
+    }
+  else if ( this->ShowHorizontalBorder == BORDER_ON)
+    {
+    os << "On\n";
+    }
+  else //if ( this->ShowHorizontalBorder == BORDER_ACTIVE)
     {
     os << "Active\n";
     }

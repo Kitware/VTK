@@ -221,16 +221,19 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
     int stateAfter = self->WidgetRep->GetInteractionState();
     self->SetCursor(stateAfter);
 
+    vtkBorderRepresentation* borderRepresentation =
+      reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep);
     if ( self->Selectable || stateAfter != vtkBorderRepresentation::Inside )
       {
-      reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->MovingOff();
+      borderRepresentation->MovingOff();
       }
     else
       {
-      reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->MovingOn();
+      borderRepresentation->MovingOn();
       }
 
-    if ( reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->GetShowBorder() == vtkBorderRepresentation::BORDER_ACTIVE &&
+    if ( (borderRepresentation->GetShowVerticalBorder() == vtkBorderRepresentation::BORDER_ACTIVE ||
+          borderRepresentation->GetShowHorizontalBorder() == vtkBorderRepresentation::BORDER_ACTIVE) &&
          stateBefore != stateAfter &&
          (stateBefore == vtkBorderRepresentation::Outside || stateAfter == vtkBorderRepresentation::Outside) )
       {

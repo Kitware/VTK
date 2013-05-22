@@ -30,6 +30,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 
+#include <algorithm>
+
 //=============================================================================
 vtkStandardNewMacro(vtkScalarBarRepresentation);
 //-----------------------------------------------------------------------------
@@ -43,8 +45,7 @@ vtkScalarBarRepresentation::vtkScalarBarRepresentation()
   this->SetScalarBarActor(actor);
   actor->Delete();
 
-  this->ShowBorder = vtkBorderRepresentation::BORDER_ACTIVE;
-  this->BWActor->VisibilityOff();
+  this->SetShowBorder(vtkBorderRepresentation::BORDER_ACTIVE);
 }
 
 //-----------------------------------------------------------------------------
@@ -156,7 +157,10 @@ void vtkScalarBarRepresentation::WidgetInteraction(double eventPos[2])
     this->PositionCoordinate->SetValue(par1[0],par1[1]);
     this->Position2Coordinate->SetValue(par2[0] - par1[0], par2[1] - par1[1]);
 
+    std::swap(this->ShowHorizontalBorder, this->ShowVerticalBorder);
+
     this->Modified();
+    this->UpdateShowBorder();
     this->BuildRepresentation();
   }
 }
