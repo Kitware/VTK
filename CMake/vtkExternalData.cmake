@@ -1,22 +1,48 @@
 get_filename_component(_VTKExternalData_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 include(${_VTKExternalData_DIR}/ExternalData.cmake)
 
-if(NOT ExternalData_OBJECT_STORES)
-  # Use ExternalData_OBJECT_STORES from environment as default.
-  set(ExternalData_OBJECT_STORES_DEFAULT "")
-  if(DEFINED "ENV{ExternalData_OBJECT_STORES}")
-    file(TO_CMAKE_PATH "$ENV{ExternalData_OBJECT_STORES}" ExternalData_OBJECT_STORES_DEFAULT)
+if(NOT VTK_DATA_STORE)
+  # Select a default from the following.
+  set(VTK_DATA_STORE_DEFAULT "")
+  if(EXISTS "${CMAKE_SOURCE_DIR}/.ExternalData/config/store")
+    # Configuration left by developer setup script.
+    file(STRINGS "${CMAKE_SOURCE_DIR}/.ExternalData/config/store"
+      VTK_DATA_STORE_DEFAULT LIMIT_COUNT 1 LIMIT_INPUT 1024)
+  elseif(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/../VTKExternalData")
+    # Adjacent directory created by user.
+    get_filename_component(VTK_DATA_STORE_DEFAULT
+      "${CMAKE_SOURCE_DIR}/../VTKExternalData" ABSOLUTE)
+  elseif(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/../ExternalData")
+    # Generic adjacent directory created by user.
+    get_filename_component(VTK_DATA_STORE_DEFAULT
+      "${CMAKE_SOURCE_DIR}/../ExternalData" ABSOLUTE)
+  elseif(DEFINED "ENV{ExternalData_OBJECT_STORES}")
+    # Generic ExternalData environment variable.
+    file(TO_CMAKE_PATH "$ENV{ExternalData_OBJECT_STORES}" VTK_DATA_STORE_DEFAULT)
   endif()
 endif()
 
-set(ExternalData_OBJECT_STORES "${ExternalData_OBJECT_STORES_DEFAULT}" CACHE STRING
-  "Semicolon-separated list of local directories holding data objects in the layout %(algo)/%(hash).")
-mark_as_advanced(ExternalData_OBJECT_STORES)
-if(NOT ExternalData_OBJECT_STORES)
-  set(ExternalData_OBJECT_STORES "${CMAKE_BINARY_DIR}/ExternalData/Objects")
-  file(MAKE_DIRECTORY "${ExternalData_OBJECT_STORES}")
+# Provide users with an option to select a local object store,
+# starting with the above-selected default.
+set(VTK_DATA_STORE "${VTK_DATA_STORE_DEFAULT}" CACHE PATH
+  "Local directory holding ExternalData objects in the layout %(algo)/%(hash).")
+mark_as_advanced(VTK_DATA_STORE)
+
+# Use a store in the build tree if none is otherwise configured.
+if(NOT VTK_DATA_STORE)
+  if(ExternalData_OBJECT_STORES)
+    set(VTK_DATA_STORE "")
+  else()
+    set(VTK_DATA_STORE "${CMAKE_BINARY_DIR}/ExternalData/Objects")
+    file(MAKE_DIRECTORY "${VTK_DATA_STORE}")
+  endif()
 endif()
+
+# Tell ExternalData module about selected object stores.
 list(APPEND ExternalData_OBJECT_STORES
+  # Store selected by VTK-specific configuration above.
+  ${VTK_DATA_STORE}
+
   # Local data store populated by the VTK pre-commit hook
   "${CMAKE_SOURCE_DIR}/.ExternalData"
   )
