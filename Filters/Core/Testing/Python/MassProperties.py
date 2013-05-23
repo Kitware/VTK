@@ -18,10 +18,6 @@
 =========================================================================
 '''
 
-# Run this test like so:
-# vtkpython MassProperties.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/Hybrid
-
 import StringIO
 import sys
 import vtk

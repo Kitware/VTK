@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-# Run this test like so:
-# $ vtkpython TestImagePlaneWidget.py  -D $VTK_DATA_ROOT \
-#   -B $VTK_DATA_ROOT/Baseline/Widgets/
-#
 # $ vtkpython TestImagePlaneWidget.py --help
 # provides more details on other options.
 

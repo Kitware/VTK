@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-# Run this test like so:
-# vtkpython TestTensorGlyph.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/Graphics/
-
 import os
 import vtk
 from vtk.test import Testing

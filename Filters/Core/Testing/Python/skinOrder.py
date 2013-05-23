@@ -18,10 +18,6 @@
 =========================================================================
 '''
 
-# Run this test like so:
-# vtkpython skinOrder.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/Graphics
-
 import sys
 import vtk
 import vtk.test.Testing

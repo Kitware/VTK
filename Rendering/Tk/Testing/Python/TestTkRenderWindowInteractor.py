@@ -1,6 +1,3 @@
-# A simple test for a vtkTkRenderWidget. Run it like so:
-# python TestTkRenderWindowInteractor.py -B $VTK_DATA_ROOT/Baseline/Rendering
-
 import os
 import vtk
 from vtk.test import Testing
