@@ -39,24 +39,26 @@ add_executable(GenerateCubesFromLabels MACOSX_BUNDLE  GenerateCubesFromLabels.cx
 target_link_libraries(GenerateModelsFromLabels ${VTK_LIBRARIES})
 target_link_libraries(GenerateCubesFromLabels ${VTK_LIBRARIES})
 
-if(vtkTestingRendering_SOURCE_DIR)
-######## Regression Testing ########
-set(KIT MedicalExamples)
-set(MyTests TestMedical1.cxx TestMedical2.cxx TestMedical3.cxx TestMedical4.cxx)
+if(BUILD_TESTING)
+  if(vtkTestingRendering_LOADED)
+    ######## Regression Testing ########
+    set(KIT MedicalExamples)
+    set(MyTests TestMedical1.cxx TestMedical2.cxx TestMedical3.cxx TestMedical4.cxx)
 
-include(vtkTestingObjectFactory)
+    include(vtkTestingObjectFactory)
 
-add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
-target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
+    add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
+    target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
 
-  if (VTK_DATA_ROOT)
-    add_test(NAME ${KIT}-Medical1 COMMAND ${KIT}CxxTests
-      TestMedical1 ${VTK_DATA_ROOT}/Data/headsq/quarter)
-    add_test(NAME ${KIT}-Medical2 COMMAND ${KIT}CxxTests
-      TestMedical2 ${VTK_DATA_ROOT}/Data/headsq/quarter)
-    add_test(NAME ${KIT}-Medical3 COMMAND ${KIT}CxxTests
-      TestMedical3 ${VTK_DATA_ROOT}/Data/headsq/quarter)
-    add_test(NAME ${KIT}-Medical4 COMMAND ${KIT}CxxTests
-      TestMedical4 ${VTK_DATA_ROOT}/Data/headsq/quarter)
+      if (VTK_DATA_ROOT)
+        add_test(NAME ${KIT}-Medical1 COMMAND ${KIT}CxxTests
+          TestMedical1 ${VTK_DATA_ROOT}/Data/headsq/quarter)
+        add_test(NAME ${KIT}-Medical2 COMMAND ${KIT}CxxTests
+          TestMedical2 ${VTK_DATA_ROOT}/Data/headsq/quarter)
+        add_test(NAME ${KIT}-Medical3 COMMAND ${KIT}CxxTests
+          TestMedical3 ${VTK_DATA_ROOT}/Data/headsq/quarter)
+        add_test(NAME ${KIT}-Medical4 COMMAND ${KIT}CxxTests
+          TestMedical4 ${VTK_DATA_ROOT}/Data/headsq/quarter)
+      endif()
   endif()
 endif()

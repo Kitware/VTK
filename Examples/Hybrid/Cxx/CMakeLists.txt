@@ -23,7 +23,9 @@ set(HYBRID_EXAMPLES_SRCS
   StructuredGridLIC2DDemo
   )
 
-foreach(name ${HYBRID_EXAMPLES_SRCS})
-  add_executable(${name} MACOSX_BUNDLE ${name}.cxx)
-  target_link_libraries(${name} ${VTK_LIBRARIES} )
-endforeach()
+if(vtkTestingCore_LOADED)
+  foreach(name ${HYBRID_EXAMPLES_SRCS})
+    add_executable(${name} MACOSX_BUNDLE ${name}.cxx)
+    target_link_libraries(${name} ${VTK_LIBRARIES} )
+  endforeach()
+endif()
