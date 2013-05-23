@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Run this test like so:
-# vtkpython TestParametricFunctions.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/Graphics/
-
 import vtk
 import vtk.test.Testing
 from vtk.util.misc import vtkGetDataRoot

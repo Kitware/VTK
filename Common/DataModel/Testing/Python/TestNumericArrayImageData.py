@@ -9,10 +9,6 @@ this for all PNG images in a particular directory.
 
 The test naturally requires Numeric Python to be installed:
   http://numpy.sf.net
-
-Run this test like so:
-vtkpython TestNumericArrayImageData.py -B $VTK_DATA_ROOT/Baseline/Imaging
-
 """
 
 # This test requires Numeric.

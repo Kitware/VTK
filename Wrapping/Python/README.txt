@@ -253,7 +253,8 @@ When you need to run a VTK-Python unittest that uses the
 argument to see all the supported options.  Typically you will need
 to do something like the following::
 
-  python TestTkRenderWidget.py -B $VTK_DATA_ROOT/Baseline/Rendering
+  python TestTkRenderWidget.py \
+    -B $VTK_ROOT/ExternalData/Rendering/Tk/Testing/Data/Baseline
 
 To see the options available use this::
 

@@ -18,10 +18,6 @@
 =========================================================================
 '''
 
-# Run this test like so:
-# vtkpython TestStyleTerrain.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/Rendering
-
 import sys
 import vtk
 import vtk.test.Testing

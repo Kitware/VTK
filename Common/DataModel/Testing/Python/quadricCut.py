@@ -18,10 +18,6 @@
 =========================================================================
 '''
 
-# Run this test like so:
-# vtkpython quadricCut.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/Graphics
-
 import vtk
 import vtk.test.Testing
 from vtk.util.misc import vtkGetDataRoot
