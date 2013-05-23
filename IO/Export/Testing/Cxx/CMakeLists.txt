@@ -1,3 +1,5 @@
+include(vtkGhostscript)
+
 # Only run GL2PS tests if GhostScript is available if VTK_DATA_ROOT is set
 if(VTK_GHOSTSCRIPT_EXECUTABLE AND VTK_DATA_ROOT)
   set(GL2PSTests
