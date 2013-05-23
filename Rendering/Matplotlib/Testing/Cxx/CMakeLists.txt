@@ -1,3 +1,5 @@
+include(vtkGhostscript)
+
 # Check that matplotlib is available:
 execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import matplotlib"
   RESULT_VARIABLE IMPORT_MATPLOTLIB_EXITCODE
