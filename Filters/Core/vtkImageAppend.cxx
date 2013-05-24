@@ -418,35 +418,49 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
   int typeSize;
   unsigned char *outPtrZ, *outPtrY;
 
+  // This method needs to clear all point-data for the update-extent.
 
-  //TODO: This only bzero's the point scalars, other arrays should probably be
-  //cleared too.
-  typeSize = outData->GetScalarSize();
-  outPtrZ = static_cast<unsigned char *>(
-    outData->GetScalarPointerForExtent(outExt));
-
-  // Get increments to march through data
-  outData->GetIncrements(outIncX, outIncY, outIncZ);
-  outIncX *= typeSize;
-  outIncY *= typeSize;
-  outIncZ *= typeSize;
-
-  // Find the region to loop over
-  rowLength = (outExt[1] - outExt[0]+1)*outData->GetNumberOfScalarComponents();
-  rowLength *= typeSize;
-  maxY = outExt[3] - outExt[2];
-  maxZ = outExt[5] - outExt[4];
-
-  // Loop through input pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  vtkPointData* pd = outData->GetPointData();
+  for (int arrayIdx=0; arrayIdx < pd->GetNumberOfArrays(); arrayIdx++)
     {
-    outPtrY = outPtrZ;
-    for (idxY = 0; idxY <= maxY; idxY++)
+    vtkDataArray* array = pd->GetArray(arrayIdx);
+    if (!array)
       {
-      memset(outPtrY, 0, rowLength);
-      outPtrY += outIncY;
+      continue;
       }
-    outPtrZ += outIncZ;
+
+    typeSize = vtkDataArray::GetDataTypeSize(array->GetDataType());
+    outPtrZ = static_cast<unsigned char *>(
+      outData->GetArrayPointerForExtent(array, outExt));
+
+    // Get increments to march through data
+    vtkIdType increments[3];
+    outData->GetArrayIncrements(array, increments);
+    outIncX = increments[0];
+    outIncY = increments[1];
+    outIncZ = increments[2];
+
+    outIncX *= typeSize;
+    outIncY *= typeSize;
+    outIncZ *= typeSize;
+
+    // Find the region to loop over
+    rowLength = (outExt[1] - outExt[0]+1)* array->GetNumberOfComponents();
+    rowLength *= typeSize;
+    maxY = outExt[3] - outExt[2];
+    maxZ = outExt[5] - outExt[4];
+
+    // Loop through input pixels
+    for (idxZ = 0; idxZ <= maxZ; idxZ++)
+      {
+      outPtrY = outPtrZ;
+      for (idxY = 0; idxY <= maxY; idxY++)
+        {
+        memset(outPtrY, 0, rowLength);
+        outPtrY += outIncY;
+        }
+      outPtrZ += outIncZ;
+      }
     }
 }
 
