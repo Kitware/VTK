@@ -43,6 +43,7 @@
 #   CTEST_TEST_ARGS           = ctest_test args (ex: PARALLEL_LEVEL 4)
 #   CMAKE_MAKE_PROGRAM        = Path to "make" tool to use
 #   VTK_DATA_ROOT             = Where to put data tree
+#   VTK_USE_LARGE_DATA        = True to enable tests using "large" data
 #
 # Options to configure builds from experimental git repository:
 #   dashboard_git_url      = Custom git clone url
@@ -214,6 +215,10 @@ if(NOT DEFINED VTK_DATA_ROOT)
   endif()
 endif()
 
+if(NOT DEFINED VTK_USE_LARGE_DATA)
+  set(VTK_USE_LARGE_DATA OFF)
+endif()
+
 # Delete source tree if it is incompatible with current VCS.
 if(EXISTS ${CTEST_SOURCE_DIRECTORY})
   if(CTEST_GIT_COMMAND)
@@ -359,6 +364,7 @@ CTEST_USE_LAUNCHERS:BOOL=${CTEST_USE_LAUNCHERS}
 DART_TESTING_TIMEOUT:STRING=${CTEST_TEST_TIMEOUT}
 ExternalData_OBJECT_STORES:STRING=${ExternalData_OBJECT_STORES}
 VTK_DATA_ROOT:PATH=${VTK_DATA_ROOT}
+VTK_USE_LARGE_DATA:BOOL=${VTK_USE_LARGE_DATA}
 ${cache_build_type}
 ${cache_make_program}
 ${dashboard_cache}
