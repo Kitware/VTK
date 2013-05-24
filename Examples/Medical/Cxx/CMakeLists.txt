@@ -39,18 +39,20 @@ add_executable(GenerateCubesFromLabels MACOSX_BUNDLE  GenerateCubesFromLabels.cx
 target_link_libraries(GenerateModelsFromLabels ${VTK_LIBRARIES})
 target_link_libraries(GenerateCubesFromLabels ${VTK_LIBRARIES})
 
-if(vtkTestingRendering_SOURCE_DIR)
-######## Regression Testing ########
-  set(vtk-example MedicalExamples)
-  set(TestMedical1_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
-  set(TestMedical2_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
-  set(TestMedical3_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
-  set(TestMedical4_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
-  vtk_add_test_cxx(
-    TestMedical1.cxx
-    TestMedical2.cxx
-    TestMedical3.cxx
-    TestMedical4.cxx
-    )
-  vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
+if(BUILD_TESTING)
+  if(vtkTestingRendering_LOADED)
+    ######## Regression Testing ########
+    set(vtk-example MedicalExamples)
+    set(TestMedical1_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
+    set(TestMedical2_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
+    set(TestMedical3_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
+    set(TestMedical4_ARGS ${VTK_DATA_ROOT}/Data/headsq/quarter)
+    vtk_add_test_cxx(
+      TestMedical1.cxx
+      TestMedical2.cxx
+      TestMedical3.cxx
+      TestMedical4.cxx
+      )
+    vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
+  endif()
 endif()

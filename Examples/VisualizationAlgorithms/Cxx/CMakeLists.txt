@@ -24,15 +24,17 @@ target_link_libraries(TubesWithVaryingRadiusAndColors ${VTK_LIBRARIES})
 target_link_libraries(FilledContours ${VTK_LIBRARIES})
 target_link_libraries(BandedContours ${VTK_LIBRARIES})
 
-if(vtkTestingRendering_SOURCE_DIR)
-######## Regression Testing ########
-  set(vtk-example VisualizationAlgorithmsExamples)
-  set(TestFilledContours_ARGS ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
-  set(TestBandedContours_ARGS ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
-  vtk_add_test_cxx(
-    TestTubesWithVaryingRadiusAndColors.cxx
-    TestFilledContours.cxx
-    TestBandedContours.cxx
-    )
-  vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
+if(BUILD_TESTING)
+  if(vtkTestingRendering_LOADED)
+    ######## Regression Testing ########
+    set(vtk-example VisualizationAlgorithmsExamples)
+    set(TestFilledContours_ARGS ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
+    set(TestBandedContours_ARGS ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
+    vtk_add_test_cxx(
+      TestTubesWithVaryingRadiusAndColors.cxx
+      TestFilledContours.cxx
+      TestBandedContours.cxx
+      )
+    vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
+  endif()
 endif()
