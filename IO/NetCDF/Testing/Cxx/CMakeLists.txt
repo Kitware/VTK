@@ -1,5 +1,13 @@
-if(VTK_LARGE_DATA_ROOT)
-  vtk_add_test_cxx( LARGE_DATA
+if(VTK_USE_LARGE_DATA)
+  # Tell ExternalData to fetch test input at build time.
+  ExternalData_Expand_Arguments(VTKData _
+    "DATA{${VTK_TEST_INPUT_DIR}/NetCDF/,REGEX:.*}"
+    "DATA{${VTK_TEST_INPUT_DIR}/SLAC/ll-9cell-f523/,REGEX:.*}"
+    "DATA{${VTK_TEST_INPUT_DIR}/SLAC/pic-example/,REGEX:.*}"
+    "DATA{${VTK_TEST_INPUT_DIR}/SLAC/pillbox/,REGEX:.*}"
+    )
+
+  vtk_add_test_cxx(TESTING_DATA
     SLACMultipleModes.cxx
     SLACParticleReader.cxx
     SLACReaderLinear.cxx
@@ -8,5 +16,6 @@ if(VTK_LARGE_DATA_ROOT)
     TestNetCDFCAMReader.cxx
     TestNetCDFPOPReader.cxx
     )
-  vtk_test_cxx_executable(${vtk-module}CxxTests)
 endif()
+
+vtk_test_cxx_executable(${vtk-module}CxxTests)

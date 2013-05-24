@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME Test of vtkPNetCDFPOPReader
 // .SECTION Description
-// Tests the vtkPNetCDFPOPReader.  Requires VTKLargeData to be set.
+// Tests the vtkPNetCDFPOPReader.
 
 #include "vtkPNetCDFPOPReader.h"
 

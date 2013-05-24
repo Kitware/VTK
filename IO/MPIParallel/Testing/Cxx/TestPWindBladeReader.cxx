@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME Test of vtkPWindBladeReader
 // .SECTION Description
-// Tests the vtkPWindBladeReader.  Requires VTKLargeData to be set.
+// Tests the vtkPWindBladeReader.
 
 #include "vtkPWindBladeReader.h"
 
