@@ -8,7 +8,10 @@ set_source_files_properties(
   ABSTRACT
   )
 
+set (VTK_HAS_OGGTHEORA_SUPPORT)
+
 if(vtkIOMovie_vtkoggtheora)
+  set (VTK_HAS_OGGTHEORA_SUPPORT TRUE)
   list(APPEND Module_SRCS vtkOggTheoraWriter.cxx)
 endif()
 
@@ -22,6 +25,14 @@ endif()
 if(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
   list(APPEND Module_SRCS vtkAVIWriter.cxx)
 endif()
+
+# Configure the module specific settings into a module configured header.
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/vtkIOMovieConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkIOMovieConfigure.h)
+
+set(vtkIOMovie_HDRS
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkIOMovieConfigure.h)
 
 vtk_module_library(vtkIOMovie ${Module_SRCS})
 
