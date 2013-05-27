@@ -289,8 +289,15 @@ vtkTIFFReader::vtkTIFFReader()
 
   this->InitializeColors();
   this->InternalImage = new vtkTIFFReaderInternal;
-  this->OutputExtent = 0;
-  this->OutputIncrements = 0;
+  this->OutputExtent[0] = 0;
+  this->OutputExtent[1] = 0;
+  this->OutputExtent[2] = 0;
+  this->OutputExtent[3] = 0;
+  this->OutputExtent[4] = 0;
+  this->OutputExtent[5] = 0;
+  this->OutputIncrements[0] = 0;
+  this->OutputIncrements[1] = 0;
+  this->OutputIncrements[2] = 0;
 
   this->OrientationTypeSpecifiedFlag = false;
   this->OriginSpecifiedFlag = false;
@@ -556,15 +563,8 @@ void vtkTIFFReaderUpdate2(vtkTIFFReader *self, vtkTIFFReaderInternal *reader,
 // templated to handle different data types.
 template <class OT>
 void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkTIFFReaderInternal *reader,
-                         vtkImageData *data, OT *outPtr)
+                         OT *outPtr, int outExtent[6], vtkIdType outIncr[3])
 {
-  vtkIdType outIncr[3];
-  int outExtent[6];
-  OT *outPtr2;
-
-  data->GetExtent(outExtent);
-  data->GetIncrements(outIncr);
-
   // multiple number of pages
   if(reader->NumberOfPages>1 )
     {
@@ -584,9 +584,8 @@ void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkTIFFReaderInternal *reader,
   //file
   reader->Clean();
 
-  outPtr2 = outPtr;
-  int idx2;
-  for (idx2 = outExtent[4]; idx2 <= outExtent[5]; ++idx2)
+  OT *outPtr2 = outPtr;
+  for (int idx2 = outExtent[4]; idx2 <= outExtent[5]; ++idx2)
     {
     self->ComputeInternalFileName(idx2);
     // read in a TIFF file
@@ -604,7 +603,6 @@ void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkTIFFReaderInternal *reader,
 void vtkTIFFReader::ExecuteDataWithInformation(vtkDataObject *output,
                                                vtkInformation *outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output, outInfo);
   vtkTIFFReaderInternal *reader = this->GetInternalImage();
 
   if (this->InternalFileName == NULL)
@@ -615,18 +613,18 @@ void vtkTIFFReader::ExecuteDataWithInformation(vtkDataObject *output,
 
   this->ComputeDataIncrements();
 
-  // Call the correct templated function for the output
-  void *outPtr;
+  // Get the data
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
+  data->GetExtent(this->OutputExtent);
+  data->GetIncrements(this->OutputIncrements);
 
   // Call the correct templated function for the input
-  outPtr = data->GetScalarPointer();
-  // Needed deep in reading for finding the correct starting location.
-  this->OutputIncrements = data->GetIncrements();
+  void *outPtr = data->GetScalarPointer();
 
   switch (data->GetScalarType())
     {
-    vtkTemplateMacro(vtkTIFFReaderUpdate(this, reader, data,
-                                         (VTK_TT *)(outPtr)));
+    vtkTemplateMacro(vtkTIFFReaderUpdate(this, reader, (VTK_TT *)(outPtr),
+                     this->OutputExtent, this->OutputIncrements));
     default:
       vtkErrorMacro("UpdateFromFile: Unknown data type");
     }
@@ -1512,12 +1510,11 @@ void vtkTIFFReader::ReadGenericImage( void *out,
 
 //-------------------------------------------------------------------------
 void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
-                                       int* outExt,
+                                       int* vtkNotUsed(outExt),
                                        unsigned int vtkNotUsed(size) )
 {
   int width  = this->GetInternalImage()->Width;
   int height = this->GetInternalImage()->Height;
-  this->OutputExtent = outExt;
 
   if ( !this->GetInternalImage()->CanRead() )
     {
