@@ -111,7 +111,15 @@ public:
   // We make the reset() method public because it isn't always possible for
   // an adapter to know when its input has changed, so it must be callable
   // by an outside entity.
-  void reset() { QAbstractItemModel::reset(); }
+  /// \sa beginResetModel, endResetModel
+  /// \deprecated
+  void reset() { QAbstractItemModel::beginResetModel(); QAbstractItemModel::endResetModel();}
+
+  // We make the beginResetModel() and endResetModel() methods public because it
+  // isn't always possible for an adapter to know when its input has changed,
+  // so it must be callable by an outside entity.
+  void beginResetModel() { QAbstractItemModel::beginResetModel(); }
+  void endResetModel() { QAbstractItemModel::endResetModel(); }
 
 
 signals:

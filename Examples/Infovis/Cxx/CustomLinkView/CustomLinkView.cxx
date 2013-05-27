@@ -161,7 +161,7 @@ void CustomLinkView::slotOpenXMLFile()
     }
 
   // Create XML reader
-  this->XMLReader->SetFileName( fileName.toAscii() );
+  this->XMLReader->SetFileName( fileName.toLatin1() );
   this->XMLReader->ReadTagNameOff();
   this->XMLReader->Update();
 

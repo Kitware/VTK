@@ -1,3 +1,5 @@
+include(vtkQt)
+
 # set up sources to build
 set(LibSrcs
   vtkQtSQLDatabase.cxx
@@ -7,10 +9,25 @@ set(LibSrcs
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-# import Qt4 build settings
-set(QT_USE_QTSQL 1)
-find_package(Qt4 REQUIRED QUIET)
-include(${QT_USE_FILE})
+if(VTK_QT_VERSION VERSION_GREATER "4")
+  find_package(Qt5Widgets REQUIRED QUIET)
+  find_package(Qt5Sql REQUIRED QUIET)
+
+  set(_qt_include_dirs ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Sql_INCLUDE_DIRS})
+  list(REMOVE_DUPLICATES _qt_include_dirs)
+  include_directories(${_qt_include_dirs})
+
+  set(_qt_definitions ${Qt5Widgets_DEFINITIONS} ${Qt5Sql_DEFINITIONS})
+  list(REMOVE_DUPLICATES _qt_definitions)
+  add_definitions(${_qt_definitions})
+
+  set(QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5Sql_LIBRARIES})
+else()
+  # import Qt4 build settings
+  set(QT_USE_QTSQL 1)
+  find_package(Qt4 REQUIRED QUIET)
+  include(${QT_USE_FILE})
+endif()
 
 set(${vtk-module}_NO_HeaderTest 1)
 vtk_module_library(${vtk-module} ${LibSrcs})
