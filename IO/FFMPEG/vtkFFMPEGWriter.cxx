@@ -153,7 +153,11 @@ int vtkFFMPEGWriterInternal::Start()
   strcpy(this->avFormatContext->filename, this->Writer->GetFileName());
 
   //create a stream for that file
+#if LIBAVFORMAT_VERSION_MAJOR < 54
   this->avStream = av_new_stream(this->avFormatContext, 0);
+#else
+  this->avStream = avformat_new_stream(this->avFormatContext, 0);
+#endif
   if (!this->avStream)
     {
     vtkGenericWarningMacro (<< "Could not create video stream.");
@@ -231,7 +235,11 @@ int vtkFFMPEGWriterInternal::Start()
     vtkGenericWarningMacro (<< "Codec not found." );
     return 0;
     }
+#if LIBAVFORMAT_VERSION_MAJOR < 54
   if (avcodec_open(c, codec) < 0)
+#else
+  if (avcodec_is_open(c) < 0)
+#endif
     {
     vtkGenericWarningMacro (<< "Could not open codec.");
     return 0;
