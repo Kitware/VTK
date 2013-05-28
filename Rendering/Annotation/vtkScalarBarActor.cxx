@@ -705,6 +705,7 @@ void vtkScalarBarActor::RebuildLayout(vtkViewport* viewport)
 #ifdef VTK_DBG_LAYOUT
   this->DrawBoxes();
 #endif // VTK_DBG_LAYOUT
+  this->BuildTime.Modified();
 }
 
 namespace {
