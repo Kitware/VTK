@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME Test of vtkNetCDFCAMReader
 // .SECTION Description
-// Tests the vtkNetCDFCAMReader.  Requires VTKLargeData to be used.
+// Tests the vtkNetCDFCAMReader.
 
 #include "vtkNetCDFCAMReader.h"
 

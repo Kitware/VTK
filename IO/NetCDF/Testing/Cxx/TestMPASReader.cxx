@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME Test of vtkMPASReader
 // .SECTION Description
-// Tests the vtkMPASReader.  Requires VTKLargeData to be used.
+// Tests the vtkMPASReader.
 
 #include "vtkMPASReader.h"
 

@@ -17,8 +17,15 @@ if (DEFINED CMAKE_WORDS_BIGENDIAN)
     set(_known_little_endian TRUE)
   endif()
 endif()
-if(VTK_LARGE_DATA_ROOT AND _known_little_endian)
-  vtk_add_test_cxx( LARGE_DATA
+if(VTK_USE_LARGE_DATA AND _known_little_endian)
+  # Tell ExternalData to fetch test input at build time.
+  ExternalData_Expand_Arguments(VTKData _
+    "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/,REGEX:.*}"
+    "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/field/,REGEX:.*}"
+    "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/turbine/,REGEX:.*}"
+    )
+
+  vtk_add_test_cxx(TESTING_DATA
     TestWindBladeReader.cxx
     )
 endif()
