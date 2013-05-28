@@ -194,7 +194,7 @@ if(NOT DEFINED ExternalData_OBJECT_STORES)
 endif()
 
 if(NOT DEFINED VTK_USE_LARGE_DATA)
-  set(VTK_USE_LARGE_DATA OFF)
+  set(VTK_USE_LARGE_DATA ON)
 endif()
 
 # Delete source tree if it is incompatible with current VCS.
