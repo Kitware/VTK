@@ -482,7 +482,8 @@ int vtkContourFilter::RequestData(
       this->CreateDefaultLocator();
       }
     this->Locator->InitPointInsertion (newPts,
-                                       input->GetBounds(),estimatedSize);
+                                       input->GetBounds(),
+                                       input->GetNumberOfPoints());
 
     // interpolate data along edge
     // if we did not ask for scalars to be computed, don't copy them
