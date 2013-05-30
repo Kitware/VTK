@@ -244,6 +244,16 @@ public:
   vtkGetStringMacro(NanAnnotation);
 
   // Description:
+  // Set/get whether annotation labels should be scaled with the viewport.
+  //
+  // The default value is 0 (no scaling).
+  // If non-zero, the vtkTextActor instances used to render annotation
+  // labels will have their TextScaleMode set to viewport-based scaling,
+  // which nonlinearly scales font size with the viewport size.
+  vtkSetMacro(AnnotationTextScaling,int);
+  vtkGetMacro(AnnotationTextScaling,int);
+
+  // Description:
   // Set/Get whether a background should be drawn around the scalar bar.
   // Default is off.
   vtkSetMacro(DrawBackground, int);
@@ -468,6 +478,7 @@ protected:
   int DrawColorBar; // on by default
   int DrawAnnotations;
   int DrawNanAnnotation;
+  int AnnotationTextScaling; // off by default
   int FixedAnnotationLeaderLineColor;
   vtkProperty2D* BackgroundProperty;
   vtkProperty2D* FrameProperty;
