@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkQtDebugLeaksView.h"
 #include "vtkQtDebugLeaksModel.h"
+#include "vtkObjectBase.h"
 
 #include <QCheckBox>
 #include <QDesktopServices>
