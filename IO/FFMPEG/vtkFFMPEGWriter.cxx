@@ -62,8 +62,10 @@ private:
 
   AVStream *avStream;
 
+#if LIBAVFORMAT_VERSION_MAJOR < 54
   unsigned char *codecBuf;
   int codecBufSize;
+#endif
 
   AVFrame *rgbInput;
   AVFrame *yuvOutput;
@@ -85,7 +87,9 @@ vtkFFMPEGWriterInternal::vtkFFMPEGWriterInternal(vtkFFMPEGWriter *creator)
 
   this->avStream = NULL;
 
+#if LIBAVFORMAT_VERSION_MAJOR < 54
   this->codecBuf = NULL;
+#endif
   this->rgbInput = NULL;
   this->yuvOutput = NULL;
 
@@ -238,7 +242,7 @@ int vtkFFMPEGWriterInternal::Start()
 #if LIBAVFORMAT_VERSION_MAJOR < 54
   if (avcodec_open(c, codec) < 0)
 #else
-  if (avcodec_is_open(c) < 0)
+  if (avcodec_open2(c, codec, NULL) < 0)
 #endif
     {
     vtkGenericWarningMacro (<< "Could not open codec.");
@@ -247,6 +251,7 @@ int vtkFFMPEGWriterInternal::Start()
 
   //create buffers for the codec to work with.
 
+#if LIBAVFORMAT_VERSION_MAJOR < 54
   //working compression space
   this->codecBufSize = 2*c->width*c->height*4; //hopefully this is enough
   this->codecBuf = new unsigned char[this->codecBufSize];
@@ -255,6 +260,7 @@ int vtkFFMPEGWriterInternal::Start()
     vtkGenericWarningMacro (<< "Could not make codec working space." );
     return 0;
     }
+#endif
 
   //for the output of the writer's input...
   this->rgbInput = avcodec_alloc_frame();
@@ -362,21 +368,23 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
     }
 #endif
 
+#if LIBAVFORMAT_VERSION_MAJOR >= 54
+  AVPacket pkt = { 0 };
+  int got_frame;
+#endif
 
   //run the encoder
+#if LIBAVFORMAT_VERSION_MAJOR < 54
   int toAdd = avcodec_encode_video(cc,
                                    this->codecBuf,
                                    this->codecBufSize,
                                    this->yuvOutput);
-
-  //dump the compressed result to file
   if (toAdd)
     {
-    //create an avpacket to output the compressed result
     AVPacket pkt;
     av_init_packet(&pkt);
 
-   //to do playback at actual recorded rate, this will need more work
+    //to do playback at actual recorded rate, this will need more work
     pkt.pts = cc->coded_frame->pts;
     //pkt.dts = ?; not dure what decompression time stamp should be
     pkt.data = this->codecBuf;
@@ -395,12 +403,31 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
 
     toAdd = av_write_frame(this->avFormatContext, &pkt);
     }
-
   if (toAdd) //should not have anything left over
     {
     vtkGenericWarningMacro (<< "Problem encoding frame." );
     return 0;
     }
+
+#else
+  int ret = avcodec_encode_video2(cc,
+                                  &pkt,
+                                  this->yuvOutput,
+                                  &got_frame);
+
+  //dump the compressed result to file
+  if (got_frame)
+    {
+    pkt.stream_index = this->avStream->index;
+    ret = av_write_frame(this->avFormatContext, &pkt);
+    }
+
+  if (ret<0)
+    {
+    vtkGenericWarningMacro (<< "Problem encoding frame." );
+    return 0;
+    }
+#endif
 
   return 1;
 }
@@ -422,11 +449,14 @@ void vtkFFMPEGWriterInternal::End()
     this->rgbInput = NULL;
     }
 
+
+#if LIBAVFORMAT_VERSION_MAJOR < 54
   if (this->codecBuf)
     {
     av_free(this->codecBuf);
     this->codecBuf = NULL;
     }
+#endif
 
   if (this->avFormatContext)
     {
