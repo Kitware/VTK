@@ -16,7 +16,7 @@ if(NOT MATPLOTLIB_FOUND)
 endif()
 
 if(MATPLOTLIB_FOUND)
-  if(VTK_GHOSTSCRIPT_EXECUTABLE AND VTK_DATA_ROOT)
+  if(VTK_GHOSTSCRIPT_EXECUTABLE)
     set(GL2PSTests
       TestGL2PSMathTextActor.cxx
       TestGL2PSMathTextActor3D.cxx
@@ -25,18 +25,16 @@ if(MATPLOTLIB_FOUND)
     )
   endif()
 
-  if(VTK_DATA_ROOT)
-    # add tests that require data
-    vtk_add_test_cxx(
-      TestContextMathTextImage.cxx
-      TestMathTextActor.cxx
-      TestMathTextActor3D.cxx
-      TestRenderString.cxx
-      TestStringToPath.cxx
-      TestIndexedLookupScalarBar.cxx
-      TestScalarBarCombinatorics.cxx
-      )
-  endif()
+  # add tests that require data
+  vtk_add_test_cxx(
+    TestContextMathTextImage.cxx
+    TestMathTextActor.cxx
+    TestMathTextActor3D.cxx
+    TestRenderString.cxx
+    TestStringToPath.cxx
+    TestIndexedLookupScalarBar.cxx
+    TestScalarBarCombinatorics.cxx
+    )
 endif()
 
 vtk_add_test_cxx(${GL2PSTests})
@@ -70,7 +68,7 @@ if(GL2PSTests)
     ExternalData_add_test(VTKData
       NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
       COMMAND vtkRenderingGL2PSCxxTests PNGCompare
-        -D ${VTK_DATA_ROOT}
+        -D ${VTK_TEST_DATA_DIR}
         -T ${VTK_TEST_OUTPUT_DIR}
         -V DATA{../Data/Baseline/${TName}-rasterRef.png,:}
         --test-file ${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png

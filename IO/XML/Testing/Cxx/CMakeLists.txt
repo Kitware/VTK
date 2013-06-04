@@ -1,12 +1,10 @@
-if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(
-    TestAMRXMLIO.cxx,NO_VALID
-    TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
-    TestXMLUnstructuredGridReader.cxx
-    )
-  set(TestXML_ARGS ${VTK_DATA_ROOT}/Data/sample.xml)
-  vtk_add_test_cxx(TestXML.cxx NO_DATA NO_VALID NO_OUTPUT)
-endif()
+vtk_add_test_cxx(
+  TestAMRXMLIO.cxx,NO_VALID
+  TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
+  TestXMLUnstructuredGridReader.cxx
+  )
+set(TestXML_ARGS "DATA{${VTK_TEST_INPUT_DIR}/sample.xml}")
+vtk_add_test_cxx(TestXML.cxx NO_DATA NO_VALID NO_OUTPUT)
 
 vtk_add_test_cxx(NO_VALID
   TestDataObjectXMLIO.cxx

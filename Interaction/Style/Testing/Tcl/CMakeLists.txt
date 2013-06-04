@@ -1,8 +1,6 @@
-if(VTK_DATA_ROOT)
-  if(NOT VTK_OPENGL_HAS_OSMESA)
-    vtk_add_test_tcl(TestInteractorStyleTerrain)
-    vtk_add_test_tcl(TestStyleRubberBandZoom)
-  endif()
+if(NOT VTK_OPENGL_HAS_OSMESA)
+  vtk_add_test_tcl(TestInteractorStyleTerrain)
+  vtk_add_test_tcl(TestStyleRubberBandZoom)
 endif()
 
 if(NOT VTK_OPENGL_HAS_OSMESA)

@@ -1,9 +1,7 @@
-if(VTK_DATA_ROOT)
-  set (NEEDS_DATA
-    TestStringToNumeric.cxx,NO_VALID
-    TestMergeTables.cxx,NO_VALID
-    )
-endif()
+set (NEEDS_DATA
+  TestStringToNumeric.cxx,NO_VALID
+  TestMergeTables.cxx,NO_VALID
+  )
 
 vtk_add_test_cxx(
   ${NEEDS_DATA}

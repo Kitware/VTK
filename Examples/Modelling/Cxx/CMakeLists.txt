@@ -30,13 +30,13 @@ if(BUILD_TESTING)
   if(vtkTestingRendering_LOADED)
     ######## Regression Testing ########
     set(vtk-example ModellingExamples)
-    set(TestFinance_ARGS ${VTK_DATA_ROOT}/Data/financial.txt)
+    set(TestFinance_ARGS "DATA{${VTK_TEST_INPUT_DIR}/financial.txt}")
     set(TestDelaunay3D_ARGS
-      ${VTK_DATA_ROOT}/Data/cow.vtp
+      "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}"
       ${VTK_TEST_OUTPUT_DIR}/Delaunay3D.vtu
       )
     set(TestDelaunay3DAlpha_ARGS
-      .5 ${VTK_DATA_ROOT}/Data/cow.vtp
+      .5 "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}"
       ${VTK_TEST_OUTPUT_DIR}/Delaunay3DAlpha.vtu
       )
     vtk_add_test_cxx(

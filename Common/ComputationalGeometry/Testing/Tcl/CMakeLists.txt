@@ -1,6 +1,4 @@
-if(VTK_DATA_ROOT)
-  vtk_add_test_tcl(TestParametricFunctions)
-endif()
+vtk_add_test_tcl(TestParametricFunctions)
 vtk_add_test_tcl(CSpline)
 vtk_add_test_tcl(KSpline)
 vtk_add_test_tcl(closedSplines)

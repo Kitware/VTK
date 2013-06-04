@@ -28,27 +28,23 @@ vtk_add_test_cxx(
   )
 
 # Tests with data
-if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(
-    ProjectedTetrahedraZoomIn.cxx,NO_VALID
-    TestFinalColorWindowLevel.cxx
-    TestGPURayCastNearestDataTypesMIP.cxx
-    TestGPURayCastDataTypesMinIP.cxx
-    TestHAVSVolumeMapper.cxx
-    TestMinIntensityRendering.cxx
-    TestProjectedTetrahedra.cxx
-    TestProp3DFollower.cxx
-    volProt.cxx
-    )
-endif()
+vtk_add_test_cxx(
+  ProjectedTetrahedraZoomIn.cxx,NO_VALID
+  TestFinalColorWindowLevel.cxx
+  TestGPURayCastNearestDataTypesMIP.cxx
+  TestGPURayCastDataTypesMinIP.cxx
+  TestHAVSVolumeMapper.cxx
+  TestMinIntensityRendering.cxx
+  TestProjectedTetrahedra.cxx
+  TestProp3DFollower.cxx
+  volProt.cxx
+  )
 
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY
   ExerciseUnstructuredGridRayCastMapper.cxx)
 
-if (VTK_DATA_ROOT)
-  set_tests_properties(${vtk-module}Cxx-TestProp3DFollower
-    PROPERTIES TIMEOUT 100)
-endif()
+set_tests_properties(${vtk-module}Cxx-TestProp3DFollower
+  PROPERTIES TIMEOUT 100)
 
 set_tests_properties(${vtk-module}Cxx-TestTM3DLightComponents
   PROPERTIES TIMEOUT 120)

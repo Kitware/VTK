@@ -17,25 +17,23 @@ vtk_add_test_cxx(
 set_property(DIRECTORY APPEND PROPERTY VTK_TEST_CXX_SOURCES
   TestImageStencilData.cxx
   )
-if(VTK_DATA_ROOT)
-  ExternalData_add_test(VTKData
-    NAME ${vtk-module}Cxx-AddStencilData
-    COMMAND ${vtk-module}CxxTests TestImageStencilData 1
-      -D ${VTK_DATA_ROOT}
-      -T ${VTK_TEST_OUTPUT_DIR}
-      -V DATA{../Data/Baseline/TestAddStencilData.png,:})
-  ExternalData_add_test(VTKData
-    NAME ${vtk-module}Cxx-SubtractStencilData
-    COMMAND ${vtk-module}CxxTests TestImageStencilData 2
-      -D ${VTK_DATA_ROOT}
-      -T ${VTK_TEST_OUTPUT_DIR}
-      -V DATA{../Data/Baseline/TestSubtractStencilData.png,:})
-  ExternalData_add_test(VTKData
-    NAME ${vtk-module}Cxx-ClipStencilData
-    COMMAND ${vtk-module}CxxTests TestImageStencilData 3
-      -D ${VTK_DATA_ROOT}
-      -T ${VTK_TEST_OUTPUT_DIR}
-      -V DATA{../Data/Baseline/TestClipStencilData.png,:})
-endif()
+ExternalData_add_test(VTKData
+  NAME ${vtk-module}Cxx-AddStencilData
+  COMMAND ${vtk-module}CxxTests TestImageStencilData 1
+    -D ${VTK_TEST_DATA_DIR}
+    -T ${VTK_TEST_OUTPUT_DIR}
+    -V DATA{../Data/Baseline/TestAddStencilData.png,:})
+ExternalData_add_test(VTKData
+  NAME ${vtk-module}Cxx-SubtractStencilData
+  COMMAND ${vtk-module}CxxTests TestImageStencilData 2
+    -D ${VTK_TEST_DATA_DIR}
+    -T ${VTK_TEST_OUTPUT_DIR}
+    -V DATA{../Data/Baseline/TestSubtractStencilData.png,:})
+ExternalData_add_test(VTKData
+  NAME ${vtk-module}Cxx-ClipStencilData
+  COMMAND ${vtk-module}CxxTests TestImageStencilData 3
+    -D ${VTK_TEST_DATA_DIR}
+    -T ${VTK_TEST_OUTPUT_DIR}
+    -V DATA{../Data/Baseline/TestClipStencilData.png,:})
 
 vtk_test_cxx_executable(${vtk-module}CxxTests)

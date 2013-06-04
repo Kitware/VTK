@@ -27,6 +27,9 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# Test input data staging directory.
+set(VTK_TEST_DATA_DIR "${ExternalData_BINARY_ROOT}/Testing")
+
 # Test input data directory.
 set(VTK_TEST_INPUT_DIR "${VTK_SOURCE_DIR}/Testing/Data")
 
@@ -169,20 +172,7 @@ include(vtkDetermineCompilerFlags)
 add_definitions(-DVTK_IN_VTK)
 
 #-----------------------------------------------------------------------------
-# Configure the default VTK_DATA_ROOT for the location of VTKData.  To get
-# the VTKData repository from git, issue the following command:
-#
-# git clone git://vtk.org/VTKData.git
-#
-# To see the web hosted repository, visit http://vtk.org/VTKData.git
-FIND_PATH(VTK_DATA_ROOT VTKData.readme
-  ${VTK_SOURCE_DIR}/VTKData
-  ${VTK_SOURCE_DIR}/../VTKData
-  ${VTK_SOURCE_DIR}/../../VTKData
-  $ENV{VTK_DATA_ROOT}
-  DOC "The repository for data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKData.git\""
-  )
-mark_as_advanced(VTK_DATA_ROOT)
+include(vtkLegacyData)
 
 # Provide an option for tests requiring "large" input data
 option(VTK_USE_LARGE_DATA "Enable tests requiring \"large\" data" OFF)

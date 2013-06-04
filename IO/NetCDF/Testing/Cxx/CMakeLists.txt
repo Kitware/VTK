@@ -7,7 +7,7 @@ if(VTK_USE_LARGE_DATA)
     "DATA{${VTK_TEST_INPUT_DIR}/SLAC/pillbox/,REGEX:.*}"
     )
 
-  vtk_add_test_cxx(TESTING_DATA
+  vtk_add_test_cxx(
     SLACMultipleModes.cxx
     SLACParticleReader.cxx
     SLACReaderLinear.cxx

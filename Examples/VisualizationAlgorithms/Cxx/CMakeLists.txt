@@ -28,8 +28,8 @@ if(BUILD_TESTING)
   if(vtkTestingRendering_LOADED)
     ######## Regression Testing ########
     set(vtk-example VisualizationAlgorithmsExamples)
-    set(TestFilledContours_ARGS ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
-    set(TestBandedContours_ARGS ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
+    set(TestFilledContours_ARGS "DATA{${VTK_TEST_INPUT_DIR}/filledContours.vtp}" 10)
+    set(TestBandedContours_ARGS "DATA{${VTK_TEST_INPUT_DIR}/filledContours.vtp}" 10)
     vtk_add_test_cxx(
       TestTubesWithVaryingRadiusAndColors.cxx
       TestFilledContours.cxx

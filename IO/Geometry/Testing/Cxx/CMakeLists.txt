@@ -1,11 +1,9 @@
 # Tests with data
-if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(
-    TestProStarReader.cxx
-    TestTecplotReader.cxx
-    TestAMRReadWrite.cxx,NO_VALID
-    )
-endif()
+vtk_add_test_cxx(
+  TestProStarReader.cxx
+  TestTecplotReader.cxx
+  TestAMRReadWrite.cxx,NO_VALID
+  )
 
 vtk_add_test_cxx(NO_VALID
   TestSimplePointsReaderWriter.cxx
@@ -25,7 +23,7 @@ if(VTK_USE_LARGE_DATA AND _known_little_endian)
     "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/turbine/,REGEX:.*}"
     )
 
-  vtk_add_test_cxx(TESTING_DATA
+  vtk_add_test_cxx(
     TestWindBladeReader.cxx
     )
 endif()

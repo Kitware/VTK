@@ -21,13 +21,11 @@ vtk_add_test_cxx(
   )
 
 # Tests with data
-if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(
-    TestGradientAndVorticity.cxx,NO_VALID
-    TestIconGlyphFilterGravity.cxx
-    TestQuadraturePoints.cxx
-    TestYoungsMaterialInterface.cxx
-    )
-endif()
+vtk_add_test_cxx(
+  TestGradientAndVorticity.cxx,NO_VALID
+  TestIconGlyphFilterGravity.cxx
+  TestQuadraturePoints.cxx
+  TestYoungsMaterialInterface.cxx
+  )
 
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
