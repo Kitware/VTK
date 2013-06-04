@@ -131,10 +131,11 @@ vtkTextActor::~vtkTextActor()
 }
 
 // ----------------------------------------------------------------------------
-void vtkTextActor::GetBoundingBox(double bbox[4])
+void vtkTextActor::GetBoundingBox(
+  vtkViewport* vport, double bbox[4])
 {
-  if ( this->UpdateRectangle(NULL) && this->RectanglePoints &&
-    this->RectanglePoints->GetNumberOfPoints() >= 4 )
+  if (this->UpdateRectangle(vport) && this->RectanglePoints &&
+    this->RectanglePoints->GetNumberOfPoints() >= 4)
     {
     double x[3];
     this->RectanglePoints->GetPoint( 0, x );
@@ -169,7 +170,7 @@ void vtkTextActor::GetSize(vtkViewport* vport, double size[2])
   // UpdateRectange(NULL) which builds a (probably-too-low-resolution) image
   // to determine its size.
   this->UpdateRectangle(vport);
-  this->GetBoundingBox(bds);
+  this->GetBoundingBox(vport, bds);
   size[0] = bds[1] - bds[0];
   size[1] = bds[3] - bds[2];
 }
@@ -508,7 +509,6 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     return 0;
     }
 
-  this->ComputeScaledFont(viewport);
   if ( ! this->UpdateRectangle(viewport) )
     {
     return 0;

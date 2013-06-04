@@ -157,7 +157,7 @@ public:
   // Return the bounding box coordinates of the text in viewport coordinates.
   // The bbox array is populated with [ xmin, xmax, ymin, ymax ]
   // values in that order.
-  virtual void GetBoundingBox(double bbox[4]);
+  virtual void GetBoundingBox(vtkViewport* vport, double bbox[4]);
 
   // Description:
   // Syntactic sugar to get the size of text instead of the entire bounding box.
