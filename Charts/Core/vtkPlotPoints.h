@@ -34,6 +34,7 @@
 #include "vtkNew.h"             // For ivars
 #include "vtkRenderingCoreEnums.h" // For marker enum
 
+class vtkCharArray;
 class vtkContext2D;
 class vtkTable;
 class vtkPoints2D;
@@ -147,6 +148,11 @@ public:
   vtkGetMacro(MarkerSize, float);
   vtkSetMacro(MarkerSize, float);
 
+  // Description:
+  // Get/set the valid point mask array name.
+  vtkGetMacro(ValidPointMaskName, vtkStdString)
+  vtkSetMacro(ValidPointMaskName, vtkStdString)
+
 //BTX
 protected:
   vtkPlotPoints();
@@ -189,6 +195,15 @@ protected:
   // An array containing the indices of all the "bad points", meaning any x, y
   // pair that has an infinity, -infinity or not a number value.
   vtkIdTypeArray* BadPoints;
+
+  // Description:
+  // Array which marks valid points in the array. If NULL (the default), all
+  // points in the input array are considered valid.
+  vtkCharArray* ValidPointMask;
+
+  // Description:
+  // Name of the valid point mask array.
+  vtkStdString ValidPointMaskName;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.
