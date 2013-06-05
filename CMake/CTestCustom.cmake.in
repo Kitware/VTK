@@ -280,6 +280,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # Ignore clang's summary warning, assuming prior text has matched some
   # other warning expression:
   "[0-9,]+ warnings? generated."
+
+  #ignore clangs documentation warnings from libxml, which uses gtk-doc natively, not doxygen
+  "vtklibxml2.*warning: unknown command tag name"
   )
 
 IF(APPLE)
