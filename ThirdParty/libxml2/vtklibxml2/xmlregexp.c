@@ -1970,7 +1970,7 @@ xmlFACompareRanges(xmlRegRangePtr range1, xmlRegRangePtr range2) {
         } else {
             /*
              * comparing a block range with anything else is way
-             * too costly, and maintining the table is like too much
+             * too costly, and maintaining the table is like too much
              * memory too, so let's force the automata to save state
              * here.
              */

@@ -108,7 +108,7 @@ void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
   inIncZ *= size;
   outIncZ *= size;
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     for (idxY = 0; idxY <= maxY; idxY++)

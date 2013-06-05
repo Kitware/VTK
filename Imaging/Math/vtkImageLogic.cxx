@@ -48,7 +48,7 @@ void vtkImageLogicExecute1(vtkImageLogic *self, vtkImageData *inData,
   T trueValue = static_cast<T>(self->GetOutputTrueValue());
   int op = self->GetOperation();
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     T* inSI = inIt.BeginSpan();
@@ -108,7 +108,7 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
   T trueValue = static_cast<T>(self->GetOutputTrueValue());
   int op = self->GetOperation();
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     T* inSI1 = inIt1.BeginSpan();

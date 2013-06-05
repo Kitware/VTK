@@ -49,7 +49,7 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
   // find the region to loop over
   int maxC = inData->GetNumberOfScalarComponents()-1;
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     T* inSI = inIt.BeginSpan();

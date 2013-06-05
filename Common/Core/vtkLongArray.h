@@ -141,7 +141,7 @@ public:
   // the array supplied by the user.  Set save to 1 to keep the class
   // from deleting the array when it cleans up or reallocates memory.
   // The class uses the actual array provided; it does not copy the data
-  // from the suppled array.
+  // from the supplied array.
   void SetArray(long* array, vtkIdType size, int save)
     { this->RealSuperclass::SetArray(array, size, save); }
   void SetArray(long* array, vtkIdType size, int save, int deleteMethod)

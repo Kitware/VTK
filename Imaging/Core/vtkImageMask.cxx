@@ -136,7 +136,7 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
   target = static_cast<unsigned long>(num2*num1/50.0);
   target++;
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idx2 = 0; idx2 < num2; ++idx2)
     {
     for (idx1 = 0; !self->AbortExecute && idx1 < num1; ++idx1)

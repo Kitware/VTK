@@ -34996,7 +34996,7 @@ static void pagerUnlockIfUnused(Pager *pPager){
 ** page is initialized to all zeros. 
 **
 ** If noContent is true, it means that we do not care about the contents
-** of the page. This occurs in two seperate scenarios:
+** of the page. This occurs in two separate scenarios:
 **
 **   a) When reading a free-list leaf page from the database, and
 **
@@ -49571,7 +49571,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VdbeCursorMoveto(VdbeCursor *p){
 ** the blob of data that it corresponds to. In a table record, all serial
 ** types are stored at the start of the record, and the blobs of data at
 ** the end. Hence these functions allow the caller to handle the
-** serial-type and data blob seperately.
+** serial-type and data blob separately.
 **
 ** The following table describes the various storage classes for data:
 **
@@ -68330,7 +68330,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3DropTable(Parse *pParse, SrcList *pName, int 
     /* Drop all VTK_SQLITE_MASTER table and index entries that refer to the
     ** table. The program name loops through the master table and deletes
     ** every row that refers to a table of the same name as the one being
-    ** dropped. Triggers are handled seperately because a trigger can be
+    ** dropped. Triggers are handled separately because a trigger can be
     ** created in the temp database that refers to a table in another
     ** database.
     */
