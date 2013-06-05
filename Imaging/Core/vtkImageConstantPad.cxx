@@ -65,7 +65,7 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
   inData->GetContinuousIncrements(inExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxZ = outExt[4]; idxZ <= outExt[5]; idxZ++)
     {
     state3 = (idxZ < inExt[4] || idxZ > inExt[5]);

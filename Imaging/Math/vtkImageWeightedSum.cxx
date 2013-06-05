@@ -100,7 +100,7 @@ void vtkImageWeightedSumExecute(vtkImageWeightedSum *self,
     {
     inIts[i].Initialize(inDatas[i], outExt);
     }
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     for(int j=0; j < numInputs; ++j)

@@ -56,7 +56,7 @@ void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
   masks = self->GetMasks();
   operation = self->GetOperation();
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     T* inSI = inIt.BeginSpan();

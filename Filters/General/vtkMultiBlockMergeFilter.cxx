@@ -143,7 +143,7 @@ int vtkMultiBlockMergeFilter::Merge(unsigned int numPieces, unsigned int pieceNo
 
   // Current limitation of this filter is that all blocks must either be
   // vtkMultiBlockDataSet or vtkDataSet not a mixture of the two.
-  // a vtkMultiBlockDataSet with all child blocks as vtkDataSet is a mutlipiece
+  // a vtkMultiBlockDataSet with all child blocks as vtkDataSet is a multipiece
   // dataset. This filter merges pieces together.
   int mpInput = this->IsMultiPiece(input);
   int mpOutput = this->IsMultiPiece(output);

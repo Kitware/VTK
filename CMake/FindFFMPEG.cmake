@@ -30,7 +30,7 @@ FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
        DOC "Location of FFMPEG Headers"
 )
 
-# if ffmpeg headers are seperated to each of libavformat, libavcodec etc..
+# if ffmpeg headers are separated to each of libavformat, libavcodec etc..
 IF( NOT FFMPEG_INCLUDE_DIR )
   FIND_PATH(FFMPEG_INCLUDE_DIR libavformat/avformat.h
        PATHS

@@ -65,7 +65,7 @@ void vtkImageCastExecute(vtkImageCast *self,
   typeMax = outData->GetScalarTypeMax();
   clamp = self->GetClampOverflow();
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     IT* inSI = inIt.BeginSpan();

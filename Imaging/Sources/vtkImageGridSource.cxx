@@ -92,7 +92,7 @@ void vtkImageGridSourceExecute(vtkImageGridSource *self,
                                       (outExt[3]-outExt[2]+1)/50.0);
   target++;
 
-  // Loop through ouput pixel
+  // Loop through output pixel
   for (idxZ = outExt[4]; idxZ <= outExt[5]; idxZ++)
     {
     if (gridSpacing[2])

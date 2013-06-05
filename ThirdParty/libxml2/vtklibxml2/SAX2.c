@@ -1302,7 +1302,7 @@ xmlSAX2AttributeInternal(void *ctx, const xmlChar *fullname,
 
                 /*
                  * Do the last stage of the attribute normalization
-                 * It need to be done twice ... it's an extra burden related
+                 * It needs to be done twice ... it's an extra burden related
                  * to the ability to keep xmlSAX2References in attributes
                  */
                 nvalnorm = xmlValidNormalizeAttributeValue(ctxt->myDoc,
@@ -2011,7 +2011,7 @@ xmlSAX2AttributeNs(xmlParserCtxtPtr ctxt,
                  * dup now contains a string of the flattened attribute
                  * content with entities substitued. Check if we need to
                  * apply an extra layer of normalization.
-                 * It need to be done twice ... it's an extra burden related
+                 * It needs to be done twice ... it's an extra burden related
                  * to the ability to keep references in attributes
                  */
                 if (ctxt->attsSpecial != NULL) {

@@ -106,7 +106,7 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
     }
   inPtr = static_cast<T *>(inData->GetScalarPointer(inIdxStart[0], inIdxStart[1], inIdxStart[2]));
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   inPtrZ = inPtr;
   inIdx[2] = inIdxStart[2];
   inInc[2] = inIncStart[2];

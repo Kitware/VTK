@@ -134,7 +134,7 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
   maxIY = wExtent[3] - outExt[2];
   maxIX = wExtent[1] - outExt[0];
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     // how much of kernel to use

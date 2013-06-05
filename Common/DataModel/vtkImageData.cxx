@@ -1551,7 +1551,7 @@ void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     for (idxY = 0; idxY <= maxY; idxY++)
