@@ -73,6 +73,9 @@ vtkTreeHeatmapItem::vtkTreeHeatmapItem()
   this->Tooltip->SetVisible(false);
   this->AddItem(this->Tooltip.GetPointer());
   this->PruneFilter->SetShouldPruneParentVertex(false);
+
+  this->LeafNodeBehavior = this->EXTEND_FOR_TABLE;
+  this->ExtendLeafNodes = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -159,9 +162,20 @@ void vtkTreeHeatmapItem::SetTable(vtkTable *table)
   if (table == NULL || table->GetNumberOfRows() == 0)
     {
     this->Table = vtkSmartPointer<vtkTable>::New();
+
+    if (this->LeafNodeBehavior == this->EXTEND_FOR_TABLE)
+      {
+      this->ExtendLeafNodes = false;
+      }
+
     return;
     }
   this->Table = table;
+
+  if (this->LeafNodeBehavior == this->EXTEND_FOR_TABLE)
+    {
+    this->ExtendLeafNodes = true;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -609,6 +623,21 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       if (this->LineIsVisible(x0, y1, x1, y1))
         {
         painter->DrawLine (x0, y1, x1, y1);
+        }
+      // extend leaf nodes so they line up vertically
+      if (this->ExtendLeafNodes &&
+          x1 != this->TreeMaxX &&
+          this->LayoutTree->IsLeaf(target) &&
+          this->LineIsVisible(x1, y1, this->TreeMaxX, y1))
+        {
+        // we draw these extensions as grey lines to distinguish them
+        // from the actual lengths of the leaf nodes.
+        painter->GetPen()->SetColorF(0.75, 0.75, 0.75);
+
+        painter->DrawLine(x1, y1, this->TreeMaxX, y1);
+
+        // revert to drawing black lines when we're done
+        painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
         }
       }
 
@@ -1325,11 +1354,11 @@ void vtkTreeHeatmapItem::CollapseToNumberOfLeafNodes(unsigned int n)
                       CompareWeightedVertices> queue;
   std::vector<vtkIdType> verticesToCollapse;
   vtkDoubleArray *nodeWeights = vtkDoubleArray::SafeDownCast(
-    this->Tree->GetVertexData()->GetAbstractArray("true node weight"));
+    this->Tree->GetVertexData()->GetAbstractArray("node weight"));
   if (nodeWeights == NULL)
     {
-    nodeWeights = vtkDoubleArray::SafeDownCast(
-      this->Tree->GetVertexData()->GetAbstractArray("node weight"));
+    vtkErrorMacro("No vtkDoubleArray named 'node weight' in tree's VertexData");
+    return;
     }
 
   // initially, the priority queue contains the children of the root node.
@@ -1453,6 +1482,82 @@ void vtkTreeHeatmapItem::SetTreeColorArray(const char *arrayName)
     {
     this->TreeLookupTable->SetTableValue(i,
       0.85 - inc * (i - 10), 0.85 - inc * (i - 10), 1.0);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::SetLeafNodeBehavior(int behavior)
+{
+  this->LeafNodeBehavior = behavior;
+  switch(this->LeafNodeBehavior)
+  {
+    case vtkTreeHeatmapItem::ALWAYS_EXTEND:
+      this->ExtendLeafNodes = true;
+      break;
+
+    case vtkTreeHeatmapItem::NEVER_EXTEND:
+      this->ExtendLeafNodes = false;
+      break;
+
+    case vtkTreeHeatmapItem::EXTEND_FOR_TABLE:
+    default:
+      if (this->Table->GetNumberOfRows() == 0)
+        {
+        this->ExtendLeafNodes = false;
+        }
+      else
+        {
+        this->ExtendLeafNodes = true;
+        }
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+int vtkTreeHeatmapItem::GetLeafNodeBehavior()
+{
+  return this->LeafNodeBehavior;
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::GetCenter(double *center)
+{
+  if (this->Tree->GetNumberOfVertices() == 0)
+    {
+    center[0] = this->HeatmapMinX +
+                ((this->HeatmapMaxX - this->HeatmapMinX) / 2.0);
+    center[1] = this->HeatmapMinY +
+                ((this->HeatmapMaxY - this->HeatmapMinY) / 2.0);
+    }
+  else if (this->Table->GetNumberOfRows() == 0)
+    {
+    center[0] = this->TreeMinX + ((this->TreeMaxX - this->TreeMinX) / 2.0);
+    center[1] = this->TreeMinY + ((this->TreeMaxY - this->TreeMinY) / 2.0);
+    }
+  else
+    {
+    center[0] = this->TreeMinX + ((this->HeatmapMaxX - this->TreeMinX) / 2.0);
+    center[1] = this->TreeMinY + ((this->HeatmapMaxY - this->TreeMinY) / 2.0);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::GetSize(double *size)
+{
+  if (this->Tree->GetNumberOfVertices() == 0)
+    {
+    size[0] = this->HeatmapMaxX - this->HeatmapMinX;
+    size[1] = this->HeatmapMaxY - this->HeatmapMinY;
+    }
+  else if (this->Table->GetNumberOfRows() == 0)
+    {
+    size[0] = this->TreeMaxX - this->TreeMinX;
+    size[1] = this->TreeMaxY - this->TreeMinY;
+    }
+  else
+    {
+    size[0] = this->HeatmapMaxX - this->TreeMinX;
+    size[1] = this->HeatmapMaxY - this->TreeMinY;
     }
 }
 

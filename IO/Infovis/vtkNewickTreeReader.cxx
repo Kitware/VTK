@@ -133,14 +133,7 @@ int vtkNewickTreeReader:: ReadNewickTree(  char * const buffer, vtkTree & tree)
   vtkNew<vtkDoubleArray> nodeWeights;
   nodeWeights->SetNumberOfTuples(tree.GetNumberOfVertices());
 
-  // trueWeights is (for the most part) a duplicate of nodeWeights.
-  // The only difference is that leaf nodes aren't clamped to the max
-  // weight in this array.
-  vtkNew<vtkDoubleArray> trueWeights;
-  trueWeights->SetNumberOfTuples(tree.GetNumberOfVertices());
-
   //set node weights
-  double maxWeight = 0.0;
   vtkNew<vtkTreeDFSIterator> treeIterator;
   treeIterator->SetStartVertex(tree.GetRoot());
   treeIterator->SetTree(&tree);
@@ -154,27 +147,11 @@ int vtkNewickTreeReader:: ReadNewickTree(  char * const buffer, vtkTree & tree)
       weight = weights->GetValue(tree.GetEdgeId(parent, vertex));
       weight += nodeWeights->GetValue(parent);
       }
-
-    if (weight > maxWeight)
-      {
-      maxWeight = weight;
-      }
     nodeWeights->SetValue(vertex, weight);
-    trueWeights->SetValue(vertex, weight);
     }
 
-  for (vtkIdType vertex = 0; vertex < tree.GetNumberOfVertices(); ++vertex)
-    {
-    if (tree.IsLeaf(vertex))
-      {
-      nodeWeights->SetValue(vertex, maxWeight);
-      }
-    }
   nodeWeights->SetName("node weight");
   tree.GetVertexData()->AddArray(nodeWeights.GetPointer());
-
-  trueWeights->SetName("true node weight");
-  tree.GetVertexData()->AddArray(trueWeights.GetPointer());
 
   return 1;
 

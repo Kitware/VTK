@@ -94,7 +94,35 @@ public:
   // By default, the tree will be drawn in black.
   void SetTreeColorArray(const char *arrayName);
 
+  // Description:
+  // Set whether or not leaf nodes should be extended so that they all line
+  // up vertically.  The default is to extend leaf nodes if a heatmap is
+  // present (2).  When extending leaf nodes, the extra length is drawn in
+  // grey so as to distinguish it from the actual length of the leaf node.
+  void SetLeafNodeBehavior(int behavior);
+
+  // Description:
+  // Get the current behavior regarding when leaf nodes should be extended.
+  int GetLeafNodeBehavior();
+
+  // Description:
+  // Get the center point of this item in pixel coordinates.
+  void GetCenter(double *center);
+
+  // Description:
+  // Get the size of this item in pixel coordinates.
+  void GetSize(double *size);
+
   //BTX
+  // Description:
+  // Enum for LeafNodeBehavior.
+  enum
+    {
+    ALWAYS_EXTEND,
+    NEVER_EXTEND,
+    EXTEND_FOR_TABLE
+    };
+
   // Description:
   // Returns true if the transform is interactive, false otherwise.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -254,6 +282,8 @@ private:
   double SceneTopRight[3];
   bool JustCollapsedOrExpanded;
   bool ColorTree;
+  int LeafNodeBehavior;
+  bool ExtendLeafNodes;
 };
 
 #endif
