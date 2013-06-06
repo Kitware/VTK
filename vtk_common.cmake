@@ -30,7 +30,6 @@
 #   dashboard_source_name     = Name of source directory (VTK)
 #   dashboard_binary_name     = Name of binary directory (VTK-build)
 #   dashboard_store_name      = Name of ExternalData store (ExternalData)
-#   dashboard_data_name       = Name of data directory (VTKData)
 #   dashboard_cache           = Initial CMakeCache.txt file content
 #   dashboard_cvs_tag         = CVS tag to checkout (ex: VTK-5-6)
 #   dashboard_do_coverage     = True to enable coverage (ex: gcov)
@@ -42,7 +41,6 @@
 #   CTEST_TEST_TIMEOUT        = Per-test timeout length
 #   CTEST_TEST_ARGS           = ctest_test args (ex: PARALLEL_LEVEL 4)
 #   CMAKE_MAKE_PROGRAM        = Path to "make" tool to use
-#   VTK_DATA_ROOT             = Where to put data tree
 #   VTK_USE_LARGE_DATA        = True to enable tests using "large" data
 #
 # Options to configure builds from experimental git repository:
@@ -139,17 +137,9 @@ if(NOT CTEST_TEST_TIMEOUT)
   set(CTEST_TEST_TIMEOUT 1500)
 endif()
 
-# need to handle VTKData
-# git://vtk.org/VTKData.git
-
 # Select Git source to use.
 if(NOT DEFINED dashboard_git_url)
   set(dashboard_git_url "git://vtk.org/VTK.git")
-endif()
-
-# Select Git source to use.
-if(NOT DEFINED dashboard_git_data_url)
-  set(dashboard_git_data_url "git://vtk.org/VTKData.git")
 endif()
 
 if(NOT DEFINED dashboard_git_branch)
@@ -203,18 +193,6 @@ if(NOT DEFINED ExternalData_OBJECT_STORES)
   endif()
 endif()
 
-# Select a data directory name.
-
-# don't do this until VTKData is actually a submodule.
-#set(VTK_DATA_ROOT ${CTEST_SOURCE_DIRECTORY}/VTKData)
-if(NOT DEFINED VTK_DATA_ROOT)
-  if(DEFINED dashboard_data_name)
-    set(VTK_DATA_ROOT ${CTEST_DASHBOARD_ROOT}/${dashboard_data_name})
-  else()
-    set(VTK_DATA_ROOT ${CTEST_SOURCE_DIRECTORY}Data)
-  endif()
-endif()
-
 if(NOT DEFINED VTK_USE_LARGE_DATA)
   set(VTK_USE_LARGE_DATA OFF)
 endif()
@@ -230,26 +208,6 @@ if(EXISTS ${CTEST_SOURCE_DIRECTORY})
     message("Deleting source tree\n  ${CTEST_SOURCE_DIRECTORY}\n${vcs_refresh}")
     file(REMOVE_RECURSE "${CTEST_SOURCE_DIRECTORY}")
   endif()
-endif()
-
-# Delete data tree if it is incompatible with current VCS.
-if(EXISTS ${VTK_DATA_ROOT})
-  if(CTEST_GIT_COMMAND)
-    if(NOT EXISTS "${VTK_DATA_ROOT}/.git")
-      set(vcs_refresh "because it is not managed by git.")
-    endif()
-  endif()
-  if(vcs_refresh AND "${VTK_DATA_ROOT}" MATCHES "/VTKData[^/]*")
-    message("Deleting VTKData tree\n  ${CTEST_SOURCE_DIRECTORY}\n${vcs_refresh}")
-    file(REMOVE_RECURSE "${VTK_DATA_ROOT}")
-  endif()
-endif()
-
-if(NOT EXISTS "${VTK_DATA_ROOT}")
-  get_filename_component(_name "${VTK_DATA_ROOT}" NAME)
-  execute_process(
-  COMMAND "${CTEST_GIT_COMMAND}" clone "${dashboard_git_data_url}"
-          "${VTK_DATA_ROOT}")
 endif()
 
 # Support initial checkout if necessary.
@@ -338,7 +296,6 @@ foreach(v
     CTEST_SCRIPT_DIRECTORY
     CTEST_USE_LAUNCHERS
     ExternalData_OBJECT_STORES
-    VTK_DATA_ROOT
     )
   set(vars "${vars}  ${v}=[${${v}}]\n")
 endforeach(v)
@@ -363,7 +320,6 @@ BUILDNAME:STRING=${CTEST_BUILD_NAME}
 CTEST_USE_LAUNCHERS:BOOL=${CTEST_USE_LAUNCHERS}
 DART_TESTING_TIMEOUT:STRING=${CTEST_TEST_TIMEOUT}
 ExternalData_OBJECT_STORES:STRING=${ExternalData_OBJECT_STORES}
-VTK_DATA_ROOT:PATH=${VTK_DATA_ROOT}
 VTK_USE_LARGE_DATA:BOOL=${VTK_USE_LARGE_DATA}
 ${cache_build_type}
 ${cache_make_program}
@@ -414,12 +370,7 @@ while(NOT dashboard_done)
     safe_message("Starting fresh build...")
     write_cache()
   endif()
-  
-  # VTKData is not a submodule at this time, so use ctest_update
-  if(DEFINED VTK_DATA_ROOT)
-    ctest_update(SOURCE "${VTK_DATA_ROOT}")
-  endif()
-  
+
   # Look for updates.
   ctest_update(RETURN_VALUE count)
   set(CTEST_CHECKOUT_COMMAND) # checkout on first iteration only
