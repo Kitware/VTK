@@ -18,6 +18,8 @@
 #include "vtkContext2D.h"
 #include "vtkPen.h"
 #include "vtkRect.h"
+#include "vtkPoints2D.h"
+#include "vtkIdTypeArray.h"
 
 #include "vtkObjectFactory.h"
 
@@ -48,7 +50,32 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
 
   // Draw the line between the points
   painter->ApplyPen(this->Pen);
-  painter->DrawPoly(this->Points);
+
+  if (this->BadPoints && this->BadPoints->GetNumberOfTuples() > 0)
+    {
+    // draw lines skipping bad points
+    float *points = static_cast<float *>(this->Points->GetVoidPointer(0));
+
+    vtkIdType lastGood = 0;
+
+    for (vtkIdType i = 0; i < this->BadPoints->GetNumberOfTuples(); i++)
+      {
+      vtkIdType id = this->BadPoints->GetValue(i);
+
+      // render from last good point to one before this bad point
+      if (id - lastGood > 2)
+        {
+        painter->DrawPoly(points + 2 * (lastGood + 1), id - lastGood - 1);
+        }
+
+      lastGood = id;
+      }
+    }
+  else
+    {
+    // draw lines between all points
+    painter->DrawPoly(this->Points);
+    }
 
   return this->vtkPlotPoints::Paint(painter);
 }
