@@ -29,7 +29,7 @@ if (VTK_PYTHON_EXE)
       COMMAND ${VTK_PYTHON_EXE}
       ${CMAKE_CURRENT_SOURCE_DIR}/Test${tfile}.py
       -B "DATA{../Data/Baseline/,REGEX:Test${tfile}(_[0-9]+)?.png}"
-      -D ${VTK_DATA_ROOT}/Data)
+      -D ${VTK_TEST_DATA_DIR}/Data)
   endforeach ( )
 
   #
@@ -40,7 +40,7 @@ if (VTK_PYTHON_EXE)
     COMMAND ${VTK_PYTHON_EXE}
     ${CMAKE_CURRENT_SOURCE_DIR}/TestRendering.py
     -B "DATA{../Data/Baseline/,REGEX:TestRendering(_[0-9]+)?.png}"
-    -D ${VTK_DATA_ROOT}/Data
+    -D ${VTK_TEST_DATA_DIR}/Data
     --gpu_render)
 
 endif ()

@@ -77,22 +77,20 @@ vtk_add_test_cxx(NO_VALID
   )
 
 # Tests with data
-if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(
-    TestDijkstraGraphGeodesicPath.cxx
-    TestLineWidget.cxx
-    TestLineWidget2.cxx
-    TestPlaneWidget.cxx
-    TestPointWidget.cxx
-    TestPolyPlane.cxx,NO_VALID
-    TestPolygonalHandleRepresentations.cxx
-    TestPolygonalRepresentationHandleWidget.cxx
-    TestPolygonalSurfaceConstrainedDistanceWidget.cxx
-    TestSphereHandleWidget.cxx
-    TestSurfaceConstrainedHandleWidget.cxx
-    TestTensorProbeWidget.cxx
-    )
-endif()
+vtk_add_test_cxx(
+  TestDijkstraGraphGeodesicPath.cxx
+  TestLineWidget.cxx
+  TestLineWidget2.cxx
+  TestPlaneWidget.cxx
+  TestPointWidget.cxx
+  TestPolyPlane.cxx,NO_VALID
+  TestPolygonalHandleRepresentations.cxx
+  TestPolygonalRepresentationHandleWidget.cxx
+  TestPolygonalSurfaceConstrainedDistanceWidget.cxx
+  TestSphereHandleWidget.cxx
+  TestSurfaceConstrainedHandleWidget.cxx
+  TestTensorProbeWidget.cxx
+  )
 
 if(NOT VTK_OPENGL_HAS_OSMESA)
   vtk_add_test_cxx(TestPickingManagerWidgets.cxx)
@@ -100,10 +98,8 @@ endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
 
-if (VTK_DATA_ROOT)
-  set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor
-    PROPERTIES TIMEOUT 90)
-endif()
+set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor
+  PROPERTIES TIMEOUT 90)
 
 if(NOT VTK_OPENGL_HAS_OSMESA)
   set_tests_properties(${vtk-module}Cxx-TestPickingManagerSeedWidget

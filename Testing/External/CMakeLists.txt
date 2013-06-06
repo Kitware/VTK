@@ -45,10 +45,12 @@ endif()
 vtk_module_glob("${VTK_TOP_DIR}" "${VTKTestExternal_BINARY_DIR}" Cxx)
 
 # Input information for test build files.
-find_path(VTK_DATA_ROOT VTKData.readme ${VTK_TOP_DIR}/../VTKData)
 option(VTK_USE_LARGE_DATA "Enable tests requiring \"large\" data" OFF)
+set(VTK_TEST_DATA_DIR "${ExternalData_BINARY_ROOT}/Testing")
 set(VTK_TEST_INPUT_DIR "${VTK_TOP_DIR}/Testing/Data")
 set(VTK_TEST_OUTPUT_DIR "${VTKTestExternal_BINARY_DIR}/Testing/Temporary")
+
+include(vtkLegacyData)
 
 # If vtkParallelMPI is found then look for MPI and bring in
 # vtkTestingMPISupport.

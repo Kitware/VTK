@@ -1,11 +1,6 @@
-# Tests without test images
-#
 vtk_add_test_tcl(otherDataSetAttributes.tcl NO_DATA NO_RT)
 
-# Tests with images
-if(VTK_DATA_ROOT)
-  vtk_add_test_tcl(headBone)
-endif()
+vtk_add_test_tcl(headBone)
 
 vtk_add_test_tcl(ImplicitSum)
 vtk_add_test_tcl(PerlinNoise)

@@ -288,7 +288,7 @@ if(BUILD_TESTING)
       ExternalData_add_test(VTKData
          JavaRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
-         vtk.test.Regression -D ${VTK_DATA_ROOT}
+         vtk.test.Regression -D ${VTK_TEST_DATA_DIR}
          -V DATA{Baseline/Cone.png,:}
          -T ${VTK_TEST_OUTPUT_DIR}
          )

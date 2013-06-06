@@ -1,9 +1,7 @@
 unset(tests)
-if(VTK_DATA_ROOT)
-  set(tests
-    TestPProbe
+set(tests
+  TestPProbe
   )
-endif()
 
 foreach( tfile ${tests})
   ExternalData_add_test(VTKData
@@ -12,7 +10,7 @@ foreach( tfile ${tests})
     $<TARGET_FILE:pvtk>
     ${vtkTestingRendering_SOURCE_DIR}/prtImageTest.tcl
     ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
-    -D ${VTK_DATA_ROOT}
+    -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
     -V DATA{../Data/Baseline/${tfile}.png}
     -A ${VTK_SOURCE_DIR}/Wrapping/Tcl

@@ -18,9 +18,6 @@ vtk_add_test_cxx(
   TestVDWSpheres.cxx
   )
 
-# Tests with data
-if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(TestCMLMoleculeReader.cxx)
-endif()
+vtk_add_test_cxx(TestCMLMoleculeReader.cxx)
 
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)

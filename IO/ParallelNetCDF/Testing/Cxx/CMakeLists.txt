@@ -4,7 +4,7 @@ if(VTK_USE_LARGE_DATA)
     "DATA{${VTK_TEST_INPUT_DIR}/NetCDF/,REGEX:.*}"
     )
 
-  vtk_add_test_cxx(TESTING_DATA
+  vtk_add_test_cxx(
     TestPNetCDFPOPReader.cxx
     )
 endif()

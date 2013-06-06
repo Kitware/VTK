@@ -1,9 +1,6 @@
-# Tests with data
-if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(
-    TestArrayCalculator.cxx,NO_VALID
-    )
-endif()
+vtk_add_test_cxx(
+  TestArrayCalculator.cxx,NO_VALID
+  )
 
 vtk_add_test_cxx(
   TestGhostArray.cxx,NO_VALID

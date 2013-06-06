@@ -21,7 +21,7 @@ if (VTK_USE_LARGE_DATA AND _known_little_endian AND NOT WIN32)
     NAME ${vtk-module}Cxx-TestPWindBladeReader
     COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${MPIEXEC_PREFLAGS}
     $<TARGET_FILE:${vtk-module}CxxTests> TestPWindBladeReader
-    -D ${ExternalData_BINARY_ROOT}/Testing
+    -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
     -V DATA{../Data/Baseline/TestWindBladeReader.png,:}
     ${VTK_MPI_POSTFLAGS})

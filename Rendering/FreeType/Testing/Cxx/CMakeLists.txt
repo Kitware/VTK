@@ -16,10 +16,8 @@ endif()
 # add tests that do not require data or produce vector output
 vtk_add_test_cxx(TestMathTextFreeTypeTextRendererNoMath.cxx)
 
-if(VTK_DATA_ROOT)
-  # add tests that require data
-  vtk_add_test_cxx(TestFTStringToPath.cxx)
-endif()
+# add tests that require data
+vtk_add_test_cxx(TestFTStringToPath.cxx)
 
 if(MATPLOTLIB_FOUND)
   vtk_add_test_cxx(TestMathTextFreeTypeTextRenderer.cxx)

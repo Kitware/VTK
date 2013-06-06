@@ -1,7 +1,5 @@
-if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(NO_VALID NO_OUTPUT
-    #    TestFlashReader.cxx  there is not data for this test
-    TestEnzoReader.cxx
-    )
-  vtk_test_cxx_executable(${vtk-module}CxxTests)
-endif()
+vtk_add_test_cxx(NO_VALID NO_OUTPUT
+  #    TestFlashReader.cxx  there is not data for this test
+  TestEnzoReader.cxx
+  )
+vtk_test_cxx_executable(${vtk-module}CxxTests)

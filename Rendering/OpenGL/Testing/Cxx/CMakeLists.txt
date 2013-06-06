@@ -84,29 +84,27 @@ endif()
 
 include_directories(${OPENGL_INCLUDE_DIR})
 
-if(VTK_DATA_ROOT)
-  vtk_add_test_cxx(
-    TestAreaSelections.cxx
-    TestGlyph3DMapperArrow.cxx
-    TestMultiblockDisplayProperties.cxx
-    TestMultiTexturing.cxx
-    TestMultiTexturingTransform.cxx
-    TestImageSliceMapperBorder.cxx
-    TestImageResliceMapperBorder.cxx
-    TestScalarBar.cxx
-    TestScenePicker.cxx,NO_VALID
-    TestTextureRGBA.cxx
-    TestTextureRGBADepthPeeling.cxx
-    TestTranslucentImageActorAlphaBlending.cxx
-    TestTranslucentImageActorDepthPeeling.cxx
-    TestTStripsColorsTCoords.cxx
-    TestTStripsNormalsColorsTCoords.cxx
-    TestTStripsNormalsTCoords.cxx
-    TestTStripsTCoords.cxx
-    )
-endif()
+vtk_add_test_cxx(
+  TestAreaSelections.cxx
+  TestGlyph3DMapperArrow.cxx
+  TestMultiblockDisplayProperties.cxx
+  TestMultiTexturing.cxx
+  TestMultiTexturingTransform.cxx
+  TestImageSliceMapperBorder.cxx
+  TestImageResliceMapperBorder.cxx
+  TestScalarBar.cxx
+  TestScenePicker.cxx,NO_VALID
+  TestTextureRGBA.cxx
+  TestTextureRGBADepthPeeling.cxx
+  TestTranslucentImageActorAlphaBlending.cxx
+  TestTranslucentImageActorDepthPeeling.cxx
+  TestTStripsColorsTCoords.cxx
+  TestTStripsNormalsColorsTCoords.cxx
+  TestTStripsNormalsTCoords.cxx
+  TestTStripsTCoords.cxx
+  )
 
-if(VTK_USE_DISPLAY AND VTK_DATA_ROOT)
+if(VTK_USE_DISPLAY)
   vtk_add_test_cxx(
     RenderNonFinite.cxx
     SurfacePlusEdges.cxx

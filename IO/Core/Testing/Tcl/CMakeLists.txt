@@ -6,7 +6,5 @@ set(tests
 )
 
 foreach( tfile ${tests})
-  if(VTK_DATA_ROOT)
-    vtk_add_test_tcl(${tfile}.tcl NO_RT)
-  endif()
+  vtk_add_test_tcl(${tfile}.tcl NO_RT)
 endforeach()
