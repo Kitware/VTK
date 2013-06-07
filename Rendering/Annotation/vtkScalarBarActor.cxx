@@ -112,6 +112,7 @@ vtkScalarBarActor::vtkScalarBarActor()
 
   this->DrawAnnotations = 1;
   this->DrawNanAnnotation = 0;
+  this->AnnotationTextScaling = 0;
   this->FixedAnnotationLeaderLineColor = 0;
   this->NanAnnotation = 0;
   this->SetNanAnnotation("NaN");
@@ -618,6 +619,8 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
     << (this->NanAnnotation ? this->NanAnnotation : "(none)") << endl;
   os << indent << "AnnotationLeaderPadding: "
     << this->AnnotationLeaderPadding << endl;
+  os << indent << "AnnotationTextScaling: "
+    << this->AnnotationTextScaling << endl;
 
   os << indent << "DrawBackground: " << this->DrawBackground << "\n";
   os << indent << "Background Property:\n";
@@ -1420,6 +1423,11 @@ void vtkScalarBarActor::ConfigureAnnotations()
     this->P->AnnotationAnchors[i] = it->first;
     this->P->AnnotationColors[i] = this->P->LabelColors[it->first];
     this->P->AnnotationLabels[i] = vtkSmartPointer<vtkTextActor>::New();
+    if (this->P->Viewport && this->AnnotationTextScaling)
+      {
+      this->P->AnnotationLabels[i]->SetTextScaleModeToViewport();
+      this->P->AnnotationLabels[i]->ComputeScaledFont(this->P->Viewport);
+      }
     this->P->AnnotationLabels[i]->GetTextProperty()->ShallowCopy(
       this->LabelTextProperty );
     this->P->AnnotationLabels[i]->SetProperty( this->GetProperty() );
@@ -1736,8 +1744,8 @@ int vtkScalarBarActor::PlaceAnnotationsVertically(
 #define VTK_ANN_VLAYOUT(j,dir,delt) \
     ctr = this->P->AnnotationAnchors[j]; \
     ll[0] = lpts->InsertNextPoint(xl0, ctr, 0.); \
-    this->P->AnnotationLabels[j]->GetBoundingBox(bds); \
-    hh = (bds[3] - bds[2] + pad) / 2.; /* label half-height, incl. padding */ \
+    this->P->AnnotationLabels[j]->GetSize(this->P->Viewport, tsz); \
+    hh = (tsz[1] + pad) / 2.; /* label half-height, incl. padding */ \
     if ((dir < 0 && ctr + hh > dnCum) || (dir > 0 && ctr - hh < upCum)) \
       ctr = delt + dir * hh; \
     this->P->AnnotationLabels[j]->GetTextProperty()->SetJustification( \
@@ -1780,7 +1788,7 @@ int vtkScalarBarActor::PlaceAnnotationsVertically(
   int ic = numNotes / 2;
   int dn, up;
   double dnCum, upCum, ctr, hh;
-  double bds[4];
+  double tsz[2];
   // leader-line endpoint x-coordinates:
   double xl0 =
     barX + (this->TextPosition == PrecedeScalarBar ? +1 : -1) * pad / 2.;
@@ -2140,7 +2148,7 @@ int vtkScalarBarActor::PlaceAnnotationsHorizontally(
   // accumulating label displacement as we go.
   int ic = numNotes / 2;
   int lf, rt;
-  double bds[4];
+  double tsz[2];
   vtkColor3ub leaderColor;
   if (2 * ic == numNotes)
     {
@@ -2151,20 +2159,20 @@ int vtkScalarBarActor::PlaceAnnotationsHorizontally(
     {
     lf = ic - 1;
     rt = ic + 1;
-    this->P->AnnotationLabels[ic]->GetBoundingBox(bds);
+    this->P->AnnotationLabels[ic]->GetSize(this->P->Viewport, tsz);
     placer.Place(
-      ic, this->P->AnnotationAnchors[ic], bds[1] - bds[0], bds[3] - bds[2]);
+      ic, this->P->AnnotationAnchors[ic], tsz[0], tsz[1]);
     VTK_ANN_HLAYOUT(ic, placer);
     }
   for ( ; lf >= 0; -- lf, ++ rt )
     {
-    this->P->AnnotationLabels[lf]->GetBoundingBox(bds);
+    this->P->AnnotationLabels[lf]->GetSize(this->P->Viewport, tsz);
     placer.Place(
-      lf, this->P->AnnotationAnchors[lf], bds[1] - bds[0], bds[3] - bds[2]);
+      lf, this->P->AnnotationAnchors[lf], tsz[0], tsz[1]);
     VTK_ANN_HLAYOUT(lf,placer);
-    this->P->AnnotationLabels[rt]->GetBoundingBox(bds);
+    this->P->AnnotationLabels[rt]->GetSize(this->P->Viewport, tsz);
     placer.Place(
-      rt, this->P->AnnotationAnchors[rt], bds[1] - bds[0], bds[3] - bds[2]);
+      rt, this->P->AnnotationAnchors[rt], tsz[0], tsz[1]);
     VTK_ANN_HLAYOUT(rt,placer);
     }
 
