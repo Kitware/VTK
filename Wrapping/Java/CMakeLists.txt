@@ -36,13 +36,16 @@ set(VTK_JAVA_SOURCE_FILES ${VTK_JAVA_DEPENDENCIES})
 string(REGEX REPLACE "\\.java" ".class;" VTK_JAVA_CLASS_FILES ${VTK_JAVA_SOURCE_FILES})
 
 # Setup custom targets
-add_custom_target(VTKJavaTestClasses ALL DEPENDS ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt)
+if (BUILD_TESTING)
+  add_custom_target(VTKJavaTestClasses ALL DEPENDS ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt)
+endif()
 add_custom_target(VTKJavaJar ALL DEPENDS ${VTK_JAR_PATH}/vtk.jar)
 add_custom_target(VTKJavaClasses ALL DEPENDS ${VTK_BINARY_DIR}/java/javac_stamp.txt)
 
 add_dependencies(VTKJavaJar VTKJavaClasses)
-add_dependencies(VTKJavaTestClasses VTKJavaJar)
-
+if (BUILD_TESTING)
+  add_dependencies(VTKJavaTestClasses VTKJavaJar)
+endif()
 # Some platforms have libjvm in a subdirectory from
 # the rest of the java libraries and are missing the symlink.
 
@@ -138,8 +141,11 @@ set(VTK_JAVA_DEPENDENCIES
 set(VTK_JAVA_SAMPLE_DEPENDENCIES)
 
 if(vtkRenderingCore_ENABLED)
+  if (BUILD_TESTING)
   set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
-    vtkJavaTesting
+    vtkJavaTesting)
+  endif()
+  set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
     AxesActor
     vtkRenderWindowPanel
     )
