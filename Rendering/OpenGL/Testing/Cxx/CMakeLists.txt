@@ -26,17 +26,6 @@ SET(RenderingTestsWithArguments
   TestGPUInfo.cxx
   TestGradientBackground.cxx
   TestHomogeneousTransformOfActor.cxx
-  TestImageResliceMapperAlpha.cxx
-  TestImageResliceMapperBackground.cxx
-  TestImageResliceMapperInterpolation.cxx
-  TestImageResliceMapperOffAxis.cxx
-  TestImageResliceMapperOrient3D.cxx
-  TestImageResliceMapperSlab.cxx
-  TestImageSliceMapperAlpha.cxx
-  TestImageSliceMapperBackground.cxx
-  TestImageSliceMapperOrient2D.cxx
-  TestImageSliceMapperOrient3D.cxx
-  TestImageSliceMapperInterpolation.cxx
   TestImageStack.cxx
   TestInteractorStyleImageProperty.cxx
   TestInteractorTimers.cxx
@@ -97,8 +86,19 @@ if(VTK_DATA_ROOT)
     TestMultiblockDisplayProperties.cxx
     TestMultiTexturing.cxx
     TestMultiTexturingTransform.cxx
-    TestImageSliceMapperBorder.cxx
+    TestImageResliceMapperAlpha.cxx
+    TestImageResliceMapperBackground.cxx
     TestImageResliceMapperBorder.cxx
+    TestImageResliceMapperInterpolation.cxx
+    TestImageResliceMapperOffAxis.cxx
+    TestImageResliceMapperOrient3D.cxx
+    TestImageResliceMapperSlab.cxx
+    TestImageSliceMapperAlpha.cxx
+    TestImageSliceMapperBackground.cxx
+    TestImageSliceMapperBorder.cxx
+    TestImageSliceMapperOrient2D.cxx
+    TestImageSliceMapperOrient3D.cxx
+    TestImageSliceMapperInterpolation.cxx
     TestScalarBar.cxx
     TestScenePicker.cxx
     TestTextureRGBA.cxx
