@@ -28,6 +28,7 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkCharArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkLookupTable.h"
 
@@ -67,6 +68,7 @@ vtkPlotPoints::vtkPlotPoints()
   this->Points = NULL;
   this->Sorted = NULL;
   this->BadPoints = NULL;
+  this->ValidPointMask = NULL;
   this->MarkerStyle = vtkPlotPoints::CIRCLE;
   this->MarkerSize = -1.0;
   this->LogX = false;
@@ -113,6 +115,18 @@ void vtkPlotPoints::Update()
     }
   // Check if we have an input
   vtkTable *table = this->Data->GetInput();
+
+  if (table && !this->ValidPointMaskName.empty() &&
+      table->GetColumnByName(this->ValidPointMaskName))
+    {
+    this->ValidPointMask = vtkCharArray::SafeDownCast(
+      table->GetColumnByName(this->ValidPointMaskName));
+    }
+  else
+    {
+    this->ValidPointMask = 0;
+    }
+
   if (!table)
     {
     vtkDebugMacro(<< "Update event called with no input table set.");
@@ -165,14 +179,43 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     painter->ApplyPen(this->Pen);
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
+
+    float *points = static_cast<float *>(this->Points->GetVoidPointer(0));
+    unsigned char *colors = 0;
+    int nColorComponents = 0;
     if (this->ScalarVisibility && this->Colors)
       {
-      painter->DrawMarkers(this->MarkerStyle, false,
-                           this->Points, this->Colors);
+      colors = this->Colors->GetPointer(0);
+      nColorComponents = static_cast<int>(this->Colors->GetNumberOfComponents());
+      }
+
+    if (this->BadPoints && this->BadPoints->GetNumberOfTuples() > 0)
+      {
+      vtkIdType lastGood = 0;
+
+      for (vtkIdType i = 0; i < this->BadPoints->GetNumberOfTuples(); i++)
+        {
+        vtkIdType id = this->BadPoints->GetValue(i);
+
+        // render from last good point to one before this bad point
+        if (id - lastGood > 2)
+          {
+          painter->DrawMarkers(this->MarkerStyle, false,
+                               points + 2 * (lastGood + 1),
+                               id - lastGood - 1,
+                               colors ? colors + 4 * (lastGood + 1) : 0,
+                               nColorComponents);
+          }
+
+        lastGood = id;
+        }
       }
     else
       {
-      painter->DrawMarkers(this->MarkerStyle, false, this->Points);
+      // draw all of the points
+      painter->DrawMarkers(this->MarkerStyle, false,
+                           points, this->Points->GetNumberOfPoints(),
+                           colors, nColorComponents);
       }
     }
 
@@ -671,6 +714,22 @@ void vtkPlotPoints::FindBadPoints()
       this->BadPoints->InsertNextValue(i);
       }
     }
+
+  // add points from the ValidPointMask
+  if (this->ValidPointMask)
+    {
+    for (vtkIdType i = 0; i < n; i++)
+      {
+      if (this->ValidPointMask->GetValue(i) == 0)
+        {
+        this->BadPoints->InsertNextValue(i);
+        }
+      }
+    }
+
+  // sort bad points
+  std::sort(this->BadPoints->GetPointer(0),
+            this->BadPoints->GetPointer(this->BadPoints->GetNumberOfTuples()));
 
   if (this->BadPoints->GetNumberOfTuples() == 0)
     {
