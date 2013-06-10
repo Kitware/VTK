@@ -59,6 +59,9 @@ vtkAxisActor::vtkAxisActor()
   this->TickLocation = VTK_TICKS_INSIDE;
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
+  this->ScreenSize = 10.;
+  this->LabelOffset = 20.;
+  this->TitleOffset = 20.;
 
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1;
@@ -694,8 +697,8 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
     }
 }
 
-int vtkAxisActorMultiplierTable1[4] = { -1, -1, 1,  1};
-int vtkAxisActorMultiplierTable2[4] = { -1,  1, 1, -1};
+static const int vtkAxisActorMultiplierTable1[4] = { -1, -1, 1,  1};
+static const int vtkAxisActorMultiplierTable2[4] = { -1,  1, 1, -1};
 
 // *******************************************************************
 // Determine and set scale factor and position for labels.
@@ -707,10 +710,14 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
     return;
     }
 
-  double bounds[6], center[3], tick[3], pos[3], scale[3];
+  double bounds[6], center[3], tick[3], pos[3];
   int i = 0;
   int xmult = 0;
   int ymult = 0;
+  double labelAngle = vtkMath::RadiansFromDegrees(this->LabelTextProperty->GetOrientation());
+  double labelCos = fabs(cos(labelAngle));
+  double labelSin = fabs(sin(labelAngle));
+
 
   switch (this->AxisType)
     {
@@ -746,12 +753,11 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
     this->MajorTickPts->GetPoint(ptIdx, tick);
 
     this->LabelActors[i]->GetMapper()->GetBounds(bounds);
-    this->LabelActors[i]->GetScale(scale);
 
     if(this->CalculateLabelOffset)
       {
-      double halfWidth  = (bounds[1] - bounds[0]) * 0.5 * scale[0];
-      double halfHeight = (bounds[3] - bounds[2]) * 0.5 * scale[1];
+      double halfWidth  = 0.5 * ((bounds[1] - bounds[0]) * labelCos + (bounds[3] - bounds[2]) * labelSin);
+      double halfHeight = 0.5 * ((bounds[1] - bounds[0]) * labelSin + (bounds[3] - bounds[2]) * labelCos);
 
       center[0] = tick[0] + xmult * (halfWidth  + this->MinorTickSize);
       center[1] = tick[1] + ymult * (halfHeight + this->MinorTickSize);
@@ -763,13 +769,12 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
       }
     else
       {
-      center[0] = tick[0] ;
-      center[1] = tick[1];
-      center[2] = tick[2];
+      pos[0] = tick[0];
+      pos[1] = tick[1];
+      pos[2] = tick[2];
 
-      pos[0] = center[0];
-      pos[1] = center[1];
-      pos[2] = center[2];
+      double delta  = 0.5 * ((bounds[1] - bounds[0]) * labelSin + (bounds[3] - bounds[2]) * labelCos);
+      this->LabelActors[i]->SetScreenOffset(this->LabelOffset + (delta) * this->ScreenSize);
       }
 
     this->LabelActors[i]->SetPosition(pos[0], pos[1], pos[2]);
@@ -898,9 +903,12 @@ void vtkAxisActor::BuildTitle(bool force)
     {
     return;
     }
-  double labBounds[6], titleBounds[6], center[3], pos[3], scale[3];
+  double labBounds[6], titleBounds[6], center[3], pos[3];
   double labHeight, maxHeight = 0, labWidth, maxWidth = 0;
   double halfTitleWidth, halfTitleHeight;
+  double labelAngle = vtkMath::RadiansFromDegrees(this->LabelTextProperty->GetOrientation());
+  double labelCos = fabs(cos(labelAngle));
+  double labelSin = fabs(sin(labelAngle));
 
   double *p1 = this->Point1Coordinate->GetValue();
   double *p2 = this->Point2Coordinate->GetValue();
@@ -938,10 +946,9 @@ void vtkAxisActor::BuildTitle(bool force)
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->GetMapper()->GetBounds(labBounds);
-    this->LabelActors[i]->GetScale(scale);
-    labWidth = (labBounds[1] - labBounds[0])*scale[0];
+    labWidth = (labBounds[1] - labBounds[0]) * labelCos + (labBounds[3] - labBounds[2]) * labelSin;
     maxWidth = (labWidth > maxWidth ? labWidth : maxWidth);
-    labHeight = (labBounds[3] - labBounds[2])*scale[1];
+    labHeight = (labBounds[1] - labBounds[0]) * labelSin + (labBounds[3] - labBounds[2]) * labelCos;
     maxHeight = (labHeight > maxHeight ? labHeight : maxHeight);
     }
 
@@ -951,7 +958,6 @@ void vtkAxisActor::BuildTitle(bool force)
   this->TitleActor->SetCamera(this->Camera);
   this->TitleActor->SetPosition(p2[0], p2[1], p2[2]);
   this->TitleActor->GetMapper()->GetBounds(titleBounds);
-  this->TitleActor->GetScale(scale);
   if(!this->GetCalculateTitleOffset())
     {
     this->TitleActor->SetAutoCenter(1);
@@ -961,12 +967,17 @@ void vtkAxisActor::BuildTitle(bool force)
   center[1] = p1[1] + (p2[1] - p1[1]) / 2.0;
   center[2] = p1[2] + (p2[2] - p1[2]) / 2.0;
 
+  halfTitleHeight = (titleBounds[3] - titleBounds[2]) * 0.5;
   if(this->CalculateTitleOffset)
     {
-    halfTitleWidth  = (titleBounds[1] - titleBounds[0]) * 0.5 * scale[0];
-    halfTitleHeight = (titleBounds[3] - titleBounds[2]) * 0.5 * scale[1];
+    halfTitleWidth  = (titleBounds[1] - titleBounds[0]) * 0.5;
     center[0] += xmult * (halfTitleWidth + maxWidth);
     center[1] += ymult * (halfTitleHeight + 2*maxHeight);
+    }
+  else
+    {
+    this->TitleActor->SetScreenOffset(this->TitleOffset +
+      this->LabelOffset + this->ScreenSize * (maxHeight + halfTitleHeight));
     }
 
   pos[0] = center[0];

@@ -30,6 +30,8 @@
 
 class vtkImageData;
 class vtkTextProperty;
+class vtkTextActor;
+class vtkViewport;
 
 // FreeType
 
@@ -183,10 +185,10 @@ public:
 
   // Description:
   // Deprecated function signature.  int x, y are ignored.
-  int RenderString(vtkTextProperty *tprop,
-                   const char *str,
-                   int x, int y,
-                   vtkImageData *data);
+  VTK_LEGACY(int RenderString(vtkTextProperty *tprop,
+                              const char *str,
+                              int x, int y,
+                              vtkImageData *data));
 
   // Description:
   // For internal use only.

@@ -22,39 +22,40 @@
 #define __vtkMathConfigure_h
 
 #include <cmath>
-#include <float.h>
+#include <float.h> // for _isnan, _finite on Win32
 
 #cmakedefine VTK_HAS_ISNAN
+#cmakedefine VTK_HAS_STD_ISNAN
 #cmakedefine VTK_HAS__ISNAN
 #cmakedefine VTK_HAS_ISINF
-#cmakedefine VTK_HAS__ISINF
+#cmakedefine VTK_HAS_STD_ISINF
+#cmakedefine VTK_HAS_ISFINITE
+#cmakedefine VTK_HAS_STD_ISFINITE
+#cmakedefine VTK_HAS_FINITE
+#cmakedefine VTK_HAS__FINITE
 
-// VTK_HAS_ISNAN is only defined if an actual function exists.  Also set it if
-// isnan is a macro.
+// Check for undetected macro versions of isnan(), isinf(), isfinite()
 #if !defined(VTK_HAS_ISNAN) && defined(isnan)
 # define VTK_HAS_ISNAN 1
 #endif
 #if !defined(VTK_HAS_ISINF) && defined(isinf)
 # define VTK_HAS_ISINF 1
 #endif
+#if !defined(VTK_HAS_ISFINITE) && defined(isfinite)
+# define VTK_HAS_ISFINITE 1
+#endif
+#if !defined(VTK_HAS_FINITE) && defined(finite)
+# define VTK_HAS_FINITE 1
+#endif
 
-// Try to fake having isnan and isinf if _isnan or _isinf is available
+// Make macros from _isnan(), _finite() if they exist (there is no _isinf)
 #if !defined(VTK_HAS_ISNAN) && (defined(VTK_HAS__ISNAN) || defined(_isnan))
 # define isnan(x) _isnan(x)
 # define VTK_HAS_ISNAN 1
 #endif
-#if !defined(VTK_HAS_ISINF) && (defined(VTK_HAS__ISINF) || defined(_isinf))
-# define isinf(x) _isinf(x)
-# define VTK_HAS_ISINF 1
-#endif
-
-// The compiler for the G5 Apple is not including the isnan and isinf prototypes
-// in its math headers even though the symbol exists in the libraries.  Just do
-// a brute force to not use those functions in this case to get around compiler
-// errors.
-#if defined(__APPLE__) && (__GNUC__ < 4)
-# undef VTK_HAS_ISNAN
-# undef VTK_HAS_ISINF
+#if !defined(VTK_HAS_FINITE) && (defined(VTK_HAS__FINITE) || defined(_finite))
+# define finite(x) _finite(x)
+# define VTK_HAS_FINITE 1
 #endif
 
 // We pretty much assume that all compilers are going to provide

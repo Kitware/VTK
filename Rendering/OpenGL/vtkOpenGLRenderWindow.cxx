@@ -34,8 +34,6 @@ vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtension
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, HardwareSupport, vtkOpenGLHardwareSupport);
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, TextureUnitManager, vtkTextureUnitManager);
 
-#define MAX_LIGHTS 8
-
 // Initialize static member that controls global maximum number of multisamples
 static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
 

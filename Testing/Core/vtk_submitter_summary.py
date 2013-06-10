@@ -31,12 +31,20 @@ def scrape_cdash(date):
   response = "".join(testspage.readlines())
   #print response
 
-  print "scraping config info"
+  print "scrapeing config info"
 
   #scan page for all machines that submitted that test
   testdetailspage_re = 'testDetails[^"]+'
   tester = re.compile(testdetailspage_re, re.DOTALL)
   matches = tester.finditer(response)
+
+  #to get buildid so we can ask cdash for supplemental info
+  buildid_re = 'build=(.+)'
+  buildidtester = re.compile(buildid_re)
+
+  #to get number of test failures for each submitter
+  testfails_re = '<h3>(.+) tests failed.'
+  testfails_tester = re.compile(testfails_re)
 
   #loop through and scan each machine's test page
   for x in matches:
@@ -65,13 +73,27 @@ def scrape_cdash(date):
       exec(result)
       configuration = ConfigSummary
       #print configuration
+
+      #get number of failures for this submission
+      buildid = buildidtester.search(x.group(0)).group(0)[6:]
+      #print buildid
+      surl = 'http://open.cdash.org/viewTest.php?onlyfailed&buildid='+str(buildid)
+      testspage = urllib.urlopen(surl)
+      testsresponse = "".join(testspage.readlines())
+      tfails = testfails_tester.search(testsresponse).group(1)
+      #print tfails
+      configuration['FAILS'] = tfails
+      modules = configuration['MODULES']
+      del configuration['MODULES']
+      for x in modules:
+         configuration[x] = 'ON'
     except (AttributeError,SyntaxError):
       configuration = {'NA' : "summary not found on this dashboard"}
       print configuration
     configs[key] = configuration
 
   print
-  print "scraping GPU info"
+  print "scrapeing GPU info"
 
   #TODO: pull out common parts into a scraper function
   #Now grab GL info from TestFBO
@@ -176,6 +198,7 @@ def interpret_database():
 
 def make_feature_view(filename="features.txt"):
   result = ""
+  result = result + "FEATURE; VALUE; AVGFAILS; SUBMITTERS..."
   scategories = sorted(categories)
   for x in scategories:
     result = result + "\n"
@@ -183,6 +206,22 @@ def make_feature_view(filename="features.txt"):
       if y: #ignore submitters who said nothing about this category
         result = result + x + ";"
         result = result + y + ";"
+
+        #augment with the number of failures for submitters with this
+        #configuration
+        failcnt = 0
+        hascnt = 0
+        for z in summary[x][y]:
+          if 'FAILS' in submitters[z]:
+            if  int(submitters[z]['FAILS'])<100:
+              #ignore balky machines
+              failcnt = failcnt + float(submitters[z]['FAILS'])
+              hascnt = hascnt + 1
+        avgfails = "NA"
+        if hascnt:
+          avgfails = failcnt/hascnt
+        result = result + str(avgfails) + ";"
+
         result = result + str(summary[x][y])
         result = result + "\n"
   return result

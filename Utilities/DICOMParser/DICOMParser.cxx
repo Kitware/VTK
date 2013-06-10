@@ -42,16 +42,10 @@
 #include <string.h>
 #include <string>
 
-// Define DEBUG_DICOM to get debug messages sent to dicom_stream::cerr
+// Define DEBUG_DICOM to get debug messages
 // #define DEBUG_DICOM
 
 #define DICOMPARSER_IGNORE_MAGIC_NUMBER
-
-#ifdef DEBUG_DICOM
-#define DICOM_DBG_MSG(x) {dicom_stream::cout x}
-#else
-#define DICOM_DBG_MSG(x)
-#endif
 
 static const char* DICOM_MAGIC = "DICM";
 static const int   OPTIONAL_SKIP = 128;

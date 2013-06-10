@@ -17,6 +17,7 @@
 
 #include "vtkChartXYZ.h"
 #include "vtkDataArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
@@ -324,6 +325,23 @@ std::string vtkPlot3D::GetYAxisLabel()
 std::string vtkPlot3D::GetZAxisLabel()
 {
   return this->ZAxisLabel;
+}
+
+// ----------------------------------------------------------------------------
+void vtkPlot3D::SetSelection(vtkIdTypeArray *id)
+{
+  if (id == this->Selection)
+    {
+    return;
+    }
+  this->Selection = id;
+  this->Modified();
+}
+
+// ----------------------------------------------------------------------------
+vtkIdTypeArray* vtkPlot3D::GetSelection()
+{
+  return this->Selection.GetPointer();
 }
 
 // ----------------------------------------------------------------------------

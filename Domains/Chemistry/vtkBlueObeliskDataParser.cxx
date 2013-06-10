@@ -27,6 +27,7 @@
 #include "vtkChemistryConfigure.h"
 
 #include <locale>
+#include <sstream>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -381,6 +382,7 @@ void vtkBlueObeliskDataParser::NewValueStarted(const char **attr)
 void vtkBlueObeliskDataParser::NewValueFinished()
 {
   this->IsProcessingValue = false;
+  this->CharacterDataValueBuffer.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -396,9 +398,9 @@ void vtkBlueObeliskDataParser::CharacterDataHandler(const char *data,
 //----------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::SetCurrentValue(const char *data, int length)
 {
-  std::string str(data, data+length);
+  this->CharacterDataValueBuffer += std::string(data, data+length);
 
-  this->SetCurrentValue(str.c_str());
+  this->SetCurrentValue(this->CharacterDataValueBuffer.c_str());
 }
 
 //----------------------------------------------------------------------------
@@ -515,7 +517,16 @@ inline int vtkBlueObeliskDataParser::parseInt(const char *d)
 //----------------------------------------------------------------------------
 inline float vtkBlueObeliskDataParser::parseFloat(const char *d)
 {
-  return static_cast<float>(atof(d));
+  float value;
+  std::stringstream stream(d);
+  stream >> value;
+
+  if(stream.fail())
+    {
+    return 0.f;
+    }
+
+  return value;
 }
 
 //----------------------------------------------------------------------------

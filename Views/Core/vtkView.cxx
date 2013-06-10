@@ -37,9 +37,6 @@
 #include <string>
 #include <vector>
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 //----------------------------------------------------------------------------
 class vtkView::Command : public vtkCommand
 {

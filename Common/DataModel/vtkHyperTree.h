@@ -113,7 +113,7 @@
 // octree see vtkCellLocator instead.
 //
 // .SECTION Thanks
-// This class was written by Philippe Pebay and Charles Law, Kitware 2013
+// This class was written by Philippe Pebay, Joachim Pouderoux and Charles Law, Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTree_h
@@ -127,11 +127,12 @@ class vtkHyperTreeCursor;
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTree : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkHyperTree,vtkObject);
+  vtkTypeMacro(vtkHyperTree, vtkObject);
   virtual void Initialize() = 0;
   virtual vtkHyperTreeCursor* NewCursor() = 0;
   virtual vtkIdType GetNumberOfLeaves() = 0;
-  virtual int GetNumberOfNodes() = 0;
+  virtual vtkIdType GetNumberOfNodes() = 0;
+  virtual vtkIdType GetNumberOfIndex() = 0;
   virtual int GetBranchFactor() = 0;
   virtual int GetDimension() = 0;
   virtual void SetScale( double[3] ) = 0;
@@ -159,12 +160,27 @@ public:
   // Return an instance of a templated hypertree for given branch
   // factor and dimension
   // This is done to hide templates.
-  static vtkHyperTree* CreateInstance( int factor, int dimension );
+  static vtkHyperTree* CreateInstance( unsigned int branchFactor,
+                                       unsigned int dimension );
 
   // Description:
-  // Find the Index and IsLeaf() parameters of a child for hypertree.
+  // Find the Index, Parent Index and IsLeaf() parameters of a child for hypertree.
   // This is done to hide templates.
   virtual void FindChildParameters( int, vtkIdType&, bool& );
+
+  // Description:
+  // Set the start global index for the current tree.
+  // The global index of a node will be this index + the node index.
+  virtual void SetGlobalIndexStart( vtkIdType ) = 0;
+
+  // Description:
+  // Set the mapping between local & global ids used by HyperTreeGrids.
+  virtual void SetGlobalIndexFromLocal( vtkIdType local, vtkIdType global ) = 0;
+
+  // Description:
+  // Get the global id of a local node.
+  // Use the mapping function if available or the start global index.
+  virtual vtkIdType GetGlobalIndexFromLocal( vtkIdType local ) = 0;
 
 protected:
   vtkHyperTree()

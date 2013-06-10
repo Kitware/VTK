@@ -235,7 +235,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   double                   xNext[3], vel[3];
   double                   *cellVel;
   double                   derivs[9];
-  double                   *w, pcoords[3];
+  double                   pcoords[3];
   double                   coords[4];
   vtkDataSet               *input;
   vtkGenericCell           *cell;
@@ -272,8 +272,6 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
     cellScalars->Allocate(inScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
     }
 
-  w = new double[input->GetMaxCellSize()];
-
   // Set the function set to be integrated
   vtkInterpolatedVelocityField* func = vtkInterpolatedVelocityField::New();
   func->AddDataSet(input);
@@ -283,6 +281,8 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
     vtkGenericWarningMacro("No integrator is specified.");
     return VTK_THREAD_RETURN_VALUE;
     }
+
+  double *w = new double[input->GetMaxCellSize()];
 
   // Create a new integrator, the type is the same as Integrator
   vtkInitialValueProblemSolver* integrator =

@@ -72,7 +72,7 @@ vtkDataSet* vtkPistonToDataSet::GetDataSetOutput(int port)
 //----------------------------------------------------------------------------
 int vtkPistonToDataSet::RequestDataObject(
   vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector ,
+  vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
   const char *outTypeStr =
@@ -103,7 +103,7 @@ int vtkPistonToDataSet::RequestDataObject(
 }
 
 //------------------------------------------------------------------------------
-int vtkPistonToDataSet::RequestData(vtkInformation *request,
+int vtkPistonToDataSet::RequestData(vtkInformation *vtkNotUsed(request),
                                     vtkInformationVector** inputVector,
                                     vtkInformationVector* outputVector)
 {

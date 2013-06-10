@@ -43,18 +43,18 @@ vtkStandardNewMacro(vtkVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkVolumeRayCastMapper,VolumeRayCastFunction,
                      vtkVolumeRayCastFunction );
 
+// A tolerance for bounds, historically equal to 2^(-23) and used
+// to counter a small numerical precision issue with the old
+// QuickFloor() function.  It should not be needed anymore.
+// #define VTK_RAYCAST_FLOOR_TOL 1.1920928955078125e-07
+#define VTK_RAYCAST_FLOOR_TOL 0
+
 #define vtkVRCMultiplyPointMacro( A, B, M ) \
   B[0] = A[0]*M[0]  + A[1]*M[1]  + A[2]*M[2]  + M[3]; \
   B[1] = A[0]*M[4]  + A[1]*M[5]  + A[2]*M[6]  + M[7]; \
   B[2] = A[0]*M[8]  + A[1]*M[9]  + A[2]*M[10] + M[11]; \
   B[3] = A[0]*M[12] + A[1]*M[13] + A[2]*M[14] + M[15]; \
   if ( B[3] != 1.0 ) { B[0] /= B[3]; B[1] /= B[3]; B[2] /= B[3]; }
-
-#define vtkVRCMultiplyViewPointMacro( A, B, M ) \
-  B[0] = A[0]*M[0]  + A[1]*M[1]  + A[2]*M[2]  + M[3]; \
-  B[1] = A[0]*M[4]  + A[1]*M[5]  + A[2]*M[6]  + M[7]; \
-  B[3] = A[0]*M[12] + A[1]*M[13] + A[2]*M[14] + M[15]; \
-  if ( B[3] != 1.0 ) { B[0] /= B[3]; B[1] /= B[3]; }
 
 #define vtkVRCMultiplyNormalMacro( A, B, M ) \
   B[0] = A[0]*M[0]  + A[1]*M[4]  + A[2]*M[8]; \
@@ -673,11 +673,9 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
   bounds[5] = (bounds[5] < 0)?(0):(bounds[5]);
   bounds[5] = (bounds[5] > dim[2]-1)?(dim[2]-1):(bounds[5]);
 
-  // The rounding tie-breaker is used to protect against a very small rounding error
-  // introduced in the QuickFloor function, which is used by the vtkFloorFuncMacro macro.
-  bounds[1] -= vtkFastNumericConversion::RoundingTieBreaker();
-  bounds[3] -= vtkFastNumericConversion::RoundingTieBreaker();
-  bounds[5] -= vtkFastNumericConversion::RoundingTieBreaker();
+  bounds[1] -= VTK_RAYCAST_FLOOR_TOL;
+  bounds[3] -= VTK_RAYCAST_FLOOR_TOL;
+  bounds[5] -= VTK_RAYCAST_FLOOR_TOL;
 
   int *imageInUseSize     = staticInfo->ImageInUseSize;
   int *imageMemorySize    = staticInfo->ImageMemorySize;
@@ -922,7 +920,7 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
               break;
             case 2:
               bounds[0] = me->VoxelCroppingRegionPlanes[1];
-              bounds[1] = (staticInfo->DataSize[0] - 1)  - vtkFastNumericConversion::RoundingTieBreaker();
+              bounds[1] = (staticInfo->DataSize[0] - 1)  - VTK_RAYCAST_FLOOR_TOL;
               break;
             }
 
@@ -940,7 +938,7 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
               break;
             case 2:
               bounds[2] = me->VoxelCroppingRegionPlanes[3];
-              bounds[3] = (staticInfo->DataSize[1] - 1)  - vtkFastNumericConversion::RoundingTieBreaker();
+              bounds[3] = (staticInfo->DataSize[1] - 1)  - VTK_RAYCAST_FLOOR_TOL;
               break;
             }
 
@@ -958,7 +956,7 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
               break;
             case 2:
               bounds[4] = me->VoxelCroppingRegionPlanes[5];
-              bounds[5] = (staticInfo->DataSize[2] - 1)  - vtkFastNumericConversion::RoundingTieBreaker();
+              bounds[5] = (staticInfo->DataSize[2] - 1)  - VTK_RAYCAST_FLOOR_TOL;
               break;
             }
 
@@ -969,9 +967,9 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
               {
               bounds[2*k] = 0;
               }
-            if ( bounds[2*k + 1] > ((staticInfo->DataSize[k]-1) - vtkFastNumericConversion::RoundingTieBreaker()) )
+            if ( bounds[2*k + 1] > ((staticInfo->DataSize[k]-1) - VTK_RAYCAST_FLOOR_TOL) )
               {
-              bounds[2*k + 1] = ((staticInfo->DataSize[k] - 1)  - vtkFastNumericConversion::RoundingTieBreaker());
+              bounds[2*k + 1] = ((staticInfo->DataSize[k] - 1)  - VTK_RAYCAST_FLOOR_TOL);
               }
             }
 
@@ -1233,11 +1231,9 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
 
   this->GetInput()->GetDimensions(dim);
   bounds[0] = bounds[2] = bounds[4] = 0.0;
-  // The rounding tie-breaker is used to protect against a very small rounding error
-  // introduced in the QuickFloor function, which is used by the vtkFloorFuncMacro macro.
-  bounds[1] = static_cast<float>(dim[0]-1) - vtkFastNumericConversion::RoundingTieBreaker();
-  bounds[3] = static_cast<float>(dim[1]-1) - vtkFastNumericConversion::RoundingTieBreaker();
-  bounds[5] = static_cast<float>(dim[2]-1) - vtkFastNumericConversion::RoundingTieBreaker();
+  bounds[1] = static_cast<float>(dim[0]-1) - VTK_RAYCAST_FLOOR_TOL;
+  bounds[3] = static_cast<float>(dim[1]-1) - VTK_RAYCAST_FLOOR_TOL;
+  bounds[5] = static_cast<float>(dim[2]-1) - VTK_RAYCAST_FLOOR_TOL;
 
   double camPos[3];
   double worldBounds[6];
@@ -1260,11 +1256,11 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   if ( this->Cropping && this->CroppingRegionFlags == 0x2000 )
     {
     bounds[0] = this->VoxelCroppingRegionPlanes[0];
-    bounds[1] = this->VoxelCroppingRegionPlanes[1] - vtkFastNumericConversion::RoundingTieBreaker();
+    bounds[1] = this->VoxelCroppingRegionPlanes[1] - VTK_RAYCAST_FLOOR_TOL;
     bounds[2] = this->VoxelCroppingRegionPlanes[2];
-    bounds[3] = this->VoxelCroppingRegionPlanes[3] - vtkFastNumericConversion::RoundingTieBreaker();
+    bounds[3] = this->VoxelCroppingRegionPlanes[3] - VTK_RAYCAST_FLOOR_TOL;
     bounds[4] = this->VoxelCroppingRegionPlanes[4];
-    bounds[5] = this->VoxelCroppingRegionPlanes[5] - vtkFastNumericConversion::RoundingTieBreaker();
+    bounds[5] = this->VoxelCroppingRegionPlanes[5] - VTK_RAYCAST_FLOOR_TOL;
     }
 
 

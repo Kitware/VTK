@@ -259,6 +259,10 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
     {
     glDisableClientState(GL_COLOR_ARRAY);
     }
+
+  // Restore line type and width.
+  this->SetLineType(vtkPen::SOLID_LINE);
+  this->SetLineWidth(1.0f);
 }
 
 //-----------------------------------------------------------------------------
@@ -300,7 +304,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
 {
   if (points && n > 0)
     {
-    glPointSize(this->Pen->GetWidth());
+    this->SetPointSize(this->Pen->GetWidth());
     if (sprite)
       {
       if (!this->Storage->SpriteTexture)
@@ -588,7 +592,7 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
     }
 
   this->SetLineType(this->Pen->GetLineType());
-  glLineWidth(this->Pen->GetWidth());
+  this->SetLineWidth(this->Pen->GetWidth());
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, p);
   glColor4ubv(this->Brush->GetColor());
@@ -596,6 +600,9 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
   glColor4ubv(this->Pen->GetColor());
   glDrawArrays(GL_LINE_STRIP, 0, iterations+1);
   glDisableClientState(GL_VERTEX_ARRAY);
+  // Restore line type and width.
+  this->SetLineType(vtkPen::SOLID_LINE);
+  this->SetLineWidth(1.0f);
 
   delete[] p;
 }
@@ -1331,7 +1338,7 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
                                                   bool highlight)
 {
   // Generate the cache key for this marker
-  vtkTypeUInt64 key = highlight ? (1 << 31) : 0;
+  vtkTypeUInt64 key = highlight ? (1U << 31) : 0U;
   key |= static_cast<vtkTypeUInt16>(shape);
   key <<= 32;
   key |= static_cast<vtkTypeUInt32>(size);

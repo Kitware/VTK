@@ -9,4 +9,5 @@ vtk_module(vtkIOMPIParallel
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
   )

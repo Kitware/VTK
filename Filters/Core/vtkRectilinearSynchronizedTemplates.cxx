@@ -86,7 +86,7 @@ unsigned long vtkRectilinearSynchronizedTemplates::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkRectilinearSynchronizedTemplatesInitializeOutput(
+static void vtkRectilinearSynchronizedTemplatesInitializeOutput(
   int *ext, vtkRectilinearGrid *input, vtkPolyData *o, vtkFloatArray *scalars,
   vtkFloatArray *normals, vtkFloatArray *gradients, vtkDataArray *inScalars)
 {

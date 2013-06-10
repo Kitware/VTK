@@ -36,12 +36,12 @@ public:
 
   // Description:
   // Turn on every nth entity (cell).
-  vtkSetClampMacro(OnRatio,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(OnRatio,int,1,VTK_INT_MAX);
   vtkGetMacro(OnRatio,int);
 
   // Description:
   // Start with this entity (cell).
-  vtkSetClampMacro(Offset,vtkIdType,0,VTK_LARGE_ID);
+  vtkSetClampMacro(Offset,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(Offset,vtkIdType);
 
 protected:

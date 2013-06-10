@@ -1005,8 +1005,8 @@ int vtkFieldDataToAttributeDataFilter::ConstructArray(vtkDataArray *da,
                                                       int normalize)
 {
   vtkIdType i, n=max-min+1;
-  float minValue=VTK_LARGE_FLOAT;
-  float maxValue= -VTK_LARGE_FLOAT;
+  float minValue=VTK_FLOAT_MAX;
+  float maxValue= -VTK_FLOAT_MAX;
   float compRange, compValue;
 
   if ( fieldComp >= fieldArray->GetNumberOfComponents() )

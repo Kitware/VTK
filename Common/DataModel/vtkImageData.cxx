@@ -1551,7 +1551,7 @@ void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     for (idxY = 0; idxY <= maxY; idxY++)
@@ -1893,21 +1893,17 @@ void vtkImageData::SetExtent(int *extent)
 //----------------------------------------------------------------------------
 int *vtkImageData::GetDimensions()
 {
-  const int* extent = this->Extent;
-  this->Dimensions[0] = extent[1] - extent[0] + 1;
-  this->Dimensions[1] = extent[3] - extent[2] + 1;
-  this->Dimensions[2] = extent[5] - extent[4] + 1;
-
+  this->GetDimensions(this->Dimensions);
   return this->Dimensions;
 }
 
 //----------------------------------------------------------------------------
 void vtkImageData::GetDimensions(int *dOut)
 {
-  int *dims = this->GetDimensions();
-  dOut[0] = dims[0];
-  dOut[1] = dims[1];
-  dOut[2] = dims[2];
+  const int* extent = this->Extent;
+  dOut[0] = extent[1] - extent[0] + 1;
+  dOut[1] = extent[3] - extent[2] + 1;
+  dOut[2] = extent[5] - extent[4] + 1;
 }
 
 //----------------------------------------------------------------------------

@@ -26,10 +26,10 @@
 #include "vtkCoordinate.h"
 #include "vtkGL2PSContextDevice2D.h"
 #include "vtkGL2PSUtilities.h"
+#include "vtkImageData.h"
+#include "vtkImageShiftScale.h"
 #include "vtkIntArray.h"
 #include "vtkMapper2D.h"
-#include "vtkMathTextActor.h"
-#include "vtkMathTextActor3D.h"
 #include "vtkMathTextUtilities.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
@@ -51,6 +51,7 @@
 #include "vtkTransformFilter.h"
 #include "vtkVolume.h"
 #include "vtkVolumeCollection.h"
+#include "vtkWindowToImageFilter.h"
 #include "vtk_gl2ps.h"
 
 #include <vector>
@@ -75,7 +76,9 @@ vtkGL2PSExporter::vtkGL2PSExporter()
   this->PS3Shading = 1;
   this->OcclusionCull = 1;
   this->Write3DPropsAsRasterImage = 0;
-  this->PixelData = NULL;
+  this->TextAsPath = false;
+  this->PointSizeFactor = 5.f / 7.f;
+  this->LineWidthFactor = 5.f / 7.f;
 }
 
 vtkGL2PSExporter::~vtkGL2PSExporter()
@@ -88,10 +91,6 @@ vtkGL2PSExporter::~vtkGL2PSExporter()
   if ( this->Title )
     {
     delete [] this->Title;
-    }
-  if (this->PixelData)
-    {
-    delete [] this->PixelData;
     }
 }
 
@@ -138,24 +137,36 @@ void vtkGL2PSExporter::WriteData()
   if (!fpObj)
     {
     vtkErrorMacro(<< "unable to open file: " << fName);
+    delete [] fName;
     return;
     }
 
   // Setup the helper class.
   vtkGL2PSUtilities::SetRenderWindow(this->RenderWindow);
   vtkGL2PSUtilities::SetTextAsPath(this->TextAsPath != 0);
+  vtkGL2PSUtilities::SetPointSizeFactor(this->PointSizeFactor);
+  vtkGL2PSUtilities::SetLineWidthFactor(this->LineWidthFactor);
+  vtkGL2PSUtilities::StartExport();
 
   // Store the "properly" rendered image's pixel data for special actors that
   // need to copy bitmaps into the output (e.g. paraview's scalar bar actor)
-  this->PixelDataSize[0] = viewport[2];
-  this->PixelDataSize[1] = viewport[3];
+  vtkNew<vtkWindowToImageFilter> windowToImage;
+  windowToImage->SetInput(this->RenderWindow);
+  windowToImage->SetInputBufferTypeToRGB();
+  windowToImage->ReadFrontBufferOff();
+
+  // RGB buffers are captured as unsigned char, but gl2ps requires floats
+  vtkNew<vtkImageShiftScale> imageConverter;
+  imageConverter->SetOutputScalarTypeToFloat();
+  imageConverter->SetScale(1.0/255.0);
+  imageConverter->SetInputConnection(0, windowToImage->GetOutputPort(0));
+
+  // Render twice to populate back buffer with correct data
   this->RenderWindow->Render();
-  delete this->PixelData;
-  this->PixelData =
-      new float[this->PixelDataSize[0] * this->PixelDataSize[1] * 3];
-  glReadBuffer(static_cast<GLenum>(renWinGL->GetFrontLeftBuffer()));
-  glReadPixels(0, 0, this->PixelDataSize[0], this->PixelDataSize[1], GL_RGB,
-               GL_FLOAT, this->PixelData);
+  this->RenderWindow->Render();
+  windowToImage->Modified();
+  imageConverter->Update();
+  this->PixelData->DeepCopy(imageConverter->GetOutput());
 
   // Turn off special props -- these will be handled separately later.
   vtkPropCollection *propCol;
@@ -169,7 +180,7 @@ void vtkGL2PSExporter::WriteData()
 
   // Write out a raster image without the 2d actors before switching to feedback
   // mode
-  float *rasterImage = NULL;
+  vtkNew<vtkImageData> rasterImage;
   // Store visibility of actors/volumes if rasterizing.
   vtkNew<vtkIntArray> volVis;
   vtkNew<vtkIntArray> actVis;
@@ -180,12 +191,12 @@ void vtkGL2PSExporter::WriteData()
     this->SavePropVisibility(renCol, volVis.GetPointer(), actVis.GetPointer(),
                              act2dVis.GetPointer());
     this->Turn2DPropsOff(renCol);
+    // Render twice to populate back buffer with correct data
     this->RenderWindow->Render();
-
-    int numpix= winsize[0]*winsize[1]*3;
-    rasterImage = new float [numpix];
-    glReadBuffer(static_cast<GLenum>(renWinGL->GetFrontLeftBuffer()));
-    glReadPixels(0, 0, winsize[0], winsize[1], GL_RGB, GL_FLOAT, rasterImage);
+    this->RenderWindow->Render();
+    windowToImage->Modified();
+    imageConverter->Update();
+    rasterImage->DeepCopy(imageConverter->GetOutput());
     }
 
   // Disable depth peeling. It uses textures that turn into large opaque quads
@@ -215,20 +226,27 @@ void vtkGL2PSExporter::WriteData()
     // rendering into the feedback buffer.
     if (this->Write3DPropsAsRasterImage)
       {
-      // Dump the rendered image without 2d actors as a raster image.
-      glMatrixMode(GL_PROJECTION);
-      glPushMatrix();
-      glLoadIdentity();
-      glRasterPos3f(-1.0, -1.0, 1.0);
-      gl2psDrawPixels(winsize[0], winsize[1], 0, 0, GL_RGB,
-                      GL_FLOAT, rasterImage);
-      glPopMatrix();
+      if (rasterImage->GetScalarType() != VTK_FLOAT)
+        {
+        vtkErrorMacro(<<"Raster image is not correctly formatted.")
+        }
+      else
+        {
+        // Dump the rendered image without 2d actors as a raster image.
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glRasterPos3f(-1.0, -1.0, 1.0);
+        gl2psDrawPixels(winsize[0], winsize[1], 0, 0, GL_RGB, GL_FLOAT,
+            static_cast<float*>(rasterImage->GetScalarPointer()));
+        glPopMatrix();
 
-      // Render the 2d actors alone in a vector graphic format.
-      this->RestorePropVisibility(renCol, volVis.GetPointer(),
-                                  actVis.GetPointer(), act2dVis.GetPointer());
-      this->Turn3DPropsOff(renCol);
-      this->RenderWindow->Render();
+        // Render the 2d actors alone in a vector graphic format.
+        this->RestorePropVisibility(renCol, volVis.GetPointer(),
+                                    actVis.GetPointer(), act2dVis.GetPointer());
+        this->Turn3DPropsOff(renCol);
+        this->RenderWindow->Render();
+        }
       }
     else
       {
@@ -259,8 +277,6 @@ void vtkGL2PSExporter::WriteData()
     // Reset the visibility.
     this->RestorePropVisibility(renCol, volVis.GetPointer(),
                                 actVis.GetPointer(), act2dVis.GetPointer());
-    // free memory
-    delete [] rasterImage;
     }
   // Turn the special props back on
   for (specialPropCol->InitTraversal();
@@ -273,11 +289,12 @@ void vtkGL2PSExporter::WriteData()
   this->SetPropVisibilities(contextActorCol.GetPointer(), 1);
   // Re-render the scene to show all actors.
   this->RenderWindow->Render();
+
+  // Cleanup memory
   delete[] fName;
-  delete[] this->PixelData;
-  this->PixelData = NULL;
 
   vtkDebugMacro(<<"Finished writing file using GL2PS");
+  vtkGL2PSUtilities::FinishExport();
 }
 
 int vtkGL2PSExporter::GetGL2PSOptions()
@@ -643,15 +660,7 @@ void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
     {
     if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
       {
-      if (vtkMathTextActor *mathTextAct =
-          vtkMathTextActor::SafeDownCast(act2d))
-        {
-        this->DrawMathTextActor(mathTextAct, ren);
-        }
-      else
-        {
-        this->DrawTextActor(textAct, ren);
-        }
+      this->DrawTextActor(textAct, ren);
       }
     else if (vtkMapper2D *map2d = act2d->GetMapper())
       {
@@ -672,15 +681,7 @@ void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
   else if (vtkTextActor3D *textAct3D =
            vtkTextActor3D::SafeDownCast(prop))
     {
-    if (vtkMathTextActor3D *mathTextAct3D =
-        vtkMathTextActor3D::SafeDownCast(prop))
-      {
-      this->DrawMathTextActor3D(mathTextAct3D, ren);
-      }
-    else
-      {
-      this->DrawTextActor3D(textAct3D, ren);
-      }
+    this->DrawTextActor3D(textAct3D, ren);
     }
   else // Some other prop
     {
@@ -748,73 +749,6 @@ void vtkGL2PSExporter::DrawTextMapper(vtkTextMapper *textMap,
   this->DrawViewportTextOverlay(string, tprop, coord, ren);
 }
 
-void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
-                                         vtkRenderer *ren)
-{
-  const char *string = textAct->GetInput();
-  vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
-  vtkTextProperty *tprop = textAct->GetScaledTextProperty();
-
-  vtkNew<vtkPath> path;
-  vtkMathTextUtilities::GetInstance()->StringToPath(string,
-                                                    path.GetPointer(),
-                                                    tprop);
-  double *dcolor = tprop->GetColor();
-  unsigned char color[4] = {static_cast<unsigned char>(dcolor[0]*255),
-                            static_cast<unsigned char>(dcolor[1]*255),
-                            static_cast<unsigned char>(dcolor[2]*255),
-                            static_cast<unsigned char>(tprop->GetOpacity()*255)
-                           };
-
-  // Set the raster position at the center of the front plane. This is an
-  // overlay annotation, it shouldn't need to be clipped.
-  vtkNew<vtkCoordinate> rasterCoord;
-  rasterCoord->SetCoordinateSystemToView();
-  // Set a very small but finite depth -- otherwise the raster position will be
-  // clipped.
-  rasterCoord->SetValue(0.0, 0.0, 1e-5);
-  double *rasterPos = rasterCoord->GetComputedWorldValue(ren);
-
-  int *textPos = coord->GetComputedDisplayValue(ren);
-  double textPosd[2] = {static_cast<double>(textPos[0]),
-                        static_cast<double>(textPos[1])};
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, textPosd, color,
-                              NULL, tprop->GetOrientation());
-}
-
-void vtkGL2PSExporter::DrawMathTextActor3D(vtkMathTextActor3D *textAct,
-                                           vtkRenderer *)
-{
-  // Get path
-  vtkNew<vtkPath> path;
-  vtkNew<vtkTextProperty> tprop;
-  const char *string = textAct->GetInput();
-  tprop->ShallowCopy(textAct->GetTextProperty());
-  tprop->SetOrientation(0); // Ignored in mathtextactor3d
-  tprop->SetJustificationToLeft(); // Ignored in mathtextactor3d
-  tprop->SetVerticalJustificationToBottom(); // Ignored in mathtextactor3d
-
-  vtkMathTextUtilities::GetInstance()->StringToPath(string,
-                                                    path.GetPointer(),
-                                                    tprop.GetPointer());
-
-  // Get actor info
-  vtkMatrix4x4 *actorMatrix = textAct->GetMatrix();
-  double *actorBounds = textAct->GetBounds();
-  double rasterPos[3] = {(actorBounds[1] + actorBounds[0]) * 0.5,
-                         (actorBounds[3] + actorBounds[2]) * 0.5,
-                         (actorBounds[5] + actorBounds[4]) * 0.5};
-  double *dcolor = tprop->GetColor();
-  unsigned char actorColor[4] = {
-    static_cast<unsigned char>(dcolor[0]*255),
-    static_cast<unsigned char>(dcolor[1]*255),
-    static_cast<unsigned char>(dcolor[2]*255),
-    static_cast<unsigned char>(tprop->GetOpacity()*255)};
-
-  vtkGL2PSUtilities::Draw3DPath(path.GetPointer(), actorMatrix, rasterPos,
-                                actorColor);
-}
-
 void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
                                                vtkTextProperty *tprop,
                                                vtkCoordinate *coord,
@@ -860,6 +794,11 @@ void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
 
 void vtkGL2PSExporter::CopyPixels(int copyRect[4], vtkRenderer *ren)
 {
+  if (this->PixelData->GetScalarType() == VTK_FLOAT)
+    {
+    vtkErrorMacro(<<"Raster image is not correctly formatted.")
+    return;
+    }
   // Figure out the viewport information
   int *winsize = this->RenderWindow->GetSize();
   double *viewport = ren->GetViewport();
@@ -886,20 +825,25 @@ void vtkGL2PSExporter::CopyPixels(int copyRect[4], vtkRenderer *ren)
   glViewport(viewportPixels[0], viewportPixels[1],
              viewportSpread[0], viewportSpread[1]);
 
+  int pixelDataDims[3];
+  this->PixelData->GetDimensions(pixelDataDims);
+
   // Copy the relevant rectangle of pixel data memory into a new array.
   float *dest = new float[copyRect[2] * copyRect[3] * 3];
   int destWidth = copyRect[2] * 3;
   int destWidthBytes = destWidth * sizeof(float);
-  int sourceWidth = this->PixelDataSize[0] * 3;
+  int sourceWidth = pixelDataDims[0] * 3;
   int sourceOffset = copyRect[0] * 3;
+
+  float *pixelArray = static_cast<float*>(this->PixelData->GetScalarPointer());
 
   for (int row = 0;
        row < copyRect[3] && // Copy until the top of the copyRect is reached,
-       row + copyRect[1] < this->PixelDataSize[1]; // or we exceed the cache
+       row + copyRect[1] < pixelDataDims[1]; // or we exceed the cache
        ++row)
     {
     memcpy(dest + (row * destWidth),
-           this->PixelData + ((copyRect[1] + row) * sourceWidth) + sourceOffset,
+           pixelArray + ((copyRect[1] + row) * sourceWidth) + sourceOffset,
            destWidthBytes);
     }
 

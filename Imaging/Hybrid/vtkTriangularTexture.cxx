@@ -36,8 +36,10 @@ vtkTriangularTexture::vtkTriangularTexture()
   this->SetNumberOfInputPorts(0);
 }
 
-void vtkOpaqueAtElementCentroid (int XSize, int YSize, double ScaleFactor,
-                                 vtkUnsignedCharArray *newScalars)
+static void vtkOpaqueAtElementCentroid (int XSize,
+                                        int YSize,
+                                        double ScaleFactor,
+                                        vtkUnsignedCharArray *newScalars)
 {
   int i, j;
   double opacity;
@@ -87,8 +89,10 @@ void vtkOpaqueAtElementCentroid (int XSize, int YSize, double ScaleFactor,
     }
 }
 
-void vtkOpaqueAtVertices (int XSize, int YSize, double ScaleFactor,
-                          vtkUnsignedCharArray *newScalars)
+static void vtkOpaqueAtVertices (int XSize,
+                                 int YSize,
+                                 double ScaleFactor,
+                                 vtkUnsignedCharArray *newScalars)
 {
   int i, j;
   double opacity;

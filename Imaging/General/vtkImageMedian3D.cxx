@@ -80,6 +80,8 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
     }
 }
 
+namespace {
+
 //-----------------------------------------------------------------------------
 // Add a sample to the median computation
 double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
@@ -177,6 +179,8 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
 
   return Median;
 }
+
+} // end anonymous namespace
 
 //-----------------------------------------------------------------------------
 // This method contains the second switch statement that calls the correct

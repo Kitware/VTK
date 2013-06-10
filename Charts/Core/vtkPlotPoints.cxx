@@ -28,6 +28,7 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkCharArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkLookupTable.h"
 
@@ -67,6 +68,7 @@ vtkPlotPoints::vtkPlotPoints()
   this->Points = NULL;
   this->Sorted = NULL;
   this->BadPoints = NULL;
+  this->ValidPointMask = NULL;
   this->MarkerStyle = vtkPlotPoints::CIRCLE;
   this->MarkerSize = -1.0;
   this->LogX = false;
@@ -75,6 +77,9 @@ vtkPlotPoints::vtkPlotPoints()
   this->LookupTable = 0;
   this->Colors = 0;
   this->ScalarVisibility = 0;
+
+  this->UnscaledInputBounds[0] = this->UnscaledInputBounds[2] = vtkMath::Inf();
+  this->UnscaledInputBounds[1] = this->UnscaledInputBounds[3] = -vtkMath::Inf();
 }
 
 //-----------------------------------------------------------------------------
@@ -110,6 +115,18 @@ void vtkPlotPoints::Update()
     }
   // Check if we have an input
   vtkTable *table = this->Data->GetInput();
+
+  if (table && !this->ValidPointMaskName.empty() &&
+      table->GetColumnByName(this->ValidPointMaskName))
+    {
+    this->ValidPointMask = vtkCharArray::SafeDownCast(
+      table->GetColumnByName(this->ValidPointMaskName));
+    }
+  else
+    {
+    this->ValidPointMask = 0;
+    }
+
   if (!table)
     {
     vtkDebugMacro(<< "Update event called with no input table set.");
@@ -162,14 +179,43 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     painter->ApplyPen(this->Pen);
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
+
+    float *points = static_cast<float *>(this->Points->GetVoidPointer(0));
+    unsigned char *colors = 0;
+    int nColorComponents = 0;
     if (this->ScalarVisibility && this->Colors)
       {
-      painter->DrawMarkers(this->MarkerStyle, false,
-                           this->Points, this->Colors);
+      colors = this->Colors->GetPointer(0);
+      nColorComponents = static_cast<int>(this->Colors->GetNumberOfComponents());
+      }
+
+    if (this->BadPoints && this->BadPoints->GetNumberOfTuples() > 0)
+      {
+      vtkIdType lastGood = 0;
+
+      for (vtkIdType i = 0; i < this->BadPoints->GetNumberOfTuples(); i++)
+        {
+        vtkIdType id = this->BadPoints->GetValue(i);
+
+        // render from last good point to one before this bad point
+        if (id - lastGood > 2)
+          {
+          painter->DrawMarkers(this->MarkerStyle, false,
+                               points + 2 * (lastGood + 1),
+                               id - lastGood - 1,
+                               colors ? colors + 4 * (lastGood + 1) : 0,
+                               nColorComponents);
+          }
+
+        lastGood = id;
+        }
       }
     else
       {
-      painter->DrawMarkers(this->MarkerStyle, false, this->Points);
+      // draw all of the points
+      painter->DrawMarkers(this->MarkerStyle, false,
+                           points, this->Points->GetNumberOfPoints(),
+                           colors, nColorComponents);
       }
     }
 
@@ -252,6 +298,18 @@ void vtkPlotPoints::GetBounds(double bounds[4])
     }
   vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
                 << bounds[2] << "\t" << bounds[3]);
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotPoints::GetUnscaledInputBounds(double bounds[4])
+{
+  for (int i = 0; i < 4; ++i)
+    {
+    bounds[i] = this->UnscaledInputBounds[i];
+    }
+  vtkDebugMacro(
+    << "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
+    << bounds[2] << "\t" << bounds[3]);
 }
 
 namespace
@@ -436,38 +494,53 @@ namespace {
 
 // Copy the two arrays into the points array
 template<class A, class B>
-void CopyToPoints(vtkPoints2D *points, A *a, B *b, int n)
+void CopyToPoints(vtkPoints2D *points, A *a, B *b, int n, double bds[4])
 {
+  bds[0] = bds[2] = vtkMath::Inf();
+  bds[1] = bds[3] = -vtkMath::Inf();
   points->SetNumberOfPoints(n);
   float* data = static_cast<float*>(points->GetVoidPointer(0));
   for (int i = 0; i < n; ++i)
     {
     data[2*i] = a[i];
     data[2*i+1] = b[i];
+
+    bds[0] = bds[0] < a[i] ? bds[0] : a[i];
+    bds[1] = bds[1] > a[i] ? bds[1] : a[i];
+
+    bds[2] = bds[2] < b[i] ? bds[2] : b[i];
+    bds[3] = bds[3] > b[i] ? bds[3] : b[i];
     }
 }
 
 // Copy one array into the points array, use the index of that array as x
 template<class A>
-void CopyToPoints(vtkPoints2D *points, A *a, int n)
+void CopyToPoints(vtkPoints2D *points, A *a, int n, double bds[4])
 {
+  bds[0] = 0.;
+  bds[1] = n - 1.;
   points->SetNumberOfPoints(n);
   float* data = static_cast<float*>(points->GetVoidPointer(0));
   for (int i = 0; i < n; ++i)
     {
     data[2*i] = static_cast<float>(i);
     data[2*i+1] = a[i];
+
+    bds[2] = bds[2] < a[i] ? bds[2] : a[i];
+    bds[3] = bds[3] > a[i] ? bds[3] : a[i];
     }
 }
 
 // Copy the two arrays into the points array
 template<class A>
-void CopyToPointsSwitch(vtkPoints2D *points, A *a, vtkDataArray *b, int n)
+void CopyToPointsSwitch(
+  vtkPoints2D *points, A *a, vtkDataArray *b, int n, double bds[4])
 {
   switch(b->GetDataType())
     {
     vtkTemplateMacro(
-        CopyToPoints(points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
+      CopyToPoints(
+        points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n, bds));
     }
 }
 
@@ -512,10 +585,10 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
     {
     switch(y->GetDataType())
       {
-        vtkTemplateMacro(
-            CopyToPoints(this->Points,
-                         static_cast<VTK_TT*>(y->GetVoidPointer(0)),
-                         y->GetNumberOfTuples()));
+      vtkTemplateMacro(
+        CopyToPoints(
+          this->Points, static_cast<VTK_TT*>(y->GetVoidPointer(0)),
+          y->GetNumberOfTuples(), this->UnscaledInputBounds));
       }
     }
   else
@@ -523,9 +596,9 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
     switch(x->GetDataType())
       {
       vtkTemplateMacro(
-          CopyToPointsSwitch(this->Points,
-                             static_cast<VTK_TT*>(x->GetVoidPointer(0)),
-                             y, x->GetNumberOfTuples()));
+        CopyToPointsSwitch(
+          this->Points, static_cast<VTK_TT*>(x->GetVoidPointer(0)),
+          y, x->GetNumberOfTuples(), this->UnscaledInputBounds));
       }
     }
   this->CalculateLogSeries();
@@ -576,23 +649,43 @@ void vtkPlotPoints::CalculateLogSeries()
     {
     return;
     }
-  this->LogX = this->XAxis->GetLogScale();
-  this->LogY = this->YAxis->GetLogScale();
+  this->LogX = this->XAxis->GetLogScaleActive();
+  this->LogY = this->YAxis->GetLogScaleActive();
   float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
   vtkIdType n = this->Points->GetNumberOfPoints();
   if (this->LogX)
     {
-    for (vtkIdType i = 0; i < n; ++i)
+    if (this->XAxis->GetUnscaledMinimum() < 0.)
       {
-      data[2*i] = log10(data[2*i]);
+      for (vtkIdType i = 0; i < n; ++i)
+        {
+        data[2*i] = log10(fabs(data[2*i]));
+        }
+      }
+    else
+      {
+      for (vtkIdType i = 0; i < n; ++i)
+        {
+        data[2*i] = log10(data[2*i]);
+        }
       }
     }
   if (this->LogY)
     {
-    for (vtkIdType i = 0; i < n; ++i)
-    {
-    data[2*i+1] = log10(data[2*i+1]);
-    }
+    if (this->YAxis->GetUnscaledMinimum() < 0.)
+      {
+      for (vtkIdType i = 0; i < n; ++i)
+        {
+        data[2*i+1] = log10(fabs(data[2*i+1]));
+        }
+      }
+    else
+      {
+      for (vtkIdType i = 0; i < n; ++i)
+        {
+        data[2*i+1] = log10(data[2*i+1]);
+        }
+      }
   }
 }
 
@@ -621,6 +714,22 @@ void vtkPlotPoints::FindBadPoints()
       this->BadPoints->InsertNextValue(i);
       }
     }
+
+  // add points from the ValidPointMask
+  if (this->ValidPointMask)
+    {
+    for (vtkIdType i = 0; i < n; i++)
+      {
+      if (this->ValidPointMask->GetValue(i) == 0)
+        {
+        this->BadPoints->InsertNextValue(i);
+        }
+      }
+    }
+
+  // sort bad points
+  std::sort(this->BadPoints->GetPointer(0),
+            this->BadPoints->GetPointer(this->BadPoints->GetNumberOfTuples()));
 
   if (this->BadPoints->GetNumberOfTuples() == 0)
     {
@@ -698,6 +807,10 @@ void vtkPlotPoints::CalculateBounds(double bounds[4])
       }
     // Now figure out the next range
     start = end + 1;
+    while (i < nBad && start == this->BadPoints->GetValue(i))
+      {
+      start = this->BadPoints->GetValue(i++) + 1;
+      }
     if (++i < nBad)
       {
       end = this->BadPoints->GetValue(i);

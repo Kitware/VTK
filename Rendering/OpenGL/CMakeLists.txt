@@ -58,8 +58,10 @@ set(Module_SRCS
   vtkOpenGLCamera.cxx
   vtkOpenGLClipPlanesPainter.cxx
   vtkOpenGLCoincidentTopologyResolutionPainter.cxx
+  vtkOpenGLCompositePainter.cxx
   vtkOpenGLDisplayListPainter.cxx
   vtkOpenGLExtensionManager.cxx
+  vtkOpenGLGL2PSHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSupport.cxx
   vtkOpenGLImageMapper.cxx
@@ -122,6 +124,7 @@ set_source_files_properties(
   vtkLightingHelper
   vtkRenderState
   vtkOpenGLState
+  vtkOpenGLGL2PSHelper
   vtkShader2
   vtkShader2Collection
   vtkShaderProgram2
@@ -202,6 +205,8 @@ else()
     if(NVCtrlLib_FOUND)
       set(VTK_USE_NVCONTROL 1)
     endif()
+  elseif (VTK_USE_OSMESA)
+    # we'll use OSMesa to load extensions.
   else()
     set(VTK_NO_EXTENSION_LOADING 1)
   endif()
@@ -270,6 +275,7 @@ set(opengl_overrides
   Camera
   ClipPlanesPainter
   CoincidentTopologyResolutionPainter
+  CompositePainter
   DisplayListPainter
   Glyph3DMapper
   ImageSliceMapper
@@ -414,6 +420,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGLConfigure.h.in
 
 # Set up some of the module specific preprocessor definitions.
 set(${vtk-module}_EXPORT_CODE "#include \"vtkRenderingOpenGLConfigure.h\"")
+
+# Since several headers in this module include vtkOpenGL.h which needed GL.h,
+# need to ensure that any dependent modules inherit the include directory
+# automatically.
+set(${vtk-module}_INCLUDE_DIRS "${OPENGL_INCLUDE_DIR}")
 
 vtk_module_library(vtkRenderingOpenGL ${Module_SRCS})
 target_link_libraries(vtkRenderingOpenGL ${OPENGL_LIBRARIES} ${extra_libs})

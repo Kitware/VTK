@@ -29,12 +29,6 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkVector.h" // Needed for vtkVector
-//
-#ifndef DBL_EPSILON
-#  define VTK_DBL_EPSILON    2.2204460492503131e-16
-#else  // DBL_EPSILON
-#  define VTK_DBL_EPSILON    DBL_EPSILON
-#endif  // DBL_EPSILON
 
 class VTKCHARTSCORE_EXPORT vtkAxisExtended : public vtkObject
 {

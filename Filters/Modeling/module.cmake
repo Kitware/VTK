@@ -9,4 +9,5 @@ vtk_module(vtkFiltersModeling
     vtkIOXML
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
   )

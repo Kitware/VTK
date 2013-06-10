@@ -441,7 +441,7 @@ void vtkAffineRepresentation2D::StartWidgetInteraction(double startEventPos[2])
                                                startEventPos[0], startEventPos[1], 0.0,
                                                this->StartWorldPosition);
 
-  this->StartAngle = VTK_LARGE_FLOAT;
+  this->StartAngle = VTK_FLOAT_MAX;
 
   this->WidgetInteraction(startEventPos);
 }
@@ -671,7 +671,7 @@ void vtkAffineRepresentation2D::Rotate(double eventPos[2])
   // Compute the initial selection angle, and then the change in angle between
   // the starting point and subsequent points. The angle is constrained so that
   // it is in the range (-Pi < deltaAngle <= Pi).
-  if ( this->StartAngle >= VTK_LARGE_FLOAT )
+  if ( this->StartAngle >= VTK_FLOAT_MAX )
     {
     double delX = this->StartEventPosition[0] - this->DisplayOrigin[0];
     double delY = this->StartEventPosition[1] - this->DisplayOrigin[1];

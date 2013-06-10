@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkInteractorStyleDrawPolygon.cxx
   vtkInteractorStyleFlight.cxx
   vtkInteractorStyleImage.cxx
   vtkInteractorStyleJoystickActor.cxx

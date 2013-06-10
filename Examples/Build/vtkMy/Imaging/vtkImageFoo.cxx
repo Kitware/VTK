@@ -97,7 +97,7 @@ void vtkImageFooExecute(vtkImageFoo* self,
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // Loop through ouput pixels
+  // Loop through output pixels
 
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {

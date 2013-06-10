@@ -144,15 +144,29 @@ int vtkQuadratureSchemeDefinition::SecureResources()
   if ((this->NumberOfQuadraturePoints<=0)
       || (this->NumberOfNodes<=0))
     {
-    vtkWarningMacro("Faild to allocate. Invalid buffer size.");
+    vtkWarningMacro("Failed to allocate. Invalid buffer size.");
     return 0;
     }
 
-  // Shape function weights, one vector for each quad point.
-  this->ShapeFunctionWeights=new double [this->NumberOfQuadraturePoints*this->NumberOfNodes];
-  // Quadrature weights, one double for each quad point
-  this->QuadratureWeights=new double [this->NumberOfQuadraturePoints];
+  // Delete weights if they have been allocated
+  this->ReleaseResources();
 
+  // Shape function weights, one vector for each quad point.
+  this->ShapeFunctionWeights =
+    new double [this->NumberOfQuadraturePoints*this->NumberOfNodes];
+  for (int i = 0;
+       i < this->NumberOfQuadraturePoints*this->NumberOfNodes; i++)
+    {
+    this->ShapeFunctionWeights[i] = 0.0;
+    }
+
+ // Quadrature weights, one double for each quad point
+  this->QuadratureWeights =
+    new double [this->NumberOfQuadraturePoints];
+  for (int i = 0; i < this->NumberOfQuadraturePoints; i++)
+    {
+    this->QuadratureWeights[i] = 0.0;
+    }
   return 1;
 }
 

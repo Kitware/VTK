@@ -1,15 +1,12 @@
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-  TestPNetCDFPOPReader.cxx
+if(VTK_USE_LARGE_DATA)
+  # Tell ExternalData to fetch test input at build time.
+  ExternalData_Expand_Arguments(VTKData _
+    "DATA{${VTK_TEST_INPUT_DIR}/NetCDF/,REGEX:.*}"
+    )
 
-  EXTRA_INCLUDE vtkTestDriver.h
-)
+  vtk_add_test_cxx(
+    TestPNetCDFPOPReader.cxx
+    )
+endif()
 
-vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
-
-if(VTK_LARGE_DATA_ROOT)
-  add_test(NAME vtkIOParallelNetCDFCxx-TestPNetCDFPOPReader
-    COMMAND ${vtk-module}CxxTests TestPNetCDFPOPReader
-    -D ${VTK_LARGE_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/IO/TestNetCDFPOPReader.png)
-endif(VTK_LARGE_DATA_ROOT)
+vtk_test_cxx_executable(${vtk-module}CxxTests)

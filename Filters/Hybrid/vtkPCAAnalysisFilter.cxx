@@ -452,6 +452,7 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
   if(shape->GetNumberOfPoints() != n)
     {
     vtkErrorMacro(<<"Input shape does not have the correct number of points");
+    DeleteVector(bloc);
     return;
     }
 

@@ -39,7 +39,16 @@ vtkStandardNewMacro(vtkCachingInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 const double IVFDataSetInfo::TOLERANCE_SCALE = 1.0E-8;
 //---------------------------------------------------------------------------
-IVFDataSetInfo::IVFDataSetInfo() {}
+IVFDataSetInfo::IVFDataSetInfo()
+{
+  this->VelocityFloat  = NULL;
+  this->VelocityDouble = NULL;
+  this->DataSet        = NULL;
+  this->Cell           = NULL;
+  this->BSPTree        = NULL;
+  this->Tolerance      = 0.0;
+  this->StaticDataSet  = false;
+}
 //---------------------------------------------------------------------------
 void IVFDataSetInfo::SetDataSet(vtkDataSet *data, char *velocity, bool staticdataset, vtkAbstractCellLocator *locator)
 {
@@ -277,9 +286,14 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(
     }
   else
     {
-    data->DataSet->GetCell(this->LastCellId, this->TempCell);
+    vtkGenericCell* tmpCell = 0;
+    if (this->LastCellId >= 0)
+      {
+      data->DataSet->GetCell(this->LastCellId, this->TempCell);
+      tmpCell = this->TempCell;
+      }
     this->LastCellId =
-      data->DataSet->FindCell(x, this->TempCell, data->Cell, -1,
+      data->DataSet->FindCell(x, tmpCell, data->Cell, this->LastCellId,
       data->Tolerance, subId, data->PCoords, &this->Weights[0]);
     if (this->LastCellId != -1)
       {

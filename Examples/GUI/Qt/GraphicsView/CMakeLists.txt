@@ -1,8 +1,15 @@
 
-find_package(Qt4 REQUIRED)
-set(QT_USE_QTOPENGL 1)
-set(QT_USE_QTWEBKIT 1)
-include(${QT_USE_FILE})
+if(NOT VTK_USE_QT5)
+  find_package(Qt4 REQUIRED)
+  set(QT_USE_QTOPENGL 1)
+  set(QT_USE_QTWEBKIT 1)
+  include(${QT_USE_FILE})
+else()
+  find_package(Qt5WebKitWidgets REQUIRED QUIET)
+  include_directories(${Qt5WebKitWidgets_INCLUDE_DIRS})
+  add_definitions(${Qt5WebKitWidgets_DEFINITIONS})
+  set(QT_LIBRARIES ${Qt5WebKitWidgets_LIBRARIES})
+endif()
 
 find_package(OpenGL)
 

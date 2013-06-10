@@ -54,20 +54,27 @@ void vtkInteractorStyleRubberBand2D::OnLeftButtonDown()
 {
   if(this->Interaction == NONE)
     {
-    this->Interaction = SELECTING;
-    vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
+    if (this->Interactor->GetAltKey())
+      {
+      this->Interaction = PANNING;
+      }
+    else
+      {
+      this->Interaction = SELECTING;
+      vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
 
-    this->StartPosition[0] = this->Interactor->GetEventPosition()[0];
-    this->StartPosition[1] = this->Interactor->GetEventPosition()[1];
-    this->EndPosition[0] = this->StartPosition[0];
-    this->EndPosition[1] = this->StartPosition[1];
+      this->StartPosition[0] = this->Interactor->GetEventPosition()[0];
+      this->StartPosition[1] = this->Interactor->GetEventPosition()[1];
+      this->EndPosition[0] = this->StartPosition[0];
+      this->EndPosition[1] = this->StartPosition[1];
 
-    this->PixelArray->Initialize();
-    this->PixelArray->SetNumberOfComponents(4);
-    int *size = renWin->GetSize();
-    this->PixelArray->SetNumberOfTuples(size[0]*size[1]);
+      this->PixelArray->Initialize();
+      this->PixelArray->SetNumberOfComponents(4);
+      int *size = renWin->GetSize();
+      this->PixelArray->SetNumberOfTuples(size[0]*size[1]);
 
-    renWin->GetRGBACharPixelData(0, 0, size[0]-1, size[1]-1, 1, this->PixelArray);
+      renWin->GetRGBACharPixelData(0, 0, size[0]-1, size[1]-1, 1, this->PixelArray);
+      }
     this->FindPokedRenderer(this->StartPosition[0], this->StartPosition[1]);
     this->InvokeEvent(vtkCommand::StartInteractionEvent);
     }
@@ -100,6 +107,11 @@ void vtkInteractorStyleRubberBand2D::OnLeftButtonUp()
       rect[4] = SELECT_NORMAL;
       }
     this->InvokeEvent(vtkCommand::SelectionChangedEvent, reinterpret_cast<void*>(rect));
+    this->InvokeEvent(vtkCommand::EndInteractionEvent);
+    }
+  else if(this->Interaction == PANNING)
+    {
+    this->Interaction = NONE;
     this->InvokeEvent(vtkCommand::EndInteractionEvent);
     }
 }

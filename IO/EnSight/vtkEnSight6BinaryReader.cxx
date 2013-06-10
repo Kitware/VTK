@@ -2644,20 +2644,21 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
         this->ReadIntArray(nodeIdList, numElements*15);
         }
 
+      const unsigned char wedgeMap[6] = {0, 2, 1, 3, 5, 4};
       for (i = 0; i < numElements; i++)
         {
         if (cellType == vtkEnSightReader::PENTA6)
           {
           for (j = 0; j < 6; j++)
             {
-            nodeIds[j] = nodeIdList[6*i+j] - 1;
+            nodeIds[wedgeMap[j]] = nodeIdList[6*i+j] - 1;
             }
           }
         else
           {
           for (j = 0; j < 6; j++)
             {
-            nodeIds[j] = nodeIdList[15*i+j] - 1;
+            nodeIds[wedgeMap[j]] = nodeIdList[15*i+j] - 1;
             }
           }
         if (this->UnstructuredNodeIds)
@@ -2816,15 +2817,16 @@ int vtkEnSight6BinaryReader::ReadIntNumber(int *result)
     vtkByteSwap::Swap4LE(&tmpLE);
     vtkByteSwap::Swap4BE(&tmpBE);
 
+    // Compare to file size, being careful not to overflow the
+    // multiplication (by doing 64 bit math).
     // Use negative value as an indication of bad number.
-    // Compare unmultiplied number to file size in case multiplying by
-    // sizeof(int) creates a number big enough that it does not fit in an int,
-    // and so becomes negative.
-    if ((tmpLE*(int)(sizeof(int))) > this->FileSize || tmpLE > this->FileSize)
+    if (tmpLE < 0 ||
+        tmpLE * (vtkTypeInt64)sizeof(int) > this->FileSize)
       {
       tmpLE = -1;
       }
-    if ((tmpBE*(int)(sizeof(int))) > this->FileSize || tmpBE > this->FileSize)
+    if (tmpBE < 0 ||
+        tmpBE * (vtkTypeInt64)sizeof(int) > this->FileSize)
       {
       tmpBE = -1;
       }

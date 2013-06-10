@@ -2413,14 +2413,7 @@ void vtkLabelHierarchy::Implementation::FillHierarchyRoot( LabelSet& anchors )
       ++ endRootAnchors;
       }
     }
-  #if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
-    this->Hierarchy3->root()->value().insert( anchors.begin(), endRootAnchors );
-  #else
-    for ( LabelSet::iterator it = anchors.begin(); it != endRootAnchors; ++ it )
-      {
-      this->Hierarchy3->root()->value().insert( *it );
-      }
-  #endif
+  this->Hierarchy3->root()->value().insert( anchors.begin(), endRootAnchors );
   anchors.erase( anchors.begin(), endRootAnchors );
 }
 

@@ -912,12 +912,7 @@ void vtkOpenGLImageSliceMapper::ComputeTextureSize(
     // find the target size of the power-of-two texture
     for (int i = 0; i < 2; i++)
       {
-      int powerOfTwo = 1;
-      while (powerOfTwo < imageSize[i])
-        {
-        powerOfTwo <<= 1;
-        }
-      textureSize[i] = powerOfTwo;
+      textureSize[i] = vtkMath::NearestPowerOfTwo(imageSize[i]);
       }
     }
   else

@@ -174,9 +174,11 @@ private:
   int ProcessInputTable(vtkTable* tOut);
   int ProcessOutputTable(vtkTable* tOut);
 
- int ProcessInputTree(vtkTree* tIn);
- int ProcessOutputTree(vtkTree* tOut);
+  int ProcessInputTree(vtkTree* tIn);
+  int ProcessOutputTree(vtkTree* tOut);
 
+  int ProcessInputDataObject(vtkDataObject *input);
+  int ProcessOutputDataObject(vtkDataObject *input);
 
   vtkRInterface* ri;
   char* Rscript;

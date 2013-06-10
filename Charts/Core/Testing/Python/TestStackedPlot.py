@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Run this test like so:
-# vtkpython TestStackedPlot.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/Charts/
-
 import os
 import vtk
 import vtk.test.Testing
@@ -77,6 +73,8 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
         chart.GetAxis(1).SetCustomTickPositions(arrMonthPositions, arrMonthLabels)
         chart.GetAxis(1).SetMaximum(11)
         chart.GetAxis(1).SetBehavior(vtk.vtkAxis.FIXED)
+
+        chart.SetShowLegend(True)
 
         # Create the stacked plot
         stack = chart.AddPlot(3)

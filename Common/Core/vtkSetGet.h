@@ -63,22 +63,6 @@
 "Undefined"))))))))))))))))))))))
 
 //
-// Set built-in type. Creates member Set"name"() & Get"name"()
-// Note: This method can be used by objects that do not inherit
-// by vtkObject.
-//
-#define vtkSetNGetMacro(name,type) \
-virtual void Set##name( type _arg ) \
-  { \
-    this->name = _arg; \
-  } \
-virtual type Get##name( ) \
-  { \
-    return this->name; \
-  }
-
-
-//
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
 //
 #define vtkSetMacro(name,type) \
@@ -783,7 +767,7 @@ virtual double *Get##name() \
   // possible on this compiler.
 # if defined(__GNUC__) && !defined(__INTEL_COMPILER) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
 #  define VTK_LEGACY(method) method __attribute__((deprecated))
-# elif defined(_MSC_VER) && _MSC_VER >= 1300
+# elif defined(_MSC_VER)
 #  define VTK_LEGACY(method) __declspec(deprecated) method
 # else
 #  define VTK_LEGACY(method) method

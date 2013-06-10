@@ -466,7 +466,7 @@ void vtkResliceImageViewer::SetInputData(vtkImageData *in)
 //----------------------------------------------------------------------------
 void vtkResliceImageViewer::SetInputConnection(vtkAlgorithmOutput* input)
 {
-  vtkErrorMacro( << "Use SetInput instead. " );
+  vtkErrorMacro( << "Use SetInputData instead. " );
   this->WindowLevel->SetInputConnection(input);
   this->UpdateDisplayExtent();
 }

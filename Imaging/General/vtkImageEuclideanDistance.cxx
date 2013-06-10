@@ -180,7 +180,7 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
 //
 // Notations stay as close as possible to those used in the paper.
 //
-void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
+static void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
                                            vtkImageData *outData,
                                            int outExt[6], double *outPtr )
 {
@@ -362,7 +362,7 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
 //----------------------------------------------------------------------------
 // Execute Saito's algorithm, modified for Cache Efficiency
 //
-void vtkImageEuclideanDistanceExecuteSaitoCached(
+static void vtkImageEuclideanDistanceExecuteSaitoCached(
   vtkImageEuclideanDistance *self,
   vtkImageData *outData, int outExt[6], double *outPtr )
 {

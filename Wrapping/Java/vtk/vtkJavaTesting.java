@@ -1,5 +1,6 @@
 package vtk;
 
+import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,10 +21,19 @@ public class vtkJavaTesting {
             if (verbose) {
                 System.out.println("Try to load: " + lib);
             }
+
+            if(!new File(lib).exists()) {
+              if(verbose) {
+                System.out.println("File does not exist: " + lib);
+                return 0;
+              }
+            }
+
             Runtime.getRuntime().load(lib);
         } catch (UnsatisfiedLinkError e) {
             if (verbose) {
                 System.out.println("Failed to load: " + lib);
+                e.printStackTrace();
             }
             return 0;
         }

@@ -98,7 +98,7 @@ void vtkOpenGL2ContextDevice2D::DrawPointSprites(vtkImageData *sprite,
 {
   if (points && n > 0)
     {
-    glPointSize(this->Pen->GetWidth());
+    this->SetPointSize(this->Pen->GetWidth());
     if (sprite)
       {
       if (!this->Storage->SpriteTexture)

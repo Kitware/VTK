@@ -1,6 +1,5 @@
 set(Module_SRCS
   vtkAmoebaMinimizer.cxx
-  vtkFastNumericConversion.cxx
   vtkFunctionSet.cxx
   vtkInitialValueProblemSolver.cxx
   vtkMatrix3x3.cxx
@@ -15,6 +14,12 @@ set(Module_SRCS
   vtkQuaternion.h
   vtkTuple.h
   )
+
+if(NOT VTK_LEGACY_REMOVE)
+  list(APPEND Module_SRCS
+    vtkFastNumericConversion.cxx
+    )
+endif()
 
 set_source_files_properties(
   vtkQuaternion

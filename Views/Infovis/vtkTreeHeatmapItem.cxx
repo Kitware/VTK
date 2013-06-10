@@ -46,6 +46,7 @@ vtkTreeHeatmapItem::vtkTreeHeatmapItem()
 {
   this->Interactive = true;
   this->JustCollapsedOrExpanded = false;
+  this->ColorTree = false;
   this->TreeHeatmapBuildTime = 0;
   this->Tree = vtkSmartPointer<vtkTree>::New();
   this->PrunedTree = vtkSmartPointer<vtkTree>::New();
@@ -139,10 +140,16 @@ void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
       }
     }
 
+  double rangeMinimum = 2.0;
+  if (numLeavesInBiggestSubTree < rangeMinimum)
+    {
+    rangeMinimum = numLeavesInBiggestSubTree;
+    }
+
   this->TriangleLookupTable->SetNumberOfTableValues(256);
   this->TriangleLookupTable->SetHueRange(0.5, 0.045);
   this->TriangleLookupTable->SetRange(
-    2.0, static_cast<double>(numLeavesInBiggestSubTree));
+    rangeMinimum, static_cast<double>(numLeavesInBiggestSubTree));
   this->TriangleLookupTable->Build();
 }
 
@@ -169,6 +176,11 @@ vtkTable * vtkTreeHeatmapItem::GetTable()
   return this->Table;
 }
 
+//-----------------------------------------------------------------------------
+vtkTree * vtkTreeHeatmapItem::GetPrunedTree()
+{
+  return this->PrunedTree;
+}
 //-----------------------------------------------------------------------------
 bool vtkTreeHeatmapItem::Paint(vtkContext2D *painter)
 {
@@ -552,6 +564,8 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     bool alreadyDrewCollapsedSubTree = false;
     vtkIdType originalId = this->GetOriginalId(target);
 
+    double color[3];
+    double colorKey;
     if (vertexIsPruned->GetValue(originalId) > 0)
       {
       ++numberOfCollapsedSubTrees;
@@ -569,14 +583,21 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
           this->LineIsVisible(trianglePoints[2], trianglePoints[3],
                               trianglePoints[4], trianglePoints[5]))
         {
-        double color[3];
-        double colorKey =
-          static_cast<double>(vertexIsPruned->GetValue(originalId));
+        colorKey = static_cast<double>(vertexIsPruned->GetValue(originalId));
         this->TriangleLookupTable->GetColor(colorKey, color);
         painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
         painter->DrawPolygon(trianglePoints, 3);
         }
       alreadyDrewCollapsedSubTree = true;
+      }
+
+    // color this portion of the tree based on the target node
+    if (this->ColorTree)
+      {
+      painter->GetPen()->SetWidth(2.0);
+      colorKey = this->TreeColorArray->GetValue(target);
+      this->TreeLookupTable->GetColor(colorKey, color);
+      painter->GetPen()->SetColorF(color[0], color[1], color[2]);
       }
 
     if (this->LineIsVisible(x0, y0, x0, y1))
@@ -589,6 +610,13 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
         {
         painter->DrawLine (x0, y1, x1, y1);
         }
+      }
+
+    if (this->ColorTree)
+      {
+      // revert to drawing thin black lines by default
+      painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
+      painter->GetPen()->SetWidth(1.0);
       }
     }
 
@@ -681,6 +709,10 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     // find the row in the table that corresponds to this vertex
     std::string nodeName = nodeNames->GetValue(vertex);
     vtkIdType tableRow = tableNames->LookupValue(nodeName);
+    if (tableRow < 0)
+      {
+      continue;
+      }
 
     this->RowMap[currentRow] = tableRow;
 
@@ -1357,6 +1389,73 @@ void vtkTreeHeatmapItem::CollapseToNumberOfLeafNodes(unsigned int n)
       continue;
       }
     this->CollapseSubTree(prunedId);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::SetTreeColorArray(const char *arrayName)
+{
+  this->TreeColorArray = vtkDoubleArray::SafeDownCast(
+    this->Tree->GetVertexData()->GetArray(arrayName));
+  if (!this->TreeColorArray)
+    {
+    vtkErrorMacro("Could not downcast " << arrayName << " to a vtkDoubleArray");
+    this->ColorTree = false;
+    return;
+    }
+
+  this->ColorTree = true;
+
+  double minDifference = VTK_DOUBLE_MAX;
+  double maxDifference = VTK_DOUBLE_MIN;
+
+  for (vtkIdType id = 0; id < this->TreeColorArray->GetNumberOfTuples(); ++id)
+    {
+    double d = this->TreeColorArray->GetValue(id);
+    if (d > maxDifference)
+      {
+      maxDifference = d;
+      }
+    if (d < minDifference)
+      {
+      minDifference = d;
+      }
+    }
+
+  // special case when there is no difference.  Without this, all the
+  // edges would be drawn in either red or blue.
+  if (minDifference == maxDifference)
+    {
+    this->TreeLookupTable->SetNumberOfTableValues(1);
+    this->TreeLookupTable->SetTableValue(10, 0.60, 0.60, 0.60);
+    return;
+    }
+
+  // how much we vary the colors from step to step
+  double inc = 0.06;
+
+  // setup the color lookup table.  It will contain 10 shades of red,
+  // 10 shades of blue, and a grey neutral value.
+
+  this->TreeLookupTable->SetNumberOfTableValues(21);
+  if (abs(maxDifference) > abs(minDifference))
+    {
+    this->TreeLookupTable->SetRange(-maxDifference, maxDifference);
+    }
+  else
+    {
+    this->TreeLookupTable->SetRange(minDifference, -minDifference);
+    }
+  for (vtkIdType i = 0; i < 10; ++i)
+    {
+    this->TreeLookupTable->SetTableValue(i,
+      1.0, 0.25 + inc * i, 0.25 + inc * i);
+    }
+  this->TreeLookupTable->SetTableValue(10, 0.60, 0.60, 0.60);
+  for (vtkIdType i = 11; i < 21; ++i)
+    {
+    this->TreeLookupTable->SetTableValue(i,
+      0.85 - inc * (i - 10), 0.85 - inc * (i - 10), 1.0);
     }
 }
 

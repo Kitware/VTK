@@ -18,7 +18,7 @@
 
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
-unsigned int vtkGarbageCollectorManagerCount;
+static unsigned int vtkGarbageCollectorManagerCount;
 
 vtkGarbageCollectorManager::vtkGarbageCollectorManager()
 {

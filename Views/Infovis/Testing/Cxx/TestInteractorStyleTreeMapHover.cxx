@@ -27,7 +27,7 @@ using vtksys_stl::vector;
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-char InteractorStyleTreeMapHoverEventLog[] =
+static char InteractorStyleTreeMapHoverEventLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 266 4 0 0 0 0 0\n"

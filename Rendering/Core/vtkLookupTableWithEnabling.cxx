@@ -63,7 +63,7 @@ void vtkLookupTableWithEnabling::DisableColor(
 // There is a little more to this than simply taking the log10 of the
 // two range values: we do conversion of negative ranges to positive
 // ranges, and conversion of zero to a 'very small number'
-void vtkLookupTableWithEnablingLogRange(double range[2], double logRange[2])
+static void vtkLookupTableWithEnablingLogRange(double range[2], double logRange[2])
 {
   double rmin = range[0];
   double rmax = range[1];
@@ -93,6 +93,11 @@ void vtkLookupTableWithEnablingLogRange(double range[2], double logRange[2])
     {
     logRange[0] = log10(static_cast<double>(rmin));
     logRange[1] = log10(static_cast<double>(rmax));
+    }
+  else
+    {
+    logRange[0] = 0.;
+    logRange[1] = 0.;
     }
 }
 

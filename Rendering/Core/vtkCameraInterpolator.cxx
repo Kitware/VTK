@@ -157,7 +157,7 @@ double vtkCameraInterpolator::GetMinimumT()
 {
   if ( this->CameraList->empty() )
     {
-    return -VTK_LARGE_FLOAT;
+    return -VTK_FLOAT_MAX;
     }
   else
     {
@@ -171,7 +171,7 @@ double vtkCameraInterpolator::GetMaximumT()
 {
   if ( this->CameraList->empty() )
     {
-    return VTK_LARGE_FLOAT;
+    return VTK_FLOAT_MAX;
     }
   else
     {

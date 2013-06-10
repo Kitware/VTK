@@ -72,11 +72,11 @@ public:
   // axes, the rotation circle, and the scale/shear box. Note that since the
   // widget resizes itself so that the width and height are always the
   // same, only the width needs to be specified.
-  vtkSetClampMacro(BoxWidth,int,10,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(BoxWidth,int,10,VTK_INT_MAX);
   vtkGetMacro(BoxWidth,int);
-  vtkSetClampMacro(CircleWidth,int,10,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(CircleWidth,int,10,VTK_INT_MAX);
   vtkGetMacro(CircleWidth,int);
-  vtkSetClampMacro(AxesWidth,int,10,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(AxesWidth,int,10,VTK_INT_MAX);
   vtkGetMacro(AxesWidth,int);
 
   // Description:

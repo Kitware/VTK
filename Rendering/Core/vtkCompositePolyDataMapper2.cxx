@@ -44,6 +44,7 @@ vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
   selectionPainter->SetDelegatePainter(this->SelectionPainter);
   this->SetSelectionPainter(selectionPainter);
   selectionPainter->FastDelete();
+  this->SelectionCompositePainter = selectionPainter;
 }
 
 //----------------------------------------------------------------------------
@@ -136,6 +137,12 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
         }
       }
     }
+  else if(this->CompositeAttributes &&
+    this->CompositeAttributes->HasBlockOpacities())
+    {
+    return false;
+    }
+
   return this->Superclass::GetIsOpaque();
 }
 
@@ -183,24 +190,91 @@ void vtkCompositePolyDataMapper2::RemoveBlockVisibilites()
 }
 
 //----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, double color[3])
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->SetBlockColor(index, color);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+double* vtkCompositePolyDataMapper2::GetBlockColor(unsigned int index)
+{
+  (void) index;
+
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::RemoveBlockColor(unsigned int index)
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->RemoveBlockColor(index);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::RemoveBlockColors()
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->RemoveBlockColors();
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::SetBlockOpacity(unsigned int index, double opacity)
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->SetBlockOpacity(index, opacity);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+double vtkCompositePolyDataMapper2::GetBlockOpacity(unsigned int index)
+{
+  if(this->CompositeAttributes)
+    {
+    return this->CompositeAttributes->GetBlockOpacity(index);
+    }
+  return 1.;
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::RemoveBlockOpacity(unsigned int index)
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->RemoveBlockOpacity(index);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::RemoveBlockOpacities()
+{
+  if(this->CompositeAttributes)
+    {
+    this->CompositeAttributes->RemoveBlockOpacities();
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetCompositeDataDisplayAttributes(
   vtkCompositeDataDisplayAttributes *attributes)
 {
   if(this->CompositeAttributes != attributes)
     {
     this->CompositeAttributes = attributes;
-
-    // set composite display attributes on the composite painter
-    vtkDefaultPainter *defaultPainter =
-      vtkDefaultPainter::SafeDownCast(this->Painter);
-    if(defaultPainter)
-      {
-      vtkCompositePainter *compositePainter =
-        defaultPainter->GetCompositePainter();
-
-      compositePainter->
-        SetCompositeDataDisplayAttributes(this->CompositeAttributes);
-      }
+    this->Modified();
     }
 }
 
@@ -209,6 +283,15 @@ vtkCompositeDataDisplayAttributes*
 vtkCompositePolyDataMapper2::GetCompositeDataDisplayAttributes()
 {
   return this->CompositeAttributes;
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::UpdatePainterInformation()
+{
+  this->Superclass::UpdatePainterInformation();
+  this->PainterInformation->Set(
+    vtkCompositePainter::DISPLAY_ATTRIBUTES(),
+    this->CompositeAttributes);
 }
 
 //----------------------------------------------------------------------------

@@ -34,6 +34,7 @@
 #include "vtkNew.h"             // For ivars
 #include "vtkRenderingCoreEnums.h" // For marker enum
 
+class vtkCharArray;
 class vtkContext2D;
 class vtkTable;
 class vtkPoints2D;
@@ -74,6 +75,10 @@ public:
   // Description:
   // Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
   virtual void GetBounds(double bounds[4]);
+
+  // Description:
+  // Get the non-log-scaled bounds on chart inputs for this plot as (Xmin, Xmax, Ymin, Ymax).
+  virtual void GetUnscaledInputBounds(double bounds[4]);
 
   // Description:
   // Specify a lookup table for the mapper to use.
@@ -143,6 +148,11 @@ public:
   vtkGetMacro(MarkerSize, float);
   vtkSetMacro(MarkerSize, float);
 
+  // Description:
+  // Get/set the valid point mask array name.
+  vtkGetMacro(ValidPointMaskName, vtkStdString)
+  vtkSetMacro(ValidPointMaskName, vtkStdString)
+
 //BTX
 protected:
   vtkPlotPoints();
@@ -187,6 +197,15 @@ protected:
   vtkIdTypeArray* BadPoints;
 
   // Description:
+  // Array which marks valid points in the array. If NULL (the default), all
+  // points in the input array are considered valid.
+  vtkCharArray* ValidPointMask;
+
+  // Description:
+  // Name of the valid point mask array.
+  vtkStdString ValidPointMaskName;
+
+  // Description:
   // The point cache is marked dirty until it has been initialized.
   vtkTimeStamp BuildTime;
 
@@ -203,6 +222,10 @@ protected:
   vtkUnsignedCharArray *Colors;
   int ScalarVisibility;
   vtkStdString ColorArrayName;
+
+  // Description:
+  // Cached bounds on the plot input axes
+  double UnscaledInputBounds[4];
 
 private:
   vtkPlotPoints(const vtkPlotPoints &); // Not implemented.

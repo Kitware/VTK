@@ -26,17 +26,15 @@ target_link_libraries(Slider2D ${VTK_LIBRARIES})
 add_executable(BalloonWidget MACOSX_BUNDLE BalloonWidget.cxx)
 target_link_libraries(BalloonWidget ${VTK_LIBRARIES})
 
-if(vtkTestingRendering_SOURCE_DIR)
-######## Regression Testing ########
-  set(KIT WidgetsExamples)
-  set(MyTests TestSlider.cxx TestSlider2D.cxx TestBalloonWidget.cxx)
-
-  include(vtkTestingObjectFactory)
-
-  add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
-  target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
-
-  add_test(NAME ${KIT}-Slider COMMAND ${KIT}CxxTests TestSlider)
-  add_test(NAME ${KIT}-Slider2D COMMAND ${KIT}CxxTests TestSlider2D)
-  add_test(NAME ${KIT}-BalloonWidget COMMAND ${KIT}CxxTests TestBalloonWidget)
+if(BUILD_TESTING)
+  if(vtkTestingRendering_LOADED)
+    ######## Regression Testing ########
+    set(vtk-example WidgetsExamples)
+    vtk_add_test_cxx(
+      TestSlider.cxx
+      TestSlider2D.cxx
+      TestBalloonWidget.cxx
+      )
+    vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
+  endif()
 endif()

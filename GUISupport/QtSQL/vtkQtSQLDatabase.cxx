@@ -152,7 +152,7 @@ bool vtkQtSQLDatabase::HasError()
 
 const char* vtkQtSQLDatabase::GetLastErrorText()
 {
-  return this->QtDatabase.lastError().text().toAscii();
+  return this->QtDatabase.lastError().text().toLatin1();
 }
 
 vtkStringArray* vtkQtSQLDatabase::GetTables()
@@ -179,7 +179,7 @@ vtkStringArray* vtkQtSQLDatabase::GetTables()
     QStringList tables = this->QtDatabase.tables(QSql::Tables);
     for (int i = 0; i < tables.size(); ++i)
       {
-      this->myTables->InsertNextValue(tables.at(i).toAscii());
+      this->myTables->InsertNextValue(tables.at(i).toLatin1());
       }
 
     }
@@ -195,7 +195,7 @@ vtkStringArray* vtkQtSQLDatabase::GetRecord(const char *table)
   QSqlRecord columns = this->QtDatabase.record(table);
   for (int i = 0; i < columns.count(); i++)
     {
-    this->currentRecord->InsertNextValue(columns.fieldName(i).toAscii());
+    this->currentRecord->InsertNextValue(columns.fieldName(i).toLatin1());
     }
 
   return currentRecord;
@@ -300,7 +300,7 @@ bool vtkQtSQLDatabase::ParseURL(const char* URL)
   qtType = protocol.c_str();
   qtType = "Q" + qtType.toUpper();
 
-  this->SetDatabaseType(qtType.toAscii());
+  this->SetDatabaseType(qtType.toLatin1());
   this->SetUserName(username.c_str());
   this->SetHostName(hostname.c_str());
   this->SetPort(atoi(dataport.c_str()));

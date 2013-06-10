@@ -279,24 +279,40 @@ void vtkProperty::SetColor(double r, double g, double b)
 }
 
 //----------------------------------------------------------------------------
-// Return composite color of object (ambient + diffuse + specular). Return value
-// is a pointer to rgb values.
-double *vtkProperty::GetColor()
+void vtkProperty::SetColor(double a[3])
+{
+  this->SetColor(a[0], a[1], a[2]);
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::ComputeCompositeColor(double result[3],
+  double ambient, const double ambient_color[3],
+  double diffuse, const double diffuse_color[3],
+  double specular, const double specular_color[3])
 {
   double norm = 0.0;
-
-  if ((this->Ambient + this->Diffuse + this->Specular)>0)
+  if ((ambient + diffuse + specular)>0)
     {
-    norm = 1.0 / (this->Ambient + this->Diffuse + this->Specular);
+    norm = 1.0 / (ambient + diffuse + specular);
     }
 
   for (int i = 0; i < 3; i ++)
     {
-    this->Color[i] = this->AmbientColor[i] * this->Ambient * norm;
-    this->Color[i] = this->Color[i] + this->DiffuseColor[i] * this->Diffuse * norm;
-    this->Color[i] = this->Color[i] + this->SpecularColor[i] * this->Specular * norm;
+    result[i] = ( ambient * ambient_color[i] +
+                  diffuse * diffuse_color[i] +
+                  specular * specular_color[i] ) * norm;
     }
+}
 
+//----------------------------------------------------------------------------
+// Return composite color of object (ambient + diffuse + specular). Return value
+// is a pointer to rgb values.
+double *vtkProperty::GetColor()
+{
+  vtkProperty::ComputeCompositeColor(this->Color,
+    this->Ambient, this->AmbientColor,
+    this->Diffuse, this->DiffuseColor,
+    this->Specular, this->SpecularColor);
   return this->Color;
 }
 
@@ -902,17 +918,6 @@ void vtkProperty::PostRender(vtkActor* actor, vtkRenderer* renderer)
     {
     this->ShaderProgram->PostRender(actor, renderer);
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::RenderMaterial(vtkActor *,
-                                 vtkRenderer *,
-                                 double *,
-                                 double *,
-                                 double *,
-                                 double)
-{
-  // should be implemented by subclasses
 }
 
 //----------------------------------------------------------------------------

@@ -33,7 +33,9 @@
 // NB: For ease of legibility, white spaces are allowed and ignored.
 //
 // .SECTION Thanks
-// This class was written by Philippe Pebay, Kitware SAS 2012
+// This class was written by Philippe Pebay and Joachim Pouderoux,
+// Kitware 2013
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGridSource_h
 #define __vtkHyperTreeGridSource_h
@@ -43,8 +45,10 @@
 #include "vtkStdString.h" // For vtkStdString ivars
 
 #include <vector> // STL Header
+#include <map> // STL Header
 
 class vtkDataArray;
+class vtkBitArray;
 class vtkImplicitFunction;
 class vtkHyperTreeGrid;
 class vtkQuadric;
@@ -84,6 +88,14 @@ public:
   vtkGetVector3Macro(GridSize, unsigned int);
 
   // Description:
+  // Specify whether indexing mode of grid root cells must be transposed to
+  // x-axis first, z-axis last, instead of the default z-axis first, k-axis last
+  vtkSetMacro(TransposedRootIndexing, bool);
+  vtkGetMacro(TransposedRootIndexing, bool);
+  void SetIndexingModeToKJI();
+  void SetIndexingModeToIJK();
+
+  // Description:
   // Set/Get the subdivision factor in the grid refinement scheme
   vtkSetClampMacro(BranchFactor, unsigned int, 2, 3);
   vtkGetMacro(BranchFactor, unsigned int);
@@ -111,13 +123,27 @@ public:
 
   // Description:
   // Set/Get the string used to describe the grid
-  virtual void SetDescriptor( const vtkStdString& );
-  virtual vtkStdString GetDescriptor();
+  vtkSetStringMacro(Descriptor);
+  vtkGetStringMacro(Descriptor);
 
   // Description:
   // Set/Get the string used to as a material mask
-  virtual void SetMaterialMask( const vtkStdString& );
-  virtual vtkStdString GetMaterialMask();
+  vtkSetStringMacro(MaterialMask);
+  vtkGetStringMacro(MaterialMask);
+
+  // Description:
+  // Set/Get the bitarray used to describe the grid
+  virtual void SetDescriptorBits( vtkBitArray* );
+  vtkGetObjectMacro( DescriptorBits, vtkBitArray );
+
+  // Description:
+  // Set the index array used to as a material mask
+  virtual void SetLevelZeroMaterialIndex( vtkIdTypeArray* );
+
+  // Description:
+  // Set/Get the bitarray used as a material mask
+  virtual void SetMaterialMaskBits( vtkBitArray* );
+  vtkGetObjectMacro( MaterialMaskBits, vtkBitArray );
 
   // Description:
   // Set/Get the quadric function
@@ -134,6 +160,11 @@ public:
   // Override GetMTime because we delegate to a vtkQuadric
   unsigned long GetMTime();
 
+  // Description:
+  // Helpers to convert string descriptors & mask to bit arrays
+  vtkBitArray* ConvertDescriptorStringToBitArray( const vtkStdString& );
+  vtkBitArray* ConvertMaterialMaskStringToBitArray( const vtkStdString& );
+
 protected:
   vtkHyperTreeGridSource();
   ~vtkHyperTreeGridSource();
@@ -148,16 +179,34 @@ protected:
 
   // Description:
   // Initialize grid from descriptor string when it is to be used
-  int InitializeFromDescriptor();
+  int InitializeFromStringDescriptor();
+
+  // Description:
+  // Initialize grid from bit array descriptors when it is to be used
+  int InitializeFromBitsDescriptor();
+
+  // Description:
+  // Initialize tree grid from descriptor and call subdivide if needed
+  void InitTreeFromDescriptor( vtkHyperTreeCursor* cursor,
+                                int treeIdx,
+                                int idx[3] );
 
   // Description:
   // Subdivide grid from descriptor string when it is to be used
-  void SubdivideFromDescriptor( vtkHyperTreeCursor* cursor,
+  void SubdivideFromStringDescriptor( vtkHyperTreeCursor* cursor,
                                 unsigned int level,
                                 int treeIdx,
                                 int childIdx,
                                 int idx[3],
-                                int cellIdOffset,
+                                int parentPos );
+
+  // Description:
+  // Subdivide grid from descriptor string when it is to be used
+  void SubdivideFromBitsDescriptor( vtkHyperTreeCursor* cursor,
+                                unsigned int level,
+                                int treeIdx,
+                                int childIdx,
+                                int idx[3],
                                 int parentPos );
 
   // Description:
@@ -166,7 +215,6 @@ protected:
                              unsigned int level,
                              int treeIdx,
                              int idx[3],
-                             int cellIdOffset,
                              double origin[3],
                              double size[3] );
 
@@ -177,6 +225,7 @@ protected:
   double Origin[3];
   double GridScale[3];
   unsigned int GridSize[3];
+  bool TransposedRootIndexing;
   unsigned int MaximumLevel;
   unsigned int Dimension;
   unsigned int BranchFactor;
@@ -188,10 +237,19 @@ protected:
   vtkDataArray* YCoordinates;
   vtkDataArray* ZCoordinates;
 
-  vtkStdString Descriptor;
-  vtkStdString MaterialMask;
+  char* Descriptor;
+  char* MaterialMask;
   std::vector<vtkStdString> LevelDescriptors;
   std::vector<vtkStdString> LevelMaterialMasks;
+
+  vtkBitArray* DescriptorBits;
+  vtkBitArray* MaterialMaskBits;
+  std::vector<vtkIdType> LevelBitsIndex;
+  std::vector<vtkIdType> LevelBitsIndexCnt;
+
+  vtkIdTypeArray* LevelZeroMaterialIndex;
+  std::map<vtkIdType, vtkIdType> LevelZeroMaterialMap;
+
   std::vector<int> LevelCounters;
 
   vtkQuadric* Quadric;

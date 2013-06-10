@@ -30,8 +30,8 @@ vtkStandardNewMacro(vtkImageToImageStencil);
 //----------------------------------------------------------------------------
 vtkImageToImageStencil::vtkImageToImageStencil()
 {
-  this->UpperThreshold = VTK_LARGE_FLOAT;
-  this->LowerThreshold = -VTK_LARGE_FLOAT;
+  this->UpperThreshold = VTK_FLOAT_MAX;
+  this->LowerThreshold = -VTK_FLOAT_MAX;
 }
 
 //----------------------------------------------------------------------------
@@ -71,10 +71,10 @@ vtkImageData *vtkImageToImageStencil::GetInput()
 // The values greater than or equal to the value match.
 void vtkImageToImageStencil::ThresholdByUpper(double thresh)
 {
-  if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_LARGE_FLOAT)
+  if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_FLOAT_MAX)
     {
     this->LowerThreshold = thresh;
-    this->UpperThreshold = VTK_LARGE_FLOAT;
+    this->UpperThreshold = VTK_FLOAT_MAX;
     this->Modified();
     }
 }
@@ -83,10 +83,10 @@ void vtkImageToImageStencil::ThresholdByUpper(double thresh)
 // The values less than or equal to the value match.
 void vtkImageToImageStencil::ThresholdByLower(double thresh)
 {
-  if (this->UpperThreshold != thresh || this->LowerThreshold > -VTK_LARGE_FLOAT)
+  if (this->UpperThreshold != thresh || this->LowerThreshold > -VTK_FLOAT_MAX)
     {
     this->UpperThreshold = thresh;
-    this->LowerThreshold = -VTK_LARGE_FLOAT;
+    this->LowerThreshold = -VTK_FLOAT_MAX;
     this->Modified();
     }
 }

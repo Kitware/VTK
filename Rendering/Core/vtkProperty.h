@@ -93,18 +93,6 @@ public:
   //ETX
 
   // Description:
-  // Render the material for the face. This method should be implemented
-  // by subclasses. The default implementation does nothing.
-  //
-  // Warning: Experimental. This API may change in future releases.
-  virtual void RenderMaterial(vtkActor *actor,
-                              vtkRenderer *renderer,
-                              double *ambient,
-                              double *diffuse,
-                              double *specular,
-                              double specular_power);
-
-  // Description:
   // Set/Get lighting flag for an object. Initial value is true.
   vtkGetMacro(Lighting, bool);
   vtkSetMacro(Lighting, bool);
@@ -138,9 +126,8 @@ public:
   // Set the color of the object. Has the side effect of setting the
   // ambient diffuse and specular colors as well. This is basically
   // a quick overall color setting method.
-  void SetColor(double r, double g, double b);
-  void SetColor(double a[3])
-    { this->SetColor(a[0], a[1], a[2]); }
+  virtual void SetColor(double r, double g, double b);
+  virtual void SetColor(double a[3]);
   double *GetColor();
   void GetColor(double rgb[3]);
   void GetColor(double &r, double &g, double &b);
@@ -205,7 +192,7 @@ public:
   // Description:
   // Set/Get the width of a Line. The width is expressed in screen units.
   // This is only implemented for OpenGL. The default is 1.0.
-  vtkSetClampMacro(LineWidth, float, 0, VTK_LARGE_FLOAT);
+  vtkSetClampMacro(LineWidth, float, 0, VTK_FLOAT_MAX);
   vtkGetMacro(LineWidth, float);
 
   // Description:
@@ -219,13 +206,13 @@ public:
   // Set/Get the stippling repeat factor of a Line, which specifies how
   // many times each bit in the pattern is to be repeated.
   // This is only implemented for OpenGL. The default is 1.
-  vtkSetClampMacro(LineStippleRepeatFactor, int, 1, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(LineStippleRepeatFactor, int, 1, VTK_INT_MAX);
   vtkGetMacro(LineStippleRepeatFactor, int);
 
   // Description:
   // Set/Get the diameter of a point. The size is expressed in screen units.
   // This is only implemented for OpenGL. The default is 1.0.
-  vtkSetClampMacro(PointSize, float, 0, VTK_LARGE_FLOAT);
+  vtkSetClampMacro(PointSize, float, 0, VTK_FLOAT_MAX);
   vtkGetMacro(PointSize, float);
 
   // Description:
@@ -389,6 +376,13 @@ public:
 protected:
   vtkProperty();
   ~vtkProperty();
+
+  // Description:
+  // Computes composite color. Used by GetColor().
+  static void ComputeCompositeColor(double result[3],
+    double ambient, const double ambient_color[3],
+    double diffuse, const double diffuse_color[3],
+    double specular, const double specular_color[3]);
 
   // Description:
   // Load property iVar values from the Material XML.

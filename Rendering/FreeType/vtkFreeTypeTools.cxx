@@ -114,7 +114,7 @@ struct EmbeddedFontStruct
 // This callback will be called by the FTGLibrary singleton cleanup destructor
 // if it happens to be destroyed before our singleton (this order is not
 // deterministic). It will destroy our singleton, if needed.
-void vtkFreeTypeToolsCleanupCallback ()
+static void vtkFreeTypeToolsCleanupCallback ()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeToolsCleanupCallback\n");
@@ -1007,11 +1007,6 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
     return false;
     }
 
-  if (str.empty())
-    {
-    return false;
-    }
-
   ImageMetaData metaData;
 
   // Setup the metadata cache
@@ -1186,7 +1181,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
 
   // The base of the current line, and temp vars for line offsets and origins
   int pen[2] = {0, 0};
-  int offset[2] = {0, 0};
+  double offset[2] = {0., 0.};
   int origin[2] = {0, 0};
 
   // Initialize bbox
@@ -1225,9 +1220,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
     metaData.bbox[3] = std::max(metaData.bbox[3], metrics.ymax + origin[1]);
 
     // Calculate offset of next line
-    offset[0] = 0;
-    offset[1] = -std::ceil(metaData.height *
-                           metaData.textProperty->GetLineSpacing());
+    offset[0] = 0.;
+    offset[1] = -(metaData.height * metaData.textProperty->GetLineSpacing());
 
     // Update pen position
     pen[0] += vtkMath::Floor(c * offset[0] - s * offset[1] + 0.5);
@@ -1261,58 +1255,60 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
 }
 
 //----------------------------------------------------------------------------
-void vtkFreeTypeTools::PrepareImageData(vtkImageData *data, int text_bbox[4])
+void vtkFreeTypeTools::PrepareImageData(vtkImageData *data, int textBbox[4])
 {
-  // The bounding box was the area that is going to be filled with pixels
-  // given a text origin of (0, 0). Now get the real size we need, i.e.
-  // the full extent from the origin to the bounding box.
-  int text_size[2];
-  text_size[0] = (text_bbox[1] - text_bbox[0] + 1);
-  text_size[1] = (text_bbox[3] - text_bbox[2] + 1);
+  // The bounding box is the area that is going to be filled with pixels
+  // given a text origin of (0, 0). Calculate the bbox's dimensions.
+  int textDims[2];
+  textDims[0] = (textBbox[1] - textBbox[0] + 1);
+  textDims[1] = (textBbox[3] - textBbox[2] + 1);
 
-  // If the current image data is too small to render the text,
-  // or more than twice as big (too hungry), then resize
-  int img_dims[3], new_img_dims[3];
-  data->GetDimensions(img_dims);
-
-  if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
-      data->GetNumberOfScalarComponents() != 4 ||
-      img_dims[0] < text_size[0] || img_dims[1] < text_size[1] ||
-      text_size[0] * 2 < img_dims[0] || text_size[1] * 2 < img_dims[1])
+  // Calculate the size the image needs to be.
+  int targetDims[3];
+  targetDims[0] = textDims[0];
+  targetDims[1] = textDims[1];
+  targetDims[2] = 1;
+  // Scale to the next highest power of 2 if required.
+  if (this->ScaleToPowerTwo)
     {
-    // Scale to the next highest power of 2 if required.
-    if (this->ScaleToPowerTwo)
-      {
-      new_img_dims[0] =
-          1 << static_cast<int>(ceil(log(static_cast<double>(text_size[0]+1)) /
-                                     log(2.0)));
-      new_img_dims[1] =
-          1 << static_cast<int>(ceil(log(static_cast<double>(text_size[1]+1)) /
-                                     log(2.0)));
-      }
-    else
-      {
-      new_img_dims[0] = text_size[0];
-      new_img_dims[1] = text_size[1];
-      }
-    new_img_dims[2] = 1;
-
-    // Set the extents to match the bbox + padding
-    data->SetExtent(text_bbox[0], text_bbox[0] + new_img_dims[0] - 1,
-                    text_bbox[2], text_bbox[2] + new_img_dims[1] - 1,
-                    0, 0);
-
-    if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
-        data->GetNumberOfScalarComponents() != 4 ||
-        new_img_dims[0] != img_dims[0] ||
-        new_img_dims[1] != img_dims[1] ||
-        new_img_dims[2] != img_dims[2])
-      {
-      data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-      }
+    targetDims[0] = vtkMath::NearestPowerOfTwo(targetDims[0]);
+    targetDims[1] = vtkMath::NearestPowerOfTwo(targetDims[1]);
     }
 
-  // Clear the image
+  // Calculate the target extent of the image using the text origin as (0, 0, 0)
+  int targetExtent[6];
+  targetExtent[0] = textBbox[0];
+  targetExtent[1] = textBbox[0] + targetDims[0] - 1;
+  targetExtent[2] = textBbox[2];
+  targetExtent[3] = textBbox[2] + targetDims[1] - 1;
+  targetExtent[4] = 0;
+  targetExtent[5] = 0;
+
+  // Get the actual image extents and increments
+  int imageExtent[6];
+  double imageSpacing[3];
+  data->GetExtent(imageExtent);
+  data->GetSpacing(imageSpacing);
+
+  // Do we need to reallocate the image memory?
+  if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
+      data->GetNumberOfScalarComponents() != 4 ||
+      imageExtent[0] != targetExtent[0] ||
+      imageExtent[1] != targetExtent[1] ||
+      imageExtent[2] != targetExtent[2] ||
+      imageExtent[3] != targetExtent[3] ||
+      imageExtent[4] != targetExtent[4] ||
+      imageExtent[5] != targetExtent[5] ||
+      fabs(imageSpacing[0] - 1.0) > 1e-10 ||
+      fabs(imageSpacing[1] - 1.0) > 1e-10 ||
+      fabs(imageSpacing[2] - 1.0) > 1e-10 )
+    {
+    data->SetSpacing(1.0, 1.0, 1.0);
+    data->SetExtent(targetExtent);
+    data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
+    }
+
+  // Clear the image buffer
   memset(data->GetScalarPointer(), 0,
          (data->GetNumberOfPoints() * data->GetNumberOfScalarComponents()));
 }
@@ -1475,7 +1471,33 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
 
       for (int i = 0; i < bitmap->width; ++i)
         {
-        if (*glyphPtr != 0)
+        if (*glyphPtr == 0)
+          {
+          dataPtr += 4;
+          ++glyphPtr;
+          }
+        else if (dataPtr[3] > 0)
+          {
+          // This is a pixel we've drawn before since it has non-zero alpha.
+          // We must therefore blend the colors.
+          float t_alpha = tpropAlpha * (*glyphPtr / 255.0);
+          float t_1_m_alpha = 1.0 - t_alpha;
+          float data_alpha = dataPtr[3] / 255.0;
+
+          float blendR(t_1_m_alpha * dataPtr[0] + t_alpha * iMetaData->rgba[0]);
+          float blendG(t_1_m_alpha * dataPtr[1] + t_alpha * iMetaData->rgba[1]);
+          float blendB(t_1_m_alpha * dataPtr[2] + t_alpha * iMetaData->rgba[2]);
+
+          // Figure out the color.
+          dataPtr[0] = static_cast<unsigned char>(blendR);
+          dataPtr[1] = static_cast<unsigned char>(blendG);
+          dataPtr[2] = static_cast<unsigned char>(blendB);
+          dataPtr[3] = static_cast<unsigned char>(
+                255 * (t_alpha + data_alpha * t_1_m_alpha));
+          dataPtr += 4;
+          ++glyphPtr;
+          }
+        else
           {
           *dataPtr = iMetaData->rgba[0];
           ++dataPtr;
@@ -1485,11 +1507,6 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
           ++dataPtr;
           *dataPtr = static_cast<unsigned char>((*glyphPtr) * tpropAlpha);
           ++dataPtr;
-          ++glyphPtr;
-          }
-        else
-          {
-          dataPtr += 4;
           ++glyphPtr;
           }
         }

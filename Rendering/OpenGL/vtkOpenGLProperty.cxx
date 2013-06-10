@@ -19,6 +19,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLGL2PSHelper.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkTexture.h"
 
@@ -36,6 +37,24 @@
 #include "vtkOpenGLPainterDeviceAdapter.h"
 
 #include <assert.h>
+
+namespace
+{
+  void ComputeMaterialColor(GLfloat result[4],
+    bool premultiply_colors_with_alpha,
+    double color_factor,
+    const double color[3],
+    double opacity)
+    {
+    double opacity_factor = premultiply_colors_with_alpha? opacity : 1.0;
+    for (int cc=0; cc < 3; cc++)
+      {
+      result[cc] = static_cast<GLfloat>(
+        opacity_factor * color_factor * color[cc]);
+      }
+    result[3] = opacity;
+    }
+}
 
 vtkStandardNewMacro(vtkOpenGLProperty);
 
@@ -159,19 +178,17 @@ void vtkOpenGLProperty::AddShaderVariable(const char *name,
 }
 
 // ----------------------------------------------------------------------------
-// Implement base class method.
-void vtkOpenGLProperty::Render(vtkActor *anActor,
-                               vtkRenderer *ren)
+bool vtkOpenGLProperty::RenderShaders(vtkActor* vtkNotUsed(anActor), vtkRenderer* ren)
 {
   // unbind any textures for starters
   vtkOpenGLRenderer *oRenderer = static_cast<vtkOpenGLRenderer *>(ren);
   if (!oRenderer)
     {
     vtkErrorMacro("the vtkOpenGLProperty need a vtkOpenGLRenderer to render.");
-    return;
+    return false;
     }
   vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
-      oRenderer->GetRenderWindow());
+      ren->GetRenderWindow());
   vtkShaderProgram2* prog = oRenderer->GetShaderProgram();
   if (prog)
     {
@@ -401,6 +418,75 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       }
     }
 
+  // Previous implementation of Render() used to test the prog variable to
+  // determine if new style texture was to be used. We are letting that logic
+  // be.
+  return (prog != NULL);
+}
+
+// ----------------------------------------------------------------------------
+// Implement base class method.
+void vtkOpenGLProperty::Render(vtkActor *anActor, vtkRenderer *ren)
+{
+  bool rendered_shader_program2 = this->RenderShaders(anActor, ren);
+
+  vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
+      ren->GetRenderWindow());
+
+  if (!context)
+    {
+    // must be an OpenGL context.
+    return;
+    }
+
+  // set interpolation
+  switch (this->Interpolation)
+    {
+  case VTK_FLAT:
+    glShadeModel(GL_FLAT);
+    break;
+  case VTK_GOURAUD:
+  case VTK_PHONG:
+  default:
+    glShadeModel(GL_SMOOTH);
+    break;
+    }
+
+  if (this->Lighting) // fixed-pipeline
+    {
+    glEnable(GL_LIGHTING);
+    }
+  else
+    {
+    glDisable(GL_LIGHTING);
+    }
+
+  // Set the PointSize
+  glPointSize(this->PointSize);
+  vtkOpenGLGL2PSHelper::SetPointSize(this->PointSize);
+
+  // Set the LineWidth
+  glLineWidth(this->LineWidth);
+  vtkOpenGLGL2PSHelper::SetLineWidth(this->LineWidth);
+
+  // Set the LineStipple
+  if (this->LineStipplePattern != 0xFFFF)
+    {
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(this->LineStippleRepeatFactor,
+                  static_cast<GLushort>(this->LineStipplePattern));
+    vtkOpenGLGL2PSHelper::EnableStipple(); // must be called after glLineStipple
+    }
+  else
+    {
+    // still need to set this although we are disabling.  else the ATI X1600
+    // (for example) still manages to stipple under certain conditions.
+    glLineStipple(this->LineStippleRepeatFactor,
+                  static_cast<GLushort>(this->LineStipplePattern));
+    glDisable(GL_LINE_STIPPLE);
+    vtkOpenGLGL2PSHelper::DisableStipple();
+    }
+
   glDisable(GL_TEXTURE_2D); // fixed-pipeline
 
   // disable alpha testing (this may have been enabled
@@ -426,98 +512,79 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     glEnable (GL_CULL_FACE);
     }
 
-  // set front and backface material properties
-  this->RenderMaterialForFace(anActor,
-                              ren,
-                              this->AmbientColor,
-                              this->DiffuseColor,
-                              this->SpecularColor,
-                              this->SpecularPower,
-                              GL_FRONT_AND_BACK);
+  vtkOpenGLProperty::SetMaterialProperties(
+    static_cast<unsigned int>(GL_FRONT_AND_BACK),
+    this->Ambient, this->AmbientColor,
+    this->Diffuse, this->DiffuseColor,
+    this->Specular, this->SpecularColor, this->SpecularPower,
+    this->Opacity, context);
 
-  GLenum method;
-  // set interpolation
-  switch (this->Interpolation)
-    {
-    case VTK_FLAT:
-      method = GL_FLAT;
-      break;
-    case VTK_GOURAUD:
-    case VTK_PHONG:
-      method = GL_SMOOTH;
-      break;
-    default:
-      method = GL_SMOOTH;
-      break;
-    }
+  this->RenderTextures(anActor, ren, rendered_shader_program2);
+  this->Superclass::Render(anActor, ren);
+}
 
-  glShadeModel(method);
+//-----------------------------------------------------------------------------
+void vtkOpenGLProperty::SetMaterialProperties(
+  unsigned int _face,
+  double ambient, const double ambient_color[3],
+  double diffuse, const double diffuse_color[3],
+  double specular, const double specular_color[3], double specular_power,
+  double opacity, vtkOpenGLRenderWindow* context)
+{
+  GLenum face = static_cast<GLenum>(_face);
+
+  // Dealing with having a correct alpha (none square) in the framebuffer
+  // is only required if there is an alpha component in the framebuffer
+  // (doh...) and if we cannot deal directly with BlendFuncSeparate.
+  GLint alphaBits = context->GetAlphaBitPlanes();
+  bool premultiply_colors_with_alpha =
+    (vtkgl::BlendFuncSeparate==0 && alphaBits>0);
+
+  GLfloat ambientGL[4];
+  ComputeMaterialColor(ambientGL, premultiply_colors_with_alpha,
+    ambient, ambient_color, opacity);
+
+  GLfloat diffuseGL[4];
+  ComputeMaterialColor(diffuseGL, premultiply_colors_with_alpha,
+    diffuse, diffuse_color, opacity);
+
+  GLfloat specularGL[4];
+  ComputeMaterialColor(specularGL, premultiply_colors_with_alpha,
+    specular, specular_color, opacity);
+
+  glMaterialfv(face, GL_AMBIENT, ambientGL);
+  glMaterialfv(face, GL_DIFFUSE, diffuseGL);
+  glMaterialfv(face, GL_SPECULAR, specularGL);
+  glMaterialf(face, GL_SHININESS, static_cast<GLfloat>(specular_power));
 
   // The material properties set above are used if shading is
   // enabled. This color set here is used if shading is
   // disabled. Shading is disabled in the
   // vtkOpenGLPolyDataMapper::Draw() method if points or lines
   // are encountered without normals.
-  GLint alphaBits = context->GetAlphaBitPlanes();
+  double composite_color[3];
+  vtkProperty::ComputeCompositeColor(composite_color,
+    ambient, ambient_color, diffuse, diffuse_color, specular, specular_color);
 
-  // Dealing with having a correct alpha (none square) in the framebuffer
-  // is only required if there is an alpha component in the framebuffer
-  // (doh...) and if we cannot deal directly with BlendFuncSeparate.
-  double factor;
-  if(vtkgl::BlendFuncSeparate==0 && alphaBits>0)
-    {
-    factor = this->Opacity;
-    }
-  else
-    {
-    factor = 1.;
-    }
+  GLfloat colorGL[4];
+  ComputeMaterialColor(colorGL, premultiply_colors_with_alpha,
+    1.0, composite_color, opacity);
+  glColor4fv(colorGL);
+}
 
-  double color[4];
-  this->GetColor(color);
-  color[0] *= factor;
-  color[1] *= factor;
-  color[2] *= factor;
-  color[3] = this->Opacity;
-
-  glColor4dv(color);
-
-  // Set the PointSize
-  glPointSize(this->PointSize);
-
-  // Set the LineWidth
-  glLineWidth(this->LineWidth);
-
-  // Set the LineStipple
-  if (this->LineStipplePattern != 0xFFFF)
-    {
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(this->LineStippleRepeatFactor,
-                  static_cast<GLushort>(this->LineStipplePattern));
-    }
-  else
-    {
-    // still need to set this although we are disabling.  else the ATI X1600
-    // (for example) still manages to stipple under certain conditions.
-    glLineStipple(this->LineStippleRepeatFactor,
-                  static_cast<GLushort>(this->LineStipplePattern));
-    glDisable(GL_LINE_STIPPLE);
-    }
-
-  if (this->Lighting) // fixed-pipeline
-    {
-    glEnable(GL_LIGHTING);
-    }
-  else
-    {
-    glDisable(GL_LIGHTING);
-    }
+//-----------------------------------------------------------------------------
+bool vtkOpenGLProperty::RenderTextures(vtkActor*, vtkRenderer* ren,
+  bool rendered_shader_program2)
+{
+  vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
+      ren->GetRenderWindow());
+  assert(context!=NULL);
 
   // render any textures.
   int numTextures = this->GetNumberOfTextures();
   if (numTextures > 0)
     {
-    if (!prog) // fixed-pipeline multitexturing or old XML shaders.
+    if (!rendered_shader_program2) // fixed-pipeline multitexturing or old XML shaders.
       {
       this->LoadMultiTexturingExtensions(ren);
       if (vtkgl::ActiveTexture)
@@ -557,7 +624,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
         if (unit == -1)
           {
           vtkErrorMacro(<<" not enough texture units.");
-          return;
+          return false;
           }
         this->SetTexture(unit,tex);
         vtkgl::ActiveTexture(vtkgl::TEXTURE0 + static_cast<GLenum>(unit));
@@ -567,88 +634,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       }
     }
-
-  this->Superclass::Render(anActor, ren);
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLProperty::RenderMaterial(vtkActor *actor,
-                                       vtkRenderer *renderer,
-                                       double *ambient,
-                                       double *diffuse,
-                                       double *specular,
-                                       double specular_power)
-{
-  this->RenderMaterialForFace(actor,
-                              renderer,
-                              ambient,
-                              diffuse,
-                              specular,
-                              specular_power,
-                              GL_FRONT_AND_BACK);
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLProperty::RenderMaterialForFace(vtkActor *,
-                                              vtkRenderer *renderer,
-                                              double *ambient,
-                                              double *diffuse,
-                                              double *specular,
-                                              double specular_power,
-                                              unsigned int face)
-{
-  // get opengl render window
-  vtkOpenGLRenderWindow *oglRenderWindow =
-    vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
-
-  // get opengl device adaptor
-  vtkOpenGLPainterDeviceAdapter *oglDeviceAdapter =
-    vtkOpenGLPainterDeviceAdapter::SafeDownCast(oglRenderWindow->GetPainterDeviceAdapter());
-
-  // calculate factor
-  double factor;
-  GLint alphaBits = oglRenderWindow->GetAlphaBitPlanes();
-
-  // Dealing with having a correct alpha (none square) in the framebuffer
-  // is only required if there is an alpha component in the framebuffer
-  // (doh...) and if we cannot deal directly with BlendFuncSeparate.
-  if (vtkgl::BlendFuncSeparate == 0 && alphaBits > 0)
-    {
-    factor = this->Opacity;
-    }
-  else
-    {
-    factor = 1.;
-    }
-
-  GLfloat ambient4[4];
-  GLfloat diffuse4[4];
-  GLfloat specular4[4];
-
-  // set rgb components for colors
-  for (int i = 0; i < 3; i++)
-    {
-    ambient4[i] = static_cast<GLfloat>(factor * this->Ambient * ambient[i]);
-    diffuse4[i] = static_cast<GLfloat>(factor * this->Diffuse * diffuse[i]);
-    specular4[i] = static_cast<GLfloat>(factor * this->Specular * specular[i]);
-    }
-
-  // set alpha component for colors
-  ambient4[3] = static_cast<GLfloat>(this->Opacity);
-  diffuse4[3] = static_cast<GLfloat>(this->Opacity);
-  specular4[3] = static_cast<GLfloat>(this->Opacity);
-
-  // get shininess
-  GLfloat shininess = static_cast<GLfloat>(specular_power);
-
-  // send materials
-  oglDeviceAdapter->SendMaterialPropertiesForFace(face,
-                                                  4,
-                                                  VTK_FLOAT,
-                                                  ambient4,
-                                                  diffuse4,
-                                                  specular4,
-                                                  &shininess);
+  return (numTextures > 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -717,16 +703,16 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
 
 //-----------------------------------------------------------------------------
 // Implement base class method.
-void vtkOpenGLProperty::BackfaceRender(vtkActor *actor, vtkRenderer *renderer)
+void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor), vtkRenderer *ren)
 {
-  // set backface material properties
-  this->RenderMaterialForFace(actor,
-                              renderer,
-                              this->AmbientColor,
-                              this->DiffuseColor,
-                              this->SpecularColor,
-                              this->SpecularPower,
-                              GL_BACK);
+  vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
+    ren->GetRenderWindow());
+  vtkOpenGLProperty::SetMaterialProperties(
+    static_cast<unsigned int>(GL_BACK),
+    this->Ambient, this->AmbientColor,
+    this->Diffuse, this->DiffuseColor,
+    this->Specular, this->SpecularColor, this->SpecularPower,
+    this->Opacity, context);
 }
 
 //-----------------------------------------------------------------------------

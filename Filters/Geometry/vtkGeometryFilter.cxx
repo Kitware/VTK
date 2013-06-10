@@ -44,10 +44,10 @@ vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkIncrementalPointLocator)
 vtkGeometryFilter::vtkGeometryFilter()
 {
   this->PointMinimum = 0;
-  this->PointMaximum = VTK_LARGE_ID;
+  this->PointMaximum = VTK_ID_MAX;
 
   this->CellMinimum = 0;
-  this->CellMaximum = VTK_LARGE_ID;
+  this->CellMaximum = VTK_ID_MAX;
 
   this->Extent[0] = -VTK_DOUBLE_MAX;
   this->Extent[1] = VTK_DOUBLE_MAX;
@@ -369,10 +369,7 @@ int vtkGeometryFilter::RequestData(
 
   cellIds->Delete();
   pts->Delete();
-  if ( cellVis )
-    {
-    delete [] cellVis;
-    }
+  delete [] cellVis;
 
   return 1;
 }

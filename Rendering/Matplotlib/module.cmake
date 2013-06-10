@@ -4,7 +4,7 @@ vtk_module(vtkRenderingMatplotlib
   DEPENDS
     vtkImagingCore
     vtkRenderingCore
-    vtkPython
+    vtkPythonInterpreter
   TEST_DEPENDS
     vtkCommonColor
     vtkInteractionImage
@@ -12,6 +12,7 @@ vtk_module(vtkRenderingMatplotlib
     vtkIOExport
     vtkIOGeometry
     vtkTestingRendering
+    vtkInteractionStyle
     vtkRenderingGL2PS
     vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL

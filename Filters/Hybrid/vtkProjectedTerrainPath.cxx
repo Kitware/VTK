@@ -56,7 +56,7 @@ vtkProjectedTerrainPath::vtkProjectedTerrainPath()
   this->ProjectionMode = SIMPLE_PROJECTION;
   this->HeightOffset = 10.0;
   this->HeightTolerance = 10.0;
-  this->MaximumNumberOfLines = VTK_LARGE_ID;
+  this->MaximumNumberOfLines = VTK_ID_MAX;
   this->PositiveLineError = NULL;
   this->NegativeLineError = NULL;
 }
@@ -407,8 +407,8 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
   // interpolation functions are such that the maximum values have to
   // take place on the boundary of the cell. We process the cell edges in
   // two passes: first the x-edges, then the y-edges.
-  double negError = VTK_LARGE_FLOAT;
-  double posError = -VTK_LARGE_FLOAT;
+  double negError = VTK_FLOAT_MAX;
+  double posError = -VTK_FLOAT_MAX;
   double x[3], loc[2], t, zMap, loc1[2], loc2[2], *x1, *x2, error;
   int ij[2], ij1[2], ij2[2], numInt, i, flip;
 

@@ -1350,6 +1350,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       {
       vtkErrorMacro(<<"Type currently not supported");
       *fp << "NULL_ARRAY" << endl;
+      delete[] outputFormat;
       return 0;
       }
     }
@@ -1746,7 +1747,7 @@ int vtkDataWriter::WritePedigreeIdData(ostream *fp, vtkAbstractArray *pedigreeId
   return this->WriteArray(fp, pedigreeIds->GetDataType(), pedigreeIds, format, num, 1);
 }
 
-int vtkIsInTheList(int index, int* list, int numElem)
+static int vtkIsInTheList(int index, int* list, int numElem)
 {
   for(int i=0; i<numElem; i++)
     {

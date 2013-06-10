@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParticleTracerBase - A Parallel Particle tracer for unsteady vector fields
+// .NAME vtkParticleTracerBase - A parallel particle tracer for vector fields
 // .SECTION Description
-// vtkParticleTracerBase is a filter that integrates a vector field to generate
-//
-//
+// vtkPParticleTracerBase is the base class for parallel filters that advect particles
+// in a vector field. Note that the input vtkPointData structure must
+// be identical on all datasets.
 // .SECTION See Also
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
 // vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
@@ -31,23 +31,6 @@
 #include <vector> // STL Header
 #include <list>   // STL Header
 //ETX
-
-class vtkMultiProcessController;
-
-class vtkMultiBlockDataSet;
-class vtkDataArray;
-class vtkDoubleArray;
-class vtkGenericCell;
-class vtkIntArray;
-class vtkTemporalInterpolatedVelocityField;
-class vtkPoints;
-class vtkCellArray;
-class vtkDoubleArray;
-class vtkFloatArray;
-class vtkIntArray;
-class vtkCharArray;
-class vtkAbstractParticleWriter;
-class vtkPolyData;
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 
@@ -120,6 +103,13 @@ public:
     virtual void SendReceiveParticles(RemoteParticleVector &outofdomain, RemoteParticleVector &received);
 
     void UpdateParticleListFromOtherProcesses();
+
+  // Description:
+  // Method that checks that the input arrays are ordered the
+  // same on all data sets. This needs to be true for all
+  // blocks in a composite data set as well as across all processes.
+  virtual bool IsPointDataValid(vtkDataObject* input);
+
 
 //
 //ETX

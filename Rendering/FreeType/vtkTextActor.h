@@ -157,7 +157,29 @@ public:
   // Return the bounding box coordinates of the text in viewport coordinates.
   // The bbox array is populated with [ xmin, xmax, ymin, ymax ]
   // values in that order.
-  virtual void GetBoundingBox(double bbox[4]);
+  virtual void GetBoundingBox(vtkViewport* vport, double bbox[4]);
+
+  // Description:
+  // Syntactic sugar to get the size of text instead of the entire bounding box.
+  virtual void GetSize(vtkViewport* vport, double size[2]);
+
+  // Description:
+  // Set and return the font size required to make this mapper fit in a given
+  // target rectangle (width x height, in pixels). A static version of the
+  // method is also available for convenience to other classes (e.g., widgets).
+  virtual int SetConstrainedFontSize(
+    vtkViewport*, int targetWidth, int targetHeight);
+  static int SetConstrainedFontSize(
+    vtkTextActor*, vtkViewport*, int targetWidth, int targetHeight);
+
+  // Description:
+  // Set and return the font size required to make each element of an array
+  // of mappers fit in a given rectangle (width x height, in pixels).  This
+  // font size is the smallest size that was required to fit the largest
+  // mapper in this constraint.
+  static int SetMultipleConstrainedFontSize(
+    vtkViewport*, int targetWidth, int targetHeight,
+    vtkTextActor** actors, int nbOfActors, int* maxResultingSize);
 
   // Description:
   // Enable non-linear scaling of font sizes. This is useful in combination

@@ -574,10 +574,9 @@ void vtkRenderView::UpdateHoverText()
   int hoverTol = 3;
 
   // Retrieve the hovered cell from the saved buffer.
-  int process;
-  vtkIdType cell;
-  vtkProp* prop;
-  this->Selector->GetPixelInformation(upos, process, cell, prop, hoverTol);
+  vtkHardwareSelector::PixelInformation info = this->Selector->GetPixelInformation(upos, hoverTol);
+  vtkIdType cell = info.AttributeID;
+  vtkProp* prop = info.Prop;
   if (prop == 0 || cell == -1)
     {
     this->Balloon->SetBalloonText("");

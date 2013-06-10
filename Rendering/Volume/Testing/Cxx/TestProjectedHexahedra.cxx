@@ -60,7 +60,7 @@ int TestProjectedHexahedra(int argc,
   //
   VTK_CREATE(vtkRenderWindow, renWin);
   renWin->AddRenderer( ren1 );
-  renWin->SetSize( 800, 800 );
+  renWin->SetSize( 500, 500 );
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren=
     vtkSmartPointer<vtkRenderWindowInteractor>::New();

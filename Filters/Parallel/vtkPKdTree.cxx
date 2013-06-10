@@ -87,7 +87,6 @@ const int vtkPKdTree::UserDefinedAssignment = 2;
 const int vtkPKdTree::RoundRobinAssignment  = 3;
 
 #define FreeList(list)   if (list) {delete [] list; list = NULL;}
-#define FreeItem(item)   if (item) {delete item; item = NULL;}
 #define FreeObject(item)   if (item) {item->Delete(); item = NULL;}
 
 
@@ -1892,6 +1891,7 @@ float *vtkPKdTree::DataBounds(int L, int K, int R)
 
   if (this->AllCheckForFailure(fail, "DataBounds", "memory allocation"))
     {
+    delete [] globalBounds;
     return NULL;
     }
 

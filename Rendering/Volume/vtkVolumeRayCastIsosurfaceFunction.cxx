@@ -25,8 +25,6 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastMapper.h"
 
-#include <math.h>
-
 vtkStandardNewMacro(vtkVolumeRayCastIsosurfaceFunction);
 
 /*    Is x between y and z?                                     */
@@ -94,10 +92,10 @@ typedef struct
 /*                                                                      */
 /************************************************************************/
 
-void trilin_line_intersection( float start[3], float vec[3],
-                               double A, double B, double C, double D,
-                               double E, double F, double G, double H,
-                               double iso, LineIntersectInfo *solution )
+static void trilin_line_intersection( float start[3], float vec[3],
+                                      double A, double B, double C, double D,
+                                      double E, double F, double G, double H,
+                                      double iso, LineIntersectInfo *solution )
 {
   double        c0, c1, c2, c3; /* Coefficients Of Cubic Equation */
   double        r1, r2, r3;     /* Roots Of Equation */
@@ -313,9 +311,9 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   ray_position_y = ray_start[1];
   ray_position_z = ray_start[2];
 
-  voxel_x = vtkFloorFuncMacro( ray_position_x );
-  voxel_y = vtkFloorFuncMacro( ray_position_y );
-  voxel_z = vtkFloorFuncMacro( ray_position_z );
+  voxel_x = vtkMath::Floor( ray_position_x );
+  voxel_y = vtkMath::Floor( ray_position_y );
+  voxel_z = vtkMath::Floor( ray_position_z );
 
   ray_end[0] = ray_start[0] + num_steps*ray_increment[0];
   ray_end[1] = ray_start[1] + num_steps*ray_increment[1];
@@ -344,9 +342,9 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   tstep_y = VTK_Sign( ray_direction_y );
   tstep_z = VTK_Sign( ray_direction_z );
 
-  end_voxel_x = (int)ray_end[0] + tstep_x;
-  end_voxel_y = (int)ray_end[1] + tstep_y;
-  end_voxel_z = (int)ray_end[2] + tstep_z;
+  end_voxel_x = vtkMath::Floor(ray_end[0]) + tstep_x;
+  end_voxel_y = vtkMath::Floor(ray_end[1]) + tstep_y;
+  end_voxel_z = vtkMath::Floor(ray_end[2]) + tstep_z;
 
   if (ray_direction_x != 0.0)
     {
@@ -356,8 +354,8 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-      tmax_x = VTK_LARGE_FLOAT;
-      tdelta_x = VTK_LARGE_FLOAT;
+      tmax_x = VTK_FLOAT_MAX;
+      tdelta_x = VTK_FLOAT_MAX;
     }
 
   if (ray_direction_y != 0.0)
@@ -368,8 +366,8 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-      tmax_y = VTK_LARGE_FLOAT;
-      tdelta_y = VTK_LARGE_FLOAT;
+      tmax_y = VTK_FLOAT_MAX;
+      tdelta_y = VTK_FLOAT_MAX;
     }
 
   if (ray_direction_z != 0.0)
@@ -380,8 +378,8 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-      tmax_z = VTK_LARGE_FLOAT;
-      tdelta_z = VTK_LARGE_FLOAT;
+      tmax_z = VTK_FLOAT_MAX;
+      tdelta_z = VTK_FLOAT_MAX;
     }
 
   dptr = data_ptr +
@@ -586,9 +584,9 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   ray_position_y = ray_start[1];
   ray_position_z = ray_start[2];
 
-  voxel_x = vtkFloorFuncMacro( ray_position_x );
-  voxel_y = vtkFloorFuncMacro( ray_position_y );
-  voxel_z = vtkFloorFuncMacro( ray_position_z );
+  voxel_x = vtkMath::Floor( ray_position_x );
+  voxel_y = vtkMath::Floor( ray_position_y );
+  voxel_z = vtkMath::Floor( ray_position_z );
 
   ray_end[0] = ray_start[0] + num_steps*ray_increment[0];
   ray_end[1] = ray_start[1] + num_steps*ray_increment[1];
@@ -617,9 +615,9 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   tstep_y = VTK_Sign( ray_direction_y );
   tstep_z = VTK_Sign( ray_direction_z );
 
-  end_voxel_x = (int)ray_end[0] + tstep_x;
-  end_voxel_y = (int)ray_end[1] + tstep_y;
-  end_voxel_z = (int)ray_end[2] + tstep_z;
+  end_voxel_x = vtkMath::Floor(ray_end[0]) + tstep_x;
+  end_voxel_y = vtkMath::Floor(ray_end[1]) + tstep_y;
+  end_voxel_z = vtkMath::Floor(ray_end[2]) + tstep_z;
 
   if (ray_direction_x != 0.0)
     {
@@ -629,8 +627,8 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-    tmax_x = VTK_LARGE_FLOAT;
-    tdelta_x = VTK_LARGE_FLOAT;
+    tmax_x = VTK_FLOAT_MAX;
+    tdelta_x = VTK_FLOAT_MAX;
     }
 
   if (ray_direction_y != 0.0)
@@ -641,8 +639,8 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-    tmax_y = VTK_LARGE_FLOAT;
-    tdelta_y = VTK_LARGE_FLOAT;
+    tmax_y = VTK_FLOAT_MAX;
+    tdelta_y = VTK_FLOAT_MAX;
     }
 
   if (ray_direction_z != 0.0)
@@ -653,8 +651,8 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
     }
   else
     {
-    tmax_z = VTK_LARGE_FLOAT;
-    tdelta_z = VTK_LARGE_FLOAT;
+    tmax_z = VTK_FLOAT_MAX;
+    tdelta_z = VTK_FLOAT_MAX;
     }
 
   dptr = data_ptr +

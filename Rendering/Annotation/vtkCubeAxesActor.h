@@ -140,10 +140,22 @@ public:
 
   // Description:
   // Explicitly specify the screen size of title and label text.
-  // ScreenSize detemines the size of the text in terms of screen
+  // ScreenSize determines the size of the text in terms of screen
   // pixels. Default is 10.0.
   void SetScreenSize(double screenSize);
   vtkGetMacro(ScreenSize, double);
+
+  // Description:
+  // Explicitly specify the distance between labels and the axis.
+  // Default is 20.0.
+  void SetLabelOffset(double offset);
+  vtkGetMacro(LabelOffset, double);
+
+  // Description:
+  // Explicitly specify the distance between title and labels.
+  // Default is 20.0.
+  void SetTitleOffset(double offset);
+  vtkGetMacro(TitleOffset, double);
 
   // Description:
   // Set/Get the camera to perform scaling and translation of the
@@ -198,7 +210,7 @@ public:
   // Set/Get the inertial factor that controls how often (i.e, how
   // many renders) the axes can switch position (jump from one axes
   // to another).
-  vtkSetClampMacro(Inertia, int, 1, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(Inertia, int, 1, VTK_INT_MAX);
   vtkGetMacro(Inertia, int);
 
   // Description:
@@ -562,9 +574,6 @@ protected:
 
   int RenderSomething;
 
-  double LabelScreenOffset;
-  double TitleScreenOffset;
-
   vtkTextProperty* TitleTextProperty[3];
   vtkStringArray* AxisLabels[3];
 
@@ -649,6 +658,8 @@ private:
   double TitleScale;
 
   double ScreenSize;
+  double LabelOffset;
+  double TitleOffset;
 
   // Description:
   // Major start and delta values, in each direction.

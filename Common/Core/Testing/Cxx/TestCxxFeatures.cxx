@@ -24,10 +24,6 @@
 
 /* Check for known compilers.  */
 
-#if defined(_MSC_VER)
-# define VTK_CXX_MSVC
-#endif
-
 #if defined(__sgi) && !defined(__GNUC__)
 # define VTK_CXX_SGI
 # if !defined(_COMPILER_VERSION)
@@ -43,14 +39,6 @@
 # define VTK_CXX_SUNPRO
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ < 3)
-# if (__GNUC__ < 3)
-#  define VTK_CXX_GCC_2
-# elif (__GNUC__ == 3)
-#  define VTK_CXX_GCC_3
-# endif
-#endif
-
 //----------------------------------------------------------------------------
 
 /* Check for known compiler limitations.  */
@@ -59,11 +47,6 @@
 #if defined(VTK_CXX_SGI_6)
 # define VTK_TYPENAME /* empty */
 # define VTK_CLASS_TEMPLATE_SPECIALIZATION /* empty */
-#endif
-
-// Check for MSVC.
-#if defined(VTK_CXX_MSVC) && (_MSC_VER < 1310)
-# define VTK_TYPENAME /* empty */
 #endif
 
 // Assume standard behavior if symbol is not already defined.
@@ -79,14 +62,6 @@
 //----------------------------------------------------------------------------
 
 #include "vtkSystemIncludes.h"
-
-//----------------------------------------------------------------------------
-
-/* Test inclusion of sstream header.  */
-//#if !(defined(VTK_CXX_GCC_2) || defined(VTK_CXX_ACC) || defined(VTK_CXX_SGI_6))
-#if defined(VTK_CXX_GCC_3)
-# include <sstream>
-#endif
 
 //----------------------------------------------------------------------------
 
@@ -416,8 +391,8 @@ int TestNonTypeTemplate()
 
 /* Test mixed type and non-type template arguments in a non-trival way.  */
 
-#if !(defined(VTK_CXX_MSVC) && (_MSC_VER < 1300)) && !defined(__BORLANDC__)
-// Visual Studio 6 and Borland do not support this fancy array template.
+#if !defined(__BORLANDC__)
+// Borland does not support this fancy array template.
 template <class T, int N>
 int TestMixedTypeTemplateFunction(T (*)[N])
 {
@@ -583,8 +558,8 @@ int TestException()
 void TestVoidReturnInner() {}
 void TestVoidReturnOuter()
 {
-  // Visual Studio 6 and MIPSpro 7.3 do not support void returns.
-#if !(defined(_MSC_VER) && (_MSC_VER < 1300) || defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 740))
+  // MIPSpro 7.3 does not support void returns.
+#if !(defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 740))
   return TestVoidReturnInner();
 #endif
 }
@@ -688,14 +663,12 @@ int main()
   DO_TEST(TestFullySpecializedClass);
   DO_TEST(TestIfScope);
   DO_TEST(TestNonTypeTemplate);
-#if !(defined(VTK_CXX_MSVC) && (_MSC_VER < 1300)) && !defined(__BORLANDC__)
+#if !defined(__BORLANDC__)
   DO_TEST(TestMixedTypeTemplate);
 #endif
   DO_TEST(TestBinaryWriting);
   DO_TEST(TestSafeBoolIdiom);
-#ifndef VTK_CXX_GCC_2 // avoid strange exception problem on debian gcc 2.95
   DO_TEST(TestException);
-#endif
   DO_TEST(TestSetLocale);
 
 #if defined(_MSC_VER) && defined(_DEBUG)

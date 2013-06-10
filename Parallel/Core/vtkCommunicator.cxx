@@ -72,12 +72,12 @@ public: \
 };
 
 #define STANDARD_OPERATION_FLOAT_OVERRIDE(name) \
-void vtkCommunicator##name##Func(const double *, double *, vtkIdType)\
+static void vtkCommunicator##name##Func(const double *, double *, vtkIdType)\
 { \
   vtkGenericWarningMacro(<< #name \
                          << " not supported for floating point numbers"); \
 } \
-void vtkCommunicator##name##Func(const float *, float *, vtkIdType) \
+static void vtkCommunicator##name##Func(const float *, float *, vtkIdType) \
 { \
   vtkGenericWarningMacro(<< #name \
                          << " not supported for floating point numbers"); \

@@ -147,7 +147,7 @@ public:
   // overly large display lists on some graphics hardware will cause faults).
   // The display list size is the length of the vtkCellArray representing the
   // topology of the input vtkPolyData.
-  vtkSetClampMacro(MaximumDisplayListSize, int, 1000, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(MaximumDisplayListSize, int, 1000, VTK_INT_MAX);
   vtkGetMacro(MaximumDisplayListSize, int);
 
 //BTX

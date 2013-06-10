@@ -33,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
+#include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
@@ -49,6 +50,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "assert.h"
 #include "vtkMPIController.h"
 #include "vtkMultiProcessController.h"
+
+#include <algorithm>
 
 using namespace vtkParticleTracerBaseNamespace;
 
@@ -418,6 +421,80 @@ void vtkPParticleTracerBase::UpdateParticleListFromOtherProcesses()
     this->ParticleHistories.push_back(info.Current);
     }
 
+}
+
+bool vtkPParticleTracerBase::IsPointDataValid(vtkDataObject* input)
+{
+  if(this->Controller->GetNumberOfProcesses() == 1)
+    {
+    return this->Superclass::IsPointDataValid(input);
+    }
+  int retVal = 1;
+  vtkMultiProcessStream stream;
+  if(this->Controller->GetLocalProcessId() == 0)
+    {
+    std::vector<std::string> arrayNames;
+    if(vtkCompositeDataSet* cdInput = vtkCompositeDataSet::SafeDownCast(input))
+      {
+      retVal = (int) this->Superclass::IsPointDataValid(cdInput, arrayNames);
+      }
+    else
+      {
+      this->GetPointDataArrayNames(vtkDataSet::SafeDownCast(input), arrayNames);
+      }
+    stream << retVal;
+    // only need to send the array names to check if proc 0 has valid point data
+    if(retVal == 1)
+      {
+      stream << (int)arrayNames.size();
+      for(std::vector<std::string>::iterator it=arrayNames.begin();
+          it!=arrayNames.end();it++)
+        {
+        stream << *it;
+        }
+      }
+    }
+  this->Controller->Broadcast(stream, 0);
+  if(this->Controller->GetLocalProcessId() != 0)
+    {
+    stream >> retVal;
+    if(retVal == 0)
+      {
+      return false;
+      }
+    int numArrays;
+    stream >> numArrays;
+    std::vector<std::string> arrayNames(numArrays);
+    for(int i=0;i<numArrays;i++)
+      {
+      stream >> arrayNames[i];
+      }
+    std::vector<std::string> tempNames;
+    if(vtkCompositeDataSet* cdInput = vtkCompositeDataSet::SafeDownCast(input))
+      {
+      retVal = (int) this->Superclass::IsPointDataValid(cdInput, tempNames);
+      if(retVal)
+        {
+        retVal = (std::equal(tempNames.begin(), tempNames.end(), arrayNames.begin()) == true ?
+                  1 : 0);
+        }
+      }
+    else
+      {
+      this->GetPointDataArrayNames(vtkDataSet::SafeDownCast(input), tempNames);
+      retVal = (std::equal(tempNames.begin(), tempNames.end(), arrayNames.begin()) == true ?
+                1 : 0);
+      }
+    }
+  else if(retVal == 0)
+    {
+    return false;
+    }
+  int tmp = retVal;
+  cerr << retVal << " is my retval\n";
+  this->Controller->AllReduce(&tmp, &retVal, 1, vtkMPICommunicator::MIN_OP);
+
+  return (retVal != 0);
 }
 
 

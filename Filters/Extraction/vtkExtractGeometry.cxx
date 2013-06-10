@@ -163,12 +163,6 @@ int vtkExtractGeometry::RequestData(
       input->GetPoint(ptId, x);
       val = this->ImplicitFunction->FunctionValue(x) * multiplier;
       newScalars->SetValue(ptId, val);
-      if ( val < 0.0 )
-        {
-        newId = newPts->InsertNextPoint(x);
-        pointMap[ptId] = newId;
-        outputPD->CopyData(pd,ptId,newId);
-        }
       }
     }
 

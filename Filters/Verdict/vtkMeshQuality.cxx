@@ -44,7 +44,7 @@ typedef double (*CellQualityType)( vtkCell*  );
 
 double TetVolume( vtkCell* cell );
 
-const char* QualityMeasureNames[] =
+static const char* QualityMeasureNames[] =
 {
   "EdgeRatio",
   "AspectRatio",

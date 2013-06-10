@@ -101,13 +101,18 @@ public:
   // Description:
   // Get the range of array values for the given component in the
   // native data type.
-  void GetValueRange(T range[2], int comp) {
-    this->ComputeRange(comp);
-    range[0] = this->ValueRange[0];
-    range[1] = this->ValueRange[1]; }
-  T *GetValueRange(int comp) {
-    this->ComputeRange(comp);
-    return this->ValueRange; }
+  void GetValueRange(T range[2], int comp)
+    {
+    double doubleRange[2];
+    this->ComputeRange(doubleRange, comp);
+    range[0] = static_cast<T>(doubleRange[0]);
+    range[1] = static_cast<T>(doubleRange[1]);
+    }
+  T *GetValueRange(int comp)
+    {
+    this->GetValueRange(this->ValueRange, comp);
+    return this->ValueRange;
+    }
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
@@ -282,8 +287,8 @@ protected:
   int SaveUserArray;
   int DeleteMethod;
 
-  virtual void ComputeScalarRange(int comp);
-  virtual void ComputeVectorRange();
+  virtual void ComputeScalarRange(double range[2], int comp);
+  virtual void ComputeVectorRange(double range[2]);
 private:
   vtkDataArrayTemplate(const vtkDataArrayTemplate&);  // Not implemented.
   void operator=(const vtkDataArrayTemplate&);  // Not implemented.

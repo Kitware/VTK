@@ -37,7 +37,7 @@
 // ----------------------------------------------------------------------------
 
 
-std::string GetEnzoMajorFileName( const char * path )
+static std::string GetEnzoMajorFileName( const char * path )
 {
   return(vtksys::SystemTools::GetFilenameName( std::string( path ) ) );
 }

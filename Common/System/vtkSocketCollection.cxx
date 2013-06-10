@@ -74,6 +74,8 @@ int vtkSocketCollection::SelectSockets(unsigned long msec /*=0*/)
   if (no_of_sockets == 0)
     {
     vtkErrorMacro("No alive sockets!");
+    delete []sockets_to_select;
+    delete []socket_indices;
     return -1;
     }
   int res = vtkSocket::SelectSockets(sockets_to_select, no_of_sockets,

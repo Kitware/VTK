@@ -52,6 +52,9 @@ vtkProbeFilter::vtkProbeFilter()
   this->CellList = 0;
 
   this->UseNullPoint = true;
+
+  this->PassCellArrays = 0;
+  this->PassPointArrays = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -116,6 +119,27 @@ int vtkProbeFilter::RequestData(
     }
 
   this->Probe(input, source, output);
+
+  // copy point data arrays
+  if (this->PassPointArrays)
+    {
+    int numPtArrays = input->GetPointData()->GetNumberOfArrays();
+    for (int i=0; i<numPtArrays; ++i)
+      {
+      output->GetPointData()->AddArray(input->GetPointData()->GetArray(i));
+      }
+    }
+
+  // copy cell data arrays
+  if (this->PassCellArrays)
+    {
+    int numCellArrays = input->GetCellData()->GetNumberOfArrays();
+    for (int i=0; i<numCellArrays; ++i)
+      {
+      output->GetCellData()->AddArray(input->GetCellData()->GetArray(i));
+      }
+    }
+
   return 1;
 }
 
@@ -284,6 +308,22 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
     if (cellId >= 0)
       {
       cell = source->GetCell(cellId);
+      // If we found a cell, let's make sure that the point is within
+      // a certain size of the cell when it is slightly outside.
+      // The tolerance check above is based on the bounds of the whole
+      // dataset which may be significantly larger than the cell. When
+      // that happens, even a small tolerance may lead to finding a cell
+      // when the point is significantly outside that cell. This check
+      // is based on the cell's size. The tolerance here is significantly
+      // larger, 1/10 the size of the cell.
+      double dist2;
+      double closestPoint[3];
+      cell->EvaluatePosition(x, closestPoint, subId,
+                             pcoords, dist2, weights);
+      if (dist2 > cell->GetLength2() * 0.01)
+        {
+        cell = 0;
+        }
       }
     else
       {
@@ -371,11 +411,11 @@ int vtkProbeFilter::RequestInformation(
       {
       if (m1 < -1)
         {
-        m1 = VTK_LARGE_INTEGER;
+        m1 = VTK_INT_MAX;
         }
       if (m2 < -1)
         {
-        m2 = VTK_LARGE_INTEGER;
+        m2 = VTK_INT_MAX;
         }
       if (m2 < m1)
         {

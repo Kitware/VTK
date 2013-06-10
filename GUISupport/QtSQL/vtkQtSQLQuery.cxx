@@ -75,7 +75,7 @@ bool vtkQtSQLQuery::HasError()
 
 const char* vtkQtSQLQuery::GetLastErrorText()
 {
-  this->SetLastErrorText(this->Internals->QtQuery.lastError().text().toAscii());
+  this->SetLastErrorText(this->Internals->QtQuery.lastError().text().toLatin1());
   return this->LastErrorText;
 }
 
@@ -93,8 +93,8 @@ bool vtkQtSQLQuery::Execute()
     {
     QString errorString;
     errorString.sprintf("Query execute error: %s (type:%d)\n",
-      error.text().toAscii().data(),error.type());
-    vtkErrorMacro(<< errorString.toAscii().data());
+      error.text().toLatin1().data(),error.type());
+    vtkErrorMacro(<< errorString.toLatin1().data());
     return false;
     }
 
@@ -102,7 +102,7 @@ bool vtkQtSQLQuery::Execute()
   this->Internals->FieldNames.clear();
   for (int i = 0; i < this->Internals->QtQuery.record().count(); i++)
     {
-    this->Internals->FieldNames.push_back(this->Internals->QtQuery.record().fieldName(i).toAscii().data());
+    this->Internals->FieldNames.push_back(this->Internals->QtQuery.record().fieldName(i).toLatin1().data());
     }
   return true;
 }
@@ -180,7 +180,7 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
     case QVariant::Bool:
       return vtkVariant(v.toInt());
     case QVariant::Char:
-      return vtkVariant(v.toChar().toAscii());
+      return vtkVariant(v.toChar().toLatin1());
     case QVariant::DateTime:
       {
       QDateTime dt = v.toDateTime();
@@ -206,7 +206,7 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
     case QVariant::LongLong:
       return vtkVariant(v.toLongLong());
     case QVariant::String:
-      return vtkVariant(v.toString().toAscii().data());
+      return vtkVariant(v.toString().toLatin1().data());
     case QVariant::UInt:
       return vtkVariant(v.toUInt());
     case QVariant::ULongLong:
@@ -223,7 +223,7 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
     default:
       vtkErrorMacro(<< "Unhandled Qt variant type "
         << v.type() << " found; returning string variant.");
-      return vtkVariant(v.toString().toAscii().data());
+      return vtkVariant(v.toString().toLatin1().data());
     }
 }
 

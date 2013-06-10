@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME Test of vtkWindBladeReader
 // .SECTION Description
-// Tests the vtkWindBladeReader.  Requires VTKLargeData to be set.
+// Tests the vtkWindBladeReader.
 
 #include "vtkWindBladeReader.h"
 

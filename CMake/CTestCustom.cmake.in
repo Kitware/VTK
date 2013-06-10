@@ -70,7 +70,6 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "xtree.[0-9]+. : warning C4702: unreachable code"
   "vector.[0-9]+. : warning C4702: unreachable code"
   "warning LNK4221"
-  "math.h.[0-9]+.: warning C4211"
   "variable .var_args[2]*. is used before its value is set"
   "jobserver unavailable"
   "warning: \\(Long double usage is reported only once for each file"
@@ -80,6 +79,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "could not be inlined"
   "ld: warning prebinding disabled because \\((__TEXT|__DATA|__LINKEDIT) segment \\(address = 0x[a-f0-9]+ size = 0x[a-f0-9]+\\) of (.*) overlaps with (__LINKEDIT|__TEXT|__DATA) segment \\(address = 0x[a-f0-9]+ size = 0x[a-f0-9]+\\) of (.*)"
   "ld: warning prebinding disabled because dependent library: (.*).dylib is not prebound"
+  "warning: duplicate dylib"
 
   # MPI uses c++ but may have been built with a different c++ compiler.
   # It seems to work anyway so let's ignore it to make it easier to
@@ -273,6 +273,16 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
   # Strange Arch warning
   "cc1plus: warning: assuming signed overflow does not occur when assuming that .* is always true"
+
+  # Unused dll when building Examples/AMR/Cxx with VS 7.1, Release configuration
+  "warning LNK4089: all references to .vtkIOXML-.*dll. discarded by /OPT:REF"
+
+  # Ignore clang's summary warning, assuming prior text has matched some
+  # other warning expression:
+  "[0-9,]+ warnings? generated."
+
+  #ignore clangs documentation warnings from libxml, which uses gtk-doc natively, not doxygen
+  "vtklibxml2.*warning: unknown command tag name"
   )
 
 IF(APPLE)

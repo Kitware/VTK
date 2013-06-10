@@ -142,11 +142,16 @@ SET(Module_SRCS
   vtkWeakPointerBase.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
-  vtkDataArrayTemplate.h
-  vtkDenseArray.h
-  vtkSparseArray.h
-  vtkTypedArray.h
+  vtkDataArrayTemplate.txx
+  vtkDenseArray.txx
+  vtkSparseArray.txx
+  vtkTypedArray.txx
   vtkTypeTemplate.h
+  vtkType.h
+  vtkSystemIncludes.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
 
 set(${vtk-module}_HDRS
@@ -160,21 +165,15 @@ set(${vtk-module}_HDRS
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAutoInit.h
-  vtkDataArrayTemplate.txx
   vtkDataArrayTemplateImplicit.txx
-  vtkDenseArray.txx
   vtkIOStreamFwd.h
   vtkInformationInternals.h
   vtkMathUtilities.h
   vtkNew.h
   vtkSetGet.h
   vtkSmartPointer.h
-  vtkSparseArray.txx
-  vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
-  vtkType.h
   vtkTypeTraits.h
-  vtkTypedArray.txx
   vtkVariantCast.h
   vtkVariantCreate.h
   vtkVariantExtract.h
@@ -182,10 +181,7 @@ set(${vtk-module}_HDRS
   vtkWeakPointer.h
   vtkWin32Header.h
   vtkWindows.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
 
 if(vtkCommonDataModel_ENABLED)
@@ -314,24 +310,30 @@ foreach(t Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 Float32 Float64)
   endif()
 endforeach()
 
-# Figure out if isnan and isinf functions are present.
+# look for various headers and functions
 include(CheckSymbolExists)
-include(CheckFunctionExists)
 include(CheckIncludeFile)
 
-if(NOT HAVE_FLOAT_H)
-  check_include_file("float.h" HAVE_FLOAT_H)
-endif()
+# Check C++ <cmath> first, where the C++11 standard says these must be.
+check_symbol_exists(std::isnan "cmath" VTK_HAS_STD_ISNAN)
+check_symbol_exists(std::isinf "cmath" VTK_HAS_STD_ISINF)
+check_symbol_exists(std::isfinite "cmath" VTK_HAS_STD_ISFINITE)
 
-if(HAVE_FLOAT_H)
-  check_symbol_exists(isnan "float.h" VTK_HAS_ISNAN)
-  if(NOT VTK_HAS_ISNAN)
-    check_symbol_exists(_isnan "float.h" VTK_HAS__ISNAN)
-  endif()
-  check_symbol_exists(isinf "float.h" VTK_HAS_ISINF)
-  if(NOT VTK_HAS_ISINF)
-    check_function_exists(_isinf "float.h" VTK_HAS__ISINF)
-  endif()
+# Check C99 <math.h> next, where the C99 standard says these must be.
+# (they will be found even if they are defined as macros)
+check_symbol_exists(isnan "math.h" VTK_HAS_ISNAN)
+check_symbol_exists(isinf "math.h" VTK_HAS_ISINF)
+check_symbol_exists(isfinite "math.h" VTK_HAS_ISFINITE)
+
+# Check for finite() which is widespread, though non-standard.
+check_symbol_exists(finite "math.h" VTK_HAS_FINITE)
+
+# Check float.h last, where Windows keeps its underscore versions.
+if(NOT VTK_HAS_ISNAN AND NOT VTK_HAS_STD_ISNAN)
+  check_symbol_exists(_isnan "float.h" VTK_HAS__ISNAN)
+endif()
+if(NOT VTK_HAS_FINITE AND NOT VTK_HAS_ISFINITE AND NOT VTK_HAS_STD_ISFINITE)
+  check_symbol_exists(_finite "float.h" VTK_HAS__FINITE)
 endif()
 
 configure_file(
@@ -353,16 +355,6 @@ endif()
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/vtkFloatingPointExceptionsConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h
-  )
-
-# header files that have constants that can be wrapped
-set_source_files_properties(
-  vtkSystemIncludes.h
-  vtkType.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
-  PROPERTIES WRAP_HEADER 1
   )
 
 set_source_files_properties(
@@ -436,10 +428,45 @@ set_source_files_properties(
   vtkWeakPointerBase.cxx
   vtkUnicodeString.cxx
   vtkDataArrayTemplate.h
-  vtkDenseArray.h
-  vtkSparseArray.h
-  vtkTypedArray.h
+
+  vtkABI.h
+  vtkArrayInterpolate.h
+  vtkArrayInterpolate.txx
+  vtkArrayIteratorIncludes.h
+  vtkArrayIteratorTemplate.h
+  vtkArrayIteratorTemplate.txx
+  vtkArrayIteratorTemplateImplicit.txx
+  vtkArrayPrint.h
+  vtkArrayPrint.txx
+  vtkAutoInit.h
+  vtkDataArrayTemplate.txx
+  vtkDataArrayTemplateImplicit.txx
+  vtkDenseArray.txx
+  vtkIOStreamFwd.h
+  vtkInformationInternals.h
+  vtkMathUtilities.h
+  vtkNew.h
+  vtkSetGet.h
+  vtkSmartPointer.h
+  vtkSparseArray.txx
+  vtkTemplateAliasMacro.h
+  vtkTypeTraits.h
+  vtkTypedArray.txx
+  vtkVariantCast.h
+  vtkVariantCreate.h
+  vtkVariantExtract.h
+  vtkVariantInlineOperators.h
+  vtkWeakPointer.h
+  vtkWin32Header.h
+  vtkWindows.h
+  vtkToolkits.h
+  vtkSystemIncludes.h
+  vtkType.h
+  vtkConfigure.h
+  vtkMathConfigure.h
+  vtkVersionMacros.h
   vtkTypeTemplate.h
+
   WRAP_EXCLUDE
   )
 
@@ -461,10 +488,15 @@ set_source_files_properties(
   vtkArrayWeights.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
-  vtkDenseArray.h
-  vtkSparseArray.h
-  vtkTypedArray.h
+  vtkDenseArray.txx
+  vtkSparseArray.txx
+  vtkTypedArray.txx
   vtkTypeTemplate.h
+  vtkSystemIncludes.h
+  vtkType.h
+  vtkConfigure.h
+  vtkMathConfigure.h
+  vtkVersionMacros.h
   PROPERTIES WRAP_SPECIAL 1
 )
 

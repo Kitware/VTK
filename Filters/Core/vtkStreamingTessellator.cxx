@@ -20,14 +20,6 @@
 #undef UGLY_ASPECT_RATIO_HACK
 #undef DBG_MIDPTS
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-   /* Ignore "return type for 'std::deque<int*>::const_iterator::operator ->'
-    * is 'int *const * ' (ie; not a UDT or reference to a UDT.
-    * Will produce errors if applied using infix notation)" warning on MSVC6.
-    */
-#  pragma warning ( disable : 4284 )
-#endif
-
 #include <stack>
 #include <algorithm>
 
@@ -293,7 +285,7 @@ const vtkEdgeSubdivisionCriterion* vtkStreamingTessellator::GetSubdivisionAlgori
 // Returns true if || a0a1 || < || b0b1 ||
 // We use this to test which triangulation has the best
 // aspect ratio when there are 2 to choose from.
-bool compareHopfCrossStringDist( const double* a0, const double* a1, const double* b0, const double* b1 )
+static bool compareHopfCrossStringDist( const double* a0, const double* a1, const double* b0, const double* b1 )
 {
   double SqMagA = 0.;
   double SqMagB = 0.;

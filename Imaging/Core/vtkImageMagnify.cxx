@@ -162,7 +162,7 @@ void vtkImageMagnifyExecute(vtkImageMagnify *self,
   inMaxZ = inExt[5];
   inData->GetExtent(idxC, inMaxX, idxC, inMaxY, idxC, inMaxZ);
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxC = 0; idxC < maxC; idxC++)
     {
     inPtrZ = inPtr + idxC;

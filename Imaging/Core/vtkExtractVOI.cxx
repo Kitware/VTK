@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkExtractVOI);
 vtkExtractVOI::vtkExtractVOI()
 {
   this->VOI[0] = this->VOI[2] = this->VOI[4] = 0;
-  this->VOI[1] = this->VOI[3] = this->VOI[5] = VTK_LARGE_INTEGER;
+  this->VOI[1] = this->VOI[3] = this->VOI[5] = VTK_INT_MAX;
 
   this->SampleRate[0] = this->SampleRate[1] = this->SampleRate[2] = 1;
 }

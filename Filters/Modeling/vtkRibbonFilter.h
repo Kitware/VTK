@@ -118,7 +118,7 @@ public:
   // calculation. The TextureLength indicates what length (whether
   // calculated from scalars or length) is mapped to the [0,1)
   // texture space. The default is 1.0
-  vtkSetClampMacro(TextureLength,double,0.000001,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(TextureLength,double,0.000001,VTK_INT_MAX);
   vtkGetMacro(TextureLength,double);
 
 protected:

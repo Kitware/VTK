@@ -87,11 +87,13 @@ public:
   // Specify the in memory image buffer.
   // May be used by a reader to allow the reading
   // of an image from memory instead of from file.
-  vtkSetNGetMacro(MemoryBuffer, void*);
+  virtual void SetMemoryBuffer(void *);
+  virtual void *GetMemoryBuffer() { return this->MemoryBuffer; }
 
   // Description:
   // Specify the in memory image buffer length.
-  vtkSetNGetMacro(MemoryBufferLength, vtkIdType);
+  virtual void SetMemoryBufferLength(vtkIdType buflen);
+  vtkIdType GetMemoryBufferLength() { return this->MemoryBufferLength; }
 
   // Description:
   // Set the data type of pixels in the file.

@@ -128,6 +128,13 @@ vtkWindBladeReader::vtkWindBladeReader()
   // by default don't skip any lines because normal wind files do not
   // have a header
   this->NumberOfLinesToSkip = 0;
+
+  this->VariableName = NULL;
+  this->VariableStruct = NULL;
+  this->VariableCompSize = NULL;
+  this->VariableBasicType = NULL;
+  this->VariableByteCount = NULL;
+  this->VariableOffset = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -179,6 +186,30 @@ vtkWindBladeReader::~vtkWindBladeReader()
     delete [] this->TimeSteps;
     this->TimeSteps = NULL;
     }
+  if (this->VariableName)
+    {
+    delete[] this->VariableName;
+    }
+  if (this->VariableStruct)
+    {
+    delete[] this->VariableStruct;
+    }
+  if (this->VariableCompSize)
+    {
+    delete[] this->VariableCompSize;
+    }
+  if (this->VariableBasicType)
+    {
+    delete[] this->VariableBasicType;
+    }
+  if (this->VariableByteCount)
+    {
+    delete[] this->VariableByteCount;
+    }
+  if (this->VariableOffset)
+    {
+    delete[] this->VariableOffset;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -186,6 +217,10 @@ int vtkWindBladeReader::ProcessRequest(vtkInformation* reqInfo,
                                        vtkInformationVector** inputVector,
                                        vtkInformationVector* outputVector)
 {
+#ifdef VTK_WORDS_BIGENDIAN
+  vtkWarningMacro
+  ("Warning WindBlade reader does not yet work on big endian processors")
+#endif
   if(reqInfo->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
     {
     int port = reqInfo->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
@@ -623,7 +658,31 @@ void vtkWindBladeReader::ReadDataVariables(istream& inStr)
   int totalVariables = this->NumberOfFileVariables +
                        this->NumberOfDerivedVariables;
 
+  if (this->VariableName)
+    {
+    delete[] this->VariableName;
+    }
   this->VariableName = new vtkStdString[totalVariables];
+  if (this->VariableStruct)
+    {
+    delete[] this->VariableStruct;
+    }
+  if (this->VariableCompSize)
+    {
+    delete[] this->VariableCompSize;
+    }
+  if (this->VariableBasicType)
+    {
+    delete[] this->VariableBasicType;
+    }
+  if (this->VariableByteCount)
+    {
+    delete[] this->VariableByteCount;
+    }
+  if (this->VariableOffset)
+    {
+    delete[] this->VariableOffset;
+    }
   this->VariableStruct = new int[totalVariables];
   this->VariableCompSize = new int[totalVariables];
   this->VariableBasicType = new int[totalVariables];

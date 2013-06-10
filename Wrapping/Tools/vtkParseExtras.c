@@ -904,33 +904,33 @@ size_t vtkParse_ValueInfoFromString(
   if (*cp == '[')
     {
     count = 1;
-    }
 
-  while (*cp == '[')
-    {
-    n = vtkparse_bracket_len(cp);
-    if (n > 1)
+    while (*cp == '[')
       {
-      cp++;
-      n -= 2;
-      }
-    while (*cp == ' ' || *cp == '\t') { cp++; n--; }
-    while (n > 0 && (cp[n-1] == ' ' || cp[n-1] == '\t')) { n--; }
-    vtkParse_AddStringToArray(
-      &data->Dimensions,
-      &data->NumberOfDimensions,
-      vtkParse_CacheString(cache, cp, n));
-    m = 0;
-    if (*cp >= '0' && *cp <= '9' && vtkparse_number_len(cp) == n)
-      {
-      m = (int)strtol(cp, NULL, 0);
-      }
-    count *= m;
+      n = vtkparse_bracket_len(cp);
+      if (n > 1)
+        {
+        cp++;
+        n -= 2;
+        }
+      while (*cp == ' ' || *cp == '\t') { cp++; n--; }
+      while (n > 0 && (cp[n-1] == ' ' || cp[n-1] == '\t')) { n--; }
+      vtkParse_AddStringToArray(
+        &data->Dimensions,
+        &data->NumberOfDimensions,
+        vtkParse_CacheString(cache, cp, n));
+      m = 0;
+      if (*cp >= '0' && *cp <= '9' && vtkparse_number_len(cp) == n)
+        {
+        m = (int)strtol(cp, NULL, 0);
+        }
+      count *= m;
 
-    cp += n;
-    while (*cp == ' ' || *cp == '\t') { cp++; }
-    if (*cp == ']') { cp++; }
-    while (*cp == ' ' || *cp == '\t') { cp++; }
+      cp += n;
+      while (*cp == ' ' || *cp == '\t') { cp++; }
+      if (*cp == ']') { cp++; }
+      while (*cp == ' ' || *cp == '\t') { cp++; }
+      }
     }
 
   /* add pointer indirection to correspond to first array dimension */

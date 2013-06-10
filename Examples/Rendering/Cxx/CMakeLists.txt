@@ -30,7 +30,7 @@ foreach(name ${RENDERING_EXAMPLES_SRCS})
   target_link_libraries(${name} ${VTK_LIBRARIES} )
 endforeach()
 
-if(VTK_SOURCE_DIR)
+if(vtkTestingCore_LOADED)
   include_directories(
     # in support of SurfaceLICDemo that includes
     # TestSurfaceLIC.h from the dir below

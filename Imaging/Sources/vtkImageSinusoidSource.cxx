@@ -174,7 +174,7 @@ void vtkImageSinusoidSource::ExecuteDataWithInformation(vtkDataObject *output,
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     zContrib = this->Direction[2] * (idxZ + outExt[4]);

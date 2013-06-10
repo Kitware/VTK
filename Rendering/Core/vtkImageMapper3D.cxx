@@ -294,7 +294,7 @@ vtkMatrix4x4 *vtkImageMapper3D::GetDataToWorldMatrix()
 
 //----------------------------------------------------------------------------
 // Convert char data without changing format
-void vtkImageMapperCopy(
+static void vtkImageMapperCopy(
   const unsigned char *inPtr, unsigned char *outPtr, int ncols, int nrows,
   int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY)
 {
@@ -567,7 +567,7 @@ void vtkImageMapperShiftScale(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapperConvertImageScalarsToRGBA(
+static void vtkImageMapperConvertImageScalarsToRGBA(
   void *inPtr, unsigned char *outPtr, int ncols, int nrows,
   int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY,
   int scalarType, double scalarRange[2])
@@ -634,7 +634,7 @@ void vtkImageMapperMakeContiguous(
     }
 }
 
-void vtkImageMapperApplyLookupTableToImageScalars(
+static void vtkImageMapperApplyLookupTableToImageScalars(
   void *inPtr, unsigned char *outPtr, int ncols, int nrows,
   int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY,
   int scalarType, vtkScalarsToColors *lookupTable)
@@ -728,7 +728,7 @@ struct vtkImageMapperThreadStruct
   vtkScalarsToColors *LookupTable;
 };
 
-VTK_THREAD_RETURN_TYPE vtkImageMapperMapColors(void *arg)
+static VTK_THREAD_RETURN_TYPE vtkImageMapperMapColors(void *arg)
 {
   vtkMultiThreader::ThreadInfo *mtti =
     static_cast<vtkMultiThreader::ThreadInfo *>(arg);

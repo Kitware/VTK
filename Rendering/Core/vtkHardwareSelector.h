@@ -145,14 +145,14 @@ public:
   // Description:
   // @deprecated Replaced by
   // PixelInformation* GetPixelInformation(unsigned int position[2]);
-  bool GetPixelInformation(unsigned int display_position[2],
-    int& processId, vtkIdType& attrId, vtkProp*& prop);
+  VTK_LEGACY(bool GetPixelInformation(unsigned int display_position[2],
+    int& processId, vtkIdType& attrId, vtkProp*& prop));
 
   // Description:
   // @deprecated Replaced by
   // PixelInformation* GetPixelInformation(unsigned int position[2], int maxDist);
-  bool GetPixelInformation(unsigned int display_position[2],
-    int& processId, vtkIdType& attrId, vtkProp*& prop, int maxDist);
+  VTK_LEGACY(bool GetPixelInformation(unsigned int display_position[2],
+    int& processId, vtkIdType& attrId, vtkProp*& prop, int maxDist));
 
   // Description:
   // Called by any vtkMapper or vtkProp subclass to render a composite-index.
@@ -203,6 +203,14 @@ public:
   virtual vtkSelection* GenerateSelection(
     unsigned int x1, unsigned int y1,
     unsigned int x2, unsigned int y2);
+
+  // Description:
+  // Generates the vtkSelection from pixel buffers.
+  // Same as GenerateSelection, except this one use a polygon, instead
+  // of a rectangle region, and select elements inside the polygon.
+  // NOTE: The CaptureBuffers() needs to be called first.
+  virtual vtkSelection* GeneratePolygonSelection(
+    int* polygonPoints, vtkIdType count);
 
   // Description:
   // returns the prop associated with a ID. This is valid only until

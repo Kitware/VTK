@@ -97,7 +97,7 @@ endmacro()
 # This macro provides module implementation, setting up important variables
 # necessary to build a module. It assumes we are in the directory of the module.
 macro(vtk_module_impl)
-  include(module.cmake) # Load module meta-data
+  include(module.cmake OPTIONAL) # Load module meta-data
 
   vtk_module_config(_dep ${${vtk-module}_DEPENDS})
   if(_dep_INCLUDE_DIRS)
@@ -156,6 +156,12 @@ macro(vtk_module_export_info)
   endif()
   set(vtk-module-EXPORT_CODE-build "${_code}${${vtk-module}_EXPORT_CODE_BUILD}")
   set(vtk-module-EXPORT_CODE-install "${_code}${${vtk-module}_EXPORT_CODE_INSTALL}")
+  if(${vtk-module}_WRAP_HINTS)
+    set(vtk-module-EXPORT_CODE-build
+      "${vtk-module-EXPORT_CODE-build}set(${vtk-module}_WRAP_HINTS \"${${vtk-module}_WRAP_HINTS}\")\n")
+    set(vtk-module-EXPORT_CODE-install
+      "${vtk-module-EXPORT_CODE-install}set(${vtk-module}_WRAP_HINTS \"\${CMAKE_CURRENT_LIST_DIR}/${vtk-module}_hints\")\n")
+  endif()
 
   set(vtk-module-DEPENDS "${${vtk-module}_DEPENDS}")
   set(vtk-module-LIBRARIES "${${vtk-module}_LIBRARIES}")
@@ -181,18 +187,31 @@ macro(vtk_module_export_info)
     install(FILES ${${vtk-module}_BINARY_DIR}/CMakeFiles/${vtk-module}.cmake
       DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
       COMPONENT Development)
+    if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING)
+      if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
+        install(FILES ${${vtk-module}_WRAP_HIERARCHY_FILE}
+          DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
+          COMPONENT Development)
+      endif()
+      if(${vtk-module}_WRAP_HINTS AND EXISTS "${${vtk-module}_WRAP_HINTS}")
+        install(FILES ${${vtk-module}_WRAP_HINTS}
+          RENAME ${vtk-module}_HINTS
+          DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
+          COMPONENT Development)
+      endif()
+    endif()
   endif()
 endmacro()
 
-# Export data from a module such as name, include directory and class level
+# Export data from a module such as name, include directory and header level
 # information useful for wrapping.
 function(vtk_module_export sources)
   vtk_module_export_info()
-  # Now iterate through the classes in the module to get class level information.
+  # Now iterate through the headers in the module to get header level information.
   foreach(arg ${sources})
     get_filename_component(src "${arg}" ABSOLUTE)
 
-    string(REGEX REPLACE "\\.(cxx|mm)$" ".h" hdr "${src}")
+    string(REGEX REPLACE "\\.(cxx|txx|mm)$" ".h" hdr "${src}")
     if("${hdr}" MATCHES "\\.h$")
       if(EXISTS "${hdr}")
         get_filename_component(_filename "${hdr}" NAME)
@@ -203,29 +222,29 @@ function(vtk_module_export sources)
         get_source_file_property(_wrap_special ${src} WRAP_SPECIAL)
 
         if(_wrap_special OR NOT _wrap_exclude)
-          list(APPEND vtk-module-CLASSES ${_cls})
+          list(APPEND vtk-module-HEADERS ${_cls})
 
           if(_abstract)
             set(vtk-module-ABSTRACT
-              "${vtk-module-ABSTRACT}set(${vtk-module}_CLASS_${_cls}_ABSTRACT 1)\n")
+              "${vtk-module-ABSTRACT}set(${vtk-module}_HEADER_${_cls}_ABSTRACT 1)\n")
           endif()
 
           if(_wrap_exclude)
             set(vtk-module-WRAP_EXCLUDE
-              "${vtk-module-WRAP_EXCLUDE}set(${vtk-module}_CLASS_${_cls}_WRAP_EXCLUDE 1)\n")
+              "${vtk-module-WRAP_EXCLUDE}set(${vtk-module}_HEADER_${_cls}_WRAP_EXCLUDE 1)\n")
           endif()
 
           if(_wrap_special)
             set(vtk-module-WRAP_SPECIAL
-              "${vtk-module-WRAP_SPECIAL}set(${vtk-module}_CLASS_${_cls}_WRAP_SPECIAL 1)\n")
+              "${vtk-module-WRAP_SPECIAL}set(${vtk-module}_HEADER_${_cls}_WRAP_SPECIAL 1)\n")
           endif()
         endif()
       endif()
     endif()
   endforeach()
-  # Configure wrapping information for external wrapping of classes.
-  configure_file(${_VTKModuleMacros_DIR}/vtkModuleClasses.cmake.in
-    ${VTK_MODULES_DIR}/${vtk-module}-Classes.cmake @ONLY)
+  # Configure wrapping information for external wrapping of headers.
+  configure_file(${_VTKModuleMacros_DIR}/vtkModuleHeaders.cmake.in
+    ${VTK_MODULES_DIR}/${vtk-module}-Headers.cmake @ONLY)
 endfunction()
 
 macro(vtk_module_test)
@@ -388,7 +407,7 @@ endfunction()
 macro(vtk_module_test_executable test_exe_name)
   vtk_module_test()
   # No forwarding or export for test executables.
-  add_executable(${test_exe_name} ${ARGN})
+  add_executable(${test_exe_name} MACOSX_BUNDLE ${ARGN})
   target_link_libraries(${test_exe_name} ${${vtk-module-test}-Cxx_LIBRARIES})
 
   if(${vtk-module-test}-Cxx_DEFINITIONS)
@@ -405,7 +424,7 @@ function(vtk_module_library name)
   set(${vtk-module}_LIBRARIES ${vtk-module})
   vtk_module_impl()
 
-  set(vtk-module-CLASSES)
+  set(vtk-module-HEADERS)
   set(vtk-module-ABSTRACT)
   set(vtk-module-WRAP_SPECIAL)
 
@@ -419,6 +438,10 @@ function(vtk_module_library name)
       list(APPEND _hdrs "${hdr}")
     elseif("${src}" MATCHES "\\.txx$" AND EXISTS "${src}")
       list(APPEND _hdrs "${src}")
+      string(REGEX REPLACE "\\.txx$" ".h" hdr "${src}")
+      if("${hdr}" MATCHES "\\.h$" AND EXISTS "${hdr}")
+        list(APPEND _hdrs "${hdr}")
+      endif()
     endif()
   endforeach()
   list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h")
@@ -433,10 +456,33 @@ function(vtk_module_library name)
     list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Instantiator.h")
   endif()
 
-  vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS})
+  # Add the vtkWrapHierarchy custom command output to the target, if any.
+  # TODO: Re-order things so we do not need to duplicate this condition.
+  if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
+      NOT ${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY AND
+      ( VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA ))
+    set(_hierarchy ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp)
+  else()
+    set(_hierarchy "")
+  endif()
+  if(CMAKE_GENERATOR MATCHES "Visual Studio 7([^0-9]|$)" AND
+      NOT VTK_BUILD_SHARED_LIBS AND _hierarchy)
+    # For VS <= 7.1 use explicit dependencies between static libraries
+    # to tell CMake to use an ugly workaround for a VS limitation.
+    set(_help_vs7 1)
+  else()
+    set(_help_vs7 0)
+  endif()
+
+  vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
   foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
     target_link_libraries(${vtk-module} ${${dep}_LIBRARIES})
+    if(_help_vs7 AND ${dep}_LIBRARIES)
+      add_dependencies(${vtk-module} ${${dep}_LIBRARIES})
+    endif()
   endforeach()
+
+  unset(_help_vs7)
 
   set(sep "")
   if(${vtk-module}_EXPORT_CODE)
@@ -585,15 +631,21 @@ macro(vtk_module_third_party _pkg)
       endif()
     endif()
     find_package(${_pkg} REQUIRED ${__extra_args})
-    if(NOT ${_upper}_FOUND)
+    if(NOT ${_upper}_FOUND AND NOT ${_pkg}_FOUND)
       message(FATAL_ERROR "VTK_USE_SYSTEM_${_upper} is ON but ${_pkg} is not found!")
     endif()
-    if(${_upper}_INCLUDE_DIRS)
+    if(${_pkg}_INCLUDE_DIRS)
+      set(vtk${_lower}_SYSTEM_INCLUDE_DIRS ${${_pkg}_INCLUDE_DIRS})
+    elseif(${_upper}_INCLUDE_DIRS)
       set(vtk${_lower}_SYSTEM_INCLUDE_DIRS ${${_upper}_INCLUDE_DIRS})
     else()
       set(vtk${_lower}_SYSTEM_INCLUDE_DIRS ${${_upper}_INCLUDE_DIR})
     endif()
-    set(vtk${_lower}_LIBRARIES "${${_upper}_LIBRARIES}")
+    if(${_pkg}_LIBRARIES)
+      set(vtk${_lower}_LIBRARIES "${${_pkg}_LIBRARIES}")
+    else()
+      set(vtk${_lower}_LIBRARIES "${${_upper}_LIBRARIES}")
+    endif()
     set(vtk${_lower}_INCLUDE_DIRS "")
   else()
     if(_nolibs)

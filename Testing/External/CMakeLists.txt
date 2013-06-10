@@ -10,10 +10,12 @@ include(CTest)
 
 # Find the top of the main VTK source tree.
 get_filename_component(VTK_TOP_DIR ${VTKTestExternal_SOURCE_DIR}/../.. ABSOLUTE)
+set(ExternalData_SOURCE_ROOT ${VTK_TOP_DIR})
 
 # Load module infrastructure macros.
 list(APPEND CMAKE_MODULE_PATH ${VTK_TOP_DIR}/CMake)
 include(vtkModuleMacros)
+include(vtkExternalData)
 include(vtkTestingMacros)
 
 # Find the VTK build or install tree.  Assume the version matches exactly.
@@ -43,9 +45,12 @@ endif()
 vtk_module_glob("${VTK_TOP_DIR}" "${VTKTestExternal_BINARY_DIR}" Cxx)
 
 # Input information for test build files.
-find_path(VTK_DATA_ROOT VTKData.readme ${VTK_TOP_DIR}/../VTKData)
-find_path(VTK_LARGE_DATA_ROOT VTKLargeData.readme ${VTK_TOP_DIR}/../VTKLargeData)
+option(VTK_USE_LARGE_DATA "Enable tests requiring \"large\" data" OFF)
+set(VTK_TEST_DATA_DIR "${ExternalData_BINARY_ROOT}/Testing")
+set(VTK_TEST_INPUT_DIR "${VTK_TOP_DIR}/Testing/Data")
 set(VTK_TEST_OUTPUT_DIR "${VTKTestExternal_BINARY_DIR}/Testing/Temporary")
+
+include(vtkLegacyData)
 
 # If vtkParallelMPI is found then look for MPI and bring in
 # vtkTestingMPISupport.
@@ -72,3 +77,7 @@ foreach(mod ${VTK_MODULES_ALL})
     endif()
   endif()
 endforeach()
+
+# Create target to download data from the VTKData group.  This must come after
+# all tests have been added that reference the group, so we put it last.
+ExternalData_Add_Target(VTKData)

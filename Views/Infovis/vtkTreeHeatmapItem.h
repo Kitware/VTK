@@ -41,6 +41,7 @@
 #include <vector>   // For lookup tables
 #include <map>      // For string lookup tables
 
+class vtkDoubleArray;
 class vtkGraphLayout;
 class vtkLookupTable;
 class vtkTable;
@@ -83,6 +84,15 @@ public:
   // Any subtrees that were collapsed prior to this function being called
   // may be re-expanded.
   void CollapseToNumberOfLeafNodes(unsigned int n);
+
+  // Get the collapsed tree
+  vtkTree * GetPrunedTree();
+
+  // Description:
+  // Indicate which array within the Tree's VertexData should be used to
+  // color the tree.  The specified array must be a vtkDoubleArray.
+  // By default, the tree will be drawn in black.
+  void SetTreeColorArray(const char *arrayName);
 
   //BTX
   // Description:
@@ -220,6 +230,8 @@ private:
   vtkNew<vtkTooltipItem> Tooltip;
   vtkNew<vtkPruneTreeFilter> PruneFilter;
   vtkNew<vtkLookupTable> TriangleLookupTable;
+  vtkNew<vtkLookupTable> TreeLookupTable;
+  vtkDoubleArray* TreeColorArray;
   std::vector< vtkLookupTable * > LookupTables;
   std::vector< vtkIdType > RowMap;
   double MultiplierX;
@@ -241,6 +253,7 @@ private:
   double SceneBottomLeft[3];
   double SceneTopRight[3];
   bool JustCollapsedOrExpanded;
+  bool ColorTree;
 };
 
 #endif

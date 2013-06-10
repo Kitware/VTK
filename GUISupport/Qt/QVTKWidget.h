@@ -38,7 +38,7 @@
 
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKInteractor.h"
-#include <QtGui/QWidget>
+#include <QWidget>
 
 class QVTKInteractorAdapter;
 
@@ -85,7 +85,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKWidget : public QWidget
 
 public:
   //! constructor
-  QVTKWidget(QWidget* parent = NULL, Qt::WFlags f = 0);
+  QVTKWidget(QWidget* parent = NULL, Qt::WindowFlags f = 0);
   //! destructor
   virtual ~QVTKWidget();
 

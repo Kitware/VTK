@@ -27,7 +27,6 @@
 #include "vtkVolumeMapper.h"
 #include "vtkVolumeRayCastFunction.h" // For vtkVolumeRayCastStaticInfo
                                       // and vtkVolumeRayCastDynamicInfo
-#include "vtkFastNumericConversion.h" // for fast rounding and floor
 
 class vtkEncodedGradientEstimator;
 class vtkEncodedGradientShader;
@@ -41,22 +40,6 @@ class vtkVolumeRayCastFunction;
 class vtkVolumeTransform;
 class vtkTransform;
 class vtkRayCastImageDisplayHelper;
-
-//BTX
-// Macro for floor of x
-
-inline int vtkFloorFuncMacro(double x)
-{
-  return vtkFastNumericConversion::QuickFloor(x);
-}
-
-
-// Macro for rounding x (for x >= 0)
-inline int vtkRoundFuncMacro(double x)
-{
-  return vtkFastNumericConversion::Round(x);
-}
-//ETX
 
 // Macro for tri-linear interpolation - do four linear interpolations on
 // edges, two linear interpolations between pairs of edges, then a final

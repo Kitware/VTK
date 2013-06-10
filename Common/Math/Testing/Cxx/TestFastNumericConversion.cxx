@@ -17,6 +17,7 @@
 // Tests performance of the vtkFastNumericConversion methods.
 
 #include "vtkFastNumericConversion.h"
+#include "vtkMath.h"
 #include "vtkTimerLog.h"
 
 
@@ -24,6 +25,8 @@ int TestFastNumericConversion(int,char *[])
 {
   double bare_time;
   double cast_time;
+  double mathfloor_time;
+  double mathround_time;
   double convert_time;
   double quickfloor_time;
   double safefloor_time;
@@ -35,7 +38,7 @@ int TestFastNumericConversion(int,char *[])
   double *dval = new double[inner_count];
   int *ival = new int[inner_count];
   int *frac = new int[inner_count];
-
+  union { int i; double d; } int_double_conv;
 
   int i,o;
   vtkTimerLog *timer = vtkTimerLog::New();
@@ -52,7 +55,8 @@ int TestFastNumericConversion(int,char *[])
     for (i=0; i<inner_count; i++)
       {
       // Pure bit copy
-      ival[i] = *reinterpret_cast<int *>(&dval[i]);
+      int_double_conv.d = dval[i];
+      ival[i] = int_double_conv.i;
       }
     }
   timer->StopTimer();
@@ -70,6 +74,32 @@ int TestFastNumericConversion(int,char *[])
     }
   timer->StopTimer();
   cast_time = timer->GetElapsedTime();
+
+
+  // Compute vtkMath::Floor time
+  timer->StartTimer();
+  for (o=0; o<outer_count; o++)
+    {
+    for (i=0; i<inner_count; i++)
+      {
+      ival[i] = vtkMath::Floor(dval[i]);
+      }
+    }
+  timer->StopTimer();
+  mathfloor_time = timer->GetElapsedTime();
+
+
+  // Compute vtkMath::Round time
+  timer->StartTimer();
+  for (o=0; o<outer_count; o++)
+    {
+    for (i=0; i<inner_count; i++)
+      {
+      ival[i] = vtkMath::Round(dval[i]);
+      }
+    }
+  timer->StopTimer();
+  mathround_time = timer->GetElapsedTime();
 
 
   // Compute convert time
@@ -129,6 +159,8 @@ int TestFastNumericConversion(int,char *[])
 
   cout << "Bare time from last PerformanceTest() call: " << bare_time << endl;
   cout << "Cast time from last PerformanceTest() call: " << cast_time << endl;
+  cout << "vtkMath::Floor time from last PerformanceTest() call: " << mathfloor_time << endl;
+  cout << "vtkMath::Round time from last PerformanceTest() call: " << mathround_time << endl;
   cout << "ConvertFixedPoint time from last PerformanceTest() call: " << convert_time << endl;
   cout << "QuickFloor time from last PerformanceTest() call: " << quickfloor_time << endl;
   cout << "SafeFloor time from last PerformanceTest() call: " << safefloor_time << endl;

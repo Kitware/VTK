@@ -47,6 +47,7 @@ struct vtk_jpeg_error_mgr
   struct jpeg_error_mgr pub;    /* "public" fields */
   jmp_buf setjmp_buffer;        /* for return to caller */
   vtkJPEGReader* JPEGReader;
+  FILE *fp;
 };
 
 // this is called on jpeg error conditions
@@ -120,18 +121,21 @@ extern "C" void jpeg_mem_src (j_decompress_ptr cinfo, void* buffer, long nbytes)
 
 void vtkJPEGReader::ExecuteInformation()
 {
+  // certain variables must be stored here for longjmp
+  struct vtk_jpeg_error_mgr jerr;
+  jerr.JPEGReader = this;
+  jerr.fp = NULL;
+
   this->ComputeInternalFileName(this->DataExtent[4]);
   if (this->InternalFileName == NULL && this->MemoryBuffer == NULL)
     {
     return;
     }
 
-  FILE *fp = NULL;
-
   if (!this->MemoryBuffer)
     {
-    fp = fopen(this->InternalFileName, "rb");
-    if (!fp)
+    jerr.fp = fopen(this->InternalFileName, "rb");
+    if (!jerr.fp)
       {
       vtkErrorWithObjectMacro(this,
                               "Unable to open file "
@@ -152,9 +156,6 @@ void vtkJPEGReader::ExecuteInformation()
 
   // create jpeg decompression object and error handler
   struct jpeg_decompress_struct cinfo;
-  struct vtk_jpeg_error_mgr jerr;
-  jerr.JPEGReader = this;
-
   cinfo.err = jpeg_std_error(&jerr.pub);
   // for any jpeg error call vtk_jpeg_error_exit
   jerr.pub.error_exit = vtk_jpeg_error_exit;
@@ -165,9 +166,9 @@ void vtkJPEGReader::ExecuteInformation()
     // clean up
     jpeg_destroy_decompress(&cinfo);
     // close the file
-    if (fp)
+    if (jerr.fp)
       {
-      fclose(fp);
+      fclose(jerr.fp);
       // this is not a valid jpeg file
       vtkErrorWithObjectMacro(this, "libjpeg could not read file: "
                               << this->InternalFileName);
@@ -182,9 +183,9 @@ void vtkJPEGReader::ExecuteInformation()
   jpeg_create_decompress(&cinfo);
 
   // set the source file
-  if (fp)
+  if (jerr.fp)
     {
-    jpeg_stdio_src(&cinfo, fp);
+    jpeg_stdio_src(&cinfo, jerr.fp);
     }
   else
     {
@@ -217,9 +218,9 @@ void vtkJPEGReader::ExecuteInformation()
   // close the file
   jpeg_destroy_decompress(&cinfo);
 
-  if (fp)
+  if (jerr.fp)
     {
-    fclose(fp);
+    fclose(jerr.fp);
     }
 }
 
@@ -227,14 +228,15 @@ template <class OT>
 int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
                           int *outExt, vtkIdType *outInc, long)
 {
-  unsigned int ui;
-  int i;
-  FILE *fp = 0;
+  // certain variables must be stored here for longjmp
+  struct vtk_jpeg_error_mgr jerr;
+  jerr.JPEGReader = self;
+  jerr.fp = NULL;
 
   if (!self->GetMemoryBuffer())
     {
-    fp = fopen(self->GetInternalFileName(), "rb");
-    if (!fp)
+    jerr.fp = fopen(self->GetInternalFileName(), "rb");
+    if (!jerr.fp)
       {
       return 1;
       }
@@ -242,9 +244,6 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
 
   // create jpeg decompression object and error handler
   struct jpeg_decompress_struct cinfo;
-  struct vtk_jpeg_error_mgr jerr;
-  jerr.JPEGReader = self;
-
   cinfo.err = jpeg_std_error(&jerr.pub);
   // for any jpeg error call vtk_jpeg_error_exit
   jerr.pub.error_exit = vtk_jpeg_error_exit;
@@ -255,9 +254,9 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
     // clean up
     jpeg_destroy_decompress(&cinfo);
     // close the file
-    if (fp)
+    if (jerr.fp)
       {
-      fclose(fp);
+      fclose(jerr.fp);
       }
 
     // this is not a valid jpeg file
@@ -266,9 +265,9 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   jpeg_create_decompress(&cinfo);
 
   // set the source file
-  if (fp)
+  if (jerr.fp)
     {
-    jpeg_stdio_src(&cinfo, fp);
+    jpeg_stdio_src(&cinfo, jerr.fp);
     }
   else
     {
@@ -289,7 +288,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   int rowbytes = cinfo.output_components * cinfo.output_width;
   unsigned char *tempImage = new unsigned char [rowbytes*cinfo.output_height];
   JSAMPROW *row_pointers = new JSAMPROW [cinfo.output_height];
-  for (ui = 0; ui < cinfo.output_height; ++ui)
+  for (unsigned int ui = 0; ui < cinfo.output_height; ++ui)
     {
     row_pointers[ui] = tempImage + rowbytes*ui;
     }
@@ -310,10 +309,9 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   jpeg_destroy_decompress(&cinfo);
 
   // copy the data into the outPtr
-  OT *outPtr2;
-  outPtr2 = outPtr;
+  OT *outPtr2 = outPtr;
   long outSize = cinfo.output_components*(outExt[1] - outExt[0] + 1);
-  for (i = outExt[2]; i <= outExt[3]; ++i)
+  for (int i = outExt[2]; i <= outExt[3]; ++i)
     {
     memcpy(outPtr2,
            row_pointers[cinfo.output_height - i - 1]
@@ -325,9 +323,9 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   delete [] row_pointers;
 
   // close the file
-  if (fp)
+  if (jerr.fp)
     {
-    fclose(fp);
+    fclose(jerr.fp);
     }
   return 0;
 }
@@ -401,18 +399,23 @@ void vtkJPEGReader::ExecuteDataWithInformation(vtkDataObject *output,
 
 int vtkJPEGReader::CanReadFile(const char* fname)
 {
+  // certain variables must be stored here for longjmp
+  struct vtk_jpeg_error_mgr jerr;
+  jerr.JPEGReader = this;
+  jerr.fp = NULL;
+
   // open the file
-  FILE *fp = fopen(fname, "rb");
-  if (!fp)
+  jerr.fp = fopen(fname, "rb");
+  if (!jerr.fp)
     {
     return 0;
     }
   // read the first two bytes
   char magic[2];
-  int n = static_cast<int>(fread(magic, sizeof(magic), 1, fp));
+  int n = static_cast<int>(fread(magic, sizeof(magic), 1, jerr.fp));
   if (n != 1)
     {
-    fclose(fp);
+    fclose(jerr.fp);
     return 0;
     }
   // check for the magic stuff:
@@ -420,14 +423,12 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   if( ( (static_cast<unsigned char>(magic[0]) != 0xFF) ||
         (static_cast<unsigned char>(magic[1]) != 0xD8) ) )
     {
-    fclose(fp);
+    fclose(jerr.fp);
     return 0;
     }
   // go back to the start of the file
-  fseek(fp, 0, SEEK_SET);
+  fseek(jerr.fp, 0, SEEK_SET);
   // magic number is ok, try and read the header
-  struct vtk_jpeg_error_mgr jerr;
-  jerr.JPEGReader = this;
   struct jpeg_decompress_struct cinfo;
   cinfo.err = jpeg_std_error(&jerr.pub);
   // for any jpeg error call vtk_jpeg_error_exit
@@ -441,20 +442,20 @@ int vtkJPEGReader::CanReadFile(const char* fname)
     // clean up
     jpeg_destroy_decompress(&cinfo);
     // close the file
-    fclose(fp);
+    fclose(jerr.fp);
     // this is not a valid jpeg file
     return 0;
     }
   /* Now we can initialize the JPEG decompression object. */
   jpeg_create_decompress(&cinfo);
   /* Step 2: specify data source (eg, a file) */
-  jpeg_stdio_src(&cinfo, fp);
+  jpeg_stdio_src(&cinfo, jerr.fp);
   /* Step 3: read file parameters with jpeg_read_header() */
   jpeg_read_header(&cinfo, TRUE);
 
   // if no errors have occurred yet, then it must be jpeg
   jpeg_destroy_decompress(&cinfo);
-  fclose(fp);
+  fclose(jerr.fp);
   return 3;
 }
 #ifdef _MSC_VER

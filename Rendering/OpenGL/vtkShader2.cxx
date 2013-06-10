@@ -20,7 +20,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
 
-GLenum vtkShaderTypeVTKToGL[5] = {
+static GLenum vtkShaderTypeVTKToGL[5] = {
   vtkgl::VERTEX_SHADER, // VTK_SHADER_TYPE_VERTEX=0
   vtkgl::GEOMETRY_SHADER, // VTK_SHADER_TYPE_GEOMETRY=1,
   vtkgl::FRAGMENT_SHADER, // VTK_SHADER_TYPE_FRAGMENT=2,
@@ -28,7 +28,7 @@ GLenum vtkShaderTypeVTKToGL[5] = {
   0// VTK_SHADER_TYPE_TESSELLATION_EVALUATION=4, not yet
 };
 
-const char *TypeAsStringArray[5] = {
+static const char *TypeAsStringArray[5] = {
   "vertex shader",
   "geometry shader",
   "fragment shader",

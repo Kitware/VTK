@@ -34,6 +34,9 @@
 #include "vtkTransform.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkIdTypeArray.h"
 
 #include "vtkObjectFactory.h"
 
@@ -193,7 +196,7 @@ void vtkChartXYZ::RecalculateBounds()
     }
   for (int i = 0; i < 3; ++i)
     {
-    this->Axes[i]->SetRange(&bounds[2*i]);
+    this->Axes[i]->SetUnscaledRange(&bounds[2*i]);
     }
 
   // Recalculate transform since axes' ranges were modified
@@ -207,10 +210,32 @@ void vtkChartXYZ::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXYZ::Update()
+{
+  if (this->Link)
+    {
+    vtkSelection *selection =
+        vtkSelection::SafeDownCast(this->Link->GetOutputDataObject(2));
+    if (selection->GetNumberOfNodes())
+      {
+      vtkSelectionNode *node = selection->GetNode(0);
+      vtkIdTypeArray *idArray =
+          vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      for (size_t i = 0; i < this->Plots.size(); ++i)
+        {
+        this->Plots[i]->SetSelection(idArray);
+        }
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 bool vtkChartXYZ::Paint(vtkContext2D *painter)
 {
   if (!this->Visible)
     return false;
+
+  this->Update();
 
   // Get the 3D context.
   vtkContext3D *context = painter->GetContext3D();
@@ -1531,7 +1556,8 @@ bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
     {
     return false;
     }
-  float xScale = (x->GetMaximum() - x->GetMinimum()) / (max[0] - min[0]);
+  float xScale =
+    (x->GetUnscaledMaximum() - x->GetUnscaledMinimum()) / (max[0] - min[0]);
 
   // Now the y axis
   min = y->GetPoint1();
@@ -1540,7 +1566,8 @@ bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
     {
     return false;
     }
-  float yScale = (y->GetMaximum() - y->GetMinimum()) / (max[1] - min[1]);
+  float yScale =
+    (y->GetUnscaledMaximum() - y->GetUnscaledMinimum()) / (max[1] - min[1]);
 
   // Now the z axis
   min = z->GetPoint1();
@@ -1549,13 +1576,17 @@ bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
     {
     return false;
     }
-  float zScale = (z->GetMaximum() - z->GetMinimum()) / (max[1] - min[1]);
+  float zScale =
+    (z->GetUnscaledMaximum() - z->GetUnscaledMinimum()) / (max[1] - min[1]);
 
   transform->Identity();
   transform->Translate(this->Geometry.GetX(), this->Geometry.GetY(), 0);
   // Get the scale for the plot area from the x and y axes
   transform->Scale(1.0 / xScale, 1.0 / yScale, 1.0 / zScale);
-  transform->Translate(-x->GetMinimum(), -y->GetMinimum(), -z->GetMinimum());
+  transform->Translate(
+    -x->GetUnscaledMinimum(),
+    -y->GetUnscaledMinimum(),
+    -z->GetUnscaledMinimum());
 
   return true;
 }

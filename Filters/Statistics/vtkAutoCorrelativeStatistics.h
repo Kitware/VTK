@@ -60,7 +60,7 @@ public:
   // is a multiple of this value.
   // The default is 0, meaning that the user must specify a value
   // that is consistent with the input data set.
-  vtkSetClampMacro(SliceCardinality,vtkIdType,0,VTK_LARGE_ID);
+  vtkSetClampMacro(SliceCardinality,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(SliceCardinality,vtkIdType);
 
   // Description:

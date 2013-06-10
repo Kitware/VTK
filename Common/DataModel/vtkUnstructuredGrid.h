@@ -79,6 +79,12 @@ public:
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
   int GetDataObjectType() {return VTK_UNSTRUCTURED_GRID;};
+
+  // Description:
+  // Method allocates initial storage for the cell connectivity. Use this
+  // method before the method InsertNextCell(). The array capacity is
+  // doubled when the inserting a cell exceeds the current capacity.
+  // extSize is no longer used.
   virtual void Allocate(vtkIdType numCells=1000, int extSize=1000);
 
   // Description:

@@ -6,4 +6,5 @@ vtk_module(vtkFiltersProgrammable
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
   )

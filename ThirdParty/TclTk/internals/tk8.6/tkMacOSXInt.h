@@ -4,13 +4,11 @@
  *  Declarations of Macintosh specific shared variables and procedures.
  *
  * Copyright (c) 1995-1997 Sun Microsystems, Inc.
- * Copyright 2001, Apple Computer, Inc.
- * Copyright (c) 2005-2007 Daniel A. Steffen <das@users.sourceforge.net>
+ * Copyright 2001-2009, Apple Inc.
+ * Copyright (c) 2005-2009 Daniel A. Steffen <das@users.sourceforge.net>
  *
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
- *
- * RCS: @(#) Id
  */
 
 #ifndef _TKMACINT
@@ -20,10 +18,6 @@
 #include "tkInt.h"
 #endif
 
-#define TextStyle MacTextStyle
-#include <Carbon/Carbon.h>
-#undef TextStyle
-
 /*
  * Include platform specific public interfaces.
  */
@@ -32,17 +26,46 @@
 #include "tkMacOSX.h"
 #endif
 
+/*
+ * Define compatibility platform types used in the structures below so that
+ * this header can be included without pulling in the platform headers.
+ */
+
+#ifndef _TKMACPRIV
+#   ifndef CGGEOMETRY_H_
+#  ifndef CGFLOAT_DEFINED
+#      if __LP64__
+#    define CGFloat double
+#      else
+#    define CGFloat float
+#      endif
+#  endif
+#  define CGSize struct {CGFloat width; CGFloat height;}
+#   endif
+#   ifndef CGCONTEXT_H_
+#  define CGContextRef void *
+#   endif
+#   ifndef CGCOLOR_H_
+#  define CGColorRef void *
+#   endif
+#   ifndef __HISHAPE__
+#  define HIShapeRef void *
+#   endif
+#   ifndef _APPKITDEFINES_H
+#  define NSView void *
+#   endif
+#endif
+
 struct TkWindowPrivate {
     TkWindow *winPtr;    /* Ptr to tk window or NULL if Pixmap */
-    CGrafPtr grafPtr;
+    NSView *view;
     CGContextRef context;
-    ControlRef rootControl;
     int xOff;      /* X offset from toplevel window */
     int yOff;      /* Y offset from toplevel window */
     CGSize size;
     HIShapeRef visRgn;    /* Visible region of window */
     HIShapeRef aboveVisRgn;  /* Visible region of window & its children */
-    CGRect drawRect;    /* Clipped drawing rect */
+    HIShapeRef drawRgn;    /* Clipped drawing region */
     int referenceCount;    /* Don't delete toplevel until children are
          * gone. */
     struct TkWindowPrivate *toplevel;
@@ -52,18 +75,6 @@ struct TkWindowPrivate {
 typedef struct TkWindowPrivate MacDrawable;
 
 /*
- * This list is used to keep track of toplevel windows that have a Mac
- * window attached. This is useful for several things, not the least
- * of which is maintaining floating windows.
- */
-
-typedef struct TkMacOSXWindowList {
-    struct TkMacOSXWindowList *nextPtr;
-        /* The next window in the list. */
-    TkWindow *winPtr;    /* This window */
-} TkMacOSXWindowList;
-
-/*
  * Defines use for the flags field of the MacDrawable data structure.
  */
 
@@ -71,7 +82,7 @@ typedef struct TkMacOSXWindowList {
 #define TK_CLIP_INVALID    0x02
 #define TK_HOST_EXISTS    0x04
 #define TK_DRAWN_UNDER_MENU  0x08
-#define TK_CLIPPED_DRAW    0x10
+#define TK_FOCUSED_VIEW    0x10
 #define TK_IS_PIXMAP    0x20
 #define TK_IS_BW_PIXMAP    0x40
 
@@ -103,6 +114,46 @@ typedef struct {
 MODULE_SCOPE TkMacOSXEmbedHandler *tkMacOSXEmbedHandler;
 
 /*
+ * GC CGColorRef cache for tkMacOSXColor.c
+ */
+
+typedef struct {
+    unsigned long cachedForeground;
+    CGColorRef cachedForegroundColor;
+    unsigned long cachedBackground;
+    CGColorRef cachedBackgroundColor;
+} TkpGCCache;
+
+MODULE_SCOPE TkpGCCache *TkpGetGCCache(GC gc);
+MODULE_SCOPE void TkpInitGCCache(GC gc);
+MODULE_SCOPE void TkpFreeGCCache(GC gc);
+
+/*
+ * Undef compatibility platform types defined above.
+ */
+
+#ifndef _TKMACPRIV
+#   ifndef CGGEOMETRY_H_
+#  ifndef CGFLOAT_DEFINED
+#      undef CGFloat
+#  endif
+#  undef CGSize
+#   endif
+#   ifndef CGCONTEXT_H_
+#  undef CGContextRef
+#   endif
+#   ifndef CGCOLOR_H_
+#  undef CGColorRef
+#   endif
+#   ifndef __HISHAPE__
+#  undef HIShapeRef
+#   endif
+#   ifndef _APPKITDEFINES_H
+#  undef NSView
+#   endif
+#endif
+
+/*
  * Defines used for TkMacOSXInvalidateWindow
  */
 
@@ -117,12 +168,13 @@ MODULE_SCOPE TkMacOSXEmbedHandler *tkMacOSXEmbedHandler;
     (((TkWindow *) (tkwin))->privatePtr->toplevel->flags & TK_HOST_EXISTS)
 
 /*
- * Defines use for the flags argument to TkGenWMConfigureEvent.
+ * Defines used for the flags argument to TkGenWMConfigureEvent.
  */
 
 #define TK_LOCATION_CHANGED  1
 #define TK_SIZE_CHANGED    2
 #define TK_BOTH_CHANGED    3
+#define TK_MACOSX_HANDLE_EVENT_IMMEDIATELY 1024
 
 /*
  * Defines for tkTextDisp.c
@@ -130,32 +182,6 @@ MODULE_SCOPE TkMacOSXEmbedHandler *tkMacOSXEmbedHandler;
 
 #define TK_LAYOUT_WITH_BASE_CHUNKS  1
 #define TK_DRAW_IN_CONTEXT    1
-
-#if !TK_DRAW_IN_CONTEXT
-MODULE_SCOPE int TkMacOSXCompareColors(unsigned long c1, unsigned long c2);
-#endif
-
-/*
- * Globals shared among TkAqua.
- */
-
-MODULE_SCOPE MenuHandle tkCurrentAppleMenu; /* Handle to current Apple Menu */
-MODULE_SCOPE MenuHandle tkAppleMenu;  /* Handle to default Apple Menu */
-MODULE_SCOPE MenuHandle tkFileMenu;  /* Handles to menus */
-MODULE_SCOPE MenuHandle tkEditMenu;  /* Handles to menus */
-MODULE_SCOPE int tkPictureIsOpen;  /* If this is 1, we are drawing to a
-           * picture The clipping should then be
-           * done relative to the bounds of the
-           * picture rather than the window. As
-           * of OS X.0.4, something is seriously
-           * wrong: The clipping bounds only
-           * seem to work if the top,left values
-           * are 0,0 The destination rectangle
-           * for CopyBits should also have
-           * top,left values of 0,0
-           */
-MODULE_SCOPE TkMacOSXWindowList *tkMacOSXWindowListPtr; /* List of toplevels */
-MODULE_SCOPE Tcl_Encoding TkMacOSXCarbonEncoding;
 
 /*
  * Prototypes of internal procs not in the stubs table.

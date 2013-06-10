@@ -742,47 +742,6 @@ while (ptIds < endPtIds) \
     } \
 }
 
-#define vtkDrawStripLinesMacro(ptype,ntype,ttype,prim,glVertFuncs,glCellFuncs,glInitFuncs) \
-{ \
-  vtkIdType nPts; \
-  ptype *points = static_cast<ptype *>(voidPoints);     \
-  vtkIdType *savedPtIds = ptIds; \
-  glInitFuncs \
-  while (ptIds < endPtIds) \
-    { \
-    glBegin(prim); \
-    nPts = *ptIds; \
-    ++ptIds; \
-    glCellFuncs \
-    while (nPts > 0) \
-      { \
-      glVertFuncs \
-      ptIds += 2; \
-      nPts -= 2; \
-      } \
-    glEnd(); \
-    ptIds += nPts; /* nPts could be 0 or -1 here */ \
-    } \
-  ptIds = savedPtIds; \
-  while (ptIds < endPtIds) \
-    { \
-    glBegin(prim); \
-    nPts = *ptIds; \
-    ++ptIds; \
-    glCellFuncs \
-    ++ptIds; \
-    --nPts; \
-    while (nPts > 0) \
-      { \
-      glVertFuncs \
-      ptIds += 2; \
-      nPts -= 2; \
-      } \
-    glEnd(); \
-    ptIds += nPts; /* nPts could be 0 or -1 here */ \
-    } \
-}
-
 void vtkOpenGLPolyDataMapper::DrawPoints(int idx,
                                          vtkPoints *p,
                                          vtkDataArray *n,
@@ -1571,7 +1530,7 @@ void vtkOpenGLPolyDataMapper::DrawTStrips(int idx,
     }
 }
 
-void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
+static void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
                                             vtkPoints *p,
                                             vtkDataArray *n,
                                             vtkUnsignedCharArray *c,

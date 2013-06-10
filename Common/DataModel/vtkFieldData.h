@@ -94,6 +94,7 @@ public:
   // Description:
   // Add an array to the array list. If an array with the same name
   // already exists - then the added array will replace it.
+  // Return the index of the added array.
   int AddArray(vtkAbstractArray *array);
 
   // Description:

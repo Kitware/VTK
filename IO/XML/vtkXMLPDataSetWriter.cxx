@@ -62,6 +62,7 @@ int vtkXMLPDataSetWriter::WriteInternal()
   // Create a writer based on the data set type.
   switch (this->GetInput()->GetDataObjectType())
     {
+    case VTK_UNIFORM_GRID:
     case VTK_IMAGE_DATA:
     case VTK_STRUCTURED_POINTS:
       {
@@ -111,6 +112,8 @@ int vtkXMLPDataSetWriter::WriteInternal()
   writer->SetBlockSize(this->GetBlockSize());
   writer->SetDataMode(this->GetDataMode());
   writer->SetEncodeAppendedData(this->GetEncodeAppendedData());
+  writer->SetHeaderType(this->GetHeaderType());
+  writer->SetIdType(this->GetIdType());
   writer->SetNumberOfPieces(this->GetNumberOfPieces());
   writer->SetGhostLevel(this->GetGhostLevel());
   writer->SetStartPiece(this->GetStartPiece());

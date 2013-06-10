@@ -61,7 +61,7 @@ void vtkImageDotProductExecute(vtkImageDotProduct *self,
   int maxC = in1Data->GetNumberOfScalarComponents();
   int idxC;
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     T* inSI1 = inIt1.BeginSpan();

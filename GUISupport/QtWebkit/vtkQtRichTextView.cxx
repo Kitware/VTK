@@ -51,8 +51,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebHistory>
 #include <QWebPage>
 #include <QWebView>
-#include <QHttpHeader>
-#include <QHttpRequestHeader>
 #include <QUrl>
 
 vtkStandardNewMacro(vtkQtRichTextView);

@@ -127,14 +127,14 @@ public:
   // This is the allowable variation in the altitude of the path
   // with respect to the variation in the terrain. It only comes
   // into play if the hug projection mode is enabled.
-  vtkSetClampMacro(HeightTolerance,double,0.0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(HeightTolerance,double,0.0,VTK_FLOAT_MAX);
   vtkGetMacro(HeightTolerance,double);
 
   // Description:
   // This instance variable can be used to limit the total number of line
   // segments created during subdivision. Note that the number of input line
   // segments will be the minimum number that cab be output.
-  vtkSetClampMacro(MaximumNumberOfLines,vtkIdType,1,VTK_LARGE_ID);
+  vtkSetClampMacro(MaximumNumberOfLines,vtkIdType,1,VTK_ID_MAX);
   vtkGetMacro(MaximumNumberOfLines,vtkIdType);
 
 protected:

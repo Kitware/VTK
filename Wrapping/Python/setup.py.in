@@ -130,7 +130,7 @@ if __name__ == '__main__':
                    url               = "http://www.vtk.org/",
                    platforms         = ['Any'],
                    cmdclass          = {'install_data': my_install_data},
-                   packages          = ['vtk', 'vtk.gtk', 'vtk.qt', 'vtk.qt4',
+                   packages          = ['vtk', 'vtk.gtk', 'vtk.qt4',
                                         'vtk.tk', 'vtk.util', 'vtk.wx',
                                         'vtk.test'],
                    #scripts           = get_scripts(),

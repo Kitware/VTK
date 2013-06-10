@@ -37,9 +37,6 @@
 #include <set>
 #include <algorithm>
 
-#define min(x,y) ((x<y) ? (x) : (y))
-#define max(x,y) ((x>y) ? (x) : (y))
-
 //----------------------------------------------------------------------------
 // This class manages topological information for a parallelopiped with a
 // chair etched out at any node.

@@ -103,8 +103,37 @@ const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFLL;
 //
 // Some useful macros and functions
 //
-#define VTK_SIGN(x)              (( (x) < 0 )?( -1 ):( 1 ))
-// avoid dll boundary problems
+
+//----------------------------------------------------------------------------
+// Return the lowest value "i" for which 2^i >= x
+int vtkMath::CeilLog2(vtkTypeUInt64 x)
+{
+  static const vtkTypeUInt64 t[6] = {
+    0xffffffff00000000ull,
+    0x00000000ffff0000ull,
+    0x000000000000ff00ull,
+    0x00000000000000f0ull,
+    0x000000000000000cull,
+    0x0000000000000002ull
+  };
+
+  int j = 32;
+
+  // if x is not a power of two, add 1 to final answer
+  // (this is the "ceil" part of the computation)
+  int y = (((x & (x - 1)) == 0) ? 0 : 1);
+
+  // loop through the table (this unrolls nicely)
+  for (int i = 0; i < 6; i++)
+    {
+    int k = (((x & t[i]) == 0) ? 0 : j);
+    y += k;
+    x >>= k;
+    j >>= 1;
+    }
+
+  return y;
+}
 
 //----------------------------------------------------------------------------
 // Generate pseudo-random numbers distributed according to the uniform
@@ -744,7 +773,7 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
     tmp = w[k];
     for (i=j+1; i<n; i++)                // boundary incorrect, shifted already
       {
-      if (w[i] >= tmp)                   // why exchage if same?
+      if (w[i] >= tmp)                   // why exchange if same?
         {
         k = i;
         tmp = w[k];
@@ -837,7 +866,7 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
 {
   int i;
   int j;
-  double min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);
+  double min=VTK_FLOAT_MAX, max=(-VTK_FLOAT_MAX);
 
   // find the maximum value
   for (i=0; i < size; i++)
@@ -862,7 +891,7 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
 
   if ( min == 0.0 )
     {
-    return VTK_LARGE_FLOAT;
+    return VTK_FLOAT_MAX;
     }
   else
     {
@@ -3091,7 +3120,7 @@ double vtkMath::Nan()
 }
 
 //-----------------------------------------------------------------------------
-#if !defined(VTK_HAS_ISINF)
+#ifndef VTK_MATH_ISINF_IS_INLINE
 int vtkMath::IsInf(double x)
 {
 #if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
@@ -3101,7 +3130,7 @@ int vtkMath::IsInf(double x)
   // mantissa set.
   vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
   return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
-          && ((xbits & vtkMathDoubleMantissa) == 0) ) ? 1 : 0;
+          && ((xbits & vtkMathDoubleMantissa) == 0) );
 #else
   return (   !vtkMath::IsNan(x)
           && !((x < vtkMath::Inf()) && (x > vtkMath::NegInf())) );
@@ -3110,7 +3139,7 @@ int vtkMath::IsInf(double x)
 #endif
 
 //-----------------------------------------------------------------------------
-#if !defined(VTK_HAS_ISNAN)
+#ifndef VTK_MATH_ISNAN_IS_INLINE
 int vtkMath::IsNan(double x)
 {
 #if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
@@ -3120,10 +3149,18 @@ int vtkMath::IsNan(double x)
   // their mantissa set.
   vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
   return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
-          && ((xbits & vtkMathDoubleMantissa) != 0) ) ? 1 : 0;
+          && ((xbits & vtkMathDoubleMantissa) != 0) );
 #else
   return !((x <= 0.0) || (x >= 0.0));
 #endif
+}
+#endif
+
+//-----------------------------------------------------------------------------
+#ifndef VTK_MATH_ISFINITE_IS_INLINE
+bool vtkMath::IsFinite(double x)
+{
+  return !vtkMath::IsNan(x) && !vtkMath::IsInf(x);
 }
 #endif
 

@@ -930,7 +930,7 @@ int yydebug;                    /*  nonzero means print parse trace     */
 /*  YYMAXDEPTH is the maximum size the stacks can grow to
     (effective only if the built-in stack extension method is used).  */
 
-#if YYMAXDEPTH == 0
+#if defined(YYMAXDEPTH) && (YYMAXDEPTH == 0)
 #undef YYMAXDEPTH
 #endif
 
@@ -5514,6 +5514,11 @@ vtkVRMLImporter::~vtkVRMLImporter()
   delete VrmlNodeType::useList;
   VrmlNodeType::useList = 0;
   vtkVRMLAllocator::CleanUp();
+
+  if (yy_current_buffer)
+    {
+    yy_delete_buffer(yy_current_buffer);
+    }
 }
 
 void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)

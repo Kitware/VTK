@@ -1766,6 +1766,21 @@ void vtkScalarsToColors::ResetAnnotations()
 }
 
 //----------------------------------------------------------------------------
+void vtkScalarsToColors::GetAnnotationColor(const vtkVariant& val, double rgba[4])
+{
+  if (this->IndexedLookup)
+    {
+    vtkIdType i = this->GetAnnotatedValueIndex(val);
+    this->GetIndexedColor(i, rgba);
+    }
+  else
+    {
+    this->GetColor(val.ToDouble(), rgba);
+    rgba[3] = 1.;
+    }
+}
+
+//----------------------------------------------------------------------------
 vtkIdType vtkScalarsToColors::CheckForAnnotatedValue(vtkVariant value)
 {
   if (!this->Annotations)
@@ -1790,6 +1805,12 @@ vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal(vtkVariant& value)
   vtkIdType i = (it == this->AnnotatedValueMap->end() ?
     -1 : (nv ? it->second % nv : it->second));
   return i;
+}
+
+//----------------------------------------------------------------------------
+void vtkScalarsToColors::GetIndexedColor(vtkIdType, double rgba[4])
+{
+  rgba[0] = rgba[1] = rgba[2] = rgba[3] = 0.;
 }
 
 //----------------------------------------------------------------------------

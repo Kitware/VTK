@@ -31,7 +31,4 @@ foreach(file ${shader_files})
   set_source_files_properties(${file_we} WRAP_EXCLUDE)
 endforeach()
 
-
-include_directories(${OPENGL_INCLUDE_DIR})
-
 vtk_module_library(${vtk-module} ${Module_SRCS})

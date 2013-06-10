@@ -56,8 +56,9 @@ vtkEnSight6Reader::~vtkEnSight6Reader()
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSight6ReaderRead1(const char *line, const char *, int *pointId,
-                            float *point1, float *point2, float *point3)
+static void vtkEnSight6ReaderRead1(const char *line, const char *,
+                                   int *pointId, float *point1,
+                                   float *point2, float *point3)
 {
 #ifdef __CYGWIN__
   // most cygwins are busted in sscanf, this is a work around
@@ -83,8 +84,8 @@ void vtkEnSight6ReaderRead1(const char *line, const char *, int *pointId,
   assert("post: all_items_match" && numEntries==4);
 }
 
-void vtkEnSight6ReaderRead2(const char *line, const char *,
-                            float *point1, float *point2, float *point3)
+static void vtkEnSight6ReaderRead2(const char *line, const char *,
+                                   float *point1, float *point2, float *point3)
 {
 #ifdef __CYGWIN__
   // most cygwins are busted in sscanf, this is a work around
@@ -108,9 +109,9 @@ void vtkEnSight6ReaderRead2(const char *line, const char *,
   assert("post: all_items_match" && numEntries==3);
 }
 
-void vtkEnSight6ReaderRead3(const char *line, const char *,
-                            float *point1, float *point2, float *point3,
-                            float *point4, float *point5, float *point6)
+static void vtkEnSight6ReaderRead3(const char *line, const char *,
+                                   float *point1, float *point2, float *point3,
+                                   float *point4, float *point5, float *point6)
 {
 #ifdef __CYGWIN__
   // most cygwins are busted in sscanf, this is a work around
@@ -143,7 +144,7 @@ void vtkEnSight6ReaderRead3(const char *line, const char *,
   assert("post: all_items_match" && numEntries==6);
 }
 
-void vtkEnSight6ReaderRead4(const char *line, float *point1)
+static void vtkEnSight6ReaderRead4(const char *line, float *point1)
 {
 #ifdef __CYGWIN__
   // most cygwins are busted in sscanf, this is a work around
@@ -2026,6 +2027,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
       numElements = atoi(line);
       lineRead = this->ReadNextDataLine(line);
 
+      const unsigned char penta6Map[6] = {0, 2, 1, 3, 5, 4};
       for (i = 0; i < numElements; i++)
         {
         if (!(sscanf(line, " %*d %d %d %d %d %d %d", &intIds[0],
@@ -2053,7 +2055,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
           }
         for (j = 0; j < 6; j++)
           {
-          nodeIds[j] = intIds[j];
+          nodeIds[penta6Map[j]] = intIds[j];
           }
         cellId = output->InsertNextCell(VTK_WEDGE, 6, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);

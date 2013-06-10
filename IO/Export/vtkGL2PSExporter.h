@@ -78,12 +78,13 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
+#include "vtkNew.h" // For vtkNew
+
 class vtkActor2D;
 class vtkCollection;
 class vtkCoordinate;
+class vtkImageData;
 class vtkIntArray;
-class vtkMathTextActor;
-class vtkMathTextActor3D;
 class vtkMatrix4x4;
 class vtkPath;
 class vtkProp;
@@ -265,6 +266,18 @@ public:
   void SetRasterExclusions(vtkPropCollection*);
   vtkGetObjectMacro(RasterExclusions, vtkPropCollection);
 
+  // Description:
+  // Set the ratio between the OpenGL PointSize and that used by GL2PS
+  // to generate PostScript.  Defaults to a ratio of 5/7.
+  vtkSetMacro(PointSizeFactor, float);
+  vtkGetMacro(PointSizeFactor, float);
+
+  // Description:
+  // Set the ratio between the OpenGL LineWidth and that used by GL2PS
+  // to generate PostScript.  Defaults to a ratio of 5/7.
+  vtkSetMacro(LineWidthFactor, float);
+  vtkGetMacro(LineWidthFactor, float);
+
 protected:
   vtkGL2PSExporter();
   ~vtkGL2PSExporter();
@@ -297,10 +310,6 @@ protected:
   void DrawTextActor3D(vtkTextActor3D *textAct, vtkRenderer *ren);
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
                       vtkRenderer *ren);
-  void DrawMathTextActor(vtkMathTextActor *textAct,
-                         vtkRenderer *ren);
-  void DrawMathTextActor3D(vtkMathTextActor3D *textAct,
-                           vtkRenderer *ren);
   void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
                                vtkCoordinate *coord, vtkRenderer *ren);
 
@@ -330,9 +339,10 @@ protected:
   int OcclusionCull;
   int Write3DPropsAsRasterImage;
   bool TextAsPath;
+  float PointSizeFactor;
+  float LineWidthFactor;
 
-  float *PixelData;
-  int PixelDataSize[2];
+  vtkNew<vtkImageData> PixelData;
 
 private:
   vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented

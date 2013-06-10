@@ -4,4 +4,5 @@ vtk_module(vtkFiltersReebGraph
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
   )

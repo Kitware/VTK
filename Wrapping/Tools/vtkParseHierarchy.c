@@ -169,14 +169,14 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
   unsigned int bits, pointers;
   static const char *delims = ">,=";
 
-  line = (char *)malloc(maxlen);
-
   fp = fopen(filename, "r");
 
   if (fp == NULL)
     {
     return NULL;
     }
+
+  line = (char *)malloc(maxlen);
 
   info = (HierarchyInfo *)malloc(sizeof(HierarchyInfo));
   info->NumberOfEntries = 0;
@@ -529,6 +529,8 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
 
   sort_hierarchy_entries(info);
 
+  fclose(fp);
+
   return info;
 }
 
@@ -575,7 +577,7 @@ int vtkParseHierarchy_IsTypeOfTemplated(
   const char *baseclass, const char **baseclass_with_args)
 {
   HierarchyEntry *tmph;
-  const char *name;
+  const char *name = NULL;
   const char *supername;
   char *tmp;
   int templated;

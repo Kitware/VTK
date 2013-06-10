@@ -36,13 +36,16 @@ set(VTK_JAVA_SOURCE_FILES ${VTK_JAVA_DEPENDENCIES})
 string(REGEX REPLACE "\\.java" ".class;" VTK_JAVA_CLASS_FILES ${VTK_JAVA_SOURCE_FILES})
 
 # Setup custom targets
-add_custom_target(VTKJavaTestClasses ALL DEPENDS ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt)
+if (BUILD_TESTING)
+  add_custom_target(VTKJavaTestClasses ALL DEPENDS ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt)
+endif()
 add_custom_target(VTKJavaJar ALL DEPENDS ${VTK_JAR_PATH}/vtk.jar)
 add_custom_target(VTKJavaClasses ALL DEPENDS ${VTK_BINARY_DIR}/java/javac_stamp.txt)
 
 add_dependencies(VTKJavaJar VTKJavaClasses)
-add_dependencies(VTKJavaTestClasses VTKJavaJar)
-
+if (BUILD_TESTING)
+  add_dependencies(VTKJavaTestClasses VTKJavaJar)
+endif()
 # Some platforms have libjvm in a subdirectory from
 # the rest of the java libraries and are missing the symlink.
 
@@ -138,8 +141,11 @@ set(VTK_JAVA_DEPENDENCIES
 set(VTK_JAVA_SAMPLE_DEPENDENCIES)
 
 if(vtkRenderingCore_ENABLED)
+  if (BUILD_TESTING)
   set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
-    vtkJavaTesting
+    vtkJavaTesting)
+  endif()
+  set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
     AxesActor
     vtkRenderWindowPanel
     )
@@ -279,10 +285,11 @@ if(BUILD_TESTING)
       # If JAVA_DATAMODEL_FLAG is set, pass it as first argument. Otherwise, it's empty.
       # For example, use "-d64" to force 64-bit java jvm.
       #
-      add_test(JavaRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
+      ExternalData_add_test(VTKData
+         JavaRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
-         vtk.test.Regression -D ${VTK_DATA_ROOT}
-         -V Baseline/Graphics/Cone.png
+         vtk.test.Regression -D ${VTK_TEST_DATA_DIR}
+         -V DATA{Baseline/Cone.png,:}
          -T ${VTK_TEST_OUTPUT_DIR}
          )
     endif()
@@ -315,9 +322,7 @@ endif()
 
 # Make sure .class files are cleaned up
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${VTK_JAVA_CLASS_FILES}")
-#  IF(NOT VTK_INSTALL_NO_RUNTIME)
-#    INSTALL(FILES
-#      ${VTK_JAR_PATH}/vtk.jar
-#      DESTINATION ${VTK_INSTALL_JAVA_DIR_CM24}
-#      COMPONENT RuntimeLibraries)
-#  ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
+install(FILES
+  ${VTK_JAR_PATH}/vtk.jar
+  DESTINATION ${VTK_INSTALL_LIBRARY_DIR}
+  COMPONENT RuntimeLibraries)

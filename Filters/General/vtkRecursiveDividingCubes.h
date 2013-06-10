@@ -60,7 +60,7 @@ public:
   // Every "Increment" point is added to the list of points. This parameter, if
   // set to a large value, can be used to limit the number of points while
   // retaining good accuracy.
-  vtkSetClampMacro(Increment,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(Increment,int,1,VTK_INT_MAX);
   vtkGetMacro(Increment,int);
 
 protected:

@@ -453,7 +453,7 @@ void vtkAbstractPolygonalHandleRepresentation3D
     {
     center[0] = currPos[0];
     center[1] = currPos[1];
-    center[2] = currPos[2];
+    center[2] = 1.0;
     }
 }
 

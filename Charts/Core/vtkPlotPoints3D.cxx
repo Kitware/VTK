@@ -21,6 +21,7 @@
 #include "vtkPen.h"
 #include "vtkPlotPoints3D.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkIdTypeArray.h"
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotPoints3D)
@@ -30,6 +31,8 @@ vtkPlotPoints3D::vtkPlotPoints3D()
 {
   this->Pen->SetWidth(5);
   this->Pen->SetColor(0, 0, 0, 255);
+  this->SelectedPen->SetWidth(7);
+  this->SelectedPen->SetColor(255, 50, 0, 150);
 }
 
 //-----------------------------------------------------------------------------
@@ -79,6 +82,30 @@ bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
         this->Colors->GetPointer(0), this->NumberOfComponents);
       }
 
+    }
+
+  // Now add some decorations for our selected points...
+  if (this->Selection && this->Selection->GetNumberOfTuples())
+    {
+    if (this->Selection->GetMTime() > this->SelectedPointsBuildTime ||
+        this->GetMTime() > this->SelectedPointsBuildTime)
+      {
+      size_t nSelected(static_cast<size_t>(this->Selection->GetNumberOfTuples()));
+      this->SelectedPoints.reserve(nSelected);
+      for (size_t i = 0; i < nSelected; ++i)
+        {
+        this->SelectedPoints.push_back(this->Points[this->Selection->GetValue(i)]);
+        }
+      this->SelectedPointsBuildTime.Modified();
+      }
+
+    // Now to render the selected points.
+    if (!this->SelectedPoints.empty())
+      {
+      context->ApplyPen(this->SelectedPen.GetPointer());
+      context->DrawPoints(this->SelectedPoints[0].GetData(),
+                          static_cast<int>(this->SelectedPoints.size()));
+      }
     }
 
   return true;

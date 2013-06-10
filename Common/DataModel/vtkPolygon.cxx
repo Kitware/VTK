@@ -1561,9 +1561,6 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 
   double p0[3], p10[3], l10, p20[3], l20, n[3];
   double x[3][3], l1, l2, v1[3], v2[3];
-  int numVerts=this->PointIds->GetNumberOfIds();
-  double *weights = new double[numVerts];
-  double *sample = new double[dim*3];
 
   //setup parametric system and check for degeneracy
   if ( this->ParameterizePolygon(p0, p10, l10, p20, l20, n) == 0 )
@@ -1577,6 +1574,10 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), double pcoords[3],
       }
     return;
     }
+
+  int numVerts=this->PointIds->GetNumberOfIds();
+  double *weights = new double[numVerts];
+  double *sample = new double[dim*3];
 
   //compute positions of three sample points
   for (i=0; i<3; i++)
@@ -1908,7 +1909,7 @@ double vtkPolygon::DistanceToPolygon(double x[3], int numPts, double *pts,
     }
 
   // Not inside, compute the distance of the point to the edges.
-  double minDist2=VTK_LARGE_FLOAT;
+  double minDist2=VTK_FLOAT_MAX;
   double *p0, *p1, dist2, t, c[3];
   for (int i=0; i<numPts; i++)
     {

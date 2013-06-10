@@ -214,8 +214,40 @@ public:
 
   // Description:
   // Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
+  //
+  // See \a GetUnscaledInputBounds for more information.
   virtual void GetBounds(double bounds[4])
   { bounds[0] = bounds[1] = bounds[2] = bounds[3] = 0.0; }
+
+  // Description:
+  // Provide un-log-scaled bounds for the plot inputs.
+  //
+  // This function is analogous to GetBounds() with 2 exceptions:
+  // 1. It will never return log-scaled bounds even when the
+  // x- and/or y-axes are log-scaled.
+  // 2. It will always return the bounds along the *input* axes
+  // rather than the output chart coordinates. Thus GetXAxis()
+  // returns the axis associated with the first 2 bounds entries
+  // and GetYAxis() returns the axis associated with the next 2
+  // bounds entries.
+  //
+  // For example, vtkPlotBar's GetBounds() method
+  // will swap axis bounds when its orientation is vertical while
+  // its GetUnscaledInputBounds() will not swap axis bounds.
+  //
+  // This method is provided so user interfaces can determine
+  // whether or not to allow log-scaling of a particular vtkAxis.
+  //
+  // Subclasses of vtkPlot are responsible for implementing this
+  // function to transform input plot data.
+  //
+  // The returned \a bounds are stored as (Xmin, Xmax, Ymin, Ymax).
+  virtual void GetUnscaledInputBounds(double bounds[4])
+    {
+    // Implemented here by calling GetBounds() to support plot
+    // subclasses that do no log-scaling or plot orientation.
+    return this->GetBounds(bounds);
+    }
 
 //BTX
   // Description:

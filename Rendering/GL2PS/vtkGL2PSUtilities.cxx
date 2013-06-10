@@ -15,13 +15,13 @@
 
 #include "vtkGL2PSUtilities.h"
 
-#include "vtkImageData.h"
 #include "vtkIntArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLGL2PSHelper.h"
 #include "vtkPath.h"
 #include "vtkRenderWindow.h"
 #include "vtkTextProperty.h"
@@ -34,13 +34,27 @@
 #include <string>
 
 vtkStandardNewMacro(vtkGL2PSUtilities)
-bool vtkGL2PSUtilities::TextAsPath = false;
+
+// Initialize static members
 vtkRenderWindow *vtkGL2PSUtilities::RenderWindow = NULL;
+bool vtkGL2PSUtilities::TextAsPath = false;
+float vtkGL2PSUtilities::PointSizeFactor = 5.f / 7.f;
+float vtkGL2PSUtilities::LineWidthFactor = 5.f / 7.f;
 
 void vtkGL2PSUtilities::DrawString(const char *str,
                                    vtkTextProperty *tprop, double pos[])
 {
-  if (!vtkGL2PSUtilities::TextAsPath)
+  vtkTextRenderer *tren(vtkTextRenderer::GetInstance());
+  if (tren == NULL)
+    {
+    vtkNew<vtkGL2PSUtilities> dummy;
+    vtkErrorWithObjectMacro(dummy.GetPointer(),
+                            <<"vtkTextRenderer unavailable.");
+    return;
+    }
+
+  bool isMath = tren->DetectBackend(str) == vtkTextRenderer::MathText;
+  if (!isMath && !vtkGL2PSUtilities::TextAsPath)
     {
     const char *fontname = vtkGL2PSUtilities::TextPropertyToPSFontName(tprop);
 
@@ -66,17 +80,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
     {
     // Render the string to a path and then draw it to GL2PS:
     vtkNew<vtkPath> path;
-    if (vtkTextRenderer *tren = vtkTextRenderer::GetInstance())
-      {
-      tren->StringToPath(tprop, str, path.GetPointer());
-      }
-    else
-      {
-      vtkNew<vtkGL2PSUtilities> dummy;
-      vtkErrorWithObjectMacro(dummy.GetPointer(),
-                              <<"vtkTextRenderer unavailable.");
-      return;
-      }
+    tren->StringToPath(tprop, str, path.GetPointer());
     // Get color
     double rgbd[3];
     tprop->GetColor(rgbd[0], rgbd[1], rgbd[2]);
@@ -265,6 +269,34 @@ void vtkGL2PSUtilities::DrawPath(vtkPath *path, double rasterPos[3],
     default:
       break;
     }
+}
+
+void vtkGL2PSUtilities::StartExport()
+{
+  // This is nasty -- the tokens are used in the feedback buffer to tell GL2PS
+  // about stippling or when the linewidth/pointsize changes. These are the
+  // values defined in gl2ps.c as of v1.3.8. If these values change (doubtful)
+  // we'll need to detect the gl2ps version and set the values per version.
+  //
+  // We set these in the helper class to fake the GL2PS functions that inject
+  // the tokens into the feedback buffer to avoid making vtkRenderingOpenGL
+  // depend on gl2ps.
+  vtkOpenGLGL2PSHelper::StippleBeginToken = 5.f; // GL2PS_BEGIN_STIPPLE_TOKEN
+  vtkOpenGLGL2PSHelper::StippleEndToken = 6.f;   // GL2PS_END_STIPPLE_TOKEN
+  vtkOpenGLGL2PSHelper::PointSizeToken = 7.f;    // GL2PS_POINT_SIZE_TOKEN
+  vtkOpenGLGL2PSHelper::LineWidthToken = 8.f;    // GL2PS_LINE_WIDTH_TOKEN
+
+  // These are used to scale the points and lines:
+  vtkOpenGLGL2PSHelper::PointSizeFactor = vtkGL2PSUtilities::PointSizeFactor;
+  vtkOpenGLGL2PSHelper::LineWidthFactor = vtkGL2PSUtilities::LineWidthFactor;
+
+  // Enable the code paths that interact with the feedback buffer:
+  vtkOpenGLGL2PSHelper::InGL2PSRender = true;
+}
+
+void vtkGL2PSUtilities::FinishExport()
+{
+  vtkOpenGLGL2PSHelper::InGL2PSRender = false;
 }
 
 void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],

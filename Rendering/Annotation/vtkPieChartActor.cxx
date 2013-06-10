@@ -408,7 +408,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
 
   // Determine the number of independent variables
   this->N = da->GetNumberOfTuples();
-  if ( this->N <= 0 || this->N >= VTK_LARGE_ID )
+  if ( this->N <= 0 || this->N >= VTK_ID_MAX )
     {
     this->N = 0;
     vtkErrorMacro(<<"No field data to plot");

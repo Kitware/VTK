@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------------
 int TestAxes(int , char * [])
 {
+  int status = EXIT_SUCCESS;
+
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(500, 300);
@@ -54,6 +56,7 @@ int TestAxes(int , char * [])
     axis->SetPoint1(vtkVector2f(i * 69 + 30, 10));
     axis->SetPoint2(vtkVector2f(i * 69 + 30, 290));
     axis->SetPosition(i % 2 ? vtkAxis::LEFT : vtkAxis::RIGHT);
+    axis->SetRange(NULL); // check that NULL pointers don't cause trouble
     axis->SetRange(-1, 50);
 
     view->GetScene()->AddItem(axis);
@@ -98,7 +101,38 @@ int TestAxes(int , char * [])
     }
 
   // Now to test some of the API in the horizontal axes.
+  axesHorizontal[0]->LogScaleOn(); // LogScaleActive=false because min*max<0
+  axesHorizontal[0]->SetUnscaledRange(1,100); // LogScaleActive becomes true
+  double range[2];
+  axesHorizontal[0]->GetRange(range);
+  if (!axesHorizontal[0]->GetLogScaleActive() ||
+    fabs(range[0]) > 1e-8 || fabs(range[1] - 2.) > 1e-8)
+    {
+    cerr << "ERROR: did not transition to log scaling when range changed.\n";
+    status = EXIT_FAILURE;
+    }
+  // Now change the axis limits in log-space...
+  axesHorizontal[0]->SetMinimumLimit(-1.);
+  axesHorizontal[0]->SetMaximumLimit(3.);
+  // ... and verify that the unscaled limits have changed:
+  if (
+    fabs(axesHorizontal[0]->GetUnscaledMinimumLimit()-0.1) > 1e-8 ||
+    fabs(axesHorizontal[0]->GetUnscaledMaximumLimit()-1000.0) > 1e-8)
+    {
+    cerr
+      << "ERROR: did not update unscaled limits when scaled limits changed.\n";
+    status = EXIT_FAILURE;
+    }
+  axesHorizontal[0]->LogScaleOff();
+  if (axesHorizontal[0]->GetLogScaleActive() ||
+    -axesHorizontal[0]->GetMinimumLimit() ==
+    axesHorizontal[0]->GetMaximumLimit())
+    {
+    cerr << "ERROR: did not transition from log scaling or reset limits.\n";
+    status = EXIT_FAILURE;
+    }
   axesHorizontal[0]->AutoScale();
+  axesHorizontal[0]->SetRange(20, 60); // restore range so rest of test can proceed
 
   axesHorizontal[1]->SetRange(10, -5);
   axesHorizontal[1]->AutoScale();
@@ -123,11 +157,50 @@ int TestAxes(int , char * [])
     axesHorizontal[i]->Update();
     }
 
+  // Test LogScale and UnscaledRange methods
+  vtkNew<vtkAxis> logAxis;
+  double plainRange[2] = {0.1, 1000.0};
+  double logRange[2];
+  logAxis->SetUnscaledRange(plainRange);
+  logAxis->LogScaleOn();
+  logAxis->GetUnscaledRange(NULL); // Insure NULL pointers are ignored.
+  logAxis->GetUnscaledRange(logRange);
+  if ((logRange[0] != plainRange[0]) || (logRange[1] != plainRange[1]))
+    {
+    vtkGenericWarningMacro(
+      << "Error: expected unscaled range to be unchanged but got ["
+      << logRange[0] << ", " << logRange[1] << "].");
+    }
+  logAxis->GetRange(logRange);
+  if (
+    (fabs((pow(10., logRange[0]) - plainRange[0])) > 1e-6) ||
+    (fabs((pow(10., logRange[1]) - plainRange[1])) > 1e-6))
+    {
+    vtkGenericWarningMacro(
+      << "Error: expected scaled range to be [-1, 3] but got ["
+      << logRange[0] << ", " << logRange[1] << "].");
+    }
+  if (
+    (logAxis->GetMinimum() != logRange[0]) ||
+    (logAxis->GetMaximum() != logRange[1]) ||
+    (logAxis->GetUnscaledMinimum() != plainRange[0]) ||
+    (logAxis->GetUnscaledMaximum() != plainRange[1]))
+    {
+    vtkGenericWarningMacro(
+      "Error: returned ranges do not match returned min/max.");
+    }
+  logAxis->SetMinimum(logRange[0]);
+  logAxis->SetMaximum(logRange[1]);
+  logAxis->Update();
+  logAxis->SetUnscaledMinimum(plainRange[0]);
+  logAxis->SetUnscaledMaximum(plainRange[1]);
+  logAxis->Update();
+
   // Finally render the scene and compare the image to a reference image, or
   // start the main interactor loop if the test is interactive.
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
 
-  return EXIT_SUCCESS;
+  return status;
 }

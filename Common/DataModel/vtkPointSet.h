@@ -94,6 +94,11 @@ public:
   void ShallowCopy(vtkDataObject *src);
   void DeepCopy(vtkDataObject *src);
 
+  // Description:
+  // Overwritten to handle the data/locator loop
+  virtual void Register(vtkObjectBase* o);
+  virtual void UnRegister(vtkObjectBase* o);
+
   //BTX
   // Description:
   // Retrieve an instance of this class from an information object.

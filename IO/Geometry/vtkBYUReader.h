@@ -79,7 +79,7 @@ public:
 
   // Description:
   // Set/Get the part number to be read.
-  vtkSetClampMacro(PartNumber,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(PartNumber,int,1,VTK_INT_MAX);
   vtkGetMacro(PartNumber,int);
 
   // Description:

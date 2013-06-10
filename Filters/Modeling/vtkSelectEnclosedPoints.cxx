@@ -220,8 +220,6 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x, double y, double z)
 }
 
 
-#define VTK_CERTAIN 1
-#define VTK_UNCERTAIN 0
 #define VTK_MAX_ITER 10    //Maximum iterations for ray-firing
 #define VTK_VOTE_THRESHOLD 3
 //----------------------------------------------------------------------------
@@ -306,8 +304,6 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
   return ( deltaVotes < 0 ? 0 : 1 );
 }
 
-#undef VTK_CERTAIN
-#undef VTK_UNCERTAIN
 #undef VTK_MAX_ITER
 #undef VTK_VOTE_THRESHOLD
 

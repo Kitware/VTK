@@ -19,6 +19,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkImageData.h"
+#include "vtkTextActor.h"
+#include "vtkViewport.h"
+#include "vtkWindow.h"
 
 // FTGL
 
@@ -69,7 +72,7 @@ struct EmbeddedFontStruct
 // if it happens to be destroyed before our singleton (this order is not
 // deterministic). It will destroy our singleton, if needed.
 
-void vtkFreeTypeUtilitiesCleanupCallback ()
+static void vtkFreeTypeUtilitiesCleanupCallback ()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeUtilitiesCleanupCallback\n");
@@ -1248,22 +1251,60 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
 
         for (int i = 0; i < bitmap->width; ++i)
           {
-          t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
-          t_1_m_alpha = 1.0 - t_alpha;
-          data_alpha = (data_ptr[3] - data_min) / data_range;
-          *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * tprop_r);
-          ++data_ptr;
-          *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * tprop_g);
-          ++data_ptr;
-          *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * tprop_b);
-          ++data_ptr;
-          *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
-          ++data_ptr;
-          ++glyph_ptr;
+          if(*glyph_ptr == 0)
+            {
+            data_ptr += 4;
+            ++glyph_ptr;
+            }
+          else if(data_ptr[3] > 0)
+            {
+            // This is a pixel we've drawn before since it has non-zero alpha.
+            // We must therefore blend the colors.
+            t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
+            t_1_m_alpha = 1.0 - t_alpha;
+            data_alpha = (data_ptr[3] - data_min) / data_range;
+
+            float blendR =
+                (t_1_m_alpha * ((data_ptr[0] - data_min) / data_range))
+                + (t_alpha * tprop_r);
+            float blendG =
+                (t_1_m_alpha * ((data_ptr[1] - data_min) / data_range))
+                + (t_alpha * tprop_g);
+            float blendB =
+                (t_1_m_alpha * ((data_ptr[2] - data_min) / data_range))
+                + (t_alpha * tprop_b);
+
+            // Figure out the color.
+            data_ptr[0] = static_cast<unsigned char>(data_min
+                                                     + data_range * blendR);
+            data_ptr[1] = static_cast<unsigned char>(data_min
+                                                     + data_range * blendG);
+            data_ptr[2] = static_cast<unsigned char>(data_min
+                                                     + data_range * blendB);
+            data_ptr[3] = static_cast<unsigned char>(
+                  data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
+            data_ptr += 4;
+            ++glyph_ptr;
+            }
+          else
+            {
+            t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
+            t_1_m_alpha = 1.0 - t_alpha;
+            data_alpha = (data_ptr[3] - data_min) / data_range;
+            *data_ptr = static_cast<unsigned char>(
+              data_min + data_range * tprop_r);
+            ++data_ptr;
+            *data_ptr = static_cast<unsigned char>(
+              data_min + data_range * tprop_g);
+            ++data_ptr;
+            *data_ptr = static_cast<unsigned char>(
+              data_min + data_range * tprop_b);
+            ++data_ptr;
+            *data_ptr = static_cast<unsigned char>(
+              data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
+            ++data_ptr;
+            ++glyph_ptr;
+            }
           }
         glyph_ptr_row += bitmap->pitch;
         data_ptr += data_pitch;
@@ -1280,13 +1321,16 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
                                        const char *str,
                                        int, int,
                                        vtkImageData *data)
 {
+  VTK_LEGACY_BODY(vtkFreeTypeUtilities::RenderString, "VTK 6.0");
   return this->RenderString(tprop, str, data);
 }
+#endif
 
 //----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
@@ -1708,6 +1752,10 @@ void vtkFreeTypeUtilities::GetWidthHeightDescender(const char *str,
   *height = 0;
   *width = 0;
   *descender = 0;
+  if (!str || !str[0])
+    {
+    return;
+    }
 
   // The font global ascender and descender might just be too high
   // for given a face. Let's get a compromise by computing these values
@@ -1904,7 +1952,6 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
     }
   return fontSize;
 }
-
 
 void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
                                        int totalWidth, int *x, int *y)

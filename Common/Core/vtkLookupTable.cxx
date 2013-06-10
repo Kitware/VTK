@@ -287,7 +287,7 @@ double vtkLookupTable::GetOpacity(double v)
 // There is a little more to this than simply taking the log10 of the
 // two range values: we do conversion of negative ranges to positive
 // ranges, and conversion of zero to a 'very small number'
-void vtkLookupTableLogRange(const double range[2], double logRange[2])
+static void vtkLookupTableLogRange(const double range[2], double logRange[2])
 {
   double rmin = range[0];
   double rmax = range[1];
@@ -398,12 +398,7 @@ inline unsigned char *vtkLinearLookup(
   double v, unsigned char *table, double maxIndex, double shift, double scale,
   unsigned char *nanColor)
 {
-  // calling isnan() instead of vtkMath::IsNan() improves performance
-#ifdef VTK_HAS_ISNAN
-  if (isnan(v))
-#else
   if (vtkMath::IsNan(v))
-#endif
     {
     return nanColor;
     }
@@ -474,12 +469,7 @@ vtkIdType vtkLookupTable::GetIndex(double v)
 
   // Map to an index:
   //   First, check whether we have a number...
-  //     calling isnan() instead of vtkMath::IsNan() improves performance
-#ifdef VTK_HAS_ISNAN
-  if ( isnan( v ) )
-#else
   if ( vtkMath::IsNan( v ) )
-#endif
     {
     return -1;
     }
@@ -1220,4 +1210,16 @@ void vtkLookupTable::DeepCopy(vtkScalarsToColors *obj)
 vtkIdType vtkLookupTable::GetNumberOfAvailableColors()
 {
   return this->Table->GetNumberOfTuples();
+}
+
+//----------------------------------------------------------------------------
+void vtkLookupTable::GetIndexedColor(vtkIdType idx, double rgba[4])
+{
+  vtkIdType n = this->GetNumberOfAvailableColors();
+  if (n > 0 && idx >= 0)
+    {
+    this->GetTableValue(idx % n, rgba);
+    return;
+    }
+  this->GetNanColor(rgba);
 }

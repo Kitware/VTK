@@ -81,7 +81,7 @@ public:
   // Description:
   // Specify a radius for a circle. This erases the cursor
   // lines around the focal point.
-  vtkSetClampMacro(Radius,double,0.0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(Radius,double,0.0,VTK_FLOAT_MAX);
   vtkGetMacro(Radius,double);
 
   // Description:

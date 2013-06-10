@@ -472,7 +472,7 @@ public:
   // so it is not wise to set the number of layers to be exorbitantly large
   // (say bigger than 100).
   vtkGetMacro(NumberOfLayers, int);
-  vtkSetClampMacro(NumberOfLayers, int, 1, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfLayers, int, 1, VTK_INT_MAX);
 
   // Description:
   // Get the interactor associated with this render window

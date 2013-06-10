@@ -62,7 +62,7 @@ void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
   int maxC = inData->GetNumberOfScalarComponents();
   int idxC;
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     T* inSI = inIt.BeginSpan();

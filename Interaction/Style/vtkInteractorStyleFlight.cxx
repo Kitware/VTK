@@ -530,14 +530,14 @@ void vtkInteractorStyleFlight::UpdateMouseSteering(vtkCamera *cam)
 */
 }
 
-#define D2R 0.01745329251994329576923690768    // degrees to radians
-#define R2D 57.2957795130823208767981548141    // radians to degrees
-
 // We know the ideal and actual focal points. We now want to reduce these
 // to a 2D Yaw+Pitch form so that we can smooth the motion on each
 void vtkInteractorStyleFlight::UpdateSteering(vtkCamera *vtkNotUsed(cam))
 {
 /*
+  #define D2R 0.01745329251994329576923690768    // degrees to radians
+  #define R2D 57.2957795130823208767981548141    // radians to degrees
+
   Not happy with smooth flight yet, please levae this code here
   until I get around to experimenting : JB July 2002
 

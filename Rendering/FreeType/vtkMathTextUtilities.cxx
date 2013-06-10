@@ -14,10 +14,14 @@
 =========================================================================*/
 
 #include "vtkMathTextUtilities.h"
+#include "vtkFreeTypeUtilities.h"
 
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkTextProperty.h"
+#include "vtkTextActor.h"
+#include "vtkViewport.h"
+#include "vtkWindow.h"
 
 #ifdef VTK_DEBUG_LEAKS
 #include "vtkDebugLeaks.h"

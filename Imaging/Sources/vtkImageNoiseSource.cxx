@@ -107,7 +107,7 @@ void vtkImageNoiseSource::ExecuteDataWithInformation(vtkDataObject *output,
 
   vtkImageProgressIterator<double> outIt(data, data->GetExtent(), this, 0);
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     double* outSI = outIt.BeginSpan();

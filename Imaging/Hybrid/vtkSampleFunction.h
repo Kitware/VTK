@@ -78,7 +78,7 @@ public:
   // Control the type of the scalars object by explicitly providing a scalar
   // object.  THIS IS DEPRECATED, although it still works!!! Please use
   // SetOutputScalarType instead.
-  virtual void SetScalars(vtkDataArray *da);
+  VTK_LEGACY(virtual void SetScalars(vtkDataArray *da));
 
   // Description:
   // Specify the dimensions of the data on which to sample.

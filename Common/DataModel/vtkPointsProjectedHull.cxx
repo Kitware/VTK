@@ -307,6 +307,7 @@ int i,j;
   // up and doesn't handle some degenerate cases
   if (nHullPts == 0)
     {
+    delete [] hullPts;
     return 0;
     }
 
@@ -521,8 +522,6 @@ RectangleBoundingBoxIntersection(double hmin, double hmax,
 
   return 1;
 }
-
-#define sameDirection(a, b) ((((a)==0) && ((b)<0)) || (((a)>0) && ((b)>0)))
 
 int vtkPointsProjectedHull::
 OutsideHorizontalLine(double vmin, double vmax,

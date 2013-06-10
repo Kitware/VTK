@@ -153,8 +153,10 @@
 #endif
 
 /* Define compatibility names for these constants.  */
-#define VTK_LARGE_INTEGER VTK_INT_MAX
-#define VTK_LARGE_FLOAT VTK_FLOAT_MAX
+#if !defined(VTK_LEGACY_REMOVE)
+# define VTK_LARGE_INTEGER VTK_INT_MAX
+# define VTK_LARGE_FLOAT VTK_FLOAT_MAX
+#endif
 
 /*--------------------------------------------------------------------------*/
 /* Define named types and constants corresponding to specific integer
@@ -247,22 +249,32 @@ typedef double vtkTypeFloat64;
 # if defined(VTK_SIZEOF_LONG) && VTK_SIZEOF_LONG == 8 && 0
 typedef long vtkIdType;
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG
-#  define VTK_LARGE_ID VTK_LONG_MAX
+#  define VTK_ID_MIN VTK_LONG_MIN
+#  define VTK_ID_MAX VTK_LONG_MAX
 # elif defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
 typedef long long vtkIdType;
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG_LONG
-#  define VTK_LARGE_ID VTK_LONG_LONG_MAX
+#  define VTK_ID_MIN VTK_LONG_LONG_MIN
+#  define VTK_ID_MAX VTK_LONG_LONG_MAX
 # elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
 typedef __int64 vtkIdType;
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF___INT64
-#  define VTK_LARGE_ID VTK___INT64_MAX
+#  define VTK_ID_MIN VTK___INT64_MIN
+#  define VTK_ID_MAX VTK___INT64_MAX
 # else
 #  error "VTK_USE_64BIT_IDS is ON but no 64-bit integer type is available."
 # endif
 #else
 typedef int vtkIdType;
 # define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_INT
-# define VTK_LARGE_ID VTK_INT_MAX
+# define VTK_ID_MIN VTK_INT_MIN
+# define VTK_ID_MAX VTK_INT_MAX
+#endif
+
+/*--------------------------------------------------------------------------*/
+/* Provide deprecated pre-VTK6 constant. */
+#if !defined(VTK_LEGACY_REMOVE)
+#  define VTK_LARGE_ID VTK_ID_MAX
 #endif
 
 /*--------------------------------------------------------------------------*/

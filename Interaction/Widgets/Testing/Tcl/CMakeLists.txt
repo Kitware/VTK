@@ -1,7 +1,6 @@
-if(VTK_DATA_ROOT)
-  add_test_tcl(TestInteractorEventRecorder Widgets)
-  add_test_tcl(TestSphereWidget Widgets)
+if(NOT VTK_OPENGL_HAS_OSMESA)
+  vtk_add_test_tcl(TestInteractorEventRecorder)
+  vtk_add_test_tcl(TestSphereWidget)
+  vtk_add_test_tcl(TestBoxWidget)
+  vtk_add_test_tcl(TestTextWidget)
 endif()
-
-add_test_tcl(TestBoxWidget Widgets)
-add_test_tcl(TestTextWidget Widgets)

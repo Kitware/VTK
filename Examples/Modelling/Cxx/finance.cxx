@@ -165,6 +165,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
   if (n != 2)
     {
     cerr << "ERROR: Can't read file: " << filename << "\n";
+    fclose(file);
     return NULL;
     }
 
@@ -216,8 +217,8 @@ static int ParseFile(FILE *file, const char *label, float *data)
 {
   char tag[80];
   int i, npts, readData=0;
-  float min=VTK_LARGE_FLOAT;
-  float max=(-VTK_LARGE_FLOAT);
+  float min=VTK_FLOAT_MAX;
+  float max=(-VTK_FLOAT_MAX);
 
   if ( file == NULL || label == NULL ) return 0;
 

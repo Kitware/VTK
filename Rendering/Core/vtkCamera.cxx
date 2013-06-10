@@ -1269,24 +1269,40 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
     this->CameraLightTransform->Register(this);
     }
 
+  if (this->EyeTransformMatrix != NULL)
+    {
+    this->EyeTransformMatrix->Delete();
+    }
   this->EyeTransformMatrix = source->EyeTransformMatrix;
   if (this->EyeTransformMatrix!=0)
     {
     this->EyeTransformMatrix->Register(this);
     }
 
+  if (this->WorldToScreenMatrix != NULL)
+    {
+    this->WorldToScreenMatrix->Delete();
+    }
   this->WorldToScreenMatrix = source->WorldToScreenMatrix;
   if (this->WorldToScreenMatrix!=0)
     {
     this->WorldToScreenMatrix->Register(this);
     }
 
+  if (this->ModelTransformMatrix != NULL)
+    {
+    this->ModelTransformMatrix->Delete();
+    }
   this->ModelTransformMatrix = source->ModelTransformMatrix;
   if (this->ModelTransformMatrix!=0)
     {
     this->ModelTransformMatrix->Register(this);
     }
 
+  if (this->ModelViewTransform != NULL)
+    {
+    this->ModelViewTransform->Delete();
+    }
   this->ModelViewTransform = source->ModelViewTransform;
   if (this->ModelViewTransform!=0)
     {

@@ -20,10 +20,11 @@ vtkStandardNewMacro(vtkPerlinNoise);
 
 // These functions are from Greg Ward's recursive implementation in
 // Graphics Gems II.  I've kept the names the same for instructional
-// purposes, and only changed things where optimizations could be made.
+// purposes, and only changed things where optimizations could be made
+// or where correctness fixes were necessary.
 
 static double hermite(double p0, double p1,
-                     double r0, double r1, double t)
+                      double r0, double r1, double t)
 {
   double tt = t*t;
 
@@ -34,7 +35,7 @@ static double hermite(double p0, double p1,
 }
 
 // assumes 32 bit ints, but so it seems does VTK
-static double frand(int s)
+static double frand(unsigned int s)
 {
   s = (s<<13) ^ s;
   s = (s*(s*s*15731 + 789221)+1376312589)&VTK_INT_MAX;

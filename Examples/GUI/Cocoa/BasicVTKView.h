@@ -1,4 +1,4 @@
-#import <AppKit/AppKit.h>
+#import <Cocoa/Cocoa.h>
 
 #import "vtkCocoaGLView.h"
 

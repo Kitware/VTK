@@ -47,6 +47,16 @@ protected:
   vtkPlotPoints3D();
   ~vtkPlotPoints3D();
 
+  // Description:
+  // The selected points.
+  std::vector<vtkVector3f> SelectedPoints;
+
+  // Description:
+  // The selected points.
+  vtkTimeStamp SelectedPointsBuildTime;
+
+  vtkNew<vtkPen> SelectedPen;
+
 private:
   vtkPlotPoints3D(const vtkPlotPoints3D &); // Not implemented.
   void operator=(const vtkPlotPoints3D &); // Not implemented.

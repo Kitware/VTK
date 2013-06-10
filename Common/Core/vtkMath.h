@@ -39,6 +39,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+#include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
+
 #include <assert.h> // assert() in inline implementations.
 
 #ifndef DBL_MIN
@@ -52,7 +54,6 @@
 #else  // DBL_EPSILON
 #  define VTK_DBL_EPSILON    DBL_EPSILON
 #endif  // DBL_EPSILON
-#include "vtkMathConfigure.h" // For VTK_HAS_ISINF and VTK_HAS_ISNAN
 
 #ifndef VTK_DBL_EPSILON
 #  ifndef DBL_EPSILON
@@ -115,6 +116,22 @@ public:
   // This is faster than ceil() but provides undefined output on
   // overflow.
   static int Ceil(double x);
+
+  // Description:
+  // Gives the exponent of the lowest power of two not less than x.
+  // Or in mathspeak, return the smallest "i" for which 2^i >= x.
+  // If x is zero, then the return value will be zero.
+  static int CeilLog2(vtkTypeUInt64 x);
+
+  // Description:
+  // Returns true if integer is a power of two.
+  static bool IsPowerOfTwo(vtkTypeUInt64 x);
+
+  // Description:
+  // Compute the nearest power of two that is not less than x.
+  // The return value is 1 if x is less than or equal to zero,
+  // and is VTK_INT_MIN if result is too large to fit in an int.
+  static int NearestPowerOfTwo(int x);
 
   // Description:
   // Compute N factorial, N! = N*(N-1) * (N-2)...*3*2*1.
@@ -916,6 +933,10 @@ public:
   // Test if a number is equal to the special floating point value Not-A-Number (Nan).
   static int IsNan(double x);
 
+  // Description:
+  // Test if a number has finite value i.e. it is normal, subnormal or zero, but not infinite or Nan.
+  static bool IsFinite(double x);
+
 protected:
   vtkMath() {};
   ~vtkMath() {};
@@ -962,27 +983,40 @@ inline vtkTypeInt64 vtkMath::Factorial( int N )
 }
 
 //----------------------------------------------------------------------------
+inline bool vtkMath::IsPowerOfTwo(vtkTypeUInt64 x)
+{
+  return ((x != 0) & ((x & (x - 1)) == 0));
+}
+
+//----------------------------------------------------------------------------
+// Credit goes to Peter Hart and William Lewis on comp.lang.python 1997
+inline int vtkMath::NearestPowerOfTwo(int x)
+{
+  unsigned int z = ((x > 0) ? x - 1 : 0);
+  z |= z >> 1;
+  z |= z >> 2;
+  z |= z >> 4;
+  z |= z >> 8;
+  z |= z >> 16;
+  return static_cast<int>(z + 1);
+}
+
+//----------------------------------------------------------------------------
 // Modify the trunc() operation provided by static_cast<int>() to get floor(),
-// if x<0 (condition g) and x!=trunc(x) (condition n) then floor(x)=trunc(x)-1
 // Note that in C++ conditions evaluate to values of 1 or 0 (true or false).
 inline int vtkMath::Floor(double x)
 {
-  const int r = static_cast<int>(x);
-  const int n = ( x != static_cast<double>(r) );
-  const int g = ( x < 0 );
-  return r - ( n & g );
+  int i = static_cast<int>(x);
+  return i - ( i > x );
 }
 
 //----------------------------------------------------------------------------
 // Modify the trunc() operation provided by static_cast<int>() to get ceil(),
-// if x>=0 (condition g) and x!=trunc(x) (condition n) then ceil(x)=trunc(x)+1
 // Note that in C++ conditions evaluate to values of 1 or 0 (true or false).
 inline int vtkMath::Ceil(double x)
 {
-  const int r = static_cast<int>(x);
-  const int n = ( x != static_cast<double>(r) );
-  const int g = ( x >= 0 );
-  return r + ( n & g );
+  int i = static_cast<int>(x);
+  return i + ( i < x );
 }
 
 //----------------------------------------------------------------------------
@@ -1206,19 +1240,37 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
   return result;
 }
 
-#if defined(VTK_HAS_ISINF)
 //-----------------------------------------------------------------------------
+#if defined(VTK_HAS_ISINF) || defined(VTK_HAS_STD_ISINF)
+#define VTK_MATH_ISINF_IS_INLINE
 inline int vtkMath::IsInf(double x)
 {
-  return (isinf(x) ? 1 : 0);
+  using namespace std; // Could be isinf() or std::isinf()
+  return (isinf(x) != 0); // Force conversion to bool
 }
 #endif
 
-#if defined(VTK_HAS_ISNAN)
 //-----------------------------------------------------------------------------
+#if defined(VTK_HAS_ISNAN) || defined(VTK_HAS_STD_ISNAN)
+#define VTK_MATH_ISNAN_IS_INLINE
 inline int vtkMath::IsNan(double x)
 {
-  return (isnan(x) ? 1 : 0);
+  using namespace std; // Could be isnan() or std::isnan()
+  return (isnan(x) != 0); // Force conversion to bool
+}
+#endif
+
+//-----------------------------------------------------------------------------
+#if defined(VTK_HAS_ISFINITE) || defined(VTK_HAS_STD_ISFINITE) || defined(VTK_HAS_FINITE)
+#define VTK_MATH_ISFINITE_IS_INLINE
+inline bool vtkMath::IsFinite(double x)
+{
+#if defined(VTK_HAS_ISFINITE) || defined(VTK_HAS_STD_ISFINITE)
+  using namespace std; // Could be isfinite() or std::isfinite()
+  return (isfinite(x) != 0); // Force conversion to bool
+#else
+  return (finite(x) != 0); // Force conversion to bool
+#endif
 }
 #endif
 

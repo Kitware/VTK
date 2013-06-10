@@ -6,4 +6,5 @@ vtk_module(vtkIOGDAL
     vtkTestingCore
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
 )

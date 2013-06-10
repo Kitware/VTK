@@ -156,7 +156,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
   inIncs = inData->GetIncrements();
   wholeExtent = inData->GetExtent();
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     useMin[2] = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];

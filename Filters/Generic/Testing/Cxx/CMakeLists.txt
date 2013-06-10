@@ -1,4 +1,6 @@
-vtk_tests(BASELINEDIR GenericFiltering DATADIR ${VTK_DATA_ROOT}
+# Tests with data
+vtk_add_test_cxx(TestGenericStreamTracer.cxx)
+vtk_add_test_cxx(
   TestGenericClip.cxx
   TestGenericContourFilter.cxx
   TestGenericCutter.cxx
@@ -6,5 +8,7 @@ vtk_tests(BASELINEDIR GenericFiltering DATADIR ${VTK_DATA_ROOT}
   TestGenericGeometryFilter.cxx
   TestGenericGlyph3DFilter.cxx
   TestGenericProbeFilter.cxx
-  TestGenericStreamTracer.cxx
-  otherCreation.cxx)
+  otherCreation.cxx,NO_VALID
+  )
+
+vtk_test_cxx_executable(${vtk-module}CxxTests)

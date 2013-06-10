@@ -65,6 +65,7 @@ vtkChart::vtkChart()
   this->BackgroundBrush = vtkSmartPointer<vtkBrush>::New();
   this->BackgroundBrush->SetColorF(1, 1, 1, 0);
   this->SelectionMode = vtkContextScene::SELECTION_NONE;
+  this->SelectionMethod = vtkChart::SELECTION_ROWS;
 }
 
 //-----------------------------------------------------------------------------
@@ -153,6 +154,24 @@ void vtkChart::RecalculateBounds()
 {
   return;
 }
+
+//-----------------------------------------------------------------------------
+void vtkChart::SetSelectionMethod(int method)
+{
+  if (method == this->SelectionMethod)
+    {
+    return;
+    }
+  this->SelectionMethod = method;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+int vtkChart::GetSelectionMethod()
+{
+  return this->SelectionMethod;
+}
+
 //-----------------------------------------------------------------------------
 void vtkChart::SetShowLegend(bool visible)
 {

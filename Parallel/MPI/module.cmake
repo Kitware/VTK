@@ -7,4 +7,6 @@ vtk_module(vtkParallelMPI
     vtkTestingRendering
     vtkRenderingParallel
     vtkImagingSources
+    vtkIOParallel
+    vtkInteractionStyle
   )

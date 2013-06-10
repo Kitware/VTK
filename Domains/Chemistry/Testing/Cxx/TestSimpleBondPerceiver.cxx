@@ -16,9 +16,6 @@
 #include "vtkNew.h"
 #include "vtkSimpleBondPerceiver.h"
 
-#define TEST(cond)                              \
-  if (!(cond)) return EXIT_FAILURE
-
 int TestSimpleBondPerceiver(int , char *[])
 {
   vtkIdType numBonds;

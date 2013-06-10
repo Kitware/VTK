@@ -93,19 +93,19 @@ public:
 
   // Description:
   // Set the radius of the "median" value of the first plotted component.
-  vtkSetClampMacro(Radius,double,0.0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(Radius,double,0.0,VTK_FLOAT_MAX);
   vtkGetMacro(Radius,double);
 
   // Description:
   // Set the height of the plot. (The radius combined with the height
   // define the location of the plot relative to the generating polyline.)
-  vtkSetClampMacro(Height,double,0.0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(Height,double,0.0,VTK_FLOAT_MAX);
   vtkGetMacro(Height,double);
 
   // Description:
   // Specify an offset that translates each subsequent plot (if there is
   // more than one component plotted) from the defining arc (i.e., polyline).
-  vtkSetClampMacro(Offset, double, 0.0, VTK_LARGE_FLOAT);
+  vtkSetClampMacro(Offset, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Offset, double);
 
   // Description:
@@ -125,7 +125,7 @@ public:
   // Description:
   // Set/Get the field data array to plot. This instance variable is
   // only applicable if field data is plotted.
-  vtkSetClampMacro(FieldDataArray,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(FieldDataArray,int,0,VTK_INT_MAX);
   vtkGetMacro(FieldDataArray,int);
 
   // Description:

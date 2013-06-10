@@ -86,10 +86,21 @@ public:
   vtkSetStringMacro(ValidPointMaskArrayName)
   vtkGetStringMacro(ValidPointMaskArrayName)
 
+  // Description:
+  // Shallow copy the input arrays to the output.
+  vtkSetMacro(PassCellArrays, int);
+  vtkGetMacro(PassCellArrays, int);
+  //
+  vtkSetMacro(PassPointArrays, int);
+  vtkGetMacro(PassPointArrays, int);
+
 //BTX
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter();
+
+  int PassCellArrays;
+  int PassPointArrays;
 
   int SpatialMatch;
 

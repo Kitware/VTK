@@ -109,11 +109,7 @@ int vtkDirectory::Open(const char* name)
   struct _finddata_t data;      // data of current file
 
   // First count the number of files in the directory
-#if _MSC_VER < 1300
-  long srchHandle;
-#else
   intptr_t srchHandle;
-#endif
 
   srchHandle = _findfirst(buf, &data);
 
@@ -298,7 +294,7 @@ int vtkDirectory::FileIsDirectory(const char *name)
   struct stat fs;
   if(stat(fullPath, &fs) == 0)
     {
-#if _WIN32
+#if defined(_WIN32)
     result = ((fs.st_mode & _S_IFDIR) != 0);
 #else
     result = S_ISDIR(fs.st_mode);

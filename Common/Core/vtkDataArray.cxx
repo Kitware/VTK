@@ -29,10 +29,13 @@
 #include "vtkMath.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
+#include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+
+#include <algorithm> // for min(), max()
 
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
@@ -42,9 +45,6 @@ vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
 {
-  this->Range[0] = 0;
-  this->Range[1] = 1;
-
   this->Size = 0;
   this->MaxId = -1;
   this->LookupTable = NULL;
@@ -254,6 +254,8 @@ void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
 template <class T>
 inline void vtkDataArrayRoundIfNecessary(double val, T* retVal)
 {
+  val = std::max(val, static_cast<double>(vtkTypeTraits<T>::Min()));
+  val = std::min(val, static_cast<double>(vtkTypeTraits<T>::Max()));
   *retVal = static_cast<T>((val>=0.0)?(val + 0.5):(val - 0.5));
 }
 
@@ -1002,7 +1004,7 @@ int vtkDataArray::CopyInformation(vtkInformation* infoFrom, int deep)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataArray::ComputeRange(int comp)
+void vtkDataArray::ComputeRange(double range[2], int comp)
 {
   if ( comp >= this->NumberOfComponents )
     { // Ignore requests for nonexistent components.
@@ -1057,8 +1059,8 @@ void vtkDataArray::ComputeRange(int comp)
     {
     if ( this->GetMTime() <= info->GetMTime() )
       {
-      info->Get( rkey, this->Range );
-      if ( this->Range[0] != VTK_DOUBLE_MAX && this->Range[1] != VTK_DOUBLE_MIN )
+      info->Get( rkey, range );
+      if ( range[0] != VTK_DOUBLE_MAX && range[1] != VTK_DOUBLE_MIN )
         {
         // Only accept these values if they are reasonable. Otherwise, it is an
         // indication that they've never been computed before.
@@ -1067,40 +1069,40 @@ void vtkDataArray::ComputeRange(int comp)
       }
     }
 
-  this->Range[0] =  VTK_DOUBLE_MAX;
-  this->Range[1] =  VTK_DOUBLE_MIN;
+  range[0] =  VTK_DOUBLE_MAX;
+  range[1] =  VTK_DOUBLE_MIN;
   if ( comp < 0 )
     {
-    this->ComputeVectorRange();
+    this->ComputeVectorRange(range);
     }
   else
     {
-    this->ComputeScalarRange( comp );
+    this->ComputeScalarRange(range, comp);
     }
 
-  info->Set( rkey, this->Range, 2 );
+  info->Set( rkey, range, 2 );
 }
 
 //----------------------------------------------------------------------------
-void vtkDataArray::ComputeScalarRange(int comp)
+void vtkDataArray::ComputeScalarRange(double range[2], int comp)
 {
   vtkIdType numTuples=this->GetNumberOfTuples();
   for (vtkIdType i=0; i<numTuples; i++)
     {
     double s = this->GetComponent(i,comp);
-    if ( s < this->Range[0] )
+    if ( s < range[0] )
       {
-      this->Range[0] = s;
+      range[0] = s;
       }
-    if ( s > this->Range[1] )
+    if ( s > range[1] )
       {
-      this->Range[1] = s;
+      range[1] = s;
       }
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkDataArray::ComputeVectorRange()
+void vtkDataArray::ComputeVectorRange(double range[2])
 {
   vtkIdType numTuples=this->GetNumberOfTuples();
   for (vtkIdType i=0; i<numTuples; i++)
@@ -1113,13 +1115,13 @@ void vtkDataArray::ComputeVectorRange()
       s += t*t;
       }
     s = sqrt(s);
-    if ( s < this->Range[0] )
+    if ( s < range[0] )
       {
-      this->Range[0] = s;
+      range[0] = s;
       }
-    if ( s > this->Range[1] )
+    if ( s > range[1] )
       {
-      this->Range[1] = s;
+      range[1] = s;
       }
     }
 }
@@ -1176,7 +1178,7 @@ double vtkDataArray::GetDataTypeMin(int type)
 #endif
     case VTK_FLOAT:              return static_cast<double>(VTK_FLOAT_MIN);
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MIN);
-    case VTK_ID_TYPE:            return static_cast<double>(-VTK_LARGE_ID-1);
+    case VTK_ID_TYPE:            return static_cast<double>(VTK_ID_MIN);
     default: return 0;
     }
 }
@@ -1208,7 +1210,7 @@ double vtkDataArray::GetDataTypeMax(int type)
 #endif
     case VTK_FLOAT:              return static_cast<double>(VTK_FLOAT_MAX);
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MAX);
-    case VTK_ID_TYPE:            return static_cast<double>(VTK_LARGE_ID);
+    case VTK_ID_TYPE:            return static_cast<double>(VTK_ID_MAX);
     default: return 1;
     }
 }

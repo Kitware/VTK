@@ -44,7 +44,7 @@ int TestSingleGridBlanking(bool pointBlanking, bool reverse, int expectedNumberO
   elevation->SetInputConnection(source->GetOutputPort());
   elevation->SetLowPoint(-10, 0, 0);
   elevation->SetHighPoint(10, 0, 0);
-  elevation->SetScalarRange(-3, 3);
+  elevation->SetScalarRange(0, 3);
   vtkNew<vtkPointDataToCellData> pointDataToCellData;
   pointDataToCellData->SetInputConnection(elevation->GetOutputPort());
   pointDataToCellData->PassPointDataOn();
@@ -98,7 +98,7 @@ int TestMultiBlockBlanking(int expectedNumberOfCells)
   elevation->SetInputConnection(source->GetOutputPort());
   elevation->SetLowPoint(-10, 0, 0);
   elevation->SetHighPoint(10, 0, 0);
-  elevation->SetScalarRange(-3, 3);
+  elevation->SetScalarRange(0, 3);
   vtkNew<vtkPointDataToCellData> pointDataToCellData;
   pointDataToCellData->SetInputConnection(elevation->GetOutputPort());
   pointDataToCellData->PassPointDataOn();
@@ -141,15 +141,15 @@ int TestMultiBlockBlanking(int expectedNumberOfCells)
 // Program main
 int TestImageDataToUniformGrid( int, char* [] )
 {
-  int rc = TestSingleGridBlanking(true, false, 4800);
-  rc += TestSingleGridBlanking(false, false, 5600);
+  int rc = TestSingleGridBlanking(true, false, 5200);
+  rc += TestSingleGridBlanking(false, false, 5200);
 
   rc += TestSingleGridBlanking(true, true, 2400);
   // note that this and the the second call to TestSingleGridBlanking
   // are opposites so they should add up to 8000 cells.
-  rc += TestSingleGridBlanking(false, true, 2400);
+  rc += TestSingleGridBlanking(false, true, 2800);
 
-  rc += TestMultiBlockBlanking(1638);
+  rc += TestMultiBlockBlanking(1102);
 
   return rc;
 }

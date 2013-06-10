@@ -48,7 +48,7 @@ vtkVisibilitySort::vtkVisibilitySort()
 
   this->Direction = vtkVisibilitySort::BACK_TO_FRONT;
 
-  this->MaxCellsReturned = VTK_LARGE_INTEGER;
+  this->MaxCellsReturned = VTK_INT_MAX;
 }
 
 //-----------------------------------------------------------------------------

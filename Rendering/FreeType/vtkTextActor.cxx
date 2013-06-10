@@ -131,10 +131,11 @@ vtkTextActor::~vtkTextActor()
 }
 
 // ----------------------------------------------------------------------------
-void vtkTextActor::GetBoundingBox(double bbox[4])
+void vtkTextActor::GetBoundingBox(
+  vtkViewport* vport, double bbox[4])
 {
-  if ( this->UpdateRectangle(NULL) && this->RectanglePoints &&
-    this->RectanglePoints->GetNumberOfPoints() >= 4 )
+  if (this->UpdateRectangle(vport) && this->RectanglePoints &&
+    this->RectanglePoints->GetNumberOfPoints() >= 4)
     {
     double x[3];
     this->RectanglePoints->GetPoint( 0, x );
@@ -160,6 +161,165 @@ void vtkTextActor::GetBoundingBox(double bbox[4])
     vtkErrorMacro("UpdateRectangle failed to do so");
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkTextActor::GetSize(vtkViewport* vport, double size[2])
+{
+  double bds[4];
+  // If we have a viewport, use it. Otherwise, GetBoundingBox() calls
+  // UpdateRectange(NULL) which builds a (probably-too-low-resolution) image
+  // to determine its size.
+  this->UpdateRectangle(vport);
+  this->GetBoundingBox(vport, bds);
+  size[0] = bds[1] - bds[0];
+  size[1] = bds[3] - bds[2];
+}
+
+//----------------------------------------------------------------------------
+int vtkTextActor::SetConstrainedFontSize(vtkViewport* viewport,
+                                          int targetWidth,
+                                          int targetHeight)
+{
+  return this->SetConstrainedFontSize(this, viewport, targetWidth, targetHeight);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkTextActor::SetConstrainedFontSize(
+  vtkTextActor* tactor, vtkViewport* viewport,
+  int targetWidth, int targetHeight)
+{
+  // If target "empty" just return
+  if (targetWidth == 0 && targetHeight == 0)
+    {
+    return 0;
+    }
+
+  vtkTextProperty* tprop = tactor->GetTextProperty();
+  if (!tprop)
+    {
+    vtkGenericWarningMacro(<<"Need text property to apply constraint");
+    return 0;
+    }
+  int fontSize = tprop->GetFontSize();
+
+  // Use the last size as a first guess
+  double tempi[2];
+  tactor->GetSize(viewport, tempi);
+
+  // Now get an estimate of the target font size using bissection
+  // Based on experimentation with big and small font size increments,
+  // ceil() gives the best result.
+  // big:   floor: 10749, ceil: 10106, cast: 10749, vtkMath::Round: 10311
+  // small: floor: 12122, ceil: 11770, cast: 12122, vtkMath::Round: 11768
+  // I guess the best optim would be to have a look at the shape of the
+  // font size growth curve (probably not that linear)
+  if (tempi[0] > 0.5 && tempi[1] > 0.5)
+    {
+    float fx = targetWidth / static_cast<float>(tempi[0]);
+    float fy = targetHeight / static_cast<float>(tempi[1]);
+    fontSize = static_cast<int>(ceil(fontSize * ((fx <= fy) ? fx : fy)));
+    fontSize = fontSize > 2 ? fontSize : 2;
+    tprop->SetFontSize(fontSize);
+    tactor->GetSize(viewport, tempi);
+    }
+
+  // While the size is too small increase it
+  while (tempi[1] <= targetHeight &&
+         tempi[0] <= targetWidth &&
+         fontSize < 100)
+    {
+    fontSize++;
+    tprop->SetFontSize(fontSize);
+    tactor->GetSize(viewport, tempi);
+    }
+
+  // While the size is too large decrease it..  but never below 2 pt.
+  // (The MathText rendering uses matplotlib which behaves poorly
+  // for very small fonts.)
+  while ((tempi[1] > targetHeight || tempi[0] > targetWidth)
+         && fontSize > 3)
+    {
+    fontSize--;
+    tprop->SetFontSize(fontSize);
+    tactor->GetSize(viewport, tempi);
+    }
+
+  return fontSize;
+}
+
+//----------------------------------------------------------------------------
+int vtkTextActor::SetMultipleConstrainedFontSize(
+  vtkViewport* viewport, int targetWidth, int targetHeight,
+  vtkTextActor** actors, int nbOfActors, int* maxResultingSize)
+{
+  maxResultingSize[0] = maxResultingSize[1] = 0;
+
+  if (nbOfActors == 0)
+    {
+    return 0;
+    }
+
+  int fontSize, aSize;
+
+  // First try to find the constrained font size of the first mapper: it
+  // will be used minimize the search for the remaining actors, given the
+  // fact that all actors are likely to have the same constrained font size.
+  int i, first;
+  for (first = 0; first < nbOfActors && !actors[first]; first++) {}
+
+  if (first >= nbOfActors)
+    {
+    return 0;
+    }
+
+  fontSize = actors[first]->SetConstrainedFontSize(
+    viewport, targetWidth, targetHeight);
+
+  // Find the constrained font size for the remaining actors and
+  // pick the smallest
+  for (i = first + 1; i < nbOfActors; i++)
+    {
+    if (actors[i])
+      {
+      actors[i]->GetTextProperty()->SetFontSize(fontSize);
+      aSize = actors[i]->SetConstrainedFontSize(
+        viewport, targetWidth, targetHeight);
+      if (aSize < fontSize)
+        {
+        fontSize = aSize;
+        }
+      }
+    }
+
+  // Assign the smallest size to all text actors and find the largest area
+  double tempi[2];
+  for (i = first; i < nbOfActors; i++)
+    {
+    if (actors[i])
+      {
+      actors[i]->GetTextProperty()->SetFontSize(fontSize);
+      actors[i]->GetSize(viewport, tempi);
+      if (tempi[0] > maxResultingSize[0])
+        {
+        maxResultingSize[0] = tempi[0];
+        }
+      if (tempi[1] > maxResultingSize[1])
+        {
+        maxResultingSize[1] = tempi[1];
+        }
+      }
+    }
+
+  // The above code could be optimized further since the actor
+  // labels are likely to have the same height: in that case, we could
+  // have searched for the largest label, found the constrained size
+  // for this one, then applied this size to all others.  But who
+  // knows, maybe one day the text property will support a text
+  // orientation/rotation, and in that case the height will vary.
+  return fontSize;
+}
+
 
 // ----------------------------------------------------------------------------
 void vtkTextActor::SetNonLinearFontScale(double exp, int tgt)
@@ -203,14 +363,24 @@ void vtkTextActor::SetMapper(vtkMapper2D *mapper)
 // ----------------------------------------------------------------------------
 bool vtkTextActor::RenderImage(vtkTextProperty *tprop, vtkViewport *)
 {
-  return this->TextRenderer->RenderString(tprop, this->Input, this->ImageData);
+  vtkStdString text;
+  if (this->Input && this->Input[0])
+    {
+    text = this->Input;
+    }
+  return this->TextRenderer->RenderString(tprop, text, this->ImageData);
 }
 
 // ----------------------------------------------------------------------------
 bool vtkTextActor::GetImageBoundingBox(vtkTextProperty *tprop, vtkViewport *,
                                   int bbox[4])
 {
-  return this->TextRenderer->GetBoundingBox(tprop, this->Input, bbox);
+  vtkStdString text;
+  if (this->Input && this->Input[0])
+    {
+    text = this->Input;
+    }
+  return this->TextRenderer->GetBoundingBox(tprop, text, bbox);
 }
 
 // ----------------------------------------------------------------------------
@@ -339,7 +509,6 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     return 0;
     }
 
-  this->ComputeScaledFont(viewport);
   if ( ! this->UpdateRectangle(viewport) )
     {
     return 0;
@@ -625,7 +794,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
   if ( this->ImageData )
     {
     int p2dims[3];
-    this->ImageData->GetDimensions( p2dims );
+    this->ImageData->GetDimensions(p2dims);
     int text_bbox[4];
     if (!this->GetImageBoundingBox(this->ScaledTextProperty, viewport, text_bbox))
       {
@@ -638,16 +807,21 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     // compute TCoords.
     vtkFloatArray* tc = vtkFloatArray::SafeDownCast
       ( this->Rectangle->GetPointData()->GetTCoords() );
+    float tcXMax, tcYMax;
+    // Add a fudge factor to the texture coordinates to prevent the top
+    // row of pixels from being truncated on some systems.
+    tcXMax = std::min(1.0f, (dims[0] + 0.001f) / static_cast<float>(p2dims[0]));
+    tcYMax = std::min(1.0f, (dims[1] + 0.001f) / static_cast<float>(p2dims[1]));
     tc->InsertComponent(0, 0, 0.0);
     tc->InsertComponent(0, 1, 0.0);
 
     tc->InsertComponent(1, 0, 0.0);
-    tc->InsertComponent(1, 1, dims[1] / static_cast<float>(p2dims[1]));
+    tc->InsertComponent(1, 1, tcYMax);
 
-    tc->InsertComponent(2, 0, dims[0] / static_cast<float>(p2dims[0]));
-    tc->InsertComponent(2, 1, dims[1] / static_cast<float>(p2dims[1]));
+    tc->InsertComponent(2, 0, tcXMax);
+    tc->InsertComponent(2, 1, tcYMax);
 
-    tc->InsertComponent(3, 0, dims[0] / static_cast<float>(p2dims[0]));
+    tc->InsertComponent(3, 0, tcXMax);
     tc->InsertComponent(3, 1, 0.0);
     }
   else
@@ -787,6 +961,11 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 // ----------------------------------------------------------------------------
 int vtkTextActor::UpdateRectangle(vtkViewport* viewport)
 {
+  if (this->TextProperty->GetMTime() > this->ScaledTextProperty->GetMTime())
+    {
+    this->ComputeScaledFont(viewport);
+    }
+
   //check if we need to render the string
   if(this->ScaledTextProperty->GetMTime() > this->BuildTime ||
     !this->InputRendered || this->GetMTime() > this->BuildTime)

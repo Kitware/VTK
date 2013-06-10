@@ -93,8 +93,16 @@ public:
   vtkGetMacro(Orientation, int);
 
   // Description:
+  // A helper used by both GetUnscaledBounds and GetBounds(double[4]).
+  virtual void GetBounds(double bounds[4], bool unscaled);
+
+  // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax).
   virtual void GetBounds(double bounds[4]);
+
+  // Description:
+  // Get un-log-scaled bounds for this mapper as (Xmin,Xmax,Ymin,Ymax).
+  virtual void GetUnscaledInputBounds(double bounds[4]);
 
   // Description:
   // When used to set additional arrays, stacked bars are created.

@@ -45,7 +45,7 @@
 
 // To switch off deprecated warning about
 // vtkPainterDeviceAdapter::MakeVertexEmphasisWithStencilCheck
-#if defined(_MSC_VER) && _MSC_VER >= 1300
+#if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable:4996)
 #endif
@@ -80,26 +80,6 @@ public:
   // Calls glMultiTex
   virtual void SendMultiTextureCoords(int numcomp, int type, const void *attribute,
                                       int idx, vtkIdType offset);
-
-  // Description:
-  // Calls glMaterial*() for the GL_FRONT_AND_BACK face.
-  virtual void SendMaterialProperties(int components,
-                                      int type,
-                                      const void *ambient,
-                                      const void *diffuse,
-                                      const void *specular,
-                                      const void *specular_power);
-
-  // Description:
-  // Calls glMaterial*() for a face (either GL_FRONT, GL_BACK, or
-  // GL_FRONT_AND_BACK).
-  void SendMaterialPropertiesForFace(unsigned int face,
-                                     int components,
-                                     int type,
-                                     const void *ambient,
-                                     const void *diffuse,
-                                     const void *specular,
-                                     const void *specular_power);
 
   // Description:
   // Calls one of glVertexPointer, glNormalPointer, glColorPointer, or
@@ -174,7 +154,7 @@ private:
   void operator=(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
 };
 
-#if defined(_MSC_VER) && _MSC_VER >= 1300
+#if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
 

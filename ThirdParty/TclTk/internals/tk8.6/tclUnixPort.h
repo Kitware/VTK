@@ -1,32 +1,29 @@
 /*
  * tclUnixPort.h --
  *
- *  This header file handles porting issues that occur because
- *  of differences between systems.  It reads in UNIX-related
- *  header files and sets up UNIX-related macros for Tcl's UNIX
- *  core.  It should be the only file that contains #ifdefs to
- *  handle different flavors of UNIX.  This file sets up the
- *  union of all UNIX-related things needed by any of the Tcl
- *  core files.  This file depends on configuration #defines such
- *  as NO_DIRENT_H that are set up by the "configure" script.
+ *  This header file handles porting issues that occur because of
+ *  differences between systems. It reads in UNIX-related header files and
+ *  sets up UNIX-related macros for Tcl's UNIX core. It should be the only
+ *  file that contains #ifdefs to handle different flavors of UNIX. This
+ *  file sets up the union of all UNIX-related things needed by any of the
+ *  Tcl core files. This file depends on configuration #defines such as
+ *  NO_DIRENT_H that are set up by the "configure" script.
  *
- *  Much of the material in this file was originally contributed
- *  by Karl Lehenbauer, Mark Diekhans and Peter da Silva.
+ *  Much of the material in this file was originally contributed by Karl
+ *  Lehenbauer, Mark Diekhans and Peter da Silva.
  *
  * Copyright (c) 1991-1994 The Regents of the University of California.
  * Copyright (c) 1994-1997 Sun Microsystems, Inc.
  *
- * See the file "license.terms" for information on usage and redistribution
- * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
- *
- * RCS: @(#) Id
+ * See the file "license.terms" for information on usage and redistribution of
+ * this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #ifndef _TCLUNIXPORT
 #define _TCLUNIXPORT
 
 #ifndef MODULE_SCOPE
-#define MODULE_SCOPE extern
+#define MODULE_SCOPE  extern
 #endif
 
 /*
@@ -57,6 +54,12 @@
 #endif
 #endif
 
+/*
+ *---------------------------------------------------------------------------
+ * Parameterize for 64-bit filesystem support.
+ *---------------------------------------------------------------------------
+ */
+
 #ifdef HAVE_STRUCT_DIRENT64
 typedef struct dirent64  Tcl_DirEntry;
 #   define TclOSreaddir    readdir64
@@ -75,7 +78,37 @@ typedef off_t    Tcl_SeekOffset;
 #   define TclOSopen    open
 #endif
 
-#ifdef HAVE_STRUCT_STAT64
+#ifdef __CYGWIN__
+
+    /* Make some symbols available without including <windows.h> */
+#   define DWORD unsigned int
+#   define CP_UTF8 65001
+#   define GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS 0x00000004
+#   define HANDLE void *
+#   define HINSTANCE void *
+#   define SOCKET unsigned int
+#   define WSAEWOULDBLOCK 10035
+    typedef unsigned short WCHAR;
+    DLLIMPORT extern __stdcall int GetModuleHandleExW(unsigned int, const char *, void *);
+    DLLIMPORT extern __stdcall int GetModuleFileNameW(void *, const char *, int);
+    DLLIMPORT extern __stdcall int WideCharToMultiByte(int, int, const char *, int,
+      const char *, int, const char *, const char *);
+    DLLIMPORT extern __stdcall int MultiByteToWideChar(int, int, const char *, int,
+      WCHAR *, int);
+    DLLIMPORT extern __stdcall void OutputDebugStringW(const WCHAR *);
+    DLLIMPORT extern __stdcall int IsDebuggerPresent();
+
+    DLLIMPORT extern int cygwin_conv_path(int, const void *, void *, int);
+    DLLIMPORT extern int cygwin_conv_path_list(int, const void *, void *, int);
+#   define USE_PUTENV 1
+#   define USE_PUTENV_FOR_UNSET 1
+/* On Cygwin, the environment is imported from the Cygwin DLL. */
+#   define environ __cygwin_environ
+#   define timezone _timezone
+    DLLIMPORT extern char **__cygwin_environ;
+    MODULE_SCOPE int TclOSstat(const char *name, Tcl_StatBuf *statBuf);
+    MODULE_SCOPE int TclOSlstat(const char *name, Tcl_StatBuf *statBuf);
+#elif defined(HAVE_STRUCT_STAT64)
 #   define TclOSstat    stat64
 #   define TclOSlstat    lstat64
 #else
@@ -83,11 +116,19 @@ typedef off_t    Tcl_SeekOffset;
 #   define TclOSlstat    lstat
 #endif
 
+/*
+ *---------------------------------------------------------------------------
+ * Miscellaneous includes that might be missing.
+ *---------------------------------------------------------------------------
+ */
+
 #include <sys/file.h>
 #ifdef HAVE_SYS_SELECT_H
 #   include <sys/select.h>
 #endif
-#include <sys/stat.h>
+#ifdef HAVE_SYS_STAT_H
+#   include <sys/stat.h>
+#endif
 #if TIME_WITH_SYS_TIME
 #   include <sys/time.h>
 #   include <time.h>
@@ -104,6 +145,11 @@ typedef off_t    Tcl_SeekOffset;
 #if HAVE_INTTYPES_H
 #   include <inttypes.h>
 #endif
+#ifdef NO_LIMITS_H
+#   include "../compat/limits.h"
+#else
+#   include <limits.h>
+#endif
 #if HAVE_STDINT_H
 #   include <stdint.h>
 #endif
@@ -113,26 +159,34 @@ typedef off_t    Tcl_SeekOffset;
 #   include "../compat/unistd.h"
 #endif
 
-MODULE_SCOPE int TclUnixSetBlockingMode(int fd, int mode);
+MODULE_SCOPE int  TclUnixSetBlockingMode(int fd, int mode);
 
 #include <utime.h>
 
 /*
- * Socket support stuff: This likely needs more work to parameterize for
- * each system.
+ *---------------------------------------------------------------------------
+ * Socket support stuff: This likely needs more work to parameterize for each
+ * system.
+ *---------------------------------------------------------------------------
  */
+
 #include <sys/socket.h>    /* struct sockaddr, SOCK_STREAM, ... */
 #ifndef NO_UNAME
 #   include <sys/utsname.h>  /* uname system call. */
 #endif
 #include <netinet/in.h>    /* struct in_addr, struct sockaddr_in */
 #include <arpa/inet.h>    /* inet_ntoa() */
-#include <netdb.h>    /* gethostbyname() */
+#include <netdb.h>    /* getaddrinfo() */
+#ifdef NEED_FAKE_RFC2553
+# include "../compat/fake-rfc2553.h"
+#endif
 
 /*
- * Some platforms (e.g. SunOS) don't define FLT_MAX and FLT_MIN, so we
- * look for an alternative definition.  If no other alternative is available
- * we use a reasonable guess.
+ *---------------------------------------------------------------------------
+ * Some platforms (e.g. SunOS) don't define FLT_MAX and FLT_MIN, so we look
+ * for an alternative definition. If no other alternative is available we use
+ * a reasonable guess.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef NO_FLOAT_H
@@ -145,21 +199,23 @@ MODULE_SCOPE int TclUnixSetBlockingMode(int fd, int mode);
 
 #ifndef FLT_MAX
 #   ifdef MAXFLOAT
-#  define FLT_MAX MAXFLOAT
+#  define FLT_MAX  MAXFLOAT
 #   else
-#  define FLT_MAX 3.402823466E+38F
+#  define FLT_MAX  3.402823466E+38F
 #   endif
 #endif
 #ifndef FLT_MIN
 #   ifdef MINFLOAT
-#  define FLT_MIN MINFLOAT
+#  define FLT_MIN  MINFLOAT
 #   else
-#  define FLT_MIN 1.175494351E-38F
+#  define FLT_MIN  1.175494351E-38F
 #   endif
 #endif
 
 /*
+ *---------------------------------------------------------------------------
  * NeXT doesn't define O_NONBLOCK, so #define it here if necessary.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef O_NONBLOCK
@@ -167,23 +223,27 @@ MODULE_SCOPE int TclUnixSetBlockingMode(int fd, int mode);
 #endif
 
 /*
- * The type of the status returned by wait varies from UNIX system
- * to UNIX system.  The macro below defines it:
+ *---------------------------------------------------------------------------
+ * The type of the status returned by wait varies from UNIX system to UNIX
+ * system. The macro below defines it:
+ *---------------------------------------------------------------------------
  */
 
 #ifdef _AIX
-#   define WAIT_STATUS_TYPE pid_t
+#   define WAIT_STATUS_TYPE  pid_t
 #else
 #ifndef NO_UNION_WAIT
-#   define WAIT_STATUS_TYPE union wait
+#   define WAIT_STATUS_TYPE  union wait
 #else
-#   define WAIT_STATUS_TYPE int
+#   define WAIT_STATUS_TYPE  int
 #endif
 #endif
 
 /*
- * Supply definitions for macros to query wait status, if not already
- * defined in header files above.
+ *---------------------------------------------------------------------------
+ * Supply definitions for macros to query wait status, if not already defined
+ * in header files above.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef WIFEXITED
@@ -191,15 +251,17 @@ MODULE_SCOPE int TclUnixSetBlockingMode(int fd, int mode);
 #endif
 
 #ifndef WEXITSTATUS
-#   define WEXITSTATUS(stat) (((*((int *) &(stat))) >> 8) & 0xff)
+#   define WEXITSTATUS(stat)  (((*((int *) &(stat))) >> 8) & 0xff)
 #endif
 
 #ifndef WIFSIGNALED
-#   define WIFSIGNALED(stat) (((*((int *) &(stat)))) && ((*((int *) &(stat))) == ((*((int *) &(stat))) & 0x00ff)))
+#   define WIFSIGNALED(stat) \
+  (((*((int *) &(stat)))) && ((*((int *) &(stat))) \
+    == ((*((int *) &(stat))) & 0x00ff)))
 #endif
 
 #ifndef WTERMSIG
-#   define WTERMSIG(stat)    ((*((int *) &(stat))) & 0x7f)
+#   define WTERMSIG(stat)  ((*((int *) &(stat))) & 0x7f)
 #endif
 
 #ifndef WIFSTOPPED
@@ -207,12 +269,14 @@ MODULE_SCOPE int TclUnixSetBlockingMode(int fd, int mode);
 #endif
 
 #ifndef WSTOPSIG
-#   define WSTOPSIG(stat)    (((*((int *) &(stat))) >> 8) & 0xff)
+#   define WSTOPSIG(stat)  (((*((int *) &(stat))) >> 8) & 0xff)
 #endif
 
 /*
- * Define constants for waitpid() system call if they aren't defined
- * by a system header file.
+ *---------------------------------------------------------------------------
+ * Define constants for waitpid() system call if they aren't defined by a
+ * system header file.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef WNOHANG
@@ -223,8 +287,10 @@ MODULE_SCOPE int TclUnixSetBlockingMode(int fd, int mode);
 #endif
 
 /*
- * Supply macros for seek offsets, if they're not already provided by
- * an include file.
+ *---------------------------------------------------------------------------
+ * Supply macros for seek offsets, if they're not already provided by an
+ * include file.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef SEEK_SET
@@ -238,8 +304,10 @@ MODULE_SCOPE int TclUnixSetBlockingMode(int fd, int mode);
 #endif
 
 /*
- * The stuff below is needed by the "time" command.  If this system has no
+ *---------------------------------------------------------------------------
+ * The stuff below is needed by the "time" command. If this system has no
  * gettimeofday call, then must use times() instead.
+ *---------------------------------------------------------------------------
  */
 
 #ifdef NO_GETTOD
@@ -251,38 +319,45 @@ MODULE_SCOPE int TclUnixSetBlockingMode(int fd, int mode);
 #endif
 
 #ifdef GETTOD_NOT_DECLARED
-EXTERN int    gettimeofday(struct timeval *tp, struct timezone *tzp);
+MODULE_SCOPE int  gettimeofday(struct timeval *tp,
+          struct timezone *tzp);
 #endif
 
 /*
+ *---------------------------------------------------------------------------
  * Define access mode constants if they aren't already defined.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef F_OK
-#    define F_OK 00
+#   define F_OK    00
 #endif
 #ifndef X_OK
-#    define X_OK 01
+#   define X_OK    01
 #endif
 #ifndef W_OK
-#    define W_OK 02
+#   define W_OK    02
 #endif
 #ifndef R_OK
-#    define R_OK 04
+#   define R_OK    04
 #endif
 
 /*
- * Define FD_CLOEEXEC (the close-on-exec flag bit) if it isn't
- * already defined.
+ *---------------------------------------------------------------------------
+ * Define FD_CLOEEXEC (the close-on-exec flag bit) if it isn't already
+ * defined.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef FD_CLOEXEC
-#   define FD_CLOEXEC 1
+#   define FD_CLOEXEC  1
 #endif
 
 /*
- * On systems without symbolic links (i.e. S_IFLNK isn't defined)
- * define "lstat" to use "stat" instead.
+ *---------------------------------------------------------------------------
+ * On systems without symbolic links (i.e. S_IFLNK isn't defined) define
+ * "lstat" to use "stat" instead.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef S_IFLNK
@@ -293,137 +368,156 @@ EXTERN int    gettimeofday(struct timeval *tp, struct timezone *tzp);
 #endif
 
 /*
- * Define macros to query file type bits, if they're not already
- * defined.
+ *---------------------------------------------------------------------------
+ * Define macros to query file type bits, if they're not already defined.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef S_ISREG
 #   ifdef S_IFREG
-#       define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#  define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
 #   else
-#       define S_ISREG(m) 0
+#  define S_ISREG(m)  0
 #   endif
 #endif /* !S_ISREG */
 #ifndef S_ISDIR
 #   ifdef S_IFDIR
-#       define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#  define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
 #   else
-#       define S_ISDIR(m) 0
+#  define S_ISDIR(m)  0
 #   endif
 #endif /* !S_ISDIR */
 #ifndef S_ISCHR
 #   ifdef S_IFCHR
-#       define S_ISCHR(m) (((m) & S_IFMT) == S_IFCHR)
+#  define S_ISCHR(m)  (((m) & S_IFMT) == S_IFCHR)
 #   else
-#       define S_ISCHR(m) 0
+#  define S_ISCHR(m)  0
 #   endif
 #endif /* !S_ISCHR */
+
 #ifndef S_ISBLK
 #   ifdef S_IFBLK
-#       define S_ISBLK(m) (((m) & S_IFMT) == S_IFBLK)
+#  define S_ISBLK(m)  (((m) & S_IFMT) == S_IFBLK)
 #   else
-#       define S_ISBLK(m) 0
+#  define S_ISBLK(m)  0
 #   endif
 #endif /* !S_ISBLK */
+
 #ifndef S_ISFIFO
 #   ifdef S_IFIFO
-#       define S_ISFIFO(m) (((m) & S_IFMT) == S_IFIFO)
+#  define S_ISFIFO(m)  (((m) & S_IFMT) == S_IFIFO)
 #   else
-#       define S_ISFIFO(m) 0
+#  define S_ISFIFO(m)  0
 #   endif
 #endif /* !S_ISFIFO */
+
 #ifndef S_ISLNK
 #   ifdef S_IFLNK
-#       define S_ISLNK(m) (((m) & S_IFMT) == S_IFLNK)
+#  define S_ISLNK(m)  (((m) & S_IFMT) == S_IFLNK)
 #   else
-#       define S_ISLNK(m) 0
+#  define S_ISLNK(m)  0
 #   endif
 #endif /* !S_ISLNK */
+
 #ifndef S_ISSOCK
 #   ifdef S_IFSOCK
-#       define S_ISSOCK(m) (((m) & S_IFMT) == S_IFSOCK)
+#  define S_ISSOCK(m)  (((m) & S_IFMT) == S_IFSOCK)
 #   else
-#       define S_ISSOCK(m) 0
+#  define S_ISSOCK(m)  0
 #   endif
 #endif /* !S_ISSOCK */
 
 /*
+ *---------------------------------------------------------------------------
  * Make sure that MAXPATHLEN and MAXNAMLEN are defined.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef MAXPATHLEN
 #   ifdef PATH_MAX
-#       define MAXPATHLEN PATH_MAX
+#  define MAXPATHLEN  PATH_MAX
 #   else
-#       define MAXPATHLEN 2048
+#  define MAXPATHLEN  2048
 #   endif
 #endif
 
 #ifndef MAXNAMLEN
 #   ifdef NAME_MAX
-#  define MAXNAMLEN NAME_MAX
+#  define MAXNAMLEN  NAME_MAX
 #   else
-#  define MAXNAMLEN 255
+#  define MAXNAMLEN  255
 #   endif
 #endif
 
 /*
+ *---------------------------------------------------------------------------
  * Make sure that L_tmpnam is defined.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef L_tmpnam
-#   define L_tmpnam 100
+#   define L_tmpnam  100
 #endif
 
 /*
- * The following macro defines the type of the mask arguments to
- * select:
+ *---------------------------------------------------------------------------
+ * The following macro defines the type of the mask arguments to select:
+ *---------------------------------------------------------------------------
  */
 
 #ifndef NO_FD_SET
-#   define SELECT_MASK fd_set
+#   define SELECT_MASK  fd_set
 #else /* NO_FD_SET */
 #   ifndef _AIX
-  typedef long fd_mask;
+  typedef long  fd_mask;
 #   endif /* !AIX */
 #   if defined(_IBMR2)
-#  define SELECT_MASK void
+#  define SELECT_MASK  void
 #   else /* !defined(_IBMR2) */
-#  define SELECT_MASK int
+#  define SELECT_MASK  int
 #   endif /* defined(_IBMR2) */
 #endif /* !NO_FD_SET */
 
 /*
+ *---------------------------------------------------------------------------
  * Define "NBBY" (number of bits per byte) if it's not already defined.
+ *---------------------------------------------------------------------------
  */
 
 #ifndef NBBY
-#   define NBBY 8
+#   define NBBY    8
 #endif
 
 /*
+ *---------------------------------------------------------------------------
  * The following macro defines the number of fd_masks in an fd_set:
+ *---------------------------------------------------------------------------
  */
 
 #ifndef FD_SETSIZE
 #   ifdef OPEN_MAX
-#  define FD_SETSIZE OPEN_MAX
+#  define FD_SETSIZE  OPEN_MAX
 #   else
-#  define FD_SETSIZE 256
+#  define FD_SETSIZE  256
 #   endif
 #endif /* FD_SETSIZE */
-#if !defined(howmany)
-#   define howmany(x, y) (((x)+((y)-1))/(y))
+
+#ifndef howmany
+#   define howmany(x, y)  (((x)+((y)-1))/(y))
 #endif /* !defined(howmany) */
+
 #ifndef NFDBITS
-#   define NFDBITS NBBY*sizeof(fd_mask)
+#   define NFDBITS  NBBY*sizeof(fd_mask)
 #endif /* NFDBITS */
-#define MASK_SIZE howmany(FD_SETSIZE, NFDBITS)
+
+#define MASK_SIZE  howmany(FD_SETSIZE, NFDBITS)
 
 /*
- * Not all systems declare the errno variable in errno.h. so this
- * file does it explicitly.  The list of system error messages also
- * isn't generally declared in a header file anywhere.
+ *---------------------------------------------------------------------------
+ * Not all systems declare the errno variable in errno.h. so this file does it
+ * explicitly. The list of system error messages also isn't generally declared
+ * in a header file anywhere.
+ *---------------------------------------------------------------------------
  */
 
 #ifdef NO_ERRNO
@@ -431,130 +525,154 @@ extern int errno;
 #endif /* NO_ERRNO */
 
 /*
- * Not all systems declare all the errors that Tcl uses!  Provide some
+ *---------------------------------------------------------------------------
+ * Not all systems declare all the errors that Tcl uses! Provide some
  * work-arounds...
+ *---------------------------------------------------------------------------
  */
 
 #ifndef EOVERFLOW
 #   ifdef EFBIG
-#  define EOVERFLOW EFBIG
+#  define EOVERFLOW  EFBIG
 #   else /* !EFBIG */
-#  define EOVERFLOW EINVAL
+#  define EOVERFLOW  EINVAL
 #   endif /* EFBIG */
 #endif /* EOVERFLOW */
 
 /*
+ *---------------------------------------------------------------------------
  * Variables provided by the C library:
+ *---------------------------------------------------------------------------
  */
 
 #if defined(__APPLE__) && defined(__DYNAMIC__)
 #   include <crt_externs.h>
-#   define environ (*_NSGetEnviron())
-#   define USE_PUTENV 1
+#   define environ  (*_NSGetEnviron())
+#   define USE_PUTENV  1
 #else
 #   if defined(_sgi) || defined(__sgi)
-#       define environ _environ
+#  define environ  _environ
 #   endif
-extern char **environ;
+extern char **    environ;
 #endif
 
 /*
- * There is no platform-specific panic routine for Unix in the Tcl internals.
- */
-
-#define TclpPanic ((Tcl_PanicProc *) NULL)
-
-/*
+ *---------------------------------------------------------------------------
  * Darwin specifc configure overrides.
+ *---------------------------------------------------------------------------
  */
 
 #ifdef __APPLE__
+
 /*
+ *---------------------------------------------------------------------------
  * Support for fat compiles: configure runs only once for multiple architectures
+ *---------------------------------------------------------------------------
  */
+
 #   if defined(__LP64__) && defined (NO_COREFOUNDATION_64)
-#       undef HAVE_COREFOUNDATION
-#    endif /* __LP64__ && NO_COREFOUNDATION_64 */
+#  undef HAVE_COREFOUNDATION
+#   endif /* __LP64__ && NO_COREFOUNDATION_64 */
 #   include <sys/cdefs.h>
 #   ifdef __DARWIN_UNIX03
-#       if __DARWIN_UNIX03
-#           undef HAVE_PUTENV_THAT_COPIES
-#       else
-#           define HAVE_PUTENV_THAT_COPIES 1
-#       endif
+#  if __DARWIN_UNIX03
+#      undef HAVE_PUTENV_THAT_COPIES
+#  else
+#      define HAVE_PUTENV_THAT_COPIES  1
+#  endif
 #   endif /* __DARWIN_UNIX03 */
+
 /*
+ *---------------------------------------------------------------------------
  * The termios configure test program relies on the configure script being run
- * from a terminal, which is not the case e.g. when configuring from Xcode.
+ * from a terminal, which is not the case e.g., when configuring from Xcode.
  * Since termios is known to be present on all Mac OS X releases since 10.0,
  * override the configure defines for serial API here. [Bug 497147]
+ *---------------------------------------------------------------------------
  */
+
 #   define USE_TERMIOS 1
-#   undef  USE_TERMIO
-#   undef  USE_SGTTY
+#   undef USE_TERMIO
+#   undef USE_SGTTY
+
 /*
+ *---------------------------------------------------------------------------
  * Include AvailabilityMacros.h here (when available) to ensure any symbolic
  * MAC_OS_X_VERSION_* constants passed on the command line are translated.
+ *---------------------------------------------------------------------------
  */
+
 #   ifdef HAVE_AVAILABILITYMACROS_H
-#       include <AvailabilityMacros.h>
+#  include <AvailabilityMacros.h>
 #   endif
+
 /*
+ *---------------------------------------------------------------------------
  * Support for weak import.
+ *---------------------------------------------------------------------------
  */
+
 #   ifdef HAVE_WEAK_IMPORT
-#       if !defined(HAVE_AVAILABILITYMACROS_H) || !defined(MAC_OS_X_VERSION_MIN_REQUIRED)
-#           undef HAVE_WEAK_IMPORT
-#       else
-#           ifndef WEAK_IMPORT_ATTRIBUTE
-#               define WEAK_IMPORT_ATTRIBUTE __attribute__((weak_import))
-#           endif
-#       endif
+#  if !defined(HAVE_AVAILABILITYMACROS_H) || !defined(MAC_OS_X_VERSION_MIN_REQUIRED)
+#      undef HAVE_WEAK_IMPORT
+#  else
+#      ifndef WEAK_IMPORT_ATTRIBUTE
+#    define WEAK_IMPORT_ATTRIBUTE  __attribute__((weak_import))
+#      endif
+#  endif
 #   endif /* HAVE_WEAK_IMPORT */
+
 /*
+ *---------------------------------------------------------------------------
  * Support for MAC_OS_X_VERSION_MAX_ALLOWED define from AvailabilityMacros.h:
  * only use API available in the indicated OS version or earlier.
+ *---------------------------------------------------------------------------
  */
+
 #   ifdef MAC_OS_X_VERSION_MAX_ALLOWED
-#       if MAC_OS_X_VERSION_MAX_ALLOWED < 1050 && defined(__LP64__)
-#           undef HAVE_COREFOUNDATION
-#       endif
-#       if MAC_OS_X_VERSION_MAX_ALLOWED < 1040
-#           undef HAVE_OSSPINLOCKLOCK
-#           undef HAVE_PTHREAD_ATFORK
-#           undef HAVE_COPYFILE
-#       endif
-#       if MAC_OS_X_VERSION_MAX_ALLOWED < 1030
-#           ifdef TCL_THREADS
+#  if MAC_OS_X_VERSION_MAX_ALLOWED < 1050 && defined(__LP64__)
+#      undef HAVE_COREFOUNDATION
+#  endif
+#  if MAC_OS_X_VERSION_MAX_ALLOWED < 1040
+#      undef HAVE_OSSPINLOCKLOCK
+#      undef HAVE_PTHREAD_ATFORK
+#      undef HAVE_COPYFILE
+#  endif
+#  if MAC_OS_X_VERSION_MAX_ALLOWED < 1030
+#      ifdef TCL_THREADS
     /* prior to 10.3, realpath is not threadsafe, c.f. bug 711232 */
-#               define NO_REALPATH 1
-#           endif
-#           undef HAVE_LANGINFO
-#       endif
+#    define NO_REALPATH 1
+#      endif
+#      undef HAVE_LANGINFO
+#  endif
 #   endif /* MAC_OS_X_VERSION_MAX_ALLOWED */
 #   if defined(HAVE_COREFOUNDATION) && defined(__LP64__) && \
       defined(HAVE_WEAK_IMPORT) && MAC_OS_X_VERSION_MIN_REQUIRED < 1050
-#       warning "Weak import of 64-bit CoreFoundation is not supported, will not run on Mac OS X < 10.5."
+#  warning "Weak import of 64-bit CoreFoundation is not supported, will not run on Mac OS X < 10.5."
 #   endif
+
 /*
+ *---------------------------------------------------------------------------
  * At present, using vfork() instead of fork() causes execve() to fail
  * intermittently on Darwin x86_64. rdar://4685553
+ *---------------------------------------------------------------------------
  */
+
 #   if defined(__x86_64__) && !defined(FIXED_RDAR_4685553)
-#       undef USE_VFORK
+#  undef USE_VFORK
 #   endif /* __x86_64__ */
 /* Workaround problems with vfork() when building with llvm-gcc-4.2 */
 #   if defined (__llvm__) && \
       (__GNUC__ > 4 || (__GNUC__ == 4 && (__GNUC_MINOR__ > 2 || \
       (__GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ > 0))))
-#       undef USE_VFORK
+#  undef USE_VFORK
 #   endif /* __llvm__ */
 #endif /* __APPLE__ */
 
 /*
  *---------------------------------------------------------------------------
- * The following macros and declarations represent the interface between 
- * generic and unix-specific parts of Tcl.  Some of the macros may override 
+ * The following macros and declarations represent the interface between
+ * generic and unix-specific parts of Tcl. Some of the macros may override
  * functions declared in tclInt.h.
  *---------------------------------------------------------------------------
  */
@@ -571,54 +689,70 @@ typedef int socklen_t;
 #endif
 
 /*
- * The following macros have trivial definitions, allowing generic code to 
+ *---------------------------------------------------------------------------
+ * The following macros have trivial definitions, allowing generic code to
  * address platform-specific issues.
+ *---------------------------------------------------------------------------
  */
 
-#define TclpGetPid(pid)    ((unsigned long) (pid))
 #define TclpReleaseFile(file)  /* Nothing. */
 
 /*
+ *---------------------------------------------------------------------------
  * The following defines wrap the system memory allocation routines.
+ *---------------------------------------------------------------------------
  */
 
-#define TclpSysAlloc(size, isBin)  malloc((size_t)size)
-#define TclpSysFree(ptr)    free((char*)ptr)
-#define TclpSysRealloc(ptr, size)  realloc((char*)ptr, (size_t)size)
+#define TclpSysAlloc(size, isBin)  malloc((size_t)(size))
+#define TclpSysFree(ptr)    free((char *)(ptr))
+#define TclpSysRealloc(ptr, size)  realloc((char *)(ptr), (size_t)(size))
 
 /*
- * The following macros and declaration wrap the C runtime library
- * functions.
+ *---------------------------------------------------------------------------
+ * The following macros and declaration wrap the C runtime library functions.
+ *---------------------------------------------------------------------------
  */
 
-#define TclpExit    exit
+#define TclpExit  exit
 
 #ifdef TCL_THREADS
-EXTERN struct tm *       TclpLocaltime(const time_t *);
-EXTERN struct tm *       TclpGmtime(const time_t *);
-EXTERN char *            TclpInetNtoa(struct in_addr);
-/* #define localtime(x)  TclpLocaltime(x)
- * #define gmtime(x)  TclpGmtime(x)    */
+#   include <pthread.h>
 #   undef inet_ntoa
 #   define inet_ntoa(x)  TclpInetNtoa(x)
 #endif /* TCL_THREADS */
 
+/* FIXME - Hyper-enormous platform assumption! */
+#ifndef AF_INET6
+#   define AF_INET6  10
+#endif
+
 /*
- * Set of MT-safe implementations of some
- * known-to-be-MT-unsafe library calls.
- * Instead of returning pointers to the
- * static storage, those return pointers
- * to the TSD data. 
+ *---------------------------------------------------------------------------
+ * Set of MT-safe implementations of some known-to-be-MT-unsafe library calls.
+ * Instead of returning pointers to the static storage, those return pointers
+ * to the TSD data.
+ *---------------------------------------------------------------------------
  */
 
 #include <pwd.h>
 #include <grp.h>
 
-MODULE_SCOPE struct passwd*  TclpGetPwNam(const char *name);
-MODULE_SCOPE struct group*   TclpGetGrNam(const char *name);
-MODULE_SCOPE struct passwd*  TclpGetPwUid(uid_t uid);
-MODULE_SCOPE struct group*   TclpGetGrGid(gid_t gid);
-MODULE_SCOPE struct hostent* TclpGetHostByName(const char *name);
-MODULE_SCOPE struct hostent* TclpGetHostByAddr(const char *addr, int length, int type);
+MODULE_SCOPE struct passwd *  TclpGetPwNam(const char *name);
+MODULE_SCOPE struct group *  TclpGetGrNam(const char *name);
+MODULE_SCOPE struct passwd *  TclpGetPwUid(uid_t uid);
+MODULE_SCOPE struct group *  TclpGetGrGid(gid_t gid);
+MODULE_SCOPE struct hostent *  TclpGetHostByName(const char *name);
+MODULE_SCOPE struct hostent *  TclpGetHostByAddr(const char *addr,
+            int length, int type);
+MODULE_SCOPE Tcl_Channel  TclpMakeTcpClientChannelMode(
+            ClientData tcpSocket, int mode);
 
 #endif /* _TCLUNIXPORT */
+
+/*
+ * Local Variables:
+ * mode: c
+ * c-basic-offset: 4
+ * fill-column: 78
+ * End:
+ */

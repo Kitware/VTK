@@ -61,7 +61,7 @@ void vtkThresholdTable::PrintSelf(ostream& os, vtkIndent indent)
   os << endl;
 }
 
-bool vtkThresholdTableCompare(vtkVariant a, vtkVariant b)
+static bool vtkThresholdTableCompare(vtkVariant a, vtkVariant b)
 {
   return a.ToDouble() <= b.ToDouble();
 }

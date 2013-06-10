@@ -130,7 +130,7 @@ int vtkExtractSelectedIds::RequestData(
 }
 
 // Copy the points marked as "in" and build a pointmap
-void vtkExtractSelectedIdsCopyPoints(vtkDataSet* input,
+static void vtkExtractSelectedIdsCopyPoints(vtkDataSet* input,
   vtkDataSet* output, signed char* inArray, vtkIdType* pointMap)
 {
   vtkPoints* newPts = vtkPoints::New();

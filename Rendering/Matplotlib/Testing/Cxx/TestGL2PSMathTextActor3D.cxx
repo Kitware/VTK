@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkMathTextActor3D.h"
+#include "vtkTextActor3D.h"
 
 #include "vtkCamera.h"
 #include "vtkGL2PSExporter.h"
@@ -28,21 +28,21 @@
 int TestGL2PSMathTextActor3D(int, char *[])
 {
 
-  vtkNew<vtkMathTextActor3D> actor1;
+  vtkNew<vtkTextActor3D> actor1;
   actor1->SetInput("$\\int\\frac{1}{\\left(x+a\\right)^2}dx = -\\frac{1}{x+a}$");
   actor1->GetTextProperty()->SetFontSize(36);
   actor1->GetTextProperty()->SetColor(0.8, 0.8, 0.6);
   actor1->SetPosition(-100, -25, 0);
   actor1->RotateWXYZ(70, 0, 1, 0);
 
-  vtkNew<vtkMathTextActor3D> actor2;
+  vtkNew<vtkTextActor3D> actor2;
   actor2->SetInput("$\\langle\\psi_i\\mid\\psi_j\\rangle = \\delta_{ij}$");
   actor2->GetTextProperty()->SetFontSize(40);
   actor2->SetPosition(20, 0, -200);
   actor2->RotateWXYZ(-70, 0, 1, 0);
   actor2->GetTextProperty()->SetColor(0.7, 0.3, 0.2);
 
-  vtkNew<vtkMathTextActor3D> actor3;
+  vtkNew<vtkTextActor3D> actor3;
   actor3->SetInput("$\\frac{d}{dx}\\left(\\frac{u(x)}{v(x)}\\right) = "
                    "\\frac{v\\frac{du}{dx} + u\\frac{dv}{dx}}{v^2}$");
   actor3->GetTextProperty()->SetFontSize(36);
@@ -50,7 +50,7 @@ int TestGL2PSMathTextActor3D(int, char *[])
   actor3->RotateWXYZ(50, 1, .5, -.2);
   actor3->GetTextProperty()->SetColor(0.6, 0.5, 0.8);
 
-  vtkNew<vtkMathTextActor3D> actor4;
+  vtkNew<vtkTextActor3D> actor4;
   actor4->SetInput("$\\hat{H}\\psi = \\left(-\\frac{\\hbar}{2m}\\nabla^2"
                    " + V(r)\\right) \\psi = \\psi\\cdot E $");
   actor4->GetTextProperty()->SetFontSize(22);
@@ -58,7 +58,7 @@ int TestGL2PSMathTextActor3D(int, char *[])
   actor4->RotateWXYZ(40, -.2, 1, .3);
   actor4->GetTextProperty()->SetColor(0.2, 0.6, 0.4);
 
-  vtkNew<vtkMathTextActor3D> actor5;
+  vtkNew<vtkTextActor3D> actor5;
   actor5->SetInput("$\\frac{d}{dx}\\left(f(x_0)\\right) = \\lim_{h \\to 0}"
                    "\\frac{f(x_0 + h) - f(x_0)}{h}$");
   actor5->GetTextProperty()->SetFontSize(40);

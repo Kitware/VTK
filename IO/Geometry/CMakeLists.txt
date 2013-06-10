@@ -14,10 +14,12 @@ SET(Module_SRCS
   vtkMFIXReader.cxx
   vtkMoleculeReaderBase.cxx
   vtkMultiBlockPLOT3DReader.cxx
+  vtkMultiBlockPLOT3DReaderInternals.cxx
   vtkOBJReader.cxx
   vtkOpenFOAMReader.cxx
   vtkParticleReader.cxx
   vtkPDBReader.cxx
+  vtkPlot3DMetaReader.cxx
   vtkProStarReader.cxx
   vtkSESAMEReader.cxx
   vtkSTLReader.cxx
@@ -31,6 +33,11 @@ SET(Module_SRCS
 set_source_files_properties(
   vtkMoleculeReaderBase
   ABSTRACT
+  )
+
+set_source_files_properties(
+  vtkMultiBlockPLOT3DReaderInternals
+  WRAP_EXCLUDE
   )
 
 vtk_module_library(vtkIOGeometry ${Module_SRCS})

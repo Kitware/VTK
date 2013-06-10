@@ -1,34 +1,9 @@
-set(TEST_SRC)
-
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
+vtk_add_test_cxx(
   # TestImageReader2Factory.cxx   # fixme (deps not satisfied)
+  TestNrrdReader.cxx
+  )
+set(TestMetaIO_ARGS "DATA{${VTK_TEST_INPUT_DIR}/HeadMRVolume.mhd,HeadMRVolume.raw}")
+vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
   TestMetaIO.cxx
-  ${TEST_SRC}
-  EXTRA_INCLUDE vtkTestDriver.h
-)
-
-vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
-
-set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
-list(REMOVE_ITEM TestsToRun TestMetaIO.cxx)
-
-# Add all the executables
-foreach(test ${TestsToRun})
-  get_filename_component(TName ${test} NAME_WE)
-  if(VTK_DATA_ROOT)
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName}
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/IO/${TName}.png)
-  else()
-    add_test(NAME ${vtk-module}Cxx-${TName} COMMAND ${vtk-module}CxxTests ${TName})
-  endif()
-endforeach()
-
-if(VTK_DATA_ROOT)
-  add_test(NAME ${vtk-module}Cxx-MetaIO
-    COMMAND ${vtk-module}CxxTests TestMetaIO
-      ${VTK_DATA_ROOT}/Data/HeadMRVolume.mhd)
-endif()
+  )
+vtk_test_cxx_executable(${vtk-module}CxxTests)

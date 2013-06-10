@@ -112,10 +112,6 @@ if (a->ArcDwId1) this->GetArc(a->ArcDwId1)->ArcUpId1=a->ArcUpId1;\
 #define vtkReebGraphMax(a,b) (((a)>=(b))?(a):(b))
 #endif
 
-#ifndef vtkReebGraphMin
-#define vtkReebGraphMin(a,b) (((a)<=(b))?(a):(b))
-#endif
-
 #define vtkReebGraphStackPush(N) \
 {\
 if (nstack==mstack)\

@@ -16,12 +16,14 @@ set(Module_SRCS
   vtkClipDataSet.cxx
   vtkClipVolume.cxx
   vtkCoincidentPoints.cxx
+  vtkContourTriangulator.cxx
   vtkCursor2D.cxx
   vtkCursor3D.cxx
   vtkCurvatures.cxx
   vtkDataSetGradient.cxx
   vtkDataSetGradientPrecompute.cxx
   vtkDataSetTriangleFilter.cxx
+  vtkDeformPointSet.cxx
   vtkDensifyPolyData.cxx
   vtkDicer.cxx
   vtkDiscreteMarchingCubes.cxx

@@ -73,7 +73,7 @@ public:
 };
 
 // -----------------------------------------------------------------------
-char HandleWidgetLog[] =
+static char HandleWidgetLog[] =
 "# StreamVersion> 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "RenderEvent 0 0 0 0 0 0 0\n"

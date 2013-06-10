@@ -40,6 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <assert.h>
 
+
 vtkInformationKeyMacro( vtkHyperTreeGrid, LEVELS, Integer );
 vtkInformationKeyMacro( vtkHyperTreeGrid, DIMENSION, Integer );
 vtkInformationKeyRestrictedMacro( vtkHyperTreeGrid, SIZES, DoubleVector, 3 );
@@ -47,24 +48,23 @@ vtkInformationKeyRestrictedMacro( vtkHyperTreeGrid, SIZES, DoubleVector, 3 );
 vtkStandardNewMacro( vtkHyperTreeGrid );
 
 vtkCxxSetObjectMacro( vtkHyperTreeGrid, MaterialMask, vtkBitArray );
+vtkCxxSetObjectMacro( vtkHyperTreeGrid, MaterialMaskIndex, vtkIdTypeArray );
 vtkCxxSetObjectMacro( vtkHyperTreeGrid, XCoordinates, vtkDataArray );
 vtkCxxSetObjectMacro( vtkHyperTreeGrid, YCoordinates, vtkDataArray );
 vtkCxxSetObjectMacro( vtkHyperTreeGrid, ZCoordinates, vtkDataArray );
 
 // Helpers to quickly fetch a HT at a given index or iterator
-#define GetHyperTreeAtIndexMacro( _index_ )                             \
-  ( static_cast<vtkHyperTree*>( this->HyperTrees->GetItemAsObject( _index_ ) ) )
+#define GetHTGHyperTreeAtIndexMacro( _obj_, _index_ )             \
+  ( static_cast<vtkHyperTree*>(                                   \
+  _obj_->HyperTrees.find( _index_ ) != _obj_->HyperTrees.end() ?  \
+  _obj_->HyperTrees[ _index_ ] : 0 ) )
 
-#define GetNextHyperTreeMacro( _iterator_ )                             \
-  ( static_cast<vtkHyperTree*>( this->HyperTrees->GetNextItemAsObject( _iterator_ ) ) )
+#define GetHyperTreeAtIndexMacro( _index_ ) \
+  GetHTGHyperTreeAtIndexMacro( this, _index_ )
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGrid::vtkHyperTreeGrid()
 {
-  // Grid of hyper trees
-  this->HyperTrees = vtkCollection::New();
-  this->HyperTreesLeafIdOffsets = 0;
-
   // Dual grid corners (primal grid leaf centers)
   this->Points = 0;
   this->Connectivity = 0;
@@ -76,7 +76,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->GridSize[0] = 0;
   this->GridSize[1] = 0;
   this->GridSize[2] = 0;
-  this->NumberOfRoots = 0;
+  this->TransposedRootIndexing = false;
 
   // Grid parameters
   this->BranchFactor = 2;
@@ -85,6 +85,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
 
   // Masked primal leaves
   this->MaterialMask = vtkBitArray::New();
+  this->MaterialMaskIndex = 0;
 
   // Grid geometry
   this->XCoordinates = vtkDoubleArray::New();
@@ -100,20 +101,14 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
 //-----------------------------------------------------------------------------
 vtkHyperTreeGrid::~vtkHyperTreeGrid()
 {
-  if ( this->HyperTrees )
-    {
-    vtkCollectionSimpleIterator it;
-    this->HyperTrees->InitTraversal( it );
-    while ( vtkHyperTree* tree = GetNextHyperTreeMacro( it ) )
-      {
-      tree->UnRegister( this );
-      }
-    this->HyperTrees->UnRegister( this );
-    }
-
   if ( this->MaterialMask )
     {
     this->MaterialMask->UnRegister( this );
+    }
+
+  if ( this->MaterialMaskIndex )
+    {
+    this->MaterialMaskIndex->UnRegister( this );
     }
 
   if ( this->XCoordinates )
@@ -147,6 +142,7 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
     }
 
   this->DeleteInternalArrays();
+  this->DeleteTrees();
 }
 
 //-----------------------------------------------------------------------------
@@ -158,7 +154,6 @@ void vtkHyperTreeGrid::PrintSelf( ostream& os, vtkIndent indent )
      << this->GridSize[0] <<","
      << this->GridSize[1] <<","
      << this->GridSize[2] << endl;
-  os << indent << "NumberOfRoots: " << this->NumberOfRoots << endl;
 
   if ( this->XCoordinates )
     {
@@ -183,6 +178,22 @@ int vtkHyperTreeGrid::GetDataObjectType()
 }
 
 //-----------------------------------------------------------------------------
+
+void vtkHyperTreeGrid::DeleteTrees()
+{
+  if ( this->HyperTrees.size() )
+    {
+    vtkHyperTreeIterator it;
+    this->InitializeTreeIterator( it );
+    while ( vtkHyperTree* tree = it.GetNextTree() )
+      {
+      tree->UnRegister( this );
+      }
+    this->HyperTrees.clear();
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Description:
 // Copy the geometric and topological structure of a hyper tree grid
 // object.
@@ -190,7 +201,6 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 {
   assert( "pre: ds_exists" && ds!=0 );
   assert( "pre: same_type" && vtkHyperTreeGrid::SafeDownCast(ds)!=0 );
-  assert( "pre: cell_tree" && vtkHyperTreeGrid::SafeDownCast(ds)->HyperTrees!=0 );
 
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast( ds );
 
@@ -198,47 +208,50 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->Dimension = htg->Dimension;
   this->BranchFactor = htg->BranchFactor;
   this->NumberOfChildren = htg->NumberOfChildren;
+  this->TransposedRootIndexing = htg->TransposedRootIndexing;
   memcpy( this->GridSize, htg->GetGridSize(), 3 * sizeof( int ) );
-  this->NumberOfRoots = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
-  // Un-register existing tree
-  if ( this->HyperTrees )
-    {
-    vtkCollectionSimpleIterator it;
-    this->HyperTrees->InitTraversal( it );
-    while ( vtkHyperTree* tree = GetNextHyperTreeMacro( it ) )
-      {
-      tree->UnRegister( this );
-      }
-    this->HyperTrees->UnRegister( this );
-    }
+  // Un-register existing trees
+  DeleteTrees();
 
-  // Shallow copy and register new tree
+  // Shallow copy and register new trees
   this->HyperTrees = htg->HyperTrees;
-  if ( this->HyperTrees )
-    {
-    this->HyperTrees->Register( this );
 
-    vtkCollectionSimpleIterator it1;
-    this->HyperTrees->InitTraversal( it1 );
-    vtkCollectionSimpleIterator it2;
-    htg->HyperTrees->InitTraversal( it2 );
-    while ( GetNextHyperTreeMacro( it1 ) )
+  if ( this->HyperTrees.size() )
+    {
+    vtkHyperTreeIterator it;
+    this->InitializeTreeIterator( it );
+    while ( vtkHyperTree* tree = it.GetNextTree() )
       {
-      vtkObject* obj = htg->HyperTrees->GetNextItemAsObject( it2 );
-      if ( obj )
-        {
-        obj->Register( this );
-        }
+      tree->Register( this );
       }
     }
 
-  // Shallow copy cell tree leaf ID offsets
-  delete [] this->HyperTreesLeafIdOffsets;
-  this->HyperTreesLeafIdOffsets = htg->HyperTreesLeafIdOffsets;
+  this->DeleteInternalArrays();
+
+  if ( htg->Points )
+    {
+    this->Points = htg->Points;
+    this->Points->Register( this );
+    }
+
+  if ( htg->Connectivity )
+    {
+    this->Connectivity = htg->Connectivity;
+    this->Connectivity->Register( this );
+    }
+
+  if ( htg->Links )
+    {
+    this->Links = htg->Links;
+    this->Links->Register( this );
+    }
 
   // Shallow copy masked leaf IDs
   this->SetMaterialMask( htg->MaterialMask );
+
+  // Shallow copy masked leaf IDs
+  this->SetMaterialMaskIndex( htg->MaterialMaskIndex );
 
   // Shallow copy coordinates
   this->SetXCoordinates( htg->XCoordinates );
@@ -256,15 +269,13 @@ void vtkHyperTreeGrid::SetGridSize( unsigned int n[3] )
   this->GridSize[0] = n[0];
   this->GridSize[1] = n[1];
   this->GridSize[2] = n[2];
-  this->NumberOfRoots = n[0] * n[1] * n[2];
 
   this->Modified();
-  this->UpdateTree();
 }
 
 //-----------------------------------------------------------------------------
 // Set the dimension of the tree with `dim'. See GetDimension() for details.
-// \pre valid_dim: dim>=1 && dim<=3
+// \pre valid_dim: dim >= 1 && dim <= 3
 // \post dimension_is_set: GetDimension()==dim
 void vtkHyperTreeGrid::SetDimension( unsigned int dim )
 {
@@ -283,7 +294,6 @@ void vtkHyperTreeGrid::SetDimension( unsigned int dim )
     }
 
   this->Modified();
-  this->UpdateTree();
 }
 
 //-----------------------------------------------------------------------------
@@ -291,7 +301,7 @@ void vtkHyperTreeGrid::SetDimension( unsigned int dim )
 // \post dimension_is_set: GetBranchFactor()==dim
 void vtkHyperTreeGrid::SetBranchFactor( unsigned int factor )
 {
-  assert( "pre: valid_factor" && factor>=2 && factor<=3 );
+  assert( "pre: valid_factor" && factor >= 2 && factor <= 3 );
   if ( this->BranchFactor == factor )
     {
     return;
@@ -306,30 +316,22 @@ void vtkHyperTreeGrid::SetBranchFactor( unsigned int factor )
     }
 
   this->Modified();
-  this->UpdateTree();
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::UpdateTree()
+void vtkHyperTreeGrid::GenerateTrees()
 {
   // Clean up existing trees
-  if ( this->HyperTrees )
-    {
-    vtkCollectionSimpleIterator it;
-    this->HyperTrees->InitTraversal( it );
-    while ( vtkHyperTree* tree = GetNextHyperTreeMacro( it ) )
-      {
-      tree->UnRegister( this );
-      }
-    this->HyperTrees->RemoveAllItems();
-    }
+  this->DeleteTrees();
 
   // Generate concrete instance of hyper tree and append it to list of roots
-  for ( unsigned int r = 0; r < this->NumberOfRoots; ++ r )
+  vtkIdType nr = this->GetNumberOfTrees();
+
+  for ( vtkIdType r = 0; r < nr; ++ r )
     {
     vtkHyperTree* tree = vtkHyperTree::CreateInstance( this->BranchFactor, this->Dimension );
-    this->HyperTrees->AddItem( tree );
-    } // r
+    this->HyperTrees[ this->MaterialMaskIndex ? this->MaterialMaskIndex->GetValue(r) : r ] = tree;
+    } //r
 
   this->Modified();
   this->DeleteInternalArrays();
@@ -369,12 +371,12 @@ void vtkHyperTreeGrid::ComputeBounds()
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkHyperTreeGrid::GetNumberOfLeaves()
+vtkIdType vtkHyperTreeGrid::GetNumberOfLeaves()
 {
-  int nLeaves = 0;
-  vtkCollectionSimpleIterator it;
-  this->HyperTrees->InitTraversal( it );
-  while ( vtkHyperTree* tree = GetNextHyperTreeMacro( it ) )
+  vtkIdType nLeaves = 0;
+  vtkHyperTreeIterator it;
+  this->InitializeTreeIterator( it );
+  while ( vtkHyperTree* tree = it.GetNextTree() )
     {
     nLeaves += tree->GetNumberOfLeaves();
     }
@@ -382,16 +384,30 @@ unsigned int vtkHyperTreeGrid::GetNumberOfLeaves()
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkHyperTreeGrid::GetNumberOfLevels( unsigned int index )
+vtkIdType vtkHyperTreeGrid::GetNumberOfLevels( vtkIdType id )
 {
-  vtkHyperTree* tree = GetHyperTreeAtIndexMacro( index );
+  vtkHyperTree* tree = GetHyperTreeAtIndexMacro( id );
   return tree ? tree->GetNumberOfLevels() : 0;
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeCursor* vtkHyperTreeGrid::NewCursor( int index )
+vtkIdType vtkHyperTreeGrid::GetNumberOfTrees()
 {
-  vtkHyperTree* tree = GetHyperTreeAtIndexMacro( index );
+  return this->MaterialMaskIndex ?
+    this->MaterialMaskIndex->GetNumberOfTuples() :
+    this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGrid::InitializeTreeIterator( vtkHyperTreeIterator& it )
+{
+  it.Initialize( this );
+}
+
+//-----------------------------------------------------------------------------
+vtkHyperTreeCursor* vtkHyperTreeGrid::NewCursor( vtkIdType id )
+{
+  vtkHyperTree* tree = GetHyperTreeAtIndexMacro( id );
   return tree ? tree->NewCursor() : 0;
 }
 
@@ -411,11 +427,11 @@ void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType id )
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::Initialize()
 {
-  if ( this->HyperTrees )
+  if ( this->HyperTrees.size() )
     {
-    vtkCollectionSimpleIterator it;
-    this->HyperTrees->InitTraversal( it );
-    while ( vtkHyperTree* tree = GetNextHyperTreeMacro( it ) )
+    vtkHyperTreeIterator it;
+    this->InitializeTreeIterator( it );
+    while ( vtkHyperTree* tree = it.GetNextTree() )
       {
       tree->Initialize();
       }
@@ -448,7 +464,7 @@ int vtkHyperTreeGrid::GetMaxCellSize()
 //-----------------------------------------------------------------------------
 // Description:
 // Shallow and Deep copy.
-void vtkHyperTreeGrid::ShallowCopy(vtkDataObject* src)
+void vtkHyperTreeGrid::ShallowCopy( vtkDataObject* src )
 {
   assert( "src_same_type" && vtkHyperTreeGrid::SafeDownCast( src ) );
   this->CopyStructure(vtkHyperTreeGrid::SafeDownCast( src ) );
@@ -656,7 +672,7 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
   cellIds->Reset();
 
   int numPts = ptIds->GetNumberOfIds();
-  int minNumCells = VTK_LARGE_INTEGER;
+  int minNumCells = VTK_INT_MAX;
   vtkIdType* pts = ptIds->GetPointer( 0 );
   vtkIdType* minCells = 0;
   vtkIdType minPtId = 0;
@@ -673,7 +689,7 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
       }
     }
 
-  if ( minNumCells == VTK_LARGE_INTEGER && numPts == 0 )
+  if ( minNumCells == VTK_INT_MAX && numPts == 0 )
     {
     vtkErrorMacro( "input point ids empty." );
     minNumCells = 0;
@@ -717,7 +733,6 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
     } // For all candidate cells attached to point
 }
 
-
 //----------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
 {
@@ -754,11 +769,13 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
     -- iz;
     }
 
-  int index = ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
- vtkHyperTreeSimpleCursor cursor;
-  vtkIdType offsets[3];
+  int index = ( this->TransposedRootIndexing ) ?
+    ( ix * this->GridSize[1] + iy ) * this->GridSize[2] + iz :
+    ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
+
+  vtkHyperTreeSimpleCursor cursor;
   int pos[] = { 0, 0, 0 };
-  cursor.Initialize( this, offsets, index, pos );
+  cursor.Initialize( this, index, pos );
 
   // Geometry of the cell
   double origin[3];
@@ -793,8 +810,8 @@ vtkIdType vtkHyperTreeGrid::RecursiveFindPoint( double x[3],
   vtkHyperTreeSimpleCursor newCursor = *cursor;
   double newSize[3];
   double newOrigin[3];
-  unsigned char child = 0;
-  for ( int i = 0; i < 3; ++ i)
+  int child = 0;
+  for ( int i = 0; i < 3; ++ i )
     {
     newSize[i] = size[i] * 0.5;
     newOrigin[i] = origin[i];
@@ -833,8 +850,8 @@ vtkIdType vtkHyperTreeGrid::FindCell( double x[3], vtkCell* cell,
 
   double closestPoint[3];
   double dist2;
-  int num = cellIds->GetNumberOfIds();
-  for ( int i = 0; i < num; ++ i )
+  vtkIdType num = cellIds->GetNumberOfIds();
+  for ( vtkIdType i = 0; i < num; ++ i )
     {
     cellId = cellIds->GetId( i );
     if ( gencell )
@@ -869,8 +886,9 @@ vtkIdType vtkHyperTreeGrid::FindCell( double x[3], vtkCell* cell,
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkHyperTreeGrid::FindCell( double x[3], vtkCell* cell, vtkIdType cellId,
-                                      double tol2, int& subId,double pcoords[3],
+vtkIdType vtkHyperTreeGrid::FindCell( double x[3], vtkCell* cell,
+                                      vtkIdType cellId, double tol2,
+                                      int& subId, double pcoords[3],
                                       double* weights )
 {
   return this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
@@ -881,12 +899,16 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySize()
 {
   unsigned long size = this->vtkDataSet::GetActualMemorySize();
 
-  vtkCollectionSimpleIterator it;
-  this->HyperTrees->InitTraversal( it );
-  while ( vtkHyperTree* tree = GetNextHyperTreeMacro( it ) )
+  vtkHyperTreeIterator it;
+  this->InitializeTreeIterator( it );
+  while ( vtkHyperTree* tree = it.GetNextTree() )
     {
     size += tree->GetActualMemorySize();
     }
+
+  // Approximate map memory size
+  size += static_cast<unsigned long>(
+    ( this->HyperTrees.size() * sizeof(vtkIdType) * 3 ) / 1024 );
 
   if ( this->XCoordinates )
     {
@@ -918,6 +940,11 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySize()
     size += this->MaterialMask->GetActualMemorySize();
     }
 
+  if ( this->MaterialMaskIndex )
+    {
+    size += this->MaterialMaskIndex->GetActualMemorySize();
+    }
+
   return size;
 }
 
@@ -940,15 +967,44 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetConnectivity()
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* superCursor,
+void vtkHyperTreeGrid::GetLevelZeroCoordsFromIndex( vtkIdType index,
+                                                    unsigned int &i,
+                                                    unsigned int &j,
+                                                    unsigned int &k )
+{
+  if ( !this->TransposedRootIndexing )
+    {
+    k = index / ( this->GridSize[0] * this->GridSize[1] );
+    vtkIdType rk = k * ( this->GridSize[0] * this->GridSize[1] );
+    j = ( index - rk ) / this->GridSize[0];
+    i = index - ( j * this->GridSize[0] ) - rk;
+    }
+  else
+    {
+    i = index / ( this->GridSize[2] * this->GridSize[1] );
+    vtkIdType rk = i * ( this->GridSize[2] * this->GridSize[1] );
+    j = ( index - rk ) / this->GridSize[2];
+    k = index - ( j * this->GridSize[2] ) - rk;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* sc,
+                                              vtkIdType index )
+{
+  unsigned int i, j, k;
+  this->GetLevelZeroCoordsFromIndex( index, i, j, k );
+  // Initialize center cursor
+  this->InitializeSuperCursor( sc, i, j, k, index );
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* sc,
                                               unsigned int i,
                                               unsigned int j,
                                               unsigned int k,
-                                              unsigned int index )
+                                              vtkIdType index )
 {
-  // TODO:  This only needs to be done once.  Use MTime instead
-  this->UpdateHyperTreesLeafIdOffsets();
-
   // Location and size of the middle cursor/node
   double origin[3];
   this->XCoordinates->GetTuple( i, origin );
@@ -960,98 +1016,57 @@ void vtkHyperTreeGrid::InitializeSuperCursor( vtkHyperTreeGridSuperCursor* super
   this->YCoordinates->GetTuple( j + 1, extreme + 1);
   this->ZCoordinates->GetTuple( k + 1, extreme + 2 );
 
-  superCursor->Size[0] = extreme[0] - origin[0];
-  superCursor->Size[1] = extreme[1] - origin[1];
-  superCursor->Size[2] = extreme[2] - origin[2];
-  superCursor->Origin[0] = origin[0];
-  superCursor->Origin[1] = origin[1];
-  superCursor->Origin[2] = origin[2];
+  memcpy( sc->Origin, origin, 3 * sizeof( double ) );
+  sc->Size[0] = extreme[0] - origin[0];
+  sc->Size[1] = extreme[1] - origin[1];
+  sc->Size[2] = extreme[2] - origin[2];
 
   // Initialize middle cursors and bounds for other cursors
-  int lowY = -1;
-  int highY = 2;
-  int lowZ = -1;
-  int highZ = 2;
+  sc->NumberOfCursors = 3;
+  for ( unsigned int c = 1; c < this->Dimension; ++ c )
+    {
+    sc->NumberOfCursors *= 3;
+    }
+  sc->MiddleCursorId = sc->NumberOfCursors / 2;
+
+  int lowI = -1;
+  int highI = 1;
+  int lowJ = this->Dimension > 1 ? -1 : 0;
+  int highJ = this->Dimension > 1 ? 1 : 0;
+  int lowK = this->Dimension > 2 ? -1 : 0;
+  int highK = this->Dimension > 2 ? 1 : 0;
   switch ( this->Dimension )
     {
-    case 1:
-      superCursor->MiddleCursorId = 1;
-      superCursor->NumberOfCursors = 3;
-      lowY = 0;
-      highY = 1;
-      lowZ = 0;
-      highZ = 1;
-      break;
-    case 2:
-      superCursor->MiddleCursorId = 4;
-      superCursor->NumberOfCursors = 9;
-      lowZ = 0;
-      highZ = 1;
-      break;
     case 3:
-      superCursor->MiddleCursorId = 13;
-      superCursor->NumberOfCursors = 27;
-      break;
+      lowK = ( k == 0 ) ? 0 : -1;
+      highK = ( k + 1 < this->GridSize[2] ) ? 1 : 0;
+    case 2:
+      lowJ = ( j == 0 ) ? 0 : -1;
+      highJ = ( j + 1 < this->GridSize[1] ) ? 1 : 0;
+    case 1:
+      lowI = ( i == 0 ) ? 0 : -1;
+      highI = ( i + 1 < this->GridSize[0] ) ? 1 : 0;
     }
 
-  // Initialize all connectivity cursors by generating all possible cases
-  int pos[3];
-  for ( pos[2] = lowZ; pos[2] < highZ; ++ pos[2] )
+  // Initialize all connectivity cursors
+  for ( int ck = lowK; ck <= highK; ++ ck )
     {
-    bool tk = true;
-    switch ( pos[2] )
+    for ( int cj = lowJ; cj <= highJ; ++ cj )
       {
-      case -1:
-        tk = ( k > 0 );
-        break;
-      case 1:
-        tk = ( k + 1 < this->GridSize[2] );
-        break;
-      } // switch( pos[2] )
-
-    for ( pos[1] = lowY; pos[1] < highY; ++ pos[1] )
-      {
-      bool tj = true;
-      switch ( pos[1] )
+      for ( int ci = lowI; ci <= highI; ++ ci )
         {
-        case -1:
-          tj = ( j > 0 );
-          break;
-        case 1:
-          tj = ( j + 1 < this->GridSize[1] );
-          break;
-        } // switch( pos[1] )
-
-      for ( pos[0] = -1; pos[0] < 2; ++ pos[0] )
-        {
-        bool ti = true;
-        switch ( pos[0] )
-          {
-          case -1:
-            ti = ( i > 0 );
-            break;
-          case 1:
-            ti = ( i + 1 < this->GridSize[0] );
-            break;
-          } // switch( pos[0] )
-
-        // Initialize cursor if connectivity conditions are satisfied
-        int d = pos[0] + 3 * pos[1] + 9 * pos[2];
-        if ( ti && tj && tk )
-          {
-          superCursor->GetCursor( d )->Initialize( this,
-                                                   this->HyperTreesLeafIdOffsets,
-                                                   index, pos );
-          } // if ( ti && tj && tk )
-        } // c
-      } // b
-    } // a
+        int pos[3] = { ci, cj, ck };
+        int d = ci + 3 * cj + 9 * ck;
+        sc->GetCursor( d )->Initialize( this, index, pos );
+        } // i
+      } // j
+    } // k
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::InitializeSuperCursorChild( vtkHyperTreeGridSuperCursor* parent,
                                                    vtkHyperTreeGridSuperCursor* child,
-                                                   int childIdx )
+                                                   unsigned int childIdx )
 {
   // Retrieve child's parameters that are identical to parent's ones
   child->NumberOfCursors = parent->NumberOfCursors;
@@ -1063,7 +1078,7 @@ void vtkHyperTreeGrid::InitializeSuperCursorChild( vtkHyperTreeGridSuperCursor* 
   child->Size[2] = parent->Size[2] / double( this->BranchFactor );
 
   // Compute origin of child
-  int x, y, z;
+  unsigned int x, y, z;
   if ( this->BranchFactor == 2 )
     {
     x = childIdx & 1;
@@ -1082,14 +1097,16 @@ void vtkHyperTreeGrid::InitializeSuperCursorChild( vtkHyperTreeGridSuperCursor* 
   child->Origin[2] = parent->Origin[2] + ( z * child->Size[2] );
 
   // Move each cursor in the superCursor down to a child
-  vtkSuperCursorEntry* cursorPtr = this->SuperCursorTraversalTable + ( childIdx * 27 );
+  vtkSuperCursorEntry* cursorPtr =
+    this->SuperCursorTraversalTable + ( childIdx * 27 );
   for ( int cursorIdx = 0; cursorIdx < child->NumberOfCursors; ++ cursorIdx )
     {
     // Extract the parent and child of the new node from the traversal table
     // Child is encoded in the first three bits for all dimensions
     int tParent = cursorPtr[cursorIdx].Parent;
     child->Cursors[cursorIdx] = parent->Cursors[tParent];
-    if ( parent->Cursors[tParent].GetTree() && ! parent->Cursors[tParent].IsLeaf() )
+    if ( parent->Cursors[tParent].GetTree()
+      && ! parent->Cursors[tParent].IsLeaf() )
       {
       // Move to child
       child->Cursors[cursorIdx] = parent->Cursors[tParent];
@@ -1107,10 +1124,10 @@ void vtkHyperTreeGrid::InitializeSuperCursorChild( vtkHyperTreeGridSuperCursor* 
 void vtkHyperTreeGrid::ComputeDualGrid()
 {
   // Check if we can break out early
-  int numLeaves = this->UpdateHyperTreesLeafIdOffsets();
+  vtkIdType numPoints = this->GetNumberOfPoints();
   if ( this->Points )
     {
-    if ( this->Points->GetNumberOfPoints() == numLeaves )
+    if ( this->Points->GetNumberOfPoints() == numPoints )
       {
       return;
       }
@@ -1123,7 +1140,7 @@ void vtkHyperTreeGrid::ComputeDualGrid()
 
   // Primal cell centers are dual points
   this->Points = vtkPoints::New();
-  this->Points->SetNumberOfPoints( numLeaves );
+  this->Points->SetNumberOfPoints( numPoints );
 
   this->Connectivity = vtkIdTypeArray::New();
   int numVerts = 1 << this->Dimension;
@@ -1135,58 +1152,103 @@ void vtkHyperTreeGrid::ComputeDualGrid()
   this->GenerateSuperCursorTraversalTable();
 
   // Initialize grid depth
-  unsigned int gridDepth = 0;
+  vtkIdType gridDepth = 0;
 
   // Compute and assign scales of all tree roots
   double scale[] = { 1., 1., 1. };
 
   // Check whether coordinate arrays match grid size
-  bool coords[3];
-  coords[0] = static_cast<int>( this->GridSize[0] ) + 1
-    == this->XCoordinates->GetNumberOfTuples() ? true : false;
-  coords[1] = static_cast<int>( this->GridSize[1] ) + 1
-    == this->YCoordinates->GetNumberOfTuples() ? true : false;
-  coords[2] = static_cast<int>( this->GridSize[2] ) + 1
-    == this->ZCoordinates->GetNumberOfTuples() ? true : false;
-
   // If coordinates array are complete, compute all tree scales
-  if ( coords[0] && coords[1] && coords[2] )
+  if ( static_cast<int>( this->GridSize[0] ) + 1 == this->XCoordinates->GetNumberOfTuples()
+       && static_cast<int>( this->GridSize[1] ) + 1 == this->YCoordinates->GetNumberOfTuples()
+       && static_cast<int>( this->GridSize[2] ) + 1 == this->ZCoordinates->GetNumberOfTuples() )
     {
-    // Iterate over all hyper trees
-    vtkCollectionSimpleIterator it;
-    this->HyperTrees->InitTraversal( it );
-    for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
+    // Iterate over all hyper trees depending on indexing mode
+
+    std::map<vtkIdType, vtkHyperTree*>::iterator it = this->HyperTrees.begin();
+    std::map<vtkIdType, vtkHyperTree*>::iterator endit = this->HyperTrees.end();
+
+    if ( this->TransposedRootIndexing )
       {
-      // Compute scale along z-axis
-      scale[2] = this->ZCoordinates->GetTuple1( k + 1 ) -
-        this->ZCoordinates->GetTuple1( k );
-
-      for ( unsigned int j = 0; j < this->GridSize[1]; ++ j )
+      // I-J-K indexing
+      for ( unsigned int i = 0; i < this->GridSize[0] && it != endit; ++ i )
         {
-        // Compute scale along y-axis
-        scale[1] = this->YCoordinates->GetTuple1( j + 1 ) -
-          this->YCoordinates->GetTuple1( j );
+        // Compute scale along x-axis
+        scale[0] = this->XCoordinates->GetTuple1( i + 1 ) -
+          this->XCoordinates->GetTuple1( i );
 
-        for ( unsigned int i = 0; i < this->GridSize[0]; ++ i )
+        for ( unsigned int j = 0; j < this->GridSize[1] && it != endit; ++ j )
           {
-          // Compute scale along x-axis
-          scale[0] = this->XCoordinates->GetTuple1( i + 1 ) -
-            this->XCoordinates->GetTuple1( i );
+          // Compute scale along y-axis
+          scale[1] = this->YCoordinates->GetTuple1( j + 1 ) -
+            this->YCoordinates->GetTuple1( j );
 
-          // Retrieve hyper tree and set its scale
-          vtkHyperTree* tree = GetNextHyperTreeMacro( it );
-          tree->SetScale( scale );
-
-          // Update hyper tree grid depth
-          unsigned int treeDepth = tree->GetNumberOfLevels();
-          if ( treeDepth > gridDepth )
+          for ( unsigned int k = 0; k < this->GridSize[2] && it != endit; ++ k )
             {
-            gridDepth = treeDepth;
-            }
-          } // i
-        } // j
-      } // k
-    } // if ( coords[0] && coords[1] && coords[2] )q
+            // Retrieve hyper tree
+            vtkHyperTree* tree = it->second;
+            ++ it;
+            if ( !tree )
+              {
+              continue;
+              }
+
+            // Compute scale along z-axis and set tree scale
+            scale[2] = this->ZCoordinates->GetTuple1( k + 1 ) -
+              this->ZCoordinates->GetTuple1( k );
+            tree->SetScale( scale );
+
+            // Update hyper tree grid depth
+            vtkIdType treeDepth = tree->GetNumberOfLevels();
+            if ( treeDepth > gridDepth )
+              {
+              gridDepth = treeDepth;
+              }
+            } // i
+          } // j
+        } // k
+      } // if ( this->TransposedRootIndexing )
+    else
+      {
+      // K-J-I indexing
+      for ( unsigned int k = 0; k < this->GridSize[2] && it != endit; ++ k )
+        {
+        // Compute scale along z-axis
+        scale[2] = this->ZCoordinates->GetTuple1( k + 1 ) -
+          this->ZCoordinates->GetTuple1( k );
+
+        for ( unsigned int j = 0; j < this->GridSize[1] && it != endit; ++ j )
+          {
+          // Compute scale along y-axis
+          scale[1] = this->YCoordinates->GetTuple1( j + 1 ) -
+            this->YCoordinates->GetTuple1( j );
+
+          for ( unsigned int i = 0; i < this->GridSize[0] && it != endit; ++ i )
+            {
+            // Retrieve hyper tree
+            vtkHyperTree* tree = it->second;
+            ++ it;
+            if ( !tree )
+              {
+              continue;
+              }
+
+            // Compute scale along x-axis and set tree scale
+            scale[0] = this->XCoordinates->GetTuple1( i + 1 ) -
+              this->XCoordinates->GetTuple1( i );
+            tree->SetScale( scale );
+
+            // Update hyper tree grid depth
+            vtkIdType treeDepth = tree->GetNumberOfLevels();
+            if ( treeDepth > gridDepth )
+              {
+              gridDepth = treeDepth;
+              }
+            } // i
+          } // j
+        } // k
+      } // else indexing mode
+    } // if coordinate cardinalities match
 
   // Compute and store reduction factors for speed
   double factor = 1.;
@@ -1196,50 +1258,38 @@ void vtkHyperTreeGrid::ComputeDualGrid()
     factor /= this->BranchFactor;
     } // p
 
-  // Traverse hyper tree grid and generate dual
-  unsigned int index = 0;
-  for ( unsigned int k = 0; k < this->GridSize[2]; ++ k )
+  // Iterate over all hyper trees
+  vtkIdType index;
+  vtkHyperTreeIterator it;
+  this->InitializeTreeIterator( it );
+  while ( it.GetNextTree( index ) )
     {
+    // Storage for super cursors
+    vtkHyperTreeGridSuperCursor superCursor;
 
-    // Compute scale along z-axis
-    scale[2] = this->ZCoordinates->GetTuple1( k + 1 ) -
-      this->ZCoordinates->GetTuple1( k );
+    // Initialize center cursor
+    this->InitializeSuperCursor( &superCursor, index );
 
-    for ( unsigned int j = 0; j < this->GridSize[1]; ++ j )
-      {
-      // Compute scale along y-axis
-      scale[1] = this->YCoordinates->GetTuple1( j + 1 ) -
-        this->YCoordinates->GetTuple1( j );
-
-      for ( unsigned int i = 0; i < this->GridSize[0]; ++ i, ++ index )
-        {
-        // Compute scale along x-axis
-        scale[0] = this->XCoordinates->GetTuple1( i + 1 ) -
-          this->XCoordinates->GetTuple1( i );
-
-        // Initialize super cursors
-        vtkHyperTreeGridSuperCursor superCursor;
-        this->InitializeSuperCursor( &superCursor, i, j, k, index );
-
-        // Traverse and populate dual recursively
-        this->TraverseDualRecursively( &superCursor, 0 );
-        } // i
-      } // j
-    } // k
+    // Traverse and populate dual recursively
+    this->TraverseDualRecursively( &superCursor, 0 );
+    } // it
 
   // Adjust dual points as needed to fit the primal boundary
   for ( unsigned int d = 0; d < this->Dimension; ++ d )
     {
     // Iterate over all adjustments for current dimension
-    for ( std::map<vtkIdType,double>::const_iterator it = this->PointShifts[d].begin();
-          it != this->PointShifts[d].end(); ++ it )
+    for ( std::map<vtkIdType, double>::const_iterator itps =
+      this->PointShifts[d].begin();
+      itps != this->PointShifts[d].end(); ++ itps )
       {
       double pt[3];
-      this->Points->GetPoint( it->first, pt );
-      pt[d] += it->second;
-      this->Points->SetPoint( it->first, pt );
+      this->Points->GetPoint( itps->first, pt );
+      pt[d] += itps->second;
+      this->Points->SetPoint( itps->first, pt );
       } // it
+    this->PointShifts[d].clear();
     } // d
+  this->PointShifted.clear();
 
   timer->StopTimer();
   cerr << "Internal dual update : " << timer->GetElapsedTime() << endl;
@@ -1249,28 +1299,24 @@ void vtkHyperTreeGrid::ComputeDualGrid()
 //-----------------------------------------------------------------------------
 // Iterate over leaves.  Generate dual point.  Highest level (smallest leaf)
 // owns the corner and generates that dual cell.
-void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* superCursor,
-                                                int level )
+void vtkHyperTreeGrid::TraverseDualRecursively(
+  vtkHyperTreeGridSuperCursor* superCursor, unsigned int level )
 {
   // Get cursor at super cursor center
   vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
-  if ( cursor0->IsLeaf() )
-    {
-    // Center is a leaf, create a dual point
-    // Retrieve global index of center cursor
-    int id0 = cursor0->GetGlobalLeafIndex();
+  // Retrieve global index of center cursor
+  vtkIdType id0 = cursor0->GetGlobalNodeIndex();
 
-    if ( this->GetMaterialMask()->GetTuple1( id0 ) )
-      {
-      this->TraverseDualMaskedLeaf( superCursor );
-      }
-    else
-      {
-      this->TraverseDualLeaf( superCursor );
-      }
+  // Initialize non leaf point coordinates
+  double pt[3] = { 0., 0., 0. };
+  for ( unsigned int d = 0; d < this->Dimension; ++ d )
+    {
+    pt[d] = superCursor->Origin[d] + superCursor->Size[d] / 2.;
     }
-  else
+  // Retrieve global index of center cursor
+  this->Points->SetPoint( id0, pt );
+  if ( !cursor0->IsLeaf() )
     {
     // If cursor 0 is not at leaf, recurse to all children
     for ( unsigned int child = 0; child < this->NumberOfChildren; ++ child )
@@ -1280,10 +1326,23 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridSuperCursor* sup
       this->TraverseDualRecursively( &newSuperCursor, level + 1 );
       }
     }
+  else
+    {
+    // Center is a leaf, create a dual point
+    if ( this->GetMaterialMask()->GetTuple1( id0 ) )
+      {
+      this->TraverseDualMaskedLeaf( superCursor );
+      }
+    else
+      {
+      this->TraverseDualLeaf( superCursor );
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* superCursor )
+void vtkHyperTreeGrid::TraverseDualMaskedLeaf(
+  vtkHyperTreeGridSuperCursor* superCursor )
 {
   // Get cursor at super cursor center
   vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
@@ -1303,7 +1362,7 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
            && cursor->IsLeaf()
            && cursor->GetLevel() < cursor0->GetLevel() )
         {
-        int id = cursor->GetGlobalLeafIndex();
+        vtkIdType id = cursor->GetGlobalNodeIndex();
         if ( ! this->GetMaterialMask()->GetTuple1( id ) )
           {
           // Move to corresponding D-face
@@ -1332,7 +1391,7 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
                cursor->IsLeaf()
                && cursor->GetLevel() < cursor0->GetLevel() )
             {
-            int id = cursor->GetGlobalLeafIndex();
+            vtkIdType id = cursor->GetGlobalNodeIndex();
             if ( ! this->GetMaterialMask()->GetTuple1( id )
                  && ! this->PointShifted[id] )
               {
@@ -1351,10 +1410,10 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
     case 3:
       {
       // Check across (D-1)-face neighbors (edges)
-      unsigned int tpa1 = 1;
+      int tpa1 = 1;
       for ( int a1 = 0; a1 < 2; ++ a1, tpa1 *= 3 )
         {
-        unsigned int tpa2 = 3 * tpa1;
+        int tpa2 = 3 * tpa1;
         for ( int a2 = a1 + 1; a2 < 3; ++ a2, tpa2 *= 3 )
           {
           for ( int o2 = -1; o2 < 2; o2 += 2 )
@@ -1368,7 +1427,7 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
                    cursor->IsLeaf()
                    && cursor->GetLevel() < cursor0->GetLevel() )
                 {
-                int id = cursor->GetGlobalLeafIndex();
+                vtkIdType id = cursor->GetGlobalNodeIndex();
                 if ( ! this->GetMaterialMask()->GetTuple1( id )
                      && ! this->PointShifted[id] )
                   {
@@ -1400,7 +1459,7 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* supe
                  cursor->IsLeaf()
                  && cursor->GetLevel() < cursor0->GetLevel() )
               {
-              int id = cursor->GetGlobalLeafIndex();
+              vtkIdType id = cursor->GetGlobalNodeIndex();
               if ( ! this->GetMaterialMask()->GetTuple1( id )
                    && ! this->PointShifted[id] )
                 {
@@ -1427,9 +1486,6 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
 {
   // Get cursor at super cursor center
   vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
-
-  // Retrieve global index of center cursor
-  int id0 = cursor0->GetGlobalLeafIndex();
 
   // Initialize dual point coordinates and D-face adjustment flag
   double pt[] = { 0., 0., 0. };
@@ -1464,7 +1520,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
       if ( ! cursor->GetTree()
            ||
            ( cursor->IsLeaf()
-             && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+           && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalNodeIndex() ) ) )
         {
         // Move to corresponding D-face
         pt[d] += o * halfL[d];
@@ -1490,7 +1546,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
             if ( ! cursor->GetTree()
                  ||
                  ( cursor->IsLeaf()
-                   && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+                   && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalNodeIndex() ) ) )
               {
               // Move to corresponding corner
               pt[0] += o1 * o2 * halfL[0];
@@ -1506,10 +1562,10 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
         bool movedToEdge = false;
 
         // Check across (D-1)-face neighbors (edges)
-        unsigned int tpa1 = 1;
+        int tpa1 = 1;
         for ( int a1 = 0; a1 < 2; ++ a1, tpa1 *= 3 )
           {
-          unsigned int tpa2 = 3 * tpa1;
+          int tpa2 = 3 * tpa1;
           for ( int a2 = a1 + 1; a2 < 3; ++ a2, tpa2 *= 3 )
             {
             for ( int o2 = -1; o2 < 2; o2 += 2 )
@@ -1521,7 +1577,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
                 if ( ! cursor->GetTree()
                      ||
                      ( cursor->IsLeaf()
-                       && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+                       && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalNodeIndex() ) ) )
                   {
                   // Move to corresponding edge
                   pt[a1] += o1 * o2 * halfL[a1];
@@ -1547,7 +1603,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
                 if ( ! cursor->GetTree()
                      ||
                      ( cursor->IsLeaf()
-                       && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) ) )
+                       && this->GetMaterialMask()->GetTuple1( cursor->GetGlobalNodeIndex() ) ) )
                   {
                   // Move to corresponding corner
                   pt[0] += o1 * o2 * o3 * halfL[0];
@@ -1562,6 +1618,9 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
         } // case 3
       } // switch ( this->Dimension )
     } // if ( ! movedToDFace )
+
+  // Retrieve global index of center cursor
+  vtkIdType id0 = cursor0->GetGlobalNodeIndex();
 
   // Insert dual point corresponding to current primal cell
   this->Points->SetPoint( id0, pt );
@@ -1597,7 +1656,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
         }
 
       // Collect the leaf indices for the dual cell
-      leaves[leafIdx] = superCursor->Cursors[cursorIdx].GetGlobalLeafIndex();
+      leaves[leafIdx] = superCursor->Cursors[cursorIdx].GetGlobalNodeIndex();
 
       // Compute if the mid leaf owns the corner
       if ( cursorIdx != superCursor->MiddleCursorId )
@@ -1609,7 +1668,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
           // refined to a leaf, this leaf does not own the corner
           owner = false;
           }
-        else if ( this->GetMaterialMask()->GetTuple1( cursor->GetGlobalLeafIndex() ) )
+        else if ( this->GetMaterialMask()->GetTuple1( cursor->GetGlobalNodeIndex() ) )
           {
           owner = false;
           }
@@ -1630,58 +1689,19 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
     } // cornerIdx
 }
 
-//-----------------------------------------------------------------------------
-int vtkHyperTreeGrid::UpdateHyperTreesLeafIdOffsets()
-{
-  delete [] this->HyperTreesLeafIdOffsets;
-  this->HyperTreesLeafIdOffsets = new vtkIdType[this->NumberOfRoots];
-
-  // Calculate point offsets into individual trees
-  int numLeaves = 0;
-  int idx = 0;
-  vtkCollectionSimpleIterator it;
-  this->HyperTrees->InitTraversal( it );
-  while ( vtkHyperTree* tree = GetNextHyperTreeMacro( it ) )
-    {
-    // Partial sum is current offset
-    this->HyperTreesLeafIdOffsets[idx++] = numLeaves;
-
-    // Update partial sum
-    numLeaves += tree->GetNumberOfLeaves();
-    }
-
-  return numLeaves;
-}
-
 //----------------------------------------------------------------------------
 // This table is used to move a 3x3x3 neighborhood of cursors through the tree.
 void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
 {
-  int xChildDim = 1;
-  int yChildDim = 1;
-  int zChildDim = 1;
-  int xCursorDim = 1;
-  int yCursorDim = 1;
-  int zCursorDim = 1;
+  int bf = static_cast<int>( this->BranchFactor );
 
-  switch ( this->Dimension )
-    {
-    // Warning: Run through is intended! Do NOT add break statements
-    case 3:
-      zChildDim = this->BranchFactor;
-      zCursorDim = 3;
-    case 2:
-      yChildDim = this->BranchFactor;
-      yCursorDim = 3;
-    case 1:
-      xChildDim = this->BranchFactor;
-      xCursorDim = 3;
-      break;
-    default:
-      vtkErrorMacro( << "Dimension must be 1, 2, or 3." );
-    }
+  int xChildDim = bf;
+  int yChildDim = this->Dimension > 1 ? bf : 1;
+  int zChildDim = this->Dimension > 2 ? bf : 1;
+  int xCursorDim = 3;
+  int yCursorDim = this->Dimension > 1 ? 3 : 1;
+  int zCursorDim = this->Dimension > 2 ? 3 : 1;
 
-  int bf = this->BranchFactor;
   int childId = 0;
   for ( int zChild = 0; zChild < zChildDim; ++ zChild )
     {
@@ -1711,20 +1731,17 @@ void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
                 = dx.quot + 3 * ( dy.quot + 3 * dz.quot );
               this->SuperCursorTraversalTable[tableId].Child
                 = dx.rem + bf * ( dy.rem + bf * dz.rem );
-              }
-            }
-          }
-        }
-      }
-    }
+              } // xCursor
+            } // yCursor
+          } // zCursor
+        } // xChild
+      } // yChild
+    } // zChild
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::DeleteInternalArrays()
 {
-  delete [] this->HyperTreesLeafIdOffsets;
-  this->HyperTreesLeafIdOffsets = 0;
-
   if ( this->Points )
     {
     this->Points->UnRegister( this );
@@ -1742,6 +1759,37 @@ void vtkHyperTreeGrid::DeleteInternalArrays()
     this->Links->UnRegister( this );
     this->Links = 0;
     }
+}
+
+//=============================================================================
+// Hyper tree grid iterator
+// Implemented here because it needs access to the internal classes.
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGrid::vtkHyperTreeIterator::Initialize( vtkHyperTreeGrid* tree )
+{
+  this->Tree = tree;
+  this->Iterator = tree->HyperTrees.begin();
+}
+
+//-----------------------------------------------------------------------------
+vtkHyperTree* vtkHyperTreeGrid::vtkHyperTreeIterator::GetNextTree( vtkIdType &index )
+{
+  if ( this->Iterator == this->Tree->HyperTrees.end() )
+    {
+    return 0;
+    }
+  vtkHyperTree* t = this->Iterator->second;
+  index = this->Iterator->first;
+  ++ this->Iterator;
+  return t;
+}
+
+//-----------------------------------------------------------------------------
+vtkHyperTree* vtkHyperTreeGrid::vtkHyperTreeIterator::GetNextTree()
+{
+  vtkIdType index;
+  return GetNextTree( index );
 }
 
 //=============================================================================
@@ -1768,35 +1816,29 @@ void vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::Clear()
 {
   this->Tree = 0;
   this->Index = 0;
-  this->Offset = 0;
   this->Leaf = false;
   this->Level = 0;
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::Initialize( vtkHyperTreeGrid* grid,
-                                                             vtkIdType* offsets,
                                                              vtkIdType index,
                                                              int pos[3] )
 {
   // Convert local index into global one
   unsigned int n[3];
   grid->GetGridSize( n );
-  vtkIdType globalIndex = index + pos[0] +
+  vtkIdType globalIndex = grid->GetTransposedRootIndexing() ?
+    index + pos[2] +
+    pos[1] * static_cast<int>( n[2] ) +
+    pos[0] * static_cast<int>( n[2] ) * static_cast<int>( n[1] ) :
+    index + pos[0] +
     pos[1] * static_cast<int>( n[0] ) +
     pos[2] * static_cast<int>( n[0] ) * static_cast<int>( n[1] );
 
-  // Assign leaf ID offset to this cursor
-  this->Offset = offsets[globalIndex];
-
   // Assign hypertree to this cursor
-  vtkHyperTree* tree =
-    static_cast<vtkHyperTree*>( grid->HyperTrees->GetItemAsObject( globalIndex ) );
-  if ( tree )
-    {
-    this->Tree = tree;
-    this->ToRoot();
-    }
+  this->Tree = GetHTGHyperTreeAtIndexMacro( grid, globalIndex );
+  this->ToRoot();
 }
 
 //-----------------------------------------------------------------------------
@@ -1816,19 +1858,9 @@ void vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::ToRoot()
 
   // Return to root level
   this->Level = 0;
+  this->Index = 0;
 
-  if ( this->Tree->GetNumberOfLeaves() == 1 )
-    {
-    // Root is a leaf.
-    this->Index = 0;
-    this->Leaf = true;
-    }
-  else
-    {
-    // Root is a node.
-    this->Index = 1; // First node ( 0 ) is a special empty node.
-    this->Leaf = false;
-    }
+  this->Leaf = ( this->Tree->GetNumberOfLeaves() == 1 );
 }
 
 //-----------------------------------------------------------------------------
@@ -1841,16 +1873,14 @@ void vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::ToChild( int child )
     }
 
   this->Tree->FindChildParameters( child, this->Index, this->Leaf );
-
   this->Level++;
 
   assert( "Bad index" && this->Index >= 0 );
-  if ( this->Leaf )
-    {
-    assert( "Bad leaf index" && this->Index < this->Tree->GetNumberOfLeaves() );
-    }
-  else
-    {
-    assert( "Bad node index" && this->Index < this->Tree->GetNumberOfNodes() );
-    }
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::GetGlobalNodeIndex()
+{
+  return this->Tree ?
+    this->Tree->GetGlobalIndexFromLocal( this->Index ) : 0;
 }

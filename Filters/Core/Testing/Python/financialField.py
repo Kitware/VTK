@@ -18,10 +18,6 @@
 =========================================================================
 '''
 
-# Run this test like so:
-# vtkpython financialField.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/Graphics
-
 import vtk
 import vtk.test.Testing
 from vtk.util.misc import vtkGetDataRoot
@@ -52,6 +48,8 @@ class financialField(vtk.test.Testing.vtkTest):
         do2ds.SetPointComponent(1, yAxis, 0, 0, size, 1)
         do2ds.SetPointComponent(2, zAxis, 0)
         do2ds.Update()
+        if fdr.GetOutput().GetFieldData().GetAbstractArray("Some Text").GetValue(0) != "Test me":
+            raise RuntimeError, 'Could not properly read string array "Some Text"'
         fd2ad = vtk.vtkFieldDataToAttributeDataFilter()
         fd2ad.SetInputConnection(do2ds.GetOutputPort())
         fd2ad.SetInputFieldToDataObjectField()

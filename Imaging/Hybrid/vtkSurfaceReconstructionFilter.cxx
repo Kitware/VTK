@@ -36,35 +36,35 @@ vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
 }
 
 // some simple routines for vector math
-void vtkCopyBToA(double* a,double* b)
+static void vtkCopyBToA(double* a,double* b)
 {
   for(int i=0;i<3;i++)
     {
     a[i] = b[i];
     }
 }
-void vtkSubtractBFromA(double* a,double* b)
+static void vtkSubtractBFromA(double* a,double* b)
 {
   for(int i=0;i<3;i++)
     {
     a[i] -= b[i];
     }
 }
-void vtkAddBToA(double* a,double* b)
+static void vtkAddBToA(double* a,double* b)
 {
   for(int i=0;i<3;i++)
     {
     a[i] += b[i];
     }
 }
-void vtkMultiplyBy(double* a,double f)
+static void vtkMultiplyBy(double* a,double f)
 {
   for(int i=0;i<3;i++)
     {
     a[i] *= f;
     }
 }
-void vtkDivideBy(double* a,double f)
+static void vtkDivideBy(double* a,double f)
 {
   for(int i=0;i<3;i++)
     {
@@ -79,7 +79,7 @@ void vtkSRFreeVector(double *v, long nl, long nh);
 double *vtkSRVector(long nl, long nh);
 
 // set a matrix to zero
-void vtkSRMakeZero(double **m,long nrl, long nrh, long ncl, long nch)
+static void vtkSRMakeZero(double **m,long nrl, long nrh, long ncl, long nch)
 {
   int i,j;
   for(i=nrl;i<=nrh;i++)
@@ -95,7 +95,7 @@ void vtkSRMakeZero(double **m,long nrl, long nrh, long ncl, long nch)
 void vtkSRAddOuterProduct(double **m,double *v);
 
 // scalar multiply a matrix
-void vtkSRMultiply(double **m,double f,long nrl, long nrh, long ncl, long nch)
+static void vtkSRMultiply(double **m,double f,long nrl, long nrh, long ncl, long nch)
 {
   int i,j;
   for(i=nrl;i<=nrh;i++)
@@ -515,7 +515,6 @@ void vtkSRAddOuterProduct(double **m,double *v)
 }
 
 #define VTK_NR_END 1
-#define VTK_FREE_ARG char*
 
 // allocate a float vector with subscript range v[nl..nh]
 double *vtkSRVector(long nl, long nh)
@@ -584,7 +583,6 @@ void vtkSRFreeMatrix(double **m, long nrl, long vtkNotUsed(nrh),
 }
 
 #undef VTK_NR_END
-#undef VTK_FREE_ARG
 
 
 

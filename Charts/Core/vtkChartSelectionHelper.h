@@ -25,12 +25,16 @@
 #define __vtkChartSelectionHelper_h
 
 #include "vtkNew.h"
+#include "vtkSmartPointer.h"
 #include "vtkAnnotationLink.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkIdTypeArray.h"
 #include "vtkContextScene.h"
 #include "vtkContextMouseEvent.h"
+#include "vtkInformation.h"
+#include "vtkPlot.h"
+#include "vtkTable.h"
 
 #include <vector>
 #include <algorithm>
@@ -41,17 +45,49 @@ namespace vtkChartSelectionHelper
 // Description:
 // Populate the annotation link with the supplied selectionIds array, and set
 // the appropriate node properties for a standard row based chart selection.
-void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds)
+void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds,
+                   vtkPlot *plot)
 {
   assert(link != NULL && selectionIds != NULL);
 
-  vtkNew<vtkSelection> selection;
-  vtkNew<vtkSelectionNode> node;
-  selection->AddNode(node.GetPointer());
-  node->SetContentType(vtkSelectionNode::INDICES);
-  node->SetFieldType(vtkSelectionNode::POINT);
-  node->SetSelectionList(selectionIds);
-  link->SetCurrentSelection(selection.GetPointer());
+  if (plot)
+    {
+    // We are building up plot-based selections, using multiple nodes.
+    vtkSelection *selection = link->GetCurrentSelection();
+    vtkSmartPointer<vtkSelectionNode> node;
+    for (unsigned int i = 0; i < selection->GetNumberOfNodes(); ++i)
+      {
+      vtkSelectionNode *tmp = selection->GetNode(i);
+      vtkPlot *selectionPlot =
+          vtkPlot::SafeDownCast(tmp->GetProperties()->Get(vtkSelectionNode::PROP()));
+      if (selectionPlot == plot)
+        {
+        node = tmp;
+        break;
+        }
+      }
+    if (!node)
+      {
+      node = vtkSmartPointer<vtkSelectionNode>::New();
+      selection->AddNode(node.GetPointer());
+      node->SetContentType(vtkSelectionNode::INDICES);
+      node->SetFieldType(vtkSelectionNode::POINT);
+      node->GetProperties()->Set(vtkSelectionNode::PROP(), plot);
+      node->GetProperties()->Set(vtkSelectionNode::SOURCE(), plot->GetInput());
+      }
+    node->SetSelectionList(selectionIds);
+    }
+  else
+    {
+    // Use a simple single selection node layout, remove previous selections.
+    vtkNew<vtkSelection> selection;
+    vtkNew<vtkSelectionNode> node;
+    selection->AddNode(node.GetPointer());
+    node->SetContentType(vtkSelectionNode::INDICES);
+    node->SetFieldType(vtkSelectionNode::POINT);
+    node->SetSelectionList(selectionIds);
+    link->SetCurrentSelection(selection.GetPointer());
+    }
 }
 
 // Description:
@@ -174,10 +210,11 @@ void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 
 // Description:
 // Build a selection based on the supplied selectionMode using the new
-// plotSelection and combining it with the oldSelection. If link is not void
+// plotSelection and combining it with the oldSelection. If link is not NULL
 // then the resulting selection will be set on the link.
 void BuildSelection(vtkAnnotationLink *link, int selectionMode,
-                    vtkIdTypeArray *plotSelection, vtkIdTypeArray *oldSelection)
+                    vtkIdTypeArray *plotSelection, vtkIdTypeArray *oldSelection,
+                    vtkPlot *plot)
 {
   if (!plotSelection || !oldSelection)
     {
@@ -204,7 +241,7 @@ void BuildSelection(vtkAnnotationLink *link, int selectionMode,
 
   if (link)
     {
-    MakeSelection(link, plotSelection);
+    MakeSelection(link, plotSelection, plot);
     }
 }
 

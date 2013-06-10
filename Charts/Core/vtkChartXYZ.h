@@ -91,6 +91,10 @@ public:
   void SetFitToScene(bool b);
 
   // Description:
+  // Perform any updates to the item that may be necessary before rendering.
+  virtual void Update();
+
+  // Description:
   // Paint event for the chart, called whenever the chart needs to be drawn.
   virtual bool Paint(vtkContext2D *painter);
 

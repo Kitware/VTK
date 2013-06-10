@@ -18,10 +18,6 @@
 =========================================================================
 '''
 
-# Run this test like so:
-# vtkpython TestFixedPointRayCasterNearestCropped.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/VolumeRendering
-
 import sys
 import vtk
 import vtk.test.Testing
@@ -59,7 +55,7 @@ class TestFixedPointRayCasterNearestCropped(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "TestFixedPointRayCasterNearestCropped.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=10)
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":

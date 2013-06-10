@@ -23,11 +23,6 @@
 #include "vtkStructuredNeighbor.h"
 #include "vtkUnsignedCharArray.h"
 
-#define NO_OVERLAP      0
-#define NODE_OVERLAP    1
-#define EDGE_OVERLAP    2
-#define PARTIAL_OVERLAP 3
-
 vtkStandardNewMacro( vtkStructuredGridConnectivity );
 
 // Description:
@@ -830,7 +825,7 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
     B[0]          = ex2[ idx*2 ];
     B[1]          = ex2[ idx*2+1 ];
     status[ idx ] = this->IntervalOverlap( A, B, overlap );
-    if( status[idx] == NO_OVERLAP )
+    if( status[idx] == VTK_NO_OVERLAP )
       {
       return; /* No neighbors */
       }
@@ -935,7 +930,7 @@ int vtkStructuredGridConnectivity::DoPartialOverlap(
     {
     overlap[0] = s[0];
     overlap[1] = s[1];
-    return PARTIAL_OVERLAP;
+    return VTK_PARTIAL_OVERLAP;
     }
   else if( this->InBounds(s[0], S[0], S[1]) )
     {
@@ -943,11 +938,11 @@ int vtkStructuredGridConnectivity::DoPartialOverlap(
     overlap[1] = S[1];
     if( overlap[0] == overlap[1] )
       {
-      return NODE_OVERLAP;
+      return VTK_NODE_OVERLAP;
       }
     else
       {
-      return PARTIAL_OVERLAP;
+      return VTK_PARTIAL_OVERLAP;
       }
     }
   else if( this->InBounds(s[1], S[0],S[1]) )
@@ -956,14 +951,14 @@ int vtkStructuredGridConnectivity::DoPartialOverlap(
     overlap[1] = s[1];
     if( overlap[0] == overlap[1] )
       {
-      return NODE_OVERLAP;
+      return VTK_NODE_OVERLAP;
       }
     else
       {
-      return PARTIAL_OVERLAP;
+      return VTK_PARTIAL_OVERLAP;
       }
     }
-  return NO_OVERLAP;
+  return VTK_NO_OVERLAP;
 }
 
 //------------------------------------------------------------------------------
@@ -987,7 +982,7 @@ int vtkStructuredGridConnectivity::PartialOverlap(
 
   // Code should not reach here!
 //  assert( "Hmm...code should not reach here!" && false );
-//  return NO_OVERLAP;
+//  return VTK_NO_OVERLAP;
 }
 
 //------------------------------------------------------------------------------

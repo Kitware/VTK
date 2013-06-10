@@ -26,7 +26,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextMapper.h"
 
-int TestInteractorStyleImagePropertyInternal(int argc, char *argv[], int sliceOrder)
+int TestInteractorStyleImageProperty(int argc, char *argv[])
 {
   vtkSmartPointer<vtkPNGReader> reader =
     vtkSmartPointer<vtkPNGReader>::New();
@@ -71,29 +71,8 @@ int TestInteractorStyleImagePropertyInternal(int argc, char *argv[], int sliceOr
   textActor->SetMapper(text);
   textActor->PickableOff();
 
-  switch(sliceOrder)
-    {
-    case 0:
-      //Adding the slice to the renderer before the other prop.
-      renderer->AddViewProp(imageSlice);
-      renderer->AddViewProp(textActor);
-      break;
-
-    case 1:
-      //Only add the slice if there should not be a prop.
-      renderer->AddViewProp(imageSlice);
-      break;
-
-    case 2:
-      //Adding the slice to the renderer after the other prop.
-      renderer->AddViewProp(textActor);
-      renderer->AddViewProp(imageSlice);
-      break;
-
-    default:
-      cerr << "Invalid sliceOrder parameter in TestInteractorStyleImagePropertyInternal." << std::endl;
-      return 1;
-    }
+  renderer->AddViewProp(imageSlice);
+  renderer->AddViewProp(textActor);
 
   vtkSmartPointer<vtkInteractorStyleImage> style =
     vtkSmartPointer<vtkInteractorStyleImage>::New();
@@ -103,41 +82,50 @@ int TestInteractorStyleImagePropertyInternal(int argc, char *argv[], int sliceOr
   renderWindowInteractor->SetRenderWindow(renderWindow);
   renderWindowInteractor->Initialize();
 
-  //The StartWindowLevel event is not activated until the function
-  //OnLeftButtonDown is called. Call it to force the event to trigger
-  //the chain of methods to set the ImageProperty.
-  style->OnLeftButtonDown();
-
-  int retVal = ((style->GetCurrentImageProperty()) ? 1:0);
-
-  if (retVal)
+  for (int sliceOrder = 0; sliceOrder < 4; sliceOrder++)
     {
-    cerr << "TestInteractorStyleImagePropertyInternal failed with sliceOrder parameter " << sliceOrder << "." << std::endl;
+    renderer->RemoveAllViewProps();
+
+    switch(sliceOrder)
+      {
+      case 0:
+        //Adding the slice to the renderer before the other prop.
+        renderer->AddViewProp(imageSlice);
+        renderer->AddViewProp(textActor);
+        break;
+
+      case 1:
+        //Only add the slice if there should not be a prop.
+        renderer->AddViewProp(imageSlice);
+        break;
+
+      case 2:
+        //Adding the slice to the renderer after the other prop.
+        renderer->AddViewProp(textActor);
+        renderer->AddViewProp(imageSlice);
+        break;
+
+      case 3:
+        //No slice, so no image property should be found.
+        renderer->AddViewProp(textActor);
+        break;
+      }
+
+    renderWindowInteractor->Render();
+
+    //The StartWindowLevel event is not activated until the function
+    //OnLeftButtonDown is called. Call it to force the event to trigger
+    //the chain of methods to set the ImageProperty.
+    style->OnLeftButtonDown();
+    bool foundProperty = (style->GetCurrentImageProperty() == property);
+    style->OnLeftButtonUp();
+
+    if (!foundProperty ^ (sliceOrder == 3))
+      {
+      cerr << "TestInteractorStyleImagePropertyInternal failed with sliceOrder parameter " << sliceOrder << "." << std::endl;
+      return EXIT_FAILURE;
+      }
     }
 
-  //retVal is 0 if property not found. Returns 1 on failure, 0 on success.
-  return !retVal;
-}
-
-int TestInteractorStyleImageProperty(int argc, char *argv[])
-{
-  bool res = true;
-
-  // Tests with slice before prop.
-  if (TestInteractorStyleImagePropertyInternal(argc, argv, 0) != 0)
-    {
-    res = false;
-    }
-  // Tests with no additional prop.
-  if (TestInteractorStyleImagePropertyInternal(argc, argv, 1) != 0)
-    {
-    res = false;
-    }
-  // Tests with slice after prop.
-  if (TestInteractorStyleImagePropertyInternal(argc, argv, 2) != 0)
-    {
-    res = false;
-    }
-
-  return (res ? EXIT_SUCCESS : EXIT_FAILURE);
+  return  EXIT_SUCCESS;
 }

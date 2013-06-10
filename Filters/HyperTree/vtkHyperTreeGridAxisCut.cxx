@@ -183,26 +183,20 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
   this->Cells = vtkCellArray::New();
 
   // Iterate over all hyper trees
-  unsigned int index = 0;
-  unsigned int* gridSize = this->Input->GetGridSize();
-  for ( unsigned int k = 0; k < gridSize[2]; ++ k )
+  vtkIdType index;
+  vtkHyperTreeGrid::vtkHyperTreeIterator it;
+  this->Input->InitializeTreeIterator( it );
+  while ( it.GetNextTree( index ) )
     {
-    for ( unsigned int j = 0; j < gridSize[1]; ++ j )
-      {
-        for ( unsigned int i = 0; i < gridSize[0]; ++ i, ++ index )
-        {
-        // Storage for super cursors
-        vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
+    // Storage for super cursors
+    vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
-        // Initialize center cursor
-        this->Input->InitializeSuperCursor( &superCursor, i, j, k, index );
+    // Initialize center cursor
+    this->Input->InitializeSuperCursor( &superCursor, index );
 
-        // Traverse and populate dual recursively
-        this->RecursiveProcessTree( &superCursor );
-        } // i
-      } // j
-    } // k
-
+    // Traverse and populate dual recursively
+    this->RecursiveProcessTree( &superCursor );
+    } // it
 
   // Set output geometry and topology
   this->Output->SetPoints( this->Points );
@@ -234,10 +228,10 @@ void vtkHyperTreeGridAxisCut::AddFace( vtkIdType inId, double* origin,
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisCut::RecursiveProcessTree( void* cursor )
+void vtkHyperTreeGridAxisCut::RecursiveProcessTree( void* sc )
 {
   vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
-    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( cursor );
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
 
   // Get cursor at super cursor center
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
@@ -245,7 +239,7 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree( void* cursor )
   if ( cursor0->IsLeaf() )
     {
     // Cursor is a leaf
-    ProcessLeaf3D( cursor );
+    ProcessLeaf3D( sc );
     }
   else
     {
@@ -269,7 +263,7 @@ void vtkHyperTreeGridAxisCut::ProcessLeaf3D( void* sc )
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   // Cursor is a leaf, retrieve its global index
-  vtkIdType inId = cursor0->GetGlobalLeafIndex();
+  vtkIdType inId = cursor0->GetGlobalNodeIndex();
 
   // If leaf is masked, skip it
   if ( this->Input->GetMaterialMask()->GetTuple1( inId ) )

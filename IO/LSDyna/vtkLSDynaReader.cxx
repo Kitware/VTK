@@ -163,7 +163,7 @@ static void vtkLSGetLine( ifstream& deck, std::string& line )
       return;
     line += linechar;
     }
-#endif // !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER < 1200) || (_MSC_VER >= 1300)
+#endif
 }
 
 // Read in lines until one that's

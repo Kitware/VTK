@@ -81,14 +81,14 @@ public:
   // Control the striping of the ruled surface. If OnRatio is greater
   // than 1, then every nth strip is turned on, beginning with the Offset
   // strip.
-  vtkSetClampMacro(OnRatio,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(OnRatio,int,1,VTK_INT_MAX);
   vtkGetMacro(OnRatio,int);
 
   // Description:
   // Control the striping of the ruled surface. The offset sets the
   // first stripe that is visible. Offset is generally used with
   // OnRatio to create nifty striping effects.
-  vtkSetClampMacro(Offset,int,0,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(Offset,int,0,VTK_INT_MAX);
   vtkGetMacro(Offset,int);
 
   // Description:

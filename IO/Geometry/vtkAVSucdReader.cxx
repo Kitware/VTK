@@ -20,6 +20,7 @@
 // und advice.  Please address all comments to Jean Favre (jfavre at cscs.ch)
 
 #include "vtkAVSucdReader.h"
+#include "vtkType.h"
 #include "vtkDataArraySelection.h"
 #include "vtkErrorCode.h"
 #include "vtkUnstructuredGrid.h"
@@ -186,8 +187,6 @@ int vtkAVSucdReader::RequestInformation(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *vtkNotUsed(outputVector))
 {
-  char magic_number='\0';
-  long trueFileLength, calculatedFileLength;
   int i, j, k, *ncomp_list;
 
   // first open file in binary mode to check the first byte.
@@ -211,6 +210,7 @@ int vtkAVSucdReader::RequestInformation(
     return 0;
     }
 
+  char magic_number='\0';
   this->FileStream->get(magic_number);
   this->FileStream->putback(magic_number);
   if(magic_number != 7)
@@ -256,29 +256,17 @@ int vtkAVSucdReader::RequestInformation(
     this->BinaryFile = 1;
 
     // Here we first need to check if the file is little-endian or big-endian
-    // We will read the variable once, with the given endian-ness set up in
+    // We will read the variables once, with the given endian-ness set up in
     // the class constructor. If trueFileLength does not match
     // calculatedFileLength, then we will toggle the endian-ness and re-swap
-    // the variables
+    // the variables. We try at most twice, since there are only two endian-nesses.
     this->FileStream->seekg(0L, ios::end);
-    trueFileLength = this->FileStream->tellg();
-    calculatedFileLength = 0; // unknown yet
+    vtkTypeUInt64 trueFileLength = this->FileStream->tellg();
+    vtkTypeUInt64 calculatedFileLength = 0; // not known yet
 
-    while(abs(static_cast<int>(trueFileLength - calculatedFileLength))/
-          trueFileLength > 0.01)
+    unsigned int attempts = 0;
+    while (attempts < 2)
       {
-      if(trueFileLength != calculatedFileLength)
-        {
-        // switch to opposite of what previously set in constructor
-        if(this->ByteOrder == FILE_LITTLE_ENDIAN)
-          {
-          this->ByteOrder = FILE_BIG_ENDIAN;
-          }
-        else if(this->ByteOrder == FILE_BIG_ENDIAN)
-          {
-          this->ByteOrder = FILE_LITTLE_ENDIAN;
-          }
-        }
       // restart at beginning of file
       this->FileStream->seekg(0L, ios::beg);
 
@@ -298,31 +286,66 @@ int vtkAVSucdReader::RequestInformation(
                      << this->NumberOfFields << " "
                      << this->NlistNodes << endl);
 
+      // If we've guessed the wrong endianness, these values will be nonsense,
+      // and the arithmetic below could easily caused (undefined) signed overflow,
+      // so convert everything into uint64.
+      vtkTypeUInt64 numNodes = this->NumberOfNodes;
+      vtkTypeUInt64 numCells = this->NumberOfCells;
+      vtkTypeUInt64 numNodeFields = this->NumberOfNodeFields;
+      vtkTypeUInt64 numCellFields = this->NumberOfCellFields;
+      vtkTypeUInt64 numFields = this->NumberOfFields;
+      vtkTypeUInt64 numListNodes = this->NlistNodes;
+
       calculatedFileLength  = 1 + 6*4;
-      calculatedFileLength += 16 * this->NumberOfCells + 4 * this->NlistNodes;
-      calculatedFileLength += 3*4 * this->NumberOfNodes;
-      if(this->NumberOfNodeFields)
+      calculatedFileLength += 16 * numCells + 4 * numListNodes;
+      calculatedFileLength += 3*4 * numNodes;
+      if(numNodeFields)
         {
-        calculatedFileLength += 2052 +
-          this->NumberOfNodeFields*(12 + 4 * this->NumberOfNodes + 4);
+        calculatedFileLength += 2052 + numNodeFields*(12 + 4 * numNodes + 4);
         }
 
-      if(this->NumberOfCellFields)
+      if(numCellFields)
         {
-        calculatedFileLength += 2052 +
-          this->NumberOfCellFields*(12 + 4 * this->NumberOfCells + 4);
+        calculatedFileLength += 2052 + numCellFields*(12 + 4 * numCells + 4);
         }
 
-      if(this->NumberOfFields)
+      if(numFields)
         {
-        calculatedFileLength += 2052 + this->NumberOfFields*(4 * 5);
+        calculatedFileLength += 2052 + numFields*(4 * 5);
         }
 
       vtkDebugMacro( << "TFL = " << trueFileLength
                      << "\tCFL = " << calculatedFileLength << endl);
 
-      //trueFileLength = calculatedFileLength;
+      // We tried. Count our trys.
+      attempts++;
+
+      if(trueFileLength == calculatedFileLength)
+        {
+        // Endianness assumption was correct.
+        break;
+        }
+      else
+        {
+        // If the lengths don't match, then either:
+        // we tried the wrong endian-ness or the file is corrupt.
+        // Switch to opposite of what was previously set in constructor.
+        if(this->ByteOrder == FILE_LITTLE_ENDIAN)
+          {
+          this->ByteOrder = FILE_BIG_ENDIAN;
+          }
+        else if(this->ByteOrder == FILE_BIG_ENDIAN)
+          {
+          this->ByteOrder = FILE_LITTLE_ENDIAN;
+          }
+        }
       } // end of while loop
+
+    if(trueFileLength != calculatedFileLength)
+      {
+      vtkErrorMacro("Calculated file length inconsistent with actual length; file corrupt?");
+      return 0;
+      }
 
     const long base_offset = 1 + 6*4;
     char buffer1[1024], buffer2[1024], label[32];

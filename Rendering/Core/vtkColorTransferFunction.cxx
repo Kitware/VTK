@@ -1333,7 +1333,7 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 
 //----------------------------------------------------------------------------
 // Special implementation for unsigned char input.
-void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
+static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
                                      unsigned char* input,
                                      unsigned char* output,
                                      int length, int inIncr,
@@ -1396,7 +1396,7 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 
 //----------------------------------------------------------------------------
 // Special implementation for unsigned short input.
-void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
+static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
                                      unsigned short* input,
                                      unsigned char* output,
                                      int length, int inIncr,
@@ -1674,6 +1674,25 @@ vtkIdType vtkColorTransferFunction::GetNumberOfAvailableColors()
     return static_cast<vtkIdType>(this->TableSize);
     }
   return 16777216;  //2^24
+}
+
+//----------------------------------------------------------------------------
+void vtkColorTransferFunction::GetIndexedColor(vtkIdType idx, double rgba[4])
+{
+  vtkIdType n = this->GetSize();
+  if (n > 0 && idx >= 0)
+    {
+    double nodeValue[6];
+    this->GetNodeValue(idx % n, nodeValue);
+    for (int j = 0; j < 3; ++j)
+      {
+      rgba[j] = nodeValue[j+1];
+      }
+    rgba[3] = 1.0; // NodeColor is RGB-only.
+    return;
+    }
+  this->GetNanColor(rgba);
+  rgba[3] = 1.0; // NanColor is RGB-only.
 }
 
 //----------------------------------------------------------------------------

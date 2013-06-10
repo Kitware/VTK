@@ -47,7 +47,7 @@ void vtkPistonThreshold::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-int vtkPistonThreshold::RequestData(vtkInformation *request,
+int vtkPistonThreshold::RequestData(vtkInformation *vtkNotUsed(request),
                                      vtkInformationVector** inputVector,
                                      vtkInformationVector* outputVector)
 {

@@ -64,9 +64,9 @@ public:
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
-void vtkMultiProcessControllerBreakRMI(void *localArg,
-                                       void *remoteArg, int remoteArgLength,
-                                       int vtkNotUsed(remoteId))
+static void vtkMultiProcessControllerBreakRMI(void *localArg,
+                                              void *remoteArg, int remoteArgLength,
+                                              int vtkNotUsed(remoteId))
 {
   (void)remoteArg;
   (void)remoteArgLength;
@@ -653,7 +653,7 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
 
 //============================================================================
 // The intent is to give access to a processes controller from a static method.
-vtkWeakPointer<vtkMultiProcessController> VTK_GLOBAL_MULTI_PROCESS_CONTROLLER;
+static vtkWeakPointer<vtkMultiProcessController> VTK_GLOBAL_MULTI_PROCESS_CONTROLLER;
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::GetGlobalController()
 {

@@ -115,6 +115,10 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   //this->YAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
   //this->ZAxesGridpolysProperty->LightingOff();       // To be able to see the polys from high camera angles
 
+  this->ScreenSize  = 10.;
+  this->LabelOffset = 20.;
+  this->TitleOffset = 20.;
+
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i] = vtkAxisActor::New();
@@ -128,6 +132,9 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->XAxes[i]->SetGridlinesProperty(this->XAxesGridlinesProperty);
     this->XAxes[i]->SetInnerGridlinesProperty(this->XAxesInnerGridlinesProperty);
     this->XAxes[i]->SetGridpolysProperty(this->XAxesGridpolysProperty);
+    this->XAxes[i]->SetLabelOffset(this->LabelOffset);
+    this->XAxes[i]->SetTitleOffset(this->TitleOffset);
+    this->XAxes[i]->SetScreenSize(this->ScreenSize);
     this->XAxes[i]->SetCalculateTitleOffset(0);
     this->XAxes[i]->SetCalculateLabelOffset(0);
 
@@ -142,6 +149,9 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->YAxes[i]->SetGridlinesProperty(this->YAxesGridlinesProperty);
     this->YAxes[i]->SetInnerGridlinesProperty(this->YAxesInnerGridlinesProperty);
     this->YAxes[i]->SetGridpolysProperty(this->YAxesGridpolysProperty);
+    this->YAxes[i]->SetLabelOffset(this->LabelOffset);
+    this->YAxes[i]->SetTitleOffset(this->TitleOffset);
+    this->YAxes[i]->SetScreenSize(this->ScreenSize);
     this->YAxes[i]->SetCalculateTitleOffset(0);
     this->YAxes[i]->SetCalculateLabelOffset(0);
 
@@ -156,19 +166,15 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->ZAxes[i]->SetGridlinesProperty(this->ZAxesGridlinesProperty);
     this->ZAxes[i]->SetInnerGridlinesProperty(this->ZAxesInnerGridlinesProperty);
     this->ZAxes[i]->SetGridpolysProperty(this->ZAxesGridpolysProperty);
+    this->ZAxes[i]->SetLabelOffset(this->LabelOffset);
+    this->ZAxes[i]->SetTitleOffset(this->TitleOffset);
+    this->ZAxes[i]->SetScreenSize(this->ScreenSize);
     this->ZAxes[i]->SetCalculateTitleOffset(0);
     this->ZAxes[i]->SetCalculateLabelOffset(0);
-
-    this->ScreenSize = 10.0;
-
-    this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
-    this->TitleScreenOffset =
-      this->LabelScreenOffset * 2.0 + this->ScreenSize * 0.5;
 
     // Pass information to axes followers.
     vtkAxisFollower* follower = this->XAxes[i]->GetTitleActor();
     follower->SetAxis(this->XAxes[i]);
-    follower->SetScreenOffset(this->TitleScreenOffset);
     follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
     follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
     follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
@@ -176,7 +182,6 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
     follower = this->YAxes[i]->GetTitleActor();
     follower->SetAxis(this->YAxes[i]);
-    follower->SetScreenOffset(this->TitleScreenOffset);
     follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
     follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
     follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
@@ -184,7 +189,6 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
     follower = this->ZAxes[i]->GetTitleActor();
     follower->SetAxis(this->ZAxes[i]);
-    follower->SetScreenOffset(this->TitleScreenOffset);
     follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
     follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
     follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
@@ -666,37 +670,43 @@ void vtkCubeAxesActor::AdjustAxes(double bounds[6],
 void vtkCubeAxesActor::SetScreenSize(double screenSize)
 {
   this->ScreenSize = screenSize;
-// Considering pivot point at center of the geometry hence (this->ScreenSize * 0.5).
-  this->LabelScreenOffset = 20.0 + this->ScreenSize * 0.5;
-  this->TitleScreenOffset = this->LabelScreenOffset * 2.0 +
-    this->ScreenSize * 0.5;
-
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
-    this->XAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
-    this->YAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
-    this->ZAxes[i]->GetTitleActor()->SetScreenOffset(this->TitleScreenOffset);
+    this->XAxes[i]->SetScreenSize(screenSize);
+    this->YAxes[i]->SetScreenSize(screenSize);
+    this->ZAxes[i]->SetScreenSize(screenSize);
+    }
 
-    int numberOfLabelsBuild = this->XAxes[i]->GetNumberOfLabelsBuilt();
-    vtkAxisFollower **labelActors = this->XAxes[i]->GetLabelActors();
-    for(int k=0; k < numberOfLabelsBuild; ++k)
-      {
-      labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
-      }
+  this->Modified();
+}
 
-    numberOfLabelsBuild = this->YAxes[i]->GetNumberOfLabelsBuilt();
-    labelActors = this->YAxes[i]->GetLabelActors();
-    for(int k=0; k < numberOfLabelsBuild; ++k)
-      {
-      labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
-      }
+// *************************************************************************
+// Offset between labels and axis.
+// *************************************************************************
+void vtkCubeAxesActor::SetLabelOffset(double offset)
+{
+  this->LabelOffset = offset;
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+    {
+    this->XAxes[i]->SetLabelOffset(offset);
+    this->YAxes[i]->SetLabelOffset(offset);
+    this->ZAxes[i]->SetLabelOffset(offset);
+    }
 
-    numberOfLabelsBuild = this->ZAxes[i]->GetNumberOfLabelsBuilt();
-    labelActors = this->ZAxes[i]->GetLabelActors();
-    for(int k=0; k < numberOfLabelsBuild; ++k)
-      {
-      labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
-      }
+  this->Modified();
+}
+
+// *************************************************************************
+// Offset between title and labels.
+// *************************************************************************
+void vtkCubeAxesActor::SetTitleOffset(double offset)
+{
+  this->TitleOffset = offset;
+  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+    {
+    this->XAxes[i]->SetTitleOffset(offset);
+    this->YAxes[i]->SetTitleOffset(offset);
+    this->ZAxes[i]->SetTitleOffset(offset);
     }
 
   this->Modified();
@@ -1309,38 +1319,47 @@ void vtkCubeAxesActor::AdjustRange(const double bnds[6])
 // ****************************************************************************
 int vtkCubeAxesActor::Digits(double min, double max )
 {
-  double  range = max - min;
-  double  pow10   = log10(range);
-  int    ipow10  = static_cast<int>(floor(pow10));
-  int    digitsPastDecimal = -ipow10;
+  long digitsPastDecimal;
 
-  if (digitsPastDecimal < 0)
+  double range = max - min;
+  double pow10 = log10(range);
+  if (!vtkMath::IsFinite(pow10))
     {
-    //
-    // The range is more than 10, but not so big we need scientific
-    // notation, we don't need to worry about decimals.
-    //
     digitsPastDecimal = 0;
     }
   else
     {
-    //
-    // We want one more than the range since there is more than one
-    // tick per decade.
-    //
-    digitsPastDecimal++;
+    long ipow10 = static_cast<long>(floor(pow10));
+    digitsPastDecimal = -ipow10;
 
-    //
-    // Anything more than 5 is just noise.  (and probably 5 is noise with
-    // doubleing point if the part before the decimal is big).
-    //
-    if (digitsPastDecimal > 5)
+    if (digitsPastDecimal < 0)
       {
-      digitsPastDecimal = 5;
+      //
+      // The range is more than 10, but not so big we need scientific
+      // notation, we don't need to worry about decimals.
+      //
+      digitsPastDecimal = 0;
+      }
+    else
+      {
+      //
+      // We want one more than the range since there is more than one
+      // tick per decade.
+      //
+      digitsPastDecimal++;
+
+      //
+      // Anything more than 5 is just noise.  (and probably 5 is noise with
+      // doubling point if the part before the decimal is big).
+      //
+      if (digitsPastDecimal > 5)
+        {
+        digitsPastDecimal = 5;
+        }
       }
     }
 
-  return digitsPastDecimal;
+  return (int)digitsPastDecimal;
 }
 
 // ****************************************************************************
@@ -2333,7 +2352,6 @@ void vtkCubeAxesActor::UpdateLabels(vtkAxisActor **axis, int index)
         // Do nothing.
         }
 
-      labelActors[k]->SetScreenOffset(this->LabelScreenOffset);
       labelActors[k]->SetEnableDistanceLOD( this->EnableDistanceLOD );
       labelActors[k]->SetDistanceLODThreshold( this->DistanceLODThreshold );
       labelActors[k]->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
@@ -2510,7 +2528,7 @@ void vtkCubeAxesActor::UpdateGridLineVisibility(int idx)
 int vtkCubeAxesActor::FindClosestAxisIndex(double pts[8][3])
 {
   // Loop over points and find the closest point to the camera
-  double min = VTK_LARGE_FLOAT;
+  double min = VTK_FLOAT_MAX;
   int idx = 0;
   for (int i=0; i < 8; i++)
     {
@@ -2527,7 +2545,7 @@ int vtkCubeAxesActor::FindClosestAxisIndex(double pts[8][3])
 int vtkCubeAxesActor::FindFurtherstAxisIndex(double pts[8][3])
 {
   // Loop over points and find the furthest point from the camera
-  double max = -VTK_LARGE_FLOAT;
+  double max = -VTK_FLOAT_MAX;
   int idx = 0;
   for (int i=0; i < 8; i++)
     {
@@ -2552,7 +2570,7 @@ int vtkCubeAxesActor::FindFurtherstAxisIndex(double pts[8][3])
    int idx = 0;
 
    // Find distance to origin
-   double d2Min = VTK_LARGE_FLOAT;
+   double d2Min = VTK_FLOAT_MAX;
    for (i=0; i < 8; i++)
      {
      d2 = pts[i][0]*pts[i][0] + pts[i][1]*pts[i][1];
@@ -2565,7 +2583,7 @@ int vtkCubeAxesActor::FindFurtherstAxisIndex(double pts[8][3])
 
    // find minimum slope point connected to closest point and on
    // right side (in projected coordinates). This is the first edge.
-   minSlope = VTK_LARGE_FLOAT;
+   minSlope = VTK_FLOAT_MAX;
    for (xIdx=0, i=0; i<3; i++)
      {
      num = (pts[vtkCubeAxesActorConn[idx][i]][1] - pts[idx][1]);

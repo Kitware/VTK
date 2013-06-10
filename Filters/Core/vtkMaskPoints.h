@@ -40,18 +40,18 @@ public:
 
   // Description:
   // Turn on every nth point (strided sampling), ignored by random modes.
-  vtkSetClampMacro(OnRatio,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(OnRatio,int,1,VTK_INT_MAX);
   vtkGetMacro(OnRatio,int);
 
   // Description:
   // Limit the number of points that can be passed through (i.e.,
   // sets the output sample size).
-  vtkSetClampMacro(MaximumNumberOfPoints,vtkIdType,0,VTK_LARGE_ID);
+  vtkSetClampMacro(MaximumNumberOfPoints,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(MaximumNumberOfPoints,vtkIdType);
 
   // Description:
   // Start sampling with this point. Ignored by certain random modes.
-  vtkSetClampMacro(Offset,vtkIdType,0,VTK_LARGE_ID);
+  vtkSetClampMacro(Offset,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(Offset,vtkIdType);
 
   // Description:

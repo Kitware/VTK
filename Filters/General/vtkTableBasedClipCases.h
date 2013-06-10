@@ -899,9 +899,9 @@ namespace vtkTableBasedClipperClipTables
 // ----------------------------------------------------------------------------
 // ---- ClipCasesHex.C (begin)
 
-int NumClipCasesHex = 256;
+const int NumClipCasesHex = 256;
 
-int NumClipShapesHex[256] = {
+const int NumClipShapesHex[256] = {
   1,  10,  10,  3,  10,  18,  3,  15, // cases 0 - 7
   10,  3,  18,  15,  3,  15,  15,  2, // cases 8 - 15
   10,  3,  18,  15,  8,  18,  18,  17, // cases 16 - 23
@@ -936,7 +936,7 @@ int NumClipShapesHex[256] = {
   15,  3,  7,  10,  3,  10,  10,  1  // cases 248 - 255
 };
 
-int StartClipShapesHex[256] = {
+const int StartClipShapesHex[256] = {
   0, 10, 80, 150, 176, 246, 361, 387, // cases 0 - 7
   488, 558, 584, 699, 800, 826, 927, 1028, // cases 8 - 15
   1048, 1118, 1144, 1259, 1360, 1412, 1531, 1650, // cases 16 - 23
@@ -4378,9 +4378,9 @@ unsigned char ClipShapesHex[] = {
 
 // ----------------------------------------------------------------------------
 // ---- ClipCasesVox.C (begin)
-int NumClipCasesVox = 256;
+const int NumClipCasesVox = 256;
 
-int NumClipShapesVox[256] = {
+const int NumClipShapesVox[256] = {
   1,  10,  10,  3,  10,  3,  18,  15, // cases 0 - 7
   10,  18,  3,  15,  3,  15,  15,  2, // cases 8 - 15
   10,  3,  18,  15,  18,  15,  11,  10, // cases 16 - 23
@@ -4415,7 +4415,7 @@ int NumClipShapesVox[256] = {
   15,  7,  3,  10,  3,  10,  10,  1  // cases 248 - 255
 };
 
-int StartClipShapesVox[256] = {
+const int StartClipShapesVox[256] = {
   0, 10, 80, 150, 176, 246, 272, 387, // cases 0 - 7
   488, 558, 673, 699, 800, 826, 927, 1028, // cases 8 - 15
   1048, 1118, 1144, 1259, 1360, 1475, 1576, 1652, // cases 16 - 23
@@ -7858,9 +7858,9 @@ unsigned char ClipShapesVox[] = {
 // ----------------------------------------------------------------------------
 // ---- ClipCasesWdg.C (begin)
 
-int NumClipCasesWdg = 64;
+const int NumClipCasesWdg = 64;
 
-int NumClipShapesWdg[64] = {
+const int NumClipShapesWdg[64] = {
   1,  3,  3,  9,  3,  9,  9,  2, // cases 0 - 7
   3,  2,  15,  13,  15,  13,  10,  9, // cases 8 - 15
   3,  15,  2,  13,  15,  10,  13,  9, // cases 16 - 23
@@ -7871,7 +7871,7 @@ int NumClipShapesWdg[64] = {
   2,  9,  9,  3,  9,  3,  3,  1  // cases 56 - 63
 };
 
-int StartClipShapesWdg[64] = {
+const int StartClipShapesWdg[64] = {
   0, 8, 29, 50, 115, 136, 201, 266, // cases 0 - 7
   282, 303, 321, 421, 508, 608, 695, 768, // cases 8 - 15
   833, 854, 954, 972, 1059, 1159, 1232, 1319, // cases 16 - 23
@@ -8456,16 +8456,16 @@ unsigned char ClipShapesWdg[] = {
 // ----------------------------------------------------------------------------
 // ---- ClipCasesPyr.C (begin)
 
-int NumClipCasesPyr = 32;
+const int NumClipCasesPyr = 32;
 
-int NumClipShapesPyr[32] = {
+const int NumClipShapesPyr[32] = {
   1,  3,  3,  8,  3,  4,  8,  4, // cases 0 - 7
   3,  8,  4,  4,  8,  4,  4,  2, // cases 8 - 15
   2,  4,  4,  8,  4,  4,  8,  3, // cases 16 - 23
   4,  8,  4,  3,  8,  3,  3,  1  // cases 24 - 31
 };
 
-int StartClipShapesPyr[32] = {
+const int StartClipShapesPyr[32] = {
   0, 7, 27, 47, 106, 126, 158, 217, // cases 0 - 7
   247, 267, 326, 358, 388, 447, 477, 507, // cases 8 - 15
   524, 541, 571, 601, 660, 690, 718, 777, // cases 16 - 23
@@ -8658,14 +8658,14 @@ unsigned char ClipShapesPyr[] = {
 // ----------------------------------------------------------------------------
 // ---- ClipCasesTet.C (begin)
 
-int NumClipCasesTet = 16;
+const int NumClipCasesTet = 16;
 
-int NumClipShapesTet[16] = {
+const int NumClipShapesTet[16] = {
   1,  2,  2,  2,  2,  2,  2,  2, // cases 0 - 7
   2,  2,  2,  2,  2,  2,  2,  1  // cases 8 - 15
 };
 
-int StartClipShapesTet[16] = {
+const int StartClipShapesTet[16] = {
   0, 6, 20, 34, 50, 64, 80, 96, // cases 0 - 7
   110, 124, 140, 156, 170, 186, 200, 214  // cases 8 - 15
 };
@@ -8728,14 +8728,14 @@ unsigned char ClipShapesTet[] = {
 // ----------------------------------------------------------------------------
 // ---- ClipCasesQua.C (begin)
 
-int NumClipCasesQua = 16;
+const int NumClipCasesQua = 16;
 
-int NumClipShapesQua[16] = {
+const int NumClipShapesQua[16] = {
   1,  3,  3,  2,  3,  4,  2,  3, // cases 0 - 7
   3,  2,  4,  3,  2,  3,  3,  1  // cases 8 - 15
 };
 
-int StartClipShapesQua[16] = {
+const int StartClipShapesQua[16] = {
   0, 6, 22, 38, 50, 66, 88, 100, // cases 0 - 7
   116, 132, 144, 166, 182, 194, 210, 226  // cases 8 - 15
 };
@@ -8810,14 +8810,14 @@ unsigned char ClipShapesQua[] = {
 // ----------------------------------------------------------------------------
 // ---- ClipCasesPix.C (begin)
 
-int NumClipCasesPix = 16;
+const int NumClipCasesPix = 16;
 
-int NumClipShapesPix[16] = {
+const int NumClipShapesPix[16] = {
   1,  3,  3,  2,  3,  2,  4,  3, // cases 0 - 7
   3,  4,  2,  3,  2,  3,  3,  1  // cases 8 - 15
 };
 
-int StartClipShapesPix[16] = {
+const int StartClipShapesPix[16] = {
   0, 6, 22, 38, 50, 66, 78, 100, // cases 0 - 7
   116, 132, 154, 166, 182, 194, 210, 226  // cases 8 - 15
 };
@@ -8892,13 +8892,13 @@ unsigned char ClipShapesPix[] = {
 // ----------------------------------------------------------------------------
 // ---- ClipCasesTri.C (begin)
 
-int NumClipCasesTri = 8;
+const int NumClipCasesTri = 8;
 
-int NumClipShapesTri[8] = {
+const int NumClipShapesTri[8] = {
   1,  2,  2,  2,  2,  2,  2,  1  // cases 0 - 7
 };
 
-int StartClipShapesTri[8] = {
+const int StartClipShapesTri[8] = {
   0, 5, 16, 27, 38, 49, 60, 71  // cases 0 - 7
 };
 
@@ -8936,12 +8936,12 @@ unsigned char ClipShapesTri[] = {
 // ----------------------------------------------------------------------------
 // ---- ClipCasesLin.C (begin)
 
-int NumClipCasesLin = 4;
+const int NumClipCasesLin = 4;
 
-int NumClipShapesLin[4] = {
+const int NumClipShapesLin[4] = {
   1,  2,  2,  1 };
 
-int StartClipShapesLin[4] = {
+const int StartClipShapesLin[4] = {
   0, 4, 12, 20  };
 
 unsigned char ClipShapesLin[] = {
@@ -8966,12 +8966,12 @@ unsigned char ClipShapesLin[] = {
 // ----------------------------------------------------------------------------
 // ---- ClipCasesVtx.C (begin)
 
-int NumClipCasesVtx = 2;
+const int NumClipCasesVtx = 2;
 
-int NumClipShapesVtx[2] = {
+const int NumClipShapesVtx[2] = {
   1,  1 };
 
-int StartClipShapesVtx[2] = {
+const int StartClipShapesVtx[2] = {
   0, 3  };
 
 unsigned char ClipShapesVtx[] = {

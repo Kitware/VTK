@@ -32,6 +32,8 @@
 #include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLTreeReader.h"
+#include "vtkScalarBarWidget.h"
+#include "vtkScalarBarActor.h"
 
 using std::string;
 
@@ -39,7 +41,7 @@ using std::string;
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-char GraphLayoutViewEventLog[] =
+static char GraphLayoutViewEventLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 291 110 0 0 0 0 0\n"
@@ -1124,6 +1126,7 @@ int TestGraphLayoutView(int argc, char* argv[])
   view->SetVertexColorArrayName("size");
   view->ColorVerticesOn();
   view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
+  view->SetVertexScalarBarVisibility(true);
   view->SetEdgeColorArrayName("distance");
   view->ColorEdgesOn();
   view->SetEdgeLabelArrayName("edge label");
@@ -1131,6 +1134,9 @@ int TestGraphLayoutView(int argc, char* argv[])
   vtkRenderedGraphRepresentation* rep = vtkRenderedGraphRepresentation::SafeDownCast(view->GetRepresentation());
   rep->SetVertexHoverArrayName("name");
   rep->SetEdgeHoverArrayName("edge label");
+  rep->GetVertexScalarBar()->GetScalarBarActor()->SetOrientation(VTK_ORIENT_HORIZONTAL);
+  rep->GetVertexScalarBar()->GetScalarBarActor()->SetPosition(0.05,0.05);
+  rep->GetVertexScalarBar()->GetScalarBarActor()->SetPosition2(0.55,0.15);
 
   view->ResetCamera();
 

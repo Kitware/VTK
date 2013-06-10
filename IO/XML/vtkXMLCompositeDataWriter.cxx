@@ -635,17 +635,6 @@ vtkStdString vtkXMLCompositeDataWriter::CreatePieceFileName(
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLCompositeDataWriter::ReportReferences(vtkGarbageCollector* collector)
-{
-  this->Superclass::ReportReferences(collector);
-  int size = static_cast<int>(this->Internal->Writers.size());
-  for(int i=0; i < size; ++i)
-    {
-    vtkGarbageCollectorReport(collector, this->Internal->Writers[i], "Writer");
-    }
-}
-
-//----------------------------------------------------------------------------
 vtkExecutive* vtkXMLCompositeDataWriter::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();

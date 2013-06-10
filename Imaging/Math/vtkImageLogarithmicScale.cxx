@@ -45,7 +45,7 @@ void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
 
   c = self->GetConstant();
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     T* inSI = inIt.BeginSpan();

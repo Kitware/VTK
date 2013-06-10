@@ -343,6 +343,12 @@ int vtkCutter::RequestData(
     return 0;
     }
 
+  if (!input)
+    {
+    // this could be a table in a multiblock structure, i.e. no cut!
+    return 0;
+    }
+
   if ( input->GetNumberOfPoints() < 1 || this->GetNumberOfContours() < 1 )
     {
     return 1;
@@ -353,35 +359,23 @@ int vtkCutter::RequestData(
   timer->StartTimer();
 #endif
 
-  if (input->GetDataObjectType() == VTK_STRUCTURED_POINTS ||
-      input->GetDataObjectType() == VTK_IMAGE_DATA)
+  if ((input->GetDataObjectType() == VTK_STRUCTURED_POINTS ||
+       input->GetDataObjectType() == VTK_IMAGE_DATA) &&
+       input->GetCell(0) && input->GetCell(0)->GetCellDimension() >= 3 )
     {
-    if ( input->GetCell(0) && input->GetCell(0)->GetCellDimension() >= 3 )
-      {
-      this->StructuredPointsCutter(input, output, request, inputVector, outputVector);
-      }
+    this->StructuredPointsCutter(input, output, request, inputVector, outputVector);
     }
-  else if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
+  else if (input->GetDataObjectType() == VTK_STRUCTURED_GRID &&
+           input->GetCell(0) &&
+           input->GetCell(0)->GetCellDimension() >= 3)
     {
-    if (input->GetCell(0))
-      {
-      int dim = input->GetCell(0)->GetCellDimension();
-      // only do 3D structured grids (to be extended in the future)
-      if (dim >= 3)
-        {
-        this->StructuredGridCutter(input, output);
-        }
-      }
+    this->StructuredGridCutter(input, output);
     }
-  else if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
+  else if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID &&
+           static_cast<vtkRectilinearGrid *>(input)->GetDataDimension() == 3 )
     {
-    int dim = static_cast<vtkRectilinearGrid *>(input)->GetDataDimension();
-    if ( dim == 3 )
-      {
-      this->RectilinearGridCutter(input, output);
-      }
+    this->RectilinearGridCutter(input, output);
     }
-
   else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     {
     vtkDebugMacro(<< "Executing Unstructured Grid Cutter");

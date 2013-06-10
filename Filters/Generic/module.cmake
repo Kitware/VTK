@@ -12,4 +12,5 @@ vtk_module(vtkFiltersGeneric
     vtkFiltersModeling
     vtkRenderingLabel
     vtkTestingRendering
+    vtkInteractionStyle
     vtkTestingGenericBridge)

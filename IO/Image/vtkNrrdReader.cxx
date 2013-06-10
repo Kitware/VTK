@@ -22,10 +22,12 @@
 
 #include "vtkCharArray.h"
 #include "vtkImageData.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
 #include <string>
+#include <algorithm>
 #include <vector>
 #include <vtksys/SystemTools.hxx>
 #include <istream>
@@ -209,6 +211,7 @@ vtkObjectFactoryNewMacro(vtkNrrdReader);
 vtkNrrdReader::vtkNrrdReader()
 {
   this->DataFiles = vtkStringArray::New();
+  this->Encoding = ENCODING_RAW;
 }
 
 vtkNrrdReader::~vtkNrrdReader()
@@ -220,6 +223,13 @@ vtkNrrdReader::~vtkNrrdReader()
 void vtkNrrdReader::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Encoding: ";
+  switch (this->Encoding)
+    {
+    case ENCODING_RAW: os << "raw" << endl; break;
+    case ENCODING_ASCII: os << "ascii" << endl; break;
+    default: os << "UNKNOWN!" << endl; break;
+    }
 }
 
 
@@ -334,6 +344,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
   std::vector<int> dimSizes;
   std::vector<double> dimSpacing;
   this->FileLowerLeft = 1;
+  this->Encoding = ENCODING_RAW;
   while (1)
     {
     getline(header, line);
@@ -372,7 +383,20 @@ int vtkNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
         }
       else if (field == "encoding")
         {
-        if (description != "raw")
+        std::transform(description.begin(), description.end(),
+                       description.begin(),
+                       ::tolower);
+        if (description == "raw")
+          {
+          this->Encoding = ENCODING_RAW;
+          }
+        else if (description == "ascii"
+                 || description == "txt"
+                 || description == "text")
+          {
+          this->Encoding = ENCODING_ASCII;
+          }
+        else
           {
           vtkErrorMacro(<< "Unsupported encoding: " << description);
           return 0;
@@ -611,6 +635,8 @@ int vtkNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
                                                 parentDir.c_str());
       this->DataFiles->SetValue(i, fullPath);
       }
+    // Header file pointing to data files.  Data files should have no header.
+    this->HeaderSize = 0;
     }
 
   return 1;
@@ -640,10 +666,159 @@ int vtkNrrdReader::RequestData(vtkInformation *request,
     this->FileNames = this->DataFiles;
     }
 
-  this->Superclass::RequestData(request, inputVector, outputVector);
+  int result;
+
+  if (this->Encoding == ENCODING_RAW)
+    {
+    // Superclass knows how to read raw data.  Use that.
+
+    result = this->Superclass::RequestData(request, inputVector, outputVector);
+    }
+  else if (this->Encoding == ENCODING_ASCII)
+    {
+    vtkImageData *outputData = vtkImageData::GetData(outputVector);
+    this->AllocateOutputData(outputData, outputVector->GetInformationObject(0));
+    if (outputData == NULL)
+      {
+      vtkErrorMacro(<< "Data not created correctly?");
+      return 0;
+      }
+
+    result = this->ReadDataAscii(outputData);
+    }
+  else
+    {
+    vtkErrorMacro(<< "Bad encoding set");
+    result = 0;
+    }
 
   this->FileName = saveFileName;
   this->FileNames = NULL;
+
+  return result;
+}
+
+//=============================================================================
+template<typename T>
+int vtkNrrdReaderReadDataAsciiTemplate(vtkNrrdReader *self,
+                                       vtkImageData *output,
+                                       T *outBuffer)
+{
+  // Get the requested extent
+  int outExtent[6];
+  output->GetExtent(outExtent);
+  int numComponents = output->GetNumberOfScalarComponents();
+
+  int fileDataExtent[6];
+  self->GetDataExtent(fileDataExtent);
+  vtkIdType fileDataIncrements[3];
+  fileDataIncrements[0] = numComponents;
+  fileDataIncrements[1] = fileDataIncrements[0] * fileDataExtent[1];
+  fileDataIncrements[2] = fileDataIncrements[1] * fileDataExtent[3];
+
+  vtkStringArray *filenames = self->GetFileNames();
+  vtkStdString filename = self->GetFileName();
+
+  std::ifstream file;
+  if (self->GetFileDimensionality() == 3)
+    {
+    if (filenames != NULL)
+      {
+      filename = filenames->GetValue(0);
+      }
+    file.open(filename.c_str(), std::ios::in);
+    if (file.fail())
+      {
+      vtkErrorWithObjectMacro(self, "Could not open file " << filename);
+      return 0;
+      }
+    // Skip to start of first slab.
+    for (vtkIdType skip = 0; skip < fileDataIncrements[2]*outExtent[4]; skip++)
+      {
+      T dummy;
+      file >> dummy;
+      }
+    }
+
+  vtkIdType bufferIndex = 0;
+  int fileDataIndex[3];
+  for (fileDataIndex[2] = outExtent[4];
+       fileDataIndex[2] <= outExtent[5];
+       fileDataIndex[2]++)
+    {
+    if (self->GetFileDimensionality() == 2)
+      {
+      if (file.is_open()) { file.close(); }
+      if (filenames != NULL)
+        {
+        filename = filenames->GetValue(fileDataIndex[2]);
+        }
+      file.open(filename.c_str(), std::ios::in);
+      if (file.fail())
+        {
+        vtkErrorWithObjectMacro(self, "Could not open file " << filename);
+        return 0;
+        }
+      }
+    // Skip unused rows.
+    for (vtkIdType skip = 0; skip < fileDataIncrements[1]*outExtent[2]; skip++)
+      {
+      T dummy;
+      file >> dummy;
+      }
+    for (fileDataIndex[1] = outExtent[2];
+         fileDataIndex[1] <= outExtent[3];
+         fileDataIndex[1]++)
+      {
+      // Skip unused columns.
+      for (vtkIdType skip = 0; skip<fileDataIncrements[0]*outExtent[0]; skip++)
+        {
+        T dummy;
+        file >> dummy;
+        }
+      for (fileDataIndex[0] = outExtent[0];
+           fileDataIndex[0] <= outExtent[1];
+           fileDataIndex[0]++)
+        {
+        file >> outBuffer[bufferIndex];
+        bufferIndex++;
+        }
+      // Skip unused columns.
+      for (vtkIdType skip = 0;
+           skip < fileDataIncrements[0]*(fileDataExtent[1] - outExtent[1]);
+           skip++)
+        {
+        T dummy;
+        file >> dummy;
+        }
+      }
+    // Skip unused rows.
+    for (vtkIdType skip = 0;
+         skip < fileDataIncrements[1]*(fileDataExtent[2] - outExtent[2]);
+         skip++)
+      {
+      T dummy;
+      file >> dummy;
+      }
+    }
+
+  file.close();
+  return 1;
+}
+
+//=============================================================================
+int vtkNrrdReader::ReadDataAscii(vtkImageData *output)
+{
+  void *outBuffer = output->GetScalarPointer();
+  switch (output->GetScalarType())
+    {
+    vtkTemplateMacro(vtkNrrdReaderReadDataAsciiTemplate(this,
+                                                        output,
+                                                        (VTK_TT *)(outBuffer)));
+    default:
+      vtkErrorMacro("Unkown data type");
+      return 0;
+    }
 
   return 1;
 }

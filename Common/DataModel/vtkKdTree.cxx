@@ -107,7 +107,7 @@ namespace
       {
         this->NumDesiredPoints = N;
         this->NumPoints = 0;
-        this->LargestDist2 = VTK_LARGE_FLOAT;
+        this->LargestDist2 = VTK_FLOAT_MAX;
       }
 
     void InsertPoint(float dist2, vtkIdType id)
@@ -857,6 +857,7 @@ void vtkKdTree::BuildLocator()
     else // need lower bound to be strictly less than any point in decomposition
       {
       volBounds[2*i] -= this->FudgeFactor;
+      volBounds[2*i+1] += this->FudgeFactor;
       }
     }
   TIMERDONE("Set up to build k-d tree");
@@ -1796,6 +1797,7 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints **ptArrays, int numPtArrays)
     else                           // case (2) above
       {
       bounds[2*i] -= this->FudgeFactor;
+      bounds[2*i+1] += this->FudgeFactor;
       }
     }
 
@@ -3702,6 +3704,7 @@ void vtkKdTree::CreateCellLists(vtkDataSet *set, int *regionList, int listSize)
     if (!listptr)
       {
       vtkErrorMacro(<<"vtkKdTree::CreateCellLists memory allocation");
+      delete [] idlist;
       return;
       }
 
@@ -3716,6 +3719,8 @@ void vtkKdTree::CreateCellLists(vtkDataSet *set, int *regionList, int listSize)
   if (!list->cells)
     {
     vtkErrorMacro(<<"vtkKdTree::CreateCellLists memory allocation");
+    delete [] idlist;
+    delete [] listptr;
     return;
     }
 
@@ -4607,14 +4612,6 @@ void vtkKdTree::OmitNoPartitioning()
 void vtkKdTree::PrintTiming(ostream& os, vtkIndent )
 {
   vtkTimerLog::DumpLogWithIndents(&os, 0.0f);
-}
-
-//---------------------------------------------------------------------------
-void vtkKdTree::ReportReferences(vtkGarbageCollector *collector)
-{
-  this->Superclass::ReportReferences(collector);
-
-  vtkGarbageCollectorReport(collector, this->DataSets, "DataSets");
 }
 
 //----------------------------------------------------------------------------

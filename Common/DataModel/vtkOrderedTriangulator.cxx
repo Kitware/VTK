@@ -39,9 +39,7 @@ vtkStandardNewMacro(vtkOrderedTriangulator);
 # ifndef __PLACEMENT_NEW_INLINE
 #  define __PLACEMENT_NEW_INLINE
    inline void *__cdecl operator new(size_t, void *_P) { return (_P); }
-#  if _MSC_VER >= 1200
-    inline void __cdecl operator delete(void *, void *) { return; }
-#  endif
+   inline void __cdecl operator delete(void *, void *) { return; }
 # endif
 #else
 # include <new>
@@ -638,9 +636,9 @@ void OTTetra::GetFacePoints(int i, OTFace *face)
 // Routines used to sort the points based on id.
 extern "C" {
 #ifdef _WIN32_WCE
-  int __cdecl vtkSortOnIds(const void *val1, const void *val2)
+  static int __cdecl vtkSortOnIds(const void *val1, const void *val2)
 #else
-  int vtkSortOnIds(const void *val1, const void *val2)
+  static int vtkSortOnIds(const void *val1, const void *val2)
 #endif
   {
     if (((OTPoint *)val1)->SortId < ((OTPoint *)val2)->SortId)
@@ -660,9 +658,9 @@ extern "C" {
 
 extern "C" {
 #ifdef _WIN32_WCE
-  int __cdecl vtkSortOnTwoIds(const void *val1, const void *val2)
+  static int __cdecl vtkSortOnTwoIds(const void *val1, const void *val2)
 #else
-  int vtkSortOnTwoIds(const void *val1, const void *val2)
+  static int vtkSortOnTwoIds(const void *val1, const void *val2)
 #endif
   {
     if (((OTPoint *)val1)->SortId2 < ((OTPoint *)val2)->SortId2)
@@ -1222,7 +1220,7 @@ void vtkOrderedTriangulator::TemplateTriangulate(int cellType,
                                                  int numPts, int numEdges)
 {
   this->CellType = cellType;
-  if ( ! this->UseTemplates )
+  if ( ! this->UseTemplates || cellType != VTK_HEXAHEDRON)
     {
     this->Triangulate();
     return;
@@ -1512,11 +1510,11 @@ vtkIdType vtkOrderedTriangulator::AddTriangles(vtkCellArray *tris)
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
     {
     tetra = *t;
-    tetra->CurrentPointId = VTK_LARGE_INTEGER; //mark visited
+    tetra->CurrentPointId = VTK_INT_MAX; //mark visited
     for (i=0; i<4; i++)
       {
       if ( tetra->Neighbors[i] &&
-           tetra->Neighbors[i]->CurrentPointId != VTK_LARGE_INTEGER &&
+           tetra->Neighbors[i]->CurrentPointId != VTK_INT_MAX &&
            tetra->Type != tetra->Neighbors[i]->Type )
         {//face not yet visited
         tetra->GetFacePoints(i,face);
@@ -1550,11 +1548,11 @@ vtkIdType vtkOrderedTriangulator::AddTriangles(vtkIdType id, vtkCellArray *tris)
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
     {
     tetra = *t;
-    tetra->CurrentPointId = VTK_LARGE_INTEGER; //mark visited
+    tetra->CurrentPointId = VTK_INT_MAX; //mark visited
     for (i=0; i<4; i++)
       {
       if ( tetra->Neighbors[i] &&
-           tetra->Neighbors[i]->CurrentPointId != VTK_LARGE_INTEGER &&
+           tetra->Neighbors[i]->CurrentPointId != VTK_INT_MAX &&
            tetra->Type != tetra->Neighbors[i]->Type )
         {//face not yet visited
         tetra->GetFacePoints(i,face);

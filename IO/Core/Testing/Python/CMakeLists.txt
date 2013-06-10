@@ -1,4 +1,2 @@
-if(VTK_DATA_ROOT})
-  add_test_python1(TestGlobFileNames.py ${VTK_DATA_ROOT})
-  add_test_python1(TestSortFileNames.py ${VTK_DATA_ROOT})
-endif()
+vtk_add_test_python(TestGlobFileNames.py NO_VALID NO_RT)
+vtk_add_test_python(TestSortFileNames.py NO_VALID NO_RT)

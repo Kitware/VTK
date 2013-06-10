@@ -274,20 +274,20 @@ void GetGlobalGrid( const int dimension, int wholeExtent[6], int dims[3] )
     {
     case 2:
       wholeExtent[0] = 0;
-      wholeExtent[1] = 99;
+      wholeExtent[1] = 9;
       wholeExtent[2] = 0;
-      wholeExtent[3] = 99;
+      wholeExtent[3] = 9;
 
       dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
       dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
       break;
     case 3:
       wholeExtent[0] = 0;
-      wholeExtent[1] = 99;
+      wholeExtent[1] = 9;
       wholeExtent[2] = 0;
-      wholeExtent[3] = 99;
+      wholeExtent[3] = 9;
       wholeExtent[4] = 0;
-      wholeExtent[5] = 99;
+      wholeExtent[5] = 9;
 
       dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
       dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
@@ -529,22 +529,32 @@ vtkMultiBlockDataSet* GetGhostedDataSet(
 }
 
 //------------------------------------------------------------------------------
-bool Check( std::string name, const int val, const int expected )
+bool Check(
+    std::string name, const int val, const int expected, bool verbose=false )
 {
   bool status = false;
 
-  std::cout << name << "=" << val << " EXPECTED=" << expected << "...";
-  std::cout.flush();
+  if( verbose )
+    {
+    std::cout << name << "=" << val << " EXPECTED=" << expected << "...";
+    std::cout.flush();
+    }
   if( val == expected )
     {
-    std::cout << "[OK]\n";
-    std::cout.flush();
+    if( verbose )
+      {
+      std::cout << "[OK]\n";
+      std::cout.flush();
+      }
     status = true;
     }
   else
     {
-    std::cout << "[ERROR]!\n";
-    std::cout.flush();
+    if( verbose )
+      {
+      std::cout << "[ERROR]!\n";
+      std::cout.flush();
+      }
     status = false;
     }
 
@@ -559,11 +569,11 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
   static_cast<void>( argc );
   static_cast<void>( argv );
 
-  int expected      = 100*100*100;
-  int expectedCells = 99*99*99;
+  int expected      = 10*10*10;
+  int expectedCells = 9*9*9;
   int rc = 0;
-  int numberOfPartitions[] = {128};
-  int numGhostLayers[]     = {3};
+  int numberOfPartitions[] = {4};
+  int numGhostLayers[]     = {1};
 //  int numberOfPartitions[] = { 2, 4, 8, 16, 32, 64, 128, 256 };
 //  int numGhostLayers[]     = { 0, 1, 2, 3 };
 
@@ -572,26 +582,13 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
     for( int j=0; j < 1; ++j )
       {
       // STEP 0: Construct the dataset
-      std::cout << "===\n";
-      std::cout << "i: " << i << " j:" << j << std::endl;
-      std::cout << "-- Acquire dataset with N=" << numberOfPartitions[ i ];
-      std::cout << " BLOCKS and NG=" << numGhostLayers[ j ] << "...";
-      std::cout.flush();
-
       vtkMultiBlockDataSet *mbds =
           GetDataSet(3,numberOfPartitions[ i ], numGhostLayers[ j ] );
       assert( "pre: multi-block is NULL" && (mbds != NULL) );
-
-      std::cout << "[DONE]\n";
-      std::cout.flush();
-      std::cout << "NUMBLOCKS: " << mbds->GetNumberOfBlocks() << std::endl;
-      std::cout.flush();
       assert( "pre: NumBlocks mismatch!" &&
        (numberOfPartitions[i] ==static_cast<int>(mbds->GetNumberOfBlocks()) ) );
 
       // STEP 1: Construct the grid connectivity
-      std::cout << "-- Allocating grid connectivity data-structures...";
-      std::cout.flush();
       vtkStructuredGridConnectivity *gridConnectivity=
           vtkStructuredGridConnectivity::New();
       gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
@@ -600,31 +597,15 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
       mbds->GetInformation()->Get(
           vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext);
       gridConnectivity->SetWholeExtent( ext );
-      std::cout << "[DONE]\n";
-      std::cout.flush();
 
       // STEP 2: Registers the grids
-      std::cout << "-- Registering grid blocks...";
-      std::cout.flush();
       RegisterGrids( mbds, gridConnectivity );
-      std::cout << "[DONE]\n";
-      std::cout.flush();
 
       // STEP 3: Compute neighbors
-      std::cout << "-- Computing neighbors...";
-      std::cout.flush();
       gridConnectivity->ComputeNeighbors();
-      std::cout << "[DONE]\n";
-      std::cout.flush();
-
-      gridConnectivity->Print( std::cout );
 
       // STEP 5: Compute total number of nodes & compare to expected
-      std::cout << "-- Computing the total number of nodes...";
-      std::cout.flush();
       int NumNodes = GetTotalNumberOfNodes( mbds );
-      std::cout << "[DONE]\n";
-      std::cout.flush();
       if( !Check( "NODES", NumNodes, expected ) )
         {
         ++rc;
@@ -634,11 +615,7 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
         }
 
       // STEP 6: Compute total number of cells & compare to expected
-      std::cout << "-- Computing the total number of cells...";
-      std::cout.flush();
       int NumCells = GetTotalNumberOfCells( mbds );
-      std::cout << "[DONE]\n";
-      std::cout.flush();
       if( !Check( "CELLS", NumCells, expectedCells ) )
         {
         ++rc;
@@ -648,11 +625,7 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
         }
 
       // STEP 7: Create one layer of additional ghost nodes
-      std::cout << "Extending ghost layers....";
-      std::cout.flush();
       vtkMultiBlockDataSet *gmbds = GetGhostedDataSet(mbds,gridConnectivity,1);
-      std::cout << "[DONE]\n";
-      std::cout.flush();
 
       // STEP 8: Ensure number of nodes/cells is the same on ghosted dataset
       int GhostedNumNodes = GetTotalNumberOfNodes( gmbds );
@@ -810,12 +783,12 @@ int SimpleTest( int argc, char **argv )
   switch( dim )
     {
     case 2:
-      expectedCells = 99*99;
-      expected      = 100*100;
+      expectedCells = 9*9;
+      expected      = 10*10;
       break;
     case 3:
-      expectedCells = 99*99*99;
-      expected      = 100*100*100;
+      expectedCells = 9*9*9;
+      expected      = 10*10*10;
       break;
     default:
       assert( "Code should not reach here!" && false );
@@ -865,8 +838,8 @@ int SimpleTest( int argc, char **argv )
   int NumNodesOnGhostedDataSet = GetTotalNumberOfNodes( gmbds );
   int NumCellsOnGhostedDataSet = GetTotalNumberOfCells( gmbds );
 
-  Check( "GHOSTED_NODES", NumNodesOnGhostedDataSet, expected );
-  Check( "GHOSTED_CELLS", NumCellsOnGhostedDataSet, expectedCells );
+  Check( "GHOSTED_NODES", NumNodesOnGhostedDataSet, expected, true );
+  Check( "GHOSTED_CELLS", NumCellsOnGhostedDataSet, expectedCells, true );
   AttachNodeAndCellGhostFlags( gmbds );
 
   ApplyFieldsToDataSet( gmbds, "EXPECTED" );

@@ -25,8 +25,8 @@
 // .SECTION Bugs
 //
 // There are several limitations on what type of nrrd files we can read.  This
-// reader only supports nrrd files in raw format.  Other encodings like ascii
-// and hex will result in errors.  When reading in detached headers, this only
+// reader only supports nrrd files in raw or ascii format.  Other encodings
+// like hex will result in errors.  When reading in detached headers, this only
 // supports reading one file that is detached.
 //
 
@@ -63,7 +63,16 @@ protected:
   virtual int ReadHeader();
   virtual int ReadHeader(vtkCharArray *headerBuffer);
 
+  virtual int ReadDataAscii(vtkImageData *output);
+
   vtkStringArray *DataFiles;
+
+  enum {
+    ENCODING_RAW,
+    ENCODING_ASCII
+  };
+
+  int Encoding;
 
 private:
   vtkNrrdReader(const vtkNrrdReader &);       // Not implemented.

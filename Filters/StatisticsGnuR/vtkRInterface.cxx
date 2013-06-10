@@ -417,6 +417,7 @@ int vtkRInterface::FillOutputBuffer()
 
     if(len == 0)
       {
+      fclose(fp);
       return(1);
       }
 

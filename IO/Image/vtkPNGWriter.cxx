@@ -123,8 +123,8 @@ void vtkPNGWriter::Write()
 
 extern "C"
 {
-  void vtkPNGWriteInit(png_structp png_ptr, png_bytep data,
-                       png_size_t sizeToWrite)
+  static void vtkPNGWriteInit(png_structp png_ptr, png_bytep data,
+                              png_size_t sizeToWrite)
   {
     vtkPNGWriter *self =
       vtkPNGWriter::SafeDownCast(static_cast<vtkObject *>
@@ -141,15 +141,15 @@ extern "C"
 
 extern "C"
 {
-  void vtkPNGWriteFlush(png_structp vtkNotUsed(png_ptr))
+  static void vtkPNGWriteFlush(png_structp vtkNotUsed(png_ptr))
   {
   }
 }
 
 extern "C"
 {
-  void vtkPNGWriteWarningFunction(png_structp png_ptr,
-                                  png_const_charp warning_msg)
+  static void vtkPNGWriteWarningFunction(png_structp png_ptr,
+                                         png_const_charp warning_msg)
   {
     PNG_CONST char *name = "UNKNOWN (ERROR!)";
     char *test;
@@ -167,8 +167,8 @@ extern "C"
 {
   /* The PNG library does not expect the error function to return.
      Therefore we must use this ugly longjmp call.  */
-  void vtkPNGWriteErrorFunction(png_structp png_ptr,
-                                png_const_charp error_msg)
+  static void vtkPNGWriteErrorFunction(png_structp png_ptr,
+                                       png_const_charp error_msg)
   {
 #if PNG_LIBPNG_VER >= 10400
     vtkPNGWriteWarningFunction(png_ptr, error_msg);

@@ -193,7 +193,7 @@ int vtkAMRResampleFilter::RequestData(
    vtkMultiBlockDataSet *mbds =
       vtkMultiBlockDataSet::SafeDownCast(
           output->Get(vtkDataObject::DATA_OBJECT() ) );
-   assert( "pre: ouput grid is NULL" && (mbds != NULL) );
+   assert( "pre: output grid is NULL" && (mbds != NULL) );
 
   // STEP 2: Get Metadata
   if( this->DemandDrivenMode == 1 )

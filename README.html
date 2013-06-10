@@ -163,9 +163,9 @@ http://www.vtk.org/doc/nightly/html/</a><p>
 
 <div align="left" style="width:720;">
 The Visualization Toolkit can be built on UNIX, PC (Windows
-95/98/NT/2000/XP), and Mac OSX Jaguar (or greater) systems.  VTK uses
+NT/2000/XP/7), and Mac OS X 10.5 Leopard (or greater) systems.  VTK uses
 <a href="http://www.cmake.org">CMake</a> to generate its build system.
-To build VTK one must first install CMake version 2.0 or higher.
+To build VTK one must first install CMake version 2.8.5 or higher.
 CMake may be downloaded from <a
 href="http://www.cmake.org/HTML/Download.html">http://www.cmake.org/HTML/Download.html</a>.
 The instructions below cover the basics of running CMake for VTK under
@@ -240,7 +240,7 @@ document the CMake interactive interface for each platform:
       <code>make</code>, and <code>make</code>, respectively) from the
       command line.
 
-  <li><b>UNIX / Cygwin / Mac OSX</b><br>
+  <li><b>UNIX / Cygwin / Mac OS X</b><br>
 
       CMake should be run from the command line on these platforms.
       The current working directory should be set to the desired
@@ -364,7 +364,7 @@ sentence, so additional documentation is provided here:
     <p>
     On UNIX-style platforms, the dynamic loader will use an
     environment variable such as LD_LIBRARY_PATH (Linux and many UNIX
-    systems) or DYLD_LIBRARY_PATH (Mac OSX) to look for shared
+    systems) or DYLD_LIBRARY_PATH (Mac OS X) to look for shared
     libraries.  In order to run VTK executables from the build tree
     one must set the appropriate environment variable to point at the
     directory containing the VTK shared libraries.  The same environment
