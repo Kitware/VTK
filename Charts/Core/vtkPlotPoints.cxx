@@ -34,6 +34,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <limits>
 
 // PIMPL for STL vector...
 struct vtkIndexedVector2f
@@ -788,8 +789,8 @@ void vtkPlotPoints::CalculateBounds(double bounds[4])
   vtkVector2f* pts = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
 
   // Initialize our min/max
-  bounds[0] = bounds[1] = pts[start].GetX();
-  bounds[2] = bounds[3] = pts[start++].GetY();
+  bounds[0] = bounds[2] = std::numeric_limits<float>::max();
+  bounds[1] = bounds[3] = std::numeric_limits<float>::min();
 
   while (start < nPoints)
     {
