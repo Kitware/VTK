@@ -12,7 +12,7 @@ if ( NOT LIBPROJ4_INCLUDE_DIR OR NOT LIBPROJ4_LIBRARIES OR NOT LIBPROJ4_FOUND )
   endif ()
 
   find_library( LIBPROJ4_LIBRARIES
-    NAMES proj4 libproj4
+    NAMES proj
     PATHS
       ${_LIBPROJ4_DIR}/lib64
       ${CMAKE_INSTALL_PREFIX}/lib64
@@ -28,7 +28,7 @@ if ( NOT LIBPROJ4_INCLUDE_DIR OR NOT LIBPROJ4_LIBRARIES OR NOT LIBPROJ4_FOUND )
   )
 
   find_path( LIBPROJ4_INCLUDE_DIR
-    NAMES lib_proj.h
+    NAMES proj_api.h
     PATHS
       ${_LIBPROJ4_DIR}
       ${_LIBPROJ4_DIR}/include
