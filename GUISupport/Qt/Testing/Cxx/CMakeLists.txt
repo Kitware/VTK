@@ -19,5 +19,5 @@ vtk_test_cxx_executable(${vtk-module}CxxTests QTestApp.cxx)
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
   set_target_properties(${vtk-module}CxxTests PROPERTIES
-    COMPILE_FLAGS ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS})
+    COMPILE_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 endif()
