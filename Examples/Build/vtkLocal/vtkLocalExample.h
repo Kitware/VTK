@@ -10,10 +10,10 @@ wishing to create their own VTK classes locally.
 #ifndef __vtkLocalExample_h
 #define __vtkLocalExample_h
 
-#include "vtkLocalConfigure.h" // Include configuration header.
+#include "vtkLocalExampleModule.h" // export macro
 #include "vtkObject.h"
 
-class VTK_vtkLocal_EXPORT vtkLocalExample : public vtkObject
+class VTKLOCALEXAMPLE_EXPORT vtkLocalExample : public vtkObject
 {
 public:
   static vtkLocalExample* New();
