@@ -4,21 +4,8 @@ set(MyTests
   PartialPreIntegration.cxx
   PreIntegrationIncremental.cxx
   PreIntegrationNonIncremental.cxx
-  TestGPURayCastAdditive.cxx
   TestGPURayCastCompositeBinaryMask.cxx
-  TestGPURayCastCompositeMask.cxx
-  TestGPURayCastCompositeMaskBlend.cxx
-  TestGPURayCastCompositeShadeMask.cxx
-  TestGPURayCastCompositeToMIP.cxx
-  TestGPURayCastCropping.cxx
-  TestGPURayCastDataTypesMIP.cxx
-  TestGPURayCastFourComponentsComposite.cxx
-  TestGPURayCastFourComponentsCompositeStreaming.cxx
-  TestGPURayCastFourComponentsMIP.cxx
-  TestGPURayCastFourComponentsMinIP.cxx
   TestGPURayCastMIPBinaryMask.cxx
-  TestGPURayCastMIPToComposite.cxx
-  TestGPURayCastPerspectiveParallel.cxx
 )
 
 # Tests with data
@@ -27,8 +14,21 @@ if(VTK_DATA_ROOT)
     ${MyTests}
     ProjectedTetrahedraZoomIn.cxx
     TestFinalColorWindowLevel.cxx
-    TestGPURayCastNearestDataTypesMIP.cxx
+    TestGPURayCastAdditive.cxx
+    TestGPURayCastCompositeMask.cxx
+    TestGPURayCastCompositeMaskBlend.cxx
+    TestGPURayCastCompositeShadeMask.cxx
+    TestGPURayCastCompositeToMIP.cxx
+    TestGPURayCastCropping.cxx
+    TestGPURayCastDataTypesMIP.cxx
     TestGPURayCastDataTypesMinIP.cxx
+    TestGPURayCastFourComponentsComposite.cxx
+    TestGPURayCastFourComponentsCompositeStreaming.cxx
+    TestGPURayCastFourComponentsMIP.cxx
+    TestGPURayCastFourComponentsMinIP.cxx
+    TestGPURayCastMIPToComposite.cxx
+    TestGPURayCastNearestDataTypesMIP.cxx
+    TestGPURayCastPerspectiveParallel.cxx
     TestHAVSVolumeMapper.cxx
     TestMinIntensityRendering.cxx
     TestProjectedTetrahedra.cxx

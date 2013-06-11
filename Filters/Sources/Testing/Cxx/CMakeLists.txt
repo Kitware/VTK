@@ -1,7 +1,14 @@
+set(testswithdata)
+if (VTK_DATA_ROOT)
+  set(testswithdata
+    TestMultiBlock.cxx
+  )
+endif()
+
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestLineSource.cxx
   TestTessellatedBoxSource.cxx
-  TestMultiBlock.cxx
+  ${testswithdata}
 
   EXTRA_INCLUDE vtkTestDriver.h
 )

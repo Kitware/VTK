@@ -1,5 +1,12 @@
+set(testswithdata)
+if (VTK_DATA_ROOT)
+  set(testswithdata
+    TestPLYReader.cxx
+  )
+endif()
+
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-  TestPLYReader.cxx
+  ${testswithdata}
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
