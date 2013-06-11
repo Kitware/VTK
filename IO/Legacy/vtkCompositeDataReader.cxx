@@ -384,7 +384,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
     }
   else
     {
-    if (!strncmp(this->LowerCase(line), "amrboxes", strlen("amrboxes")) == 0)
+    if (strncmp(this->LowerCase(line), "amrboxes", strlen("amrboxes")) != 0)
       {
       vtkErrorMacro("Failed to read AMRBOXES' line");
       }
