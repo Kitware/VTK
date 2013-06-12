@@ -84,15 +84,15 @@ namespace vtkToDax
         {
         //we don't want to use the custom container, so specify the default
         //container for the classification storage.
-        typedef dax::cont::ArrayHandle<dax::Id,
-                                      DAX_DEFAULT_ARRAY_CONTAINER_CONTROL_TAG,
-                                      Adapter> ClassifyResultType;
-        typedef dax::cont::GenerateTopology<dax::worklet::ThresholdTopology,
-                                            ClassifyResultType> ScheduleGT;
+        typedef dax::cont::GenerateTopology<
+                          dax::worklet::ThresholdTopology> ScheduleGT;
         typedef dax::worklet::ThresholdClassify<ValueType> ThresholdClassifyType;
 
-        ClassifyResultType classification;
         dax::cont::Scheduler<Adapter> scheduler;
+
+        typedef typename ScheduleGT::ClassifyResultType ClassifyResultType;
+        ClassifyResultType classification;
+
         scheduler.Invoke(ThresholdClassifyType(thresholdMin,thresholdMax),
                  inGrid, thresholdHandle, classification);
 

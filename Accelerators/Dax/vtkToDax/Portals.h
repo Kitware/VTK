@@ -24,7 +24,7 @@
 #include <dax/Types.h>
 #include <dax/VectorTraits.h>
 #include <dax/cont/ArrayPortal.h>
-#include <dax/cont/IteratorFromArrayPortal.h>
+#include <dax/cont/internal/IteratorFromArrayPortal.h>
 #include <iterator>
 
 //this is needed so that we can properly deduce if we are a const
@@ -134,9 +134,17 @@ public:
     fillComponents<NUM_COMPONENTS>()(rawArray,value);
   }
 
-  typedef dax::cont::IteratorFromArrayPortal<vtkArrayPortal> IteratorType;
-  DAX_CONT_EXPORT IteratorType GetIteratorBegin() const { return IteratorType(*this, 0); }
-  DAX_CONT_EXPORT IteratorType GetIteratorEnd() const { return IteratorType(*this, this->Size); }
+  typedef dax::cont::internal::IteratorFromArrayPortal<vtkArrayPortal>
+                                                                  IteratorType;
+  DAX_CONT_EXPORT IteratorType GetIteratorBegin() const
+    {
+    return IteratorType(*this, 0);
+    }
+
+  DAX_CONT_EXPORT IteratorType GetIteratorEnd() const
+    {
+    return IteratorType(*this, this->Size);
+    }
 
   vtkDataArray* Get() const { return Data; }
 
@@ -203,9 +211,17 @@ public:
     fillComponents<NUM_COMPONENTS>()(rawArray,value);
   }
 
-  typedef dax::cont::IteratorFromArrayPortal<vtkPointsPortal> IteratorType;
-  DAX_CONT_EXPORT IteratorType GetIteratorBegin() const { return IteratorType(*this, 0); }
-  DAX_CONT_EXPORT IteratorType GetIteratorEnd() const { return IteratorType(*this, this->Size); }
+  typedef dax::cont::internal::IteratorFromArrayPortal<vtkPointsPortal>
+                                                                  IteratorType;
+  DAX_CONT_EXPORT IteratorType GetIteratorBegin() const
+    {
+    return IteratorType(*this, 0);
+    }
+
+  DAX_CONT_EXPORT IteratorType GetIteratorEnd() const
+    {
+    return IteratorType(*this, this->Size);
+    }
 
   vtkPoints* Get() const { return Points; }
 
@@ -283,9 +299,17 @@ public:
       }
   }
 
-  typedef dax::cont::IteratorFromArrayPortal<vtkTrianglesPortal> IteratorType;
-  DAX_CONT_EXPORT IteratorType GetIteratorBegin() const { return IteratorType(*this, 0); }
-  DAX_CONT_EXPORT IteratorType GetIteratorEnd() const { return IteratorType(*this, this->Size); }
+  typedef dax::cont::internal::IteratorFromArrayPortal<vtkTrianglesPortal>
+                                                                  IteratorType;
+  DAX_CONT_EXPORT IteratorType GetIteratorBegin() const
+    {
+    return IteratorType(*this, 0);
+    }
+
+  DAX_CONT_EXPORT IteratorType GetIteratorEnd() const
+    {
+    return IteratorType(*this, this->Size);
+    }
 
   vtkPoints* Get() const { return Points; }
 
@@ -358,9 +382,17 @@ public:
     this->RawCells[1 + index + index/PointsPerCell]=value;
   }
 
-  typedef dax::cont::IteratorFromArrayPortal<vtkTopologyPortal> IteratorType;
-  DAX_CONT_EXPORT IteratorType GetIteratorBegin() const { return IteratorType(*this, 0); }
-  DAX_CONT_EXPORT IteratorType GetIteratorEnd() const { return IteratorType(*this, this->Size); }
+  typedef dax::cont::internal::IteratorFromArrayPortal<vtkTopologyPortal>
+                                                                  IteratorType;
+  DAX_CONT_EXPORT IteratorType GetIteratorBegin() const
+    {
+    return IteratorType(*this, 0);
+    }
+
+  DAX_CONT_EXPORT IteratorType GetIteratorEnd() const
+    {
+    return IteratorType(*this, this->Size);
+    }
 
   vtkCellArray* Get() const { return CellArray; }
 

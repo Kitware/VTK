@@ -115,7 +115,7 @@ namespace detail{
                                                  FieldType(Min),
                                                  FieldType(Max));
       threshold.setFieldName(vtkField.GetName());
-      threshold.setOutputGrid(Result);
+      threshold.setOutputGrid(this->Result);
 
       //see if we have a valid data set type
       //if so will perform the threshold if possible

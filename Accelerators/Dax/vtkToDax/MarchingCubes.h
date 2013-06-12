@@ -79,11 +79,8 @@ namespace vtkToDax
         {
         //we don't want to use the custom container, so specify the default
         //container for the classification storage.
-        typedef dax::cont::ArrayHandle<dax::Id,
-                                      DAX_DEFAULT_ARRAY_CONTAINER_CONTROL_TAG,
-                                      Adapter> ClassifyResultType;
-        typedef dax::cont::GenerateInterpolatedCells<dax::worklet::MarchingCubesTopology,
-                ClassifyResultType > GenerateIC;
+        typedef dax::cont::GenerateInterpolatedCells<
+              dax::worklet::MarchingCubesTopology> GenerateIC;
 
         // construct the scheduler that will execute all the worklets
         dax::cont::Scheduler<Adapter> scheduler;
@@ -93,6 +90,7 @@ namespace vtkToDax
         dax::worklet::MarchingCubesTopology generateWorklet(isoValueT);
 
         // run the first step
+        typedef typename GenerateIC::ClassifyResultType ClassifyResultType;
         ClassifyResultType classification; // array handle for the
                                            // first step
                                            // (classification)
@@ -101,7 +99,7 @@ namespace vtkToDax
                          mcHandle,
                          classification);
 
-        // construct the topology generation worklet
+        // // construct the topology generation worklet
         GenerateIC generate(classification,generateWorklet);
         generate.SetRemoveDuplicatePoints(true);
 
@@ -172,24 +170,23 @@ namespace vtkToDax
       //are. We don't need the points container be
       typedef daxToVtk::CellTypeToType<OutCellType> VTKCellType;
       dax::cont::UnstructuredGrid<OutCellType,
-                vtkToDax::vtkTopologyContainerTag<VTKCellType>,
-                vtkToDax::vtkPointsContainerTag > resultGrid;
+                 vtkToDax::vtkTopologyContainerTag<VTKCellType>,
+                 vtkToDax::vtkPointsContainerTag > resultGrid;
 
       InputDataSetType inputDaxData = vtkToDax::dataSetConverter(&dataSet,
-                                                    DataSetTypeToTypeStruct());
+                                                     DataSetTypeToTypeStruct());
 
       vtkToDax::DoMarchingCubes<DataSetTypeToTypeStruct::Valid> mc;
       int result = mc(inputDaxData,
-                      resultGrid,
-                      this->Value,
-                      this->Field);
+                       resultGrid,
+                       this->Value,
+                       this->Field);
       if(result==1)
         {
         daxToVtk::dataSetConverter(resultGrid,this->Result);
         }
 
       return result;
-
       }
   private:
     vtkPolyData* Result;

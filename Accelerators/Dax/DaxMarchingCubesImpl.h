@@ -24,8 +24,6 @@
 //fields we support
 #include <vtkFloatArray.h>
 
-#include <vtkDoubleArray.h>
-
 //cell types we support
 #include <vtkCellTypes.h>
 #include <vtkGenericCell.h>
@@ -132,8 +130,6 @@ int MarchingCubes(vtkDataSet* input, vtkPolyData *output,
   //setup the dispatch to only allow float and int array to go to the next step
   vtkDispatcher<vtkAbstractArray,int> fieldDispatcher;
   fieldDispatcher.Add<vtkFloatArray>(validInput);
-  // fieldDispatcher.Add<vtkUnsignedCharArray>(validInput);
-  // fieldDispatcher.Add<vtkIntArray>(validInput);
   return fieldDispatcher.Go(field);
 }
 

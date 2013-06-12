@@ -44,13 +44,13 @@ DaxObjectFactory::DaxObjectFactory()
 {
   this->RegisterOverride("vtkThreshold",
                          "vtkDaxThreshold",
-                         "Override threshold with CUDA version",
+                         "Override threshold with Dax threshold version",
                          1,
                          vtkObjectFactoryCreatevtkDaxThreshold);
 
   this->RegisterOverride("vtkMarchingCubes",
                          "vtkDaxMarchingCubes",
-                         "Override marching cubes with CUDA version",
+                         "Override marching cubes Dax threshold version",
                          1,
                          vtkObjectFactoryCreatevtkDaxThreshold);
 }
