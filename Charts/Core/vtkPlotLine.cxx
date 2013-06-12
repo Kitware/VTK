@@ -70,6 +70,13 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
 
       lastGood = id;
       }
+
+    // render any trailing good points
+    if (this->Points->GetNumberOfPoints() - lastGood > 2)
+      {
+      painter->DrawPoly(points + 2 * (lastGood + 1),
+                        this->Points->GetNumberOfPoints() - lastGood - 1);
+      }
     }
   else
     {
