@@ -14,23 +14,23 @@
 //
 //=============================================================================
 
-#include <vtkNew.h>
-#include <vtkImageData.h>
-#include <vtkDaxMarchingCubes.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkXMLImageDataReader.h>
-#include <vtkImageMandelbrotSource.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkRegressionTestImage.h>
+#include "vtkActor.h"
+#include "vtkCellData.h"
+#include "vtkDaxMarchingCubes.h"
+#include "vtkImageData.h"
+#include "vtkImageMandelbrotSource.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 
 namespace
 {
 template<typename T>
-void RunVTKPipeline(T *t, int argc, char* argv[])
+int RunVTKPipeline(T *t, int argc, char* argv[])
 {
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
@@ -43,7 +43,7 @@ void RunVTKPipeline(T *t, int argc, char* argv[])
 
   cubes->SetInputConnection(t->GetOutputPort());
   cubes->SetNumberOfContours(1);
-  cubes->SetValue(0,10);
+  cubes->SetValue(0,50.5f);
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(cubes->GetOutputPort());
@@ -55,25 +55,38 @@ void RunVTKPipeline(T *t, int argc, char* argv[])
   ren->ResetCamera();
   renWin->Render();
 
-int retVal = vtkRegressionTestImage(renWin.GetPointer());
-
-if(retVal == vtkRegressionTester::DO_INTERACTOR)
-  {
-  iren->Start();
-  }
+  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    retVal = vtkRegressionTester::PASSED;
+    }
+  return (!retVal);
 }
 
 } // Anonymous namespace
 
 
 
-int marchingMain(int argc, char* argv[])
+int TestDaxMarchingCubes(int argc, char* argv[])
 {
   //create the sample grid
   vtkImageMandelbrotSource *src = vtkImageMandelbrotSource::New();
-  src->SetWholeExtent(0,40,0,40,0,40);
+  src->SetWholeExtent(0,250,0,250,0,250);
+  src->Update(); //required so we can set the active scalars
+
+  //set Iterations as the active scalar, otherwise we don't have an array
+  //to contour on
+  vtkImageData* data = vtkImageData::SafeDownCast(src->GetOutputDataObject(0));
+  if(data->GetPointData()->HasArray("Iterations") == 0)
+    {
+    //vtkImageMandelbrotSource has changed and this test needs updating
+    return (!vtkRegressionTester::FAILED); //yeah it is weird, but the right way
+    }
+
+  //setting active scalars
+  data->GetPointData()->SetActiveScalars("Iterations");
 
   //run the pipeline
-  RunVTKPipeline(src,argc,argv);
-  return 0;
+  return RunVTKPipeline(src,argc,argv);
 }

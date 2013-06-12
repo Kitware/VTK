@@ -14,17 +14,21 @@
 //
 //=============================================================================
 
-#include <vtkNew.h>
-#include <vtkFloatArray.h>
-#include <vtkImageData.h>
-#include <vtkMath.h>
-#include <vtkThreshold.h>
-#include <vtkPointData.h>
-#include <vtkSmartPointer.h>
-#include <vtkTrivialProducer.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkXMLDataSetWriter.h>
-#include <vtkDaxThreshold.h>
+#include "vtkActor.h"
+#include "vtkDataSetSurfaceFilter.h"
+#include "vtkDaxThreshold.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkThreshold.h"
+#include "vtkTrivialProducer.h"
 
 namespace
 {
@@ -41,18 +45,22 @@ namespace
       }
   }
 
-  void RunVTKPipeline(vtkImageData* grid, int dim)
+  int RunVTKPipeline(vtkImageData* grid, int dim, int argc, char* argv[])
   {
-    std::cout << "Running pipeline 1: Elevation -> Threshold" << std::endl;
+    vtkNew<vtkRenderer> ren;
+    vtkNew<vtkRenderWindow> renWin;
+    vtkNew<vtkRenderWindowInteractor> iren;
+
+    renWin->AddRenderer(ren.GetPointer());
+    iren->SetRenderWindow(renWin.GetPointer());
 
     //compute an elevation array
-    vtkSmartPointer<vtkFloatArray> elevationPoints = vtkSmartPointer<vtkFloatArray>::New();
-    fillElevationArray(elevationPoints, grid);
-    grid->GetPointData()->AddArray(elevationPoints);
+    vtkNew<vtkFloatArray> elevationPoints;
+    fillElevationArray(elevationPoints.GetPointer(), grid);
+    grid->GetPointData()->AddArray(elevationPoints.GetPointer());
 
     vtkNew<vtkTrivialProducer> producer;
     producer->SetOutput(grid);
-    producer->Update();
 
     vtkNew<vtkDaxThreshold> threshold;
     threshold->SetInputConnection(producer->GetOutputPort());
@@ -60,12 +68,32 @@ namespace
     threshold->AllScalarsOn();
     threshold->ThresholdBetween(0,100);
     threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,"Elevation");
-    threshold->Update();
+
+    vtkNew<vtkDataSetSurfaceFilter> surface;
+    surface->SetInputConnection(threshold->GetOutputPort());
+
+    vtkNew<vtkPolyDataMapper> mapper;
+    mapper->SetInputConnection(surface->GetOutputPort());
+
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper.GetPointer());
+
+    ren->AddActor(actor.GetPointer());
+    ren->ResetCamera();
+    renWin->Render();
+
+    int retVal = vtkRegressionTestImage(renWin.GetPointer());
+    if(retVal == vtkRegressionTester::DO_INTERACTOR)
+      {
+      iren->Start();
+      retVal = vtkRegressionTester::PASSED;
+      }
+    return (!retVal);
   }
 
 } // Anonymous namespace
 
-int thresholdMain(int argc, char* argv[])
+int TestDaxThreshold(int argc, char* argv[])
 {
   //create the sample grid
   vtkNew<vtkImageData> grid;
@@ -75,6 +103,5 @@ int thresholdMain(int argc, char* argv[])
   grid->SetExtent(0, dim-1,0, dim-1,0, dim-1);
 
   //run the pipeline
-  RunVTKPipeline(grid.GetPointer(),dim);
-  return EXIT_SUCCESS;
+  return RunVTKPipeline(grid.GetPointer(),dim, argc, argv);
 }
