@@ -1,2 +1,4 @@
 add_test_python(TestPolyDataPieces.py Parallel)
-add_test_python(TestUnstructuredPieces.py Parallel)
+if (VTK_DATA_ROOT)
+  add_test_python(TestUnstructuredPieces.py Parallel)
+endif()

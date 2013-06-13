@@ -1,11 +1,18 @@
+set(testswithdata)
+if (VTK_DATA_ROOT)
+  set(testswithdata
+    TestQuadRotationalExtrusionMultiBlock.cxx
+  )
+endif()
+
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestButterflyScalars.cxx
   TestNamedColorsIntegration.cxx
   TestPolyDataPointSampler.cxx
   TestQuadRotationalExtrusion.cxx
-  TestQuadRotationalExtrusionMultiBlock.cxx
   TestRotationalExtrusion.cxx
   TestSelectEnclosedPoints.cxx
+  ${testswithdata}
 
   EXTRA_INCLUDE vtkTestDriver.h
 )

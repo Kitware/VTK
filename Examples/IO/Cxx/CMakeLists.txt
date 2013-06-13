@@ -19,23 +19,25 @@ target_link_libraries(DumpXMLFile ${VTK_LIBRARIES})
 add_executable(ParticleReader MACOSX_BUNDLE ParticleReader.cxx)
 target_link_libraries(ParticleReader ${VTK_LIBRARIES})
 
-if(vtkTestingRendering_SOURCE_DIR)
-######## Regression Testing ########
-SET(KIT IOExamples)
-SET(MyTests TestDumpXMLFile.cxx TestParticleReader.cxx)
+if(BUILD_TESTING)
+  if(vtkTestingRendering_LOADED)
+    ######## Regression Testing ########
+    SET(KIT IOExamples)
+    SET(MyTests TestDumpXMLFile.cxx TestParticleReader.cxx)
 
-include(vtkTestingObjectFactory)
+    include(vtkTestingObjectFactory)
 
-add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
-target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
+    add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
+    target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
 
-  if (VTK_DATA_ROOT)
-    add_test(NAME ${KIT}-ParticleReader COMMAND ${KIT}CxxTests
-             TestParticleReader
-               ${VTK_DATA_ROOT}/Data/golf.csv
-               ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
-    add_test(NAME ${KIT}-DumpXMLFile COMMAND ${KIT}CxxTests
-             TestDumpXMLFile
-               ${VTK_DATA_ROOT}/Data/cow.vtp)
+    if (VTK_DATA_ROOT)
+      add_test(NAME ${KIT}-ParticleReader COMMAND ${KIT}CxxTests
+               TestParticleReader
+                 ${VTK_DATA_ROOT}/Data/golf.csv
+                 ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
+      add_test(NAME ${KIT}-DumpXMLFile COMMAND ${KIT}CxxTests
+               TestDumpXMLFile
+                 ${VTK_DATA_ROOT}/Data/cow.vtp)
+    endif()
   endif()
 endif()

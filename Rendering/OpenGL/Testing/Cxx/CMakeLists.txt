@@ -35,7 +35,6 @@ SET(RenderingTestsWithArguments
   TestLabelPlacementMapper2D.cxx
   TestLabelPlacementMapperCoincidentPoints.cxx
   TestLightActor.cxx
-  TestLODActor.cxx
   TestManyActors.cxx
   TestOffAxisStereo.cxx
   TestOrderedTriangulator.cxx
@@ -83,6 +82,7 @@ if(VTK_DATA_ROOT)
     ${RenderingTestsWithArguments}
     TestAreaSelections.cxx
     TestGlyph3DMapperArrow.cxx
+    TestLODActor.cxx
     TestMultiblockDisplayProperties.cxx
     TestMultiTexturing.cxx
     TestMultiTexturingTransform.cxx

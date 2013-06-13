@@ -20,17 +20,19 @@ endif()
 add_executable(ImageSlicing MACOSX_BUNDLE ImageSlicing.cxx)
 target_link_libraries(ImageSlicing ${VTK_LIBRARIES})
 
-if(vtkTestingRendering_SOURCE_DIR)
-######## Regression Testing ########
-set(KIT ImageProcessingExamples)
-set(MyTests TestImageSlicing.cxx)
+if(BUILD_TESTING)
+  if(vtkTestingRendering_LOADED)
+    ######## Regression Testing ########
+    set(KIT ImageProcessingExamples)
+    set(MyTests TestImageSlicing.cxx)
 
-include(vtkTestingObjectFactory)
-add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
-target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
+    include(vtkTestingObjectFactory)
+    add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
+    target_link_libraries(${KIT}CxxTests ${VTK_LIBRARIES})
 
-  if (VTK_DATA_ROOT)
-    add_test(NAME ${KIT}-ImageSlicing COMMAND ${KIT}CxxTests
-      TestImageSlicing ${VTK_DATA_ROOT}/Data/headsq/quarter)
-  endif()
+      if (VTK_DATA_ROOT)
+        add_test(NAME ${KIT}-ImageSlicing COMMAND ${KIT}CxxTests
+          TestImageSlicing ${VTK_DATA_ROOT}/Data/headsq/quarter)
+      endif()
+ endif()
 endif()
