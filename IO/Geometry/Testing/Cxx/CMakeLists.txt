@@ -17,7 +17,6 @@ if(VTK_LARGE_DATA_ROOT AND _known_little_endian)
   set( WINDBLADE_TEST
   TestWindBladeReader.cxx
   )
-  message(" TEST ${WINDBLADE_TEST}")
 endif()
 
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
@@ -48,7 +47,6 @@ foreach(test ${TestsToRun})
 endforeach()
 
 if (WINDBLADE_TEST)
-  message("ADD THE TEST")
   add_test(NAME ${vtk-module}Cxx-TestWindBladeReader
     COMMAND ${vtk-module}CxxTests TestWindBladeReader
     -D ${VTK_LARGE_DATA_ROOT}
