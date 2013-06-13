@@ -44,7 +44,6 @@ set(MyTests
   TestRectilinearWipeWidget.cxx
   # TestResliceCursorWidget2.cxx # todo (unsatistfied deps)
   # TestResliceCursorWidget3.cxx # todo (unsatistfied deps)
-  TestScalarBarWidget.cxx
   TestSeedWidget.cxx
   TestSeedWidget2.cxx
   TestSeedWidgetNonUniformRepresentations.cxx
@@ -86,6 +85,7 @@ if(VTK_DATA_ROOT)
     TestPolygonalHandleRepresentations.cxx
     TestPolygonalRepresentationHandleWidget.cxx
     TestPolygonalSurfaceConstrainedDistanceWidget.cxx
+    TestScalarBarWidget.cxx
     TestSphereHandleWidget.cxx
     TestSurfaceConstrainedHandleWidget.cxx
     TestTensorProbeWidget.cxx

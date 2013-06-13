@@ -6,9 +6,7 @@ set(MyTests
   BoxClipTriangulateAndInterpolate.cxx
   TestBooleanOperationPolyDataFilter.cxx
   TestBooleanOperationPolyDataFilter2.cxx
-  TestContourTriangulator.cxx
   TestContourTriangulatorCutter.cxx
-  TestContourTriangulatorMarching.cxx
   TestDeformPointSet.cxx
   TestDensifyPolyData.cxx
   TestDistancePolyDataFilter.cxx
@@ -23,6 +21,8 @@ set(MyTests
 if(VTK_DATA_ROOT)
   set(MyTests
     ${MyTests}
+    TestContourTriangulator.cxx
+    TestContourTriangulatorMarching.cxx
     TestGradientAndVorticity.cxx
     TestIconGlyphFilterGravity.cxx
     TestQuadraturePoints.cxx

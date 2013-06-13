@@ -7,17 +7,30 @@ if(VTK_DATA_ROOT)
   )
 endif()
 
+set(_known_little_endian FALSE)
+if (DEFINED CMAKE_WORDS_BIGENDIAN)
+  if (NOT CMAKE_WORDS_BIGENDIAN)
+    set(_known_little_endian TRUE)
+  endif()
+endif()
+if(VTK_LARGE_DATA_ROOT AND _known_little_endian)
+  set( WINDBLADE_TEST
+  TestWindBladeReader.cxx
+  )
+  message(" TEST ${WINDBLADE_TEST}")
+endif()
+
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   ${NEEDS_DATA}
+  ${WINDBLADE_TEST}
   TestSimplePointsReaderWriter.cxx
-  TestWindBladeReader.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
 vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 
 set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx TestWindBladeReader.cxx)
+list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx ${WINDBLADE_TEST})
 
 # Add all the executables
 foreach(test ${TestsToRun})
@@ -34,14 +47,8 @@ foreach(test ${TestsToRun})
   endif()
 endforeach()
 
-set(_known_little_endian FALSE)
-if (DEFINED CMAKE_WORDS_BIGENDIAN)
-  if (NOT CMAKE_WORDS_BIGENDIAN)
-    set(_known_little_endian TRUE)
-  endif()
-endif()
-
-if(VTK_LARGE_DATA_ROOT AND _known_little_endian)
+if (WINDBLADE_TEST)
+  message("ADD THE TEST")
   add_test(NAME ${vtk-module}Cxx-TestWindBladeReader
     COMMAND ${vtk-module}CxxTests TestWindBladeReader
     -D ${VTK_LARGE_DATA_ROOT}

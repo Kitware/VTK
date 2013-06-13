@@ -4,7 +4,6 @@ set(MyTests
   PartialPreIntegration.cxx
   PreIntegrationIncremental.cxx
   PreIntegrationNonIncremental.cxx
-  TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastAdditive.cxx
   TestGPURayCastCompositeBinaryMask.cxx
   TestGPURayCastCompositeMask.cxx
@@ -20,11 +19,6 @@ set(MyTests
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastPerspectiveParallel.cxx
-  TestProjectedHexahedra.cxx
-  TestSmartVolumeMapper.cxx
-  TestSmartVolumeMapperWindowLevel.cxx
-  TestTM3DLightComponents.cxx
-  ZsweepConcavities.cxx
 )
 
 # Tests with data
@@ -39,6 +33,11 @@ if(VTK_DATA_ROOT)
     TestMinIntensityRendering.cxx
     TestProjectedTetrahedra.cxx
     TestProp3DFollower.cxx
+    TestFixedPointRayCastLightComponents.cxx
+    TestSmartVolumeMapper.cxx
+    TestSmartVolumeMapperWindowLevel.cxx
+    TestTM3DLightComponents.cxx
+    ZsweepConcavities.cxx
     volProt.cxx
     )
 endif()
@@ -70,7 +69,6 @@ endforeach()
 if (VTK_DATA_ROOT)
   set_tests_properties(${vtk-module}Cxx-TestProp3DFollower
     PROPERTIES TIMEOUT 100)
+  set_tests_properties(${vtk-module}Cxx-TestTM3DLightComponents
+    PROPERTIES TIMEOUT 120)
 endif()
-
-set_tests_properties(${vtk-module}Cxx-TestTM3DLightComponents
-  PROPERTIES TIMEOUT 120)

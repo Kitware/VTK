@@ -172,8 +172,6 @@ void vtkPythonInterpreter::SetProgramName(const char* programname)
   if (vtkPythonInterpreter::InitializedOnce ||
     Py_IsInitialized() != 0)
     {
-    vtkGenericWarningMacro("Calling SetProgramName() after Python was "
-      "initialized once. This indicates a bug.");
     return;
     }
 
