@@ -48,14 +48,14 @@ bool MoleculeExampleCode1()
     ++errors;
     }
 
-  if (!h1.GetAtomicNumber() == 1)
+  if (h1.GetAtomicNumber() != 1)
     {
     cout << "Error atomic number incorrect. Expected 1 but got "
          << h1.GetAtomicNumber() << endl;
     ++errors;
     }
 
-  if (!h2.GetAtomicNumber() == 1)
+  if (h2.GetAtomicNumber() != 1)
     {
     cout << "Error atomic number incorrect. Expected 1 but got "
          << h2.GetAtomicNumber() << endl;
@@ -105,14 +105,14 @@ bool MoleculeExampleCode2()
     ++errors;
     }
 
-  if (!h1.GetAtomicNumber() == 1)
+  if (h1.GetAtomicNumber() != 1)
     {
     cout << "Error atomic number incorrect. Expected 1 but got "
          << h1.GetAtomicNumber() << endl;
     ++errors;
     }
 
-  if (!h2.GetAtomicNumber() == 1)
+  if (h2.GetAtomicNumber() != 1)
     {
     cout << "Error atomic number incorrect. Expected 1 but got "
          << h2.GetAtomicNumber() << endl;

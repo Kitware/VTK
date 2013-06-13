@@ -21,7 +21,7 @@
 #include <vtkCompositeDataPipeline.h>
 
 #define RETURNONFALSE(b)\
-  if(!b) \
+  if(!(b)) \
     {\
     vtkAlgorithm::SetDefaultExecutivePrototype(NULL);\
     return EXIT_FAILURE;\
