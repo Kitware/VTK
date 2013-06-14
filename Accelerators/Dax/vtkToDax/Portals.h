@@ -39,17 +39,17 @@ namespace
 {
 template<int N>
 struct fillComponents
-  {
+{
   template<typename T, typename Tuple>
   void operator()(T* t, const Tuple& tuple) const
   {
     fillComponents<N-1>()(t,tuple);
-    t[N]=dax::VectorTraits<Tuple>::GetComponent(tuple,N);
+    t[N-1]=dax::VectorTraits<Tuple>::GetComponent(tuple,N-1);
   }
-  };
+};
 
 template<>
-struct fillComponents<0>
+struct fillComponents<1>
   {
   template<typename T, typename Tuple>
   void operator()(T* t, const Tuple& tuple) const
