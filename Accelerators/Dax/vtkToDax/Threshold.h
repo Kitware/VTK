@@ -180,7 +180,7 @@ namespace vtkToDax
                        this->Field,
                        outputHandle);
 
-      if(result==1)
+      if(result==1 && resultGrid.GetNumberOfCells() > 0)
         {
         //if we converted correctly, copy the data back to VTK
         //remembering to add back in the output array to the generated

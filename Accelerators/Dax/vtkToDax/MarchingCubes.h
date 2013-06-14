@@ -181,7 +181,7 @@ namespace vtkToDax
                        resultGrid,
                        this->Value,
                        this->Field);
-      if(result==1)
+      if(result==1 && resultGrid.GetNumberOfCells() > 0)
         {
         daxToVtk::dataSetConverter(resultGrid,this->Result);
         }
