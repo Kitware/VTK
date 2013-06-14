@@ -56,7 +56,51 @@ struct fillComponents<1>
   {
     t[0]=dax::VectorTraits<Tuple>::GetComponent(tuple,0);
   }
-  };
+};
+
+template<int N>
+struct readComponents
+{
+  template<typename T, typename Tuple>
+  void operator()(const T* t, Tuple& tuple) const
+  {
+    readComponents<N-1>()(t,tuple);
+    dax::VectorTraits<Tuple>::SetComponent(tuple,N-1,t[N-1]);
+  }
+};
+
+template<>
+struct readComponents<1>
+{
+  template<typename T, typename Tuple>
+  void operator()(const T* t, Tuple& tuple) const
+  {
+    dax::VectorTraits<Tuple>::SetComponent(tuple,0,t[0]);
+  }
+};
+
+template<typename ValueType, int N>
+struct readVector
+{
+  template<typename T>
+  ValueType operator()(const T* rawArray)
+  {
+  ValueType temp;
+  readComponents<N>()(rawArray,temp);
+  return temp;
+  }
+};
+
+template<typename ValueType>
+struct readVector<ValueType,1>
+{
+  template<typename T>
+  ValueType operator()(const T* rawArray)
+  {
+  return ValueType(*rawArray);
+  }
+};
+
 
 template<typename T>
 struct ConstCorrectedType
@@ -109,11 +153,11 @@ public:
   template<typename OtherType>
   DAX_CONT_EXPORT
   vtkArrayPortal(const vtkArrayPortal<OtherType> &src):
-    Data(src.Get()),
-    Array(static_cast<ComponentType*>(src.Get()->GetVoidPointer(0))),
+    Data(src.GetVtkData()),
+    Array(static_cast<ComponentType*>(src.GetVtkData()->GetVoidPointer(0))),
     Size(src.GetNumberOfValues())
-  {
-  }
+    {
+    }
 
   DAX_CONT_EXPORT
   dax::Id GetNumberOfValues() const
@@ -122,17 +166,19 @@ public:
     }
 
   DAX_CONT_EXPORT
-  ValueType Get(dax::Id index) const {
-    return ValueType(this->Array[index*NUM_COMPONENTS]);
-  }
+  ValueType Get(dax::Id index) const
+    {
+    const ComponentType *rawArray = this->Array + (index * NUM_COMPONENTS);
+    return readVector<ValueType,NUM_COMPONENTS>()(rawArray);
+    }
 
   DAX_CONT_EXPORT
-  void Set(dax::Id index, const ValueType& value) const{
-
+  void Set(dax::Id index, const ValueType& value) const
+    {
     ComponentType *rawArray = this->Array + (index * NUM_COMPONENTS);
     //use template magic to auto unroll insertion
     fillComponents<NUM_COMPONENTS>()(rawArray,value);
-  }
+    }
 
   typedef dax::cont::internal::IteratorFromArrayPortal<vtkArrayPortal>
                                                                   IteratorType;
@@ -146,7 +192,7 @@ public:
     return IteratorType(*this, this->Size);
     }
 
-  vtkDataArray* Get() const { return Data; }
+  vtkDataArray* GetVtkData() const { return Data; }
 
 private:
   vtkDataArray* Data;
@@ -186,11 +232,11 @@ public:
   template<typename OtherType>
   DAX_CONT_EXPORT
   vtkPointsPortal(const vtkPointsPortal<OtherType> &src):
-    Points(src.Get()),
-    Array(static_cast<ComponentType*>(src.Get()->GetVoidPointer(0))),
+    Points(src.GetVtkData()),
+    Array(static_cast<ComponentType*>(src.GetVtkData()->GetVoidPointer(0))),
     Size(src.GetNumberOfValues())
-  {
-  }
+    {
+    }
 
   DAX_CONT_EXPORT
   dax::Id GetNumberOfValues() const
@@ -199,17 +245,18 @@ public:
     }
 
   DAX_CONT_EXPORT
-  ValueType Get(dax::Id index) const {
-    return ValueType(this->Array[index*NUM_COMPONENTS]);
-  }
+  ValueType Get(dax::Id index) const
+    {
+    return ValueType(this->Array+(index*NUM_COMPONENTS));
+    }
 
   DAX_CONT_EXPORT
-  void Set(dax::Id index, const ValueType& value) const{
-
+  void Set(dax::Id index, const ValueType& value) const
+    {
     ComponentType *rawArray = this->Array + (index * NUM_COMPONENTS);
     //use template magic to auto unroll insertion
     fillComponents<NUM_COMPONENTS>()(rawArray,value);
-  }
+    }
 
   typedef dax::cont::internal::IteratorFromArrayPortal<vtkPointsPortal>
                                                                   IteratorType;
@@ -223,7 +270,7 @@ public:
     return IteratorType(*this, this->Size);
     }
 
-  vtkPoints* Get() const { return Points; }
+  vtkPoints* GetVtkData() const { return Points; }
 
 private:
   vtkPoints* Points;
@@ -231,95 +278,6 @@ private:
   dax::Id Size;
 
 };
-
-template <typename Type,
-          int NUM_COMPONENTS = dax::VectorTraits<Type>::NUM_COMPONENTS >
-class vtkTrianglesPortal
-{
-public:
-  typedef typename ConstCorrectedType<Type>::Type ValueType;
-  //we are a tuple of tuples!
-  //the real component type is the inner tuples component type
-  typedef typename ConstCorrectedType<typename Type::ComponentType>::ComponentType ComponentType;
-
-  DAX_CONT_EXPORT vtkTrianglesPortal():
-    Points(NULL),
-    Array(NULL),
-    Size(0)
-    {
-    }
-
-  DAX_CONT_EXPORT vtkTrianglesPortal(vtkPoints* points, dax::Id size):
-    Points(points),
-    Array(static_cast<ComponentType*>(points->GetVoidPointer(0))),
-    Size(size)
-    {
-    DAX_ASSERT_CONT(this->GetNumberOfValues() >= 0);
-    }
-
-  /// Copy constructor for any other vtkArrayPortal with an iterator
-  /// type that can be copied to this iterator type. This allows us to do any
-  /// type casting that the iterators do (like the non-const to const cast).
-  ///
-  template<typename OtherType>
-  DAX_CONT_EXPORT
-  vtkTrianglesPortal(const vtkTrianglesPortal<OtherType> &src):
-    Points(src.Get()),
-    Array(static_cast<ComponentType*>(src.Get()->GetVoidPointer(0))),
-    Size(src.GetNumberOfValues())
-  {
-  }
-
-  DAX_CONT_EXPORT
-  dax::Id GetNumberOfValues() const
-    {
-    return this->Size;
-    }
-
-  DAX_CONT_EXPORT
-  ValueType Get(dax::Id index) const {
-    typedef typename ValueType::ComponentType CT;
-    const dax::Id start_offset = index*(NUM_COMPONENTS*3);
-    ValueType v( CT(&this->Array[start_offset]),
-                 CT(&this->Array[start_offset+3]),
-                 CT(&this->Array[start_offset+6]));
-    return v;
-  }
-
-  DAX_CONT_EXPORT
-  void Set(dax::Id index, const ValueType& value) const{
-    enum {sub_size=dax::VectorTraits<typename ValueType::ComponentType>::NUM_COMPONENTS};
-    const dax::Id start_offset = index*(NUM_COMPONENTS*3);
-
-    //use template magic to auto unroll insertion
-    //value is 3 component tuple of vector3's
-    for(dax::Id i=0; i < NUM_COMPONENTS; ++i)
-      {
-      fillComponents<sub_size>()(&this->Array[start_offset+(i*3)],value[i]);
-      }
-  }
-
-  typedef dax::cont::internal::IteratorFromArrayPortal<vtkTrianglesPortal>
-                                                                  IteratorType;
-  DAX_CONT_EXPORT IteratorType GetIteratorBegin() const
-    {
-    return IteratorType(*this, 0);
-    }
-
-  DAX_CONT_EXPORT IteratorType GetIteratorEnd() const
-    {
-    return IteratorType(*this, this->Size);
-    }
-
-  vtkPoints* Get() const { return Points; }
-
-private:
-  vtkPoints* Points;
-  ComponentType *Array;
-  dax::Id Size;
-
-};
-
 
 //A topology portal goal is to make the vtkCellArray for a continous cell type
 //look like a dax topology layout. This means that we skip over the elements
@@ -360,8 +318,8 @@ public:
   template<typename OtherType>
   DAX_CONT_EXPORT
   vtkTopologyPortal(const vtkTopologyPortal<OtherType,PointsPerCell> &src):
-    CellArray(src.Get()),
-    RawCells(src.Get()->GetPointer()),
+    CellArray(src.GetVtkData()),
+    RawCells(src.GetVtkData()->GetPointer()),
     Size(src.GetNumberOfValues())
   {
   }
@@ -374,7 +332,7 @@ public:
 
   DAX_CONT_EXPORT
   ValueType Get(dax::Id index) const{
-    return this->RawCells[1 + index + index/PointsPerCell];
+    return this->RawCells[1 + index + (index/PointsPerCell) ];
   }
 
   DAX_CONT_EXPORT
@@ -394,7 +352,7 @@ public:
     return IteratorType(*this, this->Size);
     }
 
-  vtkCellArray* Get() const { return CellArray; }
+  vtkCellArray* GetVtkData() const { return CellArray; }
 
 private:
   vtkCellArray *CellArray;
