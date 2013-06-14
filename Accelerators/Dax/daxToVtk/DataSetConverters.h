@@ -76,7 +76,14 @@ struct UniformDataSetConverter
     }
 };
 
-//convert a vtkUnstructuredGrid to vtk
+//convert a UniformGrid to vtkImageData
+inline void dataSetConverter(const dax::cont::UniformGrid<>& grid,
+          vtkImageData* output)
+{
+  daxToVtk::UniformDataSetConverter()(grid,output);
+}
+
+//convert a UnstructuredGrid to vtkUnstructuredGrid
 template<typename CellType, typename TopoTag, typename PointTag>
 inline void dataSetConverter(dax::cont::UnstructuredGrid<CellType,TopoTag,PointTag>& grid,
           vtkUnstructuredGrid* output)
@@ -87,15 +94,15 @@ inline void dataSetConverter(dax::cont::UnstructuredGrid<CellType,TopoTag,PointT
   //to properly set the points back into vtk we have to make
   //sure that for each cell we will fill in the part which states
   //how many points are in that cells
-  vtkCellArray* cells = grid.GetCellConnections().GetPortalControl().Get();
+  vtkCellArray* cells = grid.GetCellConnections().GetPortalControl().GetVtkData();
   daxToVtk::writeCellTags<CellTypeToType<CellType> >(cells);
   output->SetCells(CELL_TYPE,cells);
 
-  vtkPoints *p = grid.GetPointCoordinates().GetPortalControl().Get();
+  vtkPoints *p = grid.GetPointCoordinates().GetPortalControl().GetVtkData();
   output->SetPoints(p);
 }
 
-//convert a vtkUnstructuredGrid to vtk
+//convert a UnstructuredGrid to vtkPolyData
 template<typename CellType, typename TopoTag, typename PointTag>
 inline void dataSetConverter(
   dax::cont::UnstructuredGrid<CellType,TopoTag,PointTag>& grid,
@@ -107,22 +114,12 @@ inline void dataSetConverter(
   //to properly set the points back into vtk we have to make
   //sure that for each cell we will fill in the part which states
   //how many points are in that cells
-  vtkCellArray* cells = grid.GetCellConnections().GetPortalControl().Get();
+  vtkCellArray* cells = grid.GetCellConnections().GetPortalControl().GetVtkData();
   daxToVtk::writeCellTags<CellTypeToType<CellType> >(cells);
   output->SetPolys(cells);
 
-  vtkPoints *p = grid.GetPointCoordinates().GetPortalControl().Get();
+  vtkPoints *p = grid.GetPointCoordinates().GetPortalControl().GetVtkData();
   output->SetPoints(p);
-}
-
-
-//convert a vtkUnstructuredGrid to vtk
-inline void dataSetConverter(const dax::cont::UniformGrid<>& grid,
-          vtkImageData* output)
-{
-  //this is a work in progress haven't decided if I want full object or not
-  //maybe template on grid and cell type?
-  daxToVtk::UniformDataSetConverter()(grid,output);
 }
 
 template<typename FieldType>
@@ -130,7 +127,7 @@ void addCellData(vtkDataSet* output,
                  FieldType& outputArray,
                  const std::string& name)
 {
-  vtkDataArray *data = outputArray.GetPortalControl().Get();
+  vtkDataArray *data = outputArray.GetPortalControl().GetVtkData();
   data->SetName(name.c_str());
   output->GetCellData()->AddArray(data);
 }
@@ -141,7 +138,7 @@ void addPointData(vtkDataSet* output,
                   FieldType& outputArray,
                   const std::string& name)
 {
-  vtkDataArray *data = outputArray.GetPortalControl().Get();
+  vtkDataArray *data = outputArray.GetPortalControl().GetVtkData();
   data->SetName(name.c_str());
   vtkPointData *pd = output->GetPointData();
   pd->AddArray(data);
