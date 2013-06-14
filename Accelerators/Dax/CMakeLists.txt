@@ -130,11 +130,14 @@ if(${VTK_DAX_PICKED_CUDA})
   set(CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE OFF) #otherwise C_SOURCES is empty in VS
   vtk_module_impl()
 
-  cuda_compile(cuda_compiled_srcs ${cuda_accelerator_srcs} ${headers}
+  cuda_compile(cuda_compiled_srcs
+               ${cuda_accelerator_srcs}
+               ${headers}
                ${GPGPU_BUILD_TYPE})
 
   set_source_files_properties(
     ${cuda_compiled_srcs}
+    ${cuda_accelerator_srcs}
     WRAP_EXCLUDE
     )
 
