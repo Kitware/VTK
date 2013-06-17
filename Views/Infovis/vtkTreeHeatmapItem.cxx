@@ -15,6 +15,7 @@
 #include "vtkTreeHeatmapItem.h"
 
 #include "vtkBrush.h"
+#include "vtkColorSeries.h"
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
@@ -35,6 +36,7 @@
 #include "vtkTree.h"
 #include "vtkTreeLayoutStrategy.h"
 #include "vtkUnsignedIntArray.h"
+#include "vtkVariantArray.h"
 
 #include <algorithm>
 #include <queue>
@@ -81,11 +83,6 @@ vtkTreeHeatmapItem::vtkTreeHeatmapItem()
 //-----------------------------------------------------------------------------
 vtkTreeHeatmapItem::~vtkTreeHeatmapItem()
 {
-  while (!this->LookupTables.empty())
-    {
-    this->LookupTables.back()->Delete();
-    this->LookupTables.pop_back();
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -467,25 +464,19 @@ int vtkTreeHeatmapItem::CountLeafNodes(vtkIdType vertex)
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::InitializeLookupTables()
 {
-  while (!this->LookupTables.empty())
-    {
-    this->LookupTables.back()->Delete();
-    this->LookupTables.pop_back();
-    }
-  this->LookupTables.reserve( this->Table->GetNumberOfColumns() + 1 );
+  this->ColumnRanges.clear();
+  this->CategoricalDataValues->Reset();
 
   for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
        ++column)
     {
     if (this->Table->GetValue(0, column).IsString())
       {
-      this->GenerateLookupTableForStringColumn(column);
+      this->AccumulateProminentCategoricalDataValues(column);
       continue;
       }
     double min = VTK_DOUBLE_MAX;
     double max = VTK_DOUBLE_MIN;
-    vtkLookupTable *lookupTable = vtkLookupTable::New();
-    this->LookupTables.push_back(lookupTable);
     for (vtkIdType row = 0; row < this->Table->GetNumberOfRows(); ++row)
       {
       double value = this->Table->GetValue(row, column).ToDouble();
@@ -493,50 +484,85 @@ void vtkTreeHeatmapItem::InitializeLookupTables()
         {
         max = value;
         }
-      else if (value < min)
+      if (value < min)
         {
         min = value;
         }
       }
-    this->LookupTables[column-1]->SetNumberOfTableValues(256);
-    this->LookupTables[column-1]->SetRange(min, max);
-    this->LookupTables[column-1]->Build();
+    this->ColumnRanges[column] = std::pair<double, double>(min, max);
+    }
+
+  this->GenerateCategoricalDataLookupTable();
+  this->GenerateContinuousDataLookupTable();
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::GenerateContinuousDataLookupTable()
+{
+  this->ContinuousDataLookupTable->SetNumberOfTableValues(255);
+  this->ContinuousDataLookupTable->Build();
+  this->ContinuousDataLookupTable->SetRange(0, 255);
+  this->ContinuousDataLookupTable->SetNanColor(0.75, 0.75, 0.75, 1.0);
+
+  // black to red
+  for (int i = 0; i < 85; ++i)
+    {
+    float f = static_cast<float>(i) / 84.0;
+    this->ContinuousDataLookupTable->SetTableValue(i, f, 0, 0);
+    }
+
+ // red to yellow
+  for (int i = 0; i < 85; ++i)
+    {
+    float f = static_cast<float>(i) / 84.0;
+    this->ContinuousDataLookupTable->SetTableValue(85 + i, 1.0, f, 0);
+    }
+
+ // yellow to white
+  for (int i = 0; i < 85; ++i)
+    {
+    float f = static_cast<float>(i) / 84.0;
+    this->ContinuousDataLookupTable->SetTableValue(170 + i, 1.0, 1.0, f);
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::GenerateLookupTableForStringColumn(vtkIdType column)
+void vtkTreeHeatmapItem::AccumulateProminentCategoricalDataValues(vtkIdType column)
 {
-  //generate a sorted vector of all the strings in this column
-  std::vector< std::string > sortedStrings;
-  for (vtkIdType row = 0; row < this->Table->GetNumberOfRows(); ++row)
+  vtkStringArray *stringColumn = vtkStringArray::SafeDownCast(
+    this->Table->GetColumn(column));
+
+  // add each distinct value from this column to our master list
+  vtkNew<vtkVariantArray> distinctValues;
+  stringColumn->GetProminentComponentValues(0, distinctValues.GetPointer());
+
+  for (int i = 0; i < distinctValues->GetNumberOfTuples(); ++i)
     {
-    std::string value = this->Table->GetValue(row, column).ToString();
-    // no duplicates
-    if (std::find(sortedStrings.begin(), sortedStrings.end(), value) ==
-        sortedStrings.end())
+    vtkVariant v = distinctValues->GetValue(i);
+    if (this->CategoricalDataValues->LookupValue(v) == -1)
       {
-      sortedStrings.push_back(value);
+      this->CategoricalDataValues->InsertNextValue(v.ToString());
       }
     }
-  std::sort(sortedStrings.begin(), sortedStrings.end());
+}
 
-  // map each string to a double value based on its position
-  // in alphabetical order
-  std::map< std::string, double> stringToDouble;
-  for (unsigned int i = 0; i < sortedStrings.size(); ++i)
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::GenerateCategoricalDataLookupTable()
+{
+  this->ContinuousDataLookupTable->ResetAnnotations();
+  this->ContinuousDataLookupTable->SetNanColor(0.75, 0.75, 0.75, 1.0);
+
+  // make each distinct categorical value an index into our lookup table
+  for (int i = 0; i < this->CategoricalDataValues->GetNumberOfTuples(); ++i)
     {
-    stringToDouble[ sortedStrings[i] ] = (double)i;
+    this->CategoricalDataLookupTable->SetAnnotation(
+      this->CategoricalDataValues->GetValue(i),
+      this->CategoricalDataValues->GetValue(i));
     }
 
-  // associate this mapping with the column number
-  this->StringToDoubleMaps[column] = stringToDouble;
-
-  // generate a lookup table for this column
-  this->LookupTables.push_back(vtkLookupTable::New());
-  this->LookupTables[column-1]->SetNumberOfTableValues(256);
-  this->LookupTables[column-1]->SetRange(0, sortedStrings.size() - 1);
-  this->LookupTables[column-1]->Build();
+  vtkNew<vtkColorSeries> colorSeries;
+  colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_ACCENT);
+  colorSeries->BuildLookupTable(this->CategoricalDataLookupTable.GetPointer());
 }
 
 //-----------------------------------------------------------------------------
@@ -578,7 +604,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     bool alreadyDrewCollapsedSubTree = false;
     vtkIdType originalId = this->GetOriginalId(target);
 
-    double color[3];
+    double color[4];
     double colorKey;
     if (vertexIsPruned->GetValue(originalId) > 0)
       {
@@ -761,25 +787,21 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
          ++column)
       {
       // get the color for this cell from the lookup table
-      double color[3];
-      if (this->Table->GetValue(tableRow, column).IsString())
+      double color[4];
+      vtkVariant value = this->Table->GetValue(tableRow, column);
+      if (value.IsString())
         {
-        // get the string to int mapping for this column
-        std::map< std::string, double> stringToDouble =
-          this->StringToDoubleMaps[column];
-
-        // get the integer value for the current string
-        std::string cellStr =
-          this->Table->GetValue(tableRow, column).ToString();
-        double colorKey = stringToDouble[cellStr];
-
-        // now we can lookup the appropriate color for this string
-        this->LookupTables[column-1]->GetColor(colorKey, color);
+        this->CategoricalDataLookupTable->GetAnnotationColor(value, color);
         }
       else
         {
-        vtkVariant value = this->Table->GetValue(tableRow, column);
-        this->LookupTables[column-1]->GetColor(value.ToDouble(), color);
+        // set the range on our continuous lookup table for this column
+        this->ContinuousDataLookupTable->SetRange(
+          this->ColumnRanges[column].first,
+          this->ColumnRanges[column].second);
+
+        // get the color for this value
+        this->ContinuousDataLookupTable->GetColor(value.ToDouble(), color);
         }
       painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
 
@@ -860,24 +882,22 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
          ++column)
       {
       // get the color for this cell from the lookup table
-      double color[3];
+      double color[4];
       if (this->Table->GetValue(row, column).IsString())
         {
-        // get the string to int mapping for this column
-        std::map< std::string, double> stringToDouble =
-          this->StringToDoubleMaps[column];
-
-        // get the integer value for the current string
-        std::string cellStr = this->Table->GetValue(row, column).ToString();
-        double colorKey = stringToDouble[cellStr];
-
-        // now we can lookup the appropriate color for this string
-        this->LookupTables[column-1]->GetColor(colorKey, color);
+        vtkVariant cellValue = this->Table->GetValue(row, column);
+        this->CategoricalDataLookupTable->GetAnnotationColor(cellValue, color);
         }
       else
         {
+        // set the range on our continuous lookup table for this column
+        this->ContinuousDataLookupTable->SetRange(
+          this->ColumnRanges[column].first,
+          this->ColumnRanges[column].second);
+
+        // get the color for this value
         vtkVariant value = this->Table->GetValue(row, column);
-        this->LookupTables[column-1]->GetColor(value.ToDouble(), color);
+        this->ContinuousDataLookupTable->GetColor(value.ToDouble(), color);
         }
       painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
 
