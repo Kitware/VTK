@@ -794,7 +794,7 @@ void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
 
 void vtkGL2PSExporter::CopyPixels(int copyRect[4], vtkRenderer *ren)
 {
-  if (this->PixelData->GetScalarType() == VTK_FLOAT)
+  if (this->PixelData->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<<"Raster image is not correctly formatted.")
     return;
