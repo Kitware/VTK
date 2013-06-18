@@ -568,6 +568,9 @@ void vtkTreeHeatmapItem::GenerateCategoricalDataLookupTable()
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
 {
+  // Calculate the extent of the data that is visible within the window.
+  this->UpdateVisibleSceneExtent(painter);
+
   if (this->Tree->GetNumberOfVertices() == 0)
     {
     this->PaintHeatmapWithoutTree(painter);
@@ -582,9 +585,6 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
 
   vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
-
-  // Calculate the extent of the data that is visible within the window.
-  this->UpdateVisibleSceneExtent(painter);
 
   // draw the tree
   for (vtkIdType edge = 0; edge < this->LayoutTree->GetNumberOfEdges(); ++edge)
@@ -867,13 +867,21 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
     this->Table->GetColumn(0));
 
   // calculate a font size that's appropriate for this zoom level
-  this->SetupTextProperty(painter);
+  bool canDrawText = this->SetupTextProperty(painter);
 
   double xStart, yStart;
   this->HeatmapMinX = 0;
   this->HeatmapMaxX = this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
   this->HeatmapMinY = VTK_DOUBLE_MAX;
   this->HeatmapMaxY = VTK_DOUBLE_MIN;
+
+  // would raw labels be visible & legible?
+  bool drawRowLabels = canDrawText;
+  if (this->SceneBottomLeft[0] > this->HeatmapMaxX ||
+      this->SceneTopRight[0] < this->HeatmapMaxX)
+    {
+    drawRowLabels = false;
+    }
 
   for (vtkIdType row = 0; row < this->Table->GetNumberOfRows();
        ++row)
@@ -904,7 +912,13 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
       // draw this cell of the table
       xStart = this->CellWidth * (column - 1);
       yStart = this->CellHeight * row;
-      painter->DrawRect(xStart, yStart, this->CellWidth, this->CellHeight);
+      if (this->LineIsVisible(xStart, yStart, xStart + this->CellWidth,
+                              yStart + this->CellHeight) ||
+          this->LineIsVisible(xStart, yStart + this->CellHeight,
+                              xStart + this->CellWidth, yStart))
+        {
+        painter->DrawRect(xStart, yStart, this->CellWidth, this->CellHeight);
+        }
 
       // keep track of where the top of the table is, so we know where to
       // draw the column labels later.
@@ -918,22 +932,38 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
         }
       }
 
-    // draw the label for this row
-    std::string rowLabel = tableNames->GetValue(row);
-    xStart = spacing * 2 + this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
-    yStart = this->CellHeight * row + this->CellHeight / 2;
-    painter->DrawString(xStart, yStart, rowLabel);
+    if (drawRowLabels)
+      {
+      // draw the label for this row
+      std::string rowLabel = tableNames->GetValue(row);
+      xStart = spacing * 2 + this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+      yStart = this->CellHeight * row + this->CellHeight / 2;
+      if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
+        {
+        painter->DrawString(xStart, yStart, rowLabel);
+        }
+      }
     }
 
-  // draw column labels
-  painter->GetTextProp()->SetOrientation(90);
-  for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
-       ++column)
+  // draw visible column labels
+  if (canDrawText)
     {
-      std::string columnName = this->Table->GetColumn(column)->GetName();
-      xStart = this->CellWidth * column - this->CellWidth / 2;
-      yStart = this->HeatmapMaxY + spacing;
-      painter->DrawString(xStart, yStart, columnName);
+    yStart = this->HeatmapMaxY + spacing;
+    if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
+      {
+      painter->GetTextProp()->SetOrientation(90);
+      for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
+           ++column)
+        {
+        std::string columnName = this->Table->GetColumn(column)->GetName();
+        xStart = this->CellWidth * column - this->CellWidth / 2;
+        if (this->SceneBottomLeft[0] < xStart &&
+            this->SceneTopRight[0] > xStart)
+          {
+          painter->DrawString(xStart, yStart, columnName);
+          }
+        }
+      }
     }
 }
 
