@@ -80,14 +80,14 @@ namespace vtkToDax
         //we don't want to use the custom container, so specify the default
         //container for the classification storage.
         typedef dax::cont::GenerateInterpolatedCells<
-              dax::worklet::MarchingCubesTopology> GenerateIC;
+              dax::worklet::MarchingCubesGenerate> GenerateIC;
 
         // construct the scheduler that will execute all the worklets
         dax::cont::Scheduler<Adapter> scheduler;
 
         // construct the two worklets what will be used to do marching cubes
         dax::worklet::MarchingCubesClassify classifyWorklet(isoValueT);
-        dax::worklet::MarchingCubesTopology generateWorklet(isoValueT);
+        dax::worklet::MarchingCubesGenerate generateWorklet(isoValueT);
 
         // run the first step
         typedef typename GenerateIC::ClassifyResultType ClassifyResultType;
