@@ -24,6 +24,7 @@
 #include "vtkContextActor.h"
 #include "vtkContextScene.h"
 #include "vtkCoordinate.h"
+#include "vtkFloatArray.h"
 #include "vtkGL2PSContextDevice2D.h"
 #include "vtkGL2PSUtilities.h"
 #include "vtkImageData.h"
@@ -36,11 +37,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkPath.h"
+#include "vtkPointData.h"
 #include "vtkProp.h"
 #include "vtkProp3DCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkScalarBarActor.h"
 #include "vtkStdString.h"
 #include "vtkTextActor.h"
 #include "vtkTextActor3D.h"
@@ -673,6 +676,10 @@ void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
         return;
         }
       }
+    else if (vtkScalarBarActor *bar = vtkScalarBarActor::SafeDownCast(act2d))
+      {
+      this->DrawScalarBarActor(bar, ren);
+      }
     else // Some other actor2D
       {
       return;
@@ -747,6 +754,35 @@ void vtkGL2PSExporter::DrawTextMapper(vtkTextMapper *textMap,
   vtkTextProperty *tprop = textMap->GetTextProperty();
 
   this->DrawViewportTextOverlay(string, tprop, coord, ren);
+}
+
+void vtkGL2PSExporter::DrawScalarBarActor(vtkScalarBarActor *bar,
+                                          vtkRenderer *ren)
+{
+  // Disable colorbar -- the texture doesn't render properly, we'll copy the
+  // rasterized pixel data for it.
+  int drawColorBarOrig(bar->GetDrawColorBar());
+  bar->SetDrawColorBar(0);
+
+  // Disable text -- it is handled separately
+  int drawTickLabelsOrig(bar->GetDrawTickLabels());
+  bar->SetDrawTickLabels(0);
+  int drawAnnotationsOrig(bar->GetDrawAnnotations());
+  bar->SetDrawAnnotations(0);
+
+  // Render what's left:
+  bar->RenderOpaqueGeometry(ren);
+  bar->RenderOverlay(ren);
+
+  // Restore settings
+  bar->SetDrawColorBar(drawColorBarOrig);
+  bar->SetDrawTickLabels(drawTickLabelsOrig);
+  bar->SetDrawAnnotations(drawAnnotationsOrig);
+
+  // Copy the color bar into the output.
+  int rect[4];
+  bar->GetScalarBarRect(rect, ren);
+  this->CopyPixels(rect, ren);
 }
 
 void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
