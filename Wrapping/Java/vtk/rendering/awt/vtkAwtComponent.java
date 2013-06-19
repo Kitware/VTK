@@ -18,6 +18,7 @@ import vtk.rendering.vtkAbstractComponent;
 public class vtkAwtComponent extends vtkAbstractComponent<Canvas> {
   protected vtkInternalAwtComponent uiComponent;
   protected boolean isWindowCreated;
+  protected Runnable onWindowCreatedCallback;
 
   public vtkAwtComponent() {
     this(new vtkRenderWindow());
@@ -56,6 +57,12 @@ public class vtkAwtComponent extends vtkAbstractComponent<Canvas> {
 
       // Trigger the real render
       renderWindow.Render();
+
+      // Execute callback if need be
+      if(this.onWindowCreatedCallback != null) {
+          this.onWindowCreatedCallback.run();
+          this.onWindowCreatedCallback = null;
+      }
     } catch (InterruptedException e) {
       // Nothing that we can do except skipping execution
     } finally {
@@ -95,6 +102,18 @@ public class vtkAwtComponent extends vtkAbstractComponent<Canvas> {
    */
   public boolean isWindowSet() {
     return this.isWindowCreated;
+  }
+
+  /**
+   * Set a callback that get's called once the window is properly created and can be
+   * customized in its settings.
+   *
+   * Once called the callback will be released.
+   *
+   * @param callback
+   */
+  public void setWindowReadyCallback(Runnable callback) {
+	  this.onWindowCreatedCallback = callback;
   }
 
   /**
