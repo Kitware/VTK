@@ -36,6 +36,7 @@
 
 #include <string>
 #include <vtksys/SystemTools.hxx>
+#include <vtksys/SystemInformation.hxx>
 
 #ifdef VTK_COMPILED_USING_MPI
 class vtkMPICleanup {
@@ -73,6 +74,7 @@ extern "C" {
 
 static void vtkPythonAppInitEnableMSVCDebugHook();
 static void vtkPythonAppInitPrependPath(const char* self_dir);
+static void RemoveArgumentFromArgv(int &argc, char **&argv, int at);
 
 /* The maximum length of a file name.  */
 #if defined(PATH_MAX)
@@ -88,6 +90,7 @@ static void vtkPythonAppInitPrependPath(const char* self_dir);
 #define VTK_PYTHON_TO_STRING0(x) VTK_PYTHON_TO_STRING1(x)
 #define VTK_PYTHON_TO_STRING1(x) #x
 #define VTK_PYTHON_VERSION VTK_PYTHON_TO_STRING(PY_MAJOR_VERSION.PY_MINOR_VERSION)
+
 
 int main(int argc, char **argv)
 {
@@ -106,7 +109,12 @@ int main(int argc, char **argv)
       if ( strcmp(argv[cc], "-V") == 0 )
         {
         displayVersion = 1;
-        break;
+        }
+      else
+      if ( strcmp(argv[cc], "--enable-bt") == 0 )
+        {
+        RemoveArgumentFromArgv(argc, argv, cc);
+        vtksys::SystemInformation::SetStackTraceOnError(1);
         }
       }
     }
@@ -301,4 +309,16 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
     putenv(system_path);
 #endif
     }
+}
+
+//----------------------------------------------------------------------------
+static void RemoveArgumentFromArgv(int &argc, char **&argv, int at)
+{
+  int ii=at+1;
+  while (ii<argc)
+    {
+    argv[ii-1]=argv[ii];
+    ii+=1;
+    }
+  argc-=1;
 }

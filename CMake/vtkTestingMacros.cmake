@@ -122,9 +122,15 @@ macro(vtk_test_cxx_executable exe_name)
     endif()
   endforeach()
   get_property(vtk_test_cxx_sources DIRECTORY PROPERTY VTK_TEST_CXX_SOURCES)
+  if(vtk-module)
+    set(tmp_before_tm ${CMAKE_TESTDRIVER_BEFORE_TESTMAIN})
+    set(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
+      "    vtksys::SystemInformation::SetStackTraceOnError(1);\n ${tmp_before_tm}")
+  endif()
   create_test_sourcelist(Tests ${exe_name}.cxx ${vtk_test_cxx_sources}
     EXTRA_INCLUDE ${test_driver})
   if(vtk-module)
+    set(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "${tmp_before_tm}")
     vtk_module_test_executable(${exe_name} ${Tests} ${test_extra})
   elseif(vtk-example)
     add_executable(${exe_name} ${Tests} ${test_extra})
@@ -187,7 +193,7 @@ function(vtk_add_test_python name)
 
   ExternalData_add_test(VTKData
     NAME ${vtk-module}Python-${TName}
-    COMMAND ${VTK_PYTHON_EXE} ${rtImageTest}
+    COMMAND ${VTK_PYTHON_EXE} --enable-bt ${rtImageTest}
     ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py ${${TName}_ARGS}
     ${_D} ${_B} ${_T} ${_V} ${_A})
 endfunction()
