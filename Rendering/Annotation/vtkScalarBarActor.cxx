@@ -18,6 +18,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkColor.h"
+#include "vtkCoordinate.h"
 #include "vtkFloatArray.h"
 #include "vtkPointData.h"
 #include "vtkImageData.h"
@@ -27,6 +28,7 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextActor.h"
@@ -233,6 +235,7 @@ vtkScalarBarActor::vtkScalarBarActor()
     ->SetReferenceCoordinate(this->PositionCoordinate);
 
   this->DrawColorBar = true;
+  this->DrawTickLabels = true;
 }
 
 //----------------------------------------------------------------------------
@@ -263,6 +266,21 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow* win)
   this->P->AnnotationLeadersActor->ReleaseGraphicsResources(win);
   this->BackgroundActor->ReleaseGraphicsResources(win);
   this->FrameActor->ReleaseGraphicsResources(win);
+}
+
+//----------------------------------------------------------------------------
+void vtkScalarBarActor::GetScalarBarRect(int rect[4], vtkViewport* viewport)
+{
+  vtkCoordinate *origin = this->ScalarBarActor->GetPositionCoordinate();
+  int * vpPos = origin->GetComputedViewportValue(viewport);
+  rect[0] = vpPos[0];
+  rect[1] = vpPos[1];
+
+  double *bounds = this->ScalarBar->GetBounds();
+  rect[0] += static_cast<int>(bounds[0] + 0.5);
+  rect[1] += static_cast<int>(bounds[2] + 0.5);
+  rect[2] = static_cast<int>(bounds[1] - bounds[0] + 0.5);
+  rect[3] = static_cast<int>(bounds[3] - bounds[2] + 0.5);
 }
 
 //----------------------------------------------------------------------------
@@ -327,6 +345,19 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
 {
   int renderedSomething = 0;
 
+  // Is the viewport's RenderWindow capturing GL2PS-special props? We'll need
+  // to handle this specially to get the texture to show up right.
+  if (vtkRenderer *renderer = vtkRenderer::SafeDownCast(viewport))
+    {
+    if (vtkRenderWindow *renderWindow = renderer->GetRenderWindow())
+      {
+      if (renderWindow->GetCapturingGL2PSSpecialProps())
+        {
+        renderer->CaptureGL2PSSpecialProp(this);
+        }
+      }
+    }
+
   // Everything is built, just have to render
   if (this->DrawBackground)
     {
@@ -348,13 +379,16 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
       renderedSomething += this->ScalarBarActor->RenderOverlay(viewport);
       }
 
-    vtkScalarBarActorInternal::ActorVec::iterator it;
-    for (
-      it = this->P->TextActors.begin();
-      it != this->P->TextActors.end();
-      ++it)
+    if (this->DrawTickLabels)
       {
-      renderedSomething += (*it)->RenderOverlay(viewport);
+      vtkScalarBarActorInternal::ActorVec::iterator it;
+      for (
+           it = this->P->TextActors.begin();
+           it != this->P->TextActors.end();
+           ++it)
+        {
+        renderedSomething += (*it)->RenderOverlay(viewport);
+        }
       }
     }
   else if (this->DrawColorBar)
