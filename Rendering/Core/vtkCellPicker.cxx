@@ -1011,7 +1011,7 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
       }
 
     this->ResetPickInfo();
-    this->Mapper = 0;
+    this->Mapper = imageMapper;
     this->DataSet = data;
 
     // Compute all the pick values

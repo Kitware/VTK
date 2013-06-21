@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-# Run this test like so:
-# $ vtkpython TestTextureGlyph.py  -D $VTK_DATA_ROOT \
-#   -B $VTK_DATA_ROOT/Baseline/Graphics/
-#
 # $ vtkpython TestTextureGlyph.py --help
 # provides more details on other options.
 

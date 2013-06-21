@@ -156,7 +156,7 @@ void vtkBridgePointIterator::InitWithOnePoint(vtkBridgeDataSet *ds,
                                               vtkIdType id)
 {
   assert("pre: valid_id" &&
-         ((!ds!=0)|| ((id>=0)&&(id<=ds->GetNumberOfCells())))); // A=>B: !A||B
+         ((ds==0) || ((id>=0)&&(id<=ds->GetNumberOfCells())))); // A=>B: !A||B
 
   this->IteratorOne->InitWithOnePoint(ds,id);
   this->CurrentIterator=this->IteratorOne;

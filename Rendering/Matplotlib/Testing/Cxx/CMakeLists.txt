@@ -1,3 +1,5 @@
+include(vtkGhostscript)
+
 # Check that matplotlib is available:
 execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import matplotlib"
   RESULT_VARIABLE IMPORT_MATPLOTLIB_EXITCODE
@@ -14,7 +16,7 @@ if(NOT MATPLOTLIB_FOUND)
 endif()
 
 if(MATPLOTLIB_FOUND)
-  if(VTK_GHOSTSCRIPT_EXECUTABLE AND VTK_DATA_ROOT)
+  if(VTK_GHOSTSCRIPT_EXECUTABLE)
     set(GL2PSTests
       TestGL2PSMathTextActor.cxx
       TestGL2PSMathTextActor3D.cxx
@@ -23,48 +25,21 @@ if(MATPLOTLIB_FOUND)
     )
   endif()
 
-  if(VTK_DATA_ROOT)
-    # add tests that require data
-    set(MyTests
-      TestContextMathTextImage.cxx
-      TestMathTextActor.cxx
-      TestMathTextActor3D.cxx
-      TestRenderString.cxx
-      TestStringToPath.cxx
-      TestIndexedLookupScalarBar.cxx
-      TestScalarBarCombinatorics.cxx
-      ${GL2PSTests}
-      )
-  endif()
+  # add tests that require data
+  vtk_add_test_cxx(
+    TestContextMathTextImage.cxx
+    TestMathTextActor.cxx
+    TestMathTextActor3D.cxx
+    TestRenderString.cxx
+    TestStringToPath.cxx
+    TestIndexedLookupScalarBar.cxx
+    TestScalarBarCombinatorics.cxx
+    )
 endif()
 
-# Use the testing object factory, to reduce boilerplate code in tests.
-include(vtkTestingObjectFactory)
-vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
+vtk_add_test_cxx(${GL2PSTests})
 
-set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun CxxTests.cxx)
-
-# Add all the executables
-foreach(test ${TestsToRun})
-  get_filename_component(TName ${test} NAME_WE)
-  if(VTK_DATA_ROOT)
-    if(${${TName}Error})
-      set(_error_threshold ${${TName}Error})
-    else()
-      set(_error_threshold 10)
-    endif()
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName}
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/Rendering/${TName}.png
-        -E ${_error_threshold})
-  else()
-    add_test(NAME MathText-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName})
-  endif()
-endforeach()
+vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
 
 # The GL2PS tests produce postscript output, which cannot be compared using
 # the built-in image regression framework. The tests added above will create the
@@ -90,11 +65,12 @@ if(GL2PSTests)
           "${VTK_TEST_OUTPUT_DIR}/${TName}.ps"
     )
     # Image diff rasterized png with baseline
-    add_test(NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
+    ExternalData_add_test(VTKData
+      NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
       COMMAND vtkRenderingGL2PSCxxTests PNGCompare
-        -D ${VTK_DATA_ROOT}
+        -D ${VTK_TEST_DATA_DIR}
         -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/Rendering/${TName}-rasterRef.png
+        -V DATA{../Data/Baseline/${TName}-rasterRef.png,:}
         --test-file ${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png
     )
     set_tests_properties("${vtk-module}Cxx-${TName}-VerifyRasterizedPNG"

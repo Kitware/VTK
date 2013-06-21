@@ -47,7 +47,7 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
   // find the region to loop over
   int maxC = inData->GetNumberOfScalarComponents();
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     T* inSI = inIt.BeginSpan();

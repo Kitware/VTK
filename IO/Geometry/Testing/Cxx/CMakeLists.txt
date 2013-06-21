@@ -1,11 +1,13 @@
 # Tests with data
-if(VTK_DATA_ROOT)
-  set(NEEDS_DATA
+vtk_add_test_cxx(
   TestProStarReader.cxx
   TestTecplotReader.cxx
-  TestAMRReadWrite.cxx
+  TestAMRReadWrite.cxx,NO_VALID
   )
-endif()
+
+vtk_add_test_cxx(NO_VALID
+  TestSimplePointsReaderWriter.cxx
+  )
 
 set(_known_little_endian FALSE)
 if (DEFINED CMAKE_WORDS_BIGENDIAN)
@@ -13,43 +15,17 @@ if (DEFINED CMAKE_WORDS_BIGENDIAN)
     set(_known_little_endian TRUE)
   endif()
 endif()
-if(VTK_LARGE_DATA_ROOT AND _known_little_endian)
-  set( WINDBLADE_TEST
-  TestWindBladeReader.cxx
-  )
+if(VTK_USE_LARGE_DATA AND _known_little_endian)
+  # Tell ExternalData to fetch test input at build time.
+  ExternalData_Expand_Arguments(VTKData _
+    "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/,REGEX:.*}"
+    "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/field/,REGEX:.*}"
+    "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/turbine/,REGEX:.*}"
+    )
+
+  vtk_add_test_cxx(
+    TestWindBladeReader.cxx
+    )
 endif()
 
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-  ${NEEDS_DATA}
-  ${WINDBLADE_TEST}
-  TestSimplePointsReaderWriter.cxx
-  EXTRA_INCLUDE vtkTestDriver.h
-)
-
-vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
-
-set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx ${WINDBLADE_TEST})
-
-# Add all the executables
-foreach(test ${TestsToRun})
-  get_filename_component(TName ${test} NAME_WE)
-  if(VTK_DATA_ROOT)
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName}
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/IO/${TName}.png)
-  else()
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName})
-  endif()
-endforeach()
-
-if (WINDBLADE_TEST)
-  add_test(NAME ${vtk-module}Cxx-TestWindBladeReader
-    COMMAND ${vtk-module}CxxTests TestWindBladeReader
-    -D ${VTK_LARGE_DATA_ROOT}
-    -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Parallel/TestWindBladeReader.png)
-endif()
+vtk_test_cxx_executable(${vtk-module}CxxTests)

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME Test of vtkLSDynaReader
 // .SECTION Description
-// Tests the vtkLSDynaReader.  Requires VTKLargeData.
+// Tests the vtkLSDynaReader.
 
 #include "vtkLSDynaReader.h"
 #include "vtkDebugLeaks.h"

@@ -29,25 +29,23 @@ target_link_libraries(Delaunay3DAlpha ${VTK_LIBRARIES})
 if(BUILD_TESTING)
   if(vtkTestingRendering_LOADED)
     ######## Regression Testing ########
-    set(KIT ModellingExamples)
-    set(MyTests TestFinance.cxx TestDelaunay3D.cxx TestDelaunay3DAlpha.cxx)
-
-    include(vtkTestingObjectFactory)
-
-    add_executable(${KIT}CxxTests ${KIT}CxxTests.cxx ${MyTests})
-    target_link_LIBRARIES(${KIT}CxxTests ${VTK_LIBRARIES})
-
-    if (VTK_DATA_ROOT)
-      add_test(NAME ${KIT}-Finance COMMAND ${KIT}CxxTests
-               TestFinance ${VTK_DATA_ROOT}/Data/financial.txt)
-      add_test(NAME ${KIT}-Delaunay3D COMMAND ${KIT}CxxTests
-               TestDelaunay3D
-               ${VTK_DATA_ROOT}/Data/cow.vtp
-               ${VTK_TEST_OUTPUT_DIR}/Delaunay3D.vtu)
-      add_test(NAME ${KIT}-Delaunay3DAlpa COMMAND ${KIT}CxxTests
-               TestDelaunay3DAlpha
-               .5 ${VTK_DATA_ROOT}/Data/cow.vtp
-               ${VTK_TEST_OUTPUT_DIR}/Delaunay3DAlpha.vtu)
-    endif()
+    set(vtk-example ModellingExamples)
+    set(TestFinance_ARGS "DATA{${VTK_TEST_INPUT_DIR}/financial.txt}")
+    set(TestDelaunay3D_ARGS
+      "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}"
+      ${VTK_TEST_OUTPUT_DIR}/Delaunay3D.vtu
+      )
+    set(TestDelaunay3DAlpha_ARGS
+      .5 "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}"
+      ${VTK_TEST_OUTPUT_DIR}/Delaunay3DAlpha.vtu
+      )
+    vtk_add_test_cxx(
+      TestFinance.cxx
+      )
+    vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
+      TestDelaunay3D.cxx
+      TestDelaunay3DAlpha.cxx
+      )
+    vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
   endif()
 endif()

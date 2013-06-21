@@ -1,3 +1,5 @@
+include(vtkQt)
+
 # set up sources to build
 set(QVTKLibSrcs
   vtkEventQtSlotConnect.cxx
@@ -52,13 +54,23 @@ set(QVTKNonMocHeaders
   QVTKInteractor.h
   )
 
-# import Qt4 build settings
-set(QT_USE_QTNETWORK 1)
-find_package(Qt4 REQUIRED QUIET)
-mark_as_advanced(QT_QMAKE_EXECUTABLE)
-include(${QT_USE_FILE})
+if(VTK_QT_VERSION VERSION_GREATER "4")
+  find_package(Qt5Widgets REQUIRED QUIET)
+  include_directories(${Qt5Widgets_INCLUDE_DIRS})
+  add_definitions(${Qt5Widgets_DEFINITIONS})
 
-qt4_wrap_cpp(QVTKLibMocSrcs ${QVTKMocHeaders})
+  qt5_wrap_cpp(QVTKLibMocSrcs ${QVTKMocHeaders})
+
+  set(QT_LIBRARIES ${Qt5Widgets_LIBRARIES})
+else()
+  # import Qt4 build settings
+  set(QT_USE_QTNETWORK 1)
+  find_package(Qt4 REQUIRED QUIET)
+  mark_as_advanced(QT_QMAKE_EXECUTABLE)
+  include(${QT_USE_FILE})
+
+  qt4_wrap_cpp(QVTKLibMocSrcs ${QVTKMocHeaders})
+endif()
 
 foreach(opt
     QT_RCC_EXECUTABLE
@@ -94,9 +106,18 @@ if(BUILD_SHARED_LIBS)
 
   set(PluginMocHeaders Q4VTKWidgetPlugin.h)
 
-  add_definitions(-DQT_PLUGIN)
-  include_directories(${QT_QTDESIGNER_INCLUDE_DIR})
-  qt4_wrap_cpp(PluginMocSrcs ${PluginMocHeaders})
+  if(VTK_QT_VERSION VERSION_GREATER "4")
+    find_package(Qt5Designer REQUIRED QUIET)
+    add_definitions(${Qt5Designer_DEFINITIONS})
+    include_directories(${Qt5Designer_INCLUDE_DIRS})
+    qt5_wrap_cpp(PluginMocSrcs ${PluginMocHeaders})
+    set(QT_LIBRARIES ${Qt5Designer_LIBRARIES})
+  else()
+    add_definitions(-DQT_PLUGIN)
+    include_directories(${QT_QTDESIGNER_INCLUDE_DIR})
+    qt4_wrap_cpp(PluginMocSrcs ${PluginMocHeaders})
+    set(QT_LIBRARIES ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+  endif()
 
   # add QVTK plugin from sources
   # stand-alone as it doesn't depend on QVTK library
@@ -109,10 +130,7 @@ if(BUILD_SHARED_LIBS)
   set_target_properties(QVTKWidgetPlugin PROPERTIES COMPILE_DEFINITIONS QT_NO_DEBUG)
 
   # link with Qt libs
-  target_link_libraries(QVTKWidgetPlugin
-    ${QT_QTGUI_LIBRARY}
-    ${QT_QTCORE_LIBRARY}
-    )
+  target_link_libraries(QVTKWidgetPlugin ${QT_LIBRARIES})
 
   # install rules
 

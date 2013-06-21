@@ -141,7 +141,7 @@ int vtkImageGaussianSource::RequestData(
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   temp2 = 1.0 / (2.0 * this->StandardDeviation * this->StandardDeviation);
 
   for (idxZ = 0; idxZ <= maxZ; idxZ++)

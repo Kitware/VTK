@@ -103,7 +103,7 @@ void vtkImageStencilToImageExecute(
 
   vtkImageStencilIterator<T> outIter(outData, stencil, outExt, self, id);
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIter.IsAtEnd())
     {
     T* outPtr = outIter.BeginSpan();

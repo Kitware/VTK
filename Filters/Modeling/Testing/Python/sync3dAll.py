@@ -18,10 +18,6 @@
 =========================================================================
 '''
 
-# Run this test like so:
-# vtkpython sync3dAll.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/Graphics
-
 import vtk
 import vtk.test.Testing
 from vtk.util.misc import vtkGetDataRoot
@@ -143,7 +139,7 @@ class sync3dAll(vtk.test.Testing.vtkTest):
         renWin.Render()
 
 
-        img_file = "contour3DAll.png"
+        img_file = "sync3dAll.png"
         vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
         vtk.test.Testing.interact()
 

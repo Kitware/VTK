@@ -70,7 +70,7 @@ vtkDataObject *vtkImageAppendComponents::GetInput(int idx)
 }
 
 //----------------------------------------------------------------------------
-// This method tells the ouput it will have more components
+// This method tells the output it will have more components
 int vtkImageAppendComponents::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -113,7 +113,7 @@ void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
   int numSkip = outData->GetNumberOfScalarComponents() - numIn;
   int i;
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     T* inSI = inIt.BeginSpan();

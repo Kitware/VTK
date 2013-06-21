@@ -57,7 +57,7 @@ void vtkImageLuminanceExecute(vtkImageLuminance *self, vtkImageData *inData,
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   float luminance;
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
     T* inSI = inIt.BeginSpan();

@@ -16,6 +16,7 @@ set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 
 include(vtkModuleMacros)
+include(vtkExternalData)
 
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -25,6 +26,12 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
     "MinSizeRel" "RelWithDebInfo")
 endif()
+
+# Test input data staging directory.
+set(VTK_TEST_DATA_DIR "${ExternalData_BINARY_ROOT}/Testing")
+
+# Test input data directory.
+set(VTK_TEST_INPUT_DIR "${VTK_SOURCE_DIR}/Testing/Data")
 
 # Test output directory.
 set(VTK_TEST_OUTPUT_DIR "${VTK_BINARY_DIR}/Testing/Temporary")
@@ -165,36 +172,10 @@ include(vtkDetermineCompilerFlags)
 add_definitions(-DVTK_IN_VTK)
 
 #-----------------------------------------------------------------------------
-# Configure the default VTK_DATA_ROOT for the location of VTKData.  To get
-# the VTKData repository from git, issue the following command:
-#
-# git clone git://vtk.org/VTKData.git
-#
-# To see the web hosted repository, visit http://vtk.org/VTKData.git
-FIND_PATH(VTK_DATA_ROOT VTKData.readme
-  ${VTK_SOURCE_DIR}/VTKData
-  ${VTK_SOURCE_DIR}/../VTKData
-  ${VTK_SOURCE_DIR}/../../VTKData
-  $ENV{VTK_DATA_ROOT}
-  DOC "The repository for data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKData.git\""
-  )
-mark_as_advanced(VTK_DATA_ROOT)
+include(vtkLegacyData)
 
-#-----------------------------------------------------------------------------
-# Configure the default VTK_LARGE_DATA_ROOT for the location of VTKLargeData.
-# To get the VTKLargeData repository from git, issue the following command:
-#
-# git clone git://vtk.org/VTKLargeData.git
-#
-# To see the web hosted repository, visit http://vtk.org/VTKLargeData.git
-FIND_PATH(VTK_LARGE_DATA_ROOT VTKLargeData.readme
-  ${VTK_SOURCE_DIR}/VTKLargeData
-  ${VTK_SOURCE_DIR}/../VTKLargeData
-  ${VTK_SOURCE_DIR}/../../VTKLargeData
-  $ENV{VTK_LARGE_DATA_ROOT}
-  DOC "The repository for large data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKLargeData.git\""
-  )
-mark_as_advanced(VTK_LARGE_DATA_ROOT)
+# Provide an option for tests requiring "large" input data
+option(VTK_USE_LARGE_DATA "Enable tests requiring \"large\" data" OFF)
 
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
@@ -349,11 +330,6 @@ option(VTK_MAKE_INSTANTIATORS "Should all modules build instantiators" OFF)
 mark_as_advanced(VTK_MAKE_INSTANTIATORS)
 
 #----------------------------------------------------------------------
-# Find the GhostScript executable for GL2PS tests.
-find_program(VTK_GHOSTSCRIPT_EXECUTABLE gs gswin32c gsos2)
-mark_as_advanced(VTK_GHOSTSCRIPT_EXECUTABLE)
-
-#----------------------------------------------------------------------
 # Load the module DAG, assess all modules etc.
 include(vtkModuleTop)
 
@@ -412,3 +388,7 @@ endif()
 unset(_vtk_targets)
 unset(_vtk_compiletools_targets)
 unset(_vtk_all_targets)
+
+# Create target to download data from the VTKData group.  This must come after
+# all tests have been added that reference the group, so we put it last.
+ExternalData_Add_Target(VTKData)

@@ -20931,7 +20931,7 @@ xmlSchemaFixupComponents(xmlSchemaParserCtxtPtr pctxt,
         goto exit_error;
     /* 
     * First compute the variety of simple types. This is needed as
-    * a seperate step, since otherwise we won't be able to detect
+    * a separate step, since otherwise we won't be able to detect
     * circular union types in all cases.
     */
     for (i = 0; i < nbItems; i++) {

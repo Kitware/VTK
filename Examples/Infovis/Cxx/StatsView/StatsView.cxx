@@ -94,7 +94,7 @@ void StatsView::slotOpenSQLiteDB()
 
   // Create SQLite reader
   QString fullName = "sqlite://" + fileName;
-  vtkSQLiteDatabase* db = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( fullName.toAscii() ) );
+  vtkSQLiteDatabase* db = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( fullName.toLatin1() ) );
   bool status = db->Open("");
   if ( ! status )
     {
@@ -139,22 +139,22 @@ void StatsView::slotOpenSQLiteDB()
 
   // Assign tables to table views
 
-  // FIXME: we should not have to make a shallow copy of the ouput
+  // FIXME: we should not have to make a shallow copy of the output
   VTK_CREATE(vtkTable,descriptiveC);
   descriptiveC->ShallowCopy( descriptive->GetOutput( 1 ) );
   this->TableView1->SetRepresentationFromInput( descriptiveC );
 
-  // FIXME: we should not have to make a shallow copy of the ouput
+  // FIXME: we should not have to make a shallow copy of the output
   VTK_CREATE(vtkTable,order1C);
   order1C->ShallowCopy( order1->GetOutput( 1 ) );
   this->TableView2->SetRepresentationFromInput( order1C );
 
-  // FIXME: we should not have to make a shallow copy of the ouput
+  // FIXME: we should not have to make a shallow copy of the output
   VTK_CREATE(vtkTable,order2C);
   order2C->ShallowCopy( order2->GetOutput( 1 ) );
   this->TableView3->SetRepresentationFromInput( order2C );
 
-  // FIXME: we should not have to make a shallow copy of the ouput
+  // FIXME: we should not have to make a shallow copy of the output
   VTK_CREATE(vtkTable,correlativeC);
   correlativeC->ShallowCopy( correlative->GetOutput( 0 ) );
   this->TableView4->SetRepresentationFromInput( correlativeC );

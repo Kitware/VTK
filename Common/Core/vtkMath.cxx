@@ -773,7 +773,7 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
     tmp = w[k];
     for (i=j+1; i<n; i++)                // boundary incorrect, shifted already
       {
-      if (w[i] >= tmp)                   // why exchage if same?
+      if (w[i] >= tmp)                   // why exchange if same?
         {
         k = i;
         tmp = w[k];

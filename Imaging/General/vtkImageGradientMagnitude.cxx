@@ -178,7 +178,7 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
            (outExt[2]-inExt[2])*inIncs[1] +
            (outExt[4]-inExt[4])*inIncs[2];
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     useZMin = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];

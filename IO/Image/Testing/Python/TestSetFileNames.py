@@ -5,7 +5,7 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 globFileNames = vtk.vtkGlobFileNames()
-globFileNames.AddFileNames(VTK_DATA_ROOT + "/Data/headsq/quarter.*")
+globFileNames.AddFileNames(VTK_DATA_ROOT + "/Data/headsq/quarter.*[0-9]")
 
 sortFileNames = vtk.vtkSortFileNames()
 sortFileNames.SetInputFileNames(globFileNames.GetFileNames())

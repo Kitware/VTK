@@ -1,26 +1,14 @@
-create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-  TestLSDynaReader.cxx
-  TestLSDynaReaderSPH.cxx
+if(VTK_USE_LARGE_DATA)
+  # Tell ExternalData to fetch test input at build time.
+  ExternalData_Expand_Arguments(VTKData _
+    "DATA{${VTK_TEST_INPUT_DIR}/LSDyna/foam/,REGEX:.*}"
+    "DATA{${VTK_TEST_INPUT_DIR}/LSDyna/hemi.draw/,REGEX:.*}"
+    )
 
-  EXTRA_INCLUDE vtkTestDriver.h
-)
+  vtk_add_test_cxx(
+    TestLSDynaReader.cxx
+    TestLSDynaReaderSPH.cxx
+    )
+endif()
 
-vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
-
-set(TestsToRun ${Tests})
-list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
-
-# Add all the executables
-foreach(test ${TestsToRun})
-  get_filename_component(TName ${test} NAME_WE)
-  if(VTK_LARGE_DATA_ROOT)
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName}
-        -D ${VTK_LARGE_DATA_ROOT}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/IO/${TName}.png)
-  else()
-    add_test(NAME ${vtk-module}Cxx-${TName}
-      COMMAND ${vtk-module}CxxTests ${TName})
-  endif()
-endforeach()
+vtk_test_cxx_executable(${vtk-module}CxxTests)

@@ -18,10 +18,6 @@
 =========================================================================
 '''
 
-# Run this test like so:
-# vtkpython cells.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT/Baseline/Rendering
-
 import tempfile
 import os
 import vtk

@@ -26,8 +26,8 @@
 #define QVTKGraphicsItem_hpp
 
 #include "vtkGUISupportQtOpenGLModule.h" // For export macro
-#include <QtGui/QGraphicsWidget>
-#include <QtOpenGL/QGLContext>
+#include <QGLContext>
+#include <QGraphicsWidget>
 #include <vtkSmartPointer.h>
 #include "QVTKWin32Header.h"
 class vtkEventQtSlotConnect;

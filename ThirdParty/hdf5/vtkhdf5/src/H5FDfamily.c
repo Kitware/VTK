@@ -648,7 +648,7 @@ H5FD_family_sb_encode(H5FD_t *_file, char *name/*out*/, unsigned char *buf/*out*
 /*-------------------------------------------------------------------------
  * Function:	H5FD_family_sb_decode
  *
- * Purpose:	This function has 2 seperate purpose.  One is to decodes the
+ * Purpose:	This function has 2 separate purpose.  One is to decodes the
  *              superblock information for this driver. The NAME argument is
  *              the eight-character (plus null termination) name stored in i
  *              the file.  The FILE argument is updated according to the

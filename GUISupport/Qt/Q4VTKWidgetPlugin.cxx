@@ -144,5 +144,7 @@ QList<QDesignerCustomWidgetInterface*> QVTKPlugin::customWidgets() const
   return plugins;
 }
 
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN(QVTKPlugin)
+#endif
 

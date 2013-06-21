@@ -6,6 +6,7 @@ Utilities/GitSetup/setup-hooks && echo &&
 Utilities/Scripts/SetupGitAliases.sh && echo &&
 (Utilities/GitSetup/setup-gerrit ||
  echo 'Failed to setup Gerrit.  Run this again to retry.') && echo &&
+Utilities/Scripts/SetupExternalData.sh && echo &&
 Utilities/GitSetup/tips
 
 # Rebase master by default
