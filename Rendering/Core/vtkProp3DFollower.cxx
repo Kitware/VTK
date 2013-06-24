@@ -230,12 +230,12 @@ int vtkProp3DFollower::RenderOpaqueGeometry(vtkViewport *vp)
     this->ComputeMatrix();
     this->Device->SetUserMatrix(this->Matrix);
 
-    return this->Device->RenderOpaqueGeometry(vp);
+    if (this->GetVisibility())
+      {
+      return this->Device->RenderOpaqueGeometry(vp);
+      }
     }
-  else
-    {
-    return 0;
-    }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -245,12 +245,12 @@ int vtkProp3DFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
     {
     this->ComputeMatrix();
     this->Device->SetUserMatrix(this->Matrix);
-    return this->Device->RenderTranslucentPolygonalGeometry(vp);
+    if (this->GetVisibility())
+      {
+      return this->Device->RenderTranslucentPolygonalGeometry(vp);
+      }
     }
-  else
-    {
-    return 0;
-    }
+  return 0;
 }
 
 //----------------------------------------------------------------------
@@ -260,12 +260,12 @@ int vtkProp3DFollower::RenderVolumetricGeometry(vtkViewport *vp)
     {
     this->ComputeMatrix();
     this->Device->SetUserMatrix(this->Matrix);
-    return this->Device->RenderVolumetricGeometry(vp);
+    if (this->GetVisibility())
+      {
+      return this->Device->RenderVolumetricGeometry(vp);
+      }
     }
-  else
-    {
-    return 0;
-    }
+  return 0;
 }
 
 //----------------------------------------------------------------------

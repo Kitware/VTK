@@ -15,6 +15,7 @@ set(Module_SRCS
   vtkLegendScaleActor.cxx
   vtkPieChartActor.cxx
   vtkPolarAxesActor.cxx
+  vtkProp3DAxisFollower.cxx
   vtkScalarBarActor.cxx
   vtkSpiderPlotActor.cxx
   vtkXYPlotActor.cxx

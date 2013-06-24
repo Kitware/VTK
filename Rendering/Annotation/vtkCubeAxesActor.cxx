@@ -23,6 +23,7 @@
 #include "vtkFollower.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkProp3DAxisFollower.h"
 #include "vtkProperty.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
@@ -81,10 +82,16 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->TitleTextProperty[i] = vtkTextProperty::New();
     this->TitleTextProperty[i]->SetColor(1.,1.,1.);
     this->TitleTextProperty[i]->SetFontFamilyToArial();
+    this->TitleTextProperty[i]->SetFontSize(18.);
+    this->TitleTextProperty[i]->SetVerticalJustificationToCentered();
+    this->TitleTextProperty[i]->SetJustificationToCentered();
 
     this->LabelTextProperty[i] = vtkTextProperty::New();
     this->LabelTextProperty[i]->SetColor(1.,1.,1.);
     this->LabelTextProperty[i]->SetFontFamilyToArial();
+    this->LabelTextProperty[i]->SetFontSize(14.);
+    this->LabelTextProperty[i]->SetVerticalJustificationToBottom();
+    this->LabelTextProperty[i]->SetJustificationToLeft();
     }
 
   // Axis lines
@@ -174,25 +181,37 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
     // Pass information to axes followers.
     vtkAxisFollower* follower = this->XAxes[i]->GetTitleActor();
-    follower->SetAxis(this->XAxes[i]);
     follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
     follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
     follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
     follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
+    vtkProp3DAxisFollower* axisFollower = this->XAxes[i]->GetTitleProp3D();
+    axisFollower->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    axisFollower->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    axisFollower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    axisFollower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
 
     follower = this->YAxes[i]->GetTitleActor();
-    follower->SetAxis(this->YAxes[i]);
     follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
     follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
     follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
     follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
+    axisFollower = this->YAxes[i]->GetTitleProp3D();
+    axisFollower->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    axisFollower->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    axisFollower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    axisFollower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
 
     follower = this->ZAxes[i]->GetTitleActor();
-    follower->SetAxis(this->ZAxes[i]);
     follower->SetEnableDistanceLOD( this->EnableDistanceLOD );
     follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
     follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
     follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
+    axisFollower = this->ZAxes[i]->GetTitleProp3D();
+    axisFollower->SetEnableDistanceLOD( this->EnableDistanceLOD );
+    axisFollower->SetDistanceLODThreshold( this->DistanceLODThreshold );
+    axisFollower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+    axisFollower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
     }
 
   this->XTitle = new char[7];
@@ -317,6 +336,24 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     }
   this->LabelScale = -1.0;
   this->TitleScale = -1.0;
+}
+
+// *************************************************************************
+void vtkCubeAxesActor::SetUseTextActor3D( int val )
+{
+  for( int i = 0 ; i < NUMBER_OF_ALIGNED_AXIS ; ++ i )
+    {
+    this->XAxes[i]->SetUseTextActor3D( val );
+    this->YAxes[i]->SetUseTextActor3D( val );
+    this->ZAxes[i]->SetUseTextActor3D( val );
+    }
+}
+
+// *************************************************************************
+int vtkCubeAxesActor::GetUseTextActor3D()
+{
+  // It is assumed that all axes have the same value
+  return this->XAxes[0]->GetUseTextActor3D();
 }
 
 void vtkCubeAxesActor::SetUse2DMode( int val )
@@ -2102,7 +2139,7 @@ void vtkCubeAxesActor::AutoScale(vtkViewport *viewport, vtkAxisActor *axis[NUMBE
                           this->ScreenSize,
                           labelActors[j]->GetPosition());
 
-      labelActors[j]->SetScale(newLabelScale);
+      axis[i]->SetLabelScale(j, newLabelScale);
       }
     }
 }
@@ -2327,35 +2364,23 @@ vtkTextProperty* vtkCubeAxesActor::GetLabelTextProperty(int axis)
 // ****************************************************************************
 //  Set axes and screen size of the labels.
 // ****************************************************************************
-void vtkCubeAxesActor::UpdateLabels(vtkAxisActor **axis, int index)
+void vtkCubeAxesActor::UpdateLabels(vtkAxisActor **axis, int vtkNotUsed(index))
   {
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     int numberOfLabelsBuild = axis[i]->GetNumberOfLabelsBuilt();
     vtkAxisFollower **labelActors = axis[i]->GetLabelActors();
+    vtkProp3DAxisFollower **labelProps = axis[i]->GetLabelProps3D();
     for(int k=0; k < numberOfLabelsBuild; ++k)
       {
-      if(index == 0)
-        {
-        labelActors[k]->SetAxis(this->XAxes[i]);
-        }
-      else if(index == 1)
-        {
-        labelActors[k]->SetAxis(this->YAxes[i]);
-        }
-      else if(index == 2)
-        {
-        labelActors[k]->SetAxis(this->ZAxes[i]);
-        }
-      else
-        {
-        // Do nothing.
-        }
-
       labelActors[k]->SetEnableDistanceLOD( this->EnableDistanceLOD );
       labelActors[k]->SetDistanceLODThreshold( this->DistanceLODThreshold );
       labelActors[k]->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
       labelActors[k]->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
+      labelProps[k]->SetEnableDistanceLOD( this->EnableDistanceLOD );
+      labelProps[k]->SetDistanceLODThreshold( this->DistanceLODThreshold );
+      labelProps[k]->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
+      labelProps[k]->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
       }
     }
   }
