@@ -264,11 +264,15 @@ int vtkTextActor3D::UpdateImageActor()
       return 0;
       }
 
+    int bbox[4];
+    this->GetBoundingBox(bbox);
+
     // Associate the image data (should be up to date now) to the image actor
     if (this->ImageActor)
       {
       this->ImageActor->SetInputData(this->ImageData);
-      this->ImageActor->SetDisplayExtent(this->ImageData->GetExtent());
+      this->ImageActor->SetDisplayExtent(
+        bbox[0], bbox[1], bbox[2], bbox[3], 0, 0);
       }
 
     } // if (this->GetMTime() ...
