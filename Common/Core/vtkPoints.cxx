@@ -77,14 +77,10 @@ vtkPoints::~vtkPoints()
 }
 
 // Given a list of pt ids, return an array of points.
-void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *fp)
+void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *outPoints)
 {
-  vtkIdType num = ptIds->GetNumberOfIds();
-
-  for (vtkIdType i=0; i < num; i++)
-    {
-    fp->InsertPoint(i, this->GetPoint(ptIds->GetId(i)));
-    }
+  outPoints->Data->SetNumberOfTuples(ptIds->GetNumberOfIds());
+  this->Data->GetTuples(ptIds, outPoints->Data);
 }
 
 // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
