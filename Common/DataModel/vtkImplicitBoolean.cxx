@@ -243,8 +243,12 @@ void vtkImplicitBoolean::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "VTK_UNION\n";
     }
+  else if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
+    {
+    os << "VTK_UNION_OF_MAGNITUDES\n";
+    }
   else
     {
-    os << "VTK_INTERSECTION\n";
+    os << "VTK_DIFFERENCE\n";
     }
 }
