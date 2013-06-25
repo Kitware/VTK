@@ -665,6 +665,7 @@ int vtkPointsProjectedHull::RectangleOutside(double hmin, double hmax,
                   this->CCWHull[dir] + 2*i + 2,
                   insidePt))
       {
+      delete [] insidePt;
       return 1;
       }
     }
