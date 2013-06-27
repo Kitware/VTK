@@ -30,6 +30,7 @@ vtkPNGWriter::vtkPNGWriter()
 {
   this->FileLowerLeft = 1;
   this->FileDimensionality = 2;
+  this->CompressionLevel = 0;
   this->WriteToMemory = 0;
   this->Result = 0;
   this->TempFP = 0;
@@ -205,6 +206,8 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
     vtkErrorMacro(<<"Unable to write PNG file!");
     return;
     }
+
+  png_set_compression_level(png_ptr, this->CompressionLevel);
 
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
