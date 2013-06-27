@@ -43,8 +43,9 @@ public:
   // Description:
   // Set/Get the zlib compression level.
   // The range is 0-9, with 0 meaning no compression
-  // and largest file size, and 9 meaning best compression
-  // and smaller file size. The default is 0.
+  // corresponding to the largest file size, and 9 meaning
+  // best compression, corresponding to the smallest file size.
+  // The default is 0.
   vtkSetClampMacro(CompressionLevel, unsigned int, 0, 9);
   vtkGetMacro(CompressionLevel, unsigned int);
 
