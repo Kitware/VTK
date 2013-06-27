@@ -1595,6 +1595,13 @@ void vtkMFIXReader::ReadRestartFile()
       this->BkEpsilon = true;
       }
     }
+  if (this->VersionNumber >= 1.7999)
+    {
+    for( int i = 0; i < this->MMAX; ++i)
+      {
+      this->SkipBytes(in,512);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
