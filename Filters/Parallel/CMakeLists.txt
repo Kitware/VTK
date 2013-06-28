@@ -25,7 +25,6 @@ set(Module_SRCS
   vtkPReflectionFilter.cxx
   vtkProcessIdScalars.cxx
   vtkPSphereSource.cxx
-  vtkPTableToStructuredGrid.cxx
   vtkRectilinearGridOutlineFilter.cxx
   vtkTransmitPolyDataPiece.cxx
   vtkTransmitRectilinearGridPiece.cxx
