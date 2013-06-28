@@ -48,7 +48,7 @@ vtkProp3DFollower::~vtkProp3DFollower()
     this->Camera->UnRegister(this);
     }
 
-  if (this->Camera)
+  if (this->Device)
     {
     this->Device->Delete();
     }
