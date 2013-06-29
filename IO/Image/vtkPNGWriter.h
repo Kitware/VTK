@@ -46,8 +46,8 @@ public:
   // corresponding to the largest file size, and 9 meaning
   // best compression, corresponding to the smallest file size.
   // The default is 0.
-  vtkSetClampMacro(CompressionLevel, unsigned int, 0, 9);
-  vtkGetMacro(CompressionLevel, unsigned int);
+  vtkSetClampMacro(CompressionLevel, int, 0, 9);
+  vtkGetMacro(CompressionLevel, int);
 
   // Description:
   // Write the image to memory (a vtkUnsignedCharArray)
@@ -66,7 +66,7 @@ protected:
   ~vtkPNGWriter();
 
   void WriteSlice(vtkImageData *data, int* uExtent);
-  unsigned int CompressionLevel;
+  int CompressionLevel;
   unsigned int WriteToMemory;
   vtkUnsignedCharArray *Result;
   FILE *TempFP;
