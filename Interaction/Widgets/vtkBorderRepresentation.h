@@ -82,11 +82,29 @@ public:
   // border will never appear.  If ShowBorder is "active" then the border
   // will appear when the mouse pointer enters the region bounded by the
   // border widget.
-  vtkSetClampMacro(ShowBorder,int,BORDER_OFF,BORDER_ACTIVE);
-  vtkGetMacro(ShowBorder,int);
+  // This method is provided as conveniency to set both horizontal and
+  // vertical borders.
+  // BORDER_ON by default.
+  // See Also: SetShowHorizontalBorder(), SetShowVerticalBorder()
+  virtual void SetShowBorder(int border);
+  virtual int GetShowBorderMinValue();
+  virtual int GetShowBorderMaxValue();
+  virtual int GetShowBorder();
   void SetShowBorderToOff() {this->SetShowBorder(BORDER_OFF);}
   void SetShowBorderToOn() {this->SetShowBorder(BORDER_ON);}
   void SetShowBorderToActive() {this->SetShowBorder(BORDER_ACTIVE);}
+
+  // Description:
+  // Specify when and if the vertical border should appear.
+  // See Also: SetShowBorder(), SetShowHorizontalBorder()
+  vtkSetClampMacro(ShowVerticalBorder,int,BORDER_OFF,BORDER_ACTIVE);
+  vtkGetMacro(ShowVerticalBorder,int);
+
+  // Description:
+  // Specify when and if the horizontal border should appear.
+  // See Also: SetShowBorder(), SetShowVerticalBorder()
+  vtkSetClampMacro(ShowHorizontalBorder,int,BORDER_OFF,BORDER_ACTIVE);
+  vtkGetMacro(ShowHorizontalBorder,int);
 
   // Description:
   // Specify the properties of the border.
@@ -174,7 +192,8 @@ protected:
   ~vtkBorderRepresentation();
 
   // Ivars
-  int           ShowBorder;
+  int           ShowVerticalBorder;
+  int           ShowHorizontalBorder;
   vtkProperty2D *BorderProperty;
   int           ProportionalResize;
   int           Tolerance;
@@ -189,6 +208,11 @@ protected:
   // to achieve the correct layout.
   int Negotiated;
   virtual void NegotiateLayout();
+
+  // Update the border visibility based on InteractionState.
+  // See Also: SetShowHorizontalBorder(), SetShowHorizontalBorder(),
+  // ComputeInteractionState()
+  virtual void UpdateShowBorder();
 
   // Keep track of start position when moving border
   double StartPosition[2];
