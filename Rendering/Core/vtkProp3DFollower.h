@@ -26,7 +26,7 @@
 // degrees.
 
 // .SECTION see also
-// vtkFollower vtkProp3D vtkActor vtkCamera
+// vtkFollower vtkProp3D vtkCamera vtkProp3DAxisFollower
 
 #ifndef __vtkProp3DFollower_h
 #define __vtkProp3DFollower_h
@@ -103,12 +103,12 @@ protected:
   vtkCamera *Camera;
   vtkProp3D  *Device;
 
+  //Internal matrices to avoid New/Delete for performance reasons
+  vtkMatrix4x4 *InternalMatrix;
+
 private:
   vtkProp3DFollower(const vtkProp3DFollower&);  // Not implemented.
   void operator=(const vtkProp3DFollower&);  // Not implemented.
-
-  //Internal matrices to avoid New/Delete for performance reasons
-  vtkMatrix4x4 *InternalMatrix;
 };
 
 #endif

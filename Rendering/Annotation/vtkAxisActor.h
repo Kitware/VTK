@@ -77,9 +77,11 @@ class vtkFollower;
 class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper;
+class vtkProp3DAxisFollower;
 class vtkProperty2D;
 class vtkStringArray;
 class vtkTextActor;
+class vtkTextActor3D;
 class vtkTextProperty;
 class vtkVectorText;
 
@@ -128,11 +130,19 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkGetStringMacro(LabelFormat);
 
   // Description:
+  // Render text as polygons (vtkVectorText) or as sprites (vtkTextActor3D).
+  // In 2D mode, the value is ignored and text is rendered as vtkTextActor.
+  // False(0) by default.
+  // See Also:
+  // GetUse2DMode(), SetUse2DMode
+  vtkSetMacro(UseTextActor3D, int);
+  vtkGetMacro(UseTextActor3D, int);
+
+  // Description:
   // Set/Get the flag that controls whether the minor ticks are visible.
   vtkSetMacro(MinorTicksVisible, int);
   vtkGetMacro(MinorTicksVisible, int);
   vtkBooleanMacro(MinorTicksVisible, int);
-
 
   // Description:
   // Set/Get the title of the axis actor,
@@ -304,8 +314,9 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   double ComputeMaxLabelLength(const double [3]);
   double ComputeTitleLength(const double [3]);
 //ETX
-  void SetLabelScale(const double);
-  void SetTitleScale(const double);
+  void SetLabelScale(const double scale);
+  void SetLabelScale(int labelIndex, const double scale);
+  void SetTitleScale(const double scale);
 
   // Description:
   // Set/Get the starting position for minor and major tick points,
@@ -354,6 +365,18 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   inline vtkAxisFollower** GetLabelActors()
     {
     return this->LabelActors;
+    }
+
+  // Description:
+  // Get title actor and it is responsible for drawing
+  // title text.
+  vtkGetObjectMacro(TitleProp3D,  vtkProp3DAxisFollower);
+
+  // Description:
+  // Get label actors responsigle for drawing label text.
+  inline vtkProp3DAxisFollower** GetLabelProps3D()
+    {
+    return this->LabelProps3D;
     }
 //ETX
 
@@ -433,6 +456,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   double  Range[2];
   double  LastRange[2];
   char  *LabelFormat;
+  int    UseTextActor3D;
   int    NumberOfLabelsBuilt;
   int    MinorTicksVisible;
   int    LastMinorTicksVisible;
@@ -524,12 +548,16 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkPolyDataMapper *TitleMapper;
   vtkAxisFollower   *TitleActor;
   vtkTextActor      *TitleActor2D;
+  vtkProp3DAxisFollower *TitleProp3D;
+  vtkTextActor3D    *TitleActor3D;
   vtkTextProperty   *TitleTextProperty;
 
   vtkVectorText     **LabelVectors;
   vtkPolyDataMapper **LabelMappers;
   vtkAxisFollower   **LabelActors;
+  vtkProp3DAxisFollower **LabelProps3D;
   vtkTextActor      **LabelActors2D;
+  vtkTextActor3D    **LabelActors3D;
   vtkTextProperty    *LabelTextProperty;
 
   vtkPolyData        *AxisLines;

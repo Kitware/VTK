@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAxisFollower.cxx
+  Module:    vtkProp3DAxisFollower.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,8 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-#include "vtkAxisFollower.h"
+#include "vtkProp3DAxisFollower.h"
 
 #include "vtkAxisActor.h"
 #include "vtkBoundingBox.h"
@@ -22,15 +21,16 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
+#include "vtkViewport.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
 #include <math.h>
 
-vtkStandardNewMacro(vtkAxisFollower);
+vtkStandardNewMacro(vtkProp3DAxisFollower);
+
+vtkCxxSetObjectMacro(vtkProp3DAxisFollower,Viewport,vtkViewport);
 
 // List of vectors per axis (depending on which one needs to be
 // followed.
@@ -60,10 +60,9 @@ namespace
     }
   };
 }
-
 //----------------------------------------------------------------------
 // Creates a follower with no camera set
-vtkAxisFollower::vtkAxisFollower() : vtkFollower()
+vtkProp3DAxisFollower::vtkProp3DAxisFollower()
 {
   this->AutoCenter                = 1;
 
@@ -76,21 +75,24 @@ vtkAxisFollower::vtkAxisFollower() : vtkFollower()
   this->ScreenOffset              = 10.0;
 
   this->Axis                      = NULL;
+  this->Viewport                  = NULL;
 
-  this->TextUpsideDown          = -1;
+  this->TextUpsideDown            = -1;
   this->VisibleAtCurrentViewAngle = -1;
-
-  this->InternalMatrix = vtkMatrix4x4::New();
 }
 
 //----------------------------------------------------------------------
-vtkAxisFollower::~vtkAxisFollower()
+vtkProp3DAxisFollower::~vtkProp3DAxisFollower()
 {
-  this->InternalMatrix->Delete();
+  if (this->Viewport)
+    {
+    this->Viewport->Delete();
+    this->Viewport = 0;
+    }
 }
 
 //----------------------------------------------------------------------
-void vtkAxisFollower::SetAxis(vtkAxisActor *axis)
+void vtkProp3DAxisFollower::SetAxis(vtkAxisActor *axis)
 {
   if(!axis)
     {
@@ -108,34 +110,34 @@ void vtkAxisFollower::SetAxis(vtkAxisActor *axis)
 }
 
 //----------------------------------------------------------------------
-vtkAxisActor* vtkAxisFollower::GetAxis()
+vtkAxisActor* vtkProp3DAxisFollower::GetAxis()
 {
   return this->Axis.GetPointer();
 }
 
 //----------------------------------------------------------------------------
-void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
-  double rZ[3], vtkAxisActor *axis, double *dop, vtkRenderer *ren)
+void vtkProp3DAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
+  double rZ[3], vtkAxisActor *axis, double *dop, vtkViewport *viewport)
 {
-  if(!rX || !rY || !rZ)
+  if (!rX || !rY || !rZ)
     {
     vtkErrorMacro("Invalid or NULL direction vectors\n");
     return;
     }
 
-  if(!axis)
+  if (!axis)
     {
     vtkErrorMacro("Invalid or NULL axis\n");
     return;
     }
 
-  if(!dop)
+  if (!dop)
     {
     vtkErrorMacro("Invalid or NULL direction of projection vector\n");
     return;
     }
 
-  if(!ren)
+  if (!viewport)
     {
     vtkErrorMacro("Invalid or NULL renderer\n");
     return;
@@ -145,22 +147,28 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
 
   vtkCoordinate *c1Axis =  axis->GetPoint1Coordinate();
   vtkCoordinate *c2Axis =  axis->GetPoint2Coordinate();
-  double *axisPt1 = c1Axis->GetComputedWorldValue(ren);
-  double *axisPt2 = c2Axis->GetComputedWorldValue(ren);
+  double *axisPt1 = c1Axis->GetComputedWorldValue(viewport);
+  double *axisPt2 = c2Axis->GetComputedWorldValue(viewport);
 
   rX[0] = axisPt2[0] - axisPt1[0];
   rX[1] = axisPt2[1] - axisPt1[1];
   rX[2] = axisPt2[2] - axisPt1[2];
   vtkMath::Normalize(rX);
 
-  // Get Y
-  vtkMath::Cross(rX, dop, rY);
-  vtkMath::Normalize(rY);
+  if (rX[0] != dop[0] || rX[1] != dop[1] || rX[2] != dop[2])
+    {
+    // Get Y
+    vtkMath::Cross(rX, dop, rY);
+    vtkMath::Normalize(rY);
 
-  // Get Z
-  vtkMath::Cross(rX, rY, rZ);
-  vtkMath::Normalize(rZ);
-
+    // Get Z
+    vtkMath::Cross(rX, rY, rZ);
+    vtkMath::Normalize(rZ);
+    }
+  else
+    {
+    vtkMath::Perpendiculars(rX, rY, rZ, 0.);
+    }
   double a[3], b[3];
 
   // Need homogeneous points.
@@ -195,8 +203,8 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
 }
 
 //----------------------------------------------------------------------------
-double vtkAxisFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
-                                  double screenSize, double position[3])
+double vtkProp3DAxisFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
+                                        double screenSize, double position[3])
 {
   double newScale = 0.0;
 
@@ -235,11 +243,17 @@ double vtkAxisFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
 }
 
 //----------------------------------------------------------------------------
-void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
+void vtkProp3DAxisFollower::ComputeMatrix()
 {
   if(!this->Axis)
     {
     vtkErrorMacro("ERROR: Invalid axis\n");
+    return;
+    }
+
+  if (this->EnableDistanceLOD && !this->TestDistanceVisibility())
+    {
+    this->SetVisibility(0);
     return;
     }
 
@@ -251,6 +265,7 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
     this->Transform->Push();
     this->Transform->Identity();
     this->Transform->PostMultiply();
+    this->Transform->GetMatrix(this->Matrix);
 
     double pivotPoint[3] =
     {
@@ -261,7 +276,13 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
 
     if(this->AutoCenter)
       {
-      this->GetMapper()->GetCenter(pivotPoint);
+      // Don't apply the user matrix when retrieving the center.
+      this->Device->SetUserMatrix(NULL);
+
+      double* center = this->Device->GetCenter();
+      pivotPoint[0] = center[0];
+      pivotPoint[1] = center[1];
+      pivotPoint[2] = center[2];
       }
 
     // Move pivot point to origin
@@ -285,7 +306,7 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
       matrix->Identity();
       double rX[3], rY[3], rZ[3];
 
-      this->ComputeRotationAndTranlation(ren, translation, rX, rY, rZ, this->Axis);
+      this->ComputeRotationAndTranlation(this->Viewport, translation, rX, rY, rZ, this->Axis);
 
       vtkMath::Normalize(rX);
       vtkMath::Normalize(rY);
@@ -319,21 +340,24 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
     this->MatrixMTime.Modified();
     this->Transform->Pop();
     }
+
+  this->SetVisibility(this->VisibleAtCurrentViewAngle);
 }
 
 //-----------------------------------------------------------------------------
-void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double translation[3],
-                                                   double rX[3], double rY[3], double rZ[3],
-                                                   vtkAxisActor *axis)
+void vtkProp3DAxisFollower
+::ComputeRotationAndTranlation(vtkViewport* viewport, double translation[3],
+                               double rX[3], double rY[3], double rZ[3],
+                               vtkAxisActor *axis)
 {
   double autoScaleFactor =
-    this->AutoScale(ren, this->Camera, this->ScreenOffset, this->Position);
+    this->AutoScale(viewport, this->Camera, this->ScreenOffset, this->Position);
 
   double dop[3];
   this->Camera->GetDirectionOfProjection(dop);
   vtkMath::Normalize(dop);
 
-  this->CalculateOrthogonalVectors(rX, rY, rZ, axis, dop, ren);
+  this->CalculateOrthogonalVectors(rX, rY, rZ, axis, dop, this->Viewport);
 
   double dotVal = vtkMath::Dot(rZ, dop);
 
@@ -386,7 +410,7 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
 }
 
 //----------------------------------------------------------------------
-void vtkAxisFollower::ComputerAutoCenterTranslation(
+void vtkProp3DAxisFollower::ComputerAutoCenterTranslation(
   const double& vtkNotUsed(autoScaleFactor), double translation[3])
 {
   if(!translation)
@@ -395,7 +419,7 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
     return;
     }
 
-  double *bounds = this->GetMapper()->GetBounds();
+  double *bounds = this->GetProp3D()->GetBounds();
 
   // Offset by half of width.
   double halfWidth  = (bounds[1] - bounds[0]) * 0.5 * this->Scale[0];
@@ -426,7 +450,7 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
 }
 
 //----------------------------------------------------------------------
-int vtkAxisFollower::TestDistanceVisibility()
+int vtkProp3DAxisFollower::TestDistanceVisibility()
 {
   if(!this->Camera->GetParallelProjection())
     {
@@ -463,7 +487,7 @@ int vtkAxisFollower::TestDistanceVisibility()
 }
 
 //----------------------------------------------------------------------
-void vtkAxisFollower::ExecuteViewAngleVisibility(double normal[3])
+void vtkProp3DAxisFollower::ExecuteViewAngleVisibility(double normal[3])
 {
   if(!normal)
     {
@@ -488,7 +512,7 @@ void vtkAxisFollower::ExecuteViewAngleVisibility(double normal[3])
 }
 
 //----------------------------------------------------------------------
-void vtkAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProp3DAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
@@ -510,91 +534,9 @@ void vtkAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------
-int vtkAxisFollower::RenderOpaqueGeometry(vtkViewport *vp)
+void vtkProp3DAxisFollower::ShallowCopy(vtkProp *prop)
 {
-  if ( ! this->Mapper )
-    {
-    return 0;
-    }
-
-  if (!this->Property)
-    {
-    // force creation of a property
-    this->GetProperty();
-    }
-
-  if (this->GetIsOpaque())
-    {
-    vtkRenderer *ren = static_cast<vtkRenderer *>(vp);
-    this->Render(ren);
-    return 1;
-    }
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-int vtkAxisFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
-{
-  if ( ! this->Mapper )
-    {
-    return 0;
-    }
-
-  if (!this->Property)
-    {
-    // force creation of a property
-    this->GetProperty();
-    }
-
-  if (!this->GetIsOpaque())
-    {
-    vtkRenderer *ren = static_cast<vtkRenderer *>(vp);
-    this->Render(ren);
-    return 1;
-    }
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-void vtkAxisFollower::Render(vtkRenderer *ren)
-{
-  if(this->EnableDistanceLOD && !this->TestDistanceVisibility())
-    {
-    this->SetVisibility(0);
-    return;
-    }
-
-  this->Property->Render(this, ren);
-
-  this->Device->SetProperty (this->Property);
-  this->Property->Render(this, ren);
-  if (this->BackfaceProperty)
-    {
-    this->BackfaceProperty->BackfaceRender(this, ren);
-    this->Device->SetBackfaceProperty(this->BackfaceProperty);
-    }
-
-  /* render the texture */
-  if (this->Texture)
-    {
-    this->Texture->Render(ren);
-    }
-
-  // make sure the device has the same matrix
-  this->ComputeTransformMatrix(ren);
-  this->Device->SetUserMatrix(this->Matrix);
-
-  this->SetVisibility(this->VisibleAtCurrentViewAngle);
-  if(this->VisibleAtCurrentViewAngle)
-    {
-    this->Device->Render(ren,this->Mapper);
-    }
-}
-
-//----------------------------------------------------------------------
-void vtkAxisFollower::ShallowCopy(vtkProp *prop)
-{
-  vtkAxisFollower *f = vtkAxisFollower::SafeDownCast(prop);
+  vtkProp3DAxisFollower *f = vtkProp3DAxisFollower::SafeDownCast(prop);
   if ( f != NULL )
     {
     this->SetAutoCenter(f->GetAutoCenter());
@@ -610,8 +552,30 @@ void vtkAxisFollower::ShallowCopy(vtkProp *prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-bool vtkAxisFollower::IsTextUpsideDown( double* a, double* b )
+//----------------------------------------------------------------------
+bool vtkProp3DAxisFollower::IsTextUpsideDown( double* a, double* b )
 {
   double angle = vtkMath::RadiansFromDegrees(this->Orientation[2]);
   return (b[0] - a[0]) * cos(angle) - (b[1] - a[1]) * sin(angle) < 0;
+}
+
+//----------------------------------------------------------------------
+int vtkProp3DAxisFollower::RenderOpaqueGeometry(vtkViewport *viewport)
+{
+  this->SetViewport(viewport);
+  return this->Superclass::RenderOpaqueGeometry(viewport);
+}
+
+//----------------------------------------------------------------------
+int vtkProp3DAxisFollower::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
+{
+  this->SetViewport(viewport);
+  return this->Superclass::RenderTranslucentPolygonalGeometry(viewport);
+}
+
+//----------------------------------------------------------------------
+int vtkProp3DAxisFollower::RenderVolumetricGeometry(vtkViewport *viewport)
+{
+  this->SetViewport(viewport);
+  return this->Superclass::RenderVolumetricGeometry(viewport);
 }

@@ -29,12 +29,12 @@ vtkStandardNewMacro(vtkImageActor);
 //----------------------------------------------------------------------------
 vtkImageActor::vtkImageActor()
 {
-  this->DisplayExtent[0] = -1;
-  this->DisplayExtent[1] = 0;
+  this->DisplayExtent[0] = 0;
+  this->DisplayExtent[1] = -1;
   this->DisplayExtent[2] = 0;
-  this->DisplayExtent[3] = 0;
+  this->DisplayExtent[3] = -1;
   this->DisplayExtent[4] = 0;
-  this->DisplayExtent[5] = 0;
+  this->DisplayExtent[5] = -1;
 
   vtkMath::UninitializeBounds(this->DisplayBounds);
 
@@ -208,7 +208,7 @@ void vtkImageActor::SetDisplayExtent(int extent[6])
     {
     if (this->Mapper && this->Mapper->IsA("vtkImageSliceMapper"))
       {
-      if (this->DisplayExtent[0] != -1)
+      if (this->DisplayExtent[0] <= this->DisplayExtent[1])
         {
         static_cast<vtkImageSliceMapper *>(this->Mapper)->CroppingOn();
         static_cast<vtkImageSliceMapper *>(this->Mapper)->
@@ -284,7 +284,7 @@ double *vtkImageActor::GetDisplayBounds()
   // if the display extent has not been set, use first slice
   extent[5] = extent[4];
 
-  if (this->DisplayExtent[0] != -1)
+  if (this->DisplayExtent[0] <= this->DisplayExtent[1])
     {
     extent[0] = this->DisplayExtent[0];
     extent[1] = this->DisplayExtent[1];

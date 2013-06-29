@@ -395,6 +395,13 @@ public:
   void SetLabelScaling(bool, int, int, int);
 
   // Description:
+  // Use or not vtkTextActor3D for titles and labels.
+  // See Also:
+  // vtkAxisActor::SetUseTextActor3D(), vtkAxisActor::GetUseTextActor3D()
+  void SetUseTextActor3D( int val );
+  int GetUseTextActor3D();
+
+  // Description:
   // Get/Set 2D mode
   // NB: Use vtkTextActor for titles in 2D instead of vtkAxisFollower
   void SetUse2DMode( int val );
