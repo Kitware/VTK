@@ -30,8 +30,6 @@
 
 vtkStandardNewMacro(vtkProp3DAxisFollower);
 
-vtkCxxSetObjectMacro(vtkProp3DAxisFollower,Viewport,vtkViewport);
-
 // List of vectors per axis (depending on which one needs to be
 // followed.
 // Order here is X, Y, and Z.
@@ -113,6 +111,25 @@ void vtkProp3DAxisFollower::SetAxis(vtkAxisActor *axis)
 vtkAxisActor* vtkProp3DAxisFollower::GetAxis()
 {
   return this->Axis.GetPointer();
+}
+
+
+//----------------------------------------------------------------------
+void vtkProp3DAxisFollower::SetViewport(vtkViewport* vp)
+{
+  if(this->Viewport != vp)
+    {
+    // \NOTE: Don't increment the ref count of vtkViewport as it could lead to
+    // circular references.
+    this->Viewport = vp;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------
+vtkViewport* vtkProp3DAxisFollower::GetViewport()
+{
+  return this->Viewport.GetPointer();
 }
 
 //----------------------------------------------------------------------------
