@@ -116,7 +116,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkProp3DAxisFollower
   virtual int RenderVolumetricGeometry(vtkViewport *viewport);
 
   virtual void SetViewport(vtkViewport* viewport);
-  vtkGetObjectMacro(Viewport, vtkViewport);
+  virtual vtkViewport* GetViewport();
 
 protected:
   vtkProp3DAxisFollower();
@@ -152,8 +152,7 @@ protected:
   double       ScreenOffset;
 
   vtkWeakPointer<vtkAxisActor> Axis;
-
-  vtkViewport* Viewport;
+  vtkWeakPointer<vtkViewport> Viewport;
 private:
   vtkProp3DAxisFollower(const vtkProp3DAxisFollower&);  // Not implemented.
   void operator=(const vtkProp3DAxisFollower&);  // Not implemented.
