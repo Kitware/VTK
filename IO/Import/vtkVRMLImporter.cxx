@@ -956,9 +956,9 @@ __yy_memcpy (from, to, count)
 char *to;
 int count;
 {
-  register char *f = from;
-  register char *t = to;
-  register int i = count;
+  char *f = from;
+  char *t = to;
+  int i = count;
 
   while (i-- > 0)
     *t++ = *f++;
@@ -971,9 +971,9 @@ int count;
 static void
 __yy_memcpy (char *from, char *to, int count)
 {
-  register char *f = from;
-  register char *t = to;
-  register int i = count;
+  char *f = from;
+  char *t = to;
+  int i = count;
 
   while (i-- > 0)
     *t++ = *f++;
@@ -988,10 +988,10 @@ int
 yyparse(vtkVRMLImporter* self)
 {
   FakeAlloca yyallocator;
-  register int yystate;
-  register int yyn;
-  register short *yyssp;
-  register YYSTYPE *yyvsp;
+  int yystate;
+  int yyn;
+  short *yyssp;
+  YYSTYPE *yyvsp;
   int yyerrstatus;      /*  number of tokens to shift before error messages enabled */
   int yychar1 = 0;              /*  lookahead token as an internal (translated) token number */
 
@@ -4285,9 +4285,9 @@ void vtkVRMLImporter::DeleteObject(vtkObject* obj)
 
 int yylex ( vtkVRMLImporter* self )
 {
-  register yy_state_type yy_current_state;
-  register char *yy_cp, *yy_bp;
-  register int yy_act;
+  yy_state_type yy_current_state;
+  char *yy_cp, *yy_bp;
+  int yy_act;
 
 
 
@@ -4381,7 +4381,7 @@ int yylex ( vtkVRMLImporter* self )
       yy_match:
     do
       {
-      register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
+      YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
       if ( yy_accept[yy_current_state] )
         {
         yy_last_accepting_state = yy_current_state;
@@ -4905,9 +4905,9 @@ int yylex ( vtkVRMLImporter* self )
 
 static int yy_get_next_buffer()
 {
-  register char *dest = yy_current_buffer->yy_ch_buf;
-  register char *source = yytext_ptr - 1; /* copy prev. char, too */
-  register int number_to_move, i;
+  char *dest = yy_current_buffer->yy_ch_buf;
+  char *source = yytext_ptr - 1; /* copy prev. char, too */
+  int number_to_move, i;
   int ret_val;
 
   if ( yy_c_buf_p > &yy_current_buffer->yy_ch_buf[yy_n_chars + 1] )
@@ -5027,14 +5027,14 @@ static int yy_get_next_buffer()
 
 static yy_state_type yy_get_previous_state()
 {
-  register yy_state_type yy_current_state;
-  register char *yy_cp;
+  yy_state_type yy_current_state;
+  char *yy_cp;
 
   yy_current_state = yy_start;
 
   for ( yy_cp = yytext_ptr + YY_MORE_ADJ; yy_cp < yy_c_buf_p; ++yy_cp )
     {
-    register YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
+    YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
     if ( yy_accept[yy_current_state] )
       {
       yy_last_accepting_state = yy_current_state;
@@ -5066,10 +5066,10 @@ static yy_state_type yy_try_NUL_trans( yy_state_type yy_current_state )
   yy_state_type yy_current_state;
 #endif
 {
-  register int yy_is_jam;
-  register char *yy_cp = yy_c_buf_p;
+  int yy_is_jam;
+  char *yy_cp = yy_c_buf_p;
 
-  register YY_CHAR yy_c = 1;
+  YY_CHAR yy_c = 1;
   if ( yy_accept[yy_current_state] )
     {
     yy_last_accepting_state = yy_current_state;
@@ -5268,7 +5268,7 @@ const char *s2;
 int n;
 #endif
 {
-  register int i;
+  int i;
   for ( i = 0; i < n; ++i )
     s1[i] = s2[i];
 }

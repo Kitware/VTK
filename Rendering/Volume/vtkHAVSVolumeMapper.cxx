@@ -690,7 +690,7 @@ void vtkHAVSVolumeMapper::InitializeLookupTables(vtkVolume *vol)
 void
 vtkHAVSVolumeMapper::FRadix(int byte, int len, vtkHAVSSortedFace *source, vtkHAVSSortedFace *dest, int *count)
 {
-  register unsigned int i, j;
+  unsigned int i, j;
   vtkHAVSSortedFace *k;
 
   static int index[256];
@@ -712,9 +712,9 @@ vtkHAVSVolumeMapper::FRadix(int byte, int len, vtkHAVSSortedFace *source, vtkHAV
 void
 vtkHAVSVolumeMapper::FRadixSort(vtkHAVSSortedFace *array, vtkHAVSSortedFace *temp, int lo, int up)
 {
-  register int len = up-lo;
-  register unsigned int i;
-  register unsigned int u;
+  int len = up-lo;
+  unsigned int i;
+  unsigned int u;
 
   vtkHAVSSortedFace * uints = array + lo;
 
