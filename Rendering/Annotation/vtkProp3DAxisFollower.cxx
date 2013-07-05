@@ -82,11 +82,6 @@ vtkProp3DAxisFollower::vtkProp3DAxisFollower()
 //----------------------------------------------------------------------
 vtkProp3DAxisFollower::~vtkProp3DAxisFollower()
 {
-  if (this->Viewport)
-    {
-    this->Viewport->Delete();
-    this->Viewport = 0;
-    }
 }
 
 //----------------------------------------------------------------------
