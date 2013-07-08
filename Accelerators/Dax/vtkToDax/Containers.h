@@ -20,8 +20,6 @@
 #include <vtkPoints.h>
 #include <vtkCellArray.h>
 
-#include "daxConfig.h"
-
 #include "Portals.h"
 #include "Allocators.h"
 

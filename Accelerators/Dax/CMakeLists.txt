@@ -69,8 +69,8 @@ else()
   set (DAX_DEVICE_ADAPTER "DAX_DEVICE_ADAPTER_SERIAL")
 endif()
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/daxConfig.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/daxConfig.h" @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkDaxConfig.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkDaxConfig.h" @ONLY)
 
 #needed for our export macros
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -82,6 +82,7 @@ set(headers
   DaxDetailCommon.h
   DaxMarchingCubesImpl.h
   DaxThresholdImpl.h
+  vtkDaxConfig.h
   daxToVtk/CellTypeToType.h
   daxToVtk/DataSetConverters.h
   vtkToDax/Allocators.h

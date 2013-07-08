@@ -14,7 +14,7 @@
 //
 //=============================================================================
 
-#include "daxConfig.h"
+#include "vtkDaxConfig.h"
 
 #include <vtkDispatcher.h>
 #include <vtkDoubleDispatcher.h>

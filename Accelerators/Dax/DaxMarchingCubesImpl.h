@@ -14,7 +14,7 @@
 //
 //=============================================================================
 
-#include "daxConfig.h"
+#include "vtkDaxConfig.h"
 
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
