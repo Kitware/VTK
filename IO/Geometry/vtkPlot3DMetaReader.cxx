@@ -28,11 +28,7 @@
 #include <vector>
 #include <string>
 
-// Needed for Windows declspec import logic
-#if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
-# define JSON_DLL
-#endif
-#include <json/json.h>
+#include "vtk_jsoncpp.h"
 
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
 
@@ -363,7 +359,7 @@ int vtkPlot3DMetaReader::RequestInformation(
     {
     // report to the user the failure and their locations in the document.
     vtkErrorMacro("Failed to parse configuration\n"
-                  << reader.getFormattedErrorMessages().c_str());
+                  << reader.getFormatedErrorMessages().c_str());
     return 0;
     }
 
