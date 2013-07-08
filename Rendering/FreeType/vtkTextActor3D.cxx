@@ -90,7 +90,14 @@ double* vtkTextActor3D::GetBounds()
     // that we haven't rendered yet, so we have to make sure our bounds
     // are up to date so that we don't get culled.
     this->UpdateImageActor();
-    return this->ImageActor->GetBounds();
+    double* bounds = this->ImageActor->GetBounds();
+    this->Bounds[0] = bounds[0];
+    this->Bounds[1] = bounds[1];
+    this->Bounds[2] = bounds[2];
+    this->Bounds[3] = bounds[3];
+    this->Bounds[4] = bounds[4];
+    this->Bounds[5] = bounds[5];
+    return bounds;
     }
 
   return NULL;
@@ -257,11 +264,15 @@ int vtkTextActor3D::UpdateImageActor()
       return 0;
       }
 
+    int bbox[4];
+    this->GetBoundingBox(bbox);
+
     // Associate the image data (should be up to date now) to the image actor
     if (this->ImageActor)
       {
       this->ImageActor->SetInputData(this->ImageData);
-      this->ImageActor->SetDisplayExtent(this->ImageData->GetExtent());
+      this->ImageActor->SetDisplayExtent(
+        bbox[0], bbox[1], bbox[2], bbox[3], 0, 0);
       }
 
     } // if (this->GetMTime() ...

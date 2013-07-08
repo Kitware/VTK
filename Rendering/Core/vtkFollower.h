@@ -24,7 +24,7 @@
 // 90 degrees.
 
 // .SECTION see also
-// vtkActor vtkCamera
+// vtkActor vtkCamera vtkAxisFollower vtkProp3DFollower
 
 #ifndef __vtkFollower_h
 #define __vtkFollower_h

@@ -522,6 +522,8 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
   unsigned char *tptr, *p, *p1, *p2, *p3, *p4;
   int jOffset, iIdx, jIdx;
   double pcoords[3], rm, sm, w0, w1, w2, w3;
+  int yInIncr = xs;
+  int xInIncr = 1;
 
   int xsize = FindPowerOfTwo(xs);
   int ysize = FindPowerOfTwo(ys);
@@ -550,7 +552,15 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
     jIdx = static_cast<int>(pcoords[1]);
     if (jIdx >= (ys-1)) //make sure to interpolate correctly at edge
       {
-      jIdx = ys - 2;
+      if (ys == 1)
+        {
+        jIdx = 0;
+        yInIncr = 0;
+        }
+      else
+        {
+        jIdx = ys - 2;
+        }
       pcoords[1] = 1.0;
       }
     else
@@ -566,7 +576,15 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
       iIdx = static_cast<int>(pcoords[0]);
       if (iIdx >= (xs-1))
         {
-        iIdx = xs - 2;
+        if (xs == 1)
+          {
+          iIdx = 0;
+          xInIncr = 0;
+          }
+        else
+          {
+          iIdx = xs - 2;
+          }
         pcoords[0] = 1.0;
         }
       else
@@ -577,9 +595,9 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
 
       // Get pointers to 4 surrounding pixels
       p1 = dptr + bpp*(iIdx + jOffset);
-      p2 = p1 + bpp;
-      p3 = p1 + bpp*xs;
-      p4 = p3 + bpp;
+      p2 = p1 + bpp*xInIncr;
+      p3 = p1 + bpp*yInIncr;
+      p4 = p3 + bpp*xInIncr;
 
       // Compute interpolation weights interpolate components
       w0 = rm*sm;

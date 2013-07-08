@@ -41,6 +41,15 @@ public:
   virtual void Write();
 
   // Description:
+  // Set/Get the zlib compression level.
+  // The range is 0-9, with 0 meaning no compression
+  // corresponding to the largest file size, and 9 meaning
+  // best compression, corresponding to the smallest file size.
+  // The default is 0.
+  vtkSetClampMacro(CompressionLevel, int, 0, 9);
+  vtkGetMacro(CompressionLevel, int);
+
+  // Description:
   // Write the image to memory (a vtkUnsignedCharArray)
   vtkSetMacro(WriteToMemory, unsigned int);
   vtkGetMacro(WriteToMemory, unsigned int);
@@ -57,6 +66,7 @@ protected:
   ~vtkPNGWriter();
 
   void WriteSlice(vtkImageData *data, int* uExtent);
+  int CompressionLevel;
   unsigned int WriteToMemory;
   vtkUnsignedCharArray *Result;
   FILE *TempFP;

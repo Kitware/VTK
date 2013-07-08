@@ -48,7 +48,7 @@ vtkCameraRepresentation::vtkCameraRepresentation()
   this->Position2Coordinate->SetValue(0.04*size[0], 0.04*size[1]);
   this->ProportionalResize = 1;
   this->Moving = 1;
-  this->ShowBorder = vtkBorderRepresentation::BORDER_ON;
+  this->SetShowBorder(vtkBorderRepresentation::BORDER_ON);
 
   // Create the geometry in canonical coordinates
   this->Points = vtkPoints::New();
