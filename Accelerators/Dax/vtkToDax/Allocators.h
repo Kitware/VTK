@@ -49,8 +49,8 @@ struct vtkAlloc
   self::pointer allocate(size_type n, self::const_pointer hint = 0)
     {
     pointer p =  value_type::New();
-    p->SetNumberOfTuples(n);
     p->SetNumberOfComponents(NUM_COMPONENTS);
+    p->SetNumberOfTuples(n);
     return p;
     }
 
