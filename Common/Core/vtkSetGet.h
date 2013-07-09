@@ -758,7 +758,11 @@ virtual double *Get##name() \
   // place to avoid stray semicolons because this is an error for some
   // compilers.  Using a class forward declaration allows any number
   // of repeats in any context without generating unique names.
-# define VTK_LEGACY(method) class vtkLegacyMethodRemoved
+
+# define VTK_LEGACY(method)         VTK_LEGACY__0(method,__LINE__)
+# define VTK_LEGACY__0(method,line) VTK_LEGACY__1(method,line)
+# define VTK_LEGACY__1(method,line) class vtkLegacyMethodRemoved##line
+
 #elif defined(VTK_LEGACY_SILENT) || defined(VTK_WRAPPING_CXX)
   // Provide legacy methods with no warnings.
 # define VTK_LEGACY(method) method
