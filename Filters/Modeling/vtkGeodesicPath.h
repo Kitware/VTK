@@ -34,8 +34,6 @@ public:
   vtkTypeMacro(vtkGeodesicPath,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual double GetGeodesicLength() = 0;
-
 protected:
   vtkGeodesicPath();
   ~vtkGeodesicPath();
