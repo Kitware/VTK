@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef _VTK_DAX_CONFIG_H_
-#define _VTK_DAX_CONFIG_H_
+#ifndef __vtkDaxConfig_h
+#define __vtkDaxConfig_h
 
 // Boost gives a bunch of warnings with nvcc if you don't specify how shared
 // pointers should handle threads. Dax does not care (it is too careful about
@@ -29,4 +29,4 @@
 
 #define DAX_DEVICE_ADAPTER @DAX_DEVICE_ADAPTER@
 #include <dax/cont/DeviceAdapter.h>
-#endif // _VTK_DAX_CONFIG_H_
+#endif // __vtkDaxConfig_h

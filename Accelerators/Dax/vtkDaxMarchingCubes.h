@@ -14,8 +14,8 @@
 //
 //=============================================================================
 
-#ifndef vtkDaxMarchingCubes_H
-#define vtkDaxMarchingCubes_H
+#ifndef __vtkDaxMarchingCubes_h
+#define __vtkDaxMarchingCubes_h
 
 #include <vtkMarchingCubes.h>
 #include "vtkAcceleratorsDaxModule.h" //required for correct implementation
@@ -31,7 +31,9 @@ protected:
   vtkDaxMarchingCubes();
   ~vtkDaxMarchingCubes();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *);
 
 private:
   vtkDaxMarchingCubes(const vtkDaxMarchingCubes&); //Not implemented

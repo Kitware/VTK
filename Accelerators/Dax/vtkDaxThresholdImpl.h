@@ -14,35 +14,40 @@
 //
 //=============================================================================
 
-#include "vtkDaxConfig.h"
+#ifndef __vtkDaxThresholdImpl_h
+#define __vtkDaxThresholdImpl_h
 
-#include <vtkDispatcher.h>
-#include <vtkDoubleDispatcher.h>
-#include <vtkNew.h>
+// Common code
+#include "vtkDaxConfig.h"
+#include "vtkDaxDetailCommon.h"
+
+#include "vtkDispatcher.h"
+#include "vtkDoubleDispatcher.h"
+#include "vtkNew.h"
 
 //cell types we support
-#include <vtkCellTypes.h>
-#include <vtkGenericCell.h>
-#include <vtkHexahedron.h>
-#include <vtkLine.h>
-#include <vtkQuad.h>
-#include <vtkTetra.h>
-#include <vtkTriangle.h>
-#include <vtkVertex.h>
-#include <vtkVoxel.h>
-#include <vtkWedge.h>
+#include "vtkCellTypes.h"
+#include "vtkGenericCell.h"
+#include "vtkHexahedron.h"
+#include "vtkLine.h"
+#include "vtkQuad.h"
+#include "vtkTetra.h"
+#include "vtkTriangle.h"
+#include "vtkVertex.h"
+#include "vtkVoxel.h"
+#include "vtkWedge.h"
 
 //fields we support
-#include <vtkFloatArray.h>
-#include <vtkIntArray.h>
-#include <vtkUnsignedCharArray.h>
+#include "vtkFloatArray.h"
+#include "vtkIntArray.h"
+#include "vtkUnsignedCharArray.h"
 
 //datasets we support
-#include <vtkDataObjectTypes.h>
-#include <vtkImageData.h>
-#include <vtkStructuredGrid.h>
-#include <vtkUniformGrid.h>
-#include <vtkUnstructuredGrid.h>
+#include "vtkDataObjectTypes.h"
+#include "vtkImageData.h"
+#include "vtkStructuredGrid.h"
+#include "vtkUniformGrid.h"
+#include "vtkUnstructuredGrid.h"
 
 //helpers that convert to and from Dax
 #include <vtkToDax/CellTypeToType.h>
@@ -52,8 +57,6 @@
 #include <vtkToDax/Portals.h>
 #include <vtkToDax/Threshold.h>
 
-// Common code
-#include "vtkDaxDetailCommon.h"
 
 namespace vtkDax{
 namespace detail{
@@ -165,4 +168,5 @@ int Threshold(vtkDataSet* input, vtkUnstructuredGrid *output,
 }
 
 } //end vtkDax namespace
-// VTK-HeaderTest-Exclude: DaxThresholdImpl.h
+// VTK-HeaderTest-Exclude: vtkDaxThresholdImpl.h
+#endif

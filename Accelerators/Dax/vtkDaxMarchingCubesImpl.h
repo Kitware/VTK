@@ -14,41 +14,39 @@
 //
 //=============================================================================
 
+#ifndef __vtkDaxMarchingCubesImpl_h
+#define __vtkDaxMarchingCubesImpl_h
+
+// Common code
 #include "vtkDaxConfig.h"
+#include "vtkDaxDetailCommon.h"
 
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkNew.h>
-
-//fields we support
-#include <vtkFloatArray.h>
-
-//cell types we support
-#include <vtkCellTypes.h>
-#include <vtkGenericCell.h>
-#include <vtkTriangle.h>
-#include <vtkVoxel.h>
-
-//datasets we support
-#include <vtkDataObjectTypes.h>
-#include <vtkImageData.h>
-#include <vtkUniformGrid.h>
-#include <vtkPolyData.h>
-
-//helpers that convert vtk to dax
 #include "vtkDispatcher.h"
 #include "vtkDoubleDispatcher.h"
+#include "vtkNew.h"
 
+//fields we support
+#include "vtkFloatArray.h"
+
+//cell types we support
+#include "vtkCellTypes.h"
+#include "vtkGenericCell.h"
+#include "vtkTriangle.h"
+#include "vtkVoxel.h"
+
+//datasets we support
+#include "vtkDataObjectTypes.h"
+#include "vtkImageData.h"
+#include "vtkUniformGrid.h"
+#include "vtkPolyData.h"
+
+//helpers that convert vtk to dax
 #include "vtkToDax/Portals.h"
 #include "vtkToDax/Containers.h"
 #include "vtkToDax/CellTypeToType.h"
 #include "vtkToDax/DataSetTypeToType.h"
 #include "vtkToDax/FieldTypeToType.h"
 #include "vtkToDax/MarchingCubes.h"
-
-// Common code
-#include "vtkDaxDetailCommon.h"
 
 namespace vtkDax {
 namespace detail {
@@ -134,4 +132,5 @@ int MarchingCubes(vtkDataSet* input, vtkPolyData *output,
 }
 
 } //end vtkDax namespace
-// VTK-HeaderTest-Exclude: DaxMarchingCubesImpl.h
+// VTK-HeaderTest-Exclude: vtkDaxMarchingCubesImpl.h
+#endif

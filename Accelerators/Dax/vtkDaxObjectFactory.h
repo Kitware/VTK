@@ -13,34 +13,37 @@
 
 =========================================================================*/
 
-#include <vtkObjectFactory.h>
-#include <vtkObjectFactoryCollection.h>
-#include <vtkOverrideInformation.h>
-#include <vtkOverrideInformationCollection.h>
-#include <vtkVersion.h>
+#ifndef __vtkDaxObjectFactory_h
+#define __vtkDaxObjectFactory_h
 
-#include "vtkDaxThreshold.h"
+#include "vtkObjectFactory.h"
+#include "vtkObjectFactoryCollection.h" //required to make a factory
+#include "vtkOverrideInformation.h" //required to make a factory
+#include "vtkOverrideInformationCollection.h" //required to make a factory
+#include "vtkVersion.h" //required to make a factory
+
+#include "vtkDaxThreshold.h" //required to overload Threshold
 VTK_CREATE_CREATE_FUNCTION(vtkDaxThreshold)
 
-#include "vtkDaxMarchingCubes.h"
+#include "vtkDaxMarchingCubes.h" //required to overload Marching Cubes
 VTK_CREATE_CREATE_FUNCTION(vtkDaxMarchingCubes)
 
-class VTK_EXPORT DaxObjectFactory : public vtkObjectFactory
+class VTK_EXPORT vtkDaxObjectFactory : public vtkObjectFactory
 {
 public:
-  static DaxObjectFactory* New();
-  DaxObjectFactory();
+  static vtkDaxObjectFactory* New();
+  vtkDaxObjectFactory();
   virtual const char* GetVTKSourceVersion() { return VTK_SOURCE_VERSION; }
   const char* GetDescription() { return "Dax Object Factory"; }
-  vtkTypeMacro(DaxObjectFactory,vtkObjectFactory)
+  vtkTypeMacro(vtkDaxObjectFactory,vtkObjectFactory)
 
 protected:
-  DaxObjectFactory(const DaxObjectFactory&);
-  void operator=(const DaxObjectFactory&);
+  vtkDaxObjectFactory(const vtkDaxObjectFactory&);
+  void operator=(const vtkDaxObjectFactory&);
 };
 
 
-DaxObjectFactory::DaxObjectFactory()
+vtkDaxObjectFactory::vtkDaxObjectFactory()
 {
   this->RegisterOverride("vtkThreshold",
                          "vtkDaxThreshold",
@@ -55,5 +58,5 @@ DaxObjectFactory::DaxObjectFactory()
                          vtkObjectFactoryCreatevtkDaxThreshold);
 }
 
-vtkStandardNewMacro(DaxObjectFactory)
-// VTK-HeaderTest-Exclude: DaxObjectFactory.h
+vtkStandardNewMacro(vtkDaxObjectFactory)
+#endif

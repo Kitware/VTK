@@ -14,8 +14,8 @@
 //
 //=============================================================================
 
-#ifndef VTKDAXTHRESHOLD_H
-#define VTKDAXTHRESHOLD_H
+#ifndef __vtkDaxThreshold_h
+#define __vtkDaxThreshold_h
 
 #include <vtkThreshold.h>
 #include "vtkAcceleratorsDaxModule.h" //required for correct implementation
@@ -41,4 +41,4 @@ private:
   void operator=(const vtkDaxThreshold&); // Not implemented
 };
 
-#endif // VTKDAXTHRESHOLD_H
+#endif // __vtkDaxThreshold_h

@@ -14,12 +14,13 @@
 //
 //=============================================================================
 
-#ifndef DaxDetailCommon_h
-#define DaxDetailCommon_h
+#ifndef __vtkDaxDetailCommon_h
+#define __vtkDaxDetailCommon_h
 
-#include <vtkCellTypes.h>
-#include <vtkGenericCell.h>
-#include <vtkNew.h>
+#include "vtkCellTypes.h"
+#include "vtkDataSet.h"
+#include "vtkGenericCell.h"
+#include "vtkNew.h"
 
 namespace vtkDax {
 namespace detail {
@@ -48,4 +49,4 @@ namespace detail {
   }
 }}
 #endif // DaxDetailCommon_h
-// VTK-HeaderTest-Exclude: DaxDetailCommon.h
+// VTK-HeaderTest-Exclude: vtkDaxDetailCommon.h
