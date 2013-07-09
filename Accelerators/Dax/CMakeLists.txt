@@ -73,44 +73,34 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkDaxConfig.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkDaxConfig.h" @ONLY)
 
 #needed for our export macros
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${Dax_INCLUDE_DIRS})
-include_directories(${${vtk-module}_DEPENDS_INCLUDE_DIRS})
+include_directories(${${vtk-module}_DEPENDS_INCLUDE_DIRS}
+                    ${CMAKE_CURRENT_BINARY_DIR}
+                    ${CMAKE_CURRENT_SOURCE_DIR}
+                    ${Dax_INCLUDE_DIRS}
+                   )
 
 set(headers
-  DaxDetailCommon.h
-  DaxMarchingCubesImpl.h
-  DaxThresholdImpl.h
+  vtkDaxDetailCommon.h
+  vtkDaxMarchingCubesImpl.h
+  vtkDaxThresholdImpl.h
   vtkDaxConfig.h
-  daxToVtk/CellTypeToType.h
-  daxToVtk/DataSetConverters.h
-  vtkToDax/Allocators.h
-  vtkToDax/CellTypeAndDataType.h
-  vtkToDax/CellTypeToType.h
-  vtkToDax/Containers.h
-  vtkToDax/DataSetConverters.h
-  vtkToDax/DataSetTypeToType.h
-  vtkToDax/FieldTypeToType.h
-  vtkToDax/MarchingCubes.h
-  vtkToDax/Portals.h
-  vtkToDax/Threshold.h
   )
 
 #implementation of the algorithms for cpu accelerators
 set(cpu_accelerator_srcs
-  DaxMarchingCubes.cxx
-  DaxThreshold.cxx
+  vtkDaxMarchingCubesImpl.cxx
+  vtkDaxThresholdImpl.cxx
   )
 
 set(vtk_srcs
-  DaxObjectFactory.h
+  vtkDaxObjectFactory.h
   vtkDaxMarchingCubes.cxx
   vtkDaxThreshold.cxx
   )
 
 set_source_files_properties(
   ${headers}
+  ${cpu_accelerator_srcs}
   WRAP_EXCLUDE
   )
 
@@ -119,8 +109,8 @@ if(${VTK_DAX_PICKED_CUDA})
 
   #implementation of the algorithms for gpu accelerators
   set(cuda_accelerator_srcs
-    DaxMarchingCubes.cu
-    DaxThreshold.cu
+    vtkDaxMarchingCubesImpl.cu
+    vtkDaxThresholdImpl.cu
     )
 
 

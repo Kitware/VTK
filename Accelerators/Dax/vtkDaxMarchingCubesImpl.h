@@ -48,7 +48,7 @@
 #include "vtkToDax/MarchingCubes.h"
 
 // Common code
-#include "DaxDetailCommon.h"
+#include "vtkDaxDetailCommon.h"
 
 namespace vtkDax {
 namespace detail {

@@ -53,7 +53,7 @@
 #include <vtkToDax/Threshold.h>
 
 // Common code
-#include "DaxDetailCommon.h"
+#include "vtkDaxDetailCommon.h"
 
 namespace vtkDax{
 namespace detail{
