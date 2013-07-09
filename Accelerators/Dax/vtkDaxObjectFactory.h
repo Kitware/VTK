@@ -16,6 +16,8 @@
 #ifndef __vtkDaxObjectFactory_h
 #define __vtkDaxObjectFactory_h
 
+#include "vtkAcceleratorsDaxModule.h" //required for correct implementation
+
 #include "vtkObjectFactory.h"
 #include "vtkObjectFactoryCollection.h" //required to make a factory
 #include "vtkOverrideInformation.h" //required to make a factory
@@ -28,18 +30,26 @@ VTK_CREATE_CREATE_FUNCTION(vtkDaxThreshold)
 #include "vtkDaxMarchingCubes.h" //required to overload Marching Cubes
 VTK_CREATE_CREATE_FUNCTION(vtkDaxMarchingCubes)
 
-class VTK_EXPORT vtkDaxObjectFactory : public vtkObjectFactory
+class VTKACCELERATORSDAX_EXPORT vtkDaxObjectFactory : public vtkObjectFactory
 {
 public:
   static vtkDaxObjectFactory* New();
-  vtkDaxObjectFactory();
+
   virtual const char* GetVTKSourceVersion() { return VTK_SOURCE_VERSION; }
   const char* GetDescription() { return "Dax Object Factory"; }
   vtkTypeMacro(vtkDaxObjectFactory,vtkObjectFactory)
 
+  void PrintSelf(ostream& os, vtkIndent indent)
+  {
+  this->Superclass::PrintSelf(os,indent);
+  }
+
 protected:
-  vtkDaxObjectFactory(const vtkDaxObjectFactory&);
-  void operator=(const vtkDaxObjectFactory&);
+  vtkDaxObjectFactory();
+
+private:
+  vtkDaxObjectFactory(const vtkDaxObjectFactory&); // Not implemented
+  void operator=(const vtkDaxObjectFactory&); // Not implemented
 };
 
 

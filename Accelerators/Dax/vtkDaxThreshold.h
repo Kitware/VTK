@@ -17,7 +17,7 @@
 #ifndef __vtkDaxThreshold_h
 #define __vtkDaxThreshold_h
 
-#include <vtkThreshold.h>
+#include "vtkThreshold.h"
 #include "vtkAcceleratorsDaxModule.h" //required for correct implementation
 
 class VTKACCELERATORSDAX_EXPORT vtkDaxThreshold : public vtkThreshold

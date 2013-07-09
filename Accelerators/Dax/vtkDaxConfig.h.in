@@ -27,6 +27,9 @@
 #endif
 
 
-#define DAX_DEVICE_ADAPTER @DAX_DEVICE_ADAPTER@
+#ifndef DAX_DEVICE_ADAPTER
+# define DAX_DEVICE_ADAPTER @DAX_DEVICE_ADAPTER@
+#endif
+
 #include <dax/cont/DeviceAdapter.h>
 #endif // __vtkDaxConfig_h

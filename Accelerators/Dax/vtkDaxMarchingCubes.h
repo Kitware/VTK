@@ -17,7 +17,7 @@
 #ifndef __vtkDaxMarchingCubes_h
 #define __vtkDaxMarchingCubes_h
 
-#include <vtkMarchingCubes.h>
+#include "vtkMarchingCubes.h"
 #include "vtkAcceleratorsDaxModule.h" //required for correct implementation
 
 class VTKACCELERATORSDAX_EXPORT vtkDaxMarchingCubes : public vtkMarchingCubes
