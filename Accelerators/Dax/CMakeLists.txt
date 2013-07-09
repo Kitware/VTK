@@ -142,3 +142,15 @@ else()
                                         ${cpu_accelerator_srcs} ${headers})
 
 endif()
+
+#install the required headers to make your own dax vtk filter
+if(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(DIRECTORY
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkToDax
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
+    COMPONENT Development)
+  install(DIRECTORY
+    ${CMAKE_CURRENT_SOURCE_DIR}/daxToVtk
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
+    COMPONENT Development)
+endif()
