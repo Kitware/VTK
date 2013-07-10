@@ -36,7 +36,7 @@
 #include "vtkDataObjectAlgorithm.h"
 
 #include "vtkSmartPointer.h"    // For ivars
-
+#include <string> //For std::string
 
 class vtkDataArraySelection;
 class vtkDataSet;
