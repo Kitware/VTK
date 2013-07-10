@@ -2171,7 +2171,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->LoadExtensionsSucceeded=1;
 
   const char *gl_version=reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  if(strstr(gl_version,"Mesa")!=0)
+  if(gl_version && strstr(gl_version,"Mesa")!=0)
     {
     // - GL_VENDOR cannot be used because it can be "Brian Paul" or
     // "Mesa project"
