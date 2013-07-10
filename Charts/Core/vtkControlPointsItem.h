@@ -43,7 +43,9 @@ public:
 
   enum {
     CurrentPointChangedEvent = vtkCommand::UserEvent,
-    CurrentPointEditEvent
+    CurrentPointEditEvent,
+    PointsModifiedEvent // fired when the control points are changed by
+                        // user-interaction.
   };
 
   // Description:
@@ -176,6 +178,17 @@ public:
   vtkGetMacro(EndPointsRemovable, bool);
 
   // Description:
+  // When set to true, labels are shown on the current control point and the end
+  // points. Default is false.
+  vtkSetMacro(ShowLabels, bool);
+  vtkGetMacro(ShowLabels, bool);
+
+  // Description:
+  // Get/Set the label format. Default is "%.4f, %.4f".
+  vtkSetStringMacro(LabelFormat);
+  vtkGetStringMacro(LabelFormat);
+
+  // Description:
   // Add a point to the function. Returns the index of the point (0 based),
   // or -1 on error.
   // Subclasses should reimplement this function to do the actual work.
@@ -302,6 +315,12 @@ protected:
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
   // Description:
+  // Transform the mouse event in the control-points space. This is needed when
+  // ColorTransferFunction is using log-scale.
+  virtual void TransformScreenToData(const vtkVector2f& in, vtkVector2f& out);
+  virtual void TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out);
+
+  // Description:
   // Clamp the given 2D pos into the bounds of the function.
   // Return true if the pos has been clamped, false otherwise.
   bool ClampPos(double pos[2], double bounds[4]);
@@ -328,6 +347,10 @@ protected:
   // Mouse button release event.
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
+  // Description:
+  // Generate label for a control point.
+  virtual vtkStdString GetControlPointLabel(vtkIdType index);
+
   void AddPointId(vtkIdType addedPointId);
 
   // Description:
@@ -338,6 +361,19 @@ protected:
   // Description:
   // Return true if the point is removable
   bool IsPointRemovable(vtkIdType pointId);
+
+  // Description:
+  // Compute the bounds for this item. Typically, the bounds should be aligned
+  // to the range of the vtkScalarsToColors or vtkPiecewiseFunction that is
+  // being controlled by the subclasses.
+  // Default implementation uses the range of the control points themselves.
+  virtual void ComputeBounds(double* bounds);
+
+  // Description:
+  // Returns true if control points are to be rendered in log-space. This is
+  // true when vtkScalarsToColors is using log-scale, for example. Default
+  // implementation always return false.
+  virtual bool UsingLogScale() { return false; }
 
   vtkCallbackCommand* Callback;
   vtkPen*             SelectedPointPen;
@@ -365,12 +401,13 @@ protected:
   bool                EndPointsXMovable;
   bool                EndPointsYMovable;
   bool                EndPointsRemovable;
+  bool                ShowLabels;
+  char*               LabelFormat;
 private:
   vtkControlPointsItem(const vtkControlPointsItem &); // Not implemented.
   void operator=(const vtkControlPointsItem &);   // Not implemented.
 
   void      ComputeBounds();
-  void      ComputeBounds(double* bounds);
 
   vtkIdType RemovePointId(vtkIdType removedPointId);
 };

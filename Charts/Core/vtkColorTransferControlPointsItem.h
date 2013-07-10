@@ -86,12 +86,23 @@ protected:
   vtkColorTransferControlPointsItem();
   virtual ~vtkColorTransferControlPointsItem();
 
+  // Description:
+  // Returns true if control points are to be rendered in log-space. This is
+  // true when vtkScalarsToColors is using log-scale, for example. Default
+  // implementation always return false.
+  virtual bool UsingLogScale();
+
   virtual void emitEvent(unsigned long event, void* params);
 
   virtual unsigned long int GetControlPointsMTime();
 
   virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
   virtual void EditPoint(float tX, float tY);
+
+  // Description:
+  // Compute the bounds for this item. Overridden to use the
+  // vtkColorTransferFunction range.
+  virtual void ComputeBounds(double* bounds);
 
   vtkColorTransferFunction* ColorTransferFunction;
 

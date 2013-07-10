@@ -42,6 +42,7 @@ vtkPiecewiseFunctionItem::~vtkPiecewiseFunctionItem()
 {
   if (this->PiecewiseFunction)
     {
+    this->PiecewiseFunction->RemoveObserver(this->Callback);
     this->PiecewiseFunction->Delete();
     this->PiecewiseFunction = 0;
     }
