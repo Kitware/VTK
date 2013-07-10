@@ -196,18 +196,16 @@ inline int Rmdir(const char* dir)
 }
 inline const char* Getcwd(char* buf, unsigned int len)
 {
-  const char* ret = _getcwd(buf, len);
-  if(!ret)
+  if(const char* ret = _getcwd(buf, len))
     {
-    fprintf(stderr, "No current working directory.\n");
-    abort();
+    // make sure the drive letter is capital
+    if(strlen(buf) > 1 && buf[1] == ':')
+      {
+      buf[0] = toupper(buf[0]);
+      }
+    return ret;
     }
-  // make sure the drive letter is capital
-  if(strlen(buf) > 1 && buf[1] == ':')
-    {
-    buf[0] = toupper(buf[0]);
-    }
-  return ret;
+  return 0;
 }
 inline int Chdir(const char* dir)
 {
@@ -245,13 +243,7 @@ inline int Rmdir(const char* dir)
 }
 inline const char* Getcwd(char* buf, unsigned int len)
 {
-  const char* ret = getcwd(buf, len);
-  if(!ret)
-    {
-    fprintf(stderr, "No current working directory\n");
-    abort();
-    }
-  return ret;
+  return getcwd(buf, len);
 }
 
 inline int Chdir(const char* dir)
@@ -613,7 +605,7 @@ bool SystemTools::MakeDirectory(const char* path)
     }
   if(SystemTools::FileExists(path))
     {
-    return true;
+    return SystemTools::FileIsDirectory(path);
     }
   kwsys_stl::string dir = path;
   if(dir.size() == 0)
@@ -1132,22 +1124,58 @@ bool SystemTools::Touch(const char* filename, bool create)
       }
     return false;
     }
-#ifdef _MSC_VER
-#define utime _utime
-#define utimbuf _utimbuf
+#if defined(_WIN32) && !defined(__CYGWIN__)
+  HANDLE h = CreateFile(filename, FILE_WRITE_ATTRIBUTES,
+                        FILE_SHARE_WRITE, 0, OPEN_EXISTING,
+                        FILE_FLAG_BACKUP_SEMANTICS, 0);
+  if(!h)
+    {
+    return false;
+    }
+  FILETIME mtime;
+  GetSystemTimeAsFileTime(&mtime);
+  if(!SetFileTime(h, 0, 0, &mtime))
+    {
+    CloseHandle(h);
+    return false;
+    }
+  CloseHandle(h);
+#elif KWSYS_CXX_HAS_UTIMENSAT
+  struct timespec times[2] = {{0,UTIME_OMIT},{0,UTIME_NOW}};
+  if(utimensat(AT_FDCWD, filename, times, 0) < 0)
+    {
+    return false;
+    }
+#else
+  struct stat st;
+  if(stat(filename, &st) < 0)
+    {
+    return false;
+    }
+  struct timeval mtime;
+  gettimeofday(&mtime, 0);
+# if KWSYS_CXX_HAS_UTIMES
+  struct timeval times[2] =
+    {
+#  if KWSYS_STAT_HAS_ST_MTIM
+      {st.st_atim.tv_sec, st.st_atim.tv_nsec/1000}, /* tv_sec, tv_usec */
+#  else
+      {st.st_atime, 0},
+#  endif
+      mtime
+    };
+  if(utimes(filename, times) < 0)
+    {
+    return false;
+    }
+# else
+  struct utimbuf times = {st.st_atime, mtime.tv_sec};
+  if(utime(filename, &times) < 0)
+    {
+    return false;
+    }
+# endif
 #endif
-  struct stat fromStat;
-  if(stat(filename, &fromStat) < 0)
-    {
-    return false;
-    }
-  struct utimbuf buf;
-  buf.actime = fromStat.st_atime;
-  buf.modtime = static_cast<time_t>(SystemTools::GetTime());
-  if(utime(filename, &buf) < 0)
-    {
-    return false;
-    }
   return true;
 }
 
@@ -2749,15 +2777,24 @@ bool SystemTools::FileIsDirectory(const char* name)
     return false;
     }
 
-  // Remove any trailing slash from the name.
-  char buffer[KWSYS_SYSTEMTOOLS_MAXPATH];
+  // Remove any trailing slash from the name except in a root component.
+  char local_buffer[KWSYS_SYSTEMTOOLS_MAXPATH];
+  std::string string_buffer;
   size_t last = length-1;
   if(last > 0 && (name[last] == '/' || name[last] == '\\')
-    && strcmp(name, "/") !=0)
+    && strcmp(name, "/") !=0 && name[last-1] != ':')
     {
-    memcpy(buffer, name, last);
-    buffer[last] = 0;
-    name = buffer;
+    if(last < sizeof(local_buffer))
+      {
+      memcpy(local_buffer, name, last);
+      local_buffer[last] = 0;
+      name = local_buffer;
+      }
+    else
+      {
+      string_buffer.append(name, last);
+      name = string_buffer.c_str();
+      }
     }
 
   // Now check the file node type.
@@ -3048,7 +3085,7 @@ SystemToolsAppendComponents(
     {
     if(*i == "..")
       {
-      if(out_components.begin() != out_components.end())
+      if(out_components.size() > 1)
         {
         out_components.erase(out_components.end()-1, out_components.end());
         }
@@ -3089,7 +3126,7 @@ kwsys_stl::string SystemTools::CollapseFullPath(const char* in_path,
         }
       else
         {
-        // ??
+        base_components.push_back("");
         }
       }
 
@@ -4010,7 +4047,7 @@ void SystemTools::SplitProgramFromArgs(const char* path,
       args = dir.substr(spacePos, dir.size()-spacePos);
       return;
       }
-    // Now try and find the the program in the path
+    // Now try and find the program in the path
     findProg = SystemTools::FindProgram(tryProg.c_str(), e);
     if(findProg.size())
       {
@@ -4224,17 +4261,13 @@ bool SystemTools::IsSubDirectory(const char* cSubdir, const char* cDir)
     }
   kwsys_stl::string subdir = cSubdir;
   kwsys_stl::string dir = cDir;
+  SystemTools::ConvertToUnixSlashes(subdir);
   SystemTools::ConvertToUnixSlashes(dir);
-  kwsys_stl::string path = subdir;
-  do
+  if(subdir.size() > dir.size() && subdir[dir.size()] == '/')
     {
-    path = SystemTools::GetParentDirectory(path.c_str());
-    if(SystemTools::ComparePath(dir.c_str(), path.c_str()))
-      {
-      return true;
-      }
+    std::string s = subdir.substr(0, dir.size());
+    return SystemTools::ComparePath(s.c_str(), dir.c_str());
     }
-  while ( path.size() > dir.size() );
   return false;
 }
 
