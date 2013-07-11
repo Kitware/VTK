@@ -15,14 +15,19 @@
 #include "vtkLightingHelper.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkgl.h"
 #include "vtkShaderProgram2.h"
 #include "vtkShader2Collection.h"
+#include "vtkgl.h"
+#include "vtkOpenGLError.h"
 
 extern const char * vtkLightingHelper_s;
 
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLightingHelper);
+
+//----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkLightingHelper, Shader, vtkShaderProgram2);
+
 //----------------------------------------------------------------------------
 vtkLightingHelper::vtkLightingHelper()
 {
@@ -55,9 +60,9 @@ void vtkLightingHelper::Initialize(vtkShaderProgram2* pgm,
 }
 
 //----------------------------------------------------------------------------
-#define VTK_MAX_LIGHTS 8
 void vtkLightingHelper::PrepareForRendering()
 {
+  #ifndef NDEBUG
   GLint ivalue;
   glGetIntegerv(vtkgl::CURRENT_PROGRAM, &ivalue);
   if (ivalue != 0)
@@ -65,6 +70,9 @@ void vtkLightingHelper::PrepareForRendering()
     vtkErrorMacro("PrepareForRendering() cannot be called after a shader program has been bound.");
     return;
     }
+  #endif
+
+  vtkOpenGLClearErrorMacro();
 
   for (int cc=0; cc < VTK_MAX_LIGHTS; cc++)
     {
@@ -83,6 +91,8 @@ void vtkLightingHelper::PrepareForRendering()
       }
     glLightfv(GL_LIGHT0 + cc, GL_DIFFUSE, lightDiffuse);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after enabling lights");
 }
 
 //----------------------------------------------------------------------------

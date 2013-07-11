@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderState.h"
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkShaderProgram2.h"
 
@@ -89,6 +90,8 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
 // into graphics pipeline.
 void vtkOpenGLRenderer::ClearLights (void)
 {
+  vtkOpenGLClearErrorMacro();
+
   short curLight;
   float Info[4];
 
@@ -118,11 +121,15 @@ void vtkOpenGLRenderer::ClearLights (void)
     }
 
   this->NumberOfLightsBound = 0;
+
+  vtkOpenGLCheckErrorMacro("failed ater ClearLights");
 }
 
 // Ask lights to load themselves into graphics pipeline.
 int vtkOpenGLRenderer::UpdateLights ()
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkLight *light;
   short curLight;
   float status;
@@ -180,6 +187,9 @@ int vtkOpenGLRenderer::UpdateLights ()
 
   glPopMatrix();
   glEnable(GL_LIGHTING);
+
+  vtkOpenGLCheckErrorMacro("failed after UpdateLights");
+
   return count;
 }
 
@@ -190,6 +200,7 @@ int vtkOpenGLRenderer::UpdateLights ()
 int vtkOpenGLRenderer::GetUseTextureUniformVariable()
 {
   GLint result=vtkgl::GetUniformLocation(this->ProgramShader,"useTexture");
+  vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
   if(result==-1)
     {
     vtkErrorMacro(<<"useTexture is not a uniform variable");
@@ -204,6 +215,7 @@ int vtkOpenGLRenderer::GetUseTextureUniformVariable()
 int vtkOpenGLRenderer::GetTextureUniformVariable()
 {
   GLint result=vtkgl::GetUniformLocation(this->ProgramShader,"texture");
+  vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
   if(result==-1)
     {
     vtkErrorMacro(<<"texture is not a uniform variable");
@@ -242,6 +254,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
     // other windows might get rendered since the last time
     // a MakeCurrent was called.
     this->RenderWindow->MakeCurrent();
+    vtkOpenGLClearErrorMacro();
 
     // standard render method
     this->ClearLights();
@@ -257,7 +270,18 @@ void vtkOpenGLRenderer::DeviceRender(void)
 
     // clean up the model view matrix set up by the camera
     glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
+
+    // TODO -- are chart views using the camera properly?
+    // the following glPopMatrix is causing stack underflow errors
+    // when used with vtkChart* classes.
+    GLint mvDepth;
+    glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &mvDepth);
+    if (mvDepth>1)
+      {
+      glPopMatrix();
+      }
+
+    vtkOpenGLCheckErrorMacro("failed after DeviceRender");
     }
 
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
@@ -271,6 +295,8 @@ void vtkOpenGLRenderer::DeviceRender(void)
 // override this method.
 void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 {
+  vtkOpenGLClearErrorMacro();
+
   if(this->UseDepthPeeling)
     {
     if(!this->DepthPeelingIsSupportedChecked)
@@ -787,6 +813,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glDeleteTextures(1,&opaqueLayerRgba);
     glDeleteTextures(1,&opaqueLayerZ);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after DeviceRenderTranslucentPolygonalGeometry");
 }
 
 // ----------------------------------------------------------------------------
@@ -795,6 +823,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 void vtkOpenGLRenderer::CheckCompilation(
   unsigned int fragmentShader)
 {
+  vtkOpenGLClearErrorMacro();
   GLuint fs=static_cast<GLuint>(fragmentShader);
   GLint params;
   vtkgl::GetShaderiv(fs,vtkgl::COMPILE_STATUS,&params);
@@ -819,6 +848,7 @@ void vtkOpenGLRenderer::CheckCompilation(
       vtkErrorMacro(<<"no log");
       }
     }
+  vtkOpenGLCheckErrorMacro("failed after CheckCompilation");
 }
 
 // ----------------------------------------------------------------------------
@@ -830,6 +860,8 @@ void vtkOpenGLRenderer::CheckCompilation(
 int vtkOpenGLRenderer::RenderPeel(int layer)
 {
   assert("pre: positive_layer" && layer>=0);
+
+  vtkOpenGLClearErrorMacro();
 
   GLbitfield mask=GL_COLOR_BUFFER_BIT;
   if(layer>0)
@@ -1023,10 +1055,12 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
                         this->ViewportHeight);
     this->LayerList->List.push_back(rgba);
 
+    vtkOpenGLCheckErrorMacro("failed after RenderPeel");
     return 1;
     }
   else
     {
+    vtkOpenGLCheckErrorMacro("failed after RenderPeel");
     return 0;
     }
 }
@@ -1056,6 +1090,8 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkOpenGLRenderer::Clear(void)
 {
+  vtkOpenGLClearErrorMacro();
+
   GLbitfield  clear_mask = 0;
 
   if (! this->Transparent())
@@ -1153,10 +1189,12 @@ void vtkOpenGLRenderer::Clear(void)
     glPopMatrix();
     glPopAttrib();
     }
+  vtkOpenGLCheckErrorMacro("failed after Clear");
 }
 
 void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
 {
+  vtkOpenGLClearErrorMacro();
 
   int bufferSize = pickFromSize * 4;
 
@@ -1178,6 +1216,8 @@ void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
   // initialize the pick names and add a 0 name, for no pick
   glInitNames();
   glPushName(0);
+
+  vtkOpenGLCheckErrorMacro("failed after StartPick");
 }
 
 void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
@@ -1191,6 +1231,7 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
 void vtkOpenGLRenderer::UpdatePickId()
 {
   glLoadName(this->CurrentPickId++);
+  vtkOpenGLCheckErrorMacro("failed after UpdatePick");
 }
 
 
@@ -1201,6 +1242,7 @@ void vtkOpenGLRenderer::DevicePickRender()
   // other windows might get rendered since the last time
   // a MakeCurrent was called.
   this->RenderWindow->MakeCurrent();
+  vtkOpenGLClearErrorMacro();
 
   // standard render method
   this->ClearLights();
@@ -1217,6 +1259,7 @@ void vtkOpenGLRenderer::DevicePickRender()
   // clean up the model view matrix set up by the camera
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
+  vtkOpenGLCheckErrorMacro("failed after DevicePickRender");
 }
 
 

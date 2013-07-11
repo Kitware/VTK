@@ -17,6 +17,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkObjectFactory.h"
 #include "vtkMatrix4x4.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkOpenGL.h"
 
@@ -27,6 +28,7 @@ vtkStandardNewMacro(vtkOpenGLLight);
 // Implement base class method.
 void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren), int light_index)
 {
+  vtkOpenGLClearErrorMacro();
   float color[4];
   float info[4];
 
@@ -112,6 +114,8 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren), int light_index)
     {
     glPopMatrix();
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 //----------------------------------------------------------------------------

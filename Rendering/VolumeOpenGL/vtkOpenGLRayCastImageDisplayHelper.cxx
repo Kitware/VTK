@@ -23,6 +23,7 @@
 #include "vtkFixedPointRayCastImage.h"
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 #include <math.h>
 
@@ -96,6 +97,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
                                                                 int imageScalarType,
                                                                 void *image )
 {
+  vtkOpenGLClearErrorMacro();
+
   int i;
   float offsetX, offsetY;
   float xMinOffset, xMaxOffset, yMinOffset, yMaxOffset;
@@ -489,6 +492,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     // Restore state
     glPopAttrib();
 
+    vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
     return;
     }
 
@@ -544,6 +548,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   // Restore state
   glPopAttrib();
+
+  vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
 }
 
 void vtkOpenGLRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)

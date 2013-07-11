@@ -20,6 +20,7 @@
 #include "vtkVolume.h"
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper2D);
 
@@ -33,6 +34,8 @@ vtkOpenGLVolumeTextureMapper2D::~vtkOpenGLVolumeTextureMapper2D()
 
 void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkMatrix4x4       *matrix;
   double             matrixForGL[16];
   int                i, numClipPlanes = 0;
@@ -118,6 +121,8 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
     {
     this->TimeToDraw = 0.0001;
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,
@@ -126,6 +131,8 @@ void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,
                                                   unsigned char *texture,
                                                   int size[2], int reverseFlag )
 {
+  vtkOpenGLClearErrorMacro();
+
 #ifdef GL_VERSION_1_1
   glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, size[0], size[1],
                 0, GL_RGBA, GL_UNSIGNED_BYTE, texture );
@@ -168,6 +175,8 @@ void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,
     }
 
   glEnd();
+
+  vtkOpenGLCheckErrorMacro("failed after RenderQuads");
 }
 
 // Print the vtkOpenGLVolumeTextureMapper2D

@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkProperty.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkOpenGL.h"
 #include <math.h>
@@ -28,6 +29,8 @@ vtkStandardNewMacro(vtkOpenGLActor);
 // Actual actor render method.
 void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
+  vtkOpenGLClearErrorMacro();
+
   // get opacity
   double opacity = this->GetProperty()->GetOpacity();
   if (opacity == 1.0)
@@ -87,6 +90,8 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     {
     glDepthMask(GL_TRUE);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 //----------------------------------------------------------------------------

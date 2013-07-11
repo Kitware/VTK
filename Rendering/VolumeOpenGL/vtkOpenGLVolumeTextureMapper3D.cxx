@@ -31,6 +31,7 @@
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkgl.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkVolumeTextureMapper3D_OneComponentShadeFP.h"
 #include "vtkVolumeTextureMapper3D_OneComponentNoShadeFP.h"
@@ -99,6 +100,7 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
     return;
     }
 
+  vtkOpenGLClearErrorMacro();
 
   vtkMatrix4x4       *matrix;
   double             matrixForGL[16];
@@ -162,7 +164,7 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
     this->InternalRGBA=GL_RGBA8;
     }
 
-  vtkGraphicErrorMacro(ren->GetRenderWindow(),"Before actual render method");
+  vtkOpenGLCheckErrorMacro("Before actual render method");
   switch ( this->RenderMethod )
     {
     case vtkVolumeTextureMapper3D::NVIDIA_METHOD:
@@ -183,6 +185,7 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
   glFlush();
   glFinish();
 
+  vtkOpenGLCheckErrorMacro("failed after Render");
 
   this->Timer->StopTimer();
 
@@ -199,6 +202,8 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
 void vtkOpenGLVolumeTextureMapper3D::RenderFP(vtkRenderer *ren,
                                               vtkVolume *vol)
 {
+  vtkOpenGLClearErrorMacro();
+
   glAlphaFunc (GL_GREATER, static_cast<GLclampf>(0));
   glEnable (GL_ALPHA_TEST);
 
@@ -253,10 +258,14 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFP(vtkRenderer *ren,
   vtkgl::ActiveTexture( vtkgl::TEXTURE0);
   glDisable( GL_TEXTURE_2D );
   glDisable( vtkgl::TEXTURE_3D );
+
+  vtkOpenGLCheckErrorMacro("failed after RenderFP");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderNV( vtkRenderer *ren, vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   glAlphaFunc (GL_GREATER, static_cast<GLclampf>(0));
   glEnable (GL_ALPHA_TEST);
 
@@ -315,6 +324,8 @@ void vtkOpenGLVolumeTextureMapper3D::RenderNV( vtkRenderer *ren, vtkVolume *vol 
   glDisable( vtkgl::TEXTURE_SHADER_NV );
 
   glDisable(vtkgl::REGISTER_COMBINERS_NV);
+
+  vtkOpenGLCheckErrorMacro("failed after RenderNV");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::DeleteTextureIndex( GLuint *index )
@@ -324,6 +335,7 @@ void vtkOpenGLVolumeTextureMapper3D::DeleteTextureIndex( GLuint *index )
     GLuint tempIndex;
     tempIndex = *index;
     glDeleteTextures(1, &tempIndex);
+    vtkOpenGLCheckErrorMacro("failed at glDeleteTextures");
     *index = 0;
     }
 }
@@ -345,6 +357,8 @@ void vtkOpenGLVolumeTextureMapper3D::RenderPolygons( vtkRenderer *ren,
     {
     return;
     }
+
+  vtkOpenGLClearErrorMacro();
 
   double bounds[27][6];
   float distance2[27];
@@ -523,10 +537,14 @@ void vtkOpenGLVolumeTextureMapper3D::RenderPolygons( vtkRenderer *ren,
       glEnd();
       }
     }
+
+  vtkOpenGLCheckErrorMacro("failed after RenderPolygons");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::Setup3DTextureParameters( vtkVolumeProperty *property )
 {
+  vtkOpenGLClearErrorMacro();
+
   if ( property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION )
     {
     glTexParameterf( vtkgl::TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
@@ -539,11 +557,15 @@ void vtkOpenGLVolumeTextureMapper3D::Setup3DTextureParameters( vtkVolumeProperty
     }
   glTexParameterf( vtkgl::TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP );
   glTexParameterf( vtkgl::TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+
+  vtkOpenGLCheckErrorMacro("failed after Setup3DTextureParameters");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::SetupOneIndependentTextures( vtkRenderer *vtkNotUsed(ren),
                     vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
   glDisable( GL_TEXTURE_2D );
   glEnable( vtkgl::TEXTURE_3D );
@@ -626,12 +648,16 @@ void vtkOpenGLVolumeTextureMapper3D::SetupOneIndependentTextures( vtkRenderer *v
     }
 
   glBindTexture(GL_TEXTURE_2D, this->ColorLookupIndex);
+
+  vtkOpenGLCheckErrorMacro("failed after SetupOneIndependentTextures");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersNoShadeNV( vtkRenderer *vtkNotUsed(ren),
                   vtkVolume *vtkNotUsed(vol),
                   int components )
 {
+  vtkOpenGLClearErrorMacro();
+
   if ( components < 3 )
     {
     vtkgl::ActiveTexture(vtkgl::TEXTURE2);
@@ -669,12 +695,16 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersNoShadeNV( vtkRendere
     {
     vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE3, vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after SetupRegisterCombinersNoShadeNV");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersShadeNV( vtkRenderer *ren,
                       vtkVolume *vol,
                       int components )
 {
+  vtkOpenGLClearErrorMacro();
+
   if ( components == 1 )
     {
     vtkgl::ActiveTexture(vtkgl::TEXTURE3);
@@ -922,6 +952,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersShadeNV( vtkRenderer 
                                 vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
     }
 
+  vtkOpenGLCheckErrorMacro("failed after SetupRegisterCombinersShadeNV");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeNV(
@@ -960,6 +991,8 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures(
   vtkRenderer *vtkNotUsed(ren),
   vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
   glDisable( GL_TEXTURE_2D );
   glEnable( vtkgl::TEXTURE_3D );
@@ -1069,6 +1102,8 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures(
 
   vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
   glBindTexture(GL_TEXTURE_2D, this->AlphaLookupIndex);
+
+  vtkOpenGLCheckErrorMacro("failed after SetupTwoDependentTextures");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeNV(
@@ -1105,6 +1140,8 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures(
   vtkRenderer *vtkNotUsed(ren),
   vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
   glDisable( GL_TEXTURE_2D );
   glEnable( vtkgl::TEXTURE_3D );
@@ -1211,6 +1248,8 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures(
 
   vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
   glBindTexture(GL_TEXTURE_2D, this->AlphaLookupIndex);
+
+  vtkOpenGLCheckErrorMacro("failed after SetupFourDependentTextures");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeNV(
@@ -1247,6 +1286,8 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeFP(
   vtkRenderer *ren,
   vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
@@ -1271,12 +1312,16 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeFP(
   glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
+
+  vtkOpenGLCheckErrorMacro("failed after RenderOneIndependentNoShadeFP");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeFP(
   vtkRenderer *ren,
   vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
@@ -1302,12 +1347,16 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeFP(
   glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
+
+  vtkOpenGLCheckErrorMacro("failed after RenderOneIndependentShadeFP");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeFP(
   vtkRenderer *ren,
   vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
@@ -1331,6 +1380,8 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeFP(
   glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
+
+  vtkOpenGLCheckErrorMacro("failed after RenderTwoDependentNoShadeFP");
 }
 
 
@@ -1338,6 +1389,8 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeFP(
   vtkRenderer *ren,
   vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
@@ -1362,12 +1415,16 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeFP(
   glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
+
+  vtkOpenGLCheckErrorMacro("failed after RenderTwoDependentShadeFP");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeFP(
   vtkRenderer *ren,
   vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
@@ -1391,12 +1448,16 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeFP(
   glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
+
+  vtkOpenGLCheckErrorMacro("failed after RenderFourDependentNoShadeFP");
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeFP(
   vtkRenderer *ren,
   vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
@@ -1421,6 +1482,8 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeFP(
   glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
+
+  vtkOpenGLCheckErrorMacro("failed after RenderFourDependentShadeFP");
 }
 
 
@@ -1562,6 +1625,8 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP(
   vtkRenderer *ren,
   vtkVolume *vol )
 {
+  vtkOpenGLClearErrorMacro();
+
   GLfloat lightDirection[2][4];
   GLfloat lightDiffuseColor[2][4];
   GLfloat lightSpecularColor[2][4];
@@ -1727,6 +1792,8 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP(
 
   vtkgl::ProgramLocalParameter4fARB( vtkgl::FRAGMENT_PROGRAM_ARB, 6,
                                      2.0, -1.0, 0.0, 0.0 );
+
+  vtkOpenGLCheckErrorMacro("failed after SetupProgramLocalsForShadingFP");
 }
 
 int  vtkOpenGLVolumeTextureMapper3D::IsRenderSupported(
@@ -1954,6 +2021,8 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize(vtkRenderer *r)
 int vtkOpenGLVolumeTextureMapper3D::IsTextureSizeSupported(int size[3],
                                                            int components)
 {
+  vtkOpenGLClearErrorMacro();
+
   GLint maxSize;
   glGetIntegerv(vtkgl::MAX_3D_TEXTURE_SIZE,&maxSize);
 
@@ -2013,6 +2082,8 @@ int vtkOpenGLVolumeTextureMapper3D::IsTextureSizeSupported(int size[3],
     }
   glBindTexture(vtkgl::TEXTURE_3D,0); // bind to default texture object.
   glDeleteTextures(1,&id1);
+
+  vtkOpenGLCheckErrorMacro("failed after IsTextureSizeSupported");
   return result;
 }
 

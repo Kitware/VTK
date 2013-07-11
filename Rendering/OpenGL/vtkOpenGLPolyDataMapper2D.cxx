@@ -29,7 +29,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkgluPickMatrix.h"
-
+#include "vtkOpenGLError.h"
 #include <math.h>
 
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
@@ -37,6 +37,7 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                                               vtkActor2D* actor)
 {
+  vtkOpenGLClearErrorMacro();
   int            numPts;
   vtkPolyData    *input=static_cast<vtkPolyData *>(this->GetInput());
   int            j;
@@ -108,6 +109,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   int size[2];
   size[0] = viewport->GetSize()[0];
   size[1] = viewport->GetSize()[1];
+
   double *vport = viewport->GetViewport();
   int* actorPos =
     actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
@@ -213,16 +215,31 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   int yoff = static_cast<int>(actorPos[1] - (visVP[1] - vport[1])*
                               winSize[1]);
 
+  // set ortho projection
+  float left = -xoff;
+  float right = -xoff + size[0];
+  float bottom = -yoff;
+  float top = -yoff + size[1];
+
+  // it's an error to call glOrtho with
+  // either left==right or top==bottom
+  if (left==right)
+    {
+    right = left + 1.0;
+    }
+  if (bottom==top)
+    {
+    top = bottom + 1.0;
+    }
+
   if (actor->GetProperty()->GetDisplayLocation() ==
        VTK_FOREGROUND_LOCATION)
     {
-    glOrtho(-xoff,-xoff + size[0],
-            -yoff, -yoff +size[1], 0, 1);
+    glOrtho(left, right, bottom, top, 0, 1);
     }
   else
     {
-    glOrtho(-xoff,-xoff + size[0],
-            -yoff, -yoff + size[1], -1, 0);
+    glOrtho(left, right, bottom, top, -1, 0);
     }
 
   // Clipping plane stuff
@@ -422,6 +439,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   // Turn it back on in case we've turned it off
   glDepthMask(GL_TRUE);
   glDisable(GL_TEXTURE_2D);
+  vtkOpenGLCheckErrorMacro("failed after RenderOverlay");
 }
 
 //----------------------------------------------------------------------------

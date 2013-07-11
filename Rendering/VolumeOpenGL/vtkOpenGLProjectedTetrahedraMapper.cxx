@@ -42,8 +42,10 @@
 #include "vtkVisibilitySort.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+#include "vtkFrameBufferObject.h"
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkgl.h"
 
@@ -126,6 +128,8 @@ void vtkOpenGLProjectedTetrahedraMapper::PrintSelf(ostream &os, vtkIndent indent
 
 void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer *renderer)
 {
+  vtkOpenGLClearErrorMacro();
+
   this->Initialized = true;
 
   vtkOpenGLRenderWindow *renwin
@@ -144,76 +148,98 @@ void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer *renderer)
     vtkgl::GenFramebuffers(1, &this->Internals->FrameBufferObjectId);
     vtkgl::GenRenderbuffers(2, this->Internals->RenderBufferObjectIds);
 
-    vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER_EXT, 0);
-    vtkgl::BindFramebuffer(vtkgl::DRAW_FRAMEBUFFER_EXT,
+    vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER, 0);
+    vtkgl::BindFramebuffer(vtkgl::DRAW_FRAMEBUFFER,
                            this->Internals->FrameBufferObjectId);
 
     this->CanDoFloatingPointFrameBuffer = this->CheckFBOResources(renderer);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Initialize");
 }
 
 bool vtkOpenGLProjectedTetrahedraMapper::CheckFBOResources(vtkRenderer *r)
 {
+  vtkOpenGLClearErrorMacro();
+
   int *size = r->GetSize();
   if (!this->FloatingPointFrameBufferResourcesAllocated ||
       (size[0] != this->CurrentFBOWidth) ||
       (size[0] != this->CurrentFBOHeight))
-  {
+    {
     this->CurrentFBOWidth = size[0];
     this->CurrentFBOHeight = size[1];
 
+    // reserver handles fbo and renderbuffers
     if (!this->FloatingPointFrameBufferResourcesAllocated)
-    {
+      {
       vtkgl::GenFramebuffers(1, &this->Internals->FrameBufferObjectId);
-      vtkgl::GenRenderbuffers(2, this->Internals->RenderBufferObjectIds);
+      vtkOpenGLCheckErrorMacro("failed at glGenFramebuffers");
 
-      vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER_EXT, 0);
-      vtkgl::BindFramebuffer(vtkgl::DRAW_FRAMEBUFFER_EXT,
-                             this->Internals->FrameBufferObjectId);
+      vtkgl::GenRenderbuffers(2, this->Internals->RenderBufferObjectIds);
+      vtkOpenGLCheckErrorMacro("failed at glGenRenderBuffers");
 
       this->FloatingPointFrameBufferResourcesAllocated = true;
-    }
-    else
-    {
-      vtkgl::FramebufferRenderbuffer(vtkgl::FRAMEBUFFER_EXT,
-                                     vtkgl::COLOR_ATTACHMENT0_EXT,
-                                     vtkgl::RENDERBUFFER_EXT, 0);
-      vtkgl::FramebufferRenderbuffer(vtkgl::FRAMEBUFFER_EXT,
-                                     vtkgl::DEPTH_ATTACHMENT_EXT,
-                                     vtkgl::RENDERBUFFER_EXT, 0);
-    }
+      }
 
-    vtkgl::BindRenderbuffer(vtkgl::RENDERBUFFER_EXT,
-                            this->Internals->RenderBufferObjectIds[0]);
-    vtkgl::RenderbufferStorage(vtkgl::RENDERBUFFER_EXT,
-                               vtkgl::RGBA32F_ARB,
-                               this->CurrentFBOWidth,
-                               this->CurrentFBOHeight);
+    // allocate storage for renderbuffers
+    vtkgl::BindRenderbuffer(
+          vtkgl::RENDERBUFFER,
+          this->Internals->RenderBufferObjectIds[0]);
+    vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer color");
 
-    vtkgl::BindRenderbuffer(vtkgl::RENDERBUFFER_EXT,
-                            this->Internals->RenderBufferObjectIds[1]);
-    vtkgl::RenderbufferStorage(vtkgl::RENDERBUFFER_EXT,
-                               vtkgl::DEPTH_COMPONENT24,
-                               this->CurrentFBOWidth,
-                               this->CurrentFBOHeight);
+    vtkgl::RenderbufferStorage(
+          vtkgl::RENDERBUFFER,
+          vtkgl::RGBA32F_ARB,
+          this->CurrentFBOWidth,
+          this->CurrentFBOHeight);
+    vtkOpenGLCheckErrorMacro("failed at glRenderBufferStorage color");
 
-    vtkgl::FramebufferRenderbuffer(vtkgl::FRAMEBUFFER_EXT,
-                                   vtkgl::COLOR_ATTACHMENT0_EXT,
-                                   vtkgl::RENDERBUFFER_EXT,
-                                   this->Internals->RenderBufferObjectIds[0]);
+    vtkgl::BindRenderbuffer(
+          vtkgl::RENDERBUFFER,
+          this->Internals->RenderBufferObjectIds[1]);
+    vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer depth");
 
-    vtkgl::FramebufferRenderbuffer(vtkgl::FRAMEBUFFER_EXT,
-                                   vtkgl::DEPTH_ATTACHMENT_EXT,
-                                   vtkgl::RENDERBUFFER_EXT,
-                                   this->Internals->RenderBufferObjectIds[1]);
+    vtkgl::RenderbufferStorage(
+          vtkgl::RENDERBUFFER,
+          vtkgl::DEPTH_COMPONENT24,
+          this->CurrentFBOWidth,
+          this->CurrentFBOHeight);
+    vtkOpenGLCheckErrorMacro("failed at glRenderBufferStorage depth");
 
-    GLenum status = vtkgl::CheckFramebufferStatus(vtkgl::FRAMEBUFFER_EXT);
-    if(status != vtkgl::FRAMEBUFFER_COMPLETE_EXT)
+   // best way to make it complete: bind the fbo for both draw+read
+   // durring setup
+   vtkgl::BindFramebuffer(
+         vtkgl::FRAMEBUFFER,
+         this->Internals->FrameBufferObjectId);
+   vtkOpenGLCheckErrorMacro("failed at glBindFramebuffer");
+
+   vtkgl::FramebufferRenderbuffer(
+         vtkgl::FRAMEBUFFER,
+         vtkgl::COLOR_ATTACHMENT0,
+         vtkgl::RENDERBUFFER,
+         this->Internals->RenderBufferObjectIds[0]);
+    vtkOpenGLCheckErrorMacro("failed at glFraembufferRenderBuffer for color");
+
+    vtkgl::FramebufferRenderbuffer(
+          vtkgl::FRAMEBUFFER,
+          vtkgl::DEPTH_ATTACHMENT,
+          vtkgl::RENDERBUFFER,
+          this->Internals->RenderBufferObjectIds[1]);
+    vtkOpenGLCheckErrorMacro("failed at glFraembufferRenderBuffer for depth");
+
+    // verify that it is usable
+    GLenum status = vtkgl::CheckFramebufferStatus(vtkgl::FRAMEBUFFER);
+
+    // either way restore the default FBO
+    vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER, 0);
+
+    if(status != vtkgl::FRAMEBUFFER_COMPLETE)
       {
-      cerr << "Can't initialize FBO\n";
+      vtkErrorMacro("FBO incomplete.");
       return false;
       }
-  }
+    }
 
   return true;
 }
@@ -225,6 +251,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win
   if (this->Internals->OpacityTexture)
     {
     glDeleteTextures(1, &this->Internals->OpacityTexture);
+    vtkOpenGLCheckErrorMacro("failed at glDeleteTextures");
     this->Internals->OpacityTexture = 0;
     }
 
@@ -233,9 +260,11 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win
       this->FloatingPointFrameBufferResourcesAllocated = false;
 
       vtkgl::DeleteFramebuffers(1, &this->Internals->FrameBufferObjectId);
+      vtkOpenGLCheckErrorMacro("failed at glDeleteFramebuffers");
       this->Internals->FrameBufferObjectId = 0;
 
       vtkgl::DeleteFramebuffers(2, this->Internals->RenderBufferObjectIds);
+      vtkOpenGLCheckErrorMacro("failed at glDeleteRenderbuffers");
       this->Internals->RenderBufferObjectIds[0] = 0;
       this->Internals->RenderBufferObjectIds[1] = 0;
     }
@@ -248,6 +277,8 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win
 void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
                                                 vtkVolume *volume)
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkUnstructuredGrid *input = this->GetInput();
   vtkVolumeProperty *property = volume->GetProperty();
 
@@ -307,6 +338,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
 
   if (renderer->GetRenderWindow()->CheckAbortStatus() || this->GaveError)
     {
+    vtkOpenGLCheckErrorMacro("failed during Render");
     return;
     }
 
@@ -356,6 +388,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
     }
   if (renderer->GetRenderWindow()->CheckAbortStatus())
     {
+    vtkOpenGLCheckErrorMacro("failed during Render");
     return;
     }
 
@@ -372,6 +405,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
     if (!scalars)
       {
       vtkErrorMacro(<< "Can't use projected tetrahedra without scalars!");
+      vtkOpenGLCheckErrorMacro("failed during Render");
       return;
       }
 
@@ -383,6 +417,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
     }
   if (renderer->GetRenderWindow()->CheckAbortStatus())
     {
+    vtkOpenGLCheckErrorMacro("failed during Render");
     return;
     }
 
@@ -392,6 +427,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
 
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 //-----------------------------------------------------------------------------
@@ -486,30 +522,56 @@ inline float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(
 void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer,
                                                      vtkVolume *volume)
 {
+  vtkOpenGLClearErrorMacro();
+
   if (! Initialized)
     {
+    // determine if we
+    // CanDoFloatingPointFrameBuffer
     Initialize(renderer);
     }
 
   if (this->CanDoFloatingPointFrameBuffer && this->UseFloatingPointFrameBuffer)
     {
-    this->CanDoFloatingPointFrameBuffer = CheckFBOResources(renderer);
-    if (this->CanDoFloatingPointFrameBuffer)
+    // after mucking about with FBO bindings be sure
+    // we're saving the default fbo attributes/blend function
+    vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER, 0);
+    glPushAttrib(GL_COLOR_BUFFER_BIT);
+    vtkOpenGLCheckErrorMacro("failed at glPushAttrib");
+
+    // bind draw+read to set it up
+    vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER, this->Internals->FrameBufferObjectId);
+
+    glGetIntegerv(GL_DRAW_BUFFER, &db);
+    glReadBuffer(db);
+
+    GLenum status = vtkgl::CheckFramebufferStatus(vtkgl::DRAW_FRAMEBUFFER);
+    if (status!=vtkgl::FRAMEBUFFER_COMPLETE)
       {
-      vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER_EXT, 0);
-      vtkgl::BindFramebuffer(vtkgl::DRAW_FRAMEBUFFER_EXT,
-                             this->Internals->FrameBufferObjectId);
-
-      glGetIntegerv(GL_DRAW_BUFFER, &db);
-      glReadBuffer(db);
-
-      vtkgl::BlitFramebuffer(0, 0,
-                             this->CurrentFBOWidth, this->CurrentFBOHeight,
-                             0, 0,
-                             this->CurrentFBOWidth, this->CurrentFBOHeight,
-                             GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-                             GL_NEAREST);
+      vtkErrorMacro("FBO is incomplete " << status);
       }
+
+    // read from default
+    vtkgl::BindFramebuffer(vtkgl::READ_FRAMEBUFFER, 0);
+    // draw to fbo
+    vtkgl::BindFramebuffer(vtkgl::DRAW_FRAMEBUFFER,
+                           this->Internals->FrameBufferObjectId);
+
+    vtkgl::BlitFramebuffer(0, 0,
+                           this->CurrentFBOWidth, this->CurrentFBOHeight,
+                           0, 0,
+                           this->CurrentFBOWidth, this->CurrentFBOHeight,
+                           GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+                           GL_NEAREST);
+
+    vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
+    }
+  else
+    {
+    // fbo not supported no need to worry about fbo binding
+    // when saving the default fbo attributes/blend function
+    glPushAttrib(GL_COLOR_BUFFER_BIT);
+    vtkOpenGLCheckErrorMacro("failed at glPushAttrib");
     }
 
   vtkUnstructuredGrid *input = this->GetInput();
@@ -590,9 +652,6 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   glShadeModel(GL_SMOOTH);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
-
-  // save the default blend function.
-  glPushAttrib(GL_COLOR_BUFFER_BIT);
 
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -906,19 +965,32 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     }
 
   if (this->CanDoFloatingPointFrameBuffer && this->UseFloatingPointFrameBuffer)
-  {
-    vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER_EXT, 0);
-    vtkgl::BindFramebuffer(vtkgl::READ_FRAMEBUFFER_EXT,
-                           this->Internals->FrameBufferObjectId);
-
+    {
+    // bind for read+draw during setup
+    vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER, this->Internals->FrameBufferObjectId);
     glDrawBuffer(db);
+
+    GLenum status = vtkgl::CheckFramebufferStatus(vtkgl::READ_FRAMEBUFFER);
+    if (status!=vtkgl::FRAMEBUFFER_COMPLETE)
+      {
+      vtkErrorMacro("FBO is incomplete " << status);
+      }
+
+    // read from fbo
+    vtkgl::BindFramebuffer(vtkgl::READ_FRAMEBUFFER,
+                           this->Internals->FrameBufferObjectId);
+    // draw to default fbo
+    vtkgl::BindFramebuffer(vtkgl::DRAW_FRAMEBUFFER, 0);
 
     vtkgl::BlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight,
                          0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight,
                          GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
-    vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER_EXT, 0);
-  }
+    vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
+
+    // restore default fbo for both read+draw
+    vtkgl::BindFramebuffer(vtkgl::FRAMEBUFFER, 0);
+    }
 
   // Restore OpenGL state.
   glMatrixMode(GL_PROJECTION);
@@ -932,6 +1004,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
   // Restore the blend function.
   glPopAttrib();
+  vtkOpenGLCheckErrorMacro("failed at glPopAttrib");
 
   glBindTexture(GL_TEXTURE_2D, 0);
   glDisable(GL_TEXTURE_2D);
@@ -939,5 +1012,6 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   glDepthMask(GL_TRUE);
   glEnable(GL_LIGHTING);
 
+  vtkOpenGLCheckErrorMacro("failed after ProjectTetrahedra");
   this->UpdateProgress(1.0);
 }

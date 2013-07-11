@@ -26,6 +26,7 @@
 #include "vtkShader2Collection.h"
 #include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLError.h"
 #include "vtkTextureUnitManager.h"
 
 // to be able to dump intermediate passes into png files for debugging.
@@ -138,6 +139,8 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
          this->DelegatePass->GetNumberOfRenderedProps();
        return;
        }
+
+    vtkOpenGLClearErrorMacro();
 
     GLint savedDrawBuffer;
     glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
@@ -512,6 +515,8 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     {
     vtkWarningMacro(<<" no delegate.");
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 // ----------------------------------------------------------------------------

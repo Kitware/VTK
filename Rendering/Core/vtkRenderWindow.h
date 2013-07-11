@@ -73,27 +73,17 @@ class vtkUnsignedCharArray;
 #define VTK_CURSOR_HAND      9
 #define VTK_CURSOR_CROSSHAIR 10
 
-// Description:
-// This macro is used to print error message coming from the graphic library
-// (OpenGL for instance) used to actually implement the rendering algorithms.
-// It is only active in debug mode and has no cost in release mode.
-// In debug mode, if reports errors only if flag ReportGraphicError is true
-// on the render window (initial value is false).
-// Signature is:
-// void vtkGraphicErrorMacro(vtkRenderWindow *renderWindow,const char *message)
-#ifdef NDEBUG
-# define vtkGraphicErrorMacro(renderWindow,message)
-#else
-# define vtkGraphicErrorMacro(renderWindow,message)                     \
-  if(renderWindow->GetReportGraphicErrors())                            \
+//
+// This macro should not be used, see vtkOpenGLError.h for
+// GL error handling functions and macros.
+//
+#define vtkGraphicErrorMacro(renderWindow,message)                      \
+  renderWindow->CheckGraphicError();                                    \
+  if ( renderWindow->GetReportGraphicErrors()                           \
+    && renderWindow->HasGraphicError() )                                \
     {                                                                   \
-    renderWindow->CheckGraphicError();                                  \
-    if(renderWindow->HasGraphicError())                                 \
-      {                                                                 \
-      vtkErrorMacro(<<message<<" "<<renderWindow->GetLastGraphicErrorString()); \
-      }                                                                 \
+    vtkErrorMacro(<<message<<" "<<renderWindow->GetLastGraphicErrorString()); \
     }
-#endif
 
 class VTKRENDERINGCORE_EXPORT vtkRenderWindow : public vtkWindow
 {
@@ -518,6 +508,13 @@ public:
   virtual bool IsCurrent()=0;
 
   // Description:
+  // Test if the window has a valid drawable. This is
+  // currently only an issue on Mac OSX Cocoa where rendering
+  // to an invalid drawable results in all OpenGL calls to fail
+  // with "invalid framebuffer operation".
+  virtual bool IsDrawable(){ return true; }
+
+  // Description:
   // If called, allow MakeCurrent() to skip cache-check when called.
   // MakeCurrent() reverts to original behavior of cache-checking
   // on the next render.
@@ -571,15 +568,27 @@ public:
   // Description:
   // Update graphic error status, regardless of ReportGraphicErrors flag.
   // It means this method can be used in any context and is not restricted to
-  // debug mode.
+  // debug mode. Errors codes are querried until no-errors are reported,
+  // ensureing internal error flags are clear after each check. Error status
+  // and description  are recorded internally, may be retrieved with  HasGraphicError
+  // and GetGraphicErrorString methods.
   virtual void CheckGraphicError()=0;
 
   // Description:
-  // Return the last graphic error status. Initial value is false.
-  virtual int HasGraphicError()=0;
+  // Clear the graphics error status, without recording or reporting detected errors.
+  virtual void ClearGraphicError()=0;
 
   // Description:
-  // Return a string matching the last graphic error status.
+  // Return the number of graphics errors found in the most recent call to
+  // CheckGraphicError. If no errors were detected then the return will be 0.
+  // Descriptions for each of the errors may be obtained by calling
+  // GetGraphicErrorString.
+  virtual int HasGraphicError()=0;
+  virtual int GetNumberOfGraphicErrors()=0;
+
+  // Description:
+  // Return a string matching the last graphic error status. See
+  // GetGraphicErrorString.
   virtual const char *GetLastGraphicErrorString()=0;
 
 protected:

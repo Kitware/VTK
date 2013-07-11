@@ -23,6 +23,7 @@
 #include "vtkProperty.h"
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkOpenGLRepresentationPainter);
 
@@ -42,6 +43,8 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
                                                     unsigned long typeflags,
                                                     bool forceCompileOnly)
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkProperty* prop = actor->GetProperty();
   int rep = prop->GetRepresentation();
   int reset_needed = 0;
@@ -122,6 +125,7 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
 
     glPopAttrib(); //(GL_CURRENT_BIT|GL_LIGHTING|GL_ENABLE_BIT)
     }
+  vtkOpenGLCheckErrorMacro("failed after RenderInternal");
 }
 //-----------------------------------------------------------------------------
 void vtkOpenGLRepresentationPainter::PrintSelf(ostream& os, vtkIndent indent)

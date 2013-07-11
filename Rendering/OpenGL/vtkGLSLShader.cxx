@@ -34,6 +34,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLShader.h"
 #include "vtkWindow.h"
+#include "vtkOpenGLError.h"
 
 #include <vtkgl.h>
 //#include <GL/glu.h>
@@ -190,6 +191,7 @@ void vtkGLSLShader::ReleaseGraphicsResources(vtkWindow *win)
   if (win && win->GetMapped() && this->IsShader())
     {
     vtkgl::DeleteShader(this->Shader);
+    vtkOpenGLCheckErrorMacro("failed at glDeleteShader");
     this->Shader = 0;
     }
 }
@@ -203,6 +205,7 @@ int vtkGLSLShader::IsCompiled()
     vtkgl::GetShaderiv( static_cast<GLuint>(this->Shader),
                         vtkgl::COMPILE_STATUS,
                         &value );
+    vtkOpenGLCheckErrorMacro("failed at glGetShaderiv");
     }
   return value==1;
 }
@@ -236,6 +239,8 @@ void vtkGLSLShader::LoadShader()
 //-----------------------------------------------------------------------------
 int vtkGLSLShader::Compile()
 {
+  vtkOpenGLClearErrorMacro();
+
   if (this->IsCompiled())
     {
     return 1;
@@ -288,6 +293,8 @@ int vtkGLSLShader::Compile()
   // print an error log if the shader is not compiled
   vtkgl::CompileShader(static_cast<GLuint>(this->Shader));
 
+  vtkOpenGLCheckErrorMacro("failed during Compile");
+
   if( !this->IsCompiled() )
     {
     vtkErrorMacro( "Shader not compiled!!!" << endl );
@@ -306,13 +313,10 @@ void vtkGLSLShader::SetUniformParameter(const char* name,
                                         int numValues,
                                         const int* values)
 {
+  vtkOpenGLClearErrorMacro();
   if( !this->IsShader() )
     {
     return;
-    }
-  while (glGetError() != GL_NO_ERROR)
-    {
-    vtkErrorMacro(<< "Found unchecked OpenGL error.");
     }
   GLint loc = static_cast<GLint>(this->GetUniformLocation(name));
   if (loc == -1)
@@ -337,12 +341,7 @@ void vtkGLSLShader::SetUniformParameter(const char* name,
     default:
       vtkErrorMacro("Number of values not supported: " << numValues);
     }
-  while (glGetError() != GL_NO_ERROR)
-    {
-    vtkErrorMacro(<< "OpenGL error when setting uniform variable int["
-                  << numValues << "] " << name << ".\n"
-                  << "Perhaps there is a type mismatch.");
-    }
+  vtkOpenGLCheckErrorMacro("failed after SetUniformParameter");
 }
 
 //-----------------------------------------------------------------------------
@@ -350,13 +349,10 @@ void vtkGLSLShader::SetUniformParameter(const char* name,
                                         int numValues,
                                         const float* values)
 {
+  vtkOpenGLClearErrorMacro();
   if( !this->IsShader() )
     {
     return;
-    }
-  while (glGetError() != GL_NO_ERROR)
-    {
-    vtkErrorMacro(<< "Found unchecked OpenGL error.");
     }
   GLint loc = static_cast<GLint>(this->GetUniformLocation(name));
   if (loc == -1)
@@ -380,12 +376,7 @@ void vtkGLSLShader::SetUniformParameter(const char* name,
     default:
       vtkErrorMacro("Number of values not supported: " << numValues);
     }
-  while (glGetError() != GL_NO_ERROR)
-    {
-    vtkErrorMacro(<< "OpenGL error when setting uniform variable int["
-                  << numValues << "] " << name << ".\n"
-                  << "Perhaps there is a type mismatch.");
-    }
+  vtkOpenGLCheckErrorMacro("failed after SetUniformParameter");
 }
 
 //-----------------------------------------------------------------------------
@@ -393,6 +384,7 @@ void vtkGLSLShader::SetUniformParameter(const char* name,
                                         int numValues,
                                         const double* values)
 {
+  vtkOpenGLClearErrorMacro();
   if( !this->IsShader() )
     {
     return;
@@ -405,6 +397,7 @@ void vtkGLSLShader::SetUniformParameter(const char* name,
     }
   this->SetUniformParameter(name, numValues, fvalues);
   delete []fvalues;
+  vtkOpenGLCheckErrorMacro("failed after SetUniformParameter");
 }
 
 //-----------------------------------------------------------------------------
@@ -412,6 +405,7 @@ void vtkGLSLShader:: SetMatrixParameter(const char* name,
                                         int numValues,
                                         int order, const float* value)
 {
+  vtkOpenGLClearErrorMacro();
   if( !this->IsShader() )
     {
     return;
@@ -438,6 +432,7 @@ void vtkGLSLShader:: SetMatrixParameter(const char* name,
     default:
       vtkErrorMacro("Number of values not supported: " << numValues);
     }
+  vtkOpenGLCheckErrorMacro("failed after SetMatrixParameter");
 }
 
 //-----------------------------------------------------------------------------
@@ -446,6 +441,7 @@ void vtkGLSLShader:: SetMatrixParameter(const char* name,
                                         int order,
                                         const double* value)
 {
+  vtkOpenGLClearErrorMacro();
   if( !this->IsShader() )
     {
     return;
@@ -457,6 +453,7 @@ void vtkGLSLShader:: SetMatrixParameter(const char* name,
     }
   this->SetMatrixParameter(name, numValues, order, v);
   delete []v;
+  vtkOpenGLCheckErrorMacro("failed after SetMatrixParameter");
 }
 
 
@@ -505,6 +502,7 @@ int vtkGLSLShader::GetUniformLocation(const char* name)
 
   int location;
   location = vtkgl::GetUniformLocation( this->GetProgram(), name );
+  vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
   if( location == -1 )
     {
     vtkErrorMacro( "No such shader parameter. " << name );

@@ -22,6 +22,7 @@
 #include "vtkTextureObject.h"
 #include "vtkgl.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
 
@@ -117,6 +118,8 @@ void vtkOpenGLContextBufferId::SetValues(int srcXmin,
 vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
 {
   assert("pre: is_allocated" && this->IsAllocated());
+
+  vtkOpenGLClearErrorMacro();
 
   vtkIdType result=-1;
   if(x<0 || x>=this->Width)
@@ -220,6 +223,9 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
     }
 
   assert("post: valid_result" && result>=-1 );
+
+  vtkOpenGLCheckErrorMacro("failed after GetPickedItem");
+
   return result;
 }
 

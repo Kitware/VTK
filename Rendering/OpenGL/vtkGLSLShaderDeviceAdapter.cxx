@@ -20,6 +20,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkGLSLShaderProgram.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLError.h"
 
 #include <map>
 #include <string>
@@ -118,7 +119,9 @@ int vtkGLSLShaderDeviceAdapter::GetAttributeLocation(const char *attributeName)
     {
     GLSL_SHADER_DEVICE_ADAPTER(
       "GetAttributeLocation Program " << glslProgram->GetProgram());
-    return vtkgl::GetAttribLocation(glslProgram->GetProgram(), attributeName);
+    int loc = vtkgl::GetAttribLocation(glslProgram->GetProgram(), attributeName);
+    vtkOpenGLCheckErrorMacro("failed at glGetAttributeLocation");
+    return loc;
     }
   return -1;
 }
@@ -136,6 +139,8 @@ void vtkGLSLShaderDeviceAdapter::SendAttribute(const char *attrname,
                                                const void *attribute,
                                                unsigned long offset)
 {
+  vtkOpenGLClearErrorMacro();
+
   int index;
   vtkInternal::MapOfStringToInt::iterator iter =
     this->Internal->AttributeIndicesCache.find(attrname);
@@ -284,6 +289,8 @@ void vtkGLSLShaderDeviceAdapter::SendAttribute(const char *attrname,
     {
     vtkErrorMacro("Unsupported attribute index: " << index);
     }
+
+  vtkOpenGLCheckErrorMacro("failed at SendAttribute");
   return;
 };
 

@@ -24,6 +24,7 @@
 #include "vtkTextureObject.h"
 #include "vtkShaderProgram2.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLError.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkMath.h"
 
@@ -251,6 +252,8 @@ void vtkShadowMapBakerPass::SetUpToDate()
 void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
+
+  vtkOpenGLClearErrorMacro();
 
   this->NumberOfRenderedProps=0;
   this->HasShadows=false;
@@ -676,6 +679,8 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
     {
     vtkWarningMacro(<<" no delegate.");
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 // ----------------------------------------------------------------------------

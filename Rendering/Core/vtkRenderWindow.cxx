@@ -80,7 +80,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->AnaglyphColorMask[0] = 4;  // red
   this->AnaglyphColorMask[1] = 3;  // cyan
   this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
-  this->ReportGraphicErrors=0; // false
+  this->ReportGraphicErrors=1; // false
   this->AbortCheckTime = 0.0;
   this->CapturingGL2PSSpecialProps = 0;
 

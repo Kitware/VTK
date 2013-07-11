@@ -37,11 +37,11 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -54,6 +54,7 @@
 #include "vtkShader2.h"
 #include "vtkUniformVariables.h"
 #include "vtkShader2Collection.h"
+#include "vtkOpenGLError.h"
 
 #include <math.h>
 #include <algorithm>
@@ -191,6 +192,8 @@ void vtkOpenGLProjectedAAHexahedraMapper::Initialize(
 void vtkOpenGLProjectedAAHexahedraMapper::Render(vtkRenderer *renderer,
                                                  vtkVolume *volume)
 {
+  vtkOpenGLClearErrorMacro();
+
   if ( !this->Initialized )
     {
     this->Initialize(renderer, volume);
@@ -319,6 +322,8 @@ void vtkOpenGLProjectedAAHexahedraMapper::Render(vtkRenderer *renderer,
 
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 // ----------------------------------------------------------------------------
@@ -326,6 +331,8 @@ void vtkOpenGLProjectedAAHexahedraMapper::UpdatePreintegrationTexture(
   vtkVolume *volume,
   vtkDataArray *scalars)
 {
+  vtkOpenGLClearErrorMacro();
+
   // rebuild the preintegration texture
   vtkUnstructuredGridPreIntegration *pi=
     vtkUnstructuredGridPreIntegration::New();
@@ -357,6 +364,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::UpdatePreintegrationTexture(
 
   pi->Delete();
 
+  vtkOpenGLCheckErrorMacro("failed after UpdatePreintegrationTexture");
 }
 
 // ----------------------------------------------------------------------------
@@ -399,6 +407,8 @@ void vtkOpenGLProjectedAAHexahedraMapper::CreateProgram(vtkRenderWindow *w)
 // ----------------------------------------------------------------------------
 void vtkOpenGLProjectedAAHexahedraMapper::SetState(double *observer)
 {
+  vtkOpenGLClearErrorMacro();
+
   glDepthMask(GL_FALSE);
 
   // save the default blend function.
@@ -452,6 +462,8 @@ void vtkOpenGLProjectedAAHexahedraMapper::SetState(double *observer)
   glTexCoordPointer( 4, GL_FLOAT, 0, node_data2);
 
   this->num_points = 0;
+
+  vtkOpenGLCheckErrorMacro("failed after SetState");
 }
 
 // ----------------------------------------------------------------------------
@@ -490,6 +502,8 @@ void vtkOpenGLProjectedAAHexahedraMapper::RenderHexahedron(float vmin[3],
 // ----------------------------------------------------------------------------
 void vtkOpenGLProjectedAAHexahedraMapper::UnsetState()
 {
+  vtkOpenGLClearErrorMacro();
+
   // flush what remains of our points
   if (this->num_points>0)
     {
@@ -509,6 +523,8 @@ void vtkOpenGLProjectedAAHexahedraMapper::UnsetState()
   glBindTexture(vtkgl::TEXTURE_3D, 0);
 
   glDepthMask(GL_TRUE);
+
+  vtkOpenGLCheckErrorMacro("failed fater UnsetState");
 }
 
 // ----------------------------------------------------------------------------
@@ -731,6 +747,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::ReleaseGraphicsResources(
     {
     GLuint texid = this->PreintTexture;
     glDeleteTextures(1, &texid);
+    vtkOpenGLCheckErrorMacro("failed at glDeleteTextures");
     this->PreintTexture = 0;
     }
   this->Superclass::ReleaseGraphicsResources(win);
