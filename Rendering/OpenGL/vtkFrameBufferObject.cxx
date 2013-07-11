@@ -529,17 +529,27 @@ void vtkFrameBufferObject::CreateColorBuffers(
 //----------------------------------------------------------------------------
 unsigned int vtkFrameBufferObject::GetMaximumNumberOfActiveTargets()
 {
-  GLint maxbuffers;
-  glGetIntegerv(vtkgl::MAX_DRAW_BUFFERS, &maxbuffers);
-  return static_cast<unsigned int>(maxbuffers);
+  unsigned int result = 0;
+  if (this->Context)
+    {
+    GLint maxbuffers;
+    glGetIntegerv(vtkgl::MAX_DRAW_BUFFERS, &maxbuffers);
+    result = static_cast<unsigned int>(maxbuffers);
+    }
+  return result;
 }
 
 //----------------------------------------------------------------------------
 unsigned int vtkFrameBufferObject::GetMaximumNumberOfRenderTargets()
 {
-  GLint maxColorAttachments;
-  glGetIntegerv(vtkgl::MAX_COLOR_ATTACHMENTS_EXT,&maxColorAttachments);
-  return static_cast<unsigned int>(maxColorAttachments);
+  unsigned int result = 0;
+  if (this->Context)
+    {
+    GLint maxColorAttachments;
+    glGetIntegerv(vtkgl::MAX_COLOR_ATTACHMENTS_EXT,&maxColorAttachments);
+    result = static_cast<unsigned int>(maxColorAttachments);
+    }
+  return result;
 }
 
 //----------------------------------------------------------------------------
