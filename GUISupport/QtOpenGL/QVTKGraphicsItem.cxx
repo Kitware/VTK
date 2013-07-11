@@ -243,7 +243,7 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
   painter->endNativePainting();
 #endif
 
-  vtkOpenGLCheckErrorMacro("failed after paint");
+  vtkOpenGLStaticCheckErrorMacro("failed after paint");
 }
 
 void QVTKGraphicsItem::keyPressEvent(QKeyEvent* e)
