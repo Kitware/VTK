@@ -17,19 +17,19 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkOctreePointLocator - a octree spatial decomposition of a set of points
+// .NAME vtkOctreePointLocator - an octree spatial decomposition of a set of points
 //
 // .SECTION Description
-//     Given a vtkDataSetxs, create an octree that is locally refined
-//     such that all leaf octants contain less than a certain
-//     amount of points.  Note that there is no size constraint that
-//     a leaf octant in relation to any of its neighbors.
+// Given a vtkDataSet, create an octree that is locally refined
+// such that all leaf octants contain less than a certain
+// amount of points.  Note that there is no size constraint that
+// a leaf octant in relation to any of its neighbors.
 //
-//     This class can also generate a PolyData representation of
-//     the boundaries of the spatial regions in the decomposition.
+// This class can also generate a PolyData representation of
+// the boundaries of the spatial regions in the decomposition.
 //
 // .SECTION See Also
-//      vtkPointLocator vtkOctreePointLocatorNode
+// vtkLocator vtkPointLocator vtkOctreePointLocatorNode
 
 #ifndef __vtkOctreePointLocator_h
 #define __vtkOctreePointLocator_h
