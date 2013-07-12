@@ -60,7 +60,7 @@ namespace vtkpiston {
     ~PistonGLRAII()
       {
       glPopAttrib();
-      vtkOpenGLCheckErrorMacro("failed after ~PistonGLRAII");
+      vtkOpenGLStaticCheckErrorMacro("failed after ~PistonGLRAII");
       }
     };
 }
