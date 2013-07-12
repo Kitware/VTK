@@ -93,6 +93,8 @@ set(Module_SRCS
   vtkKdTreePointLocator.cxx
   vtkLine.cxx
   vtkLocator.cxx
+  vtkMappedUnstructuredGrid.txx
+  vtkMappedUnstructuredGridCellIterator.txx
   vtkMarchingSquaresLineCases.cxx
   vtkMarchingCubesTriangleCases.cxx
   vtkMeanValueCoordinatesInterpolator.cxx
@@ -207,6 +209,8 @@ set(Module_SRCS
 
 set(${vtk-module}_HDRS
   vtkCellType.h
+  vtkMappedUnstructuredGrid.h
+  vtkMappedUnstructuredGridCellIterator.h
   )
 
 set_source_files_properties(
@@ -258,6 +262,8 @@ set_source_files_properties(
   vtkDispatcher_Private
   vtkDispatcher
   vtkDoubleDispatcher
+  vtkMappedUnstructuredGrid.txx
+  vtkMappedUnstructuredGridCellIterator.txx
   vtkMarchingSquaresLineCases
   vtkMarchingCubesTriangleCases
   vtkImageIterator
