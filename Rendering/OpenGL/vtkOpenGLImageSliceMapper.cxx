@@ -962,6 +962,8 @@ bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
   glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH,
                            &params);
 
+  vtkOpenGLCheckErrorMacro("failed after TextureSizeOK");
+
   // if it does fit, we will render it later
   return (params == 0 ? 0 : 1);
 #else
@@ -969,8 +971,6 @@ bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
   // can do 1024x1024
   return (size[0] <= 1024 && size[1] <= 1024);
 #endif
-
-  vtkOpenGLCheckErrorMacro("failed after TextureSizeOK");
 }
 
 //----------------------------------------------------------------------------

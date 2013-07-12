@@ -592,8 +592,8 @@ void vtkFrameBufferObject2::Download(
       vtkPixelBufferObject *pbo)
 {
   unsigned int extentSize[2] = {
-        extent[1] - extent[0] + 1,
-        extent[3] - extent[2] + 1
+        static_cast<unsigned int>(extent[1] - extent[0] + 1),
+        static_cast<unsigned int>(extent[3] - extent[2] + 1)
         };
 
   unsigned int nTups = extentSize[0]*extentSize[1];

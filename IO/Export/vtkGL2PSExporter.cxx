@@ -116,8 +116,6 @@ void vtkGL2PSExporter::WriteData()
     return;
     }
 
-  vtkOpenGLClearErrorMacro();
-
   // Get the renderers. We'll be walking through them a lot later.
   vtkRendererCollection *renCol = this->RenderWindow->GetRenderers();
 
@@ -299,7 +297,6 @@ void vtkGL2PSExporter::WriteData()
   // Cleanup memory
   delete[] fName;
 
-  vtkOpenGLCheckErrorMacro("failed after WriteData");
   vtkDebugMacro(<<"Finished writing file using GL2PS");
   vtkGL2PSUtilities::FinishExport();
 }
