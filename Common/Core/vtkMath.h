@@ -1245,8 +1245,11 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
 #define VTK_MATH_ISINF_IS_INLINE
 inline int vtkMath::IsInf(double x)
 {
-  using namespace std; // Could be isinf() or std::isinf()
+#if defined(VTK_HAS_STD_ISINF)
+  return std::isinf(x);
+#else
   return (isinf(x) != 0); // Force conversion to bool
+#endif
 }
 #endif
 
@@ -1255,8 +1258,11 @@ inline int vtkMath::IsInf(double x)
 #define VTK_MATH_ISNAN_IS_INLINE
 inline int vtkMath::IsNan(double x)
 {
-  using namespace std; // Could be isnan() or std::isnan()
+#if defined(VTK_HAS_STD_ISNAN)
+  return std::isnan(x);
+#else
   return (isnan(x) != 0); // Force conversion to bool
+#endif
 }
 #endif
 
@@ -1265,8 +1271,9 @@ inline int vtkMath::IsNan(double x)
 #define VTK_MATH_ISFINITE_IS_INLINE
 inline bool vtkMath::IsFinite(double x)
 {
-#if defined(VTK_HAS_ISFINITE) || defined(VTK_HAS_STD_ISFINITE)
-  using namespace std; // Could be isfinite() or std::isfinite()
+#if defined(VTK_HAS_STD_ISFINITE)
+  return std::isfinite(x);
+#elif defined(VTK_HAS_ISFINITE)
   return (isfinite(x) != 0); // Force conversion to bool
 #else
   return (finite(x) != 0); // Force conversion to bool
