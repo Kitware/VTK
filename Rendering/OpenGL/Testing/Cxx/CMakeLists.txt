@@ -178,4 +178,4 @@ endif()
 set_tests_properties(${vtk-module}Cxx-TestOpacity
   PROPERTIES TIMEOUT 70)
 set_tests_properties(${vtk-module}Cxx-TestTextureSize
-  PROPERTIES TIMEOUT 90)
+  PROPERTIES TIMEOUT 300)
