@@ -26,7 +26,6 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkTrivialProducer.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeTextureMapper3D.h"
@@ -528,10 +527,7 @@ void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper *m)
     // make sure we not create a shallow copy each time to avoid
     // performance penalty.
     input2=vtkImageData::New();
-    vtkTrivialProducer* tp = vtkTrivialProducer::New();
-    tp->SetOutput(input2);
-    m->SetInputConnection(tp->GetOutputPort());
-    tp->Delete();
+    m->SetInputDataObject(input2);
     input2->Delete();
     needShallowCopy=true;
     }
@@ -557,7 +553,7 @@ void vtkSmartVolumeMapper::ConnectFilterInput(vtkImageResample *f)
     // make sure we not create a shallow copy each time to avoid
     // performance penalty.
     input2=vtkImageData::New();
-    f->SetInputConnection(f->GetInputConnection(0, 0));
+    f->SetInputDataObject(input2);
     input2->Delete();
     needShallowCopy=true;
     }
