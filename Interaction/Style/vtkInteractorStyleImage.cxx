@@ -482,7 +482,12 @@ void vtkInteractorStyleImage::WindowLevel()
   this->WindowLevelCurrentPosition[0] = rwi->GetEventPosition()[0];
   this->WindowLevelCurrentPosition[1] = rwi->GetEventPosition()[1];
 
-  if (this->CurrentImageProperty)
+  if (this->HandleObservers &&
+      this->HasObserver(vtkCommand::WindowLevelEvent))
+    {
+    this->InvokeEvent(vtkCommand::WindowLevelEvent, this);
+    }
+  else if (this->CurrentImageProperty)
     {
     int *size = this->CurrentRenderer->GetSize();
 
@@ -540,10 +545,6 @@ void vtkInteractorStyleImage::WindowLevel()
     this->CurrentImageProperty->SetColorLevel(newLevel);
 
     this->Interactor->Render();
-    }
-  else
-    {
-    this->InvokeEvent(vtkCommand::WindowLevelEvent, this);
     }
 }
 
