@@ -17,7 +17,10 @@
 // vtkGDALVectorReader is a source object that reads vector files and uses
 // GDAL as the underlying library for the task. GDAL is required for this
 // reader. The output of the reader is a vtkMultiBlockDataSet
-
+//
+// This filter uses the ActiveLayer member to only load entries from the
+// specified layer (when ActiveLayer >= 0).
+//
 // .SECTION See Also
 // vtkMultiBlockDataSet
 
@@ -60,7 +63,9 @@ public:
   int GetActiveLayerFeatureCount();
 
   // Description:
-  // Set and Get the active layer
+  // Set and Get the active layer.
+  // If ActiveLayer is less than 0 (the default is -1), then all
+  // layers are read. Otherwise, only the specified layer is read.
   vtkSetMacro(ActiveLayer,int);
   vtkGetMacro(ActiveLayer,int);
 
