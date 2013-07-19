@@ -130,7 +130,7 @@ typedef int siginfo_t;
 #   define KWSYS_SYSTEMINFORMATION_IMPLEMENT_FQDN
 #  endif
 # endif
-# if defined(__GNUG__)
+# if defined(__GNUC__)
 #  include <execinfo.h>
 #  if !(defined(__LSB_VERSION__) && __LSB_VERSION__ < 41)
 #   define KWSYS_SYSTEMINFORMATION_HAVE_BACKTRACE
@@ -1471,7 +1471,7 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
       {
       char host[NI_MAXHOST]={'\0'};
 
-      int addrlen
+      socklen_t addrlen
         = (fam==AF_INET?sizeof(struct sockaddr_in):sizeof(struct sockaddr_in6));
 
       ierr=getnameinfo(
@@ -3487,7 +3487,7 @@ bool SystemInformationImplementation::QueryLinuxMemory()
     bool have[6] = { false, false, false, false, false, false };
     unsigned long value[6];
     int count = 0;
-    while(fgets(buffer, sizeof(buffer), fd))
+    while(fgets(buffer, static_cast<int>(sizeof(buffer)), fd))
       {
       for(int i=0; i < 6; ++i)
         {
