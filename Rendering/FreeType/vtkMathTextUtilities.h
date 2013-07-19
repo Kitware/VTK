@@ -19,7 +19,7 @@
 // vtkMatplotlib module).
 
 #ifndef __vtkMathTextUtilities_h
-#define __vtkMathTypeUtilities_h
+#define __vtkMathTextUtilities_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkObject.h"
