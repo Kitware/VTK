@@ -18,6 +18,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
@@ -78,7 +79,7 @@ double vtkImplicitDataSet::EvaluateFunction(double x[3])
     }
 
   // Find the cell that contains xyz and get it
-  cell = this->DataSet->FindAndGetCell(x,NULL,-1,0.0,subId,pcoords,this->Weights);
+  cell = this->DataSet->FindAndGetCell(x,NULL,-1,VTK_DBL_EPSILON,subId,pcoords,this->Weights);
 
   if (cell)
     { // Interpolate the point data
@@ -143,7 +144,7 @@ void vtkImplicitDataSet::EvaluateGradient(double x[3], double n[3])
     }
 
   // Find the cell that contains xyz and get it
-  cell = this->DataSet->FindAndGetCell(x,NULL,-1,0.0,subId,pcoords,this->Weights);
+  cell = this->DataSet->FindAndGetCell(x,NULL,-1,VTK_DBL_EPSILON,subId,pcoords,this->Weights);
 
   if (cell)
     { // Interpolate the point data
