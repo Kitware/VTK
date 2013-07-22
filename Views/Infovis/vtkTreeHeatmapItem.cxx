@@ -1140,6 +1140,7 @@ bool vtkTreeHeatmapItem::MouseMoveEvent(const vtkContextMouseEvent &event)
 //-----------------------------------------------------------------------------
 std::string vtkTreeHeatmapItem::GetTooltipText(float x, float y)
 {
+
   vtkIdType column = floor((x - this->HeatmapMinX) / this->CellWidth);
   int sceneRow = floor(y / this->CellHeight + 0.5);
 
@@ -1148,7 +1149,20 @@ std::string vtkTreeHeatmapItem::GetTooltipText(float x, float y)
     int dataRow = this->RowMap[sceneRow];
     if (dataRow != -1)
       {
-      return this->Table->GetValue(dataRow, column + 1).ToString();
+      vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
+        this->Table->GetColumn(0));
+      std::string rowName = rowNames->GetValue(dataRow);
+
+      std::string columnName = this->Table->GetColumn(column + 1)->GetName();
+
+      std::string tooltipText = "(";
+      tooltipText += rowName;
+      tooltipText += ", ";
+      tooltipText += columnName;
+      tooltipText += ")\n";
+      tooltipText += this->Table->GetValue(dataRow, column + 1).ToString();
+
+      return tooltipText;
       }
     return "";
     }
