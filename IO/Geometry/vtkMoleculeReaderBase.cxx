@@ -420,9 +420,9 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
                                      vtkIdTypeArray *atype,
                                      vtkCellArray *newBonds)
 {
-  register int i, j, k;
-  register int nbonds;
-  register double dx, dy, dz;
+  int i, j, k;
+  int nbonds;
+  double dx, dy, dz;
   double max, dist, radius;
   double X[3], Y[3];
   vtkIdType bond[2];
