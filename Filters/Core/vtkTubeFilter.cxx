@@ -694,7 +694,7 @@ void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
       tc = len / length;
       for ( k=0; k < numSides; k++)
         {
-        newTCoords->InsertTuple2(offset+i*2+k,tc,0.0);
+        newTCoords->InsertTuple2(offset+i*numSides+k,tc,0.0);
         }
       xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
       }
