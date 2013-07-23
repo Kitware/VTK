@@ -534,6 +534,7 @@ void vtkTreeHeatmapItem::AccumulateProminentCategoricalDataValues(vtkIdType colu
 
   // add each distinct value from this column to our master list
   vtkNew<vtkVariantArray> distinctValues;
+  stringColumn->SetMaxDiscreteValues(stringColumn->GetNumberOfTuples() - 1);
   stringColumn->GetProminentComponentValues(0, distinctValues.GetPointer());
 
   for (int i = 0; i < distinctValues->GetNumberOfTuples(); ++i)
@@ -549,8 +550,8 @@ void vtkTreeHeatmapItem::AccumulateProminentCategoricalDataValues(vtkIdType colu
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::GenerateCategoricalDataLookupTable()
 {
-  this->ContinuousDataLookupTable->ResetAnnotations();
-  this->ContinuousDataLookupTable->SetNanColor(0.75, 0.75, 0.75, 1.0);
+  this->CategoricalDataLookupTable->ResetAnnotations();
+  this->CategoricalDataLookupTable->SetNanColor(0.75, 0.75, 0.75, 1.0);
 
   // make each distinct categorical value an index into our lookup table
   for (int i = 0; i < this->CategoricalDataValues->GetNumberOfTuples(); ++i)
@@ -561,7 +562,7 @@ void vtkTreeHeatmapItem::GenerateCategoricalDataLookupTable()
     }
 
   vtkNew<vtkColorSeries> colorSeries;
-  colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_ACCENT);
+  colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_SET3);
   colorSeries->BuildLookupTable(this->CategoricalDataLookupTable.GetPointer());
 }
 
