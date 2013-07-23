@@ -75,7 +75,7 @@ public:
   const char* GetArrayName(int index);
 
   // Description:
-  // Get an index of the array containing name within the enabled arrays
+  // Get an index of the array with the given name.
   int GetArrayIndex(const char *name);
 
   // Description:
