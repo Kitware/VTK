@@ -17,8 +17,8 @@
 #ifndef vtkToDax_Containers_h
 #define vtkToDax_Containers_h
 
-#include <vtkPoints.h>
-#include <vtkCellArray.h>
+#include "vtkPoints.h"
+#include "vtkCellArray.h"
 
 #include "Portals.h"
 #include "Allocators.h"

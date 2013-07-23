@@ -18,13 +18,13 @@
 #define vtkToDax_DataSetConverter_h
 
 //datasets we support
-#include <vtkDataObjectTypes.h>
-#include <vtkCellTypes.h>
-#include <vtkCellArray.h>
-#include <vtkImageData.h>
-#include <vtkUniformGrid.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkStructuredGrid.h>
+#include "vtkDataObjectTypes.h"
+#include "vtkCellTypes.h"
+#include "vtkCellArray.h"
+#include "vtkImageData.h"
+#include "vtkUniformGrid.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkStructuredGrid.h"
 
 #include <dax/cont/ArrayHandle.h>
 #include <dax/cont/UniformGrid.h>

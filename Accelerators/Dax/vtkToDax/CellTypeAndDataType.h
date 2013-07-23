@@ -17,8 +17,8 @@
 #ifndef vtkToDax_CellTypeAndDataType_h
 #define vtkToDax_CellTypeAndDataType_h
 
-#include <vtkType.h>
-#include <vtkCellType.h>
+#include "vtkType.h"
+#include "vtkCellType.h"
 
 
 namespace vtkToDax

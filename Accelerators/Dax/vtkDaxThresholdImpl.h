@@ -50,12 +50,12 @@
 #include "vtkUnstructuredGrid.h"
 
 //helpers that convert to and from Dax
-#include <vtkToDax/CellTypeToType.h>
-#include <vtkToDax/Containers.h>
-#include <vtkToDax/DataSetTypeToType.h>
-#include <vtkToDax/FieldTypeToType.h>
-#include <vtkToDax/Portals.h>
-#include <vtkToDax/Threshold.h>
+#include "vtkToDax/CellTypeToType.h"
+#include "vtkToDax/Containers.h"
+#include "vtkToDax/DataSetTypeToType.h"
+#include "vtkToDax/FieldTypeToType.h"
+#include "vtkToDax/Portals.h"
+#include "vtkToDax/Threshold.h"
 
 
 namespace vtkDax{

@@ -25,12 +25,12 @@ class vtkTriangle;
 class vtkVoxel;
 class vtkWedge;
 
-#include <vtkCellData.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkNew.h>
-#include <vtkPointData.h>
-#include <vtkPolyData.h>
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 
 #include <dax/cont/UnstructuredGrid.h>
 #include <dax/cont/UniformGrid.h>

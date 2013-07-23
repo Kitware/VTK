@@ -15,12 +15,12 @@
 //=============================================================================
 #include "vtkDaxThreshold.h"
 
-#include <vtkDispatcher.h>
-#include <vtkDataSet.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
+#include "vtkDispatcher.h"
+#include "vtkDataSet.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 
 namespace vtkDax {
   int Threshold(vtkDataSet* input,

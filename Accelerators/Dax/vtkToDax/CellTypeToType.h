@@ -17,7 +17,7 @@
 #ifndef vtkToDax_CellTypeToType_h
 #define vtkToDax_CellTypeToType_h
 
-#include <vtkCellType.h>
+#include "vtkCellType.h"
 
 
 class vtkLine;

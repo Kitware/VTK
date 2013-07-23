@@ -17,9 +17,9 @@
 #ifndef vtkToDax_vtkPointsContainer_h
 #define vtkToDax_vtkPointsContainer_h
 
-#include <vtkCellArray.h>
-#include <vtkDataArray.h>
-#include <vtkPoints.h>
+#include "vtkCellArray.h"
+#include "vtkDataArray.h"
+#include "vtkPoints.h"
 
 #include <dax/Types.h>
 #include <dax/VectorTraits.h>

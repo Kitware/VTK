@@ -21,8 +21,8 @@
 #include "CellTypeToType.h"
 #include "DataSetConverters.h"
 
-#include <daxToVtk/CellTypeToType.h>
-#include <daxToVtk/DataSetConverters.h>
+#include "daxToVtk/CellTypeToType.h"
+#include "daxToVtk/DataSetConverters.h"
 
 #include <dax/cont/Scheduler.h>
 #include <dax/cont/GenerateTopology.h>

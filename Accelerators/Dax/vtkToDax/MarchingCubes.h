@@ -17,14 +17,13 @@
 #ifndef vtkToDax_MarchingCubes_h
 #define vtkToDax_MarchingCubes_h
 
-#include <vtkPolyData.h>
+#include "vtkPolyData.h"
 
 #include "DataSetTypeToType.h"
 #include "CellTypeToType.h"
 #include "DataSetConverters.h"
-
-#include <daxToVtk/CellTypeToType.h>
-#include <daxToVtk/DataSetConverters.h>
+#include "daxToVtk/CellTypeToType.h"
+#include "daxToVtk/DataSetConverters.h"
 
 #include <dax/cont/Scheduler.h>
 #include <dax/cont/GenerateInterpolatedCells.h>

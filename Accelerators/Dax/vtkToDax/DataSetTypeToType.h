@@ -17,7 +17,7 @@
 #ifndef vtkToDax_DataSetTypeToType_h
 #define vtkToDax_DataSetTypeToType_h
 
-#include <vtkType.h>
+#include "vtkType.h"
 
 #include <dax/cont/UniformGrid.h>
 #include <dax/cont/UnstructuredGrid.h>
