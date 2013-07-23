@@ -18,6 +18,10 @@
 #define vtkToDax_Allocators_h
 
 #include <dax/VectorTraits.h>
+#include <cstddef>
+
+class vtkPoints;
+class vtkCellArray;
 
 /*
  * The one rule of allocators is that they can allocate
@@ -46,7 +50,7 @@ struct vtkAlloc
   typedef T             value_type;
 
 
-  self::pointer allocate(size_type n, self::const_pointer hint = 0)
+  pointer allocate(size_type n, self::const_pointer hint = 0)
     {
     pointer p =  value_type::New();
     p->SetNumberOfComponents(NUM_COMPONENTS);
@@ -75,7 +79,7 @@ struct vtkAlloc<vtkPoints, NUM_COMPONENTS>
   typedef T             value_type;
 
 
-  self::pointer allocate(size_type n, self::const_pointer hint = 0)
+  pointer allocate(size_type n, const_pointer hint = 0)
     {
 #ifdef DAX_USE_DOUBLE_PRECISION
     pointer p = value_type::New(VTK_DOUBLE);
@@ -86,7 +90,7 @@ struct vtkAlloc<vtkPoints, NUM_COMPONENTS>
     return p;
     }
 
-  void deallocate(self::pointer p, self::size_type)
+  void deallocate(pointer p, size_type)
     {
     p->Delete();
     }
@@ -109,7 +113,7 @@ struct vtkAlloc<vtkCellArray, NUM_COMPONENTS>
 
 
   //for cell arrays dax requests an allocation that is num_cells * num_components
-  self::pointer allocate(size_type n, self::const_pointer hint = 0)
+  pointer allocate(size_type n, const_pointer hint = 0)
     {
     pointer p =  value_type::New();
     const size_type numCells = n/NUM_COMPONENTS;
@@ -118,7 +122,7 @@ struct vtkAlloc<vtkCellArray, NUM_COMPONENTS>
     return p;
     }
 
-  void deallocate(self::pointer p, self::size_type)
+  void deallocate(pointer p, size_type)
     {
     p->Delete();
     }
