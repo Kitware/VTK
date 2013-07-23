@@ -1588,33 +1588,33 @@ void vtkPolyData::ReplaceLinkedCell(vtkIdType cellId, int npts, vtkIdType *pts)
 void vtkPolyData::GetCellEdgeNeighbors(vtkIdType cellId, vtkIdType p1,
                                        vtkIdType p2, vtkIdList *cellIds)
 {
-  vtkIdType *cells;
-  vtkIdType numCells;
-  vtkIdType i,j;
-  vtkIdType *pts, npts;
-
   cellIds->Reset();
 
-  numCells = this->Links->GetNcells(p1);
-  cells = this->Links->GetCells(p1);
+  const vtkCellLinks::Link &link1(this->Links->GetLink(p1));
+  const vtkCellLinks::Link &link2(this->Links->GetLink(p2));
 
-  for (i=0; i < numCells; i++)
+  const vtkIdType *cells1 = link1.cells;
+  const vtkIdType *cells1End = cells1 + link1.ncells;
+
+  const vtkIdType *cells2 = link2.cells;
+  const vtkIdType *cells2End = cells2 + link2.ncells;
+
+  while (cells1 != cells1End)
     {
-    if ( cells[i] != cellId )
+    if (*cells1 != cellId)
       {
-      this->GetCellPoints(cells[i],npts,pts);
-      for (j=0; j < npts; j++)
+      const vtkIdType *cells2Cur(cells2);
+      while (cells2Cur != cells2End)
         {
-        if ( pts[j] == p2 )
+        if (*cells1 == *cells2Cur)
           {
+          cellIds->InsertNextId(*cells1);
           break;
           }
-        }
-      if ( j < npts )
-        {
-        cellIds->InsertNextId(cells[i]);
+        ++cells2Cur;
         }
       }
+    ++cells1;
     }
 }
 
