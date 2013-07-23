@@ -23,6 +23,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -131,7 +132,7 @@ int vtkGlyph3D::RequestData(
   vtkDataArray *newTCoords = NULL;
   double x[3], v[3], vNew[3], s = 0.0, vMag = 0.0, value, tc[3];
   vtkTransform *trans = vtkTransform::New();
-  vtkCell *cell;
+  vtkNew<vtkIdList> pointIdList;
   vtkIdList *cellPts;
   int npts;
   vtkIdList *pts;
@@ -144,7 +145,10 @@ int vtkGlyph3D::RequestData(
   vtkPolyData *defaultSource = NULL;
   vtkIdTypeArray *pointIds=0;
   vtkPolyData *source = this->GetSource(0, inputVector[1]);
-;
+  vtkNew<vtkIdList> srcPointIdList;
+  vtkNew<vtkIdList> dstPointIdList;
+  vtkNew<vtkIdList> srcCellIdList;
+  vtkNew<vtkIdList> dstCellIdList;
 
   vtkDebugMacro(<<"Generating glyphs");
 
@@ -308,6 +312,11 @@ int vtkGlyph3D::RequestData(
       outputCD->CopyAllocate(pd,numPts*numSourceCells);
       }
     }
+
+  srcPointIdList->SetNumberOfIds(numSourcePts);
+  dstPointIdList->SetNumberOfIds(numSourcePts);
+  srcCellIdList->SetNumberOfIds(numSourceCells);
+  dstCellIdList->SetNumberOfIds(numSourceCells);
 
   newPts = vtkPoints::New();
   newPts->Allocate(numPts*numSourcePts);
@@ -517,14 +526,14 @@ int vtkGlyph3D::RequestData(
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
-      cell = source->GetCell(cellId);
-      cellPts = cell->GetPointIds();
+      source->GetCellPoints(cellId, pointIdList.GetPointer());
+      cellPts = pointIdList.GetPointer();
       npts = cellPts->GetNumberOfIds();
       for (pts->Reset(), i=0; i < npts; i++)
         {
-        pts->InsertId(i,cellPts->GetId(i) + ptIncr);
+        pts->InsertId(i, cellPts->GetId(i) + ptIncr);
         }
-      output->InsertNextCell(cell->GetCellType(),pts);
+      output->InsertNextCell(source->GetCellType(cellId), pts);
       }
 
     // translate Source to Input point
@@ -640,16 +649,22 @@ int vtkGlyph3D::RequestData(
     // Copy point data from source (if possible)
     if ( pd )
       {
-      for (i=0; i < numSourcePts; i++)
+      for (i = 0; i < numSourcePts; ++i)
         {
-        outputPD->CopyData(pd,inPtId,ptIncr+i);
+        srcPointIdList->SetId(i, inPtId);
+        dstPointIdList->SetId(i, ptIncr + i);
         }
+      outputPD->CopyData(pd, srcPointIdList.GetPointer(),
+                         dstPointIdList.GetPointer());
       if (this->FillCellData)
         {
-        for (i=0; i < numSourceCells; i++)
+        for (i = 0; i < numSourceCells; ++i)
           {
-          outputCD->CopyData(pd,inPtId,cellIncr+i);
+          srcCellIdList->SetId(i, inPtId);
+          dstCellIdList->SetId(i, cellIncr + i);
           }
+        outputCD->CopyData(pd, srcCellIdList.GetPointer(),
+                           dstCellIdList.GetPointer());
         }
       }
 
