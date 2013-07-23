@@ -77,7 +77,11 @@ struct vtkAlloc<vtkPoints, NUM_COMPONENTS>
 
   self::pointer allocate(size_type n, self::const_pointer hint = 0)
     {
-    pointer p = value_type::New();
+#ifdef DAX_USE_DOUBLE_PRECISION
+    pointer p = value_type::New(VTK_DOUBLE);
+#else
+    pointer p = value_type::New(VTK_FLOAT);
+#endif
     p->SetNumberOfPoints(n);
     return p;
     }

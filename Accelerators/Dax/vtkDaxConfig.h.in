@@ -31,5 +31,11 @@
 # define DAX_DEVICE_ADAPTER @DAX_DEVICE_ADAPTER@
 #endif
 
+//make sure we use 64bit id's just like vtk
+#ifdef VTK_USE_64BIT_IDS
+# define DAX_USE_64BIT_IDS
+#endif
+#include <dax/internal/Configure.h>
+
 #include <dax/cont/DeviceAdapter.h>
 #endif // __vtkDaxConfig_h
