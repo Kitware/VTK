@@ -1628,7 +1628,15 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
   if(this->ContextId!=0)
     {
       this->MakeCurrent();
-      this->CleanUpRenderers();
+      // Renderers will need to redraw anything cached in display lists
+      vtkRenderer *ren;
+      vtkCollectionSimpleIterator rsit;
+      for (this->Renderers->InitTraversal(rsit);
+           (ren = this->Renderers->GetNextRenderer(rsit));)
+        {
+        ren->SetRenderWindow(NULL);
+        ren->SetRenderWindow(this);
+        }
     }
 
   this->Mapped = this->ScreenMapped;
