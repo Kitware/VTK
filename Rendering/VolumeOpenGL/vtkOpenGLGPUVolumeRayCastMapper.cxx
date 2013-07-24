@@ -2191,25 +2191,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // Assume success
   this->LoadExtensionsSucceeded=1;
 
-  const char *gl_version=reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  if(gl_version && strstr(gl_version,"Mesa")!=0)
-    {
-    // - GL_VENDOR cannot be used because it can be "Brian Paul" or
-    // "Mesa project"
-    // - GL_RENDERER cannot be used because it can be "Software Rasterizer" or
-    // "Mesa X11"
-    // - GL_VERSION is more robust. It has things like "2.0 Mesa 7.0.4" or
-    // "2.1 Mesa 7.2" or "2.1 Mesa 7.3-devel"
-    // Mesa does not work with multiple draw buffers:
-    // "framebuffer has bad draw buffer"
-    // "render clipped 1 ERROR (x506) invalid framebuffer operation ext"
-    this->LoadExtensionsSucceeded=0;
-    return;
-    }
-
   // Create an extension manager
   vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
   extensions->SetRenderWindow(window);
+
+  // os mesa notes:
+  // 8.0.0 -- missing some required extensions
+  // 8.0.5 -- tests pass but there are invalid enum opengl errors reported (mesa bug)
+  // 9.1.3 & 9.1.4  -- GPURayCastCompositeShadeMask fails (mesa bug?)
+  // 9.2.0 w/llvmpipe -- all tests pass cleanly
+  if ( (!extensions->DriverIsMesa()
+    || (extensions->DriverGLRendererIsOSMesa()
+    && extensions->DriverVersionAtLeast(9)))
+    && !extensions->GetIgnoreDriverBugs("Mesa FBO bugs"))
+    {
+    this->LoadExtensionsSucceeded=0;
+    }
 
   // GL_ARB_draw_buffers requires OpenGL 1.3, so we must have OpenGL 1.3
   // We don't need to check for some extensions that become part of OpenGL
@@ -3801,6 +3798,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::CopyFBOToTexture()
                       this->ReducedSize[1]);
     }
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+  // reset the readbuffer to keep os mesa happy
+  // during CheckFrameBufferStatus
+  glReadBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
   vtkOpenGLCheckErrorMacro("failed after CopyFBOToTexture");
 }
 

@@ -188,8 +188,9 @@ bool vtkOpenGLProperty::RenderShaders(vtkActor* vtkNotUsed(anActor), vtkRenderer
     vtkErrorMacro("the vtkOpenGLProperty need a vtkOpenGLRenderer to render.");
     return false;
     }
-  vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
-      ren->GetRenderWindow());
+  vtkOpenGLRenderWindow *context
+    = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+
   vtkShaderProgram2* prog = oRenderer->GetShaderProgram();
   if (prog)
     {
@@ -198,7 +199,6 @@ bool vtkOpenGLProperty::RenderShaders(vtkActor* vtkNotUsed(anActor), vtkRenderer
 
   vtkOpenGLClearErrorMacro();
 
-  bool useShaders = false;
   vtkShaderProgram2 *propProg;
   if (this->Shading)
     {
@@ -208,18 +208,25 @@ bool vtkOpenGLProperty::RenderShaders(vtkActor* vtkNotUsed(anActor), vtkRenderer
     {
     propProg = 0;
     }
+
+  bool useShaders = false;
   if (prog || propProg)
     {
-    useShaders = vtkShaderProgram2::IsSupported(context);
-    if (useShaders)
+    bool shader_support = vtkShaderProgram2::IsSupported(context);
+
+    // mesa doesn't support separate compilation units
+    // os mesa:
+    // 9.1.4 some tests failing
+    vtkOpenGLExtensionManager *extensions = context->GetExtensionManager();
+
+    bool driver_support
+      = !extensions->DriverIsMesa()
+      || extensions->GetIgnoreDriverBugs(
+        "Mesa support for separate compilation units");
+
+    if (shader_support && driver_support)
       {
-      const char *gl_renderer =
-        reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-      if (strstr(gl_renderer, "Mesa") != 0)
-        {
-        useShaders = false;
-        vtkErrorMacro(<<"Mesa does not support separate compilation units.");
-        }
+      useShaders = true;
       }
     else
       {
