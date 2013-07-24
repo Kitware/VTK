@@ -741,7 +741,8 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
   vtkIdType numberOfBlocks =
     numberOfSampleTuples / blockSize +
     (numberOfSampleTuples % blockSize ? 1 : 0);
-  if (numberOfBlocks * blockSize < 2 * this->MaxDiscreteValues)
+  if (static_cast<unsigned int>(numberOfBlocks * blockSize) <
+      2 * this->MaxDiscreteValues)
     {
     numberOfBlocks =
       2 * this->MaxDiscreteValues / blockSize +
