@@ -104,7 +104,6 @@ volumeMapper.AddClippingPlane(plane4)
 # Okay now the graphics stuff
 ren1 = vtk.vtkRenderer()
 renWin = vtk.vtkRenderWindow()
-renWin.ReportGraphicErrorsOn()
 renWin.AddRenderer(ren1)
 
 renWin.SetSize(256, 256)
