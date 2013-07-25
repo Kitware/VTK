@@ -78,8 +78,7 @@ vtkStandardNewMacro(vtkStringArray);
 
 //-----------------------------------------------------------------------------
 
-vtkStringArray::vtkStringArray(vtkIdType numComp) :
-  vtkAbstractArray( numComp )
+vtkStringArray::vtkStringArray()
 {
   this->Array = NULL;
   this->SaveUserArray = 0;

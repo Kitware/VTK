@@ -275,7 +275,7 @@ public:
   virtual void ClearLookup();
 
 protected:
-  vtkDataArrayTemplate(vtkIdType numComp);
+  vtkDataArrayTemplate();
   ~vtkDataArrayTemplate();
 
   T* Array;   // pointer to data

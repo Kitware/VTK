@@ -212,7 +212,7 @@ public:
   virtual void ClearLookup();
 
 protected:
-  vtkBitArray(vtkIdType numComp=1);
+  vtkBitArray();
   ~vtkBitArray();
 
   unsigned char *Array;   // pointer to data

@@ -70,17 +70,16 @@ public:
 
 //----------------------------------------------------------------------------
 template <class T>
-vtkDataArrayTemplate<T>::vtkDataArrayTemplate(vtkIdType numComp):
-  vtkDataArray(numComp)
+vtkDataArrayTemplate<T>::vtkDataArrayTemplate()
 {
   this->Array = 0;
-  this->Tuple = 0;
+  this->ValueRange[0] = 0;
+  this->ValueRange[1] = 1;
   this->TupleSize = 0;
+  this->Tuple = 0;
   this->SaveUserArray = 0;
   this->DeleteMethod = VTK_DATA_ARRAY_FREE;
   this->Lookup = 0;
-  this->ValueRange[0] = 0;
-  this->ValueRange[1] = 1;
 }
 
 //----------------------------------------------------------------------------

@@ -259,7 +259,7 @@ public:
 
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
-  vtkVariantArray(vtkIdType numComp=1);
+  vtkVariantArray();
 
   // Pointer to data
   //BTX

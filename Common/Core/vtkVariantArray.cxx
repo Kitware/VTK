@@ -92,8 +92,7 @@ void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkVariantArray::vtkVariantArray(vtkIdType numComp) :
-  vtkAbstractArray( numComp )
+vtkVariantArray::vtkVariantArray()
 {
   this->Array = NULL;
   this->SaveUserArray = 0;

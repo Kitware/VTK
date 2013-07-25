@@ -30,7 +30,7 @@ public:
 
 vtkStandardNewMacro(vtkUnicodeStringArray);
 
-vtkUnicodeStringArray::vtkUnicodeStringArray(vtkIdType)
+vtkUnicodeStringArray::vtkUnicodeStringArray()
 {
   this->Internal = new Implementation;
 }

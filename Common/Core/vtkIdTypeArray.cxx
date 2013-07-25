@@ -30,7 +30,7 @@
 vtkStandardNewMacro(vtkIdTypeArray);
 
 //----------------------------------------------------------------------------
-vtkIdTypeArray::vtkIdTypeArray(vtkIdType numComp): RealSuperclass(numComp)
+vtkIdTypeArray::vtkIdTypeArray()
 {
 }
 

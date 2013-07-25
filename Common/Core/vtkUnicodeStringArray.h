@@ -81,7 +81,7 @@ public:
   const char* GetUTF8Value(vtkIdType i);
 
 protected:
-  vtkUnicodeStringArray(vtkIdType numComp = 1);
+  vtkUnicodeStringArray();
   ~vtkUnicodeStringArray();
 
 private:

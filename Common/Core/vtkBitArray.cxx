@@ -49,9 +49,8 @@ vtkStandardNewMacro(vtkBitArray);
 
 //----------------------------------------------------------------------------
 // Instantiate object.
-vtkBitArray::vtkBitArray(vtkIdType numComp)
+vtkBitArray::vtkBitArray()
 {
-  this->NumberOfComponents = static_cast<int>(numComp < 1 ? 1 : numComp);
   this->Array = NULL;
   this->TupleSize = 3;
   this->Tuple = new double[this->TupleSize]; //used for conversion
