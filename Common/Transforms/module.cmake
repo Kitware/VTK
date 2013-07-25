@@ -7,4 +7,6 @@ vtk_module(vtkCommonTransforms
     # of vtkCommonMath off but still satisfy API dependcy.
     vtkCommonCore
     vtkCommonMath
+  TEST_DEPENDS
+    vtkTestingCore
   )
