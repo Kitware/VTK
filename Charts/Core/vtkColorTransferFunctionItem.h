@@ -40,6 +40,11 @@ protected:
   virtual ~vtkColorTransferFunctionItem();
 
   // Description:
+  // Returns true if we are rendering in log space.
+  virtual bool UsingLogScale();
+
+
+  // Description:
   // Reimplemented to return the range of the lookup table
   virtual void ComputeBounds(double bounds[4]);
 

@@ -53,7 +53,7 @@ public:
   // Description:
   // Paint the children of the item, should be called whenever the children
   // need to be rendered.
-  bool PaintChildren(vtkContext2D *painter);
+  virtual bool PaintChildren(vtkContext2D *painter);
 
   // Description:
   // Release graphics resources hold by the item. The default implementation

@@ -266,6 +266,7 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow* win)
   this->P->AnnotationLeadersActor->ReleaseGraphicsResources(win);
   this->BackgroundActor->ReleaseGraphicsResources(win);
   this->FrameActor->ReleaseGraphicsResources(win);
+  this->Texture->ReleaseGraphicsResources(win);
 }
 
 //----------------------------------------------------------------------------

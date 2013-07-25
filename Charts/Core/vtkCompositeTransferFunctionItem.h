@@ -38,6 +38,12 @@ protected:
   virtual ~vtkCompositeTransferFunctionItem();
 
   // Description:
+  // Returns true if we are rendering in log space.
+  // Since vtkPiecewiseFunction doesn't support log, we show this transfer
+  // function in non-log space always.
+  virtual bool UsingLogScale() { return false; }
+
+  // Description:
   // Reimplemented to return the range of the piecewise function
   virtual void ComputeBounds(double bounds[4]);
 
