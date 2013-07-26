@@ -31,6 +31,17 @@ DEALINGS IN THE SOFTWARE.
 #include "core.h"
 #include <stdexcept>
 
+// In C++11, clang will warn about using dynamic exception specifications
+// as they are deprecated.  But as this class is subclassing std::exception
+// we must keep the 'throw()' to be C++98 compatible.
+// So we suppress the warning.
+#if defined(__clang__) && defined(__has_warning)
+# if __has_warning("-Wdeprecated")
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wdeprecated"
+# endif
+#endif
+
 namespace vtk_utf8
 {
     // Exceptions that may be thrown from the library functions.
@@ -312,6 +323,13 @@ namespace vtk_utf8
     }; // class iterator
 
 } // namespace vtk_utf8
+
+// Undo warning suppression.
+#if defined(__clang__) && defined(__has_warning)
+# if __has_warning("-Wdeprecated")
+#  pragma clang diagnostic pop
+# endif
+#endif
 
 #endif //header guard
 
