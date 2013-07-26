@@ -73,17 +73,24 @@ class vtkUnsignedCharArray;
 #define VTK_CURSOR_HAND      9
 #define VTK_CURSOR_CROSSHAIR 10
 
-//
+#ifndef VTK_LEGACY_REMOVE
 // This macro should not be used, see vtkOpenGLError.h for
 // GL error handling functions and macros.
-//
-#define vtkGraphicErrorMacro(renderWindow,message)                      \
-  renderWindow->CheckGraphicError();                                    \
-  if ( renderWindow->GetReportGraphicErrors()                           \
-    && renderWindow->HasGraphicError() )                                \
-    {                                                                   \
-    vtkErrorMacro(<<message<<" "<<renderWindow->GetLastGraphicErrorString()); \
+#if defined NDEBUG
+# define vtkGraphicErrorMacro(renderWindow,message)   \
+  renderWindow->CheckGraphicError();
+#else
+# define vtkGraphicErrorMacro(renderWindow,message)   \
+  renderWindow->CheckGraphicError();                  \
+  if ( renderWindow->GetReportGraphicErrors()         \
+    && renderWindow->HasGraphicError() )              \
+    {                                                 \
+    vtkErrorMacro(                                    \
+      << message << " "                               \
+      << renderWindow->GetLastGraphicErrorString());  \
     }
+# endif
+#endif
 
 class VTKRENDERINGCORE_EXPORT vtkRenderWindow : public vtkWindow
 {
@@ -559,37 +566,22 @@ public:
   vtkBooleanMacro(StencilCapable, int);
 
   // Description:
-  // Turn on/off report of graphic errors. Initial value is false (off).
-  // This flag is used by vtkGraphicErrorMacro.
-  vtkSetMacro(ReportGraphicErrors,int);
-  vtkGetMacro(ReportGraphicErrors,int);
-  vtkBooleanMacro(ReportGraphicErrors,int);
+  // @deprecated Replaced by
+  // the CMakeLists variable VTK_REPORT_OPENGL_ERRORS
+  // error reporting is enabled/disabled at compile time
+  VTK_LEGACY(void SetReportGraphicErrors(int val));
+  VTK_LEGACY(void SetReportGraphicErrorsOn());
+  VTK_LEGACY(void SetReportGraphicErrorsOff());
+  VTK_LEGACY(int GetReportGraphicErrors());
 
+#ifndef VTK_LEGACY_REMOVE
   // Description:
-  // Update graphic error status, regardless of ReportGraphicErrors flag.
-  // It means this method can be used in any context and is not restricted to
-  // debug mode. Errors codes are querried until no-errors are reported,
-  // ensureing internal error flags are clear after each check. Error status
-  // and description  are recorded internally, may be retrieved with  HasGraphicError
-  // and GetGraphicErrorString methods.
-  virtual void CheckGraphicError()=0;
-
-  // Description:
-  // Clear the graphics error status, without recording or reporting detected errors.
-  virtual void ClearGraphicError()=0;
-
-  // Description:
-  // Return the number of graphics errors found in the most recent call to
-  // CheckGraphicError. If no errors were detected then the return will be 0.
-  // Descriptions for each of the errors may be obtained by calling
-  // GetGraphicErrorString.
-  virtual int HasGraphicError()=0;
-  virtual int GetNumberOfGraphicErrors()=0;
-
-  // Description:
-  // Return a string matching the last graphic error status. See
-  // GetGraphicErrorString.
-  virtual const char *GetLastGraphicErrorString()=0;
+  // @deprecated Replaced by
+  // vtkOpenGLCheckErrorMacro
+  virtual void CheckGraphicError() = 0;
+  virtual int HasGraphicError() = 0;
+  virtual const char *GetLastGraphicErrorString() = 0;
+#endif
 
 protected:
   vtkRenderWindow();
@@ -638,10 +630,13 @@ protected:
   int StencilCapable;
   int CapturingGL2PSSpecialProps;
 
+#ifndef VTK_LEGACY_REMOVE
   // Description:
-  // Boolean flag telling if errors from the graphic library have to be
-  // reported by vtkGraphicErrorMacro. Initial value is false (off).
+  // @deprecated Replaced by
+  // the CMakeLists variable VTK_REPORT_OPENGL_ERRORS
+  // error reporting is enabled/disabled at compile time
   int ReportGraphicErrors;
+#endif
 
   // Description:
   // The universal time since the last abort check occurred.

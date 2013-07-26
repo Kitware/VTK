@@ -255,7 +255,6 @@ void MyProcess::Execute()
   renderer->AddActor(actor);
 
   vtkRenderWindow *renWin = prm->MakeRenderWindow();
-  renWin->SetReportGraphicErrors(true);
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
 

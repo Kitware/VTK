@@ -439,8 +439,6 @@ int vtkStructuredGridLIC2D::RequestData(
     renWin = NULL; // to be released via this->context
     this->OwnWindow = true;
     }
-  this->Context->SetReportGraphicErrors(1);
-
 
   vtkInformation    * outInfo = outputVector->GetInformationObject(0);
   vtkStructuredGrid * output  = vtkStructuredGrid::SafeDownCast(
@@ -647,9 +645,7 @@ int vtkStructuredGridLIC2D::RequestData(
 
   vtkDebugMacro( << "glFinish before rendering quad" << endl );
   glFinish(); // debug: GL break point
-  vtkGraphicErrorMacro(this->Context,"error1");
   fbo->RenderQuad(0, width-1,0,height-1);
-  vtkGraphicErrorMacro(this->Context,"error2");
 
   vtkDebugMacro( << "glFinish after rendering quad" << endl );
   glFinish(); // debug: GL break point

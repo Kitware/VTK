@@ -122,7 +122,6 @@ int SurfaceLIC( int argc, char * argv[] )
   VTK_CREATE_NEW(renWin, vtkRenderWindow);
   VTK_CREATE_NEW(renderer, vtkRenderer);
   VTK_CREATE_NEW(iren, vtkRenderWindowInteractor);
-  renWin->SetReportGraphicErrors(1);
   renWin->AddRenderer(renderer);
   renWin->SetSize(300,300);
   iren->SetRenderWindow(renWin);
