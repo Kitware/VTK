@@ -35,11 +35,11 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkPath.h"
 #include "vtkPointData.h"
 #include "vtkProp.h"
 #include "vtkProp3DCollection.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
@@ -56,6 +56,7 @@
 #include "vtkVolumeCollection.h"
 #include "vtkWindowToImageFilter.h"
 #include "vtk_gl2ps.h"
+#include "vtkOpenGLError.h"
 
 #include <vector>
 
@@ -626,6 +627,8 @@ void vtkGL2PSExporter::SetPropVisibilities(vtkPropCollection *col, int vis)
 void vtkGL2PSExporter::DrawSpecialProps(vtkCollection *specialPropCol,
                                         vtkRendererCollection *renCol)
 {
+  vtkOpenGLClearErrorMacro();
+
   // Iterate through the renderers and the prop collections together:
   assert("renderers and special prop collections match" &&
          renCol->GetNumberOfItems() == specialPropCol->GetNumberOfItems());
@@ -654,6 +657,8 @@ void vtkGL2PSExporter::DrawSpecialProps(vtkCollection *specialPropCol,
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     }
+
+  vtkOpenGLCheckErrorMacro("failed after DrawSpecialProps");
 }
 
 void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
@@ -790,6 +795,8 @@ void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
                                                vtkCoordinate *coord,
                                                vtkRenderer *ren)
 {
+  vtkOpenGLClearErrorMacro();
+
   // Figure out the viewport information
   int *winsize = this->RenderWindow->GetSize();
   double *viewport = ren->GetViewport();
@@ -825,6 +832,8 @@ void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
   glPopMatrix();
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
+
+  vtkOpenGLCheckErrorMacro("failed after DrawViewportTextOverlay");
 }
 
 
@@ -835,6 +844,9 @@ void vtkGL2PSExporter::CopyPixels(int copyRect[4], vtkRenderer *ren)
     vtkErrorMacro(<<"Raster image is not correctly formatted.")
     return;
     }
+
+  vtkOpenGLClearErrorMacro();
+
   // Figure out the viewport information
   int *winsize = this->RenderWindow->GetSize();
   double *viewport = ren->GetViewport();
@@ -893,6 +905,8 @@ void vtkGL2PSExporter::CopyPixels(int copyRect[4], vtkRenderer *ren)
   glPopMatrix();
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
+
+  vtkOpenGLCheckErrorMacro("failed after CopyPixels");
 }
 
 void vtkGL2PSExporter::DrawContextActors(vtkPropCollection *contextActs,

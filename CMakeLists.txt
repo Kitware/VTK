@@ -172,7 +172,9 @@ include(vtkDetermineCompilerFlags)
 add_definitions(-DVTK_IN_VTK)
 
 #-----------------------------------------------------------------------------
-include(vtkLegacyData)
+if(BUILD_TESTING)
+  include(vtkLegacyData)
+endif()
 
 # Provide an option for tests requiring "large" input data
 option(VTK_USE_LARGE_DATA "Enable tests requiring \"large\" data" OFF)

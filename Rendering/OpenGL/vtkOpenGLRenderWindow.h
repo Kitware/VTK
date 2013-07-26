@@ -24,13 +24,13 @@
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderWindow.h"
-
 #include "vtkOpenGL.h" // Needed for GLuint.
 
 class vtkIdList;
 class vtkOpenGLExtensionManager;
 class vtkOpenGLHardwareSupport;
 class vtkTextureUnitManager;
+class vtkStdString;
 
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -160,14 +160,72 @@ public:
   unsigned int GetFrontBuffer();
 
   // Description:
+  // Query OpenGL for errors until all have been reported. This has the affect
+  // of clearing the error flags. This method is static and may be used
+  // without an instance to check for errors and clear OpenGL error flags(eg from
+  // other static methods).
+  static
+  void ClearOpenGLErrors();
+
+  // Description:
+  // Query OpenGL for errors until all have been reported. Return the number of
+  // errors detected. The user supplied arrays of maxNum entries is filled with
+  // codes and descriptions of the errors. This method is static and may be used
+  // without an instance to check for errors and clear OpenGL error flags(eg from
+  // other static methods).
+  static
+  int GetOpenGLErrors(int maxNum, unsigned int *code, const char **description);
+
+  // Description:
+  // Given an error code obtained from GetOpenGLErrors return a string literal
+  // description of the error. This method is static and may be used
+  // without an instance to check for errors and clear OpenGL error flags(eg from
+  // other static methods).
+  static
+  const char *OpenGLStrError(unsigned int code);
+
+  // Description:
+  // Check for and send detected errors to the given stream. This method is static
+  // and may be used without an instance to check for errors and clear OpenGL error
+  // flags(eg from other static methods).
+  static
+  void PrintOpenGLErrors(ostream &os);
+
+  // Description:
+  // Send given set of error codes and descriptions obtained from GetOpenGLErrors
+  // to the given stream. This method is static and may be used without an instance
+  // to check for errors and clear OpenGL error flags(eg from other static methods).
+  static
+  void PrintOpenGLErrors(
+      ostream &os,
+      int maxErrors,
+      int nErrors,
+      unsigned int *errCode,
+      const char **errDesc);
+
+  // Description:
   // Update graphic error status, regardless of ReportGraphicErrors flag.
   // It means this method can be used in any context and is not restricted to
-  // debug mode.
+  // debug mode. Errors codes are querried until no-errors are reported,
+  // ensureing internal error flags are clear after each check. Error status
+  // and description  are recorded internally, may be retrieved with  HasGraphicError
+  // and GetGraphicErrorString methods.
   virtual void CheckGraphicError();
 
   // Description:
-  // Return the last graphic error status. Initial value is false.
-  virtual int HasGraphicError();
+  // Clear the graphics error status, without recording or reporting detected errors.
+  virtual void ClearGraphicError();
+
+  // Description:
+  // Return the number of graphics errors found in the most recent call to
+  // CheckGraphicError. If no errors were detected then the return will be 0.
+  // Descriptions for each of the errors may be obtained by calling
+  // GetGraphicErrorString.
+  virtual int HasGraphicError()
+    { return this->NumberOfGraphicErrors; }
+
+  virtual int GetNumberOfGraphicErrors()
+    { return this->NumberOfGraphicErrors; }
 
   // Description:
   // Return a string matching the last graphic error status.
@@ -257,8 +315,8 @@ protected:
   unsigned int FrontBuffer;
   unsigned int BackBuffer;
 
-  // Actual type is GLenum. Last value returned by glGetError().
-  unsigned int LastGraphicError;
+  int NumberOfGraphicErrors;
+  vtkStdString *LastGraphicErrorString;
 
   // Description:
   // Flag telling if the context has been created here or was inherited.

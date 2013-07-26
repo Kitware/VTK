@@ -20,6 +20,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
 #include "vtkShaderProgram2.h"
+#include "vtkOpenGLError.h"
 
 #include <map>
 #include <string>
@@ -128,6 +129,8 @@ void vtkGLSLShaderDeviceAdapter2::SendAttribute(const char *attrname,
                                                const void *attribute,
                                                unsigned long offset)
 {
+  vtkOpenGLClearErrorMacro();
+
   int index;
   vtkInternal::MapOfStringToInt::iterator iter =
     this->Internal->AttributeIndicesCache.find(attrname);
@@ -276,6 +279,8 @@ void vtkGLSLShaderDeviceAdapter2::SendAttribute(const char *attrname,
     {
     vtkErrorMacro("Unsupported attribute index: " << index);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after SendAttribute");
   return;
 };
 

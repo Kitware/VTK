@@ -29,7 +29,7 @@
 // octant is Min < x <= Max.
 //
 // .SECTION See Also
-//      vtkOctreePointLocator
+// vtkOctreePointLocator
 
 #ifndef __vtkOctreePointLocatorNode_h
 #define __vtkOctreePointLocatorNode_h

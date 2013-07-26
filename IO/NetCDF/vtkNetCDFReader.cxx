@@ -43,7 +43,10 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <algorithm>
+#include <map>
 #include <set>
+#include <string>
+
 #include <vtksys/SystemTools.hxx>
 
 #include "vtk_netcdf.h"
@@ -59,6 +62,20 @@
   }
 
 #include <ctype.h>
+
+class vtkNetCDFReaderPrivate {
+public:
+  vtkNetCDFReaderPrivate() {}
+  ~vtkNetCDFReaderPrivate()
+  {
+    this->ArrayUnits.clear();
+  }
+  void AddUnit(std::string arrayName, std::string unit)
+  {
+     this->ArrayUnits[arrayName] = unit;
+  }
+  std::map<std::string,std::string> ArrayUnits;
+};
 
 //=============================================================================
 static int NetCDFTypeToVTKType(nc_type type)
@@ -105,6 +122,10 @@ vtkNetCDFReader::vtkNetCDFReader()
   this->WholeExtent[0] = this->WholeExtent[1]
     = this->WholeExtent[2] = this->WholeExtent[3]
     = this->WholeExtent[4] = this->WholeExtent[5] = 0;
+
+  this->TimeUnits = NULL;
+  this->Calendar = NULL;
+  this->Private = new vtkNetCDFReaderPrivate();
 }
 
 vtkNetCDFReader::~vtkNetCDFReader()
@@ -112,6 +133,9 @@ vtkNetCDFReader::~vtkNetCDFReader()
   this->SetFileName(NULL);
   this->VariableDimensions->Delete();
   this->AllDimensions->Delete();
+  delete[] this->TimeUnits;
+  delete[] this->Calendar;
+  delete this->Private;
 }
 
 void vtkNetCDFReader::PrintSelf(ostream &os, vtkIndent indent)
@@ -183,6 +207,23 @@ int vtkNetCDFReader::RequestInformation(
     currentDimensions->SetNumberOfTuples(currentNumDims);
     CALL_NETCDF(nc_inq_vardimid(ncFD, varId,
                                 currentDimensions->GetPointer(0)));
+
+    //get units
+    int status;
+    size_t len = 0;
+    char *buffer = NULL;
+    status = nc_inq_attlen(ncFD, varId, "units", &len);
+    if (status == NC_NOERR)
+      {
+      buffer = new char[len+1];
+      status = nc_get_att_text(ncFD, varId, "units", buffer);
+      buffer[len] = '\0';
+      }
+    if (status == NC_NOERR)
+      {
+      this->Private->AddUnit(name, buffer);
+      }
+    delete[] buffer;
 
     // Assumption: time dimension is first.
     int timeDim = currentDimensions->GetValue(0);       // Not determined yet.
@@ -268,6 +309,13 @@ int vtkNetCDFReader::RequestInformation(
                  this->WholeExtent, 6);
     }
 
+
+  //Free old time units.
+  delete[] this->TimeUnits;
+  this->TimeUnits = NULL;
+  delete[] this->Calendar;
+  this->Calendar = NULL;
+
   // If we have time, report that.
   if (timeValues && (timeValues->GetNumberOfTuples() > 0))
     {
@@ -278,6 +326,50 @@ int vtkNetCDFReader::RequestInformation(
     timeRange[0] = timeValues->GetValue(0);
     timeRange[1] = timeValues->GetValue(timeValues->GetNumberOfTuples()-1);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
+
+    //Get time units
+    int status, varId;
+    size_t len = 0;
+    char *buffer = NULL;
+    status = nc_inq_varid(ncFD, "time", &varId);
+    if (status == NC_NOERR)
+      {
+      status = nc_inq_attlen(ncFD, varId, "units", &len);
+      }
+    if (status == NC_NOERR)
+      {
+      buffer = new char[len+1];
+      status = nc_get_att_text(ncFD, varId, "units", buffer);
+      buffer[len] = '\0';
+      if (status == NC_NOERR)
+        {
+        this->TimeUnits = buffer;
+        }
+      else
+        {
+        delete[] buffer;
+        }
+      }
+
+    //Get calendar that time units are in
+    if (status == NC_NOERR)
+       {
+       status = nc_inq_attlen(ncFD, varId, "calendar", &len);
+       }
+     if (status == NC_NOERR)
+       {
+       buffer = new char[len+1];
+       status = nc_get_att_text(ncFD, varId, "calendar", buffer);
+       buffer[len] = '\0';
+       if (status == NC_NOERR)
+         {
+         this->Calendar = buffer;
+         }
+       else
+         {
+         delete[] buffer;
+         }
+       }
     }
   else
     {
@@ -806,3 +898,8 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
   return 1;
 }
 
+//-----------------------------------------------------------------------------
+std::string vtkNetCDFReader::QueryArrayUnits(const char* name)
+{
+  return this->Private->ArrayUnits[name].c_str();
+}

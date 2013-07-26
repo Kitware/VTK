@@ -39,6 +39,7 @@
 #include <math.h>
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 #include "vtkgl.h" // vtkgl namespace
 
 vtkStandardNewMacro(vtkOpenGLImageSliceMapper);
@@ -84,6 +85,7 @@ void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
   if (this->TextureIndex && renWin && renWin->GetMapped())
     {
     static_cast<vtkRenderWindow *>(renWin)->MakeCurrent();
+    vtkOpenGLClearErrorMacro();
 #ifdef GL_VERSION_1_1
     // free any textures
     if (glIsTexture(this->TextureIndex))
@@ -122,6 +124,7 @@ void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
     this->TextureSize[0] = 0;
     this->TextureSize[1] = 0;
     this->TextureBytesPerPixel = 1;
+    vtkOpenGLCheckErrorMacro("failed after ReleaseGraphicsResources");
     }
   this->TextureIndex = 0;
   this->BackgroundTextureIndex = 0;
@@ -216,6 +219,8 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     this->CheckOpenGLCapabilities(renWin);
     reuseTexture = false;
     }
+
+  vtkOpenGLClearErrorMacro();
 
   // get information about the image
   int xdim, ydim; // orientation of texture wrt input image
@@ -501,6 +506,8 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     {
     glDisable(vtkgl::FRAGMENT_PROGRAM_ARB);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after RenderTexturedPolygon");
 }
 
 //----------------------------------------------------------------------------
@@ -508,6 +515,8 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
 void vtkOpenGLImageSliceMapper::RenderPolygon(
   vtkPoints *points, const int extent[6], bool textured)
 {
+  vtkOpenGLClearErrorMacro();
+
   static const int stripOrder[4] = { 3, 0, 2, 1 };
   static const double normals[3][3] =
     { { 1.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
@@ -561,6 +570,8 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
       }
     glEnd();
     }
+
+  vtkOpenGLCheckErrorMacro("failed after RenderPolygon");
 }
 
 //----------------------------------------------------------------------------
@@ -569,6 +580,8 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
 void vtkOpenGLImageSliceMapper::RenderBackground(
   vtkPoints *points, const int extent[6], bool textured)
 {
+  vtkOpenGLClearErrorMacro();
+
   static double borderThickness = 1e6;
   static double normals[3][3] =
     { { 1.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
@@ -695,12 +708,15 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
       }
     glEnd();
     }
+  vtkOpenGLCheckErrorMacro("failed after RenderBackground");
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLImageSliceMapper::BindFragmentProgram(
   vtkRenderer *ren, vtkImageProperty *property)
 {
+  vtkOpenGLClearErrorMacro();
+
   int xdim, ydim, zdim; // orientation of texture wrt input image
   vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
   zdim = 3 - xdim - ydim; // they sum to three
@@ -768,6 +784,8 @@ void vtkOpenGLImageSliceMapper::BindFragmentProgram(
   vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 4,
     static_cast<float>(mat[4]), static_cast<float>(mat[5]),
     static_cast<float>(mat[6]), static_cast<float>(mat[7]));
+
+  vtkOpenGLCheckErrorMacro("failed after BindFragmentProgram");
 }
 
 //----------------------------------------------------------------------------
@@ -926,6 +944,8 @@ void vtkOpenGLImageSliceMapper::ComputeTextureSize(
 // Determine if a given texture size is supported by the video card
 bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
 {
+  vtkOpenGLClearErrorMacro();
+
 #ifdef GL_VERSION_1_1
   // First ask OpenGL what the max texture size is
   GLint maxSize;
@@ -942,6 +962,8 @@ bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
   glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH,
                            &params);
 
+  vtkOpenGLCheckErrorMacro("failed after TextureSizeOK");
+
   // if it does fit, we will render it later
   return (params == 0 ? 0 : 1);
 #else
@@ -955,6 +977,8 @@ bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
 // Set the modelview transform and load the texture
 void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkOpenGLRenderWindow *renWin =
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
@@ -1106,6 +1130,8 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     {
     this->TimeToDraw = 0.0001;
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 //----------------------------------------------------------------------------

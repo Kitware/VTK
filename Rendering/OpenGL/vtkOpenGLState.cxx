@@ -60,6 +60,7 @@ void vtkOpenGLState::Update()
   GLint ivalues[4];
 
   this->ErrorCode = glGetError(); // this change the state..
+
   // Texture environment
   // Has to be restored to this value.
   glGetIntegerv(vtkgl::ACTIVE_TEXTURE, ivalues);

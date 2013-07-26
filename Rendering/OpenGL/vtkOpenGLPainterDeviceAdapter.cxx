@@ -34,6 +34,7 @@
 #include <algorithm>
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 
@@ -953,6 +954,7 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(bool mode)
     glDepthRange(this->RangeNear, this->RangeFar);
     glDepthMask(GL_TRUE);
     }
+  vtkOpenGLCheckErrorMacro("failed after MakeVertexEmphasis");
 }
 
 //-----------------------------------------------------------------------------
@@ -967,6 +969,7 @@ void vtkOpenGLPainterDeviceAdapter::WriteStencil(vtkIdType value)
       }
     glStencilFunc(GL_ALWAYS, static_cast<GLint>(value), this->MaxStencil);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    vtkOpenGLCheckErrorMacro("failed after WriteStencil");
     }
 }
 
@@ -978,6 +981,7 @@ void vtkOpenGLPainterDeviceAdapter::TestStencil(vtkIdType value)
     value = value % this->MaxStencil + 1;
     glStencilFunc(GL_EQUAL, static_cast<GLint>(value), this->MaxStencil);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    vtkOpenGLCheckErrorMacro("failed after TestStencil");
     }
 }
 
@@ -995,6 +999,7 @@ void vtkOpenGLPainterDeviceAdapter::Stencil(int on)
     {
     glDisable(GL_STENCIL_TEST);
     }
+  vtkOpenGLCheckErrorMacro("failed after Stencil");
 }
 
 

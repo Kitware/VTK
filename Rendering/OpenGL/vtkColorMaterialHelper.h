@@ -44,13 +44,20 @@ public:
   //ETX
 
   // Description:
-  // Prepares the shader i.e. reads color material parameters state from OpenGL.
-  // This must be called before the shader is bound.
+  // Capture current OpenGL state and initialize uniform variables
+  // used by the helper shader.
+  void SetUniformVariables();
+
+  // Description:
+  // Captures current OpenGL state.
+  // DEPRECATED (Use PrepareForRendering2 instead)
   void PrepareForRendering();
 
   // Description:
-  // Uploads any uniforms needed. This must be called only
-  // after the shader has been bound, but before rendering the geometry.
+  // Initializes uniform variables with the last captured
+  // OpenGL state.
+  // NOTHING IS RENDERED THIS SETS UNIFORMS.
+  // DEPRECATED: Use SetUnformVariables instead.
   void Render();
 
 //BTX

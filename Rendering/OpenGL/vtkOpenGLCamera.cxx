@@ -19,6 +19,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOutputWindow.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLError.h"
 #include "vtkgluPickMatrix.h"
 
 #include "vtkOpenGL.h"
@@ -30,6 +31,8 @@ vtkStandardNewMacro(vtkOpenGLCamera);
 // Implement base class method.
 void vtkOpenGLCamera::Render(vtkRenderer *ren)
 {
+  vtkOpenGLClearErrorMacro();
+
   double aspect[2];
   int  lowerLeft[2];
   int usize, vsize;
@@ -160,11 +163,15 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     }
 
   matrix->Delete();
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
 {
+  vtkOpenGLClearErrorMacro();
+
   int lowerLeft[2];
   int usize, vsize;
   ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
@@ -172,6 +179,8 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
   glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
   glEnable(GL_SCISSOR_TEST);
   glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
+
+  vtkOpenGLCheckErrorMacro("failed after UpdateViewport");
 }
 
 //----------------------------------------------------------------------------

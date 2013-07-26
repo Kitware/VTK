@@ -20,6 +20,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkFreeTypeUtilities.h"
 #include "vtkftglConfig.h"
@@ -178,6 +179,8 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     vtkErrorMacro(<< "Need a text property to render mapper");
     return;
     }
+
+  vtkOpenGLClearErrorMacro();
 
   // Get the window information for display
 
@@ -406,6 +409,8 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     glEnable(GL_LIGHTING);
     }
   glDepthFunc(depthFunc);
+
+  vtkOpenGLCheckErrorMacro("failed after RenderOverlay");
 }
 
 //----------------------------------------------------------------------------

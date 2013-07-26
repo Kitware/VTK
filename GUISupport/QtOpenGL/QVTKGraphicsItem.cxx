@@ -28,6 +28,7 @@
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
 #include "vtkgl.h"
+#include "vtkOpenGLError.h"
 
 QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
   : QGraphicsWidget(p), mContext(ctx)
@@ -183,6 +184,8 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
   if(!mWin)
     return;
 
+ vtkOpenGLClearErrorMacro();
+
 #if QT_VERSION >= 0x040600
   // tell Qt we're doing our own GL calls
   // if necessary, it'll put us in an OpenGL 1.x compatible state.
@@ -239,6 +242,8 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
 #if QT_VERSION >= 0x040600
   painter->endNativePainting();
 #endif
+
+  vtkOpenGLStaticCheckErrorMacro("failed after paint");
 }
 
 void QVTKGraphicsItem::keyPressEvent(QKeyEvent* e)

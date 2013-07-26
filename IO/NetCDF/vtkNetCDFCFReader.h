@@ -252,10 +252,12 @@ protected:
   // Internal methods for setting rectilinear coordinates.
   void AddRectilinearCoordinates(vtkImageData *imageOutput);
   void AddRectilinearCoordinates(vtkRectilinearGrid *rectilinearOutput);
+  void FakeRectilinearCoordinates(vtkRectilinearGrid *rectilinearOutput);
   void Add1DRectilinearCoordinates(vtkPoints *points, const int extent[6]);
   void Add2DRectilinearCoordinates(vtkPoints *points, const int extent[6]);
   void Add1DRectilinearCoordinates(vtkStructuredGrid *structuredOutput);
   void Add2DRectilinearCoordinates(vtkStructuredGrid *structuredOutput);
+  void FakeStructuredCoordinates(vtkStructuredGrid *structuredOutput);
   void Add1DRectilinearCoordinates(vtkUnstructuredGrid *unstructuredOutput,
                                    const int extent[6]);
   void Add2DRectilinearCoordinates(vtkUnstructuredGrid *unstructuredOutput,

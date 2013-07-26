@@ -36,7 +36,7 @@
 #include "vtkDataObjectAlgorithm.h"
 
 #include "vtkSmartPointer.h"    // For ivars
-
+#include <string> //For std::string
 
 class vtkDataArraySelection;
 class vtkDataSet;
@@ -44,6 +44,7 @@ class vtkDoubleArray;
 class vtkIntArray;
 class vtkStdString;
 class vtkStringArray;
+class vtkNetCDFReaderPrivate;
 
 class VTKIONETCDF_EXPORT vtkNetCDFReader : public vtkDataObjectAlgorithm
 {
@@ -112,6 +113,17 @@ public:
   vtkGetMacro(ReplaceFillValueWithNan, int);
   vtkSetMacro(ReplaceFillValueWithNan, int);
   vtkBooleanMacro(ReplaceFillValueWithNan, int);
+
+  // Description:
+  // Access to the time dimensions units.
+  // Can be used by the udunits library to convert raw numerical time values
+  // into meaningful representations.
+  vtkGetStringMacro(TimeUnits);
+  vtkGetStringMacro(Calendar);
+
+  // Description:
+  // Get units attached to a particular array in the netcdf file.
+  std::string QueryArrayUnits(const char *ArrayName);
 
 protected:
   vtkNetCDFReader();
@@ -218,6 +230,9 @@ private:
   void operator=(const vtkNetCDFReader &);      // Not implemented
 
   int UpdateExtent[6];
+  char *TimeUnits;
+  char *Calendar;
+  vtkNetCDFReaderPrivate *Private;
 };
 
 #endif //__vtkNetCDFReader_h

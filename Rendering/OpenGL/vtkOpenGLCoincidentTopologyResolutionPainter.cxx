@@ -23,6 +23,7 @@
 #include "vtkRenderer.h"
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkOpenGLCoincidentTopologyResolutionPainter);
 
@@ -70,6 +71,7 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderPolygonOffset(
   bool forceCompileOnly)
   {
 #ifdef GL_VERSION_1_1
+  vtkOpenGLClearErrorMacro();
   if (this->OffsetFaces)
     {
     glEnable(GL_POLYGON_OFFSET_FILL);
@@ -95,6 +97,7 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderPolygonOffset(
     glDisable(GL_POLYGON_OFFSET_LINE);
     glDisable(GL_POLYGON_OFFSET_POINT);
     }
+  vtkOpenGLCheckErrorMacro("failed after RenderPolygonOffset");
 #endif
 }
 
@@ -103,6 +106,8 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
   vtkRenderer *renderer, vtkActor *actor, unsigned long typeflags,
   bool forceCompileOnly)
 {
+  vtkOpenGLClearErrorMacro();
+
   // Get the flags for each type of primitive.  Polygons can be drawn
   // as vertices or lines rather than filled, so check the property and
   // OpenGL flags to try to determine which one we are doing.
@@ -140,6 +145,7 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
       glMatrixMode(GL_PROJECTION);
       glPushMatrix();
       glTranslated(0.0, 0.0, 2.0*this->ZShift*(range[1]-range[0]));
+      vtkOpenGLCheckErrorMacro("failed after setup");
       this->Superclass::RenderInternal(renderer, actor, vertFlags,
                                        forceCompileOnly);
       glMatrixMode(GL_PROJECTION);
@@ -150,6 +156,7 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
       glMatrixMode(GL_PROJECTION);
       glPushMatrix();
       glTranslated(0.0, 0.0, this->ZShift*(range[1]-range[0]));
+      vtkOpenGLCheckErrorMacro("failed after setup");
       this->Superclass::RenderInternal(renderer, actor, lineFlags,
                                        forceCompileOnly);
       glMatrixMode(GL_PROJECTION);
@@ -166,6 +173,7 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
     this->Superclass::RenderInternal(renderer, actor, typeflags,
                                      forceCompileOnly);
     }
+  vtkOpenGLCheckErrorMacro("failed after RenderShiftZBuffer");
 }
 
 //-----------------------------------------------------------------------------

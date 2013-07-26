@@ -25,6 +25,7 @@
 #include "vtkgluPickMatrix.h"
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 #include <limits.h>
 
 vtkStandardNewMacro(vtkOpenGLImageMapper);
@@ -93,6 +94,8 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
                                       T *dataPtr, double shift, double scale,
                                       int *actorPos, int *actorPos2, int front, int *vsize)
 {
+  vtkOpenGLClearErrorMacro();
+
   int inMin0 = self->DisplayExtent[0];
   int inMax0 = self->DisplayExtent[1];
   int inMin1 = self->DisplayExtent[2];
@@ -204,6 +207,8 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
     glPixelZoom(1.0, 1.0);
     }
   delete [] newPtr;
+
+ vtkOpenGLStaticCheckErrorMacro("failed after ImageMapperRenderDouble");
 }
 
 //---------------------------------------------------------------
@@ -218,6 +223,8 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
                                      int *actorPos, int *actorPos2, int front,
                                      int *vsize)
 {
+  vtkOpenGLClearErrorMacro();
+
   int inMin0 = self->DisplayExtent[0];
   int inMax0 = self->DisplayExtent[1];
   int inMin1 = self->DisplayExtent[2];
@@ -350,6 +357,8 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
     glPixelZoom(1.0, 1.0);
     }
   delete [] newPtr;
+
+  vtkOpenGLStaticCheckErrorMacro("failed after ImageMapperRenderShort");
 }
 
 //---------------------------------------------------------------
@@ -360,6 +369,8 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
                                     T *dataPtr, int *actorPos, int *actorPos2,
                                     int front, int *vsize)
 {
+  vtkOpenGLClearErrorMacro();
+
   int inMin0 = self->DisplayExtent[0];
   int inMax0 = self->DisplayExtent[1];
   int inMin1 = self->DisplayExtent[2];
@@ -493,6 +504,8 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
     }
 
   glPixelStorei( GL_UNPACK_ROW_LENGTH, 0);
+
+  vtkOpenGLStaticCheckErrorMacro("failed after ImageMapperRenderChar");
 }
 
 //----------------------------------------------------------------------------
@@ -601,6 +614,8 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   // data updates since the render started.
   window->MakeCurrent();
 
+  vtkOpenGLClearErrorMacro();
+
   shift = this->GetColorShift();
   scale = this->GetColorScale();
 
@@ -658,6 +673,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     glMatrixMode( GL_MODELVIEW);
     glPopMatrix();
     glEnable( GL_LIGHTING);
+    vtkOpenGLCheckErrorMacro("failed after RenderData");
     return;
     }
 
@@ -686,6 +702,8 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 #if defined(sparc) && defined(GL_VERSION_1_1)
   glEnable(GL_BLEND);
 #endif
+
+  vtkOpenGLCheckErrorMacro("failed after RenderData");
 }
 
 void vtkOpenGLImageMapper::PrintSelf(ostream& os, vtkIndent indent)

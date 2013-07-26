@@ -47,6 +47,8 @@ set(Module_SRCS
   vtkDefaultPass.cxx
   vtkDepthPeelingPass.cxx
   vtkFrameBufferObject.cxx
+  vtkFrameBufferObject2.cxx
+  vtkRenderbuffer.cxx
   vtkGaussianBlurPass.cxx
   vtkGenericOpenGLRenderWindow.cxx
   vtkImageProcessingPass.cxx
@@ -80,6 +82,7 @@ set(Module_SRCS
   vtkOpenGLTexture.cxx
   vtkOverlayPass.cxx
   vtkPixelBufferObject.cxx
+  vtkRenderbuffer.cxx
   vtkRenderPassCollection.cxx
   vtkRenderPass.cxx
   vtkRenderState.cxx
@@ -110,6 +113,7 @@ set(${vtk-module}_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h
   )
 
 set_source_files_properties(
@@ -425,6 +429,14 @@ set(${vtk-module}_EXPORT_CODE "#include \"vtkRenderingOpenGLConfigure.h\"")
 # need to ensure that any dependent modules inherit the include directory
 # automatically.
 set(${vtk-module}_INCLUDE_DIRS "${OPENGL_INCLUDE_DIR}")
+
+# Detect and clear OpenGL errors. If not then other classes/user code
+# may detect VTK's OpenGL errors and vice-versa.
+set(VTK_REPORT_OPENGL_ERRORS ON CACHE BOOL "Enable OpenGL error check and report")
+mark_as_advanced(VTK_REPORT_OPENGL_ERRORS)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGLError.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h)
 
 vtk_module_library(vtkRenderingOpenGL ${Module_SRCS})
 target_link_libraries(vtkRenderingOpenGL ${OPENGL_LIBRARIES} ${extra_libs})

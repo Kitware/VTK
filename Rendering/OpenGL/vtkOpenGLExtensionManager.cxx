@@ -300,6 +300,10 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
     }
 #endif //VTK_USE_APPLE_LOADER
 
+#ifdef VTK_USE_OSMESA_GET_PROC_ADDRESS
+  return reinterpret_cast<vtkOpenGLExtensionManagerFunctionPointer>(OSMesaGetProcAddress(fname));
+#endif
+
 #ifdef VTK_USE_X
  #ifdef VTK_USE_GLX_GET_PROC_ADDRESS
   // In a perfect world, it should be

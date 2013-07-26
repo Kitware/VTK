@@ -232,6 +232,22 @@ bool vtkCocoaRenderWindow::IsCurrent()
   return result;
 }
 
+//----------------------------------------------------------------------------
+bool vtkCocoaRenderWindow::IsDrawable()
+{
+  // you must initialize it first
+  // else it always evaluates false
+  this->Initialize();
+
+  // first check that window is valid
+  NSView *theView = (NSView*)this->GetWindowId();
+  bool win =[[theView window] windowNumber]>0;
+
+  // then check that the drawable is valid
+  NSOpenGLContext *context = (NSOpenGLContext *)this->GetContextId();
+  bool ok  = [context view] != nil;
+  return win && ok;
+}
 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::UpdateContext()

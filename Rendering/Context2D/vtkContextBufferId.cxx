@@ -19,6 +19,7 @@
 #include <cassert>
 #include "vtkObjectFactory.h"
 #include "vtkgl.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkContextBufferId);
 
@@ -71,6 +72,8 @@ void vtkContextBufferId::SetValues(int srcXmin,
 {
   assert("pre: is_allocated" && this->IsAllocated());
 
+  vtkOpenGLClearErrorMacro();
+
   GLint savedReadBuffer;
   glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);
 
@@ -110,6 +113,8 @@ void vtkContextBufferId::SetValues(int srcXmin,
     }
 
   delete[] rgb;
+
+  vtkOpenGLCheckErrorMacro("failed after SetValues");
 }
 
 // ----------------------------------------------------------------------------

@@ -17,7 +17,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkCommand.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkGenericOpenGLRenderWindow);
 
@@ -122,6 +124,8 @@ int vtkGenericOpenGLRenderWindow::IsDirect()
 
 void vtkGenericOpenGLRenderWindow::PushState()
 {
+  vtkOpenGLClearErrorMacro();
+
   glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
@@ -131,10 +135,14 @@ void vtkGenericOpenGLRenderWindow::PushState()
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
+
+  vtkOpenGLCheckErrorMacro("failed after PushState");
 }
 
 void vtkGenericOpenGLRenderWindow::PopState()
 {
+  vtkOpenGLClearErrorMacro();
+
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
@@ -142,6 +150,8 @@ void vtkGenericOpenGLRenderWindow::PopState()
 
   glPopClientAttrib();
   glPopAttrib();
+
+  vtkOpenGLCheckErrorMacro("failed after PopState");
 }
 
 

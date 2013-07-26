@@ -1,15 +1,15 @@
 #!/usr/bin/python
 """
-This module script scrapes test results from a days dashboard that explain the
-configuration of the submitting machine. Source this script and then you can
-query 'configs' to see what each machine was testing.
+This module scrapes test results from a day's dashboard that explain the
+configuration of the submitting machine. It is useful to find under tested spaces
+in the option and platform set.
 
 To use it get to a command line and run:
 python vtk_submitter_summary.py
-That will load the days results, save them locally and
+That will load the day's results, save them locally and
 print and save two reports, which can then be imported into a spreadsheet.
 
-You can of course import it in python and query the data manually if you like.
+You can also import the module in python and query the results manually.
 """
 
 import sys
@@ -24,14 +24,15 @@ summary = {}
 
 def scrape_cdash(date):
 
-  test_sysinfo_url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkCommonCore-TestSystemInformation&date='+date
+  #test_sysinfo_url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkCommonCore-TestSystemInformation&date='+date
+  test_sysinfo_url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkCommonCoreCxx-TestSystemInformation&date='+date
   test_fbo_url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkRenderingOpenGLCxx-TestFBO&date='+date
 
   testspage = urllib.urlopen(test_sysinfo_url)
   response = "".join(testspage.readlines())
   #print response
 
-  print "scrapeing config info"
+  print "scraping config info"
 
   #scan page for all machines that submitted that test
   testdetailspage_re = 'testDetails[^"]+'
@@ -93,7 +94,7 @@ def scrape_cdash(date):
     configs[key] = configuration
 
   print
-  print "scrapeing GPU info"
+  print "scraping GPU info"
 
   #TODO: pull out common parts into a scraper function
   #Now grab GL info from TestFBO

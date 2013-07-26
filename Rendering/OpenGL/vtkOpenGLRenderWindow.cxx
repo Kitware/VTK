@@ -26,9 +26,13 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkTextureUnitManager.h"
+#include "vtkStdString.h"
+#include <sstream>
+using std::ostringstream;
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, HardwareSupport, vtkOpenGLHardwareSupport);
@@ -37,17 +41,20 @@ vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, TextureUnitManager, vtkTextureUnitMa
 // Initialize static member that controls global maximum number of multisamples
 static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
 
+// ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
 {
   if (val == vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples) return;
   vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = val;
 }
 
+// ----------------------------------------------------------------------------
 int vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples()
 {
   return vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
 }
 
+// ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
   this->ExtensionManager = NULL;
@@ -70,12 +77,15 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->BackBuffer=static_cast<unsigned int>(GL_BACK);
   this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
 
-  this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
+  this->NumberOfGraphicErrors = 0;
+  this->LastGraphicErrorString
+    = new vtkStdString("0 OpenGL errors detected");
 
   this->OwnContext=1;
 }
 
 // free up memory & close the window
+// ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
   this->TextureResourceIds->Delete();
@@ -96,6 +106,8 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   this->SetTextureUnitManager(0);
   this->SetExtensionManager(0);
   this->SetHardwareSupport(0);
+
+  delete this->LastGraphicErrorString;
 }
 
 // ----------------------------------------------------------------------------
@@ -1869,71 +1881,91 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
 }
 
 // ----------------------------------------------------------------------------
-// Description:
-// Update graphic error status, regardless of ReportGraphicErrors flag.
-// It means this method can be used in any context and is not restricted to
-// debug mode.
+const char *vtkOpenGLRenderWindow::OpenGLStrError(unsigned int code)
+{
+  return vtkOpenGLStrError(code);
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::PrintOpenGLErrors(ostream &os)
+{
+  const int maxErrors = 16;
+  unsigned int errCode[maxErrors] = {GL_NO_ERROR};
+  const char *errDesc[maxErrors] = {NULL};
+
+  int numErrors = vtkGetOpenGLErrors(
+        maxErrors,
+        errCode,
+        errDesc);
+
+  vtkPrintOpenGLErrors(
+        os,
+        maxErrors,
+        numErrors,
+        errCode,
+        errDesc);
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::PrintOpenGLErrors(
+      ostream &os,
+      int maxErrors,
+      int numErrors,
+      unsigned int *errCode,
+      const char **errDesc)
+{
+  vtkPrintOpenGLErrors(os, maxErrors, numErrors, errCode, errDesc);
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::ClearOpenGLErrors()
+{
+  vtkClearOpenGLErrors();
+}
+
+// ----------------------------------------------------------------------------
+int vtkOpenGLRenderWindow::GetOpenGLErrors(
+      int maxNum,
+      unsigned int *errCode,
+      const char **errDesc)
+{
+  return vtkGetOpenGLErrors(maxNum, errCode, errDesc);
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::ClearGraphicError()
+{
+  vtkClearOpenGLErrors();
+}
+
+// ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::CheckGraphicError()
 {
-  this->LastGraphicError=static_cast<unsigned int>(glGetError());
+  const int maxErrors = 16;
+  unsigned int errCode[maxErrors] = {GL_NO_ERROR};
+  const char *errDesc[maxErrors] = {NULL};
+
+  this->NumberOfGraphicErrors = vtkGetOpenGLErrors(
+        maxErrors,
+        errCode,
+        errDesc);
+
+  ostringstream oss;
+  vtkPrintOpenGLErrors(
+        oss,
+        maxErrors,
+        this->NumberOfGraphicErrors,
+        errCode,
+        errDesc);
+
+  *this->LastGraphicErrorString = oss.str();
 }
 
 // ----------------------------------------------------------------------------
-// Description:
-// Return the last graphic error status. Initial value is false.
-int vtkOpenGLRenderWindow::HasGraphicError()
-{
-  return static_cast<GLenum>(this->LastGraphicError)!=GL_NO_ERROR;
-}
-
-// ----------------------------------------------------------------------------
-// Description:
-// Return a string matching the last graphic error status.
 const char *vtkOpenGLRenderWindow::GetLastGraphicErrorString()
 {
-  const char *result;
-  switch(static_cast<GLenum>(this->LastGraphicError))
-    {
-    case GL_NO_ERROR:
-      result="No error";
-      break;
-    case GL_INVALID_ENUM:
-      result="Invalid enum";
-      break;
-    case GL_INVALID_VALUE:
-      result="Invalid value";
-      break;
-    case GL_INVALID_OPERATION:
-      result="Invalid operation";
-      break;
-    case GL_STACK_OVERFLOW:
-      result="Stack overflow";
-      break;
-    case GL_STACK_UNDERFLOW:
-      result="Stack underflow";
-      break;
-    case GL_OUT_OF_MEMORY:
-      result="Out of memory";
-      break;
-    case vtkgl::TABLE_TOO_LARGE:
-      // GL_ARB_imaging
-      result="Table too large";
-      break;
-    case vtkgl::INVALID_FRAMEBUFFER_OPERATION_EXT:
-      // GL_EXT_framebuffer_object
-      result="Invalid framebuffer operation";
-      break;
-    case vtkgl::TEXTURE_TOO_LARGE_EXT:
-      // GL_EXT_texture
-      result="Texture too large";
-      break;
-    default:
-      result="Unknown error";
-      break;
-    }
-  return result;
+  return this->LastGraphicErrorString->c_str();
 }
-
 
 // ----------------------------------------------------------------------------
 // Description:
