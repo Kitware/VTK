@@ -15,6 +15,7 @@
 #include "vtkTreeHeatmapItem.h"
 
 #include "vtkBrush.h"
+#include "vtkColorSeries.h"
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
@@ -35,6 +36,7 @@
 #include "vtkTree.h"
 #include "vtkTreeLayoutStrategy.h"
 #include "vtkUnsignedIntArray.h"
+#include "vtkVariantArray.h"
 
 #include <algorithm>
 #include <queue>
@@ -73,16 +75,14 @@ vtkTreeHeatmapItem::vtkTreeHeatmapItem()
   this->Tooltip->SetVisible(false);
   this->AddItem(this->Tooltip.GetPointer());
   this->PruneFilter->SetShouldPruneParentVertex(false);
+
+  this->LeafNodeBehavior = this->EXTEND_FOR_TABLE;
+  this->ExtendLeafNodes = false;
 }
 
 //-----------------------------------------------------------------------------
 vtkTreeHeatmapItem::~vtkTreeHeatmapItem()
 {
-  while (!this->LookupTables.empty())
-    {
-    this->LookupTables.back()->Delete();
-    this->LookupTables.pop_back();
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -159,9 +159,20 @@ void vtkTreeHeatmapItem::SetTable(vtkTable *table)
   if (table == NULL || table->GetNumberOfRows() == 0)
     {
     this->Table = vtkSmartPointer<vtkTable>::New();
+
+    if (this->LeafNodeBehavior == this->EXTEND_FOR_TABLE)
+      {
+      this->ExtendLeafNodes = false;
+      }
+
     return;
     }
   this->Table = table;
+
+  if (this->LeafNodeBehavior == this->EXTEND_FOR_TABLE)
+    {
+    this->ExtendLeafNodes = true;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -453,25 +464,19 @@ int vtkTreeHeatmapItem::CountLeafNodes(vtkIdType vertex)
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::InitializeLookupTables()
 {
-  while (!this->LookupTables.empty())
-    {
-    this->LookupTables.back()->Delete();
-    this->LookupTables.pop_back();
-    }
-  this->LookupTables.reserve( this->Table->GetNumberOfColumns() + 1 );
+  this->ColumnRanges.clear();
+  this->CategoricalDataValues->Reset();
 
   for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
        ++column)
     {
     if (this->Table->GetValue(0, column).IsString())
       {
-      this->GenerateLookupTableForStringColumn(column);
+      this->AccumulateProminentCategoricalDataValues(column);
       continue;
       }
     double min = VTK_DOUBLE_MAX;
     double max = VTK_DOUBLE_MIN;
-    vtkLookupTable *lookupTable = vtkLookupTable::New();
-    this->LookupTables.push_back(lookupTable);
     for (vtkIdType row = 0; row < this->Table->GetNumberOfRows(); ++row)
       {
       double value = this->Table->GetValue(row, column).ToDouble();
@@ -479,55 +484,93 @@ void vtkTreeHeatmapItem::InitializeLookupTables()
         {
         max = value;
         }
-      else if (value < min)
+      if (value < min)
         {
         min = value;
         }
       }
-    this->LookupTables[column-1]->SetNumberOfTableValues(256);
-    this->LookupTables[column-1]->SetRange(min, max);
-    this->LookupTables[column-1]->Build();
+    this->ColumnRanges[column] = std::pair<double, double>(min, max);
+    }
+
+  this->GenerateCategoricalDataLookupTable();
+  this->GenerateContinuousDataLookupTable();
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::GenerateContinuousDataLookupTable()
+{
+  this->ContinuousDataLookupTable->SetNumberOfTableValues(255);
+  this->ContinuousDataLookupTable->Build();
+  this->ContinuousDataLookupTable->SetRange(0, 255);
+  this->ContinuousDataLookupTable->SetNanColor(0.75, 0.75, 0.75, 1.0);
+
+  // black to red
+  for (int i = 0; i < 85; ++i)
+    {
+    float f = static_cast<float>(i) / 84.0;
+    this->ContinuousDataLookupTable->SetTableValue(i, f, 0, 0);
+    }
+
+ // red to yellow
+  for (int i = 0; i < 85; ++i)
+    {
+    float f = static_cast<float>(i) / 84.0;
+    this->ContinuousDataLookupTable->SetTableValue(85 + i, 1.0, f, 0);
+    }
+
+ // yellow to white
+  for (int i = 0; i < 85; ++i)
+    {
+    float f = static_cast<float>(i) / 84.0;
+    this->ContinuousDataLookupTable->SetTableValue(170 + i, 1.0, 1.0, f);
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::GenerateLookupTableForStringColumn(vtkIdType column)
+void vtkTreeHeatmapItem::AccumulateProminentCategoricalDataValues(vtkIdType column)
 {
-  //generate a sorted vector of all the strings in this column
-  std::vector< std::string > sortedStrings;
-  for (vtkIdType row = 0; row < this->Table->GetNumberOfRows(); ++row)
+  vtkStringArray *stringColumn = vtkStringArray::SafeDownCast(
+    this->Table->GetColumn(column));
+
+  // add each distinct value from this column to our master list
+  vtkNew<vtkVariantArray> distinctValues;
+  stringColumn->GetProminentComponentValues(0, distinctValues.GetPointer());
+
+  for (int i = 0; i < distinctValues->GetNumberOfTuples(); ++i)
     {
-    std::string value = this->Table->GetValue(row, column).ToString();
-    // no duplicates
-    if (std::find(sortedStrings.begin(), sortedStrings.end(), value) ==
-        sortedStrings.end())
+    vtkVariant v = distinctValues->GetValue(i);
+    if (this->CategoricalDataValues->LookupValue(v) == -1)
       {
-      sortedStrings.push_back(value);
+      this->CategoricalDataValues->InsertNextValue(v.ToString());
       }
     }
-  std::sort(sortedStrings.begin(), sortedStrings.end());
+}
 
-  // map each string to a double value based on its position
-  // in alphabetical order
-  std::map< std::string, double> stringToDouble;
-  for (unsigned int i = 0; i < sortedStrings.size(); ++i)
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::GenerateCategoricalDataLookupTable()
+{
+  this->ContinuousDataLookupTable->ResetAnnotations();
+  this->ContinuousDataLookupTable->SetNanColor(0.75, 0.75, 0.75, 1.0);
+
+  // make each distinct categorical value an index into our lookup table
+  for (int i = 0; i < this->CategoricalDataValues->GetNumberOfTuples(); ++i)
     {
-    stringToDouble[ sortedStrings[i] ] = (double)i;
+    this->CategoricalDataLookupTable->SetAnnotation(
+      this->CategoricalDataValues->GetValue(i),
+      this->CategoricalDataValues->GetValue(i));
     }
 
-  // associate this mapping with the column number
-  this->StringToDoubleMaps[column] = stringToDouble;
-
-  // generate a lookup table for this column
-  this->LookupTables.push_back(vtkLookupTable::New());
-  this->LookupTables[column-1]->SetNumberOfTableValues(256);
-  this->LookupTables[column-1]->SetRange(0, sortedStrings.size() - 1);
-  this->LookupTables[column-1]->Build();
+  vtkNew<vtkColorSeries> colorSeries;
+  colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_ACCENT);
+  colorSeries->BuildLookupTable(this->CategoricalDataLookupTable.GetPointer());
 }
 
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
 {
+  // Calculate the extent of the data that is visible within the window.
+  this->UpdateVisibleSceneExtent(painter);
+
   if (this->Tree->GetNumberOfVertices() == 0)
     {
     this->PaintHeatmapWithoutTree(painter);
@@ -542,9 +585,6 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
 
   vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
-
-  // Calculate the extent of the data that is visible within the window.
-  this->UpdateVisibleSceneExtent(painter);
 
   // draw the tree
   for (vtkIdType edge = 0; edge < this->LayoutTree->GetNumberOfEdges(); ++edge)
@@ -564,7 +604,7 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     bool alreadyDrewCollapsedSubTree = false;
     vtkIdType originalId = this->GetOriginalId(target);
 
-    double color[3];
+    double color[4];
     double colorKey;
     if (vertexIsPruned->GetValue(originalId) > 0)
       {
@@ -609,6 +649,21 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       if (this->LineIsVisible(x0, y1, x1, y1))
         {
         painter->DrawLine (x0, y1, x1, y1);
+        }
+      // extend leaf nodes so they line up vertically
+      if (this->ExtendLeafNodes &&
+          x1 != this->TreeMaxX &&
+          this->LayoutTree->IsLeaf(target) &&
+          this->LineIsVisible(x1, y1, this->TreeMaxX, y1))
+        {
+        // we draw these extensions as grey lines to distinguish them
+        // from the actual lengths of the leaf nodes.
+        painter->GetPen()->SetColorF(0.75, 0.75, 0.75);
+
+        painter->DrawLine(x1, y1, this->TreeMaxX, y1);
+
+        // revert to drawing black lines when we're done
+        painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
         }
       }
 
@@ -706,8 +761,20 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
     this->LayoutTree->GetPoint(vertex, point);
     int currentRow = floor(point[1] * this->MultiplierY / this->CellHeight + 0.5);
 
-    // find the row in the table that corresponds to this vertex
+    // draw the label for this leaf node
     std::string nodeName = nodeNames->GetValue(vertex);
+    if (drawRowLabels)
+      {
+      xStart = this->TreeMaxX + spacing * 2 +
+        this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+      yStart = point[1] * this->MultiplierY;
+      if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
+        {
+        painter->DrawString(xStart, yStart, nodeName);
+        }
+      }
+
+    // find the row in the table that corresponds to this vertex
     vtkIdType tableRow = tableNames->LookupValue(nodeName);
     if (tableRow < 0)
       {
@@ -720,25 +787,21 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
          ++column)
       {
       // get the color for this cell from the lookup table
-      double color[3];
-      if (this->Table->GetValue(tableRow, column).IsString())
+      double color[4];
+      vtkVariant value = this->Table->GetValue(tableRow, column);
+      if (value.IsString())
         {
-        // get the string to int mapping for this column
-        std::map< std::string, double> stringToDouble =
-          this->StringToDoubleMaps[column];
-
-        // get the integer value for the current string
-        std::string cellStr =
-          this->Table->GetValue(tableRow, column).ToString();
-        double colorKey = stringToDouble[cellStr];
-
-        // now we can lookup the appropriate color for this string
-        this->LookupTables[column-1]->GetColor(colorKey, color);
+        this->CategoricalDataLookupTable->GetAnnotationColor(value, color);
         }
       else
         {
-        vtkVariant value = this->Table->GetValue(tableRow, column);
-        this->LookupTables[column-1]->GetColor(value.ToDouble(), color);
+        // set the range on our continuous lookup table for this column
+        this->ContinuousDataLookupTable->SetRange(
+          this->ColumnRanges[column].first,
+          this->ColumnRanges[column].second);
+
+        // get the color for this value
+        this->ContinuousDataLookupTable->GetColor(value.ToDouble(), color);
         }
       painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
 
@@ -762,18 +825,6 @@ void vtkTreeHeatmapItem::PaintBuffers(vtkContext2D *painter)
       if (yStart < this->HeatmapMinY)
         {
         this->HeatmapMinY = yStart;
-        }
-      }
-
-    // draw the label for this row
-    if (drawRowLabels)
-      {
-      xStart = this->TreeMaxX + spacing * 2 +
-        this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
-      yStart = point[1] * this->MultiplierY;
-      if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
-        {
-        painter->DrawString(xStart, yStart, nodeName);
         }
       }
     }
@@ -816,13 +867,21 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
     this->Table->GetColumn(0));
 
   // calculate a font size that's appropriate for this zoom level
-  this->SetupTextProperty(painter);
+  bool canDrawText = this->SetupTextProperty(painter);
 
   double xStart, yStart;
   this->HeatmapMinX = 0;
   this->HeatmapMaxX = this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
   this->HeatmapMinY = VTK_DOUBLE_MAX;
   this->HeatmapMaxY = VTK_DOUBLE_MIN;
+
+  // would raw labels be visible & legible?
+  bool drawRowLabels = canDrawText;
+  if (this->SceneBottomLeft[0] > this->HeatmapMaxX ||
+      this->SceneTopRight[0] < this->HeatmapMaxX)
+    {
+    drawRowLabels = false;
+    }
 
   for (vtkIdType row = 0; row < this->Table->GetNumberOfRows();
        ++row)
@@ -831,31 +890,35 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
          ++column)
       {
       // get the color for this cell from the lookup table
-      double color[3];
+      double color[4];
       if (this->Table->GetValue(row, column).IsString())
         {
-        // get the string to int mapping for this column
-        std::map< std::string, double> stringToDouble =
-          this->StringToDoubleMaps[column];
-
-        // get the integer value for the current string
-        std::string cellStr = this->Table->GetValue(row, column).ToString();
-        double colorKey = stringToDouble[cellStr];
-
-        // now we can lookup the appropriate color for this string
-        this->LookupTables[column-1]->GetColor(colorKey, color);
+        vtkVariant cellValue = this->Table->GetValue(row, column);
+        this->CategoricalDataLookupTable->GetAnnotationColor(cellValue, color);
         }
       else
         {
+        // set the range on our continuous lookup table for this column
+        this->ContinuousDataLookupTable->SetRange(
+          this->ColumnRanges[column].first,
+          this->ColumnRanges[column].second);
+
+        // get the color for this value
         vtkVariant value = this->Table->GetValue(row, column);
-        this->LookupTables[column-1]->GetColor(value.ToDouble(), color);
+        this->ContinuousDataLookupTable->GetColor(value.ToDouble(), color);
         }
       painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
 
       // draw this cell of the table
       xStart = this->CellWidth * (column - 1);
       yStart = this->CellHeight * row;
-      painter->DrawRect(xStart, yStart, this->CellWidth, this->CellHeight);
+      if (this->LineIsVisible(xStart, yStart, xStart + this->CellWidth,
+                              yStart + this->CellHeight) ||
+          this->LineIsVisible(xStart, yStart + this->CellHeight,
+                              xStart + this->CellWidth, yStart))
+        {
+        painter->DrawRect(xStart, yStart, this->CellWidth, this->CellHeight);
+        }
 
       // keep track of where the top of the table is, so we know where to
       // draw the column labels later.
@@ -869,22 +932,38 @@ void vtkTreeHeatmapItem::PaintHeatmapWithoutTree(vtkContext2D *painter)
         }
       }
 
-    // draw the label for this row
-    std::string rowLabel = tableNames->GetValue(row);
-    xStart = spacing * 2 + this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
-    yStart = this->CellHeight * row + this->CellHeight / 2;
-    painter->DrawString(xStart, yStart, rowLabel);
+    if (drawRowLabels)
+      {
+      // draw the label for this row
+      std::string rowLabel = tableNames->GetValue(row);
+      xStart = spacing * 2 + this->CellWidth * (this->Table->GetNumberOfColumns() - 1);
+      yStart = this->CellHeight * row + this->CellHeight / 2;
+      if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
+        {
+        painter->DrawString(xStart, yStart, rowLabel);
+        }
+      }
     }
 
-  // draw column labels
-  painter->GetTextProp()->SetOrientation(90);
-  for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
-       ++column)
+  // draw visible column labels
+  if (canDrawText)
     {
-      std::string columnName = this->Table->GetColumn(column)->GetName();
-      xStart = this->CellWidth * column - this->CellWidth / 2;
-      yStart = this->HeatmapMaxY + spacing;
-      painter->DrawString(xStart, yStart, columnName);
+    yStart = this->HeatmapMaxY + spacing;
+    if (this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
+      {
+      painter->GetTextProp()->SetOrientation(90);
+      for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
+           ++column)
+        {
+        std::string columnName = this->Table->GetColumn(column)->GetName();
+        xStart = this->CellWidth * column - this->CellWidth / 2;
+        if (this->SceneBottomLeft[0] < xStart &&
+            this->SceneTopRight[0] > xStart)
+          {
+          painter->DrawString(xStart, yStart, columnName);
+          }
+        }
+      }
     }
 }
 
@@ -1045,17 +1124,14 @@ bool vtkTreeHeatmapItem::MouseMoveEvent(const vtkContextMouseEvent &event)
         this->Tooltip->SetText(tooltipText);
         this->Tooltip->SetVisible(true);
         this->Scene->SetDirty(true);
+        return true;
         }
-      return true;
       }
-    else
+    bool shouldRepaint = this->Tooltip->GetVisible();
+    this->Tooltip->SetVisible(false);
+    if (shouldRepaint)
       {
-      bool shouldRepaint = this->Tooltip->GetVisible();
-      this->Tooltip->SetVisible(false);
-      if (shouldRepaint)
-        {
-        this->Scene->SetDirty(true);
-        }
+      this->Scene->SetDirty(true);
       }
     }
   return false;
@@ -1064,6 +1140,7 @@ bool vtkTreeHeatmapItem::MouseMoveEvent(const vtkContextMouseEvent &event)
 //-----------------------------------------------------------------------------
 std::string vtkTreeHeatmapItem::GetTooltipText(float x, float y)
 {
+
   vtkIdType column = floor((x - this->HeatmapMinX) / this->CellWidth);
   int sceneRow = floor(y / this->CellHeight + 0.5);
 
@@ -1072,7 +1149,20 @@ std::string vtkTreeHeatmapItem::GetTooltipText(float x, float y)
     int dataRow = this->RowMap[sceneRow];
     if (dataRow != -1)
       {
-      return this->Table->GetValue(dataRow, column + 1).ToString();
+      vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
+        this->Table->GetColumn(0));
+      std::string rowName = rowNames->GetValue(dataRow);
+
+      std::string columnName = this->Table->GetColumn(column + 1)->GetName();
+
+      std::string tooltipText = "(";
+      tooltipText += rowName;
+      tooltipText += ", ";
+      tooltipText += columnName;
+      tooltipText += ")\n";
+      tooltipText += this->Table->GetValue(dataRow, column + 1).ToString();
+
+      return tooltipText;
       }
     return "";
     }
@@ -1328,11 +1418,11 @@ void vtkTreeHeatmapItem::CollapseToNumberOfLeafNodes(unsigned int n)
                       CompareWeightedVertices> queue;
   std::vector<vtkIdType> verticesToCollapse;
   vtkDoubleArray *nodeWeights = vtkDoubleArray::SafeDownCast(
-    this->Tree->GetVertexData()->GetAbstractArray("true node weight"));
+    this->Tree->GetVertexData()->GetAbstractArray("node weight"));
   if (nodeWeights == NULL)
     {
-    nodeWeights = vtkDoubleArray::SafeDownCast(
-      this->Tree->GetVertexData()->GetAbstractArray("node weight"));
+    vtkErrorMacro("No vtkDoubleArray named 'node weight' in tree's VertexData");
+    return;
     }
 
   // initially, the priority queue contains the children of the root node.
@@ -1456,6 +1546,82 @@ void vtkTreeHeatmapItem::SetTreeColorArray(const char *arrayName)
     {
     this->TreeLookupTable->SetTableValue(i,
       0.85 - inc * (i - 10), 0.85 - inc * (i - 10), 1.0);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::SetLeafNodeBehavior(int behavior)
+{
+  this->LeafNodeBehavior = behavior;
+  switch(this->LeafNodeBehavior)
+  {
+    case vtkTreeHeatmapItem::ALWAYS_EXTEND:
+      this->ExtendLeafNodes = true;
+      break;
+
+    case vtkTreeHeatmapItem::NEVER_EXTEND:
+      this->ExtendLeafNodes = false;
+      break;
+
+    case vtkTreeHeatmapItem::EXTEND_FOR_TABLE:
+    default:
+      if (this->Table->GetNumberOfRows() == 0)
+        {
+        this->ExtendLeafNodes = false;
+        }
+      else
+        {
+        this->ExtendLeafNodes = true;
+        }
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+int vtkTreeHeatmapItem::GetLeafNodeBehavior()
+{
+  return this->LeafNodeBehavior;
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::GetCenter(double *center)
+{
+  if (this->Tree->GetNumberOfVertices() == 0)
+    {
+    center[0] = this->HeatmapMinX +
+                ((this->HeatmapMaxX - this->HeatmapMinX) / 2.0);
+    center[1] = this->HeatmapMinY +
+                ((this->HeatmapMaxY - this->HeatmapMinY) / 2.0);
+    }
+  else if (this->Table->GetNumberOfRows() == 0)
+    {
+    center[0] = this->TreeMinX + ((this->TreeMaxX - this->TreeMinX) / 2.0);
+    center[1] = this->TreeMinY + ((this->TreeMaxY - this->TreeMinY) / 2.0);
+    }
+  else
+    {
+    center[0] = this->TreeMinX + ((this->HeatmapMaxX - this->TreeMinX) / 2.0);
+    center[1] = this->TreeMinY + ((this->HeatmapMaxY - this->TreeMinY) / 2.0);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::GetSize(double *size)
+{
+  if (this->Tree->GetNumberOfVertices() == 0)
+    {
+    size[0] = this->HeatmapMaxX - this->HeatmapMinX;
+    size[1] = this->HeatmapMaxY - this->HeatmapMinY;
+    }
+  else if (this->Table->GetNumberOfRows() == 0)
+    {
+    size[0] = this->TreeMaxX - this->TreeMinX;
+    size[1] = this->TreeMaxY - this->TreeMinY;
+    }
+  else
+    {
+    size[0] = this->HeatmapMaxX - this->TreeMinX;
+    size[1] = this->HeatmapMaxY - this->TreeMinY;
     }
 }
 

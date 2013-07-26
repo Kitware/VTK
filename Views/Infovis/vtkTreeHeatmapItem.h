@@ -44,6 +44,7 @@
 class vtkDoubleArray;
 class vtkGraphLayout;
 class vtkLookupTable;
+class vtkStringArray;
 class vtkTable;
 class vtkTooltipItem;
 class vtkTree;
@@ -94,7 +95,35 @@ public:
   // By default, the tree will be drawn in black.
   void SetTreeColorArray(const char *arrayName);
 
+  // Description:
+  // Set whether or not leaf nodes should be extended so that they all line
+  // up vertically.  The default is to extend leaf nodes if a heatmap is
+  // present (2).  When extending leaf nodes, the extra length is drawn in
+  // grey so as to distinguish it from the actual length of the leaf node.
+  void SetLeafNodeBehavior(int behavior);
+
+  // Description:
+  // Get the current behavior regarding when leaf nodes should be extended.
+  int GetLeafNodeBehavior();
+
+  // Description:
+  // Get the center point of this item in pixel coordinates.
+  void GetCenter(double *center);
+
+  // Description:
+  // Get the size of this item in pixel coordinates.
+  void GetSize(double *size);
+
   //BTX
+  // Description:
+  // Enum for LeafNodeBehavior.
+  enum
+    {
+    ALWAYS_EXTEND,
+    NEVER_EXTEND,
+    EXTEND_FOR_TABLE
+    };
+
   // Description:
   // Returns true if the transform is interactive, false otherwise.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -147,10 +176,21 @@ protected:
   virtual bool Paint(vtkContext2D *painter);
 
   // Description:
-  // Helper function.  Generates a vtkLookupTable for a Table column that
-  // contains only strings.  Each string will be assigned a separate color.
-  // This is useful for visualizing categorical data.
-  void GenerateLookupTableForStringColumn(vtkIdType column);
+  // Helper function.  Find the prominent, distinct values in the specified
+  // column of strings and add it to our "master list" of categorical values.
+  // This list is then used to generate a vtkLookupTable for all categorical
+  // data within the heatmap.
+  void AccumulateProminentCategoricalDataValues(vtkIdType column);
+
+  // Description:
+  // Setup the default lookup table to use for continuous (not categorical)
+  // data.
+  void GenerateContinuousDataLookupTable();
+
+  // Description:
+  // Setup the default lookup table to use for categorical (not continuous)
+  // data.
+  void GenerateCategoricalDataLookupTable();
 
   // Description:
   // Draw the heatmap when no corresponding tree is present.
@@ -231,8 +271,10 @@ private:
   vtkNew<vtkPruneTreeFilter> PruneFilter;
   vtkNew<vtkLookupTable> TriangleLookupTable;
   vtkNew<vtkLookupTable> TreeLookupTable;
+  vtkNew<vtkLookupTable> ContinuousDataLookupTable;
+  vtkNew<vtkLookupTable> CategoricalDataLookupTable;
+  vtkNew<vtkStringArray> CategoricalDataValues;
   vtkDoubleArray* TreeColorArray;
-  std::vector< vtkLookupTable * > LookupTables;
   std::vector< vtkIdType > RowMap;
   double MultiplierX;
   double MultiplierY;
@@ -240,7 +282,7 @@ private:
   double CellWidth;
   double CellHeight;
 
-  std::map< int, std::map< std::string, double> > StringToDoubleMaps;
+  std::map< vtkIdType, std::pair< double, double > > ColumnRanges;
 
   double HeatmapMinX;
   double HeatmapMinY;
@@ -254,6 +296,8 @@ private:
   double SceneTopRight[3];
   bool JustCollapsedOrExpanded;
   bool ColorTree;
+  int LeafNodeBehavior;
+  bool ExtendLeafNodes;
 };
 
 #endif
