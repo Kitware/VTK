@@ -101,7 +101,14 @@ bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *win)
     bool fbo = mgr->ExtensionSupported("GL_EXT_framebuffer_object")==1;
     bool fboBlit = mgr->ExtensionSupported("GL_EXT_framebuffer_blit")==1;
 
-    return tex3D && depthTex && drawBufs && fbo && fboBlit;
+    // On 1.4 Mesa 8.0.4 with Mesa DRI Intel(R) 945GME
+    // shader fails to compile "gl_FragData[1] = ..."
+    // 0:46(15): error: array index must be < 1
+    bool driver
+      = !(mgr->DriverIsMesa()
+        && mgr->DriverGLVersionIs(1,4));
+
+    return tex3D && depthTex && drawBufs && fbo && fboBlit && driver;
     }
   return false;
 }
@@ -110,7 +117,7 @@ bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *win)
 bool vtkFrameBufferObject::LoadRequiredExtensions(vtkRenderWindow *win)
 {
   vtkOpenGLRenderWindow *oglRenWin
-    = dynamic_cast<vtkOpenGLRenderWindow*>(win);
+    = vtkOpenGLRenderWindow::SafeDownCast(win);
 
   vtkOpenGLExtensionManager *mgr = oglRenWin->GetExtensionManager();
 
@@ -196,7 +203,7 @@ void vtkFrameBufferObject::SetContext(vtkRenderWindow *renWin)
     }
   // check for support
   vtkOpenGLRenderWindow *context
-    = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
+    = vtkOpenGLRenderWindow::SafeDownCast(renWin);
   if ( !context
     || !this->LoadRequiredExtensions(renWin))
     {

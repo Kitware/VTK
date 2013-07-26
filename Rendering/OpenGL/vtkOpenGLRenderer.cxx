@@ -377,6 +377,12 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
       int supportsAtLeast8AlphaBits=alphaBits>=8;
 
+      // TODO verify that newer ATI devices still have the issue
+      int driver_support
+        = (!extensions->DriverIsATI()
+        && (!extensions->DriverIsMesa() || extensions->DriverVersionAtLeast(6,5,3)))
+        || extensions->GetIgnoreDriverBugs("ATI depth peeling bug." );
+
       this->DepthPeelingIsSupported =
         supports_depth_texture &&
         supports_shadow &&
@@ -389,7 +395,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
         supports_multitexture &&
         supports_GL_ARB_texture_rectangle &&
         supports_edge_clamp &&
-        supportsAtLeast8AlphaBits;
+        supportsAtLeast8AlphaBits &&
+        driver_support;
 
       if(this->DepthPeelingIsSupported)
         {
@@ -481,6 +488,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           {
           vtkDebugMacro(<<"at least 8 alpha bits is not supported");
           }
+        if (!driver_support)
+          {
+          vtkDebugMacro(<<"buggy driver (Mesa < 6.5.3 or ATI)");
+          }
         }
       extensions->Delete();
 
@@ -506,44 +517,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           {
           vtkDebugMacro("this OpenGL implementation does not support "
                         "GL_ARB_texture_rectangle in GLSL code");
-          }
-        }
-      if(this->DepthPeelingIsSupported)
-        {
-        // Some OpenGL implementations are buggy so depth peeling does not work:
-        //  - ATI
-        //  - Mesa 6.5.2 and lower
-        // Do alpha blending always.
-        const char* gl_renderer =
-          reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-        int isATI = strstr(gl_renderer, "ATI") != 0;
-
-        const char* gl_version =
-          reinterpret_cast<const char *>(glGetString(GL_VERSION));
-        if(const char* mesa_version = strstr(gl_version, "Mesa"))
-          {
-          // Mesa versions 6.5.3 and higher work.  Versions much lower
-          // than 6.5.2 do not report support for the extensions to
-          // get this far.  Therefore if parsing of the version fails
-          // just assume it is a higher version that changed the
-          // format of the version string.
-          int mesa_major = 0;
-          int mesa_minor = 0;
-          int mesa_patch = 0;
-          if(sscanf(mesa_version, "Mesa %d.%d.%d",
-                    &mesa_major, &mesa_minor, &mesa_patch) >= 2)
-            {
-            if(mesa_major  < 6 ||
-               (mesa_major == 6 && mesa_major  < 5) ||
-               (mesa_major == 6 && mesa_minor == 5 && mesa_patch < 3))
-              {
-              this->DepthPeelingIsSupported = 0;
-              }
-            }
-          }
-        else if(isATI)
-          {
-          this->DepthPeelingIsSupported = 0;
           }
         }
       }

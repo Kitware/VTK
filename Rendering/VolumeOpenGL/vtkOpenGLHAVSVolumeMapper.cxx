@@ -1185,6 +1185,17 @@ bool vtkOpenGLHAVSVolumeMapper::SupportedByHardware(vtkRenderer *r)
     static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow())
     ->GetExtensionManager();
 
+  // os mesa notes:
+  // 9.1.4 -- test fails with open gl errors (mesa bug)
+  // 9.2.0 w/llvmpipe -- test passes
+  if ( extensions->DriverIsMesa()
+    && !(extensions->DriverGLRendererIsOSMesa()
+    && extensions->DriverGLRendererHasToken("llvmpipe"))
+    && !extensions->GetIgnoreDriverBugs("Mesa FBO bugs") )
+    {
+    return false;
+    }
+
   // Temporarily filter out the Macs, as this mapper makes the ATI driver crash
   // (RogueResearch2 on VTK, ATI Radeon X1600 OpenGL Engine 2.0 ATI-1.4.56) and
   // makes the Nvidia driver render some corrupted image (kamino on ParaView3

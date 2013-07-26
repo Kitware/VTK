@@ -438,6 +438,19 @@ configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGLError.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h)
 
+# For testing new driver releases
+set(VTK_IGNORE_GLDRIVER_BUGS
+    OFF CACHE BOOL
+   "Enable buggy OpenGL drivers for testing.")
+mark_as_advanced(VTK_IGNORE_GLDRIVER_BUGS)
+if (VTK_IGNORE_GLDRIVER_BUGS)
+  set_property(SOURCE
+     vtkOpenGLExtensionManager.cxx
+     APPEND PROPERTY
+     COMPILE_DEFINITIONS
+     VTK_IGNORE_GLDRIVER_BUGS)
+endif()
+
 vtk_module_library(vtkRenderingOpenGL ${Module_SRCS})
 target_link_libraries(vtkRenderingOpenGL ${OPENGL_LIBRARIES} ${extra_libs})
 if(VTK_USE_X)

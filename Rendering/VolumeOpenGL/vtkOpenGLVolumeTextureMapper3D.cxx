@@ -1805,6 +1805,8 @@ int  vtkOpenGLVolumeTextureMapper3D::IsRenderSupported(
     this->Initialize(r);
     }
 
+  // NO_METHOD occurs when required OpenGL extensions are
+  // not found during initialization
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NO_METHOD )
     {
     return 0;
@@ -1872,53 +1874,39 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize(vtkRenderer *r)
       }
     }
 
-  const char *gl_version=
-    reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  const char *mesa_version=strstr(gl_version,"Mesa");
-
-
-  // Workaround for broken Mesa
-  if(mesa_version!=0) // any Mesa
+  bool brokenMesa=false;
+  if(extensions->DriverIsMesa())
     {
-    this->SupportsCompressedTexture=false;
+    // Workaround for broken Mesa
+    if (!extensions->GetIgnoreDriverBugs("Mesa compressed texture bugs"))
+      {
+      this->SupportsCompressedTexture=false;
+      }
+
+    // Workaround Mesa 7.0.4 bug
+    // glGetIntegerv(vtkgl::MAX_3D_TEXTURE_SIZE,&maxSize) return some
+    // uninitialized value and a loading a Luminance-alpha 16x16x16 just
+    // crashes glx.
+    if ( extensions->DriverVersionIs(7,0,4)
+      && extensions->DriverGLVersionIs(1,4) )
+      {
+      brokenMesa = true;
+      }
+
+    // Workaround bug in Mesa 8 and OS Mesa renderers
+    // tests all pass however in ::Render causes glPopAttrib
+    // "Invalid enum".
+    if ( extensions->DriverGLRendererIsOSMesa()
+      && !extensions->DriverVersionAtLeast(9)
+      && !extensions->GetIgnoreDriverBugs("Mesa 8 OS Mesa invalid enum") )
+      {
+      brokenMesa = true;
+      }
     }
 
   this->SupportsNonPowerOfTwoTextures=
         extensions->ExtensionSupported("GL_VERSION_2_0")
         || extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
-
-  bool brokenMesa=false;
-
-  if(mesa_version!=0)
-    {
-    // Workaround for broken Mesa (dash16-sql):
-    // GL_VENDOR="Mesa project: www.mesa3d.org"
-    // GL_VERSION="1.4 (2.1 Mesa 7.0.4)"
-    // GL_RENDERER="Mesa GLX Indirect"
-    // there is no problem with (dash6):
-    // GL_VENDOR="Brian Paul"
-    // GL_VERSION="2.0 Mesa 7.0.4"
-    // GL_RENDERER="Mesa X11"
-    // glGetIntegerv(vtkgl::MAX_3D_TEXTURE_SIZE,&maxSize) return some
-    // uninitialized value and a loading a Luminance-alpha 16x16x16 just
-    // crashes glx.
-    int mesa_major=0;
-    int mesa_minor=0;
-    int mesa_patch=0;
-    int opengl_major=0;
-    int opengl_minor=0;
-    if(sscanf(gl_version,"%d.%d",&opengl_major, &opengl_minor)>=2)
-      {
-      if(opengl_major==1 && opengl_minor==4)
-        {
-        if(sscanf(mesa_version,"Mesa %d.%d.%d",&mesa_major,
-                  &mesa_minor,&mesa_patch)>=3)
-          {
-          brokenMesa=mesa_major==7 && mesa_minor==0 && mesa_patch==4;
-          }
-        }
-      }
-    }
 
   int supports_GL_NV_texture_shader2     = extensions->ExtensionSupported( "GL_NV_texture_shader2" );
   int supports_GL_NV_register_combiners2 = extensions->ExtensionSupported( "GL_NV_register_combiners2" );

@@ -26,6 +26,7 @@
 #include "vtkShader2Collection.h"
 #include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLExtensionManager.h"
 #include "vtkTextureUnitManager.h"
 
 // to be able to dump intermediate result into png files for debugging.
@@ -127,8 +128,14 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------------
 bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
-  return vtkFrameBufferObject::IsSupported(context)
-    && vtkTextureObject::IsSupported(context);
+  vtkOpenGLExtensionManager *extmgr = context->GetExtensionManager();
+
+  bool fbo_support=vtkFrameBufferObject::IsSupported(context);
+  bool texture_support
+     =  vtkTextureObject::IsSupported(context)
+       && (extmgr->ExtensionSupported("GL_ARB_texture_float")==1);
+
+  return fbo_support && texture_support;
 }
 
 // ----------------------------------------------------------------------------
@@ -162,26 +169,18 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
   const int VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER=201;
 
-  vtkOpenGLRenderer *r=static_cast<vtkOpenGLRenderer *>(s->GetRenderer());
-  vtkOpenGLRenderWindow *context=static_cast<vtkOpenGLRenderWindow *>(
-    r->GetRenderWindow());
+  vtkOpenGLRenderer *r
+    = static_cast<vtkOpenGLRenderer *>(s->GetRenderer());
 
-  // Test for Hardware support. If not supported, return.
-  bool supported=vtkFrameBufferObject::IsSupported(context);
+  vtkOpenGLRenderWindow *context
+    = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
 
-  if(!supported)
+  if (!this->IsSupported(context))
     {
-    vtkErrorMacro("FBOs are not supported by the context. Cannot perform rgba-compositing.");
+    vtkErrorMacro(
+      << "Missing required OpenGL extensions. "
+      << "Cannot perform rgba-compositing.");
     return;
-    }
-  if(supported)
-    {
-    supported=vtkTextureObject::IsSupported(context);
-    if(!supported)
-      {
-      vtkErrorMacro("Texture Objects are not supported by the context. Cannot perform rgba-compositing.");
-      return;
-      }
     }
 
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG

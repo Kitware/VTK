@@ -56,25 +56,25 @@ bool vtkOpenGL2ContextDevice2D::IsSupported(vtkViewport *viewport)
   vtkOpenGLRenderer *gl = vtkOpenGLRenderer::SafeDownCast(viewport);
   if (gl)
     {
-    vtkOpenGLRenderWindow *win =
-        vtkOpenGLRenderWindow::SafeDownCast(gl->GetRenderWindow());
-    vtkOpenGLExtensionManager *man = win->GetExtensionManager();
-    if (man->ExtensionSupported("GL_VERSION_2_0"))
+    vtkOpenGLRenderWindow *context =
+      vtkOpenGLRenderWindow::SafeDownCast(gl->GetRenderWindow());
+
+    vtkOpenGLExtensionManager *extensions
+      = context->GetExtensionManager();
+
+    bool ogl_support
+      = extensions->ExtensionSupported("GL_VERSION_2_0")==1;
+
+    // NPOT textures work in OS Mesa > 8.0.0
+    // Mesa's other renderer's need to be validated individually
+    bool driver_support
+       = (!extensions->DriverIsMesa()
+      || (extensions->DriverGLRendererIsOSMesa()
+      && extensions->DriverVersionAtLeast(8)));
+
+    if ( ogl_support && driver_support )
       {
       supported = true;
-      }
-    }
-
-  if (supported)
-    {
-    // Workaround for a bug in mesa - support for non-power of two textures is
-    // poor at best. Disable, and use power of two textures for mesa rendering.
-    const char *gl_version =
-      reinterpret_cast<const char *>(glGetString(GL_VERSION));
-    const char *mesa_version = strstr(gl_version, "Mesa");
-    if (mesa_version != 0)
-      {
-      supported = false;
       }
     }
 

@@ -123,6 +123,25 @@ int LoadOpenGLExtension(int argc, char *argv[])
   cout << "GL_VERSION: " << (gl_version ? gl_version : "(null)") << endl;
   cout << "GL_RENDERER: " << (gl_renderer ? gl_renderer : "(null)") << endl;
 
+  extensions->Update();
+  cout
+    << endl
+    << "DriverGLVersion = " << extensions->GetDriverGLVersion() << endl
+    << "DriverGLVendor = " << extensions->GetDriverGLVendor() << endl
+    << "DriverGLRenderer = " << extensions->GetDriverGLRenderer() << endl
+    << "DriverGLVersionMajor = " << extensions->GetDriverGLVersionMajor() << endl
+    << "DriverGLVersionMinor = " << extensions->GetDriverGLVersionMinor() << endl
+    << "DriverGLVersionPatch = " << extensions->GetDriverGLVersionPatch() << endl
+    << "DriverVersionMajor = " << extensions->GetDriverVersionMajor() << endl
+    << "DriverVersionMinor = " << extensions->GetDriverVersionMinor() << endl
+    << "DriverVersionPatch = " << extensions->GetDriverVersionPatch() << endl
+    << "DriverIsATI = " << extensions->DriverIsATI() << endl
+    << "DriverIsNvidia = " << extensions->DriverIsNvidia() << endl
+    << "DriverIsIntel = " << extensions->DriverIsIntel() << endl
+    << "DriverIsMesa = " << extensions->DriverIsMesa() << endl
+    << "DriverGLRendererIsOSMesa = " << extensions->DriverGLRendererIsOSMesa() << endl
+    << "DriverIsMicrosoft = " << extensions->DriverIsMicrosoft() << endl;
+
   cout << endl;
   renwin->Print(cout);
 

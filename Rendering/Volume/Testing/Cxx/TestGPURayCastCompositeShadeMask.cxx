@@ -26,6 +26,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLExtensionManager.h"
 #include "vtkCamera.h"
 
 int TestGPURayCastCompositeShadeMask(int argc, char *argv[])
@@ -159,10 +161,11 @@ int TestGPURayCastCompositeShadeMask(int argc, char *argv[])
                                opacityLevel+0.5*opacityWindow,1.0,0.0,0.0);
 
 
-
-
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
-  vtkRenderWindow *renWin=vtkRenderWindow::New();
+
+  vtkOpenGLRenderWindow *renWin
+    = vtkOpenGLRenderWindow::SafeDownCast(vtkRenderWindow::New());
+
   renWin->SetSize(300,300);
   iren->SetRenderWindow(renWin);
 
@@ -171,10 +174,17 @@ int TestGPURayCastCompositeShadeMask(int argc, char *argv[])
 
   renWin->Render();
 
-  int valid=mapper->IsRenderSupported(renWin,property);
+  bool mapper_support = mapper->IsRenderSupported(renWin,property)!=0;
+
+  // Workaround for Mesa bug
+  vtkOpenGLExtensionManager *extensions = renWin->GetExtensionManager();
+  bool driver_support
+    = (!extensions->DriverGLRendererIsOSMesa()
+    || extensions->DriverGLRendererHasToken("llvmpipe"))
+    || extensions->GetIgnoreDriverBugs("OS Mesa GPURayCastCompositeShadeMask bug");
 
   int retVal;
-  if(valid)
+  if(mapper_support && driver_support)
     {
     ren1->AddViewProp(volume);
     iren->Initialize();

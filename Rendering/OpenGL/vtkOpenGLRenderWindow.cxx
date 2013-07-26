@@ -1607,13 +1607,15 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   int supports_GL_EXT_framebuffer_object=
     extensions->ExtensionSupported("GL_EXT_framebuffer_object");
 
+  // TODO Mesa 6.5.1 is from 2006 verify that this is still an issue
+  // with  newer releases
   // We skip it if you use Mesa. Even if the VTK offscreen test passes (OSCone)
   // with Mesa, all the Paraview batch test are failing (Mesa 6.5.1 or CVS)
   // After too much time spent to investigate this case, we just skip it.
-  const GLubyte *openglRenderer=glGetString(GL_RENDERER);
-  const char *substring=strstr(reinterpret_cast<const char *>(openglRenderer),
-                               "Mesa");
-  int isMesa=substring!=0;
+  int isMesa
+    = extensions->DriverGLRendererHas("Mesa")
+    && !extensions->GetIgnoreDriverBugs("Mesa 6.5.1 pvbatch offscreen bug");
+
   int supports_texture_non_power_of_two=
     extensions->ExtensionSupported("GL_VERSION_2_0") ||
     extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
