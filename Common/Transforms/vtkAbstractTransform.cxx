@@ -866,10 +866,12 @@ void vtkTransformConcatenation::DeepCopy(vtkTransformConcatenation *concat)
     if (this->TransformList[i].ForwardTransform)
       {
       this->TransformList[i].ForwardTransform->Delete();
+      this->TransformList[i].ForwardTransform = NULL;
       }
     if (this->TransformList[i].InverseTransform)
       {
       this->TransformList[i].InverseTransform->Delete();
+      this->TransformList[i].InverseTransform = NULL;
       }
     }
 
