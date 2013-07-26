@@ -46,6 +46,20 @@ int TestGDALVectorReader(int argc, char** argv)
   vtkNew<vtkGDALVectorReader> reader;
   reader->SetFileName(vectorFileName);
   delete [] vectorFileName;
+
+  // Test layer information helpers
+  reader->UpdateInformation();
+  int nl = reader->GetNumberOfLayers();
+  for (int i = 0; i < nl; ++i)
+    {
+    reader->SetActiveLayer(i);
+    cout
+      << "Layer " << i
+      << " Type " << reader->GetActiveLayerType()
+      << " FeatureCount " << reader->GetActiveLayerFeatureCount()
+      << "\n";
+    }
+  reader->SetActiveLayer(0); // Read only layer 0, which is the only layer.
   reader->Update();
 
   // We need a renderer
