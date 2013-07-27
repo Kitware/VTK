@@ -157,7 +157,8 @@ void vtkCompositeControlPointsItem::SetColorTransferFunction(vtkColorTransferFun
 //-----------------------------------------------------------------------------
 bool vtkCompositeControlPointsItem::UsingLogScale()
 {
-  return (this->ColorTransferFunction &&
+  return (this->PointsFunction != OpacityPointsFunction &&
+    this->ColorTransferFunction &&
     this->ColorTransferFunction->UsingLogScale());
 }
 
