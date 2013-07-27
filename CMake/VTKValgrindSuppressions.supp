@@ -1014,3 +1014,103 @@
    fun:_Z23TestQtTableModelAdapteriPPc
    fun:main
 }
+{
+    <insert_a_suppression_name_here>
+    Memcheck:Value8
+    fun:fetch_texel_2d_f_rgba8888
+    fun:texture_get_row
+    fun:_swrast_get_dest_rgba
+    fun:_swrast_mask_rgba_span
+    fun:clear_rgba_buffer_with_masking
+    fun:_swrast_Clear
+    fun:_ZN17vtkOpenGLRenderer5ClearEv
+    fun:_ZN13vtkCameraPass6RenderEPK14vtkRenderState
+    fun:_ZN21vtkShadowMapBakerPass6RenderEPK14vtkRenderState
+    fun:_ZN15vtkSequencePass6RenderEPK14vtkRenderState
+    fun:_ZN13vtkCameraPass6RenderEPK14vtkRenderState
+    fun:_ZN17vtkOpenGLRenderer12DeviceRenderEv
+    fun:_ZN11vtkRenderer6RenderEv
+    fun:_ZN21vtkRendererCollection6RenderEv
+    fun:_ZN15vtkRenderWindow14DoStereoRenderEv
+    fun:_ZN15vtkRenderWindow10DoFDRenderEv
+    fun:_ZN15vtkRenderWindow10DoAARenderEv
+    fun:_ZN15vtkRenderWindow6RenderEv
+    fun:_ZN22vtkXOpenGLRenderWindow6RenderEv
+    fun:_Z17TestShadowMapPassiPPc
+    fun:main
+}
+{
+    <insert_a_suppression_name_here>
+    Memcheck:Value8
+    fun:fetch_texel_2d_f_rgba8888
+    fun:texture_get_row
+    fun:_swrast_get_dest_rgba
+    fun:_swrast_mask_rgba_span
+    fun:clear_rgba_buffer_with_masking
+    fun:_swrast_Clear
+    fun:_ZN17vtkOpenGLRenderer5ClearEv
+    fun:_ZN13vtkCameraPass6RenderEPK14vtkRenderState
+    fun:_ZN21vtkShadowMapBakerPass6RenderEPK14vtkRenderState
+    fun:_ZN15vtkSequencePass6RenderEPK14vtkRenderState
+    fun:_ZN13vtkCameraPass6RenderEPK14vtkRenderState
+    fun:_ZN17vtkOpenGLRenderer12DeviceRenderEv
+    fun:_ZN11vtkRenderer6RenderEv
+    fun:_ZN21vtkRendererCollection6RenderEv
+    fun:_ZN15vtkRenderWindow14DoStereoRenderEv
+    fun:_ZN15vtkRenderWindow10DoFDRenderEv
+    fun:_ZN15vtkRenderWindow10DoAARenderEv
+    fun:_ZN15vtkRenderWindow6RenderEv
+    fun:_ZN22vtkXOpenGLRenderWindow6RenderEv
+    fun:_Z17TestShadowMapPassiPPc
+    fun:main
+}
+{
+    <insert_a_suppression_name_here>
+    Memcheck:Value8
+    fun:fetch_texel_2d_f_rgba8888
+    fun:texture_get_row
+    fun:_swrast_get_dest_rgba
+    fun:_swrast_mask_rgba_span
+    fun:clear_rgba_buffer_with_masking
+    fun:_swrast_Clear
+    fun:_ZN17vtkOpenGLRenderer5ClearEv
+    fun:_ZN13vtkCameraPass6RenderEPK14vtkRenderState
+    fun:_ZN21vtkShadowMapBakerPass6RenderEPK14vtkRenderState
+    fun:_ZN15vtkSequencePass6RenderEPK14vtkRenderState
+    fun:_ZN13vtkCameraPass6RenderEPK14vtkRenderState
+    fun:_ZN17vtkOpenGLRenderer12DeviceRenderEv
+    fun:_ZN11vtkRenderer6RenderEv
+    fun:_ZN21vtkRendererCollection6RenderEv
+    fun:_ZN15vtkRenderWindow14DoStereoRenderEv
+    fun:_ZN15vtkRenderWindow10DoFDRenderEv
+    fun:_ZN15vtkRenderWindow10DoAARenderEv
+    fun:_ZN15vtkRenderWindow6RenderEv
+    fun:_ZN22vtkXOpenGLRenderWindow6RenderEv
+    fun:_Z17TestShadowMapPassiPPc
+    fun:main
+}
+{
+    <insert_a_suppression_name_here>
+    Memcheck:Value8
+    fun:fetch_texel_2d_f_rgba8888
+    fun:texture_get_row
+    fun:_swrast_get_dest_rgba
+    fun:_swrast_mask_rgba_span
+    fun:clear_rgba_buffer_with_masking
+    fun:_swrast_Clear
+    fun:_ZN17vtkOpenGLRenderer5ClearEv
+    fun:_ZN13vtkCameraPass6RenderEPK14vtkRenderState
+    fun:_ZN21vtkShadowMapBakerPass6RenderEPK14vtkRenderState
+    fun:_ZN15vtkSequencePass6RenderEPK14vtkRenderState
+    fun:_ZN13vtkCameraPass6RenderEPK14vtkRenderState
+    fun:_ZN17vtkOpenGLRenderer12DeviceRenderEv
+    fun:_ZN11vtkRenderer6RenderEv
+    fun:_ZN21vtkRendererCollection6RenderEv
+    fun:_ZN15vtkRenderWindow14DoStereoRenderEv
+    fun:_ZN15vtkRenderWindow10DoFDRenderEv
+    fun:_ZN15vtkRenderWindow10DoAARenderEv
+    fun:_ZN15vtkRenderWindow6RenderEv
+    fun:_ZN22vtkXOpenGLRenderWindow6RenderEv
+    fun:_Z17TestShadowMapPassiPPc
+    fun:main
+}
