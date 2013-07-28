@@ -32,11 +32,6 @@ vtkBond::vtkBond(vtkMolecule *parent, vtkIdType id,
 }
 
 //----------------------------------------------------------------------------
-vtkBond::~vtkBond()
-{
-}
-
-//----------------------------------------------------------------------------
 void vtkBond::PrintSelf(ostream &os, vtkIndent indent)
 {
   os << indent << "Molecule: " << this->Molecule
