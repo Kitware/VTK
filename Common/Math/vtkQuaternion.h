@@ -197,10 +197,6 @@ public:
     const vtkQuaternion<T>& q2) const;
 
   // Description:
-  // Performs the copy of a quaternion of the same basic type.
-  void operator=(const vtkQuaternion<T>& q);
-
-  // Description:
   // Performs addition of quaternion of the same basic type.
   vtkQuaternion<T> operator+(const vtkQuaternion<T>& q) const;
 
