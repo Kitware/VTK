@@ -28,11 +28,6 @@ vtkAtom::vtkAtom(vtkMolecule *parent, vtkIdType id)
 }
 
 //----------------------------------------------------------------------------
-vtkAtom::~vtkAtom()
-{
-}
-
-//----------------------------------------------------------------------------
 void vtkAtom::PrintSelf(ostream &os, vtkIndent indent)
 {
   os << indent << "Molecule: " << this->Molecule
