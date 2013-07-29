@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Thanks to Phil Nicoletti and Brian Dotson at the National Energy
-// Technology Laboratory who developed this class.
-// Please address all comments to Brian Dotson (brian.dotson@netl.doe.gov)
+// Thanks to Phil Nicoletti, Terry Jordan and Brian Dotson at the
+// National Energy Technology Laboratory who developed this class.
+// Please address all comments to Terry Jordan (terry.jordan@netl.doe.gov)
 //
 
 #include "vtkMFIXReader.h"
@@ -74,7 +74,6 @@ vtkMFIXReader::vtkMFIXReader()
   this->FileExtension[10] = 'B';
   this->VersionNumber = 0;
 
-  this->CellDataArray = NULL;
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->Points = vtkPoints::New();
   this->Mesh = vtkUnstructuredGrid::New();
@@ -118,10 +117,14 @@ vtkMFIXReader::~vtkMFIXReader()
     delete [] this->FileName;
     }
 
+  if( this->CellDataArray )
+  {
   for (int j = 0; j <= this->VariableNames->GetMaxId(); j++)
     {
     this->CellDataArray[j]->Delete();
     }
+    delete [] this->CellDataArray;
+  }
 
   this->CellDataArraySelection->Delete();
   this->Points->Delete();
@@ -149,12 +152,6 @@ vtkMFIXReader::~vtkMFIXReader()
   this->Maximum->Delete();
   this->VectorLength->Delete();
   this->SPXTimestepIndexTable->Delete();
-
-  if (this->CellDataArray)
-    {
-    delete [] this->CellDataArray;
-    }
-
 }
 
 //----------------------------------------------------------------------------
@@ -1602,6 +1599,7 @@ void vtkMFIXReader::ReadRestartFile()
       this->SkipBytes(in,512);
       }
     }
+  in.close();
 }
 
 //----------------------------------------------------------------------------
@@ -1923,6 +1921,7 @@ void vtkMFIXReader::CreateVariableNames()
       {
       this->SpxFileExists->InsertValue(i, 0);
       }
+    in.close();
     }
 }
 
@@ -2042,7 +2041,7 @@ void vtkMFIXReader::GetTimeSteps()
         case 7:
           {
           numberOfVariables = this->NMax->GetValue(0);
-          for (int m=0; m<this->MMAX; ++m)
+          for (int m=0; m<=this->MMAX; ++m)
             {
             numberOfVariables += this->NMax->GetValue(m);
             }
@@ -2080,6 +2079,7 @@ void vtkMFIXReader::GetTimeSteps()
         cnt++;
         }
       }
+    in.close();
     }
 }
 
@@ -2188,6 +2188,7 @@ void vtkMFIXReader::GetVariableAtTimestep(int vari , int tstep,
 #endif
   in.seekg(nBytesSkip,ios::beg);
   this->GetBlockOfFloats (in, v, this->IJKMaximum2);
+  in.close();
 }
 
 //----------------------------------------------------------------------------
@@ -2402,5 +2403,6 @@ void vtkMFIXReader::GetAllTimes(vtkInformationVector *outputVector)
   timeRange[1] = steps[this->NumberOfTimeSteps - 1];
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
 
+  tfile.close();
   delete [] steps;
 }
