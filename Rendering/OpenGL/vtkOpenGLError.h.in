@@ -199,7 +199,6 @@ void vtkClearOpenGLErrors(){}
 #endif
 
 #if !defined(VTK_REPORT_OPENGL_ERRORS)
-#pragma message "VTK_REPORT_OPENGL_ERRORS=OFF : VTK will ignore runtime OpenGL errors."
 # define vtkOpenGLClearErrorMacro()
 # define vtkOpenGLCheckErrorMacro(message)
 # define vtkOpenGLStaticCheckErrorMacro(message)
