@@ -50,8 +50,8 @@ vtkScalarsToColorsItem::vtkScalarsToColorsItem()
 
   this->MaskAboveCurve = false;
 
-  this->UserBounds[0] = this->UserBounds[1] = this->UserBounds[2] =
-    this->UserBounds[3] = 0.0;
+  this->UserBounds[0] = this->UserBounds[2] = 0.0;
+  this->UserBounds[1] = this->UserBounds[3] = -1.0;
 }
 
 //-----------------------------------------------------------------------------

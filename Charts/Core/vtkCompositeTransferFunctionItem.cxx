@@ -43,6 +43,7 @@ vtkCompositeTransferFunctionItem::~vtkCompositeTransferFunctionItem()
 {
   if (this->OpacityFunction)
     {
+    this->OpacityFunction->RemoveObserver(this->Callback);
     this->OpacityFunction->Delete();
     this->OpacityFunction = 0;
     }

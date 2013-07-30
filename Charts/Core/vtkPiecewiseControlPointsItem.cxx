@@ -45,6 +45,7 @@ vtkPiecewiseControlPointsItem::~vtkPiecewiseControlPointsItem()
 {
   if (this->PiecewiseFunction)
     {
+    this->PiecewiseFunction->RemoveObserver(this->Callback);
     this->PiecewiseFunction->Delete();
     this->PiecewiseFunction = 0;
     }
@@ -130,6 +131,7 @@ void vtkPiecewiseControlPointsItem::SetControlPoint(vtkIdType index, double* new
       newPos[2] != oldPos[2])
     {
     this->PiecewiseFunction->SetNodeValue(index, newPos);
+    this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
     }
 }
 
@@ -151,6 +153,7 @@ void vtkPiecewiseControlPointsItem::EditPoint(float tX, float tY)
     xvms[2] += tX;
     xvms[3] += tY;
     this->PiecewiseFunction->SetNodeValue(this->CurrentPoint - 1, xvms);
+    this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
     }
 }
 
@@ -163,6 +166,7 @@ vtkIdType vtkPiecewiseControlPointsItem::AddPoint(double* newPos)
     }
   vtkIdType addedPoint = this->PiecewiseFunction->AddPoint(newPos[0], newPos[1]);
   this->Superclass::AddPointId(addedPoint);
+  this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
   return addedPoint;
 }
 
@@ -173,6 +177,10 @@ vtkIdType vtkPiecewiseControlPointsItem::RemovePoint(double* currentPoint)
     {
     return -1;
     }
+  if (!this->IsPointRemovable(this->GetControlPointId(currentPoint)))
+    {
+    return -1;
+    }
 #ifndef NDEBUG
   vtkIdType expectedPoint =
 #endif
@@ -180,5 +188,6 @@ vtkIdType vtkPiecewiseControlPointsItem::RemovePoint(double* currentPoint)
   vtkIdType removedPoint =
     this->PiecewiseFunction->RemovePoint(currentPoint[0]);
   assert(removedPoint == expectedPoint);
+  this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
   return removedPoint;
 }

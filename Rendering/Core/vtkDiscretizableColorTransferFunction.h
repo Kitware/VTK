@@ -16,23 +16,26 @@
 // vtkLookupTable.
 // .SECTION Description
 // This is a cross between a vtkColorTransferFunction and a vtkLookupTable
-// selectively combiniting the functionality of both.
+// selectively combining the functionality of both. This class is a
+// vtkColorTransferFunction allowing users to specify the RGB control points
+// that control the color transfer function. At the same time, by setting
+// \a Discretize to 1 (true), one can force the transfer function to only have
+// \a NumberOfValues discrete colors.
+//
+// When \a IndexedLookup is true, this class behaves differently. The annotated
+// valyes are considered to the be only valid values for which entries in the
+// color table should be returned. The colors for annotated values are those
+// specified using \a AddIndexedColors. Typically, there must be atleast as many
+// indexed colors specified as the annotations. For backwards compatibility, if
+// no indexed-colors are specified, the colors in the lookup \a Table are assigned
+// to annotated values by taking the modulus of their index in the list
+// of annotations. If a scalar value is not present in \a AnnotatedValues,
+// then \a NanColor will be used.
+//
 // NOTE: One must call Build() after making any changes to the points
 // in the ColorTransferFunction to ensure that the discrete and non-discrete
-// version match up.
-//
-// This class behaves differently depending on how \a IndexedLookup is set.
-// When true, vtkLookupTable enters a mode for representing categorical color maps.
-// By setting \a IndexedLookup to true, you indicate that the annotated
-// values are the only valid values for which entries in the color table
-// should be returned. The colors in the lookup \a Table are assigned
-// to annotated values by taking the modulus of their index in the list
-// of annotations. \a IndexedLookup changes the behavior of \a GetIndex,
-// which in turn changes the way \a MapScalars behaves;
-// when \a IndexedLookup is true, \a MapScalars will search for
-// scalar values in \a AnnotatedValues and use the resulting index to
-// determine the color. If a scalar value is not present in \a AnnotatedValues,
-// then \a NanColor will be used.
+// versions match up.
+
 
 #ifndef __vtkDiscretizableColorTransferFunction_h
 #define __vtkDiscretizableColorTransferFunction_h
@@ -53,6 +56,36 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   int IsOpaque();
+
+  // Description:
+  // Add colors to use when \a IndexedLookup is true.
+  // \a SetIndexedColor() will automatically call
+  // SetNumberOfIndexedColors(index+1) if the current number of indexed colors
+  // is not sufficient for the specified index and all will be initialized to
+  // with the rgb values passed to this call.
+  void SetIndexedColor(unsigned int index, const double rgb[3])
+    { this->SetIndexedColor(index, rgb[0], rgb[1], rgb[2]); }
+  void SetIndexedColor(unsigned int index, double r, double g, double b);
+
+  /** Get the "indexed color" assigned to an index.
+   *
+   * The index is used in \a IndexedLookup mode to assign colors to annotations (in the order
+   * the annotations were set).
+   * Subclasses must implement this and interpret how to treat the index.
+   * vtkLookupTable simply returns GetTableValue(\a index % \a this->GetNumberOfTableValues()).
+   * vtkColorTransferFunction returns the color assocated with node \a index % \a this->GetSize().
+   *
+   * Note that implementations *must* set the opacity (alpha) component of the color, even if they
+   * do not provide opacity values in their colormaps. In that case, alpha = 1 should be used.
+   */
+  virtual void GetIndexedColor(vtkIdType i, double rgba[4]);
+
+  // Description:
+  // Set the number of indexed colors. These are used when IndexedLookup is
+  // true. If no indexed colors are specified, for backwards compatibility,
+  // this class reverts to using the RGBPoints for colors.
+  void SetNumberOfIndexedColors(unsigned int count);
+  unsigned int GetNumberOfIndexedColors();
 
   // Description:
   // Generate discretized lookup table, if applicable.
@@ -80,7 +113,7 @@ public:
   // Set the number of values i.e. colors to be generated in the
   // discrete lookup table. This has no effect if Discretize is off.
   // The default is 256.
-  void SetNumberOfValues(vtkIdType number);
+  vtkSetMacro(NumberOfValues, vtkIdType);
   vtkGetMacro(NumberOfValues, vtkIdType);
 
   // Description:
@@ -158,13 +191,13 @@ public:
   vtkGetMacro(EnableOpacityMapping, bool)
   vtkBooleanMacro(EnableOpacityMapping, bool)
 
+  // Description:
+  // Overridden to include the ScalarOpacityFunction's MTime.
+  virtual unsigned long GetMTime();
+
 protected:
   vtkDiscretizableColorTransferFunction();
   ~vtkDiscretizableColorTransferFunction();
-
-  // Description:
-  // Called when ScalarOpacityFunction is modified.
-  void ScalarOpacityFunctionModified();
 
   int Discretize;
   int UseLogScale;
@@ -184,7 +217,9 @@ private:
 
   // Pointer used by GetRGBPoints().
   double* Data;
+
+  class vtkInternals;
+  vtkInternals* Internals;
 };
 
 #endif
-

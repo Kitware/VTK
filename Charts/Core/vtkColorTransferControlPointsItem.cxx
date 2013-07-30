@@ -46,6 +46,7 @@ vtkColorTransferControlPointsItem::~vtkColorTransferControlPointsItem()
 {
   if (this->ColorTransferFunction)
     {
+    this->ColorTransferFunction->RemoveObserver(this->Callback);
     this->ColorTransferFunction->Delete();
     this->ColorTransferFunction = 0;
     }
@@ -134,7 +135,8 @@ void vtkColorTransferControlPointsItem::GetControlPoint(vtkIdType index, double*
   double xrgbms[6];
   vtkColorTransferFunction* thisTF = const_cast<vtkColorTransferFunction*>(
     this->ColorTransferFunction);
-  if(thisTF)
+
+  if (thisTF)
     {
     thisTF->GetNodeValue(index, xrgbms);
     pos[0] = xrgbms[0];
@@ -157,6 +159,7 @@ void vtkColorTransferControlPointsItem::SetControlPoint(vtkIdType index, double*
     xrgbms[4] = newPos[2];
     xrgbms[5] = newPos[3];
     this->ColorTransferFunction->SetNodeValue(index, xrgbms);
+    this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
     }
 }
 
@@ -178,6 +181,7 @@ void vtkColorTransferControlPointsItem::EditPoint(float tX, float tY)
     xrgbms[4] += tX;
     xrgbms[5] += tY;
     this->ColorTransferFunction->SetNodeValue(this->CurrentPoint - 1, xrgbms);
+    this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
     }
 }
 
@@ -188,11 +192,14 @@ vtkIdType vtkColorTransferControlPointsItem::AddPoint(double* newPos)
     {
     return -1;
     }
+
+  double posX = newPos[0];
   double rgb[3] = {0., 0., 0.};
-  this->ColorTransferFunction->GetColor(newPos[0], rgb);
+  this->ColorTransferFunction->GetColor(posX, rgb);
   vtkIdType addedPoint =
-    this->ColorTransferFunction->AddRGBPoint(newPos[0], rgb[0], rgb[1], rgb[2]);
+    this->ColorTransferFunction->AddRGBPoint(posX, rgb[0], rgb[1], rgb[2]);
   this->vtkControlPointsItem::AddPointId(addedPoint);
+  this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
   return addedPoint;
 }
 
@@ -211,5 +218,30 @@ vtkIdType vtkColorTransferControlPointsItem::RemovePoint(double* currentPoint)
   vtkIdType removedPoint =
     this->ColorTransferFunction->RemovePoint(currentPoint[0]);
   assert(removedPoint == expectedPoint);
+  this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
   return removedPoint;
+}
+
+//-----------------------------------------------------------------------------
+void vtkColorTransferControlPointsItem::ComputeBounds(double* bounds)
+{
+  if (this->ColorTransferFunction)
+    {
+    const double* range = this->ColorTransferFunction->GetRange();
+    bounds[0] = range[0];
+    bounds[1] = range[1];
+    bounds[2] = 0.5;
+    bounds[3] = 0.5;
+    }
+  else
+    {
+    this->Superclass::ComputeBounds(bounds);
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkColorTransferControlPointsItem::UsingLogScale()
+{
+  return (this->ColorTransferFunction?
+    (this->ColorTransferFunction->UsingLogScale() != 0) : false);
 }

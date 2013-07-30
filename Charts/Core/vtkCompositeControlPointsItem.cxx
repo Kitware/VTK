@@ -51,6 +51,7 @@ vtkCompositeControlPointsItem::~vtkCompositeControlPointsItem()
 {
   if (this->OpacityFunction)
     {
+    this->OpacityFunction->RemoveObserver(this->Callback);
     this->OpacityFunction->Delete();
     this->OpacityFunction = 0;
     }
@@ -151,6 +152,14 @@ void vtkCompositeControlPointsItem::SetColorTransferFunction(vtkColorTransferFun
     this->SilentMergeTransferFunctions();
     }
   this->Superclass::SetColorTransferFunction(c);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkCompositeControlPointsItem::UsingLogScale()
+{
+  return (this->PointsFunction != OpacityPointsFunction &&
+    this->ColorTransferFunction &&
+    this->ColorTransferFunction->UsingLogScale());
 }
 
 //-----------------------------------------------------------------------------

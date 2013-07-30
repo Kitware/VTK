@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
@@ -25,6 +24,7 @@
 #include "vtkPoints2D.h"
 
 #include <cassert>
+#include <math.h>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkColorTransferFunctionItem);
@@ -40,6 +40,7 @@ vtkColorTransferFunctionItem::~vtkColorTransferFunctionItem()
 {
   if (this->ColorTransferFunction)
     {
+    this->ColorTransferFunction->RemoveObserver(this->Callback);
     this->ColorTransferFunction->Delete();
     this->ColorTransferFunction = 0;
     }
@@ -115,10 +116,22 @@ void vtkColorTransferFunctionItem::ComputeTexture()
                            0, 0,
                            0, 0);
   this->Texture->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-
+  bool isLogTable = this->UsingLogScale();
+  double logBoundsMin = bounds[0] > 0.0 ? log10(bounds[0]) : 0.0;
+  double logBoundsDelta = (bounds[0] > 0.0 && bounds[1] > 0.0)?
+    (log10(bounds[1])-log10(bounds[0])) : 0.0;
   for (int i = 0; i < dimension; ++i)
     {
-    values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
+    if (isLogTable)
+      {
+      double normVal = i/(dimension-1.0);
+      double lval = logBoundsMin + normVal*logBoundsDelta;
+      values[i] = pow(10.0, lval);
+      }
+    else
+      {
+      values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
+      }
     }
   unsigned char* ptr =
     reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
@@ -134,4 +147,11 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     }
   delete [] values;
   return;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkColorTransferFunctionItem::UsingLogScale()
+{
+  return this->ColorTransferFunction?
+    (this->ColorTransferFunction->UsingLogScale() != 0) : false;
 }

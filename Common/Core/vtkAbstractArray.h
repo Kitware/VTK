@@ -435,9 +435,16 @@ public:
   // relative frequency a value is allowed to have and still appear on the list.
   static vtkInformationDoubleVectorKey* DISCRETE_VALUE_SAMPLE_PARAMETERS();
 
+  // Deprecated.  Use vtkAbstractArray::MaxDiscreteValues instead.
   enum {
     MAX_DISCRETE_VALUES = 32
   };
+
+  // Description:
+  // Get/Set the maximum number of prominent values this array may contain
+  // before it is considered continuous.  Default value is 32.
+  vtkGetMacro(MaxDiscreteValues, unsigned int);
+  vtkSetMacro(MaxDiscreteValues, unsigned int);
 
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
@@ -465,6 +472,9 @@ protected:
   vtkIdType Size;         // allocated size of data
   vtkIdType MaxId;        // maximum index inserted thus far
   int NumberOfComponents; // the number of components per tuple
+
+  // maximum number of prominent values before array is considered continuous.
+  unsigned int MaxDiscreteValues;
 
   char* Name;
 
