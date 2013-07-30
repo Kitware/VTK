@@ -47,19 +47,13 @@ vtkSimpleScalarTree::vtkSimpleScalarTree()
 
 vtkSimpleScalarTree::~vtkSimpleScalarTree()
 {
-  if ( this->Tree )
-    {
-    delete [] this->Tree;
-    }
+  delete [] this->Tree;
 }
 
 // Initialize locator. Frees memory and resets object as appropriate.
 void vtkSimpleScalarTree::Initialize()
 {
-  if ( this->Tree )
-    {
-    delete [] this->Tree;
-    }
+  delete [] this->Tree;
   this->Tree = NULL;
 }
 

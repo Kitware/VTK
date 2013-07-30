@@ -107,10 +107,7 @@ vtkVariantArray::~vtkVariantArray()
     {
     delete [] this->Array;
     }
-  if (this->Lookup)
-    {
-    delete this->Lookup;
-    }
+  delete this->Lookup;
 }
 
 //

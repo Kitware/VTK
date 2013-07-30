@@ -81,11 +81,8 @@ vtkFunctionParser::~vtkFunctionParser()
     this->VectorVariableNames = NULL;
     }
 
-  if (this->ScalarVariableValues)
-    {
-    delete [] this->ScalarVariableValues;
-    this->ScalarVariableValues = NULL;
-    }
+  delete [] this->ScalarVariableValues;
+  this->ScalarVariableValues = NULL;
 
   if (this->VectorVariableValues)
     {
@@ -98,35 +95,20 @@ vtkFunctionParser::~vtkFunctionParser()
     this->VectorVariableValues = NULL;
     }
 
-  if (this->Function)
-    {
-    delete [] this->Function;
-    this->Function = NULL;
-    }
+  delete [] this->Function;
+  this->Function = NULL;
 
-  if (this->FunctionWithSpaces)
-    {
-    delete [] this->FunctionWithSpaces;
-    this->FunctionWithSpaces = NULL;
-    }
+  delete [] this->FunctionWithSpaces;
+  this->FunctionWithSpaces = NULL;
 
-  if (this->ByteCode)
-    {
-    delete [] this->ByteCode;
-    this->ByteCode = NULL;
-    }
+  delete [] this->ByteCode;
+  this->ByteCode = NULL;
 
-  if (this->Immediates)
-    {
-    delete [] this->Immediates;
-    this->Immediates = NULL;
-    }
+  delete [] this->Immediates;
+  this->Immediates = NULL;
 
-  if (this->Stack)
-    {
-    delete [] this->Stack;
-    this->Stack = NULL;
-    }
+  delete [] this->Stack;
+  this->Stack = NULL;
 
   if(this->ParseError)
     {
@@ -1135,16 +1117,11 @@ void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName,
     this->ScalarVariableNames[i] = NULL;
     }
 
-  if (this->ScalarVariableValues)
-    {
-    delete [] this->ScalarVariableValues;
-    this->ScalarVariableValues = NULL;
-    }
-  if (this->ScalarVariableNames)
-    {
-    delete [] this->ScalarVariableNames;
-    this->ScalarVariableNames = NULL;
-    }
+  delete [] this->ScalarVariableValues;
+  this->ScalarVariableValues = NULL;
+
+  delete [] this->ScalarVariableNames;
+  this->ScalarVariableNames = NULL;
 
   this->ScalarVariableValues = new double [this->NumberOfScalarVariables + 1];
   this->ScalarVariableNames = new char *[this->NumberOfScalarVariables + 1];
@@ -1263,16 +1240,11 @@ void vtkFunctionParser::SetVectorVariableValue(const char* inVariableName,
     this->VectorVariableValues[i] = NULL;
     }
 
-  if (this->VectorVariableValues)
-    {
-    delete [] this->VectorVariableValues;
-    this->VectorVariableValues = NULL;
-    }
-  if (this->VectorVariableNames)
-    {
-    delete [] this->VectorVariableNames;
-    this->VectorVariableNames = NULL;
-    }
+  delete [] this->VectorVariableValues;
+  this->VectorVariableValues = NULL;
+
+  delete [] this->VectorVariableNames;
+  this->VectorVariableNames = NULL;
 
   this->VectorVariableValues = new double *[this->NumberOfVectorVariables + 1];
   this->VectorVariableNames = new char *[this->NumberOfVectorVariables + 1];
@@ -1504,21 +1476,14 @@ void vtkFunctionParser::CopyParseError(int &position, char **error)
 //-----------------------------------------------------------------------------
 int vtkFunctionParser::BuildInternalFunctionStructure()
 {
-  if (this->ByteCode)
-    {
-    delete [] this->ByteCode;
-    this->ByteCode = NULL;
-    }
-  if (this->Immediates)
-    {
-    delete [] this->Immediates;
-    this->Immediates = NULL;
-    }
-  if (this->Stack)
-    {
-    delete [] this->Stack;
-    this->Stack = NULL;
-    }
+  delete [] this->ByteCode;
+  this->ByteCode = NULL;
+
+  delete [] this->Immediates;
+  this->Immediates = NULL;
+
+  delete [] this->Stack;
+  this->Stack = NULL;
 
   this->ByteCodeSize = this->ImmediatesSize = this->StackSize = 0;
   this->StackPointer = 0;
@@ -1718,10 +1683,7 @@ void vtkFunctionParser::AddInternalByte(unsigned char newByte)
     { // Copy current byte code to a temporary array
     tempByteCode[i] = this->ByteCode[i];
     }
-  if (this->ByteCode)
-    {
-    delete [] this->ByteCode;
-    }
+  delete [] this->ByteCode;
 
   // Allocate space for new byte.
   this->ByteCode = new unsigned char[this->ByteCodeSize + 1];
@@ -2124,10 +2086,7 @@ unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
       { // Copy current immediates to a temporary array
       tempImmediates[i] = this->Immediates[i];
       }
-    if (this->Immediates)
-      {
-      delete [] this->Immediates;
-      }
+    delete [] this->Immediates;
 
     // Allocate space for new immediate value.
     this->Immediates = new double[this->ImmediatesSize + 1];

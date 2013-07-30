@@ -105,10 +105,7 @@ void vtkKochanekSpline::Compute ()
   if ( !this->Closed )
     {
     // copy the independent variables
-    if (this->Intervals)
-      {
-      delete [] this->Intervals;
-      }
+    delete [] this->Intervals;
     this->Intervals = new double[size];
     ts = this->PiecewiseFunction->GetDataPointer ();
     for (i = 0; i < size; i++)
@@ -117,10 +114,7 @@ void vtkKochanekSpline::Compute ()
       }
 
     // allocate memory for coefficients
-    if (this->Coefficients)
-      {
-      delete [] this->Coefficients;
-      }
+    delete [] this->Coefficients;
     this->Coefficients = new double [4*size];
 
     // allocate memory for dependent variables
@@ -140,10 +134,7 @@ void vtkKochanekSpline::Compute ()
     {
     size = size + 1;
     // copy the independent variables
-    if (this->Intervals)
-      {
-      delete [] this->Intervals;
-      }
+    delete [] this->Intervals;
     this->Intervals = new double[size];
     ts = this->PiecewiseFunction->GetDataPointer ();
     for (i = 0; i < size-1; i++)
@@ -160,10 +151,7 @@ void vtkKochanekSpline::Compute ()
       }
 
     // allocate memory for coefficients
-    if (this->Coefficients)
-      {
-      delete [] this->Coefficients;
-      }
+    delete [] this->Coefficients;
     this->Coefficients = new double [4 * size];
 
     // allocate memory for dependent variables

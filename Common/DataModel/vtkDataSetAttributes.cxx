@@ -2070,11 +2070,8 @@ void vtkDataSetAttributes::FieldList::SetField(
         vtkAbstractArray *aa)
 {
   // Store the field name
-  if ( this->Fields[index] )
-    {
-    delete [] this->Fields[index];
-    this->Fields[index] = 0;
-    }
+  delete [] this->Fields[index];
+  this->Fields[index] = 0;
   const char* name=aa->GetName();
   if (name)
     {

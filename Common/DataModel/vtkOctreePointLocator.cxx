@@ -159,21 +159,15 @@ void vtkOctreePointLocator::DeleteAllDescendants(
 vtkOctreePointLocator::~vtkOctreePointLocator()
 {
   this->FreeSearchStructure();
-  if(this->LocatorPoints != NULL)
-    {
-    delete []this->LocatorPoints;
-    this->LocatorPoints = 0;
-    }
-  if(this->LocatorIds != NULL)
-    {
-    delete []this->LocatorIds;
-    this->LocatorIds = 0;
-    }
-  if(this->LeafNodeList != NULL)
-    {
-    delete []this->LeafNodeList;
-    this->LeafNodeList = 0;
-    }
+
+  delete []this->LocatorPoints;
+  this->LocatorPoints = 0;
+
+  delete []this->LocatorIds;
+  this->LocatorIds = 0;
+
+  delete []this->LeafNodeList;
+  this->LeafNodeList = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -1029,25 +1023,16 @@ void vtkOctreePointLocator::FreeSearchStructure()
     this->Top->Delete();
     this->Top = NULL;
     }
-  if (this->LeafNodeList)
-    {
-    delete [] this->LeafNodeList;
-    this->LeafNodeList = NULL;
-    }
+  delete [] this->LeafNodeList;
+  this->LeafNodeList = NULL;
 
   this->NumberOfLeafNodes = 0;
 
-  if (this->LocatorPoints)
-    {
-    delete [] this->LocatorPoints;
-    this->LocatorPoints = NULL;
-    }
+  delete [] this->LocatorPoints;
+  this->LocatorPoints = NULL;
 
-  if (this->LocatorIds)
-    {
-    delete [] this->LocatorIds;
-    this->LocatorIds = NULL;
-    }
+  delete [] this->LocatorIds;
+  this->LocatorIds = NULL;
 }
 
 //----------------------------------------------------------------------------

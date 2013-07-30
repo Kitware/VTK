@@ -108,16 +108,10 @@ void vtkTableExtentTranslator::SetNumberOfPiecesInTable(int pieces)
   this->NumberOfPiecesInTable = pieces;
 
   // Clean out any old extent table.
-  if(this->ExtentTable)
-    {
-    delete [] this->ExtentTable;
-    this->ExtentTable = 0;
-    }
-  if(this->PieceAvailable)
-    {
-    delete [] this->PieceAvailable;
-    this->PieceAvailable = 0;
-    }
+  delete [] this->ExtentTable;
+  this->ExtentTable = 0;
+  delete [] this->PieceAvailable;
+  this->PieceAvailable = 0;
 
   // Create and initialize a new extent table if there are any pieces.
   // Assume all pieces are available.

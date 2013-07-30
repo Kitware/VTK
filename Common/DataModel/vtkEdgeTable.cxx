@@ -529,10 +529,7 @@ vtkIdList **vtkEdgeTable::Resize(vtkIdType sz)
       {
       newAttributeArray[i] = NULL;
       }
-    if ( this->Attributes )
-      {
-      delete [] this->Attributes;
-      }
+    delete [] this->Attributes;
     this->Attributes = newAttributeArray;
     }
   else if ( this->StoreAttributes == 2 )

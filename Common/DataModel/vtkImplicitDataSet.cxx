@@ -43,10 +43,7 @@ vtkImplicitDataSet::vtkImplicitDataSet()
 vtkImplicitDataSet::~vtkImplicitDataSet()
 {
   this->SetDataSet(NULL);
-  if ( this->Weights )
-    {
-    delete [] this->Weights;
-    }
+  delete [] this->Weights;
 }
 
 // Evaluate the implicit function. This returns the interpolated scalar value
@@ -61,10 +58,7 @@ double vtkImplicitDataSet::EvaluateFunction(double x[3])
 
   if ( this->DataSet->GetMaxCellSize() > this->Size )
     {
-    if ( this->Weights )
-      {
-      delete [] this->Weights;
-      }
+    delete [] this->Weights;
     this->Weights = new double[this->DataSet->GetMaxCellSize()];
     this->Size = this->DataSet->GetMaxCellSize();
     }
@@ -122,10 +116,7 @@ void vtkImplicitDataSet::EvaluateGradient(double x[3], double n[3])
 
   if ( this->DataSet->GetMaxCellSize() > this->Size )
     {
-    if ( this->Weights )
-      {
-      delete [] this->Weights;
-      }
+    delete [] this->Weights;
     this->Weights = new double[this->DataSet->GetMaxCellSize()];
     this->Size = this->DataSet->GetMaxCellSize();
     }

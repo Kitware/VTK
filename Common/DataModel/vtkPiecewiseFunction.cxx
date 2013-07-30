@@ -111,10 +111,7 @@ vtkPiecewiseFunction::vtkPiecewiseFunction()
 // Destruct a vtkPiecewiseFunction
 vtkPiecewiseFunction::~vtkPiecewiseFunction()
 {
-  if( this->Function )
-    {
-    delete [] this->Function;
-    }
+  delete [] this->Function;
 
   for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
     {
@@ -269,11 +266,8 @@ double *vtkPiecewiseFunction::GetDataPointer()
 {
   int size = static_cast<int>(this->Internal->Nodes.size());
 
-  if ( this->Function )
-    {
-    delete [] this->Function;
-    this->Function = NULL;
-    }
+  delete [] this->Function;
+  this->Function = NULL;
 
   if ( size > 0 )
     {

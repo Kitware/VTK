@@ -58,11 +58,8 @@ bool vtkAbstractCellLocator::StoreCellBounds()
 //----------------------------------------------------------------------------
 void vtkAbstractCellLocator::FreeCellBounds()
 {
-  if (this->CellBounds)
-    {
-    delete [] this->CellBounds;
-    this->CellBounds = NULL;
-    }
+  delete [] this->CellBounds;
+  this->CellBounds = NULL;
 }
 //----------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(
