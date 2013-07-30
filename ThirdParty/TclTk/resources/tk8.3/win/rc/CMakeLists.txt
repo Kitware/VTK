@@ -6,7 +6,7 @@ IF(VTK_USE_TK AND VTK_TCL_TK_STATIC)
       FILE(GLOB tkResourceFiles "*.bmp" "*.cur" "*.ico" "*.manifest" "*.rc")
       INSTALL(FILES
         ${tkResourceFiles}
-        DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/TclTk/resources/tk8.3/win/rc
+        DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/TclTk/resources/tk8.3/win/rc
         COMPONENT Development
         )
     ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
