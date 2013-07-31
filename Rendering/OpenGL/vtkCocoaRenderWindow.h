@@ -314,6 +314,9 @@ protected:
   void SetCocoaManager(void *manager);
   void *GetCocoaManager();
 
+  void SetCocoaServer(void *server);            // Really a vtkCocoaServer*
+  void *GetCocoaServer();
+
 private:
   vtkCocoaRenderWindow(const vtkCocoaRenderWindow&);  // Not implemented.
   void operator=(const vtkCocoaRenderWindow&);  // Not implemented.

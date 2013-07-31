@@ -46,12 +46,12 @@
   class vtkCocoaRenderWindowInteractor;
 
   // Type declarations
-  typedef vtkCocoaRenderWindow* vtkCocoaRenderWindowRef;
-  typedef vtkCocoaRenderWindowInteractor* vtkCocoaRenderWindowInteractorRef;
+  typedef vtkCocoaRenderWindow *vtkCocoaRenderWindowRef;
+  typedef vtkCocoaRenderWindowInteractor *vtkCocoaRenderWindowInteractorRef;
 #else
   // Type declarations
-  typedef void* vtkCocoaRenderWindowRef;
-  typedef void* vtkCocoaRenderWindowInteractorRef;
+  typedef void *vtkCocoaRenderWindowRef;
+  typedef void *vtkCocoaRenderWindowInteractorRef;
 #endif
 
 @interface vtkCocoaGLView : NSView
