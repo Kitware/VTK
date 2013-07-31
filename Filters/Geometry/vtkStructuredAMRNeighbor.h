@@ -68,10 +68,6 @@ public:
      const int relationShip);
 
   // Description:
-  // Destructor.
-  virtual ~vtkStructuredAMRNeighbor();
-
-  // Description:
   // Overload assignment operator.
   vtkStructuredAMRNeighbor& operator=(const vtkStructuredAMRNeighbor &N);
 
