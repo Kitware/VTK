@@ -174,7 +174,7 @@ int vtkTreeReader::RequestData(
       continue;
       }
 
-    if(!strncmp(this->LowerCase(line), "edges", 4))
+    if(!strncmp(this->LowerCase(line), "edges", 5))
       {
       int edge_count = 0;
       if(!this->Read(&edge_count))
