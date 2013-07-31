@@ -41,14 +41,8 @@ vtkSpline::vtkSpline ()
 vtkSpline::~vtkSpline ()
 {
   this->PiecewiseFunction->Delete();
-  if (this->Coefficients)
-    {
-    delete [] this->Coefficients;
-    }
-  if (this->Intervals)
-    {
-    delete [] this->Intervals;
-    }
+  delete [] this->Coefficients;
+  delete [] this->Intervals;
 }
 
 //----------------------------------------------------------------------------

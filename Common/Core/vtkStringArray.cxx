@@ -94,10 +94,7 @@ vtkStringArray::~vtkStringArray()
     {
     delete [] this->Array;
     }
-  if (this->Lookup)
-    {
-    delete this->Lookup;
-    }
+  delete this->Lookup;
 }
 
 //-----------------------------------------------------------------------------

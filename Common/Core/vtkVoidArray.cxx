@@ -27,10 +27,7 @@ vtkVoidArray::vtkVoidArray()
 
 vtkVoidArray::~vtkVoidArray()
 {
-  if (this->Array)
-    {
-    delete [] this->Array;
-    }
+  delete [] this->Array;
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
@@ -55,11 +52,8 @@ int vtkVoidArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 // Release storage and reset array to initial state.
 void vtkVoidArray::Initialize()
 {
-  if ( this->Array != NULL )
-    {
-    delete [] this->Array;
-    this->Array = NULL;
-    }
+  delete [] this->Array;
+  this->Array = NULL;
   this->Size = 0;
   this->NumberOfPointers = 0;
 }

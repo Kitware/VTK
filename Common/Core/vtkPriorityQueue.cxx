@@ -38,10 +38,7 @@ void vtkPriorityQueue::Allocate(const vtkIdType sz, const vtkIdType ext)
     }
 
   this->Size = ( sz > 0 ? sz : 1);
-  if ( this->Array != NULL )
-    {
-    delete [] this->Array;
-    }
+  delete [] this->Array;
   this->Array = new vtkPriorityQueue::Item[sz];
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
@@ -51,10 +48,7 @@ void vtkPriorityQueue::Allocate(const vtkIdType sz, const vtkIdType ext)
 vtkPriorityQueue::~vtkPriorityQueue()
 {
   this->ItemLocation->Delete();
-  if ( this->Array )
-    {
-    delete [] this->Array;
-    }
+  delete [] this->Array;
 }
 
 // Insert id with priority specified.
