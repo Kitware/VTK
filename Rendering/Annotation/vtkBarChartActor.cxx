@@ -135,11 +135,8 @@ vtkBarChartActor::~vtkBarChartActor()
     this->Input = NULL;
     }
 
-  if (this->Title)
-    {
-    delete [] this->Title;
-    this->Title = NULL;
-    }
+  delete [] this->Title;
+  this->Title = NULL;
 
   delete this->Labels;
   this->SetLabelTextProperty(NULL);
@@ -156,10 +153,7 @@ vtkBarChartActor::~vtkBarChartActor()
   this->TitleActor = NULL;
 
   this->YAxis->Delete();
-  if ( this->YTitle )
-    {
-    delete [] this->YTitle;
-    }
+  delete [] this->YTitle;
 
   this->PlotData->Delete();
   this->PlotMapper->Delete();
@@ -184,11 +178,8 @@ void vtkBarChartActor::Initialize()
     }
 
   this->N = 0;
-  if ( this->Heights )
-    {
-    delete [] this->Heights;
-    this->Heights = NULL;
-    }
+  delete [] this->Heights;
+  this->Heights = NULL;
 }
 
 //----------------------------------------------------------------------------

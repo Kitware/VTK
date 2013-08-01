@@ -115,20 +115,14 @@ vtkAxisActor2D::vtkAxisActor2D()
 //----------------------------------------------------------------------------
 vtkAxisActor2D::~vtkAxisActor2D()
 {
-  if (this->LabelFormat)
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  delete [] this->LabelFormat;
+  this->LabelFormat = NULL;
 
   this->TitleMapper->Delete();
   this->TitleActor->Delete();
 
-  if (this->Title)
-    {
-    delete [] this->Title;
-    this->Title = NULL;
-    }
+  delete [] this->Title;
+  this->Title = NULL;
 
   if (this->LabelMappers != NULL )
     {

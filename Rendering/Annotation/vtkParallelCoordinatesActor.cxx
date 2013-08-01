@@ -118,17 +118,11 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
   this->PlotMapper->Delete();
   this->PlotActor->Delete();
 
-  if (this->Title)
-    {
-    delete [] this->Title;
-    this->Title = NULL;
-    }
+  delete [] this->Title;
+  this->Title = NULL;
 
-  if (this->LabelFormat)
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  delete [] this->LabelFormat;
+  this->LabelFormat = NULL;
 
   this->SetLabelTextProperty(NULL);
   this->SetTitleTextProperty(NULL);

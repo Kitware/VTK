@@ -481,71 +481,41 @@ vtkCubeAxesActor::~vtkCubeAxesActor()
     this->LabelTextProperty[i] = NULL;
     }
 
-  if (this->XLabelFormat)
-    {
-    delete [] this->XLabelFormat;
-    this->XLabelFormat = NULL;
-    }
+  delete [] this->XLabelFormat;
+  this->XLabelFormat = NULL;
 
-  if (this->YLabelFormat)
-    {
-    delete [] this->YLabelFormat;
-    this->YLabelFormat = NULL;
-    }
+  delete [] this->YLabelFormat;
+  this->YLabelFormat = NULL;
 
-  if (this->ZLabelFormat)
-    {
-    delete [] this->ZLabelFormat;
-    this->ZLabelFormat = NULL;
-    }
+  delete [] this->ZLabelFormat;
+  this->ZLabelFormat = NULL;
 
-  if (this->XTitle)
-    {
-    delete [] this->XTitle;
-    this->XTitle = NULL;
-    }
-  if (this->YTitle)
-    {
-    delete [] this->YTitle;
-    this->YTitle = NULL;
-    }
-  if (this->ZTitle)
-    {
-    delete [] this->ZTitle;
-    this->ZTitle = NULL;
-    }
+  delete [] this->XTitle;
+  this->XTitle = NULL;
 
-  if (this->XUnits)
-    {
-    delete [] this->XUnits;
-    this->XUnits = NULL;
-    }
-  if (this->YUnits)
-    {
-    delete [] this->YUnits;
-    this->YUnits = NULL;
-    }
-  if (this->ZUnits)
-    {
-    delete [] this->ZUnits;
-    this->ZUnits = NULL;
-    }
+  delete [] this->YTitle;
+  this->YTitle = NULL;
 
-  if (this->ActualXLabel)
-    {
-    delete [] this->ActualXLabel;
-    this->ActualXLabel = NULL;
-    }
-  if (this->ActualYLabel)
-    {
-    delete [] this->ActualYLabel;
-    this->ActualYLabel = NULL;
-    }
-  if (this->ActualZLabel)
-    {
-    delete [] this->ActualZLabel;
-    this->ActualZLabel = NULL;
-    }
+  delete [] this->ZTitle;
+  this->ZTitle = NULL;
+
+  delete [] this->XUnits;
+  this->XUnits = NULL;
+
+  delete [] this->YUnits;
+  this->YUnits = NULL;
+
+  delete [] this->ZUnits;
+  this->ZUnits = NULL;
+
+  delete [] this->ActualXLabel;
+  this->ActualXLabel = NULL;
+
+  delete [] this->ActualYLabel;
+  this->ActualYLabel = NULL;
+
+  delete [] this->ActualZLabel;
+  this->ActualZLabel = NULL;
 }
 
 // *************************************************************************

@@ -156,24 +156,12 @@ vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
   this->YAxis->Delete();
   this->ZAxis->Delete();
 
-  if (this->LabelFormat)
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  delete [] this->LabelFormat;
+  this->LabelFormat = NULL;
 
-  if ( this->XLabel )
-    {
-    delete [] this->XLabel;
-    }
-  if ( this->YLabel )
-    {
-    delete [] this->YLabel;
-    }
-  if ( this->ZLabel )
-    {
-    delete [] this->ZLabel;
-    }
+  delete [] this->XLabel;
+  delete [] this->YLabel;
+  delete [] this->ZLabel;
 
   this->SetAxisLabelTextProperty(NULL);
   this->SetAxisTitleTextProperty(NULL);
