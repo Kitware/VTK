@@ -101,12 +101,19 @@ bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *win)
     bool fbo = mgr->ExtensionSupported("GL_EXT_framebuffer_object")==1;
     bool fboBlit = mgr->ExtensionSupported("GL_EXT_framebuffer_blit")==1;
 
-    // On 1.4 Mesa 8.0.4 with Mesa DRI Intel(R) 945GME
-    // shader fails to compile "gl_FragData[1] = ..."
-    // 0:46(15): error: array index must be < 1
+    // On Mesa 8.0.4 reporting OpenGL 1.4 with renderer
+    // "Mesa DRI Intel(R) 945GME" shader fails to compile
+    // "gl_FragData[1] = ..." with the error
+    //  0:46(15): error: array index must be < 1
+
+    // Mesa 7 with renderer "Software Rasterizer
+    // has a bug GL_ARB_draw_buffers that leaves the FBO
+    // perpetually incomplete.
     bool driver
       = !(mgr->DriverIsMesa()
-        && mgr->DriverGLVersionIs(1,4));
+        && (mgr->DriverGLVersionIs(1,4)
+        || (mgr->DriverVersionIs(7)
+        && mgr->DriverGLRendererIs("Software Rasterizer"))));
 
     return tex3D && depthTex && drawBufs && fbo && fboBlit && driver;
     }

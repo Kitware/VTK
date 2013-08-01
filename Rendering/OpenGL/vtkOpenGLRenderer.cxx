@@ -378,10 +378,21 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       int supportsAtLeast8AlphaBits=alphaBits>=8;
 
       // TODO verify that newer ATI devices still have the issue
+      // TODO verify that newer Mesa Gallium llvmpipe still have the issue
+      // Mesa with "Offscreen" renderer (ie OS Mesa) supports depth peeling in
+      // all  versions tested 7.10, 8.0, 8.0.5, 9.0.3, 9.1.3, 9.1.4, 9.1.5
+      // Mesa version 7 with "Software Rasterizer" renderer all Opacity/Translucent
+      // ctests fail with depth peeling
+      // Mesa 9.1.5 with Gallium llvmpipe renderer some of these tests fail
+      // Mesa 8 with GMA945 renderer supports depth peeling
       int driver_support
         = (!extensions->DriverIsATI()
-        && (!extensions->DriverIsMesa() || extensions->DriverVersionAtLeast(6,5,3)))
-        || extensions->GetIgnoreDriverBugs("ATI depth peeling bug." );
+        && (!extensions->DriverIsMesa()
+        || extensions->DriverGLRendererHas("Offscreen")
+        || (extensions->DriverVersionAtLeast(6,5,3)
+        && !extensions->DriverGLRendererIs("Software Rasterizer")
+        && !extensions->DriverGLRendererHasToken("llvmpipe"))))
+        || extensions->GetIgnoreDriverBugs("ATI/Mesa depth peeling bug." );
 
       this->DepthPeelingIsSupported =
         supports_depth_texture &&
