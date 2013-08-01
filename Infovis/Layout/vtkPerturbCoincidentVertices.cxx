@@ -197,7 +197,6 @@ struct Coord
     this->coord[0] = src[0];
     this->coord[1] = src[1];
     }
-  ~Coord() {}
 
    static double distance(Coord x,Coord y)
      {

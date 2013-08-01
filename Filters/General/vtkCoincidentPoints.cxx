@@ -77,7 +77,6 @@ public:
       this->coord[1] = y;
       this->coord[2] = z;
       }
-    ~Coord() {}
 
     inline bool operator < (const Coord & other) const
       {

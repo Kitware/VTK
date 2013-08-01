@@ -36,7 +36,6 @@ public:
   octree_cursor( octree_pointer otree );
   octree_cursor( octree_node_pointer oroot );
   octree_cursor( const const_path& src );
-  ~octree_cursor();
 
   void up();
   void down( int child_of_this_node );
