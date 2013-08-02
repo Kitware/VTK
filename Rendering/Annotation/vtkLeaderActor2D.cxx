@@ -100,16 +100,11 @@ vtkLeaderActor2D::~vtkLeaderActor2D()
   this->LabelMapper->Delete();
   this->LabelActor->Delete();
 
-  if (this->Label)
-    {
-    delete [] this->Label;
-    this->Label = NULL;
-    }
-  if (this->LabelFormat)
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  delete [] this->Label;
+  this->Label = NULL;
+
+  delete [] this->LabelFormat;
+  this->LabelFormat = NULL;
 
   this->LeaderPoints->Delete();
   this->LeaderLines->Delete();

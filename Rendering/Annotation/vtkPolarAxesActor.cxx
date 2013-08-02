@@ -245,17 +245,11 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
     this->RadialAxesProperty->Delete();
     }
 
-  if ( this->PolarLabelFormat )
-    {
-    delete [] this->PolarLabelFormat;
-    this->PolarLabelFormat = NULL;
-    }
+  delete [] this->PolarLabelFormat;
+  this->PolarLabelFormat = NULL;
 
-  if ( this->PolarAxisTitle )
-    {
-    delete [] this->PolarAxisTitle;
-    this->PolarAxisTitle = NULL;
-    }
+  delete [] this->PolarAxisTitle;
+  this->PolarAxisTitle = NULL;
 
   if ( this->PolarAxisTitleTextProperty )
     {

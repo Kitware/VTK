@@ -96,24 +96,16 @@ vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(NULL);
 
-  if (this->AccumulationBuffer)
-    {
-    delete [] this->AccumulationBuffer;
-    this->AccumulationBuffer = NULL;
-    this->AccumulationBufferSize = 0;
-    }
-  if (this->ResultFrame)
-    {
-    delete [] this->ResultFrame;
-    this->ResultFrame = NULL;
-    }
+  delete [] this->AccumulationBuffer;
+  this->AccumulationBuffer = NULL;
+  this->AccumulationBufferSize = 0;
+
+  delete [] this->ResultFrame;
+  this->ResultFrame = NULL;
 
   for (int i = 0; i < 2; ++i)
     {
-    if (this->ConstantFDOffsets[i])
-      {
-      delete [] this->ConstantFDOffsets[i];
-      }
+    delete [] this->ConstantFDOffsets[i];
     this->ConstantFDOffsets[i] = NULL;
     }
 
@@ -180,11 +172,9 @@ void vtkRenderWindow::SetFDFrames(int fdFrames)
 
     for (int i = 0; i < 2; i++)
       {
-      if (this->ConstantFDOffsets[i])
-        {
-        delete [] this->ConstantFDOffsets[i];
-        }
+      delete [] this->ConstantFDOffsets[i];
       this->ConstantFDOffsets[i] = NULL;
+
       if (this->FDFrames > 0)
         {
         this->ConstantFDOffsets[i] = new double[this->FDFrames];
@@ -475,11 +465,8 @@ void vtkRenderWindow::Render()
     this->CopyResultFrame();
     }
 
-  if (this->ResultFrame)
-    {
-    delete [] this->ResultFrame;
-    this->ResultFrame = NULL;
-    }
+  delete [] this->ResultFrame;
+  this->ResultFrame = NULL;
 
   this->InRender = 0;
   this->InvokeEvent(vtkCommand::EndEvent,NULL);

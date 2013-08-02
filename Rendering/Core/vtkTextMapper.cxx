@@ -50,11 +50,7 @@ void vtkTextMapper::ShallowCopy(vtkTextMapper *tm)
 //----------------------------------------------------------------------------
 vtkTextMapper::~vtkTextMapper()
 {
-  if (this->Input)
-    {
-    delete [] this->Input;
-    this->Input = NULL;
-    }
+  delete [] this->Input;
 
   if (this->TextLines != NULL)
     {
@@ -304,10 +300,7 @@ void vtkTextMapper::SetInput(const char *input)
     {
     return;
     }
-  if (this->Input)
-    {
-    delete [] this->Input;
-    }
+  delete [] this->Input;
   if (input)
     {
     this->Input = new char[strlen(input)+1];

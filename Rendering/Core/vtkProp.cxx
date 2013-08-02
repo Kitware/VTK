@@ -53,10 +53,8 @@ vtkProp::~vtkProp()
     {
     this->Paths->Delete();
     }
-  if (this->Consumers)
-    {
-    delete [] this->Consumers;
-    }
+
+  delete [] this->Consumers;
 
   if(this->PropertyKeys!=0)
     {

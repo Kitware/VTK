@@ -2821,10 +2821,7 @@ void vtkXYPlotActor::SetXLabelFormat( const char* _arg )
     return;
     }
 
-  if ( this->XLabelFormat )
-    {
-    delete [] this->XLabelFormat;
-    }
+  delete [] this->XLabelFormat;
 
   if (_arg )
     {
@@ -2854,10 +2851,7 @@ void vtkXYPlotActor::SetYLabelFormat( const char* _arg )
     return;
     }
 
-  if ( this->YLabelFormat )
-    {
-    delete [] this->YLabelFormat;
-    }
+  delete [] this->YLabelFormat;
 
   if (_arg )
     {

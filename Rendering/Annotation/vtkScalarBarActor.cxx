@@ -287,11 +287,8 @@ void vtkScalarBarActor::GetScalarBarRect(int rect[4], vtkViewport* viewport)
 //----------------------------------------------------------------------------
 vtkScalarBarActor::~vtkScalarBarActor()
 {
-  if (this->LabelFormat)
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  delete [] this->LabelFormat;
+  this->LabelFormat = NULL;
 
   this->TitleActor->Delete();
   this->SetNanAnnotation(NULL);
@@ -312,17 +309,11 @@ vtkScalarBarActor::~vtkScalarBarActor()
   this->P->AnnotationLeadersMapper->Delete();
   this->P->AnnotationLeadersActor->Delete();
 
-  if (this->Title)
-    {
-    delete [] this->Title;
-    this->Title = NULL;
-    }
+  delete [] this->Title;
+  this->Title = NULL;
 
-  if ( this->ComponentTitle )
-    {
-    delete [] this->ComponentTitle;
-    this->ComponentTitle = NULL;
-    }
+  delete [] this->ComponentTitle;
+  this->ComponentTitle = NULL;
 
   this->SetLookupTable(NULL);
   this->SetLabelTextProperty(NULL);

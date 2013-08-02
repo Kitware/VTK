@@ -257,11 +257,8 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
 {
   delete [] this->Table;
 
-  if ( this->Function )
-    {
-    delete [] this->Function;
-    this->Function = NULL;
-    }
+  delete [] this->Function;
+  this->Function = NULL;
 
   for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
     {
@@ -284,11 +281,8 @@ double *vtkColorTransferFunction::GetDataPointer()
 {
   int size = static_cast<int>(this->Internal->Nodes.size());
 
-  if ( this->Function )
-    {
-    delete [] this->Function;
-    this->Function = NULL;
-    }
+  delete [] this->Function;
+  this->Function = NULL;
 
   if ( size > 0 )
     {

@@ -139,10 +139,7 @@ vtkRenderer::~vtkRenderer()
     this->CreatedLight = NULL;
     }
 
-  if (this->BackingImage)
-    {
-    delete [] this->BackingImage;
-    }
+  delete [] this->BackingImage;
 
   this->Actors->Delete();
   this->Actors = NULL;
@@ -308,18 +305,12 @@ void vtkRenderer::Render(void)
 
   // Clean up the space we allocated before. If the PropArray exists,
   // they all should exist
-  if ( this->PropArray)
-    {
-    delete [] this->PropArray;
-    this->PropArray                = NULL;
-    }
+  delete [] this->PropArray;
+  this->PropArray = NULL;
 
   if (this->BackingStore)
     {
-    if (this->BackingImage)
-      {
-      delete [] this->BackingImage;
-      }
+    delete [] this->BackingImage;
 
     int rx1, ry1, rx2, ry2;
 
