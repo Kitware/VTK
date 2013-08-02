@@ -58,6 +58,10 @@ class VTKRENDERINGCORE_EXPORT vtkTextRendererCleanup
 public:
   vtkTextRendererCleanup();
   ~vtkTextRendererCleanup();
+
+private:
+  vtkTextRendererCleanup(const vtkTextRendererCleanup& other); // no copy constructor
+  vtkTextRendererCleanup& operator=(const vtkTextRendererCleanup& rhs); // no copy assignment
 };
 
 class VTKRENDERINGCORE_EXPORT vtkTextRenderer: public vtkObject

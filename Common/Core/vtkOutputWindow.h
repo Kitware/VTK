@@ -31,6 +31,10 @@ class VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
 public:
   vtkOutputWindowCleanup();
   ~vtkOutputWindowCleanup();
+
+private:
+  vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other); // no copy constructor
+  vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs); // no copy assignment
 };
 //ETX
 

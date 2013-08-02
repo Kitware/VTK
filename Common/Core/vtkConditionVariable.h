@@ -134,6 +134,10 @@ public:
 
 protected:
   vtkConditionType   ConditionVariable;
+
+private:
+  vtkSimpleConditionVariable(const vtkSimpleConditionVariable& other); // no copy constructor
+  vtkSimpleConditionVariable& operator=(const vtkSimpleConditionVariable& rhs); // no copy assignment
 };
 
 //ETX
