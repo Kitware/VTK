@@ -25,6 +25,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
+#include "vtkAtomicInt64.h" // For global time stamp
 
 class VTKCOMMONCORE_EXPORT vtkTimeStamp
 {
