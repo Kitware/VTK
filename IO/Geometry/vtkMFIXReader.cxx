@@ -935,6 +935,7 @@ void vtkMFIXReader::GetBlockOfFloats(istream& in, vtkFloatArray *v, int n)
     numberOfRecords = 1 + n/numberOfFloatsInBlock;
     }
 
+  bool modified = false;
   int c = 0;
   int cnt = 0;
   for (int i=0; i<numberOfRecords; ++i)
@@ -950,10 +951,16 @@ void vtkMFIXReader::GetBlockOfFloats(istream& in, vtkFloatArray *v, int n)
           {
           v->InsertValue(cnt, temp);
           cnt++;
+          modified = true;
           }
         ++c;
         }
       }
+    }
+
+  if (modified)
+    {
+    v->Modified();
     }
 }
 
@@ -2261,6 +2268,7 @@ void vtkMFIXReader::FillVectorVariable( int xindex, int yindex,
     v->InsertComponent(i, 1, this->CellDataArray[yindex]->GetValue(i));
     v->InsertComponent(i, 2, this->CellDataArray[zindex]->GetValue(i));
     }
+  v->Modified();
 }
 
 //----------------------------------------------------------------------------
