@@ -26,7 +26,7 @@ vtk_add_library(vtkjsoncpp ${JSONCPP_SOURCES})
 
 if(NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(DIRECTORY
-    ${JSONCPP_SOURCE_DIR}/json
+    ${JsonCpp_SOURCE_DIR}/json
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkjsoncpp
     COMPONENT Development)
 endif()
