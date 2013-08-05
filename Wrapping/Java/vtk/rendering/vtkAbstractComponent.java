@@ -17,8 +17,11 @@ import vtk.vtkRenderer;
  *            The concrete type of the graphical component that will contains
  *            the vtkRenderWindow.
  *
- * @authors Sebastien Jourdain - sebastien.jourdain@kitware.com
- *          Joachim Pouderoux - joachim.pouderoux@kitware.com
+ * @authors Sebastien Jourdain - sebastien.jourdain@kitware.com, Kitware Inc 2012
+ *          Joachim Pouderoux - joachim.pouderoux@kitware.com, Kitware SAS 2012
+ * @copyright This work was supported by CEA/CESTA
+ *            Commissariat a l'Energie Atomique et aux Energies Alternatives,
+ *            15 avenue des Sablieres, CS 60001, 33116 Le Barp, France.
  */
 public abstract class vtkAbstractComponent<T> implements vtkComponent<T> {
   protected vtkRenderWindow renderWindow;
