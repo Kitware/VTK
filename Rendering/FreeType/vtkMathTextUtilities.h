@@ -38,6 +38,10 @@ class VTKRENDERINGFREETYPE_EXPORT vtkMathTextUtilitiesCleanup
 public:
   vtkMathTextUtilitiesCleanup();
   ~vtkMathTextUtilitiesCleanup();
+
+private:
+  vtkMathTextUtilitiesCleanup(const vtkMathTextUtilitiesCleanup& other); // no copy constructor
+  vtkMathTextUtilitiesCleanup& operator=(const vtkMathTextUtilitiesCleanup& rhs); // no copy assignment
 };
 
 class VTKRENDERINGFREETYPE_EXPORT vtkMathTextUtilities : public vtkObject

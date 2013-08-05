@@ -72,6 +72,10 @@ public:
 protected:
   friend class vtkSimpleConditionVariable;
   vtkMutexType   MutexLock;
+
+private:
+  vtkSimpleMutexLock(const vtkSimpleMutexLock& other); // no copy constructor
+  vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs); // no copy assignment
 };
 
 //ETX
