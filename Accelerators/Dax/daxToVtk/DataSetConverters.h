@@ -37,8 +37,13 @@ class vtkWedge;
 #include <dax/cont/ArrayHandle.h>
 
 #include "CellTypeToType.h"
+#include <algorithm>
+
 
 namespace daxToVtk
+{
+
+namespace detail
 {
 //------------------------------------------------------------------------------
 template<typename CellType>
@@ -59,28 +64,154 @@ void writeCellTags(vtkCellArray *cell)
 }
 
 //------------------------------------------------------------------------------
-struct UniformDataSetConverter
+template<typename CellType>
+void setCells(vtkCellArray* cells, vtkPolyData* output)
 {
-  void operator()(const dax::cont::UniformGrid<>& grid,
-                  vtkImageData* output)
+  //get the vtk cell type we are extracting
+  enum{VTK_CELL_TYPE=CellType::VTKCellType};
+  if(VTK_CELL_TYPE == VTK_VERTEX)
     {
-    dax::Vector3 origin = grid.GetOrigin();
-    dax::Vector3 spacing = grid.GetSpacing();
-    dax::Extent3 extent = grid.GetExtent();
-
-    output->SetOrigin(origin[0],origin[1],origin[2]);
-    output->SetSpacing(spacing[0],spacing[1],spacing[2]);
-    output->SetExtent(extent.Min[0],extent.Max[0],
-                      extent.Min[1],extent.Max[1],
-                      extent.Min[2],extent.Max[2]);
+    output->SetVerts(cells);
     }
-};
+  else if(VTK_CELL_TYPE == VTK_LINE)
+    {
+    output->SetLines(cells);
+    }
+  else if(VTK_CELL_TYPE == VTK_TRIANGLE ||
+          VTK_CELL_TYPE == VTK_QUAD )
+    {
+    output->SetPolys(cells);
+    }
+}
 
+//------------------------------------------------------------------------------
+template<typename CellType>
+void setCells(vtkCellArray* cells, vtkUnstructuredGrid* output)
+{
+  //get the vtk cell type we are extracting
+  enum{VTK_CELL_TYPE=CellType::VTKCellType};
+  output->SetCells(VTK_CELL_TYPE,cells);
+}
+
+
+//------------------------------------------------------------------------------
+template<typename ContainerTag, typename GridType, typename OutputType>
+void convertCells(ContainerTag, GridType& grid, OutputType* output)
+{
+  //we are dealing with a container type whose memory wasn't allocated by
+  //vtk so we have to copy the data into a new vtk memory location just
+  //to be safe.
+  typedef typename ::daxToVtk::CellTypeToType<
+                                typename GridType::CellTag > CellType;
+
+  //determine amount of memory to allocate
+  const vtkIdType num_cells = grid.GetNumberOfCells();
+  const vtkIdType alloc_size = grid.GetCellConnections().GetNumberOfValues();
+
+  //get the portal from the grid.
+  typedef typename GridType::CellConnectionsType::PortalConstControl
+                                                                DaxPortalType;
+  DaxPortalType daxPortal = grid.GetCellConnections.GetPortalConstControl();
+
+  //ask the vtkToDax allocator to make us memory
+  ::vtkToDax::vtkAlloc<vtkCellArray, CellType::NUM_POINTS> alloc;
+  vtkCellArray* cells = alloc.allocate(num_cells+alloc_size);
+
+  vtkIdType* cellPointer = cells->GetPointer();
+  for(vtkIdType i=0; i < num_cells; ++i)
+    {
+    *cellPointer = CellType::NUM_POINTS;
+    ++cellPointer;
+    for(vtkIdType j=0; j < CellType::NUM_POINTS; ++j, ++cellPointer)
+      {
+      *cellPointer = daxPortal.Get(index);
+      }
+    }
+
+  daxToVtk::detail::setCells<CellType>(cells,output);
+}
+
+//------------------------------------------------------------------------------
+template<typename CellType, typename GridType, typename OutputType>
+void convertCells(vtkToDax::vtkTopologyContainerTag<CellType>,
+                  GridType& grid,
+                  OutputType* output)
+{
+  //in this use case the cell container is of vtk type so we
+  //can directly hook in and use the memory the container allocated
+  //for the output. This is really nice when working with TBB and OpenMP
+  //device adapters.
+  vtkCellArray* cells = grid.GetCellConnections().GetPortalControl().GetVtkData();
+
+
+  //to properly set the cells back into vtk we have to make
+  //sure that for each cell we will fill in the part which states
+  //how many points are in that cells
+  daxToVtk::detail::writeCellTags<CellType>(cells);
+
+  daxToVtk::detail::setCells<CellType>(cells,output);
+}
+
+//------------------------------------------------------------------------------
+template<typename ContainerTag, typename GridType, typename OutputType>
+void convertPoints(ContainerTag, GridType& grid, OutputType* output)
+{
+  //we are dealing with a container type whose memory wasn't allocated by
+  //vtk so we have to copy the data into a new vtk memory location just
+  //to be safe.
+
+  //determine amount of memory to allocate
+  const vtkIdType num_points = grid.GetNumberOfPoints();
+
+  //ask vtkToDax to allocate the vtkPoints so it gets the float vs double
+  //settings correct
+  ::vtkToDax::vtkAlloc<vtkPoints,3> alloc;
+  vtkPoints* points = alloc.allocate(num_points);
+
+  dax::Vector3 *raw_pts = reinterpret_cast<dax::Vector3*>(
+                                       points->GetData()->GetVoidPointer(0));
+
+  //get the coord portal from the grid.
+  typedef typename GridType::PointCoordinatesType::PortalConstControl
+                                                                DaxPortalType;
+  DaxPortalType daxPortal = grid.GetPointCoordinates.GetPortalConstControl();
+
+  std::copy(daxPortal.GetBeginIterator(),
+            daxPortal.GetEndIterator(),
+            raw_pts);
+
+  output->SetPoints( points );
+}
+
+
+//------------------------------------------------------------------------------
+template<typename GridType, typename OutputType>
+void convertPoints(vtkToDax::vtkPointsContainerTag,
+                  GridType& grid,
+                  OutputType* output)
+{
+  vtkPoints *p = grid.GetPointCoordinates().GetPortalControl().GetVtkData();
+  output->SetPoints(p);
+}
+
+
+} //namespace detail
+
+
+//------------------------------------------------------------------------------
 //convert a UniformGrid to vtkImageData
 inline void dataSetConverter(const dax::cont::UniformGrid<>& grid,
           vtkImageData* output)
 {
-  daxToVtk::UniformDataSetConverter()(grid,output);
+  dax::Vector3 origin = grid.GetOrigin();
+  dax::Vector3 spacing = grid.GetSpacing();
+  dax::Extent3 extent = grid.GetExtent();
+
+  output->SetOrigin(origin[0],origin[1],origin[2]);
+  output->SetSpacing(spacing[0],spacing[1],spacing[2]);
+  output->SetExtent(extent.Min[0],extent.Max[0],
+                    extent.Min[1],extent.Max[1],
+                    extent.Min[2],extent.Max[2]);
 }
 
 //convert a UnstructuredGrid to vtkUnstructuredGrid
@@ -88,18 +219,8 @@ template<typename CellType, typename TopoTag, typename PointTag>
 inline void dataSetConverter(dax::cont::UnstructuredGrid<CellType,TopoTag,PointTag>& grid,
           vtkUnstructuredGrid* output)
 {
-  //get the vtk cell type we are extracting
-  enum{CELL_TYPE=CellTypeToType<CellType>::VTKCellType};
-
-  //to properly set the points back into vtk we have to make
-  //sure that for each cell we will fill in the part which states
-  //how many points are in that cells
-  vtkCellArray* cells = grid.GetCellConnections().GetPortalControl().GetVtkData();
-  daxToVtk::writeCellTags<CellTypeToType<CellType> >(cells);
-  output->SetCells(CELL_TYPE,cells);
-
-  vtkPoints *p = grid.GetPointCoordinates().GetPortalControl().GetVtkData();
-  output->SetPoints(p);
+  daxToVtk::detail::convertCells(TopoTag(),grid,output);
+  daxToVtk::detail::convertPoints(PointTag(),grid,output);
 }
 
 //convert a UnstructuredGrid to vtkPolyData
@@ -108,18 +229,8 @@ inline void dataSetConverter(
   dax::cont::UnstructuredGrid<CellType,TopoTag,PointTag>& grid,
   vtkPolyData* output)
 {
-  //get the vtk cell type we are extracting
-  enum{CELL_TYPE=CellTypeToType<CellType>::VTKCellType};
-
-  //to properly set the points back into vtk we have to make
-  //sure that for each cell we will fill in the part which states
-  //how many points are in that cells
-  vtkCellArray* cells = grid.GetCellConnections().GetPortalControl().GetVtkData();
-  daxToVtk::writeCellTags<CellTypeToType<CellType> >(cells);
-  output->SetPolys(cells);
-
-  vtkPoints *p = grid.GetPointCoordinates().GetPortalControl().GetVtkData();
-  output->SetPoints(p);
+  daxToVtk::detail::convertCells(TopoTag(),grid,output);
+  daxToVtk::detail::convertPoints(PointTag(),grid,output);
 }
 
 template<typename FieldType>
