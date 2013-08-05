@@ -10,6 +10,8 @@ vtk_module(vtkRenderingCore
     vtkFiltersExtraction
     vtkIOImage
     vtkIOXMLParser
+  PRIVATE_DEPENDS
+    vtksys
   COMPILE_DEPENDS
     vtkUtilitiesMaterialLibrary
   TEST_DEPENDS

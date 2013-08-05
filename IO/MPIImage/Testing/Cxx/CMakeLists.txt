@@ -1,5 +1,4 @@
-find_package(MPI REQUIRED)
-include_directories(${MPI_INCLUDE_PATH})
+include(vtkMPI)
 vtk_module_test_executable(ParallelIsoTest ParallelIso.cxx)
 if(VTK_MPI_MAX_NUMPROCS GREATER 1)
   ExternalData_add_test(VTKData
@@ -11,3 +10,5 @@ if(VTK_MPI_MAX_NUMPROCS GREATER 1)
      -V DATA{../Data/Baseline/ParallelIso.cxx.png,:}
      ${VTK_MPI_POSTFLAGS})
 endif()
+
+vtk_mpi_link(ParallelIsoTest)

@@ -452,15 +452,17 @@ if (VTK_IGNORE_GLDRIVER_BUGS)
 endif()
 
 vtk_module_library(vtkRenderingOpenGL ${Module_SRCS})
-target_link_libraries(vtkRenderingOpenGL ${OPENGL_LIBRARIES} ${extra_libs})
+target_link_libraries(vtkRenderingOpenGL
+  LINK_PUBLIC ${OPENGL_LIBRARIES} ${extra_libs})
 if(VTK_USE_X)
-  target_link_libraries(vtkRenderingOpenGL ${X11_LIBRARIES} ${X11_Xt_LIB})
+  target_link_libraries(vtkRenderingOpenGL
+    LINK_PUBLIC ${X11_LIBRARIES} ${X11_Xt_LIB})
 elseif(VTK_USE_COCOA)
-  target_link_libraries(vtkRenderingOpenGL "-framework Cocoa")
+  target_link_libraries(vtkRenderingOpenGL LINK_PUBLIC "-framework Cocoa")
 elseif(VTK_USE_CARBON)
-  target_link_libraries(vtkRenderingOpenGL "-framework Carbon")
+  target_link_libraries(vtkRenderingOpenGL LINK_PUBLIC "-framework Carbon")
 endif()
 
 if(VTK_OPENGL_HAS_OSMESA)
-  target_link_libraries(vtkRenderingOpenGL ${OSMESA_LIBRARY})
+  target_link_libraries(vtkRenderingOpenGL LINK_PUBLIC ${OSMESA_LIBRARY})
 endif()

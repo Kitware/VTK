@@ -5,6 +5,7 @@ vtk_module(vtkIOCore
     vtkCommonDataModel
     vtkCommonExecutionModel
     vtkCommonMisc
+  PRIVATE_DEPENDS
     vtkzlib
     vtksys
   TEST_DEPENDS

@@ -1,6 +1,4 @@
-find_package(MPI REQUIRED)
-include_directories(${MPI_INCLUDE_PATH})
-add_definitionS("-DMPICH_IGNORE_CXX_SEEK")
+include(vtkMPI)
 
 set(Module_SRCS
   vtkPNrrdReader.cxx
@@ -38,3 +36,4 @@ configure_file(${VTK_CMAKE_DIR}/vtkObjectFactory.cxx.in
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
 
 vtk_module_library(vtkIOMPIImage ${Module_SRCS})
+vtk_mpi_link(${vtk-module})

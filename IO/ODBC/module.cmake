@@ -2,6 +2,8 @@ vtk_module(vtkIOODBC
   DEPENDS
     vtkCommonDataModel
     vtkIOSQL
+  PRIVATE_DEPENDS
+    vtksys
   TEST_DEPENDS
     vtkTestingCore
   )

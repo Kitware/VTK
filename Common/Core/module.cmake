@@ -1,7 +1,7 @@
 vtk_module(vtkCommonCore
   GROUPS
     StandAlone
-  DEPENDS
+  PRIVATE_DEPENDS
     vtksys
   TEST_DEPENDS
     vtkTestingCore

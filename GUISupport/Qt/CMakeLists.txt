@@ -88,7 +88,7 @@ vtk_module_library(${vtk-module}
   ${QVTKNonMocHeaders} ${QVTKMocHeaders}
   )
 
-target_link_libraries(${vtk-module} ${QT_LIBRARIES})
+target_link_libraries(${vtk-module} LINK_PUBLIC ${QT_LIBRARIES})
 
 if(VTK_USE_X)
   target_link_libraries(${vtk-module} ${X11_LIBRARIES})

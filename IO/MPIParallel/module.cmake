@@ -6,6 +6,8 @@ vtk_module(vtkIOMPIParallel
   DEPENDS
     vtkIOGeometry
     vtkParallelMPI
+  PRIVATE_DEPENDS
+    vtksys
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkTestingRendering

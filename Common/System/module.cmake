@@ -3,6 +3,7 @@ vtk_module(vtkCommonSystem
     StandAlone
   DEPENDS
     vtkCommonCore
+  PRIVATE_DEPENDS
     vtksys
   TEST_DEPENDS
    vtkTestingCore
