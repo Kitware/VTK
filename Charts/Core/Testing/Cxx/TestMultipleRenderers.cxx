@@ -37,7 +37,6 @@ int TestMultipleRenderers(int , char * [])
 {
 
   VTK_CREATE(vtkRenderWindow, renwin);
-  renwin->SetMultiSamples(4);
   renwin->SetSize(800, 640);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);

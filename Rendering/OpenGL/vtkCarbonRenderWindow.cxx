@@ -232,7 +232,6 @@ vtkCarbonRenderWindow::vtkCarbonRenderWindow()
   this->Internal = new vtkCarbonRenderWindowInternal(this);
   this->ApplicationInitialized = 0;
   this->ContextId = 0;
-  this->MultiSamples = 0;
   this->WindowId = 0;
   this->ParentId = 0;
   this->RootWindow = 0;
