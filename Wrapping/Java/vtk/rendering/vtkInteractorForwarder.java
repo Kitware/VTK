@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
  *            Commissariat a l'Energie Atomique et aux Energies Alternatives,
  *            15 avenue des Sablieres, CS 60001, 33116 Le Barp, France.
  */
- */
 public class vtkInteractorForwarder implements MouseListener, MouseMotionListener, KeyListener {
   final public static int MOUSE_BUTTON_1 = 1;
   final public static int MOUSE_BUTTON_2 = 2;
