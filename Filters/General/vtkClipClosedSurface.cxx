@@ -196,7 +196,7 @@ public:
   vtkCCSEdgeLocatorNode() :
     ptId0(-1), ptId1(-1), edgeId(-1), next(0) {};
 
-  ~vtkCCSEdgeLocatorNode() {
+  void FreeList() {
     vtkCCSEdgeLocatorNode *ptr = this->next;
     while (ptr)
       {
@@ -225,6 +225,7 @@ public:
     return new vtkCCSEdgeLocator; };
 
   void Delete() {
+    this->Initialize();
     delete this; };
 
   // Description:
@@ -241,6 +242,12 @@ public:
 
 void vtkCCSEdgeLocator::Initialize()
 {
+  for (MapType::iterator i = this->EdgeMap.begin();
+       i != this->EdgeMap.end();
+       ++i)
+    {
+    i->second.FreeList();
+    }
   this->EdgeMap.clear();
 }
 
