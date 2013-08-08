@@ -67,6 +67,11 @@ vtkArrayWeights::vtkArrayWeights(double i, double j, double k, double l)
   this->Storage->Storage[3] = l;
 }
 
+vtkArrayWeights::vtkArrayWeights(const vtkArrayWeights& other)
+{
+  this->Storage = new vtkArrayWeightsStorage(*other.Storage);
+}
+
 // ----------------------------------------------------------------------------
  vtkArrayWeights::~vtkArrayWeights()
 {
@@ -92,4 +97,10 @@ double& vtkArrayWeights::operator[](vtkIdType i)
 const double& vtkArrayWeights::operator[](vtkIdType i) const
 {
   return this->Storage->Storage[static_cast<size_t>(i)];
+}
+
+vtkArrayWeights& vtkArrayWeights::operator=(const vtkArrayWeights& other)
+{
+  *this->Storage = *other.Storage;
+  return *this;
 }
