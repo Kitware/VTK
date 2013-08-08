@@ -54,6 +54,10 @@ public:
   vtkArrayWeights();
 
   // Description:
+  // Copy the weights from another object.
+  vtkArrayWeights(const vtkArrayWeights& other);
+
+  // Description:
   // Create a collection containing one weight.
   vtkArrayWeights(double i);
 
@@ -90,6 +94,10 @@ public:
   // Description:
   // Accesses the i-th weight in the collection.
   const double& operator[](vtkIdType) const;
+
+  // Description:
+  // Assignment operator.
+  vtkArrayWeights& operator=(const vtkArrayWeights& other);
 
 protected:
   vtkArrayWeightsStorage *Storage;
