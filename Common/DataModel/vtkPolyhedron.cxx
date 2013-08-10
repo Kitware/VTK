@@ -1775,6 +1775,8 @@ int vtkPolyhedron::IntersectWithLine(double p1[3], double p2[3], double tol,
         hit = this->Quad->IntersectWithLine(p1,p2,tol,t,x,pc,subId);
         break;
       default: //general polygon
+        this->Polygon->GetPoints()->SetNumberOfPoints(npts);
+        this->Polygon->GetPointIds()->SetNumberOfIds(npts);
         for (i=0; i<npts; i++)
           {
           this->Polygon->Points->SetPoint(i,this->Points->GetPoint(face[i+1]));
