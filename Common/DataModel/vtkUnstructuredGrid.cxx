@@ -1326,12 +1326,12 @@ void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdList *ptIds)
     return;
     }
 
+  ptIds->Reset();
+
   if (!this->Faces || !this->FaceLocations)
     {
     return;
     }
-
-  ptIds->Reset();
 
   vtkIdType loc = this->FaceLocations->GetValue(cellId);
   vtkIdType* facePtr = this->Faces->GetPointer(loc);
