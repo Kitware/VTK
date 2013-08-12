@@ -2840,7 +2840,6 @@ void vtkPolyhedron::Contour(double value,
   this->Internal->RestoreFaceArrayAndEdgeTable(this->Faces, this->EdgeTable);
 }
 
-
 //----------------------------------------------------------------------------
 void vtkPolyhedron::Clip(double value,
                          vtkDataArray *pointScalars,
@@ -2948,6 +2947,10 @@ void vtkPolyhedron::Clip(double value,
     }
 
   // polyhedron is all inside
+  // FIXME: Documentation needed:
+  // 1. How this can ever happen given the IntersectWithContour call above?
+  // 2. If it can happen, how+why is it different than the code above that
+  //    copies the cell to the output?
   if (ret == 1)
     {
     cellVector.push_back(this->Faces->GetValue(0));

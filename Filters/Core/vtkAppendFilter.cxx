@@ -314,6 +314,7 @@ int vtkAppendFilter::RequestData(
             }
           newCellId = output->InsertNextCell(VTK_POLYHEDRON,nfaces,newPtIds->GetPointer(0));
           outputCD->CopyData(cellList,cd,inputCount,cellId,newCellId);
+          newPtIds->Reset ();
           }
         else
           {
