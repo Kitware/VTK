@@ -48,7 +48,10 @@ set(Module_SRCS
   vtkDepthPeelingPass.cxx
   vtkFrameBufferObject.cxx
   vtkFrameBufferObject2.cxx
-  vtkRenderbuffer.cxx
+  vtkGLSLShader.cxx
+  vtkGLSLShaderDeviceAdapter.cxx
+  vtkGLSLShaderDeviceAdapter2.cxx
+  vtkGLSLShaderProgram.cxx
   vtkGaussianBlurPass.cxx
   vtkGenericOpenGLRenderWindow.cxx
   vtkImageProcessingPass.cxx
@@ -71,24 +74,25 @@ set(Module_SRCS
   vtkOpenGLLight.cxx
   vtkOpenGLLightingPainter.cxx
   vtkOpenGLPainterDeviceAdapter.cxx
-  vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLPolyDataMapper.cxx
+  vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
-  vtkOpenGLRenderer.cxx
   vtkOpenGLRenderWindow.cxx
+  vtkOpenGLRenderer.cxx
   vtkOpenGLRepresentationPainter.cxx
   vtkOpenGLScalarsToColorsPainter.cxx
   vtkOpenGLState.cxx
   vtkOpenGLTexture.cxx
   vtkOverlayPass.cxx
   vtkPixelBufferObject.cxx
-  vtkRenderbuffer.cxx
-  vtkRenderPassCollection.cxx
   vtkRenderPass.cxx
+  vtkRenderPassCollection.cxx
   vtkRenderState.cxx
+  vtkRenderbuffer.cxx
+  vtkRenderbuffer.cxx
   vtkSequencePass.cxx
-  vtkShader2Collection.cxx
   vtkShader2.cxx
+  vtkShader2Collection.cxx
   vtkShaderProgram2.cxx
   vtkShadowMapBakerPass.cxx
   vtkShadowMapPass.cxx
@@ -99,10 +103,6 @@ set(Module_SRCS
   vtkUniformVariables.cxx
   vtkVolumetricPass.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.cxx
-  vtkGLSLShaderDeviceAdapter.cxx
-  vtkGLSLShaderDeviceAdapter2.cxx
-  vtkGLSLShader.cxx
-  vtkGLSLShaderProgram.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLObjectFactory.cxx
   )
 

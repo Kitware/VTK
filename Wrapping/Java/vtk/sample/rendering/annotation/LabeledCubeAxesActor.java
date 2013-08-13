@@ -1,3 +1,5 @@
+package vtk.sample.rendering.annotation;
+
 import javax.swing.JFrame;
 
 import vtk.vtkActor;
