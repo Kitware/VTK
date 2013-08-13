@@ -3437,7 +3437,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
   inputPts = NULL;
 
 
-  // the stuffs that can not be clipped
+  // the stuff that can not be clipped
   if ( numCants > 0 )
     {
     vtkUnstructuredGrid * vtkUGrid  = vtkUnstructuredGrid::New();
