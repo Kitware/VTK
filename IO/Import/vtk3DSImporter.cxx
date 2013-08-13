@@ -96,7 +96,8 @@ static void start_chunk (vtk3DSImporter *importer, vtk3DSChunk *chunk);
 static void end_chunk (vtk3DSImporter *importer, vtk3DSChunk *chunk);
 static byte read_byte (vtk3DSImporter *importer);
 static word read_word (vtk3DSImporter *importer);
-static dword read_dword (vtk3DSImporter *importer);
+static word peek_word (vtk3DSImporter *importer);
+static dword peek_dword (vtk3DSImporter *importer);
 static float read_float (vtk3DSImporter *importer);
 static void read_point (vtk3DSImporter *importer, vtk3DSVector v);
 static char *read_string (vtk3DSImporter *importer);
@@ -1043,8 +1044,8 @@ static float parse_float_percentage(vtk3DSImporter *importer)
 static void start_chunk (vtk3DSImporter *importer, vtk3DSChunk *chunk)
 {
   chunk->start  = ftell(importer->GetFileFD());
-  chunk->tag    = read_word(importer);
-  chunk->length = read_dword(importer);
+  chunk->tag    = peek_word(importer);
+  chunk->length = peek_dword(importer);
   if (chunk->length == 0)
     {
     chunk->length = 1;
@@ -1083,21 +1084,30 @@ static word read_word(vtk3DSImporter *importer)
   return data;
 }
 
-static dword read_dword(vtk3DSImporter *importer)
+static word peek_word(vtk3DSImporter *importer)
+{
+  word data;
+
+  if (fread (&data, 2, 1, importer->GetFileFD()) != 1)
+    {
+    data = 0;
+    }
+  vtkByteSwap::Swap2LE ((short *) &data);
+  return data;
+}
+
+static dword peek_dword(vtk3DSImporter *importer)
 {
   dword data;
 
   if (fread (&data, 4, 1, importer->GetFileFD()) != 1)
     {
-    vtkErrorWithObjectMacro(
-      importer, "Pre-mature end of file in read_dword\n");
     data = 0;
     }
 
   vtkByteSwap::Swap4LE ((char *) &data);
   return data;
 }
-
 
 static float read_float(vtk3DSImporter *importer)
 {

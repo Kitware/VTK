@@ -52,14 +52,14 @@ viewer.SetColorWindow(255)
 viewer.SetColorLevel(127.5)
 viewer.Render()
 
-# on several opengl X window unix implementations
-# multiple context deletes cause errors
-# so we leak the renWin1 in this test for unix
-if renWin1.IsA('vtkXOpenGLRenderWindow'):
-    renWin1.Register(ren1)
-    dl = vtk.vtkDebugLeaks()
-    dl.SetExitError(0)
-    del dl
+## on several opengl X window unix implementations
+## multiple context deletes cause errors
+## so we leak the renWin1 in this test for unix
+#if renWin1.IsA('vtkXOpenGLRenderWindow'):
+#    renWin1.Register(ren1)
+#    dl = vtk.vtkDebugLeaks()
+#    dl.SetExitError(0)
+#    del dl
 
 # iren.Initialize()
 # iren.Start()
