@@ -128,7 +128,7 @@ set(TEST_FBO_IMPLEMENTATION_EXE
   TestFBOImplementation)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/TestFBOInclude.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/TestFBOInclude.h
-  @ONLY IMMEDIATE ESCAPE_QUOTES)
+  @ONLY ESCAPE_QUOTES)
 
 # This is used by TestFBO. Using a separate processes makes is possible to
 # avoid issues to OpenGL implementations segfaulting etc. from affecting the

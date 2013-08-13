@@ -171,9 +171,9 @@ if(PYTHON_EXECUTABLE)
   unset(VTK_PYTHON_IMPORT_ALL)
   foreach(module ${VTK_PYTHON_MODULES})
     set(VTK_PYTHON_IMPORT_ALL "${VTK_PYTHON_IMPORT_ALL}from ${module} import *\n")
-    configure_file(vtk/module.py.in vtk/${module}.py @ONLY IMMEDIATE)
+    configure_file(vtk/module.py.in vtk/${module}.py @ONLY)
   endforeach()
-  configure_file(vtk/__init__.py.in vtk/__init__.py @ONLY IMMEDIATE)
+  configure_file(vtk/__init__.py.in vtk/__init__.py @ONLY)
 
 # vtk.util package
   list(APPEND VTK_PYTHON_FILES
@@ -251,7 +251,7 @@ if(PYTHON_EXECUTABLE)
   # Byte compile the Python files.
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/compile_all_vtk.py.in
     ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
-    @ONLY IMMEDIATE)
+    @ONLY)
   add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
     DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
@@ -345,7 +345,7 @@ if(PYTHON_EXECUTABLE)
     # Configure the post-install script to run python on setup.py.
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/PythonInstall.cmake.in
       ${CMAKE_CURRENT_BINARY_DIR}/PythonInstall.cmake
-      @ONLY IMMEDIATE)
+      @ONLY)
 
     install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/PythonInstall.cmake
       COMPONENT RuntimeLibraries)
@@ -370,7 +370,7 @@ else()
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in
-  ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY IMMEDIATE)
+  ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY)
 
 if(NOT VTK_INSTALL_NO_RUNTIME AND NOT VTK_INSTALL_NO_PYTHON)
   install(TARGETS vtkpython ${VTKPYTHON_EXECUTABLE}
