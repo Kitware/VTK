@@ -40,7 +40,7 @@ import os
 
 # import vtk modules.
 import vtk
-from vtkweb import web, vtkweb_wamp, vtkweb_protocols
+from vtk.web import web, vtkweb_wamp, vtkweb_protocols
 
 # import annotations
 from autobahn.wamp import exportRpc

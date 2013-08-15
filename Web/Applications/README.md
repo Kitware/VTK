@@ -1,7 +1,7 @@
 # Run a VTK Web Application
 
     $ cd ${VTK_BUILD}
-    $ ./bin/vtkpython Wrapping/Python/vtk/${SERVER_SCRIPT} --content www --port ${PORT}
+    $ ./bin/vtkpython Wrapping/Python/vtk/web/${SERVER_SCRIPT} --content www --port ${PORT}
     $ open http://localhost:${PORT}/apps/${APPLICATION}
 
  Please read ${SERVER_SCRIPT} for the extra arguments usage.

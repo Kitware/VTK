@@ -22,8 +22,7 @@ from autobahn.wamp import exportRpc, \
 from autobahn.resource import WebSocketResource
 from autobahn.wamp import WampServerFactory
 
-# import paraview modules.
-import vtk, vtkweb_wamp
+from . import vtkweb_wamp
 
 # =============================================================================
 # Setup default arguments to be parsed

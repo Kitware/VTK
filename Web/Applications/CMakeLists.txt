@@ -20,7 +20,7 @@ foreach(_app ${WEB_APPLICATIONS})
     LABEL "Copying Web files for ${_app}")
 
   copy_files_recursive(${CMAKE_CURRENT_SOURCE_DIR}/${_app}/server
-    DESTINATION "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../Wrapping/Python/vtk"
+    DESTINATION "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../Wrapping/Python/vtk/web"
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/py-${_app}-complete"
     REGEX "^(.*\\.py)$"
     LABEL "Copying Server files for ${_app}")
