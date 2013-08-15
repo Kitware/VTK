@@ -433,7 +433,6 @@ public:
   {
   public:
     vtkHyperTreeSimpleCursor();
-    ~vtkHyperTreeSimpleCursor();
 
     void Clear();
     void Initialize( vtkHyperTreeGrid*, vtkIdType, int[3] );

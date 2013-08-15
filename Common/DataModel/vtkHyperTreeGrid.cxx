@@ -1804,13 +1804,6 @@ vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::vtkHyperTreeSimpleCursor()
 }
 
 //-----------------------------------------------------------------------------
-// Destructor.
-vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::~vtkHyperTreeSimpleCursor()
-{
-  this->Tree = 0;
-}
-
-//-----------------------------------------------------------------------------
 // Set the state back to the initial contructed state
 void vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::Clear()
 {
