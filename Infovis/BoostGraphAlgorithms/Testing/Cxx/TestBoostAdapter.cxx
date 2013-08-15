@@ -65,10 +65,10 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
   int count = 0;
   for (int r = 0; r < repeat; r++)
     {
-    for (tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
+    for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
       {
       typename graph_traits<Graph>::out_edge_iterator oi, oiEnd;
-      tie(oi, oiEnd) = out_edges(*vi, g);
+      boost::tie(oi, oiEnd) = out_edges(*vi, g);
       count++;
       }
     }
@@ -85,10 +85,10 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
   count = 0;
   for (int r = 0; r < repeat; r++)
     {
-    for (tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
+    for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
       {
       typename graph_traits<Graph>::out_edge_iterator oi, oiEnd;
-      for (tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
+      for (boost::tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
         {
         count++;
         }
@@ -105,10 +105,10 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
     {
     edge_vec.clear();
     vert_vec.clear();
-    for (tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
+    for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
       {
       typename graph_traits<Graph>::out_edge_iterator oi, oiEnd;
-      for (tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
+      for (boost::tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
         {
         edge_vec.push_back(e);
         vert_vec.push_back(v);
@@ -127,10 +127,10 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
     {
     edge_vec.clear();
     vert_vec.clear();
-    for (tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
+    for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
       {
       typename graph_traits<Graph>::out_edge_iterator oi, oiEnd;
-      for (tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
+      for (boost::tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
         {
         Edge e1 = *oi;
         edge_vec.push_back(e1);
@@ -150,10 +150,10 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
     {
     edge_vec.clear();
     vert_vec.clear();
-    for (tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
+    for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
       {
       typename graph_traits<Graph>::out_edge_iterator oi, oiEnd;
-      for (tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
+      for (boost::tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
         {
         Edge e1 = *oi;
         edge_vec.push_back(e1);
@@ -197,7 +197,7 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
     errors++;
     }
 
-  for (tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
+  for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
     {
     graphVerts.push_back(*vi);
     }
@@ -220,7 +220,7 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
     }
 
   typename graph_traits<Graph>::edge_iterator ei, eiEnd;
-  for (tie(ei, eiEnd) = edges(g); ei != eiEnd; ++ei)
+  for (boost::tie(ei, eiEnd) = edges(g); ei != eiEnd; ++ei)
     {
     graphEdges.push_back(*ei);
     }
