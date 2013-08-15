@@ -64,7 +64,7 @@ void output_temp(FILE *fp,int i)
       case VTK_PARSE_BOOL:        fprintf(fp,"boolean "); break;
       case VTK_PARSE_VOID:        fprintf(fp,"void "); break;
       case VTK_PARSE_CHAR:        fprintf(fp,"char "); break;
-      case VTK_PARSE_VTK_OBJECT:  fprintf(fp,"%s ",currentFunction->ArgClasses[i]); break;
+      case VTK_PARSE_OBJECT:  fprintf(fp,"%s ",currentFunction->ArgClasses[i]); break;
       case VTK_PARSE_UNKNOWN: return;
       }
     }
@@ -72,7 +72,7 @@ void output_temp(FILE *fp,int i)
   fprintf(fp,"id%i",i);
   if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) &&
       (aType != VTK_PARSE_CHAR_PTR) &&
-      (aType != VTK_PARSE_VTK_OBJECT_PTR))
+      (aType != VTK_PARSE_OBJECT_PTR))
     {
     fprintf(fp,"[]");
     }
@@ -121,7 +121,7 @@ void return_result(FILE *fp)
     case VTK_PARSE_STRING_REF:
       fprintf(fp,"String ");
       break;
-    case VTK_PARSE_VTK_OBJECT_PTR:
+    case VTK_PARSE_OBJECT_PTR:
       fprintf(fp,"%s ",currentFunction->ReturnClass);
       break;
 
@@ -199,7 +199,7 @@ void return_result_native(FILE *fp)
     case VTK_PARSE_STRING_REF:
       fprintf(fp,"String ");
       break;
-    case VTK_PARSE_VTK_OBJECT_PTR:
+    case VTK_PARSE_OBJECT_PTR:
       fprintf(fp,"long ");
       break;
 
@@ -262,7 +262,7 @@ static int CheckMatch(
   if ((type1 & VTK_PARSE_UNQUALIFIED_TYPE) ==
       (type2 & VTK_PARSE_UNQUALIFIED_TYPE))
     {
-    if ((type1 & VTK_PARSE_BASE_TYPE) == VTK_PARSE_VTK_OBJECT)
+    if ((type1 & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT)
       {
       if (strcmp(c1, c2) == 0)
         {
@@ -467,7 +467,7 @@ int checkFunctionSignature(ClassInfo *data)
     VTK_PARSE_ID_TYPE, VTK_PARSE_UNSIGNED_ID_TYPE,
     VTK_PARSE_LONG_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
     VTK_PARSE___INT64, VTK_PARSE_UNSIGNED___INT64,
-    VTK_PARSE_VTK_OBJECT, VTK_PARSE_STRING,
+    VTK_PARSE_OBJECT, VTK_PARSE_STRING,
     0
   };
 
@@ -545,7 +545,7 @@ int checkFunctionSignature(ClassInfo *data)
         }
       }
 
-    if (aType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
+    if (aType == VTK_PARSE_OBJECT) args_ok = 0;
     if (((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
         ((aType & VTK_PARSE_INDIRECT) != 0) &&
         (aType != VTK_PARSE_STRING_REF)) args_ok = 0;
@@ -602,7 +602,7 @@ int checkFunctionSignature(ClassInfo *data)
 
     if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER)&&
         (currentFunction->ArgCounts[i] <= 0)&&
-        (aType != VTK_PARSE_VTK_OBJECT_PTR)&&
+        (aType != VTK_PARSE_OBJECT_PTR)&&
         (aType != VTK_PARSE_CHAR_PTR)) args_ok = 0;
     }
 
@@ -735,7 +735,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
         }
 
       /* if returning object, lookup in global hash */
-      if (rType == VTK_PARSE_VTK_OBJECT_PTR)
+      if (rType == VTK_PARSE_OBJECT_PTR)
         {
         fprintf(fp,") {");
         fprintf(fp,"\n    long temp = %s_%i(",currentFunction->Name, numberOfWrappedFunctions);
