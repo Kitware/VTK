@@ -131,6 +131,12 @@ namespace boost {
   {
     arr->InsertVariantValue(key, value);
   }
+#if defined(_MSC_VER)
+  namespace detail {
+       using ::boost::get;
+       using ::boost::put;
+  }
+#endif
 }
 
 #include <vtksys/stl/utility> // STL Header
