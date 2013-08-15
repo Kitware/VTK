@@ -1,4 +1,4 @@
-r"""web is a module that enables using VTK through a web-server. This
+r"""server is a module that enables using VTK through a web-server. This
 module implments a WampServerProtocol that provides the core RPC-API needed to
 place interactive visualization in web-pages. Developers can extent
 ServerProtocol to provide additional RPC callbacks for their web-applications.
@@ -22,7 +22,7 @@ from autobahn.wamp import exportRpc, \
 from autobahn.resource import WebSocketResource
 from autobahn.wamp import WampServerFactory
 
-from . import vtkweb_wamp
+from . import wamp
 
 # =============================================================================
 # Setup default arguments to be parsed
@@ -62,7 +62,7 @@ def add_arguments(parser):
 # =============================================================================
 
 def start(argv=None,
-        protocol=vtkweb_wamp.ServerProtocol,
+        protocol=wamp.ServerProtocol,
         description="VTK/Web web-server based on Twisted."):
     """
     Sets up the web-server using with __name__ == '__main__'. This can also be
@@ -85,7 +85,7 @@ def start(argv=None,
 # Start webserver
 # =============================================================================
 
-def start_webserver(options, protocol=vtkweb_wamp.ServerProtocol, disableLogging=False):
+def start_webserver(options, protocol=wamp.ServerProtocol, disableLogging=False):
     """
     Starts the web-server with the given protocol. Options must be an object
     with the following members:
@@ -102,7 +102,7 @@ def start_webserver(options, protocol=vtkweb_wamp.ServerProtocol, disableLogging
         log.startLogging(sys.stdout)
 
     # setup the server-factory
-    wampFactory = vtkweb_wamp.ReapingWampServerFactory(
+    wampFactory = wamp.ReapingWampServerFactory(
         "ws://localhost:%d" % options.port, options.debug, options.timeout)
     wampFactory.protocol = protocol
 

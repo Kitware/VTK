@@ -40,7 +40,7 @@ import os
 
 # import vtk modules.
 import vtk
-from vtk.web import web, vtkweb_wamp, vtkweb_protocols
+from vtk.web import server, wamp, protocols
 
 # import annotations
 from autobahn.wamp import exportRpc
@@ -56,7 +56,7 @@ except ImportError:
 # Create custom File Opener class to handle clients requests
 # =============================================================================
 
-class _PhylogeneticTree(vtkweb_wamp.ServerProtocol):
+class _PhylogeneticTree(wamp.ServerProtocol):
 
     # Application configuration
     view    = None
@@ -68,10 +68,10 @@ class _PhylogeneticTree(vtkweb_wamp.ServerProtocol):
         global renderer, renderWindow, renderWindowInteractor, cone, mapper, actor
 
         # Bring used components
-        self.registerVtkWebProtocol(vtkweb_protocols.vtkWebMouseHandler())
-        self.registerVtkWebProtocol(vtkweb_protocols.vtkWebViewPort())
-        self.registerVtkWebProtocol(vtkweb_protocols.vtkWebViewPortImageDelivery())
-        self.registerVtkWebProtocol(vtkweb_protocols.vtkWebViewPortGeometryDelivery())
+        self.registerVtkWebProtocol(protocols.vtkWebMouseHandler())
+        self.registerVtkWebProtocol(protocols.vtkWebViewPort())
+        self.registerVtkWebProtocol(protocols.vtkWebViewPortImageDelivery())
+        self.registerVtkWebProtocol(protocols.vtkWebViewPortGeometryDelivery())
 
         # Update authentication key to use
         self.updateSecret(_PhylogeneticTree.authKey)
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="VTK/Web Tree web-application")
 
     # Add default arguments
-    web.add_arguments(parser)
+    server.add_arguments(parser)
 
      # Add local arguments
     parser.add_argument("--tree", help="path to phy tree file", dest="tree")
@@ -141,4 +141,4 @@ if __name__ == "__main__":
     _PhylogeneticTree.csvFilePath  = args.table
 
     # Start server
-    web.start_webserver(options=args, protocol=_PhylogeneticTree)
+    server.start_webserver(options=args, protocol=_PhylogeneticTree)

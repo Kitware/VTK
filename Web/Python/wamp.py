@@ -1,4 +1,4 @@
-r"""vtkweb_wamp is a module that provide classes that extend any
+r"""wamp is a module that provide classes that extend any
 WAMP related class for the purpose of vtkWeb.
 
 """

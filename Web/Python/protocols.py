@@ -1,4 +1,4 @@
-r"""vtkweb_protocols is a module that contains a set of VTK Web related
+r"""protocols is a module that contains a set of VTK Web related
 protocols that can be combined together to provide a flexible way to define
 very specific web application.
 """
