@@ -7,11 +7,11 @@ include(vtkPythonPackages)
 
 if(NOT vtkWebPython_BUILD_DEST)
   set(vtkWebPython_BUILD_DEST
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../Wrapping/Python/vtk/web")
+    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../Wrapping/Python")
 endif()
 
 set(vtkWebPython_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(vtkWebPython_BINARY_DIR "${vtkWebPython_BUILD_DEST}")
+set(vtkWebPython_BINARY_DIR "${vtkWebPython_BUILD_DEST}/vtk/web")
 
 build_python_package("vtkWebPython" ${vtkWebPython_SOURCE_DIR}
   ${vtkWebPython_BINARY_DIR})
