@@ -33,6 +33,8 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
+#include "vtkSmartPointer.h"
+
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -40,9 +42,18 @@ vtkStandardNewMacro(vtkPolyData);
 // of verts, lines, polygons, and triangle strips lists.  It basically
 // "marks" empty lists so that the traveral method "GetNextCell"
 // works properly.
-vtkCellArray *vtkPolyData::Dummy = NULL;
 
-static vtkSimpleCriticalSection DummyCritSect;
+struct vtkPolyDataDummyContainter
+{
+  vtkSmartPointer<vtkCellArray> Dummy;
+
+  vtkPolyDataDummyContainter()
+    {
+      this->Dummy.TakeReference(vtkCellArray::New());
+    }
+};
+
+vtkPolyDataDummyContainter vtkPolyData::DummyContainer;
 
 vtkPolyData::vtkPolyData ()
 {
@@ -68,20 +79,6 @@ vtkPolyData::vtkPolyData ()
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
-  // static variable, initialized only once.
-  DummyCritSect.Lock();
-  if (this->Dummy == NULL)
-    {
-    this->Dummy = vtkCellArray::New();
-    this->Dummy->Register(this);
-    this->Dummy->Delete();
-    }
-  else
-    {
-    this->Dummy->Register(this);
-    }
-  DummyCritSect.Unlock();
-
   this->Cells = NULL;
   this->Links = NULL;
 }
@@ -90,20 +87,6 @@ vtkPolyData::vtkPolyData ()
 vtkPolyData::~vtkPolyData()
 {
   this->Cleanup();
-
-  // Reference to static dummy persists.
-  // Keep destructed dummy from being used again.
-  DummyCritSect.Lock();
-  if (this->Dummy->GetReferenceCount() == 1)
-    {
-    this->Dummy->UnRegister(this);
-    this->Dummy = NULL;
-    }
-  else
-    {
-    this->Dummy->UnRegister(this);
-    }
-  DummyCritSect.Unlock();
 
   if (this->Vertex)
     {
@@ -655,7 +638,7 @@ void vtkPolyData::ComputeBounds()
 // Set the cell array defining vertices.
 void vtkPolyData::SetVerts (vtkCellArray* v)
 {
-  if (v == this->Dummy)
+  if (v == this->DummyContainer.Dummy.GetPointer())
     {
     v = NULL;
     }
@@ -681,7 +664,7 @@ vtkCellArray* vtkPolyData::GetVerts()
 {
   if ( !this->Verts )
     {
-    return this->Dummy;
+    return this->DummyContainer.Dummy.GetPointer();
     }
   else
     {
@@ -693,7 +676,7 @@ vtkCellArray* vtkPolyData::GetVerts()
 // Set the cell array defining lines.
 void vtkPolyData::SetLines (vtkCellArray* l)
 {
-  if (l == this->Dummy)
+  if (l == this->DummyContainer.Dummy.GetPointer())
     {
     l = NULL;
     }
@@ -719,7 +702,7 @@ vtkCellArray* vtkPolyData::GetLines()
 {
   if ( !this->Lines )
     {
-    return this->Dummy;
+    return this->DummyContainer.Dummy.GetPointer();
     }
   else
     {
@@ -731,7 +714,7 @@ vtkCellArray* vtkPolyData::GetLines()
 // Set the cell array defining polygons.
 void vtkPolyData::SetPolys (vtkCellArray* p)
 {
-  if(p == this->Dummy)
+  if(p == this->DummyContainer.Dummy.GetPointer())
     {
     p = NULL;
     }
@@ -757,7 +740,7 @@ vtkCellArray* vtkPolyData::GetPolys()
 {
   if ( !this->Polys )
     {
-    return this->Dummy;
+    return this->DummyContainer.Dummy.GetPointer();
     }
   else
     {
@@ -769,7 +752,7 @@ vtkCellArray* vtkPolyData::GetPolys()
 // Set the cell array defining triangle strips.
 void vtkPolyData::SetStrips (vtkCellArray* s)
 {
-  if ( s == this->Dummy)
+  if ( s == this->DummyContainer.Dummy.GetPointer())
     {
     s = NULL;
     }
@@ -796,7 +779,7 @@ vtkCellArray* vtkPolyData::GetStrips()
 {
   if ( !this->Strips )
     {
-    return this->Dummy;
+    return this->DummyContainer.Dummy.GetPointer();
     }
   else
     {
