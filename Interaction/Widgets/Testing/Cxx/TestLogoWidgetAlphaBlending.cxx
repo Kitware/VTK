@@ -48,7 +48,7 @@ int TestLogoWidgetAlphaBlending( int argc, char *argv[] )
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
-  renWin->SetMultiSamples(1);
+  renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
 
   ren1->SetUseDepthPeeling(0);
