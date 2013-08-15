@@ -76,41 +76,25 @@ int TestXMLFileOutputWindow(int argc,char *argv[])
 
   // Now, compare the default and specified files
   // Read the default XML file
-  std::ifstream dfin("vtkMessageLog.xml", std::ios::in);
+  std::ifstream dfin("vtkMessageLog.xml");
+  std::string def((std::istreambuf_iterator<char>(dfin)),
+                  std::istreambuf_iterator<char>());
+
   if (dfin.fail())
     {
-    std::cout << argv[0] << ": Cannot open " << "vtkMessageLog.xml" << std::endl;
+    std::cout << argv[0] << ": Cannot open vtkMessageLog.xml" << std::endl;
     return EXIT_FAILURE;
     }
 
-  // Get the length of the file
-  dfin.seekg (0, std::ios::end);
-  const size_t dlen = dfin.tellg();
-  dfin.seekg (0, std::ios::beg);
-  char * defXML = new char[dlen+1];
-  dfin.read (defXML, dlen);
-  defXML[dlen] = '\0';
+  std::ifstream sfin(argv[1]);
+  std::string specified((std::istreambuf_iterator<char>(sfin)),
+                        std::istreambuf_iterator<char>());
 
-  // Read the specified XML file
-  std::ifstream sfin(argv[1], std::ios::in);
   if (sfin.fail())
     {
     std::cout << argv[0] << ": Cannot open " << argv[1] << std::endl;
     return EXIT_FAILURE;
     }
-
-  // Get the length of the file
-  sfin.seekg (0, std::ios::end);
-  const size_t slen = sfin.tellg();
-  sfin.seekg (0, std::ios::beg);
-  char * specifiedXML = new char[slen+1];
-  sfin.read (specifiedXML, slen);
-  specifiedXML[slen] = '\0';
-
-  std::string def(defXML);
-  delete [] defXML;
-  std::string specified(specifiedXML);
-  delete [] specifiedXML;
 
   if (def != specified)
     {
