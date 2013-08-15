@@ -170,7 +170,7 @@ int vtkFFMPEGWriterInternal::Start()
 
   //Set up the codec.
   AVCodecContext *c = this->avStream->codec;
-  c->codec_id = (CodecID)this->avOutputFormat->video_codec;
+  c->codec_id = (AVCodecID)this->avOutputFormat->video_codec;
 #ifdef VTK_FFMPEG_HAS_OLD_HEADER
   c->codec_type = CODEC_TYPE_VIDEO;
 #else

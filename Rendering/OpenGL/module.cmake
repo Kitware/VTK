@@ -3,9 +3,10 @@ vtk_module(vtkRenderingOpenGL
     Rendering
   IMPLEMENTS
     vtkRenderingCore
-  DEPENDS
+  PRIVATE_DEPENDS
     # These are likely to be removed soon - split Rendering/OpenGL further.
     vtkImagingHybrid # For vtkSampleFunction
+    vtksys
   COMPILE_DEPENDS
     vtkParseOGLExt
     vtkUtilitiesEncodeString

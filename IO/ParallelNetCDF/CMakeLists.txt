@@ -1,6 +1,4 @@
-find_package(MPI)
-include_directories(${MPI_INCLUDE_PATH})
-add_definitionS("-DMPICH_IGNORE_CXX_SEEK")
+include(vtkMPI)
 
 set(Module_SRCS
   vtkPNetCDFPOPReader.cxx
@@ -8,4 +6,5 @@ set(Module_SRCS
 
 vtk_module_library(vtkIOParallelNetCDF ${Module_SRCS})
 
-target_link_libraries(vtkIOParallelNetCDF vtkNetCDF_cxx)
+target_link_libraries(vtkIOParallelNetCDF LINK_PRIVATE vtkNetCDF_cxx)
+vtk_mpi_link(vtkIOParallelNetCDF)

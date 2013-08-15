@@ -4,7 +4,9 @@ vtk_module(vtkIOExodus
   DEPENDS
     vtkFiltersGeneral
     vtkIOXML
+  PRIVATE_DEPENDS
     vtkexodusII
+    vtksys
   TEST_DEPENDS
     vtkTestingRendering
     vtkInteractionStyle

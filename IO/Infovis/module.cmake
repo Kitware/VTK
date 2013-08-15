@@ -8,7 +8,9 @@ vtk_module(vtkIOInfovis
     vtkIOCore
     vtkIOLegacy
     vtkInfovisCore
+  PRIVATE_DEPENDS
     vtklibxml2
+    vtksys
   TEST_DEPENDS
     vtkInfovisLayout
     vtkRenderingCore

@@ -8,6 +8,8 @@ vtk_module(vtkIOXdmf2
     vtkFiltersExtraction
     vtkIOLegacy
     vtkIOXML
+  PRIVATE_DEPENDS
+    vtksys
     vtkxdmf2
   TEST_DEPENDS
     vtkFiltersGeneral

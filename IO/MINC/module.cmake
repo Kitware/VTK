@@ -6,5 +6,7 @@ vtk_module(vtkIOMINC
     vtkCommonExecutionModel
     vtkRenderingCore
     vtkFiltersHybrid
+  PRIVATE_DEPENDS
+    vtksys
     vtknetcdf
   )

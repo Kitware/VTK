@@ -5,6 +5,8 @@ vtk_module(vtkRenderingVolumeOpenGL
     vtkRenderingVolume
   DEPENDS
     vtkRenderingOpenGL
+  PRIVATE_DEPENDS
+    vtksys
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
