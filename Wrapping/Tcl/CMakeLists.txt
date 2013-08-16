@@ -133,10 +133,12 @@ endif()
 
 # Create the pvtk Tcl wrapper executable with MPI support.
 if(vtkParallelMPI_ENABLED)
+  include(vtkMPI)
   vtk_module_config(PVTK vtkParallelMPI)
   include_directories(${PVTK_INCLUDE_DIRS})
 
   VTK_ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
+  vtk_mpi_link(pvtk)
   IF(VTK_USE_CARBON)
     FIND_PROGRAM(VTK_APPLE_RESOURCE Rez "${OSX_DEVELOPER_ROOT}/usr/bin")
     IF(VTK_APPLE_RESOURCE)
