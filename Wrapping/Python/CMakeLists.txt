@@ -273,9 +273,7 @@ if(PYTHON_EXECUTABLE)
   endif()
 
   if (NOT VTK_INSTALL_NO_PYTHON)
-    set(pymodule_instdir
-      "${VTK_INSTALL_LIBRARY_DIR}/python${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}/site-packages")
-
+    get_property(pymodule_instdir GLOBAL PROPERTY VTK_PYMODULE_INSTALL_DIR)
     # Install python modules (.py and *.pyd)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/vtk"
       DESTINATION ${pymodule_instdir} COMPONENT RuntimeLibraries
