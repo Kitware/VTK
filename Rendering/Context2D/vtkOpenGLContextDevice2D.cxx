@@ -1379,12 +1379,10 @@ bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
     this->Storage->GLSL = false;
     }
 
-  // Workaround for a bug in mesa - support for non-power of two textures is
-  // poor at best. Disable, and use power of two textures for mesa rendering.
-  const char *gl_version =
-    reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  const char *mesa_version = strstr(gl_version, "Mesa");
-  if (mesa_version != 0)
+  // disable NPOT textures for Mesa
+  // NPOT textures work in OS Mesa >= 8.0.0
+  if ( m->DriverIsMesa()
+     && !(m->DriverGLRendererIsOSMesa() && m->DriverVersionAtLeast(8)))
     {
     this->Storage->PowerOfTwoTextures = true;
     this->TextRenderer->SetScaleToPowerOfTwo(true);

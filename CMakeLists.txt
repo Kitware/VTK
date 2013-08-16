@@ -106,13 +106,6 @@ if (CMAKE_CROSSCOMPILING AND NOT COMPILE_TOOLS_IMPORTED)
   set (COMPILE_TOOLS_IMPORTED TRUE)
 endif()
 
-# FIXME: These will be removed, used by vtkzlib etc
-set(VTK_INSTALL_BIN_DIR_CM24 ${VTK_INSTALL_RUNTIME_DIR})
-set(VTK_INSTALL_LIB_DIR_CM24 ${VTK_INSTALL_LIBRARY_DIR})
-set(VTK_INSTALL_PACKAGE_DIR_CM24 ${VTK_INSTALL_PACKAGE_DIR})
-set(VTK_INSTALL_INCLUDE_DIR_CM24 ${VTK_INSTALL_INCLUDE_DIR})
-set(VTK_INSTALL_DOXYGEN_DIR_CM24 ${VTK_INSTALL_DATA_DIR}/doxygen)
-
 #-----------------------------------------------------------------------------
 # The third party macros are still used in one or two third party builds.
 include(vtkThirdParty)

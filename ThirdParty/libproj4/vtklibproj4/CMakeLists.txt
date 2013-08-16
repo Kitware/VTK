@@ -224,6 +224,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${libproj4_SOURCE_DIR}/lib_proj.h
     ${libproj4_SOURCE_DIR}/vtk_libproj4_mangle.h
     ${libproj4_BINARY_DIR}/proj_config.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtklibproj4
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtklibproj4
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

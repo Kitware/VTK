@@ -18,7 +18,10 @@ import org.eclipse.swt.events.MouseWheelListener;
  * Decorator class used to implement all Mouse/Key SWT listener and convert them
  * into the vtkInteractorForwarder proper AWT event.
  *
- * @author Joachim Pouderoux - joachim.pouderoux@kitware.com
+ * @author    Joachim Pouderoux - joachim.pouderoux@kitware.com, Kitware SAS 2012
+ * @copyright This work was supported by CEA/CESTA
+ *            Commissariat a l'Energie Atomique et aux Energies Alternatives,
+ *            15 avenue des Sablieres, CS 60001, 33116 Le Barp, France.
  */
 public class vtkSwtInteractorForwarderDecorator extends vtkInteractorForwarder
 implements MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener {

@@ -19,7 +19,7 @@
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h.in
   ${VTK_BINARY_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h
-  @ONLY IMMEDIATE
+  @ONLY
 )
 
 get_property(VTK_TCL_WRAPPED GLOBAL PROPERTY VTK_TCL_WRAPPED)
@@ -195,19 +195,19 @@ if(VTK_TCL_CONFIGURATION_TYPES)
     set(VTK_TCL_LIBRARY_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${config}")
     configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                    ${VTK_BINARY_DIR}/Wrapping/Tcl/${config}/pkgIndex.tcl
-                   @ONLY IMMEDIATE)
+                   @ONLY)
   endforeach()
 else()
   set(VTK_TCL_LIBRARY_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
   configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                  ${VTK_BINARY_DIR}/Wrapping/Tcl/pkgIndex.tcl
-                 @ONLY IMMEDIATE)
+                 @ONLY)
 endif()
 
 # A few hand coded bits of Tcl to glue things together.
 macro(configure_tcl_files)
   foreach(file ${ARGN})
-    configure_file(${file}.tcl.in "${VTK_TCL_HOME}/${file}.tcl" @ONLY IMMEDIATE)
+    configure_file(${file}.tcl.in "${VTK_TCL_HOME}/${file}.tcl" @ONLY)
   endforeach()
 endmacro()
 
@@ -247,7 +247,7 @@ foreach(mod ${VTK_TCL_WRAPPED})
   set(module "${${mod}_TCL_NAME}")
   string(TOLOWER ${module} module_lc)
   configure_file(vtkmodule.tcl.in
-    "${VTK_TCL_HOME}/${module_lc}/${module_lc}.tcl" @ONLY IMMEDIATE)
+    "${VTK_TCL_HOME}/${module_lc}/${module_lc}.tcl" @ONLY)
   if(NOT VTK_INSTALL_NO_RUNTIME)
     install(FILES
       "${VTK_TCL_HOME}/${module_lc}/${module_lc}.tcl"
@@ -266,7 +266,7 @@ ELSE(UNIX)
 ENDIF(UNIX)
 configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl
-               @ONLY IMMEDIATE)
+               @ONLY)
 IF(NOT VTK_INSTALL_NO_RUNTIME)
   INSTALL(FILES
     ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl

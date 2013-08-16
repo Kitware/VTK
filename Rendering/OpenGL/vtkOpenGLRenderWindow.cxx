@@ -77,9 +77,9 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->BackBuffer=static_cast<unsigned int>(GL_BACK);
   this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
 
-  this->NumberOfGraphicErrors = 0;
-  this->LastGraphicErrorString
-    = new vtkStdString("0 OpenGL errors detected");
+#ifndef VTK_LEGACY_REMOVE
+  this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
+#endif
 
   this->OwnContext=1;
 }
@@ -106,8 +106,6 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   this->SetTextureUnitManager(0);
   this->SetExtensionManager(0);
   this->SetHardwareSupport(0);
-
-  delete this->LastGraphicErrorString;
 }
 
 // ----------------------------------------------------------------------------
@@ -1607,13 +1605,15 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   int supports_GL_EXT_framebuffer_object=
     extensions->ExtensionSupported("GL_EXT_framebuffer_object");
 
+  // TODO Mesa 6.5.1 is from 2006 verify that this is still an issue
+  // with  newer releases
   // We skip it if you use Mesa. Even if the VTK offscreen test passes (OSCone)
   // with Mesa, all the Paraview batch test are failing (Mesa 6.5.1 or CVS)
   // After too much time spent to investigate this case, we just skip it.
-  const GLubyte *openglRenderer=glGetString(GL_RENDERER);
-  const char *substring=strstr(reinterpret_cast<const char *>(openglRenderer),
-                               "Mesa");
-  int isMesa=substring!=0;
+  int isMesa
+    = extensions->DriverGLRendererHas("Mesa")
+    && !extensions->GetIgnoreDriverBugs("Mesa 6.5.1 pvbatch offscreen bug");
+
   int supports_texture_non_power_of_two=
     extensions->ExtensionSupported("GL_VERSION_2_0") ||
     extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
@@ -1880,92 +1880,68 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
   assert("post: destroyed" && !this->OffScreenUseFrameBuffer);
 }
 
-// ----------------------------------------------------------------------------
-const char *vtkOpenGLRenderWindow::OpenGLStrError(unsigned int code)
-{
-  return vtkOpenGLStrError(code);
-}
-
-// ----------------------------------------------------------------------------
-void vtkOpenGLRenderWindow::PrintOpenGLErrors(ostream &os)
-{
-  const int maxErrors = 16;
-  unsigned int errCode[maxErrors] = {GL_NO_ERROR};
-  const char *errDesc[maxErrors] = {NULL};
-
-  int numErrors = vtkGetOpenGLErrors(
-        maxErrors,
-        errCode,
-        errDesc);
-
-  vtkPrintOpenGLErrors(
-        os,
-        maxErrors,
-        numErrors,
-        errCode,
-        errDesc);
-}
-
-// ----------------------------------------------------------------------------
-void vtkOpenGLRenderWindow::PrintOpenGLErrors(
-      ostream &os,
-      int maxErrors,
-      int numErrors,
-      unsigned int *errCode,
-      const char **errDesc)
-{
-  vtkPrintOpenGLErrors(os, maxErrors, numErrors, errCode, errDesc);
-}
-
-// ----------------------------------------------------------------------------
-void vtkOpenGLRenderWindow::ClearOpenGLErrors()
-{
-  vtkClearOpenGLErrors();
-}
-
-// ----------------------------------------------------------------------------
-int vtkOpenGLRenderWindow::GetOpenGLErrors(
-      int maxNum,
-      unsigned int *errCode,
-      const char **errDesc)
-{
-  return vtkGetOpenGLErrors(maxNum, errCode, errDesc);
-}
-
-// ----------------------------------------------------------------------------
-void vtkOpenGLRenderWindow::ClearGraphicError()
-{
-  vtkClearOpenGLErrors();
-}
-
-// ----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+//----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::CheckGraphicError()
 {
-  const int maxErrors = 16;
-  unsigned int errCode[maxErrors] = {GL_NO_ERROR};
-  const char *errDesc[maxErrors] = {NULL};
-
-  this->NumberOfGraphicErrors = vtkGetOpenGLErrors(
-        maxErrors,
-        errCode,
-        errDesc);
-
-  ostringstream oss;
-  vtkPrintOpenGLErrors(
-        oss,
-        maxErrors,
-        this->NumberOfGraphicErrors,
-        errCode,
-        errDesc);
-
-  *this->LastGraphicErrorString = oss.str();
+  VTK_LEGACY_BODY(vtkRenderWindow::CheckGraphicError, "VTK 6.1");
+  this->LastGraphicError=static_cast<unsigned int>(glGetError());
 }
 
-// ----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+int vtkOpenGLRenderWindow::HasGraphicError()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::HasGraphics, "VTK 6.1");
+  return static_cast<GLenum>(this->LastGraphicError)!=GL_NO_ERROR;
+}
+
+//----------------------------------------------------------------------------
 const char *vtkOpenGLRenderWindow::GetLastGraphicErrorString()
 {
-  return this->LastGraphicErrorString->c_str();
+  VTK_LEGACY_BODY(vtkRenderWindow::GetLastGraphicErrorString, "VTK 6.1");
+  const char *result;
+  switch(static_cast<GLenum>(this->LastGraphicError))
+    {
+    case GL_NO_ERROR:
+      result="No error";
+      break;
+    case GL_INVALID_ENUM:
+      result="Invalid enum";
+      break;
+    case GL_INVALID_VALUE:
+      result="Invalid value";
+      break;
+    case GL_INVALID_OPERATION:
+      result="Invalid operation";
+      break;
+    case GL_STACK_OVERFLOW:
+      result="Stack overflow";
+      break;
+    case GL_STACK_UNDERFLOW:
+      result="Stack underflow";
+      break;
+    case GL_OUT_OF_MEMORY:
+      result="Out of memory";
+      break;
+    case vtkgl::TABLE_TOO_LARGE:
+      // GL_ARB_imaging
+      result="Table too large";
+      break;
+    case vtkgl::INVALID_FRAMEBUFFER_OPERATION_EXT:
+      // GL_EXT_framebuffer_object
+      result="Invalid framebuffer operation";
+      break;
+    case vtkgl::TEXTURE_TOO_LARGE_EXT:
+      // GL_EXT_texture
+      result="Texture too large";
+      break;
+    default:
+      result="Unknown error";
+      break;
+    }
+  return result;
 }
+#endif
 
 // ----------------------------------------------------------------------------
 // Description:

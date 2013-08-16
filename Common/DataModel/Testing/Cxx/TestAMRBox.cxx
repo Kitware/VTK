@@ -351,10 +351,7 @@ int TestAMRBoxSerialization()
     rc++;
     }
 
-  if( buffer != NULL )
-    {
-    delete [] buffer;
-    }
+  delete [] buffer;
 
   return( rc );
 }

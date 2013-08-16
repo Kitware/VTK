@@ -26,19 +26,13 @@ vtkIdList::vtkIdList()
 
 vtkIdList::~vtkIdList()
 {
-  if ( this->Ids != NULL )
-    {
-    delete [] this->Ids;
-    }
+  delete [] this->Ids;
 }
 
 void vtkIdList::Initialize()
 {
-  if ( this->Ids != NULL )
-    {
-    delete [] this->Ids;
-    this->Ids = NULL;
-    }
+  delete [] this->Ids;
+  this->Ids = NULL;
   this->NumberOfIds = 0;
   this->Size = 0;
 }

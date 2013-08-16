@@ -67,10 +67,7 @@ vtkBitArray::~vtkBitArray()
     delete [] this->Array;
     }
   delete [] this->Tuple;
-  if (this->Lookup)
-    {
-    delete this->Lookup;
-    }
+  delete this->Lookup;
 }
 
 //----------------------------------------------------------------------------

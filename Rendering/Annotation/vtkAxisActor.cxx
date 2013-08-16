@@ -236,11 +236,8 @@ vtkAxisActor::~vtkAxisActor()
     this->Point2Coordinate = NULL;
     }
 
-  if (this->LabelFormat)
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  delete [] this->LabelFormat;
+  this->LabelFormat = NULL;
 
   if (this->TitleVector)
     {
@@ -267,11 +264,8 @@ vtkAxisActor::~vtkAxisActor()
     this->TitleActor2D = NULL;
     }
 
-  if (this->Title)
-    {
-    delete [] this->Title;
-    this->Title = NULL;
-    }
+  delete [] this->Title;
+  this->Title = NULL;
 
   if (this->TitleTextProperty)
     {
@@ -1745,10 +1739,7 @@ void vtkAxisActor::SetTitle(const char *t)
     {
     return;
     }
-  if (this->Title)
-    {
-    delete [] this->Title;
-    }
+  delete [] this->Title;
   if (t)
     {
     this->Title = new char[strlen(t)+1];

@@ -86,10 +86,7 @@ vtkBSPIntersections::vtkBSPIntersections()
 vtkBSPIntersections::~vtkBSPIntersections()
 {
   this->SetCuts(NULL);
-  if (this->RegionList)
-    {
-    delete [] this->RegionList;
-    }
+  delete [] this->RegionList;
 }
 //----------------------------------------------------------------------------
 int vtkBSPIntersections::BuildRegionList()
@@ -100,11 +97,8 @@ int vtkBSPIntersections::BuildRegionList()
     return 0;
     }
 
-  if (this->RegionList)
-    {
-    delete [] this->RegionList;
-    this->RegionList = NULL;
-    }
+  delete [] this->RegionList;
+  this->RegionList = NULL;
 
   vtkKdNode *top = NULL;
   if (this->Cuts)

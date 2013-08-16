@@ -26,7 +26,7 @@ set_source_files_properties(
 
 # Generate configured header file
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkChemistryConfigure.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkChemistryConfigure.h" IMMEDIATE)
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkChemistryConfigure.h")
 
 set(${vtk-module}_NO_HeaderTest 1) # TODO: Fix headers and enable test.
 vtk_module_library(${vtk-module} ${Module_SRCS})

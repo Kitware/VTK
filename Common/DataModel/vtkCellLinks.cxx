@@ -28,10 +28,7 @@ void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
   static vtkCellLinks::Link linkInit = {0,NULL};
 
   this->Size = sz;
-  if ( this->Array != NULL )
-    {
-    delete [] this->Array;
-    }
+  delete [] this->Array;
   this->Array = new vtkCellLinks::Link[sz];
   this->Extend = ext;
   this->MaxId = -1;
@@ -52,10 +49,7 @@ vtkCellLinks::~vtkCellLinks()
 
   for (vtkIdType i=0; i<=this->MaxId; i++)
     {
-    if ( this->Array[i].cells != NULL )
-      {
-      delete [] this->Array[i].cells;
-      }
+    delete [] this->Array[i].cells;
     }
 
   delete [] this->Array;

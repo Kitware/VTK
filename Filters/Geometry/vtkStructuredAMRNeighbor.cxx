@@ -68,12 +68,6 @@ vtkStructuredAMRNeighbor::vtkStructuredAMRNeighbor(
 
 
 //-----------------------------------------------------------------------------
-vtkStructuredAMRNeighbor::~vtkStructuredAMRNeighbor()
-{
-  // TODO Auto-generated destructor stub
-}
-
-//-----------------------------------------------------------------------------
 vtkStructuredAMRNeighbor& vtkStructuredAMRNeighbor::operator=(
       const vtkStructuredAMRNeighbor &N)
 {

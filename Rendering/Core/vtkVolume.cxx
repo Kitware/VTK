@@ -66,25 +66,10 @@ vtkVolume::~vtkVolume()
 
   for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
     {
-    if ( this->ScalarOpacityArray[i] )
-      {
-      delete [] this->ScalarOpacityArray[i];
-      }
-
-    if ( this->RGBArray[i] )
-      {
-      delete [] this->RGBArray[i];
-      }
-
-    if ( this->GrayArray[i] )
-      {
-      delete [] this->GrayArray[i];
-      }
-
-    if ( this->CorrectedScalarOpacityArray[i] )
-      {
-      delete [] this->CorrectedScalarOpacityArray[i];
-      }
+    delete [] this->ScalarOpacityArray[i];
+    delete [] this->RGBArray[i];
+    delete [] this->GrayArray[i];
+    delete [] this->CorrectedScalarOpacityArray[i];
     }
 }
 
@@ -570,26 +555,17 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     // opacity
     if ( arraySize != this->ArraySize )
       {
-      if ( this->ScalarOpacityArray[c] )
-        {
-        delete [] this->ScalarOpacityArray[c];
-        this->ScalarOpacityArray[c] = NULL;
-        }
-      if ( this->CorrectedScalarOpacityArray[c] )
-        {
-        delete [] this->CorrectedScalarOpacityArray[c];
-        this->CorrectedScalarOpacityArray[c] = NULL;
-        }
-      if ( this->GrayArray[c] )
-        {
-        delete [] this->GrayArray[c];
-        this->GrayArray[c] = NULL;
-        }
-      if ( this->RGBArray[c] )
-        {
-        delete [] this->RGBArray[c];
-        this->RGBArray[c] = NULL;
-        }
+      delete [] this->ScalarOpacityArray[c];
+      this->ScalarOpacityArray[c] = NULL;
+
+      delete [] this->CorrectedScalarOpacityArray[c];
+      this->CorrectedScalarOpacityArray[c] = NULL;
+
+      delete [] this->GrayArray[c];
+      this->GrayArray[c] = NULL;
+
+      delete [] this->RGBArray[c];
+      this->RGBArray[c] = NULL;
 
       // Allocate these two because we know we need them
       this->ScalarOpacityArray[c] = new float[arraySize];
@@ -603,11 +579,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     // Free the rgb array if there is one.
     if ( colorChannels == 1 )
       {
-      if ( this->RGBArray[c] )
-        {
-        delete [] this->RGBArray[c];
-        this->RGBArray[c] = NULL;
-        }
+      delete [] this->RGBArray[c];
+      this->RGBArray[c] = NULL;
+
       if ( !this->GrayArray[c] )
         {
         this->GrayArray[c] = new float[arraySize];
@@ -618,11 +592,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     // Free the gray array if there is one.
     if ( colorChannels == 3 )
       {
-      if ( this->GrayArray[c] )
-        {
-        delete [] this->GrayArray[c];
-        this->GrayArray[c] = NULL;
-        }
+      delete [] this->GrayArray[c];
+      this->GrayArray[c] = NULL;
+
       if ( !this->RGBArray[c] )
         {
         this->RGBArray[c] = new float[3*arraySize];

@@ -56,9 +56,6 @@ public:
     {
       this->LastMTime = static_cast<unsigned long>(-1); //almost invalid state
     }
-  ~OffsetsManager()
-    {
-    }
   void Allocate(int numTimeStep)
     {
     assert( numTimeStep > 0);

@@ -155,11 +155,8 @@ vtkSpiderPlotActor::~vtkSpiderPlotActor()
   this->ConnectionHolder->Delete();
   this->ConnectionHolder = 0;
 
-  if (this->Title)
-    {
-    delete [] this->Title;
-    this->Title = NULL;
-    }
+  delete [] this->Title;
+  this->Title = NULL;
 
   delete this->Labels;
   delete this->Ranges;

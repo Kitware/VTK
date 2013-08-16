@@ -69,7 +69,7 @@ MACRO(COPY_FILES_TO_DIR src_dir target_dir)
     ENDFOREACH(subdir)
 
     # Now configure the file over.
-    CONFIGURE_FILE(${src_file} "${path}/${filename}" COPYONLY IMMEDIATE)
+    CONFIGURE_FILE(${src_file} "${path}/${filename}" COPYONLY)
   ENDFOREACH (src_file)
 ENDMACRO(COPY_FILES_TO_DIR)
 

@@ -91,10 +91,7 @@ tms     vtkTimerLog::CurrentCpuTicks;
 // Allocate timing table with MaxEntries elements.
 void vtkTimerLog::AllocateLog()
 {
-  if (vtkTimerLog::TimerLog != NULL)
-    {
-    delete [] vtkTimerLog::TimerLog;
-    }
+  delete [] vtkTimerLog::TimerLog;
   vtkTimerLog::TimerLog = new vtkTimerLogEntry[vtkTimerLog::MaxEntries];
 }
 

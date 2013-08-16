@@ -126,16 +126,11 @@ void vtkQuadratureSchemeDefinition::Initialize(
 //-----------------------------------------------------------------------------
 void vtkQuadratureSchemeDefinition::ReleaseResources()
 {
-  if (this->ShapeFunctionWeights!=0)
-    {
-    delete [] this->ShapeFunctionWeights;
-    this->ShapeFunctionWeights=0;
-    }
-  if (this->QuadratureWeights!=0)
-    {
-    delete [] this->QuadratureWeights;
-    this->QuadratureWeights=0;
-    }
+  delete [] this->ShapeFunctionWeights;
+  this->ShapeFunctionWeights=0;
+
+  delete [] this->QuadratureWeights;
+  this->QuadratureWeights=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -321,14 +316,8 @@ istream &operator>>(istream &sin, vtkQuadratureSchemeDefinition &def)
   def.Initialize(cellType,nNodes,nQuadPts,SfWt,QWt);
 
   // clean up
-  if (SfWt!=NULL)
-    {
-    delete [] SfWt;
-    }
-  if (QWt!=NULL)
-    {
-    delete [] QWt;
-    }
+  delete [] SfWt;
+  delete [] QWt;
 
   return sin;
 }

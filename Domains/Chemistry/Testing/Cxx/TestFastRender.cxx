@@ -45,19 +45,19 @@ int TestFastRender(int, char *[])
   vtkAtom H5  = mol->AppendAtom(1,  2.3344947615,  1.8381683043,  0.9310726537);
   vtkAtom H6  = mol->AppendAtom(1, -2.1991803919,  3.3206134015,  0.9413825084);
 
-  vtkBond B1  = mol->AppendBond( C1,  C5, 1);
-  vtkBond B2  = mol->AppendBond( C1,  C2, 2);
-  vtkBond B3  = mol->AppendBond( C2,  C3, 1);
-  vtkBond B4  = mol->AppendBond( C3,  C4, 3);
-  vtkBond B5  = mol->AppendBond( C4,  C6, 1);
-  vtkBond B6  = mol->AppendBond( C5,  O2, 2);
-  vtkBond B7  = mol->AppendBond( C6,  O1, 1);
-  vtkBond B8  = mol->AppendBond( C5,  H6, 1);
-  vtkBond B9  = mol->AppendBond( C1,  H1, 1);
-  vtkBond B10 = mol->AppendBond( C2,  H2, 1);
-  vtkBond B11 = mol->AppendBond( C6,  H3, 1);
-  vtkBond B12 = mol->AppendBond( C6,  H4, 1);
-  vtkBond B13 = mol->AppendBond( O1,  H5, 1);
+  mol->AppendBond( C1,  C5, 1);
+  mol->AppendBond( C1,  C2, 2);
+  mol->AppendBond( C2,  C3, 1);
+  mol->AppendBond( C3,  C4, 3);
+  mol->AppendBond( C4,  C6, 1);
+  mol->AppendBond( C5,  O2, 2);
+  mol->AppendBond( C6,  O1, 1);
+  mol->AppendBond( C5,  H6, 1);
+  mol->AppendBond( C1,  H1, 1);
+  mol->AppendBond( C2,  H2, 1);
+  mol->AppendBond( C6,  H3, 1);
+  mol->AppendBond( C6,  H4, 1);
+  mol->AppendBond( O1,  H5, 1);
 
   vtkNew<vtkMoleculeMapper> molmapper;
   molmapper->SetInputData(mol.GetPointer());

@@ -160,7 +160,7 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
     SET(dir ${VTK_WRAP_JAVA3_INIT_DIR})
   ENDIF(VTK_WRAP_JAVA3_INIT_DIR)
   CONFIGURE_FILE("${dir}/JavaDependencies.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/JavaDependencies.cmake" IMMEDIATE @ONLY)
+    "${CMAKE_CURRENT_BINARY_DIR}/JavaDependencies.cmake" @ONLY)
 endmacro()
 
 # VS 6 does not like needing to run a huge number of custom commands

@@ -1323,10 +1323,7 @@ void vtkScalarsToColors::MapColorsToColors(
       }
     }
 
-  if (newPtr)
-    {
-    delete [] newPtr;
-    }
+  delete [] newPtr;
 }
 
 //----------------------------------------------------------------------------
@@ -1383,10 +1380,7 @@ void vtkScalarsToColors::MapVectorsToMagnitude(
         numberOfTuples, vectorSize, inInc));
     }
 
-  if (newPtr)
-    {
-    delete [] newPtr;
-    }
+  delete [] newPtr;
 }
 
 //----------------------------------------------------------------------------
@@ -1496,10 +1490,7 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
       }
     }
 
-  if (newPtr)
-    {
-    delete [] newPtr;
-    }
+  delete [] newPtr;
 }
 
 //----------------------------------------------------------------------------

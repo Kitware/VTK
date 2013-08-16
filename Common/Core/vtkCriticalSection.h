@@ -101,6 +101,10 @@ public:
 
 protected:
   vtkCritSecType   CritSec;
+
+private:
+  vtkSimpleCriticalSection(const vtkSimpleCriticalSection& other); // no copy constructor
+  vtkSimpleCriticalSection& operator=(const vtkSimpleCriticalSection& rhs); // no copy assignment
 };
 
 //ETX

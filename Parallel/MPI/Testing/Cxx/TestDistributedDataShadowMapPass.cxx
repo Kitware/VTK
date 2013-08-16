@@ -136,7 +136,6 @@ void MyProcess::Execute()
     }
 
   vtkRenderWindow *renWin = prm->MakeRenderWindow();
-  renWin->SetReportGraphicErrors(true);
   renWin->SetMultiSamples(0);
 
   renWin->SetAlphaBitPlanes(1);

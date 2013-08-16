@@ -257,6 +257,16 @@ public:
                          bool shaderSupportsTextureInt);
 
   // Description:
+  // Returns true if floating point textures are
+  // supported.
+  vtkGetMacro(SupportsTextureFloat,bool);
+
+  // Description:
+  // Returns true if integer textures are
+  // supported
+  vtkGetMacro(SupportsTextureInteger,bool);
+
+  // Description:
   // Wrap mode for the first texture coordinate "s"
   // Valid values are:
   // - Clamp

@@ -4869,7 +4869,8 @@ static int SystemToolsDebugReport(int, char* message, int*)
 
 void SystemTools::EnableMSVCDebugHook()
 {
-  if (getenv("DART_TEST_FROM_DART"))
+  if (getenv("DART_TEST_FROM_DART") ||
+      getenv("DASHBOARD_TEST_FROM_CTEST"))
     {
     _CrtSetReportHook(SystemToolsDebugReport);
     }

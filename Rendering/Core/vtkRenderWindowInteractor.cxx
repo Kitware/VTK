@@ -133,10 +133,7 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
     {
     this->Picker->UnRegister(this);
     }
-  if ( this->KeySym )
-    {
-    delete [] this->KeySym;
-    }
+  delete [] this->KeySym;
   if ( this->ObserverMediator)
     {
     this->ObserverMediator->Delete();

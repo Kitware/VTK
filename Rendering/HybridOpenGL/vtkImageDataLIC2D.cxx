@@ -323,7 +323,6 @@ int vtkImageDataLIC2D::RequestData(
     }
 
   this->Context->MakeCurrent();
-  this->Context->SetReportGraphicErrors(1);
 
   // Noise.
   vtkInformation *noiseInfo = inputVector[1]->GetInformationObject(0);

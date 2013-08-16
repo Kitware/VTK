@@ -129,13 +129,13 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTKFREETYPE_SOURCE_DIR}/include/vtk_freetype_mangle.h
     ${VTKFREETYPE_SOURCE_DIR}/include/vtk_ftmodule.h
     ${VTKFREETYPE_BINARY_DIR}/include/vtkFreeTypeConfig.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkfreetype/include
     COMPONENT Development)
 
   file(GLOB freetype_headers 
     "${VTKFREETYPE_SOURCE_DIR}/include/freetype/*.h")
   INSTALL(FILES ${freetype_headers}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include/freetype
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkfreetype/include/freetype
     COMPONENT Development)
 
   file(GLOB freetype_config_headers 
@@ -145,6 +145,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   endif()
   INSTALL(FILES ${freetype_config_headers}
                 ${freetype_config_headers_include}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include/freetype/config
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkfreetype/include/freetype/config
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

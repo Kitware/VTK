@@ -77,7 +77,7 @@ function(vtk_add_executable_with_forwarding2
       configure_file(
         ${VTK_CMAKE_DIR}/vtk-forward.c.in
         ${CMAKE_CURRENT_BINARY_DIR}/${exe_name}-forward.c
-        @ONLY IMMEDIATE)
+        @ONLY)
       add_executable(${exe_name}${VTK_EXE_SUFFIX}
         ${CMAKE_CURRENT_BINARY_DIR}/${exe_name}-forward.c)
       set_target_properties(${exe_name}${VTK_EXE_SUFFIX} PROPERTIES

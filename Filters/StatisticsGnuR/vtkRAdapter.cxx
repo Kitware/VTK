@@ -779,8 +779,8 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
       if (parent >= 0)
         {
         weight = weights->GetValue(tree->GetEdgeId(parent, vertex));
+        weight += nodeWeights->GetValue(parent);
         }
-      weight += nodeWeights->GetValue(parent);
       nodeWeights->SetValue(vertex, weight);
       }
 

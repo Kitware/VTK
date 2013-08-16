@@ -352,7 +352,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     if(l>1) // some higher layer, we allocated some tex unit in RenderPeel()
       {
       vtkOpenGLRenderWindow *context
-        = dynamic_cast<vtkOpenGLRenderWindow*>(this->Prog->GetContext());
+        = vtkOpenGLRenderWindow::SafeDownCast(this->Prog->GetContext());
       vtkTextureUnitManager *m=context->GetTextureUnitManager();
       m->Free(this->ShadowTexUnit);
       m->Free(this->OpaqueShadowTexUnit);
@@ -552,6 +552,15 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
       glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
       bool supportsAtLeast8AlphaBits=alphaBits>=8;
 
+      // force alpha blending
+      // Mesa does not support true linking of shaders (VTK bug 8135)
+      // and Mesa 7.2 just crashes during the try-compile.
+      // os mesa 9.1.4 some tests fail
+      // TODO verify that this is still an issue on newer ATI devices
+      int driver_support
+         = (!extensions->DriverIsATI() && !extensions->DriverIsMesa())
+         || extensions->GetIgnoreDriverBugs("ATI and Mesa depth peeling bugs");
+
       this->IsSupported =
         supports_depth_texture &&
         supports_shadow &&
@@ -564,7 +573,8 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
         supports_multitexture &&
         supports_GL_ARB_texture_rectangle &&
         supports_edge_clamp &&
-        supportsAtLeast8AlphaBits;
+        supportsAtLeast8AlphaBits &&
+        driver_support;
 
       if(this->IsSupported)
         {
@@ -656,25 +666,9 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
           {
           vtkDebugMacro(<<"at least 8 alpha bits is not supported");
           }
-        }
-
-      if(this->IsSupported)
-        {
-        // Some OpenGL implementations are buggy so depth peeling does not
-        // work:
-        //  - ATI
-        //  - Mesa git does not support true linking of shaders (VTK bug 8135)
-        //    and Mesa 7.2 just crashes during the try-compile.
-        // Do alpha blending always.
-        const char* gl_renderer =
-          reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-        int isATI = strstr(gl_renderer, "ATI") != 0;
-
-        bool isMesa=strstr(gl_renderer, "Mesa") != 0;
-
-        if(isMesa || isATI)
+        if (!driver_support)
           {
-          this->IsSupported = false;
+          vtkDebugMacro(<<"buggy driver (Mesa or ATI)");
           }
         }
 
@@ -779,7 +773,7 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
       {
       // allocate texture units.
       vtkOpenGLRenderWindow *context
-        = dynamic_cast<vtkOpenGLRenderWindow*>(this->Prog->GetContext());
+        = vtkOpenGLRenderWindow::SafeDownCast(this->Prog->GetContext());
 
       vtkTextureUnitManager *m = context->GetTextureUnitManager();
 

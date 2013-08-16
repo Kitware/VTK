@@ -166,30 +166,30 @@ int TestMoleculeSelection(int argc, char *argv[])
   vtkAtom a16 = mol->AppendAtom(16, 3.0, 3.0, 0.0);
 
   // Add bonds along the grid
-  vtkBond b1  = mol->AppendBond( a1,  a2, 1);
-  vtkBond b2  = mol->AppendBond( a2,  a3, 1);
-  vtkBond b3  = mol->AppendBond( a3,  a4, 1);
-  vtkBond b4  = mol->AppendBond( a5,  a6, 1);
-  vtkBond b5  = mol->AppendBond( a6,  a7, 1);
-  vtkBond b6  = mol->AppendBond( a7,  a8, 1);
-  vtkBond b7  = mol->AppendBond( a9, a10, 1);
-  vtkBond b8  = mol->AppendBond(a10, a11, 1);
-  vtkBond b9  = mol->AppendBond(a11, a12, 1);
-  vtkBond b10 = mol->AppendBond(a13, a14, 1);
-  vtkBond b11 = mol->AppendBond(a14, a15, 1);
-  vtkBond b12 = mol->AppendBond(a15, a16, 1);
-  vtkBond b13 = mol->AppendBond( a1,  a5, 1);
-  vtkBond b14 = mol->AppendBond( a2,  a6, 1);
-  vtkBond b15 = mol->AppendBond( a3,  a7, 1);
-  vtkBond b16 = mol->AppendBond( a4,  a8, 1);
-  vtkBond b17 = mol->AppendBond( a5,  a9, 1);
-  vtkBond b18 = mol->AppendBond( a6, a10, 1);
-  vtkBond b19 = mol->AppendBond( a7, a11, 1);
-  vtkBond b20 = mol->AppendBond( a8, a12, 1);
-  vtkBond b21 = mol->AppendBond( a9, a13, 1);
-  vtkBond b22 = mol->AppendBond(a10, a14, 1);
-  vtkBond b23 = mol->AppendBond(a11, a15, 1);
-  vtkBond b24 = mol->AppendBond(a12, a16, 1);
+  mol->AppendBond( a1,  a2, 1);
+  mol->AppendBond( a2,  a3, 1);
+  mol->AppendBond( a3,  a4, 1);
+  mol->AppendBond( a5,  a6, 1);
+  mol->AppendBond( a6,  a7, 1);
+  mol->AppendBond( a7,  a8, 1);
+  mol->AppendBond( a9, a10, 1);
+  mol->AppendBond(a10, a11, 1);
+  mol->AppendBond(a11, a12, 1);
+  mol->AppendBond(a13, a14, 1);
+  mol->AppendBond(a14, a15, 1);
+  mol->AppendBond(a15, a16, 1);
+  mol->AppendBond( a1,  a5, 1);
+  mol->AppendBond( a2,  a6, 1);
+  mol->AppendBond( a3,  a7, 1);
+  mol->AppendBond( a4,  a8, 1);
+  mol->AppendBond( a5,  a9, 1);
+  mol->AppendBond( a6, a10, 1);
+  mol->AppendBond( a7, a11, 1);
+  mol->AppendBond( a8, a12, 1);
+  mol->AppendBond( a9, a13, 1);
+  mol->AppendBond(a10, a14, 1);
+  mol->AppendBond(a11, a15, 1);
+  mol->AppendBond(a12, a16, 1);
 
   // Set up render engine
   vtkNew<vtkMoleculeMapper> molmapper;
