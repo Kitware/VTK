@@ -17,8 +17,10 @@ from autobahn.resource  import WebSocketResource
 from autobahn.websocket import listenWS
 from autobahn.wamp      import exportRpc, WampServerProtocol, WampCraProtocol, \
                                WampCraServerProtocol, WampServerFactory
-
-from vtkWebCorePython import vtkWebApplication
+try:
+    from vtkWebCore import vtkWebApplication
+except:
+    from vtkWebCorePython import vtkWebApplication
 
 # =============================================================================
 salt = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
