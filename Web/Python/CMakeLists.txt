@@ -5,17 +5,21 @@ find_package(PythonInterp)
 
 include(vtkPythonPackages)
 
-if(NOT vtkWebPython_BUILD_DEST)
-  set(vtkWebPython_BUILD_DEST
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../Wrapping/Python")
-endif()
+# Extract path where python module should be copied
+get_property(pymodule_build_dir GLOBAL PROPERTY VTK_PYMODULE_BUILD_DIR)
+get_property(pymodule_install_dir GLOBAL PROPERTY VTK_PYMODULE_INSTALL_DIR)
 
 set(vtkWebPython_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(vtkWebPython_BINARY_DIR "${vtkWebPython_BUILD_DEST}/vtk/web")
+set(vtkWebPython_BINARY_DIR "${pymodule_build_dir}/vtk/web")
 
 build_python_package("vtkWebPython" ${vtkWebPython_SOURCE_DIR}
   ${vtkWebPython_BINARY_DIR})
 
+# Make sure VTK_WRAP_PYTHON is ON otherwise vtk-web can not exist/work
+if(NOT VTK_WRAP_PYTHON)
+   message(FATAL_ERROR "Web group can NOT work if VTK_WRAP_PYTHON is not ON.")
+endif()
+
 install(DIRECTORY ${vtkWebPython_BINARY_DIR}
-  DESTINATION ${VTK_INSTALL_LIBRARY_DIR}/site-packages
+  DESTINATION "${pymodule_install_dir}"
   COMPONENT Runtime)

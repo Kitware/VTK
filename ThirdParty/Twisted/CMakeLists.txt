@@ -9,17 +9,16 @@ if(NOT VTK_USE_SYSTEM_TWISTED)
 
   include(vtkPythonPackages)
 
-  if(NOT vtkWebPython_BUILD_DEST)
-    set(vtkWebPython_BUILD_DEST
-      "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../Wrapping/Python")
-  endif()
+  # Extract path where python module should be copied
+  get_property(pymodule_build_dir GLOBAL PROPERTY VTK_PYMODULE_BUILD_DIR)
+  get_property(pymodule_install_dir GLOBAL PROPERTY VTK_PYMODULE_INSTALL_DIR)
 
   set(Twisted_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/twisted")
-  set(Twisted_BINARY_DIR "${vtkWebPython_BUILD_DEST}/twisted")
+  set(Twisted_BINARY_DIR "${pymodule_build_dir}/twisted")
 
   build_python_package("Twisted" ${Twisted_SOURCE_DIR} ${Twisted_BINARY_DIR})
 
   install(DIRECTORY ${Twisted_BINARY_DIR}
-    DESTINATION ${VTK_INSTALL_LIBRARY_DIR}/site-packages
+    DESTINATION "${pymodule_install_dir}"
     COMPONENT Runtime)
 endif()

@@ -9,17 +9,17 @@ if(NOT VTK_USE_SYSTEM_ZOPE)
 
   include(vtkPythonPackages)
 
-  if(NOT vtkWebPython_BUILD_DEST)
-    set(vtkWebPython_BUILD_DEST
-      "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../Wrapping/Python")
-  endif()
+  # Extract path where python module should be copied
+  get_property(pymodule_build_dir GLOBAL PROPERTY VTK_PYMODULE_BUILD_DIR)
+  get_property(pymodule_install_dir GLOBAL PROPERTY VTK_PYMODULE_INSTALL_DIR)
 
   set(zope_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zope")
-  set(zope_BINARY_DIR "${vtkWebPython_BUILD_DEST}/zope")
+  set(zope_BINARY_DIR "${pymodule_build_dir}/zope")
 
   build_python_package("zope" ${zope_SOURCE_DIR} ${zope_BINARY_DIR})
 
   install(DIRECTORY ${zope_BINARY_DIR}
-    DESTINATION ${VTK_INSTALL_LIBRARY_DIR}/site-packages
+    DESTINATION "${pymodule_install_dir}"
     COMPONENT Runtime)
+
 endif()
