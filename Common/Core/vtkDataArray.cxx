@@ -442,7 +442,10 @@ void vtkDataArray::SetLookupTable(vtkLookupTable* lut)
       this->LookupTable->UnRegister(this);
       }
     this->LookupTable = lut;
-    this->LookupTable->Register(this);
+    if ( this->LookupTable )
+      {
+      this->LookupTable->Register(this);
+      }
     this->Modified();
     }
 }
