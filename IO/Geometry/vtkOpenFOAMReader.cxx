@@ -426,14 +426,6 @@ private:
   typedef vtkStdString Superclass;
 
 public:
-  vtkFoamError() :
-    vtkStdString()
-  {
-  }
-  vtkFoamError(const vtkFoamError& e) :
-    vtkStdString(e)
-  {
-  }
   // a super-easy way to make use of operator<<()'s defined in
   // vtksys_ios::ostringstream class
   template <class T> vtkFoamError& operator<<(const T& t)

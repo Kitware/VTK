@@ -62,6 +62,10 @@ class vtkEnzoReaderBlock
 public:
   vtkEnzoReaderBlock()  { this->Init(); }
  ~vtkEnzoReaderBlock()  { this->Init(); }
+  vtkEnzoReaderBlock(const vtkEnzoReaderBlock& other)
+    { this->DeepCopy(&other); }
+  vtkEnzoReaderBlock& operator=(const vtkEnzoReaderBlock& other)
+    { this->DeepCopy(&other); return *this; }
 
   int                   Index;
   int                   Level;
@@ -86,6 +90,7 @@ public:
   std::string        ParticleFileName;
 
   void   Init();
+  void DeepCopy(const vtkEnzoReaderBlock *other);
   void GetParentWiseIds(  std::vector< vtkEnzoReaderBlock > & blocks  );
   void GetLevelBasedIds(  std::vector< vtkEnzoReaderBlock > & blocks  );
 };

@@ -408,6 +408,9 @@ protected:
   bool Loaded;
   bool LastLinearInterpolation;
   double LastRange[2];
+private:
+  vtkOpacityTable(const vtkOpacityTable&);
+  vtkOpacityTable& operator=(const vtkOpacityTable&);
 };
 
 //-----------------------------------------------------------------------------
@@ -416,12 +419,28 @@ protected:
 class vtkOpacityTables
 {
 public:
-  std::vector<vtkOpacityTable> Vector;
-  vtkOpacityTables(size_t numberOfLevels)
-    : Vector(numberOfLevels)
+  vtkOpacityTables(unsigned int numberOfTables)
     {
+    this->Tables = new vtkOpacityTable[numberOfTables];
+    this->NumberOfTables = numberOfTables;
+    }
+  ~vtkOpacityTables()
+    {
+    delete [] this->Tables;
+    }
+  vtkOpacityTable* GetTable(unsigned int i)
+    {
+    return &this->Tables[i];
+    }
+  unsigned int GetNumberOfTables()
+    {
+    return this->NumberOfTables;
     }
 private:
+  unsigned int NumberOfTables;
+  vtkOpacityTable *Tables;
+  // undefined default constructor.
+  vtkOpacityTables();
   // undefined copy constructor.
   vtkOpacityTables(const vtkOpacityTables &other);
   // undefined assignment operator.
@@ -3285,7 +3304,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::UpdateOpacityTransferFunction(
   vtkPiecewiseFunction *scalarOpacity=volumeProperty->GetScalarOpacity();
 
   vtkgl::ActiveTexture( vtkgl::TEXTURE2); //stay here
-  this->OpacityTables->Vector[level].Update(
+  this->OpacityTables->GetTable(level)->Update(
     scalarOpacity,this->BlendMode,
     this->ActualSampleDistance,
     this->TableRange,
@@ -4616,7 +4635,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   this->CheckFrameBufferStatus();
 
   if(this->OpacityTables!=0 &&
-     this->OpacityTables->Vector.size()!=numberOfLevels)
+     this->OpacityTables->GetNumberOfTables()!=numberOfLevels)
     {
     delete this->OpacityTables;
     this->OpacityTables=0;
@@ -4892,7 +4911,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
 
   // opacitytable
   vtkgl::ActiveTexture(vtkgl::TEXTURE2);
-  this->OpacityTables->Vector[level].Bind();
+  this->OpacityTables->GetTable(level)->Bind();
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
 
   vtkOpenGLCheckErrorMacro("after uniforms for projection and shade");

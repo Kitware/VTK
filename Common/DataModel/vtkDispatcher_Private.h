@@ -120,6 +120,7 @@ public:
   typedef typename Base::Parm1 Parm1;
 
   FunctorHandler(Fun& fun) : f_(fun) {}
+  virtual ~FunctorHandler() {}
 
   ResultType operator()(Parm1& p1)
   { return f_(p1); }
@@ -127,6 +128,8 @@ public:
 
 private:
   Fun f_;
+  FunctorHandler() : ParentFunctor::Impl() {}
+  FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
   FunctorHandler& operator =(const FunctorHandler& b);
 };
 
@@ -256,6 +259,7 @@ public:
   typedef typename Base::Parm2 Parm2;
 
   FunctorHandler(const Fun& fun) : f_(fun) {}
+  virtual ~FunctorHandler() {}
 
   ResultType operator()(Parm1& p1,Parm2& p2)
   { return f_(p1,p2); }
@@ -264,6 +268,8 @@ public:
 
 private:
   Fun f_;
+  FunctorHandler() : ParentFunctor::Impl() {}
+  FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
   FunctorHandler& operator =(const FunctorHandler& b);
 };
 
