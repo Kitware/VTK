@@ -1,6 +1,8 @@
 package vtk.sample.rendering;
 
 import java.awt.BorderLayout;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -40,7 +42,7 @@ public class JoglConeRendering {
                 coneActor.SetMapper(coneMapper);
 
                 // VTK rendering part
-                vtkJoglComponent joglWidget = new vtkJoglComponent();
+                final vtkJoglComponent joglWidget = new vtkJoglComponent();
                 joglWidget.getRenderer().AddActor(coneActor);
 
                 // UI part
@@ -52,6 +54,27 @@ public class JoglConeRendering {
                 frame.setSize(400, 400);
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
+
+                // Add r:ResetCamera and q:Quit key binding
+                joglWidget.getComponent().addKeyListener(new KeyListener() {
+
+					@Override
+					public void keyTyped(KeyEvent e) {
+						if(e.getKeyChar() == 'r') {
+							joglWidget.resetCamera();
+						} else if (e.getKeyChar() == 'q') {
+							System.exit(0);
+						}
+					}
+
+					@Override
+					public void keyReleased(KeyEvent e) {
+					}
+
+					@Override
+					public void keyPressed(KeyEvent e) {
+					}
+				});
             }
         });
     }
