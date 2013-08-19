@@ -11,7 +11,9 @@ import vtk.vtkActor;
 import vtk.vtkConeSource;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
-import vtk.rendering.jogl.vtkJoglComponent;
+import vtk.rendering.jogl.vtkAbstractJoglComponent;
+import vtk.rendering.jogl.vtkJoglCanvasComponent;
+import vtk.rendering.jogl.vtkJoglPanelComponent;
 
 public class JoglConeRendering {
     // -----------------------------------------------------------------
@@ -29,6 +31,8 @@ public class JoglConeRendering {
     }
 
     public static void main(String[] args) {
+        final boolean usePanel = Boolean.getBoolean("usePanel");
+
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 // build VTK Pipeline
@@ -42,7 +46,9 @@ public class JoglConeRendering {
                 coneActor.SetMapper(coneMapper);
 
                 // VTK rendering part
-                final vtkJoglComponent joglWidget = new vtkJoglComponent();
+                final vtkAbstractJoglComponent<?> joglWidget = usePanel ? new vtkJoglPanelComponent() : new vtkJoglCanvasComponent();
+                System.out.println("We are using " + joglWidget.getComponent().getClass().getName() + " for the rendering.");
+
                 joglWidget.getRenderer().AddActor(coneActor);
 
                 // UI part
