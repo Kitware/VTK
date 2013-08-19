@@ -81,6 +81,7 @@ vtkAxis::vtkAxis()
   this->Behavior = vtkAxis::AUTO;
   this->Pen = vtkPen::New();
   this->TitleAppended = false;
+  this->ScalingFactor = 1.0;
 
   this->Pen->SetColor(0, 0, 0);
   this->Pen->SetWidth(1.0);
@@ -1331,10 +1332,10 @@ double vtkAxis::NiceMinMax(double &min, double &max, float pixelRange,
   // First get the order of the range of the numbers
   if (min == max)
     {
-    if (fabs(min) < 1e-20 && fabs(max) < 1e-20)
+    if (fabs(min) < 1e-70 && fabs(max) < 1e-70)
       {
-      min = -0.01;
-      max = 0.01;
+      min = -0.0000001;
+      max =  0.0000001;
       }
     else
       {

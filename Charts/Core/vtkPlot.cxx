@@ -32,7 +32,7 @@ vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlot, YAxis, vtkAxis);
 
 //-----------------------------------------------------------------------------
-vtkPlot::vtkPlot()
+vtkPlot::vtkPlot() : ScalingFactor(1.0, 1.0)
 {
   this->Pen = vtkSmartPointer<vtkPen>::New();
   this->Pen->SetWidth(2.0);
@@ -446,6 +446,22 @@ void vtkPlot::SetInputArray(int index, const vtkStdString &name)
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      name.c_str());
   this->AutoLabels = 0; // No longer valid
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetScalingFactor(const vtkVector2d &scaling)
+{
+  if (scaling != this->ScalingFactor)
+    {
+    this->Modified();
+    this->ScalingFactor = scaling;
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkVector2d vtkPlot::GetScalingFactor()
+{
+  return this->ScalingFactor;
 }
 
 //-----------------------------------------------------------------------------
