@@ -9,7 +9,6 @@ import javax.media.opengl.awt.GLCanvas;
 
 import vtk.vtkGenericOpenGLRenderWindow;
 import vtk.vtkObject;
-import vtk.vtkOpenGLRenderWindow;
 import vtk.vtkRenderWindow;
 import vtk.rendering.vtkAbstractComponent;
 import vtk.rendering.vtkInteractorForwarder;
@@ -31,9 +30,17 @@ public class vtkJoglComponent extends vtkAbstractComponent<GLCanvas> {
     }
 
     public vtkJoglComponent(vtkRenderWindow renderWindowToUse) {
+        this(renderWindowToUse, new GLCapabilities(GLProfile.getDefault()));
+    }
+
+    public vtkJoglComponent(vtkRenderWindow renderWindowToUse, GLCapabilities capabilities) {
+        this(renderWindowToUse, new GLCanvas(capabilities));
+    }
+
+    public vtkJoglComponent(vtkRenderWindow renderWindowToUse, GLCanvas canvas) {
         super(renderWindowToUse);
         this.isWindowCreated = false;
-        this.uiComponent = new GLCanvas(new GLCapabilities(GLProfile.getDefault()));
+        this.uiComponent = canvas;
         this.glRenderWindow = (vtkGenericOpenGLRenderWindow) renderWindowToUse;
         this.glRenderWindow.SetIsDirect(1);
         this.glRenderWindow.SetSupportsOpenGL(1);
