@@ -42,10 +42,8 @@ vtkExtractUserDefinedPiece::vtkExtractUserDefinedPiece()
 }
 vtkExtractUserDefinedPiece::~vtkExtractUserDefinedPiece()
 {
-  if (this->ConstantData){
-    delete [] (char *)this->ConstantData;
-    this->ConstantData = NULL;
-  }
+  delete [] (char *)this->ConstantData;
+  this->ConstantData = NULL;
 }
 void vtkExtractUserDefinedPiece::PrintSelf(ostream& os, vtkIndent indent)
 {

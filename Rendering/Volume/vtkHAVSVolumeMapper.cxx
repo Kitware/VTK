@@ -278,15 +278,15 @@ vtkHAVSVolumeMapper::vtkHAVSVolumeMapper()
 //----------------------------------------------------------------------------
 vtkHAVSVolumeMapper::~vtkHAVSVolumeMapper()
 {
-  if (this->Vertices) { delete [] this->Vertices; }
-  if (this->Scalars) { delete [] this->Scalars; }
-  if (this->Triangles) { delete [] this->Triangles; }
-  if (this->BoundaryTriangles) { delete [] this->BoundaryTriangles; }
-  if (this->InternalTriangles) { delete [] this->InternalTriangles; }
-  if (this->SortedFaces) { delete [] this->SortedFaces; }
-  if (this->RadixTemp) { delete [] this->RadixTemp; }
-  if (this->Centers) { delete [] this->Centers; }
-  if (this->TransferFunction) { delete [] this->TransferFunction; }
+  delete [] this->Vertices;
+  delete [] this->Scalars;
+  delete [] this->Triangles;
+  delete [] this->BoundaryTriangles;
+  delete [] this->InternalTriangles;
+  delete [] this->SortedFaces;
+  delete [] this->RadixTemp;
+  delete [] this->Centers;
+  delete [] this->TransferFunction;
 }
 
 //----------------------------------------------------------------------------
@@ -318,13 +318,13 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
     return;
     }
 
-  if (this->Vertices) { delete [] this->Vertices; }
-  if (this->Triangles) { delete [] this->Triangles; }
-  if (this->BoundaryTriangles) { delete [] this->BoundaryTriangles; }
-  if (this->InternalTriangles) { delete [] this->InternalTriangles; }
-  if (this->SortedFaces) { delete [] this->SortedFaces; }
-  if (this->RadixTemp) { delete [] this->RadixTemp; }
-  if (this->Centers) { delete [] this->Centers; }
+  delete [] this->Vertices;
+  delete [] this->Triangles;
+  delete [] this->BoundaryTriangles;
+  delete [] this->InternalTriangles;
+  delete [] this->SortedFaces;
+  delete [] this->RadixTemp;
+  delete [] this->Centers;
 
 
   // Extract the triangles from the tetrahedra

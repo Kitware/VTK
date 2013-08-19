@@ -110,8 +110,8 @@ void vtkForceDirectedLayoutStrategy::Initialize()
       }
     }
 
-  if (this->v) delete[] this->v;
-  if (this->e) delete[] this->e;
+  delete[] this->v;
+  delete[] this->e;
   this->v = new vtkLayoutVertex[numVertices];
   this->e = new vtkLayoutEdge[numEdges];
 

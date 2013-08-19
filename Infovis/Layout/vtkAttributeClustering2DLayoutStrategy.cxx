@@ -116,7 +116,7 @@ void vtkAttributeClustering2DLayoutStrategy::SetVertexAttribute(const char* att)
   // except for the call to Initialize at the end :)
   if ( this->VertexAttribute == NULL && att == NULL) { return;}
   if ( this->VertexAttribute && att && (!strcmp(this->VertexAttribute,att))) { return;}
-  if (this->VertexAttribute) { delete [] this->VertexAttribute; }
+  delete [] this->VertexAttribute;
   if (att)
     {
     size_t n = strlen(att) + 1;
