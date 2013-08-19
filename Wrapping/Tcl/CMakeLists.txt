@@ -152,19 +152,19 @@ if(vtkParallelMPI_ENABLED)
     ENDIF(VTK_APPLE_RESOURCE)
   ENDIF(VTK_USE_CARBON)
 
-  target_link_libraries(pvtk ${PVTK_LIBRARIES})
+  target_link_libraries(pvtk LINK_PRIVATE ${PVTK_LIBRARIES})
   if(VTK_USE_TK)
-    target_link_libraries(pvtk ${VTK_TK_LIBRARIES})
+    target_link_libraries(pvtk LINK_PRIVATE ${VTK_TK_LIBRARIES})
   endif(VTK_USE_TK)
 
   # Link to TCL static libraries
   if(BUILD_SHARED_LIBS)
     # vtkCommonCoreTCL is required even for shared builds
     # to link the vtkTclUtil object - FIXME ??
-    target_link_libraries(pvtk vtkCommonCoreTCL)
+    target_link_libraries(pvtk LINK_PRIVATE vtkCommonCoreTCL)
   else()
     foreach(module ${VTK_TCL_WRAPPED})
-      target_link_libraries(pvtk ${${module}_TCL_NAME}TCL)
+      target_link_libraries(pvtk LINK_PRIVATE ${${module}_TCL_NAME}TCL)
     endforeach()
   endif()
 endif()

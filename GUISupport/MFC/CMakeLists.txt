@@ -20,7 +20,7 @@ set(MFC_SRCS
 vtk_module_library(${vtk-module} ${VTK_MFC_LIB_TYPE} ${MFC_SRCS})
 
 if(VTK_MFC_EXTRA_LIBS)
-  target_link_libraries(${vtk-module} ${VTK_MFC_EXTRA_LIBS})
+  target_link_libraries(${vtk-module} LINK_PRIVATE ${VTK_MFC_EXTRA_LIBS})
 endif(VTK_MFC_EXTRA_LIBS)
 
 if(WIN32)
