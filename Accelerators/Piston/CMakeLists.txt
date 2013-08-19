@@ -42,7 +42,7 @@ set_source_files_properties(
 list(APPEND Module_SRCS ${Module_CUDA_C_SRCS})
 
 vtk_module_library(vtkAcceleratorsPiston ${Module_SRCS})
-target_link_libraries(vtkAcceleratorsPiston ${CUDA_LIBRARIES})
+target_link_libraries(vtkAcceleratorsPiston LINK_PRIVATE ${CUDA_LIBRARIES})
 if(APPLE)
-  target_link_libraries(vtkAcceleratorsPiston /usr/local/cuda/lib/libtlshook.dylib)
+  target_link_libraries(vtkAcceleratorsPiston LINK_PRIVATE /usr/local/cuda/lib/libtlshook.dylib)
 endif()
