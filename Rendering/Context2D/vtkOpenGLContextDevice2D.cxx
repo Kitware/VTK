@@ -797,7 +797,33 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawString(float *point,
-                                          const vtkStdString &string)
+                                          const vtkStdString &str)
+{
+  // The &str[0] below will segfault if the string is empty:
+  if (size_t size = str.size())
+    {
+    const char *begin(&str[0]);
+    const char *end(begin + size);
+    this->DrawString(point, vtkUnicodeString::from_utf8(begin, end));
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &str,
+                                                   float bounds[4])
+{
+  // The &str[0] below will segfault if the string is empty:
+  if (size_t size = str.size())
+    {
+    const char *begin(&str[0]);
+    const char *end(begin + size);
+    this->ComputeStringBounds(vtkUnicodeString::from_utf8(begin, end), bounds);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawString(float *point,
+                                          const vtkUnicodeString &string)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -810,9 +836,9 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
                 std::floor(point[1] * yScale) / yScale };
 
   // Cache rendered text strings
-  vtkTextureImageCache<TextPropertyKey>::CacheData &cache =
-    this->Storage->TextTextureCache.GetCacheData(
-      TextPropertyKey(this->TextProp, string));
+  vtkTextureImageCache<UTF16TextPropertyKey>::CacheData &cache =
+      this->Storage->TextTextureCache.GetCacheData(
+        UTF16TextPropertyKey(this->TextProp, string));
   vtkImageData* image = cache.ImageData;
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
     {
@@ -865,47 +891,6 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
-                                                   float bounds[4])
-{
-  vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string);
-  // Check for invalid bounding box
-  if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
-      box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)
-    {
-    bounds[0] = static_cast<float>(0);
-    bounds[1] = static_cast<float>(0);
-    bounds[2] = static_cast<float>(0);
-    bounds[3] = static_cast<float>(0);
-    return;
-    }
-  GLfloat mv[16];
-  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
-  float xScale = mv[0];
-  float yScale = mv[5];
-  bounds[0] = static_cast<float>(0);
-  bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.GetX() / xScale);
-  bounds[3] = static_cast<float>(box.GetY() / yScale);
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawString(float *point,
-                                          const vtkUnicodeString &string)
-{
-  int p[] = { static_cast<int>(point[0]),
-              static_cast<int>(point[1]) };
-
-  //TextRenderer draws in window, not viewport coords
-  p[0]+=this->Storage->Offset.GetX();
-  p[1]+=this->Storage->Offset.GetY();
-  vtkImageData *data = vtkImageData::New();
-  this->TextRenderer->RenderString(this->TextProp, string, data);
-  this->DrawImage(point, 1.0, data);
-  data->Delete();
-}
-
-//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &string,
                                                    float bounds[4])
 {
@@ -948,9 +933,9 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
   float p[] = { std::floor(point[0]), std::floor(point[1]) };
 
   // Cache rendered text strings
-  vtkTextureImageCache<TextPropertyKey>::CacheData &cache =
+  vtkTextureImageCache<UTF8TextPropertyKey>::CacheData &cache =
     this->Storage->MathTextTextureCache.GetCacheData(
-      TextPropertyKey(this->TextProp, string));
+      UTF8TextPropertyKey(this->TextProp, string));
   vtkImageData* image = cache.ImageData;
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
     {

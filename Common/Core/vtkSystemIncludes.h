@@ -75,6 +75,7 @@
 #define VTK_COURIER        1
 #define VTK_TIMES          2
 #define VTK_UNKNOWN_FONT   3
+#define VTK_FONT_FILE      4
 
 #define VTK_TEXT_LEFT     0
 #define VTK_TEXT_CENTERED 1
