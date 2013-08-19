@@ -25,7 +25,7 @@ int vtkAtomicInt32Increment(int* value, vtkSimpleCriticalSection* cs)
 {
   (void)cs;
 
-#if defined(WIN32) || defined(_WIN32)
+#if defined(_WIN32)
   return InterlockedIncrement((long*)value);
 
 #elif defined(__APPLE__)
@@ -51,7 +51,7 @@ int vtkAtomicInt32Add(int* value, int val, vtkSimpleCriticalSection* cs)
 {
   (void)cs;
 
-#if defined(WIN32) || defined(_WIN32)
+#if defined(_WIN32)
   return InterlockedAdd((long*)value, val);
 
 #elif defined(__APPLE__)
@@ -76,7 +76,7 @@ int vtkAtomicInt32Decrement(int* value, vtkSimpleCriticalSection* cs)
 {
   (void)cs;
 
-#if defined(WIN32) || defined(_WIN32)
+#if defined(_WIN32)
   return InterlockedDecrement((long*)value);
 
 #elif defined(__APPLE__)
@@ -96,15 +96,24 @@ int vtkAtomicInt32Decrement(int* value, vtkSimpleCriticalSection* cs)
 #endif
 }
 
+#ifdef _WIN32
+# define __align32 __declspec(align(32))
+#else
+# define __align32
+#endif
+
 struct vtkAtomicInt32Internal
 {
-  int Value;
+  // Explicitely aligning Value on Windows is probably not necessary
+  // since the compiler should automatically do it. Just being extra
+  // cautious since the InterlockedXXX() functions require alignment.
+  __align32 int Value;
 
   vtkSimpleCriticalSection* AtomicInt32CritSec;
 
   vtkAtomicInt32Internal()
     {
-#if defined(WIN32) || defined(_WIN32) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
+#if defined(_WIN32) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
       this->AtomicInt32CritSec = 0;
 #else
       this->AtomicInt32CritSec = new vtkSimpleCriticalSection;
