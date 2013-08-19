@@ -10,6 +10,15 @@ if(VTK_JAVA_SWT_COMPONENT)
   find_package(SWT REQUIRED)
 endif()
 
+# Add the option for build the JOGL component to VTK.
+option(VTK_JAVA_JOGL_COMPONENT "Need JOGL jar files" OFF)
+
+if(VTK_JAVA_JOGL_COMPONENT)
+  set(MAVEN_REPO "$ENV{HOME}/.m2/repository")
+  find_file(JOGL_LIB jogl-all-2.0.2.jar PATHS ${MAVEN_REPO}/org/jogamp/jogl/jogl-all/2.0.2 )
+  find_file(JOGL_GLUE gluegen-rt-2.0.2.jar PATHS ${MAVEN_REPO}/org/jogamp/gluegen/gluegen-rt/2.0.2 )
+endif()
+
 set(WrappingJava_SRCS
   vtkJavaUtil.cxx
   )
@@ -18,7 +27,7 @@ vtk_module_library(vtkWrappingJava ${WrappingJava_SRCS})
 
 # javac runs out memory on Mac so increase heapsize
 if(APPLE)
-  set(JAVAC_OPTIONS -J-Xmx256m)
+  set(JAVAC_OPTIONS -J-Xmx512m)
 endif()
 
 foreach(module ${VTK_MODULES_ENABLED})
@@ -175,6 +184,12 @@ if(vtkRenderingCore_ENABLED AND vtkIOImage_ENABLED)
       rendering/swt/vtkSwtInteractorForwarderDecorator
     )
   endif()
+  if(VTK_JAVA_JOGL_COMPONENT)
+    set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
+      rendering/jogl/vtkJoglComponent
+      sample/rendering/JoglConeRendering
+    )
+  endif()
   set(VTK_JAVA_SAMPLE_DEPENDENCIES ${VTK_JAVA_SAMPLE_DEPENDENCIES}
     InternalFrames
     Demo
@@ -232,13 +247,29 @@ if(VTK_JAVA_SWT_COMPONENT)
   set(SWT_FILES "${VTK_BINARY_DIR}/java/vtk/rendering/swt/*.java")
 endif()
 
+if(VTK_JAVA_JOGL_COMPONENT)
+  set(JOGL_FILES "${VTK_BINARY_DIR}/java/vtk/rendering/jogl/*.java" "${VTK_BINARY_DIR}/java/vtk/sample/rendering/JoglConeRendering.java")
+endif()
+
+# Handle Java class path
+set(JAVA_COMPILATION_CLASSPATH "${VTK_JAVA_HOME}/..")
+if(ECLIPSE_SWT_LIBRARIES)
+    set(JAVA_COMPILATION_CLASSPATH "${JAVA_COMPILATION_CLASSPATH}${SEPARATOR}${ECLIPSE_SWT_LIBRARIES}")
+endif()
+if(JOGL_LIB)
+    set(JAVA_COMPILATION_CLASSPATH "${JAVA_COMPILATION_CLASSPATH}${SEPARATOR}${JOGL_LIB}")
+endif()
+if(JOGL_GLUE)
+    set(JAVA_COMPILATION_CLASSPATH "${JAVA_COMPILATION_CLASSPATH}${SEPARATOR}${JOGL_GLUE}")
+endif()
+
 # Compile the Java classes
 add_custom_command(
   OUTPUT ${VTK_BINARY_DIR}/java/javac_stamp.txt
   DEPENDS ${VTK_JAVA_SOURCE_FILES}
   COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS}
-    -source 1.5 -classpath ${VTK_JAVA_HOME}/..${SEPARATOR}${ECLIPSE_SWT_LIBRARIES} -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
-    ${VTK_BINARY_DIR}/java/vtk/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/awt/*.java ${SWT_FILES}
+    -source 1.5 -target 1.5 -classpath ${JAVA_COMPILATION_CLASSPATH} -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
+    ${VTK_BINARY_DIR}/java/vtk/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/awt/*.java ${VTK_BINARY_DIR}/java/vtk/sample/*.java ${SWT_FILES} ${JOGL_FILES}
   COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_stamp.txt
   COMMENT "Compiling Java Classes"
   )
