@@ -84,7 +84,8 @@ public:
   // Description:
   // For the node specified by index, set/get the
   // location (X), value (Y), midpoint, and sharpness
-  // values at the node.
+  // values at the node. Returns -1 if the index is
+  // out of range, returns 1 otherwise.
   int GetNodeValue( int index, double val[4] );
   int SetNodeValue( int index, double val[4] );
 

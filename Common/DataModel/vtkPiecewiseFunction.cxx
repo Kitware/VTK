@@ -18,6 +18,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+#include <cassert>
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -133,7 +134,8 @@ void vtkPiecewiseFunction::DeepCopy( vtkDataObject *o )
     for ( i = 0; i < f->GetSize(); i++ )
       {
       double val[4];
-      f->GetNodeValue(i, val);
+      int isInRange = f->GetNodeValue(i, val);
+      assert(isInRange == 1); (void)isInRange;
       this->AddPoint(val[0], val[1], val[2], val[3]);
       }
     this->Modified();
@@ -155,7 +157,8 @@ void vtkPiecewiseFunction::ShallowCopy( vtkDataObject *o )
     for ( i = 0; i < f->GetSize(); i++ )
       {
       double val[4];
-      f->GetNodeValue(i, val);
+      int isInRange = f->GetNodeValue(i, val);
+      assert(isInRange == 1); (void)isInRange;
       this->AddPoint(val[0], val[1], val[2], val[3]);
       }
     this->Modified();
