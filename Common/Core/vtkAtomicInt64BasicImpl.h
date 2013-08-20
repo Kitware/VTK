@@ -15,6 +15,7 @@
 
 #include "vtkCriticalSection.h"
 
+#include "vtkConfigure.h"
 #include "vtkWindows.h"
 
 #if defined(__APPLE__)
@@ -26,10 +27,10 @@ vtkTypeInt64 vtkAtomicInt64Increment(vtkTypeInt64* value,
 {
   (void)cs;
 
-#if defined(_WIN32)
+#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
   return InterlockedIncrement64(value);
 
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && defined(VTK_HAS_OSATOMICINCREMENT64)
   return OSAtomicIncrement64(value);
 
 // GCC, CLANG, etc
@@ -54,10 +55,10 @@ vtkTypeInt64 vtkAtomicInt64Add(vtkTypeInt64* value,
 {
   (void)cs;
 
-#if defined(_WIN32)
+#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
   return InterlockedAdd64(value, val);
 
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && defined(VTK_HAS_OSATOMICINCREMENT64)
   return OSAtomicAdd64(val, value);
 
 // GCC, CLANG, etc
@@ -80,10 +81,10 @@ vtkTypeInt64 vtkAtomicInt64Decrement(vtkTypeInt64* value,
 {
   (void)cs;
 
-#if defined(_WIN32)
+#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
   return InterlockedDecrement64(value);
 
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && defined(VTK_HAS_OSATOMICINCREMENT64)
   return OSAtomicDecrement64(value);
 
 // GCC, CLANG, etc
@@ -116,7 +117,7 @@ struct vtkAtomicInt64Internal
 
   vtkAtomicInt64Internal()
     {
-#if defined(_WIN32) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
+#if (defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)) || (defined(__APPLE__) && defined(VTK_HAS_OSATOMICINCREMENT64)) || defined(VTK_HAVE_SYNC_BUILTINS)
       this->AtomicInt64CritSec = 0;
 #else
       this->AtomicInt64CritSec = new vtkSimpleCriticalSection;

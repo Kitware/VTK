@@ -15,6 +15,7 @@
 
 #include "vtkCriticalSection.h"
 
+#include "vtkConfigure.h"
 #include "vtkWindows.h"
 
 #if defined(__APPLE__)
@@ -25,7 +26,7 @@ int vtkAtomicInt32Increment(int* value, vtkSimpleCriticalSection* cs)
 {
   (void)cs;
 
-#if defined(_WIN32)
+#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
   return InterlockedIncrement((long*)value);
 
 #elif defined(__APPLE__)
@@ -51,7 +52,7 @@ int vtkAtomicInt32Add(int* value, int val, vtkSimpleCriticalSection* cs)
 {
   (void)cs;
 
-#if defined(_WIN32)
+#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
   return InterlockedAdd((long*)value, val);
 
 #elif defined(__APPLE__)
@@ -76,7 +77,7 @@ int vtkAtomicInt32Decrement(int* value, vtkSimpleCriticalSection* cs)
 {
   (void)cs;
 
-#if defined(_WIN32)
+#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
   return InterlockedDecrement((long*)value);
 
 #elif defined(__APPLE__)
@@ -113,7 +114,7 @@ struct vtkAtomicInt32Internal
 
   vtkAtomicInt32Internal()
     {
-#if defined(_WIN32) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
+#if (defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
       this->AtomicInt32CritSec = 0;
 #else
       this->AtomicInt32CritSec = new vtkSimpleCriticalSection;

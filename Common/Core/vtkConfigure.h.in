@@ -40,7 +40,13 @@
 #cmakedefine VTK_USE_WIN32_THREADS
 # define VTK_MAX_THREADS @VTK_MAX_THREADS@
 
+/* Atomic operations */
 #cmakedefine VTK_HAVE_SYNC_BUILTINS
+#if defined(__APPLE__)
+ #cmakedefine VTK_HAS_OSATOMICINCREMENT64
+#elif defined(WIN32)
+ #cmakedefine VTK_HAS_INTERLOCKEDADD
+#endif
 
 /* Size of fundamental data types.  */
 /* Mac OS X uses two data models, ILP32 (in which integers, long integers,
