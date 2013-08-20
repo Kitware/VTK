@@ -15,6 +15,7 @@
 #include "vtkTimeStamp.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkWindows.h"
 
 //-------------------------------------------------------------------------
 vtkTimeStamp* vtkTimeStamp::New()
@@ -26,6 +27,14 @@ vtkTimeStamp* vtkTimeStamp::New()
 //-------------------------------------------------------------------------
 void vtkTimeStamp::Modified()
 {
+#if defined(_WIN32)
+  // On Windows, we directly go to InterlockedIncrement, rather than using
+  // AtomicInt because on Windows XP AtomicInts default to using critical
+  // sections, which are slower than atomic functions. This is because
+  // InterlockedAdd does not exist on XP and AtomicInts need to support it.
+  static LONG vtkTimeStampTime = 0;
+  this->ModifiedTime = (unsigned long)InterlockedIncrement(&vtkTimeStampTime);
+#else
   // Note that this would not normally be thread safe. However,
   // VTK initializes static objects at load time, which in turn call
   // this functions, which make this thread safe. If this behavior
@@ -33,6 +42,6 @@ void vtkTimeStamp::Modified()
   // class member which is initialized at load time.
   static vtkAtomicInt64 GlobalTimeStamp(0);
 
-  this->ModifiedTime =
-    (unsigned long)GlobalTimeStamp.Increment();
+  this->ModifiedTime = (unsigned long)GlobalTimeStamp.Increment();
+#endif
 }

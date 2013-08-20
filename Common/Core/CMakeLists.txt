@@ -254,6 +254,15 @@ else()
   set(VTK_CONFIG_LEGACY_VERSION "#include \"vtkVersionMacros.h\" // removed by VTK_LEGACY_REMOVE")
 endif()
 
+# Check for atomic functions
+include(CheckSymbolExists)
+if (APPLE)
+  check_symbol_exists(OSAtomicIncrement64 "libkern/OSAtomic.h" VTK_HAS_OSATOMICINCREMENT64)
+elseif (WIN32)
+  check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
+endif()
+
+
 configure_file(vtkVersionMacros.h.in vtkVersionMacros.h @ONLY)
 configure_file(vtkConfigure.h.in vtkConfigure.h @ONLY)
 configure_file(vtkToolkits.h.in vtkToolkits.h @ONLY)
@@ -331,7 +340,6 @@ endforeach()
 
 # look for various headers and functions
 include(CheckCXXExpressionCompiles)
-include(CheckSymbolExists)
 include(CheckIncludeFile)
 
 # Check C++ <cmath> first, where the C++11 standard says these must be.
