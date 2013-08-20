@@ -18,7 +18,9 @@ if(NOT VTK_USE_SYSTEM_TWISTED)
 
   build_python_package("Twisted" ${Twisted_SOURCE_DIR} ${Twisted_BINARY_DIR})
 
-  install(DIRECTORY ${Twisted_BINARY_DIR}
-    DESTINATION "${pymodule_install_dir}"
-    COMPONENT Runtime)
+  if(NOT VTK_INSTALL_NO_PYTHON)
+    install(DIRECTORY ${Twisted_BINARY_DIR}
+      DESTINATION "${pymodule_install_dir}"
+      COMPONENT Runtime)
+  endif()
 endif()

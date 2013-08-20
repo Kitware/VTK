@@ -18,8 +18,9 @@ if(NOT VTK_USE_SYSTEM_ZOPE)
 
   build_python_package("zope" ${zope_SOURCE_DIR} ${zope_BINARY_DIR})
 
-  install(DIRECTORY ${zope_BINARY_DIR}
-    DESTINATION "${pymodule_install_dir}"
-    COMPONENT Runtime)
-
+  if(NOT VTK_INSTALL_NO_PYTHON)
+    install(DIRECTORY ${zope_BINARY_DIR}
+      DESTINATION "${pymodule_install_dir}"
+      COMPONENT Runtime)
+  endif()
 endif()
