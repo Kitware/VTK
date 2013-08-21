@@ -801,7 +801,6 @@ public:
     for ( unsigned int i = 0; i < this->LeafParent.size(); ++ i )
       {
       os << this->LeafParent[i] << " ";
-      ++ i;
       }
     os << endl;
   }
