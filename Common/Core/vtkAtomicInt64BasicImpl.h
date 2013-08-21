@@ -22,16 +22,71 @@
   #include <libkern/OSAtomic.h>
 #endif
 
+void vtkAtomicInt64Set(vtkTypeInt64* value,
+                       vtkTypeInt64 newval,
+                       vtkSimpleCriticalSection* cs)
+{
+  (void)cs;
+
+#if defined(_WIN32) && (VTK_SIZEOF_VOID_P == 8)
+  InterlockedExchange64(value, newval);
+
+#elif defined(__APPLE__)
+  OSAtomicCompareAndSwap64Barrier(*value, newval, value);
+
+// GCC, CLANG, etc
+#elif defined(VTK_HAVE_SYNC_BUILTINS)
+  __sync_val_compare_and_swap(value, *value, newval);
+
+// General case
+#else
+  cs->Lock();
+  *value = newval;
+  cs->Unlock();
+
+#endif
+}
+
+int vtkAtomicInt64Get(vtkTypeInt64* value, vtkSimpleCriticalSection* cs)
+{
+  (void)cs;
+
+#if defined(_WIN32) && (VTK_SIZEOF_VOID_P == 8)
+  vtkTypeInt64 retval;
+  InterlockedExchange64(&retval, *value);
+  return retval;
+
+#elif defined(__APPLE__)
+  vtkTypeInt64 retval = 0;
+  OSAtomicCompareAndSwap64Barrier(retval, *value, &retval);
+  return retval;
+
+// GCC, CLANG, etc
+#elif defined(VTK_HAVE_SYNC_BUILTINS)
+  vtkTypeInt64 retval = 0;
+  __sync_val_compare_and_swap(&retval, retval, *value);
+  return retval;
+
+#else
+  vtkTypeInt64 val;
+  cs->Lock();
+  val = *value;
+  cs->Unlock();
+  return val;
+
+#endif
+}
+
 vtkTypeInt64 vtkAtomicInt64Increment(vtkTypeInt64* value,
                                      vtkSimpleCriticalSection* cs)
 {
   (void)cs;
 
-#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
+#if defined(_WIN32) && (VTK_SIZEOF_VOID_P == 8)
   return InterlockedIncrement64(value);
 
 #elif defined(__APPLE__) && defined(VTK_HAS_OSATOMICINCREMENT64)
-  return OSAtomicIncrement64(value);
+  return OSAtomicIncrement64Barrier(value);
 
 // GCC, CLANG, etc
 #elif defined(VTK_HAVE_SYNC_BUILTINS)
@@ -55,11 +110,15 @@ vtkTypeInt64 vtkAtomicInt64Add(vtkTypeInt64* value,
 {
   (void)cs;
 
-#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
+#if defined(_WIN32) && (VTK_SIZEOF_VOID_P == 8)
+ #if defined(VTK_HAS_INTERLOCKEDADD)
   return InterlockedAdd64(value, val);
+ #else
+  return InterlockedExchangeAdd64(value, val) + val;
+ #endif
 
 #elif defined(__APPLE__) && defined(VTK_HAS_OSATOMICINCREMENT64)
-  return OSAtomicAdd64(val, value);
+  return OSAtomicAdd64Barrier(val, value);
 
 // GCC, CLANG, etc
 #elif defined(VTK_HAVE_SYNC_BUILTINS)
@@ -81,11 +140,11 @@ vtkTypeInt64 vtkAtomicInt64Decrement(vtkTypeInt64* value,
 {
   (void)cs;
 
-#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
+#if defined(_WIN32) && (VTK_SIZEOF_VOID_P == 8)
   return InterlockedDecrement64(value);
 
 #elif defined(__APPLE__) && defined(VTK_HAS_OSATOMICINCREMENT64)
-  return OSAtomicDecrement64(value);
+  return OSAtomicDecrement64Barrier(value);
 
 // GCC, CLANG, etc
 #elif defined(VTK_HAVE_SYNC_BUILTINS)
@@ -117,7 +176,7 @@ struct vtkAtomicInt64Internal
 
   vtkAtomicInt64Internal()
     {
-#if (defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)) || (defined(__APPLE__) && defined(VTK_HAS_OSATOMICINCREMENT64)) || defined(VTK_HAVE_SYNC_BUILTINS)
+#if (defined(_WIN32) && VTK_SIZEOF_VOID_P == 8) || (defined(__APPLE__) && defined(VTK_HAS_OSATOMICINCREMENT64)) || defined(VTK_HAVE_SYNC_BUILTINS)
       this->AtomicInt64CritSec = 0;
 #else
       this->AtomicInt64CritSec = new vtkSimpleCriticalSection;

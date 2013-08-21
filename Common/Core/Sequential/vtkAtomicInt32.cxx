@@ -31,12 +31,15 @@ void vtkAtomicInt32::Initialize(const int val)
 
 void vtkAtomicInt32::Set(int value)
 {
-  this->Internal->Value = value;
+  vtkAtomicInt32Set(&this->Internal->Value,
+                    value,
+                    this->Internal->AtomicInt32CritSec);
 }
 
 int vtkAtomicInt32::Get() const
 {
-  return this->Internal->Value;
+  return vtkAtomicInt32Get(&this->Internal->Value,
+                           this->Internal->AtomicInt32CritSec);
 }
 
 int vtkAtomicInt32::Increment()

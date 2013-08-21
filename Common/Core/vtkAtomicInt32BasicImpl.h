@@ -22,15 +22,68 @@
   #include <libkern/OSAtomic.h>
 #endif
 
+void vtkAtomicInt32Set(int* value, int newval, vtkSimpleCriticalSection* cs)
+{
+  (void)cs;
+
+#if defined(_WIN32)
+  InterlockedExchange((long*)value, newval);
+
+#elif defined(__APPLE__)
+  OSAtomicCompareAndSwap32Barrier(*value, newval, value);
+
+// GCC, CLANG, etc
+#elif defined(VTK_HAVE_SYNC_BUILTINS)
+  __sync_val_compare_and_swap(value, *value, newval);
+
+// General case
+#else
+  cs->Lock();
+  *value = newval;
+  cs->Unlock();
+
+#endif
+}
+
+int vtkAtomicInt32Get(int* value, vtkSimpleCriticalSection* cs)
+{
+  (void)cs;
+
+#if defined(_WIN32)
+  long retval;
+  InterlockedExchange(&retval, *value);
+  return retval;
+
+#elif defined(__APPLE__)
+  int retval = 0;
+  OSAtomicCompareAndSwap32Barrier(retval, *value, &retval);
+  return retval;
+
+// GCC, CLANG, etc
+#elif defined(VTK_HAVE_SYNC_BUILTINS)
+  int retval = 0;
+  __sync_val_compare_and_swap(&retval, retval, *value);
+  return retval;
+
+#else
+  int val;
+  cs->Lock();
+  val = *value;
+  cs->Unlock();
+  return val;
+
+#endif
+}
+
 int vtkAtomicInt32Increment(int* value, vtkSimpleCriticalSection* cs)
 {
   (void)cs;
 
-#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
+#if defined(_WIN32)
   return InterlockedIncrement((long*)value);
 
 #elif defined(__APPLE__)
-  return OSAtomicIncrement32(value);
+  return OSAtomicIncrement32Barrier(value);
 
 // GCC, CLANG, etc
 #elif defined(VTK_HAVE_SYNC_BUILTINS)
@@ -52,11 +105,15 @@ int vtkAtomicInt32Add(int* value, int val, vtkSimpleCriticalSection* cs)
 {
   (void)cs;
 
-#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
+#if defined(_WIN32)
+ #if defined(VTK_HAS_INTERLOCKEDADD)
   return InterlockedAdd((long*)value, val);
+ #else
+  return InterlockedExchangeAdd((long*)value, val) + val;
+ #endif
 
 #elif defined(__APPLE__)
-  return OSAtomicAdd32(val, value);
+  return OSAtomicAdd32Barrier(val, value);
 
 // GCC, CLANG, etc
 #elif defined(VTK_HAVE_SYNC_BUILTINS)
@@ -77,11 +134,11 @@ int vtkAtomicInt32Decrement(int* value, vtkSimpleCriticalSection* cs)
 {
   (void)cs;
 
-#if defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)
+#if defined(_WIN32)
   return InterlockedDecrement((long*)value);
 
 #elif defined(__APPLE__)
-  return OSAtomicDecrement32(value);
+  return OSAtomicDecrement32Barrier(value);
 
 // GCC, CLANG, etc
 #elif defined(VTK_HAVE_SYNC_BUILTINS)
@@ -114,7 +171,7 @@ struct vtkAtomicInt32Internal
 
   vtkAtomicInt32Internal()
     {
-#if (defined(_WIN32) && defined(VTK_HAS_INTERLOCKEDADD)) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
+#if defined(_WIN32) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
       this->AtomicInt32CritSec = 0;
 #else
       this->AtomicInt32CritSec = new vtkSimpleCriticalSection;
