@@ -1,0 +1,154 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestDiagram.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkTanglegramItem - Display two related trees
+//
+// .SECTION Description
+// This item draws two trees with connections between their leaf nodes.
+//
+// .SEE ALSO
+// vtkTree vtkTable vtkDendrogramItem vtkNewickTreeReader
+
+#ifndef __vtkTanglegramItem_h
+#define __vtkTanglegramItem_h
+
+#include "vtkViewsInfovisModule.h" // For export macro
+
+#include "vtkContextItem.h"
+#include "vtkSmartPointer.h"       // For SmartPointer ivars
+#include "vtkTable.h"  // For get/set
+
+class vtkDendrogramItem;
+class vtkStringArray;
+class vtkTree;
+
+class VTKVIEWSINFOVIS_EXPORT vtkTanglegramItem : public vtkContextItem
+{
+public:
+  static vtkTanglegramItem *New();
+  vtkTypeMacro(vtkTanglegramItem, vtkContextItem);
+  virtual void PrintSelf(ostream &os, vtkIndent indent);
+
+  // Description:
+  // Set the first tree
+  virtual void SetTree1(vtkTree *tree);
+
+  // Description:
+  // Set the second tree
+  virtual void SetTree2(vtkTree *tree);
+
+  // Description:
+  // Get/Set the table that describes the correspondences between the
+  // two trees.
+  vtkGetMacro(Table, vtkTable*);
+  void SetTable(vtkTable *table);
+
+  // Description:
+  // Get/Set the label for tree #1.
+  vtkGetStringMacro(Tree1Label);
+  vtkSetStringMacro(Tree1Label);
+
+  // Description:
+  // Get/Set the label for tree #2.
+  vtkGetStringMacro(Tree2Label);
+  vtkSetStringMacro(Tree2Label);
+
+  // Description:
+  // Set which way the tanglegram should face within the visualization.
+  // The default is for tree #1 to be drawn left to right.
+  void SetOrientation(int orientation);
+
+  // Description:
+  // Get the current orientation.
+  int GetOrientation();
+
+  // BTX
+
+  // Description:
+  // Returns true if the transform is interactive, false otherwise.
+  virtual bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Propagate any double click onto the dendrograms to check if any
+  // subtrees should be collapsed or expanded.
+  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &event);
+
+  //ETX
+
+protected:
+  vtkTanglegramItem();
+  ~vtkTanglegramItem();
+
+  // Description:
+  // Update the bounds of our two dendrograms.
+  void RefreshBuffers(vtkContext2D *painter);
+
+  // Description:
+  // Calculate and set an appropriate position for our second dendrogram.
+  void PositionTree2();
+
+  // Description:
+  // Draw the lines between the corresponding vertices of our two dendrograms.
+  void PaintCorrespondenceLines(vtkContext2D *painter);
+
+  // Description:
+  // Draw the labels of our two dendrograms.
+  void PaintTreeLabels(vtkContext2D *painter);
+
+  // Description:
+  // Reorder the children of tree #2 to minimize the amount of crossings
+  // in our tanglegram.
+  void ReorderTree();
+
+  // Description:
+  // Helper function used by ReorderTree.
+  // Rearrange the children of the specified parent vertex in order to minimize
+  // tanglegram crossings.
+  void ReorderTreeAtVertex(vtkIdType parent, vtkTree *tree);
+
+  // Description:
+  // Helper function used by ReorderTreeAtVertex.  Get the average height of
+  // the vertices that correspond to the vertex parameter.  This information
+  // is used to determine what order sibling vertices should have within the
+  // tree.
+  double GetPositionScoreForVertex(vtkIdType vertex, vtkTree *tree);
+
+  // Description:
+  // Paints the tree & associated table as a heatmap.
+  virtual bool Paint(vtkContext2D *painter);
+
+private:
+  vtkSmartPointer<vtkDendrogramItem> Dendrogram1;
+  vtkSmartPointer<vtkDendrogramItem> Dendrogram2;
+  vtkTable *Table;
+  vtkStringArray *Tree1Names;
+  vtkStringArray *Tree2Names;
+  vtkStringArray *SourceNames;
+  double Tree1Bounds[4];
+  double Tree2Bounds[4];
+  double Spacing;
+  double LabelWidth1;
+  double LabelWidth2;
+  bool PositionSet;
+  bool TreeReordered;
+  char* Tree1Label;
+  char* Tree2Label;
+  int Orientation;
+
+  vtkTanglegramItem(const vtkTanglegramItem&); // Not implemented
+  void operator=(const vtkTanglegramItem&); // Not implemented
+
+};
+
+#endif
