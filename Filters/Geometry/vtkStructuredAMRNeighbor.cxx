@@ -67,13 +67,6 @@ vtkStructuredAMRNeighbor::vtkStructuredAMRNeighbor(
 }
 
 //-----------------------------------------------------------------------------
-vtkStructuredAMRNeighbor::vtkStructuredAMRNeighbor(
-      const vtkStructuredAMRNeighbor &N)
-{
-  *this = N;
-}
-
-//-----------------------------------------------------------------------------
 vtkStructuredAMRNeighbor& vtkStructuredAMRNeighbor::operator=(
       const vtkStructuredAMRNeighbor &N)
 {

@@ -69,7 +69,8 @@ public:
 
   // Description:
   // Copy constructor.
-  vtkStructuredAMRNeighbor(const vtkStructuredAMRNeighbor &N);
+  vtkStructuredAMRNeighbor(const vtkStructuredAMRNeighbor &N) :
+    vtkStructuredNeighbor(N) { *this = N; }
 
   // Description:
   // Destructor.
