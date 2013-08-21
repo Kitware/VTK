@@ -20,6 +20,8 @@ if(NOT VTK_WRAP_PYTHON)
    message(FATAL_ERROR "Web group can NOT work if VTK_WRAP_PYTHON is not ON.")
 endif()
 
-install(DIRECTORY ${vtkWebPython_BINARY_DIR}
-  DESTINATION "${pymodule_install_dir}"
-  COMPONENT Runtime)
+if(NOT VTK_INSTALL_NO_PYTHON)
+  install(DIRECTORY ${vtkWebPython_BINARY_DIR}
+    DESTINATION "${pymodule_install_dir}"
+    COMPONENT Runtime)
+endif()
