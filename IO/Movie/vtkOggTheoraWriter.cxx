@@ -180,8 +180,7 @@ int vtkOggTheoraWriterInternal::Start()
     // the stride is in bytes
     this->thImage[i].stride = this->thImage[i].width*sizeof(unsigned char);
     // make sure there's nothing left laying around...
-    if (this->thImage[i].data)
-      delete[] this->thImage[i].data;
+    delete[] this->thImage[i].data;
     // allocate the image plane
     size_t siz = this->thImage[i].width * this->thImage[i].height;
     this->thImage[i].data   = new unsigned char[siz];

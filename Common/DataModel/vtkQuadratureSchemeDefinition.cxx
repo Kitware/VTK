@@ -170,7 +170,8 @@ void vtkQuadratureSchemeDefinition::SetShapeFunctionWeights(const double *W)
 {
   if ((this->NumberOfQuadraturePoints<=0)
       || (this->NumberOfNodes<=0)
-      || (this->ShapeFunctionWeights==0))
+      || (this->ShapeFunctionWeights==0)
+      || !W)
     {
     return;
     }
@@ -187,7 +188,8 @@ void vtkQuadratureSchemeDefinition::SetQuadratureWeights(const double *W)
 {
   if ((this->NumberOfQuadraturePoints<=0)
       || (this->NumberOfNodes<=0)
-      || (this->QuadratureWeights==0))
+      || (this->QuadratureWeights==0)
+      || !W)
     {
     return;
     }

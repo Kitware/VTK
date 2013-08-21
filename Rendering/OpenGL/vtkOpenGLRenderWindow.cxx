@@ -68,8 +68,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 
   this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   this->TextureResourceIds = vtkIdList::New();
-  if ( this->WindowName )
-    delete [] this->WindowName;
+  delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
   strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
 

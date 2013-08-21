@@ -129,23 +129,6 @@ public:
   // vtkPropAssembly.)
   virtual vtkPropAssembly *GetPropAssembly();
 
-// Disable warnings about qualifiers on return types.
-#if defined(_COMPILER_VERSION)
-# pragma set woff 3303
-#endif
-#if defined(__INTEL_COMPILER)
-# pragma warning (push)
-# pragma warning (disable:858)
-#endif
-
-// Reset disabled warning about qualifiers on return types.
-#if defined(__INTEL_COMPILER)
-# pragma warning (pop)
-#endif
-#if defined(_COMPILER_VERSION)
-# pragma reset woff 3303
-#endif
-
 protected:
   vtkAbstractPropPicker();
   ~vtkAbstractPropPicker();

@@ -52,8 +52,7 @@ QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
 
 QVTKGraphicsItem::~QVTKGraphicsItem()
 {
-  if(mFBO)
-    delete mFBO;
+  delete mFBO;
 }
 
 void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
@@ -118,8 +117,7 @@ void QVTKGraphicsItem::MakeCurrent()
   QSize sz = this->size().toSize();
   if(!mFBO || sz != mFBO->size())
   {
-    if(mFBO)
-      delete mFBO;
+    delete mFBO;
 
     if(!sz.isEmpty())
       mFBO = new QGLFramebufferObject(sz, QGLFramebufferObject::Depth);

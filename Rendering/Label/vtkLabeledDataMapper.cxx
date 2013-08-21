@@ -801,7 +801,7 @@ vtkLabeledDataMapper::SetFieldDataName(const char *arrayName)
 
   if ( this->FieldDataName == NULL && arrayName == NULL) { return; }
   if ( this->FieldDataName && arrayName && (!strcmp(this->FieldDataName,arrayName))) { return;}
-  if (this->FieldDataName) { delete [] this->FieldDataName; }
+  delete [] this->FieldDataName;
   if (arrayName)
     {
     this->FieldDataName = new char[strlen(arrayName)+1];
