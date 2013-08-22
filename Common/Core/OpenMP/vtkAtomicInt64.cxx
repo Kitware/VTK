@@ -31,12 +31,25 @@ void vtkAtomicInt64::Initialize(const vtkTypeInt64 val)
 
 void vtkAtomicInt64::Set(vtkTypeInt64 value)
 {
+#if defined(_OPENMP) && _OPENMP >= 201107
+#pragma omp atomic write
   this->Internal->Value = value;
+#else
+  this->Internal->Value = value;
+#endif
 }
 
 vtkTypeInt64 vtkAtomicInt64::Get() const
 {
+#if defined(_OPENMP) && _OPENMP >= 201107
+  vtkTypeInt64 val;
+#pragma omp flush
+#pragma omp atomic read
+  val = this->Internal->Value;
+  return val;
+#else
   return this->Internal->Value;
+#endif
 }
 
 vtkTypeInt64 vtkAtomicInt64::Increment()

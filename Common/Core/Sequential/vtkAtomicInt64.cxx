@@ -31,12 +31,15 @@ void vtkAtomicInt64::Initialize(const vtkTypeInt64 val)
 
 void vtkAtomicInt64::Set(vtkTypeInt64 value)
 {
-  this->Internal->Value = value;
+  vtkAtomicInt64Set(&this->Internal->Value,
+                    value,
+                    this->Internal->AtomicInt64CritSec);
 }
 
 vtkTypeInt64 vtkAtomicInt64::Get() const
 {
-  return this->Internal->Value;
+  return vtkAtomicInt64Get(&this->Internal->Value,
+                           this->Internal->AtomicInt64CritSec);
 }
 
 vtkTypeInt64 vtkAtomicInt64::Increment()
