@@ -256,9 +256,7 @@ endif()
 
 # Check for atomic functions
 include(CheckSymbolExists)
-if (APPLE)
-  check_symbol_exists(OSAtomicIncrement64 "libkern/OSAtomic.h" VTK_HAS_OSATOMICINCREMENT64)
-elseif (WIN32)
+if (WIN32)
   check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
 endif()
 
