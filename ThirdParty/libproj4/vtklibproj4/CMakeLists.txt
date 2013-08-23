@@ -169,6 +169,11 @@ set( LP4_SRCS
 #------------------------------------------------------------------------------
 # Executable and library targets
 
+include_directories(
+  ${libproj4_SOURCE_DIR}
+  ${libproj4_BINARY_DIR}
+)
+
 vtk_add_library( vtkproj4
   ${LP4_SRCS}
 )
@@ -194,22 +199,12 @@ target_link_libraries( lproj
   vtkproj4
 )
 
-include_directories(
-  ${libproj4_SOURCE_DIR}
-  ${libproj4_BINARY_DIR}
-)
-
 if ( GSL_FOUND )
   include_directories( GSL_INCLUDE_DIRS )
   target_link_libraries( proj4
     ${GSL_LIBRARIES}
   )
 endif ( GSL_FOUND )
-
-add_custom_command(TARGET lproj
-  COMMAND ${CMAKE_COMMAND} -E copy
-  ${libproj4_SOURCE_DIR}/vtk_libproj4_mangle.h
-  ${libproj4_BINARY_DIR}/vtk_libproj4_mangle.h)
 
 configure_file(
   ${libproj4_SOURCE_DIR}/proj_config.h.cmake
