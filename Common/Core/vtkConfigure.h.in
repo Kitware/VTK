@@ -42,9 +42,7 @@
 
 /* Atomic operations */
 #cmakedefine VTK_HAVE_SYNC_BUILTINS
-#if defined(__APPLE__)
- #cmakedefine VTK_HAS_OSATOMICINCREMENT64
-#elif defined(WIN32)
+#if defined(WIN32)
  #cmakedefine VTK_HAS_INTERLOCKEDADD
 #endif
 
