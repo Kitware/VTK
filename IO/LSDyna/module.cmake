@@ -4,6 +4,8 @@ vtk_module(vtkIOLSDyna
   DEPENDS
     vtkCommonExecutionModel
     vtkIOXML
+  PRIVATE_DEPENDS
+    vtksys
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkTestingRendering

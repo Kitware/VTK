@@ -513,5 +513,4 @@ endif()
 
 vtk_module_library(vtkCommonCore ${Module_SRCS})
 
-target_link_libraries(vtkCommonCore ${CMAKE_THREAD_LIBS_INIT})
-set_target_properties(vtkCommonCore PROPERTIES LINK_INTERFACE_LIBRARIES "")
+target_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})

@@ -18,5 +18,5 @@ vtk_module_library(vtkIOVideo ${Module_SRCS})
 
 
 if(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
-  target_link_libraries(vtkIOVideo vfw32)
+  target_link_libraries(vtkIOVideo LINK_PRIVATE vfw32)
 endif()

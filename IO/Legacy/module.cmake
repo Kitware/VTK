@@ -6,6 +6,8 @@ vtk_module(vtkIOLegacy
     vtkCommonSystem
     vtkCommonMisc
     vtkIOCore
+  PRIVATE_DEPENDS
+    vtksys
   TEST_DEPENDS
     vtkFiltersAMR
     vtkInteractionStyle

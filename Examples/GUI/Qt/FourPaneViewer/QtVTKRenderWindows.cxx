@@ -290,17 +290,17 @@ void QtVTKRenderWindows::SetBlendMode(int m)
 
 void QtVTKRenderWindows::SetBlendModeToMaxIP()
 {
-  this->SetBlendMode(VTK_IMAGESLAB_BLEND_MAX);
+  this->SetBlendMode(VTK_IMAGE_SLAB_MAX);
 }
 
 void QtVTKRenderWindows::SetBlendModeToMinIP()
 {
-  this->SetBlendMode(VTK_IMAGESLAB_BLEND_MIN);
+  this->SetBlendMode(VTK_IMAGE_SLAB_MIN);
 }
 
 void QtVTKRenderWindows::SetBlendModeToMeanIP()
 {
-  this->SetBlendMode(VTK_IMAGESLAB_BLEND_MEAN);
+  this->SetBlendMode(VTK_IMAGE_SLAB_MEAN);
 }
 
 void QtVTKRenderWindows::ResetViews()

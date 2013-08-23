@@ -1,6 +1,13 @@
+include(vtkMPI)
+
 vtk_add_test_mpi(DistributedData.cxx TESTING_DATA)
 vtk_add_test_mpi(DistributedDataRenderPass.cxx TESTING_DATA)
 vtk_add_test_mpi(TransmitImageData.cxx TESTING_DATA)
 vtk_add_test_mpi(TransmitImageDataRenderPass.cxx TESTING_DATA)
 vtk_add_test_mpi(TransmitRectilinearGrid.cxx TESTING_DATA)
 vtk_add_test_mpi(TransmitStructuredGrid.cxx TESTING_DATA)
+
+vtk_mpi_link(TransmitImageData)
+vtk_mpi_link(TransmitImageDataRenderPass)
+vtk_mpi_link(TransmitRectilinearGrid)
+vtk_mpi_link(TransmitStructuredGrid)

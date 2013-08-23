@@ -304,7 +304,7 @@ int checkFunctionSignature(ClassInfo *data)
     VTK_PARSE_ID_TYPE, VTK_PARSE_UNSIGNED_ID_TYPE,
     VTK_PARSE_LONG_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
     VTK_PARSE___INT64, VTK_PARSE_UNSIGNED___INT64,
-    VTK_PARSE_VTK_OBJECT, VTK_PARSE_STRING,
+    VTK_PARSE_OBJECT, VTK_PARSE_STRING,
     0
   };
 
@@ -382,7 +382,7 @@ int checkFunctionSignature(ClassInfo *data)
         }
       }
 
-    if (aType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
+    if (aType == VTK_PARSE_OBJECT) args_ok = 0;
     if (((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
         ((aType & VTK_PARSE_INDIRECT) != 0) &&
         (aType != VTK_PARSE_STRING_REF)) args_ok = 0;
@@ -439,7 +439,7 @@ int checkFunctionSignature(ClassInfo *data)
 
     if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER)&&
         (currentFunction->ArgCounts[i] <= 0)&&
-        (aType != VTK_PARSE_VTK_OBJECT_PTR)&&
+        (aType != VTK_PARSE_OBJECT_PTR)&&
         (aType != VTK_PARSE_CHAR_PTR)) args_ok = 0;
     }
 

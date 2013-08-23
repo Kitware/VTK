@@ -6,6 +6,8 @@ vtk_module(vtkRenderingHybridOpenGL
     vtkIOLegacy
     vtkImagingSources
     vtkRenderingOpenGL
+  PRIVATE_DEPENDS
+    vtksys
   TEST_DEPENDS
     vtkIOXML
     vtkIOLegacy

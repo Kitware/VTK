@@ -40,4 +40,4 @@ configure_file(${VTK_CMAKE_DIR}/vtkObjectFactory.cxx.in
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
 
-target_link_libraries(${vtk-module} ${FONTCONFIG_LIBRARIES})
+target_link_libraries(${vtk-module} LINK_PRIVATE ${FONTCONFIG_LIBRARIES})

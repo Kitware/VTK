@@ -37,4 +37,4 @@ if(VTK_LIBRARY_PROPERTIES)
   set_target_properties(${vtk-module} PROPERTIES ${VTK_LIBRARY_PROPERTIES})
 endif()
 
-target_link_libraries(${vtk-module} ${QT_LIBRARIES})
+target_link_libraries(${vtk-module} LINK_PRIVATE ${QT_LIBRARIES})

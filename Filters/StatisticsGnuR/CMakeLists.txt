@@ -62,4 +62,4 @@ configure_file(${VTK_CMAKE_DIR}/vtkObjectFactory.cxx.in
 
 vtk_module_library(vtkFiltersStatisticsGnuR ${Module_SRCS})
 
-target_link_libraries(vtkFiltersStatisticsGnuR ${R_LIBRARIES})
+target_link_libraries(vtkFiltersStatisticsGnuR LINK_PRIVATE ${R_LIBRARIES})

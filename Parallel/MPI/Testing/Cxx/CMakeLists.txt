@@ -1,6 +1,15 @@
+include(vtkMPI)
+
 vtk_add_test_mpi(TestDistributedDataShadowMapPass.cxx)
 vtk_add_test_mpi(TestNonBlockingCommunication.cxx)
 vtk_add_test_mpi(GenericCommunicator.cxx)
 vtk_add_test_mpi(MPIController.cxx ExerciseMultiProcessController.cxx)
 vtk_add_test_mpi(TestProcess.cxx)
 vtk_add_test_mpi(TestPProbe.cxx TESTING_DATA)
+
+vtk_mpi_link(TestDistributedDataShadowMapPass)
+vtk_mpi_link(TestNonBlockingCommunication)
+vtk_mpi_link(GenericCommunicator)
+vtk_mpi_link(MPIController)
+vtk_mpi_link(TestProcess)
+vtk_mpi_link(TestPProbe)

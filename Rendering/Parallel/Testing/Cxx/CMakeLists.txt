@@ -1,3 +1,5 @@
+include(vtkMPI)
+
 vtk_add_test_cxx(PrmMagnify.cxx)
 vtk_test_cxx_executable(${vtk-module}CxxTests)
 vtk_module_test_executable(TestClientServerRendering TestClientServerRendering.cxx)
@@ -5,3 +7,8 @@ vtk_add_test_mpi(TestDistributedDataCompositeZPass.cxx TESTING_DATA)
 vtk_add_test_mpi(TestPCompositeZPass.cxx TESTING_DATA)
 vtk_add_test_mpi(TestPShadowMapPass.cxx TESTING_DATA)
 vtk_add_test_mpi(TestParallelRendering.cxx)
+
+vtk_mpi_link(TestDistributedDataCompositeZPass)
+vtk_mpi_link(TestPCompositeZPass)
+vtk_mpi_link(TestPShadowMapPass)
+vtk_mpi_link(TestParallelRendering)

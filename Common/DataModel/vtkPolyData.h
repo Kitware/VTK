@@ -69,6 +69,7 @@ class vtkQuad;
 class vtkPolygon;
 class vtkTriangleStrip;
 class vtkEmptyCell;
+struct vtkPolyDataDummyContainter;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyData : public vtkPointSet
 {
@@ -451,7 +452,7 @@ protected:
   vtkCellArray *Strips;
 
   // dummy static member below used as a trick to simplify traversal
-  static vtkCellArray *Dummy;
+  static vtkPolyDataDummyContainter DummyContainer;
 
   // supporting structures for more complex topological operations
   // built only when necessary

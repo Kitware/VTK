@@ -6,5 +6,6 @@ vtk_module(vtkIOXMLParser
     vtkCommonSystem
     vtkCommonMisc
     vtkIOCore
+  PRIVATE_DEPENDS
     vtkexpat
   )

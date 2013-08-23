@@ -5,6 +5,8 @@ vtk_module(vtkFiltersStatisticsGnuR
     vtkCommonCore
     vtkCommonExecutionModel
     vtkFiltersStatistics
+  PRIVATE_DEPENDS
+    vtksys
   TEST_DEPENDS
     vtkTestingCore
     vtkFiltersSources

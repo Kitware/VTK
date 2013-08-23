@@ -18,4 +18,4 @@ set(Module_SRCS
   )
 
 vtk_module_library(vtkInfovisParallel ${Module_SRCS})
-target_link_libraries(vtkInfovisParallel ${Boost_LIBRARIES})
+target_link_libraries(vtkInfovisParallel LINK_PRIVATE ${Boost_LIBRARIES})

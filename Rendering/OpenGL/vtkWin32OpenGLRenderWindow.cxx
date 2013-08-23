@@ -45,7 +45,6 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->ApplicationInstance =  NULL;
   this->Palette = NULL;
   this->ContextId = 0;
-  this->MultiSamples = 8;
   this->WindowId = 0;
   this->ParentId = 0;
   this->NextWindowId = 0;

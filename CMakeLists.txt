@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.7 FATAL_ERROR)
 
 project(VTK)
 
@@ -98,6 +98,9 @@ if(NOT VTK_INSTALL_EXPORT_NAME)
 endif()
 if(NOT VTK_MODULES_DIR)
   set(VTK_MODULES_DIR "${VTK_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
+endif()
+if(NOT VTK_WWW_DIR)
+  set(VTK_WWW_DIR "${VTK_BINARY_DIR}/www")
 endif()
 
 if (CMAKE_CROSSCOMPILING AND NOT COMPILE_TOOLS_IMPORTED)

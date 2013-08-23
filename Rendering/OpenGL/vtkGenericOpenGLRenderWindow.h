@@ -105,7 +105,17 @@ public:
   void DestroyWindow();
   // }@
 
+  // Description:
+  // Allow to update state within observer callback without changing
+  // data argument and MTime.
+  void SetIsDirect(int newValue);
+  void SetSupportsOpenGL(int newValue);
+  void SetIsCurrent(bool newValue);
+
 protected:
+  int DirectStatus;
+  int SupportsOpenGLStatus;
+  bool CurrentStatus;
 
 private:
   vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&);  // Not implemented.

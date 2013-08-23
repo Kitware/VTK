@@ -88,15 +88,15 @@ vtk_module_library(${vtk-module}
   ${QVTKNonMocHeaders} ${QVTKMocHeaders}
   )
 
-target_link_libraries(${vtk-module} ${QT_LIBRARIES})
+target_link_libraries(${vtk-module} LINK_PUBLIC ${QT_LIBRARIES})
 
 if(VTK_USE_X)
-  target_link_libraries(${vtk-module} ${X11_LIBRARIES})
+  target_link_libraries(${vtk-module} LINK_PRIVATE ${X11_LIBRARIES})
 endif()
 
 if(APPLE)
   if(VTK_USE_CARBON)
-    target_link_libraries(${vtk-module} "-framework Carbon" )
+    target_link_libraries(${vtk-module} LINK_PRIVATE "-framework Carbon" )
   endif()
 endif()
 

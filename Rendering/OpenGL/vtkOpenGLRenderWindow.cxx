@@ -39,7 +39,12 @@ vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, HardwareSupport, vtkOpenGLHardwareSu
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, TextureUnitManager, vtkTextureUnitManager);
 
 // Initialize static member that controls global maximum number of multisamples
+// (off by default on Apple because it causes problems on some Mac models).
+#if defined(__APPLE__)
+static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 0;
+#else
 static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
+#endif
 
 // ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)

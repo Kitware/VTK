@@ -4,6 +4,8 @@ vtk_module(vtkIOParallelExodus
   DEPENDS
     vtkParallelCore
     vtkIOExodus
+  PRIVATE_DEPENDS
+    vtksys
     vtkexodusII
   TEST_DEPENDS
     vtkTestingRendering

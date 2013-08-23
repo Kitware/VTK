@@ -135,15 +135,15 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/TestFBOInclude.h.in
 # test.
 vtk_module_test_executable(TestFBOImplementation
   TestFBOImplementation.cxx)
-target_link_libraries(TestFBOImplementation
+target_link_libraries(TestFBOImplementation LINK_PRIVATE
   vtkRenderingOpenGL ${OPENGL_gl_LIBRARY})
 
 if(VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
-  target_link_libraries(TestFBOImplementation ${OSMESA_LIBRARY})
+  target_link_libraries(TestFBOImplementation LINK_PRIVATE ${OSMESA_LIBRARY})
 endif()
 
 if(VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
-  target_link_libraries(${vtk-module}CxxTests ${OSMESA_LIBRARY})
+  target_link_libraries(${vtk-module}CxxTests LINK_PRIVATE ${OSMESA_LIBRARY})
 endif()
 
 # Add other odd tests or executables
