@@ -22,6 +22,7 @@ vtk_add_test_cxx(
   TestInteractiveChartXYZ.cxx
   TestLegendHiddenPlots.cxx
   TestLinePlot.cxx,-E25
+  TestLinePlotDouble.cxx
   TestLinePlot3D.cxx
   TestLinePlotAxisFonts.cxx
   TestLinePlot2.cxx,-E25

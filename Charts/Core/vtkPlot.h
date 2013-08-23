@@ -213,6 +213,14 @@ public:
   virtual void SetYAxis(vtkAxis* axis);
 
   // Description:
+  // Get/set the scaling factor used by the plot, this is normally 1.0 but can
+  // be used to render data outside of the single precision range. The chart
+  // that owns the plot should set this and ensure the appropriate matrix is
+  // used when rendering the plot.
+  void SetScalingFactor(const vtkVector2d &scaling);
+  vtkVector2d GetScalingFactor();
+
+  // Description:
   // Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
   //
   // See \a GetUnscaledInputBounds for more information.
@@ -320,6 +328,11 @@ protected:
 
   int TooltipNotation;
   int TooltipPrecision;
+
+  // Description:
+  // The current scaling factor applied to the input data, used to render
+  // beyond single precision in the charts.
+  vtkVector2d ScalingFactor;
 
 private:
   vtkPlot(const vtkPlot &); // Not implemented.
