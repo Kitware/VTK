@@ -228,7 +228,7 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
     if (fabs(log10(scale[i])) > 10)
       {
       // We need to scale the transform to show all data, do this in blocks.
-      factor[i] = pow(10, floor(log10(scale[i]) / 10.0) * -10.0);
+      factor[i] = pow(10.0, floor(log10(scale[i]) / 10.0) * -10.0);
       scale[i] = scale[i] * factor[i];
       }
     }
