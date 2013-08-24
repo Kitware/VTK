@@ -797,28 +797,16 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawString(float *point,
-                                          const vtkStdString &str)
+                                          const vtkStdString &string)
 {
-  // The &str[0] below will segfault if the string is empty:
-  if (size_t size = str.size())
-    {
-    const char *begin(&str[0]);
-    const char *end(begin + size);
-    this->DrawString(point, vtkUnicodeString::from_utf8(begin, end));
-    }
+  this->DrawString(point, vtkUnicodeString::from_utf8(string));
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &str,
+void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
                                                    float bounds[4])
 {
-  // The &str[0] below will segfault if the string is empty:
-  if (size_t size = str.size())
-    {
-    const char *begin(&str[0]);
-    const char *end(begin + size);
-    this->ComputeStringBounds(vtkUnicodeString::from_utf8(begin, end), bounds);
-    }
+  this->ComputeStringBounds(vtkUnicodeString::from_utf8(string), bounds);
 }
 
 //-----------------------------------------------------------------------------
