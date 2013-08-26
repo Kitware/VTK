@@ -46,8 +46,9 @@ vtkFontConfigFreeTypeToolsFaceRequester(FTC_FaceID face_id,
       vtkSmartPointer<vtkTextProperty>::New();
   self->MapIdToTextProperty(reinterpret_cast<intptr_t>(face_id), tprop);
 
-  bool faceIsSet = self->GetForceCompiledFonts() ?
-        false : self->LookupFaceFontConfig(tprop, lib, face);
+  bool faceIsSet =
+      self->GetForceCompiledFonts() || tprop->GetFontFamily() == VTK_FONT_FILE
+      ? false : self->LookupFaceFontConfig(tprop, lib, face);
 
   // Fall back to compiled fonts if lookup fails/compiled fonts are forced:
   if (!faceIsSet)

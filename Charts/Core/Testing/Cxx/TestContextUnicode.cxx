@@ -23,11 +23,14 @@
 #include "vtkContextScene.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"
+#include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
 #include "vtkUnicodeString.h"
 
 #include "vtkRegressionTestImage.h"
+
+#include <string>
 
 //----------------------------------------------------------------------------
 class ContextUnicode : public vtkContextItem
@@ -37,15 +40,25 @@ public:
   vtkTypeMacro(ContextUnicode, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
+  std::string FontFile;
 };
 
 //----------------------------------------------------------------------------
 int TestContextUnicode(int argc, char * argv [])
 {
+  if (argc < 2)
+    {
+    cout << "Missing font filename." << endl;
+    return EXIT_FAILURE;
+    }
+
+  std::string fontFile(argv[1]);
+
   // Set up a 2D context view, context test object and add it to the scene
   vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
   view->GetRenderWindow()->SetSize(200, 100);
   vtkSmartPointer<ContextUnicode> test = vtkSmartPointer<ContextUnicode>::New();
+  test->FontFile = fontFile;
   view->GetScene()->AddItem(test);
 
   view->GetRenderWindow()->SetMultiSamples(0);
@@ -70,10 +83,12 @@ bool ContextUnicode::Paint(vtkContext2D *painter)
   painter->GetTextProp()->SetJustificationToCentered();
   painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
   painter->GetTextProp()->SetFontSize(24);
+  painter->GetTextProp()->SetFontFamily(VTK_FONT_FILE);
+  painter->GetTextProp()->SetFontFile(this->FontFile.c_str());
   painter->DrawString(70, 20, "Angstrom");
   painter->DrawString(150, 20, vtkUnicodeString::from_utf8("\xe2\x84\xab"));
   painter->DrawString(100, 80,
-                      vtkUnicodeString::from_utf8("a\xce\xb1\xe0\xb8\x81\xf0\x90\x80\x80"));
+                      vtkUnicodeString::from_utf8("a\xce\xb1"));
   painter->DrawString(100, 50,
                       vtkUnicodeString::from_utf8("\xce\xb1\xce\xb2\xce\xb3"));
   return true;

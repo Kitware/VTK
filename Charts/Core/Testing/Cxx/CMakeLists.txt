@@ -5,6 +5,9 @@ vtk_add_test_cxx(NO_DATA NO_VALID
   TestControlPointsItemEvents.cxx
   )
 
+set(TestChartUnicode_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
+set(TestContextUnicode_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
+
 # add tests that require data
 vtk_add_test_cxx(
   TestAxes.cxx
@@ -12,10 +15,12 @@ vtk_add_test_cxx(
   TestBarGraphHorizontal.cxx
   TestColorTransferFunction.cxx,-E80
   TestChartMatrix.cxx
+  TestChartUnicode.cxx,-E25
   TestChartsOn3D.cxx,-E16
   TestChartXYZ.cxx
   TestContext.cxx
   TestContextImage.cxx
+  TestContextUnicode.cxx
   TestControlPointsHandleItem.cxx,-E30
   TestDiagram.cxx
   TestHistogram2D.cxx
