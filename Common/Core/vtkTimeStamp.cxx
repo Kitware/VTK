@@ -17,11 +17,42 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
+// We use the Schwarz Counter idiom to make sure that GlobalTimeStamp
+// is initialized before any other class uses it.
+
 #if VTK_SIZEOF_VOID_P == 8
-# include "vtkAtomicInt64.h"
+# include "vtkAtomicInt64.h" // For global mtime
+static vtkAtomicInt64* GlobalTimeStamp;
 #else
-# include "vtkAtomicInt32.h"
+# include "vtkAtomicInt32.h" // For global mtime
+static vtkAtomicInt32* GlobalTimeStamp;
 #endif
+
+static unsigned int vtkTimeStampCounter;
+
+vtkTimeStampInitialize::vtkTimeStampInitialize()
+{
+  if (0 == vtkTimeStampCounter++)
+    {
+    // Use 32 bit atomic int on 32 bit systems, 64 bit on 64 bit systems.
+    // The assumption is that atomic operations will be safer when in the
+    // type for integer operations.
+#if VTK_SIZEOF_VOID_P == 8
+    GlobalTimeStamp = new vtkAtomicInt64;
+#else
+    GlobalTimeStamp = new vtkAtomicInt32;
+#endif
+    }
+}
+
+vtkTimeStampInitialize::~vtkTimeStampInitialize()
+{
+  if (0 == --vtkTimeStampCounter)
+    {
+    delete GlobalTimeStamp;
+    GlobalTimeStamp = 0;
+    }
+}
 
 //-------------------------------------------------------------------------
 vtkTimeStamp* vtkTimeStamp::New()
@@ -33,20 +64,5 @@ vtkTimeStamp* vtkTimeStamp::New()
 //-------------------------------------------------------------------------
 void vtkTimeStamp::Modified()
 {
-  // Note that this would not normally be thread safe. However,
-  // VTK initializes static objects at load time, which in turn call
-  // this functions, which make this thread safe. If this behavior
-  // changes, this should also be fixed by converting it to a static
-  // class member which is initialized at load time.
-
-  // Use 32 bit atomic int on 32 bit systems, 64 bit on 64 bit systems.
-  // The assumption is that atomic operations will be safer when in the
-  // type for integer operations.
-# if VTK_SIZEOF_VOID_P == 8
-  static vtkAtomicInt64 GlobalTimeStamp(0);
-# else
-  static vtkAtomicInt32 GlobalTimeStamp(0);
-# endif
-
-  this->ModifiedTime = (unsigned long)GlobalTimeStamp.Increment();
+  this->ModifiedTime = (unsigned long)GlobalTimeStamp->Increment();
 }
