@@ -767,7 +767,6 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     vtkNew<vtkDoubleArray> nodeWeights;
     nodeWeights->SetNumberOfTuples(tree->GetNumberOfVertices());
 
-    double maxWeight = 0.0;
     vtkNew<vtkTreeDFSIterator> treeIterator;
     treeIterator->SetStartVertex(tree->GetRoot());
     treeIterator->SetTree(tree);
