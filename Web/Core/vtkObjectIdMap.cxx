@@ -179,7 +179,7 @@ vtkTypeUInt32 vtkObjectIdMap::GetGlobalId(vtkObject* obj)
 }
 
 //----------------------------------------------------------------------------
-vtkObject* vtkObjectIdMap::GetObject(vtkTypeUInt32 globalId)
+vtkObject* vtkObjectIdMap::GetVTKObject(vtkTypeUInt32 globalId)
 {
   ObjectId key(globalId);
   std::set<ObjectId>::iterator iter = this->Internals->RegisteredObjects.find(key);

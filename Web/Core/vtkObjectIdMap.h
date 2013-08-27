@@ -35,7 +35,7 @@ public:
 
   // Description:
   // Retreive a vtkObject based on its global id. If not found return NULL
-  vtkObject* GetObject(vtkTypeUInt32 globalId);
+  vtkObject* GetVTKObject(vtkTypeUInt32 globalId);
 
   // Description:
   // Assign an active key (string) to an existing object.

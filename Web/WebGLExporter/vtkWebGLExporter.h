@@ -34,8 +34,7 @@ class vtkWebGLPolyData;
 #include "vtkObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro
 
-#include <map>
-#include <string>
+#include <string> // needed for internal structure
 
 typedef enum {
   VTK_ONLYCAMERA = 0,
@@ -57,7 +56,7 @@ public:
   void exportStaticScene(vtkRendererCollection* renderers, int width, int height, std::string path);
   const char* GenerateMetadata();
   const char* GetId();
-  vtkWebGLObject* GetObject(int index);
+  vtkWebGLObject* GetWebGLObject(int index);
   int GetNumberOfObjects();
   bool hasChanged();
   void SetCenterOfRotation(float a1, float a2, float a3);
