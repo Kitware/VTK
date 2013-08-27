@@ -32,6 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkColorSeries.h"
 #include "vtkStringArray.h"
+#include "vtkNew.h"
 
 #include "vtkObjectFactory.h"
 
@@ -46,7 +47,7 @@ namespace {
 // Copy the two arrays into the points array
 template<class A, class B>
 void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previousPoints, A *a, B *b,
-                  int n, int logScale)
+                  int n, int logScale, const vtkVector2d &scale)
 {
   points->SetNumberOfPoints(n);
   float* data = static_cast<float*>(points->GetVoidPointer(0));
@@ -62,19 +63,21 @@ void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previousPoints, A *a, B *b,
       {
       prev = prevData[2 * i + 1];
       }
+    A tmpA(a[i] * scale[0]);
+    B tmpB(b[i] * scale[1]);
     data[2 * i]     = static_cast<float>((logScale & 1) ?
-                                         log10(static_cast<double>(a[i]))
-                                         : a[i]);
+                                         log10(static_cast<double>(tmpA))
+                                         : tmpA);
     data[2 * i + 1] = static_cast<float>((logScale & 2) ?
-                                         log10(static_cast<double>(b[i] + prev))
-                                         : (b[i] + prev));
+                                         log10(static_cast<double>(tmpB + prev))
+                                         : (tmpB + prev));
     }
 }
 
 // Copy one array into the points array, use the index of that array as x
 template<class A>
 void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previousPoints, A *a, int n,
-                  int logScale)
+                  int logScale, const vtkVector2d &scale)
 {
   points->SetNumberOfPoints(n);
   float* data = static_cast<float*>(points->GetVoidPointer(0));
@@ -90,25 +93,28 @@ void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previousPoints, A *a, int n,
       {
       prev = prevData[2 * i + 1];
       }
+    A tmpA(a[i] * scale[1]);
     data[2 * i]     = static_cast<float>((logScale & 1) ?
                                          log10(static_cast<double>(i + 1.0))
                                          : i);
     data[2 * i + 1] = static_cast<float>((logScale & 2) ?
-                                         log10(static_cast<double>(a[i] + prev))
-                                         : (a[i] + prev));
+                                         log10(static_cast<double>(tmpA + prev))
+                                         : (tmpA + prev));
     }
 }
 
 // Copy the two arrays into the points array
 template<class A>
 void CopyToPointsSwitch(vtkPoints2D *points, vtkPoints2D *previousPoints, A *a,
-                        vtkDataArray *b, int n, int logScale)
+                        vtkDataArray *b, int n, int logScale,
+                        const vtkVector2d &scale)
 {
   switch(b->GetDataType())
     {
     vtkTemplateMacro(
         CopyToPoints(points,previousPoints, a,
-                     static_cast<VTK_TT*>(b->GetVoidPointer(0)), n, logScale));
+                     static_cast<VTK_TT*>(b->GetVoidPointer(0)), n, logScale,
+                     scale));
     }
 }
 
@@ -174,9 +180,8 @@ class vtkPlotBarSegment : public vtkObject {
       delete this->SelectionSet;
       }
 
-    void Configure(
-      vtkPlotBar* bar, vtkDataArray* xArray, vtkDataArray* yArray,
-      vtkAxis* xAxis, vtkAxis* yAxis, vtkPlotBarSegment* prev)
+    void Configure(vtkPlotBar* bar, vtkDataArray* xArray, vtkDataArray* yArray,
+                   vtkAxis* xAxis, vtkAxis* yAxis, vtkPlotBarSegment* prev)
       {
       this->Bar = bar;
       this->Previous = prev;
@@ -188,9 +193,8 @@ class vtkPlotBarSegment : public vtkObject {
       delete this->Sorted;
       delete this->SelectionSet;
 
-      int logScale =
-        (xAxis->GetLogScaleActive() ? 1 : 0) +
-        (yAxis->GetLogScaleActive() ? 2 : 0);
+      int logScale = (xAxis->GetLogScaleActive() ? 1 : 0) +
+          (yAxis->GetLogScaleActive() ? 2 : 0);
       if (xArray)
         {
         switch (xArray->GetDataType())
@@ -198,7 +202,8 @@ class vtkPlotBarSegment : public vtkObject {
             vtkTemplateMacro(
               CopyToPointsSwitch(this->Points,this->Previous ? this->Previous->Points : 0,
                                  static_cast<VTK_TT*>(xArray->GetVoidPointer(0)),
-                                 yArray, xArray->GetNumberOfTuples(), logScale));
+                                 yArray, xArray->GetNumberOfTuples(), logScale,
+                                 this->Bar->GetScalingFactor()));
           }
         }
       else
@@ -208,7 +213,8 @@ class vtkPlotBarSegment : public vtkObject {
           vtkTemplateMacro(
             CopyToPoints(this->Points, this->Previous ? this->Previous->Points : 0,
                          static_cast<VTK_TT*>(yArray->GetVoidPointer(0)),
-                         yArray->GetNumberOfTuples(), logScale));
+                         yArray->GetNumberOfTuples(), logScale,
+                         this->Bar->GetScalingFactor()));
           }
         }
       }
@@ -409,6 +415,7 @@ class vtkPlotBarSegment : public vtkObject {
     vtkPlotBar *Bar;
     VectorPIMPL* Sorted;
     std::set<vtkIdType>* SelectionSet;
+    vtkVector2d ScalingFactor;
     };
 
 vtkStandardNewMacro(vtkPlotBarSegment);
@@ -427,11 +434,10 @@ public:
     vtkDataArray *xArray, vtkDataArray *yArray,
     vtkAxis* xAxis, vtkAxis* yAxis, vtkPlotBarSegment *prev = 0)
     {
-    vtkSmartPointer<vtkPlotBarSegment> segment =
-        vtkSmartPointer<vtkPlotBarSegment>::New();
+    vtkNew<vtkPlotBarSegment> segment;
     segment->Configure(this->Bar, xArray, yArray, xAxis, yAxis, prev);
-    this->Segments.push_back(segment);
-    return segment;
+    this->Segments.push_back(segment.GetPointer());
+    return segment.GetPointer();
     }
 
   void PaintSegments(vtkContext2D *painter, vtkColorSeries *colorSeries,
