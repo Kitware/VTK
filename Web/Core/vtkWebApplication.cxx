@@ -349,7 +349,7 @@ const char* vtkWebApplication::GetWebGLSceneMetaData(vtkRenderWindow* view)
   vtkInternals::WebGLObjId2IndexMap webglMap;
   for(int i=0; i<webglExporter->GetNumberOfObjects(); ++i)
     {
-    vtkWebGLObject* wObj = webglExporter->GetObject(i);
+    vtkWebGLObject* wObj = webglExporter->GetWebGLObject(i);
     if(wObj && wObj->isVisible())
       {
       vtkInternals::WebGLObjCacheValue val;
@@ -401,7 +401,7 @@ const char* vtkWebApplication::GetWebGLBinaryData(
       {
       if(cachedVal->BinaryParts[part].empty())
         {
-        vtkWebGLObject* obj = webglExporter->GetObject(cachedVal->ObjIndex);
+        vtkWebGLObject* obj = webglExporter->GetWebGLObject(cachedVal->ObjIndex);
         if(obj && obj->isVisible())
           {
           // Manage Base64

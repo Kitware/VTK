@@ -22,7 +22,7 @@
 #include "vtkWebGLObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro
 
-#include <vector>
+#include <vector> // Needed to store colors
 
 class vtkActor2D;
 

@@ -22,7 +22,7 @@
 #include "vtkObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro
 
-#include <string>
+#include <string> // needed for ID and md5 storing
 
 class vtkMatrix4x4;
 class vtkUnsignedCharArray;
