@@ -14,10 +14,13 @@
 =========================================================================*/
 #include "vtkTanglegramItem.h"
 
+#include "vtkColorSeries.h"
 #include "vtkContext2D.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDendrogramItem.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkStringArray.h"
@@ -45,6 +48,8 @@ vtkTanglegramItem::vtkTanglegramItem()
   this->Table = NULL;
   this->Tree1Label = NULL;
   this->Tree2Label = NULL;
+
+  this->LookupTable = vtkSmartPointer<vtkLookupTable>::New();
 
   this->PositionSet = false;
   this->TreeReordered = false;
@@ -80,6 +85,7 @@ void vtkTanglegramItem::SetTable(vtkTable *table)
 {
   this->Table = table;
   this->SourceNames = vtkStringArray::SafeDownCast(this->Table->GetColumn(0));
+  this->GenerateLookupTable();
   this->TreeReordered = false;
 }
 
@@ -207,37 +213,45 @@ void vtkTanglegramItem::PositionTree2()
 //-----------------------------------------------------------------------------
 void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
 {
-  painter->GetPen()->SetColorF(0.75, 0.75, 0.75);
   int textOrientation = painter->GetTextProp()->GetOrientation();
   painter->GetTextProp()->SetOrientation(0.0);
+  painter->GetPen()->SetWidth(2.0);
 
-
-  for (vtkIdType rowIndex = 0; rowIndex < this->Table->GetNumberOfRows();
-       ++rowIndex)
+  for (vtkIdType row = 0; row < this->Table->GetNumberOfRows();
+       ++row)
     {
-    std::string source = this->SourceNames->GetValue(rowIndex);
+    std::string source = this->SourceNames->GetValue(row);
     vtkIdType tree1Index = this->Tree1Names->LookupValue(source);
     if (tree1Index == -1)
       {
       continue;
       }
 
-    vtkVariantArray *row = this->Table->GetRow(rowIndex);
-    for (vtkIdType columnIndex = 1; columnIndex < row->GetNumberOfTuples();
-         ++columnIndex)
+    double sourcePosition[2] = {0, 0};
+    if (!this->Dendrogram1->GetPositionOfVertex(source, sourcePosition))
       {
-      std::string target = row->GetValue(columnIndex).ToString();
+      continue;
+      }
+    double sourceEdgePosition[2];
+    sourceEdgePosition[0] = sourcePosition[0];
+    sourceEdgePosition[1] = sourcePosition[1];
+
+    for (vtkIdType col = 1; col < this->Table->GetNumberOfColumns(); ++col)
+      {
+      double matrixValue = this->Table->GetValue(row, col).ToDouble();
+      if (matrixValue == 0.0)
+        {
+        continue;
+        }
+
+      std::string target = this->Table->GetColumnName(col);
       if (target == "")
         {
         continue;
         }
+
       vtkIdType tree2Index = this->Tree2Names->LookupValue(target);
       if (tree2Index == -1)
-        {
-        continue;
-        }
-      double sourcePosition[2] = {0, 0};
-      if (!this->Dendrogram1->GetPositionOfVertex(source, sourcePosition))
         {
         continue;
         }
@@ -247,7 +261,9 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
         {
         continue;
         }
-
+      double targetEdgePosition[2];
+      targetEdgePosition[0] = targetPosition[0];
+      targetEdgePosition[1] = targetPosition[1];
 
       int fontSize =
         painter->ComputeFontSizeForBoundedString("Igq", VTK_FLOAT_MAX,
@@ -268,6 +284,12 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
             sourcePosition[1] =
               this->Tree1Bounds[3] + this->Spacing + stringBounds[2];
 
+            sourceEdgePosition[1] =
+              this->Tree1Bounds[3] + this->Spacing + this->LabelWidth1;
+
+            targetEdgePosition[1] =
+              this->Tree2Bounds[2] - this->Spacing - this->LabelWidth2;
+
             painter->ComputeStringBounds(target, stringBounds);
             targetPosition[1] =
               this->Tree2Bounds[2] - this->Spacing - stringBounds[2];
@@ -287,6 +309,12 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
             sourcePosition[1] =
               this->Tree1Bounds[2] - this->Spacing - stringBounds[2];
 
+            sourceEdgePosition[1] =
+              this->Tree1Bounds[2] - this->Spacing - this->LabelWidth1;
+
+            targetEdgePosition[1] =
+              this->Tree2Bounds[3] + this->Spacing + this->LabelWidth2;
+
             painter->ComputeStringBounds(target, stringBounds);
             targetPosition[1] =
               this->Tree2Bounds[3] + this->Spacing + stringBounds[2];
@@ -305,6 +333,12 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
             painter->ComputeStringBounds(source, stringBounds);
             sourcePosition[0] =
               this->Tree1Bounds[0] - this->Spacing - stringBounds[2];
+
+            sourceEdgePosition[0] =
+              this->Tree1Bounds[0] - this->Spacing - this->LabelWidth1;
+
+            targetEdgePosition[0] =
+              this->Tree2Bounds[1] + this->Spacing + this->LabelWidth2;
 
             painter->ComputeStringBounds(target, stringBounds);
             targetPosition[0] =
@@ -326,6 +360,12 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
             sourcePosition[0] =
               this->Tree1Bounds[1] + this->Spacing + stringBounds[2];
 
+            sourceEdgePosition[0] =
+              this->Tree1Bounds[1] + this->Spacing + this->LabelWidth1;
+
+            targetEdgePosition[0] =
+              this->Tree2Bounds[0] - this->Spacing - this->LabelWidth2;
+
             painter->ComputeStringBounds(target, stringBounds);
             targetPosition[0] =
               this->Tree2Bounds[0] - this->Spacing - stringBounds[2];
@@ -333,13 +373,28 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
           break;
         }
 
+
+      painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
+      painter->GetPen()->SetLineType(vtkPen::DOT_LINE);
+
       painter->DrawLine(sourcePosition[0], sourcePosition[1],
+                        sourceEdgePosition[0], sourceEdgePosition[1]);
+
+      painter->DrawLine(targetEdgePosition[0], targetEdgePosition[1],
                         targetPosition[0], targetPosition[1]);
+
+      double color[4];
+      this->LookupTable->GetColor(matrixValue, color);
+      painter->GetPen()->SetColorF(color[0], color[1], color[2]);
+      painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
+      painter->DrawLine(sourceEdgePosition[0], sourceEdgePosition[1],
+                        targetEdgePosition[0], targetEdgePosition[1]);
       }
     }
 
-  painter->GetTextProp()->SetOrientation(textOrientation);
   painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
+  painter->GetTextProp()->SetOrientation(textOrientation);
+  painter->GetPen()->SetWidth(1.0);
 }
 
 //-----------------------------------------------------------------------------
@@ -530,22 +585,27 @@ double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex,
     std::string tree2Name = this->Tree2Names->GetValue(v);
 
     // find where this name appears in the correspondence table
-    for (vtkIdType row = 0; row < this->Table->GetNumberOfRows(); ++row)
+    vtkDoubleArray *column = vtkDoubleArray::SafeDownCast(
+      this->Table->GetColumnByName(tree2Name.c_str()));
+
+    if (column == NULL)
       {
-      for (vtkIdType col = 1; col < this->Table->GetNumberOfRows(); ++col)
+      continue;
+      }
+
+    for (vtkIdType row = 0; row < column->GetNumberOfTuples(); ++row)
+      {
+      if (column->GetValue(row) > 0.0)
         {
-        if (this->Table->GetValue(row, col).ToString() == tree2Name)
+        // get the position of the associated leaf node in the fixed tree
+        // and use it to update our score.
+        std::string tree1Name = this->Table->GetValue(row, 0).ToString();
+        if (!this->Dendrogram1->GetPositionOfVertex(tree1Name, position))
           {
-          // get the position of the associated leaf node in the fixed tree
-          // and use it to update our score.
-          std::string tree1Name = this->Table->GetValue(row, 0).ToString();
-          if (!this->Dendrogram1->GetPositionOfVertex(tree1Name, position))
-            {
-            continue;
-            }
-          score += position[dimension];
-          ++numLeafNodesFound;
+          continue;
           }
+        score += position[dimension];
+        ++numLeafNodesFound;
         }
       }
     }
@@ -578,6 +638,45 @@ void vtkTanglegramItem::SetOrientation(int orientation)
 int vtkTanglegramItem::GetOrientation()
 {
   return this->Orientation;
+}
+
+//-----------------------------------------------------------------------------
+void vtkTanglegramItem::GenerateLookupTable()
+{
+  this->LookupTable->SetNumberOfTableValues(255);
+  this->LookupTable->Build();
+
+  vtkNew<vtkColorSeries> colorSeries;
+  colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_ACCENT);
+  colorSeries->BuildLookupTable(this->LookupTable);
+
+  this->LookupTable->IndexedLookupOff();
+
+  double min = VTK_DOUBLE_MAX;
+  double max = VTK_DOUBLE_MIN;
+
+  for (vtkIdType row = 0; row < this->Table->GetNumberOfRows();
+       ++row)
+    {
+    for (vtkIdType col = 1; col < this->Table->GetNumberOfColumns(); ++col)
+      {
+      double d = this->Table->GetValue(row, col).ToDouble();
+      if (d == 0.0)
+        {
+        continue;
+        }
+      if (d > max)
+        {
+        max = d;
+        }
+      if (d < min)
+        {
+        min = d;
+        }
+      }
+    }
+
+  this->LookupTable->SetRange(min, max);
 }
 
 //-----------------------------------------------------------------------------

@@ -16,6 +16,9 @@
 //
 // .SECTION Description
 // This item draws two trees with connections between their leaf nodes.
+// Use SetTable() to specify what leaf nodes correspond to one another
+// between the two trees.  See the documentation for this function for
+// more details on how this table should be formatted.
 //
 // .SEE ALSO
 // vtkTree vtkTable vtkDendrogramItem vtkNewickTreeReader
@@ -30,6 +33,7 @@
 #include "vtkTable.h"  // For get/set
 
 class vtkDendrogramItem;
+class vtkLookupTable;
 class vtkStringArray;
 class vtkTree;
 
@@ -50,7 +54,12 @@ public:
 
   // Description:
   // Get/Set the table that describes the correspondences between the
-  // two trees.
+  // two trees.  The first column should contain the names of the leaf
+  // nodes from tree #1.  The columns of this table should be named
+  // after the leaf nodes of tree #2.  A non-zero cell should be used
+  // to create a connection between the two trees.  Different numbers
+  // in the table will result in connections being drawn in different
+  // colors.
   vtkGetMacro(Table, vtkTable*);
   void SetTable(vtkTable *table);
 
@@ -125,12 +134,18 @@ protected:
   double GetPositionScoreForVertex(vtkIdType vertex, vtkTree *tree);
 
   // Description:
+  // Initialize the lookup table used to color the lines between the two
+  // dendrograms.
+  void GenerateLookupTable();
+
+  // Description:
   // Paints the tree & associated table as a heatmap.
   virtual bool Paint(vtkContext2D *painter);
 
 private:
   vtkSmartPointer<vtkDendrogramItem> Dendrogram1;
   vtkSmartPointer<vtkDendrogramItem> Dendrogram2;
+  vtkSmartPointer<vtkLookupTable> LookupTable;
   vtkTable *Table;
   vtkStringArray *Tree1Names;
   vtkStringArray *Tree2Names;

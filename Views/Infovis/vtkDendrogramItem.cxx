@@ -1306,6 +1306,10 @@ float vtkDendrogramItem::GetLabelWidth(vtkContext2D *painter)
      return 0.0;
      }
 
+  // temporarily set text to default orientation
+  int orientation = painter->GetTextProp()->GetOrientation();
+  painter->GetTextProp()->SetOrientation(0.0);
+
   // get array of node names from the tree
   vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
     this->LayoutTree->GetVertexData()->GetAbstractArray("node name"));
@@ -1319,6 +1323,10 @@ float vtkDendrogramItem::GetLabelWidth(vtkContext2D *painter)
       maxLength = bounds[2];
       }
     }
+
+  // restore orientation
+  painter->GetTextProp()->SetOrientation(orientation);
+
   return maxLength;
 }
 

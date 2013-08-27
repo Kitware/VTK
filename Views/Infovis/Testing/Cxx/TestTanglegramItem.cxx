@@ -102,33 +102,39 @@ int TestTanglegramItem(int argc, char* argv[])
 
   // set up correspondence table: who eats what
   vtkNew<vtkTable> table;
-  vtkNew<vtkStringArray> c1;
-  vtkNew<vtkStringArray> c2;
-  vtkNew<vtkStringArray> c3;
-  vtkNew<vtkStringArray> c4;
+  vtkNew<vtkStringArray> eaters;
+  vtkNew<vtkDoubleArray> hungerForSteak;
+  hungerForSteak->SetName("steak");
+  vtkNew<vtkDoubleArray> hungerForDogFood;
+  hungerForDogFood->SetName("dog food");
+  vtkNew<vtkDoubleArray> hungerForCatFood;
+  hungerForCatFood->SetName("cat food");
 
-  c1->SetNumberOfTuples(3);
-  c2->SetNumberOfTuples(3);
-  c3->SetNumberOfTuples(3);
-  c4->SetNumberOfTuples(3);
+  eaters->SetNumberOfTuples(3);
+  hungerForSteak->SetNumberOfTuples(3);
+  hungerForDogFood->SetNumberOfTuples(3);
+  hungerForCatFood->SetNumberOfTuples(3);
 
-  c1->SetValue(0, "dog");
-  c1->SetValue(1, "cat");
-  c1->SetValue(2, "human");
+  eaters->SetValue(0, "human");
+  eaters->SetValue(1, "dog");
+  eaters->SetValue(2, "cat");
 
-  c2->SetValue(0, "steak");
-  c2->SetValue(1, "steak");
-  c2->SetValue(2, "steak");
+  hungerForSteak->SetValue(0, 2.0);
+  hungerForSteak->SetValue(1, 1.0);
+  hungerForSteak->SetValue(2, 1.0);
 
-  c3->SetValue(0, "dog food");
-  c3->SetValue(1, "cat food");
+  hungerForDogFood->SetValue(0, 0.0);
+  hungerForDogFood->SetValue(1, 2.0);
+  hungerForDogFood->SetValue(2, 0.0);
 
-  c4->SetValue(0, "cat food");
+  hungerForCatFood->SetValue(0, 0.0);
+  hungerForCatFood->SetValue(1, 1.0);
+  hungerForCatFood->SetValue(2, 2.0);
 
-  table->AddColumn(c1.GetPointer());
-  table->AddColumn(c2.GetPointer());
-  table->AddColumn(c3.GetPointer());
-  table->AddColumn(c4.GetPointer());
+  table->AddColumn(eaters.GetPointer());
+  table->AddColumn(hungerForSteak.GetPointer());
+  table->AddColumn(hungerForDogFood.GetPointer());
+  table->AddColumn(hungerForCatFood.GetPointer());
 
   vtkNew<vtkContextActor> actor;
 
@@ -142,6 +148,8 @@ int TestTanglegramItem(int argc, char* argv[])
   tanglegram->SetTree1(tree1.GetPointer());
   tanglegram->SetTree2(tree2.GetPointer());
   tanglegram->SetTable(table.GetPointer());
+  tanglegram->SetTree1Label("Diners");
+  tanglegram->SetTree2Label("Meals");
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
