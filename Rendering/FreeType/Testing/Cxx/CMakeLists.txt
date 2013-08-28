@@ -14,12 +14,16 @@ if(NOT MATPLOTLIB_FOUND)
 endif()
 
 # add tests that do not require data or produce vector output
+set(TestMathTextFreeTypeTextRendererNoMath_ARGS
+  DATA{../Data/Fonts/DejaVuSans.ttf}
+)
 vtk_add_test_cxx(TestMathTextFreeTypeTextRendererNoMath.cxx)
 
 # add tests that require data
 vtk_add_test_cxx(TestFTStringToPath.cxx)
 
 if(MATPLOTLIB_FOUND)
+  set(TestMathTextFreeTypeTextRenderer_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   vtk_add_test_cxx(TestMathTextFreeTypeTextRenderer.cxx)
 endif()
 

@@ -24,10 +24,19 @@
 #include "vtkTextProperty.h"
 
 #include <iostream>
+#include <string>
 
 //----------------------------------------------------------------------------
-int TestMathTextFreeTypeTextRendererNoMath(int , char *[])
+int TestMathTextFreeTypeTextRendererNoMath(int argc, char *argv[])
 {
+  if (argc < 2)
+    {
+    cerr << "Missing font filename." << endl;
+    return EXIT_FAILURE;
+    }
+
+  std::string uncodeFontFile(argv[1]);
+
   vtkNew<vtkTextRenderer> tren;
   if (tren.GetPointer() == NULL)
     {
@@ -133,6 +142,17 @@ int TestMathTextFreeTypeTextRendererNoMath(int , char *[])
   actor9->SetInput("4.0");
   actor9->SetPosition(500, 400);
 
+  // UTF-8 freetype handling:
+  vtkNew<vtkTextActor> actor10;
+  actor10->GetTextProperty()->SetFontFamily(VTK_FONT_FILE);
+  actor10->GetTextProperty()->SetFontFile(uncodeFontFile.c_str());
+  actor10->GetTextProperty()->SetJustificationToCentered();
+  actor10->GetTextProperty()->SetVerticalJustificationToCentered();
+  actor10->GetTextProperty()->SetFontSize(18);
+  actor10->GetTextProperty()->SetColor(0.0, 1.0, 0.7);
+  actor10->SetInput("UTF-8 FreeType: \xce\xa8\xd2\x94\xd2\x96\xd1\x84\xd2\xbe");
+  actor10->SetPosition(300, 110);
+
   // Boring rendering setup....
 
   vtkNew<vtkRenderer> ren;
@@ -152,6 +172,7 @@ int TestMathTextFreeTypeTextRendererNoMath(int , char *[])
   ren->AddActor(actor7.GetPointer());
   ren->AddActor(actor8.GetPointer());
   ren->AddActor(actor9.GetPointer());
+  ren->AddActor(actor10.GetPointer());
 
   win->SetMultiSamples(0);
   win->Render();
