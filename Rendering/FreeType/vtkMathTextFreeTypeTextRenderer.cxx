@@ -94,7 +94,9 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
       {
       vtkStdString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->GetBoundingBox(tprop, cleanString, bbox);
+      // Interpret string as UTF-8, use the UTF-16 GetBoundingBox overload:
+      return this->FreeTypeTools->GetBoundingBox(
+            tprop, vtkUnicodeString::from_utf8(cleanString), bbox);
       }
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
@@ -199,8 +201,9 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
       {
       vtkStdString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->RenderString(tprop, cleanString, data,
-                                               textDims);
+      // Interpret string as UTF-8, use the UTF-16 RenderString overload:
+      return this->FreeTypeTools->RenderString(
+            tprop, vtkUnicodeString::from_utf8(cleanString), data, textDims);
       }
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
