@@ -14,6 +14,7 @@ vtk_add_test_cxx(
   TestBarGraph.cxx
   TestBarGraphHorizontal.cxx
   TestColorTransferFunction.cxx,-E80
+  TestChartDouble.cxx
   TestChartMatrix.cxx
   TestChartUnicode.cxx,-E25
   TestChartsOn3D.cxx,-E16
