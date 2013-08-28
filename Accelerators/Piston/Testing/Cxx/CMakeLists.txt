@@ -5,6 +5,7 @@ vtk_add_test_cxx(
 vtk_test_cxx_executable(${vtk-module}CxxTests)
 
 if(VTK_MPI_MAX_NUMPROCS GREATER 1)
+  include(vtkMPI)
   find_package(MPI REQUIRED)
   include_directories(${MPI_INCLUDE_PATH})
 
@@ -21,6 +22,7 @@ if(VTK_MPI_MAX_NUMPROCS GREATER 1)
       -T ${VTK_TEST_OUTPUT_DIR}
       -V DATA{../Data/Baseline/${test}.png,:}
       ${VTK_MPI_POSTFLAGS})
+    vtk_mpi_link(${vtk-module}Cxx-${test})
   endforeach()
 
 endif()
