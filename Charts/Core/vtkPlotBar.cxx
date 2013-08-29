@@ -911,7 +911,7 @@ bool vtkPlotBar::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
 }
 
 //-----------------------------------------------------------------------------
-vtkStdString vtkPlotBar::GetTooltipLabel(const vtkVector2f &plotPos,
+vtkStdString vtkPlotBar::GetTooltipLabel(const vtkVector2d &plotPos,
                                          vtkIdType seriesIndex,
                                          vtkIdType segmentIndex)
 {

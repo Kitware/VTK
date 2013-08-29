@@ -76,7 +76,7 @@ vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
 }
 
 //-----------------------------------------------------------------------------
-vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2f &plotPos,
+vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d &plotPos,
                                       vtkIdType seriesIndex,
                                       vtkIdType)
 {

@@ -1469,7 +1469,10 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
           if (seriesIndex >= 0)
             {
             // We found a point, set up the tooltip and return
-            this->SetTooltipInfo(mouse, plotPos, seriesIndex, plot,
+            vtkRectd ss(plot->GetShiftScale());
+            vtkVector2d plotPosd(plotPos[0] / ss[2] - ss[0],
+                                 plotPos[1] / ss[3] - ss[1]);
+            this->SetTooltipInfo(mouse, plotPosd, seriesIndex, plot,
                                  segmentIndex);
             if (invokeEvent >= 0)
               {
@@ -1507,11 +1510,11 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
 
 //-----------------------------------------------------------------------------
 void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
-                                const vtkVector2f &plotPos,
+                                const vtkVector2d &plotPos,
                                 vtkIdType seriesIndex, vtkPlot* plot,
                                 vtkIdType segmentIndex)
 {
-  if(!this->Tooltip)
+  if (!this->Tooltip)
     {
     return;
     }
