@@ -46,7 +46,7 @@
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"
 
-#include <cassert>
+#include <cassert> // For assert macro
 
 class vtkDataObject;
 class vtkDataSet;
