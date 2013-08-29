@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestLinePlotDouble.cxx
+  Module:    TestLinePlotDouble2.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -22,10 +22,9 @@
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkNew.h"
-#include "vtkMath.h"
 
 //----------------------------------------------------------------------------
-int TestLinePlotDouble(int, char *[])
+int TestLinePlotDouble2(int, char *[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -36,43 +35,23 @@ int TestLinePlotDouble(int, char *[])
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkDoubleArray> arrX;
-  arrX->SetName("X Axis");
+  arrX->SetName("X");
   table->AddColumn(arrX.GetPointer());
   vtkNew<vtkDoubleArray> arrC;
   arrC->SetName("Cosine");
   table->AddColumn(arrC.GetPointer());
-  vtkNew<vtkDoubleArray> arrS;
-  arrS->SetName("Sine");
-  table->AddColumn(arrS.GetPointer());
-  vtkNew<vtkDoubleArray> arrS2;
-  arrS2->SetName("Sine2");
-  table->AddColumn(arrS2.GetPointer());
-  // Test charting with a few more points...
+  // Test charting some very small points.
   int numPoints = 69;
   float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
     {
-    table->SetValue(i, 0, i * inc);
-    table->SetValue(i, 1, 1.0e-80 * cos(i * inc - 1.0) * 1.0e-8);
-    table->SetValue(i, 2, 1.0e-80 * sin(i * inc) * 1.0e-8);
-    table->SetValue(i, 3, 1.0e-80 * sin(i * inc - 1.0) * 1.0e-8);
+    double x(1 + 1e-11 * inc * i);
+    table->SetValue(i, 0, x);
+    table->SetValue(i, 1, cos((x - 1.0) * 1.0e11));
     }
-  table->SetValue(4, 3, vtkMath::Inf());
-
-  // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table.GetPointer(), 0, 1);
-  line->SetColor(0, 255, 0, 255);
-  line->SetWidth(1.0);
-  line = chart->AddPlot(vtkChart::LINE);
-  line->SetInputData(table.GetPointer(), 0, 2);
-  line->SetColor(255, 0, 0, 255);
-  line->SetWidth(5.0);
-  line = chart->AddPlot(vtkChart::LINE);
-  line->SetInputData(table.GetPointer(), 0, 3);
-  line->SetColor(0, 0, 255, 255);
-  line->SetWidth(4.0);
 
   // Render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

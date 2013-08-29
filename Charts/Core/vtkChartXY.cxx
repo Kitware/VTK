@@ -496,7 +496,8 @@ void vtkChartXY::RecalculatePlotTransforms()
         xAxis, yAxis, this->ChartPrivate->PlotCorners[i]->GetTransform());
       // Now we need to set the scale factor on the plots to ensure they rescale
       // their input data when necessary.
-      vtkVector2d factor(xAxis->GetScalingFactor(), yAxis->GetScalingFactor());
+      vtkRectd shiftScale(xAxis->GetShift(), yAxis->GetShift(),
+                          xAxis->GetScalingFactor(), yAxis->GetScalingFactor());
       for (unsigned int j = 0;
            j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
         {
@@ -504,7 +505,7 @@ void vtkChartXY::RecalculatePlotTransforms()
             vtkPlot::SafeDownCast(this->ChartPrivate->PlotCorners[i]->GetItem(j));
         if (plot)
           {
-          plot->SetScalingFactor(factor);
+          plot->SetShiftScale(shiftScale);
           }
         }
       }
