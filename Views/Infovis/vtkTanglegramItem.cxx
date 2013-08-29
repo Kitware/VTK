@@ -56,6 +56,9 @@ vtkTanglegramItem::vtkTanglegramItem()
   this->Interactive = true;
 
   this->Orientation = vtkDendrogramItem::LEFT_TO_RIGHT;
+
+  this->MinimumVisibleFontSize = 8;
+  this->LabelSizeDifference = 4;
 }
 
 //-----------------------------------------------------------------------------
@@ -67,6 +70,7 @@ vtkTanglegramItem::~vtkTanglegramItem()
 void vtkTanglegramItem::SetTree1(vtkTree *tree)
 {
   this->Dendrogram1->SetTree(tree);
+  this->Dendrogram1->SetOrientation(this->Orientation);
   this->PositionSet = false;
   this->TreeReordered = false;
 }
@@ -75,7 +79,7 @@ void vtkTanglegramItem::SetTree1(vtkTree *tree)
 void vtkTanglegramItem::SetTree2(vtkTree *tree)
 {
   this->Dendrogram2->SetTree(tree);
-  this->Dendrogram2->SetOrientation(vtkDendrogramItem::RIGHT_TO_LEFT);
+  this->Dendrogram2->SetOrientation((this->Orientation + 2) % 4);
   this->PositionSet = false;
   this->TreeReordered = false;
 }
@@ -272,7 +276,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
       switch(this->Orientation)
         {
         case vtkDendrogramItem::DOWN_TO_UP:
-          if (fontSize < 8)
+          if (fontSize < this->MinimumVisibleFontSize)
             {
             sourcePosition[1] = this->Tree1Bounds[3] + this->Spacing;
             targetPosition[1] = this->Tree2Bounds[2] - this->Spacing;
@@ -297,7 +301,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
           break;
 
         case vtkDendrogramItem::UP_TO_DOWN:
-          if (fontSize < 8)
+          if (fontSize < this->MinimumVisibleFontSize)
             {
             sourcePosition[1] = this->Tree1Bounds[2] - this->Spacing;
             targetPosition[1] = this->Tree2Bounds[3] + this->Spacing;
@@ -322,7 +326,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
           break;
 
         case vtkDendrogramItem::RIGHT_TO_LEFT:
-          if (fontSize < 8)
+          if (fontSize < this->MinimumVisibleFontSize)
             {
             sourcePosition[0] = this->Tree1Bounds[0] - this->Spacing;
             targetPosition[0] = this->Tree2Bounds[1] + this->Spacing;
@@ -348,7 +352,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
 
         case vtkDendrogramItem::LEFT_TO_RIGHT:
         default:
-          if (fontSize < 8)
+          if (fontSize < this->MinimumVisibleFontSize)
             {
             sourcePosition[0] = this->Tree1Bounds[1] + this->Spacing;
             targetPosition[0] = this->Tree2Bounds[0] - this->Spacing;
@@ -373,6 +377,16 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
           break;
         }
 
+      double color[4];
+      this->LookupTable->GetColor(matrixValue, color);
+
+      if (fontSize < this->MinimumVisibleFontSize)
+        {
+        painter->GetPen()->SetColorF(color[0], color[1], color[2]);
+        painter->DrawLine(sourcePosition[0], sourcePosition[1],
+                          targetPosition[0], targetPosition[1]);
+        continue;
+        }
 
       painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
       painter->GetPen()->SetLineType(vtkPen::DOT_LINE);
@@ -383,8 +397,6 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
       painter->DrawLine(targetEdgePosition[0], targetEdgePosition[1],
                         targetPosition[0], targetPosition[1]);
 
-      double color[4];
-      this->LookupTable->GetColor(matrixValue, color);
       painter->GetPen()->SetColorF(color[0], color[1], color[2]);
       painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
       painter->DrawLine(sourceEdgePosition[0], sourceEdgePosition[1],
@@ -401,7 +413,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
 void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
 {
   int fontSize = painter->GetTextProp()->GetFontSize();
-  painter->GetTextProp()->SetFontSize(fontSize + 4);
+  painter->GetTextProp()->SetFontSize(fontSize + this->LabelSizeDifference);
 
   int justification = painter->GetTextProp()->GetJustification();
   painter->GetTextProp()->SetJustificationToCentered();
@@ -525,6 +537,11 @@ void vtkTanglegramItem::ReorderTree()
 //-----------------------------------------------------------------------------
 void vtkTanglegramItem::ReorderTreeAtVertex(vtkIdType parent, vtkTree *tree)
 {
+  // Set up a priority queue to reorganize the vertices.  This queue sorts all
+  // the children of parent based on their "score".  This score roughly
+  // correponds to where the children should be positioned within the
+  // dendrogram to minimize crossings.  See the comments within
+  // GetPositionScoreForVertex() for more info.
   std::priority_queue<vtkDendrogramItem::WeightedVertex,
                       std::vector<vtkDendrogramItem::WeightedVertex>,
                       vtkDendrogramItem::CompareWeightedVertices> queue;

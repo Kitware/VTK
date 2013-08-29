@@ -82,6 +82,22 @@ public:
   // Get the current orientation.
   int GetOrientation();
 
+  // Description:
+  // Get/Set the smallest font size that is still considered legible.
+  // If the current zoom level requires our vertex labels to be smaller
+  // than this size the labels will not be drawn at all.  Default value
+  // is 8 pt.
+  vtkGetMacro(MinimumVisibleFontSize, int);
+  vtkSetMacro(MinimumVisibleFontSize, int);
+
+  // Description:
+  // Get/Set how much larger the dendrogram labels should be compared to the
+  // vertex labels.  Because the vertex labels automatically resize based
+  // on zoom levels, this is a relative (not absolute) size.  Default value
+  // is 4 pts larger than the vertex labels.
+  vtkGetMacro(LabelSizeDifference, int);
+  vtkSetMacro(LabelSizeDifference, int);
+
   // BTX
 
   // Description:
@@ -160,6 +176,8 @@ private:
   char* Tree1Label;
   char* Tree2Label;
   int Orientation;
+  int MinimumVisibleFontSize;
+  int LabelSizeDifference;
 
   vtkTanglegramItem(const vtkTanglegramItem&); // Not implemented
   void operator=(const vtkTanglegramItem&); // Not implemented
