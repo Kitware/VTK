@@ -18,6 +18,8 @@ r"""
 
     Any VTK Web executable script come with a set of standard arguments that
     can be overriden if need be::
+        --host localhost
+             Interface on which the HTTP server will listen on.
 
         --port 8080
              Port number on which the HTTP server will listen to.

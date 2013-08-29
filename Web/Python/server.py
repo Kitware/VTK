@@ -46,6 +46,8 @@ def add_arguments(parser):
     parser.add_argument("-s", "--nosignalhandlers",
         help="Prevent Twisted to install the signal handlers so it can be started inside a thread.",
         action="store_true")
+    parser.add_argument("-i", "--host", type=str, default='localhost',
+        help="the interface for the web-server to listen on (default: localhost)")
     parser.add_argument("-p", "--port", type=int, default=8080,
         help="port number for the web-server to listen on (default: 8080)")
     parser.add_argument("-t", "--timeout", type=int, default=300,
@@ -89,6 +91,7 @@ def start_webserver(options, protocol=wamp.ServerProtocol, disableLogging=False)
     """
     Starts the web-server with the given protocol. Options must be an object
     with the following members:
+        options.host : the interface for the web-server to listen on
         options.port : port number for the web-server to listen on
         options.timeout : timeout for reaping process on idle in seconds
         options.content : root for web-pages to serve.
@@ -103,7 +106,7 @@ def start_webserver(options, protocol=wamp.ServerProtocol, disableLogging=False)
 
     # setup the server-factory
     wampFactory = wamp.ReapingWampServerFactory(
-        "ws://localhost:%d" % options.port, options.debug, options.timeout)
+        "ws://%s:%d" % (options.host, options.port), options.debug, options.timeout)
     wampFactory.protocol = protocol
 
     # Do we serve static content or just websocket ?
