@@ -96,7 +96,8 @@ int vtkActor2D::RenderOverlay(vtkViewport* viewport)
       if (renderWindow->GetCapturingGL2PSSpecialProps())
         {
         if (this->IsA("vtkTextActor") ||
-            (this->Mapper && this->Mapper->IsA("vtkTextMapper")))
+            (this->Mapper && (this->Mapper->IsA("vtkTextMapper") ||
+                              this->Mapper->IsA("vtkLabeledDataMapper"))))
           {
           renderer->CaptureGL2PSSpecialProp(this);
           }

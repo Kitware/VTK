@@ -792,6 +792,13 @@ vtkLabeledDataMapper::GetMTime()
 }
 
 // ----------------------------------------------------------------------
+const char *vtkLabeledDataMapper::GetLabelText(int label)
+{
+  assert("label index range" && label >= 0 && label < this->NumberOfLabels);
+  return this->TextMappers[label]->GetInput();
+}
+
+// ----------------------------------------------------------------------
 void
 vtkLabeledDataMapper::SetFieldDataName(const char *arrayName)
 {

@@ -85,6 +85,7 @@ class vtkCollection;
 class vtkCoordinate;
 class vtkImageData;
 class vtkIntArray;
+class vtkLabeledDataMapper;
 class vtkMatrix4x4;
 class vtkPath;
 class vtkProp;
@@ -311,6 +312,7 @@ protected:
   void DrawTextActor3D(vtkTextActor3D *textAct, vtkRenderer *ren);
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
                       vtkRenderer *ren);
+  void DrawLabeledDataMapper(vtkLabeledDataMapper *mapper, vtkRenderer *ren);
   void DrawScalarBarActor(vtkScalarBarActor *bar, vtkRenderer *ren);
   void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
                                vtkCoordinate *coord, vtkRenderer *ren);
