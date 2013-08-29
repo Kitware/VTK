@@ -190,7 +190,7 @@ vtkTypeInt64 vtkAtomicInt64Decrement(vtkTypeInt64* value,
 #endif
 }
 
-#ifdef _WIN32
+#if defined (_WIN32) && !defined(__MINGW32__)
 # define __align64 __declspec(align(64))
 #else
 # define __align64

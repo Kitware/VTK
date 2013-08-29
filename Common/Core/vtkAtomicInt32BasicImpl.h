@@ -154,7 +154,7 @@ int vtkAtomicInt32Decrement(int* value, vtkSimpleCriticalSection* cs)
 #endif
 }
 
-#ifdef _WIN32
+#if defined (_WIN32) && !defined(__MINGW32__)
 # define __align32 __declspec(align(32))
 #else
 # define __align32
