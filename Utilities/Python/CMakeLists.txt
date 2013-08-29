@@ -26,7 +26,11 @@ endif()
 
 # Export location of python module dirs in install and build tree for every vtkpython module to use
 # As long as those modules depend on vtkpython, they can retrieve and use these
-set_property(GLOBAL PROPERTY VTK_PYMODULE_INSTALL_DIR
-  "${VTK_INSTALL_LIBRARY_DIR}/python${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}/site-packages")
+if (NOT VTK_INSTALL_PYTHON_MODULE_DIR)
+  set(VTK_INSTALL_PYTHON_MODULE_DIR
+      "${VTK_INSTALL_LIBRARY_DIR}/python${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}/site-packages"
+      CACHE
+      PATH "Directory where python modules will be installed" FORCE)
+endif()
 set_property(GLOBAL PROPERTY VTK_PYMODULE_BUILD_DIR
   "${VTK_BINARY_DIR}/Wrapping/Python/")

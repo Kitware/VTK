@@ -114,6 +114,11 @@ endif()
 if(NOT VTK_WWW_DIR)
   set(VTK_WWW_DIR "${VTK_BINARY_DIR}/www")
 endif()
+if(NOT VTK_INSTALL_PYTHON_MODULE_DIR)
+  set (VTK_INSTALL_PYTHON_MODULE_DIR "-NOTFOUND" CACHE
+       PATH "Directory where python modules will be installed")
+  mark_as_advanced(VTK_INSTALL_PYTHON_MODULE_DIR)
+endif()
 
 if (CMAKE_CROSSCOMPILING AND NOT COMPILE_TOOLS_IMPORTED)
   # if CMAKE_CROSSCOMPILING is true, we need to import build-tools targets.
