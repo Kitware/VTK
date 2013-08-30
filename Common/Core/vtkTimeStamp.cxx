@@ -38,9 +38,9 @@ vtkTimeStampInitialize::vtkTimeStampInitialize()
     // The assumption is that atomic operations will be safer when in the
     // type for integer operations.
 #if VTK_SIZEOF_VOID_P == 8
-    GlobalTimeStamp = new vtkAtomicInt64;
+    GlobalTimeStamp = new vtkAtomicInt64(0);
 #else
-    GlobalTimeStamp = new vtkAtomicInt32;
+    GlobalTimeStamp = new vtkAtomicInt32(0);
 #endif
     }
 }

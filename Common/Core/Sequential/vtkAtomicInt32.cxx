@@ -26,7 +26,7 @@ vtkAtomicInt32::~vtkAtomicInt32()
 void vtkAtomicInt32::Initialize(const int val)
 {
   this->Internal = new vtkAtomicInt32Internal;
-  this->Set(val);
+  this->Internal->Value = val;
 }
 
 void vtkAtomicInt32::Set(int value)
