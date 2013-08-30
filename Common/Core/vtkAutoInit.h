@@ -16,6 +16,7 @@
 #define __vtkAutoInit_h
 
 #include "vtkDebugLeaksManager.h" // DebugLeaks exists longer.
+#include "vtkTimeStamp.h" // Here so that TimeStamp Schwarz initializer works
 
 #define VTK_AUTOINIT(M) VTK_AUTOINIT0(M,M##_AUTOINIT)
 #define VTK_AUTOINIT0(M,T) VTK_AUTOINIT1(M,T)
