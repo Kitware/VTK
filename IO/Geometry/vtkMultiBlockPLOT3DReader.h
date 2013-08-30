@@ -232,6 +232,11 @@ public:
   // for binary files.
   virtual int CanReadBinaryFile(const char* fname);
 
+  // Description:
+  // Overwritten to make sure that RequestInformation reads the meta-data
+  // again after the reader parameters were changed.
+  virtual void Modified();
+
 //BTX
   enum
   {
