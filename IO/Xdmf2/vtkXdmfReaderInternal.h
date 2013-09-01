@@ -48,7 +48,7 @@
 #include <set>
 #include <map>
 #include <vtksys/SystemTools.hxx>
-#include <assert.h>
+#include <cassert>
 #include <functional>
 #include <algorithm>
 #include <vtksys/ios/sstream>
