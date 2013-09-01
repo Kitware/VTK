@@ -19,7 +19,7 @@
  */
 #include "vtkPBGLDistributedGraphHelper.h"
 
-#include "assert.h"
+#include <cassert>
 #include "vtkGraph.h"
 #include "vtkGraphInternals.h"
 #include "vtkInformation.h"

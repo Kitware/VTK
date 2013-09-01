@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOutputWindow.h"
 #include "vtkAbstractParticleWriter.h"
 //#include "vtkToolkits.h"
-#include "assert.h"
+#include <cassert>
 #include "vtkMPIController.h"
 #include "vtkMultiProcessController.h"
 
