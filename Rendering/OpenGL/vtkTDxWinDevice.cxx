@@ -27,7 +27,7 @@
 // Most of the code is derived from the SDK with sample code
 // Cube3dPolling.cpp from archive Cube3Dpolling.zip from 3DConnexion.
 
-#include <assert.h>
+#include <cassert>
 
 #include "vtkTDxMotionEventInfo.h"
 #include "vtkCommand.h"

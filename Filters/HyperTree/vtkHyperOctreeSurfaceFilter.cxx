@@ -20,7 +20,7 @@
 #include "vtkInformationVector.h"
 #include "vtkInformation.h"
 #include "vtkCellArray.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkMergePoints.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"

@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkNew.h"
-#include <assert.h>
+#include <cassert>
 
 #define CHECK(b, errors) if(!(b)){ errors++; cerr<<"Error on Line "<<__LINE__<<":"<<endl;}
 

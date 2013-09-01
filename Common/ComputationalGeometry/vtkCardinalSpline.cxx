@@ -16,7 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkCardinalSpline);
 

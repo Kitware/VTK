@@ -35,7 +35,7 @@
 #include <vtkVariant.h>
 #include <vtkVariantArray.h>
 
-#include <assert.h>
+#include <cassert>
 
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/vector>

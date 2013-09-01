@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkRenderState.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderer.h"
 #include "vtkFrameBufferObject.h"
 

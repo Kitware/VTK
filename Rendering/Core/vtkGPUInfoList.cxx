@@ -15,7 +15,7 @@
 
 #include "vtkGPUInfoList.h"
 
-#include <assert.h>
+#include <cassert>
 #include "vtkGPUInfo.h"
 #include "vtkGraphicsFactory.h"
 

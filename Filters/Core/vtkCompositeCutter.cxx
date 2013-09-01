@@ -35,7 +35,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkSmartPointer.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkCompositeCutter);
 

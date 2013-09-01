@@ -37,7 +37,7 @@
 #include "vtkWebGLObject.h"
 #include "vtkWindowToImageFilter.h"
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <map>
 #include <sstream>

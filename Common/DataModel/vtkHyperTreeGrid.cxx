@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVoxel.h"
 #include "vtkTimerLog.h"
 
-#include <assert.h>
+#include <cassert>
 
 
 vtkInformationKeyMacro( vtkHyperTreeGrid, LEVELS, Integer );

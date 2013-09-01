@@ -55,7 +55,7 @@
 #include <boost/mpi/timer.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <assert.h>
+#include <cassert>
 
 //------------------------------------------------------------------------------
 // Definitions

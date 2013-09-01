@@ -45,7 +45,7 @@
 #include <vtksys/auto_ptr.hxx>
 #include <vtksys/ios/sstream>
 
-#include <assert.h>
+#include <cassert>
 #include <string>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)

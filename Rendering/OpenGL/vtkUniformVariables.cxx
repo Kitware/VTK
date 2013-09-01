@@ -15,7 +15,7 @@
 
 #include "vtkUniformVariables.h"
 #include "vtkgl.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 

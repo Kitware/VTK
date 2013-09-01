@@ -21,7 +21,7 @@
 
 #include "vtkBridgePointIteratorOne.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include "vtkObjectFactory.h"
 #include "vtkBridgeDataSet.h"

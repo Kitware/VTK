@@ -30,7 +30,7 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAdaptorCell.h"
-#include <assert.h>
+#include <cassert>
 
 #include "vtkInformation.h"
 #include "vtkExecutive.h" // for GetExecutive()

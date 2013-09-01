@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkDoubleArray.h"
-#include <assert.h>
+#include <cassert>
 
 int TestFieldNames(int, char*[])
 {

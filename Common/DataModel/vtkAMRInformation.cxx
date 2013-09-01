@@ -21,7 +21,7 @@
 #include "vtkBoundingBox.h"
 #include "vtkAMRBox.h"
 #include "vtkDoubleArray.h"
-#include <assert.h>
+#include <cassert>
 #include <set>
 
 vtkStandardNewMacro(vtkAMRInformation);

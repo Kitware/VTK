@@ -48,7 +48,7 @@
 #include <math.h>
 #include <string>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);

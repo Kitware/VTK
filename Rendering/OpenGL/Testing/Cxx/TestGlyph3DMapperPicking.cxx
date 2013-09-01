@@ -43,7 +43,7 @@
 #include "vtkGlyph3DMapper.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
-#include <assert.h>
+#include <cassert>
 
 vtkRenderer *renderer = NULL;
 

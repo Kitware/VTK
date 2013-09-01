@@ -34,7 +34,7 @@
 
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>
-#include <assert.h>
+#include <cassert>
 #include <locale> // C++ locale
 
 //-----------------------------------------------------------------------------

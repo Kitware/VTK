@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInformationVector.h"
 #include "vtkInformation.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkMath.h"
 #include "vtkPointData.h"
 #include "vtkDataArray.h"

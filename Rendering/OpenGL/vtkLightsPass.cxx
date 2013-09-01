@@ -15,7 +15,7 @@
 
 #include "vtkLightsPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkgl.h"

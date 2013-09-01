@@ -20,7 +20,7 @@
 #include "vtkDataObject.h"
 #include "vtkUniformGrid.h"
 #include "vtkInformation.h"
-#include <assert.h>
+#include <cassert>
 
 //----------------------------------------------------------------
 class AMRIndexIterator: public vtkObject

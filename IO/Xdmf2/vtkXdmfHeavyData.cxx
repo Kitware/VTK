@@ -41,7 +41,7 @@
 #include "vtkXdmfReaderInternal.h"
 
 #include <deque>
-#include <assert.h>
+#include <cassert>
 
 static void vtkScaleExtents(int in_exts[6], int out_exts[6], int stride[3])
 {

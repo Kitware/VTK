@@ -29,7 +29,7 @@
 
 #include <string.h>
 #include <string>
-#include <assert.h>
+#include <cassert>
 #include <sstream>
 using std::istringstream;
 using std::string;

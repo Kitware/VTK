@@ -15,7 +15,7 @@
 
 #include "vtkCompositeZPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkgl.h"

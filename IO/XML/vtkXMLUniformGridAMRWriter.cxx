@@ -23,7 +23,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkXMLUniformGridAMRWriter);
 //----------------------------------------------------------------------------

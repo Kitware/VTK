@@ -17,7 +17,7 @@
 #include "vtkGPUInfoListArray.h"
 
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 
 #include <X11/Xlib.h> // Display structure, XOpenDisplay(), XScreenCount()
 

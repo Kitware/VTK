@@ -15,7 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkDepthPeelingPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkProp.h"
 #include "vtkRenderer.h"

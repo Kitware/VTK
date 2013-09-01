@@ -28,7 +28,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkBiQuadraticQuad.h"
 #include "vtkPoints.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkBiQuadraticQuadraticHexahedron);
 

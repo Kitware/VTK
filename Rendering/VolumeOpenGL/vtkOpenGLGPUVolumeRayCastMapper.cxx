@@ -38,7 +38,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 #include "vtkClipDataSet.h"
 #include "vtkCellArray.h"

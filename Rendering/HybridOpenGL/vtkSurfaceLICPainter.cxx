@@ -45,7 +45,7 @@
 #include "vtkUniformVariables.h"
 #include "vtkWeakPointer.h"
 
-#include <assert.h>
+#include <cassert>
 #include "vtkgl.h"
 #include <string>
 

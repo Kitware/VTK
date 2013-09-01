@@ -253,7 +253,7 @@ private:
 // or prototype types.
 //
 
-#include <assert.h>
+#include <cassert>
 
 //
 // Static list of node types.

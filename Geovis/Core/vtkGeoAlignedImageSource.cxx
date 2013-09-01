@@ -31,7 +31,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkGeoAlignedImageSource);
 vtkCxxSetObjectMacro(vtkGeoAlignedImageSource, Image, vtkImageData);
