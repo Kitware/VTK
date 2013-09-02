@@ -44,7 +44,7 @@ int TestSystemFontRendering( int, char * [] )
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetRenderWindow()->SetSize(520, 360);
+  view->GetRenderWindow()->SetSize(580, 360);
   vtkNew<SystemFontRenderTest> test;
   view->GetScene()->AddItem(test.GetPointer());
 
@@ -72,69 +72,72 @@ bool SystemFontRenderTest::Paint(vtkContext2D *painter)
 
   painter->GetTextProp()->SetFontFamilyToArial();
 
+  const char *testString =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ\xce\xb1\xce\xb2\xce\xb3\xce\xb4";
+
   y -= 30;
   painter->GetTextProp()->SetBold(false);
   painter->GetTextProp()->SetItalic(false);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   y -= 30;
   painter->GetTextProp()->SetBold(false);
   painter->GetTextProp()->SetItalic(true);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   y -= 30;
   painter->GetTextProp()->SetBold(true);
   painter->GetTextProp()->SetItalic(false);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   y -= 30;
   painter->GetTextProp()->SetBold(true);
   painter->GetTextProp()->SetItalic(true);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   painter->GetTextProp()->SetFontFamilyToTimes();
 
   y -= 30;
   painter->GetTextProp()->SetBold(false);
   painter->GetTextProp()->SetItalic(false);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   y -= 30;
   painter->GetTextProp()->SetBold(false);
   painter->GetTextProp()->SetItalic(true);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   y -= 30;
   painter->GetTextProp()->SetBold(true);
   painter->GetTextProp()->SetItalic(false);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   y -= 30;
   painter->GetTextProp()->SetBold(true);
   painter->GetTextProp()->SetItalic(true);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   painter->GetTextProp()->SetFontFamilyToCourier();
 
   y -= 30;
   painter->GetTextProp()->SetBold(false);
   painter->GetTextProp()->SetItalic(false);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   y -= 30;
   painter->GetTextProp()->SetBold(false);
   painter->GetTextProp()->SetItalic(true);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   y -= 30;
   painter->GetTextProp()->SetBold(true);
   painter->GetTextProp()->SetItalic(false);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   y -= 30;
   painter->GetTextProp()->SetBold(true);
   painter->GetTextProp()->SetItalic(true);
-  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  painter->DrawString(5, y, testString);
 
   return true;
 }
