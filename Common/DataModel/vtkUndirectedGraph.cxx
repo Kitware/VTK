@@ -79,6 +79,11 @@ vtkUndirectedGraph *vtkUndirectedGraph::GetData(vtkInformationVector *v, int i)
 //----------------------------------------------------------------------------
 bool vtkUndirectedGraph::IsStructureValid(vtkGraph *g)
 {
+  if (!g)
+    {
+    return false;
+    }
+
   if (vtkUndirectedGraph::SafeDownCast(g))
     {
     return true;
