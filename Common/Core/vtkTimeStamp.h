@@ -63,6 +63,7 @@ private:
   unsigned long ModifiedTime;
 };
 
+#ifndef __WRAP__
 class VTKCOMMONCORE_EXPORT vtkTimeStampInitialize
 {
 public:
@@ -74,6 +75,7 @@ public:
 // vtkTimeStamp.  It will make sure vtkTimeStamp is initialized
 // before it is used.
 static vtkTimeStampInitialize vtkTimeStampInitializeInstance;
+#endif
 
 #endif
 // VTK-HeaderTest-Exclude: vtkTimeStamp.h
