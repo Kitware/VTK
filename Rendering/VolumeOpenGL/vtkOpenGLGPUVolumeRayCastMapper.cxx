@@ -2254,7 +2254,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
     this->LoadExtensionsSucceeded=0;
     this->UnsupportedRequiredExtensions->Stream<<
       " OpenGL 1.3 is required but not supported";
-    extensions->Delete();
     return;
     }
 
