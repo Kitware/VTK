@@ -164,7 +164,7 @@ int vtkSelectPolyData::RequestData(
     {
     vtkErrorMacro("This filter operates on surface primitives");
     tf->Delete();
-    triMesh->Unregister(this);
+    triMesh->UnRegister(this);
     return 1;
     }
 
