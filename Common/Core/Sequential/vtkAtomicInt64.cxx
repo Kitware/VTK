@@ -26,7 +26,7 @@ vtkAtomicInt64::~vtkAtomicInt64()
 void vtkAtomicInt64::Initialize(const vtkTypeInt64 val)
 {
   this->Internal = new vtkAtomicInt64Internal;
-  this->Set(val);
+  this->Internal->Value = val;
 }
 
 void vtkAtomicInt64::Set(vtkTypeInt64 value)
