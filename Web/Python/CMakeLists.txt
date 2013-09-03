@@ -7,7 +7,6 @@ include(vtkPythonPackages)
 
 # Extract path where python module should be copied
 get_property(pymodule_build_dir GLOBAL PROPERTY VTK_PYMODULE_BUILD_DIR)
-get_property(pymodule_install_dir GLOBAL PROPERTY VTK_PYMODULE_INSTALL_DIR)
 
 set(vtkWebPython_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(vtkWebPython_BINARY_DIR "${pymodule_build_dir}/vtk/web")
@@ -20,8 +19,6 @@ if(NOT VTK_WRAP_PYTHON)
    message(FATAL_ERROR "Web group can NOT work if VTK_WRAP_PYTHON is not ON.")
 endif()
 
-if(NOT VTK_INSTALL_NO_PYTHON)
-  install(DIRECTORY ${vtkWebPython_BINARY_DIR}
-    DESTINATION "${pymodule_install_dir}"
-    COMPONENT Runtime)
-endif()
+install(DIRECTORY ${vtkWebPython_BINARY_DIR}
+  DESTINATION "${VTK_INSTALL_PYTHON_MODULE_DIR}/vtk"
+  COMPONENT Runtime)
