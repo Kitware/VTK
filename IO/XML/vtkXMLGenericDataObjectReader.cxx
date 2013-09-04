@@ -137,11 +137,13 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(const char *name,
         parallel=true;
         return VTK_STRUCTURED_GRID;
         }
-      if(fileDataType.compare("UnstructuredGrid")==0)
+      if(fileDataType.compare("UnstructuredGrid")==0 ||
+         fileDataType.compare("UnstructuredGridBase")==0)
         {
         return VTK_UNSTRUCTURED_GRID;
         }
-      if(fileDataType.compare("PUnstructuredGrid")==0)
+      if(fileDataType.compare("PUnstructuredGrid")==0 ||
+         fileDataType.compare("PUnstructuredGridBase")==0)
         {
         parallel=true;
         return VTK_UNSTRUCTURED_GRID;

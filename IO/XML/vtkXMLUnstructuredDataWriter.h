@@ -25,6 +25,7 @@
 
 class vtkPointSet;
 class vtkCellArray;
+class vtkCellIterator;
 class vtkDataArray;
 class vtkIdTypeArray;
 class vtkUnstructuredGrid;
@@ -81,6 +82,10 @@ protected:
   virtual void WriteAppendedPiece(int index, vtkIndent indent);
   virtual void WriteAppendedPieceData(int index);
 
+  void WriteCellsInline(const char* name, vtkCellIterator *cellIter,
+                        vtkIdType numCells, vtkIdType cellSizeEstimate,
+                        vtkIndent indent);
+
   void WriteCellsInline(const char* name, vtkCellArray* cells,
                         vtkDataArray* types, vtkIndent indent);
 
@@ -89,16 +94,33 @@ protected:
                         vtkDataArray* types, vtkIdTypeArray* faces,
                         vtkIdTypeArray* faceOffsets, vtkIndent indent);
 
+  void WriteCellsInlineWorker(const char* name, vtkDataArray *types,
+                              vtkIndent indent);
+
   void WriteCellsAppended(const char* name, vtkDataArray* types,
                           vtkIndent indent, OffsetsManagerGroup *cellsManager);
 
+  void WriteCellsAppended(const char* name, vtkCellIterator *cellIter,
+                          vtkIdType numCells, vtkIndent indent,
+                          OffsetsManagerGroup *cellsManager);
+
   void WriteCellsAppendedData(vtkCellArray* cells, vtkDataArray* types,
                               int timestep, OffsetsManagerGroup *cellsManager);
+
+  void WriteCellsAppendedData(vtkCellIterator* cellIter, vtkIdType numCells,
+                              vtkIdType cellSizeEstimate, int timestep,
+                              OffsetsManagerGroup *cellsManager);
 
   // New API with face infomration for polyhedron cell support.
   void WriteCellsAppendedData(vtkCellArray* cells, vtkDataArray* types,
                               vtkIdTypeArray* faces,vtkIdTypeArray* faceOffsets,
                               int timestep, OffsetsManagerGroup *cellsManager);
+
+  void WriteCellsAppendedDataWorker(vtkDataArray* types, int timestep,
+                                    OffsetsManagerGroup *cellsManager);
+
+  void ConvertCells(vtkCellIterator* cellIter, vtkIdType numCells,
+                    vtkIdType cellSizeEstimate);
 
   void ConvertCells(vtkCellArray* cells);
 
