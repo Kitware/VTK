@@ -337,6 +337,8 @@ public:
   // scaling), and is used to coordinate scaling with the plots, charts, etc.
   vtkSetMacro(ScalingFactor, double)
   vtkGetMacro(ScalingFactor, double)
+  vtkSetMacro(Shift, double)
+  vtkGetMacro(Shift, double)
 
   // Description:
   // Update the geometry of the axis. Takes care of setting up the tick mark
@@ -516,6 +518,7 @@ protected:
   // small/large numbers accurately by converting the underlying range by the
   // scaling factor.
   double ScalingFactor;
+  double Shift;
 
   // Description:
   // Are we using custom tick labels, or should the axis generate them?

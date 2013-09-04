@@ -167,7 +167,7 @@ public:
   // Description:
   // Set the information passed to the tooltip.
   virtual void SetTooltipInfo(const vtkContextMouseEvent &,
-                              const vtkVector2f &,
+                              const vtkVector2d &,
                               vtkIdType, vtkPlot*,
                               vtkIdType segmentIndex = -1);
 

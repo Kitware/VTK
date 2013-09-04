@@ -32,7 +32,7 @@ vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlot, YAxis, vtkAxis);
 
 //-----------------------------------------------------------------------------
-vtkPlot::vtkPlot() : ScalingFactor(1.0, 1.0)
+vtkPlot::vtkPlot() : ShiftScale(0.0, 0.0, 1.0, 1.0)
 {
   this->Pen = vtkSmartPointer<vtkPen>::New();
   this->Pen->SetWidth(2.0);
@@ -76,7 +76,7 @@ vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
 }
 
 //-----------------------------------------------------------------------------
-vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2f &plotPos,
+vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d &plotPos,
                                       vtkIdType seriesIndex,
                                       vtkIdType)
 {
@@ -449,19 +449,19 @@ void vtkPlot::SetInputArray(int index, const vtkStdString &name)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetScalingFactor(const vtkVector2d &scaling)
+void vtkPlot::SetShiftScale(const vtkRectd &shiftScale)
 {
-  if (scaling != this->ScalingFactor)
+  if (shiftScale != this->ShiftScale)
     {
     this->Modified();
-    this->ScalingFactor = scaling;
+    this->ShiftScale = shiftScale;
     }
 }
 
 //-----------------------------------------------------------------------------
-vtkVector2d vtkPlot::GetScalingFactor()
+vtkRectd vtkPlot::GetShiftScale()
 {
-  return this->ScalingFactor;
+  return this->ShiftScale;
 }
 
 //-----------------------------------------------------------------------------

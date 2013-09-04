@@ -82,6 +82,7 @@ vtkAxis::vtkAxis()
   this->Pen = vtkPen::New();
   this->TitleAppended = false;
   this->ScalingFactor = 1.0;
+  this->Shift = 0.0;
 
   this->Pen->SetColor(0, 0, 0);
   this->Pen->SetWidth(1.0);
@@ -1343,7 +1344,7 @@ double vtkAxis::NiceMinMax(double &min, double &max, float pixelRange,
       max *= 1.05;
       }
     }
-  else if ((max - min) < 1.0e-20)
+  else if ((max - min) < 1.0e-60)
     {
     min *= 0.95;
     max *= 1.05;

@@ -496,7 +496,8 @@ void vtkChartXY::RecalculatePlotTransforms()
         xAxis, yAxis, this->ChartPrivate->PlotCorners[i]->GetTransform());
       // Now we need to set the scale factor on the plots to ensure they rescale
       // their input data when necessary.
-      vtkVector2d factor(xAxis->GetScalingFactor(), yAxis->GetScalingFactor());
+      vtkRectd shiftScale(xAxis->GetShift(), yAxis->GetShift(),
+                          xAxis->GetScalingFactor(), yAxis->GetScalingFactor());
       for (unsigned int j = 0;
            j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
         {
@@ -504,7 +505,7 @@ void vtkChartXY::RecalculatePlotTransforms()
             vtkPlot::SafeDownCast(this->ChartPrivate->PlotCorners[i]->GetItem(j));
         if (plot)
           {
-          plot->SetScalingFactor(factor);
+          plot->SetShiftScale(shiftScale);
           }
         }
       }
@@ -1468,7 +1469,10 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
           if (seriesIndex >= 0)
             {
             // We found a point, set up the tooltip and return
-            this->SetTooltipInfo(mouse, plotPos, seriesIndex, plot,
+            vtkRectd ss(plot->GetShiftScale());
+            vtkVector2d plotPosd(plotPos[0] / ss[2] - ss[0],
+                                 plotPos[1] / ss[3] - ss[1]);
+            this->SetTooltipInfo(mouse, plotPosd, seriesIndex, plot,
                                  segmentIndex);
             if (invokeEvent >= 0)
               {
@@ -1506,11 +1510,11 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
 
 //-----------------------------------------------------------------------------
 void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
-                                const vtkVector2f &plotPos,
+                                const vtkVector2d &plotPos,
                                 vtkIdType seriesIndex, vtkPlot* plot,
                                 vtkIdType segmentIndex)
 {
-  if(!this->Tooltip)
+  if (!this->Tooltip)
     {
     return;
     }
