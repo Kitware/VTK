@@ -126,6 +126,9 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
   trans->AddItem(treeItem.GetPointer());
+  // center the item within the render window
+  trans->Translate(40, 30);
+  trans->Scale(2, 2);
   actor->GetScene()->AddItem(trans.GetPointer());
 
   vtkNew<vtkRenderer> renderer;

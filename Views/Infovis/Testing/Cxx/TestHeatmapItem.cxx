@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHeatmapOnly.cxx
+  Module:    TestHeatmapItem.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkTreeHeatmapItem.h"
+#include "vtkHeatmapItem.h"
 #include "vtkDoubleArray.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
@@ -31,7 +31,7 @@
 #include "vtkRegressionTestImage.h"
 
 //----------------------------------------------------------------------------
-int TestHeatmapOnly(int argc, char* argv[])
+int TestHeatmapItem(int argc, char* argv[])
 {
   vtkNew<vtkTable> table;
   vtkNew<vtkStringArray> tableNames;
@@ -80,12 +80,14 @@ int TestHeatmapOnly(int argc, char* argv[])
 
   vtkNew<vtkContextActor> actor;
 
-  vtkNew<vtkTreeHeatmapItem> treeItem;
-  treeItem->SetTable(table.GetPointer());
+  vtkNew<vtkHeatmapItem> heatmap;
+  heatmap->SetTable(table.GetPointer());
+  heatmap->SetPosition(20, 5);
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
-  trans->AddItem(treeItem.GetPointer());
+  trans->AddItem(heatmap.GetPointer());
+  trans->Scale(2, 2);
   actor->GetScene()->AddItem(trans.GetPointer());
 
   vtkNew<vtkRenderer> renderer;

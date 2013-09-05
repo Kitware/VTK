@@ -1,8 +1,10 @@
 SET(Module_SRCS
   vtkApplyColors.cxx
   vtkApplyIcons.cxx
+  vtkDendrogramItem.cxx
   vtkGraphItem.cxx
   vtkGraphLayoutView.cxx
+  vtkHeatmapItem.cxx
   vtkHierarchicalGraphPipeline.cxx
   vtkHierarchicalGraphView.cxx
   vtkIcicleView.cxx
@@ -17,6 +19,7 @@ SET(Module_SRCS
   vtkRenderedSurfaceRepresentation.cxx
   vtkRenderedTreeAreaRepresentation.cxx
   vtkRenderView.cxx
+  vtkTanglegramItem.cxx
   vtkTreeAreaView.cxx
   vtkTreeHeatmapItem.cxx
   vtkTreeMapView.cxx
