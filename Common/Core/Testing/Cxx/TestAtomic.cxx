@@ -1,13 +1,12 @@
-#include "vtkAtomicInt32.h"
-#include "vtkAtomicInt64.h"
+#include "vtkAtomicInt.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiThreader.h"
 
 static int Total = 0;
 static vtkTypeInt64 Total64 = 0;
-static vtkAtomicInt32 TotalAtomic;
-static vtkAtomicInt64 TotalAtomic64;
+static vtkAtomicInt<vtkTypeInt32> TotalAtomic(0);
+static vtkAtomicInt<vtkTypeInt64> TotalAtomic64(0);
 static const int Target = 1000000;
 static int Values32[Target+2];
 static int Values64[Target+2];
@@ -20,11 +19,11 @@ VTK_THREAD_RETURN_TYPE MyFunction(void *)
   for (int i=0; i<Target/NumThreads; i++)
     {
     Total++;
-    int idx = TotalAtomic.Increment();
+    int idx = ++TotalAtomic;
     Values32[idx] = 1;
 
     Total64++;
-    idx = TotalAtomic64.Increment();
+    idx = ++TotalAtomic64;
     Values64[idx] = 1;
 
     //AnObject->Register(0);
@@ -40,9 +39,9 @@ VTK_THREAD_RETURN_TYPE MyFunction2(void *)
 {
   for (int i=0; i<Target/NumThreads; i++)
     {
-    TotalAtomic.Decrement();
+    --TotalAtomic;
 
-    TotalAtomic64.Decrement();
+    --TotalAtomic64;
     }
 
   return VTK_THREAD_RETURN_VALUE;
@@ -52,10 +51,10 @@ VTK_THREAD_RETURN_TYPE MyFunction3(void *)
 {
   for (int i=0; i<Target/NumThreads; i++)
     {
-    int idx = TotalAtomic.Add(1);
+    int idx = TotalAtomic += 1;
     Values32[idx]++;
 
-    idx = TotalAtomic64.Add(1);
+    idx = TotalAtomic64 += 1;
     Values64[idx]++;
     }
 
@@ -66,15 +65,15 @@ VTK_THREAD_RETURN_TYPE MyFunction4(void *)
 {
   for (int i=0; i<Target/NumThreads; i++)
     {
-    TotalAtomic.Increment();
-    TotalAtomic.Add(1);
-    TotalAtomic.Decrement();
-    TotalAtomic.Subtract(1);
+    TotalAtomic++;
+    TotalAtomic += 1;
+    TotalAtomic--;
+    TotalAtomic -= 1;
 
-    TotalAtomic64.Increment();
-    TotalAtomic64.Add(1);
-    TotalAtomic64.Decrement();
-    TotalAtomic64.Subtract(1);
+    TotalAtomic64++;
+    TotalAtomic64 += 1;
+    TotalAtomic64--;
+    TotalAtomic64 -= 1;
     }
 
   return VTK_THREAD_RETURN_VALUE;
@@ -83,9 +82,9 @@ VTK_THREAD_RETURN_TYPE MyFunction4(void *)
 int TestAtomic(int, char*[])
 {
   Total = 0;
-  TotalAtomic.Set(0);
+  TotalAtomic = 0;
   Total64 = 0;
-  TotalAtomic64.Set(0);
+  TotalAtomic64 = 0;
 
   AnObject = vtkObject::New();
 
@@ -144,19 +143,19 @@ int TestAtomic(int, char*[])
   mt->SetSingleMethod(MyFunction4, NULL);
   mt->SingleMethodExecute();
 
-  cout << Total << " " << TotalAtomic.Get() << endl;
-  cout << Total64 << " " << TotalAtomic64.Get() << endl;
+  cout << Total << " " << TotalAtomic.load() << endl;
+  cout << Total64 << " " << TotalAtomic64.load() << endl;
 
   //cout << AnObject->GetReferenceCount() << endl;
 
   cout << "MTime: " << AnObject->GetMTime() << endl;
 
-  if (TotalAtomic.Get() != Target)
+  if (TotalAtomic.load() != Target)
     {
     return 1;
     }
 
-  if (TotalAtomic64.Get() != Target)
+  if (TotalAtomic64.load() != Target)
     {
     return 1;
     }

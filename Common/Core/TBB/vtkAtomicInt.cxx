@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCriticalSection.cxx
+  Module:    vtkAtomicInt.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,13 +12,4 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkCriticalSection.h"
-#include "vtkObjectFactory.h"
-
-vtkStandardNewMacro(vtkCriticalSection);
-
-void vtkCriticalSection::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-}
-
+#include "vtkAtomicInt.h"

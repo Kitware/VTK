@@ -73,7 +73,7 @@ ostream& operator<<(ostream& os, vtkObjectBase& o)
 // to zero.
 vtkObjectBase::vtkObjectBase()
 {
-  this->ReferenceCount.Set(1);
+  this->ReferenceCount = 1;
   this->WeakPointers = 0;
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructingObject(this);
@@ -88,7 +88,7 @@ vtkObjectBase::~vtkObjectBase()
 
   // warn user if reference counting is on and the object is being referenced
   // by another object
-  if ( this->ReferenceCount.Get() > 0)
+  if ( this->ReferenceCount > 0)
     {
     vtkGenericWarningMacro(<< "Trying to delete object with non-zero reference count.");
     }
@@ -159,7 +159,7 @@ void vtkObjectBase::PrintHeader(ostream& os, vtkIndent indent)
 // its superclasses.
 void vtkObjectBase::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "Reference Count: " << this->ReferenceCount.Get() << "\n";
+  os << indent << "Reference Count: " << this->ReferenceCount << "\n";
 }
 
 void vtkObjectBase::PrintTrailer(ostream& os, vtkIndent indent)
@@ -171,8 +171,8 @@ void vtkObjectBase::PrintTrailer(ostream& os, vtkIndent indent)
 // Sets the reference count (use with care)
 void vtkObjectBase::SetReferenceCount(int ref)
 {
-  this->ReferenceCount.Set(ref);
-  vtkBaseDebugMacro(<< "Reference Count set to " << this->ReferenceCount.Get());
+  this->ReferenceCount = ref;
+  vtkBaseDebugMacro(<< "Reference Count set to " << this->ReferenceCount);
 }
 
 //----------------------------------------------------------------------------
@@ -198,7 +198,7 @@ void vtkObjectBase::RegisterInternal(vtkObjectBase*, int check)
   if(!(check &&
        vtkObjectBaseToGarbageCollectorFriendship::TakeReference(this)))
     {
-    this->ReferenceCount.Increment();
+    this->ReferenceCount++;
     }
 }
 
@@ -207,14 +207,14 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, int check)
 {
   // If the garbage collector accepts a reference, do not decrement
   // the count.
-  if(check && this->ReferenceCount.Get() > 1 &&
+  if(check && this->ReferenceCount > 1 &&
      vtkObjectBaseToGarbageCollectorFriendship::GiveReference(this))
     {
     return;
     }
 
   // Decrement the reference count, delete object if count goes to zero.
-  if(this->ReferenceCount.Decrement() <= 0)
+  if(--this->ReferenceCount <= 0)
     {
     // Clear all weak pointers to the object before deleting it.
     if (this->WeakPointers)

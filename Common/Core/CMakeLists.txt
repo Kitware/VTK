@@ -26,20 +26,48 @@ set(vtkCommonCore_EXPORT_OPTIONS
   VTK_ALL_NEW_OBJECT_FACTORY
   )
 
+# Choose which multi-threaded parallelism library to use
+set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING
+  "Which multi-threaded parallelism implementation to use. Options are Sequential, Kaapi, OpenMP or TBB"
+)
+set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential Kaapi OpenMP TBB)
+
+if( NOT ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi" OR
+         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB" OR
+         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP"))
+  set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential")
+endif()
+
 if ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB")
   find_package(TBB REQUIRED)
-  include_directories(${TBB_INCLUDE_DIRS})
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${TBB_LIBRARY})
+  set(VTK_SMP_ATOMIC_DIRECTORY "TBB")
+  include_directories(${TBB_INCLUDE_DIRS})
+  # This needs to be here because all modules that include vtkAtomic.h
+  # need to include tbb/atomic.h
+  set(vtkCommonCore_SYSTEM_INCLUDE_DIRS ${TBB_INCLUDE_DIRS})
 elseif  ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP")
   find_package(OpenMP REQUIRED)
   set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
+  set(VTK_SMP_ATOMIC_DIRECTORY "Sequential")
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi")
   find_package(XKaapi REQUIRED)
   include_directories(${XKAAPI_INCLUDE_DIRS})
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${XKAAPI_LIBRARIES})
+  set(VTK_SMP_ATOMIC_DIRECTORY "Sequential")
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Sequential")
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
+  set(VTK_SMP_ATOMIC_DIRECTORY "Sequential")
 endif()
+
+if(EXISTS ${VTK_SMP_ATOMIC_DIRECTORY}/vtkAtomicInt.cxx)
+  set(VTK_ATOMIC_CXX_FILE ${VTK_SMP_ATOMIC_DIRECTORY}/vtkAtomicInt.cxx)
+else()
+  set(VTK_ATOMIC_CXX_FILE "")
+endif()
+
+configure_file(${VTK_SMP_ATOMIC_DIRECTORY}/vtkAtomicInt.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h COPY_ONLY)
 
 #-----------------------------------------------------------------------------
 
@@ -138,6 +166,7 @@ SET(Module_SRCS
   vtkScalarsToColors.cxx
   vtkShortArray.cxx
   vtkSignedCharArray.cxx
+  vtkSimpleCriticalSection.cxx
   vtkSmartPointerBase.cxx
   vtkSortDataArray.cxx
   vtkStdString.cxx
@@ -165,11 +194,10 @@ SET(Module_SRCS
   vtkTypeTemplate.h
   vtkType.h
   vtkSystemIncludes.h
+  ${VTK_ATOMIC_CXX_FILE}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
-  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt32.cxx
-  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt64.cxx
   )
 
 set(${vtk-module}_HDRS
@@ -182,8 +210,6 @@ set(${vtk-module}_HDRS
   vtkArrayIteratorTemplateImplicit.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
-  vtkAtomicInt32.h
-  vtkAtomicInt64.h
   vtkAutoInit.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayTemplateImplicit.txx
@@ -468,8 +494,6 @@ set_source_files_properties(
   vtkArrayIteratorTemplateImplicit.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
-  vtkAtomicInt32.h
-  vtkAtomicInt64.h
   vtkAutoInit.h
   vtkDataArrayTemplate.txx
   vtkDataArrayTemplateImplicit.txx
@@ -479,6 +503,7 @@ set_source_files_properties(
   vtkMathUtilities.h
   vtkNew.h
   vtkSetGet.h
+  vtkSimpleCriticalSection.h
   vtkSmartPointer.h
   vtkSparseArray.txx
   vtkTemplateAliasMacro.h
@@ -499,8 +524,7 @@ set_source_files_properties(
   vtkMathConfigure.h
   vtkVersionMacros.h
   vtkTypeTemplate.h
-  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt32.cxx
-  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt64.cxx
+  ${VTK_ATOMIC_CXX_FILE}
 
   WRAP_EXCLUDE
   )
