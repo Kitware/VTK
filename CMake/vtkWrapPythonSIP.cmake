@@ -94,7 +94,7 @@ function(VTK_CREATE_SIP_MODULE KIT WRAP_SRCS)
     TARGET_LINK_LIBRARIES(vtk${KIT}PythonSIP vtk${KIT}PythonD)
     get_target_property(lib_loc vtk${KIT}PythonSIP LOCATION)
     ADD_CUSTOM_COMMAND(TARGET vtk${KIT}PythonSIP POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy "${lib_loc}" "${VTK_BINARY_DIR}/Wrapping/Python/vtk/"
+      COMMAND ${CMAKE_COMMAND} -E copy "${lib_loc}" "${VTK_BUILD_PYTHON_MODULE_DIR}/vtk/"
       )
 
     IF(NOT VTK_INSTALL_NO_LIBRARIES)
