@@ -47,6 +47,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sstream>
 #include <iomanip>
 #include <set>
+
+#ifdef _WIN32
+// this is needed before math.h to get M_PI.
+# define _USE_MATH_DEFINES
+#endif
+
 #include <math.h>
 
 #include "Partition.h"

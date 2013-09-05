@@ -53,7 +53,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FOFHaloProperties.h"
 #include "HaloCenterFinder.h"
 #include "Partition.h"
-#include "Timings.h"
 
 #ifdef COSMO_USE_GENERIC_IO
 # include "GenericIO.h"

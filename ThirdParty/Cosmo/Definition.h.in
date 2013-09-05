@@ -49,6 +49,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #cmakedefine BUILD_SHARED_LIBS
 #cmakedefine COSMO_USE_GENERIC_IO
+#cmakedefine COSMO_DISABLE_TIMINGS
 
 // Now set up all of the export macros
 #if defined(BUILD_SHARED_LIBS)

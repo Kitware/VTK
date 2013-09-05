@@ -54,9 +54,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FOFHaloProperties.h"
 #include "HaloCenterFinder.h"
 
-#include "Timings.h"
-
-
 using namespace std;
 
 namespace cosmologytools {
@@ -706,7 +703,7 @@ void SubHaloFinder::mergeCandidate(int p,
 
   // Use the Poisson Noise beta parameter to decide if smaller is significant
   int significant = 0;
-  if (avgDensity > (saddleDensity * (1.0 + betaFactor / sqrt(count))))
+  if (avgDensity > (saddleDensity * (1.0 + betaFactor / sqrt(static_cast<double>(count)))))
     significant = 1;
 
   // If the smaller candidate has no children or parent it may be absorbed

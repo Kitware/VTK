@@ -58,7 +58,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "HaloFinderInput.h"
 #include "Partition.h"
+#ifndef COSMO_DISABLE_TIMINGS
 #include "Timings.h"
+#endif
 
 #include "ParticleDistribute.h"
 #include "ParticleExchange.h"
@@ -399,8 +401,10 @@ HaloFinder::~HaloFinder()
 
 void HaloFinder::DistributeParticles()
 {
+#ifndef COSMO_DISABLE_TIMINGS
   static Timings::TimerRef dtimer = Timings::getTimer("Distribute Particles");
   Timings::startTimer(dtimer);
+#endif
 
   // Initialize classes for reading, exchanging and calculating
   this->distribute.setParameters(this->inFile, this->rL, this->dataType);
@@ -461,7 +465,9 @@ void HaloFinder::DistributeParticles()
     if ((*this->mass)[i] == 1.0)
       (*this->mass)[i] = this->particleMass;
 
+#ifndef COSMO_DISABLE_TIMINGS
   Timings::stopTimer(dtimer);
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -472,6 +478,7 @@ void HaloFinder::DistributeParticles()
 
 void HaloFinder::FOFHaloFinder()
 {
+#ifndef COSMO_DISABLE_TIMINGS
   static Timings::TimerRef h1timer = Timings::getTimer("FOF Halo Finder");
   Timings::startTimer(h1timer);
 
@@ -492,8 +499,9 @@ void HaloFinder::FOFHaloFinder()
   // Write file of particles with mass field replaced by halo tag
   if (this->haloIn.getOutputParticles() == 1)
     this->haloFinder.writeTaggedParticles(0, 1.0, true);
-
+#ifndef COSMO_DISABLE_TIMINGS
   Timings::stopTimer(h1timer);
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -504,8 +512,10 @@ void HaloFinder::FOFHaloFinder()
 
 void HaloFinder::BasicFOFHaloProperties()
 {
+#ifndef COSMO_DISABLE_TIMINGS
   static Timings::TimerRef ftimer = Timings::getTimer("FOF Properties");
   Timings::startTimer(ftimer);
+#endif
 
   if (this->myProc == 0)
     cout << "Run Basic FOF halo properties" << endl;
@@ -551,7 +561,9 @@ void HaloFinder::BasicFOFHaloProperties()
   this->fof.FOFVelocityDispersion(this->fofXVel,
                                 this->fofYVel, this->fofZVel, this->fofVelDisp);
 
+#ifndef COSMO_DISABLE_TIMINGS
   Timings::stopTimer(ftimer);
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -647,8 +659,10 @@ int HaloFinder::MBPCenterFinding(
 
 {
   // Find the index of the particle at the FOF center
+#ifndef COSMO_DISABLE_TIMINGS
   static Timings::TimerRef cftimer = Timings::getTimer("MBP Center Finder");
   Timings::startTimer(cftimer);
+#endif
   int centerIndex;
 
   // Create the center finder
@@ -665,7 +679,9 @@ int HaloFinder::MBPCenterFinding(
     centerIndex = centerFinder.mostBoundParticleAStar(minPotential);
   }
 
+#ifndef COSMO_DISABLE_TIMINGS
   Timings::stopTimer(cftimer);
+#endif
   return centerIndex;
 }
 
@@ -686,8 +702,10 @@ int HaloFinder::MCPCenterFinding(
 
 {
   // Find the index of the particle at the FOF center
+#ifndef COSMO_DISABLE_TIMINGS
   static Timings::TimerRef cftimer = Timings::getTimer("MCP Center Finder");
   Timings::startTimer(cftimer);
+#endif
   int centerIndex = 0;
 
   // Create the center finder
@@ -704,7 +722,9 @@ int HaloFinder::MCPCenterFinding(
   else {
     centerIndex = centerFinder.mostConnectedParticleChainMesh();
   }
+#ifndef COSMO_DISABLE_TIMINGS
   Timings::stopTimer(cftimer);
+#endif
   return centerIndex;
 }
 
@@ -720,8 +740,10 @@ int HaloFinder::MCPCenterFinding(
 
 void HaloFinder::FOFSubHaloFinding()
 {
+#ifndef COSMO_DISABLE_TIMINGS
   static Timings::TimerRef shtimer = Timings::getTimer("SubHalo Finder");
   Timings::startTimer(shtimer);
+#endif
 
   // Debug output file per processor
   ostringstream sname;
@@ -885,7 +907,9 @@ void HaloFinder::FOFSubHaloFinding()
       }
     }
   }
+#ifndef COSMO_DISABLE_TIMINGS
   Timings::stopTimer(shtimer);
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -951,8 +975,10 @@ void HaloFinder::FOFHaloCatalog()
 
 void HaloFinder::SODHaloFinding()
 {
+#ifndef COSMO_DISABLE_TIMINGS
   static Timings::TimerRef sodtimer = Timings::getTimer("SOD Halo Finder");
   Timings::startTimer(sodtimer);
+#endif
 
   int* fofHalos = this->haloFinder.getHalos();
   int* fofHaloCount = this->haloFinder.getHaloCount();
@@ -1136,7 +1162,9 @@ void HaloFinder::SODHaloFinding()
     }
     delete chain;
   }
+#ifndef COSMO_DISABLE_TIMINGS
   Timings::stopTimer(sodtimer);
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////

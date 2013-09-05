@@ -51,8 +51,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CosmoHaloFinder.h"
 
 
+#ifndef COSMO_DISABLE_TIMINGS
 #ifdef DEBUG
 #include <sys/time.h>
+#endif
 #endif
 
 using namespace std;
@@ -83,7 +85,8 @@ void CosmoHaloFinder::Execute()
   cout << "pmin:     " << pmin << endl;
   cout << "periodic: " << (periodic ? "true" : "false") << endl;
 
-#ifdef DEBUG
+#ifndef COSMO_DISABLE_TIMINGS
+# ifdef DEBUG
   timeval tim;
   gettimeofday(&tim, NULL);
   double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
@@ -105,10 +108,11 @@ void CosmoHaloFinder::Execute()
   gettimeofday(&tim, NULL);
   t2=tim.tv_sec+(tim.tv_usec/1000000.0);
   printf("writing... %.2lfs\n", t2-t1);
-#else
+# else
   Reading();
   Finding();
   Writing();
+# endif
 #endif
 
   // Memory for the standalone halo finder is allocated in Reading()
@@ -176,7 +180,7 @@ void CosmoHaloFinder::Reading()
     data[i] = new POSVEL_T[npart];
 
   // declare temporary read buffers
-  int nfloat = 7, nint = 1;
+  const int nfloat = 7, nint = 1;
   POSVEL_T fBlock[nfloat];
   ID_T iBlock[nint];
 
@@ -295,11 +299,12 @@ void CosmoHaloFinder::Finding()
   //
   // REORDER particles based on spatial locality
   //
-
-#ifdef DEBUG
+#ifndef COSMO_DISABLE_TIMINGS
+# ifdef DEBUG
   timeval tim;
   gettimeofday(&tim, NULL);
   double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
+# endif
 #endif
 
   seq.resize(npart);
@@ -309,18 +314,22 @@ void CosmoHaloFinder::Finding()
   Reorder(seq.begin(), seq.end(), dataX);
 
 
+#ifndef COSMO_DISABLE_TIMINGS
 #ifdef DEBUG
   gettimeofday(&tim, NULL);
   double t2=tim.tv_sec+(tim.tv_usec/1000000.0);
   printf("reorder... %.2lfs\n", t2-t1);
 #endif
+#endif
 
   //
   // COMPUTE interval bounding box
   //
+#ifndef COSMO_DISABLE_TIMINGS
 #ifdef DEBUG
   gettimeofday(&tim, NULL);
   t1=tim.tv_sec+(tim.tv_usec/1000000.0);
+#endif
 #endif
 
   lbound = new POSVEL_T[npart];
@@ -328,18 +337,22 @@ void CosmoHaloFinder::Finding()
   POSVEL_T lb1[numDataDims], ub1[numDataDims];
   ComputeLU(0, npart, dataX, lb1, ub1);
 
+#ifndef COSMO_DISABLE_TIMINGS
 #ifdef DEBUG
   gettimeofday(&tim, NULL);
   t2=tim.tv_sec+(tim.tv_usec/1000000.0);
   printf("computeLU... %.2lfs\n", t2-t1);
 #endif
+#endif
 
   //
   // FIND HALOS using friends-of-friends metric
   //
+#ifndef COSMO_DISABLE_TIMINGS
 #ifdef DEBUG
   gettimeofday(&tim, NULL);
   t1=tim.tv_sec+(tim.tv_usec/1000000.0);
+#endif
 #endif
 
   for (int i=0; i<npart; i++) {
@@ -350,10 +363,12 @@ void CosmoHaloFinder::Finding()
 
   myFOF(0, npart, dataX);
 
+#ifndef COSMO_DISABLE_TIMINGS
 #ifdef DEBUG
   gettimeofday(&tim, NULL);
   t2=tim.tv_sec+(tim.tv_usec/1000000.0);
   printf("myFOF... %.2lfs\n", t2-t1);
+#endif
 #endif
 
   //

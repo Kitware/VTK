@@ -31,9 +31,12 @@ set(${vtk-module}_SRCS
   Partition.cxx
   SODHalo.cxx
   SubHaloFinder.cxx
-  Timer.cxx
-  Timings.cxx
+# Timer.cxx
+# Timings.cxx
   )
+
+# Since Timer.cxx/Timings.cxx have portability issues, we disable them.
+set (COSMO_DISABLE_TIMINGS TRUE)
 configure_file(Definition.h.in Definition.h)
 
 set (${vtk-module}_HDRS

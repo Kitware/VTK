@@ -47,8 +47,11 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sstream>
 #include <iomanip>
 
-#include <sys/types.h>
-#include <dirent.h>
+#ifndef _WIN32
+# include <sys/types.h>
+# include <dirent.h>
+#endif
+
 
 #include "Partition.h"
 #include "InitialExchange.h"
