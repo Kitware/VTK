@@ -124,6 +124,13 @@ def start_webserver(options, protocol=wamp.ServerProtocol, disableLogging=False)
 
         reactor.listenTCP(options.port, site)
 
+    # Work around to force the output buffer to be flushed
+    # This allow the process launcher to parse the output and
+    # wait for "Start factory" to know that the WebServer
+    # is running.
+    for i in range(200):
+        log.msg("+"*80, logLevel=logging.CRITICAL)
+
     # Start factory and reactor
     wampFactory.startFactory()
     if options.nosignalhandlers:
