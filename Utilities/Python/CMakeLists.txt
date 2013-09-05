@@ -32,5 +32,10 @@ if (NOT VTK_INSTALL_PYTHON_MODULE_DIR)
       CACHE
       PATH "Directory where python modules will be installed" FORCE)
 endif()
-set_property(GLOBAL PROPERTY VTK_PYMODULE_BUILD_DIR
-  "${VTK_BINARY_DIR}/Wrapping/Python/")
+
+if (NOT VTK_BUILD_PYTHON_MODULE_DIR)
+  set(VTK_BUILD_PYTHON_MODULE_DIR
+      "${VTK_BINARY_DIR}/Wrapping/Python"
+      CACHE
+      PATH "Directory where python modules will be built" FORCE)
+endif()

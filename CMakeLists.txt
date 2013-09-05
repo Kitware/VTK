@@ -119,7 +119,11 @@ if(NOT VTK_INSTALL_PYTHON_MODULE_DIR)
        PATH "Directory where python modules will be installed")
   mark_as_advanced(VTK_INSTALL_PYTHON_MODULE_DIR)
 endif()
-
+if(NOT VTK_BUILD_PYTHON_MODULE_DIR)
+  set (VTK_BUILD_PYTHON_MODULE_DIR "-NOTFOUND" CACHE
+       PATH "Directory where python modules will be put inside the build tree")
+  mark_as_advanced(VTK_BUILD_PYTHON_MODULE_DIR)
+endif()
 if (CMAKE_CROSSCOMPILING AND NOT COMPILE_TOOLS_IMPORTED)
   # if CMAKE_CROSSCOMPILING is true, we need to import build-tools targets.
   find_package(VTKCompileTools REQUIRED)
