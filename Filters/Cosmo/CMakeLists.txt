@@ -1,5 +1,6 @@
 include(vtkMPI)
 set(Module_SRCS
+  vtkACosmoReader.cxx
   vtkPCosmoReader.cxx
   vtkPCosmoHaloFinder.cxx)
 
