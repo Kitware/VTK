@@ -42,9 +42,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-#include "Partition.h"
-#include "SODHalo.h"
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -58,8 +55,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define M_PI 3.14159265358979323846
 #endif
 
+#include "Partition.h"
+#include "SODHalo.h"
+
 using namespace std;
 
+namespace cosmologytools {
 /////////////////////////////////////////////////////////////////////////
 //
 // SODHalo uses the results of the CosmoHaloFinder to locate the
@@ -165,7 +166,7 @@ void SODHalo::setParticles(
                         vector<POSVEL_T>* pmass,
                         vector<ID_T>* id)
 {
-  this->particleCount = (long)xLoc->size();
+  this->particleCount = xLoc->size();
 
   // Extract the contiguous data block from a vector pointer
   this->xx = &(*xLoc)[0];
@@ -242,7 +243,7 @@ void SODHalo::createSODHalo(
     if (binCount[bin] > 0)
       bmass = binMass[bin] / binCount[bin];
 
-    cout << "Bin radius " << binRadius[bin]
+    cout << "Rank: " << this->myProc << " Bin radius " << binRadius[bin]
          << " Avg Radius " << avgRadius[bin]
          << " Radial Velocity " << avgRadVelocity[bin]
          << " Avg Mass " << bmass
@@ -265,8 +266,10 @@ void SODHalo::createSODHalo(
   }
 
 #ifdef DEBUG
-  cout << "Initial radius = " << this->initRadius << endl;
-  cout << "Characteristic radius " << this->charRadius << endl;
+  cout << "Rank: " << this->myProc 
+       << " Initial radius = " << this->initRadius << endl;
+  cout << "Rank: " << this->myProc 
+       << " Characteristic radius " << this->charRadius << endl;
 #endif
 }
 
@@ -290,6 +293,7 @@ void SODHalo::calculateMassProfile()
   // If the max radius runs into the corner of data for this processor
   // adjust down so as to get a complete sphere
   POSVEL_T limit;
+  POSVEL_T requiredMaxRadius = this->maxRadius;
   for (int dim = 0; dim < DIMENSION; dim++) {
     limit = this->chain->getMaxMine(dim) - this->fofCenterLocation[dim];
     if (this->maxRadius > limit)
@@ -299,13 +303,13 @@ void SODHalo::calculateMassProfile()
       this->maxRadius = limit;
   }
 
-#ifndef USE_VTK_COSMO
   if (this->maxRadius < requiredMaxRadius) {
-    cout << "Reset max radius from " << requiredMaxRadius
+    cout << "Rank: " << this->myProc 
+         << " Reset max radius from " << requiredMaxRadius
          << " to " << maxRadius << endl;
-    cout << "Might need to make the dead size (overload) larger" << endl;
+    cout << "Rank: " << this->myProc 
+         << "Might need to make the dead size (overload) larger" << endl;
   }
-#endif
 
   // Calculate the delta radius in log scale
   // Number of bins was increased by one for particles less than the min
@@ -323,6 +327,8 @@ void SODHalo::calculateMassProfile()
   for (int bin = 0; bin < this->numberOfBins; bin++) {
     this->binCount[bin] = 0;
     this->binMass[bin] = 0.0;
+    this->binRho[bin] = 0.0;
+    this->binRhoRatio[bin] = 0.0;
     this->avgRadius[bin] = 0.0;
     this->avgRadVelocity[bin] = 0.0;
   }
@@ -380,16 +386,8 @@ void SODHalo::calculateMassProfile()
             // Calculate the unit vector for this particle
             POSVEL_T unit[DIMENSION];
             for (int dim = 0; dim < DIMENSION; dim++)
-              {
               if (dist > 0.0)
-                {
                 unit[dim] = diff[dim] / dist;
-                }
-              else
-                {
-                unit[dim] = 0.0;
-                }
-              }
 
             // Calculate the relative velocity vector of particle wrt center
             POSVEL_T relVel[DIMENSION];
@@ -408,6 +406,9 @@ void SODHalo::calculateMassProfile()
             if (dist > this->minRadius) {
               bin = (int) (floor(log10(dist/this->minRadius) /
                                     this->deltaRadius)) + 1;
+            }
+            if (bin >= this->numberOfBins) {
+              bin = this->numberOfBins - 1;
             }
             this->binCount[bin]++;
             this->binMass[bin] += this->mass[p];
@@ -446,6 +447,8 @@ void SODHalo::calculateMassProfile()
 
 void SODHalo::calculateCharacteristicRadius()
 {
+  this->charRadius = 0.0;
+
   // Calculate the mass, volume and density of every sphere bin
   // Bin 0 contains information on particles less than the minimum radius
   int totBinCount = this->binCount[0];
@@ -458,10 +461,18 @@ void SODHalo::calculateCharacteristicRadius()
     double r = (double) this->avgRadius[bin];
     double volume = ((4.0 * M_PI) / 3.0) * r * r * r;
 
-    this->binRho[bin] = totBinMass / volume;
-    this->binRhoRatio[bin] = this->binRho[bin] / this->RHOC;
+    if (totBinMass > 0.0 && volume > 0.0)
+      this->binRho[bin] = totBinMass / volume;
+    else
+      this->binRho[bin] = 0.0;
+
+    if (this->binRho[bin] > 0.0)
+      this->binRhoRatio[bin] = this->binRho[bin] / this->RHOC;
+    else
+      this->binRhoRatio[bin] = 0.0;
+
 #ifdef DEBUG
-    cout << "Radius " << this->binRadius[bin]
+    cout << "Rank: " << this->myProc << " Radius " << this->binRadius[bin]
          << " Avg Radius " << this->avgRadius[bin]
          << " Mass " << this->binMass[bin]
          << " Rho " << this->binRho[bin]
@@ -480,12 +491,17 @@ void SODHalo::calculateCharacteristicRadius()
 
   // Zero bins means a badly behaved SOD region
   // More than one bin means use the first
-  if (possibleBins.size() < 1) {
-    this->criticalBin = 0;
-    this->charRadius = 0.0;
+  this->criticalBin = 0;
+  if (possibleBins.size() < 1)
     return;
-  }
+
+  // If the critical bin exceeds the last bin maxRadius should have been bigger
   this->criticalBin = possibleBins[0] + 1;
+  if (this->criticalBin >= this->numberOfBins) {
+    cout << "Critical radius exceeded max radius allowed." << endl;
+    cout << "Increase MAX_RADIUS_FACTOR." << endl;
+    this->criticalBin = this->numberOfBins - 1;
+  }
 
   // Sort each bin's radius/id pair vector up to the critical bin
   for (int bin = 0; bin <= criticalBin; bin++)
@@ -499,7 +515,6 @@ void SODHalo::calculateCharacteristicRadius()
   // Iterate over particles in the critical bin until we exceed critical density
   int i = 0;
   bool found = false;
-  this->charRadius = 0.0;
 
   while (i < (int) this->binInfo[this->criticalBin].size() && found == false) {
     double r = (double) this->binInfo[this->criticalBin][i].radius;
@@ -805,11 +820,6 @@ void SODHalo::spline(
   for (int k = n - 2; k >= 0; k--)
     y2[k] = y2[k] * y2[k+1] + u[k];
 
-#ifndef USE_VTK_COSMO
-  for (int i = 0; i < n; i++)
-    cout << "x " << x[i] << "   y " << y[i] << "    result " << y2[i] << endl;
-#endif
-
   delete [] u;
 }
 
@@ -846,4 +856,6 @@ void SODHalo::splint(
   *y = a * ya[klo] + b * ya[khi] +
        ((a * a * a - a) * y2a[klo] +
        (b * b * b - b) * y2a[khi]) * (h * h) / 6.0;
+}
+
 }

@@ -1,96 +1,65 @@
 /*=========================================================================
-                                                                                
+
 Copyright (c) 2007, Los Alamos National Security, LLC
 
 All rights reserved.
 
-Copyright 2007. Los Alamos National Security, LLC. 
-This software was produced under U.S. Government contract DE-AC52-06NA25396 
-for Los Alamos National Laboratory (LANL), which is operated by 
-Los Alamos National Security, LLC for the U.S. Department of Energy. 
-The U.S. Government has rights to use, reproduce, and distribute this software. 
+Copyright 2007. Los Alamos National Security, LLC.
+This software was produced under U.S. Government contract DE-AC52-06NA25396
+for Los Alamos National Laboratory (LANL), which is operated by
+Los Alamos National Security, LLC for the U.S. Department of Energy.
+The U.S. Government has rights to use, reproduce, and distribute this software.
 NEITHER THE GOVERNMENT NOR LOS ALAMOS NATIONAL SECURITY, LLC MAKES ANY WARRANTY,
-EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.  
-If software is modified to produce derivative works, such modified software 
-should be clearly marked, so as not to confuse it with the version available 
+EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
+If software is modified to produce derivative works, such modified software
+should be clearly marked, so as not to confuse it with the version available
 from LANL.
- 
-Additionally, redistribution and use in source and binary forms, with or 
-without modification, are permitted provided that the following conditions 
+
+Additionally, redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following conditions
 are met:
--   Redistributions of source code must retain the above copyright notice, 
-    this list of conditions and the following disclaimer. 
+-   Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
 -   Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
+    and/or other materials provided with the distribution.
 -   Neither the name of Los Alamos National Security, LLC, Los Alamos National
     Laboratory, LANL, the U.S. Government, nor the names of its contributors
-    may be used to endorse or promote products derived from this software 
-    without specific prior written permission. 
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY LOS ALAMOS NATIONAL SECURITY, LLC AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-                                                                                
+
 =========================================================================*/
 
 #ifndef BasicDefinition_h
 #define BasicDefinition_h
 
-#ifdef USE_VTK_COSMO
-#include "vtkType.h"
-#else
-#include <stdint.h>
-#endif
+#include "Definition.h"
+
+#define ID_64
+#define GRID_64
+#define POSVEL_64
+
+typedef vtkTypeInt64 ID_T;      // Particle and halo ids
+typedef double POSVEL_T;        // Position,velocity
+typedef double POTENTIAL_T;     // Potential
+typedef double GRID_T;          // Grid types
+typedef vtkTypeInt32  STATUS_T; // Dead (which neighbor) or alive particles
+typedef vtkTypeUInt16 MASK_T;   // Other particle information
 
 ///////////////////////////////////////////////////////////////////////////
-//
-
-#ifdef USE_VTK_COSMO
-#ifdef ID_64
-   typedef      vtkTypeInt64 ID_T;           // Particle and halo ids
-#else
-   typedef      vtkTypeInt32 ID_T;           // Particle and halo ids
-#endif
-#else
-#ifdef ID_64
-   typedef      int64_t ID_T;           // Particle and halo ids
-#else
-   typedef      int32_t ID_T;           // Particle and halo ids
-#endif
-#endif
-
-#ifdef POSVEL_64
-   typedef      double  POSVEL_T;       // Position,velocity
-   typedef      double  POTENTIAL_T;    // Potential
-#else
-   typedef      float   POSVEL_T;       // Position,velocity
-   typedef      float   POTENTIAL_T;    // Potential
-#endif
-
-#ifdef GRID_64
-   typedef      double  GRID_T;         // Grid types
-#else
-   typedef      float   GRID_T;         // Grid types
-#endif
-
-#ifdef USE_VTK_COSMO
-typedef vtkTypeInt32    STATUS_T; // Dead (which neighbor) or alive particles
-typedef vtkTypeUInt16   MASK_T;   // Other particle information
-#else
-typedef int32_t         STATUS_T; // Dead (which neighbor) or alive particles
-typedef uint16_t        MASK_T;   // Other particle information
-#endif
-
-///////////////////////////////////////////////////////////////////////////
+namespace cosmologytools {
 
 const float MAX_FLOAT   = 1.0e15;
 const float MIN_FLOAT   = -1.0e15;
@@ -115,13 +84,76 @@ const float  MIN_SOD_MASS       = 5.0e12;        // Min FOF mass for SOD
 const int    NUM_SOD_BINS       = 20;            // Log bins for SOD halo
 
 // Constants for subhalo finding
-const double GRAVITY_C          = 43.015e-10;    // Gravitional constant for
-                                                 // potential energy
+const int    NUM_CHILDREN	= 8;             // Barnes Hut octree
+const double GRAVITY_C          = 43.015e-10;
+                                // Gravitional constant for potential energy
+const double ALPHA_SUBHALO	= 1.0;
+                                // Controls cut/grow of subhalo
+                                // 1.0 / alphaFactor is the number of times
+                                // larger a candidate must be in order for the
+                                // smaller to be cut rather than allowed to grow
+                                // Set to 1.0 means always cut as in SUBFIND
+                                // Set to 0.2 main halo always wins cut/grow
+                                // Set to 0.01 small structures grow
+const double BETA_SUBHALO	= 0.0;
+                                // Controls the Poisson noise significance test
+                                // If average density of particles in a group
+                                // is greater than (1 + beta) * density of
+                                // saddlepoint particle, group is considered
+                                // significant and stands on its own
+                                // Set to 0.0 means always significant
+                                // Set to 0.25 helps small scale connectivity
+
+const int    NUM_SPH_DENSITY	= 64;
+        // Number of neigbor particles used in
+                                // calculating SPH smoothing length and density
+const int    NUM_SUBHALO_NEIGHBOR = 20;
+                                // Number of closest neighbors looked at
+                                // in placing particle in a subgroup
+const int    MIN_SUBHALO_SIZE	= 20;
+                                // Smallest allowed subhalo
+const int    MIN_FOF_SUBHALO	= 2000;
+                                // Smallest FOF halo which will have
+                                // subhalo finding run on it
+
+// Constants for speeding up unbind calculation on very large subhalos
+const int    MAX_UNBIND_1	= 100;
+                                // When unbinding reaches less than this
+                                // number of particles in subgroup remove
+                                // only one particle before running unbind again
+const int    MAX_UNBIND_2	= 2000;
+                                // When unbinding reaches less than this
+                                // number of particles in subgroup remove
+                                // remove (1 / FACTOR_UNBIND_1) total positive
+                                // energy particles before running unbind again
+const int    MAX_UNBIND_3	= 40000;
+                                // When unbinding reaches less than this
+                                // number of particles in subgroup remove
+                                // remove (1 / FACTOR_UNBIND_2) total positive
+                                // energy particles before running unbind again
+                                // Also maximum subhalo candidate for unbinding
+                                // Used for development because that stage
+                                // takes so long and normally this is only
+                                // the main subhalo and all particles unbound
+                                // would go to fuzz
+const int    FACTOR_UNBIND_1	= 4;
+        // Between MAX_UNBIND_1 and MAX_UNBIND_2
+                                // remove 25% of the positive total energy
+                                // particles
+const int    FACTOR_UNBIND_2	= 2;
+        // Betweend MAX_UNBIND_2 and MAX_UNBIND_3
+                                // remove 50% of the positive total energy
+                                // particles
+const int    MAX_UNBIND_DELETE	= 20;
+                                // To speed up unbinding when large candidate
+                                // reaches this number of particles with
+                                // positive total energy just quit
+
 
 // Cosmology record data in .cosmo format
 const int   COSMO_FLOAT = 7;    // x,y,z location and velocity plus mass
 const int   COSMO_INT   = 1;    // Particle id
-const int   RECORD_SIZE = sizeof(POSVEL_T) * COSMO_FLOAT + 
+const int   RECORD_SIZE = sizeof(POSVEL_T) * COSMO_FLOAT +
                           sizeof(ID_T) * COSMO_INT;
 
 const bool  ENFORCE_MAX_READ = false;
@@ -241,4 +273,5 @@ struct GadgetHeader {
   char     fill[GADGET_FILL];
 };
 
+} /* end namespace cosmologytools */
 #endif

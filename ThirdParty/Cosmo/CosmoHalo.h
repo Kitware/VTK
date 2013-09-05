@@ -45,19 +45,18 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CosmoHalo_h
 #define CosmoHalo_h
 
-#ifdef USE_VTK_COSMO
-#include "CosmoDefinition.h"
-#else
 #include "Definition.h"
-#endif
+
 
 #include <string>
 #include <vector>
 #include <set>
 #include <algorithm>
 
-using namespace std;
+using std::vector;
+using std::set;
 
+namespace cosmologytools {
 ////////////////////////////////////////////////////////////////////////////
 //
 // CosmoHalo functions as a container for mixed halos received from the serial
@@ -69,11 +68,8 @@ using namespace std;
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_VTK_COSMO
-class COSMO_EXPORT CosmoHalo {
-#else
+
 class CosmoHalo {
-#endif
 public:
   CosmoHalo(ID_T id, int alive, int dead)
                 {
@@ -154,4 +150,5 @@ private:
   int valid;                    // Mixed halo to be used or not
 };
 
+}
 #endif

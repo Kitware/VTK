@@ -52,21 +52,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef SODHalo_h
 #define SODHalo_h
 
-#ifdef USE_VTK_COSMO
-#include "CosmoDefinition.h"
-#include <string>
-#include <vector>
-
-using namespace std;
-#else
 #include "Definition.h"
 #include <string>
 #include <vector>
 
-using namespace std;
-#endif
-
 #include "ChainingMesh.h"
+
+namespace cosmologytools {
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -76,12 +68,12 @@ using namespace std;
 //
 ///////////////////////////////////////////////////////////////////////////
 
-struct RadiusID {
+struct COSMO_EXPORT RadiusID {
   POSVEL_T radius;
   int index;
 };
 
-class RadiusIDLT {
+class COSMO_EXPORT RadiusIDLT {
 public:
   bool operator() (const RadiusID& p, const RadiusID& q) const
   {
@@ -95,11 +87,8 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_VTK_COSMO
+
 class COSMO_EXPORT SODHalo
-#else
-class SODHalo
-#endif
 {
 public:
   SODHalo();
@@ -262,4 +251,5 @@ private:
   double totalMass;                     // SOD total mass
 };
 
+}
 #endif

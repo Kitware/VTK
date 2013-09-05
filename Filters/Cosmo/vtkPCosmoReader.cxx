@@ -58,10 +58,7 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-#ifndef USE_VTK_COSMO
-#define USE_VTK_COSMO
-#endif
+#include "vtkPCosmoReader.h"
 
 #include "vtkCellArray.h"
 #include "vtkDataObject.h"
@@ -73,7 +70,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIntArray.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-#include "vtkPCosmoReader.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
@@ -87,10 +83,11 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace std;
 
 // RRU stuff
-#include "CosmoDefinition.h"
 #include "Partition.h"
 #include "ParticleExchange.h"
 #include "ParticleDistribute.h"
+
+using namespace cosmologytools;
 
 vtkStandardNewMacro(vtkPCosmoReader);
 

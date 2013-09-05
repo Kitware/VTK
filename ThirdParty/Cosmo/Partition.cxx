@@ -42,10 +42,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
-#include "Partition.h"
-
 #include <iostream>
 
+#include "Partition.h"
+#include "dims.h"
+
+using namespace std;
+
+namespace cosmologytools {
 /////////////////////////////////////////////////////////////////////////
 //
 // Static class to control MPI and the partitioning of processors in
@@ -80,28 +84,15 @@ Partition::~Partition()
 /////////////////////////////////////////////////////////////////////////
 
 //void Partition::initialize(int& argc, char** argv)
-void Partition::initialize()
+void Partition::initialize(MPI_Comm comm)
 {
   if(!initialized)
     {
 #ifndef USE_SERIAL_COSMO
-
-#ifdef USE_VTK_COSMO
-    // this is for when it is compiled against MPI but single processor
-    // on ParaView (client only, it won't MPI_Init itself)
-    int temp;
-    MPI_Initialized(&temp);
-    if(!temp) 
-      {
-      temp = 0;
-      MPI_Init(&temp, 0);
-      }
-#endif
-
     // Start up MPI
     //MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &myProc);
-    MPI_Comm_size(MPI_COMM_WORLD, &numProc);
+    MPI_Comm_rank(comm, &myProc);
+    MPI_Comm_size(comm, &numProc);
 #endif    
 
     for (int dim = 0; dim < DIMENSION; dim++)
@@ -118,13 +109,14 @@ void Partition::initialize()
       }
 #else
     int periodic[] = {1, 1, 1};
-    int reorder = 1;
+    int reorder = 0;
 
     // Compute the number of processors in each dimension
-    MPI_Dims_create(numProc, DIMENSION, decompSize);
+    //MPI_Dims_create(numProc, DIMENSION, decompSize);
+    MY_Dims_create_3D(numProc, DIMENSION, decompSize);
     
     // Create the Cartesion communicator
-    MPI_Cart_create(MPI_COMM_WORLD,
+    MPI_Cart_create(comm,
                     DIMENSION, decompSize, periodic, reorder, &cartComm);
     
     // Reset my rank if it changed
@@ -137,11 +129,9 @@ void Partition::initialize()
     // Set all my neighbor processor ids for communication
     setNeighbors();
     
-#ifndef USE_VTK_COSMO
     if (myProc == 0)
-      cout << "Decomposition: [" << decompSize[0] << ":"
+      cout << "Partition 3D: [" << decompSize[0] << ":"
            << decompSize[1] << ":" << decompSize[2] << "]" << endl; 
-#endif
 
     initialized = 1;
     }
@@ -273,4 +263,6 @@ void Partition::finalize()
   myProc = -1;
 
   //MPI_Finalize();
+}
+
 }

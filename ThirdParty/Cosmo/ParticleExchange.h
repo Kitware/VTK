@@ -68,25 +68,16 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Message.h"
 
-#ifdef USE_VTK_COSMO 
-#include "CosmoDefinition.h"
-#include <string>
-#include <vector>
-
-using namespace std;
-#else
 #include "Definition.h"
 #include <string>
 #include <vector>
 
-using namespace std;
-#endif 
 
-#ifdef USE_VTK_COSMO
+using std::vector;
+
+namespace cosmologytools {
+
 class COSMO_EXPORT ParticleExchange {
-#else
-class ParticleExchange {
-#endif
 public:
   ParticleExchange();
   ~ParticleExchange();
@@ -180,4 +171,5 @@ private:
   vector<MASK_T>* mask;         // Id tag for particles on this processor
 };
 
+}
 #endif

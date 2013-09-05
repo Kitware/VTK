@@ -1,6 +1,6 @@
-vtk_module(vtkCosmo
+vtk_module(vtkcosmo
   DEPENDS
-  vtkCommonCore
-  vtksys
+    vtkCommonCore
+    vtksys
   EXCLUDE_FROM_WRAPPING
   )

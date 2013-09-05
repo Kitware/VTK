@@ -58,11 +58,6 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-#ifndef USE_VTK_COSMO
-#define USE_VTK_COSMO
-#endif
-
 #include "vtkPCosmoHaloFinder.h"
 
 #include "vtkPointData.h"
@@ -81,12 +76,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDemandDrivenPipeline.h"
 
 #include "CosmoHaloFinderP.h"
-#include "CosmoDefinition.h"
 #include "FOFHaloProperties.h"
 #include "HaloCenterFinder.h"
 #include "Partition.h"
 #include "ChainingMesh.h"
 #include "SODHalo.h"
+
+using namespace cosmologytools;
 
 vtkStandardNewMacro(vtkPCosmoHaloFinder);
 
