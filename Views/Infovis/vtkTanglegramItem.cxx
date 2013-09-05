@@ -88,6 +88,10 @@ void vtkTanglegramItem::SetTree2(vtkTree *tree)
 void vtkTanglegramItem::SetTable(vtkTable *table)
 {
   this->Table = table;
+  if (this->Table == NULL)
+    {
+    return;
+    }
   this->SourceNames = vtkStringArray::SafeDownCast(this->Table->GetColumn(0));
   this->GenerateLookupTable();
   this->TreeReordered = false;
