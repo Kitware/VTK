@@ -567,9 +567,9 @@ void ComputeBounds(A *a, int n, vtkIdTypeArray *bad, double bounds[2])
       {
       start = bad->GetValue(i++) + 1;
       }
-    if (++i < nBad)
+    if (i < nBad)
       {
-      end = bad->GetValue(i);
+      end = bad->GetValue(i++);
       }
     else
       {
