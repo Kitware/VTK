@@ -64,6 +64,8 @@ vtkTanglegramItem::vtkTanglegramItem()
 //-----------------------------------------------------------------------------
 vtkTanglegramItem::~vtkTanglegramItem()
 {
+  delete []this->Tree1Label;
+  delete []this->Tree2Label;
 }
 
 //-----------------------------------------------------------------------------
