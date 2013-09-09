@@ -109,14 +109,6 @@ octree_path<T_,R_,P_,O_,OP_,d_>::octree_path( octree_node_pointer root, std::vec
     }
 }
 
-/**\brief Destructor.
-  *
-  */
-template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
-octree_path<T_,R_,P_,O_,OP_,d_>::~octree_path()
-{
-}
-
 /**\fn template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ > \
   *    octree_node_reference octree_path<T_,R_,P_,O_,OP_,d_>::operator * () const
   *\brief Provide access to the node at the current path head.
