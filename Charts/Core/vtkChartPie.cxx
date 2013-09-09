@@ -269,7 +269,7 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
         {
         const char *label = this->Private->Plot->GetLabel(labelIndex);
         vtksys_ios::ostringstream ostr;
-        ostr << label << ": " << plotPos.GetX();
+        ostr << label << ": " << plotPos.GetY();
         this->Tooltip->SetText(ostr.str().c_str());
         this->Tooltip->SetPosition(mouse.GetScreenPos()[0] + 2,
                                    mouse.GetScreenPos()[1] + 2);
