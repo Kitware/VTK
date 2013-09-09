@@ -41,84 +41,29 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
+#ifndef Definition_h
+#define Definition_h
 
-// .NAME Message - create, send and receive MPI messages
-//
-// .SECTION Description
-// Message class packs and unpacks data into an MPI buffer
+#include <vtksys/Configure.h>
+#include "vtkABI.h"
 
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#cmakedefine BUILD_SHARED_LIBS
+#cmakedefine COSMO_USE_GENERIC_IO
+#cmakedefine COSMO_DISABLE_TIMINGS
 
-#include "Definition.h"
-#include <queue>
+// Now set up all of the export macros
+#if defined(BUILD_SHARED_LIBS)
+ #if defined(vtkcosmo_EXPORTS)
+  #define COSMO_EXPORT VTK_ABI_EXPORT
+ #else
+  #define COSMO_EXPORT VTK_ABI_IMPORT
+ #endif
+#else
+ #define COSMO_EXPORT
+#endif
 
+#include "vtkType.h"
+#include "BasicDefinition.h"
 #include <mpi.h>
 
-//using namespace std;
-
-namespace cosmologytools {
-
-
-class COSMO_EXPORT Message {
-public:
-  Message(int size = BUF_SZ);
-
-   ~Message();
-
-  // Put values into the MPI buffer
-  void putValueAtPosition(int* data, int pos, int count = 1);
-  void putValue(int* data, int count = 1);
-  void putValue(unsigned short* data, int count = 1);
-  void putValue(long int* data, int count = 1);
-  void putValue(long long* data, int count = 1);
-  void putValue(float* data, int count = 1);
-  void putValue(double* data, int count = 1);
-  void putValue(char* data, int count = 1);
-
-  // Get values from the MPI buffer
-  void getValue(int* data, int count = 1);
-  void getValue(unsigned short* data, int count = 1);
-  void getValue(long int* data, int count = 1);
-  void getValue(long long* data, int count = 1);
-  void getValue(float* data, int count = 1);
-  void getValue(double* data, int count = 1);
-  void getValue(char* data, int count = 1);
-
-  int getBufPos() { return this->bufPos; }
-
-  void manualPackAtPosition(char* data, int pos, int count, size_t size);
-  void manualPack(char* data, int count, size_t size);
-  void manualUnpack(char* data, int count, size_t size);
-
-  // Send nonblocking
-  void send(
-        int mach,                       // Where to send message
-        int tag = 0                     // Identifying tag
-  );
-
-  // Receive blocking
-  void receive(
-#ifdef USE_SERIAL_COSMO
-        int mach = 0,
-#else
-        int mach = MPI_ANY_SOURCE,      // From where to receive
-#endif
-        int tag = 0                     // Identifying tag
-  );
-
-#ifdef USE_SERIAL_COSMO // message queue hack for serial
-  queue<char*> q;
-#endif
-
-  // Reset the buffer for another set of data
-  void reset();
-
-private:
-  char* buffer;         // Buffer to pack
-  int   bufSize;        // Size of buffer
-  int   bufPos;         // Position in buffer
-};
-
-}
 #endif

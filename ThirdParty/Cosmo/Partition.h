@@ -55,33 +55,27 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define Partition_h
 
 
-#ifdef USE_VTK_COSMO
-#include "CosmoDefinition.h"
-#include <string>
-#include <vector>
-
-using namespace std;
-#else
 #include "Definition.h"
+
 #include <string>
 #include <vector>
 
-using namespace std;
-#endif
+#include <mpi.h>
 
-#ifdef USE_VTK_COSMO
+using namespace std;
+
+namespace cosmologytools {
+
 class COSMO_EXPORT Partition {
-#else
-class Partition {
-#endif
 public:
   Partition();
   ~Partition();
 
   // Control MPI and the Cartesian topology
   //static void initialize(int& argc, char** argv);
-  static void initialize();
+  static void initialize(MPI_Comm comm = MPI_COMM_WORLD);
   static void finalize();
+  static bool isInitialized() { return initialized != 0; }
 
   // Set the processor numbers of neighbors in all directions
   static void setNeighbors();
@@ -114,4 +108,5 @@ private:
   static int neighbor[NUM_OF_NEIGHBORS];// Neighbor processor ids
 };
 
+}
 #endif

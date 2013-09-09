@@ -42,9 +42,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
-#include "Partition.h"
-#include "ChainingMesh.h"
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -54,7 +51,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <algorithm>
 #include <math.h>
 
+#include "Partition.h"
+#include "ChainingMesh.h"
+
 using namespace std;
+
+namespace cosmologytools {
+
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -294,13 +297,14 @@ void ChainingMesh::printChainingMeshCentroids()
           if (centroid[dim] != 0.0)
             centroid[dim] /= this->bucketCount[i][j][k];
         }
-#ifndef USE_VTK_COSMO
+
         cout << "Bucket " << i << "," << j << "," << k 
              << " count = " << bucketCount[i][j][k]
              << " centroid = " << centroid[0] << "," << centroid[1] << "," 
              << centroid[2] << endl;
-#endif
       }
     }
   }
+}
+
 }

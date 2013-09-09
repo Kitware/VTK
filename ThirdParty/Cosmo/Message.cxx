@@ -42,9 +42,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
-#include "Message.h"
-#include "Partition.h"
-
 #ifdef USE_SERIAL_COSMO
 #include <string.h>
 #endif
@@ -53,6 +50,11 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 
+#include "Message.h"
+#include "Partition.h"
+#include "bigchunk.h"
+
+namespace cosmologytools {
 ////////////////////////////////////////////////////////////////////////////
 //
 // Create a Message for sending or receiving from MPI
@@ -62,7 +64,7 @@ using namespace std;
 Message::Message(int size)
 {
   this->bufSize = size;
-  this->buffer = new char[size];
+  this->buffer = (char *) bigchunk_malloc(size);
   this->bufPos = 0;
 }
 
@@ -101,7 +103,7 @@ void Message::manualUnpack(char* data, int count, size_t size)
 ////////////////////////////////////////////////////////////////////////////
 Message::~Message()
 {
-  delete [] this->buffer;
+  bigchunk_free(this->buffer);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -239,4 +241,6 @@ void Message::receive
   MPI_Recv(this->buffer, this->bufSize, MPI_PACKED, mach, tag,
            Partition::getComm(), &status);
 #endif
+}
+
 }

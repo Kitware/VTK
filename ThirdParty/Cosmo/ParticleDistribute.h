@@ -58,32 +58,28 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ParticleDistribute_h
 #define ParticleDistribute_h
 
+#include "Message.h"
 
-#ifdef USE_VTK_COSMO
-#include "CosmoDefinition.h"
-#include <string>
-#include <vector>
+#include <cstdlib>
 
-using namespace std;
-#else
 #include "Definition.h"
 #include <string>
 #include <vector>
 
-using namespace std;
-#endif
+using std::string;
+using std::ifstream;
+using std::vector;
 
-#include "Message.h"
-#include <cstdlib>
+namespace cosmologytools {
 
-#ifdef USE_VTK_COSMO
 class COSMO_EXPORT ParticleDistribute {
-#else
-class ParticleDistribute {
-#endif
 public:
   ParticleDistribute();
   ~ParticleDistribute();
+
+  // Set whether to byte swap data on read
+  // NOTE: Only applies to cosmo format
+  void setByteSwap(bool byteSwap){this->ByteSwap=byteSwap;};
 
   // Set parameters particle distribution
   void setParameters(
@@ -102,7 +98,19 @@ public:
   // Read particle files per processor and share round robin with others
   // extracting only the alive particles
   void readParticlesRoundRobin(int reserveQ=0);
-  void partitionInputFiles();
+  void partitionInputFiles(bool force1PPF = false);
+
+#ifndef USE_SERIAL_COSMO
+  struct CosmoParticle
+  {
+    float floatData[COSMO_FLOAT];
+    int   intData[COSMO_INT];
+  };
+
+  // Read particle files per processor and share all-to-all with others
+  // extracting only the alive particles
+  void readParticlesAllToAll(int reserveQ = 0, bool useAlltoallv = true);
+#endif
 
   // Read one particle file per processor with alive particles
   // and correct topology
@@ -129,6 +137,27 @@ public:
         POSVEL_T* vblock,       // Buffer for read in velocity data
         ID_T* iblock,           // Buffer for read in data
         Message* message);      // Message buffer for distribution
+
+#ifndef USE_SERIAL_COSMO
+  // All-to-all version must buffer for MPI sends to other processors
+  void readFromRecordFile(
+        ifstream* inStream,     // Stream to read from
+        int firstParticle,      // First particle index to read in this chunk
+        int numberOfParticles,  // Number of particles to read in this chunk
+        POSVEL_T* fblock,       // Buffer for read in data
+        ID_T* iblock,           // Buffer for read in data
+        std::vector< std::vector<CosmoParticle> > &pByProc);
+
+  void readFromBlockFile(
+        ifstream* inStream,     // Stream to read from
+        int firstParticle,      // First particle index to read in this chunk
+        int numberOfParticles,  // Number of particles to read in this chunk
+        int totParticles,       // Total particles (used to get offset)
+        POSVEL_T* lblock,       // Buffer for read in location data
+        POSVEL_T* vblock,       // Buffer for read in velocity data
+        ID_T* iblock,           // Buffer for read in data
+        std::vector< std::vector<CosmoParticle> > &pByProc);
+#endif // USE_SERIAL_COSMO
 
   // One to one version of read is simpler with no MPI buffering
   void readFromRecordFile();
@@ -173,9 +202,15 @@ public:
   vector<POSVEL_T>* getMass()           { return this->ms; }
   vector<ID_T>* getTag()                { return this->tag; }
 
+protected:
+
+  // Swap endian of the given buffer pointing to a memory location of Nb bytes.
+  void SwapEndian(void* Addr, const int Nb);
+
 private:
   int    myProc;                // My processor number
   int    numProc;               // Total number of processors
+  bool ByteSwap;                // Flag that indicates whether to swap endian
 
   string baseFile;              // Base name of input particle files
   int    inputType;             // BLOCK or RECORD structure
@@ -187,6 +222,8 @@ private:
   int    gadgetFormat;          // GADGET-1 or GADGET-2
   bool   gadgetSwap;            // Endian swap needed
   long int gadgetParticleCount; // Total particles in the file
+  long int gadgetStart[NUM_GADGET_TYPES];
+        // Offset into all particles for that type
 
   long   maxParticles;          // Largest number of particles in any file
   long   maxRead;               // Largest number of particles read at one time
@@ -230,4 +267,5 @@ private:
   vector<ID_T>* tag;            // Id tag for particles on this processor
 };
 
+}
 #endif

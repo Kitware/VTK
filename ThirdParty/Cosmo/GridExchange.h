@@ -42,82 +42,78 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
-// .NAME Message - create, send and receive MPI messages
+// .NAME GridExchange - Send alive portions of grid on one processor to
+//                      become dead portion of grid on a neighbor
 //
 // .SECTION Description
-// Message class packs and unpacks data into an MPI buffer
+// GridExchange will take a pointer to contiguous memory, the size of
+// memory in each dimension, and the amount of dead grid information
+// to be shared on the front and back of every dimension.  From this
+// GridExchange can calculate what part of the contiguous memory must be
+// packed to share with each of the neighbors, and what part of its own
+// memory must be used to unpack similar information from each neighbor.
+//
+// This can be accomplished by recording for every neighbor the send
+// origin and send size, the receive origin and receive size.
+//
 
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#ifndef GridExchange_h
+#define GridExchange_h
 
 #include "Definition.h"
-#include <queue>
-
-#include <mpi.h>
-
-//using namespace std;
 
 namespace cosmologytools {
 
 
-class COSMO_EXPORT Message {
+class COSMO_EXPORT GridExchange {
 public:
-  Message(int size = BUF_SZ);
+  GridExchange(int* size, int ghost0, int ghost1);
+  ~GridExchange();
 
-   ~Message();
+  // Calculate the offsets and sizes for send and receive to neighbors
+  void initialize();
 
-  // Put values into the MPI buffer
-  void putValueAtPosition(int* data, int pos, int count = 1);
-  void putValue(int* data, int count = 1);
-  void putValue(unsigned short* data, int count = 1);
-  void putValue(long int* data, int count = 1);
-  void putValue(long long* data, int count = 1);
-  void putValue(float* data, int count = 1);
-  void putValue(double* data, int count = 1);
-  void putValue(char* data, int count = 1);
+  void setSendOrigin(int neighbor, int x, int y, int z);
+  void setRecvOrigin(int neighbor, int x, int y, int z);
+  void setSendSize(int neighbor, int x, int y, int z);
+  void setRecvSize(int neighbor, int x, int y, int z);
 
-  // Get values from the MPI buffer
-  void getValue(int* data, int count = 1);
-  void getValue(unsigned short* data, int count = 1);
-  void getValue(long int* data, int count = 1);
-  void getValue(long long* data, int count = 1);
-  void getValue(float* data, int count = 1);
-  void getValue(double* data, int count = 1);
-  void getValue(char* data, int count = 1);
+  // Exchange sections of a grid with all neighbors
+  void exchangeGrid(GRID_T* data);
+  void exchange(
+	int sendTo,		// Neighbor to send particles to
+	int recvFrom,		// Neighbor to receive particles from
+	GRID_T* data);		// Grid to share
 
-  int getBufPos() { return this->bufPos; }
-
-  void manualPackAtPosition(char* data, int pos, int count, size_t size);
-  void manualPack(char* data, int count, size_t size);
-  void manualUnpack(char* data, int count, size_t size);
-
-  // Send nonblocking
-  void send(
-        int mach,                       // Where to send message
-        int tag = 0                     // Identifying tag
-  );
-
-  // Receive blocking
-  void receive(
-#ifdef USE_SERIAL_COSMO
-        int mach = 0,
-#else
-        int mach = MPI_ANY_SOURCE,      // From where to receive
-#endif
-        int tag = 0                     // Identifying tag
-  );
-
-#ifdef USE_SERIAL_COSMO // message queue hack for serial
-  queue<char*> q;
-#endif
-
-  // Reset the buffer for another set of data
-  void reset();
+  void dropBuffers();
+  void resurrectBuffers();
 
 private:
-  char* buffer;         // Buffer to pack
-  int   bufSize;        // Size of buffer
-  int   bufPos;         // Position in buffer
+  int    myProc;		// My processor number
+  int    numProc;		// Total number of processors
+
+  int    layoutSize[DIMENSION];	// Decomposition of processors
+  int    layoutPos[DIMENSION];	// Position of this processor in decomposition
+
+  int    bufferSize;		// Max message size to send/receive
+  GRID_T* sendBuffer;		// Message buffer
+  GRID_T* recvBuffer;		// Message buffer
+
+  int    totalSize[DIMENSION];	// Sizes with alive and dead grids
+  int    alive[DIMENSION]; 	// Sizes of only alive grid
+  int    dead0;			// Dead grid size on the front edge of dimension
+  int    dead1;			// Dead grid size on the back edge of dimension
+
+  // Processor id for each neighbor
+  int    neighbor[NUM_OF_NEIGHBORS];
+
+  // Region of data to send to each neighbor
+  int    sendOrigin[NUM_OF_NEIGHBORS][DIMENSION];
+  int    sendSize[NUM_OF_NEIGHBORS][DIMENSION];
+
+  // Region of data to receive from each neighbor
+  int    recvOrigin[NUM_OF_NEIGHBORS][DIMENSION];
+  int    recvSize[NUM_OF_NEIGHBORS][DIMENSION];
 };
 
 }
