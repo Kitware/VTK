@@ -605,7 +605,7 @@ const char* vtkWebGLExporter::GenerateExportMetadata()
   return this->Internal->LastMetaData.c_str();
 }
 
-vtkWebGLObject* vtkWebGLExporter::GetObject(int index)
+vtkWebGLObject* vtkWebGLExporter::GetWebGLObject(int index)
   {
   return this->Internal->Objects[index];
   }
@@ -693,7 +693,7 @@ void vtkWebGLExporter::exportStaticScene(vtkRendererCollection *renderers, int w
     std::string test;
     int size = 0;
 
-    vtkWebGLObject* obj = this->GetObject(i);
+    vtkWebGLObject* obj = this->GetWebGLObject(i);
     if (obj->isVisible())
       {
       for(int j=0; j<obj->GetNumberOfParts(); j++)

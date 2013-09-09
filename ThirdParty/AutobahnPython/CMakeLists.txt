@@ -9,17 +9,13 @@ if(NOT VTK_USE_SYSTEM_AUTOBAHN)
 
   include(vtkPythonPackages)
 
-  # Extract path where python module should be copied
-  get_property(pymodule_build_dir GLOBAL PROPERTY VTK_PYMODULE_BUILD_DIR)
-  get_property(pymodule_install_dir GLOBAL PROPERTY VTK_PYMODULE_INSTALL_DIR)
-
   set(AutobahnPython_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/autobahn")
-  set(AutobahnPython_BINARY_DIR "${pymodule_build_dir}/autobahn")
+  set(AutobahnPython_BINARY_DIR "${VTK_BUILD_PYTHON_MODULE_DIR}/autobahn")
 
   build_python_package("AutobahnPython" ${AutobahnPython_SOURCE_DIR}
     ${AutobahnPython_BINARY_DIR})
 
   install(DIRECTORY ${AutobahnPython_BINARY_DIR}
-    DESTINATION "${pymodule_install_dir}"
+    DESTINATION "${VTK_INSTALL_PYTHON_MODULE_DIR}"
     COMPONENT Runtime)
 endif()

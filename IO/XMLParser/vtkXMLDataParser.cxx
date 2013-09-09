@@ -81,8 +81,8 @@ vtkXMLDataParser::~vtkXMLDataParser()
   delete [] this->OpenElements;
   this->InlineDataStream->Delete();
   this->AppendedDataStream->Delete();
-  if(this->BlockCompressedSizes) { delete [] this->BlockCompressedSizes; }
-  if(this->BlockStartOffsets) { delete [] this->BlockStartOffsets; }
+  delete [] this->BlockCompressedSizes;
+  delete [] this->BlockStartOffsets;
   this->SetCompressor(0);
   if(this->AsciiDataBuffer) { this->FreeAsciiBuffer(); }
 }

@@ -58,6 +58,29 @@
 # define VTK_HAS_FINITE 1
 #endif
 
+// The CUDA compiler(nvcc) is a secondary compiler that is used beside
+// your host compiler. While your host compiler can support std::isnan and
+// other functions, the CUDA compiler doesn't. Because the CUDA compiler is
+// given both host and device code to parse it will then fail when it sees
+// std::isnan because it is in the vtkMath header and not the
+// implementation file. To get around this issue we check __CUDACC__ which
+// is only set when we are compiling with the CUDA compiler
+#ifdef __CUDACC__
+
+#if defined(VTK_HAS_STD_ISINF)
+#undef VTK_HAS_STD_ISINF
+#endif
+
+#if defined(VTK_HAS_STD_ISNAN)
+#undef VTK_HAS_STD_ISNAN
+#endif
+
+#if defined(VTK_HAS_STD_ISFINITE)
+#undef VTK_HAS_STD_ISFINITE
+#endif
+
+#endif
+
 // We pretty much assume that all compilers are going to provide
 // std::numeric_limits methods in the limits header.  On of the Borland
 // dashboard compilers failed to link in the methods, so we have a special

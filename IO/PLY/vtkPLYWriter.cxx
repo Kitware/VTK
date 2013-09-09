@@ -233,8 +233,8 @@ void vtkPLYWriter::WriteData()
       }
     }//for all polygons
 
-  if ( pointColors ) {delete [] pointColors;}
-  if ( cellColors ) {delete [] cellColors;}
+  delete [] pointColors;
+  delete [] cellColors;
 
   // close the PLY file
   vtkPLY::ply_close (ply);

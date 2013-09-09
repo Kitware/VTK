@@ -1,11 +1,8 @@
 package vtk.rendering.jogl;
 
 import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLContext;
 import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLCanvas;
 
 import vtk.vtkGenericOpenGLRenderWindow;
 import vtk.vtkObject;
@@ -18,29 +15,18 @@ import vtk.rendering.vtkInteractorForwarder;
  *
  * @author Sebastien Jourdain - sebastien.jourdain@kitware.com
  */
-public class vtkJoglComponent extends vtkAbstractComponent<GLCanvas> {
+public class vtkAbstractJoglComponent<T extends java.awt.Component> extends vtkAbstractComponent<T> {
 
-    protected GLCanvas uiComponent;
+    protected T uiComponent;
     protected boolean isWindowCreated;
     protected GLEventListener glEventListener;
     protected vtkGenericOpenGLRenderWindow glRenderWindow;
 
-    public vtkJoglComponent() {
-        this(new vtkGenericOpenGLRenderWindow());
-    }
 
-    public vtkJoglComponent(vtkRenderWindow renderWindowToUse) {
-        this(renderWindowToUse, new GLCapabilities(GLProfile.getDefault()));
-    }
-
-    public vtkJoglComponent(vtkRenderWindow renderWindowToUse, GLCapabilities capabilities) {
-        this(renderWindowToUse, new GLCanvas(capabilities));
-    }
-
-    public vtkJoglComponent(vtkRenderWindow renderWindowToUse, GLCanvas canvas) {
+    public vtkAbstractJoglComponent(vtkRenderWindow renderWindowToUse, T glContainer) {
         super(renderWindowToUse);
         this.isWindowCreated = false;
-        this.uiComponent = canvas;
+        this.uiComponent = glContainer;
         this.glRenderWindow = (vtkGenericOpenGLRenderWindow) renderWindowToUse;
         this.glRenderWindow.SetIsDirect(1);
         this.glRenderWindow.SetSupportsOpenGL(1);
@@ -49,7 +35,7 @@ public class vtkJoglComponent extends vtkAbstractComponent<GLCanvas> {
         // Create the JOGL Event Listener
         this.glEventListener = new GLEventListener() {
             public void init(GLAutoDrawable drawable) {
-                vtkJoglComponent.this.isWindowCreated = true;
+                vtkAbstractJoglComponent.this.isWindowCreated = true;
 
                 // Make sure the JOGL Context is current
                 GLContext ctx = drawable.getContext();
@@ -58,28 +44,32 @@ public class vtkJoglComponent extends vtkAbstractComponent<GLCanvas> {
                 }
 
                 // Init VTK OpenGL RenderWindow
-                vtkJoglComponent.this.glRenderWindow.SetMapped(1);
-                vtkJoglComponent.this.glRenderWindow.SetPosition(0, 0);
-                vtkJoglComponent.this.setSize(drawable.getWidth(), drawable.getHeight());
-                vtkJoglComponent.this.glRenderWindow.OpenGLInit();
+                vtkAbstractJoglComponent.this.glRenderWindow.SetMapped(1);
+                vtkAbstractJoglComponent.this.glRenderWindow.SetPosition(0, 0);
+                vtkAbstractJoglComponent.this.setSize(drawable.getWidth(), drawable.getHeight());
+                vtkAbstractJoglComponent.this.glRenderWindow.OpenGLInit();
             }
 
             public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-                vtkJoglComponent.this.setSize(width, height);
+                vtkAbstractJoglComponent.this.setSize(width, height);
             }
 
             public void display(GLAutoDrawable drawable) {
-                vtkJoglComponent.this.inRenderCall = true;
-                vtkJoglComponent.this.glRenderWindow.Render();
-                vtkJoglComponent.this.inRenderCall = false;
+                vtkAbstractJoglComponent.this.inRenderCall = true;
+                vtkAbstractJoglComponent.this.glRenderWindow.Render();
+                vtkAbstractJoglComponent.this.inRenderCall = false;
             }
 
             public void dispose(GLAutoDrawable drawable) {
-                vtkJoglComponent.this.Delete();
+                vtkAbstractJoglComponent.this.Delete();
                 vtkObject.JAVA_OBJECT_MANAGER.gc(false);
             }
         };
-        this.uiComponent.addGLEventListener(this.glEventListener);
+        try {
+			this.uiComponent.getClass().getMethod("addGLEventListener", GLEventListener.class).invoke(this.uiComponent, this.glEventListener);
+		} catch (Exception e) {
+			throw new RuntimeException("Impossible to call addGLEventListener(listener) in a reflexive way.");
+		}
 
         // Bind the interactor forwarder
         vtkInteractorForwarder forwarder = this.getInteractorForwarder();
@@ -92,7 +82,7 @@ public class vtkJoglComponent extends vtkAbstractComponent<GLCanvas> {
         renderWindowToUse.AddObserver("WindowFrameEvent", this, "Render");
     }
 
-    public GLCanvas getComponent() {
+    public T getComponent() {
         return this.uiComponent;
     }
 

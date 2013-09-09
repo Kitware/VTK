@@ -154,13 +154,3 @@ void vtkAbstractPropPicker::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Path: (none)" << endl;
     }
 }
-
-//----------------------------------------------------------------------------
-
-// Disable warnings about qualifiers on return types.
-#if defined(_COMPILER_VERSION)
-# pragma set woff 3303
-#endif
-#if defined(__INTEL_COMPILER)
-# pragma warning (disable:858)
-#endif

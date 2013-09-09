@@ -408,6 +408,9 @@ protected:
   bool Loaded;
   bool LastLinearInterpolation;
   double LastRange[2];
+private:
+  vtkOpacityTable(const vtkOpacityTable&);
+  vtkOpacityTable& operator=(const vtkOpacityTable&);
 };
 
 //-----------------------------------------------------------------------------
@@ -416,12 +419,28 @@ protected:
 class vtkOpacityTables
 {
 public:
-  std::vector<vtkOpacityTable> Vector;
-  vtkOpacityTables(size_t numberOfLevels)
-    : Vector(numberOfLevels)
+  vtkOpacityTables(unsigned int numberOfTables)
     {
+    this->Tables = new vtkOpacityTable[numberOfTables];
+    this->NumberOfTables = numberOfTables;
+    }
+  ~vtkOpacityTables()
+    {
+    delete [] this->Tables;
+    }
+  vtkOpacityTable* GetTable(unsigned int i)
+    {
+    return &this->Tables[i];
+    }
+  unsigned int GetNumberOfTables()
+    {
+    return this->NumberOfTables;
     }
 private:
+  unsigned int NumberOfTables;
+  vtkOpacityTable *Tables;
+  // undefined default constructor.
+  vtkOpacityTables();
   // undefined copy constructor.
   vtkOpacityTables(const vtkOpacityTables &other);
   // undefined assignment operator.
@@ -2183,6 +2202,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // Cg compiler about an infinite loop.
 #ifndef APPLE_SNOW_LEOPARD_BUG
  #ifdef __APPLE__
+  this->UnsupportedRequiredExtensions->Stream<<
+    " Disabled on Apple OS X Snow Leopard with nVidia.";
   this->LoadExtensionsSucceeded=0;
   return;
  #endif
@@ -2191,20 +2212,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // Assume success
   this->LoadExtensionsSucceeded=1;
 
-  // Create an extension manager
-  vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
-  extensions->SetRenderWindow(window);
+  // get the extension manager
+  vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(window);
+  if (!context)
+    {
+    this->UnsupportedRequiredExtensions->Stream<<
+      " Disabled because context is not a vtkOpenGLRederWindow.";
+    this->LoadExtensionsSucceeded=0;
+    return;
+    }
+  vtkOpenGLExtensionManager *extensions = context->GetExtensionManager();
 
-  // os mesa notes:
+  // mesa notes:
   // 8.0.0 -- missing some required extensions
   // 8.0.5 -- tests pass but there are invalid enum opengl errors reported (mesa bug)
-  // 9.1.3 & 9.1.4  -- GPURayCastCompositeShadeMask fails (mesa bug?)
-  // 9.2.0 w/llvmpipe -- all tests pass cleanly
-  if ( (!extensions->DriverIsMesa()
-    || (extensions->DriverGLRendererIsOSMesa()
-    && extensions->DriverVersionAtLeast(9)))
+  // 9.1.3 & 9.1.4 w/ OS Mesa -- GPURayCastCompositeShadeMask fails (mesa bug?) test disabled
+  // 9.2.0 w/llvmpipe -- tests pass cleanly
+  if ( (extensions->DriverIsMesa()
+    && !(extensions->DriverGLRendererIsOSMesa() && extensions->DriverVersionAtLeast(9)))
     && !extensions->GetIgnoreDriverBugs("Mesa FBO bugs"))
     {
+    this->UnsupportedRequiredExtensions->Stream<<
+      " Disabled because of Mesa FBO bugs.";
     this->LoadExtensionsSucceeded=0;
     }
 
@@ -2225,7 +2254,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
     this->LoadExtensionsSucceeded=0;
     this->UnsupportedRequiredExtensions->Stream<<
       " OpenGL 1.3 is required but not supported";
-    extensions->Delete();
     return;
     }
 
@@ -2347,7 +2375,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // Have we succeeded so far? If not, just return.
   if(!this->LoadExtensionsSucceeded)
     {
-    extensions->Delete();
     return;
     }
 
@@ -2461,8 +2488,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->LastComponent=
     vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized;
   this->LastShade=vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized;
-
-  extensions->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -3285,7 +3310,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::UpdateOpacityTransferFunction(
   vtkPiecewiseFunction *scalarOpacity=volumeProperty->GetScalarOpacity();
 
   vtkgl::ActiveTexture( vtkgl::TEXTURE2); //stay here
-  this->OpacityTables->Vector[level].Update(
+  this->OpacityTables->GetTable(level)->Update(
     scalarOpacity,this->BlendMode,
     this->ActualSampleDistance,
     this->TableRange,
@@ -4616,7 +4641,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   this->CheckFrameBufferStatus();
 
   if(this->OpacityTables!=0 &&
-     this->OpacityTables->Vector.size()!=numberOfLevels)
+     this->OpacityTables->GetNumberOfTables()!=numberOfLevels)
     {
     delete this->OpacityTables;
     this->OpacityTables=0;
@@ -4892,7 +4917,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
 
   // opacitytable
   vtkgl::ActiveTexture(vtkgl::TEXTURE2);
-  this->OpacityTables->Vector[level].Bind();
+  this->OpacityTables->GetTable(level)->Bind();
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
 
   vtkOpenGLCheckErrorMacro("after uniforms for projection and shade");

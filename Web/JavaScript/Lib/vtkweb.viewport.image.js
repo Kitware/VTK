@@ -341,8 +341,8 @@
              * @event stop-loading
              */
             $(container).parent().trigger("stop-loading");
-            ctx2d.canvas.width = $(container).parent().innerWidth();
-            ctx2d.canvas.height = $(container).parent().innerHeight();
+            ctx2d.canvas.width = $(container).width();
+            ctx2d.canvas.height = $(container).height();
             ctx2d.drawImage(bgImage, 0, 0, bgImage.width, bgImage.height);
             renderStatistics();
         }

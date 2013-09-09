@@ -63,5 +63,19 @@ private:
   unsigned long ModifiedTime;
 };
 
+#ifndef __WRAP__
+class VTKCOMMONCORE_EXPORT vtkTimeStampInitialize
+{
+public:
+  vtkTimeStampInitialize();
+  ~vtkTimeStampInitialize();
+};
+
+// This instance will show up in any translation unit that uses
+// vtkTimeStamp.  It will make sure vtkTimeStamp is initialized
+// before it is used.
+static vtkTimeStampInitialize vtkTimeStampInitializeInstance;
+#endif
+
 #endif
 // VTK-HeaderTest-Exclude: vtkTimeStamp.h

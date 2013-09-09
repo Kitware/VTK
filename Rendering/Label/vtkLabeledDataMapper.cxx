@@ -792,6 +792,13 @@ vtkLabeledDataMapper::GetMTime()
 }
 
 // ----------------------------------------------------------------------
+const char *vtkLabeledDataMapper::GetLabelText(int label)
+{
+  assert("label index range" && label >= 0 && label < this->NumberOfLabels);
+  return this->TextMappers[label]->GetInput();
+}
+
+// ----------------------------------------------------------------------
 void
 vtkLabeledDataMapper::SetFieldDataName(const char *arrayName)
 {
@@ -801,7 +808,7 @@ vtkLabeledDataMapper::SetFieldDataName(const char *arrayName)
 
   if ( this->FieldDataName == NULL && arrayName == NULL) { return; }
   if ( this->FieldDataName && arrayName && (!strcmp(this->FieldDataName,arrayName))) { return;}
-  if (this->FieldDataName) { delete [] this->FieldDataName; }
+  delete [] this->FieldDataName;
   if (arrayName)
     {
     this->FieldDataName = new char[strlen(arrayName)+1];

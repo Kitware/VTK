@@ -205,6 +205,7 @@ void DICOMAppHelper::RegisterCallbacks(DICOMParser* parser)
   if (!parser)
     {
     dicom_stream::cerr << "Null parser!" << dicom_stream::endl;
+    return;
     }
 
   SeriesUIDCB->SetCallbackFunction(this, &DICOMAppHelper::SeriesUIDCallback);

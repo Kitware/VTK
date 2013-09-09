@@ -84,7 +84,7 @@ void vtkPVWebGLExporter::WriteData()
   int nbObjects = exporter->GetNumberOfObjects();
   for(int idx=0; idx < nbObjects; ++idx)
     {
-    vtkWebGLObject* obj = exporter->GetObject(idx);
+    vtkWebGLObject* obj = exporter->GetWebGLObject(idx);
     if(obj->isVisible())
       {
       int nbParts = obj->GetNumberOfParts();

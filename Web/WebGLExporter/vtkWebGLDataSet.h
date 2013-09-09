@@ -20,10 +20,10 @@
 #define __vtkWebGLDataSet_h
 
 #include "vtkObject.h"
-#include "vtkWebGLObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro
 
-#include <string>
+#include "vtkWebGLObject.h" // Needed for the enum
+#include <string> // needed for md5
 
 class VTKWEBGLEXPORTER_EXPORT vtkWebGLDataSet : public vtkObject
 {

@@ -74,8 +74,11 @@ public:
       {
       UserDefinedValue key(name);
       UserDefinedValues::const_iterator it = UserDefinedValuePool.find( key );
-      assert( strcmp(it->Name.c_str(), name) == 0 );
-      return it->Value.c_str();
+      if( it != UserDefinedValuePool.end() )
+        {
+        assert( strcmp(it->Name.c_str(), name) == 0 );
+        return it->Value.c_str();
+        }
       }
     return NULL;
     }

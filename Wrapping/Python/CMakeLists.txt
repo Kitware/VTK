@@ -268,38 +268,38 @@ if(PYTHON_EXECUTABLE)
     ${vtkpython_pyc_depends})
 
   # If no runtime is to be installed then do not install python modules.
-  if(VTK_INSTALL_NO_RUNTIME)
-    set(VTK_INSTALL_NO_PYTHON 1)
-  endif()
+  if(NOT VTK_INSTALL_NO_RUNTIME)
 
-  if (NOT VTK_INSTALL_NO_PYTHON)
-    get_property(pymodule_instdir GLOBAL PROPERTY VTK_PYMODULE_INSTALL_DIR)
-    # Install python modules (.py and *.pyd)
+    # Install python modules
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/vtk"
-      DESTINATION ${pymodule_instdir} COMPONENT RuntimeLibraries
+      DESTINATION ${VTK_INSTALL_PYTHON_MODULE_DIR} COMPONENT RuntimeLibraries
       USE_SOURCE_PERMISSIONS)
 
-    # Install python extension library behind the modules (.dll,.lib,.so)
+    # Install python extension library that backs the modules
     if (BUILD_SHARED_LIBS AND NOT VTK_INSTALL_NO_LIBRARIES)
       foreach(module ${VTK_PYTHON_MODULES})
         install(TARGETS ${module}Python
           EXPORT ${VTK_INSTALL_EXPORT_NAME}
           RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
-          LIBRARY DESTINATION ${pymodule_instdir}/vtk COMPONENT RuntimeLibraries
+          LIBRARY DESTINATION ${VTK_INSTALL_PYTHON_MODULE_DIR}/vtk COMPONENT RuntimeLibraries
           ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
           )
       endforeach()
     endif()
 
-    # Install the vtkpython executable
-    install(TARGETS vtkpython ${VTKPYTHON_EXECUTABLE}
-      DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
-
-    if(PVTKPYTHON_EXECUTABLE)
-      # Install the mpi enabled vtkpython executable
-      install(TARGETS pvtkpython ${PVTKPYTHON_EXECUTABLE}
+    # Install the conveniently configured python interpretters
+    if(NOT VTK_INSTALL_NO_PYTHON_EXES)
+      # Install the vtkpython executable
+      install(TARGETS vtkpython
         DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
+
+      if(PVTKPYTHON_EXECUTABLE)
+        # Install the mpi enabled vtkpython executable
+        install(TARGETS pvtkpython
+          DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
+      endif()
     endif()
+
   endif()
 
 endif()

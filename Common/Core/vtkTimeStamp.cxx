@@ -12,18 +12,47 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-//
-// Initialize static member
-//
 #include "vtkTimeStamp.h"
 
-#include "vtkCriticalSection.h"
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-#if defined(__APPLE__)
-  #include <libkern/OSAtomic.h>
+// We use the Schwarz Counter idiom to make sure that GlobalTimeStamp
+// is initialized before any other class uses it.
+
+#if VTK_SIZEOF_VOID_P == 8
+# include "vtkAtomicInt64.h" // For global mtime
+static vtkAtomicInt64* GlobalTimeStamp;
+#else
+# include "vtkAtomicInt32.h" // For global mtime
+static vtkAtomicInt32* GlobalTimeStamp;
 #endif
+
+static unsigned int vtkTimeStampCounter;
+
+vtkTimeStampInitialize::vtkTimeStampInitialize()
+{
+  if (0 == vtkTimeStampCounter++)
+    {
+    // Use 32 bit atomic int on 32 bit systems, 64 bit on 64 bit systems.
+    // The assumption is that atomic operations will be safer when in the
+    // type for integer operations.
+#if VTK_SIZEOF_VOID_P == 8
+    GlobalTimeStamp = new vtkAtomicInt64(0);
+#else
+    GlobalTimeStamp = new vtkAtomicInt32(0);
+#endif
+    }
+}
+
+vtkTimeStampInitialize::~vtkTimeStampInitialize()
+{
+  if (0 == --vtkTimeStampCounter)
+    {
+    delete GlobalTimeStamp;
+    GlobalTimeStamp = 0;
+    }
+}
 
 //-------------------------------------------------------------------------
 vtkTimeStamp* vtkTimeStamp::New()
@@ -35,37 +64,5 @@ vtkTimeStamp* vtkTimeStamp::New()
 //-------------------------------------------------------------------------
 void vtkTimeStamp::Modified()
 {
-// Windows optimization
-#if defined(WIN32) || defined(_WIN32)
-  static LONG vtkTimeStampTime = 0;
-  this->ModifiedTime = (unsigned long)InterlockedIncrement(&vtkTimeStampTime);
-
-// Mac optimization
-#elif defined(__APPLE__)
- #if __LP64__
-  // "ModifiedTime" is "unsigned long", a type that changess sizes
-  // depending on architecture.  The atomic increment is safe, since it
-  // operates on a variable of the exact type needed.  The cast does not
-  // change the size, but does change signedness, which is not ideal.
-  static volatile int64_t vtkTimeStampTime = 0;
-  this->ModifiedTime = (unsigned long)OSAtomicIncrement64Barrier(&vtkTimeStampTime);
- #else
-  static volatile int32_t vtkTimeStampTime = 0;
-  this->ModifiedTime = (unsigned long)OSAtomicIncrement32Barrier(&vtkTimeStampTime);
- #endif
-
-// GCC and CLANG intrinsics
-#elif defined(VTK_HAVE_SYNC_BUILTINS)
-  static volatile unsigned long vtkTimeStampTime = 0;
-  this->ModifiedTime = __sync_add_and_fetch(&vtkTimeStampTime, 1);
-
-// General case
-#else
-  static unsigned long vtkTimeStampTime = 0;
-  static vtkSimpleCriticalSection TimeStampCritSec;
-
-  TimeStampCritSec.Lock();
-  this->ModifiedTime = ++vtkTimeStampTime;
-  TimeStampCritSec.Unlock();
-#endif
+  this->ModifiedTime = (unsigned long)GlobalTimeStamp->Increment();
 }

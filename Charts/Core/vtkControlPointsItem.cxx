@@ -327,8 +327,10 @@ void vtkControlPointsItem::ComputePoints()
     this->Selection = vtkIdTypeArray::New();
     for (vtkIdType i = 0; i < selectedPointCount; ++i)
       {
-      assert(oldSelection->GetValue(i) < this->GetNumberOfPoints());
-      this->SelectPoint(oldSelection->GetValue(i));
+      if (oldSelection->GetValue(i) < this->GetNumberOfPoints())
+        {
+        this->SelectPoint(oldSelection->GetValue(i));
+        }
       }
     oldSelection->Delete();
     }

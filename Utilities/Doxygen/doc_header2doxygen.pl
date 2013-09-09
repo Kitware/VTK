@@ -509,6 +509,7 @@ foreach my $source (@files) {
 
             my $indent = $1;
             $Text::Wrap::columns = 76;
+            $Text::Wrap::huge = 'overflow';
 
             # While there are still lines beginning with '//' append them to
             # the function's description and trim spaces.

@@ -5,12 +5,8 @@ find_package(PythonInterp)
 
 include(vtkPythonPackages)
 
-# Extract path where python module should be copied
-get_property(pymodule_build_dir GLOBAL PROPERTY VTK_PYMODULE_BUILD_DIR)
-get_property(pymodule_install_dir GLOBAL PROPERTY VTK_PYMODULE_INSTALL_DIR)
-
 set(vtkWebPython_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(vtkWebPython_BINARY_DIR "${pymodule_build_dir}/vtk/web")
+set(vtkWebPython_BINARY_DIR "${VTK_BUILD_PYTHON_MODULE_DIR}/vtk/web")
 
 build_python_package("vtkWebPython" ${vtkWebPython_SOURCE_DIR}
   ${vtkWebPython_BINARY_DIR})
@@ -21,5 +17,5 @@ if(NOT VTK_WRAP_PYTHON)
 endif()
 
 install(DIRECTORY ${vtkWebPython_BINARY_DIR}
-  DESTINATION "${pymodule_install_dir}"
+  DESTINATION "${VTK_INSTALL_PYTHON_MODULE_DIR}/vtk"
   COMPONENT Runtime)

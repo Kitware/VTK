@@ -164,6 +164,7 @@ int vtkSelectPolyData::RequestData(
     {
     vtkErrorMacro("This filter operates on surface primitives");
     tf->Delete();
+    triMesh->UnRegister(this);
     return 1;
     }
 
@@ -252,6 +253,11 @@ int vtkSelectPolyData::RequestData(
       if ( closest < 0 )
         {
         vtkErrorMacro(<<"Can't follow edge");
+        triMesh->UnRegister(this);
+        this->Mesh->Delete();
+        neighbors->Delete();
+        edgeIds->Delete();
+        loopIds->Delete();
         return 1;
         }
       else

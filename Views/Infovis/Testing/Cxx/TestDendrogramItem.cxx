@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestDendrogramOnly.cxx
+  Module:    TestDendrogramItem.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkTreeHeatmapItem.h"
+#include "vtkDendrogramItem.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkMutableDirectedGraph.h"
@@ -33,7 +33,7 @@
 #include "vtkRegressionTestImage.h"
 
 //----------------------------------------------------------------------------
-int TestDendrogramOnly(int argc, char* argv[])
+int TestDendrogramItem(int argc, char* argv[])
 {
   vtkNew<vtkMutableDirectedGraph> graph;
   vtkIdType root = graph->AddVertex();
@@ -79,12 +79,14 @@ int TestDendrogramOnly(int argc, char* argv[])
   vtkNew<vtkTree> tree;
   tree->ShallowCopy(graph.GetPointer());
 
-  vtkNew<vtkTreeHeatmapItem> treeItem;
-  treeItem->SetTree(tree.GetPointer());
+  vtkNew<vtkDendrogramItem> dendrogram;
+  dendrogram->SetTree(tree.GetPointer());
+  dendrogram->SetPosition(40, 15);
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
-  trans->AddItem(treeItem.GetPointer());
+  trans->AddItem(dendrogram.GetPointer());
+  trans->Scale(3, 3);
   actor->GetScene()->AddItem(trans.GetPointer());
 
   vtkNew<vtkRenderer> renderer;

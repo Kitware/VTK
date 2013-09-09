@@ -8,6 +8,7 @@ vtk_module(vtkIOExport
     vtkRenderingCore
     vtkRenderingFreeType
     vtkRenderingGL2PS
+    vtkRenderingLabel
     vtkRenderingOpenGL
     vtkImagingCore
     vtkIOCore

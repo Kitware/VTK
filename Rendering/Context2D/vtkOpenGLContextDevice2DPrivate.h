@@ -35,6 +35,9 @@
 #include "vtkColor.h"
 #include "vtkTextProperty.h"
 #include "vtkFreeTypeTools.h"
+#include "vtkStdString.h"
+#include "vtkUnicodeString.h"
+
 #include <algorithm>
 #include <list>
 #include <utility>
@@ -162,6 +165,7 @@ typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
 // .NAME TextPropertyKey - unique key for a vtkTextProperty and text
 // .SECTION Description
 // Uniquely describe a pair of vtkTextProperty and text.
+template <class StringType>
 struct TextPropertyKey
 {
   // Description:
@@ -175,7 +179,7 @@ struct TextPropertyKey
 
   // Description:
   // Creates a TextPropertyKey.
-  TextPropertyKey(vtkTextProperty* textProperty, const vtkStdString& text)
+  TextPropertyKey(vtkTextProperty* textProperty, const StringType& text)
   {
     this->TextPropertyId = GetIdFromTextProperty(textProperty);
     this->FontSize = textProperty->GetFontSize();
@@ -206,8 +210,11 @@ struct TextPropertyKey
   vtkColor4ub Color;
   // States in the function not to use more than 32 bits - int works fine here.
   unsigned int TextPropertyId;
-  vtkStdString Text;
+  StringType Text;
 };
+
+typedef TextPropertyKey<vtkStdString> UTF8TextPropertyKey;
+typedef TextPropertyKey<vtkUnicodeString> UTF16TextPropertyKey;
 
 class vtkOpenGLContextDevice2D::Private
 {
@@ -502,8 +509,8 @@ public:
   // Description:
   // Cache for text images. Generating texture for strings is expensive,
   // we cache the textures here for a faster reuse.
-  mutable vtkTextureImageCache<TextPropertyKey> TextTextureCache;
-  mutable vtkTextureImageCache<TextPropertyKey> MathTextTextureCache;
+  mutable vtkTextureImageCache<UTF16TextPropertyKey> TextTextureCache;
+  mutable vtkTextureImageCache<UTF8TextPropertyKey> MathTextTextureCache;
 };
 
 #endif // VTKOPENGLCONTEXTDEVICE2DPRIVATE_H

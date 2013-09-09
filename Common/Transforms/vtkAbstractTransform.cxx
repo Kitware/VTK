@@ -335,14 +335,14 @@ void vtkAbstractTransform::UnRegister(vtkObjectBase *o)
   if (this->InUnRegister)
     { // we don't want to go into infinite recursion...
     vtkDebugMacro(<<"UnRegister: circular reference eliminated");
-    this->ReferenceCount--;
+    this->ReferenceCount.Decrement();
     return;
     }
 
   // check to see if the only reason our reference count is not 1
   // is the circular reference from MyInverse
-  if (this->MyInverse && this->ReferenceCount == 2 &&
-      this->MyInverse->ReferenceCount == 1)
+  if (this->MyInverse && this->ReferenceCount.Get() == 2 &&
+      this->MyInverse->ReferenceCount.Get() == 1)
     { // break the cycle
     vtkDebugMacro(<<"UnRegister: eliminating circular reference");
     this->InUnRegister = 1;

@@ -59,6 +59,18 @@ mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
 option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
+# Choose which multi-threaded parallelism library to use
+set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING
+  "Which multi-threaded parallelism implementation to use. Options are Sequential, Kaapi, OpenMP or TBB"
+)
+set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential Kaapi OpenMP TBB)
+
+if( NOT ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi" OR
+         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB" OR
+         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP"))
+  set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential")
+endif()
+
 #-----------------------------------------------------------------------------
 include(vtkVersion)
 set(VTK_VERSION
@@ -102,7 +114,16 @@ endif()
 if(NOT VTK_WWW_DIR)
   set(VTK_WWW_DIR "${VTK_BINARY_DIR}/www")
 endif()
-
+if(NOT VTK_INSTALL_PYTHON_MODULE_DIR)
+  set (VTK_INSTALL_PYTHON_MODULE_DIR "-NOTFOUND" CACHE
+       PATH "Directory where python modules will be installed")
+  mark_as_advanced(VTK_INSTALL_PYTHON_MODULE_DIR)
+endif()
+if(NOT VTK_BUILD_PYTHON_MODULE_DIR)
+  set (VTK_BUILD_PYTHON_MODULE_DIR "-NOTFOUND" CACHE
+       PATH "Directory where python modules will be put inside the build tree")
+  mark_as_advanced(VTK_BUILD_PYTHON_MODULE_DIR)
+endif()
 if (CMAKE_CROSSCOMPILING AND NOT COMPILE_TOOLS_IMPORTED)
   # if CMAKE_CROSSCOMPILING is true, we need to import build-tools targets.
   find_package(VTKCompileTools REQUIRED)

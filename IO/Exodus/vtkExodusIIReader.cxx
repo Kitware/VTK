@@ -4954,8 +4954,7 @@ unsigned long vtkExodusIIReader::GetMetadataMTime()
   if ( fname && this->propName && !strcmp( fname, this->propName ) ) \
     return; \
   modified = 1; \
-  if ( this->propName ) \
-    delete [] this->propName; \
+  delete [] this->propName; \
   if ( fname ) \
     { \
     size_t fnl = strlen( fname ) + 1; \

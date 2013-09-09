@@ -354,6 +354,7 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
           {
           vtkErrorMacro(<< "Could not find array with name "
                         << aa1->GetName() << " in other selection.");
+          return;
           }
         if (aa1->GetDataType() != aa2->GetDataType())
           {

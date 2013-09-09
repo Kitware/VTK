@@ -66,7 +66,6 @@ vtkStructuredAMRNeighbor::vtkStructuredAMRNeighbor(
     } // END for all dimensions
 }
 
-
 //-----------------------------------------------------------------------------
 vtkStructuredAMRNeighbor& vtkStructuredAMRNeighbor::operator=(
       const vtkStructuredAMRNeighbor &N)

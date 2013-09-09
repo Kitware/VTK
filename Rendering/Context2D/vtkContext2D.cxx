@@ -655,6 +655,45 @@ void vtkContext2D::ComputeStringBounds(const char* string,
 }
 
 //-----------------------------------------------------------------------------
+int vtkContext2D::ComputeFontSizeForBoundedString(const vtkStdString &string,
+                                                  float width, float height)
+{
+  int orientation = this->GetTextProp()->GetOrientation();
+  this->GetTextProp()->SetOrientation(0.0);
+
+  float stringBounds[4];
+  int currentFontSize = this->GetTextProp()->GetFontSize();
+  this->ComputeStringBounds(string, stringBounds);
+
+  // font size is too big
+  if (stringBounds[2] > width || stringBounds[3] > height)
+    {
+    while (stringBounds[2] > width || stringBounds[3] > height)
+      {
+      --currentFontSize;
+      this->GetTextProp()->SetFontSize(currentFontSize);
+      this->ComputeStringBounds(string, stringBounds);
+      }
+    }
+
+  // font size is too small
+  else
+    {
+      while (stringBounds[2] < width && stringBounds[3] < height)
+      {
+      ++currentFontSize;
+      this->GetTextProp()->SetFontSize(currentFontSize);
+      this->ComputeStringBounds(string, stringBounds);
+      }
+    --currentFontSize;
+    this->GetTextProp()->SetFontSize(currentFontSize);
+    }
+
+  this->GetTextProp()->SetOrientation(orientation);
+  return currentFontSize;
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::DrawMathTextString(vtkPoints2D *point,
                                       const vtkStdString &string)
 {

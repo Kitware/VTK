@@ -186,7 +186,9 @@ if(vtkRenderingCore_ENABLED AND vtkIOImage_ENABLED)
   endif()
   if(VTK_JAVA_JOGL_COMPONENT)
     set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
-      rendering/jogl/vtkJoglComponent
+      rendering/jogl/vtkAbstractJoglComponent
+      rendering/jogl/vtkJoglCanvasComponent
+      rendering/jogl/vtkJoglPanelComponent
       sample/rendering/JoglConeRendering
     )
   endif()

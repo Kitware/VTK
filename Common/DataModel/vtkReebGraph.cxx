@@ -1057,8 +1057,8 @@ vtkReebGraph::Implementation::vtkReebPath vtkReebGraph::Implementation::FindPath
           while (pq.size())
           {
             vtkReebPath aux=pq.top();pq.pop();
-            if (aux.ArcTable) delete aux.ArcTable;
-            if (aux.NodeTable) delete aux.NodeTable;
+            delete aux.ArcTable;
+            delete aux.NodeTable;
           }
 
           if (Ntouch) free(Ntouch);

@@ -225,23 +225,18 @@ void vtkPoints2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  double *bounds;
-
   os << indent << "Data: " << this->Data << "\n";
-  if ( this->Data )
+  if ( this->Data->GetName() )
     {
-    if ( this->Data->GetName() )
-      {
-      os << indent << "Data Array Name: " << this->Data->GetName() << "\n";
-      }
-    else
-      {
-      os << indent << "Data Array Name: (none)\n";
-      }
+    os << indent << "Data Array Name: " << this->Data->GetName() << "\n";
+    }
+  else
+    {
+    os << indent << "Data Array Name: (none)\n";
     }
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-  bounds = this->GetBounds();
+  double *bounds = this->GetBounds();
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";

@@ -26,6 +26,21 @@ set(vtkCommonCore_EXPORT_OPTIONS
   VTK_ALL_NEW_OBJECT_FACTORY
   )
 
+if ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB")
+  find_package(TBB REQUIRED)
+  include_directories(${TBB_INCLUDE_DIRS})
+  set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${TBB_LIBRARY})
+elseif  ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP")
+  find_package(OpenMP REQUIRED)
+  set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
+elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi")
+  find_package(XKaapi REQUIRED)
+  include_directories(${XKAAPI_INCLUDE_DIRS})
+  set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${XKAAPI_LIBRARIES})
+elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Sequential")
+  set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
+endif()
+
 #-----------------------------------------------------------------------------
 
 include_directories(${VTK_SOURCE_DIR}/ThirdParty/utf8/source)
@@ -152,6 +167,8 @@ SET(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
+  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt32.cxx
+  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt64.cxx
   )
 
 set(${vtk-module}_HDRS
@@ -164,6 +181,8 @@ set(${vtk-module}_HDRS
   vtkArrayIteratorTemplateImplicit.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
+  vtkAtomicInt32.h
+  vtkAtomicInt64.h
   vtkAutoInit.h
   vtkDataArrayTemplateImplicit.txx
   vtkIOStreamFwd.h
@@ -234,6 +253,13 @@ if(VTK_LEGACY_REMOVE)
 else()
   set(VTK_CONFIG_LEGACY_VERSION "#include \"vtkVersionMacros.h\" // removed by VTK_LEGACY_REMOVE")
 endif()
+
+# Check for atomic functions
+include(CheckSymbolExists)
+if (WIN32)
+  check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
+endif()
+
 
 configure_file(vtkVersionMacros.h.in vtkVersionMacros.h @ONLY)
 configure_file(vtkConfigure.h.in vtkConfigure.h @ONLY)
@@ -312,7 +338,6 @@ endforeach()
 
 # look for various headers and functions
 include(CheckCXXExpressionCompiles)
-include(CheckSymbolExists)
 include(CheckIncludeFile)
 
 # Check C++ <cmath> first, where the C++11 standard says these must be.
@@ -439,6 +464,8 @@ set_source_files_properties(
   vtkArrayIteratorTemplateImplicit.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
+  vtkAtomicInt32.h
+  vtkAtomicInt64.h
   vtkAutoInit.h
   vtkDataArrayTemplate.txx
   vtkDataArrayTemplateImplicit.txx
@@ -467,6 +494,8 @@ set_source_files_properties(
   vtkMathConfigure.h
   vtkVersionMacros.h
   vtkTypeTemplate.h
+  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt32.cxx
+  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt64.cxx
 
   WRAP_EXCLUDE
   )
@@ -513,4 +542,4 @@ endif()
 
 vtk_module_library(vtkCommonCore ${Module_SRCS})
 
-target_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT} ${VTK_SMP_IMPLEMENTATION_LIBRARIES})

@@ -9,17 +9,12 @@ if(NOT VTK_USE_SYSTEM_ZOPE)
 
   include(vtkPythonPackages)
 
-  # Extract path where python module should be copied
-  get_property(pymodule_build_dir GLOBAL PROPERTY VTK_PYMODULE_BUILD_DIR)
-  get_property(pymodule_install_dir GLOBAL PROPERTY VTK_PYMODULE_INSTALL_DIR)
-
   set(zope_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zope")
-  set(zope_BINARY_DIR "${pymodule_build_dir}/zope")
+  set(zope_BINARY_DIR "${VTK_BUILD_PYTHON_MODULE_DIR}/zope")
 
   build_python_package("zope" ${zope_SOURCE_DIR} ${zope_BINARY_DIR})
 
   install(DIRECTORY ${zope_BINARY_DIR}
-    DESTINATION "${pymodule_install_dir}"
+    DESTINATION "${VTK_INSTALL_PYTHON_MODULE_DIR}"
     COMPONENT Runtime)
-
 endif()

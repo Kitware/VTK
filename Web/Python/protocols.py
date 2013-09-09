@@ -36,7 +36,7 @@ class vtkWebProtocol(object):
         id = int(id)
         if id <= 0:
             return None
-        return self.Application.GetObjectIdMap().GetObject(id)
+        return self.Application.GetObjectIdMap().GetVTKObject(id)
 
     def getGlobalId(self, obj):
         """

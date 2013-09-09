@@ -333,6 +333,14 @@ public:
   vtkGetMacro(TickLabelAlgorithm, int)
 
   // Description:
+  // Get/set the scaling factor used for the axis, this defaults to 1.0 (no
+  // scaling), and is used to coordinate scaling with the plots, charts, etc.
+  vtkSetMacro(ScalingFactor, double)
+  vtkGetMacro(ScalingFactor, double)
+  vtkSetMacro(Shift, double)
+  vtkGetMacro(Shift, double)
+
+  // Description:
   // Update the geometry of the axis. Takes care of setting up the tick mark
   // locations etc. Should be called by the scene before rendering.
   virtual void Update();
@@ -504,6 +512,13 @@ protected:
   float MaxLabel[2];   // The widest/tallest axis label.
   bool TitleAppended;  // Track if the title is updated when the label formats
                        // are changed in the Extended Axis Labeling algorithm
+
+  // Description:
+  // Scaling factor used on this axis, this is used to accurately render very
+  // small/large numbers accurately by converting the underlying range by the
+  // scaling factor.
+  double ScalingFactor;
+  double Shift;
 
   // Description:
   // Are we using custom tick labels, or should the axis generate them?
