@@ -48,13 +48,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Definition.h"
 
 #define ID_64
-#define GRID_64
-#define POSVEL_64
+//#define GRID_64
+//#define POSVEL_64
 
 typedef vtkTypeInt64 ID_T;      // Particle and halo ids
-typedef double POSVEL_T;        // Position,velocity
-typedef double POTENTIAL_T;     // Potential
-typedef double GRID_T;          // Grid types
+typedef float POSVEL_T;        // Position,velocity
+typedef float POTENTIAL_T;     // Potential
+typedef float GRID_T;          // Grid types
 typedef vtkTypeInt32  STATUS_T; // Dead (which neighbor) or alive particles
 typedef vtkTypeUInt16 MASK_T;   // Other particle information
 
