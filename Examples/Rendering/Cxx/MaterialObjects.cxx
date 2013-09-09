@@ -25,7 +25,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkProperty.h"
-#include "vtkShaderProgram.h"
 #include "vtkCamera.h"
 #include "vtkLight.h"
 

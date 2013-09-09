@@ -48,10 +48,7 @@ set(Module_SRCS
   vtkDepthPeelingPass.cxx
   vtkFrameBufferObject.cxx
   vtkFrameBufferObject2.cxx
-  vtkGLSLShader.cxx
-  vtkGLSLShaderDeviceAdapter.cxx
   vtkGLSLShaderDeviceAdapter2.cxx
-  vtkGLSLShaderProgram.cxx
   vtkGaussianBlurPass.cxx
   vtkGenericOpenGLRenderWindow.cxx
   vtkImageProcessingPass.cxx

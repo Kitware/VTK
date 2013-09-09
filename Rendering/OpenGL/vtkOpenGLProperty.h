@@ -114,10 +114,6 @@ protected:
   // Load OpenGL extensions for multi texturing.
   void LoadMultiTexturingExtensions(vtkRenderer* ren);
 
-  // Description:
-  // Read this->Material from new style shaders.
-  virtual void ReadFrameworkMaterial();
-
   // Owned. Result of merging the shader program of the renderer
   // and the PropProgram.
   vtkShaderProgram2 *CachedShaderProgram2;

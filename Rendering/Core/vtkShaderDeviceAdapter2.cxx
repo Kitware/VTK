@@ -15,7 +15,6 @@
 #include "vtkShaderDeviceAdapter2.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkShaderProgram.h"
 
 //---------------------------------------------------------------------------
 vtkShaderDeviceAdapter2::vtkShaderDeviceAdapter2()

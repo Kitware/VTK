@@ -232,26 +232,8 @@ public:
   vtkBooleanMacro(FrontfaceCulling, int);
 
   // Description:
-  // Get the material representation used for shading. The material will be used
-  // only when shading is enabled.
-  vtkGetObjectMacro(Material, vtkXMLMaterial);
-
-  // Description:
   // Returns the name of the material currently loaded, if any.
   vtkGetStringMacro(MaterialName);
-
-  // Description:
-  // Load the material. The material can be the name of a
-  // built-on material or the filename for a VTK material XML description.
-  void LoadMaterial(const char* name);
-
-  // Description:
-  // Load the material given the contents of the material file.
-  void LoadMaterialFromString(const char* materialxml);
-
-  // Description:
-  // Load the material given the material representation.
-  void LoadMaterial(vtkXMLMaterial*);
 
   // Description:
   // Enable/Disable shading. When shading is enabled, the
@@ -259,11 +241,6 @@ public:
   vtkSetMacro(Shading, int);
   vtkGetMacro(Shading, int);
   vtkBooleanMacro(Shading, int);
-
-  // Description:
-  // Get the Shader program. If Material is not set/or not loaded properly,
-  // this will return null.
-  vtkGetObjectMacro(ShaderProgram, vtkShaderProgram);
 
   // Description:
   // Get the vtkShaderDeviceAdapter2 if set, returns null otherwise.
@@ -384,14 +361,6 @@ protected:
     double diffuse, const double diffuse_color[3],
     double specular, const double specular_color[3]);
 
-  // Description:
-  // Load property iVar values from the Material XML.
-  void LoadProperty();
-  void LoadTextures();
-  void LoadTexture(vtkXMLDataElement*);
-  void LoadPerlineNoise(vtkXMLDataElement*);
-  void LoadMember(vtkXMLDataElement*);
-
   double Color[3];
   double AmbientColor[3];
   double DiffuseColor[3];
@@ -418,21 +387,7 @@ protected:
   char* MaterialName;
   vtkSetStringMacro(MaterialName);
 
-  vtkShaderProgram* ShaderProgram;
-  void SetShaderProgram(vtkShaderProgram*);
-
-  vtkXMLMaterial* Material; // TODO: I wonder if this reference needs to be maintained.
-
-  // Description:
-  // Read this->Material from new style shaders.
-  // Default implementation is empty.
-  virtual void ReadFrameworkMaterial();
-
 //BTX
-  // These friends are provided only for the time being
-  // till we device a graceful way of loading texturing for GLSL.
-  friend class vtkGLSLShaderProgram;
-  friend class vtkShader;
   // FIXME:
   // Don't use these methods. They will be removed. They are provided only
   // for the time-being.
