@@ -157,7 +157,7 @@ vtkIdType vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
 }
 
 //-----------------------------------------------------------------------------
-vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2f &plotPos,
+vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2d &plotPos,
                                                  vtkIdType seriesIndex,
                                                  vtkIdType)
 {
