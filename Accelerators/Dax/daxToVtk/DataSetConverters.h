@@ -68,17 +68,17 @@ template<typename CellType>
 void setCells(vtkCellArray* cells, vtkPolyData* output)
 {
   //get the vtk cell type we are extracting
-  enum{VTK_CELL_TYPE=CellType::VTKCellType};
-  if(VTK_CELL_TYPE == VTK_VERTEX)
+  const VTKCellType cell_type = static_cast<VTKCellType>(CellType::VTKCellType);
+  if(cell_type == VTK_VERTEX)
     {
     output->SetVerts(cells);
     }
-  else if(VTK_CELL_TYPE == VTK_LINE)
+  else if(cell_type == VTK_LINE)
     {
     output->SetLines(cells);
     }
-  else if(VTK_CELL_TYPE == VTK_TRIANGLE ||
-          VTK_CELL_TYPE == VTK_QUAD )
+  else if(cell_type == VTK_TRIANGLE ||
+          cell_type == VTK_QUAD )
     {
     output->SetPolys(cells);
     }
@@ -89,8 +89,8 @@ template<typename CellType>
 void setCells(vtkCellArray* cells, vtkUnstructuredGrid* output)
 {
   //get the vtk cell type we are extracting
-  enum{VTK_CELL_TYPE=CellType::VTKCellType};
-  output->SetCells(VTK_CELL_TYPE,cells);
+  const VTKCellType cell_type = static_cast<VTKCellType>(CellType::VTKCellType);
+  output->SetCells(cell_type,cells);
 }
 
 
