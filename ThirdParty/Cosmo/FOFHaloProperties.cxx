@@ -42,22 +42,25 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-#include "Partition.h"
+#include <cassert>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <math.h>
+#include <set>
+#include <sstream>
+
 #include "FOFHaloProperties.h"
 #include "HaloCenterFinder.h"
-#ifndef USE_VTK_COSMO
-#include "Timings.h"
-#endif
+#include "Partition.h"
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <set>
-#include <math.h>
+#ifdef COSMO_USE_GENERIC_IO
+# include "GenericIO.h"
+#endif
 
 using namespace std;
 
+namespace cosmologytools {
 /////////////////////////////////////////////////////////////////////////
 //
 // FOFHaloProperties uses the results of the CosmoHaloFinder to locate the
@@ -151,7 +154,7 @@ void FOFHaloProperties::setParticles(
 }
 
 void FOFHaloProperties::setParticles(
-			long count,
+      long count,
                         POSVEL_T* xLoc,
                         POSVEL_T* yLoc,
                         POSVEL_T* zLoc,
@@ -305,6 +308,28 @@ void FOFHaloProperties::FOFPosition(
 
 /////////////////////////////////////////////////////////////////////////
 //
+// Calculate the average position of particles of a *given* FOF halo
+//
+// x_FOF = ((Sum i=1 to n_FOF) x_i) / n_FOF
+//    x_FOF is the average position vector
+//    n_FOF is the number of particles in the halo
+//    x_i is the position vector of particle i
+//
+/////////////////////////////////////////////////////////////////////////
+
+void FOFHaloProperties::FOFHaloPosition(int halo, POSVEL_T pos[3])
+{
+  double xKahan = KahanSummation(halo,this->xx);
+  double yKahan = KahanSummation(halo,this->yy);
+  double zKahan = KahanSummation(halo,this->zz);
+
+  pos[0] = static_cast<POSVEL_T>(xKahan/this->haloCount[halo]);
+  pos[1] = static_cast<POSVEL_T>(yKahan/this->haloCount[halo]);
+  pos[2] = static_cast<POSVEL_T>(zKahan/this->haloCount[halo]);
+}
+
+/////////////////////////////////////////////////////////////////////////
+//
 // Calculate the average velocity of particles of every FOF halo
 //
 // v_FOF = ((Sum i=1 to n_FOF) v_i) / n_FOF
@@ -335,6 +360,28 @@ void FOFHaloProperties::FOFVelocity(
     (*yMeanVel).push_back(yMean);
     (*zMeanVel).push_back(zMean);
   }
+}
+
+/////////////////////////////////////////////////////////////////////////
+//
+// Calculate the average velocity of particles of a *given* FOF halo
+//
+// v_FOF = ((Sum i=1 to n_FOF) v_i) / n_FOF
+//    v_FOF is the average velocity vector
+//    n_FOF is the number of particles in the halo
+//    v_i is the velocity vector of particle i
+//
+/////////////////////////////////////////////////////////////////////////
+void FOFHaloProperties::FOFHaloVelocity(
+        int halo, POSVEL_T vel[3])
+{
+  double xKahan = KahanSummation(halo, this->vx);
+  double yKahan = KahanSummation(halo, this->vy);
+  double zKahan = KahanSummation(halo, this->vz);
+
+  vel[0] = static_cast<POSVEL_T>(xKahan/this->haloCount[halo]);
+  vel[1] = static_cast<POSVEL_T>(yKahan/this->haloCount[halo]);
+  vel[2] = static_cast<POSVEL_T>(zKahan/this->haloCount[halo]);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -381,6 +428,58 @@ void FOFHaloProperties::FOFVelocityDispersion(
     // Save onto supplied vector
     velDisp->push_back(vDispersion);
   }
+}
+
+/////////////////////////////////////////////////////////////////////////
+//
+// Computes basic FOF Attributes, i.e., mass, velocity and velocite disp
+// in a single loop of all the halos.
+//
+/////////////////////////////////////////////////////////////////////////
+void FOFHaloProperties::FOFAttributes(
+    vector<POSVEL_T>* haloMass,
+    vector<POSVEL_T>* xVel,
+    vector<POSVEL_T>* yVel,
+    vector<POSVEL_T>* zVel,
+    vector<POSVEL_T>* velDisp)
+{
+
+  POSVEL_T avx,avy,avz,haloParticleDot,haloDot,disp;
+  int p;
+
+  for( int halo=0; halo < this->numberOfHalos; ++halo )
+    {
+    // Compute halo mass
+    haloMass->push_back(
+        static_cast<POSVEL_T>(KahanSummation(halo, this->mass)));
+
+    // Compute average velocity
+    avx = static_cast<POSVEL_T>(
+        KahanSummation(halo,this->vx)/this->haloCount[halo]);
+    avy = static_cast<POSVEL_T>(
+        KahanSummation(halo,this->vy)/this->haloCount[halo]);
+    avz = static_cast<POSVEL_T>(
+        KahanSummation(halo,this->vz)/this->haloCount[halo]);
+    xVel->push_back( avx );
+    yVel->push_back( avy );
+    zVel->push_back( avz );
+
+    // Compute velocity dispersion
+
+    // Compute the dot product of all the particles at the given halo
+    for( p=this->halos[halo]; p != -1; p = this->haloList[p] )
+      {
+      haloParticleDot +=
+          this->dotProduct(this->vx[p],this->vy[p],this->vz[p]);
+      } // END for all halo particles
+
+    // Compute dot product of the average velocity
+    haloDot = this->dotProduct(avx,avy,avz);
+
+    // Compute the velocity dispersion
+    disp = static_cast<POSVEL_T>(sqrt( (haloParticleDot-haloDot)/3.0 ) );
+    velDisp->push_back( disp );
+    } // END for all halos
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -493,7 +592,6 @@ POSVEL_T FOFHaloProperties::incrementalMean(int halo, POSVEL_T* data)
   return (POSVEL_T) dataMean;
 }
 
-#ifndef USE_VTK_COSMO
 /////////////////////////////////////////////////////////////////////////
 //
 // Write the halo catalog file
@@ -514,55 +612,37 @@ void FOFHaloProperties::FOFHaloCatalog(
                         vector<POSVEL_T>* yMeanVel,
                         vector<POSVEL_T>* zMeanVel)
 {
-  // Compose ascii and .cosmo binary file names
-  ostringstream aname, cname;
-  if (this->numProc == 1) {
-    aname << this->outFile << ".halocatalog.ascii";
-    cname << this->outFile << ".halocatalog.cosmo";
-  } else {
-    aname << this->outFile << ".halocatalog.ascii." << myProc;
-    cname << this->outFile << ".halocatalog.cosmo." << myProc;
-  }
-  ofstream aStream(aname.str().c_str(), ios::out);
-  ofstream cStream(cname.str().c_str(), ios::out|ios::binary);
+  ostringstream cname;
+  cname << this->outFile << ".halocatalog";
 
-  char str[1024];
-  float fBlock[COSMO_FLOAT];
-  int iBlock[COSMO_INT];
+  vector<ID_T> haloTags(this->numberOfHalos);
+  vector<POSVEL_T> centerX(this->numberOfHalos),
+                   centerY(this->numberOfHalos),
+                   centerZ(this->numberOfHalos);
 
   for (int halo = 0; halo < this->numberOfHalos; halo++) {
-
     int centerIndex = (*haloCenter)[halo];
     int haloTag = this->tag[this->halos[halo]];
 
-    // Write ascii
-    sprintf(str, "%12.4E %12.4E %12.4E %12.4E %12.4E %12.4E %12.4E %12d\n",
-      this->xx[centerIndex],
-      (*xMeanVel)[halo],
-      this->yy[centerIndex],
-      (*yMeanVel)[halo],
-      this->zz[centerIndex],
-      (*zMeanVel)[halo],
-      (*haloMass)[halo],
-      haloTag);
-      aStream << str;
-
-    fBlock[0] = this->xx[centerIndex];
-    fBlock[1] = (*xMeanVel)[halo];
-    fBlock[2] = this->yy[centerIndex];
-    fBlock[3] = (*yMeanVel)[halo];
-    fBlock[4] = this->zz[centerIndex];
-    fBlock[5] = (*zMeanVel)[halo];
-    fBlock[6] = (*haloMass)[halo];
-    cStream.write(reinterpret_cast<char*>(fBlock),
-                  COSMO_FLOAT * sizeof(POSVEL_T));
-
-    iBlock[0] = haloTag;
-    cStream.write(reinterpret_cast<char*>(iBlock),
-                  COSMO_INT * sizeof(ID_T));
+    haloTags[halo] = haloTag;
+    centerX[halo] = this->xx[centerIndex];
+    centerY[halo] = this->yy[centerIndex];
+    centerZ[halo] = this->zz[centerIndex];
   }
-  aStream.close();
-  cStream.close();
+
+#ifdef COSMO_USE_GENERIC_IO
+  gio::GenericIO GIO(Partition::getComm(), cname.str());
+  GIO.setNumElems(this->numberOfHalos);
+  GIO.addVariable("fof_halo_tag", haloTags);
+  GIO.addVariable("fof_halo_mass", *haloMass);
+  GIO.addVariable("fof_halo_center_x", centerX);
+  GIO.addVariable("fof_halo_center_y", centerY);
+  GIO.addVariable("fof_halo_center_z", centerZ);
+  GIO.addVariable("fof_halo_mean_vx", *xMeanVel);
+  GIO.addVariable("fof_halo_mean_vy", *yMeanVel);
+  GIO.addVariable("fof_halo_mean_vz", *zMeanVel);
+  GIO.write();
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -582,17 +662,35 @@ void FOFHaloProperties::printHaloSizes(int minSize)
 
 /////////////////////////////////////////////////////////////////////////
 //
+// Copy halo particle tags to the allocated array
+//
+/////////////////////////////////////////////////////////////////////////
+void FOFHaloProperties::extractHaloParticleIds(
+      int halo, ID_T *haloParticleTags)
+{
+  assert("pre: haloParticleTags==NULL" && (haloParticleTags != NULL) );
+
+  int p = this->halos[halo];
+  for(int i=0; i < this->haloCount[halo]; ++i )
+    {
+    haloParticleTags[i]=this->tag[p];
+    p = this->haloList[p]; // Hmm...?
+    } // END for all particles within a halo
+}
+
+/////////////////////////////////////////////////////////////////////////
+//
 // Copy locations and tags of halo particles to the allocated arrays
 //
 /////////////////////////////////////////////////////////////////////////
 
 void FOFHaloProperties::extractLocation(
-				int halo,
-				int* actualIndx,
-				POSVEL_T* xLocHalo,
-				POSVEL_T* yLocHalo,
-				POSVEL_T* zLocHalo,
-				ID_T* id)
+        int halo,
+        int* actualIndx,
+        POSVEL_T* xLocHalo,
+        POSVEL_T* yLocHalo,
+        POSVEL_T* zLocHalo,
+        ID_T* id)
 {
   int p = this->halos[halo];
   for (int i = 0; i < this->haloCount[halo]; i++) {
@@ -605,8 +703,6 @@ void FOFHaloProperties::extractLocation(
   }
 }
 
-#endif
-
 /////////////////////////////////////////////////////////////////////////
 //
 // Copy locations, velocities and tags of halo particles to the allocated arrays
@@ -614,16 +710,16 @@ void FOFHaloProperties::extractLocation(
 /////////////////////////////////////////////////////////////////////////
 
 void FOFHaloProperties::extractInformation(
-				int halo,
-				int* actualIndx,
-				POSVEL_T* xLocHalo,
-				POSVEL_T* yLocHalo,
-				POSVEL_T* zLocHalo,
-				POSVEL_T* xVelHalo,
-				POSVEL_T* yVelHalo,
-				POSVEL_T* zVelHalo,
-				POSVEL_T* massHalo,
-				ID_T* id)
+        int halo,
+        int* actualIndx,
+        POSVEL_T* xLocHalo,
+        POSVEL_T* yLocHalo,
+        POSVEL_T* zLocHalo,
+        POSVEL_T* xVelHalo,
+        POSVEL_T* yVelHalo,
+        POSVEL_T* zVelHalo,
+        POSVEL_T* massHalo,
+        ID_T* id)
 {
   int p = this->halos[halo];
   for (int i = 0; i < this->haloCount[halo]; i++) {
@@ -639,8 +735,6 @@ void FOFHaloProperties::extractInformation(
     p = this->haloList[p];
   }
 }
-
-#ifndef USE_VTK_COSMO
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -699,4 +793,5 @@ void FOFHaloProperties::printBoundingBox(int halo)
          << minBox[1] << ":" << maxBox[1] << "  "
          << minBox[2] << ":" << maxBox[2] << "  " << endl;
 }
-#endif
+
+}

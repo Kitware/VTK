@@ -70,11 +70,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CosmoHaloFinderP_h
 #define CosmoHaloFinderP_h
 
-#ifdef USE_VTK_COSMO
-#include "CosmoDefinition.h"
-#else
+
 #include "Definition.h"
-#endif
 
 #include "CosmoHaloFinder.h"
 #include "CosmoHalo.h"
@@ -82,16 +79,21 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <vector>
 
-using namespace std;
+namespace cosmologytools {
 
-#ifdef USE_VTK_COSMO
 class COSMO_EXPORT CosmoHaloFinderP {
-#else
-class CosmoHaloFinderP {
-#endif
 public:
   CosmoHaloFinderP();
   ~CosmoHaloFinderP();
+
+  // Initializes the halo finder, namely set's up, numProc, myProc, etc.
+  void initializeHaloFinder();
+
+  // Special methods to release memory because results are used in analysis
+  void clearHaloTag();
+  void clearHaloStart();
+  void clearHaloList();
+  void clearHaloSize();
 
   // Set parameters for serial halo finder which does the work
   void setParameters(
@@ -100,15 +102,16 @@ public:
         POSVEL_T deadSize,      // Dead size used to normalize for non periodic
         long np,                // Number of particles in the problem
         int pmin,               // Minimum number of particles in a halo
-        POSVEL_T bb);           // Normalized distance between particles
+        POSVEL_T bb,            // Normalized distance between particles
                                 // which define a single halo
+        int nmin = 1);          // The minimum number of neighbors for linking
 
   // Execute the serial halo finder for this processor
   void executeHaloFinder();
 
   // Collect the halo information from the serial halo finder
   // Save the mixed halos so as to determine which processor owns them
-  void collectHalos();
+  void collectHalos(bool clearTag = true);
   void buildHaloStructure();
   void processMixedHalos();
 
@@ -119,10 +122,8 @@ public:
   void sendMixedHaloResults(ID_T* buffer, int bufSize);
   int compareHalos(CosmoHalo* halo1, CosmoHalo* halo2);
 
-#ifndef USE_VTK_COSMO
   // Write the particles with mass field containing halo tags
-  void writeTaggedParticles();
-#endif
+  void writeTaggedParticles(int hmin, float ss, bool writePV, bool clearTag = true);
 
   // Set alive particle vectors which were created elsewhere
   void setParticles(
@@ -137,13 +138,24 @@ public:
         vector<MASK_T>* mask,
         vector<STATUS_T>* state);
 
+  void setParticles(
+        POSVEL_T *xLoc,
+        POSVEL_T *yLoc,
+        POSVEL_T *zLoc,
+        POSVEL_T *xVel,
+        POSVEL_T *yVel,
+        POSVEL_T *zVel,
+        POTENTIAL_T *potential,
+        ID_T *id,
+        MASK_T *mask,
+        STATUS_T *state,
+        long NumParticles);
+
   // Return information needed by halo center finder
   int getNumberOfHalos()        { return (int)this->halos.size(); }
   int* getHalos()               { return &this->halos[0]; }
   int* getHaloCount()           { return &this->haloCount[0]; }
   int* getHaloList()            { return this->haloList; }
-  int* getHaloTag()             { return this->haloTag; }
-  int* getHaloSize()            { return this->haloSize; }
 
 private:
   int    myProc;                // My processor number
@@ -153,8 +165,6 @@ private:
   int    layoutPos[DIMENSION];  // Position of this processor in decomposition
 
   string outFile;               // File of particles written by this processor
-  string outHaloFile;           // File of halo tag and size of halo
-                                // used for looping on round robin share of data
 
   CosmoHaloFinder haloFinder;   // Serial halo finder for this processor
 
@@ -164,7 +174,7 @@ private:
   int    pmin;                  // Minimum number of particles in a halo
   POSVEL_T bb;                  // Minimum normalized distance between
                                 // particles in a halo
-  POSVEL_T normalizeFactor;     // Convert physical location to grid location
+  int    nmin;                  // The minimum number of neighbors for linking
 
   long   particleCount;         // Running index used to store data
                                 // Ends up as the number of alive plus dead
@@ -183,8 +193,6 @@ private:
   ID_T* tag;                    // Id tag for particles on this processor
   MASK_T* mask;                 // Particle information
 
-  POSVEL_T** haloData;          // Normalized data for serial halo finder
-
   STATUS_T* status;             // Particle is ALIVE or labeled with neighbor
                                 // processor index where it is ALIVE
 
@@ -195,7 +203,6 @@ private:
                                 // where the first particle has the actual size
                                 // and other member particles have size=0
   int* haloAliveSize;
-  int* haloDeadSize;
 
   int numberOfAliveHalos;       // Number of alive or valid halos
   int numberOfDeadHalos;        // Number of dead halos
@@ -215,4 +222,5 @@ private:
                                 // can be found
 };
 
+}
 #endif

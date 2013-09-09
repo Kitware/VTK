@@ -2,5 +2,6 @@ vtk_module(vtkFiltersCosmo
   DEPENDS
     vtkCommonExecutionModel
     vtkParallelCore
-    vtkCosmo
+  PRIVATE_DEPENDS
+    vtkcosmo
   )

@@ -56,22 +56,17 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ChainingMesh_h
 #define ChainingMesh_h
 
-#ifdef USE_VTK_COSMO
-#include "CosmoDefinition.h"
-#else
 #include "Definition.h"
-#endif
 
 #include <string>
 #include <vector>
 
-using namespace std;
+using std::vector;
 
-#ifdef USE_VTK_COSMO
+namespace cosmologytools {
+
 class COSMO_EXPORT ChainingMesh {
-#else
-class ChainingMesh {
-#endif
+
 public:
   // Chaining mesh for all particles on a processor
   ChainingMesh(
@@ -139,5 +134,8 @@ private:
   int*** bucketCount;           // Size of each bucket 
   int* bucketList;              // Indices of next particle in halo
 };
+
+}
+
 
 #endif

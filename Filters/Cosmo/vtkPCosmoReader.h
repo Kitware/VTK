@@ -120,6 +120,12 @@ public:
   vtkGetMacro(ReadMode, int);
 
   // Description:
+  // Set whether to byte-swap or not the data. Applicable only to Cosmo format.
+  // By default, no byte-swapping is enabled.
+  vtkSetMacro(ByteSwap,int);
+  vtkGetMacro(ByteSwap,int);
+
+  // Description:
   // Set the filetype to Gadget or Cosmo read mode
   // (0 = Gadget, 1 = default, Cosmo)
   vtkSetMacro(CosmoFormat, int);
@@ -145,6 +151,7 @@ protected:
   float RL; // The physical box dimensions (rL)
   float Overlap; // The ghost cell boundary space
   int ReadMode; // The reading mode
+  int ByteSwap; // Indicates whether to byte-swap data on read
   int CosmoFormat; // Enable cosmo format or gadget format
 
 private:

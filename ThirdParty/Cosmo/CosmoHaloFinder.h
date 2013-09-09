@@ -106,13 +106,11 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CosmoHaloFinder_h
 #define CosmoHaloFinder_h
 
-#ifdef USE_VTK_COSMO
-#include "CosmoDefinition.h"
-#else
-#include "Definition.h"
-#endif
-
 #include <string>
+#include <vector>
+
+#include "Definition.h"
+
 
 #define numDataDims 3
 #define dataX 0
@@ -121,36 +119,27 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 
+namespace cosmologytools {
+
+
 /****************************************************************************/
 typedef POSVEL_T* floatptr;
 
-//
-// Particle information for reordering the particles according to position
-// Value is either the X, Y or Z position depending on the recursion
-// Id in the standalone serial version is the particle tag
-// Id in the parallel version is the index of that particle on a
-// particular processor which is why it can be int and not ID_T
-//
-struct ValueIdPair {
-  POSVEL_T value;
-  int id;
-};
-
-class ValueIdPairLT {
+class COSMO_EXPORT kdCompare {
+  POSVEL_T* data;
 public:
-  bool operator() (const ValueIdPair& p, const ValueIdPair& q) const
+  kdCompare(POSVEL_T* d) : data(d) {}
+
+  bool operator() (const int p, const int q) const
   {
-  return p.value < q.value;
+    return data[p] < data[q];
   }
 };
 
 /****************************************************************************/
 
-#ifdef USE_VTK_COSMO
+
 class COSMO_EXPORT CosmoHaloFinder
-#else
-class CosmoHaloFinder
-#endif
 {
 public:
   // create a finder
@@ -160,23 +149,37 @@ public:
   void Finding();
 
   // Read alive particles
-#ifndef USE_VTK_COSMO
   void Reading();
   void Writing();
-
-  // execute the finder
   void Execute();
-#endif
 
   void setInFile(string inFile)         { infile = inFile.c_str(); }
   void setOutFile(string outFile)       { outfile = outFile.c_str(); }
 
-  void setParticleLocations(POSVEL_T** d) { data = d; }
+  // Particle locations directly from simulator (input)
+  void setParticleLocations(
+        POSVEL_T* x,
+        POSVEL_T* y,
+        POSVEL_T* z) {
+                       data[dataX] = x;
+                       data[dataY] = y;
+                       data[dataZ] = z;
+                     }
+
+  // Halo results filled in (ouput)
+  void setHaloLocations(
+        int* haloTag,
+        int* haloStart,
+        int* haloList) {
+                         ht = haloTag;
+                         halo = haloStart;
+                         nextp = haloList;
+                       }
+
   void setNumberOfParticles(int n)      { npart = n; }
   void setMyProc(int r)                 { myProc = r; }
 
-  int* getHaloTag()                     { return ht; }
-
+  // For standalone serial halo finder
   POSVEL_T* getXLoc()                   { return xx; }
   POSVEL_T* getYLoc()                   { return yy; }
   POSVEL_T* getZLoc()                   { return zz; }
@@ -190,6 +193,7 @@ public:
   int np;
   POSVEL_T rL;
   POSVEL_T bb;
+  int nmin;
   int pmin;
   bool periodic;
   const char *infile;
@@ -207,7 +211,7 @@ private:
   int myProc;
 
   // data[][] stores xx[], yy[], zz[].
-  POSVEL_T **data;
+  POSVEL_T *data[numDataDims];
 
   // scale factor
   POSVEL_T xscal, vscal;
@@ -216,21 +220,21 @@ private:
 
   // Creates a sequence array containing ids of particle rearranged into
   // a k-d tree.  Recursive method.
-  ValueIdPair *v;
-  int *seq;
-  void Reorder
-    (int first, 
-     int last, 
-     int flag);
+  vector<int> seq;
+  void Reorder(
+         vector<int>::iterator first,
+         vector<int>::iterator last,
+         int axis);
 
   // Calculates a lower and upper bound for each particle so that the 
   // mergeing step can prune parts of the k-d tree
-  POSVEL_T **lb, **ub;
-  void ComputeLU(int, int);
+  POSVEL_T *lbound, *ubound;
+  void ComputeLU(int, int, int, POSVEL_T*, POSVEL_T*);
 
   // Recurses through the k-d tree merging particles to create halos
   void myFOF(int, int, int);
   void Merge(int, int, int, int, int);
 };
 
+}
 #endif

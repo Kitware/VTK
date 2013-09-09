@@ -42,9 +42,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-#include "Partition.h"
-#include "HaloCenterFinder.h"
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -52,8 +49,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <set>
 #include <math.h>
 
+#include "Partition.h"
+#include "HaloCenterFinder.h"
+
 using namespace std;
 
+namespace cosmologytools {
 /////////////////////////////////////////////////////////////////////////
 //
 // HaloCenterFinder takes all particles in a halo and calculations the
@@ -186,7 +187,7 @@ int HaloCenterFinder::mostConnectedParticleChainMesh()
 
   // Build the chaining mesh
   int chainFactor = MCP_CHAIN_FACTOR;
-  POSVEL_T chainSize = this->bb / chainFactor;
+  POSVEL_T chainSize = (this->bb * this->distFactor) / chainFactor;
   ChainingMesh* haloChain = buildChainingMesh(chainSize);
 
   // Save the number of friends for each particle in the halo
@@ -1322,4 +1323,6 @@ ChainingMesh* HaloCenterFinder::buildChainingMesh(POSVEL_T chainSize)
   delete [] maxLoc;
 
   return haloChain;
+}
+
 }

@@ -42,19 +42,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-#ifdef USE_VTK_COSMO
-#include "CosmoDefinition.h"
-#include "vtkStdString.h"
-#include "vtkSetGet.h"
-#endif
-
-#include "Partition.h"
-#include "ParticleDistribute.h"
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+
+#include <stddef.h>
 
 #include <sys/types.h>
 
@@ -64,8 +57,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <dirent.h>
 #endif
 
+#include "Partition.h"
+#include "ParticleDistribute.h"
+
+#include <cassert>
+#include <cstring>
 using namespace std;
 
+namespace cosmologytools {
 /////////////////////////////////////////////////////////////////////////
 //
 // Particle data space is partitioned for the number of processors
@@ -130,12 +129,12 @@ void ParticleDistribute::setParameters(
   else if (dataType == "BLOCK")
     this->inputType = BLOCK;
 
-#ifndef USE_VTK_COSMO
+
   if (this->myProc == MASTER) {
     cout << endl << "------------------------------------" << endl;
     cout << "boxSize:  " << this->boxSize << endl;
   }
-#endif
+
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -161,13 +160,13 @@ void ParticleDistribute::setConvertParameters(
 
 void ParticleDistribute::initialize()
 {
-#ifndef USE_VTK_COSMO
+
 #ifdef DEBUG
   if (this->myProc == MASTER)
     cout << "Decomposition: [" << this->layoutSize[0] << ":"
          << this->layoutSize[1] << ":" << this->layoutSize[2] << "]" << endl;
 #endif
-#endif
+
 
   // Set subextents on particle locations for this processor
   POSVEL_T boxStep[DIMENSION];
@@ -202,7 +201,301 @@ void ParticleDistribute::setParticles(vector<POSVEL_T>* xLoc,
   this->tag = id;
 }
 
+#ifndef USE_SERIAL_COSMO
+/////////////////////////////////////////////////////////////////////////
+//
+// Each processor reads 0 or more files, a buffer at a time, and shares
+// the particles using an all-to-all with every other processor
+//
+/////////////////////////////////////////////////////////////////////////
 
+void ParticleDistribute::readParticlesAllToAll(int reserveQ, bool useAlltoallv)
+{
+  // Find how many input files there are and deal them between the processors
+  // Calculates the max number of files per processor and max number of
+  // particles per file so that buffering can be done
+  // For round robin sharing determine where to send and receive buffers from
+  partitionInputFiles(true);
+
+  // Compute the total number of particles in the problem
+  // Compute the maximum number of particles in any one file to set buffer size
+  findFileParticleCount();
+
+  // MPI buffer size might limit the number of particles read from a file
+  // and passed round robin
+  // Largest file will have a number of buffer chunks to send if it is too large
+  // Every processor must send that number of chunks even if its own file
+  // does not have that much information
+
+  if (ENFORCE_MAX_READ == true && this->maxParticles > MAX_READ) {
+    this->maxRead = MAX_READ;
+    this->maxReadsPerFile = (this->maxParticles / this->maxRead) + 1;
+  } else {
+    this->maxRead = this->maxParticles;
+    this->maxReadsPerFile = 1;
+  }
+
+  MPI_Datatype CosmoParticleType;
+
+  {
+    MPI_Datatype type[3] = { MPI_FLOAT, MPI_INT, MPI_UB };
+    int blocklen[3] = { COSMO_FLOAT, COSMO_INT, 1 };
+    MPI_Aint disp[3] = { offsetof(CosmoParticle, floatData),
+                         offsetof(CosmoParticle, intData),
+                         sizeof(CosmoParticle) };
+    MPI_Type_struct(3, blocklen, disp, type, &CosmoParticleType);
+    MPI_Type_commit(&CosmoParticleType);
+  }
+
+  int numProc = Partition::getNumProc();
+  std::vector<int> pCounts(numProc), pRecvCounts(numProc),
+                   pDisp(numProc),   pRecvDisp(numProc);
+  std::vector< std::vector<CosmoParticle> > pByProc(numProc);
+  std::vector<CosmoParticle> pBuffer, pRecvBuffer;
+
+  // Allocate space to hold buffer information for reading of files
+  // Mass is constant use that float to store the tag
+  // Number of particles is the first integer in the buffer
+
+  // Allocate space for the data read from the file
+  POSVEL_T *fBlock = 0;
+  POSVEL_T *lBlock = 0;
+  POSVEL_T *vBlock = 0;
+  ID_T* iBlock = 0;
+
+  // RECORD format reads one particle at a time
+  if (this->inputType == RECORD) {
+    fBlock = new POSVEL_T[COSMO_FLOAT];
+    iBlock = new ID_T[COSMO_INT];
+  }
+
+  // BLOCK format reads all particles at one time for triples
+  else if (this->inputType == BLOCK) {
+    lBlock = new POSVEL_T[this->maxRead * DIMENSION];
+    vBlock = new POSVEL_T[this->maxRead * DIMENSION];
+    iBlock = new ID_T[this->maxRead];
+  }
+
+  // Reserve particle storage to minimize reallocation
+  int reserveSize = (int) (this->maxFiles * this->maxParticles * DEAD_FACTOR);
+
+  // If multiple processors are reading the same file we can reduce size
+  reserveSize /= this->processorsPerFile;
+
+  if(reserveQ) {
+    cout << "readParticlesRoundRobin reserving vectors" << endl;
+    this->xx->reserve(reserveSize);
+    this->yy->reserve(reserveSize);
+    this->zz->reserve(reserveSize);
+    this->vx->reserve(reserveSize);
+    this->vy->reserve(reserveSize);
+    this->vz->reserve(reserveSize);
+    this->ms->reserve(reserveSize);
+    this->tag->reserve(reserveSize);
+  }
+
+  // Running total and index into particle data on this processor
+  this->particleCount = 0;
+
+  // Using the input files assigned to this processor, read the input
+  // and push all-to-all to every other processor
+  // this->maxFiles is the maximum number to read on any processor
+  // Some processors may have no files to read but must still participate
+  // in the round robin distribution
+
+  for (int file = 0; file < this->maxFiles; file++) {
+
+    // Open file to read the data if any for this processor
+    ifstream* inStream = 0;
+    int firstParticle = 0;
+    int numberOfParticles = 0;
+    int remainingParticles = 0;
+
+    if ((int)this->inFiles.size() > file) {
+      inStream = new ifstream(this->inFiles[file].c_str(), ios::in|ios::binary);
+
+
+      cout << "Rank " << this->myProc << " open file " << inFiles[file]
+           << " with " << this->fileParticles[file] << " particles" << endl;
+
+
+      // Number of particles read at one time depends on MPI buffer size
+      numberOfParticles = this->fileParticles[file];
+      if (numberOfParticles > this->maxRead)
+        numberOfParticles = this->maxRead;
+
+      // If a file is too large to be passed as an MPI message divide it up
+      remainingParticles = this->fileParticles[file];
+
+    } else {
+
+      cout << "Rank " << this->myProc << " no file to open " << endl;
+
+    }
+
+    for (int piece = 0; piece < this->maxReadsPerFile; piece++) {
+      // Reset the comm buffers
+      for (int i = 0; i < numProc; ++i) {
+        pByProc[i].clear();
+      }
+
+      pBuffer.clear();
+      pRecvBuffer.clear();
+
+      // Processor has a file to read and share via round robin with others
+      if (file < (int)this->inFiles.size()) {
+        if (this->inputType == RECORD) {
+          readFromRecordFile(inStream, firstParticle, numberOfParticles,
+                             fBlock, iBlock, pByProc);
+        } else {
+          readFromBlockFile(inStream, firstParticle, numberOfParticles,
+                           this->fileParticles[file],
+                           lBlock, vBlock, iBlock, pByProc);
+        }
+        firstParticle += numberOfParticles;
+        remainingParticles -= numberOfParticles;
+        if (remainingParticles <= 0)
+          numberOfParticles = 0;
+        else if (remainingParticles < numberOfParticles)
+          numberOfParticles = remainingParticles;
+      }
+
+      // Record all sizes into a single buffer and send this to all ranks
+      long totalToSend = 0;
+      for (int i = 0; i < numProc; ++i) {
+        int sz = (int) pByProc[i].size();
+        pCounts[i] = sz;
+        totalToSend += sz;
+      }
+
+      MPI_Alltoall(&pCounts[0], 1, MPI_INT,
+                   &pRecvCounts[0], 1, MPI_INT,
+                   Partition::getComm());
+
+      // pRecvCounts now holds the number of particles that this rank should
+      // get from every other rank
+      long totalToRecv = 0;
+      for (int i = 0; i < numProc; ++i) {
+        totalToRecv += pRecvCounts[i];
+      }
+
+      // Allocate and pack the buffer with all particles to send
+      pBuffer.reserve(totalToSend);
+      for (int i = 0; i < numProc; ++i)
+      for (int j = 0; j < (int) pByProc[i].size(); ++j) {
+        pBuffer.push_back(pByProc[i][j]);
+      }
+
+      // Calculate displacements
+      pDisp[0] = pRecvDisp[0] = 0;
+      for (int i = 1; i < numProc; ++i) {
+        pDisp[i] = pDisp[i-1] + pCounts[i-1];
+        pRecvDisp[i] = pRecvDisp[i-1] + pRecvCounts[i-1];
+      }
+
+      // Send all particles to their new homes
+      pRecvBuffer.resize(totalToRecv);
+      if (useAlltoallv) {
+        MPI_Alltoallv(&pBuffer[0], &pCounts[0], &pDisp[0], CosmoParticleType,
+                      &pRecvBuffer[0], &pRecvCounts[0], &pRecvDisp[0], CosmoParticleType,
+                      Partition::getComm());
+      } else {
+        vector<MPI_Request> requests;
+
+        for (int i = 0; i < numProc; ++i) {
+          if (pRecvCounts[i] == 0)
+            continue;
+
+          requests.resize(requests.size()+1);
+          MPI_Irecv(&pRecvBuffer[pRecvDisp[i]], pRecvCounts[i], CosmoParticleType, i, 0,
+                    Partition::getComm(), &requests[requests.size()-1]);
+        }
+
+        MPI_Barrier(Partition::getComm());
+
+        for (int i = 0; i < numProc; ++i) {
+          if (pCounts[i] == 0)
+            continue;
+
+          requests.resize(requests.size()+1);
+          MPI_Isend(&pBuffer[pDisp[i]], pCounts[i], CosmoParticleType, i, 0,
+                    Partition::getComm(), &requests[requests.size()-1]);
+        }
+
+        vector<MPI_Status> status(requests.size());
+        MPI_Waitall((int) requests.size(), &requests[0], &status[0]);
+      }
+
+      // We now have all of our particles, put them in our local arrays
+      for (long i = 0; i < totalToRecv; ++i) {
+        POSVEL_T loc[DIMENSION], vel[DIMENSION], mass;
+        ID_T id;
+
+        int j = 0;
+        for (int dim = 0; dim < DIMENSION; dim++) {
+          loc[dim] = pRecvBuffer[i].floatData[j++];
+        }
+        for (int dim = 0; dim < DIMENSION; dim++) {
+          vel[dim] = pRecvBuffer[i].floatData[j++];
+        }
+        id = pRecvBuffer[i].intData[0];
+
+        // Is the particle ALIVE on this processor
+        if ((loc[0] >= minAlive[0] && loc[0] < maxAlive[0]) &&
+            (loc[1] >= minAlive[1] && loc[1] < maxAlive[1]) &&
+            (loc[2] >= minAlive[2] && loc[2] < maxAlive[2])) {
+
+          this->xx->push_back(loc[0]);
+          this->yy->push_back(loc[1]);
+          this->zz->push_back(loc[2]);
+          this->vx->push_back(vel[0]);
+          this->vy->push_back(vel[1]);
+          this->vz->push_back(vel[2]);
+          this->ms->push_back(mass);
+          this->tag->push_back(id);
+
+          this->numberOfAliveParticles++;
+          this->particleCount++;
+        }
+      }
+    }
+
+    // Can delete the read buffers as soon as last file is read because
+    // information has been transferred into the double buffer1
+    if (file == (this->maxFiles - 1)) {
+      if (this->inputType == RECORD) {
+        delete [] fBlock;
+        delete [] iBlock;
+      } else if (this->inputType == BLOCK) {
+        delete [] lBlock;
+        delete [] vBlock;
+        delete [] iBlock;
+      }
+    }
+
+    if ((int)this->inFiles.size() > file)
+      inStream->close();
+  }
+
+  // Count the particles across processors
+  long totalAliveParticles = 0;
+  MPI_Allreduce((void*) &this->numberOfAliveParticles,
+                (void*) &totalAliveParticles,
+                1, MPI_LONG, MPI_SUM, Partition::getComm());
+
+
+#ifdef DEBUG
+  cout << "Rank " << setw(3) << this->myProc
+       << " #alive = " << this->numberOfAliveParticles << endl;
+#endif
+
+  if (this->myProc == MASTER) {
+    cout << "TotalAliveParticles " << totalAliveParticles << endl;
+  }
+
+  MPI_Type_free(&CosmoParticleType);
+}
+#endif // USE_SERIAL_COSMO
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -281,9 +574,7 @@ void ParticleDistribute::readParticlesRoundRobin(int reserveQ)
   reserveSize /= this->processorsPerFile;
 
   if(reserveQ) {
-#ifndef USE_VTK_COSMO
     cout << "readParticlesRoundRobin reserving vectors" << endl;
-#endif
     this->xx->reserve(reserveSize);
     this->yy->reserve(reserveSize);
     this->zz->reserve(reserveSize);
@@ -314,10 +605,8 @@ void ParticleDistribute::readParticlesRoundRobin(int reserveQ)
     if ((int)this->inFiles.size() > file) {
       inStream = new ifstream(this->inFiles[file].c_str(), ios::in|ios::binary);
 
-#ifndef USE_VTK_COSMO
       cout << "Rank " << this->myProc << " open file " << inFiles[file]
            << " with " << this->fileParticles[file] << " particles" << endl;
-#endif
 
       // Number of particles read at one time depends on MPI buffer size
       numberOfParticles = this->fileParticles[file];
@@ -328,9 +617,7 @@ void ParticleDistribute::readParticlesRoundRobin(int reserveQ)
       remainingParticles = this->fileParticles[file];
 
     } else {
-#ifndef USE_VTK_COSMO
       cout << "Rank " << this->myProc << " no file to open " << endl;
-#endif
     }
 
     for (int piece = 0; piece < this->maxReadsPerFile; piece++) {
@@ -401,7 +688,7 @@ void ParticleDistribute::readParticlesRoundRobin(int reserveQ)
                 1, MPI_LONG, MPI_SUM, Partition::getComm());
 #endif
 
-#ifndef USE_VTK_COSMO
+
 #ifdef DEBUG
   cout << "Rank " << setw(3) << this->myProc
        << " #alive = " << this->numberOfAliveParticles << endl;
@@ -410,7 +697,7 @@ void ParticleDistribute::readParticlesRoundRobin(int reserveQ)
   if (this->myProc == MASTER) {
     cout << "TotalAliveParticles " << totalAliveParticles << endl;
   }
-#endif
+
   }
 }
 
@@ -422,7 +709,7 @@ void ParticleDistribute::readParticlesRoundRobin(int reserveQ)
 //
 /////////////////////////////////////////////////////////////////////////
 
-void ParticleDistribute::partitionInputFiles()
+void ParticleDistribute::partitionInputFiles(bool force1PPF)
 {
   // Find number of input files for this problem given the base input name
   // Get the subdirectory name containing the input files
@@ -509,32 +796,25 @@ void ParticleDistribute::partitionInputFiles()
   this->numberOfFiles = (int)files.size();
 
   if (this->numberOfFiles == 0) {
-#ifdef USE_VTK_COSMO
-    vtkStdString temp = "Processor ";
-    temp += this->myProc;
-    temp += " found no input files.\n";
-    vtkOutputWindowDisplayErrorText(temp.c_str());
 
-    return;
-#else
     cout << "Rank " << this->myProc << " found no input files" << endl;
     exit(1);
-#endif
+
   }
 
-#ifndef USE_VTK_COSMO
+
 #ifdef DEBUG
   if (this->myProc == MASTER) {
     for (int i = 0; i < this->numberOfFiles; i++)
       cout << "   File " << i << ": " << files[i] << endl;
   }
 #endif
-#endif
+
 
   // Divide the files between all the processors
   // If there are 1 or more files per processor set the
   // buffering up with a full round robin between all processors
-  if (this->numberOfFiles >= this->numProc) {
+  if (this->numberOfFiles >= this->numProc || force1PPF) {
 
     // Number of round robin sends to share all the files
     this->processorsPerFile = 1;
@@ -623,19 +903,8 @@ void ParticleDistribute::findFileParticleCount()
     ifstream *inStream = new ifstream(this->inFiles[i].c_str(), ios::in);
     if (inStream->fail()) {
       delete inStream;
-#ifdef USE_VTK_COSMO
-      vtkStdString message = "File ";
-      message += this->inFiles[i];
-      message += " cannot be opened.\n";
-      vtkOutputWindowDisplayErrorText(message.c_str());
-
-      this->totalParticles = 0;
-      this->maxParticles = 0;
-      return;
-#else
       cout << "File: " << this->inFiles[i] << " cannot be opened" << endl;
       exit (-1);
-#endif
     }
 
     if (this->inputType == RECORD) {
@@ -702,14 +971,14 @@ void ParticleDistribute::findFileParticleCount()
                 1, MPI_INT, MPI_MAX, Partition::getComm());
 #endif
 
-#ifndef USE_VTK_COSMO
+
 #ifdef DEBUG
   if (this->myProc == MASTER) {
     cout << "Total particle count: " << this->totalParticles << endl;
     cout << "Max particle count:   " << this->maxParticles << endl;
   }
 #endif
-#endif
+
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -800,13 +1069,8 @@ void ParticleDistribute::readFromRecordFile(
                    COSMO_FLOAT * sizeof(POSVEL_T));
 
     if (inStream->gcount() != COSMO_FLOAT * sizeof(POSVEL_T)) {
-#ifdef USE_VTK_COSMO
-      vtkOutputWindowDisplayErrorText("Premature end-of-file.\n");
-      return;
-#else
       cout << "Premature end-of-file" << endl;
       exit (-1);
-#endif
     }
 
     // Convert units if requested
@@ -819,23 +1083,18 @@ void ParticleDistribute::readFromRecordFile(
                    COSMO_INT * sizeof(ID_T));
 
     if (inStream->gcount() != COSMO_INT * sizeof(ID_T)) {
-#ifdef USE_VTK_COSMO
-      vtkOutputWindowDisplayErrorText("Premature end-of-file.\n");
-      return;
-#else
       cout << "Premature end-of-file" << endl;
       exit (-1);
-#endif
     }
 
     // If the location is not within the bounding box wrap around
     for (int i = 0; i <= 4; i = i + 2) {
       if (fBlock[i] >= this->boxSize) {
-#ifndef USE_VTK_COSMO
+
 #ifdef DEBUG
         cout << "Location at " << i << " changed from " << fBlock[i] << endl;
 #endif
-#endif
+
         fBlock[i] -= this->boxSize;
         changeCount++;
       }
@@ -961,14 +1220,30 @@ void ParticleDistribute::readFromBlockFile(
 
   // Store the locations in the message buffer in record order
   // so that the same distribution method for RECORD will work
+  int particlesRemaining = numberOfParticles;
+  int curParticle = firstParticle;
+  int type = 0;
   int indx = 0;
   int tagindx = 0;
-  for (int type = 0; type < NUM_GADGET_TYPES; type++) {
+
+  // When more than one gadget particle type is in the file we must
+  // know what mass to assign to the current piece read
+  while (particlesRemaining > 0) {
+
+    // Set particle type and mass based on current particle
+    while (type < NUM_GADGET_TYPES && curParticle >= this->gadgetStart[type])
+      type++;
+    type--;
 
     POSVEL_T particleMass =
       (POSVEL_T) this->gadgetHeader.mass[type] * this->massConvertFactor;
 
-    for (int p = 0; p < this->gadgetHeader.npart[type]; p++) {
+    // Place particles of this type and mass in the buffer
+    int numLeftInType = this->gadgetHeader.npart[type] -
+                        (curParticle - this->gadgetStart[type]);
+    int count = min(particlesRemaining, numLeftInType);
+
+    for (int p = 0; p < count; p++) {
 
       // Locations
       message->putValue(&lBlock[indx]);           // X location
@@ -984,12 +1259,270 @@ void ParticleDistribute::readFromBlockFile(
       message->putValue(&particleMass);
 
       // Id tag
-      message->putValue(&iBlock[p]);
+      message->putValue(&iBlock[tagindx]);
       indx += DIMENSION;
       tagindx++;
     }
+
+    // Do we have more particles of a different type
+    particlesRemaining -= count;
+    curParticle += count;
   }
 }
+
+#ifndef USE_SERIAL_COSMO
+/////////////////////////////////////////////////////////////////////////////
+//
+// Input file is RECORD structured so read each particle record and populate
+// the double buffer in particle order for the rest of the processing
+//
+/////////////////////////////////////////////////////////////////////////////
+
+void ParticleDistribute::readFromRecordFile(
+                        ifstream* inStream,     // Stream to read from
+                        int firstParticle,      // First particle index
+                        int numberOfParticles,  // Number to read this time
+                        POSVEL_T* fBlock,       // Buffer for read in data
+                        ID_T* iBlock,           // Buffer for read in data
+                        std::vector< std::vector<CosmoParticle> > &pByProc)
+{
+  if (numberOfParticles == 0)
+    return;
+
+  // Seek to the first particle locations and read
+  int skip = RECORD_SIZE * firstParticle;
+  inStream->seekg(skip, ios::beg);
+
+  // Store each particle location, velocity, mass and tag (as float) in buffer
+  int changeCount = 0;
+  for (int p = 0; p < numberOfParticles; p++) {
+
+    // Set file pointer to the requested particle
+    inStream->read(reinterpret_cast<char*>(fBlock),
+                   COSMO_FLOAT * sizeof(POSVEL_T));
+
+    if (inStream->gcount() != COSMO_FLOAT * sizeof(POSVEL_T)) {
+      cout << "Premature end-of-file" << endl;
+      exit (-1);
+    }
+
+    // Convert units if requested
+    fBlock[0] *= this->distConvertFactor;
+    fBlock[2] *= this->distConvertFactor;
+    fBlock[4] *= this->distConvertFactor;
+    fBlock[6] *= this->massConvertFactor;
+
+    inStream->read(reinterpret_cast<char*>(iBlock),
+                   COSMO_INT * sizeof(ID_T));
+
+    if (inStream->gcount() != COSMO_INT * sizeof(ID_T)) {
+      cout << "Premature end-of-file" << endl;
+      exit (-1);
+    }
+
+    // If the location is not within the bounding box wrap around
+    for (int i = 0; i <= 4; i = i + 2) {
+      if (fBlock[i] >= this->boxSize) {
+#ifdef DEBUG
+        cout << "Location at " << i << " changed from " << fBlock[i] << endl;
+#endif
+        fBlock[i] -= this->boxSize;
+        changeCount++;
+      }
+    }
+
+    // Figure out to which rank this particle belongs
+    float sizeX = this->boxSize / this->layoutSize[0];
+    float sizeY = this->boxSize / this->layoutSize[1];
+    float sizeZ = this->boxSize / this->layoutSize[2];
+    int coords[3] = { (int) (fBlock[0]/sizeX),
+                      (int) (fBlock[2]/sizeY),
+                      (int) (fBlock[4]/sizeZ)
+                    };
+    int home;
+    MPI_Cart_rank(Partition::getComm(), coords, &home);
+
+    // Store location and velocity and mass
+    // Reorder so that location vector is followed by velocity vector
+    CosmoParticle particle = { { fBlock[0],
+                                 fBlock[2],
+                                 fBlock[4],
+                                 fBlock[1],
+                                 fBlock[3],
+                                 fBlock[5],
+                                 fBlock[6]
+                               }, {
+                                 iBlock[0]
+                               }
+                             };
+    pByProc[home].push_back(particle);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Input file is BLOCK structured so read head and each block of data.
+// Gadget format:
+//    SKIP_GADGET_2 has extra 16 bytes
+//    SKIP_H 4 bytes (size of header)
+//    Header (6 types of particles with counts and masses)
+//    SKIP_H 4 bytes (size of header)
+//
+//    SKIP_GADGET_2 has extra 16 bytes
+//    SKIP_L 4 bytes (size of location block in bytes)
+//    Block of location data where each particle's x,y,z is stored together
+//    SKIP_L 4 bytes (size of location block in bytes)
+//
+//    SKIP_GADGET_2 has extra 16 bytes
+//    SKIP_V 4 bytes (size of velocity block in bytes)
+//    Block of velocity data where each particle's xv,yv,zv is stored together
+//    SKIP_V 4 bytes (size of velocity block in bytes)
+//
+//    SKIP_GADGET_2 has extra 16 bytes
+//    SKIP_T 4 bytes (size of tag block in bytes)
+//    Block of tag data
+//    SKIP_T 4 bytes (size of tag block in bytes)
+//
+// Reorder the data after it is read into the same structure as the
+// RECORD data so that the rest of the code does not have to be changed
+//
+/////////////////////////////////////////////////////////////////////////////
+
+void ParticleDistribute::readFromBlockFile(
+                        ifstream* inStream,     // Stream to read from
+                        int firstParticle,      // First particle index
+                        int numberOfParticles,  // Number to read this time
+                        int totParticles,       // Total particles in file
+                        POSVEL_T* lBlock,       // Buffer for read of location
+                        POSVEL_T* vBlock,       // Buffer for read of velocity
+                        ID_T* iBlock,           // Buffer for read in data
+                        std::vector< std::vector<CosmoParticle> > &pByProc)
+{
+  if (numberOfParticles == 0)
+    return;
+
+  // Calculate skips to first location, velocity and tag
+  int skipToLocation = 0;
+  if (this->gadgetFormat == GADGET_2)
+    skipToLocation += GADGET_2_SKIP;
+  skipToLocation += GADGET_SKIP;		// Size of header
+  skipToLocation += GADGET_HEADER_SIZE;		// Header
+  skipToLocation += GADGET_SKIP;		// Size of header
+  if (this->gadgetFormat == GADGET_2)
+    skipToLocation += GADGET_2_SKIP;
+  skipToLocation += GADGET_SKIP;		// Size of location block
+
+  int skipToVelocity = skipToLocation;
+  skipToVelocity += DIMENSION * sizeof(POSVEL_T) * totParticles;
+  skipToVelocity += GADGET_SKIP;		// Size of location block
+  if (this->gadgetFormat == GADGET_2)
+    skipToLocation += GADGET_2_SKIP;
+  skipToVelocity += GADGET_SKIP;		// Size of velocity block
+
+  int skipToTag = skipToVelocity;
+  skipToTag += DIMENSION * sizeof(POSVEL_T) * totParticles;
+  skipToTag += GADGET_SKIP;			// Size of velocity block
+  if (this->gadgetFormat == GADGET_2)
+    skipToLocation += GADGET_2_SKIP;
+  skipToTag += GADGET_SKIP;			// Size of tag block
+
+  // Seek to the first requested particle location and read triples
+  inStream->seekg(skipToLocation, ios::beg);
+  int skip = (DIMENSION * sizeof(POSVEL_T) * firstParticle);
+  inStream->seekg(skip, ios::cur);
+
+  readData(this->gadgetSwap, (void*) lBlock, sizeof(POSVEL_T),
+                 DIMENSION * numberOfParticles, inStream);
+
+  // Convert units of distance
+  for (int i = 0; i < DIMENSION*numberOfParticles; i++)
+    lBlock[i] *= this->distConvertFactor;
+
+  // If the location is not within the bounding box wrap around
+  for (int i = 0; i < DIMENSION*numberOfParticles; i++) {
+    if (lBlock[i] >= this->boxSize)
+      lBlock[i] -= this->boxSize;
+  }
+
+  // Seek to first requested particle velocity and read triples
+  inStream->seekg(skipToVelocity, ios::beg);
+  skip = (DIMENSION * sizeof(POSVEL_T) * firstParticle); // skip to velocity
+  inStream->seekg(skip, ios::cur);
+
+  readData(this->gadgetSwap, (void*) vBlock, sizeof(POSVEL_T),
+                 DIMENSION * numberOfParticles, inStream);
+
+  // Seek to first requested particle tag and read
+  inStream->seekg(skipToTag, ios::beg);
+  skip = sizeof(ID_T) * firstParticle;             // skip to tag
+  inStream->seekg(skip, ios::cur);
+
+  readData(this->gadgetSwap, (void*) iBlock, sizeof(ID_T),
+                 numberOfParticles, inStream);
+
+  // Store the locations in the message buffer in record order
+  // so that the same distribution method for RECORD will work
+  int particlesRemaining = numberOfParticles;
+  int curParticle = firstParticle;
+  int type = 0;
+  int indx = 0;
+  int tagindx = 0;
+
+  // When more than one gadget particle type is in the file we must
+  // know what mass to assign to the current piece read
+  while (particlesRemaining > 0) {
+
+    // Set particle type and mass based on current particle
+    while (type < NUM_GADGET_TYPES && curParticle >= this->gadgetStart[type])
+      type++;
+    type--;
+
+    POSVEL_T particleMass =
+      (POSVEL_T) this->gadgetHeader.mass[type] * this->massConvertFactor;
+
+    // Place particles of this type and mass in the buffer
+    int numLeftInType = this->gadgetHeader.npart[type] -
+                        (curParticle - this->gadgetStart[type]);
+    int count = min(particlesRemaining, numLeftInType);
+
+    float sizeX = this->boxSize / this->layoutSize[0];
+    float sizeY = this->boxSize / this->layoutSize[1];
+    float sizeZ = this->boxSize / this->layoutSize[2];
+
+    for (int p = 0; p < count; p++) {
+      // Figure out to which rank this particle belongs
+      int coords[3] = { (int) (lBlock[indx]/sizeX),
+                        (int) (lBlock[indx+1]/sizeY),
+                        (int) (lBlock[indx+2]/sizeZ)
+                      };
+      int home;
+      MPI_Cart_rank(Partition::getComm(), coords, &home);
+
+      // Store location and velocity and mass
+      // Reorder so that location vector is followed by velocity vector
+      CosmoParticle particle = { { lBlock[indx],   // X location
+                                   lBlock[indx+1], // Y location
+                                   lBlock[indx+2], // Z location
+                                   vBlock[indx],   // X velocity
+                                   vBlock[indx+1], // Y velocity
+                                   vBlock[indx+2], // Z velocity
+                                   particleMass
+                                 }, {
+                                   iBlock[tagindx]
+                                 }
+                               };
+      pByProc[home].push_back(particle);
+
+      indx += DIMENSION;
+      tagindx++;
+    }
+
+    // Do we have more particles of a different type
+    particlesRemaining -= count;
+    curParticle += count;
+  }
+}
+#endif // USE_SERIAL_COSMO
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1086,9 +1619,7 @@ void ParticleDistribute::readParticlesOneToOne(int reserveQ)
   int reserveSize = (int) (this->maxParticles * DEAD_FACTOR);
 
   if(reserveQ) {
-#ifndef USE_VTK_COSMO
     cout << "readParticlesOneToOne reserving vectors" << endl;
-#endif
     this->xx->reserve(reserveSize);
     this->yy->reserve(reserveSize);
     this->zz->reserve(reserveSize);
@@ -1123,10 +1654,8 @@ void ParticleDistribute::readFromRecordFile()
   ifstream inStream(this->inFiles[0].c_str(), ios::in);
   int numberOfParticles = this->fileParticles[0];
 
-#ifndef USE_VTK_COSMO
   cout << "Rank " << this->myProc << " open file " << this->inFiles[0]
        << " with " << numberOfParticles << " particles" << endl;
-#endif
 
   POSVEL_T* fBlock = new POSVEL_T[COSMO_FLOAT];
   ID_T* iBlock = new ID_T[COSMO_INT];
@@ -1137,19 +1666,19 @@ void ParticleDistribute::readFromRecordFile()
     // Set file pointer to the requested particle
     inStream.read(reinterpret_cast<char*>(fBlock),
                    COSMO_FLOAT * sizeof(POSVEL_T));
+    if(this->ByteSwap)
+      {
+      for(int idx=0; idx < COSMO_FLOAT; ++idx)
+        {
+        this->SwapEndian(
+            static_cast<void*>(&fBlock[idx]),
+            sizeof(POSVEL_T) );
+        } // END for each item
+      } // END if ByteSwap
 
     if (inStream.gcount() != COSMO_FLOAT * sizeof(POSVEL_T)) {
-#ifdef USE_VTK_COSMO
-      vtkOutputWindowDisplayErrorText("Premature end-of-file.\n");
-      inStream.close();
-      delete [] fBlock;
-      delete [] iBlock;
-
-      return;
-#else
       cout << "Premature end-of-file" << endl;
       exit (-1);
-#endif
     }
 
     // Convert units if requested
@@ -1160,19 +1689,19 @@ void ParticleDistribute::readFromRecordFile()
 
     inStream.read(reinterpret_cast<char*>(iBlock),
                    COSMO_INT * sizeof(ID_T));
+    if(this->ByteSwap)
+      {
+      for(int idx=0; idx < COSMO_INT; ++idx)
+        {
+        this->SwapEndian(
+            static_cast<void*>(&iBlock[idx]),
+            sizeof(ID_T)  );
+        } // END for each item
+      } // ENd if ByteSwap
 
     if (inStream.gcount() != COSMO_INT * sizeof(ID_T)) {
-#ifdef USE_VTK_COSMO
-      vtkOutputWindowDisplayErrorText("Premature end-of-file.\n");
-      inStream.close();
-      delete [] fBlock;
-      delete [] iBlock;
-
-      return;
-#else
       cout << "Premature end-of-file" << endl;
       exit (-1);
-#endif
     }
 
     // Store information in buffer if within range on this processor
@@ -1234,10 +1763,8 @@ void ParticleDistribute::readFromBlockFile()
   ifstream inStream(this->inFiles[0].c_str(), ios::in);
   int numberOfParticles = this->fileParticles[0];
 
-#ifndef USE_VTK_COSMO
   cout << "Rank " << this->myProc << " open file " << this->inFiles[0]
        << " with " << numberOfParticles << " particles" << endl;
-#endif
 
   // Calculate skips to first location, velocity and tag
   int skipToLocation = 0;
@@ -1388,16 +1915,14 @@ void ParticleDistribute::readGadgetHeader(ifstream* gStr)
   // Read the Gadget header size to verify block
   readData(this->gadgetSwap, (void*) &blockSize2, GADGET_SKIP, 1, gStr);
   if (blockSize != blockSize2)
-#ifdef USE_VTK_COSMO
-    vtkOutputWindowDisplayErrorText("Mismatch of header size and header structure.\n");
-#else
     cout << "Mismatch of header size and header structure" << endl;
-#endif
 
   // Every type particle will have location, velocity and tag so sum up
   this->gadgetParticleCount = 0;
-  for (int i = 0; i < NUM_GADGET_TYPES; i++)
+  for (int i = 0; i < NUM_GADGET_TYPES; i++) {
+    this->gadgetStart[i] = this->gadgetParticleCount;
     this->gadgetParticleCount += this->gadgetHeader.npart[i];
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -1457,4 +1982,38 @@ void ParticleDistribute::readData(
          dataPtr += dataSize;
       }
    }
+}
+
+/////////////////////////////////////////////////////////////////////////
+//
+// ByteSwap data
+//
+/////////////////////////////////////////////////////////////////////////
+void ParticleDistribute::SwapEndian(void* Addr, const int Nb)
+{
+  // STEP 0: Short-circuit on invalid input and throw a warning
+  if( (Addr==NULL) || (Nb <= 0) )
+    {
+    std::cerr << "WARNING: SwapEndian, invalid parameters!\n";
+    return;
+    }
+
+  // STEP 1: Allocate buffer wherein the swapped data will be temporarily stored
+  char *Swapped = new char[Nb];
+  assert("pre: Cannot allocate swapped buffer!" && (Swapped != NULL) );
+
+  // STEP 2: Swap data on Swapped buffer from Addr
+  for(int srcOffSet=Nb-1, idx=0; srcOffSet >= 0; --srcOffSet,++idx)
+    {
+    Swapped[idx] = *( (char*)Addr+srcOffSet);
+    } // END for all bytes
+
+  // STEP 3: Copy Swapped data to input buffer
+  memcpy(Addr,(void *)Swapped,Nb);
+
+  // STEP 4: Clean dynamically allocated memory
+  delete [] Swapped;
+}
+
+
 }
