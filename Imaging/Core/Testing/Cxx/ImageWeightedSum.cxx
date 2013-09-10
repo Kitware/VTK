@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkSmartPointer.h"
+
 #include "vtkImageReader.h"
 #include "vtkImageWeightedSum.h"
 #include "vtkDoubleArray.h"
@@ -21,7 +23,6 @@
 #include "vtkStructuredPointsWriter.h"
 
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 int ImageWeightedSum(int argc, char *argv[])
 {
@@ -29,7 +30,8 @@ int ImageWeightedSum(int argc, char *argv[])
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
-  vtkImageReader *reader = vtkImageReader::New();
+  vtkSmartPointer<vtkImageReader> reader =
+    vtkSmartPointer<vtkImageReader>::New();
   reader->SetDataByteOrderToLittleEndian();
   reader->SetDataExtent(0,63,0,63,1,93);
   reader->SetDataSpacing(3.2, 3.2, 1.5);
@@ -39,7 +41,8 @@ int ImageWeightedSum(int argc, char *argv[])
   delete [] fname;
 
   // Test when weight is equal to 0
-  vtkImageWeightedSum *sum = vtkImageWeightedSum::New();
+  vtkSmartPointer<vtkImageWeightedSum> sum =
+    vtkSmartPointer<vtkImageWeightedSum>::New();
   sum->SetWeight(0,0.);
   sum->AddInputConnection( reader->GetOutputPort() );
   sum->Update();
@@ -52,7 +55,8 @@ int ImageWeightedSum(int argc, char *argv[])
     }
 
   // Set dummy values
-  vtkDoubleArray *weights = vtkDoubleArray::New();
+  vtkSmartPointer<vtkDoubleArray> weights =
+    vtkSmartPointer<vtkDoubleArray>::New();
   weights->SetNumberOfTuples(5);
   weights->SetValue(0, 10.0);
   weights->SetValue(1, 20.0);
@@ -70,7 +74,8 @@ int ImageWeightedSum(int argc, char *argv[])
   sum->AddInputConnection( reader->GetOutputPort() );
 
   // Subtract the original image
-  vtkImageMathematics *math = vtkImageMathematics::New();
+  vtkSmartPointer<vtkImageMathematics> math =
+    vtkSmartPointer<vtkImageMathematics>::New();
   math->SetOperationToSubtract();
   math->SetInputConnection( 0, reader->GetOutputPort() );
   math->SetInputConnection( 1, sum->GetOutputPort() );
@@ -85,7 +90,8 @@ int ImageWeightedSum(int argc, char *argv[])
 
   // Get scalar range:
   reader->GetOutput()->GetScalarRange( range );
-  vtkImageShiftScale *shift = vtkImageShiftScale::New();
+  vtkSmartPointer<vtkImageShiftScale> shift =
+    vtkSmartPointer<vtkImageShiftScale>::New();
   shift->SetInputConnection( reader->GetOutputPort() );
   shift->SetScale( 1./(range[1]-range[0]));
   shift->SetShift( -range[0] );
@@ -101,21 +107,6 @@ int ImageWeightedSum(int argc, char *argv[])
 
   math->SetInputConnection( 0, shift->GetOutputPort() );
   math->SetInputConnection( 1, sum->GetOutputPort() );
-  //math->Update();
-
-  //math->GetOutput()->GetScalarRange( range );
-  //if( range[0] != 0 || range[1] != 0 )
-  //  {
-  //  cerr << "Range2: " << range[0] << "," << range[1] << endl;
-  //  rval++;
-  //  }
-
-  // Cleanup
-  reader->Delete();
-  weights->Delete();
-  sum->Delete();
-  math->Delete();
-  shift->Delete();
 
   return rval;
 }

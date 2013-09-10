@@ -17,6 +17,8 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
+#include "vtkSmartPointer.h"
+
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkRenderWindow.h"
@@ -34,20 +36,21 @@
 #include "vtkImageResize.h"
 
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 int ImageResizeCropping(int argc, char *argv[])
 {
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  vtkInteractorStyle *style = vtkInteractorStyleImage::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkInteractorStyle> style =
+    vtkSmartPointer<vtkInteractorStyle>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
-  renWin->Delete();
-  style->Delete();
 
-  vtkTIFFReader *reader = vtkTIFFReader::New();
+  vtkSmartPointer<vtkTIFFReader> reader =
+    vtkSmartPointer<vtkTIFFReader>::New();
 
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/beach.tif");
@@ -64,19 +67,23 @@ int ImageResizeCropping(int argc, char *argv[])
     { 9.5, 149.5, 199.5, 49.5, 0, 0 },
   };
 
-  vtkOutlineSource *outline = vtkOutlineSource::New();
+  vtkSmartPointer<vtkOutlineSource> outline =
+    vtkSmartPointer<vtkOutlineSource>::New();
   outline->SetBounds(10, 149, 50, 199, -1, 1);
 
-  vtkDataSetMapper *mapper = vtkDataSetMapper::New();
+  vtkSmartPointer<vtkDataSetMapper> mapper =
+    vtkSmartPointer<vtkDataSetMapper>::New();
   mapper->SetInputConnection(outline->GetOutputPort());
 
-  vtkActor *actor = vtkActor::New();
+  vtkSmartPointer<vtkActor> actor =
+    vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
   actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
 
   for (int i = 0; i < 4; i++)
     {
-    vtkImageResize *resize = vtkImageResize::New();
+    vtkSmartPointer<vtkImageResize> resize =
+      vtkSmartPointer<vtkImageResize>::New();
     resize->SetNumberOfThreads(1);
     resize->SetInputConnection(reader->GetOutputPort());
     resize->SetOutputDimensions(256, 256, 1);
@@ -86,7 +93,8 @@ int ImageResizeCropping(int argc, char *argv[])
       resize->SetCroppingRegion(cropping[i]);
       }
 
-    vtkImageSliceMapper *imageMapper = vtkImageSliceMapper::New();
+    vtkSmartPointer<vtkImageSliceMapper> imageMapper =
+      vtkSmartPointer<vtkImageSliceMapper>::New();
     imageMapper->SetInputConnection(resize->GetOutputPort());
 
     if ((i & 2) == 2)
@@ -95,13 +103,15 @@ int ImageResizeCropping(int argc, char *argv[])
       imageMapper->BorderOn();
       }
 
-    vtkImageSlice *image = vtkImageSlice::New();
+    vtkSmartPointer<vtkImageSlice> image =
+      vtkSmartPointer<vtkImageSlice>::New();
     image->SetMapper(imageMapper);
 
     image->GetProperty()->SetColorWindow(range[1] - range[0]);
     image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
 
-    vtkRenderer *renderer = vtkRenderer::New();
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
     renderer->AddViewProp(image);
     if (i == 0)
       {
@@ -122,26 +132,13 @@ int ImageResizeCropping(int argc, char *argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(100);
 
-    imageMapper->Delete();
-    renderer->Delete();
-    image->Delete();
-    resize->Delete();
     }
 
   renWin->SetSize(512,512);
 
+  iren->Initialize();
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
-    iren->Start();
-    }
-  iren->Delete();
+  iren->Start();
 
-  reader->Delete();
-  outline->Delete();
-  mapper->Delete();
-  actor->Delete();
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }
