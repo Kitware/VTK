@@ -28,6 +28,7 @@
 #include "vtkCellCenterDepthSort.h"
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDataArrayIteratorMacro.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
@@ -83,8 +84,8 @@ void vtkProjectedTetrahedraMapper::ReportReferences(vtkGarbageCollector *collect
 
 //-----------------------------------------------------------------------------
 
-template<class point_type>
-void vtkProjectedTetrahedraMapperTransformPoints(const point_type *in_points,
+template<class PointIterator>
+void vtkProjectedTetrahedraMapperTransformPoints(PointIterator in_points,
                                                  vtkIdType num_points,
                                                  const float projection_mat[16],
                                                  const float modelview_mat[16],
@@ -93,7 +94,7 @@ void vtkProjectedTetrahedraMapperTransformPoints(const point_type *in_points,
   float mat[16];
   int row, col;
   vtkIdType i;
-  const point_type *in_p;
+  PointIterator in_p;
   float *out_p;
 
   // Combine two transforms into one transform.
@@ -155,11 +156,11 @@ void vtkProjectedTetrahedraMapper::TransformPoints(
   outPoints->SetNumberOfTuples(inPoints->GetNumberOfPoints());
   switch (inPoints->GetDataType())
     {
-    vtkTemplateMacro(vtkProjectedTetrahedraMapperTransformPoints(
-                                    (const VTK_TT *)inPoints->GetVoidPointer(0),
-                                     inPoints->GetNumberOfPoints(),
-                                     projection_mat, modelview_mat,
-                                     outPoints->GetPointer(0)));
+    vtkDataArrayIteratorMacro(inPoints->GetData(),
+      vtkProjectedTetrahedraMapperTransformPoints(
+        vtkDABegin, inPoints->GetNumberOfPoints(),
+        projection_mat, modelview_mat,
+        outPoints->GetPointer(0)));
     }
 }
 
@@ -170,24 +171,24 @@ namespace vtkProjectedTetrahedraMapperNamespace
   template<class ColorType>
   void MapScalarsToColors1(ColorType *colors, vtkVolumeProperty *property,
                            vtkDataArray *scalars);
-  template<class ColorType, class ScalarType>
+  template<class ColorType, class ScalarIterator>
   void MapScalarsToColors2(ColorType *colors, vtkVolumeProperty *property,
-                           ScalarType *scalars,
+                           ScalarIterator scalars,
                            int num_scalar_components,
                            vtkIdType num_scalars);
-  template<class ColorType, class ScalarType>
+  template<class ColorType, class ScalarIterator>
   void MapIndependentComponents(ColorType *colors,
                                 vtkVolumeProperty *property,
-                                ScalarType *scalars,
+                                ScalarIterator scalars,
                                 int num_scalar_components,
                                 vtkIdType num_scalars);
-  template<class ColorType, class ScalarType>
+  template<class ColorType, class ScalarIterator>
   void Map2DependentComponents(ColorType *colors,
                                vtkVolumeProperty *property,
-                               ScalarType *scalars,
+                               ScalarIterator scalars,
                                vtkIdType num_scalars);
-  template<class ColorType, class ScalarType>
-  void Map4DependentComponents(ColorType *colors, ScalarType *scalars,
+  template<class ColorType, class ScalarIterator>
+  void Map4DependentComponents(ColorType *colors, ScalarIterator scalars,
                                vtkIdType num_scalars);
 }
 
@@ -261,19 +262,19 @@ namespace vtkProjectedTetrahedraMapperNamespace
   void MapScalarsToColors1(ColorType *colors, vtkVolumeProperty *property,
                            vtkDataArray *scalars)
   {
-    void *scalarpointer = scalars->GetVoidPointer(0);
     switch(scalars->GetDataType())
       {
-      vtkTemplateMacro(MapScalarsToColors2(colors, property,
-                                           static_cast<VTK_TT *>(scalarpointer),
-                                           scalars->GetNumberOfComponents(),
-                                           scalars->GetNumberOfTuples()));
+      vtkDataArrayIteratorMacro(
+        scalars,
+        MapScalarsToColors2(colors, property, vtkDABegin,
+                            scalars->GetNumberOfComponents(),
+                            scalars->GetNumberOfTuples()));
       }
   }
 
-  template<class ColorType, class ScalarType>
+  template<class ColorType, class ScalarIterator>
   void MapScalarsToColors2(ColorType *colors, vtkVolumeProperty *property,
-                           ScalarType *scalars,
+                           ScalarIterator scalars,
                            int num_scalar_components, vtkIdType num_scalars)
   {
     if (property->GetIndependentComponents())
@@ -300,10 +301,10 @@ namespace vtkProjectedTetrahedraMapperNamespace
       }
   }
 
-  template<class ColorType, class ScalarType>
+  template<class ColorType, class ScalarIterator>
   void MapIndependentComponents(ColorType *colors,
                                 vtkVolumeProperty *property,
-                                ScalarType *scalars,
+                                ScalarIterator scalars,
                                 int num_scalar_components,
                                 vtkIdType num_scalars)
   {
@@ -312,7 +313,7 @@ namespace vtkProjectedTetrahedraMapperNamespace
     // what to do, and the whole thing seems kinda pointless anyway, I'm just
     // going to punt and copy over the first scalar.
     ColorType *c = colors;
-    ScalarType *s = scalars;
+    ScalarIterator s = scalars;
     vtkIdType i;
 
     if (property->GetColorChannels() == 1)
@@ -343,9 +344,9 @@ namespace vtkProjectedTetrahedraMapperNamespace
       }
   }
 
-  template<class ColorType, class ScalarType>
+  template<class ColorType, class ScalarIterator>
   void Map2DependentComponents(ColorType *colors, vtkVolumeProperty *property,
-                               ScalarType *scalars, vtkIdType num_scalars)
+                               ScalarIterator scalars, vtkIdType num_scalars)
   {
     vtkColorTransferFunction *rgb = property->GetRGBTransferFunction();
     vtkPiecewiseFunction *alpha = property->GetScalarOpacity();
@@ -364,8 +365,8 @@ namespace vtkProjectedTetrahedraMapperNamespace
       }
   }
 
-  template<class ColorType, class ScalarType>
-  void Map4DependentComponents(ColorType *colors, ScalarType *scalars,
+  template<class ColorType, class ScalarIterator>
+  void Map4DependentComponents(ColorType *colors, ScalarIterator scalars,
                                vtkIdType num_scalars)
   {
     for (vtkIdType i = 0; i < num_scalars; i++)

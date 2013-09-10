@@ -23,12 +23,14 @@
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkTransform.h"
 #include "vtkCamera.h"
+#include "vtkCellIterator.h"
 #include "vtkGenericCell.h"
 #include "vtkPriorityQueue.h"
 #include "vtkIdList.h"
 #include "vtkVolumeProperty.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnstructuredGridPreIntegration.h"
 #include "vtkUnstructuredGridPartialPreIntegration.h"
 #include "vtkUnstructuredGridHomogeneousRayIntegrator.h"
@@ -2997,7 +2999,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::BuildUseSets()
     }
 
   // If the data has changed in some way then we need to update
-  vtkUnstructuredGrid *input = this->GetInput();
+  vtkUnstructuredGridBase *input = this->GetInput();
   if ( input->GetMTime() > this->SavedTriangleListMTime.GetMTime() )
     {
     needsUpdate = 1;
@@ -3015,7 +3017,6 @@ void vtkUnstructuredGridVolumeZSweepMapper::BuildUseSets()
     return;
     }
 
-  vtkIdType numberOfCells=input->GetNumberOfCells();
   vtkIdType numberOfPoints=input->GetNumberOfPoints();
 
   vtkIdList *cellNeighbors = vtkIdList::New();
@@ -3030,34 +3031,39 @@ void vtkUnstructuredGridVolumeZSweepMapper::BuildUseSets()
       this->Scalars->GetNumberOfComponents());
     }
   // for each cell
-  vtkIdType cellIdx=0;
-  while(cellIdx<numberOfCells)
+  vtkSmartPointer<vtkCellIterator> cellIter =
+      vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+  for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
     {
-    input->GetCell(cellIdx,this->Cell);
-
-    vtkIdType faces=this->Cell->GetNumberOfFaces();
-    vtkIdType faceidx=0;
-    vtkCell *face;
-    vtkIdType faceIds[3];
-    vtkIdType orderedFaceIds[3];
-    // for each face
-    while(faceidx<faces)
+    cellIter->GetCell(this->Cell);
+    vtkIdType faces = this->Cell->GetNumberOfFaces();
+    if (faces > 0)
       {
-      face=this->Cell->GetFace(faceidx);
-      faceIds[0]=face->GetPointId(0);
-      faceIds[1]=face->GetPointId(1);
-      faceIds[2]=face->GetPointId(2);
-      int orientationChanged=this->ReorderTriangle(faceIds,orderedFaceIds);
-      input->GetCellNeighbors(cellIdx, face->GetPointIds(), cellNeighbors);
-      bool external = (cellNeighbors->GetNumberOfIds() == 0);
+      vtkIdType faceidx=0;
+      vtkCell *face;
+      vtkIdType faceIds[3];
+      vtkIdType orderedFaceIds[3];
+      // for each face
+      while(faceidx<faces)
+        {
+        face=this->Cell->GetFace(faceidx);
+        faceIds[0]=face->GetPointId(0);
+        faceIds[1]=face->GetPointId(1);
+        faceIds[2]=face->GetPointId(2);
+        int orientationChanged=this->ReorderTriangle(faceIds,orderedFaceIds);
+        input->GetCellNeighbors(cellIter->GetCellId(), face->GetPointIds(),
+                                cellNeighbors);
+        bool external = (cellNeighbors->GetNumberOfIds() == 0);
 
-      // Add face only if it is not already in the useset.
-      this->UseSet->AddFace(orderedFaceIds, this->Scalars,
-                            cellIdx, orientationChanged, external);
+        // Add face only if it is not already in the useset.
+        this->UseSet->AddFace(orderedFaceIds, this->Scalars,
+                              cellIter->GetCellId(), orientationChanged,
+                              external);
 
-      ++faceidx;
+        ++faceidx;
+        }
       }
-    ++cellIdx;
     }
   cellNeighbors->Delete();
   this->SavedTriangleListMTime.Modified();
@@ -3124,7 +3130,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::ProjectAndSortVertices(
 {
   assert("pre: empty list" && this->EventList->GetNumberOfItems()==0);
 
-  vtkUnstructuredGrid *input = this->GetInput();
+  vtkUnstructuredGridBase *input = this->GetInput();
   vtkIdType numberOfPoints=input->GetNumberOfPoints();
 
   vtkIdType pointId=0;
