@@ -577,9 +577,9 @@ virtual double *Get##name() \
     return this->name##Coordinate->GetValue(); \
 }
 
-
-// Same as vtkTypeMacro, but adapted for cases where thisClass is abstact.
-#define vtkAbstractTypeMacro(thisClass,superclass) \
+// Allows definition of vtkObject API such that NewInstance may return a
+// superclass of thisClass.
+#define vtkAbstractTypeMacroWithNewInstanceType(thisClass,superclass,instanceType) \
   typedef superclass Superclass; \
   private: \
   virtual const char* GetClassNameInternal() const { return #thisClass; } \
@@ -604,6 +604,14 @@ virtual double *Get##name() \
       } \
     return NULL;\
   } \
+  instanceType *NewInstance() const \
+  { \
+    return instanceType::SafeDownCast(this->NewInstanceInternal()); \
+  }
+
+// Same as vtkTypeMacro, but adapted for cases where thisClass is abstact.
+#define vtkAbstractTypeMacro(thisClass,superclass) \
+  vtkAbstractTypeMacroWithNewInstanceType(thisClass, superclass, thisClass)
 
 // Macro used to determine whether a class is the same class or
 // a subclass of the named class.
@@ -614,11 +622,7 @@ virtual double *Get##name() \
   { \
     return thisClass::New(); \
   } \
-  public: \
-  thisClass *NewInstance() const \
-  { \
-    return thisClass::SafeDownCast(this->NewInstanceInternal()); \
-  }
+  public:
 
 // Legacy versions of vtkTypeMacro and helpers.
 #if !defined(VTK_LEGACY_REMOVE)

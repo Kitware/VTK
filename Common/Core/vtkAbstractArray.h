@@ -460,7 +460,8 @@ public:
     AbstractArray = 0,
     DataArray,
     TypedDataArray,
-    DataArrayTemplate
+    DataArrayTemplate,
+    MappedDataArray
     };
 
   // Description:
