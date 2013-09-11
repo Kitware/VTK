@@ -255,6 +255,22 @@ void vtkDataArrayTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+template <typename T> vtkDataArrayTemplate<T> *
+vtkDataArrayTemplate<T>::FastDownCast(vtkAbstractArray *src)
+{
+  switch (src->GetArrayType())
+    {
+    case vtkAbstractArray::DataArrayTemplate:
+      if (src->GetDataType() == vtkTypeTraits<T>::VTK_TYPE_ID)
+        {
+        return static_cast<vtkDataArrayTemplate<T>*>(src);
+        }
+    default:
+      return NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
 template <class T>
 void vtkDataArrayTemplate<T>::DeleteArray()
 {

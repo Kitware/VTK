@@ -36,6 +36,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Perform a fast, safe cast from a vtkAbstractArray to a
+  // vtkDataArrayTemplate.
+  // This method checks if:
+  // - source->GetArrayType() is appropriate, and
+  // - source->GetDataType() matches vtkTypeTraits<ValueType>::VTK_TYPE_ID
+  // if these conditions are met, the method performs a static_cast to return
+  // source as a vtkTypedDataArray pointer. Otherwise, NULL is returned.
+  static vtkDataArrayTemplate<T>* FastDownCast(vtkAbstractArray *src);
+
+  // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
   int Allocate(vtkIdType sz, vtkIdType ext=1000);

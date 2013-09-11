@@ -446,6 +446,19 @@ public:
   vtkGetMacro(MaxDiscreteValues, unsigned int);
   vtkSetMacro(MaxDiscreteValues, unsigned int);
 
+  enum {
+    AbstractArray = 0,
+    DataArray,
+    DataArrayTemplate
+    };
+
+  // Description:
+  // Method for type-checking in FastDownCast implementations.
+  virtual int GetArrayType()
+  {
+    return AbstractArray;
+  }
+
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkAbstractArray();
