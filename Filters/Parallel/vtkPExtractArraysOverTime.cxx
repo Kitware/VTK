@@ -26,7 +26,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <string>
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkPExtractArraysOverTime);
 vtkCxxSetObjectMacro(vtkPExtractArraysOverTime, Controller, vtkMultiProcessController);

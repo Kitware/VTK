@@ -22,7 +22,7 @@
 
 #include <errno.h>
 #include <ctype.h>
-#include <assert.h>
+#include <cassert>
 
 #include <string>
 #include <set>

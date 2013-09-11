@@ -15,7 +15,7 @@
 
 #include "vtkSequencePass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderPassCollection.h"
 
 vtkStandardNewMacro(vtkSequencePass);

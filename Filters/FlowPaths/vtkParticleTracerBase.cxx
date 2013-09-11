@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOutputWindow.h"
 #include "vtkAbstractParticleWriter.h"
 #include "vtkToolkits.h" // For VTK_USE_MPI
-#include "assert.h"
+#include <cassert>
 
 #ifdef WIN32
   #undef JB_H5PART_PARTICLE_OUTPUT

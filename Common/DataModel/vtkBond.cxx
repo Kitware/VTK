@@ -18,7 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-#include <assert.h>
+#include <cassert>
 
 //----------------------------------------------------------------------------
 vtkBond::vtkBond(vtkMolecule *parent, vtkIdType id,

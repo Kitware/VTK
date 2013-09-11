@@ -41,7 +41,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-#include "assert.h"
+#include <cassert>
 #include <map>
 #include <string>
 #include <vtksys/ios/sstream>

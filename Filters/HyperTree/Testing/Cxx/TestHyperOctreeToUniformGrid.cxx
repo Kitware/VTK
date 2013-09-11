@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkLookupTable.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkHyperOctreeToUniformGridFilter.h"

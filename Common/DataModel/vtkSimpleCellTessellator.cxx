@@ -33,7 +33,7 @@
 
 #include <queue>
 #include <stack>
-#include <assert.h>
+#include <cassert>
 
 // format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
 // attributes: xyz rst [abc de...]

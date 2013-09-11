@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
-#include <assert.h>
+#include <cassert>
 #include <algorithm> // for std::min()/std::max()
 
 vtkStandardNewMacro(vtkSCurveSpline);

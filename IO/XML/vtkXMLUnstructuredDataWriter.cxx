@@ -33,7 +33,7 @@
 #include "vtkXMLOffsetsManager.h"
 #undef  vtkXMLOffsetsManager_DoNotInclude
 
-#include <assert.h>
+#include <cassert>
 
 
 //----------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericDataSet.h"
 #include "vtkMath.h"
-#include <assert.h>
+#include <cassert>
 
 
 //-----------------------------------------------------------------------------

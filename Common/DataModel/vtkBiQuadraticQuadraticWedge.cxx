@@ -27,7 +27,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro (vtkBiQuadraticQuadraticWedge);
 

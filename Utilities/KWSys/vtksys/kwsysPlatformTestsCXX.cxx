@@ -399,7 +399,7 @@ int main()
 #define _FILE_OFFSET_BITS 64
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <assert.h>
+#include <cassert>
 #if KWSYS_CXX_HAS_CSTDIO
 # include <cstdio>
 #endif

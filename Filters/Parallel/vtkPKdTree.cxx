@@ -36,7 +36,7 @@
 
 #include <queue>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 
 // Timing data ---------------------------------------------
 

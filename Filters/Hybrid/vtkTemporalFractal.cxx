@@ -33,7 +33,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkSmartPointer.h"
 
-#include <assert.h>
+#include <cassert>
 
 //----------------------------------------------------------------------------
 class TemporalFractalOutputUtil: public vtkObject

@@ -24,7 +24,7 @@
 
 #include "vtkBridgeCellIteratorStrategy.h"
 
-#include <assert.h>
+#include <cassert>
 
 
 //-----------------------------------------------------------------------------

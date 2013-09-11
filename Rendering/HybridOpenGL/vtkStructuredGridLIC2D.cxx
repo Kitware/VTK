@@ -34,7 +34,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <assert.h>
+#include <cassert>
 #include "vtkgl.h"
 
 extern const char *vtkStructuredGridLIC2D_fs;

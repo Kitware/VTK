@@ -11,7 +11,7 @@ All rights reserved.
 #include "Node.h"
 #include "Cell.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkPoints.h>

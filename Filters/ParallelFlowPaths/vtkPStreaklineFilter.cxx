@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkNew.h"
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkPStreaklineFilter)
 

@@ -373,7 +373,7 @@ void CheckTestStatus( int rc, std::string TestName )
     }
 }
 
-#include "assert.h"
+#include <cassert>
 //------------------------------------------------------------------------------
 int TestAMRBox(int , char *[])
 {

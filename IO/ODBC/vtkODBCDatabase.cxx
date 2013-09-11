@@ -41,7 +41,7 @@
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-#include <assert.h>
+#include <cassert>
 #include <string.h>
 
 #include <sql.h>

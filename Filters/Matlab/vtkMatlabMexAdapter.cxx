@@ -58,7 +58,7 @@
 #include "vtkDataObjectCollection.h"
 #include <vector>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 
 #define VTK_CREATE(classname, varname) vtkSmartPointer<classname> varname = vtkSmartPointer<classname>::New()
 

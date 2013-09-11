@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkBase64Utilities.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBase64Utilities);

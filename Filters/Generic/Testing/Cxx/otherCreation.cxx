@@ -33,7 +33,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkPointData.h"
 #include "vtkGenericAttribute.h"
-#include <assert.h>
+#include <cassert>
 #include <string>
 #include <vtksys/ios/sstream>
 

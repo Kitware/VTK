@@ -31,7 +31,7 @@
 #include "vtkFloatArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include <assert.h>
+#include <cassert>
 #include <vector>
 using namespace std;
 

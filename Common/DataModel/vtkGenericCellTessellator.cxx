@@ -29,7 +29,7 @@
 #include "vtkGenericCellIterator.h"
 
 
-#include <assert.h>
+#include <cassert>
 
 #include "vtkMath.h"
 

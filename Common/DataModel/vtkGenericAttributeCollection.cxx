@@ -20,7 +20,7 @@
 
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 

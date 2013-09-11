@@ -21,7 +21,7 @@
 #include "vtkOpenGLError.h"
 
 #include "vtkgl.h"
-#include <assert.h>
+#include <cassert>
 
 //#define VTK_TO_DEBUG
 //#define VTK_TO_TIMING

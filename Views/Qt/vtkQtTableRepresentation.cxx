@@ -32,7 +32,7 @@
 #include <QModelIndex>
 #include <QColor>
 
-#include <assert.h>
+#include <cassert>
 
 // ----------------------------------------------------------------------
 

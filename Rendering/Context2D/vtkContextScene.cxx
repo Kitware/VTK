@@ -36,7 +36,7 @@
 #include "vtkOpenGLRenderWindow.h"
 
 // My STL containers
-#include <assert.h>
+#include <cassert>
 
 //-----------------------------------------------------------------------------
 // Minimal storage class for STL containers etc.

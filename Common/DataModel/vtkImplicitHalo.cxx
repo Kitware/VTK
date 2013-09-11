@@ -16,7 +16,7 @@
 
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkImplicitHalo);
 

@@ -39,7 +39,7 @@
 #include "vtkGenericClip.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericSubdivisionErrorMetric.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkLookupTable.h"
 #include "vtkDataSetMapper.h"
 #include "vtkPolyData.h"

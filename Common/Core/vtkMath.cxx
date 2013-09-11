@@ -25,7 +25,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 
 #include "vtkBoxMuellerRandomSequence.h"

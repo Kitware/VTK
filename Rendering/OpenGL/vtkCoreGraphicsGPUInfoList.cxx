@@ -17,7 +17,7 @@
 #include "vtkGPUInfoListArray.h"
 #include "vtkObjectFactory.h"
 
-#include <assert.h>
+#include <cassert>
 #include <ApplicationServices/ApplicationServices.h>
 
 vtkStandardNewMacro(vtkCoreGraphicsGPUInfoList);

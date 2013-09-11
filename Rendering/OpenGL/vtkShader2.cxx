@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkShader2.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include <vtkgl.h>
 #include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"

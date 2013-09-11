@@ -32,7 +32,7 @@
 #include "vtkPointData.h"
 #include "vtkSetGet.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkBridgeAttribute);
 

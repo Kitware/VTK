@@ -23,7 +23,7 @@
 #include "vtkXMLShader.h"
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 class vtkXMLMaterialInternals
 {

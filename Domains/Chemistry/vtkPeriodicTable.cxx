@@ -27,7 +27,7 @@
 #include "vtkStringArray.h"
 #include "vtkUnsignedShortArray.h"
 
-#include <assert.h>
+#include <cassert>
 #include <cctype>
 #include <cstring>
 

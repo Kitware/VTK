@@ -21,7 +21,7 @@
 #include <vtksys/stl/set>
 #include <time.h> // for strftime
 #include <ctype.h> // for isdigit
-#include <assert.h>
+#include <cassert>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMedicalImageProperties);
