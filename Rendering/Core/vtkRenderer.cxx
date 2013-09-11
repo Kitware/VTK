@@ -960,6 +960,10 @@ void vtkRenderer::ResetCamera(double bounds[6])
     return;
     }
 
+  // Reset the perspective zoom factors, otherwise subsequent zooms will cause
+  // the view angle to become very small and cause bad depth sorting.
+  this->ActiveCamera->SetViewAngle(30.0);
+
   this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
 
   center[0] = (bounds[0] + bounds[1])/2.0;
