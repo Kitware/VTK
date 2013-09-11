@@ -22,18 +22,39 @@
 #define __vtkDataArrayTemplate_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkDataArray.h"
+#include "vtkTypedDataArray.h"
+#include "vtkTypeTemplate.h" // For templated vtkObject API
 #include <cassert> // for assert()
 
 template <class T>
 class vtkDataArrayTemplateLookup;
 
 template <class T>
-class VTKCOMMONCORE_EXPORT vtkDataArrayTemplate: public vtkDataArray
+class VTKCOMMONCORE_EXPORT vtkDataArrayTemplate:
+    public vtkTypeTemplate<vtkDataArrayTemplate<T>, vtkTypedDataArray<T> >
 {
 public:
-  typedef vtkDataArray Superclass;
+  typedef vtkTypedDataArray<T> Superclass;
+  typedef typename Superclass::ValueType ValueType;
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Typedef to a suitable iterator class.
+  // Rather than using this member directly, consider using
+  // vtkDataArrayIteratorMacro for safety and efficiency.
+  typedef ValueType* Iterator;
+
+  // Description:
+  // Return an iterator initialized to the first element of the data.
+  // Rather than using this member directly, consider using
+  // vtkDataArrayIteratorMacro for safety and efficiency.
+  Iterator Begin() { return Iterator(this->GetVoidPointer(0)); }
+
+  // Description:
+  // Return an iterator initialized to first element past the end of the data.
+  // Rather than using this member directly, consider using
+  // vtkDataArrayIteratorMacro for safety and efficiency.
+  Iterator End() { return Iterator(this->GetVoidPointer(this->MaxId + 1)); }
 
   // Description:
   // Perform a fast, safe cast from a vtkAbstractArray to a
@@ -144,6 +165,8 @@ public:
   // Get the data at a particular index.
   T GetValue(vtkIdType id)
     { assert(id >= 0 && id < this->Size); return this->Array[id]; }
+  T& GetValueReference(vtkIdType id)
+    { assert(id >= 0 && id < this->Size); return this->Array[id]; }
 
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
@@ -206,6 +229,9 @@ public:
   // Description:
   // Get the address of a particular data index. Performs no checks
   // to verify that the memory has been allocated etc.
+  // If the data is simply being iterated over, consider using
+  // vtkDataArrayIteratorMacro for safety and efficiency, rather than using this
+  // member directly.
   T* GetPointer(vtkIdType id) { return this->Array + id; }
   virtual void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
 
@@ -262,6 +288,10 @@ public:
   virtual void LookupValue(vtkVariant value, vtkIdList* ids);
   vtkIdType LookupValue(T value);
   void LookupValue(T value, vtkIdList* ids);
+  vtkIdType LookupTypedValue(T value)
+    { return this->LookupValue(value); }
+  void LookupTypedValue(T value, vtkIdList* ids)
+    { this->LookupValue(value, ids); }
 
   // Description:
   // Tell the array explicitly that the data has changed.

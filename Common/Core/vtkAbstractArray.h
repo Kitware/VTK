@@ -161,6 +161,9 @@ public:
   // Description:
   // Return a void pointer. For image pipeline interface and other
   // special pointer manipulation.
+  // If the data is simply being iterated over, consider using
+  // vtkDataArrayIteratorMacro for safety and efficiency, rather than using this
+  // member directly.
   virtual void *GetVoidPointer(vtkIdType id) = 0;
 
   // Description:
@@ -449,6 +452,7 @@ public:
   enum {
     AbstractArray = 0,
     DataArray,
+    TypedDataArray,
     DataArrayTemplate
     };
 

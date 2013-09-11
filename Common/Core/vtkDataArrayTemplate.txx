@@ -261,9 +261,9 @@ vtkDataArrayTemplate<T>::FastDownCast(vtkAbstractArray *src)
   switch (src->GetArrayType())
     {
     case vtkAbstractArray::DataArrayTemplate:
-      if (src->GetDataType() == vtkTypeTraits<T>::VTK_TYPE_ID)
+      if (src->GetDataType() == vtkTypeTraits<ValueType>::VTK_TYPE_ID)
         {
-        return static_cast<vtkDataArrayTemplate<T>*>(src);
+        return static_cast<vtkDataArrayTemplate<ValueType>*>(src);
         }
     default:
       return NULL;

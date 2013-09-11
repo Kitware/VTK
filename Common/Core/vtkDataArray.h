@@ -411,6 +411,7 @@ inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray *source)
   switch (source->GetArrayType())
     {
     case DataArrayTemplate:
+    case TypedDataArray:
     case DataArray:
       return static_cast<vtkDataArray*>(source);
     default:
