@@ -17,6 +17,8 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
+#include "vtkSmartPointer.h"
+
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkRenderWindow.h"
@@ -30,23 +32,24 @@
 #include "vtkImageResize.h"
 
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 int ImageResize3D(int argc, char *argv[])
 {
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  vtkInteractorStyleImage *style = vtkInteractorStyleImage::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkInteractorStyleImage> style =
+    vtkSmartPointer<vtkInteractorStyleImage>::New();
   style->SetInteractionModeToImageSlicing();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
-  renWin->Delete();
-  style->Delete();
 
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
-  vtkImageReader2 *reader = vtkImageReader2::New();
+  vtkSmartPointer<vtkImageReader2> reader =
+    vtkSmartPointer<vtkImageReader2>::New();
   reader->SetDataByteOrderToLittleEndian();
   reader->SetDataExtent(0,63,0,63,1,93);
   reader->SetDataSpacing(3.2, 3.2, 1.5);
@@ -54,14 +57,16 @@ int ImageResize3D(int argc, char *argv[])
 
   delete [] fname;
 
-  vtkImageResize *resize = vtkImageResize::New();
+  vtkSmartPointer<vtkImageResize> resize =
+    vtkSmartPointer<vtkImageResize>::New();
   resize->SetInputConnection(reader->GetOutputPort());
   resize->SetResizeMethodToOutputSpacing();
   resize->SetOutputSpacing(0.80, 0.80, 1.5);
   resize->InterpolateOn();
   resize->Update();
 
-  vtkImageResize *resize2 = vtkImageResize::New();
+  vtkSmartPointer<vtkImageResize> resize2 =
+    vtkSmartPointer<vtkImageResize>::New();
   resize2->SetInputConnection(reader->GetOutputPort());
   resize2->SetResizeMethodToMagnificationFactors();
   resize2->SetMagnificationFactors(4, 4, 1);
@@ -71,7 +76,8 @@ int ImageResize3D(int argc, char *argv[])
 
   for (int i = 0; i < 4; i++)
     {
-    vtkImageSliceMapper *imageMapper = vtkImageSliceMapper::New();
+    vtkSmartPointer<vtkImageSliceMapper> imageMapper =
+      vtkSmartPointer<vtkImageSliceMapper>::New();
     if (i < 3)
       {
       imageMapper->SetInputConnection(resize->GetOutputPort());
@@ -83,14 +89,16 @@ int ImageResize3D(int argc, char *argv[])
     imageMapper->SetOrientation(i % 3);
     imageMapper->SliceAtFocalPointOn();
 
-    vtkImageSlice *image = vtkImageSlice::New();
+    vtkSmartPointer<vtkImageSlice> image =
+      vtkSmartPointer<vtkImageSlice>::New();
     image->SetMapper(imageMapper);
 
     image->GetProperty()->SetColorWindow(range[1] - range[0]);
     image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
     image->GetProperty()->SetInterpolationTypeToNearest();
 
-    vtkRenderer *renderer = vtkRenderer::New();
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
     renderer->AddViewProp(image);
     renderer->SetBackground(0.0,0.0,0.0);
     renderer->SetViewport(0.5*(i&1), 0.25*(i&2),
@@ -119,24 +127,13 @@ int ImageResize3D(int argc, char *argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(0.8*128);
 
-    imageMapper->Delete();
-    renderer->Delete();
-    image->Delete();
     }
 
   renWin->SetSize(512,512);
 
+  iren->Initialize();
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
-    iren->Start();
-    }
-  iren->Delete();
+  iren->Start();
 
-  resize->Delete();
-  resize2->Delete();
-  reader->Delete();
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }
