@@ -1,6 +1,11 @@
 # This project builds the test directories from all VTK modules as a separate
 # project outside the main VTK build tree as if they were an application.
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
+if(POLICY CMP0022)
+  cmake_policy(SET CMP0022 NEW)
+endif()
+
 project(VTKTestExternal)
 if(VTK_SOURCE_DIR OR VTK_BINARY_DIR)
   message(FATAL_ERROR "This directory may build only outside VTK!")
