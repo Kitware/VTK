@@ -205,5 +205,5 @@ int ImageBSplineCoefficients(int argc, char *argv[])
   renWin->Render();
   iren->Start();
 
-  return EXIT_SUCCESS;
+  return retVal;
 }
