@@ -696,6 +696,30 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays(
     return 1;
     }
 
+  vtkCellData* cd = output->GetCellData();
+  // Load (time-constant) attributes first because their status is in the block info.
+  if (
+    otyp == vtkExodusIIReader::ELEM_BLOCK ||
+    otyp == vtkExodusIIReader::EDGE_BLOCK ||
+    otyp == vtkExodusIIReader::FACE_BLOCK)
+    {
+    BlockInfoType* binfop = (BlockInfoType*)bsinfop;
+    std::vector<int>::iterator atit;
+    vtkIdType a = 0;
+    for (atit = binfop->AttributeStatus.begin(); atit != binfop->AttributeStatus.end(); ++atit, ++a)
+      {
+      if (*atit)
+        {
+        vtkDataArray* arr = this->GetCacheOrRead(
+          vtkExodusIICacheKey( timeStep, vtkExodusIIReader::ELEM_BLOCK_ATTRIB, obj, a ) );
+        if ( arr )
+          {
+          cd->AddArray( arr );
+          }
+        }
+      }
+    }
+
   // Panic if we're given a bad otyp.
   std::map<int,std::vector<ArrayInfoType> >::iterator ami = this->ArrayInfo.find( otyp );
   if ( ami == this->ArrayInfo.end() )
@@ -712,7 +736,6 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays(
 #endif // 0
     }
 
-  vtkCellData* cd = output->GetCellData();
   // For each array defined on objects of the same type as our output,
   // look for ones that are turned on (Status != 0) and have a truth
   // table indicating values are present for object obj in the file.
@@ -2505,16 +2528,21 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     key.ObjectType == vtkExodusIIReader::EDGE_BLOCK_ATTRIB
     )
     {
-    BlockInfoType* binfop = &this->BlockInfo[key.ObjectType][key.ObjectId];
+    int blkType =
+      (key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_ATTRIB ? vtkExodusIIReader::ELEM_BLOCK :
+       (key.ObjectType == vtkExodusIIReader::FACE_BLOCK_ATTRIB ? vtkExodusIIReader::FACE_BLOCK :
+        vtkExodusIIReader::EDGE_BLOCK));
+    BlockInfoType* binfop = &this->BlockInfo[blkType][key.ObjectId];
     vtkDoubleArray* darr = vtkDoubleArray::New();
     arr = darr;
     darr->SetName( binfop->AttributeNames[key.ArrayId].c_str() );
     darr->SetNumberOfComponents( 1 );
     darr->SetNumberOfTuples( binfop->Size );
-    if ( ex_get_one_attr( exoid, static_cast<ex_entity_type>( key.ObjectType ), key.ObjectId, key.ArrayId, darr->GetVoidPointer( 0 ) ) < 0 )
+    if ( ex_get_one_attr(
+        exoid, static_cast<ex_entity_type>(blkType), binfop->Id, key.ArrayId + 1, darr->GetVoidPointer( 0 ) ) < 0 )
       { // NB: The error message references the file-order object id, not the numerically sorted index presented to users.
       vtkErrorMacro( "Unable to read attribute " << key.ArrayId
-        << " for object " << key.ObjectId << " of type " << key.ObjectType << "." );
+        << " for object " << key.ObjectId << " of type " << key.ObjectType  << " block type " << blkType << "." );
       arr->Delete();
       arr = 0;
       }
