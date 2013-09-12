@@ -373,6 +373,12 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
 //-------------------------------------------------------------------------
 void vtkPainterPolyDataMapper::ComputeBounds()
 {
+  if (!this->GetInput())
+    {
+    vtkMath::UninitializeBounds(this->Bounds);
+    return;
+    }
+
   this->GetInput()->GetBounds(this->Bounds);
 
   // if the mapper has a painter, update the bounds in the painter
