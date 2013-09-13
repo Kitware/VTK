@@ -64,14 +64,8 @@ ENDIF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
 ADD_EXECUTABLE( SimpleView MACOSX_BUNDLE ${SimpleViewSrcs} ${UISrcs} ${MOCSrcs} ${ResourceSrcs})
 
 TARGET_LINK_LIBRARIES( SimpleView
-  QVTK
   ${QT_LIBRARIES}
-  vtkRendering
-  vtkGraphics
-  vtkIO
-  vtkCommon
-  vtkInfovis
-  vtkViews
+  ${VTK_LIBRARIES}
 )
 
 
