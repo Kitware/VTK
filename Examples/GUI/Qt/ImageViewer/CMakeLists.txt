@@ -1,34 +1,25 @@
-PROJECT(QtImageViewer)
+project(QtImageViewer)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK)
-IF(NOT VTK_DIR)
-  MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
-ENDIF(NOT VTK_DIR)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK)
+  if(NOT VTK_DIR)
+    message(FATAL_ERROR "Please set VTK_DIR.")
+  endif()
+  include(${VTK_USE_FILE})
+endif()
 
-SET(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
-SET(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
-SET(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
-FIND_PACKAGE(Qt4 REQUIRED)
-INCLUDE(${QT_USE_FILE})
+# Use what VTK built with
+set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
+set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
+set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
+find_package(Qt4 REQUIRED)
+include(${QT_USE_FILE})
 
-SET (SRCS
-  main.cxx
-)
+set(SRCS main.cxx)
 
-# Use the include path and library for Qt that is used by VTK.
-INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} ${QT_QTGUI_INCLUDE_DIR}
-                     ${QT_QTCORE_INCLUDE_DIR})
+add_executable(qtimageviewer MACOSX_BUNDLE ${SRCS})
 
-ADD_EXECUTABLE( qtimageviewer MACOSX_BUNDLE ${SRCS})
-
-TARGET_LINK_LIBRARIES( qtimageviewer
-  QVTK
+target_link_libraries(qtimageviewer
   ${QT_LIBRARIES}
-  vtkRendering
-  vtkGraphics
-  vtkIO
-  vtkCommon
+  ${VTK_LIBRARIES}
 )

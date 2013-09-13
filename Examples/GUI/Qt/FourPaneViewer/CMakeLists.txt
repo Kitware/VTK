@@ -1,45 +1,45 @@
 cmake_minimum_required(VERSION 2.6)
 
-PROJECT(QtVTKRenderWindows)
+project(QtVTKRenderWindows)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK)
-IF(NOT VTK_DIR)
-  MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
-ENDIF(NOT VTK_DIR)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK)
+  if(NOT VTK_DIR)
+    message(FATAL_ERROR "Please set VTK_DIR.")
+  endif()
+  include(${VTK_USE_FILE})
+endif()
 
-SET(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
-SET(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
-SET(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
-FIND_PACKAGE(Qt4 REQUIRED)
-INCLUDE(${QT_USE_FILE})
-
+# Use what VTK built with
+set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
+set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
+set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
+find_package(Qt4 REQUIRED)
+include(${QT_USE_FILE})
 
 # Set your files and resources here
-SET(QtVTKRenderWindowsSrcs QtVTKRenderWindowsApp.cxx QtVTKRenderWindows.cxx)
-SET(QtVTKRenderWindowsUI QtVTKRenderWindows.ui)
-SET(QtVTKRenderWindowsHeaders QtVTKRenderWindows.h)
+set(QtVTKRenderWindowsSrcs QtVTKRenderWindowsApp.cxx QtVTKRenderWindows.cxx)
+set(QtVTKRenderWindowsUI QtVTKRenderWindows.ui)
+set(QtVTKRenderWindowsHeaders QtVTKRenderWindows.h)
 
-INCLUDE_DIRECTORIES(
+include_directories(
   ${QT_INCLUDE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-QT4_WRAP_UI(UISrcs ${QtVTKRenderWindowsUI})
-QT4_WRAP_CPP(MOCSrcs ${QtVTKRenderWindowsHeaders} )
+qt4_wrap_ui(UISrcs ${QtVTKRenderWindowsUI})
+qt4_wrap_cpp(MOCSrcs ${QtVTKRenderWindowsHeaders} )
 
-SOURCE_GROUP("Resources" FILES
+source_group("Resources" FILES
   ${QtVTKRenderWindowsUI}
 )
 
-SOURCE_GROUP("Generated" FILES
+source_group("Generated" FILES
   ${UISrcs}
   ${MOCSrcs}
   ${RCS_SOURCES}
 )
 
-ADD_EXECUTABLE( QtVTKRenderWindows ${QtVTKRenderWindowsSrcs} ${UISrcs} ${MOCSrcs})
-TARGET_LINK_LIBRARIES( QtVTKRenderWindows ${VTK_LIBRARIES} )
+add_executable(QtVTKRenderWindows ${QtVTKRenderWindowsSrcs} ${UISrcs} ${MOCSrcs})
+target_link_libraries(QtVTKRenderWindows ${QT_LIBRARIES} ${VTK_LIBRARIES})
