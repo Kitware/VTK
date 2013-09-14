@@ -1329,6 +1329,18 @@ public:
       ndcBBox[qq+1] = wx * PMV[idx(1,0)] + wy * PMV[idx(1,1)] + wz * PMV[idx(1,2)] + PMV[idx(1,3)];
       ndcBBox[qq+2] = wx * PMV[idx(2,0)] + wy * PMV[idx(2,1)] + wz * PMV[idx(2,2)] + PMV[idx(2,3)];
       double ndcw   = wx * PMV[idx(3,0)] + wy * PMV[idx(3,1)] + wz * PMV[idx(3,2)] + PMV[idx(3,3)];
+
+      // TODO
+      // if the point is past the near clipping plane
+      // we need to do something more robust. this ensures
+      // the correct result but its inefficient
+      if (ndcw < 0.0)
+        {
+        screenExt = vtkPixelExtent(viewsize[0], viewsize[1]);
+        //cerr << "W<0!!!!!!!!!!!!!" << endl;
+        return true;
+        }
+
       // to normalized device coordinates
       ndcw = (ndcw == 0.0 ? 1.0 : 1.0/ndcw);
       ndcBBox[qq  ] *= ndcw;
@@ -1437,7 +1449,7 @@ public:
             blockExts.push_back(screenExt);
             bbox.AddBounds(bounds);
             }
-          //else { cerr << "leaf " << ds << " not visible " << endl; }
+          //else { cerr << "leaf " << ds << " not visible " << endl << endl;}
           }
         }
       iter->Delete();
@@ -2590,6 +2602,9 @@ void vtkSurfaceLICPainter::RenderInternal(
     {
     // other rank's may have some visible data but we
     // have none and should not participate further
+    #ifdef vtkSurfaceLICPainterTIME
+    this->EndTimerEvent("vtkSurfaceLICPainter::RenderInternal");
+    #endif
     return;
     }
 

@@ -106,6 +106,14 @@ private:
         const std::deque<std::deque<vtkPixelExtent> > &destExts);
 
   // Description:
+  // The efficiency of a decomposition is the ratio of useful pixels
+  // to guard pixels. If this factor shrinks bellow 1 there may be
+  // an issue.
+  double EstimateDecompEfficiency(
+        const std::deque< std::deque<vtkPixelExtent> > &exts,
+        const std::deque< std::deque<vtkPixelExtent> > &guardExts);
+
+  // Description:
   // Given a window extent, decompose into the requested number of
   // pieces.
   int DecomposeScreenExtent(
@@ -131,6 +139,12 @@ private:
         const std::deque< std::deque< vtkPixelExtent> > &in,
         std::deque< std::deque< vtkPixelExtent> > &out,
         float *vectors);
+
+
+  // decomp set of extents
+  int MakeDecompLocallyDisjoint(
+       const std::deque< std::deque< vtkPixelExtent> > &in,
+       std::deque< std::deque< vtkPixelExtent> > &out);
 
   using vtkSurfaceLICComposite::MakeDecompDisjoint;
 

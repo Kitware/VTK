@@ -36,6 +36,7 @@ using std::ostringstream;
 #include <process.h>
 #include <Winsock2.h>
 #include <time.h>
+static
 int gettimeofday(struct timeval *tv, void *)
 {
   FILETIME ft;
@@ -657,7 +658,7 @@ int vtkParallelTimer::Write()
 }
 
 //-----------------------------------------------------------------------------
-void vtkParallelTimer::PrintSelf(ostream& os, vtkIndent indent)
+void vtkParallelTimer::PrintSelf(ostream& os, vtkIndent)
 {
   time_t t;
   time(&t);

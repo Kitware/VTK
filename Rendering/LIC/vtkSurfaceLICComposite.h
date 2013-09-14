@@ -98,44 +98,44 @@ public:
   // Get the number of new extents assigned to this rank after
   // the decomposition.
   int GetNumberOfCompositeExtents() const
-  { return static_cast<int>(this->CompositeExt.size()); }
+    { return static_cast<int>(this->CompositeExt.size()); }
 
   // Description:
   // Get the extent of the domain over which to compute the LIC. This can
   // be querried only after the Composite takes place.
   const vtkPixelExtent &GetGuardExtent(int i=0) const
-  { return this->GuardExt[i]; }
+    { return this->GuardExt[i]; }
 
   const std::deque<vtkPixelExtent> &GetGuardExtents() const
-  { return this->GuardExt; }
+    { return this->GuardExt; }
 
   // Description:
   // Get the extent of the domain over which to compute the LIC. This can
   // be querried only after the Composite takes place.
   const vtkPixelExtent &GetDisjointGuardExtent(int i=0) const
-  { return this->DisjointGuardExt[i]; }
+    { return this->DisjointGuardExt[i]; }
 
   const std::deque<vtkPixelExtent> &GetDisjointGuardExtents() const
+    { return this->GuardExt; }
 
-  { return this->GuardExt; }
   // Description:
   // Get the extent of the domain over which to compute the LIC. This can
   // be querried only after the Composite takes place.
   const vtkPixelExtent &GetCompositeExtent(int i=0) const
-  { return this->CompositeExt[i]; }
+    { return this->CompositeExt[i]; }
 
   const std::deque<vtkPixelExtent> &GetCompositeExtents() const
-  { return this->CompositeExt; }
+    { return this->CompositeExt; }
 
   // Description:
   // Get the whole dataset extent (all blocks).
   const vtkPixelExtent &GetDataSetExtent() const
-  { return this->DataSetExt; }
+    { return this->DataSetExt; }
 
   // Description:
   // Get the whole window extent.
   const vtkPixelExtent &GetWindowExtent() const
-  { return this->WindowExt; }
+    { return this->WindowExt; }
 
   // Description:
   // Set up for a serial run, makes the decomp disjoint and adds
@@ -177,6 +177,15 @@ public:
   virtual int Scatter(void *, int, int, vtkTextureObject *&)
     { return -1; }
 
+  // Description:
+  // Make a decomposition disjoint with respect to itself. Extents are
+  // removed from the input array and disjoint extents are appened onto
+  // the output array. This is a local operation.
+  static
+  int MakeDecompDisjoint(
+        std::deque<vtkPixelExtent> &in,
+        std::deque<vtkPixelExtent> &out);
+
 protected:
   vtkSurfaceLICComposite();
   ~vtkSurfaceLICComposite();
@@ -192,14 +201,6 @@ protected:
         const std::deque<vtkPixelExtent> &in,
         std::deque<vtkPixelExtent> &out,
         float *vectors);
-
-  // Description:
-  // Make a decomposition disjoint with respect to itself. Extents are
-  // removed from the input array and disjoint extents are appened onto
-  // the output array. This is a local operation.
-  int MakeDecompDisjoint(
-        std::deque<vtkPixelExtent> &in,
-        std::deque<vtkPixelExtent> &out);
 
   // Description:
   // Compute max(V) on the given extent.

@@ -203,7 +203,7 @@ int vtkSurfaceLICComposite::MakeDecompDisjoint(
      deque<vtkPixelExtent> &in,
      deque<vtkPixelExtent> &out)
 {
-  while ( !in.empty() )
+  while (!in.empty())
     {
     // for each element
     deque<vtkPixelExtent> tmpOut(1, in.back());

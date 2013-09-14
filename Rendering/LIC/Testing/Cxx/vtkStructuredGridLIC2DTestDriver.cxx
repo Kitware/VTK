@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestStructuredGridLIC2DSlice.h
+  Module:    TestStructuredGridLIC2DSlice.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,9 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-#ifndef  __TestStructuredGridLIC2DSlice_h
-#define  __TestStructuredGridLIC2DSlice_h
 
 #include "vtkStructuredGridLIC2D.h"
 #include "vtkPNGReader.h"
@@ -44,19 +41,17 @@
 #include <vtksys/CommandLineArguments.hxx>
 #include <string>
 
-enum { STRUCTURED_GRID_LIC2D_SLICE_DEMO = 0, STRUCTURED_GRID_LIC2D_SLICE_TEST = 1 };
-static int    RenderingMode = STRUCTURED_GRID_LIC2D_SLICE_TEST;
-static double ZoomFactor    = 2.8;
-
-#define CREATE_NEW(var, class) vtkSmartPointer<class> var = vtkSmartPointer<class>::New();
-inline  int CLAMP(int a, int min, int max)
+// --------------------------------------------------------------------------
+static inline
+int CLAMP(int a, int low, int high)
 {
-  a = (a < min)? min : a;
-  a = (a > max)? max : a;
+  a = (a < low)? low : a;
+  a = (a > high)? high : a;
   return a;
 }
 
-static int StructuredGridLIC2DSlice(int argc, char* argv[])
+// --------------------------------------------------------------------------
+int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
 {
   std::string filename;
   std::string noise_filename;
@@ -67,6 +62,8 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
   int num_steps = 40;
   int slice_dir = 2; // 0 == X, 1 == Y, 2 == Z
   int slice = 0;
+  int test_mode = 0;
+  double zoom_factor = 2.8;
 
   vtksys::CommandLineArguments arg;
   arg.StoreUnusedArguments(1);
@@ -93,6 +90,10 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
   arg.AddArgument("--slice-dir", argT::EQUAL_ARGUMENT, &slice_dir,
     "(optional: default 2 (Z slices)) The slice direction: 0 for X slices, 1 for Y slices and 2 for Z slices. "
     "This is ignored for 2D data.");
+  arg.AddArgument("--test-mode", argT::EQUAL_ARGUMENT, &test_mode,
+    "(optional: default 0) run as ctest or demo");
+  arg.AddArgument("--zoom-factor", argT::EQUAL_ARGUMENT, &zoom_factor,
+    "(optional: default 2.8) set camera zoom");
 
   if (!arg.Parse() || filename=="")
     {
@@ -120,7 +121,9 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
     slice_dir = 2;
     }
 
-  CREATE_NEW(reader, vtkXMLStructuredGridReader);
+  vtkSmartPointer<vtkXMLStructuredGridReader> reader
+    = vtkSmartPointer<vtkXMLStructuredGridReader>::New();
+
   reader->SetFileName(filename.c_str());
   reader->Update();
 
@@ -177,19 +180,29 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
       }
     }
 
-  CREATE_NEW(extractVOI, vtkExtractGrid);
+  vtkSmartPointer<vtkExtractGrid> extractVOI
+    = vtkSmartPointer<vtkExtractGrid>::New();
+
   extractVOI->SetInputConnection(reader->GetOutputPort());
   extractVOI->SetVOI(voi);
 
-  CREATE_NEW(renWin, vtkRenderWindow);
-  CREATE_NEW(renderer, vtkRenderer);
+  vtkSmartPointer<vtkRenderWindow> renWin
+    = vtkSmartPointer<vtkRenderWindow>::New();
+
+  vtkSmartPointer<vtkRenderer> renderer
+    = vtkSmartPointer<vtkRenderer>::New();
+
+  vtkSmartPointer<vtkRenderWindowInteractor> iren
+    = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+
   renWin->AddRenderer(renderer);
-  CREATE_NEW(iren, vtkRenderWindowInteractor);
   iren->SetRenderWindow(renWin);
 
   renWin->Render();
 
-  CREATE_NEW(filter, vtkStructuredGridLIC2D);
+  vtkSmartPointer<vtkStructuredGridLIC2D> filter
+    = vtkSmartPointer<vtkStructuredGridLIC2D>::New();
+
   if (  filter->SetContext( renWin ) == 0  )
     {
     cout << "Required OpenGL extensions / GPU not supported." << endl;
@@ -200,7 +213,9 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
 
   if (noise_filename != "")
     {
-    CREATE_NEW(pngReader, vtkPNGReader);
+    vtkSmartPointer<vtkPNGReader> pngReader
+      = vtkSmartPointer<vtkPNGReader>::New();
+
     pngReader->SetFileName(noise_filename.c_str());
     filter->SetInputConnection(1, pngReader->GetOutputPort(0));
     }
@@ -221,18 +236,22 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
       return 0;
       }
 
-    CREATE_NEW(clone, vtkImageData);
+    vtkSmartPointer<vtkImageData> clone
+      = vtkSmartPointer<vtkImageData>::New();
+
     clone->ShallowCopy(filter->GetOutputDataObject(1));
 
     double range[2];
     clone->GetPointData()->GetScalars()->GetRange(range);
-    CREATE_NEW(caster, vtkImageShiftScale);
+
+    vtkSmartPointer<vtkImageShiftScale> caster
+      = vtkSmartPointer<vtkImageShiftScale>::New();
+
     caster->SetInputData(clone);
     caster->SetOutputScalarTypeToUnsignedChar();
     caster->SetShift(-range[0]);
     caster->SetScale(255.0/(range[1]-range[0]));
     caster->Update();
-
 
     //vtkPNGWriter* writer = vtkPNGWriter::New();
     //writer->SetFileName("/tmp/lic.png");
@@ -240,27 +259,40 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
     //writer->Write();
     //writer->Delete();
 
-    CREATE_NEW(texture, vtkTexture);
+    vtkSmartPointer<vtkTexture> texture
+      = vtkSmartPointer<vtkTexture>::New();
+
     texture->SetInputConnection(caster->GetOutputPort());
 
-    CREATE_NEW(clone2, vtkStructuredGrid);
+    vtkSmartPointer<vtkStructuredGrid> clone2
+      = vtkSmartPointer<vtkStructuredGrid>::New();
+
     clone2->ShallowCopy(filter->GetOutput(0));
 
-    CREATE_NEW(surfaceFilter, vtkDataSetSurfaceFilter);
+    vtkSmartPointer<vtkDataSetSurfaceFilter> surfaceFilter
+      = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
+
     surfaceFilter->SetInputData(clone2);
 
-    CREATE_NEW(mapper, vtkPolyDataMapper);
+    vtkSmartPointer<vtkPolyDataMapper> mapper
+      = vtkSmartPointer<vtkPolyDataMapper>::New();
+
     mapper->SetInputConnection(surfaceFilter->GetOutputPort());
     mapper->SetScalarVisibility(0);
 
-    CREATE_NEW(actor, vtkActor);
+
+    vtkSmartPointer<vtkActor> actor
+      = vtkSmartPointer<vtkActor>::New();
+
     actor->SetMapper(mapper);
     actor->SetTexture(texture);
 
     renderer->AddActor(actor);
     }
 
-  CREATE_NEW(tester, vtkTesting);
+  vtkSmartPointer<vtkTesting> tester
+    = vtkSmartPointer<vtkTesting>::New();
+
   for (int cc=0; cc < argc; cc++)
     {
     tester->AddArgument(argv[cc]);
@@ -269,9 +301,9 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
 
   renderer->SetBackground(0.2,0.1,0.2);
   renderer->ResetCamera();
-  renderer->GetActiveCamera()->Zoom( ZoomFactor );
+  renderer->GetActiveCamera()->Zoom( zoom_factor );
 
-  if ( RenderingMode == STRUCTURED_GRID_LIC2D_SLICE_TEST )
+  if ( test_mode )
     {
     switch (dataDesc)
       {
@@ -288,17 +320,16 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
  int reply = (!tester->IsValidImageSpecified() ||
    (tester->RegressionTest(10) == vtkTesting::PASSED))? /*success*/ 0 : /*failure*/ 1;
 
- if (tester->IsInteractiveModeSpecified())
+ if ( tester->IsInteractiveModeSpecified() || !test_mode )
    {
    iren->Start();
    }
 
-  if ( RenderingMode != STRUCTURED_GRID_LIC2D_SLICE_TEST )
-    {
-    iren->Start();
-    }
-
  return reply;
 }
 
-#endif
+// --------------------------------------------------------------------------
+int StructuredGridLIC2DDemo(int argc, char* argv[])
+{
+  return vtkStructuredGridLIC2DTestDriver(argc, argv);
+}

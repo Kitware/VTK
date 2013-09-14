@@ -193,6 +193,39 @@ void MPITypeFree(deque<MPI_Datatype> &types)
     }
 }
 
+// ****************************************************************************
+static
+size_t Size(deque< deque<vtkPixelExtent> > exts)
+{
+  size_t np = 0;
+  size_t nr = exts.size();
+  for (size_t r=0; r<nr; ++r)
+    {
+    const deque<vtkPixelExtent> &rexts = exts[r];
+    size_t ne = rexts.size();
+    for (size_t e=0; e<ne; ++e)
+      {
+      np += rexts[e].Size();
+      }
+    }
+  return np;
+}
+
+#if vtkPSurfaceLICCompositeDEBUG>=1 || defined(vtkSurfaceLICPainterTIME)
+// ****************************************************************************
+static
+int NumberOfExtents(deque< deque<vtkPixelExtent> > exts)
+{
+  size_t ne = 0;
+  size_t nr = exts.size();
+  for (size_t r=0; r<nr; ++r)
+    {
+    ne += exts[r].size();
+    }
+  return static_cast<int>(ne);
+}
+#endif
+
 #if vtkPSurfaceLICCompositeDEBUG>0
 // ****************************************************************************
 static
@@ -410,7 +443,7 @@ int vtkPSurfaceLICComposite::AllGatherExtents(
     for (int j=0; j<nRemt; ++j)
       {
       vtkPixelExtent &remoteExt = remoteExts[i][j];
-      remoteExt.SetData( pBuf+4*j );
+      remoteExt.SetData(pBuf+4*j);
       dataSetExt |= remoteExt;
       }
     }
@@ -649,6 +682,22 @@ int vtkPSurfaceLICComposite::DecomposeScreenExtent(
 }
 
 // ----------------------------------------------------------------------------
+int vtkPSurfaceLICComposite::MakeDecompLocallyDisjoint(
+     const deque< deque< vtkPixelExtent> > &in,
+     deque< deque< vtkPixelExtent> > &out)
+{
+  size_t nr = in.size();
+  out.clear();
+  out.resize(nr);
+  for (size_t r=0; r<nr; ++r)
+    {
+    deque<vtkPixelExtent> tmp(in[r]);
+    this->MakeDecompDisjoint(tmp, out[r]);
+    }
+  return 0;
+}
+
+// ----------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::MakeDecompDisjoint(
      const deque< deque< vtkPixelExtent> > &in,
      deque< deque< vtkPixelExtent> > &out,
@@ -784,6 +833,9 @@ int vtkPSurfaceLICComposite::AddGuardPixels(
   #if vtkPSurfaceLICCompositeDEBUG>=2
   cerr << "=====vtkPSurfaceLICComposite::AddGuardPixels" << endl;
   #endif
+  #ifdef vtkSurfaceLICPainterTIME
+  vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
+  #endif
 
   guardExts.resize(this->CommSize);
   disjointGuardExts.resize(this->CommSize);
@@ -791,7 +843,9 @@ int vtkPSurfaceLICComposite::AddGuardPixels(
   int nx[2];
   this->WindowExt.Size(nx);
   float fudge = this->GetFudgeFactor(nx);
-  //cerr << "aspect=" << aspect << " fudge=" << fudge << endl;
+  #if vtkPSurfaceLICCompositeDEBUG>=2
+  cerr << " fudge=" << fudge << endl;
+  #endif
 
   float arc
     = this->StepSize*this->NumberOfSteps*this->NumberOfGuardLevels*fudge;
@@ -805,7 +859,12 @@ int vtkPSurfaceLICComposite::AddGuardPixels(
       + this->NumberOfEEGuardPixels
       + this->NumberOfAAGuardPixels;
     ng = ng<2 ? 2 : ng;
-    //cerr << "ng=" << ng << endl;
+    #ifdef vtkSurfaceLICPainterTIME
+    log->GetHeader() << "ng=" << ng << "\n";
+    #endif
+    #if vtkPSurfaceLICCompositeDEBUG>=2
+    cerr << "ng=" << ng << endl;
+    #endif
     for (int r=0; r<this->CommSize; ++r)
       {
       deque<vtkPixelExtent> tmpExts(exts[r]);
@@ -834,7 +893,12 @@ int vtkPSurfaceLICComposite::AddGuardPixels(
             vectors,
             vectorMax);
 
-    //cerr << "ng=";
+    #ifdef vtkSurfaceLICPainterTIME
+    log->GetHeader() << "ng=";
+    #endif
+    #if vtkPSurfaceLICCompositeDEBUG>=2
+    cerr << "ng=";
+    #endif
     for (int r=0; r<this->CommSize; ++r)
       {
       deque<vtkPixelExtent> tmpExts(exts[r]);
@@ -846,7 +910,12 @@ int vtkPSurfaceLICComposite::AddGuardPixels(
           + this->NumberOfEEGuardPixels
           + this->NumberOfAAGuardPixels;;
         ng = ng<2 ? 2 : ng;
-        //cerr << "  " << ng;
+        #ifdef vtkSurfaceLICPainterTIME
+        log->GetHeader() << " " << ng;
+        #endif
+        #if vtkPSurfaceLICCompositeDEBUG>=2
+        cerr << "  " << ng;
+        #endif
         tmpExts[b].Grow(ng);
         tmpExts[b] &= this->DataSetExt;
         }
@@ -855,7 +924,12 @@ int vtkPSurfaceLICComposite::AddGuardPixels(
       disjointGuardExts[r].clear();
       this->MakeDecompDisjoint(tmpExts, disjointGuardExts[r]);
       }
-    //cerr << endl;
+    #ifdef vtkSurfaceLICPainterTIME
+    log->GetHeader() << "\n";
+    #endif
+    #if vtkPSurfaceLICCompositeDEBUG>=2
+    cerr << endl;
+    #endif
     }
 
   return 0;
@@ -908,6 +982,20 @@ double vtkPSurfaceLICComposite::EstimateCommunicationCost(
 }
 
 // ----------------------------------------------------------------------------
+double vtkPSurfaceLICComposite::EstimateDecompEfficiency(
+      const deque< deque<vtkPixelExtent> > &exts,
+      const deque< deque<vtkPixelExtent> > &guardExts)
+{
+  // number of pixels in the domain decomp
+  double ne = static_cast<double>(Size(exts));
+  double nge = static_cast<double>(Size(guardExts));
+
+  // efficiency is the ratio of valid pixels
+  // to guard pixels
+  return ne/fabs(ne - nge);
+}
+
+// ----------------------------------------------------------------------------
 int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
 {
   #if vtkPSurfaceLICCompositeDEBUG>=2
@@ -931,7 +1019,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
     #ifdef vtkSurfaceLICPainterTIME
     log->GetHeader() << "in-place comm cost=" << commCost << "\n";
     #endif
-    #if vtkPSurfaceLICCompositeDEBUG>=1
+    #if vtkPSurfaceLICCompositeDEBUG>=2
     cerr << "in-place comm cost=" << commCost << endl;
     #endif
     if (commCost <= 0.3)
@@ -940,7 +1028,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
       #ifdef vtkSurfaceLICPainterTIME
       log->GetHeader() << "using in-place composite\n";
       #endif
-      #if vtkPSurfaceLICCompositeDEBUG>=1
+      #if vtkPSurfaceLICCompositeDEBUG>=2
       cerr << "using in-place composite" << endl;
       #endif
       }
@@ -950,7 +1038,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
       #ifdef vtkSurfaceLICPainterTIME
       log->GetHeader() << "using disjoint composite\n";
       #endif
-      #if vtkPSurfaceLICCompositeDEBUG>=1
+      #if vtkPSurfaceLICCompositeDEBUG>=2
       cerr << "using disjoint composite" << endl;
       #endif
       }
@@ -961,7 +1049,8 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
   switch (this->Strategy)
     {
     case COMPOSITE_INPLACE:
-      newExts = allBlockExts;
+      // make it locally disjoint to avoid redundant computation
+      this->MakeDecompLocallyDisjoint(allBlockExts, newExts);
       break;
 
     case COMPOSITE_INPLACE_DISJOINT:
@@ -976,13 +1065,13 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
       return -1;
     }
 
-  #if defined(vtkSurfaceLICPainterTIME) || vtkPSurfaceLICCompositeDEBUG>=1
+  #if defined(vtkSurfaceLICPainterTIME) || vtkPSurfaceLICCompositeDEBUG>=2
   double commCost = this->EstimateCommunicationCost(allBlockExts, newExts);
   #endif
   #ifdef vtkSurfaceLICPainterTIME
   log->GetHeader() << "actual comm cost=" << commCost << "\n";
   #endif
-  #if vtkPSurfaceLICCompositeDEBUG>=1
+  #if vtkPSurfaceLICCompositeDEBUG>=2
   cerr << "actual comm cost=" << commCost << endl;
   #endif
 
@@ -996,7 +1085,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
     {
     // construct program describing communication patterns that are
     // required to move data to geometry decomp from the new lic
-    // decomp
+    // decomp after LIC
     for (int srcRank=0; srcRank<this->CommSize; ++srcRank)
       {
       deque<vtkPixelExtent> &srcBlocks = newExts[srcRank];
@@ -1048,6 +1137,22 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
 
   #if vtkPSurfaceLICCompositeDEBUG>=1
   vtkPixelExtentIO::Write(this->CommRank, "LICDecompGuard.vtk", guardExts);
+  vtkPixelExtentIO::Write(this->CommRank, "LICDisjointDecompGuard.vtk", disjointGuardExts);
+  #endif
+
+  #if defined(vtkSurfaceLICPainterTIME) || vtkPSurfaceLICCompositeDEBUG>=2
+  double efficiency = this->EstimateDecompEfficiency(newExts, disjointGuardExts);
+  size_t nNewExts = NumberOfExtents(newExts);
+  #endif
+  #if defined(vtkSurfaceLICPainterTIME)
+  log->GetHeader()
+    << "decompEfficiency=" << efficiency << "\n"
+    << "numberOfExtents=" << nNewExts << "\n";
+  #endif
+  #if vtkPSurfaceLICCompositeDEBUG>=2
+  cerr
+    << "decompEfficiency=" << efficiency << endl
+    << "numberOfExtents=" << nNewExts << endl;
   #endif
 
   // save the local decomp with gaurd cells

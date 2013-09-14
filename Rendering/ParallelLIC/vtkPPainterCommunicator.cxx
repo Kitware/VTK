@@ -333,11 +333,11 @@ void vtkPPainterCommunicator::SubsetCommunicator(
             &activeRanks[0],
             &activeGroup);
 
-      MPI_Comm comm;
-      MPI_Comm_create(defaultComm, activeGroup, &comm);
+      MPI_Comm subsetComm;
+      MPI_Comm_create(defaultComm, activeGroup, &subsetComm);
       MPI_Group_free(&activeGroup);
 
-      this->Internals->SetCommunicator(comm, true);
+      this->Internals->SetCommunicator(subsetComm, true);
       }
     }
 }
