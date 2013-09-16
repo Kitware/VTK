@@ -58,10 +58,18 @@ function(vtk_add_python_wrapping module_name)
   target_link_libraries(${module_name}PythonD LINK_PUBLIC ${module_name}
     vtkWrappingPythonCore ${extra_links} ${VTK_PYTHON_LIBRARIES})
 
+  add_library(${module_name}PythonInit OBJECT ${module_name}PythonInit.cxx)
+  set_property(TARGET ${module_name}PythonInit APPEND
+    PROPERTY INCLUDE_DIRECTORIES ${vtkCommonCore_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIR})
+  if (NOT WIN32)
+    set_property(TARGET ${module_name}PythonInit APPEND
+      PROPERTY COMPILE_FLAGS "-fPIC")
+  endif()
+
   _vtk_add_python_module(${module_name}Python ${module_name}PythonInit.cxx)
   target_link_libraries(${module_name}Python ${module_name}PythonD)
   if(CMAKE_HAS_TARGET_INCLUDES)
-    set_property(TARGET ${module_name}Python APPEND
+    set_property(TARGET ${module_name}Python ${module_name}PythonInit APPEND
       PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
   endif()
 endfunction()

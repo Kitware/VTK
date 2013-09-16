@@ -324,11 +324,6 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
       return(UnicodeString);
     }
 
-"vtkDataArray" {
-      yylval.str = vtkstrndup(yytext, yyleng);
-      return(VTK_ID);
-    }
-
 "Qt::"{ID} {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(QT_ID);
