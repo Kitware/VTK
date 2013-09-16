@@ -16,6 +16,7 @@ vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
   TestPath.cxx
+  TestPixelExtent.cxx
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
   TestPolygon.cxx

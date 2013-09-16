@@ -1,0 +1,15 @@
+vtk_module(vtkRenderingLIC
+  GROUPS
+    Rendering
+  DEPENDS
+    vtkIOXML
+    vtkIOLegacy
+    vtkImagingSources
+    vtkRenderingOpenGL
+  PRIVATE_DEPENDS
+    vtksys
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkInteractionStyle
+  )

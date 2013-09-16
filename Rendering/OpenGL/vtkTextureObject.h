@@ -257,13 +257,30 @@ public:
                          bool shaderSupportsTextureInt);
 
   // Description:
-  // Returns true if floating point textures are
-  // supported.
+  // Optional, require support for floating point depth buffer
+  // formats. If supported extensions will be loaded, however
+  // loading will fail if the extension is required but not
+  // available.
+  vtkSetMacro(RequireDepthBufferFloat, bool);
+  vtkGetMacro(RequireDepthBufferFloat, bool);
+  vtkGetMacro(SupportsDepthBufferFloat, bool);
+
+  // Description:
+  // Optional, require support for floating point texture
+  // formats. If supported extensions will be loaded, however
+  // loading will fail if the extension is required but not
+  // available.
+  vtkSetMacro(RequireTextureFloat,bool);
+  vtkGetMacro(RequireTextureFloat,bool);
   vtkGetMacro(SupportsTextureFloat,bool);
 
   // Description:
-  // Returns true if integer textures are
-  // supported
+  // Optional, require support for integer texture
+  // formats. If supported extensions will be loaded, however
+  // loading will fail if the extension is required but not
+  // available.
+  vtkSetMacro(RequireTextureInteger,bool);
+  vtkGetMacro(RequireTextureInteger,bool);
   vtkGetMacro(SupportsTextureInteger,bool);
 
   // Description:
@@ -428,8 +445,19 @@ public:
   vtkSetMacro(GenerateMipmap,bool);
 
   // Description:
-  // Returns if the context supports the required extensions.
-  static bool IsSupported(vtkRenderWindow* renWin);
+  // Returns if the context supports the required extensions. If flags
+  // for optional extenisons are set then the test fails when support
+  // for them is not found.
+  static bool IsSupported(
+        vtkRenderWindow* renWin,
+        bool requireTexFloat,
+        bool requireDepthFloat,
+        bool requireTexInt);
+
+  // Description:
+  // Check for feature support, without any optional features.
+  static bool IsSupported(vtkRenderWindow* renWin)
+    { return vtkTextureObject::IsSupported(renWin, false, false, false); }
 
   // Description:
   // Copy a sub-part of the texture (src) in the current framebuffer
@@ -514,8 +542,12 @@ protected:
 
   vtkWeakPointer<vtkRenderWindow> Context;
   unsigned int Handle;
+  bool RequireTextureInteger;
   bool SupportsTextureInteger;
+  bool RequireTextureFloat;
   bool SupportsTextureFloat;
+  bool RequireDepthBufferFloat;
+  bool SupportsDepthBufferFloat;
 
   int WrapS;
   int WrapT;
