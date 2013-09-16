@@ -93,7 +93,7 @@ public:
   //   '%j' The Y axis tick label for the histogram cell
   // Any other characters or unrecognized format tags are printed in the
   // tooltip label verbatim.
-  virtual vtkStdString GetTooltipLabel(const vtkVector2f &plotPos,
+  virtual vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
                                        vtkIdType segmentIndex);
 

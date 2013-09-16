@@ -69,6 +69,9 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
   endforeach()
 
   if(NOT VTK_INSTALL_NO_LIBRARIES)
+    if(APPLE AND VTK_JAVA_INSTALL)
+      set_target_properties(${module_name}Java PROPERTIES SUFFIX ".jnilib")
+    endif(APPLE AND VTK_JAVA_INSTALL)
     install(TARGETS ${module_name}Java
       EXPORT ${VTK_INSTALL_EXPORT_NAME}
       RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries

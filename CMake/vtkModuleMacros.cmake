@@ -292,7 +292,7 @@ endmacro()
 # VTK_CUSTOM_LIBRARY_SUFFIX will override the suffix.
 macro(vtk_target_name _name)
   get_property(_type TARGET ${_name} PROPERTY TYPE)
-  if(NOT "${_type}" STREQUAL EXECUTABLE)
+  if(NOT "${_type}" STREQUAL EXECUTABLE AND NOT VTK_JAVA_INSTALL)
     set_property(TARGET ${_name} PROPERTY VERSION 1)
     set_property(TARGET ${_name} PROPERTY SOVERSION 1)
   endif()
@@ -318,6 +318,9 @@ endmacro()
 
 macro(vtk_target_install _name)
   if(NOT VTK_INSTALL_NO_LIBRARIES)
+    if(APPLE AND VTK_JAVA_INSTALL)
+       set_target_properties(${_name} PROPERTIES SUFFIX ".jnilib")
+    endif(APPLE AND VTK_JAVA_INSTALL)
     install(TARGETS ${_name}
       EXPORT ${VTK_INSTALL_EXPORT_NAME}
       RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries

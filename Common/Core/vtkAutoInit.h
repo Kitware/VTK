@@ -70,5 +70,28 @@
 #define VTK_AUTOINIT_DESTRUCT(M) \
   M##_AutoInit_Destruct();
 
+// Description:
+// Initialize the named module, ensuring its object factory is correctly
+// registered and unregistered. This call must be made in global scope in the
+// translation unit of your executable (which can include a shared library, but
+// will not work as expected in a static library).
+//
+// @code{.cpp}
+// #include "vtkAutoInit.h"
+// VTK_MODULE_INIT(vtkRenderingOpenGL);
+// @endcode
+//
+// The above snippet if included in the global scope will ensure the object
+// factories for vtkRenderingOpenGL are correctly registered and unregistered.
+#define VTK_MODULE_INIT(M) \
+  VTK_AUTOINIT_DECLARE(M) \
+  static struct M##_ModuleInit {                                           \
+    /* Call <mod>_AutoInit_Construct during initialization.  */            \
+    M##_ModuleInit()  { VTK_AUTOINIT_CONSTRUCT(M) }                      \
+    /* Call <mod>_AutoInit_Destruct during finalization.  */               \
+    ~M##_ModuleInit() { VTK_AUTOINIT_DESTRUCT(M)  }                      \
+  } M##_ModuleInit_Instance;
+
+
 #endif
 // VTK-HeaderTest-Exclude: vtkAutoInit.h
