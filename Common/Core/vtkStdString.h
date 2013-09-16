@@ -32,7 +32,7 @@ VTKCOMMONCORE_EXPORT ostream& operator<<(ostream&, const vtkStdString&);
 // Not setting the visibility of this class caused the
 // vtkArrayIteratorTemplate<vtkStdString> symbols to be hidden on Apple GCC 4.2
 // but exporting would cause failure on MSVC 10 (works either way with GCC 4.4
-#if defined(__APPLE__) && __GNUC__ >=4
+#if defined(__APPLE__) && (__GNUC__==4) && (__GNUC_MINOR__<=2) && !defined(__clang__)
 class VTKCOMMONCORE_EXPORT vtkStdString : public std::string
 #else
 class vtkStdString : public std::string
