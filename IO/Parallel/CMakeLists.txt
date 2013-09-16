@@ -13,3 +13,4 @@ set(Module_SRCS
   )
 
 vtk_module_library(vtkIOParallel ${Module_SRCS})
+target_link_libraries(vtkIOParallel LINK_PRIVATE vtkNetCDF_cxx)

@@ -344,7 +344,7 @@ if (UNIX)
 endif()
 
 VTK_ADD_LIBRARY(vtkNetCDF_cxx ${netcdf_cxx_SOURCES})
-TARGET_LINK_LIBRARIES(vtkNetCDF_cxx vtkNetCDF)
+TARGET_LINK_LIBRARIES(vtkNetCDF_cxx LINK_PUBLIC vtkNetCDF)
 
 #-----------------------------------------------------------------------------
 #package the result
