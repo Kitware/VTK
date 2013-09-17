@@ -72,12 +72,7 @@ union vtkIEEE754Bits {
   double d;
 };
 
-#if defined(_MSC_VER)
-// MSVC70 is broken; it doesn't accept the "LL" suffix. MSVC6 and MSVC71 do.
-static union vtkIEEE754Bits vtkMathNanBits    = { 0x7FF8000000000000i64 };
-static union vtkIEEE754Bits vtkMathInfBits    = { 0x7FF0000000000000i64 };
-static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000i64 };
-#elif defined(__BORLANDC__)
+#if defined(__BORLANDC__)
 // Borland C++ union initializers are broken.
 // Use an otherwise-discouraged aliasing trick:
 static vtkTypeUInt64 vtkMathNanBits    = 0x7FF8000000000000i64;
@@ -91,7 +86,7 @@ static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000LL };
 
 #endif //VTK_HAS_STD_NUMERIC_LIMITS
 
-#if defined(_MSC_VER) || defined(__BORLANDC__)
+#if defined(__BORLANDC__)
 const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000i64;
 const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFi64;
 #else
