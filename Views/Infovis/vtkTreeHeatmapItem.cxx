@@ -51,6 +51,10 @@ vtkTreeHeatmapItem::~vtkTreeHeatmapItem()
 void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
 {
   this->Dendrogram->SetTree(tree);
+  if (tree == NULL)
+    {
+    return;
+    }
 
   if (this->GetTable() != NULL &&
       this->GetTable()->GetNumberOfRows() != 0)
@@ -70,6 +74,10 @@ void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
 void vtkTreeHeatmapItem::SetTable(vtkTable *table)
 {
   this->Heatmap->SetTable(table);
+  if (table == NULL)
+    {
+    return;
+    }
 
   if (this->Dendrogram->GetTree() != NULL &&
       this->Dendrogram->GetTree()->GetNumberOfVertices() != 0)
@@ -320,11 +328,19 @@ int vtkTreeHeatmapItem::GetOrientation()
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::GetBounds(double bounds[4])
 {
-  double treeBounds[4];
-  this->Dendrogram->GetBounds(treeBounds);
+  double treeBounds[4] =
+    {VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN};
+  if (this->GetTree()->GetNumberOfVertices() > 0)
+    {
+    this->Dendrogram->GetBounds(treeBounds);
+    }
 
-  double tableBounds[4];
-  this->Heatmap->GetBounds(tableBounds);
+  double tableBounds[4] =
+    {VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN};
+  if (this->GetTable()->GetNumberOfRows() > 0)
+    {
+    this->Heatmap->GetBounds(tableBounds);
+    }
 
   double xMin, xMax, yMin, yMax;
 
@@ -336,7 +352,7 @@ void vtkTreeHeatmapItem::GetBounds(double bounds[4])
     {
     xMin = tableBounds[0];
     }
-  if (treeBounds[1] < tableBounds[1])
+  if (treeBounds[1] > tableBounds[1])
     {
     xMax = treeBounds[1];
     }
@@ -352,7 +368,7 @@ void vtkTreeHeatmapItem::GetBounds(double bounds[4])
     {
     yMin = tableBounds[2];
     }
-  if (treeBounds[3] < tableBounds[3])
+  if (treeBounds[3] > tableBounds[3])
     {
     yMax = treeBounds[3];
     }
