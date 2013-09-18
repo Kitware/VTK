@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkContourFilter.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -72,6 +73,20 @@ vtkContourFilter::vtkContourFilter()
   this->GridSynchronizedTemplates = vtkGridSynchronizedTemplates3D::New();
   this->RectilinearSynchronizedTemplates = vtkRectilinearSynchronizedTemplates::New();
 
+  this->InternalProgressCallbackCommand = vtkCallbackCommand::New();
+  this->InternalProgressCallbackCommand->SetCallback(
+    &vtkContourFilter::InternalProgressCallbackFunction);
+  this->InternalProgressCallbackCommand->SetClientData(this);
+
+  this->SynchronizedTemplates2D->AddObserver(vtkCommand::ProgressEvent,
+                                             this->InternalProgressCallbackCommand);
+  this->SynchronizedTemplates3D->AddObserver(vtkCommand::ProgressEvent,
+                                             this->InternalProgressCallbackCommand);
+  this->GridSynchronizedTemplates->AddObserver(vtkCommand::ProgressEvent,
+                                               this->InternalProgressCallbackCommand);
+  this->RectilinearSynchronizedTemplates->AddObserver(vtkCommand::ProgressEvent,
+                                                      this->InternalProgressCallbackCommand);
+
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
@@ -97,6 +112,7 @@ vtkContourFilter::~vtkContourFilter()
   this->SynchronizedTemplates3D->Delete();
   this->GridSynchronizedTemplates->Delete();
   this->RectilinearSynchronizedTemplates->Delete();
+  this->InternalProgressCallbackCommand->Delete();
 }
 
 // Overload standard modified time function. If contour values are modified,
@@ -803,4 +819,15 @@ void vtkContourFilter::ReportReferences(vtkGarbageCollector* collector)
   // These filters share our input and are therefore involved in a
   // reference loop.
   vtkGarbageCollectorReport(collector, this->ScalarTree, "ScalarTree");
+}
+
+//----------------------------------------------------------------------------
+void vtkContourFilter::InternalProgressCallbackFunction(vtkObject *vtkNotUsed(caller),
+                                                        unsigned long vtkNotUsed(eid),
+                                                        void *clientData,
+                                                        void *callData)
+{
+  vtkContourFilter *contourFilter = static_cast<vtkContourFilter *>(clientData);
+  double progress = *static_cast<double *>(callData);
+  contourFilter->UpdateProgress(progress);
 }
