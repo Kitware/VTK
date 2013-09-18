@@ -1412,11 +1412,12 @@ public:
       }
     // dataset case
     vtkDataSet* ds = dynamic_cast<vtkDataSet*>(dobj);
-    if (ds)
+    if (ds && ds->GetNumberOfCells())
       {
       double bounds[6];
       ds->GetBounds(bounds);
-      if (this->ProjectBounds(PMV, viewsize, bounds, dataExt))
+      if ( vtkBoundingBox::IsValid(bounds)
+        && this->ProjectBounds(PMV, viewsize, bounds, dataExt) )
         {
         // the dataset is visible
         // add its extent
@@ -1426,7 +1427,7 @@ public:
       //cerr << "ds " << ds << " not visible " << endl;
       return 0;
       }
-   // composite dataset case
+    // composite dataset case
     vtkCompositeDataSet* cd = dynamic_cast<vtkCompositeDataSet*>(dobj);
     if (cd)
       {
@@ -1441,7 +1442,8 @@ public:
           double bounds[6];
           ds->GetBounds(bounds);
           vtkPixelExtent screenExt;
-          if (this->ProjectBounds(PMV, viewsize, bounds, screenExt))
+          if ( vtkBoundingBox::IsValid(bounds)
+            && this->ProjectBounds(PMV, viewsize, bounds, screenExt) )
             {
             // this block is visible
             // save it's screen extent
@@ -1456,14 +1458,14 @@ public:
       // process accumulated dataset bounds
       double bounds[6];
       bbox.GetBounds(bounds);
-      if (this->ProjectBounds(PMV, viewsize, bounds, dataExt))
+      if ( vtkBoundingBox::IsValid(bounds)
+        && this->ProjectBounds(PMV, viewsize, bounds, dataExt) )
         {
         return 1;
         }
       return 0;
       }
-    // it's an error to be here
-    vtkGenericWarningMacro("Invalid data object");
+    //cerr << "ds " << ds << " no cells " << endl;
     return 0;
     }
 
