@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    ImageDataLIC2DDemo.cxx
+  Module:    StructuredGridLIC2DDemo.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,11 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "TestImageDataLIC2D.h"
+#include "vtkStructuredGridLIC2DTestDriver.cxx"
 
-extern int ImageDataLIC2D(int argc, char* argv[]);
-
-int main( int argc, char * argv[] )
+int main(int argc, char * argv[])
 {
-  return ImageDataLIC2D( argc, argv );
+  return StructuredGridLIC2DDemo(argc, argv);
 }

@@ -20,6 +20,7 @@ set_property(
 vtk_test_cxx_executable(
   ${vtk-module}CxxTests
   RENDERING_FACTORY
+  vtkStructuredGridLIC2DTestDriver.cxx
   vtkSurfaceLICTestDriver.cxx
   )
 # surface lic on a curved surface

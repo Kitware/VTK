@@ -1054,6 +1054,13 @@ bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow *renWin)
     return false;
     }
 
+  vtkOpenGLExtensionManager *manager = context->GetExtensionManager();
+  if (manager->DriverIsNvidia() && manager->DriverVersionIs(1,6))
+    {
+    // mac osx 10.6 glsl doesn't support array initializer
+    return false;
+    }
+
   return vtkTextureObject::IsSupported(renWin, true, false, false)
      && vtkFrameBufferObject2::IsSupported(renWin)
      && vtkShaderProgram2::IsSupported(renWin)

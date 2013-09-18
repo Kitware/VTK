@@ -37,7 +37,7 @@ public:
 
   // Description:
   // Copier and assignment operators.
-  vtkPPainterCommunicator(const vtkPPainterCommunicator &other)
+  vtkPPainterCommunicator(const vtkPPainterCommunicator &other) : vtkPainterCommunicator(other)
     { this->Copy(&other, false); }
 
   vtkPPainterCommunicator &operator=(const vtkPPainterCommunicator &other)

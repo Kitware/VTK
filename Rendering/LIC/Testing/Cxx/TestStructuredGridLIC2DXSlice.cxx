@@ -12,15 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-#include "TestStructuredGridLIC2DSlice.h"
-#include <vtksys/SystemTools.hxx>
+#include "vtkStructuredGridLIC2DTestDriver.h"
+#include "vtkTestUtilities.h"
+#include "vtksys/SystemTools.hxx"
 
 int TestStructuredGridLIC2DXSlice(int argc, char* argv[])
 {
-  ZoomFactor    = 3.0;
-  RenderingMode = STRUCTURED_GRID_LIC2D_SLICE_TEST;
-
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/timestep_0_15.vts");
 
@@ -33,7 +30,7 @@ int TestStructuredGridLIC2DXSlice(int argc, char* argv[])
   noise = "--noise=" + noise;
   delete [] fname;
 
-  char** new_argv = new char*[argc+10];
+  char** new_argv = new char*[argc+12];
   for (int cc=0; cc < argc; cc++)
     {
     new_argv[cc] = vtksys::SystemTools::DuplicateString(argv[cc]);
@@ -45,7 +42,9 @@ int TestStructuredGridLIC2DXSlice(int argc, char* argv[])
   new_argv[argc++] = vtksys::SystemTools::DuplicateString("--num-steps=100");
   new_argv[argc++] = vtksys::SystemTools::DuplicateString("--slice-dir=0");
   new_argv[argc++] = vtksys::SystemTools::DuplicateString("--slice=98");
-  int status = ::StructuredGridLIC2DSlice(argc, new_argv);
+  new_argv[argc++] = vtksys::SystemTools::DuplicateString("--zoom-factor=3.0");
+  new_argv[argc++] = vtksys::SystemTools::DuplicateString("--test-mode=1");
+  int status = vtkStructuredGridLIC2DTestDriver(argc, new_argv);
   for (int kk=0; kk < argc; kk++)
     {
     delete [] new_argv[kk];
