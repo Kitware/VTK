@@ -158,8 +158,9 @@ void vtkColorTransferControlPointsItem::SetControlPoint(vtkIdType index, double*
     xrgbms[0] = newPos[0];
     xrgbms[4] = newPos[2];
     xrgbms[5] = newPos[3];
+    this->StartChanges();
     this->ColorTransferFunction->SetNodeValue(index, xrgbms);
-    this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
+    this->EndChanges();
     }
 }
 
@@ -170,6 +171,9 @@ void vtkColorTransferControlPointsItem::EditPoint(float tX, float tY)
     {
     return;
     }
+
+  this->StartChanges();
+
   double xrgbms[6];
   this->ColorTransferFunction->GetNodeValue(this->CurrentPoint, xrgbms);
   xrgbms[4] += tX;
@@ -181,8 +185,9 @@ void vtkColorTransferControlPointsItem::EditPoint(float tX, float tY)
     xrgbms[4] += tX;
     xrgbms[5] += tY;
     this->ColorTransferFunction->SetNodeValue(this->CurrentPoint - 1, xrgbms);
-    this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
     }
+
+  this->EndChanges();
 }
 
 //-----------------------------------------------------------------------------
@@ -193,13 +198,16 @@ vtkIdType vtkColorTransferControlPointsItem::AddPoint(double* newPos)
     return -1;
     }
 
+  this->StartChanges();
+
   double posX = newPos[0];
   double rgb[3] = {0., 0., 0.};
   this->ColorTransferFunction->GetColor(posX, rgb);
   vtkIdType addedPoint =
     this->ColorTransferFunction->AddRGBPoint(posX, rgb[0], rgb[1], rgb[2]);
   this->vtkControlPointsItem::AddPointId(addedPoint);
-  this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
+
+  this->EndChanges();
   return addedPoint;
 }
 
@@ -211,6 +219,9 @@ vtkIdType vtkColorTransferControlPointsItem::RemovePoint(double* currentPoint)
     {
     return -1;
     }
+
+  this->StartChanges();
+
 #ifndef NDEBUG
   vtkIdType expectedPoint =
 #endif
@@ -218,7 +229,8 @@ vtkIdType vtkColorTransferControlPointsItem::RemovePoint(double* currentPoint)
   vtkIdType removedPoint =
     this->ColorTransferFunction->RemovePoint(currentPoint[0]);
   assert(removedPoint == expectedPoint);
-  this->InvokeEvent(vtkControlPointsItem::PointsModifiedEvent);
+
+  this->EndChanges();
   return removedPoint;
 }
 

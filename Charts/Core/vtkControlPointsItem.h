@@ -41,11 +41,15 @@ public:
   vtkTypeMacro(vtkControlPointsItem, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Events fires by this class (and subclasses).
+  // \li CurrentPointChangedEvent is fired when the current point index is changed.
+  // \li CurrentPointEditEvent is fired to request the application to show UI to
+  // edit the current point.
+  // \li vtkCommand::StartEvent and vtkCommand::EndEvent is fired
+  // to mark groups of changes to control points.
   enum {
     CurrentPointChangedEvent = vtkCommand::UserEvent,
     CurrentPointEditEvent,
-    PointsModifiedEvent // fired when the control points are changed by
-                        // user-interaction.
   };
 
   // Description:
@@ -380,6 +384,7 @@ protected:
   vtkBrush*           SelectedPointBrush;
   int                 BlockUpdates;
   int                 StartedInteractions;
+  int                 StartedChanges;
   vtkIdType           CurrentPoint;
 
   double              Bounds[4];
