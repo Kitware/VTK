@@ -309,8 +309,9 @@ vtkObjectFactory* vtkLoad()                     \
   VTK_OBJECT_FACTORY_NEW_BODY(thisClass)
 #elif defined(VTK_DEBUG_LEAKS)
 # define VTK_STANDARD_NEW_BODY(thisClass) \
-  vtkObjectFactory::ConstructInstance(#thisClass); \
-  return new thisClass;
+  thisClass *result = new thisClass; \
+  vtkObjectFactory::ConstructInstance(result->GetClassName()); \
+  return result;
 #else
 # define VTK_STANDARD_NEW_BODY(thisClass) \
   return new thisClass;
