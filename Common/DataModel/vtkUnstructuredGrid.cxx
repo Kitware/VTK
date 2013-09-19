@@ -48,6 +48,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGridCellIterator.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
@@ -1393,6 +1394,14 @@ void vtkUnstructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
     {
     cellIds->SetId(i,cells[i]);
     }
+}
+
+//----------------------------------------------------------------------------
+vtkCellIterator *vtkUnstructuredGrid::NewCellIterator()
+{
+  vtkUnstructuredGridCellIterator *iter(vtkUnstructuredGridCellIterator::New());
+  iter->SetUnstructuredGrid(this);
+  return iter;
 }
 
 //----------------------------------------------------------------------------

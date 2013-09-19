@@ -111,6 +111,9 @@ set classExceptions {
    vtkMathTextUtilities
    vtkMatplotlibMathTextUtilities
    vtkTextRenderer
+   vtkDataSetCellIterator
+   vtkPointSetCellIterator
+   vtkUnstructuredGridCellIterator
 }
 
 proc rtSetGetTest { fileid } {

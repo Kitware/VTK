@@ -64,6 +64,10 @@ public:
                              double *weights);
 
   // Description:
+  // Return an iterator that traverses the cells in this data set.
+  vtkCellIterator* NewCellIterator();
+
+  // Description:
   // Get MTime which also considers its vtkPoints MTime.
   unsigned long GetMTime();
 
