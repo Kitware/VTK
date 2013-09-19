@@ -362,6 +362,9 @@ while(NOT dashboard_done)
     dashboard_hook_start()
   endif()
   ctest_start(${dashboard_model})
+  if(COMMAND dashboard_hook_started)
+    dashboard_hook_started()
+  endif()
 
   # Always build if the tree is fresh.
   set(dashboard_fresh 0)
