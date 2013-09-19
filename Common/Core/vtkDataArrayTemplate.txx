@@ -502,6 +502,82 @@ void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, vtkIdType j,
 }
 
 //----------------------------------------------------------------------------
+template<class T>
+void vtkDataArrayTemplate<T>::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                                        vtkAbstractArray *source)
+{
+  if (source->GetDataType() != this->GetDataType())
+    {
+    vtkWarningMacro("Input and output array data types do not match.");
+    return;
+    }
+
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+    }
+
+  vtkIdType numIds = dstIds->GetNumberOfIds();
+  if (srcIds->GetNumberOfIds() != numIds)
+    {
+    vtkWarningMacro("Input and output id array sizes do not match.");
+    return;
+    }
+
+  // Find maximum destination id and resize if needed
+  vtkIdType maxDstId = 0;
+  for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+    {
+    maxDstId = std::max(maxDstId, dstIds->GetId(idIndex));
+    }
+
+  vtkIdType maxSize = (maxDstId + 1) * this->NumberOfComponents;
+  if (maxSize > this->Size)
+    {
+    if (this->ResizeAndExtend(maxSize) == 0)
+      {
+      vtkWarningMacro("Failed to allocate memory.");
+      return;
+      }
+    }
+
+  // Copy directly into our array if the source has supporting API:
+  if (vtkTypedDataArray<T> *typedSource =
+      vtkTypedDataArray<T>::FastDownCast(source))
+    {
+    for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+      {
+      typedSource->GetTupleValue(srcIds->GetId(idIndex),
+                                 this->GetPointer(dstIds->GetId(idIndex)
+                                                  * this->NumberOfComponents));
+      }
+    }
+  else if (vtkDataArray *dataSource = vtkDataArray::FastDownCast(source))
+    {
+    // Otherwise use the double interface
+    for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+      {
+      this->SetTuple(dstIds->GetId(idIndex),
+                     dataSource->GetTuple(srcIds->GetId(idIndex)));
+      }
+    }
+  else
+    {
+    vtkWarningMacro("Input array is not a vtkDataArray subclass!");
+    return;
+    }
+
+  vtkIdType maxId = maxSize - 1;
+  if (maxId > this->MaxId)
+    {
+    this->MaxId = maxId;
+    }
+
+  this->DataChanged();
+}
+
+//----------------------------------------------------------------------------
 // Insert the jth tuple in the source array, at the end in this array.
 // Note that memory allocation is performed as necessary to hold the data.
 // Returns the location at which the data was inserted.

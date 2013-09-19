@@ -381,6 +381,43 @@ void vtkBitArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source
 }
 
 //----------------------------------------------------------------------------
+void vtkBitArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                               vtkAbstractArray *source)
+{
+  vtkBitArray* ba = vtkBitArray::SafeDownCast(source);
+  if (!ba)
+    {
+    vtkWarningMacro("Input and output arrays types do not match.");
+    return;
+    }
+
+  if (!ba->NumberOfComponents != this->NumberOfComponents)
+    {
+    vtkWarningMacro("Number of components do not match.");
+    return;
+    }
+
+  vtkIdType numIds = dstIds->GetNumberOfIds();
+  if (!srcIds->GetNumberOfIds() != numIds)
+    {
+    vtkWarningMacro("Input and output id array sizes do not match.");
+    return;
+    }
+
+  for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+    {
+    vtkIdType numComp = this->NumberOfComponents;
+    vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+    vtkIdType dstLoc = dstIds->GetId(idIndex) * this->NumberOfComponents;
+    while (numComp-- > 0)
+      {
+      this->InsertValue(dstLoc++, ba->GetValue(srcLoc++));
+      }
+    }
+    this->DataChanged();
+}
+
+//----------------------------------------------------------------------------
 // Description:
 // Insert the jth tuple in the source array, at the end in this array.
 // Note that memory allocation is performed as necessary to hold the data.
