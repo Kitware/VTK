@@ -130,6 +130,20 @@ private:
 };
 
 // In-lined for performance
+inline void vtkIdList::InsertId(const vtkIdType i, const vtkIdType vtkid)
+{
+  if (i >= this->Size)
+    {
+    this->Resize(i + 1);
+    }
+  this->Ids[i] = vtkid;
+  if (i >= this->NumberOfIds)
+    {
+    this->NumberOfIds = i + 1;
+    }
+}
+
+// In-lined for performance
 inline vtkIdType vtkIdList::InsertNextId(const vtkIdType vtkid)
 {
   if ( this->NumberOfIds >= this->Size )
