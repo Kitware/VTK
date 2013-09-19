@@ -346,6 +346,8 @@ void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
 
   //Interpolate new values
   double p[3];
+  this->Points->Resize(14);
+  this->CellScalars->Resize(14);
   for ( numMidPts=0; numMidPts < 1; numMidPts++ )
     {
     this->InterpolationFunctions(MidPoints[numMidPts], weights);
