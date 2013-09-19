@@ -64,7 +64,7 @@ static void CreateImplFile(const char *libName,
   fprintf(fout,"\nstatic PyMethodDef Py%s_ClassMethods[] = {\n", libName);
   fprintf(fout,"{NULL, NULL, 0, NULL}};\n\n");
 
-  fprintf(fout,"extern  \"C\" { void real_init%s(const char *modulename); }\n\n", libName);
+  fprintf(fout,"extern  \"C\" {%svoid real_init%s(const char *modulename); }\n\n", dllexp, libName);
 
   fprintf(fout,"void real_init%s(const char *modulename)\n{\n", libName);
 
