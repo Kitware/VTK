@@ -176,7 +176,7 @@ private:
 //BTX
   // Description:
   // A class responsible for delete'ing the global instance of the log.
-  class VTKRENDERINGLIC_EXPORT vtkParallelTimerDestructor
+  class VTKRENDERINGPARALLELLIC_EXPORT vtkParallelTimerDestructor
     {
     public:
       vtkParallelTimerDestructor() : Log(0) {}
