@@ -104,10 +104,14 @@ class vtkWebMouseHandler(vtkWebProtocol):
         pvevent = vtkWebInteractionEvent()
         pvevent.SetButtons(buttons)
         pvevent.SetModifiers(modifiers)
-        pvevent.SetX(event["x"])
-        pvevent.SetY(event["y"])
+        if event.has_key("x"):
+            pvevent.SetX(event["x"])
+        if event.has_key("y"):
+            pvevent.SetY(event["y"])
+        if event.has_key("scroll"):
+            pvevent.SetScroll(event["scroll"])
         if event["action"] == 'dblclick':
-             pvevent.SetRepeatCount(2)
+            pvevent.SetRepeatCount(2)
         #pvevent.SetKeyCode(event["charCode"])
         retVal = self.getApplication().HandleInteractionEvent(view, pvevent)
         del pvevent
