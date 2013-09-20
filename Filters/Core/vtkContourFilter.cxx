@@ -28,9 +28,11 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearSynchronizedTemplates.h"
 #include "vtkSimpleScalarTree.h"
@@ -55,7 +57,10 @@ vtkContourFilter::vtkContourFilter()
 {
   this->ContourValues = vtkContourValues::New();
 
-  this->ComputeNormals = 1;
+  // -1 == uninitialized. This is so we know if ComputeNormals has been set
+  // by the user, so that we can preserve old (broken) behavior that ignored
+  // this setting for certain dataset types.
+  this->ComputeNormals = -1;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
@@ -616,6 +621,27 @@ int vtkContourFilter::RequestData(
       output->SetPolys(newPolys);
       }
     newPolys->Delete();
+
+    // -1 == uninitialized. This setting used to be ignored, and we preserve the
+    // old behavior for backward compatibility. Normals will be computed here
+    // if and only if the user has explicitly set the option.
+    if (this->ComputeNormals != 0 && this->ComputeNormals != -1)
+      {
+      vtkNew<vtkPolyDataNormals> normalsFilter;
+      normalsFilter->SetOutputPointsPrecision(this->OutputPointsPrecision);
+      vtkNew<vtkPolyData> tempInput;
+      tempInput->ShallowCopy(output);
+      normalsFilter->SetInputData(tempInput.GetPointer());
+      normalsFilter->SetFeatureAngle(180.);
+      normalsFilter->SetUpdateExtent(
+        0,
+        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
+        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()),
+        info->Get(vtkStreamingDemandDrivenPipeline::
+                  UPDATE_NUMBER_OF_GHOST_LEVELS()));
+      normalsFilter->Update();
+      output->ShallowCopy(normalsFilter->GetOutput());
+      }
 
     this->Locator->Initialize();//releases leftover memory
     output->Squeeze();
