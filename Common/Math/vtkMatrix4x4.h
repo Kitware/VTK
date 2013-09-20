@@ -27,8 +27,6 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
-#include <algorithm> // For std::copy
-
 class VTKCOMMONMATH_EXPORT vtkMatrix4x4 : public vtkObject
 {
   // Some of the methods in here have a corresponding static (class)
@@ -221,7 +219,7 @@ inline void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16],
     }
 
   // Copy to final dest
-  std::copy(tmp, tmp + 16, c);
+  memcpy(c, tmp, 16 * sizeof(double));
 }
 
 //----------------------------------------------------------------------------
