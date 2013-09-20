@@ -44,7 +44,7 @@ template <class T>
 class vtkDataArrayTemplateLookup
 {
 public:
-  vtkDataArrayTemplateLookup() : Rebuild(true)
+  vtkDataArrayTemplateLookup()
     {
     this->SortedArray = NULL;
     this->IndexArray = NULL;
@@ -65,7 +65,6 @@ public:
   vtkAbstractArray* SortedArray;
   vtkIdList* IndexArray;
   std::multimap<T, vtkIdType> CachedUpdates;
-  bool Rebuild;
 };
 
 //----------------------------------------------------------------------------
@@ -81,6 +80,7 @@ vtkDataArrayTemplate<T>::vtkDataArrayTemplate(vtkIdType numComp):
   this->Lookup = 0;
   this->ValueRange[0] = 0;
   this->ValueRange[1] = 1;
+  this->RebuildLookup = true;
 }
 
 //----------------------------------------------------------------------------
@@ -406,7 +406,6 @@ template <class T>
 void vtkDataArrayTemplate<T>::SetNumberOfTuples(vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
-  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -849,11 +848,10 @@ void vtkDataArrayTemplate<T>::InsertComponent(vtkIdType i, int j,
 template <class T>
 void vtkDataArrayTemplate<T>::SetNumberOfValues(vtkIdType number)
 {
-  if(this->Allocate(number))
+  if (this->Allocate(number))
     {
     this->MaxId = number - 1;
     }
-  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -1022,9 +1020,9 @@ void vtkDataArrayTemplate<T>::UpdateLookup()
     this->Lookup = new vtkDataArrayTemplateLookup<T>();
     this->Lookup->SortedArray = vtkAbstractArray::CreateArray(this->GetDataType());
     this->Lookup->IndexArray = vtkIdList::New();
-    this->Lookup->Rebuild = true;
+    this->RebuildLookup = true;
     }
-  if (this->Lookup->Rebuild)
+  if (this->RebuildLookup)
     {
     int numComps = this->GetNumberOfComponents();
     vtkIdType numTuples = this->GetNumberOfTuples();
@@ -1035,8 +1033,8 @@ void vtkDataArrayTemplate<T>::UpdateLookup()
       this->Lookup->IndexArray->SetId(i, i);
       }
     vtkSortDataArray::Sort(this->Lookup->SortedArray, this->Lookup->IndexArray);
-    this->Lookup->Rebuild = false;
     this->Lookup->CachedUpdates.clear();
+    this->RebuildLookup = false;
     }
 }
 
@@ -1208,37 +1206,28 @@ void vtkDataArrayTemplate<T>::LookupValue(T value, vtkIdList* ids)
 template <class T>
 void vtkDataArrayTemplate<T>::DataChanged()
 {
-  if (this->Lookup)
-    {
-    this->Lookup->Rebuild = true;
-    }
+  this->RebuildLookup = true;
 }
 
 //----------------------------------------------------------------------------
 template <class T>
 void vtkDataArrayTemplate<T>::DataElementChanged(vtkIdType id)
 {
-  if (this->Lookup)
+  if (!this->RebuildLookup && this->Lookup)
     {
-      if (this->Lookup->Rebuild)
-        {
-        // We're already going to rebuild the lookup table. Do nothing.
-        return;
-        }
-
-      if (this->Lookup->CachedUpdates.size() >
-          static_cast<size_t>(this->GetNumberOfTuples()/10))
-        {
-        // At this point, just rebuild the full table.
-        this->Lookup->Rebuild = true;
-        }
-      else
-        {
-        // Insert this change into the set of cached updates
-        std::pair<const T, vtkIdType>
+    if (this->Lookup->CachedUpdates.size() >
+        static_cast<size_t>(this->GetNumberOfTuples()/10))
+      {
+      // At this point, just rebuild the full table.
+      this->RebuildLookup = true;
+      }
+    else
+      {
+      // Insert this change into the set of cached updates
+      std::pair<const T, vtkIdType>
           value(this->GetValue(id), id);
-        this->Lookup->CachedUpdates.insert(value);
-        }
+      this->Lookup->CachedUpdates.insert(value);
+      }
     }
 }
 
