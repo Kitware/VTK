@@ -165,7 +165,8 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
    cellScalars->Allocate(VTK_CELL_SIZE*inScalars->GetNumberOfComponents());
 
    // locator used to merge potentially duplicate points
-  locator->InitPointInsertion (newPts, input->GetBounds(),estimatedSize);
+  locator->InitPointInsertion (newPts, input->GetBounds(),
+                               input->GetNumberOfPoints());
 
   // interpolate data along edge
   // if we did not ask for scalars to be computed, don't copy them
