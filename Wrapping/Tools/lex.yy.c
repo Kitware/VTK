@@ -3802,7 +3802,7 @@ char *yyget_text  (void)
 }
 
 /** Set the current line number.
- * @param line_number
+ * @param line_number The line number to set.
  *
  */
 void yyset_lineno (int  line_number )

@@ -35,6 +35,9 @@ Some known warnings with recent flex/gcc:
          extern int isatty(int);
          #endif /* __cplusplus */
    - Change 'int i;' to 'yy_size_t i;' in yy_scan_bytes (line ~3700).
+   - Add text after "@param line_number" (line ~3505) since doxygen
+     does not permit empty @param paragraphs (clang -Wdocumentation).
+     upstream bug: <https://sourceforge.net/p/flex/bugs/158/>
 
 Step "d" removes a potential signed/unsigned comparison compiler
 warning.  It might not be necessary in later versions of flex.
