@@ -9,7 +9,7 @@
 # CG_COMPILER = full path to cgc (cgc.exe on win32)
 #
 
-# On OSX default to using the framework version of Cg.
+# On OS X default to using the framework version of Cg.
 
 IF (APPLE)
   INCLUDE(${CMAKE_ROOT}/Modules/CMakeFindFrameworks.cmake)
