@@ -19,5 +19,6 @@ public class vtkJoglCanvasComponent extends vtkAbstractJoglComponent<GLCanvas> {
 
 	public vtkJoglCanvasComponent(vtkRenderWindow renderWindow, GLCapabilities capabilities) {
 		super(renderWindow, new GLCanvas(capabilities));
+		this.getComponent().addGLEventListener(this.glEventListener);
 	}
 }
