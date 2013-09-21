@@ -19,5 +19,6 @@ public class vtkJoglPanelComponent extends vtkAbstractJoglComponent<GLJPanel> {
 
 	public vtkJoglPanelComponent(vtkRenderWindow renderWindow, GLCapabilities capabilities) {
 		super(renderWindow, new GLJPanel(capabilities));
+		this.getComponent().addGLEventListener(this.glEventListener);
 	}
 }
