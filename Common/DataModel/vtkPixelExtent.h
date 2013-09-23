@@ -264,10 +264,38 @@ VTKCOMMONDATAMODEL_EXPORT
 std::ostream &operator<<(std::ostream &os, const vtkPixelExtent &ext);
 
 //-----------------------------------------------------------------------------
-inline
-bool operator<(const vtkPixelExtent &l, const vtkPixelExtent &r)
+template<typename T>
+void vtkPixelExtent::SetData(const T *ext)
 {
-  return l.Size() < r.Size();
+  Data[0] = static_cast<int>(ext[0]);
+  Data[1] = static_cast<int>(ext[1]);
+  Data[2] = static_cast<int>(ext[2]);
+  Data[3] = static_cast<int>(ext[3]);
+}
+
+//-----------------------------------------------------------------------------
+template<typename T>
+void vtkPixelExtent::SetData(T ilo, T ihi, T jlo, T jhi)
+{
+  T ext[4] = {ilo, ihi, jlo, jhi};
+  this->SetData(ext);
+}
+
+//-----------------------------------------------------------------------------
+template<typename T>
+void vtkPixelExtent::GetData(T data[4]) const
+{
+  data[0] = static_cast<T>(this->Data[0]);
+  data[1] = static_cast<T>(this->Data[1]);
+  data[2] = static_cast<T>(this->Data[2]);
+  data[3] = static_cast<T>(this->Data[3]);
+}
+
+//-----------------------------------------------------------------------------
+inline
+void vtkPixelExtent::Clear()
+{
+  this->SetData<int>(INT_MAX, INT_MIN, INT_MAX, INT_MIN);
 }
 
 //-----------------------------------------------------------------------------
@@ -297,20 +325,6 @@ vtkPixelExtent::vtkPixelExtent(
 
 //-----------------------------------------------------------------------------
 inline
-vtkPixelExtent::vtkPixelExtent(const vtkPixelExtent &other)
-{
-  *this = other;
-}
-
-//-----------------------------------------------------------------------------
-inline
-void vtkPixelExtent::SetData(const vtkPixelExtent &other)
-{
-  this->SetData(other.GetData());
-}
-
-//-----------------------------------------------------------------------------
-inline
 vtkPixelExtent &vtkPixelExtent::operator=(const vtkPixelExtent &other)
 {
   if (&other == this)
@@ -322,38 +336,17 @@ vtkPixelExtent &vtkPixelExtent::operator=(const vtkPixelExtent &other)
 }
 
 //-----------------------------------------------------------------------------
-template<typename T>
-void vtkPixelExtent::SetData(const T *ext)
+inline
+vtkPixelExtent::vtkPixelExtent(const vtkPixelExtent &other)
 {
-  Data[0] = static_cast<int>(ext[0]);
-  Data[1] = static_cast<int>(ext[1]);
-  Data[2] = static_cast<int>(ext[2]);
-  Data[3] = static_cast<int>(ext[3]);
-}
-
-//-----------------------------------------------------------------------------
-template<typename T>
-void vtkPixelExtent::SetData(T ilo, T ihi, T jlo, T jhi)
-{
-  T ext[4] = {ilo, ihi, jlo, jhi};
-  this->SetData(ext);
+  *this = other;
 }
 
 //-----------------------------------------------------------------------------
 inline
-void vtkPixelExtent::Clear()
+void vtkPixelExtent::SetData(const vtkPixelExtent &other)
 {
-  this->SetData<int>(INT_MAX, INT_MIN, INT_MAX, INT_MIN);
-}
-
-//-----------------------------------------------------------------------------
-template<typename T>
-void vtkPixelExtent::GetData(T data[4]) const
-{
-  data[0] = static_cast<T>(this->Data[0]);
-  data[1] = static_cast<T>(this->Data[1]);
-  data[2] = static_cast<T>(this->Data[2]);
-  data[3] = static_cast<T>(this->Data[3]);
+  this->SetData(other.GetData());
 }
 
 //-----------------------------------------------------------------------------
@@ -632,7 +625,7 @@ vtkPixelExtent vtkPixelExtent::Split(int dir)
   if (s)
     {
     s += this->Data[q];
-    half =* this;
+    half = *this;
     half.Data[q] = s;
     this->Data[q+1] = s - 1;
     }
@@ -654,6 +647,13 @@ void vtkPixelExtent::NodeToCell()
 {
   --this->Data[1];
   --this->Data[3];
+}
+
+//-----------------------------------------------------------------------------
+inline
+bool operator<(const vtkPixelExtent &l, const vtkPixelExtent &r)
+{
+  return l.Size() < r.Size();
 }
 
 #endif

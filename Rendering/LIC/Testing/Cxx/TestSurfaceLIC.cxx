@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSurfaceLICTestDriver.h"
 #include "vtkObjectFactory.h"
 #include "vtkCellData.h"
 #include "vtkDataSetSurfaceFilter.h"
@@ -24,6 +23,7 @@
 #include "vtkGenericDataObjectReader.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkSurfaceLICTestDriver.h"
 
 #include <vtksys/CommandLineArguments.hxx>
 #include <vtksys/SystemTools.hxx>

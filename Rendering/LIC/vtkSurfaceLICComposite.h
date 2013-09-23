@@ -253,7 +253,7 @@ protected:
   double StepSize;                             // window coordinates step size
   int NumberOfSteps;                           // number of integration steps
   int NormalizeVectors;                        // does integrator normailze
-  int NumberOfGuardLevels;                     // 2 if enhanced LIC 1 otherwise
+  int NumberOfGuardLevels;                     // 1.5 if enhanced LIC 1 otherwise
   int NumberOfEEGuardPixels;                   // 1 if enhanced LIC 0 otherwise
   int NumberOfAAGuardPixels;                   // n antialias passes
 

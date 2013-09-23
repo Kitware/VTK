@@ -115,7 +115,6 @@ bool operator<(
 
 // for parallel union of extents
 // ***************************************************************************
-extern "C" {
 static
 void vtkPixelExtentUnion(void *in, void *out, int *len, MPI_Datatype *type)
 {
@@ -130,7 +129,6 @@ void vtkPixelExtentUnion(void *in, void *out, int *len, MPI_Datatype *type)
     rhs.GetData(((int*)out)+ii);
     }
 }
-};
 
 // Description:
 // Container for our custom MPI_Op's
@@ -168,7 +166,10 @@ void vtkPPixelExtentOps::CreateOps()
   if ( (this->Union == MPI_OP_NULL)
     && vtkPPainterCommunicator::MPIInitialized() )
     {
-    MPI_Op_create(vtkPixelExtentUnion, 1, &this->Union);
+    MPI_Op_create(
+          static_cast<MPI_User_function*>(vtkPixelExtentUnion),
+          1,
+          &this->Union);
     }
 }
 

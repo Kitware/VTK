@@ -73,7 +73,15 @@ void vtkSurfaceLICComposite::Initialize(
   this->StepSize = stepSize;
   this->NumberOfSteps = nSteps;
   this->NormalizeVectors = normalizeVectors;
-  this->NumberOfGuardLevels = enhancedLIC ? 1.5 : 1;
+  // TODO -- FIXME
+  // type of NumberOfGuardLevels should be float. The change is
+  // fairly involved and needs to be thoroughly tested. Note too
+  // few gaurd pixels and you get an incorrect result, too many
+  // and you destroy performance and scaling. while getting this
+  // right the following will quiets dashboard warnings and keeps
+  // the existing well tested behavior.
+  this->NumberOfGuardLevels = 1;
+  //this->NumberOfGuardLevels = enhancedLIC ? 1.5 : 1;
   this->NumberOfEEGuardPixels = enhancedLIC ? 1 : 0;
   this->NumberOfAAGuardPixels = 2*antialias;
 }

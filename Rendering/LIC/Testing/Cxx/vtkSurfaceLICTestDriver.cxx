@@ -36,8 +36,6 @@
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkgl.h"
 
-#include <vtksys/CommandLineArguments.hxx>
-#include <vtksys/SystemTools.hxx>
 #include <vector>
 #include <string>
 
