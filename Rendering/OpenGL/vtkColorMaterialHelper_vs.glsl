@@ -12,7 +12,6 @@
 //     PURPOSE.  See the above copyright notice for more information.
 //
 //=========================================================================
-// Id: Id
 
 #version 110
 
@@ -26,11 +25,6 @@ uniform int vtkColorMaterialHelper_Mode;
 
 gl_MaterialParameters getMaterialParameters()
 {
-  if (vtkColorMaterialHelper_Mode == 0)
-    {
-    return gl_FrontMaterial;
-    }
-
   gl_MaterialParameters materialParams = gl_FrontMaterial;
   if (vtkColorMaterialHelper_Mode == VTK_GL_AMBIENT)
     {

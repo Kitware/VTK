@@ -20,9 +20,9 @@
 
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkgl.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkObjectFactory.h"
 
@@ -63,6 +63,7 @@ public:
       {
       glDisable(capability);
       }
+    vtkOpenGLStaticCheckErrorMacro("failed after SetGLCapability");
   }
 
   void Transpose(double *in, double *transposed)
@@ -148,6 +149,8 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
   assert("verts must be non-null" && verts != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  vtkOpenGLClearErrorMacro();
+
   this->EnableDepthBuffer();
 
   this->Storage->SetLineType(this->Pen->GetLineType());
@@ -172,6 +175,8 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
     }
 
   this->DisableDepthBuffer();
+
+  vtkOpenGLCheckErrorMacro("failed after DrawPoly");
 }
 
 void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
@@ -179,6 +184,8 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
 {
   assert("verts must be non-null" && verts != NULL);
   assert("n must be greater than 0" && n > 0);
+
+  vtkOpenGLClearErrorMacro();
 
   this->EnableDepthBuffer();
 
@@ -202,6 +209,8 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
     }
 
   this->DisableDepthBuffer();
+
+  vtkOpenGLCheckErrorMacro("failed DrawPoints");
 }
 
 void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
@@ -210,6 +219,8 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
 {
   assert("mesh must be non-null" && mesh != NULL);
   assert("n must be greater than 0" && n > 0);
+
+  vtkOpenGLClearErrorMacro();
 
   this->EnableDepthBuffer();
 
@@ -233,6 +244,8 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
     }
 
   this->DisableDepthBuffer();
+
+  vtkOpenGLCheckErrorMacro("failed after DrawTriangleMesh");
 }
 
 void vtkOpenGLContextDevice3D::ApplyPen(vtkPen *pen)
@@ -276,12 +289,14 @@ void vtkOpenGLContextDevice3D::PushMatrix()
 {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
+  vtkOpenGLCheckErrorMacro("failed after PushMatrix");
 }
 
 void vtkOpenGLContextDevice3D::PopMatrix()
 {
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
+  vtkOpenGLCheckErrorMacro("failed after PopMatrix");
 }
 
 void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
@@ -327,12 +342,14 @@ void vtkOpenGLContextDevice3D::EnableClippingPlane(int i, double *planeEquation)
   GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
   glEnable(clipPlaneId);
   glClipPlane(clipPlaneId, planeEquation);
+  vtkOpenGLCheckErrorMacro("failed after EnableClippingPlane");
 }
 
 void vtkOpenGLContextDevice3D::DisableClippingPlane(int i)
 {
   GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
   glDisable(clipPlaneId);
+  vtkOpenGLCheckErrorMacro("failed after DisableClippingPlane");
 }
 
 void vtkOpenGLContextDevice3D::EnableDepthBuffer()

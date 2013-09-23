@@ -33,7 +33,7 @@
 
 #include <queue>
 #include <stack>
-#include <assert.h>
+#include <cassert>
 
 // format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
 // attributes: xyz rst [abc de...]
@@ -396,7 +396,6 @@ public:
     this->SubdivisionLevel = 0;
     assert("inv: " && this->ClassInvariant());
   }
-  ~vtkTriangleTile() {};
 
 #if 0
   int DifferentFromOriginals(double local[3])
@@ -629,7 +628,6 @@ public:
     this->SubdivisionLevel = 0;
     assert("inv: " && this->ClassInvariant());
     }
-  ~vtkTetraTile() {};
 
 #if 0
   int DifferentFromOriginals(double local[3])

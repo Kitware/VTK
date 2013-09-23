@@ -1,0 +1,42 @@
+html, body, div, span, h1, h2, h3, h4, p, a, big, em, font, img, s, small, strong,
+tt, var, b,u,i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, table,
+tbody, tfoot, thead, tr, th, td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    font-family: Arial,sans-serif; font-size: 1em;
+}
+
+.header {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 35px;
+}
+
+.header > div {
+    float: left;
+    line-height: normal;
+    margin: 0;
+    padding: 5px;
+    padding-top: 0;
+    height: 30px;
+    z-index: 900;
+}
+
+.viewport-container {
+    margin: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}

@@ -19,7 +19,7 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericDataSet.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkAttributesErrorMetric);
 

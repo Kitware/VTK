@@ -142,11 +142,8 @@ vtkPieChartActor::~vtkPieChartActor()
   this->ConnectionHolder->Delete();
   this->ConnectionHolder = 0;
 
-  if (this->Title)
-    {
-    delete [] this->Title;
-    this->Title = NULL;
-    }
+  delete [] this->Title;
+  this->Title = NULL;
 
   delete this->Labels;
   this->SetLabelTextProperty(NULL);
@@ -211,10 +208,7 @@ void vtkPieChartActor::Initialize()
 
   this->N = 0;
   this->Total = 0.0;
-  if ( this->Fractions )
-    {
-    delete [] this->Fractions;
-    }
+  delete [] this->Fractions;
 }
 
 //----------------------------------------------------------------------------

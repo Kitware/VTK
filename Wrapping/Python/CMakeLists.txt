@@ -171,9 +171,9 @@ if(PYTHON_EXECUTABLE)
   unset(VTK_PYTHON_IMPORT_ALL)
   foreach(module ${VTK_PYTHON_MODULES})
     set(VTK_PYTHON_IMPORT_ALL "${VTK_PYTHON_IMPORT_ALL}from ${module} import *\n")
-    configure_file(vtk/module.py.in vtk/${module}.py @ONLY IMMEDIATE)
+    configure_file(vtk/module.py.in vtk/${module}.py @ONLY)
   endforeach()
-  configure_file(vtk/__init__.py.in vtk/__init__.py @ONLY IMMEDIATE)
+  configure_file(vtk/__init__.py.in vtk/__init__.py @ONLY)
 
 # vtk.util package
   list(APPEND VTK_PYTHON_FILES
@@ -251,7 +251,7 @@ if(PYTHON_EXECUTABLE)
   # Byte compile the Python files.
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/compile_all_vtk.py.in
     ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
-    @ONLY IMMEDIATE)
+    @ONLY)
   add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
     DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
@@ -268,111 +268,38 @@ if(PYTHON_EXECUTABLE)
     ${vtkpython_pyc_depends})
 
   # If no runtime is to be installed then do not install python modules.
-  if(VTK_INSTALL_NO_RUNTIME)
-    set(VTK_INSTALL_NO_PYTHON 1)
-  endif()
+  if(NOT VTK_INSTALL_NO_RUNTIME)
 
-  # If set (generally by projects that include VTK), we install the
-  # vtk{*}Python libraries using CMake rather than setup.py. Which implies that
-  # they will be put will all other libraries. This is done in
-  # KitCommonPythonWrapBlock.cmake
-  if(VTK_INSTALL_PYTHON_USING_CMAKE)
-    set(VTK_INSTALL_NO_PYTHON 1)
-    # Install python module directory (*.py and *.pyd)
+    # Install python modules
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/vtk"
-      DESTINATION "${VTK_INSTALL_RUNTIME_DIR}/Python" COMPONENT RuntimeLibraries
+      DESTINATION ${VTK_INSTALL_PYTHON_MODULE_DIR} COMPONENT RuntimeLibraries
       USE_SOURCE_PERMISSIONS)
-  endif()
 
-  # Add a rule to use python distutils to install the python wrappers.
-  if(NOT VTK_INSTALL_NO_PYTHON)
-    set(DOLLAR "$")
-
-    # Create default python setup arguments if they are not set.
-    if(NOT DEFINED VTK_PYTHON_SETUP_ARGS)
-      set(VTK_PYTHON_SETUP_ARGS "--prefix=\"${DOLLAR}{CMAKE_INSTALL_PREFIX}\""
-        CACHE STRING "Arguments passed to \"python setup.py install ...\" during installation.")
-      mark_as_advanced(VTK_PYTHON_SETUP_ARGS)
+    # Install python extension library that backs the modules
+    if (BUILD_SHARED_LIBS AND NOT VTK_INSTALL_NO_LIBRARIES)
+      foreach(module ${VTK_PYTHON_MODULES})
+        install(TARGETS ${module}Python
+          EXPORT ${VTK_INSTALL_EXPORT_NAME}
+          RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
+          LIBRARY DESTINATION ${VTK_INSTALL_PYTHON_MODULE_DIR}/vtk COMPONENT RuntimeLibraries
+          ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
+          )
+      endforeach()
     endif()
 
-    # Change dollar sign to DOLLARSIGN
-    string(REGEX REPLACE "\\${DOLLAR}" "DOLLARSIGN"
-      PYTHON_SETUP_ARGS "${VTK_PYTHON_SETUP_ARGS}")
+    # Install the conveniently configured python interpretters
+    if(NOT VTK_INSTALL_NO_PYTHON_EXES)
+      # Install the vtkpython executable
+      install(TARGETS vtkpython
+        DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
 
-    # Get the install path for python modules
-    execute_process(COMMAND "${PYTHON_EXECUTABLE}"
-        "setup_install_paths.py" "purelib" ${PYTHON_SETUP_ARGS}
-      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-      OUTPUT_VARIABLE PYTHON_MODULE_INSTALL_DIR)
-
-    # Get the install path for binary python modules
-    execute_process(COMMAND "${PYTHON_EXECUTABLE}"
-        "setup_install_paths.py" "platlib" ${PYTHON_SETUP_ARGS}
-      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-      OUTPUT_VARIABLE PYTHON_MODULE_PLATFORM_INSTALL_DIR)
-
-    # Change DOLLARSIGN to dollar sign
-    string(REGEX REPLACE "DOLLARSIGN" "${DOLLAR}"
-      PYTHON_MODULE_INSTALL_DIR "${PYTHON_MODULE_INSTALL_DIR}")
-    string(REGEX REPLACE "DOLLARSIGN" "${DOLLAR}"
-      PYTHON_MODULE_PLATFORM_INSTALL_DIR
-      "${PYTHON_MODULE_PLATFORM_INSTALL_DIR}")
-
-    # Replace backslashes with forward slashes
-    if(WIN32)
-      string(REGEX REPLACE "\\\\" "/" PYTHON_MODULE_INSTALL_DIR
-        "${PYTHON_MODULE_INSTALL_DIR}")
-      string(REGEX REPLACE "\\\\" "/" PYTHON_MODULE_PLATFORM_INSTALL_DIR
-        "${PYTHON_MODULE_PLATFORM_INSTALL_DIR}")
+      if(PVTKPYTHON_EXECUTABLE)
+        # Install the mpi enabled vtkpython executable
+        install(TARGETS pvtkpython
+          DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
+      endif()
     endif()
 
-    set(VTK_PYTHON_MODULE_INSTALL_DIR "${PYTHON_MODULE_INSTALL_DIR}"
-      CACHE INTERNAL "Install directory for Python .py and .pyc files")
-
-    set(VTK_PYTHON_MODULE_PLATFORM_INSTALL_DIR
-      "${PYTHON_MODULE_PLATFORM_INSTALL_DIR}"
-      CACHE INTERNAL "Install directory for Python binary modules")
-
-    # If there are multiple configurations then add a BUILD_TYPE=...
-    # argument to the python setup.py call.  The build type to use is set
-    # in the CMake variable BUILD_TYPE while running the install script.
-    if(CMAKE_CONFIGURATION_TYPES)
-      set(VTK_PYTHON_SETUP_BUILD_TYPE "BUILD_TYPE=${DOLLAR}{BUILD_TYPE}")
-    else()
-      set(VTK_PYTHON_SETUP_BUILD_TYPE)
-    endif()
-
-    # Configure the post-install script to run python on setup.py.
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/PythonInstall.cmake.in
-      ${CMAKE_CURRENT_BINARY_DIR}/PythonInstall.cmake
-      @ONLY IMMEDIATE)
-
-    install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/PythonInstall.cmake
-      COMPONENT RuntimeLibraries)
   endif()
-endif()
 
-# Create the setup.py file.
-if(CMAKE_CONFIGURATION_TYPES)
-  # The build has multiple configuration types.  If CMAKE_BUILD_TYPE
-  # is set use it as the default BUILD_TYPE for setup.py to install.
-  set(VTK_PYTHON_HAS_CONFIG_TYPES 1)
-  if(CMAKE_BUILD_TYPE)
-    set(VTK_PYTHON_BUILD_TYPE "\"${CMAKE_BUILD_TYPE}\"")
-  else()
-    set(VTK_PYTHON_BUILD_TYPE "[]")
-  endif()
-else()
-  # The build has one configuration type.  The build type does not
-  # affect installation.
-  set(VTK_PYTHON_HAS_CONFIG_TYPES 0)
-  set(VTK_PYTHON_BUILD_TYPE "[]")
-endif()
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in
-  ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY IMMEDIATE)
-
-if(NOT VTK_INSTALL_NO_RUNTIME AND NOT VTK_INSTALL_NO_PYTHON)
-  install(TARGETS vtkpython ${VTKPYTHON_EXECUTABLE}
-    DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
 endif()

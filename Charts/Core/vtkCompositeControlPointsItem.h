@@ -103,6 +103,11 @@ protected:
   vtkCompositeControlPointsItem();
   virtual ~vtkCompositeControlPointsItem();
 
+  // Description:
+  // Returns true if control points are to be rendered in log-space. This is
+  // true when vtkScalarsToColors is using log-scale, for example.
+  virtual bool UsingLogScale();
+
   virtual void emitEvent(unsigned long event, void* params);
 
   virtual unsigned long int GetControlPointsMTime();

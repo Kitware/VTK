@@ -55,7 +55,7 @@ function(vtk_add_python_wrapping module_name)
     set_property(TARGET ${module_name}PythonD PROPERTY COMPILE_DEFINITIONS
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()
-  target_link_libraries(${module_name}PythonD ${module_name}
+  target_link_libraries(${module_name}PythonD LINK_PUBLIC ${module_name}
     vtkWrappingPythonCore ${extra_links} ${VTK_PYTHON_LIBRARIES})
 
   _vtk_add_python_module(${module_name}Python ${module_name}PythonInit.cxx)
@@ -78,11 +78,6 @@ function(_vtk_add_python_module name)
   if (BUILD_SHARED_LIBS)
     add_library(${name} MODULE ${ARGN})
     set_property(TARGET ${name} PROPERTY PREFIX "${PYTHON_MODULE_PREFIX}")
-    if (VTK_INSTALL_PYTHON_USING_CMAKE)
-      # if setup.py is not being used to install python modules, we need to
-      # add install rules for them.
-      vtk_target_install(${name})
-    endif()
     if (WIN32 AND NOT CYGWIN)
       # when building shared on Windows, the python module files need to be
       # named as *.pyd

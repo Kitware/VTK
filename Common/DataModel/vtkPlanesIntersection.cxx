@@ -51,11 +51,8 @@ vtkPlanesIntersection::~vtkPlanesIntersection()
     this->regionPts->Delete();
     this->regionPts = NULL;
     }
-  if (this->Plane)
-    {
-    delete [] this->Plane;
-    this->Plane = NULL;
-    }
+  delete [] this->Plane;
+  this->Plane = NULL;
 }
 void vtkPlanesIntersection::SetRegionVertices(vtkPoints *v)
 {
@@ -572,7 +569,7 @@ void vtkPlanesIntersection::SetPlaneEquations()
   // vtkPlanes stores normals & pts instead of
   //   plane equation coefficients
 
-  if (this->Plane) delete [] this->Plane;
+  delete [] this->Plane;
 
   this->Plane = new double[nplanes*4];
 

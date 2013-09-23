@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkObject.h"
+#include "vtkSystemIncludes.h"
 
 #include <string>
 #include <vector>

@@ -28,6 +28,7 @@
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
 #include "vtkgl.h"
+#include "vtkOpenGLError.h"
 
 QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
   : QGraphicsWidget(p), mContext(ctx)
@@ -51,8 +52,7 @@ QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
 
 QVTKGraphicsItem::~QVTKGraphicsItem()
 {
-  if(mFBO)
-    delete mFBO;
+  delete mFBO;
 }
 
 void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
@@ -117,8 +117,7 @@ void QVTKGraphicsItem::MakeCurrent()
   QSize sz = this->size().toSize();
   if(!mFBO || sz != mFBO->size())
   {
-    if(mFBO)
-      delete mFBO;
+    delete mFBO;
 
     if(!sz.isEmpty())
       mFBO = new QGLFramebufferObject(sz, QGLFramebufferObject::Depth);
@@ -183,6 +182,8 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
   if(!mWin)
     return;
 
+ vtkOpenGLClearErrorMacro();
+
 #if QT_VERSION >= 0x040600
   // tell Qt we're doing our own GL calls
   // if necessary, it'll put us in an OpenGL 1.x compatible state.
@@ -239,6 +240,8 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
 #if QT_VERSION >= 0x040600
   painter->endNativePainting();
 #endif
+
+  vtkOpenGLStaticCheckErrorMacro("failed after paint");
 }
 
 void QVTKGraphicsItem::keyPressEvent(QKeyEvent* e)

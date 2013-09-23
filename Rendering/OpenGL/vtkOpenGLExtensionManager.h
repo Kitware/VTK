@@ -124,6 +124,7 @@
 
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
+#include <string> // needed for std::string
 
 class vtkRenderWindow;
 
@@ -261,16 +262,119 @@ public:
   // Similar to LoadCorePromotedExtension().
   // It loads an EXT extension into the pointers of its ARB equivalent.
   virtual void LoadAsARBExtension(const char *name);
+
+  // Description:
+  // Return the driver's version parts. This may be used for
+  // fine grained feature testing.
+  virtual int GetDriverVersionMajor(){ return this->DriverVersionMajor; }
+  virtual int GetDriverVersionMinor(){ return this->DriverVersionMinor; }
+  virtual int GetDriverVersionPatch(){ return this->DriverVersionPatch; }
+
+  // Description:
+  // Get GL API version that the driver provides. This is
+  // often different than the GL version that VTK recognizes
+  // so only use this for identifying a specific driver.
+  virtual int GetDriverGLVersionMajor(){ return this->DriverGLVersionMajor; }
+  virtual int GetDriverGLVersionMinor(){ return this->DriverGLVersionMinor; }
+  virtual int GetDriverGLVersionPatch(){ return this->DriverGLVersionPatch; }
+
+  // Description:
+  // Test's for common implementors of rendering drivers. This may be used for
+  // fine grained feature testing. Note: DriverIsMesa succeeds for OS Mesa,
+  // use DriverGLRendererIsOSMessa to differentiate.
+  virtual bool DriverIsATI();
+  virtual bool DriverIsNvidia();
+  virtual bool DriverIsIntel();
+  virtual bool DriverIsMesa();
+  virtual bool DriverIsMicrosoft();
+
+  // Description:
+  // Test for a specific driver version.
+  virtual bool DriverVersionIs(int major);
+  virtual bool DriverVersionIs(int major, int minor);
+  virtual bool DriverVersionIs(int major, int minor, int patch);
+
+  // Description:
+  // Test for driver version greater than or equal
+  // to the named version.
+  virtual bool DriverVersionAtLeast(int major);
+  virtual bool DriverVersionAtLeast(int major, int minor);
+  virtual bool DriverVersionAtLeast(int major, int minor, int patch);
+
+  // Description:
+  // Test for the driver's GL version as reported in
+  // its GL_VERSION string. This is intended for driver
+  // identification only, use ExtensionSuppported
+  // to test for VTK support of a specific GL version.
+  virtual bool DriverGLVersionIs(int major, int minor, int patch);
+  virtual bool DriverGLVersionIs(int major, int minor);
+
+  // Description:
+  // Test for a specific renderer. This could be used
+  // in some cases to identify the graphics card or
+  // specific driver. Use HasToken to prevent false
+  // matches eg. avoid GeForce4 matching GeForce400
+  virtual bool DriverGLRendererIs(const char *str);
+  virtual bool DriverGLRendererHas(const char *str);
+  virtual bool DriverGLRendererHasToken(const char *str);
+
+  // Description:
+  // Test for Mesa's offscreen renderer.
+  virtual bool DriverGLRendererIsOSMesa();
+
+  // Description:
+  // Get the OpenGL version, vendor and renderer strings. These can
+  // be used to idnetify a specific driver.
+  virtual const char *GetDriverGLVendor(){ return this->DriverGLVendor.c_str(); }
+  virtual const char *GetDriverGLVersion(){ return this->DriverGLVersion.c_str(); }
+  virtual const char *GetDriverGLRenderer(){ return this->DriverGLRenderer.c_str(); }
+
+  // Description:
+  // When set known driver bugs are ignored during driver feature
+  // detection. This is used to evaluate the status of a new driver
+  // release to see if the bugs have been fixed. The function takes
+  // a description argument which, is sent to VTK's warning stream
+  // when the ignore flag is set. This makes the test output searchable
+  // for tests which have problems with certain drivers. The CMakeLists
+  // variable VTK_IGNORE_GLDRIVER_BUGS can be used to set this at
+  // build time. Default OFF.
+  bool GetIgnoreDriverBugs(const char *description);
+  vtkSetMacro(IgnoreDriverBugs, bool);
+  vtkBooleanMacro(IgnoreDriverBugs, bool);
+
 //BTX
 protected:
   vtkOpenGLExtensionManager();
   virtual ~vtkOpenGLExtensionManager();
 
-
   int OwnRenderWindow;
   char *ExtensionsString;
 
   vtkTimeStamp BuildTime;
+
+  // driver specific info
+  std::string DriverGLVersion;
+  int DriverGLVersionMajor;
+  int DriverGLVersionMinor;
+  int DriverGLVersionPatch;
+  std::string DriverGLVendor;
+  std::string DriverGLRenderer;
+  int DriverVersionMajor;
+  int DriverVersionMinor;
+  int DriverVersionPatch;
+  enum DriverGLVendorIdType
+    {
+    DRIVER_VENDOR_UNKNOWN=0,
+    DRIVER_VENDOR_ATI,
+    DRIVER_VENDOR_NVIDIA,
+    DRIVER_VENDOR_INTEL,
+    DRIVER_VENDOR_MESA,
+    DRIVER_VENDOR_MICROSOFT
+    };
+  DriverGLVendorIdType DriverGLVendorId;
+  bool IgnoreDriverBugs;
+
+  virtual void InitializeDriverInformation();
 
   virtual void ReadOpenGLExtensions();
 

@@ -15,7 +15,7 @@
 
 #include "vtkSobelGradientMagnitudePass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkgl.h"
@@ -26,6 +26,8 @@
 #include "vtkShader2Collection.h"
 #include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLError.h"
 #include "vtkTextureUnitManager.h"
 
 // to be able to dump intermediate passes into png files for debugging.
@@ -102,42 +104,35 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
   if(this->DelegatePass!=0)
     {
-     vtkRenderer *r=s->GetRenderer();
+    vtkRenderer *renderer = s->GetRenderer();
 
-     // Test for Hardware support. If not supported, just render the delegate.
-     bool supported=vtkFrameBufferObject::IsSupported(r->GetRenderWindow());
+    vtkOpenGLRenderWindow *context
+      = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
 
-     if(!supported)
-       {
-       vtkErrorMacro("FBOs are not supported by the context. Cannot detect edges on the image.");
-       }
-     if(supported)
-       {
-       supported=vtkTextureObject::IsSupported(r->GetRenderWindow());
-       if(!supported)
-         {
-         vtkErrorMacro("Texture Objects are not supported by the context. Cannot detect edges on the image.");
-         }
-       }
+    // Test for Hardware support. If not supported, just render the delegate.
+    bool fbo_support = vtkFrameBufferObject::IsSupported(context)!=0;
+    bool texture_support = vtkTextureObject::IsSupported(context)!=0;
+    bool shader_support = vtkShaderProgram2::IsSupported(context)!=0;
 
-     if(supported)
-       {
-       supported=
-         vtkShaderProgram2::IsSupported(static_cast<vtkOpenGLRenderWindow *>(
-                                          r->GetRenderWindow()));
-       if(!supported)
-         {
-         vtkErrorMacro("GLSL is not supported by the context. Cannot detect edges on the image.");
-         }
-       }
+    bool supported
+      = fbo_support && texture_support && shader_support;
 
-     if(!supported)
-       {
-       this->DelegatePass->Render(s);
-       this->NumberOfRenderedProps+=
-         this->DelegatePass->GetNumberOfRenderedProps();
-       return;
-       }
+    if (!supported)
+      {
+      vtkErrorMacro(
+        << "The required extensions are not supported."
+        << " fbo_support=" << fbo_support
+        << " texture_support=" << texture_support
+        << " shader_support=" << shader_support);
+
+      this->DelegatePass->Render(s);
+      this->NumberOfRenderedProps
+        += this->DelegatePass->GetNumberOfRenderedProps();
+
+      return;
+      }
+
+    vtkOpenGLClearErrorMacro();
 
     GLint savedDrawBuffer;
     glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
@@ -159,13 +154,13 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     if(this->Pass1==0)
       {
       this->Pass1=vtkTextureObject::New();
-      this->Pass1->SetContext(r->GetRenderWindow());
+      this->Pass1->SetContext(context);
       }
 
     if(this->FrameBufferObject==0)
       {
       this->FrameBufferObject=vtkFrameBufferObject::New();
-      this->FrameBufferObject->SetContext(r->GetRenderWindow());
+      this->FrameBufferObject->SetContext(context);
       }
 
     this->RenderDelegate(s,width,height,w,h,this->FrameBufferObject,
@@ -296,8 +291,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
       }
 
     vtkUniformVariables *var=this->Program1->GetUniformVariables();
-    vtkTextureUnitManager *tu=
-      static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow())->GetTextureUnitManager();
+    vtkTextureUnitManager *tu=context->GetTextureUnitManager();
 
     int sourceId=tu->Allocate();
     vtkgl::ActiveTexture(vtkgl::TEXTURE0+sourceId);
@@ -512,6 +506,8 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     {
     vtkWarningMacro(<<" no delegate.");
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 // ----------------------------------------------------------------------------

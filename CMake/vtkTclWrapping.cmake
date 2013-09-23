@@ -63,6 +63,6 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
     set_property(TARGET ${tcl_module}TCL PROPERTY COMPILE_DEFINITIONS
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()
-  target_link_libraries(${tcl_module}TCL ${module_name}
+  target_link_libraries(${tcl_module}TCL LINK_PUBLIC ${module_name}
     ${extra_links} ${VTK_TCL_LIBRARIES})
 endfunction()

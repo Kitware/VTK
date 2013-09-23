@@ -16,6 +16,7 @@
 #define __vtkAutoInit_h
 
 #include "vtkDebugLeaksManager.h" // DebugLeaks exists longer.
+#include "vtkTimeStamp.h" // Here so that TimeStamp Schwarz initializer works
 
 #define VTK_AUTOINIT(M) VTK_AUTOINIT0(M,M##_AUTOINIT)
 #define VTK_AUTOINIT0(M,T) VTK_AUTOINIT1(M,T)
@@ -68,6 +69,29 @@
 #define VTK_AUTOINIT_DESTRUCT_9(t1,t2,t3,t4,t5,t6,t7,t8,t9) VTK_AUTOINIT_DESTRUCT_8(t1,t2,t3,t4,t5,t6,t7,t8) VTK_AUTOINIT_DESTRUCT(t9)
 #define VTK_AUTOINIT_DESTRUCT(M) \
   M##_AutoInit_Destruct();
+
+// Description:
+// Initialize the named module, ensuring its object factory is correctly
+// registered and unregistered. This call must be made in global scope in the
+// translation unit of your executable (which can include a shared library, but
+// will not work as expected in a static library).
+//
+// @code{.cpp}
+// #include "vtkAutoInit.h"
+// VTK_MODULE_INIT(vtkRenderingOpenGL);
+// @endcode
+//
+// The above snippet if included in the global scope will ensure the object
+// factories for vtkRenderingOpenGL are correctly registered and unregistered.
+#define VTK_MODULE_INIT(M) \
+  VTK_AUTOINIT_DECLARE(M) \
+  static struct M##_ModuleInit {                                           \
+    /* Call <mod>_AutoInit_Construct during initialization.  */            \
+    M##_ModuleInit()  { VTK_AUTOINIT_CONSTRUCT(M) }                      \
+    /* Call <mod>_AutoInit_Destruct during finalization.  */               \
+    ~M##_ModuleInit() { VTK_AUTOINIT_DESTRUCT(M)  }                      \
+  } M##_ModuleInit_Instance;
+
 
 #endif
 // VTK-HeaderTest-Exclude: vtkAutoInit.h

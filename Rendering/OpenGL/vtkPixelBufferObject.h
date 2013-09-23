@@ -14,21 +14,24 @@
 =========================================================================*/
 // .NAME vtkPixelBufferObject - abstracts an OpenGL pixel buffer object.
 // .SECTION Description
-// Provides low-level access to GPU memory. Used to pass raw data to GPU.
-// The data is uploaded into a pixel buffer.
+// Provides low-level access to PBO mapped memory. Used to transfer raw data
+// to/from PBO mapped memory and the application. Once data is transfered to
+// the PBO it can then be transfered to the GPU (eg texture memory). Data may
+// be uploaded from the application into a pixel buffer or downloaded from the
+// pixel bufer to the application. The vtkTextureObject is used to transfer
+// data from/to the PBO to/from texture memory on the GPU.
 // .SECTION See Also
 // OpenGL Pixel Buffer Object Extension Spec (ARB_pixel_buffer_object):
 // http://www.opengl.org/registry/specs/ARB/pixel_buffer_object.txt
 // .SECTION Caveats
-// Since most GPUs don't support double format all double data is converted to
+// Since most PBO mappeds don't support double format all double data is converted to
 // float and then uploaded.
-// DON'T PLAY WITH IT YET.
 
 #ifndef __vtkPixelBufferObject_h
 #define __vtkPixelBufferObject_h
 
-#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
 class vtkRenderWindow;
@@ -88,10 +91,10 @@ public:
   vtkSetMacro(Usage,int);
 
   // Description:
-  // Upload data to GPU.
+  // Upload data to PBO mapped.
   // The input data can be freed after this call.
   // The data ptr is treated as an 1D array with the given number of tuples and
-  // given number of components in each tuple to be copied to the GPU. increment
+  // given number of components in each tuple to be copied to the PBO mapped. increment
   // is the offset added after the last component in each tuple is transferred.
   // Look at the documentation for ContinuousIncrements in vtkImageData for
   // details about how increments are specified.
@@ -110,7 +113,7 @@ public:
     }
 
   // Description:
-  // Update data to GPU sourcing it from a 2D array.
+  // Update data to PBO mapped sourcing it from a 2D array.
   // The input data can be freed after this call.
   // The data ptr is treated as a 2D array with increments indicating how to
   // iterate over the data.
@@ -133,7 +136,7 @@ public:
     }
 
   // Description:
-  // Update data to GPU sourcing it from a 3D array.
+  // Update data to PBO mapped sourcing it from a 3D array.
   // The input data can be freed after this call.
   // The data ptr is treated as a 3D array with increments indicating how to
   // iterate over the data.
@@ -146,15 +149,23 @@ public:
                 int *componentList);
 
   // Description:
-  // Get the type with which the data is loaded into the GPU.
+  // Get the type with which the data is loaded into the PBO mapped.
   // eg. VTK_FLOAT for float32, VTK_CHAR for byte, VTK_UNSIGNED_CHAR for
   // unsigned byte etc.
   vtkGetMacro(Type, int);
+  vtkSetMacro(Type, int);
 
   // Description:
-  // Get the size of the data loaded into the GPU. Size is in the number of
-  // elements of the uploaded Type.
+  // Get the number of components used to initialize the buffer.
+  vtkGetMacro(Components, int);
+  vtkSetMacro(Components, int);
+
+  // Description:
+  // Get the size of the data loaded into the PBO mapped memory. Size is
+  // in the number of elements of the uploaded Type.
   vtkGetMacro(Size, unsigned int);
+  vtkSetMacro(Size, unsigned int);
+  void SetSize(unsigned int nTups, int nComps);
 
   // Description:
   // Get the openGL buffer handle.
@@ -207,7 +218,7 @@ public:
     int numcomps, vtkIdType increments[3]);
 
   // Description:
-  // For wrapping.
+  // Convenience methods for binding.
   void BindToPackedBuffer()
     { this->Bind(PACKED_BUFFER); }
 
@@ -218,12 +229,42 @@ public:
   // Inactivate the buffer.
   void UnBind();
 
+  // Description:
+  // Convenience api for mapping buffers to app address space.
+  // See also MapBuffer.
+  void *MapPackedBuffer()
+    { return this->MapBuffer(PACKED_BUFFER); }
+
+  void *MapPackedBuffer(int type, unsigned int numtuples, int comps)
+    { return this->MapBuffer(type, numtuples, comps, PACKED_BUFFER); }
+
+  void *MapPackedBuffer(unsigned int numbytes)
+    { return this->MapBuffer(numbytes, PACKED_BUFFER); }
+
+  void *MapUnpackedBuffer()
+    { return this->MapBuffer(UNPACKED_BUFFER); }
+
+  void *MapUnpackedBuffer(int type, unsigned int numtuples, int comps)
+    { return this->MapBuffer(type, numtuples, comps, UNPACKED_BUFFER); }
+
+  void *MapUnpackedBuffer(unsigned int numbytes)
+    { return this->MapBuffer(numbytes, UNPACKED_BUFFER); }
+
+  // Description:
+  // Convenience api for unmapping buffers from app address space.
+  // See also UnmapBuffer.
+  void UnmapUnpackedBuffer()
+    { this->UnmapBuffer(UNPACKED_BUFFER); }
+
+  void UnmapPackedBuffer()
+    { this->UnmapBuffer(PACKED_BUFFER); }
+
 //BTX
-  // We can't use just PACKED because this is a cygwin macro defined as
-  // __attribute__((packed))
+  // PACKED_BUFFER for download APP<-PBO
+  // UNPACKED_BUFFER for upload APP->PBO
   enum BufferType{
-    PACKED_BUFFER,
-    UNPACKED_BUFFER
+    UNPACKED_BUFFER=0,
+    PACKED_BUFFER
   };
 
   // Description:
@@ -231,9 +272,32 @@ public:
   void Bind(BufferType buffer);
 
   // Description:
-  // Allocate the memory. size is in number of bytes. type is a VTK type.
-  void Allocate(unsigned int size,
-                int type);
+  // Map the buffer to our addresspace. Returns a pointer to the mapped memory
+  // for read/write access. If type, tuples and components are specified new buffer
+  // data will be allocated, else the current allocation is mapped. When finished
+  // call UnmapBuffer.
+  void *MapBuffer(int type, unsigned int numtuples, int comps, BufferType mode);
+  void *MapBuffer(unsigned int numbytes, BufferType mode);
+  void *MapBuffer(BufferType mode);
+
+  // Description:
+  // Un-map the buffer from our address space, OpenGL can then use/reclaim the
+  // buffer contents.
+  void UnmapBuffer(BufferType mode);
+
+  // Description:
+  // Allocate PACKED/UNPACKED memory to hold numTuples*numComponents of vtkType.
+  void Allocate(
+        int vtkType,
+        unsigned int numtuples,
+        int comps,
+        BufferType mode);
+
+  // Description:
+  // Allocate PACKED/UNPACKED memory to hold nBytes of data.
+  void Allocate(
+        unsigned int nbytes,
+        BufferType mode);
 
   // Description:
   // Release the memory allocated without destroying the PBO handle.
@@ -241,6 +305,7 @@ public:
 
   // Description:
   // Returns if the context supports the required extensions.
+  // Extension will be loaded when the conetxt is set.
   static bool IsSupported(vtkRenderWindow* renWin);
 
 //ETX
@@ -252,7 +317,7 @@ protected:
   // Description:
   // Loads all required OpenGL extensions. Must be called every time a new
   // context is set.
-  bool LoadRequiredExtensions(vtkOpenGLExtensionManager* mgr);
+  bool LoadRequiredExtensions(vtkRenderWindow* renWin);
 
   // Description:
   // Create the pixel buffer object.
@@ -265,6 +330,7 @@ protected:
   int Usage;
   unsigned int BufferTarget; // GLenum
   int Type;
+  int Components;
   unsigned int Size;
   vtkWeakPointer<vtkRenderWindow> Context;
   unsigned int Handle;
@@ -275,5 +341,3 @@ private:
 };
 
 #endif
-
-

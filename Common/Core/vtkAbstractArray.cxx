@@ -81,6 +81,8 @@ vtkAbstractArray::vtkAbstractArray(vtkIdType vtkNotUsed(numComp))
   this->Information = NULL;
 
   this->ComponentNames = NULL;
+
+  this->MaxDiscreteValues = vtkAbstractArray::MAX_DISCRETE_VALUES; //32
 }
 
 //----------------------------------------------------------------------------
@@ -572,7 +574,8 @@ namespace
 template<typename T>
 bool AccumulateSampleValues(
   T* array, int nc, vtkIdType begin, vtkIdType end,
-  std::vector<std::set<T> >& uniques, std::set<std::vector<T> >& tupleUniques)
+  std::vector<std::set<T> >& uniques, std::set<std::vector<T> >& tupleUniques,
+  unsigned int maxDiscreteValues)
 {
   // number of discrete components remaining (tracked during iteration):
   int ndc = nc;
@@ -590,20 +593,20 @@ bool AccumulateSampleValues(
     // First, attempt a per-component insert.
     for (int j = 0; j < nc; ++ j)
       {
-      if (uniques[j].size() > vtkAbstractArray::MAX_DISCRETE_VALUES)
+      if (uniques[j].size() > maxDiscreteValues)
         continue;
       T& val(array[i * nc + j]);
       tuple[j] = val;
       result = uniques[j].insert(val);
       if (result.second)
         {
-        if (uniques[j].size() == vtkAbstractArray::MAX_DISCRETE_VALUES + 1)
+        if (uniques[j].size() == maxDiscreteValues + 1)
           {
           -- ndc;
           }
         }
       }
-    // Now, as long as no component has exceeded MAX_DISCRETE_VALUES unique
+    // Now, as long as no component has exceeded maxDiscreteValues unique
     // values, it is worth seeing whether the tuple as a whole is unique:
     if ( nc > 1 && ndc == nc )
       {
@@ -618,7 +621,8 @@ bool AccumulateSampleValues(
 template<typename U>
 void SampleProminentValues(
   std::vector<std::vector<vtkVariant> >& uniques, vtkIdType maxId,
-  int nc, vtkIdType nt, int blockSize, vtkIdType numberOfBlocks, U* ptr)
+  int nc, vtkIdType nt, int blockSize, vtkIdType numberOfBlocks, U* ptr,
+  unsigned int maxDiscreteValues)
 {
   std::vector<std::set<U> > typeSpecificUniques;
   std::set<std::vector<U> > typeSpecificUniqueTuples;
@@ -629,7 +633,7 @@ void SampleProminentValues(
     { // Awwww, just do the whole array already!
     AccumulateSampleValues(
       ptr, nc, 0, nt,
-      typeSpecificUniques, typeSpecificUniqueTuples);
+      typeSpecificUniques, typeSpecificUniqueTuples, maxDiscreteValues);
     }
   else
     { // Choose random blocks
@@ -656,7 +660,7 @@ void SampleProminentValues(
       endTuple = endTuple < nt ? endTuple : nt;
       bool endEarly = AccumulateSampleValues(
         ptr, nc, startTuple, endTuple,
-        typeSpecificUniques, typeSpecificUniqueTuples);
+        typeSpecificUniques, typeSpecificUniqueTuples, maxDiscreteValues);
       if (endEarly)
         break;
       }
@@ -694,7 +698,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
   // prominence P, we sample N blocks of M tuples each, with
   // M*N = f(T; P, U) and f some sublinear function of T.
   // If every component plus all components taken together each have more than
-  // MAX_DISCRETE_VALUES distinct values, then we exit early.
+  // MaxDiscreteValues distinct values, then we exit early.
   // M is chosen based on the number of bytes per tuple to maximize use of a
   // cache line (assuming a 64-byte cache line until kwsys::SystemInformation
   // or the like can provide a platform-independent way to query it).
@@ -737,11 +741,12 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
   vtkIdType numberOfBlocks =
     numberOfSampleTuples / blockSize +
     (numberOfSampleTuples % blockSize ? 1 : 0);
-  if (numberOfBlocks * blockSize < 2 * MAX_DISCRETE_VALUES)
+  if (static_cast<unsigned int>(numberOfBlocks * blockSize) <
+      2 * this->MaxDiscreteValues)
     {
     numberOfBlocks =
-      2 * MAX_DISCRETE_VALUES / blockSize +
-      (2 * MAX_DISCRETE_VALUES % blockSize ? 1 : 0);
+      2 * this->MaxDiscreteValues / blockSize +
+      (2 * this->MaxDiscreteValues % blockSize ? 1 : 0);
     }
   // II. Sample the array.
   std::vector<std::vector<vtkVariant> > uniques(nc > 1 ? nc + 1 : nc);
@@ -750,7 +755,8 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
     vtkSuperExtraExtendedTemplateMacro(
       SampleProminentValues(
         uniques, this->MaxId, nc, nt, blockSize, numberOfBlocks,
-        static_cast<VTK_TT*>(this->GetVoidPointer(0))));
+        static_cast<VTK_TT*>(this->GetVoidPointer(0)),
+        this->MaxDiscreteValues));
   default:
     vtkErrorMacro("Array type " << this->GetClassName() << " not supported.");
     break;
@@ -761,7 +767,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
   vtkInformationVector* iv;
   for (c = 0; c < nc; ++c)
     {
-    if (uniques[c].size() <= MAX_DISCRETE_VALUES)
+    if (uniques[c].size() <= this->MaxDiscreteValues)
       {
       ++ numberOfComponentsWithProminentValues;
       iv = this->GetInformation()->Get(PER_COMPONENT());
@@ -787,7 +793,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
       }
     }
   if (nc > 1 &&
-    static_cast<int>(uniques[nc].size()) <= MAX_DISCRETE_VALUES * nc)
+    uniques[nc].size() <= this->MaxDiscreteValues * nc)
     {
     ++ numberOfComponentsWithProminentValues;
     this->GetInformation()->Set(

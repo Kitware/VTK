@@ -199,7 +199,7 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     neighbour ->Delete();
 
     if (meanCurvature) meanCurvature->Delete();
-    if (num_neighb) delete [] num_neighb;
+    delete [] num_neighb;
 };
 //--------------------------------------------
 #define CLAMP_MACRO(v)    ((v)<(-1) ? (-1) : (v) > (1) ? (1) : v)
@@ -300,8 +300,8 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
     vtkDebugMacro("Set Values of Gauss Curvature: Done");
     /*******************************************************/
     if (facet) facet->Delete();
-    if (K)              delete [] K;
-    if (dA)             delete [] dA;
+    delete [] K;
+    delete [] dA;
     if (gaussCurvature) gaussCurvature->Delete();
     /*******************************************************/
 };

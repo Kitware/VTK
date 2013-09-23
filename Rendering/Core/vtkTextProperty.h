@@ -51,6 +51,9 @@ public:
 
   // Description:
   // Set/Get the font family. Supports legacy three font family system.
+  // If the symbolic constant VTK_FONT_FILE is returned by GetFontFamily(), the
+  // string returned by GetFontFile() must be an absolute filepath
+  // to a local FreeType compatible font.
   vtkGetStringMacro(FontFamilyAsString);
   vtkSetStringMacro(FontFamilyAsString);
   void SetFontFamily(int t);
@@ -61,6 +64,13 @@ public:
   void SetFontFamilyToTimes();
   static int GetFontFamilyFromString( const char *f );
   static const char *GetFontFamilyAsString( int f );
+
+  // Description:
+  // The absolute filepath to a local file containing a freetype-readable font
+  // if GetFontFamily() return VTK_FONT_FILE. The result is undefined for other
+  // values of GetFontFamily().
+  vtkGetStringMacro(FontFile)
+  vtkSetStringMacro(FontFile)
 
   // Description:
   // Set/Get the font size (in points).
@@ -148,6 +158,7 @@ protected:
   double Color[3];
   double Opacity;
   char* FontFamilyAsString;
+  char* FontFile;
   int   FontSize;
   int   Bold;
   int   Italic;
@@ -177,6 +188,10 @@ inline const char *vtkTextProperty::GetFontFamilyAsString( int f )
   else if ( f == VTK_TIMES )
     {
     return "Times";
+    }
+  else if ( f == VTK_FONT_FILE )
+    {
+    return "File";
     }
   return "Unknown";
 }
@@ -214,6 +229,10 @@ inline int vtkTextProperty::GetFontFamilyFromString( const char *f )
   else if ( strcmp( f, GetFontFamilyAsString( VTK_TIMES ) ) == 0 )
     {
     return VTK_TIMES;
+    }
+  else if ( strcmp( f, GetFontFamilyAsString( VTK_FONT_FILE) ) == 0 )
+    {
+    return VTK_FONT_FILE;
     }
   return VTK_UNKNOWN_FONT;
 }

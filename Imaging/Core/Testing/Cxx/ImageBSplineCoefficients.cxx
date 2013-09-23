@@ -17,6 +17,8 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
+#include "vtkSmartPointer.h"
+
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkRenderWindow.h"
@@ -31,20 +33,21 @@
 #include "vtkImageBSplineCoefficients.h"
 
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 int ImageBSplineCoefficients(int argc, char *argv[])
 {
-  int retVal = vtkTesting::PASSED;
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  vtkInteractorStyle *style = vtkInteractorStyleImage::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  int retVal = EXIT_SUCCESS;
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkInteractorStyle> style =
+    vtkSmartPointer<vtkInteractorStyle>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
-  renWin->Delete();
-  style->Delete();
 
-  vtkPNGReader *reader = vtkPNGReader::New();
+  vtkSmartPointer<vtkPNGReader> reader =
+    vtkSmartPointer<vtkPNGReader>::New();
 
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/fullhead15.png");
@@ -59,13 +62,13 @@ int ImageBSplineCoefficients(int argc, char *argv[])
   reader->GetOutput()->GetOrigin(origin);
   reader->GetOutput()->GetSpacing(spacing);
 
-  vtkImageBSplineCoefficients *coeffs =
-    vtkImageBSplineCoefficients::New();
+  vtkSmartPointer<vtkImageBSplineCoefficients> coeffs =
+    vtkSmartPointer<vtkImageBSplineCoefficients>::New();
   coeffs->SetInputConnection(reader->GetOutputPort());
   coeffs->Update();
 
-  vtkImageBSplineInterpolator *interp =
-    vtkImageBSplineInterpolator::New();
+  vtkSmartPointer<vtkImageBSplineInterpolator> interp =
+    vtkSmartPointer<vtkImageBSplineInterpolator>::New();
 
   double points[20][3] = {
     { 84.75451, 130.78060, 0.0 },
@@ -143,26 +146,26 @@ int ImageBSplineCoefficients(int argc, char *argv[])
           cerr << "Bad interpolation, error is " << e << " k = " << k
                << " degree = " << j << " mode = " << mode << "\n";
           cerr << v0 << " " << v1 << "\n";
-          retVal = vtkTesting::FAILED;
+          retVal = EXIT_FAILURE;
           }
         }
       }
 
     interp->ReleaseData();
     }
-  interp->Delete();
 
   for (int i = 0; i < 2; i++)
     {
-    vtkRenderer *renderer = vtkRenderer::New();
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.0,0.0,0.0);
     renderer->SetViewport(0.5*(i&1), 0.0,
                           0.5 + 0.5*(i&1), 1.0);
     renWin->AddRenderer(renderer);
-    renderer->Delete();
 
-    vtkImageSliceMapper *imageMapper = vtkImageSliceMapper::New();
+    vtkSmartPointer<vtkImageSliceMapper> imageMapper =
+      vtkSmartPointer<vtkImageSliceMapper>::New();
     if (i == 0)
       {
       imageMapper->SetInputConnection(reader->GetOutputPort());
@@ -186,33 +189,21 @@ int ImageBSplineCoefficients(int argc, char *argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(128);
 
-    vtkImageSlice *image = vtkImageSlice::New();
+    vtkSmartPointer<vtkImageSlice> image =
+      vtkSmartPointer<vtkImageSlice>::New();
     image->SetMapper(imageMapper);
-    imageMapper->Delete();
     renderer->AddViewProp(image);
 
     image->GetProperty()->SetColorWindow(range[1] - range[0]);
     image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
 
-    image->Delete();
     }
 
   renWin->SetSize(512,256);
 
+  iren->Initialize();
   renWin->Render();
-  int retTmp = vtkRegressionTestImage( renWin );
-  if ( retTmp == vtkRegressionTester::DO_INTERACTOR )
-    {
-    iren->Start();
-    }
-  else if ( retTmp != vtkTesting::PASSED)
-    {
-    retVal = retTmp;
-    }
-  iren->Delete();
+  iren->Start();
 
-  coeffs->Delete();
-  reader->Delete();
-
-  return !retVal;
+  return retVal;
 }

@@ -15,7 +15,7 @@
 
 #include "vtkCameraPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkgl.h"
@@ -24,6 +24,7 @@
 #include "vtkgluPickMatrix.h"
 #include "vtkCamera.h"
 #include "vtkFrameBufferObject.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkCameraPass);
 vtkCxxSetObjectMacro(vtkCameraPass,DelegatePass,vtkRenderPass);
@@ -78,6 +79,8 @@ void vtkCameraPass::GetTiledSizeAndOrigin(
 void vtkCameraPass::Render(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
+
+  vtkOpenGLClearErrorMacro();
 
   this->NumberOfRenderedProps=0;
 
@@ -254,6 +257,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   matrix->Delete();
 
   // Done with camera initialization. The delegate can be called.
+  vtkOpenGLCheckErrorMacro("failed after camera initialization");
 
   if(this->DelegatePass!=0)
     {
@@ -265,6 +269,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     {
     vtkWarningMacro(<<" no delegate.");
     }
+  vtkOpenGLCheckErrorMacro("failed after delegate pass");
 
   // Restore changed context.
   glViewport(saved_viewport[0], saved_viewport[1], saved_viewport[2],
@@ -284,6 +289,8 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   glMatrixMode(GL_PROJECTION);
   glLoadMatrixf(saved_projection_matrix);
   glMatrixMode(saved_matrix_mode);
+
+  vtkOpenGLCheckErrorMacro("failed after restore context");
 }
 
 // ----------------------------------------------------------------------------

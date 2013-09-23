@@ -266,10 +266,7 @@ void vtkKdTree::DeleteCellLists()
   int i;
   int num = this->CellList.nRegions;
 
-  if (this->CellList.regionIds)
-    {
-    delete [] this->CellList.regionIds;
-    }
+  delete [] this->CellList.regionIds;
 
   if (this->CellList.cells)
     {
@@ -313,11 +310,8 @@ vtkKdTree::~vtkKdTree()
 
   this->DeleteCellLists();
 
-  if (this->CellRegionList)
-    {
-    delete [] this->CellRegionList;
-    this->CellRegionList = NULL;
-    }
+  delete [] this->CellRegionList;
+  this->CellRegionList = NULL;
 
   if (this->TimerLog)
     {
@@ -1917,14 +1911,8 @@ vtkIdTypeArray *vtkKdTree::BuildMapForDuplicatePoints(float tolerance = 0.0)
 
   if (!idCount || !uniqueFound)
     {
-    if (idCount)
-      {
-      delete [] idCount;
-      }
-    if (uniqueFound)
-      {
-      delete [] uniqueFound;
-      }
+    delete [] idCount;
+    delete [] uniqueFound;
 
     vtkErrorMacro(<< "vtkKdTree::BuildMapForDuplicatePoints memory allocation");
     return NULL;
@@ -3138,40 +3126,26 @@ void vtkKdTree::FreeSearchStructure()
     this->Top->Delete();
     this->Top = NULL;
     }
-  if (this->RegionList)
-    {
-    delete [] this->RegionList;
-    this->RegionList = NULL;
-    }
+
+  delete [] this->RegionList;
+  this->RegionList = NULL;
 
   this->NumberOfRegions = 0;
   this->SetActualLevel();
 
   this->DeleteCellLists();
 
-  if (this->CellRegionList)
-    {
-    delete [] this->CellRegionList;
-    this->CellRegionList = NULL;
-    }
+  delete [] this->CellRegionList;
+  this->CellRegionList = NULL;
 
-  if (this->LocatorPoints)
-    {
-    delete [] this->LocatorPoints;
-    this->LocatorPoints = NULL;
-    }
+  delete [] this->LocatorPoints;
+  this->LocatorPoints = NULL;
 
-  if (this->LocatorIds)
-    {
-    delete [] this->LocatorIds;
-    this->LocatorIds = NULL;
-    }
+  delete [] this->LocatorIds;
+  this->LocatorIds = NULL;
 
-  if (this->LocatorRegionLocation)
-    {
-    delete [] this->LocatorRegionLocation;
-    this->LocatorRegionLocation = NULL;
-    }
+  delete [] this->LocatorRegionLocation;
+  this->LocatorRegionLocation = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -3815,14 +3789,8 @@ void vtkKdTree::CreateCellLists(vtkDataSet *set, int *regionList, int listSize)
       }
     }
 
-  if (listptr)
-    {
-    delete [] listptr;
-    }
-  if (idlist)
-    {
-    delete [] idlist;
-    }
+  delete [] listptr;
+  delete [] idlist;
 }
 
 //----------------------------------------------------------------------------

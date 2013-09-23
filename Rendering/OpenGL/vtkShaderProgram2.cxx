@@ -22,10 +22,11 @@
 #include "vtkUniformVariables.h"
 
 #include "vtkgl.h"
+#include "vtkOpenGLError.h"
 
 #include <vector>
 #include <vtksys/ios/sstream>
-#include <assert.h>
+#include <cassert>
 #include "vtkStdString.h"
 
 static GLenum vtkGeometryTypeInVTKToGL[5] = {
@@ -50,13 +51,16 @@ static GLenum vtkGeometryTypeOutVTKToGL[3] = {
   GL_TRIANGLE_STRIP, // VTK_GEOMETRY_SHADER_OUT_TYPE_TRIANGLE_STRIP=2
 };
 
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkShaderProgram2);
+
+//----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkShaderProgram2, UniformVariables, vtkUniformVariables);
 
 //----------------------------------------------------------------------------
 vtkShaderProgram2::vtkShaderProgram2()
 {
-  this->Context = 0;
+  this->Context = NULL;
   this->ExtensionsLoaded = false;
 
   this->Id = 0;
@@ -80,9 +84,6 @@ vtkShaderProgram2::vtkShaderProgram2()
   this->LastValidateLog = new char[this->LastValidateLogCapacity];
   this->LastValidateLog[0] = '\0'; // empty string
 
-//  this->Context = 0;
-//  this->GeometryShadersSupported = false;
-
   this->UniformVariables = vtkUniformVariables::New(); // empty list
   this->PrintErrors = true;
 }
@@ -90,51 +91,47 @@ vtkShaderProgram2::vtkShaderProgram2()
 //-----------------------------------------------------------------------------
 void vtkShaderProgram2::ReleaseGraphicsResources()
 {
-  if (this->Context)
+  // because we don't hold a reference to the render
+  // context we don't have any control on when it is
+  // destroyed. In fact it may be destroyed before
+  // we are(eg smart pointers), in which case we should
+  // do nothing.
+  this->Shaders->ReleaseGraphicsResources();
+  if (this->Context && (this->Id != 0))
     {
-    if (this->Id != 0)
-      {
-      vtkgl::DeleteProgram(this->Id);
-      this->Id = 0;
-      }
-    this->LastBuildStatus = VTK_SHADER_PROGRAM2_COMPILE_FAILED;
-    this->Shaders->ReleaseGraphicsResources();
+    vtkgl::DeleteProgram(this->Id);
+    vtkOpenGLCheckErrorMacro("failed at glDeleteProgram");
+    this->Id = 0;
     }
-  else
-    {
-    if (this->Id != 0)
-      {
-      vtkErrorMacro(<<" no context but some OpenGL resource has not been deleted.");
-      }
-    }
+  this->LastBuildStatus = VTK_SHADER_PROGRAM2_COMPILE_FAILED;
 }
 
 //----------------------------------------------------------------------------
 vtkShaderProgram2::~vtkShaderProgram2()
 {
+  this->ReleaseGraphicsResources();
+
   delete[] this->LastLinkLog;
   delete[] this->LastValidateLog;
 
   if (this->UniformVariables)
     {
     this->UniformVariables->Delete();
-    this->UniformVariables = 0;
     }
-  if (this->Id != 0)
-    {
-    vtkErrorMacro(<<"a vtkShaderProgram2 object is being deleted before ReleaseGraphicsResources() has been called.");
-    }
+
   if (this->Shaders)
     {
     this->Shaders->Delete();
-    this->Shaders = 0;
     }
 }
 
 //----------------------------------------------------------------------------
-bool vtkShaderProgram2::IsSupported(vtkOpenGLRenderWindow *context)
+bool vtkShaderProgram2::IsSupported(vtkRenderWindow *renWin)
 {
-  assert("pre: context_exists" && context);
+  vtkOpenGLRenderWindow *context
+    = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
+
+  if (!context) return false;
 
   vtkOpenGLExtensionManager *e = context->GetExtensionManager();
 
@@ -151,9 +148,14 @@ bool vtkShaderProgram2::IsSupported(vtkOpenGLRenderWindow *context)
 }
 
 //----------------------------------------------------------------------------
-bool vtkShaderProgram2::LoadExtensions(vtkOpenGLRenderWindow *context)
+bool vtkShaderProgram2::LoadRequiredExtensions(vtkRenderWindow *renWin)
 {
-  assert("pre: context_exists" && context);
+  vtkOpenGLRenderWindow *context
+    = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
+
+  this->ExtensionsLoaded = false;
+
+  if (!context) return false;
 
   vtkOpenGLExtensionManager *e = context->GetExtensionManager();
 
@@ -166,9 +168,9 @@ bool vtkShaderProgram2::LoadExtensions(vtkOpenGLRenderWindow *context)
     e->ExtensionSupported("GL_ARB_vertex_shader") &&
     e->ExtensionSupported("GL_ARB_fragment_shader"));
 
-  bool result = (multiTexture && glsl);
+  this->ExtensionsLoaded = (multiTexture && glsl);
 
-  if (result)
+  if (this->ExtensionsLoaded)
     {
     if (gl13)
       {
@@ -191,22 +193,45 @@ bool vtkShaderProgram2::LoadExtensions(vtkOpenGLRenderWindow *context)
       }
     }
 
-  return result;
+  return this->ExtensionsLoaded;
 }
 
 // ----------------------------------------------------------------------------
-void vtkShaderProgram2::SetContext(vtkOpenGLRenderWindow *context)
+vtkRenderWindow *vtkShaderProgram2::GetContext()
 {
-  if (this->Context != context)
+  return this->Context;
+}
+
+// ----------------------------------------------------------------------------
+void vtkShaderProgram2::SetContext(vtkRenderWindow *renWin)
+{
+  // avoid pointless reassignment
+  if (this->Context == renWin)
     {
-    this->ReleaseGraphicsResources();
-    this->Context = context;
-    if (this->Context)
-      {
-      this->ExtensionsLoaded = this->LoadExtensions(this->Context);
-      }
-    this->Modified();
+    return;
     }
+  // free ressources
+  this->ReleaseGraphicsResources();
+  this->Context = NULL;
+  this->Modified();
+  // all done if assigned null
+  if (!renWin)
+    {
+    return;
+    }
+  // check for support
+  vtkOpenGLRenderWindow *context
+    = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
+
+  if ( !context
+    || !this->LoadRequiredExtensions(renWin) )
+    {
+    vtkErrorMacro("The context does not support the required extensions.");
+    return;
+    }
+  // intialize
+  this->Context = renWin;
+  this->Context->MakeCurrent();
 }
 
 // ----------------------------------------------------------------------------
@@ -303,10 +328,6 @@ bool vtkShaderProgram2::DisplayListUnderCreationInCompileMode()
 }
 
 // ----------------------------------------------------------------------------
-// Description:
-// Use the shader program.
-// It saves the current shader program or fixed-pipeline in use.
-// It also set the uniform variables.
 void vtkShaderProgram2::Use()
 {
   assert("pre: context_is_set" && this->Context);
@@ -326,6 +347,7 @@ void vtkShaderProgram2::Use()
       // don't look at current program, don't save it, don't restore it
       // later.
       vtkgl::UseProgram(progId);
+      vtkOpenGLCheckErrorMacro("failed at glUseProgram");
       }
     else
       {
@@ -334,12 +356,15 @@ void vtkShaderProgram2::Use()
       if (static_cast<GLuint>(value) != progId)
         {
         this->SavedId = static_cast<unsigned int>(value);
+        #ifndef NDEBUG
         if (this->SavedId != 0)
           {
           vtkWarningMacro(<<"another program was used (id=" << this->SavedId
                           <<"), our id is" << progId << ".");
           }
+        #endif
         vtkgl::UseProgram(progId);
+        vtkOpenGLCheckErrorMacro("failed at glUseProgram");
         }
       assert("check: in_use" && this->IsUsed());
       }
@@ -364,18 +389,13 @@ void vtkShaderProgram2::Restore()
     {
     GLint value;
     glGetIntegerv(vtkgl::CURRENT_PROGRAM, &value);
-    if (static_cast<GLuint>(value) == static_cast<GLuint>(this->Id))
+    if (static_cast<GLuint>(value) != static_cast<GLuint>(this->Id))
       {
-      vtkgl::UseProgram(static_cast<GLuint>(this->SavedId));
-      this->SavedId = 0;
+      vtkErrorMacro("Restore failed because the porgram is not in use");
       }
-    else
-      {
-      vtkWarningMacro(<<"cannot restore because the program in use (id="
-                      << value <<
-                      ") is not the id of the vtkShaderProgram2 object (id="
-                      << this->Id << ").");
-      }
+    vtkgl::UseProgram(static_cast<GLuint>(this->SavedId));
+    vtkOpenGLCheckErrorMacro("failed at glUseProgram");
+    this->SavedId = 0;
     }
 }
 
@@ -407,27 +427,29 @@ void vtkShaderProgram2::Build()
     if (progId == 0)
       {
       progId = vtkgl::CreateProgram();
+      vtkOpenGLCheckErrorMacro("failed at glCreateProgram");
       if (progId == 0)
         {
-        vtkErrorMacro(<<"fatal error (bad current OpenGL context?, extension not supported?).");
+        vtkErrorMacro("failed to create program");
         return;
         }
+
       this->Id = static_cast<unsigned int>(progId);
       }
     // Detach all previous shaders (some may have disappeared
     // from this->Shaders)
     GLint numberOfAttachedShaders;
-    vtkgl::GetProgramiv(progId, vtkgl::ATTACHED_SHADERS,
-      &numberOfAttachedShaders);
+    vtkgl::GetProgramiv(progId, vtkgl::ATTACHED_SHADERS, &numberOfAttachedShaders);
     if (numberOfAttachedShaders > 0)
       {
       GLuint *attachedShaders = new GLuint[numberOfAttachedShaders];
-      vtkgl::GetAttachedShaders(progId,numberOfAttachedShaders,0,
-                                attachedShaders);
+      vtkgl::GetAttachedShaders(progId,numberOfAttachedShaders,0, attachedShaders);
       int i = 0;
       while(i < numberOfAttachedShaders)
         {
         vtkgl::DetachShader(progId, attachedShaders[i]);
+        vtkOpenGLCheckErrorMacro("failed at glDettachShader");
+
         ++i;
         }
       delete[] attachedShaders;
@@ -446,13 +468,17 @@ void vtkShaderProgram2::Build()
       if (s->GetLastCompileStatus())
         {
         vtkgl::AttachShader(progId, static_cast<GLuint>(s->GetId()));
+        vtkOpenGLCheckErrorMacro("failed at glAttachShader");
         }
       else
         {
         compileDone = false;
         if (this->PrintErrors)
           {
-          vtkErrorMacro(<<" a shader failed to compile. Its log is:\n" << s->GetLastCompileLog() << "\n. Its source code is:\n" << s->GetSourceCode());
+          vtkErrorMacro(
+            <<" a shader failed to compile. Its log is:\n"
+            << s->GetLastCompileLog() << "\n. Its source code is:\n"
+            << s->GetSourceCode());
           }
         }
       s = this->Shaders->GetNextShader();
@@ -474,6 +500,8 @@ void vtkShaderProgram2::Build()
         }
 
       vtkgl::LinkProgram(progId);
+      vtkOpenGLCheckErrorMacro("failed at glLinkProgram");
+
       GLint value;
       vtkgl::GetProgramiv(progId, vtkgl::LINK_STATUS ,&value);
       if (value == GL_TRUE)
@@ -558,20 +586,23 @@ void vtkShaderProgram2::SendUniforms()
         }
       }
 
-    GLuint progId = static_cast<GLuint>(this->Id);
+    // NOTE -- a given uniform variable state is held and is set from
+    // two different places, in the program and in the shader. If not
+    // used carefully this is both inefficient and error prone!! However
+    // it's done like that to simplify support for arbitrary collections of
+    // shaders.
 
     this->Shaders->InitTraversal();
     s = this->Shaders->GetNextShader();
-    const char *name;
-    GLint uniformId;
     while (s)
       {
       list = s->GetUniformVariables();
       list->Start();
       while(!list->IsAtEnd())
         {
-        name = list->GetCurrentName();
-        uniformId = vtkgl::GetUniformLocation(progId,name);
+        const char *name = list->GetCurrentName();
+        GLint uniformId = this->GetUniformLocationInternal(name);
+        vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
         if (uniformId != -1)
           {
           // -1 means is not an active uniform
@@ -589,8 +620,8 @@ void vtkShaderProgram2::SendUniforms()
     list->Start();
     while (!list->IsAtEnd())
       {
-      name = list->GetCurrentName();
-      uniformId = vtkgl::GetUniformLocation(progId,name);
+      const char *name = list->GetCurrentName();
+      GLint uniformId = this->GetUniformLocationInternal(name);
       if (uniformId != -1)
         {
         // -1 means is not an active uniform
@@ -605,6 +636,63 @@ void vtkShaderProgram2::SendUniforms()
       this->Restore();
       }
     }
+}
+
+// ----------------------------------------------------------------------------
+int vtkShaderProgram2::GetUniformLocationInternal(const char *name)
+{
+  assert(this->Id!=0);
+  assert(name!=NULL);
+  int loc = (int)vtkgl::GetUniformLocation((GLuint)this->Id, name);
+  vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
+  return loc;
+}
+
+// ----------------------------------------------------------------------------
+int vtkShaderProgram2::GetUniformLocation(const char *name)
+{
+  assert(this->Id!=0);
+  assert(name!=NULL);
+  int loc = (int)vtkgl::GetUniformLocation((GLuint)this->Id, name);
+  vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
+  #ifndef NDEBUG
+  if (loc==-1)
+    { vtkErrorMacro("no variable named " << name); }
+  #endif
+  return loc;
+}
+
+// ----------------------------------------------------------------------------
+#define vtkSetUniformAPIMacro(ctype, num, letter) \
+void vtkShaderProgram2::SetUniform##num##letter(int loc, ctype *val) \
+{ \
+  assert(loc!=-1); \
+  vtkgl::Uniform##num##letter##v(loc, 1, val); \
+  vtkOpenGLCheckErrorMacro("failed at glUniform" #num #letter "v"); \
+}
+vtkSetUniformAPIMacro(float, 1, f);
+vtkSetUniformAPIMacro(float, 2, f);
+vtkSetUniformAPIMacro(float, 3, f);
+vtkSetUniformAPIMacro(float, 4, f);
+vtkSetUniformAPIMacro(int, 1, i);
+vtkSetUniformAPIMacro(int, 2, i);
+vtkSetUniformAPIMacro(int, 3, i);
+vtkSetUniformAPIMacro(int, 4, i);
+
+// ----------------------------------------------------------------------------
+void vtkShaderProgram2::UseProgram()
+{
+  assert(this->Context);
+  vtkgl::UseProgram((GLuint)this->Id);
+  vtkOpenGLCheckErrorMacro("failed at glUseProgram");
+}
+
+// ----------------------------------------------------------------------------
+void vtkShaderProgram2::UnuseProgram()
+{
+  assert(this->Context);
+  vtkgl::UseProgram((GLuint)0U);
+  vtkOpenGLCheckErrorMacro("failed at glUseProgram");
 }
 
 // ----------------------------------------------------------------------------
@@ -992,7 +1080,9 @@ int vtkShaderProgram2::GetAttributeLocation(const char *name)
   assert("pre: name_exists" && name);
   assert("pre: built" &&
          this->LastBuildStatus == VTK_SHADER_PROGRAM2_LINK_SUCCEEDED);
-  return vtkgl::GetAttribLocation(this->Id, name);
+  int loc = vtkgl::GetAttribLocation(this->Id, name);
+  vtkOpenGLCheckErrorMacro("glGetAttribLocation");
+  return loc;
 }
 
 //----------------------------------------------------------------------------

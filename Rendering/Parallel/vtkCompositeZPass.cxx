@@ -15,7 +15,7 @@
 
 #include "vtkCompositeZPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkgl.h"
@@ -197,8 +197,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
     h=size[1];
     }
 
-  unsigned int byteSize=static_cast<unsigned int>(w*h)
-    *static_cast<unsigned int>(sizeof(float));
+  unsigned int numTups = static_cast<unsigned int>(w*h);
 
   // pbo arguments.
   unsigned int dims[2];
@@ -262,7 +261,12 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
     // for debugging only.
 
     // Framebuffer to PBO
-    this->PBO->Allocate(byteSize,VTK_FLOAT);
+    this->PBO->Allocate(
+          VTK_FLOAT,
+          numTups,
+          1,
+          vtkPixelBufferObject::PACKED_BUFFER);
+
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_DEPTH_COMPONENT,GL_FLOAT,
                  static_cast<GLfloat *>(NULL));
@@ -518,9 +522,12 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
     // Send the final z-buffer from the framebuffer to a PBO
     // TODO
 
+    this->PBO->Allocate(
+          VTK_FLOAT,
+          numTups,
+          1,
+          vtkPixelBufferObject::PACKED_BUFFER);
 
-
-    this->PBO->Allocate(byteSize,VTK_FLOAT);
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_DEPTH_COMPONENT,GL_FLOAT,
                  static_cast<GLfloat *>(NULL));
@@ -586,7 +593,12 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
     // 2. receive final z-buffer and copy it
 
     // framebuffer to PBO.
-    this->PBO->Allocate(byteSize,VTK_FLOAT);
+    this->PBO->Allocate(
+          VTK_FLOAT,
+          numTups,
+          1,
+          vtkPixelBufferObject::PACKED_BUFFER);
+
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_DEPTH_COMPONENT,GL_FLOAT,
                  static_cast<GLfloat *>(NULL));

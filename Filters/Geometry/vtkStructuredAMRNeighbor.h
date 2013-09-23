@@ -68,8 +68,13 @@ public:
      const int relationShip);
 
   // Description:
+  // Copy constructor.
+  vtkStructuredAMRNeighbor(const vtkStructuredAMRNeighbor &N) :
+    vtkStructuredNeighbor(N) { *this = N; }
+
+  // Description:
   // Destructor.
-  virtual ~vtkStructuredAMRNeighbor();
+  ~vtkStructuredAMRNeighbor() {};
 
   // Description:
   // Overload assignment operator.

@@ -18,6 +18,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkColor.h"
+#include "vtkCoordinate.h"
 #include "vtkFloatArray.h"
 #include "vtkPointData.h"
 #include "vtkImageData.h"
@@ -27,6 +28,7 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextActor.h"
@@ -80,6 +82,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->Orientation = VTK_ORIENT_VERTICAL;
   this->Title = NULL;
   this->ComponentTitle = NULL;
+  this->VerticalTitleSeparation = 0;
 
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetFontSize(12);
@@ -233,6 +236,7 @@ vtkScalarBarActor::vtkScalarBarActor()
     ->SetReferenceCoordinate(this->PositionCoordinate);
 
   this->DrawColorBar = true;
+  this->DrawTickLabels = true;
 }
 
 //----------------------------------------------------------------------------
@@ -263,16 +267,29 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow* win)
   this->P->AnnotationLeadersActor->ReleaseGraphicsResources(win);
   this->BackgroundActor->ReleaseGraphicsResources(win);
   this->FrameActor->ReleaseGraphicsResources(win);
+  this->Texture->ReleaseGraphicsResources(win);
+}
+
+//----------------------------------------------------------------------------
+void vtkScalarBarActor::GetScalarBarRect(int rect[4], vtkViewport* viewport)
+{
+  vtkCoordinate *origin = this->ScalarBarActor->GetPositionCoordinate();
+  int * vpPos = origin->GetComputedViewportValue(viewport);
+  rect[0] = vpPos[0];
+  rect[1] = vpPos[1];
+
+  double *bounds = this->ScalarBar->GetBounds();
+  rect[0] += static_cast<int>(bounds[0] + 0.5);
+  rect[1] += static_cast<int>(bounds[2] + 0.5);
+  rect[2] = static_cast<int>(bounds[1] - bounds[0] + 0.5);
+  rect[3] = static_cast<int>(bounds[3] - bounds[2] + 0.5);
 }
 
 //----------------------------------------------------------------------------
 vtkScalarBarActor::~vtkScalarBarActor()
 {
-  if (this->LabelFormat)
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  delete [] this->LabelFormat;
+  this->LabelFormat = NULL;
 
   this->TitleActor->Delete();
   this->SetNanAnnotation(NULL);
@@ -293,17 +310,11 @@ vtkScalarBarActor::~vtkScalarBarActor()
   this->P->AnnotationLeadersMapper->Delete();
   this->P->AnnotationLeadersActor->Delete();
 
-  if (this->Title)
-    {
-    delete [] this->Title;
-    this->Title = NULL;
-    }
+  delete [] this->Title;
+  this->Title = NULL;
 
-  if ( this->ComponentTitle )
-    {
-    delete [] this->ComponentTitle;
-    this->ComponentTitle = NULL;
-    }
+  delete [] this->ComponentTitle;
+  this->ComponentTitle = NULL;
 
   this->SetLookupTable(NULL);
   this->SetLabelTextProperty(NULL);
@@ -327,6 +338,19 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
 {
   int renderedSomething = 0;
 
+  // Is the viewport's RenderWindow capturing GL2PS-special props? We'll need
+  // to handle this specially to get the texture to show up right.
+  if (vtkRenderer *renderer = vtkRenderer::SafeDownCast(viewport))
+    {
+    if (vtkRenderWindow *renderWindow = renderer->GetRenderWindow())
+      {
+      if (renderWindow->GetCapturingGL2PSSpecialProps())
+        {
+        renderer->CaptureGL2PSSpecialProp(this);
+        }
+      }
+    }
+
   // Everything is built, just have to render
   if (this->DrawBackground)
     {
@@ -348,13 +372,16 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
       renderedSomething += this->ScalarBarActor->RenderOverlay(viewport);
       }
 
-    vtkScalarBarActorInternal::ActorVec::iterator it;
-    for (
-      it = this->P->TextActors.begin();
-      it != this->P->TextActors.end();
-      ++it)
+    if (this->DrawTickLabels)
       {
-      renderedSomething += (*it)->RenderOverlay(viewport);
+      vtkScalarBarActorInternal::ActorVec::iterator it;
+      for (
+           it = this->P->TextActors.begin();
+           it != this->P->TextActors.end();
+           ++it)
+        {
+        renderedSomething += (*it)->RenderOverlay(viewport);
+        }
       }
     }
   else if (this->DrawColorBar)
@@ -621,6 +648,8 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
     << this->AnnotationLeaderPadding << endl;
   os << indent << "AnnotationTextScaling: "
     << this->AnnotationTextScaling << endl;
+  os << indent << "VerticalTitleSeparation: "
+    << VerticalTitleSeparation << endl;
 
   os << indent << "DrawBackground: " << this->DrawBackground << "\n";
   os << indent << "Background Property:\n";
@@ -950,7 +979,8 @@ void vtkScalarBarActor::ComputeScalarBarLength()
 {
   this->P->ScalarBarBox.Size[1] =
     this->Orientation == VTK_ORIENT_VERTICAL ?
-      this->P->Frame.Size[1] - this->P->TitleBox.Size[1] :
+      this->P->Frame.Size[1] - this->P->TitleBox.Size[1] -
+        this->VerticalTitleSeparation :
       this->P->Frame.Size[1];
 
   // The scalar bar does not include the Nan Swatch.
@@ -1048,7 +1078,8 @@ void vtkScalarBarActor::LayoutTicks()
       // Tick height could be adjusted if title text is
       // lowered by box constraints, but we won't bother:
       this->P->TickBox.Size[1] = this->P->Frame.Size[1] -
-        this->P->TitleBox.Size[1] - 3 * this->TextPad;
+        this->P->TitleBox.Size[1] - 3 * this->TextPad -
+        this->VerticalTitleSeparation;
       // Tick box height also reduced by NaN swatch size, if present:
       if (this->DrawNanAnnotation)
         {

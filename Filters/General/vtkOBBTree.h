@@ -70,6 +70,10 @@ public:
   vtkIdList *Cells; //list of cells in node
   void DebugPrintTree( int level, double *leaf_vol, int *minCells,
                        int *maxCells );
+
+private:
+  vtkOBBNode(const vtkOBBNode& other); // no copy constructor
+  vtkOBBNode& operator=(const vtkOBBNode& rhs); // no copy assignment
 };
 //ETX
 //

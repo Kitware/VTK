@@ -27,6 +27,7 @@
 #include "vtkPistonScalarsColors.h"
 #include "vtkScalarsToColors.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkOpenGLError.h"
 
 #include <limits>
 
@@ -52,12 +53,14 @@ namespace vtkpiston {
     {
     PistonGLRAII(GLbitfield mask)
       {
+      vtkOpenGLClearErrorMacro();
       glPushAttrib(mask);
       }
 
     ~PistonGLRAII()
       {
       glPopAttrib();
+      vtkOpenGLStaticCheckErrorMacro("failed after ~PistonGLRAII");
       }
     };
 }
@@ -136,6 +139,8 @@ vtkPistonMapper::~vtkPistonMapper()
 //-----------------------------------------------------------------------------
 void vtkPistonMapper::PrepareDirectRenderBuffers(int nPoints)
 {
+  vtkOpenGLClearErrorMacro();
+
   if (nPoints==this->Internal->BufferSize)
     {
     return;
@@ -144,6 +149,7 @@ void vtkPistonMapper::PrepareDirectRenderBuffers(int nPoints)
     {
     // Release old buffer
     vtkgl::DeleteBuffers(3, this->Internal->vboBuffers);
+    vtkOpenGLCheckErrorMacro("failed at glDeleteBuffers");
     }
 
   this->Internal->BufferSize = nPoints;
@@ -169,6 +175,8 @@ void vtkPistonMapper::PrepareDirectRenderBuffers(int nPoints)
   vtkgl::BufferData(vtkgl::ARRAY_BUFFER,
                     this->Internal->BufferSize*3*sizeof(float), 0,
                     vtkgl::DYNAMIC_DRAW);
+
+  vtkOpenGLCheckErrorMacro("failed after allocate shared memory");
 
   vtkpiston::CudaRegisterBuffer(&this->Internal->vboResources[0],
                                this->Internal->vboBuffers[0]);
@@ -214,6 +222,8 @@ int vtkPistonMapper::FillInputPortInformation(
 //-----------------------------------------------------------------------------
 void vtkPistonMapper::RenderOnCPU()
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkpiston::PistonGLRAII(GL_LIGHTING_BIT);
 
   vtkScalarsToColors *lut = this->GetLookupTable();
@@ -389,11 +399,15 @@ void vtkPistonMapper::RenderOnCPU()
       glEnd();
   }
   od->Delete();
+
+  vtkOpenGLCheckErrorMacro("failed after RenderOnCPU");
 }
 
 //-----------------------------------------------------------------------------
 void vtkPistonMapper::RenderOnGPU()
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkPistonDataObject *id = this->GetPistonDataObjectInput(0);
 
   int nPoints = vtkpiston::QueryNumVerts(id);
@@ -443,11 +457,15 @@ void vtkPistonMapper::RenderOnGPU()
   glDisableClientState(GL_VERTEX_ARRAY);
   if (hasNormals) glDisableClientState(GL_NORMAL_ARRAY);
   if (hasColors) glDisableClientState(GL_COLOR_ARRAY);
+
+  vtkOpenGLCheckErrorMacro("failed after RenderOnGPU");
 }
 
 //-----------------------------------------------------------------------------
 void vtkPistonMapper::RenderImageDataOutline()
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkpiston::PistonGLRAII(GL_LIGHTING_BIT);
   glDisable(GL_LIGHTING);
 
@@ -508,6 +526,8 @@ void vtkPistonMapper::RenderImageDataOutline()
   glVertex3dv(nextpt[3]);
   glVertex3dv(nextpt[7]);
   glEnd();
+
+  vtkOpenGLCheckErrorMacro("failed after RenderImageDataOutline");
 }
 
 //----------------------------------------------------------------------------

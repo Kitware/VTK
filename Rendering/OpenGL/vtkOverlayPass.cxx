@@ -15,7 +15,7 @@
 
 #include "vtkOverlayPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkOverlayPass);
 

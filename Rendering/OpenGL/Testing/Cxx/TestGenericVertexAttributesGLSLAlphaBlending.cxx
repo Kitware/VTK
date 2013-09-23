@@ -34,7 +34,7 @@
 
 // Make sure to have a valid OpenGL context current on the calling thread
 // before calling it. Defined in TestTranslucentLUTDepthPeelingPass.cxx.
-bool MesaHasVTKBug8135();
+bool MesaHasVTKBug8135(vtkRenderWindow *);
 
 int TestGenericVertexAttributesGLSLAlphaBlending(int argc, char *argv[])
 {
@@ -94,7 +94,7 @@ int TestGenericVertexAttributesGLSLAlphaBlending(int argc, char *argv[])
   renWin->Render();
 
   int retVal;
-  if(MesaHasVTKBug8135())
+  if(MesaHasVTKBug8135(renWin))
     {
     // Mesa will crash if version<7.3
     cout<<"This version of Mesa would crash. Skip the test."<<endl;

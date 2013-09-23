@@ -40,6 +40,14 @@ struct vtkBalloon
   vtkImageData *Image;
 
   vtkBalloon() : Text(), Image(0) {}
+  vtkBalloon(const vtkBalloon &balloon) :
+    Text(balloon.Text), Image(balloon.Image)
+    {
+      if ( this->Image )
+        {
+        this->Image->Register(NULL);
+        }
+    }
   vtkBalloon(vtkStdString *str, vtkImageData *img)
     {
       this->Text = *str;

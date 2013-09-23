@@ -27,7 +27,7 @@
 
 #include <vtksqlite/vtk_sqlite3.h>
 
-#include <assert.h>
+#include <cassert>
 
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/vector>

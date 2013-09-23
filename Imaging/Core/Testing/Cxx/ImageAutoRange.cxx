@@ -17,6 +17,8 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
+#include "vtkSmartPointer.h"
+
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkRenderWindow.h"
@@ -30,19 +32,20 @@
 #include "vtkImageHistogramStatistics.h"
 
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 int ImageAutoRange(int argc, char *argv[])
 {
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  vtkInteractorStyle *style = vtkInteractorStyleImage::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkInteractorStyle> style =
+    vtkSmartPointer<vtkInteractorStyle>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
-  renWin->Delete();
-  style->Delete();
 
-  vtkPNGReader *reader = vtkPNGReader::New();
+  vtkSmartPointer<vtkPNGReader> reader =
+    vtkSmartPointer<vtkPNGReader>::New();
 
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/fullhead15.png");
@@ -50,7 +53,8 @@ int ImageAutoRange(int argc, char *argv[])
   reader->SetFileName(fname);
   delete[] fname;
 
-  vtkImageHistogramStatistics *statistics = vtkImageHistogramStatistics::New();
+  vtkSmartPointer<vtkImageHistogramStatistics> statistics =
+    vtkSmartPointer<vtkImageHistogramStatistics>::New();
   statistics->SetInputConnection(reader->GetOutputPort());
   statistics->GenerateHistogramImageOff();
   statistics->Update();
@@ -66,15 +70,16 @@ int ImageAutoRange(int argc, char *argv[])
 
   for (int i = 0; i < 2; i++)
     {
-    vtkRenderer *renderer = vtkRenderer::New();
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.0,0.0,0.0);
     renderer->SetViewport(0.5*(i&1), 0.0,
                           0.5 + 0.5*(i&1), 1.0);
     renWin->AddRenderer(renderer);
-    renderer->Delete();
 
-    vtkImageSliceMapper *imageMapper = vtkImageSliceMapper::New();
+    vtkSmartPointer<vtkImageSliceMapper> imageMapper =
+      vtkSmartPointer<vtkImageSliceMapper>::New();
     imageMapper->SetInputConnection(reader->GetOutputPort());
 
     double *bounds = imageMapper->GetBounds();
@@ -90,9 +95,9 @@ int ImageAutoRange(int argc, char *argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(128);
 
-    vtkImageSlice *image = vtkImageSlice::New();
+    vtkSmartPointer<vtkImageSlice> image =
+      vtkSmartPointer<vtkImageSlice>::New();
     image->SetMapper(imageMapper);
-    imageMapper->Delete();
     renderer->AddViewProp(image);
 
     if ((i & 1) == 0)
@@ -106,21 +111,13 @@ int ImageAutoRange(int argc, char *argv[])
       image->GetProperty()->SetColorLevel(0.5*(autorange[0] + autorange[1]));
       }
 
-    image->Delete();
     }
 
   renWin->SetSize(512,256);
 
+  iren->Initialize();
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
-    iren->Start();
-    }
-  iren->Delete();
+  iren->Start();
 
-  statistics->Delete();
-  reader->Delete();
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }

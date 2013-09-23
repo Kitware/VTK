@@ -29,6 +29,7 @@
 #include "vtkStdString.h"     // Needed to hold TooltipLabelFormat ivar
 #include "vtkSmartPointer.h"  // Needed to hold SP ivars
 #include "vtkContextPolygon.h" // For vtkContextPolygon
+#include "vtkRect.h"           // For vtkRectd ivar
 
 class vtkVariant;
 class vtkTable;
@@ -37,8 +38,6 @@ class vtkContextMapper2D;
 class vtkPen;
 class vtkBrush;
 class vtkAxis;
-class vtkVector2f;
-class vtkRectf;
 class vtkStringArray;
 
 class VTKCHARTSCORE_EXPORT vtkPlot : public vtkContextItem
@@ -84,7 +83,7 @@ public:
   // Description:
   // Generate and return the tooltip label string for this plot
   // The segmentIndex parameter is ignored, except for vtkPlotBar
-  virtual vtkStdString GetTooltipLabel(const vtkVector2f &plotPos,
+  virtual vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
                                        vtkIdType segmentIndex);
 
@@ -213,6 +212,14 @@ public:
   virtual void SetYAxis(vtkAxis* axis);
 
   // Description:
+  // Get/set the origin shift and scaling factor used by the plot, this is
+  // normally 0.0 offset and 1.0 scaling, but can be used to render data outside
+  // of the single precision range. The chart that owns the plot should set this
+  // and ensure the appropriate matrix is used when rendering the plot.
+  void SetShiftScale(const vtkRectd &scaling);
+  vtkRectd GetShiftScale();
+
+  // Description:
   // Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
   //
   // See \a GetUnscaledInputBounds for more information.
@@ -320,6 +327,10 @@ protected:
 
   int TooltipNotation;
   int TooltipPrecision;
+
+  // Description:
+  // The current shift in origin and scaling factor applied to the plot.
+  vtkRectd ShiftScale;
 
 private:
   vtkPlot(const vtkPlot &); // Not implemented.

@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkVariant.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkLookupTableWithEnabling);
 

@@ -7,6 +7,8 @@ vtk_module(vtkParallelCore
     # of vtkIOLegacy off but still satisfy API dependcy.
     vtkCommonCore
     vtkIOLegacy
+  PRIVATE_DEPENDS
+    vtksys
   COMPILE_DEPENDS
     vtkUtilitiesHashSource
   TEST_DEPENDS

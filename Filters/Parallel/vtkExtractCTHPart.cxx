@@ -48,7 +48,7 @@
 #include <math.h>
 #include <string>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
@@ -501,16 +501,16 @@ int vtkExtractCTHPart::RequestData(
 #endif
       clip->SetInputConnection(appendSurface[idx]->GetOutputPort());
       clip2->Update();
-      }
 
 #if 1
-    tmps[idx]->AddInputConnection(clip2->GetOutputPort());
+      tmps[idx]->AddInputConnection(clip2->GetOutputPort());
 #else
-    tmps[idx]->AddInputConnection(appendSurface[idx]->GetOutputPort());
+      tmps[idx]->AddInputConnection(appendSurface[idx]->GetOutputPort());
 #endif
+      }
 
     output = vtkPolyData::SafeDownCast(pieces->GetBlock(processNumber));
-    if (inputConns > 0)
+    if (tmps[idx]->GetNumberOfInputConnections(0) > 0)
       {
       vtkTimerLog::MarkStartEvent("BlockAppend");
       tmps[idx]->Update();

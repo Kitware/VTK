@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel='stylesheet' href='style.css' type='text/css'>
+
+        <script src="../../ext/js-core/autobahn.min.js"></script>
+        <script src="../../ext/js-core/jquery-1.8.3.min.js"></script>
+        <script src="../../ext/js-core/gl-matrix-min.js"></script>
+
+        <script src="../../lib/js/vtkweb-all.js"></script>
+    </head>
+
+    <body class="page" onbeforeunload="stop()" onunload="stop()">
+        <div class="header toolbar">
+            <div class="logo" alt="VTK PhylogeneticTree Web demo"></div>
+            <div class="loading"></div>
+        </div>
+        <div class="viewport-container">
+        </div>
+
+        <script type="text/javascript">
+            var connection = {
+                sessionURL: "ws://" + window.location.host + "/ws",
+                name: "PhylogeneticTree",
+                description: "PhylogeneticTree Web demo application",
+                application: "PhylogeneticTree"
+            },
+            loading = $(".loading"),
+            viewport = null;
+
+            // Connect to remote server
+            vtkWeb.connect(connection, function(serverConnection) {
+                connection = serverConnection;
+
+                // Create viewport
+                viewport = vtkWeb.createViewport({session:connection.session});
+                viewport.bind(".viewport-container");
+
+                loading.hide();
+
+                // Handle window resize
+                $(window).resize(function() {
+                    if(viewport) {
+                        viewport.render();
+                    }
+                }).trigger('resize');
+            }, function(code, reason) {
+                loading.hide();
+                alert(reason);
+            });
+
+
+            function updateView() {
+                if(viewport) {
+                    viewport.invalidateScene();
+                }
+            }
+            // Not perfect but make sure we get a new image at least every second
+            setInterval(updateView, 1000);
+
+            // Method call at exit time
+            function stop() {
+                if(false && connection.session) {
+                    viewport.unbind();
+                    connection.session.call('vtk:exit');
+                    connection.session.close();
+                    connection.session = null;
+                }
+            }
+        </script>
+    </body>
+</html>

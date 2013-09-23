@@ -34,7 +34,7 @@
 #include <math.h>
 #endif
 #include <time.h>
-#include <assert.h>
+#include <cassert>
 #if !defined(__MWERKS__)
 #include <sys/types.h>
 #endif

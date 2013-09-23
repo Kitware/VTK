@@ -14,8 +14,11 @@ import java.util.concurrent.TimeUnit;
  * Helper class used to implement all Mouse/Key Java listener and convert them
  * into the vtkInteractor proper event.
  *
- * @authors Sebastien Jourdain - sebastien.jourdain@kitware.com
- *          Joachim Pouderoux - joachim.pouderoux@kitware.com
+ * @authors   Sebastien Jourdain - sebastien.jourdain@kitware.com, Kitware Inc 2012
+ *            Joachim Pouderoux - joachim.pouderoux@kitware.com, Kitware SAS 2012
+ * @copyright This work was supported by CEA/CESTA
+ *            Commissariat a l'Energie Atomique et aux Energies Alternatives,
+ *            15 avenue des Sablieres, CS 60001, 33116 Le Barp, France.
  */
 public class vtkInteractorForwarder implements MouseListener, MouseMotionListener, KeyListener {
   final public static int MOUSE_BUTTON_1 = 1;

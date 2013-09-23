@@ -28,9 +28,10 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkgl.h"
-#include <assert.h>
+#include <cassert>
 
 
 //----------------------------------------------------------------------------
@@ -680,6 +681,8 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
     return false;
     }
 
+  vtkOpenGLClearErrorMacro();
+
   glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -744,6 +747,8 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
   glPopAttrib();
+
+  vtkOpenGLStaticCheckErrorMacro("failed after PushToFrameBuffer");
   return true;
 }
 

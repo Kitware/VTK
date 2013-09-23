@@ -15,7 +15,7 @@
 
 #include "vtkShadowMapPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
@@ -27,6 +27,7 @@
 #include "vtkShader2Collection.h"
 #include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLError.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkMath.h"
@@ -164,6 +165,8 @@ void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
 void vtkShadowMapPass::Render(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
+
+  vtkOpenGLClearErrorMacro();
 
   this->NumberOfRenderedProps=0;
 
@@ -666,6 +669,8 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     {
     vtkWarningMacro(<<" no ShadowMapBakerPass or no OpaquePass on the ShadowMapBakerPass.");
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 // ----------------------------------------------------------------------------

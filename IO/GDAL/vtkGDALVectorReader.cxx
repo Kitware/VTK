@@ -298,6 +298,7 @@ vtkGDALVectorReader::vtkGDALVectorReader()
 {
   this->FileName = 0;
   this->Implementation = 0;
+  this->ActiveLayer = -1;
 
   this->SetNumberOfInputPorts( 0 );
 
@@ -408,13 +409,17 @@ int vtkGDALVectorReader::GetFeatureCount(int layerIndex)
 // -----------------------------------------------------------------------------
 int vtkGDALVectorReader::GetActiveLayerType()
 {
-  return this->GetLayerType(ActiveLayer);
+  return
+    this->ActiveLayer < 0 || this->ActiveLayer >= this->GetNumberOfLayers() ?
+    -1 : this->GetLayerType(this->ActiveLayer);
 }
 
 // -----------------------------------------------------------------------------
 int vtkGDALVectorReader::GetActiveLayerFeatureCount()
 {
-  return this->GetFeatureCount(ActiveLayer);
+  return
+    this->ActiveLayer < 0 || this->ActiveLayer >= this->GetNumberOfLayers() ?
+    0 : this->GetFeatureCount(this->ActiveLayer);
 }
 
 // -----------------------------------------------------------------------------
@@ -492,7 +497,13 @@ int vtkGDALVectorReader::RequestData( vtkInformation* request,
 
   vtkGDALVectorReader::Internal* p = this->Implementation;
 
-  for ( int layerIdx = 0; layerIdx < p->Source->GetLayerCount(); ++layerIdx )
+  int lastLayer = p->Source->GetLayerCount() - 1;
+  int startLayer =
+    this->ActiveLayer < 0 || this->ActiveLayer >= lastLayer ?
+    0 : this->ActiveLayer;
+  int endLayer = this->ActiveLayer < 0 || this->ActiveLayer >= lastLayer ?
+    lastLayer : this->ActiveLayer;
+  for ( int layerIdx = startLayer; layerIdx <= endLayer; ++layerIdx )
     {
     OGRLayer* layer = p->Source->GetLayer( layerIdx );
     if ( ! layer )

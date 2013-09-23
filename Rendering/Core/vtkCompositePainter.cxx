@@ -30,7 +30,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-#include <assert.h>
+#include <cassert>
 
 // Return NULL if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkCompositePainter)

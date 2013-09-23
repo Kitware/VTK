@@ -567,8 +567,6 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreeLightWeightCursor
 {
 public:
   vtkHyperOctreeLightWeightCursor();
-  ~vtkHyperOctreeLightWeightCursor();
-
   void Initialize(vtkHyperOctree* tree);
   void ToRoot();
   void ToChild(int child);

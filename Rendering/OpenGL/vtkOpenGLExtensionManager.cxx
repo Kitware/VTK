@@ -28,10 +28,11 @@
 #include "vtkObjectFactory.h"
 
 #include <string.h>
-
 #include <string>
-
-#include <assert.h>
+#include <cassert>
+#include <sstream>
+using std::istringstream;
+using std::string;
 
 #ifdef VTK_DEFINE_GLX_GET_PROC_ADDRESS_PROTOTYPE
 extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
@@ -39,7 +40,6 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 
 #ifdef VTK_USE_VTK_DYNAMIC_LOADER
 #include "vtkDynamicLoader.h"
-#include <string>
 #include <list>
 #endif
 
@@ -54,7 +54,52 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkStandardNewMacro(vtkOpenGLExtensionManager);
+// ensure we never use a null pointer to
+// a string.
+#define safes(arg) (arg?((const char *)arg):"")
+
+namespace
+{
+// helper to locate a token(a substr delimitted by ' ' or '\n')
+// for eg searching for "ati" should not succeed on "corporation"
+bool FindToken(const string &str, string token)
+{
+  string tmp;
+  istringstream iss(str);
+  while (iss.good())
+    {
+    iss >> tmp;
+    if (tmp==token)
+      {
+      return true;
+      }
+    }
+  return false;
+}
+// convert a string in the forms of "#.#.#","#.#", or "#" to
+// major minor and patch version numbers.
+int StringToVersion(string ver, int &major, int &minor, int &patch)
+{
+  char dot;
+  istringstream iss(ver);
+  major=0;
+  minor=0;
+  patch=0;
+  if (!(iss >> major))
+    {
+    return 0;
+    }
+  if (!((iss >> dot) && (iss >> minor)))
+    {
+    return 1;
+    }
+  if (!((iss >> dot) && (iss >> patch)))
+    {
+    return 2;
+    }
+  return 3;
+}
+}
 
 namespace vtkgl
 {
@@ -70,15 +115,36 @@ int LoadAsARBExtension(const char *name,
                        vtkOpenGLExtensionManager *manager);
 }
 
+
+// ----------------------------------------------------------------------------
+vtkStandardNewMacro(vtkOpenGLExtensionManager);
+
+// ----------------------------------------------------------------------------
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()
 {
   this->OwnRenderWindow = 0;
   this->RenderWindow = NULL;
   this->ExtensionsString = NULL;
-
+  this->DriverGLVersion = "";
+  this->DriverGLVersionMajor = 1;
+  this->DriverGLVersionMinor = 1;
+  this->DriverGLVersionPatch = 0;
+  this->DriverGLVendor = "";
+  this->DriverGLRenderer = "";
+  this->DriverVersionMajor = 0;
+  this->DriverVersionMinor = 0;
+  this->DriverVersionPatch = 0;
+  this->DriverGLVendorId = DRIVER_VENDOR_UNKNOWN;
+  this->IgnoreDriverBugs
+#if defined(VTK_IGNORE_GLDRIVER_BUGS)
+   = true;
+#else
+   = false;
+#endif
   this->Modified();
 }
 
+// ----------------------------------------------------------------------------
 vtkOpenGLExtensionManager::~vtkOpenGLExtensionManager()
 {
   this->SetRenderWindow(NULL);
@@ -86,6 +152,7 @@ vtkOpenGLExtensionManager::~vtkOpenGLExtensionManager()
   this->ExtensionsString = 0;
 }
 
+// ----------------------------------------------------------------------------
 void vtkOpenGLExtensionManager::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -96,11 +163,13 @@ void vtkOpenGLExtensionManager::PrintSelf(ostream &os, vtkIndent indent)
      << (this->ExtensionsString ? this->ExtensionsString : "(NULL)") << endl;
 }
 
+// ----------------------------------------------------------------------------
 vtkRenderWindow* vtkOpenGLExtensionManager::GetRenderWindow()
 {
   return this->RenderWindow;
 }
 
+// ----------------------------------------------------------------------------
 void vtkOpenGLExtensionManager::SetRenderWindow(vtkRenderWindow *renwin)
 {
   if (renwin == this->RenderWindow)
@@ -117,9 +186,315 @@ void vtkOpenGLExtensionManager::SetRenderWindow(vtkRenderWindow *renwin)
   vtkDebugMacro("Setting RenderWindow to " << renwin);
   this->OwnRenderWindow = 0;
   this->RenderWindow = renwin;
+  this->DriverGLVersion = "";
+  this->DriverGLVersionMajor = 1;
+  this->DriverGLVersionMinor = 1;
+  this->DriverGLVersionPatch = 0;
+  this->DriverGLVendor = "";
+  this->DriverGLVendorId = DRIVER_VENDOR_UNKNOWN;
+  this->DriverGLRenderer = "";
+  this->DriverVersionMajor = 0;
+  this->DriverVersionMinor = 0;
+  this->DriverVersionPatch = 0;
+  this->IgnoreDriverBugs
+#if defined(VTK_IGNORE_GLDRIVER_BUGS)
+   = true;
+#else
+   = false;
+#endif
   this->Modified();
 }
 
+/*
+a few examples of the info that's provided
+by glGetString that can be used to identify
+specific driver/cards on various platforms
+
+linux
+GL_VENDOR: NVIDIA Corporation
+GL_VERSION: 3.3.0 NVIDIA 319.23
+GL_RENDERER: Quadro FX 580/PCIe/SSE2
+
+GL_VENDOR: NVIDIA Corporation
+GL_VERSION: 4.2.0 NVIDIA 304.88
+GL_RENDERER: GeForce GTX 480/PCIe/SSE2
+
+GL_VENDOR: VMware, Inc.
+GL_VERSION: 2.1 Mesa 9.2.0 (git-062317d)
+GL_RENDERER: Gallium 0.4 on llvmpipe (LLVM 3.2, 128 bits)
+
+GL_VENDOR: Brian Paul
+GL_VERSION: 2.1 Mesa 8.0.5
+GL_RENDERER: Mesa OffScreen
+
+GL_VENDOR: Tungsten Graphics, Inc
+GL_VERSION: 1.4 Mesa 8.0.4
+GL_RENDERER: Mesa DRI Intel(R) 945GME
+
+GL_VENDOR: Brian Paul
+GL_VERSION: 2.1 Mesa 7.10.3
+GL_RENDERER: Mesa OffScreen
+
+GL_VENDOR: Brian Paul
+GL_VERSION: 2.1 Mesa 9.2.0-devel
+GL_RENDERER: Mesa X11
+
+
+apple
+GL_VENDOR: NVIDIA Corporation
+GL_VERSION: 2.1 NVIDIA-7.32.12
+GL_RENDERER: NVIDIA GeForce 320M OpenGL Engine
+
+GL_VENDOR: ATI Technologies Inc.
+GL_VERSION: 2.1 ATI-1.0.29
+GL_RENDERER: AMD Radeon HD 6750M OpenGL Engine
+
+GL_VENDOR: Intel Inc.
+GL_VERSION: 2.1 APPLE-8.0.61
+GL_RENDERER: Intel HD Graphics 3000 OpenGL Engine
+
+GL_VENDOR: ATI Technologies Inc.
+GL_VERSION: 2.0 ATI-1.5.48
+GL_RENDERER: ATI Radeon 9600 XT OpenGL Engine
+
+
+windows
+GL_VENDOR: Intel
+GL_VERSION: 3.3.0 - Build 8.15.10.2712
+GL_RENDERER: Intel(R) HD Graphics 4000
+
+GL_VENDOR: Microsoft Corporation
+GL_VERSION: 1.1.0
+GL_RENDERER: GDI Generic
+
+GL_VENDOR: NVIDIA Corporation
+GL_VERSION: 3.3.0
+GL_RENDERER: GeForce GTS 250M/PCIe/SSE2
+
+GL_VENDOR: ATI Technologies Inc.
+GL_VERSION: 4.2.11631 Compatibility Profile Context
+GL_RENDERER: AMD Radeon(TM) HD 7670M
+*/
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLExtensionManager::InitializeDriverInformation()
+{
+  // collect some info about the driver
+  // for use in fine-grained feature
+  // validation see examples below.
+  if (this->RenderWindow)
+    {
+    this->DriverGLVendor = safes(glGetString(GL_VENDOR));
+    this->DriverGLVersion = safes(glGetString(GL_VERSION));
+    this->DriverGLRenderer = safes(glGetString(GL_RENDERER));
+
+    // attempt to detect driver gl version
+    const char *numbers="0123456789.";
+    size_t glVerStart = this->DriverGLVersion.find_first_of(numbers);
+    size_t glVerEnd = this->DriverGLVersion.find_first_not_of(numbers, glVerStart);
+    if (glVerEnd==string::npos)
+      {
+      glVerEnd = this->DriverGLVersion.size();
+      }
+    if (glVerStart!=string::npos)
+      {
+      // driver gl version found
+      StringToVersion(
+            this->DriverGLVersion.substr(glVerStart,glVerEnd-glVerStart),
+            this->DriverGLVersionMajor,
+            this->DriverGLVersionMinor,
+            this->DriverGLVersionPatch);
+      // attempt to detect driver version
+      // windows sometimes doesn't have it.
+      size_t driverVerStart = this->DriverGLVersion.find_first_of(numbers, glVerEnd+1);
+      size_t driverVerEnd = this->DriverGLVersion.find_first_not_of(numbers, driverVerStart);
+      if (driverVerEnd==string::npos)
+        {
+        driverVerEnd = this->DriverGLVersion.size();
+        }
+      if (driverVerStart!=string::npos)
+        {
+        // driver version found
+        StringToVersion(
+              this->DriverGLVersion.substr(driverVerStart,driverVerEnd-driverVerStart),
+              this->DriverVersionMajor,
+              this->DriverVersionMinor,
+              this->DriverVersionPatch);
+        }
+      }
+
+    // attempt to identify driver vendor
+    if ( FindToken(this->DriverGLVendor, "ATI")
+      || FindToken(this->DriverGLVendor, "AMD") )
+      {
+      this->DriverGLVendorId = DRIVER_VENDOR_ATI;
+      }
+    else if (FindToken(this->DriverGLVendor, "NVIDIA"))
+      {
+      this->DriverGLVendorId = DRIVER_VENDOR_NVIDIA;
+      }
+    else if (FindToken(this->DriverGLVendor, "Intel"))
+      {
+      this->DriverGLVendorId = DRIVER_VENDOR_INTEL;
+      }
+    // Mesa's use of the vendor field is all over the map
+    // but they consistently use version field.
+    else if (FindToken(this->DriverGLVersion, "Mesa"))
+      {
+      this->DriverGLVendorId = DRIVER_VENDOR_MESA;
+      }
+    else if (FindToken(this->DriverGLVendor, "Microsoft"))
+      {
+      this->DriverGLVendorId = DRIVER_VENDOR_MICROSOFT;
+      }
+    else
+      {
+      this->DriverGLVendorId = DRIVER_VENDOR_UNKNOWN;
+      }
+    }
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverIsATI()
+{
+  return this->DriverGLVendorId == DRIVER_VENDOR_ATI;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverIsNvidia()
+{
+  return this->DriverGLVendorId == DRIVER_VENDOR_NVIDIA;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverIsIntel()
+{
+  return this->DriverGLVendorId == DRIVER_VENDOR_INTEL;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverIsMesa()
+{
+  return this->DriverGLVendorId  == DRIVER_VENDOR_MESA;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverIsMicrosoft()
+{
+  return this->DriverGLVendorId == DRIVER_VENDOR_MICROSOFT;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverVersionIs(
+      int major,
+      int minor,
+      int patch)
+{
+  return (this->DriverVersionMajor==major)
+   && (this->DriverVersionMinor==minor)
+   && (this->DriverVersionPatch==patch);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverVersionIs(int major, int minor)
+{
+  return (this->DriverVersionMajor==major)
+   && (this->DriverVersionMinor==minor);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverVersionIs(int major)
+{
+  return (this->DriverVersionMajor==major);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverVersionAtLeast(
+      int major,
+      int minor,
+      int patch)
+{
+  return (this->DriverVersionMajor>major)
+   || ((this->DriverVersionMajor==major)
+   && ((this->DriverVersionMinor>minor)
+   || ((this->DriverVersionMinor==minor)
+   && (this->DriverVersionPatch>=patch))));
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverVersionAtLeast(int major, int minor)
+{
+  return (this->DriverVersionMajor>major)
+   || ((this->DriverVersionMajor==major)
+   && (this->DriverVersionMinor>=minor));
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverVersionAtLeast(int major)
+{
+  return (this->DriverVersionMajor>=major);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverGLVersionIs(
+      int major,
+      int minor,
+      int patch)
+{
+  return (this->DriverGLVersionMajor==major)
+   && (this->DriverGLVersionMinor==minor)
+   && (this->DriverGLVersionPatch==patch);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverGLVersionIs(int major, int minor)
+{
+  return (this->DriverGLVersionMajor==major)
+   && (this->DriverGLVersionMinor==minor);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverGLRendererIs(const char *str)
+{
+  return this->DriverGLRenderer==str;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverGLRendererHas(const char *str)
+{
+  return this->DriverGLRenderer.find(str)!=string::npos;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverGLRendererHasToken(const char *str)
+{
+  return FindToken(this->DriverGLRenderer, str);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::DriverGLRendererIsOSMesa()
+{
+  // check the type of render window because
+  // OffScreen token is not used with the OS Mesa
+  // llvmpipe state tracker
+  return
+    this->DriverIsMesa()
+    && this->RenderWindow->IsA("vtkOSOpenGLRenderWindow");
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLExtensionManager::GetIgnoreDriverBugs(const char *description)
+{
+  if (this->IgnoreDriverBugs)
+    {
+    vtkWarningMacro(
+      << "Ignoring OpenGL driver bug: " << description);
+    return true;
+    }
+  return false;
+}
+
+// ----------------------------------------------------------------------------
 void vtkOpenGLExtensionManager::Update()
 {
   if (this->BuildTime > this->MTime)
@@ -133,10 +508,12 @@ void vtkOpenGLExtensionManager::Update()
   this->ExtensionsString = 0;
 
   this->ReadOpenGLExtensions();
+  this->InitializeDriverInformation();
 
   this->BuildTime.Modified();
 }
 
+// ----------------------------------------------------------------------------
 int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
 {
   this->Update();
@@ -163,83 +540,77 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
     p += n;
     }
 
-  const char *gl_renderer =
-    reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+  if (result == 0)
+    {
+    // the requested feature is not supported
+    return 0;
+    }
 
-  const char *gl_version=
-    reinterpret_cast<const char *>(glGetString(GL_VERSION));
-
-  const char *gl_vendor=
-    reinterpret_cast<const char *>(glGetString(GL_VENDOR));
-
-  const char *mesa_version = strstr(gl_version, "Mesa");
-
-  // Woraround for a nVidia bug in indirect/remote rendering mode (ssh -X)
+  // Workaround for a nVidia bug in indirect/remote rendering mode (ssh -X)
   // The version returns is not the one actually supported.
   // For example, the version returns is greater or equal to 2.1
   // but where PBO (which are core in 2.1) are not actually supported.
   // In this case, force the version to be 1.1 (minimal). Anything above
   // will be requested only through extensions.
   // See ParaView bug
-  if (result && !this->RenderWindow->IsDirect() && !mesa_version)
+  if ( (strncmp(name,"GL_VERSION_",11) == 0)
+     && !this->RenderWindow->IsDirect() && !this->DriverGLRendererIsOSMesa() )
     {
-    if (result && strncmp(name, "GL_VERSION_", 11) == 0)
+    // whatever is the OpenGL version, return false.
+    // (nobody asks for GL_VERSION_1_1)
+    return 0;
+    }
+
+  if (strcmp(name, "GL_VERSION_1_4") == 0)
+    {
+    // Workaround for a bug on Mac PowerPC G5 with nVidia GeForce FX 5200
+    // Mac OS 10.3.9 and driver 1.5 NVIDIA-1.3.42. It reports it supports
+    // OpenGL>=1.4 but querying for glPointParameteri and glPointParameteriv
+    // return null pointers. So it does not actually supports fully OpenGL 1.4.
+    // It will make this method return false with "GL_VERSION_1_4" and true
+    // with "GL_VERSION_1_5".
+    if ( (this->GetProcAddress("glPointParameteri") == 0)
+      || (this->GetProcAddress("glPointParameteriv") == 0) )
       {
-      // whatever is the OpenGL version, return false.
-      // (nobody asks for GL_VERSION_1_1)
-      result = 0;
+      return 0;
       }
-    }
 
-  // Workaround for a bug on Mac PowerPC G5 with nVidia GeForce FX 5200
-  // Mac OS 10.3.9 and driver 1.5 NVIDIA-1.3.42. It reports it supports
-  // OpenGL>=1.4 but querying for glPointParameteri and glPointParameteriv
-  // return null pointers. So it does not actually supports fully OpenGL 1.4.
-  // It will make this method return false with "GL_VERSION_1_4" and true
-  // with "GL_VERSION_1_5".
-  if (result && strcmp(name, "GL_VERSION_1_4") == 0)
-    {
-    result = this->GetProcAddress("glPointParameteri")!=0 &&
-      this->GetProcAddress("glPointParameteriv")!=0;
-    }
-
-  // Workaround for a bug on renderer string="Quadro4 900 XGL/AGP/SSE2"
-  // version string="1.5.8 NVIDIA 96.43.01" or "1.5.6 NVIDIA 87.56"
-  // The driver reports it supports 1.5 but the 1.4 core promoted extension
-  // GL_EXT_blend_func_separate is implemented in software (poor performance).
-  // All the NV2x chipsets are probably affected. NV2x chipsets are used
-  // in GeForce4 and Quadro4.
-  // It will make this method return false with "GL_VERSION_1_4" and true
-  // with "GL_VERSION_1_5".
-  if (result && strcmp(name, "GL_VERSION_1_4") == 0)
-    {
-    result = strstr(gl_renderer,"Quadro4")==0 &&
-      strstr(gl_renderer,"GeForce4") == 0;
+    // Workaround for a bug on renderer string="Quadro4 900 XGL/AGP/SSE2"
+    // version string="1.5.8 NVIDIA 96.43.01" or "1.5.6 NVIDIA 87.56"
+    // The driver reports it supports 1.5 but the 1.4 core promoted extension
+    // GL_EXT_blend_func_separate is implemented in software (poor performance).
+    // All the NV2x chipsets are probably affected. NV2x chipsets are used
+    // in GeForce4 and Quadro4.
+    // It will make this method return false with "GL_VERSION_1_4" and true
+    // with "GL_VERSION_1_5".
+    if ( result && (this->DriverGLRendererHasToken("Quadro4")
+      || this->DriverGLRendererHasToken("GeForce4")) )
+      {
+      return 0;
+      }
     }
 
   // Workaround for a bug on renderer string="ATI Radeon X1600 OpenGL Engine"
   // version string="2.0 ATI-1.4.58" vendor string="ATI Technologies Inc."
   // It happens on a Apple iMac Intel Core Duo (early 2006) with Mac OS X
   // 10.4.11 (Tiger) and an ATI Radeon X1600 128MB.
+
   // The driver reports it supports 2.0 (where GL_ARB_texture_non_power_of_two
   // extension has been promoted to core) and that it supports extension
   // GL_ARB_texture_non_power_of_two. Reality is that non power of two
   // textures just don't work in this OS/driver/card.
+
   // It will make this method returns false with "GL_VERSION_2_0" and true
   // with "GL_VERSION_2_1".
   // It will make this method returns false with
   // "GL_ARB_texture_non_power_of_two".
-  if (result && strcmp(name, "GL_VERSION_2_0") == 0)
+  if ( this->DriverIsATI()
+    && this->DriverVersionIs(1,4,58) && this->DriverGLVersionIs(2,0)
+    && this->DriverGLRendererIs("ATI Radeon X1600 OpenGL Engine")
+    && ((strcmp(name,"GL_VERSION_2_0") == 0)
+    || (strcmp(name, "GL_ARB_texture_non_power_of_two") == 0)))
     {
-    result=!(strcmp(gl_renderer,"ATI Radeon X1600 OpenGL Engine")==0 &&
-             strcmp(gl_version,"2.0 ATI-1.4.58")==0 &&
-             strcmp(gl_vendor,"ATI Technologies Inc.")==0);
-    }
-  if (result && strcmp(name, "GL_ARB_texture_non_power_of_two") == 0)
-    {
-    result=!(strcmp(gl_renderer,"ATI Radeon X1600 OpenGL Engine")==0 &&
-             strcmp(gl_version,"2.0 ATI-1.4.58")==0 &&
-             strcmp(gl_vendor,"ATI Technologies Inc.")==0);
+    return 0;
     }
 
   // Workaround for a bug in Mesa 7.7 with separate specular color. The
@@ -247,28 +618,21 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   // Mesa prior to version 7.10. If the user is requesting the separate
   // specular color extension and the renderer is mesa and the mesa version
   // is less than 7.10 we report that the platform does not support it.
-  if (result && strcmp(name, "GL_EXT_separate_specular_color") == 0)
+  if ( (strcmp(name,"GL_EXT_separate_specular_color") == 0)
+     && this->DriverIsMesa() && !this->DriverVersionAtLeast(7,10) )
     {
-    if (mesa_version)
-      {
-      int mesa_major = 0;
-      int mesa_minor = 0;
-      int mesa_patch = 0;
-      if (sscanf(mesa_version,
-                "Mesa %d.%d.%d",
-                &mesa_major,
-                &mesa_minor,
-                &mesa_patch) >= 2)
-        {
-        if (mesa_major < 7 || (mesa_major == 7 && mesa_minor < 10))
-          {
-          result = 0;
-          }
-        }
-      }
+    return 0;
     }
 
-  return result;
+  // Workaround for a bug in OS Mesa's pre 8.0 FBO implementation.
+  if ( (strcmp(name,"GL_EXT_framebuffer_object")==0)
+    && this->DriverGLRendererIsOSMesa() && !this->DriverVersionAtLeast(8) )
+    {
+    return 0;
+    }
+
+  // feature is suppported
+  return 1;
 }
 
 vtkOpenGLExtensionManagerFunctionPointer
@@ -299,6 +663,10 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
     return NULL;
     }
 #endif //VTK_USE_APPLE_LOADER
+
+#ifdef VTK_USE_OSMESA_GET_PROC_ADDRESS
+  return reinterpret_cast<vtkOpenGLExtensionManagerFunctionPointer>(OSMesaGetProcAddress(fname));
+#endif
 
 #ifdef VTK_USE_X
  #ifdef VTK_USE_GLX_GET_PROC_ADDRESS

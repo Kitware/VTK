@@ -37,7 +37,7 @@
 #include "vtkBridgeDataSet.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericSubdivisionErrorMetric.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkGeometricErrorMetric.h"
 #include "vtkAttributesErrorMetric.h"
 #include "vtkGenericOutlineFilter.h"

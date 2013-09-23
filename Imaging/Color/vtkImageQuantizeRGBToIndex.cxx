@@ -40,11 +40,11 @@ public:
       this->Bounds[4] = 0; this->Bounds[5] = 256; };
 
   ~vtkColorQuantizeNode()
-    { if ( this->Histogram[0] ) { delete []this->Histogram[0]; }
-      if ( this->Histogram[1] ) { delete []this->Histogram[1]; }
-      if ( this->Histogram[2] ) { delete []this->Histogram[2]; }
-      if ( this->Child1 ) { delete this->Child1; }
-      if ( this->Child2 ) { delete this->Child2; } };
+    { delete []this->Histogram[0];
+      delete []this->Histogram[1];
+      delete []this->Histogram[2];
+      delete this->Child1;
+      delete this->Child2; };
 
   void SetImageExtent( int v[6] )
     { memcpy( this->ImageExtent, v, 6*sizeof(int) ); };

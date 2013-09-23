@@ -174,6 +174,13 @@ public:
   virtual bool IsCurrent();
 
   // Description:
+  // Test if the window has a valid drawable. This is
+  // currently only an issue on Mac OSX Cocoa where rendering
+  // to an invalid drawable results in all OpenGL calls to fail
+  // with "invalid framebuffer operation".
+  virtual bool IsDrawable();
+
+  // Description:
   // Update this window's OpenGL context, e.g. when the window is resized.
   void UpdateContext();
 

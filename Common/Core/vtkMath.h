@@ -41,7 +41,7 @@
 
 #include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
 
-#include <assert.h> // assert() in inline implementations.
+#include <cassert> // assert() in inline implementations.
 
 #ifndef DBL_MIN
 #  define VTK_DBL_MIN    2.2250738585072014e-308
@@ -657,11 +657,29 @@ public:
                           int *tmp1Size, double *tmp2Size);
 
   // Description:
-  // Factor linear equations Ax = b using LU decomposition A = LU where L is
-  // lower triangular matrix and U is upper triangular matrix. Input is
-  // square matrix A, integer array of pivot indices index[0->n-1], and size
-  // of square matrix n. Output factorization LU is in matrix A. If error is
-  // found, method returns 0.
+  // Factor linear equations Ax = b using LU decomposition into the form
+  // A = LU where L is a unit lower triangular matrix and U is upper triangular
+  // matrix.
+  // The input is a square matrix A, an integer array of pivot indices index[0->n-1],
+  // and the size, n, of the square matrix.
+  // The output is provided by overwriting the input A with a matrix of the same size as
+  // A containing all of the information about L and U. If the output matrix is
+  // \f$ A* = \left( \begin{array}{cc}
+  // a & b \\ %
+  // c & d \end{array} \right)\f$
+  // then L and U can be obtained as:
+  // \f$ L = \left( \begin{array}{cc}
+  // 1 & 0 \\ %
+  // c & 1 \end{array} \right)\f$
+  // \f$ U = \left( \begin{array}{cc}
+  // a & b \\ %
+  // 0 & d \end{array} \right)\f$
+  //
+  // That is, the diagonal of the resulting A* is the diagonal of U. The upper right
+  // triangle of A is the upper right triangle of U. The lower left triangle of A is
+  // the lower left triangle of L (and since L is unit lower triangular, the diagonal
+  // of L is all 1's).
+  // If an error is found, the function returns 0.
   static int LUFactorLinearSystem(double **A, int *index, int size);
 
   // Description:
@@ -1245,8 +1263,11 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
 #define VTK_MATH_ISINF_IS_INLINE
 inline int vtkMath::IsInf(double x)
 {
-  using namespace std; // Could be isinf() or std::isinf()
+#if defined(VTK_HAS_STD_ISINF)
+  return std::isinf(x);
+#else
   return (isinf(x) != 0); // Force conversion to bool
+#endif
 }
 #endif
 
@@ -1255,8 +1276,11 @@ inline int vtkMath::IsInf(double x)
 #define VTK_MATH_ISNAN_IS_INLINE
 inline int vtkMath::IsNan(double x)
 {
-  using namespace std; // Could be isnan() or std::isnan()
+#if defined(VTK_HAS_STD_ISNAN)
+  return std::isnan(x);
+#else
   return (isnan(x) != 0); // Force conversion to bool
+#endif
 }
 #endif
 
@@ -1265,8 +1289,9 @@ inline int vtkMath::IsNan(double x)
 #define VTK_MATH_ISFINITE_IS_INLINE
 inline bool vtkMath::IsFinite(double x)
 {
-#if defined(VTK_HAS_ISFINITE) || defined(VTK_HAS_STD_ISFINITE)
-  using namespace std; // Could be isfinite() or std::isfinite()
+#if defined(VTK_HAS_STD_ISFINITE)
+  return std::isfinite(x);
+#elif defined(VTK_HAS_ISFINITE)
   return (isfinite(x) != 0); // Force conversion to bool
 #else
   return (finite(x) != 0); // Force conversion to bool

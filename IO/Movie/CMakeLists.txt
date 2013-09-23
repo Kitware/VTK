@@ -37,5 +37,5 @@ set(vtkIOMovie_HDRS
 vtk_module_library(vtkIOMovie ${Module_SRCS})
 
 if(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
-  target_link_libraries(vtkIOMovie vfw32)
+  target_link_libraries(vtkIOMovie LINK_PRIVATE vfw32)
 endif()

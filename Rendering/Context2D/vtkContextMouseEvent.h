@@ -53,10 +53,6 @@ public:
   {
   }
 
-  ~vtkContextMouseEvent()
-  {
-  }
-
   // Description:
   // Set the interactor for the mouse event.
   void SetInteractor(vtkRenderWindowInteractor *interactor)

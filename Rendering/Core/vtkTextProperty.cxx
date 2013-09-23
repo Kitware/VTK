@@ -27,6 +27,7 @@ vtkTextProperty::vtkTextProperty()
   this->Opacity  = 1.0;
 
   this->FontFamilyAsString = 0;
+  this->FontFile = NULL;
   this->SetFontFamilyAsString( "Arial" );
   this->FontSize = 12;
 
@@ -48,6 +49,7 @@ vtkTextProperty::vtkTextProperty()
 vtkTextProperty::~vtkTextProperty()
 {
   this->SetFontFamilyAsString(NULL);
+  this->SetFontFile(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -62,6 +64,7 @@ void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
   this->SetOpacity(tprop->GetOpacity());
 
   this->SetFontFamilyAsString(tprop->GetFontFamilyAsString());
+  this->SetFontFile(tprop->GetFontFile());
   this->SetFontSize(tprop->GetFontSize());
 
   this->SetBold(tprop->GetBold());
@@ -105,6 +108,8 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "FontFamilyAsString: "
      << (this->FontFamilyAsString ? this->FontFamilyAsString : "(null)") << endl;
+  os << indent << "FontFile: "
+     << (this->FontFile ? this->FontFile : "(null)") << endl;
   os << indent << "FontSize: " << this->FontSize << "\n";
 
   os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");

@@ -43,6 +43,7 @@
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkShaderProgram2.h"
 #include "vtkgl.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkContextBufferId.h"
@@ -82,6 +83,7 @@ vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
 {
+  vtkOpenGLClearErrorMacro();
   // Need the actual pixel size of the viewport - ask OpenGL.
   GLint vp[4];
   glGetIntegerv(GL_VIEWPORT, vp);
@@ -139,6 +141,7 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   glBindTexture(GL_TEXTURE_2D, 0);
 
   this->InRender = true;
+  vtkOpenGLCheckErrorMacro("failed after Begin");
 }
 
 //-----------------------------------------------------------------------------
@@ -148,6 +151,8 @@ void vtkOpenGLContextDevice2D::End()
     {
     return;
     }
+
+  vtkOpenGLClearErrorMacro();
 
   // push a 2D matrix on the stack
   glMatrixMode(GL_PROJECTION);
@@ -168,6 +173,8 @@ void vtkOpenGLContextDevice2D::End()
 
   this->RenderWindow = NULL;
   this->InRender = false;
+
+  vtkOpenGLCheckErrorMacro("failed after End");
 }
 
 // ----------------------------------------------------------------------------
@@ -176,6 +183,8 @@ void vtkOpenGLContextDevice2D::BufferIdModeBegin(
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
   assert("pre: bufferId_exists" && bufferId!=0);
+
+  vtkOpenGLClearErrorMacro();
 
   this->BufferId=bufferId;
 
@@ -205,6 +214,8 @@ void vtkOpenGLContextDevice2D::BufferIdModeBegin(
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_BLEND);
 
+  vtkOpenGLCheckErrorMacro("failed after BufferIdModeBegin");
+
   assert("post: started" && this->GetBufferIdMode());
 }
 
@@ -212,6 +223,8 @@ void vtkOpenGLContextDevice2D::BufferIdModeBegin(
 void vtkOpenGLContextDevice2D::BufferIdModeEnd()
 {
   assert("pre: started" && this->GetBufferIdMode());
+
+  vtkOpenGLClearErrorMacro();
 
   // Assume the renderer has been set previously during rendering (sse Begin())
   int lowerLeft[2];
@@ -229,6 +242,9 @@ void vtkOpenGLContextDevice2D::BufferIdModeEnd()
   this->Storage->RestoreGLState(true);
 
   this->BufferId=0;
+
+  vtkOpenGLCheckErrorMacro("failed after BufferIdModeEnd");
+
   assert("post: done" && !this->GetBufferIdMode());
 }
 
@@ -238,6 +254,8 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
 {
   assert("f must be non-null" && f != NULL);
   assert("n must be greater than 0" && n > 0);
+
+  vtkOpenGLClearErrorMacro();
 
   this->SetLineType(this->Pen->GetLineType());
   this->SetLineWidth(this->Pen->GetWidth());
@@ -263,12 +281,16 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   // Restore line type and width.
   this->SetLineType(vtkPen::SOLID_LINE);
   this->SetLineWidth(1.0f);
+
+  vtkOpenGLCheckErrorMacro("failed after DrawPoly");
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
                                           int nc)
 {
+  vtkOpenGLClearErrorMacro();
+
   if (f && n > 0)
     {
     this->SetPointSize(this->Pen->GetWidth());
@@ -294,6 +316,8 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
     }
+
+  vtkOpenGLCheckErrorMacro("failed after DrawPoints");
 }
 
 //-----------------------------------------------------------------------------
@@ -302,6 +326,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                                                 unsigned char *colors,
                                                 int nc_comps)
 {
+  vtkOpenGLClearErrorMacro();
   if (points && n > 0)
     {
     this->SetPointSize(this->Pen->GetWidth());
@@ -386,6 +411,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     {
     vtkWarningMacro(<< "Points supplied without a valid image or pointer.");
     }
+  vtkOpenGLCheckErrorMacro("failed after DrawPointSprites");
 }
 
 //-----------------------------------------------------------------------------
@@ -402,6 +428,7 @@ void vtkOpenGLContextDevice2D::DrawMarkers(int shape, bool highlight,
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
 {
+  vtkOpenGLClearErrorMacro();
   if (!f || n <= 0)
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
@@ -429,11 +456,13 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
     glDisable(GL_TEXTURE_2D);
     delete [] texCoord;
     }
+  vtkOpenGLCheckErrorMacro("failed after DrawQuad");
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
 {
+  vtkOpenGLClearErrorMacro();
   if (!f || n <= 0)
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
@@ -461,10 +490,12 @@ void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
     glDisable(GL_TEXTURE_2D);
     delete [] texCoord;
     }
+  vtkOpenGLCheckErrorMacro("failed after DrawQuadStrip");
 }
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
 {
+  vtkOpenGLClearErrorMacro();
   if (!f || n <= 0)
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
@@ -492,6 +523,7 @@ void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
     glDisable(GL_TEXTURE_2D);
     delete [] texCoord;
     }
+  vtkOpenGLCheckErrorMacro("failed after DrawPolygon");
 }
 
 //-----------------------------------------------------------------------------
@@ -513,6 +545,8 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
     // we make sure maxRadius will never be null.
     return;
     }
+
+  vtkOpenGLClearErrorMacro();
 
   int iterations=this->GetNumberOfArcIterations(outRx,outRy,startAngle,
                                                 stopAngle);
@@ -556,6 +590,8 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
   glDisableClientState(GL_VERTEX_ARRAY);
 
   delete[] p;
+
+  vtkOpenGLCheckErrorMacro("failed after DrawEllipseWedge");
 }
 
 // ----------------------------------------------------------------------------
@@ -571,6 +607,9 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
     // we make sure maxRadius will never be null.
     return;
     }
+
+  vtkOpenGLClearErrorMacro();
+
   int iterations = this->GetNumberOfArcIterations(rX, rY, startAngle, stopAngle);
 
   float *p = new float[2*(iterations+1)];
@@ -605,6 +644,8 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
   this->SetLineWidth(1.0f);
 
   delete[] p;
+
+  vtkOpenGLCheckErrorMacro("failed after DrawEllipseArc");
 }
 
 // ----------------------------------------------------------------------------
@@ -758,6 +799,22 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
 void vtkOpenGLContextDevice2D::DrawString(float *point,
                                           const vtkStdString &string)
 {
+  this->DrawString(point, vtkUnicodeString::from_utf8(string));
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
+                                                   float bounds[4])
+{
+  this->ComputeStringBounds(vtkUnicodeString::from_utf8(string), bounds);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawString(float *point,
+                                          const vtkUnicodeString &string)
+{
+  vtkOpenGLClearErrorMacro();
+
   GLfloat mv[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, mv);
   float xScale = mv[0];
@@ -767,9 +824,9 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
                 std::floor(point[1] * yScale) / yScale };
 
   // Cache rendered text strings
-  vtkTextureImageCache<TextPropertyKey>::CacheData &cache =
-    this->Storage->TextTextureCache.GetCacheData(
-      TextPropertyKey(this->TextProp, string));
+  vtkTextureImageCache<UTF16TextPropertyKey>::CacheData &cache =
+      this->Storage->TextTextureCache.GetCacheData(
+        UTF16TextPropertyKey(this->TextProp, string));
   vtkImageData* image = cache.ImageData;
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
     {
@@ -817,47 +874,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 
   texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
-}
 
-//-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
-                                                   float bounds[4])
-{
-  vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string);
-  // Check for invalid bounding box
-  if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
-      box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)
-    {
-    bounds[0] = static_cast<float>(0);
-    bounds[1] = static_cast<float>(0);
-    bounds[2] = static_cast<float>(0);
-    bounds[3] = static_cast<float>(0);
-    return;
-    }
-  GLfloat mv[16];
-  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
-  float xScale = mv[0];
-  float yScale = mv[5];
-  bounds[0] = static_cast<float>(0);
-  bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.GetX() / xScale);
-  bounds[3] = static_cast<float>(box.GetY() / yScale);
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawString(float *point,
-                                          const vtkUnicodeString &string)
-{
-  int p[] = { static_cast<int>(point[0]),
-              static_cast<int>(point[1]) };
-
-  //TextRenderer draws in window, not viewport coords
-  p[0]+=this->Storage->Offset.GetX();
-  p[1]+=this->Storage->Offset.GetY();
-  vtkImageData *data = vtkImageData::New();
-  this->TextRenderer->RenderString(this->TextProp, string, data);
-  this->DrawImage(point, 1.0, data);
-  data->Delete();
+  vtkOpenGLCheckErrorMacro("failed after DrawString");
 }
 
 //-----------------------------------------------------------------------------
@@ -898,12 +916,14 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
     return;
     }
 
+  vtkOpenGLClearErrorMacro();
+
   float p[] = { std::floor(point[0]), std::floor(point[1]) };
 
   // Cache rendered text strings
-  vtkTextureImageCache<TextPropertyKey>::CacheData &cache =
+  vtkTextureImageCache<UTF8TextPropertyKey>::CacheData &cache =
     this->Storage->MathTextTextureCache.GetCacheData(
-      TextPropertyKey(this->TextProp, string));
+      UTF8TextPropertyKey(this->TextProp, string));
   vtkImageData* image = cache.ImageData;
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
     {
@@ -957,12 +977,16 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
 
   texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
+
+  vtkOpenGLCheckErrorMacro("failed after DrawMathTexString");
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
                                          vtkImageData *image)
 {
+  vtkOpenGLClearErrorMacro();
+
   this->SetTexture(image);
   this->Storage->Texture->Render(this->Renderer);
   int *extent = image->GetExtent();
@@ -987,12 +1011,16 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
 
   this->Storage->Texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
+
+  vtkOpenGLCheckErrorMacro("failed after DrawImage");
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
                                          vtkImageData *image)
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkVector2f tex(1.0, 1.0);
   GLuint index = 0;
   if (this->Storage->PowerOfTwoTextures)
@@ -1027,6 +1055,8 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
 //  this->Storage->Texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
   glDeleteTextures(1, &index);
+
+  vtkOpenGLCheckErrorMacro("failed after DrawImage");
 }
 
 //-----------------------------------------------------------------------------
@@ -1199,15 +1229,19 @@ void vtkOpenGLContextDevice2D::GetMatrix(vtkMatrix3x3 *m)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::PushMatrix()
 {
+  vtkOpenGLClearErrorMacro();
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
+  vtkOpenGLCheckErrorMacro("failed after PushMatrix");
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::PopMatrix()
 {
+  vtkOpenGLClearErrorMacro();
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
+  vtkOpenGLCheckErrorMacro("failed after PopMatrix");
 }
 
 //-----------------------------------------------------------------------------
@@ -1318,12 +1352,10 @@ bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
     this->Storage->GLSL = false;
     }
 
-  // Workaround for a bug in mesa - support for non-power of two textures is
-  // poor at best. Disable, and use power of two textures for mesa rendering.
-  const char *gl_version =
-    reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  const char *mesa_version = strstr(gl_version, "Mesa");
-  if (mesa_version != 0)
+  // disable NPOT textures for Mesa
+  // NPOT textures work in OS Mesa >= 8.0.0
+  if ( m->DriverIsMesa()
+     && !(m->DriverGLRendererIsOSMesa() && m->DriverVersionAtLeast(8)))
     {
     this->Storage->PowerOfTwoTextures = true;
     this->TextRenderer->SetScaleToPowerOfTwo(true);

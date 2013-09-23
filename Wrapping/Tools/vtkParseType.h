@@ -251,8 +251,10 @@
 /**
  * For backwards compatibility
  */
+#ifndef VTK_PARSE_LEGACY_REMOVE
 #define VTK_PARSE_VTK_OBJECT        VTK_PARSE_OBJECT
 #define VTK_PARSE_VTK_OBJECT_PTR    VTK_PARSE_OBJECT_PTR
 #define VTK_PARSE_VTK_OBJECT_REF    VTK_PARSE_OBJECT_REF
+#endif
 
 #endif

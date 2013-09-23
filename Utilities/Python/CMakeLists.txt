@@ -23,3 +23,19 @@ if(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development
     )
 endif()
+
+# Export location of python module dirs in install and build tree for every vtkpython module to use
+# As long as those modules depend on vtkpython, they can retrieve and use these
+if (NOT VTK_INSTALL_PYTHON_MODULE_DIR)
+  set(VTK_INSTALL_PYTHON_MODULE_DIR
+      "${VTK_INSTALL_LIBRARY_DIR}/python${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}/site-packages"
+      CACHE
+      PATH "Directory where python modules will be installed" FORCE)
+endif()
+
+if (NOT VTK_BUILD_PYTHON_MODULE_DIR)
+  set(VTK_BUILD_PYTHON_MODULE_DIR
+      "${VTK_BINARY_DIR}/Wrapping/Python"
+      CACHE
+      PATH "Directory where python modules will be built" FORCE)
+endif()

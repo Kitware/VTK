@@ -35,6 +35,7 @@
 #include "vtkTexture.h"
 #include "vtkXMLDataElement.h"
 #include "vtkWindow.h"
+#include "vtkOpenGLError.h"
 
 #include <vector>
 #include <string>
@@ -96,6 +97,7 @@ void vtkGLSLShaderProgram::ReleaseGraphicsResources(vtkWindow* w)
   if (w && w->GetMapped() && this->IsProgram())
     {
     vtkgl::DeleteProgram(this->Program);
+    vtkOpenGLCheckErrorMacro("failed at glDeleteProgram");
     }
   this->Program = 0;
   this->Superclass::ReleaseGraphicsResources(w);
@@ -123,12 +125,15 @@ int vtkGLSLShaderProgram::IsLinked()
   GLint value = 0;
   vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
                       vtkgl::LINK_STATUS, &value);
+  vtkOpenGLCheckErrorMacro("failed at glGetProgramiv");
   return value==1;
 }
 
 //-----------------------------------------------------------------------------
 void vtkGLSLShaderProgram::GetProgramInfo()
 {
+  vtkOpenGLClearErrorMacro();
+
   if (!this->Program)
     {
     return;
@@ -188,11 +193,15 @@ void vtkGLSLShaderProgram::GetProgramInfo()
     {
     this->SetInfo( infoString.c_str() );
     }
+
+  vtkOpenGLCheckErrorMacro("failed after GetProgramInfo");
 }
 
 //-----------------------------------------------------------------------------
 void vtkGLSLShaderProgram::GetInfoLog()
 {
+  vtkOpenGLClearErrorMacro();
+
   // Anything in the info log?
   int infologLength = 0;
   int charsWritten  = 0;
@@ -221,11 +230,15 @@ void vtkGLSLShaderProgram::GetInfoLog()
     {
     this->SetInfo( "No Log Info." );
     }
+
+  vtkOpenGLCheckErrorMacro("failed after GetInfoLog");
 }
 
 //-----------------------------------------------------------------------------
 int vtkGLSLShaderProgram::IsAttached(vtkGLSLShader* glslshader)
 {
+  vtkOpenGLClearErrorMacro();
+
   unsigned int handle = glslshader->GetHandle();
   int attached = 0;
   // find out what's attached
@@ -251,6 +264,8 @@ int vtkGLSLShaderProgram::IsAttached(vtkGLSLShader* glslshader)
       }
     it++;
     }
+
+  vtkOpenGLCheckErrorMacro("failed after IsAttached");
   return attached;
 }
 
@@ -298,6 +313,8 @@ void vtkGLSLShaderProgram::LoadExtensions( vtkRenderWindow* renWin )
 //-----------------------------------------------------------------------------
 void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
 {
+  vtkOpenGLClearErrorMacro();
+
   this->LoadExtensions( renderer->GetRenderWindow() );
   if (!this->GetGLExtensionsLoaded())
     {
@@ -379,6 +396,8 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
     shader->SetProgram(this->Program);
     shader->PassShaderVariables(actor, renderer);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 //-----------------------------------------------------------------------------
 void vtkGLSLShaderProgram::PostRender(vtkActor*, vtkRenderer*)

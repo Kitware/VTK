@@ -34,7 +34,7 @@
 # define LOWERCASE_COMPARE strcasecmp
 #endif
 
-#include <assert.h>
+#include <cassert>
 
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/vector>
@@ -872,8 +872,9 @@ vtkMySQLQuery::DataValue(vtkIdType column)
 
     // Initialize base as a VTK_VOID value... only populate with
     // data when a column value is non-NULL.
+    bool isNull = !this->Internals->CurrentRow[column];
     vtkVariant base;
-    if ( this->Internals->CurrentRow[column] )
+    if ( !isNull )
       {
       // Make a string holding the data, including possible embedded null characters.
       vtkStdString s( this->Internals->CurrentRow[column],
@@ -890,17 +891,17 @@ vtkMySQLQuery::DataValue(vtkIdType column)
       case VTK_INT:
       case VTK_SHORT:
       case VTK_BIT:
-        return vtkVariant(base.ToInt());
+        return isNull ? base : vtkVariant(base.ToInt());
 
       case VTK_LONG:
       case VTK_UNSIGNED_LONG:
-        return vtkVariant(base.ToLong());
+        return isNull ? base : vtkVariant(base.ToLong());
 
       case VTK_FLOAT:
-        return vtkVariant(base.ToFloat());
+        return isNull ? base : vtkVariant(base.ToFloat());
 
       case VTK_DOUBLE:
-        return vtkVariant(base.ToDouble());
+        return isNull ? base : vtkVariant(base.ToDouble());
 
       case VTK_STRING:
         return base; // it's already a string

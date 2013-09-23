@@ -19,7 +19,7 @@
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h.in
   ${VTK_BINARY_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h
-  @ONLY IMMEDIATE
+  @ONLY
 )
 
 get_property(VTK_TCL_WRAPPED GLOBAL PROPERTY VTK_TCL_WRAPPED)
@@ -133,10 +133,12 @@ endif()
 
 # Create the pvtk Tcl wrapper executable with MPI support.
 if(vtkParallelMPI_ENABLED)
+  include(vtkMPI)
   vtk_module_config(PVTK vtkParallelMPI)
   include_directories(${PVTK_INCLUDE_DIRS})
 
   VTK_ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
+  vtk_mpi_link(pvtk)
   IF(VTK_USE_CARBON)
     FIND_PROGRAM(VTK_APPLE_RESOURCE Rez "${OSX_DEVELOPER_ROOT}/usr/bin")
     IF(VTK_APPLE_RESOURCE)
@@ -150,19 +152,19 @@ if(vtkParallelMPI_ENABLED)
     ENDIF(VTK_APPLE_RESOURCE)
   ENDIF(VTK_USE_CARBON)
 
-  target_link_libraries(pvtk ${PVTK_LIBRARIES})
+  target_link_libraries(pvtk LINK_PRIVATE ${PVTK_LIBRARIES})
   if(VTK_USE_TK)
-    target_link_libraries(pvtk ${VTK_TK_LIBRARIES})
+    target_link_libraries(pvtk LINK_PRIVATE ${VTK_TK_LIBRARIES})
   endif(VTK_USE_TK)
 
   # Link to TCL static libraries
   if(BUILD_SHARED_LIBS)
     # vtkCommonCoreTCL is required even for shared builds
     # to link the vtkTclUtil object - FIXME ??
-    target_link_libraries(pvtk vtkCommonCoreTCL)
+    target_link_libraries(pvtk LINK_PRIVATE vtkCommonCoreTCL)
   else()
     foreach(module ${VTK_TCL_WRAPPED})
-      target_link_libraries(pvtk ${${module}_TCL_NAME}TCL)
+      target_link_libraries(pvtk LINK_PRIVATE ${${module}_TCL_NAME}TCL)
     endforeach()
   endif()
 endif()
@@ -195,19 +197,19 @@ if(VTK_TCL_CONFIGURATION_TYPES)
     set(VTK_TCL_LIBRARY_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${config}")
     configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                    ${VTK_BINARY_DIR}/Wrapping/Tcl/${config}/pkgIndex.tcl
-                   @ONLY IMMEDIATE)
+                   @ONLY)
   endforeach()
 else()
   set(VTK_TCL_LIBRARY_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
   configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                  ${VTK_BINARY_DIR}/Wrapping/Tcl/pkgIndex.tcl
-                 @ONLY IMMEDIATE)
+                 @ONLY)
 endif()
 
 # A few hand coded bits of Tcl to glue things together.
 macro(configure_tcl_files)
   foreach(file ${ARGN})
-    configure_file(${file}.tcl.in "${VTK_TCL_HOME}/${file}.tcl" @ONLY IMMEDIATE)
+    configure_file(${file}.tcl.in "${VTK_TCL_HOME}/${file}.tcl" @ONLY)
   endforeach()
 endmacro()
 
@@ -247,7 +249,7 @@ foreach(mod ${VTK_TCL_WRAPPED})
   set(module "${${mod}_TCL_NAME}")
   string(TOLOWER ${module} module_lc)
   configure_file(vtkmodule.tcl.in
-    "${VTK_TCL_HOME}/${module_lc}/${module_lc}.tcl" @ONLY IMMEDIATE)
+    "${VTK_TCL_HOME}/${module_lc}/${module_lc}.tcl" @ONLY)
   if(NOT VTK_INSTALL_NO_RUNTIME)
     install(FILES
       "${VTK_TCL_HOME}/${module_lc}/${module_lc}.tcl"
@@ -266,7 +268,7 @@ ELSE(UNIX)
 ENDIF(UNIX)
 configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl
-               @ONLY IMMEDIATE)
+               @ONLY)
 IF(NOT VTK_INSTALL_NO_RUNTIME)
   INSTALL(FILES
     ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl

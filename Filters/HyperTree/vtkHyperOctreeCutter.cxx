@@ -40,7 +40,7 @@
 #include "vtkOrderedTriangulator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <math.h>
-#include <assert.h>
+#include <cassert>
 #include "vtkHyperOctreeClipCutPointsGrabber.h"
 #include "vtkIncrementalPointLocator.h"
 

@@ -1323,10 +1323,7 @@ void vtkScalarsToColors::MapColorsToColors(
       }
     }
 
-  if (newPtr)
-    {
-    delete [] newPtr;
-    }
+  delete [] newPtr;
 }
 
 //----------------------------------------------------------------------------
@@ -1383,10 +1380,7 @@ void vtkScalarsToColors::MapVectorsToMagnitude(
         numberOfTuples, vectorSize, inInc));
     }
 
-  if (newPtr)
-    {
-    delete [] newPtr;
-    }
+  delete [] newPtr;
 }
 
 //----------------------------------------------------------------------------
@@ -1496,10 +1490,7 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
       }
     }
 
-  if (newPtr)
-    {
-    delete [] newPtr;
-    }
+  delete [] newPtr;
 }
 
 //----------------------------------------------------------------------------
@@ -1596,8 +1587,7 @@ void vtkScalarsToColors::SetAnnotations(
 {
   if (
     (values && !annotations) ||
-    (!values && annotations) ||
-    (values == this->AnnotatedValues && annotations == this->Annotations))
+    (!values && annotations))
     return;
 
   if (values && annotations &&
@@ -1610,36 +1600,49 @@ void vtkScalarsToColors::SetAnnotations(
     return;
     }
 
-  bool sameVals = (values == this->AnnotatedValues);
-  bool sameText = (annotations == this->Annotations);
-  if (this->AnnotatedValues && !sameVals)
+  if (this->AnnotatedValues && !values)
     {
     this->AnnotatedValues->Delete();
     this->AnnotatedValues = 0;
     }
-  if (this->Annotations && !sameText)
+  else if (values)
+    { // Ensure arrays are of the same type before copying.
+    if (this->AnnotatedValues)
+      {
+      if (this->AnnotatedValues->GetDataType() != values->GetDataType())
+        {
+        this->AnnotatedValues->Delete();
+        this->AnnotatedValues = 0;
+        }
+      }
+    if (!this->AnnotatedValues)
+      {
+      this->AnnotatedValues =
+        vtkAbstractArray::CreateArray(
+          values->GetDataType());
+      }
+    }
+  bool sameVals = (values == this->AnnotatedValues);
+  if (!sameVals && values)
+    {
+    this->AnnotatedValues->DeepCopy(values);
+    }
+
+  if (this->Annotations && !annotations)
     {
     this->Annotations->Delete();
     this->Annotations = 0;
     }
-  if (!values)
+  else if (!this->Annotations && annotations)
     {
-    return;
+    this->Annotations = vtkStringArray::New();
     }
-  if (!sameVals)
-    {
-    this->AnnotatedValues = values;
-    this->AnnotatedValues->Register(this);
-    }
+  bool sameText = (annotations == this->Annotations);
   if (!sameText)
     {
-    this->Annotations = annotations;
-    this->Annotations->Register(this);
+    this->Annotations->DeepCopy(annotations);
     }
-  if (this->AnnotatedValues)
-    {
-    this->UpdateAnnotatedValueMap();
-    }
+  this->UpdateAnnotatedValueMap();
   this->Modified();
 }
 
@@ -1818,7 +1821,8 @@ void vtkScalarsToColors::UpdateAnnotatedValueMap()
 {
   this->AnnotatedValueMap->clear();
 
-  vtkIdType na = this->AnnotatedValues->GetMaxId() + 1;
+  vtkIdType na =
+    this->AnnotatedValues ? this->AnnotatedValues->GetMaxId() + 1 : 0;
   for (vtkIdType i = 0; i < na; ++ i)
     {
     (*this->AnnotatedValueMap)[this->AnnotatedValues->GetVariantValue(i)] = i;

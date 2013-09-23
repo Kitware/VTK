@@ -31,10 +31,7 @@ vtkBitArrayIterator::vtkBitArrayIterator()
 vtkBitArrayIterator::~vtkBitArrayIterator()
 {
   this->SetArray(0);
-  if (this->Tuple)
-    {
-    delete [] this->Tuple;
-    }
+  delete [] this->Tuple;
 }
 
 //-----------------------------------------------------------------------------

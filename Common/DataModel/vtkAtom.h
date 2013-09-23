@@ -28,8 +28,6 @@ class vtkVector3f;
 class VTKCOMMONDATAMODEL_EXPORT vtkAtom
 {
  public:
-  ~vtkAtom();
-
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

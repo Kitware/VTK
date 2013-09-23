@@ -49,7 +49,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkXMLUnstructuredGridReader.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGridGeometryFilter.h"

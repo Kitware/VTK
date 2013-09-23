@@ -31,7 +31,6 @@ public:
   octree_path( octree_pointer otree );
   octree_path( octree_node_pointer oroot );
   octree_path( octree_node_pointer oroot, std::vector<int>& children );
-  virtual ~octree_path();
 
   octree_node_reference operator * () const { return *_M_current_node; }
   octree_node_pointer operator -> () const { return &(operator*()); }

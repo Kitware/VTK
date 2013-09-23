@@ -2063,7 +2063,7 @@ void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
 
   // find the index to the smallest id
   vtkIdType offset = 0;
-  for(int i=1; i<numPts; i++)
+  for(int i=0; i < numPts; i++)
     {
     if(ids[i] < ids[offset])
       {
@@ -2089,11 +2089,11 @@ void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
     bool match = true;
     if (numPts == quad->numPts)
       {
-      if ( tab[1] == quad->ptArray[1])
+      if ( tab[0] == quad->ptArray[0])
         {
         // if the first two points match loop through forwards
         // checking all points
-        for (int i = 2; i < numPts; i++)
+        for (int i = 1; i < numPts; i++)
           {
           if ( tab[i] != quad->ptArray[i])
             {
@@ -2102,13 +2102,13 @@ void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
             }
           }
         }
-      else if (tab[numPts-1] == quad->ptArray[1])
+      else if (tab[numPts-1] == quad->ptArray[0])
         {
         // the first two points match with the opposite sense.
         // loop though comparing the correct sense
-        for (int i = 2; i < numPts; i++)
+        for (int i = 1; i < numPts; i++)
           {
-          if ( tab[numPts - i] != quad->ptArray[i])
+          if ( tab[numPts - i - 1] != quad->ptArray[i])
             {
             match = false;
             break;

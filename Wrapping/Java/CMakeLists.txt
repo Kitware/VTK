@@ -3,11 +3,58 @@ find_package(JNI REQUIRED)
 
 include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
 
+# Add the option to package VTK for custom Java packaging
+option(VTK_JAVA_INSTALL "Use the Java rules to build the native libraries." OFF)
+if(VTK_JAVA_INSTALL)
+  set(VTK_CUSTOM_LIBRARY_SUFFIX "" CACHE STRING "" FORCE)
+  if(APPLE)
+     set(CMAKE_INSTALL_NAME_DIR @loader_path CACHE STRING "" FORCE)
+     mark_as_advanced(CMAKE_INSTALL_NAME_DIR)
+  endif()
+  if(NOT MAVEN_LOCAL_NATIVE_NAME)
+    set(MAVEN_LOCAL_NATIVE_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}" CACHE STRING "")
+  endif()
+  if(NOT MAVEN_NATIVE_ARTIFACTS)
+    set(MAVEN_NATIVE_ARTIFACTS "${MAVEN_LOCAL_NATIVE_NAME}" CACHE STRING "")
+  endif()
+  if(NOT MAVEN_LOCAL_REPOSITORY)
+    set(MAVEN_LOCAL_REPOSITORY "\${user.home}/vtk-maven-repos" CACHE STRING "")
+  endif()
+  if(NOT MAVEN_VTK_GROUP_ID)
+    set(MAVEN_VTK_GROUP_ID "kitware.community" CACHE STRING "")
+  endif()
+  mark_as_advanced(MAVEN_LOCAL_REPOSITORY MAVEN_NATIVE_ARTIFACTS MAVEN_LOCAL_NATIVE_NAME MAVEN_VTK_GROUP_ID)
+  set(MAVEN_DEPENDENCY_XML)
+endif()
+
 # Add the option for build the SWT component to VTK.
 option(VTK_JAVA_SWT_COMPONENT "Should SWT component for Java be built (it requires Eclipse)?" OFF)
 
 if(VTK_JAVA_SWT_COMPONENT)
   find_package(SWT REQUIRED)
+endif()
+
+# Add the option for build the JOGL component to VTK.
+set(JOGL_VERSION "2.0.2")
+option(VTK_JAVA_JOGL_COMPONENT "Need JOGL jar files" OFF)
+
+if(VTK_JAVA_JOGL_COMPONENT)
+  set(MAVEN_REPO "$ENV{HOME}/.m2/repository")
+  find_file(JOGL_LIB jogl-all-${JOGL_VERSION}.jar PATHS ${MAVEN_REPO}/org/jogamp/jogl/jogl-all/${JOGL_VERSION} )
+  find_file(JOGL_GLUE gluegen-rt-${JOGL_VERSION}.jar PATHS ${MAVEN_REPO}/org/jogamp/gluegen/gluegen-rt/${JOGL_VERSION})
+  mark_as_advanced(JOGL_LIB JOGL_GLUE)
+  if(NOT JOGL_LIB)
+     message(ERROR "
+     CMake can not build VTK with VTK_JAVA_JOGL_COMPONENT ON if the JOGL jar file is not provided.
+     Please set the JOGL_LIB variable.
+     ")
+  endif()
+  if(NOT JOGL_GLUE)
+     message(ERROR "
+     CMake can not build VTK with VTK_JAVA_JOGL_COMPONENT ON if the GLUE jar file is not provided.
+     Please set the JOGL_GLUE variable.
+     ")
+  endif()
 endif()
 
 set(WrappingJava_SRCS
@@ -18,7 +65,7 @@ vtk_module_library(vtkWrappingJava ${WrappingJava_SRCS})
 
 # javac runs out memory on Mac so increase heapsize
 if(APPLE)
-  set(JAVAC_OPTIONS -J-Xmx256m)
+  set(JAVAC_OPTIONS -J-Xmx512m)
 endif()
 
 foreach(module ${VTK_MODULES_ENABLED})
@@ -74,7 +121,7 @@ foreach(module ${_MODULES_TO_WRAP})
 
   string(REGEX REPLACE "^vtk" "" _module_no_prefix "${module}")
 
-  if(APPLE)
+  if(APPLE AND NOT VTK_JAVA_INSTALL)
     set(src ${VTK_JAR_PATH}/libvtk${_module_no_prefix}Java.dylib)
     set(tgt ${VTK_JAR_PATH}/libvtk${_module_no_prefix}Java.jnilib)
     add_custom_command(OUTPUT ${tgt}
@@ -175,6 +222,14 @@ if(vtkRenderingCore_ENABLED AND vtkIOImage_ENABLED)
       rendering/swt/vtkSwtInteractorForwarderDecorator
     )
   endif()
+  if(VTK_JAVA_JOGL_COMPONENT)
+    set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
+      rendering/jogl/vtkAbstractJoglComponent
+      rendering/jogl/vtkJoglCanvasComponent
+      rendering/jogl/vtkJoglPanelComponent
+      sample/rendering/JoglConeRendering
+    )
+  endif()
   set(VTK_JAVA_SAMPLE_DEPENDENCIES ${VTK_JAVA_SAMPLE_DEPENDENCIES}
     InternalFrames
     Demo
@@ -232,13 +287,29 @@ if(VTK_JAVA_SWT_COMPONENT)
   set(SWT_FILES "${VTK_BINARY_DIR}/java/vtk/rendering/swt/*.java")
 endif()
 
+if(VTK_JAVA_JOGL_COMPONENT)
+  set(JOGL_FILES "${VTK_BINARY_DIR}/java/vtk/rendering/jogl/*.java" "${VTK_BINARY_DIR}/java/vtk/sample/rendering/JoglConeRendering.java")
+endif()
+
+# Handle Java class path
+set(JAVA_COMPILATION_CLASSPATH "${VTK_JAVA_HOME}/..")
+if(ECLIPSE_SWT_LIBRARIES)
+    set(JAVA_COMPILATION_CLASSPATH "${JAVA_COMPILATION_CLASSPATH}${SEPARATOR}${ECLIPSE_SWT_LIBRARIES}")
+endif()
+if(JOGL_LIB)
+    set(JAVA_COMPILATION_CLASSPATH "${JAVA_COMPILATION_CLASSPATH}${SEPARATOR}${JOGL_LIB}")
+endif()
+if(JOGL_GLUE)
+    set(JAVA_COMPILATION_CLASSPATH "${JAVA_COMPILATION_CLASSPATH}${SEPARATOR}${JOGL_GLUE}")
+endif()
+
 # Compile the Java classes
 add_custom_command(
   OUTPUT ${VTK_BINARY_DIR}/java/javac_stamp.txt
   DEPENDS ${VTK_JAVA_SOURCE_FILES}
   COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS}
-    -source 1.5 -classpath ${VTK_JAVA_HOME}/..${SEPARATOR}${ECLIPSE_SWT_LIBRARIES} -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
-    ${VTK_BINARY_DIR}/java/vtk/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/awt/*.java ${SWT_FILES}
+    -source 1.5 -classpath ${JAVA_COMPILATION_CLASSPATH} -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
+    ${VTK_BINARY_DIR}/java/vtk/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/awt/*.java ${VTK_BINARY_DIR}/java/vtk/sample/*.java ${SWT_FILES} ${JOGL_FILES}
   COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_stamp.txt
   COMMENT "Compiling Java Classes"
   )
@@ -326,3 +397,24 @@ install(FILES
   ${VTK_JAR_PATH}/vtk.jar
   DESTINATION ${VTK_INSTALL_LIBRARY_DIR}
   COMPONENT RuntimeLibraries)
+
+#-----------------------------------------------------------------------------
+# Post-Install script for Custom Java Packaging
+# This install rule MUST stay at the bottom of that CMakeLists file as
+# it has to be the last install rule that get executed
+if(VTK_JAVA_INSTALL)
+  set(MAVEN_NATIVE_ARTIFACT_XML)
+  foreach(native_name ${MAVEN_NATIVE_ARTIFACTS})
+     set(MAVEN_NATIVE_ARTIFACT_XML "${MAVEN_NATIVE_ARTIFACT_XML}\n                                <artifact><file>vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}-natives-${native_name}.jar</file><classifier>natives-${native_name}</classifier><type>jar</type></artifact>")
+  endforeach()
+  if(VTK_JAVA_JOGL_COMPONENT)
+    set(MAVEN_DEPENDENCY_XML "${MAVEN_DEPENDENCY_XML}\n      <dependency><groupId>org.jogamp.jogl</groupId><artifactId>jogl-all-main</artifactId><version>${JOGL_VERSION}</version></dependency>\n      <dependency><groupId>org.jogamp.gluegen</groupId><artifactId>gluegen-rt-main</artifactId><version>${JOGL_VERSION}</version></dependency>")
+  endif()
+  configure_file(JavaInstall.cmake.in
+               ${VTK_BINARY_DIR}/JavaInstall.cmake @ONLY)
+  configure_file(Maven/pom.xml.in
+               ${VTK_BINARY_DIR}/pom.xml @ONLY)
+  configure_file(Maven/README.txt.in
+               ${VTK_BINARY_DIR}/MAVEN-README.txt @ONLY)
+  install(SCRIPT ${VTK_BINARY_DIR}/JavaInstall.cmake)
+endif(VTK_JAVA_INSTALL)

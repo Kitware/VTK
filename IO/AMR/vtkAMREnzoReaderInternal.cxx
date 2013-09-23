@@ -92,6 +92,52 @@ void vtkEnzoReaderBlock::Init()
 }
 
 //------------------------------------------------------------------------------
+void vtkEnzoReaderBlock::DeepCopy(const vtkEnzoReaderBlock *other)
+{
+  this->BlockFileName    = other->BlockFileName;
+  this->ParticleFileName = other->ParticleFileName;
+
+  this->Index    = other->Index;
+  this->Level    = other->Level;
+  this->ParentId = other->ParentId;
+  this->ChildrenIds = other->ChildrenIds;
+  this->NumberOfParticles  = other->NumberOfParticles;
+  this->NumberOfDimensions = other->NumberOfDimensions;
+
+  this->MinParentWiseIds[0] = other->MinParentWiseIds[0];
+  this->MinParentWiseIds[1] = other->MinParentWiseIds[1];
+  this->MinParentWiseIds[2] = other->MinParentWiseIds[2];
+  this->MaxParentWiseIds[0] = other->MaxParentWiseIds[0];
+  this->MaxParentWiseIds[1] = other->MaxParentWiseIds[1];
+  this->MaxParentWiseIds[2] = other->MaxParentWiseIds[2];
+
+  this->MinLevelBasedIds[0] = other->MinLevelBasedIds[0];
+  this->MinLevelBasedIds[1] = other->MinLevelBasedIds[1];
+  this->MinLevelBasedIds[2] = other->MinLevelBasedIds[2];
+  this->MaxLevelBasedIds[0] = other->MaxLevelBasedIds[0];
+  this->MaxLevelBasedIds[1] = other->MaxLevelBasedIds[1];
+  this->MaxLevelBasedIds[2] = other->MaxLevelBasedIds[2];
+
+  this->BlockCellDimensions[0] = other->BlockCellDimensions[0];
+  this->BlockCellDimensions[1] = other->BlockCellDimensions[1];
+  this->BlockCellDimensions[2] = other->BlockCellDimensions[2];
+  this->BlockNodeDimensions[0] = other->BlockNodeDimensions[0];
+  this->BlockNodeDimensions[1] = other->BlockNodeDimensions[1];
+  this->BlockNodeDimensions[2] = other->BlockNodeDimensions[2];
+
+  this->MinBounds[0] = other->MinBounds[0];
+  this->MinBounds[1] = other->MinBounds[1];
+  this->MinBounds[2] = other->MinBounds[2];
+  this->MaxBounds[0] = other->MaxBounds[0];
+  this->MaxBounds[1] = other->MaxBounds[1];
+  this->MaxBounds[2] = other->MaxBounds[2];
+
+  this->SubdivisionRatio[0] = other->SubdivisionRatio[0];
+  this->SubdivisionRatio[1] = other->SubdivisionRatio[1];
+  this->SubdivisionRatio[2] = other->SubdivisionRatio[2];
+}
+
+//------------------------------------------------------------------------------
 // get the bounding (cell) Ids of this block in terms of its parent block's
 // sub-division resolution (indexing is limited to the scope of the parent)
 void vtkEnzoReaderBlock::GetParentWiseIds

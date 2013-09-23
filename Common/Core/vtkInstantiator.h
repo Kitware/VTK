@@ -123,6 +123,9 @@ public:
   ~vtkInstantiatorInitialize();
 private:
   static unsigned int Count;
+private:
+  vtkInstantiatorInitialize(const vtkInstantiatorInitialize& other); // no copy constructor
+  vtkInstantiatorInitialize& operator=(const vtkInstantiatorInitialize& rhs); // no copy assignment
 };
 
 // This instance will show up in any translation unit that uses

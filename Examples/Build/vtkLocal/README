@@ -10,13 +10,11 @@ build is wrapped.
 What you should do:
 -------------------
 
-- Copy this vtkLocal directory to a different out-of-source place, and
-  remove all CVS subdirs to avoid any accidental commit to the main
-  VTK CVS.
+- Copy this vtkLocal directory to a different out-of-source place.
 
 - Edit the CMakeLists.txt file and add your classes to the vtkLocal_SRCS
-  list.  Also add any VTK kits used by your classes to the vtkLocal_LIBS
-  list.  You can also change the project name, but "vtkLocal" is fine
+  list.  Also add any VTK modules used by your classes to the modules.cmake
+  dependency list.  You can also change the project name, but "vtkLocal" is fine
   for most users unless you wish to distribute the library.
   Your classes should #include "vtkLocalConfigure.h", or
   "<project-name>Configure.h" if you changed the project name.  They

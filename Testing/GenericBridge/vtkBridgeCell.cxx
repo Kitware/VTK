@@ -22,7 +22,7 @@
 
 #include "vtkBridgeCell.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include "vtkBridgeCellIterator.h"
 #include "vtkObjectFactory.h"

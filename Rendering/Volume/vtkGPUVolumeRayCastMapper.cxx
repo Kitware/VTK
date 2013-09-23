@@ -25,7 +25,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkCommand.h" // for VolumeMapperRender{Start|End|Progress}Event
 #include "vtkCamera.h"
 #include "vtkRendererCollection.h"

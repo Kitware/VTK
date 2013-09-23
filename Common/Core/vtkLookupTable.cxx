@@ -22,7 +22,7 @@
 #include "vtkStringArray.h"
 #include "vtkVariantArray.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkLookupTable);
 

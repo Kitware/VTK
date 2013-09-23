@@ -51,6 +51,7 @@ vtkCompositeControlPointsItem::~vtkCompositeControlPointsItem()
 {
   if (this->OpacityFunction)
     {
+    this->OpacityFunction->RemoveObserver(this->Callback);
     this->OpacityFunction->Delete();
     this->OpacityFunction = 0;
     }
@@ -154,6 +155,14 @@ void vtkCompositeControlPointsItem::SetColorTransferFunction(vtkColorTransferFun
 }
 
 //-----------------------------------------------------------------------------
+bool vtkCompositeControlPointsItem::UsingLogScale()
+{
+  return (this->PointsFunction != OpacityPointsFunction &&
+    this->ColorTransferFunction &&
+    this->ColorTransferFunction->UsingLogScale());
+}
+
+//-----------------------------------------------------------------------------
 void vtkCompositeControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
 {
   if (this->PointsFunction == ColorPointsFunction ||
@@ -204,7 +213,9 @@ void vtkCompositeControlPointsItem::SetControlPoint(vtkIdType index, double* new
       (this->PointsFunction == OpacityPointsFunction ||
        this->PointsFunction == ColorAndOpacityPointsFunction))
     {
+    this->StartChanges();
     this->OpacityFunction->SetNodeValue(index, newPos);
+    this->EndChanges();
     }
 }
 
@@ -238,6 +249,7 @@ void vtkCompositeControlPointsItem::EditPoint(float tX, float tY)
       (this->PointsFunction == ColorPointsFunction ||
        this->PointsFunction == ColorAndOpacityPointsFunction))
     {
+    this->StartChanges();
     double xvms[4];
     this->OpacityFunction->GetNodeValue(this->CurrentPoint, xvms);
     xvms[2] += tX;
@@ -251,6 +263,7 @@ void vtkCompositeControlPointsItem::EditPoint(float tX, float tY)
       xvms[3] += tY;
       this->OpacityFunction->SetNodeValue(this->CurrentPoint - 1, xvms);
       }
+    this->EndChanges();
     }
 }
 

@@ -36,6 +36,7 @@
 #include "vtkWindow.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLShader.h"
+#include "vtkOpenGLError.h"
 
 #include <Cg/cg.h>
 #include <Cg/cgGL.h>
@@ -469,6 +470,8 @@ void vtkCgShader::SetSamplerParameter(const char* name, vtkTexture* texture,int)
 //-----------------------------------------------------------------------------
 void vtkCgShader::PassShaderVariables(vtkActor* actor, vtkRenderer* renderer)
 {
+  vtkOpenGLClearErrorMacro();
+
   bool push_transform = (actor->GetIsIdentity() == 0);
   if (push_transform)
     {
@@ -502,6 +505,8 @@ void vtkCgShader::PassShaderVariables(vtkActor* actor, vtkRenderer* renderer)
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     }
+
+  vtkOpenGLCheckErrorMacro("failed after PassShaderVariables");
 }
 
 //-----------------------------------------------------------------------------

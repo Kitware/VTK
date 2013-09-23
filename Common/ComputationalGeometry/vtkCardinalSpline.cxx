@@ -16,7 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkCardinalSpline);
 
@@ -101,10 +101,7 @@ void vtkCardinalSpline::Compute ()
   // copy the independent variables. Note that if the spline
   // is closed the first and last point are assumed repeated -
   // so we add and extra point
-  if (this->Intervals)
-    {
-    delete [] this->Intervals;
-    }
+  delete [] this->Intervals;
 
   if ( !this->Closed )
     {
@@ -119,10 +116,7 @@ void vtkCardinalSpline::Compute ()
     work = new double[size];
 
     // allocate memory for coefficients
-    if (this->Coefficients)
-      {
-      delete [] this->Coefficients;
-      }
+    delete [] this->Coefficients;
     this->Coefficients = new double [4*size];
 
     // allocate memory for dependent variables
@@ -166,10 +160,7 @@ void vtkCardinalSpline::Compute ()
     work = new double[size];
 
     // allocate memory for coefficients
-    if (this->Coefficients)
-      {
-      delete [] this->Coefficients;
-      }
+    delete [] this->Coefficients;
     this->Coefficients = new double [4*size];
 
     // allocate memory for dependent variables

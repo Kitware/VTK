@@ -16,7 +16,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkObjectFactory.h"
 
-#include <assert.h>
+#include <cassert>
 vtkStandardNewMacro(vtkAMRDataInternals);
 
 vtkAMRDataInternals::Block::Block(unsigned int i, vtkUniformGrid* g)

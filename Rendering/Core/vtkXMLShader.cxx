@@ -20,7 +20,7 @@
 #include "vtkXMLDataElement.h"
 
 #include <vtksys/SystemTools.hxx>
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkXMLShader);
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
@@ -142,11 +142,8 @@ void vtkXMLShader::ReadCodeFromFile(const char* filepath)
 {
   // Delete the existing code first. If 'filepath' doesn't exist,
   // default to standard rendering.
-  if (this->Code)
-    {
-    delete [] this->Code;
-    this->Code = 0;
-    }
+  delete [] this->Code;
+  this->Code = 0;
 
   ifstream ifp;
   ifp.open(filepath, ios::binary);

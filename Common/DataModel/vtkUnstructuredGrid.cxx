@@ -1165,6 +1165,7 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
     if (cellTypes->GetValue(i) == VTK_POLYHEDRON)
       {
       containPolyhedron = true;
+      break; // We can terminate early
       }
     }
 
@@ -1326,12 +1327,12 @@ void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdList *ptIds)
     return;
     }
 
+  ptIds->Reset();
+
   if (!this->Faces || !this->FaceLocations)
     {
     return;
     }
-
-  ptIds->Reset();
 
   vtkIdType loc = this->FaceLocations->GetValue(cellId);
   vtkIdType* facePtr = this->Faces->GetPointer(loc);

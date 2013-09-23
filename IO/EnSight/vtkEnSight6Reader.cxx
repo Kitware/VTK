@@ -29,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 
 
-#include <assert.h>
+#include <cassert>
 #include <ctype.h>
 #include <string>
 

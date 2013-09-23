@@ -37,11 +37,11 @@ vtk_add_library( vtkalglib
 #
 
 # Grab install locations from VTK if we are building as part of VTK
-if ( VTK_INSTALL_INCLUDE_DIR_CM24 )
-  set( alglib_install_inc_dir ${VTK_INSTALL_INCLUDE_DIR_CM24} )
-else ( VTK_INSTALL_INCLUDE_DIR_CM24 )
-  set( alglib_install_inc_dir ${CMAKE_INSTALL_PREFIX}/include )
-endif ( VTK_INSTALL_INCLUDE_DIR_CM24 )
+if(VTK_INSTALL_INCLUDE_DIR)
+  set(alglib_install_inc_dir ${VTK_INSTALL_INCLUDE_DIR})
+else()
+  set(alglib_install_inc_dir ${CMAKE_INSTALL_PREFIX}/include)
+endif()
 
 # Header files:
 if ( NOT VTK_INSTALL_NO_DEVELOPMENT )

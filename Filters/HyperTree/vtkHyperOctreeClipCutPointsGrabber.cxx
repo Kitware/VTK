@@ -18,7 +18,7 @@
 #include "vtkOrderedTriangulator.h"
 #include <set>
 #include "vtkPolygon.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkHyperOctreeClipCutPointsGrabber);

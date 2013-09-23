@@ -42,7 +42,7 @@
 #include "vtkIncrementalPointLocator.h"
 
 #include <math.h>
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkClipHyperOctree);
 vtkCxxSetObjectMacro(vtkClipHyperOctree,ClipFunction,vtkImplicitFunction);

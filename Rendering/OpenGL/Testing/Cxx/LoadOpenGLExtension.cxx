@@ -40,6 +40,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkgl.h"
+#include "vtkOpenGLError.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 
@@ -60,6 +61,8 @@ static void ImageCallback(vtkObject *__renwin, unsigned long, void *, void *)
     return;
     }
   inImageCallback = 1;
+
+  vtkOpenGLClearErrorMacro();
 
   cout << "In ImageCallback" << endl;
 
@@ -84,6 +87,8 @@ static void ImageCallback(vtkObject *__renwin, unsigned long, void *, void *)
   renwin->SwapBuffersOff();
 
   inImageCallback = 0;
+
+  vtkOpenGLStaticCheckErrorMacro("failed after ImageCallback");
 }
 
 int LoadOpenGLExtension(int argc, char *argv[])
@@ -117,6 +122,25 @@ int LoadOpenGLExtension(int argc, char *argv[])
   cout << "GL_VENDOR: " << (gl_vendor ? gl_vendor : "(null)") << endl;
   cout << "GL_VERSION: " << (gl_version ? gl_version : "(null)") << endl;
   cout << "GL_RENDERER: " << (gl_renderer ? gl_renderer : "(null)") << endl;
+
+  extensions->Update();
+  cout
+    << endl
+    << "DriverGLVersion = " << extensions->GetDriverGLVersion() << endl
+    << "DriverGLVendor = " << extensions->GetDriverGLVendor() << endl
+    << "DriverGLRenderer = " << extensions->GetDriverGLRenderer() << endl
+    << "DriverGLVersionMajor = " << extensions->GetDriverGLVersionMajor() << endl
+    << "DriverGLVersionMinor = " << extensions->GetDriverGLVersionMinor() << endl
+    << "DriverGLVersionPatch = " << extensions->GetDriverGLVersionPatch() << endl
+    << "DriverVersionMajor = " << extensions->GetDriverVersionMajor() << endl
+    << "DriverVersionMinor = " << extensions->GetDriverVersionMinor() << endl
+    << "DriverVersionPatch = " << extensions->GetDriverVersionPatch() << endl
+    << "DriverIsATI = " << extensions->DriverIsATI() << endl
+    << "DriverIsNvidia = " << extensions->DriverIsNvidia() << endl
+    << "DriverIsIntel = " << extensions->DriverIsIntel() << endl
+    << "DriverIsMesa = " << extensions->DriverIsMesa() << endl
+    << "DriverGLRendererIsOSMesa = " << extensions->DriverGLRendererIsOSMesa() << endl
+    << "DriverIsMicrosoft = " << extensions->DriverIsMicrosoft() << endl;
 
   cout << endl;
   renwin->Print(cout);
@@ -241,6 +265,8 @@ int LoadOpenGLExtension(int argc, char *argv[])
     vtkgl::ConvolutionParameteri(vtkgl::CONVOLUTION_2D,
                                vtkgl::CONVOLUTION_BORDER_MODE,
                                  vtkgl::REPLICATE_BORDER);
+
+    vtkOpenGLStaticCheckErrorMacro("failed after setting up convolution");
 
     image = vtkUnsignedCharArray::New();
     vtkCallbackCommand *cbc = vtkCallbackCommand::New();

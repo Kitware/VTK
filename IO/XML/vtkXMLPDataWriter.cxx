@@ -45,10 +45,10 @@ vtkXMLPDataWriter::vtkXMLPDataWriter()
 //----------------------------------------------------------------------------
 vtkXMLPDataWriter::~vtkXMLPDataWriter()
 {
-  if(this->PathName) { delete [] this->PathName; }
-  if(this->FileNameBase) { delete [] this->FileNameBase; }
-  if(this->FileNameExtension) { delete [] this->FileNameExtension; }
-  if(this->PieceFileNameExtension) { delete [] this->PieceFileNameExtension; }
+  delete [] this->PathName;
+  delete [] this->FileNameBase;
+  delete [] this->FileNameExtension;
+  delete [] this->PieceFileNameExtension;
   this->ProgressObserver->Delete();
 }
 
@@ -234,8 +234,7 @@ void vtkXMLPDataWriter::SplitFileName()
 
   // "begin" now points at the beginning of the file name.
   // Look for the first "." to pull off the longest extension.
-  if(this->FileNameExtension)
-    { delete [] this->FileNameExtension; this->FileNameExtension = 0; }
+  delete [] this->FileNameExtension; this->FileNameExtension = 0;
   for(s=begin; s != end; ++s) { if(*s == '.') { break; } }
   if(s < end)
     {

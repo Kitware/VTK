@@ -66,7 +66,7 @@
 #include "vtkProperty.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkMath.h"
 #include "vtkFrustumSource.h"
 #include "vtkPlanes.h"
@@ -136,7 +136,6 @@ void MyProcess::Execute()
     }
 
   vtkRenderWindow *renWin = prm->MakeRenderWindow();
-  renWin->SetReportGraphicErrors(true);
   renWin->SetMultiSamples(0);
 
   renWin->SetAlphaBitPlanes(1);

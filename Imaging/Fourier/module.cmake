@@ -4,4 +4,6 @@ vtk_module(vtkImagingFourier
     StandAlone
   DEPENDS
     vtkImagingCore
+  PRIVATE_DEPENDS
+    vtksys
   )

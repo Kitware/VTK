@@ -12,6 +12,9 @@ class.  We've made several VTK-specific modifications to support older compilers
 * Altered utf16to8() to work with vtkstd::back_insert_iterator, which also reduces the
   generality of the library.
 
+* Suppress clang warnings about dynamic exception specifiers on a few methods. The methods need
+  to keep the "throw()" on their declaration to be compatible with their superclass in C++98.
+
 For these reasons, we strongly discourage use of the VTK-specific version of UTF8-CPP, which is
 a private part the VTK API, and subject to removal or revision at any time.  See the following
 links for the full version of the library:

@@ -42,8 +42,12 @@ endif()
 if(NOT VTK_INSTALL_EXPORT_NAME)
   set(VTK_INSTALL_EXPORT_NAME VTKTargets)
 endif()
-if(NOT VTK_MODULES_DIR)
-  set(VTK_MODULES_DIR "${VTK_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
+
+# Add the VTK_MODULES_DIR to the CMAKE_MODULE_PATH and then use the binary
+# directory for the project to write out new ones to.
+if(VTK_MODULES_DIR)
+  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${VTK_MODULES_DIR})
 endif()
+set(VTK_MODULES_DIR "${CMAKE_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
 
 include(vtkModuleMacros)

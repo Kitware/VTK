@@ -34,7 +34,7 @@
 # include <set>
 #endif
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkGarbageCollector);
 

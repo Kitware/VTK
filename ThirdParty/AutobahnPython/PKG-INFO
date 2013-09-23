@@ -1,0 +1,38 @@
+Metadata-Version: 1.0
+Name: autobahn
+Version: 0.5.9
+Summary: AutobahnPython - WebSocket/WAMP implementation for Python/Twisted.
+Home-page: http://autobahn.ws/python
+Author: Tavendo GmbH
+Author-email: autobahnws@googlegroups.com
+License: Apache License 2.0
+Description: 
+        Twisted-based WebSocket/WAMP client and server framework.
+        
+        AutobahnPython provides a WebSocket (RFC6455, Hybi-10 to -17, Hixie-76)
+        framework for creating WebSocket-based clients and servers.
+        
+        AutobahnPython also includes an implementation of WAMP
+        (The WebSockets Application Messaging Protocol), a light-weight,
+        asynchronous RPC/PubSub over JSON/WebSocket protocol.
+        
+        More information:
+        
+           * http://autobahn.ws/python
+           * http://wamp.ws
+        
+        Source Code:
+        
+           * https://github.com/tavendo/AutobahnPython
+        
+Keywords: autobahn autobahn.ws websocket realtime rfc6455 wamp rpc pubsub
+Platform: Any
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Framework :: Twisted
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Internet
+Classifier: Topic :: Software Development :: Libraries

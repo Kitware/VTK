@@ -106,16 +106,11 @@ vtkVPICReader::~vtkVPICReader()
     }
   this->PointDataArraySelection->Delete();
 
-  if (this->vpicData)
-    delete this->vpicData;
-  if (this->VariableName)
-    delete [] this->VariableName;
-  if (this->VariableStruct)
-    delete [] this->VariableStruct;
-  if (this->TimeSteps)
-    delete [] this->TimeSteps;
-  if (this->dataLoaded)
-    delete [] this->dataLoaded;
+  delete this->vpicData;
+  delete [] this->VariableName;
+  delete [] this->VariableStruct;
+  delete [] this->TimeSteps;
+  delete [] this->dataLoaded;
 
   if (this->exchanger)
     delete this->exchanger;
@@ -351,8 +346,7 @@ int vtkVPICReader::RequestInformation(
       int decomposition[DIMENSION];
       this->vpicData->getDecomposition(decomposition);
 
-      if (this->exchanger)
-        delete this->exchanger;
+      delete this->exchanger;
 
       this->exchanger = new GridExchange
         (this->Rank, this->TotalRank, decomposition,

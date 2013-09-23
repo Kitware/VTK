@@ -254,13 +254,13 @@ VTK_ADD_LIBRARY(vtkoggtheora ${VTKOGGTHEORA_SRCS})
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
     ${VTKOGGTHEORA_SOURCE_DIR}/vtk_oggtheora_mangle.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkoggtheora/include
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkoggtheora/include
     COMPONENT Development)
   INSTALL(FILES
     ${VTKOGGTHEORA_SOURCE_DIR}/libogg-${OGG_VERSION}/include/ogg/ogg.h
     ${VTKOGGTHEORA_SOURCE_DIR}/libogg-${OGG_VERSION}/include/ogg/os_types.h
     ${VTKOGGTHEORA_BINARY_DIR}/include/ogg/config_types.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkoggtheora/include/ogg
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkoggtheora/include/ogg
     COMPONENT Development)
   INSTALL(FILES
     ${VTKOGGTHEORA_SOURCE_DIR}/libtheora-${THEORA_VERSION}/include/theora/codec.h
@@ -268,6 +268,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTKOGGTHEORA_SOURCE_DIR}/libtheora-${THEORA_VERSION}/include/theora/theoradec.h
     ${VTKOGGTHEORA_SOURCE_DIR}/libtheora-${THEORA_VERSION}/include/theora/theoraenc.h
     ${VTKOGGTHEORA_SOURCE_DIR}/libtheora-${THEORA_VERSION}/include/theora/theoraenc.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkoggtheora/include/theora
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkoggtheora/include/theora
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

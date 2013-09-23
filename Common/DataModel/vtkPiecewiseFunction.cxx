@@ -18,6 +18,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+#include <cassert>
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -111,10 +112,7 @@ vtkPiecewiseFunction::vtkPiecewiseFunction()
 // Destruct a vtkPiecewiseFunction
 vtkPiecewiseFunction::~vtkPiecewiseFunction()
 {
-  if( this->Function )
-    {
-    delete [] this->Function;
-    }
+  delete [] this->Function;
 
   for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
     {
@@ -136,7 +134,8 @@ void vtkPiecewiseFunction::DeepCopy( vtkDataObject *o )
     for ( i = 0; i < f->GetSize(); i++ )
       {
       double val[4];
-      f->GetNodeValue(i, val);
+      int isInRange = f->GetNodeValue(i, val);
+      assert(isInRange == 1); (void)isInRange;
       this->AddPoint(val[0], val[1], val[2], val[3]);
       }
     this->Modified();
@@ -158,7 +157,8 @@ void vtkPiecewiseFunction::ShallowCopy( vtkDataObject *o )
     for ( i = 0; i < f->GetSize(); i++ )
       {
       double val[4];
-      f->GetNodeValue(i, val);
+      int isInRange = f->GetNodeValue(i, val);
+      assert(isInRange == 1); (void)isInRange;
       this->AddPoint(val[0], val[1], val[2], val[3]);
       }
     this->Modified();
@@ -269,11 +269,8 @@ double *vtkPiecewiseFunction::GetDataPointer()
 {
   int size = static_cast<int>(this->Internal->Nodes.size());
 
-  if ( this->Function )
-    {
-    delete [] this->Function;
-    this->Function = NULL;
-    }
+  delete [] this->Function;
+  this->Function = NULL;
 
   if ( size > 0 )
     {

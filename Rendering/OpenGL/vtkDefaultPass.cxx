@@ -15,7 +15,7 @@
 
 #include "vtkDefaultPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkProp.h"
 #include "vtkRenderer.h"

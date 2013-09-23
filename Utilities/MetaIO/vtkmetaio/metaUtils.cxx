@@ -138,18 +138,15 @@ METAIO_STL::string MET_ReadForm(METAIO_STREAM::istream &_fp)
   MET_Read(_fp, &fields, '=', true);
   _fp.seekg(pos);
 
-  METAIO_STL::string value;
-
   if(mF->defined)
     {
-    value = (char *)(mF->value);
+    METAIO_STL::string value = (char *)(mF->value);
     delete mF;
     return value;
     }
 
-  value[0] = '\0';
   delete mF;
-  return value;
+  return METAIO_STL::string();
   }
 
 //
@@ -168,18 +165,15 @@ METAIO_STL::string MET_ReadType(METAIO_STREAM::istream &_fp)
   MET_Read(_fp, &fields, '=', true);
   _fp.seekg(pos);
 
-  METAIO_STL::string value;
-
   if(mF->defined)
     {
-    value = (char *)(mF->value);
+    METAIO_STL::string value  = (char *)(mF->value);
     delete mF;
     return value;
     }
 
-  value[0] = '\0';
   delete mF;
-  return value;
+  return METAIO_STL::string();
   }
 
 //

@@ -1,6 +1,4 @@
-find_package(MPI REQUIRED)
-include_directories(${MPI_INCLUDE_PATH})
-add_definitionS("-DMPICH_IGNORE_CXX_SEEK")
+include(vtkMPI)
 
 # We don't build the parallel WindBlade reader on windows
 # because there's problems with the MPI_File_open()
@@ -28,7 +26,6 @@ if(WIN32)
   set( vtk_module_overrides )
 endif()
 
-
 foreach(_class ${vtk_module_overrides})
   set(_override vtkP${_class})
   set(_vtk_override_includes "${_vtk_override_includes} #include \"${_override}.h\"")
@@ -48,4 +45,5 @@ configure_file(${VTK_CMAKE_DIR}/vtkObjectFactory.h.in
 configure_file(${VTK_CMAKE_DIR}/vtkObjectFactory.cxx.in
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
 
-vtk_module_library(vtkIOMPIParallel ${Module_SRCS})
+vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_mpi_link(${vtk-module})

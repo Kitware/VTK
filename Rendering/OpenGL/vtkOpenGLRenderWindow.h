@@ -24,13 +24,13 @@
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderWindow.h"
-
 #include "vtkOpenGL.h" // Needed for GLuint.
 
 class vtkIdList;
 class vtkOpenGLExtensionManager;
 class vtkOpenGLHardwareSupport;
 class vtkTextureUnitManager;
+class vtkStdString;
 
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -160,18 +160,11 @@ public:
   unsigned int GetFrontBuffer();
 
   // Description:
-  // Update graphic error status, regardless of ReportGraphicErrors flag.
-  // It means this method can be used in any context and is not restricted to
-  // debug mode.
-  virtual void CheckGraphicError();
-
-  // Description:
-  // Return the last graphic error status. Initial value is false.
-  virtual int HasGraphicError();
-
-  // Description:
-  // Return a string matching the last graphic error status.
-  virtual const char *GetLastGraphicErrorString();
+  // @deprecated Replaced by
+  // vtkOpenGLCheckErrorMacro
+  VTK_LEGACY(virtual void CheckGraphicError());
+  VTK_LEGACY(virtual int HasGraphicError());
+  VTK_LEGACY(virtual const char *GetLastGraphicErrorString());
 
   // Description:
   // Get the time when the OpenGL context was created.
@@ -257,8 +250,12 @@ protected:
   unsigned int FrontBuffer;
   unsigned int BackBuffer;
 
-  // Actual type is GLenum. Last value returned by glGetError().
+#ifndef VTK_LEGACY_REMOVE
+  // Description:
+  // @deprecated Replaced by
+  // vtkOpenGLCheckErrorMacro
   unsigned int LastGraphicError;
+#endif
 
   // Description:
   // Flag telling if the context has been created here or was inherited.

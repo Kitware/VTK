@@ -424,8 +424,8 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
   if (!memoryOK)
     {
     vtkErrorMacro(<< "ReadFile memory allocation failure");
-    if (x) delete [] x;
-    if (y) delete [] y;
+    delete [] x;
+    delete [] y;
     return 0;
     }
 
@@ -435,9 +435,9 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
 
   if (rc == 0)
     {
-    if (x) delete [] x;
-    if (y) delete [] y;
-    if (z) delete [] z;
+    delete [] x;
+    delete [] y;
+    delete [] z;
     return 0;
     }
 
@@ -465,9 +465,9 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
 
   output->SetPoints(ptarray);
 
-  if (x) delete [] x;
-  if (y) delete [] y;
-  if (z) delete [] z;
+  delete [] x;
+  delete [] y;
+  delete [] z;
   ptarray->Delete();
 
   // Read in cell topology and possibly cell and point weights.

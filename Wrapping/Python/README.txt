@@ -44,7 +44,7 @@ modules.
 
   (2) Using the package from the source build without installing it
       system wide and without using `vtkpython`.  This is most
-      useful when you build VTK off a CVS checkout and do not want
+      useful when you build VTK off a git clone and do not want
       to install it system wide and still want to use the vanilla
       Python interpreter.  This is also useful if you are not the
       administrator of the machine you are using/building VTK on.
@@ -82,25 +82,17 @@ ${VTK_ROOT}/Wrapping/Python:${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
       RelWithDebInfo.
 
 
-  (3) Installation via distutils to a directory different from the
+  (3) Installation via to a directory different from the
       `VTK_ROOT` directory.  To install VTK built from source you
       simply need to run the "install rule".  Under Unix this
       implies running `make install` and under Windows this implies
       running the INSTALL target.
 
-      The installation rule internally executes the
-      ``VTK_BINARY_DIR/Wrapping/Python/setup.py`` script.
-      `setup.py` is a distutils script that should install
-      VTK-Python correctly.  The `setup.py` script may also be
-      executed from the `VTK_BINARY_DIR` in order to build an
-      installer (via `bdist_wininst`) or to build a Python Egg.
-
-
 VTK-Python interpreters
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 In order to solve some problems with running VTK-Python on some
-platforms and compilers a special Python interpreter is distributed
+platforms and compilers a Python interpreter is distributed
 along with VTK.  This new interpreter is called `vtkpython` and is
 the recommended way of running VTK-Python scripts.  If the vanilla
 Python interpreter is good enough and works well for you, please use
@@ -128,70 +120,18 @@ users will just do::
   # or
   from vtk import *
 
-and all the available 'kits' will be loaded - just like with the
-older vtkpython.  The name of the kits is available in the kits
-variable::
+and all the available 'modules' will be loaded - just like with the
+older vtkpython.
 
-  import vtk
-  print vtk.kits
-  ['common', 'filtering', 'io', ...]
-
-If the user specifically wants just the classes the Common directory
+If the user specifically wants just the classes the Common/Core module
 imported the user does::
 
-  import vtk.common
+  import vtk.vtkCommonCore
 
-All the kit names are in lowercase.  This is similar to the way in
-which the Tcl packages are split.  Similarly, classes specifically
-in other kits can be imported by using the appropriate kit name.
-Please do note that even when you import vtk.common, the vtk
+Please do note that even when you import vtk.vtkCommonCore, the vtk
 namespace will still have all the kits loaded inside it.  Its just
-that vtk.common will have only the classes from the Common
+that vtk.vtkCommonCore will have only the classes from the Common/Core
 directory.
-
-
-Valid Kit names
-~~~~~~~~~~~~~~~
-
-Required Kits
--------------
-
-common, filtering, io, imaging and graphics.
-
-These are the required kits that you must have to use VTK.  You
-can import all of them using the required module like so:
-
-    from vtk.required import *
-
-You should have all the required kits in your namespace.  If any
-of them is not importable you *will* get an ImportError.
-
-Optional Kits
--------------
-
-genericfiltering, hybrid, parallel, rendering, volumerendering,
-and widgets.
-
-These are the optional kits.  Unlike the Tcl packages importing
-these kits *will not* import all the required kits in as well.
-For the rationale behind this please read this mail and also the
-thread here:
-
-http://public.kitware.com/pipermail/vtk-developers/2001-October/000828.html
-
-If you don't have a particular optional kit then Python will not
-raise an exception when importing vtk, but if you try loading it
-directly like so::
-
-    import vtk.parallel
-
-Then you will receive an import error if there was one.  Also, if
-the module exists but there are linking errors you will get a
-LinkError exception.
-
-
-Other VTK related modules
-^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Apart from the basic VTK functionality there are other useful VTK
 related modules in the package.  There are various widgets for
@@ -226,16 +166,6 @@ available.
 
 There is also a `vtk.test` package that allows one to create unit
 tests for VTK-Python.
-
-
-Backwards compatibility
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Since VTK-4.0, the usage of `vtkpython`, `vtkpythontk`,
-`vtkTkRenderWidget` and other modules in the Wrapping/Python
-directory were deprecated.  As of VTK-5.0, these files are no longer
-available.  Please use the `vtk` package instead which provides the
-functionality.
 
 
 Writing and running VTK-Python tests
@@ -287,22 +217,15 @@ in the form of Debian, RPM and other packages.
      files should be installed somewhere in the linkers path (for
      example in `\usr\lib`).  Under Windows these should be installed
      in a directory that is in the `PATH`.  The Python extension modules
-     should be  installed via the `setup.py` file inside the `vtk`
-     package.  Typically these should be installed to
+     should are typically installed to
      `/usr/lib/pythonX.Y/site-packages/vtk` (or
      `PythonX.Y\Lib\site-packages\vtk`).
 
 The VTK install rule (`make install` under Unix) will usually do the
 right thing in installing everything.  Make sure that the
-`CMAKE_INSTALL_PREFIX` variable is set appropriately.  There are two
-ways to customize python module installation.  First, one may modify
-the VTK_PYTHON_SETUP_ARGS CMake cache variable to set the options
-passed to the setup.py script.  The default value for this variable
-provides reasonable behavior for packagers.  Second, one may
-define VTK_INSTALL_NO_PYTHON:BOOL=ON in the CMake cache which will
-disable the automatic execution of setup.py as part of the install
-process.  Then one may run ``python setup.py install`` manually
-with the desired options.
+`CMAKE_INSTALL_PREFIX` variable is set appropriately.  You may modify
+the VTK_INSTALL_PYTHON_MODULE_DIR CMake cache variable to change the
+installation location for the Python extenson modules.
 
 
 Common problems

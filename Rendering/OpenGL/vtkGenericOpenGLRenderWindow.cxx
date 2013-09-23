@@ -17,12 +17,17 @@
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkCommand.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkGenericOpenGLRenderWindow);
 
 vtkGenericOpenGLRenderWindow::vtkGenericOpenGLRenderWindow()
 {
+  this->DirectStatus = 0;
+  this->CurrentStatus = false;
+  this->SupportsOpenGLStatus = 0;
 }
 
 vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
@@ -101,27 +106,26 @@ void vtkGenericOpenGLRenderWindow::MakeCurrent()
 
 bool vtkGenericOpenGLRenderWindow::IsCurrent()
 {
-  bool current = 0;
-  this->InvokeEvent(vtkCommand::WindowIsCurrentEvent, &current);
-  return current;
+  this->InvokeEvent(vtkCommand::WindowIsCurrentEvent, &this->CurrentStatus);
+  return this->CurrentStatus;
 }
 
 int vtkGenericOpenGLRenderWindow::SupportsOpenGL()
 {
-  int supports_ogl = 0;
-  this->InvokeEvent(vtkCommand::WindowSupportsOpenGLEvent, &supports_ogl);
-  return supports_ogl;
+  this->InvokeEvent(vtkCommand::WindowSupportsOpenGLEvent, &this->SupportsOpenGLStatus);
+  return this->SupportsOpenGLStatus;
 }
 
 int vtkGenericOpenGLRenderWindow::IsDirect()
 {
-  int is_direct = 0;
-  this->InvokeEvent(vtkCommand::WindowIsDirectEvent, &is_direct);
-  return is_direct;
+  this->InvokeEvent(vtkCommand::WindowIsDirectEvent, &this->DirectStatus);
+  return this->DirectStatus;
 }
 
 void vtkGenericOpenGLRenderWindow::PushState()
 {
+  vtkOpenGLClearErrorMacro();
+
   glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
@@ -131,10 +135,14 @@ void vtkGenericOpenGLRenderWindow::PushState()
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
+
+  vtkOpenGLCheckErrorMacro("failed after PushState");
 }
 
 void vtkGenericOpenGLRenderWindow::PopState()
 {
+  vtkOpenGLClearErrorMacro();
+
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
@@ -142,6 +150,8 @@ void vtkGenericOpenGLRenderWindow::PopState()
 
   glPopClientAttrib();
   glPopAttrib();
+
+  vtkOpenGLCheckErrorMacro("failed after PopState");
 }
 
 
@@ -235,4 +245,19 @@ void vtkGenericOpenGLRenderWindow::CreateAWindow()
 
 void vtkGenericOpenGLRenderWindow::DestroyWindow()
 {
+}
+
+void vtkGenericOpenGLRenderWindow::SetIsDirect(int newValue)
+{
+  this->DirectStatus = newValue;
+}
+
+void vtkGenericOpenGLRenderWindow::SetSupportsOpenGL(int newValue)
+{
+  this->SupportsOpenGLStatus = newValue;
+}
+
+void vtkGenericOpenGLRenderWindow::SetIsCurrent(bool newValue)
+{
+  this->CurrentStatus = newValue;
 }

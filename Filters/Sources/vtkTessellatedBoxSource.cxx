@@ -19,7 +19,7 @@
 #include "vtkCellArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkTessellatedBoxSource);
 

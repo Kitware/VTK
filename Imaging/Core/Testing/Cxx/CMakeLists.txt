@@ -1,15 +1,15 @@
 vtk_add_test_cxx(
-  # FastSplatter.cxx # todo (unsatistfied deps)
+  FastSplatter.cxx
   ImageAccumulate.cxx,NO_VALID
-  # ImageAutoRange.cxx # todo (unsatistfied deps)
+  ImageAutoRange.cxx
   ImageBSplineCoefficients.cxx
-  # ImageHistogram.cxx # todo (unsatistfied deps)
-  # ImageHistogramStatistics.cxx # todo (unsatistfied deps)
-  # ImageResize.cxx # todo (unsatistfied deps)
-  # ImageResize3D.cxx # todo (unsatistfied deps)
-  # ImageResizeCropping.cxx # todo (unsatistfied deps)
+  ImageHistogram.cxx
+  ImageHistogramStatistics.cxx,NO_VALID
+  ImageResize.cxx
+  ImageResize3D.cxx
+  ImageResizeCropping.cxx
   ImageWeightedSum.cxx,NO_VALID
-  # ImportExport.cxx # todo (unsatistfied deps)
+  ImportExport.cxx,NO_VALID # todo (unsatistfied deps)
   TestUpdateExtentReset.cxx,NO_VALID
   )
 
@@ -36,4 +36,4 @@ ExternalData_add_test(VTKData
     -T ${VTK_TEST_OUTPUT_DIR}
     -V DATA{../Data/Baseline/TestClipStencilData.png,:})
 
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)

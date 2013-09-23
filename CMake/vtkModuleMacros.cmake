@@ -21,6 +21,7 @@ macro(vtk_module _name)
   set(${vtk-module-test}_DECLARED 1)
   set(${vtk-module}_DEPENDS "")
   set(${vtk-module}_COMPILE_DEPENDS "")
+  set(${vtk-module}_PRIVATE_DEPENDS "")
   set(${vtk-module-test}_DEPENDS "${vtk-module}")
   set(${vtk-module}_IMPLEMENTS "")
   set(${vtk-module}_DESCRIPTION "description")
@@ -30,7 +31,7 @@ macro(vtk_module _name)
   set(${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY 0)
   set(${vtk-module}_TEST_LABELS "")
   foreach(arg ${ARGN})
-  if("${arg}" MATCHES "^((|COMPILE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|DEFAULT|GROUPS|TEST_LABELS)$")
+    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|DEFAULT|GROUPS|TEST_LABELS)$")
       set(_doing "${arg}")
     elseif("${arg}" MATCHES "^EXCLUDE_FROM_ALL$")
       set(_doing "")
@@ -53,6 +54,8 @@ macro(vtk_module _name)
       list(APPEND ${vtk-module-test}_DEPENDS "${arg}")
     elseif("${_doing}" MATCHES "^COMPILE_DEPENDS$")
       list(APPEND ${vtk-module}_COMPILE_DEPENDS "${arg}")
+    elseif("${_doing}" MATCHES "^PRIVATE_DEPENDS$")
+      list(APPEND ${vtk-module}_PRIVATE_DEPENDS "${arg}")
     elseif("${_doing}" MATCHES "^DESCRIPTION$")
       set(_doing "")
       set(${vtk-module}_DESCRIPTION "${arg}")
@@ -77,7 +80,9 @@ macro(vtk_module _name)
   endforeach()
   list(SORT ${vtk-module}_DEPENDS) # Deterministic order.
   set(${vtk-module}_LINK_DEPENDS "${${vtk-module}_DEPENDS}")
-  list(APPEND ${vtk-module}_DEPENDS ${${vtk-module}_COMPILE_DEPENDS})
+  list(APPEND ${vtk-module}_DEPENDS
+    ${${vtk-module}_COMPILE_DEPENDS}
+    ${${vtk-module}_PRIVATE_DEPENDS})
   unset(${vtk-module}_COMPILE_DEPENDS)
   list(SORT ${vtk-module}_DEPENDS) # Deterministic order.
   list(SORT ${vtk-module-test}_DEPENDS) # Deterministic order.
@@ -110,7 +115,6 @@ macro(vtk_module_impl)
   endif()
 
   if(NOT DEFINED ${vtk-module}_LIBRARIES)
-    set(${vtk-module}_LIBRARIES "")
     foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
       list(APPEND ${vtk-module}_LIBRARIES "${${dep}_LIBRARIES}")
     endforeach()
@@ -121,8 +125,8 @@ macro(vtk_module_impl)
 
   list(APPEND ${vtk-module}_INCLUDE_DIRS
     ${${vtk-module}_BINARY_DIR}
-    ${${vtk-module}_SOURCE_DIR}
-    )
+    ${${vtk-module}_SOURCE_DIR})
+  list(REMOVE_DUPLICATES ${vtk-module}_INCLUDE_DIRS)
 
   if(${vtk-module}_INCLUDE_DIRS)
     include_directories(${${vtk-module}_INCLUDE_DIRS})
@@ -288,7 +292,7 @@ endmacro()
 # VTK_CUSTOM_LIBRARY_SUFFIX will override the suffix.
 macro(vtk_target_name _name)
   get_property(_type TARGET ${_name} PROPERTY TYPE)
-  if(NOT "${_type}" STREQUAL EXECUTABLE)
+  if(NOT "${_type}" STREQUAL EXECUTABLE AND NOT VTK_JAVA_INSTALL)
     set_property(TARGET ${_name} PROPERTY VERSION 1)
     set_property(TARGET ${_name} PROPERTY SOVERSION 1)
   endif()
@@ -314,6 +318,9 @@ endmacro()
 
 macro(vtk_target_install _name)
   if(NOT VTK_INSTALL_NO_LIBRARIES)
+    if(APPLE AND VTK_JAVA_INSTALL)
+       set_target_properties(${_name} PROPERTIES SUFFIX ".jnilib")
+    endif(APPLE AND VTK_JAVA_INSTALL)
     install(TARGETS ${_name}
       EXPORT ${VTK_INSTALL_EXPORT_NAME}
       RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
@@ -408,7 +415,7 @@ macro(vtk_module_test_executable test_exe_name)
   vtk_module_test()
   # No forwarding or export for test executables.
   add_executable(${test_exe_name} MACOSX_BUNDLE ${ARGN})
-  target_link_libraries(${test_exe_name} ${${vtk-module-test}-Cxx_LIBRARIES})
+  target_link_libraries(${test_exe_name} LINK_PRIVATE ${${vtk-module-test}-Cxx_LIBRARIES})
 
   if(${vtk-module-test}-Cxx_DEFINITIONS)
     set_property(TARGET ${test_exe_name} APPEND PROPERTY COMPILE_DEFINITIONS
@@ -476,7 +483,21 @@ function(vtk_module_library name)
 
   vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
   foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
-    target_link_libraries(${vtk-module} ${${dep}_LIBRARIES})
+    target_link_libraries(${vtk-module} LINK_PUBLIC ${${dep}_LIBRARIES})
+    if(_help_vs7 AND ${dep}_LIBRARIES)
+      add_dependencies(${vtk-module} ${${dep}_LIBRARIES})
+    endif()
+  endforeach()
+
+  # Handle the private dependencies, setting up link/include directories.
+  foreach(dep IN LISTS ${vtk-module}_PRIVATE_DEPENDS)
+    if(${dep}_INCLUDE_DIRS)
+      include_directories(${${dep}_INCLUDE_DIRS})
+    endif()
+    if(${dep}_LIBRARY_DIRS)
+      link_directories(${${dep}_LIBRARY_DIRS})
+    endif()
+    target_link_libraries(${vtk-module} LINK_PRIVATE ${${dep}_LIBRARIES})
     if(_help_vs7 AND ${dep}_LIBRARIES)
       add_dependencies(${vtk-module} ${${dep}_LIBRARIES})
     endif()

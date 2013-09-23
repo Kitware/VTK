@@ -299,13 +299,20 @@ public:
   // supplied bounds variable, the first two elements are the bottom corner of
   // the string, and the second two elements are the width and height of the
   // bounding box.
-  // NOTE: This function does not take account of the text rotation.
   void ComputeStringBounds(const vtkStdString &string, vtkPoints2D *bounds);
   void ComputeStringBounds(const vtkStdString &string, float bounds[4]);
   void ComputeStringBounds(const vtkUnicodeString &string, vtkPoints2D *bounds);
   void ComputeStringBounds(const vtkUnicodeString &string, float bounds[4]);
   void ComputeStringBounds(const char* string, vtkPoints2D *bounds);
   void ComputeStringBounds(const char* string, float bounds[4]);
+
+  // Description:
+  // Calculate the largest possible font size where the supplied string will fit
+  // within the specified bounds.  In addition to being returned, this font size
+  // is also used to update the vtkTextProperty used by this object.
+  // NOTE: text rotation is ignored for the purposes of this function.
+  int ComputeFontSizeForBoundedString(const vtkStdString &string, float width,
+                                      float height);
 
   // Description:
   // Draw a MathText formatted equation to the screen. See

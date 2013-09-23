@@ -22,4 +22,5 @@
 #include <clocale> // C setlocale()
 #include <locale> // C++ locale
 
+#include <vtksys/SystemInformation.hxx> // for stacktrace
 #endif

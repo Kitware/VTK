@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkClientServerSynchronizedRenderers);
 //----------------------------------------------------------------------------

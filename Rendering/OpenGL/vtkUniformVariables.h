@@ -45,6 +45,17 @@ public:
                    int numberOfComponents,
                    int *value);
 
+  //BTX
+  template<typename T>
+  void SetUniformit(const char *name,
+                   int numberOfComponents,
+                   T *value);
+
+  template<typename T>
+  void SetUniformit(const char *name, T value)
+  { this->SetUniformit(name, 1, &value); }
+  //ETX
+
   // Description:
   // Set an float uniform variable.
   // \pre name_exists: name!=0
@@ -53,6 +64,17 @@ public:
   void SetUniformf(const char *name,
                    int numberOfComponents,
                    float *value);
+
+  //BTX
+  template<typename T>
+  void SetUniformft(const char *name,
+                   int numberOfComponents,
+                   T *value);
+
+  template<typename T>
+  void SetUniformft(const char *name, T value)
+  { this->SetUniformft(name, 1, &value); }
+  //ETX
 
   // Description:
   // Set an array of integer uniform variables.
@@ -149,4 +171,35 @@ private:
 
   vtkUniformVariablesMap *Map;
 };
+
+//BTX
+// ----------------------------------------------------------------------------
+template<typename T>
+void vtkUniformVariables::SetUniformit(const char *name,
+                   int numberOfComponents,
+                   T *value)
+{
+  int ivalues[4];
+  for (int i=0; i<numberOfComponents; ++i)
+    {
+    ivalues[i] = static_cast<int>(value[i]);
+    }
+  this->SetUniformi(name, numberOfComponents, ivalues);
+}
+
+// ----------------------------------------------------------------------------
+template<typename T>
+void vtkUniformVariables::SetUniformft(const char *name,
+                   int numberOfComponents,
+                   T *value)
+{
+  float fvalues[4];
+  for (int i=0; i<numberOfComponents; ++i)
+    {
+    fvalues[i] = static_cast<float>(value[i]);
+    }
+  this->SetUniformf(name, numberOfComponents, fvalues);
+}
+//ETX
+
 #endif

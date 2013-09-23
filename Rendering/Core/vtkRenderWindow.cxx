@@ -80,7 +80,9 @@ vtkRenderWindow::vtkRenderWindow()
   this->AnaglyphColorMask[0] = 4;  // red
   this->AnaglyphColorMask[1] = 3;  // cyan
   this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
-  this->ReportGraphicErrors=0; // false
+#ifndef VTK_LEGACY_REMOVE
+  this->ReportGraphicErrors = 0; // false
+#endif
   this->AbortCheckTime = 0.0;
   this->CapturingGL2PSSpecialProps = 0;
 
@@ -94,24 +96,16 @@ vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(NULL);
 
-  if (this->AccumulationBuffer)
-    {
-    delete [] this->AccumulationBuffer;
-    this->AccumulationBuffer = NULL;
-    this->AccumulationBufferSize = 0;
-    }
-  if (this->ResultFrame)
-    {
-    delete [] this->ResultFrame;
-    this->ResultFrame = NULL;
-    }
+  delete [] this->AccumulationBuffer;
+  this->AccumulationBuffer = NULL;
+  this->AccumulationBufferSize = 0;
+
+  delete [] this->ResultFrame;
+  this->ResultFrame = NULL;
 
   for (int i = 0; i < 2; ++i)
     {
-    if (this->ConstantFDOffsets[i])
-      {
-      delete [] this->ConstantFDOffsets[i];
-      }
+    delete [] this->ConstantFDOffsets[i];
     this->ConstantFDOffsets[i] = NULL;
     }
 
@@ -178,11 +172,9 @@ void vtkRenderWindow::SetFDFrames(int fdFrames)
 
     for (int i = 0; i < 2; i++)
       {
-      if (this->ConstantFDOffsets[i])
-        {
-        delete [] this->ConstantFDOffsets[i];
-        }
+      delete [] this->ConstantFDOffsets[i];
       this->ConstantFDOffsets[i] = NULL;
+
       if (this->FDFrames > 0)
         {
         this->ConstantFDOffsets[i] = new double[this->FDFrames];
@@ -473,11 +465,8 @@ void vtkRenderWindow::Render()
     this->CopyResultFrame();
     }
 
-  if (this->ResultFrame)
-    {
-    delete [] this->ResultFrame;
-    this->ResultFrame = NULL;
-    }
+  delete [] this->ResultFrame;
+  this->ResultFrame = NULL;
 
   this->InRender = 0;
   this->InvokeEvent(vtkCommand::EndEvent,NULL);
@@ -912,9 +901,53 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
   os << indent << "StencilCapable: " <<
     (this->StencilCapable ? "True" : "False") << endl;
+#ifndef VTK_LEGACY_REMOVE
   os << indent << "ReportGraphicErrors: "
      << (this->ReportGraphicErrors ? "On" : "Off")<< "\n";
+#endif
 }
+
+#ifndef VTK_LEGACY_REMOVE
+//----------------------------------------------------------------------------
+void vtkRenderWindow::SetReportGraphicErrors(int val)
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::SetReportGraphicsErrors, "VTK 6.1");
+  if (this->ReportGraphicErrors != val)
+    {
+    this->ReportGraphicErrors = val;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindow::SetReportGraphicErrorsOn()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::SetReportGraphicsErrorsOn, "VTK 6.1");
+  if (this->ReportGraphicErrors == 0)
+    {
+    this->ReportGraphicErrors = 1;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindow::SetReportGraphicErrorsOff()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::GetReportGraphicsErrorsOff, "VTK 6.1");
+  if (this->ReportGraphicErrors != 0)
+    {
+    this->ReportGraphicErrors = 0;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkRenderWindow::GetReportGraphicErrors()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::GetReportGraphicsErrors, "VTK 6.1");
+  return this->ReportGraphicErrors;
+}
+#endif
 
 //----------------------------------------------------------------------------
 // Update the system, if needed, due to stereo rendering. For some stereo

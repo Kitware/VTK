@@ -69,24 +69,15 @@ vtkAmoebaMinimizer::~vtkAmoebaMinimizer()
     {
     for (int i = 0; i < this->NumberOfParameters; i++)
       {
-      if (this->ParameterNames[i])
-        {
-        delete [] this->ParameterNames[i];
-        }
+      delete [] this->ParameterNames[i];
       }
     delete [] this->ParameterNames;
     this->ParameterNames = NULL;
     }
-  if (this->ParameterValues)
-    {
-    delete [] this->ParameterValues;
-    this->ParameterValues = NULL;
-    }
-  if (this->ParameterScales)
-    {
-    delete [] this->ParameterScales;
-    this->ParameterScales = NULL;
-    }
+  delete [] this->ParameterValues;
+  this->ParameterValues = NULL;
+  delete [] this->ParameterScales;
+  this->ParameterScales = NULL;
 
   this->NumberOfParameters = 0;
 }
@@ -303,24 +294,15 @@ void vtkAmoebaMinimizer::Initialize()
     {
     for (int i = 0; i < this->NumberOfParameters; i++)
       {
-      if (this->ParameterNames[i])
-        {
-        delete [] this->ParameterNames[i];
-        }
+      delete [] this->ParameterNames[i];
       }
     delete [] this->ParameterNames;
     this->ParameterNames = 0;
     }
-  if (this->ParameterValues)
-    {
-    delete [] this->ParameterValues;
-    this->ParameterValues = 0;
-    }
-  if (this->ParameterScales)
-    {
-    delete [] this->ParameterScales;
-    this->ParameterScales = 0;
-    }
+  delete [] this->ParameterValues;
+  this->ParameterValues = 0;
+  delete [] this->ParameterScales;
+  this->ParameterScales = 0;
 
   this->NumberOfParameters = 0;
   this->Iterations = 0;
@@ -622,16 +604,10 @@ void  vtkAmoebaMinimizer::TerminateAmoeba()
     delete [] this->AmoebaVertices;
     this->AmoebaVertices = NULL;
     }
-  if (this->AmoebaValues)
-    {
-    delete [] this->AmoebaValues;
-    this->AmoebaValues = NULL;
-    }
-  if (this->AmoebaSum)
-    {
-    delete [] this->AmoebaSum;
-    this->AmoebaSum = NULL;
-    }
+  delete [] this->AmoebaValues;
+  this->AmoebaValues = NULL;
+  delete [] this->AmoebaSum;
+  this->AmoebaSum = NULL;
 }
 
 /* ----------------------------- MNI Header -----------------------------------

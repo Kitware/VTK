@@ -27,7 +27,6 @@ class vtkMolecule;
 class VTKCOMMONDATAMODEL_EXPORT vtkBond
 {
 public:
-  ~vtkBond();
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

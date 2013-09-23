@@ -9,11 +9,13 @@ vtk_module(vtkIOImage
     vtkCommonMisc
     vtkCommonTransforms
     vtkIOCore
+  PRIVATE_DEPENDS
     vtkjpeg
     vtkpng
     vtktiff
     vtkMetaIO
     vtkDICOMParser
+    vtksys
   TEST_DEPENDS
     vtkTestingCore
     vtkImagingSources

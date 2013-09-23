@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-#include <assert.h>
+#include <cassert>
 
 //----------------------------------------------------------------------------
 vtkAtom::vtkAtom(vtkMolecule *parent, vtkIdType id)
@@ -25,11 +25,6 @@ vtkAtom::vtkAtom(vtkMolecule *parent, vtkIdType id)
 {
   assert(parent != 0);
   assert(id < parent->GetNumberOfAtoms());
-}
-
-//----------------------------------------------------------------------------
-vtkAtom::~vtkAtom()
-{
 }
 
 //----------------------------------------------------------------------------

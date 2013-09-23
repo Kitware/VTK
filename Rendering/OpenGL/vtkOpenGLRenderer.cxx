@@ -31,11 +31,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderState.h"
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkShaderProgram2.h"
 
 #include <math.h>
-#include <assert.h>
+#include <cassert>
 #include <list>
 
 class vtkGLPickInfo
@@ -89,6 +90,8 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
 // into graphics pipeline.
 void vtkOpenGLRenderer::ClearLights (void)
 {
+  vtkOpenGLClearErrorMacro();
+
   short curLight;
   float Info[4];
 
@@ -118,11 +121,15 @@ void vtkOpenGLRenderer::ClearLights (void)
     }
 
   this->NumberOfLightsBound = 0;
+
+  vtkOpenGLCheckErrorMacro("failed ater ClearLights");
 }
 
 // Ask lights to load themselves into graphics pipeline.
 int vtkOpenGLRenderer::UpdateLights ()
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkLight *light;
   short curLight;
   float status;
@@ -180,6 +187,9 @@ int vtkOpenGLRenderer::UpdateLights ()
 
   glPopMatrix();
   glEnable(GL_LIGHTING);
+
+  vtkOpenGLCheckErrorMacro("failed after UpdateLights");
+
   return count;
 }
 
@@ -190,6 +200,7 @@ int vtkOpenGLRenderer::UpdateLights ()
 int vtkOpenGLRenderer::GetUseTextureUniformVariable()
 {
   GLint result=vtkgl::GetUniformLocation(this->ProgramShader,"useTexture");
+  vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
   if(result==-1)
     {
     vtkErrorMacro(<<"useTexture is not a uniform variable");
@@ -204,6 +215,7 @@ int vtkOpenGLRenderer::GetUseTextureUniformVariable()
 int vtkOpenGLRenderer::GetTextureUniformVariable()
 {
   GLint result=vtkgl::GetUniformLocation(this->ProgramShader,"texture");
+  vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
   if(result==-1)
     {
     vtkErrorMacro(<<"texture is not a uniform variable");
@@ -242,6 +254,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
     // other windows might get rendered since the last time
     // a MakeCurrent was called.
     this->RenderWindow->MakeCurrent();
+    vtkOpenGLClearErrorMacro();
 
     // standard render method
     this->ClearLights();
@@ -257,7 +270,18 @@ void vtkOpenGLRenderer::DeviceRender(void)
 
     // clean up the model view matrix set up by the camera
     glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
+
+    // TODO -- are chart views using the camera properly?
+    // the following glPopMatrix is causing stack underflow errors
+    // when used with vtkChart* classes.
+    GLint mvDepth;
+    glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &mvDepth);
+    if (mvDepth>1)
+      {
+      glPopMatrix();
+      }
+
+    vtkOpenGLCheckErrorMacro("failed after DeviceRender");
     }
 
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
@@ -271,6 +295,8 @@ void vtkOpenGLRenderer::DeviceRender(void)
 // override this method.
 void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 {
+  vtkOpenGLClearErrorMacro();
+
   if(this->UseDepthPeeling)
     {
     if(!this->DepthPeelingIsSupportedChecked)
@@ -351,6 +377,23 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
       int supportsAtLeast8AlphaBits=alphaBits>=8;
 
+      // TODO verify that newer ATI devices still have the issue
+      // TODO verify that newer Mesa Gallium llvmpipe still have the issue
+      // Mesa with "Offscreen" renderer (ie OS Mesa) supports depth peeling in
+      // all  versions tested 7.10, 8.0, 8.0.5, 9.0.3, 9.1.3, 9.1.4, 9.1.5
+      // Mesa version 7 with "Software Rasterizer" renderer all Opacity/Translucent
+      // ctests fail with depth peeling
+      // Mesa 9.1.5 with Gallium llvmpipe renderer some of these tests fail
+      // Mesa 8 with GMA945 renderer supports depth peeling
+      int driver_support
+        = (!extensions->DriverIsATI()
+        && (!extensions->DriverIsMesa()
+        || extensions->DriverGLRendererHas("Offscreen")
+        || (extensions->DriverVersionAtLeast(6,5,3)
+        && !extensions->DriverGLRendererIs("Software Rasterizer")
+        && !extensions->DriverGLRendererHasToken("llvmpipe"))))
+        || extensions->GetIgnoreDriverBugs("ATI/Mesa depth peeling bug." );
+
       this->DepthPeelingIsSupported =
         supports_depth_texture &&
         supports_shadow &&
@@ -363,7 +406,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
         supports_multitexture &&
         supports_GL_ARB_texture_rectangle &&
         supports_edge_clamp &&
-        supportsAtLeast8AlphaBits;
+        supportsAtLeast8AlphaBits &&
+        driver_support;
 
       if(this->DepthPeelingIsSupported)
         {
@@ -455,6 +499,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           {
           vtkDebugMacro(<<"at least 8 alpha bits is not supported");
           }
+        if (!driver_support)
+          {
+          vtkDebugMacro(<<"buggy driver (Mesa < 6.5.3 or ATI)");
+          }
         }
       extensions->Delete();
 
@@ -480,44 +528,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           {
           vtkDebugMacro("this OpenGL implementation does not support "
                         "GL_ARB_texture_rectangle in GLSL code");
-          }
-        }
-      if(this->DepthPeelingIsSupported)
-        {
-        // Some OpenGL implementations are buggy so depth peeling does not work:
-        //  - ATI
-        //  - Mesa 6.5.2 and lower
-        // Do alpha blending always.
-        const char* gl_renderer =
-          reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-        int isATI = strstr(gl_renderer, "ATI") != 0;
-
-        const char* gl_version =
-          reinterpret_cast<const char *>(glGetString(GL_VERSION));
-        if(const char* mesa_version = strstr(gl_version, "Mesa"))
-          {
-          // Mesa versions 6.5.3 and higher work.  Versions much lower
-          // than 6.5.2 do not report support for the extensions to
-          // get this far.  Therefore if parsing of the version fails
-          // just assume it is a higher version that changed the
-          // format of the version string.
-          int mesa_major = 0;
-          int mesa_minor = 0;
-          int mesa_patch = 0;
-          if(sscanf(mesa_version, "Mesa %d.%d.%d",
-                    &mesa_major, &mesa_minor, &mesa_patch) >= 2)
-            {
-            if(mesa_major  < 6 ||
-               (mesa_major == 6 && mesa_major  < 5) ||
-               (mesa_major == 6 && mesa_minor == 5 && mesa_patch < 3))
-              {
-              this->DepthPeelingIsSupported = 0;
-              }
-            }
-          }
-        else if(isATI)
-          {
-          this->DepthPeelingIsSupported = 0;
           }
         }
       }
@@ -787,6 +797,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glDeleteTextures(1,&opaqueLayerRgba);
     glDeleteTextures(1,&opaqueLayerZ);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after DeviceRenderTranslucentPolygonalGeometry");
 }
 
 // ----------------------------------------------------------------------------
@@ -795,6 +807,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 void vtkOpenGLRenderer::CheckCompilation(
   unsigned int fragmentShader)
 {
+  vtkOpenGLClearErrorMacro();
   GLuint fs=static_cast<GLuint>(fragmentShader);
   GLint params;
   vtkgl::GetShaderiv(fs,vtkgl::COMPILE_STATUS,&params);
@@ -819,6 +832,7 @@ void vtkOpenGLRenderer::CheckCompilation(
       vtkErrorMacro(<<"no log");
       }
     }
+  vtkOpenGLCheckErrorMacro("failed after CheckCompilation");
 }
 
 // ----------------------------------------------------------------------------
@@ -830,6 +844,8 @@ void vtkOpenGLRenderer::CheckCompilation(
 int vtkOpenGLRenderer::RenderPeel(int layer)
 {
   assert("pre: positive_layer" && layer>=0);
+
+  vtkOpenGLClearErrorMacro();
 
   GLbitfield mask=GL_COLOR_BUFFER_BIT;
   if(layer>0)
@@ -1023,10 +1039,12 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
                         this->ViewportHeight);
     this->LayerList->List.push_back(rgba);
 
+    vtkOpenGLCheckErrorMacro("failed after RenderPeel");
     return 1;
     }
   else
     {
+    vtkOpenGLCheckErrorMacro("failed after RenderPeel");
     return 0;
     }
 }
@@ -1056,6 +1074,8 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkOpenGLRenderer::Clear(void)
 {
+  vtkOpenGLClearErrorMacro();
+
   GLbitfield  clear_mask = 0;
 
   if (! this->Transparent())
@@ -1153,10 +1173,12 @@ void vtkOpenGLRenderer::Clear(void)
     glPopMatrix();
     glPopAttrib();
     }
+  vtkOpenGLCheckErrorMacro("failed after Clear");
 }
 
 void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
 {
+  vtkOpenGLClearErrorMacro();
 
   int bufferSize = pickFromSize * 4;
 
@@ -1178,6 +1200,8 @@ void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
   // initialize the pick names and add a 0 name, for no pick
   glInitNames();
   glPushName(0);
+
+  vtkOpenGLCheckErrorMacro("failed after StartPick");
 }
 
 void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
@@ -1191,6 +1215,7 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
 void vtkOpenGLRenderer::UpdatePickId()
 {
   glLoadName(this->CurrentPickId++);
+  vtkOpenGLCheckErrorMacro("failed after UpdatePick");
 }
 
 
@@ -1201,6 +1226,7 @@ void vtkOpenGLRenderer::DevicePickRender()
   // other windows might get rendered since the last time
   // a MakeCurrent was called.
   this->RenderWindow->MakeCurrent();
+  vtkOpenGLClearErrorMacro();
 
   // standard render method
   this->ClearLights();
@@ -1217,6 +1243,7 @@ void vtkOpenGLRenderer::DevicePickRender()
   // clean up the model view matrix set up by the camera
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
+  vtkOpenGLCheckErrorMacro("failed after DevicePickRender");
 }
 
 

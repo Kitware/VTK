@@ -126,16 +126,11 @@ void vtkQuadratureSchemeDefinition::Initialize(
 //-----------------------------------------------------------------------------
 void vtkQuadratureSchemeDefinition::ReleaseResources()
 {
-  if (this->ShapeFunctionWeights!=0)
-    {
-    delete [] this->ShapeFunctionWeights;
-    this->ShapeFunctionWeights=0;
-    }
-  if (this->QuadratureWeights!=0)
-    {
-    delete [] this->QuadratureWeights;
-    this->QuadratureWeights=0;
-    }
+  delete [] this->ShapeFunctionWeights;
+  this->ShapeFunctionWeights=0;
+
+  delete [] this->QuadratureWeights;
+  this->QuadratureWeights=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -175,7 +170,8 @@ void vtkQuadratureSchemeDefinition::SetShapeFunctionWeights(const double *W)
 {
   if ((this->NumberOfQuadraturePoints<=0)
       || (this->NumberOfNodes<=0)
-      || (this->ShapeFunctionWeights==0))
+      || (this->ShapeFunctionWeights==0)
+      || !W)
     {
     return;
     }
@@ -192,7 +188,8 @@ void vtkQuadratureSchemeDefinition::SetQuadratureWeights(const double *W)
 {
   if ((this->NumberOfQuadraturePoints<=0)
       || (this->NumberOfNodes<=0)
-      || (this->QuadratureWeights==0))
+      || (this->QuadratureWeights==0)
+      || !W)
     {
     return;
     }
@@ -321,14 +318,8 @@ istream &operator>>(istream &sin, vtkQuadratureSchemeDefinition &def)
   def.Initialize(cellType,nNodes,nQuadPts,SfWt,QWt);
 
   // clean up
-  if (SfWt!=NULL)
-    {
-    delete [] SfWt;
-    }
-  if (QWt!=NULL)
-    {
-    delete [] QWt;
-    }
+  delete [] SfWt;
+  delete [] QWt;
 
   return sin;
 }

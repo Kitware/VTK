@@ -3,4 +3,6 @@ vtk_module(vtkIOVideo
     StandAlone
   DEPENDS
     vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtksys
   )

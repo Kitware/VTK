@@ -88,15 +88,15 @@ vtk_module_library(${vtk-module}
   ${QVTKNonMocHeaders} ${QVTKMocHeaders}
   )
 
-target_link_libraries(${vtk-module} ${QT_LIBRARIES})
+target_link_libraries(${vtk-module} LINK_PUBLIC ${QT_LIBRARIES})
 
 if(VTK_USE_X)
-  target_link_libraries(${vtk-module} ${X11_LIBRARIES})
+  target_link_libraries(${vtk-module} LINK_PRIVATE ${X11_LIBRARIES})
 endif()
 
 if(APPLE)
   if(VTK_USE_CARBON)
-    target_link_libraries(${vtk-module} "-framework Carbon" )
+    target_link_libraries(${vtk-module} LINK_PRIVATE "-framework Carbon" )
   endif()
 endif()
 
@@ -165,11 +165,11 @@ if(BUILD_SHARED_LIBS)
     # main install prefix.  Attach the script as a post-install script.
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/PluginInstall.cmake.in
       ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake
-      @ONLY IMMEDIATE)
+      @ONLY)
     set_target_properties(${vtk-module} PROPERTIES POST_INSTALL_SCRIPT
       ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake)
   endif()
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.ctest.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.ctest" @ONLY IMMEDIATE)
+  "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.ctest" @ONLY)

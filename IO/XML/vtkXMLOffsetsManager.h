@@ -45,7 +45,7 @@
 
 #include "vtkSystemIncludes.h"
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 //----------------------------------------------------------------------------
 class OffsetsManager
@@ -55,9 +55,6 @@ public:
   OffsetsManager()
     {
       this->LastMTime = static_cast<unsigned long>(-1); //almost invalid state
-    }
-  ~OffsetsManager()
-    {
     }
   void Allocate(int numTimeStep)
     {

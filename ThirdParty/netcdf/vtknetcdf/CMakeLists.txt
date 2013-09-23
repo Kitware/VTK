@@ -344,7 +344,7 @@ if (UNIX)
 endif()
 
 VTK_ADD_LIBRARY(vtkNetCDF_cxx ${netcdf_cxx_SOURCES})
-TARGET_LINK_LIBRARIES(vtkNetCDF_cxx vtkNetCDF)
+TARGET_LINK_LIBRARIES(vtkNetCDF_cxx LINK_PUBLIC vtkNetCDF)
 
 #-----------------------------------------------------------------------------
 #package the result
@@ -358,6 +358,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTKNETCDF_SOURCE_DIR}/cxx/netcdfcpp.h
     ${VTKNETCDF_SOURCE_DIR}/cxx/ncvalues.h
     ${VTKNETCDF_BINARY_DIR}/vtk_netcdf_config.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtknetcdf/include
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtknetcdf/include
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

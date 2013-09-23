@@ -17,13 +17,16 @@
 // .SECTION Description
 // Encapsulates an OpenGL Frame Buffer Object.
 // For use by vtkOpenGLFBORenderWindow, not to be used directly.
+// Use vtkFrameBufferObject2 instead.
 // .SECTION Caveats
 // DON'T PLAY WITH IT YET.
+// .SECTION See Also
+// vtkFrameBufferObject2, vtkRenderbufferObject
 #ifndef __vtkFrameBufferObject_h
 #define __vtkFrameBufferObject_h
 
-#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 //BTX
@@ -32,7 +35,10 @@
 
 class vtkRenderWindow;
 class vtkTextureObject;
+class vtkRenderbuffer;
+class vtkPixelBufferObject;
 class vtkOpenGLExtensionManager;
+class vtkOpenGLRenderWindow;
 
 class VTKRENDERINGOPENGL_EXPORT vtkFrameBufferObject : public vtkObject
 {
@@ -58,12 +64,8 @@ public:
   // Note that this does not clear the render buffers i.e. no glClear() calls
   // are made by either of these methods. It's up to the caller to clear the
   // buffers if needed.
-  bool Start(int width,
-             int height,
-             bool shaderSupportsTextureInt);
-  bool StartNonOrtho(int width,
-                     int height,
-                     bool shaderSupportsTextureInt);
+  bool Start(int width, int height, bool shaderSupportsTextureInt);
+  bool StartNonOrtho(int width, int height, bool shaderSupportsTextureInt);
 
   // Description:
   // Renders a quad at the given location with pixel coordinates. This method
@@ -74,44 +76,46 @@ public:
   // \pre positive_minY: minY>=0
   // \pre increasing_y: minY<=maxY
   // \pre valid_maxY: maxY<LastSize[1]
-  void RenderQuad(int minX,
-                  int maxX,
-                  int minY,
-                  int maxY);
+  void RenderQuad(int minX, int maxX, int minY, int maxY);
 
   // Description:
-  // Save the current framebuffer and make the frame buffer active.
-  // Multiple calls to Bind has no effect.
+  // Make the draw frame buffer active (uses FRAMEBUFFER).
   void Bind();
 
   // Description:
-  // Restore the framebuffer saved with the call to Bind().
-  // Multiple calls to UnBind has no effect.
+  // Restore the previous draw framebuffer if saved, else
+  // bind the default buffer.
   void UnBind();
 
   // Description:
-  // Choose the buffer to render into.
+  // Choose the buffers to render into.
   void SetActiveBuffer(unsigned int index)
     {
-      this->SetActiveBuffers(1, &index);
+    this->SetActiveBuffers(1, &index);
     }
 
   // Description:
-  // Choose the buffer to render into.
-  // This is available only if the GL_ARB_draw_buffers extension is supported
-  // by the card.
-  void SetActiveBuffers(int numbuffers,
-                        unsigned int indices[]);
+  // User provided color buffers are attached by index
+  // to color buffers. This command lets you select which
+  // attachments are written to. See set color buffer.
+  // This call overwrites what the previous list of active
+  // buffers.
+  void SetActiveBuffers(int numbuffers, unsigned int indices[]);
 
+  // Description:
+  // Insert a color buffer into the list of available color buffers.
+  // 0 to NumberOfRenderTargets of these are attached to color attachments
+  // by index. See SetActiveBuffers to select them for writing.
   // All user specified texture objects must match the FBO dimensions
   // and must have been created by the time Start() gets called.
   // If texture is a 3D texture, zslice identifies the zslice that will be
   // attached to the color buffer.
   // .SECTION Caveat
   // Currently, 1D textures are not supported.
-  void SetColorBuffer(unsigned int index,
-                      vtkTextureObject *texture,
-                      unsigned int zslice=0);
+  void SetColorBuffer(
+        unsigned int index,
+        vtkTextureObject *texture,
+        unsigned int zslice=0);
 
   vtkTextureObject *GetColorBuffer(unsigned int index);
   void RemoveColorBuffer(unsigned int index);
@@ -130,6 +134,10 @@ public:
 
   // Description:
   // Set/Get the number of render targets to render into at once.
+  // Textures (user supplied or generated internally) are attached
+  // to color attachment 0 to NumberOfRenderTargets. You can use
+  // SetActiveBuffer to specify which of these are actually written to.
+  // If zero then all of the user provided color buffers are used.
   void SetNumberOfRenderTargets(unsigned int);
   vtkGetMacro(NumberOfRenderTargets,unsigned int);
 
@@ -151,13 +159,48 @@ public:
 
   // Description:
   // Returns if the context supports the required extensions.
+  // Extension will be loaded when the conetxt is set.
   static bool IsSupported(vtkRenderWindow *renWin);
+
+  // Description:
+  // Validate the current FBO configuration (attachments, formats, etc)
+  // prints detected errors to vtkErrorMacro.
+  int CheckFrameBufferStatus(unsigned int mode);
 
 //BTX
 protected:
   // Description:
-  // Display the status of the current framebuffer on the standard output.
-  void CheckFrameBufferStatus();
+  // Load all necessary extensions.
+  static
+  bool LoadRequiredExtensions(vtkRenderWindow *renWin);
+
+  // gen buffer (occurs when context is set)
+  void CreateFBO();
+
+  // delete buffer (occurs during destruction or context swicth)
+  void DestroyFBO();
+
+  // create texture or renderbuffer and attach
+  // if user provided a texture just use that
+  // mode specifies DRAW or READ
+  void CreateDepthBuffer(int width, int height, unsigned int mode);
+
+  // create textures for each target and attach
+  // if user provided textures use those, if the user
+  // provides any then they need to provide all
+  // mode specifies DRAW or READ
+  void CreateColorBuffers(
+        int width,
+        int height,
+        unsigned int mode,
+        bool shaderSupportsTextureInt);
+
+  // detach and delete our reference(s)
+  void DestroyDepthBuffer();
+  void DestroyColorBuffers();
+
+  // glDrawBuffers
+  void ActivateBuffers();
 
   // Description:
   // Display all the attachments of the current framebuffer object.
@@ -187,38 +230,17 @@ protected:
   bool DepthBufferNeeded;
   bool ColorBuffersDirty;
   unsigned int FBOIndex;
-  int PreviousFBOIndex; // -1: no previous FBO
+  int PreviousFBOIndex;
   unsigned int DepthBuffer;
-
   unsigned int NumberOfRenderTargets;
-  // TODO: add support for stencil buffer.
-
   int LastSize[2];
-
-  void CreateFBO();
-  void DestroyFBO();
-  void Create(int width,
-              int height);
-  void CreateBuffers(int width,
-                     int height);
-  void CreateColorBuffers(int width,
-                          int height,
-                          bool shaderSupportsTextureInt);
-  void Destroy();
-  void DestroyBuffers();
-  void DestroyColorBuffers();
-  void ActivateBuffers();
-
-  // Description:
-  // Load all necessary extensions.
-  bool LoadRequiredExtensions(vtkOpenGLExtensionManager *manager);
-
   std::vector<unsigned int> UserZSlices;
   std::vector<vtkSmartPointer<vtkTextureObject> > UserColorBuffers;
   std::vector<vtkSmartPointer<vtkTextureObject> > ColorBuffers;
   std::vector<unsigned int> ActiveBuffers;
   vtkSmartPointer<vtkTextureObject> UserDepthBuffer;
   bool DepthBufferDirty;
+
 private:
   vtkFrameBufferObject(const vtkFrameBufferObject&); // Not implemented.
   void operator=(const vtkFrameBufferObject&); // Not implemented.

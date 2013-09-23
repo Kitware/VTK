@@ -6,6 +6,8 @@ vtk_module(vtkIOMPIImage
   DEPENDS
     vtkParallelMPI
     vtkIOImage
+  PRIVATE_DEPENDS
+    vtksys
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering

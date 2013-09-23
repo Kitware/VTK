@@ -75,17 +75,11 @@ void vtkPointsProjectedHull::ClearAllocations()
   int i;
   for (i=0; i<3; i++)
     {
-    if (this->CCWHull[i])
-      {
-      delete [] this->CCWHull[i];
-      this->CCWHull[i] = NULL;
-      }
+    delete [] this->CCWHull[i];
+    this->CCWHull[i] = NULL;
     }
-  if (this->Pts)
-    {
-    delete [] this->Pts;
-    this->Pts = NULL;
-    }
+  delete [] this->Pts;
+  this->Pts = NULL;
 }
 #define VTK_GETCCWHULL(which, dim) \
 int vtkPointsProjectedHull::GetCCWHull##which(float *pts, int len)\
@@ -374,10 +368,7 @@ int i,j;
 
   this->HullSize[dir] = nHullPts;
 
-  if (this->CCWHull[dir])
-    {
-    delete [] this->CCWHull[dir];
-    }
+  delete [] this->CCWHull[dir];
 
   this->CCWHull[dir] = new double[nHullPts*2];
 
@@ -489,10 +480,7 @@ void vtkPointsProjectedHull::GetPoints()
 {
   int i;
 
-  if (this->Pts)
-    {
-    delete [] this->Pts;
-    }
+  delete [] this->Pts;
   this->Npts = this->Data->GetNumberOfTuples();
 
   this->Pts = new double [this->Npts*3];
@@ -665,6 +653,7 @@ int vtkPointsProjectedHull::RectangleOutside(double hmin, double hmax,
                   this->CCWHull[dir] + 2*i + 2,
                   insidePt))
       {
+      delete [] insidePt;
       return 1;
       }
     }

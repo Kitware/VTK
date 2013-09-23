@@ -67,16 +67,10 @@ void vtkCachedStreamingDemandDrivenPipeline::SetCacheSize(int size)
       this->Data[idx] = NULL;
       }
     }
-  if (this->Data)
-    {
-    delete [] this->Data;
-    this->Data = NULL;
-    }
-  if (this->Times)
-    {
-    delete [] this->Times;
-    this->Times = NULL;
-    }
+  delete [] this->Data;
+  this->Data = NULL;
+  delete [] this->Times;
+  this->Times = NULL;
 
   this->CacheSize = size;
   if (size == 0)

@@ -46,8 +46,9 @@ vtkFontConfigFreeTypeToolsFaceRequester(FTC_FaceID face_id,
       vtkSmartPointer<vtkTextProperty>::New();
   self->MapIdToTextProperty(reinterpret_cast<intptr_t>(face_id), tprop);
 
-  bool faceIsSet = self->GetForceCompiledFonts() ?
-        false : self->LookupFaceFontConfig(tprop, lib, face);
+  bool faceIsSet =
+      self->GetForceCompiledFonts() || tprop->GetFontFamily() == VTK_FONT_FILE
+      ? false : self->LookupFaceFontConfig(tprop, lib, face);
 
   // Fall back to compiled fonts if lookup fails/compiled fonts are forced:
   if (!faceIsSet)
@@ -126,6 +127,11 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
   FcPatternAddInteger(pattern, FC_SLANT, slant);
   FcPatternAddBool(pattern, FC_SCALABLE, true);
 
+  // Prefer fonts that have at least greek characters:
+  FcCharSet *charSet = FcCharSetCreate();
+  FcCharSetAddChar(charSet, static_cast<FcChar32>(948)); // lowercase delta
+  FcPatternAddCharSet(pattern, FC_CHARSET, charSet);
+
   // Replace common font names, e.g. arial, times, etc -> sans, serif, etc
   FcConfigSubstitute(NULL, pattern, FcMatchPattern);
 
@@ -140,7 +146,9 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
   if (!fontMatches || fontMatches->nfont == 0)
     {
     if (fontMatches)
+      {
       FcFontSetDestroy(fontMatches);
+      }
     return false;
     }
 
@@ -151,17 +159,29 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
     {
     match = fontMatches->fonts[i];
 
+    // Ensure that the match is scalable
     FcBool isScalable;
-    FcPatternGetBool(match, FC_SCALABLE, 0, &isScalable);
-    if (!isScalable)
+    if (FcPatternGetBool(match, FC_SCALABLE, 0, &isScalable) != FcResultMatch ||
+        !isScalable)
+      {
       continue;
-    else
-      break;
+      }
+
+    FcCharSet *currentFontCharSet;
+    if (FcPatternGetCharSet(match, FC_CHARSET, 0, &currentFontCharSet)
+        != FcResultMatch ||
+        FcCharSetIntersectCount(charSet, currentFontCharSet) == 0)
+      {
+      continue;
+      }
+
+    break;
     }
 
   if (!match)
     {
     FcFontSetDestroy(fontMatches);
+    FcCharSetDestroy(charSet);
     return false;
     }
 
@@ -173,14 +193,22 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
   FT_Error error = FT_New_Face(lib, reinterpret_cast<const char*>(filename), 0,
                                face);
 
-  if (error)
+  if (!error)
     {
-    FcFontSetDestroy(fontMatches);
-    return false;
+    vtkDebugWithObjectMacro(vtkFreeTypeTools::GetInstance(),
+                            <<"Loading system font: "
+                            << reinterpret_cast<const char*>(filename));
     }
 
+  FcCharSetDestroy(charSet);
+  charSet = NULL;
   FcFontSetDestroy(fontMatches);
   fontMatches = NULL;
+
+  if (error)
+    {
+    return false;
+    }
 
   return true;
 }

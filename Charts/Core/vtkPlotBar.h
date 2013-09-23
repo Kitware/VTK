@@ -131,7 +131,7 @@ public:
   // Description:
   // Generate and return the tooltip label string for this plot
   // The segmentIndex is implemented here.
-  virtual vtkStdString GetTooltipLabel(const vtkVector2f &plotPos,
+  virtual vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
                                        vtkIdType segmentIndex);
 

@@ -144,7 +144,7 @@ void vtkXMLDataElement::SetName(const char* _arg)
 
   if ( this->Name == NULL && _arg == NULL) { return;}
   if ( this->Name && _arg && (!strcmp(this->Name,_arg))) { return;}
-  if (this->Name) { delete [] this->Name; }
+  delete [] this->Name;
   this->IgnoreCharacterData=0;
   if (_arg)
     {

@@ -52,23 +52,26 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()
 
-  target_link_libraries(${module_name}Java ${module_name} vtkWrappingJava)
+  target_link_libraries(${module_name}Java LINK_PUBLIC ${module_name} vtkWrappingJava)
 
   # Do we need to link to AWT?
   if(${module_name} STREQUAL "vtkRenderingCore")
-    target_link_libraries(${module_name}Java ${JAVA_AWT_LIBRARY})
+    target_link_libraries(${module_name}Java LINK_PUBLIC ${JAVA_AWT_LIBRARY})
     if(APPLE)
-      target_link_libraries(${module_name}Java "-framework Cocoa")
+      target_link_libraries(${module_name}Java LINK_PUBLIC "-framework Cocoa")
     endif()
   endif()
 
   foreach(dep ${${module_name}_LINK_DEPENDS})
     if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
-      target_link_libraries(${module_name}Java ${dep}Java)
+      target_link_libraries(${module_name}Java LINK_PUBLIC ${dep}Java)
     endif()
   endforeach()
 
   if(NOT VTK_INSTALL_NO_LIBRARIES)
+    if(APPLE AND VTK_JAVA_INSTALL)
+      set_target_properties(${module_name}Java PROPERTIES SUFFIX ".jnilib")
+    endif(APPLE AND VTK_JAVA_INSTALL)
     install(TARGETS ${module_name}Java
       EXPORT ${VTK_INSTALL_EXPORT_NAME}
       RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries

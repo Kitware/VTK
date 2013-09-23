@@ -15,7 +15,7 @@
 
 #include "vtkCompositeRGBAPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkgl.h"
@@ -26,6 +26,7 @@
 #include "vtkShader2Collection.h"
 #include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLExtensionManager.h"
 #include "vtkTextureUnitManager.h"
 
 // to be able to dump intermediate result into png files for debugging.
@@ -127,8 +128,14 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------------
 bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
-  return vtkFrameBufferObject::IsSupported(context)
-    && vtkTextureObject::IsSupported(context);
+  vtkOpenGLExtensionManager *extmgr = context->GetExtensionManager();
+
+  bool fbo_support=vtkFrameBufferObject::IsSupported(context);
+  bool texture_support
+     =  vtkTextureObject::IsSupported(context)
+       && (extmgr->ExtensionSupported("GL_ARB_texture_float")==1);
+
+  return fbo_support && texture_support;
 }
 
 // ----------------------------------------------------------------------------
@@ -162,26 +169,18 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
   const int VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER=201;
 
-  vtkOpenGLRenderer *r=static_cast<vtkOpenGLRenderer *>(s->GetRenderer());
-  vtkOpenGLRenderWindow *context=static_cast<vtkOpenGLRenderWindow *>(
-    r->GetRenderWindow());
+  vtkOpenGLRenderer *r
+    = static_cast<vtkOpenGLRenderer *>(s->GetRenderer());
 
-  // Test for Hardware support. If not supported, return.
-  bool supported=vtkFrameBufferObject::IsSupported(context);
+  vtkOpenGLRenderWindow *context
+    = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
 
-  if(!supported)
+  if (!this->IsSupported(context))
     {
-    vtkErrorMacro("FBOs are not supported by the context. Cannot perform rgba-compositing.");
+    vtkErrorMacro(
+      << "Missing required OpenGL extensions. "
+      << "Cannot perform rgba-compositing.");
     return;
-    }
-  if(supported)
-    {
-    supported=vtkTextureObject::IsSupported(context);
-    if(!supported)
-      {
-      vtkErrorMacro("Texture Objects are not supported by the context. Cannot perform rgba-compositing.");
-      return;
-      }
     }
 
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
@@ -204,8 +203,8 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     h=size[1];
     }
 
-  unsigned int byteSize=static_cast<unsigned int>(w*h*4)
-    *static_cast<unsigned int>(sizeof(float));
+  int numComps = 4;
+  unsigned int numTups = w*h;
 
   // pbo arguments.
   unsigned int dims[2];
@@ -270,10 +269,13 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     // for debugging only.
 
     // Framebuffer to PBO
-    this->PBO->Allocate(byteSize);
-    cout << "after pbo allocate." << endl;
+    this->PBO->Allocate(
+          VTK_FLOAT,
+          numTups,
+          numComps,
+          vtkPixelBufferObject::PACKED_BUFFER);
+
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
-    cout << "after pbo bind." << endl;
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
                  static_cast<GLfloat *>(NULL));
     cout << "after readpixel." << endl;
@@ -438,7 +440,12 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     // for debugging only.
 
     // Framebuffer to PBO
-    this->PBO->Allocate(byteSize);
+    this->PBO->Allocate(
+          VTK_FLOAT,
+          numTups,
+          numComps,
+          vtkPixelBufferObject::PACKED_BUFFER);
+
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
                  static_cast<GLfloat *>(NULL));
@@ -496,7 +503,12 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     // send rgba-buffer
 
     // framebuffer to PBO.
-    this->PBO->Allocate(byteSize,VTK_FLOAT);
+    this->PBO->Allocate(
+          VTK_FLOAT,
+          numTups,
+          numComps,
+          vtkPixelBufferObject::PACKED_BUFFER);
+
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
                  static_cast<GLfloat *>(NULL));

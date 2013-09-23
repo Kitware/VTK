@@ -24,9 +24,12 @@
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkWeakPointer.h" // needed for vtkWeakPointer.
+#include "vtkWeakPointer.h" // for render context
 
+class vtkFloatArray;
+class vtkTextureObject;
 class vtkRenderWindow;
+class vtkOpenGLRenderWindow;
 class vtkOpenGLExtensionManager;
 class vtkPixelBufferObject;
 
@@ -113,6 +116,8 @@ public:
   vtkGetMacro(Height, unsigned int);
   vtkGetMacro(Depth, unsigned int);
   vtkGetMacro(Components, int);
+  unsigned int GetTuples()
+  { return this->Width*this->Height*this->Depth; }
 
   vtkGetMacro(NumberOfDimensions, int);
 
@@ -126,9 +131,16 @@ public:
 
   // Description:
   // Activate the texture. The texture must have been created using Create().
+  // A side affect is that tex paramteres are sent.
   // RenderWindow must be set before calling this.
   void Bind();
   void UnBind();
+
+  // Description:
+  // Set the active tex unit and bind (using our bind).
+  void Activate(unsigned int texUnit);
+  void Deactivate(unsigned int texUnit);
+
 
   // Description:
   // Tells if the texture object is bound to the active texture image unit.
@@ -137,8 +149,12 @@ public:
 
   // Description:
   // Send all the texture object parameters to the hardware if not done yet.
+  // Parameters are automatically sent as a side affect of Bind. Disable
+  // this by setting AutoParameters 0.
   // \pre is_bound: IsBound()
   void SendParameters();
+  vtkSetMacro(AutoParameters, int);
+  vtkGetMacro(AutoParameters, int);
 
   // Description:
   // Create a 1D texture using the PBO.
@@ -241,6 +257,33 @@ public:
                          bool shaderSupportsTextureInt);
 
   // Description:
+  // Optional, require support for floating point depth buffer
+  // formats. If supported extensions will be loaded, however
+  // loading will fail if the extension is required but not
+  // available.
+  vtkSetMacro(RequireDepthBufferFloat, bool);
+  vtkGetMacro(RequireDepthBufferFloat, bool);
+  vtkGetMacro(SupportsDepthBufferFloat, bool);
+
+  // Description:
+  // Optional, require support for floating point texture
+  // formats. If supported extensions will be loaded, however
+  // loading will fail if the extension is required but not
+  // available.
+  vtkSetMacro(RequireTextureFloat,bool);
+  vtkGetMacro(RequireTextureFloat,bool);
+  vtkGetMacro(SupportsTextureFloat,bool);
+
+  // Description:
+  // Optional, require support for integer texture
+  // formats. If supported extensions will be loaded, however
+  // loading will fail if the extension is required but not
+  // available.
+  vtkSetMacro(RequireTextureInteger,bool);
+  vtkGetMacro(RequireTextureInteger,bool);
+  vtkGetMacro(SupportsTextureInteger,bool);
+
+  // Description:
   // Wrap mode for the first texture coordinate "s"
   // Valid values are:
   // - Clamp
@@ -292,14 +335,27 @@ public:
   vtkSetMacro(MinificationFilter,int);
 
   // Description:
-  // Tells if the magnification mode is linear (true) or nearest (false).
-  // Initial value is false (initial value in OpenGL spec is true).
-  vtkGetMacro(LinearMagnification,bool);
-  vtkSetMacro(LinearMagnification,bool);
+  // Magnification filter mode.
+  // Valid values are:
+  // - Nearest
+  // - Linear
+  // Initial value is Nearest
+  vtkGetMacro(MagnificationFilter,int);
+  vtkSetMacro(MagnificationFilter,int);
 
   // Description:
-  // Border Color (RGBA). Each component is in [0.0f,1.0f].
-  // Initial value is (0.0f,0.0f,0.0f,0.0f), as in OpenGL spec.
+  // Tells if the magnification mode is linear (true) or nearest (false).
+  // Initial value is false (initial value in OpenGL spec is true).
+  void SetLinearMagnification(bool val)
+  { this->SetMagnificationFilter(val?Linear:Nearest); }
+
+  bool GetLinearMagnification()
+  { return this->MagnificationFilter==Linear; }
+
+  // Description:
+  // Border Color (RGBA). The values can be any valid float value,
+  // if the gpu supports it. Initial value is (0.0f,0.0f,0.0f,0.0f)
+  // , as in OpenGL spec.
   vtkSetVector4Macro(BorderColor,float);
   vtkGetVector4Macro(BorderColor,float);
 
@@ -389,8 +445,19 @@ public:
   vtkSetMacro(GenerateMipmap,bool);
 
   // Description:
-  // Returns if the context supports the required extensions.
-  static bool IsSupported(vtkRenderWindow* renWin);
+  // Returns if the context supports the required extensions. If flags
+  // for optional extenisons are set then the test fails when support
+  // for them is not found.
+  static bool IsSupported(
+        vtkRenderWindow* renWin,
+        bool requireTexFloat,
+        bool requireDepthFloat,
+        bool requireTexInt);
+
+  // Description:
+  // Check for feature support, without any optional features.
+  static bool IsSupported(vtkRenderWindow* renWin)
+    { return vtkTextureObject::IsSupported(renWin, false, false, false); }
 
   // Description:
   // Copy a sub-part of the texture (src) in the current framebuffer
@@ -445,6 +512,7 @@ public:
                            int height);
 
 
+
 //BTX
 protected:
   vtkTextureObject();
@@ -452,7 +520,7 @@ protected:
 
   // Description:
   // Load all necessary extensions.
-  bool LoadRequiredExtensions(vtkOpenGLExtensionManager*);
+  bool LoadRequiredExtensions(vtkRenderWindow *renWin);
 
   // Description:
   // Creates a texture handle if not already created.
@@ -474,13 +542,18 @@ protected:
 
   vtkWeakPointer<vtkRenderWindow> Context;
   unsigned int Handle;
+  bool RequireTextureInteger;
   bool SupportsTextureInteger;
+  bool RequireTextureFloat;
   bool SupportsTextureFloat;
+  bool RequireDepthBufferFloat;
+  bool SupportsDepthBufferFloat;
 
   int WrapS;
   int WrapT;
   int WrapR;
   int MinificationFilter;
+  int MagnificationFilter;
   bool LinearMagnification;
   float BorderColor[4];
 
@@ -497,6 +570,7 @@ protected:
 
   bool GenerateMipmap;
 
+  int AutoParameters;
   vtkTimeStamp SendParametersTime;
 
 private:
@@ -506,5 +580,3 @@ private:
 };
 
 #endif
-
-

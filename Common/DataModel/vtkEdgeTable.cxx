@@ -216,7 +216,7 @@ vtkIdType vtkEdgeTable::IsEdge(vtkIdType p1, vtkIdType p2)
     search = p1;
     }
 
-  if ( this->Table[index] == NULL )
+  if ( index > this->TableMaxId || this->Table[index] == NULL )
     {
     return (-1);
     }
@@ -258,7 +258,7 @@ void vtkEdgeTable::IsEdge(vtkIdType p1, vtkIdType p2, void* &ptr)
     search = p1;
     }
 
-  if ( this->Table[index] == NULL )
+  if ( index > this->TableMaxId || this->Table[index] == NULL )
     {
     ptr = NULL;
     }
@@ -529,10 +529,7 @@ vtkIdList **vtkEdgeTable::Resize(vtkIdType sz)
       {
       newAttributeArray[i] = NULL;
       }
-    if ( this->Attributes )
-      {
-      delete [] this->Attributes;
-      }
+    delete [] this->Attributes;
     this->Attributes = newAttributeArray;
     }
   else if ( this->StoreAttributes == 2 )

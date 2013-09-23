@@ -23,7 +23,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkCxxSetObjectMacro(vtkGenericDataSet,Tessellator,vtkGenericCellTessellator);
 

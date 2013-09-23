@@ -275,16 +275,6 @@ vtkQuaternion<T>::SetRotationAngleAndAxis (const T& angle,
 
 //----------------------------------------------------------------------------
 template<typename T>
-void vtkQuaternion<T>::operator=(const vtkQuaternion<T>& q)
-{
-  for (int i = 0; i < 4; ++i)
-    {
-    this->Data[i] = q[i];
-    }
-}
-
-//----------------------------------------------------------------------------
-template<typename T>
 vtkQuaternion<T> vtkQuaternion<T>::operator+(const vtkQuaternion<T>& q) const
 {
   vtkQuaternion<T> ret;

@@ -18,7 +18,7 @@
 #include "vtkGPUInfoListArray.h"
 
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkDummyGPUInfoList);
 

@@ -2666,7 +2666,7 @@ void vtkFLUENTReader::GetCellsAscii()
       vtksys_ios::stringstream pdatastream(pdata);
       for (int i = firstIndex; i <=lastIndex; i++)
         {
-        pdatastream >> this->Cells->value[i].type;
+        pdatastream >> this->Cells->value[i-1].type;
         this->Cells->value[i-1].zone = zoneId;
         this->Cells->value[i-1].parent = 0;
         this->Cells->value[i-1].child  = 0;

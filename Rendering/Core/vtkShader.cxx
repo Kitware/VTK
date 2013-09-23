@@ -189,21 +189,14 @@ public:
     this->NumberOfValues = x.GetNumberOfValues();
     this->Type = x.GetType();
 
-    if (this->IntValues)
-      {
-      delete [] this->IntValues;
-      this->IntValues = NULL;
-      }
-    if (this->FloatValues)
-      {
-      delete [] this->FloatValues;
-      this->FloatValues = NULL;
-      }
-    if (this->DoubleValues)
-      {
-      delete [] this->DoubleValues;
-      this->DoubleValues = NULL;
-      }
+    delete [] this->IntValues;
+    this->IntValues = NULL;
+
+    delete [] this->FloatValues;
+    this->FloatValues = NULL;
+
+    delete [] this->DoubleValues;
+    this->DoubleValues = NULL;
 
     if ( (this->Type == VTK_INT) && (this->NumberOfValues > 0) )
       {
@@ -270,21 +263,14 @@ public:
 
   ~vtkShaderUniformVariable()
     {
-    if (this->IntValues)
-      {
-      delete [] this->IntValues;
-      this->IntValues = NULL;
-      }
-    if (this->FloatValues)
-      {
-      delete [] this->FloatValues;
-      this->FloatValues = NULL;
-      }
-    if (this->DoubleValues)
-      {
-      delete [] this->DoubleValues;
-      this->DoubleValues = NULL;
-      }
+    delete [] this->IntValues;
+    this->IntValues = NULL;
+
+    delete [] this->FloatValues;
+    this->FloatValues = NULL;
+
+    delete [] this->DoubleValues;
+    this->DoubleValues = NULL;
     }
 
   void Print(ostream& os, vtkIndent indent)

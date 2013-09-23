@@ -233,6 +233,12 @@ public:
   // as a set of annotations to add to a scalar array (when IndexedLookup is false).
   // The two arrays must both either be NULL or of the same length or
   // the call will be ignored.
+  //
+  // Note that these arrays are deep copied rather than being used directly
+  // in order to support the use case where edits are made. If the
+  // \a values and \a annotations arrays were held by this class then each
+  // call to map scalar values to colors would require us to check the MTime
+  // of the arrays.
   virtual void SetAnnotations( vtkAbstractArray* values, vtkStringArray* annotations );
   vtkGetObjectMacro(AnnotatedValues,vtkAbstractArray);
   vtkGetObjectMacro(Annotations,vtkStringArray);

@@ -56,7 +56,6 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
 
   this->WindowCreated = 0;
   this->ViewCreated = 0;
-  this->MultiSamples = 8;
   this->SetWindowName("Visualization Toolkit - Cocoa");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
@@ -232,6 +231,22 @@ bool vtkCocoaRenderWindow::IsCurrent()
   return result;
 }
 
+//----------------------------------------------------------------------------
+bool vtkCocoaRenderWindow::IsDrawable()
+{
+  // you must initialize it first
+  // else it always evaluates false
+  this->Initialize();
+
+  // first check that window is valid
+  NSView *theView = (NSView*)this->GetWindowId();
+  bool win =[[theView window] windowNumber]>0;
+
+  // then check that the drawable is valid
+  NSOpenGLContext *context = (NSOpenGLContext *)this->GetContextId();
+  bool ok  = [context view] != nil;
+  return win && ok;
+}
 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::UpdateContext()
@@ -712,19 +727,58 @@ void vtkCocoaRenderWindow::CreateAWindow()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::CreateGLContext()
 {
-  NSOpenGLPixelFormatAttribute attribs[] =
+  // keep trying to get different pixelFormats until successful
+  NSOpenGLPixelFormat* pixelFormat = nil;
+  while (pixelFormat == nil)
     {
-      NSOpenGLPFAAccelerated,
-      NSOpenGLPFADepthSize,
-      (NSOpenGLPixelFormatAttribute)32,
-      (this->DoubleBuffer != 0) ?
-        (NSOpenGLPixelFormatAttribute)NSOpenGLPFADoubleBuffer :
-        (NSOpenGLPixelFormatAttribute)nil,
-      (NSOpenGLPixelFormatAttribute)nil
-    };
+    int i = 0;
+    NSOpenGLPixelFormatAttribute attribs[20];
 
-  NSOpenGLPixelFormat* pixelFormat = [[[NSOpenGLPixelFormat alloc]
-                                      initWithAttributes:attribs] autorelease];
+    attribs[i++] = NSOpenGLPFAAccelerated;
+    attribs[i++] = NSOpenGLPFADepthSize;
+    attribs[i++] = (NSOpenGLPixelFormatAttribute)32;
+
+    if (this->MultiSamples != 0)
+      {
+      attribs[i++] = NSOpenGLPFASampleBuffers;
+      attribs[i++] = (NSOpenGLPixelFormatAttribute)1;
+      attribs[i++] = NSOpenGLPFASamples;
+      attribs[i++] = (NSOpenGLPixelFormatAttribute)(this->MultiSamples);
+      attribs[i++] = NSOpenGLPFAMultisample;
+      }
+
+    if (this->DoubleBuffer != 0)
+      {
+      attribs[i++] = NSOpenGLPFADoubleBuffer;
+      }
+
+    attribs[i++] = (NSOpenGLPixelFormatAttribute)0;
+
+    // make sure that size of array was not exceeded
+    assert(sizeof(NSOpenGLPixelFormatAttribute)*i < sizeof(attribs));
+
+    pixelFormat = [[[NSOpenGLPixelFormat alloc]
+                   initWithAttributes:attribs] autorelease];
+
+    if (pixelFormat == nil)
+      {
+      if (this->MultiSamples == 0)
+        {
+        // after trying with no multisamples, we are done
+        break;
+        }
+      else if (this->MultiSamples < 4)
+        {
+        // next time try with no multisamples
+        this->MultiSamples = 0;
+        }
+      else
+        {
+        this->MultiSamples /= 2;
+        }
+      }
+    }
+
   NSOpenGLContext* context = [[[NSOpenGLContext alloc]
                               initWithFormat:pixelFormat
                                 shareContext:nil] autorelease];

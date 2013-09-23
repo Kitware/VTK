@@ -584,13 +584,10 @@ void vtkAxisFollower::Render(vtkRenderer *ren)
   this->ComputeTransformMatrix(ren);
   this->Device->SetUserMatrix(this->Matrix);
 
+  this->SetVisibility(this->VisibleAtCurrentViewAngle);
   if(this->VisibleAtCurrentViewAngle)
     {
     this->Device->Render(ren,this->Mapper);
-    }
-  else
-    {
-    this->SetVisibility(this->VisibleAtCurrentViewAngle);
     }
 }
 

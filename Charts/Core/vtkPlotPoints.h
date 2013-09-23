@@ -159,8 +159,16 @@ protected:
   ~vtkPlotPoints();
 
   // Description:
+  // Populate the data arrays ready to operate on input data.
+  bool GetDataArrays(vtkTable *table, vtkDataArray *array[2]);
+
+  // Description:
   // Update the table cache.
   bool UpdateTableCache(vtkTable *table);
+
+  // Description:
+  // Calculate the unscaled input bounds from the input arrays.
+  void CalculateUnscaledInputBounds();
 
   // Description:
   // Handle calculating the log of the x or y series if necessary. Should be

@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkOpenGLRenderWindow.h"
-#include "assert.h"
+#include <cassert>
 #include "vtkFloatArray.h"
 #include "vtkgl.h"
 #include "vtkIdList.h"
@@ -26,28 +26,40 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkTextureUnitManager.h"
+#include "vtkStdString.h"
+#include <sstream>
+using std::ostringstream;
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, HardwareSupport, vtkOpenGLHardwareSupport);
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, TextureUnitManager, vtkTextureUnitManager);
 
 // Initialize static member that controls global maximum number of multisamples
+// (off by default on Apple because it causes problems on some Mac models).
+#if defined(__APPLE__)
+static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 0;
+#else
 static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
+#endif
 
+// ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
 {
   if (val == vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples) return;
   vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = val;
 }
 
+// ----------------------------------------------------------------------------
 int vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples()
 {
   return vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
 }
 
+// ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
   this->ExtensionManager = NULL;
@@ -56,8 +68,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 
   this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   this->TextureResourceIds = vtkIdList::New();
-  if ( this->WindowName )
-    delete [] this->WindowName;
+  delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
   strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
 
@@ -70,12 +81,15 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->BackBuffer=static_cast<unsigned int>(GL_BACK);
   this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
 
+#ifndef VTK_LEGACY_REMOVE
   this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
+#endif
 
   this->OwnContext=1;
 }
 
 // free up memory & close the window
+// ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
   this->TextureResourceIds->Delete();
@@ -1595,13 +1609,15 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   int supports_GL_EXT_framebuffer_object=
     extensions->ExtensionSupported("GL_EXT_framebuffer_object");
 
+  // TODO Mesa 6.5.1 is from 2006 verify that this is still an issue
+  // with  newer releases
   // We skip it if you use Mesa. Even if the VTK offscreen test passes (OSCone)
   // with Mesa, all the Paraview batch test are failing (Mesa 6.5.1 or CVS)
   // After too much time spent to investigate this case, we just skip it.
-  const GLubyte *openglRenderer=glGetString(GL_RENDERER);
-  const char *substring=strstr(reinterpret_cast<const char *>(openglRenderer),
-                               "Mesa");
-  int isMesa=substring!=0;
+  int isMesa
+    = extensions->DriverGLRendererHas("Mesa")
+    && !extensions->GetIgnoreDriverBugs("Mesa 6.5.1 pvbatch offscreen bug");
+
   int supports_texture_non_power_of_two=
     extensions->ExtensionSupported("GL_VERSION_2_0") ||
     extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
@@ -1868,29 +1884,25 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
   assert("post: destroyed" && !this->OffScreenUseFrameBuffer);
 }
 
-// ----------------------------------------------------------------------------
-// Description:
-// Update graphic error status, regardless of ReportGraphicErrors flag.
-// It means this method can be used in any context and is not restricted to
-// debug mode.
+#ifndef VTK_LEGACY_REMOVE
+//----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::CheckGraphicError()
 {
+  VTK_LEGACY_BODY(vtkRenderWindow::CheckGraphicError, "VTK 6.1");
   this->LastGraphicError=static_cast<unsigned int>(glGetError());
 }
 
-// ----------------------------------------------------------------------------
-// Description:
-// Return the last graphic error status. Initial value is false.
+//----------------------------------------------------------------------------
 int vtkOpenGLRenderWindow::HasGraphicError()
 {
+  VTK_LEGACY_BODY(vtkRenderWindow::HasGraphics, "VTK 6.1");
   return static_cast<GLenum>(this->LastGraphicError)!=GL_NO_ERROR;
 }
 
-// ----------------------------------------------------------------------------
-// Description:
-// Return a string matching the last graphic error status.
+//----------------------------------------------------------------------------
 const char *vtkOpenGLRenderWindow::GetLastGraphicErrorString()
 {
+  VTK_LEGACY_BODY(vtkRenderWindow::GetLastGraphicErrorString, "VTK 6.1");
   const char *result;
   switch(static_cast<GLenum>(this->LastGraphicError))
     {
@@ -1933,7 +1945,7 @@ const char *vtkOpenGLRenderWindow::GetLastGraphicErrorString()
     }
   return result;
 }
-
+#endif
 
 // ----------------------------------------------------------------------------
 // Description:

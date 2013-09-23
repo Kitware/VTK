@@ -155,7 +155,6 @@ protected:
   char **Argv;
 };
 
-//#vtkCxxRevisionMacro(MyProcess, "1.0");
 vtkStandardNewMacro(MyProcess);
 
 void MyProcess::Execute()

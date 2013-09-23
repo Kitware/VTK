@@ -24,23 +24,27 @@
 #include "vtkContextActor.h"
 #include "vtkContextScene.h"
 #include "vtkCoordinate.h"
+#include "vtkFloatArray.h"
 #include "vtkGL2PSContextDevice2D.h"
 #include "vtkGL2PSUtilities.h"
 #include "vtkImageData.h"
 #include "vtkImageShiftScale.h"
 #include "vtkIntArray.h"
+#include "vtkLabeledDataMapper.h"
 #include "vtkMapper2D.h"
 #include "vtkMathTextUtilities.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkPath.h"
+#include "vtkPointData.h"
 #include "vtkProp.h"
 #include "vtkProp3DCollection.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkScalarBarActor.h"
 #include "vtkStdString.h"
 #include "vtkTextActor.h"
 #include "vtkTextActor3D.h"
@@ -53,6 +57,7 @@
 #include "vtkVolumeCollection.h"
 #include "vtkWindowToImageFilter.h"
 #include "vtk_gl2ps.h"
+#include "vtkOpenGLError.h"
 
 #include <vector>
 
@@ -623,6 +628,8 @@ void vtkGL2PSExporter::SetPropVisibilities(vtkPropCollection *col, int vis)
 void vtkGL2PSExporter::DrawSpecialProps(vtkCollection *specialPropCol,
                                         vtkRendererCollection *renCol)
 {
+  vtkOpenGLClearErrorMacro();
+
   // Iterate through the renderers and the prop collections together:
   assert("renderers and special prop collections match" &&
          renCol->GetNumberOfItems() == specialPropCol->GetNumberOfItems());
@@ -651,6 +658,8 @@ void vtkGL2PSExporter::DrawSpecialProps(vtkCollection *specialPropCol,
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     }
+
+  vtkOpenGLCheckErrorMacro("failed after DrawSpecialProps");
 }
 
 void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
@@ -668,10 +677,19 @@ void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
         {
         this->DrawTextMapper(textMap, act2d, ren);
         }
+      else if (vtkLabeledDataMapper *ldm =
+               vtkLabeledDataMapper::SafeDownCast(map2d))
+        {
+        this->DrawLabeledDataMapper(ldm, ren);
+        }
       else // Some other mapper2D
         {
         return;
         }
+      }
+    else if (vtkScalarBarActor *bar = vtkScalarBarActor::SafeDownCast(act2d))
+      {
+      this->DrawScalarBarActor(bar, ren);
       }
     else // Some other actor2D
       {
@@ -749,11 +767,75 @@ void vtkGL2PSExporter::DrawTextMapper(vtkTextMapper *textMap,
   this->DrawViewportTextOverlay(string, tprop, coord, ren);
 }
 
+void vtkGL2PSExporter::DrawLabeledDataMapper(vtkLabeledDataMapper *mapper,
+                                             vtkRenderer *ren)
+{
+  vtkNew<vtkCoordinate> coord;
+  coord->SetViewport(ren);
+  switch (mapper->GetCoordinateSystem())
+    {
+    case vtkLabeledDataMapper::WORLD:
+      coord->SetCoordinateSystem(VTK_WORLD);
+      break;
+    case vtkLabeledDataMapper::DISPLAY:
+      coord->SetCoordinateSystem(VTK_DISPLAY);
+      break;
+    default:
+      vtkWarningMacro("Unsupported coordinate system for exporting vtkLabeled"
+                      "DataMapper. Some text may not be exported properly.");
+      return;
+    }
+
+  int numberOfLabels = mapper->GetNumberOfLabels();
+  const char *text;
+  double position[3];
+
+  for (int i = 0; i < numberOfLabels; ++i)
+    {
+    text = mapper->GetLabelText(i);
+    mapper->GetLabelPosition(i, position);
+    coord->SetValue(position);
+    this->DrawViewportTextOverlay(text, mapper->GetLabelTextProperty(),
+                                  coord.GetPointer(), ren);
+    }
+}
+
+void vtkGL2PSExporter::DrawScalarBarActor(vtkScalarBarActor *bar,
+                                          vtkRenderer *ren)
+{
+  // Disable colorbar -- the texture doesn't render properly, we'll copy the
+  // rasterized pixel data for it.
+  int drawColorBarOrig(bar->GetDrawColorBar());
+  bar->SetDrawColorBar(0);
+
+  // Disable text -- it is handled separately
+  int drawTickLabelsOrig(bar->GetDrawTickLabels());
+  bar->SetDrawTickLabels(0);
+  int drawAnnotationsOrig(bar->GetDrawAnnotations());
+  bar->SetDrawAnnotations(0);
+
+  // Render what's left:
+  bar->RenderOpaqueGeometry(ren);
+  bar->RenderOverlay(ren);
+
+  // Restore settings
+  bar->SetDrawColorBar(drawColorBarOrig);
+  bar->SetDrawTickLabels(drawTickLabelsOrig);
+  bar->SetDrawAnnotations(drawAnnotationsOrig);
+
+  // Copy the color bar into the output.
+  int rect[4];
+  bar->GetScalarBarRect(rect, ren);
+  this->CopyPixels(rect, ren);
+}
+
 void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
                                                vtkTextProperty *tprop,
                                                vtkCoordinate *coord,
                                                vtkRenderer *ren)
 {
+  vtkOpenGLClearErrorMacro();
+
   // Figure out the viewport information
   int *winsize = this->RenderWindow->GetSize();
   double *viewport = ren->GetViewport();
@@ -789,16 +871,21 @@ void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
   glPopMatrix();
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
+
+  vtkOpenGLCheckErrorMacro("failed after DrawViewportTextOverlay");
 }
 
 
 void vtkGL2PSExporter::CopyPixels(int copyRect[4], vtkRenderer *ren)
 {
-  if (this->PixelData->GetScalarType() == VTK_FLOAT)
+  if (this->PixelData->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<<"Raster image is not correctly formatted.")
     return;
     }
+
+  vtkOpenGLClearErrorMacro();
+
   // Figure out the viewport information
   int *winsize = this->RenderWindow->GetSize();
   double *viewport = ren->GetViewport();
@@ -857,6 +944,8 @@ void vtkGL2PSExporter::CopyPixels(int copyRect[4], vtkRenderer *ren)
   glPopMatrix();
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
+
+  vtkOpenGLCheckErrorMacro("failed after CopyPixels");
 }
 
 void vtkGL2PSExporter::DrawContextActors(vtkPropCollection *contextActs,

@@ -15,8 +15,9 @@
 
 #include "vtkUniformVariables.h"
 #include "vtkgl.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLError.h"
 
 #include <vtksys/stl/map>
 
@@ -168,6 +169,7 @@ public:
                            this->Values[2],this->Values[3]);
           break;
         }
+      vtkOpenGLStaticCheckErrorMacro("failed at glUniform*i");
     }
 
   virtual void PrintSelf(ostream &os, vtkIndent indent)
@@ -260,6 +262,7 @@ public:
                            this->Values[2],this->Values[3]);
           break;
         }
+      vtkOpenGLStaticCheckErrorMacro("failed at glUniform*f");
     }
 
   virtual void PrintSelf(ostream &os, vtkIndent indent)
@@ -375,6 +378,7 @@ public:
           vtkgl::Uniform4iv(location,this->ArraySize,this->Values);
           break;
         }
+      vtkOpenGLStaticCheckErrorMacro("failed at glUniform*iv");
     }
 
   virtual void PrintSelf(ostream &os, vtkIndent indent)
@@ -480,6 +484,7 @@ public:
           vtkgl::Uniform4fv(location,this->ArraySize,this->Values);
           break;
         }
+      vtkOpenGLStaticCheckErrorMacro("failed at glUniform*fv");
     }
 
   virtual void PrintSelf(ostream &os, vtkIndent indent)
@@ -628,6 +633,7 @@ public:
             }
           break;
         }
+      vtkOpenGLStaticCheckErrorMacro("failed at glUniformMatrix*fv");
     }
 
   virtual void PrintSelf(ostream &os, vtkIndent indent)

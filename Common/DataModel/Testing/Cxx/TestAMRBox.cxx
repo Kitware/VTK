@@ -351,10 +351,7 @@ int TestAMRBoxSerialization()
     rc++;
     }
 
-  if( buffer != NULL )
-    {
-    delete [] buffer;
-    }
+  delete [] buffer;
 
   return( rc );
 }
@@ -376,7 +373,7 @@ void CheckTestStatus( int rc, std::string TestName )
     }
 }
 
-#include "assert.h"
+#include <cassert>
 //------------------------------------------------------------------------------
 int TestAMRBox(int , char *[])
 {

@@ -83,20 +83,14 @@ vtkCellLocator::vtkCellLocator()
 //----------------------------------------------------------------------------
 vtkCellLocator::~vtkCellLocator()
 {
-  if (this->Buckets)
-    {
-    delete this->Buckets;
-    this->Buckets = NULL;
-    }
+  delete this->Buckets;
+  this->Buckets = NULL;
 
   this->FreeSearchStructure();
   this->FreeCellBounds();
 
-  if (this->CellHasBeenVisited)
-    {
-    delete [] this->CellHasBeenVisited;
-    this->CellHasBeenVisited = NULL;
-    }
+  delete [] this->CellHasBeenVisited;
+  this->CellHasBeenVisited = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -1229,11 +1223,8 @@ void vtkCellLocator::BuildLocatorInternal()
     {
     this->FreeSearchStructure();
     }
-  if ( this->CellHasBeenVisited )
-    {
-    delete [] this->CellHasBeenVisited;
-    this->CellHasBeenVisited = NULL;
-    }
+  delete [] this->CellHasBeenVisited;
+  this->CellHasBeenVisited = NULL;
   this->FreeCellBounds();
 
   //  Size the root cell.  Initialize cell data structure, compute

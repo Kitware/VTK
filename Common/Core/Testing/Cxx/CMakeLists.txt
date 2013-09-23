@@ -10,6 +10,8 @@ vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
   TestArrayAPIDense.cxx
   TestArrayAPISparse.cxx
   TestArrayBool.cxx
+  TestAtomic.cxx
+  TestScalarsToColors.cxx
   # TestArrayCasting.cxx # Uses Boost in its own separate test.
   TestArrayExtents.cxx
   TestArrayInterpolationDense.cxx

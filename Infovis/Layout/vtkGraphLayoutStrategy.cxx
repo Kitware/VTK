@@ -78,7 +78,7 @@ void vtkGraphLayoutStrategy::SetEdgeWeightField(const char* weights)
   // except for the call to Initialize at the end :)
   if ( this->EdgeWeightField == NULL && weights == NULL) { return;}
   if ( this->EdgeWeightField && weights && (!strcmp(this->EdgeWeightField,weights))) { return;}
-  if (this->EdgeWeightField) { delete [] this->EdgeWeightField; }
+  delete [] this->EdgeWeightField;
   if (weights)
     {
     size_t n = strlen(weights) + 1;

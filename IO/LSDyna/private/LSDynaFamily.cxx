@@ -22,7 +22,7 @@
 
 #include <errno.h>
 #include <ctype.h>
-#include <assert.h>
+#include <cassert>
 
 #include <string>
 #include <set>
@@ -33,8 +33,8 @@
 namespace
 {
 //Documentation on why the exemption
-#define USE_STAT_64 VTK_SIZEOF_ID_TYPE==8 && !defined _DARWIN_FEATURE_64_BIT_INODE
-//OSX uses stat instead of stat64
+#define USE_STAT_64 VTK_SIZEOF_ID_TYPE==8 && !defined _DARWIN_FEATURE_64_BIT_INODE && !defined __FreeBSD__
+//OSX and FreeBSD use stat instead of stat64
 #if (USE_STAT_64)
 //64bit
 #ifndef WIN32

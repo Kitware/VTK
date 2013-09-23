@@ -19,8 +19,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-#include "vtkRegressionTestImage.h"
-
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -29,7 +27,7 @@
 
 const int SPLAT_IMAGE_SIZE = 100;
 
-int FastSplatter(int argc, char *argv[])
+int FastSplatter(int, char *[])
 {
   // For the purposes of this example we'll build the splat image by
   // hand.
@@ -118,14 +116,10 @@ int FastSplatter(int argc, char *argv[])
   ImageViewer->Render();
   ImageViewer->GetRenderer()->ResetCamera();
 
-  int retVal = vtkRegressionTestImage(ImageViewer->GetRenderWindow());
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    ImageViewer->Render();
-    iren->Start();
-    retVal = vtkRegressionTester::PASSED;
-    }
+  iren->Initialize();
+  ImageViewer->Render();
+  iren->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }
 

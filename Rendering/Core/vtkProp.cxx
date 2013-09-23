@@ -19,7 +19,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationIterator.h"
 #include "vtkInformationKey.h"
-#include <assert.h>
+#include <cassert>
 
 vtkCxxSetObjectMacro(vtkProp,PropertyKeys,vtkInformation);
 
@@ -53,10 +53,8 @@ vtkProp::~vtkProp()
     {
     this->Paths->Delete();
     }
-  if (this->Consumers)
-    {
-    delete [] this->Consumers;
-    }
+
+  delete [] this->Consumers;
 
   if(this->PropertyKeys!=0)
     {

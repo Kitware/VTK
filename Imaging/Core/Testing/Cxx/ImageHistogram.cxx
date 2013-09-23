@@ -17,6 +17,7 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
+#include "vtkNew.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkRenderWindow.h"
@@ -30,19 +31,16 @@
 #include "vtkImageHistogram.h"
 
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 int ImageHistogram(int argc, char *argv[])
 {
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  vtkInteractorStyle *style = vtkInteractorStyleImage::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-  iren->SetRenderWindow(renWin);
-  iren->SetInteractorStyle(style);
-  renWin->Delete();
-  style->Delete();
+  vtkNew<vtkRenderWindowInteractor> iren;
+  vtkNew<vtkInteractorStyle> style;
+  vtkNew<vtkRenderWindow> renWin;
+  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetInteractorStyle(style.GetPointer());
 
-  vtkPNGReader *reader = vtkPNGReader::New();
+  vtkNew<vtkPNGReader> reader;
 
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/fullhead15.png");
@@ -50,7 +48,7 @@ int ImageHistogram(int argc, char *argv[])
   reader->SetFileName(fname);
   delete[] fname;
 
-  vtkImageHistogram *histogram = vtkImageHistogram::New();
+  vtkNew<vtkImageHistogram> histogram;
   histogram->SetInputConnection(reader->GetOutputPort());
   histogram->GenerateHistogramImageOn();
   histogram->SetHistogramImageSize(256,256);
@@ -65,15 +63,14 @@ int ImageHistogram(int argc, char *argv[])
 
   for (int i = 0; i < 2; i++)
     {
-    vtkRenderer *renderer = vtkRenderer::New();
+    vtkNew<vtkRenderer> renderer;
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.0,0.0,0.0);
     renderer->SetViewport(0.5*(i&1), 0.0,
                           0.5 + 0.5*(i&1), 1.0);
-    renWin->AddRenderer(renderer);
-    renderer->Delete();
+    renWin->AddRenderer(renderer.GetPointer());
 
-    vtkImageSliceMapper *imageMapper = vtkImageSliceMapper::New();
+    vtkNew<vtkImageSliceMapper> imageMapper;
     if ((i & 1) == 0)
       {
       imageMapper->SetInputConnection(reader->GetOutputPort());
@@ -97,10 +94,10 @@ int ImageHistogram(int argc, char *argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(128);
 
-    vtkImageSlice *image = vtkImageSlice::New();
-    image->SetMapper(imageMapper);
-    imageMapper->Delete();
-    renderer->AddViewProp(image);
+    vtkNew<vtkImageSlice> image;
+    image->SetMapper(imageMapper.GetPointer());
+
+    renderer->AddViewProp(image.GetPointer());
 
     if ((i & 1) == 0)
       {
@@ -113,22 +110,13 @@ int ImageHistogram(int argc, char *argv[])
       image->GetProperty()->SetColorWindow(255.0);
       image->GetProperty()->SetColorLevel(127.5);
       }
-
-    image->Delete();
     }
 
   renWin->SetSize(512,256);
 
+  iren->Initialize();
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
-    iren->Start();
-    }
-  iren->Delete();
+  iren->Start();
 
-  histogram->Delete();
-  reader->Delete();
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }

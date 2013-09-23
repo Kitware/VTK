@@ -286,8 +286,7 @@ int vtkPExodusIIReader::RequestInformation(
       char* nm =
         new char[strlen( this->FilePattern ) + strlen( this->FilePrefix ) + 20];
       sprintf( nm, this->FilePattern, this->FilePrefix, this->FileRange[0] );
-      if ( this->FileName )
-        delete [] this->FileName;
+      delete [] this->FileName;
       this->FileName = nm;
       //this->Superclass::SetFileName( nm ); // XXX Bad set
       //delete [] nm;
@@ -915,10 +914,8 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     //this->SetFilePattern( pattern ); // XXX Bad set
     //this->SetFilePrefix( file ); // XXX Bad set
     //this->SetFileRange( min, max ); // XXX Bad set
-    if ( this->FilePattern )
-      delete [] this->FilePattern;
-    if ( this->FilePrefix )
-      delete [] this->FilePrefix;
+    delete [] this->FilePattern;
+    delete [] this->FilePrefix;
     this->FilePattern = vtksys::SystemTools::DuplicateString( pattern );
     this->FilePrefix = vtksys::SystemTools::DuplicateString( file );
     this->FileRange[0] = min;
@@ -1008,10 +1005,8 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   //this->SetFilePattern( pattern ); // XXX Bad set
   //this->SetFilePrefix( prefix ); // XXX Bad set
   //delete [] prefix;
-  if ( this->FilePattern )
-    delete [] this->FilePattern;
-  if ( this->FilePrefix )
-    delete [] this->FilePrefix;
+  delete [] this->FilePattern;
+  delete [] this->FilePrefix;
   this->FilePattern = vtksys::SystemTools::DuplicateString( pattern );
   this->FilePrefix = vtksys::SystemTools::DuplicateString(prefix.c_str());
 
@@ -1604,10 +1599,8 @@ void vtkPExodusIIReader::Broadcast( vtkMultiProcessController* ctrl )
     else
       {
       std::vector<char> tmp;
-      if ( this->FilePattern )
-        delete [] this->FilePattern;
-      if ( this->FilePrefix )
-        delete [] this->FilePrefix;
+      delete [] this->FilePattern;
+      delete [] this->FilePrefix;
       //this->SetFilePattern( BroadcastRecvString( ctrl, tmp ) ? &tmp[0] : 0 ); // XXX Bad set
       //this->SetFilePrefix(  BroadcastRecvString( ctrl, tmp ) ? &tmp[0] : 0 ); // XXX Bad set
       this->FilePattern = BroadcastRecvString( ctrl, tmp ) ? vtksys::SystemTools::DuplicateString( &tmp[0] ) : 0;

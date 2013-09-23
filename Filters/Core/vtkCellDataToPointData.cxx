@@ -20,11 +20,12 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkSmartPointer.h"
-#include "vtkUnsignedIntArray.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
 #include <functional>
@@ -164,9 +165,10 @@ namespace
 
     // accumulate
     T const* srcbeg = srcptr;
+    vtkNew<vtkIdList> pids;
     for (vtkIdType cid = 0; cid < ncells; ++cid, srcbeg += ncomps)
       {
-      vtkIdList* const pids = src->GetCell(cid)->GetPointIds();
+      src->GetCellPoints(cid, pids.GetPointer());
       for (vtkIdType i = 0, I = pids->GetNumberOfIds(); i < I; ++i)
         {
         T* const dstbeg = dstptr + pids->GetId(i)*ncomps;
@@ -216,9 +218,10 @@ int vtkCellDataToPointData::RequestDataForUnstructuredGrid
   num->SetNumberOfComponents(1);
   num->SetNumberOfTuples(npoints);
   std::fill_n(num->GetPointer(0), npoints, 0u);
+  vtkNew<vtkIdList> pids;
   for (vtkIdType cid = 0; cid < ncells; ++cid)
     {
-    vtkIdList* const pids = src->GetCell(cid)->GetPointIds();
+    src->GetCellPoints(cid, pids.GetPointer());
     for (vtkIdType i = 0, I = pids->GetNumberOfIds(); i < I; ++i)
       {
       vtkIdType const pid = pids->GetId(i);

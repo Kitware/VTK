@@ -29,7 +29,7 @@
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-#include <assert.h>
+#include <cassert>
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
 

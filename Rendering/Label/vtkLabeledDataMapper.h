@@ -46,6 +46,8 @@
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"
 
+#include <cassert> // For assert macro
+
 class vtkDataObject;
 class vtkDataSet;
 class vtkTextMapper;
@@ -179,6 +181,24 @@ public:
   // Description:
   // Return the modified time for this object.
   virtual unsigned long GetMTime();
+
+  // Description:
+  // Return the number of labels rendered by the mapper.
+  vtkGetMacro(NumberOfLabels, int)
+
+  // Description:
+  // Return the position of the requested label.
+  void GetLabelPosition(int label, double pos[3])
+  {
+    assert("label index range" && label >= 0 && label < this->NumberOfLabels);
+    pos[0] = this->LabelPositions[3 * label];
+    pos[1] = this->LabelPositions[3 * label + 1];
+    pos[2] = this->LabelPositions[3 * label + 2];
+  }
+
+  // Description:
+  // Return the text for the requested label.
+  const char *GetLabelText(int label);
 
 protected:
   vtkLabeledDataMapper();

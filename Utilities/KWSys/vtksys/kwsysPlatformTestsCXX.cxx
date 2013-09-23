@@ -399,7 +399,7 @@ int main()
 #define _FILE_OFFSET_BITS 64
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <assert.h>
+#include <cassert>
 #if KWSYS_CXX_HAS_CSTDIO
 # include <cstdio>
 #endif
@@ -491,6 +491,25 @@ int main()
 {
   const char *str="1024";
   return static_cast<int>(_atoi64(str));
+}
+#endif
+
+#ifdef TEST_KWSYS_CXX_HAS_UTIMES
+#include <sys/time.h>
+int main()
+{
+  struct timeval* current_time = 0;
+  return utimes("/example", current_time);
+}
+#endif
+
+#ifdef TEST_KWSYS_CXX_HAS_UTIMENSAT
+#include <fcntl.h>
+#include <sys/stat.h>
+int main()
+{
+  struct timespec times[2] = {{0,UTIME_OMIT},{0,UTIME_NOW}};
+  return utimensat(AT_FDCWD, "/example", times, AT_SYMLINK_NOFOLLOW);
 }
 #endif
 

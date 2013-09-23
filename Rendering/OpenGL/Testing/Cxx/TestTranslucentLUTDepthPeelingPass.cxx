@@ -26,6 +26,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLExtensionManager.h"
 #include "vtkActor.h"
 
 #include "vtkImageSinusoidSource.h"
@@ -50,29 +52,15 @@
 
 // Make sure to have a valid OpenGL context current on the calling thread
 // before calling it.
-bool MesaHasVTKBug8135()
+bool MesaHasVTKBug8135(vtkRenderWindow *renwin)
 {
-  // GL_VENDOR cannot be used because it can be "Brian Paul" or "Mesa project"
-  // GL_RENDERER cannot be used because it can be "Software Rasterizer" or
-  // "Mesa X11"
-  // GL_VERSION is more robust. It has things like "2.0 Mesa 7.0.4" or
-  // "2.1 Mesa 7.2" or "2.1 Mesa 7.3-devel"
+  vtkOpenGLRenderWindow *context
+    = vtkOpenGLRenderWindow::SafeDownCast(renwin);
 
-  bool result=false;
-  const char *gl_version=
-    reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  const char *mesa_version=strstr(gl_version,"Mesa");
+  vtkOpenGLExtensionManager *extmgr
+    = context->GetExtensionManager();
 
-  if(mesa_version!=0)
-    {
-    int mesa_major=0;
-    int mesa_minor=0;
-    if(sscanf(mesa_version,"Mesa %d.%d",&mesa_major, &mesa_minor)>=2)
-      {
-      result=mesa_major<7 || (mesa_major==7 && mesa_minor<3);
-      }
-    }
-  return result;
+  return (extmgr->DriverIsMesa() && !extmgr->DriverVersionAtLeast(7,3));
 }
 
 int TestTranslucentLUTDepthPeelingPass(int argc, char* argv[])
@@ -170,7 +158,7 @@ int TestTranslucentLUTDepthPeelingPass(int argc, char* argv[])
   renWin->Render();
 
   int retVal;
-  if(MesaHasVTKBug8135())
+  if(MesaHasVTKBug8135(renWin))
     {
     // Mesa will crash if version<7.3
     cout<<"This version of Mesa would crash. Skip the test."<<endl;

@@ -106,6 +106,8 @@ public:
 
 vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
 {
+  this->Internal = new vtkMultiBlockPLOT3DReaderInternals;
+
   this->XYZFileName = NULL;
   this->QFileName = NULL;
   this->FunctionFileName = NULL;
@@ -131,8 +133,6 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
   this->SetVectorFunctionNumber(202);
 
   this->SetNumberOfInputPorts(0);
-
-  this->Internal = new vtkMultiBlockPLOT3DReaderInternals;
 }
 
 vtkMultiBlockPLOT3DReader::~vtkMultiBlockPLOT3DReader()
@@ -2814,3 +2814,11 @@ void vtkMultiBlockPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Auto Detect Format: " << this->AutoDetectFormat << endl;
 }
 
+void vtkMultiBlockPLOT3DReader::Modified()
+{
+  this->Superclass::Modified();
+  if (this->Internal)
+    {
+    this->Internal->NeedToCheckXYZFile = true;
+    }
+}

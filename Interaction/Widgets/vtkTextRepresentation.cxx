@@ -62,7 +62,7 @@ vtkTextRepresentation::vtkTextRepresentation()
   this->TextActor = vtkTextActor::New();
   this->InitializeTextActor();
 
-  this->ShowBorder = vtkBorderRepresentation::BORDER_ACTIVE;
+  this->SetShowBorder(vtkBorderRepresentation::BORDER_ACTIVE);
   this->BWActor->VisibilityOff();
   this->WindowLocation = AnyLocation;
 }

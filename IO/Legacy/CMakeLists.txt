@@ -11,6 +11,7 @@ SET(Module_SRCS
   vtkGenericDataObjectWriter.cxx
   vtkGraphReader.cxx
   vtkGraphWriter.cxx
+  vtkPixelExtentIO.cxx
   vtkPolyDataReader.cxx
   vtkPolyDataWriter.cxx
   vtkRectilinearGridReader.cxx
@@ -27,6 +28,11 @@ SET(Module_SRCS
   vtkTreeWriter.cxx
   vtkUnstructuredGridReader.cxx
   vtkUnstructuredGridWriter.cxx
+  )
+
+set_source_files_properties(
+  vtkPixelExtentIO.cxx
+  WRAP_EXCLUDE
   )
 
 vtk_module_library(vtkIOLegacy ${Module_SRCS})

@@ -1,0 +1,93 @@
+# ----------------------------------------------------------------------------
+#                         Packaging VTK for Maven
+# ----------------------------------------------------------------------------
+
+This directory contains the resources necessary to deploy the VTK Java
+bindings as Maven artifacts.
+
+To build a standard VTK package for Maven packaging use the following
+CMake properties:
+
+     CMAKE_BUILD_TYPE:STRING=Release
+
+     CMAKE_INSTALL_PREFIX:PATH=[destination]/mvn-staging-install
+
+     VTK_WRAP_JAVA:BOOL=ON
+
+To enable rendering through JOGL (i.e. vtkAbstractJoglComponent) enable
+the following property:
+
+     VTK_JAVA_JOGL_COMPONENT:BOOL=ON
+
+Note that this will introduce a dependency on JOGL in the generated pom.xml
+file.
+
+In order to generate a custom pom.xml the user can configure those properties
+within CMake otherwise decent automatically value will be set.
+
+     MAVEN_VTK_GROUP_ID:STRING=kitware.community
+
+     MAVEN_LOCAL_NATIVE_NAME:STRING=Win32
+
+     MAVEN_NATIVE_ARTIFACTS:STRING=Win32;Win64;Linux32;Linux64;OSX
+
+     MAVEN_LOCAL_REPOSITORY:STRING=${user.home}/vtk-maven-repos
+
+# ----------------------------------------------------------------------------
+# Local Install
+# ----------------------------------------------------------------------------
+
+In order to install VTK inside your local repository execute the following
+command:
+
+  $ mvn install
+
+The default local Maven repostiory is in `~/.m2/repository`.
+
+# ----------------------------------------------------------------------------
+# Local Deploy - SNAPSHOT
+# ----------------------------------------------------------------------------
+
+Some extra work may be needed in the sense that VTK is a native library that
+needs to be build on each targeted platform. The idea would be to merge all
+install tree from all the targeted platform and only then trigger the given
+command line.
+
+If VTK has only been build on a single computer, then the generated snapshot
+will only include the native artifacts for that platform. Running the command:
+
+
+  $ mvn deploy
+
+The deployment url is defined by the property `vtk.snapshots.repo`. By default
+this is set to `file://${user.home}/vtk-maven-repos/snapshots`. To deploy
+to an internal artifact server (e.g. Nexus, Artifactory, etc.), you can set
+this property on the command line to the deployment URL, e.g.:
+
+  $ mvn deploy -Dvtk.snapshots.repo=http://maven.yoyodyne.com/repos/snapshots
+
+
+# ----------------------------------------------------------------------------
+# Local Deploy - RELEASE
+# ----------------------------------------------------------------------------
+
+The Maven release process involves several steps and a certain
+attention to detail to get correct. You must ensure all of the
+platform native artifacts to be included in the release are available
+as expencted in the pom.xml file. Remember that only one instance of a
+specific release version of an artifact can ever exist. Therefore all the
+necessary components must be properly assembled before going through
+the release process.
+
+The typical release process involves running:
+
+  $ mvn release:prepare [-DdryRun=true]
+  ... # respond to version info queries.
+  $ mvn release:perform
+
+
+It is recommended that the following resources be referenced before
+performing the release process for the first time.
+
+* http://maven.apache.org/maven-release/maven-release-plugin/
+* https://confluence.sakaiproject.org/display/REL/Maven+release+plugin+cheat+sheet

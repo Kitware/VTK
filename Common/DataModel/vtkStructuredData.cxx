@@ -17,7 +17,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredExtent.h"
-#include <assert.h>
+#include <cassert>
 
 
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).

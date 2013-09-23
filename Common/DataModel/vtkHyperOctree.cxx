@@ -40,7 +40,7 @@
 //#include <set>
 #include <vector>
 
-#include <assert.h>
+#include <cassert>
 
 vtkInformationKeyMacro(vtkHyperOctree, LEVELS, Integer);
 vtkInformationKeyMacro(vtkHyperOctree, DIMENSION, Integer);
@@ -3117,33 +3117,13 @@ vtkHyperOctreeLightWeightCursor::vtkHyperOctreeLightWeightCursor()
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperOctreeLightWeightCursor::~vtkHyperOctreeLightWeightCursor()
-{
-  this->Level = 0;
-  this->IsLeaf = 1;
-  this->Index = 0;
-  // I can't reference count because of the default copy constructor.
-  //if (this->Tree)
-  //  {
-  //  this->Tree->UnRegister(0);
-  //  }
-  this->Tree = 0;
-}
-
-
-//-----------------------------------------------------------------------------
 void vtkHyperOctreeLightWeightCursor::Initialize(vtkHyperOctree* tree)
 {
-  //if (this->Tree)
-  //  {
-  //  this->Tree->UnRegister(0);
-  //  }
   this->Tree = tree;
   if (tree == 0)
     {
     return;
     }
-  //this->Tree->Register(0);
 
   this->ToRoot();
 }

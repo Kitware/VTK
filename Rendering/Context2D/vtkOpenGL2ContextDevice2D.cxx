@@ -40,6 +40,7 @@
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkShaderProgram2.h"
 #include "vtkgl.h"
+#include "vtkOpenGLError.h"
 
 #include "vtkObjectFactory.h"
 
@@ -55,25 +56,25 @@ bool vtkOpenGL2ContextDevice2D::IsSupported(vtkViewport *viewport)
   vtkOpenGLRenderer *gl = vtkOpenGLRenderer::SafeDownCast(viewport);
   if (gl)
     {
-    vtkOpenGLRenderWindow *win =
-        vtkOpenGLRenderWindow::SafeDownCast(gl->GetRenderWindow());
-    vtkOpenGLExtensionManager *man = win->GetExtensionManager();
-    if (man->ExtensionSupported("GL_VERSION_2_0"))
+    vtkOpenGLRenderWindow *context =
+      vtkOpenGLRenderWindow::SafeDownCast(gl->GetRenderWindow());
+
+    vtkOpenGLExtensionManager *extensions
+      = context->GetExtensionManager();
+
+    bool ogl_support
+      = extensions->ExtensionSupported("GL_VERSION_2_0")==1;
+
+    // NPOT textures work in OS Mesa > 8.0.0
+    // Mesa's other renderer's need to be validated individually
+    bool driver_support
+       = (!extensions->DriverIsMesa()
+      || (extensions->DriverGLRendererIsOSMesa()
+      && extensions->DriverVersionAtLeast(8)));
+
+    if ( ogl_support && driver_support )
       {
       supported = true;
-      }
-    }
-
-  if (supported)
-    {
-    // Workaround for a bug in mesa - support for non-power of two textures is
-    // poor at best. Disable, and use power of two textures for mesa rendering.
-    const char *gl_version =
-      reinterpret_cast<const char *>(glGetString(GL_VERSION));
-    const char *mesa_version = strstr(gl_version, "Mesa");
-    if (mesa_version != 0)
-      {
-      supported = false;
       }
     }
 
@@ -96,6 +97,7 @@ void vtkOpenGL2ContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                                                  unsigned char *colors,
                                                  int nc_comps)
 {
+  vtkOpenGLClearErrorMacro();
   if (points && n > 0)
     {
     this->SetPointSize(this->Pen->GetWidth());
@@ -132,12 +134,14 @@ void vtkOpenGL2ContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     {
     vtkWarningMacro(<< "Points supplied without a valid image or pointer.");
     }
+  vtkOpenGLCheckErrorMacro("failed after DrawPointSprites");
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGL2ContextDevice2D::DrawImage(float p[2], float scale,
                                          vtkImageData *image)
 {
+  vtkOpenGLClearErrorMacro();
   this->SetTexture(image);
   this->Storage->Texture->Render(this->Renderer);
   int *extent = image->GetExtent();
@@ -162,12 +166,14 @@ void vtkOpenGL2ContextDevice2D::DrawImage(float p[2], float scale,
 
   this->Storage->Texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
+  vtkOpenGLCheckErrorMacro("failed after DrawImage");
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGL2ContextDevice2D::DrawImage(const vtkRectf& pos,
                                          vtkImageData *image)
 {
+  vtkOpenGLClearErrorMacro();
   GLuint index = this->Storage->TextureFromImage(image);
 //  this->SetTexture(image);
 //  this->Storage->Texture->Render(this->Renderer);
@@ -193,6 +199,7 @@ void vtkOpenGL2ContextDevice2D::DrawImage(const vtkRectf& pos,
 //  this->Storage->Texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
   glDeleteTextures(1, &index);
+  vtkOpenGLCheckErrorMacro("failed after DrawImage");
 }
 
 //----------------------------------------------------------------------------

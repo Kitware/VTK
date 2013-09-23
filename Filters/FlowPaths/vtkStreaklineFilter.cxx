@@ -26,7 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFloatArray.h"
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 
 #define DEBUGSTREAKLINEFILTER 1

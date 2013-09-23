@@ -38,7 +38,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 #include "vtkClipDataSet.h"
 #include "vtkCellArray.h"
@@ -87,6 +87,7 @@
 #include "vtkUniformVariables.h"
 #include "vtkShader2Collection.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLError.h"
 
 // Uncomment the following line to debug Snow Leopard
 //#define APPLE_SNOW_LEOPARD_BUG
@@ -263,6 +264,7 @@ public:
       if(this->TextureId!=0)
         {
         glDeleteTextures(1,&this->TextureId);
+        vtkOpenGLStaticCheckErrorMacro("failed at glDeleteTextures");
         this->TextureId=0;
         }
       if(this->Table!=0)
@@ -281,6 +283,7 @@ public:
     {
       assert("pre: uptodate" && this->Loaded);
       glBindTexture(GL_TEXTURE_1D,this->TextureId);
+      vtkOpenGLStaticCheckErrorMacro("failed at glBindtexture");
     }
 
   // \pre the active texture is set to TEXTURE2
@@ -292,6 +295,8 @@ public:
               bool linearInterpolation)
     {
       assert("pre: scalarOpacity_exists" && scalarOpacity!=0);
+      vtkOpenGLClearErrorMacro();
+
       bool needUpdate=false;
       if(this->TextureId==0)
         {
@@ -370,7 +375,7 @@ public:
         glTexImage1D(GL_TEXTURE_1D,0,GL_ALPHA16,
                      vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize,0,
                      GL_ALPHA,GL_FLOAT,this->Table);
-        vtkOpenGLGPUVolumeRayCastMapper::PrintError("1d opacity texture is too large");
+        vtkOpenGLStaticCheckErrorMacro("1d opacity texture is too large");
         this->Loaded=true;
         this->BuildTime.Modified();
         }
@@ -392,6 +397,7 @@ public:
         glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MIN_FILTER,value);
         glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MAG_FILTER,value);
         }
+    vtkOpenGLStaticCheckErrorMacro("failed after Update");
     }
 protected:
   GLuint TextureId;
@@ -402,6 +408,9 @@ protected:
   bool Loaded;
   bool LastLinearInterpolation;
   double LastRange[2];
+private:
+  vtkOpacityTable(const vtkOpacityTable&);
+  vtkOpacityTable& operator=(const vtkOpacityTable&);
 };
 
 //-----------------------------------------------------------------------------
@@ -410,12 +419,28 @@ protected:
 class vtkOpacityTables
 {
 public:
-  std::vector<vtkOpacityTable> Vector;
-  vtkOpacityTables(size_t numberOfLevels)
-    : Vector(numberOfLevels)
+  vtkOpacityTables(unsigned int numberOfTables)
     {
+    this->Tables = new vtkOpacityTable[numberOfTables];
+    this->NumberOfTables = numberOfTables;
+    }
+  ~vtkOpacityTables()
+    {
+    delete [] this->Tables;
+    }
+  vtkOpacityTable* GetTable(unsigned int i)
+    {
+    return &this->Tables[i];
+    }
+  unsigned int GetNumberOfTables()
+    {
+    return this->NumberOfTables;
     }
 private:
+  unsigned int NumberOfTables;
+  vtkOpacityTable *Tables;
+  // undefined default constructor.
+  vtkOpacityTables();
   // undefined copy constructor.
   vtkOpacityTables(const vtkOpacityTables &other);
   // undefined assignment operator.
@@ -440,6 +465,7 @@ public:
       if(this->TextureId!=0)
         {
         glDeleteTextures(1,&this->TextureId);
+        vtkOpenGLStaticCheckErrorMacro("failed at glDeleteTextures");
         this->TextureId=0;
         }
       if(this->Table!=0)
@@ -458,6 +484,7 @@ public:
     {
       assert("pre: uptodate" && this->Loaded);
       glBindTexture(GL_TEXTURE_1D,this->TextureId);
+      vtkOpenGLStaticCheckErrorMacro("failed at glBindTexture");
     }
 
   // \pre the active texture is set properly. (default color,
@@ -467,6 +494,8 @@ public:
               bool linearInterpolation)
     {
       assert("pre: scalarRGB_exists" && scalarRGB!=0);
+      vtkOpenGLClearErrorMacro();
+
       bool needUpdate=false;
       if(this->TextureId==0)
         {
@@ -500,7 +529,7 @@ public:
         glTexImage1D(GL_TEXTURE_1D,0,GL_RGB16,
                      vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize,0,
                      GL_RGB,GL_FLOAT,this->Table);
-        vtkOpenGLGPUVolumeRayCastMapper::PrintError("1d RGB texture is too large");
+        vtkOpenGLStaticCheckErrorMacro("1d RGB texture is too large");
         this->Loaded=true;
         this->BuildTime.Modified();
         this->LastRange[0] = range[0];
@@ -524,6 +553,7 @@ public:
         glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MIN_FILTER,value);
         glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MAG_FILTER,value);
         }
+    vtkOpenGLStaticCheckErrorMacro("failed after Update");
     }
 protected:
   GLuint TextureId;
@@ -559,6 +589,7 @@ public:
       if(this->TextureId!=0)
         {
         glDeleteTextures(1,&this->TextureId);
+        vtkOpenGLStaticCheckErrorMacro("failed at glDeleteTextures");
         this->TextureId=0;
         }
     }
@@ -572,6 +603,7 @@ public:
     {
       assert("pre: uptodate" && this->Loaded);
       glBindTexture(vtkgl::TEXTURE_3D,this->TextureId);
+      vtkOpenGLStaticCheckErrorMacro("failed at glBindTexture");
     }
 
   void Update(vtkImageData *input,
@@ -585,6 +617,8 @@ public:
               double tableRange[2],
               vtkIdType maxMemoryInBytes)
     {
+      vtkOpenGLClearErrorMacro();
+
       bool needUpdate=false;
       bool modified=false;
       if(this->TextureId==0)
@@ -917,25 +951,25 @@ public:
                     {
                     GLuint pbo=0;
                     vtkgl::GenBuffers(1,&pbo);
-                    vtkOpenGLGPUVolumeRayCastMapper::PrintError("genbuffer");
+                    vtkOpenGLStaticCheckErrorMacro("genbuffer");
                     vtkgl::BindBuffer(vtkgl::PIXEL_UNPACK_BUFFER,pbo);
-                    vtkOpenGLGPUVolumeRayCastMapper::PrintError("binbuffer");
+                    vtkOpenGLStaticCheckErrorMacro("binbuffer");
                     vtkgl::GLsizeiptr texSize=
                       textureSize[0]*textureSize[1]*textureSize[2]*
                       vtkAbstractArray::GetDataTypeSize(scalarType)*
                       scalars->GetNumberOfComponents();
                     vtkgl::BufferData(vtkgl::PIXEL_UNPACK_BUFFER,texSize,dataPtr,
                                       vtkgl::STREAM_DRAW);
-                    vtkOpenGLGPUVolumeRayCastMapper::PrintError("bufferdata");
+                    vtkOpenGLStaticCheckErrorMacro("bufferdata");
                     vtkgl::TexImage3D(vtkgl::TEXTURE_3D, 0, internalFormat,
                                       textureSize[0],textureSize[1],textureSize[2],
                                       0,format,type,0);
-                    vtkOpenGLGPUVolumeRayCastMapper::PrintError("teximage3d");
+                    vtkOpenGLStaticCheckErrorMacro("teximage3d");
                     vtkgl::BindBuffer(vtkgl::PIXEL_UNPACK_BUFFER,0);
-                    vtkOpenGLGPUVolumeRayCastMapper::PrintError("bindbuffer to 0");
+                    vtkOpenGLStaticCheckErrorMacro("bindbuffer to 0");
                     vtkgl::DeleteBuffers(1,&pbo);
                     }
-                  vtkOpenGLGPUVolumeRayCastMapper::PrintError("3d texture is too large2");
+                  vtkOpenGLStaticCheckErrorMacro("3d texture is too large2");
                   // make sure TexImage3D is executed with our PixelTransfer mode
                   glFinish();
                   // Restore the default values.
@@ -1072,6 +1106,7 @@ public:
         {
         this->BuildTime.Modified();
         }
+    vtkOpenGLStaticCheckErrorMacro("failed after Update");
     }
 
   double *GetLoadedBounds()
@@ -1140,6 +1175,7 @@ public:
       if(this->TextureId!=0)
         {
         glDeleteTextures(1,&this->TextureId);
+        vtkOpenGLStaticCheckErrorMacro("failed at glDeleteTextures");
         this->TextureId=0;
         }
     }
@@ -1154,6 +1190,7 @@ public:
     {
       assert("pre: uptodate" && this->Loaded);
       glBindTexture(vtkgl::TEXTURE_3D,this->TextureId);
+      vtkOpenGLStaticCheckErrorMacro("failed at glBindTexture");
     }
 
   // \pre vtkgl::ActiveTexture(vtkgl::TEXTURE7) has to be called first.
@@ -1166,6 +1203,8 @@ public:
               const char *arrayName,
               vtkIdType maxMemoryInBytes)
     {
+      vtkOpenGLClearErrorMacro();
+
       bool needUpdate=false;
       bool modified=false;
       if(this->TextureId==0)
@@ -1425,6 +1464,7 @@ public:
         {
         this->BuildTime.Modified();
         }
+      vtkOpenGLStaticCheckErrorMacro("failed after Update");
     }
 
   double *GetLoadedBounds()
@@ -2162,6 +2202,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // Cg compiler about an infinite loop.
 #ifndef APPLE_SNOW_LEOPARD_BUG
  #ifdef __APPLE__
+  this->UnsupportedRequiredExtensions->Stream<<
+    " Disabled on Apple OS X Snow Leopard with nVidia.";
   this->LoadExtensionsSucceeded=0;
   return;
  #endif
@@ -2170,25 +2212,30 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // Assume success
   this->LoadExtensionsSucceeded=1;
 
-  const char *gl_version=reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  if(strstr(gl_version,"Mesa")!=0)
+  // get the extension manager
+  vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(window);
+  if (!context)
     {
-    // - GL_VENDOR cannot be used because it can be "Brian Paul" or
-    // "Mesa project"
-    // - GL_RENDERER cannot be used because it can be "Software Rasterizer" or
-    // "Mesa X11"
-    // - GL_VERSION is more robust. It has things like "2.0 Mesa 7.0.4" or
-    // "2.1 Mesa 7.2" or "2.1 Mesa 7.3-devel"
-    // Mesa does not work with multiple draw buffers:
-    // "framebuffer has bad draw buffer"
-    // "render clipped 1 ERROR (x506) invalid framebuffer operation ext"
+    this->UnsupportedRequiredExtensions->Stream<<
+      " Disabled because context is not a vtkOpenGLRederWindow.";
     this->LoadExtensionsSucceeded=0;
     return;
     }
+  vtkOpenGLExtensionManager *extensions = context->GetExtensionManager();
 
-  // Create an extension manager
-  vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
-  extensions->SetRenderWindow(window);
+  // mesa notes:
+  // 8.0.0 -- missing some required extensions
+  // 8.0.5 -- tests pass but there are invalid enum opengl errors reported (mesa bug)
+  // 9.1.3 & 9.1.4 w/ OS Mesa -- GPURayCastCompositeShadeMask fails (mesa bug?) test disabled
+  // 9.2.0 w/llvmpipe -- tests pass cleanly
+  if ( (extensions->DriverIsMesa()
+    && !(extensions->DriverGLRendererIsOSMesa() && extensions->DriverVersionAtLeast(9)))
+    && !extensions->GetIgnoreDriverBugs("Mesa FBO bugs"))
+    {
+    this->UnsupportedRequiredExtensions->Stream<<
+      " Disabled because of Mesa FBO bugs.";
+    this->LoadExtensionsSucceeded=0;
+    }
 
   // GL_ARB_draw_buffers requires OpenGL 1.3, so we must have OpenGL 1.3
   // We don't need to check for some extensions that become part of OpenGL
@@ -2207,7 +2254,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
     this->LoadExtensionsSucceeded=0;
     this->UnsupportedRequiredExtensions->Stream<<
       " OpenGL 1.3 is required but not supported";
-    extensions->Delete();
     return;
     }
 
@@ -2329,7 +2375,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // Have we succeeded so far? If not, just return.
   if(!this->LoadExtensionsSucceeded)
     {
-    extensions->Delete();
     return;
     }
 
@@ -2443,8 +2488,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->LastComponent=
     vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized;
   this->LastShade=vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized;
-
-  extensions->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -2457,6 +2500,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   if(this->OpenGLObjectsCreated)
     {
     window->MakeCurrent();
+    vtkOpenGLClearErrorMacro();
     this->LastSize[0]=0;
     this->LastSize[1]=0;
     GLuint frameBufferObject=static_cast<GLuint>(this->FrameBufferObject);
@@ -2497,14 +2541,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
       vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized;
     this->LastShade=vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized;
     this->OpenGLObjectsCreated=0;
+    vtkOpenGLCheckErrorMacro("failed during ReleaseGraphicsResources");
     }
 
   if(this->NoiseTextureId!=0)
     {
     window->MakeCurrent();
+    vtkOpenGLClearErrorMacro();
     GLuint noiseTextureObjects=static_cast<GLuint>(this->NoiseTextureId);
     glDeleteTextures(1,&noiseTextureObjects);
     this->NoiseTextureId=0;
+    vtkOpenGLCheckErrorMacro("failed during ReleaseGraphicsResources");
     }
 
   if(this->ScalarsTextures!=0)
@@ -2609,6 +2656,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
 //-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
 {
+  vtkOpenGLClearErrorMacro();
+
   GLint value;
   glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&value);
   GLuint savedFrameBuffer=static_cast<GLuint>(value);
@@ -2758,6 +2807,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
   // Restore default frame buffer.
   vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,savedFrameBuffer);
 
+  vtkOpenGLCheckErrorMacro("failed after CreateOpenGLObjects");
 }
 
 
@@ -2773,6 +2823,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
 {
   assert("pre: ren_exists" && ren!=0);
   assert("pre: opengl_objects_created" && this->OpenGLObjectsCreated);
+
+  vtkOpenGLClearErrorMacro();
 
   int result=1;
   int size[2];
@@ -2888,7 +2940,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
       }
     }
 
-  this->PrintError("AllocateFrameBuffers");
+  vtkOpenGLCheckErrorMacro("failed after AllocateFrameBuffers");
   return result;
 }
 
@@ -3103,6 +3155,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
                                        textureExtent[2]<=textureExtent[3] &&
                                        textureExtent[4]<=textureExtent[5])));
 
+  vtkOpenGLClearErrorMacro();
+
   int result=1; // succeeded
 
   // make sure we rebind our texture object to texture0 even if we don't have
@@ -3173,6 +3227,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
     vtkgl::ActiveTexture(vtkgl::TEXTURE0);
     }
 
+  vtkOpenGLCheckErrorMacro("failed after LoadScalarField");
+
   return result;
 }
 
@@ -3189,6 +3245,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::UpdateColorTransferFunction(
   assert("pre: vol_exists" && vol!=0);
   assert("pre: valid_numberOfScalarComponents" &&
          (numberOfScalarComponents==1 || numberOfScalarComponents==4));
+
+  vtkOpenGLClearErrorMacro();
 
   // Build the colormap in a 1D texture.
 
@@ -3224,6 +3282,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::UpdateColorTransferFunction(
      // Restore default
     vtkgl::ActiveTexture( vtkgl::TEXTURE0);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after UpdateColorTransferFunction");
   return 1;
 }
 
@@ -3242,13 +3302,15 @@ int vtkOpenGLGPUVolumeRayCastMapper::UpdateOpacityTransferFunction(
   assert("pre: valid_numberOfScalarComponents" &&
          (numberOfScalarComponents==1 || numberOfScalarComponents==4));
 
+  vtkOpenGLClearErrorMacro();
+
   (void)numberOfScalarComponents; // remove warning in release mode.
 
   vtkVolumeProperty *volumeProperty=vol->GetProperty();
   vtkPiecewiseFunction *scalarOpacity=volumeProperty->GetScalarOpacity();
 
   vtkgl::ActiveTexture( vtkgl::TEXTURE2); //stay here
-  this->OpacityTables->Vector[level].Update(
+  this->OpacityTables->GetTable(level)->Update(
     scalarOpacity,this->BlendMode,
     this->ActualSampleDistance,
     this->TableRange,
@@ -3256,6 +3318,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::UpdateOpacityTransferFunction(
     volumeProperty->GetInterpolationType()==VTK_LINEAR_INTERPOLATION);
   // Restore default active texture
   vtkgl::ActiveTexture( vtkgl::TEXTURE0);
+
+  vtkOpenGLCheckErrorMacro("failed after UpdateOpacityTransferFunction");
 
   return 1;
 }
@@ -3270,6 +3334,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetupRender(vtkRenderer *ren,
 {
   assert("pre: ren_exists" && ren!=0);
   assert("pre: vol_exists" && vol!=0);
+
+  vtkOpenGLClearErrorMacro();
 
   int  lowerLeft[2];
   int usize, vsize;
@@ -3327,7 +3393,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetupRender(vtkRenderer *ren,
   glEnable (GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_BLEND); // very important, otherwise the first image looks dark.
-  this->PrintError("SetupRender");
+
+  vtkOpenGLCheckErrorMacro("failed after SetupRender");
 }
 
 //-----------------------------------------------------------------------------
@@ -3558,6 +3625,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
 {
   assert("pre: valid_currentBlock" && currentBlock<numberOfBlocks);
 
+  vtkOpenGLClearErrorMacro();
+
   vtkPoints *points = this->ClippedBoundingBox->GetPoints();
   vtkCellArray *polys = this->ClippedBoundingBox->GetPolys();
 
@@ -3719,12 +3788,15 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
       }
     ++polyId;
     }
+
+  vtkOpenGLCheckErrorMacro("failed after RenderClippedBoundingBox");
   return abort;
 }
 
 // ----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::CopyFBOToTexture()
 {
+  vtkOpenGLClearErrorMacro();
   // in OpenGL copy texture to texture does not exist but
   // framebuffer to texture exists (and our FB is an FBO).
   // we have to copy and not just to switch color textures because the
@@ -3751,6 +3823,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::CopyFBOToTexture()
                       this->ReducedSize[1]);
     }
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+  // reset the readbuffer to keep os mesa happy
+  // during CheckFrameBufferStatus
+  glReadBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
+  vtkOpenGLCheckErrorMacro("failed after CopyFBOToTexture");
 }
 
 //-----------------------------------------------------------------------------
@@ -3760,6 +3836,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::CleanupRender()
 {
   glPopMatrix();
   glDisable(GL_CULL_FACE);
+  vtkOpenGLCheckErrorMacro("failed after CleanupRender");
 }
 
 //-----------------------------------------------------------------------------
@@ -3790,6 +3867,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildScaleBiasProgram(vtkRenderWindow *w)
 void vtkOpenGLGPUVolumeRayCastMapper::RenderTextureToScreen(vtkRenderer *ren)
 {
   assert("pre: ren_exists" && ren!=0);
+
+  vtkOpenGLClearErrorMacro();
 
   if ( this->GeneratingCanonicalView )
     {
@@ -3898,6 +3977,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderTextureToScreen(vtkRenderer *ren)
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
+
+  vtkOpenGLCheckErrorMacro("failed after RenderTextureToScreen");
 }
 
 //-----------------------------------------------------------------------------
@@ -4007,6 +4088,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
 {
   // make sure our window is the current OpenGL context.
   ren->GetRenderWindow()->MakeCurrent();
+  vtkOpenGLClearErrorMacro();
 
   // If we haven't already succeeded in loading the extensions,
   // try to load them
@@ -4397,8 +4479,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   fvalue[0]=static_cast<float>(1.0/size[0]);
   fvalue[1]=static_cast<float>(1.0/size[1]);
   v->SetUniformf("invWindowSize",2,fvalue);
-
-  this->PrintError("after uniforms for textures");
+  vtkOpenGLCheckErrorMacro("after uniforms for textures");
 
 
   this->CheckFrameBufferStatus();
@@ -4560,7 +4641,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   this->CheckFrameBufferStatus();
 
   if(this->OpacityTables!=0 &&
-     this->OpacityTables->Vector.size()!=numberOfLevels)
+     this->OpacityTables->GetNumberOfTables()!=numberOfLevels)
     {
     delete this->OpacityTables;
     this->OpacityTables=0;
@@ -4590,7 +4671,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     this->LastProgressEventTime=vtkTimerLog::GetUniversalTime();
     }
 
-  this->PrintError("PreRender end");
+  vtkOpenGLCheckErrorMacro("failed after PreRender");
 }
 
 //-----------------------------------------------------------------------------
@@ -4836,16 +4917,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
 
   // opacitytable
   vtkgl::ActiveTexture(vtkgl::TEXTURE2);
-  this->OpacityTables->Vector[level].Bind();
+  this->OpacityTables->GetTable(level)->Bind();
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
 
-  this->PrintError("after uniforms for projection and shade");
+  vtkOpenGLCheckErrorMacro("after uniforms for projection and shade");
 
   // debug code
   // DO NOT REMOVE the following commented line
 //  this->ValidateProgram();
 
-  this->PrintError("before render");
   if(!this->Cropping)
     {
     this->RenderWholeVolume(ren,vol);
@@ -4855,7 +4935,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
     this->ClipCroppingRegionPlanes();
     this->RenderRegions(ren,vol);
     }
-  this->PrintError("after render");
+  vtkOpenGLCheckErrorMacro("after render");
 }
 
 //-----------------------------------------------------------------------------
@@ -4865,7 +4945,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PostRender(
   vtkRenderer *ren,
   int numberOfScalarComponents)
 {
-  this->PrintError("PostRender1");
+  vtkOpenGLClearErrorMacro();
   if(this->NumberOfCroppingRegions>1)
     {
     if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
@@ -4918,7 +4998,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PostRender(
   this->Program->Restore();
 
   this->CleanupRender();
-  this->PrintError("after CleanupRender");
 
   vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
                             static_cast<GLuint>(this->SavedFrameBuffer));
@@ -4935,7 +5014,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PostRender(
   // Render the texture to the screen - this copies the offscreen buffer
   // onto the screen as a texture mapped polygon
   this->RenderTextureToScreen(ren);
-  this->PrintError("after RenderTextureToScreen");
 
   glEnable(GL_DEPTH_TEST);
 
@@ -4943,7 +5021,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PostRender(
 
   glFinish();
 
-  this->PrintError("PostRender2");
+  vtkOpenGLCheckErrorMacro("failed after PostRender");
 }
 
 //-----------------------------------------------------------------------------
@@ -4997,9 +5075,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer *ren,
     this->RenderBlock(ren,vol,0);
     this->PostRender(ren,numberOfScalarComponents);
     }
-
-  // Let's just make sure no OpenGL errors occurred during this render
-  this->PrintError("End GPU Render");
 
   // If this isn't a canonical view render, then update the progress to
   // 1 because we are done.
@@ -5281,6 +5356,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
                                                        double bounds[6],
                                                        vtkVolume *volume)
 {
+  vtkOpenGLClearErrorMacro();
+
   // Time to load scalar field
   size_t i;
   int wholeTextureExtent[6];
@@ -5846,7 +5923,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
           v->SetUniformf("lowBounds",3,lowBounds);
           v->SetUniformf("highBounds",3,highBounds);
 
-          this->PrintError("uniform low/high bounds block");
           // other sub-volume rendering code
           this->LoadProjectionParameters(ren,volume);
           this->ClipBoundingBox(ren,blocks[k].Bounds,volume);
@@ -5857,7 +5933,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
             {
             this->CopyFBOToTexture();
             }
-          this->PrintError("render clipped block 1");
 
           ++i;
           }
@@ -5922,7 +5997,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
   v->SetUniformf("lowBounds",3,lowBounds);
   v->SetUniformf("highBounds",3,highBounds);
 
-  this->PrintError("uniform low/high bounds");
   // other sub-volume rendering code
   this->LoadProjectionParameters(ren,volume);
   this->ClipBoundingBox(ren,bounds,volume);
@@ -5940,7 +6014,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
     {
     this->CopyFBOToTexture();
     }
-  this->PrintError("render clipped 1");
+  vtkOpenGLCheckErrorMacro("failed after RenderSubVolume");
   return abort;
 }
 
@@ -6116,7 +6190,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
     fvalues[2]=static_cast<float>(2*coefMatrix->GetElement(0,2));
     v->SetUniformf("matrix2",3,fvalues);
     }
-  this->PrintError("after uniforms for projection");
 
   // Change-of-coordinate matrix from Eye space to texture space.
   vtkMatrix4x4 *eyeToTexture=this->TempMatrix[1];
@@ -6597,6 +6670,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetOpenGLState()
 
   // restore current active texture
   vtkgl::ActiveTexture(activeTexture);
+  vtkOpenGLClearErrorMacro();
 }
 
 //-----------------------------------------------------------------------------
@@ -6754,6 +6828,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::PowerOfTwoGreaterOrEqual(int x)
 //-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::UpdateNoiseTexture()
 {
+  vtkOpenGLClearErrorMacro();
+
   if(this->NoiseTextureId==0)
     {
     GLuint noiseTextureObject;
@@ -6812,6 +6888,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::UpdateNoiseTexture()
 
     vtkgl::ActiveTexture(vtkgl::TEXTURE0);
     }
+
+  vtkOpenGLCheckErrorMacro("failed after UpdateNoiseTexture");
 }
 
 // ----------------------------------------------------------------------------

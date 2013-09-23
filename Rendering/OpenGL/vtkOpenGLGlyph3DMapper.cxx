@@ -40,8 +40,9 @@
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
 #include "vtkHardwareSelectionPolyDataPainter.h"
+#include "vtkOpenGLError.h"
 
-#include <assert.h>
+#include <cassert>
 #include <vector>
 #include "vtkgl.h"
 
@@ -166,6 +167,8 @@ void vtkOpenGLGlyph3DMapper::CopyInformationToSubMapper(
 // as each frame is rendered.
 void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
 {
+  vtkOpenGLClearErrorMacro();
+
   vtkHardwareSelector* selector = ren->GetSelector();
   bool selecting_points = selector && (selector->GetFieldAssociation() ==
     vtkDataObject::FIELD_ASSOCIATION_POINTS);
@@ -349,6 +352,8 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     selector->EndRenderProp();
     }
 
+  vtkOpenGLCheckErrorMacro("Failed after Render");
+
   this->UpdateProgress(1.0);
 }
 
@@ -362,6 +367,8 @@ void vtkOpenGLGlyph3DMapper::Render(
     vtkDebugMacro(<<"No points to glyph!");
     return;
     }
+
+  vtkOpenGLClearErrorMacro();
 
   vtkHardwareSelector* selector = ren->GetSelector();
   bool selecting_points = selector && (selector->GetFieldAssociation() ==
@@ -618,6 +625,8 @@ void vtkOpenGLGlyph3DMapper::Render(
     // restore the blend function
     glPopAttrib();
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 // ---------------------------------------------------------------------------
@@ -649,6 +658,7 @@ void vtkOpenGLGlyph3DMapper::ReleaseList()
     {
     glDeleteLists(this->DisplayListId,1);
     this->DisplayListId = 0;
+    vtkOpenGLCheckErrorMacro("failed after ReleaseList");
     }
 }
 

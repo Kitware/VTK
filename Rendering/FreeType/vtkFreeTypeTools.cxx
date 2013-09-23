@@ -536,7 +536,11 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   int bits = 1;
 
   // The font family is hashed into 16 bits (= 17 bits so far)
-  *id |= vtkFreeTypeTools::HashString(tprop->GetFontFamilyAsString()) << bits;
+  vtkTypeUInt16 familyHash =
+      vtkFreeTypeTools::HashString(tprop->GetFontFamily() != VTK_FONT_FILE
+                                   ? tprop->GetFontFamilyAsString()
+                                   : tprop->GetFontFile());
+  *id |= familyHash << bits;
   bits += 16;
 
   // Bold is in 1 bit (= 18 bits so far)
@@ -860,6 +864,23 @@ bool vtkFreeTypeTools::LookupFace(vtkTextProperty *tprop, FT_Library lib,
           tprop,
           << "Requested font '" << tprop->GetFontFamilyAsString() << "'"
           " unavailable. Substituting Arial.");
+    family = VTK_ARIAL;
+    }
+  else if (family == VTK_FONT_FILE)
+    {
+    vtkDebugWithObjectMacro(tprop,
+                            << "Attempting to load font from file: "
+                            << tprop->GetFontFile());
+
+    if (FT_New_Face(lib, tprop->GetFontFile(), 0, face) == 0)
+      {
+      return true;
+      }
+
+    vtkDebugWithObjectMacro(
+          tprop,
+          << "Error loading font from file '" << tprop->GetFontFile()
+          << "'. Falling back to arial.");
     family = VTK_ARIAL;
     }
 
@@ -1938,6 +1959,7 @@ void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
       {
       // FIXME: do something more elegant here.
       // We should render an empty rectangle to adhere to the specs...
+      vtkDebugMacro(<<"Unrecognized character: " << *begin);
       continue;
       }
 

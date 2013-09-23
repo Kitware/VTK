@@ -15,7 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkDepthPeelingPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkProp.h"
 #include "vtkRenderer.h"
@@ -29,6 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkShader2Collection.h"
 #include "vtkUniformVariables.h"
 #include "vtkTextureUnitManager.h"
+#include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDepthPeelingPass,TranslucentPass,vtkRenderPass);
@@ -169,6 +170,8 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       this->NumberOfRenderedProps=this->TranslucentPass->GetNumberOfRenderedProps();
       return;
     }
+
+  vtkOpenGLClearErrorMacro();
 
   // Depth peeling.
   vtkRenderer *r=s->GetRenderer();
@@ -348,8 +351,9 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
 
     if(l>1) // some higher layer, we allocated some tex unit in RenderPeel()
       {
-      vtkTextureUnitManager *m=
-        this->Prog->GetContext()->GetTextureUnitManager();
+      vtkOpenGLRenderWindow *context
+        = vtkOpenGLRenderWindow::SafeDownCast(this->Prog->GetContext());
+      vtkTextureUnitManager *m=context->GetTextureUnitManager();
       m->Free(this->ShadowTexUnit);
       m->Free(this->OpaqueShadowTexUnit);
       this->ShadowTexUnit=-1;
@@ -460,12 +464,15 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     glDeleteTextures(1,&opaqueLayerRgba);
     glDeleteTextures(1,&opaqueLayerZ);
     this->NumberOfRenderedProps=this->TranslucentPass->GetNumberOfRenderedProps();
+
+    vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 // ----------------------------------------------------------------------------
 void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
 {
   assert("pre: w_exists" && w!=0);
+  vtkOpenGLClearErrorMacro();
 
   if(!this->IsChecked || w->GetContextCreationTime()>this->CheckTime)
     {
@@ -545,6 +552,15 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
       glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
       bool supportsAtLeast8AlphaBits=alphaBits>=8;
 
+      // force alpha blending
+      // Mesa does not support true linking of shaders (VTK bug 8135)
+      // and Mesa 7.2 just crashes during the try-compile.
+      // os mesa 9.1.4 some tests fail
+      // TODO verify that this is still an issue on newer ATI devices
+      int driver_support
+         = (!extensions->DriverIsATI() && !extensions->DriverIsMesa())
+         || extensions->GetIgnoreDriverBugs("ATI and Mesa depth peeling bugs");
+
       this->IsSupported =
         supports_depth_texture &&
         supports_shadow &&
@@ -557,7 +573,8 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
         supports_multitexture &&
         supports_GL_ARB_texture_rectangle &&
         supports_edge_clamp &&
-        supportsAtLeast8AlphaBits;
+        supportsAtLeast8AlphaBits &&
+        driver_support;
 
       if(this->IsSupported)
         {
@@ -649,25 +666,9 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
           {
           vtkDebugMacro(<<"at least 8 alpha bits is not supported");
           }
-        }
-
-      if(this->IsSupported)
-        {
-        // Some OpenGL implementations are buggy so depth peeling does not
-        // work:
-        //  - ATI
-        //  - Mesa git does not support true linking of shaders (VTK bug 8135)
-        //    and Mesa 7.2 just crashes during the try-compile.
-        // Do alpha blending always.
-        const char* gl_renderer =
-          reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-        int isATI = strstr(gl_renderer, "ATI") != 0;
-
-        bool isMesa=strstr(gl_renderer, "Mesa") != 0;
-
-        if(isMesa || isATI)
+        if (!driver_support)
           {
-          this->IsSupported = false;
+          vtkDebugMacro(<<"buggy driver (Mesa or ATI)");
           }
         }
 
@@ -699,6 +700,7 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
           }
         }
     }
+  vtkOpenGLClearErrorMacro();
 }
 
 // ----------------------------------------------------------------------------
@@ -731,6 +733,7 @@ void vtkDepthPeelingPass::CheckCompilation(
       vtkErrorMacro(<<"no log");
       }
     }
+  vtkOpenGLClearErrorMacro();
 }
 
 // ----------------------------------------------------------------------------
@@ -745,6 +748,8 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
 {
   assert("pre: s_exists" && s!=0);
   assert("pre: positive_layer" && layer>=0);
+
+  vtkOpenGLClearErrorMacro();
 
   GLbitfield mask=GL_COLOR_BUFFER_BIT;
   if(layer>0)
@@ -766,9 +771,11 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
     {
     if(layer==1)
       {
-    // allocate texture units.
-      vtkTextureUnitManager *m=
-        this->Prog->GetContext()->GetTextureUnitManager();
+      // allocate texture units.
+      vtkOpenGLRenderWindow *context
+        = vtkOpenGLRenderWindow::SafeDownCast(this->Prog->GetContext());
+
+      vtkTextureUnitManager *m = context->GetTextureUnitManager();
 
       // Avoid using texture unit 0 because the glBindTexture call's
       // below must specify unique active textures. If texture unit 0
@@ -915,10 +922,12 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
                         this->ViewportY,this->ViewportWidth,
                         this->ViewportHeight);
     this->LayerList->List.push_back(rgba);
+    vtkOpenGLCheckErrorMacro("failed after RenderPeel");
     return 1;
     }
   else
     {
+    vtkOpenGLCheckErrorMacro("failed after RenderPeel");
     return 0;
     }
 }

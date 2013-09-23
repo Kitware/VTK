@@ -14,11 +14,12 @@
 =========================================================================*/
 #include "vtkShader2.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include <vtkgl.h>
 #include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLError.h"
 
 static GLenum vtkShaderTypeVTKToGL[5] = {
   vtkgl::VERTEX_SHADER, // VTK_SHADER_TYPE_VERTEX=0
@@ -38,6 +39,8 @@ static const char *TypeAsStringArray[5] = {
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkShader2);
+
+//-----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkShader2,UniformVariables,vtkUniformVariables);
 
 // ----------------------------------------------------------------------------
@@ -50,7 +53,7 @@ vtkShader2::vtkShader2()
   this->Type = VTK_SHADER_TYPE_VERTEX;
 
   // OpenGL part
-  this->Context = 0;
+  this->Context = NULL;
   this->Id = 0;
   this->ExtensionsLoaded = false;
   this->SupportGeometryShader = false;
@@ -68,20 +71,16 @@ vtkShader2::vtkShader2()
 // ----------------------------------------------------------------------------
 void vtkShader2::ReleaseGraphicsResources()
 {
-  if (this->Context)
+  // because we don't hold a reference to the render
+  // context we don't have any control on when it is
+  // destroyed. In fact it may be destroyed before
+  // we are(eg smart pointers), in which case we should
+  // do nothing.
+  if (this->Context && (this->Id != 0))
     {
-    if (this->Id !=0)
-      {
-      vtkgl::DeleteShader(this->Id);
-      this->Id = 0;
-      }
-    }
-  else
-    {
-    if (this->Id != 0)
-      {
-      vtkErrorMacro(<<" no context but some OpenGL resource has not been deleted.");
-      }
+    vtkgl::DeleteShader(this->Id);
+    vtkOpenGLCheckErrorMacro("failed at glDeleteShader");
+    this->Id = 0;
     }
 }
 
@@ -90,6 +89,9 @@ void vtkShader2::ReleaseGraphicsResources()
 // Destructor. Delete SourceCode if any.
 vtkShader2::~vtkShader2()
 {
+  // esplicitly release resources
+  this->ReleaseGraphicsResources();
+
   delete[] this->SourceCode;
   delete[] this->LastCompileLog;
 
@@ -97,17 +99,15 @@ vtkShader2::~vtkShader2()
     {
     this->UniformVariables->Delete();
     }
-
-  if (this->Id != 0)
-    {
-    vtkErrorMacro(<<"a vtkShader2 object is being deleted before ReleaseGraphicsResources() has been called.");
-    }
 }
 
 //----------------------------------------------------------------------------
-bool vtkShader2::IsSupported(vtkOpenGLRenderWindow *context)
+bool vtkShader2::IsSupported(vtkRenderWindow *renWin)
 {
-  assert("pre: context_exists" && context!=0);
+  vtkOpenGLRenderWindow *context
+    = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
+
+  if (!context) return false;
 
   vtkOpenGLExtensionManager *e = context->GetExtensionManager();
   return e->ExtensionSupported("GL_VERSION_2_0") ||
@@ -118,17 +118,23 @@ bool vtkShader2::IsSupported(vtkOpenGLRenderWindow *context)
 }
 
 //----------------------------------------------------------------------------
-bool vtkShader2::LoadExtensions(vtkOpenGLRenderWindow *context)
+bool vtkShader2::LoadRequiredExtensions(vtkRenderWindow *renWin)
 {
-  assert("pre: context_exists" && context!=0);
+  vtkOpenGLRenderWindow *context
+    = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
+
+  this->ExtensionsLoaded = false;
+  this->SupportGeometryShader = false;
+
+  if (!context) return false;
 
   vtkOpenGLExtensionManager *e = context->GetExtensionManager();
 
-  bool result = false;
+
   if (e->ExtensionSupported("GL_VERSION_2_0"))
     {
     e->LoadExtension("GL_VERSION_2_0");
-    result = true;
+    this->ExtensionsLoaded = true;
     }
   else
     {
@@ -141,46 +147,71 @@ bool vtkShader2::LoadExtensions(vtkOpenGLRenderWindow *context)
       e->LoadCorePromotedExtension("GL_ARB_shader_objects");
       e->LoadCorePromotedExtension("GL_ARB_vertex_shader");
       e->LoadCorePromotedExtension("GL_ARB_fragment_shader");
-      result = true;
+      this->ExtensionsLoaded = true;
       }
     }
-  return result;
-}
 
-// ----------------------------------------------------------------------------
-void vtkShader2::SetContext(vtkOpenGLRenderWindow *context)
-{
-  if (this->Context == context)
+  if (this->ExtensionsLoaded)
     {
-    return;
-    }
+    bool supportGeometryShaderARB
+      = e->ExtensionSupported("GL_ARB_geometry_shader4") == 1;
 
-  this->ReleaseGraphicsResources();
-  this->Context = context;
-  if (this->Context)
-    {
-    this->ExtensionsLoaded=this->LoadExtensions(this->Context);
-    if (this->ExtensionsLoaded)
+    this->SupportGeometryShader
+      = supportGeometryShaderARB
+      || e->ExtensionSupported("GL_EXT_geometry_shader4") == 1;
+
+    if (this->SupportGeometryShader)
       {
-      vtkOpenGLExtensionManager *e = this->Context->GetExtensionManager();
-      bool supportGeometryShaderARB =
-        e->ExtensionSupported("GL_ARB_geometry_shader4") == 1;
-      this->SupportGeometryShader = supportGeometryShaderARB
-        || e->ExtensionSupported("GL_EXT_geometry_shader4") == 1;
-      if (this->SupportGeometryShader)
+      if (supportGeometryShaderARB)
         {
-        if (supportGeometryShaderARB)
-          {
-          e->LoadExtension("GL_ARB_geometry_shader4");
-          }
-        else
-          {
-          e->LoadAsARBExtension("GL_EXT_geometry_shader4");
-          }
+        e->LoadExtension("GL_ARB_geometry_shader4");
+        }
+      else
+        {
+        e->LoadAsARBExtension("GL_EXT_geometry_shader4");
         }
       }
     }
+
+  return this->ExtensionsLoaded;
+}
+
+// ----------------------------------------------------------------------------
+vtkRenderWindow *vtkShader2::GetContext()
+{
+  return this->Context;
+}
+
+// ----------------------------------------------------------------------------
+void vtkShader2::SetContext(vtkRenderWindow *renWin)
+{
+  // avoid pointless reassignment
+  if (this->Context == renWin)
+    {
+    return;
+    }
+  // free resources
+  this->ReleaseGraphicsResources();
+  this->Context = NULL;
   this->Modified();
+  // all done if assigned null
+  if (!renWin)
+    {
+    return;
+    }
+  // check for support
+  vtkOpenGLRenderWindow *context
+    = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
+
+  if ( !context
+    || !this->LoadRequiredExtensions(renWin) )
+    {
+    vtkErrorMacro("The context does not support the required extensions");
+    return;
+    }
+  // initialize
+  this->Context = renWin;
+  this->Context->MakeCurrent();
 }
 
 //-----------------------------------------------------------------------------
@@ -192,6 +223,7 @@ void vtkShader2::SetContext(vtkOpenGLRenderWindow *context)
 void vtkShader2::Compile()
 {
   assert("pre: SourceCode_exists" && this->SourceCode != 0);
+  vtkOpenGLClearErrorMacro();
 
   if(this->Id == 0 || this->LastCompileTime < this->MTime)
     {
@@ -245,6 +277,8 @@ void vtkShader2::Compile()
     vtkgl::GetShaderInfoLog(shaderId,value, 0, this->LastCompileLog);
     this->LastCompileTime.Modified();
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Compile");
 }
 
 //-----------------------------------------------------------------------------

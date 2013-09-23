@@ -27,7 +27,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include "assert.h"
+#include <cassert>
 
 
 //----------------------------------------------------------------------------

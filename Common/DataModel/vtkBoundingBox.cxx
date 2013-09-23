@@ -15,7 +15,7 @@
 #include "vtkBoundingBox.h"
 #include <vtkMath.h>
 #include <vtkPlane.h>
-#include <assert.h>
+#include <cassert>
 #include <math.h>
 
 // ---------------------------------------------------------------------------

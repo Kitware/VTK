@@ -25,8 +25,18 @@ a) Convert tabs to 8 spaces, e.g. :%s/\t/        /g
 b) Remove extra whitespace from the ends of lines, e.g. :%s/  *$//
 c) Remove blank lines at the beginning and end of the file
 d) Replace "int yyl;" with "yy_size_t yyl;", e.g. :%s/int yyl;/yy_size_t yyl;/
+e) Remove any instances of the "register" keyword.
 
-The final step removes a potential signed/unsigned comparison compiler
+Some known warnings with recent flex/gcc:
+
+   - Add the following code if not already present to avoid warnings about
+     isatty being used without a declaration:
+         #ifndef __cplusplus
+         extern int isatty(int);
+         #endif /* __cplusplus */
+   - Change 'int i;' to 'yy_size_t i;' in yy_scan_bytes (line ~3700).
+
+Step "d" removes a potential signed/unsigned comparison compiler
 warning.  It might not be necessary in later versions of flex.
 
 

@@ -99,6 +99,12 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow*);
 
   // Description:
+  // Fills rect with the dimensions of the scalar bar in viewport coordinates.
+  // Only the color bar is considered -- text labels are not considered.
+  // rect is {xmin, xmax, width, height}
+  virtual void GetScalarBarRect(int rect[4], vtkViewport* viewport);
+
+  // Description:
   // Set/Get the lookup table to use. The lookup table specifies the number
   // of colors to use in the table (if not overridden), the scalar range,
   // and any annotated values.
@@ -275,6 +281,12 @@ public:
   vtkBooleanMacro(DrawColorBar, int);
 
   // Description:
+  // Set/Get whether the tick labels should be drawn. Default is on.
+  vtkSetMacro(DrawTickLabels, int);
+  vtkGetMacro(DrawTickLabels, int);
+  vtkBooleanMacro(DrawTickLabels, int);
+
+  // Description:
   // Set/Get the background property.
   virtual void SetBackgroundProperty(vtkProperty2D* p);
   vtkGetObjectMacro(BackgroundProperty,vtkProperty2D);
@@ -289,6 +301,13 @@ public:
   // The default is 1 pixel.
   vtkGetMacro(TextPad,int);
   vtkSetMacro(TextPad,int);
+
+  // Description:
+  // Set/get the margin in pixels, between the title and the bar,
+  // when the \a Orientation is vertical.
+  // The default is 0 pixels.
+  vtkGetMacro(VerticalTitleSeparation,int);
+  vtkSetMacro(VerticalTitleSeparation,int);
 
   // Description:
   // Set/get the thickness of the color bar relative to the widget frame.
@@ -476,6 +495,7 @@ protected:
   int DrawBackground; // off by default
   int DrawFrame; // off by default
   int DrawColorBar; // on by default
+  int DrawTickLabels; // on by default
   int DrawAnnotations;
   int DrawNanAnnotation;
   int AnnotationTextScaling; // off by default
@@ -493,6 +513,7 @@ protected:
   int MaximumWidthInPixels;
   int MaximumHeightInPixels;
   int TextPad;
+  int VerticalTitleSeparation;
   double BarRatio;
   double TitleRatio;
   //@}

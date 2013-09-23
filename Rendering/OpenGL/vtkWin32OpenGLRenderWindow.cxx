@@ -24,6 +24,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLTexture.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLError.h"
 #include "vtkRendererCollection.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
@@ -31,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/ios/sstream>
 
 #include "vtkOpenGL.h"
+#include "vtkOpenGLError.h"
 #include "vtkgl.h"
 
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
@@ -42,7 +45,6 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->ApplicationInstance =  NULL;
   this->Palette = NULL;
   this->ContextId = 0;
-  this->MultiSamples = 8;
   this->WindowId = 0;
   this->ParentId = 0;
   this->NextWindowId = 0;
@@ -88,6 +90,7 @@ void vtkWin32OpenGLRenderWindow::Clean()
   if (this->OwnContext && this->ContextId)
     {
     this->MakeCurrent();
+    vtkOpenGLClearErrorMacro();
 
      /* first delete all the old lights */
     for (short cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+VTK_MAX_LIGHTS; cur_light++)
@@ -112,6 +115,7 @@ void vtkWin32OpenGLRenderWindow::Clean()
         }
 #endif
       }
+    vtkOpenGLCheckErrorMacro("failed in Clean");
 
     this->CleanUpRenderers();
 
@@ -149,7 +153,6 @@ void vtkWin32OpenGLRenderWindow::CleanUpRenderers()
        (ren = this->Renderers->GetNextRenderer(rsit));)
     {
     ren->SetRenderWindow(NULL);
-    ren->SetRenderWindow(this);
     }
 }
 
@@ -645,7 +648,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
   wglMakeCurrent(tempDC, 0);
   wglDeleteContext(tempContext);
   ReleaseDC(tempId, tempDC);
-  ::DestroyWindow(tempId);
+  ::DestroyWindow(tempId); // windows api
 
   // If we got a valid pixel format in the process, we are done.
   // Otherwise, we use the old approach of using ChoosePixelFormat.
@@ -1144,7 +1147,7 @@ void vtkWin32OpenGLRenderWindow::DestroyWindow()
         vtkSetWindowLong(this->WindowId,sizeof(vtkLONG),(vtkLONG)0);
         if(this->OwnWindow)
           {
-          ::DestroyWindow(this->WindowId);
+          ::DestroyWindow(this->WindowId); // windows api
           this->WindowId=0;
           }
         }
@@ -1522,7 +1525,14 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   SelectObject(this->MemoryHdc, this->MemoryBuffer);
 
   // Renderers will need to redraw anything cached in display lists
-  this->CleanUpRenderers();
+  vtkRenderer *ren;
+  vtkCollectionSimpleIterator rsit;
+  for (this->Renderers->InitTraversal(rsit);
+       (ren = this->Renderers->GetNextRenderer(rsit));)
+    {
+    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(this);
+    }
 
   // adjust settings for renderwindow
   this->Mapped =0;
@@ -1617,7 +1627,15 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
   if(this->ContextId!=0)
     {
       this->MakeCurrent();
-      this->CleanUpRenderers();
+      // Renderers will need to redraw anything cached in display lists
+      vtkRenderer *ren;
+      vtkCollectionSimpleIterator rsit;
+      for (this->Renderers->InitTraversal(rsit);
+           (ren = this->Renderers->GetNextRenderer(rsit));)
+        {
+        ren->SetRenderWindow(NULL);
+        ren->SetRenderWindow(this);
+        }
     }
 
   this->Mapped = this->ScreenMapped;

@@ -94,7 +94,7 @@ class FunctorImpl{
     typedef R ResultType;
     typedef P1 Parm1;
 
-    virtual ~FunctorImpl() {};
+    virtual ~FunctorImpl() {}
     virtual R operator()(P1&) = 0;
     virtual FunctorImpl* DoClone() const = 0;
 
@@ -106,6 +106,12 @@ class FunctorImpl{
         assert(typeid(*pClone) == typeid(*pObj));
         return pClone;
     }
+  protected:
+    FunctorImpl() {}
+    FunctorImpl(const FunctorImpl&) {}
+  private:
+    // not implemented
+    FunctorImpl& operator =(const FunctorImpl&);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +126,7 @@ public:
   typedef typename Base::Parm1 Parm1;
 
   FunctorHandler(Fun& fun) : f_(fun) {}
-  virtual ~FunctorHandler(){}
+  virtual ~FunctorHandler() {}
 
   ResultType operator()(Parm1& p1)
   { return f_(p1); }
@@ -128,6 +134,8 @@ public:
 
 private:
   Fun f_;
+  FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
+  // not implemented
   FunctorHandler& operator =(const FunctorHandler& b);
 };
 
@@ -230,7 +238,7 @@ class FunctorImpl{
     typedef P1 Parm1;
     typedef P2 Parm2;
 
-    virtual ~FunctorImpl() {};
+    virtual ~FunctorImpl() {}
     virtual R operator()(P1&,P2&) = 0;
     virtual FunctorImpl* DoClone() const = 0;
 
@@ -242,6 +250,12 @@ class FunctorImpl{
         assert(typeid(*pClone) == typeid(*pObj));
         return pClone;
     }
+  protected:
+    FunctorImpl() {}
+    FunctorImpl(const FunctorImpl&) {}
+  private:
+    // not implemented
+    FunctorImpl& operator =(const FunctorImpl&);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -257,7 +271,7 @@ public:
   typedef typename Base::Parm2 Parm2;
 
   FunctorHandler(const Fun& fun) : f_(fun) {}
-  virtual ~FunctorHandler(){}
+  virtual ~FunctorHandler() {}
 
   ResultType operator()(Parm1& p1,Parm2& p2)
   { return f_(p1,p2); }
@@ -266,6 +280,8 @@ public:
 
 private:
   Fun f_;
+  FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
+  // not implemented
   FunctorHandler& operator =(const FunctorHandler& b);
 };
 

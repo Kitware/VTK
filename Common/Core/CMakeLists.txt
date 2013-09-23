@@ -26,6 +26,21 @@ set(vtkCommonCore_EXPORT_OPTIONS
   VTK_ALL_NEW_OBJECT_FACTORY
   )
 
+if ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB")
+  find_package(TBB REQUIRED)
+  include_directories(${TBB_INCLUDE_DIRS})
+  set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${TBB_LIBRARY})
+elseif  ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP")
+  find_package(OpenMP REQUIRED)
+  set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
+elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi")
+  find_package(XKaapi REQUIRED)
+  include_directories(${XKAAPI_INCLUDE_DIRS})
+  set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${XKAAPI_LIBRARIES})
+elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Sequential")
+  set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
+endif()
+
 #-----------------------------------------------------------------------------
 
 include_directories(${VTK_SOURCE_DIR}/ThirdParty/utf8/source)
@@ -152,6 +167,8 @@ SET(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
+  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt32.cxx
+  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt64.cxx
   )
 
 set(${vtk-module}_HDRS
@@ -164,6 +181,8 @@ set(${vtk-module}_HDRS
   vtkArrayIteratorTemplateImplicit.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
+  vtkAtomicInt32.h
+  vtkAtomicInt64.h
   vtkAutoInit.h
   vtkDataArrayTemplateImplicit.txx
   vtkIOStreamFwd.h
@@ -235,6 +254,13 @@ else()
   set(VTK_CONFIG_LEGACY_VERSION "#include \"vtkVersionMacros.h\" // removed by VTK_LEGACY_REMOVE")
 endif()
 
+# Check for atomic functions
+include(CheckSymbolExists)
+if (WIN32)
+  check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
+endif()
+
+
 configure_file(vtkVersionMacros.h.in vtkVersionMacros.h @ONLY)
 configure_file(vtkConfigure.h.in vtkConfigure.h @ONLY)
 configure_file(vtkToolkits.h.in vtkToolkits.h @ONLY)
@@ -302,22 +328,22 @@ foreach(t Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 Float32 Float64)
   if(VTK_TYPE_NATIVE)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTypedArray.h.in
                    ${CMAKE_CURRENT_BINARY_DIR}/vtkType${t}Array.h
-                   @ONLY IMMEDIATE)
+                   @ONLY)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTypedArray.cxx.in
                    ${CMAKE_CURRENT_BINARY_DIR}/vtkType${t}Array.cxx
-                   @ONLY IMMEDIATE)
+                   @ONLY)
     set(Module_SRCS ${Module_SRCS} ${CMAKE_CURRENT_BINARY_DIR}/vtkType${t}Array.cxx)
   endif()
 endforeach()
 
 # look for various headers and functions
-include(CheckSymbolExists)
+include(CheckCXXExpressionCompiles)
 include(CheckIncludeFile)
 
 # Check C++ <cmath> first, where the C++11 standard says these must be.
-check_symbol_exists(std::isnan "cmath" VTK_HAS_STD_ISNAN)
-check_symbol_exists(std::isinf "cmath" VTK_HAS_STD_ISINF)
-check_symbol_exists(std::isfinite "cmath" VTK_HAS_STD_ISFINITE)
+check_cxx_expression_compiles("std::isnan(0.0)" "cmath" VTK_HAS_STD_ISNAN)
+check_cxx_expression_compiles("std::isinf(0.0)" "cmath" VTK_HAS_STD_ISINF)
+check_cxx_expression_compiles("std::isfinite(0.0)" "cmath" VTK_HAS_STD_ISFINITE)
 
 # Check C99 <math.h> next, where the C99 standard says these must be.
 # (they will be found even if they are defined as macros)
@@ -438,6 +464,8 @@ set_source_files_properties(
   vtkArrayIteratorTemplateImplicit.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
+  vtkAtomicInt32.h
+  vtkAtomicInt64.h
   vtkAutoInit.h
   vtkDataArrayTemplate.txx
   vtkDataArrayTemplateImplicit.txx
@@ -466,6 +494,8 @@ set_source_files_properties(
   vtkMathConfigure.h
   vtkVersionMacros.h
   vtkTypeTemplate.h
+  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt32.cxx
+  ${VTK_SMP_IMPLEMENTATION_TYPE}/vtkAtomicInt64.cxx
 
   WRAP_EXCLUDE
   )
@@ -512,5 +542,4 @@ endif()
 
 vtk_module_library(vtkCommonCore ${Module_SRCS})
 
-target_link_libraries(vtkCommonCore ${CMAKE_THREAD_LIBS_INIT})
-set_target_properties(vtkCommonCore PROPERTIES LINK_INTERFACE_LIBRARIES "")
+target_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT} ${VTK_SMP_IMPLEMENTATION_LIBRARIES})

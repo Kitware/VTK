@@ -15,7 +15,7 @@
 
 #include "vtkGaussianBlurPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkgl.h"
@@ -27,6 +27,7 @@
 #include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkTextureUnitManager.h"
+#include "vtkOpenGLError.h"
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkGaussianBlurPass developers.
@@ -90,6 +91,8 @@ void vtkGaussianBlurPass::PrintSelf(ostream& os, vtkIndent indent)
 void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
+
+  vtkOpenGLClearErrorMacro();
 
   this->NumberOfRenderedProps=0;
 
@@ -458,6 +461,8 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
     {
     vtkWarningMacro(<<" no delegate.");
     }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
 // ----------------------------------------------------------------------------

@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vector>
 #include <map>
 
-#include <assert.h>
+#include <cassert>
 
 // Description:
 // The template value N describes the number of children to binary and
@@ -801,7 +801,6 @@ public:
     for ( unsigned int i = 0; i < this->LeafParent.size(); ++ i )
       {
       os << this->LeafParent[i] << " ";
-      ++ i;
       }
     os << endl;
   }

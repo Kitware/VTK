@@ -46,7 +46,7 @@
 
 #include <list>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 #ifndef NDEBUG
 // #define DEBUGTRACE

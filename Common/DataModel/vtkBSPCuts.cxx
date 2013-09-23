@@ -71,41 +71,26 @@ void vtkBSPCuts::Initialize()
 //----------------------------------------------------------------------------
 void vtkBSPCuts::ResetArrays()
 {
-  if (this->Dim)
-    {
-    delete [] this->Dim;
-    this->Dim = NULL;
-    }
-  if (this->Coord)
-    {
-    delete [] this->Coord;
-    this->Coord = NULL;
-    }
-  if (this->Lower)
-    {
-    delete [] this->Lower;
-    this->Lower = NULL;
-    }
-  if (this->Upper)
-    {
-    delete [] this->Upper;
-    this->Upper = NULL;
-    }
-  if (this->LowerDataCoord)
-    {
-    delete [] this->LowerDataCoord;
-    this->LowerDataCoord = NULL;
-    }
-  if (this->UpperDataCoord)
-    {
-    delete [] this->UpperDataCoord;
-    this->UpperDataCoord = NULL;
-    }
-  if (this->Npoints)
-    {
-    delete [] this->Npoints;
-    this->Npoints = NULL;
-    }
+  delete [] this->Dim;
+  this->Dim = NULL;
+
+  delete [] this->Coord;
+  this->Coord = NULL;
+
+  delete [] this->Lower;
+  this->Lower = NULL;
+
+  delete [] this->Upper;
+  this->Upper = NULL;
+
+  delete [] this->LowerDataCoord;
+  this->LowerDataCoord = NULL;
+
+  delete [] this->UpperDataCoord;
+  this->UpperDataCoord = NULL;
+
+  delete [] this->Npoints;
+  this->Npoints = NULL;
 
   this->NumberOfCuts = 0;
 }

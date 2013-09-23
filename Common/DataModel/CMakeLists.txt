@@ -110,6 +110,7 @@ set(Module_SRCS
   vtkPerlinNoise.cxx
   vtkPiecewiseFunction.cxx
   vtkPixel.cxx
+  vtkPixelExtent.cxx
   vtkPlaneCollection.cxx
   vtkPlane.cxx
   vtkPlanes.cxx
@@ -254,6 +255,7 @@ set_source_files_properties(
   vtkMarchingCubesTriangleCases
   vtkImageIterator
   vtkImageProgressIterator
+  vtkPixelExtent.cxx
   vtkVector
   vtkColor
   vtkRect

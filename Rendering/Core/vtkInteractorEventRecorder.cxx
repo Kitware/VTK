@@ -52,10 +52,7 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
 {
   this->SetInteractor(0);
 
-  if ( this->FileName )
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
 
   if ( this->InputStream )
     {
@@ -64,17 +61,11 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
     this->InputStream = NULL;
     }
 
-  if ( this->OutputStream )
-    {
-    delete this->OutputStream;
-    this->OutputStream = NULL;
-    }
+  delete this->OutputStream;
+  this->OutputStream = NULL;
 
-  if ( this->InputString )
-    {
-    delete [] this->InputString;
-    this->InputString = NULL;
-    }
+  delete [] this->InputString;
+  this->InputString = NULL;
 }
 
 //----------------------------------------------------------------------------

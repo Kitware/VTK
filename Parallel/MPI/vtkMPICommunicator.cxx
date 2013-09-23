@@ -29,7 +29,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 static inline void  vtkMPICommunicatorDebugBarrier(MPI_Comm* handle)
 {
