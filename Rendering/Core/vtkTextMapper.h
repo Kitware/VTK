@@ -19,9 +19,16 @@
 // vtkRenderer.
 //
 // To use vtkTextMapper, specify an input text string.
-
+//
 // .SECTION See Also
-// vtkMapper2D vtkActor2D vtkLegendBoxActor vtkCaptionActor2D vtkVectorText vtkTextProperty
+// vtkActor2D vtkTextActor vtkTextActor3D vtkTextProperty vtkTextRenderer
+//
+// .SECTION Note
+// This class will be overridden by the older vtkOpenGLFreeTypeTextMapper when
+// the vtkRenderingFreeTypeOpenGL library is linked into the executable. That
+// class provides legacy support for regression testing, but lacks many of the
+// newer features provided by this implementation (such as unicode and MathText
+// strings). Do not link with that library if such features are needed.
 
 #ifndef __vtkTextMapper_h
 #define __vtkTextMapper_h
@@ -29,8 +36,16 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper2D.h"
 
+#include "vtkNew.h" // For vtkNew
+
 class vtkActor2D;
+class vtkImageData;
+class vtkPoints;
+class vtkPolyData;
+class vtkPolyDataMapper2D;
 class vtkTextProperty;
+class vtkTexture;
+class vtkTimeStamp;
 class vtkViewport;
 
 class VTKRENDERINGCORE_EXPORT vtkTextMapper : public vtkMapper2D
@@ -46,15 +61,14 @@ public:
   // Description:
   // Return the size[2]/width/height of the rectangle required to draw this
   // mapper (in pixels).
-  virtual void GetSize(vtkViewport*, int size[2]) {size[0]=size[0];}
+  virtual void GetSize(vtkViewport*, int size[2]);
   virtual int GetWidth(vtkViewport*v);
   virtual int GetHeight(vtkViewport*v);
 
   // Description:
-  // Set the input text string to the mapper.  The mapper recognizes "\n"
-  // as a carriage return/linefeed (line separator).
-  virtual void SetInput(const char *inputString);
-  vtkGetStringMacro(Input);
+  // The input text string to the mapper.
+  vtkSetStringMacro(Input)
+  vtkGetStringMacro(Input)
 
   // Description:
   // Set/Get the text property.
@@ -66,13 +80,16 @@ public:
   void ShallowCopy(vtkTextMapper *tm);
 
   // Description:
-  // Determine the number of lines in the input string (delimited by "\n").
-  int  GetNumberOfLines(const char *input);
+  // Determine the number of lines in the input string.
+  // This is a legacy method that was used in an older implementation, and may
+  // be removed in the future.
+  int GetNumberOfLines(const char *input);
 
   // Description:
-  // Get the number of lines in the input string (the method GetNumberOfLines(char*)
-  // must have been previously called for the return value to be valid).
-  vtkGetMacro(NumberOfLines,int);
+  // Get the number of lines in this mapper's input.
+  // This is a legacy method that was used in an older implementation, and may
+  // be removed in the future.
+  int GetNumberOfLines() { return this->GetNumberOfLines(this->Input); }
 
   // Description:
   // Set and return the font size (in points) required to make this mapper fit
@@ -106,8 +123,14 @@ public:
 
   // Description:
   // Get the available system font size matching a font size.
+  // This is a legacy method that was used in an older implementation, and may
+  // be removed in the future.
   virtual int GetSystemFontSize(int size)
     { return size; }
+
+  void RenderOverlay(vtkViewport *, vtkActor2D *);
+  void ReleaseGraphicsResources(vtkWindow *);
+  unsigned long GetMTime();
 
 protected:
   vtkTextMapper();
@@ -116,20 +139,22 @@ protected:
   char* Input;
   vtkTextProperty *TextProperty;
 
-  int  LineSize;
-  int  NumberOfLines;
-  int  NumberOfLinesAllocated;
-
-  vtkTextMapper **TextLines;
-
-  // These functions are used to parse, process, and render multiple lines
-  char *NextLine(const char *input, int lineNum);
-  void GetMultiLineSize(vtkViewport* viewport, int size[2]);
-  void RenderOverlayMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
-
 private:
   vtkTextMapper(const vtkTextMapper&);  // Not implemented.
   void operator=(const vtkTextMapper&);  // Not implemented.
+
+  void UpdateQuad(vtkActor2D *actor);
+  void UpdateImage();
+
+  int TextDims[2];
+
+  vtkTimeStamp CoordsTime;
+  vtkTimeStamp TCoordsTime;
+  vtkNew<vtkImageData> Image;
+  vtkNew<vtkPoints> Points;
+  vtkNew<vtkPolyData> PolyData;
+  vtkNew<vtkPolyDataMapper2D> Mapper;
+  vtkNew<vtkTexture> Texture;
 };
 
 #endif

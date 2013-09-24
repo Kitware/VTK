@@ -14,11 +14,23 @@
 =========================================================================*/
 #include "vtkTextMapper.h"
 
-#include "vtkTextProperty.h"
+#include "vtkActor2D.h"
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkRenderer.h"
+#include "vtkStdString.h"
+#include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
+#include "vtkTexture.h"
 
 //----------------------------------------------------------------------------
-vtkAbstractObjectFactoryNewMacro(vtkTextMapper)
+vtkObjectFactoryNewMacro(vtkTextMapper)
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 
@@ -27,14 +39,28 @@ vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 vtkTextMapper::vtkTextMapper()
 {
   this->Input = NULL;
-  // consistent Register/unregister
   this->TextProperty = NULL;
-  this->SetTextProperty(vtkTextProperty::New());
-  this->TextProperty->Delete();
 
-  this->TextLines = NULL;
-  this->NumberOfLines = 0;
-  this->NumberOfLinesAllocated = 0;
+  vtkNew<vtkTextProperty> tprop;
+  this->SetTextProperty(tprop.GetPointer());
+
+  vtkNew<vtkCellArray> quad;
+  quad->InsertNextCell(4);
+  quad->InsertCellPoint(0);
+  quad->InsertCellPoint(1);
+  quad->InsertCellPoint(2);
+  quad->InsertCellPoint(3);
+  this->PolyData->SetPoints(this->Points.GetPointer());
+  this->PolyData->SetPolys(quad.GetPointer());
+
+  vtkNew<vtkFloatArray> tcoords;
+  tcoords->SetNumberOfComponents(2);
+  tcoords->SetNumberOfTuples(4);
+  this->PolyData->GetPointData()->SetTCoords(tcoords.GetPointer());
+  this->Mapper->SetInputData(this->PolyData.GetPointer());
+
+  this->Texture->SetInputData(this->Image.GetPointer());
+  this->TextDims[0] = this->TextDims[1] = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -51,16 +77,6 @@ void vtkTextMapper::ShallowCopy(vtkTextMapper *tm)
 vtkTextMapper::~vtkTextMapper()
 {
   delete [] this->Input;
-
-  if (this->TextLines != NULL)
-    {
-    for (int i=0; i < this->NumberOfLinesAllocated; i++)
-      {
-      this->TextLines[i]->Delete();
-      }
-    delete [] this->TextLines;
-    }
-
   this->SetTextProperty(NULL);
 }
 
@@ -80,7 +96,30 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Input: " << (this->Input ? this->Input : "(none)") << "\n";
-  os << indent << "NumberOfLines: " << this->NumberOfLines << "\n";
+
+  os << indent << "TextDims: "
+     << this->TextDims[0] << ", " << this->TextDims[2] << "\n";
+
+  os << indent << "CoordsTime: " << this->CoordsTime.GetMTime() << "\n";
+  os << indent << "TCoordsTime: " << this->TCoordsTime.GetMTime() << "\n";
+  os << indent << "Image:\n";
+  this->Image->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Points:\n";
+  this->Points->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "PolyData:\n";
+  this->PolyData->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Mapper:\n";
+  this->Mapper->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Texture:\n";
+  this->Texture->PrintSelf(os, indent.GetNextIndent());
+}
+
+//----------------------------------------------------------------------------
+void vtkTextMapper::GetSize(vtkViewport *, int size[])
+{
+  UpdateImage();
+  size[0] = this->TextDims[0];
+  size[1] = this->TextDims[1];
 }
 
 //----------------------------------------------------------------------------
@@ -290,70 +329,46 @@ int vtkTextMapper::SetMultipleRelativeFontSize(vtkViewport *viewport,
   return fontSize;
 }
 
-
 //----------------------------------------------------------------------------
-// Parse the input and create multiple text mappers if multiple lines
-// (delimited by \n) are specified.
-void vtkTextMapper::SetInput(const char *input)
+void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
 {
-  if ( this->Input && input && (!strcmp(this->Input,input)))
+  vtkDebugMacro(<<"RenderOverlay called");
+  if (this->Input && this->Input[0])
     {
-    return;
-    }
-  delete [] this->Input;
-  if (input)
-    {
-    this->Input = new char[strlen(input)+1];
-    strcpy(this->Input,input);
-    }
-  else
-    {
-    this->Input = NULL;
-    }
-  this->Modified();
-
-  int numLines = this->GetNumberOfLines(input);
-
-  if ( numLines <= 1) // a line with no "\n"
-    {
-    this->NumberOfLines = numLines;
-    }
-
-  else //multiple lines
-    {
-    char *line;
-    int i;
-
-    if ( numLines > this->NumberOfLinesAllocated )
+    this->UpdateImage();
+    this->UpdateQuad(actor);
+    if (vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport))
       {
-      // delete old stuff
-      if ( this->TextLines )
-        {
-        for (i=0; i < this->NumberOfLinesAllocated; i++)
-          {
-          this->TextLines[i]->Delete();
-          }
-        delete [] this->TextLines;
-        }
-
-      // allocate new text mappers
-      this->NumberOfLinesAllocated = numLines;
-      this->TextLines = new vtkTextMapper *[numLines];
-      for (i=0; i < numLines; i++)
-        {
-        this->TextLines[i] = vtkTextMapper::New();
-        }
-      } //if we need to reallocate
-
-    // set the input strings
-    this->NumberOfLines = numLines;
-    for (i=0; i < this->NumberOfLines; i++)
-      {
-      line = this->NextLine(input, i);
-      this->TextLines[i]->SetInput( line );
-      delete [] line;
+      vtkDebugMacro(<<"Texture::Render called");
+      this->Texture->Render(ren);
       }
     }
+
+  vtkDebugMacro(<<"PolyData::RenderOverlay called");
+  this->Mapper->RenderOverlay(viewport, actor);
+
+  vtkDebugMacro(<<"Superclass::RenderOverlay called");
+  this->Superclass::RenderOverlay(viewport, actor);
+}
+
+//----------------------------------------------------------------------------
+void vtkTextMapper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  this->Superclass::ReleaseGraphicsResources(win);
+  this->Texture->ReleaseGraphicsResources(win);
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkTextMapper::GetMTime()
+{
+  unsigned long result = this->Superclass::GetMTime();
+  result = std::max(result, this->CoordsTime.GetMTime());
+  result = std::max(result, this->Image->GetMTime());
+  result = std::max(result, this->Points->GetMTime());
+  result = std::max(result, this->PolyData->GetMTime());
+  result = std::max(result, this->Mapper->GetMTime());
+  result = std::max(result, this->Texture->GetMTime());
+  return result;
 }
 
 //----------------------------------------------------------------------------
@@ -380,99 +395,140 @@ int vtkTextMapper::GetNumberOfLines(const char *input)
   return numLines;
 }
 
-//----------------------------------------------------------------------------
-// Get the next \n delimited line. Returns a string that
-// must be freed by the calling function.
-char *vtkTextMapper::NextLine(const char *input, int lineNum)
+//------------------------------------------------------------------------------
+namespace {
+// Given an Actor2D position coordinate (viewport, bottom left corner of actor)
+// and image dimensions, adjust the position to reflect the supplied alignment.
+void AdjustOrigin(int hAlign, int vAlign, int origin[2], const int dims[2])
 {
-  const char *ptr, *ptrEnd;
-  int strLen;
-  char *line;
-
-  ptr = input;
-  for (int i=0; i != lineNum; i++)
+  switch (hAlign)
     {
-    ptr = strstr(ptr,"\n");
-    ptr++;
-    }
-  ptrEnd = strstr(ptr,"\n");
-  if ( ptrEnd == NULL )
-    {
-    ptrEnd = strchr(ptr, '\0');
-    }
-
-  strLen = ptrEnd - ptr;
-  line = new char[strLen+1];
-  strncpy(line, ptr, strLen);
-  line[strLen] = '\0';
-
-  return line;
-}
-
-//----------------------------------------------------------------------------
-// Get the size of a multi-line text string
-void vtkTextMapper::GetMultiLineSize(vtkViewport* viewport, int size[2])
-{
-  int i;
-  int lineSize[2];
-
-  vtkTextProperty *tprop = this->GetTextProperty();
-  if (!tprop)
-    {
-    vtkErrorMacro(<<"Need text property to get multiline size of mapper");
-    size[0] = size[1] = 0;
-    return;
-    }
-
-  lineSize[0] = lineSize[1] = size[0] = size[1] = 0;
-  for ( i=0; i < this->NumberOfLines; i++ )
-    {
-    this->TextLines[i]->GetTextProperty()->ShallowCopy(tprop);
-    this->TextLines[i]->GetSize(viewport, lineSize);
-    size[0] = (lineSize[0] > size[0] ? lineSize[0] : size[0]);
-    size[1] = (lineSize[1] > size[1] ? lineSize[1] : size[1]);
-    }
-
-  // add in the line spacing
-  this->LineSize = size[1];
-  size[1] = static_cast<int>(
-    size[1] * (1.0 + (this->NumberOfLines - 1) * tprop->GetLineSpacing()));
-}
-
-//----------------------------------------------------------------------------
-void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport,
-                                               vtkActor2D *actor)
-{
-  float offset = 0.0f;
-  int size[2];
-  // make sure LineSize is up to date
-  this->GetMultiLineSize(viewport,size);
-
-  vtkTextProperty *tprop = this->GetTextProperty();
-  if (!tprop)
-    {
-    vtkErrorMacro(<<"Need text property to render multiple lines of mapper");
-    return;
-    }
-
-  switch (tprop->GetVerticalJustification())
-    {
-    case VTK_TEXT_TOP:
-      offset = 0.0f;
+    default:
+    case VTK_TEXT_LEFT:
       break;
     case VTK_TEXT_CENTERED:
-      offset = (-this->NumberOfLines + 1.0f) / 2.0f;
+      origin[0] -= dims[0] / 2;
       break;
-    case VTK_TEXT_BOTTOM:
-      offset = -this->NumberOfLines + 1.0f;
+    case VTK_TEXT_RIGHT:
+      origin[0] -= dims[0];
       break;
     }
 
-  for (int lineNum=0; lineNum < this->NumberOfLines; lineNum++)
+  switch (vAlign)
     {
-    this->TextLines[lineNum]->GetTextProperty()->ShallowCopy(tprop);
-    this->TextLines[lineNum]->GetTextProperty()->SetLineOffset
-      (tprop->GetLineOffset() + static_cast<int>(this->LineSize * (lineNum + offset) * tprop->GetLineSpacing()));
-    this->TextLines[lineNum]->RenderOverlay(viewport,actor);
+    default:
+    case VTK_TEXT_TOP:
+      origin[1] -= dims[1];
+      break;
+    case VTK_TEXT_CENTERED:
+      origin[1] -= dims[1] / 2;
+      break;
+    case VTK_TEXT_BOTTOM:
+      break;
+    }
+}
+}
+
+//----------------------------------------------------------------------------
+void vtkTextMapper::UpdateQuad(vtkActor2D *actor)
+{
+  vtkDebugMacro(<<"UpdateQuad called");
+
+  // Ensure that the image is up to date.
+  UpdateImage();
+
+  // Update texture coordinates:
+  if (this->Image->GetMTime() > this->TCoordsTime)
+    {
+    int dims[3];
+    this->Image->GetDimensions(dims);
+
+    // Add a fudge factor to the texture coordinates to prevent the top
+    // row of pixels from being truncated on some systems. The coordinates
+    // are calculated to be centered on a texel and trim the padding from the
+    // image. (padding is often added to create textures that have power-of-two
+    // dimensions)
+    float tw = static_cast<float>(this->TextDims[0]);
+    float th = static_cast<float>(this->TextDims[1]);
+    float iw = static_cast<float>(dims[0]);
+    float ih = static_cast<float>(dims[1]);
+    float tcXMin = 1.f / (2.f * iw);
+    float tcYMin = 1.f / (2.f * ih);
+    float tcXMax = std::min(1.0f,
+                            (((2.f * tw - 1.f) / (2.f)) + 0.000001f) / iw);
+    float tcYMax = std::min(1.0f,
+                            (((2.f * th - 1.f) / (2.f)) + 0.000001f) / ih);
+    if (vtkFloatArray *tc =
+        vtkFloatArray::SafeDownCast(
+          this->PolyData->GetPointData()->GetTCoords()))
+      {
+      vtkDebugMacro(<<"Setting tcoords: xmin, xmax, ymin, ymax: "
+                    << tcXMin << ", " << tcXMax << ", "
+                    << tcYMin << ", " << tcYMax);
+      tc->Reset();
+      tc->InsertNextValue(tcXMin);
+      tc->InsertNextValue(tcYMin);
+
+      tc->InsertNextValue(tcXMin);
+      tc->InsertNextValue(tcYMax);
+
+      tc->InsertNextValue(tcXMax);
+      tc->InsertNextValue(tcYMax);
+
+      tc->InsertNextValue(tcXMax);
+      tc->InsertNextValue(tcYMin);
+
+      this->TCoordsTime.Modified();
+      }
+    else
+      {
+      vtkErrorMacro(<<"Invalid texture coordinate array type.");
+      }
+    }
+
+  if (this->CoordsTime < actor->GetMTime() ||
+      this->CoordsTime < this->TextProperty->GetMTime())
+    {
+    int pos[2] = { 0, 0 };
+    AdjustOrigin(this->TextProperty->GetJustification(),
+                 this->TextProperty->GetVerticalJustification(),
+                 pos, this->TextDims);
+
+    double x = static_cast<double>(pos[0]);
+    double y = static_cast<double>(pos[1]);
+    double w = static_cast<double>(this->TextDims[0]);
+    double h = static_cast<double>(this->TextDims[1]);
+
+    this->Points->Reset();
+    this->Points->InsertNextPoint(x, y, 0.);
+    this->Points->InsertNextPoint(x, y + h, 0.);
+    this->Points->InsertNextPoint(x + w, y + h, 0.);
+    this->Points->InsertNextPoint(x + w, y, 0.);
+    this->CoordsTime.Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkTextMapper::UpdateImage()
+{
+  vtkDebugMacro(<<"UpdateImage called");
+  if (this->MTime > this->Image->GetMTime() ||
+      this->TextProperty->GetMTime() > this->Image->GetMTime())
+    {
+    vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
+    if (tren)
+      {
+      if (!tren->RenderString(this->TextProperty, this->Input,
+                              this->Image.GetPointer(), this->TextDims))
+        {
+        vtkErrorMacro(<<"Texture generation failed.");
+        }
+      vtkDebugMacro(<< "Text rendered to " << this->TextDims[0] << ", "
+                    << this->TextDims[1] << " buffer.");
+      }
+    else
+      {
+      vtkErrorMacro(<<"Could not locate vtkTextRenderer object.");
+      }
     }
 }
