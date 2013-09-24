@@ -127,39 +127,6 @@ octree_path<T_,R_,P_,O_,OP_,d_>::octree_path( octree_node_pointer root, std::vec
   * and so forth.
   */
 
-
-/**\brief Assignment operator (for copying paths of mutable nodes).
-  *
-  */
-template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
-octree_path<T_,R_,P_,O_,OP_,d_>& octree_path<T_,R_,P_,O_,OP_,d_>::operator = ( const path& src )
-{
-  this->_M_root = src._M_root;
-  this->_M_parents = src._M_parents;
-  this->_M_indices = src._M_indices;
-  this->_M_current_node = src._M_current_node;
-  return *this;
-}
-
-/**\fn    template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ > \
-  *       self_path& octree_path<T_,R_,P_,O_,OP_,d_>::operator = ( const const_path& src )
-  *\brief Assignment operator (for copying paths of immutable nodes).
-  * Frappy
-  */
-
-/**\brief Assignment operator (for copying paths of immutable nodes).
-  *
-  */
-template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
-octree_path<T_,R_,P_,O_,OP_,d_>& octree_path<T_,R_,P_,O_,OP_,d_>::operator = ( const const_path& src )
-{
-  this->_M_root = const_cast<octree_node_pointer>( src._M_root );
-  this->_M_parents = src._M_parents;
-  this->_M_indices = src._M_indices;
-  this->_M_current_node = src._M_current_node;
-  return *this;
-}
-
 /**\fn template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ > \
   *    bool octree_path<T_,R_,P_,O_,OP_,d_>::operator == ( const path& it )
   *\brief Compare two paths for equality.
