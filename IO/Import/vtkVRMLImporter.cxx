@@ -938,11 +938,6 @@ int yydebug;                    /*  nonzero means print parse trace     */
 #define YYMAXDEPTH 10000
 #endif
 
-/* Prevent warning if -Wstrict-prototypes.  */
-#ifdef __GNUC__
-int yyparse (vtkVRMLImporter*);
-#endif
-
 #if __GNUC__ > 1                /* GNU C and GNU C++ define this.  */
 #define __yy_memcpy(FROM,TO,COUNT)      __builtin_memcpy(TO,FROM,COUNT)
 #else                           /* not GNU C or C++ */
@@ -984,7 +979,7 @@ __yy_memcpy (char *from, char *to, int count)
 
 
 
-int
+static int
 yyparse(vtkVRMLImporter* self)
 {
   FakeAlloca yyallocator;
