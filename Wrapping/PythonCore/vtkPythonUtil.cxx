@@ -61,11 +61,31 @@ public:
 //--------------------------------------------------------------------
 // There are five maps associated with the Python wrappers
 
+//--------------------------------------------------------------------
+class vtkPythonReferenceCountedValue
+{
+public:
+  vtkPythonReferenceCountedValue()
+  {
+    this->VTKObject = NULL;
+    this->PythonObject = NULL;
+  }
+  vtkPythonReferenceCountedValue(vtkSmartPointerBase const& cpp,
+                                 PyObject* python)
+  {
+    this->VTKObject = cpp;
+    this->PythonObject = python;
+  }
+
+  vtkSmartPointerBase VTKObject;
+  PyObject* PythonObject;
+};
+
 // Map VTK objects to python objects (this is also the cornerstone
 // of the vtk/python garbage collection system, because it contains
 // exactly one pointer reference for each VTK object known to python)
 class vtkPythonObjectMap
-  : public std::map<vtkSmartPointerBase, PyObject*>
+  : public std::map<vtkObjectBase*, vtkPythonReferenceCountedValue>
 {
 };
 
@@ -290,7 +310,7 @@ void vtkPythonUtil::AddObjectToMap(PyObject *obj, vtkObjectBase *ptr)
 #endif
 
   ((PyVTKObject *)obj)->vtk_ptr = ptr;
-  (*vtkPythonMap->ObjectMap)[ptr] = obj;
+  (*vtkPythonMap->ObjectMap)[ptr] = vtkPythonReferenceCountedValue(ptr, obj);
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Added object to map obj= " << obj << " "
@@ -308,7 +328,7 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
                          << pobj << " " << pobj->vtk_ptr);
 #endif
 
-  if (vtkPythonMap)
+  if (vtkPythonMap && vtkPythonMap->ObjectMap->count(pobj->vtk_ptr))
     {
     vtkWeakPointerBase wptr;
 
@@ -368,11 +388,11 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
 
   if (ptr)
     {
-    std::map<vtkSmartPointerBase, PyObject*>::iterator i =
+    std::map<vtkObjectBase*, vtkPythonReferenceCountedValue>::iterator i =
       vtkPythonMap->ObjectMap->find(ptr);
     if (i != vtkPythonMap->ObjectMap->end())
       {
-      obj = i->second;
+      obj = i->second.PythonObject;
       }
     if (obj)
       {
