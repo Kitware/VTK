@@ -92,7 +92,7 @@ public:
   // Description:
   // Specify the region in space over which the sampling occurs. The
   // bounds is specified as (xMin,xMax, yMin,yMax, zMin,zMax).
-  void SetModelBounds(double bounds[6]);
+  void SetModelBounds(const double bounds[6]);
   void SetModelBounds(double xMin, double xMax,
                       double yMin, double yMax,
                       double zMin, double zMax);

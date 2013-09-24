@@ -56,7 +56,7 @@ void vtkBox::SetBounds(double xMin, double xMax,
 }
 
 //----------------------------------------------------------------------------
-void vtkBox::SetBounds(double bounds[6])
+void vtkBox::SetBounds(const double bounds[6])
 {
   this->SetBounds(bounds[0],bounds[1], bounds[2],bounds[3],
                   bounds[4],bounds[5]);
@@ -114,7 +114,7 @@ double* vtkBox::GetBounds()
 }
 
 //----------------------------------------------------------------------------
-void vtkBox::AddBounds(double bounds[6])
+void vtkBox::AddBounds(const double bounds[6])
 {
   vtkBoundingBox bbox(*(this->BBox));
   this->BBox->AddBounds(bounds);

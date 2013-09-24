@@ -1581,7 +1581,7 @@ bool vtkAxisActor::TickVisibilityChanged()
 // Set the bounds for this actor to use.  Sets timestamp BoundsModified.
 // *********************************************************************
 void
-vtkAxisActor::SetBounds(double b[6])
+vtkAxisActor::SetBounds(const double b[6])
 {
   if ((this->Bounds[0] != b[0]) ||
       (this->Bounds[1] != b[1]) ||

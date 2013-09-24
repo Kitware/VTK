@@ -56,7 +56,7 @@ public:
   void SetBounds(double xMin, double xMax,
                  double yMin, double yMax,
                  double zMin, double zMax);
-  void SetBounds(double bounds[6]);
+  void SetBounds(const double bounds[6]);
 
 protected:
   vtkCubeSource(double xL=1.0, double yL=1.0, double zL=1.0);

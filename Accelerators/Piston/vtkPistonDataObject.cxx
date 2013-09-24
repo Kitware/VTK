@@ -161,7 +161,7 @@ void vtkPistonDataObject::GetBounds(double bounds[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkPistonDataObject::SetBounds(double bounds[6])
+void vtkPistonDataObject::SetBounds(const double bounds[6])
 {
   bool modified = false;
   for (int i=0; i<6; i++)
@@ -194,7 +194,7 @@ void vtkPistonDataObject::GetOrigin(double origin[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkPistonDataObject::SetOrigin(double origin[3])
+void vtkPistonDataObject::SetOrigin(const double origin[3])
 {
   bool modified = false;
   for (int i=0; i<3; i++)

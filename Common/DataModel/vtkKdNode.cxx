@@ -73,7 +73,7 @@ void vtkKdNode::SetBounds(double x1,double x2,double y1,double y2,double z1,
 }
 
 // ----------------------------------------------------------------------------
-void vtkKdNode::SetMinBounds(double *b)
+void vtkKdNode::SetMinBounds(const double *b)
 {
   this->Min[0] = b[0];
   this->Min[1] = b[1];
@@ -81,7 +81,7 @@ void vtkKdNode::SetMinBounds(double *b)
 }
 
 // ----------------------------------------------------------------------------
-void vtkKdNode::SetMaxBounds(double *b)
+void vtkKdNode::SetMaxBounds(const double *b)
 {
   this->Max[0] = b[0];
   this->Max[1] = b[1];
@@ -89,7 +89,7 @@ void vtkKdNode::SetMaxBounds(double *b)
 }
 
 // ----------------------------------------------------------------------------
-void vtkKdNode::SetMinDataBounds(double *b)
+void vtkKdNode::SetMinDataBounds(const double *b)
 {
   this->MinVal[0] = b[0];
   this->MinVal[1] = b[1];
@@ -97,7 +97,7 @@ void vtkKdNode::SetMinDataBounds(double *b)
 }
 
 // ----------------------------------------------------------------------------
-void vtkKdNode::SetMaxDataBounds(double *b)
+void vtkKdNode::SetMaxDataBounds(const double *b)
 {
   this->MaxVal[0] = b[0];
   this->MaxVal[1] = b[1];

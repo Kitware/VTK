@@ -386,7 +386,7 @@ double* vtkAMRInformation::GetOrigin()
   return this->Origin;
 }
 
-void vtkAMRInformation::SetOrigin( const double* origin)
+void vtkAMRInformation::SetOrigin(const double* origin)
 {
   for(int d=0; d<3; d++)
     {
