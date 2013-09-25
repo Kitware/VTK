@@ -61,7 +61,7 @@ public:
   //   Caller allocates storage for 6-vector in GetBounds.
   void SetBounds(double xMin, double xMax, double yMin,
                  double yMax, double zMin, double zMax);
-  void SetBounds(double b[6])
+  void SetBounds(const double b[6])
     {
     this->SetBounds(b[0], b[1], b[2], b[3], b[4], b[5]);
     }

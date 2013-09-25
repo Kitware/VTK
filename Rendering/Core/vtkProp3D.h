@@ -91,7 +91,7 @@ public:
         this->IsIdentity = 0;
         }
     };
-  virtual void SetOrigin(double pos[3])
+  virtual void SetOrigin(const double pos[3])
     { this->SetOrigin(pos[0], pos[1], pos[2]); }
   vtkGetVectorMacro(Origin, double, 3);
 

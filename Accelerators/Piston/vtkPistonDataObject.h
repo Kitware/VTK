@@ -74,12 +74,12 @@ public:
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   double *GetBounds();
   void GetBounds(double bounds[6]);
-  void SetBounds(double bounds[6]);
+  void SetBounds(const double bounds[6]);
 
   // Description:
   double *GetOrigin();
   void GetOrigin(double origin[3]);
-  void SetOrigin(double origin[3]);
+  void SetOrigin(const double origin[3]);
 
   // Description:
   double *GetSpacing();

@@ -65,7 +65,7 @@ public:
   //   Set/Get the bounds of the spatial region represented by this node.
   //   Caller allocates storage for 6-vector in GetBounds.
   void SetBounds(double x1,double x2,double y1,double y2,double z1,double z2);
-  void SetBounds(double b[6])
+  void SetBounds(const double b[6])
     {
     this->SetBounds(b[0], b[1], b[2], b[3], b[4], b[5]);
     }
@@ -91,11 +91,11 @@ public:
 
   // Description:
   //   Set the xmin, ymin and zmin value of the bounds of this region
-  void SetMinBounds(double *mb);
+  void SetMinBounds(const double *mb);
 
   // Description:
   //   Set the xmax, ymax and zmax value of the bounds of this region
-  void SetMaxBounds(double *mb);
+  void SetMaxBounds(const double *mb);
 
   // Description:
   //   Get a pointer to the 3 data bound minima (xmin, ymin and zmin) or the
@@ -106,12 +106,12 @@ public:
   // Description:
   //   Set the xmin, ymin and zmin value of the bounds of this
   //   data within this region
-  void SetMinDataBounds(double *mb);
+  void SetMinDataBounds(const double *mb);
 
   // Description:
   //   Set the xmax, ymax and zmax value of the bounds of this
   //   data within this region
-  void SetMaxDataBounds(double *mb);
+  void SetMaxDataBounds(const double *mb);
 
   // Description:
   //   Set/Get the ID associated with the region described by this node.  If
