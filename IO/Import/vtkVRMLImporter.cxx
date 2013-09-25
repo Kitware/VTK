@@ -566,12 +566,6 @@ yyltype;
 #define YYLTYPE yyltype
 #endif
 
-#ifndef __cplusplus
-#ifndef __STDC__
-#define const
-#endif
-#endif
-
 #define YYFINAL         128
 #define YYFLAG          -32768
 #define YYNTBASE        40
