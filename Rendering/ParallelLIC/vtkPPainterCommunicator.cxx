@@ -246,7 +246,7 @@ bool vtkPPainterCommunicator::MPIInitialized()
 {
   int initialized;
   MPI_Initialized(&initialized);
-  return initialized;
+  return initialized == 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -254,7 +254,7 @@ bool vtkPPainterCommunicator::MPIFinalized()
 {
   int finished;
   MPI_Finalized(&finished);
-  return finished;
+  return finished == 1;
 }
 
 //-----------------------------------------------------------------------------

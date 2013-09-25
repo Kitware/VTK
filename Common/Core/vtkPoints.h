@@ -154,6 +154,11 @@ public:
   void SetNumberOfPoints(vtkIdType number);
 
   // Description:
+  // Resize the internal array while conserving the data.  Returns 1 if
+  // resizing succeeded and 0 otherwise.
+  int Resize(vtkIdType numPoints);
+
+  // Description:
   // Given a list of pt ids, return an array of points.
   void GetPoints(vtkIdList *ptId, vtkPoints *fp);
 
@@ -186,6 +191,12 @@ inline void vtkPoints::SetNumberOfPoints(vtkIdType number)
 {
   this->Data->SetNumberOfComponents(3);
   this->Data->SetNumberOfTuples(number);
+}
+
+inline int vtkPoints::Resize(vtkIdType numPoints)
+{
+  this->Data->SetNumberOfComponents(3);
+  return this->Data->Resize(numPoints);
 }
 
 inline void vtkPoints::SetPoint(vtkIdType id, double x, double y, double z)

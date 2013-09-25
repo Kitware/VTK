@@ -29,6 +29,7 @@
 #define __vtkTypeTemplate_h
 
 #include "vtkObjectBase.h"
+#include <string>
 #include <typeinfo>
 
 template<class ThisT, class BaseT>
@@ -45,7 +46,8 @@ public:
 
   static ThisT* SafeDownCast(vtkObjectBase* o)
   {
-    if(o && o->IsA(typeid(ThisT).name()))
+    if(o &&
+       o->IsA(vtkTypeTemplate<ThisT, BaseT>::GetClassNameInternalCachedName()))
       {
       return static_cast<ThisT*>(o);
       }
@@ -64,7 +66,8 @@ protected:
   // "normal" VTK classes.
   static int IsTypeOf(const char* type)
   {
-    if(!strcmp(typeid(ThisT).name(), type))
+    if (strcmp(vtkTypeTemplate<ThisT, BaseT>::GetClassNameInternalCachedName(),
+               type) == 0)
       {
       return 1;
       }
@@ -79,10 +82,22 @@ protected:
     return this->IsTypeOf(type);
   }
 
+  vtkTypeTemplate() {}
+
 private:
+  // not implemented:
+  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&);
+  void operator=(const vtkTypeTemplate<ThisT, BaseT>&);
+
+  static const char* GetClassNameInternalCachedName()
+  {
+    static std::string thisType(typeid(ThisT).name());
+    return thisType.c_str();
+  }
+
   virtual const char* GetClassNameInternal() const
   {
-    return typeid(ThisT).name();
+    return this->GetClassNameInternalCachedName();
   }
 };
 

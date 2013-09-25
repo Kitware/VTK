@@ -5,6 +5,7 @@ find_package(PythonInterp REQUIRED)
 
 set(WEB_APPLICATIONS
   Cone
+  GraphLayout
   PhylogeneticTree
 )
 

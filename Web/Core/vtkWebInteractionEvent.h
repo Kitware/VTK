@@ -65,6 +65,8 @@ public:
   vtkGetMacro(X, double);
   vtkSetMacro(Y, double);
   vtkGetMacro(Y, double);
+  vtkSetMacro(Scroll, double);
+  vtkGetMacro(Scroll, double);
 
   // Handle double click
   vtkSetMacro(RepeatCount, int);
@@ -79,6 +81,7 @@ protected:
   char KeyCode;
   double X;
   double Y;
+  double Scroll;
   int RepeatCount;
 
 private:

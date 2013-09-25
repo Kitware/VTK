@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel='stylesheet' href='style.css' type='text/css'>
+    </head>
+
+    <body class="page" onbeforeunload="exit()" onunload="exit()">
+        <select>
+            <option value="ForceDirected">Force Directed</option>
+            <option value="SpanTree">Span Tree</option>
+            <option value="SpanTreeDepthFirst">Span Tree Depth First</option>
+            <option value="Circular">Circular</option>
+            <option value="Random">Random</option>
+            <option value="Fast2D">Fast 2D</option>
+            <option value="Clustering2D">Clustering 2D</option>
+            <option value="Community2D">Community 2D</option>
+        </select>
+        <div class="viewport-container"></div>
+
+        <script src="../../lib/js/vtkweb-loader-min.js" load="all-min"></script>
+        <script type="text/javascript">
+            var connection = {
+                sessionURL: "ws://" + window.location.host + "/ws",
+                name: "WebGraphLayoutDemo",
+                application: "graph"
+            },
+            viewport = null;
+
+            // Method call at exit time
+            function exit() {
+                if(connection.session) {
+                    viewport.unbind();
+                    connection.session.call('vtk:exit');
+                    connection.session.close();
+                    connection.session = null;
+                }
+            }
+
+            // Connect to remote server
+            vtkWeb.connect(connection, function(serverConnection) {
+                connection = serverConnection;
+
+                // Create viewport
+                viewport = vtkWeb.createViewport({session:connection.session});
+                viewport.bind(".viewport-container");
+
+                // Attach listener to layout controller
+                $('select').change(function(){
+                    var me = $(this);
+                    connection.session.call("vtk:changeLayout", me.val()).then(function(){
+                        viewport.render();
+                    });
+                }).trigger("change");
+
+                // Handle window resize
+                $(window).resize(function() {
+                    if(viewport) {
+                        viewport.render();
+                    }
+                }).trigger('resize');
+            }, function(code, reason) {
+                alert(reason);
+            });
+        </script>
+    </body>
+</html>

@@ -20,6 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkPointLocator.h"
+#include "vtkPointSetCellIterator.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -319,6 +320,14 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
 
   // Could not find the cell.
   return -1;
+}
+
+//----------------------------------------------------------------------------
+vtkCellIterator *vtkPointSet::NewCellIterator()
+{
+  vtkPointSetCellIterator *iter = vtkPointSetCellIterator::New();
+  iter->SetPointSet(this);
+  return iter;
 }
 
 //----------------------------------------------------------------------------

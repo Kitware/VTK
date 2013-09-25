@@ -41,6 +41,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Set the points object to use for this cell. This updates the internal cell
+  // storage as well as the public member variable Points.
+  void SetPoints(vtkPoints *points);
+
+  // Description:
+  // Set the point ids to use for this cell. This updates the internal cell
+  // storage as well as the public member variable PointIds.
+  void SetPointIds(vtkIdList *pointIds);
+
+  // Description:
   // See the vtkCell API for descriptions of these methods.
   void ShallowCopy(vtkCell *c);
   void DeepCopy(vtkCell *c);

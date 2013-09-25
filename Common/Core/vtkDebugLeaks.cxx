@@ -26,7 +26,7 @@ static const char *vtkDebugLeaksIgnoreClasses[] = {
 
 //----------------------------------------------------------------------------
 // return 1 if the class should be ignored
-int vtkDebugLeaksIgnoreClassesCheck(const char* s)
+static int vtkDebugLeaksIgnoreClassesCheck(const char* s)
 {
   int i =0;
   while(vtkDebugLeaksIgnoreClasses[i])
@@ -44,7 +44,7 @@ vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------
 // A hash function for converting a string to a long
-inline size_t vtkHashString(const char* s)
+static inline size_t vtkHashString(const char* s)
 {
   unsigned long h = 0;
   for ( ; *s; ++s)

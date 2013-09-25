@@ -106,7 +106,7 @@
         /// throttled.
         function eatMouseEvent(event) {
             var force_event = (button_state.left !== event.buttonLeft || button_state.right  !== event.buttonRight || button_state.middle !== event.buttonMiddle);
-            if (!force_event && !event.buttonLeft && !event.buttonRight && !event.buttonMiddle) {
+            if (!force_event && !event.buttonLeft && !event.buttonRight && !event.buttonMiddle && !event.scroll) {
                 return true;
             }
             if (!force_event && action_pending) {
@@ -377,7 +377,7 @@
                 evt.preventDefault();
 
                 // Update quality based on the type of the event
-                if(evt.action === 'up' || evt.action === 'dblclick') {
+                if(evt.action === 'up' || evt.action === 'dblclick' || evt.action === 'scroll') {
                     quality = options.stillQuality;
                 } else {
                     quality = options.interactiveQuality;
@@ -416,6 +416,7 @@
                      * - up
                      * - move
                      * - dblclick
+                     * - scroll
                      */
                     action: evt.action,
                     /**
@@ -465,8 +466,13 @@
                     y : (evt.pageY - elem_position.top)
                 };
 
-                vtkWeb_event.x = pointer.x / renderer.width();
-                vtkWeb_event.y = 1.0 - (pointer.y / renderer.height());
+                if(evt.action === 'scroll') {
+                    vtkWeb_event.scroll = evt.scroll;
+                } else {
+                    vtkWeb_event.x = pointer.x / renderer.width();
+                    vtkWeb_event.y = 1.0 - (pointer.y / renderer.height());
+                }
+
                 if (eatMouseEvent(vtkWeb_event)) {
                     return;
                 }

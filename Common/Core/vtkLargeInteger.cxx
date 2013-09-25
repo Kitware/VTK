@@ -23,33 +23,14 @@
 
 const unsigned int BIT_INCREMENT = 32;
 
-int maximum(int a, int b)
+static int maximum(int a, int b)
 {
   return a > b ? a : b;
 }
 
-int minimum(int a, int b)
+static int minimum(int a, int b)
 {
   return a < b ? a : b;
-}
-
-long vtkpow(long a, long b)
-{
-  long a1 = a;
-  long b1 = b;
-  long c = 1;
-
-  while (b1 >= 1)
-    {
-    while ( ( b & 1 ) == 0)
-      {
-      b1 = b1 / 2;
-      a1 = a1 * a1;
-      }
-    b1 = b1 - 1;
-    c = c * a1;
-    }
-  return c;
 }
 
 void vtkLargeInteger::Contract()

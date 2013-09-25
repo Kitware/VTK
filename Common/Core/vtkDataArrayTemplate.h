@@ -343,6 +343,7 @@ private:
   void operator=(const vtkDataArrayTemplate&);  // Not implemented.
 
   vtkDataArrayTemplateLookup<T>* Lookup;
+  bool RebuildLookup;
   void UpdateLookup();
 
   void DeleteArray();

@@ -137,13 +137,6 @@
                         action: 'move',
                         current_button: current_button
                     }));
-                } else if(event.type === 'click' && current_button != null) {
-                    alert("Double click");
-                    renderersContainer.trigger($.extend(event, {
-                        type: 'mouse',
-                        action: 'dblclick',
-                        current_button: event.which
-                    }));
                 }
             }
         }
@@ -156,6 +149,15 @@
                 type: 'mouse',
                 action: 'dblclick',
                 current_button: event.which
+            }));
+        });
+        mouseListenerContainer.bind("DOMMouseScroll mousewheel",function(event){
+            var scrollValue = (event.originalEvent.wheelDeltaY || -event.originalEvent.detail);
+            renderersContainer.trigger($.extend(event, {
+                type: 'mouse',
+                action: 'scroll',
+                current_button: current_button,
+                scroll: scrollValue
             }));
         });
     }

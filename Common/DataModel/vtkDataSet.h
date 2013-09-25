@@ -42,6 +42,7 @@
 
 class vtkCell;
 class vtkCellData;
+class vtkCellIterator;
 class vtkCellTypes;
 class vtkExtentTranslator;
 class vtkGenericCell;
@@ -88,6 +89,10 @@ public:
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   virtual void GetPoint(vtkIdType id, double x[3]);
+
+  // Description:
+  // Return an iterator that traverses the cells in this data set.
+  virtual vtkCellIterator* NewCellIterator();
 
   // Description:
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells.

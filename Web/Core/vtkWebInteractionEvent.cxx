@@ -24,7 +24,8 @@ vtkWebInteractionEvent::vtkWebInteractionEvent() :
   KeyCode(0),
   X(0.0),
   Y(0.0),
-  RepeatCount(0)
+  RepeatCount(0),
+  Scroll(0.0)
 {
 }
 
@@ -43,4 +44,5 @@ void vtkWebInteractionEvent::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "X: " << this->X << endl;
   os << indent << "Y: " << this->Y << endl;
   os << indent << "RepeatCount: " << this->RepeatCount << endl;
+  os << indent << "Scroll: " << this->Scroll << endl;
 }
