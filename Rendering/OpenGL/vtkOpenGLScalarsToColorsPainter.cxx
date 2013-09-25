@@ -234,6 +234,12 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
 
   this->Superclass::RenderInternal(renderer, actor, typeflags, forceCompileOnly);
 
+  if (this->InterpolateScalarsBeforeMapping && this->SupportsSeparateSpecularColor)
+    {
+    glLightModeli(vtkgl::LIGHT_MODEL_COLOR_CONTROL, vtkgl::SINGLE_COLOR);
+    glDisable(vtkgl::COLOR_SUM);
+    }
+
   if (pre_multiplied_by_alpha || this->InterpolateScalarsBeforeMapping)
     {
     // restore the blend function & lights
