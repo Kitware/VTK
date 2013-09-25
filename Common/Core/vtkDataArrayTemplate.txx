@@ -199,43 +199,19 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
     return;
     }
 
-  // Free our previous memory.
-  this->DeleteArray();
+  // Resize the internal array if needed
+  const vtkIdType numTuples = fa->GetNumberOfTuples();
+  this->SetNumberOfComponents(fa->GetNumberOfComponents());
+  this->SetNumberOfTuples(numTuples);
 
-  // Copy the given array into new memory.
-  this->NumberOfComponents = fa->GetNumberOfComponents();
-  this->MaxId = fa->GetMaxId();
-  this->Size = fa->GetSize();
-
-  this->Size = (this->Size > 0 ? this->Size : 1);
-  this->Array = static_cast<T* >(
-    malloc(static_cast<size_t>(this->Size) * sizeof(T)));
-  if(this->Array==0)
-    {
-    vtkErrorMacro("Unable to allocate " << this->Size
-                  << " elements of size " << sizeof(T)
-                  << " bytes. ");
-
-    #if !defined NDEBUG
-    // We're debugging, crash here preserving the stack
-    abort();
-    #elif !defined VTK_DONT_THROW_BAD_ALLOC
-    // We can throw something that has universal meaning
-    throw std::bad_alloc();
-    #else
-    // We indicate that malloc failed by return
-    this->Size = 0;
-    this->NumberOfComponents = 0;
-    this->MaxId = -1;
-    return;
-    #endif
-    }
-  if (fa->GetSize() > 0)
+  // Copy
+  if (numTuples > 0)
     {
     memcpy(this->Array, fa->GetVoidPointer(0),
            static_cast<size_t>(this->Size)*sizeof(T));
     }
   this->vtkAbstractArray::DeepCopy( fa );
+  this->Squeeze();
   this->DataChanged();
 }
 
