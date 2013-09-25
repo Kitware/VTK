@@ -86,6 +86,7 @@ static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000LL };
 
 #endif //VTK_HAS_STD_NUMERIC_LIMITS
 
+#if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
 #if defined(__BORLANDC__)
 const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000i64;
 const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFi64;
@@ -93,7 +94,7 @@ const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFi64;
 const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000LL;
 const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFLL;
 #endif
-
+#endif
 
 //
 // Some useful macros and functions
