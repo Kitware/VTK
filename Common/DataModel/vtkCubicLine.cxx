@@ -53,10 +53,6 @@ vtkCubicLine::~vtkCubicLine()
 
 
 //----------------------------------------------------------------------------
-static const int VTK_NO_INTERSECTION=0;
-static const int VTK_YES_INTERSECTION=2;
-static const int VTK_ON_LINE=3;
-
 int vtkCubicLine::EvaluatePosition(double x[3], double* closestPoint,
                              int& subId, double pcoords[3],
                              double& minDist2, double *weights)
