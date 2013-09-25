@@ -1708,30 +1708,18 @@ expect(int type)
 /* Use prototypes in function declarations. */
 #define YY_USE_PROTOS
 
-/* The "const" storage-class-modifier is valid. */
-#define YY_USE_CONST
-
 #else   /* ! __cplusplus */
 
 #ifdef __STDC__
 
 #define YY_USE_PROTOS
-#define YY_USE_CONST
 
 #endif  /* __STDC__ */
 #endif  /* ! __cplusplus */
 
 
-#ifdef __TURBOC__
-#define YY_USE_CONST
-#endif
 
 
-#ifndef YY_USE_CONST
-#ifndef const
-#define const
-#endif
-#endif
 
 
 #ifdef YY_USE_PROTOS
