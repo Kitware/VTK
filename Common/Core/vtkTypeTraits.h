@@ -32,6 +32,7 @@ template <class T> struct vtkTypeTraits;
     typedef type ValueType;                                                   \
                                                                               \
     /* the value defined for this type in vtkType */                          \
+    enum { VTK_TYPE_ID = VTK_##macro };                                       \
     static int VTKTypeID() { return VTK_##macro; }                            \
                                                                               \
     /* The smallest possible value represented by the type.  */               \

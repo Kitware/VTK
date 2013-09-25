@@ -72,14 +72,14 @@ class vtkAbstractArray::vtkInternalComponentNames : public vtkInternalComponentN
 
 //----------------------------------------------------------------------------
 // Construct object with sane defaults.
-vtkAbstractArray::vtkAbstractArray(vtkIdType vtkNotUsed(numComp))
+vtkAbstractArray::vtkAbstractArray()
 {
   this->Size = 0;
   this->MaxId = -1;
   this->NumberOfComponents = 1;
   this->Name = NULL;
+  this->RebuildArray = false;
   this->Information = NULL;
-
   this->ComponentNames = NULL;
 
   this->MaxDiscreteValues = vtkAbstractArray::MAX_DISCRETE_VALUES; //32

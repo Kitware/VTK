@@ -141,6 +141,13 @@ public:
   virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
 
   // Description:
+  // Copy the tuples indexed in srcIds from the source array to the tuple
+  // locations indexed by dstIds in this array.
+  // Note that memory allocation is performed as necessary to hold the data.
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray* source) = 0;
+
+  // Description:
   // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
@@ -161,6 +168,9 @@ public:
   // Description:
   // Return a void pointer. For image pipeline interface and other
   // special pointer manipulation.
+  // If the data is simply being iterated over, consider using
+  // vtkDataArrayIteratorMacro for safety and efficiency, rather than using this
+  // member directly.
   virtual void *GetVoidPointer(vtkIdType id) = 0;
 
   // Description:
@@ -446,9 +456,23 @@ public:
   vtkGetMacro(MaxDiscreteValues, unsigned int);
   vtkSetMacro(MaxDiscreteValues, unsigned int);
 
+  enum {
+    AbstractArray = 0,
+    DataArray,
+    TypedDataArray,
+    DataArrayTemplate
+    };
+
+  // Description:
+  // Method for type-checking in FastDownCast implementations.
+  virtual int GetArrayType()
+  {
+    return AbstractArray;
+  }
+
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
-  vtkAbstractArray(vtkIdType numComp=1);
+  vtkAbstractArray();
   ~vtkAbstractArray();
 
   // Description:

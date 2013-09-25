@@ -152,7 +152,7 @@ public:
     { this->RealSuperclass::SetArray(array, size, save, deleteMethod); }
 
 protected:
-  vtkLongLongArray(vtkIdType numComp=1);
+  vtkLongLongArray();
   ~vtkLongLongArray();
 
 private:

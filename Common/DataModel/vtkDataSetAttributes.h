@@ -450,7 +450,8 @@ public:
   // that field (on or off), obey the flag, ignore (3) 3) obey
   // CopyAllOn/Off
   void CopyData(vtkDataSetAttributes *fromPd, vtkIdType fromId, vtkIdType toId);
-
+  void CopyData(vtkDataSetAttributes *fromPd,
+                vtkIdList *fromIds, vtkIdList *toIds);
 
   // Description:
   // Copy a tuple of data from one data array to another. This method
@@ -459,6 +460,8 @@ public:
   // invoke CopyAllocate() or InterpolateAllocate().
   void CopyTuple(vtkAbstractArray *fromData, vtkAbstractArray *toData,
                  vtkIdType fromId, vtkIdType toId);
+  void CopyTuples(vtkAbstractArray *fromData, vtkAbstractArray *toData,
+                  vtkIdList *fromIds, vtkIdList *toIds);
 
 
   // -- interpolate operations ----------------------------------------------

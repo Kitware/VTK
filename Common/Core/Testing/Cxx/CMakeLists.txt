@@ -26,6 +26,7 @@ vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
   # TestCxxFeatures.cxx # This is in its own exe too.
   TestDataArray.cxx
   TestDataArrayComponentNames.cxx
+  TestDataArrayIterators.cxx
   TestGarbageCollector.cxx
   # TestInstantiator.cxx # Have not enabled instantiators.
   TestLookupTable.cxx

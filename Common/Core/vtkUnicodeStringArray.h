@@ -49,6 +49,8 @@ public:
   virtual void SetNumberOfTuples(vtkIdType number);
   virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
   virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray *source);
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
   virtual void* GetVoidPointer(vtkIdType id);
   virtual void DeepCopy(vtkAbstractArray* da);
@@ -81,7 +83,7 @@ public:
   const char* GetUTF8Value(vtkIdType i);
 
 protected:
-  vtkUnicodeStringArray(vtkIdType numComp = 1);
+  vtkUnicodeStringArray();
   ~vtkUnicodeStringArray();
 
 private:

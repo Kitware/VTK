@@ -43,14 +43,11 @@ vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
-vtkDataArray::vtkDataArray(vtkIdType numComp)
+vtkDataArray::vtkDataArray()
 {
-  this->Size = 0;
-  this->MaxId = -1;
   this->LookupTable = NULL;
-
-  this->NumberOfComponents = static_cast<int>(numComp < 1 ? 1 : numComp);
-  this->Name = 0;
+  this->Range[0] = 0;
+  this->Range[1] = 0;
 }
 
 //----------------------------------------------------------------------------

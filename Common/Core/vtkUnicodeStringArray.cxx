@@ -30,7 +30,7 @@ public:
 
 vtkStandardNewMacro(vtkUnicodeStringArray);
 
-vtkUnicodeStringArray::vtkUnicodeStringArray(vtkIdType)
+vtkUnicodeStringArray::vtkUnicodeStringArray()
 {
   this->Internal = new Implementation;
 }
@@ -105,6 +105,46 @@ void vtkUnicodeStringArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArr
     this->Internal->Storage.resize(i + 1);
 
   this->Internal->Storage[i] = array->Internal->Storage[j];
+  this->DataChanged();
+}
+
+void vtkUnicodeStringArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                                         vtkAbstractArray *source)
+{
+  vtkUnicodeStringArray* const array =
+      vtkUnicodeStringArray::SafeDownCast(source);
+  if(!array)
+    {
+    vtkWarningMacro("Input and output array data types do not match.");
+    return;
+    }
+
+  vtkIdType numIds = dstIds->GetNumberOfIds();
+  if (srcIds->GetNumberOfIds() != numIds)
+    {
+    vtkWarningMacro("Input and output id array sizes do not match.");
+    return;
+    }
+
+  // Find maximum destination id and resize if needed
+  vtkIdType maxDstId = 0;
+  for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+    {
+    maxDstId = std::max(maxDstId, dstIds->GetId(idIndex));
+    }
+
+  if (static_cast<vtkIdType>(this->Internal->Storage.size()) <= maxDstId)
+    {
+    this->Internal->Storage.resize(maxDstId + 1);
+    }
+
+  // Copy data
+  for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+    {
+    this->Internal->Storage[dstIds->GetId(idIndex)] =
+        array->Internal->Storage[srcIds->GetId(idIndex)];
+    }
+
   this->DataChanged();
 }
 
