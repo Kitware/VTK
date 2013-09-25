@@ -785,9 +785,7 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
-  vtkIdType i;
-  vtkIdType    loc;
-  double  x[3];
+  vtkIdType loc;
   vtkIdType *pts, numPts;
 
   int cellType = static_cast<int>(this->Types->GetValue(cellId));
@@ -797,14 +795,9 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   this->Connectivity->GetCell(loc,numPts,pts);
 
   cell->PointIds->SetNumberOfIds(numPts);
-  cell->Points->SetNumberOfPoints(numPts);
 
-  for (i=0; i<numPts; i++)
-    {
-    cell->PointIds->SetId(i,pts[i]);
-    this->Points->GetPoint(pts[i], x);
-    cell->Points->SetPoint(i, x);
-    }
+  std::copy(pts, pts + numPts, cell->PointIds->GetPointer(0));
+  this->Points->GetPoints(cell->PointIds, cell->Points);
 
   // Explicit face representation
   if ( cell->RequiresExplicitFaceRepresentation() )
