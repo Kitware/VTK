@@ -6,6 +6,8 @@ vtk_module(vtkIOParallel
     vtkFiltersParallel
     vtkIONetCDF
     vtkIOXML
+    vtkIOImage
+  PRIVATE_DEPENDS
     vtkexodusII
   TEST_DEPENDS
     vtkParallelMPI

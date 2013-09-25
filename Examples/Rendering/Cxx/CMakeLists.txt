@@ -22,7 +22,7 @@ set(RENDERING_EXAMPLES_SRCS
   SpecularSpheres
   DiffuseSpheres
   AmbientSpheres
-  MaterialObjects
+  #MaterialObjects
   )
 
 foreach(name ${RENDERING_EXAMPLES_SRCS})

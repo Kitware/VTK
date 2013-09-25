@@ -30,8 +30,6 @@
 #include "vtkUniformVariables.h"
 #include "vtkShader2Collection.h"
 #include "vtkTextureUnitManager.h"
-#include "vtkXMLMaterial.h"
-#include "vtkXMLShader.h"
 #include "vtkGLSLShaderDeviceAdapter2.h"
 #include "vtkOpenGLPainterDeviceAdapter.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -758,56 +756,6 @@ void vtkOpenGLProperty::LoadMultiTexturingExtensions(vtkRenderer* ren)
       }
     extensions->Delete();
     }
-}
-
-// ----------------------------------------------------------------------------
-// Description:
-// Read this->Material from new style shaders.
-void vtkOpenGLProperty::ReadFrameworkMaterial()
-{
-  vtkShaderProgram2* prog = vtkShaderProgram2::New();
-  this->SetPropProgram(prog);
-  prog->Delete();
-
-  if (!this->Material)
-    {
-    vtkErrorMacro("No Material set to read.");
-    return;
-    }
-
-  int cc;
-  int max = this->Material->GetNumberOfVertexShaders();
-  for (cc=0; cc < max; cc++)
-    {
-    vtkShader2 *shader = vtkShader2::New();
-    vtkXMLShader *XMLshader = this->Material->GetVertexShader(cc);
-
-    shader->SetType(VTK_SHADER_TYPE_VERTEX);
-    shader->SetSourceCode(XMLshader->GetCode());
-
-    // there is no uniform in the example
-//    vtkUniformVariables *var=shader->GetUniformVariables();
-//    var->
-
-    prog->GetShaders()->AddItem(shader);
-    shader->Delete();
-    }
-  vtkDebugMacro(<< max << " Vertex shaders added.");
-
-  max = this->Material->GetNumberOfFragmentShaders();
-  for (cc=0; cc < max; cc++)
-    {
-    vtkShader2 *shader = vtkShader2::New();
-    vtkXMLShader *XMLshader = this->Material->GetFragmentShader(cc);
-
-    shader->SetType(VTK_SHADER_TYPE_FRAGMENT);
-    shader->SetSourceCode(XMLshader->GetCode());
-
-    prog->GetShaders()->AddItem(shader);
-    shader->Delete();
-    }
-  vtkDebugMacro(<< max << " Fragment shaders added.");
-
 }
 
 //-----------------------------------------------------------------------------

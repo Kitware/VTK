@@ -61,7 +61,6 @@ set(Module_SRCS
   vtkMapper2D.cxx
   vtkMapperCollection.cxx
   vtkMapper.cxx
-  vtkMaterialLibrary.cxx
   vtkObserverMediator.cxx
   vtkPainter.cxx
   vtkPainterDeviceAdapter.cxx
@@ -79,7 +78,7 @@ set(Module_SRCS
   vtkPropCollection.cxx
   vtkProp.cxx
   vtkProperty2D.cxx
-  vtkProperty.cxx # needs a load of image readers - IOImage, IOXML
+  vtkProperty.cxx
   vtkRendererCollection.cxx
   vtkRenderer.cxx
   vtkRendererDelegate.cxx
@@ -90,11 +89,7 @@ set(Module_SRCS
   vtkRepresentationPainter.cxx
   vtkScalarsToColorsPainter.cxx
   vtkSelectVisiblePoints.cxx
-  vtkShader.cxx # vtkXMLShader
-  vtkShaderCodeLibrary.cxx
-  vtkShaderDeviceAdapter.cxx
   vtkShaderDeviceAdapter2.cxx
-  vtkShaderProgram.cxx # vtkXMLShaderProgram
   vtkStandardPolyDataPainter.cxx
   vtkTexture.cxx
   vtkTexturedActor2D.cxx
@@ -108,10 +103,6 @@ set(Module_SRCS
   vtkVolumeCollection.cxx
   vtkVolume.cxx
   vtkVolumeProperty.cxx
-  vtkXMLMaterial.cxx
-  vtkXMLMaterialParser.cxx
-  vtkXMLMaterialReader.cxx
-  vtkXMLShader.cxx
   vtkWindowLevelLookupTable.cxx
   vtkWindowToImageFilter.cxx
 
