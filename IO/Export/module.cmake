@@ -11,7 +11,8 @@ vtk_module(vtkIOExport
     vtkRenderingLabel
     vtkRenderingOpenGL
     vtkImagingCore
-    vtkIOCore
+  PRIVATE_DEPENDS
+    vtkIOImage
   TEST_DEPENDS
     vtkCommonColor
     vtkChartsCore

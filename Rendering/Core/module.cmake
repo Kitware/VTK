@@ -8,11 +8,8 @@ vtk_module(vtkRenderingCore
     vtkFiltersGeneral
     vtkFiltersGeometry
     vtkFiltersExtraction
-    vtkIOImage
   PRIVATE_DEPENDS
     vtksys
-  COMPILE_DEPENDS
-    vtkUtilitiesMaterialLibrary
   TEST_DEPENDS
     vtkIOXML
     vtkTestingCore
