@@ -245,6 +245,8 @@ void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd, vtkCellData *in
 
   //Interpolate new values
   double p[3];
+  this->Points->Resize(9);
+  this->CellScalars->Resize(9);
   for ( numMidPts=0; numMidPts < 1; numMidPts++ )
     {
     this->InterpolationFunctions(MidPoints[numMidPts], weights);
