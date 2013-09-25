@@ -577,9 +577,9 @@ virtual double *Get##name() \
     return this->name##Coordinate->GetValue(); \
 }
 
-// Macro used to determine whether a class is the same class or
-// a subclass of the named class.
-#define vtkTypeMacro(thisClass,superclass) \
+
+// Same as vtkTypeMacro, but adapted for cases where thisClass is abstact.
+#define vtkAbstractTypeMacro(thisClass,superclass) \
   typedef superclass Superclass; \
   private: \
   virtual const char* GetClassNameInternal() const { return #thisClass; } \
@@ -604,6 +604,11 @@ virtual double *Get##name() \
       } \
     return NULL;\
   } \
+
+// Macro used to determine whether a class is the same class or
+// a subclass of the named class.
+#define vtkTypeMacro(thisClass,superclass) \
+  vtkAbstractTypeMacro(thisClass, superclass) \
   protected: \
   virtual vtkObjectBase *NewInstanceInternal() const \
   { \

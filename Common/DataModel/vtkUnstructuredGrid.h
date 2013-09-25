@@ -125,6 +125,7 @@ public:
   virtual void GetCellBounds(vtkIdType cellId, double bounds[6]);
   virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
   void GetPointCells(vtkIdType ptId, vtkIdList *cellIds);
+  vtkCellIterator* NewCellIterator();
 
   int GetCellType(vtkIdType cellId);
   vtkUnsignedCharArray* GetCellTypesArray() { return this->Types; }
