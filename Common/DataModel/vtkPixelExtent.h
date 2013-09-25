@@ -25,6 +25,7 @@
 #ifndef __vtkPixelExtent_h
 #define __vtkPixelExtent_h
 
+#include "vtkSystemIncludes.h" // for VTK's system header config
 #include "vtkCommonDataModelModule.h" // for export
 
 #include <deque> // for inline impl

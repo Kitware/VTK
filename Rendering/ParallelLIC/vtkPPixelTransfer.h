@@ -34,6 +34,8 @@
 #include "vtkMPI.h" // for mpi
 #include "vtkMPIPixelTT.h" // for type traits
 #include "vtkMPIPixelView.h" // for mpi subarrays
+
+// included vtkSystemIncludes.h in the base class.
 #include <iostream> // for ostream
 #include <vector> // for vector
 #include <cstring> // for memcpy
