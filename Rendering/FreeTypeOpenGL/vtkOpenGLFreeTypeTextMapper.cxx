@@ -49,11 +49,23 @@ vtkOpenGLFreeTypeTextMapper::vtkOpenGLFreeTypeTextMapper()
 {
   this->LastSize[0] = 0;
   this->LastSize[1] = 0;
+  this->TextLines = NULL;
+  this->NumberOfLines = 0;
+  this->NumberOfLinesAllocated = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkOpenGLFreeTypeTextMapper::~vtkOpenGLFreeTypeTextMapper()
 {
+  if (this->TextLines != NULL)
+    {
+    for (int i=0; i < this->NumberOfLinesAllocated; i++)
+      {
+      this->TextLines[i]->Delete();
+      }
+    delete [] this->TextLines;
+    }
+
   if (this->LastWindow)
     {
     this->ReleaseGraphicsResources(this->LastWindow);
@@ -61,7 +73,104 @@ vtkOpenGLFreeTypeTextMapper::~vtkOpenGLFreeTypeTextMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLFreeTypeTextMapper::ReleaseGraphicsResources(vtkWindow *vtkNotUsed(win))
+char *vtkOpenGLFreeTypeTextMapper::NextLine(const char *input, int lineNum)
+{
+  const char *ptr, *ptrEnd;
+  int strLen;
+  char *line;
+
+  ptr = input;
+  for (int i=0; i != lineNum; i++)
+    {
+    ptr = strstr(ptr,"\n");
+    ptr++;
+    }
+  ptrEnd = strstr(ptr,"\n");
+  if ( ptrEnd == NULL )
+    {
+    ptrEnd = strchr(ptr, '\0');
+    }
+
+  strLen = ptrEnd - ptr;
+  line = new char[strLen+1];
+  strncpy(line, ptr, strLen);
+  line[strLen] = '\0';
+
+  return line;
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLFreeTypeTextMapper::GetMultiLineSize(vtkViewport *viewport,
+                                                   int size[])
+{
+  int i;
+  int lineSize[2];
+
+  vtkTextProperty *tprop = this->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorMacro(<<"Need text property to get multiline size of mapper");
+    size[0] = size[1] = 0;
+    return;
+    }
+
+  lineSize[0] = lineSize[1] = size[0] = size[1] = 0;
+  for ( i=0; i < this->NumberOfLines; i++ )
+    {
+    this->TextLines[i]->GetTextProperty()->ShallowCopy(tprop);
+    this->TextLines[i]->GetSize(viewport, lineSize);
+    size[0] = (lineSize[0] > size[0] ? lineSize[0] : size[0]);
+    size[1] = (lineSize[1] > size[1] ? lineSize[1] : size[1]);
+    }
+
+  // add in the line spacing
+  this->LineSize = size[1];
+  size[1] = static_cast<int>(
+    size[1] * (1.0 + (this->NumberOfLines - 1) * tprop->GetLineSpacing()));
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLFreeTypeTextMapper::RenderOverlayMultipleLines(
+    vtkViewport *viewport, vtkActor2D *actor)
+{
+  float offset = 0.0f;
+  int size[2];
+  // make sure LineSize is up to date
+  this->GetMultiLineSize(viewport,size);
+
+  vtkTextProperty *tprop = this->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorMacro(<<"Need text property to render multiple lines of mapper");
+    return;
+    }
+
+  switch (tprop->GetVerticalJustification())
+    {
+    case VTK_TEXT_TOP:
+      offset = 0.0f;
+      break;
+    case VTK_TEXT_CENTERED:
+      offset = (-this->NumberOfLines + 1.0f) / 2.0f;
+      break;
+    case VTK_TEXT_BOTTOM:
+      offset = -this->NumberOfLines + 1.0f;
+      break;
+    }
+
+  for (int lineNum=0; lineNum < this->NumberOfLines; lineNum++)
+    {
+    this->TextLines[lineNum]->GetTextProperty()->ShallowCopy(tprop);
+    this->TextLines[lineNum]->GetTextProperty()->SetLineOffset
+      (tprop->GetLineOffset() +
+       static_cast<int>(this->LineSize * (lineNum + offset)
+                        * tprop->GetLineSpacing()));
+    this->TextLines[lineNum]->RenderOverlay(viewport,actor);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLFreeTypeTextMapper::ReleaseGraphicsResources(vtkWindow *)
 {
 #if VTK_FTTM_DEBUG
     printf("vtkOpenGLFreeTypeTextMapper::ReleaseGraphicsResources\n");
@@ -417,4 +526,68 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 void vtkOpenGLFreeTypeTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "NumberOfLines: " << this->NumberOfLines << "\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLFreeTypeTextMapper::SetInput(const char *input)
+{
+  if ( this->Input && input && (!strcmp(this->Input,input)))
+    {
+    return;
+    }
+  delete [] this->Input;
+  if (input)
+    {
+    this->Input = new char[strlen(input)+1];
+    strcpy(this->Input,input);
+    }
+  else
+    {
+    this->Input = NULL;
+    }
+  this->Modified();
+
+  int numLines = this->GetNumberOfLines(input);
+
+  if ( numLines <= 1) // a line with no "\n"
+    {
+    this->NumberOfLines = numLines;
+    }
+
+  else //multiple lines
+    {
+    char *line;
+    int i;
+
+    if ( numLines > this->NumberOfLinesAllocated )
+      {
+      // delete old stuff
+      if ( this->TextLines )
+        {
+        for (i=0; i < this->NumberOfLinesAllocated; i++)
+          {
+          this->TextLines[i]->Delete();
+          }
+        delete [] this->TextLines;
+        }
+
+      // allocate new text mappers
+      this->NumberOfLinesAllocated = numLines;
+      this->TextLines = new vtkTextMapper *[numLines];
+      for (i=0; i < numLines; i++)
+        {
+        this->TextLines[i] = vtkTextMapper::New();
+        }
+      } //if we need to reallocate
+
+    // set the input strings
+    this->NumberOfLines = numLines;
+    for (i=0; i < this->NumberOfLines; i++)
+      {
+      line = this->NextLine(input, i);
+      this->TextLines[i]->SetInput( line );
+      delete [] line;
+      }
+    }
 }

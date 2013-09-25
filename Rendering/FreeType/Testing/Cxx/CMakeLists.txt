@@ -19,12 +19,18 @@ set(TestMathTextFreeTypeTextRendererNoMath_ARGS
 )
 vtk_add_test_cxx(TestMathTextFreeTypeTextRendererNoMath.cxx)
 
+set(TestFreeTypeTextMapperNoMath_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
+vtk_add_test_cxx(TestFreeTypeTextMapperNoMath.cxx)
+
 # add tests that require data
 vtk_add_test_cxx(TestFTStringToPath.cxx)
 
 if(MATPLOTLIB_FOUND)
   set(TestMathTextFreeTypeTextRenderer_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   vtk_add_test_cxx(TestMathTextFreeTypeTextRenderer.cxx)
+
+  set(TestFreeTypeTextMapper_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
+  vtk_add_test_cxx(TestFreeTypeTextMapper.cxx)
 endif()
 
 # This benchmark takes a while to run and can't fail, so disable it by default:
