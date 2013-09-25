@@ -1689,30 +1689,9 @@ expect(int type)
 #include <unistd.h>
 #endif
 
-#ifdef __cplusplus
-
 /* Use prototypes in function declarations. */
 #define YY_USE_PROTOS
-
-#else   /* ! __cplusplus */
-
-#ifdef __STDC__
-
-#define YY_USE_PROTOS
-
-#endif  /* __STDC__ */
-#endif  /* ! __cplusplus */
-
-
-
-
-
-
-#ifdef YY_USE_PROTOS
 #define YY_PROTO(proto) proto
-#else
-#define YY_PROTO(proto) ()
-#endif
 
 /* Returned upon end-of-file. */
 #define YY_NULL 0
