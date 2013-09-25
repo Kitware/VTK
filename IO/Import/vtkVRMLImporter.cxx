@@ -1695,14 +1695,6 @@ expect(int type)
 #include <unistd.h>
 #endif
 
-/* cfront 1.2 defines "c_plusplus" instead of "__cplusplus" */
-#ifdef c_plusplus
-#ifndef __cplusplus
-#define __cplusplus
-#endif
-#endif
-
-
 #ifdef __cplusplus
 
 /* Use prototypes in function declarations. */
