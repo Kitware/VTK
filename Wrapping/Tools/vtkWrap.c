@@ -65,6 +65,11 @@ int vtkWrap_IsCharPointer(ValueInfo *val)
   return (t == VTK_PARSE_CHAR && vtkWrap_IsPointer(val));
 }
 
+int vtkWrap_IsPODPointer(ValueInfo *val)
+{
+  return (vtkWrap_IsNumeric(val) && vtkWrap_IsPointer(val));
+}
+
 int vtkWrap_IsVTKObject(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
@@ -921,7 +926,7 @@ void vtkWrap_DeclareVariable(
       fprintf(fp, "*");
       }
     /* arrays of unknown size are handled via pointers */
-    else if (val->CountHint)
+    else if (val->CountHint || vtkWrap_IsPODPointer(val))
       {
       fprintf(fp, "*");
       }
@@ -945,7 +950,8 @@ void vtkWrap_DeclareVariable(
         aType != VTK_PARSE_VOID_PTR &&
         aType != VTK_PARSE_OBJECT_PTR &&
         !vtkWrap_IsQtObject(val) &&
-        val->CountHint == NULL)
+        val->CountHint == NULL &&
+        !vtkWrap_IsPODPointer(val))
       {
       if (val->NumberOfDimensions == 1 && val->Count > 0)
         {
@@ -974,7 +980,7 @@ void vtkWrap_DeclareVariable(
       {
       fprintf(fp, " = NULL");
       }
-    else if (val->CountHint)
+    else if (val->CountHint || vtkWrap_IsPODPointer(val))
       {
       fprintf(fp, " = NULL");
       }
