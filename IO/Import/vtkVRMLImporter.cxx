@@ -566,12 +566,6 @@ yyltype;
 #define YYLTYPE yyltype
 #endif
 
-#ifndef __cplusplus
-#ifndef __STDC__
-#define const
-#endif
-#endif
-
 #define YYFINAL         128
 #define YYFLAG          -32768
 #define YYNTBASE        40
@@ -938,36 +932,6 @@ int yydebug;                    /*  nonzero means print parse trace     */
 #define YYMAXDEPTH 10000
 #endif
 
-/* Prevent warning if -Wstrict-prototypes.  */
-#ifdef __GNUC__
-int yyparse (vtkVRMLImporter*);
-#endif
-
-#if __GNUC__ > 1                /* GNU C and GNU C++ define this.  */
-#define __yy_memcpy(FROM,TO,COUNT)      __builtin_memcpy(TO,FROM,COUNT)
-#else                           /* not GNU C or C++ */
-#ifndef __cplusplus
-
-/* This is the most reliable way to avoid incompatibilities
-   in available built-in functions on various systems.  */
-static void
-__yy_memcpy (from, to, count)
-  char *from;
-char *to;
-int count;
-{
-  char *f = from;
-  char *t = to;
-  int i = count;
-
-  while (i-- > 0)
-    *t++ = *f++;
-}
-
-#else /* __cplusplus */
-
-/* This is the most reliable way to avoid incompatibilities
-   in available built-in functions on various systems.  */
 static void
 __yy_memcpy (char *from, char *to, int count)
 {
@@ -979,12 +943,8 @@ __yy_memcpy (char *from, char *to, int count)
     *t++ = *f++;
 }
 
-#endif
-#endif
 
-
-
-int
+static int
 yyparse(vtkVRMLImporter* self)
 {
   FakeAlloca yyallocator;
@@ -1729,50 +1689,9 @@ expect(int type)
 #include <unistd.h>
 #endif
 
-/* cfront 1.2 defines "c_plusplus" instead of "__cplusplus" */
-#ifdef c_plusplus
-#ifndef __cplusplus
-#define __cplusplus
-#endif
-#endif
-
-
-#ifdef __cplusplus
-
 /* Use prototypes in function declarations. */
 #define YY_USE_PROTOS
-
-/* The "const" storage-class-modifier is valid. */
-#define YY_USE_CONST
-
-#else   /* ! __cplusplus */
-
-#ifdef __STDC__
-
-#define YY_USE_PROTOS
-#define YY_USE_CONST
-
-#endif  /* __STDC__ */
-#endif  /* ! __cplusplus */
-
-
-#ifdef __TURBOC__
-#define YY_USE_CONST
-#endif
-
-
-#ifndef YY_USE_CONST
-#ifndef const
-#define const
-#endif
-#endif
-
-
-#ifdef YY_USE_PROTOS
 #define YY_PROTO(proto) proto
-#else
-#define YY_PROTO(proto) ()
-#endif
 
 /* Returned upon end-of-file. */
 #define YY_NULL 0

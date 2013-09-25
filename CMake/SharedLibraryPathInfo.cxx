@@ -38,7 +38,7 @@
 # define RETURN_VALUE 0
 #endif
 
-/* OSX */
+/* OS X */
 #if defined(__APPLE__)
 # define CMAKE_SHARED_LDD "otool"
 # define CMAKE_SHARED_LDD_FLAGS "-L"

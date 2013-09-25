@@ -1198,14 +1198,14 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   //                                winPtr->privatePtr->yOff);
   self->RenderWindow->SetSize(self->Width, self->Height);
 
-  // Set the parent correctly and get the actual OSX window on the screen
+  // Set the parent correctly and get the actual OS X window on the screen
   // Window must be up so that the aglContext can be attached to it
   if ((winPtr->parentPtr != NULL) && !(winPtr->flags & TK_TOP_LEVEL))
     {
     if (winPtr->parentPtr->window == None)
       {
       // Look at each parent TK window in order until we run out
-      // of windows or find the top level. Then the OSX window that will be
+      // of windows or find the top level. Then the OS X window that will be
       // the parent is created so that we have a window to pass to the
       // vtkRenderWindow so it can attach its openGL context.
       // Ideally the Tk_MakeWindowExist call would do the deed. (I think)

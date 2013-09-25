@@ -5,14 +5,6 @@
 #include <stdexcept>
 #include <vector>
 
-//#ifdef __APPLE__
-/* What software-bundling DRMoron at Apple thought this was OK?!?!! */
-//#undef A_
-//#undef P_
-//#undef R_
-//#undef T_
-//#endif // __APPLE__
-
 #if defined(_MSC_VER)
 /* What bit-brained bug generating embrace-and-extinguisher thought of this?!??!! */
 #  pragma warning (disable: 4181) /* qualifier applied to reference type ignored */
