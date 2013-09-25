@@ -938,31 +938,6 @@ int yydebug;                    /*  nonzero means print parse trace     */
 #define YYMAXDEPTH 10000
 #endif
 
-#if __GNUC__ > 1                /* GNU C and GNU C++ define this.  */
-#define __yy_memcpy(FROM,TO,COUNT)      __builtin_memcpy(TO,FROM,COUNT)
-#else                           /* not GNU C or C++ */
-#ifndef __cplusplus
-
-/* This is the most reliable way to avoid incompatibilities
-   in available built-in functions on various systems.  */
-static void
-__yy_memcpy (from, to, count)
-  char *from;
-char *to;
-int count;
-{
-  char *f = from;
-  char *t = to;
-  int i = count;
-
-  while (i-- > 0)
-    *t++ = *f++;
-}
-
-#else /* __cplusplus */
-
-/* This is the most reliable way to avoid incompatibilities
-   in available built-in functions on various systems.  */
 static void
 __yy_memcpy (char *from, char *to, int count)
 {
@@ -973,10 +948,6 @@ __yy_memcpy (char *from, char *to, int count)
   while (i-- > 0)
     *t++ = *f++;
 }
-
-#endif
-#endif
-
 
 
 static int
