@@ -35,6 +35,7 @@
 #include <vector>
 #include <algorithm>
 #include <limits>
+#include <set>
 
 // PIMPL for STL vector...
 struct vtkIndexedVector2f
@@ -497,6 +498,19 @@ bool vtkPlotPoints::SelectPointsInPolygon(const vtkContextPolygon &polygon)
 //-----------------------------------------------------------------------------
 namespace {
 
+// Find any bad points in the supplied array.
+template<typename T>
+void SetBadPoints(T *data, vtkIdType n, std::set<vtkIdType> &bad)
+{
+  for (vtkIdType i = 0; i < n; ++i)
+    {
+    if (vtkMath::IsInf(data[i]) || vtkMath::IsNan(data[i]))
+      {
+      bad.insert(i);
+      }
+    }
+}
+
 // Calculate the bounds from the original data.
 template<typename A>
 void ComputeBounds(A *a, int n, double bounds[2])
@@ -832,26 +846,28 @@ void vtkPlotPoints::CalculateLogSeries()
 void vtkPlotPoints::FindBadPoints()
 {
   // This should be run after CalculateLogSeries as a final step.
-  float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
   vtkIdType n = this->Points->GetNumberOfPoints();
-  if (!this->BadPoints)
-    {
-    this->BadPoints = vtkIdTypeArray::New();
-    }
-  else
-    {
-    this->BadPoints->SetNumberOfTuples(0);
-    }
 
   // Scan through and find any bad points.
-  for (vtkIdType i = 0; i < n; ++i)
+  vtkTable *table = this->Data->GetInput();
+  vtkDataArray *array[2] = { 0, 0 };
+  if (!this->GetDataArrays(table, array))
     {
-    vtkIdType p = 2*i;
-    if (vtkMath::IsInf(data[p]) || vtkMath::IsInf(data[p+1]) ||
-        vtkMath::IsNan(data[p]) || vtkMath::IsNan(data[p+1]))
+    return;
+    }
+  std::set<vtkIdType> bad;
+  if (!this->UseIndexForXSeries)
+    {
+    switch(array[0]->GetDataType())
       {
-      this->BadPoints->InsertNextValue(i);
+      vtkTemplateMacro(
+        SetBadPoints(static_cast<VTK_TT*>(array[0]->GetVoidPointer(0)), n, bad));
       }
+    }
+  switch(array[1]->GetDataType())
+    {
+    vtkTemplateMacro(
+      SetBadPoints(static_cast<VTK_TT*>(array[1]->GetVoidPointer(0)), n, bad));
     }
 
   // add points from the ValidPointMask
@@ -861,16 +877,29 @@ void vtkPlotPoints::FindBadPoints()
       {
       if (this->ValidPointMask->GetValue(i) == 0)
         {
-        this->BadPoints->InsertNextValue(i);
+        bad.insert(i);
         }
       }
     }
 
-  // sort bad points
-  std::sort(this->BadPoints->GetPointer(0),
-            this->BadPoints->GetPointer(this->BadPoints->GetNumberOfTuples()));
-
-  if (this->BadPoints->GetNumberOfTuples() == 0)
+  // If there are bad points copy them, if not ensure the pointer is null.
+  if (bad.size() > 0)
+    {
+    if (!this->BadPoints)
+      {
+      this->BadPoints = vtkIdTypeArray::New();
+      }
+    else
+      {
+      this->BadPoints->SetNumberOfTuples(0);
+      }
+    for (std::set<vtkIdType>::const_iterator it = bad.begin();
+         it != bad.end(); ++it)
+      {
+      this->BadPoints->InsertNextValue(*it);
+      }
+    }
+  else if (this->BadPoints)
     {
     this->BadPoints->Delete();
     this->BadPoints = NULL;
