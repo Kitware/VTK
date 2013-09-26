@@ -113,10 +113,17 @@ bool operator<(
   return l.second<r.second;
 }
 
+// In Windows our callback must use the same calling convention
+// as the MPI library. Currently this is only an issue with
+// MS MPI which uses __stdcall/__fastcall other's use __cdecl
+// which match VTK's defaults.
+#ifndef MPIAPI
+#define MPIAPI
+#endif
 // for parallel union of extents
 // ***************************************************************************
-static
-void vtkPixelExtentUnion(void *in, void *out, int *len, MPI_Datatype *type)
+static void MPIAPI
+vtkPixelExtentUnion(void *in, void *out, int *len, MPI_Datatype *type)
 {
   (void)type; // known to be MPI_INT
   int n = *len/4;
@@ -166,10 +173,7 @@ void vtkPPixelExtentOps::CreateOps()
   if ( (this->Union == MPI_OP_NULL)
     && vtkPPainterCommunicator::MPIInitialized() )
     {
-    MPI_Op_create(
-          static_cast<MPI_User_function*>(vtkPixelExtentUnion),
-          1,
-          &this->Union);
+    MPI_Op_create(vtkPixelExtentUnion, 1, &this->Union);
     }
 }
 
