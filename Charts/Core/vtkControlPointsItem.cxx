@@ -57,6 +57,7 @@ vtkControlPointsItem::vtkControlPointsItem()
 
   this->BlockUpdates = 0;
   this->StartedInteractions = 0;
+  this->StartedChanges = 0;
 
   this->Callback = vtkCallbackCommand::New();
   this->Callback->SetClientData(this);
@@ -231,13 +232,24 @@ bool vtkControlPointsItem::Paint(vtkContext2D* painter)
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::StartChanges()
 {
-  this->emitEvent(vtkCommand::StartEvent);
+  ++this->StartedChanges;
+  if (this->StartedChanges == 1)
+    {
+    this->InvokeEvent(vtkCommand::StartEvent);
+    this->emitEvent(vtkCommand::StartEvent);
+    }
 }
 
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::EndChanges()
 {
-  this->emitEvent(vtkCommand::EndEvent);
+  --this->StartedChanges;
+  assert(this->StartedChanges >=0);
+  if (this->StartedChanges == 0)
+    {
+    this->emitEvent(vtkCommand::EndEvent);
+    this->InvokeEvent(vtkCommand::EndEvent);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -937,6 +949,8 @@ vtkIdType vtkControlPointsItem::RemovePointId(vtkIdType pointId)
     return pointId;
     }
 
+  this->StartChanges();
+
   assert(pointId != -1);
   // Useless to remove the point here as it will be removed anyway in ComputePoints
   this->DeselectPoint(pointId);
@@ -956,6 +970,8 @@ vtkIdType vtkControlPointsItem::RemovePointId(vtkIdType pointId)
     {
     this->SetCurrentPoint(this->CurrentPoint - 1);
     }
+
+  this->EndChanges();
   return pointId;
 }
 
@@ -1252,6 +1268,9 @@ vtkIdType vtkControlPointsItem::SetPointPos(vtkIdType point, const vtkVector2f& 
   this->GetControlPoint(point, currentPoint);
   currentPoint[0] = boundedPos[0];
   currentPoint[1] = boundedPos[1];
+
+  // SetControlPoint will call StartChanges/EndChanges correctly, so we don't
+  // need to call it here.
   this->SetControlPoint(point, currentPoint);
   return point;
 }

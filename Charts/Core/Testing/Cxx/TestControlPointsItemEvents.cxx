@@ -114,8 +114,8 @@ int TestControlPointsItemEvents(int, char*[])
       cbk->EventSpy[vtkCommand::StartInteractionEvent] != 1 ||
       cbk->EventSpy[vtkCommand::InteractionEvent] != 1 ||
       cbk->EventSpy[vtkCommand::EndInteractionEvent] != 1 ||
-      cbk->EventSpy[vtkCommand::StartEvent] != 0 ||
-      cbk->EventSpy[vtkCommand::EndEvent] != 0)
+      cbk->EventSpy[vtkCommand::StartEvent] != 2 ||
+      cbk->EventSpy[vtkCommand::EndEvent] != 2)
     {
     std::cerr << "Wrong number of fired events : "
               << cbk->EventSpy[vtkCommand::ModifiedEvent] << " "

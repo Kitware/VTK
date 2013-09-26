@@ -213,7 +213,9 @@ void vtkCompositeControlPointsItem::SetControlPoint(vtkIdType index, double* new
       (this->PointsFunction == OpacityPointsFunction ||
        this->PointsFunction == ColorAndOpacityPointsFunction))
     {
+    this->StartChanges();
     this->OpacityFunction->SetNodeValue(index, newPos);
+    this->EndChanges();
     }
 }
 
@@ -247,6 +249,7 @@ void vtkCompositeControlPointsItem::EditPoint(float tX, float tY)
       (this->PointsFunction == ColorPointsFunction ||
        this->PointsFunction == ColorAndOpacityPointsFunction))
     {
+    this->StartChanges();
     double xvms[4];
     this->OpacityFunction->GetNodeValue(this->CurrentPoint, xvms);
     xvms[2] += tX;
@@ -260,6 +263,7 @@ void vtkCompositeControlPointsItem::EditPoint(float tX, float tY)
       xvms[3] += tY;
       this->OpacityFunction->SetNodeValue(this->CurrentPoint - 1, xvms);
       }
+    this->EndChanges();
     }
 }
 
