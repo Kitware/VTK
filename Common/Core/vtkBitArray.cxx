@@ -391,14 +391,14 @@ void vtkBitArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
     return;
     }
 
-  if (!ba->NumberOfComponents != this->NumberOfComponents)
+  if (ba->NumberOfComponents != this->NumberOfComponents)
     {
     vtkWarningMacro("Number of components do not match.");
     return;
     }
 
   vtkIdType numIds = dstIds->GetNumberOfIds();
-  if (!srcIds->GetNumberOfIds() != numIds)
+  if (srcIds->GetNumberOfIds() != numIds)
     {
     vtkWarningMacro("Input and output id array sizes do not match.");
     return;
