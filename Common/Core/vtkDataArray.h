@@ -376,7 +376,9 @@ public:
   // keys not inteneded to be coppied are excluded here.
   virtual int CopyInformation(vtkInformation *infoFrom, int deep=1);
 
-  int GetArrayType() { return DataArray; }
+  // Description:
+  // Method for type-checking in FastDownCast implementations.
+  virtual int GetArrayType() { return DataArray; }
 
 protected:
   // Description:

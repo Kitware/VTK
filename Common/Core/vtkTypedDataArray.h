@@ -126,7 +126,9 @@ public:
   // Insert data at a specified position in the array.
   virtual void InsertValue(vtkIdType idx, ValueType v) = 0;
 
-  int GetArrayType() { return vtkAbstractArray::TypedDataArray; }
+  // Description:
+  // Method for type-checking in FastDownCast implementations.
+  virtual int GetArrayType() { return vtkAbstractArray::TypedDataArray; }
 
 protected:
   vtkTypedDataArray();

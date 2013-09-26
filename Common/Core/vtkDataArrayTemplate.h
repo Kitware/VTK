@@ -321,6 +321,10 @@ public:
   // function.
   virtual void ClearLookup();
 
+  // Description:
+  // Method for type-checking in FastDownCast implementations.
+  virtual int GetArrayType() { return vtkAbstractArray::DataArrayTemplate; }
+
 protected:
   vtkDataArrayTemplate();
   ~vtkDataArrayTemplate();
