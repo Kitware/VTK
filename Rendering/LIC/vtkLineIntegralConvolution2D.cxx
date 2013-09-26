@@ -1054,7 +1054,9 @@ bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow *renWin)
     return false;
     }
 
+#if defined(__APPLE__) || defined(_WIN32)
   vtkOpenGLExtensionManager *manager = context->GetExtensionManager();
+#endif
 #if defined(__APPLE__)
   if (manager->DriverIsNvidia() && manager->DriverVersionIs(1,6))
     {
