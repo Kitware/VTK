@@ -3,4 +3,7 @@ vtk_module(vtkInteractionStyle
     Rendering
   IMPLEMENTS
     vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkFiltersSources
+    vtkFiltersExtraction
   )

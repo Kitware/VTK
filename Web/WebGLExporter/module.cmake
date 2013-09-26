@@ -3,9 +3,11 @@ vtk_module(vtkWebGLExporter
     Web
   DEPENDS
     vtkIOExport
+  PRIVATE_DEPENDS
+    vtksys
+    vtkFiltersGeometry
     vtkInteractionWidgets
     vtkRenderingCore
-    vtksys
   COMPILE_DEPENDS
     vtkUtilitiesEncodeString
 )

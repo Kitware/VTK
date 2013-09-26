@@ -4,7 +4,9 @@ vtk_module(vtkRenderingQt
   DEPENDS
     vtkRenderingLabel
     vtkGUISupportQt
+  PRIVATE_DEPENDS
     vtkFiltersTexture
+    vtkFiltersSources
   TEST_DEPENDS
     vtkTestingCore
   )

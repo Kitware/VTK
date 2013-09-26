@@ -3,4 +3,6 @@ vtk_module(vtkRenderingLabel
     Rendering
   DEPENDS
     vtkRenderingFreeType
+  PRIVATE_DEPENDS
+    vtkFiltersExtraction
   )

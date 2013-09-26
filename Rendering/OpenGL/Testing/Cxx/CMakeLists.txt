@@ -160,6 +160,7 @@ foreach(exe
     vtkInteractionStyle
     vtkImagingSources
     vtkImagingGeneral
+    vtkFiltersSources
     vtkIOCore
     ${OPENGL_gl_LIBRARY})
   if(APPLE)

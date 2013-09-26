@@ -4,6 +4,8 @@ vtk_module(vtkRenderingAnnotation
   DEPENDS
     vtkRenderingFreeType
     vtkImagingColor
+  PRIVATE_DEPENDS
+    vtkFiltersSources
   TEST_DEPENDS
     vtkIOGeometry
     vtkRenderingFreeTypeOpenGL
