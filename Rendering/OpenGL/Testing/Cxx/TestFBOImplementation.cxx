@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRegressionTestImage.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkgl.h"
-#include <assert.h>
+#include <cassert>
 
 bool ARB_texture_rectangle_supported=false;
 bool depth_texture_supported=false; // OpenGL 1.4 or GL_ARB_depth_texture

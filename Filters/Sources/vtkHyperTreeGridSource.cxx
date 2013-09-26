@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkHyperTreeGridSource);
 vtkCxxSetObjectMacro(vtkHyperTreeGridSource, DescriptorBits, vtkBitArray);

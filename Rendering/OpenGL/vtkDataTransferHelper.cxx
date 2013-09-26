@@ -22,7 +22,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredData.h"
-#include <assert.h>
+#include <cassert>
 
 static void vtkGetDimensions(int extents[6], int dims[3])
 {

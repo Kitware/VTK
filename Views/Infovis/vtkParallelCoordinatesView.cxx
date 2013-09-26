@@ -45,7 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkViewTheme.h"
 
 #include <vtksys/ios/sstream>
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkParallelCoordinatesView);
 

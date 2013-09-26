@@ -21,7 +21,7 @@
 #include "vtkSocketController.h"
 #include "vtkStdString.h"
 #include "vtkTypeTraits.h"
-#include <assert.h>
+#include <cassert>
 
 #include <algorithm>
 #include <vector>

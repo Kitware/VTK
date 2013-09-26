@@ -30,7 +30,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkType.h" // For vtkTypeInt64
 
-#include <assert.h>
+#include <cassert>
 
 struct vtkAtomicInt64Internal;
 

@@ -40,7 +40,7 @@
 //#include <set>
 #include <vector>
 
-#include <assert.h>
+#include <cassert>
 
 vtkInformationKeyMacro(vtkHyperOctree, LEVELS, Integer);
 vtkInformationKeyMacro(vtkHyperOctree, DIMENSION, Integer);

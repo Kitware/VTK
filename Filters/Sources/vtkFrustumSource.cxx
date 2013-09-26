@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlanes.h"
 #include "vtkPlane.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

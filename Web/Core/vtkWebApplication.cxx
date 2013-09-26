@@ -37,7 +37,7 @@
 #include "vtkWebGLObject.h"
 #include "vtkWindowToImageFilter.h"
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <map>
 #include <sstream>
@@ -244,16 +244,30 @@ bool vtkWebApplication::HandleInteractionEvent(
     }
 
 
-  int *viewSize = view->GetSize();
-  int posX = std::floor(viewSize[0] * event->GetX() + 0.5);
-  int posY = std::floor(viewSize[1] * event->GetY() + 0.5);
+
 
   int ctrlKey =
     (event->GetModifiers() & vtkWebInteractionEvent::CTRL_KEY) != 0?  1: 0;
   int shiftKey =
     (event->GetModifiers() & vtkWebInteractionEvent::SHIFT_KEY) != 0?  1: 0;
-  iren->SetEventInformation(posX, posY, ctrlKey, shiftKey, event->GetKeyCode(), event->GetRepeatCount());
 
+  // Handle scroll action if any
+  if(event->GetScroll()) {
+    iren->SetEventInformation(0, 0, ctrlKey, shiftKey, event->GetKeyCode(), 0);
+    iren->MouseMoveEvent();
+    iren->RightButtonPressEvent();
+    iren->SetEventInformation(0, event->GetScroll()*10, ctrlKey, shiftKey, event->GetKeyCode(), 0);
+    iren->MouseMoveEvent();
+    iren->RightButtonReleaseEvent();
+    this->Internals->ImageCache[view].NeedsRender = true;
+    return true;
+  }
+
+  int *viewSize = view->GetSize();
+  int posX = std::floor(viewSize[0] * event->GetX() + 0.5);
+  int posY = std::floor(viewSize[1] * event->GetY() + 0.5);
+
+  iren->SetEventInformation(posX, posY, ctrlKey, shiftKey, event->GetKeyCode(), event->GetRepeatCount());
 
   unsigned int prev_buttons = this->Internals->ButtonStates[view];
   unsigned int changed_buttons = (event->GetButtons() ^ prev_buttons);

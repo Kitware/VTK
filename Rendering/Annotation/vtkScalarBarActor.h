@@ -303,6 +303,13 @@ public:
   vtkSetMacro(TextPad,int);
 
   // Description:
+  // Set/get the margin in pixels, between the title and the bar,
+  // when the \a Orientation is vertical.
+  // The default is 0 pixels.
+  vtkGetMacro(VerticalTitleSeparation,int);
+  vtkSetMacro(VerticalTitleSeparation,int);
+
+  // Description:
   // Set/get the thickness of the color bar relative to the widget frame.
   // The default is 0.375 and must always be in the range ]0, 1[.
   vtkGetMacro(BarRatio,double);
@@ -506,6 +513,7 @@ protected:
   int MaximumWidthInPixels;
   int MaximumHeightInPixels;
   int TextPad;
+  int VerticalTitleSeparation;
   double BarRatio;
   double TitleRatio;
   //@}

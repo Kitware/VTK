@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkTDxUnixDevice.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include <X11/Xlib.h> // Needed for X types used in the public interface
 // Display *DisplayId; // Actually a "Display *" but we cannot include Xlib.h

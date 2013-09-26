@@ -18,7 +18,7 @@
 
 #include "vtkBridgeCellIteratorOnCellList.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include "vtkObjectFactory.h"
 #include "vtkBridgeCell.h"

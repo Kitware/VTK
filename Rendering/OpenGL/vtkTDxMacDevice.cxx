@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkTDxMacDevice.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include "vtkTDxMotionEventInfo.h"
 #include "vtkCommand.h"

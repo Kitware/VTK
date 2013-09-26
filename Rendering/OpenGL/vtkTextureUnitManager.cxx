@@ -19,7 +19,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLHardwareSupport.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkTextureUnitManager);
 

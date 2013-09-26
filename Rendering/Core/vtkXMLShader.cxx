@@ -20,7 +20,7 @@
 #include "vtkXMLDataElement.h"
 
 #include <vtksys/SystemTools.hxx>
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkXMLShader);
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);

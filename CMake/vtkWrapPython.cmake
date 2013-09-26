@@ -143,18 +143,20 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
 
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
+           ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx
     DEPENDS ${VTK_WRAP_PYTHON_INIT_EXE}
       ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     COMMAND ${VTK_WRAP_PYTHON_INIT_EXE}
     ARGS
       "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data${quote}"
       "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx${quote}"
+      "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx${quote}"
     COMMENT "Python Wrapping - generating ${TARGET}Init.cxx"
       ${verbatim}
     )
 
   # Create the Init File
-  set(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${TARGET}Init.cxx)
+  set(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${TARGET}InitImpl.cxx)
 
 endmacro(VTK_WRAP_PYTHON3)
 
@@ -343,17 +345,19 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
 
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
+           ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx
     DEPENDS ${VTK_WRAP_PYTHON_INIT_EXE}
       ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     COMMAND ${VTK_WRAP_PYTHON_INIT_EXE}
     ARGS
       "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data${quote}"
       "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx${quote}"
+      "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx${quote}"
     COMMENT "Python Wrapping - generating ${TARGET}Init.cxx"
       ${verbatim}
     )
 
   # Create the Init File
-  set(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${TARGET}Init.cxx)
+  set(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${TARGET}InitImpl.cxx)
 
 endmacro()

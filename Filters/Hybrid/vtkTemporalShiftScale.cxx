@@ -20,7 +20,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkCompositeDataPipeline.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkTemporalShiftScale);
 

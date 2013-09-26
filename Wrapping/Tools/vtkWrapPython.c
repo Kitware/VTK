@@ -2164,10 +2164,11 @@ static void vtkWrapPython_OverloadMethodDef(
       }
 
     fprintf(fp,
-            "  {NULL, Py%s_%s%s, 1,\n"
+            "  {NULL, Py%s_%s%s, METH_VARARGS%s,\n"
             "   (char*)\"%s\"},\n",
             classname, wrappedFunctions[occ]->Name,
             occSuffix,
+            theOccurrence->IsStatic ? " | METH_STATIC" : "",
             vtkWrapPython_ArgCheckString(
               (is_vtkobject && !theOccurrence->IsStatic),
               wrappedFunctions[occ]));
@@ -2654,9 +2655,10 @@ static void vtkWrapPython_ClassMethodDef(
         comment, maxlen - strlen(signatures));
 
       fprintf(fp,
-              "  {(char*)\"%s\", Py%s_%s, 1,\n",
+              "  {(char*)\"%s\", Py%s_%s, METH_VARARGS%s,\n",
               wrappedFunctions[fnum]->Name, classname,
-              wrappedFunctions[fnum]->Name);
+              wrappedFunctions[fnum]->Name,
+              wrappedFunctions[fnum]->IsStatic ? " | METH_STATIC" : "");
 
       fprintf(fp,
               "   (char*)\"%s\\n\\n%s\"},\n",

@@ -2,7 +2,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 #include "vtkOverlappingAMR.h"
-#include <assert.h>
+#include <cassert>
 //----------------------------------------------------------------------------
 namespace
 {

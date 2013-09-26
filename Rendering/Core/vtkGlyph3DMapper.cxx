@@ -35,7 +35,7 @@
 #include "vtkTransform.h"
 #include "vtkTrivialProducer.h"
 
-#include <assert.h>
+#include <cassert>
 #include <vector>
 
 // Return NULL if no override is supplied.

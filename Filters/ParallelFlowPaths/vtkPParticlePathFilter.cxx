@@ -20,7 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkPParticlePathFilter);
 

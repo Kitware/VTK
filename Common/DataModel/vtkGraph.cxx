@@ -44,7 +44,7 @@
 #include "vtkVariantArray.h"
 #include "vtkStringArray.h"
 
-#include <assert.h>
+#include <cassert>
 #include <vtksys/stl/algorithm>
 #include <vtksys/stl/set>
 #include <vtksys/stl/vector>

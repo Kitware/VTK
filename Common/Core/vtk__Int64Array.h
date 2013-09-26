@@ -31,9 +31,13 @@
 #include "vtkDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
+#ifndef __WRAP__
 #define vtkDataArray vtkDataArrayTemplate<__int64>
+#endif
 class VTKCOMMONCORE_EXPORT vtk__Int64Array : public vtkDataArray
+#ifndef __WRAP__
 #undef vtkDataArray
+#endif
 {
 public:
   static vtk__Int64Array* New();

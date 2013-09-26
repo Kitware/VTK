@@ -38,7 +38,7 @@
 #include <vtksys/stl/vector>
 
 #include <stdlib.h>
-#include <assert.h>
+#include <cassert>
 
 using std::pair;
 using std::vector;

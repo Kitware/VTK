@@ -34,7 +34,7 @@
 # define LOWERCASE_COMPARE strcasecmp
 #endif
 
-#include <assert.h>
+#include <cassert>
 
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/vector>

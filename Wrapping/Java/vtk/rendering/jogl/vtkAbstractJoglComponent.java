@@ -65,11 +65,6 @@ public class vtkAbstractJoglComponent<T extends java.awt.Component> extends vtkA
                 vtkObject.JAVA_OBJECT_MANAGER.gc(false);
             }
         };
-        try {
-			this.uiComponent.getClass().getMethod("addGLEventListener", GLEventListener.class).invoke(this.uiComponent, this.glEventListener);
-		} catch (Exception e) {
-			throw new RuntimeException("Impossible to call addGLEventListener(listener) in a reflexive way.");
-		}
 
         // Bind the interactor forwarder
         vtkInteractorForwarder forwarder = this.getInteractorForwarder();
@@ -80,6 +75,8 @@ public class vtkAbstractJoglComponent<T extends java.awt.Component> extends vtkA
         // Make sure when VTK internaly request a Render, the Render get
         // properly triggered
         renderWindowToUse.AddObserver("WindowFrameEvent", this, "Render");
+        renderWindowToUse.GetInteractor().AddObserver("RenderEvent", this, "Render");
+        renderWindowToUse.GetInteractor().SetEnableRender(false);
     }
 
     public T getComponent() {

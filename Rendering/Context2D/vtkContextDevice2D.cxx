@@ -23,7 +23,7 @@
 
 
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 
 vtkContextDevice2D::vtkContextDevice2D()
 {

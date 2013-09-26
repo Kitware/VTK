@@ -37,7 +37,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
-#include <assert.h>
+#include <cassert>
 
 namespace
 {

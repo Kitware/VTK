@@ -16,7 +16,7 @@
 
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-#include "assert.h"
+#include <cassert>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPUniformGridAMRWriter);

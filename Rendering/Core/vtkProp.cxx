@@ -19,7 +19,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationIterator.h"
 #include "vtkInformationKey.h"
-#include <assert.h>
+#include <cassert>
 
 vtkCxxSetObjectMacro(vtkProp,PropertyKeys,vtkInformation);
 

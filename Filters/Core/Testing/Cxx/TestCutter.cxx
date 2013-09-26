@@ -22,7 +22,7 @@
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkImageDataToPointSet.h"
-#include <assert.h>
+#include <cassert>
 
 bool TestStructured(int type)
 {

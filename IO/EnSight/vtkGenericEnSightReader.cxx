@@ -30,7 +30,7 @@
 
 #include <string>
 #include <map>
-#include <assert.h>
+#include <cassert>
 #include <ctype.h> /* isspace */
 
 vtkStandardNewMacro(vtkGenericEnSightReader);

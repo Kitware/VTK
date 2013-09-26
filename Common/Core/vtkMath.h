@@ -41,7 +41,7 @@
 
 #include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
 
-#include <assert.h> // assert() in inline implementations.
+#include <cassert> // assert() in inline implementations.
 
 #ifndef DBL_MIN
 #  define VTK_DBL_MIN    2.2250738585072014e-308

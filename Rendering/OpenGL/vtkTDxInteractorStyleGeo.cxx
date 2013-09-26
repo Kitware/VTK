@@ -16,7 +16,7 @@
 #include "vtkTDxInteractorStyleGeo.h"
 
 #include "vtkTransform.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkCamera.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"

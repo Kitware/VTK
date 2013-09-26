@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkShaderProgram2.h"
 
 #include <math.h>
-#include <assert.h>
+#include <cassert>
 #include <list>
 
 class vtkGLPickInfo

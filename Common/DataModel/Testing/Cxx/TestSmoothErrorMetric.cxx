@@ -38,7 +38,7 @@
 #include "vtkGenericGeometryFilter.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericSubdivisionErrorMetric.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkLookupTable.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyData.h"

@@ -180,7 +180,8 @@ vtk_add_library( vtkproj4
 
 if ( UNIX )
   target_link_libraries( vtkproj4
-    m
+    LINK_PUBLIC
+      m
   )
 endif ( UNIX )
 

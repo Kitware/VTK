@@ -46,7 +46,7 @@
 #include <map>
 
 #include <stdio.h>
-#include <assert.h>
+#include <cassert>
 
 #define R_NO_REMAP /* AVOID SOME SERIOUS STUPIDITY. DO NOT REMOVE. */
 

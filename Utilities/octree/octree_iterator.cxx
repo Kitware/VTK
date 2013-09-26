@@ -93,14 +93,6 @@ octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_iterator( const const_iterator& it )
   this->_M_current_node = it._M_current_node;
 }
 
-/**\brief Destructor.
-  *
-  */
-template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
-octree_iterator<T_,R_,P_,O_,OP_,d_>::~octree_iterator()
-{
-}
-
 /**\brief Utility routine used to advance the iterator if possible.
   *
   */

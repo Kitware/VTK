@@ -54,7 +54,7 @@
 #include "vtkProperty.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkMath.h"
 #include "vtkFrustumSource.h"
 #include "vtkPlanes.h"

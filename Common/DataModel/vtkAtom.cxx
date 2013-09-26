@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-#include <assert.h>
+#include <cassert>
 
 //----------------------------------------------------------------------------
 vtkAtom::vtkAtom(vtkMolecule *parent, vtkIdType id)

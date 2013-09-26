@@ -21,9 +21,6 @@
 
 vtkStandardNewMacro(vtkMatrix4x4);
 
-// Useful for viewing a double[16] as a double[4][4]
-typedef double (*SqMatPtr)[4];
-
 //----------------------------------------------------------------------------
 void vtkMatrix4x4::Zero(double Elements[16])
 {
@@ -98,38 +95,6 @@ void vtkMatrix4x4::PointMultiply(const double Elements[16],
   double newElements[16];
   vtkMatrix4x4::Transpose(Elements, newElements);
   vtkMatrix4x4::MultiplyPoint(newElements, in, result);
-}
-
-//----------------------------------------------------------------------------
-// Multiplies matrices a and b and stores the result in c.
-void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16],
-                               double c[16])
-{
-  SqMatPtr aMat = (SqMatPtr)a;
-  SqMatPtr bMat = (SqMatPtr)b;
-  SqMatPtr cMat = (SqMatPtr)c;
-  double Accum[4][4];
-
-  for (int i = 0; i < 4; i++)
-    {
-    for (int k = 0; k < 4; k++)
-      {
-      Accum[i][k] = aMat[i][0] * bMat[0][k] +
-                    aMat[i][1] * bMat[1][k] +
-                    aMat[i][2] * bMat[2][k] +
-                    aMat[i][3] * bMat[3][k];
-      }
-    }
-
-  // Copy to final dest
-  for (int i = 0; i < 4; i++)
-    {
-    cMat[i][0] = Accum[i][0];
-    cMat[i][1] = Accum[i][1];
-    cMat[i][2] = Accum[i][2];
-    cMat[i][3] = Accum[i][3];
-    }
-
 }
 
 //----------------------------------------------------------------------------

@@ -34,7 +34,7 @@
 
 #include <libpq-fe.h>
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
 

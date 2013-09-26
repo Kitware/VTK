@@ -55,7 +55,7 @@ function(vtk_add_python_wrapping module_name)
     set_property(TARGET ${module_name}PythonD PROPERTY COMPILE_DEFINITIONS
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()
-  target_link_libraries(${module_name}PythonD ${module_name}
+  target_link_libraries(${module_name}PythonD LINK_PUBLIC ${module_name}
     vtkWrappingPythonCore ${extra_links} ${VTK_PYTHON_LIBRARIES})
 
   _vtk_add_python_module(${module_name}Python ${module_name}PythonInit.cxx)

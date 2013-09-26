@@ -31,7 +31,7 @@
 #include "vtkOpenGLError.h"
 
 #include "vtkgl.h"
-#include <assert.h>
+#include <cassert>
 
 
 //----------------------------------------------------------------------------

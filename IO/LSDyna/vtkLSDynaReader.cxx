@@ -52,7 +52,7 @@
 #include <vector>
 #include <algorithm>
 #include <map>
-#include <assert.h>
+#include <cassert>
 
 #include <vtkCellType.h>
 #include <vtkDataObject.h>

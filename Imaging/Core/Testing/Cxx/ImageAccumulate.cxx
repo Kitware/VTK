@@ -19,7 +19,6 @@
 #include "vtkRenderWindowInteractor.h"
 
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 #include <math.h>
 

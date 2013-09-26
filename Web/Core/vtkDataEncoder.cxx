@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <map>
 #include <vector>

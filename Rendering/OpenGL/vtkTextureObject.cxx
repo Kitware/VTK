@@ -21,7 +21,7 @@
 #include "vtkOpenGLError.h"
 
 #include "vtkgl.h"
-#include <assert.h>
+#include <cassert>
 
 //#define VTK_TO_DEBUG
 //#define VTK_TO_TIMING
@@ -159,36 +159,39 @@ vtkTextureObject::vtkTextureObject()
   this->Context = NULL;
   this->Handle = 0;
   this->NumberOfDimensions = 0;
-  this->Target =0;
+  this->Target = 0;
   this->Format = 0;
   this->Type = 0;
   this->Components = 0;
-  this->Width=this->Height=this->Depth=0;
-  this->SupportsTextureInteger=false;
-  this->SupportsTextureFloat=false;
-
+  this->Width = 0;
+  this->Height = 0;
+  this->Depth = 0;
+  this->RequireTextureInteger = false;
+  this->SupportsTextureInteger = false;
+  this->RequireTextureFloat = false;
+  this->SupportsTextureFloat = false;
+  this->RequireDepthBufferFloat = false;
+  this->SupportsDepthBufferFloat = false;
   this->AutoParameters = 1;
-  this->WrapS=Repeat;
-  this->WrapT=Repeat;
-  this->WrapR=Repeat;
-  this->MinificationFilter=Nearest;
-  this->MagnificationFilter=Nearest;
-  this->LinearMagnification=false;
-  this->BorderColor[0]=0.0f;
-  this->BorderColor[1]=0.0f;
-  this->BorderColor[2]=0.0f;
-  this->BorderColor[3]=0.0f;
-  this->Priority=1.0f;
-  this->MinLOD=-1000.0f;
-  this->MaxLOD=1000.0f;
-  this->BaseLevel=0;
-  this->MaxLevel=0;
-
-  this->DepthTextureCompare=false;
-  this->DepthTextureCompareFunction=Lequal;
-  this->DepthTextureMode=Luminance;
-
-  this->GenerateMipmap=false;
+  this->WrapS = Repeat;
+  this->WrapT = Repeat;
+  this->WrapR = Repeat;
+  this->MinificationFilter = Nearest;
+  this->MagnificationFilter = Nearest;
+  this->LinearMagnification = false;
+  this->BorderColor[0] = 0.0f;
+  this->BorderColor[1] = 0.0f;
+  this->BorderColor[2] = 0.0f;
+  this->BorderColor[3] = 0.0f;
+  this->Priority = 1.0f;
+  this->MinLOD = -1000.0f;
+  this->MaxLOD = 1000.0f;
+  this->BaseLevel = 0;
+  this->MaxLevel = 0;
+  this->DepthTextureCompare = false;
+  this->DepthTextureCompareFunction = Lequal;
+  this->DepthTextureMode = Luminance;
+  this->GenerateMipmap = false;
 }
 
 //----------------------------------------------------------------------------
@@ -198,16 +201,19 @@ vtkTextureObject::~vtkTextureObject()
 }
 
 //----------------------------------------------------------------------------
-bool vtkTextureObject::IsSupported(vtkRenderWindow* win)
+bool vtkTextureObject::IsSupported(vtkRenderWindow* win,
+      bool requireTexFloat,
+      bool requireDepthFloat,
+      bool requireTexInt)
 {
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(win);
   if (renWin)
     {
     vtkOpenGLExtensionManager* mgr = renWin->GetExtensionManager();
 
-    bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
-    bool gl13=mgr->ExtensionSupported("GL_VERSION_1_3")==1;
-    bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
+    bool gl12 = mgr->ExtensionSupported("GL_VERSION_1_2")==1;
+    bool gl13 = mgr->ExtensionSupported("GL_VERSION_1_3")==1;
+    bool gl20 = mgr->ExtensionSupported("GL_VERSION_2_0")==1;
 
     bool npot=gl20 ||
       mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two");
@@ -215,7 +221,25 @@ bool vtkTextureObject::IsSupported(vtkRenderWindow* win)
     bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
     bool multi=gl13 || mgr->ExtensionSupported("GL_ARB_multitexture");
 
-    return npot && tex3D && multi;
+    bool texFloat = true;
+    if (requireTexFloat)
+      {
+      texFloat = mgr->ExtensionSupported("GL_ARB_texture_float")==1;
+      }
+
+    bool depthFloat = true;
+    if (requireDepthFloat)
+      {
+      depthFloat = mgr->ExtensionSupported("GL_ARB_depth_buffer_float")==1;
+      }
+
+    bool texInt = true;
+    if (requireTexInt)
+      {
+      texInt = mgr->ExtensionSupported("GL_EXT_texture_integer")==1;
+      }
+
+    return npot && tex3D && multi && texFloat && depthFloat && texInt;
     }
   return false;
 }
@@ -223,33 +247,46 @@ bool vtkTextureObject::IsSupported(vtkRenderWindow* win)
 //----------------------------------------------------------------------------
 bool vtkTextureObject::LoadRequiredExtensions(vtkRenderWindow *renWin)
 {
-  vtkOpenGLRenderWindow *context
-     = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
-
-  if (!context) return false;
+  vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(renWin);
+  if (!context)
+    {
+    return false;
+    }
 
   vtkOpenGLExtensionManager* mgr = context->GetExtensionManager();
 
-  // Optional extension, requires GeForce8
-  this->SupportsTextureInteger =
-    mgr->LoadSupportedExtension("GL_EXT_texture_integer") != 0;
+  bool gl12 = mgr->ExtensionSupported("GL_VERSION_1_2")==1;
+  bool gl13 = mgr->ExtensionSupported("GL_VERSION_1_3")==1;
+  bool gl20 = mgr->ExtensionSupported("GL_VERSION_2_0")==1;
 
-  this->SupportsTextureFloat=
-    mgr->ExtensionSupported("GL_ARB_texture_float")==1;
+  bool npot = (gl20 ||
+    mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two"));
 
-  bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
-  bool gl13=mgr->ExtensionSupported("GL_VERSION_1_3")==1;
-  bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
+  bool tex3D = (gl12 || mgr->ExtensionSupported("GL_EXT_texture3D"));
+  bool multi = (gl13 || mgr->ExtensionSupported("GL_ARB_multitexture"));
 
-  bool npot=gl20 ||
-    mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two");
+  this->SupportsTextureInteger
+    = mgr->LoadSupportedExtension("GL_EXT_texture_integer")==1;
 
-  bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
-  bool multi=gl13 || mgr->ExtensionSupported("GL_ARB_multitexture");
+  bool texInt
+    = (!this->RequireTextureInteger || this->SupportsTextureInteger);
 
-  bool supported=npot && tex3D && multi;
+  this->SupportsTextureFloat
+    = mgr->ExtensionSupported("GL_ARB_texture_float")==1;
 
-  if(supported)
+  bool texFloat
+    = (!this->RequireTextureFloat || this->SupportsTextureFloat);
+
+  this->SupportsDepthBufferFloat
+    = mgr->ExtensionSupported("GL_ARB_depth_buffer_float")==1;
+
+  bool depthFloat
+    = (!this->RequireDepthBufferFloat || this->SupportsDepthBufferFloat);
+
+  bool supported
+    = npot && tex3D && multi && texInt && texFloat && depthFloat;
+
+  if (supported)
     {
     // tex3D
     if(gl12)
@@ -269,9 +306,12 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkRenderWindow *renWin)
       {
       mgr->LoadCorePromotedExtension("GL_ARB_multitexture");
       }
-    // npot does not provide new functions, nothing to do.
-    // texture_float does not provide new functions, nothing to do.
+    // nothing to load for:
+    // GL_ARB_texture_non_power_of_two, GL_ARB_texture_float,
+    // GL_ARB_depth_buffer_float only defineconstants
+    // only using constants from GL_EXT_texture_integer
     }
+
   return supported;
 }
 

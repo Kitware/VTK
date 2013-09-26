@@ -82,6 +82,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->Orientation = VTK_ORIENT_VERTICAL;
   this->Title = NULL;
   this->ComponentTitle = NULL;
+  this->VerticalTitleSeparation = 0;
 
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetFontSize(12);
@@ -647,6 +648,8 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
     << this->AnnotationLeaderPadding << endl;
   os << indent << "AnnotationTextScaling: "
     << this->AnnotationTextScaling << endl;
+  os << indent << "VerticalTitleSeparation: "
+    << VerticalTitleSeparation << endl;
 
   os << indent << "DrawBackground: " << this->DrawBackground << "\n";
   os << indent << "Background Property:\n";
@@ -976,7 +979,8 @@ void vtkScalarBarActor::ComputeScalarBarLength()
 {
   this->P->ScalarBarBox.Size[1] =
     this->Orientation == VTK_ORIENT_VERTICAL ?
-      this->P->Frame.Size[1] - this->P->TitleBox.Size[1] :
+      this->P->Frame.Size[1] - this->P->TitleBox.Size[1] -
+        this->VerticalTitleSeparation :
       this->P->Frame.Size[1];
 
   // The scalar bar does not include the Nan Swatch.
@@ -1074,7 +1078,8 @@ void vtkScalarBarActor::LayoutTicks()
       // Tick height could be adjusted if title text is
       // lowered by box constraints, but we won't bother:
       this->P->TickBox.Size[1] = this->P->Frame.Size[1] -
-        this->P->TitleBox.Size[1] - 3 * this->TextPad;
+        this->P->TitleBox.Size[1] - 3 * this->TextPad -
+        this->VerticalTitleSeparation;
       // Tick box height also reduced by NaN swatch size, if present:
       if (this->DrawNanAnnotation)
         {

@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkSmartPointer.h"
+
 #include "vtkImageViewer.h"
 #include "vtkImageReader.h"
 #include "vtkImageImport.h"
@@ -28,7 +30,8 @@ int ImportExport( int argc, char *argv[] )
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
-  vtkImageReader *reader = vtkImageReader::New();
+  vtkSmartPointer<vtkImageReader> reader =
+    vtkSmartPointer<vtkImageReader>::New();
   reader->SetDataByteOrderToLittleEndian();
   reader->SetDataExtent(0,63,0,63,1,93);
   reader->SetFilePrefix(fname);
@@ -36,7 +39,8 @@ int ImportExport( int argc, char *argv[] )
   delete [] fname;
 
   // create exporter
-  vtkImageExport *exporter = vtkImageExport::New();
+  vtkSmartPointer<vtkImageExport> exporter =
+    vtkSmartPointer<vtkImageExport>::New();
   exporter->SetInputConnection(reader->GetOutputPort());
   exporter->ImageLowerLeftOn();
 
@@ -73,14 +77,16 @@ int ImportExport( int argc, char *argv[] )
     }
 
   // create an importer to read the data back in
-  vtkImageImport *importer = vtkImageImport::New();
+  vtkSmartPointer<vtkImageImport> importer =
+    vtkSmartPointer<vtkImageImport>::New();
   importer->SetWholeExtent(1,dimensions[0],1,dimensions[1],1,dimensions[2]);
   importer->SetDataExtentToWholeExtent();
   importer->SetDataScalarTypeToShort();
   importer->SetImportVoidPointer(data);
   importer->SetScalarArrayName("importedScalars");
 
-  vtkImageViewer *viewer = vtkImageViewer::New();
+  vtkSmartPointer<vtkImageViewer> viewer =
+    vtkSmartPointer<vtkImageViewer>::New();
   viewer->SetInputConnection(importer->GetOutputPort());
   viewer->SetZSlice(45);
   viewer->SetColorWindow(2000);
@@ -90,16 +96,7 @@ int ImportExport( int argc, char *argv[] )
 
   int retVal = vtkRegressionTestImage( viewer->GetRenderWindow() );
 
-  viewer->Delete();
-  importer->Delete();
-  exporter->Delete();
-  reader->Delete();
-
   delete [] data;
 
   return !retVal;
 }
-
-
-
-

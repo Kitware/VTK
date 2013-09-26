@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkOpenGLRenderWindow.h"
-#include "assert.h"
+#include <cassert>
 #include "vtkFloatArray.h"
 #include "vtkgl.h"
 #include "vtkIdList.h"

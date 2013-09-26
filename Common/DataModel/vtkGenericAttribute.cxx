@@ -16,7 +16,7 @@
 // .SECTION Description
 
 #include "vtkGenericAttribute.h"
-#include <assert.h>
+#include <cassert>
 
 
 //---------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 
 #include <vector>
 #include <vtksys/ios/sstream>
-#include <assert.h>
+#include <cassert>
 #include "vtkStdString.h"
 
 static GLenum vtkGeometryTypeInVTKToGL[5] = {

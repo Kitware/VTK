@@ -48,6 +48,7 @@ vtk_add_test_cxx(
   TestLightActor.cxx
   TestLODActor.cxx,NO_VALID
   TestManyActors.cxx,NO_VALID
+  TestMonitors.cxx,NO_VALID
   TestOffAxisStereo.cxx
   TestOrderedTriangulator.cxx
   TestOpacity.cxx

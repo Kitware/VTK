@@ -15,7 +15,7 @@
 #include "vtkShader2Collection.h"
 #include "vtkObjectFactory.h"
 #include "vtkShader2.h"
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkShader2Collection);
 

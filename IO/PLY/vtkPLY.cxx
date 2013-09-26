@@ -52,7 +52,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
 #include <stddef.h>
 #include <string.h>
-#include <assert.h>
+#include <cassert>
 
 /* memory allocation */
 #define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)

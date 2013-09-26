@@ -359,7 +359,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
                                inPD, outPD, inCD, cellId, outCD);
           }
         numNew[0] = conn[0]->GetNumberOfCells() - num[0];
-        numNew[1] = conn[1]->GetNumberOfCells() - num[0];
+        numNew[1] = conn[1]->GetNumberOfCells() - num[1];
         num[0]    = conn[0]->GetNumberOfCells();
         num[1]    = conn[1]->GetNumberOfCells();
         }
@@ -376,7 +376,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
                                inPD, outPD, inCD, cellId, outCD);
           }
         numNew[0] = conn[0]->GetNumberOfCells() - num[0];
-        numNew[1] = conn[1]->GetNumberOfCells() - num[0];
+        numNew[1] = conn[1]->GetNumberOfCells() - num[1];
         num[0]    = conn[0]->GetNumberOfCells();
         num[1]    = conn[1]->GetNumberOfCells();
         }
@@ -458,6 +458,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 
     for (i=0 ; i<numOutputs; i++)  // for both outputs
       {
+      conn[i]->InitTraversal();
       for (j=0; j < numNew[i]; j++)
         {
         locs[i]->InsertNextValue(conn[i]->GetTraversalLocation());

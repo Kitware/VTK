@@ -21,7 +21,7 @@
 #include <vtkIdList.h>
 #include <vtkReflectionFilter.h>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 
 #define AssertMacro(b) if(!(b)){std::cerr <<"Failed to reflect pyramid"<<std::endl;return EXIT_FAILURE;}
 

@@ -30,7 +30,7 @@
 
 
 #include <limits.h> // CHAR_BIT
-#include <assert.h> // assert()
+#include <cassert> // assert()
 
 
 vtkInformationKeyMacro(vtkDistributedGraphHelper, DISTRIBUTEDVERTEXIDS, Integer);

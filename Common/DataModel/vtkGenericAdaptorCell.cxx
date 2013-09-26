@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkGenericAdaptorCell.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include "vtkPoints.h"
 #include "vtkIncrementalPointLocator.h"
