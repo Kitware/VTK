@@ -44,18 +44,28 @@ vtkTextMapper::vtkTextMapper()
   vtkNew<vtkTextProperty> tprop;
   this->SetTextProperty(tprop.GetPointer());
 
+  this->Points->SetNumberOfPoints(4);
+  this->Points->SetPoint(0, 0., 0., 0.);
+  this->Points->SetPoint(1, 0., 0., 0.);
+  this->Points->SetPoint(2, 0., 0., 0.);
+  this->Points->SetPoint(3, 0., 0., 0.);
+  this->PolyData->SetPoints(this->Points.GetPointer());
+
   vtkNew<vtkCellArray> quad;
   quad->InsertNextCell(4);
   quad->InsertCellPoint(0);
   quad->InsertCellPoint(1);
   quad->InsertCellPoint(2);
   quad->InsertCellPoint(3);
-  this->PolyData->SetPoints(this->Points.GetPointer());
   this->PolyData->SetPolys(quad.GetPointer());
 
   vtkNew<vtkFloatArray> tcoords;
   tcoords->SetNumberOfComponents(2);
   tcoords->SetNumberOfTuples(4);
+  tcoords->SetTuple2(0, 0., 0.);
+  tcoords->SetTuple2(1, 0., 0.);
+  tcoords->SetTuple2(2, 0., 0.);
+  tcoords->SetTuple2(3, 0., 0.);
   this->PolyData->GetPointData()->SetTCoords(tcoords.GetPointer());
   this->Mapper->SetInputData(this->PolyData.GetPointer());
 
