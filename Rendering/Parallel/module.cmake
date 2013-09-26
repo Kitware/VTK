@@ -3,6 +3,8 @@ vtk_module(vtkRenderingParallel
     vtkParallelCore
     vtkFiltersParallel
     vtkRenderingOpenGL
+  PRIVATE_DEPENDS
+    vtkIOImage
   TEST_DEPENDS
     vtkParallelMPI
     vtkFiltersParallelMPI
