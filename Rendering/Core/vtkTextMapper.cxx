@@ -108,7 +108,7 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Input: " << (this->Input ? this->Input : "(none)") << "\n";
 
   os << indent << "TextDims: "
-     << this->TextDims[0] << ", " << this->TextDims[2] << "\n";
+     << this->TextDims[0] << ", " << this->TextDims[1] << "\n";
 
   os << indent << "CoordsTime: " << this->CoordsTime.GetMTime() << "\n";
   os << indent << "TCoordsTime: " << this->TCoordsTime.GetMTime() << "\n";
