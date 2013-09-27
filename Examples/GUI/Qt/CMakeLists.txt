@@ -1,13 +1,15 @@
+# Only enable if Qt 4 is being used for now, Qt 5 will take a little more work.
+if(VTK_QT_VERSION VERSION_LESS "5")
 
+  add_subdirectory(ImageViewer)
+  add_subdirectory(SimpleView)
+  add_subdirectory(Events)
+  add_subdirectory(FourPaneViewer)
 
-ADD_SUBDIRECTORY(ImageViewer)
-ADD_SUBDIRECTORY(SimpleView)
-ADD_SUBDIRECTORY(Events)
-ADD_SUBDIRECTORY(FourPaneViewer)
-
-IF(VTK_USE_QVTK_QTOPENGL)
-  ADD_SUBDIRECTORY(GraphicsView)
-ENDIF(VTK_USE_QVTK_QTOPENGL)
+  if(TARGET vtkGUISupportQtOpenGL)
+    add_subdirectory(GraphicsView)
+  endif()
 
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.ctest.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.ctest" @ONLY)
+endif()
