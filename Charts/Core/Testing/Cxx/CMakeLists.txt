@@ -51,6 +51,7 @@ vtk_add_test_cxx(
   TestStackedBarGraph.cxx
   TestStackedPlot.cxx
   TestSurfacePlot.cxx
+  TestZoomAxis.cxx
   )
 
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
