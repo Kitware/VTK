@@ -85,12 +85,12 @@ public:
   void GoToNextCell();
 
   // Description:
-  // Returns true if the current cell exists. Always safe to call.
+  // Returns false while the iterator is valid. Always safe to call.
   virtual bool IsDoneWithTraversal() = 0;
 
   // Description:
   // Get the current cell type (e.g. VTK_LINE, VTK_VERTEX, VTK_TETRA, etc).
-  // This should only be called when IsDoneWithTraversal() returns true.
+  // This should only be called when IsDoneWithTraversal() returns false.
   int GetCellType();
 
   // Description:
@@ -99,13 +99,13 @@ public:
 
   // Description:
   // Get the ids of the points in the current cell.
-  // This should only be called when IsDoneWithTraversal() returns true.
+  // This should only be called when IsDoneWithTraversal() returns false.
   vtkIdList *GetPointIds();
 
   // Description:
   // Get the points in the current cell.
   // This is usually a very expensive call, and should be avoided when possible.
-  // This should only be called when IsDoneWithTraversal() returns true.
+  // This should only be called when IsDoneWithTraversal() returns false.
   vtkPoints *GetPoints();
 
   // Description:
@@ -115,17 +115,17 @@ public:
   // Description:
   // Write the current full cell information into the argument.
   // This is usually a very expensive call, and should be avoided when possible.
-  // This should only be called when IsDoneWithTraversal() returns true.
+  // This should only be called when IsDoneWithTraversal() returns false.
   void GetCell(vtkGenericCell *cell);
 
   // Description:
   // Return the number of points in the current cell.
-  // This should only be called when IsDoneWithTraversal() returns true.
+  // This should only be called when IsDoneWithTraversal() returns false.
   vtkIdType GetNumberOfPoints();
 
   // Description:
   // Return the number of faces in the current polyhedral cell.
-  // This should only be called when IsDoneWithTraversal() returns true.
+  // This should only be called when IsDoneWithTraversal() returns false.
   vtkIdType GetNumberOfFaces();
 
 protected:
