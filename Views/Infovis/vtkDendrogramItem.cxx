@@ -577,14 +577,14 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
   // leave a small amount of space between the tree and the vertex labels
   spacing = this->LeafSpacing * 0.5;
 
-   //"Igq" selected for range of height
-   int fontSize = painter->ComputeFontSizeForBoundedString("Igq", VTK_FLOAT_MAX,
+  //"Igq" selected for range of height
+  int fontSize = painter->ComputeFontSizeForBoundedString("Igq", VTK_FLOAT_MAX,
                                                            this->LeafSpacing);
-   bool canDrawText = true;
-   if (fontSize < 8)
-     {
-     canDrawText = false;
-     }
+  bool canDrawText = true;
+  if (fontSize < 8)
+    {
+    canDrawText = false;
+    }
 
   if (this->DrawLabels)
     {
