@@ -23,6 +23,8 @@ int TestExodusAttributes(int argc, char* argv[])
     return 1;
     }
   rdr->SetFileName(fname);
+  delete[] fname;
+
   rdr->UpdateInformation();
   rdr->SetObjectAttributeStatus(vtkExodusIIReader::ELEM_BLOCK,0,"SPAGHETTI",1);
   rdr->SetObjectAttributeStatus(vtkExodusIIReader::ELEM_BLOCK,0,"WESTERN",1);
