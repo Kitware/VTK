@@ -673,6 +673,11 @@ int vtkContext2D::ComputeFontSizeForBoundedString(const vtkStdString &string,
       --currentFontSize;
       this->GetTextProp()->SetFontSize(currentFontSize);
       this->ComputeStringBounds(string, stringBounds);
+      if (currentFontSize < 0)
+        {
+        this->GetTextProp()->SetFontSize(0);
+        return 0;
+        }
       }
     }
 
