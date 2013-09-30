@@ -175,7 +175,7 @@ public:
 
   // Description:
   // Test if the window has a valid drawable. This is
-  // currently only an issue on Mac OSX Cocoa where rendering
+  // currently only an issue on Mac OS X Cocoa where rendering
   // to an invalid drawable results in all OpenGL calls to fail
   // with "invalid framebuffer operation".
   virtual bool IsDrawable();

@@ -97,7 +97,7 @@ void vtkSampleFunction::SetSampleDimensions(int dim[3])
 }
 
 // Set the bounds of the model
-void vtkSampleFunction::SetModelBounds(double bounds[6])
+void vtkSampleFunction::SetModelBounds(const double bounds[6])
 {
   this->SetModelBounds(bounds[0], bounds[1],
                        bounds[2], bounds[3],

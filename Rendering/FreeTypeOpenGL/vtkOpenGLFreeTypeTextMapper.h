@@ -35,6 +35,8 @@ public:
   static vtkOpenGLFreeTypeTextMapper *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
+  void SetInput(const char *inputString);
+
   // Description:
   // Actally draw the text.
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
@@ -57,6 +59,16 @@ protected:
   vtkTimeStamp  SizeBuildTime;
   int LastSize[2];
   int LastLargestDescender;
+  int LineSize;
+  int NumberOfLines;
+  int NumberOfLinesAllocated;
+  vtkTextMapper **TextLines;
+
+  // Description:
+  // These functions are used to parse, process, and render multiple lines
+  char *NextLine(const char *input, int lineNum);
+  void GetMultiLineSize(vtkViewport* viewport, int size[2]);
+  void RenderOverlayMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
 
 private:
   vtkOpenGLFreeTypeTextMapper(const vtkOpenGLFreeTypeTextMapper&);  // Not implemented.

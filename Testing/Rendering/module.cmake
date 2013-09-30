@@ -5,4 +5,5 @@ vtk_module(vtkTestingRendering
     vtkImagingCore
   PRIVATE_DEPENDS
     vtksys
+    vtkIOImage
   )

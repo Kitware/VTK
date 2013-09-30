@@ -69,17 +69,16 @@ public:
 
 //----------------------------------------------------------------------------
 template <class T>
-vtkDataArrayTemplate<T>::vtkDataArrayTemplate(vtkIdType numComp):
-  vtkDataArray(numComp)
+vtkDataArrayTemplate<T>::vtkDataArrayTemplate()
 {
   this->Array = 0;
-  this->Tuple = 0;
+  this->ValueRange[0] = 0;
+  this->ValueRange[1] = 1;
   this->TupleSize = 0;
+  this->Tuple = 0;
   this->SaveUserArray = 0;
   this->DeleteMethod = VTK_DATA_ARRAY_FREE;
   this->Lookup = 0;
-  this->ValueRange[0] = 0;
-  this->ValueRange[1] = 1;
   this->RebuildLookup = true;
 }
 
@@ -199,43 +198,19 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
     return;
     }
 
-  // Free our previous memory.
-  this->DeleteArray();
+  // Resize the internal array if needed
+  const vtkIdType numTuples = fa->GetNumberOfTuples();
+  this->SetNumberOfComponents(fa->GetNumberOfComponents());
+  this->SetNumberOfTuples(numTuples);
 
-  // Copy the given array into new memory.
-  this->NumberOfComponents = fa->GetNumberOfComponents();
-  this->MaxId = fa->GetMaxId();
-  this->Size = fa->GetSize();
-
-  this->Size = (this->Size > 0 ? this->Size : 1);
-  this->Array = static_cast<T* >(
-    malloc(static_cast<size_t>(this->Size) * sizeof(T)));
-  if(this->Array==0)
-    {
-    vtkErrorMacro("Unable to allocate " << this->Size
-                  << " elements of size " << sizeof(T)
-                  << " bytes. ");
-
-    #if !defined NDEBUG
-    // We're debugging, crash here preserving the stack
-    abort();
-    #elif !defined VTK_DONT_THROW_BAD_ALLOC
-    // We can throw something that has universal meaning
-    throw std::bad_alloc();
-    #else
-    // We indicate that malloc failed by return
-    this->Size = 0;
-    this->NumberOfComponents = 0;
-    this->MaxId = -1;
-    return;
-    #endif
-    }
-  if (fa->GetSize() > 0)
+  // Copy
+  if (numTuples > 0)
     {
     memcpy(this->Array, fa->GetVoidPointer(0),
            static_cast<size_t>(this->Size)*sizeof(T));
     }
   this->vtkAbstractArray::DeepCopy( fa );
+  this->Squeeze();
   this->DataChanged();
 }
 
@@ -252,6 +227,22 @@ void vtkDataArrayTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     osw << indent << "Array: (null)\n";
+    }
+}
+
+//----------------------------------------------------------------------------
+template <typename T> vtkDataArrayTemplate<T> *
+vtkDataArrayTemplate<T>::FastDownCast(vtkAbstractArray *src)
+{
+  switch (src->GetArrayType())
+    {
+    case vtkAbstractArray::DataArrayTemplate:
+      if (src->GetDataType() == vtkTypeTraits<ValueType>::VTK_TYPE_ID)
+        {
+        return static_cast<vtkDataArrayTemplate<ValueType>*>(src);
+        }
+    default:
+      return NULL;
     }
 }
 
@@ -482,6 +473,82 @@ void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, vtkIdType j,
     {
     this->MaxId = maxId;
     }
+  this->DataChanged();
+}
+
+//----------------------------------------------------------------------------
+template<class T>
+void vtkDataArrayTemplate<T>::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                                        vtkAbstractArray *source)
+{
+  if (source->GetDataType() != this->GetDataType())
+    {
+    vtkWarningMacro("Input and output array data types do not match.");
+    return;
+    }
+
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+    }
+
+  vtkIdType numIds = dstIds->GetNumberOfIds();
+  if (srcIds->GetNumberOfIds() != numIds)
+    {
+    vtkWarningMacro("Input and output id array sizes do not match.");
+    return;
+    }
+
+  // Find maximum destination id and resize if needed
+  vtkIdType maxDstId = 0;
+  for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+    {
+    maxDstId = std::max(maxDstId, dstIds->GetId(idIndex));
+    }
+
+  vtkIdType maxSize = (maxDstId + 1) * this->NumberOfComponents;
+  if (maxSize > this->Size)
+    {
+    if (this->ResizeAndExtend(maxSize) == 0)
+      {
+      vtkWarningMacro("Failed to allocate memory.");
+      return;
+      }
+    }
+
+  // Copy directly into our array if the source has supporting API:
+  if (vtkTypedDataArray<T> *typedSource =
+      vtkTypedDataArray<T>::FastDownCast(source))
+    {
+    for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+      {
+      typedSource->GetTupleValue(srcIds->GetId(idIndex),
+                                 this->GetPointer(dstIds->GetId(idIndex)
+                                                  * this->NumberOfComponents));
+      }
+    }
+  else if (vtkDataArray *dataSource = vtkDataArray::FastDownCast(source))
+    {
+    // Otherwise use the double interface
+    for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+      {
+      this->SetTuple(dstIds->GetId(idIndex),
+                     dataSource->GetTuple(srcIds->GetId(idIndex)));
+      }
+    }
+  else
+    {
+    vtkWarningMacro("Input array is not a vtkDataArray subclass!");
+    return;
+    }
+
+  vtkIdType maxId = maxSize - 1;
+  if (maxId > this->MaxId)
+    {
+    this->MaxId = maxId;
+    }
+
   this->DataChanged();
 }
 

@@ -20,7 +20,7 @@
 vtkStandardNewMacro(vtkType@VTK_TYPE_NAME@Array);
 
 //----------------------------------------------------------------------------
-vtkType@VTK_TYPE_NAME@Array::vtkType@VTK_TYPE_NAME@Array(vtkIdType numComp): Superclass(numComp)
+vtkType@VTK_TYPE_NAME@Array::vtkType@VTK_TYPE_NAME@Array()
 {
 }
 

@@ -27,8 +27,6 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
-#include <algorithm> // For std::copy
-
 class VTKCOMMONMATH_EXPORT vtkMatrix4x4 : public vtkObject
 {
   // Some of the methods in here have a corresponding static (class)
@@ -131,8 +129,8 @@ public:
 
   // Description:
   // Multiplies matrices a and b and stores the result in c.
-  static void Multiply4x4(const vtkMatrix4x4 *a, const vtkMatrix4x4 *b, vtkMatrix4x4 *c) {
-    vtkMatrix4x4::Multiply4x4(*a->Element,*b->Element,*c->Element); };
+  static void Multiply4x4(const vtkMatrix4x4 *a, const vtkMatrix4x4 *b,
+                          vtkMatrix4x4 *c);
 //BTX
   static void Multiply4x4(const double a[16], const double b[16],
                           double c[16]);
@@ -221,7 +219,14 @@ inline void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16],
     }
 
   // Copy to final dest
-  std::copy(tmp, tmp + 16, c);
+  memcpy(c, tmp, 16 * sizeof(double));
+}
+
+//----------------------------------------------------------------------------
+inline void vtkMatrix4x4::Multiply4x4(
+  const vtkMatrix4x4 *a, const vtkMatrix4x4 *b, vtkMatrix4x4 *c)
+{
+  vtkMatrix4x4::Multiply4x4(*a->Element, *b->Element, *c->Element);
 }
 
 //----------------------------------------------------------------------------

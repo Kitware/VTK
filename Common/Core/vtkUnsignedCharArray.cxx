@@ -27,7 +27,7 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(unsigned char);
 vtkStandardNewMacro(vtkUnsignedCharArray);
 
 //----------------------------------------------------------------------------
-vtkUnsignedCharArray::vtkUnsignedCharArray(vtkIdType numComp): RealSuperclass(numComp)
+vtkUnsignedCharArray::vtkUnsignedCharArray()
 {
 }
 

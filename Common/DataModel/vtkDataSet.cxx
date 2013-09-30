@@ -17,6 +17,7 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellTypes.h"
+#include "vtkDataSetCellIterator.h"
 #include "vtkExtentTranslator.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
@@ -64,6 +65,14 @@ void vtkDataSet::CopyAttributes(vtkDataSet *ds)
   this->GetPointData()->PassData(ds->GetPointData());
   this->GetCellData()->PassData(ds->GetCellData());
   this->GetFieldData()->PassData(ds->GetFieldData());
+}
+
+//----------------------------------------------------------------------------
+vtkCellIterator *vtkDataSet::NewCellIterator()
+{
+  vtkDataSetCellIterator *iter = vtkDataSetCellIterator::New();
+  iter->SetDataSet(this);
+  return iter;
 }
 
 //----------------------------------------------------------------------------

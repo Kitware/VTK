@@ -88,6 +88,10 @@ public:
   // expensive in both time and storage. If the output data will be
   // processed by filters that modify topology or geometry, it may be
   // wise to turn Normals and Gradients off.
+  // This setting defaults to On for vtkImageData, vtkRectilinearGrid,
+  // vtkStructuredGrid, and vtkUnstructuredGrid inputs, and Off for all others.
+  // This default behavior is to preserve the behavior of an older version of
+  // this filter, which would ignore this setting for certain inputs.
   vtkSetMacro(ComputeNormals,int);
   vtkGetMacro(ComputeNormals,int);
   vtkBooleanMacro(ComputeNormals,int);

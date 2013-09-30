@@ -21,6 +21,8 @@
 
 #include "vtkRenderingLICModule.h" // for export
 #include "vtkPixelExtent.h" // for pixel extent
+
+// included vtkSystemIncludes in vtkPixelExtent
 #include <cstddef> // for NULL
 #include <string> // for string
 #include <deque> // for deque

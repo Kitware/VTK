@@ -19,6 +19,7 @@ set(Module_SRCS
   vtkCellArray.cxx
   vtkCell.cxx
   vtkCellData.cxx
+  vtkCellIterator.cxx
   vtkCellLinks.cxx
   vtkCellLocator.cxx
   vtkCellTypes.cxx
@@ -28,6 +29,7 @@ set(Module_SRCS
   vtkConvexPointSet.cxx
   vtkCubicLine.cxx
   vtkCylinder.cxx
+  vtkDataSetCellIterator.cxx
   vtkDataObjectCollection.cxx
   vtkDataObject.cxx
   vtkDataObjectTypes.cxx
@@ -118,6 +120,7 @@ set(Module_SRCS
   vtkPointData.cxx
   vtkPointLocator.cxx
   vtkPointSet.cxx
+  vtkPointSetCellIterator.cxx
   vtkPointsProjectedHull.cxx
   vtkPolyDataCollection.cxx
   vtkPolyData.cxx
@@ -167,6 +170,7 @@ set(Module_SRCS
   vtkUndirectedGraph.cxx
   vtkUniformGrid.cxx
   vtkUnstructuredGrid.cxx
+  vtkUnstructuredGridCellIterator.cxx
   vtkVertex.cxx
   vtkVertexListIterator.cxx
   vtkVoxel.cxx
@@ -209,6 +213,7 @@ set_source_files_properties(
   vtkAbstractPointLocator
   vtkCell
   vtkCell3D
+  vtkCellIterator
   vtkCompositeDataIterator
   vtkCompositeDataSet
   vtkDataObjectTree

@@ -1,5 +1,0 @@
-# This file is used to ensure that vtkMaterialXMLLibrary.h is re-generated when
-# the user changes the CMake options VTK_USE_CG_SHADERS or VTK_USE_GLSL_SHADERS.
-
-
-@MaterialXMLs@

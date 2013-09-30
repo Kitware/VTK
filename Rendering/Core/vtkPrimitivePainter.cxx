@@ -30,8 +30,6 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkShaderDeviceAdapter.h"
-#include "vtkShaderProgram.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkShaderDeviceAdapter2.h"
@@ -295,15 +293,10 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
     vtkErrorMacro("No actor");
     }
 
-  vtkShaderDeviceAdapter *shaderDevice = NULL;
   vtkShaderDeviceAdapter2 *shaderDevice2 = NULL;
 
   if (prop->GetShading())
     {
-    if (prop->GetShaderProgram())
-      {
-      shaderDevice = prop->GetShaderProgram()->GetShaderDeviceAdapter();
-      }
     shaderDevice2 = prop->GetShaderDeviceAdapter2();
     }
 
@@ -313,11 +306,6 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
     shaderDevice2 =
       vtkShaderDeviceAdapter2::SafeDownCast(
         this->GetInformation()->Get(SHADER_DEVICE_ADAPTOR()));
-    }
-
-  if (shaderDevice && this->GenericVertexAttributes)
-    {
-    idx |= VTK_PDM_GENERIC_VERTEX_ATTRIBUTES;
     }
 
   if (shaderDevice2 && this->GenericVertexAttributes)

@@ -176,7 +176,7 @@ public:
   // Angles are given in degrees.  If the light is a
   // positional light, it is made directional instead.
   void SetDirectionAngle(double elevation, double azimuth);
-  void SetDirectionAngle(double ang[2]) {
+  void SetDirectionAngle(const double ang[2]) {
     this->SetDirectionAngle(ang[0], ang[1]); };
 
   // Description:

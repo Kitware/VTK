@@ -83,7 +83,7 @@ public:
   // Specify the origin of the widget (in world coordinates). The origin
   // is the point where the widget places itself. Note that rotations and
   // scaling occurs around the origin.
-  void SetOrigin(double o[3]) {this->SetOrigin(o[0],o[1],o[2]);}
+  void SetOrigin(const double o[3]) {this->SetOrigin(o[0],o[1],o[2]);}
   void SetOrigin(double ox, double oy, double oz);
   vtkGetVector3Macro(Origin,double);
 

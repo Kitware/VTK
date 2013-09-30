@@ -24,11 +24,6 @@
 #include <vtksys/ios/sstream>
 
 
-namespace
-{
-  const char hex_digits[] = "0123456789ABCDEF";
-};
-
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
 {

@@ -1604,11 +1604,7 @@ typedef short int yytype_int16;
 #endif
 
 /* Suppress unused-variable warnings by "using" E.  */
-#if ! defined lint || defined __GNUC__
-# define YYUSE(e) ((void) (e))
-#else
-# define YYUSE(e) /* empty */
-#endif
+#define YYUSE(e) ((void) (e))
 
 /* Identity function, used to suppress warnings about constant conditions.  */
 #ifndef lint

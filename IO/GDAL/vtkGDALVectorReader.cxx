@@ -135,6 +135,7 @@ public:
       if ( ! pts )
         {
         pts = vtkPoints::New();
+        pts->SetDataTypeToDouble();
         pd->SetPoints( pts );
         pts->FastDelete();
         }

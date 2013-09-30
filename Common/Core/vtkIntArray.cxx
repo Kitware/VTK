@@ -28,7 +28,7 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(int);
 vtkStandardNewMacro(vtkIntArray);
 
 //----------------------------------------------------------------------------
-vtkIntArray::vtkIntArray(vtkIdType numComp): RealSuperclass(numComp)
+vtkIntArray::vtkIntArray()
 {
 }
 

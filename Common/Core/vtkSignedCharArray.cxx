@@ -27,7 +27,7 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(signed char);
 vtkStandardNewMacro(vtkSignedCharArray);
 
 //----------------------------------------------------------------------------
-vtkSignedCharArray::vtkSignedCharArray(vtkIdType numComp): RealSuperclass(numComp)
+vtkSignedCharArray::vtkSignedCharArray()
 {
 }
 

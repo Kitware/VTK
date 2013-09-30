@@ -16,19 +16,11 @@
 
 #include "vtkActor.h"
 #include "vtkObjectFactory.h"
-#include "vtkImageData.h"
-#include "vtkImageReader2.h"
-#include "vtkImageReader2Factory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkShaderProgram.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkTexture.h"
-#include "vtkXMLDataElement.h"
-#include "vtkXMLMaterial.h"
-#include "vtkXMLMaterialParser.h"
-#include "vtkXMLShader.h"
 
 #include <stdlib.h>
 #include <vtksys/ios/sstream>
@@ -48,121 +40,11 @@ public:
   MapOfTextureNames TextureNames;
 };
 
-vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkProperty)
-//----------------------------------------------------------------------------
 
 // Construct object with object color, ambient color, diffuse color,
-
-enum IVarEnum {
-  IVarNone = 0,
-  IVarColor,
-  IVarAmbientColor,
-  IVarDiffuseColor,
-  IVarSpecularColor,
-  IVarEdgeColor,
-  IVarAmbient,
-  IVarDiffuse,
-  IVarSpecular,
-  IVarSpecularPower,
-  IVarOpacity,
-
-  IVarPointSize,
-  IVarLineWidth,
-
-  IVarLineStipplePattern,
-  IVarLineStippleRepeatFactor,
-  IVarInterpolation,
-  IVarRepresentation,
-  IVarEdgeVisibility,
-  IVarBackfaceCulling,
-  IVarFrontfaceCulling
-};
-
-static IVarEnum XMLMemberToIvar(const char* name)
-{
-  if (!strcmp(name, "Color"))
-    {
-    return IVarColor;
-    }
-  if (!strcmp(name, "AmbientColor"))
-    {
-    return IVarAmbientColor;
-    }
-  if (!strcmp(name, "DiffuseColor"))
-    {
-    return IVarDiffuseColor;
-    }
-  if (!strcmp(name, "SpecularColor"))
-    {
-    return IVarSpecularColor;
-    }
-  if (!strcmp(name, "EdgeColor"))
-    {
-    return IVarEdgeColor;
-    }
-  if (!strcmp(name, "Ambient"))
-    {
-    return IVarAmbient;
-    }
-  if (!strcmp(name, "Diffuse"))
-    {
-    return IVarDiffuse;
-    }
-  if (!strcmp(name, "Specular"))
-    {
-    return IVarSpecular;
-    }
-  if (!strcmp(name, "SpecularPower"))
-    {
-    return IVarSpecularPower;
-    }
-  if (!strcmp(name, "Opacity"))
-    {
-    return IVarOpacity;
-    }
-  if (!strcmp(name, "PointSize"))
-    {
-    return IVarPointSize;
-    }
-  if (!strcmp(name, "LineWidth"))
-    {
-    return IVarLineWidth;
-    }
-  if (!strcmp(name, "LineStipplePattern"))
-    {
-    return IVarLineStipplePattern;
-    }
-  if (!strcmp(name, "LineStippleRepeatFactor"))
-    {
-    return IVarLineStippleRepeatFactor;
-    }
-  if (!strcmp(name, "Interpolation"))
-    {
-    return IVarInterpolation;
-    }
-  if (!strcmp(name, "Representation"))
-    {
-    return IVarRepresentation;
-    }
-  if (!strcmp(name, "EdgeVisibility"))
-    {
-    return IVarEdgeVisibility;
-    }
-  if (!strcmp(name, "BackfaceCulling"))
-    {
-    return IVarBackfaceCulling;
-    }
-  if (!strcmp(name, "FrontfaceCulling"))
-    {
-    return IVarFrontfaceCulling;
-    }
-  return IVarNone;
-}
-
-
 // specular color, and edge color white; ambient coefficient=0; diffuse
 // coefficient=0; specular coefficient=0; specular power=1; Gouraud shading;
 // and surface representation. Backface and frontface culling are off.
@@ -206,8 +88,6 @@ vtkProperty::vtkProperty()
   this->Lighting = true;
 
   this->Shading = 0;
-  this->ShaderProgram = 0;
-  this->Material = 0;
   this->MaterialName = 0;
   this->Internals = new vtkPropertyInternals;
 }
@@ -215,12 +95,6 @@ vtkProperty::vtkProperty()
 //----------------------------------------------------------------------------
 vtkProperty::~vtkProperty()
 {
-  if (this->Material)
-    {
-    this->Material->UnRegister(this);
-    this->Material = 0;
-    }
-  this->SetShaderProgram(0);
   this->SetMaterialName(0);
   delete this->Internals;
 }
@@ -251,7 +125,6 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->SetLineStipplePattern(p->GetLineStipplePattern());
     this->SetLineStippleRepeatFactor(p->GetLineStippleRepeatFactor());
     this->SetShading(p->GetShading());
-    this->LoadMaterial(p->GetMaterial());
 
     this->RemoveAllTextures();
     vtkPropertyInternals::MapOfTextures::iterator iter =
@@ -486,407 +359,7 @@ int vtkProperty::GetTextureUnit(const char* name)
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::LoadMaterial(const char* name)
-{
-  this->SetMaterialName(0);
-  if( !name || strlen(name) == 0)
-    {
-    this->LoadMaterial(static_cast<vtkXMLMaterial*>(0));
-    return;
-    }
-
-  // vtkXMLMaterial::CreateInstance using library/absolute path/repository
-  // in that order.
-  vtkXMLMaterial* material = vtkXMLMaterial::CreateInstance(name);
-  if (!material)
-    {
-    vtkErrorMacro("Failed to create Material : " << name);
-    return;
-    }
-  this->LoadMaterial(material);
-  material->Delete();
-  return;
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::LoadMaterialFromString(const char* materialxml)
-{
-  this->SetMaterialName(0);
-  if (!materialxml)
-    {
-    this->LoadMaterial(static_cast<vtkXMLMaterial*>(0));
-    return;
-    }
-  vtkXMLMaterialParser* parser = vtkXMLMaterialParser::New();
-  vtkXMLMaterial* material = vtkXMLMaterial::New();
-  parser->SetMaterial(material);
-  parser->Parse(materialxml);
-  parser->Delete();
-  this->LoadMaterial(material);
-  material->Delete();
-}
-
-// ----------------------------------------------------------------------------
-// Description:
-// Read this->Material from new style shaders.
-// Default implementation is empty.
-void vtkProperty::ReadFrameworkMaterial()
-{
-  // empty. See vtkOpenGLProperty.
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
-{
-  this->SetMaterialName(0);
-  vtkSetObjectBodyMacro(Material, vtkXMLMaterial, material);
-  if (this->Material)
-    {
-    this->SetMaterialName(this->Material->GetRootElement()->GetAttribute("name"));
-    this->LoadProperty();
-    this->LoadTextures();
-    int lang = this->Material->GetShaderLanguage();
-    int style = this->Material->GetShaderStyle();
-
-    if (style == 2) // TODO: use a constant instead of a literal
-      {
-      if (lang == vtkXMLShader::LANGUAGE_GLSL)
-        {
-        // ready-for-multipass
-        this->ReadFrameworkMaterial();
-//        vtkShader2Collection *shaders=vtkShader2Collection::New();
-//        this->SetShaderCollection(shaders);
-//        shaders->Delete();
-        }
-      else
-        {
-        vtkErrorMacro(<<"style 2 is only supported with GLSL. Failed to setup the shader.");
-        this->SetShaderProgram(0); // failed to create shaders.
-        }
-      }
-    else
-      {
-      vtkShaderProgram* shader = vtkShaderProgram::CreateShaderProgram(lang);
-      if (shader)
-        {
-        this->SetShaderProgram(shader);
-        shader->Delete();
-        this->ShaderProgram->SetMaterial(this->Material);
-        this->ShaderProgram->ReadMaterial();
-        }
-      // Some materials may have no shaders and only set ivars for vtkProperty.
-      else if ((material->GetNumberOfVertexShaders() != 0) ||
-               (material->GetNumberOfFragmentShaders() != 0))
-        {
-        vtkErrorMacro("Failed to setup the shader.");
-        this->SetShaderProgram(0); // failed to create shaders.
-        }
-      }
-    }
-  else
-    {
-    this->SetShaderProgram(0);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::LoadProperty()
-{
-  vtkXMLDataElement* elem = this->Material->GetProperty();
-  if (elem == NULL )
-    {
-    return;
-    }
-
-  int numNested = elem->GetNumberOfNestedElements();
-
-  // Each element is a child node of <Property />
-  for (int iElem = 0; iElem < numNested; iElem++)
-    {
-    vtkXMLDataElement* currElement = elem->GetNestedElement(iElem);
-    const char* tagname = currElement->GetName();
-
-    if (!strcmp(tagname, "Member"))
-      {
-      this->LoadMember(currElement);
-      }
-    else
-      {
-      vtkErrorMacro("Unknown tag name '" << tagname << "'");
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::LoadTextures()
-{
-  int numTextures = this->Material->GetNumberOfTextures();
-  for (int i = 0; i < numTextures; i++)
-    {
-    this->LoadTexture(this->Material->GetTexture(i));
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::LoadMember(vtkXMLDataElement* elem)
-{
-  const char* name = elem->GetAttribute("name");
-  if (!name)
-    {
-    vtkErrorMacro("Element missing required attribute 'name'");
-    return;
-    }
-
-  if (!elem->GetAttribute("value"))
-    {
-    vtkErrorMacro("Element with name=" << name << " missing required attribute "
-      "'value'");
-    return;
-    }
-  int number_of_elements;
-  int* pint = 0;
-  double* pdouble = 0;
-  float* pfloat = 0;
-  int success = 0;
-
-  IVarEnum member = XMLMemberToIvar( name );
-
-  // Sort to find the correct number of ivar values
-  if ( member == IVarColor ||
-       member == IVarAmbientColor||
-       member == IVarDiffuseColor||
-       member == IVarSpecularColor||
-       member == IVarEdgeColor )
-    {
-    number_of_elements = 3;
-    }
-  else if ( member == IVarAmbient ||
-            member == IVarDiffuse ||
-            member == IVarSpecular ||
-            member == IVarSpecularPower ||
-            member == IVarSpecularColor||
-            member == IVarOpacity ||
-            member == IVarPointSize ||
-            member == IVarLineWidth ||
-            member == IVarLineStipplePattern ||
-            member == IVarLineStippleRepeatFactor ||
-            member == IVarInterpolation ||
-            member == IVarRepresentation ||
-            member == IVarEdgeVisibility ||
-            member == IVarBackfaceCulling ||
-            member == IVarFrontfaceCulling )
-    {
-    number_of_elements = 1;
-    }
-  else
-    {
-    vtkErrorMacro("Invalid name='" << name);
-    return;
-    }
-
-
-
-  if ( (member == IVarColor) ||
-       (member == IVarAmbientColor) ||
-       (member == IVarDiffuseColor) ||
-       (member == IVarSpecularColor) ||
-       (member == IVarEdgeColor) ||
-       (member == IVarAmbient) ||
-       (member == IVarDiffuse) ||
-       (member == IVarSpecular) ||
-       (member == IVarSpecularPower) ||
-       (member == IVarOpacity) )
-    {
-    pdouble = new double[number_of_elements];
-    success = elem->GetVectorAttribute("value", number_of_elements, pdouble);
-    }
-  else if( (member == IVarPointSize) ||
-           (member == IVarLineWidth) )
-    {
-    pfloat = new float[number_of_elements];
-    success = elem->GetVectorAttribute("value", number_of_elements, pfloat);
-    }
-  else if ( (member == IVarLineStipplePattern) ||
-            (member == IVarLineStippleRepeatFactor) ||
-            (member == IVarInterpolation) ||
-            (member == IVarRepresentation) ||
-            (member == IVarEdgeVisibility) ||
-            (member == IVarBackfaceCulling) ||
-            (member == IVarFrontfaceCulling) )
-    {
-    pint = new int[number_of_elements];
-    success = elem->GetVectorAttribute( "value", number_of_elements, pint);
-    }
-  else
-    {
-    vtkErrorMacro("Invalid name='" << name);
-    return;
-    }
-
-  if (!success)
-    {
-    vtkErrorMacro("Error reading 'value' for name=" << name);
-    delete []pdouble;
-    delete []pfloat;
-    delete []pint;
-    return;
-    }
-
-  if (pdouble)
-    {
-    if (member == IVarColor)
-      {
-      this->SetColor(pdouble);
-      }
-    else if (member == IVarAmbientColor)
-      {
-      this->SetAmbientColor(pdouble);
-      }
-    else if (member == IVarDiffuseColor)
-      {
-      this->SetDiffuseColor(pdouble);
-      }
-    else if (member == IVarSpecularColor)
-      {
-      this->SetSpecularColor(pdouble);
-      }
-    else if (member == IVarEdgeColor)
-      {
-      this->SetEdgeColor(pdouble);
-      }
-    else if (member == IVarAmbient)
-      {
-      this->SetAmbient(*pdouble);
-      }
-    else if (member == IVarDiffuse)
-      {
-      this->SetDiffuse(*pdouble);
-      }
-    else if (member == IVarSpecular)
-      {
-      this->SetSpecular(*pdouble);
-      }
-    else if (member == IVarSpecularPower)
-      {
-      this->SetSpecularPower(*pdouble);
-      }
-    else if (member == IVarOpacity)
-      {
-      this->SetOpacity(*pdouble);
-      }
-    }
-  else if (pfloat)
-    {
-    if (member == IVarPointSize)
-      {
-      this->SetPointSize(*pfloat);
-      }
-    else if (member == IVarLineWidth)
-      {
-      this->SetLineWidth(*pfloat);
-      }
-    }
-  else if (pint)
-    {
-    if (member == IVarLineStipplePattern)
-      {
-      this->SetLineStipplePattern(*pint);
-      }
-    else if (member == IVarLineStippleRepeatFactor)
-      {
-      this->SetLineStippleRepeatFactor(*pint);
-      }
-    else if (member == IVarInterpolation)
-      {
-      this->SetInterpolation(*pint);
-      }
-    else if (member == IVarRepresentation)
-      {
-      this->SetRepresentation(*pint);
-      }
-    else if (member == IVarEdgeVisibility)
-      {
-      this->SetEdgeVisibility(*pint);
-      }
-    else if (member == IVarBackfaceCulling)
-      {
-      this->SetBackfaceCulling(*pint);
-      }
-    else if (member == IVarFrontfaceCulling)
-      {
-      this->SetFrontfaceCulling(*pint);
-      }
-    }
-
-  delete [] pdouble;
-  delete [] pfloat;
-  delete [] pint;
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
-{
-  const char* name = elem->GetAttribute("name");
-  if (!name)
-    {
-    vtkErrorMacro("Missing required attribute 'name'");
-    return;
-    }
-
-  const char* type = elem->GetAttribute("type");
-  if (!type)
-    {
-    vtkErrorMacro("Missing required attribute 'type' "
-      "for element with name=" << name);
-    return;
-    }
-
-  const char* location = elem->GetAttribute("location");
-  if (!location)
-    {
-    vtkErrorMacro("Missing required attribute 'location'"
-      "for element with name=" << name);
-    return;
-    }
-
-  char* filename = vtkXMLShader::LocateFile(location);
-
-  vtkImageReader2* reader =
-    vtkImageReader2Factory::CreateImageReader2(filename);
-
-  if (!reader)
-    {
-    vtkErrorMacro("Invalid format for element with name="
-      << name);
-    return;
-    }
-
-  if (filename)
-    {
-    reader->SetFileName(filename);
-    vtkTexture* t = vtkTexture::New();
-    t->SetInputConnection(reader->GetOutputPort());
-    t->InterpolateOn();
-    this->SetTexture(name, t);
-    t->Delete();
-    }
-  else
-    {
-    vtkErrorMacro("Failed to locate texture file " << location);
-    }
-
-  reader->Delete();
-  delete [] filename;
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::LoadPerlineNoise(vtkXMLDataElement* )
-{
-  vtkWarningMacro("Perlin Noise support not complete yet!");
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::Render(vtkActor* actor, vtkRenderer* renderer)
+void vtkProperty::Render(vtkActor*, vtkRenderer* renderer)
 {
   // subclass would have renderer the property already.
   // this class, just handles the shading.
@@ -896,68 +369,36 @@ void vtkProperty::Render(vtkActor* actor, vtkRenderer* renderer)
     // nothing to do when rendering for hardware selection.
     return;
     }
-
-  if (this->ShaderProgram && this->GetShading())
-    {
-    vtkDebugMacro("Attempting to use Shaders");
-
-    this->ShaderProgram->Render(actor, renderer);
-    }
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::PostRender(vtkActor* actor, vtkRenderer* renderer)
+void vtkProperty::PostRender(vtkActor*, vtkRenderer* renderer)
 {
   if (renderer->GetSelector())
     {
     // nothing to do when rendering for hardware selection.
     return;
     }
-
-  if (this->ShaderProgram && this->Shading)
-    {
-    this->ShaderProgram->PostRender(actor, renderer);
-    }
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::AddShaderVariable(const char* name, int numVars, int* x)
+void vtkProperty::AddShaderVariable(const char*, int, int*)
 {
-  if (!this->ShaderProgram)
-    {
-    return;
-    }
-  this->ShaderProgram->AddShaderVariable(name, numVars, x);
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::AddShaderVariable(const char* name, int numVars, float* x)
+void vtkProperty::AddShaderVariable(const char*, int, float*)
 {
-  if (!this->ShaderProgram)
-    {
-    return;
-    }
-  this->ShaderProgram->AddShaderVariable(name, numVars, x);
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::AddShaderVariable(const char* name, int numVars, double* x)
+void vtkProperty::AddShaderVariable(const char*, int, double*)
 {
-  if (!this->ShaderProgram)
-    {
-    return;
-    }
-  this->ShaderProgram->AddShaderVariable(name, numVars, x);
 }
 
 //-----------------------------------------------------------------------------
-void vtkProperty::ReleaseGraphicsResources(vtkWindow *win)
+void vtkProperty::ReleaseGraphicsResources(vtkWindow *)
 {
-  if (this->ShaderProgram)
-    {
-    this->ShaderProgram->ReleaseGraphicsResources(win);
-    }
-
   // vtkOpenGLRenderer releases texture resources, so we don't need to release
   // them here.
 }
@@ -1019,27 +460,6 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Shading: "
     << (this->Shading? "On" : "Off") << endl;
 
-  os << indent << "Material: " ;
-  if (this->Material)
-    {
-    os << endl;
-    this->Material->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
  os << indent << "MaterialName: " <<
    (this->MaterialName? this->MaterialName:"(none)") << endl;
-
-  os << indent << "ShaderProgram: ";
-  if (this->ShaderProgram)
-    {
-    os << endl;
-    this->ShaderProgram->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
 }

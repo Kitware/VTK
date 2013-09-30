@@ -1377,6 +1377,63 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     }
+  else if (mouse.GetButton() == this->Actions.ZoomAxis())
+    {
+    vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+    vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+
+    vtkAxis *axes[] = {
+      this->ChartPrivate->axes[vtkAxis::BOTTOM],
+      this->ChartPrivate->axes[vtkAxis::LEFT],
+      this->ChartPrivate->axes[vtkAxis::TOP],
+      this->ChartPrivate->axes[vtkAxis::RIGHT]
+    };
+
+    for(int i = 0; i < 4; i++)
+      {
+      vtkAxis *axis = axes[i];
+      if(!axis)
+        {
+        continue;
+        }
+
+      // bottom, top -> 0, right, left -> 1
+      int side = i % 2;
+
+      // get mouse delta in the given direction for the axis
+      double delta = lastScreenPos[side] - screenPos[side];
+      if(std::abs(delta) == 0)
+        {
+        continue;
+        }
+
+      // scale and invert delta
+      delta /= -100.0;
+
+      // zoom axis range
+      double min = axis->GetMinimum();
+      double max = axis->GetMaximum();
+      double frac = (max - min) * 0.1;
+      if (frac > 0.0)
+        {
+        min += delta*frac;
+        max -= delta*frac;
+        }
+      else
+        {
+        min -= delta*frac;
+        max += delta*frac;
+        }
+      axis->SetMinimum(min);
+      axis->SetMaximum(max);
+      axis->RecalculateTickSpacing();
+      }
+
+    this->RecalculatePlotTransforms();
+
+    // Mark the scene as dirty
+    this->Scene->SetDirty(true);
+    }
   else if (mouse.GetButton() == this->Actions.SelectPolygon())
     {
     if(this->SelectionPolygon.GetNumberOfPoints() > 0)
@@ -1571,6 +1628,12 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
     // Selection, for now at least...
     this->MouseBox.Set(mouse.GetPos().GetX(), mouse.GetPos().GetY(), 0.0, 0.0);
     this->DrawBox = true;
+    return true;
+    }
+  else if (mouse.GetButton() == this->Actions.ZoomAxis())
+    {
+    this->MouseBox.Set(mouse.GetPos().GetX(), mouse.GetPos().GetY(), 0.0, 0.0);
+    this->DrawBox = false;
     return true;
     }
   else if (mouse.GetButton() == this->Actions.SelectPolygon())
@@ -1814,6 +1877,10 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     this->InvokeEvent(vtkCommand::InteractionEvent);
+    return true;
+    }
+  else if (mouse.GetButton() == this->Actions.ZoomAxis())
+    {
     return true;
     }
   return false;

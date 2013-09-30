@@ -1054,12 +1054,25 @@ bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow *renWin)
     return false;
     }
 
+#if defined(__APPLE__) || defined(_WIN32)
   vtkOpenGLExtensionManager *manager = context->GetExtensionManager();
+#endif
+#if defined(__APPLE__)
   if (manager->DriverIsNvidia() && manager->DriverVersionIs(1,6))
     {
-    // mac osx 10.6 glsl doesn't support array initializer
+    // Mac OSX 10.6 GLSL doesn't support array initializer
     return false;
     }
+#endif
+#if defined(_WIN32)
+  if ( manager->DriverIsIntel() && manager->DriverGLRendererHas("HD Graphics")
+    && !manager->GetIgnoreDriverBugs("Intel HD 2k,3k,4k incorrect results") )
+    {
+    // Intel drivers produce close but not pixel for pixel identical
+    // results. Windows: yes. Linux: untested. Mac: no.
+    return false;
+    }
+#endif
 
   return vtkTextureObject::IsSupported(renWin, true, false, false)
      && vtkFrameBufferObject2::IsSupported(renWin)

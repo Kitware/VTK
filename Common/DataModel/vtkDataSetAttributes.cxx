@@ -707,6 +707,19 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd,
     {
     this->CopyTuple(fromPd->Data[i], this->Data[this->TargetIndices[i]],
                     fromId, toId);
+  }
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::CopyData(vtkDataSetAttributes *fromPd,
+                                    vtkIdList *fromIds, vtkIdList *toIds)
+{
+  int i;
+  for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End();
+      i=this->RequiredArrays.NextIndex())
+    {
+    this->CopyTuples(fromPd->Data[i], this->Data[this->TargetIndices[i]],
+        fromIds, toIds);
     }
 }
 
@@ -820,6 +833,14 @@ void vtkDataSetAttributes::CopyTuple(vtkAbstractArray *fromData,
                                      vtkIdType toId)
 {
   toData->InsertTuple(toId, fromId, fromData);
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::CopyTuples(vtkAbstractArray *fromData,
+                                      vtkAbstractArray *toData,
+                                      vtkIdList *fromIds, vtkIdList *toIds)
+{
+  toData->InsertTuples(toIds, fromIds, fromData);
 }
 
 //--------------------------------------------------------------------------

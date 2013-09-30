@@ -236,8 +236,8 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        typere = "^\s*vtkType(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*"
-        typesplitre = "^\s*vtkType(Revision)*Macro\s*\("
+        typere = "^\s*vtk(Abstract)?Type(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*"
+        typesplitre = "^\s*vtk(Abstract)?Type(Revision)*Macro\s*\("
 
         regx = re.compile(typere)
         regxs = re.compile(typesplitre)
@@ -248,10 +248,10 @@ class TestVTKFiles:
             rm = regx.match(line)
             if rm:
                 found = 1
-                if rm.group(1) == "Revision":
+                if rm.group(2) == "Revision":
                     oldlines.append(" %4d: %s" % (cc, line))
-                cname = rm.group(2)
-                pname = rm.group(3)
+                cname = rm.group(3)
+                pname = rm.group(4)
                 if cname != self.ClassName or pname != self.ParentName:
                     lines.append(" %4d: %s" % (cc, line))
             else:
@@ -263,10 +263,10 @@ class TestVTKFiles:
                     rm = regx.match(line)
                     if rm:
                         found = 1
-                        if rm.group(1) == "Revision":
+                        if rm.group(2) == "Revision":
                             oldlines.append(" %4d: %s" % (cc, line))
-                        cname = rm.group(2)
-                        pname = rm.group(3)
+                        cname = rm.group(3)
+                        pname = rm.group(4)
                         if cname != self.ClassName or pname != self.ParentName:
                             lines.append(" %4d: %s" % (cc, line))
             cc = cc + 1

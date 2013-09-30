@@ -49,9 +49,8 @@ vtkStandardNewMacro(vtkBitArray);
 
 //----------------------------------------------------------------------------
 // Instantiate object.
-vtkBitArray::vtkBitArray(vtkIdType numComp)
+vtkBitArray::vtkBitArray()
 {
-  this->NumberOfComponents = static_cast<int>(numComp < 1 ? 1 : numComp);
   this->Array = NULL;
   this->TupleSize = 3;
   this->Tuple = new double[this->TupleSize]; //used for conversion
@@ -379,6 +378,43 @@ void vtkBitArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source
     this->InsertValue(loci + cur, ba->GetValue(locj + cur));
     }
   this->DataChanged();
+}
+
+//----------------------------------------------------------------------------
+void vtkBitArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                               vtkAbstractArray *source)
+{
+  vtkBitArray* ba = vtkBitArray::SafeDownCast(source);
+  if (!ba)
+    {
+    vtkWarningMacro("Input and output arrays types do not match.");
+    return;
+    }
+
+  if (ba->NumberOfComponents != this->NumberOfComponents)
+    {
+    vtkWarningMacro("Number of components do not match.");
+    return;
+    }
+
+  vtkIdType numIds = dstIds->GetNumberOfIds();
+  if (srcIds->GetNumberOfIds() != numIds)
+    {
+    vtkWarningMacro("Input and output id array sizes do not match.");
+    return;
+    }
+
+  for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+    {
+    vtkIdType numComp = this->NumberOfComponents;
+    vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+    vtkIdType dstLoc = dstIds->GetId(idIndex) * this->NumberOfComponents;
+    while (numComp-- > 0)
+      {
+      this->InsertValue(dstLoc++, ba->GetValue(srcLoc++));
+      }
+    }
+    this->DataChanged();
 }
 
 //----------------------------------------------------------------------------

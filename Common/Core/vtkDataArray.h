@@ -49,6 +49,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
+  // This method checks if source->GetArrayType() returns DataArrayFastCast
+  // or a more derived type, and performs a static_cast to return
+  // source as a vtkDataArray pointer. Otherwise, NULL is returned.
+  static vtkDataArray* FastDownCast(vtkAbstractArray *source);
+
+  // Description:
   // This method is here to make backward compatibility easier.  It
   // must return true if and only if an array contains numeric data.
   // All vtkDataArray subclasses contain numeric data, hence this method
@@ -369,6 +376,10 @@ public:
   // keys not inteneded to be coppied are excluded here.
   virtual int CopyInformation(vtkInformation *infoFrom, int deep=1);
 
+  // Description:
+  // Method for type-checking in FastDownCast implementations.
+  virtual int GetArrayType() { return DataArray; }
+
 protected:
   // Description:
   // Compute the range for a specific component. If comp is set -1
@@ -382,7 +393,7 @@ protected:
   virtual void ComputeVectorRange(double range[2]);
 
   // Construct object with default tuple dimension (number of components) of 1.
-  vtkDataArray(vtkIdType numComp=1);
+  vtkDataArray();
   ~vtkDataArray();
 
   vtkLookupTable *LookupTable;
@@ -395,5 +406,19 @@ private:
   vtkDataArray(const vtkDataArray&);  // Not implemented.
   void operator=(const vtkDataArray&);  // Not implemented.
 };
+
+//------------------------------------------------------------------------------
+inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray *source)
+{
+  switch (source->GetArrayType())
+    {
+    case DataArrayTemplate:
+    case TypedDataArray:
+    case DataArray:
+      return static_cast<vtkDataArray*>(source);
+    default:
+      return NULL;
+    }
+}
 
 #endif

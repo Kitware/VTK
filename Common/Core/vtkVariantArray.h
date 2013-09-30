@@ -102,6 +102,13 @@ public:
   virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
 
   // Description:
+  // Copy the tuples indexed in srcIds from the source array to the tuple
+  // locations indexed by dstIds in this array.
+  // Note that memory allocation is performed as necessary to hold the data.
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray *source);
+
+  // Description:
   // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
@@ -259,7 +266,7 @@ public:
 
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
-  vtkVariantArray(vtkIdType numComp=1);
+  vtkVariantArray();
 
   // Pointer to data
   //BTX

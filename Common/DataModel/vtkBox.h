@@ -67,7 +67,7 @@ public:
   void SetBounds(double xMin, double xMax,
                  double yMin, double yMax,
                  double zMin, double zMax);
-  void SetBounds(double bounds[6]);
+  void SetBounds(const double bounds[6]);
   void GetBounds(double &xMin, double &xMax,
                  double &yMin, double &yMax,
                  double &zMin, double &zMax);
@@ -79,7 +79,7 @@ public:
   // Start with a SetBounds(). Subsequent AddBounds() methods are union set
   // operations on the original bounds. Retrieve the final bounds with a
   // GetBounds() method.
-  void AddBounds(double bounds[6]);
+  void AddBounds(const double bounds[6]);
 
   // Description:
   // Bounding box intersection modified from Graphics Gems Vol I. The method

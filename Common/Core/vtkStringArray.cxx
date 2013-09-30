@@ -78,8 +78,7 @@ vtkStandardNewMacro(vtkStringArray);
 
 //-----------------------------------------------------------------------------
 
-vtkStringArray::vtkStringArray(vtkIdType numComp) :
-  vtkAbstractArray( numComp )
+vtkStringArray::vtkStringArray()
 {
   this->Array = NULL;
   this->SaveUserArray = 0;
@@ -553,6 +552,44 @@ void vtkStringArray::InsertTuple(vtkIdType i, vtkIdType j,
     {
     this->InsertValue(loci + cur, sa->GetValue(locj + cur));
     }
+  this->DataChanged();
+}
+
+// ----------------------------------------------------------------------------
+void vtkStringArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                                  vtkAbstractArray *source)
+{
+  vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
+  if (!sa)
+    {
+    vtkWarningMacro("Input and outputs array data types do not match.");
+    return ;
+    }
+
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+    }
+
+  vtkIdType numIds = dstIds->GetNumberOfIds();
+  if (srcIds->GetNumberOfIds() != numIds)
+    {
+    vtkWarningMacro("Input and output id array sizes do not match.");
+    return;
+    }
+
+  for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+    {
+    vtkIdType numComp = this->NumberOfComponents;
+    vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+    vtkIdType dstLoc = dstIds->GetId(idIndex) * this->NumberOfComponents;
+    while (numComp-- > 0)
+      {
+      this->InsertValue(dstLoc++, sa->GetValue(srcLoc++));
+      }
+    }
+
   this->DataChanged();
 }
 

@@ -92,8 +92,7 @@ void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkVariantArray::vtkVariantArray(vtkIdType numComp) :
-  vtkAbstractArray( numComp )
+vtkVariantArray::vtkVariantArray()
 {
   this->Array = NULL;
   this->SaveUserArray = 0;
@@ -258,6 +257,70 @@ void vtkVariantArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* so
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
       {
       this->InsertValue(loci + cur, vtkVariant(a->GetValue(locj + cur)));
+      }
+    }
+  else
+    {
+    vtkWarningMacro("Unrecognized type is incompatible with vtkVariantArray.");
+    }
+  this->DataChanged();
+}
+
+//----------------------------------------------------------------------------
+void vtkVariantArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                                   vtkAbstractArray *source)
+{
+
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+    }
+
+  vtkIdType numIds = dstIds->GetNumberOfIds();
+  if (srcIds->GetNumberOfIds() != numIds)
+    {
+    vtkWarningMacro("Input and output id array sizes do not match.");
+    return;
+    }
+
+  if (vtkVariantArray* va = vtkVariantArray::SafeDownCast(source))
+    {
+    for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+      {
+      vtkIdType numComp = this->NumberOfComponents;
+      vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+      vtkIdType dstLoc = dstIds->GetId(idIndex) * this->NumberOfComponents;
+      while (numComp-- > 0)
+        {
+        this->InsertValue(dstLoc++, va->GetValue(srcLoc++));
+        }
+      }
+    }
+  else if (vtkDataArray *da = vtkDataArray::FastDownCast(source))
+    {
+    for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+      {
+      vtkIdType numComp = this->NumberOfComponents;
+      vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+      vtkIdType dstLoc = dstIds->GetId(idIndex) * this->NumberOfComponents;
+      while (numComp-- > 0)
+        {
+        this->InsertValue(dstLoc++, da->GetVariantValue(srcLoc++));
+        }
+      }
+    }
+  else if (vtkStringArray* sa = vtkStringArray::SafeDownCast(source))
+    {
+    for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+      {
+      vtkIdType numComp = this->NumberOfComponents;
+      vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+      vtkIdType dstLoc = dstIds->GetId(idIndex) * this->NumberOfComponents;
+      while (numComp-- > 0)
+        {
+        this->InsertValue(dstLoc++, sa->GetVariantValue(srcLoc++));
+        }
       }
     }
   else

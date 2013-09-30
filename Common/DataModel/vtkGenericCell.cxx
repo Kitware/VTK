@@ -398,3 +398,31 @@ void vtkGenericCell::PrintSelf(ostream& os, vtkIndent indent)
   this->Cell->PrintSelf(os,indent.GetNextIndent());
 }
 
+//----------------------------------------------------------------------------
+void vtkGenericCell::SetPoints(vtkPoints *points)
+{
+  if (points != this->Points)
+    {
+    this->Points->Delete();
+    this->Points = points;
+    this->Points->Register(this);
+    this->Cell->Points->Delete();
+    this->Cell->Points = points;
+    this->Cell->Points->Register(this);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGenericCell::SetPointIds(vtkIdList *pointIds)
+{
+  if (pointIds != this->PointIds)
+    {
+    this->PointIds->Delete();
+    this->PointIds = pointIds;
+    this->PointIds->Register(this);
+    this->Cell->PointIds->Delete();
+    this->Cell->PointIds = pointIds;
+    this->Cell->PointIds->Register(this);
+    }
+}
+

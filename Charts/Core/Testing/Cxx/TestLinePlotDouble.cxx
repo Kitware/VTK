@@ -56,8 +56,9 @@ int TestLinePlotDouble(int, char *[])
     table->SetValue(i, 0, i * inc);
     table->SetValue(i, 1, 1.0e-80 * cos(i * inc - 1.0) * 1.0e-8);
     table->SetValue(i, 2, 1.0e-80 * sin(i * inc) * 1.0e-8);
-    table->SetValue(i, 3, 1.0e-80 * sin(i * inc - 1.0) * 1.0e-8);
+    table->SetValue(i, 3, 1.0e80 * sin(i * inc - 1.0));
     }
+  table->SetValue(66, 2, vtkMath::Nan());
   table->SetValue(4, 3, vtkMath::Inf());
 
   // Add multiple line plots, setting the colors etc
@@ -73,6 +74,7 @@ int TestLinePlotDouble(int, char *[])
   line->SetInputData(table.GetPointer(), 0, 3);
   line->SetColor(0, 0, 255, 255);
   line->SetWidth(4.0);
+  chart->SetPlotCorner(line, 1);
 
   // Render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

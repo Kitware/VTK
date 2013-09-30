@@ -181,7 +181,7 @@ void vtkCubeSource::SetBounds(double xMin, double xMax,
   this->SetBounds (bounds);
 }
 
-void vtkCubeSource::SetBounds(double bounds[6])
+void vtkCubeSource::SetBounds(const double bounds[6])
 {
   this->SetXLength(bounds[1]-bounds[0]);
   this->SetYLength(bounds[3]-bounds[2]);
