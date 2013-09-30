@@ -256,7 +256,6 @@ bool vtkTreeHeatmapItem::Paint(vtkContext2D *painter)
   return true;
 }
 
-
 //-----------------------------------------------------------------------------
 bool vtkTreeHeatmapItem::MouseDoubleClickEvent(
   const vtkContextMouseEvent &event)
@@ -384,7 +383,7 @@ void vtkTreeHeatmapItem::GetBounds(double bounds[4])
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::GetCenter(double *center)
+void vtkTreeHeatmapItem::GetCenter(double center[2])
 {
   double bounds[4];
   this->GetBounds(bounds);
@@ -394,7 +393,7 @@ void vtkTreeHeatmapItem::GetCenter(double *center)
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::GetSize(double *size)
+void vtkTreeHeatmapItem::GetSize(double size[2])
 {
   double bounds[4];
   this->GetBounds(bounds);
