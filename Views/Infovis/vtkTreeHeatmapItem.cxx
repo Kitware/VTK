@@ -185,6 +185,9 @@ void vtkTreeHeatmapItem::ReorderTable()
     vtkIdType tableRow = rowNames->LookupValue(vertexName);
     if (tableRow < 0)
       {
+      vtkIdType newRowNum = this->GetTable()->InsertNextBlankRow();
+      this->GetTable()->SetValue(newRowNum, 0, vtkVariant(vertexName));
+      this->Heatmap->MarkRowAsBlank(vertexName);
       continue;
       }
 

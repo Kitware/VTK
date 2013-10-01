@@ -392,7 +392,6 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
 
   for (vtkIdType row = 0; row != this->Table->GetNumberOfRows(); ++row)
     {
-
     // check if this row has been collapsed or not
     if (collapsedRowsArray && collapsedRowsArray->GetValue(row) == 1)
       {
@@ -411,94 +410,114 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
     // get the name of this row
     std::string name = rowNames->GetValue(row);
 
-    for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
-         ++column)
+    // only draw the cells of this row if it isn't explicitly marked as blank
+    if (this->BlankRows.find(name) == this->BlankRows.end())
       {
-      // get the color for this cell from the lookup table
-      double color[4];
-      vtkVariant value = this->Table->GetValue(row, column);
-      if (value.IsString())
+      for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
+           ++column)
         {
-        this->CategoricalDataLookupTable->GetAnnotationColor(value, color);
-        }
-      else
-        {
-        // set the range on our continuous lookup table for this column
-        this->ContinuousDataLookupTable->SetRange(
-          this->ColumnRanges[column].first,
-          this->ColumnRanges[column].second);
+        // get the color for this cell from the lookup table
+        double color[4];
+        vtkVariant value = this->Table->GetValue(row, column);
+        if (value.IsString())
+          {
+          this->CategoricalDataLookupTable->GetAnnotationColor(value, color);
+          }
+        else
+          {
+          // set the range on our continuous lookup table for this column
+          this->ContinuousDataLookupTable->SetRange(
+            this->ColumnRanges[column].first,
+            this->ColumnRanges[column].second);
 
-        // get the color for this value
-        this->ContinuousDataLookupTable->GetColor(value.ToDouble(), color);
-        }
-      painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
+          // get the color for this value
+          this->ContinuousDataLookupTable->GetColor(value.ToDouble(), color);
+          }
+        painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
 
-      // draw this cell of the table
-      double w = 0.0;
-      double h = 0.0;
+        // draw this cell of the table
+        double w = 0.0;
+        double h = 0.0;
+        switch(orientation)
+          {
+          case vtkHeatmapItem::DOWN_TO_UP:
+            cellStartX = this->Position[0] + this->CellHeight * rowToDraw;
+            cellStartY = this->MinY + this->CellWidth * (column - 1);
+            h = this->CellWidth;
+            w = this->CellHeight;
+            break;
+
+          case vtkHeatmapItem::RIGHT_TO_LEFT:
+            cellStartX = this->MinX + this->CellWidth * (column - 1);
+            cellStartY = this->Position[1] + this->CellHeight * rowToDraw;
+            w = this->CellWidth;
+            h = this->CellHeight;
+            break;
+
+          case vtkHeatmapItem::UP_TO_DOWN:
+            cellStartX = this->Position[0] + this->CellHeight * rowToDraw;
+            cellStartY = this->MinY + this->CellWidth * (column - 1);
+            h = this->CellWidth;
+            w = this->CellHeight;
+            break;
+
+          case vtkHeatmapItem::LEFT_TO_RIGHT:
+          default:
+            cellStartX = this->MinX + this->CellWidth * (column - 1);
+            cellStartY = this->Position[1] + this->CellHeight * rowToDraw;
+            w = this->CellWidth;
+            h = this->CellHeight;
+            break;
+          }
+
+        if (this->LineIsVisible(cellStartX, cellStartY, cellStartX + this->CellWidth,
+                                cellStartY + this->CellHeight) ||
+            this->LineIsVisible(cellStartX, cellStartY + this->CellHeight,
+                                cellStartX + this->CellWidth, cellStartY))
+          {
+          painter->DrawRect(cellStartX, cellStartY, w, h);
+          }
+
+        }
+      }
+    else
+      {
       switch(orientation)
         {
         case vtkHeatmapItem::DOWN_TO_UP:
+        case vtkHeatmapItem::UP_TO_DOWN:
           cellStartX = this->Position[0] + this->CellHeight * rowToDraw;
-          cellStartY = this->MinY + this->CellWidth * (column - 1);
-          h = this->CellWidth;
-          w = this->CellHeight;
           break;
 
         case vtkHeatmapItem::RIGHT_TO_LEFT:
-          cellStartX = this->MinX + this->CellWidth * (column - 1);
-          cellStartY = this->Position[1] + this->CellHeight * rowToDraw;
-          w = this->CellWidth;
-          h = this->CellHeight;
-          break;
-
-        case vtkHeatmapItem::UP_TO_DOWN:
-          cellStartX = this->Position[0] + this->CellHeight * rowToDraw;
-          cellStartY = this->MinY + this->CellWidth * (column - 1);
-          h = this->CellWidth;
-          w = this->CellHeight;
-          break;
-
         case vtkHeatmapItem::LEFT_TO_RIGHT:
         default:
-          cellStartX = this->MinX + this->CellWidth * (column - 1);
           cellStartY = this->Position[1] + this->CellHeight * rowToDraw;
-          w = this->CellWidth;
-          h = this->CellHeight;
           break;
         }
-
-      if (this->LineIsVisible(cellStartX, cellStartY, cellStartX + this->CellWidth,
-                              cellStartY + this->CellHeight) ||
-          this->LineIsVisible(cellStartX, cellStartY + this->CellHeight,
-                              cellStartX + this->CellWidth, cellStartY))
+      }
+    // keep track of where the edges of the table are.
+    // this is used to position column labels and tool tips.
+    if (variableY)
+      {
+      if (cellStartY + this->CellHeight > this->MaxY)
         {
-        painter->DrawRect(cellStartX, cellStartY, w, h);
+        this->MaxY = cellStartY + this->CellHeight;
         }
-
-      // keep track of where the edges of the table are.
-      // this is used to position column labels and tool tips.
-      if (variableY)
+      if (cellStartY < this->MinY)
         {
-        if (cellStartY + this->CellHeight > this->MaxY)
-          {
-          this->MaxY = cellStartY + this->CellHeight;
-          }
-        if (cellStartY < this->MinY)
-          {
-          this->MinY = cellStartY;
-          }
+        this->MinY = cellStartY;
         }
-      else
+      }
+    else
+      {
+      if (cellStartX + this->CellHeight > this->MaxX)
         {
-        if (cellStartX + this->CellHeight > this->MaxX)
-          {
-          this->MaxX = cellStartX + this->CellHeight;
-          }
-        if (cellStartX < this->MinX)
-          {
-          this->MinX = cellStartX;
-          }
+        this->MaxX = cellStartX + this->CellHeight;
+        }
+      if (cellStartX < this->MinX)
+        {
+        this->MinX = cellStartX;
         }
       }
 
@@ -756,6 +775,10 @@ std::string vtkHeatmapItem::GetTooltipText(float x, float y)
     vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
       this->Table->GetColumn(0));
     std::string rowName = rowNames->GetValue(row);
+    if (this->BlankRows.find(rowName) != this->BlankRows.end())
+      {
+      return "";
+      }
 
     std::string columnName = this->Table->GetColumn(column + 1)->GetName();
 
@@ -834,6 +857,12 @@ void vtkHeatmapItem::GetBounds(double bounds[4])
   bounds[1] = this->MaxX;
   bounds[2] = this->MinY;
   bounds[3] = this->MaxY;
+}
+
+//-----------------------------------------------------------------------------
+void vtkHeatmapItem::MarkRowAsBlank(std::string rowName)
+{
+  this->BlankRows.insert(rowName);
 }
 
 //-----------------------------------------------------------------------------
