@@ -6,6 +6,8 @@ vtk_module(vtkGUISupportQt
     vtkRenderingOpenGL
     vtkInteractionStyle
     vtkImagingCore
+  PRIVATE_DEPENDS
+    vtkFiltersExtraction
   TEST_DEPENDS
     vtkTestingCore
   EXCLUDE_FROM_WRAPPING

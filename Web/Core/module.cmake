@@ -3,6 +3,9 @@ vtk_module(vtkWebCore
     Web
   DEPENDS
     vtkCommonCore
+  PRIVATE_DEPENDS
+    vtksys
+    vtkFiltersGeneral
     vtkPython
     vtkIOCore
     vtkIOImage
