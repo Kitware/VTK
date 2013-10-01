@@ -1776,6 +1776,8 @@ unsigned long vtkPolyData::GetActualMemorySize()
 void vtkPolyData::ShallowCopy(vtkDataObject *dataObject)
 {
   vtkPolyData *polyData = vtkPolyData::SafeDownCast(dataObject);
+  if (this == polyData)
+     return;
 
   if ( polyData != NULL )
     {
