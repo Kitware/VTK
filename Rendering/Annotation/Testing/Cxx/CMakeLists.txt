@@ -1,5 +1,5 @@
 vtk_add_test_cxx(
-  # TestAxisActor3D.cxx # todo (may not be in vtk in the first place)
+  TestAxisActor3D.cxx
   TestBarChartActor.cxx
   TestCaptionActor2D.cxx
   TestCubeAxes2DMode.cxx
