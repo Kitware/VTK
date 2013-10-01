@@ -35,10 +35,6 @@
 /* Whether FFMPEG is found or not  */
 #cmakedefine VTK_USE_FFMPEG_ENCODER
 
-/* Which shader support is included or not */
-#cmakedefine VTK_USE_CG_SHADERS
-#cmakedefine VTK_USE_GLSL_SHADERS
-
 /* Whether the user has linked in the MPEG2 library or not  */
 #cmakedefine VTK_USE_MPEG2_ENCODER
 
