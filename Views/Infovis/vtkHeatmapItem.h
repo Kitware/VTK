@@ -30,6 +30,7 @@
 #include "vtkSmartPointer.h"       // For vtkSmartPointer ivars
 #include "vtkVector.h"             // For vtkVector2f ivar
 #include <map>                     // For column ranges
+#include <set>                     // For blank row support
 #include <vector>                  // For row mapping
 
 class vtkLookupTable;
@@ -92,6 +93,11 @@ public:
   // Description:
   // Get the bounds for this item as (Xmin,Xmax,Ymin,Ymax).
   virtual void GetBounds(double bounds[4]);
+
+  // Description:
+  // Mark a row as blank, meaning that no cells will be drawn for it.
+  // Used by vtkTreeHeatmapItem to represent missing data.
+  void MarkRowAsBlank(std::string rowName);
 
   //BTX
 
@@ -196,6 +202,7 @@ private:
 
   std::map< vtkIdType, std::pair< double, double > > ColumnRanges;
   std::vector< vtkIdType > SceneRowToTableRowMap;
+  std::set<std::string> BlankRows;
 
   double MinX;
   double MinY;
