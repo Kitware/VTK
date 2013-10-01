@@ -131,6 +131,18 @@ public:
 //ETX
 
   // Description:
+  // Configure the exporter to expect a painter-ordered 2D rendering, that is,
+  // a rendering at a fixed depth where primitives are drawn from the bottom up.
+  // This disables sorting, which will break the painter ordering, and turns off
+  // the simple line offset, which can cause line primitives to be drawn on top
+  // of all other geometry.
+  void UsePainterSettings()
+  {
+    this->SetSortToOff();
+    this->SetSimpleLineOffset(0);
+  }
+
+  // Description:
   // Specify the format of file to write out.  This can be one of:
   // PS_FILE, EPS_FILE, PDF_FILE, TEX_FILE.  Defaults to EPS_FILE.
   // Depending on the option chosen it generates the appropriate file
