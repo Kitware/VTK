@@ -3,10 +3,11 @@ vtk_module(vtkRenderingContext2D
   GROUPS
     Rendering
   DEPENDS
+    vtkRenderingCore
+  PRIVATE_DEPENDS
     vtkCommonDataModel
     vtkCommonMath
     vtkCommonTransforms
-    vtkRenderingCore
     vtkRenderingOpenGL
     vtkRenderingFreeType
   )

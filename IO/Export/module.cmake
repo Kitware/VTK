@@ -14,6 +14,7 @@ vtk_module(vtkIOExport
   PRIVATE_DEPENDS
     vtkIOImage
     vtkFiltersGeometry
+    vtkgl2ps
   TEST_DEPENDS
     vtkCommonColor
     vtkChartsCore
