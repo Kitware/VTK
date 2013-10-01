@@ -67,6 +67,10 @@ public:
     {
     return static_cast<T*>(this->Object);
     }
+  T* Get() const
+    {
+    return static_cast<T*>(this->Object);
+    }
 
   // Description:
   // Get the contained pointer.
