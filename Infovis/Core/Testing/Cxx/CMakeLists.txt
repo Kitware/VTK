@@ -19,6 +19,7 @@ vtk_add_test_cxx(
   TestMergeGraphs.cxx,NO_VALID
   TestPruneTreeFilter.cxx
   TestRandomGraphSource.cxx,NO_VALID
+  TestReduceTable.cxx,NO_VALID
   TestRemoveIsolatedVertices.cxx,NO_VALID
   TestStreamGraph.cxx,NO_VALID
   TestTableToArray.cxx,NO_VALID
