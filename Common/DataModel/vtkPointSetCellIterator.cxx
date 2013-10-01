@@ -40,8 +40,8 @@ void vtkPointSetCellIterator::SetPointSet(vtkPointSet *ds)
 //------------------------------------------------------------------------------
 bool vtkPointSetCellIterator::IsDoneWithTraversal()
 {
-  return this->PointSet.GetPointer() != NULL
-      && this->CellId < this->PointSet->GetNumberOfCells();
+  return this->PointSet.GetPointer() == NULL
+      || this->CellId >= this->PointSet->GetNumberOfCells();
 }
 
 //------------------------------------------------------------------------------

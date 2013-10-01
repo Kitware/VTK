@@ -121,7 +121,7 @@ void vtkUnstructuredGridCellIterator::CatchUpSkippedCells()
 //------------------------------------------------------------------------------
 bool vtkUnstructuredGridCellIterator::IsDoneWithTraversal()
 {
-  return this->CellTypePtr < this->CellTypeEnd;
+  return this->CellTypePtr >= this->CellTypeEnd;
 }
 
 //------------------------------------------------------------------------------

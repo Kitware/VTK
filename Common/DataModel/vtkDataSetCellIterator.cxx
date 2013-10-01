@@ -40,8 +40,8 @@ void vtkDataSetCellIterator::SetDataSet(vtkDataSet *ds)
 //------------------------------------------------------------------------------
 bool vtkDataSetCellIterator::IsDoneWithTraversal()
 {
-  return this->DataSet.GetPointer() != NULL
-      && this->CellId < this->DataSet->GetNumberOfCells();
+  return this->DataSet.GetPointer() == NULL
+      || this->CellId >= this->DataSet->GetNumberOfCells();
 }
 
 //------------------------------------------------------------------------------
