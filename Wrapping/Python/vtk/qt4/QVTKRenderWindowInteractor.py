@@ -25,6 +25,9 @@ Changes by Phil Thompson, Oct. 2007
 
 Changes by Phil Thompson, Mar. 2008
  Added cursor support.
+
+Changes by Rodrigo Mologni, Sep. 2013 (Credit to Daniele Esposti)
+ Bug fix to PySide: Converts PyCObject to void pointer.
 """
 
 
@@ -154,7 +157,17 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         else:
             self._RenderWindow = vtk.vtkRenderWindow()
 
-        self._RenderWindow.SetWindowInfo(str(int(self.winId())))
+        WId = self.winId()
+
+        if type(WId).__name__ == 'PyCObject':
+            from ctypes import pythonapi, c_void_p, py_object
+
+            pythonapi.PyCObject_AsVoidPtr.restype  = c_void_p
+            pythonapi.PyCObject_AsVoidPtr.argtypes = [py_object]
+
+            WId = pythonapi.PyCObject_AsVoidPtr(WId)
+
+        self._RenderWindow.SetWindowInfo(str(int(WId)))
 
         if stereo: # stereo mode
             self._RenderWindow.StereoCapableWindowOn()
