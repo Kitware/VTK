@@ -256,11 +256,11 @@ int GetMouseSelectionMode(const vtkContextMouseEvent &mouse, int selectionMode)
     {
     return vtkContextScene::SELECTION_TOGGLE;
     }
-  else if (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER)
+  else if (mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER)
     {
     return vtkContextScene::SELECTION_ADDITION;
     }
-  else if (mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER)
+  else if (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER)
     {
     return vtkContextScene::SELECTION_SUBTRACTION;
     }
