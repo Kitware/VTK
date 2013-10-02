@@ -71,7 +71,7 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
 int TestDaxMarchingCubes(int argc, char* argv[])
 {
   //create the sample grid
-  vtkImageMandelbrotSource *src = vtkImageMandelbrotSource::New();
+  vtkNew<vtkImageMandelbrotSource> src;
   src->SetWholeExtent(0,250,0,250,0,250);
   src->Update(); //required so we can set the active scalars
 
@@ -88,5 +88,5 @@ int TestDaxMarchingCubes(int argc, char* argv[])
   data->GetPointData()->SetActiveScalars("Iterations");
 
   //run the pipeline
-  return RunVTKPipeline(src,argc,argv);
+  return RunVTKPipeline(src.GetPointer(),argc,argv);
 }
