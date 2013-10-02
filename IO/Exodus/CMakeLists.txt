@@ -1,4 +1,8 @@
 set(Module_SRCS
+  vtkCPExodusIIElementBlock.cxx
+  vtkCPExodusIIInSituReader.cxx
+  vtkCPExodusIINodalCoordinatesTemplate.h
+  vtkCPExodusIIResultsArrayTemplate.h
   vtkExodusIICache.cxx
   vtkExodusIIReader.cxx
   vtkExodusIIReaderParser.cxx
@@ -9,6 +13,8 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
+  vtkCPExodusIINodalCoordinatesTemplate
+  vtkCPExodusIIResultsArrayTemplate
   vtkExodusIIReaderParser
   vtkExodusIIReaderVariableCheck
   WRAP_EXCLUDE
