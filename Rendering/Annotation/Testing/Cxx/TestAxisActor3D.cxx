@@ -67,12 +67,12 @@ int TestAxisActor3D( int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
 
   // Create the RenderWindow, Renderer and both Actors
   vtkSmartPointer<vtkRenderer> ren1 =
-    vtkRenderer::New();
+    vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkRenderWindow::New();
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkRenderWindowInteractor::New();
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   axis->SetCamera(ren1->GetActiveCamera());
