@@ -25,7 +25,7 @@
 #include "vtkTestUtilities.h"
 
 //----------------------------------------------------------------------------
-int TestAxisActor3D( int argc, char * argv [] )
+int TestAxisActor3D( int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
 {
   // Create the axis actor
   vtkSmartPointer<vtkAxisActor> axis =
