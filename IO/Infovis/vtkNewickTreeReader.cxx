@@ -528,7 +528,8 @@ void vtkNewickTreeReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(none)") << endl;
-  os << indent << "InputString: " << this->InputString << endl;
+  os << indent << "InputString: "
+     << (this->InputString ? this->InputString : "(none)") << endl;
   os << indent << "ReadFromInputString: "
      << (this->ReadFromInputString ? "on" : "off") << endl;
 }
