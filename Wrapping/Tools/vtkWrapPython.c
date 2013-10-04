@@ -4174,7 +4174,11 @@ static void vtkWrapPython_GenerateSpecialType(
       "#define DECLARED_Py%s_Type\n"
       "#endif\n"
       "\n",
+#if defined(VTK_BUILD_SHARED_LIBS)
       supername, (is_external ? "VTK_ABI_IMPORT" : "VTK_ABI_EXPORT"),
+#else
+      supername, "VTK_ABI_EXPORT",
+#endif
       supername, supername);
     }
 
