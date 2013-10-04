@@ -269,6 +269,8 @@ vtkMPASReader::vtkMPASReader()
 {
   this->Internals = new vtkMPASReader::Internal;
 
+  this->CellMask = 0;
+
   // Debugging
   //this->DebugOn();
   vtkDebugMacro(<< "Starting to create vtkMPASReader..." << endl);
@@ -1014,6 +1016,20 @@ int vtkMPASReader::AllocSphereGeometry()
     this->MaximumPoints = this->CurrentExtraPoint;
     vtkDebugMacro
       (<< "alloc sphere: singlelayer: setting MaximumPoints to " << this->MaximumPoints);
+
+    if (isNcVar(ncFile, "vertexMask"))
+      {
+      this->CellMask = (int*)malloc(this->NumberOfCells*sizeof(int));
+      CHECK_MALLOC(this->CellMask);
+      NcVar*  cellMask = ncFile->get_var("vertexMask");
+      cellMask->set_cur(0, this->VerticalLevelSelected);
+      cellMask->get(this->CellMask, this->NumberOfCells, 1);
+      }
+    else
+      {
+      free(this->CellMask);
+      this->CellMask = 0;
+      }
     }
   vtkDebugMacro(<< "Leaving AllocSphereGeometry...");
 
@@ -1102,6 +1118,21 @@ int vtkMPASReader::AllocLatLonGeometry()
     vtkDebugMacro
       (<< "alloc latlon: singlelayer: setting this->MaximumPoints to " << this->MaximumPoints
        << endl);
+
+    if (isNcVar(ncFile, "vertexMask"))
+      {
+      CHECK_VAR(ncFile, "vertexMask");
+      this->CellMask = (int*)malloc(this->ModNumCells*sizeof(int));
+      CHECK_MALLOC(this->CellMask);
+      NcVar*  cellMask = ncFile->get_var("vertexMask");
+      cellMask->set_cur(0, this->VerticalLevelSelected);
+      cellMask->get(this->CellMask, this->NumberOfCells, 1);
+      }
+    else
+      {
+      free(this->CellMask);
+      this->CellMask = 0;
+      }
     }
   vtkDebugMacro(<< "Leaving AllocLatLonGeometry..." << endl);
 
@@ -1295,6 +1326,11 @@ int vtkMPASReader::EliminateXWrap ()
           // use existing kth point
           modConns[k] = neigh;
           }
+        }
+
+      if (this->CellMask)
+        {
+        this->CellMask[this->CurrentExtraCell] = this->CellMask[j];
         }
 
       // move addedConns to this->ModConnections extra cells area
@@ -1670,6 +1706,18 @@ void vtkMPASReader::OutputCells(bool init)
         output->InsertNextCell(cellType, pointsPerPolygon, &polygon[0]);
         }
       }
+    }
+
+  if (this->CellMask)
+    {
+    vtkIntArray* cellMask = vtkIntArray::New();
+    cellMask->SetArray(this->CellMask,
+                       this->CurrentExtraCell,
+                       0,
+                       vtkIntArray::VTK_DATA_ARRAY_FREE);
+    cellMask->SetName("Mask");
+    output->GetCellData()->AddArray(cellMask);
+    this->CellMask = NULL;
     }
 
   free(this->ModConnections); this->ModConnections = NULL;
