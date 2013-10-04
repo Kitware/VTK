@@ -283,6 +283,13 @@ void vtkPixelExtent::SetData(T ilo, T ihi, T jlo, T jhi)
 }
 
 //-----------------------------------------------------------------------------
+inline
+void vtkPixelExtent::SetData(const vtkPixelExtent &other)
+{
+  this->SetData(other.GetData());
+}
+
+//-----------------------------------------------------------------------------
 template<typename T>
 void vtkPixelExtent::GetData(T data[4]) const
 {
@@ -344,10 +351,18 @@ vtkPixelExtent::vtkPixelExtent(const vtkPixelExtent &other)
 }
 
 //-----------------------------------------------------------------------------
-inline
-void vtkPixelExtent::SetData(const vtkPixelExtent &other)
+template<typename T>
+void vtkPixelExtent::Size(const vtkPixelExtent &ext, T nCells[2])
 {
-  this->SetData(other.GetData());
+  nCells[0] = ext[1] - ext[0] + 1;
+  nCells[1] = ext[3] - ext[2] + 1;
+}
+
+//-----------------------------------------------------------------------------
+inline
+size_t vtkPixelExtent::Size(const vtkPixelExtent &ext)
+{
+  return (ext[1] - ext[0] + 1) * (ext[3] - ext[2] + 1);
 }
 
 //-----------------------------------------------------------------------------
@@ -362,21 +377,6 @@ inline
 size_t vtkPixelExtent::Size() const
 {
   return vtkPixelExtent::Size(*this);
-}
-
-//-----------------------------------------------------------------------------
-template<typename T>
-void vtkPixelExtent::Size(const vtkPixelExtent &ext, T nCells[2])
-{
-  nCells[0] = ext[1] - ext[0] + 1;
-  nCells[1] = ext[3] - ext[2] + 1;
-}
-
-//-----------------------------------------------------------------------------
-inline
-size_t vtkPixelExtent::Size(const vtkPixelExtent &ext)
-{
-  return (ext[1] - ext[0] + 1) * (ext[3] - ext[2] + 1);
 }
 
 //-----------------------------------------------------------------------------
@@ -457,14 +457,6 @@ int vtkPixelExtent::Contains(int i, int j) const
   return 0;
 }
 
-//-----------------------------------------------------------------------------
-inline
-int vtkPixelExtent::Disjoint(vtkPixelExtent other) const
-{
-  other &= *this;
-  return other.Empty();
-}
-
 
 //-----------------------------------------------------------------------------
 inline
@@ -511,6 +503,14 @@ void vtkPixelExtent::operator|=(const vtkPixelExtent &other)
   this->Data[1] = std::max(this->Data[1], other.Data[1]);
   this->Data[2] = std::min(this->Data[2], other.Data[2]);
   this->Data[3] = std::max(this->Data[3], other.Data[3]);
+}
+
+//-----------------------------------------------------------------------------
+inline
+int vtkPixelExtent::Disjoint(vtkPixelExtent other) const
+{
+  other &= *this;
+  return other.Empty();
 }
 
 //-----------------------------------------------------------------------------
