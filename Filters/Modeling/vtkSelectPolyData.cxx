@@ -234,20 +234,28 @@ int vtkSelectPolyData::RequestData(
       for (j=0; j<numNei; j++)
         {
         neiId = neighbors->GetId(j);
-        inPts->GetPoint(neiId, neiX);
-        for (k=0; k<3; k++)
+        if ( neiId == nextId )
           {
-          dir[k] = neiX[k] - x[k];
+          closest = neiId;
+          break;
           }
-        if ( neiId != prevId && vtkMath::Dot(dir,vec) > 0.0 ) //candidate
+        else
           {
-          dist2 = vtkLine::DistanceToLine(neiX, x0, x1);
-          if ( dist2 < closestDist2 )
+          inPts->GetPoint(neiId, neiX);
+          for (k=0; k<3; k++)
             {
-            closest = neiId;
-            closestDist2 = dist2;
+            dir[k] = neiX[k] - x[k];
             }
-          }//in direction of line
+          if ( neiId != prevId && vtkMath::Dot(dir,vec) > 0.0 ) //candidate
+            {
+            dist2 = vtkLine::DistanceToLine(neiX, x0, x1);
+            if ( dist2 < closestDist2 )
+              {
+              closest = neiId;
+              closestDist2 = dist2;
+              }
+            }//in direction of line
+          }
         }//for all neighbors
 
       if ( closest < 0 )
