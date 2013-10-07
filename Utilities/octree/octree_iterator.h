@@ -44,9 +44,6 @@ public:
   bool immediate_family() const { return this->_M_immediate_family; }
   bool& immediate_family() { return this->_M_immediate_family; }
 
-  self_iterator& operator = ( const iterator& it );
-  self_iterator& operator = ( const const_iterator& it );
-
   self_iterator& operator ++ ()      { this->_M_current_node = check_incr(); return *this; }
   self_iterator  operator ++ ( int ) { self_iterator tmp = *this; this->_M_current_node = check_incr(); return tmp; }
 

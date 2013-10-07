@@ -54,7 +54,7 @@ bool testCellIterator(vtkCellIterator *iter, vtkUnstructuredGrid *grid)
   vtkIdType cellId = 0;
   vtkNew<vtkGenericCell> cell;
   iter->InitTraversal();
-  while (iter->IsDoneWithTraversal())
+  while (!iter->IsDoneWithTraversal())
     {
     grid->GetCell(cellId, cell.GetPointer());
 

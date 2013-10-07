@@ -4,6 +4,8 @@ vtk_module(vtkIOImport
   DEPENDS
     vtkCommonCore
     vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkFiltersSources
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkTestingRendering

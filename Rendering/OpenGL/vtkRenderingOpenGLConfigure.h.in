@@ -29,7 +29,6 @@
 #cmakedefine VTK_OPENGL_HAS_OSMESA
 #cmakedefine VTK_USE_OFFSCREEN
 
-#cmakedefine VTK_USE_CG_SHADERS
 #cmakedefine VTK_USE_GLSL_SHADERS
 
 #cmakedefine VTK_MATERIALS_DIRS

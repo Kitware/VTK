@@ -185,6 +185,9 @@ void vtkTreeHeatmapItem::ReorderTable()
     vtkIdType tableRow = rowNames->LookupValue(vertexName);
     if (tableRow < 0)
       {
+      vtkIdType newRowNum = this->GetTable()->InsertNextBlankRow();
+      this->GetTable()->SetValue(newRowNum, 0, vtkVariant(vertexName));
+      this->Heatmap->MarkRowAsBlank(vertexName);
       continue;
       }
 
@@ -255,7 +258,6 @@ bool vtkTreeHeatmapItem::Paint(vtkContext2D *painter)
   this->PaintChildren(painter);
   return true;
 }
-
 
 //-----------------------------------------------------------------------------
 bool vtkTreeHeatmapItem::MouseDoubleClickEvent(
@@ -384,7 +386,7 @@ void vtkTreeHeatmapItem::GetBounds(double bounds[4])
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::GetCenter(double *center)
+void vtkTreeHeatmapItem::GetCenter(double center[2])
 {
   double bounds[4];
   this->GetBounds(bounds);
@@ -394,7 +396,7 @@ void vtkTreeHeatmapItem::GetCenter(double *center)
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::GetSize(double *size)
+void vtkTreeHeatmapItem::GetSize(double size[2])
 {
   double bounds[4];
   this->GetBounds(bounds);

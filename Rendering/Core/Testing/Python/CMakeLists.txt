@@ -36,11 +36,6 @@ vtk_add_test_python(TestWindowToImageTransparency.py)
 vtk_add_test_python(TexturedSphere.py)
 vtk_add_test_python(cells.py NO_RT)
 
-if(VTK_USE_CG_SHADERS)
-  vtk_add_test_python(TestGenericVertexAttributesCg.py)
-  vtk_add_test_python(TestCgShader.py)
-endif()
-
 if(VTK_USE_GLSL_SHADERS)
   vtk_add_test_python(TestGLSLShader.py)
 endif()

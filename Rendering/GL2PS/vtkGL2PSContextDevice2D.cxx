@@ -30,6 +30,8 @@
 
 #include "vtk_gl2ps.h"
 
+#include <sstream>
+
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGL2PSContextDevice2D)
 
@@ -164,7 +166,14 @@ void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
   unsigned char color[4];
   this->Brush->GetColor(color);
 
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, color);
+  std::stringstream label;
+  label << "vtkGL2PSContextDevice2D::DrawEllipseWedge("
+        << x << ", " << y << ", " << outRx << ", " << outRy << ", "
+        << inRx << ", " << inRy << ", " << startAngle << ", " << stopAngle
+        << ") path:";
+
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, color, NULL,
+                              0.0, -1.f, label.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -194,14 +203,27 @@ void vtkGL2PSContextDevice2D::DrawEllipticArc(float x, float y,
   // Fill
   unsigned char fillColor[4];
   this->Brush->GetColor(fillColor);
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, fillColor);
+
+  std::stringstream label;
+  label << "vtkGL2PSContextDevice2D::DrawEllipticArc("
+        << x << ", " << y << ", " << rx << ", " << ry << ", "
+        << startAngle << ", " << stopAngle << ") fill:";
+
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, fillColor,
+                              NULL, 0.0, -1.f, label.str().c_str());
 
   // and stroke
   unsigned char strokeColor[4];
   this->Pen->GetColor(strokeColor);
   float strokeWidth = this->Pen->GetWidth();
+
+  label.str("");
+  label.clear();
+  label << "vtkGL2PSContextDevice2D::DrawEllipticArc("
+        << x << ", " << y << ", " << rx << ", " << ry << ", "
+        << startAngle << ", " << stopAngle << ") stroke:";
   vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, strokeColor,
-                              NULL, 0.0, strokeWidth);
+                              NULL, 0.0, strokeWidth, label.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -220,6 +242,7 @@ void vtkGL2PSContextDevice2D::DrawString(float *point,
   vtkGL2PSUtilities::DrawString(string.utf8_str(), this->TextProp, p);
 }
 
+//-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawMathTextString(float apoint[],
                                                  const vtkStdString &string)
 {
@@ -256,7 +279,8 @@ void vtkGL2PSContextDevice2D::DrawMathTextString(float apoint[],
   this->TransformPath(path.GetPointer());
 
   vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, color, NULL,
-                              rotateAngle);
+                              rotateAngle, -1.f,
+                              ("Pathified string: " + string).c_str());
 }
 
 //-----------------------------------------------------------------------------

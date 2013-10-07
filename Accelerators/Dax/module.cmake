@@ -1,0 +1,17 @@
+vtk_module(vtkAcceleratorsDax
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkFiltersCore
+    vtkFiltersGeometry
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkRenderingVolume
+    vtkRenderingVolumeOpenGL
+    vtkIOLegacy
+    vtkIOXML
+    vtkImagingSources
+  EXCLUDE_FROM_ALL
+  )

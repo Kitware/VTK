@@ -13,6 +13,7 @@ vtk_module(vtkIOExport
     vtkImagingCore
   PRIVATE_DEPENDS
     vtkIOImage
+    vtkFiltersGeometry
   TEST_DEPENDS
     vtkCommonColor
     vtkChartsCore

@@ -89,6 +89,8 @@ class _PhylogeneticTree(wamp.ServerProtocol):
             # read in  a table
             tableReader = vtk.vtkDelimitedTextReader()
             tableReader.SetFileName(_PhylogeneticTree.csvFilePath)
+            tableReader.SetHaveHeaders(True)
+            tableReader.DetectNumericColumnsOn()
             tableReader.Update()
             table = tableReader.GetOutput()
 

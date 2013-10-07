@@ -63,9 +63,11 @@ public:
 
   // Description:
   // Transform the path using the actor's matrix and current GL state, then
-  // draw it to GL2PS.
+  // draw it to GL2PS. The label string is inserted into the GL2PS output at the
+  // beginning of the path specification as a comment on supported backends.
   static void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
-                         double rasterPos[3], unsigned char actorColor[4]);
+                         double rasterPos[3], unsigned char actorColor[4],
+                         const char *label = NULL);
   // Description:
   // Generate PS, EPS, or SVG markup from a vtkPath object, and then inject it
   // into the output using the gl2psSpecial command. The path is translated
@@ -74,9 +76,12 @@ public:
   // and determines clipping and depth. If scale is NULL, no scaling is done.
   // If strokeWidth is positive, the path will be stroked with the indicated
   // width. If zero or negative, the path will be filled (default).
+  // The label string is inserted into the GL2PS output at the beginning of the
+  // path specification as a comment on supported backends.
   static void DrawPath(vtkPath *path, double rasterPos[3], double windowPos[2],
                        unsigned char rgba[4], double scale[2] = NULL,
-                       double rotateAngle = 0.0, float strokeWidth = -1);
+                       double rotateAngle = 0.0, float strokeWidth = -1,
+                       const char *label = NULL);
 
   // Description:
   // Get whether all text will be exported as paths.
@@ -118,15 +123,15 @@ protected:
   static void DrawPathPS(vtkPath *path, double rasterPos[3],
                          double windowPos[2], unsigned char rgba[4],
                          double scale[2] = NULL, double rotateAngle = 0.0,
-                         float strokeWidth = -1);
+                         float strokeWidth = -1, const char *label = NULL);
   static void DrawPathPDF(vtkPath *path, double rasterPos[3],
                           double windowPos[2], unsigned char rgba[4],
                           double scale[2] = NULL, double rotateAngle = 0.0,
-                          float strokeWidth = -1);
+                          float strokeWidth = -1, const char *label = NULL);
   static void DrawPathSVG(vtkPath *path, double rasterPos[3],
                           double windowPos[2], unsigned char rgba[4],
                           double scale[2] = NULL, double rotateAngle = 0.0,
-                          float strokeWidth = -1);
+                          float strokeWidth = -1, const char *label = NULL);
 
   vtkGL2PSUtilities() {}
   ~vtkGL2PSUtilities() {}

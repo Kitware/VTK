@@ -28,9 +28,14 @@ vtkStandardNewMacro(vtkUnstructuredGridCellIterator)
 void vtkUnstructuredGridCellIterator::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "CellTypeBegin: " << this->CellTypeBegin << endl;
-  os << indent << "CellTypePtr: " << this->CellTypePtr << endl;
-  os << indent << "CellTypeEnd: " << this->CellTypeEnd << endl;
+  // Cast the 'unsigned char*' members to void* to prevent the compiler from
+  // interpreting them as strings.
+  os << indent << "CellTypeBegin: "
+     << static_cast<void*>(this->CellTypeBegin) << endl;
+  os << indent << "CellTypePtr: "
+     << static_cast<void*>(this->CellTypePtr) << endl;
+  os << indent << "CellTypeEnd: "
+     << static_cast<void*>(this->CellTypeEnd) << endl;
   os << indent << "ConnectivityBegin: " << this->ConnectivityBegin << endl;
   os << indent << "ConnectivityPtr: " << this->ConnectivityPtr << endl;
   os << indent << "FacesBegin: " << this->FacesBegin<< endl;
@@ -121,7 +126,7 @@ void vtkUnstructuredGridCellIterator::CatchUpSkippedCells()
 //------------------------------------------------------------------------------
 bool vtkUnstructuredGridCellIterator::IsDoneWithTraversal()
 {
-  return this->CellTypePtr < this->CellTypeEnd;
+  return this->CellTypePtr >= this->CellTypeEnd;
 }
 
 //------------------------------------------------------------------------------

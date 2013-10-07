@@ -41,7 +41,7 @@ SET(HAVE_SOCKETS TRUE)
 # Cray Xt3/ Catamount doesn't have any socket support
 # this could also be determined by doing something like
 # check_symbol_exists(socket "sys/types.h;sys/socket.h" HAVE_SOCKETS)
-IF(CMAKE_SYSTEM MATCHES Catamount)
-  SET(HAVE_SOCKETS FALSE)
-ENDIF(CMAKE_SYSTEM MATCHES Catamount)
+#IF(CMAKE_SYSTEM MATCHES Catamount) #Xt6 and Xt7 at least have sockets, so disable this.
+#  SET(HAVE_SOCKETS FALSE)
+#ENDIF(CMAKE_SYSTEM MATCHES Catamount)
 

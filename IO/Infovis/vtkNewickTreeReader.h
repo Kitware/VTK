@@ -48,7 +48,7 @@ public:
   vtkTree *GetOutput();
   vtkTree *GetOutput(int idx);
   void SetOutput(vtkTree *output);
-  int ReadNewickTree(char * const buffer, vtkTree & tree);
+  int ReadNewickTree(const char * buffer, vtkTree & tree);
 
 protected:
   vtkNewickTreeReader();
@@ -64,7 +64,7 @@ protected:
                                   vtkInformationVector *);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  void CountNodes(char * const buffer, vtkIdType *numNodes);
+  void CountNodes(const char * buffer, vtkIdType *numNodes);
   vtkIdType BuildTree(char *buffer, vtkMutableDirectedGraph *g,
     vtkDoubleArray *weights, vtkStringArray *names, vtkIdType parent);
 private:

@@ -111,11 +111,11 @@ public:
 
   // Description:
   // Get the center point of this item in pixel coordinates.
-  void GetCenter(double *center);
+  void GetCenter(double center[2]);
 
   // Description:
   // Get the size of this item in pixel coordinates.
-  void GetSize(double *size);
+  void GetSize(double size[2]);
 
   // Description:
   // Collapse subtrees until there are only n leaf nodes left in the tree.
