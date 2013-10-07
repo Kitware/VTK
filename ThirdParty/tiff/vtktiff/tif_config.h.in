@@ -238,11 +238,12 @@ the sizes can be different.*/
 /* Define to empty if `const' does not conform to ANSI C. */
 #cmakedefine const
 
-/* Define to `__inline__' or `__inline' if that's what the C compiler
-   calls it, or to nothing if 'inline' is not supported under any name.  */
+/* MSVC does not support C99 inline, so just make the inline keyword
+   disappear for C.  */
 #ifndef __cplusplus
-#define inline
-//#cmakedefine inline
+#  ifdef _MSC_VER
+#    define inline
+#  endif
 #endif
 
 /* Define to `long' if <sys/types.h> does not define. */
