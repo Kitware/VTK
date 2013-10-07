@@ -34,6 +34,15 @@ public:
   vtkTypeMacro(vtkOpenGLHardwareSelector, vtkHardwareSelector);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Called by the mapper (vtkHardwareSelectionPolyDataPainter) before and after
+  // rendering each prop.
+  virtual void BeginRenderProp()
+    { this->vtkHardwareSelector::BeginRenderProp(); }
+
+  virtual void EndRenderProp()
+    { this->vtkHardwareSelector::EndRenderProp(); }
+
 protected:
   vtkOpenGLHardwareSelector();
   virtual ~vtkOpenGLHardwareSelector();
