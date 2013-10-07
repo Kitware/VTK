@@ -38,7 +38,9 @@ public:
   vtkPHardwareSelector* Target;
 };
 
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPHardwareSelector);
+
 //----------------------------------------------------------------------------
 vtkPHardwareSelector::vtkPHardwareSelector()
 {
@@ -92,7 +94,6 @@ void vtkPHardwareSelector::StartRender()
 //----------------------------------------------------------------------------
 void vtkPHardwareSelector::EndRender()
 {
-
   this->CurrentPass++;
   for (; this->CurrentPass < MAX_KNOWN_PASS; this->CurrentPass++)
     {
