@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCriticalSection - Critical section locking class
+// .NAME vtkSimpleCriticalSection - Critical section locking class
 // .SECTION Description
 // vtkCriticalSection allows the locking of variables which are accessed
 // through different threads.  This header file also defines
@@ -30,20 +30,59 @@
 // for non-Windows platforms (Irix, SunOS, etc) are discovered, they
 // should replace the implementations in this class
 
-#ifndef __vtkCriticalSection_h
-#define __vtkCriticalSection_h
+#ifndef __vtkSimpleCriticalSection_h
+#define __vtkSimpleCriticalSection_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkObject.h"
-#include "vtkSimpleCriticalSection.h" // For simple critical section
+#include "vtkSystemIncludes.h"
 
-class VTKCOMMONCORE_EXPORT vtkCriticalSection : public vtkObject
+//BTX
+
+#ifdef VTK_USE_SPROC
+#include <abi_mutex.h> // Needed for sproc implementation of mutex
+typedef abilock_t vtkCritSecType;
+#endif
+
+#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
+#include <pthread.h> // Needed for pthreads implementation of mutex
+typedef pthread_mutex_t vtkCritSecType;
+#endif
+
+#ifdef VTK_USE_WIN32_THREADS
+# include "vtkWindows.h" // Needed for win32 implementation of mutex
+typedef CRITICAL_SECTION vtkCritSecType;
+#endif
+
+#ifndef VTK_USE_SPROC
+#ifndef VTK_USE_PTHREADS
+#ifndef VTK_USE_WIN32_THREADS
+typedef int vtkCritSecType;
+#endif
+#endif
+#endif
+
+// Critical Section object that is not a vtkObject.
+class VTKCOMMONCORE_EXPORT vtkSimpleCriticalSection
 {
 public:
-  static vtkCriticalSection *New();
+  // Default cstor
+  vtkSimpleCriticalSection()
+    {
+    this->Init();
+    }
+  // Construct object locked if isLocked is different from 0
+  vtkSimpleCriticalSection(int isLocked)
+    {
+    this->Init();
+    if(isLocked)
+      {
+      this->Lock();
+      }
+    }
+  // Destructor
+  virtual ~vtkSimpleCriticalSection();
 
-  vtkTypeMacro(vtkCriticalSection,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void Init();
 
   // Description:
   // Lock the vtkCriticalSection
@@ -54,24 +93,13 @@ public:
   void Unlock();
 
 protected:
-  vtkSimpleCriticalSection SimpleCriticalSection;
-  vtkCriticalSection() {}
-  ~vtkCriticalSection() {}
+  vtkCritSecType   CritSec;
 
 private:
-  vtkCriticalSection(const vtkCriticalSection&);  // Not implemented.
-  void operator=(const vtkCriticalSection&);  // Not implemented.
+  vtkSimpleCriticalSection(const vtkSimpleCriticalSection& other); // no copy constructor
+  vtkSimpleCriticalSection& operator=(const vtkSimpleCriticalSection& rhs); // no copy assignment
 };
-
-
-inline void vtkCriticalSection::Lock()
-{
-  this->SimpleCriticalSection.Lock();
-}
-
-inline void vtkCriticalSection::Unlock()
-{
-  this->SimpleCriticalSection.Unlock();
-}
+//ETX
 
 #endif
+// VTK-HeaderTest-Exclude: vtkSimpleCriticalSection.h
