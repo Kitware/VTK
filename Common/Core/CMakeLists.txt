@@ -477,6 +477,7 @@ set_source_files_properties(
   vtkOStrStreamWrapper.cxx
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand.cxx
+  vtkSimpleCriticalSection.cxx
   vtkSmartPointerBase.cxx
   vtkStdString.cxx
   vtkTimeStamp.cxx
@@ -503,7 +504,6 @@ set_source_files_properties(
   vtkMathUtilities.h
   vtkNew.h
   vtkSetGet.h
-  vtkSimpleCriticalSection.h
   vtkSmartPointer.h
   vtkSparseArray.txx
   vtkTemplateAliasMacro.h
