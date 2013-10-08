@@ -21,6 +21,7 @@ set(Module_SRCS
   vtkPipelineGraphSource.cxx
   vtkPruneTreeFilter.cxx
   vtkRandomGraphSource.cxx
+  vtkReduceTable.cxx
   vtkRemoveIsolatedVertices.cxx
   vtkSparseArrayToTable.cxx
   vtkStreamGraph.cxx
