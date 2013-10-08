@@ -83,25 +83,60 @@ void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *outPoints)
   this->Data->GetTuples(ptIds, outPoints->Data);
 }
 
+namespace
+{
+  template <class T>
+  void InternalComputeBounds(vtkDataArray* array,
+                             double* bounds,
+                             T*)
+  {
+    bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
+    bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
+
+    if (vtkTypedDataArray<T>* tarray = vtkTypedDataArray<T>::FastDownCast(array))
+      {
+      T x[3];
+      vtkIdType numPts = tarray->GetNumberOfTuples();
+      for (vtkIdType i=0; i<numPts; i++)
+        {
+        tarray->GetTupleValue(i, x);
+        bounds[0] = x[0] < bounds[0] ? x[0] : bounds[0];
+        bounds[1] = x[0] > bounds[1] ? x[0] : bounds[1];
+        bounds[2] = x[1] < bounds[2] ? x[1] : bounds[2];
+        bounds[3] = x[1] > bounds[3] ? x[1] : bounds[3];
+        bounds[4] = x[2] < bounds[4] ? x[2] : bounds[4];
+        bounds[5] = x[2] > bounds[5] ? x[2] : bounds[5];
+        }
+      }
+    else
+      {
+      double x[3];
+      vtkIdType numPts = array->GetNumberOfTuples();
+      for (vtkIdType i=0; i<numPts; i++)
+        {
+        array->GetTuple(i, x);
+        bounds[0] = x[0] < bounds[0] ? x[0] : bounds[0];
+        bounds[1] = x[0] > bounds[1] ? x[0] : bounds[1];
+        bounds[2] = x[1] < bounds[2] ? x[1] : bounds[2];
+        bounds[3] = x[1] > bounds[3] ? x[1] : bounds[3];
+        bounds[4] = x[2] < bounds[4] ? x[2] : bounds[4];
+        bounds[5] = x[2] > bounds[5] ? x[2] : bounds[5];
+        }
+      }
+  }
+}
+
 // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
 void vtkPoints::ComputeBounds()
 {
-  vtkIdType i;
-  double *x;
-
   if ( this->GetMTime() > this->ComputeTime )
     {
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
-    for (i=0; i<this->GetNumberOfPoints(); i++)
+    switch (this->Data->GetDataType())
       {
-      x = this->GetPoint(i);
-      this->Bounds[0] = x[0] < this->Bounds[0] ? x[0] : this->Bounds[0];
-      this->Bounds[1] = x[0] > this->Bounds[1] ? x[0] : this->Bounds[1];
-      this->Bounds[2] = x[1] < this->Bounds[2] ? x[1] : this->Bounds[2];
-      this->Bounds[3] = x[1] > this->Bounds[3] ? x[1] : this->Bounds[3];
-      this->Bounds[4] = x[2] < this->Bounds[4] ? x[2] : this->Bounds[4];
-      this->Bounds[5] = x[2] > this->Bounds[5] ? x[2] : this->Bounds[5];
+      vtkTemplateMacro(InternalComputeBounds(
+                         this->Data,
+                         this->Bounds,
+                         (VTK_TT*)0));
       }
 
     this->ComputeTime.Modified();
