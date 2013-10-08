@@ -1423,6 +1423,8 @@ void vtkAlgorithm::Update(int port)
 //----------------------------------------------------------------------------
 void vtkAlgorithm::PropagateUpdateExtent()
 {
+  this->UpdateInformation();
+
   vtkStreamingDemandDrivenPipeline* sddp =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (sddp)
