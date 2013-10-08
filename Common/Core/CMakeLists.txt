@@ -45,7 +45,7 @@ if ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB")
   include_directories(${TBB_INCLUDE_DIRS})
   # This needs to be here because all modules that include vtkAtomic.h
   # need to include tbb/atomic.h
-  set(vtkCommonCore_SYSTEM_INCLUDE_DIRS ${TBB_INCLUDE_DIRS})
+  list(APPEND vtkCommonCore_SYSTEM_INCLUDE_DIRS ${TBB_INCLUDE_DIRS})
 elseif  ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP")
   find_package(OpenMP REQUIRED)
   set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
