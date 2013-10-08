@@ -57,7 +57,7 @@ int TestNew(int,char *[])
   if (si == 0)
     {
     vtkNew<vtkIntArray> i;
-    si = i.GetPointer();
+    si = i.Get();
     }
   if (si->GetReferenceCount() != 1)
     {

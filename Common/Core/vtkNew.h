@@ -97,6 +97,10 @@ public:
     {
     return this->Object;
     }
+  T* Get() const
+    {
+    return this->Object;
+    }
 
 private:
   vtkNew(vtkNew<T> const&); // Not implemented.

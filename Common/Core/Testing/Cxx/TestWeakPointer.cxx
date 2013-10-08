@@ -107,7 +107,7 @@ int TestWeakPointer(int,char *[])
     cerr << "da2.GetPointer() is NULL\n";
     rval = 1;
     }
-  if (da3.GetPointer() != 0)
+  if (da3.Get() != 0)
     {
     cerr << "da3.GetPointer() is not NULL\n";
     rval = 1;
