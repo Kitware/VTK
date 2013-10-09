@@ -788,10 +788,10 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       vtkIdTypeArray* idarray = vtkIdTypeArray::SafeDownCast(arr);
       vtkIdTypeArray* elementid = vtkIdTypeArray::New();
       elementid->SetNumberOfTuples(idarray->GetNumberOfTuples());
-      elementid->SetName(vtkExodusIIReader::GetSideSetParentGlobalIdArrayName());
+      elementid->SetName(vtkExodusIIReader::GetSideSetSourceElementIdArrayName());
       vtkIntArray* elementside = vtkIntArray::New();
       elementside->SetNumberOfTuples(idarray->GetNumberOfTuples());
-      elementside->SetName(vtkExodusIIReader::GetSideSetParentSide());
+      elementside->SetName(vtkExodusIIReader::GetSideSetSourceElementSideArrayName());
       vtkIdType values[2];
       for(vtkIdType i=0;i<idarray->GetNumberOfTuples();i++)
         {
@@ -799,8 +799,9 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
         elementid->SetValue(i, values[0]-1); // switch to 0-based indexing
         // now we have to worry about mapping from exodus canonical side
         // ordering to vtk canonical side ordering for wedges and hexes.
-        // I assume that even if the element block isn't loaded that we
-        // still know what types of cells it would have contained.
+        // Even if the element block isn't loaded that we still know what
+        // types of cells it would have contained since all elements
+        // in a block are of the same type.
         BlockInfoType* type =
           this->GetBlockFromFileGlobalId(vtkExodusIIReader::ELEM_BLOCK, values[0]);
         switch(type->CellType)
