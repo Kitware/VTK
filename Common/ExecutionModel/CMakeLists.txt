@@ -7,14 +7,10 @@ SET(Module_SRCS
   vtkCastToConcrete.cxx
   vtkCompositeDataPipeline.cxx
   vtkCompositeDataSetAlgorithm.cxx
-  vtkComputingResources.cxx
   vtkDataObjectAlgorithm.cxx
   vtkDataSetAlgorithm.cxx
   vtkDemandDrivenPipeline.cxx
   vtkDirectedGraphAlgorithm.cxx
-  vtkExecutionScheduler.cxx
-  vtkExecutionSchedulerManager.cxx
-  vtkExecutiveCollection.cxx
   vtkExecutive.cxx
   vtkExtentSplitter.cxx
   vtkFilteringInformationKeyManager.cxx
@@ -46,7 +42,6 @@ SET(Module_SRCS
   vtkTableAlgorithm.cxx
   vtkTableExtentTranslator.cxx
   vtkThreadedImageAlgorithm.cxx
-  vtkThreadedStreamingPipeline.cxx
   vtkTreeAlgorithm.cxx
   vtkTrivialProducer.cxx
   vtkUndirectedGraphAlgorithm.cxx
