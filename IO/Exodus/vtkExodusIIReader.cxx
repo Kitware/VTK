@@ -778,6 +778,59 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       }
     }
 
+  if ( this->GenerateGlobalElementIdArray &&
+       ( otyp == vtkExodusIIReader::SIDE_SET_CONN ||
+         otyp == vtkExodusIIReader::SIDE_SET ) )
+    {
+    vtkExodusIICacheKey key( -1, vtkExodusIIReader::SIDE_SET_CONN, obj, 1 );
+    if ( vtkDataArray* arr = this->GetCacheOrRead( key ) )
+      {
+      vtkIdTypeArray* idarray = vtkIdTypeArray::SafeDownCast(arr);
+      vtkIdTypeArray* elementid = vtkIdTypeArray::New();
+      elementid->SetNumberOfTuples(idarray->GetNumberOfTuples());
+      elementid->SetName(vtkExodusIIReader::GetSideSetParentGlobalIdArrayName());
+      vtkIntArray* elementside = vtkIntArray::New();
+      elementside->SetNumberOfTuples(idarray->GetNumberOfTuples());
+      elementside->SetName(vtkExodusIIReader::GetSideSetParentSide());
+      vtkIdType values[2];
+      for(vtkIdType i=0;i<idarray->GetNumberOfTuples();i++)
+        {
+        idarray->GetTupleValue(i, values);
+        elementid->SetValue(i, values[0]-1); // switch to 0-based indexing
+        // now we have to worry about mapping from exodus canonical side
+        // ordering to vtk canonical side ordering for wedges and hexes.
+        // I assume that even if the element block isn't loaded that we
+        // still know what types of cells it would have contained.
+        BlockInfoType* type =
+          this->GetBlockFromFileGlobalId(vtkExodusIIReader::ELEM_BLOCK, values[0]);
+        switch(type->CellType)
+          {
+          case VTK_WEDGE:
+            {
+            int wedgeMapping[5] = {2, 3, 4, 0, 1};
+            elementside->SetValue(i, wedgeMapping[ values[1]-1 ] );
+            break;
+            }
+          case VTK_HEXAHEDRON:
+            {
+            int hexMapping[6] = {2, 1, 3, 0, 4, 5};
+            elementside->SetValue(i, hexMapping[ values[1]-1 ] );
+            break;
+            }
+          default:
+            { // switch to 0-based indexing
+            elementside->SetValue(i, values[1]-1 );
+            }
+          }
+        }
+      cd->AddArray( elementid );
+      cd->AddArray( elementside );
+      elementid->FastDelete();
+      elementside->FastDelete();
+      status -= 2;
+      }
+    }
+
   if ( this->GenerateGlobalElementIdArray && ! OBJTYPE_IS_SET( otyp ) )
     {
     // This retrieves the first new-style map, or if that is not present,
@@ -2388,33 +2441,61 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     }
   else if ( key.ObjectType == vtkExodusIIReader::SIDE_SET_CONN )
     {
-    // Stick all of side_set_node_list and side_set_node_count and side_set_nodes_per_side in one array
-    // let InsertSetSides() figure it all out. Except for 0-based indexing
-    SetInfoType* sinfop = &this->SetInfo[vtkExodusIIReader::SIDE_SET][key.ObjectId];
-    int ssnllen; // side set node list length
-    if ( ex_get_side_set_node_list_len( exoid, sinfop->Id, &ssnllen ) < 0 )
+    if(key.ArrayId <= 0)
       {
-      vtkErrorMacro( "Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id << ") node list length" );
-      arr = 0;
-      return 0;
-      }
-    vtkIntArray* iarr = vtkIntArray::New();
-    vtkIdType ilen = ssnllen + sinfop->Size;
-    iarr->SetNumberOfComponents( 1 );
-    iarr->SetNumberOfTuples( ilen );
-    int* dat = iarr->GetPointer( 0 );
-    if ( ex_get_side_set_node_list( exoid, sinfop->Id, dat, dat + sinfop->Size ) < 0 )
+      // Stick all of side_set_node_list and side_set_node_count and side_set_nodes_per_side in one array
+      // let InsertSetSides() figure it all out. Except for 0-based indexing
+      SetInfoType* sinfop = &this->SetInfo[vtkExodusIIReader::SIDE_SET][key.ObjectId];
+      int ssnllen; // side set node list length
+      if ( ex_get_side_set_node_list_len( exoid, sinfop->Id, &ssnllen ) < 0 )
+        {
+        vtkErrorMacro( "Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id << ") node list length" );
+        arr = 0;
+        return 0;
+        }
+      vtkIntArray* iarr = vtkIntArray::New();
+      vtkIdType ilen = ssnllen + sinfop->Size;
+      iarr->SetNumberOfComponents( 1 );
+      iarr->SetNumberOfTuples( ilen );
+      int* dat = iarr->GetPointer( 0 );
+      if ( ex_get_side_set_node_list( exoid, sinfop->Id, dat, dat + sinfop->Size ) < 0 )
+        {
+        vtkErrorMacro( "Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id << ") node list" );
+        iarr->Delete();
+        arr = 0;
+        return 0;
+        }
+      while ( ilen > sinfop->Size )
+        { // move to 0-based indexing on nodes, don't touch nodes/side counts at head of array
+        --dat[--ilen];
+        }
+      arr = iarr;
+      } // if(key.ArrayId <= 0)
+    else
       {
-      vtkErrorMacro( "Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id << ") node list" );
-      iarr->Delete();
-      arr = 0;
-      return 0;
+      // return information about where the side set cells come from on the elements
+      // the first tuple value is the element id and the second is the canonical side
+      // sinfop->Size is the number of sides in this side set
+      SetInfoType* sinfop = &this->SetInfo[vtkExodusIIReader::SIDE_SET][key.ObjectId];
+      std::vector<int> side_set_elem_list(sinfop->Size);
+      std::vector<int> side_set_side_list(sinfop->Size);
+      if ( ex_get_side_set( exoid, sinfop->Id, &side_set_elem_list[0], &side_set_side_list[0]) < 0 )
+        {
+        vtkErrorMacro( "Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id << ") node list" );
+        arr = 0;
+        return 0;
+        }
+      vtkIdTypeArray* iarr = vtkIdTypeArray::New();
+      iarr->SetNumberOfComponents( 2 );
+      iarr->SetNumberOfTuples( sinfop->Size );
+      for(int i=0;i<sinfop->Size;i++)
+        { // we'll have to fix up the side indexing later
+        // because Exodus and VTK have different canonical orderings for wedges and hexes.
+        vtkIdType info[2] = {side_set_elem_list[i], side_set_side_list[i]};
+        iarr->SetTupleValue(i, info);
+        }
+      arr = iarr;
       }
-    while ( ilen > sinfop->Size )
-      { // move to 0-based indexing on nodes, don't touch nodes/side counts at head of array
-      --dat[--ilen];
-      }
-    arr = iarr;
     }
   else if ( key.ObjectType == vtkExodusIIReader::NODAL_COORDS )
     {

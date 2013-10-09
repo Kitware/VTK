@@ -240,6 +240,15 @@ public:
   static const char* GetImplicitNodeIdArrayName() { return "ImplicitNodeId"; }
 
   // Description:
+  // Get the name of the array that stores the mapping from side set
+  // cells back to the global id of the elements they bound.
+  static const char* GetSideSetParentGlobalIdArrayName() { return "ParentGlobalElementId"; }
+
+  // Description:
+  // Get the name of the array that stores the mapping from side set
+  // cells back to the canonical side of the elements they bound.
+  static const char* GetSideSetParentSide() { return "ParentSide"; }
+  // Description:
   // Geometric locations can include displacements.  By default,
   // this is ON.  The nodal positions are 'displaced' by the
   // standard exodus displacment vector. If displacements
