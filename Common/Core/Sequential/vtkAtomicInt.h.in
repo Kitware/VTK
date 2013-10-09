@@ -84,7 +84,11 @@ namespace detail
 template <typename T> class vtkAtomicIntImpl;
 
 template <>
+#if defined(VTK_HAS_ATOMIC32)
+class vtkAtomicIntImpl<vtkTypeInt32>
+#else
 class VTKCOMMONCORE_EXPORT vtkAtomicIntImpl<vtkTypeInt32>
+#endif
 {
 public:
 
@@ -217,7 +221,11 @@ protected:
 #endif
 
 template <>
+#if defined(VTK_HAS_ATOMIC64)
 class vtkAtomicIntImpl<vtkTypeInt64>
+#else
+class VTKCOMMONCORE_EXPORT vtkAtomicIntImpl<vtkTypeInt64>
+#endif
 {
 public:
 
