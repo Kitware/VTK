@@ -525,6 +525,7 @@ set_source_files_properties(
   vtkMathConfigure.h
   vtkVersionMacros.h
   vtkTypeTemplate.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h
   ${VTK_ATOMIC_CXX_FILE}
 
   WRAP_EXCLUDE
