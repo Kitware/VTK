@@ -195,6 +195,7 @@ SET(Module_SRCS
   vtkType.h
   vtkSystemIncludes.h
   ${VTK_ATOMIC_CXX_FILE}
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
