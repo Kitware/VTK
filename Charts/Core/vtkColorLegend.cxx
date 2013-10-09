@@ -46,6 +46,8 @@ vtkColorLegend::vtkColorLegend()
   this->Callback->SetCallback(vtkColorLegend::OnScalarsToColorsModified);
 
   this->TransferFunction = 0;
+
+  this->Orientation = vtkColorLegend::VERTICAL;
 }
 
 //-----------------------------------------------------------------------------
@@ -85,6 +87,24 @@ void vtkColorLegend::Update()
     {
     this->ComputeTexture();
     }
+
+  // check if the range of our TransferFunction changed
+  double bounds[4];
+  this->GetBounds(bounds);
+  if (bounds[0] == bounds[1])
+    {
+    vtkWarningMacro(<< "The color transfer function seems to be empty.");
+    this->Axis->Update();
+    return;
+    }
+
+  double axisBounds[2];
+  this->Axis->GetUnscaledRange(axisBounds);
+  if (bounds[0] != axisBounds[0] || bounds[1] != axisBounds[1])
+    {
+    this->Axis->SetUnscaledRange(bounds[0], bounds[1]);
+    }
+
   this->Axis->Update();
 }
 
@@ -112,8 +132,18 @@ vtkScalarsToColors * vtkColorLegend::GetTransferFunction()
 void vtkColorLegend::SetPosition(const vtkRectf& pos)
 {
   this->Position = pos;
-  this->Axis->SetPoint1(vtkVector2f(pos.GetX() + pos.GetWidth(), pos.GetY()));
-  this->Axis->SetPoint2(vtkVector2f(pos.GetX() + pos.GetWidth(), pos.GetY() + pos.GetHeight()));
+  if (this->Orientation == vtkColorLegend::VERTICAL)
+    {
+    this->Axis->SetPoint1(vtkVector2f(pos.GetX() + pos.GetWidth(), pos.GetY()));
+    this->Axis->SetPoint2(vtkVector2f(pos.GetX() + pos.GetWidth(),
+                                      pos.GetY() + pos.GetHeight()));
+    }
+  else
+    {
+    this->Axis->SetPoint1(vtkVector2f(pos.GetX(), pos.GetY()));
+    this->Axis->SetPoint2(vtkVector2f(pos.GetX() + pos.GetWidth(),
+                                      pos.GetY()));
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -167,9 +197,18 @@ void vtkColorLegend::ComputeTexture()
   const int dimension = 256;
   double* values = new double[dimension];
   // Texture 1D
-  this->ImageData->SetExtent(0, 0,
-                             0, dimension-1,
-                             0, 0);
+  if (this->Orientation == vtkColorLegend::VERTICAL)
+    {
+    this->ImageData->SetExtent(0, 0,
+                               0, dimension-1,
+                               0, 0);
+    }
+  else
+    {
+    this->ImageData->SetExtent(0, dimension-1,
+                               0, 0,
+                               0, 0);
+    }
   this->ImageData->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
 
   for (int i = 0; i < dimension; ++i)
@@ -200,4 +239,31 @@ void vtkColorLegend::ScalarsToColorsModified(vtkObject* vtkNotUsed(object),
                                              void* vtkNotUsed(calldata))
 {
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkColorLegend::SetOrientation(int orientation)
+{
+  if (orientation < 0 || orientation > 1)
+    {
+    vtkErrorMacro("Error, invalid orientation value supplied: " << orientation)
+    return;
+    }
+  this->Orientation = orientation;
+  if (this->Orientation == vtkColorLegend::HORIZONTAL)
+    {
+    this->Axis->SetPosition(vtkAxis::BOTTOM);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkColorLegend::SetTitle(const vtkStdString &title)
+{
+  this->Axis->SetTitle(title);
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkColorLegend::GetTitle()
+{
+  return this->Axis->GetTitle();
 }

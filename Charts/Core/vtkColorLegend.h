@@ -39,6 +39,13 @@ public:
   static vtkColorLegend* New();
 
   // Description:
+  // Enum of legend orientation types
+  enum {
+    VERTICAL = 0,
+    HORIZONTAL
+  };
+
+  // Description:
   // Bounds of the item, by default (0, 1, 0, 1) but it mainly depends on the
   // range of the vtkScalarsToColors function.
   virtual void GetBounds(double bounds[4]);
@@ -68,6 +75,17 @@ public:
   // ensure the numbers are correct, Update() should be called first.
   vtkRectf GetBoundingRect(vtkContext2D* painter);
 
+  // Description:
+  // Set/get the orientation of the legend.
+  // Valid orientations are VERTICAL (default) and HORIZONTAL.
+  virtual void SetOrientation(int orientation);
+  vtkGetMacro(Orientation, int);
+
+  // Description:
+  // Get/set the title text of the legend.
+  virtual void SetTitle(const vtkStdString &title);
+  virtual vtkStdString GetTitle();
+
 protected:
   vtkColorLegend();
   virtual ~vtkColorLegend();
@@ -91,6 +109,7 @@ protected:
   vtkSmartPointer<vtkCallbackCommand> Callback;
   bool                                Interpolate;
   vtkRectf                            Position;
+  int                                 Orientation;
 
 private:
   vtkColorLegend(const vtkColorLegend &); // Not implemented.

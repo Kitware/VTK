@@ -16,6 +16,7 @@
 
 #include "vtkBitArray.h"
 #include "vtkBrush.h"
+#include "vtkColorLegend.h"
 #include "vtkColorSeries.h"
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
@@ -26,6 +27,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkRect.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
@@ -58,6 +60,11 @@ vtkHeatmapItem::vtkHeatmapItem() : PositionVector(0, 0)
 
   this->CellHeight = 18.0;
   this->CellWidth = this->CellHeight * 2.0;
+
+  this->ColorLegend->SetVisible(false);
+  this->ColorLegend->SetDragEnabled(true);
+  this->AddItem(this->ColorLegend.GetPointer());
+  this->ColorLegendPositionSet = false;
 
   this->Tooltip->SetVisible(false);
   this->AddItem(this->Tooltip.GetPointer());
@@ -211,6 +218,11 @@ void vtkHeatmapItem::GenerateContinuousDataLookupTable()
     float f = static_cast<float>(i) / 84.0;
     this->ContinuousDataLookupTable->SetTableValue(170 + i, 1.0, 1.0, f);
     }
+
+  this->ColorLegendLookupTable->DeepCopy(
+    this->ContinuousDataLookupTable.GetPointer());
+  this->ColorLegend->SetTransferFunction(
+    this->ColorLegendLookupTable.GetPointer());
 }
 
 //-----------------------------------------------------------------------------
@@ -486,7 +498,8 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
             break;
           }
 
-        if (this->LineIsVisible(cellStartX, cellStartY, cellStartX + this->CellWidth,
+        if (this->LineIsVisible(cellStartX, cellStartY,
+                                cellStartX + this->CellWidth,
                                 cellStartY + this->CellHeight) ||
             this->LineIsVisible(cellStartX, cellStartY + this->CellHeight,
                                 cellStartX + this->CellWidth, cellStartY))
@@ -813,6 +826,9 @@ void vtkHeatmapItem::SetOrientation(int orientation)
     orientationArray->InsertNextValue(orientation);
     this->Table->GetFieldData()->AddArray(orientationArray);
     }
+
+  //reposition the color legend
+  this->PositionColorLegend(orientation);
 }
 
 //-----------------------------------------------------------------------------
@@ -1016,6 +1032,93 @@ void vtkHeatmapItem::GetBounds(double bounds[4])
 void vtkHeatmapItem::MarkRowAsBlank(std::string rowName)
 {
   this->BlankRows.insert(rowName);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkHeatmapItem::MouseDoubleClickEvent(const vtkContextMouseEvent &event)
+{
+  // get the position of the double click and convert it to scene coordinates
+  double pos[3];
+  vtkNew<vtkMatrix3x3> inverse;
+  pos[0] = event.GetPos().GetX();
+  pos[1] = event.GetPos().GetY();
+  pos[2] = 0;
+  this->GetScene()->GetTransform()->GetInverse(inverse.GetPointer());
+  inverse->MultiplyPoint(pos, pos);
+  if (pos[0] <= this->MaxX && pos[0] >= this->MinX &&
+      pos[1] <= this->MaxY && pos[1] >= this->MinY)
+    {
+    vtkIdType column = 0;
+    int orientation = this->GetOrientation();
+    if (orientation == vtkHeatmapItem::UP_TO_DOWN ||
+        orientation == vtkHeatmapItem::DOWN_TO_UP)
+      {
+      column = floor((pos[1] - this->MinY) / this->CellWidth);
+      }
+    else
+      {
+      column = floor((pos[0] - this->MinX) / this->CellWidth);
+      }
+    ++column;
+
+    if (!this->Table->GetValue(0, column).IsString())
+      {
+      this->ColorLegend->GetTransferFunction()->SetRange(
+        this->ColumnRanges[column].first,
+        this->ColumnRanges[column].second);
+
+      this->ColorLegend->SetTitle(this->Table->GetColumn(column)->GetName());
+
+      if (!this->ColorLegendPositionSet)
+        {
+        this->PositionColorLegend(this->GetOrientation());
+        }
+
+      this->ColorLegend->Update();
+      this->ColorLegend->SetVisible(true);
+      this->Scene->SetDirty(true);
+      return true;
+      }
+    }
+  bool shouldRepaint = this->ColorLegend->GetVisible();
+  this->ColorLegend->SetVisible(false);
+  if (shouldRepaint)
+    {
+    this->Scene->SetDirty(true);
+    }
+
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+void vtkHeatmapItem::PositionColorLegend(int orientation)
+{
+  // bail out early if we don't have meaningful bounds yet.
+  if (this->MinX > this->MaxX || this->MinY > this->MaxY)
+    {
+    return;
+    }
+
+  switch(orientation)
+    {
+    case vtkHeatmapItem::DOWN_TO_UP:
+    case vtkHeatmapItem::UP_TO_DOWN:
+      this->ColorLegend->SetOrientation(vtkColorLegend::VERTICAL);
+      this->ColorLegend->SetPosition(
+        vtkRectf(this->MinX - this->CellWidth * 3, this->MinY,
+                 this->ColorLegend->GetSymbolWidth(), this->MaxY - this->MinY));
+      break;
+
+    case vtkHeatmapItem::RIGHT_TO_LEFT:
+    case vtkHeatmapItem::LEFT_TO_RIGHT:
+    default:
+      this->ColorLegend->SetOrientation(vtkColorLegend::HORIZONTAL);
+      this->ColorLegend->SetPosition(
+        vtkRectf(this->MinX, this->MinY - this->CellHeight * 3,
+                 this->MaxX - this->MinX, this->ColorLegend->GetSymbolWidth()));
+      break;
+    }
+  this->ColorLegendPositionSet = true;
 }
 
 //-----------------------------------------------------------------------------
