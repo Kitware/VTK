@@ -22,38 +22,6 @@
 
 #include "vtkAtomicInt.h"
 
-#if VTK_SIZEOF_VOID_P == 8
-static vtkAtomicInt<vtkTypeInt64>* GlobalTimeStamp;
-#else
-static vtkAtomicInt<vtkTypeInt32>* GlobalTimeStamp;
-#endif
-
-static unsigned int vtkTimeStampCounter;
-
-vtkTimeStampInitialize::vtkTimeStampInitialize()
-{
-  if (0 == vtkTimeStampCounter++)
-    {
-    // Use 32 bit atomic int on 32 bit systems, 64 bit on 64 bit systems.
-    // The assumption is that atomic operations will be safer when in the
-    // type for integer operations.
-#if VTK_SIZEOF_VOID_P == 8
-    GlobalTimeStamp = new vtkAtomicInt<vtkTypeInt64>(0);
-#else
-    GlobalTimeStamp = new vtkAtomicInt<vtkTypeInt32>(0);
-#endif
-    }
-}
-
-vtkTimeStampInitialize::~vtkTimeStampInitialize()
-{
-  if (0 == --vtkTimeStampCounter)
-    {
-    delete GlobalTimeStamp;
-    GlobalTimeStamp = 0;
-    }
-}
-
 //-------------------------------------------------------------------------
 vtkTimeStamp* vtkTimeStamp::New()
 {
@@ -64,5 +32,11 @@ vtkTimeStamp* vtkTimeStamp::New()
 //-------------------------------------------------------------------------
 void vtkTimeStamp::Modified()
 {
-  this->ModifiedTime = (unsigned long)++(*GlobalTimeStamp);
+#if VTK_SIZEOF_VOID_P == 8
+  static vtkAtomicInt<vtkTypeInt64> GlobalTimeStamp(0);
+#else
+  static vtkAtomicInt<vtkTypeInt32> GlobalTimeStamp(0);
+#endif
+
+  this->ModifiedTime = (unsigned long)++GlobalTimeStamp;
 }
