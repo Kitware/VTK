@@ -62,7 +62,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Initialize()
 {
-  for (int i = 0; i < this->Arrays.size(); ++i)
+  for (size_t i = 0; i < this->Arrays.size(); ++i)
     {
     delete this->Arrays[i];
     }
@@ -196,7 +196,7 @@ template <class Scalar> double* vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::GetTuple(vtkIdType i, double *tuple)
 {
-  for (int comp = 0; comp < this->Arrays.size(); ++comp)
+  for (size_t comp = 0; comp < this->Arrays.size(); ++comp)
     {
     tuple[comp] = static_cast<double>(this->Arrays[comp][i]);
     }
@@ -242,7 +242,7 @@ template <class Scalar> Scalar& vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::GetTupleValue(vtkIdType tupleId, Scalar *tuple)
 {
-  for (int comp = 0; comp < this->Arrays.size(); ++comp)
+  for (size_t comp = 0; comp < this->Arrays.size(); ++comp)
     {
     tuple[comp] = this->Arrays[comp][tupleId];
     }

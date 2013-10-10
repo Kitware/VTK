@@ -1541,7 +1541,6 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         // Default way of getting faces. Differentiates between linear
         // and higher order cells.
         cellIter->GetCell(cell);
-        vtkIdType cellId = cellIter->GetCellId();
         if ( cell->IsLinear() )
           {
           if (cell->GetCellDimension() == 3)
@@ -1834,7 +1833,6 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
 
       // Now that we have done all the subdivisions and created all of the
       // points, record the triangles.
-      vtkIdType cellId = cellIter->GetCellId();
       for (i = 0; i < outPts->GetNumberOfIds(); i += 3)
         {
         newPolys->InsertNextCell(3, outPts->GetPointer(i));
