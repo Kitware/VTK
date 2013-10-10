@@ -473,13 +473,14 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 [\t ]+            /* whitespace */
 [\n\r\v\f]        /* whitespace */
 
+">"/>             return(OP_RSHIFT_A);
+
 "<<="             return(OP_LSHIFT_EQ);
 ">>="             return(OP_RSHIFT_EQ);
 "<<"              return(OP_LSHIFT);
 ".*"              return(OP_DOT_POINTER);
 "->*"             return(OP_ARROW_POINTER);
 "->"              return(OP_ARROW);
-">>"              return(OP_RSHIFT);
 "++"              return(OP_INCR);
 "--"              return(OP_DECR);
 "+="              return(OP_PLUS_EQ);

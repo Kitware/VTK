@@ -1387,7 +1387,7 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token OP_LSHIFT_EQ
 %token OP_RSHIFT_EQ
 %token OP_LSHIFT
-%token OP_RSHIFT
+%token OP_RSHIFT_A
 %token OP_DOT_POINTER
 %token OP_ARROW_POINTER
 %token OP_ARROW
@@ -1801,7 +1801,7 @@ using_directive:
  */
 
 template_head:
-    TEMPLATE '<' '>'
+    TEMPLATE '<' right_angle_bracket
     { postSig("template<> "); clearTypeId(); }
   | TEMPLATE '<'
     {
@@ -1811,7 +1811,7 @@ template_head:
       clearTypeId();
       startTemplate();
     }
-    template_parameter_list '>'
+    template_parameter_list right_angle_bracket
     {
       chopSig();
       if (getSig()[getSigLength()-1] == '>') { postSig(" "); }
@@ -2306,14 +2306,14 @@ scope_operator_sig:
 
 template_id:
     identifier '<' { markSig(); postSig($<str>1); postSig("<"); }
-    angle_bracket_contents '>'
+    angle_bracket_contents right_angle_bracket
     {
       chopSig(); if (getSig()[getSigLength()-1] == '>') { postSig(" "); }
       postSig(">"); $<str>$ = copySig(); clearTypeId();
     }
   | '~' identifier '<'
     { markSig(); postSig("~"); postSig($<str>2); postSig("<"); }
-    angle_bracket_contents '>'
+    angle_bracket_contents right_angle_bracket
     {
       chopSig(); if (getSig()[getSigLength()-1] == '>') { postSig(" "); }
       postSig(">"); $<str>$ = copySig(); clearTypeId();
@@ -2870,6 +2870,8 @@ operator_id:
   | '>' { $<str>$ = ">"; }
   | ',' { $<str>$ = ","; }
   | '=' { $<str>$ = "="; }
+  | OP_RSHIFT_A '>' { $<str>$ = ">>"; }
+  | OP_RSHIFT_A OP_RSHIFT_A { $<str>$ = ">>"; }
   | operator_id_no_delim
 
 operator_id_no_delim:
@@ -2888,7 +2890,6 @@ operator_id_no_delim:
   | OP_LSHIFT_EQ { $<str>$ = "<<="; }
   | OP_RSHIFT_EQ { $<str>$ = ">>="; }
   | OP_LSHIFT { $<str>$ = "<<"; }
-  | OP_RSHIFT { $<str>$ = ">>"; }
   | OP_DOT_POINTER { $<str>$ = ".*"; }
   | OP_ARROW_POINTER { $<str>$ = "->*"; }
   | OP_ARROW { $<str>$ = "->"; }
@@ -3020,6 +3021,7 @@ any_bracket_contents:
 bracket_pitem: common_bracket_item
   | '<' { postSig("< "); }
   | '>' { postSig("> "); }
+  | OP_RSHIFT_A { postSig(">"); }
 
 any_bracket_item: bracket_pitem
   | '=' { postSig("= "); }
@@ -3050,12 +3052,16 @@ angle_brackets_sig:
       if (getSig()[getSigLength()-1] == '<') { postSig(" "); }
       postSig("<");
     }
-    angle_bracket_contents '>'
+    angle_bracket_contents right_angle_bracket
     {
       chopSig();
       if (getSig()[getSigLength()-1] == '>') { postSig(" "); }
       postSig("> ");
     }
+
+right_angle_bracket:
+    '>'
+  | OP_RSHIFT_A
 
 brackets_sig:
     '[' { postSig("["); } any_bracket_contents ']'
@@ -3092,6 +3098,7 @@ ignored_item_no_semi:
   | DOUBLE_COLON
   | ELLIPSIS
   | operator_id_no_delim
+  | OP_RSHIFT_A
   | ':' | '.' | '<' | '>' | '=' | ','
   | keyword | literal
   | simple_type_specifier
