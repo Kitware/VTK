@@ -44,6 +44,13 @@ public:
   vtkTypeMacro(vtkIdTypeArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // This macro expands to the set of method declarations that
+  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // by the wrappers.
+#ifdef __WRAP__
+  vtkCreateWrappedArrayInterface(vtkIdType);
+#else
+
   // Description:
   // Get the data type.
   int GetDataType()
@@ -55,12 +62,6 @@ public:
       // vtkDataArrayTemplate<vtkIdType> != vtkIdTypeArray.
       return VTK_ID_TYPE;
     }
-
-  // This macro expands to the set of method declarations that
-  // make up the interface of vtkDataArrayTemplate, which is ignored
-  // by the wrappers.
-#ifdef __WRAP__
-  vtkCreateWrappedArrayInterface(vtkIdType);
 #endif
 
   // Description:
