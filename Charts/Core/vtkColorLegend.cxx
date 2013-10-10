@@ -45,9 +45,12 @@ vtkColorLegend::vtkColorLegend()
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(vtkColorLegend::OnScalarsToColorsModified);
 
-  this->TransferFunction = 0;
+  this->TransferFunction = NULL;
 
   this->Orientation = vtkColorLegend::VERTICAL;
+
+  this->CustomPositionSet = false;
+  this->DrawBorder = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -111,6 +114,22 @@ void vtkColorLegend::Update()
 //-----------------------------------------------------------------------------
 bool vtkColorLegend::Paint(vtkContext2D* painter)
 {
+  if (this->TransferFunction == NULL)
+    {
+    return true;
+    }
+
+  this->GetBoundingRect(painter);
+
+  if (this->DrawBorder)
+    {
+    // Draw a box around the legend.
+    painter->ApplyPen(this->Pen.GetPointer());
+    painter->ApplyBrush(this->Brush.GetPointer());
+    painter->DrawRect(this->Rect.GetX(), this->Rect.GetY(),
+                      this->Rect.GetWidth(), this->Rect.GetHeight());
+    }
+
   painter->DrawImage(this->Position, this->ImageData);
 
   this->Axis->Paint(painter);
@@ -118,32 +137,41 @@ bool vtkColorLegend::Paint(vtkContext2D* painter)
   return true;
 }
 
+//-----------------------------------------------------------------------------
 void vtkColorLegend::SetTransferFunction(vtkScalarsToColors* transfer)
 {
   this->TransferFunction = transfer;
 }
 
+//-----------------------------------------------------------------------------
 vtkScalarsToColors * vtkColorLegend::GetTransferFunction()
 {
   return this->TransferFunction;
 }
 
 //-----------------------------------------------------------------------------
+void vtkColorLegend::SetPoint(float x, float y)
+{
+  this->Superclass::SetPoint(x, y);
+  this->CustomPositionSet = false;
+}
+
+//-----------------------------------------------------------------------------
+void vtkColorLegend::SetTextureSize(float w, float h)
+{
+  this->Position.SetWidth(w);
+  this->Position.SetHeight(h);
+  this->CustomPositionSet = false;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
 void vtkColorLegend::SetPosition(const vtkRectf& pos)
 {
   this->Position = pos;
-  if (this->Orientation == vtkColorLegend::VERTICAL)
-    {
-    this->Axis->SetPoint1(vtkVector2f(pos.GetX() + pos.GetWidth(), pos.GetY()));
-    this->Axis->SetPoint2(vtkVector2f(pos.GetX() + pos.GetWidth(),
-                                      pos.GetY() + pos.GetHeight()));
-    }
-  else
-    {
-    this->Axis->SetPoint1(vtkVector2f(pos.GetX(), pos.GetY()));
-    this->Axis->SetPoint2(vtkVector2f(pos.GetX() + pos.GetWidth(),
-                                      pos.GetY()));
-    }
+  this->SetPoint(pos[0], pos[1]);
+  this->UpdateAxisPosition();
+  this->CustomPositionSet = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -155,19 +183,76 @@ vtkRectf vtkColorLegend::GetPosition()
 //-----------------------------------------------------------------------------
 vtkRectf vtkColorLegend::GetBoundingRect(vtkContext2D *painter)
 {
-  if (this->RectTime > this->GetMTime() && this->RectTime > this->PlotTime &&
+  if (this->CacheBounds && this->RectTime > this->GetMTime() &&
+      this->RectTime > this->PlotTime &&
       this->RectTime > this->Axis->GetMTime())
     {
     return this->Rect;
     }
 
+  if (!this->CustomPositionSet)
+    {
+    // if the Position ivar was not explicitly set, we compute the
+    // location of the lower left point of the legend here.
+    float posX = floor(this->Point[0]);
+    float posY = floor(this->Point[1]);
+    float posW = this->Position.GetWidth();
+    float posH = this->Position.GetHeight();
+
+    if (this->Orientation == vtkColorLegend::VERTICAL)
+      {
+      // For vertical orientation, we need to move our anchor point
+      // further to the left to accommodate the width of the axis.
+      // To do this, we query our axis to get its preliminary bounds.
+      // Even though its position has not yet been set, its width &
+      // height should still be accurate.
+      this->UpdateAxisPosition();
+      this->Axis->Update();
+      vtkRectf axisRect = this->Axis->GetBoundingRect(painter);
+      posX -= axisRect.GetWidth();
+      }
+
+    // Compute bottom left point based on current alignment.
+    if (this->HorizontalAlignment == vtkChartLegend::CENTER)
+      {
+      posX -= posW / 2.0;
+      }
+    else if (this->HorizontalAlignment == vtkChartLegend::RIGHT)
+      {
+      posX -= posW;
+      }
+    if (this->VerticalAlignment == vtkChartLegend::CENTER)
+      {
+      posY -= posH / 2.0;
+      }
+    else if (this->VerticalAlignment == vtkChartLegend::TOP)
+      {
+      posY -= posH;
+      }
+
+    this->Position.SetX(posX);
+    this->Position.SetY(posY);
+    this->UpdateAxisPosition();
+    }
+
   this->Axis->Update();
   vtkRectf axisRect = this->Axis->GetBoundingRect(painter);
 
-  // Default point placement is bottom left.
-  this->Rect = vtkRectf(0.0, 0.0,
-                        this->SymbolWidth + axisRect.GetWidth(),
-                        this->Position.GetHeight() + axisRect.GetHeight());
+  if (this->Orientation == vtkColorLegend::HORIZONTAL)
+    {
+    // "+ 1" so the texture doesn't obscure the border
+    this->Rect = vtkRectf(this->Position.GetX(),
+                          this->Position.GetY() - axisRect.GetHeight() + 1,
+                          this->Position.GetWidth() + 1,
+                          this->Position.GetHeight() + axisRect.GetHeight());
+    }
+  else
+    {
+    this->Rect = vtkRectf(this->Position.GetX(),
+                          this->Position.GetY(),
+                          this->Position.GetWidth() + axisRect.GetWidth(),
+                          this->Position.GetHeight());
+    }
 
   this->RectTime.Modified();
   return this->Rect;
@@ -177,6 +262,11 @@ vtkRectf vtkColorLegend::GetBoundingRect(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 void vtkColorLegend::ComputeTexture()
 {
+  if (this->TransferFunction == NULL)
+    {
+    return;
+    }
+
   if (!this->ImageData)
     {
     this->ImageData = vtkSmartPointer<vtkImageData>::New();
@@ -193,7 +283,7 @@ void vtkColorLegend::ComputeTexture()
   this->Axis->SetUnscaledRange(bounds[0], bounds[1]);
   //this->Axis->AutoScale();
 
-  // Could depend of the screen resolution
+  // Could depend on the screen resolution
   const int dimension = 256;
   double* values = new double[dimension];
   // Texture 1D
@@ -266,4 +356,36 @@ void vtkColorLegend::SetTitle(const vtkStdString &title)
 vtkStdString vtkColorLegend::GetTitle()
 {
   return this->Axis->GetTitle();
+}
+
+//-----------------------------------------------------------------------------
+void vtkColorLegend::UpdateAxisPosition()
+{
+  if (this->Orientation == vtkColorLegend::VERTICAL)
+    {
+    this->Axis->SetPoint1(
+      vtkVector2f(this->Position.GetX() + this->Position.GetWidth(),
+                  this->Position.GetY()));
+    this->Axis->SetPoint2(
+      vtkVector2f(this->Position.GetX() + this->Position.GetWidth(),
+                  this->Position.GetY() + this->Position.GetHeight()));
+    }
+  else
+    {
+    this->Axis->SetPoint1(
+      vtkVector2f(this->Position.GetX(), this->Position.GetY()));
+    this->Axis->SetPoint2(
+      vtkVector2f(this->Position.GetX() + this->Position.GetWidth(),
+                  this->Position.GetY()));
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkColorLegend::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+{
+  bool retval = this->Superclass::MouseMoveEvent(mouse);
+  this->Position[0] = this->Point[0];
+  this->Position[1] = this->Point[1];
+  this->UpdateAxisPosition();
+  return retval;
 }

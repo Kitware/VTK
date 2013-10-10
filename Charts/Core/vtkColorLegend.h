@@ -27,6 +27,7 @@
 #include "vtkVector.h"       // For vtkRectf
 
 class vtkAxis;
+class vtkContextMouseEvent;
 class vtkImageData;
 class vtkScalarsToColors;
 class vtkCallbackCommand;
@@ -62,10 +63,30 @@ public:
   // draws the texture into the shape
   virtual bool Paint(vtkContext2D *painter);
 
+  // Description:
+  // Set/Get the transfer function that is used to draw the scalar bar
+  // within this legend.
   virtual void SetTransferFunction(vtkScalarsToColors* transfer);
   virtual vtkScalarsToColors * GetTransferFunction();
 
+  // Description:
+  // Set the point this legend is anchored to.
+  virtual void SetPoint(float x, float y);
+
+  // Description:
+  // Set the size of the scalar bar drawn by this legend.
+  virtual void SetTextureSize(float w, float h);
+
+  // Description:
+  // Set the origin, width, and height of the scalar bar drawn by this legend.
+  // This method overrides the anchor point, as well as any horizontal and
+  // vertical alignment that has been set for this legend.  If this is a
+  // problem for you, use SetPoint() and SetTextureSize() instead.
   virtual void SetPosition(const vtkRectf& pos);
+
+  // Description:
+  // Returns the origin, width, and height of the scalar bar drawn by this
+  // legend.
   virtual vtkRectf GetPosition();
 
   // Description:
@@ -86,6 +107,17 @@ public:
   virtual void SetTitle(const vtkStdString &title);
   virtual vtkStdString GetTitle();
 
+  // Description:
+  // Toggle whether or not a border should be drawn around this legend.
+  // The default behavior is to not draw a border.
+  vtkSetMacro(DrawBorder, bool);
+  vtkGetMacro(DrawBorder, bool);
+  vtkBooleanMacro(DrawBorder, bool);
+
+  // Description:
+  // Mouse move event.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
 protected:
   vtkColorLegend();
   virtual ~vtkColorLegend();
@@ -103,11 +135,17 @@ protected:
   static void OnScalarsToColorsModified(vtkObject* caller, unsigned long eid,
                                         void *clientdata, void* calldata);
 
+  // Description:
+  // Moves the axis whenever the position of this legend changes.
+  void UpdateAxisPosition();
+
   vtkScalarsToColors*                 TransferFunction;
   vtkSmartPointer<vtkImageData>       ImageData;
   vtkSmartPointer<vtkAxis>            Axis;
   vtkSmartPointer<vtkCallbackCommand> Callback;
   bool                                Interpolate;
+  bool                                CustomPositionSet;
+  bool                                DrawBorder;
   vtkRectf                            Position;
   int                                 Orientation;
 

@@ -16,6 +16,7 @@
 
 #include "vtkBitArray.h"
 #include "vtkBrush.h"
+#include "vtkCategoryLegend.h"
 #include "vtkColorLegend.h"
 #include "vtkColorSeries.h"
 #include "vtkContext2D.h"
@@ -61,10 +62,16 @@ vtkHeatmapItem::vtkHeatmapItem() : PositionVector(0, 0)
   this->CellHeight = 18.0;
   this->CellWidth = this->CellHeight * 2.0;
 
+  this->CategoryLegend->SetVisible(false);
+  this->CategoryLegend->CacheBoundsOff();
+  this->AddItem(this->CategoryLegend.GetPointer());
+
   this->ColorLegend->SetVisible(false);
-  this->ColorLegend->SetDragEnabled(true);
+  this->ColorLegend->DrawBorderOn();
+  this->ColorLegend->CacheBoundsOff();
   this->AddItem(this->ColorLegend.GetPointer());
-  this->ColorLegendPositionSet = false;
+
+  this->LegendPositionSet = false;
 
   this->Tooltip->SetVisible(false);
   this->AddItem(this->Tooltip.GetPointer());
@@ -74,7 +81,6 @@ vtkHeatmapItem::vtkHeatmapItem() : PositionVector(0, 0)
 vtkHeatmapItem::~vtkHeatmapItem()
 {
 }
-
 
 //-----------------------------------------------------------------------------
 void vtkHeatmapItem::SetPosition(const vtkVector2f &pos)
@@ -231,14 +237,27 @@ void vtkHeatmapItem::AccumulateProminentCategoricalDataValues(vtkIdType column)
   vtkStringArray *stringColumn = vtkStringArray::SafeDownCast(
     this->Table->GetColumn(column));
 
-  // add each distinct value from this column to our master list
-  vtkNew<vtkVariantArray> distinctValues;
-  stringColumn->SetMaxDiscreteValues(stringColumn->GetNumberOfTuples() - 1);
-  stringColumn->GetProminentComponentValues(0, distinctValues.GetPointer());
-
-  for (int i = 0; i < distinctValues->GetNumberOfTuples(); ++i)
+  // search for values that occur more than once
+  vtkNew<vtkStringArray> repeatedValues;
+  std::map<std::string, int> CountMap;
+  std::map<std::string, int>::iterator mapItr;
+  for (int i = 0; i < stringColumn->GetNumberOfTuples(); ++i)
     {
-    vtkVariant v = distinctValues->GetValue(i);
+    CountMap[stringColumn->GetValue(i)]++;
+    }
+
+  for (mapItr = CountMap.begin(); mapItr != CountMap.end(); ++mapItr)
+    {
+    if (mapItr->second > 1)
+      {
+      repeatedValues->InsertNextValue(mapItr->first);
+      }
+    }
+
+  // add each distinct, repeated value from this column to our master list
+  for (int i = 0; i < repeatedValues->GetNumberOfTuples(); ++i)
+    {
+    vtkVariant v = repeatedValues->GetVariantValue(i);
     if (this->CategoricalDataValues->LookupValue(v) == -1)
       {
       this->CategoricalDataValues->InsertNextValue(v.ToString());
@@ -263,6 +282,9 @@ void vtkHeatmapItem::GenerateCategoricalDataLookupTable()
   vtkNew<vtkColorSeries> colorSeries;
   colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_SET3);
   colorSeries->BuildLookupTable(this->CategoricalDataLookupTable.GetPointer());
+
+  this->CategoryLegend->SetScalarsToColors(
+    this->CategoricalDataLookupTable.GetPointer());
 }
 
 //-----------------------------------------------------------------------------
@@ -827,8 +849,8 @@ void vtkHeatmapItem::SetOrientation(int orientation)
     this->Table->GetFieldData()->AddArray(orientationArray);
     }
 
-  //reposition the color legend
-  this->PositionColorLegend(orientation);
+  //reposition the legends
+  this->PositionLegends(orientation);
 }
 
 //-----------------------------------------------------------------------------
@@ -1061,26 +1083,52 @@ bool vtkHeatmapItem::MouseDoubleClickEvent(const vtkContextMouseEvent &event)
       }
     ++column;
 
-    if (!this->Table->GetValue(0, column).IsString())
+    if (!this->LegendPositionSet)
       {
+      this->PositionLegends(this->GetOrientation());
+      }
+
+    if (this->Table->GetValue(0, column).IsString())
+      {
+      // categorical data
+      // generate an array of distinct values from this column
+      vtkStringArray *stringColumn = vtkStringArray::SafeDownCast(
+        this->Table->GetColumn(column));
+      this->CategoryLegendValues->Reset();
+      this->CategoryLegendValues->Squeeze();
+      stringColumn->SetMaxDiscreteValues(stringColumn->GetNumberOfTuples() - 1);
+      stringColumn->GetProminentComponentValues(
+        0, this->CategoryLegendValues.GetPointer());
+      this->CategoryLegendValues->Modified();
+
+      // these distinct values become the the input to our categorical legend
+      this->CategoryLegend->SetValues(this->CategoryLegendValues.GetPointer());
+      this->CategoryLegend->SetTitle(this->Table->GetColumn(column)->GetName());
+      this->CategoryLegend->SetVisible(true);
+      this->ColorLegend->SetVisible(false);
+      this->Scene->SetDirty(true);
+      return true;
+      }
+    else
+      {
+      // continuous data
+      // set up the scalar bar legend
       this->ColorLegend->GetTransferFunction()->SetRange(
         this->ColumnRanges[column].first,
         this->ColumnRanges[column].second);
 
       this->ColorLegend->SetTitle(this->Table->GetColumn(column)->GetName());
 
-      if (!this->ColorLegendPositionSet)
-        {
-        this->PositionColorLegend(this->GetOrientation());
-        }
-
       this->ColorLegend->Update();
       this->ColorLegend->SetVisible(true);
+      this->CategoryLegend->SetVisible(false);
       this->Scene->SetDirty(true);
       return true;
       }
     }
-  bool shouldRepaint = this->ColorLegend->GetVisible();
+  bool shouldRepaint = this->ColorLegend->GetVisible() ||
+                       this->CategoryLegend->GetVisible();
+  this->CategoryLegend->SetVisible(false);
   this->ColorLegend->SetVisible(false);
   if (shouldRepaint)
     {
@@ -1091,7 +1139,7 @@ bool vtkHeatmapItem::MouseDoubleClickEvent(const vtkContextMouseEvent &event)
 }
 
 //-----------------------------------------------------------------------------
-void vtkHeatmapItem::PositionColorLegend(int orientation)
+void vtkHeatmapItem::PositionLegends(int orientation)
 {
   // bail out early if we don't have meaningful bounds yet.
   if (this->MinX > this->MaxX || this->MinY > this->MaxY)
@@ -1103,22 +1151,46 @@ void vtkHeatmapItem::PositionColorLegend(int orientation)
     {
     case vtkHeatmapItem::DOWN_TO_UP:
     case vtkHeatmapItem::UP_TO_DOWN:
+
+      this->CategoryLegend->SetHorizontalAlignment(vtkChartLegend::RIGHT);
+      this->CategoryLegend->SetVerticalAlignment(vtkChartLegend::CENTER);
+      this->CategoryLegend->SetPoint(
+        this->MinX - this->CellHeight,
+        this->MinY + (this->MaxY - this->MinY) / 2.0);
+
+      this->ColorLegend->SetHorizontalAlignment(vtkChartLegend::RIGHT);
+      this->ColorLegend->SetVerticalAlignment(vtkChartLegend::CENTER);
       this->ColorLegend->SetOrientation(vtkColorLegend::VERTICAL);
-      this->ColorLegend->SetPosition(
-        vtkRectf(this->MinX - this->CellWidth * 3, this->MinY,
-                 this->ColorLegend->GetSymbolWidth(), this->MaxY - this->MinY));
+      this->ColorLegend->SetPoint(
+        this->MinX - this->CellHeight,
+        this->MinY + (this->MaxY - this->MinY) / 2.0);
+      this->ColorLegend->SetTextureSize(
+        this->ColorLegend->GetSymbolWidth(),
+       this->MaxY - this->MinY);
       break;
 
     case vtkHeatmapItem::RIGHT_TO_LEFT:
     case vtkHeatmapItem::LEFT_TO_RIGHT:
     default:
+
+      this->CategoryLegend->SetHorizontalAlignment(vtkChartLegend::CENTER);
+      this->CategoryLegend->SetVerticalAlignment(vtkChartLegend::TOP);
+      this->CategoryLegend->SetPoint(
+        this->MinX + (this->MaxX - this->MinX) / 2.0,
+        this->MinY - this->CellHeight);
+
+      this->ColorLegend->SetHorizontalAlignment(vtkChartLegend::CENTER);
+      this->ColorLegend->SetVerticalAlignment(vtkChartLegend::TOP);
       this->ColorLegend->SetOrientation(vtkColorLegend::HORIZONTAL);
-      this->ColorLegend->SetPosition(
-        vtkRectf(this->MinX, this->MinY - this->CellHeight * 3,
-                 this->MaxX - this->MinX, this->ColorLegend->GetSymbolWidth()));
+      this->ColorLegend->SetPoint(
+        this->MinX + (this->MaxX - this->MinX) / 2.0,
+        this->MinY - this->CellHeight);
+      this->ColorLegend->SetTextureSize(
+        this->MaxX - this->MinX,
+        this->ColorLegend->GetSymbolWidth());
       break;
     }
-  this->ColorLegendPositionSet = true;
+  this->LegendPositionSet = true;
 }
 
 //-----------------------------------------------------------------------------
