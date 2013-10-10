@@ -17,8 +17,10 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellIterator.h"
 #include "vtkContourValues.h"
 #include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
@@ -27,8 +29,9 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkSimpleScalarTree.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridBase.h"
 #include "vtkCutter.h"
 #include "vtkMergePoints.h"
 #include "vtkPointLocator.h"
@@ -96,32 +99,33 @@ unsigned long vtkContourGrid::GetMTime()
   return mTime;
 }
 
-template <class T>
+template <class Scalar>
 void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
                            vtkPolyData *output,
-                           vtkDataArray *inScalars, T *scalarArrayPtr,
+                           vtkDataArray *inScalars,
                            int numContours, double *values,
                            int computeScalars,
-                           int useScalarTree,vtkScalarTree *&scalarTree,bool generateTriangles)
+                           int useScalarTree, vtkScalarTree *&scalarTree,
+                           bool generateTriangles)
 {
-  vtkIdType cellId, i;
+  vtkIdType i;
   int abortExecute=0;
   vtkIncrementalPointLocator *locator = self->GetLocator();
-  vtkIdList *cellPts;
-  vtkCell *cell;
-  double range[2];
+  vtkNew<vtkGenericCell> cell;
+  Scalar range[2];
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
   vtkIdType numCells, estimatedSize;
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   vtkDataArray *cellScalars;
-  vtkUnstructuredGrid *grid = static_cast<vtkUnstructuredGrid *>(input);
+  Scalar *cellScalarPtr;
+  vtkIdType numCellScalars;
   //In this case, we know that the input is an unstructured grid.
-  vtkIdType numPoints, cellArrayIt = 0;
+  vtkUnstructuredGridBase *grid = static_cast<vtkUnstructuredGridBase *>(input);
   int needCell = 0;
-  vtkIdType *cellArrayPtr;
-  T tempScalar;
+  vtkSmartPointer<vtkCellIterator> cellIter =
+      vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
 
   numCells = input->GetNumberOfCells();
 
@@ -162,7 +166,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   newPolys->Allocate(estimatedSize,estimatedSize);
   cellScalars = inScalars->NewInstance();
   cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-   cellScalars->Allocate(VTK_CELL_SIZE*inScalars->GetNumberOfComponents());
+  cellScalars->Allocate(VTK_CELL_SIZE*inScalars->GetNumberOfComponents());
 
    // locator used to merge potentially duplicate points
   locator->InitPointInsertion (newPts, input->GetBounds(),
@@ -177,7 +181,8 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
   outCd->CopyAllocate(inCd,estimatedSize,estimatedSize);
 
-  vtkContourHelper helper(locator, newVerts, newLines, newPolys,inPd, inCd, outPd,outCd, estimatedSize, generateTriangles);
+  vtkContourHelper helper(locator, newVerts, newLines, newPolys, inPd, inCd,
+                          outPd, outCd, estimatedSize, generateTriangles);
   // If enabled, build a scalar tree to accelerate search
   //
   if ( !useScalarTree )
@@ -205,48 +210,51 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
       // Loop over all cells; get scalar values for all cell points
       // and process each cell.
       //
-      cellArrayIt = 0;
-      cellArrayPtr = grid->GetCells()->GetPointer();
-      for (cellId=0; cellId < numCells && !abortExecute; cellId++)
+      for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+           cellIter->GoToNextCell())
         {
-        numPoints = cellArrayPtr[cellArrayIt];
-        // I assume that "GetCellType" is fast.
-        cellType = input->GetCellType(cellId);
+        if (abortExecute)
+          {
+          break;
+          }
+
+        cellType = cellIter->GetCellType();
         if (cellType >= VTK_NUMBER_OF_CELL_TYPES)
           { // Protect against new cell types added.
           vtkGenericWarningMacro("Unknown cell type " << cellType);
-          cellArrayIt += 1+numPoints;
           continue;
           }
         if (cellTypeDimensions[cellType] != dimensionality)
           {
-          cellArrayIt += 1+numPoints;
           continue;
           }
-        cellArrayIt++;
+
+        cellScalars->SetNumberOfTuples(cellIter->GetNumberOfPoints());
+        inScalars->GetTuples(cellIter->GetPointIds(), cellScalars);
+        numCellScalars = cellScalars->GetNumberOfComponents()
+            * cellScalars->GetNumberOfTuples();
+        cellScalarPtr = static_cast<Scalar*>(cellScalars->GetVoidPointer(0));
 
         //find min and max values in scalar data
-        range[0] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
-        range[1] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
-        cellArrayIt++;
+        range[0] = range[1] = cellScalarPtr[0];
 
-        for (i = 1; i < numPoints; i++)
+        for (Scalar *it = cellScalarPtr + 1,
+             *itEnd = cellScalarPtr + numCellScalars; it != itEnd; ++it)
           {
-          tempScalar = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
-          cellArrayIt++;
-          if (tempScalar <= range[0])
+          if (*it <= range[0])
             {
-            range[0] = tempScalar;
-            } //if tempScalar <= min range value
-          if (tempScalar >= range[1])
+            range[0] = *it;
+            } //if scalar <= min range value
+          if (*it >= range[1])
             {
-            range[1] = tempScalar;
-            } //if tempScalar >= max range value
-          } // for all points in this cell
+            range[1] = *it;
+            } //if scalar >= max range value
+          } // for all cellScalars
 
-        if (dimensionality == 3 &&  ! (cellId % 5000) )
+        if (dimensionality == 3 &&  ! (cellIter->GetCellId() % 5000) )
           {
-          self->UpdateProgress (static_cast<double>(cellId)/numCells);
+          self->UpdateProgress(static_cast<double>(cellIter->GetCellId())
+                               / numCells);
           if (self->GetAbortExecute())
             {
             abortExecute = 1;
@@ -264,15 +272,14 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
 
         if (needCell)
           {
-          cell = input->GetCell(cellId);
-          cellPts = cell->GetPointIds();
-          inScalars->GetTuples(cellPts,cellScalars);
+          cellIter->GetCell(cell.GetPointer());
 
           for (i=0; i < numContours; i++)
             {
             if ((values[i] >= range[0]) && (values[i] <= range[1]))
               {
-              helper.Contour(cell,values[i],cellScalars,cellId);
+              helper.Contour(cell.GetPointer(), values[i], cellScalars,
+                             cellIter->GetCellId());
               } // if contour value in range of values for this cell
             } // for all contour values
           } // if contour goes through this cell
@@ -296,12 +303,16 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
     // Loop over all contour values.  Then for each contour value,
     // loop over all cells.
     //
+    vtkCell *tmpCell;
+    vtkIdList *dummyIdList = NULL;
+    vtkIdType cellId = cellIter->GetCellId();
     for (i=0; i < numContours; i++)
       {
-      for ( scalarTree->InitTraversal(values[i]);
-          (cell=scalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
+      for (scalarTree->InitTraversal(values[i]);
+          (tmpCell = scalarTree->GetNextCell(cellId, dummyIdList,
+                                             cellScalars)); )
         {
-        helper.Contour(cell,values[i],cellScalars,cellId);
+        helper.Contour(tmpCell, values[i], cellScalars, cellId);
 
         //don't want to call Contour any more than necessary
         } //for all cells
@@ -351,13 +362,12 @@ int vtkContourGrid::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
+  vtkUnstructuredGridBase *input = vtkUnstructuredGridBase::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDataArray *inScalars;
-  void *scalarArrayPtr;
   vtkIdType numCells;
   int numContours = this->ContourValues->GetNumberOfContours();
   double *values = this->ContourValues->GetValues();
@@ -380,15 +390,12 @@ int vtkContourGrid::RequestData(
     return 1;
     }
 
-  scalarArrayPtr = inScalars->GetVoidPointer(0);
-
   switch (inScalars->GetDataType())
     {
-    vtkTemplateMacro(
-      vtkContourGridExecute(this, input, output, inScalars,
-                            static_cast<VTK_TT *>(scalarArrayPtr),
-                            numContours, values,computeScalars, useScalarTree,
-                            scalarTree, this->GenerateTriangles!=0));
+    vtkTemplateMacro(vtkContourGridExecute<VTK_TT>(
+            this, input, output, inScalars, numContours, values,
+            computeScalars, useScalarTree, scalarTree,
+            this->GenerateTriangles != 0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;
@@ -459,7 +466,8 @@ int vtkContourGrid::GetOutputPointsPrecision() const
 
 int vtkContourGrid::FillInputPortInformation(int, vtkInformation *info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
+            "vtkUnstructuredGridBase");
   return 1;
 }
 

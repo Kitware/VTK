@@ -250,12 +250,6 @@ public:
   T* GetPointer(vtkIdType id) { return this->Array + id; }
   virtual void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
 
-  // Description:
-  // Deep copy of another double array.
-  void DeepCopy(vtkDataArray* da);
-  void DeepCopy(vtkAbstractArray* aa)
-    { this->Superclass::DeepCopy(aa); }
-
 //BTX
   enum DeleteMethod
   {

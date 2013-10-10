@@ -166,6 +166,21 @@ public:
   virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
 
   // Description:
+  // Returns true if this array uses the standard memory layout defined in the
+  // VTK user guide, e.g. a contiguous array:
+  // {t1c1, t1c2, t1c3, ... t1cM, t2c1, ... tNcM}
+  // where t1c2 is the second component of the first tuple.
+  //
+  // If the array does not have the standard memory layout GetVoidPointer should
+  // not be used, as a deep copy of the data must be made. Instead, use a
+  // vtkTypedDataArrayIterator to get pointer-like semantics that can safely
+  // access the data values.
+  //
+  // Subclasses that return false here must derive from vtkMappedDataArray
+  // to ensure that they will work safely with the rest of the pipeline.
+  virtual bool HasStandardMemoryLayout();
+
+  // Description:
   // Return a void pointer. For image pipeline interface and other
   // special pointer manipulation.
   // If the data is simply being iterated over, consider using
@@ -460,7 +475,8 @@ public:
     AbstractArray = 0,
     DataArray,
     TypedDataArray,
-    DataArrayTemplate
+    DataArrayTemplate,
+    MappedDataArray
     };
 
   // Description:

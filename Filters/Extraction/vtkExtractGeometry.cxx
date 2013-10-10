@@ -16,13 +16,16 @@
 
 #include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCellIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkExtractGeometry);
@@ -81,9 +84,14 @@ int vtkExtractGeometry::RequestData(
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkIdType ptId, numPts, numCells, i, cellId, newCellId, newId, *pointMap;
-  vtkIdList *cellPts;
-  vtkCell *cell;
+  // May be NULL, check before dereferencing.
+  vtkUnstructuredGrid *gridInput = vtkUnstructuredGrid::SafeDownCast(input);
+
+  vtkIdType ptId, numPts, numCells, i, newCellId, newId, *pointMap;
+  vtkSmartPointer<vtkCellIterator> cellIter =
+      vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+  vtkIdList *pointIdList;
+  int cellType;
   int numCellPts;
   double x[3];
   double multiplier;
@@ -169,18 +177,19 @@ int vtkExtractGeometry::RequestData(
   // Now loop over all cells to see whether they are inside implicit
   // function (or on boundary if ExtractBoundaryCells is on).
   //
-  for (cellId=0; cellId < numCells; cellId++)
+  for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
     {
-    cell = input->GetCell(cellId);
-    cellPts = cell->GetPointIds();
-    numCellPts = cell->GetNumberOfPoints();
+    cellType = cellIter->GetCellType();
+    numCellPts = cellIter->GetNumberOfPoints();
+    pointIdList = cellIter->GetPointIds();
 
     newCellPts->Reset();
     if ( ! this->ExtractBoundaryCells ) //requires less work
       {
       for ( npts=0, i=0; i < numCellPts; i++, npts++)
         {
-        ptId = cellPts->GetId(i);
+        ptId = pointIdList->GetId(i);
         if ( pointMap[ptId] < 0 )
           {
           break; //this cell won't be inserted
@@ -196,7 +205,7 @@ int vtkExtractGeometry::RequestData(
       {
       for ( npts=0, i=0; i < numCellPts; i++ )
         {
-        ptId = cellPts->GetId(i);
+        ptId = pointIdList->GetId(i);
         if ( newScalars->GetValue(ptId) <= 0.0 )
           {
           npts++;
@@ -221,7 +230,7 @@ int vtkExtractGeometry::RequestData(
         {
         for ( i=0; i < numCellPts; i++ )
           {
-          ptId = cellPts->GetId(i);
+          ptId = pointIdList->GetId(i);
           if ( pointMap[ptId] < 0 )
             {
             input->GetPoint(ptId, x);
@@ -252,15 +261,14 @@ int vtkExtractGeometry::RequestData(
     if ( extraction_condition )
       {
       // special handling for polyhedron cells
-      if (vtkUnstructuredGrid::SafeDownCast(input) &&
-          cell->GetCellType() == VTK_POLYHEDRON)
+      if (gridInput && cellType == VTK_POLYHEDRON)
         {
         newCellPts->Reset();
-        vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newCellPts);
+        gridInput->GetFaceStream(cellIter->GetCellId(), newCellPts);
         vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, pointMap);
         }
-      newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
-      outputCD->CopyData(cd,cellId,newCellId);
+      newCellId = output->InsertNextCell(cellType,newCellPts);
+      outputCD->CopyData(cd, cellIter->GetCellId(), newCellId);
       }
     }//for all cells
 

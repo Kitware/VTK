@@ -257,6 +257,12 @@ void vtkAbstractArray::GetTuples(vtkIdType p1, vtkIdType p2,
 }
 
 //----------------------------------------------------------------------------
+bool vtkAbstractArray::HasStandardMemoryLayout()
+{
+  return true;
+}
+
+//----------------------------------------------------------------------------
 void vtkAbstractArray::DeepCopy( vtkAbstractArray* da )
 {
   if (da && da->HasInformation() && da!=this)

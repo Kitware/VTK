@@ -38,9 +38,9 @@ void vtkXMLPUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkUnstructuredGrid* vtkXMLPUnstructuredGridWriter::GetInput()
+vtkUnstructuredGridBase* vtkXMLPUnstructuredGridWriter::GetInput()
 {
-  return static_cast<vtkUnstructuredGrid*>(this->Superclass::GetInput());
+  return static_cast<vtkUnstructuredGridBase*>(this->Superclass::GetInput());
 }
 
 //----------------------------------------------------------------------------
@@ -69,6 +69,6 @@ vtkXMLPUnstructuredGridWriter::CreateUnstructuredPieceWriter()
 int vtkXMLPUnstructuredGridWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGridBase");
   return 1;
 }

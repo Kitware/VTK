@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellIterator.h"
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
 #include "vtkHexahedron.h"
@@ -796,8 +797,9 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and output
-  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
+  // get the input and output. Input may just have the UnstructuredGridBase
+  // interface, but output should be an unstructured grid.
+  vtkUnstructuredGridBase *input = vtkUnstructuredGridBase::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -815,7 +817,8 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   vtkCellData *cd=input->GetCellData();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkPoints *inPts=input->GetPoints();
-  vtkCellArray *connectivity=input->GetCells();
+  vtkSmartPointer<vtkCellIterator> cellIter =
+      vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
 
   // Output
   vtkPointData *outputPD=output->GetPointData();
@@ -870,10 +873,12 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   // Loop over the cells determining what's visible
   if(!allVisible)
     {
-    cellId=0;
-    connectivity->InitTraversal();
-    while(connectivity->GetNextCell(npts,pts))
+    for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+         cellIter->GoToNextCell())
       {
+      cellId = cellIter->GetCellId();
+      npts = cellIter->GetNumberOfPoints();
+      pts = cellIter->GetPointIds()->GetPointer(0);
       if((cellGhostLevels!=0 && cellGhostLevels[cellId] > updateLevel)||
          (this->CellClipping && (cellId < this->CellMinimum ||
                                  cellId > this->CellMaximum)) )
@@ -902,7 +907,6 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
           ++i;
           }//for each point
         }//if point clipping needs checking
-      ++cellId;
       }//for all cells
     }//if not all visible
 
@@ -959,16 +963,15 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   vtkPoolManager<vtkSurfel> *pool=new vtkPoolManager<vtkSurfel>;
   pool->Init();
   this->HashTable=new vtkHashTableOfSurfels(numPts,pool);
-  unsigned char* cellTypes = input->GetCellTypesArray()->GetPointer(0);
-
-  connectivity->InitTraversal();
 
   vtkIdType ptId;
   vtkIdType newPtId;
   vtkIdType newCellId;
 
-  for(cellId=0; cellId<numCells && !abort; cellId++)
+  for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal() && !abort;
+       cellIter->GoToNextCell())
     {
+    cellId = cellIter->GetCellId();
     //Progress and abort method support
     if ( progressCount >= progressInterval )
       {
@@ -981,10 +984,11 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
 
     vtkIdType points[VTK_MAXIMUM_NUMBER_OF_POINTS];
 
-    connectivity->GetNextCell(npts,pts);
+    npts = cellIter->GetNumberOfPoints();
+    pts = cellIter->GetPointIds()->GetPointer(0);
     if ( allVisible || cellVis[cellId] )
       {
-      int cellType=cellTypes[cellId];
+      int cellType = cellIter->GetCellType();
       if((cellType>=VTK_EMPTY_CELL && cellType<=VTK_QUAD)
          ||(cellType>=VTK_QUADRATIC_EDGE && cellType<=VTK_QUADRATIC_QUAD)
          ||(cellType==VTK_BIQUADRATIC_QUAD)
@@ -1523,7 +1527,8 @@ int vtkUnstructuredGridGeometryFilter::FillInputPortInformation(
   int,
   vtkInformation *info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
+            "vtkUnstructuredGridBase");
   return 1;
 }
 

@@ -144,6 +144,7 @@ SET(Module_SRCS
   vtkLargeInteger.cxx
   vtkLongArray.cxx
   vtkLookupTable.cxx
+  vtkMappedDataArray.txx
   vtkMath.cxx
   vtkMinimalStandardRandomSequence.cxx
   vtkMultiThreader.cxx
@@ -216,6 +217,7 @@ set(${vtk-module}_HDRS
   vtkDataArrayTemplateImplicit.txx
   vtkIOStreamFwd.h
   vtkInformationInternals.h
+  vtkMappedDataArray.h
   vtkMathUtilities.h
   vtkNew.h
   vtkSetGet.h
@@ -503,6 +505,7 @@ set_source_files_properties(
   vtkIOStreamFwd.h
   vtkInformationInternals.h
   vtkMathUtilities.h
+  vtkMappedDataArray.txx
   vtkNew.h
   vtkSetGet.h
   vtkSmartPointer.h

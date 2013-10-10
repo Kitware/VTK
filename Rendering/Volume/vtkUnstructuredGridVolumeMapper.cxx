@@ -33,8 +33,8 @@ vtkUnstructuredGridVolumeMapper::~vtkUnstructuredGridVolumeMapper()
 
 void vtkUnstructuredGridVolumeMapper::SetInputData( vtkDataSet *genericInput )
 {
-  vtkUnstructuredGrid *input =
-    vtkUnstructuredGrid::SafeDownCast( genericInput );
+  vtkUnstructuredGridBase *input =
+    vtkUnstructuredGridBase::SafeDownCast( genericInput );
 
   if ( input )
     {
@@ -42,22 +42,23 @@ void vtkUnstructuredGridVolumeMapper::SetInputData( vtkDataSet *genericInput )
     }
   else
     {
-    vtkErrorMacro("The SetInput method of this mapper requires vtkUnstructuredGrid as input");
+    vtkErrorMacro("The SetInput method of this mapper requires "
+                  "vtkUnstructuredGridBase as input");
     }
 }
 
-void vtkUnstructuredGridVolumeMapper::SetInputData( vtkUnstructuredGrid *input )
+void vtkUnstructuredGridVolumeMapper::SetInputData( vtkUnstructuredGridBase *input )
 {
   this->SetInputDataInternal(0, input);
 }
 
-vtkUnstructuredGrid *vtkUnstructuredGridVolumeMapper::GetInput()
+vtkUnstructuredGridBase *vtkUnstructuredGridVolumeMapper::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
     {
     return 0;
     }
-  return vtkUnstructuredGrid::SafeDownCast(
+  return vtkUnstructuredGridBase::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
 }
 
@@ -74,7 +75,8 @@ void vtkUnstructuredGridVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 int vtkUnstructuredGridVolumeMapper::FillInputPortInformation(
   int vtkNotUsed( port ), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
+            "vtkUnstructuredGridBase");
   return 1;
 }
 

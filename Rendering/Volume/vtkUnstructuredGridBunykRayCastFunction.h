@@ -66,7 +66,7 @@ class vtkUnstructuredGridVolumeRayCastMapper;
 class vtkMatrix4x4;
 class vtkPiecewiseFunction;
 class vtkColorTransferFunction;
-class vtkUnstructuredGrid;
+class vtkUnstructuredGridBase;
 class vtkIdList;
 class vtkDoubleArray;
 class vtkDataArray;
@@ -193,7 +193,7 @@ protected:
 
   // These are values saved for the building of the TriangleList. Basically
   // we need to check if the data has changed in some way.
-  vtkUnstructuredGrid       *SavedTriangleListInput;
+  vtkUnstructuredGridBase   *SavedTriangleListInput;
   vtkTimeStamp               SavedTriangleListMTime;
 
 //BTX

@@ -8,4 +8,9 @@ if(NOT CMAKE_GENERATOR MATCHES "Visual Studio 6")
     TestMultiBlockExodusWrite.cxx
     )
 endif()
+
+vtk_add_test_cxx(NO_VALID
+  TestInSituExodus.cxx
+  )
+
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)

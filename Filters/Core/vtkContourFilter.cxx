@@ -42,7 +42,6 @@
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkTimerLog.h"
 #include "vtkUniformGrid.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkContourHelper.h"
 
