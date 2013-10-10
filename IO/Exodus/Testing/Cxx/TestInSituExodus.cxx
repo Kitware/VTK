@@ -678,7 +678,7 @@ void printTimingInfo(const std::string &name,
   double refMax(0.0);
   double testMax(0.0);
 
-  for (int i = 0; i < ref.size(); ++i)
+  for (size_t i = 0; i < ref.size(); ++i)
     {
     refAverage += ref[i];
     testAverage += test[i];
@@ -692,7 +692,7 @@ void printTimingInfo(const std::string &name,
 
   double refStdev(0.0);
   double testStdev(0.0);
-  for (int i = 0; i < ref.size(); ++i)
+  for (size_t i = 0; i < ref.size(); ++i)
     {
     refStdev += (ref[i] - refAverage) * (ref[i] - refAverage);
     testStdev += (test[i] - testAverage) * (test[i] - testAverage);
