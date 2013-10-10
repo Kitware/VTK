@@ -44,6 +44,18 @@ public:
   vtkTypeMacro(vtkIdTypeArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Get the data type.
+  int GetDataType()
+    {
+      // This needs to overwritten from superclass because
+      // the templated superclass is not able to differentiate
+      // vtkIdType from a long long or an int since vtkIdType
+      // is simply a typedef. This means that
+      // vtkDataArrayTemplate<vtkIdType> != vtkIdTypeArray.
+      return VTK_ID_TYPE;
+    }
+
   // This macro expands to the set of method declarations that
   // make up the interface of vtkDataArrayTemplate, which is ignored
   // by the wrappers.
