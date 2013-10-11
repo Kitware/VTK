@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 2.6)
 
 project(QtVTKRenderWindows)
 
+# Eliminate a warning when building in Windows that relates
+# to static linking of Qt executables to qtmain.lib.
+# This policy was introduced in CMake version 2.8.11.
+# CMake version 2.8.11.2 warns when the policy is not set
+# and uses OLD behavior.
+if(POLICY CMP0020)
+  cmake_policy(SET CMP0020 NEW)
+endif()
+
 if(NOT VTK_BINARY_DIR)
   find_package(VTK)
   if(NOT VTK_DIR)
