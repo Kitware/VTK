@@ -88,18 +88,15 @@ public:
 };
 
 //----------------------------------------------------------------------------
-// Declare signature and full template parameters:
-template <class ValueType, class IterType>
-int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter*, IterType, int,
-                                      size_t, size_t, size_t);
-
-//----------------------------------------------------------------------------
 // Specialize for cases where IterType is ValueType* (common case for
-// vtkDataArrayTemplate subclasses):
+// vtkDataArrayTemplate subclasses). The last arg is to help less-robust
+// compilers decide between the various overloads by making a unfavorable
+// int-to-long conversion in the IterType overload, making this next
+// overload more favorable when the iterator is a ValueType*.
 template <class ValueType>
 int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
   ValueType* iter, int wordType, size_t memWordSize, size_t outWordSize,
-  size_t numWords)
+  size_t numWords, int)
 {
   // generic implementation for fixed component length arrays.
   size_t blockWords = writer->GetBlockSize()/outWordSize;
@@ -142,7 +139,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 template <class ValueType, class IterType>
 int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
   IterType iter, int wordType, size_t memWordSize, size_t outWordSize,
-  size_t numWords)
+  size_t numWords, long)
 {
   // generic implementation for fixed component length arrays.
   size_t blockWords = writer->GetBlockSize()/outWordSize;
@@ -204,7 +201,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 //----------------------------------------------------------------------------
 int vtkXMLWriterWriteBinaryDataBlocks(
     vtkXMLWriter* writer, vtkArrayIteratorTemplate<vtkStdString>* iter,
-    int wordType, size_t outWordSize, size_t numStrings)
+    int wordType, size_t outWordSize, size_t numStrings, int)
 {
   vtkXMLWriterHelper::SetProgressPartial(writer, 0);
   vtkStdString::value_type* allocated_buffer = 0;
@@ -1199,7 +1196,7 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
     {
     vtkDataArrayIteratorMacro(a,
       ret = vtkXMLWriterWriteBinaryDataBlocks<vtkDAValueType>(
-        this, vtkDABegin, wordType, memWordSize, outWordSize, numValues)
+        this, vtkDABegin, wordType, memWordSize, outWordSize, numValues, 1)
       );
     case VTK_STRING:
       {
@@ -1209,7 +1206,7 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
       if (iter)
         {
         ret = vtkXMLWriterWriteBinaryDataBlocks(
-              this, iter, wordType, outWordSize, numValues);
+              this, iter, wordType, outWordSize, numValues, 1);
         }
       else
         {
