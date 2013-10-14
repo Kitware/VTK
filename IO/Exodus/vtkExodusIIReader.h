@@ -242,12 +242,12 @@ public:
   // Description:
   // Get the name of the array that stores the mapping from side set
   // cells back to the global id of the elements they bound.
-  static const char* GetSideSetParentGlobalIdArrayName() { return "ParentGlobalElementId"; }
+  static const char* GetSideSetSourceElementIdArrayName() { return "SourceElementId"; }
 
   // Description:
   // Get the name of the array that stores the mapping from side set
   // cells back to the canonical side of the elements they bound.
-  static const char* GetSideSetParentSide() { return "ParentSide"; }
+  static const char* GetSideSetSourceElementSideArrayName() { return "SourceElementSide"; }
   // Description:
   // Geometric locations can include displacements.  By default,
   // this is ON.  The nodal positions are 'displaced' by the
