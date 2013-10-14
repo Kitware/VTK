@@ -1373,6 +1373,7 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token VIRTUAL
 %token EXPLICIT
 %token INLINE
+%token CONSTEXPR
 %token FRIEND
 %token EXTERN
 %token OPERATOR
@@ -2408,6 +2409,7 @@ decl_specifier:
     storage_class_specifier { setTypeMod($<integer>1); }
   | function_specifier { setTypeMod($<integer>1); }
   | cv_qualifier { setTypeMod($<integer>1); }
+  | CONSTEXPR { postSig("constexpr "); $<integer>$ = 0; }
 
 storage_class_specifier:
     MUTABLE { postSig("mutable "); $<integer>$ = VTK_PARSE_MUTABLE; }
@@ -2945,8 +2947,10 @@ keyword:
   | PRIVATE { $<str>$ = "private"; }
   | CONST { $<str>$ = "const"; }
   | STATIC { $<str>$ = "static"; }
+  | CONSTEXPR { $<str>$ = "constexpr"; }
   | INLINE { $<str>$ = "inline"; }
   | VIRTUAL { $<str>$ = "virtual"; }
+  | EXPLICIT { $<str>$ = "explicit"; }
   | EXTERN { $<str>$ = "extern"; }
   | USING { $<str>$ = "using"; }
   | NAMESPACE { $<str>$ = "namespace"; }

@@ -188,6 +188,7 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "operator"      return(OPERATOR);
 "friend"        return(FRIEND);
 "inline"        return(INLINE);
+"constexpr"     return(CONSTEXPR);
 "static"        return(STATIC);
 "extern"        return(EXTERN);
 "template"      return(TEMPLATE);
