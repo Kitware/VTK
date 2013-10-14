@@ -1923,7 +1923,7 @@ conversion_function:
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
     parameter_declaration_clause ')' { postSig(")"); }
-    function_trailer_clause
+    function_trailer_clause opt_trailing_return_type
     {
       postSig(";");
       closeSig();
@@ -1938,7 +1938,8 @@ conversion_function_id:
     { $<str>$ = copySig(); }
 
 operator_function_nr:
-    operator_function_sig { postSig(")"); } function_trailer_clause
+    operator_function_sig { postSig(")"); }
+    function_trailer_clause opt_trailing_return_type
     {
       postSig(";");
       closeSig();
@@ -1964,7 +1965,7 @@ operator_sig:
     OPERATOR { markSig(); postSig("operator "); }
 
 function_nr:
-    function_sig function_trailer_clause
+    function_sig function_trailer_clause opt_trailing_return_type
     {
       postSig(";");
       closeSig();
@@ -1984,6 +1985,17 @@ function_trailer:
       postSig(" = 0");
       currentFunction->IsPureVirtual = 1;
       if (currentClass) { currentClass->IsAbstract = 1; }
+    }
+
+opt_trailing_return_type:
+  | trailing_return_type
+
+trailing_return_type:
+    OP_ARROW { postSig(" -> "); clearType(); clearTypeId(); }
+    trailing_type_specifier_seq
+    {
+      chopSig();
+      set_return(currentFunction, getType(), getTypeId(), 0);
     }
 
 function_body:
@@ -2012,7 +2024,8 @@ function_sig:
 
 structor_declaration:
     structor_sig { closeSig(); }
-    opt_ctor_initializer { openSig(); } function_trailer_clause
+    opt_ctor_initializer { openSig(); }
+    function_trailer_clause opt_trailing_return_type
     {
       postSig(";");
       closeSig();
@@ -2458,6 +2471,13 @@ store_type_specifier:
     opt_decl_specifier_seq
 
 type_specifier:
+    trailing_type_specifier
+  | class_key id_expression
+    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
+  | ENUM id_expression
+    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
+
+trailing_type_specifier:
     simple_type_specifier
   | decltype_specifier
     { postSig(" "); setTypeId($<str>1); $<integer>$ = 0; }
@@ -2467,10 +2487,15 @@ type_specifier:
     { postSig(" "); setTypeId($<str>1); $<integer>$ = guess_id_type($<str>1); }
   | qualified_id
     { postSig(" "); setTypeId($<str>1); $<integer>$ = guess_id_type($<str>1); }
-  | class_key id_expression
-    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
-  | ENUM id_expression
-    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
+
+trailing_type_specifier_seq:
+    trailing_type_specifier_seq2 opt_ptr_operator_seq
+
+trailing_type_specifier_seq2:
+    trailing_type_specifier { setTypeBase($<integer>1); }
+    opt_decl_specifier_seq
+  | decl_specifier_seq trailing_type_specifier { setTypeBase($<integer>2); }
+    opt_decl_specifier_seq
 
 tparam_type:
     tparam_type_specifier2 opt_ptr_operator_seq
