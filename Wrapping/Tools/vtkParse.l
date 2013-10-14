@@ -151,6 +151,8 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
         }
     }
 
+"auto"          return(AUTO);
+
 "double"        return(DOUBLE);
 "float"         return(FLOAT);
 "__int64"       return(INT64__);
@@ -209,7 +211,6 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "const_cast"    return(CONST_CAST);
 "reinterpret_cast" return(REINTERPRET_CAST);
 
-"auto"          /* irrelevant to wrappers */
 "register"      /* irrelevant to wrappers */
 
 "and"           return(OP_LOGIC_AND);
