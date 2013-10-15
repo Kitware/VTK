@@ -192,7 +192,8 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
         size = [view.GetSize()[0], view.GetSize()[1]]
         if options and options.has_key("size"):
             size = options["size"]
-            view.SetSize(size)
+            if size[0] > 0 and size[1] > 0:
+              view.SetSize(size)
         t = 0
         if options and options.has_key("mtime"):
             t = options["mtime"]
