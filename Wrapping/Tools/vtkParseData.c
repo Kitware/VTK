@@ -124,6 +124,7 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->IsOperator = 0;
   func->IsVariadic = 0;
   func->IsConst = 0;
+  func->IsFinal = 0;
   func->IsExplicit = 0;
   func->IsLegacy = 0;
 
@@ -194,6 +195,7 @@ void vtkParse_CopyFunction(FunctionInfo *func, const FunctionInfo *orig)
   func->IsOperator = orig->IsOperator;
   func->IsVariadic = orig->IsVariadic;
   func->IsConst = orig->IsConst;
+  func->IsFinal = orig->IsFinal;
   func->IsExplicit = orig->IsExplicit;
   func->IsLegacy = orig->IsLegacy;
 

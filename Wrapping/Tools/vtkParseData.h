@@ -138,6 +138,7 @@ struct _FunctionInfo
   int            IsVirtual;   /* methods only */
   int            IsPureVirtual; /* methods only */
   int            IsConst;     /* methods only */
+  int            IsFinal;     /* methods only */
   int            IsExplicit;  /* constructors only */
 #ifndef VTK_PARSE_LEGACY_REMOVE
   int            NumberOfArguments;   /* legacy */

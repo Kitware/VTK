@@ -1986,6 +1986,11 @@ function_trailer:
       currentFunction->IsPureVirtual = 1;
       if (currentClass) { currentClass->IsAbstract = 1; }
     }
+  | ID
+    {
+      postSig(" "); postSig($<str>1);
+      if (strcmp($<str>1, "final") == 0) { currentFunction->IsFinal = 1; }
+    }
 
 opt_trailing_return_type:
   | trailing_return_type
