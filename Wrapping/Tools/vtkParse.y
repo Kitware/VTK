@@ -1357,6 +1357,12 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token <str> FLOAT_LITERAL
 %token <str> CHAR_LITERAL
 %token <str> ZERO
+%token <str> NULLPTR
+
+/* typedef types */
+%token <str> SSIZE_T
+%token <str> SIZE_T
+%token <str> NULLPTR_T
 
 /* keywords (many unused keywords have been omitted) */
 %token STRUCT
@@ -1436,10 +1442,6 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token CHAR
 %token SIGNED
 %token UNSIGNED
-
-/* typedef types */
-%token SSIZE_T
-%token SIZE_T
 
 /* VTK typedef types */
 %token IdType
@@ -2390,8 +2392,9 @@ simple_id:
   | '~' OSTREAM { $<str>$ = vtkstrcat("~",$<str>2); postSig($<str>$); }
   | '~' StdString { $<str>$ = vtkstrcat("~",$<str>2); postSig($<str>$); }
   | '~' UnicodeString { $<str>$ = vtkstrcat("~",$<str>2); postSig($<str>$); }
-  | SIZE_T { $<str>$ = "size_t"; postSig($<str>$); }
-  | SSIZE_T { $<str>$ = "ssize_t"; postSig($<str>$); }
+  | NULLPTR_T { $<str>$ = $<str>1; postSig($<str>$); }
+  | SIZE_T { $<str>$ = $<str>1; postSig($<str>$); }
+  | SSIZE_T { $<str>$ = $<str>1; postSig($<str>$); }
   | TypeInt8 { $<str>$ = "vtkTypeInt8"; postSig($<str>$); }
   | TypeUInt8 { $<str>$ = "vtkTypeUInt8"; postSig($<str>$); }
   | TypeInt16 { $<str>$ = "vtkTypeInt16"; postSig($<str>$); }
@@ -2538,8 +2541,9 @@ type_name:
   | ID { typeSig($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN; }
   | VTK_ID { typeSig($<str>1); $<integer>$ = VTK_PARSE_OBJECT; }
   | QT_ID { typeSig($<str>1); $<integer>$ = VTK_PARSE_QOBJECT; }
-  | SSIZE_T { typeSig("ssize_t"); $<integer>$ = VTK_PARSE_SSIZE_T; }
-  | SIZE_T { typeSig("size_t"); $<integer>$ = VTK_PARSE_SIZE_T; }
+  | NULLPTR_T { typeSig($<str>1); $<integer>$ = VTK_PARSE_NULLPTR_T; }
+  | SSIZE_T { typeSig($<str>1); $<integer>$ = VTK_PARSE_SSIZE_T; }
+  | SIZE_T { typeSig($<str>1); $<integer>$ = VTK_PARSE_SIZE_T; }
   | TypeInt8 { typeSig("vtkTypeInt8"); $<integer>$ = VTK_PARSE_INT8; }
   | TypeUInt8 { typeSig("vtkTypeUInt8"); $<integer>$ = VTK_PARSE_UINT8; }
   | TypeInt16 { typeSig("vtkTypeInt16"); $<integer>$ = VTK_PARSE_INT16; }
@@ -3019,6 +3023,7 @@ literal:
   | CHAR_LITERAL
   | STRING_LITERAL
   | ZERO
+  | NULLPTR
 
 /*
  * Constant expressions that evaluate to one or more values
@@ -3478,6 +3483,11 @@ unsigned int guess_constant_type(const char *valstring)
   if (strcmp(valstring, "true") == 0 || strcmp(valstring, "false") == 0)
     {
     return VTK_PARSE_BOOL;
+    }
+
+  if (strcmp(valstring, "nullptr") == 0)
+    {
+    return VTK_PARSE_NULLPTR_T;
     }
 
   if (valstring[0] == '\'')

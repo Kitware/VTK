@@ -181,6 +181,7 @@
 #define VTK_PARSE_FUNCTION            0x25
 #define VTK_PARSE_QOBJECT             0x26
 #define VTK_PARSE_LONG_DOUBLE         0x27
+#define VTK_PARSE_NULLPTR_T           0x28
 
 /**
  * Basic pointer types

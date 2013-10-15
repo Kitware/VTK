@@ -167,8 +167,20 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "void"          return(VOID);
 "bool"          return(BOOL);
 
-"size_t"        return(SIZE_T);
-"ssize_t"       return(SSIZE_T);
+"std::"?"size_t"/[^a-zA-Z_] {
+      yylval.str = (yytext[3] == ':' ? "std::size_t" : "size_t");
+      return(SIZE_T);
+    }
+
+"std::"?"ssize_t"/[^a-zA-Z_] {
+      yylval.str = (yytext[3] == ':' ? "std::ssize_t" : "ssize_t");
+      return(SSIZE_T);
+    }
+
+"std::"?"nullptr_t"/[^a-zA-Z_] {
+      yylval.str = (yytext[3] == ':' ? "std::nullptr_t" : "nullptr_t");
+      return(NULLPTR_T);
+    }
 
 "Q_OBJECT"      /* ignore the Q_OBJECT macro from Qt */
 "public"{WS}"slots"{PS}/:    return(PUBLIC);
@@ -353,6 +365,11 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
         yy_switch_to_buffer(yy_scan_bytes(&args[1], l-2));
         }
       free((char *)args);
+    }
+
+"nullptr" {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(NULLPTR);
     }
 
 {ID}  {
