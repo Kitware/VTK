@@ -145,9 +145,9 @@ void vtkMappedDataArray<Scalar>::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "TemporaryScalarPointer: "
-     << this->TemporaryScalarPointer << endl;
+     << this->TemporaryScalarPointer << "\n";
   os << indent << "TemporaryScalarPointerSize: "
-     << this->TemporaryScalarPointerSize << endl;
+     << this->TemporaryScalarPointerSize << "\n";
 }
 
 //------------------------------------------------------------------------------

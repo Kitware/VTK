@@ -35,14 +35,14 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
   this->vtkCPExodusIIResultsArrayTemplate<Scalar>::Superclass::PrintSelf(
         os, indent);
 
-  os << indent << "Number of arrays: " << this->Arrays.size() << endl;
+  os << indent << "Number of arrays: " << this->Arrays.size() << "\n";
   vtkIndent deeper = indent.GetNextIndent();
   for (size_t i = 0; i < this->Arrays.size(); ++i)
     {
-    os << deeper << "Array " << i << ": " << this->Arrays.at(i) << endl;
+    os << deeper << "Array " << i << ": " << this->Arrays.at(i) << "\n";
     }
 
-  os << indent << "TempDoubleArray: " << this->TempDoubleArray << endl;
+  os << indent << "TempDoubleArray: " << this->TempDoubleArray << "\n";
 }
 
 //------------------------------------------------------------------------------
