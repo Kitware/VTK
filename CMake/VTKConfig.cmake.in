@@ -88,6 +88,7 @@ SET(VTK_LEGACY_SILENT "@VTK_LEGACY_SILENT@")
 SET(VTK_WRAP_PYTHON "@VTK_WRAP_PYTHON@")
 SET(VTK_WRAP_TCL "@VTK_WRAP_TCL@")
 SET(VTK_WRAP_JAVA "@VTK_WRAP_JAVA@")
+SET(VTK_QT_VERSION "@VTK_QT_VERSION@")
 
 # Do not add options or information here that is specific to a
 # particular module.  Instead set <module>_EXPORT_OPTIONS and/or
