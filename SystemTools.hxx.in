@@ -42,10 +42,6 @@ namespace @KWSYS_NAMESPACE@
 }
 #endif // va_list
 
-#if defined( _MSC_VER )
-typedef unsigned short mode_t;
-#endif
-
 /* Define these macros temporarily to keep the code readable.  */
 #if !defined (KWSYS_NAMESPACE) && !@KWSYS_NAMESPACE@_NAME_IS_KWSYS
 # define kwsys_stl @KWSYS_NAMESPACE@_stl
@@ -684,6 +680,10 @@ public:
    */
   static long int CreationTime(const char* filename);
 
+  #if defined( _MSC_VER )
+  typedef unsigned short mode_t;
+  #endif
+
   /**
    * Get and set permissions of the file.
    */
@@ -714,6 +714,13 @@ public:
    * binary type.
    */
   enum KeyWOW64 { KeyWOW64_Default, KeyWOW64_32, KeyWOW64_64 };
+
+  /**
+   * Get a list of subkeys.
+   */
+  static bool GetRegistrySubKeys(const char *key,
+                                 kwsys_stl::vector<kwsys_stl::string>& subkeys,
+                                 KeyWOW64 view = KeyWOW64_Default);
 
   /**
    * Read a registry value
