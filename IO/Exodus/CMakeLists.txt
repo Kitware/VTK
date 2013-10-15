@@ -2,7 +2,9 @@ set(Module_SRCS
   vtkCPExodusIIElementBlock.cxx
   vtkCPExodusIIInSituReader.cxx
   vtkCPExodusIINodalCoordinatesTemplate.h
+  vtkCPExodusIINodalCoordinatesTemplate.txx
   vtkCPExodusIIResultsArrayTemplate.h
+  vtkCPExodusIIResultsArrayTemplate.txx
   vtkExodusIICache.cxx
   vtkExodusIIReader.cxx
   vtkExodusIIReaderParser.cxx
