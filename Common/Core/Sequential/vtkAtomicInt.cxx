@@ -34,6 +34,10 @@ vtkAtomicIntImpl<vtkTypeInt64>::~vtkAtomicIntImpl()
 
 vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator++()
 {
+  if (!this->AtomicInt64CritSec)
+    {
+    return 0;
+    }
   vtkTypeInt64 val;
   this->AtomicInt64CritSec->Lock();
   val = ++this->Value;
@@ -44,6 +48,10 @@ vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator++()
 
 vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator--()
 {
+  if (!this->AtomicInt64CritSec)
+    {
+    return 0;
+    }
   vtkTypeInt64 val;
   this->AtomicInt64CritSec->Lock();
   val = --this->Value;
@@ -53,6 +61,10 @@ vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator--()
 
 vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator+=(vtkTypeInt64 val)
 {
+  if (!this->AtomicInt64CritSec)
+    {
+    return 0;
+    }
   vtkTypeInt64 val2;
   this->AtomicInt64CritSec->Lock();
   val2 = (this->Value += val);
@@ -62,6 +74,10 @@ vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator+=(vtkTypeInt64 val)
 
 vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::load() const
 {
+  if (!this->AtomicInt64CritSec)
+    {
+    return 0;
+    }
   vtkTypeInt64 val;
   this->AtomicInt64CritSec->Lock();
   val = this->Value;
@@ -71,6 +87,10 @@ vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::load() const
 
 void vtkAtomicIntImpl<vtkTypeInt64>::store(vtkTypeInt64 val)
 {
+  if (!this->AtomicInt64CritSec)
+    {
+    return;
+    }
   this->AtomicInt64CritSec->Lock();
   this->Value = val;
   this->AtomicInt64CritSec->Unlock();
@@ -90,6 +110,10 @@ vtkAtomicIntImpl<vtkTypeInt32>::~vtkAtomicIntImpl()
 
 vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator++()
 {
+  if (!this->AtomicInt32CritSec)
+    {
+    return 0;
+    }
   vtkTypeInt32 val;
   this->AtomicInt32CritSec->Lock();
   val = ++this->Value;
@@ -99,6 +123,10 @@ vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator++()
 
 vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator--()
 {
+  if (!this->AtomicInt32CritSec)
+    {
+    return 0;
+    }
   vtkTypeInt32 val;
   this->AtomicInt32CritSec->Lock();
   val = --this->Value;
@@ -108,6 +136,10 @@ vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator--()
 
 vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator+=(vtkTypeInt32 val)
 {
+  if (!this->AtomicInt32CritSec)
+    {
+    return 0;
+    }
   vtkTypeInt32 val2;
   this->AtomicInt32CritSec->Lock();
   val2 = (this->Value += val);
@@ -117,6 +149,10 @@ vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator+=(vtkTypeInt32 val)
 
 vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::load() const
 {
+  if (!this->AtomicInt32CritSec)
+    {
+    return 0;
+    }
   vtkTypeInt32 val;
   this->AtomicInt32CritSec->Lock();
   val = this->Value;
@@ -126,6 +162,10 @@ vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::load() const
 
 void vtkAtomicIntImpl<vtkTypeInt32>::store(vtkTypeInt32 val)
 {
+  if (!this->AtomicInt32CritSec)
+    {
+    return;
+    }
   this->AtomicInt32CritSec->Lock();
   this->Value = val;
   this->AtomicInt32CritSec->Unlock();
