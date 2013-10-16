@@ -112,7 +112,10 @@ void vtkIdList::DeleteId(vtkIdType vtkid)
 void vtkIdList::DeepCopy(vtkIdList *ids)
 {
   this->SetNumberOfIds(ids->NumberOfIds);
-  std::copy(ids->Ids, ids->Ids + ids->NumberOfIds, this->Ids);
+  if (ids->NumberOfIds > 0)
+    {
+    std::copy(ids->Ids, ids->Ids + ids->NumberOfIds, this->Ids);
+    }
   this->Squeeze();
 }
 
