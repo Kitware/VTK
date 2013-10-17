@@ -276,8 +276,14 @@ void vtkLightActor::UpdateViewProps()
     }
   else
     {
-    this->ConeActor->SetMapper(0);
-    this->FrustumActor->SetCamera(0);
+    if(this->ConeActor)
+      {
+      this->ConeActor->SetMapper(0);
+      }
+    if(this->FrustumActor)
+      {
+      this->FrustumActor->SetCamera(0);
+      }
     vtkErrorMacro(<< "not a spotlight.");
     return;
     }
