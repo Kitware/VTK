@@ -31,7 +31,6 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkContourValues.h" // Because it passes all the calls to it
 
-class vtkKitwareContourFilter;
 class vtkStructuredGrid;
 
 class VTKFILTERSCORE_EXPORT vtkGridSynchronizedTemplates3D : public vtkPolyDataAlgorithm

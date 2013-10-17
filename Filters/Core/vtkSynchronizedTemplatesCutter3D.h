@@ -40,8 +40,7 @@ public:
 
   // Description:
   // Needed by templated functions.
-  void ThreadedExecute(vtkImageData *data, vtkInformation *outInfo,
-                       int *exExt, int);
+  void ThreadedExecute(vtkImageData *data, vtkInformation *outInfo, int);
 
   // Description
   // Specify the implicit function to perform the cutting.

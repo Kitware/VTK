@@ -33,7 +33,6 @@
 #include "vtkContourValues.h" // Passes calls through
 
 class vtkRectilinearGrid;
-class vtkKitwareContourFilter;
 class vtkDataArray;
 
 class VTKFILTERSCORE_EXPORT vtkRectilinearSynchronizedTemplates : public vtkPolyDataAlgorithm
