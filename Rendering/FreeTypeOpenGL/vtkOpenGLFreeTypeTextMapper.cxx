@@ -33,6 +33,27 @@
 using namespace ftgl;
 #endif
 
+namespace {
+inline int GetNumberOfLinesImpl(const char *str)
+{
+  if (str == NULL || *str == '\0')
+    {
+    return 0;
+    }
+
+  int result = 1;
+  while (str != NULL)
+    {
+    if ((str = strstr(str, "\n")) != NULL)
+      {
+      result++;
+      str++; // Skip '\n'
+      }
+    }
+  return result;
+}
+}
+
 //----------------------------------------------------------------------------
 // Print debug info
 
@@ -548,7 +569,7 @@ void vtkOpenGLFreeTypeTextMapper::SetInput(const char *input)
     }
   this->Modified();
 
-  int numLines = this->GetNumberOfLines(input);
+  int numLines = GetNumberOfLinesImpl(input);
 
   if ( numLines <= 1) // a line with no "\n"
     {

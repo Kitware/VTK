@@ -81,15 +81,15 @@ public:
 
   // Description:
   // Determine the number of lines in the input string.
-  // This is a legacy method that was used in an older implementation, and may
-  // be removed in the future.
-  int GetNumberOfLines(const char *input);
+  // @deprecated This is a legacy method that was used in an older
+  // implementation, and may be removed in the future.
+  VTK_LEGACY(int GetNumberOfLines(const char *input));
 
   // Description:
   // Get the number of lines in this mapper's input.
-  // This is a legacy method that was used in an older implementation, and may
-  // be removed in the future.
-  int GetNumberOfLines() { return this->GetNumberOfLines(this->Input); }
+  // @deprecated This is a legacy method that was used in an older
+  // implementation, and may be removed in the future.
+  VTK_LEGACY(int GetNumberOfLines());
 
   // Description:
   // Set and return the font size (in points) required to make this mapper fit
@@ -123,10 +123,9 @@ public:
 
   // Description:
   // Get the available system font size matching a font size.
-  // This is a legacy method that was used in an older implementation, and may
-  // be removed in the future.
-  virtual int GetSystemFontSize(int size)
-    { return size; }
+  // @deprecated This is a legacy method that was used in an older
+  // implementation, and may be removed in the future.
+  VTK_LEGACY(virtual int GetSystemFontSize(int size));
 
   void RenderOverlay(vtkViewport *, vtkActor2D *);
   void ReleaseGraphicsResources(vtkWindow *);
@@ -156,6 +155,15 @@ private:
   vtkNew<vtkPolyDataMapper2D> Mapper;
   vtkNew<vtkTexture> Texture;
 };
+
+
+#ifndef VTK_LEGACY_REMOVE
+inline int vtkTextMapper::GetSystemFontSize(int size)
+{
+  VTK_LEGACY_BODY(vtkTextMapper::GetSystemFontSize, "VTK 6.0")
+  return size;
+}
+#endif // VTK_LEGACY_REMOVE
 
 #endif
 
