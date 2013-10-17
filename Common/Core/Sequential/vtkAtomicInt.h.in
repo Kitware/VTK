@@ -190,7 +190,6 @@ public:
 
 #else // defined(VTK_HAS_ATOMIC32)
 
-#ifndef __WRAP__
   // These methods are for when using a mutex. Same as above.
   // A virtual descructor is used becase the mutex is constructed
   // with new to avoid including windows header in the .h file.
@@ -201,7 +200,6 @@ public:
   vtkTypeInt32 operator+=(vtkTypeInt32 val);
   vtkTypeInt32 load() const;
   void store(vtkTypeInt32 val);
-#endif
 
 #endif
 
@@ -329,7 +327,6 @@ public:
 
 #else // defined(VTK_HAS_ATOMIC64)
 
-#ifndef __WRAP__
   // These methods are for when using a mutex. Same as above.
   // A virtual descructor is used becase the mutex is constructed
   // with new to avoid including windows header in the .h file.
@@ -340,7 +337,6 @@ public:
   vtkTypeInt64 operator+=(vtkTypeInt64 val);
   vtkTypeInt64 load() const;
   void store(vtkTypeInt64 val);
-#endif
 
 #endif // defined(VTK_HAS_ATOMIC64)
 
