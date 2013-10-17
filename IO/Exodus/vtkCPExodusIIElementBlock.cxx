@@ -218,4 +218,5 @@ vtkCPExodusIIElementBlockImpl::vtkCPExodusIIElementBlockImpl()
 //------------------------------------------------------------------------------
 vtkCPExodusIIElementBlockImpl::~vtkCPExodusIIElementBlockImpl()
 {
+  delete [] this->Elements;
 }
