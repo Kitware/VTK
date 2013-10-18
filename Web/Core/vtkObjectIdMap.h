@@ -61,7 +61,7 @@ private:
   vtkObjectIdMap(const vtkObjectIdMap&); // Not implemented
   void operator=(const vtkObjectIdMap&); // Not implemented
 
-  class vtkInternals;
+  struct vtkInternals;
   vtkInternals* Internals;
 //ETX
 };
