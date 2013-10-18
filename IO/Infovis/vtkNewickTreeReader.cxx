@@ -43,7 +43,7 @@ vtkNewickTreeReader::vtkNewickTreeReader()
 {
   vtkTree *output = vtkTree::New();
   this->SetOutput(output);
-  // Releasing data for pipeline parallism.
+  // Releasing data for pipeline parallelism.
   // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();
@@ -53,7 +53,6 @@ vtkNewickTreeReader::vtkNewickTreeReader()
 vtkNewickTreeReader::~vtkNewickTreeReader()
 {
 }
-
 
 //----------------------------------------------------------------------------
 vtkTree* vtkNewickTreeReader::GetOutput()
@@ -117,10 +116,26 @@ int vtkNewickTreeReader:: ReadNewickTree(  const char *  buffer, vtkTree & tree)
   names->SetName("node name");
   names->SetNumberOfValues(numNodes);
 
-  //parse the input file to create the graph
+  // parse the input file to create the graph
   vtkNew<vtkMutableDirectedGraph> builder;
   this->BuildTree(const_cast<char*> (buffer), builder.GetPointer(), weights.GetPointer(),
     names.GetPointer(), -1);
+
+  // check if our input file contained edge weight information
+  bool haveWeights = false;
+  for (vtkIdType i = 0; i < weights->GetNumberOfTuples(); ++i)
+    {
+    if (weights->GetValue(i) != 0.0)
+      {
+      haveWeights = true;
+      break;
+      }
+    }
+  // if not, make it so each edge has a weight of 1.0.
+  if (!haveWeights)
+    {
+    weights->FillComponent(0, 1.0);
+    }
 
   builder->GetEdgeData()->AddArray(weights.GetPointer());
   builder->GetVertexData()->AddArray(names.GetPointer());
@@ -155,8 +170,8 @@ int vtkNewickTreeReader:: ReadNewickTree(  const char *  buffer, vtkTree & tree)
   tree.GetVertexData()->AddArray(nodeWeights.GetPointer());
 
   return 1;
-
 }
+
 //----------------------------------------------------------------------------
 int vtkNewickTreeReader::RequestData(
   vtkInformation *,
@@ -221,6 +236,7 @@ int vtkNewickTreeReader::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkNewickTreeReader::CountNodes(const char *buffer, vtkIdType *numNodes)
 {
   char *current;
@@ -344,6 +360,7 @@ void vtkNewickTreeReader::CountNodes(const char *buffer, vtkIdType *numNodes)
   }
 }
 
+//----------------------------------------------------------------------------
 vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
   vtkMutableDirectedGraph *g, vtkDoubleArray *weights, vtkStringArray *names,
   vtkIdType parent)
