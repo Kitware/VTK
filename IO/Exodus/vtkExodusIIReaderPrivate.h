@@ -349,6 +349,7 @@ public:
     BlockSetInfoType(){this->CachedConnectivity=0;}
     BlockSetInfoType(const BlockSetInfoType& block);
     ~BlockSetInfoType();
+    BlockSetInfoType& operator=(const BlockSetInfoType& block);
   };
 
   /// A struct to hold information about Exodus blocks
