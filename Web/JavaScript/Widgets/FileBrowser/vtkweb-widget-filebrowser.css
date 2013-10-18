@@ -1,0 +1,50 @@
+.vtk-directory {
+    display:none;
+}
+.vtk-directory .vtk-label {
+    display:none;
+}
+
+.vtk-directory.active {
+    display: block;
+}
+
+.vtk-directory ul[type=path] {
+    list-style: none;
+    border-bottom: solid 1px #cccccc;
+}
+
+.vtk-directory li {
+    display: block;
+}
+
+.vtk-directory ul {
+    padding: 0;
+    margin: 0;
+}
+
+.vtk-directory ul[type=path] li {
+    display: inline-block;
+}
+
+.vtk-directory ul[type=path] li div:before {
+  content: "/";
+  padding-right: 2px;
+  padding-left: 2px;
+}
+
+.vtk-directory ul[type=dir] li div:before {
+  content: url('resources/folder.png');
+  padding-right: 4px;
+  padding-left: 2px;
+  position: relative;
+  top: 4px;
+}
+
+.vtk-directory ul[type=files] li div:before {
+  content: url('resources/file.png');
+  padding-right: 4px;
+  padding-left: 2px;
+  position: relative;
+  top: 4px;
+}
