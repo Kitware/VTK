@@ -25,8 +25,6 @@ Run yacc like this:
 Modify vtkParse.tab.c:
   - convert TABs to spaces (eight per tab)
   - remove spaces from ends of lines, s/ *$//g
-  - remove the "goto yyerrlab1;" that appears right before yyerrlab1:
-  - remove the #defined constants that appear right after the anonymous_enums
 
 */
 
@@ -90,30 +88,6 @@ a class.  This parser always interprets this pattern as a constructor
 declaration, because function calls are ignored by the parser, and
 variable declarations of the form y(x); are exceedingly rare compared
 to the more usual form y x; without parentheses.
-
-The "<" character is also ambiguous because it can be interpreted as
-either an angle bracket for template arguments, or as an operator.
-Fortunately, this ambiguity only arises in the constant_expression
-rule.  If we choose to interpret it as an angle bracket within constant
-expressions, then the following valid code cannot be parsed:
-
-  enum { x = y < z };
-
-However, if we choose to interpret it as an operator, then the following
-valid code cannot be parsed because the comma becomes a delimiter for
-enumeration:
-
-  enum { x = mytemplate<int, 2>::x };
-
-In both cases, putting the offending code in parentheses disambiguates:
-
-  enum { x = (mytemplate<int,2>::x) };
-  enum { x = (y < z) };
-
-Currenty, the parser interprets "<" as an angle bracket within the
-constant_expression rule, unless it is within parentheses or square
-brackets.
-
 */
 
 #include <stdio.h>
@@ -1302,6 +1276,15 @@ unsigned int add_indirection_to_array(unsigned int type)
  * Start of yacc section
  */
 
+/* Use the GLR parser algorithm for tricky cases */
+%glr-parser
+
+/* Expect five shift-reduce conflicts from opt_final (final classes) */
+%expect 5
+
+/* Expect 120 reduce/reduce conflicts, these can be cleared by removing
+   either '<' or angle_brackets_sig from constant_expression_item. */
+%expect-rr 120
 
 /* The parser will shift/reduce values <str> or <integer>, where
    <str> is for IDs and <integer> is for types, modifiers, etc. */
@@ -1473,10 +1456,6 @@ unsigned int add_indirection_to_array(unsigned int type)
 
 /* VTK special tokens */
 %token VTK_BYTE_SWAP_DECL
-
-/* Expect five shift-reduce conflicts from opt_final */
-%expect 5
-%glr-parser
 
 %%
 /*
@@ -3152,15 +3131,20 @@ literal:
 
 constant_expression:
     constant_expression_item
-  | constant_expression constant_expression_item;
+  | constant_expression constant_expression_item
 
 constant_expression_item:
     common_bracket_item
   | angle_brackets_sig
-  | '>' { postSig("> "); }
+  | '<' { postSig("< "); }
+  | '>' { postSig("> "); } common_bracket_item_no_scope_operator
   | OP_RSHIFT_A { postSig(">"); }
 
 common_bracket_item:
+    common_bracket_item_no_scope_operator
+  | DOUBLE_COLON { chopSig(); postSig("::"); }
+
+common_bracket_item_no_scope_operator:
     brackets_sig
   | parentheses_sig
   | braces_sig
@@ -3195,7 +3179,6 @@ common_bracket_item:
         }
     }
   | ':' { postSig(":"); postSig(" "); } | '.' { postSig("."); }
-  | DOUBLE_COLON { chopSig(); postSig("::"); }
   | keyword { postSig($<str>1); postSig(" "); }
   | literal { postSig($<str>1); postSig(" "); }
   | primitive_type
