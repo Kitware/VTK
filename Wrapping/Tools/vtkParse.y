@@ -2195,14 +2195,11 @@ direct_declarator:
 
 p_or_lp_or_la:
     '(' { postSig("("); scopeSig(""); $<integer>$ = 0; }
-  | LP { postSig("("); scopeSig($<str>1); postSig("*");
-         $<integer>$ = VTK_PARSE_POINTER; }
-  | LA { postSig("("); scopeSig($<str>1); postSig("&");
-         $<integer>$ = VTK_PARSE_REF; }
+  | lp_or_la { $<integer>$ = $<integer>1; }
 
 lp_or_la:
-    LP { postSig("("); scopeSig($<str>1); postSig("*");
-         $<integer>$ = VTK_PARSE_POINTER; }
+    LP { postSig("("); scopeSig($<str>1); postSig("*"); }
+    ptr_cv_qualifier_seq { $<integer>$ = $<integer>3; }
   | LA { postSig("("); scopeSig($<str>1); postSig("&");
          $<integer>$ = VTK_PARSE_REF; }
 
@@ -2409,7 +2406,6 @@ cv_qualifier_seq:
   | cv_qualifier_seq cv_qualifier
     { $<integer>$ = ($<integer>1 | $<integer>2); }
 
-
 /*
  * Types
  */
@@ -2523,14 +2519,17 @@ reference:
     '&' { postSig("&"); $<integer>$ = VTK_PARSE_REF; }
 
 pointer:
-    '*' { postSig("*"); $<integer>$ = VTK_PARSE_POINTER; }
-  | '*' { postSig("*"); } cv_qualifier_seq
+    '*' { postSig("*"); } ptr_cv_qualifier_seq { $<integer>$ = $<integer>3; }
+
+ptr_cv_qualifier_seq:
+    { $<integer>$ = VTK_PARSE_POINTER; }
+  | cv_qualifier_seq
     {
-      if (($<integer>3 & VTK_PARSE_CONST) != 0)
+      if (($<integer>1 & VTK_PARSE_CONST) != 0)
         {
         $<integer>$ = VTK_PARSE_CONST_POINTER;
         }
-      if (($<integer>3 & VTK_PARSE_VOLATILE) != 0)
+      if (($<integer>1 & VTK_PARSE_VOLATILE) != 0)
         {
         $<integer>$ = VTK_PARSE_BAD_INDIRECT;
         }
