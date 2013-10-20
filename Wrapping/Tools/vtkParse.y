@@ -91,22 +91,28 @@ declaration, because function calls are ignored by the parser, and
 variable declarations of the form y(x); are exceedingly rare compared
 to the more usual form y x; without parentheses.
 
-One ambiguous structure that has been found in some working code, but
-is currently not dealt with properly by the parser, is the following:
+The "<" character is also ambiguous because it can be interpreted as
+either an angle bracket for template arguments, or as an operator.
+Fortunately, this ambiguity only arises in the constant_expression
+rule.  If we choose to interpret it as an angle bracket within constant
+expressions, then the following valid code cannot be parsed:
 
-  enum { x = mytemplate<int,2>::x };
+  enum { x = y < z };
 
-This is interpreted as the following ungrammatical statement:
+However, if we choose to interpret it as an operator, then the following
+valid code cannot be parsed because the comma becomes a delimiter for
+enumeration:
 
-  enum { x = mytemplate < int ,
-         2 > ::x };
+  enum { x = mytemplate<int, 2>::x };
 
-This has proven to be very hard to fix in the parser, but it possible
-to modify the statement so that it does not confuse the parser:
+In both cases, putting the offending code in parentheses disambiguates:
 
   enum { x = (mytemplate<int,2>::x) };
+  enum { x = (y < z) };
 
-The parentheses serve to disambiguate the statement.
+Currenty, the parser interprets "<" as an angle bracket within the
+constant_expression rule, unless it is within parentheses or square
+brackets.
 
 */
 
@@ -3145,8 +3151,14 @@ literal:
  */
 
 constant_expression:
-    bracket_pitem
-  | constant_expression bracket_pitem;
+    constant_expression_item
+  | constant_expression constant_expression_item;
+
+constant_expression_item:
+    common_bracket_item
+  | angle_brackets_sig
+  | '>' { postSig("> "); }
+  | OP_RSHIFT_A { postSig(">"); }
 
 common_bracket_item:
     brackets_sig
