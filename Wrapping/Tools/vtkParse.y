@@ -1660,7 +1660,7 @@ enum_definition:
     opt_declarator_list ';'
 
 enum_specifier:
-    enum_head '{' { pushType(); start_enum($<str>1); } opt_enumerator_list '}'
+    enum_head '{' { pushType(); start_enum($<str>1); } enumerator_list '}'
     {
       popType();
       clearTypeId();
@@ -1676,16 +1676,12 @@ enum_head:
     ENUM id_expression { $<str>$ = $<str>2; }
   | ENUM { $<str>$ = NULL; }
 
-opt_enumerator_list:
-  | enumerator_list
-
 enumerator_list:
     enumerator_definition
-  | enumerator_list ','
   | enumerator_list ',' enumerator_definition
 
 enumerator_definition:
-    simple_id { add_enum($<str>1, NULL); }
+  | simple_id { add_enum($<str>1, NULL); }
   | simple_id '=' { postSig("="); markSig(); }
     constant_expression { chopSig(); add_enum($<str>1, copySig()); }
 
