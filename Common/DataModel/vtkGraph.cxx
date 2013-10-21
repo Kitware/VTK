@@ -185,13 +185,16 @@ void vtkGraph::ComputeBounds()
 
   if ( this->Points )
     {
-    bounds = this->Points->GetBounds();
-    for (int i=0; i<6; i++)
+    if ( this->GetMTime() >= this->ComputeTime )
       {
-      this->Bounds[i] = bounds[i];
+      bounds = this->Points->GetBounds();
+      for (int i=0; i<6; i++)
+        {
+        this->Bounds[i] = bounds[i];
+        }
+      // TODO: how to compute the bounds for a distributed graph?
+      this->ComputeTime.Modified();
       }
-    // TODO: how to compute the bounds for a distributed graph?
-    this->ComputeTime.Modified();
     }
 }
 

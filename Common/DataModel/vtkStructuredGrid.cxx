@@ -1020,63 +1020,66 @@ void vtkStructuredGrid::InternalStructuredGridCopy(vtkStructuredGrid *src)
 
 //----------------------------------------------------------------------------
 // Override this method because of blanking
-void vtkStructuredGrid::GetScalarRange(double range[2])
+void vtkStructuredGrid::ComputeScalarRange()
 {
-  vtkDataArray *ptScalars = this->PointData->GetScalars();
-  vtkDataArray *cellScalars = this->CellData->GetScalars();
-  double ptRange[2];
-  double cellRange[2];
-  double s;
-  int id, num;
-
-  ptRange[0] =  VTK_DOUBLE_MAX;
-  ptRange[1] =  VTK_DOUBLE_MIN;
-  if ( ptScalars )
+  if ( this->GetMTime() > this->ScalarRangeComputeTime )
     {
-    num = this->GetNumberOfPoints();
-    for (id=0; id < num; id++)
+    vtkDataArray *ptScalars = this->PointData->GetScalars();
+    vtkDataArray *cellScalars = this->CellData->GetScalars();
+    double ptRange[2];
+    double cellRange[2];
+    double s;
+    int id, num;
+
+    ptRange[0] =  VTK_DOUBLE_MAX;
+    ptRange[1] =  VTK_DOUBLE_MIN;
+    if ( ptScalars )
       {
-      if ( this->IsPointVisible(id) )
+      num = this->GetNumberOfPoints();
+      for (id=0; id < num; id++)
         {
-        s = ptScalars->GetComponent(id,0);
-        if ( s < ptRange[0] )
+        if ( this->IsPointVisible(id) )
           {
-          ptRange[0] = s;
-          }
-        if ( s > ptRange[1] )
-          {
-          ptRange[1] = s;
+          s = ptScalars->GetComponent(id,0);
+          if ( s < ptRange[0] )
+            {
+            ptRange[0] = s;
+            }
+          if ( s > ptRange[1] )
+            {
+            ptRange[1] = s;
+            }
           }
         }
       }
-    }
 
-  cellRange[0] =  ptRange[0];
-  cellRange[1] =  ptRange[1];
-  if ( cellScalars )
-    {
-    num = this->GetNumberOfCells();
-    for (id=0; id < num; id++)
+    cellRange[0] =  ptRange[0];
+    cellRange[1] =  ptRange[1];
+    if ( cellScalars )
       {
-      if ( this->IsCellVisible(id) )
+      num = this->GetNumberOfCells();
+      for (id=0; id < num; id++)
         {
-        s = cellScalars->GetComponent(id,0);
-        if ( s < cellRange[0] )
+        if ( this->IsCellVisible(id) )
           {
-          cellRange[0] = s;
-          }
-        if ( s > cellRange[1] )
-          {
-          cellRange[1] = s;
+          s = cellScalars->GetComponent(id,0);
+          if ( s < cellRange[0] )
+            {
+            cellRange[0] = s;
+            }
+          if ( s > cellRange[1] )
+            {
+            cellRange[1] = s;
+            }
           }
         }
       }
+
+    this->ScalarRange[0] = (cellRange[0] >= VTK_DOUBLE_MAX ? 0.0 : cellRange[0]);
+    this->ScalarRange[1] = (cellRange[1] <= VTK_DOUBLE_MIN ? 1.0 : cellRange[1]);
+
+    this->ScalarRangeComputeTime.Modified();
     }
-
-  range[0] = (cellRange[0] >= VTK_DOUBLE_MAX ? 0.0 : cellRange[0]);
-  range[1] = (cellRange[1] <= VTK_DOUBLE_MIN ? 1.0 : cellRange[1]);
-
-  this->ComputeTime.Modified();
 }
 
 

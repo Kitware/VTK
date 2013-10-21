@@ -94,12 +94,15 @@ void vtkPointSet::ComputeBounds()
 
   if ( this->Points )
     {
-    bounds = this->Points->GetBounds();
-    for (int i=0; i<6; i++)
+    if ( this->GetMTime() >= this->ComputeTime )
       {
-      this->Bounds[i] = bounds[i];
+      bounds = this->Points->GetBounds();
+      for (int i=0; i<6; i++)
+        {
+        this->Bounds[i] = bounds[i];
+        }
+      this->ComputeTime.Modified();
       }
-    this->ComputeTime.Modified();
     }
 }
 
