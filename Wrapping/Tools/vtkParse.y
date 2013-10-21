@@ -228,7 +228,6 @@ void print_parser_error(const char *text, const char *cp, size_t n);
 /* helper functions */
 const char *type_class(unsigned int type, const char *classname);
 void start_class(const char *classname, int is_struct_or_union);
-void reject_class(const char *classname, int is_struct_or_union);
 void end_class();
 void add_base_class(ClassInfo *cls, const char *name, int access_lev,
                     int is_virtual);
@@ -263,6 +262,7 @@ void outputSetVectorMacro(const char *var, unsigned int paramType,
                           const char *typeText, int n);
 void outputGetVectorMacro(const char *var, unsigned int paramType,
                           const char *typeText, int n);
+
 
 /*----------------------------------------------------------------
  * String utility methods
@@ -3229,27 +3229,6 @@ void start_class(const char *classname, int is_struct_or_union)
 
   /* comment, if any */
   currentClass->Comment = vtkstrdup(getComment());
-
-  access_level = VTK_ACCESS_PRIVATE;
-  if (is_struct_or_union)
-    {
-    access_level = VTK_ACCESS_PUBLIC;
-    }
-
-  vtkParse_InitFunction(currentFunction);
-  startSig();
-  clearComment();
-}
-
-/* reject the class */
-void reject_class(const char *classname, int is_struct_or_union)
-{
-  static ClassInfo static_class;
-
-  pushClass();
-  currentClass = &static_class;
-  currentClass->Name = classname;
-  vtkParse_InitClass(currentClass);
 
   access_level = VTK_ACCESS_PRIVATE;
   if (is_struct_or_union)
