@@ -40,6 +40,7 @@
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
+#include "vtkSMPProgressObserver.h"
 
 #include <vector>
 #include <assert.h>
@@ -276,7 +277,11 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
                             request,
                             inObjs,outObjs);
 
+  vtkSmartPointer<vtkProgressObserver> origPo(this->Algorithm->GetProgressObserver());
+  vtkNew<vtkSMPProgressObserver> po;
+  this->Algorithm->SetProgressObserver(po.GetPointer());
   vtkSMPTools::For(0, inObjs.size(), processBlock);
+  this->Algorithm->SetProgressObserver(origPo);
 
   int i =0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), i++)
