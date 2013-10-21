@@ -134,7 +134,7 @@ static void vtkWrapPython_OverloadMethodDef(
 static void vtkWrapPython_OverloadMasterMethod(
   FILE *fp, const char *classname, int *overloadMap, int maxArgs,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
-  int numberOfOccurrences, int is_vtkobject, int all_legacy);
+  int is_vtkobject, int all_legacy);
 
 /* output the MethodDef table for this class */
 static void vtkWrapPython_ClassMethodDef(
@@ -2200,11 +2200,12 @@ static void vtkWrapPython_OverloadMethodDef(
 static void vtkWrapPython_OverloadMasterMethod(
   FILE *fp, const char *classname, int *overloadMap, int maxArgs,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
-  int numberOfOccurrences, int is_vtkobject, int all_legacy)
+  int is_vtkobject, int all_legacy)
 {
   FunctionInfo *currentFunction;
+  FunctionInfo *theOccurrence;
   int overlap = 0;
-  int occ;
+  int occ, occCounter;
   int i;
   int foundOne;
   int any_static = 0;
@@ -2259,24 +2260,45 @@ static void vtkWrapPython_OverloadMasterMethod(
           "  switch(nargs)\n"
           "    {\n");
 
-  for (occ = 1; occ <= numberOfOccurrences; occ++)
+  /* find all occurrences of this method */
+  occCounter = 0;
+  for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
     {
-    foundOne = 0;
-    for (i = 0; i <= maxArgs; i++)
+    theOccurrence = wrappedFunctions[occ];
+
+    /* is it the same name */
+    if (theOccurrence->Name &&
+        strcmp(currentFunction->Name, theOccurrence->Name) == 0)
       {
-      if (overloadMap[i] == occ)
+      occCounter++;
+
+      foundOne = 0;
+      for (i = 0; i <= maxArgs; i++)
+        {
+        if (overloadMap[i] == occCounter)
+          {
+          if (!foundOne && theOccurrence->IsLegacy && !all_legacy)
+            {
+            fprintf(fp,
+                 "#if !defined(VTK_LEGACY_REMOVE)\n");
+            }
+          fprintf(fp,
+                  "    case %d:\n",
+                  i);
+          foundOne = 1;
+          }
+        }
+      if (foundOne)
         {
         fprintf(fp,
-                "    case %d:\n",
-                i);
-        foundOne = 1;
+                "      return Py%s_%s_s%d(self, args);\n",
+                classname, currentFunction->Name, occCounter);
+        if (theOccurrence->IsLegacy && !all_legacy)
+          {
+          fprintf(fp,
+                "#endif\n");
+          }
         }
-      }
-    if (foundOne)
-      {
-      fprintf(fp,
-              "      return Py%s_%s_s%d(self, args);\n",
-              classname, currentFunction->Name, occ);
       }
     }
 
@@ -2508,7 +2530,7 @@ void vtkWrapPython_GenerateOneMethod(
     vtkWrapPython_OverloadMasterMethod(
       fp, classname, overloadMap, maxArgs,
       wrappedFunctions, numberOfWrappedFunctions,
-      fnum, numberOfOccurrences, is_vtkobject, all_legacy);
+      fnum, is_vtkobject, all_legacy);
     }
 
   /* set the legacy flag */
