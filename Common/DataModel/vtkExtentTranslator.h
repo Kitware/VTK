@@ -90,6 +90,17 @@ public:
   // use this to tell the translator which dimensions to split.
   void SetSplitPath(int len, int *splitpath);
 
+//BTX
+  // Don't change the numbers here - they are used in the code
+  // to indicate array indices.
+  enum Modes {
+    X_SLAB_MODE=0,
+    Y_SLAB_MODE=1,
+    Z_SLAB_MODE=2,
+    BLOCK_MODE= 3
+  };
+//ETX
+
 protected:
   vtkExtentTranslator();
   ~vtkExtentTranslator();
@@ -111,17 +122,6 @@ protected:
 
   int* SplitPath;
   int SplitLen;
-
-//BTX
-  // Don't change the numbers here - they are used in the code
-  // to indicate array indices.
-  enum Modes {
-    X_SLAB_MODE=0,
-    Y_SLAB_MODE=1,
-    Z_SLAB_MODE=2,
-    BLOCK_MODE= 3
-  };
-//ETX
 
 private:
   vtkExtentTranslator(const vtkExtentTranslator&);  // Not implemented.
