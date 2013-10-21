@@ -37,37 +37,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-//----------------------------------------------------------------------------
-#if defined (JB_DEBUG1)
-  #ifndef WIN32
-  #else
-    #define OUTPUTTEXT(a) vtkOutputWindowDisplayText(a);
-  #endif
-
-  #undef vtkDebugMacro
-  #define vtkDebugMacro(a)  \
-  { \
-    vtkOStreamWrapper::EndlType endl; \
-    vtkOStreamWrapper::UseEndl(endl); \
-    vtkOStrStreamWrapper vtkmsg; \
-    const char *name = this->Algorithm->GetClassName(); \
-    if (!strcmp(name, "vtkTemporalDataSetCache") || \
-        !strcmp(name, "vtkContourFilter") || \
-        !strcmp(name, "vtkOpenDXStructuredGridReader") || \
-        !strcmp(name, "vtkPCellDataToPointData") || \
-        !strcmp(name, "vtkProcessIdScalars") || \
-        !strcmp(name, "vtkTemporalFractal") || \
-        !strcmp(name, "vtkTemporalSphereSource") || \
-        !strcmp(name, "vtkTemporalInterpolator") || \
-        !strcmp(name, "vtkTemporalStreamTracer")) \
-      { \
-      vtkmsg << name << " : " a << endl; \
-      OUTPUTTEXT(vtkmsg.str()); \
-      vtkmsg.rdbuf()->freeze(0); \
-      } \
-  }
-#endif
-
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline, LOAD_REQUESTED_BLOCKS, Integer);
