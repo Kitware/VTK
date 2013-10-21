@@ -60,7 +60,7 @@ public:
   // to create a connection between the two trees.  Different numbers
   // in the table will result in connections being drawn in different
   // colors.
-  vtkGetMacro(Table, vtkTable*);
+  vtkTable * GetTable();
   void SetTable(vtkTable *table);
 
   // Description:
@@ -162,7 +162,7 @@ private:
   vtkSmartPointer<vtkDendrogramItem> Dendrogram1;
   vtkSmartPointer<vtkDendrogramItem> Dendrogram2;
   vtkSmartPointer<vtkLookupTable> LookupTable;
-  vtkTable *Table;
+  vtkSmartPointer<vtkTable> Table;
   vtkStringArray *Tree1Names;
   vtkStringArray *Tree2Names;
   vtkStringArray *SourceNames;
