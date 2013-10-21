@@ -780,6 +780,12 @@ int vtkSynchronizedTemplates3D::RequestUpdateExtent(
   wholeExt =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
+  if (!wholeExt)
+    {
+    return 1;
+    }
+
+
   // Get request from output
   piece =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
