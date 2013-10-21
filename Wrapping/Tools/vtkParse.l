@@ -346,6 +346,8 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
       return(QT_ID);
     }
 
+"static_assert"  get_macro_arguments(); /* C++11 */
+
 "__attribute__"  get_macro_arguments(); /* gcc attributes */
 
 "__declspec"  get_macro_arguments(); /* Windows linkage */
