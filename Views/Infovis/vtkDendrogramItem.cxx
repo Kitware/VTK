@@ -583,7 +583,7 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
   //"Igq" selected for range of height
   int fontSize = painter->ComputeFontSizeForBoundedString("Igq", VTK_FLOAT_MAX,
                                                            this->LeafSpacing);
-  // make sure our current zoom level allows for a legibily-sized font
+  // make sure our current zoom level allows for a legibly-sized font
   if (fontSize < 8)
     {
     return;
