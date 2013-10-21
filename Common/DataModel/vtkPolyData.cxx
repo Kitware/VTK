@@ -1269,7 +1269,7 @@ int vtkPolyData::InsertNextCell(int type, int npts, vtkIdType *pts)
 
     case VTK_PIXEL: //need to rearrange vertices
       {
-      static vtkIdType pixPts[4];
+      vtkIdType pixPts[4];
       pixPts[0] = pts[0];
       pixPts[1] = pts[1];
       pixPts[2] = pts[3];
@@ -1329,7 +1329,7 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList *pts)
 
     case VTK_PIXEL: //need to rearrange vertices
       {
-      static vtkIdType pixPts[4];
+      vtkIdType pixPts[4];
       pixPts[0] = pts->GetId(0);
       pixPts[1] = pts->GetId(1);
       pixPts[2] = pts->GetId(3);
