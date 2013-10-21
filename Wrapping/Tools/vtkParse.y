@@ -71,10 +71,10 @@ create a yacc parser without any shift/reduce conflicts.  The rules for
 types are organized according to the way that types are usually defined
 in working code, rather than strictly according to C++ grammar.
 
-The declaration specifiers "friend" and "typedef" can only appear at the
-beginning of a declaration sequence.  There are also restrictions on
-where class and enum specifiers can be used: you can declare a new struct
-within a variable declaration, but not within a parameter declaration.
+The declaration specifier "typedef" can only appear at the beginning
+of a declaration sequence.  There are also restrictions on where class
+and enum specifiers can be used: you can declare a new struct within a
+variable declaration, but not within a parameter declaration.
 
 The lexer returns each of "(scope::*", "(*", "(a::b::*", etc. as single
 tokens.  The C++ BNF, in contrast, would consider these to be a "("
@@ -3965,6 +3965,25 @@ void output_function()
       reject_function();
       return;
       }
+    }
+
+  /* friend */
+  if (currentFunction->ReturnValue &&
+      currentFunction->ReturnValue->Type & VTK_PARSE_FRIEND)
+    {
+    currentFunction->ReturnValue->Type ^= VTK_PARSE_FRIEND;
+    output_friend_function();
+    return;
+    }
+
+  /* typedef */
+  if (currentFunction->ReturnValue &&
+      currentFunction->ReturnValue->Type & VTK_PARSE_TYPEDEF)
+    {
+    /* for now, reject it instead of turning a method into a typedef */
+    currentFunction->ReturnValue->Type ^= VTK_PARSE_TYPEDEF;
+    reject_function();
+    return;
     }
 
   /* static */
