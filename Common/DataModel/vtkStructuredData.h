@@ -257,7 +257,7 @@ protected:
   static vtkIdType GetLinearIndex(
       const int i, const int j, const int k, const int N1, const int N2 )
     {
-      return( (k*N2+j)*N1+i );
+      return( (static_cast<vtkIdType>(k)*N2+j)*N1+i );
     }
 
   // Description:
