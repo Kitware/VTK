@@ -7,6 +7,7 @@ set(WEB_APPLICATIONS
   Cone
   GraphLayout
   PhylogeneticTree
+  FileBrowser
 )
 
 set(WEB_APPS_DEPENDS)

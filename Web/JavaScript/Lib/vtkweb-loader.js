@@ -61,10 +61,10 @@
         ],
         "filebrowser": [
         "ext/pure/pure.min.js",
-        "lib/widgets/vtkweb-widget-filebrowser.js",
-        "lib/widgets/vtkweb-widget-filebrowser.tpl",
-        "lib/widgets/vtkweb-widget-filebrowser.css"
-        ],
+        "lib/widgets/FileBrowser/vtkweb-widget-filebrowser.js",
+        "lib/widgets/FileBrowser/vtkweb-widget-filebrowser.tpl",
+        "lib/widgets/FileBrowser/vtkweb-widget-filebrowser.css"
+        ]
     },
     modules = [],
     script = document.getElementsByTagName("script")[document.getElementsByTagName("script").length - 1],
@@ -86,6 +86,48 @@
     }
 
     // ---------------------------------------------------------------------
+    function loadTemplate(url) {
+        var templates = document.getElementById("vtk-templates");
+        if(templates === null) {
+            templates = document.createElement("div");
+            templates.setAttribute("style", "display: none;");
+            templates.setAttribute("id", "vtk-templates");
+            document.getElementsByTagName("body")[0].appendChild(templates);
+        }
+
+        // Fetch template and append to vtk-templates
+        var request = makeHttpObject();
+        request.open("GET", url, true);
+        request.send(null);
+        request.onreadystatechange = function() {
+            if (request.readyState == 4) {
+              var content = templates.innerHTML;
+              content += request.responseText;
+              templates.innerHTML = content;
+            }
+        };
+    }
+
+    // ---------------------------------------------------------------------
+
+    function makeHttpObject() {
+        try {
+            return new XMLHttpRequest();
+        }
+        catch (error) {}
+        try {
+            return new ActiveXObject("Msxml2.XMLHTTP");
+        }
+        catch (error) {}
+        try {
+            return new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        catch (error) {}
+
+        throw new Error("Could not create HTTP request object.");
+    }
+
+    // ---------------------------------------------------------------------
     function _endWith(string, end) {
         return string.lastIndexOf(end) === (string.length - end.length);
     }
@@ -97,7 +139,7 @@
         } else if(_endWith(url, ".css")) {
             loadCss(url);
         } else if(_endWith(url, ".tpl")) {
-            // template to load
+            loadTemplate(url);
         }
     }
 
@@ -135,7 +177,7 @@
     // ---------------------------------------------------------------------
     // Extract basePath
     // ---------------------------------------------------------------------
-    var lastSlashIndex = script.getAttribute("src").lastIndexOf('lib/js/vtkweb-loader');
+    var lastSlashIndex = script.getAttribute("src").lastIndexOf('lib/core/vtkweb-loader');
     if(lastSlashIndex != -1) {
         basePath = script.getAttribute("src").substr(0, lastSlashIndex);
     }

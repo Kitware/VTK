@@ -52,7 +52,6 @@
         // Compile template only once
         if(fileBrowserGenerator === null) {
             template = $(opts.template);
-            console.log(template);
             fileBrowserGenerator = template.compile(directives);
         }
 
@@ -60,6 +59,8 @@
             var me = $(this).empty().addClass('vtk-filebrowser'),
             container = $('<div/>');
             me.append(container);
+            me.data('file-list', opts.data);
+            me.data('session', opts.session);
 
             // Generate HTML
             container.render(opts.data, fileBrowserGenerator);
@@ -69,9 +70,25 @@
         });
     };
 
+    $.fn.updateFileBrowser = function(activeDirectory) {
+
+        return this.each(function() {
+            var me = $(this).empty(),
+            data = me.data('file-list'),
+            container = $('<div/>');
+            me.append(container);
+
+            // Generate HTML
+            container.render(data, fileBrowserGenerator);
+
+            // Initialize pipelineBrowser (Visibility + listeners)
+            initializeListener(me, activeDirectory);
+        });
+    };
+
     $.fn.fileBrowser.defaults = {
-        template: ".vtk-templates > .vtkweb-widget-filebrowser > div",
-        root: 'Root',
+        template: "#vtk-templates > .vtkweb-widget-filebrowser > div",
+        session: null,
         data: [
             { 'label': 'Root', 'path': ['Root'], 'files': [
                 {'label': 'can.ex2', 'size': 2345},
@@ -130,18 +147,18 @@
 
     // =======================================================================
 
-    function initializeListener(container) {
+    function initializeListener(container, activePath) {
         $('.action', container).click(function(){
             var me = $(this), item = $('div', me), pathStr = me.closest('.vtk-directory').attr('path'), type = me.closest('ul').attr('type');
 
             if(type === 'path') {
                 // Find out the panel to show
-                var newPath = pathToStr(strToPath(pathStr).slice(0, me.index() + 1));
+                var newPath = pathToStr(strToPath(pathStr).slice(0, me.index() + 1)),
                 selector = '.vtk-directory[path="' + newPath + '"]';
                 var newActive = $(selector , container).addClass('active');
                 if(newActive.length === 1) {
-                    $('.vtk-directory', container).removeClass('active');
-                    newActive.addClass('active');
+                     $('.vtk-directory', container).removeClass('active');
+                     newActive.addClass('active');
                 }
             } else if(type === 'dir') {
                 // Swicth active panel
@@ -156,6 +173,14 @@
                         name: me.text()
                     });
                 } else {
+                    if(container.data('session')) {
+                        var relativePath = (pathStr + '/' + me.text());
+                        container.data('session').call('vtk:listServerDirectory', relativePath.substring(1)).then(function(newFiles){
+                            container.data('file-list').push(newFiles);
+                            container.updateFileBrowser(relativePath);
+                        });
+
+                    }
                     container.trigger({
                         type: 'directory-not-found',
                         path: pathStr,
@@ -169,7 +194,12 @@
                     name: me.text()
                 });
             }
-        })
+        });
+        if(activePath) {
+            $('.vtk-directory',container).removeClass('active');
+            $('.vtk-directory[path="' + activePath + '"]',container).addClass('active');
+        }
+
     }
 
 }(jQuery));
