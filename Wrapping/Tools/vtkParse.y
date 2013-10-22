@@ -1553,8 +1553,8 @@ forward_declaration:
   | template_head simple_forward_declaration
 
 simple_forward_declaration:
-    class_key id_expression ';'
-  | decl_specifier_seq class_key id_expression ';'
+    class_key class_head_name ';'
+  | decl_specifier_seq class_key class_head_name ';'
 
 class_definition:
     class_specifier opt_decl_specifier_seq opt_declarator_list ';'
@@ -1575,7 +1575,7 @@ class_specifier:
     }
 
 class_head:
-    class_key id_expression { start_class($<str>2, $<integer>1); }
+    class_key class_head_name { start_class($<str>2, $<integer>1); }
     opt_base_clause
   | class_key { start_class(NULL, $<integer>1); }
     opt_base_clause
@@ -1584,6 +1584,17 @@ class_key:
     CLASS { $<integer>$ = 0; }
   | STRUCT { $<integer>$ = 1; }
   | UNION { $<integer>$ = 2; }
+
+class_head_name:
+    nested_name_specifier class_name
+    { $<str>$ = vtkstrcat($<str>1, $<str>2); }
+  | scope_operator_sig nested_name_specifier class_name
+    { $<str>$ = vtkstrcat3("::", $<str>2, $<str>3); }
+  | class_name
+
+class_name:
+    identifier
+  | template_id
 
 member_specification:
   | member_specification
@@ -1707,8 +1718,8 @@ nested_variable_initialization:
     store_type nested_name_specifier simple_id '=' ignored_expression ';'
 
 ignored_class:
-    class_key id_expression ignored_class_body
-  | decl_specifier_seq class_key id_expression ignored_class_body
+    class_key class_head_name ignored_class_body
+  | decl_specifier_seq class_key class_head_name ignored_class_body
   | class_key ignored_class_body
   | decl_specifier_seq class_key ignored_class_body
 
@@ -2488,7 +2499,7 @@ store_type_specifier:
 
 type_specifier:
     trailing_type_specifier
-  | class_key id_expression
+  | class_key class_head_name
     { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
   | ENUM id_expression
     { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
