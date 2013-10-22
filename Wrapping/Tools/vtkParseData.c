@@ -408,6 +408,7 @@ void vtkParse_InitClass(ClassInfo *cls)
   cls->NumberOfNamespaces = 0;
   cls->Namespaces = NULL;
   cls->IsAbstract = 0;
+  cls->IsFinal = 0;
   cls->HasDelete = 0;
 }
 
@@ -548,6 +549,7 @@ void vtkParse_CopyClass(ClassInfo *cls, const ClassInfo *orig)
     }
 
   cls->IsAbstract = orig->IsAbstract;
+  cls->IsFinal = orig->IsFinal;
   cls->HasDelete = orig->HasDelete;
 }
 
