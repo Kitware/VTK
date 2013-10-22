@@ -64,12 +64,27 @@ int TestProjectedTetrahedra(int argc, char *argv[])
     }
 
   // Create the standard renderer, render window, and interactor.
-  vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderer *ren1 = vtkRenderer::New();
   renWin->AddRenderer(ren1);
+  ren1->Delete();
+
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   iren->SetDesiredUpdateRate(3);
+  renWin->Delete();
+
+  // check for driver support
+  renWin->Render();
+  vtkProjectedTetrahedraMapper *volumeMapper
+    = vtkProjectedTetrahedraMapper::New();
+  if (!volumeMapper->IsSupported(renWin))
+    {
+    volumeMapper->Delete();
+    iren->Delete();
+    vtkGenericWarningMacro("Projected tetrahedra is not supported. Skipping tests.");
+    return 0;
+    }
 
   // Create the reader for the data.
   // This is the data that will be volume rendered.
@@ -122,8 +137,6 @@ int TestProjectedTetrahedra(int argc, char *argv[])
   volumeProperty->SetInterpolationTypeToLinear();
 
   // The mapper that renders the volume data.
-  vtkProjectedTetrahedraMapper *volumeMapper
-    = vtkProjectedTetrahedraMapper::New();
   volumeMapper->SetInputConnection(trifilter->GetOutputPort());
 
   // The volume holds the mapper and the property and can be used to
@@ -165,8 +178,6 @@ int TestProjectedTetrahedra(int argc, char *argv[])
     }
 
   // Clean up.
-  ren1->Delete();
-  renWin->Delete();
   iren->Delete();
   reader->Delete();
   reader2->Delete();
