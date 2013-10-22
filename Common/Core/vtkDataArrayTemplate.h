@@ -378,9 +378,7 @@ private:
   void InsertValue(vtkIdType id, T f); \
   vtkIdType InsertNextValue(T f); \
   T *GetValueRange(int comp); \
-  void GetValueRange(T range[2], int comp); \
   T *GetValueRange(); \
-  void GetValueRange(T range[2]); \
   T* WritePointer(vtkIdType id, vtkIdType number); \
   T* GetPointer(vtkIdType id)/*; \
 
