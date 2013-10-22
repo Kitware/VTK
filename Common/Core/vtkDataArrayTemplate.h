@@ -382,9 +382,17 @@ private:
   T *GetValueRange(); \
   void GetValueRange(T range[2]); \
   T* WritePointer(vtkIdType id, vtkIdType number); \
-  T* GetPointer(vtkIdType id); \
+  T* GetPointer(vtkIdType id)/*; \
+
+  * These methods are not wrapped to avoid wrappers exposing these
+  * easy-to-get-wrong methods because passing in the wrong value for 'save' is
+  * guaranteed to cause a memory issue down the line. Either the wrappers
+  * didn't use malloc to allocate the memory or the memory isn't actually
+  * persisted because a temporary array is used that doesn't persist like this
+  * method expects.
+
   void SetArray(T* array, vtkIdType size, int save); \
-  void SetArray(T* array, vtkIdType size, int save, int deleteMethod)
+  void SetArray(T* array, vtkIdType size, int save, int deleteMethod) */
 
 #endif // !defined(__vtkDataArrayTemplate_h)
 

@@ -576,7 +576,8 @@ bool vtkPythonGetArray(PyObject *o, T *a, int n)
     return vtkPythonSequenceError(o, n, m);
     }
 
-  return true;
+  // NULL is allowed if we're expecting a size of 0.
+  return (n == 0);
 }
 
 //--------------------------------------------------------------------
