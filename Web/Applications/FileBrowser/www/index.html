@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel='stylesheet' href='style.css' type='text/css'>
+    </head>
+
+    <body class="page" onbeforeunload="stop()" onunload="stop()">
+        <div class="browser"></div>
+
+        <script src="../../lib/core/vtkweb-loader.js" load="all-min, filebrowser"></script>
+        <script type="text/javascript">
+            var connection = {
+                sessionURL: "ws://" + window.location.host + "/ws",
+                name: "WebFileBrowser",
+                description: "Simple VTK Web demo application",
+                application: "fileBrowser"
+            },
+
+            // Connect to remote server
+            vtkWeb.connect(connection, function(serverConnection) {
+                connection = serverConnection;
+
+                // Create file browser widget
+                connection.session.call('vtk:listServerDirectory','.').then(function(files){
+                    $('.browser').fileBrowser({data: [files], session: connection.session}).bind('file-click directory-click directory-not-found', function(e){
+                        console.log(e.type + " click: " + e.name + " - path: " + e.path );
+                    });;
+                });
+
+            }, function(code, reason) {
+                alert(reason);
+            });
+
+            // Method call at exit time
+            function stop() {
+                if(false && connection.session) {
+                    connection.session.call('vtk:exit');
+                    connection.session.close();
+                    connection.session = null;
+                }
+            }
+        </script>
+    </body>
+</html>

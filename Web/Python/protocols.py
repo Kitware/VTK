@@ -4,11 +4,7 @@ very specific web application.
 """
 
 from time import time
-import inspect
-import logging
-import sys
-import traceback
-import types
+import os, sys, logging, types, inspect, traceback, logging, re
 
 # import RPC annotation
 from autobahn.wamp import exportRpc
@@ -240,3 +236,44 @@ class vtkWebViewPortGeometryDelivery(vtkWebProtocol):
         view  = self.getView(view_id)
         data = self.getApplication().GetWebGLBinaryData(view, str(object_id), part-1)
         return data
+
+# =============================================================================
+#
+# Provide File/Directory listing
+#
+# =============================================================================
+
+class vtkWebFileBrowser(vtkWebProtocol):
+
+    def __init__(self, basePath, name, excludeRegex=r"^\.|~$|^\$"):
+        """
+        Configure the way the WebFile browser will expose the server content.
+         - basePath: specify the base directory that we should start with
+         - name: Name of that base directory that will show up on the web
+         - excludeRegex: Regular expression of what should be excluded from the list of files/directories
+        """
+        self.baseDirectory = basePath
+        self.rootName = name
+        self.pattern = re.compile(excludeRegex)
+
+    @exportRpc("listServerDirectory")
+    def listServerDirectory(self, relativeDir='.'):
+        """
+        RPC Callback to list a server directory relative to the basePath
+        provided at start-up.
+        """
+        path = [ self.rootName ]
+        if len(relativeDir) > len(self.rootName):
+            relativeDir = relativeDir[len(self.rootName)+1:]
+            path += relativeDir.replace('\\','/').split('/')
+
+        currentPath = os.path.join(self.baseDirectory, relativeDir)
+        result =  { 'label': relativeDir, 'files': [], 'dirs': [], 'path': path}
+        if relativeDir == '.':
+            result['label'] = self.rootName
+        for file in os.listdir(currentPath):
+            if os.path.isfile(os.path.join(currentPath, file)) and not re.search(self.pattern, file):
+                result['files'].append({'label': file, 'size': -1})
+            elif os.path.isdir(os.path.join(currentPath, file)) and not re.search(self.pattern, file):
+                result['dirs'].append(file)
+        return result

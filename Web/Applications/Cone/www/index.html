@@ -2,14 +2,7 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
         <link rel='stylesheet' href='style.css' type='text/css'>
-
-        <script src="../../ext/js-core/autobahn.min.js"></script>
-        <script src="../../ext/js-core/jquery-1.8.3.min.js"></script>
-        <script src="../../ext/js-core/gl-matrix-min.js"></script>
-
-        <script src="../../lib/js/vtkweb-all.js"></script>
     </head>
 
     <body class="page" onbeforeunload="stop()" onunload="stop()">
@@ -20,6 +13,7 @@
         <div class="viewport-container">
         </div>
 
+        <script src="../../lib/core/vtkweb-loader-min.js" load="all-min"></script>
         <script type="text/javascript">
             var connection = {
                 sessionURL: "ws://" + window.location.host + "/ws",

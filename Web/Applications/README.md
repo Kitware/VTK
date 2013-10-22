@@ -11,4 +11,5 @@
 | ---------------- | ---------------------------- | ------------------------- |
 | Cone             | vtk_web_cone.py              |                           |
 | PhylogeneticTree | vtk_web_phylogenetic_tree.py | --tree, --table           |
+| FileBrowser      | vtk_web_filebrowser.py       | --data-dir                |
 | --------------------------------------------------------------------------- |

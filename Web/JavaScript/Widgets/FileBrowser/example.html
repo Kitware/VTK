@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="vtkweb-widget-filebrowser.css" rel="stylesheet" >
+
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="http://beebole.com/pure/wp-content/themes/BeeBole-pure/libs/pure.js"></script>
+    <script type="text/javascript" src="vtkweb-widget-filebrowser.js"></script>
+  </head>
+  <body>
+
+    <!-- This should be automatically filled by the vtk loader : BEGUIN -->
+    <div id='vtk-templates' style="display: none;">
+        <div class='vtkweb-widget-filebrowser'>
+            <div>
+                <div class="vtk-directory">
+                    <div class="vtk-label">
+                    </div>
+                    <div>
+                        <ul type='path'><li class="vtk-path action"><div/></li></ul>
+                    </div>
+                    <div>
+                        <ul type='dir'><li class="vtk-dirs action"><div/></li></ul>
+                    </div>
+                    <div>
+                        <ul type='files'><li class="vtk-files action"><div/></li></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- This should be automatically filled by the vtk loader : END -->
+
+
+    <div id="file-browser" style="position: relative; width: 10%; background-color: #eee;"></div>
+
+    <script type="text/javascript">
+    var fileTree = [
+        { 'label': 'Root', 'path': ['Root'], 'files': [
+            {'label': 'can.ex2', 'size': 2345},
+            {'label': 'diskout.ex2', 'size': 23345},
+        ], 'dirs': ['Cosmo', 'Ensight']},
+        { 'label': 'Cosmo',
+          'path': ['Root','Cosmo'],
+          'files': [
+            {'label': 'can.ex2', 'size': 2345},
+            {'label': 'diskout.ex2', 'size': 23345},
+          ],
+          'dirs': ['a','b','c'] },
+        { 'label': 'Ensight',
+          'path': ['Root','Ensight'],
+          'files': [
+            {'label': 'can.case', 'size': 2345},
+            {'label': 'diskout.case', 'size': 23345},
+          ],
+          'dirs': [] },
+        { 'label': 'a',
+           'path': ['Root','Cosmo', 'a'],
+           'files': [
+            {'label': 'x', 'size': 2345},
+            {'label': 'y', 'size': 23345},
+           ],
+           'dirs': []}
+          ];
+
+    $("#file-browser").fileBrowser({ data: fileTree }).bind('file-click directory-click directory-not-found', function(e){
+        alert(e.type + " click: " + e.name + " - path: " + e.path );
+    });
+    </script>
+  </body>
+</html>
