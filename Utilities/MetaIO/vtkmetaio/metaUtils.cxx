@@ -130,7 +130,7 @@ METAIO_STL::string MET_ReadForm(METAIO_STREAM::istream &_fp)
   METAIO_STL::streampos pos = _fp.tellg();
   METAIO_STL::vector<MET_FieldRecordType *> fields;
   MET_FieldRecordType* mF = new MET_FieldRecordType;
-  MET_InitReadField(mF, "Form", MET_STRING, false);
+  MET_InitReadField(mF, "FormTypeName", MET_STRING, false);
   mF->required = false;
   mF->terminateRead = true;
   fields.push_back(mF);

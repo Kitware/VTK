@@ -578,16 +578,6 @@ GetUserField(const char* _name)
   return NULL;
   }
 
-bool MetaForm::
-AddUserField(const char* _fieldName, MET_ValueEnumType _type, int _length,
-             bool _required, int _dependsOn)
-  {
-  MET_FieldRecordType* mFr = new MET_FieldRecordType;
-  MET_InitReadField(mFr,_fieldName, _type, _required,_dependsOn,_length);
-  m_UserDefinedReadFields.push_back(mFr);
-  return 1;
-  }
-
 //
 //
 //
@@ -616,6 +606,9 @@ Read(const char *_fileName)
     {
     strcpy(m_FileName, _fileName);
     }
+
+  METAIO_STREAM::cout << "Read FileName = _" << m_FileName << "_"
+                      << METAIO_STREAM::endl;
 
   METAIO_STREAM::ifstream * tmpReadStream = new METAIO_STREAM::ifstream;
 #ifdef __sgi
@@ -700,6 +693,9 @@ Write(const char *_fileName)
     FileName(_fileName);
     }
 
+  METAIO_STREAM::cout << "Write FileName = _" << m_FileName << "_"
+                      << METAIO_STREAM::endl;
+
   METAIO_STREAM::ofstream * tmpWriteStream = new METAIO_STREAM::ofstream;
 
 #ifdef __sgi
@@ -708,15 +704,16 @@ Write(const char *_fileName)
   METAIO_STREAM::ofstream tFile(m_FileName, METAIO_STREAM::ios::out);
   tFile.close();
   }
-  tmpWriteStream->open(_fileName, METAIO_STREAM::ios::out);
+  tmpWriteStream->open(m_FileName, METAIO_STREAM::ios::out);
 #else
-  tmpWriteStream->open(_fileName, METAIO_STREAM::ios::binary |
+  tmpWriteStream->open(m_FileName, METAIO_STREAM::ios::binary |
                                   METAIO_STREAM::ios::out);
 #endif
 
   if(!tmpWriteStream->rdbuf()->is_open())
     {
     delete tmpWriteStream;
+    METAIO_STREAM::cout << "Write failed." << METAIO_STREAM::endl;
     return false;
     }
 

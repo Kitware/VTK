@@ -35,19 +35,23 @@ int main(int argc, char **argv)
   tObj.Clear();
   tObj.ClearUserFields();
 
-  tObj.AddUserField("MyName", MET_STRING);
-  tObj.AddUserField("MyArray", MET_INT_ARRAY,3);
-  tObj.AddUserField("MyMatrix", MET_FLOAT_MATRIX,2);
+  tObj.AddUserField("MyName", MET_STRING, strlen("default"), "default");
+  tObj.AddUserField("MyArray", MET_INT_ARRAY, 3, myarray);
+  tObj.AddUserField("MyMatrix", MET_FLOAT_MATRIX, 2, myMatrix);
 
+  METAIO_STREAM::cout << "Read: " << METAIO_STREAM::endl;
   tObj.Read();
+  METAIO_STREAM::cout << "PrintInfo: " << METAIO_STREAM::endl;
   tObj.PrintInfo();
 
+  METAIO_STREAM::cout << "Check fields: " << METAIO_STREAM::endl;
   char* name = static_cast<char*>(tObj.GetUserField("MyName"));
-  if(strcmp(name,"Julien"))
+  if(!strcmp(name,"Julien"))
   {
     METAIO_STREAM::cout << "MyName: FAIL" << METAIO_STREAM::endl;
     return 0;
   }
+  METAIO_STREAM::cout << "MyName: " << name << METAIO_STREAM::endl;
 
   int* array = static_cast<int*>(tObj.GetUserField("MyArray"));
 
@@ -59,6 +63,7 @@ int main(int argc, char **argv)
       return 0;
     }
   }
+  METAIO_STREAM::cout << "MyArray: PASS" << METAIO_STREAM::endl;
 
   float* matrix = static_cast<float*>(tObj.GetUserField("MyMatrix"));
   for(i=0; i<4; i++)
@@ -68,6 +73,7 @@ int main(int argc, char **argv)
       METAIO_STREAM::cout << "MyMatrix: FAIL" << METAIO_STREAM::endl;
     }
   }
+  METAIO_STREAM::cout << "MyMatrix: PASS" << METAIO_STREAM::endl;
 
   METAIO_STREAM::cout << "PASSED!" << METAIO_STREAM::endl;
 
