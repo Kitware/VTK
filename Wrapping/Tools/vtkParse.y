@@ -1593,7 +1593,7 @@ class_head_name:
   | class_name
 
 class_name:
-    identifier
+    simple_id
   | template_id
 
 member_specification:
@@ -2335,6 +2335,8 @@ unqualified_id:
     simple_id
   | template_id
   | decltype_specifier
+  | tilde_sig class_name { $<str>$ = vtkstrcat("~", $<str>2); }
+  | tilde_sig decltype_specifier { $<str>$ = vtkstrcat("~", $<str>2); }
 
 qualified_id:
     nested_name_specifier unqualified_id
@@ -2361,6 +2363,9 @@ nested_name_specifier:
     template_id scope_operator_sig
     { $<str>$ = vtkstrcat4($<str>1, "template ", $<str>4, $<str>5); }
 
+tilde_sig:
+    '~' { postSig("~"); }
+
 identifier_sig:
     identifier { postSig($<str>1); }
 
@@ -2374,26 +2379,14 @@ template_id:
       chopSig(); if (getSig()[getSigLength()-1] == '>') { postSig(" "); }
       postSig(">"); $<str>$ = copySig(); clearTypeId();
     }
-  | '~' identifier '<'
-    { markSig(); postSig("~"); postSig($<str>2); postSig("<"); }
-    angle_bracket_contents right_angle_bracket
-    {
-      chopSig(); if (getSig()[getSigLength()-1] == '>') { postSig(" "); }
-      postSig(">"); $<str>$ = copySig(); clearTypeId();
-    }
 
 decltype_specifier:
     DECLTYPE { markSig(); postSig("decltype"); } parentheses_sig
     { chopSig(); $<str>$ = copySig(); clearTypeId(); }
-  | '~' DECLTYPE { markSig(); postSig("~decltype"); } parentheses_sig
-    { chopSig(); $<str>$ = copySig(); clearTypeId(); }
 
 
 /*
- * simple_id evaluates to string and sigs itself, note that '~' is
- * considered part of the ID because this simplifies the handling of
- * destructor names, and since the parser doesn't do any math, there
- * is no conflict with the '~' operator.
+ * simple_id evaluates to string and sigs itself.
  */
 
 simple_id:
@@ -2404,16 +2397,9 @@ simple_id:
   | OSTREAM { postSig($<str>1); }
   | StdString { postSig($<str>1); }
   | UnicodeString { postSig($<str>1); }
-  | '~' VTK_ID { $<str>$ = vtkstrcat("~",$<str>2); postSig($<str>$); }
-  | '~' QT_ID { $<str>$ = vtkstrcat("~",$<str>2); postSig($<str>$); }
-  | '~' ID { $<str>$ = vtkstrcat("~",$<str>2); postSig($<str>$); }
-  | '~' ISTREAM { $<str>$ = vtkstrcat("~",$<str>2); postSig($<str>$); }
-  | '~' OSTREAM { $<str>$ = vtkstrcat("~",$<str>2); postSig($<str>$); }
-  | '~' StdString { $<str>$ = vtkstrcat("~",$<str>2); postSig($<str>$); }
-  | '~' UnicodeString { $<str>$ = vtkstrcat("~",$<str>2); postSig($<str>$); }
-  | NULLPTR_T { $<str>$ = $<str>1; postSig($<str>$); }
-  | SIZE_T { $<str>$ = $<str>1; postSig($<str>$); }
-  | SSIZE_T { $<str>$ = $<str>1; postSig($<str>$); }
+  | NULLPTR_T { postSig($<str>1); }
+  | SIZE_T { postSig($<str>1); }
+  | SSIZE_T { postSig($<str>1); }
   | TypeInt8 { $<str>$ = "vtkTypeInt8"; postSig($<str>$); }
   | TypeUInt8 { $<str>$ = "vtkTypeUInt8"; postSig($<str>$); }
   | TypeInt16 { $<str>$ = "vtkTypeInt16"; postSig($<str>$); }
