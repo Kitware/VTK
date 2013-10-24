@@ -505,4 +505,16 @@
     }
     module.ViewportFactory[FACTORY_KEY] = FACTORY;
 
+    // ----------------------------------------------------------------------
+    // Local module registration
+    // ----------------------------------------------------------------------
+    try {
+      // Tests for presence of jQuery, then registers this module
+      if ($ !== undefined) {
+        module.registerModule('vtkweb-viewport-image');
+      }
+    } catch(err) {
+      console.error('jQuery is missing: ' + err.message);
+    }
+
 }(window, jQuery));

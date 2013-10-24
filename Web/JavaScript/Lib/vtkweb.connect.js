@@ -4,6 +4,8 @@
  * This module allow the Web client to connect to a remote vtkWeb session.
  * The session must already exist and waiting for connections.
  *
+ * This module registers itself as: 'vtkweb-connect'
+ *
  * @class vtkWeb.connect
  *
  * {@img vtkWeb/vtkWeb-simple.png
@@ -180,4 +182,19 @@
     module.getConnections = function () {
         return getConnections();
     };
+
+    // ----------------------------------------------------------------------
+    // Local module registration
+    // ----------------------------------------------------------------------
+    try {
+      // Tests for presence of autobahn, then registers this module
+      if (GLOBAL.ab !== undefined) {
+        module.registerModule('vtkweb-connect');
+      } else {
+        console.error('Module failed to register, autobahn is missing');
+      }
+    } catch(err) {
+      console.error('Caught exception while registering module: ' + err.message);
+    }
+
 }(window, jQuery));
