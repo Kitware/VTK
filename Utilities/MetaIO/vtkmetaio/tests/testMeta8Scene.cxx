@@ -4,7 +4,7 @@
 #include <metaGroup.h>
 #include <metaEllipse.h>
 
-int main(int argc, char **argv)
+int main(int, char * [])
 {
 
   METAIO_STREAM::cout << "Creating test scene ..." << METAIO_STREAM::endl;

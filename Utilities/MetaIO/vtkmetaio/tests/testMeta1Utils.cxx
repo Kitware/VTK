@@ -5,7 +5,7 @@
 
 #include <metaUtils.h>
 
-int main(int argc, char **argv)
+int main(int, char * [])
   {
 
   if(MET_SystemByteOrderMSB())

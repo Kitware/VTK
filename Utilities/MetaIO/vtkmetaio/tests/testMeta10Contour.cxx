@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <metaContour.h>
 
-int main(int , char * [])
+int main(int, char * [])
 {
   METAIO_STREAM::cout << "Creating test file ..." << METAIO_STREAM::endl;
   MetaContour Contour(3);
