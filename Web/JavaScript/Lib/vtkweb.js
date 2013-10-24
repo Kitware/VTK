@@ -32,6 +32,10 @@
         return parameters;
     }
 
+    isSecured = function() {
+        return location.protocol === 'https';
+    }
+
 
     // ----------------------------------------------------------------------
     // Init vtkWeb module if needed
@@ -48,5 +52,10 @@
     module.version = VERSION;
     module.isMobile = isMobile;
     module.extractURLParameters = extractURLParameters;
+    module.properties = {
+        'sessionManagerURL': location.protocol + "//" + location.hostname + ":" + location.port + "/paraview",
+        'sessionURL': (isSecured() ? "wss" : "ws") + "://" + location.hostname + ":" + location.port + "/ws"
+    };
+    module.NoOp = function() {};
 
 }(window, jQuery));
