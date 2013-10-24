@@ -155,8 +155,8 @@ int TestTanglegramItem(int argc, char* argv[])
   trans->SetInteractive(true);
   trans->AddItem(tanglegram.GetPointer());
   // center the item within the render window
-  trans->Translate(10, 75);
-  trans->Scale(1.375, 1.375);
+  trans->Translate(20, 75);
+  trans->Scale(1.25, 1.25);
   actor->GetScene()->AddItem(trans.GetPointer());
 
   vtkNew<vtkRenderer> renderer;

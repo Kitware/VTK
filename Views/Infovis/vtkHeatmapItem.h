@@ -33,6 +33,7 @@
 #include <set>                     // For blank row support
 #include <vector>                  // For row mapping
 
+class vtkBitArray;
 class vtkLookupTable;
 class vtkStringArray;
 class vtkTable;
@@ -99,6 +100,16 @@ public:
   // Used by vtkTreeHeatmapItem to represent missing data.
   void MarkRowAsBlank(std::string rowName);
 
+  // Description:
+  // Paints the table as a heatmap.
+  virtual bool Paint(vtkContext2D *painter);
+
+  // Description:
+  // Get the width of the largest row or column label drawn by this
+  // heatmap.
+  vtkGetMacro(RowLabelWidth, float);
+  vtkGetMacro(ColumnLabelWidth, float);
+
   //BTX
 
   // Description:
@@ -147,10 +158,6 @@ protected:
   void InitializeLookupTables();
 
   // Description:
-  // Paints the table as a heatmap.
-  virtual bool Paint(vtkContext2D *painter);
-
-  // Description:
   // Helper function.  Find the prominent, distinct values in the specified
   // column of strings and add it to our "master list" of categorical values.
   // This list is then used to generate a vtkLookupTable for all categorical
@@ -186,6 +193,16 @@ protected:
   // visible scene.  Returns false otherwise.
   bool LineIsVisible(double x0, double y0, double x1, double y1);
 
+  // Description:
+  // Compute the extent of the heatmap.  This does not include
+  // the text labels.
+  void ComputeBounds();
+
+  // Description:
+  // Compute the width of our longest row label and the width of our
+  // longest column label.  These values are used by GetBounds().
+  void ComputeLabelWidth(vtkContext2D *painter);
+
   vtkSmartPointer<vtkTable> Table;
 
 private:
@@ -202,6 +219,7 @@ private:
 
   std::map< vtkIdType, std::pair< double, double > > ColumnRanges;
   std::vector< vtkIdType > SceneRowToTableRowMap;
+  std::vector< vtkIdType > SceneColumnToTableColumnMap;
   std::set<std::string> BlankRows;
 
   double MinX;
@@ -210,6 +228,11 @@ private:
   double MaxY;
   double SceneBottomLeft[3];
   double SceneTopRight[3];
+  float RowLabelWidth;
+  float ColumnLabelWidth;
+
+  vtkBitArray* CollapsedRowsArray;
+  vtkBitArray* CollapsedColumnsArray;
 };
 
 #endif

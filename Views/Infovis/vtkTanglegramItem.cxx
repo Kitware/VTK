@@ -115,6 +115,10 @@ bool vtkTanglegramItem::Paint(vtkContext2D *painter)
   if (!this->TreeReordered)
     {
     this->ReorderTree();
+
+    // this will force Dendrogram2's PrunedTree to re-copy itself from the
+    // newly rearranged tree.
+    this->Dendrogram2->PrepareToPaint(painter);
     }
 
   if (!this->PositionSet)
@@ -140,14 +144,14 @@ bool vtkTanglegramItem::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 void vtkTanglegramItem::RefreshBuffers(vtkContext2D *painter)
 {
-  this->Dendrogram1->PrepareToPaint();
+  this->Dendrogram1->PrepareToPaint(painter);
   this->Spacing = this->Dendrogram1->GetLeafSpacing();
   this->Dendrogram1->GetBounds(this->Tree1Bounds);
-  this->LabelWidth1 = this->Dendrogram1->GetLabelWidth(painter);
+  this->LabelWidth1 = this->Dendrogram1->GetLabelWidth();
 
-  this->Dendrogram2->PrepareToPaint();
+  this->Dendrogram2->PrepareToPaint(painter);
   this->Dendrogram2->GetBounds(this->Tree2Bounds);
-  this->LabelWidth2 = this->Dendrogram2->GetLabelWidth(painter);
+  this->LabelWidth2 = this->Dendrogram2->GetLabelWidth();
 
   this->Tree1Names = vtkStringArray::SafeDownCast(
     this->Dendrogram1->GetPrunedTree()->GetVertexData()->
@@ -169,8 +173,6 @@ void vtkTanglegramItem::PositionTree2()
   double averageY =
     ((abs(this->Tree1Bounds[3] - this->Tree1Bounds[2]) +
       abs(this->Tree2Bounds[3] - this->Tree2Bounds[2])) / 2.0);
-  double extraSpacing =
-    this->Spacing + (this->LabelWidth1 + this->LabelWidth2) * 1.5;
 
   // the starting X position for tree #2
   double x, x1, x2;
@@ -187,7 +189,7 @@ void vtkTanglegramItem::PositionTree2()
 
       y = this->Tree1Bounds[3] +
         abs(this->Tree2Bounds[3] - this->Tree2Bounds[2]) +
-        averageY + extraSpacing;
+        averageY;
       break;
 
     case vtkDendrogramItem::UP_TO_DOWN:
@@ -197,14 +199,14 @@ void vtkTanglegramItem::PositionTree2()
 
       y = this->Tree1Bounds[2] -
         abs(this->Tree2Bounds[3] - this->Tree2Bounds[2]) -
-        averageY - extraSpacing;
+        averageY;
       break;
 
     case vtkDendrogramItem::RIGHT_TO_LEFT:
 
       x = this->Tree1Bounds[0] -
         abs(this->Tree2Bounds[1] - this->Tree2Bounds[0]) -
-        averageX - extraSpacing;
+        averageX;
 
       y1 = (this->Tree1Bounds[3] + this->Tree1Bounds[2]) / 2.0;
       y2 = (this->Tree2Bounds[3] + this->Tree2Bounds[2]) / 2.0;
@@ -216,7 +218,7 @@ void vtkTanglegramItem::PositionTree2()
 
       x = this->Tree1Bounds[1] +
         abs(this->Tree2Bounds[1] - this->Tree2Bounds[0]) +
-        averageX + extraSpacing;
+        averageX;
 
       y1 = (this->Tree1Bounds[3] + this->Tree1Bounds[2]) / 2.0;
       y2 = (this->Tree2Bounds[3] + this->Tree2Bounds[2]) / 2.0;
@@ -300,17 +302,15 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
             float stringBounds[4];
             painter->ComputeStringBounds(source, stringBounds);
             sourcePosition[1] =
-              this->Tree1Bounds[3] + this->Spacing + stringBounds[2];
+              this->Tree1Bounds[3] - (this->LabelWidth1 - stringBounds[2]);
 
-            sourceEdgePosition[1] =
-              this->Tree1Bounds[3] + this->Spacing + this->LabelWidth1;
+            sourceEdgePosition[1] = this->Tree1Bounds[3] + this->Spacing;
 
-            targetEdgePosition[1] =
-              this->Tree2Bounds[2] - this->Spacing - this->LabelWidth2;
+            targetEdgePosition[1] = this->Tree2Bounds[2] - this->Spacing;
 
             painter->ComputeStringBounds(target, stringBounds);
             targetPosition[1] =
-              this->Tree2Bounds[2] - this->Spacing - stringBounds[2];
+              this->Tree2Bounds[2] + (this->LabelWidth2 - stringBounds[2]);
             }
           break;
 
@@ -325,17 +325,15 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
             float stringBounds[4];
             painter->ComputeStringBounds(source, stringBounds);
             sourcePosition[1] =
-              this->Tree1Bounds[2] - this->Spacing - stringBounds[2];
+              this->Tree1Bounds[2] + (this->LabelWidth1 - stringBounds[2]);
 
-            sourceEdgePosition[1] =
-              this->Tree1Bounds[2] - this->Spacing - this->LabelWidth1;
+            sourceEdgePosition[1] = this->Tree1Bounds[2] - this->Spacing;
 
-            targetEdgePosition[1] =
-              this->Tree2Bounds[3] + this->Spacing + this->LabelWidth2;
+            targetEdgePosition[1] = this->Tree2Bounds[3] + this->Spacing;
 
             painter->ComputeStringBounds(target, stringBounds);
             targetPosition[1] =
-              this->Tree2Bounds[3] + this->Spacing + stringBounds[2];
+              this->Tree2Bounds[3] - (this->LabelWidth2 - stringBounds[2]);
             }
           break;
 
@@ -350,17 +348,15 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
             float stringBounds[4];
             painter->ComputeStringBounds(source, stringBounds);
             sourcePosition[0] =
-              this->Tree1Bounds[0] - this->Spacing - stringBounds[2];
+              this->Tree1Bounds[0] + (this->LabelWidth1 - stringBounds[2]);
 
-            sourceEdgePosition[0] =
-              this->Tree1Bounds[0] - this->Spacing - this->LabelWidth1;
+            sourceEdgePosition[0] = this->Tree1Bounds[0] - this->Spacing;
 
-            targetEdgePosition[0] =
-              this->Tree2Bounds[1] + this->Spacing + this->LabelWidth2;
+            targetEdgePosition[0] = this->Tree2Bounds[1] + this->Spacing;
 
             painter->ComputeStringBounds(target, stringBounds);
             targetPosition[0] =
-              this->Tree2Bounds[1] + this->Spacing + stringBounds[2];
+              this->Tree2Bounds[1] - (this->LabelWidth2 - stringBounds[2]);
             }
           break;
 
@@ -376,17 +372,15 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
             float stringBounds[4];
             painter->ComputeStringBounds(source, stringBounds);
             sourcePosition[0] =
-              this->Tree1Bounds[1] + this->Spacing + stringBounds[2];
+              this->Tree1Bounds[1] - (this->LabelWidth1 - stringBounds[2]);
 
-            sourceEdgePosition[0] =
-              this->Tree1Bounds[1] + this->Spacing + this->LabelWidth1;
+            sourceEdgePosition[0] = this->Tree1Bounds[1] + this->Spacing;
 
-            targetEdgePosition[0] =
-              this->Tree2Bounds[0] - this->Spacing - this->LabelWidth2;
+            targetEdgePosition[0] = this->Tree2Bounds[0] - this->Spacing;
 
             painter->ComputeStringBounds(target, stringBounds);
             targetPosition[0] =
-              this->Tree2Bounds[0] - this->Spacing - stringBounds[2];
+              this->Tree2Bounds[0] + (this->LabelWidth2 - stringBounds[2]);
             }
           break;
         }
@@ -475,14 +469,14 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
     case vtkDendrogramItem::RIGHT_TO_LEFT:
       if (this->Tree1Label != NULL)
         {
-        x = this->Tree1Bounds[0] - this->Spacing / 2.0;
+        x = this->Tree1Bounds[0] + this->LabelWidth1 + this->Spacing / 2.0;
         y = this->Tree1Bounds[3] + this->Spacing * 2.0;
         painter->DrawString(x, y, this->Tree1Label);
         }
 
       if (this->Tree2Label != NULL)
         {
-        x = this->Tree2Bounds[1] + this->Spacing / 2.0;
+        x = this->Tree2Bounds[1] - this->LabelWidth2 - this->Spacing / 2.0;
         y = this->Tree2Bounds[3] + this->Spacing * 2.0;
         painter->DrawString(x, y, this->Tree2Label);
         }
@@ -492,14 +486,14 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
     default:
       if (this->Tree1Label != NULL)
         {
-        x = this->Tree1Bounds[1] + this->Spacing / 2.0;
+        x = this->Tree1Bounds[1] - this->LabelWidth1 - this->Spacing / 2.0;
         y = this->Tree1Bounds[3] + this->Spacing * 2.0;
         painter->DrawString(x, y, this->Tree1Label);
         }
   painter->GetTextProp()->SetOrientation(0.0);
       if (this->Tree2Label != NULL)
         {
-        x = this->Tree2Bounds[0] - this->Spacing / 2.0;
+        x = this->Tree2Bounds[0] + this->LabelWidth1 + this->Spacing / 2.0;
         y = this->Tree2Bounds[3] + this->Spacing * 2.0;
         painter->DrawString(x, y, this->Tree2Label);
         }
@@ -540,10 +534,6 @@ void vtkTanglegramItem::ReorderTree()
       }
     this->ReorderTreeAtVertex(vertex, tree);
     }
-
-  // this will force Dendrogram2's PrunedTree to re-copy itself from the
-  // newly rearranged tree.
-  this->Dendrogram2->PrepareToPaint();
 
   this->TreeReordered = true;
 }
