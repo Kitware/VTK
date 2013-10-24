@@ -62,6 +62,7 @@
 #include "vtkObject.h"
 
 class vtkRenderer;
+class vtkRenderWindow;
 class vtkSelection;
 class vtkProp;
 class vtkTextureObject;
@@ -94,7 +95,7 @@ public:
 
   // Description:
   // Get/Set the renderer to perform the selection on.
-  void SetRenderer(vtkRenderer*);
+  virtual void SetRenderer(vtkRenderer*);
   vtkGetObjectMacro(Renderer, vtkRenderer);
 
   // Description:
@@ -176,8 +177,8 @@ public:
   // Description:
   // Called by the mapper (vtkHardwareSelectionPolyDataPainter) before and after
   // rendering each prop.
-  void BeginRenderProp();
-  void EndRenderProp();
+  virtual void BeginRenderProp();
+  virtual void EndRenderProp();
 
   // Description:
   // Get/Set the process id. If process id < 0 (default -1), then the
@@ -233,11 +234,16 @@ protected:
   vtkHardwareSelector();
   ~vtkHardwareSelector();
 
+  // Called internally before and after each prop is rendered
+  // for device specific configuration/preparation etc.
+  virtual void BeginRenderProp(vtkRenderWindow *) = 0;
+  virtual void EndRenderProp(vtkRenderWindow *) = 0;
+
   static void Convert(int id, float tcoord[3])
     {
-      tcoord[0] = static_cast<float>((id & 0xff)/255.0);
-      tcoord[1] = static_cast<float>(((id & 0xff00) >> 8)/255.0);
-      tcoord[2] = static_cast<float>(((id & 0xff0000) >> 16)/255.0);
+    tcoord[0] = static_cast<float>((id & 0xff)/255.0);
+    tcoord[1] = static_cast<float>(((id & 0xff00) >> 8)/255.0);
+    tcoord[2] = static_cast<float>(((id & 0xff0000) >> 16)/255.0);
     }
 
   int Convert(unsigned long offset, unsigned char* pb)
@@ -246,7 +252,6 @@ protected:
       {
       return 0;
       }
-
     offset = offset * 3;
     unsigned char rgb[3];
     rgb[0] = pb[offset];

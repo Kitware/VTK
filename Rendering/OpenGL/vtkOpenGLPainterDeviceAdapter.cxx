@@ -27,7 +27,10 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLGL2PSHelper.h"
+#include "vtkOpenGLRenderWindow.h"
+#ifndef VTK_LEGACY_REMOVE
 #include "vtkOpenGLExtensionManager.h"
+#endif
 #include "vtkRenderer.h"
 #include "vtkgl.h"
 
@@ -845,15 +848,29 @@ void vtkOpenGLPainterDeviceAdapter::DrawElements(int mode, vtkIdType count,
 }
 
 //-----------------------------------------------------------------------------
-
 int vtkOpenGLPainterDeviceAdapter::Compatible(vtkRenderer *renderer)
 {
-  return renderer->IsA("vtkOpenGLRenderer");
+  vtkOpenGLRenderWindow *context
+    = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  if (!context)
+    {
+    return false;
+    }
+#ifndef VTK_LEGACY_REMOVE
+  vtkOpenGLExtensionManager *manager = context->GetExtensionManager();
+  if (!manager->ExtensionSupported("GL_ARB_multisample"))
+    {
+    return false;
+    }
+#endif
+  return true;
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::MakeLighting(int mode)
 {
+  VTK_LEGACY_BODY(vtkOpenGLPainterDeviceAdapter::MakeLighting, "VTK 6.1");
   if (mode)
     {
     glEnable(GL_LIGHTING);
@@ -867,6 +884,7 @@ void vtkOpenGLPainterDeviceAdapter::MakeLighting(int mode)
 //-----------------------------------------------------------------------------
 int vtkOpenGLPainterDeviceAdapter::QueryLighting()
 {
+  VTK_LEGACY_BODY(vtkOpenGLPainterDeviceAdapter::QueryLighting, "VTK 6.1");
   if (glIsEnabled(GL_LIGHTING))
     {
     return 1;
@@ -880,6 +898,7 @@ int vtkOpenGLPainterDeviceAdapter::QueryLighting()
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::MakeMultisampling(int mode)
 {
+  VTK_LEGACY_BODY(vtkOpenGLPainterDeviceAdapter::MakeMultisampling, "VTK 6.1");
   if (mode)
     {
     glEnable(vtkgl::MULTISAMPLE);
@@ -893,6 +912,7 @@ void vtkOpenGLPainterDeviceAdapter::MakeMultisampling(int mode)
 //-----------------------------------------------------------------------------
 int vtkOpenGLPainterDeviceAdapter::QueryMultisampling()
 {
+  VTK_LEGACY_BODY(vtkOpenGLPainterDeviceAdapter::QueryMultisampling, "VTK 6.1");
   if (glIsEnabled(vtkgl::MULTISAMPLE))
     {
     return 1;
@@ -906,6 +926,7 @@ int vtkOpenGLPainterDeviceAdapter::QueryMultisampling()
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::MakeBlending(int mode)
 {
+  VTK_LEGACY_BODY(vtkOpenGLPainterDeviceAdapter::MakeBlending, "VTK 6.1");
   if (mode)
     {
     glEnable(GL_BLEND);
@@ -919,6 +940,7 @@ void vtkOpenGLPainterDeviceAdapter::MakeBlending(int mode)
 //-----------------------------------------------------------------------------
 int vtkOpenGLPainterDeviceAdapter::QueryBlending()
 {
+  VTK_LEGACY_BODY(vtkOpenGLPainterDeviceAdapter::QueryBlending, "VTK 6.1");
   if (glIsEnabled(GL_BLEND))
     {
     return 1;
@@ -928,6 +950,7 @@ int vtkOpenGLPainterDeviceAdapter::QueryBlending()
     return 0;
     }
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(bool mode)

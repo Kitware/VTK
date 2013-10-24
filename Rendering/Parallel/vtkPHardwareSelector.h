@@ -28,13 +28,13 @@
 #define __vtkPHardwareSelector_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
-#include "vtkHardwareSelector.h"
+#include "vtkOpenGLHardwareSelector.h"
 
-class VTKRENDERINGPARALLEL_EXPORT vtkPHardwareSelector : public vtkHardwareSelector
+class VTKRENDERINGPARALLEL_EXPORT vtkPHardwareSelector : public vtkOpenGLHardwareSelector
 {
 public:
   static vtkPHardwareSelector* New();
-  vtkTypeMacro(vtkPHardwareSelector, vtkHardwareSelector);
+  vtkTypeMacro(vtkPHardwareSelector, vtkOpenGLHardwareSelector);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -64,6 +64,7 @@ set(Module_SRCS
   vtkOpenGLExtensionManager.cxx
   vtkOpenGLGL2PSHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
+  vtkOpenGLHardwareSelector.cxx
   vtkOpenGLHardwareSupport.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
@@ -277,6 +278,7 @@ set(opengl_overrides
   CompositePainter
   DisplayListPainter
   Glyph3DMapper
+  HardwareSelector
   ImageSliceMapper
   Light
   LightingPainter

@@ -73,11 +73,10 @@ public:
   // Ids for props that were hit.
   std::set<int> HitProps;
   std::map<int, vtkSmartPointer<vtkProp> > Props;
+
+  // state that's managed through the renderer
   double OriginalBackground[3];
   bool OriginalGradient;
-  int OriginalMultisample;
-  int OriginalLighting;
-  int OriginalBlending;
 
   typedef std::map<PixelInformation, std::set<vtkIdType>,
     PixelInformationComparator> MapOfAttributeIds;
@@ -177,8 +176,12 @@ public:
 
 };
 
-vtkStandardNewMacro(vtkHardwareSelector);
+//----------------------------------------------------------------------------
+vtkAbstractObjectFactoryNewMacro(vtkHardwareSelector);
+
+//----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkHardwareSelector, Renderer, vtkRenderer);
+
 //----------------------------------------------------------------------------
 vtkHardwareSelector::vtkHardwareSelector()
 {
@@ -365,16 +368,11 @@ void vtkHardwareSelector::BeginRenderProp()
     {
     return;
     }
-  // Ensure that blending/lighting/multisampling is off.
-  vtkPainterDeviceAdapter* device = this->Renderer->GetRenderWindow()->
-    GetPainterDeviceAdapter();
-  this->Internals->OriginalMultisample = device->QueryMultisampling();
-  this->Internals->OriginalLighting = device->QueryLighting();
-  this->Internals->OriginalBlending = device->QueryBlending();
 
-  device->MakeMultisampling(0);
-  device->MakeLighting(0);
-  device->MakeBlending(0);
+  // device specific prep
+  vtkRenderWindow *renWin = this->Renderer->GetRenderWindow();
+  this->BeginRenderProp(renWin);
+
   //cout << "In BeginRenderProp" << endl;
   //glFinish();
   if (this->CurrentPass == ACTOR_PASS)
@@ -390,7 +388,7 @@ void vtkHardwareSelector::BeginRenderProp()
     // Since 0 is reserved for nothing selected, we offset propid by 1.
     propid = propid + 1;
     vtkHardwareSelector::Convert(propid, color);
-    this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
+    renWin->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
     }
   else if (this->CurrentPass == PROCESS_PASS)
@@ -398,13 +396,13 @@ void vtkHardwareSelector::BeginRenderProp()
     float color[3];
     // Since 0 is reserved for nothing selected, we offset propid by 1.
     vtkHardwareSelector::Convert(this->ProcessID + 1, color);
-    this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
+    renWin->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
     }
   else
     {
     float color[3] = {0, 0, 0};
-    this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
+    renWin->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
     }
 }
@@ -415,15 +413,15 @@ void vtkHardwareSelector::EndRenderProp()
   if (this->InPropRender)
     {
     this->InPropRender--;
+
     if (this->InPropRender != 0)
       {
       return;
       }
-    vtkPainterDeviceAdapter* device = this->Renderer->GetRenderWindow()->
-      GetPainterDeviceAdapter();
-    device->MakeMultisampling(this->Internals->OriginalMultisample);
-    device->MakeLighting(this->Internals->OriginalLighting);
-    device->MakeBlending(this->Internals->OriginalBlending);
+
+    // device specific cleanup
+    vtkRenderWindow *renWin = this->Renderer->GetRenderWindow();
+    this->EndRenderProp(renWin);
     }
 }
 
