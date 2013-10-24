@@ -220,6 +220,7 @@ FunctionInfo  *currentFunction = NULL;
 TemplateInfo  *currentTemplate = NULL;
 const char    *currentEnumName = NULL;
 const char    *currentEnumValue = NULL;
+unsigned int   currentEnumType = 0;
 parse_access_t access_level = VTK_ACCESS_PUBLIC;
 
 /* functions from vtkParse.l */
@@ -241,7 +242,8 @@ void add_parameter(FunctionInfo *func, unsigned int type,
 void add_template_parameter(unsigned int datatype,
                             unsigned int extra, const char *funcSig);
 void add_using(const char *name, int is_namespace);
-void start_enum(const char *enumname);
+void start_enum(const char *name, int is_scoped,
+                unsigned int type, const char *basename);
 void add_enum(const char *name, const char *value);
 void end_enum();
 unsigned int guess_constant_type(const char *value);
@@ -1511,6 +1513,7 @@ declaration:
     using_directive
   | using_declaration
   | forward_declaration
+  | opaque_enum_declaration
   | namespace_definition
   | namespace_alias_definition
   | linkage_specification
@@ -1636,6 +1639,7 @@ member_access_specifier:
 member_declaration:
     using_declaration
   | forward_declaration
+  | opaque_enum_declaration
   | friend_declaration
   | typedef_declaration
   | variable_declaration
@@ -1692,13 +1696,18 @@ access_specifier:
  * as long as all IDs are properly scoped.
  */
 
+opaque_enum_declaration:
+    enum_key id_expression opt_enum_base ';'
+  | enum_key ';'
+  | decl_specifier_seq enum_key id_expression opt_enum_base ';'
+
 enum_definition:
     enum_specifier opt_decl_specifier_seq opt_declarator_list ';'
   | decl_specifier_seq enum_specifier opt_decl_specifier_seq
     opt_declarator_list ';'
 
 enum_specifier:
-    enum_head '{' { pushType(); start_enum($<str>1); } enumerator_list '}'
+    enum_head '{' { pushType(); } enumerator_list '}'
     {
       popType();
       clearTypeId();
@@ -1711,8 +1720,28 @@ enum_specifier:
     }
 
 enum_head:
-    ENUM id_expression { $<str>$ = $<str>2; }
-  | ENUM { $<str>$ = NULL; }
+    enum_key id_expression opt_enum_base
+    {
+      start_enum($<str>2, $<integer>1, $<integer>3, getTypeId());
+      clearTypeId();
+      $<str>$ = $<str>2;
+    }
+  | enum_key opt_enum_base
+    {
+      start_enum(NULL, $<integer>1, $<integer>2, getTypeId());
+      clearTypeId();
+      $<str>$ = NULL;
+    }
+
+enum_key:
+    ENUM { $<integer>$ = 0; }
+  | ENUM CLASS { $<integer>$ = 1; }
+  | ENUM STRUCT { $<integer>$ = 1; }
+
+opt_enum_base:
+    { $<integer>$ = 0; }
+  | ':' { pushType(); } store_type_specifier
+    { $<integer>$ = getType(); popType(); }
 
 enumerator_list:
     enumerator_definition
@@ -2504,7 +2533,7 @@ type_specifier:
     trailing_type_specifier
   | class_key class_head_name
     { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
-  | ENUM id_expression
+  | enum_key id_expression
     { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
 
 trailing_type_specifier:
@@ -2548,7 +2577,7 @@ tparam_type_specifier:
     { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
   | UNION id_expression
     { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
-  | ENUM id_expression
+  | enum_key id_expression
     { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
 
 simple_type_specifier:
@@ -3401,12 +3430,20 @@ void add_using(const char *name, int is_namespace)
 }
 
 /* start a new enum */
-void start_enum(const char *name)
+void start_enum(const char *name, int is_scoped,
+                unsigned int type, const char *basename)
 {
   EnumInfo *item;
 
+  currentEnumType = (type ? type : VTK_PARSE_INT);
   currentEnumName = "int";
   currentEnumValue = NULL;
+
+  if (type == 0 && is_scoped)
+    {
+    type = VTK_PARSE_INT;
+    }
+
   if (name)
     {
     currentEnumName = name;
@@ -3414,6 +3451,7 @@ void start_enum(const char *name)
     vtkParse_InitEnum(item);
     item->Name = name;
     item->Access = access_level;
+
     if (currentClass)
       {
       vtkParse_AddEnumToClass(currentClass, item);
@@ -3422,12 +3460,30 @@ void start_enum(const char *name)
       {
       vtkParse_AddEnumToNamespace(currentNamespace, item);
       }
+
+    if (type)
+      {
+      vtkParse_AddStringToArray(&item->SuperClasses,
+                                &item->NumberOfSuperClasses,
+                                type_class(type, basename));
+      }
+
+    if (is_scoped)
+      {
+      pushClass();
+      currentClass = item;
+      }
     }
 }
 
 /* finish the enum */
 void end_enum()
 {
+  if (currentClass && currentClass->ItemType == VTK_ENUM_INFO)
+    {
+    popClass();
+    }
+
   currentEnumName = NULL;
   currentEnumValue = NULL;
 }
@@ -3474,7 +3530,7 @@ void add_enum(const char *name, const char *value)
     currentEnumValue = "0";
     }
 
-  add_constant(name, currentEnumValue, VTK_PARSE_INT, currentEnumName, 2);
+  add_constant(name, currentEnumValue, currentEnumType, currentEnumName, 2);
 }
 
 /* for a macro constant, guess the constant type, doesn't do any math */

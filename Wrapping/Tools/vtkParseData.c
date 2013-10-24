@@ -332,19 +332,14 @@ void vtkParse_FreeValue(ValueInfo *value_info)
 /* Initialize an Enum struct */
 void vtkParse_InitEnum(EnumInfo *item)
 {
+  vtkParse_InitClass(item);
   item->ItemType = VTK_ENUM_INFO;
-  item->Access = VTK_ACCESS_PUBLIC;
-  item->Name = NULL;
-  item->Comment = NULL;
 }
 
 /* Copy an Enum struct */
 void vtkParse_CopyEnum(EnumInfo *item, const EnumInfo *orig)
 {
-  item->ItemType = orig->ItemType;
-  item->Access = orig->Access;
-  item->Name = orig->Name;
-  item->Comment = orig->Comment;
+  vtkParse_CopyClass(item, orig);
 }
 
 /* Free an Enum struct */

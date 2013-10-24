@@ -157,18 +157,6 @@ struct _FunctionInfo
 };
 
 /**
- * EnumInfo is for enums
- * Constants are at the same level as the Enum, not inside it.
- */
-typedef struct _EnumInfo
-{
-  parse_item_t   ItemType;
-  parse_access_t Access;
-  const char    *Name;
-  const char    *Comment;
-} EnumInfo;
-
-/**
  * UsingInfo is for using directives
  */
 typedef struct _UsingInfo
@@ -203,7 +191,7 @@ typedef struct _ClassInfo
   int            NumberOfVariables;
   ValueInfo    **Variables;
   int            NumberOfEnums;
-  EnumInfo     **Enums;
+  struct _ClassInfo **Enums;
   int            NumberOfTypedefs;
   ValueInfo    **Typedefs;
   int            NumberOfUsings;
@@ -214,6 +202,13 @@ typedef struct _ClassInfo
   int            IsFinal;
   int            HasDelete;
 } ClassInfo;
+
+/**
+ * EnumInfo is for enums
+ * For scoped enums, the constants are in the enum itself, but for
+ * standard enums, the constants are at the same level as the enum.
+ */
+typedef struct _ClassInfo EnumInfo;
 
 /**
  * Namespace is for namespaces
