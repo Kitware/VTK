@@ -1372,6 +1372,8 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token OPERATOR
 %token TEMPLATE
 %token THROW
+%token TRY
+%token CATCH
 %token TYPENAME
 %token TYPEDEF
 %token NAMESPACE
@@ -1977,7 +1979,14 @@ function_trailer:
 
 function_body:
     '{' ignored_items '}'
+  | function_try_block
   | ';'
+
+function_try_block:
+    TRY opt_ctor_initializer '{' ignored_items '}' handler_seq
+
+handler_seq:
+  | handler_seq CATCH ignored_parentheses '{' ignored_items '}'
 
 function_sig:
     unqualified_id '('

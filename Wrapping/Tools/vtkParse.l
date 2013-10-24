@@ -199,6 +199,8 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "delete"        return(DELETE);
 "explicit"      return(EXPLICIT);
 "throw"         return(THROW);
+"try"           return(TRY);
+"catch"         return(CATCH);
 
 "static_cast"   return(STATIC_CAST);
 "dynamic_cast"  return(DYNAMIC_CAST);
