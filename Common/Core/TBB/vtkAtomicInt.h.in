@@ -1,0 +1,94 @@
+ /*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkAtomicInt.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkAtomicInt -
+// .SECTION Description
+
+#ifndef __vtkAtomicInt_h
+#define __vtkAtomicInt_h
+
+#include <tbb/atomic.h>
+
+template <typename T> class vtkAtomicInt
+{
+public:
+  vtkAtomicInt()
+    {
+      this->Atomic = 0;
+    }
+
+  vtkAtomicInt(const T val)
+    {
+      this->Atomic = val;
+    }
+
+  T operator++()
+  {
+    return ++this->Atomic;
+  }
+
+  T operator++(int)
+  {
+    return this->Atomic++;
+  }
+
+  T operator--()
+  {
+    return --this->Atomic;
+  }
+
+  T operator--(int)
+  {
+    return this->Atomic--;
+  }
+
+  T operator+=(T val)
+  {
+    return this->Atomic += val;
+  }
+
+  T operator-=(T val)
+  {
+    return this->Atomic -= val;
+  }
+
+  operator T() const
+  {
+    return this->Atomic;
+  }
+
+  T operator=(T val)
+  {
+    this->Atomic = val;
+    return val;
+  }
+
+  T load() const
+    {
+      return this->Atomic;
+    }
+
+  void store(T val)
+    {
+      this->Atomic = val;
+    }
+
+
+private:
+  tbb::atomic<T> Atomic;
+};
+
+
+#endif
+// VTK-HeaderTest-Exclude: vtkAtomicInt.h

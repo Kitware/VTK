@@ -19,12 +19,14 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkCell.h"
 #include "vtkCellArray.h"
+#include "vtkCellIterator.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
@@ -296,7 +298,7 @@ vtkHAVSVolumeMapper::~vtkHAVSVolumeMapper()
 void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
 {
   // Check for valid input
-  vtkUnstructuredGrid *ugrid = this->GetInput();
+  vtkUnstructuredGridBase *ugrid = this->GetInput();
   vtkIdType numCells = ugrid->GetNumberOfCells();
   if (!numCells)
     {
@@ -304,12 +306,16 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
     return;
     }
   bool tetrahedra = true;
-  for (vtkIdType i = 0; i < numCells; i++)
+  vtkSmartPointer<vtkCellIterator> cellIter =
+      vtkSmartPointer<vtkCellIterator>::Take(ugrid->NewCellIterator());
+  for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
     {
-    vtkCell *c = ugrid->GetCell(i);
-    if (c->GetNumberOfPoints() != 4 && c->GetNumberOfPoints() != 3)
+    if (cellIter->GetNumberOfPoints() != 4 &&
+        cellIter->GetNumberOfPoints() != 3)
       {
       tetrahedra = false;
+      break;
       }
     }
   if (!tetrahedra)
@@ -338,12 +344,12 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
   std::pair<std::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator, bool> result4;
 
   // Insert faces into an stl set
-  for (unsigned int cellId = 0; cellId < this->NumberOfCells; cellId++)
+  for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
     {
-    vtkCell *cell = ugrid->GetCell(cellId);
-    if (cell->GetNumberOfPoints() == 4)
+    if (cellIter->GetNumberOfPoints() == 4)
       {
-      vtkIdList *ids = cell->GetPointIds();
+      vtkIdList *ids = cellIter->GetPointIds();
 
       vtkHAVSFace f1(ids->GetId(0), ids->GetId(1), ids->GetId(2));
       vtkHAVSFace f2(ids->GetId(0), ids->GetId(1), ids->GetId(3));
@@ -360,9 +366,9 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
       if (!result3.second) { (*result3.first).Boundary = false; }
       if (!result4.second) { (*result4.first).Boundary = false; }
       }
-    else if (cell->GetNumberOfPoints() == 3)
+    else if (cellIter->GetNumberOfPoints() == 3)
       {
-      vtkIdList *ids = cell->GetPointIds();
+      vtkIdList *ids = cellIter->GetPointIds();
       vtkHAVSFace f1(ids->GetId(0), ids->GetId(1), ids->GetId(2));
       result1 = faceSetContainer->FaceSet.insert(f1);
       if (!result1.second) { (*result1.first).Boundary = false; }
@@ -470,7 +476,7 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
 // Get current scalars, normalize them, and create GPU structure
 void vtkHAVSVolumeMapper::InitializeScalars()
 {
-  vtkUnstructuredGrid *ugrid = this->GetInput();
+  vtkUnstructuredGridBase *ugrid = this->GetInput();
 
   if (this->Scalars) { delete [] this->Scalars; }
   this->Scalars = NULL;

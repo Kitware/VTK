@@ -32,14 +32,17 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 #include "vtkUnstructuredGridVolumeRayCastIterator.h"
+#include "vtkSmartPointer.h"
+#include "vtkCellIterator.h"
+#include "vtkDataArrayIteratorMacro.h"
 
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
 
-template <class T>
+template <class T, class ScalarIterator>
 vtkIdType TemplateCastRay(
-  const T *scalars,
+  const ScalarIterator scalars,
   vtkUnstructuredGridBunykRayCastFunction *self,
   int numComponents,
   int x, int y,
@@ -177,16 +180,15 @@ vtkIdType vtkUnstructuredGridBunykRayCastIterator::GetNextIntersections(
 
     switch (scalars->GetDataType())
       {
-      vtkTemplateMacro
-        (numIntersections = TemplateCastRay
-         ((const VTK_TT *)scalars->GetVoidPointer(0),
-          this->RayCastFunction, scalars->GetNumberOfComponents(),
+      vtkDataArrayIteratorMacro(scalars,
+        numIntersections = TemplateCastRay(
+          vtkDABegin, this->RayCastFunction, scalars->GetNumberOfComponents(),
           this->RayPosition[0], this->RayPosition[1], this->Bounds[1],
           this->IntersectionPtr, this->CurrentTriangle, this->CurrentTetra,
           (intersectedCells ? intersectedCells->GetPointer(0) : NULL),
           (intersectionLengths ? intersectionLengths->GetPointer(0) : NULL),
-          (VTK_TT *)nearIntersections->GetVoidPointer(0),
-          (VTK_TT *)farIntersections->GetVoidPointer(0),
+          static_cast<vtkDAValueType*>(nearIntersections->GetVoidPointer(0)),
+          static_cast<vtkDAValueType*>(farIntersections->GetVoidPointer(0)),
           this->MaxNumberOfIntersections));
       }
 
@@ -345,7 +347,7 @@ void vtkUnstructuredGridBunykRayCastFunction::Initialize( vtkRenderer *ren,
   this->Volume     = vol;
 
 
-  vtkUnstructuredGrid *input = this->Mapper->GetInput();
+  vtkUnstructuredGridBase *input = this->Mapper->GetInput();
   int numPoints = input->GetNumberOfPoints();
 
   // If the number of points have changed, recreate the structure
@@ -424,7 +426,7 @@ int vtkUnstructuredGridBunykRayCastFunction::CheckValidity( vtkRenderer *ren,
     }
 
   // The mapper must have input
-  vtkUnstructuredGrid *input = mapper->GetInput();
+  vtkUnstructuredGridBase *input = mapper->GetInput();
   if ( !input )
     {
     vtkErrorMacro("No input to mapper");
@@ -478,7 +480,7 @@ void vtkUnstructuredGridBunykRayCastFunction::TransformPoints()
   double *transformedPtr = this->Points;
   double in[4], out[4];
   in[3] = 1.0;
-  vtkUnstructuredGrid *input = this->Mapper->GetInput();
+  vtkUnstructuredGridBase *input = this->Mapper->GetInput();
   int numPoints = input->GetNumberOfPoints();
 
   // Loop through all the points and transform them
@@ -517,7 +519,7 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
     }
 
   // If the data has changed in some way then we need to update
-  vtkUnstructuredGrid *input = this->Mapper->GetInput();
+  vtkUnstructuredGridBase *input = this->Mapper->GetInput();
   if ( this->SavedTriangleListInput != input ||
        input->GetMTime() > this->SavedTriangleListMTime.GetMTime() )
     {
@@ -573,24 +575,26 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
     }
 
   // Loop through all the cells
-  for ( i = 0; i < numCells; i++ )
+  vtkSmartPointer<vtkCellIterator> cellIter =
+      vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+  for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
     {
     // We only handle tetra
-    if ( input->GetCellType(i) != VTK_TETRA )
+    if (cellIter->GetCellType() != VTK_TETRA)
       {
       nonTetraWarningNeeded = 1;
       continue;
       }
 
-    // Get the cell
-    vtkCell *cell = input->GetCell(i);
-
     // Get the four points
+    i = cellIter->GetCellId();
+    vtkIdList *ptIds = cellIter->GetPointIds();
     vtkIdType pts[4];
-    pts[0] = cell->GetPointId(0);
-    pts[1] = cell->GetPointId(1);
-    pts[2] = cell->GetPointId(2);
-    pts[3] = cell->GetPointId(3);
+    pts[0] = ptIds->GetId(0);
+    pts[1] = ptIds->GetId(1);
+    pts[2] = ptIds->GetId(2);
+    pts[3] = ptIds->GetId(3);
 
     // Build each of the four triangles
     int ii, jj;
@@ -903,9 +907,9 @@ int  vtkUnstructuredGridBunykRayCastFunction::IsTriangleFrontFacing( Triangle *t
   return (d>0);
 }
 
-template <class T>
+template <class T, class ScalarIterator>
 vtkIdType TemplateCastRay(
-  const T *scalars,
+  const ScalarIterator scalars,
   vtkUnstructuredGridBunykRayCastFunction *self,
   int numComponents,
   int x, int y,

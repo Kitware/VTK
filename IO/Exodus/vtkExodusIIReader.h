@@ -240,6 +240,15 @@ public:
   static const char* GetImplicitNodeIdArrayName() { return "ImplicitNodeId"; }
 
   // Description:
+  // Get the name of the array that stores the mapping from side set
+  // cells back to the global id of the elements they bound.
+  static const char* GetSideSetSourceElementIdArrayName() { return "SourceElementId"; }
+
+  // Description:
+  // Get the name of the array that stores the mapping from side set
+  // cells back to the canonical side of the elements they bound.
+  static const char* GetSideSetSourceElementSideArrayName() { return "SourceElementSide"; }
+  // Description:
   // Geometric locations can include displacements.  By default,
   // this is ON.  The nodal positions are 'displaced' by the
   // standard exodus displacment vector. If displacements
@@ -700,6 +709,21 @@ public:
   // Description:
   // Get the size of the cache in MiB.
   double GetCacheSize();
+
+  // Description:
+  // Should the reader output only points used by elements in the output mesh,
+  // or all the points. Outputting all the points is much faster since the
+  // point array can be read straight from disk and the mesh connectivity need
+  // not be altered. Squeezing the points down to the minimum set needed to
+  // produce the output mesh is useful for glyphing and other point-based
+  // operations. On large parallel datasets, loading all the points implies
+  // loading all the points on all processes and performing subsequent
+  // filtering on a much larger set.
+  //
+  // By default, SqueezePoints is true for backwards compatibility.
+  void SetSqueezePoints(bool sp);
+  bool GetSqueezePoints();
+
 
   // Description:
   // Re-reads time information from the exodus file and updates

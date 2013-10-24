@@ -45,6 +45,10 @@ public:
   vtkStructuredGrid* GetInput();
   //ETX
 
+  // Description:
+  // Get the default file extension for files written by this writer.
+  const char* GetDefaultFileExtension();
+
 protected:
   vtkXMLPStructuredGridWriter();
   ~vtkXMLPStructuredGridWriter();
@@ -53,7 +57,6 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   const char* GetDataSetName();
-  const char* GetDefaultFileExtension();
   vtkXMLStructuredDataWriter* CreateStructuredPieceWriter();
   void WritePData(vtkIndent indent);
 

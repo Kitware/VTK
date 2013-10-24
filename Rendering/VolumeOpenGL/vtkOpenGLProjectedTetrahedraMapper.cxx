@@ -27,15 +27,19 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellIterator.h"
 #include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
+#include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -279,7 +283,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
 {
   vtkOpenGLClearErrorMacro();
 
-  vtkUnstructuredGrid *input = this->GetInput();
+  vtkUnstructuredGridBase *input = this->GetInput();
   vtkVolumeProperty *property = volume->GetProperty();
 
   float last_max_cell_size = this->MaxCellSize;
@@ -291,18 +295,19 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
     this->GaveError = 0;
     float max_cell_size2 = 0;
 
-    vtkCellArray *cells = input->GetCells();
-    if (!cells)
+    if (input->GetNumberOfCells() == 0)
       {
       // Apparently, the input has no cells.  Just do nothing.
       return;
       }
 
-    vtkIdType npts, *pts, i;
-    cells->InitTraversal();
-    for (i = 0; cells->GetNextCell(npts, pts); i++)
+    vtkSmartPointer<vtkCellIterator> cellIter =
+        vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+    vtkIdType npts, *pts;
+    for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+         cellIter->GoToNextCell())
       {
-      int j;
+      npts = cellIter->GetNumberOfPoints();
       if (npts != 4)
         {
         if (!this->GaveError)
@@ -312,6 +317,8 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
           }
         continue;
         }
+      int j;
+      pts = cellIter->GetPointIds()->GetPointer(0);
       for (j = 0; j < 6; j++)
         {
         double p1[3], p2[3];
@@ -328,7 +335,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
     // modes we have to take a lot of square roots, and a table is much faster
     // than calling the sqrt function.
     this->SqrtTableBias = (SqrtTableSize-1)/max_cell_size2;
-    for (i = 0; i < SqrtTableSize; i++)
+    for (int i = 0; i < SqrtTableSize; i++)
       {
       this->SqrtTable[i] = (float)sqrt(i/this->SqrtTableBias);
       }
@@ -574,7 +581,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     vtkOpenGLCheckErrorMacro("failed at glPushAttrib");
     }
 
-  vtkUnstructuredGrid *input = this->GetInput();
+  vtkUnstructuredGridBase *input = this->GetInput();
 
   this->VisibilitySort->SetInput(input);
   this->VisibilitySort->SetDirectionToBackToFront();
@@ -676,10 +683,9 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   glLoadIdentity();
 
   unsigned char *colors = this->Colors->GetPointer(0);
-  vtkIdType *cells = input->GetCells()->GetPointer();
   vtkIdType totalnumcells = input->GetNumberOfCells();
   vtkIdType numcellsrendered = 0;
-
+  vtkNew<vtkIdList> cellPointIds;
   // Let's do it!
   for (vtkIdTypeArray *sorted_cell_ids = this->VisibilitySort->GetNextCells();
        sorted_cell_ids != NULL;
@@ -695,6 +701,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     for (vtkIdType i = 0; i < num_cell_ids; i++)
       {
       vtkIdType cell = cell_ids[i];
+      input->GetCellPoints(cell, cellPointIds.GetPointer());
       int j;
 
       // Get the data for the tetrahedra.
@@ -702,7 +709,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
         {
         // Assuming we only have tetrahedra, each entry in cells has 5
         // components.
-        const float *p = points + 3*cells[5*cell + j + 1];
+        const float *p = points + 3 * cellPointIds->GetId(j);
         tet_points[j*3 + 0] = p[0];
         tet_points[j*3 + 1] = p[1];
         tet_points[j*3 + 2] = p[2];
@@ -714,7 +721,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
           }
         else
           {
-          c = colors + 4*cells[5*cell + j + 1];
+          c = colors + 4 * cellPointIds->GetId(j);
           }
         tet_colors[j*3 + 0] = c[0];
         tet_colors[j*3 + 1] = c[1];

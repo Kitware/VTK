@@ -4,6 +4,15 @@ if(POLICY CMP0022)
   cmake_policy(SET CMP0022 NEW)
 endif()
 
+# Eliminate a warning when building in Windows that relates
+# to static linking of Qt executables to qtmain.lib.
+# This policy was introduced in CMake version 2.8.11.
+# CMake version 2.8.11.2 warns when the policy is not set
+# and uses OLD behavior.
+if(POLICY CMP0020)
+  cmake_policy(SET CMP0020 NEW)
+endif()
+
 project(VTK)
 
 # Objective-C++ compile flags, future CMake versions might make this obsolete
@@ -62,18 +71,6 @@ mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
 # Choose static or shared libraries.
 option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-
-# Choose which multi-threaded parallelism library to use
-set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING
-  "Which multi-threaded parallelism implementation to use. Options are Sequential, Kaapi, OpenMP or TBB"
-)
-set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential Kaapi OpenMP TBB)
-
-if( NOT ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi" OR
-         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB" OR
-         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP"))
-  set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential")
-endif()
 
 #-----------------------------------------------------------------------------
 include(vtkVersion)

@@ -29,12 +29,15 @@
 #include "vtkCellArray.h"
 #include "vtkCellCenterDepthSort.h"
 #include "vtkCellData.h"
+#include "vtkCellIterator.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkGarbageCollector.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -52,6 +55,7 @@
 #include "vtkgl.h"
 #include "vtkShaderProgram2.h"
 #include "vtkShader2.h"
+#include "vtkSmartPointer.h"
 #include "vtkUniformVariables.h"
 #include "vtkShader2Collection.h"
 #include "vtkOpenGLError.h"
@@ -198,7 +202,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::Render(vtkRenderer *renderer,
     {
     this->Initialize(renderer, volume);
     }
-  vtkUnstructuredGrid *input = this->GetInput();
+  vtkUnstructuredGridBase *input = this->GetInput();
   vtkVolumeProperty *property = volume->GetProperty();
 
   float last_max_cell_size = this->MaxCellSize;
@@ -209,17 +213,20 @@ void vtkOpenGLProjectedAAHexahedraMapper::Render(vtkRenderer *renderer,
     {
     this->GaveError = 0;
 
-    vtkCellArray *cells = input->GetCells();
-    if (!cells)
+    if (input->GetNumberOfCells() == 0)
       {
       // Apparently, the input has no cells.  Just do nothing.
       return;
       }
 
-    vtkIdType npts, *pts, i;
-    cells->InitTraversal();
-    for (i = 0; cells->GetNextCell(npts, pts); i++)
+    vtkIdType npts, *pts;
+    vtkSmartPointer<vtkCellIterator> cellIter =
+        vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+    for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+         cellIter->GoToNextCell())
       {
+      npts = cellIter->GetNumberOfPoints();
+      pts = cellIter->GetPointIds()->GetPointer(0);
       int j;
       if (npts != 8)
         {
@@ -593,7 +600,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
   vtkRenderer *renderer,
   vtkVolume *volume)
 {
-  vtkUnstructuredGrid *input = this->GetInput();
+  vtkUnstructuredGridBase *input = this->GetInput();
 
   this->VisibilitySort->SetInput(input);
   this->VisibilitySort->SetDirectionToBackToFront();
@@ -620,11 +627,11 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
 
   this->SetState(observer);
 
-  vtkIdType *cells = input->GetCells()->GetPointer();
   vtkIdType totalnumcells = input->GetNumberOfCells();
   vtkIdType numcellsrendered = 0;
 
   // Let's do it!
+  vtkNew<vtkIdList> cellPtIds;
   for (vtkIdTypeArray *sorted_cell_ids = this->VisibilitySort->GetNextCells();
        sorted_cell_ids != NULL;
        sorted_cell_ids = this->VisibilitySort->GetNextCells())
@@ -640,11 +647,12 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
     for (vtkIdType i = 0; i < num_cell_ids; i++)
       {
       vtkIdType cell = cell_ids[i];
+      input->GetCellPoints(cell, cellPtIds.GetPointer());
 
       float corner_scalars[8];
 
       // get the data for the current hexahedron
-      vtkIdType index = cells [ 9 * cell + 1 ];
+      vtkIdType index = cellPtIds->GetId(0);
       float* p = points + 3 * index;
 
       float vmin[3] = {p[0],p[1],p[2]},
@@ -653,7 +661,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
         int j;
         for(j = 1; j < 8; j++)
           {
-          index = cells [ 9 * cell + 1 + j ];
+          index = cellPtIds->GetId(j);
 
           p = points + 3 * index;
           if (p[0]<vmin[0])
@@ -693,7 +701,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
 
         for(j = 0; j < 8; j++)
           {
-          index = cells [ 9 * cell + 1 + j ];
+          index = cellPtIds->GetId(j);
 
           p = points + 3 * index;
           int corner = 0;

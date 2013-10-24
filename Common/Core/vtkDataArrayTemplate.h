@@ -154,6 +154,14 @@ public:
     }
 
   // Description:
+  // Get the range of array values for the 0th component in the
+  // native data type.
+  T *GetValueRange()
+    { return this->GetValueRange(0); }
+  void GetValueRange(T range[2])
+    { this->GetValueRange(range, 0); }
+
+  // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
   void Squeeze() { this->ResizeAndExtend (this->MaxId+1); }
 
@@ -241,12 +249,6 @@ public:
   // member directly.
   T* GetPointer(vtkIdType id) { return this->Array + id; }
   virtual void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
-
-  // Description:
-  // Deep copy of another double array.
-  void DeepCopy(vtkDataArray* da);
-  void DeepCopy(vtkAbstractArray* aa)
-    { this->Superclass::DeepCopy(aa); }
 
 //BTX
   enum DeleteMethod
@@ -360,6 +362,35 @@ private:
 # include "vtkDataArrayTemplateImplicit.txx"
 # define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T)
 #endif
+
+// This macro is used by the subclasses to create dummy
+// declarations for these functions such that the wrapper
+// can see them. The wrappers ignore vtkDataArrayTemplate.
+#define vtkCreateWrappedArrayInterface(T) \
+  int GetDataType(); \
+  void GetTupleValue(vtkIdType i, T* tuple); \
+  void SetTupleValue(vtkIdType i, const T* tuple); \
+  void InsertTupleValue(vtkIdType i, const T* tuple); \
+  vtkIdType InsertNextTupleValue(const T* tuple); \
+  T GetValue(vtkIdType id); \
+  void SetValue(vtkIdType id, T value); \
+  void SetNumberOfValues(vtkIdType number); \
+  void InsertValue(vtkIdType id, T f); \
+  vtkIdType InsertNextValue(T f); \
+  T *GetValueRange(int comp); \
+  T *GetValueRange(); \
+  T* WritePointer(vtkIdType id, vtkIdType number); \
+  T* GetPointer(vtkIdType id)/*; \
+
+  * These methods are not wrapped to avoid wrappers exposing these
+  * easy-to-get-wrong methods because passing in the wrong value for 'save' is
+  * guaranteed to cause a memory issue down the line. Either the wrappers
+  * didn't use malloc to allocate the memory or the memory isn't actually
+  * persisted because a temporary array is used that doesn't persist like this
+  * method expects.
+
+  void SetArray(T* array, vtkIdType size, int save); \
+  void SetArray(T* array, vtkIdType size, int save, int deleteMethod) */
 
 #endif // !defined(__vtkDataArrayTemplate_h)
 

@@ -8,9 +8,9 @@ if(NOT vtkWeb_WWW_DEST)
 endif()
 
 set(lib_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/Lib")
-set(lib_binary_dir "${vtkWeb_WWW_DEST}/lib/js")
+set(lib_binary_dir "${vtkWeb_WWW_DEST}/lib")
 set(ext_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/Ext")
-set(ext_binary_dir "${vtkWeb_WWW_DEST}/ext/js-core")
+set(ext_binary_dir "${vtkWeb_WWW_DEST}/ext")
 set(lib_js_min_files
   "${lib_source_dir}/vtkweb.js"
   "${lib_source_dir}/vtkweb.launcher.js"
@@ -19,10 +19,10 @@ set(lib_js_min_files
   "${lib_source_dir}/vtkweb.viewport.image.js"
   "${lib_source_dir}/vtkweb.viewport.webgl.js"
   )
-set(vtkweb_all_min_js "${lib_binary_dir}/vtkweb-all.min.js")
-set(vtkweb_all_js "${lib_binary_dir}/vtkweb-all.js")
-set(vtkweb_loader_js "${lib_binary_dir}/vtkweb-loader.js")
-set(vtkweb_loader_min_js "${lib_binary_dir}/vtkweb-loader-min.js")
+set(vtkweb_all_min_js "${lib_binary_dir}/core/vtkweb-all.min.js")
+set(vtkweb_all_js "${lib_binary_dir}/core/vtkweb-all.js")
+set(vtkweb_loader_js "${lib_binary_dir}/core/vtkweb-loader.js")
+set(vtkweb_loader_min_js "${lib_binary_dir}/core/vtkweb-loader-min.js")
 
 set(args)
 list(APPEND args "-b" "${CMAKE_CURRENT_SOURCE_DIR}/banner.js.in")
@@ -50,10 +50,18 @@ add_custom_command(OUTPUT ${vtkweb_loader_js} ${vtkweb_loader_min_js}
 include(vtkPythonPackages)
 copy_files_recursive(${ext_source_dir}
   DESTINATION ${ext_binary_dir}
-  REGEX "^(.*\\.js)$"
   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ext-js-copy-complete"
-  LABEL "Copying JavaScript files")
+  LABEL "Copying JavaScript files"
+)
+
+copy_files_recursive("${CMAKE_CURRENT_SOURCE_DIR}/Widgets"
+  DESTINATION ${lib_binary_dir}/widgets
+  OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/widget-copy-complete"
+  LABEL "Copying Widgets files"
+)
 
 add_custom_target(vtkWebJavaScript ALL DEPENDS
   ${vtkweb_all_min_js} ${vtkweb_loader_min_js}
-  "${CMAKE_CURRENT_BINARY_DIR}/ext-js-copy-complete")
+  "${CMAKE_CURRENT_BINARY_DIR}/ext-js-copy-complete"
+  "${CMAKE_CURRENT_BINARY_DIR}/widget-copy-complete"
+)

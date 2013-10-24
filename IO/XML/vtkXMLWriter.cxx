@@ -20,6 +20,7 @@
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayIteratorMacro.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
@@ -87,18 +88,22 @@ public:
 };
 
 //----------------------------------------------------------------------------
-template <class iterT>
+// Specialize for cases where IterType is ValueType* (common case for
+// vtkDataArrayTemplate subclasses). The last arg is to help less-robust
+// compilers decide between the various overloads by making a unfavorable
+// int-to-long conversion in the IterType overload, making this next
+// overload more favorable when the iterator is a ValueType*.
+template <class ValueType>
 int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
-  iterT* iter,
-  int wordType, size_t memWordSize, size_t outWordSize)
+  ValueType* iter, int wordType, size_t memWordSize, size_t outWordSize,
+  size_t numWords, int)
 {
   // generic implementation for fixed component length arrays.
-  size_t numWords = iter->GetNumberOfValues();
   size_t blockWords = writer->GetBlockSize()/outWordSize;
   size_t memBlockSize = blockWords*memWordSize;
 
   // Prepare a pointer and counter to move through the data.
-  unsigned char* ptr = reinterpret_cast<unsigned char*>(iter->GetTuple(0));
+  unsigned char* ptr = reinterpret_cast<unsigned char*>(iter);
   size_t wordsLeft = numWords;
 
   // Do the complete blocks.
@@ -129,10 +134,74 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 
 //----------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+// Specialize for cases where IterType is some other type with iterator
+// semantics (e.g. vtkMappedDataArray iterators):
+template <class ValueType, class IterType>
 int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
-  vtkArrayIteratorTemplate<vtkStdString>* iter,
-  int wordType, size_t vtkNotUsed(memWordSize), size_t outWordSize)
+  IterType iter, int wordType, size_t memWordSize, size_t outWordSize,
+  size_t numWords, long)
+{
+  // generic implementation for fixed component length arrays.
+  size_t blockWords = writer->GetBlockSize()/outWordSize;
+
+  // Prepare a buffer to move through the data.
+  std::vector<unsigned char> buffer(blockWords * memWordSize);
+  size_t wordsLeft = numWords;
+
+  if (buffer.empty())
+    {
+    // No data -- bail here, since the calls to buffer[0] below will segfault.
+    return 1;
+    }
+
+  // Do the complete blocks.
+  vtkXMLWriterHelper::SetProgressPartial(writer, 0);
+  int result = 1;
+  while(result && (wordsLeft >= blockWords))
+    {
+    // Copy data to contiguous buffer:
+    IterType blockEnd = iter + blockWords;
+    ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
+    while (iter != blockEnd)
+      {
+      *bufferIter++ = *iter++;
+      }
+
+    if(!vtkXMLWriterHelper::WriteBinaryDataBlock(writer, &buffer[0], blockWords,
+                                                 wordType))
+      {
+      result = 0;
+      }
+    wordsLeft -= blockWords;
+    vtkXMLWriterHelper::SetProgressPartial(writer,
+                                           float(numWords-wordsLeft)/numWords);
+    }
+
+  // Do the last partial block if any.
+  if(result && (wordsLeft > 0))
+    {
+    // Copy data to contiguous buffer:
+    IterType blockEnd = iter + wordsLeft;
+    ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
+    while (iter != blockEnd)
+      {
+      *bufferIter++ = *iter++;
+      }
+
+    if(!vtkXMLWriterHelper::WriteBinaryDataBlock(writer, &buffer[0], wordsLeft,
+                                                 wordType))
+      {
+      result = 0;
+      }
+    }
+  vtkXMLWriterHelper::SetProgressPartial(writer, 1);
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLWriterWriteBinaryDataBlocks(
+    vtkXMLWriter* writer, vtkArrayIteratorTemplate<vtkStdString>* iter,
+    int wordType, size_t outWordSize, size_t numStrings, int)
 {
   vtkXMLWriterHelper::SetProgressPartial(writer, 0);
   vtkStdString::value_type* allocated_buffer = 0;
@@ -156,7 +225,6 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
   // For string arrays, writing as binary requires that the strings are written
   // out into a contiguous block. This is essential since the compressor can
   // only compress complete blocks of data.
-  size_t numStrings = iter->GetNumberOfValues();
   size_t maxCharsPerBlock = writer->GetBlockSize() / outWordSize;
 
   size_t index = 0; // index in string array.
@@ -1120,19 +1188,37 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
       this->ByteSwapBuffer = new unsigned char[this->BlockSize];
       }
     }
-  int ret;;
-  vtkArrayIterator* iter = a->NewIterator();
+  int ret;
+
+  size_t numValues = static_cast<size_t>(a->GetNumberOfComponents() *
+                                         a->GetNumberOfTuples());
   switch (wordType)
     {
-    vtkArrayIteratorTemplateMacro(
-      ret = vtkXMLWriterWriteBinaryDataBlocks(this,
-        static_cast<VTK_TT*>(iter),
-        wordType, memWordSize, outWordSize));
-  default:
-    vtkWarningMacro("Cannot write binary data of type : " << wordType);
-    ret = 0;
+    vtkDataArrayIteratorMacro(a,
+      ret = vtkXMLWriterWriteBinaryDataBlocks<vtkDAValueType>(
+        this, vtkDABegin, wordType, memWordSize, outWordSize, numValues, 1)
+      );
+    case VTK_STRING:
+      {
+      vtkArrayIterator *aiter = a->NewIterator();
+      vtkArrayIteratorTemplate<vtkStdString> *iter =
+          vtkArrayIteratorTemplate<vtkStdString>::SafeDownCast(aiter);
+      if (iter)
+        {
+        ret = vtkXMLWriterWriteBinaryDataBlocks(
+              this, iter, wordType, outWordSize, numValues, 1);
+        }
+      else
+        {
+        vtkWarningMacro("Unsupported iterator for data type : " << wordType);
+        ret = 0;
+        }
+      aiter->Delete();
+      }
+    default:
+      vtkWarningMacro("Cannot write binary data of type : " << wordType);
+      ret = 0;
     }
-  iter->Delete();
 
   // Free the byte swap buffer if it was allocated.
   if(this->ByteSwapBuffer && !this->Int32IdTypeBuffer)

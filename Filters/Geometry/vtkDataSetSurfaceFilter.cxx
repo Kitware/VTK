@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellIterator.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
@@ -37,6 +38,7 @@
 #include "vtkTetra.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGridBase.h"
 #include "vtkUnstructuredGridGeometryFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
@@ -48,12 +50,11 @@
 
 #include <cassert>
 
-static int sizeofFastQuad(int numPts)
+static inline int sizeofFastQuad(int numPts)
 {
   // account for size of ptArray
   return static_cast<int>(sizeof(vtkFastGeomQuad)+(numPts-4)*sizeof(vtkIdType));
 }
-
 
 class vtkDataSetSurfaceFilter::vtkEdgeInterpolationMap
 {
@@ -1249,7 +1250,11 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                                                      vtkPolyData *output,
                                                      int updateGhostLevel)
 {
-  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(dataSetInput);
+  vtkUnstructuredGridBase *input =
+      vtkUnstructuredGridBase::SafeDownCast(dataSetInput);
+
+  vtkSmartPointer<vtkCellIterator> cellIter =
+      vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
 
   // Before we start doing anything interesting, check if we need handle
   // non-linear cells using sub-division.
@@ -1259,13 +1264,23 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     // Check to see if the data actually has nonlinear cells.  Handling
     // nonlinear cells adds unnecessary work if we only have linear cells.
     vtkIdType numCells = input->GetNumberOfCells();
-    unsigned char* cellTypes = input->GetCellTypesArray()->GetPointer(0);
-    for (vtkIdType i = 0; i < numCells; i++)
+    if (input->IsHomogeneous())
       {
-      if (!vtkCellTypes::IsLinear(cellTypes[i]))
+      if (numCells >= 1)
         {
-        handleSubdivision = true;
-        break;
+        handleSubdivision = !vtkCellTypes::IsLinear(input->GetCellType(0));
+        }
+      }
+    else
+      {
+      for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+           cellIter->GoToNextCell())
+        {
+        if (!vtkCellTypes::IsLinear(cellIter->GetCellType()))
+          {
+          handleSubdivision = true;
+          break;
+          }
         }
       }
     }
@@ -1289,6 +1304,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     tempInput = vtkSmartPointer<vtkUnstructuredGrid>::New();
     tempInput->ShallowCopy(uggf->GetOutputDataObject(0));
     input = tempInput;
+    cellIter = vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
     }
 
   vtkCellArray *newVerts;
@@ -1297,13 +1313,14 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   vtkPoints *newPts;
   vtkIdType *ids;
   int progressCount;
-  vtkIdType cellId;
   int i, j;
-  vtkIdType *cellPointer;
   int cellType;
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType numCells=input->GetNumberOfCells();
   vtkGenericCell *cell;
+  vtkIdList *pointIdList;
+  vtkIdType *pointIdArray;
+  vtkIdType *pointIdArrayEnd;
   int numFacePts, numCellPts;
   vtkIdType inPtId, outPtId;
   vtkPointData *inputPD = input->GetPointData();
@@ -1312,7 +1329,6 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkFastGeomQuad *q;
-  unsigned char* cellTypes = input->GetCellTypesArray()->GetPointer(0);
 
   // These are for the default case/
   vtkIdList *pts;
@@ -1376,26 +1392,26 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     }
 
   // First insert all points.  Points have to come first in poly data.
-  cellPointer = input->GetCells()->GetPointer();
-  for(cellId=0; cellId < numCells; cellId++)
+  for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
     {
-    // Direct access to cells.
-    cellType = cellTypes[cellId];
-    numCellPts = cellPointer[0];
-    ids = cellPointer+1;
-    // Move to the next cell.
-    cellPointer += (1 + *cellPointer);
+    cellType = cellIter->GetCellType();
 
     // A couple of common cases to see if things go faster.
     if (cellType == VTK_VERTEX || cellType == VTK_POLY_VERTEX)
       {
+      pointIdList = cellIter->GetPointIds();
+      numCellPts = pointIdList->GetNumberOfIds();
+      pointIdArray = pointIdList->GetPointer(0);
+      pointIdArrayEnd = pointIdArray + numCellPts;
       newVerts->InsertNextCell(numCellPts);
-      for (i = 0; i < numCellPts; ++i)
+      while (pointIdArray != pointIdArrayEnd)
         {
-        inPtId = ids[i];
-        outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD);
+        outPtId = this->GetOutputPointId(*(pointIdArray++), input, newPts,
+                                         outputPD);
         newVerts->InsertCellPoint(outPtId);
         }
+      vtkIdType cellId = cellIter->GetCellId();
       this->RecordOrigCellId(this->NumberOfNewCells, cellId);
       outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
       }
@@ -1409,10 +1425,10 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
 
   // First insert all points lines in output and 3D geometry in hash.
   // Save 2D geometry for second pass.
-  // initialize the pointer to the cells for fast traversal.
-  cellPointer = input->GetCells()->GetPointer();
-  for(cellId=0; cellId < numCells && !abort; cellId++)
+  for(cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal() && !abort;
+      cellIter->GoToNextCell())
     {
+    vtkIdType cellId = cellIter->GetCellId();
     //Progress and abort method support
     if ( progressCount >= progressInterval )
       {
@@ -1423,201 +1439,215 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       }
     progressCount++;
 
-    // Direct access to cells.
-    cellType = cellTypes[cellId];
-    numCellPts = cellPointer[0];
-    ids = cellPointer+1;
-    // Move to the next cell.
-    cellPointer += (1 + *cellPointer);
+    cellType = cellIter->GetCellType();
+    switch (cellType)
+      {
+      case VTK_VERTEX:
+      case VTK_POLY_VERTEX:
+        // Do nothing -- these were handled previously.
+        break;
 
-    // A couple of common cases to see if things go faster.
-    if (cellType == VTK_VERTEX || cellType == VTK_POLY_VERTEX)
-      {
-      // Do nothing.  This case was handled in the previous loop.
-      }
-    else if (cellType == VTK_LINE || cellType == VTK_POLY_LINE)
-      {
-      newLines->InsertNextCell(numCellPts);
-      for (i = 0; i < numCellPts; ++i)
-        {
-        inPtId = ids[i];
-        outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD);
-        newLines->InsertCellPoint(outPtId);
-        }
-      this->RecordOrigCellId(this->NumberOfNewCells, cellId);
-      outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
-      }
-    else if (cellType == VTK_HEXAHEDRON)
-      {
-      this->InsertQuadInHash(ids[0], ids[1], ids[5], ids[4], cellId);
-      this->InsertQuadInHash(ids[0], ids[3], ids[2], ids[1], cellId);
-      this->InsertQuadInHash(ids[0], ids[4], ids[7], ids[3], cellId);
-      this->InsertQuadInHash(ids[1], ids[2], ids[6], ids[5], cellId);
-      this->InsertQuadInHash(ids[2], ids[3], ids[7], ids[6], cellId);
-      this->InsertQuadInHash(ids[4], ids[5], ids[6], ids[7], cellId);
-      }
-    else if (cellType == VTK_VOXEL)
-      {
-      this->InsertQuadInHash(ids[0], ids[1], ids[5], ids[4], cellId);
-      this->InsertQuadInHash(ids[0], ids[2], ids[3], ids[1], cellId);
-      this->InsertQuadInHash(ids[0], ids[4], ids[6], ids[2], cellId);
-      this->InsertQuadInHash(ids[1], ids[3], ids[7], ids[5], cellId);
-      this->InsertQuadInHash(ids[2], ids[6], ids[7], ids[3], cellId);
-      this->InsertQuadInHash(ids[4], ids[5], ids[7], ids[6], cellId);
-      }
-    else if (cellType == VTK_TETRA)
-      {
-      this->InsertTriInHash(ids[0], ids[1], ids[3], cellId, 2);
-      this->InsertTriInHash(ids[0], ids[2], ids[1], cellId, 3);
-      this->InsertTriInHash(ids[0], ids[3], ids[2], cellId, 1);
-      this->InsertTriInHash(ids[1], ids[2], ids[3], cellId, 0);
-      }
-    else if (cellType == VTK_PENTAGONAL_PRISM)
-      {
-      // The quads :
-      this->InsertQuadInHash (ids[0], ids[1], ids[6], ids[5], cellId);
-      this->InsertQuadInHash (ids[1], ids[2], ids[7], ids[6], cellId);
-      this->InsertQuadInHash (ids[2], ids[3], ids[8], ids[7], cellId);
-      this->InsertQuadInHash (ids[3], ids[4], ids[9], ids[8], cellId);
-      this->InsertQuadInHash (ids[4], ids[0], ids[5], ids[9], cellId);
-      this->InsertPolygonInHash(ids, 5, cellId);
-      this->InsertPolygonInHash(&ids[5], 5, cellId);
-      }
-    else if (cellType == VTK_HEXAGONAL_PRISM)
-      {
-      // The quads :
-      this->InsertQuadInHash(ids[0], ids[1], ids[7], ids[6], cellId);
-      this->InsertQuadInHash(ids[1], ids[2], ids[8], ids[7], cellId);
-      this->InsertQuadInHash(ids[2], ids[3], ids[9], ids[8], cellId);
-      this->InsertQuadInHash(ids[3], ids[4], ids[10], ids[9], cellId);
-      this->InsertQuadInHash(ids[4], ids[5], ids[11], ids[10], cellId);
-      this->InsertQuadInHash(ids[5], ids[0], ids[6], ids[11], cellId);
-      this->InsertPolygonInHash (ids, 6, cellId);
-      this->InsertPolygonInHash (&ids[6], 6, cellId);
-      }
-    else if (cellType == VTK_PIXEL || cellType == VTK_QUAD ||
-             cellType == VTK_TRIANGLE || cellType == VTK_POLYGON ||
-             cellType == VTK_TRIANGLE_STRIP ||
-             cellType == VTK_QUADRATIC_TRIANGLE ||
-             cellType == VTK_BIQUADRATIC_TRIANGLE ||
-             cellType == VTK_QUADRATIC_QUAD ||
-             cellType == VTK_QUADRATIC_LINEAR_QUAD ||
-             cellType == VTK_BIQUADRATIC_QUAD )
-      { // save 2D cells for second pass
-      flag2D = 1;
-      }
-    else
-      // Default way of getting faces. Differentiates between linear
-      // and higher order cells.
-      {
-      input->GetCell(cellId,cell);
-      if ( cell->IsLinear() )
-        {
-        if (cell->GetCellDimension() == 3)
-          {
-          int numFaces = cell->GetNumberOfFaces();
-          for (j=0; j < numFaces; j++)
-            {
-            face = cell->GetFace(j);
-            numFacePts = face->GetNumberOfPoints();
-            if (numFacePts == 4)
-              {
-              this->InsertQuadInHash(face->PointIds->GetId(0),
-                                     face->PointIds->GetId(1),
-                                     face->PointIds->GetId(2),
-                                     face->PointIds->GetId(3), cellId);
-              }
-            else if (numFacePts == 3)
-              {
-              this->InsertTriInHash(face->PointIds->GetId(0),
-                                    face->PointIds->GetId(1),
-                                    face->PointIds->GetId(2), cellId);
-              }
-            else
-              {
-              this->InsertPolygonInHash(face->PointIds->GetPointer(0),
-                                        face->PointIds->GetNumberOfIds(),
-                                        cellId);
-              }
-            } // for all cell faces
-          } // if 3D
-        else
-          {
-          vtkDebugMacro("Missing cell type.");
-          }
-        } // a linear cell type
+      case VTK_LINE:
+      case VTK_POLY_LINE:
+        pointIdList = cellIter->GetPointIds();
+        numCellPts = pointIdList->GetNumberOfIds();
+        pointIdArray = pointIdList->GetPointer(0);
+        pointIdArrayEnd = pointIdArray + numCellPts;
 
-      else //process nonlinear cells via triangulation
+        newLines->InsertNextCell(numCellPts);
+        while (pointIdArray != pointIdArrayEnd)
+          {
+          outPtId = this->GetOutputPointId(*(pointIdArray++), input, newPts,
+                                           outputPD);
+          newLines->InsertCellPoint(outPtId);
+          }
+
+        this->RecordOrigCellId(this->NumberOfNewCells, cellId);
+        outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
+        break;
+
+      case VTK_HEXAHEDRON:
+        pointIdList = cellIter->GetPointIds();
+        ids = pointIdList->GetPointer(0);
+        this->InsertQuadInHash(ids[0], ids[1], ids[5], ids[4], cellId);
+        this->InsertQuadInHash(ids[0], ids[3], ids[2], ids[1], cellId);
+        this->InsertQuadInHash(ids[0], ids[4], ids[7], ids[3], cellId);
+        this->InsertQuadInHash(ids[1], ids[2], ids[6], ids[5], cellId);
+        this->InsertQuadInHash(ids[2], ids[3], ids[7], ids[6], cellId);
+        this->InsertQuadInHash(ids[4], ids[5], ids[6], ids[7], cellId);
+        break;
+
+      case VTK_VOXEL:
+        pointIdList = cellIter->GetPointIds();
+        ids = pointIdList->GetPointer(0);
+        this->InsertQuadInHash(ids[0], ids[1], ids[5], ids[4], cellId);
+        this->InsertQuadInHash(ids[0], ids[2], ids[3], ids[1], cellId);
+        this->InsertQuadInHash(ids[0], ids[4], ids[6], ids[2], cellId);
+        this->InsertQuadInHash(ids[1], ids[3], ids[7], ids[5], cellId);
+        this->InsertQuadInHash(ids[2], ids[6], ids[7], ids[3], cellId);
+        this->InsertQuadInHash(ids[4], ids[5], ids[7], ids[6], cellId);
+        break;
+
+      case VTK_TETRA:
+        pointIdList = cellIter->GetPointIds();
+        ids = pointIdList->GetPointer(0);
+        this->InsertTriInHash(ids[0], ids[1], ids[3], cellId, 2);
+        this->InsertTriInHash(ids[0], ids[2], ids[1], cellId, 3);
+        this->InsertTriInHash(ids[0], ids[3], ids[2], cellId, 1);
+        this->InsertTriInHash(ids[1], ids[2], ids[3], cellId, 0);
+        break;
+
+      case VTK_PENTAGONAL_PRISM:
+        pointIdList = cellIter->GetPointIds();
+        ids = pointIdList->GetPointer(0);
+        this->InsertQuadInHash (ids[0], ids[1], ids[6], ids[5], cellId);
+        this->InsertQuadInHash (ids[1], ids[2], ids[7], ids[6], cellId);
+        this->InsertQuadInHash (ids[2], ids[3], ids[8], ids[7], cellId);
+        this->InsertQuadInHash (ids[3], ids[4], ids[9], ids[8], cellId);
+        this->InsertQuadInHash (ids[4], ids[0], ids[5], ids[9], cellId);
+        this->InsertPolygonInHash(ids, 5, cellId);
+        this->InsertPolygonInHash(&ids[5], 5, cellId);
+        break;
+
+      case VTK_HEXAGONAL_PRISM:
+        pointIdList = cellIter->GetPointIds();
+        ids = pointIdList->GetPointer(0);
+        this->InsertQuadInHash(ids[0], ids[1], ids[7], ids[6], cellId);
+        this->InsertQuadInHash(ids[1], ids[2], ids[8], ids[7], cellId);
+        this->InsertQuadInHash(ids[2], ids[3], ids[9], ids[8], cellId);
+        this->InsertQuadInHash(ids[3], ids[4], ids[10], ids[9], cellId);
+        this->InsertQuadInHash(ids[4], ids[5], ids[11], ids[10], cellId);
+        this->InsertQuadInHash(ids[5], ids[0], ids[6], ids[11], cellId);
+        this->InsertPolygonInHash (ids, 6, cellId);
+        this->InsertPolygonInHash (&ids[6], 6, cellId);
+        break;
+
+      case VTK_PIXEL:
+      case VTK_QUAD:
+      case VTK_TRIANGLE:
+      case VTK_POLYGON:
+      case VTK_TRIANGLE_STRIP:
+      case VTK_QUADRATIC_TRIANGLE:
+      case VTK_BIQUADRATIC_TRIANGLE:
+      case VTK_QUADRATIC_QUAD:
+      case VTK_QUADRATIC_LINEAR_QUAD:
+      case VTK_BIQUADRATIC_QUAD:
+        // save 2D cells for third pass
+        flag2D = 1;
+        break;
+
+      default:
         {
-        if ( cell->GetCellDimension() == 1 )
+        // Default way of getting faces. Differentiates between linear
+        // and higher order cells.
+        cellIter->GetCell(cell);
+        if ( cell->IsLinear() )
           {
-          cell->Triangulate(0,pts,coords);
-          for (i=0; i < pts->GetNumberOfIds(); i+=2)
+          if (cell->GetCellDimension() == 3)
             {
-            newLines->InsertNextCell(2);
-            inPtId = pts->GetId(i);
-            this->RecordOrigCellId(this->NumberOfNewCells, cellId);
-            outputCD->CopyData( cd, cellId, this->NumberOfNewCells++ );
-            outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD);
-            newLines->InsertCellPoint(outPtId);
-            inPtId = pts->GetId(i+1);
-            outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD);
-            newLines->InsertCellPoint(outPtId);
-            }
-          }
-        else if ( cell->GetCellDimension() == 2 )
-          {
-          vtkWarningMacro(<< "2-D nonlinear cells must be processed with all other 2-D cells.");
-          }
-        else //3D nonlinear cell
-          {
-          vtkIdList *cellIds = vtkIdList::New();
-          int numFaces = cell->GetNumberOfFaces();
-          for (j=0; j < numFaces; j++)
-            {
-            face = cell->GetFace(j);
-            input->GetCellNeighbors(cellId, face->PointIds, cellIds);
-            if ( cellIds->GetNumberOfIds() <= 0)
+            int numFaces = cell->GetNumberOfFaces();
+            for (j=0; j < numFaces; j++)
               {
-              // FIXME: Face could not be consistent. vtkOrderedTriangulator is a better option
-              if (this->NonlinearSubdivisionLevel >= 1)
+              face = cell->GetFace(j);
+              numFacePts = face->GetNumberOfPoints();
+              if (numFacePts == 4)
                 {
-                // TODO: Handle NonlinearSubdivisionLevel > 1 correctly.
-                face->Triangulate(0,pts,coords);
-                for (i=0; i < pts->GetNumberOfIds(); i+=3)
-                  {
-                  this->InsertTriInHash(pts->GetId(i), pts->GetId(i+1),
-                                        pts->GetId(i+2), cellId);
-                  }
+                this->InsertQuadInHash(face->PointIds->GetId(0),
+                                       face->PointIds->GetId(1),
+                                       face->PointIds->GetId(2),
+                                       face->PointIds->GetId(3), cellId);
+                }
+              else if (numFacePts == 3)
+                {
+                this->InsertTriInHash(face->PointIds->GetId(0),
+                                      face->PointIds->GetId(1),
+                                      face->PointIds->GetId(2), cellId);
                 }
               else
                 {
-                switch (face->GetCellType())
+                this->InsertPolygonInHash(face->PointIds->GetPointer(0),
+                                          face->PointIds->GetNumberOfIds(),
+                                          cellId);
+                }
+              } // for all cell faces
+            } // if 3D
+          else
+            {
+            vtkDebugMacro("Missing cell type.");
+            }
+          } // a linear cell type
+        else //process nonlinear cells via triangulation
+          {
+          if ( cell->GetCellDimension() == 1 )
+            {
+            cell->Triangulate(0,pts,coords);
+            for (i=0; i < pts->GetNumberOfIds(); i+=2)
+              {
+              newLines->InsertNextCell(2);
+              inPtId = pts->GetId(i);
+              this->RecordOrigCellId(this->NumberOfNewCells, cellId);
+              outputCD->CopyData( cd, cellId, this->NumberOfNewCells++ );
+              outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD);
+              newLines->InsertCellPoint(outPtId);
+              inPtId = pts->GetId(i+1);
+              outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD);
+              newLines->InsertCellPoint(outPtId);
+              }
+            }
+          else if ( cell->GetCellDimension() == 2 )
+            {
+            vtkWarningMacro(<< "2-D nonlinear cells must be processed with all other 2-D cells.");
+            }
+          else //3D nonlinear cell
+            {
+            vtkIdList *cellIds = vtkIdList::New();
+            int numFaces = cell->GetNumberOfFaces();
+            for (j=0; j < numFaces; j++)
+              {
+              face = cell->GetFace(j);
+              input->GetCellNeighbors(cellId, face->PointIds, cellIds);
+              if ( cellIds->GetNumberOfIds() <= 0)
+                {
+                // FIXME: Face could not be consistent. vtkOrderedTriangulator is a better option
+                if (this->NonlinearSubdivisionLevel >= 1)
                   {
-                  case VTK_QUADRATIC_TRIANGLE:
-                    this->InsertTriInHash(face->PointIds->GetId(0),
-                                          face->PointIds->GetId(1),
-                                          face->PointIds->GetId(2), cellId);
-                    break;
-                  case VTK_QUADRATIC_QUAD:
-                  case VTK_BIQUADRATIC_QUAD:
-                  case VTK_QUADRATIC_LINEAR_QUAD:
-                    this->InsertQuadInHash(face->PointIds->GetId(0),
-                                           face->PointIds->GetId(1),
-                                           face->PointIds->GetId(2),
-                                           face->PointIds->GetId(3), cellId);
-                    break;
-                  default:
-                    vtkWarningMacro(<< "Encountered unknown nonlinear face.");
-                    break;
-                  } // switch cell type
-                } // subdivision level
-              } // cell has ids
-            } // for faces
-          cellIds->Delete();
-          } //3d cell
-        } //nonlinear cell
-      } // Cell type else.
+                  // TODO: Handle NonlinearSubdivisionLevel > 1 correctly.
+                  face->Triangulate(0,pts,coords);
+                  for (i=0; i < pts->GetNumberOfIds(); i+=3)
+                    {
+                    this->InsertTriInHash(pts->GetId(i), pts->GetId(i+1),
+                                          pts->GetId(i+2), cellId);
+                    }
+                  }
+                else
+                  {
+                  switch (face->GetCellType())
+                    {
+                    case VTK_QUADRATIC_TRIANGLE:
+                      this->InsertTriInHash(face->PointIds->GetId(0),
+                                            face->PointIds->GetId(1),
+                                            face->PointIds->GetId(2), cellId);
+                      break;
+                    case VTK_QUADRATIC_QUAD:
+                    case VTK_BIQUADRATIC_QUAD:
+                    case VTK_QUADRATIC_LINEAR_QUAD:
+                      this->InsertQuadInHash(face->PointIds->GetId(0),
+                                             face->PointIds->GetId(1),
+                                             face->PointIds->GetId(2),
+                                             face->PointIds->GetId(3), cellId);
+                      break;
+                    default:
+                      vtkWarningMacro(<< "Encountered unknown nonlinear face.");
+                      break;
+                    } // switch cell type
+                  } // subdivision level
+                } // cell has ids
+              } // for faces
+            cellIds->Delete();
+            } //3d cell
+          } //nonlinear cell
+        } // default switch case
+      } // switch(cellType)
     } // for all cells.
 
   // It would be possible to add these (except for polygons with 5+ sides)
@@ -1626,16 +1656,13 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
 
   // Now insert 2DCells.  Because of poly datas (cell data) ordering,
   // the 2D cells have to come after points and lines.
-  // initialize the pointer to the cells for fast traversal.
-  cellPointer = input->GetCells()->GetPointer();
-  for(cellId=0; cellId < numCells && !abort && flag2D; cellId++)
+  for(cellIter->InitTraversal();
+      !cellIter->IsDoneWithTraversal() && !abort && flag2D;
+      cellIter->GoToNextCell())
     {
-    // Direct acces to cells.
-    cellType = input->GetCellType(cellId);
-    numCellPts = cellPointer[0];
-    ids = cellPointer+1;
-    // Move to the next cell.
-    cellPointer += (1 + *cellPointer);
+    vtkIdType cellId = cellIter->GetCellId();
+    cellType = cellIter->GetCellType();
+    numCellPts = cellIter->GetNumberOfPoints();
 
     // If we have a quadratic face and our subdivision level is zero, just treat
     // it as a linear cell.  This should work so long as the first points of the
@@ -1659,6 +1686,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     // A couple of common cases to see if things go faster.
     if (cellType == VTK_PIXEL)
       { // Do we really want to insert the 2D cells into a hash?
+      pointIdList = cellIter->GetPointIds();
+      ids = pointIdList->GetPointer(0);
       pts->Reset();
       pts->InsertId(0, this->GetOutputPointId(ids[0], input, newPts, outputPD));
       pts->InsertId(1, this->GetOutputPointId(ids[1], input, newPts, outputPD));
@@ -1670,6 +1699,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       }
     else if (cellType == VTK_POLYGON || cellType == VTK_TRIANGLE || cellType == VTK_QUAD)
       {
+      pointIdList = cellIter->GetPointIds();
+      ids = pointIdList->GetPointer(0);
       pts->Reset();
       for ( i=0; i < numCellPts; i++)
         {
@@ -1683,6 +1714,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       }
     else if (cellType == VTK_TRIANGLE_STRIP)
       {
+      pointIdList = cellIter->GetPointIds();
+      ids = pointIdList->GetPointer(0);
       // Change strips to triangles so we do not have to worry about order.
       int toggle = 0;
       vtkIdType ptIds[3];
@@ -1710,7 +1743,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       {
       // Note: we should not be here if this->NonlinearSubdivisionLevel is less
       // than 1.  See the check above.
-      input->GetCell( cellId, cell );
+      cellIter->GetCell(cell);
       cell->Triangulate( 0, pts, coords );
       // Copy the level 1 subdivision points (which also exist in the input and
       // can therefore just be copied over.  Note that the output of Triangulate

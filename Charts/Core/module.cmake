@@ -2,11 +2,11 @@ vtk_module(vtkChartsCore
   GROUPS
     StandAlone
   DEPENDS
-    vtkCommonColor
     vtkRenderingContext2D
+  PRIVATE_DEPENDS
+    vtkCommonColor
     vtkInfovisCore # Needed for plot parallel coordinates vtkStringToCategory
   TEST_DEPENDS
-    vtkCommonColor
     vtkTestingCore
     vtkTestingRendering
     vtkViewsContext2D

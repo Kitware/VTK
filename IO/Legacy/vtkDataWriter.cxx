@@ -1920,9 +1920,9 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
 
       delete [] this->OutputString;
       this->OutputStringLength = static_cast<int>(ostr->str().size());
-      this->OutputString = new char[ostr->str().size()];
+      this->OutputString = new char[this->OutputStringLength+1];
       memcpy(this->OutputString, ostr->str().c_str(),
-        this->OutputStringLength);
+        this->OutputStringLength+1);
       }
     delete fp;
     }

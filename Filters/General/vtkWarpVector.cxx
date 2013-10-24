@@ -15,6 +15,7 @@
 #include "vtkWarpVector.h"
 
 #include "vtkCellData.h"
+#include "vtkDataArrayIteratorMacro.h"
 #include "vtkImageData.h"
 #include "vtkImageDataToPointSet.h"
 #include "vtkInformation.h"
@@ -86,51 +87,47 @@ int vtkWarpVector::RequestDataObject(vtkInformation *request,
 }
 
 //----------------------------------------------------------------------------
-template <class T1, class T2>
-void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts,
-                           T1 *outPts, T2 *inVec, vtkIdType max)
+template <class InputIterator, class OutputType, class VectorIterator>
+void vtkWarpVectorExecute2(vtkWarpVector *self,
+                           InputIterator begin, InputIterator end,
+                           OutputType *outPts, VectorIterator inVec)
 {
-  vtkIdType ptId;
-  T1 scaleFactor = (T1)self->GetScaleFactor();
+  OutputType scaleFactor = static_cast<OutputType>(self->GetScaleFactor());
 
   // Loop over all points, adjusting locations
-  for (ptId=0; ptId < max; ptId++)
+  vtkIdType counter = 0;
+  vtkIdType numPts = static_cast<vtkIdType>(end - begin);
+  while (begin != end)
     {
-    if (!(ptId & 0xfff))
+    if (!(counter & 0xfff))
       {
-      self->UpdateProgress ((double)ptId/(max+1));
+      self->UpdateProgress(static_cast<double>(counter) /
+                           static_cast<double>(numPts+1));
       if (self->GetAbortExecute())
         {
         break;
         }
       }
 
-    *outPts = *inPts + scaleFactor * (T1)(*inVec);
-    outPts++; inPts++; inVec++;
-    *outPts = *inPts + scaleFactor * (T1)(*inVec);
-    outPts++; inPts++; inVec++;
-    *outPts = *inPts + scaleFactor * (T1)(*inVec);
-    outPts++; inPts++; inVec++;
+    *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
+    *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
+    *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
     }
 }
 
 //----------------------------------------------------------------------------
-template <class T>
+template <class InputIterator, class OutputType>
 void vtkWarpVectorExecute(vtkWarpVector *self,
-                          T *inPts,
-                          T *outPts,
-                          vtkIdType max,
+                          InputIterator begin,
+                          InputIterator end,
+                          OutputType *outPts,
                           vtkDataArray *vectors)
 {
-  void *inVec;
-  inVec = vectors->GetVoidPointer(0);
-
   // call templated function
   switch (vectors->GetDataType())
     {
-    vtkTemplateMacro(
-      vtkWarpVectorExecute2(self, inPts, outPts,
-                            (VTK_TT *)(inVec), max));
+    vtkDataArrayIteratorMacro(vectors,
+      vtkWarpVectorExecute2(self, begin, end, outPts, vtkDABegin));
     default:
       break;
     }
@@ -206,15 +203,16 @@ int vtkWarpVector::RequestData(
   output->SetPoints(points);
   points->Delete();
 
-  void *inPtr = input->GetPoints()->GetVoidPointer(0);
+  // We know that this array has a standard memory layout, as we just created
+  // it above.
   void *outPtr = output->GetPoints()->GetVoidPointer(0);
 
   // call templated function
   switch (input->GetPoints()->GetDataType())
     {
-    vtkTemplateMacro(
-      vtkWarpVectorExecute( this, (VTK_TT *)(inPtr),
-                            (VTK_TT *)(outPtr), numPts, vectors) );
+    vtkDataArrayIteratorMacro(input->GetPoints()->GetData(),
+      vtkWarpVectorExecute(this, vtkDABegin, vtkDAEnd,
+                           static_cast<vtkDAValueType*>(outPtr), vectors));
     default:
       break;
     }

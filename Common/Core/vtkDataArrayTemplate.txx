@@ -18,11 +18,13 @@
 #include "vtkDataArrayTemplate.h"
 
 #include "vtkArrayIteratorTemplate.h"
+#include "vtkTypedDataArrayIterator.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationVector.h"
+#include "vtkMappedDataArray.h"
 #include "vtkSortDataArray.h"
 #include "vtkTypeTraits.h"
 #include "vtkVariantCast.h"
@@ -170,47 +172,6 @@ void vtkDataArrayTemplate<T>::Initialize()
   this->Array = 0;
   this->Size = 0;
   this->MaxId = -1;
-  this->DataChanged();
-}
-
-//----------------------------------------------------------------------------
-// Deep copy of another double array.
-template <class T>
-void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
-{
-  // Do nothing on a NULL input.
-  if(!fa)
-    {
-    return;
-    }
-
-  // Avoid self-copy.
-  if(this == fa)
-    {
-    return;
-    }
-
-  // If data type does not match, do copy with conversion.
-  if(fa->GetDataType() != this->GetDataType())
-    {
-    this->Superclass::DeepCopy(fa);
-    this->DataChanged();
-    return;
-    }
-
-  // Resize the internal array if needed
-  const vtkIdType numTuples = fa->GetNumberOfTuples();
-  this->SetNumberOfComponents(fa->GetNumberOfComponents());
-  this->SetNumberOfTuples(numTuples);
-
-  // Copy
-  if (numTuples > 0)
-    {
-    memcpy(this->Array, fa->GetVoidPointer(0),
-           static_cast<size_t>(this->Size)*sizeof(T));
-    }
-  this->vtkAbstractArray::DeepCopy( fa );
-  this->Squeeze();
   this->DataChanged();
 }
 
@@ -460,19 +421,29 @@ void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, vtkIdType j,
       }
     }
 
-  vtkIdType locIn = j * inNumComp;
-
-  T* outPtr = this->GetPointer(locOut);
-  T* inPtr = static_cast<T*>(source->GetVoidPointer(locIn));
-
-  size_t s=static_cast<size_t>(inNumComp);
-  memcpy(outPtr, inPtr, s*sizeof(T));
+  // Copy directly into our array if the source has supporting API:
+  if (vtkTypedDataArray<T> *typedSource =
+      vtkTypedDataArray<T>::FastDownCast(source))
+    {
+    typedSource->GetTupleValue(j, this->GetPointer(locOut));
+    }
+  else if (vtkDataArray *dataSource = vtkDataArray::FastDownCast(source))
+    {
+    // Otherwise use the double interface
+    this->SetTuple(i, dataSource->GetTuple(j));
+    }
+  else
+    {
+    vtkWarningMacro("Input array is not a vtkDataArray subclass!");
+    return;
+    }
 
   vtkIdType maxId = maxSize-1;
   if ( maxId > this->MaxId )
     {
     this->MaxId = maxId;
     }
+
   this->DataChanged();
 }
 
@@ -560,12 +531,13 @@ template<class T>
 vtkIdType vtkDataArrayTemplate<T>::InsertNextTuple(vtkIdType j,
   vtkAbstractArray* source)
 {
-   if (source->GetDataType() != this->GetDataType())
+  if (source->GetDataType() != this->GetDataType())
     {
     vtkWarningMacro("Input and output array data types do not match.");
     return -1;
     }
-  if (this->NumberOfComponents != source->GetNumberOfComponents())
+  vtkIdType numComps = source->GetNumberOfComponents();
+  if (this->NumberOfComponents != numComps)
     {
     vtkWarningMacro("Input and output component sizes do not match.");
     return -1;
@@ -574,22 +546,32 @@ vtkIdType vtkDataArrayTemplate<T>::InsertNextTuple(vtkIdType j,
   // If this and source are the same, we need to make sure that
   // the array grows before we get the pointer. Growing the array
   // after getting the pointer may make it invalid.
-  if (this == source)
+
+  // Copy directly into our array if the source has supporting API:
+  if (vtkTypedDataArray<T> *typedSource =
+      vtkTypedDataArray<T>::FastDownCast(source))
     {
-    if (this->ResizeAndExtend(this->Size+1)==0)
+    typedSource->GetTupleValue(j,
+                               this->WritePointer(this->MaxId + 1, numComps));
+    }
+  else if (vtkDataArray *dataSource = vtkDataArray::FastDownCast(source))
+    {
+    // Otherwise use the double interface
+    T *out = this->WritePointer(this->MaxId + 1, numComps);
+    double *in = dataSource->GetTuple(j);
+
+    while (numComps-- > 0)
       {
-      return -1;
+      *(out++) = static_cast<T>(*(in++));
       }
     }
-
-  T* data = static_cast<T*>(source->GetVoidPointer(0));
-  vtkIdType locj = j * source->GetNumberOfComponents();
-
-  for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
+  else
     {
-    this->InsertNextValue(data[locj + cur]);
+    vtkWarningMacro("Input array is not a vtkDataArray subclass!");
+    return -1;
     }
-  return (this->GetNumberOfTuples()-1);
+
+  return this->GetNumberOfTuples() - 1;
 }
 
 //----------------------------------------------------------------------------

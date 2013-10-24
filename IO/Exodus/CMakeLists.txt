@@ -1,4 +1,8 @@
 set(Module_SRCS
+  vtkCPExodusIIElementBlock.cxx
+  vtkCPExodusIIInSituReader.cxx
+  vtkCPExodusIINodalCoordinatesTemplate.txx
+  vtkCPExodusIIResultsArrayTemplate.txx
   vtkExodusIICache.cxx
   vtkExodusIIReader.cxx
   vtkExodusIIReaderParser.cxx
@@ -9,9 +13,20 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
+  vtkCPExodusIIElementBlock
+  vtkCPExodusIIInSituReader
+  vtkCPExodusIINodalCoordinatesTemplate
+  vtkCPExodusIIResultsArrayTemplate
   vtkExodusIIReaderParser
   vtkExodusIIReaderVariableCheck
+
   WRAP_EXCLUDE
   )
+
+set(vtkIOExodus_HDRS
+  vtkCPExodusIINodalCoordinatesTemplate.h
+  vtkCPExodusIIResultsArrayTemplate.h
+)
+
 
 vtk_module_library(vtkIOExodus ${Module_SRCS})

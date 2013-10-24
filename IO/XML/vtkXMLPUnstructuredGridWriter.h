@@ -30,7 +30,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPUnstructuredDataWriter.h"
 
-class vtkUnstructuredGrid;
+class vtkUnstructuredGridBase;
 
 class VTKIOXML_EXPORT vtkXMLPUnstructuredGridWriter : public vtkXMLPUnstructuredDataWriter
 {
@@ -42,7 +42,7 @@ public:
   //BTX
   // Description:
   // Get/Set the writer's input.
-  vtkUnstructuredGrid* GetInput();
+  vtkUnstructuredGridBase* GetInput();
   //ETX
 
   // Description:

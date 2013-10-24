@@ -88,8 +88,6 @@ public:
   int GetMaxCellSize() {return 8;}; //hexahedron is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                         vtkIdList *cellIds);
-  virtual void GetScalarRange(double range[2]);
-  double *GetScalarRange() {return this->Superclass::GetScalarRange();}
 
   // Description:
   // following methods are specific to structured grid
@@ -244,6 +242,11 @@ protected:
 
   void SetCellVisibility(vtkStructuredVisibilityConstraint *cellVisibility);
   vtkGetObjectMacro(CellVisibility, vtkStructuredVisibilityConstraint);
+
+  // Description:
+  // Compute the range of the scalars and cache it into ScalarRange
+  // only if the cache became invalid (ScalarRangeComputeTime).
+  virtual void ComputeScalarRange();
 
 private:
   // Description:

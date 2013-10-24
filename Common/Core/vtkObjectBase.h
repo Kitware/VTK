@@ -41,7 +41,7 @@
 #define __vtkObjectBase_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkAtomicInt32.h"
+#include "vtkAtomicInt.h"
 #include "vtkIndent.h"
 #include "vtkSystemIncludes.h"
 
@@ -145,7 +145,7 @@ public:
   // Return the current reference count of this object.
   int  GetReferenceCount()
   {
-    return this->ReferenceCount.Get();
+    return this->ReferenceCount;
   }
 
   // Description:
@@ -162,7 +162,7 @@ protected:
 
   virtual void CollectRevisions(ostream&) {} // Legacy; do not use!
 
-  vtkAtomicInt32 ReferenceCount;
+  vtkAtomicInt<vtkTypeInt32> ReferenceCount;
   vtkWeakPointerBase **WeakPointers;
 
   // Internal Register/UnRegister implementation that accounts for

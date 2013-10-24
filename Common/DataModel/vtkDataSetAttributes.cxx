@@ -24,11 +24,13 @@
 #include "vtkIntArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkLongArray.h"
+#include "vtkMappedDataArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkTypedDataArrayIterator.h"
 #include "vtkInformation.h"
 
 #include <vector>
@@ -306,7 +308,7 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
       {
       // Cannot interpolate idtype arrays
       if (ctype != INTERPOLATE ||
-          !pd->GetAbstractArray(i)->IsA("vtkIdTypeArray"))
+          pd->GetAbstractArray(i)->GetDataType() != VTK_ID_TYPE)
         {
         copyFlags[numArrays] = i;
         numArrays++;
@@ -343,7 +345,7 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
           {
           // Cannot interpolate idtype arrays
           if (ctype != INTERPOLATE ||
-              !pd->GetArray(index)->IsA("vtkIdTypeArray"))
+              pd->GetArray(index)->GetDataType() != VTK_ID_TYPE)
             {
             copyFlags[numArrays] = index;
             numArrays++;
@@ -435,8 +437,52 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
     }
 }
 
+//----------------------------------------------------------------------------
+// This is a version of vtkDataSetAttributesCopyValues adapted to work with
+// vtkTypedDataArrayIterators.
+template <class Scalar>
+void vtkTypedIteratorDataSetAttributesCopyValues(
+    vtkTypedDataArrayIterator<Scalar> destIter, const int *outExt,
+    vtkIdType outIncs[3],
+    vtkTypedDataArrayIterator<Scalar> srcIter, const int *inExt,
+    vtkIdType inIncs[3])
+{
+  // For vtkMappedDataArray subclasses.
+  vtkTypedDataArrayIterator<Scalar> inZIter;
+  vtkTypedDataArrayIterator<Scalar> outZIter;
+  vtkTypedDataArrayIterator<Scalar> inYIter;
+  vtkTypedDataArrayIterator<Scalar> outYIter;
+  vtkTypedDataArrayIterator<Scalar> inIter;
+  vtkTypedDataArrayIterator<Scalar> outIter;
 
+  // Set the starting iterators.
+  inZIter = srcIter +
+      (outExt[0] - inExt[0]) * inIncs[0] +
+      (outExt[2] - inExt[2]) * inIncs[1] +
+      (outExt[4] - inExt[4]) * inIncs[2];
+  outZIter = destIter;
 
+  int rowLength = outIncs[1];
+
+  for (int zIdx = outExt[4]; zIdx <= outExt[5]; ++zIdx)
+    {
+    inIter = inZIter;
+    outIter = outZIter;
+    for (int yIdx = outExt[2]; yIdx <= outExt[3]; ++yIdx)
+      {
+      for (int c = 0; c < rowLength; ++c)
+        {
+        *outIter = *inIter;
+        ++outIter;
+        ++inIter;
+        }
+      inIter += inIncs[1];
+      outIter += outIncs[1];
+      }
+    inZIter += inIncs[2];
+    outZIter += outIncs[2];
+    }
+}
 
 //----------------------------------------------------------------------------
 template <class iterT>
@@ -455,9 +501,10 @@ void vtkDataSetAttributesCopyValues(
   // Get the starting input pointer.
   inZPtr = static_cast<unsigned char*>(srcIter->GetArray()->GetVoidPointer(0));
   // Shift to the start of the subextent.
-  inZPtr += (outExt[0]-inExt[0])*inIncs[0] * data_type_size +
-    (outExt[2] - inExt[2])*inIncs[1] * data_type_size +
-    (outExt[4] - inExt[4])*inIncs[2] * data_type_size;
+  inZPtr +=
+      (outExt[0] - inExt[0]) * inIncs[0] * data_type_size +
+      (outExt[2] - inExt[2]) * inIncs[1] * data_type_size +
+      (outExt[4] - inExt[4]) * inIncs[2] * data_type_size;
 
   // Get output pointer.
   outZPtr =
@@ -555,18 +602,44 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
       outArray->SetNumberOfTuples(zIdx);
       }
 
-    vtkArrayIterator* srcIter = inArray->NewIterator();
-    vtkArrayIterator* destIter = outArray->NewIterator();
-
-    switch (inArray->GetDataType())
+    if (inArray->HasStandardMemoryLayout() &&
+        outArray->HasStandardMemoryLayout())
       {
-      vtkArrayIteratorTemplateMacro(
-        vtkDataSetAttributesCopyValues(
-          static_cast<VTK_TT*>(destIter), outExt, outIncs,
-          static_cast<VTK_TT*>(srcIter), inExt, inIncs));
+      vtkArrayIterator* srcIter = inArray->NewIterator();
+      vtkArrayIterator* destIter = outArray->NewIterator();
+
+      switch (inArray->GetDataType())
+        {
+        vtkArrayIteratorTemplateMacro(
+          vtkDataSetAttributesCopyValues(
+            static_cast<VTK_TT*>(destIter), outExt, outIncs,
+            static_cast<VTK_TT*>(srcIter), inExt, inIncs));
+        }
+      srcIter->Delete();
+      destIter->Delete();
       }
-    srcIter->Delete();
-    destIter->Delete();
+    else
+      {
+      switch (inArray->GetDataType())
+        {
+        vtkTemplateMacro(
+          vtkTypedDataArray<VTK_TT> *typedIn =
+            vtkTypedDataArray<VTK_TT>::FastDownCast(inArray);
+          vtkTypedDataArray<VTK_TT> *typedOut =
+            vtkTypedDataArray<VTK_TT>::FastDownCast(outArray);
+          if (typedIn == NULL || typedOut == NULL)
+            {
+            vtkGenericWarningMacro("Cannot copy to/from a mapped data array "
+                                   "from/into an array that does not derive "
+                                   "from vtkTypedDataArray.");
+            continue;
+            }
+          vtkTypedIteratorDataSetAttributesCopyValues(
+                vtkTypedDataArrayIterator<VTK_TT>(typedOut), outExt, outIncs,
+                vtkTypedDataArrayIterator<VTK_TT>(typedIn), inExt, inIncs)
+              ); // end vtkTemplateMacro
+        }
+      }
     }
 }
 

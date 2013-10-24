@@ -45,7 +45,7 @@ vtkTanglegramItem::vtkTanglegramItem()
   this->Dendrogram2->ExtendLeafNodesOn();
   this->AddItem(this->Dendrogram2);
 
-  this->Table = NULL;
+  this->Table = vtkSmartPointer<vtkTable>::New();
   this->Tree1Label = NULL;
   this->Tree2Label = NULL;
 
@@ -87,13 +87,21 @@ void vtkTanglegramItem::SetTree2(vtkTree *tree)
 }
 
 //-----------------------------------------------------------------------------
+vtkTable * vtkTanglegramItem::GetTable()
+{
+  return this->Table;
+}
+
+//-----------------------------------------------------------------------------
 void vtkTanglegramItem::SetTable(vtkTable *table)
 {
-  this->Table = table;
-  if (this->Table == NULL)
+  if (table == NULL)
     {
     return;
     }
+
+  this->Table = table;
+
   this->SourceNames = vtkStringArray::SafeDownCast(this->Table->GetColumn(0));
   this->GenerateLookupTable();
   this->TreeReordered = false;

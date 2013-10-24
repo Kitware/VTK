@@ -44,79 +44,25 @@ public:
   vtkTypeMacro(vtkIdTypeArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // This macro expands to the set of method declarations that
+  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // by the wrappers.
+#ifdef __WRAP__
+  vtkCreateWrappedArrayInterface(vtkIdType);
+#else
+
   // Description:
   // Get the data type.
   int GetDataType()
-    { return VTK_ID_TYPE; }
-
-  // Description:
-  // Copy the tuple value into a user-provided array.
-  void GetTupleValue(vtkIdType i, vtkIdType* tuple)
-    { this->RealSuperclass::GetTupleValue(i, tuple); }
-
-  // Description:
-  // Set the tuple value at the ith location in the array.
-  void SetTupleValue(vtkIdType i, const vtkIdType* tuple)
-    { this->RealSuperclass::SetTupleValue(i, tuple); }
-
-  // Description:
-  // Insert (memory allocation performed) the tuple into the ith location
-  // in the array.
-  void InsertTupleValue(vtkIdType i, const vtkIdType* tuple)
-    { this->RealSuperclass::InsertTupleValue(i, tuple); }
-
-  // Description:
-  // Insert (memory allocation performed) the tuple onto the end of the array.
-  vtkIdType InsertNextTupleValue(const vtkIdType* tuple)
-    { return this->RealSuperclass::InsertNextTupleValue(tuple); }
-
-  // Description:
-  // Get the data at a particular index.
-  vtkIdType GetValue(vtkIdType id)
-    { return this->RealSuperclass::GetValue(id); }
-
-  // Description:
-  // Set the data at a particular index. Does not do range checking. Make sure
-  // you use the method SetNumberOfValues() before inserting data.
-  void SetValue(vtkIdType id, vtkIdType value)
-    { this->RealSuperclass::SetValue(id, value); }
-
-  // Description:
-  // Specify the number of values for this object to hold. Does an
-  // allocation as well as setting the MaxId ivar. Used in conjunction with
-  // SetValue() method for fast insertion.
-  void SetNumberOfValues(vtkIdType number)
-    { this->RealSuperclass::SetNumberOfValues(number); }
-
-  // Description:
-  // Insert data at a specified position in the array.
-  void InsertValue(vtkIdType id, vtkIdType f)
-    { this->RealSuperclass::InsertValue(id, f); }
-
-  // Description:
-  // Insert data at the end of the array. Return its location in the array.
-  vtkIdType InsertNextValue(vtkIdType f)
-    { return this->RealSuperclass::InsertNextValue(f); }
-
-  // Description:
-  // Get the range of array values for the given component in the
-  // native data type.
-  vtkIdType *GetValueRange(int comp)
-    { return this->RealSuperclass::GetValueRange(comp); }
-//BTX
-  void GetValueRange(vtkIdType range[2], int comp)
-    { this->RealSuperclass::GetValueRange(range, comp); }
-//ETX
-
-  // Description:
-  // Get the range of array values for the 0th component in the
-  // native data type.
-  vtkIdType *GetValueRange()
-    { return this->RealSuperclass::GetValueRange(0); }
-//BTX
-  void GetValueRange(vtkIdType range[2])
-    { this->RealSuperclass::GetValueRange(range, 0); }
-//ETX
+    {
+      // This needs to overwritten from superclass because
+      // the templated superclass is not able to differentiate
+      // vtkIdType from a long long or an int since vtkIdType
+      // is simply a typedef. This means that
+      // vtkDataArrayTemplate<vtkIdType> != vtkIdTypeArray.
+      return VTK_ID_TYPE;
+    }
+#endif
 
   // Description:
   // Get the minimum data value in its native type.
@@ -125,31 +71,6 @@ public:
   // Description:
   // Get the maximum data value in its native type.
   static vtkIdType GetDataTypeValueMax() { return VTK_ID_MAX; }
-
-  // Description:
-  // Get the address of a particular data index. Make sure data is allocated
-  // for the number of items requested. Set MaxId according to the number of
-  // data values requested.
-  vtkIdType* WritePointer(vtkIdType id, vtkIdType number)
-    { return this->RealSuperclass::WritePointer(id, number); }
-
-  // Description:
-  // Get the address of a particular data index. Performs no checks
-  // to verify that the memory has been allocated etc.
-  vtkIdType* GetPointer(vtkIdType id)
-    { return this->RealSuperclass::GetPointer(id); }
-
-  // Description:
-  // This method lets the user specify data to be held by the array.  The
-  // array argument is a pointer to the data.  size is the size of
-  // the array supplied by the user.  Set save to 1 to keep the class
-  // from deleting the array when it cleans up or reallocates memory.
-  // The class uses the actual array provided; it does not copy the data
-  // from the supplied array.
-  void SetArray(vtkIdType* array, vtkIdType size, int save)
-    { this->RealSuperclass::SetArray(array, size, save); }
-  void SetArray(vtkIdType* array, vtkIdType size, int save, int deleteMethod)
-    { this->RealSuperclass::SetArray(array, size, save, deleteMethod); }
 
 protected:
   vtkIdTypeArray();

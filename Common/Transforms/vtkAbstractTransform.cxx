@@ -29,8 +29,8 @@ vtkAbstractTransform::vtkAbstractTransform()
   this->MyInverse = NULL;
   this->DependsOnInverse = 0;
   this->InUnRegister = 0;
-  this->UpdateMutex = vtkSimpleCriticalSection::New();
-  this->InverseMutex = vtkSimpleCriticalSection::New();
+  this->UpdateMutex = new vtkSimpleCriticalSection;
+  this->InverseMutex = new vtkSimpleCriticalSection;
 }
 
 //----------------------------------------------------------------------------
@@ -40,14 +40,8 @@ vtkAbstractTransform::~vtkAbstractTransform()
     {
     this->MyInverse->Delete();
     }
-  if (this->UpdateMutex)
-    {
-    this->UpdateMutex->Delete();
-    }
-  if (this->InverseMutex)
-    {
-    this->InverseMutex->Delete();
-    }
+  delete this->UpdateMutex;
+  delete this->InverseMutex;
 }
 
 //----------------------------------------------------------------------------
@@ -335,14 +329,14 @@ void vtkAbstractTransform::UnRegister(vtkObjectBase *o)
   if (this->InUnRegister)
     { // we don't want to go into infinite recursion...
     vtkDebugMacro(<<"UnRegister: circular reference eliminated");
-    this->ReferenceCount.Decrement();
+    --this->ReferenceCount;
     return;
     }
 
   // check to see if the only reason our reference count is not 1
   // is the circular reference from MyInverse
-  if (this->MyInverse && this->ReferenceCount.Get() == 2 &&
-      this->MyInverse->ReferenceCount.Get() == 1)
+  if (this->MyInverse && this->ReferenceCount == 2 &&
+      this->MyInverse->ReferenceCount == 1)
     { // break the cycle
     vtkDebugMacro(<<"UnRegister: eliminating circular reference");
     this->InUnRegister = 1;

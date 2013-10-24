@@ -134,7 +134,7 @@ static void vtkWrapPython_OverloadMethodDef(
 static void vtkWrapPython_OverloadMasterMethod(
   FILE *fp, const char *classname, int *overloadMap, int maxArgs,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
-  int numberOfOccurrences, int is_vtkobject, int all_legacy);
+  int is_vtkobject, int all_legacy);
 
 /* output the MethodDef table for this class */
 static void vtkWrapPython_ClassMethodDef(
@@ -676,6 +676,27 @@ static void vtkWrapPython_DeclareVariables(
       /* write an int array containing the dimensions */
       vtkWrap_DeclareVariableSize(fp, arg, "size", i);
       }
+    /* temps for unsized arrays (but char* is a string, so don't wrap it this way) */
+    else if (vtkWrap_IsPODPointer(arg) &&
+             !vtkWrap_IsChar(arg))
+      {
+      fprintf(fp,
+              "  const Py_ssize_t size%d = %d + %d < PyTuple_GET_SIZE(args)\n"
+              "      ? PySequence_Size(PyTuple_GET_ITEM(args, %d + %d))\n"
+              "      : (Py_ssize_t)-1;\n"
+              "  std::vector<%s> vec%d;\n"
+              "  if (size%d != (Py_ssize_t)-1)\n"
+              "    {\n"
+              "    vec%d.resize(size%d);\n"
+              "    temp%d = &vec%d.front();\n"
+              "    }\n",
+              i, i, !theFunc->IsStatic,
+              i, !theFunc->IsStatic,
+              vtkWrap_GetTypeName(arg), i,
+              i,
+              i, i,
+              i, i);
+      }
     }
 
   if (theFunc->ReturnValue)
@@ -849,6 +870,11 @@ static void vtkWrapPython_GetSingleArgument(
             i, arg->NumberOfDimensions, i);
     }
   else if (vtkWrap_IsArray(arg))
+    {
+    fprintf(fp, "%sGetArray(%stemp%d, size%d)",
+            prefix, argname, i, i);
+    }
+  else if (vtkWrap_IsPODPointer(arg))
     {
     fprintf(fp, "%sGetArray(%stemp%d, size%d)",
             prefix, argname, i, i);
@@ -2200,11 +2226,12 @@ static void vtkWrapPython_OverloadMethodDef(
 static void vtkWrapPython_OverloadMasterMethod(
   FILE *fp, const char *classname, int *overloadMap, int maxArgs,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
-  int numberOfOccurrences, int is_vtkobject, int all_legacy)
+  int is_vtkobject, int all_legacy)
 {
   FunctionInfo *currentFunction;
+  FunctionInfo *theOccurrence;
   int overlap = 0;
-  int occ;
+  int occ, occCounter;
   int i;
   int foundOne;
   int any_static = 0;
@@ -2259,24 +2286,45 @@ static void vtkWrapPython_OverloadMasterMethod(
           "  switch(nargs)\n"
           "    {\n");
 
-  for (occ = 1; occ <= numberOfOccurrences; occ++)
+  /* find all occurrences of this method */
+  occCounter = 0;
+  for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
     {
-    foundOne = 0;
-    for (i = 0; i <= maxArgs; i++)
+    theOccurrence = wrappedFunctions[occ];
+
+    /* is it the same name */
+    if (theOccurrence->Name &&
+        strcmp(currentFunction->Name, theOccurrence->Name) == 0)
       {
-      if (overloadMap[i] == occ)
+      occCounter++;
+
+      foundOne = 0;
+      for (i = 0; i <= maxArgs; i++)
+        {
+        if (overloadMap[i] == occCounter)
+          {
+          if (!foundOne && theOccurrence->IsLegacy && !all_legacy)
+            {
+            fprintf(fp,
+                 "#if !defined(VTK_LEGACY_REMOVE)\n");
+            }
+          fprintf(fp,
+                  "    case %d:\n",
+                  i);
+          foundOne = 1;
+          }
+        }
+      if (foundOne)
         {
         fprintf(fp,
-                "    case %d:\n",
-                i);
-        foundOne = 1;
+                "      return Py%s_%s_s%d(self, args);\n",
+                classname, currentFunction->Name, occCounter);
+        if (theOccurrence->IsLegacy && !all_legacy)
+          {
+          fprintf(fp,
+                "#endif\n");
+          }
         }
-      }
-    if (foundOne)
-      {
-      fprintf(fp,
-              "      return Py%s_%s_s%d(self, args);\n",
-              classname, currentFunction->Name, occ);
       }
     }
 
@@ -2508,7 +2556,7 @@ void vtkWrapPython_GenerateOneMethod(
     vtkWrapPython_OverloadMasterMethod(
       fp, classname, overloadMap, maxArgs,
       wrappedFunctions, numberOfWrappedFunctions,
-      fnum, numberOfOccurrences, is_vtkobject, all_legacy);
+      fnum, is_vtkobject, all_legacy);
     }
 
   /* set the legacy flag */
@@ -2798,7 +2846,10 @@ static int vtkWrapPython_IsValueWrappable(
   else if (vtkWrap_IsPointer(val))
     {
     if (vtkWrap_IsCharPointer(val) ||
-        vtkWrap_IsVoidPointer(val))
+        vtkWrap_IsVoidPointer(val) ||
+        (vtkWrap_IsPODPointer(val) &&
+         /* Boolean values aren't wrappable since vector<bool> is different. */
+         !vtkWrap_IsBool(val)))
       {
       return 1;
       }
@@ -4945,7 +4996,8 @@ int main(int argc, char *argv[])
   fprintf(fp,
           "#include \"vtkPythonArgs.h\"\n"
           "#include \"vtkPythonOverload.h\"\n"
-          "#include <vtksys/ios/sstream>\n");
+          "#include <vtksys/ios/sstream>\n"
+          "#include <vector>\n");
 
   /* vtkPythonCommand is needed to wrap vtkObject.h */
   if (strcmp("vtkObject", name) == 0)
