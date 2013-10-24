@@ -147,6 +147,12 @@
 
     // =======================================================================
 
+    function getRelativePath(parentPath, fileName) {
+        return '.' + pathToStr(getPath(parentPath, fileName).slice(1));
+    }
+
+    // =======================================================================
+
     function initializeListener(container, activePath) {
         $('.action', container).click(function(){
             var me = $(this), item = $('div', me), pathStr = me.closest('.vtk-directory').attr('path'), type = me.closest('ul').attr('type');
@@ -170,7 +176,8 @@
                     container.trigger({
                         type: 'directory-click',
                         path: pathStr,
-                        name: me.text()
+                        name: me.text(),
+                        relativePath: getRelativePath(pathStr, me.text())
                     });
                 } else {
                     if(container.data('session')) {
@@ -184,14 +191,16 @@
                     container.trigger({
                         type: 'directory-not-found',
                         path: pathStr,
-                        name: me.text()
+                        name: me.text(),
+                        relativePath: getRelativePath(pathStr, me.text())
                     });
                 }
             } else if(type === 'files') {
                 container.trigger({
                     type: 'file-click',
                     path: pathStr,
-                    name: me.text()
+                    name: me.text(),
+                    relativePath: getRelativePath(pathStr, me.text())
                 });
             }
         });
