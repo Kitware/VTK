@@ -218,6 +218,7 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "catch"         return(CATCH);
 "noexcept"      return(NOEXCEPT);
 "decltype"      return(DECLTYPE);
+"default"       return(DEFAULT);
 
 "static_cast"   return(STATIC_CAST);
 "dynamic_cast"  return(DYNAMIC_CAST);

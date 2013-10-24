@@ -1395,6 +1395,7 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token USING
 %token NEW
 %token DELETE
+%token DEFAULT
 %token STATIC_CAST
 %token DYNAMIC_CAST
 %token CONST_CAST
@@ -2019,9 +2020,14 @@ function_trailer:
     }
   | noexcept_sig parentheses_sig { chopSig(); }
   | noexcept_sig
+  | function_body_as_trailer
 
 noexcept_sig:
     NOEXCEPT { postSig(" noexcept"); }
+
+function_body_as_trailer:
+    '=' DELETE { currentFunction->IsDeleted = 1; }
+  | '=' DEFAULT
 
 opt_trailing_return_type:
   | trailing_return_type
@@ -3020,6 +3026,7 @@ keyword:
   | VIRTUAL { $<str>$ = "virtual"; }
   | EXPLICIT { $<str>$ = "explicit"; }
   | DECLTYPE { $<str>$ = "decltype"; }
+  | DEFAULT { $<str>$ = "default"; }
   | EXTERN { $<str>$ = "extern"; }
   | USING { $<str>$ = "using"; }
   | NAMESPACE { $<str>$ = "namespace"; }
