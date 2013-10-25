@@ -551,6 +551,13 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
     return;
     }
 
+  if (!drawColumnLabels)
+    {
+    this->ComputeLabelWidth(painter);
+    this->ColumnLabelWidth = 0.0;
+    return;
+    }
+
   // set up our text property to draw column labels appropriately for
   // the current orientation.
   switch (orientation)
