@@ -32,17 +32,71 @@ r"""
 
 """
 
-import os
-import re
-import time
-import datetime
-import base64
-import Image
-import itertools
-import imp
-import Queue
+import_warning_info = ""
+test_module_comm_queue = None
 
 import server
+
+import os, re, time, datetime, threading, imp, Queue
+
+# Image comparison imports
+try:
+    import Image
+    import base64
+    import itertools
+except:
+    import_warning_info += "\nUnable to load at least one modules necessary for image comparison"
+
+# Browser testing imports
+try :
+    import selenium
+except :
+    import_warning_info += "\nUnable to load at least one module necessary for browser tests"
+
+# HTTP imports
+try :
+    import requests
+except :
+    import_warning_info += "\nUnable to load at least one module necessary for HTTP tests"
+
+
+# =============================================================================
+# Checks whether test script supplied, if so, safely imports needed modules
+# =============================================================================
+def initialize(opts, reactor=None) :
+    """
+    This function should be called to initialize the testing module.  The first
+    important thing it does is to store the options for later, since the
+    startTestThread function will need them.  Then it checks the arguments that
+    were passed into the server to see if a test was actually requested, making
+    a note of this fact.  Then, if a test was required, this function then
+    checks if all the necessary testing modules were safely imported, printing
+    a warning if not.  If tests were requested and all modules were present,
+    then this function sets "test_module_do_testing" to True and sets up the
+    startTestThread function to be called after the reactor is running.
+    """
+
+    global import_warning_info
+
+    global testModuleOptions
+    testModuleOptions = opts
+
+    # Check if a test was actually requested
+    if (testModuleOptions.testScriptPath != "" and testModuleOptions.testScriptPath is not None) :
+        # Check if we ran into trouble with any of the testing imports
+        if import_warning_info != "" :
+            print "WARNING: Testing will cannot be enabled for the following reasons:"
+            print import_warning_info
+        else :
+            if reactor is not None :
+                # Add startTest callback to the reactor callback queue, so that
+                # the test thread get started after the reactor is running.  Of
+                # course this should only happen if everything is good for tests.
+                reactor.callWhenRunning(_start_test_thread)
+            else :
+                # Otherwise, our aim is to start the thread from another process
+                # so just call the start method.
+                _start_test_thread()
 
 
 # =============================================================================
@@ -75,59 +129,45 @@ def add_arguments(parser) :
 # =============================================================================
 # Initialize the test client
 # =============================================================================
-def initialize(opts) :
+def _start_test_thread() :
     """
     This function checks whether testing is required and if so, sets up a Queue
     for the purpose of communicating with the thread.  then it starts the
     after waiting 5 seconds for the server to have a chance to start up.
     """
 
-    global testModuleCommQueue
-    testModuleCommQueue = None
+    global test_module_comm_queue
+    test_module_comm_queue = Queue.Queue()
 
-    # The "server.start_webserver(...) call seems to block until the
-    # service's main loop has stopped.  So we'll check if any tests
-    # have been requested here, and set those up to run in another
-    # thread.
-    if (opts.testScriptPath != "" and opts.testScriptPath is not None) :
+    t = threading.Thread(target=interact_with_web_visualizer,
+                         args = [],
+                         kwargs = { 'serverOpts': testModuleOptions,
+                                    'commQueue': test_module_comm_queue,
+                                    'serverHandle': server,
+                                    'testScript': testModuleOptions.testScriptPath })
 
-        import threading
-        import Queue
-
-        testModuleCommQueue = Queue.Queue()
-
-        t = threading.Timer(5,
-                            interactWithWebVisualizer,
-                            [],
-                            { 'serverOpts': opts,
-                              'commQueue': testModuleCommQueue,
-                              'serverHandle': server,
-                              'testScript': opts.testScriptPath })
-
-        t.start()
-    else :
-        print "No connection thread spawned"
+    t.start()
 
 
 # =============================================================================
 # Test scripts call this function to indicate passage of their test
 # =============================================================================
-def testPass(testName) :
+def test_pass(testName) :
     """
     Test scripts should call this function to indicate that the test passed.  A
     note is recorded that the test succeeded, and is checked later on from the
     main thread so that CTest can be notified of this result.
     """
 
+    global test_module_comm_queue
     resultObj = { testName: 'pass' }
-    testModuleCommQueue.put(resultObj)
-    print 'Inside testPass()'
+    test_module_comm_queue.put(resultObj)
 
 
 # =============================================================================
 # Test scripts call this function to indicate failure of their test
 # =============================================================================
-def testFail(testName) :
+def test_fail(testName) :
     """
     Test scripts should call this function to indicate that the test failed.  A
     note is recorded that the test did not succeed, and this note is checked
@@ -141,15 +181,15 @@ def testFail(testName) :
     indicate to CTest that the test failed.
     """
 
+    global test_module_comm_queue
     resultObj = { testName: 'fail' }
-    testModuleCommQueue.put(resultObj)
-    print 'Inside testFail()'
+    test_module_comm_queue.put(resultObj)
 
 
 # =============================================================================
 # Concatenate any number of strings into a single path string.
 # =============================================================================
-def concatPaths(*pathElts) :
+def concat_paths(*pathElts) :
     """
     A very simple convenience function so that test scripts can build platform
     independent paths out of a list of elements, without having to import the
@@ -167,7 +207,7 @@ def concatPaths(*pathElts) :
 # believe there will be a lightweight vtk library for doing image comparisons
 # which will be wrapped from python, and then we'll use that.
 # =============================================================================
-def compareImages(file1, file2):
+def compare_images(file1, file2):
     """
     Compare two images, pixel by pixel, summing up the differences in every
     component and every pixel.  Return the magnitude of the difference between
@@ -206,7 +246,7 @@ def compareImages(file1, file2):
 # Given a css selector to use in finding the image element, get the element,
 # then base64 decode the "src" attribute and return it.
 # =============================================================================
-def getImageData(browser, cssSelector) :
+def get_image_data(browser, cssSelector) :
     """
     This function takes a selenium browser and a css selector string and uses
     them to find the target HTML image element.  The desired image element
@@ -237,10 +277,10 @@ def getImageData(browser, cssSelector) :
 # Given a decoded image and the full path to a file, write the image to the
 # file.
 # =============================================================================
-def writeImageToDisk(imgData, filePath) :
+def write_image_to_disk(imgData, filePath) :
     """
     This function takes an image data, as returned by this module's
-    getImageData() function for example, and writes it out to the file given by
+    get_image_data() function for example, and writes it out to the file given by
     the filePath parameter.
 
         imgData: An image data object
@@ -259,7 +299,7 @@ def writeImageToDisk(imgData, filePath) :
 # In practice, however, we may want to stop and restart the service for each
 # test we do, in order to avoid
 # =============================================================================
-def interactWithWebVisualizer(*args, **kwargs) :
+def interact_with_web_visualizer(*args, **kwargs) :
     """
     This function loads a test script as a module (with no package), and then
     executes the runTest() function which the script must contain.  After the
@@ -311,7 +351,7 @@ def interactWithWebVisualizer(*args, **kwargs) :
         print 'Caught an exception while running test script:'
         print '  ' + str(type(inst))
         print '  ' + str(inst)
-        testFail(testScriptFile)
+        test_fail(testScriptFile)
 
     # If we were passed a server handle, then use it to stop the service
     if serverHandle is not None :
@@ -322,7 +362,7 @@ def interactWithWebVisualizer(*args, **kwargs) :
 # So we can change our time format in a single place, this function is
 # provided.
 # =============================================================================
-def getCurrentTimeString() :
+def get_current_time_string() :
     """
     This function returns the current time as a string, using ISO 8601 format.
     """
@@ -332,22 +372,25 @@ def getCurrentTimeString() :
 
 # =============================================================================
 # To keep the service module clean, we'll process the test results here, given
-# the test result object we generated in "interactWithWebVisualizer".  It is
+# the test result object we generated in "interact_with_veb_visualizer".  It is
 # passed back to this function after the service has completed.  Failure of
 # of the test is indicated by raising an exception in here.
 # =============================================================================
-def processTestResults() :
+def finalize() :
     """
-    This function checks the module's global testModuleCommQueue variable for a
+    This function checks the module's global test_module_comm_queue variable for a
     test result.  If one is found and the result is 'fail', then this function
     raises an exception to communicate the failure to the CTest framework.
 
-    In order for a test result to be found in the testModuleCommQueue variable,
+    In order for a test result to be found in the test_module_comm_queue variable,
     the test script must have called either the testPass or testFail functions
     provided by this test module before returning.
     """
-    if testModuleCommQueue is not None :
-        resultObject = testModuleCommQueue.get()
+
+    global test_module_comm_queue
+
+    if test_module_comm_queue is not None :
+        resultObject = test_module_comm_queue.get()
 
         failedATest = False
 
