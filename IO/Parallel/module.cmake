@@ -9,6 +9,7 @@ vtk_module(vtkIOParallel
     vtkIOImage
   PRIVATE_DEPENDS
     vtkexodusII
+    vtknetcdf
   TEST_DEPENDS
     vtkParallelMPI
     vtkRenderingParallel

@@ -4,7 +4,7 @@ vtk_module(vtkIOParallelNetCDF
   DEPENDS
     vtkCommonCore
     vtkParallelMPI
-  COMPILE_DEPENDS
+  PRIVATE_DEPENDS
     vtknetcdf
   TEST_DEPENDS
     vtkCommonExecutionModel

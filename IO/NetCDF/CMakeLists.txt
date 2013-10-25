@@ -9,5 +9,3 @@ set(Module_SRCS
   )
 
 vtk_module_library(vtkIONetCDF ${Module_SRCS})
-
-target_link_libraries(vtkIONetCDF LINK_PRIVATE vtkNetCDF_cxx)
