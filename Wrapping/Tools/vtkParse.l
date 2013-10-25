@@ -118,12 +118,12 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
       preprocessor_directive(yytext, yyleng);
    }
 
-\"([^\"]|\\\")*\"  {
+("u8"|"u"|"U"|"L")?\"([^\"]|\\\")*\"{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(STRING_LITERAL);
     }
 
-\'([^\']|\\\')+\'  {
+\'([^\']|\\\')+\'{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(CHAR_LITERAL);
     }
@@ -204,6 +204,7 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "inline"        return(INLINE);
 "constexpr"     return(CONSTEXPR);
 "static"        return(STATIC);
+"thread_local"  return(THREAD_LOCAL);
 "extern"        return(EXTERN);
 "template"      return(TEMPLATE);
 "typename"      return(TYPENAME);
@@ -460,32 +461,32 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
         }
     }
 
-[0-9]*"."[0-9]+([eE][+-]?[0-9]+)?[a-zA-Z_]*  {
+[0-9]*"."[0-9]+([eE][+-]?[0-9]+)?{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(FLOAT_LITERAL);
     }
 
-[0-9]+"."([eE][+-]?[0-9]+)?[a-zA-Z_]*  {
+[0-9]+"."([eE][+-]?[0-9]+)?{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(FLOAT_LITERAL);
     }
 
-[0-9]+[eE][+-]?[0-9]+[a-zA-Z_]*  {
+[0-9]+[eE][+-]?[0-9]+{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(FLOAT_LITERAL);
     }
 
-"0"[xX][0-9a-fA-F]+[g-zG-Z_]*      {
+"0"[xX][0-9a-fA-F]+{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(HEX_LITERAL);
     }
 
-"0"[0-9]+[a-zA-Z_]*   {
+"0"[0-9]+{ID}? {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(OCT_LITERAL);
     }
 
-[1-9][0-9]*[a-zA-Z_]* {
+[1-9][0-9]*{ID}? {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(INT_LITERAL);
     }
