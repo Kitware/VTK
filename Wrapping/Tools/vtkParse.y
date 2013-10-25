@@ -3004,6 +3004,7 @@ operator_id:
   | '=' { $<str>$ = "="; }
   | OP_RSHIFT_A '>' { $<str>$ = ">>"; }
   | OP_RSHIFT_A OP_RSHIFT_A { $<str>$ = ">>"; }
+  | STRING_LITERAL ID { $<str>$ = vtkstrcat("\"\" ", $<str>2); }
   | operator_id_no_delim
 
 operator_id_no_delim:
