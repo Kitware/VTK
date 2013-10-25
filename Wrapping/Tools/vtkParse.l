@@ -54,6 +54,8 @@ static int skip_ahead_until(const char *text);
 static int skip_to_next_directive();
 static int skip_conditional_block();
 
+static const char *raw_string(const char *begin);
+
 static void preprocessor_directive(const char *text, size_t l);
 static void print_preprocessor_error(int result, const char *cp, size_t n);
 static const char *get_macro_arguments();
@@ -126,6 +128,11 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 \'([^\']|\\\')+\'{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(CHAR_LITERAL);
+    }
+
+("R"|"u8R"|"uR"|"UR"|"LR")?\"[^ ()\t\v\f\n]*"(" {
+      yylval.str = raw_string(yytext);
+      return(STRING_LITERAL);
     }
 
 {ID}"_EXPORT"  /* ignore EXPORT macros */
@@ -985,6 +992,107 @@ int skip_ahead_until(const char *text)
   strings[1] = NULL;
 
   return skip_ahead_multi(strings);
+}
+
+/*
+ * Convert a raw string into a non-raw string.
+ */
+const char *raw_string(const char *begin)
+{
+  char *textbuf;
+  int c = 0;
+  const char *delim;
+  const char *cp = begin;
+  char *dp;
+  char *result;
+  size_t i, j, n;
+  size_t m = 1024;
+
+  result = (char *)malloc(m);
+  dp = result;
+
+  while (*cp != '\"')
+    {
+    *dp++ = *cp++;
+    }
+  --dp;
+  *dp++ = *cp++;
+
+  delim = cp;
+
+  for (n = 0;; n++)
+    {
+    if (delim[n] == '(') { break; }
+    }
+
+  textbuf = (char *)malloc(n+1);
+
+  for (i = 0; i < n+1; i++)
+    {
+    c = input();
+    textbuf[i] = c;
+    }
+
+  while (c != EOF)
+    {
+    if (textbuf[0] == ')' && (n == 0 || strncmp(&textbuf[1], delim, n) == 0))
+      {
+      break;
+      }
+
+    j = dp - result;
+    if (j > m - 8)
+      {
+      m += 1024;
+      result = (char *)realloc(result, m);
+      dp = result + j;
+      }
+
+    if ((*textbuf >= ' ' && *textbuf <= '~') ||
+        (*textbuf & 0x80) != 0)
+      {
+      *dp++ = *textbuf;
+      }
+    else switch (*textbuf)
+      {
+      case '\a': *dp++ = '\\'; *dp++ = 'a'; break;
+      case '\b': *dp++ = '\\'; *dp++ = 'b'; break;
+      case '\f': *dp++ = '\\'; *dp++ = 'f'; break;
+      case '\n': *dp++ = '\\'; *dp++ = 'n'; break;
+      case '\r': *dp++ = '\\'; *dp++ = 'r'; break;
+      case '\t': *dp++ = '\\'; *dp++ = 't'; break;
+      case '\v': *dp++ = '\\'; *dp++ = 'v'; break;
+      case '\\': *dp++ = '\\'; *dp++ = '\\'; break;
+      case '\'': *dp++ = '\\'; *dp++ = '\''; break;
+      case '\"': *dp++ = '\\'; *dp++ = '\"'; break;
+      default:
+        sprintf(dp, "\\%3.3o", *textbuf);
+        dp += 4;
+        break;
+      }
+
+    for (i = 0; i < n; i++)
+      {
+      textbuf[i] = textbuf[i+1];
+      }
+
+    c = input();
+    textbuf[n] = c;
+    }
+
+  if (c == EOF || '\"' != input())
+    {
+    print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR, NULL, 0);
+    yy_fatal_error("");
+    }
+
+  *dp++ = '\"';
+  *dp = '\0';
+  cp = vtkstrdup(result);
+  free(result);
+  free(textbuf);
+
+  return cp;
 }
 
 /*
