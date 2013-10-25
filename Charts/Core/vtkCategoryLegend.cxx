@@ -68,13 +68,11 @@ bool vtkCategoryLegend::Paint(vtkContext2D* painter)
 
   // Draw the title (if any)
   vtkVector2f stringBounds[2];
-  float titleWidth = 0.0;
   float titleHeight = 0.0;
   if (this->Title != "")
     {
     painter->ApplyTextProp(this->TitleProperties.GetPointer());
     painter->ComputeStringBounds(this->Title, stringBounds->GetData());
-    titleWidth = stringBounds[1].GetX();
     titleHeight = stringBounds[1].GetY() + this->Padding;
 
     float x = this->Rect.GetX() + this->Rect.GetWidth() / 2.0;
