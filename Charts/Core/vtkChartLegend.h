@@ -162,6 +162,17 @@ public:
   vtkTextProperty * GetLabelProperties();
 
   // Description:
+  // Toggle whether or not this legend should attempt to cache its position
+  // and size.  The default value is true.  If this value is set to false,
+  // the legend will recalculate its position and bounds every time it is
+  // drawn.  If users will be able to zoom in or out on your legend, you
+  // may want to set this to false.  Otherwise, the border around the legend
+  // may not resize appropriately.
+  vtkSetMacro(CacheBounds, bool);
+  vtkGetMacro(CacheBounds, bool);
+  vtkBooleanMacro(CacheBounds, bool);
+
+  // Description:
   // Return true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
@@ -200,6 +211,11 @@ protected:
   // Description:
   // Should we move the legend box around in response to the mouse drag?
   bool DragEnabled;
+
+  // Description:
+  // Should the legend attempt to avoid recalculating its position &
+  // bounds unnecessarily?
+  bool CacheBounds;
 
   // Description:
   // Last button to be pressed.

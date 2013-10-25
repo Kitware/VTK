@@ -75,6 +75,7 @@ vtkChartLegend::vtkChartLegend()
   this->Inline = true;
   this->Button = -1;
   this->DragEnabled = true;
+  this->CacheBounds = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -170,7 +171,8 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D *painter)
 {
-  if (this->RectTime > this->GetMTime() && this->RectTime > this->PlotTime)
+  if (this->CacheBounds && this->RectTime > this->GetMTime() &&
+      this->RectTime > this->PlotTime)
     {
     return this->Rect;
     }
@@ -281,10 +283,14 @@ vtkChart* vtkChartLegend::GetChart()
 //-----------------------------------------------------------------------------
 bool vtkChartLegend::Hit(const vtkContextMouseEvent &mouse)
 {
-  if (this->DragEnabled && mouse.GetScreenPos().GetX() > this->Rect.GetX() &&
-      mouse.GetScreenPos().GetX() < this->Rect.GetX() + this->Rect.GetWidth() &&
-      mouse.GetScreenPos().GetY() > this->Rect.GetY() &&
-      mouse.GetScreenPos().GetY() < this->Rect.GetY() + this->Rect.GetHeight())
+  if (!this->GetVisible())
+    {
+    return false;
+    }
+  if (this->DragEnabled && mouse.GetPos().GetX() > this->Rect.GetX() &&
+      mouse.GetPos().GetX() < this->Rect.GetX() + this->Rect.GetWidth() &&
+      mouse.GetPos().GetY() > this->Rect.GetY() &&
+      mouse.GetPos().GetY() < this->Rect.GetY() + this->Rect.GetHeight())
     {
     return true;
     }
@@ -299,10 +305,10 @@ bool vtkChartLegend::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
   if (this->Button == vtkContextMouseEvent::LEFT_BUTTON)
     {
-    vtkVector2f delta = mouse.GetScenePos() - mouse.GetLastScenePos();
-    this->HorizontalAlignment = vtkChartLegend::CUSTOM;
+    vtkVector2f delta = mouse.GetPos() - mouse.GetLastPos();
     this->Storage->Point = this->Storage->Point + delta;
     this->GetScene()->SetDirty(true);
+    this->Modified();
     }
   return true;
 }

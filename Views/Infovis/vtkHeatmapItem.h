@@ -34,10 +34,13 @@
 #include <vector>                  // For row mapping
 
 class vtkBitArray;
+class vtkCategoryLegend;
+class vtkColorLegend;
 class vtkLookupTable;
 class vtkStringArray;
 class vtkTable;
 class vtkTooltipItem;
+class vtkVariantArray;
 
 class VTKVIEWSINFOVIS_EXPORT vtkHeatmapItem : public vtkContextItem
 {
@@ -130,6 +133,10 @@ public:
   // Display a tooltip when the user mouses over a cell in the heatmap.
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
 
+  // Description:
+  // Display a legend for a column of data.
+  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &event);
+
   //ETX
 
 protected:
@@ -203,6 +210,14 @@ protected:
   // longest column label.  These values are used by GetBounds().
   void ComputeLabelWidth(vtkContext2D *painter);
 
+  // Setup the position, size, and orientation of this heatmap's color
+  // legend based on the heatmap's current orientation.
+  void PositionColorLegend(int orientation);
+
+  // Setup the position, size, and orientation of this heatmap's
+  // legends based on the heatmap's current orientation.
+  void PositionLegends(int orientation);
+
   vtkSmartPointer<vtkTable> Table;
 
 private:
@@ -210,10 +225,14 @@ private:
   void operator=(const vtkHeatmapItem&); // Not implemented
 
   unsigned long HeatmapBuildTime;
+  vtkNew<vtkCategoryLegend> CategoryLegend;
+  vtkNew<vtkColorLegend> ColorLegend;
   vtkNew<vtkTooltipItem> Tooltip;
   vtkNew<vtkLookupTable> ContinuousDataLookupTable;
   vtkNew<vtkLookupTable> CategoricalDataLookupTable;
+  vtkNew<vtkLookupTable> ColorLegendLookupTable;
   vtkNew<vtkStringArray> CategoricalDataValues;
+  vtkNew<vtkVariantArray> CategoryLegendValues;
   double CellWidth;
   double CellHeight;
 
@@ -233,6 +252,7 @@ private:
 
   vtkBitArray* CollapsedRowsArray;
   vtkBitArray* CollapsedColumnsArray;
+  bool LegendPositionSet;
 };
 
 #endif

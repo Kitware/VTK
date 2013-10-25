@@ -13,6 +13,7 @@ vtk_add_test_cxx(
   TestAxes.cxx
   TestBarGraph.cxx
   TestBarGraphHorizontal.cxx
+  TestCategoryLegend.cxx
   TestColorTransferFunction.cxx,-E80
   TestChartDouble.cxx
   TestChartMatrix.cxx
