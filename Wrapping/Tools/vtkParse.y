@@ -1378,6 +1378,7 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token VOLATILE
 %token MUTABLE
 %token STATIC
+%token THREAD_LOCAL
 %token VIRTUAL
 %token EXPLICIT
 %token INLINE
@@ -2501,6 +2502,8 @@ storage_class_specifier:
   | EXTERN { $<integer>$ = 0; }
   | EXTERN STRING_LITERAL { $<integer>$ = 0; }
   | STATIC { postSig("static "); $<integer>$ = VTK_PARSE_STATIC; }
+  | THREAD_LOCAL
+    { postSig("thread_local "); $<integer>$ = VTK_PARSE_THREAD_LOCAL; }
 
 function_specifier:
     INLINE { $<integer>$ = 0; }
@@ -3050,6 +3053,7 @@ keyword:
   | PRIVATE { $<str>$ = "private"; }
   | CONST { $<str>$ = "const"; }
   | STATIC { $<str>$ = "static"; }
+  | THREAD_LOCAL { $<str>$ = "thread_local"; }
   | CONSTEXPR { $<str>$ = "constexpr"; }
   | INLINE { $<str>$ = "inline"; }
   | VIRTUAL { $<str>$ = "virtual"; }
