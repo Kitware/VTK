@@ -55,6 +55,13 @@ public:
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkTransformFilter();
   ~vtkTransformFilter();
@@ -65,7 +72,9 @@ protected:
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
                   vtkInformationVector *);
+
   vtkAbstractTransform *Transform;
+  int OutputPointsPrecision;
 private:
   vtkTransformFilter(const vtkTransformFilter&);  // Not implemented.
   void operator=(const vtkTransformFilter&);  // Not implemented.

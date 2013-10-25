@@ -4,6 +4,7 @@ vtk_add_test_cxx(
   BoxClipTetrahedra.cxx
   BoxClipTriangulate.cxx,NO_VALID
   BoxClipTriangulateAndInterpolate.cxx
+  TestAppendPoints.cxx,NO_VALID
   TestBooleanOperationPolyDataFilter.cxx
   TestBooleanOperationPolyDataFilter2.cxx
   TestContourTriangulator.cxx
@@ -17,6 +18,8 @@ vtk_add_test_cxx(
   TestIntersectionPolyDataFilter2.cxx,NO_VALID
   TestRectilinearGridToPointSet.cxx,NO_VALID
   TestReflectionFilter.cxx,NO_VALID
+  TestTransformFilter.cxx,NO_VALID
+  TestTransformPolyDataFilter.cxx,NO_VALID
   TestUncertaintyTubeFilter.cxx
   )
 
