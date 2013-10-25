@@ -147,25 +147,25 @@ def start_webserver(options, protocol=wamp.ServerProtocol, disableLogging=False)
             log.msg("+"*80, logLevel=logging.CRITICAL)
 
     # Give test client a chance to initialize a thread for itself
-    testing.initialize(opts=options)
+    # testing.initialize(opts=options)
 
-    # Start factory and reactor
+    # Start the factory
     wampFactory.startFactory()
 
-    ### Add startTest callback to the reactor callback queue
+    # Initialize testing: checks if we're doing a test and sets it up
+    testing.initialize(options, reactor)
 
+    # Start the reactor
     if options.nosignalhandlers:
         reactor.run(installSignalHandlers=0)
     else:
         reactor.run()
 
+    # Stope the factory
     wampFactory.stopFactory()
 
-    # When the server exits it's main loop, that's when the above
-    # function returns.  Now we make sure to let the test client
-    # have a chance to report any test failures by raising an
-    # exception in the main thread.
-    testing.processTestResults()
+    # Give the testing module a chance to finalize, if necessary
+    testing.finalize()
 
 if __name__ == "__main__":
     start()
