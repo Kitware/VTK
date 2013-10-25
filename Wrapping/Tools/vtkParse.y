@@ -1977,6 +1977,7 @@ conversion_function:
     conversion_function_id '('
     {
       postSig("(");
+      currentFunction->IsExplicit = ((getType() & VTK_PARSE_EXPLICIT) != 0);
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
     parameter_declaration_clause ')' { postSig(")"); }
