@@ -27,7 +27,7 @@
 #include <stdarg.h>  // Needed for ...
 
 #ifndef _WIN32
-#include <limits.h>     // for CLK_TCK
+#include <climits>     // for CLK_TCK
 #include <sys/time.h>
 #include <unistd.h>
 #endif
