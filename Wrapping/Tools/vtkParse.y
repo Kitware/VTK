@@ -231,7 +231,7 @@ const char *type_class(unsigned int type, const char *classname);
 void start_class(const char *classname, int is_struct_or_union);
 void end_class();
 void add_base_class(ClassInfo *cls, const char *name, int access_lev,
-                    int is_virtual);
+                    unsigned int extra);
 void output_friend_function(void);
 void output_function(void);
 void reject_function(void);
@@ -1682,16 +1682,18 @@ base_specifier_list:
   | base_specifier_list ',' base_specifier
 
 base_specifier:
-    id_expression
-    { add_base_class(currentClass, $<str>1, access_level, 0); }
-  | VIRTUAL opt_access_specifier id_expression
-    { add_base_class(currentClass, $<str>3, $<integer>2, 1); }
-  | access_specifier opt_virtual id_expression
-    { add_base_class(currentClass, $<str>3, $<integer>1, $<integer>2); }
+    id_expression opt_ellipsis
+    { add_base_class(currentClass, $<str>1, access_level, $<integer>2); }
+  | VIRTUAL opt_access_specifier id_expression opt_ellipsis
+    { add_base_class(currentClass, $<str>3, $<integer>2,
+                     (VTK_PARSE_VIRTUAL | $<integer>4)); }
+  | access_specifier opt_virtual id_expression opt_ellipsis
+    { add_base_class(currentClass, $<str>3, $<integer>1,
+                     ($<integer>2 | $<integer>4)); }
 
 opt_virtual:
     { $<integer>$ = 0; }
-  | VIRTUAL { $<integer>$ = 1; }
+  | VIRTUAL { $<integer>$ = VTK_PARSE_VIRTUAL; }
 
 opt_access_specifier:
     { $<integer>$ = access_level; }
@@ -1771,7 +1773,8 @@ enumerator_definition:
  */
 
 nested_variable_initialization:
-    store_type nested_name_specifier simple_id '=' ignored_expression ';'
+    store_type opt_ellipsis nested_name_specifier simple_id '='
+    ignored_expression ';'
 
 ignored_class:
     class_key class_head_name opt_final ignored_class_body
@@ -1817,9 +1820,9 @@ typedef_direct_declarator:
   | function_direct_declarator
 
 function_direct_declarator:
-    declarator_id '(' { pushFunction(); postSig("("); }
-    parameter_declaration_clause ')' { postSig(")"); }
-    function_qualifiers { $<integer>$ = VTK_PARSE_FUNCTION; popFunction(); }
+    opt_ellipsis declarator_id '(' { pushFunction(); postSig("("); }
+    parameter_declaration_clause ')' { postSig(")"); } function_qualifiers
+    { $<integer>$ = (VTK_PARSE_FUNCTION | $<integer>1); popFunction(); }
 
 typedef_declarator_id:
     typedef_direct_declarator
@@ -1952,6 +1955,10 @@ template_parameter:
     }
     opt_template_parameter_initializer
 
+opt_ellipsis:
+    { $<integer>$ = 0; }
+  | ELLIPSIS { postSig("..."); $<integer>$ = VTK_PARSE_PACK; }
+
 class_or_typename:
     CLASS { postSig("class "); }
   | TYPENAME { postSig("typename "); }
@@ -1985,17 +1992,17 @@ function_definition:
   | nested_operator_declaration function_body { reject_function(); }
 
 function_declaration:
-    store_type function_nr
+    store_type opt_ellipsis function_nr
 
 nested_method_declaration:
-    store_type nested_name_specifier function_nr
+    store_type opt_ellipsis nested_name_specifier function_nr
   | nested_name_specifier structor_declaration
   | decl_specifier_seq nested_name_specifier structor_declaration
 
 nested_operator_declaration:
     nested_name_specifier conversion_function
   | decl_specifier_seq nested_name_specifier conversion_function
-  | store_type nested_name_specifier operator_function_nr
+  | store_type opt_ellipsis nested_name_specifier operator_function_nr
 
 method_definition:
     method_declaration function_body { output_function(); }
@@ -2003,7 +2010,7 @@ method_definition:
   | decl_specifier_seq nested_name_specifier operator_function_id ';'
 
 method_declaration:
-    store_type function_nr
+    store_type opt_ellipsis function_nr
   | operator_declaration
   | structor_declaration
   | decl_specifier_seq structor_declaration
@@ -2011,7 +2018,7 @@ method_declaration:
 operator_declaration:
     conversion_function
   | decl_specifier_seq conversion_function
-  | store_type operator_function_nr
+  | store_type opt_ellipsis operator_function_nr
 
 conversion_function:
     conversion_function_id '('
@@ -2167,7 +2174,7 @@ mem_initializer_list:
   | mem_initializer_list ',' mem_initializer
 
 mem_initializer:
-    id_expression ignored_parentheses
+    id_expression ignored_parentheses opt_ellipsis
 
 /*
  * Parameters
@@ -2301,15 +2308,15 @@ opt_ptr_operator_seq:
 
 /* for parameters, the declarator_id is optional */
 direct_abstract_declarator:
-    opt_declarator_id opt_array_or_parameters
+    opt_ellipsis opt_declarator_id opt_array_or_parameters
     {
-      if ($<integer>2 == VTK_PARSE_FUNCTION)
+      if ($<integer>3 == VTK_PARSE_FUNCTION)
         {
-        $<integer>$ = VTK_PARSE_FUNCTION_PTR;
+        $<integer>$ = (VTK_PARSE_FUNCTION_PTR | $<integer>1);
         }
       else
         {
-        $<integer>$ = 0;
+        $<integer>$ = $<integer>1;
         }
     }
   | lp_or_la abstract_declarator ')' { postSig(")"); }
@@ -2331,7 +2338,8 @@ direct_abstract_declarator:
 
 /* for variables, the declarator_id is mandatory */
 direct_declarator:
-    declarator_id opt_array_decorator_seq { $<integer>$ = 0; }
+    opt_ellipsis declarator_id opt_array_decorator_seq
+    { $<integer>$ = $<integer>1; }
   | lp_or_la declarator ')' { postSig(")"); }
     opt_array_or_parameters
     {
@@ -2386,8 +2394,8 @@ opt_declarator_id:
   | declarator_id
 
 declarator_id:
-    simple_id { setVarName($<str>1); }
-  | simple_id ':' bitfield_size { setVarName($<str>1); }
+    unqualified_id { setVarName($<str>1); }
+  | unqualified_id ':' bitfield_size { setVarName($<str>1); }
 
 bitfield_size:
     OCT_LITERAL
@@ -3449,9 +3457,13 @@ void end_class()
 }
 
 /* add a base class to the specified class */
-void add_base_class(ClassInfo *cls, const char *name, int al, int virt)
+void add_base_class(ClassInfo *cls, const char *name, int al,
+  unsigned int extra)
 {
-  if (cls && al == VTK_ACCESS_PUBLIC && virt == 0)
+  /* "extra" can contain VTK_PARSE_VIRTUAL and VTK_PARSE_PACK */
+  if (cls && al == VTK_ACCESS_PUBLIC &&
+      (extra & VTK_PARSE_VIRTUAL) == 0 &&
+      (extra & VTK_PARSE_PACK) == 0)
     {
     vtkParse_AddStringToArray(&cls->SuperClasses,
                               &cls->NumberOfSuperClasses,
@@ -4049,6 +4061,13 @@ void handle_complex_type(
 
   /* remove specifiers like "friend" and "typedef" */
   datatype &= VTK_PARSE_QUALIFIED_TYPE;
+
+  /* remove the pack specifier caused by "..." */
+  if ((extra & VTK_PARSE_PACK) != 0)
+    {
+    val->IsPack = 1;
+    extra ^= VTK_PARSE_PACK;
+    }
 
   /* if "extra" was set, parentheses were involved */
   if ((extra & VTK_PARSE_BASE_TYPE) == VTK_PARSE_FUNCTION)

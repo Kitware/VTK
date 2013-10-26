@@ -263,6 +263,7 @@ void vtkParse_InitValue(ValueInfo *val)
   val->Template = NULL;
   val->IsStatic = 0;
   val->IsEnum = 0;
+  val->IsPack = 0;
 }
 
 /* Copy a Value struct */
@@ -307,6 +308,7 @@ void vtkParse_CopyValue(ValueInfo *val, const ValueInfo *orig)
 
   val->IsStatic = orig->IsStatic;
   val->IsEnum = orig->IsEnum;
+  val->IsPack = orig->IsPack;
 }
 
 /* Free a Value struct */

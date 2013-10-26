@@ -79,6 +79,7 @@
  */
 #define VTK_PARSE_TYPEDEF     0x10000000
 #define VTK_PARSE_FRIEND      0x20000000
+#define VTK_PARSE_PACK        0x40000000
 
 /**
  * Mask for removing qualifiers

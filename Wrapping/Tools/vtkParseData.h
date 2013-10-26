@@ -112,6 +112,7 @@ struct _ValueInfo
   TemplateInfo  *Template;   /* template parameters, or NULL */
   int            IsStatic;   /* for class variables only */
   int            IsEnum;     /* for constants only */
+  int            IsPack;     /* for pack expansions */
 };
 
 /**
