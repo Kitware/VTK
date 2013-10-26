@@ -1513,6 +1513,7 @@ opt_declaration_seq:
 declaration:
     using_directive
   | using_declaration
+  | alias_declaration
   | forward_declaration
   | opaque_enum_declaration
   | namespace_definition
@@ -1533,6 +1534,7 @@ template_declaration:
   | template_head function_definition
   | template_head nested_variable_initialization
   | template_head template_declaration
+  | template_head alias_declaration
 
 /*
  * extern section is parsed, but "extern" is ignored
@@ -1639,6 +1641,7 @@ member_access_specifier:
 
 member_declaration:
     using_declaration
+  | alias_declaration
   | forward_declaration
   | opaque_enum_declaration
   | friend_declaration
@@ -1657,6 +1660,7 @@ template_member_declaration:
     template_head class_definition
   | template_head method_definition
   | template_head template_member_declaration
+  | template_head alias_declaration
 
 friend_declaration:
     FRIEND ignored_class
@@ -1843,7 +1847,7 @@ typedef_declarator_id:
  */
 
 using_declaration:
-    USING  using_id ';' { add_using($<str>2, 0); }
+    USING using_id ';' { add_using($<str>2, 0); }
 
 using_id:
     id_expression
@@ -1859,6 +1863,33 @@ using_id:
 
 using_directive:
     USING NAMESPACE id_expression ';' { add_using($<str>3, 1); }
+
+alias_declaration:
+    USING id_expression '=' { markSig(); }
+    store_type direct_abstract_declarator ';'
+    {
+      ValueInfo *item = (ValueInfo *)malloc(sizeof(ValueInfo));
+      vtkParse_InitValue(item);
+      item->ItemType = VTK_TYPEDEF_INFO;
+      item->Access = access_level;
+
+      handle_complex_type(item, getType(), $<integer>6, copySig());
+
+      item->Name = $<str>2;
+
+      if (currentTemplate)
+        {
+        vtkParse_FreeValue(item);
+        }
+      else if (currentClass)
+        {
+        vtkParse_AddTypedefToClass(currentClass, item);
+        }
+      else
+        {
+        vtkParse_AddTypedefToNamespace(currentNamespace, item);
+        }
+    }
 
 /*
  * Templates
