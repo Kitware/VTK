@@ -174,6 +174,10 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "void"          return(VOID);
 "bool"          return(BOOL);
 
+"char16_t"      return(CHAR16_T);
+"char32_t"      return(CHAR32_T);
+"wchar_t"       return(WCHAR_T);
+
 "std::"?"size_t"/[^a-zA-Z_] {
       yylval.str = (yytext[3] == ':' ? "std::size_t" : "size_t");
       return(SIZE_T);

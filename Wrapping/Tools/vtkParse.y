@@ -1445,6 +1445,9 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token LONG
 %token INT64__
 %token CHAR
+%token CHAR16_T
+%token CHAR32_T
+%token WCHAR_T
 %token SIGNED
 %token UNSIGNED
 
@@ -2649,6 +2652,9 @@ primitive_type:
   | FLOAT  { postSig("float "); $<integer>$ = VTK_PARSE_FLOAT; }
   | DOUBLE { postSig("double "); $<integer>$ = VTK_PARSE_DOUBLE; }
   | CHAR   { postSig("char "); $<integer>$ = VTK_PARSE_CHAR; }
+  | CHAR16_T { postSig("char16_t "); $<integer>$ = VTK_PARSE_CHAR16_T; }
+  | CHAR32_T   { postSig("char32_t "); $<integer>$ = VTK_PARSE_CHAR32_T; }
+  | WCHAR_T { postSig("wchar_t "); $<integer>$ = VTK_PARSE_WCHAR_T; }
   | INT    { postSig("int "); $<integer>$ = VTK_PARSE_INT; }
   | SHORT  { postSig("short "); $<integer>$ = VTK_PARSE_SHORT; }
   | LONG   { postSig("long "); $<integer>$ = VTK_PARSE_LONG; }
@@ -3320,6 +3326,15 @@ const char *type_class(unsigned int type, const char *classname)
           break;
         case VTK_PARSE_CHAR:
           classname = "char";
+          break;
+        case VTK_PARSE_CHAR16_T:
+          classname = "char16_t";
+          break;
+        case VTK_PARSE_CHAR32_T:
+          classname = "char32_t";
+          break;
+        case VTK_PARSE_WCHAR_T:
+          classname = "wchar_t";
           break;
         case VTK_PARSE_UNSIGNED_CHAR:
           classname = "unsigned char";

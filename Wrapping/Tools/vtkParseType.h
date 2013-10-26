@@ -182,7 +182,10 @@
 #define VTK_PARSE_FUNCTION            0x25
 #define VTK_PARSE_QOBJECT             0x26
 #define VTK_PARSE_LONG_DOUBLE         0x27
-#define VTK_PARSE_NULLPTR_T           0x28
+#define VTK_PARSE_WCHAR_T             0x28
+#define VTK_PARSE_CHAR16_T            0x29
+#define VTK_PARSE_CHAR32_T            0x2A
+#define VTK_PARSE_NULLPTR_T           0x2B
 
 /**
  * Basic pointer types
@@ -217,6 +220,11 @@
 #define VTK_PARSE_FUNCTION_PTR            0x225
 #define VTK_PARSE_QOBJECT_PTR             0x226
 #define VTK_PARSE_LONG_DOUBLE_PTR         0x227
+#define VTK_PARSE_WCHAR_T_PTR             0x228
+#define VTK_PARSE_CHAR16_T_PTR            0x229
+#define VTK_PARSE_CHAR32_T_PTR            0x22A
+#define VTK_PARSE_NULLPTR_T_PTR           0x22B
+
 
 /**
  * Basic reference types
@@ -250,6 +258,10 @@
 #define VTK_PARSE_ISTREAM_REF             0x124
 #define VTK_PARSE_QOBJECT_REF             0x126
 #define VTK_PARSE_LONG_DOUBLE_REF         0x127
+#define VTK_PARSE_WCHAR_T_REF             0x128
+#define VTK_PARSE_CHAR16_T_REF            0x129
+#define VTK_PARSE_CHAR32_T_REF            0x12A
+#define VTK_PARSE_NULLPTR_T_REF           0x12B
 
 /**
  * For backwards compatibility
