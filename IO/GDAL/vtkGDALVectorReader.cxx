@@ -15,18 +15,18 @@
 #include "vtkGDALVectorReader.h"
 
 // VTK includes
-#include <vtkCellData.h>
-#include <vtkCellType.h>
-#include <vtkDoubleArray.h>
-#include <vtkCellArray.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkIntArray.h>
-#include <vtkMultiBlockDataSet.h>
-#include <vtkNew.h>
-#include <vtkObjectFactory.h>
-#include <vtkStringArray.h>
-#include <vtkPolyData.h>
+#include "vtkCellData.h"
+#include "vtkCellType.h"
+#include "vtkDoubleArray.h"
+#include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
+#include "vtkPolyData.h"
 
 // GDAL OGR includes
 #include <ogrsf_frmts.h>

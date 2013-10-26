@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include <vtkCellTreeLocator.h>
+#include "vtkCellTreeLocator.h"
 #include <cstdlib>
 #include <cassert>
 #include <cmath>

@@ -24,8 +24,8 @@
 #include <algorithm>
 #include <functional>
 
-#include <vtkAppendPolyData.h>
-#include <vtkCubeSource.h>
+#include "vtkAppendPolyData.h"
+#include "vtkCubeSource.h"
 //
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkModifiedBSPTree);

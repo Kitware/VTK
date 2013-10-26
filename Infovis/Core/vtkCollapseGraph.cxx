@@ -18,17 +18,17 @@
 ----------------------------------------------------------------------------*/
 #include "vtkCollapseGraph.h"
 
-#include <vtkConvertSelection.h>
-#include <vtkDataSetAttributes.h>
-#include <vtkEdgeListIterator.h>
-#include <vtkIdTypeArray.h>
-#include <vtkInEdgeIterator.h>
-#include <vtkInformation.h>
-#include <vtkMutableDirectedGraph.h>
-#include <vtkMutableUndirectedGraph.h>
-#include <vtkObjectFactory.h>
-#include <vtkSelection.h>
-#include <vtkSmartPointer.h>
+#include "vtkConvertSelection.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInEdgeIterator.h"
+#include "vtkInformation.h"
+#include "vtkMutableDirectedGraph.h"
+#include "vtkMutableUndirectedGraph.h"
+#include "vtkObjectFactory.h"
+#include "vtkSelection.h"
+#include "vtkSmartPointer.h"
 
 //#include <iterator>
 #include <vector>
