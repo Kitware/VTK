@@ -1528,6 +1528,7 @@ declaration:
   | class_definition
   | function_definition
   | template_declaration
+  | explicit_instantiation
   | declaration_macro
   | id_expression ';'
   | ';'
@@ -1538,6 +1539,10 @@ template_declaration:
   | template_head nested_variable_initialization
   | template_head template_declaration
   | template_head alias_declaration
+
+explicit_instantiation:
+    EXTERN TEMPLATE ignored_item_no_angle ignored_expression ';'
+  | TEMPLATE ignored_item_no_angle ignored_expression ';'
 
 /*
  * extern section is parsed, but "extern" is ignored
@@ -1654,6 +1659,7 @@ member_declaration:
   | class_definition
   | method_definition
   | template_member_declaration
+  | explicit_instantiation
   | declaration_macro
   | VTK_BYTE_SWAP_DECL ignored_parentheses
   | id_expression ';'
@@ -3269,6 +3275,10 @@ ignored_item:
   | ';'
 
 ignored_item_no_semi:
+    ignored_item_no_angle
+  | '<'
+
+ignored_item_no_angle:
     ignored_braces
   | ignored_parentheses
   | ignored_brackets
@@ -3276,7 +3286,7 @@ ignored_item_no_semi:
   | ELLIPSIS
   | operator_id_no_delim
   | OP_RSHIFT_A
-  | ':' | '.' | '<' | '>' | '=' | ','
+  | ':' | '.' | '>' | '=' | ','
   | keyword | literal
   | simple_type_specifier
   | OTHER
