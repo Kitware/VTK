@@ -39,7 +39,7 @@
 // normals of the resulting isosurface.
 
 // .SECTION See Also
-// vtkMarchingContourFilter vtkKitwareContourFilter
+// vtkMarchingContourFilter
 // vtkMarchingCubes vtkSliceCubes vtkDividingCubes vtkMarchingSquares
 // vtkImageMarchingCubes
 

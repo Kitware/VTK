@@ -536,8 +536,8 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
 // Contouring filter specialized for images (or slices from images)
 //
 void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(vtkImageData *data,
-                                                 vtkInformation *outInfo,
-                                                 int *exExt, int)
+                                                       vtkInformation *outInfo,
+                                                       int)
 {
   vtkPolyData *output;
 
@@ -545,6 +545,7 @@ void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(vtkImageData *data,
 
   output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  int* exExt = outInfo->Get(vtkSynchronizedTemplates3D::EXECUTE_EXTENT());
   if ( exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5] )
     {
     vtkDebugMacro(<<"Cutter3D structured contours requires Cutter3D data");
@@ -576,7 +577,7 @@ int vtkSynchronizedTemplatesCutter3D::RequestData(
   this->RequestUpdateExtent(request,inputVector,outputVector);
 
   // Just call the threaded execute directly.
-  this->ThreadedExecute(input, outInfo, this->ExecuteExtent, 0);
+  this->ThreadedExecute(input, outInfo, 0);
 
   output->Squeeze();
 
