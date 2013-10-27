@@ -1,5 +1,7 @@
 project(QtImageViewer)
 
+cmake_minimum_required(VERSION 2.8)
+
 # Eliminate a warning when building in Windows that relates
 # to static linking of Qt executables to qtmain.lib.
 # This policy was introduced in CMake version 2.8.11.
@@ -17,18 +19,35 @@ if(NOT VTK_BINARY_DIR)
   include(${VTK_USE_FILE})
 endif()
 
-# Use what VTK built with
-set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
-set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
-set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
-find_package(Qt4 REQUIRED)
-include(${QT_USE_FILE})
+if("${VTK_QT_VERSION}" STREQUAL "")
+  message(FATAL_ERROR "VTK was not built with Qt")
+endif()
 
-set(SRCS main.cxx)
+if(VTK_QT_VERSION VERSION_GREATER "4")
+  find_package(Qt5Core REQUIRED QUIET)
+else()
+  find_package(Qt4 REQUIRED)
+  include(${QT_USE_FILE})
+  # Use what VTK built with
+  set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
+  set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
+  set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
+endif()
 
-add_executable(qtimageviewer MACOSX_BUNDLE ${SRCS})
+set( Srcs main.cxx )
 
-target_link_libraries(qtimageviewer
-  ${QT_LIBRARIES}
-  ${VTK_LIBRARIES}
-)
+if(VTK_QT_VERSION VERSION_GREATER "4")
+  add_executable(qtimageviewer ${Srcs})
+
+  qt5_use_modules(qtimageviewer Core Gui Widgets)
+
+  target_link_libraries(qtimageviewer ${VTK_LIBRARIES})
+else()
+  include_directories(
+    ${QT_INCLUDE_DIR}
+  )
+
+  add_executable(qtimageviewer ${Srcs})
+
+  target_link_libraries(qtimageviewer ${QT_LIBRARIES} ${VTK_LIBRARIES})
+endif()
