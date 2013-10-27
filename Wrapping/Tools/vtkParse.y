@@ -1366,6 +1366,9 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token <str> SIZE_T
 %token <str> NULLPTR_T
 
+/* This is the '[[' that marks the start of an attribute */
+%token BEGIN_ATTRIB
+
 /* keywords (many unused keywords have been omitted) */
 %token STRUCT
 %token CLASS
@@ -1511,7 +1514,7 @@ opt_declaration_seq:
       clearTemplate();
       closeComment();
     }
-    declaration
+    attribute_specifier_seq declaration
 
 declaration:
     using_directive
@@ -1572,9 +1575,9 @@ forward_declaration:
   | template_head simple_forward_declaration
 
 simple_forward_declaration:
-    class_key class_head_name ';'
-  | class_key ';'
-  | decl_specifier_seq class_key class_head_name ';'
+    class_key attribute_specifier_seq class_head_name ';'
+  | class_key attribute_specifier_seq ';'
+  | decl_specifier_seq class_key attribute_specifier_seq class_head_name ';'
 
 class_definition:
     class_specifier opt_decl_specifier_seq opt_declarator_list ';'
@@ -1595,19 +1598,26 @@ class_specifier:
     }
 
 class_head:
-    class_key class_head_name opt_final ':'
+    class_key attribute_specifier_seq class_head_name opt_final ':'
     {
-      start_class($<str>2, $<integer>1);
-      currentClass->IsFinal = $<integer>3;
+      start_class($<str>3, $<integer>1);
+      currentClass->IsFinal = $<integer>4;
     }
     base_specifier_list
-  | class_key class_head_name opt_final
+  | class_key attribute_specifier_seq class_head_name opt_final
     {
-      start_class($<str>2, $<integer>1);
-      currentClass->IsFinal = $<integer>3;
+      start_class($<str>3, $<integer>1);
+      currentClass->IsFinal = $<integer>4;
     }
-  | class_key ':' { start_class(NULL, $<integer>1); } base_specifier_list
-  | class_key { start_class(NULL, $<integer>1); }
+  | class_key attribute_specifier_seq ':'
+    {
+      start_class(NULL, $<integer>1);
+    }
+    base_specifier_list
+  | class_key attribute_specifier_seq
+    {
+      start_class(NULL, $<integer>1);
+    }
 
 class_key:
     CLASS { $<integer>$ = 0; }
@@ -1615,11 +1625,11 @@ class_key:
   | UNION { $<integer>$ = 2; }
 
 class_head_name:
-    nested_name_specifier class_name
+    nested_name_specifier class_name attribute_specifier_seq
     { $<str>$ = vtkstrcat($<str>1, $<str>2); }
-  | scope_operator_sig nested_name_specifier class_name
+  | scope_operator_sig nested_name_specifier class_name attribute_specifier_seq
     { $<str>$ = vtkstrcat3("::", $<str>2, $<str>3); }
-  | class_name
+  | class_name attribute_specifier_seq
 
 class_name:
     simple_id
@@ -1638,7 +1648,7 @@ member_specification:
       clearTemplate();
       closeComment();
     }
-    member_declaration
+    attribute_specifier_seq member_declaration
   | member_specification
     member_access_specifier ':'
 
@@ -1679,7 +1689,7 @@ friend_declaration:
 
 base_specifier_list:
     base_specifier
-  | base_specifier_list ',' base_specifier
+  | base_specifier_list ',' attribute_specifier_seq base_specifier
 
 base_specifier:
     id_expression opt_ellipsis
@@ -1713,9 +1723,10 @@ access_specifier:
  */
 
 opaque_enum_declaration:
-    enum_key id_expression opt_enum_base ';'
-  | enum_key ';'
-  | decl_specifier_seq enum_key id_expression opt_enum_base ';'
+    enum_key attribute_specifier_seq id_expression opt_enum_base ';'
+  | enum_key attribute_specifier_seq ';'
+  | decl_specifier_seq enum_key attribute_specifier_seq
+    id_expression opt_enum_base ';'
 
 enum_definition:
     enum_specifier opt_decl_specifier_seq opt_declarator_list ';'
@@ -1736,15 +1747,15 @@ enum_specifier:
     }
 
 enum_head:
-    enum_key id_expression opt_enum_base
+    enum_key attribute_specifier_seq id_expression opt_enum_base
     {
-      start_enum($<str>2, $<integer>1, $<integer>3, getTypeId());
+      start_enum($<str>3, $<integer>1, $<integer>4, getTypeId());
       clearTypeId();
-      $<str>$ = $<str>2;
+      $<str>$ = $<str>3;
     }
-  | enum_key opt_enum_base
+  | enum_key attribute_specifier_seq opt_enum_base
     {
-      start_enum(NULL, $<integer>1, $<integer>2, getTypeId());
+      start_enum(NULL, $<integer>1, $<integer>3, getTypeId());
       clearTypeId();
       $<str>$ = NULL;
     }
@@ -1777,10 +1788,12 @@ nested_variable_initialization:
     ignored_expression ';'
 
 ignored_class:
-    class_key class_head_name opt_final ignored_class_body
-  | decl_specifier_seq class_key class_head_name opt_final ignored_class_body
-  | class_key ignored_class_body
-  | decl_specifier_seq class_key ignored_class_body
+    class_key attribute_specifier_seq
+    class_head_name opt_final ignored_class_body
+  | decl_specifier_seq class_key attribute_specifier_seq
+    class_head_name opt_final ignored_class_body
+  | class_key attribute_specifier_seq ignored_class_body
+  | decl_specifier_seq class_key attribute_specifier_seq ignored_class_body
 
 ignored_class_body:
     '{' ignored_items '}' ignored_expression ';'
@@ -1877,7 +1890,7 @@ using_directive:
     USING NAMESPACE id_expression ';' { add_using($<str>3, 1); }
 
 alias_declaration:
-    USING id_expression '=' { markSig(); }
+    USING id_expression attribute_specifier_seq '=' { markSig(); }
     store_type direct_abstract_declarator ';'
     {
       ValueInfo *item = (ValueInfo *)malloc(sizeof(ValueInfo));
@@ -2006,8 +2019,9 @@ nested_operator_declaration:
 
 method_definition:
     method_declaration function_body { output_function(); }
-  | nested_name_specifier operator_function_id ';'
-  | decl_specifier_seq nested_name_specifier operator_function_id ';'
+  | nested_name_specifier operator_function_id attribute_specifier_seq ';'
+  | decl_specifier_seq nested_name_specifier operator_function_id
+    attribute_specifier_seq ';'
 
 method_declaration:
     store_type opt_ellipsis function_nr
@@ -2027,7 +2041,7 @@ conversion_function:
       currentFunction->IsExplicit = ((getType() & VTK_PARSE_EXPLICIT) != 0);
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' { postSig(")"); }
+    parameter_declaration_clause ')' attribute_specifier_seq { postSig(")"); }
     function_trailer_clause opt_trailing_return_type
     {
       postSig(";");
@@ -2054,13 +2068,13 @@ operator_function_nr:
     }
 
 operator_function_sig:
-    operator_function_id '('
+    operator_function_id attribute_specifier_seq '('
     {
       postSig("(");
       currentFunction->IsOperator = 1;
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')'
+    parameter_declaration_clause ')' attribute_specifier_seq
 
 operator_function_id:
     operator_sig operator_id
@@ -2130,12 +2144,12 @@ handler_seq:
   | handler_seq CATCH ignored_parentheses '{' ignored_items '}'
 
 function_sig:
-    unqualified_id '('
+    unqualified_id attribute_specifier_seq '('
     {
       postSig("(");
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' { postSig(")"); }
+    parameter_declaration_clause ')' attribute_specifier_seq { postSig(")"); }
 
 
 /*
@@ -2164,7 +2178,8 @@ structor_declaration:
 
 structor_sig:
     unqualified_id '(' { pushType(); postSig("("); }
-    parameter_declaration_clause ')' { popType(); postSig(")"); }
+    parameter_declaration_clause ')' attribute_specifier_seq
+    { popType(); postSig(")"); }
 
 opt_ctor_initializer:
   | ':' mem_initializer_list
@@ -2319,18 +2334,18 @@ direct_abstract_declarator:
         $<integer>$ = $<integer>1;
         }
     }
-  | lp_or_la abstract_declarator ')' { postSig(")"); }
+  | lp_or_la attribute_specifier_seq abstract_declarator ')' { postSig(")"); }
     opt_array_or_parameters
     {
       const char *scope = getScope();
-      unsigned int parens = add_indirection($<integer>1, $<integer>2);
-      if ($<integer>5 == VTK_PARSE_FUNCTION)
+      unsigned int parens = add_indirection($<integer>1, $<integer>3);
+      if ($<integer>6 == VTK_PARSE_FUNCTION)
         {
         if (scope) { scope = vtkstrndup(scope, strlen(scope) - 2); }
         getFunction()->Class = scope;
         $<integer>$ = (parens | VTK_PARSE_FUNCTION);
         }
-      else if ($<integer>5 == VTK_PARSE_ARRAY)
+      else if ($<integer>6 == VTK_PARSE_ARRAY)
         {
         $<integer>$ = add_indirection_to_array(parens);
         }
@@ -2363,9 +2378,10 @@ lp_or_la:
   | LA { postSig("("); scopeSig($<str>1); postSig("&");
          $<integer>$ = VTK_PARSE_REF; }
 
-opt_array_or_parameters: { $<integer>$ = 0; }
+opt_array_or_parameters:
+    { $<integer>$ = 0; }
   | '(' { pushFunction(); postSig("("); } parameter_declaration_clause ')'
-    { postSig(")"); } function_qualifiers
+    attribute_specifier_seq { postSig(")"); } function_qualifiers
     {
       $<integer>$ = VTK_PARSE_FUNCTION;
       popFunction();
@@ -2394,8 +2410,9 @@ opt_declarator_id:
   | declarator_id
 
 declarator_id:
-    unqualified_id { setVarName($<str>1); }
-  | unqualified_id ':' bitfield_size { setVarName($<str>1); }
+    unqualified_id attribute_specifier_seq { setVarName($<str>1); }
+  | unqualified_id attribute_specifier_seq ':' bitfield_size
+    { setVarName($<str>1); }
 
 bitfield_size:
     OCT_LITERAL
@@ -2414,7 +2431,8 @@ array_decorator_seq_impl:
   | array_decorator_seq_impl array_decorator
 
 array_decorator:
-    '[' { postSig("["); } array_size_specifier ']' { postSig("]"); }
+    '[' { postSig("["); } array_size_specifier ']' attribute_specifier_seq
+    { postSig("]"); }
 
 array_size_specifier:
     { pushArraySize(""); }
@@ -2527,7 +2545,7 @@ identifier:
  */
 
 opt_decl_specifier_seq:
-  | opt_decl_specifier_seq decl_specifier2
+  | opt_decl_specifier_seq decl_specifier2 attribute_specifier_seq
 
 decl_specifier2:
     decl_specifier
@@ -2537,8 +2555,8 @@ decl_specifier2:
   | FRIEND { setTypeMod(VTK_PARSE_FRIEND); }
 
 decl_specifier_seq:
-    decl_specifier
-  | decl_specifier_seq decl_specifier
+    decl_specifier attribute_specifier_seq
+  | decl_specifier_seq decl_specifier attribute_specifier_seq
 
 decl_specifier:
     storage_class_specifier { setTypeMod($<integer>1); }
@@ -2583,20 +2601,20 @@ store_type_specifier:
 
 type_specifier:
     trailing_type_specifier
-  | class_key class_head_name
-    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
-  | enum_key id_expression
-    { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
+  | class_key attribute_specifier_seq class_head_name
+    { postSig(" "); setTypeId($<str>3); $<integer>$ = guess_id_type($<str>3); }
+  | enum_key attribute_specifier_seq id_expression attribute_specifier_seq
+    { postSig(" "); setTypeId($<str>3); $<integer>$ = guess_id_type($<str>3); }
 
 trailing_type_specifier:
     simple_type_specifier
   | decltype_specifier
     { postSig(" "); setTypeId($<str>1); $<integer>$ = 0; }
-  | TYPENAME { postSig("typename "); } id_expression
+  | TYPENAME { postSig("typename "); } id_expression attribute_specifier_seq
     { postSig(" "); setTypeId($<str>3); $<integer>$ = guess_id_type($<str>3); }
-  | template_id
+  | template_id attribute_specifier_seq
     { postSig(" "); setTypeId($<str>1); $<integer>$ = guess_id_type($<str>1); }
-  | qualified_id
+  | qualified_id attribute_specifier_seq
     { postSig(" "); setTypeId($<str>1); $<integer>$ = guess_id_type($<str>1); }
 
 trailing_type_specifier_seq:
@@ -2633,8 +2651,8 @@ tparam_type_specifier:
     { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
 
 simple_type_specifier:
-    primitive_type { setTypeId(""); }
-  | type_name
+    primitive_type attribute_specifier_seq { setTypeId(""); }
+  | type_name attribute_specifier_seq
 
 type_name:
     StdString { typeSig($<str>1); $<integer>$ = VTK_PARSE_STRING; }
@@ -2700,14 +2718,16 @@ ptr_operator_seq:
   | pointer_seq reference { $<integer>$ = ($<integer>1 | $<integer>2); }
 
 reference:
-    '&' { postSig("&"); $<integer>$ = VTK_PARSE_REF; }
+    '&' attribute_specifier_seq
+    { postSig("&"); $<integer>$ = VTK_PARSE_REF; }
 
 rvalue_reference:
-    OP_LOGIC_AND
+    OP_LOGIC_AND attribute_specifier_seq
     { postSig("&&"); $<integer>$ = (VTK_PARSE_RVALUE | VTK_PARSE_REF); }
 
 pointer:
-    '*' { postSig("*"); } ptr_cv_qualifier_seq { $<integer>$ = $<integer>3; }
+    '*' attribute_specifier_seq { postSig("*"); }
+    ptr_cv_qualifier_seq { $<integer>$ = $<integer>4; }
 
 ptr_cv_qualifier_seq:
     { $<integer>$ = VTK_PARSE_POINTER; }
@@ -2738,6 +2758,16 @@ pointer_seq:
       $<integer>$ = n;
     }
 
+
+/*
+ * Attributes
+ */
+
+attribute_specifier_seq:
+  | attribute_specifier_seq attribute_specifier
+
+attribute_specifier:
+    BEGIN_ATTRIB { closeSig(); } any_bracket_contents { openSig(); } ']' ']'
 
 /*
  * VTK Macros
@@ -3209,16 +3239,19 @@ common_bracket_item:
 any_bracket_contents:
   | any_bracket_contents any_bracket_item
 
-bracket_pitem: common_bracket_item
+bracket_pitem:
+    common_bracket_item
   | '<' { postSig("< "); }
   | '>' { postSig("> "); }
   | OP_RSHIFT_A { postSig(">"); }
 
-any_bracket_item: bracket_pitem
+any_bracket_item:
+    bracket_pitem
   | '=' { postSig("= "); }
   | ',' { chopSig(); postSig(", "); }
 
-braces_item: any_bracket_item
+braces_item:
+    any_bracket_item
   | ';' { chopSig(); postSig(";"); }
 
 angle_bracket_contents:
@@ -3257,6 +3290,8 @@ right_angle_bracket:
 brackets_sig:
     '[' { postSig("["); } any_bracket_contents ']'
     { chopSig(); postSig("] "); }
+  | BEGIN_ATTRIB { postSig("[["); } any_bracket_contents ']' ']'
+    { chopSig(); postSig("]] "); }
 
 parentheses_sig:
     '(' { postSig("("); } any_bracket_contents ')'
@@ -3295,21 +3330,24 @@ ignored_item_no_angle:
   | operator_id_no_delim
   | OP_RSHIFT_A
   | ':' | '.' | '>' | '=' | ','
-  | keyword | literal
-  | simple_type_specifier
+  | keyword
+  | literal
+  | primitive_type
+  | type_name
   | OTHER
 
 ignored_braces:
-  '{' ignored_items '}'
+    '{' ignored_items '}'
 
 ignored_brackets:
-  '[' ignored_items ']'
+    '[' ignored_items ']'
+  | BEGIN_ATTRIB ignored_items ']' ']'
 
 ignored_parentheses:
-  ignored_left_parenthesis ignored_items ')'
+    ignored_left_parenthesis ignored_items ')'
 
 ignored_left_parenthesis:
-  '(' | LP | LA
+    '(' | LP | LA
 
 %%
 #include <string.h>
