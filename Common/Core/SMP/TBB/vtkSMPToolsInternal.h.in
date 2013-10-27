@@ -1,0 +1,64 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkSMPToolsInternal.h.in
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#include "vtkMultiThreader.h"
+#include "vtkNew.h"
+
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
+
+namespace vtk
+{
+namespace detail
+{
+namespace smp
+{
+template <typename T>
+class FuncCall
+{
+  T& o;
+
+public:
+  void operator() (const tbb::blocked_range<vtkIdType>& r) const
+    {
+      o.Execute(r.begin(), r.end());
+    }
+
+  FuncCall (T& _o) : o(_o)
+    {
+    }
+};
+
+template <typename FunctorInternal>
+static void vtkSMPTools_Impl_For(
+  vtkIdType first, vtkIdType last, vtkIdType grain,
+  FunctorInternal& fi)
+{
+  vtkIdType n = last - first;
+  if (!n)
+    {
+    return;
+    }
+  if (grain > 0)
+    {
+    tbb::parallel_for(tbb::blocked_range<vtkIdType>(first, last, grain), FuncCall<FunctorInternal>(fi));
+    }
+  else
+    {
+    tbb::parallel_for(tbb::blocked_range<vtkIdType>(first, last), FuncCall<FunctorInternal>(fi));
+    }
+}
+}
+}
+}

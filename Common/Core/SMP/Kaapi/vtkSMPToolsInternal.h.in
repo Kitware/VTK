@@ -1,0 +1,56 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkSMPToolsInternal.h.in
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#include <kaapic.h>
+
+VTKCOMMONCORE_EXPORT void vtkSMPToolsInitialize();
+
+namespace vtk
+{
+namespace detail
+{
+namespace smp
+{
+template <typename T>
+inline void vtkSMPToolsDoFor(int32_t b, int32_t e, int32_t, T* o )
+{
+  o->Execute(b, e);
+}
+
+template <typename FunctorInternal>
+static void vtkSMPTools_Impl_For(
+  vtkIdType first, vtkIdType last, vtkIdType grain,
+  FunctorInternal& fi)
+{
+  vtkSMPToolsInitialize();
+
+  vtkIdType n = last - first;
+  if (!n)
+    {
+    return;
+    }
+
+  vtkIdType g = grain ? grain : sqrt(n);
+
+  kaapic_begin_parallel(KAAPIC_FLAG_DEFAULT);
+  kaapic_foreach_attr_t attr;
+  kaapic_foreach_attr_init(&attr);
+  kaapic_foreach_attr_set_grains(&attr, g, g);
+  kaapic_foreach( first, last, &attr, 1, vtkSMPToolsDoFor<FunctorInternal>, &fi );
+  kaapic_end_parallel(KAAPIC_FLAG_DEFAULT);
+  kaapic_foreach_attr_destroy(&attr);
+}
+}
+}
+}
