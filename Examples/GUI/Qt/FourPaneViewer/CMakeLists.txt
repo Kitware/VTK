@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.6)
-
 project(QtVTKRenderWindows)
+
+cmake_minimum_required(VERSION 2.6)
 
 # Eliminate a warning when building in Windows that relates
 # to static linking of Qt executables to qtmain.lib.
@@ -19,36 +19,56 @@ if(NOT VTK_BINARY_DIR)
   include(${VTK_USE_FILE})
 endif()
 
-# Use what VTK built with
-set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
-set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
-set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
-find_package(Qt4 REQUIRED)
-include(${QT_USE_FILE})
+if("${VTK_QT_VERSION}" STREQUAL "")
+  message(FATAL_ERROR "VTK was not built with Qt")
+endif()
+
+if(VTK_QT_VERSION VERSION_GREATER "4")
+  # We have ui files, this will bring in the macro: qt5_wrap_ui
+  find_package(QT5Widgets REQUIRED QUIET)
+else()
+  find_package(Qt4 REQUIRED)
+  include(${QT_USE_FILE})
+  # Use what VTK built with
+  set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
+  set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
+  set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
+endif()
 
 # Set your files and resources here
-set(QtVTKRenderWindowsSrcs QtVTKRenderWindowsApp.cxx QtVTKRenderWindows.cxx)
-set(QtVTKRenderWindowsUI QtVTKRenderWindows.ui)
-set(QtVTKRenderWindowsHeaders QtVTKRenderWindows.h)
+set( Srcs QtVTKRenderWindowsApp.cxx QtVTKRenderWindows.cxx)
+
+set( Hdrs QtVTKRenderWindows.h )
+
+set( MOC_Hdrs QtVTKRenderWindows.h )
+
+set( UIs QtVTKRenderWindows.ui )
 
 include_directories(
-  ${QT_INCLUDE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-qt4_wrap_ui(UISrcs ${QtVTKRenderWindowsUI})
-qt4_wrap_cpp(MOCSrcs ${QtVTKRenderWindowsHeaders} )
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
 
-source_group("Resources" FILES
-  ${QtVTKRenderWindowsUI}
-)
+if(VTK_QT_VERSION VERSION_GREATER "4")
+  qt5_wrap_ui(UI_Srcs ${UIs})
 
-source_group("Generated" FILES
-  ${UISrcs}
-  ${MOCSrcs}
-  ${RCS_SOURCES}
-)
+  # CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
+  add_executable(QtVTKRenderWindows ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
 
-add_executable(QtVTKRenderWindows ${QtVTKRenderWindowsSrcs} ${UISrcs} ${MOCSrcs})
-target_link_libraries(QtVTKRenderWindows ${QT_LIBRARIES} ${VTK_LIBRARIES})
+  qt5_use_modules(QtVTKRenderWindows Core Gui Widgets)
+
+  target_link_libraries(QtVTKRenderWindows ${VTK_LIBRARIES})
+else()
+  include_directories(
+    ${QT_INCLUDE_DIR}
+  )
+
+  qt4_wrap_ui(UI_Srcs ${UIs})
+
+  add_executable(QtVTKRenderWindows ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
+
+  target_link_libraries(QtVTKRenderWindows ${QT_LIBRARIES} ${VTK_LIBRARIES})
+endif()
