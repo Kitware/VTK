@@ -67,6 +67,7 @@ typedef struct _MacroInfo
   int            NumberOfParameters; /* only if IsFunction == 1 */
   const char   **Parameters; /* symbols for parameters */
   int            IsFunction; /* this macro requires arguments */
+  int            IsVariadic; /* this macro can take unlimited arguments */
   int            IsExternal; /* this macro is from an included file */
   int            IsExcluded; /* do not expand this macro */
 } MacroInfo;
