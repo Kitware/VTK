@@ -49,6 +49,7 @@ vtkColorLegend::vtkColorLegend()
 
   this->Orientation = vtkColorLegend::VERTICAL;
 
+  this->Position.Set(0.0, 0.0, 0.0, 0.0);
   this->CustomPositionSet = false;
   this->DrawBorder = false;
 }
