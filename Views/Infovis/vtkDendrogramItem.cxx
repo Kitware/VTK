@@ -948,7 +948,8 @@ vtkIdType vtkDendrogramItem::GetClosestVertex(double x, double y)
 void vtkDendrogramItem::CollapseSubTree(vtkIdType vertex)
 {
   // no removing the root of the tree
-  if (vertex == this->PrunedTree->GetRoot())
+  vtkIdType root = this->PrunedTree->GetRoot();
+  if (vertex == root)
     {
     return;
     }
@@ -962,6 +963,13 @@ void vtkDendrogramItem::CollapseSubTree(vtkIdType vertex)
   // "VertexIsPruned" array.  Mark that vertex as pruned by recording
   // how many collapsed leaf nodes exist beneath it.
   int numLeavesCollapsed = this->CountLeafNodes(originalId);
+
+  // make sure we're not about to collapse away the whole tree
+  int totalLeaves = this->CountLeafNodes(root);
+  if (numLeavesCollapsed >= totalLeaves)
+    {
+    return;
+    }
 
   // no collapsing of leaf nodes.  This should never happen, but it doesn't
   // hurt to be safe.
