@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
+if(POLICY CMP0020)
+  cmake_policy(SET CMP0020 NEW) # remove if CMake >= 2.8.11 required
+endif()
+
 PROJECT (Step3)
 
 if(NOT VTK_BINARY_DIR)
