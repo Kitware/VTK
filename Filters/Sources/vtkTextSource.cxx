@@ -152,6 +152,7 @@ vtkTextSource::vtkTextSource()
   this->BackgroundColor[1] = 0.0;
   this->BackgroundColor[2] = 0.0;
   this->BackgroundColor[3] = 1.0;
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -208,6 +209,17 @@ int vtkTextSource::RequestData(
   x[2] = 0;
 
   newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPolys = vtkCellArray::New();
   newScalars = vtkUnsignedCharArray::New();
   newScalars->SetNumberOfComponents(4);
@@ -448,4 +460,6 @@ void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->ForegroundColor[1] << ", " << this->ForegroundColor[2]  << ")\n";
   os << indent << "BackgroundColor: (" << this->BackgroundColor[0] << ", "
      << this->BackgroundColor[1] << ", " << this->BackgroundColor[2] << ")\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }

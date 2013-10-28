@@ -160,6 +160,13 @@ public:
   // Return the MTime also considering the parametric function.
   unsigned long GetMTime();
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkParametricFunctionSource();
   virtual ~vtkParametricFunctionSource();
@@ -176,6 +183,7 @@ protected:
   int WResolution;
   int GenerateTextureCoordinates;
   int ScalarMode;
+  int OutputPointsPrecision;
 
 private:
   // Create output depending on function dimension

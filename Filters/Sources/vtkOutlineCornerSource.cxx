@@ -28,6 +28,7 @@ vtkOutlineCornerSource::vtkOutlineCornerSource()
     : vtkOutlineSource()
 {
   this->CornerFactor = 0.2;
+  this->OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
 }
 
 //----------------------------------------------------------------------------
@@ -61,6 +62,17 @@ int vtkOutlineCornerSource::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+
   newPts->Allocate(32);
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(24,2));
@@ -114,4 +126,6 @@ void vtkOutlineCornerSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "CornerFactor: " << this->CornerFactor << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }

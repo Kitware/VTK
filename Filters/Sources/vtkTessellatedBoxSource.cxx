@@ -36,6 +36,7 @@ vtkTessellatedBoxSource::vtkTessellatedBoxSource()
   this->Level=0;
   this->DuplicateSharedPoints=0;
   this->Quads=0;
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts(0); // this is a source.
 }
@@ -121,13 +122,20 @@ int vtkTessellatedBoxSource::RequestData(
   double bounds[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),bounds);
 
-  vtkPoints *points=output->GetPoints();
-  if(points==0)
+  vtkPoints *points = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
     {
-    points = vtkPoints::New();
-    output->SetPoints(points);
-    points->Delete();
+    points->SetDataType(VTK_DOUBLE);
     }
+  else
+    {
+    points->SetDataType(VTK_FLOAT);
+    }
+
+  output->SetPoints(points);
+  points->Delete();
 
   // Always create a new vtkCellArray, otherwise it uses the this->Dummy of
   // vtkPolyData...
@@ -697,4 +705,6 @@ void vtkTessellatedBoxSource::PrintSelf(ostream& os, vtkIndent indent)
     os << "false";
     }
   os << endl;
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << endl;
 }

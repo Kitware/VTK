@@ -68,6 +68,13 @@ public:
   // Modified GetMTime because of Planes.
   unsigned long GetMTime();
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   // Description:
   // Default construtor. Planes=NULL. ShowLines=true. LinesLength=1.0.
@@ -87,6 +94,7 @@ protected:
   vtkPlanes *Planes;
   bool ShowLines;
   double LinesLength;
+  int OutputPointsPrecision;
 
 private:
   vtkFrustumSource(const vtkFrustumSource&);  // Not implemented.

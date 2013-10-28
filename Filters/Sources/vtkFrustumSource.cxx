@@ -31,6 +31,7 @@ vtkFrustumSource::vtkFrustumSource()
   this->Planes=0;
   this->ShowLines=true;
   this->LinesLength=1.0;
+  this->OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
 
   // a source has no input port.
   this->SetNumberOfInputPorts(0);
@@ -149,6 +150,17 @@ int vtkFrustumSource::RequestData(
     }
 
   vtkPoints *newPoints=vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->SetNumberOfPoints(nbPts);
   // Ref: Real-Time Rendering, 3rd edition, Thomas Akenine-Moller, Eric Haines,
   // Naty Hoffman, page 783, section 16.17,
@@ -422,4 +434,6 @@ void vtkFrustumSource::PrintSelf(ostream &os,
     }
 
   os << indent << "LinesLength:" << this->LinesLength << endl;
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << endl;
 }

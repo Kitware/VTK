@@ -38,6 +38,8 @@ vtkRectangularButtonSource::vtkRectangularButtonSource()
   this->BoxRatio = 1.1;
   this->TextureRatio = 0.9;
   this->TextureHeightRatio = 0.95;
+
+  this->OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
 }
 
 //----------------------------------------------------------------------------
@@ -86,6 +88,17 @@ int vtkRectangularButtonSource::RequestData(
 
   // Allocate memory for everything
   vtkPoints *newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+
   newPts->SetNumberOfPoints(numPts);
 
   vtkFloatArray *tcoords = vtkFloatArray::New();
@@ -243,4 +256,6 @@ void vtkRectangularButtonSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BoxRatio: " << this->BoxRatio << "\n";
   os << indent << "TextureRatio: " << this->TextureRatio << "\n";
   os << indent << "TextureHeightRatio: " << this->TextureHeightRatio << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }

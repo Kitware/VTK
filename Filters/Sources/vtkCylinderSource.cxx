@@ -35,6 +35,7 @@ vtkCylinderSource::vtkCylinderSource (int res)
   this->Radius = 0.5;
   this->Capping = 1;
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -79,6 +80,17 @@ int vtkCylinderSource::RequestData(
     }
 
   newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
@@ -214,4 +226,5 @@ void vtkCylinderSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Center: (" << this->Center[0] << ", "
      << this->Center[1] << ", " << this->Center[2] << " )\n";
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

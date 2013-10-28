@@ -58,6 +58,13 @@ public:
                  double zMin, double zMax);
   void SetBounds(const double bounds[6]);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkCubeSource(double xL=1.0, double yL=1.0, double zL=1.0);
   ~vtkCubeSource() {};
@@ -67,6 +74,7 @@ protected:
   double YLength;
   double ZLength;
   double Center[3];
+  int OutputPointsPrecision;
 private:
   vtkCubeSource(const vtkCubeSource&);  // Not implemented.
   void operator=(const vtkCubeSource&);  // Not implemented.

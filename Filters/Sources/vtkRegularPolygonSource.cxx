@@ -35,6 +35,7 @@ vtkRegularPolygonSource::vtkRegularPolygonSource()
   this->Radius = 0.5;
   this->GeneratePolygon = 1;
   this->GeneratePolyline = 1;
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -77,6 +78,17 @@ int vtkRegularPolygonSource::RequestData(
 
   // Prepare to produce the output; create the connectivity array(s)
   newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate(numPts);
 
   if ( this->GeneratePolyline )
@@ -190,4 +202,5 @@ void vtkRegularPolygonSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Polyline: " << (this->GeneratePolyline ? "On\n" : "Off\n");
 
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

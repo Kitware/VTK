@@ -13,89 +13,134 @@
 
 =========================================================================*/
 
-#include "vtkLineSource.h"
-#include "vtkSmartPointer.h"
+#include <vtkMinimalStandardRandomSequence.h>
+#include <vtkSmartPointer.h>
+#include <vtkLineSource.h>
 
-#include "vtkTestUtilities.h"
-
-#include <limits>
-
-#ifndef ABS
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-#endif
-
-template<class A>
-bool fuzzyCompare1D(A a, A b)
+int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
-  return ABS(a - b) < std::numeric_limits<A>::epsilon();
-}
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
+    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  randomSequence->SetSeed(1);
 
-int TestLineSource( int argc, char* argv[] )
-{
-  (void)argc;
-  (void)argv;
+  vtkSmartPointer<vtkLineSource> lineSource
+    = vtkSmartPointer<vtkLineSource>::New();
+  lineSource->SetResolution(8);
 
-  {
-  // Test double functions
-  double p1[3] = {1.0, 0.0, 0.0};
-  double p2[3] = {0.0, 1.0, 0.0};
+  lineSource->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
 
-  vtkSmartPointer<vtkLineSource> lineSource =
-    vtkSmartPointer<vtkLineSource>::New();
-  lineSource->SetPoint1(p1);
-  lineSource->SetPoint2(p2);
+  double point1[3];
+  for(unsigned int i = 0; i < 3; ++i)
+    {
+    randomSequence->Next();
+    point1[i] = randomSequence->GetValue();
+    }
+  lineSource->SetPoint1(point1);
+
+  double point2[3];
+  for(unsigned int i = 0; i < 3; ++i)
+    {
+    randomSequence->Next();
+    point2[i] = randomSequence->GetValue();
+    }
+  lineSource->SetPoint2(point2);
+
   lineSource->Update();
 
-  double* p1retrieved = lineSource->GetPoint1();
-  if(!fuzzyCompare1D(static_cast<float>(p1retrieved[0]), static_cast<float>(p1[0])) ||
-     !fuzzyCompare1D(static_cast<float>(p1retrieved[1]), static_cast<float>(p1[1])) ||
-     !fuzzyCompare1D(static_cast<float>(p1retrieved[2]), static_cast<float>(p1[2])))
+  vtkSmartPointer<vtkPolyData> polyData = lineSource->GetOutput();
+  vtkSmartPointer<vtkPoints> outputPoints = polyData->GetPoints();
+
+  if(outputPoints->GetDataType() != VTK_FLOAT)
     {
-    std::cerr << "Error: p1(double) was not retrieved properly!" << std::endl;
     return EXIT_FAILURE;
     }
 
+  lineSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
-  double* p2retrieved = lineSource->GetPoint2();
-  if(!fuzzyCompare1D(static_cast<float>(p2retrieved[0]), static_cast<float>(p2[0])) ||
-     !fuzzyCompare1D(static_cast<float>(p2retrieved[1]), static_cast<float>(p2[1])) ||
-     !fuzzyCompare1D(static_cast<float>(p2retrieved[2]), static_cast<float>(p2[2])))
+  for(unsigned int i = 0; i < 3; ++i)
     {
-    std::cerr << "Error: p2(double) was not retrieved properly!" << std::endl;
-    return EXIT_FAILURE;
+    randomSequence->Next();
+    point1[i] = randomSequence->GetValue();
     }
-  }
+  lineSource->SetPoint1(point1);
 
-  {
-  // Test float functions
-  float p1[3] = {1.0, 0.0, 0.0};
-  float p2[3] = {0.0, 1.0, 0.0};
+  for(unsigned int i = 0; i < 3; ++i)
+    {
+    randomSequence->Next();
+    point2[i] = randomSequence->GetValue();
+    }
+  lineSource->SetPoint2(point2);
 
-  vtkSmartPointer<vtkLineSource> lineSource =
-    vtkSmartPointer<vtkLineSource>::New();
-  lineSource->SetPoint1(p1);
-  lineSource->SetPoint2(p2);
   lineSource->Update();
 
-  double* p1retrieved = lineSource->GetPoint1();
-  if(!fuzzyCompare1D(static_cast<float>(p1retrieved[0]), static_cast<float>(p1[0])) ||
-     !fuzzyCompare1D(static_cast<float>(p1retrieved[1]), static_cast<float>(p1[1])) ||
-     !fuzzyCompare1D(static_cast<float>(p1retrieved[2]), static_cast<float>(p1[2])))
+  polyData = lineSource->GetOutput();
+  outputPoints = polyData->GetPoints();
+
+  if(outputPoints->GetDataType() != VTK_DOUBLE)
     {
-    std::cerr << "Error: p1(float) was not retrieved properly!" << std::endl;
     return EXIT_FAILURE;
     }
 
+  lineSource->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
 
-  double* p2retrieved = lineSource->GetPoint2();
-  if(!fuzzyCompare1D(static_cast<float>(p2retrieved[0]), static_cast<float>(p2[0])) ||
-     !fuzzyCompare1D(static_cast<float>(p2retrieved[1]), static_cast<float>(p2[1])) ||
-     !fuzzyCompare1D(static_cast<float>(p2retrieved[2]), static_cast<float>(p2[2])))
+  vtkSmartPointer<vtkPoints> inputPoints = vtkSmartPointer<vtkPoints>::New();
+  inputPoints->SetDataType(VTK_DOUBLE);
+
+  for(unsigned int i = 0; i < 3; ++i)
     {
-    std::cerr << "Error: p2(float) was not retrieved properly!" << std::endl;
+    randomSequence->Next();
+    point1[i] = randomSequence->GetValue();
+    }
+  inputPoints->InsertNextPoint(point1);
+
+  for(unsigned int i = 0; i < 3; ++i)
+    {
+    randomSequence->Next();
+    point2[i] = randomSequence->GetValue();
+    }
+  inputPoints->InsertNextPoint(point2);
+
+  lineSource->SetPoints(inputPoints);
+
+  lineSource->Update();
+
+  polyData = lineSource->GetOutput();
+  outputPoints = polyData->GetPoints();
+
+  if(outputPoints->GetDataType() != VTK_FLOAT)
+    {
     return EXIT_FAILURE;
     }
-  }
+
+  inputPoints->Reset();
+
+  lineSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+
+  for(unsigned int i = 0; i < 3; ++i)
+    {
+    randomSequence->Next();
+    point1[i] = randomSequence->GetValue();
+    }
+  inputPoints->InsertNextPoint(point1);
+
+  for(unsigned int i = 0; i < 3; ++i)
+    {
+    randomSequence->Next();
+    point2[i] = randomSequence->GetValue();
+    }
+  inputPoints->InsertNextPoint(point2);
+
+  lineSource->SetPoints(inputPoints);
+
+  lineSource->Update();
+
+  polyData = lineSource->GetOutput();
+  outputPoints = polyData->GetPoints();
+
+  if(outputPoints->GetDataType() != VTK_DOUBLE)
+    {
+    return EXIT_FAILURE;
+    }
 
   return EXIT_SUCCESS;
 }

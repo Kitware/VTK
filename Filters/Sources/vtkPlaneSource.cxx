@@ -50,6 +50,8 @@ vtkPlaneSource::vtkPlaneSource()
 
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 
+  this->OutputPointsPrecision = SINGLE_PRECISION;
+
   this->SetNumberOfInputPorts(0);
 }
 
@@ -109,6 +111,17 @@ int vtkPlaneSource::RequestData(
   numPolys = this->XResolution * this->YResolution;
 
   newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
@@ -426,4 +439,5 @@ void vtkPlaneSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->Center[1] << ", "
      << this->Center[2] << ")\n";
 
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

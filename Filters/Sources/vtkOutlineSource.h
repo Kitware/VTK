@@ -67,13 +67,21 @@ public:
   vtkBooleanMacro(GenerateFaces, int);
   vtkGetMacro(GenerateFaces, int);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkOutlineSource();
   ~vtkOutlineSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int   BoxType;
-  int   GenerateFaces;
+  int    BoxType;
+  int    GenerateFaces;
+  int    OutputPointsPrecision;
   double Bounds[6];
   double Corners[24];
 

@@ -36,6 +36,7 @@ vtkTexturedSphereSource::vtkTexturedSphereSource(int res)
   this->PhiResolution = res;
   this->Theta = 0.0;
   this->Phi = 0.0;
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -72,6 +73,17 @@ int vtkTexturedSphereSource::RequestData(
   numPolys = this->PhiResolution * 2 * this->ThetaResolution;
 
   newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
@@ -156,4 +168,6 @@ void vtkTexturedSphereSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Theta: " << this->Theta << "\n";
   os << indent << "Phi: " << this->Phi << "\n";
   os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }
