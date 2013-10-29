@@ -120,12 +120,12 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
       preprocessor_directive(yytext, yyleng);
    }
 
-("u8"|"u"|"U"|"L")?\"([^\"]|\\\")*\"{ID}?  {
+("u8"|"u"|"U"|"L")?\"([^\"]|\\\")*\"(_{ID})?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(STRING_LITERAL);
     }
 
-\'([^\']|\\\')+\'{ID}?  {
+[uUL]?\'([^\']|\\\')+\'(_{ID})?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(CHAR_LITERAL);
     }
@@ -1087,6 +1087,20 @@ const char *raw_string(const char *begin)
     }
 
   *dp++ = '\"';
+
+  c = input();
+  if (c == '_')
+    {
+    do
+      {
+      *dp++ = c;
+      c = input();
+      }
+    while ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+           (c >= '0' && c <= '9') || c == '_');
+    }
+  unput(c);
+
   *dp = '\0';
   cp = vtkstrdup(result);
   free(result);
