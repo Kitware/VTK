@@ -1,15 +1,8 @@
 include(vtkGhostscript)
 
-# Check that matplotlib is available:
-execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import matplotlib"
-  RESULT_VARIABLE IMPORT_MATPLOTLIB_EXITCODE
-  OUTPUT_VARIABLE IMPORT_MATPLOTLIB_OUTPUT
-  ERROR_VARIABLE IMPORT_MATPLOTLIB_ERROR
-  )
-set(MATPLOTLIB_FOUND FALSE)
-if(${IMPORT_MATPLOTLIB_EXITCODE} EQUAL 0)
-  set(MATPLOTLIB_FOUND TRUE)
-endif()
+# Check that matplotlib is available
+include(FindPythonModules)
+find_python_module(matplotlib MATPLOTLIB_FOUND)
 
 if(NOT MATPLOTLIB_FOUND)
   message(STATUS "Matplotlib not found! MathText rendering will not be available until it is installed. Disabling tests.")
