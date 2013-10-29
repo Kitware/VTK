@@ -29,6 +29,8 @@
 #include "vtkTextRenderer.h"
 #include "vtkTexture.h"
 
+#include <algorithm>
+
 //----------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkTextMapper)
 //----------------------------------------------------------------------------

@@ -29,6 +29,7 @@
 #include "vtkPointLocator.h"
 #include "vtkNew.h"
 
+#include <algorithm>
 #include <ctype.h>
 
 

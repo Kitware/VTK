@@ -11,6 +11,7 @@
 #include "vtkVariant.h"
 #include "vtkVector.h"
 
+#include <algorithm>
 #include <utility>
 #include <vector>
 
