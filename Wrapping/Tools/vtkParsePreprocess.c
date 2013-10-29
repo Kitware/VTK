@@ -2803,7 +2803,8 @@ const char *vtkParsePreprocess_ProcessString(
         {
         do { --i; } while (i > 0 && rp[i] != '\"');
         }
-      cp++;
+      while (*cp != '\"' && l > 1) { cp++; l--; }
+      if (*cp == '\"' && l > 1) { cp++; l--; }
       }
 
     if (i + l + 2 >= rs)

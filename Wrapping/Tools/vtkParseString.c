@@ -250,6 +250,17 @@ unsigned int vtkParse_HashId(const char *cp)
   return h;
 }
 
+/** Skip a string or */
+size_t parse_skip_quotes_with_suffix(const char *cp)
+{
+  size_t l = vtkParse_SkipQuotes(cp);
+  if (l && cp[l] == '_')
+    {
+    l += vtkParse_SkipId(cp + l);
+    }
+  return l;
+}
+
 /** Return the next token, or 0 if none left. */
 int vtkParse_NextToken(StringTokenizer *tokens)
 {
@@ -278,13 +289,26 @@ int vtkParse_NextToken(StringTokenizer *tokens)
     tokens->hash = h;
     tokens->text = cp;
     tokens->len = ep - cp;
+
+    /* check if this is a prefixed string */
+    if (parse_chartype(*ep, CPRE_QUOTE) &&
+        ((*ep == '\'' && tokens->len == 1 &&
+          (*cp == 'u' || *cp == 'U' || *cp == 'L')) ||
+         (*ep == '\"' && tokens->len == 1 &&
+          (*cp == 'U' || *cp == 'u' || *cp == 'L')) ||
+         (*ep == '\"' && tokens->len == 2 && cp[0] == 'u' && cp[1] == '8')))
+      {
+      tokens->tok = (*ep == '\"' ? TOK_STRING : TOK_CHAR);
+      tokens->hash = 0;
+      tokens->len += parse_skip_quotes_with_suffix(ep);
+      }
     }
   else if (parse_chartype(*cp, CPRE_QUOTE))
     {
     tokens->tok = (*cp == '\"' ? TOK_STRING : TOK_CHAR);
     tokens->hash = 0;
     tokens->text = cp;
-    tokens->len = vtkParse_SkipQuotes(cp);
+    tokens->len = parse_skip_quotes_with_suffix(cp);
     }
   else if (parse_chartype(*cp, CPRE_DIGIT) ||
            (cp[0] == '.' && parse_chartype(cp[1], CPRE_DIGIT)))
