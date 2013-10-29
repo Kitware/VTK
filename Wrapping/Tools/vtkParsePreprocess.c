@@ -1419,6 +1419,14 @@ static int preproc_evaluate_define(
         params[n++] = vtkParse_CacheString(info->Strings, param, l);
 
         vtkParse_NextToken(tokens);
+
+        /* check for gnu cpp "arg..." parameter */
+        if (tokens->tok == TOK_ELLIPSIS)
+          {
+          is_variadic = 1;
+          vtkParse_NextToken(tokens);
+          }
+
         if (tokens->tok == ',')
           {
           vtkParse_NextToken(tokens);
@@ -2248,6 +2256,7 @@ const char *vtkParsePreprocess_ExpandMacro(
   size_t k = 0;
   int stringify = 0;
   int noexpand = 0;
+  int empty_variadic = 0;
   int depth = 1;
   int c;
 
@@ -2329,6 +2338,7 @@ const char *vtkParsePreprocess_ExpandMacro(
       }
 #endif
 
+    /* one arg that is only whitespace can also be no args*/
     if (macro->NumberOfParameters == 0 && n == 1)
       {
       const char *tp = values[0];
@@ -2339,7 +2349,14 @@ const char *vtkParsePreprocess_ExpandMacro(
         }
       }
 
-    if (n < macro->NumberOfParameters ||
+    /* allow the variadic arg to be empty */
+    if (macro->IsVariadic && n == macro->NumberOfParameters-1)
+      {
+      empty_variadic = 1;
+      }
+
+    /* check for correct number of arguments */
+    if (n < (macro->NumberOfParameters - empty_variadic) ||
         (n > macro->NumberOfParameters && !macro->IsVariadic))
       {
       if (values != stack_values) { free((char **)values); }
@@ -2445,14 +2462,18 @@ const char *vtkParsePreprocess_ExpandMacro(
         if (strncmp(pp, macro->Parameters[j], l) == 0 &&
             macro->Parameters[j][l] == '\0')
           {
-          /* substitute the argument value */
-          l = values[j+1] - values[j] - 1;
-          /* if variadic arg, use all remaining args */
           if (macro->IsVariadic && j == macro->NumberOfParameters-1)
             {
-            l = values[n] - values[j] - 1;
+            /* if variadic arg, use all remaining args */
+            pp = values[j] - empty_variadic;
+            l = values[n] - pp - 1;
             }
-          pp = values[j];
+          else
+            {
+            /* else just get one arg */
+            pp = values[j];
+            l = values[j+1] - pp - 1;
+            }
           /* remove leading whitespace from argument */
           c = *pp;
           while (vtkParse_CharType(c, CPRE_WHITE))
@@ -2511,6 +2532,7 @@ const char *vtkParsePreprocess_ExpandMacro(
         }
       if (stringify)
         {
+        /* convert argument into a string, due to "#" */
         rp[i++] = '\"';
         for (k = 0; k < l; k++)
           {
@@ -2523,8 +2545,26 @@ const char *vtkParsePreprocess_ExpandMacro(
           }
         rp[i++] = '\"';
         }
+      else if (empty_variadic && j == macro->NumberOfParameters-1)
+        {
+        /* remove trailing comma before empty variadic (non-standard) */
+        k = i;
+        if (k > 0)
+          {
+          do
+            {
+            c = rp[--k];
+            }
+          while (k > 0 && vtkParse_CharType(c, CPRE_WHITE));
+          if (rp[k] == ',')
+            {
+            i = k;
+            }
+          }
+        }
       else if (noexpand)
         {
+        /* do not expand args that will be concatenated with "##" */
         strncpy(&rp[i], pp, l);
         i += l;
         }
