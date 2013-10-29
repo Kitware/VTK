@@ -122,6 +122,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   treeItem->SetTree(tree.GetPointer());
   treeItem->SetTable(table.GetPointer());
   treeItem->SetTreeColorArray("node weight");
+  treeItem->SetTreeLineWidth(2.0);
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
