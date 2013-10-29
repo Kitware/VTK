@@ -28,36 +28,36 @@ set(vtkCommonCore_EXPORT_OPTIONS
 
 # Choose which multi-threaded parallelism library to use
 set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING
-  "Which multi-threaded parallelism implementation to use. Options are Sequential, Kaapi, OpenMP or TBB"
+  "Which multi-threaded parallelism implementation to use. Options are Sequential, Simple, Kaapi or TBB"
 )
-set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential Kaapi OpenMP TBB)
+set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential Simple Kaapi TBB)
 
 if( NOT ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi" OR
          "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB" OR
-         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP"))
+         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Simple") )
   set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential")
 endif()
 
 if ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB")
   find_package(TBB REQUIRED)
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${TBB_LIBRARY})
-  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/TBB")
+  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/SMP/TBB")
   include_directories(${TBB_INCLUDE_DIRS})
   # This needs to be here because all modules that include vtkAtomic.h
   # need to include tbb/atomic.h
   list(APPEND vtkCommonCore_SYSTEM_INCLUDE_DIRS ${TBB_INCLUDE_DIRS})
-elseif  ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP")
-  find_package(OpenMP REQUIRED)
-  set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
-  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Sequential")
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi")
   find_package(XKaapi REQUIRED)
   include_directories(${XKAAPI_INCLUDE_DIRS})
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${XKAAPI_LIBRARIES})
-  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Sequential")
+  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
+  list(APPEND vtkCommonCore_SYSTEM_INCLUDE_DIRS ${XKAAPI_INCLUDE_DIRS})
+elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Simple")
+  set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
+  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Sequential")
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
-  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Sequential")
+  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
 endif()
 
 if(EXISTS ${VTK_SMP_ATOMIC_DIRECTORY}/vtkAtomicInt.cxx)
@@ -576,4 +576,4 @@ endif()
 
 vtk_module_library(vtkCommonCore ${Module_SRCS})
 
-target_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT} ${VTK_SMP_IMPLEMENTATION_LIBRARIES})
+target_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT} LINK_PUBLIC ${VTK_SMP_IMPLEMENTATION_LIBRARIES})
