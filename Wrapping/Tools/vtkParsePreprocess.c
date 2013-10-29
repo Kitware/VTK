@@ -1683,6 +1683,8 @@ const char *preproc_find_include_file(
 static int preproc_include_file(
   PreprocessInfo *info, const char *filename, int system_first)
 {
+  const char *switchchars = "\n\r\"\'\?\\/*";
+  char switchchar[256];
   char *tbuf;
   size_t tbuflen = FILE_BUFFER_SIZE;
   char *line;
@@ -1745,6 +1747,14 @@ static int preproc_include_file(
   save_filename = info->FileName;
   info->IsExternal = 1;
   info->FileName = path;
+
+  /* make a table of interesting characters */
+  memset(switchchar, '\0', 256);
+  n = strlen(switchchars) + 1;
+  for (i = 0; i < n; i++)
+    {
+    switchchar[(unsigned char)(switchchars[i])] = 1;
+    }
 
   tbuf = (char *)malloc(tbuflen+4);
   line = (char *)malloc(linelen);
@@ -1829,7 +1839,43 @@ static int preproc_include_file(
         line = (char *)realloc(line, linelen);
         }
 
-      if (in_comment)
+      /* check for uninteresting characters first */
+      if (!switchchar[(unsigned char)(tbuf[i])])
+        {
+        line[j++] = tbuf[i++];
+        }
+#ifdef PREPROC_TRIGRAPHS
+      else if (tbuf[i] == '?' && tbuf[i+1] == '?')
+        {
+        i += 2;
+        switch (tbuf[i])
+          {
+          case '=': tbuf[i] = '#'; break;
+          case '/': tbuf[i] = '\\'; break;
+          case '\'': tbuf[i] = '^'; break;
+          case '(': tbuf[i] = '['; break;
+          case ')': tbuf[i] = ']'; break;
+          case '!': tbuf[i] = '|'; break;
+          case '<': tbuf[i] = '{'; break;
+          case '>': tbuf[i] = '}'; break;
+          case '-': tbuf[i] = '~'; break;
+          default: line[j++] = tbuf[--i];
+          }
+        }
+#endif
+      else if (tbuf[i] == '\\' && tbuf[i+1] == '\n')
+        {
+        i += 2;
+        }
+      else if (tbuf[i] == '\\' && tbuf[i+1] == '\r' && tbuf[i+2] == '\n')
+        {
+        i += 3;
+        }
+      else if (tbuf[i] == '\r' && tbuf[i+1] == '\n')
+        {
+        i++;
+        }
+      else if (in_comment == '*')
         {
         if (tbuf[i] == '*' && tbuf[i+1] == '/')
           {
@@ -1842,9 +1888,13 @@ static int preproc_include_file(
           line[j++] = tbuf[i++];
           }
         }
+      else if (in_comment && tbuf[i] != '\n')
+        {
+        line[j++] = tbuf[i++];
+        }
       else if (in_quote)
         {
-        if (tbuf[i] == '\"')
+        if (tbuf[i] == in_quote)
           {
           line[j++] = tbuf[i++];
           in_quote = 0;
@@ -1859,26 +1909,15 @@ static int preproc_include_file(
           line[j++] = tbuf[i++];
           }
         }
-      else if (tbuf[i] == '/' && tbuf[i+1] == '*')
+      else if (tbuf[i] == '/' && (tbuf[i+1] == '*' || tbuf[i+1] == '/'))
         {
-        line[j++] = tbuf[i++];
-        line[j++] = tbuf[i++];
-        in_comment = 1;
-        }
-      else if (tbuf[i] == '\"')
-        {
-        line[j++] = tbuf[i++];
-        in_quote = 1;
-        }
-      else if (tbuf[i] == '\\' && tbuf[i+1] == '\n')
-        {
+        in_comment = tbuf[i+1];
         line[j++] = tbuf[i++];
         line[j++] = tbuf[i++];
         }
-      else if (tbuf[i] == '\\' && tbuf[i+1] == '\r' && tbuf[i+2] == '\n')
+      else if (tbuf[i] == '\"' || tbuf[i] == '\'')
         {
-        line[j++] = tbuf[i++];
-        line[j++] = tbuf[i++];
+        in_quote = tbuf[i];
         line[j++] = tbuf[i++];
         }
       else if (tbuf[i] != '\n' && tbuf[i] != '\0')
