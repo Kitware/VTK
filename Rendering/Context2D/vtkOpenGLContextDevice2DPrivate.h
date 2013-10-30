@@ -401,12 +401,12 @@ public:
           {
           if (i < size[0] && j < size[1])
             {
-            dataPtr[i * newImg[0] * bytesPerPixel + j * bytesPerPixel + k] =
-                origPtr[i * size[0] * bytesPerPixel + j * bytesPerPixel + k];
+            dataPtr[i * bytesPerPixel + j * newImg[0] * bytesPerPixel + k] =
+                origPtr[i * bytesPerPixel + j * size[0] * bytesPerPixel + k];
             }
           else
             {
-            dataPtr[i * newImg[0] * bytesPerPixel + j * bytesPerPixel + k] =
+            dataPtr[i * bytesPerPixel + j * newImg[0] * bytesPerPixel + k] =
                 k == 3 ? 0 : 255;
             }
           }

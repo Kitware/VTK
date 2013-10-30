@@ -24,6 +24,8 @@ from autobahn.wamp import WampServerFactory
 
 from . import wamp
 
+from . import testing
+
 # =============================================================================
 # Setup default arguments to be parsed
 #   -s, --nosignalhandlers
@@ -56,6 +58,10 @@ def add_arguments(parser):
         help="root for web-pages to serve (default: none)")
     parser.add_argument("-a", "--authKey", default='vtkweb-secret',
         help="Authentication key for clients to connect to the WebSocket.")
+    parser.add_argument("-f", "--force-flush", default=False, help="If provided, this option will force additional padding content to the output.  Useful when application is triggered by a session manager.", dest="forceFlush", action='store_true')
+
+    # Hook to extract any testing arguments we need
+    testing.add_arguments(parser)
 
     return parser
 
@@ -82,6 +88,14 @@ def start(argv=None,
     add_arguments(parser)
     args = parser.parse_args(argv)
     start_webserver(options=args, protocol=protocol)
+
+
+# =============================================================================
+# Stop webserver
+# =============================================================================
+def stop_webserver() :
+    reactor.callFromThread(reactor.stop)
+
 
 # =============================================================================
 # Start webserver
@@ -128,16 +142,30 @@ def start_webserver(options, protocol=wamp.ServerProtocol, disableLogging=False)
     # This allow the process launcher to parse the output and
     # wait for "Start factory" to know that the WebServer
     # is running.
-    for i in range(200):
-        log.msg("+"*80, logLevel=logging.CRITICAL)
+    if options.forceFlush :
+        for i in range(200):
+            log.msg("+"*80, logLevel=logging.CRITICAL)
 
-    # Start factory and reactor
+    # Give test client a chance to initialize a thread for itself
+    # testing.initialize(opts=options)
+
+    # Start the factory
     wampFactory.startFactory()
+
+    # Initialize testing: checks if we're doing a test and sets it up
+    testing.initialize(options, reactor)
+
+    # Start the reactor
     if options.nosignalhandlers:
-       reactor.run(installSignalHandlers=0)
+        reactor.run(installSignalHandlers=0)
     else:
-       reactor.run()
+        reactor.run()
+
+    # Stope the factory
     wampFactory.stopFactory()
+
+    # Give the testing module a chance to finalize, if necessary
+    testing.finalize()
 
 if __name__ == "__main__":
     start()

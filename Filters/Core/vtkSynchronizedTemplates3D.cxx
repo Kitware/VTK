@@ -21,6 +21,7 @@
 #include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
@@ -42,6 +43,8 @@
 
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
+vtkInformationKeyRestrictedMacro(vtkSynchronizedTemplates3D, EXECUTE_EXTENT, IntegerVector, 6);
+
 //----------------------------------------------------------------------------
 // Description:
 // Construct object with initial scalar range (0,1) and single contour value
@@ -53,10 +56,6 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
   this->GenerateTriangles = 1;
-
-  this->ExecuteExtent[0] = this->ExecuteExtent[1]
-    = this->ExecuteExtent[2] = this->ExecuteExtent[3]
-    = this->ExecuteExtent[4] = this->ExecuteExtent[5] = 0;
 
   this->ArrayComponent = 0;
 
@@ -691,7 +690,7 @@ unsigned long vtkSynchronizedTemplates3D::GetInputMemoryLimit()
 void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
                                                  vtkInformation *inInfo,
                                                  vtkInformation *outInfo,
-                                                 int *exExt, vtkDataArray *inScalars)
+                                                 vtkDataArray *inScalars)
 {
   void *ptr;
   vtkPolyData *output;
@@ -700,6 +699,7 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
 
   output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  int* exExt = outInfo->Get(vtkSynchronizedTemplates3D::EXECUTE_EXTENT());
   if ( exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5] )
     {
     vtkDebugMacro(<<"3D structured contours requires 3D data");
@@ -754,7 +754,7 @@ int vtkSynchronizedTemplates3D::RequestData(
   vtkDataArray *inScalars = this->GetInputArrayToProcess(0,inputVector);
 
   // Just call the threaded execute directly.
-  this->ThreadedExecute(input, inInfo, outInfo, this->ExecuteExtent, inScalars);
+  this->ThreadedExecute(input, inInfo, outInfo, inScalars);
 
   output->Squeeze();
 
@@ -819,13 +819,7 @@ int vtkSynchronizedTemplates3D::RequestUpdateExtent(
   // This is the region that we are really updating, although
   // we may require a larger input region in order to generate
   // it if normals / gradients are being computed
-
-  this->ExecuteExtent[0] = ext[0];
-  this->ExecuteExtent[1] = ext[1];
-  this->ExecuteExtent[2] = ext[2];
-  this->ExecuteExtent[3] = ext[3];
-  this->ExecuteExtent[4] = ext[4];
-  this->ExecuteExtent[5] = ext[5];
+  outInfo->Set(vtkSynchronizedTemplates3D::EXECUTE_EXTENT(), ext, 6);
 
   // expand if we need to compute gradients
   if (this->ComputeGradients || this->ComputeNormals)

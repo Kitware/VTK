@@ -23,6 +23,7 @@
 #include <vtkInformationVector.h>
 #include <vtkIntArray.h>
 #include <vtkMultiBlockDataSet.h>
+#include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkStringArray.h>
 #include <vtkPolyData.h>
@@ -41,7 +42,7 @@ int vtkGDALVectorReader::OGRRegistered = 0;
 class vtkGDALVectorReader::Internal
 {
 public:
-  Internal( const char* srcName, int srcMode, int appendFeatures )
+  Internal( const char* srcName, int srcMode, int appendFeatures, int addFeatIds )
     {
     this->Source = OGRSFDriverRegistrar::Open( srcName, srcMode, &this->Driver );
     if ( ! this->Source )
@@ -54,6 +55,7 @@ public:
       }
     this->LayerIdx = 0;
     this->AppendFeatures = appendFeatures;
+    this->AddFeatureIds = addFeatIds;
     }
   ~Internal()
     {
@@ -91,6 +93,13 @@ public:
       fields->push_back( arr );
       (*pd)->GetCellData()->AddArray( arr );
       arr->FastDelete();
+      }
+    if (this->AddFeatureIds)
+      {
+      vtkNew<vtkIdTypeArray> featIds;
+      featIds->SetName("_vtkPedigreeIds");
+      (*pd)->GetCellData()->SetPedigreeIds(featIds.GetPointer());
+      fields->push_back(featIds.GetPointer());
       }
 
     *lines = vtkCellArray::New();
@@ -189,6 +198,14 @@ public:
             {
             sarr->InsertNextValue( sval );
             }
+          }
+        }
+      if (this->AddFeatureIds)
+        {
+        vtkIdTypeArray* idarr = vtkIdTypeArray::SafeDownCast(fields[numFields]);
+        for ( i = 0; i < nPoly; ++i )
+          {
+          idarr->InsertNextValue(feat->GetFID());
           }
         }
       OGRFeature::DestroyFeature(feat);
@@ -292,6 +309,7 @@ public:
   const char* LastError;
   int LayerIdx;
   int AppendFeatures;
+  int AddFeatureIds;
 };
 
 // -----------------------------------------------------------------------------
@@ -310,6 +328,7 @@ vtkGDALVectorReader::vtkGDALVectorReader()
     }
 
   this->AppendFeatures = 0;
+  this->AddFeatureIds = 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -328,6 +347,8 @@ void vtkGDALVectorReader::PrintSelf( ostream& os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   os << indent << "FileName: " << ( this->FileName ? this->FileName : "(null)" ) << "\n";
   os << indent << "Implementation: " << this->Implementation << "\n";
+  os << indent << "AppendFeatures: " << (this->AppendFeatures ? "ON" : "OFF") << "\n";
+  os << indent << "AddFeatureIds: " << (this->AddFeatureIds ? "ON" : "OFF") << "\n";
 }
 
 // -----------------------------------------------------------------------------
@@ -538,7 +559,8 @@ int vtkGDALVectorReader::InitializeInternal()
   if ( !this->Implementation )
     {
     this->Implementation = new vtkGDALVectorReader::Internal(
-                             this->FileName, 0 , this->AppendFeatures );
+                             this->FileName, 0 ,
+                             this->AppendFeatures, this->AddFeatureIds );
     if ( ! this->Implementation || this->Implementation->LastError )
       {
       if ( this->Implementation )

@@ -57,6 +57,8 @@ vtkDendrogramItem::vtkDendrogramItem() : PositionVector(0, 0)
   this->MaxX = 0.0;
   this->MaxY = 0.0;
 
+  this->LabelWidth = 0.0;
+
   this->NumberOfLeafNodes = 0;
   this->MultiplierX = 100.0;
   this->MultiplierY = 100.0;
@@ -174,19 +176,20 @@ bool vtkDendrogramItem::Paint(vtkContext2D *painter)
     return true;
     }
 
-  this->PrepareToPaint();
+  this->PrepareToPaint(painter);
 
   this->PaintBuffers(painter);
   return true;
 }
 
 //-----------------------------------------------------------------------------
-void vtkDendrogramItem::PrepareToPaint()
+void vtkDendrogramItem::PrepareToPaint(vtkContext2D *painter)
 {
   if (this->IsDirty())
     {
     this->RebuildBuffers();
     }
+  this->ComputeLabelWidth(painter);
 }
 
 //-----------------------------------------------------------------------------
@@ -399,7 +402,6 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
   double xStart, yStart;
   double sourcePoint[3];
   double targetPoint[3];
-  double spacing = 25;
   int numberOfCollapsedSubTrees = 0;
 
   vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
@@ -564,119 +566,119 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
       }
     }
 
-  // special case: all the true leaf nodes have been collapsed
+  // the remainder of this function involves drawing the leaf node labels,
+  // so we can return now if that feature has been disabled.
+  if (!this->DrawLabels)
+    {
+    return;
+    }
+
+  // special case: all the true leaf nodes have been collapsed.
+  // This means that there aren't any labels left to draw.
   if (this->NumberOfLeafNodes <= numberOfCollapsedSubTrees)
     {
     return;
+    }
+
+  //"Igq" selected for range of height
+  int fontSize = painter->ComputeFontSizeForBoundedString("Igq", VTK_FLOAT_MAX,
+                                                           this->LeafSpacing);
+  // make sure our current zoom level allows for a legibly-sized font
+  if (fontSize < 8)
+    {
+    return;
+    }
+
+  // leave a small amount of space between the tree and the vertex labels
+  double spacing = this->LeafSpacing * 0.5;
+
+  // set up our text property to draw leaf node labels
+  painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
+  painter->GetTextProp()->SetJustificationToLeft();
+  painter->GetTextProp()->SetVerticalJustificationToCentered();
+  painter->GetTextProp()->SetOrientation(0);
+  painter->GetTextProp()->SetOrientation(
+    this->GetTextAngleForOrientation(orientation));
+
+  // make sure some of the labels would be visible on screen
+  switch (orientation)
+    {
+    case vtkDendrogramItem::DOWN_TO_UP:
+      if (this->SceneBottomLeft[1] > this->MaxY + spacing ||
+          this->SceneTopRight[1] < this->MaxY + spacing)
+        {
+        return;
+        }
+      break;
+    case vtkDendrogramItem::RIGHT_TO_LEFT:
+      if (this->SceneBottomLeft[0] > this->MinX - spacing ||
+          this->SceneTopRight[0] < this->MinX - spacing)
+        {
+        return;
+        }
+      painter->GetTextProp()->SetJustificationToRight();
+      break;
+    case vtkDendrogramItem::UP_TO_DOWN:
+      if (this->SceneBottomLeft[1] > this->MinY - spacing ||
+          this->SceneTopRight[1] < this->MinY - spacing)
+        {
+        return;
+        }
+      painter->GetTextProp()->SetJustificationToRight();
+      break;
+    case vtkDendrogramItem::LEFT_TO_RIGHT:
+    default:
+      if (this->SceneBottomLeft[0] > this->MaxX + spacing ||
+          this->SceneTopRight[0] < this->MaxX + spacing)
+        {
+        return;
+        }
+      break;
     }
 
   // get array of node names from the tree
   vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
     this->LayoutTree->GetVertexData()->GetAbstractArray("node name"));
 
-  // leave a small amount of space between the tree and the vertex labels
-  spacing = this->LeafSpacing * 0.5;
-
-  //"Igq" selected for range of height
-  int fontSize = painter->ComputeFontSizeForBoundedString("Igq", VTK_FLOAT_MAX,
-                                                           this->LeafSpacing);
-  bool canDrawText = true;
-  if (fontSize < 8)
+  // find our leaf nodes & draw their labels
+  for (vtkIdType vertex = 0; vertex < this->LayoutTree->GetNumberOfVertices();
+       ++vertex)
     {
-    canDrawText = false;
-    }
-
-  if (this->DrawLabels)
-    {
-    // make sure some of the labels would be visible on screen
-    if (!canDrawText)
+    if (!this->LayoutTree->IsLeaf(vertex))
       {
-      return;
+      continue;
       }
 
-    // set up our text property to draw row names
-    painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
-    painter->GetTextProp()->SetJustificationToLeft();
-    painter->GetTextProp()->SetVerticalJustificationToCentered();
-    painter->GetTextProp()->SetOrientation(0);
-
+    double point[3];
+    this->LayoutTree->GetPoint(vertex, point);
     switch (orientation)
       {
       case vtkDendrogramItem::DOWN_TO_UP:
-        if (this->SceneBottomLeft[1] > this->MaxY + spacing ||
-            this->SceneTopRight[1] < this->MaxY + spacing)
-          {
-          return;
-          }
+        xStart = this->Position[0] + point[0] * this->MultiplierX;
+        yStart = this->MaxY + spacing;
         break;
       case vtkDendrogramItem::RIGHT_TO_LEFT:
-        if (this->SceneBottomLeft[0] > this->MinX - spacing ||
-            this->SceneTopRight[0] < this->MinX - spacing)
-          {
-          return;
-          }
-        painter->GetTextProp()->SetJustificationToRight();
+        xStart = this->MinX - spacing;
+        yStart = this->Position[1] + point[1] * this->MultiplierY;
         break;
       case vtkDendrogramItem::UP_TO_DOWN:
-        if (this->SceneBottomLeft[1] > this->MinY - spacing ||
-            this->SceneTopRight[1] < this->MinY - spacing)
-          {
-          return;
-          }
-        painter->GetTextProp()->SetJustificationToRight();
+        xStart = this->Position[0] + point[0] * this->MultiplierX;
+        yStart = this->MinY - spacing;
         break;
       case vtkDendrogramItem::LEFT_TO_RIGHT:
       default:
-        if (this->SceneBottomLeft[0] > this->MaxX + spacing ||
-            this->SceneTopRight[0] < this->MaxX + spacing)
-          {
-          return;
-          }
+        xStart = this->MaxX + spacing;
+        yStart = this->Position[1] + point[1] * this->MultiplierY;
         break;
       }
 
-    painter->GetTextProp()->SetOrientation(
-      this->GetTextAngleForOrientation(orientation));
-
-    for (vtkIdType vertex = 0; vertex < this->LayoutTree->GetNumberOfVertices();
-         ++vertex)
+    std::string vertexName = vertexNames->GetValue(vertex);
+    if (this->SceneBottomLeft[0] < xStart &&
+        this->SceneTopRight[0] > xStart   &&
+        this->SceneBottomLeft[1] < yStart &&
+        this->SceneTopRight[1] > yStart)
       {
-      if (!this->LayoutTree->IsLeaf(vertex))
-        {
-        continue;
-        }
-
-      double point[3];
-      this->LayoutTree->GetPoint(vertex, point);
-      switch (orientation)
-        {
-        case vtkDendrogramItem::DOWN_TO_UP:
-          xStart = this->Position[0] + point[0] * this->MultiplierX;
-          yStart = this->MaxY + spacing;
-          break;
-        case vtkDendrogramItem::RIGHT_TO_LEFT:
-          xStart = this->MinX - spacing;
-          yStart = this->Position[1] + point[1] * this->MultiplierY;
-          break;
-        case vtkDendrogramItem::UP_TO_DOWN:
-          xStart = this->Position[0] + point[0] * this->MultiplierX;
-          yStart = this->MinY - spacing;
-          break;
-        case vtkDendrogramItem::LEFT_TO_RIGHT:
-        default:
-          xStart = this->MaxX + spacing;
-          yStart = this->Position[1] + point[1] * this->MultiplierY;
-          break;
-        }
-
-      std::string vertexName = vertexNames->GetValue(vertex);
-      if (this->SceneBottomLeft[0] < xStart &&
-          this->SceneTopRight[0] > xStart   &&
-          this->SceneBottomLeft[1] < yStart &&
-          this->SceneTopRight[1] > yStart)
-        {
-        painter->DrawString(xStart, yStart, vertexName);
-        }
+      painter->DrawString(xStart, yStart, vertexName);
       }
     }
 }
@@ -946,7 +948,8 @@ vtkIdType vtkDendrogramItem::GetClosestVertex(double x, double y)
 void vtkDendrogramItem::CollapseSubTree(vtkIdType vertex)
 {
   // no removing the root of the tree
-  if (vertex == this->PrunedTree->GetRoot())
+  vtkIdType root = this->PrunedTree->GetRoot();
+  if (vertex == root)
     {
     return;
     }
@@ -960,6 +963,13 @@ void vtkDendrogramItem::CollapseSubTree(vtkIdType vertex)
   // "VertexIsPruned" array.  Mark that vertex as pruned by recording
   // how many collapsed leaf nodes exist beneath it.
   int numLeavesCollapsed = this->CountLeafNodes(originalId);
+
+  // make sure we're not about to collapse away the whole tree
+  int totalLeaves = this->CountLeafNodes(root);
+  if (numLeavesCollapsed >= totalLeaves)
+    {
+    return;
+    }
 
   // no collapsing of leaf nodes.  This should never happen, but it doesn't
   // hurt to be safe.
@@ -1294,17 +1304,55 @@ void vtkDendrogramItem::GetBounds(double bounds[4])
   bounds[1] = this->MaxX;
   bounds[2] = this->MinY;
   bounds[3] = this->MaxY;
+
+  if (this->LabelWidth == 0.0)
+    {
+    return;
+    }
+
+  double spacing = this->LeafSpacing * 0.5;
+
+  switch (this->GetOrientation())
+    {
+    case vtkDendrogramItem::LEFT_TO_RIGHT:
+    default:
+      bounds[1] += spacing + this->LabelWidth;
+      break;
+
+    case vtkDendrogramItem::UP_TO_DOWN:
+      bounds[2] -= spacing + this->LabelWidth;
+      break;
+
+    case vtkDendrogramItem::RIGHT_TO_LEFT:
+      bounds[0] -= spacing + this->LabelWidth;
+      break;
+
+    case vtkDendrogramItem::DOWN_TO_UP:
+      bounds[3] += spacing + this->LabelWidth;
+      break;
+    }
 }
 
 //-----------------------------------------------------------------------------
-float vtkDendrogramItem::GetLabelWidth(vtkContext2D *painter)
+float vtkDendrogramItem::GetLabelWidth()
 {
-   int fontSize = painter->ComputeFontSizeForBoundedString("Igq", VTK_FLOAT_MAX,
+  return this->LabelWidth;
+}
+
+//-----------------------------------------------------------------------------
+void vtkDendrogramItem::ComputeLabelWidth(vtkContext2D *painter)
+{
+  this->LabelWidth = 0.0;
+  if (!this->DrawLabels)
+    {
+    return;
+    }
+  int fontSize = painter->ComputeFontSizeForBoundedString("Igq", VTK_FLOAT_MAX,
                                                            this->LeafSpacing);
-   if (fontSize < 8)
-     {
-     return 0.0;
-     }
+  if (fontSize < 8)
+    {
+    return;
+    }
 
   // temporarily set text to default orientation
   int orientation = painter->GetTextProp()->GetOrientation();
@@ -1313,21 +1361,19 @@ float vtkDendrogramItem::GetLabelWidth(vtkContext2D *painter)
   // get array of node names from the tree
   vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
     this->LayoutTree->GetVertexData()->GetAbstractArray("node name"));
-  double maxLength = 0.0;
+
   float bounds[4];
   for (vtkIdType i = 0; i < vertexNames->GetNumberOfTuples(); ++i)
     {
     painter->ComputeStringBounds(vertexNames->GetValue(i), bounds);
-    if (bounds[2] > maxLength)
+    if (bounds[2] > this->LabelWidth)
       {
-      maxLength = bounds[2];
+      this->LabelWidth = bounds[2];
       }
     }
 
   // restore orientation
   painter->GetTextProp()->SetOrientation(orientation);
-
-  return maxLength;
 }
 
 //-----------------------------------------------------------------------------

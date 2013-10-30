@@ -137,7 +137,7 @@ public:
   // This function calls RebuildBuffers() if necessary.
   // Once PrepareToPaint() has been called, GetBounds() is guaranteed
   // to provide useful information.
-  void PrepareToPaint();
+  void PrepareToPaint(vtkContext2D *painter);
 
   // Description:
   // Get the bounds for this item as (Xmin,Xmax,Ymin,Ymax).
@@ -146,14 +146,22 @@ public:
   virtual void GetBounds(double bounds[4]);
 
   // Description:
+  // Compute the width of the longest leaf node label.
+  void ComputeLabelWidth(vtkContext2D *painter);
+
+  // Description:
   // Get the width of the longest leaf node label.
-  float GetLabelWidth(vtkContext2D *painter);
+  float GetLabelWidth();
 
   // Description:
   // Find the position of the vertex with the specified name.  Store
   // this information in the passed array.  Returns true if the vertex
   // was found, false otherwise.
   bool GetPositionOfVertex(std::string vertexName, double position[2]);
+
+  // Description:
+  // Paints the input tree as a dendrogram.
+  virtual bool Paint(vtkContext2D *painter);
 
   // this struct & class allow us to generate a priority queue of vertices.
   struct WeightedVertex
@@ -225,10 +233,6 @@ protected:
   // Description:
   // Compute the bounds of our tree in pixel coordinates.
   void ComputeBounds();
-
-  // Description:
-  // Paints the input tree as a dendrogram.
-  virtual bool Paint(vtkContext2D *painter);
 
   // Description:
   // Count the number of leaf nodes in the tree
@@ -307,6 +311,7 @@ private:
   double MaxY;
   double SceneBottomLeft[3];
   double SceneTopRight[3];
+  float LabelWidth;
   bool ColorTree;
   bool ExtendLeafNodes;
   bool DrawLabels;

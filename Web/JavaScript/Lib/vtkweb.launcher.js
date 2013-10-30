@@ -238,4 +238,16 @@
         return Connections;
     };
 
+    // ----------------------------------------------------------------------
+    // Local module registration
+    // ----------------------------------------------------------------------
+    try {
+      // Tests for presence of jQuery, then registers this module
+      if ($ !== undefined) {
+        module.registerModule('vtkweb-launcher');
+      }
+    } catch(err) {
+      console.error('jQuery is missing: ' + err.message);
+    }
+
 }(window, jQuery));

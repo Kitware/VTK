@@ -66,6 +66,17 @@ public:
   vtkTree * GetTree();
 
   // Description:
+  // Set a tree to be drawn for the columns of the heatmap.  This tree's
+  // vertex data must contain a vtkStringArray called "node name" that
+  // corresponds to the names of the columns in the heatmap.
+  virtual void SetColumnTree(vtkTree *tree);
+
+  // Description:
+  // Get the tree that represents the columns of the heatmap (if one has
+  // been set).
+  vtkTree * GetColumnTree();
+
+  // Description:
   // Set the table that this item draws.  The first column of the table
   // must contain the names of the rows.  These names, in turn, must correspond
   // with the nodes names in the input tree.  See SetTree for more information.
@@ -94,7 +105,13 @@ public:
   // Reverse the order of the rows in our input table.  This is used
   // to simplify the table layout for DOWN_TO_UP and RIGHT_TO_LEFT
   // orientations.
-  void ReverseTable();
+  void ReverseTableRows();
+
+  // Description:
+  // Reverse the order of the rows in our input table.  This is used
+  // to simplify the table layout for DOWN_TO_UP and UP_TO_DOWN
+  // orientations.
+  void ReverseTableColumns();
 
   // Description:
   // Set which way the tree / heatmap should face within the visualization.
@@ -161,7 +178,12 @@ protected:
   // Mark heatmap rows as hidden when a subtree is collapsed.
   void CollapseHeatmapRows();
 
+  // Description:
+  // Mark heatmap columns as hidden when a subtree is collapsed.
+  void CollapseHeatmapColumns();
+
   vtkSmartPointer<vtkDendrogramItem> Dendrogram;
+  vtkSmartPointer<vtkDendrogramItem> ColumnDendrogram;
   vtkSmartPointer<vtkHeatmapItem> Heatmap;
   int Orientation;
 

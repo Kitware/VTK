@@ -105,7 +105,7 @@ class METAIO_EXPORT MetaImage : public MetaObject
 
     virtual void Clear(void);
 
-    virtual bool InitializeEssential(int _nDims,
+    bool InitializeEssential(int _nDims,
                                      const int * _dimSize,
                                      const float * _elementSpacing,
                                      MET_ValueEnumType _elementType,
@@ -234,13 +234,13 @@ class METAIO_EXPORT MetaImage : public MetaObject
     //
     //
     //
-    virtual bool CanRead(const char *_headerName=NULL) const;
+    bool CanRead(const char *_headerName=NULL) const;
 
-    virtual bool Read(const char *_headerName=NULL,
+    bool Read(const char *_headerName=NULL,
                       bool _readElements=true,
                       void * _buffer=NULL);
 
-    virtual bool ReadROI(int * _indexMin, int * _indexMax,
+    bool ReadROI(int * _indexMin, int * _indexMax,
                          const char *_headerName=NULL,
                          bool _readElements=true,
                          void * _buffer=NULL,
@@ -248,27 +248,27 @@ class METAIO_EXPORT MetaImage : public MetaObject
                          );
 
 
-    virtual bool CanReadStream(METAIO_STREAM::ifstream * _stream) const;
+    bool CanReadStream(METAIO_STREAM::ifstream * _stream) const;
 
-    virtual bool ReadStream(int _nDims,
+    bool ReadStream(int _nDims,
                             METAIO_STREAM::ifstream * _stream,
                             bool _readElements=true,
                             void * _buffer=NULL);
 
-    virtual bool ReadROIStream(int * _indexMin, int * _indexMax,
+    bool ReadROIStream(int * _indexMin, int * _indexMax,
                                int _nDims,
                                METAIO_STREAM::ifstream * _stream,
                                bool _readElements=true,
                                void * _buffer=NULL,
                                unsigned int subSamplingFactor=1);
 
-    virtual bool Write(const char *_headName=NULL,
+    bool Write(const char *_headName=NULL,
                        const char *_dataName=NULL,
                        bool _writeElements=true,
                        const void * _constElementData=NULL,
                        bool _append=false);
 
-    virtual bool WriteROI(int * _indexMin, int * _indexMax,
+    bool WriteROI(int * _indexMin, int * _indexMax,
                           const char *_headName=NULL,
                           const char *_dataName=NULL,
                           bool _writeElements=true,
@@ -276,12 +276,12 @@ class METAIO_EXPORT MetaImage : public MetaObject
                           bool _append=false
                           );
 
-    virtual bool WriteStream(METAIO_STREAM::ofstream * _stream,
+    bool WriteStream(METAIO_STREAM::ofstream * _stream,
                              bool _writeElements=true,
                              const void * _constElementData=NULL);
 
 
-    virtual bool Append(const char *_headName=NULL);
+    bool Append(const char *_headName=NULL);
 
 
     typedef METAIO_STL::pair<long,long> CompressionOffsetType;
@@ -327,13 +327,13 @@ class METAIO_EXPORT MetaImage : public MetaObject
     char               m_ElementDataFileName[255];
 
 
-    void  M_Destroy(void);
+    virtual void  M_Destroy(void);
 
-    void  M_SetupReadFields(void);
+    virtual void  M_SetupReadFields(void);
 
-    void  M_SetupWriteFields(void);
+    virtual void  M_SetupWriteFields(void);
 
-    bool  M_Read(void);
+    virtual bool  M_Read(void);
 
     // _dataQuantity is expressed in number of pixels. Internally it will be
     // scaled by the number of components and number of bytes per component.

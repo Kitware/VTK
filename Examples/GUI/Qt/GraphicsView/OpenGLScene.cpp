@@ -126,8 +126,14 @@ void OpenGLScene::mousePressEvent(QGraphicsSceneMouseEvent* e)
 {
   QGraphicsScene::mousePressEvent(e);
 
-  // see if its under one our our deactivated items
-  QGraphicsItem* item = itemAt(e->scenePos());
+  // See if its under one our our deactivated items.
+  #if QT_VERSION >= 0x050000
+    // The transform is just the identity matrix.
+    QGraphicsItem* item = itemAt(e->scenePos(),QTransform());
+  #else
+    QGraphicsItem* item = itemAt(e->scenePos());
+  #endif
+
   if(item == mGraphLayoutView && CurrentState != 0)
   {
     e->accept();

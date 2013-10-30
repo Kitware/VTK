@@ -13,8 +13,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkCPExodusIIElementBlock
-  vtkCPExodusIIInSituReader
   vtkCPExodusIINodalCoordinatesTemplate
   vtkCPExodusIIResultsArrayTemplate
   vtkExodusIIReaderParser

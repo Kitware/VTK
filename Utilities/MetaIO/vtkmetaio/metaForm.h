@@ -111,12 +111,6 @@ class METAIO_EXPORT MetaForm
 
     void * GetUserField(const char* _name);
 
-    bool   AddUserField(const char* _fieldName,
-                        MET_ValueEnumType _type,
-                        int _length=0,
-                        bool _required=true,
-                        int _dependsOn=-1);
-
     template <class TType>
     bool   AddUserField(const char* _fieldName,
                         MET_ValueEnumType _type,
@@ -140,11 +134,11 @@ class METAIO_EXPORT MetaForm
     //
     //
     //
-    virtual bool  CanRead(const char * _fileName=NULL) const;
+    bool  CanRead(const char * _fileName=NULL) const;
 
     bool  Read(const char * _fileName=NULL);
 
-    virtual bool  CanReadStream(METAIO_STREAM::ifstream * _stream) const;
+    bool  CanReadStream(METAIO_STREAM::ifstream * _stream) const;
 
     bool  ReadStream(METAIO_STREAM::ifstream * _stream);
 

@@ -5,6 +5,8 @@
  * Those viewport are interactive windows that are used to render 2D/3D content
  * and response to user mouse interactions.
  *
+ * This module registers itself as: 'vtkweb-viewport'
+ *
  * @class vtkWeb.viewport
  */
 (function (GLOBAL, $) {
@@ -725,4 +727,19 @@
     module.createViewport = function (option) {
         return createViewport(option);
     };
+
+    // ----------------------------------------------------------------------
+    // Local module registration
+    // ----------------------------------------------------------------------
+    try {
+      // Tests for presence of jQuery, then registers this module
+      if ($ !== undefined) {
+        module.registerModule('vtkweb-viewport');
+      } else {
+        console.error('Module failed to register, jQuery is missing');
+      }
+    } catch(err) {
+      console.error('Caught exception while registering module: ' + err.message);
+    }
+
 }(window, jQuery));

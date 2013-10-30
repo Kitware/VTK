@@ -1,6 +1,7 @@
 set(Module_SRCS
   vtkAxis.cxx
   vtkAxisExtended.cxx
+  vtkCategoryLegend.cxx
   vtkChart.cxx
   vtkChartHistogram2D.cxx
   vtkChartLegend.cxx

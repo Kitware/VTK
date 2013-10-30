@@ -1573,4 +1573,17 @@
             module.ViewportFactory[FACTORY_KEY] = FACTORY;
         }
     }
+
+    // ----------------------------------------------------------------------
+    // Local module registration
+    // ----------------------------------------------------------------------
+    try {
+      // Tests for presence of jQuery and glMatrix, then registers this module
+      if ($ !== undefined && module.ViewportFactory[FACTORY_KEY] !== undefined) {
+        module.registerModule('vtkweb-viewport-webgl');
+      }
+    } catch(err) {
+      console.error('jQuery or glMatrix is missing or browser does not support WebGL: ' + err.message);
+    }
+
 }(window, jQuery));

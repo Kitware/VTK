@@ -5,7 +5,7 @@
 #include <metaScene.h>
 #include <metaEllipse.h>
 
-int main(int argc, char **argv)
+int main(int, char * [])
 {
 
   METAIO_STREAM::cout << "Initializing scene ..." << METAIO_STREAM::endl;

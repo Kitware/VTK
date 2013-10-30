@@ -1,9 +1,12 @@
 vtk_add_test_cxx(
   TestCoincidentGraphLayoutView.cxx
+  TestColumnTree.cxx
   TestConeLayoutStrategy.cxx
   TestDendrogramItem.cxx
   TestGraphLayoutView.cxx
+  TestHeatmapCategoryLegend.cxx
   TestHeatmapItem.cxx
+  TestHeatmapScalarLegend.cxx
   TestHierarchicalGraphView.cxx
   TestIcicleView.cxx
   TestInteractorStyleTreeMapHover.cxx

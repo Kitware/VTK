@@ -3,6 +3,8 @@ package vtk.sample.rendering;
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -10,6 +12,8 @@ import javax.swing.SwingUtilities;
 import vtk.vtkActor;
 import vtk.vtkBoxRepresentation;
 import vtk.vtkBoxWidget2;
+import vtk.vtkCell;
+import vtk.vtkCellPicker;
 import vtk.vtkConeSource;
 import vtk.vtkLookupTable;
 import vtk.vtkNativeLibrary;
@@ -17,6 +21,8 @@ import vtk.vtkPolyDataMapper;
 import vtk.vtkScalarBarRepresentation;
 import vtk.vtkScalarBarWidget;
 import vtk.vtkTransform;
+import vtk.rendering.vtkAbstractEventInterceptor;
+import vtk.rendering.vtkEventInterceptor;
 import vtk.rendering.jogl.vtkAbstractJoglComponent;
 import vtk.rendering.jogl.vtkJoglCanvasComponent;
 import vtk.rendering.jogl.vtkJoglPanelComponent;
@@ -105,6 +111,35 @@ public class JoglConeRendering {
                 representation.HandlesOn();
                 boxWidget.SetEnabled(1);
                 boxWidget.SetMoveFacesEnabled(1);
+
+                // Add cell picker
+                final vtkCellPicker picker = new vtkCellPicker();
+                Runnable pickerCallback = new Runnable() {
+					public void run() {
+						if(picker.GetCellId() != -1) {
+							vtkCell cell = picker.GetDataSet().GetCell(picker.GetCellId());
+							System.out.println("Pick cell: " +  picker.GetCellId() + " - Bounds: " + Arrays.toString(cell.GetBounds()));
+						}
+					}
+				};
+                joglWidget.getRenderWindowInteractor().SetPicker(picker);
+                picker.AddObserver("EndPickEvent", pickerCallback, "run");
+
+                // Bind pick action to double-click
+                joglWidget.getInteractorForwarder().setEventInterceptor(new vtkAbstractEventInterceptor() {
+
+					public boolean mouseClicked(MouseEvent e) {
+						// Request picking action on double-click
+						final double[] position = {e.getX(), joglWidget.getComponent().getHeight() - e.getY(), 0};
+						if(e.getClickCount() == 2) {
+							System.out.println("Click trigger the picking (" + position[0] + ", " +position[1] + ")");
+							picker.Pick(position, joglWidget.getRenderer());
+						}
+
+						// We let the InteractionStyle process the event anyway
+						return false;
+					}
+				});
 
                 // UI part
                 JFrame frame = new JFrame("SimpleVTK");

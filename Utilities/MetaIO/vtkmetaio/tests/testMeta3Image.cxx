@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <metaImage.h>
 
-int main(int argc, char **argv)
+int main(int, char * [])
   {
 
   MetaImage tIm(8, 8, 1, 2, MET_CHAR);

@@ -33,10 +33,14 @@
 #include <set>                     // For blank row support
 #include <vector>                  // For row mapping
 
+class vtkBitArray;
+class vtkCategoryLegend;
+class vtkColorLegend;
 class vtkLookupTable;
 class vtkStringArray;
 class vtkTable;
 class vtkTooltipItem;
+class vtkVariantArray;
 
 class VTKVIEWSINFOVIS_EXPORT vtkHeatmapItem : public vtkContextItem
 {
@@ -99,6 +103,16 @@ public:
   // Used by vtkTreeHeatmapItem to represent missing data.
   void MarkRowAsBlank(std::string rowName);
 
+  // Description:
+  // Paints the table as a heatmap.
+  virtual bool Paint(vtkContext2D *painter);
+
+  // Description:
+  // Get the width of the largest row or column label drawn by this
+  // heatmap.
+  vtkGetMacro(RowLabelWidth, float);
+  vtkGetMacro(ColumnLabelWidth, float);
+
   //BTX
 
   // Description:
@@ -118,6 +132,10 @@ public:
   // Description:
   // Display a tooltip when the user mouses over a cell in the heatmap.
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
+
+  // Description:
+  // Display a legend for a column of data.
+  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &event);
 
   //ETX
 
@@ -145,10 +163,6 @@ protected:
   // Description:
   // Generate a separate vtkLookupTable for each column in the table.
   void InitializeLookupTables();
-
-  // Description:
-  // Paints the table as a heatmap.
-  virtual bool Paint(vtkContext2D *painter);
 
   // Description:
   // Helper function.  Find the prominent, distinct values in the specified
@@ -186,6 +200,24 @@ protected:
   // visible scene.  Returns false otherwise.
   bool LineIsVisible(double x0, double y0, double x1, double y1);
 
+  // Description:
+  // Compute the extent of the heatmap.  This does not include
+  // the text labels.
+  void ComputeBounds();
+
+  // Description:
+  // Compute the width of our longest row label and the width of our
+  // longest column label.  These values are used by GetBounds().
+  void ComputeLabelWidth(vtkContext2D *painter);
+
+  // Setup the position, size, and orientation of this heatmap's color
+  // legend based on the heatmap's current orientation.
+  void PositionColorLegend(int orientation);
+
+  // Setup the position, size, and orientation of this heatmap's
+  // legends based on the heatmap's current orientation.
+  void PositionLegends(int orientation);
+
   vtkSmartPointer<vtkTable> Table;
 
 private:
@@ -193,15 +225,20 @@ private:
   void operator=(const vtkHeatmapItem&); // Not implemented
 
   unsigned long HeatmapBuildTime;
+  vtkNew<vtkCategoryLegend> CategoryLegend;
+  vtkNew<vtkColorLegend> ColorLegend;
   vtkNew<vtkTooltipItem> Tooltip;
   vtkNew<vtkLookupTable> ContinuousDataLookupTable;
   vtkNew<vtkLookupTable> CategoricalDataLookupTable;
+  vtkNew<vtkLookupTable> ColorLegendLookupTable;
   vtkNew<vtkStringArray> CategoricalDataValues;
+  vtkNew<vtkVariantArray> CategoryLegendValues;
   double CellWidth;
   double CellHeight;
 
   std::map< vtkIdType, std::pair< double, double > > ColumnRanges;
   std::vector< vtkIdType > SceneRowToTableRowMap;
+  std::vector< vtkIdType > SceneColumnToTableColumnMap;
   std::set<std::string> BlankRows;
 
   double MinX;
@@ -210,6 +247,12 @@ private:
   double MaxY;
   double SceneBottomLeft[3];
   double SceneTopRight[3];
+  float RowLabelWidth;
+  float ColumnLabelWidth;
+
+  vtkBitArray* CollapsedRowsArray;
+  vtkBitArray* CollapsedColumnsArray;
+  bool LegendPositionSet;
 };
 
 #endif
