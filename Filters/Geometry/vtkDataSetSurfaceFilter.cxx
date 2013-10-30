@@ -194,6 +194,7 @@ int vtkDataSetSurfaceFilter::RequestData(
   switch (input->GetDataObjectType())
     {
     case  VTK_UNSTRUCTURED_GRID:
+    case  VTK_UNSTRUCTURED_GRID_BASE:
       {
       if (!this->UnstructuredGridExecute(
             input, output, outInfo->Get(

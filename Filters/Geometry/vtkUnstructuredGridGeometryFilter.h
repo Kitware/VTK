@@ -39,16 +39,18 @@
 #define __vtkUnstructuredGridGeometryFilter_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkUnstructuredGridBaseAlgorithm.h"
 
 class vtkIncrementalPointLocator;
 class vtkHashTableOfSurfels; // internal class
 
-class VTKFILTERSGEOMETRY_EXPORT vtkUnstructuredGridGeometryFilter : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSGEOMETRY_EXPORT vtkUnstructuredGridGeometryFilter
+    : public vtkUnstructuredGridBaseAlgorithm
 {
 public:
   static vtkUnstructuredGridGeometryFilter *New();
-  vtkTypeMacro(vtkUnstructuredGridGeometryFilter,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkUnstructuredGridGeometryFilter,
+               vtkUnstructuredGridBaseAlgorithm)
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
