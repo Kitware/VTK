@@ -1677,21 +1677,88 @@ const char *preproc_find_include_file(
 }
 
 /**
+ * Convert a raw string into a normal string.  This is a helper
+ * function for preproc_include_file() to allow raw strings to
+ * be used in preprocessor directives.
+ */
+void preproc_escape_string(
+  char **linep, size_t *linelenp, size_t *jp, size_t d, size_t dl)
+{
+  char *line = *linep;
+  char *r = 0;
+  size_t linelen = *linelenp;
+  size_t l = *jp - d - 2*dl - 2;
+  size_t i;
+  size_t j = d;
+
+  if (l != 0)
+    {
+    r = (char *)malloc(l);
+    memcpy(r, &line[j+dl+1], l);
+    }
+
+  /* remove the "R" prefix */
+  if (j >= 2 && line[j-1] == '\"' && line[j-2] == 'R')
+    {
+    line[j - 2] = '\"';
+    j--;
+    }
+
+  for (i = 0; i < l; i++)
+    {
+    /* expand line buffer as necessary */
+    while (j+4 > linelen)
+      {
+      linelen *= 2;
+      line = (char *)realloc(line, linelen);
+      }
+
+    if ((r[i] >= ' ' && r[i] <= '~') || (r[i] & 0x80) != 0)
+      {
+      line[j++] = r[i];
+      }
+    else switch (r[i])
+      {
+      case '\a': line[j++] = '\\'; line[j++] = 'a'; break;
+      case '\b': line[j++] = '\\'; line[j++] = 'b'; break;
+      case '\f': line[j++] = '\\'; line[j++] = 'f'; break;
+      case '\n': line[j++] = '\\'; line[j++] = 'n'; break;
+      case '\r': line[j++] = '\\'; line[j++] = 'r'; break;
+      case '\t': line[j++] = '\\'; line[j++] = 't'; break;
+      case '\v': line[j++] = '\\'; line[j++] = 'v'; break;
+      case '\\': line[j++] = '\\'; line[j++] = '\\'; break;
+      case '\'': line[j++] = '\\'; line[j++] = '\''; break;
+      case '\"': line[j++] = '\\'; line[j++] = '\"'; break;
+      default:
+        sprintf(&line[j], "\\%3.3o", r[i]);
+        j += 4;
+        break;
+      }
+    }
+
+  free(r);
+  *linep = line;
+  *linelenp = linelen;
+  *jp = j;
+}
+
+/**
  * Include a file.  All macros defined in the included file
  * will have their IsExternal flag set.
  */
 static int preproc_include_file(
   PreprocessInfo *info, const char *filename, int system_first)
 {
-  const char *switchchars = "\n\r\"\'\?\\/*";
+  const char *switchchars = "\n\r\"\'\?\\/*()";
   char switchchar[256];
   char *tbuf;
   size_t tbuflen = FILE_BUFFER_SIZE;
   char *line;
   size_t linelen = 80;
   size_t i, j, n, r;
-  int in_comment = 0;
-  int in_quote = 0;
+  size_t d = 0;
+  size_t dn = 0;
+  int state = 0;
   int result = VTK_PARSE_OK;
   FILE *fp = NULL;
   const char *path = NULL;
@@ -1844,6 +1911,30 @@ static int preproc_include_file(
         {
         line[j++] = tbuf[i++];
         }
+      else if (state == '(')
+        {
+        /* look for end of raw string delimiter */
+        if (tbuf[i] == '(')
+          {
+          dn = j - d;
+          state = ')';
+          }
+        line[j++] = tbuf[i++];
+        }
+      else if (state == ')')
+        {
+        /* look for end of raw string */
+        if (tbuf[i] == '\"')
+          {
+          if ((j - d) > 2*dn+1 && line[j-dn-1] == ')' &&
+              strncmp(&line[d], &line[j-dn], dn) == 0)
+            {
+            preproc_escape_string(&line, &linelen, &j, d, dn);
+            state = 0;
+            }
+          }
+        line[j++] = tbuf[i++];
+        }
 #ifdef PREPROC_TRIGRAPHS
       else if (tbuf[i] == '?' && tbuf[i+1] == '?')
         {
@@ -1875,29 +1966,29 @@ static int preproc_include_file(
         {
         i++;
         }
-      else if (in_comment == '*')
+      else if (state == '*')
         {
         if (tbuf[i] == '*' && tbuf[i+1] == '/')
           {
           line[j++] = tbuf[i++];
           line[j++] = tbuf[i++];
-          in_comment = 0;
+          state = 0;
           }
         else
           {
           line[j++] = tbuf[i++];
           }
         }
-      else if (in_comment && tbuf[i] != '\n')
+      else if (state == '/' && tbuf[i] != '\n')
         {
         line[j++] = tbuf[i++];
         }
-      else if (in_quote)
+      else if (state == '\'' || state == '\"')
         {
-        if (tbuf[i] == in_quote)
+        if (tbuf[i] == state)
           {
           line[j++] = tbuf[i++];
-          in_quote = 0;
+          state = 0;
           }
         else if (tbuf[i] == '\\' && tbuf[i+1] != '\0')
           {
@@ -1909,15 +2000,34 @@ static int preproc_include_file(
           line[j++] = tbuf[i++];
           }
         }
-      else if (tbuf[i] == '/' && (tbuf[i+1] == '*' || tbuf[i+1] == '/'))
+      else if (tbuf[i] == '/')
         {
-        in_comment = tbuf[i+1];
-        line[j++] = tbuf[i++];
+        if (tbuf[i+1] == '*' || tbuf[i+1] == '/')
+          {
+          state = tbuf[i+1];
+          line[j++] = tbuf[i++];
+          }
         line[j++] = tbuf[i++];
         }
       else if (tbuf[i] == '\"' || tbuf[i] == '\'')
         {
-        in_quote = tbuf[i];
+        state = tbuf[i];
+        /* check for raw string prefixes */
+        if (state == '\"' && j > 0 && line[j-1] == 'R' &&
+            ((j > 2 &&
+              (line[j-3] == 'u' || line[j-2] == '8') &&
+              (j == 3 ||
+               !vtkParse_CharType(line[j-4], CPRE_IDGIT|CPRE_QUOTE))) ||
+             (j > 1 &&
+              (line[j-2] == 'u' || line[j-2] == 'U' || line[j-2] == 'L') &&
+              (j == 2 ||
+               !vtkParse_CharType(line[j-3], CPRE_IDGIT|CPRE_QUOTE))) ||
+             (j == 1 ||
+              !vtkParse_CharType(line[j-2], CPRE_IDGIT|CPRE_QUOTE))))
+          {
+          state = '(';
+          d = j + 1;
+          }
         line[j++] = tbuf[i++];
         }
       else if (tbuf[i] != '\n' && tbuf[i] != '\0')
