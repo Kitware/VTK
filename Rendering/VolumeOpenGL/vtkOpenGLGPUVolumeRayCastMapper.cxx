@@ -4249,7 +4249,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       if ( vol->GetProperty()->GetShade() )
         {
         shadeMethod=vtkOpenGLGPUVolumeRayCastMapperShadeYes;
-        assert("check: only_1_component_todo" && numberOfScalarComponents==1);
         }
       else
         {
