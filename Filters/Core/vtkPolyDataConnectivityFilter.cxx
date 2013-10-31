@@ -54,6 +54,8 @@ vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
 
   this->MarkVisitedPointIds = 0;
   this->VisitedPointIds = vtkIdList::New();
+
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 }
 
 vtkPolyDataConnectivityFilter::~vtkPolyDataConnectivityFilter()
@@ -157,6 +159,21 @@ int vtkPolyDataConnectivityFilter::RequestData(
   this->NewScalars->SetName("RegionId");
   this->NewScalars->SetNumberOfTuples(numPts);
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPts->SetDataType(inPts->GetDataType());
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->Allocate(numPts);
 
   // Traverse all cells marking those visited.  Each new search
@@ -651,4 +668,6 @@ void vtkPolyDataConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << indent
        << id << ": " << this->RegionSizes->GetValue(id) << std::endl;
     }
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

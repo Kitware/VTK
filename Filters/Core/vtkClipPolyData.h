@@ -140,6 +140,13 @@ public:
   // Return the mtime also considering the locator and clip function.
   unsigned long GetMTime();
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkClipPolyData(vtkImplicitFunction *cf=NULL);
   ~vtkClipPolyData();
@@ -151,8 +158,9 @@ protected:
   int InsideOut;
   double Value;
   int GenerateClipScalars;
-
   int GenerateClippedOutput;
+  int OutputPointsPrecision;
+
 private:
   vtkClipPolyData(const vtkClipPolyData&);  // Not implemented.
   void operator=(const vtkClipPolyData&);  // Not implemented.
