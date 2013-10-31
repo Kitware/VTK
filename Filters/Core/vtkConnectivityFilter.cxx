@@ -55,6 +55,8 @@ vtkConnectivityFilter::vtkConnectivityFilter()
 
   this->NewScalars = 0;
   this->NewCellScalars = 0;
+
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 vtkConnectivityFilter::~vtkConnectivityFilter()
@@ -139,6 +141,25 @@ int vtkConnectivityFilter::RequestData(
   this->NewCellScalars->SetNumberOfTuples(numCells);
 
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+    if(inputPointSet)
+      {
+      newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->Allocate(numPts);
 
   // Traverse all cells marking those visited.  Each new search
@@ -570,5 +591,7 @@ void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   double *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }
 

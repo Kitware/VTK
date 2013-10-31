@@ -28,6 +28,7 @@ vtkHedgeHog::vtkHedgeHog()
 {
   this->ScaleFactor = 1.0;
   this->VectorMode = VTK_USE_VECTOR;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 int vtkHedgeHog::RequestData(
@@ -82,7 +83,27 @@ int vtkHedgeHog::RequestData(
     }
   outputPD->CopyAllocate(pd, 2*numPts);
 
-  newPts = vtkPoints::New(); newPts->SetNumberOfPoints(2*numPts);
+  newPts = vtkPoints::New();
+
+    // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+    if(inputPointSet)
+      {
+      newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
+  newPts->SetNumberOfPoints(2*numPts);
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numPts,2));
 
@@ -149,4 +170,5 @@ void vtkHedgeHog::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Orient Mode: " << (this->VectorMode == VTK_USE_VECTOR ?
                                        "Orient by vector\n" : "Orient by normal\n");
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

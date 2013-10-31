@@ -229,6 +229,13 @@ public:
   // This method returns a pointer to a list of inflection points.
   double *GetInflectionPoints();
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkDecimatePro();
   ~vtkDecimatePro();
@@ -249,6 +256,7 @@ protected:
   int Degree;
   double InflectionPointRatio;
   vtkDoubleArray *InflectionPoints;
+  int OutputPointsPrecision;
 
   // to replace a static object
   vtkIdList *Neighbors;

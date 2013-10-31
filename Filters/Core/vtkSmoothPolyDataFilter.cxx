@@ -129,6 +129,8 @@ vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
   this->GenerateErrorScalars = 0;
   this->GenerateErrorVectors = 0;
 
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
+
   // optional second input
   this->SetNumberOfInputPorts(2);
 }
@@ -517,6 +519,21 @@ int vtkSmoothPolyDataFilter::RequestData(
   // We've setup the topology...now perform Laplacian smoothing
   //
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPts->SetDataType(input->GetPoints()->GetDataType());
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->SetNumberOfPoints(numPts);
 
   // If Source defined, we do constrained smoothing (that is, points are
@@ -724,4 +741,5 @@ void vtkSmoothPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Source (none)\n";
     }
 
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

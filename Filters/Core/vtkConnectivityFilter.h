@@ -145,6 +145,13 @@ public:
   vtkGetMacro(ColorRegions,int);
   vtkBooleanMacro(ColorRegions,int);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkConnectivityFilter();
   ~vtkConnectivityFilter();
@@ -155,6 +162,7 @@ protected:
 
   int ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions
+  int OutputPointsPrecision;
   vtkIdList *Seeds; //id's of points or cells used to seed regions
   vtkIdList *SpecifiedRegionIds; //regions specified for extraction
   vtkIdTypeArray *RegionSizes; //size (in cells) of each region extracted

@@ -33,6 +33,7 @@ vtkAppendPolyData::vtkAppendPolyData()
 {
   this->ParallelStreaming = 0;
   this->UserManagedInputs = 0;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 //----------------------------------------------------------------------------
@@ -273,7 +274,22 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
     }
 
   // Allocate geometry/topology
-  newPts = vtkPoints::New(pointtype);
+  newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPts->SetDataType(pointtype);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->SetNumberOfPoints(numPts);
 
   newVerts = vtkCellArray::New();
@@ -690,6 +706,8 @@ void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << "ParallelStreaming:" << (this->ParallelStreaming?"On":"Off") << endl;
   os << "UserManagedInputs:" << (this->UserManagedInputs?"On":"Off") << endl;
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << endl;
 }
 
 //----------------------------------------------------------------------------
