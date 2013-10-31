@@ -181,7 +181,7 @@ protected:
   // cautious since the InterlockedXXX() functions require alignment.
   VTK__ALIGN32 vtkTypeInt32 Value;
 
-#if !defined(VTK_HAS_ATOMIC32) && !defined(VTK_WINDOWS_ATOMIC)
+#if !defined(VTK_HAS_ATOMIC32)
   vtkSimpleCriticalSection* AtomicInt32CritSec;
 #endif
 };
@@ -297,7 +297,7 @@ protected:
   // cautious since the InterlockedXXX() functions require alignment.
   VTK__ALIGN64 vtkTypeInt64 Value;
 
-#if !defined(VTK_HAS_ATOMIC64) && !defined(VTK_WINDOWS_ATOMIC)
+#if !defined(VTK_HAS_ATOMIC64)
   vtkSimpleCriticalSection* AtomicInt64CritSec;
 #endif
 };
