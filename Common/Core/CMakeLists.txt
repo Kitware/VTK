@@ -55,6 +55,7 @@ elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi")
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Simple")
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
   set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
+  message(WARNING "The Simple backend for SMP operations is an experimental backend that is mainly used for debugging currently. We recommend that you use either the TBB or the Kaapi backend for production work. Use the Sequential backend if you would like to turn off any SMP parallelism.")
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Sequential")
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
   set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
@@ -68,6 +69,12 @@ endif()
 
 configure_file(${VTK_SMP_ATOMIC_DIRECTORY}/vtkAtomicInt.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h COPY_ONLY)
+
+configure_file(SMP/${VTK_SMP_IMPLEMENTATION_TYPE}/vtkSMPThreadLocal.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPThreadLocal.h COPY_ONLY)
+
+configure_file(SMP/${VTK_SMP_IMPLEMENTATION_TYPE}/vtkSMPToolsInternal.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPToolsInternal.h COPY_ONLY)
 
 #-----------------------------------------------------------------------------
 
@@ -196,6 +203,11 @@ SET(Module_SRCS
   vtkType.h
   vtkSystemIncludes.h
   ${VTK_ATOMIC_CXX_FILE}
+  vtkSMPThreadLocalObject.h
+  vtkSMPTools.h
+  SMP/${VTK_SMP_IMPLEMENTATION_TYPE}/vtkSMPTools.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPToolsInternal.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPThreadLocal.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
@@ -528,6 +540,11 @@ set_source_files_properties(
   vtkMathConfigure.h
   vtkVersionMacros.h
   vtkTypeTemplate.h
+  vtkSMPThreadLocalObject.h
+  vtkSMPTools.h
+  SMP/${VTK_SMP_IMPLEMENTATION_TYPE}/vtkSMPTools.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPToolsInternal.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPThreadLocal.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h
   ${VTK_ATOMIC_CXX_FILE}
 
