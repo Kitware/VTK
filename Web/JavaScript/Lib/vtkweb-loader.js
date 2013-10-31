@@ -77,7 +77,8 @@
         link.type = "text/css";
         link.rel = "stylesheet";
         link.href = url;
-        document.getElementsByTagName("head")[0].appendChild(link);
+        head = document.getElementsByTagName("head")[0];
+        head.insertBefore(link, head.childNodes[0]);
     }
 
     // ---------------------------------------------------------------------
