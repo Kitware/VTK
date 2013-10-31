@@ -45,6 +45,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 class vtkCompositeDataSet;
+class vtkCompositeDataIterator;
 class vtkInformationDoubleKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
@@ -155,6 +156,15 @@ protected:
                                       vtkInformationVector** inInfoVec,
                                       vtkInformationVector* outInfoVec,
                                       int compositePort);
+
+  virtual void ExecuteEach(vtkCompositeDataIterator* iter,
+                           vtkInformationVector** inInfoVec,
+                           vtkInformationVector* outInfoVec,
+                           int compositePort,
+                           int connection,
+                           vtkInformation* request,
+                           vtkCompositeDataSet* compositeOutput);
+
   vtkDataObject* ExecuteSimpleAlgorithmForBlock(
     vtkInformationVector** inInfoVec,
     vtkInformationVector* outInfoVec,
@@ -163,7 +173,8 @@ protected:
     vtkInformation* request,
     vtkDataObject* dobj);
 
-  bool ShouldIterateOverInput(int& compositePort);
+  bool ShouldIterateOverInput(vtkInformationVector** inInfoVec,
+                              int& compositePort);
 
   virtual int InputTypeIsValid(int port, int index,
                                 vtkInformationVector **inInfoVec);
@@ -176,9 +187,6 @@ protected:
   vtkInformation* UpdateExtentRequest;
   vtkInformation* DataRequest;
 
-  // Because we sometimes have to swap between "simple" data types and composite
-  // data types, we sometimes want to skip resetting the pipeline information.
-  int SuppressResetPipelineInformation;
 
   virtual void ResetPipelineInformation(int port, vtkInformation*);
 
@@ -199,6 +207,10 @@ protected:
                                     vtkInformationVector* outInfoVec);
 
   int NeedToExecuteBasedOnCompositeIndices(vtkInformation* outInfo);
+
+  // Because we sometimes have to swap between "simple" data types and composite
+  // data types, we sometimes want to skip resetting the pipeline information.
+  static vtkInformationIntegerKey* SUPPRESS_RESET_PI();
 
 private:
   vtkCompositeDataPipeline(const vtkCompositeDataPipeline&);  // Not implemented.

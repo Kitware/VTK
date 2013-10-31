@@ -1233,12 +1233,18 @@ vtkStreamingDemandDrivenPipeline
   // not in an execute continuation.
   if(request->Get(CONTINUE_EXECUTING()))
     {
-    this->ContinueExecuting = 1;
+    if (!this->ContinueExecuting)
+      {
+      this->ContinueExecuting = 1;
+      }
     this->Update(request->Get(FROM_OUTPUT_PORT()));
     }
   else
     {
-    this->ContinueExecuting = 0;
+    if (this->ContinueExecuting)
+      {
+      this->ContinueExecuting = 0;
+      }
     this->Superclass::ExecuteDataEnd(request,inInfoVec,outInfoVec);
     }
 }
