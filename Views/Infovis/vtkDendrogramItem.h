@@ -168,6 +168,13 @@ public:
   vtkGetMacro(LineWidth, float);
   vtkSetMacro(LineWidth, float);
 
+  // Description:
+  // Get/set whether or not the number of collapsed leaf nodes should be written
+  // inside the triangle representing a collapsed subtree.  Default is true.
+  vtkSetMacro(DisplayNumberOfCollapsedLeafNodes, bool);
+  vtkGetMacro(DisplayNumberOfCollapsedLeafNodes, bool);
+  vtkBooleanMacro(DisplayNumberOfCollapsedLeafNodes, bool);
+
   // this struct & class allow us to generate a priority queue of vertices.
   struct WeightedVertex
   {
@@ -321,6 +328,7 @@ private:
   bool ColorTree;
   bool ExtendLeafNodes;
   bool DrawLabels;
+  bool DisplayNumberOfCollapsedLeafNodes;
 };
 
 #endif
