@@ -46,7 +46,7 @@
 //
 //  ...
 //
-//  if ( res == vtkTesting::PASSED )
+//  if (res == vtkTesting::PASSED)
 //    {
 //    Test passed
 //    }
@@ -123,8 +123,9 @@ public:
   //     return vtkTesting::InteractorEventLoop( argc, argv, iren );
   //   }
   //
-  static int InteractorEventLoop( int argc, char *argv[],
-      vtkRenderWindowInteractor *iren, const char *stream = NULL );
+  static int InteractorEventLoop(int argc, char *argv[],
+                                 vtkRenderWindowInteractor *iren,
+                                 const char *stream = NULL);
 
 //ETX
 
@@ -150,7 +151,8 @@ public:
   // Description:
   // Compare the image with the valid image.
   virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh);
-  virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream& os);
+  virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh,
+                             ostream& os);
 
   // Description:
   // Compute the average L2 norm between all point data data arrays
@@ -158,6 +160,7 @@ public:
   // (this includes instances of vtkPoints) Compare the result of
   // each L2 comutation to "tol".
   int CompareAverageOfL2Norm(vtkDataSet *pdA, vtkDataSet *pdB, double tol);
+
   // Description:
   // Compute the average L2 norm between two data arrays "daA" and "daB"
   // and compare against "tol".
