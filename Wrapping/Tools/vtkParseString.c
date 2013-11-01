@@ -73,10 +73,10 @@ unsigned char parse_charbits[256] = {
   CPRE_ID, /* z */
   0, 0, 0, 0, /* {|}~ */
   0, /* '\x7f' */
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID,
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID,
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID,
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID,
 };
 
 #define parse_chartype(c, bits) \

@@ -74,7 +74,7 @@ static int in_macro();
 
 WS [\t\n\r ]+
 PS [\t\n\r ]*
-ID [a-zA-Z_][0-9a-zA-Z_]*
+ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 %%
 
