@@ -302,6 +302,31 @@ int vtkParse_NextToken(StringTokenizer *tokens)
       tokens->hash = 0;
       tokens->len += parse_skip_quotes_with_suffix(ep);
       }
+    else
+      {
+      /* check if this ID is a named operator */
+      static const char *op_str_array[32] = {
+        "compl", 0, 0, 0, 0, "bitor", "or", 0, 0, 0, 0, "not_eq",
+        0, "and_eq", 0, 0, 0, 0, 0, "xor_eq", 0, 0, "not", "bitand",
+        "and", 0, 0, "or_eq", 0, 0, "xor", 0 };
+      static unsigned char op_len_array[32] = {
+        5, 0, 0, 0, 0, 5, 2, 0, 0, 0, 0, 6,
+        0, 6, 0, 0, 0, 0, 0, 6, 0, 0, 3, 6,
+        3, 0, 0, 5, 0, 0, 3, 0 };
+      static int op_tok_array[32] = {
+        '~', 0, 0, 0, 0, '|', TOK_OR, 0, 0, 0, 0, TOK_NE,
+        0, TOK_AND_EQ, 0, 0, 0, 0, 0, TOK_XOR_EQ, 0, 0, '!', '&',
+        TOK_AND, 0, 0, TOK_OR_EQ, 0, 0, '^', 0 };
+
+      h &= 0x1f;
+      ep = op_str_array[h];
+      if (ep && tokens->len == op_len_array[h] &&
+          strncmp(cp, ep, tokens->len) == 0)
+        {
+        tokens->tok = op_tok_array[h];
+        tokens->hash = 0;
+        }
+      }
     }
   else if (parse_chartype(*cp, CPRE_QUOTE))
     {
