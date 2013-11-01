@@ -163,8 +163,15 @@ private:
                           unsigned char *colors, int nc_comps);
   void AddEllipseToPath(vtkPath *path, float x, float y, float rx, float ry,
                         bool reverse);
+
   // Transform the path using the current modelview matrix.
-  void TransformPath(vtkPath *path);
+  void TransformPath(vtkPath *path) const;
+
+  // Transform the 2D point using the current modelview matrix.
+  void TransformPoint(float &x, float &y) const;
+
+  // Transform the width and height from pixels to data units.
+  void TransformSize(float &dx, float &dy) const;
 };
 
 #endif //__vtkGL2PSContextDevice2D_h
