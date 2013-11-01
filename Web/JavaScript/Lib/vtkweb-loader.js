@@ -11,36 +11,14 @@
 (function (GLOBAL) {
 
     var vtkWebLibs = {
-        "core-min" : [
-        "ext/core/jquery-1.8.3.min.js",
-        "ext/core/autobahn.min.js",
-        "lib/core/vtkweb-all.min.js"
-        ],
         "core" : [
-        "ext/core/jquery-1.8.3.min.js",
-        "ext/core/autobahn.js",
-        "lib/core/vtkweb-all.js"
-        ],
-        "webgl-min" : [
-        "ext/core/gl-matrix-min.js"
-        ],
-        "webgl" : [
-        "ext/core/gl-matrix.js"
-        ],
-        "mobile-min" : [
-        "ext/core/jquery.hammer.min.js"
-        ],
-        "mobile" : [
-        "ext/core/jquery.hammer.js"
-        ],
-        "all" : [
         "ext/core/jquery-1.8.3.min.js",
         "ext/core/autobahn.js",
         "ext/core/gl-matrix.js",
         "ext/core/jquery.hammer.js",
         "lib/core/vtkweb-all.js"
         ],
-        "all-min": [
+        "core-min": [
         "ext/core/jquery-1.8.3.min.js",
         "ext/core/autobahn.min.js",
         "ext/core/gl-matrix-min.js",
@@ -64,7 +42,39 @@
         "lib/widgets/FileBrowser/vtkweb-widget-filebrowser.js",
         "lib/widgets/FileBrowser/vtkweb-widget-filebrowser.tpl",
         "lib/widgets/FileBrowser/vtkweb-widget-filebrowser.css"
+        ],
+        "pv-pipeline": [
+        "ext/jquery-ui/jquery-ui-1.10.0.css",
+        "ext/jquery-ui/jquery-ui-1.10.0.min.js",
+        "lib/css/paraview.ui.pipeline.css",
+        "lib/js/paraview.ui.pipeline.js",
+        ],
+        "pv-toolbar": [
+        "lib/css/paraview.ui.toolbar.css",
+        "lib/css/paraview.ui.toolbar.vcr.css",
+        "lib/css/paraview.ui.toolbar.viewport.css",
+        "lib/css/paraview.ui.toolbar.connect.css",
+        "lib/js/paraview.ui.toolbar.js",
+        "lib/js/paraview.ui.toolbar.vcr.js",
+        "lib/js/paraview.ui.toolbar.viewport.js",
+        "lib/js/paraview.ui.toolbar.connect.js"
+        ],
+        "jquery-ui": [
+        "ext/jquery-ui/jquery-ui-1.10.0.css",
+        "ext/jquery-ui/jquery-ui-1.10.0.min.js"
+        ],
+        "d3":[
+        "ext/d3/d3.v2.js"
+        ],
+        "nvd3":[
+        "ext/nvd3/nv.d3.css",
+        "ext/nvd3/nv.d3.js"
+        ],
+        "rickshaw": [
+        "ext/rickshaw/rickshaw.min.css",
+        "ext/rickshaw/rickshaw.min.js"
         ]
+
     },
     modules = [],
     script = document.getElementsByTagName("script")[document.getElementsByTagName("script").length - 1],
