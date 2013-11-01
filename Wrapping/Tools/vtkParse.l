@@ -515,6 +515,12 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 "["{PS}"["        return(BEGIN_ATTRIB);
 
+"<%"              return('{');
+"%>"              return('}');
+"<:"              return('[');
+":>"              return(']');
+"%:"              return('#');
+
 ">"/>             return(OP_RSHIFT_A);
 
 "<<="             return(OP_LSHIFT_EQ);

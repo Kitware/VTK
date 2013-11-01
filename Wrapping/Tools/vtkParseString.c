@@ -359,6 +359,7 @@ int vtkParse_NextToken(StringTokenizer *tokens)
       {
       case ':':
         if (cp[1] == ':') { l = 2; t = TOK_SCOPE; }
+        else if (cp[1] == '>') { l = 2; t = ']'; }
         break;
       case '.':
         if (cp[1] == '.' && cp[2] == '.') { l = 3; t = TOK_ELLIPSIS; }
@@ -374,6 +375,8 @@ int vtkParse_NextToken(StringTokenizer *tokens)
         if (cp[1] == '<' && cp[2] == '=') { l = 3; t = TOK_LSHIFT_EQ; }
         else if (cp[1] == '<') { l = 2; t = TOK_LSHIFT; }
         else if (cp[1] == '=') { l = 2; t = TOK_LE; }
+        else if (cp[1] == '%') { l = 2; t = '{'; }
+        else if (cp[1] == ':') { l = 2; t = '['; }
         break;
       case '>':
         if (cp[1] == '>' && cp[2] == '=') { l = 3; t = TOK_RSHIFT_EQ; }
@@ -399,6 +402,10 @@ int vtkParse_NextToken(StringTokenizer *tokens)
         break;
       case '%':
         if (cp[1] == '=') { l = 2; t = TOK_MOD_EQ; }
+        else if (cp[1] == '>') { l = 2; t = '}'; }
+        else if (cp[1] == ':') {
+          if (cp[2] == '%' && cp[3] == ':') { l = 4; t = TOK_DBLHASH; }
+          else { l = 2; t = '#'; } }
         break;
       case '+':
         if (cp[1] == '+') { l = 2; t = TOK_INCR; }
