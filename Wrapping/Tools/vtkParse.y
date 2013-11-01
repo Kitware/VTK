@@ -387,28 +387,6 @@ static const char *vtkstrcat7(const char *str1, const char *str2,
   return vtkstrncat(7, cp);
 }
 
-static size_t vtkidlen(const char *text)
-{
-  size_t i = 0;
-  char c = text[0];
-
-  if ((c >= 'a' && c <= 'z') ||
-      (c >= 'A' && c <= 'Z') ||
-       c == '_')
-    {
-    do
-      {
-      c = text[++i];
-      }
-    while ((c >= 'a' && c <= 'z') ||
-           (c >= 'A' && c <= 'Z') ||
-           (c >= '0' && c <= '9') ||
-           c == '_');
-    }
-
-  return i;
-}
-
 /*----------------------------------------------------------------
  * Comments
  */
@@ -1205,11 +1183,8 @@ void prepend_scope(char *cp, const char *arg)
   n = strlen(arg);
   i = m;
   while (i > 0 &&
-         ((cp[i-1] >= 'a' && cp[i-1] <= 'z') ||
-          (cp[i-1] >= 'A' && cp[i-1] <= 'Z') ||
-          (cp[i-1] >= '0' && cp[i-1] <= '9') ||
-          cp[i-1] == '_' || cp[i-1] == ':' ||
-          cp[i-1] == '>'))
+         (vtkParse_CharType(cp[i-1], CPRE_IDGIT) ||
+          cp[i-1] == ':' || cp[i-1] == '>'))
     {
     i--;
     if (cp[i] == '>')
@@ -3195,9 +3170,8 @@ common_bracket_item:
           postSig(" ");
           }
         postSig($<str>1);
-        if ((c1 >= 'A' && c1 <= 'Z') || (c1 >= 'a' && c1 <= 'z') ||
-            (c1 >= '0' && c1 <= '9') || c1 == '_' || c1 == '\'' ||
-            c1 == '\"' || c1 == ')' || c1 == ']')
+        if (vtkParse_CharType(c1, (CPRE_IDGIT|CPRE_QUOTE)) ||
+            c1 == ')' || c1 == ']')
           {
           postSig(" ");
           }
@@ -3222,8 +3196,7 @@ common_bracket_item:
       cp = getSig();
       l = getSigLength();
       if (l != 0) { c1 = cp[l-1]; }
-      while (((c1 >= 'A' && c1 <= 'Z') || (c1 >= 'a' && c1 <= 'z') ||
-              (c1 >= '0' && c1 <= '9') || c1 == '_') && l != 0)
+      while (vtkParse_CharType(c1, CPRE_IDGIT) && l != 0)
         {
         --l;
         c1 = cp[l-1];
@@ -3659,18 +3632,10 @@ unsigned int guess_constant_type(const char *valstring)
     return 0;
     }
 
-  if (valstring[0] < '0' || valstring[0] > '9')
+  k = vtkParse_SkipId(valstring);
+  if (valstring[k] == '\0')
     {
-    k = 0;
-    while ((valstring[k] >= '0' && valstring[k] <= '9') ||
-           (valstring[k] >= 'a' && valstring[k] <= 'z') ||
-           (valstring[k] >= 'A' && valstring[k] <= 'Z') ||
-           valstring[k] == '_') { k++; }
-
-    if (valstring[k] == '\0')
-      {
-      is_name = 1;
-      }
+    is_name = 1;
     }
 
   if (strcmp(valstring, "true") == 0 || strcmp(valstring, "false") == 0)
@@ -4800,7 +4765,7 @@ void vtkParse_Free(FileInfo *file_info)
 /** Define a preprocessor macro. Function macros are not supported.  */
 void vtkParse_DefineMacro(const char *name, const char *definition)
 {
-  size_t n = vtkidlen(name);
+  size_t n = vtkParse_SkipId(name);
   size_t l;
   char *cp;
 
@@ -4827,7 +4792,7 @@ void vtkParse_DefineMacro(const char *name, const char *definition)
 /** Undefine a preprocessor macro.  */
 void vtkParse_UndefineMacro(const char *name)
 {
-  size_t n = vtkidlen(name);
+  size_t n = vtkParse_SkipId(name);
   char *cp;
 
   cp = (char *)malloc(n+2);

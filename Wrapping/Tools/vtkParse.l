@@ -147,7 +147,7 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
         cp = args;
         if (*cp == '(') { cp++; }
         while (*cp == ' ' || *cp == '\t') { cp++; }
-        l = vtkidlen(cp);
+        l = vtkParse_SkipId(cp);
         if (l)
           {
           yylval.str = vtkstrndup(cp, l);
@@ -1104,8 +1104,7 @@ const char *raw_string(const char *begin)
       *dp++ = c;
       c = input();
       }
-    while ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-           (c >= '0' && c <= '9') || c == '_');
+    while (vtkParse_CharType(c, CPRE_IDGIT));
     }
   unput(c);
 
