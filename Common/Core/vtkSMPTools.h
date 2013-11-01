@@ -78,7 +78,7 @@ struct vtkSMPTools_FunctorInternal<Functor, false>
   }
   void For(vtkIdType first, vtkIdType last, vtkIdType grain)
   {
-    vtkSMPTools_Impl_For(first, last, grain, *this);
+    vtk::detail::smp::vtkSMPTools_Impl_For(first, last, grain, *this);
   }
   vtkSMPTools_FunctorInternal<Functor, false>& operator=(
     const vtkSMPTools_FunctorInternal<Functor, false>&);
@@ -104,7 +104,7 @@ struct vtkSMPTools_FunctorInternal<Functor, true>
   }
   void For(vtkIdType first, vtkIdType last, vtkIdType grain)
   {
-    vtkSMPTools_Impl_For(first, last, grain, *this);
+    vtk::detail::smp::vtkSMPTools_Impl_For(first, last, grain, *this);
     this->F.Reduce();
   }
   vtkSMPTools_FunctorInternal<Functor, true>& operator=(
