@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestParallelCoordinates.cxx
+  Module:    TestParallelCoodinatesDouble.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,45 +18,44 @@
 #include "vtkChartParallelCoordinates.h"
 #include "vtkPlot.h"
 #include "vtkTable.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkNew.h"
 
 //----------------------------------------------------------------------------
-int TestParallelCoordinates(int , char* [])
+int TestParallelCoordinatesDouble(int , char* [])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
-  view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetRenderWindow()->SetSize(800, 600);
+  view->GetRenderWindow()->SetSize(600, 400);
   vtkNew<vtkChartParallelCoordinates> chart;
   view->GetScene()->AddItem(chart.GetPointer());
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
-  vtkNew<vtkFloatArray> arrX;
-  arrX->SetName("Field 1");
+  vtkNew<vtkDoubleArray> arrX;
+  arrX->SetName("x");
   table->AddColumn(arrX.GetPointer());
-  vtkNew<vtkFloatArray> arrC;
-  arrC->SetName("Field 2");
+  vtkNew<vtkDoubleArray> arrC;
+  arrC->SetName("cosine");
   table->AddColumn(arrC.GetPointer());
-  vtkNew<vtkFloatArray> arrS;
-  arrS->SetName("Field 3");
+  vtkNew<vtkDoubleArray> arrS;
+  arrS->SetName("sine");
   table->AddColumn(arrS.GetPointer());
-  vtkNew<vtkFloatArray> arrS2;
-  arrS2->SetName("Field 4");
+  vtkNew<vtkDoubleArray> arrS2;
+  arrS2->SetName("tangent");
   table->AddColumn(arrS2.GetPointer());
   // Test charting with a few more points...
   int numPoints = 200;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
     {
     table->SetValue(i, 0, i * inc);
-    table->SetValue(i, 1, cos(i * inc) + 0.0);
-    table->SetValue(i, 2, sin(i * inc) + 0.0);
+    table->SetValue(i, 1, cos(i * inc) * 1.0e-82);
+    table->SetValue(i, 2, sin(i * inc) * 1.0e+89);
     table->SetValue(i, 3, tan(i * inc) + 0.5);
     }
 

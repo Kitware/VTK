@@ -58,7 +58,7 @@ public:
 
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotParallelCoordinates);
+vtkStandardNewMacro(vtkPlotParallelCoordinates)
 
 //-----------------------------------------------------------------------------
 vtkPlotParallelCoordinates::vtkPlotParallelCoordinates()
@@ -150,14 +150,14 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
 
   // Draw all of the lines
   painter->ApplyPen(this->Pen);
-  int nc_comps(0);
+  int ncComps(0);
   if (this->ScalarVisibility && this->Colors)
     {
-    nc_comps = static_cast<int>(this->Colors->GetNumberOfComponents());
+    ncComps = static_cast<int>(this->Colors->GetNumberOfComponents());
     }
-  if (this->ScalarVisibility && this->Colors && nc_comps == 4)
+  if (this->ScalarVisibility && this->Colors && ncComps == 4)
     {
-    for (size_t i = 0, nc = 0; i < rows; ++i, nc += nc_comps)
+    for (size_t i = 0, nc = 0; i < rows; ++i, nc += ncComps)
       {
       for (size_t j = 0; j < cols; ++j)
         {
@@ -373,13 +373,13 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
       }
 
     // Also need the range from the appropriate axis, to normalize points
-    float min = axis->GetUnscaledMinimum();
-    float max = axis->GetUnscaledMaximum();
-    float scale = 1.0f / (max - min);
+    double min = axis->GetUnscaledMinimum();
+    double max = axis->GetUnscaledMaximum();
+    double scale = 1.0f / (max - min);
 
     for (vtkIdType j = 0; j < rows; ++j)
       {
-      col[j] = (data->GetTuple1(j)-min) * scale;
+      col[j] = (data->GetTuple1(j) - min) * scale;
       }
     }
 
