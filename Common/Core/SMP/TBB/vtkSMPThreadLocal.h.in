@@ -164,6 +164,5 @@ public:
 private:
   TLS Internal;
 };
-
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPThreadLocal.h

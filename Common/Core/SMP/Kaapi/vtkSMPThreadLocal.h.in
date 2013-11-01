@@ -177,11 +177,11 @@ public:
       TLSIter iter = this->Internal.begin();
       std::vector<unsigned char>::iterator iter2 =
         this->Initialized.begin();
-      std::vector<unsigned char>::iterator end =
+      std::vector<unsigned char>::iterator enditer =
         this->Initialized.end();
       // fast forward to first initialized
       // value
-      while(iter2 != end)
+      while(iter2 != enditer)
         {
         if (*iter2)
           {
@@ -192,7 +192,7 @@ public:
         }
       iterator retVal;
       retVal.InitIter = iter2;
-      retVal.EndIter = end;
+      retVal.EndIter = enditer;
       retVal.Iter = iter;
       return retVal;
     };
@@ -235,6 +235,5 @@ private:
       return kaapi_get_self_kid();
     }
 };
-
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPThreadLocal.h
