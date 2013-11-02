@@ -41,6 +41,7 @@ vtk_add_test_cxx(
   TestMultipleRenderers.cxx,-E25
   TestMultipleScalarsToColors.cxx,-E25
   TestParallelCoordinates.cxx,-E15
+  TestParallelCoordinatesDouble.cxx,-E15
   TestPieChart.cxx
   TestPlotMatrix.cxx
   TestScalarsToColors.cxx

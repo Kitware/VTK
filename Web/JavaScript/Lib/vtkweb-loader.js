@@ -36,16 +36,16 @@
         "all" : [
         "ext/core/jquery-1.8.3.min.js",
         "ext/core/autobahn.js",
-        "lib/core/vtkweb-all.js",
         "ext/core/gl-matrix.js",
-        "ext/core/jquery.hammer.js"
+        "ext/core/jquery.hammer.js",
+        "lib/core/vtkweb-all.js"
         ],
         "all-min": [
         "ext/core/jquery-1.8.3.min.js",
         "ext/core/autobahn.min.js",
-        "lib/core/vtkweb-all.min.js",
         "ext/core/gl-matrix-min.js",
-        "ext/core/jquery.hammer.min.js"
+        "ext/core/jquery.hammer.min.js",
+        "lib/core/vtkweb-all.min.js"
         ],
         "bootstrap": [
         "ext/bootstrap/js/bootstrap.min.js",
@@ -77,7 +77,8 @@
         link.type = "text/css";
         link.rel = "stylesheet";
         link.href = url;
-        document.getElementsByTagName("head")[0].appendChild(link);
+        head = document.getElementsByTagName("head")[0];
+        head.insertBefore(link, head.childNodes[0]);
     }
 
     // ---------------------------------------------------------------------

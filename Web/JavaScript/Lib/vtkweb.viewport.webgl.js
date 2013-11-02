@@ -1260,21 +1260,40 @@
                 } else if (event.action === 'up') {
                     mouseHandling.button = null;
                 } else if (event.action === 'move' && mouseHandling.button != null && cameraLayerZero != null) {
-                    var newX = event.pageX, newY = event.pageY,
-                    deltaX = newX - mouseHandling.lastX,
-                    deltaY = newY - mouseHandling.lastY;
-                    mouseHandling.lastX = newX;
-                    mouseHandling.lastY = newY;
+                    var newMouseX= event.pageX, newMouseY = event.pageY,
+                        mouseDX = mouseHandling.lastX - newMouseX,
+                        mouseDY = mouseHandling.lastY - newMouseY,
+                        lastMouseX = mouseHandling.lastX,
+                        lastMouseY = mouseHandling.lastY,
+                        panD, zTrans,
+                        focalPoint, focusWorldPt, focusDisplayPt,
+                        displayPt1, displayPt2,
+                        worldPt1, worldPt2,
+                        width = renderer.width(),
+                        height = renderer.height();
+
+                    mouseHandling.lastX = newMouseX;
+                    mouseHandling.lastY = newMouseY;
 
                     if (mouseHandling.button === 1) {
-                        cameraLayerZero.rotate(deltaX, deltaY);
+                        cameraLayerZero.rotate(mouseDX, mouseDY);
                         for(var i in otherCamera) {
-                            otherCamera[i].rotate(deltaX, deltaY);
+                            otherCamera[i].rotate(mouseDX, mouseDY);
                         }
                     } else if (mouseHandling.button === 2) {
-                        cameraLayerZero.pan(deltaX, deltaY);
+                        panD = cameraLayerZero.calculatePanDeltas(
+                            width, height, newMouseX, newMouseY,
+                            lastMouseX, lastMouseY);
+                        cameraLayerZero.pan(-panD[0], -panD[1], -panD[2] );
                     } else if (mouseHandling.button === 3) {
-                        cameraLayerZero.zoom(deltaX, deltaY);
+                        zTrans = (newMouseY - lastMouseY) / height;
+
+                        // Calculate zoom scale here
+                        if (zTrans > 0) {
+                            cameraLayerZero.zoom(1 - Math.abs(zTrans));
+                        } else {
+                            cameraLayerZero.zoom(1 + Math.abs(zTrans));
+                        }
                     }
 
                     drawScene();
@@ -1317,10 +1336,10 @@
         top = 1.0,
         near = 0.01,
         far = 10000.0,
-        position = vec3.set(vec3.create(), 0.0, 0.0, 0.0),
-        focalPoint = vec3.set(vec3.create(), 0.0, 0.0, -1.0),
-        viewUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0),
-        rightDir = vec3.set(vec3.create(), 1.0, 0.0, 0.0),
+        position = vec4.set(vec4.create(), 0.0, 0.0, 0.0, 1.0),
+        focalPoint = vec4.set(vec4.create(), 0.0, 0.0, -1.0, 1.0),
+        viewUp = vec4.set(vec4.create(), 0.0, 1.0, 0.0, 0.0),
+        rightDir = vec4.set(vec4.create(), 1.0, 0.0, 0.0, 0.0),
         projectionMatrix = mat4.create(),
         modelViewMatrix = mat4.create(),
         perspective = true,
@@ -1328,18 +1347,22 @@
         height = 100,
         modified = true;
 
+        directionOfProjection = vec4.fromValues(0.0, 0.0, -1.0, 0.0),
+
         // Initialize to identity (just to be safe)
         mat4.identity(modelViewMatrix);
         mat4.identity(projectionMatrix);
 
         function computeOrthogonalAxes() {
-            var direction = vec3.sub(vec3.create(), focalPoint, position);
-            vec3.normalize(direction, direction);
-            vec3.normalize(viewUp, viewUp);
-            vec3.cross(rightDir, direction, viewUp);
+            computeDirectionOfProjection();
+            vec3.cross(rightDir, directionOfProjection, viewUp);
             vec3.normalize(rightDir, rightDir);
-            vec3.cross(viewUp, rightDir, direction);
-            vec3.normalize(viewUp, viewUp);
+            modified = true;
+        };
+        function computeDirectionOfProjection() {
+            vec3.subtract(directionOfProjection, focalPoint, position);
+            vec3.normalize(directionOfProjection, directionOfProjection);
+            modified = true;
         };
 
         function worldToDisplay(worldPt, width, height) {
@@ -1367,7 +1390,7 @@
 
             vec4.set(result, winX, winY, winZ, winW);
             return result;
-        }
+        };
 
         function displayToWorld(displayPt, width, height) {
             var x = (2.0 * displayPt[0] / width) - 1;
@@ -1375,7 +1398,7 @@
             var z = displayPt[2];
 
             var viewProjectionInverse = mat4.create();
-            mat4.multiply(projectionMatrix, modelViewMatrix, viewProjectionInverse);
+            mat4.multiply(viewProjectionInverse, projectionMatrix, modelViewMatrix);
             mat4.invert(viewProjectionInverse, viewProjectionInverse);
 
             var worldPt = vec4.create();
@@ -1390,9 +1413,40 @@
             }
 
             return worldPt;
-        }
+        };
 
         return {
+            calculatePanDeltas: function(
+                width, height, newMouseX, newMouseY, lastMouseX, lastMouseY) {
+
+                var dx,dy,dz,
+                    focusDisplayPt, displayPt1, displayPt2,
+                    worldPt1, worldPt2,
+                    focusWorldPt = vec4.fromValues(
+                        focalPoint[0], focalPoint[1], focalPoint[2], 1);
+
+                focusDisplayPt =
+                    worldToDisplay(
+                        focusWorldPt, width, height);
+
+                displayPt1 = vec4.fromValues(
+                    newMouseX, newMouseY, focusDisplayPt[2], 1.0);
+
+                displayPt2 = vec4.fromValues(
+                    lastMouseX, lastMouseY, focusDisplayPt[2], 1.0);
+
+                worldPt1 = displayToWorld(
+                    displayPt1, width, height);
+
+                worldPt2 = displayToWorld(
+                    displayPt2, width, height);
+
+                dx = worldPt1[0] - worldPt2[0];
+                dy = worldPt1[1] - worldPt2[1];
+                dz = worldPt1[2] - worldPt2[2];
+
+                return [dx,dy,dz];
+            },
             getFocalPoint: function() {
                 return focalPoint;
             },
@@ -1409,9 +1463,9 @@
             setCameraParameters : function(angle, pos, focal, up) {
                 //console.log("[CAMERA] angle: " + angle + " position: " + pos + " focal: " + focal + " up: " + up );
                 viewAngle = angle * Math.PI / 180;
-                vec3.set(position, pos[0], pos[1], pos[2]);
-                vec3.set(focalPoint, focal[0], focal[1], focal[2]);
-                vec3.set(viewUp, up[0], up[1], up[2]);
+                vec4.set(position, pos[0], pos[1], pos[2], 1.0);
+                vec4.set(focalPoint, focal[0], focal[1], focal[2], 1.0);
+                vec4.set(viewUp, up[0], up[1], up[2], 0.0);
                 modified = true;
             },
             setViewSize : function(w, h) {
@@ -1429,106 +1483,59 @@
                 perspective = true;
                 modified = true;
             },
-            zoom : function(dx, dy) {
-                var distance = vec3.distance(position, focalPoint), newPosition = vec3.create(), delta;
-                vec3.subtract(newPosition, position, focalPoint);
-                vec3.normalize(newPosition, newPosition);
-                distance = distance + (dy * distance * 0.02);
-                vec3.add(position, focalPoint, vec3.scale(vec3.create(), newPosition, distance));
+            zoom : function(d) {
+                if (d === 0) {
+                    return;
+                }
+
+                d = d * vec3.distance(focalPoint, position);
+                position[0] = focalPoint[0] - d * directionOfProjection[0];
+                position[1] = focalPoint[1] - d * directionOfProjection[1];
+                position[2] = focalPoint[2] - d * directionOfProjection[2];
 
                 modified = true;
                 this.getCameraMatrices();
             },
-            pan : function(dx, dy) {
-                var distance = vec3.distance(position, focalPoint),
-                displacement = vec3.set(vec3.create(),0,0,0);
-                vec3.scaleAndAdd(displacement, displacement, rightDir, -dx /1000);
-                vec3.scaleAndAdd(displacement, displacement, viewUp, dy / 1000);
-                vec3.add(position, position, displacement);
-                vec3.add(focalPoint, focalPoint, displacement);
+            pan : function(dx, dy, dz) {
+                position[0] += dx;
+                position[1] += dy;
+                position[2] += dz;
+
+                focalPoint[0] += dx;
+                focalPoint[1] += dy;
+                focalPoint[2] += dz;
                 computeOrthogonalAxes();
 
                 modified = true;
             },
             rotate : function(dx, dy) {
-                // Option 1: Get rotation axis and transform camera system
+                dx = 0.5 * dx * (Math.PI / 180.0);
+                dy = 0.5 * dy * (Math.PI / 180.0);
 
-                //var direction = vec3.sub(vec3.create(), position, centerOfRotation),
-                //angle = Math.atan(Math.sqrt(dx*dx+dy*dy) / vec3.distance(position, centerOfRotation)) * Math.PI / 180,
-                //deltaDir = vec3.add(vec3.create(),
-                //    vec3.scale(vec3.create(), rightDir, dx),
-                //    vec3.scale(vec3.create(), viewUp, -dy)),
-                //rotationAxis = vec3.create(),
-                //rotationMatrix = mat4.create();
-                //
-                //vec3.normalize(deltaDir, deltaDir);
-                //vec3.normalize(direction, direction);
-                //vec3.cross(rotationAxis, direction, deltaDir);
-                //
-                //mat4.rotate(rotationMatrix, rotationMatrix, angle, rotationAxis);
-                //
-                //vec3.sub(position, position, centerOfRotation);
-                //vec3.transformMat4(rightDir, rightDir, rotationMatrix);
-                //vec3.transformMat4(viewUp, viewUp, rotationMatrix);
-                //vec3.transformMat4(position, viewUp, rotationMatrix);
-                //vec3.add(position, position, centerOfRotation);
+                var mat = mat4.create(),
+                inverseCenterOfRotation = new vec3.create();
 
-                // Option 2 Move slightly the camera keeping the distance to the center of rotation constant
-                var distance = vec3.distance(position, centerOfRotation),
-                unitDirection = vec3.create(),
-                newPosition = vec3.create();
+                mat4.identity(mat);
 
-                // Get unit direction vector
-                vec3.sub(unitDirection, position, centerOfRotation);
-                vec3.normalize(unitDirection, unitDirection);
-                vec3.add(newPosition, centerOfRotation, unitDirection);
+                inverseCenterOfRotation[0] = -centerOfRotation[0];
+                inverseCenterOfRotation[1] = -centerOfRotation[1];
+                inverseCenterOfRotation[2] = -centerOfRotation[2];
 
+                mat4.translate(mat, mat, centerOfRotation);
+                mat4.rotate(mat, mat, dx, viewUp);
+                mat4.rotate(mat, mat, dy, rightDir);
+                mat4.translate(mat, mat, inverseCenterOfRotation);
 
-                // Move the unit camera position
-                vec3.scaleAndAdd(newPosition, newPosition, rightDir, -dx/100.0);
-                vec3.scaleAndAdd(newPosition, newPosition, viewUp, dy/100.0);
+                vec3.transformMat4(position, position, mat);
+                vec3.transformMat4(focalPoint, focalPoint, mat);
 
-                // Get the new unit direction
-                vec3.sub(unitDirection, newPosition, centerOfRotation);
-                vec3.normalize(unitDirection, unitDirection);
-
-                // Not unit vector anymore but full the delta
-                vec3.scale(unitDirection, unitDirection, distance);
-                vec3.add(position, centerOfRotation, unitDirection);
-
+                // Update viewup vector
+                vec4.transformMat4(viewUp, viewUp, mat);
+                vec4.normalize(viewUp, viewUp);
 
                 computeOrthogonalAxes();
                 modified = true;
                 this.getCameraMatrices();
-
-
-            // Option 3
-            // Calculate the angles in radians first
-            //var distanceVec = new vec3.create();
-            //distanceVec[0] = centerOfRotation[0] - position[0];
-            //distanceVec[1] = centerOfRotation[1] - position[1];
-            //distanceVec[2] = centerOfRotation[2] - position[2];
-            //
-            //var distance = sqrt(distanceVec[0] * distanceVec[0] +
-            //    distanceVec[1] * distanceVec[1] +
-            //    distanceVec[2] * distanceVec[2]);
-            //
-            //var theta = atan(dx/distance);
-            //var phi = atan(dy/distance);
-            //
-            //var inv = new vec3.create();
-            //inv[0] = -centerOfRotation[0];
-            //inv[1] = -centerOfRotation[1];
-            //inv[2] = -centerOfRotation[2];
-            //
-            //var mat = new mat4.create();
-            //mat4.translate(mat, centerOfRotation, mat);
-            //mat4.rotate(mat, theta, viewUp, mat);
-            //mat4.rotate(mat, phi, rightDir, mat);
-            //mat4.translate(mat, inv, mat);
-            //
-            //mat4.multiplyVec3(mat, position, position);
-
             },
             getCameraMatrices : function() {
                 if (modified) {
@@ -1547,6 +1554,7 @@
 
                 return [projectionMatrix, modelViewMatrix];
             }
+
         };
     }
 

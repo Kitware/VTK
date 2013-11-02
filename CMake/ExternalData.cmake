@@ -449,7 +449,7 @@ function(_ExternalData_arg target arg options var_file)
   endif()
 
   if(NOT have_original)
-    message(FATAL_ERROR "Data file referenced by argument\n"
+    message(STATUS "Data file referenced by argument\n"
       "  ${arg}\n"
       "corresponds to source tree path\n"
       "  ${reldata}\n"

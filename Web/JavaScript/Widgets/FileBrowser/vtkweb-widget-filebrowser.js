@@ -177,7 +177,7 @@
                         type: 'directory-click',
                         path: pathStr,
                         name: me.text(),
-                        relativePath: getRelativePath(pathStr, me.text())
+                        relativePath: getRelativePath(strToPath(pathStr), me.text())
                     });
                 } else {
                     if(container.data('session')) {
@@ -192,7 +192,7 @@
                         type: 'directory-not-found',
                         path: pathStr,
                         name: me.text(),
-                        relativePath: getRelativePath(pathStr, me.text())
+                        relativePath: getRelativePath(strToPath(pathStr), me.text())
                     });
                 }
             } else if(type === 'files') {
@@ -200,7 +200,7 @@
                     type: 'file-click',
                     path: pathStr,
                     name: me.text(),
-                    relativePath: getRelativePath(pathStr, me.text())
+                    relativePath: getRelativePath(strToPath(pathStr), me.text())
                 });
             }
         });

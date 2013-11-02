@@ -28,7 +28,7 @@
 // supported by std::atomic are not currently supported.
 //
 // Note that when atomic operations are not available on a particular
-// platform or compiler, mutexes, which are significantly slowe, are used
+// platform or compiler, mutexes, which are significantly slower, are used
 // as a fallback.
 
 #ifndef __vtkAtomicInt_h
@@ -38,32 +38,25 @@
 #include "vtkSystemIncludes.h"
 #include "vtkConfigure.h"
 
-#if defined(_WIN32) && !defined(__MINGW32__)
-// These are here to avoid including windows.h, which
-// significantly increases compilation time
-extern "C" long __cdecl _InterlockedIncrement(long volatile *);
-extern "C" long __cdecl _InterlockedDecrement(long volatile *);
-extern "C" long __cdecl _InterlockedAdd(long volatile *, long);
-extern "C" long __cdecl _InterlockedExchangeAdd(long volatile *, long);
-extern "C" long __cdecl _InterlockedExchange(long volatile *, long);
-
-extern "C" vtkTypeInt64 __cdecl _InterlockedIncrement64(vtkTypeInt64 volatile *);
-extern "C" vtkTypeInt64 __cdecl _InterlockedDecrement64(vtkTypeInt64 volatile *);
-extern "C" vtkTypeInt64 __cdecl _InterlockedAdd64(vtkTypeInt64 volatile *, vtkTypeInt64);
-extern "C" vtkTypeInt64 __cdecl _InterlockedExchangeAdd64(vtkTypeInt64 volatile *, vtkTypeInt64);
-extern "C" vtkTypeInt64 __cdecl _InterlockedExchange64(vtkTypeInt64 volatile *, vtkTypeInt64);
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
 # include <libkern/OSAtomic.h>
 #endif
 
-#if (defined(_WIN32)  && !defined(__MINGW32__)) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
+#if (defined(_WIN32)  && !defined(__MINGW32__))
+# define VTK_WINDOWS_ATOMIC
+# if defined(_MSC_VER)
+#  pragma warning(disable:4324) // disable warning about the padding due to alignment
+# endif
+#endif
+
+#if defined(VTK_WINDOWS_ATOMIC) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
 # define VTK_HAS_ATOMIC32
 #endif
 
 // Overall, we assume that 64 bit atomic operations are not available on 32
 // bit systems.
 #if VTK_SIZEOF_VOID_P == 8
-# if (defined(_WIN32)  && !defined(__MINGW32__)) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
+# if defined(VTK_WINDOWS_ATOMIC) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
 #  define VTK_HAS_ATOMIC64
 # endif
 #endif
@@ -75,7 +68,7 @@ class vtkSimpleCriticalSection;
 // Below are the actual implementations of 32 and 64 bit atomic operations.
 namespace detail
 {
-#if defined (_WIN32) && !defined(__MINGW32__)
+#if defined (VTK_WINDOWS_ATOMIC)
 # define VTK__ALIGN32 __declspec(align(32))
 #else
 # define VTK__ALIGN32
@@ -84,7 +77,7 @@ namespace detail
 template <typename T> class vtkAtomicIntImpl;
 
 template <>
-#if defined(VTK_HAS_ATOMIC32)
+#if defined(VTK_HAS_ATOMIC32) && !defined(VTK_WINDOWS_ATOMIC)
 class vtkAtomicIntImpl<vtkTypeInt32>
 #else
 class VTKCOMMONCORE_EXPORT vtkAtomicIntImpl<vtkTypeInt32>
@@ -94,101 +87,80 @@ public:
 
   // Description:
   // Atomic pre-increment.
-#if defined(VTK_HAS_ATOMIC32)
+#if defined(VTK_HAS_ATOMIC32) && !defined(VTK_WINDOWS_ATOMIC)
   vtkTypeInt32 operator++()
     {
-#if defined(_WIN32)
-    return _InterlockedIncrement((long*)&this->Value);
-
-#elif defined(__APPLE__)
+# if defined(__APPLE__)
     return OSAtomicIncrement32Barrier(&this->Value);
 
 // GCC, CLANG, etc
-#elif defined(VTK_HAVE_SYNC_BUILTINS)
+# elif defined(VTK_HAVE_SYNC_BUILTINS)
     return __sync_add_and_fetch(&this->Value, 1);
 
-#endif
+# endif
     }
 
   // Description:
   // Atomic pre-decrement.
   vtkTypeInt32 operator--()
     {
-#if defined(_WIN32)
-    return _InterlockedDecrement((long*)&this->Value);
-
-#elif defined(__APPLE__)
+# if defined(__APPLE__)
     return OSAtomicDecrement32Barrier(&this->Value);
 
 // GCC, CLANG, etc
-#elif defined(VTK_HAVE_SYNC_BUILTINS)
+# elif defined(VTK_HAVE_SYNC_BUILTINS)
     return __sync_sub_and_fetch(&this->Value, 1);
 
-#endif
+# endif
     }
 
   // Description:
   // Atomic add. Returns value after addition.
   vtkTypeInt32 operator+=(vtkTypeInt32 val)
     {
-#if defined(_WIN32)
-# if defined(VTK_HAS_INTERLOCKEDADD)
-    return _InterlockedAdd((long*)&this->Value, val);
-# else
-    return _InterlockedExchangeAdd((long*)&this->Value, val) + val;
-# endif
-
-#elif defined(__APPLE__)
+# if defined(__APPLE__)
     return OSAtomicAdd32Barrier(val, &this->Value);
 
 // GCC, CLANG, etc
-#elif defined(VTK_HAVE_SYNC_BUILTINS)
+# elif defined(VTK_HAVE_SYNC_BUILTINS)
     return __sync_add_and_fetch(&this->Value, val);
 
-#endif
+# endif
     }
 
   // Description:
   // Atomic fetch.
   vtkTypeInt32 load() const
     {
-#if defined(_WIN32)
-    long retval;
-    _InterlockedExchange(&retval, this->Value);
-    return retval;
-
-#elif defined(__APPLE__)
+# if defined(__APPLE__)
     vtkTypeInt32 retval = 0;
     OSAtomicCompareAndSwap32Barrier(retval, this->Value, &retval);
     return retval;
 
 // GCC, CLANG, etc
-#elif defined(VTK_HAVE_SYNC_BUILTINS)
+# elif defined(VTK_HAVE_SYNC_BUILTINS)
     vtkTypeInt32 retval = 0;
     __sync_val_compare_and_swap(&retval, retval, this->Value);
     return retval;
 
-#endif
+# endif
     }
 
   // Description:
   // Atomic save.
   void store(vtkTypeInt32 val)
     {
-#if defined(_WIN32)
-    _InterlockedExchange((long*)&this->Value, val);
-
-#elif defined(__APPLE__)
+# if defined(__APPLE__)
     OSAtomicCompareAndSwap32Barrier(this->Value, val, &this->Value);
 
 // GCC, CLANG, etc
-#elif defined(VTK_HAVE_SYNC_BUILTINS)
+# elif defined(VTK_HAVE_SYNC_BUILTINS)
   __sync_val_compare_and_swap(&this->Value, this->Value, val);
 
 #endif
     }
 
-#else // defined(VTK_HAS_ATOMIC32)
+#else // defined(VTK_HAS_ATOMIC32) && !defined(VTK_WINDOWS_ATOMIC)
 
   // These methods are for when using a mutex. Same as above.
   // A virtual descructor is used becase the mutex is constructed
@@ -201,7 +173,7 @@ public:
   vtkTypeInt32 load() const;
   void store(vtkTypeInt32 val);
 
-#endif
+#endif // defined(VTK_HAS_ATOMIC32) && !defined(VTK_WINDOWS_ATOMIC)
 
 protected:
   // Explicitely aligning Value on Windows is probably not necessary
@@ -214,14 +186,14 @@ protected:
 #endif
 };
 
-#if defined (_WIN32) && !defined(__MINGW32__)
+#if defined (VTK_WINDOWS_ATOMIC)
 # define VTK__ALIGN64 __declspec(align(64))
 #else
 # define VTK__ALIGN64
 #endif
 
 template <>
-#if defined(VTK_HAS_ATOMIC64)
+#if defined(VTK_HAS_ATOMIC64) && !defined(VTK_WINDOWS_ATOMIC)
 class vtkAtomicIntImpl<vtkTypeInt64>
 #else
 class VTKCOMMONCORE_EXPORT vtkAtomicIntImpl<vtkTypeInt64>
@@ -231,13 +203,10 @@ public:
 
   // Description:
   // Atomic pre-increment.
-#if defined(VTK_HAS_ATOMIC64)
+#if defined(VTK_HAS_ATOMIC64) && !defined(VTK_WINDOWS_ATOMIC)
   vtkTypeInt64 operator++()
     {
-# if defined(_WIN32)
-    return _InterlockedIncrement64(&this->Value);
-
-# elif defined(__APPLE__)
+# if defined(__APPLE__)
     return OSAtomicIncrement64Barrier(&this->Value);
 
 // GCC, CLANG, etc
@@ -251,10 +220,7 @@ public:
   // Atomic pre-decrement.
   vtkTypeInt64 operator--()
     {
-# if defined(_WIN32)
-    return _InterlockedDecrement64(&this->Value);
-
-# elif defined(__APPLE__)
+# if defined(__APPLE__)
     return OSAtomicDecrement64Barrier(&this->Value);
 
 // GCC, CLANG, etc
@@ -268,14 +234,7 @@ public:
   // Atomic add. Returns value after addition.
   vtkTypeInt64 operator+=(vtkTypeInt64 val)
     {
-# if defined(_WIN32)
-#  if defined(VTK_HAS_INTERLOCKEDADD)
-    return _InterlockedAdd64(&this->Value, val);
-#  else
-    return _InterlockedExchangeAdd64(&this->Value, val) + val;
-#  endif
-
-# elif defined(__APPLE__)
+# if defined(__APPLE__)
     return OSAtomicAdd64Barrier(val, &this->Value);
 
 // GCC, CLANG, etc
@@ -289,12 +248,7 @@ public:
   // Atomic fetch.
   vtkTypeInt64 load() const
     {
-# if defined(_WIN32)
-    vtkTypeInt64 retval;
-    _InterlockedExchange64(&retval, this->Value);
-    return retval;
-
-# elif defined(__APPLE__)
+# if defined(__APPLE__)
   vtkTypeInt64 retval = 0;
   OSAtomicCompareAndSwap64Barrier(retval, this->Value, &retval);
   return retval;
@@ -312,10 +266,7 @@ public:
   // Atomic store.
   void store(vtkTypeInt64 val)
     {
-# if defined(_WIN32)
-    _InterlockedExchange64(&this->Value, val);
-
-# elif defined(__APPLE__)
+# if defined(__APPLE__)
   OSAtomicCompareAndSwap64Barrier(this->Value, val, &this->Value);
 
 // GCC, CLANG, etc
@@ -325,7 +276,7 @@ public:
 # endif
     }
 
-#else // defined(VTK_HAS_ATOMIC64)
+#else // defined(VTK_HAS_ATOMIC64) && !defined(VTK_WINDOWS_ATOMIC)
 
   // These methods are for when using a mutex. Same as above.
   // A virtual descructor is used becase the mutex is constructed
@@ -338,7 +289,7 @@ public:
   vtkTypeInt64 load() const;
   void store(vtkTypeInt64 val);
 
-#endif // defined(VTK_HAS_ATOMIC64)
+#endif // defined(VTK_HAS_ATOMIC64) && !defined(VTK_WINDOWS_ATOMIC)
 
 protected:
  // Explicitely aligning Value on Windows is probably not necessary
