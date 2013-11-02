@@ -464,10 +464,19 @@ int vtkSMPContourGrid::RequestData(
   vtkUnstructuredGrid *input = vtkUnstructuredGrid::GetData(inputVector[0]);
   vtkDataObject *output = vtkDataObject::GetData(outputVector);
 
-  // Not thread safe so calculate first.
-  input->GetBounds();
+  if (input->GetNumberOfCells() == 0)
+    {
+    return 1;
+    }
 
   vtkDataArray* inScalars = this->GetInputArrayToProcess(0,inputVector);
+  if (!inScalars)
+    {
+    return 1;
+    }
+
+  // Not thread safe so calculate first.
+  input->GetBounds();
 
   int numContours = this->GetNumberOfContours();
   if (numContours < 1)
