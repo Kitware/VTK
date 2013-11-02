@@ -16,7 +16,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 vtkStandardNewMacro(vtkRendererCollection);
 

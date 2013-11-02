@@ -80,7 +80,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <unistd.h>
 #endif
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <float.h>
 #include <time.h>
 #include <string>

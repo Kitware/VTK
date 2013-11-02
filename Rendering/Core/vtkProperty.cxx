@@ -22,7 +22,7 @@
 #include "vtkStdString.h"
 #include "vtkTexture.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <vtksys/ios/sstream>
 
 #include <map>

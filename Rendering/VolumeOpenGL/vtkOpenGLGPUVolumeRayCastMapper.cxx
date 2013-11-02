@@ -67,7 +67,7 @@
 #include "vtkImageResample.h"
 
 #include <sstream>
-#include <stdlib.h> // qsort()
+#include <cstdlib> // qsort()
 
 #include "vtkDataSetTriangleFilter.h"
 
