@@ -82,9 +82,9 @@ public:
                          vtkMultiBlockDataSet* output) : Filter(filter),
                                                          Input(input),
                                                          InScalars(inScalars),
+                                                         Output(output),
                                                          NumValues(numValues),
-                                                         Values(values),
-                                                         Output(output)
+                                                         Values(values)
   {
   }
 
