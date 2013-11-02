@@ -364,6 +364,16 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 "alignas"  get_macro_arguments(); /* C++11 */
 
+"_Alignas" get_macro_arguments(); /* C11 */
+
+"_Generic" get_macro_arguments(); /* C11 */
+
+"_Thread_local" return(THREAD_LOCAL); /* C11 */
+
+"_Atomic"    /* C11 */
+
+"_Noreturn"  /* C11 */
+
 "__attribute__"  get_macro_arguments(); /* gcc attributes */
 
 "__declspec"  get_macro_arguments(); /* Windows linkage */
