@@ -16,5 +16,6 @@ vtk_add_test_cxx(
   TestImplicitPolyDataDistance.cxx,NO_VALID
   TestCutter.cxx,NO_VALID
   TestThreshold.cxx,NO_VALID
+  TestSMPPipelineContour.cxx,NO_VALID
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests)

@@ -36,6 +36,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkProgressObserver.h"
 #include "vtkSmartPointer.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkTable.h"
@@ -93,6 +94,7 @@ vtkAlgorithm::vtkAlgorithm()
   this->Progress = 0.0;
   this->ProgressText = NULL;
   this->Executive = 0;
+  this->ProgressObserver = 0;
   this->InputPortInformation = vtkInformationVector::New();
   this->OutputPortInformation = vtkInformationVector::New();
   this->AlgorithmInternal = new vtkAlgorithmInternals;
@@ -110,6 +112,11 @@ vtkAlgorithm::~vtkAlgorithm()
     this->Executive->UnRegister(this);
     this->Executive = 0;
     }
+  if (this->ProgressObserver)
+    {
+    this->ProgressObserver->UnRegister(this);
+    this->ProgressObserver = 0;
+    }
   this->InputPortInformation->Delete();
   this->OutputPortInformation->Delete();
   delete this->AlgorithmInternal;
@@ -118,13 +125,40 @@ vtkAlgorithm::~vtkAlgorithm()
 }
 
 //----------------------------------------------------------------------------
+void vtkAlgorithm::SetProgressObserver(vtkProgressObserver* po)
+{
+  // This intentionally does not modify the algorithm as it
+  // is usually done by executives during execution and we don't
+  // want the filter to change its mtime during execution.
+  if (po != this->ProgressObserver)
+    {
+    if (this->ProgressObserver)
+      {
+      this->ProgressObserver->UnRegister(this);
+      }
+    this->ProgressObserver = po;
+    if (po)
+      {
+      po->Register(this);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
 // Update the progress of the process object. If a ProgressMethod exists,
 // executes it. Then set the Progress ivar to amount. The parameter amount
 // should range between (0,1).
 void vtkAlgorithm::UpdateProgress(double amount)
 {
-  this->Progress = amount;
-  this->InvokeEvent(vtkCommand::ProgressEvent,static_cast<void *>(&amount));
+  if (this->ProgressObserver)
+    {
+    this->ProgressObserver->UpdateProgress(amount);
+    }
+  else
+    {
+    this->Progress = amount;
+    this->InvokeEvent(vtkCommand::ProgressEvent,static_cast<void *>(&amount));
+    }
 }
 
 
