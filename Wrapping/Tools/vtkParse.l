@@ -426,6 +426,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
             if (!emacro)
               {
               print_preprocessor_error(VTK_PARSE_MACRO_NUMARGS, NULL, 0);
+              exit(1);
               }
             free((char *)args);
             }
@@ -447,6 +448,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
             if (!emacro)
               {
               print_preprocessor_error(r, NULL, 0);
+              exit(1);
               }
             }
           }
@@ -731,14 +733,16 @@ const char *get_macro_arguments()
  */
 int skip_comment()
 {
+   int savelineno = yylineno;
    int c1 = 0, c2 = input();
    for (;;)
      {
      if (c2 == 0 || c2 == EOF)
        {
+       yylineno = savelineno;
        print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR,
          "Cannot find end of comment.", 27);
-       return 0;
+       exit(1);
        }
      if (c1 == '*' && c2 == '/') break;
      c1 = c2; c2 = input();
@@ -1024,6 +1028,7 @@ int skip_ahead_until(const char *text)
  */
 const char *raw_string(const char *begin)
 {
+  int savelineno = yylineno;
   char *textbuf;
   int c = 0;
   const char *delim;
@@ -1107,8 +1112,10 @@ const char *raw_string(const char *begin)
 
   if (c == EOF || '\"' != input())
     {
-    print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR, NULL, 0);
-    yy_fatal_error("");
+    yylineno = savelineno;
+    print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR,
+      "Unterminated raw string.", 24);
+    exit(1);
     }
 
   *dp++ = '\"';
@@ -1381,6 +1388,11 @@ void print_parser_error(const char *text, const char *cp, size_t n)
   size_t j = 0;
   const char *fn = "(none)";
 
+  if (CommandName)
+    {
+    fprintf(yyout, "%s: ", CommandName);
+    }
+
   if (data->FileName)
     {
     fn = data->FileName;
@@ -1391,15 +1403,19 @@ void print_parser_error(const char *text, const char *cp, size_t n)
     fprintf(yyout, "%i:\nIn %s:",
             lineno_stack[j], include_stack[j]->FileName);
     }
-  fprintf(yyout, "%i:\n", yylineno);
+  fprintf(yyout, "%i:", yylineno);
 
   if (cp)
     {
-    fprintf(yyout, "%s: %*.*s\n", text, (int)n, (int)n, cp);
+    fprintf(yyout, " %s: %*.*s\n", text, (int)n, (int)n, cp);
     }
   else if (text)
     {
-    fprintf(yyout, "%s.\n", text);
+    fprintf(yyout, " %s.\n", text);
+    }
+  else
+    {
+    fprintf(yyout, "\n");
     }
 }
 
@@ -1460,6 +1476,10 @@ void preprocessor_directive(const char *text, size_t l)
   else if (result != VTK_PARSE_OK)
     {
     print_preprocessor_error(result, text, l);
+    if ((result & VTK_PARSE_FATAL_ERROR) != 0)
+      {
+      exit(1);
+      }
     }
   else if (n == 6 && strncmp(directive, "define", n) == 0 &&
            ep - cp > 4 && strncmp(cp, "VTK", 3) == 0)
