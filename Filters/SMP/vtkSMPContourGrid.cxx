@@ -103,11 +103,11 @@ public:
                         int numValues,
                         double* values,
                         vtkDataObject* output) : Filter(filter),
-                                                        Input(input),
-                                                        InScalars(inScalars),
-                                                        NumValues(numValues),
-                                                        Values(values),
-                                                        Output(output)
+                                                 Input(input),
+                                                 InScalars(inScalars),
+                                                 Output(output),
+                                                 NumValues(numValues),
+                                                 Values(values)
   {
   }
 
