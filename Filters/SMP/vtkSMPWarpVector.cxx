@@ -119,7 +119,7 @@ void vtkSMPWarpVectorExecute(vtkSMPWarpVector *self,
 
 //----------------------------------------------------------------------------
 int vtkSMPWarpVector::RequestData(
-  vtkInformation *vtkNotUsed(request),
+  vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -130,6 +130,11 @@ int vtkSMPWarpVector::RequestData(
   // get the input and output
   vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!input)
+    {
+    // Let the superclass handle vtkImageData and vtkRectilinearGrid
+    return this->Superclass::RequestData(request, inputVector, outputVector);
+    }
   vtkPointSet *output = vtkPointSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
