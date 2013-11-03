@@ -32,9 +32,16 @@ file(GLOB src RELATIVE "${VTK_SOURCE_DIR}" "${VTK_SOURCE_DIR}/*/*/module.cmake")
 foreach(module ${src})
   get_filename_component(module_BASE ${module} PATH)
   if("${module_BASE}" MATCHES "^Utilities" OR ${module_BASE} MATCHES "^Third")
+    # Skip the utilities and third parties directories.
   else()
+    # Use both the source and binary directories, this ensures that
+    # generated files will be included, but they may then be architecture,
+    # build configuration and/or compiler specific. All source directories
+    # are included whether the module is enabled or not.
     set(VTK_MODULE_DIRS_DOXYGEN
-      "${VTK_MODULE_DIRS_DOXYGEN}  \"${VTK_SOURCE_DIR}/${module_BASE}\"\n")
+      "${VTK_MODULE_DIRS_DOXYGEN}
+  \"${VTK_SOURCE_DIR}/${module_BASE}\"
+  \"${VTK_BINARY_DIR}/${module_BASE}\"")
   endif()
 endforeach()
 
