@@ -163,6 +163,11 @@ public:
   // Paints the input tree as a dendrogram.
   virtual bool Paint(vtkContext2D *painter);
 
+  // Description:
+  // Get/Set how wide the edges of this dendrogram should be.  Default is one pixel.
+  vtkGetMacro(LineWidth, float);
+  vtkSetMacro(LineWidth, float);
+
   // this struct & class allow us to generate a priority queue of vertices.
   struct WeightedVertex
   {
@@ -312,6 +317,7 @@ private:
   double SceneBottomLeft[3];
   double SceneTopRight[3];
   float LabelWidth;
+  float LineWidth;
   bool ColorTree;
   bool ExtendLeafNodes;
   bool DrawLabels;

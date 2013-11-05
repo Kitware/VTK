@@ -59,6 +59,8 @@ vtkTanglegramItem::vtkTanglegramItem()
 
   this->MinimumVisibleFontSize = 8;
   this->LabelSizeDifference = 4;
+
+  this->CorrespondenceLineWidth = 2.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -235,7 +237,9 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
 {
   int textOrientation = painter->GetTextProp()->GetOrientation();
   painter->GetTextProp()->SetOrientation(0.0);
-  painter->GetPen()->SetWidth(2.0);
+
+  float previousWidth = painter->GetPen()->GetWidth();
+  painter->GetPen()->SetWidth(this->CorrespondenceLineWidth);
 
   for (vtkIdType row = 0; row < this->Table->GetNumberOfRows();
        ++row)
@@ -414,7 +418,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
 
   painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
   painter->GetTextProp()->SetOrientation(textOrientation);
-  painter->GetPen()->SetWidth(1.0);
+  painter->GetPen()->SetWidth(previousWidth);
 }
 
 //-----------------------------------------------------------------------------
@@ -712,6 +716,19 @@ bool vtkTanglegramItem::MouseDoubleClickEvent(
     }
 
   return tree1Changed || tree2Changed;
+}
+
+//-----------------------------------------------------------------------------
+float vtkTanglegramItem::GetTreeLineWidth()
+{
+  return this->Dendrogram1->GetLineWidth();
+}
+
+//-----------------------------------------------------------------------------
+void vtkTanglegramItem::SetTreeLineWidth(float width)
+{
+  this->Dendrogram1->SetLineWidth(width);
+  this->Dendrogram2->SetLineWidth(width);
 }
 
 //-----------------------------------------------------------------------------

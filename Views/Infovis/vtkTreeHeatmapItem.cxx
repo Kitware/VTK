@@ -585,6 +585,19 @@ void vtkTreeHeatmapItem::CollapseToNumberOfLeafNodes(unsigned int n)
 }
 
 //-----------------------------------------------------------------------------
+float vtkTreeHeatmapItem::GetTreeLineWidth()
+{
+  return this->Dendrogram->GetLineWidth();
+}
+
+//-----------------------------------------------------------------------------
+void vtkTreeHeatmapItem::SetTreeLineWidth(float width)
+{
+  this->Dendrogram->SetLineWidth(width);
+  this->ColumnDendrogram->SetLineWidth(width);
+}
+
+//-----------------------------------------------------------------------------
 vtkTree * vtkTreeHeatmapItem::GetPrunedTree()
 {
   return this->Dendrogram->GetPrunedTree();
