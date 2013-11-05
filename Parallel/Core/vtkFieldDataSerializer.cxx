@@ -331,6 +331,10 @@ void vtkFieldDataSerializer::SerializeDataArray(
      case VTK_INT:
        bytestream.Push(static_cast<int*>(dataArray->GetVoidPointer(0)),size);
        break;
+     case VTK_ID_TYPE:
+       bytestream.Push(
+           static_cast<vtkIdType*>(dataArray->GetVoidPointer(0)),size);
+       break;
      default:
        assert("ERROR: cannot serialize data of given type" && false);
        cerr << "Canot serialize data of type="
@@ -392,6 +396,7 @@ void vtkFieldDataSerializer::DeserializeDataArray(
   std::string name;
 
   bytestream >> dataType >> numTuples >> numComp >> name;
+  assert("pre: numComp >= 1" && (numComp >= 1) );
 
   // STEP 1: Construct vtkDataArray object
   dataArray = vtkDataArray::CreateDataArray( dataType );
@@ -401,46 +406,33 @@ void vtkFieldDataSerializer::DeserializeDataArray(
 
   // STEP 2: Extract raw data to vtkDataArray
   // TODO: Add more cases for more datatypes here (?)
-  unsigned int size = 0;
+  unsigned int size = numTuples*numComp;
+  void* rawPtr = dataArray->GetVoidPointer(0);
+  assert("pre: raw pointer is NULL!" && (rawPtr != NULL) );
   switch( dataType )
     {
     case VTK_FLOAT:
       {
-      float *data = NULL;
+      float* data = static_cast<float*>(rawPtr);
       bytestream.Pop(data,size);
-      assert("pre: deserialized raw data array is NULL" && (data != NULL) );
-
-      float *dataArrayPtr = static_cast<float*>(dataArray->GetVoidPointer(0));
-      assert("pre: data array pointer is NULL!" && (dataArrayPtr != NULL) );
-
-      std::memcpy(dataArrayPtr,data,size*sizeof(float));
-      delete [] data;
       }
       break;
     case VTK_DOUBLE:
       {
-      double *data = NULL;
+      double *data = static_cast<double*>(rawPtr);
       bytestream.Pop(data,size);
-      assert("pre: deserialized raw data array is NULL" && (data != NULL) );
-
-      double *dataArrayPtr = static_cast<double*>(dataArray->GetVoidPointer(0));
-      assert("pre: data array pointer is NULL!" && (dataArrayPtr != NULL) );
-
-      std::memcpy(dataArrayPtr,data,size*sizeof(double));
-      delete [] data;
       }
       break;
     case VTK_INT:
       {
-      int *data = NULL;
+      int *data = static_cast<int*>(rawPtr);
       bytestream.Pop(data,size);
-      assert("pre: deserialized raw data array is NULL" && (data != NULL) );
-
-      int *dataArrayPtr = static_cast<int*>(dataArray->GetVoidPointer(0));
-      assert("pre: data array pointer is NULL!" && (dataArrayPtr != NULL) );
-
-      std::memcpy(dataArrayPtr,data,size*sizeof(int));
-      delete [] data;
+      }
+      break;
+    case VTK_ID_TYPE:
+      {
+      vtkIdType* data = static_cast<vtkIdType*>(rawPtr);
+      bytestream.Pop(data,size);
       }
       break;
     default:
