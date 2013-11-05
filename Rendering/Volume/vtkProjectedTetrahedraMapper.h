@@ -47,6 +47,7 @@ class vtkPoints;
 class vtkUnsignedCharArray;
 class vtkVisibilitySort;
 class vtkVolumeProperty;
+class vtkRenderWindow;
 
 class VTKRENDERINGVOLUME_EXPORT vtkProjectedTetrahedraMapper : public vtkUnstructuredGridVolumeMapper
 {
@@ -66,6 +67,12 @@ public:
                               const float projection_mat[16],
                               const float modelview_mat[16],
                               vtkFloatArray *outPoints);
+
+  // Description:
+  // Return true if the rendering context provides
+  // the nececessary functionality to use this class.
+  virtual bool IsSupported(vtkRenderWindow *)
+    { return false; }
 
 protected:
   vtkProjectedTetrahedraMapper();

@@ -39,6 +39,8 @@
 class vtkVisibilitySort;
 class vtkUnsignedCharArray;
 class vtkFloatArray;
+class vtkRenderWindow;
+class vtkOpenGLRenderWindow;
 
 class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkOpenGLProjectedTetrahedraMapper
   : public vtkProjectedTetrahedraMapper
@@ -60,6 +62,11 @@ public:
   vtkGetMacro(UseFloatingPointFrameBuffer,bool);
   vtkBooleanMacro(UseFloatingPointFrameBuffer,bool);
 
+  // Description:
+  // Return true if the rendering context provides
+  // the nececessary functionality to use this class.
+  virtual bool IsSupported(vtkRenderWindow *context);
+
 protected:
   vtkOpenGLProjectedTetrahedraMapper();
   ~vtkOpenGLProjectedTetrahedraMapper();
@@ -67,7 +74,7 @@ protected:
   void Initialize(vtkRenderer *ren);
   bool Initialized;
   int  CurrentFBOWidth, CurrentFBOHeight;
-  bool CheckFBOResources(vtkRenderer *ren);
+  bool AllocateFBOResources(vtkRenderer *ren);
   bool CanDoFloatingPointFrameBuffer;
   bool FloatingPointFrameBufferResourcesAllocated;
   bool UseFloatingPointFrameBuffer;
@@ -101,7 +108,6 @@ private:
   void operator=(const vtkOpenGLProjectedTetrahedraMapper &);  // Not Implemented.
 
   class vtkInternals;
-
   vtkInternals *Internals;
 };
 
