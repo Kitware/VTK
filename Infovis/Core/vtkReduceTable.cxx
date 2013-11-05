@@ -123,10 +123,6 @@ void vtkReduceTable::AccumulateIndexValues(vtkTable *input)
     {
     vtkVariant value = input->GetValue(row, this->IndexColumn);
     this->IndexValues.insert(value);
-
-    vtkIdType newRow =
-      std::distance(this->IndexValues.begin(), this->IndexValues.find(value));
-
     std::map<vtkVariant, std::vector<vtkIdType> >::iterator itr =
       this->NewRowToOldRowsMap.find(value);
     if (itr == this->NewRowToOldRowsMap.end())
