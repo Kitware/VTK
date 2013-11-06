@@ -12,13 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractCTHPart - Generates surface of an CTH volume fraction.
+// .NAME vtkExtractCTHPart - Generates surface of a CTH volume fraction.
 // .SECTION Description
 // vtkExtractCTHPart is a filter that is specialized for creating
-// visualization of a CTH simulation.  First it converts the cell data
-// to point data.  It contours the selected volume fraction at a value
-// of 0.5.  The user has the option of clipping the part with a plane.
-// Clipped surfaces of the part are generated.
+// visualizations for a CTH simulation. CTH datasets comprise of either
+// vtkNonOverlappingAMR or a multiblock of non-overlapping rectilinear grids
+// with cell-data. Certain cell-arrays in the dataset identify the fraction of
+// a particular material present in a given cell. This goal with this filter is
+// to extract a surface contour demarcating the surface where the volume
+// fraction for a particular material is equal to the user chosen value.
+//
+// To achieve that, this filter first converts the cell-data to point-data and
+// then simply apply vtkContourFilter filter to extract the contour.
+//
+// vtkExtractCTHPart also provides the user with an option to clip the resultant
+// contour using a vtkPlane. Internally, it uses vtkClipClosedSurface to clip
+// the contour using the vtkPlane provided.
+//
+// The output of this filter is a vtkMultiBlockDataSet with one block
+// corresponding to each volume-fraction array requested. Each block itself is a
+// vtkPolyData for the contour generated on the current process (which may be
+// null, for processes where no contour is generated).
 
 #ifndef __vtkExtractCTHPart_h
 #define __vtkExtractCTHPart_h
@@ -27,17 +41,13 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkAppendPolyData;
-class vtkBoundingBox;
-class vtkClipPolyData;
 class vtkContourFilter;
-class vtkCutter;
 class vtkDataArray;
 class vtkDataSet;
 class vtkDataSetSurfaceFilter;
 class vtkDoubleArray;
 class vtkExtractCTHPartInternal;
 class vtkImageData;
-class vtkInformationDoubleVectorKey;
 class vtkCompositeDataSet;
 class vtkMultiProcessController;
 class vtkPlane;
@@ -45,58 +55,60 @@ class vtkPolyData;
 class vtkRectilinearGrid;
 class vtkUniformGrid;
 class vtkUnsignedCharArray;
+class vtkExtractCTHPartFragments;
 
 //#define EXTRACT_USE_IMAGE_DATA 1
 
 class VTKFILTERSPARALLEL_EXPORT vtkExtractCTHPart : public vtkMultiBlockDataSetAlgorithm
 {
 public:
+  static vtkExtractCTHPart *New();
   vtkTypeMacro(vtkExtractCTHPart,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct object with initial range (0,1) and single contour value
-  // of 0.0.
-  static vtkExtractCTHPart *New();
-
-  // Description:
-  // Names of cell volume fraction arrays to extract.
-  void RemoveDoubleVolumeArrayNames();
-  void RemoveFloatVolumeArrayNames();
-  void RemoveUnsignedCharVolumeArrayNames();
+  // Select cell-data arrays (volume-fraction arrays) to contour with.
+  void AddVolumeArrayName(const char*);
+  void RemoveVolumeArrayNames();
   int GetNumberOfVolumeArrayNames();
   const char* GetVolumeArrayName(int idx);
-  // for backwards compatibility
-  void RemoveAllVolumeArrayNames();
-
-  // Description
-  // Names of cell volume fraction arrays to extract.
-  // Each of the volume fraction arrays must be of the same type.
-  // These three methods enforce that on input, removing any prior arrays
-  // of the wrong type whenever a new array is added.
-  void AddDoubleVolumeArrayName(char* arrayName);
-  void AddFloatVolumeArrayName(char* arrayName);
-  void AddUnsignedCharVolumeArrayName(char* arrayName);
-  //for backwards compatibility
-  void AddVolumeArrayName(char* arrayName);
 
   // Description:
-  // Set, get or maninpulate the implicit clipping plane.
+  // Get/Set the parallel controller. By default, the value returned by
+  // vtkMultiBlockDataSetAlgorithm::GetGlobalController() when the object is
+  // instantiated is used.
+  void SetController(vtkMultiProcessController* controller);
+  vtkGetObjectMacro(Controller,vtkMultiProcessController);
+
+  // Description:
+  // On by default, enables logic to cap the material volume.
+  vtkSetMacro(Capping, bool);
+  vtkGetMacro(Capping, bool);
+  vtkBooleanMacro(Capping, bool);
+
+  // Description:
+  // Triangulate results. When set to false, the internal cut and contour filters
+  // are told not to triangulate results if possible. true by default.
+  vtkSetMacro(GenerateTriangles, bool);
+  vtkGetMacro(GenerateTriangles, bool);
+  vtkBooleanMacro(GenerateTriangles, bool);
+
+  // Description:
+  // When set to false, the output surfaces will not hide contours extracted from
+  // ghost cells. This results in overlapping contours but overcomes holes.
+  // Default is set to true.
+  vtkSetMacro(RemoveGhostCells, bool);
+  vtkGetMacro(RemoveGhostCells, bool);
+  vtkBooleanMacro(RemoveGhostCells, bool);
+
+  // Description:
+  // Set, get or manipulate the implicit clipping plane.
   void SetClipPlane(vtkPlane *clipPlane);
   vtkGetObjectMacro(ClipPlane, vtkPlane);
 
   // Description:
   // Look at clip plane to compute MTime.
   unsigned long GetMTime();
-
-  // Description:
-  // Set the controller used to coordinate parallel processing.
-  void SetController(vtkMultiProcessController* controller);
-
-  // Description:
-  // Return the controller used to coordinate parallel processing. By default,
-  // it is the global controller.
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
 
   // Description:
   // Set and get the volume fraction surface value. This value should be
@@ -108,81 +120,20 @@ protected:
   vtkExtractCTHPart();
   ~vtkExtractCTHPart();
 
-  virtual int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
-
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
-
-  // Description:
-  // the input is a hierarchy of vtkUniformGrid or one level of
-  // vtkRectilinearGrid. The output is a hierarchy of vtkPolyData.
-
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int RequestData(
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // Description:
   // Compute the bounds over the composite dataset, some sub-dataset
-  // can be on other processors.
-  void ComputeBounds(vtkCompositeDataSet *input,
-                     int processNumber,
-                     int numProcessors);
-
-  void ExecutePart(const char *arrayName,
-                   vtkCompositeDataSet *input,
-                   vtkAppendPolyData *appendSurface,
-                   vtkAppendPolyData *append,
-                   float minProgress,
-                   float maxProgress);
-
-  void ExecutePartOnUniformGrid(const char *arrayName,
-#ifdef EXTRACT_USE_IMAGE_DATA
-                                vtkImageData *input,
-#else
-                                vtkUniformGrid *input,
-#endif
-                                vtkAppendPolyData *appendSurface,
-                                vtkAppendPolyData *append,
-                                float minProgress,
-                                float maxProgress);
-
-  void ExecutePartOnRectilinearGrid(const char *arrayName,
-                                    vtkRectilinearGrid *input,
-                                    vtkAppendPolyData *appendSurface,
-                                    vtkAppendPolyData *append,
-                                    float minProgress,
-                                    float maxProgress);
-
-  void ExecuteCellDataToPointData(vtkDataArray *cellVolumeFraction,
-                                  vtkDoubleArray *pointVolumeFraction,
-                                  int *dims,
-                                  float minProgress,
-                                  float maxProgress,
-                                  int reportProgress);
-
-  virtual int FillInputPortInformation(int port,
-                                       vtkInformation *info);
-
-  void CreateInternalPipeline();
-  void DeleteInternalPipeline();
+  // can be on other processors. Returns false of communication failure.
+  bool ComputeGlobalBounds(vtkCompositeDataSet *input);
 
   // Description:
-  // Append quads for faces of the block that actually on the bounds
-  // of the hierarchical dataset. Deals with ghost cells.
-  // Return true if the output is not empty.
-  int ExtractUniformGridSurface(
-#ifdef EXTRACT_USE_IMAGE_DATA
-    vtkImageData *input,
-#else
-    vtkUniformGrid *input,
-#endif
-    vtkPolyData *output);
-
-  // Description:
-  // Append quads for faces of the block that actually on the bounds
-  // of the hierarchical dataset. Deals with ghost cells.
-  // Return true if the output is not empty.
-  int ExtractRectilinearGridSurface(vtkRectilinearGrid *input,
-                                    vtkPolyData *output);
+  // Extract contour for a particular array over the entire input dataset.
+  // Returns false on error.
+  bool ExtractContour(
+    vtkPolyData* output, vtkCompositeDataSet* input, const char*arrayName);
 
   void ExecuteFaceQuads(vtkDataSet *input,
                         vtkPolyData *output,
@@ -202,49 +153,53 @@ protected:
                   int dims[3],
                   vtkUnsignedCharArray *ghostArray);
 
-  vtkPlane *ClipPlane;
-  vtkExtractCTHPartInternal* Internals;
+  void TriggerProgressEvent(double val);
 
-  // Internal Pipeline elements
-  vtkDoubleArray *PointVolumeFraction;
-
-#ifdef EXTRACT_USE_IMAGE_DATA
-  vtkImageData *Data;
-#else
-  vtkUniformGrid *Data;
-#endif
-
-  vtkContourFilter *Contour;
-  vtkAppendPolyData *Append2;
-  vtkClipPolyData *Clip1;
-  vtkCutter *Cut;
-  vtkClipPolyData *Clip2;
-
-  vtkPolyData *PolyData;
-  vtkAlgorithm *PolyDataProducer;
-  vtkPolyData *RPolyData;
-  vtkAlgorithm *RPolyDataProducer;
-  vtkPolyData *SurfacePolyData;
-
-  vtkRectilinearGrid *RData;
-  vtkContourFilter *RContour;
-  vtkAppendPolyData *RAppend2;
-  vtkClipPolyData *RClip1;
-  vtkCutter *RCut;
-  vtkClipPolyData *RClip2;
-
-  void EvaluateVolumeFractionType(vtkRectilinearGrid* rg,
-                                  vtkCompositeDataSet* input);
   int VolumeFractionType;
   double VolumeFractionSurfaceValue;
   double VolumeFractionSurfaceValueInternal;
-  int OverwriteVolumeFractionSurfaceValue;
-
-  vtkBoundingBox *Bounds; // Whole bounds (dataset over all the processors)
-
+  bool GenerateTriangles;
+  bool Capping;
+  bool RemoveGhostCells;
+  vtkPlane *ClipPlane;
   vtkMultiProcessController *Controller;
 private:
   vtkExtractCTHPart(const vtkExtractCTHPart&);  // Not implemented.
   void operator=(const vtkExtractCTHPart&);  // Not implemented.
+
+  class VectorOfFragments;
+
+  // Description:
+  // Extract contour for a particular array over a particular block in the input
+  // dataset.  Returns false on error.
+  template <class T>
+  bool ExtractClippedContourOnBlock(
+    vtkExtractCTHPart::VectorOfFragments& fragments, T* input, const char* arrayName);
+
+  // Description:
+  // Extract contour for a particular array over a particular block in the input
+  // dataset.  Returns false on error.
+  template <class T>
+  bool ExtractContourOnBlock(
+    vtkExtractCTHPart::VectorOfFragments& fragments, T* input, const char* arrayName);
+
+  // Description:
+  // Append quads for faces of the block that actually on the bounds
+  // of the hierarchical dataset. Deals with ghost cells.
+  template <class T>
+  void ExtractExteriorSurface(
+    vtkExtractCTHPart::VectorOfFragments& fragments, T* input);
+
+  // Description:
+  // Fast cell-data-2-point-data implementation.
+  void ExecuteCellDataToPointData(
+    vtkDataArray *cellVolumeFraction, vtkDoubleArray *pointVolumeFraction, const int *dims);
+
+  double ProgressShift;
+  double ProgressScale;
+
+  class ScaledProgress;
+  friend class ScaledProgress;
+  vtkExtractCTHPartInternal* Internals;
 };
 #endif
