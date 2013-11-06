@@ -273,6 +273,45 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
 }
 
 //-----------------------------------------------------------------------------
+bool vtkChart::CalculateUnscaledPlotTransform(vtkAxis *x, vtkAxis *y,
+                                              vtkTransform2D *transform)
+{
+  if (!x || !y || !transform)
+    {
+    vtkWarningMacro("Called with null arguments.");
+    return false;
+    }
+
+  vtkVector2d scale(x->GetMaximum() - x->GetMinimum(),
+                    y->GetMaximum() - y->GetMinimum());
+
+  // Get the scale for the plot area from the x and y axes
+  float *min = x->GetPoint1();
+  float *max = x->GetPoint2();
+  if (fabs(max[0] - min[0]) == 0.0)
+    {
+    return false;
+    }
+  double xScale = scale[0] / (max[0] - min[0]);
+
+  // Now the y axis
+  min = y->GetPoint1();
+  max = y->GetPoint2();
+  if (fabs(max[1] - min[1]) == 0.0)
+    {
+    return false;
+    }
+  double yScale = scale[1] / (max[1] - min[1]);
+
+  transform->Identity();
+  transform->Translate(this->Point1[0], this->Point1[1]);
+  // Get the scale for the plot area from the x and y axes
+  transform->Scale(1.0 / xScale, 1.0 / yScale);
+  transform->Translate(-x->GetMinimum(), -y->GetMinimum());
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 void vtkChart::SetBottomBorder(int border)
 {
   this->Point1[1] = border >= 0 ? border : 0;

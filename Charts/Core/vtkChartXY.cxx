@@ -1889,8 +1889,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 void vtkChartXY::ZoomInAxes(vtkAxis *x, vtkAxis *y, float *originf, float *maxf)
 {
   vtkNew<vtkTransform2D> transform;
-  this->CalculatePlotTransform(x, y, transform.GetPointer());
-  transform->Scale(x->GetScalingFactor(), y->GetScalingFactor());
+  this->CalculateUnscaledPlotTransform(x, y, transform.GetPointer());
   vtkVector2d origin(originf[0], originf[1]);
   vtkVector2d max(maxf[0], maxf[1]);
   vtkVector2d torigin;
