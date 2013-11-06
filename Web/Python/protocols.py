@@ -245,7 +245,7 @@ class vtkWebViewPortGeometryDelivery(vtkWebProtocol):
 
 class vtkWebFileBrowser(vtkWebProtocol):
 
-    def __init__(self, basePath, name, excludeRegex=r"^\.|~$|^\$"):
+    def __init__(self, basePath, name, excludeRegex=r"^\.|~$|^\$", groupRegex=r"[0-9]+\."):
         """
         Configure the way the WebFile browser will expose the server content.
          - basePath: specify the base directory that we should start with
@@ -255,6 +255,7 @@ class vtkWebFileBrowser(vtkWebProtocol):
         self.baseDirectory = basePath
         self.rootName = name
         self.pattern = re.compile(excludeRegex)
+        self.gPattern = re.compile(groupRegex)
 
     @exportRpc("listServerDirectory")
     def listServerDirectory(self, relativeDir='.'):
@@ -268,7 +269,7 @@ class vtkWebFileBrowser(vtkWebProtocol):
             path += relativeDir.replace('\\','/').split('/')
 
         currentPath = os.path.join(self.baseDirectory, relativeDir)
-        result =  { 'label': relativeDir, 'files': [], 'dirs': [], 'path': path}
+        result =  { 'label': relativeDir, 'files': [], 'dirs': [], 'groups': [], 'path': path }
         if relativeDir == '.':
             result['label'] = self.rootName
         for file in os.listdir(currentPath):
@@ -276,4 +277,28 @@ class vtkWebFileBrowser(vtkWebProtocol):
                 result['files'].append({'label': file, 'size': -1})
             elif os.path.isdir(os.path.join(currentPath, file)) and not re.search(self.pattern, file):
                 result['dirs'].append(file)
+
+        # Filter files to create groups
+        files = result['files']
+        files.sort()
+        groups = result['groups']
+        groupIdx = {}
+        filesToRemove = []
+        for file in files:
+            fileSplit = re.split(self.gPattern, file['label'])
+            if len(fileSplit) == 2:
+                filesToRemove.append(file)
+                gName = '*.'.join(fileSplit)
+                if groupIdx.has_key(gName):
+                    groupIdx[gName]['files'].append(file['label'])
+                else:
+                    groupIdx[gName] = { 'files' : [file['label']], 'label': gName }
+                    groups.append(groupIdx[gName])
+        for file in filesToRemove:
+            gName = '*.'.join(re.split(self.gPattern, file['label']))
+            if len(groupIdx[gName]['files']) > 1:
+                files.remove(file)
+            else:
+                groups.remove(groupIdx[gName])
+
         return result
