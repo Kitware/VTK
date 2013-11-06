@@ -27,6 +27,14 @@
                         'div': 'file.label'
                     }
                 },
+                'li.vtk-groups': {
+                    'gfile <- directory.groups': {
+                        'div': 'gfile.label',
+                        '@files': function(arg) {
+                            return arg.item.files.join(":");
+                        }
+                    }
+                },
                 'li.vtk-dirs': {
                     'dir <- directory.dirs': {
                         'div': 'dir'
@@ -200,6 +208,21 @@
                     type: 'file-click',
                     path: pathStr,
                     name: me.text(),
+                    relativePathList: [ getRelativePath(strToPath(pathStr), me.text()) ],
+                    list: [ me.text() ],
+                    relativePath: getRelativePath(strToPath(pathStr), me.text())
+                });
+            } else if(type === 'groups') {
+                var relativePathList = [], fileList = me.attr('files').split(':');
+                for(var i in fileList) {
+                    relativePathList.push(getRelativePath(strToPath(pathStr), fileList[i]));
+                }
+                container.trigger({
+                    type: 'file-group-click',
+                    path: pathStr,
+                    name: me.text(),
+                    list: fileList,
+                    relativePathList: relativePathList,
                     relativePath: getRelativePath(strToPath(pathStr), me.text())
                 });
             }

@@ -40,6 +40,14 @@
   top: 4px;
 }
 
+.vtk-directory ul[type=groups] li div:before {
+  content: url('resources/gfile.png');
+  padding-right: 4px;
+  padding-left: 2px;
+  position: relative;
+  top: 4px;
+}
+
 .vtk-directory ul[type=files] li div:before {
   content: url('resources/file.png');
   padding-right: 4px;

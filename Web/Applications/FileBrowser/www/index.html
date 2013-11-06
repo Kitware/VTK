@@ -11,11 +11,8 @@
         <script src="../../lib/core/vtkweb-loader.js" load="core-min, filebrowser"></script>
         <script type="text/javascript">
             var connection = {
-                sessionURL: "ws://" + window.location.host + "/ws",
-                name: "WebFileBrowser",
-                description: "Simple VTK Web demo application",
-                application: "fileBrowser"
-            },
+                sessionURL: "ws://" + window.location.host + "/ws"
+            };
 
             // Connect to remote server
             vtkWeb.connect(connection, function(serverConnection) {
@@ -23,8 +20,11 @@
 
                 // Create file browser widget
                 connection.session.call('vtk:listServerDirectory','.').then(function(files){
-                    $('.browser').fileBrowser({data: [files], session: connection.session}).bind('file-click directory-click directory-not-found', function(e){
+                    $('.browser').fileBrowser({data: [files], session: connection.session}).bind('file-click directory-click directory-not-found file-group-click', function(e){
                         console.log(e.type + " click: " + e.name + " - path: " + e.path );
+                        if(e.hasOwnProperty('relativePathList')) {
+                            console.log(e.relativePathList);
+                        }
                     });;
                 });
 
