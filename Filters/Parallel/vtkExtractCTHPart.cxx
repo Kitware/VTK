@@ -129,7 +129,7 @@ vtkExtractCTHPart::vtkExtractCTHPart()
   this->Internals = new vtkExtractCTHPartInternal();
   this->ClipPlane = NULL;
   this->GenerateTriangles = true;
-  this->Capping = false;
+  this->Capping = true;
   this->RemoveGhostCells = true;
   this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE;
   this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE;
@@ -220,7 +220,7 @@ int vtkExtractCTHPart::FillInputPortInformation(
 
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkNonOverlappingAMR");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
-
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
   return 1;
 }
 
@@ -228,16 +228,26 @@ int vtkExtractCTHPart::FillInputPortInformation(
 int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
-  vtkCompositeDataSet* input = vtkCompositeDataSet::GetData(inputVector[0], 0);
-  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
-
   const int number_of_volume_arrays = static_cast<int>(this->Internals->VolumeArrayNames.size());
-
   if (number_of_volume_arrays == 0)
     {
     // nothing to do.
     return 1;
     }
+
+  vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
+  vtkSmartPointer<vtkCompositeDataSet> inputCD = vtkCompositeDataSet::SafeDownCast(inputDO);
+  vtkRectilinearGrid* inputRG = vtkRectilinearGrid::SafeDownCast(inputDO);
+  assert(inputCD != NULL || inputRG != NULL);
+
+  if (inputRG)
+    {
+    vtkNew<vtkMultiBlockDataSet> mb;
+    mb->SetBlock(0, inputRG);
+    inputCD = mb.GetPointer();
+    }
+
+  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
 
   // initialize output multiblock-dataset. It will always have as many blocks as
   // the number-of-volume arrays requested.
@@ -245,7 +255,7 @@ int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Compute global bounds for the input dataset. This is used to generate
   // external surface for the dataset.
-  if (!this->ComputeGlobalBounds(input))
+  if (!this->ComputeGlobalBounds(inputCD))
     {
     vtkErrorMacro("Failed to compute global bounds.");
     return 0;
@@ -272,7 +282,7 @@ int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
 
     vtkNew<vtkPolyData> contour;
     vtkGarbageCollector::DeferredCollectionPush();
-    if (this->ExtractContour(contour.GetPointer(), input, iter->c_str()) &&
+    if (this->ExtractContour(contour.GetPointer(), inputCD, iter->c_str()) &&
       (contour->GetNumberOfPoints() > 0))
       {
       // Add extra arrays.
