@@ -97,6 +97,13 @@ public:
   vtkSetClampMacro(RadialRatio,double,1.0,VTK_DOUBLE_MAX);
   vtkGetMacro(RadialRatio,double);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkEllipticalButtonSource();
   ~vtkEllipticalButtonSource() {}
@@ -106,9 +113,10 @@ protected:
   double Width;
   double Height;
   double Depth;
-  int   CircumferentialResolution;
-  int   TextureResolution;
-  int   ShoulderResolution;
+  int    CircumferentialResolution;
+  int    TextureResolution;
+  int    ShoulderResolution;
+  int    OutputPointsPrecision;
   double RadialRatio;
 
 private:

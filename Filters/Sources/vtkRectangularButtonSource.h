@@ -101,6 +101,13 @@ public:
   vtkSetClampMacro(TextureHeightRatio,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(TextureHeightRatio,double);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkRectangularButtonSource();
   ~vtkRectangularButtonSource() {}
@@ -114,6 +121,8 @@ protected:
   double BoxRatio;
   double TextureRatio;
   double TextureHeightRatio;
+
+  int OutputPointsPrecision;
 
 private:
   vtkRectangularButtonSource(const vtkRectangularButtonSource&);  // Not implemented.

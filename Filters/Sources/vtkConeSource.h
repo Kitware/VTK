@@ -89,6 +89,13 @@ public:
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkConeSource(int res=6);
   ~vtkConeSource() {}
@@ -102,6 +109,7 @@ protected:
   int Capping;
   double Center[3];
   double Direction[3];
+  int OutputPointsPrecision;
 
 private:
   vtkConeSource(const vtkConeSource&);  // Not implemented.

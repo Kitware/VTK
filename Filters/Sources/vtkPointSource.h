@@ -65,6 +65,13 @@ public:
     this->SetDistribution(VTK_POINT_SHELL);};
   vtkGetMacro(Distribution,int);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkPointSource(vtkIdType numPts=10);
   ~vtkPointSource() {};
@@ -75,6 +82,7 @@ protected:
   double Center[3];
   double Radius;
   int Distribution;
+  int OutputPointsPrecision;
 
 private:
   vtkPointSource(const vtkPointSource&);  // Not implemented.

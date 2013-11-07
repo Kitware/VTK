@@ -30,6 +30,7 @@ vtkDiskSource::vtkDiskSource()
   this->OuterRadius = 0.5;
   this->RadialResolution = 1;
   this->CircumferentialResolution = 6;
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -61,6 +62,17 @@ int vtkDiskSource::RequestData(
            (this->CircumferentialResolution + 1);
   numPolys = this->RadialResolution * this->CircumferentialResolution;
   newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate(numPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
@@ -123,4 +135,5 @@ void vtkDiskSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OuterRadius: " << this->OuterRadius << "\n";
   os << indent << "RadialResolution: " << this->RadialResolution << "\n";
   os << indent << "CircumferentialResolution: " << this->CircumferentialResolution << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

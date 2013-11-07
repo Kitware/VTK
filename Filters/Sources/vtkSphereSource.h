@@ -99,6 +99,13 @@ public:
   vtkGetMacro(LatLongTessellation,int);
   vtkBooleanMacro(LatLongTessellation,int);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkSphereSource(int res=8);
   ~vtkSphereSource() {}
@@ -115,6 +122,7 @@ protected:
   double StartPhi;
   double EndPhi;
   int LatLongTessellation;
+  int OutputPointsPrecision;
 
 private:
   vtkSphereSource(const vtkSphereSource&);  // Not implemented.

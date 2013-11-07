@@ -63,6 +63,13 @@ public:
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkCylinderSource(int res=6);
   ~vtkCylinderSource() {};
@@ -73,6 +80,7 @@ protected:
   double Center[3];
   int Resolution;
   int Capping;
+  int OutputPointsPrecision;
 
 private:
   vtkCylinderSource(const vtkCylinderSource&);  // Not implemented.

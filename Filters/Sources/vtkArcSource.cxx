@@ -57,7 +57,7 @@ vtkArcSource::vtkArcSource(int res)
   this->PolarVector[1] =  0.0;
   this->PolarVector[2] =  1.0;
 
-  // Default arc is a quarter-circle 
+  // Default arc is a quarter-circle
   this->Angle =  90.;
 
   // Default resolution
@@ -68,6 +68,8 @@ vtkArcSource::vtkArcSource(int res)
 
   // By default use the original API
   this->UseNormalAndAngle = false;
+
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   // This is a source
   this->SetNumberOfInputPorts( 0 );
@@ -165,6 +167,17 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
 
   // Now create arc points and segments
   vtkPoints *newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate( numPts );
   vtkFloatArray *newTCoords = vtkFloatArray::New();
   newTCoords->SetNumberOfComponents( 2 );
@@ -239,5 +252,7 @@ void vtkArcSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Negative: " << this->Negative << "\n";
 
   os << indent << "UseNormalAndAngle: " << this->UseNormalAndAngle << "\n";
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
 

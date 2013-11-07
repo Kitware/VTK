@@ -40,6 +40,7 @@ vtkParametricFunctionSource::vtkParametricFunctionSource() :
   , WResolution(50)
   , GenerateTextureCoordinates(0)
   , ScalarMode(vtkParametricFunctionSource::SCALAR_NONE)
+  , OutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION)
 {
   this->SetNumberOfInputPorts(0);
 }
@@ -231,6 +232,17 @@ void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector *output)
   vtkIdType numPts = this->UResolution + 1;
   vtkCellArray *lines = vtkCellArray::New();
   vtkPoints *pts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    pts->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    pts->SetDataType(VTK_FLOAT);
+    }
+
   pts->SetNumberOfPoints(numPts);
   vtkIdType i;
   double x[3], Du[3], t[3];
@@ -292,6 +304,17 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
   newTCoords->Allocate(2*totPts);
 
   vtkPoints * points = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    points->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    points->SetDataType(VTK_FLOAT);
+    }
+
   points->SetNumberOfPoints( totPts );
 
   double uStep = ( MaxU - this->ParametricFunction->GetMinimumU() ) / PtsU;
@@ -676,5 +699,6 @@ void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
    }
   os << indent << "Scalar Mode: " << s.c_str() << "\n";
   os << indent << "GenerateTextureCoordinates:" << (this->GenerateTextureCoordinates ? "On" : "Off" ) << "\n";
-
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }

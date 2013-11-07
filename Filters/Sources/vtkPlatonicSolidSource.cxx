@@ -81,6 +81,7 @@ static vtkIdType IcosaVerts[] = {
 vtkPlatonicSolidSource::vtkPlatonicSolidSource()
 {
   this->SolidType = VTK_SOLID_TETRAHEDRON;
+  this->OutputPointsPrecision = SINGLE_PRECISION;
   this->SetNumberOfInputPorts(0);
 }
 
@@ -155,7 +156,17 @@ int vtkPlatonicSolidSource::RequestData(
   // Create the solids
   //
   vtkPoints *pts = vtkPoints::New();
-  pts->SetDataTypeToDouble();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    pts->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    pts->SetDataType(VTK_FLOAT);
+    }
+
   pts->SetNumberOfPoints(numPts);
   vtkCellArray *polys = vtkCellArray::New();
   polys->Allocate(polys->EstimateSize(numCells,cellSize));
@@ -215,4 +226,7 @@ void vtkPlatonicSolidSource::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Dodecahedron\n";
     }
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }

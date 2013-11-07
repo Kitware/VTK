@@ -47,6 +47,8 @@ vtkConeSource::vtkConeSource(int res)
   this->Direction[1] = 0.0;
   this->Direction[2] = 0.0;
 
+  this->OutputPointsPrecision = SINGLE_PRECISION;
+
   this->SetNumberOfInputPorts(0);
 }
 
@@ -143,7 +145,17 @@ int vtkConeSource::RequestData(
     break;
   }
   newPoints = vtkPoints::New();
-  newPoints->SetDataTypeToFloat(); //used later during transformation
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate(numPts);
 
   // Create cone
@@ -326,4 +338,5 @@ void vtkConeSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->Center[1] << ", " << this->Center[2] << ")\n";
   os << indent << "Direction: (" << this->Direction[0] << ", "
      << this->Direction[1] << ", " << this->Direction[2] << ")\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

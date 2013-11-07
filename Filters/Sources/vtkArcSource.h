@@ -15,15 +15,15 @@
 // .NAME vtkArcSource - create an arc between two end points
 // .SECTION Description
 // vtkArcSource is a source object that creates an arc defined by two
-// endpoints and a center. The number of segments composing the polyline 
+// endpoints and a center. The number of segments composing the polyline
 // is controlled by setting the object resolution.
-// Alternatively, one can use a better API (that does not allow for 
+// Alternatively, one can use a better API (that does not allow for
 // inconsistent nor ambiguous inputs), using a starting point, a normal,
 // and an angle. The default API being the original one, in order to use
 // the improved API, one must switch the UseNormalAndAngle flag to TRUE.
 
 // The development of an improved, consistent API (based on point, normal,
-// and angle) was supported by CEA/DIF - Commissariat a l'Energie Atomique, 
+// and angle) was supported by CEA/DIF - Commissariat a l'Energie Atomique,
 // Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France, and implemented
 // by Philippe Pebay, Kitware SAS 2012.
 
@@ -93,12 +93,19 @@ public:
   // Description:
   // Activate the API based on normal and radius.
   // The previous API (which remains the default) allows for inconsistent
-  // (when Point1 and Point2 are not equidistant from Center) or 
+  // (when Point1 and Point2 are not equidistant from Center) or
   // ambiguous (when Point1, Point2, and Center are aligned).
   // Note: false by default.
   vtkSetMacro(UseNormalAndAngle, bool);
   vtkGetMacro(UseNormalAndAngle, bool);
   vtkBooleanMacro(UseNormalAndAngle, bool);
+
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
 
 protected:
   vtkArcSource(int res=1);
@@ -115,6 +122,7 @@ protected:
   int Resolution;
   bool Negative;
   bool UseNormalAndAngle;
+  int OutputPointsPrecision;
 
 private:
   vtkArcSource(const vtkArcSource&);  // Not implemented.
