@@ -18,6 +18,9 @@
 // magnitude and direction) to each point. The minimum and maximum speed
 // values can be controlled by the user.
 
+// .SECTION See also
+// vtkRandomAttributeGenerator
+
 #ifndef __vtkBrownianPoints_h
 #define __vtkBrownianPoints_h
 

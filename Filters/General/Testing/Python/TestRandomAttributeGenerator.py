@@ -43,19 +43,9 @@ tg.ClampScalingOn()
 n = vtk.vtkPolyDataNormals()
 n.SetInputConnection(tg.GetOutputPort())
 
-cs = vtk.vtkConeSource()
-cs.SetResolution(6)
-
-glyph = vtk.vtkGlyph3D()
-glyph.SetInputConnection(ag.GetOutputPort())
-glyph.SetSourceConnection(cs.GetOutputPort())
-glyph.SetScaleModeToDataScalingOff()
-glyph.SetScaleFactor(0.05)
-
 pdm = vtk.vtkPolyDataMapper()
 pdm.SetInputConnection(n.GetOutputPort())
 
-# pdm SetInputConnection [glyph GetOutputPort]
 a = vtk.vtkActor()
 a.SetMapper(pdm)
 

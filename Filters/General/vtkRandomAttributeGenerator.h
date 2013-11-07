@@ -39,6 +39,10 @@
 // Newly created attributes may replace attribute data that would have
 // otherwise been passed through.
 
+// .SECTION See also
+// vtkBrownianPoints
+
+
 #ifndef __vtkRandomAttributeGenerator_h
 #define __vtkRandomAttributeGenerator_h
 
@@ -86,6 +90,12 @@ public:
   // observed.
   vtkSetMacro(MinimumComponentValue,double);
   vtkGetMacro(MinimumComponentValue,double);
+
+  void SetComponentRange (double minimumValue, double maximumValue)
+    {
+    this->SetMinimumComponentValue (minimumValue);
+    this->SetMaximumComponentValue (maximumValue);
+    }
 
   // Description:
   // Set the maximum component value. This applies to all data that is generated,

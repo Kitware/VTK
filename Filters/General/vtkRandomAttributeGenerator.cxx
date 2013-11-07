@@ -305,6 +305,7 @@ int vtkRandomAttributeGenerator::RequestData(
                                                  this->NumberOfComponents-1,
                                                  this->MinimumComponentValue,
                                                  this->MaximumComponentValue);
+    ptScalars->SetName("RandomPointScalars");
     output->GetPointData()->SetScalars(ptScalars);
     ptScalars->Delete();
     }
@@ -313,6 +314,7 @@ int vtkRandomAttributeGenerator::RequestData(
     vtkDataArray *ptVectors = this->GenerateData(this->DataType,numPts,3,0,2,
                                                  this->MinimumComponentValue,
                                                  this->MaximumComponentValue);
+    ptVectors->SetName("RandomPointVectors");
     output->GetPointData()->SetVectors(ptVectors);
     ptVectors->Delete();
     }
@@ -337,6 +339,7 @@ int vtkRandomAttributeGenerator::RequestData(
     vtkDataArray *ptTensors = this->GenerateData(this->DataType,numPts,9,0,5,
                                                  this->MinimumComponentValue,
                                                  this->MaximumComponentValue);
+    ptTensors->SetName("RandomPointTensors");
     double t[9];
     for ( vtkIdType id=0; id < numPts; id++ )
       {
@@ -368,6 +371,7 @@ int vtkRandomAttributeGenerator::RequestData(
                                                  this->NumberOfComponents-1,
                                                  this->MinimumComponentValue,
                                                  this->MaximumComponentValue);
+    ptScalars->SetName("RandomPointArray");
     output->GetPointData()->SetScalars(ptScalars);
     ptScalars->Delete();
     }
@@ -380,6 +384,7 @@ int vtkRandomAttributeGenerator::RequestData(
                                                  this->NumberOfComponents-1,
                                                  this->MinimumComponentValue,
                                                  this->MaximumComponentValue);
+    ptScalars->SetName("RandomCellScalars");
     output->GetCellData()->SetScalars(ptScalars);
     ptScalars->Delete();
     }
@@ -388,6 +393,7 @@ int vtkRandomAttributeGenerator::RequestData(
     vtkDataArray *ptVectors = this->GenerateData(this->DataType,numCells,3,0,2,
                                                  this->MinimumComponentValue,
                                                  this->MaximumComponentValue);
+    ptVectors->SetName("RandomCellVectors");
     output->GetCellData()->SetVectors(ptVectors);
     ptVectors->Delete();
     }
@@ -411,6 +417,7 @@ int vtkRandomAttributeGenerator::RequestData(
     vtkDataArray *ptTensors = this->GenerateData(this->DataType,numCells,9,0,5,
                                                  this->MinimumComponentValue,
                                                  this->MaximumComponentValue);
+    ptTensors->SetName("RandomCellTensors");
     double t[9];
     for ( vtkIdType id=0; id < numCells; id++ )
       {
@@ -442,6 +449,7 @@ int vtkRandomAttributeGenerator::RequestData(
                                                  this->NumberOfComponents-1,
                                                  this->MinimumComponentValue,
                                                  this->MaximumComponentValue);
+    ptScalars->SetName("RandomCellArray");
     output->GetCellData()->SetScalars(ptScalars);
     ptScalars->Delete();
     }
@@ -455,6 +463,7 @@ int vtkRandomAttributeGenerator::RequestData(
                                             this->NumberOfComponents-1,
                                             this->MinimumComponentValue,
                                             this->MaximumComponentValue);
+    data->SetName("RandomFieldArray");
     output->GetFieldData()->AddArray(data);
     data->Delete();
     }
