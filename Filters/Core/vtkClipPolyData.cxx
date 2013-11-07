@@ -45,10 +45,11 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
   this->Locator = NULL;
   this->Value = 0.0;
   this->GenerateClipScalars = 0;
+  this->GenerateClippedOutput = 0;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   this->SetNumberOfOutputPorts(2);
 
-  this->GenerateClippedOutput = 0;
   vtkPolyData *output2 = vtkPolyData::New();
   this->GetExecutive()->SetOutputData(1, output2);
   output2->Delete();
@@ -187,6 +188,21 @@ int vtkClipPolyData::RequestData(
     }
 
   newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPoints->SetDataType(input->GetPoints()->GetDataType());
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+
   newPoints->Allocate(numPts,numPts/2);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize,estimatedSize/2);
@@ -424,4 +440,6 @@ void vtkClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Clip Scalars: " << (this->GenerateClipScalars ? "On\n" : "Off\n");
 
   os << indent << "Generate Clipped Output: " << (this->GenerateClippedOutput ? "On\n" : "Off\n");
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
