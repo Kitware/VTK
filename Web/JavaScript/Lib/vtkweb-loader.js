@@ -16,6 +16,7 @@
         "ext/core/autobahn.js",
         "ext/core/gl-matrix.js",
         "ext/core/jquery.hammer.js",
+        "ext/core/vgl.min.js",
         "lib/core/vtkweb-all.js"
         ],
         "core-min": [
@@ -23,6 +24,7 @@
         "ext/core/autobahn.min.js",
         "ext/core/gl-matrix-min.js",
         "ext/core/jquery.hammer.min.js",
+        "ext/core/vgl.min.js",
         "lib/core/vtkweb-all.min.js"
         ],
         "bootstrap": [
