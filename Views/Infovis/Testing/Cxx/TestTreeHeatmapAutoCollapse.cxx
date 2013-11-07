@@ -121,6 +121,7 @@ int TestTreeHeatmapAutoCollapse(int argc, char* argv[])
   vtkNew<vtkTreeHeatmapItem> treeItem;
   treeItem->SetTree(tree.GetPointer());
   treeItem->SetTable(table.GetPointer());
+  treeItem->GetDendrogram()->DisplayNumberOfCollapsedLeafNodesOff();
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
