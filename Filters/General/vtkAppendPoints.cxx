@@ -34,6 +34,7 @@ vtkStandardNewMacro(vtkAppendPoints);
 vtkAppendPoints::vtkAppendPoints()
 {
   this->InputIdArrayName = 0;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 //----------------------------------------------------------------------------
@@ -125,6 +126,34 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPointData* pd = 0;
   vtkIdType index = 0;
   vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    // The points in distinct inputs may be of differing precisions.
+    pts->SetDataType(VTK_FLOAT);
+    for (size_t idx = 0; idx < inputs.size(); ++idx)
+      {
+      vtkPolyData* input = inputs[idx];
+
+      // Set the desired precision to VTK_DOUBLE if the precision of the
+      // points in any of the inputs is VTK_DOUBLE.
+      if(input && input->GetPoints()->GetDataType() == VTK_DOUBLE)
+        {
+        pts->SetDataType(VTK_DOUBLE);
+        break;
+        }
+      }
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    pts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    pts->SetDataType(VTK_DOUBLE);
+    }
+
   pts->SetNumberOfPoints(totalPoints);
   vtkSmartPointer<vtkIntArray> idArr;
   if (this->InputIdArrayName)
@@ -171,7 +200,9 @@ void vtkAppendPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "InputIdArrayName: "
-     << (this->InputIdArrayName ? this->InputIdArrayName : "(none)") << endl;
+     << (this->InputIdArrayName ? this->InputIdArrayName : "(none)") << endl
+     << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << endl;
 }
 
 //----------------------------------------------------------------------------

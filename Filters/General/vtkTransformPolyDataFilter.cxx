@@ -31,6 +31,7 @@ vtkCxxSetObjectMacro(vtkTransformPolyDataFilter,
 vtkTransformPolyDataFilter::vtkTransformPolyDataFilter()
 {
   this->Transform = NULL;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 vtkTransformPolyDataFilter::~vtkTransformPolyDataFilter()
@@ -89,6 +90,21 @@ int vtkTransformPolyDataFilter::RequestData(
   numCells = input->GetNumberOfCells();
 
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPts->SetDataType(inPts->GetDataType());
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->Allocate(numPts);
   if ( inVectors )
     {
@@ -210,4 +226,6 @@ void vtkTransformPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Transform: " << this->Transform << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }
