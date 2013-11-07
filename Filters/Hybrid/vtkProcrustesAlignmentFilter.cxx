@@ -33,7 +33,9 @@ vtkProcrustesAlignmentFilter::vtkProcrustesAlignmentFilter()
 {
   this->LandmarkTransform = vtkLandmarkTransform::New();
   this->StartFromCentroid = false;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 
+  // The precision of the mean points is set in RequestData().
   this->MeanPoints = vtkPoints::New();
 }
 
@@ -182,6 +184,37 @@ int vtkProcrustesAlignmentFilter::RequestData(
       {
       outputBlock = tmpInput->NewInstance();
       outputBlock->DeepCopy(tmpInput);
+
+      // Set the desired precision for the points in the output. If
+      // this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION
+      // then the precision of the points in the output is correctly
+      // set during the deep copy of tmpInput.
+      if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+        {
+        // Only create another new vtkPoints if the output precision is
+        // different from the input.
+        if(tmpInput->GetPoints()->GetDataType() != VTK_FLOAT)
+          {
+          vtkPoints *newPoints = vtkPoints::New();
+          newPoints->SetDataType(VTK_FLOAT);
+          newPoints->DeepCopy(tmpInput->GetPoints());
+          outputBlock->SetPoints(newPoints);
+          newPoints->Delete();
+          }
+        }
+      else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+        {
+        // Only create another new vtkPoints if the output precision is
+        // different from the input.
+        if(tmpInput->GetPoints()->GetDataType() != VTK_DOUBLE)
+          {
+          vtkPoints *newPoints = vtkPoints::New();
+          newPoints->SetDataType(VTK_DOUBLE);
+          newPoints->DeepCopy(tmpInput->GetPoints());
+          outputBlock->SetPoints(newPoints);
+          newPoints->Delete();
+          }
+        }
       }
     output->SetBlock(i, outputBlock);
     if(outputBlock)
@@ -218,7 +251,34 @@ int vtkProcrustesAlignmentFilter::RequestData(
       }
     }
 
-//  vtkPoints *mean_points = vtkPoints::New();
+  // Set the desired precision for the mean points.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    // The points in distinct blocks may be of differing precisions.
+    this->MeanPoints->SetDataType(VTK_FLOAT);
+    for(i=0;i<N_SETS;i++)
+      {
+      tmpInput =
+        vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
+
+      // Set the desired precision to VTK_DOUBLE if the precision of the
+      // mean points in any of the blocks is VTK_DOUBLE.
+      if(tmpInput && tmpInput->GetPoints()->GetDataType() == VTK_DOUBLE)
+        {
+        this->MeanPoints->SetDataType(VTK_DOUBLE);
+        break;
+        }
+      }
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    this->MeanPoints->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    this->MeanPoints->SetDataType(VTK_DOUBLE);
+    }
+
   this->MeanPoints->DeepCopy(input->GetPoints());
   // our initial estimate of the mean comes from the first example in the set
 
@@ -262,6 +322,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
   // we keep a record of the first mean to fix the orientation and scale
   // (which are otherwise undefined and the loop will not converge)
   vtkPoints *first_mean = vtkPoints::New();
+  first_mean->SetDataType(this->MeanPoints->GetDataType());
   first_mean->DeepCopy(MeanPoints);
 
 
@@ -281,9 +342,9 @@ int vtkProcrustesAlignmentFilter::RequestData(
       }
   }
 
-
   // storage for the new mean that is being calculated
   vtkPoints *new_mean = vtkPoints::New();
+  new_mean->SetDataType(this->MeanPoints->GetDataType());
   new_mean->SetNumberOfPoints(N_POINTS);
 
   // compute mean and align all the shapes to it, until convergence
@@ -418,4 +479,5 @@ void vtkProcrustesAlignmentFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->MeanPoints->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Start From Centroid: "
      << (this->StartFromCentroid ? "On\n" : "Off\n");
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
