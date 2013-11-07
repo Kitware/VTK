@@ -127,43 +127,38 @@ void MergePoints(std::vector<vtkMergePointsData>& data,
   vtkParallelMergePoints mergePoints;
   mergePoints.BucketIds = &nonEmptyBuckets[0];
   mergePoints.Merger = (*begin).Locator;
-  mergePoints.Merger->InitializeMerge();
-  mergePoints.IdMaps = &idMaps[0];
-  // Prepare output point data
   mergePoints.OutputPointData = (*begin).Output->GetPointData();
-  int numArrays = mergePoints.OutputPointData->GetNumberOfArrays();
-  for (int i=0; i<numArrays; i++)
+  if (!idMaps.empty())
     {
-    mergePoints.OutputPointData->GetArray(i)->Resize(numPts);
-    }
-  if (!pds.empty())
-    {
+    mergePoints.Merger->InitializeMerge();
+    mergePoints.IdMaps = &idMaps[0];
+    // Prepare output point data
+    int numArrays = mergePoints.OutputPointData->GetNumberOfArrays();
+    for (int i=0; i<numArrays; i++)
+      {
+      mergePoints.OutputPointData->GetArray(i)->Resize(numPts);
+      }
     mergePoints.InputPointDatas = &pds[0];
-    }
-  else
-    {
-    mergePoints.InputPointDatas = 0;
-    }
-  // The first locator is what we will use to accumulate all others
-  // So all iteration starts from second dataset.
-  std::vector<vtkMergePointsData>::iterator second = begin;
-  ++second;
-  mergePoints.Begin = second;
-  mergePoints.End = end;
-  // Actual work
-  vtkSMPTools::For(0, nonEmptyBuckets.size(), mergePoints);
-  //mergePoints.operator()(0, nonEmptyBuckets.size());
 
-  // Fixup output sizes.
-  mergePoints.Merger->FixSizeOfPointArray();
-  for (int i=0; i<numArrays; i++)
-    {
-    mergePoints.OutputPointData->GetArray(i)->SetNumberOfTuples(mergePoints.Merger->GetMaxId()+1);
-    }
+    // The first locator is what we will use to accumulate all others
+    // So all iteration starts from second dataset.
+    std::vector<vtkMergePointsData>::iterator second = begin;
+    ++second;
+    mergePoints.Begin = second;
+    mergePoints.End = end;
+    // Actual work
+    vtkSMPTools::For(0, nonEmptyBuckets.size(), mergePoints);
+    //mergePoints.operator()(0, nonEmptyBuckets.size());
 
+    // Fixup output sizes.
+    mergePoints.Merger->FixSizeOfPointArray();
+    for (int i=0; i<numArrays; i++)
+      {
+      mergePoints.OutputPointData->GetArray(i)->SetNumberOfTuples(mergePoints.Merger->GetMaxId()+1);
+      }
+    }
   outPolyData->SetPoints(mergePoints.Merger->GetPoints());
   outPolyData->GetPointData()->ShallowCopy(mergePoints.OutputPointData);
-
 }
 
 class vtkParallelMergeCells
