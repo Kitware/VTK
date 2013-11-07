@@ -154,6 +154,13 @@ public:
   vtkGetMacro(PieceInvariant, int);
   vtkBooleanMacro(PieceInvariant, int);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkCleanPolyData();
  ~vtkCleanPolyData();
@@ -173,6 +180,7 @@ protected:
   vtkIncrementalPointLocator *Locator;
 
   int PieceInvariant;
+  int OutputPointsPrecision;
 private:
   vtkCleanPolyData(const vtkCleanPolyData&);  // Not implemented.
   void operator=(const vtkCleanPolyData&);  // Not implemented.

@@ -84,6 +84,7 @@ vtkDecimatePro::vtkDecimatePro()
   this->Degree = 25;
   this->BoundaryVertexDeletion = 1;
   this->InflectionPointRatio = 10.0;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   this->Queue = NULL;
   this->VertexError = NULL;
@@ -215,7 +216,22 @@ int vtkDecimatePro::RequestData(
     if (this->Mesh != NULL) {this->Mesh->Delete(); this->Mesh = NULL;}
     this->Mesh = vtkPolyData::New();
 
-    newPts = vtkPoints::New(); newPts->SetNumberOfPoints(numPts);
+    newPts = vtkPoints::New();
+
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPts->SetDataType(inPts->GetDataType());
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
+    newPts->SetNumberOfPoints(numPts);
     newPts->DeepCopy(inPts);
     this->Mesh->SetPoints(newPts);
     newPts->Delete(); //registered by Mesh and preserved
@@ -1730,4 +1746,6 @@ void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)
      << this->InflectionPointRatio << "\n";
   os << indent << "Number Of Inflection Points: "
      << this->GetNumberOfInflectionPoints() << "\n";
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

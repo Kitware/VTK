@@ -48,6 +48,13 @@ public:
   void SetVectorModeToUseNormal() {this->SetVectorMode(VTK_USE_NORMAL);};
   const char *GetVectorModeAsString();
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkHedgeHog();
   ~vtkHedgeHog() {};
@@ -56,6 +63,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   double ScaleFactor;
   int VectorMode; // Orient/scale via normal or via vector data
+  int OutputPointsPrecision;
 
 private:
   vtkHedgeHog(const vtkHedgeHog&);  // Not implemented.

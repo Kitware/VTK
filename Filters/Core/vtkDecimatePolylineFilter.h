@@ -64,6 +64,13 @@ public:
   vtkSetClampMacro(TargetReduction,double,0.0,1.0);
   vtkGetMacro(TargetReduction,double);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkDecimatePolylineFilter();
   ~vtkDecimatePolylineFilter();
@@ -82,6 +89,7 @@ protected:
   vtkSmartPointer< vtkPriorityQueue >   PriorityQueue;
   bool                                  Closed;
   double                                TargetReduction;
+  int                                   OutputPointsPrecision;
 
 private:
   vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&);  // Not implemented.

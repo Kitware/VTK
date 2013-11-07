@@ -45,6 +45,7 @@ vtkCleanPolyData::vtkCleanPolyData()
   this->ConvertStripsToPolys = 1;
   this->Locator = NULL;
   this->PieceInvariant = 1;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 //--------------------------------------------------------------------------
@@ -165,7 +166,21 @@ int vtkCleanPolyData::RequestData(
   vtkIdType numNewPts;
   vtkIdType numUsedPts=0;
   vtkPoints *newPts = input->GetPoints()->NewInstance();
-  newPts->SetDataType(input->GetPoints()->GetDataType());
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPts->SetDataType(input->GetPoints()->GetDataType());
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->Allocate(numPts);
 
   // we'll be needing these
@@ -681,6 +696,8 @@ void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "PieceInvariant: "
      << (this->PieceInvariant ? "On\n" : "Off\n");
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }
 
 //--------------------------------------------------------------------------

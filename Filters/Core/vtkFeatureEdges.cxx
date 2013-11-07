@@ -43,6 +43,7 @@ vtkFeatureEdges::vtkFeatureEdges()
   this->ManifoldEdges = 0;
   this->Coloring = 1;
   this->Locator = NULL;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 vtkFeatureEdges::~vtkFeatureEdges()
@@ -163,6 +164,21 @@ int vtkFeatureEdges::RequestData(
   // Allocate storage for lines/points (arbitrary allocation sizes)
   //
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPts->SetDataType(input->GetPoints()->GetDataType());
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->Allocate(numPts/10,numPts);
   newLines = vtkCellArray::New();
   newLines->Allocate(numPts/10);
@@ -449,4 +465,6 @@ void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
