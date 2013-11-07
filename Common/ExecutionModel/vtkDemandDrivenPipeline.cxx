@@ -538,7 +538,7 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request,
   // outputs.
   if (this->GetNumberOfInputPorts() > 0)
     {
-    vtkDataObject* input = this->GetInputData(0, 0);
+    vtkDataObject* input = this->GetInputData(0, 0, inInfo);
     if (input && input->GetFieldData())
       {
       for(i=0; i < outputs->GetNumberOfInformationObjects(); ++i)

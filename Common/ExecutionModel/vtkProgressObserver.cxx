@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkFFMPEGConfig.h.in
+  Module:    vtkProgressObserver.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,15 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkFFMPEGConfig_h
-#define __vtkFFMPEGConfig_h
+#include "vtkProgressObserver.h"
 
-/* This header is configured by VTK's build process.  */
+#include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 
-#cmakedefine VTK_FFMPEG_HAS_OLD_HEADER
-#cmakedefine VTK_FFMPEG_OLD_URL_FCLOSE
-#cmakedefine VTK_FFMPEG_HAS_IMG_CONVERT
-#cmakedefine VTK_FFMPEG_NEW_ALLOC
-#cmakedefine VTK_FFMPEG_AVCODECID
+vtkStandardNewMacro(vtkProgressObserver);
 
-#endif
+vtkProgressObserver::vtkProgressObserver()
+{
+}
+
+vtkProgressObserver::~vtkProgressObserver()
+{
+}
+
+void vtkProgressObserver::UpdateProgress(double amount)
+{
+  this->Progress = amount;
+  this->InvokeEvent(vtkCommand::ProgressEvent,static_cast<void *>(&amount));
+}
+
+void vtkProgressObserver::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

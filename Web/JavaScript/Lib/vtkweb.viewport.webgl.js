@@ -1570,16 +1570,20 @@
     // ----------------------------------------------------------------------
     // Extend the viewport factory - ONLY IF WEBGL IS SUPPORTED
     // ----------------------------------------------------------------------
-    if (GLOBAL.WebGLRenderingContext && typeof(vec3) != "undefined" && typeof(mat4) != "undefined") {
-        var canvas = GLOBAL.document.createElement('canvas'),
-        gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-        if(gl) {
-            // WebGL is supported
-            if(!module.hasOwnProperty('ViewportFactory')) {
-                module['ViewportFactory'] = {};
+    try {
+        if (GLOBAL.WebGLRenderingContext && typeof(vec3) != "undefined" && typeof(mat4) != "undefined") {
+            var canvas = GLOBAL.document.createElement('canvas'),
+            gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            if(gl) {
+                // WebGL is supported
+                if(!module.hasOwnProperty('ViewportFactory')) {
+                    module['ViewportFactory'] = {};
+                }
+                module.ViewportFactory[FACTORY_KEY] = FACTORY;
             }
-            module.ViewportFactory[FACTORY_KEY] = FACTORY;
         }
+    } catch(exception) {
+        // nothing to do
     }
 
     // ----------------------------------------------------------------------

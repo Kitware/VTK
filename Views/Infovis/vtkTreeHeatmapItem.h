@@ -145,6 +145,11 @@ public:
   void CollapseToNumberOfLeafNodes(unsigned int n);
 
   // Description:
+  // Get/Set how wide the edges of the trees should be.  Default is one pixel.
+  float GetTreeLineWidth();
+  void SetTreeLineWidth(float width);
+
+  // Description:
   // Deprecated.  Use this->GetDendrogram()->GetPrunedTree() instead.
   vtkTree * GetPrunedTree();
 

@@ -58,6 +58,7 @@ vtkDendrogramItem::vtkDendrogramItem() : PositionVector(0, 0)
   this->MaxY = 0.0;
 
   this->LabelWidth = 0.0;
+  this->LineWidth = 1.0;
 
   this->NumberOfLeafNodes = 0;
   this->MultiplierX = 100.0;
@@ -409,6 +410,9 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
 
   int orientation = this->GetOrientation();
 
+  int previousPenWidth = painter->GetPen()->GetWidth();
+  painter->GetPen()->SetWidth(this->LineWidth);
+
   // draw the tree
   for (vtkIdType edge = 0; edge < this->LayoutTree->GetNumberOfEdges(); ++edge)
     {
@@ -489,7 +493,6 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
     // color this portion of the tree based on the target node
     if (this->ColorTree)
       {
-      painter->GetPen()->SetWidth(2.0);
       colorKey = this->ColorArray->GetValue(target);
       this->TreeLookupTable->GetColor(colorKey, color);
       painter->GetPen()->SetColorF(color[0], color[1], color[2]);
@@ -562,9 +565,10 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
       {
       // revert to drawing thin black lines by default
       painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
-      painter->GetPen()->SetWidth(1.0);
       }
     }
+
+  painter->GetPen()->SetWidth(previousPenWidth);
 
   // the remainder of this function involves drawing the leaf node labels,
   // so we can return now if that feature has been disabled.

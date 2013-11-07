@@ -98,6 +98,16 @@ public:
   vtkGetMacro(LabelSizeDifference, int);
   vtkSetMacro(LabelSizeDifference, int);
 
+  // Description:
+  // Get/Set how wide the correspondence lines should be.  Default is two pixels.
+  vtkGetMacro(CorrespondenceLineWidth, float);
+  vtkSetMacro(CorrespondenceLineWidth, float);
+
+  // Description:
+  // Get/Set how wide the edges of the trees should be.  Default is one pixel.
+  float GetTreeLineWidth();
+  void SetTreeLineWidth(float width);
+
   // BTX
 
   // Description:
@@ -178,6 +188,7 @@ private:
   int Orientation;
   int MinimumVisibleFontSize;
   int LabelSizeDifference;
+  float CorrespondenceLineWidth;
 
   vtkTanglegramItem(const vtkTanglegramItem&); // Not implemented
   void operator=(const vtkTanglegramItem&); // Not implemented

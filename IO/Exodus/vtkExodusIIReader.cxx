@@ -230,6 +230,35 @@ vtkExodusIIReaderPrivate::BlockSetInfoType::~BlockSetInfoType()
     }
 }
 
+vtkExodusIIReaderPrivate::BlockSetInfoType& vtkExodusIIReaderPrivate::BlockSetInfoType::operator=(const vtkExodusIIReaderPrivate::BlockSetInfoType& block)
+{
+  // protect against invalid self-assignment
+  if (this != &block)
+    {
+    // superclass
+    this->ObjectInfoType::operator=(static_cast<ObjectInfoType const&>(block));
+
+    // delete existing
+    if (this->CachedConnectivity)
+      {
+      this->CachedConnectivity->Delete();
+      this->CachedConnectivity = NULL;
+      }
+
+    this->FileOffset = block.FileOffset;
+    this->PointMap = block.PointMap;
+    this->ReversePointMap = block.ReversePointMap;
+    this->NextSqueezePoint = block.NextSqueezePoint;
+    if (block.CachedConnectivity)
+      {
+      this->CachedConnectivity = vtkUnstructuredGrid::New();
+      this->CachedConnectivity->ShallowCopy(block.CachedConnectivity);
+      }
+    }
+
+  return *this;
+}
+
 // ----------------------------------------------------------- UTILITY ROUTINES
 
 // This function exists because FORTRAN ordering sucks.
@@ -3736,11 +3765,6 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   //VTK_EXO_FUNC( ex_inquire( exoid, EX_INQ_TIME,       itmp, 0, 0 ), "Inquire for EX_INQ_TIME failed" );
   //num_timesteps = itmp[0];
 
-  std::vector<BlockInfoType> bitBlank;
-  std::vector<SetInfoType> sitBlank;
-  std::vector<MapInfoType> mitBlank;
-  std::vector<ArrayInfoType> aitBlank;
-
   num_timesteps = static_cast<int>( this->Times.size() );
 /*
   this->Times.clear();
@@ -3807,17 +3831,17 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
     if ( OBJTYPE_IS_BLOCK(i) )
       {
-      this->BlockInfo[obj_types[i]] = bitBlank;
+      this->BlockInfo[obj_types[i]].clear();
       this->BlockInfo[obj_types[i]].reserve( nids );
       }
     else if ( OBJTYPE_IS_SET(i) )
       {
-      this->SetInfo[obj_types[i]] = sitBlank;
+      this->SetInfo[obj_types[i]].clear();
       this->SetInfo[obj_types[i]].reserve( nids );
       }
     else
       {
-      this->MapInfo[obj_types[i]] = mitBlank;
+      this->MapInfo[obj_types[i]].clear();
       this->MapInfo[obj_types[i]].reserve( nids );
       }
 
@@ -4059,7 +4083,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
     if ( ((OBJTYPE_IS_BLOCK(i)) || (OBJTYPE_IS_SET(i))) && num_vars && num_timesteps > 0 )
       {
-      this->ArrayInfo[obj_types[i]] = aitBlank;
+      this->ArrayInfo[obj_types[i]].clear();
       // Fill in ArrayInfo entries, combining array names into vectors/tensors where appropriate:
       this->GlomArrayNames( obj_types[i], nids, num_vars, var_names, truth_tab );
       }

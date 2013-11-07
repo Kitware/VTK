@@ -41,11 +41,14 @@ SET(Module_SRCS
   vtkStructuredGridAlgorithm.cxx
   vtkTableAlgorithm.cxx
   vtkTableExtentTranslator.cxx
+  vtkSMPProgressObserver.cxx
+  vtkThreadedCompositeDataPipeline.cxx
   vtkThreadedImageAlgorithm.cxx
   vtkTreeAlgorithm.cxx
   vtkTrivialProducer.cxx
   vtkUndirectedGraphAlgorithm.cxx
   vtkUnstructuredGridAlgorithm.cxx
+  vtkProgressObserver.cxx
   vtkSelectionAlgorithm.cxx
   vtkExtentRCBPartitioner.cxx
   vtkUniformGridPartitioner.cxx
@@ -73,6 +76,7 @@ set_source_files_properties(
   vtkExecutionSchedulerManager
   vtkFilteringInformationKeyManager
   vtkImageProgressIterator
+  vtkSMPProgressObserver
   WRAP_EXCLUDE
   )
 

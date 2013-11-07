@@ -78,6 +78,15 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
   iren->SetRenderWindow(renWin);
   iren->SetDesiredUpdateRate(3);
 
+  // check for driver support
+  renWin->Render();
+  VTK_CREATE(vtkProjectedTetrahedraMapper, volumeMapper);
+  if (!volumeMapper->IsSupported(renWin))
+    {
+    vtkGenericWarningMacro("Projected tetrahedra is not supported. Skipping tests.");
+    return 0;
+    }
+
   // Create the reader for the data.
   // This is the data that will be volume rendered.
   vtkStdString filename;
@@ -128,7 +137,6 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
   volumeProperty->SetInterpolationTypeToLinear();
 
   // The mapper that renders the volume data.
-  VTK_CREATE(vtkProjectedTetrahedraMapper, volumeMapper);
   volumeMapper->SetInputConnection(trifilter->GetOutputPort());
 
   // The volume holds the mapper and the property and can be used to
@@ -155,6 +163,7 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
   ren1->AddVolume(volume);
 
   renWin->SetSize(300, 300);
+  ren1->ResetCamera();
 
   vtkCamera *camera = ren1->GetActiveCamera();
   camera->ParallelProjectionOff();
@@ -167,15 +176,15 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
 
   renWin->Render();
 
-#if 0
-  // For now we are just checking to make sure that the mapper does not crash.
-  // Maybe in the future we will do an image comparison.
   int retVal = vtkTesting::Test(argc, argv, renWin, 75);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
 
+  // For now we are just checking to make sure that the mapper does not crash.
+  // Maybe in the future we will do an image comparison.
+#if 0
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
     {
     return 0;
@@ -185,6 +194,7 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
     return 1;
     }
 #else
+  vtkGenericWarningMacro("This test will always pass.");
   return 0;
 #endif
 }
