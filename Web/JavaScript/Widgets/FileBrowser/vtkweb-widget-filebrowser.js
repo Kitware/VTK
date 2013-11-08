@@ -163,7 +163,7 @@
 
     function initializeListener(container, activePath) {
         $('.action', container).click(function(){
-            var me = $(this), item = $('div', me), pathStr = me.closest('.vtk-directory').attr('path'), type = me.closest('ul').attr('type');
+            var me = $(this), item = $('div', me), pathStr = me.closest('.vtk-directory').attr('path'), type = me.closest('ul').attr('data');
 
             if(type === 'path') {
                 // Find out the panel to show

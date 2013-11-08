@@ -4,16 +4,16 @@
             <div class="vtk-label">
             </div>
             <div>
-                <ul type='path'><li class="vtk-path action"><div/></li></ul>
+                <ul data='path'><li class="vtk-path action"><div/></li></ul>
             </div>
             <div>
-                <ul type='dir'><li class="vtk-dirs action"><div/></li></ul>
+                <ul data='dir'><li class="vtk-dirs action"><div/></li></ul>
             </div>
             <div>
-                <ul type='groups'><li class="vtk-groups action"><div/></li></ul>
+                <ul data='groups'><li class="vtk-groups action"><div/></li></ul>
             </div>
             <div>
-                <ul type='files'><li class="vtk-files action"><div/></li></ul>
+                <ul data='files'><li class="vtk-files action"><div/></li></ul>
             </div>
         </div>
     </div>
