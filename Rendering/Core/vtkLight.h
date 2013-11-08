@@ -90,7 +90,7 @@ public:
   vtkSetVector3Macro(SpecularColor,double);
   vtkGetVectorMacro(SpecularColor,double,3);
   void SetColor(double, double, double);
-  void SetColor(double a[3]) { this->SetColor(a[0], a[1], a[2]); }
+  void SetColor(const double a[3]) { this->SetColor(a[0], a[1], a[2]); }
 
   // Description:
   // Set/Get the position of the light.
@@ -100,7 +100,7 @@ public:
   // vtkGetTransformedPosition() instead of vtkGetPosition().
   vtkSetVector3Macro(Position,double);
   vtkGetVectorMacro(Position,double,3);
-  void SetPosition(float *a) {this->SetPosition(a[0],a[1],a[2]);};
+  void SetPosition(const float *a) {this->SetPosition(a[0],a[1],a[2]);};
 
   // Description:
   // Set/Get the point at which the light is shining.
@@ -110,7 +110,7 @@ public:
   // vtkGetTransformedFocalPoint() instead of vtkGetFocalPoint().
   vtkSetVector3Macro(FocalPoint,double);
   vtkGetVectorMacro(FocalPoint,double,3);
-  void SetFocalPoint(float *a) {this->SetFocalPoint(a[0],a[1],a[2]);};
+  void SetFocalPoint(const float *a) {this->SetFocalPoint(a[0],a[1],a[2]);};
 
   // Description:
   // Set/Get the brightness of the light (from one to zero).
