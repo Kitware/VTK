@@ -1,6 +1,7 @@
 vtk_add_test_cxx(NO_VALID
   TestBiomTableReader.cxx
   TestNewickTreeReader.cxx
+  TestNewickTreeWriter.cxx
   TestMultiNewickTreeReader.cxx
   TestTulipReaderProperties.cxx
   )

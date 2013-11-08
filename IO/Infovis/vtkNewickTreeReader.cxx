@@ -374,12 +374,6 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
 
   start = buffer;
 
-  if(parent == -1)
-    {
-    parent = g->AddVertex();
-    names->SetValue(parent, "");
-    }
-
   if (*start != '(')
   {
     // Leaf node. Separate name from weight (if it exists).
@@ -414,7 +408,15 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
   else
   {
     // Create node
-    node = g->AddChild(parent);
+    if(parent == -1)
+      {
+      node = g->AddVertex();
+      names->SetValue(node, "");
+      }
+    else
+      {
+      node = g->AddChild(parent);
+      }
 
     // Search for all child nodes
     // Find all ',' until corresponding ')' is encountered
