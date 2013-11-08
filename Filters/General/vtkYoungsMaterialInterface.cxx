@@ -1891,33 +1891,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
   }
 
-  FUNC_DECL float clamp(float f, float a, float b)
-  {
-    return max(a, min(f, b));
-  }
-
-  FUNC_DECL float3 clamp(float3 v, float a, float b)
-  {
-    return make_float3(clamp(v.x, a, b), clamp(v.y, a, b), clamp(v.z, a, b));
-  }
-
-  FUNC_DECL float3 clamp(float3 v, float3 a, float3 b)
-  {
-    return make_float3(clamp(v.x, a.x, b.x), clamp(v.y, a.y, b.y), clamp(v.z, a.z, b.z));
-  }
-
-  FUNC_DECL float2 normalize(float2 v)
-  {
-    float len = 1.0f / sqrtf(dot(v, v));
-    return make_float2(v.x * len, v.y * len);
-  }
-
-  FUNC_DECL float3 normalize(float3 v)
-  {
-    float len = 1.0f / sqrtf(dot(v, v));
-    return make_float3(v.x * len, v.y * len, v.z * len);
-  }
-
   FUNC_DECL float3 cross( float3 A, float3 B)
   {
     return make_float3( A.y * B.z - A.z * B.y ,
@@ -2076,33 +2049,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
   }
 
-  FUNC_DECL double clamp(double f, double a, double b)
-  {
-    return max(a, min(f, b));
-  }
-
-  FUNC_DECL double3 clamp(double3 v, double a, double b)
-  {
-    return make_double3(clamp(v.x, a, b), clamp(v.y, a, b), clamp(v.z, a, b));
-  }
-
-  FUNC_DECL double3 clamp(double3 v, double3 a, double3 b)
-  {
-    return make_double3(clamp(v.x, a.x, b.x), clamp(v.y, a.y, b.y), clamp(v.z, a.z, b.z));
-  }
-
-  FUNC_DECL double3 normalize(double3 v)
-  {
-    double len = sqrt(dot(v, v));
-    return make_double3(v.x / len, v.y / len, v.z / len);
-  }
-
-  FUNC_DECL double2 normalize(double2 v)
-  {
-    double len = sqrt( dot(v,v) );
-    return make_double2(v.x / len, v.y / len);
-  }
-
   FUNC_DECL double3 cross( double3 A, double3 B)
   {
     return make_double3( A.y * B.z - A.z * B.y ,
@@ -2255,33 +2201,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
   }
 
-  FUNC_DECL long double clamp(long double f, long double a, long double b)
-  {
-    return max(a, min(f, b));
-  }
-
-  FUNC_DECL ldouble3 clamp(ldouble3 v, long double a, long double b)
-  {
-    return make_ldouble3(clamp(v.x, a, b), clamp(v.y, a, b), clamp(v.z, a, b));
-  }
-
-  FUNC_DECL ldouble3 clamp(ldouble3 v, ldouble3 a, ldouble3 b)
-  {
-    return make_ldouble3(clamp(v.x, a.x, b.x), clamp(v.y, a.y, b.y), clamp(v.z, a.z, b.z));
-  }
-
-  FUNC_DECL ldouble2 normalize(ldouble2 v)
-  {
-    long double len = sqrtl( dot(v,v) );
-    return make_ldouble2(v.x / len, v.y / len);
-  }
-
-  FUNC_DECL ldouble3 normalize(ldouble3 v)
-  {
-    long double len = sqrtl( dot(v,v) );
-    return make_ldouble3(v.x / len, v.y / len, v.z / len);
-  }
-
   FUNC_DECL ldouble3 cross( ldouble3 A, ldouble3 B)
   {
     return make_ldouble3( A.y * B.z - A.z * B.y ,
@@ -2379,22 +2298,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
       SQRT( FABS( 4*a*c - (a-b+c)*(a-b+c) ) )
       ;
   }
-  FUNC_DECL
-  REAL triangleSurf( REAL2 p1, REAL2 p2, REAL2 p3 )
-  {
-    const REAL2 e1 = p2-p1;
-    const REAL2 e2 = p3-p2;
-    const REAL2 e3 = p1-p3;
-
-    const REAL a = dot(e1,e1);
-    const REAL b = dot(e2,e2);
-    const REAL c = dot(e3,e3);
-
-    return
-      REAL_CONST(0.25) *
-      SQRT( FABS( 4*a*c - (a-b+c)*(a-b+c) ) )
-      ;
-  }
 
 
   /*************************
@@ -2455,23 +2358,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   REAL4 integratePolynomialFunc( REAL3 quadFunc )
   {
     return make_REAL4( quadFunc.x/3, quadFunc.y/2, quadFunc.z, 0 );
-  }
-
-  /*******************************************
-   *** Derivative of a polynomial function ***
-   *******************************************/
-  FUNC_DECL
-  REAL2 derivatePolynomialFunc( REAL3 F )
-  {
-    REAL2 dF = make_REAL2( 2*F.x, F.y );
-    return dF;
-  }
-
-  FUNC_DECL
-  REAL3 derivatePolynomialFunc( REAL4 F )
-  {
-    REAL3 dF = make_REAL3( 3*F.x, 2*F.y, F.z );
-    return dF;
   }
 
   /****************************
@@ -2535,38 +2421,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     return make_REAL3(0,0,0);
   }
 
-
-  /**************************************
-   *** Analytic solver for ax²+bx+c=0 ***
-   **************************************/
-  FUNC_DECL
-  REAL quadraticFunctionSolve( REAL3 F, const REAL value, const REAL xmin, const REAL xmax )
-  {
-    // Analytic resolution of ax²+bx+c=0
-    // (!) numerically unsteady, the Newton method is preferred despite being REALLY slower
-
-    F.z -= value;
-
-    REAL delta = ( F.y * F.y ) - (4 * F.x * F.z);
-    REAL sqrt_delta = SQRT(delta);
-    REAL x = ( -F.y - sqrt_delta ) / ( 2 * F.x );
-    DBG_MESG("delta="<<delta<<", sqrt(delta)="<<sqrt_delta<<", x1="<<x<<", xmin="<<xmin<<", xmax="<<xmax);
-    if( x < xmin || x > xmax ) // choose a solution inside the bounds [xmin;xmax]
-      {
-      x = ( -F.y + sqrt_delta ) / ( 2 * F.x );
-      DBG_MESG("x2="<<x);
-      }
-
-    if( F.x == REAL_CONST(0.0) ) // < EPSILON ?
-      {
-      x = (F.y!=0) ? ( - F.z / F.y ) : xmin /* or nan or 0 ? */;
-      DBG_MESG("xlin="<<x);
-      }
-
-    x = clamp( x , xmin , xmax ); // numerical safety
-    DBG_MESG("clamp(x)="<<x);
-    return x;
-  }
 
   /****************************
    *** Newton search method ***
@@ -2909,7 +2763,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     DBG_MESG( "step="<<s<<", x in ["<<xmin<<';'<<xmax<<']' );
     DBG_MESG( "surface reminder = "<< y );
 
-    //REAL x = quadraticFunctionSolve( funcs[s], surface, xmin, xmax ); // analytic solution is highly unsteady
     // newton search
     REAL x = newtonSearchPolynomialFunc( surfaceFunction, derivatives[s], y, xmin, xmax );
 
@@ -3069,7 +2922,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     DBG_MESG( "step="<<s<<", x in ["<<xmin<<';'<<xmax<<']' );
     DBG_MESG( "surface reminder = "<< y );
 
-    //REAL x = quadraticFunctionSolve( funcs[s], surface, xmin, xmax ); // analytical solution is highly unstable
     // newton search method
     REAL x = newtonSearchPolynomialFunc( volumeFunction, derivatives[s], y, xmin, xmax );
 
