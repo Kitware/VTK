@@ -18,7 +18,6 @@
 /* This header is configured by VTK's build process.  */
 
 #cmakedefine VTK_FFMPEG_HAS_OLD_HEADER
-#cmakedefine VTK_FFMPEG_OLD_URL_FCLOSE
 #cmakedefine VTK_FFMPEG_HAS_IMG_CONVERT
 #cmakedefine VTK_FFMPEG_NEW_ALLOC
 #cmakedefine VTK_FFMPEG_AVCODECID
