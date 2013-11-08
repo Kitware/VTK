@@ -467,9 +467,7 @@ void vtkFFMPEGWriterInternal::End()
     if (this->openedFile)
       {
       av_write_trailer(this->avFormatContext);
-#if VTK_FFMPEG_OLD_URL_FCLOSE
-      url_fclose(&this->avFormatContext->pb);
-#elif LIBAVFORMAT_VERSION_MAJOR < 54
+#if LIBAVFORMAT_VERSION_MAJOR < 54
       url_fclose(this->avFormatContext->pb);
 #else
       avio_close(this->avFormatContext->pb);
