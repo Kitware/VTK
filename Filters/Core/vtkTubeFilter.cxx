@@ -119,7 +119,7 @@ int vtkTubeFilter::RequestData(
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
     {
-    newPts->SetDataType(input->GetPoints()->GetDataType());
+    newPts->SetDataType(inPts->GetDataType());
     }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
     {

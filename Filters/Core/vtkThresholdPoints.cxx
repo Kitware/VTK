@@ -148,6 +148,13 @@ int vtkThresholdPoints::RequestData(
     }
 
   numPts = input->GetNumberOfPoints();
+
+  if(numPts < 1)
+    {
+    vtkErrorMacro(<<"No points to threshold");
+    return 1;
+    }
+
   newPoints = vtkPoints::New();
 
   // Set the desired precision for the points in the output.
@@ -157,6 +164,10 @@ int vtkThresholdPoints::RequestData(
     if(inputPointSet)
       {
       newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    else
+      {
+      newPoints->SetDataType(VTK_FLOAT);
       }
     }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)

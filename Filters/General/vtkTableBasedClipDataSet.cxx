@@ -1295,6 +1295,10 @@ void vtkTableBasedClipperVolumeFromVolume::
       {
       outPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
       }
+    else
+      {
+      outPts->SetDataType(VTK_FLOAT);
+      }
     }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
     {

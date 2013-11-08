@@ -193,7 +193,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
         {
         // Only create another new vtkPoints if the output precision is
         // different from the input.
-        if(tmpInput->GetPoints()->GetDataType() != VTK_FLOAT)
+        if(tmpInput->GetPoints() && tmpInput->GetPoints()->GetDataType() != VTK_FLOAT)
           {
           vtkPoints *newPoints = vtkPoints::New();
           newPoints->SetDataType(VTK_FLOAT);
@@ -206,7 +206,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
         {
         // Only create another new vtkPoints if the output precision is
         // different from the input.
-        if(tmpInput->GetPoints()->GetDataType() != VTK_DOUBLE)
+        if(tmpInput->GetPoints() && tmpInput->GetPoints()->GetDataType() != VTK_DOUBLE)
           {
           vtkPoints *newPoints = vtkPoints::New();
           newPoints->SetDataType(VTK_DOUBLE);
