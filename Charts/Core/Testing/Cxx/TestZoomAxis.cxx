@@ -69,6 +69,11 @@ int TestZoomAxis(int, char * [])
 
   // Inject some mouse events to perform zooming
   vtkContextMouseEvent event;
+  event.SetLastPos(vtkVector2f(0.0f));
+  event.SetPos(vtkVector2f(0.0f));
+  event.SetLastScenePos(vtkVector2f(0.0f));
+  event.SetScenePos(vtkVector2f(0.0f));
+  event.SetLastScreenPos(vtkVector2i(0));
   event.SetInteractor(view->GetInteractor());
   event.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
   event.SetScreenPos(vtkVector2i(350, 250));
@@ -76,9 +81,6 @@ int TestZoomAxis(int, char * [])
   event.SetLastScreenPos(event.GetScreenPos());
   event.SetScreenPos(vtkVector2i(10, 10));
   chart->MouseMoveEvent(event);
-  //event.SetLastScreenPos(event.GetScreenPos());
-  //event.SetScreenPos(vtkVector2i(180, 150));
-  //chart->MouseMoveEvent(event);
   chart->MouseButtonReleaseEvent(event);
 
   //Finally render the scene and compare the image to a reference image
