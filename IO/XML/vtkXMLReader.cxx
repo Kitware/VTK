@@ -1192,7 +1192,7 @@ void vtkXMLReader::GetProgressRange(float* range)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::SetProgressRange(float* range, int curStep, int numSteps)
+void vtkXMLReader::SetProgressRange(const float* range, int curStep, int numSteps)
 {
   float stepSize = (range[1] - range[0])/numSteps;
   this->ProgressRange[0] = range[0] + stepSize*curStep;
@@ -1201,8 +1201,8 @@ void vtkXMLReader::SetProgressRange(float* range, int curStep, int numSteps)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::SetProgressRange(float* range, int curStep,
-                                    float* fractions)
+void vtkXMLReader::SetProgressRange(const float* range, int curStep,
+                                    const float* fractions)
 {
   float width = range[1] - range[0];
   this->ProgressRange[0] = range[0] + fractions[curStep]*width;
