@@ -20,6 +20,12 @@ set(lib_js_min_files
   "${lib_source_dir}/vtkweb.viewport.webgl.js"
   "${lib_source_dir}/vtkweb.simple.js"
   )
+if(BUILD_TESTING)
+  set(lib_js_min_files
+    ${lib_js_min_files}
+    "${lib_source_dir}/vtkweb.testing.js"
+    )
+endif()
 set(vtkweb_all_min_js "${lib_binary_dir}/core/vtkweb-all.min.js")
 set(vtkweb_all_js "${lib_binary_dir}/core/vtkweb-all.js")
 set(vtkweb_loader_js "${lib_binary_dir}/core/vtkweb-loader.js")
