@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <queue>
+#include <sstream>
 
 vtkStandardNewMacro(vtkDendrogramItem);
 
@@ -69,6 +70,7 @@ vtkDendrogramItem::vtkDendrogramItem() : PositionVector(0, 0)
 
   this->ExtendLeafNodes = false;
   this->DrawLabels = true;
+  this->DisplayNumberOfCollapsedLeafNodes = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -437,7 +439,7 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
       {
       ++numberOfCollapsedSubTrees;
 
-      float trianglePoints[6];
+      float trianglePoints[6], triangleLabelX, triangleLabelY;
       switch (orientation)
         {
         case vtkDendrogramItem::DOWN_TO_UP:
@@ -447,6 +449,9 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
           trianglePoints[3] = this->MaxY;
           trianglePoints[4] = x1 + this->LeafSpacing / 2;
           trianglePoints[5] = this->MaxY;
+          triangleLabelX = trianglePoints[0];
+          triangleLabelY = trianglePoints[3] - 1;
+          painter->GetTextProp()->SetJustificationToRight();
           break;
         case vtkDendrogramItem::RIGHT_TO_LEFT:
           trianglePoints[0] = x0;
@@ -455,6 +460,9 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
           trianglePoints[3] = y1 - this->LeafSpacing / 2;
           trianglePoints[4] = this->MinX;
           trianglePoints[5] = y1 + this->LeafSpacing / 2;
+          triangleLabelX = trianglePoints[2] + 1;
+          triangleLabelY = trianglePoints[1];
+          painter->GetTextProp()->SetJustificationToLeft();
           break;
         case vtkDendrogramItem::UP_TO_DOWN:
           trianglePoints[0] = x1;
@@ -463,6 +471,9 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
           trianglePoints[3] = this->MinY;
           trianglePoints[4] = x1 + this->LeafSpacing / 2;
           trianglePoints[5] = this->MinY;
+          triangleLabelX = trianglePoints[0];
+          triangleLabelY = trianglePoints[3] + 1;
+          painter->GetTextProp()->SetJustificationToLeft();
           break;
         case vtkDendrogramItem::LEFT_TO_RIGHT:
         default:
@@ -472,6 +483,9 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
           trianglePoints[3] = y1 - this->LeafSpacing / 2;
           trianglePoints[4] = this->MaxX;
           trianglePoints[5] = y1 + this->LeafSpacing / 2;
+          triangleLabelX = trianglePoints[2] - 1;
+          triangleLabelY = trianglePoints[1];
+          painter->GetTextProp()->SetJustificationToRight();
           break;
         }
 
@@ -486,6 +500,17 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
         this->TriangleLookupTable->GetColor(colorKey, color);
         painter->GetBrush()->SetColorF(color[0], color[1], color[2]);
         painter->DrawPolygon(trianglePoints, 3);
+
+
+        if (this->DisplayNumberOfCollapsedLeafNodes)
+          {
+          unsigned int numCollapsedLeafNodes =
+            vertexIsPruned->GetValue(originalId);
+          std::stringstream ss;
+          ss << numCollapsedLeafNodes;
+
+          painter->DrawString(triangleLabelX, triangleLabelY, ss.str());
+          }
         }
       alreadyDrewCollapsedSubTree = true;
       }

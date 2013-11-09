@@ -42,6 +42,17 @@ public:
   vtkSetStringMacro(InputIdArrayName);
   vtkGetStringMacro(InputIdArrayName);
 
+  // Description:
+  // Set/get the desired precision for the output type. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings. If the desired precision is
+  // DEFAULT_PRECISION and any of the inputs are double precision, then the
+  // output precision will be double precision. Otherwise, if the desired
+  // precision is DEFAULT_PRECISION and all the inputs are single precision,
+  // then the output will be single precision.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkAppendPoints();
   ~vtkAppendPoints();
@@ -52,7 +63,7 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation *);
 
   char* InputIdArrayName;
-
+  int OutputPointsPrecision;
 private:
   vtkAppendPoints(const vtkAppendPoints&);  // Not implemented.
   void operator=(const vtkAppendPoints&);  // Not implemented.

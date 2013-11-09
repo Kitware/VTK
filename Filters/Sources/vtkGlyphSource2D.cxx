@@ -40,6 +40,7 @@ vtkGlyphSource2D::vtkGlyphSource2D()
   this->Cross = 0;
   this->Dash = 0;
   this->RotationAngle = 0.0;
+  this->OutputPointsPrecision = SINGLE_PRECISION;
   this->GlyphType = VTK_VERTEX_GLYPH;
 
   this->SetNumberOfInputPorts(0);
@@ -60,6 +61,17 @@ int vtkGlyphSource2D::RequestData(
 
   //Allocate storage
   vtkPoints *pts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    pts->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    pts->SetDataType(VTK_FLOAT);
+    }
+
   pts->Allocate(6,6);
   vtkCellArray *verts = vtkCellArray::New();
   verts->Allocate(verts->EstimateSize(1,1),1);
@@ -598,4 +610,6 @@ void vtkGlyphSource2D::PrintSelf(ostream& os, vtkIndent indent)
       os << "Edge Arrow\n";
       break;
     }
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }

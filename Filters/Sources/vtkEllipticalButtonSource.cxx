@@ -38,6 +38,7 @@ vtkEllipticalButtonSource::vtkEllipticalButtonSource()
   this->CircumferentialResolution = 4;
   this->TextureResolution = 2;
   this->ShoulderResolution = 2;
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->RadialRatio = 1.1;
 }
@@ -73,6 +74,17 @@ int vtkEllipticalButtonSource::RequestData(
   if ( this->TwoSided ) { numPts *= 2; }
 
   vtkPoints *newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+
   newPts->SetNumberOfPoints(numPts);
 
   vtkFloatArray *normals = vtkFloatArray::New();
@@ -440,4 +452,6 @@ void vtkEllipticalButtonSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Radial Ratio: " << this->RadialRatio << "\n";
 
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }

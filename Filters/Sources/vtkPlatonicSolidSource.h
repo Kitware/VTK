@@ -54,12 +54,20 @@ public:
   void SetSolidTypeToDodecahedron()
     {this->SetSolidType(VTK_SOLID_DODECAHEDRON);}
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkPlatonicSolidSource();
   ~vtkPlatonicSolidSource() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int SolidType;
+  int OutputPointsPrecision;
 
 private:
   vtkPlatonicSolidSource(const vtkPlatonicSolidSource&);  // Not implemented.

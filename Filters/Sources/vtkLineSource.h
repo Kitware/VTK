@@ -59,6 +59,13 @@ public:
   vtkSetClampMacro(Resolution,int,1,VTK_INT_MAX);
   vtkGetMacro(Resolution,int);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkLineSource(int res=1);
   virtual ~vtkLineSource();
@@ -68,6 +75,7 @@ protected:
   double Point1[3];
   double Point2[3];
   int Resolution;
+  int OutputPointsPrecision;
 
   // Description:
   // The list of points defining a broken line

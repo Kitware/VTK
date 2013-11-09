@@ -61,6 +61,7 @@ vtkSuperquadricSource::vtkSuperquadricSource(int res)
   this->SetThetaResolution(res);
   this->PhiResolution = 0;
   this->SetPhiResolution(res);
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -217,6 +218,17 @@ int vtkSuperquadricSource::RequestData(
   // Set things up; allocate memory
   //
   newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
@@ -413,6 +425,8 @@ void vtkSuperquadricSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->Center[1] << ", " << this->Center[2] << ")\n";
   os << indent << "Scale: (" << this->Scale[0] << ", "
      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }
 
 static double cf(double w, double m, double a = 0)
@@ -465,7 +479,7 @@ static void evalSuperquadric(double theta, double phi,  // parametric coords
   xyz[0] = -dims[0] * cf1 * sf(theta, rtheta);
   xyz[1] =  dims[1] * cf1 * cf(theta, rtheta);
   xyz[2] =  dims[2]       * sf(phi, rphi);
- 
+
   cf2 = cf(phi+dphi, 2.0-rphi);
   nrm[0] = -1.0/dims[0] * cf2 * sf(theta+dtheta, 2.0-rtheta);
   nrm[1] =  1.0/dims[1] * cf2 * cf(theta+dtheta, 2.0-rtheta);

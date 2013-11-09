@@ -173,6 +173,13 @@ public:
   // has been set.
   vtkGetObjectMacro( VisitedPointIds, vtkIdList );
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkPolyDataConnectivityFilter();
   ~vtkPolyDataConnectivityFilter();
@@ -216,6 +223,7 @@ protected:
   vtkIdList *VisitedPointIds;
 
   int MarkVisitedPointIds;
+  int OutputPointsPrecision;
 
 private:
   vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&);  // Not implemented.

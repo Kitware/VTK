@@ -43,6 +43,7 @@ vtkLineSource::vtkLineSource(int res)
   this->Points = 0;
 
   this->Resolution = ( res < 1 ? 1 : res );
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts( 0 );
 }
@@ -100,6 +101,17 @@ int vtkLineSource::RequestData(
   // Create and allocate points
   vtkIdType numPts = numLines + 1;
   vtkPoints *newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate( numPts );
 
   // Create and allocate texture coordinates
@@ -243,4 +255,6 @@ void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

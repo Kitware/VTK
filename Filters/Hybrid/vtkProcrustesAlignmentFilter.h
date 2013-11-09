@@ -88,6 +88,17 @@ public:
   vtkGetMacro(StartFromCentroid, bool);
   vtkBooleanMacro(StartFromCentroid, bool);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings. If the desired precision is
+  // DEFAULT_PRECISION and any of the inputs are double precision, then the
+  // mean points will be double precision. Otherwise, if the desired
+  // precision is DEFAULT_PRECISION and all the inputs are single precision,
+  // then the mean points will be single precision.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkProcrustesAlignmentFilter();
   ~vtkProcrustesAlignmentFilter();
@@ -101,6 +112,7 @@ protected:
   bool StartFromCentroid;
 
   vtkPoints *MeanPoints;
+  int OutputPointsPrecision;
 
 private:
   vtkProcrustesAlignmentFilter(const vtkProcrustesAlignmentFilter&);  // Not implemented.

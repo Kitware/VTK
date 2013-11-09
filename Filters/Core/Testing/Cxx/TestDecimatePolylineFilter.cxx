@@ -21,91 +21,106 @@
  * or without modification, are permitted provided that this Notice and any
  * statement of authorship are reproduced on all copies.
  */
-// -*- c++ -*- *******************************************************
 
-#include "vtkDecimatePolylineFilter.h"
-#include "vtkMath.h"
-#include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkProperty.h"
+#include <vtkActor.h>
+#include <vtkCellArray.h>
+#include <vtkDecimatePolylineFilter.h>
+#include <vtkMath.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkSmartPointer.h>
 
-int TestDecimatePolylineFilter(int, char *[])
+int TestDecimatePolylineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
-  const unsigned int numberofpoints = 100;
+  const unsigned int numberOfPoints = 100;
 
-  vtkPolyData* circle = vtkPolyData::New();
-  vtkPoints*   points = vtkPoints::New();
-  vtkCellArray* lines = vtkCellArray::New();
-  vtkIdType* lineIndices = new vtkIdType[numberofpoints+1];
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  points->SetDataType(VTK_FLOAT);
 
-  for( unsigned int i = 0; i < numberofpoints; i++ )
+  vtkIdType *lineIds = new vtkIdType[numberOfPoints+1];
+
+  for(unsigned int i = 0; i < numberOfPoints; ++i)
     {
-    const double angle = 2.0 * vtkMath::Pi() * static_cast< double >( i ) /
-      static_cast< double >( numberofpoints );
-    points->InsertPoint( static_cast< vtkIdType >( i ),
-                         cos( angle ),
-                         sin( angle ),
-                         0. );
-    lineIndices[i] = static_cast< vtkIdType >( i );
+    const double angle = 2.0 * vtkMath::Pi() * static_cast<double>(i)
+      / static_cast<double>(numberOfPoints);
+    points->InsertPoint(static_cast<vtkIdType>(i), std::cos(angle),
+      std::sin(angle), 0.0);
+    lineIds[i] = static_cast<vtkIdType>(i);
     }
-  lineIndices[numberofpoints] = 0;
-  lines->InsertNextCell( numberofpoints+1, lineIndices );
-  delete[] lineIndices;
 
-  circle->SetPoints( points );
-  circle->SetLines( lines );
-  points->Delete();
-  lines->Delete();
+  lineIds[numberOfPoints] = 0;
 
-  vtkPolyDataMapper* c_mapper = vtkPolyDataMapper::New();
-  c_mapper->SetInputData( circle );
+  vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+  lines->InsertNextCell(numberOfPoints + 1, lineIds);
+  delete[] lineIds;
 
-  vtkActor* c_actor = vtkActor::New();
-  c_actor->SetMapper( c_mapper );
+  vtkSmartPointer<vtkPolyData> circle = vtkSmartPointer<vtkPolyData>::New();
+  circle->SetPoints(points);
+  circle->SetLines(lines);
 
-  vtkDecimatePolylineFilter* decimate = vtkDecimatePolylineFilter::New();
-  decimate->SetInputData( circle );
-  decimate->SetTargetReduction( 0.95 );
-  decimate->Update();
+  vtkSmartPointer<vtkPolyDataMapper> circleMapper
+    = vtkSmartPointer<vtkPolyDataMapper>::New();
+  circleMapper->SetInputData(circle);
 
-  vtkPolyDataMapper* d_mapper = vtkPolyDataMapper::New();
-  d_mapper->SetInputConnection( decimate->GetOutputPort() );
+  vtkSmartPointer<vtkActor> circleActor = vtkSmartPointer<vtkActor>::New();
+  circleActor->SetMapper(circleMapper);
 
-  vtkActor* d_actor = vtkActor::New();
-  d_actor->SetMapper( d_mapper );
-  d_actor->GetProperty()->SetColor( 1., 0. ,0. );
+  vtkSmartPointer<vtkDecimatePolylineFilter> decimatePolylineFilter
+    = vtkSmartPointer<vtkDecimatePolylineFilter>::New();
+  decimatePolylineFilter->SetOutputPointsPrecision(vtkAlgorithm::DEFAULT_PRECISION);
+  decimatePolylineFilter->SetInputData(circle);
+  decimatePolylineFilter->SetTargetReduction(0.95);
+  decimatePolylineFilter->Update();
 
-  vtkRenderer* ren = vtkRenderer::New();
-  ren->AddActor( c_actor );
-  ren->AddActor( d_actor );
+  if(decimatePolylineFilter->GetOutput()->GetPoints()->GetDataType() != VTK_FLOAT)
+    {
+    return EXIT_FAILURE;
+    }
 
-  vtkRenderWindow* renwin = vtkRenderWindow::New();
-  renwin->AddRenderer( ren );
+  decimatePolylineFilter->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
+  decimatePolylineFilter->Update();
 
-  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
-  iren->SetRenderWindow( renwin );
+  if(decimatePolylineFilter->GetOutput()->GetPoints()->GetDataType() != VTK_FLOAT)
+    {
+    return EXIT_FAILURE;
+    }
 
-  renwin->Render();
+  decimatePolylineFilter->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+  decimatePolylineFilter->Update();
 
-  iren->CreateOneShotTimer( 1 );
+  if(decimatePolylineFilter->GetOutput()->GetPoints()->GetDataType() != VTK_DOUBLE)
+    {
+    return EXIT_FAILURE;
+    }
 
-  iren->Delete();
-  renwin->Delete();
-  ren->Delete();
+  vtkSmartPointer<vtkPolyDataMapper> decimatedMapper
+    = vtkSmartPointer<vtkPolyDataMapper>::New();
+  decimatedMapper->SetInputConnection(decimatePolylineFilter->GetOutputPort());
 
-  d_actor->Delete();
-  d_mapper->Delete();
+  vtkSmartPointer<vtkActor> decimatedActor
+    = vtkSmartPointer<vtkActor>::New();
+  decimatedActor->SetMapper(decimatedMapper);
+  decimatedActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
 
-  c_actor->Delete();
-  c_mapper->Delete();
+  vtkSmartPointer<vtkRenderer> renderer
+    = vtkSmartPointer<vtkRenderer>::New();
+  renderer->AddActor(circleActor);
+  renderer->AddActor(decimatedActor);
 
-  decimate->Delete();
-  circle->Delete();
+  vtkSmartPointer<vtkRenderWindow> renderWindow
+    = vtkSmartPointer<vtkRenderWindow>::New();
+  renderWindow->AddRenderer(renderer);
 
-  return 0;
+  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor
+    = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  renderWindowInteractor->SetRenderWindow(renderWindow);
+
+  renderWindow->Render();
+  renderWindowInteractor->CreateOneShotTimer(1);
+
+  return EXIT_SUCCESS;
 }

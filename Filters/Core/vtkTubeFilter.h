@@ -178,6 +178,13 @@ public:
   vtkSetClampMacro(TextureLength,double,0.000001,VTK_INT_MAX);
   vtkGetMacro(TextureLength,double);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkTubeFilter();
   ~vtkTubeFilter() {}
@@ -196,6 +203,7 @@ protected:
   int OnRatio; //control the generation of the sides of the tube
   int Offset;  //control the generation of the sides
   int GenerateTCoords; //control texture coordinate generation
+  int OutputPointsPrecision;
   double TextureLength; //this length is mapped to [0,1) texture space
 
   // Helper methods

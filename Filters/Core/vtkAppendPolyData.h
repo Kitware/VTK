@@ -92,6 +92,13 @@ public:
   vtkGetMacro(ParallelStreaming, int);
   vtkBooleanMacro(ParallelStreaming, int);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 //BTX
   int ExecuteAppend(vtkPolyData* output,
     vtkPolyData* inputs[], int numInputs);
@@ -102,6 +109,7 @@ protected:
 
   // Flag for selecting parallel streaming behavior
   int ParallelStreaming;
+  int OutputPointsPrecision;
 
   // Usual data generation method
   virtual int RequestData(vtkInformation *,

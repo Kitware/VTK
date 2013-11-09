@@ -55,12 +55,21 @@ public:
   virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform,vtkAbstractTransform);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkTransformPolyDataFilter();
   ~vtkTransformPolyDataFilter();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
   vtkAbstractTransform *Transform;
+  int OutputPointsPrecision;
 private:
   vtkTransformPolyDataFilter(const vtkTransformPolyDataFilter&);  // Not implemented.
   void operator=(const vtkTransformPolyDataFilter&);  // Not implemented.

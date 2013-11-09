@@ -67,6 +67,13 @@ public:
   vtkSetVector3Macro(BackgroundColor,double);
   vtkGetVectorMacro(BackgroundColor,double,3);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkTextSource();
   ~vtkTextSource();
@@ -76,6 +83,7 @@ protected:
   int  Backing;
   double ForegroundColor[4];
   double BackgroundColor[4];
+  int OutputPointsPrecision;
 private:
   vtkTextSource(const vtkTextSource&);  // Not implemented.
   void operator=(const vtkTextSource&);  // Not implemented.

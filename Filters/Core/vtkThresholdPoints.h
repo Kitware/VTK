@@ -57,6 +57,13 @@ public:
   vtkSetMacro(LowerThreshold,double);
   vtkGetMacro(LowerThreshold,double);
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkThresholdPoints();
   ~vtkThresholdPoints() {};
@@ -68,6 +75,7 @@ protected:
 
   double LowerThreshold;
   double UpperThreshold;
+  int OutputPointsPrecision;
 
   //BTX
   int (vtkThresholdPoints::*ThresholdFunction)(double s);

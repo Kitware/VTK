@@ -15,7 +15,13 @@
 #ifndef __vtk_netcdfcpp_h
 #define __vtk_netcdfcpp_h
 
-/* Use the netcdf library configured for VTK.  */
-#include <vtknetcdf/cxx/netcdfcpp.h>
+/* Use the netcdfcpp library configured for VTK.  */
+#cmakedefine VTK_USE_SYSTEM_NETCDF
+
+#ifdef VTK_USE_SYSTEM_NETCDF
+# include <netcdfcpp.h>
+#else
+# include <vtknetcdf/cxx/netcdfcpp.h>
+#endif
 
 #endif

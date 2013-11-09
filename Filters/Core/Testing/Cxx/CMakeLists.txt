@@ -1,21 +1,30 @@
 vtk_add_test_cxx(
-  TestArrayCalculator.cxx,NO_VALID
-  )
-
-vtk_add_test_cxx(
-  TestGhostArray.cxx,NO_VALID
-  # TestAppendPolyData.cxx
+  TestAppendPolyData.cxx,NO_VALID
   TestAppendSelection.cxx,NO_VALID
+  TestArrayCalculator.cxx,NO_VALID
   TestAssignAttribute.cxx,NO_VALID
   TestCellDataToPointData.cxx,NO_VALID
   TestCenterOfMass.cxx,NO_VALID
-  TestDecimatePolylineFilter.cxx,NO_VALID
-  TestDelaunay2D.cxx
-  TestExecutionTimer.cxx,NO_VALID
-  TestGlyph3D.cxx
-  TestImplicitPolyDataDistance.cxx,NO_VALID
+  TestCleanPolyData.cxx,NO_VALID
+  TestClipPolyData.cxx,NO_VALID
+  TestConnectivityFilter.cxx,NO_VALID
   TestCutter.cxx,NO_VALID
-  TestThreshold.cxx,NO_VALID
+  TestDecimatePolylineFilter.cxx,NO_VALID
+  TestDecimatePro.cxx,NO_VALID
+  TestDelaunay2D.cxx
+  TestDelaunay3D.cxx,NO_VALID
+  TestExecutionTimer.cxx,NO_VALID
+  TestFeatureEdges.cxx,NO_VALID
+  TestGhostArray.cxx,NO_VALID
+  TestGlyph3D.cxx
+  TestHedgeHog.cxx,NO_VALID
+  TestImplicitPolyDataDistance.cxx,NO_VALID
+  TestMaskPoints.cxx,NO_VALID
+  TestPolyDataConnectivityFilter.cxx,NO_VALID
+  TestSmoothPolyDataFilter.cxx,NO_VALID
   TestSMPPipelineContour.cxx,NO_VALID
+  TestThreshold.cxx,NO_VALID
+  TestThresholdPoints.cxx,NO_VALID
+  TestTubeFilter.cxx,NO_VALID
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests)

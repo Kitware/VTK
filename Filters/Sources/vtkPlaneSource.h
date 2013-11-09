@@ -114,6 +114,13 @@ public:
   // opposite direction.
   void Push(double distance);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkPlaneSource();
   ~vtkPlaneSource() {};
@@ -127,6 +134,7 @@ protected:
   double Point2[3];
   double Normal[3];
   double Center[3];
+  int OutputPointsPrecision;
 
   int UpdatePlane(double v1[3], double v2[3]);
 private:

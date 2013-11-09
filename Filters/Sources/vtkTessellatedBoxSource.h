@@ -81,6 +81,13 @@ public:
   vtkGetMacro(Quads, int);
   vtkBooleanMacro(Quads, int);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
    vtkTessellatedBoxSource();
   ~vtkTessellatedBoxSource();
@@ -135,6 +142,7 @@ protected:
   int Level;
   int DuplicateSharedPoints;
   int Quads;
+  int OutputPointsPrecision;
 
 private:
   vtkTessellatedBoxSource(const vtkTessellatedBoxSource&);  // Not implemented.

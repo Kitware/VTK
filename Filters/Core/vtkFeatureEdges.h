@@ -100,6 +100,13 @@ public:
   // Return MTime also considering the locator.
   unsigned long GetMTime();
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+  // the available precision settings.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkFeatureEdges();
   ~vtkFeatureEdges();
@@ -114,6 +121,7 @@ protected:
   int NonManifoldEdges;
   int ManifoldEdges;
   int Coloring;
+  int OutputPointsPrecision;
   vtkIncrementalPointLocator *Locator;
 private:
   vtkFeatureEdges(const vtkFeatureEdges&);  // Not implemented.

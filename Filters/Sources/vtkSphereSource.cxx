@@ -48,6 +48,8 @@ vtkSphereSource::vtkSphereSource(int res)
   this->EndPhi = 180.0;
   this->LatLongTessellation = 0;
 
+  this->OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
+
   this->SetNumberOfInputPorts(0);
 }
 
@@ -121,6 +123,17 @@ int vtkSphereSource::RequestData(
   numPolys = this->PhiResolution * 2 * localThetaResolution;
 
   newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
@@ -301,6 +314,8 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->Center[1] << ", " << this->Center[2] << ")\n";
   os << indent
      << "LatLong Tessellation: " << this->LatLongTessellation << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }
 
 //----------------------------------------------------------------------------

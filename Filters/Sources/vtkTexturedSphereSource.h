@@ -64,6 +64,13 @@ public:
   vtkSetClampMacro(Phi,double,0.0,180.0);
   vtkGetMacro(Phi,double);
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkTexturedSphereSource(int res=8);
   ~vtkTexturedSphereSource() {};
@@ -74,6 +81,7 @@ protected:
   double Phi;
   int ThetaResolution;
   int PhiResolution;
+  int OutputPointsPrecision;
 
 private:
   vtkTexturedSphereSource(const vtkTexturedSphereSource&);  // Not implemented.

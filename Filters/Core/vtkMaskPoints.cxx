@@ -38,6 +38,7 @@ vtkMaskPoints::vtkMaskPoints()
   this->SingleVertexPerCell = 0;
   this->RandomModeType = 0;
   this->ProportionalMaximumNumberOfPoints = 0;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 }
 
 inline double d_rand()
@@ -342,6 +343,25 @@ int vtkMaskPoints::RequestData(
 
   // Allocate space
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+    if(inputPointSet)
+      {
+      newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->Allocate(numNewPts);
   outputPD->CopyAllocate(pd, numNewPts);
 
@@ -462,6 +482,25 @@ int vtkMaskPoints::RequestData(
       {
       // need to copy the entire data to sort it, to leave original in tact
       vtkPoints* pointCopy = vtkPoints::New();
+
+      // Set the desired precision for the points.
+      if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+        {
+        vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+        if(inputPointSet)
+          {
+          pointCopy->SetDataType(inputPointSet->GetPoints()->GetDataType());
+          }
+        }
+      else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+        {
+        pointCopy->SetDataType(VTK_FLOAT);
+        }
+      else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+        {
+        pointCopy->SetDataType(VTK_DOUBLE);
+        }
+
       vtkPointData* dataCopy = vtkPointData::New();
       vtkPointData* tempData = vtkPointData::New();
 
@@ -583,4 +622,6 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Random Mode Type: " << this->RandomModeType << "\n";
   os << indent << "Proportional Maximum Number of Points: " <<
                   this->ProportionalMaximumNumberOfPoints << "\n";
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

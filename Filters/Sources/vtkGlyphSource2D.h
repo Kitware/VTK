@@ -130,6 +130,13 @@ public:
   void SetGlyphTypeToHookedArrow() {this->SetGlyphType(VTK_HOOKEDARROW_GLYPH);}
   void SetGlyphTypeToEdgeArrow() {this->SetGlyphType(VTK_EDGEARROW_GLYPH);}
 
+  // Description:
+  // Set/get the desired precision for the output points.
+  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+
 protected:
   vtkGlyphSource2D();
   ~vtkGlyphSource2D() {};
@@ -140,11 +147,12 @@ protected:
   double Scale;
   double Scale2;
   double Color[3];
-  int   Filled;
-  int   Dash;
-  int   Cross;
-  int   GlyphType;
+  int    Filled;
+  int    Dash;
+  int    Cross;
+  int    GlyphType;
   double RotationAngle;
+  int    OutputPointsPrecision;
 
   void TransformGlyph(vtkPoints *pts);
   void ConvertColor();

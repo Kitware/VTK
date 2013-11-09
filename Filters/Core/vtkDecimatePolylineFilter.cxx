@@ -47,6 +47,7 @@ vtkDecimatePolylineFilter::vtkDecimatePolylineFilter()
   this->Closed = true;
   this->PriorityQueue = vtkSmartPointer< vtkPriorityQueue >::New();
   this->ErrorMap = new vtkDecimatePolylineVertexErrorSTLMap;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 //---------------------------------------------------------------------
@@ -112,6 +113,21 @@ int vtkDecimatePolylineFilter::RequestData(
 
   // Allocate memory and prepare for data processing
   vtkPoints *newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPts->SetDataType(inputPoints->GetDataType());
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   vtkCellArray *newLines = vtkCellArray::New();
   newLines->Allocate(numLines,2);
   vtkPointData *inPD = input->GetPointData();
@@ -258,4 +274,6 @@ void vtkDecimatePolylineFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Target Reduction: " << this->TargetReduction << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }

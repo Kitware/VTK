@@ -40,18 +40,6 @@ int main()
     check_c_source_compiles("${_source}" VTK_FFMPEG_HAS_IMG_CONVERT)
   endif()
 
-  if(NOT DEFINED VTK_FFMPEG_OLD_URL_FCLOSE AND FFMPEG_avformat_LIBRARY)
-    set(_source "
-#include <${FFMEG_FORMAT_HEADER_PATH}/avformat.h>
-int main()
-{
-  AVFormatContext *ctx;
-  url_fclose(&ctx->pb);
-  return 0;
-}\n")
-    check_c_source_compiles("${_source}" VTK_FFMPEG_OLD_URL_FCLOSE)
-  endif()
-
   if(NOT DEFINED VTK_FFMPEG_NEW_ALLOC AND FFMPEG_avformat_LIBRARY)
     set(_source "
 #include <${FFMEG_FORMAT_HEADER_PATH}/avformat.h>

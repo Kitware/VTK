@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="vtkweb-widget-tree.css" rel="stylesheet" >
+
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="http://beebole.com/pure/wp-content/themes/BeeBole-pure/libs/pure.js"></script>
+    <script type="text/javascript" src="vtkweb-widget-tree.js"></script>
+  </head>
+  <body>
+
+    <!-- This should be automatically filled by the vtk loader : BEGUIN -->
+    <div id='vtk-templates' style="display: none;">
+      <div class='vtkweb-widget-tree'>
+          <ul>
+              <li class="node">
+                  <div class="node-line">
+                      <div class="head"></div>
+                      <div class="label"></div>
+                      <div class="tail"></div>
+                  </div>
+                  <div class='children'></div>
+              </li>
+          </ul>
+      </div>
+    </div>
+    <!-- This should be automatically filled by the vtk loader : END -->
+
+    <div id="file-tree" style="position: relative; width: 100%;"></div>
+
+    <script type="text/javascript">
+    var fileTree = { name: 'root', id: 0, type: 'root', children: [
+      { name: 'first', id: 1, type: 'source', fields: { representation: {title: 'Wireframe representation', data: 'wireframe'}, bar: 'on', 'colorBy': { field: 'cells', data: 'id'}}, children: [
+        { name: 'a', id: 4, type: 'filter', fields: { representation: 'outline', bar: 'on', 'colorBy': { field: 'cells', data: 'id'}}, children: [
+          { name: 'aa', id: 7, type: 'filter', fields: { representation: 'hide', bar: 'on', 'colorBy': { field: 'cells', data: 'id'}}, children: [
+            { name: 'aaa', id: 10, type: 'filter', fields: { representation: 'surface', bar: 'on', 'colorBy': { field: 'color', data: '#ccffaa'}}, children: [] },
+            { name: 'aab', id: 11, type: 'filter', fields: { representation: 'surface_edge', bar: 'off', 'colorBy': { field: 'points', sdf: 'id'}}, children: [] },
+            { name: 'aac', id: 12, type: 'filter', fields: { representation: 'wireframe', bar: 'on', 'colorBy': { field: 'cells', sdf: 'id'}}, children: [] }
+          ] },
+          { name: 'ab', id: 8, type: 'filter', fields: { representation: 'wireframe', bar: 'on', 'colorBy': { field: 'cells', data: 'id'}}, children: [] },
+          { name: 'ac', id: 9, type: 'filter', fields: { representation: 'wireframe', bar: 'on', 'colorBy': { field: 'cells', data: 'id'}}, children: [] }
+        ] },
+        { name: 'b', id: 5, type: 'filter', fields: { representation: 'volume', bar: 'on', 'colorBy': { field: 'cells', data: 'id'}}, children: [] },
+        { name: 'c', id: 6, type: 'filter', fields: { representation: 'wireframe', bar: 'on', 'colorBy': { field: 'cells', data: 'id'}}, children: [] }
+      ] },
+      { name: 'second', id: 2, type: 'source', fields: { representation: 'wireframe', bar: 'on', 'colorBy': { field: 'points', data: 'id'}}, children: [] },
+      { name: 'third', id: 3, type: 'source', fields: { representation: 'wireframe', bar: 'on', 'colorBy': { field: 'cells', data: 'id'}}, children: [] }
+    ]};
+
+    $("#file-tree").vtkTree({ data: fileTree }).bind('colorBy select representation bar', function(e){
+      console.log(e.type + ' ' + e.node + ' ' + e.origin.attr('data'));
+    });
+    </script>
+  </body>
+</html>

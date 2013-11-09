@@ -30,6 +30,8 @@ vtkOutlineSource::vtkOutlineSource()
 
   this->GenerateFaces = 0;
 
+  this->OutputPointsPrecision = SINGLE_PRECISION;
+
   for (int i=0; i<3; i++)
     {
     this->Bounds[2*i] = -1.0;
@@ -105,6 +107,17 @@ int vtkOutlineSource::RequestData(
   // Allocate storage and create outline
   //
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+
   newPts->Allocate(8);
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(12,2));
@@ -232,4 +245,7 @@ void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
       }
     os << ")\n";
     }
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 }

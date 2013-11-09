@@ -39,6 +39,7 @@ vtkPointSource::vtkPointSource(vtkIdType numPts)
   this->Radius = 0.5;
 
   this->Distribution = VTK_POINT_UNIFORM;
+  this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -63,6 +64,17 @@ int vtkPointSource::RequestData(
   vtkCellArray *newVerts;
 
   newPoints = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPoints->SetDataType(VTK_DOUBLE);
+    }
+  else
+    {
+    newPoints->SetDataType(VTK_FLOAT);
+    }
+
   newPoints->Allocate(this->NumberOfPoints);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(newVerts->EstimateSize(1,this->NumberOfPoints));
@@ -122,4 +134,5 @@ void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)
                               << this->Center[2] << ")\n";
   os << indent << "Distribution: " <<
      ((this->Distribution == VTK_POINT_SHELL) ? "Shell\n" : "Uniform\n");
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

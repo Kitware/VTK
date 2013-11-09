@@ -136,6 +136,7 @@ vtkDelaunay3D::vtkDelaunay3D()
   this->Tolerance = 0.001;
   this->BoundingTriangulation = 0;
   this->Offset = 2.5;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
   this->Locator = NULL;
   this->TetraArray = NULL;
 
@@ -451,6 +452,25 @@ int vtkDelaunay3D::RequestData(
   // Initialize mesh structure.
   input->GetCenter(center);
   tol = input->GetLength();
+
+  points = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    points->SetDataType(inPoints->GetDataType());
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    points->SetDataType(VTK_FLOAT);
+    }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    points->SetDataType(VTK_DOUBLE);
+    }
+
+  points->Allocate(numPoints+6);
+
   Mesh = this->InitPointInsertion(center, this->Offset*tol,
                                   numPoints, points);
 
@@ -678,7 +698,15 @@ int vtkDelaunay3D::RequestData(
     }
   else
     {
-    output->SetPoints(inPoints);
+    if (inPoints->GetDataType() != points->GetDataType())
+      {
+      points->DeepCopy(inPoints);
+      output->SetPoints(points);
+      }
+    else
+      {
+      output->SetPoints(inPoints);
+      }
     output->GetPointData()->PassData(input->GetPointData());
     }
 
@@ -724,9 +752,6 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(double center[3],
 
   this->NumberOfDuplicatePoints = 0;
   this->NumberOfDegeneracies = 0;
-
-  points = vtkPoints::New();
-  points->Allocate(numPtsToInsert+6);
 
   if ( length <= 0.0 )
     {
@@ -986,6 +1011,8 @@ void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
 
 void vtkDelaunay3D::EndPointInsertion()
