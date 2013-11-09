@@ -79,7 +79,7 @@ class VTKRENDERINGCORE_EXPORT vtkActor2DCollection : public vtkPropCollection
   //ETX
 
 protected:
-  vtkActor2DCollection() {};
+  vtkActor2DCollection() {}
   ~vtkActor2DCollection();
 
   virtual void DeleteElement(vtkCollectionElement *);

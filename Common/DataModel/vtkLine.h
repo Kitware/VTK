@@ -147,7 +147,7 @@ public:
 
 protected:
   vtkLine();
-  ~vtkLine() {};
+  ~vtkLine() {}
 
 private:
   vtkLine(const vtkLine&);  // Not implemented.

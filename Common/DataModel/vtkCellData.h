@@ -35,8 +35,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkCellData() {}; //make sure constructor and desctructor are protected
-  ~vtkCellData() {};
+  vtkCellData() {} //make sure constructor and desctructor are protected
+  ~vtkCellData() {}
 
 private:
   vtkCellData(const vtkCellData&);  // Not implemented.

@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkImageCast();
-  ~vtkImageCast() {};
+  ~vtkImageCast() {}
 
   int ClampOverflow;
   int OutputScalarType;

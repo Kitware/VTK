@@ -431,7 +431,7 @@ public:
 private:
   // Description:
   // Hide this because we require a new interpolator type
-  void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {};
+  void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {}
 
 private:
   vtkTemporalStreamTracer(const vtkTemporalStreamTracer&);  // Not implemented.

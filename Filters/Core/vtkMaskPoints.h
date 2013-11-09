@@ -124,7 +124,7 @@ public:
 
 protected:
   vtkMaskPoints();
-  ~vtkMaskPoints() {};
+  ~vtkMaskPoints() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
@@ -140,11 +140,11 @@ protected:
   int ProportionalMaximumNumberOfPoints;
   int OutputPointsPrecision;
 
-  virtual void InternalScatter(unsigned long*, unsigned long *, int, int) {};
-  virtual void InternalGather(unsigned long*, unsigned long*, int, int) {};
+  virtual void InternalScatter(unsigned long*, unsigned long *, int, int) {}
+  virtual void InternalGather(unsigned long*, unsigned long*, int, int) {}
   virtual int InternalGetNumberOfProcesses() { return 1; };
   virtual int InternalGetLocalProcessId() { return 0; };
-  virtual void InternalBarrier() {};
+  virtual void InternalBarrier() {}
   unsigned long GetLocalSampleSize(vtkIdType, int);
 
 private:

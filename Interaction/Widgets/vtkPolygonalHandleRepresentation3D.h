@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkPolygonalHandleRepresentation3D();
-  ~vtkPolygonalHandleRepresentation3D() {};
+  ~vtkPolygonalHandleRepresentation3D() {}
 
   double Offset[3];
 

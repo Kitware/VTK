@@ -49,8 +49,8 @@ public:
   static const char *GetVTKSourceVersion() { return VTK_SOURCE_VERSION; }
 
 protected:
-  vtkVersion() {}; //insure constructor/destructor protected
-  ~vtkVersion() {};
+  vtkVersion() {} //insure constructor/destructor protected
+  ~vtkVersion() {}
 private:
   vtkVersion(const vtkVersion&);  // Not implemented.
   void operator=(const vtkVersion&);  // Not implemented.

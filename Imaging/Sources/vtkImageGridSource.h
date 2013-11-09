@@ -84,7 +84,7 @@ public:
 
 protected:
   vtkImageGridSource();
-  ~vtkImageGridSource() {};
+  ~vtkImageGridSource() {}
 
   int GridSpacing[3];
   int GridOrigin[3];

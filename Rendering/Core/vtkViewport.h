@@ -183,13 +183,13 @@ public:
   virtual void NormalizedDisplayToViewport(double &x, double &y);
   virtual void ViewportToNormalizedViewport(double &u, double &v);
   virtual void NormalizedViewportToView(double &x, double &y, double &z);
-  virtual void ViewToWorld(double &, double &, double &) {};
+  virtual void ViewToWorld(double &, double &, double &) {}
   virtual void DisplayToLocalDisplay(double &x, double &y);
   virtual void NormalizedDisplayToDisplay(double &u, double &v);
   virtual void ViewportToNormalizedDisplay(double &x, double &y);
   virtual void NormalizedViewportToViewport(double &u, double &v);
   virtual void ViewToNormalizedViewport(double &x, double &y, double &z);
-  virtual void WorldToView(double &, double &, double &) {};
+  virtual void WorldToView(double &, double &, double &) {}
 
   // Description:
   // Get the size and origin of the viewport in display coordinates. Note:

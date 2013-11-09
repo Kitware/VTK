@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkImageNonMaximumSuppression();
-  ~vtkImageNonMaximumSuppression() {};
+  ~vtkImageNonMaximumSuppression() {}
 
   int HandleBoundaries;
   int Dimensionality;

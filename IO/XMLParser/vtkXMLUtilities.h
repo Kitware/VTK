@@ -127,8 +127,8 @@ public:
   static void UnFactorElements(vtkXMLDataElement *tree);
 
 protected:
-  vtkXMLUtilities() {};
-  ~vtkXMLUtilities() {};
+  vtkXMLUtilities() {}
+  ~vtkXMLUtilities() {}
 
   static int FactorElementsInternal(vtkXMLDataElement *tree,
                                     vtkXMLDataElement *root,

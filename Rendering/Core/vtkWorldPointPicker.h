@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkWorldPointPicker ();
-  ~vtkWorldPointPicker() {};
+  ~vtkWorldPointPicker() {}
 
 private:
   vtkWorldPointPicker(const vtkWorldPointPicker&);  // Not implemented.

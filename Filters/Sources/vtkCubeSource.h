@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkCubeSource(double xL=1.0, double yL=1.0, double zL=1.0);
-  ~vtkCubeSource() {};
+  ~vtkCubeSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double XLength;

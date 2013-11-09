@@ -41,8 +41,8 @@ public:
   vtkStructuredGrid* GetInput(int port);
 
 protected:
-  vtkStructuredGridWriter() {};
-  ~vtkStructuredGridWriter() {};
+  vtkStructuredGridWriter() {}
+  ~vtkStructuredGridWriter() {}
 
   void WriteData();
   int WriteBlanking(ostream *fp, vtkStructuredGrid *ds);

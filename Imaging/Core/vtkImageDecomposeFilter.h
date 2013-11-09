@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkImageDecomposeFilter();
-  ~vtkImageDecomposeFilter() {};
+  ~vtkImageDecomposeFilter() {}
 
   int Dimensionality;
 

@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkAxes();
-  ~vtkAxes() {};
+  ~vtkAxes() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   // This source does not know how to generate pieces yet.

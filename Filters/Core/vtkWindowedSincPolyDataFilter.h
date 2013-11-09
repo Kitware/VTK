@@ -220,7 +220,7 @@ public:
 
  protected:
   vtkWindowedSincPolyDataFilter();
-  ~vtkWindowedSincPolyDataFilter() {};
+  ~vtkWindowedSincPolyDataFilter() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

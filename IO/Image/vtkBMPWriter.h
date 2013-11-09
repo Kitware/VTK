@@ -35,7 +35,7 @@ public:
 
 protected:
   vtkBMPWriter();
-  ~vtkBMPWriter() {};
+  ~vtkBMPWriter() {}
 
   virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]);

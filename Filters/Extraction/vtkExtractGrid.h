@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkExtractGrid();
-  ~vtkExtractGrid() {};
+  ~vtkExtractGrid() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

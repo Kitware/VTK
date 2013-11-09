@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkImageLaplacian();
-  ~vtkImageLaplacian() {};
+  ~vtkImageLaplacian() {}
 
   int Dimensionality;
 

@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkCellDerivatives();
-  ~vtkCellDerivatives() {};
+  ~vtkCellDerivatives() {}
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int VectorMode;

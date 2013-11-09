@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkMaskPolyData();
-  ~vtkMaskPolyData() {};
+  ~vtkMaskPolyData() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int OnRatio; // every OnRatio entity is on; all others are off.

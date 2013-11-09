@@ -37,8 +37,8 @@ public:
                              vtkInformationVector* outInfo);
 
 protected:
-  vtkImageImportExecutive() {};
-  ~vtkImageImportExecutive() {};
+  vtkImageImportExecutive() {}
+  ~vtkImageImportExecutive() {}
 
 private:
   vtkImageImportExecutive(const vtkImageImportExecutive&);  // Not implemented.

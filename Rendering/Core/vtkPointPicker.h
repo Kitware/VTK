@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkPointPicker();
-  ~vtkPointPicker() {};
+  ~vtkPointPicker() {}
 
   vtkIdType PointId; //picked point
 

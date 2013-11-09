@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkOutlineCornerSource();
-  ~vtkOutlineCornerSource() {};
+  ~vtkOutlineCornerSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

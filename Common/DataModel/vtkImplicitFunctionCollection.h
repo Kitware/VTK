@@ -54,8 +54,8 @@ public:
   //ETX
 
 protected:
-  vtkImplicitFunctionCollection() {};
-  ~vtkImplicitFunctionCollection() {};
+  vtkImplicitFunctionCollection() {}
+  ~vtkImplicitFunctionCollection() {}
 
 
 private:

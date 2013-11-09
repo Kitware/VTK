@@ -71,7 +71,7 @@ public:
 
 protected:
   vtkSectorSource();
-  ~vtkSectorSource() {};
+  ~vtkSectorSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double InnerRadius;

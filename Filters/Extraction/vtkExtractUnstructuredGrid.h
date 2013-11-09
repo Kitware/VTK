@@ -123,7 +123,7 @@ public:
 
 protected:
   vtkExtractUnstructuredGrid();
-  ~vtkExtractUnstructuredGrid() {};
+  ~vtkExtractUnstructuredGrid() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkImageClip();
-  ~vtkImageClip() {};
+  ~vtkImageClip() {}
 
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;

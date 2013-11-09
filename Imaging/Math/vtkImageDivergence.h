@@ -35,7 +35,7 @@ public:
 
 protected:
   vtkImageDivergence();
-  ~vtkImageDivergence() {};
+  ~vtkImageDivergence() {}
 
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,

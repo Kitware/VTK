@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkImageHSVToRGB();
-  ~vtkImageHSVToRGB() {};
+  ~vtkImageHSVToRGB() {}
 
   double Maximum;
 

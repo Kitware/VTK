@@ -52,8 +52,8 @@ public:
   int InsertUniquePoint(const double x[3], vtkIdType &ptId);
 
 protected:
-  vtkMergePoints() {};
-  ~vtkMergePoints() {};
+  vtkMergePoints() {}
+  ~vtkMergePoints() {}
 
 private:
   vtkMergePoints(const vtkMergePoints&);  // Not implemented.

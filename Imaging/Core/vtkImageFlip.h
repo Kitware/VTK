@@ -73,7 +73,7 @@ public:
 
 protected:
   vtkImageFlip();
-  ~vtkImageFlip() {};
+  ~vtkImageFlip() {}
 
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

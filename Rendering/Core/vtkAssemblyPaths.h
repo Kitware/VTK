@@ -68,8 +68,8 @@ public:
   //ETX
 
 protected:
-  vtkAssemblyPaths() {};
-  ~vtkAssemblyPaths() {};
+  vtkAssemblyPaths() {}
+  ~vtkAssemblyPaths() {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

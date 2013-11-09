@@ -40,8 +40,8 @@ public:
   vtkPolyData* GetInput(int port);
 
 protected:
-  vtkPolyDataWriter() {};
-  ~vtkPolyDataWriter() {};
+  vtkPolyDataWriter() {}
+  ~vtkPolyDataWriter() {}
 
   void WriteData();
 

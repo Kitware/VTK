@@ -62,7 +62,7 @@ public:
   vtkGetVectorMacro(Center,double,3);
 protected:
   vtkCylinder();
-  ~vtkCylinder() {};
+  ~vtkCylinder() {}
 
   double Radius;
   double Center[3];

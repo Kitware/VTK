@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Destructor.
-  ~vtkStructuredAMRNeighbor() {};
+  ~vtkStructuredAMRNeighbor() {}
 
   // Description:
   // Overload assignment operator.

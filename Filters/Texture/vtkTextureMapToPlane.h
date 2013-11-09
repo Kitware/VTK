@@ -91,7 +91,7 @@ public:
 
 protected:
   vtkTextureMapToPlane();
-  ~vtkTextureMapToPlane() {};
+  ~vtkTextureMapToPlane() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void ComputeNormal(vtkDataSet *output);

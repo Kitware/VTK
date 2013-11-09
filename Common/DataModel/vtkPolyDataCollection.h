@@ -56,8 +56,8 @@ public:
   //ETX
 
 protected:
-  vtkPolyDataCollection() {};
-  ~vtkPolyDataCollection() {};
+  vtkPolyDataCollection() {}
+  ~vtkPolyDataCollection() {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

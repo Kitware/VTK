@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkExtractRectilinearGrid();
-  ~vtkExtractRectilinearGrid() {};
+  ~vtkExtractRectilinearGrid() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

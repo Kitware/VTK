@@ -58,8 +58,8 @@ public:
   //ETX
 
 protected:
-  vtkProp3DCollection() {};
-  ~vtkProp3DCollection() {};
+  vtkProp3DCollection() {}
+  ~vtkProp3DCollection() {}
 
 
 private:

@@ -79,7 +79,7 @@ public:
 
 protected:
   vtkWarpLens();
-  ~vtkWarpLens() {};
+  ~vtkWarpLens() {}
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,

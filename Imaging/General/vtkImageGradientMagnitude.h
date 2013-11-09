@@ -50,7 +50,7 @@ public:
 
 protected:
   vtkImageGradientMagnitude();
-  ~vtkImageGradientMagnitude() {};
+  ~vtkImageGradientMagnitude() {}
 
   int HandleBoundaries;
   int Dimensionality;

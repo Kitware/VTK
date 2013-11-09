@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkImageLogic();
-  ~vtkImageLogic() {};
+  ~vtkImageLogic() {}
 
   int Operation;
   double OutputTrueValue;

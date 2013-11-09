@@ -64,7 +64,7 @@ class VTKRENDERINGIMAGE_EXPORT vtkImageSliceCollection : public vtkPropCollectio
   vtkImageSlice *GetNextItem() { return this->GetNextImage(); }
 
 protected:
-  vtkImageSliceCollection() {};
+  vtkImageSliceCollection() {}
   ~vtkImageSliceCollection();
 
   virtual void DeleteElement(vtkCollectionElement *);

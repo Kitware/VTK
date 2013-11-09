@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkImageSpatialAlgorithm();
-  ~vtkImageSpatialAlgorithm() {};
+  ~vtkImageSpatialAlgorithm() {}
 
   int   KernelSize[3];
   int   KernelMiddle[3];      // Index of kernel origin

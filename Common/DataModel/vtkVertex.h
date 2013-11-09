@@ -115,7 +115,7 @@ public:
 
 protected:
   vtkVertex();
-  ~vtkVertex() {};
+  ~vtkVertex() {}
 
 private:
   vtkVertex(const vtkVertex&);  // Not implemented.

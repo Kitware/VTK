@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkImageCityBlockDistance();
-  ~vtkImageCityBlockDistance() {};
+  ~vtkImageCityBlockDistance() {}
 
   virtual int IterativeRequestUpdateExtent(vtkInformation* in,
                                            vtkInformation* out);

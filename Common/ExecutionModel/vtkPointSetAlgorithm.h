@@ -92,7 +92,7 @@ public:
 
 protected:
   vtkPointSetAlgorithm();
-  ~vtkPointSetAlgorithm() {};
+  ~vtkPointSetAlgorithm() {}
 
   // Description:
   // This is called by the superclass.

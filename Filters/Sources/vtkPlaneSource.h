@@ -123,7 +123,7 @@ public:
 
 protected:
   vtkPlaneSource();
-  ~vtkPlaneSource() {};
+  ~vtkPlaneSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

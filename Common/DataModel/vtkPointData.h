@@ -35,8 +35,8 @@ public:
   void NullPoint(vtkIdType ptId);
 
 protected:
-  vtkPointData() {};
-  ~vtkPointData() {};
+  vtkPointData() {}
+  ~vtkPointData() {}
 
 private:
   vtkPointData(const vtkPointData&);  // Not implemented.

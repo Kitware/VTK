@@ -247,11 +247,11 @@ protected:
 
   // Description:
   // Perform any subclass-specific Update.
-  virtual void InternalUpdate() {};
+  virtual void InternalUpdate() {}
 
   // Description:
   // Perform any subclass-specific DeepCopy.
-  virtual void InternalDeepCopy(vtkAbstractTransform *) {};
+  virtual void InternalDeepCopy(vtkAbstractTransform *) {}
 
   float InternalFloatPoint[3];
   double InternalDoublePoint[3];
@@ -291,7 +291,7 @@ private:
 class vtkTransformPair
 {
 public:
-  vtkTransformPair() {};
+  vtkTransformPair() {}
 
   vtkAbstractTransform *ForwardTransform;
   vtkAbstractTransform *InverseTransform;

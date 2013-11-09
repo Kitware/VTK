@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkImageMaskBits();
-  ~vtkImageMaskBits() {};
+  ~vtkImageMaskBits() {}
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);

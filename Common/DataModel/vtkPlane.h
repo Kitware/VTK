@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkPlane();
-  ~vtkPlane() {};
+  ~vtkPlane() {}
 
   double Normal[3];
   double Origin[3];

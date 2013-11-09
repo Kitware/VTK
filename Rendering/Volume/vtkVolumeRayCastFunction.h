@@ -155,8 +155,8 @@ public:
   virtual float GetZeroOpacityThreshold( vtkVolume *vol )=0;
 
 protected:
-  vtkVolumeRayCastFunction() {};
-  ~vtkVolumeRayCastFunction() {};
+  vtkVolumeRayCastFunction() {}
+  ~vtkVolumeRayCastFunction() {}
 
 //BTX
   // Description:

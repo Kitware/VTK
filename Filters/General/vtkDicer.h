@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkDicer();
-  ~vtkDicer() {};
+  ~vtkDicer() {}
 
   virtual void UpdatePieceMeasures(vtkDataSet *input);
 

@@ -52,8 +52,8 @@ public:
 
 
 protected:
-  vtkUnstructuredGridVolumeRayCastFunction() {};
-  ~vtkUnstructuredGridVolumeRayCastFunction() {};
+  vtkUnstructuredGridVolumeRayCastFunction() {}
+  ~vtkUnstructuredGridVolumeRayCastFunction() {}
 
 private:
   vtkUnstructuredGridVolumeRayCastFunction(const vtkUnstructuredGridVolumeRayCastFunction&);  // Not implemented.

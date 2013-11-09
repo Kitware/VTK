@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkExtractPolyDataPiece();
-  ~vtkExtractPolyDataPiece() {};
+  ~vtkExtractPolyDataPiece() {}
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

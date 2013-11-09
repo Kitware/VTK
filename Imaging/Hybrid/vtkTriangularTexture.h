@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkTriangularTexture();
-  ~vtkTriangularTexture() {};
+  ~vtkTriangularTexture() {}
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
   virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo);

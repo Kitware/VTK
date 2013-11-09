@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkPointDataToCellData();
-  ~vtkPointDataToCellData() {};
+  ~vtkPointDataToCellData() {}
 
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,

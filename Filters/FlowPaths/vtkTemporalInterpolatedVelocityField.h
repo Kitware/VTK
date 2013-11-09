@@ -160,7 +160,7 @@ protected:
 private:
   // Hide this since we need multiple time steps and are using a different
   // function prototype
-  virtual void AddDataSet(vtkDataSet*) {};
+  virtual void AddDataSet(vtkDataSet*) {}
 
 private:
   vtkTemporalInterpolatedVelocityField(const vtkTemporalInterpolatedVelocityField&);  // Not implemented.

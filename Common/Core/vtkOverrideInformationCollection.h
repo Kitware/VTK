@@ -52,8 +52,8 @@ public:
   //ETX
 
 protected:
-  vtkOverrideInformationCollection() {};
-  ~vtkOverrideInformationCollection() {};
+  vtkOverrideInformationCollection() {}
+  ~vtkOverrideInformationCollection() {}
 
 
 private:

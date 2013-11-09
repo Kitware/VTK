@@ -128,7 +128,7 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
 
  protected:
   vtkQuadRotationalExtrusionFilter();
-  ~vtkQuadRotationalExtrusionFilter() {};
+  ~vtkQuadRotationalExtrusionFilter() {}
 
   int FillInputPortInformation( int , vtkInformation* );
   int RequestData( vtkInformation*,

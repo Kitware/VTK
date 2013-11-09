@@ -34,8 +34,8 @@ public:
   vtkTypeMacro(vtkImageMapToRGBA,vtkImageMapToColors);
 
 protected:
-  vtkImageMapToRGBA() {};
-  ~vtkImageMapToRGBA() {};
+  vtkImageMapToRGBA() {}
+  ~vtkImageMapToRGBA() {}
 private:
   vtkImageMapToRGBA(const vtkImageMapToRGBA&);  // Not implemented.
   void operator=(const vtkImageMapToRGBA&);  // Not implemented.

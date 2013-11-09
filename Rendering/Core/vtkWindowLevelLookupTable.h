@@ -90,7 +90,7 @@ public:
 
 protected:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
-  ~vtkWindowLevelLookupTable() {};
+  ~vtkWindowLevelLookupTable() {}
 
   double Window;
   double Level;

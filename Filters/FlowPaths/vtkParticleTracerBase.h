@@ -329,7 +329,7 @@ public:
   // Description : Perform a GatherV operation on a vector of particles
   // this is used during classification of seed points and also between iterations
   // of the main loop as particles leave each processor domain
-  virtual void UpdateParticleListFromOtherProcesses(){};
+  virtual void UpdateParticleListFromOtherProcesses(){}
 
   // Description : The main loop performing Runge-Kutta integration of a single
   // particle between the two times supplied.
@@ -400,7 +400,7 @@ public:
 private:
   // Description:
   // Hide this because we require a new interpolator type
-  void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {};
+  void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {}
 
   // Description : When particle leave the domain, they must be collected
   // and sent to the other processors for possible continuation.

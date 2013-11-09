@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkDiskSource();
-  ~vtkDiskSource() {};
+  ~vtkDiskSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double InnerRadius;

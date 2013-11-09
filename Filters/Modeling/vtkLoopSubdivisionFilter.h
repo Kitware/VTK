@@ -60,8 +60,8 @@ public:
   vtkTypeMacro(vtkLoopSubdivisionFilter,vtkApproximatingSubdivisionFilter);
 
 protected:
-  vtkLoopSubdivisionFilter () {};
-  ~vtkLoopSubdivisionFilter () {};
+  vtkLoopSubdivisionFilter () {}
+  ~vtkLoopSubdivisionFilter () {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

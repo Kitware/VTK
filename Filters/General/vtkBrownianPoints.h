@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkBrownianPoints();
-  ~vtkBrownianPoints() {};
+  ~vtkBrownianPoints() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double MinimumSpeed;

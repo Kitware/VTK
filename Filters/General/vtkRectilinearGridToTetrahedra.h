@@ -104,7 +104,7 @@ public:
 
 protected:
   vtkRectilinearGridToTetrahedra();
-  ~vtkRectilinearGridToTetrahedra() {};
+  ~vtkRectilinearGridToTetrahedra() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

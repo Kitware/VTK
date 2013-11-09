@@ -63,8 +63,8 @@ public:
   vtkGraph* GetInput(int port);
 
 protected:
-  vtkDIMACSGraphWriter() {};
-  ~vtkDIMACSGraphWriter() {};
+  vtkDIMACSGraphWriter() {}
+  ~vtkDIMACSGraphWriter() {}
 
   void WriteData();
 

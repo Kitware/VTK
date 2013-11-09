@@ -38,7 +38,7 @@ public:
 
 protected:
   vtkImageDotProduct();
-  ~vtkImageDotProduct() {};
+  ~vtkImageDotProduct() {}
 
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,

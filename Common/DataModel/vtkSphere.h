@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkSphere();
-  ~vtkSphere() {};
+  ~vtkSphere() {}
 
   double Radius;
   double Center[3];

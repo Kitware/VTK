@@ -43,7 +43,7 @@ public:
 
 protected:
   vtkPCellDataToPointData();
-  ~vtkPCellDataToPointData() {};
+  ~vtkPCellDataToPointData() {}
 
   // Usual data generation method
   virtual int RequestData(vtkInformation* request,

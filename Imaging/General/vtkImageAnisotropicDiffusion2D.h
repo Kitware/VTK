@@ -94,7 +94,7 @@ public:
 
 protected:
   vtkImageAnisotropicDiffusion2D();
-  ~vtkImageAnisotropicDiffusion2D() {};
+  ~vtkImageAnisotropicDiffusion2D() {}
 
   int NumberOfIterations;
   double DiffusionThreshold;

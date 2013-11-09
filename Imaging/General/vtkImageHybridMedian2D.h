@@ -38,7 +38,7 @@ public:
 
 protected:
   vtkImageHybridMedian2D();
-  ~vtkImageHybridMedian2D() {};
+  ~vtkImageHybridMedian2D() {}
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,

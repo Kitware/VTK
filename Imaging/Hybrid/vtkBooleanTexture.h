@@ -114,7 +114,7 @@ public:
 
 protected:
   vtkBooleanTexture();
-  ~vtkBooleanTexture() {};
+  ~vtkBooleanTexture() {}
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
   virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo);

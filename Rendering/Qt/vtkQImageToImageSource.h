@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkQImageToImageSource();
-  ~vtkQImageToImageSource() {};
+  ~vtkQImageToImageSource() {}
 
   const QImage* QtImage;
   int DataExtent[6];

@@ -78,7 +78,7 @@ public:
 
 protected:
   vtkTextureMapToSphere();
-  ~vtkTextureMapToSphere() {};
+  ~vtkTextureMapToSphere() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

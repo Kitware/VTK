@@ -40,8 +40,8 @@ public:
   vtkGraph* GetInput(int port);
 
 protected:
-  vtkGraphWriter() {};
-  ~vtkGraphWriter() {};
+  vtkGraphWriter() {}
+  ~vtkGraphWriter() {}
 
   void WriteData();
 

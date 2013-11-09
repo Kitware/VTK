@@ -34,7 +34,7 @@ public:
 
 protected:
   vtkStructuredPointsGeometryFilter();
-  ~vtkStructuredPointsGeometryFilter() {};
+  ~vtkStructuredPointsGeometryFilter() {}
 
 private:
   vtkStructuredPointsGeometryFilter(const vtkStructuredPointsGeometryFilter&); // Not implemented

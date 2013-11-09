@@ -129,10 +129,10 @@ protected:
 
   virtual int ImportBegin ();
   virtual void ImportEnd ();
-  virtual void ImportActors (vtkRenderer *) {};
-  virtual void ImportCameras (vtkRenderer *) {};
-  virtual void ImportLights (vtkRenderer *) {};
-  virtual void ImportProperties (vtkRenderer *) {};
+  virtual void ImportActors (vtkRenderer *) {}
+  virtual void ImportCameras (vtkRenderer *) {}
+  virtual void ImportLights (vtkRenderer *) {}
+  virtual void ImportProperties (vtkRenderer *) {}
 
   int OpenImportFile();
   char *FileName;
