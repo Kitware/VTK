@@ -40,7 +40,7 @@
 #include "vtkInteractorEventRecorder.h"
 #include "vtkTestUtilities.h"
 
-char TerrainPolylineEditorLog[] =
+const char TerrainPolylineEditorLog[] =
 "# StreamVersion 1\n"
 "EnterEvent 522 259 0 0 0 0 0 i\n"
 "MouseMoveEvent 446 277 0 0 0 0 0 i\n"

@@ -33,7 +33,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-char eventLog2[] =
+const char eventLog2[] =
   "# StreamVersion 1\n"
   "CharEvent 108 202 0 0 105 1 i\n"
   "KeyReleaseEvent 108 202 0 0 105 1 i\n"

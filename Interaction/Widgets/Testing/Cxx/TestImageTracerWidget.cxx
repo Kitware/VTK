@@ -42,7 +42,7 @@
 
 #include "vtkTestUtilities.h"
 
-char ImageTracerWidgetEventLog[] =
+const char ImageTracerWidgetEventLog[] =
   "# StreamVersion 1\n"
   "MouseMoveEvent 322 145 0 0 0 0  b\n"
   "LeftButtonPressEvent 322 145 0 0 0 0  b\n"
