@@ -170,7 +170,7 @@ class vtkMPASReader::Internal {
 // Function to check if there is a NetCDF variable by that name
 //-----------------------------------------------------------------------------
 
-bool isNcVar(NcFile *ncFile, NcToken name)
+static bool isNcVar(NcFile *ncFile, NcToken name)
 {
   int num_vars = ncFile->num_vars();
   for (int i = 0; i < num_vars; i++)
@@ -190,7 +190,7 @@ bool isNcVar(NcFile *ncFile, NcToken name)
 // Check if there is a NetCDF dimension by that name
 //----------------------------------------------------------------------------
 
-bool isNcDim(NcFile *ncFile, NcToken name)
+static bool isNcDim(NcFile *ncFile, NcToken name)
 {
   int num_dims = ncFile->num_dims();
   //cerr << "looking for: " << name << endl;
@@ -213,7 +213,7 @@ bool isNcDim(NcFile *ncFile, NcToken name)
 //  computing points in different layers of multilayer spherical view
 //----------------------------------------------------------------------------
 
-int CartesianToSpherical(double x, double y, double z, double* rho,
+static int CartesianToSpherical(double x, double y, double z, double* rho,
     double* phi, double* theta)
 {
   double trho, ttheta, tphi;
@@ -238,7 +238,7 @@ int CartesianToSpherical(double x, double y, double z, double* rho,
 //  computing points in different layers of multilayer spherical view
 //----------------------------------------------------------------------------
 
-int SphericalToCartesian(double rho, double phi, double theta, double* x,
+static int SphericalToCartesian(double rho, double phi, double theta, double* x,
     double* y, double* z)
 {
   double tx, ty, tz;

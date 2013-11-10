@@ -28,7 +28,7 @@
 /**
  * Return file name of a full filename (i.e. file name without path).
  */
-std::string GetFilenameName(const std::string& filename)
+static std::string GetFilenameName(const std::string& filename)
 {
 #if defined(_WIN32)
   std::string::size_type slash_pos = filename.find_last_of("/\\");
@@ -49,7 +49,7 @@ std::string GetFilenameName(const std::string& filename)
  * Return file name without extension of a full filename (i.e. without path).
  * Warning: it considers the longest extension (for example: .tar.gz)
  */
-std::string GetFilenameWithoutExtension(const std::string& filename)
+static std::string GetFilenameWithoutExtension(const std::string& filename)
 {
   std::string name = GetFilenameName(filename);
   std::string::size_type dot_pos = name.find(".");
@@ -69,7 +69,7 @@ std::string GetFilenameWithoutExtension(const std::string& filename)
  * Warning: it considers the last extension (for example: removes .gz
  * from .tar.gz)
  */
-std::string GetFilenameWithoutLastExtension(const std::string& filename)
+static std::string GetFilenameWithoutLastExtension(const std::string& filename)
 {
   std::string name = GetFilenameName(filename);
   std::string::size_type dot_pos = name.rfind(".");
