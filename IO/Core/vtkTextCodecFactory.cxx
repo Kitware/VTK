@@ -176,17 +176,17 @@ vtkTextCodec* vtkTextCodecFactory::CodecToHandle(istream& SampleData)
   return NULL;
 }
 
-vtkTextCodec* vtkASCIITextCodecFromCallback()
+static vtkTextCodec* vtkASCIITextCodecFromCallback()
 {
    return vtkASCIITextCodec::New();
 }
 
-vtkTextCodec* vtkUTF8TextCodecFromCallback()
+static vtkTextCodec* vtkUTF8TextCodecFromCallback()
 {
    return vtkUTF8TextCodec::New();
 }
 
-vtkTextCodec* vtkUTF16TextCodecFromCallback()
+static vtkTextCodec* vtkUTF16TextCodecFromCallback()
 {
    return vtkUTF16TextCodec::New();
 }

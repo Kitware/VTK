@@ -33,9 +33,10 @@ int vtkImageRFFT::IterativeRequestInformation(
   return 1;
 }
 
-void vtkImageRFFTInternalRequestUpdateExtent(int *inExt, int *outExt,
-                                             int *wExt,
-                                             int iteration)
+static void vtkImageRFFTInternalRequestUpdateExtent(int *inExt,
+                                                    const int *outExt,
+                                                    const int *wExt,
+                                                    int iteration)
 {
   memcpy(inExt, outExt, 6 * sizeof(int));
   inExt[iteration*2] = wExt[iteration*2];

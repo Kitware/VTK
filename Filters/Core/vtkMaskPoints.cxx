@@ -70,13 +70,13 @@ inline void SwapPoint(vtkPoints* points,
 // this is average case linear, worse case quadratic implementation
 // (i.e., just like quicksort) -- there is the median of 5 or
 // median of medians algorithm, but I'm too lazy to implement it
-void QuickSelect(vtkPoints* points,
-                 vtkPointData* data,
-                 vtkPointData* temp,
-                 vtkIdType start,
-                 vtkIdType end,
-                 vtkIdType nth,
-                 int axis)
+static void QuickSelect(vtkPoints* points,
+                        vtkPointData* data,
+                        vtkPointData* temp,
+                        vtkIdType start,
+                        vtkIdType end,
+                        vtkIdType nth,
+                        int axis)
 {
   // base case
   if(end - start < 2)
@@ -126,10 +126,10 @@ void QuickSelect(vtkPoints* points,
 
 // divide the data into sampling strata and randomly sample it
 // (one sample per stratum)
-void SortAndSample(vtkPoints* points, vtkPointData* data,
-                   vtkPointData* temp,
-                   vtkIdType start, vtkIdType end,
-                   vtkIdType size, int depth)
+static void SortAndSample(vtkPoints* points, vtkPointData* data,
+                          vtkPointData* temp,
+                          vtkIdType start, vtkIdType end,
+                          vtkIdType size, int depth)
 {
   // if size >= end - start return them all
   if(size >= (end - start))

@@ -84,7 +84,7 @@ unsigned long vtkSynchronizedTemplates3D::GetMTime()
 
 
 //----------------------------------------------------------------------------
-void vtkSynchronizedTemplates3DInitializeOutput(
+static void vtkSynchronizedTemplates3DInitializeOutput(
   int *ext,vtkImageData *input,
   vtkPolyData *o, vtkFloatArray *scalars, vtkFloatArray *normals,
   vtkFloatArray *gradients, vtkDataArray *inScalars)

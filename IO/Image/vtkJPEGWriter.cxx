@@ -138,7 +138,7 @@ void vtkJPEGWriter::Write()
 // these three routines are for writing into memory
 extern "C"
 {
-  void vtkJPEGWriteToMemoryInit(j_compress_ptr cinfo)
+  static void vtkJPEGWriteToMemoryInit(j_compress_ptr cinfo)
   {
     vtkJPEGWriter *self = vtkJPEGWriter::SafeDownCast(
       static_cast<vtkObject *>(cinfo->client_data));
@@ -161,7 +161,7 @@ extern "C"
 
 extern "C"
 {
-  boolean vtkJPEGWriteToMemoryEmpty(j_compress_ptr cinfo)
+  static boolean vtkJPEGWriteToMemoryEmpty(j_compress_ptr cinfo)
   {
     // Even if (cinfo->dest->free_in_buffer != 0) we still need to write on the
     // new array and not at (arraySize - nbFree)
@@ -184,7 +184,7 @@ extern "C"
 
 extern "C"
 {
-  void vtkJPEGWriteToMemoryTerm(j_compress_ptr cinfo)
+  static void vtkJPEGWriteToMemoryTerm(j_compress_ptr cinfo)
   {
     vtkJPEGWriter *self = vtkJPEGWriter::SafeDownCast(
       static_cast<vtkObject *>(cinfo->client_data));

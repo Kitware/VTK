@@ -62,7 +62,7 @@ vtkSynchronizedTemplatesCutter3D::~vtkSynchronizedTemplatesCutter3D()
 }
 
 //----------------------------------------------------------------------------
-void vtkSynchronizedTemplatesCutter3DInitializeOutput(
+static void vtkSynchronizedTemplatesCutter3DInitializeOutput(
   int *ext, int precision, vtkImageData *input, vtkPolyData *o)
 {
   vtkPoints *newPts;

@@ -143,7 +143,7 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
 
 
 extern "C" {
-int vtkCompareClipValues(const void *val1, const void *val2)
+static int vtkCompareClipValues(const void *val1, const void *val2)
 {
   if ( *((double*)val1) < *((double*)val2) )
     {

@@ -45,8 +45,8 @@ namespace vtkChartSelectionHelper
 // Description:
 // Populate the annotation link with the supplied selectionIds array, and set
 // the appropriate node properties for a standard row based chart selection.
-void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds,
-                   vtkPlot *plot)
+static void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds,
+                          vtkPlot *plot)
 {
   assert(link != NULL && selectionIds != NULL);
 
@@ -92,7 +92,7 @@ void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds,
 
 // Description:
 // Subtract the supplied selection from the oldSelection.
-void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
+static void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 {
   // We rely on the selection id arrays being sorted.
   std::vector<vtkIdType> output;
@@ -136,7 +136,7 @@ void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 
 // Description:
 // Add the supplied selection from the oldSelection.
-void AddSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
+static void AddSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 {
   // Add all unique array indices to create a new combined array.
   vtkIdType *ptrSelection =
@@ -163,7 +163,7 @@ void AddSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 
 // Description:
 // Toggle the supplied selection from the oldSelection.
-void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
+static void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 {
   // We rely on the selection id arrays being sorted.
   std::vector<vtkIdType> output;
@@ -212,9 +212,9 @@ void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 // Build a selection based on the supplied selectionMode using the new
 // plotSelection and combining it with the oldSelection. If link is not NULL
 // then the resulting selection will be set on the link.
-void BuildSelection(vtkAnnotationLink *link, int selectionMode,
-                    vtkIdTypeArray *plotSelection, vtkIdTypeArray *oldSelection,
-                    vtkPlot *plot)
+static void BuildSelection(vtkAnnotationLink *link, int selectionMode,
+                           vtkIdTypeArray *plotSelection, vtkIdTypeArray *oldSelection,
+                           vtkPlot *plot)
 {
   if (!plotSelection || !oldSelection)
     {
@@ -248,7 +248,7 @@ void BuildSelection(vtkAnnotationLink *link, int selectionMode,
 // Description:
 // Combine the SelectionMode with any mouse modifiers to get an effective
 // selection mode for this click event.
-int GetMouseSelectionMode(const vtkContextMouseEvent &mouse, int selectionMode)
+static int GetMouseSelectionMode(const vtkContextMouseEvent &mouse, int selectionMode)
 {
   // Mouse modifiers override the current selection mode.
   if (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER &&

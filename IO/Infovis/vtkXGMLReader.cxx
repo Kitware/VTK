@@ -100,7 +100,7 @@ struct vtkXGMLReaderToken
 
 
 
-void vtkXGMLReaderNextToken(vtksys_ios::istream& in, vtkXGMLReaderToken& tok)
+static void vtkXGMLReaderNextToken(vtksys_ios::istream& in, vtkXGMLReaderToken& tok)
 {
   char ch = in.peek();
   while (!in.eof() && (ch == ';' || isspace(ch)))

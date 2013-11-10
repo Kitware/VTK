@@ -725,13 +725,13 @@ void vtkThinPlateSplineTransform::InternalDeepCopy(
 
 //------------------------------------------------------------------------
 // a very basic radial basis function
-double vtkRBFr(double r)
+static double vtkRBFr(double r)
 {
   return r;
 }
 
 // calculate both phi(r) its derivative wrt r
-double vtkRBFDRr(double r, double &dUdr)
+static double vtkRBFDRr(double r, double &dUdr)
 {
   dUdr = 1;
   return r;
@@ -739,7 +739,7 @@ double vtkRBFDRr(double r, double &dUdr)
 
 //------------------------------------------------------------------------
 // the standard 2D thin plate spline basis function
-double vtkRBFr2logr(double r)
+static double vtkRBFr2logr(double r)
 {
   if (r)
     {
@@ -752,7 +752,7 @@ double vtkRBFr2logr(double r)
 }
 
 // calculate both phi(r) its derivative wrt r
-double vtkRBFDRr2logr(double r, double &dUdr)
+static double vtkRBFDRr2logr(double r, double &dUdr)
 {
   if (r)
     {
