@@ -1657,11 +1657,11 @@ double vtkCellLocator::Distance2ToBounds(double x[3], double bounds[6])
   return distance;
 }
 //----------------------------------------------------------------------------
-bool vtkCellLocator_Inside(double bounds[6], double point[3]) {
+static bool vtkCellLocator_Inside(const double bounds[6], const double point[3]) {
   if (point[0]<bounds[0] || point[0]>bounds[1] ||
       point[1]<bounds[2] || point[1]>bounds[3] ||
-      point[2]<bounds[4] || point[2]>bounds[5]) return 0;
-  return 1;
+      point[2]<bounds[4] || point[2]>bounds[5]) return false;
+  return true;
 }
 //----------------------------------------------------------------------------
 vtkIdType vtkCellLocator::FindCell(
