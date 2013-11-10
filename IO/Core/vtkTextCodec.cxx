@@ -61,7 +61,6 @@ namespace
     ~vtkUnicodeStringOutputIterator();
 
   private:
-    vtkUnicodeStringOutputIterator(); // Not implemented
     vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&); // Not implemented
     const vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&); // Not Implemented
 
