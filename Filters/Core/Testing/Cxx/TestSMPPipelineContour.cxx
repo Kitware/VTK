@@ -30,7 +30,7 @@
 const int EXTENT = 100;
 int WholeExtent[] = {-EXTENT, EXTENT, -EXTENT, EXTENT, -EXTENT, EXTENT};
 const int NUMBER_OF_PIECES = 50;
-vtkImageData* Pieces[NUMBER_OF_PIECES];
+static vtkImageData* Pieces[NUMBER_OF_PIECES];
 
 class vtkCreateImageData
 {

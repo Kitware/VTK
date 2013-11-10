@@ -897,8 +897,8 @@ while (0)
 
 #ifndef YYPURE
 
-int     yychar;                 /*  the lookahead symbol                */
-YYSTYPE yylval;                 /*  the semantic value of the           */
+static int     yychar;          /*  the lookahead symbol                */
+static YYSTYPE yylval;          /*  the semantic value of the           */
                                 /*  lookahead symbol                    */
 
 #ifdef YYLSP_NEEDED
@@ -906,11 +906,11 @@ YYLTYPE yylloc;                 /*  location data for the lookahead     */
                                 /*  symbol                              */
 #endif
 
-int yynerrs;                    /*  number of parse errors so far       */
+static int yynerrs;             /*  number of parse errors so far       */
 #endif  /* not YYPURE */
 
 #if YYDEBUG != 0
-int yydebug;                    /*  nonzero means print parse trace     */
+static int yydebug;             /*  nonzero means print parse trace     */
 /* Since this is uninitialized, it does not stop multiple parsers
    from coexisting.  */
 #endif
@@ -4039,7 +4039,7 @@ char *yytext;
 #include <string.h>
 
 // used to reset the lexer input after initialization of VRML nodes
-void (*theyyInput)(char *, int &, int);
+static void (*theyyInput)(char *, int &, int);
 
 // We define the YY_INPUT so we an change the input source later
 #define YY_INPUT(buf, result, max_size) (*theyyInput)(buf, result, max_size);
