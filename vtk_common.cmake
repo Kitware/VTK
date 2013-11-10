@@ -25,11 +25,11 @@
 # to configure it:
 #
 #   dashboard_model           = Nightly | Experimental | Continuous
+#   dashboard_branch_type     = master (default) | release (== 6.0) | 5.10
 #   dashboard_disable_loop    = For continuous dashboards, disable loop.
 #   dashboard_root_name       = Change name of "My Tests" directory
 #   dashboard_source_name     = Name of source directory (VTK)
 #   dashboard_binary_name     = Name of binary directory (VTK-build)
-#   dashboard_store_name      = Name of ExternalData store (ExternalData)
 #   dashboard_cache           = Initial CMakeCache.txt file content
 #   dashboard_cvs_tag         = CVS tag to checkout (ex: VTK-5-6)
 #   dashboard_do_coverage     = True to enable coverage (ex: gcov)
@@ -41,7 +41,18 @@
 #   CTEST_TEST_TIMEOUT        = Per-test timeout length
 #   CTEST_TEST_ARGS           = ctest_test args (ex: PARALLEL_LEVEL 4)
 #   CMAKE_MAKE_PROGRAM        = Path to "make" tool to use
+#
+# These variables may also be set dependent on dashboard_branch setting
+# Applicable when dashboard_branch == master
+#   dashboard_store_name      = Name of ExternalData store (ExternalData)
 #   VTK_USE_LARGE_DATA        = True to enable tests using "large" data
+# Applicable when dashboard_branch == 6.0 | 5.10
+#   dashboard_data_name       = Name of data directory (VTKData)
+#   dashboard_large_data_name = Name of data directory (VTKLargeData)
+#   VTK_DATA_ROOT             = Where to put data tree
+#   VTK_LARGE_DATA_ROOT       = Where to put large data tree
+#   NO_DATA                   = Don't insist on checking out data trees
+
 #
 # Options to configure builds from experimental git repository:
 #   dashboard_git_url      = Custom git clone url
@@ -95,6 +106,35 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 set(CTEST_PROJECT_NAME VTK)
 set(dashboard_user_home "$ENV{HOME}")
 
+# prepare to do things appropriately for the chosen VTK branch
+if (NOT DEFINED dashboard_branch_type)
+  set(dashboard_branch_type "master")
+endif()
+if (dashboard_branch_type STREQUAL "master")
+  set(branch_needs_data_repo FALSE)
+  if(NOT DEFINED dashboard_git_branch)
+    if("${dashboard_model}" STREQUAL "Nightly")
+      set(dashboard_git_branch nightly-master )
+    else()
+      set(dashboard_git_branch master)
+    endif()
+  endif()
+endif()
+if (dashboard_branch_type STREQUAL "release" OR dashboard_branch_type STREQUAL "6.0")
+  set(branch_needs_data_repo TRUE)
+  set (dashboard_branch_type "release")
+  if(NOT DEFINED dashboard_git_branch)
+    set (dashboard_git_branch "release")
+  endif()
+endif()
+if (dashboard_branch_type STREQUAL "5.10")
+  set(branch_needs_data_repo TRUE)
+  set (dashboard_branch_type "release-5.10")
+  if(NOT DEFINED dashboard_git_branch)
+    set (dashboard_git_branch "release-5.10")
+  endif()
+endif()
+
 # Select the top dashboard directory.
 if(NOT DEFINED dashboard_root_name)
   set(dashboard_root_name "My Tests")
@@ -142,13 +182,18 @@ if(NOT DEFINED dashboard_git_url)
   set(dashboard_git_url "git://vtk.org/VTK.git")
 endif()
 
-if(NOT DEFINED dashboard_git_branch)
-  if("${dashboard_model}" STREQUAL "Nightly")
-    set(dashboard_git_branch nightly-master )
-  else()
-    set(dashboard_git_branch master)
+if (branch_needs_data_repo)
+  # Select Git source to use.
+  if(NOT DEFINED dashboard_git_data_url)
+    set(dashboard_git_data_url "git://vtk.org/VTKData.git")
+  endif()
+
+  # Select Git source to use.
+  if(NOT DEFINED dashboard_git_large_data_url)
+    set(dashboard_git_large_data_url "git://vtk.org/VTKLargeData.git")
   endif()
 endif()
+
 if(NOT DEFINED dashboard_git_crlf)
   if(UNIX)
     set(dashboard_git_crlf false)
@@ -184,18 +229,70 @@ if(NOT DEFINED CTEST_BINARY_DIRECTORY)
   endif()
 endif()
 
-# Select a data store.
-if(NOT DEFINED ExternalData_OBJECT_STORES)
-  if(DEFINED dashboard_store_name)
-    set(ExternalData_OBJECT_STORES ${CTEST_DASHBOARD_ROOT}/${dashboard_store_name})
-  else()
-    set(ExternalData_OBJECT_STORES ${CTEST_DASHBOARD_ROOT}/ExternalData)
+# Select a regression test data location
+if (NOT branch_needs_data_repo)
+  # Select a data store.
+  if(NOT DEFINED ExternalData_OBJECT_STORES)
+    if(DEFINED dashboard_store_name)
+      set(ExternalData_OBJECT_STORES ${CTEST_DASHBOARD_ROOT}/${dashboard_store_name})
+    else()
+      set(ExternalData_OBJECT_STORES ${CTEST_DASHBOARD_ROOT}/ExternalData)
+    endif()
   endif()
-endif()
 
-if(NOT DEFINED VTK_USE_LARGE_DATA)
-  set(VTK_USE_LARGE_DATA ON)
-endif()
+  if(NOT DEFINED VTK_USE_LARGE_DATA)
+    set(VTK_USE_LARGE_DATA ON)
+  endif()
+
+else (NOT branch_needs_data_repo)
+  # find/checkout data repositories
+  if (DEFINED NO_DATA)
+
+    set(VTK_DATA_ROOT "VTK_DATA_ROOT-NOTFOUND")
+    set(VTK_LARGE_DATA_ROOT "VTK_DATA_ROOT-NOTFOUND")
+
+  else(DEFINED NO_DATA)
+
+    # VTK data
+    if(NOT DEFINED VTK_DATA_ROOT)
+      if(DEFINED dashboard_data_name)
+        set(VTK_DATA_ROOT ${CTEST_DASHBOARD_ROOT}/${dashboard_data_name})
+      else()
+        set(VTK_DATA_ROOT ${CTEST_SOURCE_DIRECTORY}Data)
+      endif()
+    endif()
+    # Do initial checkout if doesn't exist yet
+    if(DEFINED VTK_DATA_ROOT AND NOT EXISTS "${VTK_DATA_ROOT}")
+      get_filename_component(_name "${VTK_DATA_ROOT}" NAME)
+      execute_process(
+        COMMAND "${CTEST_GIT_COMMAND}" clone "${dashboard_git_data_url}" "${VTK_DATA_ROOT}")
+      execute_process(
+        COMMAND "${CTEST_GIT_COMMAND}" checkout -b
+	"${dashboard_branch_type}" "origin/${dashboard_branch_type}"
+        WORKING_DIRECTORY "${VTK_DATA_ROOT}")
+    endif()
+
+    # Large Data
+    if(NOT DEFINED VTK_LARGE_DATA_ROOT AND NOT DEFINED NO_DATA)
+      if(DEFINED dashboard_data_name)
+        set(VTK_LARGE_DATA_ROOT ${CTEST_DASHBOARD_ROOT}/${dashboard_large_data_name})
+      else()
+        set(VTK_LARGE_DATA_ROOT ${CTEST_SOURCE_DIRECTORY}LargeData)
+      endif()
+    endif()
+    # Do initial checkout if doesn't exist yet
+    if(DEFINED VTK_LARGE_DATA_ROOT AND NOT EXISTS "${VTK_LARGE_DATA_ROOT}")
+      get_filename_component(_name "${VTK_LARGE_DATA_ROOT}" NAME)
+      execute_process(
+        COMMAND "${CTEST_GIT_COMMAND}" clone "${dashboard_git_large_data_url}" "${VTK_LARGE_DATA_ROOT}")
+      execute_process(
+        COMMAND "${CTEST_GIT_COMMAND}" checkout -b
+	"${dashboard_branch_type}" "origin/${dashboard_branch_type}"
+        WORKING_DIRECTORY "${VTK_LARGE_DATA_ROOT}")
+    endif()
+  endif(DEFINED NO_DATA)
+
+endif (NOT branch_needs_data_repo)
 
 # Delete source tree if it is incompatible with current VCS.
 if(EXISTS ${CTEST_SOURCE_DIRECTORY})
@@ -296,8 +393,13 @@ foreach(v
     CTEST_SCRIPT_DIRECTORY
     CTEST_USE_LAUNCHERS
     ExternalData_OBJECT_STORES
+    VTK_DATA_ROOT
+    VTK_LARGE_DATA_ROOT
+    NO_DATA
     )
-  set(vars "${vars}  ${v}=[${${v}}]\n")
+  if (DEFINED ${v})
+    set(vars "${vars}  ${v}=[${${v}}]\n")
+  endif()
 endforeach(v)
 message("Dashboard script configuration:\n${vars}\n")
 
@@ -308,6 +410,17 @@ set(ENV{LC_ALL} C)
 macro(write_cache)
   set(cache_build_type "")
   set(cache_make_program "")
+  if (NOT branch_needs_data_repo)
+    set(data_options"
+ExternalData_OBJECT_STORES:STRING=${ExternalData_OBJECT_STORES}
+VTK_USE_LARGE_DATA:BOOL=${VTK_USE_LARGE_DATA}
+")
+  else()
+    set(data_options"
+VTK_DATA_ROOT:PATH=${VTK_DATA_ROOT}
+VTK_LARGE_DATA_ROOT:PATH=${VTK_LARGE_DATA_ROOT}
+")
+  endif()
   if(CTEST_CMAKE_GENERATOR MATCHES "Make")
     set(cache_build_type CMAKE_BUILD_TYPE:STRING=${CTEST_CONFIGURATION_TYPE})
     if(CMAKE_MAKE_PROGRAM)
@@ -319,8 +432,7 @@ SITE:STRING=${CTEST_SITE}
 BUILDNAME:STRING=${CTEST_BUILD_NAME}
 CTEST_USE_LAUNCHERS:BOOL=${CTEST_USE_LAUNCHERS}
 DART_TESTING_TIMEOUT:STRING=${CTEST_TEST_TIMEOUT}
-ExternalData_OBJECT_STORES:STRING=${ExternalData_OBJECT_STORES}
-VTK_USE_LARGE_DATA:BOOL=${VTK_USE_LARGE_DATA}
+${data_options}
 ${cache_build_type}
 ${cache_make_program}
 ${dashboard_cache}
@@ -375,12 +487,23 @@ while(NOT dashboard_done)
   endif()
 
   # Look for updates.
+  if(branch_needs_data_repo AND NOT DEFINED NO_DATA)
+    if(DEFINED VTK_DATA_ROOT)
+      ctest_update(SOURCE "${VTK_DATA_ROOT}")
+    endif()
+    if(DEFINED VTK_LARGE_DATA_ROOT)
+      ctest_update(SOURCE "${VTK_LARGE_DATA_ROOT}")
+    endif()
+  endif()
+
   ctest_update(RETURN_VALUE count)
   set(CTEST_CHECKOUT_COMMAND) # checkout on first iteration only
   safe_message("Found ${count} changed files")
 
   if(dashboard_fresh OR NOT dashboard_continuous OR count GREATER 0)
+
     ctest_configure()
+
     ctest_submit(PARTS Update Configure Notes)
     ctest_read_custom_files(${CTEST_BINARY_DIRECTORY})
 
@@ -395,16 +518,18 @@ while(NOT dashboard_done)
     endif()
     ctest_test(${CTEST_TEST_ARGS} APPEND)
     ctest_submit(PARTS Test)
-    set(safe_message_skip 1) # Block furhter messages
+    set(safe_message_skip 1) # Block further messages
 
     if(dashboard_do_coverage)
       ctest_coverage()
       ctest_submit(PARTS Coverage)
     endif()
+
     if(dashboard_do_memcheck)
       ctest_memcheck(${CTEST_TEST_ARGS})
       ctest_submit(PARTS MemCheck)
     endif()
+
     if(COMMAND dashboard_hook_submit)
       dashboard_hook_submit()
     endif()
